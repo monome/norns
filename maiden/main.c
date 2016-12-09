@@ -9,7 +9,7 @@
 //----- monome led state
 unsigned int m_leds[16][16] = { [0 ... 15][0 ... 15] = 0 };
 // FIXME: make this private somewhere
-monome_t monome;
+monome_t *monome;
 
 //----- grid output
 
@@ -116,8 +116,8 @@ int main(const char argc, const char** argv) {
   printf("successfully opened device at %s \n\n", device);
   
   monome_led_all(monome, 0);
-  monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, lua_S);
-  monome_register_handler(monome, MONOME_BUTTON_UP, handle_lift, lua_S);
+  monome_register_handler(monome, MONOME_BUTTON_DOWN, m_handle_press, lua_S);
+  monome_register_handler(monome, MONOME_BUTTON_UP, m_handle_lift, lua_S);
 
   printf("starting event loop... \n\n");
   monome_event_loop(monome);
