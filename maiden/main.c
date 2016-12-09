@@ -7,7 +7,16 @@
 #include "lualib.h"
 
 //----- monome led state
-unsigned int leds[16][16] = { [0 ... 15][0 ... 15] = 0 };
+unsigned int m_leds[16][16] = { [0 ... 15][0 ... 15] = 0 };
+// FIXME: make this private somewhere
+monome_t monome;
+
+//----- grid output
+
+void m_set_led(int x, int y, int val) {
+  m_leds[x][y] = val;
+  monome_led_set(monome, x, y, m_leds[x][y]);
+}
 
 //----- lua glue
 /*
@@ -51,7 +60,22 @@ int l_handle_lift(lua_State* l, int x, int y) {
 		
 // set led from lua
 int l_set_led(lua_State* l) {
-  int n = lua_gettop(l); // num args
+  int res = 0;
+  int x, y, z;
+  if(lua_gettop(l) == 3) { // check num args
+	if(lua_isnumber(l, 1)) {
+	  x = lua_tonumber(l, 1);
+	  if(lua_isnumber(l, 2)) {
+		y = lua_tonumber(l, 2);
+		if(lua_isnumber(l, 3)) {
+		  z = lua_tonumber(l, 3);
+		  m_set_led(x, y, z);
+		}
+	  }
+	}
+  }
+  // FIXME(?) : silently ignoring incorrect args...
+  return 0;
 }
 
 void l_init(lua_State* l) {
@@ -61,22 +85,15 @@ void l_init(lua_State* l) {
   l_run_code(l, "dofile(\"init.lua\");");
 }
 
-//----- grid output
-
-void set_led(monome_t *m, int x, int y, int val) {
-  leds[x][y] = val;
-  monome_led_set(m, x, y, leds[x][y]);
-}
-
 //----- grid handlers
 
-void handle_press(const monome_event_t *e, void* p) {
+void m_handle_press(const monome_event_t *e, void* p) {
   //  set_led(e->monome, e->grid.x, e->grid.y, 1);
     lua_State *l = (lua_State*)p;
 	l_handle_press(l, e->grid.x, e->grid.y);
 }
  
-void handle_lift(const monome_event_t *e, void* p) {
+void m_handle_lift(const monome_event_t *e, void* p) {
   //  set_led(e->monome, e->grid.x, e->grid.y, 0);
   lua_State *l = (lua_State*)p;
   l_handle_lift(l, e->grid.x, e->grid.y);
@@ -86,7 +103,6 @@ void handle_lift(const monome_event_t *e, void* p) {
 
 int main(const char argc, const char** argv) {
   const char *device = "/dev/ttyUSB0";
-  monome_t *monome;
 
   lua_State * lua_S = luaL_newstate();
   luaL_openlibs(lua_S);
