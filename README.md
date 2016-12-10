@@ -21,4 +21,10 @@ build and run:
 `make`
 `./maiden`
 
-this will open grid as serial device (currently hardcoded to `/dev/ttyUSB0`) and run lua. handlers are defined in `maiden/handle.lua`
+this will open grid as serial device (currently hardcoded to `/dev/ttyUSB0`) and run lua. 
+
+user code handlers are defined in `maiden/handle.lua`
+
+`maiden/init.lua` is executed on launch - extend it to define vars, tables, functions &c for use in handlers.
+
+
