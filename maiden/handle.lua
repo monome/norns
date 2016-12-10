@@ -7,7 +7,7 @@ end
 
 handle.lift = function(x, y)
    print ("lift " .. x .. " " .. y)
-      monome_set_led(x, y, 1);
+   monome_set_led(x, y, 0);
 end
 
 handle.connect = function()
