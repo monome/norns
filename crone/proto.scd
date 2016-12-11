@@ -7,9 +7,12 @@ Routine {
 			arg out=0, buf=0, start=0, end=9999, trig=0, rate=1.0,
 			amp, amp_lag=0.2, amp_lag_shape=0.0;
 			var phase, snd, aenv;
-			phase = Phasor.ar(trig, BufRateScale.kr(buf) * rate, start, end, start);
+			phase = Phasor.ar(InTrig.kr(trig), BufRateScale.kr(buf) * rate, 0, end, start);
 			snd =  BufRd.ar(1, buf, phase);
-			aenv = VarLag.ar(K2A.ar(amp), amp_lag, amp_lag_shape);
+			//aenv = VarLag.ar(K2A.ar(amp), amp_lag, amp_lag_shape);
+			// FIXME: varlag seems broken, use Env i guess
+			aenv = Lag.ar(K2A.ar(amp), amp_lag);
+
 			Out.ar(out, (snd * aenv).dup);
 		}).send(s);
 		s.sync;
@@ -30,14 +33,17 @@ Routine {
 		// fixme: using event as "pseudo-class" for now
 		// better to make a real class
 		~voice_factory = {
-			var buf, fade_voice;
+			var buf, fade_voice, trig_bus;
+			trig_bus = Array.fill(2, { Bus.control(s) });
 			fade_voice = (
 				buf: buf,
-				syn: Array.fill(2, {
+				trig:trig_bus,
+				syn: Array.fill(2, { |i|
 					Synth.new(\proto_play_fade, [
 						\buf, ~buf.bufnum,
 						\end, ~buf_frames,
-						\amp, 0.5
+						\amp, 0.0,
+						\trig, trig_bus[i].index
 					], ~play_g)
 				}),
 				target: 0,
@@ -59,13 +65,12 @@ Routine {
 			voice.pos = pos;
 			voice.t = SystemClock.seconds;
 			voice.syn[voice.target].set(\start, pos * ~buf.sampleRate);
-			voice.syn[voice.target].set(\trig, 0);
-			voice.syn[voice.target].set(\trig, 1);
+			voice.trig[voice.target].set(1);
 			voice.syn[voice.target].set(\amp, 1.0);
+			voice.syn[1 - voice.target].set(\amp, 0.0);
 			voice.target = 1 - voice.target;
-			postln("new target: " ++ voice.target);
+			postln("next target: " ++ voice.target);
 			postln("");
-			voice.syn[voice.target].set(\amp, 0.0);
 		};
 
 
@@ -73,12 +78,11 @@ Routine {
 		~voice_set_rate = { arg voice, rate;
 			postln("setting rate : " ++ rate );
 			// i dunno
-			voice.syn[voice.target].set(\start, (voice.pos + (SystemClock.seconds - voice.t)) * ~buf.sampleRate);
-			voice.syn[voice.target].set(\trig, 0);
-			voice.syn[voice.target].set(\trig, 1);
+			voice.syn[voice.target].set(\start, (
+				voice.pos + (SystemClock.seconds - voice.t)) * ~buf.sampleRate);
+			voice.trig[voice.target].set(1);
 			voice.syn[voice.target].set(\rate, rate);
 			voice.syn[voice.target].set(\amp, 1.0);
-			voice.target = 1 - voice.target;
 			voice.syn[voice.target].set(\amp, 0.0);
 		};
 
@@ -86,6 +90,8 @@ Routine {
 	}); // waitForBoot
 }.play;
 
+
+// quick test gui
 ~gui = { arg voice;
 
 	~getkey = { arg qt;
