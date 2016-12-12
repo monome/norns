@@ -19,14 +19,8 @@ void m_set_led(int x, int y, int val) {
 }
 
 //----- lua glue
-/*
-  FIXME: 
-  should not compile on the fly for every function call...
-  API allows us to push c functions or lua globals directly to stack
-  this is just the quickest / least verbose proof of concept
-  */
 
-// run an arbitrary chunk of lua
+// compile and run an arbitrary chunk of lua code
 int l_run_code(lua_State* l, const char* code) {
   int err = luaL_loadstring(l, code); // compile code, push to stack
   err |= lua_pcall(l, 0, 0, 0); // pop stack and evaluate
@@ -36,26 +30,25 @@ int l_run_code(lua_State* l, const char* code) {
   return err;
 }
 
-#define CODE_BUF_LEN 1024
-static char code_buf[CODE_BUF_LEN];
-
 // call lua functions assigned to handler table in user code
 int l_handle_press(lua_State* l, int x, int y) {
-  snprintf(code_buf, CODE_BUF_LEN, "handle.press(%d, %d);", x, y);
-  l_run_code(l, code_buf);
-  /* fixme: should be something like this
-	 lua_getglobal(l, "handle");  // push table to stack
-	 lua_getField(l, -1, "press"); // push handle.press to stack
-	 lua_remove(l, -2); // remove the table
-	 lua_pushinteger(l, x); // push args
-	 lua_pushinteger(l, y);
-	 lua_call(l, 2, 0); // call with 2 args
-  */
+  lua_getglobal(l, "handle");  // push table to stack
+  lua_getfield(l, -1, "press"); // push handle.press to stack
+  lua_remove(l, -2); // remove the table
+  lua_pushinteger(l, x); // push args
+  lua_pushinteger(l, y);
+  lua_call(l, 2, 0); // call with 2 args
+  
 }
 
 int l_handle_lift(lua_State* l, int x, int y) {
-  snprintf(code_buf, CODE_BUF_LEN, "handle.lift(%d, %d);", x, y);
-  l_run_code(l, code_buf);
+  lua_getglobal(l, "handle");  // push table to stack
+  lua_getfield(l, -1, "lift"); // push handle.press to stack
+  lua_remove(l, -2); // remove the table
+  lua_pushinteger(l, x); // push args
+  lua_pushinteger(l, y);
+  lua_call(l, 2, 0); // call with 2 args
+
 }
 		
 // set led from lua
