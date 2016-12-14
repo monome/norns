@@ -17,11 +17,6 @@ Routine {
 		}).send(s);
 		s.sync;
 
-//		~buf_dur = 16.0;
-//		~buf_frames = ~buf_dur * s.sampleRate;
-//		~buf = Buffer.alloc(s, ~buf_frames, 1);
-// 		~buf.read("hurt.wav", ~buf_frames);
-
 		~buf = Buffer.read(s, Document.current.path.dirname ++ "/hurt.wav");
 		s.sync;
 		~buf_frames = ~buf.numFrames;
@@ -59,9 +54,6 @@ Routine {
 
 		// set position and switch fades.
 		~voice_set_pos = { arg voice, pos;
-			//(voice.synth).postln;
-			postln("setting pos : " ++ pos );
-			postln("target: " ++ voice.target);
 			voice.pos = pos;
 			voice.t = SystemClock.seconds;
 			voice.syn[voice.target].set(\start, pos * ~buf.sampleRate);
@@ -69,8 +61,6 @@ Routine {
 			voice.syn[voice.target].set(\amp, 1.0);
 			voice.syn[1 - voice.target].set(\amp, 0.0);
 			voice.target = 1 - voice.target;
-			postln("next target: " ++ voice.target);
-			postln("");
 		};
 
 

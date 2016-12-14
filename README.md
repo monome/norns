@@ -8,6 +8,9 @@ supercollider
 
 `pacman -S supercollider`
 
+liblo
+
+`pacman -S liblo`
 
 libmonome
 
