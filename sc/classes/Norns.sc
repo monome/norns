@@ -13,7 +13,7 @@ NornsApp {
 
 	init { arg server_, grid_;
 		handlers = Dictionary.new;
-		timer
+		timers = Dictionary.new;
 		server = server_;
 		grid = grid_;
 		// glue serial grid to handler
