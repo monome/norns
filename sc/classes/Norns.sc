@@ -19,7 +19,7 @@ NornsApp {
 		// glue serial grid to handler
 		grid.keyDown = { arg x, y; handlers[\grid_key].value(x, y, 1); };
 		grid.keyUp = { arg x, y; handlers[\grid_key].value(x, y, 0); };
-		// ... glue other handlers to other device drivers...
+		// ... glue other handlers to other device drivers...?
 	}
 
 	//---- methods for setting handlers
@@ -122,4 +122,7 @@ NornsTimer {
 
 	play { routine.play; }
 	stop { routine.stop; }
+}
+
+NornsEncSim {
 }

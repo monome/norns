@@ -116,7 +116,7 @@ SerialGrid {
 
 
 // GUI emulator
-
+// same exact methods
 SerialGridEmu {
 	var <>win; // window
 	var <>but; // buttons
@@ -137,50 +137,53 @@ SerialGridEmu {
 		keyUp = { |x,y| postln("keyUp: " ++ x ++ " , " ++ y); };
 
 		win = Window.new(bounds);
+		win.front;
 		win.view.decorator = FlowLayout(bounds, 0@0, 2@2 );
 		but = Array.fill(16, { |i| Array.fill(16, { |j|
-			Button(win, butw@buth).action_({  arg but;
+			Button(win, butw@buth)
+			.action_({  arg but;
 				if(but.value == 1, {
 					this.keyDown.value(i, j);
 				}, {
 					this.keyUp.value(i, j);
 				});
-			});
+			})
+			.states_([
+				[\ , Color.white,
+					Color.new(0.1, 0.1, 0.1)]
+			]);
 		}) });
 
 	}
 
 
 	led_set { arg x, y, val=true;
-//		this.send(Int8Array.with( val.if({ 0x11 }, { 0x10 }), x, y  ));
+		but[x][y].state = if(val, {1},{0});
 	}
 
 	led_all { arg val=true;
-//		this.send( val.if({ 0x13 }, { 0x12 }) );
+		var st = if(val, {1},{0});
+		but.do({|bt|bt.state= st;});
 	}
 
 	led_map { arg x, y, data = Int8Array([0, 0, 0, 0, 0, 0, 0, 0]);
-//		this.send( Int8Array.with(0x14, x, y) ++ data );
+		data.do({|d,i| /* TODO */ });
 	}
 
 	led_row { arg x, y, data = 0x0;
-//		this.send( Int8Array.with(0x15, x, y, data ) );
+		but.do({|bt| /* TODO */ });
 	}
 
 	led_col { arg x, y, data = 0x0;
-//		this.send( Int8Array.with(0x16, x, y, data ) );
 	}
 
 	led_intensity{ arg data = 0x0;
-//		this.send( Int8Array.with(0x17, data ) );
 	}
 
 	led_level_set { arg x, y, data = 0;
-//		this.send( Int8Array.with(0x18, x, y, data) );
 	}
 
 	led_level_all { arg val = 0x01;
-//		this.send( Int8Array.with(0x19, val) );
 	}
 
 

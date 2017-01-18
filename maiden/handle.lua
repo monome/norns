@@ -1,5 +1,6 @@
 -- table of handler functions (record style)
 handle = {}
+
 handle.press = function(x, y)
    print ("press " .. x .. " " .. y)
    monome_set_led(x, y, 1);
