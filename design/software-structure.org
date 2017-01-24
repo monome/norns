@@ -50,7 +50,7 @@ for future iterations, we are considering implementing an [[http://lv2plug.in][L
 
 * software architecture
 
-#+BEGIN_SRC dot :file dot_norns_structure_legend.svg :cmdline -Kdot -Tsvg
+#+BEGIN_SRC dot :file norns_structure_legend.svg :cmdline -Kdot -Tsvg
 digraph {
 node[shape=box];
 //subgraph cluster_legend {
@@ -62,9 +62,9 @@ node[shape=box];
 }
 #+END_SRC
 #+RESULTS:
-[[file:dot_norns_structure_legend.svg]]
+[[file:norns_structure_legend.svg]]
 
-#+BEGIN_SRC dot :file dot_norns_structure.svg :cmdline -Kdot -Tsvg
+#+BEGIN_SRC dot :file norns_structure.svg :cmdline -Kdot -Tsvg
 digraph {
 	layout=dot;
 	node[shape=box];
@@ -179,7 +179,7 @@ digraph {
 #+END_SRC
 
 #+RESULTS:
-[[file:dot_norns_structure.svg]]
+[[file:norns_structure.svg]]
 
 * implementation notes
 
