@@ -86,121 +86,121 @@ node[shape=box];
 
 #+BEGIN_SRC dot :file norns_structure.svg :cmdline -Kdot -Tsvg
 digraph {
-	layout=dot;
-	node[shape=box];
-	splines=line;
-	concentrate=true;
+    layout=dot;
+    node[shape=box];
+    splines=line;
+    concentrate=true;
 
-	subgraph norns_code {
-		node[color=blue, style=bold];
+    subgraph norns_code {
+        node[color=blue, style=bold];
 
-		ctl [label="control logic"];
+        ctl [label="control logic"];
         ui [label="UI"];
 
-		weaver [label="weaver.h"];
-		lua[label="lua interface"];
+        weaver [label="weaver.h"];
+        lua[label="lua interface"];
 
         timers;
-		gpio;
-		screen;
+        gpio;
+        screen;
 
-		oracle [label="oracle.h"];
-		sc[label="sclang classes"];
-	}
+        oracle [label="oracle.h"];
+        sc[label="sclang classes"];
+    }
 
-	subgraph ext_libs {
-		libmonome;
-		libevdev[label="libevdev/SDL"];
-		liblua;
-		MIDI;
-		sclang;
-		scsynth;
-	}
+    subgraph ext_libs {
+        libmonome;
+        libevdev[label="libevdev/SDL"];
+        liblua;
+        MIDI;
+        sclang;
+        scsynth;
+    }
 
-	subgraph resources {
-		node[style="dashed"];
-		
-		remote [label="remote host (ssh)"];
-		shmem [label="shared memory"];
-		files[label="local filesystem"];
-		sock[label="datagram socket"];
-	}
+    subgraph resources {
+        node[style="dashed"];
+        
+        remote [label="remote host (ssh)"];
+        shmem [label="shared memory"];
+        files[label="local filesystem"];
+        sock[label="datagram socket"];
+    }
 
-	subgraph cluster_norns {
-		
-		label="norns, software flowchart";
+    subgraph cluster_norns {
+        
+        label="norns, software flowchart";
 
-		splines=line;
-		concentrate=true;
-	
-		subgraph cluster_maiden {
-			label="controller (maiden)";
-			ctl;
+        splines=line;
+        concentrate=true;
+    
+        subgraph cluster_maiden {
+            label="controller (maiden)";
+            ctl;
             ui;
-			ncurses;	
-		}
+            ncurses;    
+        }
 
-		remote;
-		shmem;
-		files;
-		sock;
-		
-		subgraph cluster_matron {
-			label="interpreter (matron)";
-			// inputs
-			weaver;
-			libevdev;
+        remote;
+        shmem;
+        files;
+        sock;
+        
+        subgraph cluster_matron {
+            label="interpreter (matron)";
+            // inputs
+            weaver;
+            libevdev;
             MIDI;
-			gpio;			
-			libmonome;
-			// interpreter
-			lua;
-			liblua;
+            gpio;           
+            libmonome;
+            // interpreter
+            lua;
+            liblua;
             timers;
-			// outputs
-			screen;
-			liblo;
-		    oracle;
-		}
+            // outputs
+            screen;
+            liblo;
+            oracle;
+        }
 
-		subgraph cluster_crone {
-			label="audio engine (crone)";
-			sc;
-			{ 
-				//rank = same;
-				sclang;
-				scsynth;
-			}
-		}
-	}
+        subgraph cluster_crone {
+            label="audio engine (crone)";
+            sc;
+            { 
+                //rank = same;
+                sclang;
+                scsynth;
+            }
+        }
+    }
 
-	// connections
-	files -> ctl;
-	//[label="(inotify)"];
-	ctl -> shmem;
-	ctl -> ui -> ctl;
+    // connections
+    files -> ctl;
+    //[label="(inotify)"];
+    ctl -> shmem;
+    ctl -> ui -> ctl;
     ui -> ncurses -> ui;
-	ncurses -> remote;
-	remote -> ncurses;
+    ncurses -> remote;
+    remote -> ncurses;
 
-	// lua econnections
-	shmem -> weaver;
-	weaver -> lua;
-	libevdev -> lua;
-	gpio -> lua -> gpio;
-	MIDI -> lua -> MIDI;
-	libmonome -> lua -> libmonome;
-	lua -> liblua -> lua;
+    // lua econnections
+    shmem -> weaver;
+    weaver -> lua;
+    libevdev -> lua;
+    gpio -> lua -> gpio;
+    MIDI -> lua -> MIDI;
+    libmonome -> lua -> libmonome;
+    lua -> liblua -> lua;
     lua -> timers -> lua;
-	lua -> screen;
-	lua -> oracle -> liblo;
-	liblo -> oracle -> lua;
+    lua -> screen;
+    lua -> oracle -> liblo;
+    liblo -> oracle -> lua;
 
-	// sc connections
-	liblo -> sock -> sc;
-	sc -> sock -> liblo;
-	sc -> sclang;
-	sclang -> scsynth -> sclang;
+    // sc connections
+    liblo -> sock -> sc;
+    sc -> sock -> liblo;
+    sc -> sclang;
+    sclang -> scsynth -> sclang;
 
 }
 #+END_SRC
