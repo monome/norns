@@ -1,54 +1,74 @@
 #+TITLE: norns - software architecture
 
-* document history
+* about this document
+
+** history
 
 | version |       date | author |
 |---------+------------+--------|
-|     1.0 | 2017-01-22 | emb    |
+|   0.0.0 | 2017-01-22 | emb    |
+
+** intent
+
+ this document proposes a preliminary high-level software design for *norns*. its goal is to outline a broad plan for code module separation and identify some of the 3rd-party technologies to use. we do not expect every implementation choice to remain unchanged.
+
+ this document can be updated to reflect architecture changes as we approach version 1.0.0.
 
 * overview of functionality.
 
-'norns' is an audio processing hardware and software package, built on raspberry pi and linux.
+ *norns* is an audio processing hardware and software package, built on raspberry pi and linux.
 
-this document proposes a preliminary high-level software design. it's goal is to outline a broad plan for code module separation and identify some of the 3rd-party technologies to use. 
 
 primary features of *norns*:
 
-- provide the user with an interpreted programming environment (e.g. Lua) for soft-realtime control of audio process
+- provide the user with an interpreted programming environment (Lua) for soft-realtime control of audio processing
 
 - enable remote execution of user code on the fly
 
-- change audio engines on the fly (e.g., delay line processing or waveform synthesis)
+- change/reroute audio modules on the fly
 
-- provide an "easy" path to development of new audio engines
+- provide an "easy" path to development of new audio modules
 
 - integrate with a wide variety of controller hardware
 
-
-
 functionality is divided into three main areas, which may or may not correspond to separate processes/applications, but which shall certainly be implemented as distinct code modules.
-
-** *matron*
-
-this module manages the interpreter state, executes user code, and glues the interpreted environment to controller hardware and to control over the audio engine.
 
 ** *maiden*
 
-this module provides the user interface, chooses user code to be executed, and communicates with remote hosts. 
+ controller: provides the user interface, chooses user code to be executed, and communicates with remote hosts. 
 
-initially, it will provide a text-only interface for terminal access using ~ncurses~. 
+ initially, it will provide a text-only interface for terminal access using ~ncurses~. 
 
-future iterations could serve a graphical UI over HTTP (or even just a REST API for client-side applications.)
+ future iterations could do other things:
+- serve a web app via HTTP
+- provide a REST API over HTTP for a client side app
+- something else?
+
+
+** *matron*
+
+ interpreter: maintains Lua state, executes user code, and glues the interpreted environment to everything else:
+- input from *maiden*  (user code, but maybe other things too
+- output to *crone*  (change audio modules, parameters, buffers, &c)
+- I/O to and from onboard hardware (encoders, switches, screen)
+- I/O to and from USB peripherals (grids, MIDI, HID)
+- other hardware? (i2c? serial?)
 
 ** *crone*
 
-this module performs audio processing. 
+ audio host.
+- swaps audio 'modules' ('instruments'? 'engines'?)
+- manipulates processing parameters
+- loads and stores sound files
+- can receive and transmit audio buffer data
 
-the initial implementation will be in Supercollider and communicate with *matron* using OSC.
+ the initial implementation will be in Supercollider and communicate with *matron* using OSC.
 
-for future iterations, we are considering implementing an [[http://lv2plug.in][LV2]] host, likely based on the [[https://github.com/moddevices/mod-host][MOD devices]] codebase.
+ for future iterations, we are considering implementing an [[http://lv2plug.in][LV2]] host, likely based on the [[https://github.com/moddevices/mod-host][MOD devices]] codebase. 
 
 * software architecture
+
+ here is an informal flowchart / code module layout. it does not mean to describe data or dependency flow in detail, only to suggest technologies, libraries, project structure and tasks required for a working prototype.
 
 #+BEGIN_SRC dot :file norns_structure_legend.svg :cmdline -Kdot -Tsvg
 digraph {
@@ -74,14 +94,17 @@ digraph {
 	subgraph norns_code {
 		node[color=blue, style=bold];
 
-		ctl [label="control interface"];
-		lua[label="lua interface"];
-		weaver [label="weaver.h"];
-		oracle [label="oracle.h"];
+		ctl [label="control logic"];
+        ui [label="UI"];
 
+		weaver [label="weaver.h"];
+		lua[label="lua interface"];
+
+        timers;
 		gpio;
 		screen;
 
+		oracle [label="oracle.h"];
 		sc[label="sclang classes"];
 	}
 
@@ -113,6 +136,7 @@ digraph {
 		subgraph cluster_maiden {
 			label="controller (maiden)";
 			ctl;
+            ui;
 			ncurses;	
 		}
 
@@ -132,6 +156,7 @@ digraph {
 			// interpreter
 			lua;
 			liblua;
+            timers;
 			// outputs
 			screen;
 			liblo;
@@ -153,7 +178,8 @@ digraph {
 	files -> ctl;
 	//[label="(inotify)"];
 	ctl -> shmem;
-	ctl -> ncurses -> ctl;
+	ctl -> ui -> ctl;
+    ui -> ncurses -> ui;
 	ncurses -> remote;
 	remote -> ncurses;
 
@@ -165,6 +191,7 @@ digraph {
 	MIDI -> lua -> MIDI;
 	libmonome -> lua -> libmonome;
 	lua -> liblua -> lua;
+    lua -> timers -> lua;
 	lua -> screen;
 	lua -> oracle -> liblo;
 	liblo -> oracle -> lua;
@@ -189,11 +216,11 @@ in the figure above, the header files ~oracle.h~ and ~weaver.h~ are referenced. 
 
 for example: here we specify the use of shared memory between controller and interpreter, but in the final implementation we may want to allow *maiden* to run remotely, making serial communication a better choice. 
 
-these dedicated headers will specify interprocess /protocols/, while keeping the transport layer decoupled.
+so, these dedicated headers will specify interprocess /protocols/, while keeping the transport layer decoupled. it would be great to generate them directly from a protocol spec.
 
 ** audio buffers
 
-one requested feature is the ability to manipulate audio buffers from user code. ideally, this feature would be implemented using shared memory between interpreter and processer; in practice, it's not clear that can be easily achieved; it may be possible to used shared memory between an LV2 host and its plugins, but for supercollider such an exchange can only be acheived asynchronously with a sequence of OSC packets. 
+one requested feature is the ability to manipulate audio buffers from user code. ideally, this feature would be implemented using shared memory between interpreter and processor; in practice, this may prove challenging. it may be possible to used shared memory between an LV2 host and its plugins, but for supercollider such an exchange can only be acheived asynchronously with a sequence of OSC packets (or by considerable hacking on the scsynth codebase.)
 
 in any case, direct transmission of audio buffer data will be part of the API described by ~oracle.h~, as well as functions to move audio between *crone* and the filesystem. 
 
@@ -202,7 +229,15 @@ in any case, direct transmission of audio buffer data will be part of the API de
 it's not yet clear how we should pass MIDI through the interpreter. it may be impossible to provide sample-accurate events in that circumstance. we could do one or more of the following:
 - *matron* interacts directly with e.g. ~/dev/sequencer~. fine for coarse time resolution / sparse events.
 - *matron* registers as an ALSA or JACK client and receives MIDI event buffers.
-- user code can pass MIDI handling over to the audio server somehow (and define logic/transformation? hm), allowing realtime performance.
+- user code can pass MIDI handling over to the audio server somehow (and define logic/transformation? hm), allowing sample-accurate performance.
+
+** timing resolution
+
+as the above section implies, there is some uncertainty about how close to "realtime" the interpreted code can get. (to diagnose this, implementing glue between Lua and (say) POSIX timers should be an early order of business.)
+
+but with Supercollider as the engine, we are inherently limited to the sample block rate, as far as how often parameter changes are interpreted. in addition, the OSC/UDP connection has limited bandwidth (but maybe enough to make no significant difference, except for arbitrarily large buffer transactions.)
+
+if we do end up switching to LV2, we can use shared memory (greater bandwidth), and even schedule timestamped events within a sample block.
 
 ** HID
 
@@ -212,8 +247,10 @@ there are a number of competing solutions for getting input from HID devices suc
 
 this document does not describe:
 
-- the vocabulary of interactions between *maiden* and *matron*, or *matron* and *crone*. 
+- specific features and API for *crone* 
 
-- the UI design for *maiden*. 
+- specific features and API for *matron*
 
-these topics will be addressed separately and soon.
+- UI design for *maiden*
+
+these topics should be addressed separately, and relatively soon. for the moment we can assume some basic, obvious features, and begin implementation with those...
