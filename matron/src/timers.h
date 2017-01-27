@@ -8,9 +8,8 @@ extern const int MAX_NUM_TIMERS;
 
 typedef unsigned long long int counter_t;
 typedef unsigned long long int period_t;
-typedef void(*timer_cb)(int id, counter_t count);
 
-extern void timer_add(int idx, timer_cb cb, double seconds, int count);
+extern void timer_add(int idx, double seconds, int count);
 extern void timer_wait(int idx);
 
 // TODO
