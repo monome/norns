@@ -12,6 +12,7 @@ static void events_handle_error(const char* msg) {
 void events_init(void) {
   SDL_InitSubSystem(SDL_INIT_EVENTS);
   SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+  // FIXME: we won't get m/kb events without a window...
   if (SDL_NumJoysticks() > 0 ) {
 	SDL_Joystick *joy;
 	printf("found joystick, opening js0 \r\n");
@@ -45,18 +46,13 @@ void event_loop(void) {
   while(!quit) {
 	// checks for pending SDL events
 	while(SDL_PollEvent(&e)) {
+	  // printf("got SDL event type %d \n", e.type);
 	  if(e.type == SDL_QUIT) {
 		quit = 1;
 	  } else {
 		handle_sdl_event(&e);
 	  }
 	}
-	// we don't actually have a window,
-	// so handle command line input
-	// of course this blocks event queue processing
-	//	ch = getchar();
-	//	printf("%c\r\n", ch);
-	
   }
   SDL_Quit();
 }

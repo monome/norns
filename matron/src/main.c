@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 
 #include "events.h"
 #include "repl.h"
@@ -6,10 +7,9 @@
 
 #include "oracle.h"
 #include "weaver.h"
-
+#include "m.h" // monome glue
 
 int main(int argc, char** argv) {
-  
   // this must come first... 
   events_init();
 
@@ -18,24 +18,23 @@ int main(int argc, char** argv) {
 
   // intialize oracle (audio glue)
   o_init();
-  
-  // initialize weaver (interpreter glue)
-  w_init();
-  
-  /*
-  // TODO (adapt from WIP sources...)
-    monome_init();
-	joystick_init();
-	lua_glue_init();
-  */
 
-  // this runs in its own thread
+  // initialize weaver (interpreter glue)
+  w_init();  
+
+  // initialize monome devices
+  m_init();
+
+  // creates a child thread
   repl_loop();
   
-  // this blocks until quit...
+  // blocks until quit
+  printf("starting main event loop \n");
   event_loop();
-  
-  printf("exiting event loop \r\n");
+
+  printf("main event loop has exited \n");
+
+  o_deinit();
   
   return 0;
 }

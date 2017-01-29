@@ -19,7 +19,7 @@ const int MAX_NUM_TIMERS = MAX_NUM_TIMERS_OK;
 struct timer {
   int idx;         // timer index
   uint64_t count;  // total iterations ( <0 -> infinite )
-  uint64_t cur;    // current count of iteractions
+  uint64_t cur;    // current count of iterations
   uint64_t time;   // current time (in nsec)
   uint64_t delta;  // current delta (in nsec)
   pthread_t tid;   // thread id

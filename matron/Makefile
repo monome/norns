@@ -5,7 +5,7 @@ LD = gcc
 
 CFLAGS = -g
 LDFLAGS = 
-LIB = -llo -llua -lpthread -lSDL2
+LIB = -llo -llua -lpthread -lSDL2 -lmonome
 
 OBJ_DIR = obj
 SRC_DIR = src
@@ -13,6 +13,7 @@ SRC_DIR = src
 _OBJ = main.o \
 	events.o \
 	event_handle.o \
+	m.o \
 	repl.o \
 	timers.o \
 	oracle.o \
