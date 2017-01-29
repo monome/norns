@@ -2,7 +2,8 @@
 
 typedef enum {
   EVENT_GRID_PRESS,
-  EVENT_TIMER
+  EVENT_TIMER,
+  EVENT_QUIT
 } event_t;
 
 extern void events_init(void);

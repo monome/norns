@@ -1,14 +1,29 @@
+#include "events.h"
 #include "event_handle.h"
 #include "repl.h"
 
+static void post_quit_event() {
+  SDL_Event ev;
+  SDL_memset(&ev, 0, sizeof(ev));
+  ev.type = SDL_QUIT;  
+  int res = SDL_PushEvent(&ev);
+}
+
 static void handle_user_event(SDL_Event* ev) {
-  // TODO: call lua functions as appropriate... 
+  /*
   //...testing...
   printf("got user event ; code: %d ; param1: 0x%08x ; param2: 0x%08x \r\n",
 		 (*ev).user.code,
 		 *((uint32_t*)(*ev).user.data1),
 		 *((uint32_t*)(*ev).user.data2)
 		 );
+  */
+  switch(ev->user.code) {
+  // TODO: call lua functions as appropriate...
+  case EVENT_QUIT:
+	// push SDL_Quit
+	post_quit_event();
+  }
 }
 
 // handle josystick axis movement
@@ -37,7 +52,6 @@ void handle_sdl_event(SDL_Event *e) {
 	break;
   case SDL_KEYUP:                  
 	break;
-	
     // mouse
   case SDL_MOUSEMOTION: 
 	break;
@@ -81,6 +95,5 @@ void handle_sdl_event(SDL_Event *e) {
 	break;
   default:
 	;; // nothing to do
-	
   }
 }

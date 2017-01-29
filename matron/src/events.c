@@ -53,6 +53,7 @@ void event_loop(void) {
 	}
 	// we don't actually have a window,
 	// so handle command line input
+	// of course this blocks event queue processing
 	//	ch = getchar();
 	//	printf("%c\r\n", ch);
 	

@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "events.h"
+#include "repl.h"
 #include "timers.h"
 
 #include "oracle.h"
@@ -27,10 +28,13 @@ int main(int argc, char** argv) {
 	joystick_init();
 	lua_glue_init();
   */
+
+  // this runs in its own thread
+  repl_loop();
   
   // this blocks until quit...
   event_loop();
-
+  
   printf("exiting event loop \r\n");
   
   return 0;
