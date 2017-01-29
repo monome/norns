@@ -5,12 +5,18 @@ LD = gcc
 
 CFLAGS = -g
 LDFLAGS = 
-LIB = -lpthread -lSDL2
+LIB = -llo -llua -lpthread -lSDL2
 
 OBJ_DIR = obj
 SRC_DIR = src
 
-_OBJ = main.o events.o timers.o
+_OBJ = main.o \
+	events.o \
+	event_handle.o \
+	repl.o \
+	timers.o \
+	oracle.o \
+	weaver.o
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 

@@ -1,25 +1,27 @@
 #include <stdint.h>
 #include <stdio.h>
+
 #include <SDL2/SDL.h>
 
 #include "events.h"
+#include "event_handle.h"
 
 static void events_handle_error(const char* msg) {
   printf("error in events.c : %s ; code: %d", msg, SDL_GetError());
 }
-
-static void handle_user_event(SDL_Event* ev) {
-  // TODO: call lua functions as appropriate... 
-  //...testing...
-  printf("got user event ; code: %d ; param1: 0x%08x ; param2: 0x%08x \r\n",
-		 (*ev).user.code,
-		 *((uint32_t*)(*ev).user.data1),
-		 *((uint32_t*)(*ev).user.data2)
-		 );
-}
-
 void events_init(void) {
   SDL_InitSubSystem(SDL_INIT_EVENTS);
+  SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+  if (SDL_NumJoysticks() > 0 ) {
+	SDL_Joystick *joy;
+	printf("found joystick, opening js0 \r\n");
+	joy = SDL_JoystickOpen(0);
+	if (joy) {
+	  printf("js0: %s \r\n", SDL_JoystickNameForIndex(0));
+	} else {
+	  printf("failed to open js0\n");
+	}
+  }
 }
 
 void event_post(event_t code, void* data1, void* data2) {
@@ -38,19 +40,22 @@ void event_post(event_t code, void* data1, void* data2) {
 void event_loop(void) {
   SDL_Event e;
   int quit = 0;
+  char ch;
   
   while(!quit) {
+	// checks for pending SDL events
 	while(SDL_PollEvent(&e)) {
-	  switch(e.type) {
-	  case SDL_USEREVENT:
-		handle_user_event(&e);
-		break;
-	  case SDL_QUIT:
+	  if(e.type == SDL_QUIT) {
 		quit = 1;
-	  default:
-		;;
+	  } else {
+		handle_sdl_event(&e);
 	  }
 	}
+	// we don't actually have a window,
+	// so handle command line input
+	//	ch = getchar();
+	//	printf("%c\r\n", ch);
+	
   }
   SDL_Quit();
 }
