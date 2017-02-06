@@ -1,7 +1,6 @@
 // Crone_TestSine
 // dumbest possible test: a single, mono sinewave
 Crone_TestSine : CroneEngine {
-
 	var <synth;
 
 	*new { arg serv_;
@@ -10,11 +9,12 @@ Crone_TestSine : CroneEngine {
 
 	initSub {
 		synth = {
-			arg hz=220, amp=0.5, amplag=0.1, hzlag=0.1;
+			arg hz=220, amp=0.5, amplag=0.02, hzlag=0.01;
 			var amp_, hz_;
-			amp_ = Lag.kr(amp, amplag);
-			hz_ = Lag.kr(hz, hz);
-			Out.ar(0, (SinOsc.ar(hz) * amp).dup);
+			amp_ = Lag.ar(K2A.ar(amp), amplag);
+			hz_ = Lag.ar(K2A.ar(hz), hzlag);
+			Out.ar(0, (SinOsc.ar(hz_) * amp_).dup);
+
 		}.play(this.group);
 
 		this.addParam("hz", 110.0, { arg param;

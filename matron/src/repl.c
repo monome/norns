@@ -45,7 +45,8 @@ void repl_loop(void) {
    pthread_attr_t attr;
    int s;
    s = pthread_attr_init(&attr);
-   if(s != 0) { printf("error in pthread_attr_init: %d\n", s); }
-   pid = pthread_create(&pid, &attr, &repl_run, NULL);
+   if(s != 0) { printf("error in pthread_attr_init(): %d\n", s); }
+   s = pthread_create(&pid, &attr, &repl_run, NULL);
+   if(s != 0) { printf("error in pthread_create(): %d\n", s); }
    pthread_attr_destroy(&attr);
 }

@@ -11,9 +11,9 @@ typedef enum {
   EVENT_TIMER,
   // finished receiving buffer list
   EVENT_BUFFER_REPORT,
-  // finish receiving audio engine list
+  // finished receiving audio engine list
   EVENT_ENGINE_REPORT,
-  // finished receiveing parameter list
+  // finished receiving parameter list
   EVENT_PARAM_REPORT,
   // quit the event loop
   EVENT_QUIT
@@ -21,4 +21,5 @@ typedef enum {
 
 extern void events_init(void);
 extern void event_loop(void);
-extern void event_post(event_t ev, void* data1, void* data2);
+extern void event_post(event_t id, void* data1, void* data2);
+extern void event_post_monome_grid(event_t id, int x, int y);

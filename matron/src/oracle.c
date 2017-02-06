@@ -17,14 +17,15 @@
 
 #include "lo/lo.h"
 
+#include "args.h"
 #include "events.h"
 #include "oracle.h"
 
-char remote_port[32] = "57120";
-lo_address remote_addr;
+static lo_address remote_addr;
+static lo_server_thread st;
 
-char local_port[32] = "8888";
-lo_server_thread st;
+// TODO: semaphore for waiting on audio backend init
+//static sem_t audio_init_sem;
 
 //-------------------
 //--- audio engine descriptor management
@@ -98,12 +99,15 @@ static void lo_error_handler(int num, const char *m, const char *path);
 
 //--- init
 void o_init(void) {
+  const char *loc_port = args_local_port();
+  const char *rem_port = args_remote_port();
+  
   printf("starting OSC server: listening on port %s, sending to port %s\n",
-		 local_port, remote_port);
+		 loc_port, rem_port);
   o_init_descriptors();
   
-  remote_addr = lo_address_new(NULL, remote_port);
-  st = lo_server_thread_new(local_port, lo_error_handler);
+  remote_addr = lo_address_new(NULL, rem_port);
+  st = lo_server_thread_new(loc_port, lo_error_handler);
 
   //  buffer report sequence
   lo_server_thread_add_method(st, "/buffer/report/start", "i",
@@ -190,8 +194,16 @@ void o_load_engine(const char* name) {
 
 //   FIXME: autogenerate from protcol description?
 //   use dynamic list of OSC patterns (varargs tricks)?
+void o_request_buffer_report(void) {
+  lo_send(remote_addr, "/buffer/request/report", "");
+}
+
 void o_load_buffer_name(const char* name, const char* path) {
   lo_send(remote_addr, "/buffer/load/name", "ss", name, path);
+}
+
+void o_request_param_report(void) {
+  lo_send(remote_addr, "/param/request/report", "");
 }
 
 void o_set_param_name(const char* name, const float val) {
@@ -258,8 +270,8 @@ void o_set_num_desc(int* dst, int num) {
 
 int buffer_report_start(const char *path, const char *types, lo_arg ** argv,
 						int argc, void *data, void *user_data) {
+  // arg 1: count of buffers
   o_clear_desc(buffer_names, num_buffers);
-  // single arg is count of buffers
   o_set_num_desc(&num_buffers, argv[0]->i);
 }
 
@@ -279,8 +291,8 @@ int buffer_report_end(const char *path, const char *types, lo_arg ** argv,
 int engine_report_start(const char *path, const char *types,
 						lo_arg ** argv, int argc, void *data, void *user_data)
 {
+  // arg 1: count of buffers
   o_clear_desc(engine_names, num_engines);
-  // single arg is count
   o_set_num_desc(&num_engines, argv[0]->i);
 }
 
@@ -306,8 +318,8 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 int param_report_start(const char *path, const char *types, lo_arg ** argv,
 					   int argc, void *data, void *user_data)
 {
+  // arg 1: count of params
   o_clear_desc(param_names, num_params);
-  // single arg is count of params
   o_set_num_desc(&num_params, argv[0]->i);
 }
 
@@ -315,13 +327,12 @@ int param_report_name(const char *path, const char *types, lo_arg ** argv,
 					  int argc, void *data, void *user_data) {
   // arg 1: buffer index
   // arg 2: buffer name
-  // NB: yes, this is the correct way to read a string from a lo_arg
   o_set_desc(param_names, argv[0]->i, &argv[1]->s);
 }
 
 int param_report_end(const char *path, const char *types, lo_arg ** argv,
 					 int argc, void *data, void *user_data) {
-  // no arguments; post event
+  // no arguments
   event_post(EVENT_PARAM_REPORT, NULL, NULL);
 }
 
