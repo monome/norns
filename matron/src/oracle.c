@@ -17,14 +17,12 @@
 
 #include "lo/lo.h"
 
+#include "args.h"
 #include "events.h"
 #include "oracle.h"
 
-char remote_port[32] = "57120";
-lo_address remote_addr;
-
-char local_port[32] = "8888";
-lo_server_thread st;
+static lo_address remote_addr;
+static lo_server_thread st;
 
 //-------------------
 //--- audio engine descriptor management
@@ -98,12 +96,14 @@ static void lo_error_handler(int num, const char *m, const char *path);
 
 //--- init
 void o_init(void) {
+  const char *loc_port = args_local_port();
+  const char *rem_port = args_remote_port();
   printf("starting OSC server: listening on port %s, sending to port %s\n",
-		 local_port, remote_port);
+		 loc_port, rem_port);
   o_init_descriptors();
   
-  remote_addr = lo_address_new(NULL, remote_port);
-  st = lo_server_thread_new(local_port, lo_error_handler);
+  remote_addr = lo_address_new(NULL, rem_port);
+  st = lo_server_thread_new(loc_port, lo_error_handler);
 
   //  buffer report sequence
   lo_server_thread_add_method(st, "/buffer/report/start", "i",

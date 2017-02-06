@@ -1,15 +1,21 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "args.h"
 #include "events.h"
 #include "repl.h"
 #include "timers.h"
 
 #include "oracle.h"
 #include "weaver.h"
+
 #include "m.h" // monome glue
 
 int main(int argc, char** argv) {
+
+  parse_args(argc, argv);
+
+
   // this must come first... 
   events_init();
 
