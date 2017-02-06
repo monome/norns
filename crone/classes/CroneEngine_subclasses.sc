@@ -1,7 +1,6 @@
 // Crone_TestSine
 // dumbest possible test: a single, mono sinewave
 Crone_TestSine : CroneEngine {
-
 	var <synth;
 
 	*new { arg serv_;

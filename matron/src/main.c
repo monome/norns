@@ -18,11 +18,12 @@ int main(int argc, char** argv) {
 
   // this must come first... 
   events_init();
-
-
+  
   // intialize oracle (audio glue)
   o_init();
 
+  // FIXME: we should wait here for a signal from the audio server.
+  
   // initialize weaver (interpreter glue)
   w_init();  
 

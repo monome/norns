@@ -240,6 +240,8 @@ void o_clear_desc(char** desc_arr, int num) {
 // set a given entry in a given descriptor list
 void o_set_desc(char** desc_arr, int idx, const char* name) {
   size_t len;
+  
+  printf("o_set_desc(); %d: %s \n", idx, name);
   o_lock_descriptors();
   if(desc_arr[idx] != NULL) {
 	printf("refusing to allocate descriptor %d; already exists", idx);
@@ -249,6 +251,7 @@ void o_set_desc(char** desc_arr, int idx, const char* name) {
 	if ( desc_arr[idx] == NULL ) {
 	  printf("failure to malloc for descriptor %d : %s \n", idx, name);
 	} else {
+	  printf("copying to allocated descriptor %d: %s \n", idx, name);
 	  strncpy(desc_arr[idx], name, len+1);
 	}
   }  
@@ -325,6 +328,7 @@ int param_report_name(const char *path, const char *types, lo_arg ** argv,
   // arg 1: buffer index
   // arg 2: buffer name
   // NB: yes, this is the correct way to read a string from a lo_arg
+  printf("param_report_name() \n");
   o_set_desc(param_names, argv[0]->i, &argv[1]->s);
 }
 

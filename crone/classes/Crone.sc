@@ -8,7 +8,9 @@ Crone {
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
+			postln("\n-----------------");
 			postln("Crone class startup");
+			postln("------------------\n");
 
 			Server.default.boot;
 
@@ -34,10 +36,13 @@ Crone {
 					this.setEngine("Crone_" ++ msg[1]);
 				}, '/engine/load/name'),
 
-				'/buffer/load/name':OSCFunc.new({
+
+				//------------------------------------------
+				'/param/request/report':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					engine.loadBufferByName(msg[1], msg[2]);
-				}, '/buffer/load/name'),
+					[msg, time, addr, recvPort].postln;
+					this.reportParams;
+				}, '/param/request/report'),
 
 				'/param/set/name':OSCFunc.new({
 					arg msg, time, addr, recvPort;
@@ -47,7 +52,25 @@ Crone {
 				'/param/set/idx':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					engine.setParamByIndex(msg[1], msg[2]);
-				}, '/param/set/idx')
+				}, '/param/set/idx'),
+
+
+				//------------------------------------------
+				'/buffer/request/report':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg, time, addr, recvPort].postln;
+					this.reportBuffers;
+				}, '/buffer/request/report'),
+
+				'/buffer/load/name':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					engine.loadBufferByName(msg[1], msg[2]);
+				}, '/buffer/load/name'),
+
+				'/buffer/save/name':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					engine.saveBufferByName(msg[1], msg[2]);
+				}, '/buffer/save/name')
 			);
 		}
 	}
@@ -69,27 +92,34 @@ Crone {
 		var names = CroneEngine.subclasses.collect({ arg n;
 			n.asString.split($_)[1]
 		});
-		postln("sending CroneEngine subclass list: ");
-		postln(names);
+		postln("engines report start");
 		remote_addr.sendMsg("/engine/report/start", names.size);
 		names.do({ arg name, i;
 			remote_addr.sendMsg("/engine/report/name", i, name);
 
 		});
 		remote_addr.sendMsg("/engine/report/end");
+		postln("engines report end");
 	}
 
 	*reportBuffers{
 		var names = engine.buffers;
+		postln("buffers report start");
 		remote_addr.sendMsg("/buffer/report/start", names.size);
 		names.do({ arg name, i; remote_addr.sendMsg("/buffer/report/name", i, name); });
 		remote_addr.sendMsg("/buffer/report/end");
+		postln("buffers report end");
 	}
 
 	*reportParams {
-		var names = engine.paramNames;
+		var names = engine.paramNames.keys;
+		postln("params report start");
 		remote_addr.sendMsg("/param/report/start", names.size);
-		names.do({ arg name, i; remote_addr.sendMsg("/param/report/name", i, name); });
+		names.do({
+			arg name, i; remote_addr.sendMsg("/param/report/name", i, name);
+			postln("sent report for param " ++ i ++ " : " ++ name);
+		});
 		remote_addr.sendMsg("/param/report/end");
+		postln("params report end");
 	}
 }

@@ -30,7 +30,7 @@ CroneEngine {
 	// add a parameter.
 	// name: name (string)
 	// val: initial value (a number)
-	// func: handler function. takes a single argument
+	// func: handler function. takes a single argument (the parameter structure)
 	addParam { arg name, val, func;
 		var idx = 0;
 		name = name.asSymbol;
@@ -39,7 +39,6 @@ CroneEngine {
 			paramNames[name] = idx;
 			params.add( (\name:name, \val:val, \func:func) );
 		});
-		postln("params: " ++ params);
 		^idx
 	}
 
@@ -61,9 +60,6 @@ CroneEngine {
 
 	setParamByIndex { arg idx, val;
 		params[idx].val = val;
-		postln("setParamByIndex ; idx: " ++ idx ++ " ; val: " ++ val);
-		postln("param: " ++ params[idx]);
-		//postln("func: " ++ params[idx].func);
 		^params[idx].func.value
 	}
 
