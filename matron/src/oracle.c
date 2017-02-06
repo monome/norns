@@ -98,6 +98,7 @@ static void lo_error_handler(int num, const char *m, const char *path);
 void o_init(void) {
   const char *loc_port = args_local_port();
   const char *rem_port = args_remote_port();
+  
   printf("starting OSC server: listening on port %s, sending to port %s\n",
 		 loc_port, rem_port);
   o_init_descriptors();

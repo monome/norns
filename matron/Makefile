@@ -13,7 +13,6 @@ SRC_DIR = src
 _OBJ = main.o \
 	args.o \
 	events.o \
-	event_handle.o \
 	m.o \
 	repl.o \
 	timers.o \

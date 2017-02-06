@@ -1,7 +1,19 @@
 -- startup script for norns lua environment.
 
--- NB: removing these module definitions will break the C->lua glue.
+-- NB: removing these definitions will break the C->lua glue.
 -- in other respects, feel free to customize.
+
+print("running norns.lua")
+
+-- this function will be run next
+-- for example
+startup = function()
+   print("running user startup code")
+   -- define your own startup routine here
+   -- ( likely just: dofile("mycustomscript.lua") )
+   -- it will be run after I/O subsystems are initialized,
+   -- but before I/O event loop starts ticking
+end
 
 --------------------------
 -- define default event handlers.
@@ -16,9 +28,6 @@ button = {}
 --...
 
 -- grid events
-
-print("running norns.lua")
-
 grid = {}
 grid.press = function(x, y)
    print ("press " .. x .. " " .. y)
@@ -43,9 +52,50 @@ end
 
 -- HID events
 joystick = {}
+
 joystick.axis = function(stick, ax, val)
    print("stick " .. stick .. "; axis " .. ax .. "; value " .. val)
 end
 
+joystick.button = function(stick, but, state)
+   print("stick " .. stick .. "; button " .. but .. "; state " .. state)
+end
+
+-- mouse/KB
+--... 
+
 -- MIDI
 -- ... 
+
+-- timer handlers
+timer = {}
+for i=1,16 do
+   timer[i] = function(count)
+	  print("handling timer id " .. i .. ", count " .. count)
+   end
+end
+
+-- handlers for descriptor reports
+report = {}
+
+report.buffers = function(names, count)
+   print(count .. " buffers: ")
+   for i=1,count do
+	  print(i .. ": "..names[i])
+   end
+end
+
+report.engines = function(names, count)
+   print(count .. " engines: ")
+   for i=1,count do
+	  print(i .. ": "..names[i])
+   end
+end
+
+
+report.params = function(names, count)
+   print(count .. " params: ")
+   for i=1,count do
+	  print(i .. ": "..names[i])
+   end
+end

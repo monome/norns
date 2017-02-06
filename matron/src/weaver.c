@@ -25,7 +25,7 @@ static int w_load_engine(lua_State* l);
 
 // FIXME: should support dynamically defined OSC format 'engine methods'
 // (one fn to request method list, one for varargs OSC)
-// for now, hardcode the methods "set parameter" and "load buffer"
+// for now, hardcode methods for "buffers" and "parameters"
 static int w_request_buffer_list(lua_State* l);
 static int w_load_buffer_name(lua_State* l);
 static int w_request_param_list(lua_State* l);
@@ -59,6 +59,11 @@ void w_init(void) {
   
   // run user init code
   w_run_code("dofile(\"lua/norns.lua\");");
+}
+
+void w_user_startup(void) {
+  lua_getglobal(lvm, "startup");
+  lua_pcall(lvm, 0, 0, 0);
 }
 
 //----------------------------------
@@ -114,17 +119,17 @@ int w_set_param_name(lua_State* l) {
 }
 
 int w_request_engine_list(lua_State* l) {
-  printf("engine list request from lvm \n");
   o_request_engine_report();
-  // TODO
 }
 
 int w_request_buffer_list(lua_State* l) {
   // TODO
+  //  o_request_buffer_report();
 }
 
 int w_request_param_list(lua_State* l) {
   // TODO
+  // o_request_param_report();
 }
 
 
@@ -218,4 +223,42 @@ void w_handle_stick_button(int stick, int button, int value) {
   lua_pushinteger(lvm, button);
   lua_pushinteger(lvm, value);
   lua_call(lvm, 3, 0); 
+}
+
+
+
+// helper for pushing array of c strings
+static void push_string_array(char** arr, int n) {
+  // allocate and push the table
+  lua_createtable(lvm, n, 0);
+  // set each entry
+  for (int i=0; i<n; i++) {
+    lua_pushstring(lvm, arr[i]);
+    lua_rawseti(lvm, -2, i+1);
+  }
+  // push count of entries
+  lua_pushinteger(lvm, n);
+}
+
+// helper for calling report handler
+static inline void
+w_call_report_handler(char** arr, int num, const char* handler) {
+  lua_getglobal(lvm, "report");  
+  lua_getfield(lvm, -1, handler); 
+  lua_remove(lvm, -2); 
+  push_string_array(arr, num);
+  lua_call(lvm, 2, 0);
+}
+
+// audio engine report handlers
+void w_push_buffer_list(char** arr, int num) {
+  w_call_report_handler(arr, num, "buffer");
+}
+
+void w_push_engine_list(char** arr, int num) {
+  w_call_report_handler(arr, num, "engine");
+}
+
+void w_push_param_list(char** arr, int num) {
+  w_call_report_handler(arr, num, "param");
 }
