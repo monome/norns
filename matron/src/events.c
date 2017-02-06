@@ -142,9 +142,8 @@ void handle_buffer_report(void) {
   const char** p = o_get_buffer_names();
   for(int i=0; i<o_get_num_buffers(); i++) { 
    	printf("buffer %d: %s \n", i, p[i]); 
-  } 
-  // TODO
-  //  w_push_buffer_list(p);
+  }
+  w_handle_buffer_report(o_get_num_buffers(), o_get_buffer_names());
   o_unlock_descriptors();
 }
 

@@ -46,8 +46,20 @@ extern void o_request_engine_report(void);
 //   FIXME: autogenerate from protcol description?
 //   use dynamic list of OSC patterns?
 
-// load a sound file to a named buffer
+
+// request list of buffers
+extern void o_request_buffer_report(void);
+
+// load a sound file to named buffer
 extern void o_load_buffer_name(const char* name, const char* path);
+
+// save a named buffer to a sound file
+extern void o_save_buffer_name(const char* name, const char* path);
+
+
+
+// request list of params
+extern void o_request_buffer_report(void);
 
 // set indexed parameter with float value
 extern void o_set_param_index(int idx, const float val);

@@ -20,15 +20,15 @@ void w_run_code(const char* code) {
 //-------------
 //--- declare lua->c glue
 static int w_grid_set_led(lua_State* l);
-static int w_request_engine_list(lua_State* l);
+static int w_request_engine_report(lua_State* l);
 static int w_load_engine(lua_State* l);
 
 // FIXME: should support dynamically defined OSC format 'engine methods'
 // (one fn to request method list, one for varargs OSC)
 // for now, hardcode methods for "buffers" and "parameters"
-static int w_request_buffer_list(lua_State* l);
+static int w_request_buffer_report(lua_State* l);
 static int w_load_buffer_name(lua_State* l);
-static int w_request_param_list(lua_State* l);
+static int w_request_param_report(lua_State* l);
 static int w_set_param_name(lua_State* l);
 
 // screen functions
@@ -47,15 +47,16 @@ void w_init(void) {
   // not sure how to correctly document lua
   lua_register(lvm, "grid_set_led", &w_grid_set_led);
   
-  lua_register(lvm, "list_engines", &w_request_engine_list);
+  lua_register(lvm, "report_engines", &w_request_engine_report);
   lua_register(lvm, "load_engine", &w_load_engine);
   
-  lua_register(lvm, "list_buffers", &w_request_buffer_list);
-  // TODO  lua_register(lvm, "load_buffer", &w_load_buffer_index);
-  lua_register(lvm, "load_buffer_name", &w_load_buffer_name);
+  lua_register(lvm, "report_buffers", &w_request_buffer_report);
+  lua_register(lvm, "load_buffer", &w_load_buffer_name);
+  // TODO  lua_register(lvm, "load_buffer_idx", &w_load_buffer_index);
   
-  lua_register(lvm, "list_params", &w_request_param_list);
+  lua_register(lvm, "report_params", &w_request_param_report);
   lua_register(lvm, "set_param", &w_set_param_name);
+  // TODO  lua_register(lvm, "load_param_idx", &w_load_param_index);
   
   // run user init code
   w_run_code("dofile(\"lua/norns.lua\");");
@@ -118,18 +119,16 @@ int w_set_param_name(lua_State* l) {
   }
 }
 
-int w_request_engine_list(lua_State* l) {
+int w_request_engine_report(lua_State* l) {
   o_request_engine_report();
 }
 
-int w_request_buffer_list(lua_State* l) {
-  // TODO
-  //  o_request_buffer_report();
+int w_request_buffer_report(lua_State* l) {
+  o_request_buffer_report();
 }
 
-int w_request_param_list(lua_State* l) {
-  // TODO
-  // o_request_param_report();
+int w_request_param_report(lua_State* l) {
+  o_request_param_report();
 }
 
 
@@ -187,48 +186,48 @@ void call_module_function(char* module, char* name, char *fmt, ...)
   /// ... call with count of args ... 
  */
 
-void w_handle_grid_press(int x, int y) {
+// helper for calling grid handlers
+static inline void
+w_call_grid_handler(const char* name, int x, int y) {
   lua_getglobal(lvm, "grid");  
-  lua_getfield(lvm, -1, "press"); 
+  lua_getfield(lvm, -1, name); 
   lua_remove(lvm, -2); 
   lua_pushinteger(lvm, x); 
   lua_pushinteger(lvm, y);
   lua_call(lvm, 2, 0); 
+
+}
+void w_handle_grid_press(int x, int y) {
+  w_call_grid_handler("press", x, y);
 }
 
 void w_handle_grid_lift(int x, int y) {
-  lua_getglobal(lvm, "grid");  
-  lua_getfield(lvm, -1, "lift");
+  w_call_grid_handler("lift", x, y);
+}
+
+// helper for calling joystick handlers
+static inline void
+w_call_stick_handler(const char* name, int stick, int what, int val) {
+  lua_getglobal(lvm, "joystick");  
+  lua_getfield(lvm, -1, name); 
   lua_remove(lvm, -2); 
-  lua_pushinteger(lvm, x); 
-  lua_pushinteger(lvm, y);
-  lua_call(lvm, 2, 0); 
+  lua_pushinteger(lvm, stick); 
+  lua_pushinteger(lvm, what);
+  lua_pushinteger(lvm, val);
+  lua_call(lvm, 3, 0);
 }
 
 void w_handle_stick_axis(int stick, int axis, int value) {
-  lua_getglobal(lvm, "joystick");  
-  lua_getfield(lvm, -1, "axis"); 
-  lua_remove(lvm, -2); 
-  lua_pushinteger(lvm, stick); 
-  lua_pushinteger(lvm, axis);
-  lua_pushinteger(lvm, value);
-  lua_call(lvm, 3, 0); 
+  w_call_stick_handler("axis", stick, axis, value);
 }
 
 void w_handle_stick_button(int stick, int button, int value) {
-  lua_getglobal(lvm, "joystick");  
-  lua_getfield(lvm, -1, "button"); 
-  lua_remove(lvm, -2); 
-  lua_pushinteger(lvm, stick);
-  lua_pushinteger(lvm, button);
-  lua_pushinteger(lvm, value);
-  lua_call(lvm, 3, 0); 
+  w_call_stick_handler("button", stick, button, value);
 }
 
-
-
 // helper for pushing array of c strings
-static void push_string_array(char** arr, int n) {
+static inline void
+w_push_string_array(char** arr, int n) {
   // allocate and push the table
   lua_createtable(lvm, n, 0);
   // set each entry
@@ -240,25 +239,25 @@ static void push_string_array(char** arr, int n) {
   lua_pushinteger(lvm, n);
 }
 
-// helper for calling report handler
+// helper for calling report handlers
 static inline void
-w_call_report_handler(char** arr, int num, const char* handler) {
+w_call_report_handler(const char* name, char** arr, int num) {
   lua_getglobal(lvm, "report");  
-  lua_getfield(lvm, -1, handler); 
+  lua_getfield(lvm, -1, name); 
   lua_remove(lvm, -2); 
-  push_string_array(arr, num);
+  w_push_string_array(arr, num);
   lua_call(lvm, 2, 0);
 }
 
 // audio engine report handlers
-void w_push_buffer_list(char** arr, int num) {
-  w_call_report_handler(arr, num, "buffer");
+void w_handle_buffer_report(char** arr, int num) {
+  w_call_report_handler( "buffer", arr, num);
 }
 
-void w_push_engine_list(char** arr, int num) {
-  w_call_report_handler(arr, num, "engine");
+void w_handle_engine_report(char** arr, int num) {
+  w_call_report_handler("engine", arr, num);
 }
 
-void w_push_param_list(char** arr, int num) {
-  w_call_report_handler(arr, num, "param");
+void w_handle_param_report(char** arr, int num) {
+  w_call_report_handler("param", arr, num);
 }

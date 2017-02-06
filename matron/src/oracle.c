@@ -191,8 +191,16 @@ void o_load_engine(const char* name) {
 
 //   FIXME: autogenerate from protcol description?
 //   use dynamic list of OSC patterns (varargs tricks)?
+void o_request_buffer_report(void) {
+  lo_send(remote_addr, "/buffer/request/report", "");
+}
+
 void o_load_buffer_name(const char* name, const char* path) {
   lo_send(remote_addr, "/buffer/load/name", "ss", name, path);
+}
+
+void o_request_param_report(void) {
+  lo_send(remote_addr, "/param/request/report", "");
 }
 
 void o_set_param_name(const char* name, const float val) {

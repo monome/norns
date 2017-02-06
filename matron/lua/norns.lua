@@ -78,14 +78,14 @@ end
 -- handlers for descriptor reports
 report = {}
 
-report.buffers = function(names, count)
+report.buffer = function(names, count)
    print(count .. " buffers: ")
    for i=1,count do
 	  print(i .. ": "..names[i])
    end
 end
 
-report.engines = function(names, count)
+report.engine = function(names, count)
    print(count .. " engines: ")
    for i=1,count do
 	  print(i .. ": "..names[i])
@@ -93,7 +93,7 @@ report.engines = function(names, count)
 end
 
 
-report.params = function(names, count)
+report.param = function(names, count)
    print(count .. " params: ")
    for i=1,count do
 	  print(i .. ": "..names[i])
