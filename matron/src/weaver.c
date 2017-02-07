@@ -58,10 +58,12 @@ void w_init(void) {
   lua_register(lvm, "set_param", &w_set_param_name);
   // TODO  lua_register(lvm, "load_param_idx", &w_load_param_index);
   
-  // run user init code
+  // run system init code
   w_run_code("dofile(\"lua/norns.lua\");");
 }
 
+// run user startup code
+// audio backend should be running
 void w_user_startup(void) {
   lua_getglobal(lvm, "startup");
   lua_pcall(lvm, 0, 0, 0);
@@ -85,7 +87,6 @@ int w_grid_set_led(lua_State* l) {
 	  }
 	}
   }
-  // FIXME(?) : silently ignoring incorrect args...
   return 0;
 }
 
@@ -227,7 +228,7 @@ void w_handle_stick_button(int stick, int button, int value) {
 
 // helper for pushing array of c strings
 static inline void
-w_push_string_array(char** arr, int n) {
+w_push_string_array(const char** arr, const int n) {
   // allocate and push the table
   lua_createtable(lvm, n, 0);
   // set each entry
@@ -241,7 +242,7 @@ w_push_string_array(char** arr, int n) {
 
 // helper for calling report handlers
 static inline void
-w_call_report_handler(const char* name, char** arr, int num) {
+w_call_report_handler(const char* name, const char** arr, const int num) {
   lua_getglobal(lvm, "report");  
   lua_getfield(lvm, -1, name); 
   lua_remove(lvm, -2); 
@@ -250,14 +251,14 @@ w_call_report_handler(const char* name, char** arr, int num) {
 }
 
 // audio engine report handlers
-void w_handle_buffer_report(char** arr, int num) {
+void w_handle_buffer_report(const char** arr, const int num) {
   w_call_report_handler( "buffer", arr, num);
 }
 
-void w_handle_engine_report(char** arr, int num) {
+void w_handle_engine_report(const char** arr, const int num) {
   w_call_report_handler("engine", arr, num);
 }
 
-void w_handle_param_report(char** arr, int num) {
+void w_handle_param_report(const char** arr, const int num) {
   w_call_report_handler("param", arr, num);
 }

@@ -7,7 +7,6 @@
 #include "oracle.h"
 #include "weaver.h"
 
-
 //-----------------------
 //--- types, variables
 
@@ -119,44 +118,40 @@ void events_handle_error(const char* msg) {
 
 //---- handlers
 
-void handle_grid_press(SDL_Event* ev) {
+static inline void
+handle_grid_press(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
 }
 
-void handle_grid_lift(SDL_Event* ev) {
+static inline void
+handle_grid_lift(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
 }
 
-void handle_joy_axis(SDL_JoyAxisEvent* ja) {
+static inline void
+handle_joy_axis(SDL_JoyAxisEvent* ja) {
   w_handle_stick_axis(ja->which, ja->axis, ja->value);
 }
 
-void handle_joy_button(SDL_JoyButtonEvent* jb) {
+static inline void
+handle_joy_button(SDL_JoyButtonEvent* jb) {
   w_handle_stick_button(jb->which, jb->button, jb->state);
 }
 
 
 void handle_buffer_report(void) {
-  printf("handling completed buffer report\n");
   o_lock_descriptors();
   const char** p = o_get_buffer_names();
-  for(int i=0; i<o_get_num_buffers(); i++) { 
-   	printf("buffer %d: %s \n", i, p[i]); 
-  }
-  w_handle_buffer_report(o_get_num_buffers(), o_get_buffer_names());
+  const int n = o_get_num_buffers();
+  w_handle_buffer_report(p, n); 
   o_unlock_descriptors();
 }
 
 void handle_engine_report(void) {
-  // FIXME: pass this to weaver
   o_lock_descriptors();
   const char** p = o_get_engine_names();
   const int n = o_get_num_engines();
-  for(int i=0; i<n; i++) {
-	printf("engine %d: %s \n", i, p[i]);
-  }
-  // TODO
-  //  w_push_engine_list(p);
+  w_handle_engine_report(p, n);
   o_unlock_descriptors();
 }
 
@@ -164,11 +159,8 @@ void handle_param_report(void) {
   printf("handling completed param report \n");
   o_lock_descriptors();
   const char** p = o_get_param_names();
-  for(int i=0; i<o_get_num_params(); i++) {
-	printf("param %d: %s \n", i, p[i]);
-  }
-  // TODO
-  //  w_push_param_list(p);
+  const int n = o_get_num_params();
+  w_handle_param_report(p, n);
   o_unlock_descriptors();
 }
 
@@ -180,27 +172,21 @@ void handle_user_event(SDL_Event* ev) {
 	// free the chunk allocated by REPL
 	free(ev->user.data1);
 	break;
-	
   case EVENT_BUFFER_REPORT:
 	handle_buffer_report();
 	break;
-	
   case EVENT_ENGINE_REPORT:
 	handle_engine_report();
-	break;
-	
+	break;	
   case EVENT_PARAM_REPORT:
 	handle_param_report();
 	break;
-
   case EVENT_GRID_PRESS:
 	handle_grid_press(ev);
 	break;
   case EVENT_GRID_LIFT:
 	handle_grid_lift(ev);
-	break;
-	
-	
+	break;   	
   case EVENT_QUIT:
 	post_quit_event();
 	break;
@@ -216,7 +202,6 @@ void handle_sdl_event(SDL_Event *e) {
 	handle_user_event(e);
 	break;
 	// FIXME: SDL won't deliver m/kb without creating a window.. 
-	
     // joystick
   case SDL_JOYAXISMOTION:
 	handle_joy_axis(&(e->jaxis));

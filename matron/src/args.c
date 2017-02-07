@@ -17,7 +17,7 @@ static struct args a = {
   .monome_path = "/dev/ttyUSB0"
 };
 
-int parse_args(int argc, char** argv)
+int args_parse(int argc, char** argv)
 {
   int flags, opt;
   while( (opt = getopt(argc, argv, "r:l:m:")) != -1 ) {

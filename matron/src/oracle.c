@@ -240,8 +240,6 @@ void o_clear_desc(char** desc_arr, int num) {
 // set a given entry in a given descriptor list
 void o_set_desc(char** desc_arr, int idx, const char* name) {
   size_t len;
-  
-  printf("o_set_desc(); %d: %s \n", idx, name);
   o_lock_descriptors();
   if(desc_arr[idx] != NULL) {
 	printf("refusing to allocate descriptor %d; already exists", idx);
@@ -251,7 +249,6 @@ void o_set_desc(char** desc_arr, int idx, const char* name) {
 	if ( desc_arr[idx] == NULL ) {
 	  printf("failure to malloc for descriptor %d : %s \n", idx, name);
 	} else {
-	  printf("copying to allocated descriptor %d: %s \n", idx, name);
 	  strncpy(desc_arr[idx], name, len+1);
 	}
   }  
@@ -270,8 +267,8 @@ void o_set_num_desc(int* dst, int num) {
 
 int buffer_report_start(const char *path, const char *types, lo_arg ** argv,
 						int argc, void *data, void *user_data) {
+  // arg 1: count of buffers
   o_clear_desc(buffer_names, num_buffers);
-  // single arg is count of buffers
   o_set_num_desc(&num_buffers, argv[0]->i);
 }
 
@@ -291,8 +288,8 @@ int buffer_report_end(const char *path, const char *types, lo_arg ** argv,
 int engine_report_start(const char *path, const char *types,
 						lo_arg ** argv, int argc, void *data, void *user_data)
 {
+  // arg 1: count of buffers
   o_clear_desc(engine_names, num_engines);
-  // single arg is count
   o_set_num_desc(&num_engines, argv[0]->i);
 }
 
@@ -318,8 +315,8 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 int param_report_start(const char *path, const char *types, lo_arg ** argv,
 					   int argc, void *data, void *user_data)
 {
+  // arg 1: count of params
   o_clear_desc(param_names, num_params);
-  // single arg is count of params
   o_set_num_desc(&num_params, argv[0]->i);
 }
 
@@ -327,14 +324,12 @@ int param_report_name(const char *path, const char *types, lo_arg ** argv,
 					  int argc, void *data, void *user_data) {
   // arg 1: buffer index
   // arg 2: buffer name
-  // NB: yes, this is the correct way to read a string from a lo_arg
-  printf("param_report_name() \n");
   o_set_desc(param_names, argv[0]->i, &argv[1]->s);
 }
 
 int param_report_end(const char *path, const char *types, lo_arg ** argv,
 					 int argc, void *data, void *user_data) {
-  // no arguments; post event
+  // no arguments
   event_post(EVENT_PARAM_REPORT, NULL, NULL);
 }
 

@@ -12,9 +12,7 @@
 #include "m.h" // monome glue
 
 int main(int argc, char** argv) {
-
-  parse_args(argc, argv);
-
+  args_parse(argc, argv);
 
   // this must come first... 
   events_init();

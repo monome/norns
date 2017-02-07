@@ -23,6 +23,6 @@ extern void w_handle_stick_axis(int stick, int axis, int value) ;
 extern void w_handle_stick_button(int stick, int button, int value) ;
 
 //--- audio engine introspection
-extern void w_handle_buffer_report(char** arr, int num);
-extern void w_handle_engine_report(char** arr, int num);
-extern void w_handle_param_report(char** arr, int num);
+extern void w_handle_buffer_report(const char** arr, const int num);
+extern void w_handle_engine_report(const char** arr, const int num);
+extern void w_handle_param_report(const char** arr, const int num);

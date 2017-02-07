@@ -59,7 +59,7 @@ extern void o_save_buffer_name(const char* name, const char* path);
 
 
 // request list of params
-extern void o_request_buffer_report(void);
+extern void o_request_param_report(void);
 
 // set indexed parameter with float value
 extern void o_set_param_index(int idx, const float val);
