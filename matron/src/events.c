@@ -36,6 +36,8 @@ static void handle_grid_press(SDL_Event* ev);
 static void handle_grid_lift(SDL_Event* ev);
 static void handle_joy_axis(SDL_JoyAxisEvent* ja);
 static void handle_joy_button(SDL_JoyButtonEvent* jb);
+static void handle_joy_hat(SDL_JoyHatEvent* jh);
+static void handle_joy_ball(SDL_JoyBallEvent* jb);
 static void handle_buffer_report(void) ;
 static void handle_engine_report(void);
 static void handle_param_report(void);
@@ -116,8 +118,11 @@ void events_handle_error(const char* msg) {
   printf("error in events.c : %s ; code: %d", msg, SDL_GetError());
 }
 
+
+//---------------------------------
 //---- handlers
 
+//---  grid
 static inline void
 handle_grid_press(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
@@ -128,6 +133,7 @@ handle_grid_lift(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
 }
 
+//--- joystick
 static inline void
 handle_joy_axis(SDL_JoyAxisEvent* ja) {
   w_handle_stick_axis(ja->which, ja->axis, ja->value);
@@ -138,7 +144,16 @@ handle_joy_button(SDL_JoyButtonEvent* jb) {
   w_handle_stick_button(jb->which, jb->button, jb->state);
 }
 
+void handle_joy_hat(SDL_JoyHatEvent* jh) {
+  // TODO
+}
 
+void handle_joy_ball(SDL_JoyBallEvent* jb) {
+  // TODO
+}
+
+
+//--- reports
 void handle_buffer_report(void) {
   o_lock_descriptors();
   const char** p = o_get_buffer_names();
@@ -164,6 +179,7 @@ void handle_param_report(void) {
   o_unlock_descriptors();
 }
 
+//---- raw SDL
 void handle_user_event(SDL_Event* ev) {
   switch(ev->user.code) {
 	
@@ -206,9 +222,11 @@ void handle_sdl_event(SDL_Event *e) {
   case SDL_JOYAXISMOTION:
 	handle_joy_axis(&(e->jaxis));
 	break;
-  case SDL_JOYBALLMOTION:          
+  case SDL_JOYBALLMOTION:
+	handle_joy_ball(&(e->jball));
 	break;
-  case SDL_JOYHATMOTION:           
+  case SDL_JOYHATMOTION:
+	handle_joy_hat(&(e->jhat));
 	break;
   case SDL_JOYBUTTONDOWN:
 	handle_joy_button(&(e->jbutton));

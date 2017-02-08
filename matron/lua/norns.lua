@@ -1,6 +1,6 @@
 -- startup script for norns lua environment.
 
--- NB: removing these definitions will break the C->lua glue.
+-- NB: removing these function/module definitions will break the C->lua glue.
 -- in other respects, feel free to customize.
 
 print("running norns.lua")
@@ -13,6 +13,8 @@ startup = function()
    -- ( likely just: dofile("mycustomscript.lua") )
    -- it will be run after I/O subsystems are initialized,
    -- but before I/O event loop starts ticking
+   dofile('lua/sticksine.lua')
+   --dofile('lua/test.lua')
 end
 
 --------------------------

@@ -24,6 +24,9 @@
 static lo_address remote_addr;
 static lo_server_thread st;
 
+// TODO: semaphore for waiting on audio backend init
+//static sem_t audio_init_sem;
+
 //-------------------
 //--- audio engine descriptor management
 

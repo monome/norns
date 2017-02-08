@@ -12,9 +12,28 @@
 
 lua_State* lvm;
 
+void handle_lua_error(int val) {
+  switch(val) {
+  case LUA_ERRRUN:
+	printf("[lua runtime error!] \n");
+	break;
+  case LUA_ERRMEM:
+	printf("[lua memory allocation error!]\n");
+	break;
+  case LUA_ERRGCMM:
+	printf("[lua __gc metamethod error!]\n");
+	break;
+  case LUA_OK:
+  default:
+	;; // nothing to do
+  }
+
+}
+
 void w_run_code(const char* code) {
   luaL_loadstring(lvm, code); // compile code, push to stack
-  lua_pcall(lvm, 0, LUA_MULTRET, 0); // pop stack and evaluate
+  int ret = lua_pcall(lvm, 0, LUA_MULTRET, 0); // pop stack and evaluate
+  if(ret) { handle_lua_error(ret); }
 }
 
 //-------------
@@ -195,7 +214,8 @@ w_call_grid_handler(const char* name, int x, int y) {
   lua_remove(lvm, -2); 
   lua_pushinteger(lvm, x); 
   lua_pushinteger(lvm, y);
-  lua_call(lvm, 2, 0); 
+  int ret = lua_pcall(lvm, 2, 0, 0);
+  if(ret) { handle_lua_error(ret); }
 
 }
 void w_handle_grid_press(int x, int y) {
@@ -215,15 +235,16 @@ w_call_stick_handler(const char* name, int stick, int what, int val) {
   lua_pushinteger(lvm, stick); 
   lua_pushinteger(lvm, what);
   lua_pushinteger(lvm, val);
-  lua_call(lvm, 3, 0);
+  int ret = lua_pcall(lvm, 3, 0, 0);
+  if(ret) { handle_lua_error(ret); }
 }
 
 void w_handle_stick_axis(int stick, int axis, int value) {
-  w_call_stick_handler("axis", stick, axis, value);
+  w_call_stick_handler("axis", stick+1, axis+1, value);
 }
 
 void w_handle_stick_button(int stick, int button, int value) {
-  w_call_stick_handler("button", stick, button, value);
+  w_call_stick_handler("button", stick+1, button+1, value);
 }
 
 // helper for pushing array of c strings
@@ -247,7 +268,9 @@ w_call_report_handler(const char* name, const char** arr, const int num) {
   lua_getfield(lvm, -1, name); 
   lua_remove(lvm, -2); 
   w_push_string_array(arr, num);
-  lua_call(lvm, 2, 0);
+  int ret = lua_pcall(lvm, 2, 0, 0);
+  if(ret) { handle_lua_error(ret); }
+
 }
 
 // audio engine report handlers
