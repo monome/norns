@@ -4,18 +4,23 @@ Crone {
 	classvar engine; // current CroneEngine instance
 	classvar oscfunc;
 	classvar remote_addr;
+	classvar tx_port = 8888;
+	classvar remote_addr;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
-			postln("\n-----------------");
-			postln("Crone class startup");
-			postln("------------------\n");
+			postln("\n-------------------------------------------------");
+			postln(" Crone startup");
+			postln("");
+			postln(" \OSC rx port: " ++ NetAddr.langPort);
+			postln(" \OSC tx port: " ++ tx_port);
+			postln("--------------------------------------------------\n");
 
 			Server.default.boot;
 
 			// FIXME: hardcoded remote address for now
-			remote_addr =NetAddr("127.0.0.1", 8888);
+			remote_addr =NetAddr("127.0.0.1", tx_port);
 
 			// FIXME: osc patterns should be customized by current engine
 			// this is dependent on adding support to the C side

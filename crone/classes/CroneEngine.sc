@@ -23,6 +23,7 @@ CroneEngine {
 	}
 
 	kill {
+		// TODO: let the subclasses decide how to do this more gracefully
 		bufs.do({ arg ev; ev.buf.free; });
 		group.free;
 	}
