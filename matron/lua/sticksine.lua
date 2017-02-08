@@ -3,7 +3,7 @@
 
    basic demo script showing how to connect inputs to audio params.
 
-   this little instrument maps joystick buttons to pitch movements.
+   this dumb instrument maps joystick buttons to pitch movements.
 
    the output is a single sinewave.
 
@@ -29,49 +29,57 @@ print('running sticksine.lua')
 -- load the audio engine we want to use
 load_engine('TestSine')
 
+
 -- make a 'pitch' object to hold our data and methods
 -- for calculating and updating the pitch of the sinewave
-local pitch = {
+pitch = {
    ---- variables
    -- fundamental frequency
    base = 220,
    -- list of just intonation ratios
    scale = { 2, 3/2, 4/3, 5/4, 6/5 },   
    -- current output frequency
-   hz = 220
+   hz = 220,
+
+   ---- methods
+   update = function ()
+	  set_param("hz", pitch.hz)
+	  print('hz ' .. pitch.hz)
+   end,
+
+   -- move the pitch up
+   stepup = function (degree)
+	  if pitch.scale[degree] ~= nil then
+		 pitch.hz = pitch.hz * pitch.scale[degree]
+		 pitch.update()
+	  end
+   end,
+
+   -- move the pitch down
+   stepdown = function (degree)
+	  if pitch.scale[degree] ~= nil then
+		 pitch.hz = pitch.hz / pitch.scale[degree]
+		 pitch.update()
+	  end
+   end,
+
+   -- reset to the base frequency
+   reset = function ()
+	  pitch.hz = pitch.base
+	  pitch.update()
+   end
 }
 
-print('pitch object: ' .. pitch)
-
-
----- methods
--- update the synthesizer with the current pitch
-function pitch:update()
-   set_param("hz", pitch.hz)
-end
-
--- move the pitch up
-function pitch:stepup(degree)
-   if pitch.scale[degree] ~= nil then
-	  pitch.hz = pitch.hz * pitch.scale[degree]
-	  pitch.update()
+-- similar but simpler for the amp parameter
+amp = {
+   val = 1.0,
+   
+   set = function(x)
+	  print('amp ' .. x)
+	  amp.val = x
+	  set_param('amp', x)
    end
-end
-
-
--- move the pitch down
-function pitch:stepdown(degree)
-   if pitch.scale[degree] ~= nil then
-	  pitch.hz = pitch.hz / pitch.scale[degree]
-	  pitch.update()
-   end
-end
-
--- reset to the base frequency
-function pitch:reset()
---   pitch.hz = pitch.base
-   pitch.update()
-end
+}
 
 -- simple variable for invert-button state
 local invert_but = false
@@ -87,71 +95,62 @@ pitchbutfunc = function(but)
    end
 end
 
---[[
+
+
 -- lua lacks a switch statement.
 -- use a function table instead
 butfunc = {
-   1 = pitchbutfunc(1),
-   2 = pitchbutfunc(2),
-   3 = pitchbutfunc(3),
-   4 = pitchbutfunc(4),
-
-   5 = function(val)
-	  if val then invert_but = true
-	  else invert_but = false
-	  end
+   -- buttons 1-4: change pitch
+   pitchbutfunc(1),
+   pitchbutfunc(2),
+   pitchbutfunc(3),
+   pitchbutfunc(4),
+   -- button 5: invert
+   function(val)
+	  invert_but = not (val == 0)
    end,
-
-   6 = function(val)
+   -- button 6: reset
+   function(val)
 	  if val then pitch.reset() end
    end
 }
---]]
-
-
-print('butfunc: ' .. butfunc)
 
 -- similarly for joystick axis functions
---[[
 axfunc = {
-   1 = function(val)
-	  print('ax 1 '.. val)
+   -- axis 1: amp
+   function(val)
 	  local dz = 2000 -- deadzone
-	  local mag = val.abs
+	  local mag = math.abs(val)
 	  local a = 0.0
 	  if mag > dz then
 		 a = (mag - dz) / (32768 - dz)
 	  end
 	  amp.set(a)
    end,
-   
-   2 = function(val)
-	  print('ax 2 '.. val)
+
+   -- axis 2: amp lag
+   function(val)
 	  -- TODO
    end,
 
-   3 = function(val)
-	  print('ax 3 '.. val)
+   -- axis 3: pitch bend
+   function(val)
 	  -- TODO
    end,
 
-   1 = function(val)
-	  print('ax 4 '.. val)
+   -- axis 4: pitch lag
+   function(val)
 	  -- TODO
    end   
 }
 
-		 --]]
-
 
 -- finally, glue our functions to the handlers defined in norns.lua
 joystick.button = function(stick, but, val)
-   print('but')
---   if type(butfunc[but]) == "function" then butfunc[but](val) end
+   if type(butfunc[but]) == "function" then butfunc[but](val) end
 end
 
 joystick.axis = function(stick, ax, val)
-      print('ax')
-   -- if type(axfunc[ax]) == "function" then axfunc[ax](val) end
+   if type(axfunc[ax]) == "function" then axfunc[ax](val) end
 end
 
