@@ -88,15 +88,15 @@ input event handlers are defined in `norns.lua`. the default functions just prin
 
 - wrap sc and matron execution in a launcher app (call it *norns*.) use linux `execl` and `fork`. capture and redirect matron and sclang's standard I/O as desired. 
 
-- might be good to change from the fixed 'buffers and parameters' model, to having each engine declare an arbitrary list of OSC-formatted commands, e.g.:
+- might be good to change from the fixed 'buffers and parameters' model, to having each engine declare an arbitrary list of OSC-formatted commands. example SC code:
 
 ```
-{
-	(\path:'/buffer/load', \format: "ss") // load named buffer from soundfile
-	(\path;'/buffer/crop', \format: "ff") // crop a buffer to the given start and end locations (in seconds)
-	(\path:'/pitch/set/hz', \format: "f") // set pitch as a raw hz value
-	(\path:'/waveform/partial/set', \format: "if"// set a given partial to a given amplitude in the waveform
-}
+[
+	(\path:'/buffer/load', \format: "ss"), // load named buffer from soundfile
+	(\path;'/buffer/crop', \format: "ff"), // crop a buffer to the given start and end locations (in seconds)
+	(\path:'/pitch/set/hz', \format: "f"), // set pitch as a raw hz value
+	(\path:'/waveform/partial/set', \format: "if") // set a given partial to a given amplitude in the waveform
+]
 ```
 
 ... and so on.
