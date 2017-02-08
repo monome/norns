@@ -96,7 +96,7 @@ void event_loop(void) {
 void event_post_monome_grid(event_t id, int x, int y) {
   union { SDL_Event ev; SDL_MonomeGridEvent mev; } u;
   SDL_memset(&u, 0, sizeof(u));
-  u.ev.type - SDL_USEREVENT;
+  u.ev.type = SDL_USEREVENT;
   u.ev.user.code = id;
   u.mev.x = (uint8_t) x;
   u.mev.y = (uint8_t) y;
