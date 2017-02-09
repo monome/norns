@@ -7,6 +7,9 @@
 #include "oracle.h"
 #include "weaver.h"
 
+// use busy-wait
+//#define SDL_EVENT_BUSY_WAIT 1
+
 //-----------------------
 //--- types, variables
 
@@ -81,7 +84,13 @@ void event_loop(void) {
   
   while(!quit) {
 	// checks for pending SDL events
+#if SDL_EVENT_BUSY_WAIT
+	// perform all pending events immediately
 	while(SDL_PollEvent(&e)) {
+#else
+	  // go to sleep, and wake up when we get an event
+	  if(SDL_WaitEvent(&e)) {
+#endif
 	  // printf("got SDL event type %d \n", e.type);
 	  if(e.type == SDL_QUIT) {
 		quit = 1;
@@ -243,3 +252,7 @@ void handle_sdl_event(SDL_Event *e) {
 	;; // nothing to do
   }
 }
+
+#ifdef SDL_EVENT_BUSY_WAIT
+#undef SDL_EVENT_BUSY_WAIT
+#endif
