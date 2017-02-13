@@ -26,3 +26,6 @@ extern void w_handle_stick_button(int stick, int button, int value) ;
 extern void w_handle_buffer_report(const char** arr, const int num);
 extern void w_handle_engine_report(const char** arr, const int num);
 extern void w_handle_param_report(const char** arr, const int num);
+
+//--- timer bang handler
+extern void w_handle_timer(const int idx, const int count);

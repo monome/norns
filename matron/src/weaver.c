@@ -7,6 +7,7 @@
 
 #include "events.h"
 #include "m.h"
+#include "timers.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -50,6 +51,11 @@ static int w_load_buffer_name(lua_State* l);
 static int w_request_param_report(lua_State* l);
 static int w_set_param_name(lua_State* l);
 
+// manage timers from lua
+static int w_timer_add(lua_State* l);
+static int w_timer_stop(lua_State* l);
+
+
 // screen functions
 // TODO
 // static void w_screen_print(void);
@@ -76,6 +82,9 @@ void w_init(void) {
   lua_register(lvm, "report_params", &w_request_param_report);
   lua_register(lvm, "set_param", &w_set_param_name);
   // TODO  lua_register(lvm, "load_param_idx", &w_load_param_index);
+
+  lua_register(lvm, "start_timer", &w_timer_add);
+  lua_register(lvm, "stop_timer", &w_timer_stop);
   
   // run system init code
   w_run_code("dofile(\"lua/norns.lua\");");
@@ -94,49 +103,85 @@ void w_user_startup(void) {
 int w_grid_set_led(lua_State* l) {
   int res = 0;
   int x, y, z;
-  if(lua_gettop(l) == 3) { // check num args
-	if(lua_isnumber(l, 1)) {
-	  x = lua_tonumber(l, 1);
-	  if(lua_isnumber(l, 2)) {
-		y = lua_tonumber(l, 2);
-		if(lua_isnumber(l, 3)) {
-		  z = lua_tonumber(l, 3);
-		  m_grid_set_led(x, y, z);
-		}
-	  }
-	}
+  if(lua_gettop(l) != 3) { // check num args
+	goto args_error;
+  } 
+	
+  if(lua_isnumber(l, 1)) {
+	x = lua_tonumber(l, 1);
+  } else {
+	goto args_error;
   }
+	
+  if(lua_isnumber(l, 2)) {
+	y = lua_tonumber(l, 2);
+  } else {
+	goto args_error;
+  }
+  if(lua_isnumber(l, 3)) {
+	z = lua_tonumber(l, 3);
+  } else {
+	goto args_error;
+  }
+  
+  m_grid_set_led(x, y, z);
   return 0;
+  
+ args_error:
+  printf("warning: incorrect arguments to grid_set_led() \n");
+  return 1;
 }
 
 //-- audio processing controls
 int w_load_engine(lua_State* l) {
-  if(lua_gettop(l) == 1) {
-	if(lua_isstring(l, 1)) {
-	  o_load_engine(lua_tostring(l, 1));
-	}
+  if(lua_gettop(l) != 1) {
+	goto args_error;
   }
+  
+  if(lua_isstring(l, 1)) {
+	o_load_engine(lua_tostring(l, 1));
+	return 0;
+  } else {
+	goto args_error;
+  }
+  
+ args_error:
+  printf("warning: incorrect arguments to load_engine() \n");
+  return 1;
 }
 
 // FIXME: should support dynamically defined OSC formats
 int w_load_buffer_name(lua_State* l) {
-  if(lua_gettop(l) == 2) {
-	if(lua_isstring(l, 1)) {
-	  if(lua_isstring(l, 2)) {
-		o_load_buffer_name(lua_tostring(l, 1), lua_tostring(l, 2));
-	  }
-	}
+  if(lua_gettop(l) != 2) {
+	goto args_error;
   }
+  if(lua_isstring(l, 1) && lua_isstring(l, 2)) {
+	  o_load_buffer_name(lua_tostring(l, 1), lua_tostring(l, 2));
+  } else {
+	goto args_error;
+  }
+  return 0;
+
+ args_error:
+  printf("warning: incorrect arguments to load_engine() \n");
+  return 1;
 }
 
 int w_set_param_name(lua_State* l) {
-  if(lua_gettop(l) == 2) {
-	if(lua_isstring(l, 1)) {
-	  if(lua_isnumber(l, 2)) {
-		o_set_param_name(lua_tostring(l, 1), lua_tonumber(l, 2));
-	  }
-	}
+  if(lua_gettop(l) != 2) {
+	goto args_error;
   }
+  
+  if(lua_isstring(l, 1) && lua_isnumber(l, 2)) {
+	o_set_param_name(lua_tostring(l, 1), lua_tonumber(l, 2));
+  } else {
+	goto args_error;
+  }
+  return 0;
+  
+ args_error:
+  printf("warning: incorrect arguments to set_param() \n");
+  return 1;
 }
 
 int w_request_engine_report(lua_State* l) {
@@ -151,15 +196,64 @@ int w_request_param_report(lua_State* l) {
   o_request_param_report();
 }
 
+// manage timers from lua
+int w_timer_add(lua_State* l) {
+  int idx;
+  double seconds;
+  int count;
+  if(lua_gettop(l) != 3) {
+	goto args_error;
+  }
+  if(lua_isnumber(l, 1)) {
+	idx = lua_tonumber(l, 1);
+  } else {
+	goto args_error;
+  }
+  if(lua_isnumber(l, 2)) {
+	seconds = lua_tonumber(l, 2);
+  } else {
+	goto args_error;
+  }
+  if(lua_isnumber(l, 3)) {
+	count = lua_tonumber(l, 3);
+  } else {
+	goto args_error;
+  }
+  
+  timer_add(idx, seconds, count);
+  return 0;
+  
+ args_error:
+	printf("warning: incorrect arguments to start_timer() \n");
+	return 1;
+}
+
+int w_timer_stop(lua_State* l) {
+  int idx;
+   if(lua_gettop(l) != 3) {
+	goto args_error;
+  }
+  if(lua_isnumber(l, 1)) {
+	idx = lua_tonumber(l, 1);
+  } else {
+	goto args_error;
+  }
+  timer_stop(idx);
+  return 0;
+ args_error:
+  printf("warning: incorrect arguments to start_timer() \n");
+  return 1;
+}
+
 
 //---- c -> lua glue
 
 //--- hardware input
 
 /*
-general form:
+  general form:
 
-void handle_foo(a, b, ... ) { 
+  void handle_foo(a, b, ... ) { 
   lua_getglobal(l, "handle"); // push table of callbacks to the stack 
   lua_getfield(l, "handle"); // push callback function to stack
   lua_remove(l, -2); // remove the table
@@ -167,44 +261,44 @@ void handle_foo(a, b, ... ) {
   lua_pushinteger(l, b); // 
   // ... keep pushing arguments
   lua_call(l, N, 0); // pop stack and call the function with N arguments
- */
+*/
 
 /* TODO:
    implement with varargs:
-#include <stdio.h>
-#include <stdarg.h>
+   #include <stdio.h>
+   #include <stdarg.h>
 
-void call_module_function(char* module, char* name, char *fmt, ...)
-{
-  va_list ap;
-  int d;
-  char c, *s;
-  double f;
+   void call_module_function(char* module, char* name, char *fmt, ...)
+   {
+   va_list ap;
+   int d;
+   char c, *s;
+   double f;
 
-  //... put fn on stack as above ...
+   //... put fn on stack as above ...
 
-  va_start(ap, fmt);
-  while (*fmt)
-	switch (*fmt++) {
-	case 's':
-	  s = va_arg(ap, char *);
-	  // ... push string to stack.. 
-	  break;
-	case 'd':
-	  d = va_arg(ap, int);
-	  // ... push int to stack.. 
-	  // push int
-	  break;
-	case 'f':
-	  f = va_arg(ap, double);
-	  // ... push double to stack ... 
-	  break;
-	}
-	// .. increment arg counter ... 
-	va_end(ap);
-  }
-  /// ... call with count of args ... 
- */
+   va_start(ap, fmt);
+   while (*fmt)
+   switch (*fmt++) {
+   case 's':
+   s = va_arg(ap, char *);
+   // ... push string to stack.. 
+   break;
+   case 'd':
+   d = va_arg(ap, int);
+   // ... push int to stack.. 
+   // push int
+   break;
+   case 'f':
+   f = va_arg(ap, double);
+   // ... push double to stack ... 
+   break;
+   }
+   // .. increment arg counter ... 
+   va_end(ap);
+   }
+   /// ... call with count of args ... 
+   */
 
 // helper for calling grid handlers
 static inline void
@@ -254,8 +348,8 @@ w_push_string_array(const char** arr, const int n) {
   lua_createtable(lvm, n, 0);
   // set each entry
   for (int i=0; i<n; i++) {
-    lua_pushstring(lvm, arr[i]);
-    lua_rawseti(lvm, -2, i+1);
+	lua_pushstring(lvm, arr[i]);
+	lua_rawseti(lvm, -2, i+1);
   }
   // push count of entries
   lua_pushinteger(lvm, n);
@@ -284,4 +378,13 @@ void w_handle_engine_report(const char** arr, const int num) {
 
 void w_handle_param_report(const char** arr, const int num) {
   w_call_report_handler("param", arr, num);
+}
+
+// timer handler
+void w_handle_timer(const int idx, const int count) {
+  lua_getglobal(lvm, "timer");
+  lua_pushinteger(lvm, idx);
+  lua_pushinteger(lvm, count);
+  int ret = lua_pcall(lvm, 2, 0, 0);
+  if(ret) { handle_lua_error(ret); }
 }

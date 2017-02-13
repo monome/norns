@@ -101,3 +101,8 @@ report.param = function(names, count)
 	  print(i .. ": "..names[i])
    end
 end
+
+-- handler for timer bang
+timer = function(idx, count)
+   print("timer " .. idx .. " : " .. count)
+end

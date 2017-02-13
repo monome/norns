@@ -113,10 +113,10 @@ void timer_wait(int idx) {
   pthread_join(timers[idx].tid, NULL);
 }
 
-void timer_kill(int idx) {
+void timer_stop(int idx) {
   int ret = pthread_cancel(timers[idx].tid);
   if(ret) { 
-	printf("timer_kill(): pthread_cancel() failed; error: 0x%08x\r\n", ret);
+	printf("timer_stop(): pthread_cancel() failed; error: 0x%08x\r\n", ret);
   }
 }
 

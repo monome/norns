@@ -8,7 +8,7 @@
 #include "weaver.h"
 
 // use busy-wait
-//#define SDL_EVENT_BUSY_WAIT 1
+#define SDL_EVENT_BUSY_WAIT 1
 
 //-----------------------
 //--- types, variables
@@ -84,13 +84,13 @@ void event_loop(void) {
   
   while(!quit) {
 	// checks for pending SDL events
-#if SDL_EVENT_BUSY_WAIT
-	// perform all pending events immediately
-	while(SDL_PollEvent(&e)) {
-#else
-	  // go to sleep, and wake up when we get an event
-	  if(SDL_WaitEvent(&e)) {
-#endif
+	/* #if SDL_EVENT_BUSY_WAIT */
+	/* 	// perform all pending events immediately */
+	/* 	while(SDL_PollEvent(&e)) { */
+	/* #else */
+	// go to sleep, and wake up when we get an event
+	if(SDL_WaitEvent(&e)) {
+	  //#endif
 	  // printf("got SDL event type %d \n", e.type);
 	  if(e.type == SDL_QUIT) {
 		quit = 1;
@@ -188,6 +188,10 @@ void handle_param_report(void) {
   o_unlock_descriptors();
 }
 
+void handle_timer(SDL_UserEvent* uev) {
+  w_handle_timer(*((int*)uev->data1), *((int*)uev->data2));
+}
+
 //---- raw SDL
 void handle_user_event(SDL_Event* ev) {
   switch(ev->user.code) {
@@ -211,7 +215,9 @@ void handle_user_event(SDL_Event* ev) {
 	break;
   case EVENT_GRID_LIFT:
 	handle_grid_lift(ev);
-	break;   	
+	break;
+  case EVENT_TIMER:
+	handle_timer(&(ev->user));
   case EVENT_QUIT:
 	post_quit_event();
 	break;
@@ -227,7 +233,7 @@ void handle_sdl_event(SDL_Event *e) {
 	handle_user_event(e);
 	break;
 	// FIXME: SDL won't deliver m/kb without creating a window.. 
-    // joystick
+	// joystick
   case SDL_JOYAXISMOTION:
 	handle_joy_axis(&(e->jaxis));
 	break;
