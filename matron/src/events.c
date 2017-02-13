@@ -218,6 +218,7 @@ void handle_user_event(SDL_Event* ev) {
 	break;
   case EVENT_TIMER:
 	handle_timer(&(ev->user));
+	break;
   case EVENT_QUIT:
 	post_quit_event();
 	break;

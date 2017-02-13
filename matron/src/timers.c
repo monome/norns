@@ -42,11 +42,16 @@ static void timer_bang(struct timer *t);
 //---- extern definitions
 void timer_add(int idx, double seconds, int count) {
   uint64_t nsec = (uint64_t) (seconds * 1000000000.0);
-  printf("adding timer at index %d, period %d nsec, count %d \r\n",
-		 idx, nsec, count);
-  if(idx < MAX_NUM_TIMERS) { 
+  if(idx >= 0 && idx < MAX_NUM_TIMERS_OK) {
+	//	printf("adding timer at index %d, period %d nsec, count %d \r\n",
+	//		   idx, nsec, count);
+	timers[idx].idx = idx;
+
 	timer_init(&timers[idx], nsec, count);
-  }			   
+  } else {
+	printf("invalid timer index, not added. max count of timers is %d\n",
+		   MAX_NUM_TIMERS_OK);
+  }
 }
 			   
 //------------------------
@@ -114,9 +119,16 @@ void timer_wait(int idx) {
 }
 
 void timer_stop(int idx) {
-  int ret = pthread_cancel(timers[idx].tid);
-  if(ret) { 
-	printf("timer_stop(): pthread_cancel() failed; error: 0x%08x\r\n", ret);
+  if(idx >=0 && idx < MAX_NUM_TIMERS_OK) { 
+	int ret = pthread_cancel(timers[idx].tid);
+	if(ret) { 
+	  printf("timer_stop(): pthread_cancel() failed; error: 0x%08x\r\n", ret);
+	} else {
+	  //	  printf("stopped timer index %d\n", idx);
+	}
+  } else {
+	printf("invalid timer index, not stopped. max count of timers is %d\n",
+		   MAX_NUM_TIMERS_OK );
   }
 }
 

@@ -14,6 +14,7 @@
 lua_State* lvm;
 
 void handle_lua_error(int val) {
+  // FIXME: unwind the stack and post it!
   switch(val) {
   case LUA_ERRRUN:
 	printf("[lua runtime error!] \n");
@@ -156,7 +157,7 @@ int w_load_buffer_name(lua_State* l) {
 	goto args_error;
   }
   if(lua_isstring(l, 1) && lua_isstring(l, 2)) {
-	  o_load_buffer_name(lua_tostring(l, 1), lua_tostring(l, 2));
+	o_load_buffer_name(lua_tostring(l, 1), lua_tostring(l, 2));
   } else {
 	goto args_error;
   }
@@ -205,7 +206,7 @@ int w_timer_add(lua_State* l) {
 	goto args_error;
   }
   if(lua_isnumber(l, 1)) {
-	idx = lua_tonumber(l, 1);
+	idx = lua_tonumber(l, 1) - 1; // lua indices are 1-basead
   } else {
 	goto args_error;
   }
@@ -224,24 +225,24 @@ int w_timer_add(lua_State* l) {
   return 0;
   
  args_error:
-	printf("warning: incorrect arguments to start_timer() \n");
-	return 1;
+  printf("warning: incorrect arguments to start_timer() \n");
+  return 1;
 }
 
 int w_timer_stop(lua_State* l) {
   int idx;
-   if(lua_gettop(l) != 3) {
+  if(lua_gettop(l) != 1) {
 	goto args_error;
   }
   if(lua_isnumber(l, 1)) {
-	idx = lua_tonumber(l, 1);
+	idx = lua_tonumber(l, 1) - 1;
   } else {
 	goto args_error;
   }
   timer_stop(idx);
   return 0;
  args_error:
-  printf("warning: incorrect arguments to start_timer() \n");
+  printf("warning: incorrect arguments to stop_timer() \n");
   return 1;
 }
 
@@ -383,7 +384,7 @@ void w_handle_param_report(const char** arr, const int num) {
 // timer handler
 void w_handle_timer(const int idx, const int count) {
   lua_getglobal(lvm, "timer");
-  lua_pushinteger(lvm, idx);
+  lua_pushinteger(lvm, idx+1);
   lua_pushinteger(lvm, count);
   int ret = lua_pcall(lvm, 2, 0, 0);
   if(ret) { handle_lua_error(ret); }
