@@ -3,7 +3,8 @@ TARGET = matron
 CC = gcc
 LD = gcc
 
-CFLAGS = -g -std=gnu99
+CFLAGS = -g -std=gnu11
+
 LDFLAGS = 
 LIB = -llo -llua -lpthread -lSDL2 -lmonome
 

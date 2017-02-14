@@ -7,9 +7,6 @@
 #include "oracle.h"
 #include "weaver.h"
 
-// use busy-wait
-//#define SDL_EVENT_BUSY_WAIT 1
-
 //-----------------------
 //--- types, variables
 
@@ -83,14 +80,8 @@ void event_loop(void) {
   char ch;
   
   while(!quit) {
-	// checks for pending SDL events
-#if SDL_EVENT_BUSY_WAIT
-	// perform all pending events immediately
-	while(SDL_PollEvent(&e)) {
-#else
-	  // go to sleep, and wake up when we get an event
-	  if(SDL_WaitEvent(&e)) {
-#endif
+	// sleep until we get an event
+	if(SDL_WaitEvent(&e)) {
 	  // printf("got SDL event type %d \n", e.type);
 	  if(e.type == SDL_QUIT) {
 		quit = 1;
@@ -154,13 +145,12 @@ handle_joy_button(SDL_JoyButtonEvent* jb) {
 }
 
 void handle_joy_hat(SDL_JoyHatEvent* jh) {
-  // TODO
+    w_handle_stick_hat(jh->which, jh->hat, jh->value);
 }
 
 void handle_joy_ball(SDL_JoyBallEvent* jb) {
-  // TODO
+  w_handle_stick_ball(jb->which, jb->ball, jb->xrel, jb->yrel);
 }
-
 
 //--- reports
 void handle_buffer_report(void) {
@@ -188,6 +178,10 @@ void handle_param_report(void) {
   o_unlock_descriptors();
 }
 
+void handle_timer(SDL_UserEvent* uev) {
+  w_handle_timer(*((int*)uev->data1), *((int*)uev->data2));
+}
+
 //---- raw SDL
 void handle_user_event(SDL_Event* ev) {
   switch(ev->user.code) {
@@ -211,7 +205,10 @@ void handle_user_event(SDL_Event* ev) {
 	break;
   case EVENT_GRID_LIFT:
 	handle_grid_lift(ev);
-	break;   	
+	break;
+  case EVENT_TIMER:
+	handle_timer(&(ev->user));
+	break;
   case EVENT_QUIT:
 	post_quit_event();
 	break;
@@ -227,7 +224,7 @@ void handle_sdl_event(SDL_Event *e) {
 	handle_user_event(e);
 	break;
 	// FIXME: SDL won't deliver m/kb without creating a window.. 
-    // joystick
+	// joystick
   case SDL_JOYAXISMOTION:
 	handle_joy_axis(&(e->jaxis));
 	break;

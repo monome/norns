@@ -3,9 +3,9 @@
 
    basic demo script showing how to connect inputs to audio params.
 
-   this dumb instrument maps joystick buttons to pitch movements.
+   this dumb instrument maps joystick buttons to pitch movements (tested with xbox360 controller.)
 
-   the output is a single sinewave.
+   the output is a single sinewave
 
    the first 4 joystick buttons are each mapped to a pitch interval:
    pressing the button makes the pitch go up by that interval;
@@ -14,19 +14,18 @@
    holding button 5 inverts the behavior of buttons 1-4.
    pressing button 6 resets the pitch to the base.
 
-   joystick axis 1 controls amplitude.
-   joystick axis 3 bends the base pitch.
-
----- TODO:
-   joystick axis 2 controls amplitude lag time.
-   joystick axis 4 controls pitch lag time.
+   joystick axis 3 controls amplitude.
+   joystick axis 4 bends the base pitch.
   
+   holding 'up' on the d-pad engages a timer to randomly walk through pitch intervals.
+
 --]]
 
 print('running sticksine.lua')
 
 -- load the audio engine we want to use
 load_engine('TestSine')
+
 
 -- make a 'pitch' object to hold data and methods
 -- for calculating and updating the pitch of the sinewave
@@ -35,7 +34,7 @@ pitch = {
    -- fundamental frequency
    base = 220,
    -- list of just intonation ratios
-   scale = { 2, 3/2, 4/3, 5/4, 6/5 },
+   scale = { 3/2, 4/3, 5/4, 6/5, 7/6 },
    -- current interval from base (as a ratio)
    ratio = 1.0,
    -- current output frequency
@@ -62,15 +61,23 @@ pitch = {
    end,
    -- reset to the base frequency
    reset = function ()
-	  pitch.hz = pitch.base
+	  print("pitch reset")
+	  pitch.ratio = 1.0
 	  pitch.update()
+   end,
+   -- take a random pitch step
+   random = function()
+	  if math.random() > 0.5 then
+		 pitch.stepup(math.random(#(pitch.scale)))
+	  else
+		 pitch.stepdown(math.random(#(pitch.scale)))
+	  end
    end
 }
 
 -- similar but simpler for the amp parameter
 amp = {
    val = 1.0,
-   
    set = function(x)
 	  print('amp ' .. x)
 	  amp.val = x
@@ -112,15 +119,23 @@ butfunc = {
 }
 
 -- helper to map joystick axis value to unit value, with deadzone
-function map_axis(x)
+function map_axis(x, bipolar)
    local y = 0.0
    local dz = 2000
    local mag = math.abs(x)
-   if mag > dz then
-	  if(x < 0) then
-		 y = ( x + dz) / (32768 - dz)
+   if(bipolar) then -- map [-32768, 32768] to [-1, 1]
+	  if mag > dz then
+		 if(x < 0) then
+			y = ( x + dz) / (32768 - dz)
+		 else
+			y = ( x - dz) / (32767 - dz)
+		 end
+	  end
+   else -- map [-32768, 32768] to [0, 1]
+	  if x > (-32768 + dz) then
+		 y = (x + 32768 - dz) / (32767 + 32768 - dz)
 	  else
-		 y = ( x - dz) / (32767 - dz)
+		 y = 0
 	  end
    end
    if y > 1.0 then y = 1.0 end
@@ -131,22 +146,20 @@ end
 
 -- similarly for joystick axis functions
 axfunc = {
-   -- axis 1: amp
+   -- axis 1
    function(val)
-	  amp.set(map_axis(val))
    end,
-   -- axis 2: amp lag
+   -- axis 2
    function(val)
-	  -- TODO
    end,
-   -- axis 3: pitch bend
+   -- axis 3 (amp)
    function(val)
-	  pitch.base = 220.0 * (2 ^ (map_axis(val) * 2))
+	  amp.set(map_axis(val, false));
+   end,
+   -- axis 4: bend the pitch base
+   function(val)
+	  pitch.base = 220.0 * (2 ^ (map_axis(val, true)))
 	  pitch.update()
-   end,
-   -- axis 4: pitch lag
-   function(val)
-	  -- TODO
    end   
 }
 
@@ -157,4 +170,30 @@ end
 
 joystick.axis = function(stick, ax, val)
    if type(axfunc[ax]) == "function" then axfunc[ax](val) end
+end
+
+-- assign d-pad (aka 'hat') to timer stop/start
+-- each direction is represented as a bitfield
+-- so we need to store the state and compare 
+local hat_state = false
+joystick.hat = function(stick, hat, val)
+   if (val & 0x1) > 0 then
+	  if not hat_state then
+		 hat_state = true
+		 start_timer(1, 0.125, -1)
+	  end
+   else
+	  if hat_state then
+		 hat_state = false
+		 stop_timer(1)
+	  end
+   end
+end
+
+
+-- define a timer callback
+timer = function(idx, count)
+   if idx == 1 then
+	  pitch.random()
+   end
 end
