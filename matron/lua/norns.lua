@@ -13,6 +13,7 @@ startup = function()
    -- ( likely just: dofile("mycustomscript.lua") )
    -- it will be run after I/O subsystems are initialized,
    -- but before I/O event loop starts ticking
+   print('running sticksine')
    dofile('lua/sticksine.lua')
    --dofile('lua/test.lua')
 end
@@ -55,12 +56,22 @@ end
 -- HID events
 joystick = {}
 
+print('asasigning default joystick handlers')
 joystick.axis = function(stick, ax, val)
    print("stick " .. stick .. "; axis " .. ax .. "; value " .. val)
 end
 
 joystick.button = function(stick, but, state)
    print("stick " .. stick .. "; button " .. but .. "; state " .. state)
+end
+
+joystick.hat = function(stick, hat, val)
+   print("stick " .. stick .. "; hat " .. hat .. "; value " .. val)
+end
+
+
+joystick.ball = function(stick, ball, xrel, yrel)
+   print("stick " .. stick .. "; ball " .. ball .. "; xrel " .. xrel .. "; yrel " .. yrel)
 end
 
 -- mouse/KB
@@ -102,7 +113,7 @@ report.param = function(names, count)
    end
 end
 
--- handler for timer bang
+-- timer callback
 timer = function(idx, count)
    print("timer " .. idx .. " : " .. count)
 end

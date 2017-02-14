@@ -341,6 +341,21 @@ void w_handle_stick_axis(int stick, int axis, int value) {
 void w_handle_stick_button(int stick, int button, int value) {
   w_call_stick_handler("button", stick+1, button+1, value);
 }
+void w_handle_stick_hat(int stick, int hat, int value) {
+  w_call_stick_handler("hat", stick+1, hat+1, value);
+}
+void w_handle_stick_ball(int stick, int ball, int xrel, int yrel) {
+  lua_getglobal(lvm, "joystick");  
+  lua_getfield(lvm, -1, "hat"); 
+  lua_remove(lvm, -2); 
+  lua_pushinteger(lvm, stick); 
+  lua_pushinteger(lvm, ball);
+  lua_pushinteger(lvm, xrel);
+  lua_pushinteger(lvm, yrel);
+  int ret = lua_pcall(lvm, 4, 0, 0);
+  if(ret) { handle_lua_error(ret); }
+}
+
 
 // helper for pushing array of c strings
 static inline void

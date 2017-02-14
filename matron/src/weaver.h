@@ -21,6 +21,8 @@ extern void w_handle_grid_lift(int x, int y);
 
 extern void w_handle_stick_axis(int stick, int axis, int value) ;
 extern void w_handle_stick_button(int stick, int button, int value) ;
+extern void w_handle_stick_hat(int stick, int hat, int value) ;
+extern void w_handle_stick_ball(int stick, int ball, int xrel, int yrel) ;
 
 //--- audio engine introspection
 extern void w_handle_buffer_report(const char** arr, const int num);

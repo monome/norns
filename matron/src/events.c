@@ -154,13 +154,12 @@ handle_joy_button(SDL_JoyButtonEvent* jb) {
 }
 
 void handle_joy_hat(SDL_JoyHatEvent* jh) {
-  // TODO
+    w_handle_stick_hat(jh->which, jh->hat, jh->value);
 }
 
 void handle_joy_ball(SDL_JoyBallEvent* jb) {
-  // TODO
+  w_handle_stick_ball(jb->which, jb->ball, jb->xrel, jb->yrel);
 }
-
 
 //--- reports
 void handle_buffer_report(void) {
