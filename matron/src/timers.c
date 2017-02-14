@@ -41,7 +41,7 @@ static void timer_bang(struct timer *t);
 //------------------------
 //---- extern definitions
 void timer_add(int idx, double seconds, int count) {
-  uint64_t nsec = (uint64_t) (seconds * 1000000000.0);
+    uint64_t nsec = (uint64_t) (seconds * 1000000000.0);
   if(idx >= 0 && idx < MAX_NUM_TIMERS_OK) {
 	//	printf("adding timer at index %d, period %d nsec, count %d \r\n",
 	//		   idx, nsec, count);
