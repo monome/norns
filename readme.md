@@ -13,14 +13,9 @@ supercollider
 except for `libmonome`, these are all available as arch packages:
 `pacman -S lua supercollider liblo sdl2`
 
-## build matron
+## build
 
-```
-cd ~/norns/matron
-make
-```
-
-this should build the `matron` executable.
+run `make` from the top level directory. this should create the executables `norns` and `matron/matron`.
 
 ## install supercollider classes
 
@@ -30,6 +25,8 @@ this should build the `matron` executable.
 this copies the norns supercollider classes to the default SC extensions folder. nothing else needs to be done.
 
 # usage
+
+### launch supercollider
 
 at the moment, supercollider needs to be launched first. type either `sclang` for a bare interpreter instance, or `scide` for the IDE. either way, all the work for Norns is done during class initialization; no interpreted code need be executed. 
 
@@ -45,7 +42,9 @@ if the classes are installed correctly, you should see some lines like this in o
 
 and immediately after sclang init, you should see the server being booted and some jack/alsa related messages. 
 
-with supercollider running, launch `matron`. this will present a rather bare-bones lua REPL. `matron/lua/norns.lua` will be executed at launch; it defines among other things a user startup function. currently this in turn executes the demo script `matron/lua/sticksine.lua`, which uses the joystick to control a sine wave. (maybe not exactly super inspiring, but it's a start!)
+### launch `norns`
+
+with supercollider running, type `./norns` from the top level directory. this in turn executes "matron" (and other components, in the future.) you should now have a rather bare-bones lua REPL. `lua/norns.lua` will be executed at launch; it defines among other things a user startup function. currently this in turn executes the demo script `lua/sticksine.lua`, which uses the joystick to control a sine wave. (maybe not exactly super inspiring, but it's a start!)
 
 ## features
 
