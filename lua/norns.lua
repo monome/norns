@@ -13,9 +13,8 @@ startup = function()
    -- ( likely just: dofile("mycustomscript.lua") )
    -- it will be run after I/O subsystems are initialized,
    -- but before I/O event loop starts ticking
-   
-   --   print('running sticksine')
-   --   dofile('lua/sticksine.lua')
+
+   dofile('lua/sticksine.lua')
    
 end
 

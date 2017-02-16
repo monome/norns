@@ -29,26 +29,28 @@ void launch_thread(pthread_t *tid, void *(*start_routine) (void *), void* data) 
   pthread_attr_t attr;
   int s;
   s = pthread_attr_init(&attr);
+  if(s) { printf("error initializing thread attributes \n"); }
   s = pthread_create(tid, &attr, start_routine, data);
+  if(s) { printf("error creating thread\n"); }
   pthread_attr_destroy(&attr);
 }
 
 // on connection to the matron client,
 // launch the executable and redirect stdio to the connected socket
 void launch_matron(int sock) {
-  	char *argv[] = { "matron", "57120", "8888", NULL};
-	char *env[] = { NULL };
+  char *argv[] = { "matron", "57120", "8888", NULL};
+  char *env[] = { NULL };
 
-	// redirect stdout, stderr
-	dup2( sock, STDOUT_FILENO );
-	dup2( sock, STDERR_FILENO );
-	// redirect stdin to the same socket... seems to work...
-	dup2( sock, STDIN_FILENO );
-	// no longer need the original handle
-	close(sock);
+  // redirect stdout, stderr
+  dup2( sock, STDOUT_FILENO );
+  dup2( sock, STDERR_FILENO );
+  // redirect stdin to the same socket... seems to work...
+  dup2( sock, STDIN_FILENO );
+  // no longer need the original handle
+  close(sock);
 	
-	execv("matron/matron", argv);
-	perror("execv");
+  execv("matron/matron", argv);
+  perror("execv");
 }
 
 // start a local socket serer wrapping the matron executable
@@ -90,7 +92,7 @@ void* matron_client_rx(void* psock) {
   int nb;
   int sock = *((int*)psock);
   while(1) { 
-  // print server response
+	// print server response
 	nb = read(sock, rxbuf, CLIENT_BUFSIZE-1);
 	if(nb > 0) {
 	  rxbuf[nb] = '\0';

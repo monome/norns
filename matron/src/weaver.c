@@ -202,7 +202,7 @@ void w_init(void) {
   lua_register(lvm, "stop_timer", &w_timer_stop);
   
   // run system init code
-  w_run_code("dofile(\"matron/lua/norns.lua\");");
+  w_run_code("dofile(\"lua/norns.lua\");");
 }
 
 // run user startup code
