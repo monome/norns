@@ -10,8 +10,8 @@
 #define CLIENT_BUFSIZE 1024
 
 // child process id's
-pid_t matron_pid, matron_connect_pid;
-pid_t crone_pid, crone_connect_pid;;
+pid_t matron_pid;
+pid_t crone_pid;
 
 // client thread id's
 pthread_t matron_client_tid, matron_client_rx_tid;
@@ -72,24 +72,19 @@ void run_matron(void) {
   res = listen(sock, 5);
   if(res!= 0) { printf("listen() failed\n"); return; }
 
-  // wait for the client to connect
-  while((connect = accept(sock,
-						  (struct sockaddr *) &addr,
-						  &addr_len)) > -1) {
-	matron_connect_pid = fork();
-	if(matron_connect_pid == 0) {
-	  launch_matron(connect);
-	  return;
-	} else {
-	  close(connect);
-	}
+  // wait for the client to connect (we only care about the first connection)
+  connect = accept(sock, (struct sockaddr *) &addr, &addr_len);
+  if(connect > 0) { 
+	launch_matron(connect);
+  } else {
+	printf("error connecting to matron server \n");
   }
   
 }
 
-
 // run the client that will glue stdin/stdout to matron by local socket
-// er, yes we need an addional thread for reading
+
+// rx thread
 void* matron_client_rx(void* psock) {
   char rxbuf[CLIENT_BUFSIZE];
   int nb;
@@ -104,6 +99,7 @@ void* matron_client_rx(void* psock) {
   }
 }
 
+// connect / tx thread
 void* matron_client(void* x) {
   struct sockaddr_un addr;
   int sock;
@@ -118,7 +114,7 @@ void* matron_client(void* x) {
 	printf("run_matron_client(): socket() failed\n");
 	return NULL;
   }
-  //...
+  
   init_sock(&addr, MATRON_SOCK_NAME);
   // wait a bit for the server
   usleep(100000);
@@ -135,7 +131,7 @@ void* matron_client(void* x) {
   launch_thread(&matron_client_rx_tid, &matron_client_rx, &sock);  
   
   while(1) {
-	// FIXME: weird issues with getline() and threads/children...
+	// FIXME: weird issues with getline() and threads/children (?)
 	// for now, doing this craziness instead
 	nb = 0;
 	txbuf[0] = '\0';
