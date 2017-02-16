@@ -1,5 +1,7 @@
 TARGET = matron
 
+.PHONY = clean
+
 CC = gcc
 LD = gcc
 

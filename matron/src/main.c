@@ -28,8 +28,8 @@ int main(int argc, char** argv) {
   // initialize monome devices
   m_init();
 
-  // creates a child thread
-  repl_loop();
+  // start reading input to interpreter
+  repl_init();
 
   // i/o subsystems are ready, 
   // run the user's startup routine
@@ -39,11 +39,10 @@ int main(int argc, char** argv) {
   //  timer_add(0, 0.25, 16);
   
   // blocks until quit
-  printf("starting main event loop \n");
+  printf("starting main event loop \n"); fflush(stdin);
   event_loop();
-
-  printf("main event loop has exited \n");
-
+  
+  printf("main event loop has exited \n"); fflush(stdin);
   o_deinit();
   
   return 0;

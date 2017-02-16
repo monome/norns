@@ -17,6 +17,7 @@ static void* repl_run(void* p) {
   char* code;
   printf("waiting for REPL input on stdin\n");
   printf("('q' quits)\n");
+  fflush(stdout);
   while(!quit) {
 	//	printf("\n> "); fflush(stdout);
 	getline(&rxbuf, &dum, stdin);
@@ -28,6 +29,7 @@ static void* repl_run(void* p) {
 		event_t ev = EVENT_QUIT;
 		event_post(ev, NULL, NULL);
 		printf("REPL has exited \r\n");
+		fflush(stdout);
 	  }
 	}
 	else if (len > 0) {
@@ -41,7 +43,7 @@ static void* repl_run(void* p) {
   free(rxbuf);
 }
 
-void repl_loop(void) {
+void repl_init(void) {
    pthread_attr_t attr;
    int s;
    s = pthread_attr_init(&attr);

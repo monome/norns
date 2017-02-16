@@ -48,8 +48,6 @@ int lua_msg_handler(lua_State* l) {
   return 1;  /* return the traceback */ 
 }
 
-
-
 /*
 ** Prints an error message, adding the program name in front of it
 ** (if present)
@@ -81,7 +79,6 @@ static void lstop (lua_State *L, lua_Debug *ar) {
   lua_sethook(L, NULL, 0, 0);  /* reset hook */
   luaL_error(L, "interrupted!");
 }
-
 
 /*
 ** Function to be called at a C signal. Because a C signal cannot
@@ -126,32 +123,32 @@ static int dostring (lua_State *L, const char *s, const char *name) {
 }
 
 //---------------
-//---- 
+//---- external function definitions
 
-void handle_lua_error(int val) {
-  // FIXME: unwind the stack and post it!
-  switch(val) {
-  case LUA_ERRRUN:
-	printf("[lua runtime error!] \n");
-	break;
-  case LUA_ERRMEM:
-	printf("[lua memory allocation error!]\n");
-	break;
-  case LUA_ERRGCMM:
-	printf("[lua __gc metamethod error!]\n");
-	break;
-  case LUA_OK:
-  default:
-	;; // nothing to do
-  }
+/* void handle_lua_error(int val) { */
+/*   switch(val) { */
+/*   case LUA_ERRRUN: */
+/* 	printf("[lua runtime error!] \n"); */
+/* 	break; */
+/*   case LUA_ERRMEM: */
+/* 	printf("[lua memory allocation error!]\n"); */
+/* 	break; */
+/*   case LUA_ERRGCMM: */
+/* 	printf("[lua __gc metamethod error!]\n"); */
+/* 	break; */
+/*   case LUA_OK: */
+/*   default: */
+/* 	;; // nothing to do */
+/*   } */
 
-}
+/* } */
 
 void w_run_code(const char* code) {
   //  luaL_loadstring(lvm, code); // compile code, push to stack
   //  int ret = lua_pcall(lvm, 0, LUA_MULTRET, 0); // pop stack and evaluate
   //  if(ret) { handle_lua_error(ret); }
   dostring(lvm, code, "w_run_code");
+  fflush(stdout);
 }							
 
 //-------------
@@ -183,6 +180,7 @@ void w_init(void) {
   lvm = luaL_newstate();
   luaL_openlibs(lvm);
   lua_pcall(lvm, 0, 0, 0);
+  fflush(stdout);
 
   // register c functions
   // FIXME: pull these from some kind of descriptor stucture instead
@@ -204,7 +202,7 @@ void w_init(void) {
   lua_register(lvm, "stop_timer", &w_timer_stop);
   
   // run system init code
-  w_run_code("dofile(\"lua/norns.lua\");");
+  w_run_code("dofile(\"matron/lua/norns.lua\");");
 }
 
 // run user startup code
@@ -246,7 +244,7 @@ int w_grid_set_led(lua_State* l) {
   return 0;
   
  args_error:
-  printf("warning: incorrect arguments to grid_set_led() \n");
+  printf("warning: incorrect arguments to grid_set_led() \n"); fflush(stdout);
   return 1;
 }
 
@@ -264,7 +262,7 @@ int w_load_engine(lua_State* l) {
   }
   
  args_error:
-  printf("warning: incorrect arguments to load_engine() \n");
+  printf("warning: incorrect arguments to load_engine() \n"); fflush(stdout);
   return 1;
 }
 
@@ -281,7 +279,7 @@ int w_load_buffer_name(lua_State* l) {
   return 0;
 
  args_error:
-  printf("warning: incorrect arguments to load_engine() \n");
+  printf("warning: incorrect arguments to load_engine() \n"); fflush(stdout);
   return 1;
 }
 
@@ -298,7 +296,7 @@ int w_set_param_name(lua_State* l) {
   return 0;
   
  args_error:
-  printf("warning: incorrect arguments to set_param() \n");
+  printf("warning: incorrect arguments to set_param() \n"); fflush(stdout);
   return 1;
 }
 
@@ -342,7 +340,7 @@ int w_timer_add(lua_State* l) {
   return 0;
   
  args_error:
-  printf("warning: incorrect arguments to start_timer() \n");
+  printf("warning: incorrect arguments to start_timer() \n"); fflush(stdout);
   return 1;
 }
 
@@ -359,7 +357,7 @@ int w_timer_stop(lua_State* l) {
   timer_stop(idx);
   return 0;
  args_error:
-  printf("warning: incorrect arguments to stop_timer() \n");
+  printf("warning: incorrect arguments to stop_timer() \n"); fflush(stdout);
   return 1;
 }
 

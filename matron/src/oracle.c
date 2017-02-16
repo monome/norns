@@ -140,6 +140,7 @@ void o_deinit(void) {
   printf("killing audio engine\n");
   lo_send(remote_addr, "/engine/kill", "");
   printf("stopping OSC server\n");
+  fflush(stdout);
   lo_server_thread_free(st);
 }
 
@@ -309,7 +310,7 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
   // no arguments; post event
   // FIXME: as yet no outstanding need for report_end message to occur at all.
   // could add counter from report_start to double-check the param count.
-  // or (best) we could simply use binary blobs from Crone,
+  // or (better?) we could simply use binary blobs from Crone,
   // replacing the whole response sequence with a single message
   // (downside: nasty blob-construction code in supercollider)
   event_post(EVENT_ENGINE_REPORT, NULL, NULL);

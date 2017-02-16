@@ -40,12 +40,12 @@ extern void o_unlock_descriptors();
 
 // load a named audio processing engine
 extern void o_load_engine(const char* name);
+
 // request list of engine names
 extern void o_request_engine_report(void);
 
-//   FIXME: autogenerate from protcol description?
+//   FIXME: autogenerate from protocol description?
 //   use dynamic list of OSC patterns?
-
 
 // request list of buffers
 extern void o_request_buffer_report(void);
@@ -55,8 +55,6 @@ extern void o_load_buffer_name(const char* name, const char* path);
 
 // save a named buffer to a sound file
 extern void o_save_buffer_name(const char* name, const char* path);
-
-
 
 // request list of params
 extern void o_request_param_report(void);
