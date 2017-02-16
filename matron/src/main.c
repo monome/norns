@@ -39,10 +39,10 @@ int main(int argc, char** argv) {
   //  timer_add(0, 0.25, 16);
   
   // blocks until quit
-  printf("starting main event loop \n"); fflush(stdin);
+  printf("starting main event loop \n"); fflush(stdout);
   event_loop();
   
-  printf("main event loop has exited \n"); fflush(stdin);
+  printf("main event loop has exited \n"); fflush(stdout);
   o_deinit();
   
   return 0;

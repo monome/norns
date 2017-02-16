@@ -14,7 +14,7 @@ extern void timer_wait(int idx);
 extern void timer_stop(int idx);
 
 // TODO
-// set counter to an arbitrary position
+// restart counter immediately (at an arbitrary position?)
 // extern void timer_reset(int idx, int count);
 // extern void timer_set_period(int idx, double seconds);
 // extern void timer_set_callback(int idx, timer_cb cb);

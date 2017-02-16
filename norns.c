@@ -75,13 +75,14 @@ int run_matron(void) {
 void* matron_rx(void* psock) {
   char rxbuf[BUFFER_SIZE];
   int nb;
-  while(1) { 
+  while(1) {
 	// print server response
 	nb = read(matron_pipe_out[PIPE_READ], rxbuf, BUFFER_SIZE-1);
 	if(nb > 0) {
 	  rxbuf[nb] = '\0';
 	  printf("%s", rxbuf);
 	}
+	
   }
 }
 
@@ -113,7 +114,12 @@ void* matron_tx(void* x) {
 		newline = 1;
 	  }
 	}
-	txbuf[nb] = '\0';	
+	txbuf[nb] = '\0';
+	if(nb == 2 && txbuf[0] == 'q') {
+	  printf("time to quit! (FIXME) \n");
+	  
+	  // TODO: quit everything!
+	}
 	// send to server
 	//	printf("sending %dB to server: \n%s\n", nb, txbuf);
 	write(matron_pipe_in[PIPE_WRITE], txbuf, nb);
@@ -123,13 +129,13 @@ void* matron_tx(void* x) {
 
 void run_crone(void) {
   // TODO
-  while(1) { ;; }
+  while(1) { usleep(1000000); }
 }
 
 
 void* crone_rx(void* x) {
   // TODO
-  while(1) { ;; }
+  while(1) { usleep(1000000); }
 }
 
 
