@@ -13,3 +13,4 @@ matron:
 
 clean:
 	rm norns
+	cd matron && make clean

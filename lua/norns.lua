@@ -1,19 +1,23 @@
--- startup script for norns lua environment.
+--[[ 
+   norns.lua 
+   startup script for norns lua environment.
 
--- NB: removing these function/module definitions will break the C->lua glue.
--- in other respects, feel free to customize.
+   NB: removal of any function/module definitions will break the C->lua glue.
+   in other respects, feel free to customize.
+--]]
+
+
+-- utilities and helpers
+dofile('lua/helpers.lua')
 
 print("running norns.lua")
 
--- this function will be run next
--- for example
+-- this function will be run after I/O subsystems are initialized,
+-- but before I/O event loop starts ticking
 startup = function()
    print("running user startup code")
    -- define your own startup routine here
    -- ( likely just: dofile("mycustomscript.lua") )
-   -- it will be run after I/O subsystems are initialized,
-   -- but before I/O event loop starts ticking
-
    dofile('lua/sticksine.lua')
    
 end
@@ -22,15 +26,15 @@ end
 -- define default event handlers.
 -- user scripts should redefine. 
 
--- encoder events
+-- tbale of encoder event handlers
 encoder = {}
 --...
 
--- button events
+-- table of button event handlers
 button = {}
 --...
 
--- grid events
+-- table of grid event handlers
 grid = {}
 grid.press = function(x, y)
    print ("press " .. x .. " " .. y)
@@ -53,7 +57,7 @@ end
 -- arc
 --...
 
--- HID events
+-- table of joystick event handlers
 joystick = {}
 
 print('asasigning default joystick handlers')
@@ -80,40 +84,34 @@ end
 -- MIDI
 -- ... 
 
--- timer handlers
-timer = {}
-for i=1,16 do
-   timer[i] = function(count)
-	  print("handling timer id " .. i .. ", count " .. count)
-   end
-end
+-- table 
 
--- handlers for descriptor reports
+-- table of handlers for descriptor reports
 report = {}
 
-report.buffer = function(names, count)
-   print(count .. " buffers: ")
-   for i=1,count do
-	  print(i .. ": "..names[i])
-   end
-end
-
-report.engine = function(names, count)
+report.engines = function(names, count)
    print(count .. " engines: ")
    for i=1,count do
-	  print(i .. ": "..names[i])
+	  print(i .. ": "..names[i]) 
    end
 end
 
-
-report.param = function(names, count)
-   print(count .. " params: ")
+report.commands = function(commands, count)
    for i=1,count do
-	  print(i .. ": "..names[i])
+	  print(i .. ": " .. commands[i][1] .. " (" .. commands[i][2] .. ")")
+	  defineEngineCommand(i, commands[i][1], commands[i][2])
    end
+   
 end
 
--- timer callback
+
+-- table of engine commands
+engine = {}
+-- shortcut
+e = engine
+
+-- timer handler
+-- FIXME? : could be a table if that is preferable.
 timer = function(idx, count)
    print("timer " .. idx .. " : " .. count)
 end

@@ -30,20 +30,16 @@ static lo_server_thread st;
 //-------------------
 //--- audio engine descriptor management
 
-
 // count of audio engine descriptors
 int num_engines = 0;
-// count of parameter descriptors
-int num_params = 0;
-// count of audio buffer descriptors
-int num_buffers = 0;
+// count of command descriptors
+int num_commands = 0;
 
 // max count of any single desciptor type
 #define MAX_NUM_DESC 1024
 
 char *engine_names[MAX_NUM_DESC];
-char *param_names[MAX_NUM_DESC];
-char *buffer_names[MAX_NUM_DESC];
+struct engine_command commands[MAX_NUM_DESC];
 
 // mutex for desctiptor data
 pthread_mutex_t desc_lock;
@@ -51,48 +47,50 @@ pthread_mutex_t desc_lock;
 //---------------------------------
 //--- static functions
 
-// FIXME: pretty bad function design here,
-// better to use descriptor type enum or something,
-// but these are just static utils and probably temporary.
-
 // intialize descriptor lists
 static void o_init_descriptors(void);
 // clear a given array of descriptors
-static void o_clear_desc(char** desc_arr, int num);
-// set a given entry in a given descriptor list
-static void o_set_desc(char** desc_arr, int idx, const char* name);
+void o_clear_engine_names(void);
+
+// set a given entry in the engine name list
+static void o_set_engine_name(int idx, const char* name);
 // set a given descriptor count variable
 static void o_set_num_desc(int* dst, int num);
 
 //--- OSC handlers
-static int buffer_report_start(const char *path, const char *types,
-							   lo_arg ** argv, int argc,
-							   void *data, void *user_data);
-static int buffer_report_name(const char *path, const char *types,
-							  lo_arg ** argv, int argc,
-							  void *data, void *user_data);
-static int buffer_report_end(const char *path, const char *types,
-							 lo_arg ** argv, int argc,
-							 void *data, void *user_data);
+
 static int engine_report_start(const char *path, const char *types,
 							   lo_arg ** argv, int argc,
 							   void *data, void *user_data);
-static int engine_report_name(const char *path, const char *types,
-							  lo_arg ** argv, int argc,
-							  void *data, void *user_data);
+static int engine_report_entry(const char *path, const char *types,
+							   lo_arg ** argv, int argc,
+							   void *data, void *user_data);
 static int engine_report_end(const char *path, const char *types,
 							 lo_arg ** argv, int argc,
 							 void *data, void *user_data) ;
-static int param_report_start(const char *path, const char *types,
+static int command_report_start(const char *path, const char *types,
+								lo_arg ** argv, int argc,
+								void *data, void *user_data);
+static int command_report_entry(const char *path, const char *types,
+								lo_arg ** argv, int argc,
+								void *data, void *user_data);
+static int command_report_end(const char *path, const char *types,
 							  lo_arg ** argv, int argc,
 							  void *data, void *user_data);
-static int param_report_name(const char *path, const char *types,
-							 lo_arg ** argv, int argc,
-							 void *data, void *user_data);
-static int param_report_end(const char *path, const char *types,
-							lo_arg ** argv, int argc,
-							void *data, void *user_data);
+
 static void lo_error_handler(int num, const char *m, const char *path);
+
+// helper for va_list 
+static int lo_send_varargs(const char *path, const char* types, va_list ap);
+int lo_send_varargs(const char *path, const char* types, va_list ap) {
+  int ret;
+  lo_message msg = lo_message_new();
+  
+  /* remote_addr->errnum = 0; */
+  /* remote_addr->errstring = 0; */
+  
+  //  ret = lo_message_add_varargs_internal(msg, types, ap, __FILE__, __LINE__);
+}
 
 //-----------------------------------
 //---- extern function definitions
@@ -109,29 +107,21 @@ void o_init(void) {
   remote_addr = lo_address_new(NULL, rem_port);
   st = lo_server_thread_new(loc_port, lo_error_handler);
 
-  //  buffer report sequence
-  lo_server_thread_add_method(st, "/buffer/report/start", "i",
-							  buffer_report_start, NULL);
-  lo_server_thread_add_method(st, "/buffer/report/name", "is",
-							  buffer_report_name, NULL);
-  lo_server_thread_add_method(st, "/buffer/report/end", "",
-							  buffer_report_end, NULL);
- 
   // engine report sequence
-  lo_server_thread_add_method(st, "/engine/report/start", "i",
+  lo_server_thread_add_method(st, "/report/engines/start", "i",
 							  engine_report_start, NULL);
-  lo_server_thread_add_method(st, "/engine/report/name", "is",
-							  engine_report_name, NULL);
-  lo_server_thread_add_method(st, "/engine/report/end", "",
+  lo_server_thread_add_method(st, "/report/engines/entry", "is",
+							  engine_report_entry, NULL);
+  lo_server_thread_add_method(st, "/report/engines/end", "",
 							  engine_report_end, NULL);
 
-  // param report sequence
-  lo_server_thread_add_method(st, "/param/report/start", "i",
-							  param_report_start, NULL);
-  lo_server_thread_add_method(st, "/param/report/name", "is",
-							  param_report_name, NULL);
-  lo_server_thread_add_method(st, "/param/report/end", "",
-							  param_report_end, NULL);
+  // command report sequence
+  lo_server_thread_add_method(st, "/report/commands/start", "i",
+							  command_report_start, NULL);
+  lo_server_thread_add_method(st, "/report/commands/entry", "iss",
+							  command_report_entry, NULL);
+  lo_server_thread_add_method(st, "/report/commands/end", "",
+							  command_report_end, NULL);
 
   lo_server_thread_start(st);
 }
@@ -146,23 +136,20 @@ void o_deinit(void) {
 
 
 //--- descriptor access
-int o_get_num_buffers(void) {
-  return num_buffers;
-}
 int o_get_num_engines(void) {
   return num_engines;
 }
-int o_get_num_params(void) {
-  return num_params;
+
+int o_get_num_commands(void) {
+  return num_commands;
 }
-const char** o_get_buffer_names(void) {
-  return (const char**)buffer_names;
-}
+
 const char** o_get_engine_names(void) {
   return (const char**)engine_names;
 }
-const char** o_get_param_names(void) {
-  return (const char**)param_names;
+
+const struct engine_command* o_get_commands(void) {
+  return (const struct engine_command*)commands;
 }
 
 //-- mutex access
@@ -185,79 +172,112 @@ void o_unlock_descriptors() {
 //--- tranmission to audio engine
 
 void o_request_engine_report(void) {
-  lo_send(remote_addr, "/engine/request/report", "");
+  printf("requesting engine report... \n");
+  lo_send(remote_addr, "/report/engines", "");
 }
 
 void o_load_engine(const char* name) {
+  printf("loading engine: %s \n", name);
   lo_send(remote_addr, "/engine/load/name", "s", name);
+  /// trying this out...
+  o_request_command_report();
 }
 
-
-//   FIXME: autogenerate from protcol description?
-//   use dynamic list of OSC patterns (varargs tricks)?
-void o_request_buffer_report(void) {
-  lo_send(remote_addr, "/buffer/request/report", "");
+void o_request_command_report(void) {
+  lo_send(remote_addr, "/report/commands", "");
 }
 
-void o_load_buffer_name(const char* name, const char* path) {
-  lo_send(remote_addr, "/buffer/load/name", "ss", name, path);
+void o_send_command(const char* name, lo_message msg) {
+  char* path;
+  size_t len = sizeof(char) * (strlen(name) + 10);
+  //  printf("o_send_command(); allocating %d bytes for path buffer\n", len);
+  path = malloc(len);
+  sprintf(path, "/command/%s", name);
+  //  printf("path buffer: %s\n", path);
+  lo_send_message(remote_addr, path, msg);
+  free(msg);
 }
-
-void o_request_param_report(void) {
-  lo_send(remote_addr, "/param/request/report", "");
-}
-
-void o_set_param_name(const char* name, const float val) {
-  lo_send(remote_addr, "/param/set/name", "sf", name, val);
-}
-
-void o_set_param_index(int idx, const float val) {
-  lo_send(remote_addr, "/param/set/idx", "if", idx, val);
-}
-
 
 //-------------------------
 //--- static function definitions
 void o_init_descriptors(void) {
   pthread_mutex_init(&desc_lock, NULL);
   for(int i=0; i<MAX_NUM_DESC; i++) {
-	buffer_names[i] = NULL;
 	engine_names[i] = NULL;
-	param_names[i] = NULL;
+	commands[i].cmd = NULL;
+	commands[i].fmt = NULL;
   }
 }
 
-// clear a given array of descriptors
-void o_clear_desc(char** desc_arr, int num) {
+void o_clear_engine_names(void) {
   o_lock_descriptors();
-  for(int i=0; i<num; i++) {
-	if(desc_arr[i] != NULL) {
-	  free(desc_arr[i]);
-	  desc_arr[i] = NULL;
+  for(int i=0; i<num_engines; i++) {
+	if(engine_names[i] != NULL) {
+	  free(engine_names[i]);
+	  engine_names[i] = NULL;
 	} else {
-	  printf("o_clear_desc: encountered unexpected null entry \n"); 
+	  printf("o_clear_engine_names: encountered unexpected null entry \n"); 
 	}
   }
   o_unlock_descriptors();
 }
 
-// set a given entry in a given descriptor list
-void o_set_desc(char** desc_arr, int idx, const char* name) {
+void o_clear_commands(void) {
+  o_lock_descriptors();
+  for(int i=0; i<num_commands; i++) {
+	if(commands[i].cmd != NULL && commands[i].fmt != NULL) {
+	  free(commands[i].cmd);
+	  free(commands[i].fmt);
+	  commands[i].cmd = NULL;
+	  commands[i].fmt = NULL;
+	} else {
+	  printf("o_clear_commands: encountered unexpected null entry \n");
+	}
+  }
+  o_unlock_descriptors();
+}
+
+
+// set a given entry in engine name list
+void o_set_engine_name(int idx, const char* name) {
   size_t len;
   o_lock_descriptors();
-  if(desc_arr[idx] != NULL) {
-	printf("refusing to allocate descriptor %d; already exists", idx);
+  if(engine_names[idx] != NULL) {
+	printf("refusing to allocate engine name %d; already exists", idx);
   } else {
 	len = strlen(name);
-	desc_arr[idx] = malloc(len);
-	if ( desc_arr[idx] == NULL ) {
-	  printf("failure to malloc for descriptor %d : %s \n", idx, name);
+	engine_names[idx] = malloc(len);
+	if ( engine_names[idx] == NULL ) {
+	  printf("failure to malloc for engine name %d : %s \n", idx, name);
 	} else {
-	  strncpy(desc_arr[idx], name, len+1);
+	  strncpy(engine_names[idx], name, len+1);
 	}
   }  
   o_unlock_descriptors();
 }
+
+
+// set a given entry in command list
+void o_set_command(int idx, const char* cmd, const char* fmt) {
+  size_t cmd_len, fmt_len;
+  o_lock_descriptors();
+  if(commands[idx].cmd != NULL || commands[idx].fmt != NULL) {
+	printf("refusing to allocate command name %d; already exists", idx);
+  } else {
+	cmd_len = strlen(cmd);
+	fmt_len = strlen(fmt);
+	commands[idx].cmd = malloc(cmd_len +1);
+	commands[idx].fmt = malloc(fmt_len +1);
+	if ( commands[idx].cmd == NULL || commands[idx].fmt == NULL ) {
+	  printf("failure to malloc for command %d : %s &s \n", idx, cmd, fmt);
+	} else {
+	  strncpy(commands[idx].cmd, cmd, cmd_len+1);
+	  strncpy(commands[idx].fmt, fmt, fmt_len+1);
+	}
+  }  
+  o_unlock_descriptors();
+}
+
 
 // set a given descriptor count variable
 void o_set_num_desc(int* dst, int num) { 
@@ -267,47 +287,29 @@ void o_set_num_desc(int* dst, int num) {
 }
 
 //---- OSC handlers
-
-
-int buffer_report_start(const char *path, const char *types, lo_arg ** argv,
-						int argc, void *data, void *user_data) {
-  // arg 1: count of buffers
-  o_clear_desc(buffer_names, num_buffers);
-  o_set_num_desc(&num_buffers, argv[0]->i);
-}
-
-int buffer_report_name(const char *path, const char *types, lo_arg ** argv,
-					   int argc, void *data, void *user_data) {
-  // arg 1: buffer index
-  // arg 2: buffer name
-  o_set_desc(buffer_names, argv[0]->i, &argv[1]->s);
-}
-
-int buffer_report_end(const char *path, const char *types, lo_arg ** argv,
-					  int argc, void *data, void *user_data) {
-  // no arguments
-  event_post(EVENT_BUFFER_REPORT, NULL, NULL);
-}
-
 int engine_report_start(const char *path, const char *types,
 						lo_arg ** argv, int argc, void *data, void *user_data)
 {
   // arg 1: count of buffers
-  o_clear_desc(engine_names, num_engines);
+  printf("engine_report_start() : %s \n", path);
+  o_clear_engine_names();
   o_set_num_desc(&num_engines, argv[0]->i);
 }
 
-int engine_report_name(const char *path, const char *types, lo_arg ** argv,
-					   int argc, void *data, void *user_data) {
+int engine_report_entry(const char *path, const char *types, lo_arg ** argv,
+						int argc, void *data, void *user_data) {
   // arg 1: buffer index
   // arg 2: buffer name
+  
+  printf("engine_report_entry() : %s \n", path);
   // NB: yes, this is the correct way to read a string from a lo_arg
-  o_set_desc(engine_names, argv[0]->i, &argv[1]->s);
+  o_set_engine_name(argv[0]->i, &argv[1]->s);
 }
 
 int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 					  int argc, void *data, void *user_data) {
   // no arguments; post event
+  printf("engine_report_end() : %s \n", path);
   // FIXME: as yet no outstanding need for report_end message to occur at all.
   // could add counter from report_start to double-check the param count.
   // or (better?) we could simply use binary blobs from Crone,
@@ -316,28 +318,33 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
   event_post(EVENT_ENGINE_REPORT, NULL, NULL);
 }
 
-int param_report_start(const char *path, const char *types, lo_arg ** argv,
-					   int argc, void *data, void *user_data)
-{
-  // arg 1: count of params
-  o_clear_desc(param_names, num_params);
-  o_set_num_desc(&num_params, argv[0]->i);
+//---------------------
+//--- command report
+
+int command_report_start(const char *path, const char *types, lo_arg ** argv,
+						 int argc, void *data, void *user_data) {
+  //  printf("command_report_start(): %d\n", argv[0]->i);
+  o_clear_commands();
+  o_set_num_desc(&num_commands, argv[0]->i);
 }
 
-int param_report_name(const char *path, const char *types, lo_arg ** argv,
-					  int argc, void *data, void *user_data) {
-  // arg 1: buffer index
-  // arg 2: buffer name
-  o_set_desc(param_names, argv[0]->i, &argv[1]->s);
+int command_report_entry(const char *path, const char *types, lo_arg ** argv,
+						 int argc, void *data, void *user_data) {
+  
+  //  printf("command_report_entry(): %d %s %s\n", argv[0]->i, &argv[1]->s, &argv[2]->s);
+  o_set_command(argv[0]->i, &argv[1]->s, &argv[2]->s);
 }
 
-int param_report_end(const char *path, const char *types, lo_arg ** argv,
-					 int argc, void *data, void *user_data) {
-  // no arguments
-  event_post(EVENT_PARAM_REPORT, NULL, NULL);
+int command_report_end(const char *path, const char *types, lo_arg ** argv,
+					   int argc, void *data, void *user_data) {
+  //  printf("command_report_end()\n");
+  event_post(EVENT_COMMAND_REPORT, NULL, NULL);
 }
+
+
 
 void lo_error_handler(int num, const char *m, const char *path) {
   printf("liblo error %d in path %s: %s\n", num, path, m);
   fflush(stdout);
 }
+

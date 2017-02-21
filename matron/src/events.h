@@ -9,12 +9,14 @@ typedef enum {
   EVENT_GRID_LIFT,
   // timer has fired
   EVENT_TIMER,
-  // finished receiving buffer list
-  EVENT_BUFFER_REPORT,
   // finished receiving audio engine list
   EVENT_ENGINE_REPORT,
-  // finished receiving parameter list
-  EVENT_PARAM_REPORT,
+  // finished receiving command list
+  EVENT_COMMAND_REPORT,
+  /*   // finished receiving buffer list */
+  /* EVENT_BUFFER_REPORT, */
+  /* // finished receiving parameter list */
+  /* EVENT_PARAM_REPORT, */
   // quit the event loop
   EVENT_QUIT
 } event_t;

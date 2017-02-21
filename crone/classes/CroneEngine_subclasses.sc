@@ -16,15 +16,20 @@ Crone_TestSine : CroneEngine {
 			Out.ar(0, (SinOsc.ar(hz_) * amp_).dup);
 
 		}.play(this.group);
-
-		this.addParam("hz", 110.0, { arg param;
-			postln("set hz : " ++ param);
-			synth.set(\hz, param.val);
+		
+		this.addCommand("hz", "f", { arg msg;
+			//			postln("set/hz: " ++ msg);			
+			var val = msg[1];
+			postln("set hz : " ++ val);
+			synth.set(\hz, val);
+			
 		});
 
-		this.addParam("amp", 0.0, { arg param;
-			postln("set amp : " ++ param);
-			synth.set(\amp, param.val);
+		this.addCommand("amp", "f", { arg msg;
+			//			postln("set/amp: " ++ msg);
+			var val = msg[1];
+			postln("set amp : " ++ val);
+			synth.set(\amp, val);
 		});
 	}
 }

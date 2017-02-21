@@ -38,9 +38,11 @@ static void handle_joy_axis(SDL_JoyAxisEvent* ja);
 static void handle_joy_button(SDL_JoyButtonEvent* jb);
 static void handle_joy_hat(SDL_JoyHatEvent* jh);
 static void handle_joy_ball(SDL_JoyBallEvent* jb);
-static void handle_buffer_report(void) ;
+
 static void handle_engine_report(void);
-static void handle_param_report(void);
+static void handle_command_report(void);
+/* static void handle_buffer_report(void) ; */
+/* static void handle_param_report(void); */
 
 //-------------------------------
 //-- extern function definitions
@@ -155,14 +157,6 @@ void handle_joy_ball(SDL_JoyBallEvent* jb) {
 }
 
 //--- reports
-void handle_buffer_report(void) {
-  o_lock_descriptors();
-  const char** p = o_get_buffer_names();
-  const int n = o_get_num_buffers();
-  w_handle_buffer_report(p, n); 
-  o_unlock_descriptors();
-}
-
 void handle_engine_report(void) {
   o_lock_descriptors();
   const char** p = o_get_engine_names();
@@ -171,14 +165,31 @@ void handle_engine_report(void) {
   o_unlock_descriptors();
 }
 
-void handle_param_report(void) {
-  printf("handling completed param report \n");
+void handle_command_report(void) {
   o_lock_descriptors();
-  const char** p = o_get_param_names();
-  const int n = o_get_num_params();
-  w_handle_param_report(p, n);
+  const struct engine_command* p = o_get_commands();
+  const int n = o_get_num_commands();
+  w_handle_command_report(p, n);
   o_unlock_descriptors();
 }
+
+
+/* void handle_buffer_report(void) { */
+/*   o_lock_descriptors(); */
+/*   const char** p = o_get_buffer_names(); */
+/*   const int n = o_get_num_buffers(); */
+/*   w_handle_buffer_report(p, n);  */
+/*   o_unlock_descriptors(); */
+/* } */
+
+/* void handle_param_report(void) { */
+/*   printf("handling completed param report \n"); */
+/*   o_lock_descriptors(); */
+/*   const char** p = o_get_param_names(); */
+/*   const int n = o_get_num_params(); */
+/*   w_handle_param_report(p, n); */
+/*   o_unlock_descriptors(); */
+/* } */
 
 void handle_timer(SDL_UserEvent* uev) {
   w_handle_timer(*((int*)uev->data1), *((int*)uev->data2));
@@ -190,17 +201,13 @@ void handle_user_event(SDL_Event* ev) {
 	
   case EVENT_EXEC_CODE:
 	w_run_code(ev->user.data1);
-	// free the chunk allocated by REPL
 	free(ev->user.data1);
-	break;
-  case EVENT_BUFFER_REPORT:
-	handle_buffer_report();
 	break;
   case EVENT_ENGINE_REPORT:
 	handle_engine_report();
-	break;	
-  case EVENT_PARAM_REPORT:
-	handle_param_report();
+	break;
+	  case EVENT_COMMAND_REPORT:
+	handle_command_report();
 	break;
   case EVENT_GRID_PRESS:
 	handle_grid_press(ev);
@@ -218,7 +225,6 @@ void handle_user_event(SDL_Event* ev) {
 	;;
   }
 }
-
 
 void handle_sdl_event(SDL_Event *e) {
   switch(e->type) {

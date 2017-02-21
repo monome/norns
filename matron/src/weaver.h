@@ -1,5 +1,7 @@
 #pragma once
 
+#include "oracle.h"
+
 // initialize the lua VM and run setup scripts
 extern void w_init(void);
 
@@ -25,9 +27,12 @@ extern void w_handle_stick_hat(int stick, int hat, int value) ;
 extern void w_handle_stick_ball(int stick, int ball, int xrel, int yrel) ;
 
 //--- audio engine introspection
-extern void w_handle_buffer_report(const char** arr, const int num);
 extern void w_handle_engine_report(const char** arr, const int num);
-extern void w_handle_param_report(const char** arr, const int num);
+extern void w_handle_command_report(const struct engine_command* arr,
+									const int num);
+
+/* extern void w_handle_buffer_report(const char** arr, const int num); */
+/* extern void w_handle_param_report(const char** arr, const int num); */
 
 //--- timer bang handler
 extern void w_handle_timer(const int idx, const int count);

@@ -1,4 +1,3 @@
-
 /*
   weaver.c
 
@@ -15,6 +14,7 @@
 
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <lua.h>
@@ -33,6 +33,7 @@ lua_State* lvm;
 
 //-----------------------
 //--- following functions are lifted from lua.c
+// FIXME: put these in their own file, methinks
 
 int lua_msg_handler(lua_State* l) {
   const char *msg = lua_tostring(l, 1);
@@ -122,48 +123,26 @@ static int dostring (lua_State *L, const char *s, const char *name) {
   return dochunk(L, luaL_loadbuffer(L, s, strlen(s), name));
 }
 
-//---------------
-//---- external function definitions
-
-/* void handle_lua_error(int val) { */
-/*   switch(val) { */
-/*   case LUA_ERRRUN: */
-/* 	printf("[lua runtime error!] \n"); */
-/* 	break; */
-/*   case LUA_ERRMEM: */
-/* 	printf("[lua memory allocation error!]\n"); */
-/* 	break; */
-/*   case LUA_ERRGCMM: */
-/* 	printf("[lua __gc metamethod error!]\n"); */
-/* 	break; */
-/*   case LUA_OK: */
-/*   default: */
-/* 	;; // nothing to do */
-/*   } */
-
-/* } */
+//-----------------
+//---- here resumes non-lifted code.
 
 void w_run_code(const char* code) {
-  //  luaL_loadstring(lvm, code); // compile code, push to stack
-  //  int ret = lua_pcall(lvm, 0, LUA_MULTRET, 0); // pop stack and evaluate
-  //  if(ret) { handle_lua_error(ret); }
   dostring(lvm, code, "w_run_code");
   fflush(stdout);
 }							
 
 //-------------
 //--- declare lua->c glue
+
+// grid
 static int w_grid_set_led(lua_State* l);
+
+// audio engine
 static int w_request_engine_report(lua_State* l);
 static int w_load_engine(lua_State* l);
 
-// FIXME: should support dynamically defined OSC format 'engine methods'
-// (one fn to request method list, one for varargs OSC)
-// for now, hardcode methods for "buffers" and "parameters"
-static int w_request_buffer_report(lua_State* l);
-static int w_load_buffer_name(lua_State* l);
-static int w_request_param_report(lua_State* l);
-static int w_set_param_name(lua_State* l);
+static int w_request_command_report(lua_State* l);
+static int w_send_command(lua_State* l);
 
 // manage timers from lua
 static int w_timer_add(lua_State* l);
@@ -174,6 +153,7 @@ static int w_timer_stop(lua_State* l);
 // TODO
 // static void w_screen_print(void);
 // static extern void w_screen_draw();
+//... ?
 
 void w_init(void) {
   printf("starting lua vm \n");
@@ -182,21 +162,14 @@ void w_init(void) {
   lua_pcall(lvm, 0, 0, 0);
   fflush(stdout);
 
-  // register c functions
-  // FIXME: pull these from some kind of descriptor stucture instead
-  // not sure how to correctly document lua
+  // FIXME: how/where to document these in lua
   lua_register(lvm, "grid_set_led", &w_grid_set_led);
   
   lua_register(lvm, "report_engines", &w_request_engine_report);
   lua_register(lvm, "load_engine", &w_load_engine);
   
-  lua_register(lvm, "report_buffers", &w_request_buffer_report);
-  lua_register(lvm, "load_buffer", &w_load_buffer_name);
-  // TODO  lua_register(lvm, "load_buffer_idx", &w_load_buffer_index);
-  
-  lua_register(lvm, "report_params", &w_request_param_report);
-  lua_register(lvm, "set_param", &w_set_param_name);
-  // TODO  lua_register(lvm, "load_param_idx", &w_load_param_index);
+  lua_register(lvm, "report_commands", &w_request_command_report);
+  lua_register(lvm, "send_command", &w_send_command);
 
   lua_register(lvm, "start_timer", &w_timer_add);
   lua_register(lvm, "stop_timer", &w_timer_stop);
@@ -209,7 +182,6 @@ void w_init(void) {
 // audio backend should be running
 void w_user_startup(void) {
   lua_getglobal(lvm, "startup");
-  //  lua_pcall(lvm, 0, 0, 0);
   report(lvm, docall(lvm, 0, 0));
 }
 
@@ -266,50 +238,79 @@ int w_load_engine(lua_State* l) {
   return 1;
 }
 
-// FIXME: should support dynamically defined OSC formats
-int w_load_buffer_name(lua_State* l) {
-  if(lua_gettop(l) != 2) {
-	goto args_error;
-  }
-  if(lua_isstring(l, 1) && lua_isstring(l, 2)) {
-	o_load_buffer_name(lua_tostring(l, 1), lua_tostring(l, 2));
+int w_send_command(lua_State* l) {
+  int nargs = lua_gettop(l);
+  if(nargs < 1) { goto args_error; }
+
+  char* cmd = NULL;
+  char* fmt = NULL;
+
+  if(lua_isnumber(l, 1)) {
+	// FIXME? guess should be wrapped in descriptor access lock
+	int idx = (int)lua_tonumber(l, 1) - 1; // 1-base to 0-base
+	cmd = o_get_commands()[idx].cmd;
+	fmt = o_get_commands()[idx].fmt;
   } else {
-	goto args_error;
+	printf("failed type check on first arg \n");
+	goto args_error; }
+
+  lo_message msg = lo_message_new();
+
+  // debug
+  const char* s;
+  int d;
+  double f;
+  
+  for(int i=2; i<=nargs; i++) {
+	switch(fmt[i-2]) {
+	case 's':
+	  if(lua_isstring(l, i)) {
+		s = lua_tostring(l, i);
+		lo_message_add_string(msg, s );
+	  } else {
+		printf("failed string type check \n");
+		goto args_error; }
+	  break;
+	case 'i':
+	  if(lua_isnumber(l, i)) {
+		d =  (int)lua_tonumber(l, i) ;
+		lo_message_add_int32( msg, d);
+	  } else { 
+		printf("failed int type check \n");
+		goto args_error; }
+	  break;
+	case 'f':
+	  if(lua_isnumber(l, i)) {
+		f = lua_tonumber(l, i);
+		lo_message_add_double( msg, f );
+	  } else { 
+		printf("failed double type check \n");
+		goto args_error; }
+	  break;
+	default:
+	  break;
+	}
+  }
+
+  if(cmd == NULL || fmt == NULL) {
+	printf("error: null format/command string \n");
+	return 1;
+  } else {
+	o_send_command(cmd, msg);
   }
   return 0;
-
- args_error:
-  printf("warning: incorrect arguments to load_engine() \n"); fflush(stdout);
-  return 1;
-}
-
-int w_set_param_name(lua_State* l) {
-  if(lua_gettop(l) != 2) {
-	goto args_error;
-  }
-  
-  if(lua_isstring(l, 1) && lua_isnumber(l, 2)) {
-	o_set_param_name(lua_tostring(l, 1), lua_tonumber(l, 2));
-  } else {
-	goto args_error;
-  }
-  return 0;
   
  args_error:
-  printf("warning: incorrect arguments to set_param() \n"); fflush(stdout);
+  printf("warning: incorrect arguments to send_command() \n"); fflush(stdout);
   return 1;
 }
-
+  
 int w_request_engine_report(lua_State* l) {
   o_request_engine_report();
 }
 
-int w_request_buffer_report(lua_State* l) {
-  o_request_buffer_report();
-}
-
-int w_request_param_report(lua_State* l) {
-  o_request_param_report();
+int w_request_command_report(lua_State* l) {
+  o_request_command_report();
 }
 
 // manage timers from lua
@@ -321,7 +322,7 @@ int w_timer_add(lua_State* l) {
 	goto args_error;
   }
   if(lua_isnumber(l, 1)) {
-	idx = lua_tonumber(l, 1) - 1; // lua indices are 1-basead
+	idx = lua_tonumber(l, 1) - 1; // 1-base to 0-base
   } else {
 	goto args_error;
   }
@@ -366,56 +367,6 @@ int w_timer_stop(lua_State* l) {
 
 //--- hardware input
 
-/*
-  general form:
-
-  void handle_foo(a, b, ... ) { 
-  lua_getglobal(l, "handle"); // push table of callbacks to the stack 
-  lua_getfield(l, "handle"); // push callback function to stack
-  lua_remove(l, -2); // remove the table
-  lua_pushinteger(l, a); // push arguments
-  lua_pushinteger(l, b); // 
-  // ... keep pushing arguments
-  lua_call(l, N, 0); // pop stack and call the function with N arguments
-*/
-
-/* TODO:
-   implement with varargs:
-   #include <stdio.h>
-   #include <stdarg.h>
-
-   void call_module_function(char* module, char* name, char *fmt, ...)
-   {
-   va_list ap;
-   int d;
-   char c, *s;
-   double f;
-
-   //... put fn on stack as above ...
-
-   va_start(ap, fmt);
-   while (*fmt)
-   switch (*fmt++) {
-   case 's':
-   s = va_arg(ap, char *);
-   // ... push string to stack.. 
-   break;
-   case 'd':
-   d = va_arg(ap, int);
-   // ... push int to stack.. 
-   // push int
-   break;
-   case 'f':
-   f = va_arg(ap, double);
-   // ... push double to stack ... 
-   break;
-   }
-   // .. increment arg counter ... 
-   va_end(ap);
-   }
-   /// ... call with count of args ... 
-   */
-
 // helper for calling grid handlers
 static inline void
 w_call_grid_handler(const char* name, int x, int y) {
@@ -424,8 +375,6 @@ w_call_grid_handler(const char* name, int x, int y) {
   lua_remove(lvm, -2); 
   lua_pushinteger(lvm, x); 
   lua_pushinteger(lvm, y);
-  /* int ret = lua_pcall(lvm, 2, 0, 0); */
-  /* if(ret) { handle_lua_error(ret); } */
   report(lvm, docall(lvm, 2, 0));
 
 }
@@ -446,8 +395,6 @@ w_call_stick_handler(const char* name, int stick, int what, int val) {
   lua_pushinteger(lvm, stick); 
   lua_pushinteger(lvm, what);
   lua_pushinteger(lvm, val);
-  /* int ret = lua_pcall(lvm, 3, 0, 0); */
-  /* if(ret) { handle_lua_error(ret); } */
   report(lvm, docall(lvm, 3, 0));
 }
 
@@ -469,18 +416,14 @@ void w_handle_stick_ball(int stick, int ball, int xrel, int yrel) {
   lua_pushinteger(lvm, ball);
   lua_pushinteger(lvm, xrel);
   lua_pushinteger(lvm, yrel);
-  /* int ret = lua_pcall(lvm, 4, 0, 0); */
-  /* if(ret) { handle_lua_error(ret); } */
   report(lvm, docall(lvm, 4, 0));
 }
-
 
 // helper for pushing array of c strings
 static inline void
 w_push_string_array(const char** arr, const int n) {
-  // allocate and push the table
+  // push a table of strings
   lua_createtable(lvm, n, 0);
-  // set each entry
   for (int i=0; i<n; i++) {
 	lua_pushstring(lvm, arr[i]);
 	lua_rawseti(lvm, -2, i+1);
@@ -489,29 +432,32 @@ w_push_string_array(const char** arr, const int n) {
   lua_pushinteger(lvm, n);
 }
 
-// helper for calling report handlers
-static inline void
-w_call_report_handler(const char* name, const char** arr, const int num) {
+
+// audio engine report handlers
+void w_handle_engine_report(const char** arr, const int n) {
   lua_getglobal(lvm, "report");  
-  lua_getfield(lvm, -1, name); 
-  lua_remove(lvm, -2); 
-  w_push_string_array(arr, num);
-  /* int ret = lua_pcall(lvm, 2, 0, 0); */
-  /* if(ret) { handle_lua_error(ret); } */
+  lua_getfield(lvm, -1, "engines"); 
+  lua_remove(lvm, -2);
   report(lvm, docall(lvm, 2, 0));
 }
 
-// audio engine report handlers
-void w_handle_buffer_report(const char** arr, const int num) {
-  w_call_report_handler( "buffer", arr, num);
-}
-
-void w_handle_engine_report(const char** arr, const int num) {
-  w_call_report_handler("engine", arr, num);
-}
-
-void w_handle_param_report(const char** arr, const int num) {
-  w_call_report_handler("param", arr, num);
+void w_handle_command_report(const struct engine_command* arr,
+							 const int num) {
+  lua_getglobal(lvm, "report");
+  lua_getfield(lvm, -1, "commands");
+  lua_remove(lvm, -2);
+  // push a table of tables: {{cmd, fmt}, {cmd,fmt}, ...}
+  lua_createtable(lvm, num, 0);
+  for(int i=0; i<num; i++) {
+	lua_createtable(lvm, 2, 0);
+	lua_pushstring(lvm, arr[i].cmd);
+	lua_rawseti(lvm, -2, 1);
+	lua_pushstring(lvm, arr[i].fmt);
+	lua_rawseti(lvm, -2, 2);
+	lua_rawseti(lvm, -2, i+1);
+  }
+  lua_pushinteger(lvm, num);
+  report(lvm, docall(lvm, 2, 0));
 }
 
 // timer handler
@@ -519,11 +465,8 @@ void w_handle_timer(const int idx, const int count) {
   lua_getglobal(lvm, "timer");
   lua_pushinteger(lvm, idx+1);
   lua_pushinteger(lvm, count);
-  /* int ret = lua_pcall(lvm, 2, 0, 0); */
-  /* if(ret) { handle_lua_error(ret); } */
   report(lvm, docall(lvm, 2, 0));
 }
-
 
 /******************************************************************************
  * Copyright (C) 1994-2017 Lua.org, PUC-Rio.
