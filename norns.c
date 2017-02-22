@@ -116,7 +116,7 @@ void* matron_tx(void* x) {
 	}
 	txbuf[nb] = '\0';
 	if(nb == 2 && txbuf[0] == 'q') {
-	  printf("time to quit! (FIXME) \n");
+	  printf("norns.c: time to quit! (FIXME: i don't know how) \n");
 	  // TODO: quit everything!
 	}
 	// send to server

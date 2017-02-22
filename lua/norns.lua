@@ -97,11 +97,11 @@ report.engines = function(names, count)
 end
 
 report.commands = function(commands, count)
+   engine.commands = commands;
    for i=1,count do
 	  print(i .. ": " .. commands[i][1] .. " (" .. commands[i][2] .. ")")
 	  defineEngineCommand(i, commands[i][1], commands[i][2])
    end
-   
 end
 
 
