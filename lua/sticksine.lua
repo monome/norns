@@ -42,7 +42,7 @@ pitch = {
    ---- methods
    update = function ()
 	  pitch.hz = pitch.ratio * pitch.base
-	  set_param("hz", pitch.hz)
+	  e.hz(pitch.hz)
 	  print('hz ' .. pitch.hz)
    end,
    -- move the pitch up
@@ -81,7 +81,7 @@ amp = {
    set = function(x)
 	  print('amp ' .. x)
 	  amp.val = x
-	  set_param('amp', x)
+	  e.amp(x)	  
    end
 }
 
