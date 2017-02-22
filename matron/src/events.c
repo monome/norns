@@ -128,12 +128,14 @@ void events_handle_error(const char* msg) {
 static inline void
 handle_grid_press(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
+  printf("passing grid press to LVM: (%d, %d)\n", mev->x, mev->y);. 
   w_handle_grid_press(mev->x, mev->y);
 }
 
 static inline void
 handle_grid_lift(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
+  printf("passing grid lift to LVM: (%d, %d)\n", mev->x, mev->y);
   w_handle_grid_lift(mev->x, mev->y);
 }
 
@@ -210,9 +212,11 @@ void handle_user_event(SDL_Event* ev) {
 	handle_command_report();
 	break;
   case EVENT_GRID_PRESS:
+	printf("handle_user_event(): got EVENT_GRID_PRESS \n");
 	handle_grid_press(ev);
 	break;
   case EVENT_GRID_LIFT:
+	printf("handle_user_event(): got EVENT_GRID_PRESS \n");
 	handle_grid_lift(ev);
 	break;
   case EVENT_TIMER:

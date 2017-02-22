@@ -12,11 +12,13 @@ unsigned int m_leds[16][16] = { [0 ... 15][0 ... 15] = 0 };
 
 // grid event handlers
 void m_handle_press(const monome_event_t *e, void* p) {
+  printf("m_handle_press(): posting event\n");
   event_post_monome_grid(EVENT_GRID_PRESS, e->grid.x, e->grid.y);
 }
 
 void m_handle_lift(const monome_event_t *e, void* p) {
-  event_post_monome_grid(EVENT_GRID_PRESS, e->grid.x, e->grid.y);
+  printf("m_handle_lift(): posting event\n");
+  event_post_monome_grid(EVENT_GRID_LIFT, e->grid.x, e->grid.y);
 }
 
 void m_init() {
