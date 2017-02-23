@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <monome.h>
+#include <pthread.h>
 
 #include "args.h"
 #include "events.h"
@@ -9,6 +10,14 @@
 monome_t *m = NULL;
 // led state
 unsigned int m_leds[16][16] = { [0 ... 15][0 ... 15] = 0 };
+
+// thread id
+pthread_t tid;
+
+static void* m_run(void* p) {
+  printf("running the monome event loop \n");
+  monome_event_loop(m);
+}
 
 // grid event handlers
 void m_handle_press(const monome_event_t *e, void* p) {
@@ -31,12 +40,25 @@ void m_init() {
 	printf("using monome device at %s:\n\n", dev);
   }
   
-  if (m != NULL) { 
+  if (m != NULL) {
+	pthread_attr_t attr;
+	int s;
+
 	monome_register_handler(m, MONOME_BUTTON_DOWN, m_handle_press, NULL);
 	monome_register_handler(m, MONOME_BUTTON_UP, m_handle_lift, NULL);
-	// TODO: arc handlers
-	// TODO: connection handlers??
+
+	s = pthread_attr_init(&attr);
+	if(s) { printf("error initializing thread attributes \n"); }
+	s = pthread_create(&tid, &attr, &m_run, NULL);
+	if(s) { printf("error creating thread\n"); }
+	pthread_attr_destroy(&attr);
   }
+
+}
+
+// FIXME: hey, call this sometime huhg
+void m_deinit() {
+  pthread_cancel(tid);
 }
 
 // set hardware

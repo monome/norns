@@ -128,7 +128,7 @@ void events_handle_error(const char* msg) {
 static inline void
 handle_grid_press(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
-  printf("passing grid press to LVM: (%d, %d)\n", mev->x, mev->y);. 
+  printf("passing grid press to LVM: (%d, %d)\n", mev->x, mev->y);
   w_handle_grid_press(mev->x, mev->y);
 }
 

@@ -15,11 +15,9 @@ print("running norns.lua")
 -- this function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking
 startup = function()
-   print("running user startup code")
    -- define your own startup routine here
    -- ( likely just: dofile("mycustomscript.lua") )
    dofile('lua/sticksine.lua')
-   
 end
 
 --------------------------
@@ -60,7 +58,6 @@ end
 -- table of joystick event handlers
 joystick = {}
 
-print('asasigning default joystick handlers')
 joystick.axis = function(stick, ax, val)
    print("stick " .. stick .. "; axis " .. ax .. "; value " .. val)
 end
@@ -72,7 +69,6 @@ end
 joystick.hat = function(stick, hat, val)
    print("stick " .. stick .. "; hat " .. hat .. "; value " .. val)
 end
-
 
 joystick.ball = function(stick, ball, xrel, yrel)
    print("stick " .. stick .. "; ball " .. ball .. "; xrel " .. xrel .. "; yrel " .. yrel)

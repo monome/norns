@@ -379,12 +379,12 @@ w_call_grid_handler(const char* name, int x, int y) {
 
 }
 void w_handle_grid_press(int x, int y) {
-  printf("passing grid press to LVM: (%d, %d)\n", x, y);. 
+  printf("passing grid press to LVM: (%d, %d)\n", x, y); 
   w_call_grid_handler("press", x, y);
 }
 
 void w_handle_grid_lift(int x, int y) {
-  printf("passing grid lift to LVM: (%d, %d)\n", x, y);. 
+  printf("passing grid lift to LVM: (%d, %d)\n", x, y);
   w_call_grid_handler("lift", x, y);
 }
 
