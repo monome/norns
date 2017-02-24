@@ -17,7 +17,13 @@ print("running norns.lua")
 startup = function()
    -- define your own startup routine here
    -- ( likely just: dofile("mycustomscript.lua") )
-   dofile('lua/sticksine.lua')
+
+   -- joystick and sinewave demo
+--   dofile('lua/sticksine.lua')
+
+   -- joystick and sample cutter demo
+   dofile('lua/stickcut.lua')
+   
 end
 
 --------------------------
@@ -93,13 +99,8 @@ report.engines = function(names, count)
 end
 
 report.commands = function(commands, count)
-   engine.commands = commands;
-   for i=1,count do
-	  print(i .. ": " .. commands[i][1] .. " (" .. commands[i][2] .. ")")
-	  defineEngineCommand(i, commands[i][1], commands[i][2])
-   end
+   addEngineCommands(commands, count)
 end
-
 
 -- table of engine commands
 engine = {}

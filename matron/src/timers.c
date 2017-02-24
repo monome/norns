@@ -30,7 +30,7 @@ struct timer timers[MAX_NUM_TIMERS_OK];
 //---------------------------
 //---- static declarations
 static void timer_handle_error(int code, const char* msg) {
-  printf("error code: %s ; message: \"%s\"", code, msg);
+  printf("error code: %d ; message: \"%s\"", code, msg);
 }
 
 static void timer_init(struct timer *t, uint64_t nsec, int count);

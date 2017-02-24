@@ -107,6 +107,7 @@ Crone {
 		var names = CroneEngine.subclasses.collect({ arg n;
 			n.asString.split($_)[1]
 		});
+		postln("engines: " ++ names);
 		postln("engines report start");
 		remote_addr.sendMsg("/report/engines/start", names.size);
 		names.do({ arg name, i;

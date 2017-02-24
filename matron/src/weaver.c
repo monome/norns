@@ -440,6 +440,7 @@ void w_handle_engine_report(const char** arr, const int n) {
   lua_getglobal(lvm, "report");  
   lua_getfield(lvm, -1, "engines"); 
   lua_remove(lvm, -2);
+  w_push_string_array(arr, n);
   report(lvm, docall(lvm, 2, 0));
 }
 

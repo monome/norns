@@ -291,7 +291,7 @@ int engine_report_start(const char *path, const char *types,
 						lo_arg ** argv, int argc, void *data, void *user_data)
 {
   // arg 1: count of buffers
-  printf("engine_report_start() : %s \n", path);
+  //  printf("engine_report_start() : %s \n", path);
   o_clear_engine_names();
   o_set_num_desc(&num_engines, argv[0]->i);
 }
@@ -301,7 +301,7 @@ int engine_report_entry(const char *path, const char *types, lo_arg ** argv,
   // arg 1: buffer index
   // arg 2: buffer name
   
-  printf("engine_report_entry() : %s \n", path);
+  //  printf("engine_report_entry() : %s \n", path);
   // NB: yes, this is the correct way to read a string from a lo_arg
   o_set_engine_name(argv[0]->i, &argv[1]->s);
 }
@@ -309,7 +309,7 @@ int engine_report_entry(const char *path, const char *types, lo_arg ** argv,
 int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 					  int argc, void *data, void *user_data) {
   // no arguments; post event
-  printf("engine_report_end() : %s \n", path);
+  //  printf("engine_report_end() : %s \n", path);
   // FIXME: as yet no outstanding need for report_end message to occur at all.
   // could add counter from report_start to double-check the param count.
   // or (better?) we could simply use binary blobs from Crone,

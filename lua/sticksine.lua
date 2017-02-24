@@ -196,5 +196,7 @@ end
 timer = function(idx, count)
    if idx == 1 then -- respond to timer 1
 	  pitch.random()
+   else
+	  print("got callback from timer " .. idx)
    end
 end

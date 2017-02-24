@@ -35,3 +35,13 @@ function defineEngineCommand(idx, name, fmt)
 	  
    defineFunction(target, args, body)
 end
+
+-- add engine commands. this is our default handler for command reports
+function addEngineCommands(commands, count)
+   engine = {} -- clear existing commands
+   engine.commands = commands
+   for i=1,count do
+	  print(i .. ": " .. commands[i][1] .. " (" .. commands[i][2] .. ")")
+	  defineEngineCommand(i, commands[i][1], commands[i][2])
+   end
+end
