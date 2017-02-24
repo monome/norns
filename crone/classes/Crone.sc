@@ -17,7 +17,9 @@ Crone {
 			postln(" \OSC tx port: " ++ tx_port);
 			postln("--------------------------------------------------\n");
 
-			Server.default.boot;
+			Server.default.waitForBoot {
+				CroneDefs.sendDefs;
+			};
 
 			// FIXME: hardcoded remote address for now
 			remote_addr =NetAddr("127.0.0.1", tx_port);
