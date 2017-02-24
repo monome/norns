@@ -180,20 +180,21 @@ joystick.hat = function(stick, hat, val)
    if (val & 0x1) > 0 then
 	  if not hat_state then
 		 hat_state = true
+		 -- start timer 1 with a period of 1/8s, infinite repeats
 		 start_timer(1, 0.125, -1)
 	  end
    else
 	  if hat_state then
 		 hat_state = false
+		 -- stop timer 1
 		 stop_timer(1)
 	  end
    end
 end
 
-
 -- define a timer callback
 timer = function(idx, count)
-   if idx == 1 then
+   if idx == 1 then -- respond to timer 1
 	  pitch.random()
    end
 end
