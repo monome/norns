@@ -8,7 +8,12 @@ Crone_Cutter : CroneEngine {
 	var <gr; // groups
 	var <bus; // busses
 	var <buf; // buffers
-	var <v; // voices
+	var <syn; // synths
+	var <pb; // playback voice
+	var <pm; // patch matrix
+	var <rec; // recorders
+
+	// routing 
 	
 	*new { arg srv;
 		^super.new.initSub(srv);
@@ -16,38 +21,129 @@ Crone_Cutter : CroneEngine {
 
 	initSub { arg srv;
 		var com;
+		var pb_out_b;
 		
 		s = srv;
 
+		//--- groups
 		gr = Event.new;
-		gr.in = Group.new(s);
-		gr.pb = Group.after(gr.in);
-		gr.out = Group.after(gr.pb);
-
-		bus = Event.new;
-		bus.in = Bus.audio(s, 1);
-		bus.pb = Bus.audio(s, 2);
-
-		buf = Array.fill(nbufs, {
-			Buffer.alloc(s, s.sampleRate * bufdur);
-		});
+		// groups: adc -> playback -> record -> dac
+		gr.adc = Group.new(s);
+		gr.pb = Group.after(gr.adc);
+		gr.rec = Group.after(gr.pb);
+		gr.dac = Group.after(gr.rec);
 		
-		v = Array.fill(nvoices, { arg i;
-			CutFadeVoice.new(s, buf[i % nbufs], gr.pb, gr.out, bus.out);
+		//--- busses
+		bus = Event.new;
+		bus.adc = Array.fill(2, { Bus.audio(s, 1) });
+		bus.dac = Array.fill(2, { Bus.audio(s, 1) });
+		bus.rec = Array.fill(nbufs, { Bus.audio(s, 1) });
+
+		//--- buffers
+		buf = Array.fill(nbufs, {
+			Buffer.alloc(s, s.sampleRate * bufdur)
 		});
-			
-		/// TODO: audio routing, inputs, recording
+
+		// FIXME: delay execution here until buffers are allocated.
+		// as is, we get a meaningless warning from BufRateScale, &c
+		
+		//--- playback
+		pb = Array.fill(nvoices, { arg i;
+			CutFadeVoice.new(s, buf[i % nbufs], gr.pb)
+		});
+
+		//-- record
+		rec = buf.collect({ |bf, i|
+			SoftRecord.new(s, bf.bufnum, bus.rec[i].index)
+		});
+
+		//--- patch matrices
+		pm = Event.new;
+		pb_out_b = pb.collect({ |v| v.out_b.index });
+		
+		// input -> record
+		pm.adc_rec = PatchMatrix.new(
+			server:s, target:gr.adc, action:\addAfter,
+			in: bus.adc.collect({ |b| b.index }),
+			out: bus.rec.collect({ |b| b.index })
+		);		
+		// playback -> output
+		pm.pb_dac = PatchMatrix.new(
+			server:s, target:gr.pb, action:\addAfter,
+			in: pb_out_b, 
+			out: bus.dac.collect({ |b| b.index })
+		);		
+		// playback -> record
+		pm.pb_rec = PatchMatrix.new(
+			server:s, target:gr.pb, action:\addAfter,
+			in: pb_out_b,
+			out: pb_out_b
+		);
+
+		//--- IO synths
+		syn = Event.new;
+		syn.adc = Array.fill(2, { |i|
+			Synth.new(\adc, [
+				\in, i, \out, bus.adc[i].index
+			], gr.adc)
+		});
+		syn.dac = Array.fill(2, { |i|
+			Synth.new(\patch_mono, [
+				\in, bus.dac[i].index, \out, i
+			], gr.dac)
+		});
 		
 		// build commands list
 		com = [
-			[\level, \if, { |msg| v[msg[1]].level_(msg[2]) }],
-			[\mute, \if, { |msg| v[msg[1]].mute_(msg[2]) }],
-			[\pan, \if, { |msg| v[msg[1]].pan_(msg[2]) }],
-			[\pos, \if, { |msg| v[msg[1]].pos_(msg[2]) }],
-			[\rate, \if, { |msg| v[msg[1]].rate_(msg[2]) }],
-			[\read, \is, { |msg| this.readBuf(msg[1], msg[2]) }],
-			[\clear, \i, { |msg| this.clearBuf(msg[1]) }],
-			[\normalize, \if, { |msg| this.normalizeBuf(msg[1], msg[2]) }],
+			//-- manipulate voice methods directly
+			// set output level of a playback voice
+			[\level, \if, { |msg| pb[msg[1]-1].level_(msg[2]) }],
+			// set mute flag for playback voice
+			[\mute, \if, { |msg| pb[msg[1]-1].mute_(msg[2]) }],
+			// cut playback to position
+			[\pos, \if, { |msg| pb[msg[1]-1].pos_(msg[2]) }],
+			// set playback to new rate, with crossfade
+			[\rate, \if, { |msg| pb[msg[1]-1].rate_(msg[2]) }],
+			// set crossfade time for given playback bvoice
+			[\fade, \if, { |msg| pb[msg[1]-1].fade_(msg[2]) }],
+			// set crossfade curve for given playback voice
+			[\curve, \if, { |msg| pb[msg[1]-1].curve_(msg[2]) }],
+			// set source buffer for playback voice
+			[\buf, \ii, { |msg| pb[msg[1]-1].buffer_(buf[msg[2]-1]) }],
+			// set (raw) looping behavior for playback voice.
+			[\loop, \ii, { |msg| pb[msg[1]-1].loop_(msg[2]) }],
+			//-- control recording
+			// start recording given buffer at last set position
+			[\rec, \i, { |msg| rec[msg[1]-1].start }],
+			// start recording given buffer at given position
+			[\rec_pos, \if, { |msg| rec[msg[1]-1].start(msg[2]) }],
+			// stop recording given buffer
+			[\rec_stop, \i, { |msg| rec[msg[1]-1].stop }],
+			// set record level for given buffer
+			[\rec_level, \if, { |msg| rec[msg[1]-1].rec_(msg[2]) }],
+			// set prerecord (overdub_ level for given buffer
+			[\rec_pre, \if, { |msg| rec[msg[1]-1].pre_(msg[2]) }],
+			// set loop flag for given recorder.
+			[\rec_loop, \ii, { |msg| rec[msg[1]-1].loop_(msg[2]) }],
+			//-- routing
+			// level from given ADC channel to given recorder
+			[\adc_rec, \iif, { |msg| pm.adc_rec(msg[1]-1, msg[2], msg[3]); }],
+			// level from given playback channel to given recorder
+			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2], msg[3]); }],
+			// level from given playback channel to given DAC channel
+			[\play_dac, \iif, { |msg| pm.pb_dac.level_(msg[1]-1, msg[2], msg[3]); }],
+			//--- buffers
+			// read named soundfile to given buffer
+			[\read, \is, { |msg| this.readBuf(msg[1]-1, msg[2]) }],
+			// write given buffer to named soundfile
+			[\write, \is, { |msg| this.writeBuf(msg[1]-1, msg[2]) }],
+			// clear given buffer
+			[\clear, \i, { |msg| this.clearBuf(msg[1]-1) }],
+			// detructively trim to new start and end 
+			[\trim, \iff, { |msg| this.trimBuf(msg[1]-1, msg[2], msg[3]) }],
+			// normalize given buffer to given maximum level
+			[\norm, \if, { |msg| this.normalizeBuf(msg[1]-1, msg[2]) }],
+			
 		];
 
 		com.do({ arg comarr;
@@ -56,23 +152,6 @@ Crone_Cutter : CroneEngine {
 		});
 	}
 
-	// --- routing
-	// play head to output
-	// play head to rec head
-
-	// start/stop recording
-	record { arg i, state;
-		// TODO
-	}
-
-	recLevel { arg i, val;
-		// TODO
-	}
-
-	preLevel { arg i, val;
-		// TODO
-	}
-	
 	// clear a buffer
 	clearBuf { arg i;
 		buf[i].zero;
@@ -85,19 +164,20 @@ Crone_Cutter : CroneEngine {
 	
 	// destructive trim
 	trimBuf { arg i, start, end;
-		// TODO: any voices using the old buffer
-		// need to be reassigned to use the new one...
-
-		/*
 		var startsamp, endsamp, samps, newbuf;
 		startsamp = start * s.sampleRate;
 		endsamp = end * s.sampleRate;
 		samps = endsamp - startsamp;
 		newbuf = Buffer.alloc(s, samps);
 		buf[i].copyData(newbuf, 0, startsamp, samps);
-		// reassign...
-		buf[i].free;
-		*/
+		// any voices using this buffer need to be reassigned
+		pb.do({ arg p;
+			if(p.buf == buf[i], {
+				p.buffer_(newbuf);
+			});
+			buf[i].free;
+			buf[i] = newbuf;
+		});
 	}
 	
 	// disk read
