@@ -145,7 +145,7 @@ static int w_request_command_report(lua_State* l);
 static int w_send_command(lua_State* l);
 
 // manage timers from lua
-static int w_timer_add(lua_State* l);
+static int w_timer_start(lua_State* l);
 static int w_timer_stop(lua_State* l);
 
 
@@ -171,7 +171,7 @@ void w_init(void) {
   lua_register(lvm, "report_commands", &w_request_command_report);
   lua_register(lvm, "send_command", &w_send_command);
 
-  lua_register(lvm, "start_timer", &w_timer_add);
+  lua_register(lvm, "start_timer", &w_timer_start);
   lua_register(lvm, "stop_timer", &w_timer_stop);
   
   // run system init code
@@ -314,7 +314,7 @@ int w_request_command_report(lua_State* l) {
 }
 
 // manage timers from lua
-int w_timer_add(lua_State* l) {
+int w_timer_start(lua_State* l) {
   int idx;
   double seconds;
   int count;
@@ -337,7 +337,7 @@ int w_timer_add(lua_State* l) {
 	goto args_error;
   }
   
-  timer_add(idx, seconds, count);
+  timer_start(idx, seconds, count);
   return 0;
   
  args_error:

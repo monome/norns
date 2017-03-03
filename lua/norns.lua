@@ -22,7 +22,11 @@ startup = function()
 --   dofile('lua/sticksine.lua')
 
    -- joystick and sample cutter demo
-   dofile('lua/stickcut.lua')
+   -- dofile('lua/stickcut.lua')
+
+
+   -- test timer stuff
+   dofile('lua/timertest.lua')
    
 end
 

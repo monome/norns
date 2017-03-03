@@ -16,6 +16,9 @@ int main(int argc, char** argv) {
 
   // this must come first... 
   events_init();
+
+  // initialize timers
+  timers_init();
   
   // intialize oracle (audio glue)
   o_init();

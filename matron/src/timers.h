@@ -6,8 +6,11 @@
 
 extern const int MAX_NUM_TIMERS;
 
+// intialize the timers system
+extern void timers_init(void);
+
 // create a timer at the specified index
-extern void timer_add(int idx, double seconds, int count);
+extern void timer_start(int idx, double seconds, int count);
 // wait for a timer to finish
 extern void timer_wait(int idx);
 // cancel all scheduled iterations
