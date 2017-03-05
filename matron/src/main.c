@@ -3,7 +3,7 @@
 
 #include "args.h"
 #include "events.h"
-#include "repl.h"
+#include "input.h"
 #include "timers.h"
 
 #include "oracle.h"
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
   m_init();
 
   // start reading input to interpreter
-  repl_init();
+  input_init();
 
   // i/o subsystems are ready, 
   // run the user's startup routine

@@ -201,9 +201,10 @@ void handle_timer(SDL_UserEvent* uev) {
 void handle_user_event(SDL_Event* ev) {
   switch(ev->user.code) {
 	
-  case EVENT_EXEC_CODE:
-	w_run_code(ev->user.data1);
-	free(ev->user.data1);
+  case EVENT_EXEC_CODE_LINE:
+	//w_run_code(ev->user.data1);
+	w_handle_line(ev->user.data1);
+  	free(ev->user.data1);
 	break;
   case EVENT_ENGINE_REPORT:
 	handle_engine_report();

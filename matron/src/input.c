@@ -6,16 +6,16 @@
 #include <pthread.h>
 
 #include "events.h"
-#include "repl.h"
+#include "input.h"
 
 static char *rxbuf;
 static int quit = 0;
 static pthread_t pid;
 
-static void* repl_run(void* p) {
+static void* input_run(void* p) {
   size_t len, dum;
-  char* code;
-  printf("waiting for REPL input on stdin\n");
+  char* line;
+  printf("waiting for input stdin\n");
   printf("('q' quits)\n");
   fflush(stdout);
   while(!quit) {
@@ -24,31 +24,32 @@ static void* repl_run(void* p) {
 	len = strlen(rxbuf);
 	if(len == 2) {
 	  if(rxbuf[0] == 'q') { 
-		quit = 1;
 		// tell main event loop to quit
 		event_t ev = EVENT_QUIT;
 		event_post(ev, NULL, NULL);
-		printf("REPL has exited \r\n");
+		printf("stdin loop has exited \r\n");
 		fflush(stdout);
+		quit = 1;
+		continue;
 	  }
 	}
-	else if (len > 0) {
+	if (len > 0) {
 	  // event handler must free this chunk!
-	  code = malloc((len+1) * sizeof(char));
-	  strncpy(code, rxbuf, len);
-	  code[len] = '\0';
-	  event_post(EVENT_EXEC_CODE, code, NULL);
+	  line = malloc((len+1) * sizeof(char));
+	  strncpy(line, rxbuf, len);
+	  line[len] = '\0';
+	  event_post(EVENT_EXEC_CODE_LINE, line, NULL);
 	}
   }
   free(rxbuf);
 }
 
-void repl_init(void) {
+void input_init(void) {
    pthread_attr_t attr;
    int s;
    s = pthread_attr_init(&attr);
-   if(s != 0) { printf("error in pthread_attr_init(): %d\n", s); }
-   s = pthread_create(&pid, &attr, &repl_run, NULL);
-   if(s != 0) { printf("error in pthread_create(): %d\n", s); }
+   if(s != 0) { printf("input_init(): error in pthread_attr_init(): %d\n", s); }
+   s = pthread_create(&pid, &attr, &input_run, NULL);
+   if(s != 0) { printf("input_init(): error in pthread_create(): %d\n", s); }
    pthread_attr_destroy(&attr);
 }
