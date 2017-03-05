@@ -1,11 +1,13 @@
---[[ 
-   norns.lua 
+--[[
+   norns.lua
    startup script for norns lua environment.
 
    NB: removal of any function/module definitions will break the C->lua glue.
    in other respects, feel free to customize.
 --]]
 
+version = {}
+version.norns = "0.0.1"
 
 -- utilities and helpers
 dofile('lua/helpers.lua')
@@ -23,12 +25,12 @@ startup = function()
 
    -- joystick and sample cutter demo
    dofile('lua/stickcut.lua')
-   
+
 end
 
 --------------------------
 -- define default event handlers.
--- user scripts should redefine. 
+-- user scripts should redefine.
 
 -- tbale of encoder event handlers
 encoder = {}
@@ -81,12 +83,12 @@ joystick.ball = function(stick, ball, xrel, yrel)
 end
 
 -- mouse/KB
---... 
+--...
 
 -- MIDI
--- ... 
+-- ...
 
--- table 
+-- table
 
 -- table of handlers for descriptor reports
 report = {}
@@ -94,7 +96,7 @@ report = {}
 report.engines = function(names, count)
    print(count .. " engines: ")
    for i=1,count do
-	  print(i .. ": "..names[i]) 
+	  print(i .. ": "..names[i])
    end
 end
 
@@ -111,4 +113,10 @@ e = engine
 -- FIXME? : could be a table if that is preferable.
 timer = function(idx, count)
    print("timer " .. idx .. " : " .. count)
+end
+
+versions = function()
+  for key,value in pairs(version) do
+    print(key .. ": "  .. value)
+  end
 end

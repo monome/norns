@@ -1,4 +1,4 @@
---[[ 
+--[[
    sticksine.lua
 
    basic demo script showing how to connect inputs to audio params.
@@ -16,10 +16,12 @@
 
    joystick axis 3 controls amplitude.
    joystick axis 4 bends the base pitch.
-  
+
    holding 'up' on the d-pad engages a timer to randomly walk through pitch intervals.
 
 --]]
+
+version.sticksine = "0.0.1"
 
 print('running sticksine.lua')
 
@@ -81,7 +83,7 @@ amp = {
    set = function(x)
 	  print('amp ' .. x)
 	  amp.val = x
-	  e.amp(x)	  
+	  e.amp(x)
    end
 }
 
@@ -142,7 +144,7 @@ function map_axis(x, bipolar)
    if y < -1.0 then y = -1.0 end
    return y
 end
-   
+
 
 -- similarly for joystick axis functions
 axfunc = {
@@ -160,7 +162,7 @@ axfunc = {
    function(val)
 	  pitch.base = 220.0 * (2 ^ (map_axis(val, true)))
 	  pitch.update()
-   end   
+   end
 }
 
 -- finally, glue our function tables to the handlers defined in norns.lua
@@ -174,7 +176,7 @@ end
 
 -- assign d-pad (aka 'hat') to timer stop/start
 -- each direction is represented as a bitfield
--- so we need to store the state and compare 
+-- so we need to store the state and compare
 local hat_state = false
 joystick.hat = function(stick, hat, val)
    if (val & 0x1) > 0 then

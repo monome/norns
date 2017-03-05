@@ -3,6 +3,8 @@
    trivial demo showing how to use the 'Cutter' engine
 --]]
 
+version.stickcut = "0.0.1"
+
 print("\n --- \n hello stickcut.lua \n --- \n")
 
 --[[
@@ -14,7 +16,7 @@ report.commands = function(commands, count)
    print("handling command report... \n")
    addEngineCommands(commands, count)
    e = engine;
-   
+
    -- load a soundfile into first buffer
    e.read(1, '/snd/hurt.wav') -- oh yes i did
    -- twll the first 4 playback voices to use the first buffer
@@ -22,7 +24,7 @@ report.commands = function(commands, count)
    e.buf(2, 1)
    e.buf(3, 1)
    e.buf(4, 1)
-   
+
    -- set the first 4 voices to different playback rates
    e.rate(1, 0.5)
    e.rate(2, 1.0)
@@ -50,7 +52,7 @@ report.commands = function(commands, count)
 		 end
 	  end
    end
-   
+
 end -- report handler
 
 -- handler is set; load the engine
