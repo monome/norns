@@ -32,7 +32,7 @@ function defineEngineCommand(idx, name, fmt)
    end
    body = string.sub(body, 0, -2) -- bodyip trailing ','
    body = body .. ' )'
-	  
+
    defineFunction(target, args, body)
 end
 
