@@ -18,7 +18,7 @@ typedef struct {
   Uint32 timestamp;
   Uint32 windowID;
   Sint32 code;
-  // these are added by us. must fit in void*[2]
+  // these are added by us. must fit in sizeof(void*[2])
   uint8_t x;
   uint8_t y;
 } SDL_MonomeGridEvent;
@@ -41,8 +41,6 @@ static void handle_joy_ball(SDL_JoyBallEvent* jb);
 
 static void handle_engine_report(void);
 static void handle_command_report(void);
-/* static void handle_buffer_report(void) ; */
-/* static void handle_param_report(void); */
 
 //-------------------------------
 //-- extern function definitions
@@ -105,7 +103,6 @@ void event_post_monome_grid(event_t id, int x, int y) {
   SDL_PushEvent(&(u.ev));
 }
 
-
 //------------------------------
 //-- static function definitions
 
@@ -119,7 +116,6 @@ void post_quit_event() {
 void events_handle_error(const char* msg) {
   printf("error in events.c : %s ; code: %d", msg, SDL_GetError());
 }
-
 
 //---------------------------------
 //---- handlers
@@ -175,24 +171,6 @@ void handle_command_report(void) {
   o_unlock_descriptors();
 }
 
-
-/* void handle_buffer_report(void) { */
-/*   o_lock_descriptors(); */
-/*   const char** p = o_get_buffer_names(); */
-/*   const int n = o_get_num_buffers(); */
-/*   w_handle_buffer_report(p, n);  */
-/*   o_unlock_descriptors(); */
-/* } */
-
-/* void handle_param_report(void) { */
-/*   printf("handling completed param report \n"); */
-/*   o_lock_descriptors(); */
-/*   const char** p = o_get_param_names(); */
-/*   const int n = o_get_num_params(); */
-/*   w_handle_param_report(p, n); */
-/*   o_unlock_descriptors(); */
-/* } */
-
 void handle_timer(SDL_UserEvent* uev) {
   w_handle_timer(*((int*)uev->data1), *((int*)uev->data2));
 }
@@ -202,7 +180,6 @@ void handle_user_event(SDL_Event* ev) {
   switch(ev->user.code) {
 	
   case EVENT_EXEC_CODE_LINE:
-	//w_run_code(ev->user.data1);
 	w_handle_line(ev->user.data1);
   	free(ev->user.data1);
 	break;

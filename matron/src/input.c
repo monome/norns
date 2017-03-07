@@ -15,11 +15,10 @@ static pthread_t pid;
 static void* input_run(void* p) {
   size_t len, dum;
   char* line;
-  printf("waiting for input stdin\n");
+  printf("waiting for input on stdin\n");
   printf("('q' quits)\n");
   fflush(stdout);
   while(!quit) {
-	//	printf("\n> "); fflush(stdout);
 	getline(&rxbuf, &dum, stdin);
 	len = strlen(rxbuf);
 	if(len == 2) {
