@@ -13,6 +13,7 @@
 #include "m.h" // monome glue
 
 void cleanup(void) {
+  printf("matron cleanup \n"); fflush(stdout);
   o_deinit();
   m_deinit();
   exit(0);

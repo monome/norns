@@ -1,9 +1,17 @@
+
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#define USE_READLINE 1
+#if USE_READLINE
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 
 //-----------------
 //---- defines
@@ -176,41 +184,58 @@ void* matron_rx_loop(void* psock) {
 void* matron_tx_loop(void* x) {
   char txbuf[BUFFER_SIZE];
   int res;
-  int nb;
   int ch;
-  int newline = 0;
+  size_t len;
   int quit = 0;
-
+  char* line = (char*)NULL;
+  
   // wait a bit for the child executable
   usleep(100000);
   
   while(!quit) {
-	/*
-	// FIXME: weird issues with getline() and threads/children (?)
+
+#if USE_READLINE
+	if(line) { free(line); line=(char*)NULL; }
+	line = readline("");
+	len = strlen(line);
+	printf("readline: %s , len: %d\n",line,len);
+	if(len < 1) {
+	  printf("no string\n");
+	  continue;
+	}
+	add_history(line);
+	strncpy(txbuf, line, BUFFER_SIZE);
+#else
+	int newline = 0;
+	// FIXME: weird issues with getline and threads/children (?!?)
 	// for now, doing this craziness instead
-	nb = 0;
+	len = 0;
 	txbuf[0] = '\0';
 	newline = 0;
 	// read from stdin
 	while(newline != 1) {
-	  if(nb < (BUFFER_SIZE-1)) {
+	  if(len < (BUFFER_SIZE-1)) {
 		ch = getchar();
-		txbuf[nb++] = (char)ch;
+		txbuf[len++] = (char)ch;
 		if(ch == 10) { newline = 1; }
 	  } else {
 		newline = 1;
 	  }
 	}
-	*/
-	
-	txbuf[nb] = '\0';
+   	txbuf[len] = '\0';
+#endif
+	printf("txbuf: %s , len: %d\n", txbuf, len);
 	// send to server
-	write(matron_pipe_in[PIPE_WRITE], txbuf, nb);
+	write(matron_pipe_in[PIPE_WRITE], txbuf, len);
+		   
+	printf("txbuf after write: %s , len: %d q\n", txbuf, len);
+	
 	// check for quit
-	// FIXME: would cleaner to get signal from matron, somehow, maybe
-	if(nb == 2 && txbuf[0] == 'q') {
+	// FIXME: would cleaner to get signal from matron, somehow, maybe	
+	if(len == 1 && txbuf[0] == 'q') {
 	  quit = 1;
 	  quit_crone();
+	  kill(matron_pid, SIGUSR1);
 	  pthread_cancel(matron_rx_tid);
 	  pthread_cancel(matron_tx_tid);
 	}
