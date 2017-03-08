@@ -36,7 +36,7 @@ report.commands = function(commands, count)
 
    joystick.axis = function(stick, ax, val)
 	  if(ax == 1) then
-		 pos = ((val / 32767) + 1.0) * 16.0
+		 pos = ((val / 32767) + 1.0) * 160.
 		 print("pos: " .. pos)
 	  end
    end

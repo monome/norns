@@ -80,18 +80,6 @@ static int command_report_end(const char *path, const char *types,
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
-// helper for va_list 
-static int lo_send_varargs(const char *path, const char* types, va_list ap);
-int lo_send_varargs(const char *path, const char* types, va_list ap) {
-  int ret;
-  lo_message msg = lo_message_new();
-  
-  /* remote_addr->errnum = 0; */
-  /* remote_addr->errstring = 0; */
-  
-  //  ret = lo_message_add_varargs_internal(msg, types, ap, __FILE__, __LINE__);
-}
-
 //-----------------------------------
 //---- extern function definitions
 
@@ -127,10 +115,9 @@ void o_init(void) {
 }
 
 void o_deinit(void) {
-  printf("killing audio engine\n");
+  printf("killing audio engine\n"); fflush(stdout);
   lo_send(remote_addr, "/engine/kill", "");
-  printf("stopping OSC server\n");
-  fflush(stdout);
+  printf("stopping OSC server\n"); fflush(stdout);
   lo_server_thread_free(st);
 }
 
@@ -157,7 +144,7 @@ void o_lock_descriptors() {
   //  printf("o_lock_descriptors() \n");
   int res = pthread_mutex_lock(&desc_lock);
   if(res) {
-	printf("o_lock_descriptors failed with code %d \b", res); 
+	printf("o_lock_descriptors failed with code %d \b", res); fflush(stdout);
   }  
 }
 
@@ -165,21 +152,20 @@ void o_unlock_descriptors() {
   //  printf("o_unlock_descriptors() \n");
   int res = pthread_mutex_unlock(&desc_lock);
   if(res)  {
-	printf("o_unlock_descriptors failed with code %d \b", res); 
+	printf("o_unlock_descriptors failed with code %d \b", res); fflush(stdout);
   }  
 }
 
 //--- tranmission to audio engine
 
 void o_request_engine_report(void) {
-  printf("requesting engine report... \n");
+  printf("requesting engine report... \n"); fflush(stdout);
   lo_send(remote_addr, "/report/engines", "");
 }
 
 void o_load_engine(const char* name) {
-  printf("loading engine: %s \n", name);
+  printf("loading engine: %s \n", name);  fflush(stdout);
   lo_send(remote_addr, "/engine/load/name", "s", name);
-  /// trying this out...
   o_request_command_report();
 }
 
@@ -190,10 +176,8 @@ void o_request_command_report(void) {
 void o_send_command(const char* name, lo_message msg) {
   char* path;
   size_t len = sizeof(char) * (strlen(name) + 10);
-  //  printf("o_send_command(); allocating %d bytes for path buffer\n", len);
   path = malloc(len);
   sprintf(path, "/command/%s", name);
-  //  printf("path buffer: %s\n", path);
   lo_send_message(remote_addr, path, msg);
   free(msg);
 }
@@ -291,7 +275,6 @@ int engine_report_start(const char *path, const char *types,
 						lo_arg ** argv, int argc, void *data, void *user_data)
 {
   // arg 1: count of buffers
-  //  printf("engine_report_start() : %s \n", path);
   o_clear_engine_names();
   o_set_num_desc(&num_engines, argv[0]->i);
 }
@@ -300,8 +283,6 @@ int engine_report_entry(const char *path, const char *types, lo_arg ** argv,
 						int argc, void *data, void *user_data) {
   // arg 1: buffer index
   // arg 2: buffer name
-  
-  //  printf("engine_report_entry() : %s \n", path);
   // NB: yes, this is the correct way to read a string from a lo_arg
   o_set_engine_name(argv[0]->i, &argv[1]->s);
 }
@@ -309,7 +290,6 @@ int engine_report_entry(const char *path, const char *types, lo_arg ** argv,
 int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 					  int argc, void *data, void *user_data) {
   // no arguments; post event
-  //  printf("engine_report_end() : %s \n", path);
   // FIXME: as yet no outstanding need for report_end message to occur at all.
   // could add counter from report_start to double-check the param count.
   // or (better?) we could simply use binary blobs from Crone,
@@ -330,18 +310,13 @@ int command_report_start(const char *path, const char *types, lo_arg ** argv,
 
 int command_report_entry(const char *path, const char *types, lo_arg ** argv,
 						 int argc, void *data, void *user_data) {
-  
-  //  printf("command_report_entry(): %d %s %s\n", argv[0]->i, &argv[1]->s, &argv[2]->s);
   o_set_command(argv[0]->i, &argv[1]->s, &argv[2]->s);
 }
 
 int command_report_end(const char *path, const char *types, lo_arg ** argv,
 					   int argc, void *data, void *user_data) {
-  //  printf("command_report_end()\n");
-  event_post(EVENT_COMMAND_REPORT, NULL, NULL);
+   event_post(EVENT_COMMAND_REPORT, NULL, NULL);
 }
-
-
 
 void lo_error_handler(int num, const char *m, const char *path) {
   printf("liblo error %d in path %s: %s\n", num, path, m);

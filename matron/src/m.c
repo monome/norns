@@ -15,24 +15,24 @@ unsigned int m_leds[16][16] = { [0 ... 15][0 ... 15] = 0 };
 pthread_t tid;
 
 static void* m_run(void* p) {
-  printf("running the monome event loop \n"); fflush(stdout);
+  //  printf("running the monome event loop \n"); fflush(stdout);
   monome_event_loop(m);
 }
 
 // grid event handlers
 void m_handle_press(const monome_event_t *e, void* p) {
-  printf("m_handle_press(): posting event\n"); fflush(stdout);
+  //  printf("m_handle_press(): posting event\n"); fflush(stdout);
   event_post_monome_grid(EVENT_GRID_PRESS, e->grid.x, e->grid.y);
 }
 
 void m_handle_lift(const monome_event_t *e, void* p) {
-  printf("m_handle_lift(): posting event\n"); fflush(stdout);
+  //  printf("m_handle_lift(): posting event\n"); fflush(stdout);
   event_post_monome_grid(EVENT_GRID_LIFT, e->grid.x, e->grid.y);
 }
 
 void m_init() {
   const char* dev = args_monome_path();
-  printf("starting libmonome\n"); fflush(stdout);
+  //  printf("starting libmonome\n"); fflush(stdout);
   m = monome_open(dev);
   if( m == NULL) { 
 	printf("m_init(): couldn't open monome device (%s)\n", dev); fflush(stdout);
@@ -62,16 +62,15 @@ void m_init() {
 
 }
 
-// FIXME: hey, call this sometime huh?
 void m_deinit() {
    if (m != NULL) {
-	 printf("cancelling monome thread() \n"); fflush(stdout);
+	 // printf("cancelling monome thread \n"); fflush(stdout);
 	 pthread_cancel(tid);
    }
 }
 
 // set hardware
-void m_grid_set_led(int x, int y,  int val) {
+void m_grid_set_led(int x, int y, int val) {
   m_leds[x][y] = val;
   if(m != NULL) { 
 	monome_led_set(m, x, y, m_leds[x][y]);
