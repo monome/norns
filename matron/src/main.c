@@ -3,7 +3,7 @@
 
 #include "args.h"
 #include "events.h"
-#include "repl.h"
+#include "input.h"
 #include "timers.h"
 
 #include "oracle.h"
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
   m_init();
 
   // start reading input to interpreter
-  repl_init();
+  input_init();
 
   // i/o subsystems are ready, 
   // run the user's startup routine
@@ -42,10 +42,10 @@ int main(int argc, char** argv) {
   //  timer_add(0, 0.25, 16);
   
   // blocks until quit
-  printf("starting main event loop \n"); fflush(stdout);
+  //  printf("starting main event loop \n"); fflush(stdout);
   event_loop();
   
-  printf("main event loop has exited \n"); fflush(stdout);
+  //  printf("main event loop has exited \n"); fflush(stdout);
   o_deinit();
   
   return 0;

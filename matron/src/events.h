@@ -2,7 +2,7 @@
 
 typedef enum {
   // code to be executed by luavm
-  EVENT_EXEC_CODE,
+  EVENT_EXEC_CODE_LINE,
   // monome grid press
   EVENT_GRID_PRESS,
   // monome grid lift

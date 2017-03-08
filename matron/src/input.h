@@ -1,6 +1,7 @@
 #pragma once
+
 /*
-  repl.h
+  input.h
 
   control input to interpreter
 
@@ -8,4 +9,4 @@
 
 #include <pthread.h>
 
-extern void repl_init(void);
+extern void input_init(void);
