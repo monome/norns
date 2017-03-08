@@ -11,7 +11,7 @@
 //--- types, variables
 
 typedef struct {
-  // nb: we have to do some evil casts from SDL_UserEvent.
+  // NB: we have to do some evil casts from SDL_UserEvent.
   // we are basically making our own event struct.
   // these first 4 fields must match UserEvent
   Uint32 type;     
@@ -124,14 +124,14 @@ void events_handle_error(const char* msg) {
 static inline void
 handle_grid_press(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
-  printf("handling grid lift event: (%d, %d)\n", mev->x, mev->y);
+  //  printf("handling grid press event: (%d, %d)\n", mev->x, mev->y);
   w_handle_grid_press(mev->x, mev->y);
 }
 
 static inline void
 handle_grid_lift(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
-  printf("handling grid lift event: (%d, %d)\n", mev->x, mev->y);
+  //  printf("handling grid lift event: (%d, %d)\n", mev->x, mev->y);
   w_handle_grid_lift(mev->x, mev->y);
 }
 
@@ -172,7 +172,11 @@ void handle_command_report(void) {
 }
 
 void handle_timer(SDL_UserEvent* uev) {
-  w_handle_timer(*((int*)uev->data1), *((int*)uev->data2));
+  int idx = *((int*)uev->data1);
+  int stage = *((int*)uev->data2);
+  free(uev->data1);
+  free(uev->data2);
+  w_handle_timer(idx, stage);
 }
 
 //---- raw SDL
@@ -190,11 +194,9 @@ void handle_user_event(SDL_Event* ev) {
 	handle_command_report();
 	break;
   case EVENT_GRID_PRESS:
-	printf("handle_user_event(): got EVENT_GRID_PRESS \n");
 	handle_grid_press(ev);
 	break;
   case EVENT_GRID_LIFT:
-	printf("handle_user_event(): got EVENT_GRID_PRESS \n");
 	handle_grid_lift(ev);
 	break;
   case EVENT_TIMER:

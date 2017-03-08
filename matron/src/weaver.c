@@ -62,6 +62,7 @@ static int w_send_command(lua_State* l);
 
 // manage timers from lua
 static int w_timer_start(lua_State* l);
+static int w_timer_restart(lua_State* l);
 static int w_timer_stop(lua_State* l);
 
 
@@ -87,8 +88,9 @@ void w_init(void) {
   lua_register(lvm, "report_commands", &w_request_command_report);
   lua_register(lvm, "send_command", &w_send_command);
 
-  lua_register(lvm, "start_timer", &w_timer_start);
-  lua_register(lvm, "stop_timer", &w_timer_stop);
+  lua_register(lvm, "timer_start", &w_timer_start);
+  //  lua_register(lvm, "timer_restart", &w_timer_restart);
+  lua_register(lvm, "timer_stop", &w_timer_stop);
   
   // run system init code
   w_run_code("dofile(\"lua/norns.lua\");");
@@ -112,18 +114,18 @@ int w_grid_set_led(lua_State* l) {
   } 
 	
   if(lua_isnumber(l, 1)) {
-	x = lua_tonumber(l, 1);
+	x = lua_tonumber(l, 1) - 1; // convert from 1-base
   } else {
 	goto args_error;
   }
 	
   if(lua_isnumber(l, 2)) {
-	y = lua_tonumber(l, 2);
+	y = lua_tonumber(l, 2) - 1; // convert from 1-base
   } else {
 	goto args_error;
   }
   if(lua_isnumber(l, 3)) {
-	z = lua_tonumber(l, 3);
+	z = lua_tonumber(l, 3); // don't convert!
   } else {
 	goto args_error;
   }
@@ -231,35 +233,106 @@ int w_request_command_report(lua_State* l) {
 
 // manage timers from lua
 int w_timer_start(lua_State* l) {
-  int idx;
+  static int idx = 0;
   double seconds;
-  int count;
-  if(lua_gettop(l) != 3) {
-	goto args_error;
+  int count, stage;
+  int nargs = lua_gettop(l);
+  if(nargs > 0) { // idx
+	if(lua_isnumber(l, 1)) {
+	  idx = lua_tonumber(l, 1) - 1; // convert from 1-based
+	} else {
+	  goto args_error;
+	}
   }
-  if(lua_isnumber(l, 1)) {
-	idx = lua_tonumber(l, 1) - 1; // 1-base to 0-base
+  if(nargs > 1) { // seconds
+	if(lua_isnumber(l, 2)) {
+	  seconds = lua_tonumber(l, 2);
+	} else {
+	  goto args_error;
+	}
   } else {
-	goto args_error;
+	seconds = 0.0; // timer will re-use previous value
   }
-  if(lua_isnumber(l, 2)) {
-	seconds = lua_tonumber(l, 2);
+  if(nargs > 2) { // count
+	if(lua_isnumber(l, 3)) {
+	  count = lua_tonumber(l, 3);
+	} else {
+	  goto args_error;
+	}
   } else {
-	goto args_error;
+	count = -1;
   }
-  if(lua_isnumber(l, 3)) {
-	count = lua_tonumber(l, 3);
+  if(nargs > 3) { // stage
+	if(lua_isnumber(l, 4)) { 
+	  stage = lua_tonumber(l, 4) - 1; // convert from 1-based
+	} else {
+	  goto args_error;
+	}
   } else {
-	goto args_error;
+	stage = 0;
+  }
+  timer_start(idx, seconds, count, stage);
+  return 0;
+ args_error:
+  printf("warning: incorrect argument(s) to start_timer(); expected [nnnn] \n");
+  fflush(stdout);
+  return 1;
+}
+
+/*
+int w_timer_restart(lua_State* l) {
+  static int idx = 0;
+  double seconds;
+  int count, stage;
+  int nargs = lua_gettop(l);
+
+  
+  if(nargs > 0) { // idx
+	if(lua_isnumber(l, 1)) {
+	  idx = lua_tonumber(l, 1) - 1; // convert from 1-based
+	} else {
+	  goto args_error;
+	}
+  }
+  if(nargs > 1) { // seconds
+	if(lua_isnumber(l, 2)) {
+	  seconds = lua_tonumber(l, 2);
+	} else {
+	  goto args_error;
+	}
+  } else {
+	seconds = 0.0; // timer will re-use previous value
+  }
+  if(nargs > 2) { // count
+	if(lua_isnumber(l, 3)) {
+	  count = lua_tonumber(l, 3);
+	} else {
+	  goto args_error;
+	}
+  } else {
+	count = -1;
+  }
+  if(nargs > 3) { // stage
+	if(lua_isnumber(l, 4)) { 
+	  stage = lua_tonumber(l, 4) - 1; // convert from 1-based
+	} else {
+	  goto args_error;
+	}
+  } else {
+	stage = 0;
   }
   
-  timer_start(idx, seconds, count);
+  printf("w_timer_restart(%d, %f, %d, %d\n", idx, seconds, count, stage);
+  fflush(stdout);
+  timer_restart(idx, seconds, count, stage);
   return 0;
   
  args_error:
-  printf("warning: incorrect arguments to start_timer() \n"); fflush(stdout);
+  printf("warning: incorrect argument(s) to timer_restart(); expected [nnnn] \n");
+  fflush(stdout);
   return 1;
 }
+*/
 
 int w_timer_stop(lua_State* l) {
   int idx;
@@ -278,7 +351,6 @@ int w_timer_stop(lua_State* l) {
   return 1;
 }
 
-
 //---- c -> lua glue
 
 //--- hardware input
@@ -289,18 +361,16 @@ w_call_grid_handler(const char* name, int x, int y) {
   lua_getglobal(lvm, "grid");  
   lua_getfield(lvm, -1, name); 
   lua_remove(lvm, -2); 
-  lua_pushinteger(lvm, x); 
-  lua_pushinteger(lvm, y);
+  lua_pushinteger(lvm, x+1); // convert to 1-base
+  lua_pushinteger(lvm, y+1);
   l_report(lvm, l_docall(lvm, 2, 0));
 
 }
 void w_handle_grid_press(int x, int y) {
-  printf("passing grid press to LVM: (%d, %d)\n", x, y); 
   w_call_grid_handler("press", x, y);
 }
 
 void w_handle_grid_lift(int x, int y) {
-  printf("passing grid lift to LVM: (%d, %d)\n", x, y);
   w_call_grid_handler("lift", x, y);
 }
 
@@ -380,9 +450,10 @@ void w_handle_command_report(const struct engine_command* arr,
 }
 
 // timer handler
-void w_handle_timer(const int idx, const int count) {
+void w_handle_timer(const int idx, const int stage) {
+  //  printf("w_handle_timer(%d, %d)\n", idx, stage); fflush(stdout);
   lua_getglobal(lvm, "timer");
-  lua_pushinteger(lvm, idx+1);
-  lua_pushinteger(lvm, count);
+  lua_pushinteger(lvm, idx + 1);  // convert to 1-based
+  lua_pushinteger(lvm, stage + 1); // convert to 1-based
   l_report(lvm, l_docall(lvm, 2, 0));
 }
