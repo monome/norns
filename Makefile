@@ -1,21 +1,13 @@
-all: norns matron
-.PHONY: matron clean
+all: maiden matron
 
-CC = gcc
-LD = gcc
+.PHONY: maiden matron clean
 
-CFLAGS = -g -std=gnu11
-
-SRC = norns.c
-
-LIB = -lpthread -lreadline
-
-norns: $(SRC)
-	$(CC) $(CFLAGS) $(SRC) -o norns $(LIB)
+maiden:
+	cd maiden && make
 
 matron: 
 	cd matron && make
 
 clean:
-	rm norns
+	cd maiden && make clean
 	cd matron && make clean

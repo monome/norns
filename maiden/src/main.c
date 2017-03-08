@@ -189,7 +189,6 @@ void* matron_tx_loop(void* x) {
   int newline = 0;
   
   // wait a bit for the child executable
-  printf("tx loop sleeping\n");
   usleep(100000);
   
   while(!quit) {
