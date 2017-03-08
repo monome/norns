@@ -73,6 +73,7 @@ static void* input_run(void* p) {
   while(!quit) {
   	getline(&rxbuf, &dum, stdin);
   	len = strlen(rxbuf);
+	//	printf("getline: %s ; len: %d \n",rxbuf, len);
   	if(len == 2) {
   	  if(rxbuf[0] == 'q') {
   		// tell main event loop to quit

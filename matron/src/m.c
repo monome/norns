@@ -64,7 +64,10 @@ void m_init() {
 
 // FIXME: hey, call this sometime huh?
 void m_deinit() {
-  pthread_cancel(tid);
+   if (m != NULL) {
+	 printf("cancelling monome thread() \n"); fflush(stdout);
+	 pthread_cancel(tid);
+   }
 }
 
 // set hardware

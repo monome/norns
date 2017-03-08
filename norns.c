@@ -1,4 +1,3 @@
-
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -128,13 +127,13 @@ int main(int argc, char** argv) {
   return 0;
 
  child_exit:
-  printf("error: child process quit unexpectedly! \n");
+  perror("child process quit unexpectedly");
   return 0;
 }
 
 int run_matron(void) {
   if(matron_pid != 0) {
-	printf("error: calling run_matron() from parent process \n");
+	printf("error: calling run_matron() from parent process\n");
 	return -1;
   }
   // redirect stdin
@@ -164,8 +163,7 @@ int run_matron(void) {
   char *env[] = { NULL };
 	
   execv("matron/matron", argv);
-  perror("execv");
-  
+  perror("execv"); // shouldn't get here
 }
 
 void* matron_rx_loop(void* psock) {
@@ -188,8 +186,10 @@ void* matron_tx_loop(void* x) {
   size_t len;
   int quit = 0;
   char* line = (char*)NULL;
+  int newline = 0;
   
   // wait a bit for the child executable
+  printf("tx loop sleeping\n");
   usleep(100000);
   
   while(!quit) {
@@ -198,17 +198,13 @@ void* matron_tx_loop(void* x) {
 	if(line) { free(line); line=(char*)NULL; }
 	line = readline("");
 	len = strlen(line);
-	printf("readline: %s , len: %d\n",line,len);
 	if(len < 1) {
-	  printf("no string\n");
 	  continue;
 	}
 	add_history(line);
-	strncpy(txbuf, line, BUFFER_SIZE);
-#else
-	int newline = 0;
-	// FIXME: weird issues with getline and threads/children (?!?)
-	// for now, doing this craziness instead
+	len++; // add newline
+	snprintf(txbuf, BUFFER_SIZE, "%s\n", line);
+#else // totally getch
 	len = 0;
 	txbuf[0] = '\0';
 	newline = 0;
@@ -224,22 +220,20 @@ void* matron_tx_loop(void* x) {
 	}
    	txbuf[len] = '\0';
 #endif
-	printf("txbuf: %s , len: %d\n", txbuf, len);
+	// check for quit
+	// FIXME: would be cleaner to get signal from matron, somehow, maybe?
+	if(len == 2 && txbuf[0] == 'q') { // len includes \n
+	  quit = 1;
+	  goto exit;
+	}
 	// send to server
 	write(matron_pipe_in[PIPE_WRITE], txbuf, len);
-		   
-	printf("txbuf after write: %s , len: %d q\n", txbuf, len);
-	
-	// check for quit
-	// FIXME: would cleaner to get signal from matron, somehow, maybe	
-	if(len == 1 && txbuf[0] == 'q') {
-	  quit = 1;
-	  quit_crone();
-	  kill(matron_pid, SIGUSR1);
-	  pthread_cancel(matron_rx_tid);
-	  pthread_cancel(matron_tx_tid);
-	}
   }
+ exit:
+  quit_crone();
+  kill(matron_pid, SIGUSR1);
+  pthread_cancel(matron_rx_tid);
+  pthread_cancel(matron_tx_tid);
 }
 
 void run_crone(void) {
