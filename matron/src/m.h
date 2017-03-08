@@ -7,6 +7,7 @@
  */
 
 extern void m_init();
+extern void m_deinit();
 
 // set hardware
 extern void m_grid_set_led(int x, int y,  int val);

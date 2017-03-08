@@ -78,7 +78,7 @@ static void* input_run(void* p) {
   		// tell main event loop to quit
   		event_t ev = EVENT_QUIT;
   		event_post(ev, NULL, NULL);
-  		printf("stdin loop has exited \r\n");
+		//  		printf("stdin loop has exited \r\n");
   		fflush(stdout);
   		quit = 1;
   		continue;
