@@ -183,13 +183,13 @@ joystick.hat = function(stick, hat, val)
 	  if not hat_state then
 		 hat_state = true
 		 -- start timer 1 with a period of 1/8s, infinite repeats
-		 start_timer(1, 0.125, -1)
+		 timer_start(1, 0.125, -1)
 	  end
    else
 	  if hat_state then
 		 hat_state = false
 		 -- stop timer 1
-		 stop_timer(1)
+		 timer_stop(1)
 	  end
    end
 end

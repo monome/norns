@@ -261,7 +261,6 @@ static int try_statement(lua_State *L) {
   if(continuing) {
 	buf = malloc(saveBufLen + 1 + strlen(line) + 1); /* add to saved */
 	sprintf(buf, "%s\n%s", saveBuf, line);
-	//	printf("-- new chunk: --- \n %s \n ------", buf); 
 	len += saveBufLen + 1;
   } else {
 	buf = line;
@@ -269,7 +268,6 @@ static int try_statement(lua_State *L) {
   status = luaL_loadbuffer(L, buf,  len, "=stdin");  /* try it */
 
   if(incomplete(L, status)) {
-	//	printf("incomplete chunk; saving line\n");
 	status = STATUS_INCOMPLETE;
 	save_statement_buffer(buf);
   } else {
@@ -277,7 +275,6 @@ static int try_statement(lua_State *L) {
 	// remove line from stack, leaving compiled chunk
 	lua_remove(L, -2);
   }
-  //  printf("try_statement() : return %d\n", status);
   return status;
 }
 

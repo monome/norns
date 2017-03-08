@@ -36,4 +36,4 @@ extern void w_handle_command_report(const struct engine_command* arr,
 									const int num);
 
 //--- timer bang handler
-extern void w_handle_timer(const int idx, const int count);
+extern void w_handle_timer(const int idx, const int stage);
