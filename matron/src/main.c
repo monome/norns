@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "args.h"
@@ -10,6 +11,14 @@
 #include "weaver.h"
 
 #include "m.h" // monome glue
+
+void cleanup(void) {
+  printf("matron cleanup \n"); fflush(stdout);
+  o_deinit();
+  m_deinit();
+  printf("matron exit \n"); fflush(stdout);
+  exit(0);
+}
 
 int main(int argc, char** argv) {
   args_parse(argc, argv);
@@ -31,6 +40,8 @@ int main(int argc, char** argv) {
   // initialize monome devices
   m_init();
 
+  atexit(cleanup);
+  
   // start reading input to interpreter
   input_init();
 
@@ -46,7 +57,5 @@ int main(int argc, char** argv) {
   event_loop();
   
   //  printf("main event loop has exited \n"); fflush(stdout);
-  o_deinit();
   
-  return 0;
 }
