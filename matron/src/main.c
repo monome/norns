@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "args.h"
 #include "events.h"
-#include "repl.h"
+#include "input.h"
 #include "timers.h"
 
 #include "oracle.h"
@@ -11,11 +12,22 @@
 
 #include "m.h" // monome glue
 
+void cleanup(void) {
+  printf("matron cleanup \n"); fflush(stdout);
+  o_deinit();
+  m_deinit();
+  printf("matron exit \n"); fflush(stdout);
+  exit(0);
+}
+
 int main(int argc, char** argv) {
   args_parse(argc, argv);
 
   // this must come first... 
   events_init();
+
+  // initialize timers
+  timers_init();
   
   // intialize oracle (audio glue)
   o_init();
@@ -28,8 +40,10 @@ int main(int argc, char** argv) {
   // initialize monome devices
   m_init();
 
+  atexit(cleanup);
+  
   // start reading input to interpreter
-  repl_init();
+  input_init();
 
   // i/o subsystems are ready, 
   // run the user's startup routine
@@ -39,11 +53,9 @@ int main(int argc, char** argv) {
   //  timer_add(0, 0.25, 16);
   
   // blocks until quit
-  printf("starting main event loop \n"); fflush(stdout);
+  //  printf("starting main event loop \n"); fflush(stdout);
   event_loop();
   
-  printf("main event loop has exited \n"); fflush(stdout);
-  o_deinit();
+  //  printf("main event loop has exited \n"); fflush(stdout);
   
-  return 0;
 }

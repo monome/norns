@@ -1,4 +1,4 @@
-TARGET = matron
+TARGET = maiden
 
 .PHONY = clean
 
@@ -8,21 +8,12 @@ LD = gcc
 CFLAGS = -g -std=gnu11
 
 LDFLAGS = 
-LIB = -llo -llua -lpthread -lSDL2 -lmonome
-# LIB +=  -lreadline
+LIB = -lpthread -lreadline
 
 OBJ_DIR = obj
 SRC_DIR = src
 
-_OBJ = main.o \
-	args.o \
-	events.o \
-	input.o \
-	lua_eval.o \
-	m.o \
-	timers.o \
-	oracle.o \
-	weaver.o
+_OBJ = main.o
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 

@@ -21,10 +21,16 @@ startup = function()
    -- ( likely just: dofile("mycustomscript.lua") )
 
    -- joystick and sinewave demo
---   dofile('lua/sticksine.lua')
+   -- dofile('lua/sticksine.lua')
+
+   -- test timer stuff
+   -- dofile('lua/timertest.lua')
 
    -- joystick and sample cutter demo
-   dofile('lua/stickcut.lua')
+   -- dofile('lua/stickcut.lua')
+
+   -- testing grid/timer sequence
+   dofile('lua/test128.lua')
 
 end
 
@@ -111,8 +117,8 @@ e = engine
 
 -- timer handler
 -- FIXME? : could be a table if that is preferable.
-timer = function(idx, count)
-   print("timer " .. idx .. " : " .. count)
+timer = function(idx, stage)
+   print("timer " .. idx .. " stage " .. stage)
 end
 
 versions = function()

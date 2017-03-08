@@ -11,14 +11,14 @@
 //--- types, variables
 
 typedef struct {
-  // nb: we have to do some evil casts from SDL_UserEvent.
+  // NB: we have to do some evil casts from SDL_UserEvent.
   // we are basically making our own event struct.
   // these first 4 fields must match UserEvent
   Uint32 type;     
   Uint32 timestamp;
   Uint32 windowID;
   Sint32 code;
-  // these are added by us. must fit in void*[2]
+  // these are added by us. must fit in sizeof(void*[2])
   uint8_t x;
   uint8_t y;
 } SDL_MonomeGridEvent;
@@ -41,8 +41,6 @@ static void handle_joy_ball(SDL_JoyBallEvent* jb);
 
 static void handle_engine_report(void);
 static void handle_command_report(void);
-/* static void handle_buffer_report(void) ; */
-/* static void handle_param_report(void); */
 
 //-------------------------------
 //-- extern function definitions
@@ -105,7 +103,6 @@ void event_post_monome_grid(event_t id, int x, int y) {
   SDL_PushEvent(&(u.ev));
 }
 
-
 //------------------------------
 //-- static function definitions
 
@@ -120,7 +117,6 @@ void events_handle_error(const char* msg) {
   printf("error in events.c : %s ; code: %d", msg, SDL_GetError());
 }
 
-
 //---------------------------------
 //---- handlers
 
@@ -128,14 +124,14 @@ void events_handle_error(const char* msg) {
 static inline void
 handle_grid_press(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
-  printf("passing grid press to LVM: (%d, %d)\n", mev->x, mev->y);
+  //  printf("handling grid press event: (%d, %d)\n", mev->x, mev->y);
   w_handle_grid_press(mev->x, mev->y);
 }
 
 static inline void
 handle_grid_lift(SDL_Event* ev) {
   SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
-  printf("passing grid lift to LVM: (%d, %d)\n", mev->x, mev->y);
+  //  printf("handling grid lift event: (%d, %d)\n", mev->x, mev->y);
   w_handle_grid_lift(mev->x, mev->y);
 }
 
@@ -175,35 +171,21 @@ void handle_command_report(void) {
   o_unlock_descriptors();
 }
 
-
-/* void handle_buffer_report(void) { */
-/*   o_lock_descriptors(); */
-/*   const char** p = o_get_buffer_names(); */
-/*   const int n = o_get_num_buffers(); */
-/*   w_handle_buffer_report(p, n);  */
-/*   o_unlock_descriptors(); */
-/* } */
-
-/* void handle_param_report(void) { */
-/*   printf("handling completed param report \n"); */
-/*   o_lock_descriptors(); */
-/*   const char** p = o_get_param_names(); */
-/*   const int n = o_get_num_params(); */
-/*   w_handle_param_report(p, n); */
-/*   o_unlock_descriptors(); */
-/* } */
-
 void handle_timer(SDL_UserEvent* uev) {
-  w_handle_timer(*((int*)uev->data1), *((int*)uev->data2));
+  int idx = *((int*)uev->data1);
+  int stage = *((int*)uev->data2);
+  free(uev->data1);
+  free(uev->data2);
+  w_handle_timer(idx, stage);
 }
 
 //---- raw SDL
 void handle_user_event(SDL_Event* ev) {
   switch(ev->user.code) {
 	
-  case EVENT_EXEC_CODE:
-	w_run_code(ev->user.data1);
-	free(ev->user.data1);
+  case EVENT_EXEC_CODE_LINE:
+	w_handle_line(ev->user.data1);
+  	free(ev->user.data1);
 	break;
   case EVENT_ENGINE_REPORT:
 	handle_engine_report();
@@ -212,11 +194,9 @@ void handle_user_event(SDL_Event* ev) {
 	handle_command_report();
 	break;
   case EVENT_GRID_PRESS:
-	printf("handle_user_event(): got EVENT_GRID_PRESS \n");
 	handle_grid_press(ev);
 	break;
   case EVENT_GRID_LIFT:
-	printf("handle_user_event(): got EVENT_GRID_PRESS \n");
 	handle_grid_lift(ev);
 	break;
   case EVENT_TIMER:
