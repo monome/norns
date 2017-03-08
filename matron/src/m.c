@@ -15,29 +15,29 @@ unsigned int m_leds[16][16] = { [0 ... 15][0 ... 15] = 0 };
 pthread_t tid;
 
 static void* m_run(void* p) {
-  printf("running the monome event loop \n");
+  printf("running the monome event loop \n"); fflush(stdout);
   monome_event_loop(m);
 }
 
 // grid event handlers
 void m_handle_press(const monome_event_t *e, void* p) {
-  printf("m_handle_press(): posting event\n");
+  printf("m_handle_press(): posting event\n"); fflush(stdout);
   event_post_monome_grid(EVENT_GRID_PRESS, e->grid.x, e->grid.y);
 }
 
 void m_handle_lift(const monome_event_t *e, void* p) {
-  printf("m_handle_lift(): posting event\n");
+  printf("m_handle_lift(): posting event\n"); fflush(stdout);
   event_post_monome_grid(EVENT_GRID_LIFT, e->grid.x, e->grid.y);
 }
 
 void m_init() {
   const char* dev = args_monome_path();
-  printf("starting libmonome\n");
+  printf("starting libmonome\n"); fflush(stdout);
   m = monome_open(dev);
   if( m == NULL) { 
-	printf("m_init(): couldn't open monome device (%s)\n", dev);
+	printf("m_init(): couldn't open monome device (%s)\n", dev); fflush(stdout);
   } else {
-	printf("using monome device at %s:\n\n", dev);
+	printf("using monome device at %s:\n\n", dev); fflush(stdout);
   }
   
   if (m != NULL) {
@@ -48,15 +48,21 @@ void m_init() {
 	monome_register_handler(m, MONOME_BUTTON_UP, m_handle_lift, NULL);
 
 	s = pthread_attr_init(&attr);
-	if(s) { printf("error initializing thread attributes \n"); }
+	if(s) {
+	  printf("m_init(): error initializing thread attributes \n");
+	  fflush(stdout);
+	}
 	s = pthread_create(&tid, &attr, &m_run, NULL);
-	if(s) { printf("error creating thread\n"); }
+	if(s) {
+	  printf("m_init(): error creating thread\n");
+	  fflush(stdout);
+	}
 	pthread_attr_destroy(&attr);
   }
 
 }
 
-// FIXME: hey, call this sometime huhg
+// FIXME: hey, call this sometime huh?
 void m_deinit() {
   pthread_cancel(tid);
 }
@@ -70,5 +76,5 @@ void m_grid_set_led(int x, int y,  int val) {
 }
 
 void m_arc_set_led(int id, int rho,  int val) {
-  //..
+  //.. TODO
 }

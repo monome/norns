@@ -290,9 +290,10 @@ static void l_print (lua_State *L) {
     luaL_checkstack(L, LUA_MINSTACK, "too many results to print");
     lua_getglobal(L, "print");
     lua_insert(L, 1);
-    if (lua_pcall(L, n, 0, 0) != LUA_OK)
+    if (lua_pcall(L, n, 0, 0) != LUA_OK) {
       l_message(progname, lua_pushfstring(L, "error calling 'print' (%s)",
 										  lua_tostring(L, -1)));
+	}
   }
 } 
 
@@ -320,7 +321,7 @@ int l_handle_line (lua_State *L, char* line) {
   }
   
   if(status == STATUS_INCOMPLETE) {
-	printf(" <incomplete...>\n");
+	printf(" <incomplete...>\n"); fflush(stdout);
 	goto exit;
   }
   
@@ -329,9 +330,10 @@ int l_handle_line (lua_State *L, char* line) {
   if (status == LUA_OK) {
 	// 	  printf("<evaluation completed with %d stack elements>\n", lua_gettop(L));
 	if(lua_gettop(L) == 0) { 
-	  printf(" <ok>\n");
+	  printf(" <ok>\n"); fflush(stdout);
 	}
 	l_print(L);
+	fflush(stdout);
   } else {
 	report(L, status);
   }

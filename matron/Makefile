@@ -9,6 +9,7 @@ CFLAGS = -g -std=gnu11
 
 LDFLAGS = 
 LIB = -llo -llua -lpthread -lSDL2 -lmonome
+# LIB +=  -lreadline
 
 OBJ_DIR = obj
 SRC_DIR = src
