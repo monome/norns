@@ -8,12 +8,14 @@ LD = gcc
 CFLAGS = -g -std=gnu11
 
 LDFLAGS = 
-LIB = -lpthread -lreadline
+LIB = -lpthread -lreadline -lncursesw
 
 OBJ_DIR = obj
 SRC_DIR = src
 
-_OBJ = main.o
+_OBJ = main.o \
+	io.o \
+	ui.o
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
