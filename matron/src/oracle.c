@@ -88,7 +88,7 @@ void o_init(void) {
   const char *loc_port = args_local_port();
   const char *rem_port = args_remote_port();
   
-  printf("starting OSC server: listening on port %s, sending to port %s\n",
+  printf("OSC rx port: %s \nOSC tx port: %s\n",
 		 loc_port, rem_port);
   o_init_descriptors();
   
