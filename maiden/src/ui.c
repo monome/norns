@@ -207,7 +207,7 @@ void got_command(char *line)
 void cmd_win_redisplay(bool for_resize)
 {
   size_t prompt_width = strlen(rl_display_prompt);
-  size_t cursor_col = prompt_width + strlen(rl_line_buffer);
+  size_t cursor_col = rl_point;
 
   CHECK(werase, cmd_win);
 
