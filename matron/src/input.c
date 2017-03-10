@@ -3,11 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if MATRON_INPUT_USE_READLINE
-#include <readline/readline.h>
-#include <readline/history.h>
-#endif
-
 #include <pthread.h>
 
 #include "events.h"

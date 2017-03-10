@@ -3,9 +3,11 @@
 #include <unistd.h>
 
 #include "args.h"
+#include "devices.h"
 #include "events.h"
 #include "input.h"
 #include "timers.h"
+#include "usb_monitor.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -13,10 +15,10 @@
 #include "m.h" // monome glue
 
 void cleanup(void) {
-  printf("matron cleanup \n"); fflush(stdout);
-  o_deinit();
+  usb_monitor_deinit();
   m_deinit();
-  printf("matron exit \n"); fflush(stdout);
+  o_deinit();
+  printf("matron shutdown complete \n"); fflush(stdout);
   exit(0);
 }
 
@@ -25,21 +27,29 @@ int main(int argc, char** argv) {
 
   // this must come first... 
   events_init();
-
-  // initialize timers
+  
   timers_init();
   
-  // intialize oracle (audio glue)
-  o_init();
+  o_init(); // oracle
 
-  // FIXME: we should wait here for a signal from the audio server.
+
+  //=== FIXME:
+  //--- we should wait here for a signal from the audio server...
+
+
+  w_init(); // weaver
+  m_init(); // monome
+
+  // hid devices?
+  // TODO
   
-  // initialize weaver (interpreter glue)
-  w_init();  
-
-  // initialize monome devices
-  m_init();
-
+  usb_monitor_init();
+  //  usleep(10000000);
+  
+  usb_monitor_scan();
+  printf("done scanning\n"); fflush(stdout);
+  
+  // now is a good time to set our cleanup 
   atexit(cleanup);
   
   // start reading input to interpreter
@@ -48,14 +58,8 @@ int main(int argc, char** argv) {
   // i/o subsystems are ready, 
   // run the user's startup routine
   w_user_startup();
-
-  //...testing...
-  //  timer_add(0, 0.25, 16);
   
   // blocks until quit
-  //  printf("starting main event loop \n"); fflush(stdout);
   event_loop();
-  
-  //  printf("main event loop has exited \n"); fflush(stdout);
   
 }

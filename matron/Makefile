@@ -6,10 +6,10 @@ CC = gcc
 LD = gcc
 
 CFLAGS = -g -std=gnu11
+# CFLAGS += -fstack-protector-all
 
 LDFLAGS = 
-LIB = -llo -llua -lpthread -lSDL2 -lmonome
-# LIB +=  -lreadline
+LIB = -llo -llua -lpthread -lSDL2 -lmonome -ludev -levdev
 
 OBJ_DIR = obj
 SRC_DIR = src
@@ -21,8 +21,9 @@ _OBJ = main.o \
 	lua_eval.o \
 	m.o \
 	timers.o \
+	usb_monitor.o \
 	oracle.o \
-	weaver.o
+	weaver.o \
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
