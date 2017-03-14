@@ -20,9 +20,7 @@ static void* input_run(void* p) {
   	len = strlen(rxbuf);
   	if(len == 2) {
   	  if(rxbuf[0] == 'q') {
-  		// tell main event loop to quit
-  		event_t ev = EVENT_QUIT;
-  		event_post(ev, NULL, NULL);
+		event_post(event_data_new(EVENT_QUIT));
   		fflush(stdout);
   		quit = 1;
   		continue;
@@ -33,7 +31,9 @@ static void* input_run(void* p) {
   	  line = malloc((len+1) * sizeof(char));
   	  strncpy(line, rxbuf, len);
   	  line[len] = '\0';
-  	  event_post(EVENT_EXEC_CODE_LINE, line, NULL);
+	  union event_data *ev = event_data_new(EVENT_EXEC_CODE_LINE);
+	  ev->exec_code_line.line = line;
+	  event_post(ev);
   	}
   }
   free(rxbuf);

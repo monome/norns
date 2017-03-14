@@ -2,8 +2,6 @@
   timer.c
   
   accurate timers using pthreads and clock_nanosleep.
-
-  TODO: need thread synchronization if we want to change timer params on the fly
 */
 
 #include <pthread.h>
@@ -40,6 +38,7 @@ struct timer timers[MAX_NUM_TIMERS_OK];
 
 //---------------------------
 //---- static declarations
+
 static void timer_handle_error(int code, const char* msg) {
   printf("error code: %d ; message: \"%s\"", code, msg); fflush(stdout);
 }
@@ -54,6 +53,7 @@ static void timer_cancel(struct timer *t);
 
 //------------------------
 //---- extern definitions
+
 void timers_init(void) {
   for(int i=0; i<MAX_NUM_TIMERS_OK; i++) {
 	timers[i].status = TIMER_STATUS_STOPPED;
@@ -62,7 +62,6 @@ void timers_init(void) {
 }
 
 void timer_start(int idx, double seconds, int count, int stage) {
-  //  int status;
   uint64_t nsec;
   struct timer* t = &timers[idx];
   
@@ -92,6 +91,7 @@ void timer_start(int idx, double seconds, int count, int stage) {
 			   
 //------------------------
 //---- static definitions
+
 static void timer_reset(struct timer* t, int stage) {
   pthread_mutex_lock(&(t->stage_lock));
   if(stage > 0) { t->stage = stage; }
@@ -145,7 +145,7 @@ void* timer_thread_loop(void* timer) {
 	} 
 	pthread_mutex_unlock(&(t->stage_lock));
 	if(stop) { break; }
-	pthread_testcancel(); // important!
+	pthread_testcancel(); // important! creates a cancellation point
 	pthread_mutex_lock(&(t->stage_lock));
 	timer_bang(t);
 	t->stage += 1;
@@ -161,12 +161,10 @@ void timer_set_current_time(struct timer *t) {
 }
 
 void timer_bang(struct timer *t) {
-  int* pidx = (int*)malloc(sizeof(void*));
-  int* pstage = (int*)malloc(sizeof(void*));
-  *pidx = t->idx;
-  *pstage = t->stage;
-  event_post(EVENT_TIMER, pidx, pstage);
-  // event handler should free the data
+  union event_data *ev = event_data_new(EVENT_TIMER);
+  ev->timer.id = t->idx;
+  ev->timer.stage = t->stage;
+  event_post(ev);
 }
 
 void timer_sleep(struct timer* t) {
@@ -205,32 +203,7 @@ void timer_cancel(struct timer *t) {
 	  fflush(stdout);
 	} else {
 	  t->status = TIMER_STATUS_STOPPED;
-	  //	  printf("timer_stop(): OK (timer %d)\n", idx); fflush(stdout);
 	}
 }
-
-/*
-void timer_restart(int idx, double seconds, int count, int stage) {
-  int status;
-  printf("timer_restart(%d, %f, %d, %d)\n", idx, seconds, count, stage);
-  fflush(stdout);
-  if(idx >= 0 && idx < MAX_NUM_TIMERS_OK) {
-	
-	pthread_mutex_lock(&(timers[idx].status_lock));
-	status = timers[idx].status;
-	pthread_mutex_unlock(&(timers[idx].status_lock));
-	
-	if(status == TIMER_STATUS_RUNNING) {
-	  printf("timer_restart(): stopping\n"); fflush(stdout);
-	  timer_stop(idx);
-	}
-	
-	if(seconds > 0.0) { timers[idx].seconds = seconds; }
-	timers[idx].count = count;
-	timer_start(idx, timers[idx].seconds, timers[idx].count, stage);
-  }
-}
-*/
-
 
 #undef MAX_NUM_TIMERS_OK

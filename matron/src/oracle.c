@@ -141,7 +141,6 @@ const struct engine_command* o_get_commands(void) {
 
 //-- mutex access
 void o_lock_descriptors() {
-  //  printf("o_lock_descriptors() \n");
   int res = pthread_mutex_lock(&desc_lock);
   if(res) {
 	printf("o_lock_descriptors failed with code %d \b", res); fflush(stdout);
@@ -149,7 +148,6 @@ void o_lock_descriptors() {
 }
 
 void o_unlock_descriptors() {
-  //  printf("o_unlock_descriptors() \n");
   int res = pthread_mutex_unlock(&desc_lock);
   if(res)  {
 	printf("o_unlock_descriptors failed with code %d \b", res); fflush(stdout);
@@ -295,7 +293,7 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
   // or (better?) we could simply use binary blobs from Crone,
   // replacing the whole response sequence with a single message
   // (downside: nasty blob-construction code in supercollider)
-  event_post(EVENT_ENGINE_REPORT, NULL, NULL);
+  event_post(event_data_new(EVENT_ENGINE_REPORT));
 }
 
 //---------------------
@@ -303,7 +301,6 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 
 int command_report_start(const char *path, const char *types, lo_arg ** argv,
 						 int argc, void *data, void *user_data) {
-  //  printf("command_report_start(): %d\n", argv[0]->i);
   o_clear_commands();
   o_set_num_desc(&num_commands, argv[0]->i);
 }
@@ -315,7 +312,7 @@ int command_report_entry(const char *path, const char *types, lo_arg ** argv,
 
 int command_report_end(const char *path, const char *types, lo_arg ** argv,
 					   int argc, void *data, void *user_data) {
-   event_post(EVENT_COMMAND_REPORT, NULL, NULL);
+  event_post(event_data_new(EVENT_COMMAND_REPORT));
 }
 
 void lo_error_handler(int num, const char *m, const char *path) {

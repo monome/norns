@@ -9,7 +9,7 @@ CFLAGS = -g -std=gnu11
 # CFLAGS += -fstack-protector-all
 
 LDFLAGS = 
-LIB = -llo -llua -lpthread -lSDL2 -lmonome -ludev -levdev
+LIB = -llo -llua -lpthread -lmonome -ludev -levdev
 
 OBJ_DIR = obj
 SRC_DIR = src
