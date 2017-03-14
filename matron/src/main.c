@@ -3,7 +3,6 @@
 #include <unistd.h>
 
 #include "args.h"
-#include "devices.h"
 #include "events.h"
 #include "input.h"
 #include "timers.h"
