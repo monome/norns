@@ -9,10 +9,12 @@
 version = {}
 version.norns = "0.0.1"
 
+print("running norns.lua")
+
 -- utilities and helpers
 dofile('lua/helpers.lua')
+dofile('lua/monome.lua')
 
-print("running norns.lua")
 
 -- this function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking
@@ -30,7 +32,7 @@ startup = function()
    -- dofile('lua/stickcut.lua')
 
    -- testing grid/timer sequence
-   dofile('lua/test128.lua')
+   -- dofile('lua/test128.lua')
 
 end
 
@@ -47,6 +49,7 @@ button = {}
 --...
 
 -- table of grid event handlers
+--[[
 grid = {}
 grid.press = function(x, y)
    print ("press " .. x .. " " .. y)
@@ -68,6 +71,7 @@ end
 
 -- arc
 --...
+--]]
 
 -- table of joystick event handlers
 joystick = {}
@@ -116,7 +120,6 @@ engine = {}
 e = engine
 
 -- timer handler
--- FIXME? : could be a table if that is preferable.
 timer = function(idx, stage)
    print("timer " .. idx .. " stage " .. stage)
 end

@@ -52,19 +52,16 @@ void w_handle_line(char* line) {
 
 // grid
 static int w_grid_set_led(lua_State* l);
-
+static int w_grid_refresh(lua_State* l);
 // audio engine
 static int w_request_engine_report(lua_State* l);
 static int w_load_engine(lua_State* l);
-
 static int w_request_command_report(lua_State* l);
 static int w_send_command(lua_State* l);
-
-// manage timers from lua
+// timers
 static int w_timer_start(lua_State* l);
 static int w_timer_restart(lua_State* l);
 static int w_timer_stop(lua_State* l);
-
 
 // screen functions
 // TODO
@@ -81,6 +78,7 @@ void w_init(void) {
 
   // FIXME: how/where to document these in lua
   lua_register(lvm, "grid_set_led", &w_grid_set_led);
+  lua_register(lvm, "grid_refresh", &w_grid_refresh);
   
   lua_register(lvm, "report_engines", &w_request_engine_report);
   lua_register(lvm, "load_engine", &w_load_engine);
@@ -89,7 +87,6 @@ void w_init(void) {
   lua_register(lvm, "send_command", &w_send_command);
 
   lua_register(lvm, "timer_start", &w_timer_start);
-  //  lua_register(lvm, "timer_restart", &w_timer_restart);
   lua_register(lvm, "timer_stop", &w_timer_stop);
   
   // run system init code
@@ -107,34 +104,56 @@ void w_user_startup(void) {
 //---- static definitions
 
 int w_grid_set_led(lua_State* l) {
-  int res = 0;
+  struct m_dev* md;
   int x, y, z;
-  if(lua_gettop(l) != 3) { // check num args
-	goto args_error;
-  } 
-	
-  if(lua_isnumber(l, 1)) {
-	x = lua_tonumber(l, 1) - 1; // convert from 1-base
-  } else {
+  if(lua_gettop(l) != 4) { // check num args
 	goto args_error;
   }
-	
-  if(lua_isnumber(l, 2)) {
-	y = lua_tonumber(l, 2) - 1; // convert from 1-base
-  } else {
-	goto args_error;
-  }
-  if(lua_isnumber(l, 3)) {
-	z = lua_tonumber(l, 3); // don't convert!
+  if(lua_islightuserdata(l, 1)) {
+	md = lua_touserdata(l, 1);
   } else {
 	goto args_error;
   }
   
-  m_grid_set_led(x, y, z);
+  if(lua_isnumber(l, 2)) {
+	x = lua_tonumber(l, 2) - 1; // convert from 1-base
+  } else {
+	goto args_error;
+  }
+	
+  if(lua_isnumber(l, 3)) {
+	y = lua_tonumber(l, 3) - 1; // convert from 1-base
+  } else {
+	goto args_error;
+  }
+  if(lua_isnumber(l, 4)) {
+	z = lua_tonumber(l, 4); // don't convert value!
+  } else {
+	goto args_error;
+  }
+  
+  m_dev_set_led(md, x, y, z);
   return 0;
   
  args_error:
   printf("warning: incorrect arguments to grid_set_led() \n"); fflush(stdout);
+  return 1;
+}
+
+int w_grid_refresh(lua_State* l) {
+  struct m_dev* md;
+  if(lua_gettop(l) != 1) { // check num args
+	goto args_error;
+  }
+  if(lua_islightuserdata(l, 1)) {
+	md = lua_touserdata(l, 1);
+  } else {
+	goto args_error;
+  }
+  m_dev_refresh(md);
+  return 0;
+ args_error:
+  printf("warning: incorrect arguments to grid_refresh() \n"); fflush(stdout);
   return 1;
 }
 
@@ -260,7 +279,7 @@ int w_timer_start(lua_State* l) {
 	  goto args_error;
 	}
   } else {
-	count = -1;
+	count = -1; // default: infinite
   }
   if(nargs > 3) { // stage
 	if(lua_isnumber(l, 4)) { 
@@ -278,61 +297,6 @@ int w_timer_start(lua_State* l) {
   fflush(stdout);
   return 1;
 }
-
-/*
-int w_timer_restart(lua_State* l) {
-  static int idx = 0;
-  double seconds;
-  int count, stage;
-  int nargs = lua_gettop(l);
-
-  
-  if(nargs > 0) { // idx
-	if(lua_isnumber(l, 1)) {
-	  idx = lua_tonumber(l, 1) - 1; // convert from 1-based
-	} else {
-	  goto args_error;
-	}
-  }
-  if(nargs > 1) { // seconds
-	if(lua_isnumber(l, 2)) {
-	  seconds = lua_tonumber(l, 2);
-	} else {
-	  goto args_error;
-	}
-  } else {
-	seconds = 0.0; // timer will re-use previous value
-  }
-  if(nargs > 2) { // count
-	if(lua_isnumber(l, 3)) {
-	  count = lua_tonumber(l, 3);
-	} else {
-	  goto args_error;
-	}
-  } else {
-	count = -1;
-  }
-  if(nargs > 3) { // stage
-	if(lua_isnumber(l, 4)) { 
-	  stage = lua_tonumber(l, 4) - 1; // convert from 1-based
-	} else {
-	  goto args_error;
-	}
-  } else {
-	stage = 0;
-  }
-  
-  printf("w_timer_restart(%d, %f, %d, %d\n", idx, seconds, count, stage);
-  fflush(stdout);
-  timer_restart(idx, seconds, count, stage);
-  return 0;
-  
- args_error:
-  printf("warning: incorrect argument(s) to timer_restart(); expected [nnnn] \n");
-  fflush(stdout);
-  return 1;
-}
-*/
 
 int w_timer_stop(lua_State* l) {
   int idx;
@@ -357,21 +321,47 @@ int w_timer_stop(lua_State* l) {
 
 // helper for calling grid handlers
 static inline void
-w_call_grid_handler(const char* name, int x, int y) {
-  lua_getglobal(lvm, "grid");  
-  lua_getfield(lvm, -1, name); 
-  lua_remove(lvm, -2); 
+w_call_grid_handler(int id, int x, int y, int state) {
+  lua_getglobal(lvm, "monome");  
+  lua_getfield(lvm, -1, "key"); 
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, id+1); // convert to 1-base
   lua_pushinteger(lvm, x+1); // convert to 1-base
-  lua_pushinteger(lvm, y+1);
-  l_report(lvm, l_docall(lvm, 2, 0));
+  lua_pushinteger(lvm, y+1); // convert to 1-base
+  lua_pushinteger(lvm, state);
+  l_report(lvm, l_docall(lvm, 4, 0));
 
 }
-void w_handle_grid_press(int x, int y) {
-  w_call_grid_handler("press", x, y);
+void w_handle_grid_press(int id, int x, int y) {
+  w_call_grid_handler( id, x, y, 1);
 }
 
-void w_handle_grid_lift(int x, int y) {
-  w_call_grid_handler("lift", x, y);
+void w_handle_grid_lift(int id, int x, int y) {
+  w_call_grid_handler( id, x, y, 0);
+}
+
+void w_handle_monome_add(void* mdev) {
+  struct m_dev* md = (struct m_dev*)mdev;
+  int id = m_dev_id(md);
+  const char* serial =  m_dev_serial(md);
+  const char* name =  m_dev_name(md);
+  lua_getglobal(lvm, "monome");
+  lua_getfield(lvm, -1, "add");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, id+1); // convert to 1-base
+  lua_pushstring(lvm, serial);
+  lua_pushstring(lvm, name);
+  lua_pushlightuserdata(lvm, mdev);
+  l_report(lvm, l_docall(lvm, 4, 0));
+}
+
+extern void w_handle_monome_remove(int id) {
+  printf("w_handle_monome_remove()\n"); fflush(stdout);
+  lua_getglobal(lvm, "monome");
+  lua_getfield(lvm, -1, "remove");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, id+1); // convert to 1-base
+  l_report(lvm, l_docall(lvm, 1, 0));
 }
 
 // helper for calling joystick handlers
@@ -393,6 +383,7 @@ void w_handle_stick_axis(int stick, int axis, int value) {
 void w_handle_stick_button(int stick, int button, int value) {
   w_call_stick_handler("button", stick+1, button+1, value);
 }
+
 void w_handle_stick_hat(int stick, int hat, int value) {
   w_call_stick_handler("hat", stick+1, hat+1, value);
 }
@@ -451,7 +442,6 @@ void w_handle_command_report(const struct engine_command* arr,
 
 // timer handler
 void w_handle_timer(const int idx, const int stage) {
-  //  printf("w_handle_timer(%d, %d)\n", idx, stage); fflush(stdout);
   lua_getglobal(lvm, "timer");
   lua_pushinteger(lvm, idx + 1);  // convert to 1-based
   lua_pushinteger(lvm, stage + 1); // convert to 1-based
