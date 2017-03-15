@@ -1,176 +1,193 @@
+#include <assert.h>
+#include <search.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include <SDL2/SDL.h>
+#include <pthread.h>
 
 #include "events.h"
 #include "m.h"
 #include "oracle.h"
 #include "weaver.h"
 
-//-----------------------
-//--- types, variables
+#include "event_types.h"
 
-typedef struct {
-  // NB: we have to do some evil casts from SDL_UserEvent.
-  // we are basically making our own event struct.
-  // these first 4 fields must match UserEvent
-  Uint32 type;     
-  Uint32 timestamp;
-  Uint32 windowID;
-  Sint32 code;
-  // these are added by us. must fit in sizeof(void*[2])
-  void* md; // pointer to monome device
-  uint8_t x;
-  uint8_t y;
-  uint16_t pad; // for alignment
-} SDL_MonomeGridEvent;
+//----------------------------
+//--- types and variables
+
+struct ev_node {
+  struct ev_node* next;
+  struct ev_node* prev;
+  union event_data* ev;
+};
+
+struct ev_q {
+  struct ev_node* head;
+  struct ev_node* tail;
+  ssize_t size;
+  pthread_cond_t nonempty;
+  pthread_mutex_t lock;
+};
+
+struct ev_q evq;
+bool quit;
 
 //----------------------------
 //--- static function declarations
 
-static void events_handle_error(const char* msg);
-static void post_quit_event();
-
 //---- handlers
-static inline void handle_sdl_event(SDL_Event *e);
-static inline void handle_user_event(SDL_Event* ev);
-static inline void handle_grid_press(SDL_Event* ev);
-static inline void handle_monome_add(SDL_UserEvent* ev);
-static inline void handle_monome_remove(SDL_UserEvent* ev);
-static inline void handle_grid_lift(SDL_Event* ev);
-static inline void handle_joy_axis(SDL_JoyAxisEvent* ja);
-static inline void handle_joy_button(SDL_JoyButtonEvent* jb);
-static inline void handle_joy_hat(SDL_JoyHatEvent* jh);
-static inline void handle_joy_ball(SDL_JoyBallEvent* jb);
+static inline void handle_event(union event_data* ev);
+static inline void handle_exec_code_line(struct event_exec_code_line* ev);
+static inline void handle_timer(struct event_timer* ev);
+static inline void handle_monome_add(struct event_monome_add* ev);
+static inline void handle_monome_remove(struct event_monome_remove* ev);
+static inline void handle_grid_key(struct event_grid_key* ev);
 static inline void handle_engine_report(void);
 static inline void handle_command_report(void);
+static inline void handle_quit(void);
+
+// call with the queue locked
+static inline void ev_q_add(union event_data* ev) {
+  struct ev_node *evn = (struct ev_node*)calloc(1, sizeof(struct ev_node));
+  assert(ev != NULL);
+  evn->ev = ev;
+  insque(evn, evq.tail);
+  evq.tail = evn;
+  printf("added event; new Q tail: %08x\n", evq.tail); fflush(stdout);
+  if(evq.size == 0) {
+	evq.head = evn;
+  }
+  evq.size++;
+  printf("new Q size: %d\n", evq.size); fflush(stdout);
+}
+
+// call with the queue locked
+static inline void evq_rem(struct ev_node* evn) {
+  if(evq.head == evn) { evq.head = NULL; }
+  if(evq.tail == evn) { evq.tail = evn->prev; }
+  remque(evn);
+  evq.size--;
+  // free the event and node memory here
+  // FIXME: theoretically faster to use an object pool
+  free(evn->ev);
+  free(evn);
+}
 
 //-------------------------------
 //-- extern function definitions
 
 void events_init(void) {
-  SDL_InitSubSystem(SDL_INIT_EVENTS);
-  SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-  // FIXME: we won't get m/kb events without a window...
-  if (SDL_NumJoysticks() > 0 ) {
-	SDL_Joystick *joy;
-	printf("found joystick, opening js0 \r\n");
-	joy = SDL_JoystickOpen(0);
-	if (joy) {
-	  printf("js0: %s \r\n", SDL_JoystickNameForIndex(0));
-	} else {
-	  printf("failed to open js0\n");
-	}
-  }
+  evq.size = 0;
+  evq.head = NULL;
+  evq.tail = NULL;
+  pthread_cond_init(&evq.nonempty, NULL);
 }
 
-void event_post(event_t code, void* data1, void* data2) {
-  SDL_Event ev;
-  SDL_memset(&ev, 0, sizeof(ev));
-  ev.type = SDL_USEREVENT;
-  ev.user.code = code;
-  ev.user.data1 = data1;
-  ev.user.data2 = data2;
-  
-  int res = SDL_PushEvent(&ev);
-  if(res != 1) { events_handle_error("event_post()"); }
+union event_data* event_data_new(event_t type) {
+  // FIXME: theoretically faster to use an object pool
+  union event_data* ev =
+	(union event_data*) calloc(1, sizeof(union event_data));
+  ev->type = type;
+  return ev;
+}
+
+// add an event to the q and signal if necessary
+void event_post(union event_data * ev) {
+  assert(ev != NULL);
+  pthread_mutex_lock(&evq.lock);
+  if(evq.size == 0) {
+	// signal handler thread to wake up... 
+	pthread_cond_signal(&evq.nonempty);
+  }
+  ev_q_add(ev);
+  // ...handler actually wakes up once we realease the lock
+  pthread_mutex_unlock(&evq.lock);
 }
 
 // main loop to read events!
 void event_loop(void) {
-  SDL_Event e;
-  int quit = 0;
-  char ch;
-  
+  union event_data ev;
+  struct ev_node *evn;
   while(!quit) {
-	// sleep until we get an event
-	if(SDL_WaitEvent(&e)) {
-	  if(e.type == SDL_QUIT) {
-		quit = 1;
-	  } else {
-		handle_sdl_event(&e);
-	  }
+	pthread_mutex_lock(&evq.lock);
+	// while() because contention may produce spurious wakeup
+	while(evq.size == 0) {
+	  // atomically unlocks the mutex, sleeps on condvar, locks again on wakeup
+	  pthread_cond_wait(&evq.nonempty, &evq.lock);
 	}
+	assert(evq.size > 0);
+	assert(evq.tail != NULL);
+	evn = evq.tail;
+	memcpy(&ev, evn->ev, sizeof(union event_data));
+	evq_rem(evn); // frees event memory and decrements q size
+	pthread_mutex_unlock(&evq.lock);
+	handle_event(&ev);
   }
-  SDL_Quit();
-}
-
-void event_post_grid_event(event_t evcode, void *md, int x, int y) {
-  union { SDL_Event ev; SDL_MonomeGridEvent mev; } u;
-  SDL_memset(&u, 0, sizeof(u));
-  u.ev.type = SDL_USEREVENT;
-  u.ev.user.code = evcode;
-  u.mev.md = md;
-  u.mev.x = (uint8_t) x;
-  u.mev.y = (uint8_t) y;
-  SDL_PushEvent(&(u.ev));
 }
 
 //------------------------------
 //-- static function definitions
 
-void post_quit_event() {
-  SDL_Event ev;
-  SDL_memset(&ev, 0, sizeof(ev));
-  ev.type = SDL_QUIT;  
-  int res = SDL_PushEvent(&ev);
-}
-
-void events_handle_error(const char* msg) {
-  printf("error in events.c : %s ; code: %d", msg, SDL_GetError());
+static void handle_event(union event_data* ev) {
+  switch(ev->type) {
+  case  EVENT_EXEC_CODE_LINE:
+	handle_exec_code_line(&(ev->exec_code_line));
+	break;
+  case  EVENT_TIMER:
+	handle_timer(&(ev->timer));
+	break;
+  case  EVENT_MONOME_ADD:
+	handle_monome_add(&(ev->monome_add));
+	break;
+  case  EVENT_MONOME_REMOVE:
+	handle_monome_remove(&(ev->monome_remove));
+	break;
+  case  EVENT_GRID_KEY:
+	handle_grid_key(&(ev->grid_key));
+	break;
+  case EVENT_ENGINE_REPORT:
+	handle_engine_report();
+	break;
+  case EVENT_COMMAND_REPORT:
+	handle_command_report();
+	break;
+  case  EVENT_QUIT:
+	handle_quit();
+	break;
+  }
 }
 
 //---------------------------------
 //---- handlers
 
-//---  grid
-inline void
-handle_grid_press(SDL_Event* ev) {
-  SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
-  w_handle_grid_press(m_dev_id((struct m_dev*)mev->md), mev->x, mev->y);
+//--- code execution
+void handle_exec_code_line(struct event_exec_code_line *ev) {
+  w_handle_line(ev->line);
+  free(ev->line);
 }
 
-inline void
-handle_grid_lift(SDL_Event* ev) {
-  SDL_MonomeGridEvent* mev = (SDL_MonomeGridEvent*)ev;
-  w_handle_grid_lift(m_dev_id((struct m_dev*)mev->md), mev->x, mev->y);
+//--- timers
+void handle_timer(struct event_timer *ev) {
+  w_handle_timer(ev->id, ev->stage);
 }
 
-inline void
-handle_monome_add(SDL_UserEvent* ev) {
-  w_handle_monome_add(ev->data1);
+//--- monome devices
+void handle_monome_add(struct event_monome_add *ev) {
+  w_handle_monome_add(ev->dev);
 }
 
-inline void
-handle_monome_remove(SDL_UserEvent* ev) {
-  union { void* p; int i; } u;
-  memset(&u, 0, sizeof(u));
-  u.p = ev->data1;
-  w_handle_monome_remove(u.i);
+void handle_monome_remove(struct event_monome_remove *ev) {
+  w_handle_monome_remove(ev->id);
 }
 
-//--- joystick
-inline void
-handle_joy_axis(SDL_JoyAxisEvent* ja) {
-  w_handle_stick_axis(ja->which, ja->axis, ja->value);
+void handle_grid_key(struct event_grid_key *ev) {
+  w_handle_grid_key(ev->id, ev->x, ev->y, ev->state);
 }
 
-inline void
-handle_joy_button(SDL_JoyButtonEvent* jb) {
-  w_handle_stick_button(jb->which, jb->button, jb->state);
-}
-
-inline void
-handle_joy_hat(SDL_JoyHatEvent* jh) {
-    w_handle_stick_hat(jh->which, jh->hat, jh->value);
-}
-
-inline void
-handle_joy_ball(SDL_JoyBallEvent* jb) {
-  w_handle_stick_ball(jb->which, jb->ball, jb->xrel, jb->yrel);
-}
-
+//--- TODO: HID, MIDI
 
 //--- reports
 void handle_engine_report(void) {
@@ -189,83 +206,7 @@ void handle_command_report(void) {
   o_unlock_descriptors();
 }
 
-void handle_timer(SDL_UserEvent* uev) {
-  int idx = *((int*)uev->data1);
-  int stage = *((int*)uev->data2);
-  free(uev->data1);
-  free(uev->data2);
-  w_handle_timer(idx, stage);
+//--- quit
+void handle_quit(void) {
+  quit = true;
 }
-
-//---- raw SDL
-void handle_user_event(SDL_Event* ev) {
-  switch(ev->user.code) {
-	
-  case EVENT_EXEC_CODE_LINE:
-	w_handle_line(ev->user.data1);
-  	free(ev->user.data1);
-	break;
-  case EVENT_ENGINE_REPORT:
-	handle_engine_report();
-	break;
-	  case EVENT_COMMAND_REPORT:
-	handle_command_report();
-	break;
-  case EVENT_GRID_PRESS:
-	handle_grid_press(ev);
-	break;
-  case EVENT_GRID_LIFT:
-	handle_grid_lift(ev);
-	break;
-  case EVENT_MONOME_ADD:
-	handle_monome_add(&(ev->user));
-	break;
-  case EVENT_MONOME_REMOVE:
-	handle_monome_remove(&(ev->user));
-	break;
-  case EVENT_TIMER:
-	handle_timer(&(ev->user));
-	break;
-  case EVENT_QUIT:
-	post_quit_event();
-	break;
-  default:
-	;;
-  }
-}
-
-void handle_sdl_event(SDL_Event *e) {
-  switch(e->type) {
-  case SDL_USEREVENT:
-	handle_user_event(e);
-	break;
-	// FIXME: SDL won't deliver m/kb without creating a window.. 
-	// joystick
-  case SDL_JOYAXISMOTION:
-	handle_joy_axis(&(e->jaxis));
-	break;
-  case SDL_JOYBALLMOTION:
-	handle_joy_ball(&(e->jball));
-	break;
-  case SDL_JOYHATMOTION:
-	handle_joy_hat(&(e->jhat));
-	break;
-  case SDL_JOYBUTTONDOWN:
-	handle_joy_button(&(e->jbutton));
-	break;
-  case SDL_JOYBUTTONUP:
-	handle_joy_button(&(e->jbutton));          
-	break;
-  case SDL_JOYDEVICEADDED:         
-	break;
-  case SDL_JOYDEVICEREMOVED:       
-	break;
-	
-  default:
-	;; // nothing to do
-  }
-}
-
-#ifdef SDL_EVENT_BUSY_WAIT
-#undef SDL_EVENT_BUSY_WAIT
-#endif

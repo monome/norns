@@ -22,8 +22,7 @@ extern void w_handle_line(char* line);
 //---- c -> lua glue
 
 //--- hardware input
-extern void w_handle_grid_press(int id, int x, int y);
-extern void w_handle_grid_lift(int id, int x, int y);
+extern void w_handle_grid_key(int id, int x, int y, int state);
 extern void w_handle_monome_add(void* mdev);
 extern void w_handle_monome_remove(int id);
 

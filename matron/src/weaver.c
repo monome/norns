@@ -1,14 +1,9 @@
 /*
   weaver.c
 
-  some functions herein are copied from the lua source code:
-  ** $Id: lua.h,v 1.331 2016/05/30 15:53:28 roberto Exp roberto $
-  ** Lua - A Scripting Language
-  ** Lua.org, PUC-Rio, Brazil (http://www.lua.org)
-  ** See Copyright Notice at the end of this file
+  c->lua and lua->c interface
 
-  */
-
+*/
 
 #include <pthread.h>
 
@@ -31,12 +26,6 @@
 //------
 //---- global lua state!
 lua_State* lvm;
-
-//-----------------------
-//--- following functions are lifted from lua.c
-
-//-----------------
-//---- here resumes non-lifted code.
 
 void w_run_code(const char* code) {
   l_dostring(lvm, code, "w_run_code");
@@ -183,17 +172,18 @@ int w_send_command(lua_State* l) {
   char* fmt = NULL;
 
   if(lua_isnumber(l, 1)) {
-	// FIXME? guess should be wrapped in descriptor access lock
 	int idx = (int)lua_tonumber(l, 1) - 1; // 1-base to 0-base
+	// FIXME? guess should be wrapped in descriptor access lock...
+	// but this will be called often and a collision seems unlikely here
 	cmd = o_get_commands()[idx].cmd;
 	fmt = o_get_commands()[idx].fmt;
   } else {
 	printf("failed type check on first arg \n");
 	goto args_error; }
 
+  // FIXME: refactor this perhaps
   lo_message msg = lo_message_new();
 
-  // debug
   const char* s;
   int d;
   double f;
@@ -250,7 +240,8 @@ int w_request_command_report(lua_State* l) {
   o_request_command_report();
 }
 
-// manage timers from lua
+//--- timer management:
+
 int w_timer_start(lua_State* l) {
   static int idx = 0;
   double seconds;
@@ -293,7 +284,7 @@ int w_timer_start(lua_State* l) {
   timer_start(idx, seconds, count, stage);
   return 0;
  args_error:
-  printf("warning: incorrect argument(s) to start_timer(); expected [nnnn] \n");
+  printf("warning: incorrect argument(s) to start_timer(); expected [i(fii)] \n");
   fflush(stdout);
   return 1;
 }
@@ -311,13 +302,14 @@ int w_timer_stop(lua_State* l) {
   timer_stop(idx);
   return 0;
  args_error:
-  printf("warning: incorrect arguments to stop_timer() \n"); fflush(stdout);
+  printf("warning: incorrect arguments to stop_timer(); expected [i] \n");
+  fflush(stdout);
   return 1;
 }
 
 //---- c -> lua glue
 
-//--- hardware input
+//--- hardware input:
 
 // helper for calling grid handlers
 static inline void
@@ -332,12 +324,8 @@ w_call_grid_handler(int id, int x, int y, int state) {
   l_report(lvm, l_docall(lvm, 4, 0));
 
 }
-void w_handle_grid_press(int id, int x, int y) {
-  w_call_grid_handler( id, x, y, 1);
-}
-
-void w_handle_grid_lift(int id, int x, int y) {
-  w_call_grid_handler( id, x, y, 0);
+void w_handle_grid_key(int id, int x, int y, int state) {
+  w_call_grid_handler( id, x, y, state > 0);
 }
 
 void w_handle_monome_add(void* mdev) {
@@ -356,7 +344,7 @@ void w_handle_monome_add(void* mdev) {
 }
 
 extern void w_handle_monome_remove(int id) {
-  printf("w_handle_monome_remove()\n"); fflush(stdout);
+  printf("w_handle_monome_remove(); id %d\n", id); fflush(stdout);
   lua_getglobal(lvm, "monome");
   lua_getfield(lvm, -1, "remove");
   lua_remove(lvm, -2);
@@ -410,7 +398,6 @@ w_push_string_array(const char** arr, const int n) {
   // push count of entries
   lua_pushinteger(lvm, n);
 }
-
 
 // audio engine l_report handlers
 void w_handle_engine_report(const char** arr, const int n) {

@@ -26,7 +26,6 @@ struct m_dev_list {
 } mdl
 ;
 static int port = 8000;
-// id to use for next device 
 static int id = 0;
 
 //------------------------
@@ -35,7 +34,6 @@ static int m_dev_list_add(struct m_dev *md);
 static void m_dev_list_remove(struct m_dev* md);
 static void m_handle_press(const monome_event_t *e, void* p);
 static void m_handle_lift(const monome_event_t *e, void* p);
-// thread start function
 static void* m_dev_thread_start(void* md);
 
 //-------------------------
@@ -129,13 +127,9 @@ void m_dev_set_led(struct m_dev *md,
 							   uint8_t x, uint8_t y, uint8_t val) {
   printf("m_dev_set_led: %d %s %d %d %d\n",
 		 md->id, m_dev_serial(md), x, y, val); fflush(stdout);
-#if 0 // testing
-  monome_led_level_set(md->m, x, y, val);
-#else
   uint8_t q = m_dev_quad_idx(x,y);
   md->data[q][m_dev_quad_offset(x,y)] = val;
   md->dirty[q] = true;
-#endif
 }
 
 // transmit all dirty quads
@@ -144,13 +138,10 @@ void m_dev_refresh(struct m_dev *md) {
   static const int quad_yoff[4] = {0, 0, 8, 8};
   for(int quad=0; quad<4; quad++) {
 	if(md->dirty[quad]) {
-#if 0 // testing
-#else
 	  monome_led_level_map(md->m,
 						   quad_xoff[quad],
 						   quad_yoff[quad],
 						   md->data[quad]);
-#endif
 	  md->dirty[quad] = false;
 	}
   }
@@ -160,32 +151,38 @@ void m_dev_refresh(struct m_dev *md) {
 //--- static functions
 
 int m_dev_list_add(struct m_dev *md) {
+  insque(md, mdl.tail);
+  mdl.tail = md;
   if(mdl.size == 0) {
-	insque(md, NULL);
 	mdl.head = md;
-	mdl.tail = md;
-  } else {
-	insque(md, mdl.tail);
-	mdl.tail = md;
   }
   mdl.size++;
 }
 
 void m_dev_list_remove(struct m_dev* md) {
-  remque(md);
+  if(mdl.tail == md) { mdl.tail = md->prev; }
   if(mdl.head == md) { mdl.head = NULL; }
-  if(mdl.tail == md) { mdl.tail = NULL; }
   mdl.size--;
+  remque(md);
+}
+
+static inline void
+grid_key_event(const monome_event_t *e, void* p, int state) {
+  struct m_dev* md = (struct m_dev*)p;
+  union event_data *ev = event_data_new(EVENT_GRID_KEY);
+  ev->grid_key.id = md->id;
+  ev->grid_key.x = e->grid.x;
+  ev->grid_key.y = e->grid.y;
+  ev->grid_key.state = 1;
+  event_post(ev);
 }
 
 void m_handle_press(const monome_event_t *e, void* p) {
-  struct m_dev* md = (struct m_dev*)p;
-  event_post_grid_event(EVENT_GRID_PRESS, md, e->grid.x, e->grid.y);
+  grid_key_event(e, p, 1);
 }
 
 void m_handle_lift(const monome_event_t *e, void* p) {
-  struct m_dev* md = (struct m_dev*)p;
-  event_post_grid_event(EVENT_GRID_LIFT, md, e->grid.x, e->grid.y);
+  grid_key_event(e, p, 0);
 }
 
 struct m_dev *m_dev_lookup_path(const char* path) {
@@ -208,6 +205,8 @@ struct m_dev *m_dev_lookup_path(const char* path) {
 
 void m_init(void) {
   mdl.size = 0;
+  mdl.head = NULL;
+  mdl.tail = NULL;
 }
 
 void m_deinit(void) {
@@ -235,7 +234,9 @@ const char* m_dev_name(struct m_dev* md) {
 void m_add_device(const char* path) {
   struct m_dev* md = m_dev_new(path, port);
   if(md != NULL) {
-	event_post(EVENT_MONOME_ADD, md, NULL);
+	union event_data *ev = event_data_new(EVENT_MONOME_ADD);
+	ev->monome_add.dev = md;
+	event_post(ev);
   }
 }
 
@@ -245,7 +246,9 @@ void m_remove_device(const char* path) {
   memset(&u, 0, sizeof(u));
   if(md != NULL) {
 	u.i = md->id;
-	event_post(EVENT_MONOME_REMOVE, u.p, NULL);
+	union event_data *ev = event_data_new(EVENT_MONOME_REMOVE);
+	ev->monome_remove.id = md->id;
+	event_post(ev);
 	printf("removing device at %08x , id %d, path %s\n", 
 	 	   md, md->id, monome_get_devpath(md->m)); fflush(stdout);
 	m_dev_free(md);

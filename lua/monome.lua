@@ -54,7 +54,7 @@ monome.add = function(id, serial, name, dev)
 end
 
 monome.remove = function(id)
-   print('>> removing device')
+   print('>> removing device ' .. id)
    monome.grids[id]:print()
    monome.grids[id] = nil
 end
@@ -74,6 +74,8 @@ monome.key = function(id, x, y, val)
 		 m:led(x, y, 0x0)
 	  end
 	  m:refresh()
+   else
+	  print('>> error: no entry for grid ' .. id)
    end
 end
 
