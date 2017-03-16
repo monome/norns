@@ -1,5 +1,5 @@
 /*
-  usb_monitor.c
+  device_monitor.c
 */
 
 #include <errno.h>
@@ -14,8 +14,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "device.h"
+#include "device_list.h"
+#include "device_input.h"
+#include "device_monome.h"
 #include "events.h"
-#include "m.h"
 
 //---------------------
 //--- types and defines
@@ -23,16 +26,6 @@
 #define SUB_NAME_SIZE 32
 #define NODE_NAME_SIZE 128
 #define WATCH_TIMEOUT_MS 100
-
-
-#define NUM_DEV_TYPES 2
-
-typedef enum {
-  // libmonome devices
-  USB_DEV_MONOME = 0,
-  // hid devices
-  USB_DEV_HID = 1
-} usb_dev_t;
 
 struct watch {
   // subsystem name to use as a filter on udev_monitor
@@ -49,8 +42,9 @@ struct watch {
 //----- static variables
 
 // watchers
-// FIXME: these names and patterns should be taken from config.lua
-static struct watch w[NUM_DEV_TYPES] = {
+/* FIXME: these names and patterns should be taken from config.lua 
+*/
+static struct watch w[DEV_TYPE_COUNT] = {
   {
 	.sub_name = "tty",
 	.node_pattern = "/dev/ttyUSB.*"
@@ -62,7 +56,7 @@ static struct watch w[NUM_DEV_TYPES] = {
 };
 
 // file descriptors to watch/poll
-struct pollfd pfds[NUM_DEV_TYPES];
+struct pollfd pfds[DEV_TYPE_COUNT];
 // thread for polling all the watched file descriptors
 pthread_t watch_tid;
 
@@ -70,19 +64,19 @@ pthread_t watch_tid;
 //--- static function declarations
 static void* watch_loop(void* data);
 static void handle_device(struct udev_device *dev);
-static void add_device(struct udev_device* dev, usb_dev_t t);
-static void remove_device(struct udev_device* dev, usb_dev_t t);
-static usb_dev_t check_dev_type (struct udev_device *dev);
+static void add_device(struct udev_device* dev, device_t t);
+static void remove_device(struct udev_device* dev, device_t t);
+static device_t check_dev_type (struct udev_device *dev);
 
 //--------------------------------
 //---- extern function definitions
 
-void usb_monitor_init(void) {
+void dev_monitor_init(void) {
   struct udev *udev;
   pthread_attr_t attr;
   int s;
   
-  for(int i=0; i<NUM_DEV_TYPES; i++) {
+  for(int i=0; i<DEV_TYPE_COUNT; i++) {
 	w[i].mon = udev_monitor_new_from_netlink(udev, "udev");
 	udev_monitor_filter_add_match_subsystem_devtype(w[i].mon, w[i].sub_name, NULL);
 	udev_monitor_enable_receiving(w[i].mon);
@@ -101,26 +95,26 @@ void usb_monitor_init(void) {
   pthread_attr_destroy(&attr);
 }
 
-void usb_monitor_deinit(void) {
+void dev_monitor_deinit(void) {
   pthread_cancel(watch_tid);
-  for(int i=0; i<NUM_DEV_TYPES; i++) {
+  for(int i=0; i<DEV_TYPE_COUNT; i++) {
 	free(w[i].mon);
   }
 }
 
 
-int usb_monitor_scan(void) {
+int dev_monitor_scan(void) {
   struct udev *udev;
   struct udev_device *dev;
   const char* node;
   
   udev = udev_new();
   if (!udev) {
-  printf("usb_monitor_scan(): failed to create udev\n"); fflush(stdout);
+  printf("device_monitor_scan(): failed to create udev\n"); fflush(stdout);
 	return 1;
   }
   
-  for(int i=0; i<NUM_DEV_TYPES; i++) {
+  for(int i=0; i<DEV_TYPE_COUNT; i++) {
 	struct udev_enumerate *ue;
 	struct udev_list_entry *devices, *dev_list_entry;
 	printf("scanning for devices of type %s\n", w[i].sub_name); fflush(stdout);
@@ -132,16 +126,18 @@ int usb_monitor_scan(void) {
 	  const char *path;
 	  path = udev_list_entry_get_name(dev_list_entry);
 	  dev = udev_device_new_from_syspath(udev, path);
-	  // FIXME: gotta be a way to get only usb-serial and HID... 
-	  //	  dev = udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL);
 	  if (dev !=NULL) {
-		node = udev_device_get_devnode(dev);
-		if(node != NULL) {
-		  add_device(dev, check_dev_type(dev));
+		if(udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
+		  node = udev_device_get_devnode(dev);
+		  if(node != NULL) {
+			device_t t = check_dev_type(dev);
+			if(t>=0 && t < DEV_TYPE_COUNT) {
+			  dev_list_add(t, node);
+			}
+		  }
+		  udev_device_unref(dev);
 		}
-		udev_device_unref(dev);
 	  }
-	  // printf("continue device enumeration\n"); fflush(stdout);
 	}	
 	udev_enumerate_unref(ue);
   }
@@ -159,7 +155,7 @@ void* watch_loop(void* x) {
   int ret;
   
   while(1) {
-	if (poll(pfds, NUM_DEV_TYPES, WATCH_TIMEOUT_MS) < 0)
+	if (poll(pfds, DEV_TYPE_COUNT, WATCH_TIMEOUT_MS) < 0)
 	  switch (errno) {
 	  case EINVAL:
 		perror("error in poll()");
@@ -170,7 +166,7 @@ void* watch_loop(void* x) {
 	  }
 
 	// see which monitor has data
-	for(int i=0; i<NUM_DEV_TYPES; i++) {
+	for(int i=0; i<DEV_TYPE_COUNT; i++) {
 	  if(pfds[i].revents & POLLIN) {
 		dev = udev_monitor_receive_device(w[i].mon);
 		if (dev) {		  
@@ -185,67 +181,44 @@ void* watch_loop(void* x) {
   }	
 }
 
-void add_device(struct udev_device* dev, usb_dev_t t) {
-  const char* node = udev_device_get_devnode(dev);
-  switch(t) {
-  case USB_DEV_MONOME:
-	printf("\n-----\nadding monome device: %s\n", node); fflush(stdout);
-	m_add_device(node); 
-	break;
-  case USB_DEV_HID:
-	printf("(TODO) adding hid device: %s\n", node); fflush(stdout);
-	  // TODO
-	break;
-  default:
-	;; // do nothing
-  }
-}
-
-void remove_device(struct udev_device* dev, usb_dev_t t) {
-  const char* node = udev_device_get_devnode(dev);
-  switch(t) {
-  case USB_DEV_MONOME:
-	printf("\n-----\nremoving monome device: %s\n", node); fflush(stdout);
-	m_remove_device(node); 
-	break;
-  case USB_DEV_HID:
-	printf("(TODO) removing hid device: %s\n", node); fflush(stdout);
-	// TODO
-	break;
-  }
-}
 
 void handle_device(struct udev_device *dev) {
-  usb_dev_t t = check_dev_type(dev);
+  device_t t = check_dev_type(dev);
   const char* act = udev_device_get_action(dev);
+  const char* node = udev_device_get_devnode(dev);
   if(act[0] == 'a') {
-	add_device(dev, t);
+	dev_list_add(t, node);
   } else if (act[0] == 'r') {
-	remove_device(dev, t);
+	dev_list_remove(t, node);
   }
 }
 
-usb_dev_t check_dev_type (struct udev_device *dev) {
+device_t check_dev_type (struct udev_device *dev) {
   static char msgbuf[128];
-  usb_dev_t t = -1;
+  device_t t = -1;
   const char* node = udev_device_get_devnode(dev);
   int reti;
   if(node) {
-	for(int i=0; i < NUM_DEV_TYPES; i++) {
-	  fflush(stdout);
-	  reti = regexec(&w[i].node_regex, node, 0, NULL, 0);
-	  if(reti == 0) { 
-		t = i;
-		break;		
+	// FIXME: 
+	// for now, just get USB devices.
+	// eventually we might want to use this same system for GPIO, &c...
+	if(udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
+	  for(int i=0; i < DEV_TYPE_COUNT; i++) {
+		fflush(stdout);
+		reti = regexec(&w[i].node_regex, node, 0, NULL, 0);
+		if(reti == 0) { 
+		  t = i;
+		  break;		
+		}
+		else if (reti == REG_NOMATCH) {
+		  ;; // nothing to do
+		}
+		else {
+		  regerror(reti, &w[i].node_regex, msgbuf, sizeof(msgbuf));
+		  fprintf(stderr, "regex match failed: %s\n", msgbuf);
+		  exit(1);
+		}	  
 	  }
-	  else if (reti == REG_NOMATCH) {
-		;; // nothing to do
-	  }
-	  else {
-		regerror(reti, &w[i].node_regex, msgbuf, sizeof(msgbuf));
-		fprintf(stderr, "regex match failed: %s\n", msgbuf);
-		exit(1);
-	  }	  
 	}
   }
   return t;

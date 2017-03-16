@@ -45,6 +45,9 @@ static inline void handle_timer(struct event_timer* ev);
 static inline void handle_monome_add(struct event_monome_add* ev);
 static inline void handle_monome_remove(struct event_monome_remove* ev);
 static inline void handle_grid_key(struct event_grid_key* ev);
+static inline void handle_input_add(struct event_input_add* ev);
+static inline void handle_input_remove(struct event_input_remove* ev);
+static inline void handle_input_event(struct event_input_event* ev);
 static inline void handle_engine_report(void);
 static inline void handle_command_report(void);
 static inline void handle_quit(void);
@@ -56,12 +59,10 @@ static inline void ev_q_add(union event_data* ev) {
   evn->ev = ev;
   insque(evn, evq.tail);
   evq.tail = evn;
-  printf("added event; new Q tail: %08x\n", evq.tail); fflush(stdout);
   if(evq.size == 0) {
 	evq.head = evn;
   }
   evq.size++;
-  printf("new Q size: %d\n", evq.size); fflush(stdout);
 }
 
 // call with the queue locked
@@ -103,7 +104,7 @@ void event_post(union event_data * ev) {
 	pthread_cond_signal(&evq.nonempty);
   }
   ev_q_add(ev);
-  // ...handler actually wakes up once we realease the lock
+  // ...handler actually wakes up once we release the lock
   pthread_mutex_unlock(&evq.lock);
 }
 
@@ -133,20 +134,29 @@ void event_loop(void) {
 
 static void handle_event(union event_data* ev) {
   switch(ev->type) {
-  case  EVENT_EXEC_CODE_LINE:
+  case EVENT_EXEC_CODE_LINE:
 	handle_exec_code_line(&(ev->exec_code_line));
 	break;
-  case  EVENT_TIMER:
+  case EVENT_TIMER:
 	handle_timer(&(ev->timer));
 	break;
-  case  EVENT_MONOME_ADD:
+  case EVENT_MONOME_ADD:
 	handle_monome_add(&(ev->monome_add));
 	break;
-  case  EVENT_MONOME_REMOVE:
+  case EVENT_MONOME_REMOVE:
 	handle_monome_remove(&(ev->monome_remove));
 	break;
-  case  EVENT_GRID_KEY:
+  case EVENT_GRID_KEY:
 	handle_grid_key(&(ev->grid_key));
+	break;
+  case EVENT_INPUT_ADD:
+	handle_input_add(&(ev->input_add));
+	break;
+  case EVENT_INPUT_REMOVE:
+	handle_input_remove(&(ev->input_remove));
+	break;
+  case EVENT_INPUT_EVENT:
+	handle_input_event(&(ev->input_event));
 	break;
   case EVENT_ENGINE_REPORT:
 	handle_engine_report();
@@ -187,7 +197,21 @@ void handle_grid_key(struct event_grid_key *ev) {
   w_handle_grid_key(ev->id, ev->x, ev->y, ev->state);
 }
 
-//--- TODO: HID, MIDI
+
+//--- input devices
+void handle_input_add(struct event_input_add *ev) {
+  w_handle_input_add(ev->dev);
+}
+
+void handle_input_remove(struct event_input_remove *ev) {
+  w_handle_input_remove(ev->id);
+}
+
+void handle_input_event(struct event_input_event *ev) {
+  w_handle_input_event(ev->id, ev->type, ev-code, ev->value);
+}
+
+//--- TODO: MIDI
 
 //--- reports
 void handle_engine_report(void) {
