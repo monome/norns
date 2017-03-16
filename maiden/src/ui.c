@@ -6,6 +6,7 @@
 
 #include <locale.h>
 #include <panel.h>
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -21,13 +22,15 @@
 #include "io.h"
 #include "ui.h"
 
+pthread_mutex_t exit_lock;
+
 //--------------------
 //---- defines
-
 #define max(a, b)								\
   ({ typeof(a) _a = a;							\
-	typeof(b) _b = b;							\
+	typeof(b) _b = b;  							\
 	_a > _b ? _a : _b; })
+
 
 // call (most) ncurses functions with hard error checking
 #define CHECK(fn, ...)							\
@@ -70,50 +73,48 @@ static noreturn void fail_exit(const char *msg);
 //---- static variables
 
 //--- flags
-// flag if we need to reset on exit
 static bool visual_mode = false;
-// flag if we need to exit
 static bool should_exit = false;
-// flag used to signal "no more input" to readling
 static bool input_avail = false;
 
 //--- windows
-// Message window
 static WINDOW *msg_win;
-// Separator line above the command (readline) window
 static WINDOW *sep_win;
-// Command (readline) window
 static WINDOW *cmd_win;
 
 //---- data
-// String displayed in the message window
 static char *msg_win_str = NULL;
-// Input character for readline
 static unsigned char input;
 
 //--------------------------------
 //---- extern function definitions
 
 void ui_loop(void) {
-
-  // hm
+  
   CHECK(clearok, curscr, TRUE);
   resize();
   
-  while (!should_exit) {
+  while (1) {
+	if(should_exit) {
+	  break;
+	}
 	int c = wgetch(cmd_win);
 		
 	if (c == KEY_RESIZE) {
 	  resize();
 	}
-	else if (c == '\f') { // Ctrl-L -- manual refresh
+	else if (c == '\f') { // ctl-L : manual refresh
 	  CHECK(clearok, curscr, TRUE);
 	  resize();
 	}
 	else {
 	  forward_to_readline(c);
 	}
+	//	pthread_mutex_unlock(&exit_lock);
   }
+
+  // wait for other threads/processes?
+  
   mvwprintw(cmd_win, 0, 0, "EXITING!");
   ui_deinit();
   
@@ -129,9 +130,10 @@ void ui_init(void) {
 }
 
 void ui_deinit(void) {
+  pthread_mutex_lock(&exit_lock);
   deinit_ncurses();
   deinit_readline();
-  // puts("ui_deinit \n");
+  pthread_mutex_unlock(&exit_lock);
 }
 
 void ui_crone_line(char* str, size_t len) {
@@ -139,16 +141,19 @@ void ui_crone_line(char* str, size_t len) {
 }
 
 void ui_matron_line(char* str, size_t len) {
-  
-  size_t newlen;
-  if(msg_win_str == NULL) {
-	newlen = len;
-  } else {
-	newlen = len + strlen(msg_win_str);
+  pthread_mutex_lock(&exit_lock);
+  if(!should_exit)  {
+	size_t newlen;
+	if(msg_win_str == NULL) {
+	  newlen = len;
+	} else {
+	  newlen = len + strlen(msg_win_str);
+	}
+	msg_win_str = (char*)realloc(msg_win_str, newlen+1);
+	strncat(msg_win_str, str, len);
+	msg_win_redisplay(false);
   }
-  msg_win_str = (char*)realloc(msg_win_str, newlen+1);
-  strncat(msg_win_str, str, len);
-  msg_win_redisplay(false);
+  pthread_mutex_unlock(&exit_lock);
 }
 
 //-------------------------------
@@ -287,9 +292,11 @@ void init_ncurses(void)
 
 void deinit_ncurses(void)
 {
+
   CHECK(delwin, msg_win);
   CHECK(delwin, sep_win);
   CHECK(delwin, cmd_win);
+
   CHECK(endwin);
   visual_mode = false;
 }
@@ -307,7 +314,7 @@ void init_readline(void)
   rl_deprep_term_function = NULL;
   rl_prep_term_function = NULL;
 
-  // prevent readline from setting LINES,COLS
+  // prevent readline from setting LINES, COLS
   rl_change_environment = 0;
 
   // handle input by manually feeding characters to readline
