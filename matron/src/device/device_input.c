@@ -63,7 +63,6 @@ static void add_codes(struct dev_input* d) {
   }
 }
 
-
 int dev_input_init(void* self) {
   struct dev_input* d = (struct dev_input*)self;
   struct dev_common* base = (struct dev_common*)self;
@@ -104,9 +103,15 @@ int dev_input_init(void* self) {
   base->deinit = &dev_input_deinit;
 }
 
-
 static void handle_event(struct dev_input* dev, struct input_event* inev) {
   union event_data* ev = event_data_new(EVENT_INPUT_EVENT);
+  printf("handle_event() %d (%s) : %d (%s) \n",
+		 inev->type,
+		 libevdev_event_type_get_name(inev->type),
+		 inev->code,
+		 libevdev_event_code_get_name(inev->type, inev->code));
+  fflush(stdout);
+  
   ev->input_event.id = dev->base.id;
   ev->input_event.type = inev->type;
   ev->input_event.code = inev->code;
@@ -131,7 +136,10 @@ void* dev_input_start(void* self) {
 	  }
 	  // re-synced...
 	} else if (rc == LIBEVDEV_READ_STATUS_SUCCESS){
-	  handle_event(di, &ev);
+	  // filter out sync and msc events
+	  if(!(ev.type == EV_SYN || ev.type == EV_MSC)) { 
+		handle_event(di, &ev);
+	  }
 	}
   } while ( rc == LIBEVDEV_READ_STATUS_SYNC
 			|| rc == LIBEVDEV_READ_STATUS_SUCCESS

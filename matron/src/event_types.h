@@ -72,8 +72,7 @@ struct event_input_event {
   struct event_common common;
   uint8_t id;
   uint8_t type;
-  uint8_t code;
-  uint8_t pad;
+  uint16_t code;
   int32_t value;
 }; // +8
 

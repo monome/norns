@@ -8,6 +8,17 @@ function InputDevice:new(id, serial, name, types, codes)
    d.id = id
    d.serial = serial
    d.name = name
+   -- `codes` is indexed by event type, values are subtables
+   -- each subtable is indexed by supported code numbers, values are code names
+   d.codes = {}
+   for i,t in pairs(types) do
+	  if input.event_types[v] ~= nil then
+		 d.codes[t] = {}
+		 for _,c in pairs(codes[i]) do
+			d.codes[t][c] = input.event_codes[t][c]
+		 end
+	  end
+   end
    d.types = types
    d.codes = codes
    return d
@@ -16,18 +27,10 @@ end
 function InputDevice:print()
    print(self.id, self.serial, self.name)
    print('>> event types: ')
-   for k,v in pairs(self.types) do
-	  if input.event_types[v] ~= nil then
-		 print('>>  ' .. input.event_types[v] .. ' : ')
-		 for l,w in pairs(self.codes[k]) do
-			if input.event_types[v] == 'EV_KEY' then
-			   print( '>>    ' .. input.key_btn_codes[w])
-			elseif input.event_types[v] == 'EV_REL' then
-			   print( '>>    ' .. input.rel_codes[w])
-			elseif input.event_types[v] == 'EV_ABS' then
-			   print( '>>    ' .. input.abs_codes[w])
-			end
-		 end
+   for t,arr in pairs(self.codes) do
+	  print('>>  ' .. input.event_types[t])
+	  for id,name in pairs(arr) do
+		 print('>>    ', id, name)
 	  end
    end
 end
@@ -43,5 +46,13 @@ input.add = function(id, serial, name, types, codes)
 end
 
 input.event = function(id, type, code, value)
-   print('>> input event ', id, type, code, value);
+   local d = input.devices[id]
+   if d ~= nil then
+	  print('>> ' .. d.name
+			   .. ' ' .. type
+			   .. ' (' .. input.event_types[type]
+			   .. ') ' .. code
+			   .. ' (' .. input.event_codes[type][code]
+			   .. ')  ' .. value)
+   end
 end

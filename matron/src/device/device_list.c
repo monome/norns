@@ -40,8 +40,6 @@ void dev_list_init(void) {
   dq.size = 0;
   dq.head = NULL;
   dq.tail = NULL;
-	  
-  
 }
 
 void dev_list_add(device_t type, const char* path) {

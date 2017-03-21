@@ -402,7 +402,7 @@ void w_handle_input_remove(int id) {
   //...
 }
 
-void w_handle_input_event(int id, uint8_t type, uint8_t code, int value) {
+void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
   
   lua_getglobal(lvm, "input");
   lua_getfield(lvm, -1, "event");
