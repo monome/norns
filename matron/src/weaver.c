@@ -16,6 +16,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include "device_input.h"
+#include "device_monome.h"
 #include "events.h"
 #include "lua_eval.h"
 #include "m.h"
@@ -89,11 +91,15 @@ void w_user_startup(void) {
   l_report(lvm, l_docall(lvm, 0, 0));
 }
 
+void w_deinit(void) {
+  // FIXME: lua is leaking memory
+}
+
 //----------------------------------
 //---- static definitions
 
 int w_grid_set_led(lua_State* l) {
-  struct m_dev* md;
+  struct dev_monome* md;
   int x, y, z;
   if(lua_gettop(l) != 4) { // check num args
 	goto args_error;
@@ -121,7 +127,7 @@ int w_grid_set_led(lua_State* l) {
 	goto args_error;
   }
   
-  m_dev_set_led(md, x, y, z);
+  dev_monome_set_led(md, x, y, z);
   return 0;
   
  args_error:
@@ -130,7 +136,7 @@ int w_grid_set_led(lua_State* l) {
 }
 
 int w_grid_refresh(lua_State* l) {
-  struct m_dev* md;
+  struct dev_monome* md;
   if(lua_gettop(l) != 1) { // check num args
 	goto args_error;
   }
@@ -139,7 +145,7 @@ int w_grid_refresh(lua_State* l) {
   } else {
 	goto args_error;
   }
-  m_dev_refresh(md);
+  dev_monome_refresh(md);
   return 0;
  args_error:
   printf("warning: incorrect arguments to grid_refresh() \n"); fflush(stdout);
@@ -174,14 +180,14 @@ int w_send_command(lua_State* l) {
   if(lua_isnumber(l, 1)) {
 	int idx = (int)lua_tonumber(l, 1) - 1; // 1-base to 0-base
 	// FIXME? guess should be wrapped in descriptor access lock...
-	// but this will be called often and a collision seems unlikely here
+	// but this will not be called often and a collision seems unlikely here
 	cmd = o_get_commands()[idx].cmd;
 	fmt = o_get_commands()[idx].fmt;
   } else {
 	printf("failed type check on first arg \n");
 	goto args_error; }
 
-  // FIXME: refactor this perhaps
+  // FIXME: refactor this, should go in oracle
   lo_message msg = lo_message_new();
 
   const char* s;
@@ -322,17 +328,17 @@ w_call_grid_handler(int id, int x, int y, int state) {
   lua_pushinteger(lvm, y+1); // convert to 1-base
   lua_pushinteger(lvm, state);
   l_report(lvm, l_docall(lvm, 4, 0));
-
-}
-void w_handle_grid_key(int id, int x, int y, int state) {
-  w_call_grid_handler( id, x, y, state > 0);
 }
 
 void w_handle_monome_add(void* mdev) {
-  struct m_dev* md = (struct m_dev*)mdev;
-  int id = m_dev_id(md);
-  const char* serial =  m_dev_serial(md);
-  const char* name =  m_dev_name(md);
+  	printf("w_handle_monome_add()\n");
+	fflush(stdout);
+
+  struct dev_monome* md = (struct dev_monome*)mdev;
+  int id = md->dev.id;
+  const char* serial = md->dev.serial;
+  const char* name =  md->dev.name;
+  
   lua_getglobal(lvm, "monome");
   lua_getfield(lvm, -1, "add");
   lua_remove(lvm, -2);
@@ -343,13 +349,70 @@ void w_handle_monome_add(void* mdev) {
   l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-extern void w_handle_monome_remove(int id) {
+ void w_handle_monome_remove(int id) {
   printf("w_handle_monome_remove(); id %d\n", id); fflush(stdout);
   lua_getglobal(lvm, "monome");
   lua_getfield(lvm, -1, "remove");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, id+1); // convert to 1-base
   l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+
+void w_handle_grid_key(int id, int x, int y, int state) {
+  printf("w_handle_grid_key()\n"); fflush(stdout);
+  w_call_grid_handler( id, x, y, state > 0);
+}
+
+void w_handle_input_add(void* p) {
+  struct dev_input* dev = (struct dev_input *)p;
+  struct dev_common* base = (struct dev_common *)p;
+  int id = base->id;
+  int vid = dev->vid;
+  int pid = dev->pid;
+  
+  lua_getglobal(lvm, "input");
+  lua_getfield(lvm, -1, "add");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, id+1); // convert to 1-base
+  lua_pushstring(lvm, base->serial);
+  lua_pushstring(lvm, base->name);
+  // push table of event types
+  int ntypes = dev->num_types;
+  lua_createtable(lvm, ntypes, 0);
+  for(int i=0; i<ntypes; i++) {
+	lua_pushinteger(lvm, dev->types[i]);
+	lua_rawseti(lvm, -2,  i+1);
+  }
+  // table of tables of event codes
+  lua_createtable(lvm, ntypes, 0);
+  for(int i=0; i<ntypes; i++) {
+	int ncodes = dev->num_codes[i];
+	lua_createtable(lvm, ncodes, 0);
+	for(int j=0; j<ncodes; j++) {
+	  lua_pushinteger(lvm, dev->codes[i][j]);
+	  lua_rawseti(lvm, -2, j+1);
+	}
+	lua_rawseti(lvm, -2, i+1);
+  }
+  l_report(lvm, l_docall(lvm, 5, 0));
+}
+
+void w_handle_input_remove(int id) {
+  //...
+}
+
+void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
+  
+  lua_getglobal(lvm, "input");
+  lua_getfield(lvm, -1, "event");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, id+1); // convert to 1-base
+  lua_pushinteger(lvm, type);
+  lua_pushinteger(lvm, code);
+  lua_pushinteger(lvm, value);
+  l_report(lvm, l_docall(lvm, 4, 0));
+  
 }
 
 // helper for calling joystick handlers
@@ -399,7 +462,7 @@ w_push_string_array(const char** arr, const int n) {
   lua_pushinteger(lvm, n);
 }
 
-// audio engine l_report handlers
+// audio engine report handlers
 void w_handle_engine_report(const char** arr, const int n) {
   lua_getglobal(lvm, "report");  
   lua_getfield(lvm, -1, "engines"); 
