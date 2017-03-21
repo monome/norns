@@ -23,14 +23,13 @@ end
 -- define a function in the engine command table
 function defineEngineCommand(idx, name, fmt)
    local args = {};
---   local target = "engine." .. string.gsub(name, '/', '_')
-   local target = "engine." .. name
+   local target = "norns.engine." .. name
    local body = 'send_command(' .. idx .. ','
    for i=1,#fmt do
 	  args[i] = "arg"..i
 	  body = body .. args[i] .. ','
    end
-   body = string.sub(body, 0, -2) -- bodyip trailing ','
+   body = string.sub(body, 0, -2) -- zap trailing ','
    body = body .. ' )'
 
    defineFunction(target, args, body)
@@ -38,8 +37,8 @@ end
 
 -- add engine commands. this is our default handler for command reports
 function addEngineCommands(commands, count)
-   engine = {} -- clear existing commands
-   engine.commands = commands
+   norns.engine = {} -- clear existing commands
+   norns.engine.commands = commands
    for i=1,count do
 	  print(i .. ": " .. commands[i][1] .. " (" .. commands[i][2] .. ")")
 	  defineEngineCommand(i, commands[i][1], commands[i][2])

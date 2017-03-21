@@ -13,7 +13,7 @@
 --]]
 
 -- event types
-input.event_types = { 
+norns.input.event_types = { 
    [0x01] = 'EV_KEY',
    [0x02] = 'EV_REL',
    [0x03] = 'EV_ABS',
@@ -21,13 +21,13 @@ input.event_types = {
    [0x11] = 'EV_LED',
 }
 
-input.event_types_rev = {}
-for k,v in pairs(input.event_types) do
-   input.event_types_rev[v] = k
+norns.input.event_types_rev = {}
+for k,v in pairs(norns.input.event_types) do
+   norns.input.event_types_rev[v] = k
 end
 
-input.event_codes = {}
-input.event_codes[input.event_types_rev['EV_KEY']] = {
+norns.input.event_codes = {}
+norns.input.event_codes[norns.input.event_types_rev['EV_KEY']] = {
    [0] = 'KEY_RESERVED',
    [1] = 'KEY_ESC',
    [2] = 'KEY_1',
@@ -591,7 +591,7 @@ input.event_codes[input.event_types_rev['EV_KEY']] = {
 }
 
 
-input.event_codes[input.event_types_rev['EV_REL']] = {
+norns.input.event_codes[norns.input.event_types_rev['EV_REL']] = {
    [0x00] = 'REL_X',
    [0x01] = 'REL_Y',
    [0x02] = 'REL_Z',
@@ -605,7 +605,7 @@ input.event_codes[input.event_types_rev['EV_REL']] = {
    [0x0f] = 'REL_MAX',
 }
 
-input.event_codes[input.event_types_rev['EV_ABS']] = {
+norns.input.event_codes[norns.input.event_types_rev['EV_ABS']] = {
    [0x00] = 'ABS_X',
    [0x01] = 'ABS_Y',
    [0x02] = 'ABS_Z',
@@ -650,7 +650,7 @@ input.event_codes[input.event_types_rev['EV_ABS']] = {
    [0x3f] = 'ABS_MAX',
 }
 
-input.event_codes[input.event_types_rev['EV_SW']] = {
+norns.input.event_codes[norns.input.event_types_rev['EV_SW']] = {
    [0x00] = 'SW_LID',
    [0x01] = 'SW_TABLET_MODE',
    [0x02] = 'SW_HEADPHONE_INSERT',
@@ -671,7 +671,7 @@ input.event_codes[input.event_types_rev['EV_SW']] = {
    [0x0f] = 'SW_MAX',
 }
 
-input.event_codes[input.event_types_rev['EV_LED']] = {
+norns.input.event_codes[norns.input.event_types_rev['EV_LED']] = {
    [0x00] = 'LED_NUML',
    [0x01] = 'LED_CAPSL',
    [0x02] = 'LED_SCROLLL',
@@ -686,11 +686,11 @@ input.event_codes[input.event_types_rev['EV_LED']] = {
    [0x0f] = 'LED_MAX',
 }
 
-input.event_codes_rev = {}
-for t,tname in pairs(input.event_types) do
-   input.event_codes_rev[tname] = {}
-   for c,cname in pairs(input.event_codes[t]) do
-	  input.event_codes_rev[tname][cname] = c
+norns.input.event_codes_rev = {}
+for t,tname in pairs(norns.input.event_types) do
+   norns.input.event_codes_rev[tname] = {}
+   for c,cname in pairs(norns.input.event_codes[t]) do
+	  norns.input.event_codes_rev[tname][cname] = c
    end
 end
 	  

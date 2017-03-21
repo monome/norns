@@ -78,8 +78,8 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
 // set a given LED value
 void dev_monome_set_led(struct dev_monome *md,
 							   uint8_t x, uint8_t y, uint8_t val) {
-  printf("dev_monome_set_led: %d %s %d %d %d\n",
-		 md->dev.id, md->dev.serial, x, y, val); fflush(stdout);
+  /* printf("dev_monome_set_led: %d %s %d %d %d\n", */
+  /* 		 md->dev.id, md->dev.serial, x, y, val); fflush(stdout); */
   uint8_t q = dev_monome_quad_idx(x,y);
   md->data[q][dev_monome_quad_offset(x,y)] = val;
   md->dirty[q] = true;
@@ -115,12 +115,12 @@ grid_key_event(const monome_event_t *e, void* p, int state) {
 }
 
 void dev_monome_handle_press(const monome_event_t *e, void* p) {
-  printf("dev_monome_handle_press()\n"); fflush(stdout);
+  // printf("dev_monome_handle_press()\n"); fflush(stdout);
   grid_key_event(e, p, 1);
 }
 
 void dev_monome_handle_lift(const monome_event_t *e, void* p) {
-  printf("dev_monome_handle_lift()\n"); fflush(stdout);
+  // printf("dev_monome_handle_lift()\n"); fflush(stdout);
   grid_key_event(e, p, 0);
 }
 
