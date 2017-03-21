@@ -1,7 +1,7 @@
 print("running monome.lua")
 
 ---------------------------------
--- Grid device device class
+-- Grid device class
 
 Grid = {}
 Grid.__index = Grid
@@ -50,7 +50,7 @@ monome.add = function(id, serial, name, dev)
    -- TODO: decide if this is a Grid or an Arc
    -- for now, assume it's a grid
    m:print()
-   monome.grids[id] = m;
+   monome.grids[id] = m
 end
 
 monome.remove = function(id)
@@ -63,7 +63,7 @@ end
 -- first argument is the device id
 key_test_val = 1;
 monome.key = function(id, x, y, val)
-   print('>> handling key event for grid ' .. id)
+   print('>> grid key ', id, x, y, val)
    local m = monome.grids[id]
    if m ~= nil then
 	  if val > 0 then

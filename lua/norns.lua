@@ -14,7 +14,7 @@ print("running norns.lua")
 -- utilities and helpers
 dofile('lua/helpers.lua')
 dofile('lua/monome.lua')
-
+dofile('lua/input.lua')
 
 -- this function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking
