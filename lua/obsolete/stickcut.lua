@@ -19,7 +19,7 @@ report.commands = function(commands, count)
 
    -- load a soundfile into first buffer
    e.read(1, '/snd/hurt.wav') -- oh yes i did
-   -- twll the first 4 playback voices to use the first buffer
+   -- tell the first 4 playback voices to use the first buffer
    e.buf(1, 1)
    e.buf(2, 1)
    e.buf(3, 1)

@@ -17,6 +17,7 @@
 static void add_types(struct dev_input* d) {
   struct libevdev *dev = d->dev;
   d->types = calloc(EV_MAX, sizeof(int));
+  d->num_types = 0;
   for (int i = 0; i < EV_MAX; i++) {
 	if (libevdev_has_event_type(dev, i)) {
 	  d->types[d->num_types++] = i;
@@ -63,6 +64,22 @@ static void add_codes(struct dev_input* d) {
   }
 }
 
+static void dev_input_print(struct dev_input* d ) {
+  printf("%s\n", d->base.name);
+  for(int i=0; i<d->num_types; i++) {
+	printf("  %d : %d (%s) : \n",
+		   i,
+		   d->types[i],
+		   libevdev_event_type_get_name(d->types[i]));
+	for(int j=0; j<d->num_codes[i]; j++) {
+	  printf("      %d : %d (%s)\n",
+			 j, d->codes[i][j],
+			 libevdev_event_code_get_name(d->types[i], d->codes[i][j]) );
+	}
+  }
+  fflush(stdout);
+}
+
 int dev_input_init(void* self) {
   struct dev_input* d = (struct dev_input*)self;
   struct dev_common* base = (struct dev_common*)self;
@@ -98,20 +115,15 @@ int dev_input_init(void* self) {
   // FIXME: probably not the ideal way to create serial string
   base->serial = calloc(12, sizeof(char));
   sprintf(base->serial, "%04X%04X", d->vid, d->pid);
+
+  dev_input_print(d);
   
   base->start =  &dev_input_start;
   base->deinit = &dev_input_deinit;
 }
 
 static void handle_event(struct dev_input* dev, struct input_event* inev) {
-  union event_data* ev = event_data_new(EVENT_INPUT_EVENT);
-  printf("handle_event() %d (%s) : %d (%s) \n",
-		 inev->type,
-		 libevdev_event_type_get_name(inev->type),
-		 inev->code,
-		 libevdev_event_code_get_name(inev->type, inev->code));
-  fflush(stdout);
-  
+  union event_data* ev = event_data_new(EVENT_INPUT_EVENT);  
   ev->input_event.id = dev->base.id;
   ev->input_event.type = inev->type;
   ev->input_event.code = inev->code;

@@ -197,7 +197,6 @@ void handle_grid_key(struct event_grid_key *ev) {
   w_handle_grid_key(ev->id, ev->x, ev->y, ev->state);
 }
 
-
 //--- input devices
 void handle_input_add(struct event_input_add *ev) {
   w_handle_input_add(ev->dev);

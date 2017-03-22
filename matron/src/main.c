@@ -46,15 +46,14 @@ int main(int argc, char** argv) {
   // now is a good time to set our cleanup 
   atexit(cleanup);
 
-  dev_monitor_scan();
-  printf("done scanning for devices\n"); fflush(stdout);
-  
   // start reading input to interpreter
   input_init();
 
   // i/o subsystems are ready, 
   // run the user's startup routine
   w_user_startup();
+
+  dev_monitor_scan();
   
   // blocks until quit
   event_loop();

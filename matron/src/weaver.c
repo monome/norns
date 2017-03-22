@@ -60,6 +60,16 @@ static int w_timer_stop(lua_State* l);
 // static extern void w_screen_draw();
 //... ?
 
+// boilerplate: push a function to the stack, from field in global 'norns'
+static inline void
+w_push_norns_func(const char* field, const char* func) {
+  lua_getglobal(lvm, "norns");
+  lua_getfield(lvm, -1, field);
+  lua_remove(lvm, -2);
+  lua_getfield(lvm, -1, func);
+  lua_remove(lvm, -2);
+}
+
 void w_init(void) {
   printf("starting lua vm \n");
   lvm = luaL_newstate();
@@ -81,7 +91,17 @@ void w_init(void) {
   lua_register(lvm, "timer_stop", &w_timer_stop);
   
   // run system init code
-  w_run_code("dofile(\"lua/norns.lua\");");
+  char* config = getenv("NORNS_CONFIG");
+  char* home = getenv("HOME");
+  char cmd[256];
+  
+  if(config == NULL) {
+	snprintf(cmd, 256, "dofile('%s/norns/lua/config.lua')\n", home);
+  } else {
+	snprintf(cmd, 256, "dofile('%s')\n", config);
+  }
+  w_run_code(cmd);
+  w_run_code("require('norns')");
 }
 
 // run user startup code
@@ -320,9 +340,7 @@ int w_timer_stop(lua_State* l) {
 // helper for calling grid handlers
 static inline void
 w_call_grid_handler(int id, int x, int y, int state) {
-  lua_getglobal(lvm, "monome");  
-  lua_getfield(lvm, -1, "key"); 
-  lua_remove(lvm, -2);
+  w_push_norns_func("grid", "key");
   lua_pushinteger(lvm, id+1); // convert to 1-base
   lua_pushinteger(lvm, x+1); // convert to 1-base
   lua_pushinteger(lvm, y+1); // convert to 1-base
@@ -331,17 +349,11 @@ w_call_grid_handler(int id, int x, int y, int state) {
 }
 
 void w_handle_monome_add(void* mdev) {
-  	printf("w_handle_monome_add()\n");
-	fflush(stdout);
-
   struct dev_monome* md = (struct dev_monome*)mdev;
   int id = md->dev.id;
   const char* serial = md->dev.serial;
   const char* name =  md->dev.name;
-  
-  lua_getglobal(lvm, "monome");
-  lua_getfield(lvm, -1, "add");
-  lua_remove(lvm, -2);
+  w_push_norns_func("monome", "add");
   lua_pushinteger(lvm, id+1); // convert to 1-base
   lua_pushstring(lvm, serial);
   lua_pushstring(lvm, name);
@@ -350,17 +362,12 @@ void w_handle_monome_add(void* mdev) {
 }
 
  void w_handle_monome_remove(int id) {
-  printf("w_handle_monome_remove(); id %d\n", id); fflush(stdout);
-  lua_getglobal(lvm, "monome");
-  lua_getfield(lvm, -1, "remove");
-  lua_remove(lvm, -2);
+  w_push_norns_func("monome", "remove");
   lua_pushinteger(lvm, id+1); // convert to 1-base
   l_report(lvm, l_docall(lvm, 1, 0));
 }
 
-
 void w_handle_grid_key(int id, int x, int y, int state) {
-  printf("w_handle_grid_key()\n"); fflush(stdout);
   w_call_grid_handler( id, x, y, state > 0);
 }
 
@@ -371,12 +378,11 @@ void w_handle_input_add(void* p) {
   int vid = dev->vid;
   int pid = dev->pid;
   
-  lua_getglobal(lvm, "input");
-  lua_getfield(lvm, -1, "add");
-  lua_remove(lvm, -2);
+  w_push_norns_func("input", "add");
   lua_pushinteger(lvm, id+1); // convert to 1-base
   lua_pushstring(lvm, base->serial);
   lua_pushstring(lvm, base->name);
+
   // push table of event types
   int ntypes = dev->num_types;
   lua_createtable(lvm, ntypes, 0);
@@ -384,6 +390,7 @@ void w_handle_input_add(void* p) {
 	lua_pushinteger(lvm, dev->types[i]);
 	lua_rawseti(lvm, -2,  i+1);
   }
+  
   // table of tables of event codes
   lua_createtable(lvm, ntypes, 0);
   for(int i=0; i<ntypes; i++) {
@@ -399,54 +406,17 @@ void w_handle_input_add(void* p) {
 }
 
 void w_handle_input_remove(int id) {
-  //...
+  //... TODO!
 }
 
 void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
-  
-  lua_getglobal(lvm, "input");
-  lua_getfield(lvm, -1, "event");
-  lua_remove(lvm, -2);
+  w_push_norns_func("input", "event");
   lua_pushinteger(lvm, id+1); // convert to 1-base
   lua_pushinteger(lvm, type);
   lua_pushinteger(lvm, code);
   lua_pushinteger(lvm, value);
   l_report(lvm, l_docall(lvm, 4, 0));
   
-}
-
-// helper for calling joystick handlers
-static inline void
-w_call_stick_handler(const char* name, int stick, int what, int val) {
-  lua_getglobal(lvm, "joystick");  
-  lua_getfield(lvm, -1, name); 
-  lua_remove(lvm, -2); 
-  lua_pushinteger(lvm, stick); 
-  lua_pushinteger(lvm, what);
-  lua_pushinteger(lvm, val);
-  l_report(lvm, l_docall(lvm, 3, 0));
-}
-
-void w_handle_stick_axis(int stick, int axis, int value) {
-  w_call_stick_handler("axis", stick+1, axis+1, value);
-}
-
-void w_handle_stick_button(int stick, int button, int value) {
-  w_call_stick_handler("button", stick+1, button+1, value);
-}
-
-void w_handle_stick_hat(int stick, int hat, int value) {
-  w_call_stick_handler("hat", stick+1, hat+1, value);
-}
-void w_handle_stick_ball(int stick, int ball, int xrel, int yrel) {
-  lua_getglobal(lvm, "joystick");  
-  lua_getfield(lvm, -1, "hat"); 
-  lua_remove(lvm, -2); 
-  lua_pushinteger(lvm, stick); 
-  lua_pushinteger(lvm, ball);
-  lua_pushinteger(lvm, xrel);
-  lua_pushinteger(lvm, yrel);
-  l_report(lvm, l_docall(lvm, 4, 0));
 }
 
 // helper for pushing array of c strings
@@ -464,18 +434,14 @@ w_push_string_array(const char** arr, const int n) {
 
 // audio engine report handlers
 void w_handle_engine_report(const char** arr, const int n) {
-  lua_getglobal(lvm, "report");  
-  lua_getfield(lvm, -1, "engines"); 
-  lua_remove(lvm, -2);
+  w_push_norns_func("report", "engines");
   w_push_string_array(arr, n);
   l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 void w_handle_command_report(const struct engine_command* arr,
 							 const int num) {
-  lua_getglobal(lvm, "report");
-  lua_getfield(lvm, -1, "commands");
-  lua_remove(lvm, -2);
+  w_push_norns_func("report", "commands");
   // push a table of tables: {{cmd, fmt}, {cmd,fmt}, ...}
   lua_createtable(lvm, num, 0);
   for(int i=0; i<num; i++) {
@@ -492,7 +458,9 @@ void w_handle_command_report(const struct engine_command* arr,
 
 // timer handler
 void w_handle_timer(const int idx, const int stage) {
-  lua_getglobal(lvm, "timer");
+  lua_getglobal(lvm, "norns");
+  lua_getfield(lvm, -1, "timer");
+  lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1);  // convert to 1-based
   lua_pushinteger(lvm, stage + 1); // convert to 1-based
   l_report(lvm, l_docall(lvm, 2, 0));

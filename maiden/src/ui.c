@@ -110,10 +110,7 @@ void ui_loop(void) {
 	else {
 	  forward_to_readline(c);
 	}
-	//	pthread_mutex_unlock(&exit_lock);
   }
-
-  // wait for other threads/processes?
   
   mvwprintw(cmd_win, 0, 0, "EXITING!");
   ui_deinit();
