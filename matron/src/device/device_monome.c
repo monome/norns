@@ -65,7 +65,6 @@ static void dev_monome_handle_lift(const monome_event_t *e, void* p);
   base->deinit = &dev_monome_deinit;
 }
 
-
 // calculate quadrant number given x/y
 static inline uint8_t dev_monome_quad_idx(uint8_t x, uint8_t y) {
   return ((y>7) << 1) | (x>7);
@@ -89,6 +88,7 @@ void dev_monome_set_led(struct dev_monome *md,
 void dev_monome_refresh(struct dev_monome *md) {
   static const int quad_xoff[4] = {0, 8, 0, 8};
   static const int quad_yoff[4] = {0, 0, 8, 8};
+  if (md->m == NULL) { return; }
   for(int quad=0; quad<4; quad++) {
 	if(md->dirty[quad]) {
 	  monome_led_level_map(md->m,
@@ -144,4 +144,5 @@ void* dev_monome_start(void* md) {
 void dev_monome_deinit(void* self) {
   struct dev_monome *md = (struct dev_monome*)self;
   monome_close(md->m); // libmonome frees the monome_t pointer
+  md->m = NULL;
 }
