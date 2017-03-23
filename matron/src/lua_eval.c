@@ -235,7 +235,7 @@ static int incomplete (lua_State *L, int status) {
 */
 static int add_return (lua_State *L) {
   const char *line = lua_tostring(L, -1);  /* original line */
-  const char *retline = lua_pushfstring(L, "return %s", line);
+  const char *retline = lua_pushfstring(L, "return %s;", line);
   int status = luaL_loadbuffer(L, retline, strlen(retline)+1, "=stdin");
   if (status == LUA_OK) {
     lua_remove(L, -2);  /* remove modified line */
@@ -303,7 +303,7 @@ int l_handle_line (lua_State *L, char* line) {
   lua_settop(L, 0);
   l = strlen(line);
   if (l > 0 && line[l-1] == '\n') {
-   	printf("zap trailing newline\n"); fflush(stdout);
+	// printf("zap trailing newline\n"); fflush(stdout);
 	line[--l] = '\0';
   }
   lua_pushlstring(L, line, l);
