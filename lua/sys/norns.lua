@@ -57,7 +57,7 @@ norns.timer = function(idx, stage)
    if timer ~= nil then timer(idx,stage) end
 end
 
-norns.version.print = function()
+norns.version_print = function()
   for key,value in pairs(norns.version) do
     print(key .. ": "  .. value)
   end
