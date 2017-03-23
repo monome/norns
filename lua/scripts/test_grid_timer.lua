@@ -24,6 +24,7 @@ end
 
 
 local displaystage = 1;
+local bright = 1;
 
 timer = function(idx, stage)
    if idx == 1 then
@@ -35,8 +36,10 @@ timer = function(idx, stage)
 		 while displaystage > 16 do
 			displaystage = displaystage - 16
 		 end
-		 m:led(displaystage, 1, 1)
+		 m:led(displaystage, 1, bright)
 		 m:refresh()
+		 bright = bright + 1
+		 while (bright > 15) do bright = bright - 15 end		 
 	  end
    end
 end
