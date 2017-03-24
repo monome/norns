@@ -51,7 +51,6 @@ static int w_request_command_report(lua_State* l);
 static int w_send_command(lua_State* l);
 // timers
 static int w_timer_start(lua_State* l);
-static int w_timer_restart(lua_State* l);
 static int w_timer_stop(lua_State* l);
 
 // screen functions
@@ -259,11 +258,15 @@ int w_send_command(lua_State* l) {
 }
   
 int w_request_engine_report(lua_State* l) {
+  (void)l;
   o_request_engine_report();
+  return 0;
 }
 
 int w_request_command_report(lua_State* l) {
+  (void)l;
   o_request_command_report();
+  return 0;
 }
 
 //--- timer management:
@@ -375,8 +378,6 @@ void w_handle_input_add(void* p) {
   struct dev_input* dev = (struct dev_input *)p;
   struct dev_common* base = (struct dev_common *)p;
   int id = base->id;
-  int vid = dev->vid;
-  int pid = dev->pid;
   
   w_push_norns_func("input", "add");
   lua_pushinteger(lvm, id+1); // convert to 1-base
@@ -406,6 +407,7 @@ void w_handle_input_add(void* p) {
 }
 
 void w_handle_input_remove(int id) {
+  (void)id;
   //... TODO!
 }
 

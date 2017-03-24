@@ -120,6 +120,7 @@ int dev_input_init(void* self) {
   
   base->start =  &dev_input_start;
   base->deinit = &dev_input_deinit;
+  return 0;
 }
 
 static void handle_event(struct dev_input* dev, struct input_event* inev) {
@@ -156,6 +157,7 @@ void* dev_input_start(void* self) {
   } while ( rc == LIBEVDEV_READ_STATUS_SYNC
 			|| rc == LIBEVDEV_READ_STATUS_SUCCESS
 			|| rc == -EAGAIN );
+  return NULL;
 }
 
 void dev_input_deinit(void* self) {

@@ -1,4 +1,4 @@
-TARGET = maiden
+TARGET = ipc-wrapper
 
 .PHONY = clean
 
@@ -9,20 +9,21 @@ CFLAGS = -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
-LDFLAGS = 
-LIB = -lpthread -lreadline -lncursesw -lnanomsg
+INC =
+LDFLAGS =
+
+LIB = -lpthread -lnanomsg
 
 OBJ_DIR = obj
 SRC_DIR = src
 
-_OBJ = main.o \
-	io.o \
-	ui.o
+_OBJ = main.o
+
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
-	$(CC) -c $(CFLAGS) $< -o $@  
+	$(CC) -c $(CFLAGS) $(INC) $< -o $@  
 
 $(TARGET): $(OBJ)
 	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(LIB)

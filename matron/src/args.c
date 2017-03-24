@@ -17,7 +17,7 @@ static struct args a = {
 
 int args_parse(int argc, char** argv)
 {
-  int flags, opt;
+  int opt;
   while( (opt = getopt(argc, argv, "r:l:m:")) != -1 ) {
 	switch(opt) {
 	case 'l':
@@ -30,7 +30,7 @@ int args_parse(int argc, char** argv)
 	  ;;
 	}
   }
-  //  printf("local port: %s ; remote port: %s \n", a.loc_port, a.rem_port);
+  return 0;
 }
 
 

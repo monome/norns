@@ -133,18 +133,19 @@ void ui_deinit(void) {
   pthread_mutex_unlock(&exit_lock);
 }
 
-void ui_crone_line(char* str, size_t len) {
+void ui_crone_line(char* str) {
+  (void)str;
   // TODO
 }
 
-void ui_matron_line(char* str, size_t len) {
+void ui_matron_line(char* str) {
   pthread_mutex_lock(&exit_lock);
   if(!should_exit)  {
-	size_t newlen;
-	if(msg_win_str == NULL) {
-	  newlen = len;
-	} else {
-	  newlen = len + strlen(msg_win_str);
+	size_t len = strlen(str);
+	size_t newlen = len;
+	// FIXME: this concatenation is just the worst!
+	if(msg_win_str != NULL) {
+	  newlen += strlen(msg_win_str);
 	}
 	msg_win_str = (char*)realloc(msg_win_str, newlen+1);
 	strncat(msg_win_str, str, len);
@@ -163,6 +164,7 @@ int readline_input_avail(void)
 
 int readline_getc(FILE *dummy)
 {
+  (void)dummy;
   input_avail = false;
   return input;
 }
@@ -202,20 +204,20 @@ void got_command(char *line)
 	if (*line != '\0') {
 	  add_history(line);
 	}
-	io_send_code(line, strlen(line));
+	io_send_code(line);
+	free(line);
   }
 }
 
 void cmd_win_redisplay(bool for_resize)
 {
-  size_t prompt_width = strlen(rl_display_prompt);
   size_t cursor_col = rl_point;
 
   CHECK(werase, cmd_win);
 
   // FIXME: error check would fail when command string is wider than window 
   mvwprintw(cmd_win, 0, 0, "%s%s", rl_display_prompt, rl_line_buffer);
-  if (cursor_col >= COLS) {
+  if (cursor_col >= (size_t)COLS) {
 	// hide the cursor if it is outside the window
 	curs_set(0);
   } else {

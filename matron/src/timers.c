@@ -152,6 +152,7 @@ void* timer_thread_loop(void* timer) {
 	pthread_mutex_unlock(&(t->stage_lock));
 	timer_sleep(t);
   }
+  return NULL;
 }
 
 void timer_set_current_time(struct timer *t) {
