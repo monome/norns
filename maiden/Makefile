@@ -8,7 +8,7 @@ LD = gcc
 CFLAGS = -g -std=gnu11
 
 LDFLAGS = 
-LIB = -lpthread -lreadline -lncursesw
+LIB = -lpthread -lreadline -lncursesw -lnanomsg
 
 OBJ_DIR = obj
 SRC_DIR = src

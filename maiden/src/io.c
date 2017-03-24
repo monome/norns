@@ -1,8 +1,9 @@
+#include <assert.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 #include <unistd.h>
 
 #include <nanomsg/nn.h>
@@ -12,83 +13,126 @@
 #include "ui.h"
 
 //-----------------
-//---- defines
+//---- defines, types
 
-#define BUF_SIZE 4096;
+#define BUF_SIZE 4096
 
-//----------------
-//---- variables
+struct sock_io {
+  int sock;
+  pthread_t tid;
+};
 
-// client thread id's
-pthread_t matron_tx_tid, matron_rx_tid;
-pthread_t crone_rx_tid;
+enum {
+  IO_MATRON_RX,
+  IO_MATRON_TX,
+  IO_CRONE_RX,
+  IO_COUNT
+};
 
 //--------------------------
 //---- function declarations
 
-// run matron process and redirect its IO
-int run_matron(void);
 // loop to receive data from matron
 void* matron_rx_loop(void* psock);
 // loop to send data to matron
 void* matron_tx_loop(void* x);
-
 // loop to receive data from crone
 void* crone_rx_loop(void* x);
 
-// utility to launch a joinable thread
-void launch_thread(pthread_t *tid, void *(*start_routine) (void *), void* data);
+//----------------
+//---- variables
 
+struct sock_io sock_io[IO_COUNT];
 
-int io_init(void) {
-  
-  // create threads to handle the children's i/o
-  launch_thread(&matron_tx_tid, &matron_tx_loop, NULL);
-  launch_thread(&matron_rx_tid, &matron_rx_loop, NULL);
-  launch_thread(&crone_rx_tid, &crone_rx_loop, NULL);
-  return 0;
-  
+char* url_default[IO_COUNT] = {
+  "ipc:///tmp/matron_out.ipc", 
+  "ipc:///tmp/matron_in.ipc",
+  "ipc:///tmp/crone_out.ipc"
+};
+
+void* (*loop_func[IO_COUNT])(void*) = {
+  &matron_rx_loop,
+  &matron_tx_loop,
+  &crone_rx_loop,
+};
+
+//-----------
+//--- function defintions
+
+void sock_io_init(struct sock_io *io, char* url, void* (*loop)(void*)) {
+  // connect socket
+  io->sock = nn_socket(AF_SP, NN_BUS);
+  if(nn_connect(io->sock, url) < 0) {
+	perror("error connecting socket");
+  }
+  // launch thread
+  pthread_attr_t attr;
+  int s;
+  s = pthread_attr_init(&attr);
+  if(s) { printf("error initializing thread attributes \n"); }
+  s = pthread_create(&(io->tid), &attr, loop, io);
+  if(s) { printf("error creating thread\n"); }
+  pthread_attr_destroy(&attr);  
+}
+
+int io_init(int argc, char** argv) {
+  for(int i=0; i<IO_COUNT; i++) {
+	char* url;
+	if(argc > (i+1)) {
+	  url = argv[i+1];
+	} else {
+	  url = url_default[i];
+	}
+	sock_io_init(&(sock_io[i]), url, loop_func[i]);
+  }
 }
 
 int io_deinit(void) {
-  pthread_cancel(matron_rx_tid);
-  pthread_cancel(matron_tx_tid);
+  for(int i=0; i<IO_COUNT; i++) {
+	pthread_cancel(sock_io[i].tid);
+  }
 }
 
-void io_send_code(char* buf, size_t len) {  
-
+void io_send_code(char* buf) {
+  // FIXME this reallocate + copy is pretty dumb..
+  size_t sz = strlen(buf) + 2;
+  char* bufcat = calloc(sz, sizeof(char));
+  snprintf(bufcat, sz, "%s\n", buf);
+  struct sock_io *io = &(sock_io[IO_MATRON_TX]);
+  // printf("sending to socket %d: %s (%dB)\n", io->sock, bufcat, sz);
+  int tx = nn_send(io->sock, bufcat, sz, 0);
+  assert(tx == sz);
+  free(bufcat);
 }
 
 int io_loop(void) {
-  // wait for threads to exit
-  pthread_join(matron_tx_tid, NULL);
-  pthread_join(matron_rx_tid, NULL);
-  pthread_join(crone_rx_tid, NULL);
+  // wait for IO threads to exit
+  for(int i=0; i<IO_COUNT; i++) {
+	pthread_join(sock_io[i].tid, NULL);
+  }
   printf("\n\nfare well\n\n");
   return 0;
 }
 
-
-void* matron_rx_loop(void* psock) {
+void* matron_rx_loop(void* p) {
+  struct sock_io *io = (struct sock_io*)p;
+  char msg[BUF_SIZE];
+  while(1) {
+	int nb = nn_recv (io->sock, msg, BUF_SIZE, 0);
+	if(nb >=0) {
+	  msg[nb] = '\0';
+	  ui_matron_line(msg);
+	}
+  }
 }
 
 void* matron_tx_loop(void* x) {
-  ui_loop();
+  ui_loop(); // <-- quit when this exits
   io_deinit();
 }
 
 
 void* crone_rx_loop(void* x) {
-  // TODO
+  // TODO 
   while(1) { usleep(1000000); }
-}
-
-void launch_thread(pthread_t *tid, void *(*start_routine) (void *), void* data) {
-  pthread_attr_t attr;
-  int s;
-  s = pthread_attr_init(&attr);
-  if(s) { printf("error initializing thread attributes \n"); }
-  s = pthread_create(tid, &attr, start_routine, data);
-  if(s) { printf("error creating thread\n"); }
-  pthread_attr_destroy(&attr);
 }

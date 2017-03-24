@@ -133,18 +133,18 @@ void ui_deinit(void) {
   pthread_mutex_unlock(&exit_lock);
 }
 
-void ui_crone_line(char* str, size_t len) {
+void ui_crone_line(char* str) {
   // TODO
 }
 
-void ui_matron_line(char* str, size_t len) {
+void ui_matron_line(char* str) {
   pthread_mutex_lock(&exit_lock);
   if(!should_exit)  {
-	size_t newlen;
-	if(msg_win_str == NULL) {
-	  newlen = len;
-	} else {
-	  newlen = len + strlen(msg_win_str);
+	size_t len = strlen(str);
+	size_t newlen = len;
+	// FIXME: this concatenation is just the worst!
+	if(msg_win_str != NULL) {
+	  newlen += strlen(msg_win_str);
 	}
 	msg_win_str = (char*)realloc(msg_win_str, newlen+1);
 	strncat(msg_win_str, str, len);
@@ -202,7 +202,8 @@ void got_command(char *line)
 	if (*line != '\0') {
 	  add_history(line);
 	}
-	io_send_code(line, strlen(line));
+	io_send_code(line);
+	free(line);
   }
 }
 

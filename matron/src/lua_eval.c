@@ -235,7 +235,7 @@ static int incomplete (lua_State *L, int status) {
 */
 static int add_return (lua_State *L) {
   const char *line = lua_tostring(L, -1);  /* original line */
-  printf("evaluating line: %s\n", retline); fflush(stdout);
+  const char *retline = lua_pushfstring(L, "return %s;", line);
   int status = luaL_loadbuffer(L, retline, strlen(retline), "=stdin");
   if (status == LUA_OK) {
     lua_remove(L, -2);  /* remove modified line */

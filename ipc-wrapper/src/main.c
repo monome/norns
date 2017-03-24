@@ -4,7 +4,7 @@
   this utility launches an arbitrary executable as a child process, 
   and binds the child's standard I/O to a pair of IPC sockets.
 
- */
+*/
 
 #include <assert.h>
 #include <pthread.h>
@@ -47,9 +47,7 @@ void* loop_rx(void* p) {
   while(1) {
 	char *buf = NULL;
 	nb = nn_recv(sock_rx, &buf, NN_MSG, 0);
-	printf("rx %dB : %s\n", nb, buf);
 	write(pipe_rx[PIPE_WRITE], buf, nb);
-	printf("done writing\n");
 	nn_freemsg(buf);
   }
 }
@@ -61,7 +59,7 @@ void* loop_tx(void* p) {
 	nb = read(pipe_tx[PIPE_READ], buf, PIPE_BUF_SIZE-1);
 	if(nb > 0) {
 	  buf[nb] = '\0';
-	  printf("%s",buf); fflush(stdout);
+	  printf(buf);
 	  nn_send(sock_tx, buf, nb, 0);
 	}
   }
@@ -158,7 +156,7 @@ int launch_exe( int argc,  char** argv) {
 	}
   }
   
-	// wait for the child process to exit
+  // wait for the child process to exit
   int wpid, status;
   do {
 	wpid = waitpid(child_pid, &status, WUNTRACED | WCONTINUED );

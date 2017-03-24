@@ -7,12 +7,12 @@
  */
 
 // launch subprocesses
-extern int io_init(void);
+extern int io_init(int argc, char** argv);
 
 // shutdown subprocesses
 extern int io_deinit(void);
 
 extern int io_loop(void);
 
-// send code to matron for execution (as a c string..)
-extern void io_send_code(char* buf, size_t len);
+// send code to matron for execution (as a c string)
+extern void io_send_code(char* buf);
