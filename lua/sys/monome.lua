@@ -48,26 +48,36 @@ norns.monome.add = function(id, serial, name, dev)
    norns.grid.add(id,serial,name,dev)
 end
 
+
+norns.monome.remove = function(id)
+   -- TODO: distinguish between grids and arcs
+   -- for now, assume its a grid
+   norns.grid.remove(id)
+end
+
 -- grid devices
 norns.grid = {}
+norns.grid.devices = {}
 grid = {} -- <-- script callbacks go in here
 
 norns.grid.add = function(id, serial, name, dev)
-   print('>> adding device')
+   print('>> adding monome device')
    local m = Grid:new(id,serial,name,dev)
-   norns.grid[id] = m
+   m:print()
+   norns.grid.devices[id] = m
    if grid.add ~= nil then grid.add(m) end
 end
 
 norns.grid.remove = function(id)
-   norns.grid[id] = nil
-   if grid.remove ~= nil then grid.remove(m) end
+   print('>> removing monome device ' .. id)
+   if grid.remove ~= nil then grid.remove(norns.grid.devices[id]) end
+   norns.grid.devices[id] = nil
 end
 
 -- grid key input handler
 -- first argument is the device id
 norns.grid.key = function(id, x, y, val)
-   local g = norns.grid[id]
+   local g = norns.grid.devices[id]
    if g ~= nil then
 	  if grid.key ~= nil then grid.key(g, x, y, val) end
    else
@@ -77,7 +87,7 @@ end
 
 -- print all grids
 norns.grid.print = function()
-   for id,gr in norns.grid do
+   for id,gr in norns.grid.devices do
 	  gr:print()
    end
 end

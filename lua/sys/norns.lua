@@ -37,12 +37,14 @@ norns.engine = {}
 
 -- table of handlers for descriptor reports
 norns.report = {}
+report = {} -- <-- script callbacks go in here
 
 norns.report.engines = function(names, count)
    print(count .. " engines: ")
    for i=1,count do
 	  print(i .. ": "..names[i])
    end
+   if report.engines ~= nil then report.engines(names, count) end
 end
 
 norns.report.commands = function(commands, count)
@@ -57,7 +59,7 @@ norns.timer = function(idx, stage)
    if timer ~= nil then timer(idx,stage) end
 end
 
-norns.version.print = function()
+norns.version_print = function()
   for key,value in pairs(norns.version) do
     print(key .. ": "  .. value)
   end

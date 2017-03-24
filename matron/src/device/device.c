@@ -37,6 +37,7 @@ union dev* dev_new(device_t type, const char* path) {
 }
 
 int dev_delete(union dev* d) {
+  printf("dev_delete()\n"); fflush(stdout);
   int ret = pthread_cancel(d->base.tid);
   if(ret) {
 	printf("dev_monome_free(): error in pthread_cancel()\n");
