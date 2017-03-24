@@ -5,8 +5,9 @@ TARGET = matron
 CC = gcc
 LD = gcc
 
-CFLAGS = -g -std=gnu11
-# CFLAGS += -fstack-protector-all
+CFLAGS = -std=gnu11
+CFLAGS += -Wall -Wextra -Werror
+CFLAGS += -g
 
 INC = -Isrc/device -Isrc
 INC += -I/usr/include/libevdev-1.0/libevdev

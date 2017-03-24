@@ -43,6 +43,7 @@ void bind_sock(int *sock, char *url) {
 }
 
 void* loop_rx(void* p) {
+  (void)p;
   int nb;
   while(1) {
 	char *buf = NULL;
@@ -53,6 +54,7 @@ void* loop_rx(void* p) {
 }
 
 void* loop_tx(void* p) {
+  (void)p;
   char buf[PIPE_BUF_SIZE];
   int nb;
   while(1) { 
@@ -76,6 +78,7 @@ void launch_thread(pthread_t *tid, void *(*start_routine) (void *), void* data) 
 }
 
 int launch_exe( int argc,  char** argv) {
+  (void)argc;
   char* exe = argv[1];
   char* url_rx = argv[2];
   char* url_tx = argv[3];
@@ -177,10 +180,7 @@ int launch_exe( int argc,  char** argv) {
 	}
   } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 
-  /* // actually don't need to */
-  /* if(needs_rx) { pthread_cancel(tid_rx); } */
-  /* if(needs_tx) { pthread_cancel(tid_tx); } */
-  
+  return 0;
 }
 
 int main( int argc,  char** argv) {

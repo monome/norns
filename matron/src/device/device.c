@@ -9,7 +9,7 @@
 #define TEST_NULL_AND_FREE(p) if((p)!=NULL) { free(p); }
 
 // start the rx thread for a device
-static int dev_start(union dev* d, device_t t, const char* path);
+static int dev_start(union dev* d);
 
 union dev* dev_new(device_t type, const char* path) {
   union dev* d = calloc(1, sizeof(union dev));
@@ -32,7 +32,7 @@ union dev* dev_new(device_t type, const char* path) {
 	return NULL;
   }
   // start the thread
-  dev_start(d, type, path);						
+  dev_start(d);						
   return d;
 }
 
@@ -55,9 +55,10 @@ int dev_delete(union dev* d) {
   TEST_NULL_AND_FREE(d->base.serial);
   TEST_NULL_AND_FREE(d->base.name);
   free(d);
+  return 0;
 }
 
-int dev_start(union dev* d, device_t type, const char* path) {
+int dev_start(union dev* d) {
   pthread_attr_t attr;
   int ret;
 

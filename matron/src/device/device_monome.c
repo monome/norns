@@ -63,6 +63,8 @@ static void dev_monome_handle_lift(const monome_event_t *e, void* p);
   
   base->start = &dev_monome_start;
   base->deinit = &dev_monome_deinit;
+  return 0;
+  
 }
 
 // calculate quadrant number given x/y
@@ -138,6 +140,7 @@ const char* dev_monome_name(struct dev_monome* md) {
 
 void* dev_monome_start(void* md) {
   monome_event_loop(((struct dev_monome*)md)->m);
+  return NULL;
 }
 
 

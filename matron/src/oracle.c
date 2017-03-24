@@ -9,7 +9,7 @@
 
 */
 
-  
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -251,7 +251,7 @@ void o_set_command(int idx, const char* cmd, const char* fmt) {
 	commands[idx].cmd = malloc(cmd_len +1);
 	commands[idx].fmt = malloc(fmt_len +1);
 	if ( commands[idx].cmd == NULL || commands[idx].fmt == NULL ) {
-	  printf("failure to malloc for command %d : %s &s \n", idx, cmd, fmt);
+	  printf("failure to malloc for command %d : %s %s \n", idx, cmd, fmt);
 	} else {
 	  strncpy(commands[idx].cmd, cmd, cmd_len+1);
 	  strncpy(commands[idx].fmt, fmt, fmt_len+1);
@@ -269,24 +269,44 @@ void o_set_num_desc(int* dst, int num) {
 }
 
 //---- OSC handlers
-int engine_report_start(const char *path, const char *types,
+int engine_report_start(const char*path, const char *types,
 						lo_arg ** argv, int argc, void *data, void *user_data)
 {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)data;
+  (void)user_data;
+  assert(argc > 0);
   // arg 1: count of buffers
   o_clear_engine_names();
   o_set_num_desc(&num_engines, argv[0]->i);
+  return 0;
 }
 
 int engine_report_entry(const char *path, const char *types, lo_arg ** argv,
 						int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)data;
+  (void)user_data;
+  assert(argc > 1);
   // arg 1: buffer index
   // arg 2: buffer name
   // NB: yes, this is the correct way to read a string from a lo_arg
   o_set_engine_name(argv[0]->i, &argv[1]->s);
+  return 0;
 }
 
 int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 					  int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)argv;
+  (void)data;
+  (void)user_data;
   // no arguments; post event
   // FIXME: as yet no outstanding need for report_end message to occur at all.
   // could add counter from report_start to double-check the param count.
@@ -294,6 +314,7 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
   // replacing the whole response sequence with a single message
   // (downside: nasty blob-construction code in supercollider)
   event_post(event_data_new(EVENT_ENGINE_REPORT));
+  return 0;
 }
 
 //---------------------
@@ -301,18 +322,40 @@ int engine_report_end(const char *path, const char *types, lo_arg ** argv,
 
 int command_report_start(const char *path, const char *types, lo_arg ** argv,
 						 int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)argv;
+  (void)data;
+  (void)user_data;
+  assert(argc > 0);
   o_clear_commands();
   o_set_num_desc(&num_commands, argv[0]->i);
+  return 0;
 }
 
 int command_report_entry(const char *path, const char *types, lo_arg ** argv,
 						 int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)data;
+  (void)user_data;
+  assert(argc > 2);
   o_set_command(argv[0]->i, &argv[1]->s, &argv[2]->s);
+  return 0;
 }
 
 int command_report_end(const char *path, const char *types, lo_arg ** argv,
 					   int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)argv;
+  (void)data;
+  (void)user_data;
   event_post(event_data_new(EVENT_COMMAND_REPORT));
+  return 0;
 }
 
 void lo_error_handler(int num, const char *m, const char *path) {

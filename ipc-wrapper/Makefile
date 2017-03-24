@@ -5,7 +5,9 @@ TARGET = ipc-wrapper
 CC = gcc
 LD = gcc
 
-CFLAGS = -g -std=gnu11
+CFLAGS = -std=gnu11
+CFLAGS += -Wall -Wextra -Werror
+CFLAGS += -g
 
 INC =
 LDFLAGS =

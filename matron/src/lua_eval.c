@@ -80,25 +80,25 @@ static void laction (int i) {
 }
 
 
-static void print_usage (const char *badoption) {
-  lua_writestringerror("%s: ", progname);
-  if (badoption[1] == 'e' || badoption[1] == 'l')
-    lua_writestringerror("'%s' needs argument\n", badoption);
-  else
-    lua_writestringerror("unrecognized option '%s'\n", badoption);
-  lua_writestringerror(
-					   "usage: %s [options] [script [args]]\n"
-					   "Available options are:\n"
-					   "  -e stat  execute string 'stat'\n"
-					   "  -i       enter interactive mode after executing 'script'\n"
-					   "  -l name  require library 'name'\n"
-					   "  -v       show version information\n"
-					   "  -E       ignore environment variables\n"
-					   "  --       stop handling options\n"
-					   "  -        stop handling options and execute stdin\n"
-					   ,
-					   progname);
-}
+/* static void print_usage (const char *badoption) { */
+/*   lua_writestringerror("%s: ", progname); */
+/*   if (badoption[1] == 'e' || badoption[1] == 'l') */
+/*     lua_writestringerror("'%s' needs argument\n", badoption); */
+/*   else */
+/*     lua_writestringerror("unrecognized option '%s'\n", badoption); */
+/*   lua_writestringerror( */
+/* 					   "usage: %s [options] [script [args]]\n" */
+/* 					   "Available options are:\n" */
+/* 					   "  -e stat  execute string 'stat'\n" */
+/* 					   "  -i       enter interactive mode after executing 'script'\n" */
+/* 					   "  -l name  require library 'name'\n" */
+/* 					   "  -v       show version information\n" */
+/* 					   "  -E       ignore environment variables\n" */
+/* 					   "  --       stop handling options\n" */
+/* 					   "  -        stop handling options and execute stdin\n" */
+/* 					   , */
+/* 					   progname); */
+/* } */
 
 
 /*
@@ -128,6 +128,7 @@ static int report (lua_State *L, int status) {
 // FIXME: for now, a wrapper
 int l_report (lua_State *L, int status) {
   report(L, status);
+  return 0;
 }
 
 /*
@@ -168,20 +169,22 @@ static int docall (lua_State *L, int narg, int nres) {
 // FIXME: for now, a wrapper
 int l_docall (lua_State *L, int narg, int nres) {
   docall(L, narg, nres);
+  return 0;
 }
 
-static void print_version (void) {
-  lua_writestring(LUA_COPYRIGHT, strlen(LUA_COPYRIGHT));
-  lua_writeline();
-}
+/* static void print_version (void) { */
+/*   lua_writestring(LUA_COPYRIGHT, strlen(LUA_COPYRIGHT)); */
+/*   lua_writeline(); */
+/* } */
+
 static int dochunk (lua_State *L, int status) {
   if (status == LUA_OK) status = docall(L, 0, 0);
   return report(L, status);
 }
 
-static int dofile (lua_State *L, const char *name) {
-  return dochunk(L, luaL_loadfile(L, name));
-}
+/* static int dofile (lua_State *L, const char *name) { */
+/*   return dochunk(L, luaL_loadfile(L, name)); */
+/* } */
 
 static int dostring (lua_State *L, const char *s, const char *name) {
   return dochunk(L, luaL_loadbuffer(L, s, strlen(s), name));
@@ -191,19 +194,20 @@ static int dostring (lua_State *L, const char *s, const char *name) {
 ** Calls 'require(name)' and stores the result in a global variable
 ** with the given name.
 */
-static int dolibrary (lua_State *L, const char *name) {
-  int status;
-  lua_getglobal(L, "require");
-  lua_pushstring(L, name);
-  status = docall(L, 1, 1);  /* call 'require(name)' */
-  if (status == LUA_OK)
-    lua_setglobal(L, name);  /* global[name] = require return */
-  return report(L, status);
-}
+/* static int dolibrary (lua_State *L, const char *name) { */
+/*   int status; */
+/*   lua_getglobal(L, "require"); */
+/*   lua_pushstring(L, name); */
+/*   status = docall(L, 1, 1);  /\* call 'require(name)' *\/ */
+/*   if (status == LUA_OK) */
+/*     lua_setglobal(L, name);  /\* global[name] = require return *\/ */
+/*   return report(L, status); */
+/* } */
 
 // FIXME: for now, an extern wrapper
 int l_dostring (lua_State *L, const char *s, const char *name) {
   dostring(L, s, name);
+  return 0;
 }
 
 /* mark in error messages for incomplete statements */
@@ -339,4 +343,5 @@ int l_handle_line (lua_State *L, char* line) {
  exit:
   lua_settop(L, 0);  /* clear stack */
   // caller is responsible for freeing the buffer
+  return 0;
 }

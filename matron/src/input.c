@@ -48,8 +48,8 @@ static void* input_run(void* p) {
 
 #define RX_BUF_LEN 4096
 static void* input_run(void* p) {
+  (void)p;
   bool quit = false;
-  size_t len, dum;
   char rxbuf[RX_BUF_LEN];
   int nb;
   bool newline;
@@ -84,6 +84,7 @@ static void* input_run(void* p) {
 	  event_post(ev);
   	}
   }
+  return NULL;
 }
 #endif
 

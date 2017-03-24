@@ -85,12 +85,14 @@ int io_init(int argc, char** argv) {
 	}
 	sock_io_init(&(sock_io[i]), url, loop_func[i]);
   }
+  return 0;
 }
 
 int io_deinit(void) {
   for(int i=0; i<IO_COUNT; i++) {
 	pthread_cancel(sock_io[i].tid);
   }
+  return 0;
 }
 
 void io_send_code(char* buf) {
@@ -100,7 +102,7 @@ void io_send_code(char* buf) {
   snprintf(bufcat, sz, "%s\n", buf);
   struct sock_io *io = &(sock_io[IO_MATRON_TX]);
   // printf("sending to socket %d: %s (%dB)\n", io->sock, bufcat, sz);
-  int tx = nn_send(io->sock, bufcat, sz, 0);
+  unsigned int tx = nn_send(io->sock, bufcat, sz, 0);
   assert(tx == sz);
   free(bufcat);
 }
@@ -124,15 +126,20 @@ void* matron_rx_loop(void* p) {
 	  ui_matron_line(msg);
 	}
   }
+  return NULL;
 }
 
 void* matron_tx_loop(void* x) {
+  (void)x;
   ui_loop(); // <-- quit when this exits
   io_deinit();
+  return NULL;
 }
 
 
 void* crone_rx_loop(void* x) {
+  (void)x;
   // TODO 
   while(1) { usleep(1000000); }
+  return NULL;
 }

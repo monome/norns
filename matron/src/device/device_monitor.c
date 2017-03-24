@@ -64,15 +64,13 @@ pthread_t watch_tid;
 //--- static function declarations
 static void* watch_loop(void* data);
 static void handle_device(struct udev_device *dev);
-static void add_device(struct udev_device* dev, device_t t);
-static void remove_device(struct udev_device* dev, device_t t);
 static device_t check_dev_type (struct udev_device *dev);
 
 //--------------------------------
 //---- extern function definitions
 
 void dev_monitor_init(void) {
-  struct udev *udev;
+  struct udev *udev = NULL;
   pthread_attr_t attr;
   int s;
   
@@ -148,11 +146,9 @@ int dev_monitor_scan(void) {
 //-------------------------------
 //--- static function definitions
 
-void* watch_loop(void* x) {
+void* watch_loop(void* p) {
+  (void)p;
   struct udev_device *dev;
-  struct timeval tv;
-  int fd;
-  int ret;
   
   while(1) {
 	if (poll(pfds, DEV_TYPE_COUNT, WATCH_TIMEOUT_MS) < 0)

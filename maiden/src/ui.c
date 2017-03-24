@@ -134,6 +134,7 @@ void ui_deinit(void) {
 }
 
 void ui_crone_line(char* str) {
+  (void)str;
   // TODO
 }
 
@@ -163,6 +164,7 @@ int readline_input_avail(void)
 
 int readline_getc(FILE *dummy)
 {
+  (void)dummy;
   input_avail = false;
   return input;
 }
@@ -209,14 +211,13 @@ void got_command(char *line)
 
 void cmd_win_redisplay(bool for_resize)
 {
-  size_t prompt_width = strlen(rl_display_prompt);
   size_t cursor_col = rl_point;
 
   CHECK(werase, cmd_win);
 
   // FIXME: error check would fail when command string is wider than window 
   mvwprintw(cmd_win, 0, 0, "%s%s", rl_display_prompt, rl_line_buffer);
-  if (cursor_col >= COLS) {
+  if (cursor_col >= (size_t)COLS) {
 	// hide the cursor if it is outside the window
 	curs_set(0);
   } else {

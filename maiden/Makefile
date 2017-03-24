@@ -5,7 +5,9 @@ TARGET = maiden
 CC = gcc
 LD = gcc
 
-CFLAGS = -g -std=gnu11
+CFLAGS = -std=gnu11
+CFLAGS += -Wall -Wextra -Werror
+CFLAGS += -g
 
 LDFLAGS = 
 LIB = -lpthread -lreadline -lncursesw -lnanomsg
