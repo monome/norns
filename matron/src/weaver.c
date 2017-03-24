@@ -260,10 +260,12 @@ int w_send_command(lua_State* l) {
   
 int w_request_engine_report(lua_State* l) {
   o_request_engine_report();
+  return 0;
 }
 
 int w_request_command_report(lua_State* l) {
   o_request_command_report();
+  return 0;
 }
 
 //--- timer management:
