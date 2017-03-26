@@ -26,7 +26,6 @@
 #define PIPE_BUF_SIZE 4096
 
 pid_t child_pid;
-
 int pipe_rx[2];
 int pipe_tx[2];
 
@@ -36,10 +35,18 @@ bool needs_rx;
 bool needs_tx;
 
 int sock_rx, sock_tx;
+int eid_rx, eid_tx;
 
-void bind_sock(int *sock, char *url) {
+void quit(void) {
+  nn_shutdown(sock_rx, eid_rx);
+  nn_shutdown(sock_tx, eid_tx);
+}
+
+void bind_sock(int *sock, int *eid, char *url) {
   *sock = nn_socket(AF_SP, NN_BUS);
-  assert(nn_bind(*sock, url) >= 0);
+  printf("attempting to bind socket at url %s\n", url);
+  assert ( (*eid = nn_bind(*sock, url)) >= 0);
+  /* assert(*eid >= 0); */
 }
 
 void* loop_rx(void* p) {
@@ -149,12 +156,12 @@ int launch_exe( int argc,  char** argv) {
 	
 	// set up sockets and threads
 	if(needs_rx) {
-	  bind_sock(&sock_rx, url_rx);
+	  bind_sock(&sock_rx, &eid_rx, url_rx);
 	  launch_thread(&tid_rx, &loop_rx, NULL);
 	}
 	
 	if(needs_tx) {
-	  bind_sock(&sock_tx, url_tx);
+	  bind_sock(&sock_tx, &eid_tx, url_tx);
 	  launch_thread(&tid_tx, &loop_tx, NULL);
 	}
   }

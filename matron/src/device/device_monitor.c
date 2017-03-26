@@ -2,6 +2,7 @@
   device_monitor.c
 */
 
+#include <assert.h>
 #include <errno.h>
 #include <libudev.h>
 #include <locale.h>
@@ -74,10 +75,33 @@ void dev_monitor_init(void) {
   pthread_attr_t attr;
   int s;
   
+  udev = udev_new();
+  assert(udev);
+  
   for(int i=0; i<DEV_TYPE_COUNT; i++) {
-	w[i].mon = udev_monitor_new_from_netlink(udev, "udev");
-	udev_monitor_filter_add_match_subsystem_devtype(w[i].mon, w[i].sub_name, NULL);
-	udev_monitor_enable_receiving(w[i].mon);
+	//	pfds[i].fd = NULL;
+	
+	w[i].mon = udev_monitor_new_from_netlink(udev, "udev");	
+	if(w[i].mon == NULL) {
+	  printf("failed to start udev_monitor for subsystem %s, pattern %s\n",
+			 w[i].sub_name, w[i].node_pattern);
+	  fflush(stdout);
+	  continue;
+	}
+	if( udev_monitor_filter_add_match_subsystem_devtype(w[i].mon, w[i].sub_name, NULL) < 0) {
+	  printf("failed to add udev monitor filter for subsystem %s, pattern %s\n",
+			 w[i].sub_name, w[i].node_pattern);
+	  fflush(stdout);
+	  continue;
+
+	}
+	if (udev_monitor_enable_receiving(w[i].mon) < 0) {
+	  printf("failed to enable monitor receiving for for subsystem %s, pattern %s\n",
+			 w[i].sub_name, w[i].node_pattern);
+	  fflush(stdout);
+	  continue;
+
+	}
 
 	pfds[i].fd = udev_monitor_get_fd(w[i].mon);
 	pfds[i].events = POLLIN;
@@ -85,7 +109,7 @@ void dev_monitor_init(void) {
 	if(regcomp(&w[i].node_regex, w[i].node_pattern, 0)) {
 	  printf("error compiling regex for device pattern: %s\n", w[i].node_pattern);
 	}	
-  }
+  } // end dev type loop
   s = pthread_attr_init(&attr);
   if(s) { printf("error initializing thread attributes \n"); }
   s = pthread_create(&watch_tid, &attr, watch_loop, NULL);
