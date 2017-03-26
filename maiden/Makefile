@@ -10,13 +10,15 @@ CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
 LDFLAGS = 
-LIB = -lpthread -lreadline -lncursesw -lnanomsg
+LIB = -lpthread -lreadline -lncursesw -lpanel -lnanomsg 
 
 OBJ_DIR = obj
 SRC_DIR = src
 
 _OBJ = main.o \
 	io.o \
+	page.o \
+	pages.o \
 	ui.o
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))

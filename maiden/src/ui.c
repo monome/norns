@@ -4,6 +4,7 @@
    indebted to https://github.com/ulfalizer/readline-and-ncurses
 */
 
+#include <assert.h>
 #include <locale.h>
 #include <panel.h>
 #include <pthread.h>
@@ -20,6 +21,7 @@
 #include <wctype.h>
 
 #include "io.h"
+#include "pages.h"
 #include "ui.h"
 
 pthread_mutex_t exit_lock;
@@ -52,9 +54,9 @@ static void deinit_readline(void);
 static int readline_input_avail(void);
 static int readline_getc(FILE *dummy);
 static void forward_to_readline(char c);
-static void got_command(char *line);
+static void handle_cmd(char *line);
 //--- display
-static void msg_win_redisplay(bool for_resize);
+//static void msg_win_redisplay(bool for_resize);
 static void cmd_win_redisplay(bool for_resize);
 static void readline_redisplay(void);
 static void resize(void);
@@ -70,19 +72,17 @@ static bool should_exit = false;
 static bool input_avail = false;
 
 //--- windows
-static WINDOW *msg_win;
 static WINDOW *sep_win;
 static WINDOW *cmd_win;
 
 //---- data
-static char *msg_win_str = NULL;
-static unsigned char input;
+ static unsigned char input;
 
 //--------------------------------
 //---- extern function definitions
 
 void ui_loop(void) {
-  
+
   CHECK(clearok, curscr, TRUE);
   resize();
   
@@ -122,6 +122,7 @@ void ui_deinit(void) {
   pthread_mutex_lock(&exit_lock);
   deinit_ncurses();
   deinit_readline();
+  pages_deinit();
   pthread_mutex_unlock(&exit_lock);
 }
 
@@ -133,15 +134,8 @@ void ui_crone_line(char* str) {
 void ui_matron_line(char* str) {
   pthread_mutex_lock(&exit_lock);
   if(!should_exit)  {
-	size_t len = strlen(str);
-	size_t newlen = len;
-	// FIXME: this concatenation is just the worst!
-	if(msg_win_str != NULL) {
-	  newlen += strlen(msg_win_str);
-	}
-	msg_win_str = (char*)realloc(msg_win_str, newlen+1);
-	strncat(msg_win_str, str, len);
-	msg_win_redisplay(false);
+	page_append(PAGE_MATRON, str);
+	doupdate();
   }
   pthread_mutex_unlock(&exit_lock);
 }
@@ -168,27 +162,20 @@ void forward_to_readline(char c)
   rl_callback_read_char();
 }
 
-void msg_win_redisplay(bool for_resize)
-{
-  CHECK(werase, msg_win);
-  CHECK(mvwaddstr, msg_win, 0, 0, msg_win_str ? msg_win_str : "");
+/* void msg_win_redisplay(bool for_resize) */
+/* { */
+/*   //  CHECK(werase, msg_win); */
+/*   //  CHECK(mvwaddstr, msg_win, 0, 0, msg_win_str ? msg_win_str : ""); */
 
-  if (for_resize) {
-	CHECK(wnoutrefresh, msg_win);
-  } else {
-	CHECK(wrefresh, msg_win);
-  }
-}
+/*   if (for_resize) { */
+/* 	CHECK(wnoutrefresh, msg_win); */
+/*   } else { */
+/* 	CHECK(wrefresh, msg_win); */
+/*   } */
+/* } */
 
-void got_command(char *line)
+void handle_cmd(char *line)
 {
-  /*
-  // FIXME: this got broken somehow...
-  if (line == NULL) {
-	// Ctrl-D pressed on empty line
-	should_exit = true;
-  }
-  */
   if(strlen(line) == 1 && line[0] == 'q') {
 	should_exit = true;
   }
@@ -230,8 +217,9 @@ void readline_redisplay(void)
 
 void resize(void)
 {
+  
   if (LINES >= 3) {
-	CHECK(wresize, msg_win, LINES - 2, COLS);
+	//	CHECK(wresize, msg_win, LINES - 2, COLS);
 	CHECK(wresize, sep_win, 1, COLS);
 	CHECK(wresize, cmd_win, 1, COLS);
 
@@ -240,7 +228,8 @@ void resize(void)
   }
 
   // batch refreshes and commit them with doupdate()
-  msg_win_redisplay(true);
+  // FIXME: resize the page pads
+  //  msg_win_redisplay(true);
   CHECK(wnoutrefresh, sep_win);
   cmd_win_redisplay(true);
   CHECK(doupdate);
@@ -249,7 +238,7 @@ void resize(void)
 void init_ncurses(void)
 {
   if (initscr() == NULL) {
-	fail_exit("Failed to initialize ncurses");
+	fail_exit("failed to initialize ncurses");
   }
   visual_mode = true;
 
@@ -262,20 +251,26 @@ void init_ncurses(void)
   // "very visible"
   curs_set(2);
 
-  if (LINES >= 3) {
-	msg_win = newwin(LINES - 2, COLS, 0, 0);
-	sep_win = newwin(1, COLS, LINES - 2, 0);
-	cmd_win = newwin(1, COLS, LINES - 1, 0);
-  }
-  else { // degenerate case; minimum size to avoid errors
-	msg_win = newwin(1, COLS, 0, 0);
-	sep_win = newwin(1, COLS, 0, 0);
-	cmd_win = newwin(1, COLS, 0, 0);
-  }
-  if (msg_win == NULL || sep_win == NULL || cmd_win == NULL)
-	fail_exit("failed to allocate windows");
+  int nrows, ncols;
+  getmaxyx(stdscr, nrows, ncols);
 
-  CHECK(scrollok, msg_win, TRUE);
+  /* if (LINES >= 3) { */
+  /* 	//	msg_win = newwin(LINES - 2, COLS, 0, 0); */
+  /* 	sep_win = newwin(1, COLS, LINES - 2, 0); */
+  /* 	cmd_win = newwin(1, COLS, LINES - 1, 0); */
+  /* } */
+  /* else { // degenerate case; minimum size to avoid errors */
+  /* 	//	msg_win = newwin(1, COLS, 0, 0); */
+  sep_win = newwin(1, ncols, 0, 0);
+  cmd_win = newwin(1, ncols, 0, 0);
+  pages_init(nrows, ncols);
+	
+  /* } */
+  /* if (sep_win == NULL || cmd_win == NULL) */
+  /* 	fail_exit("failed to allocate windows"); */
+  assert(sep_win != NULL);
+  assert(cmd_win != NULL);
+  /* CHECK(scrollok, msg_win, TRUE); */
   
   CHECK(wbkgd, sep_win, A_STANDOUT);
   CHECK(wrefresh, sep_win);
@@ -284,7 +279,7 @@ void init_ncurses(void)
 void deinit_ncurses(void)
 {
 
-  CHECK(delwin, msg_win);
+  //  CHECK(delwin, msg_win);
   CHECK(delwin, sep_win);
   CHECK(delwin, cmd_win);
 
@@ -313,7 +308,7 @@ void init_readline(void)
   rl_input_available_hook = readline_input_avail;
   rl_redisplay_function = readline_redisplay;
 
-  rl_callback_handler_install("", got_command);
+  rl_callback_handler_install("", handle_cmd);
 }
 
 void deinit_readline(void)
