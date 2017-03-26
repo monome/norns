@@ -36,8 +36,10 @@ bool needs_tx;
 
 int sock_rx, sock_tx;
 int eid_rx, eid_tx;
+
 void quit(void) {
-  
+  nn_shutdown(sock_rx, eid_rx);
+  nn_shutdown(sock_tx, eid_tx);
 }
 
 void bind_sock(int *sock, int *eid, char *url) {
