@@ -2,6 +2,7 @@
   device_monitor.c
 */
 
+#include <assert.h>
 #include <errno.h>
 #include <libudev.h>
 #include <locale.h>
@@ -74,8 +75,11 @@ void dev_monitor_init(void) {
   pthread_attr_t attr;
   int s;
   
+  udev = udev_new();
+  assert(udev);
+  
   for(int i=0; i<DEV_TYPE_COUNT; i++) {
-	pfds[i].fd = NULL;
+	//	pfds[i].fd = NULL;
 	
 	w[i].mon = udev_monitor_new_from_netlink(udev, "udev");	
 	if(w[i].mon == NULL) {
