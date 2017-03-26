@@ -46,7 +46,7 @@ void dev_list_add(device_t type, const char* path) {
   if(type < 0) {
 	return;
   }
-  struct dev_node *dn = (struct dev_node*)calloc(1, sizeof(struct dev_node));
+  struct dev_node *dn = calloc(1, sizeof(struct dev_node));
   fflush(stdout);
   if (dn == NULL) {
 	printf("dev_list_add: error allocating device queue node\n");

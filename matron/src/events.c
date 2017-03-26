@@ -54,7 +54,7 @@ static inline void handle_quit(void);
 
 // call with the queue locked
 static inline void ev_q_add(union event_data* ev) {
-  struct ev_node *evn = (struct ev_node*)calloc(1, sizeof(struct ev_node));
+  struct ev_node *evn = calloc(1, sizeof(struct ev_node));
   assert(ev != NULL);
   evn->ev = ev;
   insque(evn, evq.tail);
@@ -89,8 +89,7 @@ void events_init(void) {
 
 union event_data* event_data_new(event_t type) {
   // FIXME: theoretically faster to use an object pool
-  union event_data* ev =
-	(union event_data*) calloc(1, sizeof(union event_data));
+  union event_data* ev = calloc(1, sizeof(union event_data));
   ev->type = type;
   return ev;
 }

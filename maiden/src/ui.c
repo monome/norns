@@ -43,29 +43,21 @@ pthread_mutex_t exit_lock;
 //--------------------------------
 //--- static function declarations
 
-static int readline_input_avail(void);
-
-static int readline_getc(FILE *dummy);
-
-static void forward_to_readline(char c);
-
-static void msg_win_redisplay(bool for_resize);
-
-static void got_command(char *line);
-
-static void cmd_win_redisplay(bool for_resize);
-
-static void readline_redisplay(void);
-
-static void resize(void);
-
+//--- lifecycle
 static void init_ncurses(void);
-
 static void deinit_ncurses(void);
-
 static void init_readline(void);
-
 static void deinit_readline(void);
+//---- input
+static int readline_input_avail(void);
+static int readline_getc(FILE *dummy);
+static void forward_to_readline(char c);
+static void got_command(char *line);
+//--- display
+static void msg_win_redisplay(bool for_resize);
+static void cmd_win_redisplay(bool for_resize);
+static void readline_redisplay(void);
+static void resize(void);
 
 static noreturn void fail_exit(const char *msg);
 
