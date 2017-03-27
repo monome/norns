@@ -92,7 +92,7 @@ void o_init(void) {
 		 loc_port, rem_port);
   o_init_descriptors();
   
-  remote_addr = lo_address_new(NULL, rem_port);
+  remote_addr = lo_address_new("127.0.0.1", rem_port);
   st = lo_server_thread_new(loc_port, lo_error_handler);
 
   // engine report sequence

@@ -55,7 +55,6 @@ norns.report.commands = function(commands, count)
 end
 
 norns.timer = function(idx, stage)
-   print("timer " .. idx .. " stage " .. stage)
    if timer ~= nil then timer(idx,stage) end
 end
 

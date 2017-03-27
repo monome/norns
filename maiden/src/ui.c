@@ -56,7 +56,6 @@ static int readline_getc(FILE *dummy);
 static void forward_to_readline(char c);
 static void handle_cmd(char *line);
 //--- display
-//static void msg_win_redisplay(bool for_resize);
 static void cmd_win_redisplay(bool for_resize);
 static void readline_redisplay(void);
 static void resize(void);
@@ -76,7 +75,7 @@ static WINDOW *sep_win;
 static WINDOW *cmd_win;
 
 //---- data
- static unsigned char input;
+static unsigned char input;
 
 //--------------------------------
 //---- extern function definitions
@@ -91,15 +90,24 @@ void ui_loop(void) {
 	  break;
 	}
 	int c = wgetch(cmd_win);
-		
-	if (c == KEY_RESIZE) {
+	pages_show_key(c);
+	//	printf("%08x\n", c);
+	
+	switch(c) {
+	case KEY_RESIZE: 
 	  resize();
-	}
-	else if (c == '\f') { // ctl-L : manual refresh
+	  break;
+	case '\f': // ctl-L : manual refresh
 	  CHECK(clearok, curscr, TRUE);
 	  resize();
-	}
-	else {
+	  break;
+	case '\t': 
+	  page_cycle(); 
+	  break;
+	case 0x5a: // shift+tab
+	  page_switch();
+	  break;
+	default:
 	  forward_to_readline(c);
 	}
   }
@@ -126,18 +134,21 @@ void ui_deinit(void) {
   pthread_mutex_unlock(&exit_lock);
 }
 
-void ui_crone_line(char* str) {
-  (void)str;
-  // TODO
-}
-
-void ui_matron_line(char* str) {
+static void page_line(int i, char* str) {
   pthread_mutex_lock(&exit_lock);
   if(!should_exit)  {
-	page_append(PAGE_MATRON, str);
+	page_append(i, str);
 	doupdate();
   }
   pthread_mutex_unlock(&exit_lock);
+}
+
+void ui_crone_line(char* str) {
+  page_line(PAGE_CRONE, str);
+}
+
+void ui_matron_line(char* str) {
+  page_line(PAGE_MATRON, str);
 }
 
 //-------------------------------
@@ -162,28 +173,25 @@ void forward_to_readline(char c)
   rl_callback_read_char();
 }
 
-/* void msg_win_redisplay(bool for_resize) */
-/* { */
-/*   //  CHECK(werase, msg_win); */
-/*   //  CHECK(mvwaddstr, msg_win, 0, 0, msg_win_str ? msg_win_str : ""); */
-
-/*   if (for_resize) { */
-/* 	CHECK(wnoutrefresh, msg_win); */
-/*   } else { */
-/* 	CHECK(wrefresh, msg_win); */
-/*   } */
-/* } */
-
 void handle_cmd(char *line)
 {
-  if(strlen(line) == 1 && line[0] == 'q') {
-	should_exit = true;
+  if(strlen(line) == 1) {
+	if (line[0] == 'q') { 
+	  should_exit = true;
+	}
   }
   else {
 	if (*line != '\0') {
 	  add_history(line);
 	}
-	io_send_code(line);
+	switch(page_id()) {
+	case PAGE_MATRON:
+	  io_send_line(IO_MATRON_TX, line);
+	  break;
+	case PAGE_CRONE:
+	  io_send_line(IO_CRONE_TX, line);
+	  break;
+	}
 	free(line);
   }
 }
@@ -217,7 +225,6 @@ void readline_redisplay(void)
 
 void resize(void)
 {
-  
   if (LINES >= 3) {
 	//	CHECK(wresize, msg_win, LINES - 2, COLS);
 	CHECK(wresize, sep_win, 1, COLS);
@@ -229,7 +236,6 @@ void resize(void)
 
   // batch refreshes and commit them with doupdate()
   // FIXME: resize the page pads
-  //  msg_win_redisplay(true);
   CHECK(wnoutrefresh, sep_win);
   cmd_win_redisplay(true);
   CHECK(doupdate);
@@ -246,43 +252,27 @@ void init_ncurses(void)
   CHECK(noecho);
   CHECK(nonl);
   CHECK(intrflush, NULL, FALSE);
-  //nb: no keypad() because we don't want preprocessing before readline
   
-  // "very visible"
-  curs_set(2);
+  curs_set(1);
 
   int nrows, ncols;
   getmaxyx(stdscr, nrows, ncols);
-
-  /* if (LINES >= 3) { */
-  /* 	//	msg_win = newwin(LINES - 2, COLS, 0, 0); */
-  /* 	sep_win = newwin(1, COLS, LINES - 2, 0); */
-  /* 	cmd_win = newwin(1, COLS, LINES - 1, 0); */
-  /* } */
-  /* else { // degenerate case; minimum size to avoid errors */
-  /* 	//	msg_win = newwin(1, COLS, 0, 0); */
-  sep_win = newwin(1, ncols, 0, 0);
-  cmd_win = newwin(1, ncols, 0, 0);
+  sep_win = newwin(1, ncols, nrows - 2, 0);
+  cmd_win = newwin(1, ncols, nrows - 1, 0);
+  
+  //nb: no keypad() because we don't want preprocessing before readline
+  //  CHECK(keypad, cmd_win, TRUE);
+  
   pages_init(nrows, ncols);
 	
-  /* } */
-  /* if (sep_win == NULL || cmd_win == NULL) */
-  /* 	fail_exit("failed to allocate windows"); */
-  assert(sep_win != NULL);
-  assert(cmd_win != NULL);
-  /* CHECK(scrollok, msg_win, TRUE); */
-  
   CHECK(wbkgd, sep_win, A_STANDOUT);
   CHECK(wrefresh, sep_win);
 }
 
 void deinit_ncurses(void)
 {
-
-  //  CHECK(delwin, msg_win);
   CHECK(delwin, sep_win);
   CHECK(delwin, cmd_win);
-
   CHECK(endwin);
   visual_mode = false;
 }
@@ -290,8 +280,8 @@ void deinit_ncurses(void)
 void init_readline(void)
 {
   // disable completion. (FIXME?)
-  if (rl_bind_key('\t', rl_insert) != 0) {
-	fail_exit("invalid key passed to rl_bind_key()");
+	if (rl_bind_key('\t', rl_insert) != 0) {
+  	fail_exit("invalid key passed to rl_bind_key()");
   }
 
   // let ncurses do all terminal and signal handling
