@@ -79,28 +79,6 @@ static void laction (int i) {
   lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
-
-/* static void print_usage (const char *badoption) { */
-/*   lua_writestringerror("%s: ", progname); */
-/*   if (badoption[1] == 'e' || badoption[1] == 'l') */
-/*     lua_writestringerror("'%s' needs argument\n", badoption); */
-/*   else */
-/*     lua_writestringerror("unrecognized option '%s'\n", badoption); */
-/*   lua_writestringerror( */
-/* 					   "usage: %s [options] [script [args]]\n" */
-/* 					   "Available options are:\n" */
-/* 					   "  -e stat  execute string 'stat'\n" */
-/* 					   "  -i       enter interactive mode after executing 'script'\n" */
-/* 					   "  -l name  require library 'name'\n" */
-/* 					   "  -v       show version information\n" */
-/* 					   "  -E       ignore environment variables\n" */
-/* 					   "  --       stop handling options\n" */
-/* 					   "  -        stop handling options and execute stdin\n" */
-/* 					   , */
-/* 					   progname); */
-/* } */
-
-
 /*
 ** Prints an error message, adding the program name in front of it
 ** (if present)
@@ -189,20 +167,6 @@ static int dochunk (lua_State *L, int status) {
 static int dostring (lua_State *L, const char *s, const char *name) {
   return dochunk(L, luaL_loadbuffer(L, s, strlen(s), name));
 }
-
-/*
-** Calls 'require(name)' and stores the result in a global variable
-** with the given name.
-*/
-/* static int dolibrary (lua_State *L, const char *name) { */
-/*   int status; */
-/*   lua_getglobal(L, "require"); */
-/*   lua_pushstring(L, name); */
-/*   status = docall(L, 1, 1);  /\* call 'require(name)' *\/ */
-/*   if (status == LUA_OK) */
-/*     lua_setglobal(L, name);  /\* global[name] = require return *\/ */
-/*   return report(L, status); */
-/* } */
 
 // FIXME: for now, an extern wrapper
 int l_dostring (lua_State *L, const char *s, const char *name) {
