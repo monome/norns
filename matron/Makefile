@@ -9,7 +9,7 @@ CFLAGS = -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
-INC = -Isrc/device -Isrc
+INC =  -Isrc -Isrc/device -Ilua
 INC += -I/usr/include/libevdev-1.0/libevdev
 
 LDFLAGS =

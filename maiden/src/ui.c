@@ -226,7 +226,6 @@ void readline_redisplay(void)
 void resize(void)
 {
   if (LINES >= 3) {
-	//	CHECK(wresize, msg_win, LINES - 2, COLS);
 	CHECK(wresize, sep_win, 1, COLS);
 	CHECK(wresize, cmd_win, 1, COLS);
 
