@@ -14,7 +14,9 @@ INC += -I/usr/include/libevdev-1.0/libevdev
 
 LDFLAGS =
 
-LIB = -llo -llua -lpthread -lmonome -ludev -levdev
+LIB = -lm -ldl -llo -lpthread -lmonome -ludev -levdev
+
+STATIC = lua/liblua.a
 
 OBJ_DIR = obj
 SRC_DIR = src
@@ -39,7 +41,7 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	$(CC) -c $(CFLAGS) $(INC) $< -o $@  
 
 $(TARGET): $(OBJ)
-	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(LIB)
+	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(LIB) $(STATIC)
 
 clean:
 	rm $(TARGET)
