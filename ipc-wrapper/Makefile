@@ -23,11 +23,13 @@ _OBJ = main.o
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	@ mkdir -p $(OBJ_DIR)/device
 	$(CC) -c $(CFLAGS) $(INC) $< -o $@  
+
 
 $(TARGET): $(OBJ)
 	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(LIB)
 
 clean:
 	rm $(TARGET)
-	rm $(OBJ_DIR)/*.o
+	rm -rf $(OBJ_DIR)

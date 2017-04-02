@@ -38,12 +38,16 @@ _OBJ = main.o \
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	@ mkdir -p $(OBJ_DIR)/device
 	$(CC) -c $(CFLAGS) $(INC) $< -o $@  
 
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJ) $(STATIC)
 	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(LIB) $(STATIC)
+
+lua/liblua.a:
+	cd lua && make 
 
 clean:
 	rm $(TARGET)
-	rm $(OBJ_DIR)/*.o
-	rm $(OBJ_DIR)/device/*.o
+	rm -rf $(OBJ_DIR)
+	cd lua && make clean
