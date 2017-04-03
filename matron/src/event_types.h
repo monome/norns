@@ -36,12 +36,12 @@ struct event_common {
 
 struct event_exec_code_line {
   struct event_common common;
-  char* line;
+  char *line;
 }; // +4
 
 struct event_monome_add {
   struct event_common common;
-  void* dev;
+  void *dev;
 }; // +4
 
 struct event_monome_remove {
@@ -59,7 +59,7 @@ struct event_grid_key {
 
 struct event_input_add {
   struct event_common common;
-  void* dev;
+  void *dev;
 }; // +4
 
 struct event_input_remove {
@@ -84,12 +84,12 @@ struct event_timer {
 
 union event_data {
   uint32_t type;
-  struct event_exec_code_line exec_code_line ;
-  struct event_monome_add monome_add ;
-  struct event_monome_remove monome_remove ;
-  struct event_grid_key grid_key ;
-  struct event_input_add input_add ;
-  struct event_input_remove input_remove ;
-  struct event_input_event input_event ;
-  struct event_timer timer ;
+  struct event_exec_code_line exec_code_line;
+  struct event_monome_add monome_add;
+  struct event_monome_remove monome_remove;
+  struct event_grid_key grid_key;
+  struct event_input_add input_add;
+  struct event_input_remove input_remove;
+  struct event_input_event input_event;
+  struct event_timer timer;
 };

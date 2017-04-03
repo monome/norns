@@ -15,29 +15,28 @@ static struct args a = {
   .rem_port = "57120",
 };
 
-int args_parse(int argc, char** argv)
+int args_parse(int argc, char **argv)
 {
   int opt;
-  while( (opt = getopt(argc, argv, "r:l:m:")) != -1 ) {
-	switch(opt) {
-	case 'l':
-	  strncpy(a.loc_port, optarg, ARG_BUF_SIZE);
-	  break;
-	case 'r':	   
-	  strncpy(a.rem_port, optarg, ARG_BUF_SIZE);
-	  break;
-	default:
-	  ;;
-	}
+  while( ( opt = getopt(argc, argv, "r:l:m:") ) != -1 ) {
+    switch(opt) {
+    case 'l':
+      strncpy(a.loc_port, optarg, ARG_BUF_SIZE);
+      break;
+    case 'r':
+      strncpy(a.rem_port, optarg, ARG_BUF_SIZE);
+      break;
+    default:
+      ;;
+    }
   }
   return 0;
 }
 
-
-const char* args_local_port(void) {
+const char *args_local_port(void) {
   return a.loc_port;
 }
 
-const char* args_remote_port(void) {
+const char *args_remote_port(void) {
   return a.rem_port;
 }
