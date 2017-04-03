@@ -41,6 +41,21 @@ pthread_mutex_t exit_lock;
       fail_exit(#fn "() failed");}} \
   while (false)
 
+//---------------------
+//---- static variables
+
+//--- flags
+static bool visual_mode = false;
+static bool should_exit = false;
+static bool input_avail = false;
+
+//--- windows
+static WINDOW *sep_win;
+static WINDOW *cmd_win;
+
+//---- data
+static unsigned char input;
+
 //--------------------------------
 //--- static function declarations
 
@@ -60,21 +75,6 @@ static void readline_redisplay(void);
 static void resize(void);
 
 static noreturn void fail_exit(const char *msg);
-
-//---------------------
-//---- static variables
-
-//--- flags
-static bool visual_mode = false;
-static bool should_exit = false;
-static bool input_avail = false;
-
-//--- windows
-static WINDOW *sep_win;
-static WINDOW *cmd_win;
-
-//---- data
-static unsigned char input;
 
 //--------------------------------
 //---- extern function definitions
