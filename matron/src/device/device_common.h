@@ -17,13 +17,13 @@ struct dev_common {
   // thread id
   pthread_t tid;
   // path to device node in filesystem
-  char* path;
+  char *path;
   // serial string or similar
-  char* serial;
+  char *serial;
   // human readable string
-  char* name;
+  char *name;
   // start function for pthread_create
-  void* (*start)(void* self);
+  void * (*start)(void *self);
   // stop function
-  void (*deinit)(void* self);
+  void (*deinit)(void *self);
 };

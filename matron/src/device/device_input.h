@@ -25,6 +25,6 @@ struct dev_input {
   dev_code_t **codes;
 };
 
-extern int dev_input_init(void* self);
-extern void* dev_input_start(void* self);
-extern void dev_input_deinit(void* self);
+extern int dev_input_init(void *self);
+extern void *dev_input_start(void *self);
+extern void dev_input_deinit(void *self);
