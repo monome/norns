@@ -21,6 +21,7 @@
 #include <wctype.h>
 
 #include "io.h"
+#include "page.h"
 #include "pages.h"
 #include "ui.h"
 
@@ -262,6 +263,8 @@ void init_ncurses(void)
 
   CHECK(wbkgd, sep_win, A_STANDOUT);
   CHECK(wrefresh, sep_win);
+
+  pages_print_greeting();
 }
 
 void deinit_ncurses(void)

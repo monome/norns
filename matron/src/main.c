@@ -20,6 +20,8 @@
 #include "oracle.h"
 #include "weaver.h"
 
+void print_version(void);
+
 void cleanup(void) {
   dev_monitor_deinit();
   o_deinit();
@@ -32,6 +34,8 @@ void cleanup(void) {
 int main(int argc, char **argv) {
   args_parse(argc, argv);
 
+  print_version();
+  
   events_init(); // <-- must come first!
   timers_init();
   o_init();      // oracle (audio)
@@ -52,4 +56,11 @@ int main(int argc, char **argv) {
   dev_monitor_scan();
   // blocks until quit
   event_loop();
+}
+
+void print_version(void) {
+  printf("MATRON\n");
+  printf("norns version: %d.%d.%d\n",
+		 VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+  printf("git hash: %s\n\n", VERSION_HASH);
 }

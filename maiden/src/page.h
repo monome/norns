@@ -36,3 +36,5 @@ extern void page_scroll_forward(struct page *page);
 extern void page_scroll_back(struct page *page);
 // scroll to bottom and render; return new line number
 extern int page_scroll_bottom(struct page *page);
+// print the build version
+extern int page_print_version(struct page *page);

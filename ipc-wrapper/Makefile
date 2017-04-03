@@ -1,16 +1,19 @@
 TARGET = ipc-wrapper
+include ../version.mk
 
 .PHONY = clean
 
 CC = gcc
 LD = gcc
 
-CFLAGS = -std=gnu11
+CFLAGS += $(VERSION)
+CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
 INC =
 LDFLAGS =
+
 
 LIB = -lpthread -lnanomsg
 

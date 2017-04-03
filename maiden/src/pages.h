@@ -22,3 +22,5 @@ extern void page_cycle(void);
 extern void page_switch(void);
 // get current page index
 extern int page_id(void);
+
+extern void pages_print_greeting(void);

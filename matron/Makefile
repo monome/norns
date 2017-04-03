@@ -1,11 +1,13 @@
 TARGET = matron
+include ../version.mk
 
 .PHONY = clean
 
 CC = gcc
 LD = gcc
 
-CFLAGS = -std=gnu11
+CFLAGS += $(VERSION)
+CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
