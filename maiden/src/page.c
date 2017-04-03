@@ -89,7 +89,7 @@ int page_scroll_bottom(struct page *p) {
 
 int page_print_version(struct page *p) {
   wprintw(p->pad, "norns version: %d.%d.%d\n",
-		  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+          VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
   wprintw(p->pad, "git hash: %s\n", VERSION_HASH);
   return page_scroll_bottom(p);
 }

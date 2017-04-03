@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
   args_parse(argc, argv);
 
   print_version();
-  
+
   events_init(); // <-- must come first!
   timers_init();
   o_init();      // oracle (audio)
@@ -61,6 +61,6 @@ int main(int argc, char **argv) {
 void print_version(void) {
   printf("MATRON\n");
   printf("norns version: %d.%d.%d\n",
-		 VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+         VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
   printf("git hash: %s\n\n", VERSION_HASH);
 }

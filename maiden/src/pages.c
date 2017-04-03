@@ -104,9 +104,7 @@ int page_id(void) {
   return page_id_cur;
 }
 
-
 void pages_print_greeting(void) {
   page_print(pages[0], "MAIDEN\n");
   page_print_version(pages[0]);
 }
-								
