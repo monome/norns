@@ -25,7 +25,7 @@ struct timer {
   int idx;                     // timer index
   int status;                  // running/stopped status
   double seconds;              // period in seconds
-  uint64_t count;              // total iterations ( <0 -> infinite )
+  uint64_t count;              // total iterations ( <=0 -> infinite )
   uint64_t stage;              // current count of iterations
   uint64_t time;               // current time (in nsec)
   uint64_t delta;              // current delta (in nsec)

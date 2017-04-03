@@ -1,5 +1,7 @@
 # norns usage
 
+---------------
+
 ## launching components
 
 ### 1. launch `crone` (audio engine)
@@ -30,15 +32,18 @@ special characters:
 
 - `TAB` : switch between lua and sclang REPLs
 - `shift+TAB` : switch between output log and input log for each REPL
-(* **TODO: input log isn't really implemented** *)
+(_**TODO: input log isn't really implemented**_)
 - `q` : quits the client.
 
-* **FIXME: this is not a good control scheme. use `ctl-a` as an escape sequence, or something.** *
+_**TODO: output scrolling works, but no commands for it yet.**_
 
+_**TODO: more robust command input, e.g. `ctl-a` as an escape sequence.**_
+
+---------------
 
 ## lua programming
 
-* **FIXME: need more elegant/idiomatic library structure.** *
+_**FIXME: library structure could be more elegant/idiomatic (no underscores.)**_
 
 ### startup
 
@@ -98,7 +103,7 @@ grid and arc devices can be hotplugged. connected devices are available as table
 
 - `Grid:refresh()` : update the device's physical state.
 
-* **TODO: arc** *
+_**TODO: arc**_
 
 for device hotplug and gesture input, the following callbacks can be defined:
 
@@ -112,7 +117,7 @@ for device hotplug and gesture input, the following callbacks can be defined:
 
 - `grid.key(device, x, y, value)` : key event was received on the given device. 
 
-* **TODO: arc** *
+_**TODO: arc**_
 
 #### HID
 
@@ -124,20 +129,20 @@ callbacks:
     - `id` : an integer ID. these never repeat during a given run of `matron`.
 	- `serial` : a serial string representing the device. for now, this is an 8-digit hex string; the first 4 hex digits are the product ID, the last 4 are the vendor ID.
 	- `name` : a human-readable string desribing the device (e.g. "Logitech USB Optical Mouse.")
-    - `types` : event types produced by this device. 
+    - `types` : event types supported by this device. 
 	- `codes` : a table containing one subtable per supported event type, indexed by event type. each subtable contains one entry per supported event code for that event type; index in subtable is code number, value is code name.
 	
 	event type and code names are defined in `sys/input_device_codes.lua`. 
 
-- `input.remove()` : * **TODO** *
+- `input.remove()` : _**TODO: not connected yet**_
 
 - `input.event(device, type, code, value)` : respond to an event from the given device.
 
-* **TODO?: HID output** *
+_**TODO?: HID output**_
 
 #### MIDI
 
-* **TODO** *
+_**TODO**_
 
 ### timers
 
@@ -155,98 +160,4 @@ callbacks:
 		
 ### graphics
 
-* **TODO** *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-q
-
+_**TODO**_

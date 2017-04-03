@@ -58,7 +58,7 @@ this should build all the c-based components (`matron`, `maiden`, and `ipc-wrapp
 
 the `crone` audio engine consists of supercollider classes. run `crone/install.sh` to copy these to the default location for user SC extensions. 
 
-see `readme-usage.md` for instructions on running norns.
+see  [readme-usage.md](readme-usage.md) for instructions on running and using norns.
 
 ## configure
 
@@ -67,4 +67,4 @@ the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_
 
 - add udev rules. matron uses `libudev` and `libevdev` for low-level access to input devices. (TODO: see (http://www.reactivated.net/writing-udev-rules.html) ... )
 
-* **TODO: additional setup steps for raspberry pi?** *
+_**TODO: additional setup steps for raspberry pi?**_
