@@ -46,7 +46,6 @@ void bind_sock(int *sock, int *eid, char *url) {
   *sock = nn_socket(AF_SP, NN_BUS);
   printf("attempting to bind socket at url %s\n", url);
   assert ( ( *eid = nn_bind(*sock, url) ) >= 0 );
-  /* assert(*eid >= 0); */
 }
 
 void *loop_rx(void *p) {
