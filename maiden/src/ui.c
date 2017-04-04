@@ -1,9 +1,10 @@
-/* 
-   ui.c
-   
-   indebted to https://github.com/ulfalizer/readline-and-ncurses
-*/
+/*
+ * ui.c
+ *
+ * indebted to https://github.com/ulfalizer/readline-and-ncurses
+ */
 
+#include <assert.h>
 #include <locale.h>
 #include <panel.h>
 #include <pthread.h>
@@ -20,54 +21,25 @@
 #include <wctype.h>
 
 #include "io.h"
+#include "page.h"
+#include "pages.h"
 #include "ui.h"
 
 pthread_mutex_t exit_lock;
 
 //--------------------
 //---- defines
-#define max(a, b)								\
-  ({ typeof(a) _a = a;							\
-	typeof(b) _b = b;  							\
-	_a > _b ? _a : _b; })
-
+#define max(a, b)     \
+  ({ typeof(a)_a = a; \
+     typeof(b)_b = b; \
+     _a > _b ? _a : _b; })
 
 // call (most) ncurses functions with hard error checking
-#define CHECK(fn, ...)							\
-  do											\
-	if (fn(__VA_ARGS__) == ERR)					\
-	  fail_exit(#fn"() failed");				\
+#define CHECK(fn, ...)              \
+  do {                              \
+    if (fn(__VA_ARGS__) == ERR) {   \
+      fail_exit(#fn "() failed");}} \
   while (false)
-
-
-//--------------------------------
-//--- static function declarations
-
-static int readline_input_avail(void);
-
-static int readline_getc(FILE *dummy);
-
-static void forward_to_readline(char c);
-
-static void msg_win_redisplay(bool for_resize);
-
-static void got_command(char *line);
-
-static void cmd_win_redisplay(bool for_resize);
-
-static void readline_redisplay(void);
-
-static void resize(void);
-
-static void init_ncurses(void);
-
-static void deinit_ncurses(void);
-
-static void init_readline(void);
-
-static void deinit_readline(void);
-
-static noreturn void fail_exit(const char *msg);
 
 //---------------------
 //---- static variables
@@ -78,50 +50,75 @@ static bool should_exit = false;
 static bool input_avail = false;
 
 //--- windows
-static WINDOW *msg_win;
 static WINDOW *sep_win;
 static WINDOW *cmd_win;
 
 //---- data
-static char *msg_win_str = NULL;
 static unsigned char input;
+
+//--------------------------------
+//--- static function declarations
+
+//--- lifecycle
+static void init_ncurses(void);
+static void deinit_ncurses(void);
+static void init_readline(void);
+static void deinit_readline(void);
+//---- input
+static int readline_input_avail(void);
+static int readline_getc(FILE *dummy);
+static void forward_to_readline(char c);
+static void handle_cmd(char *line);
+//--- display
+static void cmd_win_redisplay(bool for_resize);
+static void readline_redisplay(void);
+static void resize(void);
+
+static noreturn void fail_exit(const char *msg);
 
 //--------------------------------
 //---- extern function definitions
 
 void ui_loop(void) {
-  
   CHECK(clearok, curscr, TRUE);
   resize();
-  
+
   while (1) {
-	if(should_exit) {
-	  break;
-	}
-	int c = wgetch(cmd_win);
-		
-	if (c == KEY_RESIZE) {
-	  resize();
-	}
-	else if (c == '\f') { // ctl-L : manual refresh
-	  CHECK(clearok, curscr, TRUE);
-	  resize();
-	}
-	else {
-	  forward_to_readline(c);
-	}
+    if(should_exit) {
+      break;
+    }
+    int c = wgetch(cmd_win);
+    pages_show_key(c);
+    //	printf("%08x\n", c);
+
+    switch(c) {
+    case KEY_RESIZE:
+      resize();
+      break;
+    case '\f': // ctl-L : manual refresh
+      CHECK(clearok, curscr, TRUE);
+      resize();
+      break;
+    case '\t':
+      page_cycle();
+      break;
+    case 0x5a: // shift+tab
+      page_switch();
+      break;
+    default:
+      forward_to_readline(c);
+    } /* switch */
   }
-  
+
   mvwprintw(cmd_win, 0, 0, "EXITING!");
   ui_deinit();
-  
 }
 
 void ui_init(void) {
   // FIXME(?) we could add all the stuff for multibyte support...
-  // assume default encoding for now... 
+  // assume default encoding for now...
   /* if (setlocale(LC_ALL, "") == NULL) */
-  /* 	fail_exit("Failed to set locale attributes from environment"); */
+  /*    fail_exit("Failed to set locale attributes from environment"); */
   init_ncurses();
   init_readline();
 }
@@ -130,28 +127,25 @@ void ui_deinit(void) {
   pthread_mutex_lock(&exit_lock);
   deinit_ncurses();
   deinit_readline();
+  pages_deinit();
   pthread_mutex_unlock(&exit_lock);
 }
 
-void ui_crone_line(char* str) {
-  (void)str;
-  // TODO
-}
-
-void ui_matron_line(char* str) {
+static void page_line(int i, char *str) {
   pthread_mutex_lock(&exit_lock);
   if(!should_exit)  {
-	size_t len = strlen(str);
-	size_t newlen = len;
-	// FIXME: this concatenation is just the worst!
-	if(msg_win_str != NULL) {
-	  newlen += strlen(msg_win_str);
-	}
-	msg_win_str = (char*)realloc(msg_win_str, newlen+1);
-	strncat(msg_win_str, str, len);
-	msg_win_redisplay(false);
+    page_append(i, str);
+    doupdate();
   }
   pthread_mutex_unlock(&exit_lock);
+}
+
+void ui_crone_line(char *str) {
+  page_line(PAGE_CRONE, str);
+}
+
+void ui_matron_line(char *str) {
+  page_line(PAGE_MATRON, str);
 }
 
 //-------------------------------
@@ -176,36 +170,26 @@ void forward_to_readline(char c)
   rl_callback_read_char();
 }
 
-void msg_win_redisplay(bool for_resize)
+void handle_cmd(char *line)
 {
-  CHECK(werase, msg_win);
-  CHECK(mvwaddstr, msg_win, 0, 0, msg_win_str ? msg_win_str : "");
-
-  if (for_resize) {
-	CHECK(wnoutrefresh, msg_win);
-  } else {
-	CHECK(wrefresh, msg_win);
-  }
-}
-
-void got_command(char *line)
-{
-  /*
-  // FIXME: this got broken somehow...
-  if (line == NULL) {
-	// Ctrl-D pressed on empty line
-	should_exit = true;
-  }
-  */
-  if(strlen(line) == 1 && line[0] == 'q') {
-	should_exit = true;
+  if(strlen(line) == 1) {
+    if (line[0] == 'q') {
+      should_exit = true;
+    }
   }
   else {
-	if (*line != '\0') {
-	  add_history(line);
-	}
-	io_send_code(line);
-	free(line);
+    if (*line != '\0') {
+      add_history(line);
+    }
+    switch( page_id() ) {
+    case PAGE_MATRON:
+      io_send_line(IO_MATRON_TX, line);
+      break;
+    case PAGE_CRONE:
+      io_send_line(IO_CRONE_TX, line);
+      break;
+    }
+    free(line);
   }
 }
 
@@ -215,19 +199,19 @@ void cmd_win_redisplay(bool for_resize)
 
   CHECK(werase, cmd_win);
 
-  // FIXME: error check would fail when command string is wider than window 
+  // FIXME: error check would fail when command string is wider than window
   mvwprintw(cmd_win, 0, 0, "%s%s", rl_display_prompt, rl_line_buffer);
   if (cursor_col >= (size_t)COLS) {
-	// hide the cursor if it is outside the window
-	curs_set(0);
+    // hide the cursor if it is outside the window
+    curs_set(0);
   } else {
-	CHECK(wmove, cmd_win, 0, cursor_col);
-	curs_set(2);
+    CHECK(wmove, cmd_win, 0, cursor_col);
+    curs_set(2);
   }
   if (for_resize) {
-	CHECK(wnoutrefresh, cmd_win);
+    CHECK(wnoutrefresh, cmd_win);
   } else {
-	CHECK(wrefresh, cmd_win);
+    CHECK(wrefresh, cmd_win);
   }
 }
 
@@ -239,16 +223,15 @@ void readline_redisplay(void)
 void resize(void)
 {
   if (LINES >= 3) {
-	CHECK(wresize, msg_win, LINES - 2, COLS);
-	CHECK(wresize, sep_win, 1, COLS);
-	CHECK(wresize, cmd_win, 1, COLS);
+    CHECK(wresize, sep_win, 1, COLS);
+    CHECK(wresize, cmd_win, 1, COLS);
 
-	CHECK(mvwin, sep_win, LINES - 2, 0);
-	CHECK(mvwin, cmd_win, LINES - 1, 0);
+    CHECK(mvwin, sep_win, LINES - 2, 0);
+    CHECK(mvwin, cmd_win, LINES - 1, 0);
   }
 
   // batch refreshes and commit them with doupdate()
-  msg_win_redisplay(true);
+  // FIXME: resize the page pads
   CHECK(wnoutrefresh, sep_win);
   cmd_win_redisplay(true);
   CHECK(doupdate);
@@ -257,7 +240,7 @@ void resize(void)
 void init_ncurses(void)
 {
   if (initscr() == NULL) {
-	fail_exit("Failed to initialize ncurses");
+    fail_exit("failed to initialize ncurses");
   }
   visual_mode = true;
 
@@ -265,37 +248,29 @@ void init_ncurses(void)
   CHECK(noecho);
   CHECK(nonl);
   CHECK(intrflush, NULL, FALSE);
+
+  curs_set(1);
+
+  int nrows, ncols;
+  getmaxyx(stdscr, nrows, ncols);
+  sep_win = newwin(1, ncols, nrows - 2, 0);
+  cmd_win = newwin(1, ncols, nrows - 1, 0);
+
   //nb: no keypad() because we don't want preprocessing before readline
-  
-  // "very visible"
-  curs_set(2);
+  //  CHECK(keypad, cmd_win, TRUE);
 
-  if (LINES >= 3) {
-	msg_win = newwin(LINES - 2, COLS, 0, 0);
-	sep_win = newwin(1, COLS, LINES - 2, 0);
-	cmd_win = newwin(1, COLS, LINES - 1, 0);
-  }
-  else { // degenerate case; minimum size to avoid errors
-	msg_win = newwin(1, COLS, 0, 0);
-	sep_win = newwin(1, COLS, 0, 0);
-	cmd_win = newwin(1, COLS, 0, 0);
-  }
-  if (msg_win == NULL || sep_win == NULL || cmd_win == NULL)
-	fail_exit("failed to allocate windows");
+  pages_init(nrows, ncols);
 
-  CHECK(scrollok, msg_win, TRUE);
-  
   CHECK(wbkgd, sep_win, A_STANDOUT);
   CHECK(wrefresh, sep_win);
+
+  pages_print_greeting();
 }
 
 void deinit_ncurses(void)
 {
-
-  CHECK(delwin, msg_win);
   CHECK(delwin, sep_win);
   CHECK(delwin, cmd_win);
-
   CHECK(endwin);
   visual_mode = false;
 }
@@ -304,7 +279,7 @@ void init_readline(void)
 {
   // disable completion. (FIXME?)
   if (rl_bind_key('\t', rl_insert) != 0) {
-	fail_exit("invalid key passed to rl_bind_key()");
+    fail_exit("invalid key passed to rl_bind_key()");
   }
 
   // let ncurses do all terminal and signal handling
@@ -321,7 +296,7 @@ void init_readline(void)
   rl_input_available_hook = readline_input_avail;
   rl_redisplay_function = readline_redisplay;
 
-  rl_callback_handler_install("", got_command);
+  rl_callback_handler_install("", handle_cmd);
 }
 
 void deinit_readline(void)
@@ -332,9 +307,8 @@ void deinit_readline(void)
 noreturn void fail_exit(const char *msg)
 {
   if (visual_mode) {
-	endwin();
+    endwin();
   }
   fprintf(stderr, "%s\n", msg);
   exit(EXIT_FAILURE);
 }
-

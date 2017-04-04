@@ -1,27 +1,32 @@
 TARGET = maiden
+include ../version.mk
 
 .PHONY = clean
 
 CC = gcc
 LD = gcc
 
-CFLAGS = -std=gnu11
+CFLAGS += $(VERSION)
+CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
 LDFLAGS = 
-LIB = -lpthread -lreadline -lncursesw -lnanomsg
+LIB = -lpthread -lreadline -lncursesw -lpanel -lnanomsg 
 
 OBJ_DIR = obj
 SRC_DIR = src
 
 _OBJ = main.o \
 	io.o \
+	page.o \
+	pages.o \
 	ui.o
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	@ mkdir -p $(OBJ_DIR)
 	$(CC) -c $(CFLAGS) $< -o $@  
 
 $(TARGET): $(OBJ)
@@ -29,4 +34,4 @@ $(TARGET): $(OBJ)
 
 clean:
 	rm $(TARGET)
-	rm $(OBJ_DIR)/*.o
+	rm -rf $(OBJ_DIR)

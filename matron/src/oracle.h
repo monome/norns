@@ -2,21 +2,21 @@
 #include <stdarg.h>
 #include <lo/lo.h>
 
-/* 
-oracle.h
-
-this module speaks with the Crone. 
-
-user should not care about the method (IPC or otherwise.)
-
+/*
+ * oracle.h
+ *
+ * this module speaks with the Crone.
+ *
+ * user should not care about the method (IPC or otherwise.)
+ *
  */
 
 #include "lo/lo.h"
 
 // data structure for engine command descriptor/header
 struct engine_command {
-  char* cmd; // command string
-  char* fmt; // format string
+  char *cmd; // command string
+  char *fmt; // format string
 };
 
 // initialize
@@ -33,9 +33,9 @@ extern int o_get_num_commands(void);
 //extern int o_get_num_params(void);
 
 // get engine names (array of c strings)
-extern const char** o_get_engine_names(void);
+extern const char **o_get_engine_names(void);
 // get current engine commands (array of structs)
-extern const struct engine_command* o_get_commands(void);
+extern const struct engine_command *o_get_commands(void);
 
 /* extern const char** o_get_buffer_names(void); */
 /* extern const char** o_get_param_names(void); */
@@ -50,7 +50,7 @@ extern void o_unlock_descriptors();
 //--- IPC functions
 
 // load a named audio processing engine
-extern void o_load_engine(const char* name);
+extern void o_load_engine(const char *name);
 
 // request list of engine names
 extern void o_request_engine_report(void);
@@ -60,8 +60,7 @@ extern void o_request_command_report(void);
 
 // issue a command to the engine
 //extern void o_send_command(const char* name, const char* fmt, va_list args);
-extern void o_send_command(const char* name, lo_message msg);
-
+extern void o_send_command(const char *name, lo_message msg);
 
 //   FIXME: autogenerate from protocol description?
 //   use dynamic list of OSC patterns?
@@ -83,5 +82,3 @@ extern void o_send_command(const char* name, lo_message msg);
 
 /* // set named parameter with float value */
 /* extern void o_set_param_name(const char* name, const float val); */
-
-

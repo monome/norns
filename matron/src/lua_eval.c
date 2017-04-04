@@ -8,7 +8,6 @@
 
 #define lua_c
 
-
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,14 +22,11 @@
 
 #define LUA_VERSUFFIX          "_" LUA_VERSION_MAJOR "_" LUA_VERSION_MINOR
 
-
 #if !defined(LUA_MAXINPUT)
-#define LUA_MAXINPUT		512
+#define LUA_MAXINPUT            512
 #endif
 
-
-#define LUA_INITVARVERSION	LUA_INIT_VAR LUA_VERSUFFIX
-
+#define LUA_INITVARVERSION      LUA_INIT_VAR LUA_VERSUFFIX
 
 static lua_State *globalL = NULL;
 
@@ -43,9 +39,9 @@ static char *saveBuf = NULL;
 static int saveBufLen = 0;
 static int continuing = 0;
 
-static void save_statement_buffer(char* buf) {
+static void save_statement_buffer(char *buf) {
   saveBufLen = strlen(buf);
-  saveBuf = realloc(saveBuf, saveBufLen+1);
+  saveBuf = realloc(saveBuf, saveBufLen + 1);
   strcpy(saveBuf, buf);
   continuing = 1;
 }
@@ -57,16 +53,14 @@ static void clear_statement_buffer(void) {
   continuing = 0;
 }
 
-
 /*
 ** Hook set by signal function to stop the interpreter.
 */
 static void lstop (lua_State *L, lua_Debug *ar) {
-  (void)ar;  /* unused arg. */
-  lua_sethook(L, NULL, 0, 0);  /* reset hook */
+  (void)ar;                   /* unused arg. */
+  lua_sethook(L, NULL, 0, 0); /* reset hook */
   luaL_error(L, "interrupted!");
 }
-
 
 /*
 ** Function to be called at a C signal. Because a C signal cannot
@@ -79,37 +73,14 @@ static void laction (int i) {
   lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
-
-/* static void print_usage (const char *badoption) { */
-/*   lua_writestringerror("%s: ", progname); */
-/*   if (badoption[1] == 'e' || badoption[1] == 'l') */
-/*     lua_writestringerror("'%s' needs argument\n", badoption); */
-/*   else */
-/*     lua_writestringerror("unrecognized option '%s'\n", badoption); */
-/*   lua_writestringerror( */
-/* 					   "usage: %s [options] [script [args]]\n" */
-/* 					   "Available options are:\n" */
-/* 					   "  -e stat  execute string 'stat'\n" */
-/* 					   "  -i       enter interactive mode after executing 'script'\n" */
-/* 					   "  -l name  require library 'name'\n" */
-/* 					   "  -v       show version information\n" */
-/* 					   "  -E       ignore environment variables\n" */
-/* 					   "  --       stop handling options\n" */
-/* 					   "  -        stop handling options and execute stdin\n" */
-/* 					   , */
-/* 					   progname); */
-/* } */
-
-
 /*
 ** Prints an error message, adding the program name in front of it
 ** (if present)
 */
 static void l_message (const char *pname, const char *msg) {
-  if (pname) lua_writestringerror("%s: ", pname);
+  if (pname) {lua_writestringerror("%s: ", pname);}
   lua_writestringerror("%s\n", msg);
 }
-
 
 /*
 ** Check whether 'status' is not OK and, if so, prints the error
@@ -120,7 +91,7 @@ static int report (lua_State *L, int status) {
   if (status != LUA_OK) {
     const char *msg = lua_tostring(L, -1);
     l_message(progname, msg);
-    lua_pop(L, 1);  /* remove message */
+    lua_pop(L, 1); /* remove message */
   }
   return status;
 }
@@ -136,18 +107,20 @@ int l_report (lua_State *L, int status) {
 */
 static int msghandler (lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  if (msg == NULL) {  /* is error object not a string? */
-    if (luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod */
-        lua_type(L, -1) == LUA_TSTRING)  /* that produces a string? */
-      return 1;  /* that is the message */
-    else
-      msg = lua_pushfstring(L, "(error object is a %s value)",
-							luaL_typename(L, 1));
+  if (msg == NULL) {                           /* is error object not a string?
+                                                * */
+    if ( luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod */
+         ( lua_type(L, -1) == LUA_TSTRING) ) { /* that produces a string? */
+      return 1;                                /* that is the message */
+    }
+    else{
+      msg = lua_pushfstring( L, "(error object is a %s value)",
+                             luaL_typename(L, 1) );
+    }
   }
-  luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
-  return 1;  /* return the traceback */
+  luaL_traceback(L, L, msg, 1); /* append a standard traceback */
+  return 1;                     /* return the traceback */
 }
-
 
 /*
 ** Interface to 'lua_pcall', which sets appropriate message function
@@ -156,13 +129,13 @@ static int msghandler (lua_State *L) {
 static int docall (lua_State *L, int narg, int nres) {
   int status;
   int base = lua_gettop(L) - narg;  /* function index */
-  lua_pushcfunction(L, msghandler);  /* push message handler */
-  lua_insert(L, base);  /* put it under function and args */
-  globalL = L;  /* to be available to 'laction' */
-  signal(SIGINT, laction);  /* set C-signal handler */
+  lua_pushcfunction(L, msghandler); /* push message handler */
+  lua_insert(L, base);              /* put it under function and args */
+  globalL = L;                      /* to be available to 'laction' */
+  signal(SIGINT, laction);          /* set C-signal handler */
   status = lua_pcall(L, narg, nres, base);
-  signal(SIGINT, SIG_DFL); /* reset C-signal handler */
-  lua_remove(L, base);  /* remove message handler from the stack */
+  signal(SIGINT, SIG_DFL);          /* reset C-signal handler */
+  lua_remove(L, base);              /* remove message handler from the stack */
   return status;
 }
 
@@ -178,7 +151,7 @@ int l_docall (lua_State *L, int narg, int nres) {
 /* } */
 
 static int dochunk (lua_State *L, int status) {
-  if (status == LUA_OK) status = docall(L, 0, 0);
+  if (status == LUA_OK) {status = docall(L, 0, 0);}
   return report(L, status);
 }
 
@@ -187,22 +160,8 @@ static int dochunk (lua_State *L, int status) {
 /* } */
 
 static int dostring (lua_State *L, const char *s, const char *name) {
-  return dochunk(L, luaL_loadbuffer(L, s, strlen(s), name));
+  return dochunk( L, luaL_loadbuffer(L, s, strlen(s), name) );
 }
-
-/*
-** Calls 'require(name)' and stores the result in a global variable
-** with the given name.
-*/
-/* static int dolibrary (lua_State *L, const char *name) { */
-/*   int status; */
-/*   lua_getglobal(L, "require"); */
-/*   lua_pushstring(L, name); */
-/*   status = docall(L, 1, 1);  /\* call 'require(name)' *\/ */
-/*   if (status == LUA_OK) */
-/*     lua_setglobal(L, name);  /\* global[name] = require return *\/ */
-/*   return report(L, status); */
-/* } */
 
 // FIXME: for now, an extern wrapper
 int l_dostring (lua_State *L, const char *s, const char *name) {
@@ -211,9 +170,8 @@ int l_dostring (lua_State *L, const char *s, const char *name) {
 }
 
 /* mark in error messages for incomplete statements */
-#define EOFMARK		"<eof>"
-#define marklen		(sizeof(EOFMARK)/sizeof(char) - 1)
-
+#define EOFMARK         "<eof>"
+#define marklen         (sizeof(EOFMARK) / sizeof(char) - 1)
 
 /*
 ** Check whether 'status' signals a syntax error and the error
@@ -224,60 +182,59 @@ static int incomplete (lua_State *L, int status) {
   if (status == LUA_ERRSYNTAX) {
     size_t lmsg;
     const char *msg = lua_tolstring(L, -1, &lmsg);
-    if (lmsg >= marklen && strcmp(msg + lmsg - marklen, EOFMARK) == 0) {
+    if ( (lmsg >= marklen) && (strcmp(msg + lmsg - marklen, EOFMARK) == 0) ) {
       lua_pop(L, 1);
       return 1;
     }
   }
-  return 0;  /* else... */
+  return 0; /* else... */
 }
-
 
 /*
 ** Try to compile line on the stack as 'return <line>;'; on return, stack
 ** has either compiled chunk or original line (if compilation failed).
 */
 static int add_return (lua_State *L) {
-  const char *line = lua_tostring(L, -1);  /* original line */
+  const char *line = lua_tostring(L, -1); /* original line */
   const char *retline = lua_pushfstring(L, "return %s;", line);
   int status = luaL_loadbuffer(L, retline, strlen(retline), "=stdin");
   if (status == LUA_OK) {
-    lua_remove(L, -2);  /* remove modified line */
-	lua_remove(L, -2);  /* remove original line */
+    lua_remove(L, -2); /* remove modified line */
+    lua_remove(L, -2); /* remove original line */
   }
   else {
-    lua_pop(L, 2);  /* pop result from 'luaL_loadbuffer' and modified line */
+    lua_pop(L, 2);     /* pop result from 'luaL_loadbuffer' and modified line */
   }
   return status;
 }
 
 /*
-** try the line on the top of the stack. 
-** if incomplete, add it to the save buffer, 
+** try the line on the top of the stack.
+** if incomplete, add it to the save buffer,
 ** otherwise return with compiled chunk on stack
 */
 static int try_statement(lua_State *L) {
   size_t len;
   int status;
-  char *line = (char*)lua_tolstring(L, 1, &len);  /* get what it has */
-  char* buf;
-  
-  if(continuing) {
-	buf = malloc(saveBufLen + 1 + strlen(line) + 1); /* add to saved */
-	sprintf(buf, "%s\n%s", saveBuf, line);
-	len += saveBufLen + 1;
-  } else {
-	buf = line;
-  }
-  status = luaL_loadbuffer(L, buf,  len, "=stdin");  /* try it */
+  char *line = (char *)lua_tolstring(L, 1, &len); /* get what it has */
+  char *buf;
 
-  if(incomplete(L, status)) {
-	status = STATUS_INCOMPLETE;
-	save_statement_buffer(buf);
+  if(continuing) {
+    buf = malloc(saveBufLen + 1 + strlen(line) + 1); /* add to saved */
+    sprintf(buf, "%s\n%s", saveBuf, line);
+    len += saveBufLen + 1;
   } else {
-	clear_statement_buffer();
-	// remove line from stack, leaving compiled chunk
-	lua_remove(L, -2);
+    buf = line;
+  }
+  status = luaL_loadbuffer(L, buf,  len, "=stdin"); /* try it */
+
+  if( incomplete(L, status) ) {
+    status = STATUS_INCOMPLETE;
+    save_statement_buffer(buf);
+  } else {
+    clear_statement_buffer();
+    // remove line from stack, leaving compiled chunk
+    lua_remove(L, -2);
   }
   return status;
 }
@@ -287,61 +244,62 @@ static int try_statement(lua_State *L) {
 */
 static void l_print (lua_State *L) {
   int n = lua_gettop(L);
-  if (n > 0) {  /* any result to be printed? */
+  if (n > 0) { /* any result to be printed? */
     luaL_checkstack(L, LUA_MINSTACK, "too many results to print");
     lua_getglobal(L, "print");
     lua_insert(L, 1);
     if (lua_pcall(L, n, 0, 0) != LUA_OK) {
-      l_message(progname, lua_pushfstring(L, "error calling 'print' (%s)",
-										  lua_tostring(L, -1)));
-	}
-	fflush(stdout);
+      l_message( progname, lua_pushfstring( L, "error calling 'print' (%s)",
+                                            lua_tostring(L, -1) ) );
+    }
+    fflush(stdout);
   }
-} 
+}
 
 // push and evaluate a line buffer provided by caller
-int l_handle_line (lua_State *L, char* line) {
+int l_handle_line (lua_State *L, char *line) {
   //  printf("l_handle_line: %s \n", line); fflush(stdout);
   size_t l;
   int status;
   lua_settop(L, 0);
   l = strlen(line);
-  if (l > 0 && line[l-1] == '\n') {
-	// printf("zap trailing newline\n"); fflush(stdout);
-	line[--l] = '\0';
+  if ( (l > 0) && (line[l - 1] == '\n') ) {
+    // printf("zap trailing newline\n"); fflush(stdout);
+    line[--l] = '\0';
   }
   lua_pushlstring(L, line, l);
   // try evaluating as an expression
   status = add_return(L);
   if(status == LUA_OK) {
-	goto call;
+    goto call;
   }
   // try as a statement, maybe with continuation
   status = try_statement(L);
   if (status == LUA_OK) {
-	goto call;
-  }
-  
-  if(status == STATUS_INCOMPLETE) {
-	printf(" <incomplete...>\n"); fflush(stdout);
-	goto exit;
-  }
-  
- call: // call the compiled function on the top of the stack
-  status = docall(L, 0, LUA_MULTRET);
-  if (status == LUA_OK) {
-	// 	  printf("<evaluation completed with %d stack elements>\n", lua_gettop(L));
-	if(lua_gettop(L) == 0) { 
-	  printf(" <ok>\n"); fflush(stdout);
-	}
-	l_print(L);
-	//	fflush(stdout);
-  } else {
-	report(L, status);
+    goto call;
   }
 
- exit:
-  lua_settop(L, 0);  /* clear stack */
+  if(status == STATUS_INCOMPLETE) {
+    printf(" <incomplete...>\n"); fflush(stdout);
+    goto exit;
+  }
+
+call: // call the compiled function on the top of the stack
+  status = docall(L, 0, LUA_MULTRET);
+  if (status == LUA_OK) {
+    //    printf("<evaluation completed with %d stack elements>\n",
+    // lua_gettop(L));
+    if(lua_gettop(L) == 0) {
+      printf(" <ok>\n"); fflush(stdout);
+    }
+    l_print(L);
+    //	fflush(stdout);
+  } else {
+    report(L, status);
+  }
+
+exit:
+  lua_settop(L, 0); /* clear stack */
   // caller is responsible for freeing the buffer
   return 0;
 }
