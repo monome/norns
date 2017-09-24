@@ -264,7 +264,6 @@ int l_handle_line (lua_State *L, char *line) {
   lua_settop(L, 0);
   l = strlen(line);
   if ( (l > 0) && (line[l - 1] == '\n') ) {
-    // printf("zap trailing newline\n"); fflush(stdout);
     line[--l] = '\0';
   }
   lua_pushlstring(L, line, l);
@@ -292,8 +291,8 @@ call: // call the compiled function on the top of the stack
     if(lua_gettop(L) == 0) {
       printf(" <ok>\n"); fflush(stdout);
     }
-    l_print(L);
-    //	fflush(stdout);
+    l_print(L);    
+    fflush(stdout);
   } else {
     report(L, status);
   }
