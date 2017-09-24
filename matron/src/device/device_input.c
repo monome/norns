@@ -88,7 +88,7 @@ int dev_input_init(void *self) {
   const char *name;
 
   if (fd < 0) {
-    printf("failed to open input device\n");
+    printf("failed to open input device: %s\n", d->base.path);
     fflush(stdout);
     return -1;
   }

@@ -5,17 +5,22 @@
  *
  */
 
-#include <pthread.h>
-
-#include <signal.h>
+// standard
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// linux
+#include <pthread.h>
+#include <signal.h>
+#include <unistd.h>
+
+// lua
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 
+// norns
 #include "device_input.h"
 #include "device_monome.h"
 #include "events.h"
@@ -99,6 +104,7 @@ void w_init(void) {
   } else {
     snprintf(cmd, 256, "dofile('%s')\n", config);
   }
+  printf("running lua config flie: %s", cmd);
   w_run_code(cmd);
   w_run_code("require('norns')");
 }

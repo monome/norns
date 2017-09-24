@@ -16,7 +16,7 @@ INC += -I/usr/include/libevdev-1.0/libevdev
 
 LDFLAGS =
 
-LIB = -lm -ldl -llo -lpthread -lmonome -ludev -levdev
+LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm
 
 STATIC = lua/liblua.a
 
@@ -44,7 +44,7 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	$(CC) -c $(CFLAGS) $(INC) $< -o $@  
 
 $(TARGET): $(OBJ) $(STATIC)
-	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(LIB) $(STATIC)
+	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(STATIC) $(LIB)
 
 lua/liblua.a:
 	cd lua && make 
