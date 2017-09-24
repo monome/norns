@@ -48,6 +48,7 @@ norns.report.engines = function(names, count)
 end
 
 norns.report.commands = function(commands, count)
+   print("norns.report.commands")
    addEngineCommands(commands, count)
    --  call the script-defined report callback.
    -- this is helpful for a script to continue execution once an engine is loaded.

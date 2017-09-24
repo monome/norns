@@ -8,14 +8,16 @@
 -- args: table of strings
 -- body: function body
 function defineFunction(target, args, body)
-   local str = target .. " = function ( "
+   local str = target .. " = function ("
    for k,v in pairs(args) do
 	  str = str .. v .. ","
    end
    str = string.sub(str, 0, -2) -- strip trailing ','
-   str = str .. " ) \n " .. body .. " \n end "
-   local func = assert(loadstring(str))
-   func()
+   str = str .. ") " .. body .. " end \n"
+
+   local func = load(str)
+   if(func ~= nil) then func()
+   else print("error defining function: \n" .. str .. "\n") end
 end
 
 
@@ -25,13 +27,13 @@ function defineEngineCommand(idx, name, fmt)
    local args = {};
    local target = "norns.engine." .. name
    local body = 'send_command(' .. idx .. ','
+
    for i=1,#fmt do
 	  args[i] = "arg"..i
 	  body = body .. args[i] .. ','
    end
    body = string.sub(body, 0, -2) -- zap trailing ','
-   body = body .. ' )'
-
+   body = body .. ')'
    defineFunction(target, args, body)
 end
 
@@ -40,7 +42,6 @@ function addEngineCommands(commands, count)
    norns.engine = {} -- clear existing commands
    norns.engine.commands = commands
    for i=1,count do
-	  print(i .. ": " .. commands[i][1] .. " (" .. commands[i][2] .. ")")
-	  defineEngineCommand(i, commands[i][1], commands[i][2])
+      defineEngineCommand(i, commands[i][1], commands[i][2])
    end
 end

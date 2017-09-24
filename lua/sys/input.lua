@@ -4,6 +4,7 @@
 
 norns.version.input = '0.0.1'
 
+-- input device class
 InputDevice = {}
 InputDevice.__index = InputDevice
 
@@ -42,6 +43,7 @@ function InputDevice:print()
    end
 end
 
+-- global device management functions
 norns.input = {}
 norns.input.devices = {}
 require('input_device_codes')
@@ -54,11 +56,11 @@ norns.input.add = function(id, serial, name, types, codes)
 end
 
 norns.input.remove = function()
-   -- TODO
+   -- TODO!
 end
 
-norns.input.event = function(id, type, code, value)
+norns.input.event = function(id, devtype, code, value)
    if input.event ~= nil then
-	  input.event(id, type, code, value)
+	  input.event(id, devtype, code, value)
    end
 end

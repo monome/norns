@@ -24,6 +24,9 @@
 //---------------------
 //--- types and defines
 
+// scan everything in /dev/input, not ust usb devices..
+// #define TRY_ALL_INPUT_DEVICES
+
 #define SUB_NAME_SIZE 32
 #define NODE_NAME_SIZE 128
 #define WATCH_TIMEOUT_MS 100
@@ -43,7 +46,7 @@ struct watch {
 //----- static variables
 
 // watchers
-/* FIXME: these names and patterns should be taken from config.lua
+/* FIXME: these names and patterns should be taken from config.lua, maybe?
  */
 static struct watch w[DEV_TYPE_COUNT] = {
   {
@@ -148,9 +151,15 @@ int dev_monitor_scan(void) {
     udev_list_entry_foreach(dev_list_entry, devices) {
       const char *path;
       path = udev_list_entry_get_name(dev_list_entry);
+      printf("scanning with udev at path: %s \n", path);
       dev = udev_device_new_from_syspath(udev, path);
       if (dev != NULL) {
-        if( udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL) ) {
+#ifdef TRY_ALL_INPUT_DEVICES
+	if(1) {
+#else
+	  if( udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL) ) {
+#endif
+	  // printf("found usb input device; type: %d \n", check_dev_type(dev));
           node = udev_device_get_devnode(dev);
           if(node != NULL) {
             device_t t = check_dev_type(dev);
@@ -160,6 +169,9 @@ int dev_monitor_scan(void) {
           }
           udev_device_unref(dev);
         }
+	//	else {
+	//	  printf("found non-usb input device; type: %d \n", check_dev_type(dev));
+	//	}
       }
     }
     udev_enumerate_unref(ue);
@@ -223,7 +235,11 @@ device_t check_dev_type (struct udev_device *dev) {
     // FIXME:
     // for now, just get USB devices.
     // eventually we might want to use this same system for GPIO, &c...
+#ifdef TRY_ALL_INPUT_DEVICES
+    if(1) {
+#else
     if( udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL) ) {
+#endif
       for(int i = 0; i < DEV_TYPE_COUNT; i++) {
         fflush(stdout);
         reti = regexec(&w[i].node_regex, node, 0, NULL, 0);

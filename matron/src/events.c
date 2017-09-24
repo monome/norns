@@ -224,6 +224,7 @@ void handle_command_report(void) {
   o_lock_descriptors();
   const struct engine_command *p = o_get_commands();
   const int n = o_get_num_commands();
+  printf("handling command report with %d commands \n", n);
   w_handle_command_report(p, n);
   o_unlock_descriptors();
 }

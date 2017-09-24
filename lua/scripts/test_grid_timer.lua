@@ -26,8 +26,9 @@ end
 local displaystage = 1;
 local bright = 1;
 
+-- timer callback (shared by all timers)
 timer = function(idx, stage)
-   if idx == 1 then
+   if idx == 1 then -- check that this CB was fired from timer 1
 	  if m ~= nil then
 		 -- turn off the old stage
 		 m:led(displaystage, 1, 0)

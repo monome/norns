@@ -24,22 +24,22 @@ Crone {
 			// FIXME: hardcoded remote address for now
 			remote_addr =NetAddr("127.0.0.1", tx_port);
 
-			// FIXME: osc patterns should be customized by current engine
+			// FIXME: osc patterns should be customized by current engine (?)
 			// this is dependent on adding support to the C side
 			oscfunc = (
-				
+
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
 					this.reportEngines;
 				}, '/report/engines'),
-				
+
 				'/report/commands':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
 					this.reportCommands;
 				}, '/report/commands'),
-				
+
 				'/engine/kill':OSCFunc.new({
 					if(engine.notNil, { engine.kill; });
 				}, '/engine/kill'),
