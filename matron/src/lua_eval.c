@@ -266,6 +266,7 @@ int l_handle_line (lua_State *L, char *line) {
   if ( (l > 0) && (line[l - 1] == '\n') ) {
     line[--l] = '\0';
   }
+
   lua_pushlstring(L, line, l);
   // try evaluating as an expression
   status = add_return(L);
@@ -279,7 +280,7 @@ int l_handle_line (lua_State *L, char *line) {
   }
 
   if(status == STATUS_INCOMPLETE) {
-    printf(" <incomplete...>\n"); fflush(stdout);
+    printf("<incomplete>\n"); fflush(stdout);
     goto exit;
   }
 
@@ -289,9 +290,11 @@ call: // call the compiled function on the top of the stack
     //    printf("<evaluation completed with %d stack elements>\n",
     // lua_gettop(L));
     if(lua_gettop(L) == 0) {
-      printf(" <ok>\n"); fflush(stdout);
+      printf("<ok>\n");
+      fflush(stdout);
     }
-    l_print(L);    
+    l_print(L);
+    printf("\n");
     fflush(stdout);
   } else {
     report(L, status);

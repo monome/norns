@@ -135,7 +135,9 @@ static void page_line(int i, char *str) {
   pthread_mutex_lock(&exit_lock);
   if(!should_exit)  {
     page_append(i, str);
-    doupdate();
+    if( page_id() == i) { 
+      doupdate();
+    }
   }
   pthread_mutex_unlock(&exit_lock);
 }
@@ -145,7 +147,16 @@ void ui_crone_line(char *str) {
 }
 
 void ui_matron_line(char *str) {
-  page_line(PAGE_MATRON, str);
+  // FIXME: sloppy way to handle this
+  if(strcmp(str, " <ok>\n") == 0) {
+    mvwprintw(sep_win, 0, 0, "<ok>");
+  } else if(strcmp(str, " <incomplete>\n") == 0) {
+    mvwprintw(sep_win, 0, 0, "<incomplete>");
+  } else {
+    mvwprintw(sep_win, 0, 0, "              ");
+    page_line(PAGE_MATRON, str);
+  }
+  wrefresh(sep_win);
 }
 
 //-------------------------------
