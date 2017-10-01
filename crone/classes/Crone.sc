@@ -1,6 +1,7 @@
 // the Crone, a singleton class
 // it receives OSC from *matron* and manages the current CroneEngine
 Crone {
+	classvar <>server;
 	classvar <>engine; // current CroneEngine instance
 	classvar <>oscfunc;
 	classvar <>remote_addr;
@@ -17,11 +18,19 @@ Crone {
 			postln(" \OSC tx port: " ++ tx_port);
 			postln("--------------------------------------------------\n");
 
-			Server.default.waitForBoot {
+			//			server = Server.remote(\crone, NetAddr("127.0.0.1", 66666));
+
+			// FIXME: wait here if remote server isn't booted yet
+			//			CroneDefs.sendDefs(server);
+			
+
+			/*
+			server.waitForBoot {
 				CroneDefs.sendDefs;
 			};
+			*/
 
-			// FIXME: hardcoded remote address for now
+			// FIXME: hardcoded remote client address for now
 			remote_addr =NetAddr("127.0.0.1", tx_port);
 
 			// FIXME: osc patterns should be customized by current engine (?)
