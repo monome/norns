@@ -18,17 +18,16 @@ Crone {
 			postln(" \OSC tx port: " ++ tx_port);
 			postln("--------------------------------------------------\n");
 
-			//			server = Server.remote(\crone, NetAddr("127.0.0.1", 66666));
 
-			// FIXME: wait here if remote server isn't booted yet
-			//			CroneDefs.sendDefs(server);
-			
+			Server.default = server = Server.remote(\crone, NetAddr("127.0.0.1", 57110));
 
-			/*
-			server.waitForBoot {
-				CroneDefs.sendDefs;
-			};
-			*/
+			server.doWhenBooted ({
+				// this is necessary due to a bug in sclang terminal timer!
+				// GH issue 2144 on upstream supercollider
+				// hoping for fix in 3.9 release
+				server.statusWatcher.stopAliveThread;
+				CroneDefs.sendDefs(server);
+			});
 
 			// FIXME: hardcoded remote client address for now
 			remote_addr =NetAddr("127.0.0.1", tx_port);
