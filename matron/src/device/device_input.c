@@ -79,7 +79,7 @@ static void dev_input_print(struct dev_input *d ) {
   fflush(stdout);
 }
 
-int dev_input_init(void *self) {
+int dev_input_init(void *self, bool print) {
   struct dev_input *d = (struct dev_input *)self;
   struct dev_common *base = (struct dev_common *)self;
   struct libevdev *dev = NULL;
@@ -115,7 +115,7 @@ int dev_input_init(void *self) {
   base->serial = calloc( 12, sizeof(char) );
   sprintf(base->serial, "%04X%04X", d->vid, d->pid);
 
-  dev_input_print(d);
+  if(print ) { dev_input_print(d); }
 
   base->start =  &dev_input_start;
   base->deinit = &dev_input_deinit;

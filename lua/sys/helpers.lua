@@ -45,3 +45,12 @@ function addEngineCommands(commands, count)
       defineEngineCommand(i, commands[i][1], commands[i][2])
    end
 end
+
+function runWithErrorCheck(name)
+   res, err = dofile(name)
+   if res == nil then
+      print(err)
+   else
+      result()
+   end
+end

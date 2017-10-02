@@ -23,7 +23,7 @@ union dev *dev_new(device_t type, const char *path) {
     dev_monome_init(d);
     break;
   case DEV_TYPE_INPUT:
-    dev_input_init(d);
+    dev_input_init(d, false);
     break;
   default:
     // this is an error

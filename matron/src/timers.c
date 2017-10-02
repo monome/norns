@@ -4,12 +4,17 @@
  * accurate timers using pthreads and clock_nanosleep.
  */
 
-#include <pthread.h>
+// std
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+// posix / linux
+#include <errno.h>
+#include <pthread.h>
 #include <time.h>
 
+// norns
 #include "events.h"
 #include "timers.h"
 
@@ -41,6 +46,7 @@ struct timer timers[MAX_NUM_TIMERS_OK];
 
 static void timer_handle_error(int code, const char *msg) {
   printf("error code: %d ; message: \"%s\"", code, msg); fflush(stdout);
+  
 }
 
 static void timer_init(struct timer *t, uint64_t nsec, int count);
@@ -122,6 +128,20 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
     res = pthread_setschedparam (t->tid, SCHED_RR, &param);
     if(res != 0) {
       timer_handle_error(res, "pthread_setschedparam");
+      printf("\n");
+      switch(res) {
+      case ESRCH:
+	printf("specified thread does not exist\n");
+	break;
+      case EINVAL:
+	printf("invalud thread policy value or associated parameter\n");
+	break;
+      case EPERM:
+	printf("caller lacks permission for requested scheduling parameter / policy\n");
+	break;
+      default:
+	printf("unknown error code \n");
+      }
       return;
     }
     t->status = TIMER_STATUS_RUNNING;

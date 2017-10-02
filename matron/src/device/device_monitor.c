@@ -143,7 +143,7 @@ int dev_monitor_scan(void) {
   for(int i = 0; i < DEV_TYPE_COUNT; i++) {
     struct udev_enumerate *ue;
     struct udev_list_entry *devices, *dev_list_entry;
-    printf("scanning for devices of type %s\n", w[i].sub_name); fflush(stdout);
+    // printf("scanning for devices of type %s\n", w[i].sub_name); fflush(stdout);
     ue = udev_enumerate_new(udev);
     udev_enumerate_add_match_subsystem(ue, w[i].sub_name);
     udev_enumerate_scan_devices(ue);
@@ -151,7 +151,7 @@ int dev_monitor_scan(void) {
     udev_list_entry_foreach(dev_list_entry, devices) {
       const char *path;
       path = udev_list_entry_get_name(dev_list_entry);
-      printf("scanning with udev at path: %s \n", path);
+      // printf("scanning with udev at path: %s \n", path);
       dev = udev_device_new_from_syspath(udev, path);
       if (dev != NULL) {
 #ifdef TRY_ALL_INPUT_DEVICES

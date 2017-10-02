@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <libevdev.h>
 #include "device_common.h"
@@ -25,6 +26,6 @@ struct dev_input {
   dev_code_t **codes;
 };
 
-extern int dev_input_init(void *self);
+extern int dev_input_init(void *self, bool print);
 extern void *dev_input_start(void *self);
 extern void dev_input_deinit(void *self);

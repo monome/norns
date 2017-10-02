@@ -109,7 +109,7 @@ void w_init(void) {
   } else {
     snprintf(cmd, 256, "dofile('%s')\n", config);
   }
-  printf("running lua config flie: %s", cmd);
+  printf("running lua config file: %s", cmd);
   w_run_code(cmd);
   w_run_code("require('norns')");
 }
@@ -122,7 +122,7 @@ void w_user_startup(void) {
 }
 
 void w_deinit(void) {
-  // FIXME: lua is leaking memory
+  // FIXME: lua is leaking memory. doesn't really matter
 }
 
 //----------------------------------
@@ -358,9 +358,9 @@ int w_get_time(lua_State *l) {
   struct timezone tz;
   gettimeofday(&tv, &tz);
   // returns two results: seconds, microseconds
-  lua_pushinteger(l, tv.tv_sec);
-  lua_pushinteger(l, tv.tv_usec);
-  return 0;
+  lua_pushinteger(l, (lua_Integer)tv.tv_sec);
+  lua_pushinteger(l, (lua_Integer)tv.tv_usec);
+  return 2;
 }
 
 //---- c -> lua glue
