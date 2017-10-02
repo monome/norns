@@ -6,13 +6,13 @@ AudioContext {
 	// input, process, output groups
 	var <>ig, <>xg, <>og;
 	// input, output busses
-	var in_b, out_b;
+	var <>in_b, <>out_b;
 	// analysis busses
-	var in_amp_b, out_amp_b, pitch_b;
+	var <>in_amp_b, <>out_amp_b, <>pitch_b;
 	// input, output, monitor synths
-	var in_s, out_s, mon_s;
+	var <>in_s, <>out_s, <>mon_s;
 	// analysis synths
-	var in_amp_s, out_amp_s, pitch_s;
+	var <>in_amp_s, <>out_amp_s, <>pitch_s;
 	
 	*new { arg srv;
 		^super.new.init(srv);

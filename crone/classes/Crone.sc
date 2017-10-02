@@ -21,7 +21,7 @@ Crone {
 
 	*initClass {
 
-		polls = Dictionary.new;
+		poll_threads = Dictionary.new;
 		
 		StartUp.add { // defer until after sclang init
 
@@ -43,7 +43,7 @@ Crone {
 				server.initTree;
 				CroneDefs.sendDefs(server);
 
-			ctx = AudioContext.new(server);
+				ctx = AudioContext.new(server);
 				
 			});
 
