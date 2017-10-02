@@ -1,18 +1,27 @@
 // the Crone, a singleton class
 // it receives OSC from *matron* and manages the current CroneEngine
 Crone {
+	// the audio server
 	classvar <>server;
-	classvar <>engine; // current CroneEngine instance
+	// current CroneEngine subclass instance
+	classvar <>engine; 
+	// available OSC functions
 	classvar <>oscfunc;
+	// address of remote client
 	classvar <>remote_addr;
+	// port to send OSC on 
 	classvar <>tx_port = 8888;
-
-
-	classvar <>report_threads;
+	
+	// polling threads
+	classvar <>poll_threads;
+	// FIXME: polling 
+	
+	// an AudioContext
+	classvar <>ctx;
 
 	*initClass {
 
-		report_threads = Dictionary.new;
+		polls = Dictionary.new;
 		
 		StartUp.add { // defer until after sclang init
 
@@ -22,10 +31,10 @@ Crone {
 			postln(" \OSC rx port: " ++ NetAddr.langPort);
 			postln(" \OSC tx port: " ++ tx_port);
 			postln("--------------------------------------------------\n");
-
-
+			
 			Server.default = server = Server.remote(\crone, NetAddr("127.0.0.1", 57110));
 
+			
 			server.doWhenBooted ({
 				// this is necessary due to a bug in sclang terminal timer!
 				// GH issue 2144 on upstream supercollider
@@ -33,6 +42,9 @@ Crone {
 				server.statusWatcher.stopAliveThread;
 				server.initTree;
 				CroneDefs.sendDefs(server);
+
+			ctx = AudioContext.new(server);
+				
 			});
 
 			// FIXME: hardcoded remote client address for now
@@ -41,7 +53,7 @@ Crone {
 			oscfunc = (
 
 				'/report/engines':OSCFunc.new({
-					arg msg, time, addr, recvPort;
+				arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
 					this.reportEngines;
 				}, '/report/engines'),
@@ -52,22 +64,33 @@ Crone {
 					this.reportCommands;
 				}, '/report/commands'),
 
-				'/report/reports':OSCFunc.new({
+				'/report/polls':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
-					this.reportReports;
-				}, '/report/reports'),
+					this.reportPolls;
+				}, '/report/polls'),
 
 				'/engine/kill':OSCFunc.new({
 					if(engine.notNil, { engine.kill; });
 				}, '/engine/kill'),
 
-
 				'/engine/load/name':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg,time,addr,recvPort].postln;
 					this.setEngine("CroneEngine_" ++ msg[1]);
-				}, '/engine/load/name')
+				}, '/engine/load/name'),
+
+				'/poll/start':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg,time,addr,recvPort].postln;
+					this.startPoll(msg[1]);
+				}, '/poll/start'),
+
+				'/poll/stop':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg,time,addr,recvPort].postln;
+					this.stopPoll(msg[1]);
+				}, '/poll/stop')
 			);
 		}
 	}
@@ -88,24 +111,18 @@ Crone {
 	}
 
 	// start a thread to continuously send a named report with a given interval
-	*startReport { arg name, intervalMs =100;		
-		var rt = report_threads[name.asSymbol];
-		var func;
-		if(rt.notNil, {
-			// there is already a report thread running
-			// just change the reporting interval
-			rt.setTime(intervalMs * 0.001);
-		}, {
-			
+	*startPoll { arg name, intervalMs =100;		
+		var pt = poll_threads[name.asSymbol];		
+		if(pt.notNil, {
+			pt.start;
 		});
 	}
 
-	*stopReport { arg name;
-		var rt = report_threads[name.asSymbol];
-		if(rt.notNil, {
-			rt.stop;
-		});
-		
+	*stopPoll { arg name;
+		var pt = poll_threads[name.asSymbol];
+		if(pt.notNil, {
+			pt.stop;
+		});		
 	}
 
 	*reportEngines {
@@ -132,14 +149,5 @@ Crone {
 		remote_addr.sendMsg("/report/commands/end");
 	}
 
-	*reportReports {
-		var reports = engine.reports;
-		postln("reports: " ++ reports);
-		remote_addr.sendMsg("/report/reports/start", reports.size);
-		reports.do({ arg rep, i;
-			postln("report entry: " ++ [i, rep.name, rep.format]);
-			remote_addr.sendMsg("/report/reports/entry", i, rep.name, rep.format);
-		});
-		remote_addr.sendMsg("/report/reports/end");
-	}
+
 }

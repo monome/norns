@@ -8,8 +8,7 @@ CroneEngine {
 	var <commands;
 	var <commandNames;
 
-	var <reports;
-	var <reportNames;
+	var <polls;
 
 	*new { arg serv;
 		^super.new.init(serv);
@@ -20,8 +19,8 @@ CroneEngine {
 		group = Group.new(server);
 		commands = List.new;
 		commandNames = Dictionary.new;
-		reports = List.new;
-		reportNames = Dictionary.new;
+		//		reports = List.new;
+		//		reportNames = Dictionary.new;
 	}
 
 	// NB: subclasses should override this if they need to free resources
@@ -52,27 +51,6 @@ CroneEngine {
 		});
 		^idx
 	}
-
-	addReport { arg name, format, func;
-		var idx, cmd;
-		name = name.asSymbol;
-		if(reportNames[name].isNil, {
-			idx = reportNames.size;
-			reportNames[name] = idx;
-			cmd = Event.new;
-			cmd.name = name;
-			cmd.format = format;
-			cmd.oscdef = OSCdef(name.asSymbol, {
-				arg msg, time, addr, recvPort;
-				func.value(msg);
-			}, ("/report/"++name).asSymbol);
-			reports.add(cmd);
-		}, {
-			idx = reportNames[name];
-		});
-		^idx
-	}
-
 
 }
 

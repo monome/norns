@@ -1,12 +1,14 @@
 // class for repeatedly sending the result of some function
 
-ReportThread {
+PollThread {
 	// a Routine
 	var r;
 	// a time interval2
 	var t;
 	// a function to evaluate
 	var f;
+
+	var isRunning;
 	
 	*new { arg func = {}, time=0.1;
 		^super.new.init(func, time);
@@ -17,15 +19,22 @@ ReportThread {
 		t = time;
 		r = Routine { inf.do {
 			func.value;
-		}}
+		}};
+		isRunning = false;
 	}
 
 	start {
-		r.play;
+		if(isRunning.not, { 
+			r.play;
+			isRunning = true;
+		});
 	}
 
 	stop {
-		r.stop;
+		if(isRunning, { 
+			r.stop;
+			isRunning = false;
+		});
 	}
 
 	setTime { arg time;

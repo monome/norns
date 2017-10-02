@@ -32,6 +32,22 @@ CroneDefs {
             Out.ar(out, InFeedback.ar(in) * ampenv);
         }).send(s);
 
+		// stereo patch with smoothing
+        SynthDef.new(\patch_stereo, {
+            arg in, out, level=1.0, lag=0.01;
+            var ampenv = Lag.ar(K2A.ar(level), lag);
+            Out.ar(out, In.ar(in, 2) * ampenv);
+        }).send(s);
+
+
+		// mono->stereo patch with smoothing and pan
+		SynthDef.new(\patch_pan, {
+			arg in, out, level=1.0, pan=0, lag=0.01;
+			var ampenv = Lag.ar(K2A.ar(level), lag);
+			var panenv = Lag.ar(K2A.ar(pan), lag);
+			Out.ar(out, Pan2.ar(In.ar(in) * ampenv, pan));
+		});
+
         // record with some level smoothing
         SynthDef.new(\rec_smooth, {
             arg buf, in, offset=0, rec=1, pre=0, lag=0.01,
@@ -47,8 +63,34 @@ CroneDefs {
         }).send(s);
         
         // raw mono adc input
-        SynthDef.new(\adc, { |in, out| Out.ar(out, SoundIn.ar(in)) }).send(s);
-        
+        SynthDef.new(\adc, {
+			arg in, out;
+			Out.ar(out, SoundIn.ar(in))
+		}).send(s);
+
+		// envelope follower (audio input, control output)
+		SynthDef.new(\amp_env, {
+			arg in, out, atk=0.01, rel=0.01;
+			var amp = abs(A2K.kr(In.ar(in)));
+			Out.kr(out, LagUD.kr(amp, atk, rel));	
+		});
+
+		// pitch follower
+		SynthDef.new(\pitch, {
+			arg in, out,
+			initFreq = 440.0, minFreq = 60.0, maxFreq = 4000.0,
+			execFreq = 100.0, maxBinsPerOctave = 16, median = 1,
+			ampThreshold = 0.01, peakThreshold = 0.5, downSample = 1, clar=0;
+			// Pitch ugen outputs an array of two values:
+			// first value is pitch, second is a clarity value in [0,1]
+			// if 'clar' argument is 0 (default) then clarity output is binary
+			var pc = Pitch.kr(in,
+				initFreq , minFreq , maxFreq ,
+				execFreq , maxBinsPerOctave , median ,
+				ampThreshold , peakThreshold , downSample , clar
+			);
+			Out.kr(out, pc);
+		}).send(s);
     }
     
 }
