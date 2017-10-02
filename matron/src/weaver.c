@@ -10,10 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-// linux
+// linux / posix
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 // lua
 #include <lua.h>
@@ -57,6 +58,8 @@ static int w_send_command(lua_State *l);
 // timers
 static int w_timer_start(lua_State *l);
 static int w_timer_stop(lua_State *l);
+// request current time since Epoch
+static int w_get_time(lua_State *l);
 
 // screen functions
 // TODO
@@ -93,6 +96,8 @@ void w_init(void) {
 
   lua_register(lvm, "timer_start", &w_timer_start);
   lua_register(lvm, "timer_stop", &w_timer_stop);
+
+  lua_register(lvm, "get_time", &w_get_time);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -206,8 +211,8 @@ int w_send_command(lua_State *l) {
     int idx = (int)lua_tonumber(l, 1) - 1; // 1-base to 0-base
     // FIXME? guess should be wrapped in descriptor access lock...
     // but this will not be called often and a collision seems unlikely here
-    cmd = o_get_commands()[idx].cmd;
-    fmt = o_get_commands()[idx].fmt;
+    cmd = o_get_commands()[idx].name;
+    fmt = o_get_commands()[idx].format;
   } else {
     printf("failed type check on first arg \n");
     goto args_error;
@@ -346,6 +351,18 @@ args_error:
   return 1;
 }
 
+
+// request current time since Epoch
+int w_get_time(lua_State *l) {
+  struct timeval tv;
+  struct timezone tz;
+  gettimeofday(&tv, &tz);
+  // returns two results: seconds, microseconds
+  lua_pushinteger(l, tv.tv_sec);
+  lua_pushinteger(l, tv.tv_usec);
+  return 0;
+}
+
 //---- c -> lua glue
 
 //--- hardware input:
@@ -456,13 +473,18 @@ void w_handle_command_report(const struct engine_command *arr,
   // push a table of tables: {{cmd, fmt}, {cmd,fmt}, ...}
   lua_createtable(lvm, num, 0);
   for(int i = 0; i < num; i++) {
+    // create subtable on stack
     lua_createtable(lvm, 2, 0);
-    lua_pushstring(lvm, arr[i].cmd);
+    // put command string on stack; assign to subtable; pop
+    lua_pushstring(lvm, arr[i].name);
     lua_rawseti(lvm, -2, 1);
-    lua_pushstring(lvm, arr[i].fmt);
+    lua_pushstring(lvm, arr[i].format);
+    // put format string on stack; assign to subtable; pop
     lua_rawseti(lvm, -2, 2);
+    // subtable is on stack; assign to master table and pop
     lua_rawseti(lvm, -2, i + 1);
   }
+  // second return value is table size
   lua_pushinteger(lvm, num);
   l_report( lvm, l_docall(lvm, 2, 0) );
 }
@@ -476,3 +498,5 @@ void w_handle_timer(const int idx, const int stage) {
   lua_pushinteger(lvm, stage + 1); // convert to 1-based
   l_report( lvm, l_docall(lvm, 2, 0) );
 }
+
+

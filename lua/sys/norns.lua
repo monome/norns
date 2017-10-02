@@ -37,7 +37,7 @@ norns.engine = {}
 
 -- table of handlers for descriptor reports
 norns.report = {}
-report = {} -- <-- script callbacks go in here
+report = {} -- <-- script-defined callbacks go in here
 
 norns.report.engines = function(names, count)
    print(count .. " engines: ")
@@ -50,12 +50,13 @@ end
 norns.report.commands = function(commands, count)
    print("norns.report.commands")
    addEngineCommands(commands, count)
-   --  call the script-defined report callback.
+   -- call the script-defined report callback.
    -- this is helpful for a script to continue execution once an engine is loaded.
    if report.commands ~= nil then report.commands(commands, count) end
 end
 
 norns.timer = function(idx, stage)
+   -- call script-defined timer callback
    if timer ~= nil then timer(idx,stage) end
 end
 

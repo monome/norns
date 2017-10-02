@@ -185,8 +185,8 @@ void o_init_descriptors(void) {
   pthread_mutex_init(&desc_lock, NULL);
   for(int i = 0; i < MAX_NUM_DESC; i++) {
     engine_names[i] = NULL;
-    commands[i].cmd = NULL;
-    commands[i].fmt = NULL;
+    commands[i].name = NULL;
+    commands[i].format = NULL;
   }
 }
 
@@ -206,11 +206,11 @@ void o_clear_engine_names(void) {
 void o_clear_commands(void) {
   o_lock_descriptors();
   for(int i = 0; i < num_commands; i++) {
-    if( ( commands[i].cmd != NULL) && ( commands[i].fmt != NULL) ) {
-      free(commands[i].cmd);
-      free(commands[i].fmt);
-      commands[i].cmd = NULL;
-      commands[i].fmt = NULL;
+    if( ( commands[i].name != NULL) && ( commands[i].format != NULL) ) {
+      free(commands[i].name);
+      free(commands[i].format);
+      commands[i].name = NULL;
+      commands[i].format = NULL;
     } else {
       printf("o_clear_commands: encountered unexpected null entry \n");
     }
@@ -240,18 +240,18 @@ void o_set_engine_name(int idx, const char *name) {
 void o_set_command(int idx, const char *cmd, const char *fmt) {
   size_t cmd_len, fmt_len;
   o_lock_descriptors();
-  if( (commands[idx].cmd != NULL) || (commands[idx].fmt != NULL) ) {
+  if( (commands[idx].name != NULL) || (commands[idx].format != NULL) ) {
     printf("refusing to allocate command name %d; already exists", idx);
   } else {
     cmd_len = strlen(cmd);
     fmt_len = strlen(fmt);
-    commands[idx].cmd = malloc(cmd_len + 1);
-    commands[idx].fmt = malloc(fmt_len + 1);
-    if ( ( commands[idx].cmd == NULL) || ( commands[idx].fmt == NULL) ) {
+    commands[idx].name = malloc(cmd_len + 1);
+    commands[idx].format = malloc(fmt_len + 1);
+    if ( ( commands[idx].name == NULL) || ( commands[idx].format == NULL) ) {
       printf("failure to malloc for command %d : %s %s \n", idx, cmd, fmt);
     } else {
-      strncpy(commands[idx].cmd, cmd, cmd_len + 1);
-      strncpy(commands[idx].fmt, fmt, fmt_len + 1);
+      strncpy(commands[idx].name, cmd, cmd_len + 1);
+      strncpy(commands[idx].format, fmt, fmt_len + 1);
     }
   }
   o_unlock_descriptors();
@@ -358,3 +358,4 @@ void lo_error_handler(int num, const char *m, const char *path) {
   printf("liblo error %d in path %s: %s\n", num, path, m);
   fflush(stdout);
 }
+

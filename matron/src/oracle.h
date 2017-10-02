@@ -15,8 +15,14 @@
 
 // data structure for engine command descriptor/header
 struct engine_command {
-  char *cmd; // command string
-  char *fmt; // format string
+  char *name; // name string
+  char *format; // format string
+};
+
+// data structure for engine report descriptor/headerx
+struct report {
+  char *name; // name string
+  char *format; // format string
 };
 
 // initialize
@@ -29,13 +35,16 @@ extern void o_deinit();
 // get count of desctipors
 extern int o_get_num_engines(void);
 extern int o_get_num_commands(void);
+extern int o_get_num_reports(void);
 //extern int o_get_num_buffers(void);
 //extern int o_get_num_params(void);
 
 // get engine names (array of c strings)
 extern const char **o_get_engine_names(void);
-// get current engine commands (array of structs)
+// get available engine commands (array of structs)
 extern const struct engine_command *o_get_commands(void);
+// get available reports
+extern const struct report *o_get_reports(void);
 
 /* extern const char** o_get_buffer_names(void); */
 /* extern const char** o_get_param_names(void); */
