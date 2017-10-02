@@ -1,10 +1,15 @@
-// an audio "engine." only one exists at a time.
+// an audio "engine."
+// maintains some DSP processing and provides control over parameters and analysis results
+
 CroneEngine {
 	var <server;
 	var <group;
 
 	var <commands;
 	var <commandNames;
+
+	var <reports;
+	var <reportNames;
 
 	*new { arg serv;
 		^super.new.init(serv);
@@ -15,10 +20,13 @@ CroneEngine {
 		group = Group.new(server);
 		commands = List.new;
 		commandNames = Dictionary.new;
+		reports = List.new;
+		reportNames = Dictionary.new;
 	}
 
+	// NB: subclasses should override this if they need to free resources
+	// but the superclass method should be called as well
 	kill {
-		// TODO: let the subclasses decide how to do this more gracefully
 		group.free;
 		commands.do({ arg com;
 			com.oscdef.free;
@@ -44,6 +52,27 @@ CroneEngine {
 		});
 		^idx
 	}
+
+	addReport { arg name, format, func;
+		var idx, cmd;
+		name = name.asSymbol;
+		if(reportNames[name].isNil, {
+			idx = reportNames.size;
+			reportNames[name] = idx;
+			cmd = Event.new;
+			cmd.name = name;
+			cmd.format = format;
+			cmd.oscdef = OSCdef(name.asSymbol, {
+				arg msg, time, addr, recvPort;
+				func.value(msg);
+			}, ("/report/"++name).asSymbol);
+			reports.add(cmd);
+		}, {
+			idx = reportNames[name];
+		});
+		^idx
+	}
+
 
 }
 

@@ -1,6 +1,6 @@
-// Crone_TestSine
+// CroneEngine_TestSine
 // dumbest possible test: a single, mono sinewave
-Crone_TestSine : CroneEngine {
+CroneEngine_TestSine : CroneEngine {
 	var <synth;
 
 	*new { arg serv_;
@@ -18,7 +18,6 @@ Crone_TestSine : CroneEngine {
 		}.play(this.group);
 		
 		this.addCommand("hz", "f", { arg msg;
-			//			postln("set/hz: " ++ msg);			
 			var val = msg[1];
 			postln("set hz : " ++ val);
 			synth.set(\hz, val);
@@ -26,7 +25,6 @@ Crone_TestSine : CroneEngine {
 		});
 
 		this.addCommand("amp", "f", { arg msg;
-			//			postln("set/amp: " ++ msg);
 			var val = msg[1];
 			postln("set amp : " ++ val);
 			synth.set(\amp, val);

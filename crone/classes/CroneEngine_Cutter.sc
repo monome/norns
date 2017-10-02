@@ -1,5 +1,5 @@
 
-Crone_Cutter : CroneEngine {
+CroneEngine_Cutter : CroneEngine {
 	classvar nvoices = 4;
 	classvar nbufs = 4;
 	classvar bufdur = 64.0;
@@ -19,79 +19,105 @@ Crone_Cutter : CroneEngine {
 		^super.new.initSub(srv);
 	}
 
+	kill {
+		buf.do({ |b| b.free; });
+		^super.kill;
+	}
+	
 	initSub { arg srv;
 		var com;
 		var pb_out_b;
+		var bufcon;
 		
 		s = srv;
 
-		//--- groups
-		gr = Event.new;
-		// groups: adc -> playback -> record -> dac
-		gr.adc = Group.new(s);
-		gr.pb = Group.after(gr.adc);
-		gr.rec = Group.after(gr.pb);
-		gr.dac = Group.after(gr.rec);
 		
-		//--- busses
-		bus = Event.new;
-		bus.adc = Array.fill(2, { Bus.audio(s, 1) });
-		bus.dac = Array.fill(2, { Bus.audio(s, 1) });
-		bus.rec = Array.fill(nbufs, { Bus.audio(s, 1) });
+		Routine {
 
-		//--- buffers
-		buf = Array.fill(nbufs, {
-			Buffer.alloc(s, s.sampleRate * bufdur)
-		});
+			postln("Cutter: init routine");
 
-		// FIXME: delay execution here until buffers are allocated.
-		// as is, we get a meaningless warning from BufRateScale, &c
-		
-		//--- playback
-		pb = Array.fill(nvoices, { arg i;
-			CutFadeVoice.new(s, buf[i % nbufs], gr.pb)
-		});
+			//--- groups
+			gr = Event.new;
+			// groups: adc -> playback -> record -> dac
+			postln("Cutter: adc group");
+			gr.adc = Group.new(s); s.sync;
+			postln("Cutter: playback group");
+			gr.pb = Group.after(gr.adc); s.sync;
+			postln("Cutter: record group");
+			gr.rec = Group.after(gr.pb); s.sync;
+			postln("Cutter: dac group"); 
+			gr.dac = Group.after(gr.rec); s.sync;
 
-		//-- record
-		rec = buf.collect({ |bf, i|
-			SoftRecord.new(s, bf.bufnum, bus.rec[i].index)
-		});
+			s.sync;
+			
+			//--- busses
+			bus = Event.new;
+			bus.adc = Array.fill(2, { Bus.audio(s, 1) });
+			bus.dac = Array.fill(2, { Bus.audio(s, 1) });
+			bus.rec = Array.fill(nbufs, { Bus.audio(s, 1) });
 
-		//--- patch matrices
-		pm = Event.new;
-		pb_out_b = pb.collect({ |v| v.out_b.index });
-		
-		// input -> record
-		pm.adc_rec = PatchMatrix.new(
-			server:s, target:gr.adc, action:\addAfter,
-			in: bus.adc.collect({ |b| b.index }),
-			out: bus.rec.collect({ |b| b.index })
-		);		
-		// playback -> output
-		pm.pb_dac = PatchMatrix.new(
-			server:s, target:gr.pb, action:\addAfter,
-			in: pb_out_b, 
-			out: bus.dac.collect({ |b| b.index })
-		);		
-		// playback -> record
-		pm.pb_rec = PatchMatrix.new(
-			server:s, target:gr.pb, action:\addAfter,
-			in: pb_out_b,
-			out: pb_out_b
-		);
+			s.sync;
+			
+			// use an array of Conditions to delay execution until all buffers are allocated
+			bufcon = Array.fill(nbufs, { Condition.new });
+			//--- buffers
+			buf = Array.fill(nbufs, { arg i;
+				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage:{
+					bufcon[i].unhang;
+				})
+				
+			});
 
-		//--- IO synths
-		syn = Event.new;
-		syn.adc = Array.fill(2, { |i|
-			Synth.new(\adc, [
-				\in, i, \out, bus.adc[i].index
-			], gr.adc)
-		});
-		syn.dac = Array.fill(2, { |i|
-			Synth.new(\patch_mono, [
-				\in, bus.dac[i].index, \out, i
-			], gr.dac)
-		});
+			bufcon.do({ arg con; con.hang; });
+
+			postln("Cutter: done waiting on buffer allocation");
+			
+			//--- playback
+			pb = Array.fill(nvoices, { arg i;
+				CutFadeVoice.new(s, buf[i % nbufs], gr.pb)
+			});
+
+			//-- record
+			rec = buf.collect({ |bf, i|
+				SoftRecord.new(s, bf.bufnum, bus.rec[i].index)
+			});
+
+			//--- patch matrices
+			pm = Event.new;
+			pb_out_b = pb.collect({ |v| v.out_b.index });
+			
+			// input -> record
+			pm.adc_rec = PatchMatrix.new(
+				server:s, target:gr.adc, action:\addAfter,
+				in: bus.adc.collect({ |b| b.index }),
+				out: bus.rec.collect({ |b| b.index })
+			);		
+			// playback -> output
+			pm.pb_dac = PatchMatrix.new(
+				server:s, target:gr.pb, action:\addAfter,
+				in: pb_out_b, 
+				out: bus.dac.collect({ |b| b.index })
+			);		
+			// playback -> record
+			pm.pb_rec = PatchMatrix.new(
+				server:s, target:gr.pb, action:\addAfter,
+				in: pb_out_b,
+				out: pb_out_b
+			);
+
+			//--- IO synths
+			syn = Event.new;
+			syn.adc = Array.fill(2, { |i|
+				Synth.new(\adc, [
+					\in, i, \out, bus.adc[i].index
+				], gr.adc)
+			});
+			syn.dac = Array.fill(2, { |i|
+				Synth.new(\patch_mono, [
+					\in, bus.dac[i].index, \out, i
+				], gr.dac)
+			});
+		}.play;
 		
 		// build commands list
 		com = [

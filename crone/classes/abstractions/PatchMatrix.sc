@@ -33,7 +33,8 @@ PatchMatrix {
 		})
 	}
 
-	level_ { arg in, out, val; syn[in][out].set(\level, val);
+	level_ { arg in, out, val;
+		syn[in][out].set(\level, val);
 	}
 
 }
