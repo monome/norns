@@ -2,25 +2,32 @@
 // maintains some DSP processing and provides control over parameters and analysis results
 
 CroneEngine {
+	// audio server
 	var <server;
+	// top-level group for all our synths
 	var <group;
+	// input busses (2x mono)
+	var <in_b;
+	// output bus (1x stereo)
+	var <out_b;
 
 	var <commands;
 	var <commandNames;
-
+	
 	var <polls;
 
-	*new { arg serv;
-		^super.new.init(serv);
+	*new { arg srv, grp, inb, outb;
+		^super.new.init(srv, grp, inb, outb);
 	}
 
-	init { arg serv;
-		server = serv;
-		group = Group.new(server);
+	init { arg srv, grp, inb, outb;
+		server = srv;
+		group = Group.new(grp);
+		in_b = inb;
+		out_b = outb;
 		commands = List.new;
 		commandNames = Dictionary.new;
-		//		reports = List.new;
-		//		reportNames = Dictionary.new;
+		polls = PollThreadCollection.new;
 	}
 
 	// NB: subclasses should override this if they need to free resources

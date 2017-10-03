@@ -12,11 +12,9 @@ CroneEngine_Cutter : CroneEngine {
 	var <pb; // playback voice
 	var <pm; // patch matrix
 	var <rec; // recorders
-
-	// routing 
 	
-	*new { arg srv;
-		^super.new.initSub(srv);
+	*new { arg srv, grp, inb, outb;
+		^super.new.initSub();
 	}
 
 	kill {
@@ -24,23 +22,21 @@ CroneEngine_Cutter : CroneEngine {
 		^super.kill;
 	}
 	
-	initSub { arg srv;
+	initSub {
 		var com;
 		var pb_out_b;
 		var bufcon;
-		
-		s = srv;
 
-		
 		Routine {
-
+			var s = server;
+			
 			postln("Cutter: init routine");
 
 			//--- groups
 			gr = Event.new;
 			// groups: adc -> playback -> record -> dac
 			postln("Cutter: adc group");
-			gr.adc = Group.new(s); s.sync;
+			gr.adc = Group.new(group); s.sync;
 			postln("Cutter: playback group");
 			gr.pb = Group.after(gr.adc); s.sync;
 			postln("Cutter: record group");
@@ -108,13 +104,13 @@ CroneEngine_Cutter : CroneEngine {
 			//--- IO synths
 			syn = Event.new;
 			syn.adc = Array.fill(2, { |i|
-				Synth.new(\adc, [
-					\in, i, \out, bus.adc[i].index
+				Synth.new(\patch_mono, [
+					\in, in_b[i].index, \out, bus.adc[i].index
 				], gr.adc)
 			});
 			syn.dac = Array.fill(2, { |i|
 				Synth.new(\patch_mono, [
-					\in, bus.dac[i].index, \out, i
+					\in, bus.dac[i].index, \out, out_b.index + i
 				], gr.dac)
 			});
 		}.play;

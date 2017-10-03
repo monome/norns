@@ -1,5 +1,4 @@
 // class for repeatedly sending the result of some function
-
 PollThread {
 	// a Routine
 	var r;
@@ -40,4 +39,36 @@ PollThread {
 	setTime { arg time;
 		t = time;
 	}
+}
+
+
+// a specialized collection of PollThreads, also acts as a descriptor
+PollThreadCollection {
+	var <>polls;
+
+	*new {
+		^super.new.init();
+	}
+
+	init {
+		polls = Dictionary.new;
+	}
+
+	add { arg name, func, time=0.01;
+		polls.add (name.asSymbol -> PollThread.new(func, time));
+	}
+
+	clear {
+		polls.do({ |p| p.stop; });
+		polls.clear;		
+	}
+
+	names {
+		^polls.keys;
+	}
+
+	includes { arg key;
+		^polls.includes(key.asSymbol);
+	}
+	
 }

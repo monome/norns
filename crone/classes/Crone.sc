@@ -33,16 +33,17 @@ Crone {
 			postln("--------------------------------------------------\n");
 			
 			Server.default = server = Server.remote(\crone, NetAddr("127.0.0.1", 57110));
-
 			
 			server.doWhenBooted ({
 				// this is necessary due to a bug in sclang terminal timer!
 				// GH issue 2144 on upstream supercollider
-				// hoping for fix in 3.9 release
+				// hoping for fix in 3.9 release...
 				server.statusWatcher.stopAliveThread;
 				server.initTree;
 				CroneDefs.sendDefs(server);
-
+				
+				// create the audio context
+				// sets up boilerplate routing and analysis
 				ctx = AudioContext.new(server);
 				
 			});
@@ -104,7 +105,7 @@ Crone {
 				if(engine.notNil, {
 					engine.kill;
 				});
-				engine = class.new(Server.default);
+				engine = class.new(Server.default, ctx.xg, ctx.in_b, ctx.out_b);
 				postln("set engine: " ++ engine);
 			});
 		});
@@ -150,4 +151,9 @@ Crone {
 	}
 
 
+	*reportPolls {
+		// TODO
+		
+	}
+	
 }
