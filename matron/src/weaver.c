@@ -218,7 +218,7 @@ int w_send_command(lua_State *l) {
     goto args_error;
   }
 
-  // FIXME: refactor this, should go in oracle
+  // FIXME: refactor this, should go in oracle!
   lo_message msg = lo_message_new();
 
   const char *s;
@@ -487,6 +487,13 @@ void w_handle_command_report(const struct engine_command *arr,
   // second return value is table size
   lua_pushinteger(lvm, num);
   l_report( lvm, l_docall(lvm, 2, 0) );
+}
+
+void w_handle_poll_report(const struct engine_poll *arr,
+			  const int num) {
+  (void)arr;
+  (void)num;
+  // TODO!
 }
 
 // timer handler

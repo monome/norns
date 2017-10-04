@@ -34,12 +34,15 @@ static lo_server_thread st;
 int num_engines = 0;
 // count of command descriptors
 int num_commands = 0;
+// count of poll descriptors
+int num_polls = 0;
 
 // max count of any single desciptor type
 #define MAX_NUM_DESC 1024
 
 char *engine_names[MAX_NUM_DESC];
 struct engine_command commands[MAX_NUM_DESC];
+struct engine_poll polls[MAX_NUM_DESC];
 
 // mutex for desctiptor data
 pthread_mutex_t desc_lock;
@@ -51,9 +54,12 @@ pthread_mutex_t desc_lock;
 static void o_init_descriptors(void);
 // clear a given array of descriptors
 void o_clear_engine_names(void);
+void o_clear_commands(void);
+void o_clear_polls(void);
 
 // set a given entry in the engine name list
 static void o_set_engine_name(int idx, const char *name);
+static void o_set_command(int idx, const char *name, const char *format);
 // set a given descriptor count variable
 static void o_set_num_desc(int *dst, int num);
 
@@ -75,6 +81,15 @@ static int command_report_entry(const char *path, const char *types,
                                 lo_arg **argv, int argc,
                                 void *data, void *user_data);
 static int command_report_end(const char *path, const char *types,
+                              lo_arg **argv, int argc,
+                              void *data, void *user_data);
+static int poll_report_start(const char *path, const char *types,
+                                lo_arg **argv, int argc,
+                                void *data, void *user_data);
+static int poll_report_entry(const char *path, const char *types,
+                                lo_arg **argv, int argc,
+                                void *data, void *user_data);
+static int poll_report_end(const char *path, const char *types,
                               lo_arg **argv, int argc,
                               void *data, void *user_data);
 
@@ -111,6 +126,14 @@ void o_init(void) {
   lo_server_thread_add_method(st, "/report/commands/end", "",
                               command_report_end, NULL);
 
+  // poll report sequence
+  lo_server_thread_add_method(st, "/report/polls/start", "i",
+                              poll_report_start, NULL);
+  lo_server_thread_add_method(st, "/report/polls/entry", "iss",
+                              poll_report_entry, NULL);
+  lo_server_thread_add_method(st, "/report/polls/end", "",
+                              poll_report_end, NULL);
+
   lo_server_thread_start(st);
 }
 
@@ -130,12 +153,20 @@ int o_get_num_commands(void) {
   return num_commands;
 }
 
+int o_get_num_pollss(void) {
+  return num_polls;
+}
+
 const char **o_get_engine_names(void) {
   return (const char **)engine_names;
 }
 
 const struct engine_command *o_get_commands(void) {
   return (const struct engine_command *)commands;
+}
+
+const struct engine_poll *o_get_polls(void) {
+  return (const struct engine_poll *)polls;
 }
 
 //-- mutex access
@@ -164,10 +195,15 @@ void o_load_engine(const char *name) {
   printf("loading engine: %s \n", name);  fflush(stdout);
   lo_send(remote_addr, "/engine/load/name", "s", name);
   o_request_command_report();
+  o_request_poll_report();
 }
 
 void o_request_command_report(void) {
   lo_send(remote_addr, "/report/commands", "");
+}
+
+void o_request_poll_report(void) {
+  lo_send(remote_addr, "/report/polls", "");
 }
 
 void o_send_command(const char *name, lo_message msg) {
@@ -177,6 +213,19 @@ void o_send_command(const char *name, lo_message msg) {
   sprintf(path, "/command/%s", name);
   lo_send_message(remote_addr, path, msg);
   free(msg);
+}
+
+void o_set_poll_state(const char *name, bool state) {
+  char *path;
+  size_t len = sizeof(char) * (strlen(name) + 13);
+  path = malloc(len);
+  if(state) { 
+    sprintf(path, "/poll/start/%s", name);
+  } else {
+    sprintf(path, "/poll/stop/%s", name);
+  }
+  // send something to the path, with no payload ('Nil')
+  lo_send(remote_addr, path, "N");
 }
 
 //-------------------------
@@ -218,6 +267,21 @@ void o_clear_commands(void) {
   o_unlock_descriptors();
 }
 
+void o_clear_polls(void) {
+  o_lock_descriptors();
+  for(int i = 0; i < num_polls; i++) {
+    if( ( polls[i].name != NULL) && ( polls[i].format != NULL) ) {
+      free(polls[i].name);
+      free(polls[i].format);
+      polls[i].name = NULL;
+      polls[i].format = NULL;
+    } else {
+      printf("o_clear_polls: encountered unexpected null entry \n");
+    }
+  }
+  o_unlock_descriptors();
+}
+
 // set a given entry in engine name list
 void o_set_engine_name(int idx, const char *name) {
   size_t len;
@@ -237,21 +301,42 @@ void o_set_engine_name(int idx, const char *name) {
 }
 
 // set a given entry in command list
-void o_set_command(int idx, const char *cmd, const char *fmt) {
-  size_t cmd_len, fmt_len;
+void o_set_command(int idx, const char *name, const char *format) {
+  size_t name_len, format_len;
   o_lock_descriptors();
   if( (commands[idx].name != NULL) || (commands[idx].format != NULL) ) {
     printf("refusing to allocate command name %d; already exists", idx);
   } else {
-    cmd_len = strlen(cmd);
-    fmt_len = strlen(fmt);
-    commands[idx].name = malloc(cmd_len + 1);
-    commands[idx].format = malloc(fmt_len + 1);
+    name_len = strlen(name);
+    format_len = strlen(format);
+    commands[idx].name = malloc(name_len + 1);
+    commands[idx].format = malloc(format_len + 1);
     if ( ( commands[idx].name == NULL) || ( commands[idx].format == NULL) ) {
-      printf("failure to malloc for command %d : %s %s \n", idx, cmd, fmt);
+      printf("failure to malloc for command %d : %s %s \n", idx, name, format);
     } else {
-      strncpy(commands[idx].name, cmd, cmd_len + 1);
-      strncpy(commands[idx].format, fmt, fmt_len + 1);
+      strncpy(commands[idx].name, name, name_len + 1);
+      strncpy(commands[idx].format, format, format_len + 1);
+    }
+  }
+  o_unlock_descriptors();
+}
+
+// set a given entry in polls list
+void o_set_poll(int idx, const char *name, const char *format) {
+  size_t name_len, format_len;
+  o_lock_descriptors();
+  if( (polls[idx].name != NULL) || (polls[idx].format != NULL) ) {
+    printf("refusing to allocate poll name %d; already exists", idx);
+  } else {
+    name_len = strlen(name);
+    format_len = strlen(format);
+    polls[idx].name = malloc(name_len + 1);
+    polls[idx].format = malloc(format_len + 1);
+    if ( ( polls[idx].name == NULL) || ( polls[idx].format == NULL) ) {
+      printf("failure to malloc for poll %d : %s %s \n", idx, name, format);
+    } else {
+      strncpy(polls[idx].name, name, name_len + 1);
+      strncpy(polls[idx].format, format, format_len + 1);
     }
   }
   o_unlock_descriptors();
@@ -351,6 +436,48 @@ int command_report_end(const char *path, const char *types, lo_arg **argv,
   (void)data;
   (void)user_data;
   event_post( event_data_new(EVENT_COMMAND_REPORT) );
+  return 0;
+}
+
+
+//---------------------
+//--- poll report
+
+int poll_report_start(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)argv;
+  (void)data;
+  (void)user_data;
+  assert(argc > 0);
+  o_clear_polls();
+  o_set_num_desc(&num_polls, argv[0]->i);
+  return 0;
+}
+
+int poll_report_entry(const char *path, const char *types, lo_arg **argv,
+                         int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)data;
+  (void)user_data;
+  assert(argc > 2);
+  o_set_poll(argv[0]->i, &argv[1]->s, &argv[2]->s);
+  return 0;
+}
+
+int poll_report_end(const char *path, const char *types, lo_arg **argv,
+                       int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)argv;
+  (void)data;
+  (void)user_data;
+  event_post( event_data_new(EVENT_POLL_REPORT) );
   return 0;
 }
 

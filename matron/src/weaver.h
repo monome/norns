@@ -38,6 +38,9 @@ extern void w_handle_input_event(int id, uint8_t type, dev_code_t code,
 extern void w_handle_engine_report(const char **arr, const int num);
 extern void w_handle_command_report(const struct engine_command *arr,
                                     const int num);
+extern void w_handle_poll_report(const struct engine_poll *arr,
+                                    const int num);
+
 
 //--- timer bang handler
 extern void w_handle_timer(const int idx, const int stage);

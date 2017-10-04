@@ -23,10 +23,12 @@ typedef enum {
   EVENT_INPUT_EVENT = 8,
   // finished receiving audio engine list
   EVENT_ENGINE_REPORT = 9,
-  // finished receiving command list
+  // finished receiving commands list
   EVENT_COMMAND_REPORT = 10,
+  // finished receiving polls list
+  EVENT_POLL_REPORT = 11,
   // quit the event loop
-  EVENT_QUIT = 11,
+  EVENT_QUIT = 12,
 } event_t;
 
 struct event_common {

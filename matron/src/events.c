@@ -50,6 +50,7 @@ static inline void handle_input_remove(struct event_input_remove *ev);
 static inline void handle_input_event(struct event_input_event *ev);
 static inline void handle_engine_report(void);
 static inline void handle_command_report(void);
+static inline void handle_poll_report(void);
 static inline void handle_quit(void);
 
 // call with the queue locked
@@ -226,6 +227,15 @@ void handle_command_report(void) {
   const int n = o_get_num_commands();
   printf("handling command report with %d commands \n", n);
   w_handle_command_report(p, n);
+  o_unlock_descriptors();
+}
+
+void handle_poll_report(void) {
+  o_lock_descriptors();
+  const struct engine_poll *p = o_get_polls();
+  const int n = o_get_num_polls();
+  printf("handling poll report with %d polls \n", n);
+  w_handle_poll_report(p, n);
   o_unlock_descriptors();
 }
 

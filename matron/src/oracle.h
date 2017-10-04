@@ -1,7 +1,7 @@
 #pragma once
 #include <stdarg.h>
 #include <lo/lo.h>
-
+#include <stdbool.h>
 /*
  * oracle.h
  *
@@ -19,8 +19,8 @@ struct engine_command {
   char *format; // format string
 };
 
-// data structure for engine report descriptor/headerx
-struct report {
+// data structure for engine poll descriptor/headerx
+struct engine_poll {
   char *name; // name string
   char *format; // format string
 };
@@ -35,7 +35,7 @@ extern void o_deinit();
 // get count of desctipors
 extern int o_get_num_engines(void);
 extern int o_get_num_commands(void);
-extern int o_get_num_reports(void);
+extern int o_get_num_polls(void);
 //extern int o_get_num_buffers(void);
 //extern int o_get_num_params(void);
 
@@ -43,11 +43,8 @@ extern int o_get_num_reports(void);
 extern const char **o_get_engine_names(void);
 // get available engine commands (array of structs)
 extern const struct engine_command *o_get_commands(void);
-// get available reports
-extern const struct report *o_get_reports(void);
-
-/* extern const char** o_get_buffer_names(void); */
-/* extern const char** o_get_param_names(void); */
+// get available polls
+extern const struct engine_poll *o_get_polls(void);
 
 // lock/unlock the descriptor critical section
 // FIXME: not ideal, but any use of the accessors above
@@ -67,27 +64,12 @@ extern void o_request_engine_report(void);
 // request list of commands
 extern void o_request_command_report(void);
 
+// request list of polls
+extern void o_request_poll_report(void);
+
 // issue a command to the engine
-//extern void o_send_command(const char* name, const char* fmt, va_list args);
+// NB: this requires a pre-allocated lo_message, which will be freed!
 extern void o_send_command(const char *name, lo_message msg);
 
-//   FIXME: autogenerate from protocol description?
-//   use dynamic list of OSC patterns?
-
-/* // request list of buffers */
-/* extern void o_request_buffer_report(void); */
-
-/* // load a sound file to named buffer */
-/* extern void o_load_buffer_name(const char* name, const char* path); */
-
-/* // save a named buffer to a sound file */
-/* extern void o_save_buffer_name(const char* name, const char* path); */
-
-/* // request list of params */
-/* extern void o_request_param_report(void); */
-
-/* // set indexed parameter with float value */
-/* extern void o_set_param_index(int idx, const float val); */
-
-/* // set named parameter with float value */
-/* extern void o_set_param_name(const char* name, const float val); */
+// start or stop a poll
+extern void o_set_poll_state(const char *name, bool state);
