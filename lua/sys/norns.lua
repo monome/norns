@@ -66,3 +66,7 @@ norns.version_print = function()
   end
 end
 
+norns.load_script = function()
+   -- TODO: kill_all_timers(); 
+end
+

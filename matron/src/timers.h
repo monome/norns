@@ -19,6 +19,9 @@ extern void timer_start(int idx, double seconds, int count, int stage);
 // cancel all scheduled iterations
 extern void timer_stop(int idx);
 
+// TODO: timer_stop_all(void);
+// add this to lua->C glue
+
 // restart timer immediately
 
 // extern void timer_restart(int idx, double seconds, int count, int stage);
