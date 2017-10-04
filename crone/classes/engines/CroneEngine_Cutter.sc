@@ -19,6 +19,7 @@ CroneEngine_Cutter : CroneEngine {
 
 	kill {
 		buf.do({ |b| b.free; });
+		bus.rec.do({ |b| b.free; });
 		^super.kill;
 	}
 	
@@ -48,8 +49,9 @@ CroneEngine_Cutter : CroneEngine {
 			
 			//--- busses
 			bus = Event.new;
-			bus.adc = Array.fill(2, { Bus.audio(s, 1) });
-			bus.dac = Array.fill(2, { Bus.audio(s, 1) });			
+			// use the busses supplied by audio context
+			bus.adc = Array.fill(2, { |i| Bus.new('audio', in_b[i].index, 1, s); }
+			bus.dac = Array.fill(2, { |i| Bus.new('audio', in_b.index + i, 1, s) });			
 			bus.rec = Array.fill(nbufs, { Bus.audio(s, 1) });
 
 			s.sync;
