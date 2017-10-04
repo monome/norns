@@ -39,22 +39,24 @@ bool quit;
 //--- static function declarations
 
 //---- handlers
-static inline void handle_event(union event_data *ev);
-static inline void handle_exec_code_line(struct event_exec_code_line *ev);
-static inline void handle_timer(struct event_timer *ev);
-static inline void handle_monome_add(struct event_monome_add *ev);
-static inline void handle_monome_remove(struct event_monome_remove *ev);
-static inline void handle_grid_key(struct event_grid_key *ev);
-static inline void handle_input_add(struct event_input_add *ev);
-static inline void handle_input_remove(struct event_input_remove *ev);
-static inline void handle_input_event(struct event_input_event *ev);
-static inline void handle_engine_report(void);
-static inline void handle_command_report(void);
-static inline void handle_poll_report(void);
-static inline void handle_quit(void);
+static void handle_event(union event_data *ev);
+static void handle_exec_code_line(struct event_exec_code_line *ev);
+static void handle_timer(struct event_timer *ev);
+static void handle_monome_add(struct event_monome_add *ev);
+static void handle_monome_remove(struct event_monome_remove *ev);
+static void handle_grid_key(struct event_grid_key *ev);
+static void handle_input_add(struct event_input_add *ev);
+static void handle_input_remove(struct event_input_remove *ev);
+static void handle_input_event(struct event_input_event *ev);
+static void handle_engine_report(void);
+static void handle_command_report(void);
+static void handle_poll_report(void);
+static void handle_poll_value(struct event_poll_value *ev);
+static void handle_poll_data(struct event_poll_data *ev);
+static void handle_quit(void);
 
 // call with the queue locked
-static inline void ev_q_add(union event_data *ev) {
+static void ev_q_add(union event_data *ev) {
   struct ev_node *evn = calloc( 1, sizeof(struct ev_node) );
   assert(ev != NULL);
   evn->ev = ev;
@@ -67,7 +69,7 @@ static inline void ev_q_add(union event_data *ev) {
 }
 
 // call with the queue locked
-static inline void evq_rem(struct ev_node *evn) {
+static void evq_rem(struct ev_node *evn) {
   if(evq.head == evn) { evq.head = NULL; }
   if(evq.tail == evn) { evq.tail = evn->prev; }
   remque(evn);
@@ -164,7 +166,16 @@ static void handle_event(union event_data *ev) {
   case EVENT_COMMAND_REPORT:
     handle_command_report();
     break;
-  case  EVENT_QUIT:
+  case EVENT_POLL_REPORT:
+    handle_poll_report();
+    break;
+  case EVENT_POLL_VALUE:
+    handle_poll_value(&(ev->poll_value));
+    break;
+  case EVENT_POLL_DATA:
+    handle_poll_data(&(ev->poll_data));
+    break;
+  case EVENT_QUIT:
     handle_quit();
     break;
   } /* switch */
@@ -237,6 +248,17 @@ void handle_poll_report(void) {
   printf("handling poll report with %d polls \n", n);
   w_handle_poll_report(p, n);
   o_unlock_descriptors();
+}
+
+void handle_poll_value(struct event_poll_value *ev) {
+  // TODO... 
+  free(ev->name);
+}
+
+void handle_poll_data(struct event_poll_data *ev) {
+  // TODO...
+  free(ev->name);
+  free(ev->data);
 }
 
 //--- quit

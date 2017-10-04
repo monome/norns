@@ -4,31 +4,35 @@
 
 typedef enum {
   // unused (do not remove)
-  EVENT_FIRST_EVENT = 0,
+  EVENT_FIRST_EVENT = 0 ,
   // code to be executed by luavm
-  EVENT_EXEC_CODE_LINE = 1,
+  EVENT_EXEC_CODE_LINE ,
   // timer has fired
-  EVENT_TIMER = 2,
+  EVENT_TIMER ,
   // libmonome device added
-  EVENT_MONOME_ADD = 3,
+  EVENT_MONOME_ADD ,
   // libmonome device removed
-  EVENT_MONOME_REMOVE = 4,
+  EVENT_MONOME_REMOVE ,
   // monome grid press/lift
-  EVENT_GRID_KEY = 5,
+  EVENT_GRID_KEY ,
   // libevdev device added
-  EVENT_INPUT_ADD = 6,
+  EVENT_INPUT_ADD ,
   // libevdev device removed
-  EVENT_INPUT_REMOVE = 7,
+  EVENT_INPUT_REMOVE ,
   // input gesture
-  EVENT_INPUT_EVENT = 8,
+  EVENT_INPUT_EVENT ,
   // finished receiving audio engine list
-  EVENT_ENGINE_REPORT = 9,
+  EVENT_ENGINE_REPORT ,
   // finished receiving commands list
-  EVENT_COMMAND_REPORT = 10,
+  EVENT_COMMAND_REPORT ,
   // finished receiving polls list
-  EVENT_POLL_REPORT = 11,
+  EVENT_POLL_REPORT ,
+  // polled value from crone
+  EVENT_POLL_VALUE ,
+  // polled data from crone
+  EVENT_POLL_DATA ,
   // quit the event loop
-  EVENT_QUIT = 12,
+  EVENT_QUIT,
 } event_t;
 
 struct event_common {
@@ -84,6 +88,16 @@ struct event_timer {
   uint32_t stage;
 }; // +4
 
+struct event_poll_value {
+  char* name;
+  float value;
+};
+
+struct event_poll_data {
+  char* name;
+  void* data;
+};
+
 union event_data {
   uint32_t type;
   struct event_exec_code_line exec_code_line;
@@ -94,4 +108,6 @@ union event_data {
   struct event_input_remove input_remove;
   struct event_input_event input_event;
   struct event_timer timer;
+  struct event_poll_value poll_value;
+  struct event_poll_data poll_data;
 };

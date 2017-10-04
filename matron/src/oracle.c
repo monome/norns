@@ -24,7 +24,7 @@
 static lo_address remote_addr;
 static lo_server_thread st;
 
-// TODO: semaphore for waiting on audio backend init
+// TODO: semaphore for waiting on audio backend init?
 //static sem_t audio_init_sem;
 
 //-------------------
@@ -65,31 +65,34 @@ static void o_set_num_desc(int *dst, int num);
 
 //--- OSC handlers
 
-static int engine_report_start(const char *path, const char *types,
+static int handle_engine_report_start(const char *path, const char *types,
                                lo_arg **argv, int argc,
                                void *data, void *user_data);
-static int engine_report_entry(const char *path, const char *types,
+static int handle_engine_report_entry(const char *path, const char *types,
                                lo_arg **argv, int argc,
                                void *data, void *user_data);
-static int engine_report_end(const char *path, const char *types,
+static int handle_engine_report_end(const char *path, const char *types,
                              lo_arg **argv, int argc,
                              void *data, void *user_data);
-static int command_report_start(const char *path, const char *types,
+static int handle_command_report_start(const char *path, const char *types,
                                 lo_arg **argv, int argc,
                                 void *data, void *user_data);
-static int command_report_entry(const char *path, const char *types,
+static int handle_command_report_entry(const char *path, const char *types,
                                 lo_arg **argv, int argc,
                                 void *data, void *user_data);
-static int command_report_end(const char *path, const char *types,
+static int handle_command_report_end(const char *path, const char *types,
                               lo_arg **argv, int argc,
                               void *data, void *user_data);
-static int poll_report_start(const char *path, const char *types,
+static int handle_poll_report_start(const char *path, const char *types,
                                 lo_arg **argv, int argc,
                                 void *data, void *user_data);
-static int poll_report_entry(const char *path, const char *types,
+static int handle_poll_report_entry(const char *path, const char *types,
                                 lo_arg **argv, int argc,
                                 void *data, void *user_data);
-static int poll_report_end(const char *path, const char *types,
+static int handle_poll_report_end(const char *path, const char *types,
+                              lo_arg **argv, int argc,
+                              void *data, void *user_data);
+static int handle_poll_value(const char *path, const char *types,
                               lo_arg **argv, int argc,
                               void *data, void *user_data);
 
@@ -112,27 +115,32 @@ void o_init(void) {
 
   // engine report sequence
   lo_server_thread_add_method(st, "/report/engines/start", "i",
-                              engine_report_start, NULL);
+                              handle_engine_report_start, NULL);
   lo_server_thread_add_method(st, "/report/engines/entry", "is",
-                              engine_report_entry, NULL);
+                              handle_engine_report_entry, NULL);
   lo_server_thread_add_method(st, "/report/engines/end", "",
-                              engine_report_end, NULL);
+                              handle_engine_report_end, NULL);
 
   // command report sequence
   lo_server_thread_add_method(st, "/report/commands/start", "i",
-                              command_report_start, NULL);
+                              handle_command_report_start, NULL);
   lo_server_thread_add_method(st, "/report/commands/entry", "iss",
-                              command_report_entry, NULL);
+                              handle_command_report_entry, NULL);
   lo_server_thread_add_method(st, "/report/commands/end", "",
-                              command_report_end, NULL);
+                              handle_command_report_end, NULL);
 
   // poll report sequence
   lo_server_thread_add_method(st, "/report/polls/start", "i",
-                              poll_report_start, NULL);
+                              handle_poll_report_start, NULL);
   lo_server_thread_add_method(st, "/report/polls/entry", "iss",
-                              poll_report_entry, NULL);
+			      handle_poll_report_entry, NULL);
   lo_server_thread_add_method(st, "/report/polls/end", "",
-                              poll_report_end, NULL);
+                              handle_poll_report_end, NULL);
+  // poll results
+  lo_server_thread_add_method(st, "/poll/value", "sf",
+                              handle_poll_value, NULL);
+  lo_server_thread_add_method(st, "/poll/data", "sb",
+                              handle_poll_value, NULL);
 
   lo_server_thread_start(st);
 }
@@ -153,7 +161,7 @@ int o_get_num_commands(void) {
   return num_commands;
 }
 
-int o_get_num_pollss(void) {
+int o_get_num_polls(void) {
   return num_polls;
 }
 
@@ -350,7 +358,7 @@ void o_set_num_desc(int *dst, int num) {
 }
 
 //---- OSC handlers
-int engine_report_start(const char *path, const char *types,
+int handle_engine_report_start(const char *path, const char *types,
                         lo_arg **argv, int argc, void *data, void *user_data)
 {
   (void)path;
@@ -365,7 +373,7 @@ int engine_report_start(const char *path, const char *types,
   return 0;
 }
 
-int engine_report_entry(const char *path, const char *types, lo_arg **argv,
+int handle_engine_report_entry(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -375,12 +383,12 @@ int engine_report_entry(const char *path, const char *types, lo_arg **argv,
   assert(argc > 1);
   // arg 1: buffer index
   // arg 2: buffer name
-  // NB: yes, this is the correct way to read a string from a lo_arg
+  // NB: yes, this is the correct way to read a string from a lo_arg!
   o_set_engine_name(argv[0]->i, &argv[1]->s);
   return 0;
 }
 
-int engine_report_end(const char *path, const char *types, lo_arg **argv,
+int handle_engine_report_end(const char *path, const char *types, lo_arg **argv,
                       int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -393,7 +401,7 @@ int engine_report_end(const char *path, const char *types, lo_arg **argv,
   // could add counter from report_start to double-check the param count.
   // or (better?) we could simply use binary blobs from Crone,
   // replacing the whole response sequence with a single message
-  // (downside: nasty blob-construction code in supercollider)
+  // (downside: nasty blob-construction code in supercollider?)
   event_post( event_data_new(EVENT_ENGINE_REPORT) );
   return 0;
 }
@@ -401,7 +409,7 @@ int engine_report_end(const char *path, const char *types, lo_arg **argv,
 //---------------------
 //--- command report
 
-int command_report_start(const char *path, const char *types, lo_arg **argv,
+int handle_command_report_start(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -415,7 +423,7 @@ int command_report_start(const char *path, const char *types, lo_arg **argv,
   return 0;
 }
 
-int command_report_entry(const char *path, const char *types, lo_arg **argv,
+int handle_command_report_entry(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -427,7 +435,7 @@ int command_report_entry(const char *path, const char *types, lo_arg **argv,
   return 0;
 }
 
-int command_report_end(const char *path, const char *types, lo_arg **argv,
+int handle_command_report_end(const char *path, const char *types, lo_arg **argv,
                        int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -443,7 +451,7 @@ int command_report_end(const char *path, const char *types, lo_arg **argv,
 //---------------------
 //--- poll report
 
-int poll_report_start(const char *path, const char *types, lo_arg **argv,
+int handle_poll_report_start(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -457,7 +465,7 @@ int poll_report_start(const char *path, const char *types, lo_arg **argv,
   return 0;
 }
 
-int poll_report_entry(const char *path, const char *types, lo_arg **argv,
+int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
                          int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -469,7 +477,7 @@ int poll_report_entry(const char *path, const char *types, lo_arg **argv,
   return 0;
 }
 
-int poll_report_end(const char *path, const char *types, lo_arg **argv,
+int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
                        int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
@@ -481,8 +489,35 @@ int poll_report_end(const char *path, const char *types, lo_arg **argv,
   return 0;
 }
 
+
+int handle_poll_value(const char *path, const char *types, lo_arg **argv,
+                       int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)argv;
+  (void)data;
+  (void)user_data;
+  // TODO
+  event_post( event_data_new(EVENT_POLL_VALUE) );
+  return 0;
+}
+
+int handle_poll_data(const char *path, const char *types, lo_arg **argv,
+                       int argc, void *data, void *user_data) {
+  (void)path;
+  (void)types;
+  (void)argc;
+  (void)argv;
+  (void)data;
+  (void)user_data;
+  // TODO
+  event_post( event_data_new(EVENT_POLL_DATA) );
+  return 0;
+}
+
+
 void lo_error_handler(int num, const char *m, const char *path) {
   printf("liblo error %d in path %s: %s\n", num, path, m);
   fflush(stdout);
 }
-

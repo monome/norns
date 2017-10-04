@@ -36,8 +36,6 @@ extern void o_deinit();
 extern int o_get_num_engines(void);
 extern int o_get_num_commands(void);
 extern int o_get_num_polls(void);
-//extern int o_get_num_buffers(void);
-//extern int o_get_num_params(void);
 
 // get engine names (array of c strings)
 extern const char **o_get_engine_names(void);
