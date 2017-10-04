@@ -1,7 +1,9 @@
-// utility class to load all synthdefs required by crone engines.
+// utility class to load synthdefs required by crone engines.
+// engines could of course define their own defs, this is for shared functionality. 
 CroneDefs {
     *sendDefs { arg s;
-        
+        postln("CroneDefs: sending defs");
+		
         // single read head with fade in/out trigger
         SynthDef.new(\play_fade, {
             arg out=0, buf=0,
@@ -39,14 +41,13 @@ CroneDefs {
             Out.ar(out, In.ar(in, 2) * ampenv);
         }).send(s);
 
-
 		// mono->stereo patch with smoothing and pan
 		SynthDef.new(\patch_pan, {
 			arg in, out, level=1.0, pan=0, lag=0.01;
 			var ampenv = Lag.ar(K2A.ar(level), lag);
 			var panenv = Lag.ar(K2A.ar(pan), lag);
 			Out.ar(out, Pan2.ar(In.ar(in) * ampenv, pan));
-		});
+		}).send(s);
 
         // record with some level smoothing
         SynthDef.new(\rec_smooth, {
@@ -73,7 +74,7 @@ CroneDefs {
 			arg in, out, atk=0.01, rel=0.01;
 			var amp = abs(A2K.kr(In.ar(in)));
 			Out.kr(out, LagUD.kr(amp, atk, rel));	
-		});
+		}).send(s);
 
 		// pitch follower
 		SynthDef.new(\pitch, {

@@ -1,4 +1,4 @@
-
+// a sample capture / playback matrix
 CroneEngine_Cutter : CroneEngine {
 	classvar nvoices = 4;
 	classvar nbufs = 4;
@@ -13,8 +13,8 @@ CroneEngine_Cutter : CroneEngine {
 	var <pm; // patch matrix
 	var <rec; // recorders
 	
-	*new { arg srv, grp, inb, outb;
-		^super.new.initSub();
+	*new { arg server, group, in, out;
+		^super.new.init(server, group, in, out).initSub();
 	}
 
 	kill {
@@ -49,7 +49,7 @@ CroneEngine_Cutter : CroneEngine {
 			//--- busses
 			bus = Event.new;
 			bus.adc = Array.fill(2, { Bus.audio(s, 1) });
-			bus.dac = Array.fill(2, { Bus.audio(s, 1) });
+			bus.dac = Array.fill(2, { Bus.audio(s, 1) });			
 			bus.rec = Array.fill(nbufs, { Bus.audio(s, 1) });
 
 			s.sync;
@@ -58,7 +58,7 @@ CroneEngine_Cutter : CroneEngine {
 			bufcon = Array.fill(nbufs, { Condition.new });
 			//--- buffers
 			buf = Array.fill(nbufs, { arg i;
-				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage:{
+				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
 					bufcon[i].unhang;
 				})
 				
@@ -126,7 +126,7 @@ CroneEngine_Cutter : CroneEngine {
 			[\pos, \if, { |msg| pb[msg[1]-1].pos_(msg[2]) }],
 			// set playback to new rate, with crossfade
 			[\rate, \if, { |msg| pb[msg[1]-1].rate_(msg[2]) }],
-			// set crossfade time for given playback bvoice
+			// set crossfade time for given playback voice
 			[\fade, \if, { |msg| pb[msg[1]-1].fade_(msg[2]) }],
 			// set crossfade curve for given playback voice
 			[\curve, \if, { |msg| pb[msg[1]-1].curve_(msg[2]) }],
@@ -204,14 +204,14 @@ CroneEngine_Cutter : CroneEngine {
 	
 	// disk read
 	readBuf { arg i, path;
-		if(i < nbufs && i >= 0, { 
+		if(buf[i].notNil, { 
 			buf[i].readChannel(path, channels:[0]);
 		});
 	}
 	
 	// disk write
 	writeBuf { arg i, path;
-		if(i < nbufs && i >= 0, { 
+		if(buf[i].notNil, {
 			buf[i].write(path, "wav");
 		});
 		

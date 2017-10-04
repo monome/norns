@@ -22,6 +22,7 @@ Crone {
 	*initClass {
 
 		poll_threads = Dictionary.new;
+
 		
 		StartUp.add { // defer until after sclang init
 
@@ -32,20 +33,22 @@ Crone {
 			postln(" \OSC tx port: " ++ tx_port);
 			postln("--------------------------------------------------\n");
 			
-			Server.default = server = Server.remote(\crone, NetAddr("127.0.0.1", 57110));
-			
-			server.doWhenBooted ({
-				// this is necessary due to a bug in sclang terminal timer!
-				// GH issue 2144 on upstream supercollider
-				// hoping for fix in 3.9 release...
-				server.statusWatcher.stopAliveThread;
-				server.initTree;
-				CroneDefs.sendDefs(server);
-				
-				// create the audio context
-				// sets up boilerplate routing and analysis
-				ctx = AudioContext.new(server);
-				
+			server = Server.local;
+			server.waitForBoot ({
+				Routine { 
+					// this is necessary due to a bug in sclang terminal timer!
+					// GH issue 2144 on upstream supercollider
+					// hoping for fix in 3.9 release...
+					server.statusWatcher.stopAliveThread;
+					server.initTree;
+					server.sync;
+					CroneDefs.sendDefs(server);
+					server.sync;
+					// create the audio context
+					// sets up boilerplate routing and analysis
+					ctx = AudioContext.new(server);
+					
+				}.play;
 			});
 
 			// FIXME: hardcoded remote client address for now
@@ -94,6 +97,7 @@ Crone {
 				}, '/poll/stop')
 			);
 		}
+
 	}
 
 	*setEngine { arg name;
@@ -149,11 +153,8 @@ Crone {
 		});
 		remote_addr.sendMsg("/report/commands/end");
 	}
-
-
-	*reportPolls {
-		// TODO
-		
-	}
 	
+	*reportPolls {
+		// TODO		
+	}
 }

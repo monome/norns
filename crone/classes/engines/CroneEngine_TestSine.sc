@@ -3,17 +3,18 @@
 CroneEngine_TestSine : CroneEngine {
 	var <synth;
 
-	*new { arg srv, grp, inb, outb;
-		^super.new.initSub(srv, grp, inb, outb);
+	*new { arg server, group, in, out;
+		^super.new.init(server, group, in, out).initSub();
 	}
 
 	initSub {
 		synth = {
-			arg hz=220, amp=0.5, amplag=0.02, hzlag=0.01;
+			arg out = this.out_b.index,
+			hz=220, amp=0.5, amplag=0.02, hzlag=0.01;
 			var amp_, hz_;
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
 			hz_ = Lag.ar(K2A.ar(hz), hzlag);
-			Out.ar(out_b.index, (SinOsc.ar(hz_) * amp_).dup);
+			Out.ar(out, (SinOsc.ar(hz_) * amp_).dup);
 		}.play(this.group);
 		
 		this.addCommand("hz", "f", { arg msg;
