@@ -92,7 +92,6 @@ void dev_list_add(device_t type, const char *path) {
 void dev_list_remove(device_t type, const char *node) {
   struct dev_node *dn = dev_lookup_path(node);
   if(dn == NULL) { return; }
-
   union event_data *ev;
   switch(type) {
   case DEV_TYPE_MONOME:

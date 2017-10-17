@@ -50,7 +50,7 @@ CroneEngine_Cutter : CroneEngine {
 			//--- busses
 			bus = Event.new;
 			// use the busses supplied by audio context
-			bus.adc = Array.fill(2, { |i| Bus.new('audio', in_b[i].index, 1, s); }
+			bus.adc = Array.fill(2, { |i| Bus.new('audio', in_b[i].index, 1, s) });
 			bus.dac = Array.fill(2, { |i| Bus.new('audio', in_b.index + i, 1, s) });			
 			bus.rec = Array.fill(nbufs, { Bus.audio(s, 1) });
 
@@ -62,8 +62,7 @@ CroneEngine_Cutter : CroneEngine {
 			buf = Array.fill(nbufs, { arg i;
 				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
 					bufcon[i].unhang;
-				})
-				
+				})				
 			});
 
 			bufcon.do({ arg con; con.hang; });

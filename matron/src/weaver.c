@@ -50,15 +50,19 @@ void w_handle_line(char *line) {
 // grid
 static int w_grid_set_led(lua_State *l);
 static int w_grid_refresh(lua_State *l);
-// audio engine
+// crone
+/// engines
 static int w_request_engine_report(lua_State *l);
 static int w_load_engine(lua_State *l);
+/// commands
 static int w_request_command_report(lua_State *l);
 static int w_send_command(lua_State *l);
-// timers
+static int w_report_polls(lua_State *l);
+static int w_start_poll(lua_State *l);
+static int w_stop_poll(lua_State *l);  
+// timing
 static int w_timer_start(lua_State *l);
 static int w_timer_stop(lua_State *l);
-// request current time since Epoch
 static int w_get_time(lua_State *l);
 
 // screen functions
@@ -84,21 +88,37 @@ void w_init(void) {
   lua_pcall(lvm, 0, 0, 0);
   fflush(stdout);
 
-  // FIXME: how/where to document these in lua
+  ////////////////////////
+  // FIXME: how/where to document these in lua !!
+  //////////////////
+
+  // low-level monome grid control
   lua_register(lvm, "grid_set_led", &w_grid_set_led);
   lua_register(lvm, "grid_refresh", &w_grid_refresh);
 
+  // get list of available crone engines
   lua_register(lvm, "report_engines", &w_request_engine_report);
+  // load a named engine
   lua_register(lvm, "load_engine", &w_load_engine);
 
+  // get list of available crone commmands based on current engine
   lua_register(lvm, "report_commands", &w_request_command_report);
+  // send an indexed command
   lua_register(lvm, "send_command", &w_send_command);
 
+  // start/stop an indexed timer with callback
   lua_register(lvm, "timer_start", &w_timer_start);
   lua_register(lvm, "timer_stop", &w_timer_stop);
 
+  // get the current high-resolution CPU time
   lua_register(lvm, "get_time", &w_get_time);
-
+  
+  // report available polling functions
+  lua_register(lvm, "report_polls", &w_report_polls);
+  // start / stop a poll
+  lua_register(lvm, "start_poll", &w_start_poll);
+  lua_register(lvm, "stop_poll", &w_stop_poll);  
+  
   // run system init code
   char *config = getenv("NORNS_CONFIG");
   char *home = getenv("HOME");
@@ -435,7 +455,7 @@ void w_handle_input_add(void *p) {
 
 void w_handle_input_remove(int id) {
   (void)id;
-  //... TODO!
+  //... TODO: handle_input_remove
 }
 
 void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
@@ -475,11 +495,11 @@ void w_handle_command_report(const struct engine_command *arr,
   for(int i = 0; i < num; i++) {
     // create subtable on stack
     lua_createtable(lvm, 2, 0);
-    // put command string on stack; assign to subtable; pop
+    // put command string on stack; assign to subtable, pop
     lua_pushstring(lvm, arr[i].name);
     lua_rawseti(lvm, -2, 1);
+    // put format string on stack; assign to subtable, pop
     lua_pushstring(lvm, arr[i].format);
-    // put format string on stack; assign to subtable; pop
     lua_rawseti(lvm, -2, 2);
     // subtable is on stack; assign to master table and pop
     lua_rawseti(lvm, -2, i + 1);
@@ -493,7 +513,28 @@ void w_handle_poll_report(const struct engine_poll *arr,
 			  const int num) {
   (void)arr;
   (void)num;
-  // TODO!
+
+  w_push_norns_func("report", "polls");
+  lua_createtable(lvm, num, 0);
+
+  for(int i=0; i<num; ++i) {
+    // create subtable on stack
+    lua_createtable(lvm, 2, 0);    
+    // put poll name on stack; assign to subtable, pop
+    lua_pushstring(lvm, arr[i].name);
+    lua_rawseti(lvm, -2, 1);
+    if(arr[i].type == POLL_TYPE_VALUE) {
+      lua_pushstring(lvm, "value");
+    } else {
+      lua_pushstring(lvm, "data");
+    }
+    // put type string on stack; assign to subtable, pop
+    lua_rawseti(lvm, -2, 2);
+    // subtable is on stack; assign to master table and pop
+    lua_rawseti(lvm, -2, i + 1);
+  }
+  lua_pushinteger(lvm, num);
+  l_report( lvm, l_docall(lvm, 2, 0) );  
 }
 
 // timer handler
@@ -507,3 +548,40 @@ void w_handle_timer(const int idx, const int stage) {
 }
 
 
+void w_handle_poll_value(int idx, float val) {
+  lua_getglobal(lvm, "norns");
+  lua_getfield(lvm, -1, "poll");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, idx); // convert index to 1-based!
+  lua_pushnumber(lvm, val);
+  l_report(lvm, l_docall(lvm, 2, 0) );
+}
+
+void w_handle_poll_data(int idx, int size, uint8_t *data) {
+  lua_getglobal(lvm, "norns");
+  lua_getfield(lvm, -1, "poll");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, idx + 1); // convert index to 1-based!
+  lua_createtable(lvm, size, 0);
+  for(int i=0; i<size; ++i) {
+    lua_pushinteger(lvm, data[i]);
+    lua_rawseti(lvm, -2, 1);
+  }
+  lua_pushinteger(lvm, size);
+  l_report(lvm, l_docall(lvm, 2, 0) );
+}
+
+int w_report_polls(lua_State *l) {
+  (void)l; // TODO: w_report_polls
+  return 0;
+}
+
+int w_start_poll(lua_State *l) {
+  (void)l; // TODO: w_start_poll
+  return 0;
+}
+
+int w_stop_poll(lua_State *l) {
+  (void)l; // TODO: w_stop_poll
+  return 0;
+}

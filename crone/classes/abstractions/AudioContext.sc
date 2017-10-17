@@ -13,6 +13,9 @@ AudioContext {
 	var <>in_s, <>out_s, <>mon_s;
 	// analysis synths
 	var <>in_amp_s, <>out_amp_s, <>pitch_s;
+
+	// polls available in base context
+	var <polls;
 	
 	*new { arg srv;
 		^super.new.init(srv);

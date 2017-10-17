@@ -13,6 +13,12 @@
 
 #include "lo/lo.h"
 
+// enumerate types of polls
+typedef enum {
+  POLL_TYPE_VALUE, // returns a single float value
+  POLL_TYPE_DATA   // returns an arbitrarily-size binary data blob 
+} poll_type_t;
+
 // data structure for engine command descriptor/header
 struct engine_command {
   char *name; // name string
@@ -22,7 +28,7 @@ struct engine_command {
 // data structure for engine poll descriptor/headerx
 struct engine_poll {
   char *name; // name string
-  char *format; // format string
+  poll_type_t type; // value or data
 };
 
 // initialize

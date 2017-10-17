@@ -278,11 +278,9 @@ void o_clear_commands(void) {
 void o_clear_polls(void) {
   o_lock_descriptors();
   for(int i = 0; i < num_polls; i++) {
-    if( ( polls[i].name != NULL) && ( polls[i].format != NULL) ) {
+    if( ( polls[i].name != NULL) ) {
       free(polls[i].name);
-      free(polls[i].format);
       polls[i].name = NULL;
-      polls[i].format = NULL;
     } else {
       printf("o_clear_polls: encountered unexpected null entry \n");
     }
@@ -330,22 +328,20 @@ void o_set_command(int idx, const char *name, const char *format) {
 }
 
 // set a given entry in polls list
-void o_set_poll(int idx, const char *name, const char *format) {
-  size_t name_len, format_len;
+void o_set_poll(int idx, const char *name, poll_type_t type) {
+  size_t name_len;
   o_lock_descriptors();
-  if( (polls[idx].name != NULL) || (polls[idx].format != NULL) ) {
+  if( polls[idx].name != NULL ) {
     printf("refusing to allocate poll name %d; already exists", idx);
   } else {
     name_len = strlen(name);
-    format_len = strlen(format);
     polls[idx].name = malloc(name_len + 1);
-    polls[idx].format = malloc(format_len + 1);
-    if ( ( polls[idx].name == NULL) || ( polls[idx].format == NULL) ) {
-      printf("failure to malloc for poll %d : %s %s \n", idx, name, format);
+    if ( ( polls[idx].name == NULL) ) {
+      printf("failure to malloc for poll %d : %s \n", idx, name);
     } else {
       strncpy(polls[idx].name, name, name_len + 1);
-      strncpy(polls[idx].format, format, format_len + 1);
     }
+    polls[idx].type = type;
   }
   o_unlock_descriptors();
 }
@@ -473,7 +469,7 @@ int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
   (void)data;
   (void)user_data;
   assert(argc > 2);
-  o_set_poll(argv[0]->i, &argv[1]->s, &argv[2]->s);
+  o_set_poll(argv[0]->i, &argv[1]->s, argv[2]->i);
   return 0;
 }
 
@@ -498,7 +494,10 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
   (void)argv;
   (void)data;
   (void)user_data;
-  // TODO
+  union event_data *ev = event_data_new(EVENT_POLL_DATA);
+  ev->poll_value.idx = argv[0]->i;
+  ev->poll_value.value = argv[1]->f;
+  event_post( ev );
   event_post( event_data_new(EVENT_POLL_VALUE) );
   return 0;
 }
@@ -511,10 +510,16 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
   (void)argv;
   (void)data;
   (void)user_data;
-  // TODO
-  event_post( event_data_new(EVENT_POLL_DATA) );
-  return 0;
-}
+  union event_data *ev = event_data_new(EVENT_POLL_DATA);
+  ev->poll_data.idx = argv[0]->i;
+  uint8_t *blobdata = (uint8_t*)lo_blob_dataptr((lo_blob)argv[1]);
+  int sz = lo_blob_datasize( (lo_blob)argv[1] );
+  ev->poll_data.size = sz;
+  ev->poll_data.data = calloc(1, sz);
+  memcpy(ev->poll_data.data, blobdata, sz);
+  event_post( ev );
+  return 0;}
+
 
 
 void lo_error_handler(int num, const char *m, const char *path) {

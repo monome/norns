@@ -2,7 +2,7 @@
 PollThread {
 	// a Routine
 	var r;
-	// a time interval2
+	// a time interval
 	var t;
 	// a function to evaluate
 	var f;

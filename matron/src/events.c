@@ -248,16 +248,14 @@ void handle_poll_report(void) {
   printf("handling poll report with %d polls \n", n);
   w_handle_poll_report(p, n);
   o_unlock_descriptors();
-}
+};
 
 void handle_poll_value(struct event_poll_value *ev) {
-  // TODO... 
-  free(ev->name);
+  w_handle_poll_value(ev->idx, ev->value); 
 }
 
 void handle_poll_data(struct event_poll_data *ev) {
-  // TODO...
-  free(ev->name);
+  w_handle_poll_data(ev->idx, ev->size, ev->data);
   free(ev->data);
 }
 

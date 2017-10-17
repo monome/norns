@@ -44,3 +44,7 @@ extern void w_handle_poll_report(const struct engine_poll *arr,
 
 //--- timer bang handler
 extern void w_handle_timer(const int idx, const int stage);
+
+//--- crone poll handlers
+extern void w_handle_poll_value(int idx, float val);
+extern void w_handle_poll_data(int idx, int size, uint8_t *data);

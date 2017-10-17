@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "oracle.h"
 
 typedef enum {
   // unused (do not remove)
@@ -86,17 +87,18 @@ struct event_timer {
   struct event_common common;
   uint32_t id;
   uint32_t stage;
-}; // +4
+}; // +8
 
 struct event_poll_value {
-  char* name;
+  uint32_t idx;
   float value;
-};
+}; // + 8
 
 struct event_poll_data {
-  char* name;
-  void* data;
-};
+  uint32_t idx;
+  uint32_t size;
+  uint8_t *data;
+}; // + 12
 
 union event_data {
   uint32_t type;
