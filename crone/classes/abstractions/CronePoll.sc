@@ -33,9 +33,15 @@ CronePoll {
 		dt = d;
 		type = t;
 		func = f;
+		if(type == \value, {
+			oscPath = '/poll/value';
+		}, {
+			oscPath = '/poll/data';
+		});
 		cb = {
 			ret = func.value;
-			oscAddr.sendMsg(oscPath, ret);
+			postln("poll callback " ++ [ name , oscAddr, oscPath, ret ]);
+			oscAddr.sendMsg(oscPath, name, ret);
 		};
 		routine = Routine { inf.do {
 			cb.value;
@@ -45,7 +51,8 @@ CronePoll {
 
 	}
 
-	start {
+	start { arg addr;
+		oscAddr = addr;
 		if(isRunning.not, { 
 			routine.play;
 			isRunning = true;

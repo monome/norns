@@ -56,16 +56,24 @@ norns.report.commands = function(commands, count)
 end
 
 norns.report.polls = function(polls, count)
-   print("norns.report.polls")
+   print("norns.report.polls ; count: " .. count)
    -- call the script-defined report callback, if it exists
-   if report.commands ~= nil then report.commands(commands, count) end
+   if report.polls ~= nil then report.polls(polls, count) end
    norns.polls = {}
+   local t -- test
    for i=1,count do
+--      if polls[i][3] > 0 then t = "data" else t = "value" end
+      print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
       norns.polls[i] = {}
-      norns.polls[i].idx = polls[i][1]
+      -- FIXME: index is kinda meaingless r/n
+      --norns.polls[i].idx = polls[i][1]
       norns.polls[i].name = polls[i][2]
       norns.polls[i].type= polls[i][3]
    end   
+end
+
+norns.poll = function(idx, arg)
+   print("norns.poll: idx " .. idx .. "; arg type: " .. type(arg))
 end
 
 norns.timer = function(idx, stage)
@@ -80,6 +88,6 @@ norns.version_print = function()
 end
 
 norns.load_script = function()
-   -- TODO: kill_all_timers(); 
+   -- TODO? kill_all_timers();
 end
 

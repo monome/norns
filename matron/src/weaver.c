@@ -569,6 +569,7 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1); // convert index to 1-based!
   lua_createtable(lvm, size, 0);
+  // FIXME: maybe not the best way to pass a nyte array to lua
   for(int i=0; i<size; ++i) {
     lua_pushinteger(lvm, data[i]);
     lua_rawseti(lvm, -2, 1);

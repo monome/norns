@@ -20,7 +20,6 @@ function defineFunction(target, args, body)
    else print("error defining function: \n" .. str .. "\n") end
 end
 
-
 -- given an engine command string and format string,
 -- define a function in the engine command table
 function defineEngineCommand(idx, name, fmt)

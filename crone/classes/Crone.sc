@@ -8,9 +8,9 @@ Crone {
 	// available OSC functions
 	classvar <>oscfunc;
 	// address of remote client
-	classvar <>remote_addr;
+	classvar <>remoteAddr;
 	// port to send OSC on
-	classvar <>tx_port = 8888;
+	classvar <>txPort = 8888;
 
 	//
 	classvar <>polls;
@@ -28,7 +28,7 @@ Crone {
 			postln(" Crone startup");
 			postln("");
 			postln(" \OSC rx port: " ++ NetAddr.langPort);
-			postln(" \OSC tx port: " ++ tx_port);
+			postln(" \OSC tx port: " ++ txPort);
 			postln("--------------------------------------------------\n");
 
 			server = Server.local;
@@ -50,8 +50,8 @@ Crone {
 			});
 
 
-			// FIXME: hardcoded remote client address for now
-			remote_addr =NetAddr("127.0.0.1", tx_port);
+			// FIXME? matron address is hardcoded here
+			remoteAddr =NetAddr("127.0.0.1", txPort);
 
 			oscfunc = (
 
@@ -116,16 +116,16 @@ Crone {
 
 	// start a thread to continuously send a named report with a given interval
 	*startPoll { arg name, intervalMs =100;
-		var pt = CronePollRegistry.polls[name.asSymbol];
-		if(pt.notNil, {
-			pt.start;
+		var poll = CronePollRegistry.polls[name.asSymbol];
+		if(poll.notNil, {
+			poll.start(remoteAddr);
 		});
 	}
 
 	*stopPoll { arg name;
-		var pt = CronePollRegistry.polls[name.asSymbol];
-		if(pt.notNil, {
-			pt.stop;
+		var poll = CronePollRegistry.polls[name.asSymbol];
+		if(poll.notNil, {
+			poll.stop;
 		});
 	}
 
@@ -141,36 +141,36 @@ Crone {
 			n.asString.split($_)[1]
 		});
 		postln('engines: ' ++ names);
-		remote_addr.sendMsg('/report/engines/start', names.size);
+		remoteAddr.sendMsg('/report/engines/start', names.size);
 		names.do({ arg name, i;
-			remote_addr.sendMsg('/report/engines/entry', i, name);
+			remoteAddr.sendMsg('/report/engines/entry', i, name);
 
 		});
-		remote_addr.sendMsg('/report/engines/end');
+		remoteAddr.sendMsg('/report/engines/end');
 	}
 
 	*reportCommands {
 		var commands = engine.commands;
 		postln("commands: " ++ commands);
-		remote_addr.sendMsg('/report/commands/start', commands.size);
+		remoteAddr.sendMsg('/report/commands/start', commands.size);
 		commands.do({ arg cmd, i;
 			postln('command entry: ' ++ [i, cmd.name, cmd.format]);
-			remote_addr.sendMsg('/report/commands/entry', i, cmd.name, cmd.format);
+			remoteAddr.sendMsg('/report/commands/entry', i, cmd.name, cmd.format);
 		});
-		remote_addr.sendMsg('/report/commands/end');
+		remoteAddr.sendMsg('/report/commands/end');
 	}
 
 	*reportPolls {
 
-		remote_addr.sendMsg('/report/polls/start', CronePollRegistry.polls.size);
+		remoteAddr.sendMsg('/report/polls/start', CronePollRegistry.polls.size);
 		CronePollRegistry.polls.keys.do({ arg key, i;
 			var poll = CronePollRegistry.polls[key];
 postln(poll.name);
 			// FIXME: polls should just have format system like commands
-			remote_addr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
+			remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
 		});
 
-remote_addr.sendMsg('/report/polls/end'); //, CronePollRegistry.polls.size);
+remoteAddr.sendMsg('/report/polls/end'); //, CronePollRegistry.polls.size);
 	}
 
 }
