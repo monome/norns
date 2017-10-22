@@ -11,11 +11,14 @@ CroneEngine {
 	// output bus (1x stereo)
 	var <out_b;
 
+	// list of registered commands
 	var <commands;
 	var <commandNames;
-	
-	var <polls;
 
+	// list of registered polls
+	var <pollNames;
+
+	
 	*new { arg srv, grp, inb, outb;
 		^super.new.init(srv, grp, inb, outb);
 	}
@@ -27,15 +30,24 @@ CroneEngine {
 		out_b = outb;
 		commands = List.new;
 		commandNames = Dictionary.new;
-		polls = PollThreadCollection.new;
+		pollNames = Set.new;
 	}
 
+	addPoll { arg name, func;
+		name = name.asSymbol;
+		CronePollRegistry.register(name, func);
+		pollNames.add(name);
+	}
+	
 	// NB: subclasses should override this if they need to free resources
 	// but the superclass method should be called as well
 	kill {
 		group.free;
 		commands.do({ arg com;
 			com.oscdef.free;
+		});
+		pollNames.do({ arg name;
+			CronePollRegistry.remove(name);
 		});
 	}
 

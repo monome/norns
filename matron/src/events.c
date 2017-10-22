@@ -245,7 +245,6 @@ void handle_poll_report(void) {
   o_lock_descriptors();
   const struct engine_poll *p = o_get_polls();
   const int n = o_get_num_polls();
-  printf("handling poll report with %d polls \n", n);
   w_handle_poll_report(p, n);
   o_unlock_descriptors();
 };

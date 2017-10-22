@@ -57,9 +57,10 @@ static int w_load_engine(lua_State *l);
 /// commands
 static int w_request_command_report(lua_State *l);
 static int w_send_command(lua_State *l);
-static int w_report_polls(lua_State *l);
+static int w_request_poll_report(lua_State *l);
 static int w_start_poll(lua_State *l);
-static int w_stop_poll(lua_State *l);  
+static int w_stop_poll(lua_State *l);
+static int w_set_poll_time(lua_State *l);  
 // timing
 static int w_timer_start(lua_State *l);
 static int w_timer_stop(lua_State *l);
@@ -114,10 +115,11 @@ void w_init(void) {
   lua_register(lvm, "get_time", &w_get_time);
   
   // report available polling functions
-  lua_register(lvm, "report_polls", &w_report_polls);
+  lua_register(lvm, "report_polls", &w_request_poll_report);
   // start / stop a poll
   lua_register(lvm, "start_poll", &w_start_poll);
-  lua_register(lvm, "stop_poll", &w_stop_poll);  
+  lua_register(lvm, "stop_poll", &w_stop_poll);
+  lua_register(lvm, "set_poll_time", &w_set_poll_time);  
   
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -305,7 +307,6 @@ int w_request_command_report(lua_State *l) {
 }
 
 //--- timer management:
-
 int w_timer_start(lua_State *l) {
   static int idx = 0;
   double seconds;
@@ -514,22 +515,27 @@ void w_handle_poll_report(const struct engine_poll *arr,
   (void)arr;
   (void)num;
 
+  printf("w_handle_poll_report\n"); fflush(stdout);
+
   w_push_norns_func("report", "polls");
   lua_createtable(lvm, num, 0);
 
   for(int i=0; i<num; ++i) {
     // create subtable on stack
-    lua_createtable(lvm, 2, 0);    
+    lua_createtable(lvm, 2, 0);
+    // put poll index on stack; assign to subtable, pop
+    lua_pushinteger(lvm, i);
+    lua_rawseti(lvm, -2, 1);
     // put poll name on stack; assign to subtable, pop
     lua_pushstring(lvm, arr[i].name);
-    lua_rawseti(lvm, -2, 1);
+    lua_rawseti(lvm, -2, 2);
     if(arr[i].type == POLL_TYPE_VALUE) {
       lua_pushstring(lvm, "value");
     } else {
       lua_pushstring(lvm, "data");
     }
     // put type string on stack; assign to subtable, pop
-    lua_rawseti(lvm, -2, 2);
+    lua_rawseti(lvm, -2, 3);
     // subtable is on stack; assign to master table and pop
     lua_rawseti(lvm, -2, i + 1);
   }
@@ -571,8 +577,9 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
   l_report(lvm, l_docall(lvm, 2, 0) );
 }
 
-int w_report_polls(lua_State *l) {
-  (void)l; // TODO: w_report_polls
+int w_request_poll_report(lua_State *l) {
+  (void)l;
+  o_request_poll_report();
   return 0;
 }
 
@@ -583,5 +590,10 @@ int w_start_poll(lua_State *l) {
 
 int w_stop_poll(lua_State *l) {
   (void)l; // TODO: w_stop_poll
+  return 0;
+}
+
+int w_set_poll_time(lua_State *l) {
+  (void)l; // TODO: set_poll_timer
   return 0;
 }

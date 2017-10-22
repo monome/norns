@@ -8,14 +8,14 @@ AudioContext {
 	// input, output busses
 	var <>in_b, <>out_b;
 	// analysis busses
-	var <>in_amp_b, <>out_amp_b, <>pitch_b;
+	var <>amp_in_b, <>amp_out_b, <>pitch_in_b;
 	// input, output, monitor synths
 	var <>in_s, <>out_s, <>mon_s;
 	// analysis synths
-	var <>in_amp_s, <>out_amp_s, <>pitch_s;
+	var <>amp_in_s, <>amp_out_s, <>pitch_in_s;
 
 	// polls available in base context
-	var <polls;
+	var <pollNames;
 	
 	*new { arg srv;
 		^super.new.init(srv);
@@ -37,11 +37,11 @@ AudioContext {
 		in_b = Array.fill(2, { Bus.audio(server, 1); });		
 		out_b = Bus.audio(server, 2);
 		
-		in_amp_b = Array.fill(2, { Bus.control(server, 1); });
-		out_amp_b = Array.fill(2, { Bus.control(server, 1); });
+		amp_in_b = Array.fill(2, { Bus.control(server, 1); });
+		amp_out_b = Array.fill(2, { Bus.control(server, 1); });
 		
 		// each pitch bus is 2 channels:  [freq, clarity]
-		pitch_b = Array.fill(2, { Bus.control(server, 2); });
+		pitch_in_b = Array.fill(2, { Bus.control(server, 2); });
 
 
 		//---- routing synths
@@ -61,29 +61,41 @@ AudioContext {
 
 		//---- analysis synths
 
-		in_amp_s = Array.fill(2, { |i|
+		amp_in_s = Array.fill(2, { |i|
 			Synth.new(\amp_env,
-				[\in, in_b[i].index, \out, in_amp_b[i].index],
+				[\in, in_b[i].index, \out, amp_in_b[i].index],
 				ig, \addAfter
 			);
 		});
 
-		out_amp_s = Array.fill(2, { |i|
+		amp_out_s = Array.fill(2, { |i|
 			Synth.new(\amp_env,
-				[\in, out_b.index + i, \out, out_amp_b[i].index],
+				[\in, out_b.index + i, \out, amp_out_b[i].index],
 				og, \addAfter
 			);
 		});
 
-		pitch_s = Array.fill(2, { |i|
+		pitch_in_s = Array.fill(2, { |i|
 			Synth.new(\pitch,
-				[\in, in_b[i].index, \out, pitch_b[i].index],
+				[\in, in_b[i].index, \out, pitch_in_b[i].index],
 				ig, \addAfter
 			);
 		});
 
+		this.initPolls();
+		
+	}
+	
+	registerPoll  { arg name, func, dt=0.1;
+		pollNames.add(name);
+		CronePollRegistry.register(name, func, dt);
 	}
 
+	initPolls {
+		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
+		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
+	}
+	
 	// control monitor level / pan
 	
 	setMonitorLevel { arg level;
@@ -113,11 +125,11 @@ AudioContext {
 	// toggle pitch analysis (save CPU)
 	
 	pitchOn {
-		pitch_s.do({ |syn| syn.run(true); });
+		pitch_in_s.do({ |syn| syn.run(true); });
 	}
 
 	pitchOff {
-		pitch_s.do({ |syn| syn.run(false); });
+		pitch_in_s.do({ |syn| syn.run(false); });
 	}
 
 	

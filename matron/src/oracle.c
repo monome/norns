@@ -132,7 +132,7 @@ void o_init(void) {
   // poll report sequence
   lo_server_thread_add_method(st, "/report/polls/start", "i",
                               handle_poll_report_start, NULL);
-  lo_server_thread_add_method(st, "/report/polls/entry", "iss",
+  lo_server_thread_add_method(st, "/report/polls/entry", "isi",
 			      handle_poll_report_entry, NULL);
   lo_server_thread_add_method(st, "/report/polls/end", "",
                               handle_poll_report_end, NULL);
@@ -211,6 +211,7 @@ void o_request_command_report(void) {
 }
 
 void o_request_poll_report(void) {
+  printf("requesting poll report...");  fflush(stdout);
   lo_send(remote_addr, "/report/polls", "");
 }
 
@@ -469,6 +470,8 @@ int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
   (void)data;
   (void)user_data;
   assert(argc > 2);
+  printf("handle_poll_report_entry(): %s\n", &argv[1]->s);
+  fflush(stdout);
   o_set_poll(argv[0]->i, &argv[1]->s, argv[2]->i);
   return 0;
 }
@@ -481,6 +484,7 @@ int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
   (void)argv;
   (void)data;
   (void)user_data;
+  printf("oracle_handle_poll_report_end()\n"); fflush(stdout);
   event_post( event_data_new(EVENT_POLL_REPORT) );
   return 0;
 }
@@ -518,8 +522,8 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
   ev->poll_data.data = calloc(1, sz);
   memcpy(ev->poll_data.data, blobdata, sz);
   event_post( ev );
-  return 0;}
-
+  return 0;
+}
 
 
 void lo_error_handler(int num, const char *m, const char *path) {

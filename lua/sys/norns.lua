@@ -50,9 +50,22 @@ end
 norns.report.commands = function(commands, count)
    print("norns.report.commands")
    addEngineCommands(commands, count)
-   -- call the script-defined report callback.
+   -- call the script-defined report callback, if it exists
    -- this is helpful for a script to continue execution once an engine is loaded.
    if report.commands ~= nil then report.commands(commands, count) end
+end
+
+norns.report.polls = function(polls, count)
+   print("norns.report.polls")
+   -- call the script-defined report callback, if it exists
+   if report.commands ~= nil then report.commands(commands, count) end
+   norns.polls = {}
+   for i=1,count do
+      norns.polls[i] = {}
+      norns.polls[i].idx = polls[i][1]
+      norns.polls[i].name = polls[i][2]
+      norns.polls[i].type= polls[i][3]
+   end   
 end
 
 norns.timer = function(idx, stage)
