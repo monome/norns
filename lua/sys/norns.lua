@@ -74,6 +74,8 @@ norns.report.polls = function(polls, count)
       norns.polls[name].type= polls[i][3]
       norns.pollNames[idx] = name;
    end
+   -- call the script-defined report callback, if it exists
+   if report.polls ~= nil then report.polls(polls, count) end
 end
 
 norns.poll = function(idx, arg)

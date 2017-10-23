@@ -91,7 +91,7 @@ Crone {
 				'/poll/time':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg,time,addr,recvPort].postln;
-					this.setTime(msg[1], msg[2]);
+					this.setPollTime(msg[1], msg[2]);
 				}, '/poll/time')
 
 			);
