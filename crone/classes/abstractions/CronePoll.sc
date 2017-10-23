@@ -1,6 +1,6 @@
 // define and execute a poll
 CronePoll {
-	var routine; // Routine; timing thread
+	var task; // Task; timing thread
 	var <dt; // Number; callback interval
 	var func; // Function; what produces the value/data
 	var <name; // Symbol; label for outside world
@@ -35,7 +35,7 @@ CronePoll {
 			postln("poll callback " ++ [ name , oscAddr, oscPath, ret ]);
 			oscAddr.sendMsg(oscPath, idx, ret);
 		};
-		routine = Routine { inf.do {
+		task = Task { inf.do {
 			cb.value;
 			dt.wait;
 		}};
@@ -45,16 +45,16 @@ CronePoll {
 
 	start { arg addr;
 		oscAddr = addr;
-		if(isRunning.not, { 
-			routine.play;
+		if(isRunning.not, {
 			isRunning = true;
+			task.play;
 		});
 	}
 
 	stop {
-		if(isRunning, { 
-			routine.stop;
+		if(isRunning, {
 			isRunning = false;
+			task.stop;
 		});
 	}
 
@@ -70,9 +70,14 @@ CronePoll {
 
 // singleton registry of available polls
 CronePollRegistry {
-	classvar <polls;
+	classvar polls;
+	classvar pollNames;
 
-	*initClass { polls = Dictionary.new; }
+	*initClass {
+		polls = Dictionary.new;
+		pollNames = Dictionary.new;
+	}
+	//	*initClass { polls = Dictionary.new; }
 
 	// create a CronePoll and add to the registry
 	*register { arg name, func, dt=0.1, type=\value;
@@ -81,6 +86,7 @@ CronePollRegistry {
 			postln("warning: attempted to add poll using existing key");
 			^false;
 		}, {
+			pollNames[polls.size] = name;
 			polls[name] = CronePoll.new(polls.size, name, func, dt, type);
 			^true;
 		});
@@ -91,14 +97,25 @@ CronePollRegistry {
 		name = name.asSymbol;
 		if(polls.keys.includes(name), {
 			polls[name].stop;
+			pollNames.removeAt(polls[name].idx);
 			polls.removeAt(name);
-		});
+		})
 	}
 	
-	clear {
+	*clear {
 		polls.do({ |p| p.stop; });
 		polls.clear;		
 	}
+
+	*getPollFromIdx { arg idx;
+		^polls[pollNames[idx]];
+	}
+
+	*getPollFromName { arg name;
+		^polls[name];
+	}
+
+	*getNumPolls { ^polls.size } 
 
 }
  

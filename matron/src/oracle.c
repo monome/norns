@@ -137,9 +137,9 @@ void o_init(void) {
   lo_server_thread_add_method(st, "/report/polls/end", "",
                               handle_poll_report_end, NULL);
   // poll results
-  lo_server_thread_add_method(st, "/poll/value", "sf",
+  lo_server_thread_add_method(st, "/poll/value", "if",
                               handle_poll_value, NULL);
-  lo_server_thread_add_method(st, "/poll/data", "sb",
+  lo_server_thread_add_method(st, "/poll/data", "ib",
                               handle_poll_value, NULL);
 
   lo_server_thread_start(st);
@@ -227,6 +227,7 @@ void o_send_command(const char *name, lo_message msg) {
 
 //void o_set_poll_state(const char *name, bool state) {
 void o_set_poll_state(int idx, bool state) {
+    printf("o_set_poll_state()\n"); fflush(stdout);
   //  char *path;
   //  size_t len = sizeof(char) * (strlen(name) + 13);
   /* path = malloc(len); */
@@ -237,7 +238,11 @@ void o_set_poll_state(int idx, bool state) {
   /* } */
   // send something to the path, with no payload ('Nil')
   //  lo_send(remote_addr, path, "N");
-  lo_send(remote_addr, "/poll/state", "ib", idx, state);
+    if(state) { 
+      lo_send(remote_addr, "/poll/start", "i", idx);
+    } else {
+      lo_send(remote_addr, "/poll/stop", "i", idx);
+    }
 }
 
 
@@ -501,11 +506,11 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
   (void)argv;
   (void)data;
   (void)user_data;
-  union event_data *ev = event_data_new(EVENT_POLL_DATA);
+  printf("handle_poll_value; idx: %d; value: %f\n", argv[0]->i, argv[1]->f); fflush(stdout);
+  union event_data *ev = event_data_new(EVENT_POLL_VALUE);
   ev->poll_value.idx = argv[0]->i;  
   ev->poll_value.value = argv[1]->f;
   event_post( ev );
-  event_post( event_data_new(EVENT_POLL_VALUE) );
   return 0;
 }
 
@@ -517,6 +522,7 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
   (void)argv;
   (void)data;
   (void)user_data;
+  printf("handle_poll_data\n"); fflush(stdout);
   union event_data *ev = event_data_new(EVENT_POLL_DATA);
   ev->poll_data.idx = argv[0]->i;
   uint8_t *blobdata = (uint8_t*)lo_blob_dataptr((lo_blob)argv[1]);
@@ -527,7 +533,6 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
   event_post( ev );
   return 0;
 }
-
 
 void lo_error_handler(int num, const char *m, const char *path) {
   printf("liblo error %d in path %s: %s\n", num, path, m);

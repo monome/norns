@@ -126,6 +126,9 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
     struct sched_param param;
     param.sched_priority = sched_get_priority_max (SCHED_RR);
     res = pthread_setschedparam (t->tid, SCHED_RR, &param);
+    // FIXME: better error handling maybe... we err on the side of assuming success,
+    // since timer state becomes irreparably broken otherwise
+    t->status = TIMER_STATUS_RUNNING;
     if(res != 0) {
       timer_handle_error(res, "pthread_setschedparam");
       printf("\n");
@@ -134,7 +137,7 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
 	printf("specified thread does not exist\n");
 	break;
       case EINVAL:
-	printf("invalud thread policy value or associated parameter\n");
+	printf("invalid thread policy value or associated parameter\n");
 	break;
       case EPERM:
 	printf("caller lacks permission for requested scheduling parameter / policy\n");
@@ -144,7 +147,6 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
       }
       return;
     }
-    t->status = TIMER_STATUS_RUNNING;
   }
 }
 
@@ -201,8 +203,10 @@ void timer_stop(int idx) {
   if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
     pthread_mutex_lock( &(timers[idx].status_lock) );
     if( timers[idx].status == TIMER_STATUS_STOPPED) {
+      printf("timer is already stopped\n"); fflush(stdout);
       ;; // nothing to do
     } else {
+      printf("cancelling timer\n"); fflush(stdout);
       timer_cancel(&timers[idx]);
     }
     pthread_mutex_unlock( &(timers[idx].status_lock) );

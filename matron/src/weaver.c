@@ -186,7 +186,7 @@ int w_grid_set_led(lua_State *l) {
  args_error:
   printf("warning: incorrect arguments to grid_set_led() \n"); fflush(stdout);
   lua_settop(l, 0);
-  return 1;
+  return 0;
 }
 
 int w_grid_refresh(lua_State *l) {
@@ -205,7 +205,7 @@ int w_grid_refresh(lua_State *l) {
  args_error:
   printf("warning: incorrect arguments to grid_refresh() \n"); fflush(stdout);
   lua_settop(l, 0);
-  return 1;
+  return 0;
 }
 
 //-- audio processing controls
@@ -225,7 +225,7 @@ int w_load_engine(lua_State *l) {
  args_error:
   printf("warning: incorrect arguments to load_engine() \n"); fflush(stdout);
   lua_settop(l, 0);
-  return 1;
+  return 0;
 }
 
 int w_send_command(lua_State *l) {
@@ -290,7 +290,7 @@ int w_send_command(lua_State *l) {
   if( (cmd == NULL) || (fmt == NULL) ) {
     printf("error: null format/command string \n");
     lua_settop(l, 0);
-    return 1;
+    return 0;
   } else {
     o_send_command(cmd, msg);
   }
@@ -299,7 +299,7 @@ int w_send_command(lua_State *l) {
  args_error:
   printf("warning: incorrect arguments to send_command() \n"); fflush(stdout);
   lua_settop(l, 0);
-  return 1;
+  return 0;
 }
 
 int w_request_engine_report(lua_State *l) {
@@ -361,7 +361,7 @@ int w_timer_start(lua_State *l) {
   printf("warning: incorrect argument(s) to start_timer(); expected [i(fii)] \n");
   fflush(stdout);
   lua_settop(l, 0);
-  return 1;
+  return 0;
 }
 
 int w_timer_stop(lua_State *l) {
@@ -381,7 +381,7 @@ int w_timer_stop(lua_State *l) {
   printf("warning: incorrect arguments to stop_timer(); expected [i] \n");
   fflush(stdout);
   lua_settop(l, 0);
-  return 1;
+  return 0;
 }
 
 
@@ -567,12 +567,13 @@ void w_handle_timer(const int idx, const int stage) {
 
 
 void w_handle_poll_value(int idx, float val) {
+  printf("w_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);
   lua_getglobal(lvm, "norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);
-  lua_pushinteger(lvm, idx); // convert index to 1-based!
+  lua_pushinteger(lvm, idx);
   lua_pushnumber(lvm, val);
-  l_report(lvm, l_docall(lvm, 2, 0) );
+  l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
 void w_handle_poll_data(int idx, int size, uint8_t *data) {
@@ -599,23 +600,31 @@ int w_request_poll_report(lua_State *l) {
 // helper: set poll given by lua to given state
 static int poll_set_state(lua_State* l, bool val) {
   int nargs = lua_gettop(l);
-  if(nargs != 1) { return 1; }
-  if(lua_tointeger(l, 1)) {
-    o_set_poll_state(lua_tointeger(l, 1) -1, val); // convert from 1-base
+  if(nargs != 1) {
+    printf("poll_state_state(); wrong argument count\n"); fflush(stdout);
+    return 1;
+  }
+  if(lua_isinteger(l, 1)) {
+    int idx = lua_tointeger(l, 1);
+    printf("poll_set_state(); idx: %d\n", idx); fflush(stdout);
+    o_set_poll_state(idx, val);
     lua_settop(l, 0);
     return 0;
   } else {
+    printf("poll_state_state(); wrong argument type\n"); fflush(stdout);
     lua_settop(l, 0);
-    return 2;
+    return 0;
   }
 }
 
 int w_start_poll(lua_State *l) {
+  printf("w_start_poll()\n"); fflush(stdout);
   return poll_set_state(l, true);
 }
 
 int w_stop_poll(lua_State *l) {
-  return poll_set_state(l, true);
+  printf("w_stop_poll()\n"); fflush(stdout);
+  return poll_set_state(l, false);
 }
 
 
@@ -636,5 +645,5 @@ int w_set_poll_time(lua_State *l) {
   printf("wrong arguments for w_set_poll_time(); ");
   printf("expects idx(int), dt(float) \n"); fflush(stdout);
   lua_settop(l, 0);
-  return 1;
+  return 0;
 }

@@ -11,17 +11,10 @@ Crone {
 	classvar <>remoteAddr;
 	// port to send OSC on
 	classvar <>txPort = 8888;
-
-	//
-	classvar <>polls;
 	// an AudioContext
 	classvar <>ctx;
 
 	*initClass {
-
-		polls = Dictionary.new;
-
-
 		StartUp.add { // defer until after sclang init
 
 			postln("\n-------------------------------------------------");
@@ -93,7 +86,7 @@ Crone {
 					arg msg, time, addr, recvPort;
 					[msg,time,addr,recvPort].postln;
 					this.stopPoll(msg[1]);
-				}, '/poll/stop')
+				}, '/poll/stop'),
 
 				'/poll/time':OSCFunc.new({
 					arg msg, time, addr, recvPort;
@@ -122,22 +115,26 @@ Crone {
 	}
 
 	// start a thread to continuously send a named report with a given interval
-	*startPoll { arg name, intervalMs =100;
-		var poll = CronePollRegistry.polls[name.asSymbol];
+	*startPoll { arg idx, intervalMs =100;
+		var poll = CronePollRegistry.getPollFromIdx(idx);
 		if(poll.notNil, {
 			poll.start(remoteAddr);
+		}, {
+			postln("startPoll failed; couldn't find " ++ name);
 		});
 	}
 
-	*stopPoll { arg name;
-		var poll = CronePollRegistry.polls[name.asSymbol];
+	*stopPoll { arg idx;
+		var poll = CronePollRegistry.getPollFromIdx(idx);
 		if(poll.notNil, {
 			poll.stop;
+		}, {
+			postln("stopPoll failed; couldn't find " ++ name);
 		});
 	}
 
-	*setPollTime { arg name, dt;
-		var pt = CronePollRegistry.polls[name.asSymbol];
+	*setPollTime { arg idx, dt;
+		var pt = CronePollRegistry.getPollFromIdx(idx); 
 		if(pt.notNil, {
 			pt.setTime(dt);
 		});
@@ -168,14 +165,14 @@ Crone {
 	}
 
 	*reportPolls {
-
-		remoteAddr.sendMsg('/report/polls/start', CronePollRegistry.polls.size);
-		CronePollRegistry.polls.keys.do({ arg key, i;
-			var poll = CronePollRegistry.polls[key];
+		var num = CronePollRegistry.getNumPolls;
+		remoteAddr.sendMsg('/report/polls/start', num);
+		num.do({ arg i;
+			var poll = CronePollRegistry.getPollFromIdx(i);
 postln(poll.name);
-			// FIXME: polls should just have format system like commands
-			remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
-		});
+// FIXME: polls should just have format system like commands
+remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
+});
 
 remoteAddr.sendMsg('/report/polls/end'); //, CronePollRegistry.polls.size);
 	}

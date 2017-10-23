@@ -61,10 +61,10 @@ norns.report.polls = function(polls, count)
    if report.polls ~= nil then report.polls(polls, count) end
    norns.polls = {}
    local t
-   local idx 
+   local idx
    for i=1,count do
       print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
-      idx = polls[i][1]
+      idx = polls[i][2] -- index by name
       norns.polls[idx] = {}
       norns.polls[idx].idx = polls[i][1]
       norns.polls[idx].name = polls[i][2]
@@ -75,12 +75,14 @@ end
 norns.poll = function(idx, arg)
    --- FIXME: testing
    local name = ""
+   print("norns.poll: " .. idx .." ".. arg)
    if norns.polls[idx] ~= nil then name = norns.polls[idx].name end
    print("norns.poll: idx " .. idx .. "; name: " .. name .. "; type: " .. type(arg))
 end
 
 norns.timer = function(idx, stage)
    -- call script-defined timer callback
+   print("norns.timer: ".. idx.." "..stage)
    if timer ~= nil then timer(idx,stage) end
 end
 
@@ -94,3 +96,23 @@ norns.load_script = function()
    -- TODO? kill_all_timers();
 end
 
+norns.start_poll = function(pollName)
+   local p = norns.polls[pollName]
+   if p ~= nil then 
+      start_poll(p.idx)
+   end
+end
+
+norns.stop_poll = function(pollName)
+   local p = norns.polls[pollName]
+   if p ~= nil then 
+      stop_poll(p.idx)
+   end
+end
+
+norns.set_poll_time = function(pollName, t)
+   local p = norns.polls[pollName]
+   if p ~= nil then 
+      set_poll_time(p.idx, t)
+   end
+end
