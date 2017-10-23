@@ -39,6 +39,7 @@ _**TODO: output scrolling works, but no commands for it yet.**_
 
 _**TODO: more robust command input, e.g. `ctl-a` as an escape sequence.**_
 
+
 ---------------
 
 ## lua programming
@@ -92,6 +93,7 @@ it is recommended to set a shortcut on startup: `e = norns.engine`; the user the
 
 note that commands are reported automatically on engine load. so for the time being, the `report.commands` callback is the easiest method for delaying lua code execution until an engine is finished loading.
 
+- `report.polls(polls, count)` : callback with all "polls" available (current engine plus persistent audio context)
 
 ### I/O devices
 
