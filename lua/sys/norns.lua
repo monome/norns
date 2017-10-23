@@ -55,29 +55,39 @@ norns.report.commands = function(commands, count)
    if report.commands ~= nil then report.commands(commands, count) end
 end
 
+norns.polls = {}
+norns.pollNames = {}
 norns.report.polls = function(polls, count)
    print("norns.report.polls ; count: " .. count)
    -- call the script-defined report callback, if it exists
    if report.polls ~= nil then report.polls(polls, count) end
    norns.polls = {}
-   local t
-   local idx
+   norns.pollNames = {}
+   local t, name, idx
    for i=1,count do
       print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
-      idx = polls[i][2] -- index by name
-      norns.polls[idx] = {}
-      norns.polls[idx].idx = polls[i][1]
-      norns.polls[idx].name = polls[i][2]
-      norns.polls[idx].type= polls[i][3]
+      idx = polls[i][1]
+      name = polls[i][2]
+      norns.polls[name] = {}
+      norns.polls[name].idx = polls[i][1]
+      norns.polls[name].name = polls[i][2]
+      norns.polls[name].type= polls[i][3]
+      norns.pollNames[idx] = name;
    end
 end
 
 norns.poll = function(idx, arg)
    --- FIXME: testing
-   local name = ""
-   print("norns.poll: " .. idx .." ".. arg)
-   if norns.polls[idx] ~= nil then name = norns.polls[idx].name end
-   print("norns.poll: idx " .. idx .. "; name: " .. name .. "; type: " .. type(arg))
+   local name = nil
+--   print("norns.poll: "..idx .. " "..arg)
+   if norns.pollNames[idx] ~= nil then
+      name = norns.pollNames[idx] 
+      -- print("norns.poll: "..idx..": " ..name..": "..arg)
+      -- call script-defined poll callback
+      if poll ~= nil then poll(norns.polls[name], arg) end
+   else
+      print("norns.poll: unknown index: " .. idx .. " "..arg)
+   end
 end
 
 norns.timer = function(idx, stage)

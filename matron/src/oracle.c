@@ -506,7 +506,7 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
   (void)argv;
   (void)data;
   (void)user_data;
-  printf("handle_poll_value; idx: %d; value: %f\n", argv[0]->i, argv[1]->f); fflush(stdout);
+  // printf("(oracle) handle_poll_value; idx: %d; value: %f\n", argv[0]->i, argv[1]->f); fflush(stdout);
   union event_data *ev = event_data_new(EVENT_POLL_VALUE);
   ev->poll_value.idx = argv[0]->i;  
   ev->poll_value.value = argv[1]->f;
@@ -522,7 +522,7 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
   (void)argv;
   (void)data;
   (void)user_data;
-  printf("handle_poll_data\n"); fflush(stdout);
+  // printf("handle_poll_data\n"); fflush(stdout);
   union event_data *ev = event_data_new(EVENT_POLL_DATA);
   ev->poll_data.idx = argv[0]->i;
   uint8_t *blobdata = (uint8_t*)lo_blob_dataptr((lo_blob)argv[1]);

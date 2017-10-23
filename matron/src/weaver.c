@@ -567,7 +567,7 @@ void w_handle_timer(const int idx, const int stage) {
 
 
 void w_handle_poll_value(int idx, float val) {
-  printf("w_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);
+  // printf("w_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);
   lua_getglobal(lvm, "norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);

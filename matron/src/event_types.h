@@ -90,11 +90,13 @@ struct event_timer {
 }; // +8
 
 struct event_poll_value {
+  struct event_common common;
   uint32_t idx;
   float value;
 }; // + 8
 
 struct event_poll_data {
+  struct event_common common;
   uint32_t idx;
   uint32_t size;
   uint8_t *data;

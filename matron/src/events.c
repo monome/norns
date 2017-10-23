@@ -100,7 +100,7 @@ union event_data *event_data_new(event_t type) {
 // add an event to the q and signal if necessary
 void event_post(union event_data *ev) {
   assert(ev != NULL);
-  pthread_mutex_lock(&evq.lock);
+   pthread_mutex_lock(&evq.lock);
   if(evq.size == 0) {
     // signal handler thread to wake up...
     pthread_cond_signal(&evq.nonempty);
@@ -250,6 +250,7 @@ void handle_poll_report(void) {
 };
 
 void handle_poll_value(struct event_poll_value *ev) {
+  // printf("(events) handle_poll_value; idx: %d; value: %f\n", ev->idx, ev->value); fflush(stdout);
   w_handle_poll_value(ev->idx, ev->value); 
 }
 
