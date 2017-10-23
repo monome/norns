@@ -66,35 +66,35 @@ static void o_set_num_desc(int *dst, int num);
 //--- OSC handlers
 
 static int handle_engine_report_start(const char *path, const char *types,
-                               lo_arg **argv, int argc,
-                               void *data, void *user_data);
+				      lo_arg **argv, int argc,
+				      void *data, void *user_data);
 static int handle_engine_report_entry(const char *path, const char *types,
-                               lo_arg **argv, int argc,
-                               void *data, void *user_data);
+				      lo_arg **argv, int argc,
+				      void *data, void *user_data);
 static int handle_engine_report_end(const char *path, const char *types,
-                             lo_arg **argv, int argc,
-                             void *data, void *user_data);
+				    lo_arg **argv, int argc,
+				    void *data, void *user_data);
 static int handle_command_report_start(const char *path, const char *types,
-                                lo_arg **argv, int argc,
-                                void *data, void *user_data);
+				       lo_arg **argv, int argc,
+				       void *data, void *user_data);
 static int handle_command_report_entry(const char *path, const char *types,
-                                lo_arg **argv, int argc,
-                                void *data, void *user_data);
+				       lo_arg **argv, int argc,
+				       void *data, void *user_data);
 static int handle_command_report_end(const char *path, const char *types,
-                              lo_arg **argv, int argc,
-                              void *data, void *user_data);
+				     lo_arg **argv, int argc,
+				     void *data, void *user_data);
 static int handle_poll_report_start(const char *path, const char *types,
-                                lo_arg **argv, int argc,
-                                void *data, void *user_data);
+				    lo_arg **argv, int argc,
+				    void *data, void *user_data);
 static int handle_poll_report_entry(const char *path, const char *types,
-                                lo_arg **argv, int argc,
-                                void *data, void *user_data);
+				    lo_arg **argv, int argc,
+				    void *data, void *user_data);
 static int handle_poll_report_end(const char *path, const char *types,
-                              lo_arg **argv, int argc,
-                              void *data, void *user_data);
+				  lo_arg **argv, int argc,
+				  void *data, void *user_data);
 static int handle_poll_value(const char *path, const char *types,
-                              lo_arg **argv, int argc,
-                              void *data, void *user_data);
+			     lo_arg **argv, int argc,
+			     void *data, void *user_data);
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
@@ -237,6 +237,8 @@ void o_set_poll_state(const char *name, bool state) {
   lo_send(remote_addr, path, "N");
 }
 
+
+
 //-------------------------
 //--- static function definitions
 void o_init_descriptors(void) {
@@ -356,7 +358,7 @@ void o_set_num_desc(int *dst, int num) {
 
 //---- OSC handlers
 int handle_engine_report_start(const char *path, const char *types,
-                        lo_arg **argv, int argc, void *data, void *user_data)
+			       lo_arg **argv, int argc, void *data, void *user_data)
 {
   (void)path;
   (void)types;
@@ -371,7 +373,7 @@ int handle_engine_report_start(const char *path, const char *types,
 }
 
 int handle_engine_report_entry(const char *path, const char *types, lo_arg **argv,
-                        int argc, void *data, void *user_data) {
+			       int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -386,7 +388,7 @@ int handle_engine_report_entry(const char *path, const char *types, lo_arg **arg
 }
 
 int handle_engine_report_end(const char *path, const char *types, lo_arg **argv,
-                      int argc, void *data, void *user_data) {
+			     int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -407,7 +409,7 @@ int handle_engine_report_end(const char *path, const char *types, lo_arg **argv,
 //--- command report
 
 int handle_command_report_start(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data) {
+				int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -421,7 +423,7 @@ int handle_command_report_start(const char *path, const char *types, lo_arg **ar
 }
 
 int handle_command_report_entry(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data) {
+				int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -433,7 +435,7 @@ int handle_command_report_entry(const char *path, const char *types, lo_arg **ar
 }
 
 int handle_command_report_end(const char *path, const char *types, lo_arg **argv,
-                       int argc, void *data, void *user_data) {
+			      int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -449,7 +451,7 @@ int handle_command_report_end(const char *path, const char *types, lo_arg **argv
 //--- poll report
 
 int handle_poll_report_start(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data) {
+			     int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -463,7 +465,7 @@ int handle_poll_report_start(const char *path, const char *types, lo_arg **argv,
 }
 
 int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data) {
+			     int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -476,7 +478,7 @@ int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
 }
 
 int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
-                       int argc, void *data, void *user_data) {
+			   int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -489,7 +491,7 @@ int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
 
 
 int handle_poll_value(const char *path, const char *types, lo_arg **argv,
-                       int argc, void *data, void *user_data) {
+		      int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -497,7 +499,7 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
   (void)data;
   (void)user_data;
   union event_data *ev = event_data_new(EVENT_POLL_DATA);
-  ev->poll_value.idx = argv[0]->i;
+  ev->poll_value.idx = argv[0]->i;  
   ev->poll_value.value = argv[1]->f;
   event_post( ev );
   event_post( event_data_new(EVENT_POLL_VALUE) );
@@ -505,7 +507,7 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
 }
 
 int handle_poll_data(const char *path, const char *types, lo_arg **argv,
-                       int argc, void *data, void *user_data) {
+		     int argc, void *data, void *user_data) {
   (void)path;
   (void)types;
   (void)argc;
@@ -527,4 +529,10 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
 void lo_error_handler(int num, const char *m, const char *path) {
   printf("liblo error %d in path %s: %s\n", num, path, m);
   fflush(stdout);
+}
+
+
+// set poll period
+void o_set_poll_time(int idx, float dt) {
+  lo_send(remote_addr, "/poll/time", "if", idx, dt);
 }

@@ -60,20 +60,23 @@ norns.report.polls = function(polls, count)
    -- call the script-defined report callback, if it exists
    if report.polls ~= nil then report.polls(polls, count) end
    norns.polls = {}
-   local t -- test
+   local t
+   local idx 
    for i=1,count do
---      if polls[i][3] > 0 then t = "data" else t = "value" end
       print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
-      norns.polls[i] = {}
-      -- FIXME: index is kinda meaingless r/n
-      --norns.polls[i].idx = polls[i][1]
-      norns.polls[i].name = polls[i][2]
-      norns.polls[i].type= polls[i][3]
-   end   
+      idx = polls[i][1]
+      norns.polls[idx] = {}
+      norns.polls[idx].idx = polls[i][1]
+      norns.polls[idx].name = polls[i][2]
+      norns.polls[idx].type= polls[i][3]
+   end
 end
 
 norns.poll = function(idx, arg)
-   print("norns.poll: idx " .. idx .. "; arg type: " .. type(arg))
+   --- FIXME: testing
+   local name = ""
+   if norns.polls[idx] ~= nil then name = norns.polls[idx].name end
+   print("norns.poll: idx " .. idx .. "; name: " .. name .. "; type: " .. type(arg))
 end
 
 norns.timer = function(idx, stage)

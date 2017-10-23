@@ -94,6 +94,13 @@ Crone {
 					[msg,time,addr,recvPort].postln;
 					this.stopPoll(msg[1]);
 				}, '/poll/stop')
+
+				'/poll/time':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg,time,addr,recvPort].postln;
+					this.setTime(msg[1], msg[2]);
+				}, '/poll/time')
+
 			);
 		}
 

@@ -569,7 +569,7 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1); // convert index to 1-based!
   lua_createtable(lvm, size, 0);
-  // FIXME: maybe not the best way to pass a nyte array to lua
+  // FIXME: maybe not the best way to pass a byte array to lua
   for(int i=0; i<size; ++i) {
     lua_pushinteger(lvm, data[i]);
     lua_rawseti(lvm, -2, 1);
@@ -585,16 +585,24 @@ int w_request_poll_report(lua_State *l) {
 }
 
 int w_start_poll(lua_State *l) {
-  (void)l; // TODO: w_start_poll
+  (void)l;
+    bool val = TODO;
+  o_set_poll_state(val);
+
   return 0;
 }
 
 int w_stop_poll(lua_State *l) {
-  (void)l; // TODO: w_stop_poll
+  (void)l;
+  bool val = TODO;
+  o_set_poll_state(val);
   return 0;
 }
 
 int w_set_poll_time(lua_State *l) {
-  (void)l; // TODO: set_poll_timer
+  (void)l;
+  int idx = TODO;
+  float val = TODO;
+  o_set_poll_time(idx, val);
   return 0;
 }

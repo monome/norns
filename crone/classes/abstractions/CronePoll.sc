@@ -1,34 +1,26 @@
 // define and execute a poll
 CronePoll {
-	// Routine; timing thread
-	var routine;
-	// Number; callback interval
-	var <dt;
-	// Funciton; to be evaluated each callback
-	var func;
-	// Symbol; identifies this poll to outside world
-	var <name;
-	// Symbol; either \value or \data
-	var <type;
-	// Boolean; running state
-	var isRunning;
-	// Symbol, full OSC path to be sent with poll results
-	var <oscPath;
-	// address to send to.
-	var <>oscAddr;
-	// current return value
-	var ret;
-	// callback function
-	var cb;
+	var routine; // Routine; timing thread
+	var <dt; // Number; callback interval
+	var func; // Function; what produces the value/data
+	var <name; // Symbol; label for outside world
+	var <idx;  // Integer; another label, for ordering/efficiency
+	var <type; 	// Symbol; either \value or \data
+	var isRunning; 	// Boolean; running state
+	var <oscPath; 	// Symbol, full descination path
+	var <>oscAddr; 	// address to send to.
+	var ret; 	// current return value
+	var cb; 	// full (private) callback function 
 	
 	// create and define a new poll.
 	// function argument should return value or data
 	// type should be \value or \data
-	*new { arg n, f = {}, d=0.1, t=\value;
-		^super.new.init(n, f, d, t);
+	*new { arg i, n, f = {}, d=0.1, t=\value;
+		^super.new.init(i, n, f, d, t);
 	}
 
-	init { arg n, f, d, t;
+	init { arg i, n, f, d, t;
+		idx = i;
 		name = n;
 		dt = d;
 		type = t;
@@ -41,7 +33,7 @@ CronePoll {
 		cb = {
 			ret = func.value;
 			postln("poll callback " ++ [ name , oscAddr, oscPath, ret ]);
-			oscAddr.sendMsg(oscPath, name, ret);
+			oscAddr.sendMsg(oscPath, idx, ret);
 		};
 		routine = Routine { inf.do {
 			cb.value;
@@ -89,7 +81,7 @@ CronePollRegistry {
 			postln("warning: attempted to add poll using existing key");
 			^false;
 		}, {
-			polls[name] = CronePoll.new(name, func, dt, type);
+			polls[name] = CronePoll.new(polls.size, name, func, dt, type);
 			^true;
 		});
 
