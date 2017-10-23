@@ -76,7 +76,8 @@ extern void o_request_poll_report(void);
 extern void o_send_command(const char *name, lo_message msg);
 
 // start or stop a poll
-extern void o_set_poll_state(const char *name, bool state);
+//extern void o_set_poll_state(const char *name, bool state);
+extern void o_set_poll_state(int idx, bool state);
 
 // set poll period
 extern void o_set_poll_time(int idx, float dt);

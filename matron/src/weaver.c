@@ -180,10 +180,12 @@ int w_grid_set_led(lua_State *l) {
   }
 
   dev_monome_set_led(md, x, y, z);
+  lua_settop(l, 0);
   return 0;
 
-args_error:
+ args_error:
   printf("warning: incorrect arguments to grid_set_led() \n"); fflush(stdout);
+  lua_settop(l, 0);
   return 1;
 }
 
@@ -198,9 +200,11 @@ int w_grid_refresh(lua_State *l) {
     goto args_error;
   }
   dev_monome_refresh(md);
+  lua_settop(l, 0);
   return 0;
-args_error:
+ args_error:
   printf("warning: incorrect arguments to grid_refresh() \n"); fflush(stdout);
+  lua_settop(l, 0);
   return 1;
 }
 
@@ -212,13 +216,15 @@ int w_load_engine(lua_State *l) {
 
   if( lua_isstring(l, 1) ) {
     o_load_engine( lua_tostring(l, 1) );
+    lua_settop(l, 0);
     return 0;
   } else {
     goto args_error;
   }
 
-args_error:
+ args_error:
   printf("warning: incorrect arguments to load_engine() \n"); fflush(stdout);
+  lua_settop(l, 0);
   return 1;
 }
 
@@ -231,8 +237,9 @@ int w_send_command(lua_State *l) {
 
   if( lua_isnumber(l, 1) ) {
     int idx = (int)lua_tonumber(l, 1) - 1; // 1-base to 0-base
-    // FIXME? guess should be wrapped in descriptor access lock...
-    // but this will not be called often and a collision seems unlikely here
+    // FIXME: this isn't really safe.
+    // to make it safe would mean locks, which is bad.
+    // might be better to put name/fmt on stack from lua on every call
     cmd = o_get_commands()[idx].name;
     fmt = o_get_commands()[idx].format;
   } else {
@@ -280,17 +287,18 @@ int w_send_command(lua_State *l) {
       break;
     } /* switch */
   }
-
   if( (cmd == NULL) || (fmt == NULL) ) {
     printf("error: null format/command string \n");
+    lua_settop(l, 0);
     return 1;
   } else {
     o_send_command(cmd, msg);
   }
+  lua_settop(l, 0);
   return 0;
-
-args_error:
+ args_error:
   printf("warning: incorrect arguments to send_command() \n"); fflush(stdout);
+  lua_settop(l, 0);
   return 1;
 }
 
@@ -347,10 +355,12 @@ int w_timer_start(lua_State *l) {
     stage = 0;
   }
   timer_start(idx, seconds, count, stage);
+  lua_settop(l, 0);
   return 0;
-args_error:
+ args_error:
   printf("warning: incorrect argument(s) to start_timer(); expected [i(fii)] \n");
   fflush(stdout);
+  lua_settop(l, 0);
   return 1;
 }
 
@@ -365,10 +375,12 @@ int w_timer_stop(lua_State *l) {
     goto args_error;
   }
   timer_stop(idx);
+  lua_settop(l, 0);
   return 0;
-args_error:
+ args_error:
   printf("warning: incorrect arguments to stop_timer(); expected [i] \n");
   fflush(stdout);
+  lua_settop(l, 0);
   return 1;
 }
 
@@ -381,7 +393,7 @@ int w_get_time(lua_State *l) {
   // returns two results: seconds, microseconds
   lua_pushinteger(l, (lua_Integer)tv.tv_sec);
   lua_pushinteger(l, (lua_Integer)tv.tv_usec);
-  return 2;
+  return 0;
 }
 
 //---- c -> lua glue
@@ -584,25 +596,45 @@ int w_request_poll_report(lua_State *l) {
   return 0;
 }
 
-int w_start_poll(lua_State *l) {
-  (void)l;
-    bool val = TODO;
-  o_set_poll_state(val);
+// helper: set poll given by lua to given state
+static int poll_set_state(lua_State* l, bool val) {
+  int nargs = lua_gettop(l);
+  if(nargs != 1) { return 1; }
+  if(lua_tointeger(l, 1)) {
+    o_set_poll_state(lua_tointeger(l, 1) -1, val); // convert from 1-base
+    lua_settop(l, 0);
+    return 0;
+  } else {
+    lua_settop(l, 0);
+    return 2;
+  }
+}
 
-  return 0;
+int w_start_poll(lua_State *l) {
+  return poll_set_state(l, true);
 }
 
 int w_stop_poll(lua_State *l) {
-  (void)l;
-  bool val = TODO;
-  o_set_poll_state(val);
-  return 0;
+  return poll_set_state(l, true);
 }
+
 
 int w_set_poll_time(lua_State *l) {
   (void)l;
-  int idx = TODO;
-  float val = TODO;
-  o_set_poll_time(idx, val);
-  return 0;
+  int nargs = lua_gettop(l);
+  if(nargs == 2) {
+    if(lua_isinteger(l, 1)) {
+      int idx = lua_tointeger(l, 1);    
+      if(lua_isnumber(l, 2)) {
+	float val = lua_tonumber(l, 2);
+	o_set_poll_time(idx, val);
+	lua_settop(l, 0);
+	return 0;
+      }
+    }
+  }
+  printf("wrong arguments for w_set_poll_time(); ");
+  printf("expects idx(int), dt(float) \n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 1;
 }

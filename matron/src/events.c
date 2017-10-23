@@ -91,7 +91,7 @@ void events_init(void) {
 }
 
 union event_data *event_data_new(event_t type) {
-  // FIXME: theoretically faster to use an object pool
+  // FIXME: better not to allocate here, use object pool
   union event_data *ev = calloc( 1, sizeof(union event_data) );
   ev->type = type;
   return ev;
