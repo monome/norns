@@ -1,9 +1,9 @@
-norns.version.monome = '0.0.1'
+require 'norns'
 
 ---------------------------------
 -- Grid device class
 
-Grid = {}
+local Grid = {}
 Grid.__index = Grid
 
 function Grid:new(id, serial, name, dev)
@@ -25,17 +25,9 @@ end
 
 function Grid:print()
    for k,v in pairs(self) do
-	  print('>> ', k,v)
+      print('>> ', k,v)
    end
 end
-
-----------------------------------
--- Arc device class
-
-Arc = {}
-Arc.__index = Arc
-
--- TODO...
 
 ---------------------------------
 -- monome device manager
@@ -92,5 +84,4 @@ norns.grid.print = function()
    end
 end
 
--- TODO: arc devices
-norns.arc = {}
+return 

@@ -3,8 +3,8 @@ require 'math'
 print("test_amp_poll.lua")
 
 local function printAsciiMeter(amp, n, floor)
-   if n == nil then n = 64 end
-   if floor == nil then floor = -72 end
+   n = n or 64
+   floor = floor or -72
    local db = 20.0 * math.log10(amp)
    local norm = 1.0 - (db / floor)
    local x = norm * n
@@ -22,7 +22,7 @@ poll = function(poll, value)
 end
 
 report.polls = function()
-   if norns.polls['amp_in_l'] ~= nil then
+   if norns.polls['amp_in_l'] then
 	 -- FIXME: not a great interface.
 	 -- poll objects should have "set_time". "start", "stop" methods...
 	 norns.set_poll_time('amp_in_l', 0.05)

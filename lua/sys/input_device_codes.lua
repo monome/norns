@@ -4,11 +4,14 @@
 
    tables and reverse tables for looking up event type and event code names.
 
-   a bit hackish: just copying the most relevant event types and co`des 
+   a bit hackish: just copying the most relevant event types and codes
    from linux/input-event-codes.h
 
    would be cleaner to build this dynamically at startup, maybe?
    using libevdev functions like libevdev_event_code_get_name()
+
+
+   FIXME: should add aliases in reverse LUT (e.g. BTN_A == BTN_SOUTH or whatever)
 
 --]]
 
@@ -312,6 +315,7 @@ norns.input.event_codes[norns.input.event_types_rev['EV_KEY']] = {
    [0x12f] = 'BTN_DEAD',
    [0x130] = 'BTN_GAMEPAD',
    [0x130] = 'BTN_SOUTH',
+   ---- FIXME: these aliases should be preserved
    -- [BTN_SOUTH] = 'BTN_A',
    [0x131] = 'BTN_EAST',
    -- [BTN_EAST] = 'BTN_B',

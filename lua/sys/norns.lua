@@ -24,7 +24,9 @@ print("running norns.lua")
 
 require('helpers')
 require('input')
-require('monome')
+
+local Grid = require('Grid')
+local Poll = require('Poll')
 
 -- this function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking
@@ -32,12 +34,32 @@ startup = function()
    require('startup')
 end
 
+-----------------------------
+--- system state tables
+
+------- reports
+-- table of handlers for descriptor reports
+norns.report = {}
+-- table of script-defined report callbacks
+report = {}
+
+----- commands
 -- table of engine commands
 norns.engine = {}
 
--- table of handlers for descriptor reports
-norns.report = {}
-report = {} -- <-- script-defined callbacks go in here
+----- polls
+-- poll objects (index by name)
+norns.polls = {}
+-- poll names (indexed by int) - for reverse lookup
+norns.pollNames = {}
+
+----- HID input
+
+----- grid
+
+
+---------------------------------------------
+---- report callbacks
 
 norns.report.engines = function(names, count)
    print(count .. " engines: ")
@@ -55,12 +77,9 @@ norns.report.commands = function(commands, count)
    if report.commands ~= nil then report.commands(commands, count) end
 end
 
-norns.polls = {}
-norns.pollNames = {}
 norns.report.polls = function(polls, count)
    print("norns.report.polls ; count: " .. count)
-   -- call the script-defined report callback, if it exists
-   if report.polls ~= nil then report.polls(polls, count) end
+
    norns.polls = {}
    norns.pollNames = {}
    local t, name, idx
@@ -68,10 +87,11 @@ norns.report.polls = function(polls, count)
       print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
       idx = polls[i][1]
       name = polls[i][2]
-      norns.polls[name] = {}
-      norns.polls[name].idx = polls[i][1]
-      norns.polls[name].name = polls[i][2]
-      norns.polls[name].type= polls[i][3]
+      norns.polls[name] = Poll(polls[i][1], polls[i][2], polls[i][3])
+--      norns.polls[name] = {}
+--      norns.polls[name].idx = polls[i][1]
+--      norns.polls[name].name = polls[i][2]
+--      norns.polls[name].type= polls[i][3]
       norns.pollNames[idx] = name;
    end
    -- call the script-defined report callback, if it exists
@@ -106,25 +126,9 @@ end
 
 norns.load_script = function()
    -- TODO? kill_all_timers();
+   -- TODO? stop polls?
+   -- TODO? call script deinit?
+   -- &c
 end
 
-norns.start_poll = function(pollName)
-   local p = norns.polls[pollName]
-   if p ~= nil then 
-      start_poll(p.idx)
-   end
-end
-
-norns.stop_poll = function(pollName)
-   local p = norns.polls[pollName]
-   if p ~= nil then 
-      stop_poll(p.idx)
-   end
-end
-
-norns.set_poll_time = function(pollName, t)
-   local p = norns.polls[pollName]
-   if p ~= nil then 
-      set_poll_time(p.idx, t)
-   end
-end
+return norns
