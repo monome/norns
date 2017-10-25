@@ -4,7 +4,7 @@
 
 # event queue optimization
 there is really too much allocation and mutexing going on in the event queue.
-- *allocation* : posting an event invokes `calloc` to get an `event_data` union. since it is a union, its a good candidate for object-poll model.
+- *allocation* : posting an event invokes `calloc` to get an `event_data` union. since it is a union, its a good candidate for object-pool model.
 - *threads* : each read and write to the event queue is protected by a mutex. it is probably not a big deal, but would be better to have at least lock-free reads. (not sure how possible this really is)
 
 # descriptors
