@@ -71,10 +71,7 @@ end
 
 norns.report.commands = function(commands, count)
    print("norns.report.commands")
-   addEngineCommands(commands, count)
-   -- call the script-defined report callback, if it exists
-   -- this is helpful for a script to continue execution once an engine is loaded.
-   if report.commands ~= nil then report.commands(commands, count) end
+   -- this should be redefined when engine is loaded (see engine.lua)
 end
 
 norns.report.polls = function(polls, count)

@@ -27,7 +27,7 @@ function Poll:__newindex(idx, val)
    -- oher properties are not settable!
 end
 
--- custom getters
+-- custom getters / methods
 function Poll:__index(idx)
    if idx == 'id' then return self.props.id
    elseif idx == 'name' then return self.props.name
