@@ -159,11 +159,12 @@ int dev_monitor_scan(void) {
 #else
 	  if( udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL) ) {
 #endif
-	  // printf("found usb input device; type: %d \n", check_dev_type(dev));
+
           node = udev_device_get_devnode(dev);
           if(node != NULL) {
             device_t t = check_dev_type(dev);
             if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
+	      printf("found usb input device; type: %d \n", t);
               dev_list_add(t, node);
             }
           }
@@ -217,18 +218,24 @@ void *watch_loop(void *p) {
 
 void handle_device(struct udev_device *dev) {
   device_t t = check_dev_type(dev);
-  const char *act = udev_device_get_action(dev);
-  const char *node = udev_device_get_devnode(dev);
-  if(act[0] == 'a') {
-    dev_list_add(t, node);
-  } else if (act[0] == 'r') {
-    dev_list_remove(t, node);
+  if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
+    printf("handling device, type: %d\n", t); fflush(stdout);
+    const char *act = udev_device_get_action(dev);
+    const char *node = udev_device_get_devnode(dev);
+    if(act[0] == 'a') {
+      dev_list_add(t, node);
+    } else if (act[0] == 'r') {
+      dev_list_remove(t, node);
+    }
   }
+  //else {
+  //  printf("device_monitor:handle_device(): unknown device type\n"); fflush(stdout);
+  //}
 }
 
 device_t check_dev_type (struct udev_device *dev) {
   static char msgbuf[128];
-  device_t t = -1;
+  device_t t = DEV_TYPE_INVALID;
   const char *node = udev_device_get_devnode(dev);
   int reti;
   if(node) {

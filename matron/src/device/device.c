@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +13,9 @@ static int dev_start(union dev *d);
 
 union dev *dev_new(device_t type, const char *path) {
   union dev *d = calloc( 1, sizeof(union dev) );
+
+  printf("dev_new(%d : %s)\n", type, path); fflush(stdout);
+  
   if(!d) {return NULL;}
   // initialize the base class
   d->base.type = type;
@@ -39,13 +43,14 @@ int dev_delete(union dev *d) {
   printf("dev_delete()\n"); fflush(stdout);
   int ret = pthread_cancel(d->base.tid);
   if(ret) {
-    printf("dev_monome_free(): error in pthread_cancel()\n");
+    printf("dev_delete(): error in pthread_cancel(): %d\n", ret);
+    if(ret == ESRCH) { printf("no such thread\n"); }
     fflush(stdout);
     return -1;
   }
   ret = pthread_join(d->base.tid, NULL); // wait before free
   if(ret) {
-    printf("dev_monome_free(): error in pthread_join()\n");
+    printf("dev_delete(): error in pthread_join(): %d\n", ret);
     fflush(stdout);
     return -1;
   }
