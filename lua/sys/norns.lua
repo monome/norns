@@ -20,13 +20,11 @@ norns = {}
 norns.version = {}
 norns.version.norns = "0.0.1"
 
+
 print("running norns.lua")
 
 require('helpers')
-require('input')
-
-local Grid = require('Grid')
-local Poll = require('Poll')
+ require('input')
 
 -- this function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking
@@ -53,20 +51,19 @@ norns.polls = {}
 -- poll names (indexed by int) - for reverse lookup
 norns.pollNames = {}
 
------ HID input
-
------ grid
-
 
 ---------------------------------------------
 ---- report callbacks
 
 norns.report.engines = function(names, count)
+   print("norns.report.engines")
+   --[[
    print(count .. " engines: ")
    for i=1,count do
 	  print(i .. ": "..names[i])
    end
    if report.engines ~= nil then report.engines(names, count) end
+   --]]
 end
 
 norns.report.commands = function(commands, count)
@@ -76,7 +73,7 @@ end
 
 norns.report.polls = function(polls, count)
    print("norns.report.polls ; count: " .. count)
-
+--[[
    norns.polls = {}
    norns.pollNames = {}
    local t, name, idx
@@ -84,7 +81,10 @@ norns.report.polls = function(polls, count)
       print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
       idx = polls[i][1]
       name = polls[i][2]
-      norns.polls[name] = Poll(polls[i][1], polls[i][2], polls[i][3])
+
+-- FIXME
+      
+--      norns.polls[name] = Poll(polls[i][1], polls[i][2], polls[i][3])
 --      norns.polls[name] = {}
 --      norns.polls[name].idx = polls[i][1]
 --      norns.polls[name].name = polls[i][2]
@@ -93,6 +93,7 @@ norns.report.polls = function(polls, count)
    end
    -- call the script-defined report callback, if it exists
    if report.polls ~= nil then report.polls(polls, count) end
+--]]
 end
 
 norns.poll = function(idx, arg)

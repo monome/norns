@@ -1,22 +1,30 @@
---[[
-   HID/other input device management
---]]
+-- require 'norns'
 
-norns.version.input = '0.0.1'
+norns.input = {}
+norns.input.devices = {}
+
+require('input_device_codes')
 
 -- input device class
 Input = {}
 Input.__index = Input
 
-function Input:new(id, serial, name, types, codes)
+--- constructor
+-- `codes` is indexed by event type, values are subtables
+-- each subtable is indexed by supported code numbers; values are code names
+-- @param id : arbitrary numberical index of the device
+-- @param serial : serial device string from USB
+-- @param name: device name string fromUSB
+-- @param types: array of supported event types
+-- @param codes: array of supported codes. this is 
+function Input.new(id, serial, name, types, codes)
    local d = setmetatable({}, Input)
+   -- print(id, serial, name, types, codes)
    d.id = id
    d.serial = serial
    d.name = name
    d.types = types
    d.codes = {}
-   -- `codes` is indexed by event type, values are subtables
-   -- each subtable is indexed by supported code numbers, values are code names
    for i,t in pairs(types) do
       if norns.input.event_types[t] ~= nil then
 	 d.codes[t] = {}
@@ -44,17 +52,16 @@ function Input:print()
 end
 
 
-
--- global device management functions
-norns.input = {}
-norns.input.devices = {}
-require('input_device_codes')
-input = {} -- script callbacks go in here
-
 norns.input.add = function(id, serial, name, types, codes)
-   local d = Input:new(id, serial, name, types, codes)
+   -- print(id, serial, name, types, codes)
+   local d = Input.new(id, serial, name, types, codes)
    norns.input.devices[id] = d
-   if input.add ~= nil then input.add(d) end
+
+   d:print()
+
+   -- FIXME: not good; encapsulate
+   -- if input.add ~= nil then input.add(d) end
+
 end
 
 norns.input.remove = function()
@@ -62,7 +69,11 @@ norns.input.remove = function()
 end
 
 norns.input.event = function(id, devtype, code, value)
+   print(id, devtype, code, value)
+   --- FIXME: perform registered callback(s?) for device
+   --[[
    if input.event ~= nil then
       input.event(id, devtype, code, value)
    end
+   --]]
 end

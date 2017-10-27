@@ -118,6 +118,9 @@ void event_loop(void) {
     pthread_mutex_lock(&evq.lock);
     // while() because contention may produce spurious wakeup
     while(evq.size == 0) {
+      //// FIXME: if we have an input device thread running,
+      //// then we get segfaults here on SIGINT
+      //// need to set an explicit sigint handler      
       // atomically unlocks the mutex, sleeps on condvar, locks again on wakeup
       pthread_cond_wait(&evq.nonempty, &evq.lock);
     }

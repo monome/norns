@@ -47,7 +47,7 @@ end
 
 
 -- load the desired engine with our callback
-engine.load('test-sine', didLoadEngine)
+engine.load('TestSine', didLoadEngine)
 
 norns.deinit = function()
    state.pitch_poll:stop

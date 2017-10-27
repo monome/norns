@@ -75,6 +75,7 @@ static int w_get_time(lua_State *l);
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
 w_push_norns_func(const char *field, const char *func) {
+  // printf("calling norns.%s.%s\n", field, func); fflush(stdout);
   lua_getglobal(lvm, "norns");
   lua_getfield(lvm, -1, field);
   lua_remove(lvm, -2);
