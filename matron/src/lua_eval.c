@@ -141,8 +141,9 @@ static int docall (lua_State *L, int narg, int nres) {
 
 // FIXME: for now, a wrapper
 int l_docall (lua_State *L, int narg, int nres) {
-  docall(L, narg, nres);
-  return 0;
+  int stat = docall(L, narg, nres);
+  // FIXME: put some goddamn error handling in here  
+  return stat;
 }
 
 /* static void print_version (void) { */
