@@ -66,7 +66,7 @@ Engine.load = function(name, callback)
    -- on engine load, command report will be generated
    norns.report.commands = function(commands, count)
       Engine.registerCommands(commands, count)
-      callback(commands)
+      callback(Engine.commands)
    end
    load_engine(name)
 end
