@@ -2,14 +2,12 @@ local Engine = {}
 --------------------------
 --- static data
 
--- table of available engine names
-Engine.engines = {}
+-- registered names
+Engine.names = {}
 -- currently loaded name
 Engine.name = nil
 -- current command table
 Engine.commands = {}
--- registered names
-Engine.names = {}
 
 ------------------------------
 -- static methods
@@ -46,13 +44,19 @@ end
 -- @param name - command name (string)
 -- @param fmt - OSC format string (e.g. 'isf' for "int string float")
 Engine.addCommand = function(id, name, fmt)
-   Engine.commands[name] = function(...)
+   local func = function(...)
       local arg={...}
       if select("#",...) ~= #fmt then
 	 print("warning: wrong count of arguments for command '"..name.."'")
       end
       send_command(id, table.unpack(arg))
    end
+   Engine.commands[name] = {
+      id = id,
+      name = name,
+      fmt = fmt,
+      func = func      
+   }
 end
 
 --- load a named engine, with a callback
@@ -70,18 +74,16 @@ end
 -------------------------------
 --- meta
 
-Engine_mt = {}
-
 --- use __index to look up registered commands
-function Engine_mt.__index(self, idx)
+function Engine.__index(self, idx)
    if idx == 'name' then return Engine.name
    elseif Engine.commands[idx] then
-      return Engine.commands[idx]
+      return Engine.commands[idx].func
    else
       return rawget(Engine, idx)
    end
 end
 
-setmetatable(Engine, Engine_mt)
+setmetatable(Engine, Engine)
 
 return Engine
