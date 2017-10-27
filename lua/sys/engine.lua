@@ -1,26 +1,15 @@
 local Engine = {}
-Engine.__index = Engine
-
---- constructor
--- @param props - a table of initial property values
-function Engine.new(props)
-      local self = setmetatable({}, Engine)
-      if props.name then
-	 self.props = props
-	 return self
-      end
-   end
-   print("warning: engine constructor requires at least a name")
-   return nil
-end
-
 --------------------------
 --- static data
 
 -- table of available engine names
 Engine.engines = {}
--- the currently loaded engine
-Engine.current = nil
+-- currently loaded name
+Engine.name = nil
+-- current command table
+Engine.commands = {}
+-- registered names
+Engine.names = {}
 
 ------------------------------
 -- static methods
@@ -43,15 +32,12 @@ end
 -- @param data - array of [name, format]
 -- @param count - number of commands
 Engine.registerCommands = function(data, count)
-   local e = Engine.current
-   local name, fmt
-   if e then
-      e.props.commands = {}
-      for i=1,count do
-	 name = data[i][1]
-	 fmt = data[i][i]
-	 Engine.addCommand(i, name, fmt)
-      end
+   local name, fmt   
+   Engine.commands = {}
+   for i=1,count do
+      name = data[i][1]
+      fmt = data[i][2]
+      Engine.addCommand(i, name, fmt)
    end
 end
 
@@ -60,19 +46,13 @@ end
 -- @param name - command name (string)
 -- @param fmt - OSC format string (e.g. 'isf' for "int string float")
 Engine.addCommand = function(id, name, fmt)
-   -- FIXME(?) maybe a less screwy way to do this than JIT compiling a string.
-   local body
-   local argstr = ""
-   for i in 1,#fmt do
-      argstr = argstr.."arg"..i..string.sub(fmt,i,1)..","
+   Engine.commands[name] = function(...)
+      local arg={...}
+      if select("#",...) ~= #fmt then
+	 print("warning: wrong count of arguments for command '"..name.."'")
+      end
+      send_command(id, table.unpack(arg))
    end
-   argstr = string.sub(argstr, 0, -2)
-   local str = "Engine.current.props.commands[name] = function( "
-   str = str .. argstr .. " ) "
-   str = str .. " send_command( " .. id .. " , " .. argstr .. ") end "
-   local func = load(str)
-   if func then func()
-   else print("error defining function: \n" .. str .. "\n") end
 end
 
 --- load a named engine, with a callback
@@ -87,18 +67,21 @@ Engine.load = function(name, callback)
    load_engine(name)
 end
 
-----------------------------------
--- instance methods
+-------------------------------
+--- meta
 
--- getters / methods
-function Engine:__index(idx)
-   if idx == 'name' then return self.props.name
-   elseif self.props.commands[idx] then
-      return self.props.commands[idx]
+Engine_mt = {}
+
+--- use __index to look up registered commands
+function Engine_mt.__index(self, idx)
+   if idx == 'name' then return Engine.name
+   elseif Engine.commands[idx] then
+      return Engine.commands[idx]
    else
-      return rawget(self, idx)
+      return rawget(Engine, idx)
    end
 end
 
+setmetatable(Engine, Engine_mt)
 
 return Engine
