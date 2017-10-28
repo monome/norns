@@ -1,3 +1,7 @@
+--- Grid class
+-- @module grid
+-- @alias Grid
+
 require 'norns'
 
 ---------------------------------

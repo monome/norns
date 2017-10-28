@@ -111,7 +111,7 @@ static int msghandler (lua_State *L) {
                                                     * string?
                                                     * */
         if ( luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod
-                                                    **/
+                                                   **/
              ( lua_type(L, -1) == LUA_TSTRING) ) { /* that produces a string? */
             return 1;                              /* that is the message */
         }
@@ -138,7 +138,7 @@ static int docall (lua_State *L, int narg, int nres) {
     status = lua_pcall(L, narg, nres, base);
     signal(SIGINT, SIG_DFL);          /* reset C-signal handler */
     lua_remove(L, base);              /* remove message handler from the stack
-                                       **/
+                                      **/
     return status;
 }
 

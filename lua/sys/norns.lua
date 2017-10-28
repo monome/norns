@@ -1,20 +1,6 @@
---[[
-   norns.lua
-   startup script for norns lua environment.
-
-   NB: removal of any function/module definitions will break the C->lua glue.
-   in other respects, feel free to customize.
---]]
-
-
---[[
-   the 'norns' global table contains all system-level objects,
-   in particular the callbacks expected by the C code.
-
-   many of these wrap script-defined callbacks;
-   e.g. `norns.input.add()` executes `input.add()` if it's defined,
-   after performing system-level bookkeeping tasks. 
---]]
+--- norns.lua;
+-- main norns script.
+-- defines top-level global tables and functions needed by other modules
 
 norns = {}
 norns.version = {}
@@ -22,8 +8,8 @@ norns.version.norns = "0.0.1"
 
 print("running norns.lua")
 
-require('helpers')
-require('input')
+--require('helpers')
+--require('input')
 
 -- this function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking
@@ -109,12 +95,6 @@ norns.poll = function(idx, arg)
    end
 end
 
-norns.timer = function(idx, stage)
-   -- call script-defined timer callback
-   print("norns.timer: ".. idx.." "..stage)
-   if timer ~= nil then timer(idx,stage) end
-end
-
 norns.version_print = function()
   for key,value in pairs(norns.version) do
     print(key .. ": "  .. value)
@@ -122,8 +102,7 @@ norns.version_print = function()
 end
 
 norns.load_script = function()
-   if norns.cleanup then norns.cleanup()
-   end
+   if norns.cleanup then norns.cleanup() end
 end
 
 return norns

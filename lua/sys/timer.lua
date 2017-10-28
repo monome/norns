@@ -1,11 +1,19 @@
+--- high-resolution timer API;
+-- @module timer
+-- @alias Timer
+-- @alias Timer_mt
+
 local Timer = {}
 
 Timer.numTimers = 32
 Timer.timers = {}
 
---- instance metatable for custom setter
-local mt = {}
-mt.__newindex = function(self, idx, val)
+--- instance metatable;
+-- implements a custom setter for timer.time
+local Timer_mt = {}
+Timer_mt.__index = Timer_mt
+
+Timer_mt.__newindex = function(self, idx, val)
    if idx == 'time' then
       self.time = val
       if self.isRunning then
@@ -14,22 +22,22 @@ mt.__newindex = function(self, idx, val)
    elseif idx == 'id' then
    -- not allowed to set id
    else
-      return rawset(self, idx, value)
+      return rawset(self, idx, val)
    end
 end
 
---- start a timer running
+--- start a timer
 -- @param time - (optional) time period between ticks (seconds.) by default, re-use the last period
 -- @param count - (optional) number of ticks. infinite by default
 -- @param stage - (optional) initial stage number (1-based.) 1 by default
-function mt:start(time, count, stage)
+function Timer_mt:start(time, count, stage)
    -- if any of the arguments are missing, use default behaviors for them (described above)
    -- also set those fields to nil (so, use defaults on next call as well)
    local vargs = {}
    if time then
-      self.time = time
+      rawset(self, "time", time) -- avoids metatable recursion
       vargs[0] = time
-   else self.time = nil end
+   else rawset(self, "time", nil) end
    
    if count then
       self.count = count
@@ -42,14 +50,17 @@ function mt:start(time, count, stage)
    else self.stage = nil end
    
    self.isRunning = true
-   timer_start(self.id, unpack(vargs))   
+   timer_start(self.id, table.unpack(vargs))   
 end
 
- function mt:stop()
+--- stop a timer
+ function Timer_mt:stop()
    timer_stop(self.id)
    self.isRunning = false
-end
+ end
 
+ --- constructor;
+ -- @param id : identifier (integer)
 function Timer.new(id)
    local t = {}
    t.id = id
@@ -57,7 +68,7 @@ function Timer.new(id)
    t.count = nil
    t.callback = nil
    t.initialStage = nil
-   setmetatable(t, mt)
+   setmetatable(t, Timer_mt)
    return t
 end
 
@@ -65,7 +76,8 @@ for i=1,Timer.numTimers do
    Timer.timers[i] = Timer.new(i)
 end
 
---- class metatble for fetching timers
+--- class metatable;
+-- numerical index will access one of the static timer objects
 Timer.__index = function(self, idx)
    if type(idx) == "number" then
       print("class meta: .__index ("..idx..")")
@@ -76,5 +88,18 @@ Timer.__index = function(self, idx)
 end
 
 setmetatable(Timer, Timer)
+
+--- Global Functions
+-- @section globals
+
+--- callback on timer tick from C;
+norns.timer = function(idx, stage)
+   if Timer.timers[idx] then
+      if Timer.timers[idx].callback then
+	 Timer.timers[idx].callback(stage)
+      end
+   end   
+end
+
 
 return Timer

@@ -1,4 +1,7 @@
--- Poll class
+--- Poll class;
+-- API for receiving values from audio system.
+-- @module poll
+-- @alias Poll
 
 Poll = {}
 Poll.__index = Poll
@@ -16,8 +19,9 @@ function Poll.new(props)
    return nil
 end
 
-----------------------------
--- instance methods
+
+--- Instance Methods
+-- @section instance
 
 --- start a poll
 function Poll:start()
@@ -29,11 +33,9 @@ function Poll:stop()
    stop_poll(self.id)
 end
 
---------------------------
---- meta
 
 --- custom setters
---- FIXME: not sure how to handle this pattern with luadoc
+--- FIXME: need explicit tags or something for ldoc
 function Poll:__newindex(idx, val)
    if idx == 'time' then
       self.props[time] = val
@@ -45,7 +47,7 @@ function Poll:__newindex(idx, val)
 end
 
 --- custom getters, methods
---- FIXME: not sure how to handle this pattern with luadoc
+--- FIXME: need explicit tags or something for ldoc
 function Poll:__index(idx)
    if idx == 'id' then return self.props.id
    elseif idx == 'name' then return self.props.name
@@ -57,8 +59,8 @@ function Poll:__index(idx)
 end
 
 
--------------------------------
--- static methods
+--- Static Methods
+-- @section static
 
 --- call with OSC data from norns callback to register all available polls
 -- @param data - table from OSC; each entry is { id (int), name (string) }
@@ -98,3 +100,6 @@ Poll.handle = function(id, value)
       end
    end
 end
+
+--- Global Functions
+-- @section globals

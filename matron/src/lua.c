@@ -176,7 +176,7 @@ static int msghandler (lua_State *L) {
                                                     * string?
                                                     * */
         if ( luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod
-                                                    **/
+                                                   **/
              ( lua_type(L, -1) == LUA_TSTRING) ) { /* that produces a string? */
             return 1;                              /* that is the message */
         }
@@ -203,7 +203,7 @@ static int docall (lua_State *L, int narg, int nres) {
     status = lua_pcall(L, narg, nres, base);
     signal(SIGINT, SIG_DFL);          /* reset C-signal handler */
     lua_remove(L, base);              /* remove message handler from the stack
-                                       **/
+                                      **/
     return status;
 }
 
@@ -352,11 +352,11 @@ static int multiline (lua_State *L) {
     for (;; ) {                                               /* repeat until
                                                                * gets a
                                                                * complete
-                                                               *statement
+                                                               **statement
                                                                * */
         size_t len;
         const char *line = lua_tolstring(L, 1, &len);         /* get what it has
-                                                               **/
+                                                              **/
         int status = luaL_loadbuffer(L, line, len, "=stdin"); /* try it */
         if ( !incomplete(L, status) || !pushline(L, 0) ) {
             lua_saveline(L, line);                            /* keep history */
@@ -364,11 +364,11 @@ static int multiline (lua_State *L) {
                                                                * should
                                                                * not try to add
                                                                * continuation
-                                                               *line
+                                                               **line
                                                                * */
         }
         lua_pushliteral(L, "\n");                             /* add newline...
-                                                               **/
+                                                              **/
         lua_insert(L, -2);                                    /* ...between the
                                                                * two
                                                                * lines */
@@ -389,12 +389,12 @@ static int loadline (lua_State *L) {
         return -1;                               /* no input */
     }
     if ( ( status = addreturn(L) ) != LUA_OK ) { /* 'return ...' did not work?
-                                                  **/
+                                                 **/
         status = multiline(L);                   /* try as command, maybe with
                                                   * continuation lines */
     }
     lua_remove(L, 1);                            /* remove line from the stack
-                                                  **/
+                                                 **/
     lua_assert(lua_gettop(L) == 1);
     return status;
 }
@@ -695,10 +695,10 @@ static int pmain (lua_State *L) {
         return 0;
     }
     if (args & has_i) {                                           /* -i option?
-                                                                   **/
+                                                                  **/
         doREPL(L);                                                /* do
                                                                    *
-                                                                   **read-eval-print
+                                                                   ***read-eval-print
                                                                    * loop */
     }
     else if ( (script == argc) && !( args & (has_e | has_v) ) ) { /* no
@@ -710,7 +710,7 @@ static int pmain (lua_State *L) {
             print_version();
             doREPL(L);                                            /* do
                                                                    *
-                                                                   **read-eval-print
+                                                                   ***read-eval-print
                                                                    * loop */
         }
         else{dofile(L, NULL);                                     /* executes

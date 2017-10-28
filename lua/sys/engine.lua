@@ -1,3 +1,7 @@
+--- Engine class
+-- @module engine
+-- @alias Engine
+
 local Engine = {}
 --------------------------
 --- static data
