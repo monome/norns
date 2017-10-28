@@ -64,19 +64,19 @@ static void add_codes(struct dev_input *d) {
 }
 
 static void dev_input_print(struct dev_input *d ) {
-  printf("%s\n", d->base.name);
-  for(int i = 0; i < d->num_types; i++) {
-    printf( "  %d : %d (%s) : \n",
-            i,
-            d->types[i],
-            libevdev_event_type_get_name(d->types[i]) );
-    for(int j = 0; j < d->num_codes[i]; j++) {
-      printf( "      %d : %d (%s)\n",
-              j, d->codes[i][j],
-              libevdev_event_code_get_name(d->types[i], d->codes[i][j]) );
+    printf("%s\n", d->base.name);
+    for(int i = 0; i < d->num_types; i++) {
+	printf( "  %d : %d (%s) : \n",
+		i,
+		d->types[i],
+		libevdev_event_type_get_name(d->types[i]) );
+	for(int j = 0; j < d->num_codes[i]; j++) {
+	    printf( "      %d : %d (%s)\n",
+		    j, d->codes[i][j],
+		    libevdev_event_code_get_name(d->types[i], d->codes[i][j]) );
+	}
     }
-  }
-  fflush(stdout);
+    fflush(stdout);
 }
 
 int dev_input_init(void *self, bool print) {
@@ -165,5 +165,6 @@ void dev_input_deinit(void *self) {
     TEST_NULL_AND_FREE(di->codes[i]);
   }
   TEST_NULL_AND_FREE(di->codes);
+  TEST_NULL_AND_FREE(di->num_codes);
   TEST_NULL_AND_FREE(di->types);
 }
