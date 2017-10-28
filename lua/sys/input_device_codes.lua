@@ -313,7 +313,7 @@ norns.input.event_codes[norns.input.event_types_rev['EV_KEY']] = {
    [0x12a] = 'BTN_BASE5',
    [0x12b] = 'BTN_BASE6',
    [0x12f] = 'BTN_DEAD',
-   [0x130] = 'BTN_GAMEPAD',
+   --[0x130] = 'BTN_GAMEPAD', --???
    [0x130] = 'BTN_SOUTH',
    ---- FIXME: these aliases should be preserved
    -- [BTN_SOUTH] = 'BTN_A',

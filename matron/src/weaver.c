@@ -468,8 +468,9 @@ void w_handle_input_add(void *p) {
 }
 
 void w_handle_input_remove(int id) {
-  (void)id;
-  //... TODO: handle_input_remove
+  w_push_norns_func("input", "remove");
+  lua_pushinteger(lvm, id+1); // convert to 1-base
+  l_report(lvm l_docall(lvm, 1, 0));
 }
 
 void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
@@ -537,7 +538,7 @@ void w_handle_poll_report(const struct engine_poll *arr,
     // create subtable on stack
     lua_createtable(lvm, 2, 0);
     // put poll index on stack; assign to subtable, pop
-    lua_pushinteger(lvm, i);
+    lua_pushinteger(lvm, i+1); // convert to 1-base
     lua_rawseti(lvm, -2, 1);
     // put poll name on stack; assign to subtable, pop
     lua_pushstring(lvm, arr[i].name);
@@ -550,7 +551,7 @@ void w_handle_poll_report(const struct engine_poll *arr,
     // put type string on stack; assign to subtable, pop
     lua_rawseti(lvm, -2, 3);
     // subtable is on stack; assign to master table and pop
-    lua_rawseti(lvm, -2, i + 1);
+    lua_rawseti(lvm, -2, i+1); // convert to 1-base
   }
   lua_pushinteger(lvm, num);
   l_report( lvm, l_docall(lvm, 2, 0) );  
@@ -572,7 +573,7 @@ void w_handle_poll_value(int idx, float val) {
   lua_getglobal(lvm, "norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);
-  lua_pushinteger(lvm, idx);
+  lua_pushinteger(lvm, idx+1); // convert to 1-base
   lua_pushnumber(lvm, val);
   l_report( lvm, l_docall(lvm, 2, 0) );
 }
@@ -581,7 +582,7 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
   lua_getglobal(lvm, "norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);
-  lua_pushinteger(lvm, idx + 1); // convert index to 1-based!
+  lua_pushinteger(lvm, idx + 1); // convert index to 1-based
   lua_createtable(lvm, size, 0);
   // FIXME: maybe not the best way to pass a byte array to lua
   for(int i=0; i<size; ++i) {

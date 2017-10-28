@@ -41,8 +41,6 @@ local didLoadEngine = function(commands)
    else
       print("warning: couldn't find requested poll label")
    end
-   -- request input device list with callback
-   input.getDevices( didGetDevices )
 end
 
 
