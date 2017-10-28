@@ -1,6 +1,5 @@
 --- high-resolution timer API;
 -- @module timer
--- @alias Timer
 -- @alias Timer_mt
 
 local Timer = {}

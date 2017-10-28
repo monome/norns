@@ -19,7 +19,6 @@ function Poll.new(props)
    return nil
 end
 
-
 --- Instance Methods
 -- @section instance
 
@@ -87,10 +86,18 @@ Poll.named = function(name, callback)
    p.props.callback = callback   
 end
 
---- main handler; called from C
+--- Global Functions
+-- @section globals
+-- poll objects (index by name)
+norns.polls = {}
+-- poll names (indexed by int) - for reverse lookup
+norns.pollNames = {}
+
+
+--- main callback; called from C
 -- @param id - identfier (integer)
 -- @param value: value (float OR sequence of bytes)
-Poll.handle = function(id, value)
+norns.poll = function(id, value)
    local p = Poll.polls[Poll.pollNames[id]]
    if p then
       if p.props then
@@ -101,5 +108,23 @@ Poll.handle = function(id, value)
    end
 end
 
---- Global Functions
--- @section globals
+--[[
+norns.poll = function(idx, arg)
+   --- FIXME: testing
+   local name = nil
+   print("norns.poll: "..idx .. " "..arg)
+   if norns.pollNames[idx] ~= nil then
+      name = norns.pollNames[idx]
+      poll = norns.polls[idx]
+      
+      -- print("norns.poll: "..idx..": " ..name..": "..arg)
+      -- call script-defined poll callback
+      --      if poll ~= nil then poll(norns.polls[name], arg) end
+      
+   else
+      print("norns.poll: unknown index: " .. idx .. " "..arg)
+   end
+end
+--]]
+
+return Poll

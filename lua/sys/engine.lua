@@ -6,7 +6,7 @@ local Engine = {}
 --------------------------
 --- static data
 
--- registered names
+-- registered engine names
 Engine.names = {}
 -- currently loaded name
 Engine.name = nil
@@ -89,5 +89,12 @@ function Engine.__index(self, idx)
 end
 
 setmetatable(Engine, Engine)
+
+--- Global Functions
+-- @section globals
+
+norns.report.engines = function(names, count)
+   Engine.register(names, count)
+end
 
 return Engine

@@ -12,4 +12,7 @@ local audio = norns..'/audio/?.lua;'
 
 package.path = sys..script..state..audio..package.path
 
+--- full path to directory containing user scripts
+script_dir = norns..'/scripts/'
+
 print('package.path: ' .. package.path)

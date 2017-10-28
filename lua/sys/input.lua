@@ -1,3 +1,7 @@
+--- input devies
+-- @module input
+-- @alias Input
+
 -----------------------
 --- globals
 
