@@ -60,7 +60,7 @@ function Input.findDeviceSupporting(ev_type, ev_code)
    local ev_code_num = norns.input.event_codes_rev[ev_type][ev_code]
    ----- dbg
    local codes_rev = norns.input.event_codes_rev[ev_type]
-   for i,v in pairs(codes_rev) do print(i,v) end
+   -- for i,v in pairs(codes_rev) do print(i,v) end
 ------------
 
    print(ev_code, ev_code_num)
