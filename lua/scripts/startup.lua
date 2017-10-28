@@ -1,14 +1,9 @@
--- add your startup code here!
--- see sys/norns.lua 
+--- add your startup code here!
 print("startup.lua")
 
+--- here are some tests
 
---- test some things
 -- require('test_engine')
-
--- dofile('test_engine.lua')
--- dofile("test_engine.lua")
-
 -- require('test_amp_poll')
 -- require('test_time_query')
 -- require('test_grid_timer')

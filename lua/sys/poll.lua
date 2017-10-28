@@ -16,7 +16,24 @@ function Poll.new(props)
    return nil
 end
 
--- custom setters
+----------------------------
+-- instance methods
+
+--- start a poll
+function Poll:start()
+   start_poll(self.id)
+end
+
+--- stop a poll
+function Poll:stop()
+   stop_poll(self.id)
+end
+
+--------------------------
+--- meta
+
+--- custom setters
+--- FIXME: not sure how to handle this pattern with luadoc
 function Poll:__newindex(idx, val)
    if idx == 'time' then
       self.props[time] = val
@@ -27,7 +44,8 @@ function Poll:__newindex(idx, val)
    -- oher properties are not settable!
 end
 
--- custom getters / methods
+--- custom getters, methods
+--- FIXME: not sure how to handle this pattern with luadoc
 function Poll:__index(idx)
    if idx == 'id' then return self.props.id
    elseif idx == 'name' then return self.props.name
@@ -38,21 +56,13 @@ function Poll:__index(idx)
    end      
 end
 
-----------------------------
--- instance methods
-
-function Poll:start()
-   start_poll(self.id)
-end
-
-function Poll:stop()
-   stop_poll(self.id)
-end
 
 -------------------------------
--- static
+-- static methods
 
--- call with OSC data from norns callback to register all available polls
+--- call with OSC data from norns callback to register all available polls
+-- @param data - table from OSC; each entry is { id (int), name (string) }
+-- @param coutn - size of table
 Poll.register = function(data, count)
    Poll.polls = {}
    Poll.pollNames = {}
@@ -67,13 +77,17 @@ Poll.register = function(data, count)
    end
 end
 
--- get a registered Poll object by name
+--- get a registered Poll object by name
+-- @param name
+-- @param callback function to call with value on each poll
 Poll.named = function(name, callback)
    local p = Poll.polls[name]
    p.props.callback = callback   
 end
 
--- main handler; called from C
+--- main handler; called from C
+-- @param id - identfier (integer)
+-- @param value: value (float OR sequence of bytes)
 Poll.handle = function(id, value)
    local p = Poll.polls[Poll.pollNames[id]]
    if p then

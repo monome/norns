@@ -6,7 +6,7 @@ require 'norns'
 local Grid = {}
 Grid.__index = Grid
 
-function Grid:new(id, serial, name, dev)
+function Grid.new(id, serial, name, dev)
    local g = setmetatable({}, Grid)
    g.id = id
    g.serial = serial
