@@ -470,7 +470,7 @@ void w_handle_input_add(void *p) {
 void w_handle_input_remove(int id) {
     w_push_norns_func("input", "remove");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    l_report( lvm l_docall(lvm, 1, 0) );
+    l_report( lvm, l_docall(lvm, 1, 0) );
 }
 
 void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
