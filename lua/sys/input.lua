@@ -52,24 +52,18 @@ end
 
 --- return the first available device that supports the given event
 -- @param ev_type - event type (string), e.g. 'EV_KEY'
--- @param code - target event code (string), e.g. 'BUT_START'
+-- @param code - target event code (string), e.g. 'BTN_START'
 -- @return - an Input or nil
 function Input.findDeviceSupporting(ev_type, ev_code)
    local ev_type_num = norns.input.event_types_rev[ev_type]
-   print(ev_type, ev_type_num)
+   if ev_type_num == nil then return nil end   
    local ev_code_num = norns.input.event_codes_rev[ev_type][ev_code]
-   ----- dbg
-   local codes_rev = norns.input.event_codes_rev[ev_type]
-   -- for i,v in pairs(codes_rev) do print(i,v) end
-------------
-
-   print(ev_code, ev_code_num)
+   if ev_code_num == nil then return nil end   
+   -- only reason we don't call Input:supports here is to save cycles + allocations
    for i,v in pairs(norns.input.devices) do
       if v.types[ev_type_num] then
-	 if v.codes[ev_type_num][ev_code_num] then
-	    return v -- found supporting devices
-	 end
-      end
+	 if v.codes[ev_type_num][ev_code_num] then return v end
+      end      
    end
    return nil -- didn't find any
 end
@@ -77,7 +71,20 @@ end
 ------------------------------------
 --- instance methods
 
-
+--- test if device supports given event type and code
+-- @param ev_type - event type (string), e.g. 'EV_REL'
+-- @param ev_code - event code (string), e.g. 'REL_X',
+-- @return boolean
+function Input:supports(ev_type, ev_code)
+   local ev_type_num = norns.input.event_types_rev[ev_type]
+   if ev_type_num == nil then return false end   
+   local ev_code_num = norns.input.event_codes_rev[ev_type][ev_code]
+   if ev_code_num == nil then return false end
+   if self.types[ev_type_num] then
+      if self.codes[ev_type_num][ev_code_num] then return true end
+   end
+   return false      
+end
 
 --- print some information about a device
 function Input:print()
@@ -96,15 +103,23 @@ function Input:print()
 end
 
 
---------------------------------------------------
+---------------------------------------------------
 --- global functions (needed for C glue)
+
+--- add a device
+-- @param id - arbitrary id number (int)
+-- @param serial (string)
+-- @param name (string)
+-- @param types - table of event types  (int)
+-- @param codes - table of table of event codes (int), indexed by type (int)
 norns.input.add = function(id, serial, name, types, codes)
-   -- print(id, serial, name, types, codes)
    local d = Input.new(id, serial, name, types, codes)
    norns.input.devices[id] = d
    if Input.add ~= nil then Input.add(d) end
 end
 
+--- remove a device
+-- @param id - arbitrary id numer (int) 
 norns.input.remove = function(id)
    local d = norns.input.devices[id]
    if d then
@@ -114,10 +129,14 @@ norns.input.remove = function(id)
    
 end
 
+--- handle an input event
+-- @param id- arbitrary id number (int)
+-- @param ev_type - event type (int)
+-- @param ev_code - event code (int)
+-- @param value (int)
 norns.input.event = function(id, ev_type, ev_code, value)
    local ev_type_name = norns.input.event_types[ev_type]
    local ev_code_name = norns.input.event_codes[ev_type][ev_code]
-   -- print(id, ev_type, ev_code, value)
    print(id, ev_type_name, ev_code_name, value)
    local dev = norns.input.devices[id]
    if  dev then

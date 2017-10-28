@@ -20,11 +20,10 @@ norns = {}
 norns.version = {}
 norns.version.norns = "0.0.1"
 
-
 print("running norns.lua")
 
 require('helpers')
- require('input')
+require('input')
 
 -- this function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking

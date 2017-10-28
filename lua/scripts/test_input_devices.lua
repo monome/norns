@@ -1,7 +1,8 @@
-norns.version.test_input_devices = "0.0.1"
+local 
 
 -- print everything about every input device
 input.add = function (device)
+   if device.codes[
    print("added input device: ")
    device:print()
 end
@@ -19,4 +20,9 @@ input.event = function(id, type, code, value)
 			   .. ')  ' .. value)
 	  --]]
    end
+end
+
+--- cleanup function
+norns.cleanup = function()
+   pad = nil
 end
