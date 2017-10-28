@@ -123,10 +123,8 @@ norns.version_print = function()
 end
 
 norns.load_script = function()
-   -- TODO? kill_all_timers();
-   -- TODO? stop polls?
-   -- TODO? call script deinit?
-   -- &c
+   if norns.cleanup then norns.cleanup()
+   end
 end
 
 return norns
