@@ -15,6 +15,8 @@ local buttonCallback = function(butState)
    state.use_pitch = butState
 end
 
+--- callback from polling the pitch
+-- @param hz - the detected input frequency
 local hzCallback = function(hz)
    if state.use_pitch then engine.hz(hz) end
 end
@@ -28,6 +30,12 @@ local didGetDevices = function(devices)
    else
       print("warning: connected device doesn't appear to be a gamepad")
    end
+end
+
+--- connect a game[ad device
+-- @param device: an Input table
+local addGamePad = function(device)
+   gamepad = device
 end
 
 local didLoadEngine = function(commands)
@@ -47,7 +55,7 @@ end
 -- load the desired engine with our callback
 engine.load('TestSine', didLoadEngine)
 
-norns.deinit = function()
+norns.cleanup = function()
    state.pitch_poll:stop
    state.gamepad:unsetCallback(butCode)
    state = nil
