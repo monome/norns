@@ -1,28 +1,31 @@
-local 
+require 'norns'
+local input = require 'input'
 
--- print everything about every input device
+local pad = nil
+local butCode = 'BTN_SOUTH'
+
+-- on startup, see if there's already a pad connected
+pad = input.findDeviceSupporting('EV_KEY', butCode)
+
+-- 
 input.add = function (device)
-   if device.codes[
-   print("added input device: ")
+   if device:supports('EV_KEY', butCode) then
+      pad = device
+   end
+   print("grabbing new device: ")
    device:print()
 end
 
 -- print everything about every input event
-input.event = function(id, type, code, value)
-   local d = norns.input.devices[id]
-   if d ~= nil then
-	  --[[
-	  print('>> ' .. d.name
-			   .. ' ' .. type
-			   .. ' (' .. norns.input.event_types[type]
-			   .. ') ' .. code
-			   .. ' (' .. norns.input.event_codes[type][code]
-			   .. ')  ' .. value)
-	  --]]
+input.event = function(id, ev_type, ev_code, value)
+   if id == pad.id then
+      print ("test_input_devices: got event")
+      print (input.event_types[ev_type], input.event_codes[ev_type][ev_code], value)
    end
 end
 
 --- cleanup function
 norns.cleanup = function()
    pad = nil
+   butCode = nil
 end
