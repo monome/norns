@@ -21,11 +21,16 @@
 #include "device_monome.h"
 #include "events.h"
 
+
+//--- debug flags
+// #define DEVICE_MONITOR_SHOW_DEVICE_SCANNING
+// #define DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
+// #define DEVICE_MONITOR_PRINT_UNHANDLED_DEVICES
+// #define DEVICE_MONITOR_SHOW_NON_USB_DEVICES
+
+
 //---------------------
 //--- types and defines
-
-// scan everything in /dev/input, not ust usb devices..
-// #define TRY_ALL_INPUT_DEVICES
 
 #define SUB_NAME_SIZE 32
 #define NODE_NAME_SIZE 128
@@ -46,8 +51,7 @@ struct watch {
 //----- static variables
 
 // watchers
-/* FIXME: these names and patterns should be taken from config.lua, maybe?
- */
+// FIXME: these names / paths are really arbitrary.
 static struct watch w[DEV_TYPE_COUNT] = {
   {
     .sub_name = "tty",
@@ -82,8 +86,6 @@ void dev_monitor_init(void) {
   assert(udev);
 
   for(int i = 0; i < DEV_TYPE_COUNT; i++) {
-    //	pfds[i].fd = NULL;
-
     w[i].mon = udev_monitor_new_from_netlink(udev, "udev");
     if(w[i].mon == NULL) {
       printf("failed to start udev_monitor for subsystem %s, pattern %s\n",
@@ -143,7 +145,9 @@ int dev_monitor_scan(void) {
   for(int i = 0; i < DEV_TYPE_COUNT; i++) {
     struct udev_enumerate *ue;
     struct udev_list_entry *devices, *dev_list_entry;
-    // printf("scanning for devices of type %s\n", w[i].sub_name); fflush(stdout);
+#ifdef DEVICE_MONITOR_SHOW_DEVICE_SCANNING
+    printf("scanning for devices of type %s\n", w[i].sub_name); fflush(stdout);
+#endif
     ue = udev_enumerate_new(udev);
     udev_enumerate_add_match_subsystem(ue, w[i].sub_name);
     udev_enumerate_scan_devices(ue);
@@ -151,10 +155,12 @@ int dev_monitor_scan(void) {
     udev_list_entry_foreach(dev_list_entry, devices) {
       const char *path;
       path = udev_list_entry_get_name(dev_list_entry);
-      // printf("scanning with udev at path: %s \n", path);
+#ifdef DEVICE_MONITOR_SHOW_DEVICE_SCANNING
+      printf("scanning with udev at path: %s \n", path);
+#endif
       dev = udev_device_new_from_syspath(udev, path);
       if (dev != NULL) {
-#ifdef TRY_ALL_INPUT_DEVICES
+#ifdef DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
 	if(1) {
 #else
 	  if( udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL) ) {
@@ -170,9 +176,11 @@ int dev_monitor_scan(void) {
           }
           udev_device_unref(dev);
         }
-	//	else {
-	//	  printf("found non-usb input device; type: %d \n", check_dev_type(dev));
-	//	}
+#ifdef DEVICE_MONITOR_SHOW_NON_USB_DEVICES
+	  else {
+	      printf("found non-usb input device; type: %d \n", check_dev_type(dev));
+	  }
+#endif
       }
     }
     udev_enumerate_unref(ue);
@@ -228,9 +236,9 @@ void handle_device(struct udev_device *dev) {
       dev_list_remove(t, node);
     }
   }
-  //else {
-  //  printf("device_monitor:handle_device(): unknown device type\n"); fflush(stdout);
-  //}
+#ifdef DEVICE_MONITOR_PRINT_UNHANDLED_DEVICES
+  printf("device_monitor:handle_device(): unknown device type\n"); fflush(stdout);
+#endif
 }
 
 device_t check_dev_type (struct udev_device *dev) {
@@ -239,10 +247,9 @@ device_t check_dev_type (struct udev_device *dev) {
   const char *node = udev_device_get_devnode(dev);
   int reti;
   if(node) {
-    // FIXME:
     // for now, just get USB devices.
     // eventually we might want to use this same system for GPIO, &c...
-#ifdef TRY_ALL_INPUT_DEVICES
+#ifdef DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
     if(1) {
 #else
     if( udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL) ) {
