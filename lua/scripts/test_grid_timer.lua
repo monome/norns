@@ -1,8 +1,12 @@
-norns.version.test_grid_timer = "0.0.1"
+require 'norns'
+local grid = require 'grid'
 
--- current monome device
+-- current grid device
 -- don't make this local, so that we can mess with it from the REPL
-m = nil
+local g = nil
+
+-- fn to grab grid device when we find one
+setGrid = function (grid) 
 
 -- local m = nil
 grid.key = function(dev, x, y, val)

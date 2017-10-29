@@ -1,33 +1,24 @@
---- input devies
+--- input devices
 -- @module input
 -- @alias Input
 
------------------------
---- globals
+print('input.lua')
+require 'norns'
+norns.version.input = '0.0.2'
 
---- norns data
- norns.input = {}
- -- norns.input.devices = {}
-
--- require('input_device_codes')
-
--------------------
---- implementation
-
--- input device class
 local Input = {}
 Input.__index = Input
 
 Input.devices = {}
 
---- device add callback
+--- device-added callback
 -- script should redefine if it wants to handle device hotplug events
 -- @param device - an Input 
 Input.add = function(device)
    print("device added: ", device.id, device.name)
 end
 
---- device remove callback
+--- device-removed callbacks
 -- script should redefine if it wants to handle device hotplug events
 -- @param device - an Input 
 Input.remove = function(device)
@@ -81,6 +72,13 @@ end
 ------------------------------------
 --- instance methods
 
+--- unset all callbacks
+function Input:clearCallbacks()
+   for code, cb in self.callbacks do
+      self.callbacks[code] = nil
+   end
+end
+
 --- test if device supports given event type and code
 -- @param ev_type - event type (string), e.g. 'EV_REL'
 -- @param ev_code - event code (string), e.g. 'REL_X',
@@ -112,7 +110,6 @@ function Input:print()
    end
 end
 
-
 ---------------------------------------------------
 --- global norns functions (C glue)
 
@@ -140,30 +137,32 @@ norns.input.remove = function(id)
 end
 
 --- handle an input event
--- @param id- arbitrary id number (int)
+-- @param id- arbitrary device id number (int)
 -- @param ev_type - event type (int)
 -- @param ev_code - event code (int)
 -- @param value (int)
 norns.input.event = function(id, ev_type, ev_code, value)
-   --[[
    local ev_type_name = Input.event_types[ev_type]
+   assert(ev_type_name)
    local ev_code_name = Input.event_codes[ev_type][ev_code]
-   print(id, ev_type_name, ev_code_name, value)
+   -- print("norns.input.event ", id, ev_type_name, ev_code_name, value)
    local dev = Input.devices[id]
    if  dev then
-      local cb = dev.callbacks[ev_code_name]
-      if cb then cb(value) end
+      local cb = dev.callbacks[ev_code_name]      
+      if cb then
+	 cb(value)
+      end
    end
-   --]]
-   -- eh... instead of looping over devices on each event, let the script handle everything
-   Input.event(id, ev_type, ev_code, value)
 end
-
 
 ----------------------------------
 ---- input event codes
+---------
+---- FIXME: we shouldn't need any of this mess. just get matron to send us code names instead of [type, code] numbers.
+
 
 -- tables and reverse tables mapping hex to string for event types and codes
+
 
 -- event types
 Input.event_types = { 
@@ -849,5 +848,5 @@ for t,tname in pairs(Input.event_types) do
       Input.event_codes_rev[tname][cname] = c
    end
 end
-	  
+
 return Input

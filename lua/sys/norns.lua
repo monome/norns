@@ -4,7 +4,7 @@
 
 norns = {}
 norns.version = {}
-norns.version.norns = "0.0.0"
+norns.version.norns = "0.0.2"
 
 print("norns.lua")
 
@@ -19,7 +19,6 @@ end
 --- global functions required by the C interface; 
 -- we "declare" these here with placeholders;
 -- indeividiual modules will redefine them as needed.
-
 
 --- monome device callbacks
 norns.monome = {}
@@ -39,7 +38,23 @@ norns.grid.key = function(id, x, y, val)
    print("norns.grid.key ", id,x,y,val)
 end
 
+norns.input = {}
+--- HID or other input device added
+norns.input.add = function(id, serial, name, types, codes)
+   print("norns.input.add ", id, serial, name, types, codes)
+end
+norns.input.event = function(id, ev_type, ev_code, value)
+   print("norns.input.event ", id, ev_type, ev_code, value)
+end
+   
+--- TODO
+-- @todo : arc, midi
+norns.arc = {}
+norns.midi = {}
+
 --- report callbacks
+-- @section report
+
 norns.report = {}
 norns.report.engines = function(names, count)
    print("norns.report.engines ", names, count)   
@@ -58,10 +73,21 @@ norns.version_print = function()
   end
 end
 
+--- script managment
+-- @section script
+
+norns.script = {}
+norns.script.cleanup_dummy = function()
+   print("norns.script.cleanup() was invoked on script deinit.")
+   print("WARNING: you should redefine this in your script, to free any allocated resources.")
+end
+norns.script.cleanup = norns.script.cleanup_dummy
+
 --- load a user script
 -- @param name (string) - name of the script (without extension)
-norns.load_script = function(script)
-   if norns.cleanup then norns.cleanup() end
+norns.script.load = function(script)
+   norns.script.cleanup() -- cleanup the old script
+   norns.script.cleanup = norns.script.cleanup.dummy
    dofile(script_dir..script..".lua")
 end
 

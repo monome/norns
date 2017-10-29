@@ -74,7 +74,7 @@ static int w_get_time(lua_State *l);
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
 w_push_norns_func(const char *field, const char *func) {
-    // printf("calling norns.%s.%s\n", field, func); fflush(stdout);
+  //    printf("calling norns.%s.%s\n", field, func); fflush(stdout);
     lua_getglobal(lvm, "norns");
     lua_getfield(lvm, -1, field);
     lua_remove(lvm, -2);
@@ -90,7 +90,7 @@ void w_init(void) {
     fflush(stdout);
 
     ////////////////////////
-    // FIXME: how/where to document these in lua !!
+    // FIXME: document these in lua in some deliberate fashion
     //////////////////
 
     // low-level monome grid control

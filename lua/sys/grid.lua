@@ -1,13 +1,16 @@
 --- Grid class
 -- @module grid
 -- @alias Grid
-
+print('grid.lua')
 require 'norns'
+norns.version.grid = '0.0.2'
+
 
 ---------------------------------
 -- Grid device class
 
 local Grid = {}
+Grid.devices = {}
 Grid.__index = Grid
 
 --- constructor
@@ -15,7 +18,7 @@ Grid.__index = Grid
 -- @param serial : serial (string)
 -- @param name : name (string
 -- @param dev : opaque pointer to device (userdata)
-function Grid.new(id, serial name, dev)
+function Grid.new(id, serial, name, dev)
    local g = setmetatable({}, Grid)
    g.id = id
    g.serial = serial
@@ -28,19 +31,18 @@ end
 
 --- static callback when any grid device is added
 -- user scripts can redefine
--- @param id : arbitrary numeric identifier
--- @param serial : serial (string)
--- @param name : name (string
--- @param dev : opaque pointer to device (userdata)
-function Grid.add(id, serial, name, dev)
-   print("Grid.add ", id, serial, name, dev)
+-- @param dev : a Grid table
+function Grid.add(dev)
+   print("Grid.add")
+   dev:print()
 end
 
 --- static callback when any grid device is removed
 -- user scripts can redefine
--- @param id : arbitrary numeric identifier
-function Grid.remove(id)
-   print("Grid.add ", id, serial, name, dev)
+-- @param dev : a Grid table
+function Grid.remove(dev)
+   print("Grid.remove")
+   dev:print()
 end
 
 --- set state of single LED on this grid device
@@ -84,13 +86,16 @@ end
 -- grid devices
 norns.grid.add = function(id, serial, name, dev)
    local g = Grid:new(id,serial,name,dev)
-   m:print()
-   Grid.devices[id] = m
-   if Grid.add ~= nil then Grid.add(g) end
+   Grid.devices[id] = g
+--   if Grid.add ~= nil then Grid.add(g) end
 end
 
 norns.grid.remove = function(id)
-   if Grid.remove ~= nil then Grid.remove(Grid.devices[id]) end
+   if Grid.devices[id] then
+      if Grid.remove ~= nil then
+	 Grid.remove(Grid.devices[id])
+      end
+   end
    Grid.devices[id] = nil
 end
 
@@ -99,18 +104,11 @@ norns.grid.key = function(id, x, y, val)
    local g = Grid.devices[id]
    if g ~= nil then
       if g.key ~= nil then
-	 g.key(g, x, y, val)
+	 g.key(x, y, val)
       end
    else
       print('>> error: no entry for grid ' .. id)
    end
 end
 
---- print description of all grids
-norns.grid.print = function()
-   for idx,g in Grid.devices do
-	  g:print()
-   end
-end
-
-return 
+return Grid
