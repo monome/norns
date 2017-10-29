@@ -139,6 +139,9 @@ void *matron_tx_loop(void *x) {
 }
 
 void *crone_rx_loop(void *p) {
+    // FIXME: UI refresh is still totally scrambled with both IO threads runnig.
+    // so for now just don't interact with crone i guess
+#if 0
     struct sock_io *io = (struct sock_io *)p;
     char msg[BUF_SIZE];
     while(1) {
@@ -149,6 +152,10 @@ void *crone_rx_loop(void *p) {
         }
     }
     return NULL;
+#else
+    (void)p;
+    return NULL;
+#endif
 }
 
 void *tx_loop(void *x) {

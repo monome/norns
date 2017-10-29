@@ -136,6 +136,8 @@ static void page_line(int i, char *str) {
     if(!should_exit)  {
         page_append(i, str);
         if( page_id() == i) {
+            // test:
+            //if( i == PAGE_MATRON) {
             doupdate();
         }
     }
@@ -148,12 +150,12 @@ void ui_crone_line(char *str) {
 
 void ui_matron_line(char *str) {
     // FIXME: sloppy way to handle this
-    if(strcmp(str, " <ok>\n") == 0) {
+    if(strncmp(str, "<ok>", 4) == 0) {
         mvwprintw(sep_win, 0, 0, "<ok>");
-    } else if(strcmp(str, " <incomplete>\n") == 0) {
+    } else if(strncmp(str, "<incomplete>", 12) == 0) {
         mvwprintw(sep_win, 0, 0, "<incomplete>");
     } else {
-        mvwprintw(sep_win, 0, 0, "              ");
+        //        mvwprintw(sep_win, 0, 0, "              ");
         page_line(PAGE_MATRON, str);
     }
     wrefresh(sep_win);
