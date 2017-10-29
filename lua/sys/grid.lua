@@ -20,7 +20,6 @@ Grid.__index = Grid
 -- @param dev : opaque pointer to device (userdata)
 function Grid.new(id, serial, name, dev)
    local g = setmetatable({}, Grid)
-   print("Grid.new ", id, serial, name, dev)
    g.id = id
    g.serial = serial
    g.name = name
@@ -34,16 +33,15 @@ end
 -- user scripts can redefine
 -- @param dev : a Grid table
 function Grid.add(dev)
-   print("Grid.add")
-   dev:print()
+   print("grid added", dev.id, dev.name)
 end
 
 --- static callback when any grid device is removed
 -- user scripts can redefine
 -- @param dev : a Grid table
 function Grid.remove(dev)
-   print("Grid.remove")
-   dev:print()
+   -- print("Grid.add")
+   -- dev:print()
 end
 
 --- set state of single LED on this grid device
@@ -76,7 +74,6 @@ norns.monome = {}
 norns.monome.add = function(id, serial, name, dev)
    -- TODO: distinguish between grids and arcs
    -- for now, assume its a grid
-   print("norns.monome.add ", id, serial, name, dev)
    norns.grid.add(id,serial,name,dev)
 end
 

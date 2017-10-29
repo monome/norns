@@ -91,7 +91,7 @@ Poll.register = function(data, count)
 	 id = data[i][1],
 	 name = data[i][2]
       }
-      print(props.id, props.name)
+      -- print(props.id, props.name)
       Poll.pollNames[props.id] = props.name
       Poll.polls[props.name] = Poll.new(props)      
    end
@@ -133,10 +133,10 @@ norns.poll = function(id, value)
 	    -- print("no callback") -- ok
 	 end
       else
-	 print("no props") assert(false)
+	 print("error: poll has no properties!") assert(false)
       end
    else
-      print ("no poll") assert(false)
+      print ("warning: norns.poll callback couldn't find poll")
    end
 end
 

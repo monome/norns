@@ -67,13 +67,6 @@ norns.report.polls = function(polls, count)
    -- print("norns.report.polls", commands, count)
 end
 
---- print all module versions
-norns.version_print = function()
-  for key,value in pairs(norns.version) do
-    print(key .. ": "  .. value)
-  end
-end
-
 --- script managment
 -- @section script
 

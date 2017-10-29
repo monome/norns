@@ -1,5 +1,6 @@
 print("test_amp_poll.lua")
 require 'math'
+require 'norns'
 local poll = require 'poll'
 
 local p = nil
@@ -23,10 +24,12 @@ end
 local ampCallback = function(amp) printAsciiMeter(amp, 64, -36) end
 
 poll.report = function(polls)
-   --   p = poll.named('amp_in_l', ampCallback)
+   print("available polls: ")
+   for _,p in pairs(polls) do
+      print("",p.name)
+   end   
    p = polls['amp_in_r']
    if p then
-      print("set callback: ", p, ampCallback)
       p.callback = ampCallback
       p.time = 0.05
       p:start()
