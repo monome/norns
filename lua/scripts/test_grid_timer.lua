@@ -3,8 +3,8 @@ norns.version.test_grid_timer = "0.0.1"
 -- current monome device
 -- don't make this local, so that we can mess with it from the REPL
 m = nil
--- local m = nil
 
+-- local m = nil
 grid.key = function(dev, x, y, val)
    -- use this device when we refresh
    m = dev	  

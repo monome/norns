@@ -16,25 +16,40 @@ end
 --- Global Functions
 -- @section global_functions
 
---- global functions required by the C interface
+--- global functions required by the C interface; 
+-- we "declare" these here with placeholders;
+-- indeividiual modules will redefine them as needed.
 
+
+--- monome device callbacks
 norns.monome = {}
---- monome device hotplug callbacks
-norns.monome.add = function(id, serial, name, dev) end
-norns.monome.remove = function(id) end
-norns.grid = {}
---- monome grid key event
-norns.grid.key = function(id, x, y, val)
---   print(id,x,y,val)
+--- monome device added
+norns.monome.add = function(id, serial, name, dev)
+   print("norns.monome.add "..id, serial, name, dev)
+end
+--- monome device removed
+norns.monome.remove = function(id)
+   print("norns.monome.remove "..id)
 end
 
---- report callbacks;
--- these functions called from C with descriptor data.
--- individual modules redefine them as appropriate.
+--- grid device callbacks
+norns.grid = {}
+--- grid key event
+norns.grid.key = function(id, x, y, val)
+   print("norns.grid.key ", id,x,y,val)
+end
+
+--- report callbacks
 norns.report = {}
-norns.report.engines = function(names, count) end
-norns.report.commands = function(commands, count) end
-norns.report.polls = function(polls, count) end
+norns.report.engines = function(names, count)
+   print("norns.report.engines ", names, count)   
+end
+norns.report.commands = function(commands, count)
+   print("norns.report.commands ", commands, count)
+end
+norns.report.polls = function(polls, count) 
+   print("norns.report.polls ", commands, count)
+end
 
 --- print all module versions
 norns.version_print = function()

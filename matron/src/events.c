@@ -222,11 +222,6 @@ void handle_monome_remove(struct event_monome_remove *ev) {
 
 void handle_grid_key(struct event_grid_key *ev) {
     w_handle_grid_key(ev->id, ev->x, ev->y, ev->state);
-    printf("w_handle_grid_key: %d\t%d\t%d\t%d\n",
-           ev->id,
-           ev->x,
-           ev->y,
-           ev->state);
     fflush(stdout);
 }
 

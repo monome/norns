@@ -26,7 +26,6 @@
 #include "device_monome.h"
 #include "events.h"
 #include "lua_eval.h"
-#include "m.h"
 #include "timers.h"
 #include "oracle.h"
 #include "weaver.h"

@@ -10,23 +10,53 @@ require 'norns'
 local Grid = {}
 Grid.__index = Grid
 
-function Grid.new(id, serial, name, dev)
+--- constructor
+-- @param id : arbitrary numeric identifier
+-- @param serial : serial (string)
+-- @param name : name (string
+-- @param dev : opaque pointer to device (userdata)
+function Grid.new(id, serial name, dev)
    local g = setmetatable({}, Grid)
    g.id = id
    g.serial = serial
    g.name = name
    g.dev = dev -- opaque pointer
+   g.key = nil -- key event callback
+   g.remove = nil -- device unplug callback
    return g
 end
 
+--- static callback when any grid device is added
+-- user scripts can redefine
+-- @param id : arbitrary numeric identifier
+-- @param serial : serial (string)
+-- @param name : name (string
+-- @param dev : opaque pointer to device (userdata)
+function Grid.add(id, serial, name, dev)
+   print("Grid.add ", id, serial, name, dev)
+end
+
+--- static callback when any grid device is removed
+-- user scripts can redefine
+-- @param id : arbitrary numeric identifier
+function Grid.remove(id)
+   print("Grid.add ", id, serial, name, dev)
+end
+
+--- set state of single LED on this grid device
+-- @param x : column index (zero-based)
+-- @param y : row index (zero-based)
+-- @param val : LED brightness in [0, 15]
 function Grid:led(x, y, val)
    grid_set_led(self.dev, x, y, val)
 end
 
-function Grid:refresh(x, y, val)
+--- update any dirty quads on this grid device
+function Grid:refresh()
    grid_refresh(self.dev)
 end
 
+--- print a description of this grid device
 function Grid:print()
    for k,v in pairs(self) do
       print('>> ', k,v)
@@ -52,40 +82,34 @@ norns.monome.remove = function(id)
 end
 
 -- grid devices
-norns.grid = {}
-norns.grid.devices = {}
----- FIXME: shouldn't need this
-grid = {} -- <-- script callbacks go in here
-
 norns.grid.add = function(id, serial, name, dev)
-   print('>> adding monome device')
-   local m = Grid:new(id,serial,name,dev)
+   local g = Grid:new(id,serial,name,dev)
    m:print()
-   norns.grid.devices[id] = m
-   if grid.add ~= nil then grid.add(m) end
+   Grid.devices[id] = m
+   if Grid.add ~= nil then Grid.add(g) end
 end
 
 norns.grid.remove = function(id)
-   print('>> removing monome device ' .. id)
-   if grid.remove ~= nil then grid.remove(norns.grid.devices[id]) end
-   norns.grid.devices[id] = nil
+   if Grid.remove ~= nil then Grid.remove(Grid.devices[id]) end
+   Grid.devices[id] = nil
 end
 
--- grid key input handler
--- first argument is the device id
+--- grid key input handler
 norns.grid.key = function(id, x, y, val)
-   local g = norns.grid.devices[id]
+   local g = Grid.devices[id]
    if g ~= nil then
-	  if grid.key ~= nil then grid.key(g, x, y, val) end
+      if g.key ~= nil then
+	 g.key(g, x, y, val)
+      end
    else
-	  print('>> error: no entry for grid ' .. id)
+      print('>> error: no entry for grid ' .. id)
    end
 end
 
--- print all grids
+--- print description of all grids
 norns.grid.print = function()
-   for id,gr in norns.grid.devices do
-	  gr:print()
+   for idx,g in Grid.devices do
+	  g:print()
    end
 end
 

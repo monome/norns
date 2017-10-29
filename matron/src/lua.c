@@ -352,7 +352,7 @@ static int multiline (lua_State *L) {
     for (;; ) {                                               /* repeat until
                                                                * gets a
                                                                * complete
-                                                               ***statement
+                                                               ****statement
                                                                * */
         size_t len;
         const char *line = lua_tolstring(L, 1, &len);         /* get what it has
@@ -364,7 +364,7 @@ static int multiline (lua_State *L) {
                                                                * should
                                                                * not try to add
                                                                * continuation
-                                                               ***line
+                                                               ****line
                                                                * */
         }
         lua_pushliteral(L, "\n");                             /* add newline...
@@ -698,7 +698,7 @@ static int pmain (lua_State *L) {
                                                                   **/
         doREPL(L);                                                /* do
                                                                    *
-                                                                   ****read-eval-print
+                                                                   *****read-eval-print
                                                                    * loop */
     }
     else if ( (script == argc) && !( args & (has_e | has_v) ) ) { /* no
@@ -710,7 +710,7 @@ static int pmain (lua_State *L) {
             print_version();
             doREPL(L);                                            /* do
                                                                    *
-                                                                   ****read-eval-print
+                                                                   *****read-eval-print
                                                                    * loop */
         }
         else{dofile(L, NULL);                                     /* executes
