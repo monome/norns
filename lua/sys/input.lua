@@ -843,10 +843,10 @@ Input.event_codes[Input.event_types_rev['EV_LED']] = {
 Input.event_codes_rev = {}
 for t,tname in pairs(Input.event_types) do
    Input.event_codes_rev[tname] = {}
-   print(tname)
+   -- print(tname)
    for c,cname in pairs(Input.event_codes[t]) do
-      print(c, cname)
-	  Input.event_codes_rev[tname][cname] = c
+      -- print(c, cname)
+      Input.event_codes_rev[tname][cname] = c
    end
 end
 	  

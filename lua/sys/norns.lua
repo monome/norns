@@ -4,28 +4,34 @@
 
 norns = {}
 norns.version = {}
-norns.version.norns = "0.0.1"
+norns.version.norns = "0.0.0"
 
-print("running norns.lua")
+print("norns.lua")
 
 --- startup function will be run after I/O subsystems are initialized, 
 -- but before I/O event loop starts ticking
 startup = function()
    require('startup')
-end-----------------------------
---- system state tables
+end
+--- Global Functions
+-- @section global_functions
 
+--- global functions required by the C interface
 
---- Global Tables
--- @section global_tables
+norns.monome = {}
+--- monome device hotplug callbacks
+norns.monome.add = function(id, serial, name, dev) end
+norns.monome.remove = function(id) end
+norns.grid = {}
+--- monome grid key event
+norns.grid.key = function(id, x, y, val)
+--   print(id,x,y,val)
+end
 
---- table of descriptor report callbacks
-norns.report = {}
-
----------------------------------------------
 --- report callbacks;
 -- these functions called from C with descriptor data.
 -- individual modules redefine them as appropriate.
+norns.report = {}
 norns.report.engines = function(names, count) end
 norns.report.commands = function(commands, count) end
 norns.report.polls = function(polls, count) end

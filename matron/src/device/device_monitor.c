@@ -25,6 +25,7 @@
 // #define DEVICE_MONITOR_SHOW_DEVICE_SCANNING
 // #define DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
 // #define DEVICE_MONITOR_PRINT_UNHANDLED_DEVICES
+// #define DEVICE_MONITOR_SHOW_USB_DEVICES
 // #define DEVICE_MONITOR_SHOW_NON_USB_DEVICES
 
 //---------------------
@@ -175,7 +176,9 @@ int dev_monitor_scan(void) {
                     if(node != NULL) {
                         device_t t = check_dev_type(dev);
                         if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
+#ifdef DEVICE_MONITOR_SHOW_USB_DEVICES
                             printf("found usb input device; type: %d \n", t);
+#endif
                             dev_list_add(t, node);
                         }
                     }

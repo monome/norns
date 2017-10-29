@@ -113,16 +113,18 @@ grid_key_event(const monome_event_t *e, void *p, int state) {
     ev->grid_key.x = e->grid.x;
     ev->grid_key.y = e->grid.y;
     ev->grid_key.state = state;
+    //    printf("%d\t%d\t%d\t%d\n", md->dev.id, e->grid.x, e->grid.y,
+    // state);fflush(stdout);
     event_post(ev);
 }
 
 void dev_monome_handle_press(const monome_event_t *e, void *p) {
-    // printf("dev_monome_handle_press()\n"); fflush(stdout);
+    //    printf("dev_monome_handle_press()\n"); fflush(stdout);
     grid_key_event(e, p, 1);
 }
 
 void dev_monome_handle_lift(const monome_event_t *e, void *p) {
-    // printf("dev_monome_handle_lift()\n"); fflush(stdout);
+    //    printf("dev_monome_handle_lift()\n"); fflush(stdout);
     grid_key_event(e, p, 0);
 }
 

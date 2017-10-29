@@ -13,9 +13,6 @@ static int dev_start(union dev *d);
 
 union dev *dev_new(device_t type, const char *path) {
     union dev *d = calloc( 1, sizeof(union dev) );
-
-    printf("dev_new(%d : %s)\n", type, path); fflush(stdout);
-
     if(!d) {return NULL; }
     // initialize the base class
     d->base.type = type;
@@ -30,7 +27,8 @@ union dev *dev_new(device_t type, const char *path) {
         dev_input_init(d, false);
         break;
     default:
-        // this is an error
+        printf(
+            "calling device.c:dev_new() with unkmown device type; this is an error!");
         free(d);
         return NULL;
     }

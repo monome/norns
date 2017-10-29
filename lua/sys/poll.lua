@@ -86,12 +86,47 @@ Poll.named = function(name, callback)
    p.props.callback = callback   
 end
 
---- Global Functions
+--- Globals
 -- @section globals
--- poll objects (index by name)
+
+--- poll objects (index by name)
 norns.polls = {}
--- poll names (indexed by int) - for reverse lookup
+
+--- poll names (indexed by int) - for reverse lookup
 norns.pollNames = {}
+
+--- poll report callback; called from C
+norns.report.polls = function(polls, count)
+   Poll.register(polls, count)
+end
+
+
+--[[
+-norns.report.polls = function(polls, count)
+-   print("norns.report.polls ; count: " .. count)
+---[[
+
+-   norns.pollNames = {}
+-   local t, name, idx
+-   for i=1,count do
+-      print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
+-      idx = polls[i][1]
+-      name = polls[i][2]
+-
+--- FIXME
+-      
+---      norns.polls[name] = Poll(polls[i][1], polls[i][2], polls[i][3])
+---      norns.polls[name] = {}
+---      norns.polls[name].idx = polls[i][1]
+---      norns.polls[name].name = polls[i][2]
+---      norns.polls[name].type= polls[i][3]
+-      norns.pollNames[idx] = name;
+-   end
+-   -- call the script-defined report callback, if it exists
+-   if report.polls ~= nil then report.polls(polls, count) end
+
+-end
+--]]
 
 
 --- main callback; called from C

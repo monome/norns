@@ -54,6 +54,7 @@ end
 -- grid devices
 norns.grid = {}
 norns.grid.devices = {}
+---- FIXME: shouldn't need this
 grid = {} -- <-- script callbacks go in here
 
 norns.grid.add = function(id, serial, name, dev)

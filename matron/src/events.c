@@ -60,37 +60,37 @@ static void handle_quit(void);
 // *does not* allocate event data memory!
 // call with the queue locked
 static void evq_push(union event_data *ev) {
-  struct ev_node * evn = calloc(1, sizeof(struct ev_node));
-  evn->ev = ev;
-  if(evq.size == 0) {
-    insque(evn, NULL);
-    evq.head = evn;
-  } else {
-    insque(evn, evq.tail);
-  }
-  evq.tail = evn;
-  evq.size += 1;
+    struct ev_node *evn = calloc( 1, sizeof(struct ev_node) );
+    evn->ev = ev;
+    if(evq.size == 0) {
+        insque(evn, NULL);
+        evq.head = evn;
+    } else {
+        insque(evn, evq.tail);
+    }
+    evq.tail = evn;
+    evq.size += 1;
 }
 
 // remove and return the event data struct from the top of the event queue
 // call with the queue locked
 // *does* free queue node memory!
 // *does not* free the event data memory!
-static union event_data* evq_pop() {
-  struct ev_node *evn = evq.head;
-  if(evn == NULL) {
-    return NULL;
-  }
-  union event_data* ev = evn->ev;
-  evq.head = evn->next;
-  if(evn == evq.tail) {
-    assert(evq.size == 1);
-    evq.tail = NULL;
-  }
-  remque(evn);
-  free(evn);
-  evq.size -= 1;
-  return ev;
+static union event_data *evq_pop() {
+    struct ev_node *evn = evq.head;
+    if(evn == NULL) {
+        return NULL;
+    }
+    union event_data *ev = evn->ev;
+    evq.head = evn->next;
+    if(evn == evq.tail) {
+        assert(evq.size == 1);
+        evq.tail = NULL;
+    }
+    remque(evn);
+    free(evn);
+    evq.size -= 1;
+    return ev;
 }
 
 //-------------------------------
@@ -137,13 +137,13 @@ void event_loop(void) {
             // wakeup
             pthread_cond_wait(&evq.nonempty, &evq.lock);
         }
-	// printf("evq.size : %d\n", (int) evq.size); fflush(stdout);
+        // printf("evq.size : %d\n", (int) evq.size); fflush(stdout);
         assert(evq.size > 0);
-	ev = evq_pop();
+        ev = evq_pop();
         pthread_mutex_unlock(&evq.lock);
-	if(ev != NULL) { 
-	  handle_event(ev);
-	}
+        if(ev != NULL) {
+            handle_event(ev);
+        }
     }
 }
 
@@ -222,7 +222,11 @@ void handle_monome_remove(struct event_monome_remove *ev) {
 
 void handle_grid_key(struct event_grid_key *ev) {
     w_handle_grid_key(ev->id, ev->x, ev->y, ev->state);
-    printf("w_handle_grid_key: %d\t%d\t%d\t%d\n", ev->id, ev->x, ev->y, ev->state);
+    printf("w_handle_grid_key: %d\t%d\t%d\t%d\n",
+           ev->id,
+           ev->x,
+           ev->y,
+           ev->state);
     fflush(stdout);
 }
 

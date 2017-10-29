@@ -1,5 +1,5 @@
 NORNS_VERSION_MAJOR = 0
-NORNS_VERSION_MINOR = 1
+NORNS_VERSION_MINOR = 0
 NORNS_VERSION_PATCH = 0
 
 $(eval NORNS_VERSION_HASH = \"$(shell git show HEAD | grep commit | sed 's@commit @@')\")
