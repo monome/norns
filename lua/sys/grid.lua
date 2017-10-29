@@ -20,6 +20,7 @@ Grid.__index = Grid
 -- @param dev : opaque pointer to device (userdata)
 function Grid.new(id, serial, name, dev)
    local g = setmetatable({}, Grid)
+   print("Grid.new ", id, serial, name, dev)
    g.id = id
    g.serial = serial
    g.name = name
@@ -46,8 +47,8 @@ function Grid.remove(dev)
 end
 
 --- set state of single LED on this grid device
--- @param x : column index (zero-based)
--- @param y : row index (zero-based)
+-- @param x : column index (1-based!)
+-- @param y : row index (1-based!)
 -- @param val : LED brightness in [0, 15]
 function Grid:led(x, y, val)
    grid_set_led(self.dev, x, y, val)
@@ -66,13 +67,16 @@ function Grid:print()
 end
 
 ---------------------------------
--- monome device manager
+--- monome device manager
+
+-- @fixme shouldn'e be in this module, shouldn't assume all monomes are grids
 
 norns.monome = {}
 
 norns.monome.add = function(id, serial, name, dev)
    -- TODO: distinguish between grids and arcs
    -- for now, assume its a grid
+   print("norns.monome.add ", id, serial, name, dev)
    norns.grid.add(id,serial,name,dev)
 end
 
@@ -85,9 +89,9 @@ end
 
 -- grid devices
 norns.grid.add = function(id, serial, name, dev)
-   local g = Grid:new(id,serial,name,dev)
+   local g = Grid.new(id,serial,name,dev)
    Grid.devices[id] = g
---   if Grid.add ~= nil then Grid.add(g) end
+   if Grid.add ~= nil then Grid.add(g) end
 end
 
 norns.grid.remove = function(id)
