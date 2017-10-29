@@ -55,18 +55,6 @@ int main(int argc, char **argv) {
     // scan for connected input devices
     dev_monitor_scan();
 
-    ////////
-    /// test: create a bunch of "simultaneous" grid events
-    for (int i = 0; i < 8; ++i) {
-        union event_data *ev = event_data_new(EVENT_GRID_KEY);
-        ev->grid_key.id = 1;
-        ev->grid_key.x = i;
-        ev->grid_key.y = 0;
-        ev->grid_key.state = 1;
-        event_post(ev);
-    }
-    ////////
-
     // blocks until quit
     event_loop();
 }
