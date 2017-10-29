@@ -120,7 +120,7 @@ Crone {
 		if(poll.notNil, {
 			poll.start(remoteAddr);
 		}, {
-			postln("startPoll failed; couldn't find " ++ name);
+			postln("startPoll failed; couldn't find index " ++ idx);
 		});
 	}
 
@@ -129,14 +129,16 @@ Crone {
 		if(poll.notNil, {
 			poll.stop;
 		}, {
-			postln("stopPoll failed; couldn't find " ++ name);
+			postln("stopPoll failed; couldn't find index " ++ idx);
 		});
 	}
 
 	*setPollTime { arg idx, dt;
-		var pt = CronePollRegistry.getPollFromIdx(idx); 
+		var pt = CronePollRegistry.getPollFromIdx(idx);
 		if(pt.notNil, {
 			pt.setTime(dt);
+		}, {
+			postln("setPollTime failed; couldn't find index " ++ idx);
 		});
 	}
 
@@ -169,12 +171,12 @@ Crone {
 		remoteAddr.sendMsg('/report/polls/start', num);
 		num.do({ arg i;
 			var poll = CronePollRegistry.getPollFromIdx(i);
-postln(poll.name);
-// FIXME: polls should just have format system like commands
-remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
-});
+			postln(poll.name);
+			// FIXME: polls should just have format system like commands
+			remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
+		});
 
-remoteAddr.sendMsg('/report/polls/end'); //, CronePollRegistry.polls.size);
+		remoteAddr.sendMsg('/report/polls/end'); //, CronePollRegistry.polls.size);
 	}
 
 }

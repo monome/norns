@@ -1,130 +1,88 @@
---[[
-   norns.lua
-   startup script for norns lua environment.
-
-   NB: removal of any function/module definitions will break the C->lua glue.
-   in other respects, feel free to customize.
---]]
-
-
---[[
-   the 'norns' global table contains all system-level objects,
-   in particular the callbacks expected by the C code.
-
-   many of these wrap script-defined callbacks;
-   e.g. `norns.input.add()` executes `input.add()` if it's defined,
-   after performing system-level bookkeeping tasks. 
---]]
+--- norns.lua;
+-- main norns script.
+-- defines top-level global tables and functions needed by other modules
 
 norns = {}
 norns.version = {}
-norns.version.norns = "0.0.1"
+norns.version.norns = "0.0.2"
 
-print("running norns.lua")
+print("norns.lua")
 
-require('helpers')
-require('input')
-require('monome')
-
--- this function will be run after I/O subsystems are initialized,
+--- startup function will be run after I/O subsystems are initialized, 
 -- but before I/O event loop starts ticking
 startup = function()
    require('startup')
 end
+--- Global Functions
+-- @section global_functions
 
--- table of engine commands
-norns.engine = {}
+--- global functions required by the C interface; 
+-- we "declare" these here with placeholders;
+-- indeividual modules will redefine them as needed.
 
--- table of handlers for descriptor reports
+--- monome device callbacks
+norns.monome = {}
+--- monome device added
+norns.monome.add = function(id, serial, name, dev)
+   -- print("norns.monome.add "..id, serial, name, dev)
+end
+--- monome device removed
+norns.monome.remove = function(id)
+   -- print("norns.monome.remove "..id)
+end
+
+--- grid device callbacks
+norns.grid = {}
+--- grid key event
+norns.grid.key = function(id, x, y, val)
+   -- print("norns.grid.key ", id,x,y,val)
+end
+
+norns.input = {}
+--- HID or other input device added
+norns.input.add = function(id, serial, name, types, codes)
+   -- print("norns.input.add ", id, serial, name, types, codes)
+end
+norns.input.event = function(id, ev_type, ev_code, value)
+   -- print("norns.input.event ", id, ev_type, ev_code, value)
+end
+   
+--- TODO
+-- @todo : arc, midi
+norns.arc = {}
+norns.midi = {}
+
+--- report callbacks
+-- @section report
+
 norns.report = {}
-report = {} -- <-- script-defined callbacks go in here
-
 norns.report.engines = function(names, count)
-   print(count .. " engines: ")
-   for i=1,count do
-	  print(i .. ": "..names[i])
-   end
-   if report.engines ~= nil then report.engines(names, count) end
+   assert(false); -- shouldn't happen
 end
-
 norns.report.commands = function(commands, count)
-   print("norns.report.commands")
-   addEngineCommands(commands, count)
-   -- call the script-defined report callback, if it exists
-   -- this is helpful for a script to continue execution once an engine is loaded.
-   if report.commands ~= nil then report.commands(commands, count) end
+   assert(false) -- shouldn't happen
 end
-
-norns.polls = {}
-norns.pollNames = {}
 norns.report.polls = function(polls, count)
-   print("norns.report.polls ; count: " .. count)
-   -- call the script-defined report callback, if it exists
-   if report.polls ~= nil then report.polls(polls, count) end
-   norns.polls = {}
-   norns.pollNames = {}
-   local t, name, idx
-   for i=1,count do
-      print("poll " .. polls[i][1] .. " : " .. polls[i][2] .. " type: " .. polls[i][3])
-      idx = polls[i][1]
-      name = polls[i][2]
-      norns.polls[name] = {}
-      norns.polls[name].idx = polls[i][1]
-      norns.polls[name].name = polls[i][2]
-      norns.polls[name].type= polls[i][3]
-      norns.pollNames[idx] = name;
-   end
-   -- call the script-defined report callback, if it exists
-   if report.polls ~= nil then report.polls(polls, count) end
+   -- ok, this could happen if we aren't using the poll module
+   -- print("norns.report.polls", commands, count)
 end
 
-norns.poll = function(idx, arg)
-   --- FIXME: testing
-   local name = nil
---   print("norns.poll: "..idx .. " "..arg)
-   if norns.pollNames[idx] ~= nil then
-      name = norns.pollNames[idx] 
-      -- print("norns.poll: "..idx..": " ..name..": "..arg)
-      -- call script-defined poll callback
-      if poll ~= nil then poll(norns.polls[name], arg) end
-   else
-      print("norns.poll: unknown index: " .. idx .. " "..arg)
-   end
+--- script managment
+-- @section script
+
+norns.script = {}
+norns.script.cleanup_dummy = function()
+   print("norns.script.cleanup() was invoked on script deinit.")
+   print("WARNING: you should redefine this in your script, to free any allocated resources.")
+end
+norns.script.cleanup = norns.script.cleanup_dummy
+
+--- load a user script
+-- @param name (string) - name of the script (without extension)
+norns.script.load = function(script)
+   norns.script.cleanup() -- cleanup the old script
+   norns.script.cleanup = norns.script.cleanup.dummy
+   dofile(script_dir..script..".lua")
 end
 
-norns.timer = function(idx, stage)
-   -- call script-defined timer callback
-   print("norns.timer: ".. idx.." "..stage)
-   if timer ~= nil then timer(idx,stage) end
-end
-
-norns.version_print = function()
-  for key,value in pairs(norns.version) do
-    print(key .. ": "  .. value)
-  end
-end
-
-norns.load_script = function()
-   -- TODO? kill_all_timers();
-end
-
-norns.start_poll = function(pollName)
-   local p = norns.polls[pollName]
-   if p ~= nil then 
-      start_poll(p.idx)
-   end
-end
-
-norns.stop_poll = function(pollName)
-   local p = norns.polls[pollName]
-   if p ~= nil then 
-      stop_poll(p.idx)
-   end
-end
-
-norns.set_poll_time = function(pollName, t)
-   local p = norns.polls[pollName]
-   if p ~= nil then 
-      set_poll_time(p.idx, t)
-   end
-end
+return norns

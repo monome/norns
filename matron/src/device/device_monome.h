@@ -9,10 +9,10 @@
 
 // monome device data structure.
 struct dev_monome {
-  struct dev_common dev;
-  monome_t *m;
-  uint8_t data[4][64]; // led data by quad
-  bool dirty[4];       // quad-dirty flags
+    struct dev_common dev;
+    monome_t *m;
+    uint8_t data[4][64]; // led data by quad
+    bool dirty[4];       // quad-dirty flags
 };
 
 // set a single led

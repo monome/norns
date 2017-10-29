@@ -9,9 +9,9 @@
 
 // common data structure for all devices
 union dev {
-  struct dev_common base;
-  struct dev_monome monome;
-  struct dev_input input;
+    struct dev_common base;
+    struct dev_monome monome;
+    struct dev_input input;
 };
 
 // initialize device registry
