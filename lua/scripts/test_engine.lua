@@ -1,4 +1,6 @@
-local norns = require 'norns'
+print('test_engine.lua')
+
+norns = require 'norns'
 local engine = require 'engine'
 
 
@@ -8,6 +10,7 @@ engine.load('TestSine',
 	       for i,v in pairs(commands) do
 		  print(i, v.fmt)
 	       end
-
+	       engine.hz(100)
+	       engine.amp(0.125)
 	    end
 )

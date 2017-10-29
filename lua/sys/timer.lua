@@ -2,6 +2,10 @@
 -- @module timer
 -- @alias Timer_mt
 
+print('timer.lua')
+require 'norns'
+norns.version.timer = '0.0.2'
+
 local Timer = {}
 
 Timer.numTimers = 32

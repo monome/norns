@@ -18,33 +18,33 @@ end
 
 --- global functions required by the C interface; 
 -- we "declare" these here with placeholders;
--- indeividiual modules will redefine them as needed.
+-- indeividual modules will redefine them as needed.
 
 --- monome device callbacks
 norns.monome = {}
 --- monome device added
 norns.monome.add = function(id, serial, name, dev)
-   print("norns.monome.add "..id, serial, name, dev)
+   -- print("norns.monome.add "..id, serial, name, dev)
 end
 --- monome device removed
 norns.monome.remove = function(id)
-   print("norns.monome.remove "..id)
+   -- print("norns.monome.remove "..id)
 end
 
 --- grid device callbacks
 norns.grid = {}
 --- grid key event
 norns.grid.key = function(id, x, y, val)
-   print("norns.grid.key ", id,x,y,val)
+   -- print("norns.grid.key ", id,x,y,val)
 end
 
 norns.input = {}
 --- HID or other input device added
 norns.input.add = function(id, serial, name, types, codes)
-   print("norns.input.add ", id, serial, name, types, codes)
+   -- print("norns.input.add ", id, serial, name, types, codes)
 end
 norns.input.event = function(id, ev_type, ev_code, value)
-   print("norns.input.event ", id, ev_type, ev_code, value)
+   -- print("norns.input.event ", id, ev_type, ev_code, value)
 end
    
 --- TODO
@@ -57,13 +57,14 @@ norns.midi = {}
 
 norns.report = {}
 norns.report.engines = function(names, count)
-   print("norns.report.engines ", names, count)   
+   assert(false); -- shouldn't happen
 end
 norns.report.commands = function(commands, count)
-   print("norns.report.commands ", commands, count)
+   assert(false) -- shouldn't happen
 end
-norns.report.polls = function(polls, count) 
-   print("norns.report.polls ", commands, count)
+norns.report.polls = function(polls, count)
+   -- ok, this could happen if we aren't using the poll module
+   -- print("norns.report.polls", commands, count)
 end
 
 --- print all module versions
