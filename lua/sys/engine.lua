@@ -19,8 +19,8 @@ Engine.commands = {}
 ------------------------------
 -- static methods
 
---- register all available engines
--- call from OSC handler
+--- register all available engines; 
+-- called from OSC handler
 -- @param data - an array of strings
 -- @param count - number of names
 Engine.register = function(data, count)
@@ -31,8 +31,8 @@ Engine.register = function(data, count)
    Engine.names = data
 end
 
---- populate the current engine object with available commands
--- call from OSC handler
+--- populate the current engine object with available commands; 
+-- called from OSC handler
 -- NB: we *can* count on the order of entries to be meaningful
 -- @param data - array of [name, format]
 -- @param count - number of commands
@@ -78,10 +78,10 @@ Engine.load = function(name, callback)
    load_engine(name)
 end
 
--------------------------------
---- meta
 
---- use __index to look up registered commands
+--- custom getters; 
+-- [] accessor returns a command function;
+-- this allows e.g. engine.hz(100) 
 function Engine.__index(self, idx)
    if idx == 'name' then return Engine.name
    elseif Engine.commands[idx] then
@@ -96,6 +96,7 @@ setmetatable(Engine, Engine)
 --- Global Functions
 -- @section globals
 
+--- redefines engine report
 norns.report.engines = function(names, count)
    Engine.register(names, count)
 end

@@ -50,8 +50,8 @@ function Poll:stop()
 end
 
 
---- custom setters
---- FIXME: need explicit tags or something for ldoc
+--- custom setters; 
+-- `.time` and `.callback` set the corresponding private properties and perform approriate actions. 
 function Poll:__newindex(idx, val)
    if idx == 'time' then
       self.props.time = val
@@ -62,8 +62,9 @@ function Poll:__newindex(idx, val)
    -- oher properties are not settable!
 end
 
---- custom getters, methods
---- FIXME: need explicit tags or something for ldoc
+--- custom getters;
+-- available propertes:
+
 function Poll:__index(idx)
    if idx == 'id' then return self.props.id
    elseif idx == 'name' then return self.props.name
@@ -79,9 +80,9 @@ end
 --- Static Methods
 -- @section static
 
---- call with OSC data from norns callback to register all available polls
+--- called with OSC data from norns callback to register all available polls
 -- @param data - table from OSC; each entry is { id (int), name (string) }
--- @param coutn - size of table
+-- @tparam integer count - size of table
 Poll.register = function(data, count)
    Poll.polls = {}
    Poll.pollNames = {}
@@ -98,7 +99,7 @@ Poll.register = function(data, count)
 end
 
 --- get a registered Poll object by name
--- @param name
+-- @tparam string name
 -- @param callback function to call with value on each poll
 Poll.named = function(name, callback)
    local p = Poll.polls[name]
@@ -117,7 +118,7 @@ norns.report.polls = function(polls, count)
 end
 
 --- main callback; called from C
--- @param id - identfier (integer)
+-- @tparam integer id - identfier
 -- @param value: value (float OR sequence of bytes)
 norns.poll = function(id, value)
    local name = Poll.pollNames[id]

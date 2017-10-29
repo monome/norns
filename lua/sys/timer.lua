@@ -11,11 +11,11 @@ local Timer = {}
 Timer.numTimers = 32
 Timer.timers = {}
 
---- instance metatable;
--- implements a custom setter for timer.time
 local Timer_mt = {}
 Timer_mt.__index = Timer_mt
 
+--- class custom .__newindex;
+-- 'time = x' setter will also perform the appropriate action in `matron`
 Timer_mt.__newindex = function(self, idx, val)
    if idx == 'time' then
       self.time = val
@@ -79,8 +79,8 @@ for i=1,Timer.numTimers do
    Timer.timers[i] = Timer.new(i)
 end
 
---- class metatable;
--- numerical index will access one of the static timer objects
+--- class custom .__index; 
+-- [] accessor returns one of the static timer objects
 Timer.__index = function(self, idx)
    if type(idx) == "number" then
       print("class meta: .__index ("..idx..")")

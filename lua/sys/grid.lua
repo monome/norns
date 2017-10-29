@@ -14,10 +14,10 @@ Grid.devices = {}
 Grid.__index = Grid
 
 --- constructor
--- @param id : arbitrary numeric identifier
--- @param serial : serial (string)
--- @param name : name (string
--- @param dev : opaque pointer to device (userdata)
+-- @tparam integer id : arbitrary numeric identifier
+-- @tparam string serial : serial
+-- @tparam string name : name
+-- @tparam userdata dev : opaque pointer to device
 function Grid.new(id, serial, name, dev)
    local g = setmetatable({}, Grid)
    g.id = id
@@ -29,14 +29,14 @@ function Grid.new(id, serial, name, dev)
    return g
 end
 
---- static callback when any grid device is added
+--- static callback when any grid device is added; 
 -- user scripts can redefine
 -- @param dev : a Grid table
 function Grid.add(dev)
    print("grid added", dev.id, dev.name)
 end
 
---- static callback when any grid device is removed
+--- static callback when any grid device is removed; 
 -- user scripts can redefine
 -- @param dev : a Grid table
 function Grid.remove(dev)
@@ -45,9 +45,9 @@ function Grid.remove(dev)
 end
 
 --- set state of single LED on this grid device
--- @param x : column index (1-based!)
--- @param y : row index (1-based!)
--- @param val : LED brightness in [0, 15]
+-- @tparam integer x : column index (1-based!)
+-- @tparam integer y : row index (1-based!)
+-- @tparam integer val : LED brightness in [0, 15]
 function Grid:led(x, y, val)
    grid_set_led(self.dev, x, y, val)
 end
@@ -100,7 +100,7 @@ norns.grid.remove = function(id)
    Grid.devices[id] = nil
 end
 
---- grid key input handler
+--- redefine global grid key input handler
 norns.grid.key = function(id, x, y, val)
    local g = Grid.devices[id]
    if g ~= nil then

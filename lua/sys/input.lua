@@ -11,24 +11,24 @@ Input.__index = Input
 
 Input.devices = {}
 
---- device-added callback
--- script should redefine if it wants to handle device hotplug events
+--- device-added callback; 
+-- script should redefine to handle device hotplug events
 -- @param device - an Input 
 Input.add = function(device)
    print("device added: ", device.id, device.name)
 end
 
---- device-removed callbacks
--- script should redefine if it wants to handle device hotplug events
+--- device-removed callbacks; 
+-- script should redefine to handle device hotplug events
 -- @param device - an Input 
 Input.remove = function(device)
    print("device removed: ", device.id, device.name)
 end
 
 -- `codes` is indexed by event type, values are subtables
--- @param id : arbitrary numberical index of the device
--- @param serial : serial device string from USB
--- @param name: device name string fromUSB
+-- @tparam integer id : arbitrary numberical index of the device
+-- @tparam string serial : serial device string from USB
+-- @tparam string name: device name string from USB
 -- @param types: array of supported event types. keys are type codes, values are strings
 -- @param codes: array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
 function Input.new(id, serial, name, types, codes)
@@ -52,8 +52,8 @@ function Input.new(id, serial, name, types, codes)
 end
 
 --- return the first available device that supports the given event
--- @param ev_type - event type (string), e.g. 'EV_KEY'
--- @param code - target event code (string), e.g. 'BTN_START'
+-- @tparam string ev_type - event type name, e.g. 'EV_KEY'
+-- @tparam string code - event code name, e.g. 'BTN_START'
 -- @return - an Input or nil
 function Input.findDeviceSupporting(ev_type, ev_code)
    local ev_type_num = Input.event_types_rev[ev_type]
@@ -80,9 +80,9 @@ function Input:clearCallbacks()
 end
 
 --- test if device supports given event type and code
--- @param ev_type - event type (string), e.g. 'EV_REL'
--- @param ev_code - event code (string), e.g. 'REL_X',
--- @return boolean
+-- @tparam string ev_type - event type name, e.g. 'EV_REL'
+-- @tparam string ev_code - event code name, e.g. 'REL_X',
+-- @treturn boolean
 function Input:supports(ev_type, ev_code)
    local ev_type_num = Input.event_types_rev[ev_type]
    if ev_type_num == nil then return false end   
@@ -137,10 +137,10 @@ norns.input.remove = function(id)
 end
 
 --- handle an input event
--- @param id- arbitrary device id number (int)
--- @param ev_type - event type (int)
--- @param ev_code - event code (int)
--- @param value (int)
+-- @tparam integer id- arbitrary device id number
+-- @tparam integer ev_type - event type id
+-- @tparam integer ev_code - event code id
+-- @tparam integer value
 norns.input.event = function(id, ev_type, ev_code, value)
    local ev_type_name = Input.event_types[ev_type]
    assert(ev_type_name)
