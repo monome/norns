@@ -108,6 +108,8 @@ CronePollRegistry {
 	}
 
 	*getPollFromIdx { arg idx;
+		postln("getting poll for idx: " ++ idx);
+		postln("poll names: " ++ pollNames);
 		^polls[pollNames[idx]];
 	}
 

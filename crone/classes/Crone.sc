@@ -120,7 +120,7 @@ Crone {
 		if(poll.notNil, {
 			poll.start(remoteAddr);
 		}, {
-			postln("startPoll failed; couldn't find " ++ name);
+			postln("startPoll failed; couldn't find index " ++ idx);
 		});
 	}
 
@@ -129,7 +129,7 @@ Crone {
 		if(poll.notNil, {
 			poll.stop;
 		}, {
-			postln("stopPoll failed; couldn't find " ++ name);
+			postln("stopPoll failed; couldn't find index " ++ idx);
 		});
 	}
 

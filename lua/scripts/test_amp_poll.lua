@@ -1,10 +1,15 @@
-require 'math'
-
 print("test_amp_poll.lua")
+require 'math'
+local poll = require 'poll'
+
+local p = nil
+norns.cleanup = function()
+   if p then p.stop() end
+end
 
 local function printAsciiMeter(amp, n, floor)
-   if n == nil then n = 64 end
-   if floor == nil then floor = -72 end
+   n = n or 64
+   floor = floor or -72
    local db = 20.0 * math.log10(amp)
    local norm = 1.0 - (db / floor)
    local x = norm * n
@@ -15,19 +20,19 @@ local function printAsciiMeter(amp, n, floor)
    print(str)
 end
 
-poll = function(poll, value)
-   if poll.name == "amp_in_l" then
-      printAsciiMeter(value)
-   end
-end
+local ampCallback = function(amp) printAsciiMeter(amp, 64, -36) end
 
-report.polls = function()
-   if norns.polls['amp_in_l'] ~= nil then
-	 -- FIXME: not a great interface.
-	 -- poll objects should have "set_time". "start", "stop" methods...
-	 norns.set_poll_time('amp_in_l', 0.05)
-	 norns.start_poll('amp_in_l');
-   end
+poll.report = function(polls)
+   --   p = poll.named('amp_in_l', ampCallback)
+   p = polls['amp_in_r']
+   if p then
+      print("set callback: ", p, ampCallback)
+      p.callback = ampCallback
+      p.time = 0.05
+      p:start()
+   else
+      print("couldn't get requested poll, dang")
+   end 
 end
 
 report_polls()

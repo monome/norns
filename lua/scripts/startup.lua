@@ -1,15 +1,10 @@
--- add your startup code here!
--- see sys/norns.lua 
+--- add your startup code here!
 print("startup.lua")
 
--- some recommended (?), convenient shortcuts
-n = norns
-e = n.engine
+--- here are some tests
 
---- test some things
---require('test_amp_poll')
-require('test_amp_poll')
-
--- require('test_time_query')
--- require('test_grid_timer')
--- require('test_input_devices')
+-- require('test_engine')  -- OK
+-- require('test_grid') -- OK
+-- require('test_input') -- OK
+-- require('test_timer') -- OK
+require('test_amp_poll') -- OK
