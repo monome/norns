@@ -605,8 +605,8 @@ static int poll_set_state(lua_State *l, bool val) {
         return 1;
     }
     if( lua_isinteger(l, 1) ) {
-      int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
-        printf("poll_set_state(); idx: %d\n", idx); fflush(stdout);
+        int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
+        // printf("poll_set_state(); idx: %d\n", idx); fflush(stdout);
         o_set_poll_state(idx, val);
         lua_settop(l, 0);
         return 0;
@@ -618,12 +618,12 @@ static int poll_set_state(lua_State *l, bool val) {
 }
 
 int w_start_poll(lua_State *l) {
-    printf("w_start_poll()\n"); fflush(stdout);
+    // printf("w_start_poll()\n"); fflush(stdout);
     return poll_set_state(l, true);
 }
 
 int w_stop_poll(lua_State *l) {
-    printf("w_stop_poll()\n"); fflush(stdout);
+    // printf("w_stop_poll()\n"); fflush(stdout);
     return poll_set_state(l, false);
 }
 
@@ -632,7 +632,7 @@ int w_set_poll_time(lua_State *l) {
     int nargs = lua_gettop(l);
     if(nargs == 2) {
         if( lua_isinteger(l, 1) ) {
-            int idx = lua_tointeger(l, 1);
+            int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
             if( lua_isnumber(l, 2) ) {
                 float val = lua_tonumber(l, 2);
                 o_set_poll_time(idx, val);

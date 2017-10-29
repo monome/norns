@@ -82,7 +82,6 @@ int page_scroll_bottom(struct page *p) {
     getyx(p->pad, y, x);
     (void)x;
     set_row(p, y - p->h + 2);
-
     page_refresh(p);
     return y;
 }

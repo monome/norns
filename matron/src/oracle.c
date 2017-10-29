@@ -228,17 +228,6 @@ void o_send_command(const char *name, lo_message msg) {
 
 //void o_set_poll_state(const char *name, bool state) {
 void o_set_poll_state(int idx, bool state) {
-    printf("o_set_poll_state()\n"); fflush(stdout);
-    //  char *path;
-    //  size_t len = sizeof(char) * (strlen(name) + 13);
-    /* path = malloc(len); */
-    /* if(state) {  */
-    /*   sprintf(path, "/poll/start/%s", name); */
-    /* } else { */
-    /*   sprintf(path, "/poll/stop/%s", name); */
-    /* } */
-    // send something to the path, with no payload ('Nil')
-    //  lo_send(remote_addr, path, "N");
     if(state) {
         lo_send(remote_addr, "/poll/start", "i", idx);
     } else {

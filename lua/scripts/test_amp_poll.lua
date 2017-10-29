@@ -28,7 +28,7 @@ poll.report = function(polls)
    if p then
       print("set callback: ", p, ampCallback)
       p.callback = ampCallback
-      p.time = 0.05
+      p.time = 0.03;
       p:start()
    else
       print("couldn't get requested poll, dang")
