@@ -9,7 +9,7 @@
 #include <pthread.h>
 
 #include "events.h"
-#include "m.h"
+#include "device_monome.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -55,29 +55,42 @@ static void handle_poll_value(struct event_poll_value *ev);
 static void handle_poll_data(struct event_poll_data *ev);
 static void handle_quit(void);
 
+// add an event data struct to the end of the event queue
+// *does* allocate queue node memory!
+// *does not* allocate event data memory!
 // call with the queue locked
-static void ev_q_add(union event_data *ev) {
-    struct ev_node *evn = calloc( 1, sizeof(struct ev_node) );
-    assert(ev != NULL);
-    evn->ev = ev;
+static void evq_push(union event_data *ev) {
+  struct ev_node * evn = calloc(1, sizeof(struct ev_node));
+  evn->ev = ev;
+  if(evq.size == 0) {
+    insque(evn, NULL);
+    evq.head = evn;
+  } else {
     insque(evn, evq.tail);
-    evq.tail = evn;
-    if(evq.size == 0) {
-        evq.head = evn;
-    }
-    evq.size++;
+  }
+  evq.tail = evn;
+  evq.size += 1;
 }
 
+// remove and return the event data struct from the top of the event queue
 // call with the queue locked
-static void evq_rem(struct ev_node *evn) {
-    if(evq.head == evn) { evq.head = NULL; }
-    if(evq.tail == evn) { evq.tail = evn->prev; }
-    remque(evn);
-    evq.size--;
-    // free the event and node memory here
-    // FIXME: theoretically faster to use an object pool
-    free(evn->ev);
-    free(evn);
+// *does* free queue node memory!
+// *does not* free the event data memory!
+static union event_data* evq_pop() {
+  struct ev_node *evn = evq.head;
+  if(evn == NULL) {
+    return NULL;
+  }
+  union event_data* ev = evn->ev;
+  evq.head = evn->next;
+  if(evn == evq.tail) {
+    assert(evq.size == 1);
+    evq.tail = NULL;
+  }
+  remque(evn);
+  free(evn);
+  evq.size -= 1;
+  return ev;
 }
 
 //-------------------------------
@@ -105,15 +118,14 @@ void event_post(union event_data *ev) {
         // signal handler thread to wake up...
         pthread_cond_signal(&evq.nonempty);
     }
-    ev_q_add(ev);
+    evq_push(ev);
     // ...handler actually wakes up once we release the lock
     pthread_mutex_unlock(&evq.lock);
 }
 
 // main loop to read events!
 void event_loop(void) {
-    union event_data ev;
-    struct ev_node *evn;
+    union event_data *ev;
     while(!quit) {
         pthread_mutex_lock(&evq.lock);
         // while() because contention may produce spurious wakeup
@@ -125,13 +137,13 @@ void event_loop(void) {
             // wakeup
             pthread_cond_wait(&evq.nonempty, &evq.lock);
         }
+	// printf("evq.size : %d\n", (int) evq.size); fflush(stdout);
         assert(evq.size > 0);
-        assert(evq.tail != NULL);
-        evn = evq.tail;
-        memcpy( &ev, evn->ev, sizeof(union event_data) );
-        evq_rem(evn); // frees event memory and decrements q size
+	ev = evq_pop();
         pthread_mutex_unlock(&evq.lock);
-        handle_event(&ev);
+	if(ev != NULL) { 
+	  handle_event(ev);
+	}
     }
 }
 
@@ -210,6 +222,8 @@ void handle_monome_remove(struct event_monome_remove *ev) {
 
 void handle_grid_key(struct event_grid_key *ev) {
     w_handle_grid_key(ev->id, ev->x, ev->y, ev->state);
+    printf("w_handle_grid_key: %d\t%d\t%d\t%d\n", ev->id, ev->x, ev->y, ev->state);
+    fflush(stdout);
 }
 
 //--- input devices
