@@ -582,7 +582,7 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, idx + 1); // convert index to 1-based
     lua_createtable(lvm, size, 0);
-    // FIXME: maybe not the best way to pass a byte array to lua
+    // FIXME: would like a better way of passing a byte array to lua
     for(int i = 0; i < size; ++i) {
         lua_pushinteger(lvm, data[i]);
         lua_rawseti(lvm, -2, 1);
@@ -606,7 +606,6 @@ static int poll_set_state(lua_State *l, bool val) {
     }
     if( lua_isinteger(l, 1) ) {
       int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
-        printf("poll_set_state(); idx: %d\n", idx); fflush(stdout);
         o_set_poll_state(idx, val);
         lua_settop(l, 0);
         return 0;
@@ -618,7 +617,6 @@ static int poll_set_state(lua_State *l, bool val) {
 }
 
 int w_start_poll(lua_State *l) {
-    printf("w_start_poll()\n"); fflush(stdout);
     return poll_set_state(l, true);
 }
 

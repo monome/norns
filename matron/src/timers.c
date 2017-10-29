@@ -140,8 +140,7 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
                 printf("invalid thread policy value or associated parameter\n");
                 break;
             case EPERM:
-                printf(
-                    "caller lacks permission for requested scheduling parameter / policy\n");
+	      printf("failed to set scheduling priority. caller should be in the realtime group, or root. (or just don't worry about this.) \n"); fflush(stdout);
                 break;
             default:
                 printf("unknown error code \n");

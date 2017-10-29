@@ -42,7 +42,8 @@ int dev_delete(union dev *d) {
     int ret = pthread_cancel(d->base.tid);
     if(ret) {
         printf("dev_delete(): error in pthread_cancel(): %d\n", ret);
-        if(ret == ESRCH) { printf("no such thread\n"); }
+	/// FIXME: getting this error on every device removal (double delete?)
+        if(ret == ESRCH) { printf("no such thread. (this is a known error)\n"); }
         fflush(stdout);
         return -1;
     }
