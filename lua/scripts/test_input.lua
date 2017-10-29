@@ -1,4 +1,4 @@
-print('test_input_devices.lua')
+print('test_input.lua')
 require 'norns'
 local input = require 'input'
 

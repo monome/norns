@@ -3,6 +3,10 @@
 -- @module poll
 -- @alias Poll
 
+print ('poll.lua')
+require 'norns'
+norns.version.poll = '0.0.2'
+
 Poll = {}
 Poll.__index = Poll
 
@@ -124,7 +128,8 @@ norns.poll = function(id, value)
 	 if p.props.callback then 
 	    if type(p.props.callback) == "function" then
 	       p.props.callback(value)
-	    end
+	       b
+	    bend
 	 else
 	    -- print("no callback") -- ok
 	 end

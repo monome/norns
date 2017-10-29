@@ -393,7 +393,7 @@ int w_get_time(lua_State *l) {
     // returns two results: seconds, microseconds
     lua_pushinteger(l, (lua_Integer)tv.tv_sec);
     lua_pushinteger(l, (lua_Integer)tv.tv_usec);
-    return 0;
+    return 2;
 }
 
 //---- c -> lua glue

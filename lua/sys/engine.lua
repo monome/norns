@@ -1,6 +1,9 @@
 --- Engine class
 -- @module engine
 -- @alias Engine
+print('engine.lua')
+require 'norns'
+norns.version.engine = '0.0.2'
 
 local Engine = {}
 --------------------------
