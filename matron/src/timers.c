@@ -70,6 +70,8 @@ void timer_start(int idx, double seconds, int count, int stage) {
     uint64_t nsec;
     struct timer *t = &timers[idx];
 
+    printf("timer_start(); period arg = %f\n", seconds); fflush(stdout);
+    
     if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
         pthread_mutex_lock(&t->status_lock);
         if(t->status == TIMER_STATUS_RUNNING) {
@@ -80,9 +82,13 @@ void timer_start(int idx, double seconds, int count, int stage) {
         if(seconds > 0.0) {
             timers[idx].seconds = seconds;
         }
-        nsec = (uint64_t)(timers[idx].seconds * 1000000000.0);
-        timers[idx].idx = idx;
 
+	printf("timer_start(); final period = %f\n", timers[idx].seconds);
+	fflush(stdout);
+	
+        nsec = (uint64_t)(timers[idx].seconds * 1000000000.0);
+	printf("nsec = %llu \n", nsec);
+        timers[idx].idx = idx;
         timer_reset(&timers[idx], stage);
         timer_init(&timers[idx], nsec, count);
     } else {
@@ -105,6 +111,8 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
     int res;
     pthread_attr_t attr;
 
+    printf("timer_init: nsec = %llu \n", nsec); fflush(stdout);
+    
     res = pthread_attr_init(&attr);
     if(res != 0) {
         timer_handle_error(res, "pthread_attr_init");
@@ -122,9 +130,11 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
     }
     else {
         // set thread priority to realtime
+      /* FIXME, maybe
         struct sched_param param;
         param.sched_priority = sched_get_priority_max (SCHED_RR);
         res = pthread_setschedparam (t->tid, SCHED_RR, &param);
+      */
         // FIXME: better error handling maybe... we err on the side of assuming
         // success,
         // since timer state becomes irreparably broken otherwise
@@ -182,17 +192,25 @@ void timer_set_current_time(struct timer *t) {
 }
 
 void timer_bang(struct timer *t) {
+#if 1
+  (void)t;
+  /// printf("bang!\n"); fflush(stdout);
+#else
     union event_data *ev = event_data_new(EVENT_TIMER);
     ev->timer.id = t->idx;
     ev->timer.stage = t->stage;
     event_post(ev);
+#endif
 }
 
 void timer_sleep(struct timer *t) {
     struct timespec ts;
     t->time += t->delta;
+    printf("timer_sleep(): t->time = %llu \n", t->time); fflush(stdout);
     ts.tv_sec = (time_t) t->time / 1000000000;
     ts.tv_nsec = (long) t->time % 1000000000;
+    printf("raw, \t ts = { %llu , %llu }\n", t->time / 1000000000, t->time % 1000000000); fflush(stdout);
+    printf("after cast, \t ts = { %ld , %ld }\n", ts.tv_sec, ts.tv_nsec); fflush(stdout);
     clock_nanosleep (CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
 }
 

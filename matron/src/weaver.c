@@ -334,8 +334,11 @@ int w_timer_start(lua_State *l) {
             goto args_error;
         }
     } else {
-        seconds = 0.0; // timer will re-use previous value
+        seconds = -1.0; // timer will re-use previous value
     }
+
+    printf("w_timer_start(): preiod=%f\n", seconds); fflush(stdout);
+    
     if(nargs > 2) {    // count
         if( lua_isnumber(l, 3) ) {
             count = lua_tonumber(l, 3);

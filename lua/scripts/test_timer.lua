@@ -8,7 +8,7 @@ t.callback = function(stage)
    print("t: " .. sec .. "s + " .. usec .. "us")      
 end
 
-t:start()
+t:start(1.0)
 
 norns.cleanup = function()
    t:stop()
