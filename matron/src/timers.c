@@ -207,8 +207,11 @@ void timer_sleep(struct timer *t) {
     struct timespec ts;
     t->time += t->delta;
     printf("timer_sleep(): t->time = %llu \n", t->time); fflush(stdout);
-    ts.tv_sec = (time_t) t->time / 1000000000;
-    ts.tv_nsec = (long) t->time % 1000000000;
+    //    ts.tv_sec = (time_t) t->time / 1000000000;
+    //    ts.tv_nsec = (long) t->time % 1000000000;
+    ts.tv_sec = t->time / 1000000000;
+    ts.tv_nsec = t->time % 1000000000;
+
     printf("raw, \t ts = { %llu , %llu }\n", t->time / 1000000000, t->time % 1000000000); fflush(stdout);
     printf("after cast, \t ts = { %ld , %ld }\n", ts.tv_sec, ts.tv_nsec); fflush(stdout);
     clock_nanosleep (CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
