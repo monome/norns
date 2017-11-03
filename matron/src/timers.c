@@ -80,9 +80,10 @@ void timer_start(int idx, double seconds, int count, int stage) {
         if(seconds > 0.0) {
             timers[idx].seconds = seconds;
         }
-        nsec = (uint64_t)(timers[idx].seconds * 1000000000.0);
-        timers[idx].idx = idx;
 
+        nsec = (uint64_t)(timers[idx].seconds * 1000000000.0);
+
+        timers[idx].idx = idx;
         timer_reset(&timers[idx], stage);
         timer_init(&timers[idx], nsec, count);
     } else {
@@ -104,7 +105,7 @@ static void timer_reset(struct timer *t, int stage) {
 void timer_init(struct timer *t, uint64_t nsec, int count) {
     int res;
     pthread_attr_t attr;
-
+    
     res = pthread_attr_init(&attr);
     if(res != 0) {
         timer_handle_error(res, "pthread_attr_init");
@@ -122,9 +123,11 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
     }
     else {
         // set thread priority to realtime
+      /* FIXME, maybe
         struct sched_param param;
         param.sched_priority = sched_get_priority_max (SCHED_RR);
         res = pthread_setschedparam (t->tid, SCHED_RR, &param);
+      */
         // FIXME: better error handling maybe... we err on the side of assuming
         // success,
         // since timer state becomes irreparably broken otherwise
@@ -191,8 +194,8 @@ void timer_bang(struct timer *t) {
 void timer_sleep(struct timer *t) {
     struct timespec ts;
     t->time += t->delta;
-    ts.tv_sec = (time_t) t->time / 1000000000;
-    ts.tv_nsec = (long) t->time % 1000000000;
+    ts.tv_sec = t->time / 1000000000;
+    ts.tv_nsec = t->time % 1000000000;
     clock_nanosleep (CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
 }
 
