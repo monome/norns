@@ -80,16 +80,17 @@ void timer_start(int idx, double seconds, int count, int stage) {
             timer_cancel(t);
         }
         pthread_mutex_unlock(&t->status_lock);
-
+	//	printf("timer_start(): done cancel\n"); fflush(stdout);
         if(seconds > 0.0) {
             timers[idx].seconds = seconds;
         }
 
         nsec = (uint64_t)(timers[idx].seconds * 1000000000.0);
-
         timers[idx].idx = idx;
         timer_reset(&timers[idx], stage);
+	//	printf("timer_start(): done reset\n"); fflush(stdout);
         timer_init(&timers[idx], nsec, count);
+	//	printf("timer_start(): done init\n"); fflush(stdout);
     } else {
         printf("invalid timer index, not added. max count of timers is %d\n",
                MAX_NUM_TIMERS_OK);  fflush(stdout);
@@ -101,10 +102,10 @@ void timer_start(int idx, double seconds, int count, int stage) {
 
 static void timer_reset(struct timer *t, int stage) {
   printf("timer_reset() : stage = %d\n", stage); fflush(stdout);
-    pthread_mutex_lock( &(t->stage_lock) );
-    if(stage > 0) { t->stage = stage; }
-    else { t->stage = 0; }
-    pthread_mutex_unlock( &(t->stage_lock) );
+  pthread_mutex_lock( &(t->stage_lock) );
+  if(stage > 0) { t->stage = stage; }
+  else { t->stage = 0; }
+  pthread_mutex_unlock( &(t->stage_lock) );
 }
 
 void timer_init(struct timer *t, uint64_t nsec, int count) {
@@ -120,22 +121,13 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
 
     t->delta = nsec;
     t->count = count;
-
+    printf("timer_init() : creating thread\n"); fflush(stdout);
     res = pthread_create(&(t->tid), &attr, &timer_thread_loop, (void *)t);
     if(res != 0) {
         timer_handle_error(res, "pthread_create");
         return;
     }
     else {
-        // set thread priority to realtime
-        /* FIXME, maybe
-         * struct sched_param param;
-         * param.sched_priority = sched_get_priority_max (SCHED_RR);
-         * res = pthread_setschedparam (t->tid, SCHED_RR, &param);
-         */
-        // FIXME: better error handling maybe... we err on the side of assuming
-        // success,
-        // since timer state becomes irreparably broken otherwise
         t->status = TIMER_STATUS_RUNNING;
         if(res != 0) {
             timer_handle_error(res, "pthread_setschedparam");
@@ -148,9 +140,7 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
                 printf("invalid thread policy value or associated parameter\n");
                 break;
             case EPERM:
-                printf(
-                    "failed to set scheduling priority. caller should be in the realtime group, or root. (or just don't worry about this.) \n");
-                fflush(stdout);
+                printf("failed to set scheduling priority.\n");		
                 break;
             default:
                 printf("unknown error code \n");
@@ -164,21 +154,29 @@ void *timer_thread_loop(void *timer) {
     struct timer *t = (struct timer *) timer;
     int stop = 0;
 
+    printf("timer_thread_loop()\n"); fflush(stdout);
     timer_set_current_time(t);
 
     while(!stop) {
-        pthread_mutex_lock( &(t->stage_lock) );
-        if( ( t->stage >= t->count) && ( t->count > 0) ) {
-            stop = 1;
-        }
-        pthread_mutex_unlock( &(t->stage_lock) );
-        if(stop) { break; }
-        pthread_testcancel(); // important! creates a cancellation point
-        pthread_mutex_lock( &(t->stage_lock) );
-        timer_bang(t);
-        t->stage += 1;
-        pthread_mutex_unlock( &(t->stage_lock) );
-        timer_sleep(t);
+      //      pthread_testcancel();      
+      pthread_mutex_lock( &(t->stage_lock) );
+      if( ( t->stage >= t->count) && ( t->count > 0) ) {
+	stop = 1;
+	printf("[]");fflush(stdout);
+      }
+      pthread_mutex_unlock( &(t->stage_lock) );
+
+      if(stop) { break; }
+      pthread_testcancel();      
+
+      pthread_mutex_lock( &(t->stage_lock) );
+      timer_bang(t);
+      t->stage += 1;
+      pthread_mutex_unlock( &(t->stage_lock) );      
+      //      pthread_testcancel();
+      timer_sleep(t);
+      printf(">"); fflush(stdout);      
+      //      pthread_testcancel();
     }
     return NULL;
 }
@@ -193,6 +191,7 @@ void timer_set_current_time(struct timer *t) {
 
 void timer_bang(struct timer *t) {
     union event_data *ev = event_data_new(EVENT_TIMER);
+    printf("?"); fflush(stdout);
     ev->timer.id = t->idx;
     ev->timer.stage = t->stage;
     event_post(ev);
