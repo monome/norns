@@ -73,7 +73,7 @@ void timer_start(int idx, double seconds, int count, int stage) {
     //    printf("timer_start(%d, %f, %d, %d) \n",
     //	   idx, seconds, count, stage);
     //    fflush(stdout);
-    
+
     if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
         pthread_mutex_lock(&t->status_lock);
         if(t->status == TIMER_STATUS_RUNNING) {
@@ -109,7 +109,7 @@ static void timer_reset(struct timer *t, int stage) {
 void timer_init(struct timer *t, uint64_t nsec, int count) {
     int res;
     pthread_attr_t attr;
-    
+
     res = pthread_attr_init(&attr);
     if(res != 0) {
         timer_handle_error(res, "pthread_attr_init");
@@ -127,11 +127,11 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
     }
     else {
         // set thread priority to realtime
-      /* FIXME, maybe
-        struct sched_param param;
-        param.sched_priority = sched_get_priority_max (SCHED_RR);
-        res = pthread_setschedparam (t->tid, SCHED_RR, &param);
-      */
+        /* FIXME, maybe
+         * struct sched_param param;
+         * param.sched_priority = sched_get_priority_max (SCHED_RR);
+         * res = pthread_setschedparam (t->tid, SCHED_RR, &param);
+         */
         // FIXME: better error handling maybe... we err on the side of assuming
         // success,
         // since timer state becomes irreparably broken otherwise
@@ -147,7 +147,9 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
                 printf("invalid thread policy value or associated parameter\n");
                 break;
             case EPERM:
-	      printf("failed to set scheduling priority. caller should be in the realtime group, or root. (or just don't worry about this.) \n"); fflush(stdout);
+                printf(
+                    "failed to set scheduling priority. caller should be in the realtime group, or root. (or just don't worry about this.) \n");
+                fflush(stdout);
                 break;
             default:
                 printf("unknown error code \n");

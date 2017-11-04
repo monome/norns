@@ -4,83 +4,72 @@
 
 print('timer.lua')
 require 'norns'
-norns.version.timer = '0.0.2'
+norns.version.timer = '0.0.3'
 
 local Timer = {}
+Timer.__index = Timer
 
 Timer.numTimers = 32
 Timer.timers = {}
 
-local Timer_mt = {}
-Timer_mt.__index = Timer_mt
-
---- class custom .__newindex;
--- 'time = x' setter will also perform the appropriate action in `matron`
-Timer_mt.__newindex = function(self, idx, val)
-   if idx == 'time' then
-      self.time = val
-      if self.isRunning then
-	 print ("timer setter calling .start: ", self, idx, val)
-	 self.start(self, self.time, self.count, self.stage)
-      end 
-   elseif idx == 'id' then
-   -- not allowed to set id
+--- constructor;
+ -- @param id : identifier (integer)
+function Timer.new(props)
+   local t = {}
+   if props then
+      if props.id then
+	 t.props = props
+      end
    else
-      return rawset(self, idx, val)
+      t.props = {}
    end
+   t.props.time = nil
+   t.props.count = nil
+   t.props.callback = nil
+   t.props.initialStage = nil
+   setmetatable(t, Timer)
+   return t
 end
 
 --- start a timer
 -- @param time - (optional) time period between ticks (seconds.) by default, re-use the last period
 -- @param count - (optional) number of ticks. infinite by default
 -- @param stage - (optional) initial stage number (1-based.) 1 by default
-function Timer_mt:start(time, count, stage)
-   -- if any of the arguments are missing, use default behaviors for them (described above)
-   -- also set those fields to nil (so, use defaults on next call as well)
+function Timer:start(time, count, stage)   
    local vargs = {}
-   if time then
-      rawset(self, "time", time) -- avoids metatable recursion
-      vargs[1] = time
-   else rawset(self, "time", nil) end
-   
-   if count then
-      self.count = count
-      vargs[2] = count
-   else self.count = nil end
-   
-   if stage then
-      self.initialStage = stage
-      vargs[3] = stage
-   else self.stage = nil end
-   
+   if time then self.props.time = time end
+   if count then self.props.count = count end
+   if stage then self.initialStage = stage end
    self.isRunning = true
-   if(vargs) then
-      for k,v in pairs(vargs) do print(k,v) end
-   end
-   timer_start(self.id, table.unpack(vargs))   
+   for k,v in pairs(vargs) do print(k,v) end
+   -- if any arguments are nil, C glue should use default behaviors
+   timer_start(self.id, time, count, stage) -- C function
 end
 
 --- stop a timer
- function Timer_mt:stop()
-   timer_stop(self.id)
+function Timer:stop()
+   timer_stop(self.id) -- C function
    self.isRunning = false
- end
-
- --- constructor;
- -- @param id : identifier (integer)
-function Timer.new(id)
-   local t = {}
-   t.id = id
-   t.time = nil
-   t.count = nil
-   t.callback = nil
-   t.initialStage = nil
-   setmetatable(t, Timer_mt)
-   return t
 end
 
 for i=1,Timer.numTimers do
    Timer.timers[i] = Timer.new(i)
+end
+
+Timer.__newindex = function(self, idx, val)
+   if idx == "time" then
+      self.props.time = val
+      if self.isRunning then	 
+	 print ("timer setter calling .start: ", self, idx, val)
+	 self.start(self, self.time, self.count, self.stage)
+      end
+   elseif props.idx
+      -- no other property setters are allowed until C glue supports them
+   -- use Timer:start() explicitly to restart with different configuration
+   else -- FIXME: dunno if this is even necessary / a good idea to allow
+      self.rawset(self, idx, val)
+   end
+   
 end
 
 --- class custom .__index; 
@@ -89,6 +78,8 @@ Timer.__index = function(self, idx)
    if type(idx) == "number" then
       -- print("class meta: .__index ("..idx..")")
       return Timer.timers[idx]
+   elseif self.props.idx then
+      return self.props.idx
    else
       return rawget(self, idx)
    end
