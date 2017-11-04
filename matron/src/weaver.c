@@ -320,6 +320,9 @@ int w_timer_start(lua_State *l) {
     double seconds;
     int count, stage;
     int nargs = lua_gettop(l);
+
+    // printf("w_timer_start() : nargs = %d\n", nargs); fflush(stdout);
+    
     if(nargs > 0) {                       // idx
         if( lua_isnumber(l, 1) ) {
             idx = lua_tonumber(l, 1) - 1; // convert from 1-based

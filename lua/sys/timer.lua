@@ -20,8 +20,9 @@ Timer_mt.__newindex = function(self, idx, val)
    if idx == 'time' then
       self.time = val
       if self.isRunning then
+	 print ("timer setter calling .start: ", self, idx, val)
 	 self.start(self, self.time, self.count, self.stage)
-      end      
+      end 
    elseif idx == 'id' then
    -- not allowed to set id
    else
@@ -39,12 +40,12 @@ function Timer_mt:start(time, count, stage)
    local vargs = {}
    if time then
       rawset(self, "time", time) -- avoids metatable recursion
-      vargs[0] = time
+      vargs[1] = time
    else rawset(self, "time", nil) end
    
    if count then
       self.count = count
-      vargs[1] = count
+      vargs[2] = count
    else self.count = nil end
    
    if stage then
@@ -53,6 +54,9 @@ function Timer_mt:start(time, count, stage)
    else self.stage = nil end
    
    self.isRunning = true
+   if(vargs) then
+      for k,v in pairs(vargs) do print(k,v) end
+   end
    timer_start(self.id, table.unpack(vargs))   
 end
 
@@ -83,7 +87,7 @@ end
 -- [] accessor returns one of the static timer objects
 Timer.__index = function(self, idx)
    if type(idx) == "number" then
-      print("class meta: .__index ("..idx..")")
+      -- print("class meta: .__index ("..idx..")")
       return Timer.timers[idx]
    else
       return rawget(self, idx)
