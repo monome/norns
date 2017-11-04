@@ -100,6 +100,7 @@ void timer_start(int idx, double seconds, int count, int stage) {
 //---- static definitions
 
 static void timer_reset(struct timer *t, int stage) {
+  printf("timer_reset() : stage = %d\n", stage); fflush(stdout);
     pthread_mutex_lock( &(t->stage_lock) );
     if(stage > 0) { t->stage = stage; }
     else { t->stage = 0; }
