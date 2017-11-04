@@ -70,9 +70,9 @@ void timer_start(int idx, double seconds, int count, int stage) {
     uint64_t nsec;
     struct timer *t = &timers[idx];
 
-    //    printf("timer_start(%d, %f, %d, %d) \n",
-    //	   idx, seconds, count, stage);
-    //    fflush(stdout);
+        /* printf("timer_start(%d, %f, %d, %d) \n", */
+    	/*    idx, seconds, count, stage); */
+        /* fflush(stdout); */
 
     if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
         pthread_mutex_lock(&t->status_lock);

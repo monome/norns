@@ -370,8 +370,9 @@ args_error:
 }
 
 int w_timer_stop(lua_State *l) {
-    int idx;
-    if(lua_gettop(l) != 1) {
+    int idx; 
+    int nargs = lua_gettop(l);
+    if( nargs != 1) {
         goto args_error;
     }
     if( lua_isnumber(l, 1) ) {

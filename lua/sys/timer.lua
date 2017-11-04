@@ -14,19 +14,14 @@ Timer.timers = {}
 
 --- constructor;
  -- @param id : identifier (integer)
-function Timer.new(props)
+function Timer.new(id)
    local t = {}
-   if props then
-      if props.id then
-	 t.props = props
-      end
-   else
-      t.props = {}
-   end
-   t.props.time = nil
-   t.props.count = nil
+   t.props = {}
+   t.props.id = id
+   t.props.time = 1
+   t.props.count = -1
    t.props.callback = nil
-   t.props.initialStage = nil
+   t.props.initStage = 1
    setmetatable(t, Timer)
    return t
 end
@@ -39,16 +34,14 @@ function Timer:start(time, count, stage)
    local vargs = {}
    if time then self.props.time = time end
    if count then self.props.count = count end
-   if stage then self.initialStage = stage end
+   if stage then self.initStage = stage end
    self.isRunning = true
-   for k,v in pairs(vargs) do print(k,v) end
-   -- if any arguments are nil, C glue should use default behaviors
-   timer_start(self.id, time, count, stage) -- C function
+   timer_start(self.props.id, self.props.time, self.props.count, self.props.initStage) -- C function
 end
 
 --- stop a timer
 function Timer:stop()
-   timer_stop(self.id) -- C function
+   timer_stop(self.props.id) -- C function
    self.isRunning = false
 end
 
@@ -59,15 +52,24 @@ end
 Timer.__newindex = function(self, idx, val)
    if idx == "time" then
       self.props.time = val
-      if self.isRunning then	 
-	 print ("timer setter calling .start: ", self, idx, val)
-	 self.start(self, self.time, self.count, self.stage)
-      end
-   elseif props.idx
-      -- no other property setters are allowed until C glue supports them
-   -- use Timer:start() explicitly to restart with different configuration
+      --[[
+	 FIXME: would like to change time of a running timer.
+here we restart it when setting the time property; 
+problem is that `isRunning` prop is not updated when a finite timer is finished on its own.
+(we could track of its stage in lua and unset the flag, or have an additional callback.)
+
+another method would be to add a time setter to the C API (requiring mutex, et al.)
+
+anyway for now, user must explicitly restart.
+      --]]
+--      if self.isRunning then	 
+--	 print ("timer setter calling .start: ", self, idx, val)
+      --	 self.start(self, self.props.time, self.props.count, self.props.stage)
+      --   end
+   elseif idx == 'count' then self.props.count = val
+   elseif idx == 'initStage' then self.props.initStage = val
    else -- FIXME: dunno if this is even necessary / a good idea to allow
-      self.rawset(self, idx, val)
+      rawset(self, idx, val)
    end
    
 end
@@ -78,6 +80,13 @@ Timer.__index = function(self, idx)
    if type(idx) == "number" then
       -- print("class meta: .__index ("..idx..")")
       return Timer.timers[idx]
+   elseif idx == "start" then return Timer.start
+   elseif idx == "stop" then return Timer.stop
+   elseif idx == 'id' then return self.props.id
+   elseif idx == 'count' then return self.props.count
+   elseif idx == 'time' then return self.props.time
+   elseif idx == 'initStage' then return self.props.initStage
+      -- hm, why doesn't this work:
    elseif self.props.idx then
       return self.props.idx
    else
