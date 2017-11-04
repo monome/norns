@@ -81,7 +81,7 @@ norns.script.cleanup = norns.script.cleanup_dummy
 -- @param name (string) - name of the script (without extension)
 norns.script.load = function(script)
    norns.script.cleanup() -- cleanup the old script
-   norns.script.cleanup = norns.script.cleanup.dummy
+   norns.script.cleanup = norns.script.cleanup_dummy
    dofile(script_dir..script..".lua")
 end
 
