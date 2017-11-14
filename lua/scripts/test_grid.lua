@@ -4,10 +4,10 @@ local grid = require 'grid'
 
 -- variables. not making them local here, so that we can access them in the REPL
 g = nil -- grid device
-ledVal = 3 -- level of LED output
+ledVal = 9 -- level of LED output
 
 -- global vars should be cleaned up when the next script loads
-norns.cleanup = function()
+norns.script.cleanup = function()
    g = nil
    ledVal = nil
 end

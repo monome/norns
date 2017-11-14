@@ -67,22 +67,54 @@ norns.report.polls = function(polls, count)
    -- print("norns.report.polls", commands, count)
 end
 
+--- state management
+-- @section state
+
+norns.state = {}
+
+norns.state.resume = function()
+  dofile(script_dir .. '../state.lua')
+  print("last file loaded: " .. norns.state.script)
+  norns.script.load()
+end
+
+norns.state.save = function()
+  local last=io.open(script_dir .. "../state.lua","w+")
+  io.output(last)
+  io.write("-- state\n")
+  io.write("norns.state.script = '" .. norns.state.script .. "'\n")
+  io.close(last)   
+end
+
 --- script managment
 -- @section script
 
 norns.script = {}
-norns.script.cleanup_dummy = function()
+norns.script.cleanup_default = function()
    print("norns.script.cleanup() was invoked on script deinit.")
    print("WARNING: you should redefine this in your script, to free any allocated resources.")
 end
-norns.script.cleanup = norns.script.cleanup_dummy
+norns.script.cleanup = norns.script.cleanup_default
 
---- load a user script
--- @param name (string) - name of the script (without extension)
-norns.script.load = function(script)
-   norns.script.cleanup() -- cleanup the old script
-   norns.script.cleanup = norns.script.cleanup.dummy
-   dofile(script_dir..script..".lua")
+
+--- load a script from the /scripts folder
+-- @param filename (string) - file to load, no extension. leave blank to reload current file.
+norns.script.load = function(filename)
+  if filename == nil then
+    filename = norns.state.script end
+  local filepath = script_dir .. filename .. '.lua'
+  print("trying "..filepath)
+  local f=io.open(filepath,"r")
+  if f==nil then print "no file there"
+  else
+    io.close(f)
+    norns.script.cleanup() -- cleanup the old script
+    norns.script.cleanup = norns.script.cleanup_default
+    dofile(filepath)
+    norns.state.script = filename
+    norns.state.save()
+  end 
 end
+
 
 return norns

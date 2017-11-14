@@ -1,4 +1,3 @@
-
 --- add your startup code here!
 print("startup.lua")
 require 'norns'
@@ -14,10 +13,8 @@ print("norns module versions: ")
      print (mod,v)
   end
 
+norns.state.resume()
 
---- test scripts for each module
--- require('test_engine')  -- OK
--- require('test_grid') -- OK
--- require('test_input') -- OK
-require('test_timer') -- OK
--- require('test_amp_poll') -- OK
+
+-- shortcuts
+run = norns.script.load
