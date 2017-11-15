@@ -4,87 +4,91 @@
 
 print('timer.lua')
 require 'norns'
-norns.version.timer = '0.0.2'
+norns.version.timer = '0.0.3'
 
 local Timer = {}
+Timer.__index = Timer
 
 Timer.numTimers = 32
 Timer.timers = {}
 
-local Timer_mt = {}
-Timer_mt.__index = Timer_mt
-
---- class custom .__newindex;
--- 'time = x' setter will also perform the appropriate action in `matron`
-Timer_mt.__newindex = function(self, idx, val)
-   if idx == 'time' then
-      self.time = val
-      if self.isRunning then
-	 self.start(self, self.time, self.count, self.stage)
-      end      
-   elseif idx == 'id' then
-   -- not allowed to set id
-   else
-      return rawset(self, idx, val)
-   end
+--- constructor;
+ -- @param id : identifier (integer)
+function Timer.new(id)
+   local t = {}
+   t.props = {}
+   t.props.id = id
+   t.props.time = 1
+   t.props.count = -1
+   t.props.callback = nil
+   t.props.initStage = 1
+   setmetatable(t, Timer)
+   return t
 end
 
 --- start a timer
 -- @param time - (optional) time period between ticks (seconds.) by default, re-use the last period
 -- @param count - (optional) number of ticks. infinite by default
 -- @param stage - (optional) initial stage number (1-based.) 1 by default
-function Timer_mt:start(time, count, stage)
-   -- if any of the arguments are missing, use default behaviors for them (described above)
-   -- also set those fields to nil (so, use defaults on next call as well)
+function Timer:start(time, count, stage)   
    local vargs = {}
-   if time then
-      rawset(self, "time", time) -- avoids metatable recursion
-      vargs[0] = time
-   else rawset(self, "time", nil) end
-   
-   if count then
-      self.count = count
-      vargs[1] = count
-   else self.count = nil end
-   
-   if stage then
-      self.initialStage = stage
-      vargs[3] = stage
-   else self.stage = nil end
-   
+   if time then self.props.time = time end
+   if count then self.props.count = count end
+   if stage then self.initStage = stage end
    self.isRunning = true
-   timer_start(self.id, table.unpack(vargs))   
+   timer_start(self.props.id, self.props.time, self.props.count, self.props.initStage) -- C function
 end
 
 --- stop a timer
- function Timer_mt:stop()
-   timer_stop(self.id)
+function Timer:stop()
+   timer_stop(self.props.id) -- C function
    self.isRunning = false
- end
-
- --- constructor;
- -- @param id : identifier (integer)
-function Timer.new(id)
-   local t = {}
-   t.id = id
-   t.time = nil
-   t.count = nil
-   t.callback = nil
-   t.initialStage = nil
-   setmetatable(t, Timer_mt)
-   return t
 end
 
 for i=1,Timer.numTimers do
    Timer.timers[i] = Timer.new(i)
 end
 
+Timer.__newindex = function(self, idx, val)
+   if idx == "time" then
+      self.props.time = val
+      --[[
+	 FIXME: would like to change time of a running timer.
+here we restart it when setting the time property; 
+problem is that `isRunning` prop is not updated when a finite timer is finished on its own.
+(we could track of its stage in lua and unset the flag, or have an additional callback.)
+
+another method would be to add a time setter to the C API (requiring mutex, et al.)
+
+anyway for now, user must explicitly restart.
+      --]]
+--      if self.isRunning then	 
+--	 print ("timer setter calling .start: ", self, idx, val)
+      --	 self.start(self, self.props.time, self.props.count, self.props.stage)
+      --   end
+   elseif idx == 'count' then self.props.count = val
+   elseif idx == 'initStage' then self.props.initStage = val
+   else -- FIXME: dunno if this is even necessary / a good idea to allow
+      rawset(self, idx, val)
+   end
+   
+end
+
 --- class custom .__index; 
 -- [] accessor returns one of the static timer objects
 Timer.__index = function(self, idx)
    if type(idx) == "number" then
-      print("class meta: .__index ("..idx..")")
+      -- print("class meta: .__index ("..idx..")")
       return Timer.timers[idx]
+   elseif idx == "start" then return Timer.start
+   elseif idx == "stop" then return Timer.stop
+   elseif idx == 'id' then return self.props.id
+   elseif idx == 'count' then return self.props.count
+   elseif idx == 'time' then return self.props.time
+   elseif idx == 'initStage' then return self.props.initStage
+      -- hm, why doesn't this work:
+   elseif self.props.idx then
+      return self.props.idx
    else
       return rawget(self, idx)
    end

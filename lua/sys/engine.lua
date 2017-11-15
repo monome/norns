@@ -73,7 +73,9 @@ Engine.load = function(name, callback)
    -- on engine load, command report will be generated
    norns.report.commands = function(commands, count)
       Engine.registerCommands(commands, count)
-      callback(Engine.commands)
+      if callback then
+	 callback(Engine.commands)
+      end
    end
    load_engine(name)
 end
@@ -83,8 +85,8 @@ end
 -- [] accessor returns a command function;
 -- this allows e.g. engine.hz(100) 
 function Engine.__index(self, idx)
-   if idx == 'name' then return Engine.name
-   elseif Engine.commands[idx] then
+   --if idx == 'name' then return rawget(Engine, name);
+   if Engine.commands[idx] then
       return Engine.commands[idx].func
    else
       return rawget(Engine, idx)

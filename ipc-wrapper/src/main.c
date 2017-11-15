@@ -193,7 +193,7 @@ int launch_exe( int argc,  char **argv) {
 int main( int argc,  char **argv) {
     if(argc < 4) {
         printf(
-            "usage: ipc-wrapper BINARY IN_SOCKET OUT_SOCKET BINARY <child args...>");
+            "usage: ipc-wrapper BINARY IN_SOCKET OUT_SOCKET <child args...>");
     }
 
     launch_exe(argc, argv);

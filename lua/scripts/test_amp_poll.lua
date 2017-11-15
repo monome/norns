@@ -6,7 +6,7 @@ local poll = require 'poll'
 local p = nil
 
 norns.script.cleanup = function()
-   if p then p.stop() end
+   if p then p:stop() end
 end
 
 local function printAsciiMeter(amp, n, floor)

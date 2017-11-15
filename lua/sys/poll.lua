@@ -7,7 +7,7 @@ print ('poll.lua')
 require 'norns'
 norns.version.poll = '0.0.2'
 
-Poll = {}
+local Poll = {}
 Poll.__index = Poll
 
 
@@ -63,7 +63,7 @@ function Poll:__newindex(idx, val)
 end
 
 --- custom getters;
--- available propertes:
+-- available properties: name, callback, start, stop
 
 function Poll:__index(idx)
    if idx == 'id' then return self.props.id
