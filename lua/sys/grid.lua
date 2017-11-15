@@ -47,9 +47,15 @@ end
 --- set state of single LED on this grid device
 -- @tparam integer x : column index (1-based!)
 -- @tparam integer y : row index (1-based!)
--- @tparam integer val : LED brightness in [0, 15]
+-- @tparam integer val : LED brightness in [1, 16]
 function Grid:led(x, y, val)
    grid_set_led(self.dev, x, y, val)
+end
+
+--- set state of all LEDs on this grid device
+-- @tparam integer val : LED brightness in [1, 16]
+function Grid:all(val)
+   grid_all_led(self.dev, val)
 end
 
 --- update any dirty quads on this grid device

@@ -48,6 +48,7 @@ void w_handle_line(char *line) {
 
 // grid
 static int w_grid_set_led(lua_State *l);
+static int w_grid_all_led(lua_State *l);
 static int w_grid_refresh(lua_State *l);
 // crone
 /// engines
@@ -95,6 +96,7 @@ void w_init(void) {
 
     // low-level monome grid control
     lua_register(lvm, "grid_set_led", &w_grid_set_led);
+    lua_register(lvm, "grid_all_led", &w_grid_all_led);
     lua_register(lvm, "grid_refresh", &w_grid_refresh);
 
     // get list of available crone engines
@@ -185,6 +187,34 @@ int w_grid_set_led(lua_State *l) {
 
 args_error:
     printf("warning: incorrect arguments to grid_set_led() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+int w_grid_all_led(lua_State *l) {
+    struct dev_monome *md;
+    int z;
+    if(lua_gettop(l) != 2) { // check num args
+        goto args_error;
+    }
+    if( lua_islightuserdata(l, 1) ) {
+        md = lua_touserdata(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        z = lua_tonumber(l, 2) - 1; // convert from 1-base
+    } else {
+        goto args_error;
+    }
+
+    dev_monome_all_led(md, z);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to grid_all_led() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }

@@ -86,6 +86,17 @@ void dev_monome_set_led(struct dev_monome *md,
     md->dirty[q] = true;
 }
 
+// set all LEDs to value
+void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
+    for(uint8_t q=0;q<4;q++) {
+        for(uint8_t i=0;i<64;i++) {
+	    md->data[q][i] = val;
+	}
+	md->dirty[q] = true;
+    }
+}
+
+
 // transmit all dirty quads
 void dev_monome_refresh(struct dev_monome *md) {
     static const int quad_xoff[4] = {0, 8, 0, 8};

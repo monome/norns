@@ -18,6 +18,8 @@ struct dev_monome {
 // set a single led
 extern void dev_monome_set_led(struct dev_monome *md,
                                uint8_t x, uint8_t y, uint8_t val);
+// set all led
+extern void dev_monome_all_led(struct dev_monome *md, uint8_t val);
 // set all data for a quad
 extern void dev_monome_set_quad(struct dev_monome *md,
                                 uint8_t quad, uint8_t *data);
