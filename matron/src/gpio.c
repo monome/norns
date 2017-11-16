@@ -42,7 +42,7 @@ void gpio_init() {
 
 void gpio_check() {
   int n;
-  n = epoll_wait(epfd, &events, 1, 1); // wait for 1 event, 1ms
+  n = epoll_wait(epfd, &events, 1, 0); // wait for 1 event, 0ms
   //printf("GPIO epoll returned %d: %s\n", n, strerror(errno)); fflush(stdout);
 
   if(n > 0) {
