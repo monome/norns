@@ -16,6 +16,7 @@
 #include "events.h"
 #include "input.h"
 #include "timers.h"
+#include "gpio.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -38,6 +39,7 @@ int main(int argc, char **argv) {
 
     events_init(); // <-- must come first!
     timers_init();
+    gpio_init();
     o_init();      // oracle (audio)
 
     //=== FIXME:

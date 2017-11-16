@@ -5,6 +5,7 @@ require 'norns'
 --- load all the norns modules to check their versions
 require 'engine'
 require 'grid'
+require 'gpio'
 require 'input'
 require 'poll'
 require 'timer'

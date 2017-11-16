@@ -10,6 +10,7 @@
 
 #include "events.h"
 #include "device_monome.h"
+#include "gpio.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -42,6 +43,7 @@ bool quit;
 static void handle_event(union event_data *ev);
 static void handle_exec_code_line(struct event_exec_code_line *ev);
 static void handle_timer(struct event_timer *ev);
+static void handle_gpio(struct event_gpio *ev);
 static void handle_monome_add(struct event_monome_add *ev);
 static void handle_monome_remove(struct event_monome_remove *ev);
 static void handle_grid_key(struct event_grid_key *ev);
@@ -141,6 +143,7 @@ void event_loop(void) {
         assert(evq.size > 0);
         ev = evq_pop();
         pthread_mutex_unlock(&evq.lock);
+	gpio_check();
         if(ev != NULL) {
             handle_event(ev);
         }
@@ -157,6 +160,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_TIMER:
         handle_timer( &(ev->timer) );
+        break;
+    case EVENT_GPIO:
+        handle_gpio( &(ev->gpio) );
         break;
     case EVENT_MONOME_ADD:
         handle_monome_add( &(ev->monome_add) );
@@ -209,6 +215,11 @@ void handle_exec_code_line(struct event_exec_code_line *ev) {
 //--- timers
 void handle_timer(struct event_timer *ev) {
     w_handle_timer(ev->id, ev->stage);
+}
+
+//--- gpio
+void handle_gpio(struct event_gpio *ev) {
+    w_handle_gpio(ev->pin, ev->val);
 }
 
 //--- monome devices

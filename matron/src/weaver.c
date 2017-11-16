@@ -601,6 +601,16 @@ void w_handle_timer(const int idx, const int stage) {
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
+// gpio handler
+void w_handle_gpio(const int pin, const int val) {
+    lua_getglobal(lvm, "norns");
+    lua_getfield(lvm, -1, "gpio");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, pin);
+    lua_pushinteger(lvm, val);
+    l_report( lvm, l_docall(lvm, 2, 0) );
+}
+
 void w_handle_poll_value(int idx, float val) {
     // printf("w_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);
     lua_getglobal(lvm, "norns");

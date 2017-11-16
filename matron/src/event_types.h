@@ -10,6 +10,8 @@ typedef enum {
     EVENT_EXEC_CODE_LINE,
     // timer has fired
     EVENT_TIMER,
+    // gpio event
+    EVENT_GPIO,
     // libmonome device added
     EVENT_MONOME_ADD,
     // libmonome device removed
@@ -89,6 +91,12 @@ struct event_timer {
     uint32_t stage;
 }; // +8
 
+struct event_gpio {
+    struct event_common common;
+    uint8_t pin;
+    uint8_t val;
+}; // +8
+
 struct event_poll_value {
     struct event_common common;
     uint32_t idx;
@@ -111,6 +119,7 @@ union event_data {
     struct event_input_add input_add;
     struct event_input_remove input_remove;
     struct event_input_event input_event;
+    struct event_gpio gpio;
     struct event_timer timer;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;

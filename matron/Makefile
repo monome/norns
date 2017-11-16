@@ -31,6 +31,7 @@ _OBJ = main.o \
 	device/device_monitor.o \
 	device/device_monome.o \
 	events.o \
+	gpio.o \
 	input.o \
 	lua_eval.o \
 	timers.o \

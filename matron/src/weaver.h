@@ -41,6 +41,9 @@ extern void w_handle_command_report(const struct engine_command *arr,
 extern void w_handle_poll_report(const struct engine_poll *arr,
                                  const int num);
 
+//--- gpio handler
+extern void w_handle_gpio(const int pin, const int val);
+
 //--- timer bang handler
 extern void w_handle_timer(const int idx, const int stage);
 
