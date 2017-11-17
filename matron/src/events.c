@@ -143,7 +143,6 @@ void event_loop(void) {
         assert(evq.size > 0);
         ev = evq_pop();
         pthread_mutex_unlock(&evq.lock);
-	gpio_check();
         if(ev != NULL) {
             handle_event(ev);
         }

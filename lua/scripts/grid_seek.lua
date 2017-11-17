@@ -1,13 +1,25 @@
-print('kria.lua')
+print('grid_seek.lua')
 require 'norns'
 local grid = require 'grid'
 local timer = require 'timer'
+
+e = require 'engine'
+
+e.load('TestSine',
+  function(commands, count)
+    print("sine loaded")
+    e.hz(100)
+    e.amp(0.25)
+  end
+)
+
 
 g = nil -- grid device
 
 -- global vars should be cleaned up when the next script loads
 norns.script.cleanup = function()
    g = nil
+   t:stop()
 end
 
 -- function to grab grid device when we find one
@@ -49,7 +61,7 @@ t.callback = function(stage)
   pos = pos + 1
   if pos == 17 then pos = 1 end
   e.hz(notes[steps[pos]])
-  redraw()
+  if g ~= nil then redraw() end
 end
 
 redraw = function()
@@ -68,17 +80,6 @@ redraw = function()
 
   g:refresh();
 end
-
-
-e = require 'engine'
-
-e.load('TestSine',
-  function(commands, count)
-    print("sine loaded")
-    e.hz(100)
-    e.amp(0.25)
-  end
-)
 
 
 t:start()

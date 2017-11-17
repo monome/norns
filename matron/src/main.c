@@ -27,6 +27,7 @@ void cleanup(void) {
     dev_monitor_deinit();
     o_deinit();
     w_deinit();
+    gpio_deinit();
 
     printf("matron shutdown complete \n"); fflush(stdout);
     exit(0);
