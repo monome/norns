@@ -1,4 +1,4 @@
-/*
+>/*
  * timer.c
  *
  * accurate timers using pthreads and clock_nanosleep.
@@ -174,10 +174,7 @@ void *timer_thread_loop(void *timer) {
       timer_bang(t);
       t->stage += 1;
       pthread_mutex_unlock( &(t->stage_lock) );      
-      //      pthread_testcancel();
       timer_sleep(t);
-      //printf(">"); fflush(stdout);      
-      //      pthread_testcancel();
     }
     return NULL;
 }
@@ -235,6 +232,12 @@ void timer_cancel(struct timer *t) {
     } else {
         t->status = TIMER_STATUS_STOPPED;
     }
+}
+
+void timer_set_time(*int idx) {
+      if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
+	  
+      }
 }
 
 #undef MAX_NUM_TIMERS_OK

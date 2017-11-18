@@ -13,15 +13,12 @@ extern void timers_init(void);
 // seconds < 0 == use previous period
 extern void timer_start(int idx, double seconds, int count, int stage);
 
-// wait for a timer to finish
-// extern void timer_wait(int idx);
-
 // cancel all scheduled iterations
 extern void timer_stop(int idx);
 
-// TODO: timer_stop_all(void);
-// add this to lua->C glue
+// set period of timer
+// NB: if the timer is running, its hard to say if new value will take effect
+// on current period or next period
 
-// restart timer immediately
+extern void timer_set_time(*int idx);
 
-// extern void timer_restart(int idx, double seconds, int count, int stage);
