@@ -101,7 +101,7 @@ void timer_start(int idx, double seconds, int count, int stage) {
 //---- static definitions
 
 static void timer_reset(struct timer *t, int stage) {
-  printf("timer_reset() : stage = %d\n", stage); fflush(stdout);
+  //printf("timer_reset() : stage = %d\n", stage); fflush(stdout);
   pthread_mutex_lock( &(t->stage_lock) );
   if(stage > 0) { t->stage = stage; }
   else { t->stage = 0; }
@@ -121,7 +121,7 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
 
     t->delta = nsec;
     t->count = count;
-    printf("timer_init() : creating thread\n"); fflush(stdout);
+    //printf("timer_init() : creating thread\n"); fflush(stdout);
     res = pthread_create(&(t->tid), &attr, &timer_thread_loop, (void *)t);
     if(res != 0) {
         timer_handle_error(res, "pthread_create");
@@ -131,7 +131,7 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
         t->status = TIMER_STATUS_RUNNING;
         if(res != 0) {
             timer_handle_error(res, "pthread_setschedparam");
-            printf("\n");
+            /*printf("\n");
             switch(res) {
             case ESRCH:
                 printf("specified thread does not exist\n");
@@ -145,6 +145,7 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
             default:
                 printf("unknown error code \n");
             }
+	    */
             return;
         }
     }
@@ -154,7 +155,7 @@ void *timer_thread_loop(void *timer) {
     struct timer *t = (struct timer *) timer;
     int stop = 0;
 
-    printf("timer_thread_loop()\n"); fflush(stdout);
+    //printf("timer_thread_loop()\n"); fflush(stdout);
     timer_set_current_time(t);
 
     while(!stop) {
@@ -162,7 +163,7 @@ void *timer_thread_loop(void *timer) {
       pthread_mutex_lock( &(t->stage_lock) );
       if( ( t->stage >= t->count) && ( t->count > 0) ) {
 	stop = 1;
-	printf("[]");fflush(stdout);
+	//printf("[]");fflush(stdout);
       }
       pthread_mutex_unlock( &(t->stage_lock) );
 
@@ -175,7 +176,7 @@ void *timer_thread_loop(void *timer) {
       pthread_mutex_unlock( &(t->stage_lock) );      
       //      pthread_testcancel();
       timer_sleep(t);
-      printf(">"); fflush(stdout);      
+      //printf(">"); fflush(stdout);      
       //      pthread_testcancel();
     }
     return NULL;
@@ -191,7 +192,7 @@ void timer_set_current_time(struct timer *t) {
 
 void timer_bang(struct timer *t) {
     union event_data *ev = event_data_new(EVENT_TIMER);
-    printf("?"); fflush(stdout);
+    //printf("?"); fflush(stdout);
     ev->timer.id = t->idx;
     ev->timer.stage = t->stage;
     event_post(ev);

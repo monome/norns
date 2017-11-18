@@ -16,6 +16,6 @@ end
 
 t:start()
 
-norns.cleanup = function()
+norns.script.cleanup = function()
    t:stop()
 end
