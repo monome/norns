@@ -204,7 +204,6 @@ void timer_stop(int idx) {
             printf("timer is already stopped\n"); fflush(stdout);
             ;; // nothing to do
         } else {
-            printf("cancelling timer\n"); fflush(stdout);
             timer_cancel(&timers[idx]);
         }
         pthread_mutex_unlock( &(timers[idx].status_lock) );
@@ -225,9 +224,10 @@ void timer_cancel(struct timer *t) {
 }
 
 void timer_set_time(int idx, float sec) {
+  printf("timer_set_time(%d, %f)\n", idx, sec); fflush(stdout);
   if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
     timers[idx].seconds = sec;
-    timers[idx].delta = (uint64_t) sec * 1000000000.0;
+    timers[idx].delta = (uint64_t) (sec * 1000000000.0);
   }
 }
 
