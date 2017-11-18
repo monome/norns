@@ -13,7 +13,6 @@ e.load('TestSine',
   end
 )
 
-
 g = nil -- grid device
 
 -- global vars should be cleaned up when the next script loads
