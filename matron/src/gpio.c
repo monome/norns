@@ -60,7 +60,8 @@ void gpio_deinit() {
 }
 
 void *gpio_check(void *x) {
-  int n = (int)x;
+  (void)x;
+  int n;
   while(1) {
     n = epoll_wait(epfd, &events, 1, -1); // wait for 1 event 
     printf("GPIO epoll returned %d: %s\n", n, strerror(errno)); fflush(stdout);
