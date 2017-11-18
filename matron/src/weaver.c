@@ -64,6 +64,8 @@ static int w_set_poll_time(lua_State *l);
 // timing
 static int w_timer_start(lua_State *l);
 static int w_timer_stop(lua_State *l);
+static int w_timer_set_time(lua_State *l);
+// get the current system time
 static int w_get_time(lua_State *l);
 
 // screen functions
@@ -112,6 +114,7 @@ void w_init(void) {
     // start/stop an indexed timer with callback
     lua_register(lvm, "timer_start", &w_timer_start);
     lua_register(lvm, "timer_stop", &w_timer_stop);
+    lua_register(lvm, "timer_set_time", &w_timer_set_time);
 
     // get the current high-resolution CPU time
     lua_register(lvm, "get_time", &w_get_time);
@@ -351,8 +354,6 @@ int w_timer_start(lua_State *l) {
     int count, stage;
     int nargs = lua_gettop(l);
 
-    // printf("w_timer_start() : nargs = %d\n", nargs); fflush(stdout);
-
     if(nargs > 0) {                       // idx
         if( lua_isnumber(l, 1) ) {
             idx = lua_tonumber(l, 1) - 1; // convert from 1-based
@@ -417,7 +418,33 @@ args_error:
     printf("warning: incorrect arguments to stop_timer(); expected [i] \n");
     fflush(stdout);
     lua_settop(l, 0);
-    return 0;
+    return 1;
+}
+
+int w_timer_set_time(lua_State *l) {
+  int idx;
+  float sec;
+  int nargs = lua_gettop(l);
+  if(nargs != 2) {
+    goto args_error;
+  }
+  if( lua_isnumber(l, 1) ) {
+    idx = lua_tonumber(l, 1) - 1;
+  } else {
+    goto args_error;
+  }
+  if( lua_isnumber(l, 2) ) {
+    sec = lua_tonumber(l, 2);
+  } else {
+    goto args_error;
+  }
+  timer_set_time(idx, sec);
+  lua_settop(l, 0);
+  return 0;
+ args_error:
+  printf("warning: incorrect arguments to timer_set_time(); expected [if] \n");
+  fflush(stdout);
+  return 1;
 }
 
 // request current time since Epoch

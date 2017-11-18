@@ -1,4 +1,4 @@
->/*
+/*
  * timer.c
  *
  * accurate timers using pthreads and clock_nanosleep.
@@ -10,6 +10,7 @@
 #include <stdlib.h>
 
 // posix / linux
+#include <assert.h>
 #include <errno.h>
 #include <pthread.h>
 #include <time.h>
@@ -70,27 +71,19 @@ void timer_start(int idx, double seconds, int count, int stage) {
     uint64_t nsec;
     struct timer *t = &timers[idx];
 
-        /* printf("timer_start(%d, %f, %d, %d) \n", */
-    	/*    idx, seconds, count, stage); */
-        /* fflush(stdout); */
-
     if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
         pthread_mutex_lock(&t->status_lock);
         if(t->status == TIMER_STATUS_RUNNING) {
             timer_cancel(t);
         }
         pthread_mutex_unlock(&t->status_lock);
-	//	printf("timer_start(): done cancel\n"); fflush(stdout);
         if(seconds > 0.0) {
             timers[idx].seconds = seconds;
         }
-
         nsec = (uint64_t)(timers[idx].seconds * 1000000000.0);
         timers[idx].idx = idx;
         timer_reset(&timers[idx], stage);
-	//	printf("timer_start(): done reset\n"); fflush(stdout);
         timer_init(&timers[idx], nsec, count);
-	//	printf("timer_start(): done init\n"); fflush(stdout);
     } else {
         printf("invalid timer index, not added. max count of timers is %d\n",
                MAX_NUM_TIMERS_OK);  fflush(stdout);
@@ -101,7 +94,6 @@ void timer_start(int idx, double seconds, int count, int stage) {
 //---- static definitions
 
 static void timer_reset(struct timer *t, int stage) {
-  //printf("timer_reset() : stage = %d\n", stage); fflush(stdout);
   pthread_mutex_lock( &(t->stage_lock) );
   if(stage > 0) { t->stage = stage; }
   else { t->stage = 0; }
@@ -121,7 +113,6 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
 
     t->delta = nsec;
     t->count = count;
-    //printf("timer_init() : creating thread\n"); fflush(stdout);
     res = pthread_create(&(t->tid), &attr, &timer_thread_loop, (void *)t);
     if(res != 0) {
         timer_handle_error(res, "pthread_create");
@@ -131,21 +122,24 @@ void timer_init(struct timer *t, uint64_t nsec, int count) {
         t->status = TIMER_STATUS_RUNNING;
         if(res != 0) {
             timer_handle_error(res, "pthread_setschedparam");
-            /*printf("\n");
             switch(res) {
             case ESRCH:
                 printf("specified thread does not exist\n");
+		assert(false);
                 break;
             case EINVAL:
                 printf("invalid thread policy value or associated parameter\n");
+		assert(false);
                 break;
             case EPERM:
-                printf("failed to set scheduling priority.\n");		
+                printf("failed to set scheduling priority.\n");
+		// this doesn't need to assert; it can happen with wrong permissions
+		// still good for user to know about
                 break;
             default:
                 printf("unknown error code \n");
+		assert(false);
             }
-	    */
             return;
         }
     }
@@ -155,15 +149,12 @@ void *timer_thread_loop(void *timer) {
     struct timer *t = (struct timer *) timer;
     int stop = 0;
 
-    //printf("timer_thread_loop()\n"); fflush(stdout);
     timer_set_current_time(t);
 
     while(!stop) {
-      //      pthread_testcancel();      
       pthread_mutex_lock( &(t->stage_lock) );
       if( ( t->stage >= t->count) && ( t->count > 0) ) {
 	stop = 1;
-	//printf("[]");fflush(stdout);
       }
       pthread_mutex_unlock( &(t->stage_lock) );
 
@@ -189,7 +180,6 @@ void timer_set_current_time(struct timer *t) {
 
 void timer_bang(struct timer *t) {
     union event_data *ev = event_data_new(EVENT_TIMER);
-    //printf("?"); fflush(stdout);
     ev->timer.id = t->idx;
     ev->timer.stage = t->stage;
     event_post(ev);
@@ -234,10 +224,11 @@ void timer_cancel(struct timer *t) {
     }
 }
 
-void timer_set_time(*int idx) {
-      if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
-	  
-      }
+void timer_set_time(int idx, float sec) {
+  if( (idx >= 0) && (idx < MAX_NUM_TIMERS_OK) ) {
+    timers[idx].seconds = sec;
+    timers[idx].delta = (uint64_t) sec * 1000000000.0;
+  }
 }
 
 #undef MAX_NUM_TIMERS_OK

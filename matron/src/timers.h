@@ -19,6 +19,4 @@ extern void timer_stop(int idx);
 // set period of timer
 // NB: if the timer is running, its hard to say if new value will take effect
 // on current period or next period
-
-extern void timer_set_time(*int idx);
-
+extern void timer_set_time(int idx, float sec);
