@@ -34,7 +34,7 @@ _OBJ = main.o \
 	gpio.o \
 	hid.o \
 	lua_eval.o \
-	timers.o \
+	metro.o \
 	oracle.o \
 	weaver.o \
 

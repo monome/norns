@@ -15,7 +15,7 @@
 
 #include "events.h"
 #include "hid.h"
-#include "timers.h"
+#include "metro.h"
 #include "gpio.h"
 
 #include "oracle.h"

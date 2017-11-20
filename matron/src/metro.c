@@ -17,7 +17,7 @@
 
 // norns
 #include "events.h"
-#include "timers.h"
+#include "metro.h"
 
 #define MAX_NUM_TIMERS_OK 32
 
