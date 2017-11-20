@@ -44,8 +44,8 @@ extern void w_handle_poll_report(const struct engine_poll *arr,
 //--- gpio handler
 extern void w_handle_gpio(const int pin, const int val);
 
-//--- timer bang handler
-extern void w_handle_timer(const int idx, const int stage);
+//--- metro bang handler
+extern void w_handle_metro(const int idx, const int stage);
 
 //--- crone poll handlers
 extern void w_handle_poll_value(int idx, float val);

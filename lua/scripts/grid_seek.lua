@@ -1,7 +1,7 @@
 print('grid_seek.lua')
 require 'norns'
 local grid = require 'grid'
-local timer = require 'timer'
+local metro = require 'metro'
 
 e = require 'engine'
 
@@ -48,7 +48,7 @@ keyCallback = function(x, y, state)
    g:refresh()
 end
 
-t = timer[1]
+t = metro[1]
 t.time = 0.1
 
 pos = 1
@@ -81,4 +81,4 @@ redraw = function()
 end
 
 
-t:start()
+if e.hz then t:start() end

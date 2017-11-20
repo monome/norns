@@ -8,8 +8,8 @@ typedef enum {
     EVENT_FIRST_EVENT = 0,
     // code to be executed by luavm
     EVENT_EXEC_CODE_LINE,
-    // timer has fired
-    EVENT_TIMER,
+    // metro has fired
+    EVENT_METRO,
     // gpio event
     EVENT_GPIO,
     // libmonome device added
@@ -85,7 +85,7 @@ struct event_hid_event {
     int32_t value;
 }; // +8
 
-struct event_timer {
+struct event_metro {
     struct event_common common;
     uint32_t id;
     uint32_t stage;
@@ -120,7 +120,7 @@ union event_data {
     struct event_hid_remove hid_remove;
     struct event_hid_event hid_event;
     struct event_gpio gpio;
-    struct event_timer timer;
+    struct event_metro metro;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;
 };

@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     print_version();
 
     events_init(); // <-- must come first!
-    timers_init();
+    metros_init();
     gpio_init();
     o_init();      // oracle (audio)
 

@@ -42,7 +42,7 @@ bool quit;
 //---- handlers
 static void handle_event(union event_data *ev);
 static void handle_exec_code_line(struct event_exec_code_line *ev);
-static void handle_timer(struct event_timer *ev);
+static void handle_metro(struct event_metro *ev);
 static void handle_gpio(struct event_gpio *ev);
 static void handle_monome_add(struct event_monome_add *ev);
 static void handle_monome_remove(struct event_monome_remove *ev);
@@ -157,8 +157,8 @@ static void handle_event(union event_data *ev) {
     case EVENT_EXEC_CODE_LINE:
         handle_exec_code_line( &(ev->exec_code_line) );
         break;
-    case EVENT_TIMER:
-        handle_timer( &(ev->timer) );
+    case EVENT_METRO:
+        handle_metro( &(ev->metro) );
         break;
     case EVENT_GPIO:
         handle_gpio( &(ev->gpio) );
@@ -211,9 +211,9 @@ void handle_exec_code_line(struct event_exec_code_line *ev) {
     free(ev->line);
 }
 
-//--- timers
-void handle_timer(struct event_timer *ev) {
-    w_handle_timer(ev->id, ev->stage);
+//--- metros
+void handle_metro(struct event_metro *ev) {
+    w_handle_metro(ev->id, ev->stage);
 }
 
 //--- gpio

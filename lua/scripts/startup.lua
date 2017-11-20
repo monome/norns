@@ -8,7 +8,7 @@ require 'grid'
 require 'gpio'
 require 'hid'
 require 'poll'
-require 'timer'
+require 'metro'
 print("norns module versions: ")
   for mod,v in pairs(norns.version) do
      print (mod,v)
