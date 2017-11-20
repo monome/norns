@@ -23,8 +23,8 @@ union dev *dev_new(device_t type, const char *path) {
     case DEV_TYPE_MONOME:
         dev_monome_init(d);
         break;
-    case DEV_TYPE_INPUT:
-        dev_input_init(d, false);
+    case DEV_TYPE_HID:
+        dev_hid_init(d, false);
         break;
     default:
         printf(

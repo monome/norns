@@ -19,11 +19,11 @@ typedef enum {
     // monome grid press/lift
     EVENT_GRID_KEY,
     // libevdev device added
-    EVENT_INPUT_ADD,
+    EVENT_HID_ADD,
     // libevdev device removed
-    EVENT_INPUT_REMOVE,
-    // input gesture
-    EVENT_INPUT_EVENT,
+    EVENT_HID_REMOVE,
+    // hid gesture
+    EVENT_HID_EVENT,
     // finished receiving audio engine list
     EVENT_ENGINE_REPORT,
     // finished receiving commands list
@@ -66,18 +66,18 @@ struct event_grid_key {
     uint8_t state;
 }; // +4
 
-struct event_input_add {
+struct event_hid_add {
     struct event_common common;
     void *dev;
 }; // +4
 
-struct event_input_remove {
+struct event_hid_remove {
     struct event_common common;
     uint32_t id;
 }; // +4
 
-/// fixme: maybe break this up into input_key, input_abs, &c?
-struct event_input_event {
+/// fixme: maybe break this up into hid_key, hid_abs, &c?
+struct event_hid_event {
     struct event_common common;
     uint8_t id;
     uint8_t type;
@@ -116,9 +116,9 @@ union event_data {
     struct event_monome_add monome_add;
     struct event_monome_remove monome_remove;
     struct event_grid_key grid_key;
-    struct event_input_add input_add;
-    struct event_input_remove input_remove;
-    struct event_input_event input_event;
+    struct event_hid_add hid_add;
+    struct event_hid_remove hid_remove;
+    struct event_hid_event hid_event;
     struct event_gpio gpio;
     struct event_timer timer;
     struct event_poll_value poll_value;

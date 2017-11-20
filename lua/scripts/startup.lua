@@ -6,7 +6,7 @@ require 'norns'
 require 'engine'
 require 'grid'
 require 'gpio'
-require 'input'
+require 'hid'
 require 'poll'
 require 'timer'
 print("norns module versions: ")

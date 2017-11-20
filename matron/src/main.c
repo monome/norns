@@ -9,12 +9,12 @@
 
 #include "device.h"
 #include "device_list.h"
-#include "device_input.h"
+#include "device_hid.h"
 #include "device_monitor.h"
 #include "device_monome.h"
 
 #include "events.h"
-#include "input.h"
+#include "hid.h"
 #include "timers.h"
 #include "gpio.h"
 
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
     // now is a good time to set our cleanup
     atexit(cleanup);
     // start reading input to interpreter
-    input_init();
+    hid_init();
     // i/o subsystems are ready; run user startup routine
     w_user_startup();
     // scan for connected input devices

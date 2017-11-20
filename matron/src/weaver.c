@@ -22,7 +22,7 @@
 #include <lauxlib.h>
 
 // norns
-#include "device_input.h"
+#include "device_hid.h"
 #include "device_monome.h"
 #include "events.h"
 #include "lua_eval.h"
@@ -496,12 +496,12 @@ void w_handle_grid_key(int id, int x, int y, int state) {
     w_call_grid_handler( id, x, y, state > 0);
 }
 
-void w_handle_input_add(void *p) {
-    struct dev_input *dev = (struct dev_input *)p;
+void w_handle_hid_add(void *p) {
+    struct dev_hid *dev = (struct dev_hid *)p;
     struct dev_common *base = (struct dev_common *)p;
     int id = base->id;
 
-    w_push_norns_func("input", "add");
+    w_push_norns_func("hid", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, base->serial);
     lua_pushstring(lvm, base->name);
@@ -528,14 +528,14 @@ void w_handle_input_add(void *p) {
     l_report( lvm, l_docall(lvm, 5, 0) );
 }
 
-void w_handle_input_remove(int id) {
-    w_push_norns_func("input", "remove");
+void w_handle_hid_remove(int id) {
+    w_push_norns_func("hid", "remove");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     l_report( lvm, l_docall(lvm, 1, 0) );
 }
 
-void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
-    w_push_norns_func("input", "event");
+void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
+    w_push_norns_func("hid", "event");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushinteger(lvm, type);
     lua_pushinteger(lvm, code);

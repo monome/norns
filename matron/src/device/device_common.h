@@ -4,7 +4,7 @@ typedef enum {
     // libmonome devices
     DEV_TYPE_MONOME = 0,
     // event devices (HID, &c)
-    DEV_TYPE_INPUT = 1,
+    DEV_TYPE_HID = 1,
     // counter - unused, don't remove
     DEV_TYPE_COUNT,
     DEV_TYPE_INVALID

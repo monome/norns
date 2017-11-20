@@ -38,12 +38,12 @@ norns.grid.key = function(id, x, y, val)
    -- print("norns.grid.key ", id,x,y,val)
 end
 
-norns.input = {}
+norns.hid = {}
 --- HID or other input device added
-norns.input.add = function(id, serial, name, types, codes)
+norns.hid.add = function(id, serial, name, types, codes)
    -- print("norns.input.add ", id, serial, name, types, codes)
 end
-norns.input.event = function(id, ev_type, ev_code, value)
+norns.hid.event = function(id, ev_type, ev_code, value)
    -- print("norns.input.event ", id, ev_type, ev_code, value)
 end
    

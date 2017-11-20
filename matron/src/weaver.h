@@ -1,6 +1,6 @@
 #pragma once
 
-#include "device_input.h"
+#include "device_hid.h"
 #include "oracle.h"
 
 // initialize the lua VM and run setup scripts
@@ -29,9 +29,9 @@ extern void w_handle_monome_add(void *dev);
 extern void w_handle_monome_remove(int id);
 extern void w_handle_grid_key(int id, int x, int y, int state);
 
-extern void w_handle_input_add(void *dev);
-extern void w_handle_input_remove(int id);
-extern void w_handle_input_event(int id, uint8_t type, dev_code_t code,
+extern void w_handle_hid_add(void *dev);
+extern void w_handle_hid_remove(int id);
+extern void w_handle_hid_event(int id, uint8_t type, dev_code_t code,
                                  int val);
 
 //--- audio engine introspection

@@ -26,13 +26,13 @@ SRC_DIR = src
 _OBJ = main.o \
 	args.o \
 	device/device.o \
-	device/device_input.o \
+	device/device_hid.o \
 	device/device_list.o \
 	device/device_monitor.o \
 	device/device_monome.o \
 	events.o \
 	gpio.o \
-	input.o \
+	hid.o \
 	lua_eval.o \
 	timers.o \
 	oracle.o \

@@ -4,14 +4,14 @@
 #include <stdint.h>
 #include <pthread.h>
 #include "device_monome.h"
-#include "device_input.h"
+#include "device_hid.h"
 #include "device_common.h"
 
 // common data structure for all devices
 union dev {
     struct dev_common base;
     struct dev_monome monome;
-    struct dev_input input;
+    struct dev_hid hid;
 };
 
 // initialize device registry
