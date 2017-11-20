@@ -16,7 +16,7 @@
 
 #include "events.h"
 
-#define NUM_PINS 2
+#define NUM_PINS 9
 
 int epfd;
 int fd[NUM_PINS];
@@ -32,8 +32,15 @@ void *gpio_check(void *);
 
 void gpio_init() {
   epfd = epoll_create(1);
-  fd[0] = open("/sys/class/gpio/gpio35/value", O_RDWR | O_NONBLOCK);
-  fd[1] = open("/sys/class/gpio/gpio39/value", O_RDWR | O_NONBLOCK);
+  fd[0] = open("/sys/class/gpio/gpio31/value", O_RDWR | O_NONBLOCK); // K1
+  fd[1] = open("/sys/class/gpio/gpio35/value", O_RDWR | O_NONBLOCK); // K2
+  fd[2] = open("/sys/class/gpio/gpio39/value", O_RDWR | O_NONBLOCK); // K3
+  fd[3] = open("/sys/class/gpio/gpio28/value", O_RDWR | O_NONBLOCK); // A1
+  fd[4] = open("/sys/class/gpio/gpio29/value", O_RDWR | O_NONBLOCK); // B1
+  fd[5] = open("/sys/class/gpio/gpio32/value", O_RDWR | O_NONBLOCK); // A2
+  fd[6] = open("/sys/class/gpio/gpio33/value", O_RDWR | O_NONBLOCK); // B2
+  fd[7] = open("/sys/class/gpio/gpio36/value", O_RDWR | O_NONBLOCK); // A3
+  fd[8] = open("/sys/class/gpio/gpio37/value", O_RDWR | O_NONBLOCK); // B3
   if(fd[0] > 0) {
     printf("GPIO: %s\n", strerror(errno)); fflush(stdout);
     buf = 0;
@@ -64,15 +71,15 @@ void *gpio_check(void *x) {
   int n;
   while(1) {
     n = epoll_wait(epfd, &events, 1, -1); // wait for 1 event 
-    printf("GPIO epoll returned %d: %s\n", n, strerror(errno)); fflush(stdout);
-    printf("GPIO event: %d\n", events.data.fd); fflush(stdout);
+    //printf("GPIO epoll returned %d: %s\n", n, strerror(errno)); fflush(stdout);
+    //printf("GPIO event: %d\n", events.data.fd); fflush(stdout);
 
     if(n > 0) {
-      n = lseek(fd[0], 0, SEEK_SET);
+      n = lseek(events.data.fd, 0, SEEK_SET);
       //printf("GPIO seek %d bytes: %s\n", n, strerror(errno)); fflush(stdout);
-      n = read(fd[0], &buf, 1);
+      n = read(events.data.fd, &buf, 1);
       //printf("GPIO read %d bytes: %s\n", n, strerror(errno)); fflush(stdout);
-      printf("GPIO buf = 0x%x\n", buf);
+      //printf("GPIO buf = 0x%x\n", buf);
 
       int i;
       for(i=0;i<NUM_PINS&&fd[i]!=events.data.fd;i++); 
