@@ -5,7 +5,7 @@ require 'norns'
 --- load all the norns modules to check their versions
 require 'engine'
 require 'grid'
-require 'gpio'
+require 'input'
 require 'hid'
 require 'poll'
 require 'metro'
@@ -19,3 +19,4 @@ norns.state.resume()
 
 -- shortcuts
 run = norns.script.load
+stop = norns.script.cleanup

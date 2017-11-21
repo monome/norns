@@ -629,12 +629,22 @@ void w_handle_metro(const int idx, const int stage) {
 }
 
 // gpio handler
-void w_handle_gpio(const int pin, const int val) {
+void w_handle_key(const int n, const int val) {
     lua_getglobal(lvm, "norns");
-    lua_getfield(lvm, -1, "gpio");
+    lua_getfield(lvm, -1, "key");
     lua_remove(lvm, -2);
-    lua_pushinteger(lvm, pin);
+    lua_pushinteger(lvm, n);
     lua_pushinteger(lvm, val);
+    l_report( lvm, l_docall(lvm, 2, 0) );
+}
+
+// gpio handler
+void w_handle_enc(const int n, const int delta) {
+    lua_getglobal(lvm, "norns");
+    lua_getfield(lvm, -1, "enc");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, n);
+    lua_pushinteger(lvm, delta);
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 

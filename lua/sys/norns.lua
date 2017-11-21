@@ -91,8 +91,7 @@ end
 
 norns.script = {}
 norns.script.cleanup_default = function()
-   print("norns.script.cleanup() was invoked on script deinit.")
-   print("WARNING: you should redefine this in your script, to free any allocated resources.")
+   print("cleanup (default)")
 end
 
 norns.script.cleanup = norns.script.cleanup_default

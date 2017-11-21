@@ -11,7 +11,9 @@ typedef enum {
     // metro has fired
     EVENT_METRO,
     // gpio event
-    EVENT_GPIO,
+    EVENT_KEY,
+    // gpio event
+    EVENT_ENC,
     // libmonome device added
     EVENT_MONOME_ADD,
     // libmonome device removed
@@ -91,10 +93,16 @@ struct event_metro {
     uint32_t stage;
 }; // +8
 
-struct event_gpio {
+struct event_key {
     struct event_common common;
-    uint8_t pin;
+    uint8_t n;
     uint8_t val;
+}; // +8
+
+struct event_enc {
+    struct event_common common;
+    uint8_t n;
+    int8_t delta;
 }; // +8
 
 struct event_poll_value {
@@ -119,7 +127,8 @@ union event_data {
     struct event_hid_add hid_add;
     struct event_hid_remove hid_remove;
     struct event_hid_event hid_event;
-    struct event_gpio gpio;
+    struct event_key key;
+    struct event_enc enc;
     struct event_metro metro;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;

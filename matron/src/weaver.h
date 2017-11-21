@@ -42,7 +42,8 @@ extern void w_handle_poll_report(const struct engine_poll *arr,
                                  const int num);
 
 //--- gpio handler
-extern void w_handle_gpio(const int pin, const int val);
+extern void w_handle_key(const int n, const int val);
+extern void w_handle_enc(const int n, const int delta);
 
 //--- metro bang handler
 extern void w_handle_metro(const int idx, const int stage);

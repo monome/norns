@@ -43,7 +43,8 @@ bool quit;
 static void handle_event(union event_data *ev);
 static void handle_exec_code_line(struct event_exec_code_line *ev);
 static void handle_metro(struct event_metro *ev);
-static void handle_gpio(struct event_gpio *ev);
+static void handle_key(struct event_key *ev);
+static void handle_enc(struct event_enc *ev);
 static void handle_monome_add(struct event_monome_add *ev);
 static void handle_monome_remove(struct event_monome_remove *ev);
 static void handle_grid_key(struct event_grid_key *ev);
@@ -160,8 +161,11 @@ static void handle_event(union event_data *ev) {
     case EVENT_METRO:
         handle_metro( &(ev->metro) );
         break;
-    case EVENT_GPIO:
-        handle_gpio( &(ev->gpio) );
+    case EVENT_KEY:
+        handle_key( &(ev->key) );
+        break;
+    case EVENT_ENC:
+        handle_enc( &(ev->enc) );
         break;
     case EVENT_MONOME_ADD:
         handle_monome_add( &(ev->monome_add) );
@@ -217,8 +221,12 @@ void handle_metro(struct event_metro *ev) {
 }
 
 //--- gpio
-void handle_gpio(struct event_gpio *ev) {
-    w_handle_gpio(ev->pin, ev->val);
+void handle_key(struct event_key *ev) {
+    w_handle_key(ev->n, ev->val);
+}
+
+void handle_enc(struct event_enc *ev) {
+    w_handle_enc(ev->n, ev->delta);
 }
 
 //--- monome devices
