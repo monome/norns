@@ -17,7 +17,7 @@
 
 #include "device.h"
 #include "device_list.h"
-#include "device_input.h"
+#include "device_hid.h"
 #include "device_monome.h"
 #include "events.h"
 

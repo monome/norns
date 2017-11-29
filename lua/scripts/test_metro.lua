@@ -1,7 +1,7 @@
-local timer = require 'timer'
+local metro = require 'metro'
 
 -- leep this global so we can ply with it from the repl
-t = timer[1]
+t = metro[1]
 n = 2
 t.time = 1/n
 t.count = n

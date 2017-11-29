@@ -1,20 +1,20 @@
---- high-resolution timer API;
--- @module timer
--- @alias Timer_mt
+--- high-resolution metro API;
+-- @module metro
+-- @alias Metro_mt
 
-print('timer.lua')
+print('metro.lua')
 require 'norns'
-norns.version.timer = '0.0.3'
+norns.version.metro = '0.0.3'
 
-local Timer = {}
-Timer.__index = Timer
+local Metro = {}
+Metro.__index = Metro
 
-Timer.numTimers = 32
-Timer.timers = {}
+Metro.numMetros = 32
+Metro.metros = {}
 
 --- constructor;
  -- @param id : identifier (integer)
-function Timer.new(id)
+function Metro.new(id)
    local t = {}
    t.props = {}
    t.props.id = id
@@ -22,40 +22,40 @@ function Timer.new(id)
    t.props.count = -1
    t.props.callback = nil
    t.props.initStage = 1
-   setmetatable(t, Timer)
+   setmetatable(t, Metro)
    return t
 end
 
---- start a timer
+--- start a metro
 -- @param time - (optional) time period between ticks (seconds.) by default, re-use the last period
 -- @param count - (optional) number of ticks. infinite by default
 -- @param stage - (optional) initial stage number (1-based.) 1 by default
-function Timer:start(time, count, stage)   
+function Metro:start(time, count, stage)   
    local vargs = {}
    if time then self.props.time = time end
    if count then self.props.count = count end
    if stage then self.initStage = stage end
    self.isRunning = true
-   timer_start(self.props.id, self.props.time, self.props.count, self.props.initStage) -- C function
+   metro_start(self.props.id, self.props.time, self.props.count, self.props.initStage) -- C function
 end
 
---- stop a timer
-function Timer:stop()
-   timer_stop(self.props.id) -- C function
+--- stop a metro
+function Metro:stop()
+   metro_stop(self.props.id) -- C function
    self.isRunning = false
 end
 
-for i=1,Timer.numTimers do
-   Timer.timers[i] = Timer.new(i)
+for i=1,Metro.numMetros do
+   Metro.metros[i] = Metro.new(i)
 end
 
-Timer.__newindex = function(self, idx, val)
+Metro.__newindex = function(self, idx, val)
    if idx == "time" then
       self.props.time = val
       --[[
-	 FIXME: would like to change time of a running timer.
+	 FIXME: would like to change time of a running metro.
 here we restart it when setting the time property; 
-problem is that `isRunning` prop is not updated when a finite timer is finished on its own.
+problem is that `isRunning` prop is not updated when a finite metro is finished on its own.
 (we could track of its stage in lua and unset the flag, or have an additional callback.)
 
 another method would be to add a time setter to the C API (requiring mutex, et al.)
@@ -63,7 +63,7 @@ another method would be to add a time setter to the C API (requiring mutex, et a
 anyway for now, user must explicitly restart.
       --]]
 --      if self.isRunning then	 
---	 print ("timer setter calling .start: ", self, idx, val)
+--	 print ("metro setter calling .start: ", self, idx, val)
       --	 self.start(self, self.props.time, self.props.count, self.props.stage)
       --   end
    elseif idx == 'count' then self.props.count = val
@@ -75,13 +75,13 @@ anyway for now, user must explicitly restart.
 end
 
 --- class custom .__index; 
--- [] accessor returns one of the static timer objects
-Timer.__index = function(self, idx)
+-- [] accessor returns one of the static metro objects
+Metro.__index = function(self, idx)
    if type(idx) == "number" then
       -- print("class meta: .__index ("..idx..")")
-      return Timer.timers[idx]
-   elseif idx == "start" then return Timer.start
-   elseif idx == "stop" then return Timer.stop
+      return Metro.metros[idx]
+   elseif idx == "start" then return Metro.start
+   elseif idx == "stop" then return Metro.stop
    elseif idx == 'id' then return self.props.id
    elseif idx == 'count' then return self.props.count
    elseif idx == 'time' then return self.props.time
@@ -94,19 +94,19 @@ Timer.__index = function(self, idx)
    end
 end
 
-setmetatable(Timer, Timer)
+setmetatable(Metro, Metro)
 
 --- Global Functions
 -- @section globals
 
---- callback on timer tick from C;
-norns.timer = function(idx, stage)
-   if Timer.timers[idx] then
-      if Timer.timers[idx].callback then
-	 Timer.timers[idx].callback(stage)
+--- callback on metro tick from C;
+norns.metro = function(idx, stage)
+   if Metro.metros[idx] then
+      if Metro.metros[idx].callback then
+	 Metro.metros[idx].callback(stage)
       end
    end   
 end
 
 
-return Timer
+return Metro

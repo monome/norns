@@ -1,6 +1,6 @@
-print('test_input.lua')
+print('test_hid.lua')
 require 'norns'
-local input = require 'input'
+local hid = require 'hid'
 
 --- local variables
 local pad = nil
@@ -15,7 +15,7 @@ local callbacks = {
    ABS_RY = function(val) print("R.Y: ", val) end
 }
       
-norns.cleanup = function()
+norns.script.cleanup = function()
    if pad then pad:clearCallbacks() end
    pad = nil
    callbacks = nil
@@ -39,11 +39,11 @@ local setPad = function(device)
 end
 
 -- on startup, see if there's already a gamepad connected
-pad = input.findDeviceSupporting('EV_KEY', 'BTN_START') -- << FIXME, shouldn't need ev type
+pad = hid.findDeviceSupporting('EV_KEY', 'BTN_START') -- << FIXME, shouldn't need ev type
 if pad then setPad(pad) end
 
 -- when a new device is added, see if its a gamepad
-input.add = function (device)
+hid.add = function (device)
    if device:supports('EV_KEY', 'BTN_START') then
       setPad(device)
    end

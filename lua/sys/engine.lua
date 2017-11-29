@@ -24,7 +24,7 @@ Engine.commands = {}
 -- @param data - an array of strings
 -- @param count - number of names
 Engine.register = function(data, count)
-   print("available engines: ")
+   print("available engines ("..count.."): ")
    for i=1,count do
       print("  " .. data[i])
    end

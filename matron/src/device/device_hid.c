@@ -8,13 +8,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "device_input.h"
+#include "device_hid.h"
 #include "events.h"
 
 #define TEST_NULL_AND_FREE(p) if( (p) != NULL ) { free(p); } \
-    else { printf("error: double free in device_input.c \n"); }
+    else { printf("error: double free in device_hid.c \n"); }
 
-static void add_types(struct dev_input *d) {
+static void add_types(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
     d->types = calloc( EV_MAX, sizeof(int) );
     d->num_types = 0;
@@ -26,7 +26,7 @@ static void add_types(struct dev_input *d) {
     d->types = realloc( d->types, d->num_types * sizeof(int) );
 }
 
-static void add_codes(struct dev_input *d) {
+static void add_codes(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
     d->num_codes = calloc( d->num_types, sizeof(int) );
     d->codes = calloc( d->num_types, sizeof(dev_code_t *) );
@@ -63,7 +63,7 @@ static void add_codes(struct dev_input *d) {
     }
 }
 
-static void dev_input_print(struct dev_input *d ) {
+static void dev_hid_print(struct dev_hid *d ) {
     printf("%s\n", d->base.name);
     for(int i = 0; i < d->num_types; i++) {
         printf( "  %d : %d (%s) : \n",
@@ -79,8 +79,8 @@ static void dev_input_print(struct dev_input *d ) {
     fflush(stdout);
 }
 
-int dev_input_init(void *self, bool print) {
-    struct dev_input *d = (struct dev_input *)self;
+int dev_hid_init(void *self, bool print) {
+    struct dev_hid *d = (struct dev_hid *)self;
     struct dev_common *base = (struct dev_common *)self;
     struct libevdev *dev = NULL;
     int ret = 1;
@@ -88,7 +88,7 @@ int dev_input_init(void *self, bool print) {
     const char *name;
 
     if (fd < 0) {
-        printf("failed to open input device: %s\n", d->base.path);
+        printf("failed to open hid device: %s\n", d->base.path);
         fflush(stdout);
         return -1;
     }
@@ -115,24 +115,24 @@ int dev_input_init(void *self, bool print) {
     base->serial = calloc( 12, sizeof(char) );
     sprintf(base->serial, "%04X%04X", d->vid, d->pid);
 
-    if(print ) { dev_input_print(d); }
+    if(print ) { dev_hid_print(d); }
 
-    base->start =  &dev_input_start;
-    base->deinit = &dev_input_deinit;
+    base->start =  &dev_hid_start;
+    base->deinit = &dev_hid_deinit;
     return 0;
 }
 
-static void handle_event(struct dev_input *dev, struct input_event *inev) {
-    union event_data *ev = event_data_new(EVENT_INPUT_EVENT);
-    ev->input_event.id = dev->base.id;
-    ev->input_event.type = inev->type;
-    ev->input_event.code = inev->code;
-    ev->input_event.value = inev->value;
+static void handle_event(struct dev_hid *dev, struct input_event *inev) {
+    union event_data *ev = event_data_new(EVENT_HID_EVENT);
+    ev->hid_event.id = dev->base.id;
+    ev->hid_event.type = inev->type;
+    ev->hid_event.code = inev->code;
+    ev->hid_event.value = inev->value;
     event_post(ev);
 }
 
-void *dev_input_start(void *self) {
-    struct dev_input *di = (struct dev_input *)self;
+void *dev_hid_start(void *self) {
+    struct dev_hid *di = (struct dev_hid *)self;
     int rc = 1;
     do {
         struct input_event ev;
@@ -159,8 +159,8 @@ void *dev_input_start(void *self) {
     return NULL;
 }
 
-void dev_input_deinit(void *self) {
-    struct dev_input *di = (struct dev_input *)self;
+void dev_hid_deinit(void *self) {
+    struct dev_hid *di = (struct dev_hid *)self;
     for(int i = 0; i < di->num_types; i++) {
         TEST_NULL_AND_FREE(di->codes[i]);
     }

@@ -22,11 +22,11 @@
 #include <lauxlib.h>
 
 // norns
-#include "device_input.h"
+#include "device_hid.h"
 #include "device_monome.h"
 #include "events.h"
 #include "lua_eval.h"
-#include "timers.h"
+#include "metro.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -62,9 +62,9 @@ static int w_start_poll(lua_State *l);
 static int w_stop_poll(lua_State *l);
 static int w_set_poll_time(lua_State *l);
 // timing
-static int w_timer_start(lua_State *l);
-static int w_timer_stop(lua_State *l);
-static int w_timer_set_time(lua_State *l);
+static int w_metro_start(lua_State *l);
+static int w_metro_stop(lua_State *l);
+static int w_metro_set_time(lua_State *l);
 // get the current system time
 static int w_get_time(lua_State *l);
 
@@ -111,10 +111,10 @@ void w_init(void) {
     // send an indexed command
     lua_register(lvm, "send_command", &w_send_command);
 
-    // start/stop an indexed timer with callback
-    lua_register(lvm, "timer_start", &w_timer_start);
-    lua_register(lvm, "timer_stop", &w_timer_stop);
-    lua_register(lvm, "timer_set_time", &w_timer_set_time);
+    // start/stop an indexed metro with callback
+    lua_register(lvm, "metro_start", &w_metro_start);
+    lua_register(lvm, "metro_stop", &w_metro_stop);
+    lua_register(lvm, "metro_set_time", &w_metro_set_time);
 
     // get the current high-resolution CPU time
     lua_register(lvm, "get_time", &w_get_time);
@@ -347,8 +347,8 @@ int w_request_command_report(lua_State *l) {
     return 0;
 }
 
-//--- timer management:
-int w_timer_start(lua_State *l) {
+//--- metro management:
+int w_metro_start(lua_State *l) {
     static int idx = 0;
     double seconds;
     int count, stage;
@@ -368,7 +368,7 @@ int w_timer_start(lua_State *l) {
             goto args_error;
         }
     } else {
-        seconds = -1.0; // timer will re-use previous value
+        seconds = -1.0; // metro will re-use previous value
     }
 
     if(nargs > 2) {     // count
@@ -389,18 +389,18 @@ int w_timer_start(lua_State *l) {
     } else {
         stage = 0;
     }
-    timer_start(idx, seconds, count, stage);
+    metro_start(idx, seconds, count, stage);
     lua_settop(l, 0);
     return 0;
 args_error:
     printf(
-        "warning: incorrect argument(s) to start_timer(); expected [i(fii)] \n");
+        "warning: incorrect argument(s) to start_metro(); expected [i(fii)] \n");
     fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }
 
-int w_timer_stop(lua_State *l) {
+int w_metro_stop(lua_State *l) {
     int idx; 
     int nargs = lua_gettop(l);
     if( nargs != 1) {
@@ -411,17 +411,17 @@ int w_timer_stop(lua_State *l) {
     } else {
         goto args_error;
     }
-    timer_stop(idx);
+    metro_stop(idx);
     lua_settop(l, 0);
     return 0;
 args_error:
-    printf("warning: incorrect arguments to stop_timer(); expected [i] \n");
+    printf("warning: incorrect arguments to stop_metro(); expected [i] \n");
     fflush(stdout);
     lua_settop(l, 0);
     return 1;
 }
 
-int w_timer_set_time(lua_State *l) {
+int w_metro_set_time(lua_State *l) {
   int idx;
   float sec;
   int nargs = lua_gettop(l);
@@ -438,11 +438,11 @@ int w_timer_set_time(lua_State *l) {
   } else {
     goto args_error;
   }
-  timer_set_time(idx, sec);
+  metro_set_time(idx, sec);
   lua_settop(l, 0);
   return 0;
  args_error:
-  printf("warning: incorrect arguments to timer_set_time(); expected [if] \n");
+  printf("warning: incorrect arguments to metro_set_time(); expected [if] \n");
   fflush(stdout);
   return 1;
 }
@@ -496,12 +496,12 @@ void w_handle_grid_key(int id, int x, int y, int state) {
     w_call_grid_handler( id, x, y, state > 0);
 }
 
-void w_handle_input_add(void *p) {
-    struct dev_input *dev = (struct dev_input *)p;
+void w_handle_hid_add(void *p) {
+    struct dev_hid *dev = (struct dev_hid *)p;
     struct dev_common *base = (struct dev_common *)p;
     int id = base->id;
 
-    w_push_norns_func("input", "add");
+    w_push_norns_func("hid", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, base->serial);
     lua_pushstring(lvm, base->name);
@@ -528,14 +528,14 @@ void w_handle_input_add(void *p) {
     l_report( lvm, l_docall(lvm, 5, 0) );
 }
 
-void w_handle_input_remove(int id) {
-    w_push_norns_func("input", "remove");
+void w_handle_hid_remove(int id) {
+    w_push_norns_func("hid", "remove");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     l_report( lvm, l_docall(lvm, 1, 0) );
 }
 
-void w_handle_input_event(int id, uint8_t type, dev_code_t code, int value) {
-    w_push_norns_func("input", "event");
+void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
+    w_push_norns_func("hid", "event");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushinteger(lvm, type);
     lua_pushinteger(lvm, code);
@@ -618,10 +618,10 @@ void w_handle_poll_report(const struct engine_poll *arr,
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
-// timer handler
-void w_handle_timer(const int idx, const int stage) {
+// metro handler
+void w_handle_metro(const int idx, const int stage) {
     lua_getglobal(lvm, "norns");
-    lua_getfield(lvm, -1, "timer");
+    lua_getfield(lvm, -1, "metro");
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, idx + 1);   // convert to 1-based
     lua_pushinteger(lvm, stage + 1); // convert to 1-based
@@ -629,12 +629,22 @@ void w_handle_timer(const int idx, const int stage) {
 }
 
 // gpio handler
-void w_handle_gpio(const int pin, const int val) {
+void w_handle_key(const int n, const int val) {
     lua_getglobal(lvm, "norns");
-    lua_getfield(lvm, -1, "gpio");
+    lua_getfield(lvm, -1, "key");
     lua_remove(lvm, -2);
-    lua_pushinteger(lvm, pin);
+    lua_pushinteger(lvm, n);
     lua_pushinteger(lvm, val);
+    l_report( lvm, l_docall(lvm, 2, 0) );
+}
+
+// gpio handler
+void w_handle_enc(const int n, const int delta) {
+    lua_getglobal(lvm, "norns");
+    lua_getfield(lvm, -1, "enc");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, n);
+    lua_pushinteger(lvm, delta);
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 

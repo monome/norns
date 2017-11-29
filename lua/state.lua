@@ -1,2 +1,2 @@
 -- state
-norns.state.script = 'grid_seek'
+norns.state.script = 'test_engine'

@@ -38,12 +38,12 @@ norns.grid.key = function(id, x, y, val)
    -- print("norns.grid.key ", id,x,y,val)
 end
 
-norns.input = {}
+norns.hid = {}
 --- HID or other input device added
-norns.input.add = function(id, serial, name, types, codes)
+norns.hid.add = function(id, serial, name, types, codes)
    -- print("norns.input.add ", id, serial, name, types, codes)
 end
-norns.input.event = function(id, ev_type, ev_code, value)
+norns.hid.event = function(id, ev_type, ev_code, value)
    -- print("norns.input.event ", id, ev_type, ev_code, value)
 end
    
@@ -91,8 +91,7 @@ end
 
 norns.script = {}
 norns.script.cleanup_default = function()
-   print("norns.script.cleanup() was invoked on script deinit.")
-   print("WARNING: you should redefine this in your script, to free any allocated resources.")
+   print("cleanup (default)")
 end
 
 norns.script.cleanup = norns.script.cleanup_default

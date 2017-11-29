@@ -42,14 +42,15 @@ bool quit;
 //---- handlers
 static void handle_event(union event_data *ev);
 static void handle_exec_code_line(struct event_exec_code_line *ev);
-static void handle_timer(struct event_timer *ev);
-static void handle_gpio(struct event_gpio *ev);
+static void handle_metro(struct event_metro *ev);
+static void handle_key(struct event_key *ev);
+static void handle_enc(struct event_enc *ev);
 static void handle_monome_add(struct event_monome_add *ev);
 static void handle_monome_remove(struct event_monome_remove *ev);
 static void handle_grid_key(struct event_grid_key *ev);
-static void handle_input_add(struct event_input_add *ev);
-static void handle_input_remove(struct event_input_remove *ev);
-static void handle_input_event(struct event_input_event *ev);
+static void handle_hid_add(struct event_hid_add *ev);
+static void handle_hid_remove(struct event_hid_remove *ev);
+static void handle_hid_event(struct event_hid_event *ev);
 static void handle_engine_report(void);
 static void handle_command_report(void);
 static void handle_poll_report(void);
@@ -157,11 +158,14 @@ static void handle_event(union event_data *ev) {
     case EVENT_EXEC_CODE_LINE:
         handle_exec_code_line( &(ev->exec_code_line) );
         break;
-    case EVENT_TIMER:
-        handle_timer( &(ev->timer) );
+    case EVENT_METRO:
+        handle_metro( &(ev->metro) );
         break;
-    case EVENT_GPIO:
-        handle_gpio( &(ev->gpio) );
+    case EVENT_KEY:
+        handle_key( &(ev->key) );
+        break;
+    case EVENT_ENC:
+        handle_enc( &(ev->enc) );
         break;
     case EVENT_MONOME_ADD:
         handle_monome_add( &(ev->monome_add) );
@@ -172,14 +176,14 @@ static void handle_event(union event_data *ev) {
     case EVENT_GRID_KEY:
         handle_grid_key( &(ev->grid_key) );
         break;
-    case EVENT_INPUT_ADD:
-        handle_input_add( &(ev->input_add) );
+    case EVENT_HID_ADD:
+        handle_hid_add( &(ev->hid_add) );
         break;
-    case EVENT_INPUT_REMOVE:
-        handle_input_remove( &(ev->input_remove) );
+    case EVENT_HID_REMOVE:
+        handle_hid_remove( &(ev->hid_remove) );
         break;
-    case EVENT_INPUT_EVENT:
-        handle_input_event( &(ev->input_event) );
+    case EVENT_HID_EVENT:
+        handle_hid_event( &(ev->hid_event) );
         break;
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
@@ -211,14 +215,18 @@ void handle_exec_code_line(struct event_exec_code_line *ev) {
     free(ev->line);
 }
 
-//--- timers
-void handle_timer(struct event_timer *ev) {
-    w_handle_timer(ev->id, ev->stage);
+//--- metros
+void handle_metro(struct event_metro *ev) {
+    w_handle_metro(ev->id, ev->stage);
 }
 
 //--- gpio
-void handle_gpio(struct event_gpio *ev) {
-    w_handle_gpio(ev->pin, ev->val);
+void handle_key(struct event_key *ev) {
+    w_handle_key(ev->n, ev->val);
+}
+
+void handle_enc(struct event_enc *ev) {
+    w_handle_enc(ev->n, ev->delta);
 }
 
 //--- monome devices
@@ -235,17 +243,17 @@ void handle_grid_key(struct event_grid_key *ev) {
     fflush(stdout);
 }
 
-//--- input devices
-void handle_input_add(struct event_input_add *ev) {
-    w_handle_input_add(ev->dev);
+//--- hid devices
+void handle_hid_add(struct event_hid_add *ev) {
+    w_handle_hid_add(ev->dev);
 }
 
-void handle_input_remove(struct event_input_remove *ev) {
-    w_handle_input_remove(ev->id);
+void handle_hid_remove(struct event_hid_remove *ev) {
+    w_handle_hid_remove(ev->id);
 }
 
-void handle_input_event(struct event_input_event *ev) {
-    w_handle_input_event(ev->id, ev->type, ev->code, ev->value);
+void handle_hid_event(struct event_hid_event *ev) {
+    w_handle_hid_event(ev->id, ev->type, ev->code, ev->value);
 }
 
 //--- TODO: MIDI

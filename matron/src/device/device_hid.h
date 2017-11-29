@@ -10,7 +10,7 @@ typedef uint8_t dev_vid_t;
 typedef uint8_t dev_pid_t;
 typedef uint16_t dev_code_t;
 
-struct dev_input {
+struct dev_hid {
     struct dev_common base;
     struct libevdev *dev;
     // identifiers
@@ -26,6 +26,6 @@ struct dev_input {
     dev_code_t **codes;
 };
 
-extern int dev_input_init(void *self, bool print);
-extern void *dev_input_start(void *self);
-extern void dev_input_deinit(void *self);
+extern int dev_hid_init(void *self, bool print);
+extern void *dev_hid_start(void *self);
+extern void dev_hid_deinit(void *self);

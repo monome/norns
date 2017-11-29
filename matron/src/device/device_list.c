@@ -77,9 +77,9 @@ void dev_list_add(device_t type, const char *path) {
         ev = event_data_new(EVENT_MONOME_ADD);
         ev->monome_add.dev = d;
         break;
-    case DEV_TYPE_INPUT:
-        ev = event_data_new(EVENT_INPUT_ADD);
-        ev->input_add.dev = d;
+    case DEV_TYPE_HID:
+        ev = event_data_new(EVENT_HID_ADD);
+        ev->hid_add.dev = d;
         break;
     default:
         printf("dev_list_add(): error posting event (unknown type)\n");
@@ -98,9 +98,9 @@ void dev_list_remove(device_t type, const char *node) {
         ev = event_data_new(EVENT_MONOME_REMOVE);
         ev->monome_remove.id = dn->d->base.id;
         break;
-    case DEV_TYPE_INPUT:
-        ev = event_data_new(EVENT_INPUT_REMOVE);
-        ev->input_remove.id = dn->d->base.id;
+    case DEV_TYPE_HID:
+        ev = event_data_new(EVENT_HID_REMOVE);
+        ev->hid_remove.id = dn->d->base.id;
         break;
     default:
         printf("dev_list_remove(): error posting event (unknown type)\n");

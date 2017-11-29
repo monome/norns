@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * input.h
+ * hid.h
  *
  * control input to interpreter
  *
@@ -9,4 +9,4 @@
 
 #include <pthread.h>
 
-extern void input_init(void);
+extern void hid_init(void);
