@@ -27,6 +27,7 @@
 #include "events.h"
 #include "lua_eval.h"
 #include "metro.h"
+#include "screen.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -50,6 +51,9 @@ void w_handle_line(char *line) {
 static int w_grid_set_led(lua_State *l);
 static int w_grid_all_led(lua_State *l);
 static int w_grid_refresh(lua_State *l);
+//screen
+static int w_screen_pixel(lua_State *l);
+
 // crone
 /// engines
 static int w_request_engine_report(lua_State *l);
@@ -67,12 +71,6 @@ static int w_metro_stop(lua_State *l);
 static int w_metro_set_time(lua_State *l);
 // get the current system time
 static int w_get_time(lua_State *l);
-
-// screen functions
-// TODO
-// static void w_screen_print(void);
-// static extern void w_screen_draw();
-//... ?
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -100,6 +98,9 @@ void w_init(void) {
     lua_register(lvm, "grid_set_led", &w_grid_set_led);
     lua_register(lvm, "grid_all_led", &w_grid_all_led);
     lua_register(lvm, "grid_refresh", &w_grid_refresh);
+
+    // register screen funcs
+    lua_register(lvm, "screen_pixel", &w_screen_pixel);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &w_request_engine_report);
@@ -154,6 +155,39 @@ void w_deinit(void) {
 
 //----------------------------------
 //---- static definitions
+//
+int w_screen_pixel(lua_State *l) {
+    int x, y, z;
+    if(lua_gettop(l) != 3) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+    if( lua_isnumber(l, 3) ) {
+        z = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    screen_pixel(x, y, z);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to screen_pixel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
 
 int w_grid_set_led(lua_State *l) {
     struct dev_monome *md;

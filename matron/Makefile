@@ -36,6 +36,7 @@ _OBJ = main.o \
 	lua_eval.o \
 	metro.o \
 	oracle.o \
+	screen.o \
 	weaver.o \
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
