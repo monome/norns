@@ -4,24 +4,16 @@
  * indebted to https://github.com/ulfalizer/readline-and-ncurses
  */
 
-#include <assert.h>
-#include <locale.h>
 #include <panel.h>
 #include <pthread.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
 #include <string.h>
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <unistd.h>
 #include <wchar.h>
-#include <wctype.h>
 
 #include "io.h"
-#include "page.h"
 #include "pages.h"
 #include "ui.h"
 
