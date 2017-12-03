@@ -17,6 +17,7 @@
 #include "hid.h"
 #include "metro.h"
 #include "gpio.h"
+#include "screen.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -28,6 +29,7 @@ void cleanup(void) {
     o_deinit();
     w_deinit();
     gpio_deinit();
+    screen_deinit();
 
     printf("matron shutdown complete \n"); fflush(stdout);
     exit(0);
@@ -41,6 +43,7 @@ int main(int argc, char **argv) {
     events_init(); // <-- must come first!
     metros_init();
     gpio_init();
+    screen_init();
     o_init();      // oracle (audio)
 
     //=== FIXME:
