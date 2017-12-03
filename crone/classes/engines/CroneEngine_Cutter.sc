@@ -45,13 +45,17 @@ CroneEngine_Cutter : CroneEngine {
 			postln("Cutter: dac group"); 
 			gr.dac = Group.after(gr.rec); s.sync;
 
+			in_b.postln;
+			out_b.postln;
+
 			s.sync;
 			
 			//--- busses
 			bus = Event.new;
 			// use the busses supplied by audio context
+			
 			bus.adc = Array.fill(2, { |i| Bus.new('audio', in_b[i].index, 1, s) });
-			bus.dac = Array.fill(2, { |i| Bus.new('audio', in_b.index + i, 1, s) });			
+			bus.dac = Array.fill(2, { |i| Bus.new('audio', out_b.index + i, 1, s) });			
 			bus.rec = Array.fill(nbufs, { Bus.audio(s, 1) });
 
 			s.sync;
