@@ -53,6 +53,8 @@ static int w_grid_all_led(lua_State *l);
 static int w_grid_refresh(lua_State *l);
 //screen
 static int w_screen_pixel(lua_State *l);
+static int w_screen_line(lua_State *l);
+static int w_screen_text(lua_State *l);
 
 // crone
 /// engines
@@ -101,6 +103,8 @@ void w_init(void) {
 
     // register screen funcs
     lua_register(lvm, "screen_pixel", &w_screen_pixel);
+    lua_register(lvm, "screen_line", &w_screen_line);
+    lua_register(lvm, "screen_text", &w_screen_text);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &w_request_engine_report);
@@ -180,6 +184,93 @@ int w_screen_pixel(lua_State *l) {
     }
 
     screen_pixel(x, y, z);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to screen_pixel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+int w_screen_line(lua_State *l) {
+    int x1, y1, x2, y2, z;
+    if(lua_gettop(l) != 5) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x1 = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y1 = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        x2 = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        y2 = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 5) ) {
+        z = lua_tonumber(l, 5);
+    } else {
+        goto args_error;
+    }
+
+    screen_line(x1, y1, x2, y2, z);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to screen_line() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+int w_screen_text(lua_State *l) {
+    int x, y, z;
+    char s[64];
+
+    if(lua_gettop(l) != 4) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+    if( lua_isnumber(l, 3) ) {
+        z = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isstring(l,4) ) {
+	strcpy(s,lua_tostring(l,4));
+    } else {
+        goto args_error;
+    }
+
+    screen_text(x, y, z, s);
     lua_settop(l, 0);
     return 0;
 
