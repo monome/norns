@@ -1,3 +1,5 @@
+--test grid sequencer
+
 print('grid_seek.lua')
 require 'norns'
 local grid = require 'grid'
