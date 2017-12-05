@@ -14,6 +14,7 @@ libncurses-dev
 libncursesw5-dev
 libreadline-dev
 libudev-dev
+libcairo2-dev
 ```
 
 for desktop: 
