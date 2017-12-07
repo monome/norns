@@ -102,6 +102,8 @@ void i2c_aout(int level, int ch) {
 	level = 63;
     }
 
+    level = 63 - level;
+
     if(ch == 1) {
 	ch = 0b01000000;
     }
@@ -124,6 +126,8 @@ void i2c_ain(int level, int ch) {
     else if(level > 63) {
 	level = 63;
     }
+
+    level = 63 - level;
 
     if(ch == 1) {
 	ch = 0b01000000;

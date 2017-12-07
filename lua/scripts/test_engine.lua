@@ -1,6 +1,6 @@
 print('test_engine.lua')
 
---norns = require 'norns'
+norns = require 'norns'
 e = require 'engine'
 
 
