@@ -12,7 +12,7 @@
 #include "device_monome.h"
 #include "gpio.h"
 #include "oracle.h"
-#include "system.h"
+#include "battery.h"
 #include "weaver.h"
 
 #include "event_types.h"
