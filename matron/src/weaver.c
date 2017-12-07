@@ -28,6 +28,7 @@
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
+#include "i2c.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -60,6 +61,10 @@ static int w_screen_line(lua_State *l);
 static int w_screen_stroke(lua_State *l);
 static int w_screen_text(lua_State *l);
 static int w_screen_clear(lua_State *l);
+//i2c
+static int w_level_hp(lua_State *l);
+static int w_level_out(lua_State *l);
+static int w_level_in(lua_State *l);
 
 // crone
 /// engines
@@ -115,6 +120,11 @@ void w_init(void) {
     lua_register(lvm, "s_stroke", &w_screen_stroke);
     lua_register(lvm, "s_text", &w_screen_text);
     lua_register(lvm, "s_clear", &w_screen_clear);
+
+    // analog output control
+    lua_register(lvm, "level_hp", &w_level_hp);
+    lua_register(lvm, "level_out", &w_level_out);
+    lua_register(lvm, "level_in", &w_level_in);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &w_request_engine_report);
@@ -344,6 +354,86 @@ args_error:
     lua_settop(l, 0);
     return 0;
 }
+
+
+int w_level_hp(lua_State *l) {
+    int level;
+    if(lua_gettop(l) != 1) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        level = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    i2c_hp(level);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to level_out() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+} 
+
+int w_level_out(lua_State *l) {
+    int level, ch;
+    if(lua_gettop(l) != 2) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        level = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        ch = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    i2c_aout(level,ch);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to level_out() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+int w_level_in(lua_State *l) {
+    int level, ch;
+    if(lua_gettop(l) != 2) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        level = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        ch = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    i2c_ain(level,ch);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to level_out() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
 
 
 int w_grid_set_led(lua_State *l) {
