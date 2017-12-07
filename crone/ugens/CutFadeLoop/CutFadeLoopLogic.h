@@ -17,20 +17,24 @@ public:
     void setLoopEndSeconds(float x);    // set the loop start point in seconds
     void setPosSeconds(float x);        // immediately cut to a new position, initiating crossfade
     void nextSample(float* outAudio, float* outPhase); // per-sample update function
-
+    void setFadeTime(float secs);
 private:
     void updatePhase(int id);
+    void updateFade(int id);
     void cutToPos(float newPhase); // immediately cut to a new position in samples
-
+    void doneFadeIn(int id);
+    void doneFadeOut(int id);
+    float peek(float phase); // lookup an audio sample from the buffer (interpolated)
 private:
     float sr;           // sample rate
     float* buf;         // audio buffer (allocated elsewhere)
     int bufSize;        // samples in buffer
     float start, end;   // loop points
-    float phi;          // phase increment per sample
-    float phase[2];     // current phase of read heads
-    float amp[2];       // current volume of read heads
-    int state[2];
+    float fadeInc;      // linear fade increment per sample
+    float phaseInc;     // phase increment per sample
+    float phase[2];     // current buffer phase
+    float fade[2];      // current fade phase
+    int state[2];       // active/inactive/fading state of each head
     int active;     // current active play head (0 or 1)
 
 };

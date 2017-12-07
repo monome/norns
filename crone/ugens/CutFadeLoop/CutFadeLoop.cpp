@@ -121,7 +121,7 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
 //        // Here's why the buffer size is a power of two -- otherwise this becomes a much more
 //        // expensive modulo operation.
 //        writephase = (writephase + 1) & mask;
-    }
+//    }
 
 //    // These two variables were updated and need to be stored back into the state of the UGen.
 //    unit->writephase = writephase;
