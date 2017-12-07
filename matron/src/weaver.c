@@ -325,7 +325,7 @@ int w_screen_text(lua_State *l) {
     }
 
     if( lua_isstring(l,1) ) {
-	strcpy(s,lua_tostring(l,1));
+        strcpy( s,lua_tostring(l,1) );
     } else {
         goto args_error;
     }
@@ -355,7 +355,6 @@ args_error:
     return 0;
 }
 
-
 int w_level_hp(lua_State *l) {
     int level;
     if(lua_gettop(l) != 1) { // check num args
@@ -376,7 +375,7 @@ args_error:
     printf("warning: incorrect arguments to level_out() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
-} 
+}
 
 int w_level_out(lua_State *l) {
     int level, ch;
@@ -433,8 +432,6 @@ args_error:
     lua_settop(l, 0);
     return 0;
 }
-
-
 
 int w_grid_set_led(lua_State *l) {
     struct dev_monome *md;
@@ -682,7 +679,7 @@ args_error:
 }
 
 int w_metro_stop(lua_State *l) {
-    int idx; 
+    int idx;
     int nargs = lua_gettop(l);
     if( nargs != 1) {
         goto args_error;
@@ -703,29 +700,29 @@ args_error:
 }
 
 int w_metro_set_time(lua_State *l) {
-  int idx;
-  float sec;
-  int nargs = lua_gettop(l);
-  if(nargs != 2) {
-    goto args_error;
-  }
-  if( lua_isnumber(l, 1) ) {
-    idx = lua_tonumber(l, 1) - 1;
-  } else {
-    goto args_error;
-  }
-  if( lua_isnumber(l, 2) ) {
-    sec = lua_tonumber(l, 2);
-  } else {
-    goto args_error;
-  }
-  metro_set_time(idx, sec);
-  lua_settop(l, 0);
-  return 0;
- args_error:
-  printf("warning: incorrect arguments to metro_set_time(); expected [if] \n");
-  fflush(stdout);
-  return 1;
+    int idx;
+    float sec;
+    int nargs = lua_gettop(l);
+    if(nargs != 2) {
+        goto args_error;
+    }
+    if( lua_isnumber(l, 1) ) {
+        idx = lua_tonumber(l, 1) - 1;
+    } else {
+        goto args_error;
+    }
+    if( lua_isnumber(l, 2) ) {
+        sec = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+    metro_set_time(idx, sec);
+    lua_settop(l, 0);
+    return 0;
+args_error:
+    printf("warning: incorrect arguments to metro_set_time(); expected [if] \n");
+    fflush(stdout);
+    return 1;
 }
 
 // request current time since Epoch
@@ -946,7 +943,6 @@ void w_handle_power(const int present) {
     lua_pushinteger(lvm, present);
     l_report( lvm, l_docall(lvm, 1, 0) );
 }
-
 
 void w_handle_poll_value(int idx, float val) {
     // printf("w_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);

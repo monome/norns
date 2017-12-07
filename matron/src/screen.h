@@ -11,5 +11,5 @@ extern void screen_line_width(long w);
 extern void screen_move(int x, int y);
 extern void screen_line(int x, int y);
 extern void screen_stroke(void);
-extern void screen_text(const char* s);
+extern void screen_text(const char *s);
 extern void screen_clear(void);

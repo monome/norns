@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     screen_init();
     battery_init();
     i2c_init();
-    o_init();      // oracle (audio)
+    o_init(); // oracle (audio)
 
     //=== FIXME:
     //--- we should wait here for a signal from the audio server...

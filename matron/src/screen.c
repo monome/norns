@@ -10,7 +10,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <linux/fb.h>
-#include <sys/mman.h> 
+#include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <cairo.h>
 #include <cairo-ft.h>
@@ -19,7 +19,7 @@ static float c[16] = {0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666
 
 static cairo_surface_t *surface;
 static cairo_t *cr;
-static cairo_font_face_t * ct;
+static cairo_font_face_t *ct;
 static FT_Library value;
 static FT_Error status;
 static FT_Face face;
@@ -37,8 +37,9 @@ void cairo_linuxfb_surface_destroy(void *device)
 {
     cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
 
-    if (dev == NULL)
+    if (dev == NULL) {
         return;
+    }
 
     munmap(dev->fb_data, dev->fb_screensize);
     close(dev->fb_fd);
@@ -56,7 +57,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
         fb_name = "/dev/fb0";
     }
 
-    device = malloc(sizeof(*device));
+    device = malloc( sizeof(*device) );
     if (!device) {
         printf("ERROR (screen) cannot allocate memory\n"); fflush(stdout);
         exit(1);
@@ -81,9 +82,9 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
 
     // Map the device to memory
     device->fb_data = (unsigned char *)mmap(0, device->fb_screensize,
-                                   PROT_READ | PROT_WRITE, MAP_SHARED,
-                                   device->fb_fd, 0);
-    if ((int)device->fb_data == -1) {
+                                            PROT_READ | PROT_WRITE, MAP_SHARED,
+                                            device->fb_fd, 0);
+    if ( (int)device->fb_data == -1 ) {
         printf("ERROR (screen) failed to map framebuffer device to memory"); fflush(stdout);
         goto handle_ioctl_error;
     }
@@ -95,12 +96,12 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     }
 
     /* Create the cairo surface which will be used to draw to */
-    surface = cairo_image_surface_create_for_data(device->fb_data,
-                  CAIRO_FORMAT_RGB16_565,
-                  device->fb_vinfo.xres,
-                  device->fb_vinfo.yres,
-                  cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565,
-                                                device->fb_vinfo.xres));
+    surface = cairo_image_surface_create_for_data( device->fb_data,
+                                                   CAIRO_FORMAT_RGB16_565,
+                                                   device->fb_vinfo.xres,
+                                                   device->fb_vinfo.yres,
+                                                   cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565,
+                                                                                 device->fb_vinfo.xres) );
     cairo_surface_set_user_data(surface, NULL, device,
                                 &cairo_linuxfb_surface_destroy);
 
@@ -119,18 +120,18 @@ void screen_init(void) {
 
     char filename[256];
     // FIXME should be path relative to norns/
-    snprintf(filename, 256, "%s/norns/assets/04B_03__.TTF", getenv("HOME"));
+    snprintf( filename, 256, "%s/norns/assets/04B_03__.TTF", getenv("HOME") );
     //const char * filename = "/home/pi/slkscr.ttf";
 
     status = FT_Init_FreeType(&value);
     if(status != 0) {
-	printf("ERROR (screen) freetype init\n"); fflush(stdout);
-	return;
+        printf("ERROR (screen) freetype init\n"); fflush(stdout);
+        return;
     }
     status = FT_New_Face(value, filename, 0, &face);
     if(status != 0) {
-    	printf("ERROR (screen) font load: %s\n", filename); fflush(stdout);
-	return;
+        printf("ERROR (screen) font load: %s\n", filename); fflush(stdout);
+        return;
     }
     ct = cairo_ft_font_face_create_for_ft_face(face, 0);
 
@@ -142,12 +143,12 @@ void screen_init(void) {
     font_options = cairo_font_options_create();
     cairo_font_options_set_antialias(font_options,CAIRO_ANTIALIAS_SUBPIXEL);
 
-    //cairo_select_font_face(cr, "cairo:sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    //cairo_select_font_face(cr, "cairo:sans", CAIRO_FONT_SLANT_NORMAL,
+    // CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_face (cr, ct);
     cairo_set_font_options(cr, font_options);
     cairo_set_font_size(cr, 8.0);
 }
-
 
 void screen_deinit(void) {
     cairo_destroy(cr);
@@ -155,14 +156,14 @@ void screen_deinit(void) {
 }
 
 void screen_aa(int s) {
-    if(s) { 
+    if(s) {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
     } else {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_DEFAULT);
     }
 }
 
-void screen_level(int z) { 
+void screen_level(int z) {
     cairo_set_source_rgb(cr,c[z],c[z],c[z]);
 }
 
@@ -182,12 +183,12 @@ void screen_stroke(void) {
     cairo_stroke(cr);
 }
 
-void screen_text(const char* s) {
+void screen_text(const char *s) {
     cairo_show_text(cr, s);
-} 
+}
 
 void screen_clear(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-} 
+}

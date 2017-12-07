@@ -181,7 +181,8 @@ const struct engine_poll *o_get_polls(void) {
 void o_lock_descriptors() {
     int res = pthread_mutex_lock(&desc_lock);
     if(res) {
-        printf("o_lock_descriptors failed with code %d \b", res); fflush(stdout);
+        printf("o_lock_descriptors failed with code %d \b", res);
+        fflush(stdout);
     }
 }
 

@@ -32,7 +32,7 @@ extern void w_handle_grid_key(int id, int x, int y, int state);
 extern void w_handle_hid_add(void *dev);
 extern void w_handle_hid_remove(int id);
 extern void w_handle_hid_event(int id, uint8_t type, dev_code_t code,
-                                 int val);
+                               int val);
 
 //--- audio engine introspection
 extern void w_handle_engine_report(const char **arr, const int num);
