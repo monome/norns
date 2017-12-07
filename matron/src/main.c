@@ -14,11 +14,12 @@
 #include "device_monome.h"
 
 #include "events.h"
-#include "hid.h"
-#include "metro.h"
-#include "gpio.h"
-#include "screen.h"
 #include "battery.h"
+#include "gpio.h"
+#include "hid.h"
+#include "i2c.h"
+#include "metro.h"
+#include "screen.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -47,6 +48,7 @@ int main(int argc, char **argv) {
     gpio_init();
     screen_init();
     battery_init();
+    i2c_init();
     o_init();      // oracle (audio)
 
     //=== FIXME:

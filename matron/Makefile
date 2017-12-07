@@ -35,6 +35,7 @@ _OBJ = main.o \
 	events.o \
 	gpio.o \
 	hid.o \
+	i2c.o \
 	lua_eval.o \
 	metro.o \
 	oracle.o \
