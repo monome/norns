@@ -13,3 +13,11 @@ norns.enc = function(n, delta)
   print("enc "..n..": "..delta)
 end
 
+norns.battery = function(percent)
+  print("battery: "..percent.."%")
+end
+
+norns.power = function(present)
+  print("power: "..present)
+end
+

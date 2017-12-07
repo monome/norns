@@ -14,6 +14,10 @@ typedef enum {
     EVENT_KEY,
     // gpio event
     EVENT_ENC,
+    // battery level change
+    EVENT_BATTERY,
+    // power cable present
+    EVENT_POWER,
     // libmonome device added
     EVENT_MONOME_ADD,
     // libmonome device removed
@@ -99,6 +103,16 @@ struct event_key {
     uint8_t val;
 }; // +8
 
+struct event_battery {
+    struct event_common common;
+    uint8_t percent;
+}; // +8
+
+struct event_power {
+    struct event_common common;
+    uint8_t present;
+}; // +8
+
 struct event_enc {
     struct event_common common;
     uint8_t n;
@@ -129,6 +143,8 @@ union event_data {
     struct event_hid_event hid_event;
     struct event_key key;
     struct event_enc enc;
+    struct event_battery battery;
+    struct event_power power;
     struct event_metro metro;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;

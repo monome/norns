@@ -113,12 +113,6 @@ handle_allocate_error:
     exit(1);
 }
 
-void screen_text(int x, int y, int z, const char* s) {
-    cairo_set_source_rgb(cr, c[z], c[z], c[z]);
-    cairo_move_to(cr, x, y);
-    cairo_show_text(cr, s);
-}
-
 void screen_init(void) {
     surface = cairo_linuxfb_surface_create("/dev/fb1");
     cr = cairo_create(surface);
@@ -126,7 +120,6 @@ void screen_init(void) {
     char filename[256];
     // FIXME should be path relative to norns/
     snprintf(filename, 256, "%s/norns/assets/04B_03__.TTF", getenv("HOME"));
-
     //const char * filename = "/home/pi/slkscr.ttf";
 
     status = FT_Init_FreeType(&value);
@@ -162,22 +155,42 @@ void screen_deinit(void) {
     cairo_surface_destroy(surface);
 }
 
+void screen_aa(int s) {
+    if(s) { 
+        cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
+    } else {
+        cairo_set_antialias(cr,CAIRO_ANTIALIAS_DEFAULT);
+    }
+}
 
-void screen_pixel(int x, int y, int z) {
-    cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
+void screen_level(int z) { 
     cairo_set_source_rgb(cr,c[z],c[z],c[z]);
-    cairo_set_line_width(cr,1.0);
+}
+
+void screen_line_width(long w) {
+    cairo_set_line_width(cr,w);
+}
+
+void screen_move(int x, int y) {
     cairo_move_to(cr,x,y);
-    cairo_line_to(cr,x-1,y-1);
+}
+
+void screen_line(int x, int y) {
+    cairo_line_to(cr,x,y);
+}
+
+void screen_stroke(void) {
     cairo_stroke(cr);
 }
 
-void screen_line(int x1, int y1, int x2, int y2, int z) {
-    cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
-    cairo_set_source_rgb(cr,c[z],c[z],c[z]);
-    cairo_set_line_width(cr,1.0);
-    cairo_move_to(cr,x1,y1);
-    cairo_line_to(cr,x2,y2);
-    cairo_stroke(cr);
+void screen_text(const char* s) {
+    cairo_show_text(cr, s);
+} 
+
+void screen_clear(void) {
+    cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+    cairo_paint(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 }
+
 
