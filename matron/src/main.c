@@ -18,6 +18,7 @@
 #include "metro.h"
 #include "gpio.h"
 #include "screen.h"
+#include "battery.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -30,6 +31,7 @@ void cleanup(void) {
     w_deinit();
     gpio_deinit();
     screen_deinit();
+    battery_init();
 
     printf("matron shutdown complete \n"); fflush(stdout);
     exit(0);
@@ -44,6 +46,7 @@ int main(int argc, char **argv) {
     metros_init();
     gpio_init();
     screen_init();
+    battery_init();
     o_init();      // oracle (audio)
 
     //=== FIXME:

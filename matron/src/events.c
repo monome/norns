@@ -12,6 +12,7 @@
 #include "device_monome.h"
 #include "gpio.h"
 #include "oracle.h"
+#include "system.h"
 #include "weaver.h"
 
 #include "event_types.h"
@@ -45,6 +46,8 @@ static void handle_exec_code_line(struct event_exec_code_line *ev);
 static void handle_metro(struct event_metro *ev);
 static void handle_key(struct event_key *ev);
 static void handle_enc(struct event_enc *ev);
+static void handle_battery(struct event_battery *ev);
+static void handle_power(struct event_power *ev);
 static void handle_monome_add(struct event_monome_add *ev);
 static void handle_monome_remove(struct event_monome_remove *ev);
 static void handle_grid_key(struct event_grid_key *ev);
@@ -167,6 +170,12 @@ static void handle_event(union event_data *ev) {
     case EVENT_ENC:
         handle_enc( &(ev->enc) );
         break;
+    case EVENT_BATTERY:
+        handle_battery( &(ev->battery) );
+        break;
+    case EVENT_POWER:
+        handle_power( &(ev->power) );
+        break;
     case EVENT_MONOME_ADD:
         handle_monome_add( &(ev->monome_add) );
         break;
@@ -227,6 +236,15 @@ void handle_key(struct event_key *ev) {
 
 void handle_enc(struct event_enc *ev) {
     w_handle_enc(ev->n, ev->delta);
+}
+
+//--- system/battery
+void handle_battery(struct event_battery *ev) {
+    w_handle_battery(ev->percent);
+}
+
+void handle_power(struct event_power *ev) {
+    w_handle_power(ev->present);
 }
 
 //--- monome devices

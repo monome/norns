@@ -839,6 +839,25 @@ void w_handle_enc(const int n, const int delta) {
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
+// system/battery
+void w_handle_battery(const int percent) {
+    lua_getglobal(lvm, "norns");
+    lua_getfield(lvm, -1, "battery");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, percent);
+    l_report( lvm, l_docall(lvm, 1, 0) );
+}
+
+// system/power
+void w_handle_power(const int present) {
+    lua_getglobal(lvm, "norns");
+    lua_getfield(lvm, -1, "power");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, present);
+    l_report( lvm, l_docall(lvm, 1, 0) );
+}
+
+
 void w_handle_poll_value(int idx, float val) {
     // printf("w_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);
     lua_getglobal(lvm, "norns");
