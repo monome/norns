@@ -518,7 +518,7 @@ static int collectargs (char **argv, int *first) {
                 i++;                  /* try next 'argv' */
                 if ( ( argv[i] == NULL) || ( argv[i][0] == '-') ) {
                     return has_error; /* no next argument or it is another
-                                       *option */
+                                       * option */
                 }
             }
             break;

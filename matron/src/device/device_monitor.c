@@ -142,7 +142,8 @@ int dev_monitor_scan(void) {
 
     udev = udev_new();
     if (!udev) {
-        printf("device_monitor_scan(): failed to create udev\n"); fflush(stdout);
+        printf("device_monitor_scan(): failed to create udev\n");
+        fflush(stdout);
         return 1;
     }
 

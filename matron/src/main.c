@@ -14,9 +14,11 @@
 #include "device_monome.h"
 
 #include "events.h"
-#include "hid.h"
-#include "metro.h"
+#include "battery.h"
 #include "gpio.h"
+#include "hid.h"
+#include "i2c.h"
+#include "metro.h"
 #include "screen.h"
 
 #include "oracle.h"
@@ -30,6 +32,7 @@ void cleanup(void) {
     w_deinit();
     gpio_deinit();
     screen_deinit();
+    battery_deinit();
 
     printf("matron shutdown complete \n"); fflush(stdout);
     exit(0);
@@ -44,7 +47,9 @@ int main(int argc, char **argv) {
     metros_init();
     gpio_init();
     screen_init();
-    o_init();      // oracle (audio)
+    battery_init();
+    i2c_init();
+    o_init(); // oracle (audio)
 
     //=== FIXME:
     //--- we should wait here for a signal from the audio server...

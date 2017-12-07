@@ -26,6 +26,7 @@ SRC_DIR = src
 
 _OBJ = main.o \
 	args.o \
+	battery.o \
 	device/device.o \
 	device/device_hid.o \
 	device/device_list.o \
@@ -34,6 +35,7 @@ _OBJ = main.o \
 	events.o \
 	gpio.o \
 	hid.o \
+	i2c.o \
 	lua_eval.o \
 	metro.o \
 	oracle.o \
