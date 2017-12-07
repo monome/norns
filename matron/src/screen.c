@@ -15,14 +15,14 @@
 #include <cairo.h>
 #include <cairo-ft.h>
 
-float c[16] = {0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333, 0.4, 0.46666666666667, 0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
+static float c[16] = {0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333, 0.4, 0.46666666666667, 0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
 
-cairo_surface_t *surface;
-cairo_t *cr;
-cairo_font_face_t * ct;
-FT_Library value;
-FT_Error status;
-FT_Face face;
+static cairo_surface_t *surface;
+static cairo_t *cr;
+static cairo_font_face_t * ct;
+static FT_Library value;
+static FT_Error status;
+static FT_Face face;
 
 typedef struct _cairo_linuxfb_device {
     int fb_fd;
@@ -58,20 +58,20 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
 
     device = malloc(sizeof(*device));
     if (!device) {
-        perror("Error: cannot allocate memory\n");
+        printf("ERROR (screen) cannot allocate memory\n"); fflush(stdout);
         exit(1);
     }
 
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
     if (device->fb_fd == -1) {
-        perror("Error: cannot open framebuffer device");
+        printf("ERROR (screen) cannot open framebuffer device"); fflush(stdout);
         goto handle_allocate_error;
     }
 
     // Get variable screen information
     if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
-        perror("Error: reading variable information");
+        printf("ERROR (screen) reading variable information"); fflush(stdout);
         goto handle_ioctl_error;
     }
 
@@ -84,13 +84,13 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
                                    PROT_READ | PROT_WRITE, MAP_SHARED,
                                    device->fb_fd, 0);
     if ((int)device->fb_data == -1) {
-        perror("Error: failed to map framebuffer device to memory");
+        printf("ERROR (screen) failed to map framebuffer device to memory"); fflush(stdout);
         goto handle_ioctl_error;
     }
 
     // Get fixed screen information
     if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
-        perror("Error reading fixed information");
+        printf("ERROR (screen) reading fixed information"); fflush(stdout);
         goto handle_ioctl_error;
     }
 
@@ -124,13 +124,13 @@ void screen_init(void) {
 
     status = FT_Init_FreeType(&value);
     if(status != 0) {
-    	fprintf(stderr, "Error %d opening library.\n", status);
-	exit(EXIT_FAILURE);
+	printf("ERROR (screen) freetype init\n"); fflush(stdout);
+	return;
     }
     status = FT_New_Face(value, filename, 0, &face);
     if(status != 0) {
-    	fprintf(stderr, "Error %d opening %s.\n", status, filename);
-	exit(EXIT_FAILURE);
+    	printf("ERROR (screen) font load: %s\n", filename); fflush(stdout);
+	return;
     }
     ct = cairo_ft_font_face_create_for_ft_face(face, 0);
 
@@ -142,9 +142,8 @@ void screen_init(void) {
     font_options = cairo_font_options_create();
     cairo_font_options_set_antialias(font_options,CAIRO_ANTIALIAS_SUBPIXEL);
 
-
-    cairo_set_font_face (cr, ct);
     //cairo_select_font_face(cr, "cairo:sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_face (cr, ct);
     cairo_set_font_options(cr, font_options);
     cairo_set_font_size(cr, 8.0);
 }
@@ -191,6 +190,4 @@ void screen_clear(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-}
-
-
+} 

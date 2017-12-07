@@ -48,7 +48,6 @@ void gpio_init() {
   fd[7] = open("/sys/class/gpio/gpio36/value", O_RDONLY | O_NONBLOCK); // A3
   fd[8] = open("/sys/class/gpio/gpio37/value", O_RDONLY | O_NONBLOCK); // B3
   if(fd[0] > 0) {
-    printf("GPIO: %s\n", strerror(errno)); fflush(stdout);
     buf = 0;
     int n;
     for(int i=0;i<NUM_PINS;i++) {
@@ -57,14 +56,14 @@ void gpio_init() {
       n = epoll_ctl(epfd, EPOLL_CTL_ADD, fd[i], &ev[i]);
     }
     if(n) {
-      printf("GPIO epoll_ctl returned %d: %s\n", n, strerror(errno)); fflush(stdout); 
+      printf("ERROR (gpio) epoll_ctl returned %d: %s\n", n, strerror(errno)); fflush(stdout); 
     } 
     if(pthread_create(&p, NULL, gpio_check, 0)) { 
-      printf("GPIO: Error creating thread\n"); fflush(stdout);
+      printf("ERROR (gpio) pthread error\n"); fflush(stdout);
     }
   }
   else {
-    printf("GPIO: FAIL. check gpio exports!\n"); fflush(stdout);
+    printf("ERROR (gpio) check gpio exports!\n"); fflush(stdout);
   } 
 }
 

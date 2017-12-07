@@ -32,7 +32,7 @@ void cleanup(void) {
     w_deinit();
     gpio_deinit();
     screen_deinit();
-    battery_init();
+    battery_deinit();
 
     printf("matron shutdown complete \n"); fflush(stdout);
     exit(0);
