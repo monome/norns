@@ -6,14 +6,16 @@
 
 #include "CutFadeLoopLogic.h"
 
-CutFadeLoopLogic::CutFadeLoopLogic(float sr_) : sr(sr_)
+CutFadeLoopLogic::CutFadeLoopLogic()
 {
     start = 0;
-    //end = bufSize;
     end = 0;
-    phase[0] = phase[1] = 0.f;
-    fade[0] = fade[1] = 0.f;
-    state[0] = state[1] = INACTIVE;
+    phase[0] = 0.f;
+    phase[1] = 0.f;
+    fade[0] = 0.f;
+    fade[1] = 0.f;
+    state[0] = INACTIVE;
+    state[1] = INACTIVE;
     active = 0;
     setFadeTime(0.1);
 }
@@ -23,9 +25,9 @@ void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase) {
     updatePhase(1);
     updateFade(0);
     updateFade(1);
-    *outPhase = phase[active];
+    if(outPhase != nullptr) { *outPhase = phase[active]; }
     // TODO: linear fade for now. add cosine, exp via LUT
-    *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
+     *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
 }
 
 void CutFadeLoopLogic::setRate(float x)
@@ -52,27 +54,30 @@ void CutFadeLoopLogic::updatePhase(int id)
         case ACTIVE:
             p = phase[id];
             p += phaseInc;
-            if (phaseInc > 0.f) {
-                if (p > end) {
-                    if(loopFlag) {
-                        cutToPos(start + (p-end));
-                        // TODO: add trigger output on loop?
-                    } else {
-                        state[id] = FADEOUT;
+            if(id == active) {
+                if (phaseInc > 0.f) {
+                    if (p > end) {
+                        if(loopFlag) {
+                            // cutToPos(start + (p-end));
+                            cutToPos(start);
+                            // TODO: add trigger output on loop?
+                        } else {
+                            state[id] = FADEOUT;
+                        }
                     }
-                }
 
-            } else { // negative rate
-                if (phaseInc < start) {
-                    if(loopFlag) {
-                        //p = end + (phaseInc - start);
-                        cutToPos(end + (p - start));
-                        // TODO: add trigger output on loop?
-                    } else {
-                        state[id] = FADEOUT;
+                } else { // negative rate
+                    if (p < start) {
+                        if(loopFlag) {
+                            // cutToPos(end + (p - start));
+                            cutToPos(end);
+                            // TODO: add trigger output on loop?
+                        } else {
+                            state[id] = FADEOUT;
+                        }
                     }
-                }
-            }
+                } // rate sign check
+            } // /active check
             phase[id] = p;
             break;
         case INACTIVE:
@@ -93,14 +98,14 @@ void CutFadeLoopLogic::updateFade(int id) {
     switch(state[id]) {
         case FADEIN:
             fade[id] += fadeInc;
-            if (fade[id] >= 1.f) {
+            if (fade[id] > 1.f) {
                 fade[id] = 1.f;
                 doneFadeIn(id);
             }
             break;
         case FADEOUT:
             fade[id] -= fadeInc;
-            if (fade[id] <= 0.f) {
+            if (fade[id] < 0.f) {
                 fade[id] = 0.f;
                 doneFadeOut(id);
             }
@@ -125,12 +130,12 @@ void CutFadeLoopLogic::doneFadeOut(int id) {
 
 float CutFadeLoopLogic::peek(float phase) {
     // TODO: ahahaha, not interpolating r/n
-    return buf[((int)phase) % bufSize];
+    return buf[((int)phase) % bufFrames];
 }
 
-void CutFadeLoopLogic::setBuffer(float *b, int size) {
+void CutFadeLoopLogic::setBuffer(const float *b, uint32_t bf) {
     buf = b;
-    bufSize = size;
+    bufFrames = bf;
 }
 
 void CutFadeLoopLogic::setLoopFlag(bool val) {
@@ -139,4 +144,8 @@ void CutFadeLoopLogic::setLoopFlag(bool val) {
 
 void CutFadeLoopLogic::resetPos() {
     cutToPos(start);
+}
+
+void CutFadeLoopLogic::setSampleRate(float sr_) {
+    sr = sr_;
 }

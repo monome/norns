@@ -5,12 +5,14 @@
 #ifndef CUTFADELOOP_CUTFADELOOPLOGIC_H
 #define CUTFADELOOP_CUTFADELOOPLOGIC_H
 
+#include <cstdint>
 
 class CutFadeLoopLogic {
 
 public:
-    CutFadeLoopLogic( float sr);
-    void setBuffer(float* buf, int size);
+    CutFadeLoopLogic();
+    void setSampleRate(float sr);
+    void setBuffer(const float* buf, uint32_t size);
     void setRate(float x);              // set the playback rate (as a ratio)
     void setLoopStartSeconds(float x);  // set the loop endpoint in seconds
     void setLoopEndSeconds(float x);    // set the loop start point in seconds
@@ -29,8 +31,8 @@ private:
 private:
     enum { ACTIVE, INACTIVE, FADEIN, FADEOUT };
     float sr;           // sample rate
-    float* buf;         // audio buffer (allocated elsewhere)
-    int bufSize;        // samples in buffer
+    const float* buf;         // audio buffer (allocated elsewhere)
+    int bufFrames;        // samples in buffer
     float start, end;   // loop points
     float fadeInc;      // linear fade increment per sample
     float phaseInc;     // phase increment per sample

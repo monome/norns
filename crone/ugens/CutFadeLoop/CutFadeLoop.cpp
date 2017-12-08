@@ -9,13 +9,20 @@
 		return; \
 	}
 
+//
+//#define SETUP_OUT(offset) \
+//	if (unit->mNumOutputs != bufChannels) { \
+//		ClearUnitOutputs(unit, inNumSamples); \
+//		return; \
+//	} \
+//	float *const * const out = &OUT(offset);
+
 static InterfaceTable *ft;
 
 struct CutFadeLoop : public Unit {
-
-    float m_fbufnum;
+   float m_fbufnum;
     SndBuf *m_buf;
-    bool prevTrig;
+    float prevTrig;
     CutFadeLoopLogic cutfade;
 };
 
@@ -27,8 +34,8 @@ static void CutFadeLoop_Dtor(CutFadeLoop* unit);
 
 void CutFadeLoop_Ctor(CutFadeLoop* unit) {
     SETCALC(CutFadeLoop_next);
+    unit->cutfade.setSampleRate(SAMPLERATE);
     CutFadeLoop_next(unit, 1);
-
 }
 
 // this must be named PluginName_Dtor.
@@ -40,16 +47,24 @@ void CutFadeLoop_Dtor(CutFadeLoop* unit) {
 
 void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
 {
-    float *out = OUT(0);
-    float *phase = OUT(1);
+    GET_BUF
+    CHECK_BUF
+    unit->cutfade.setBuffer(bufData, bufFrames);
+    //SETUP_OUT(0)
 
-    float rate = IN0(1);
-    bool trig = IN0(2) > 0.f;
+    float trig = IN0(1);
+    float rate = IN0(2);
     float start = IN0(3);
     float end = IN0(4);
     float fade = IN0(5);
     float loop = IN0(6);
 
+    float *out = OUT(0);
+//    float *phase = OUT(1);
+
+//    Print("rate: %f; trig: %f; start: %f; end: %f; fade: %f; loop:%f\n",
+//          rate, trig?1:0, start, end, fade, loop
+//    );
 
     unit->cutfade.setRate(rate);
     unit->cutfade.setLoopStartSeconds(start);
@@ -57,18 +72,16 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
     unit->cutfade.setFadeTime(fade);
     unit->cutfade.setLoopFlag(loop > 0);
 
-    if(trig && !(unit->prevTrig)) {
+    if((trig > 0.f) && (unit->prevTrig) <= 0.f) {
         unit->cutfade.resetPos();
     }
     unit->prevTrig = trig;
 
-    GET_BUF
-    CHECK_BUF
-
-    unit->cutfade.setBuffer(bufData, bufFrames);
+//    Print("buf pointer: %08x\n", bufData);
 
     for (int i = 0; i < inNumSamples; i++) {
-        unit->cutfade.nextSample(out, phase);
+        //unit->cutfade.nextSample(out+i, phase+i);
+        unit->cutfade.nextSample(out+i, nullptr);
     }
 }
 
@@ -78,4 +91,5 @@ PluginLoad(CutFadeLoop)
     // ATTENTION! This has changed!
     // In the previous examples this was DefineSimpleUnit.
     DefineDtorUnit(CutFadeLoop);
+    Print("PluginLoad(CutFadeLoop)\n");
 }

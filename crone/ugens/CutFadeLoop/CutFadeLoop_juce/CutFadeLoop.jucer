@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="SNqZTo" name="CutFadeLoop" displaySplashScreen="1" reportAppUsage="1"
+              splashScreenColour="Dark" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.yourcompany.CutFadeLoop" includeBinaryInAppConfig="1"
+              cppLanguageStandard="11" companyCopyright="" jucerVersion="5.2.0">
+  <MAINGROUP id="YvF0S6" name="CutFadeLoop">
+    <GROUP id="{AE23CE2C-0DDB-0A08-7C3B-660E069B3AB3}" name="Resources">
+      <FILE id="C6OJoX" name="vla-test.wav" compile="0" resource="1" file="../vla-test.wav"/>
+    </GROUP>
+    <GROUP id="{3858AFAC-1070-55A8-5426-6C8E9C43CE27}" name="Source">
+      <FILE id="RH1SzT" name="CutFadeLoopLogic.cpp" compile="1" resource="0"
+            file="../CutFadeLoopLogic.cpp"/>
+      <FILE id="bvYaxU" name="CutFadeLoopLogic.h" compile="0" resource="0"
+            file="../CutFadeLoopLogic.h"/>
+      <FILE id="mKFvrJ" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="FUerHi" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
+                       linkTimeOptimisation="0" targetName="CutFadeLoop"/>
+        <CONFIGURATION name="Release" enablePluginBinaryCopyStep="1" isDebug="0" optimisation="3"
+                       linkTimeOptimisation="1" targetName="CutFadeLoop"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_video" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../../../src/JUCE-5.1/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <CLION targetFolder="Builds/CLion">
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_video" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../../../src/JUCE-5.1/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../../../src/JUCE-5.1/modules"/>
+      </MODULEPATHS>
+    </CLION>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>
