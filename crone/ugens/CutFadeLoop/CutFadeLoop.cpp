@@ -17,8 +17,8 @@ if (!bufData) { \
 			Print("Buffer UGen channel mismatch: expected %i, yet buffer has %i channels\n", \
 				  numOutputs, bufChannels); \
 			unit->m_failedBufNum = fbufnum; \
-			} \
-		} \
+        } \
+    } \
 } \
 
 static InterfaceTable *ft;
@@ -28,13 +28,12 @@ struct CutFadeLoop : public Unit {
     float m_failedBufNum;
     SndBuf *m_buf;
     float prevTrig;
-    CutFadeLoopLogic cutfade;
+    CutFadeLoopLogic cutfade; // NB: constructor is never called on this field
 };
 
 
 static void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples);
 static void CutFadeLoop_Ctor(CutFadeLoop* unit);
-
 
 void CutFadeLoop_Ctor(CutFadeLoop* unit) {
     Print("CutFadeLoop_Ctor() : samplerate %f \n", SAMPLERATE);
@@ -70,25 +69,13 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
     unit->cutfade.setLoopFlag(loop > 0);
 
     if((trig > 0.f) && (unit->prevTrig <= 0.f)) {
-//        Print("CutFadeVoice got a trigger; jumping to sample: %f [%f]\n",
-//              unit->cutfade.start, unit->cutfade.buf[(int)unit->cutfade.start]);
-//        Print("active: %d; states: [%d, %d]\nphase: [%f, %f], fade: [%f, %f]\n",
-//        unit->cutfade.active,
-//              unit->cutfade.state[0],
-//              unit->cutfade.state[0],
-//              unit->cutfade.phase[0],
-//              unit->cutfade.phase[0],
-//              unit->cutfade.fade[0],
-//              unit->cutfade.fade[0]
-//        );
          unit->cutfade.resetPos();
-
     }
     unit->prevTrig = trig;
 
-
     float x;
     for (int i=0; i<inNumSamples; ++i) {
+        // FIXME: test phase output
 //        unit->cutfade.nextSample( &(out[i]), phase+i);
         unit->cutfade.nextSample( &x, nullptr);
         out[i] = x;

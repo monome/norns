@@ -29,8 +29,7 @@ private:
     void doneFadeIn(int id);
     void doneFadeOut(int id);
     float peek(float phase); // lookup an audio sample from the buffer (interpolated)
-// private:
-public: // testing
+ private:
     enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 };
     float sr;           // sample rate
     const float* buf;         // audio buffer (allocated elsewhere)

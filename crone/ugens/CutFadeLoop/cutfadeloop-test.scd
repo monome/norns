@@ -29,45 +29,49 @@ s.waitForBoot { Routine {
 
 	0.2.wait;
 
-//	Routine  { x.set(\trig, 0); s.sync; x.set(\trig, 1); }.play;
-//	Routine  { y.set(\trig, 0); s.sync; y.set(\trig, 1); }.play;
+	Routine  { x.set(\trig, 0); s.sync; x.set(\trig, 1); }.play;
+	Routine  { y.set(\trig, 0); s.sync; y.set(\trig, 1); }.play;
+
+	x.set(\rate, -4/5);
+
+	y.set(\fade, 0.8);
+	y.set(\end, 6.0);
+
+	x.set(\start, 2.2);
+	x.set(\end, 4.2);
+	x.set(\fade, 1.25);
 
 	/*
-	x.set(\rate, -4/5);
-	x.set(\start, 2.2);
-	x.set(\end, 5.0);
-	x.set(\fade, 0.2);
-	y.set(\end, 6.0);
 	*/
+
+	/*
+	x.set(\loop, 0);
+	x.set(\loop, 1);
+	*/
+
+
+}.play };
 
 /*
-		x.set(\loop, 0);
-		x.set(\loop, 1);
+
+z.free;
+
+x.set(\trig, 0);
+x.set(\trig, 1);
+
+x.set(\rate, 2.0);
+
+x.set(\start, 1.0);
+x.set(\end, 2.0);
+
+x.set(\fade, 0.1);
+x.set(\loop, 1);
+
+
+
+DiskIn
+
+//		snd = PlayBuf.ar(1, b.bufnum, 1.0, loop:1);
+
+b.plot;
 */
-
-
-	}.play };
-
-	/*
-
-	z.free;
-
-	x.set(\trig, 0);
-	x.set(\trig, 1);
-
-	x.set(\rate, 2.0);
-
-	x.set(\start, 1.0);
-	x.set(\end, 2.0);
-
-	x.set(\fade, 0.1);
-	x.set(\loop, 1);
-
-
-
-	DiskIn
-
-	//		snd = PlayBuf.ar(1, b.bufnum, 1.0, loop:1);
-
-	b.plot;
-	*/
