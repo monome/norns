@@ -6,10 +6,20 @@
 
 #include "CutFadeLoopLogic.h"
 
-CutFadeLoopLogic::CutFadeLoopLogic()
-{
-    start = 0;
-    end = 0;
+
+/// wtf...
+#ifndef nullptr
+#define nullptr ((void*)0)
+#endif
+
+CutFadeLoopLogic::CutFadeLoopLogic() {
+    this->init();
+}
+
+void CutFadeLoopLogic::init() {
+    sr = 44100.f;
+    start = 0.f;
+    end = 0.f;
     phase[0] = 0.f;
     phase[1] = 0.f;
     fade[0] = 0.f;
@@ -17,10 +27,18 @@ CutFadeLoopLogic::CutFadeLoopLogic()
     state[0] = INACTIVE;
     state[1] = INACTIVE;
     active = 0;
-    setFadeTime(0.1);
+    phaseInc = 0.f;
+    setFadeTime(0.1f);
+    buf = (const float*) nullptr;
+    bufFrames = 0;
 }
 
 void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase) {
+
+    if(buf == nullptr) {
+        return;
+    }
+
     updatePhase(0);
     updatePhase(1);
     updateFade(0);
@@ -55,12 +73,11 @@ void CutFadeLoopLogic::updatePhase(int id)
         case FADEIN:
         case FADEOUT:
         case ACTIVE:
-            p = phase[id];
-            p += phaseInc;
+            p = phase[id] + phaseInc;
             if(id == active) {
                 if (phaseInc > 0.f) {
                     if (p > end) {
-                        if(loopFlag) {
+                        if (loopFlag) {
                             // cutToPos(start + (p-end));
                             cutToPos(start);
                             // TODO: add trigger output on loop?
@@ -68,7 +85,6 @@ void CutFadeLoopLogic::updatePhase(int id)
                             state[id] = FADEOUT;
                         }
                     }
-
                 } else { // negative rate
                     if (p < start) {
                         if(loopFlag) {
@@ -90,8 +106,10 @@ void CutFadeLoopLogic::updatePhase(int id)
 }
 
 void CutFadeLoopLogic::cutToPos(float pos) {
-    int newActive = active ^1;
-    state[active] = FADEOUT;
+    int newActive = active == 0 ? 1 : 0;
+    if(state[active] != INACTIVE) {
+        state[active] = FADEOUT;
+    }
     state[newActive] = FADEIN;
     phase[newActive] = pos;
     active = newActive;

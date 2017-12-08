@@ -11,6 +11,7 @@ class CutFadeLoopLogic {
 
 public:
     CutFadeLoopLogic();
+    void init();
     void setSampleRate(float sr);
     void setBuffer(const float* buf, uint32_t size);
     void setRate(float x);              // set the playback rate (as a ratio)
@@ -28,12 +29,14 @@ private:
     void doneFadeIn(int id);
     void doneFadeOut(int id);
     float peek(float phase); // lookup an audio sample from the buffer (interpolated)
-private:
-    enum { ACTIVE, INACTIVE, FADEIN, FADEOUT };
+// private:
+public: // testing
+    enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 };
     float sr;           // sample rate
     const float* buf;         // audio buffer (allocated elsewhere)
     int bufFrames;        // samples in buffer
-    float start, end;   // loop points
+    float start; // loop points
+    float end;
     float fadeInc;      // linear fade increment per sample
     float phaseInc;     // phase increment per sample
     float phase[2];     // current buffer phase
