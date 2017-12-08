@@ -1,6 +1,6 @@
 #pragma once
 
-#include "device_input.h"
+#include "device_hid.h"
 #include "oracle.h"
 
 // initialize the lua VM and run setup scripts
@@ -29,21 +29,28 @@ extern void w_handle_monome_add(void *dev);
 extern void w_handle_monome_remove(int id);
 extern void w_handle_grid_key(int id, int x, int y, int state);
 
-extern void w_handle_input_add(void *dev);
-extern void w_handle_input_remove(int id);
-extern void w_handle_input_event(int id, uint8_t type, dev_code_t code,
-                                 int val);
+extern void w_handle_hid_add(void *dev);
+extern void w_handle_hid_remove(int id);
+extern void w_handle_hid_event(int id, uint8_t type, dev_code_t code,
+                               int val);
 
 //--- audio engine introspection
 extern void w_handle_engine_report(const char **arr, const int num);
 extern void w_handle_command_report(const struct engine_command *arr,
                                     const int num);
 extern void w_handle_poll_report(const struct engine_poll *arr,
-                                    const int num);
+                                 const int num);
 
+//--- gpio handler
+extern void w_handle_key(const int n, const int val);
+extern void w_handle_enc(const int n, const int delta);
 
-//--- timer bang handler
-extern void w_handle_timer(const int idx, const int stage);
+//--- system/battery
+extern void w_handle_battery(const int percent);
+extern void w_handle_power(const int present);
+
+//--- metro bang handler
+extern void w_handle_metro(const int idx, const int stage);
 
 //--- crone poll handlers
 extern void w_handle_poll_value(int idx, float val);

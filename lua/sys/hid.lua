@@ -1,19 +1,171 @@
---[[
+--- hid devices
+-- @module hid
+-- @alias Hid
 
-   input_codes.lua
+print('hid.lua')
+require 'norns'
+norns.version.hid = '0.0.2'
 
-   tables and reverse tables for looking up event type and event code names.
+local Hid = {}
+Hid.__index = Hid
 
-   a bit hackish: just copying the most relevant event types and co`des 
-   from linux/input-event-codes.h
+Hid.devices = {}
 
-   would be cleaner to build this dynamically at startup, maybe?
-   using libevdev functions like libevdev_event_code_get_name()
+--- device-added callback; 
+-- script should redefine to handle device hotplug events
+-- @param device - a Hid 
+Hid.add = function(device)
+   print("device added: ", device.id, device.name)
+end
 
---]]
+--- device-removed callbacks; 
+-- script should redefine to handle device hotplug events
+-- @param device - a Hid 
+Hid.remove = function(device)
+   print("device removed: ", device.id, device.name)
+end
+
+-- `codes` is indexed by event type, values are subtables
+-- @tparam integer id : arbitrary numberical index of the device
+-- @tparam string serial : serial device string from USB
+-- @tparam string name: device name string from USB
+-- @param types: array of supported event types. keys are type codes, values are strings
+-- @param codes: array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
+function Hid.new(id, serial, name, types, codes)
+   local d = setmetatable({}, Hid)
+   -- print(id, serial, name, types, codes)
+   d.id = id
+   d.serial = serial
+   d.name = name
+   d.types = types
+   d.codes = {}
+   d.callbacks = {}
+   for i,t in pairs(types) do
+      if Hid.event_types[t] ~= nil then
+	 d.codes[t] = {}
+	 for j,c in pairs(codes[i]) do
+	    d.codes[t][c] = Hid.event_codes[t][c]
+	 end
+      end
+   end
+   return d
+end
+
+--- return the first available device that supports the given event
+-- @tparam string ev_type - event type name, e.g. 'EV_KEY'
+-- @tparam string code - event code name, e.g. 'BTN_START'
+-- @return - a Hid or nil
+function Hid.findDeviceSupporting(ev_type, ev_code)
+   local ev_type_num = Hid.event_types_rev[ev_type]
+   if ev_type_num == nil then return nil end   
+   local ev_code_num = Hid.event_codes_rev[ev_type][ev_code]
+   if ev_code_num == nil then return nil end   
+   -- only reason we don't call Hid:supports here is to save cycles + allocations
+   for i,v in pairs(Hid.devices) do
+      if v.types[ev_type_num] then
+	 if v.codes[ev_type_num][ev_code_num] then return v end
+      end      
+   end
+   return nil -- didn't find any
+end
+
+------------------------------------
+--- instance methods
+
+--- unset all callbacks
+function Hid:clearCallbacks()
+   for code, cb in self.callbacks do
+      self.callbacks[code] = nil
+   end
+end
+
+--- test if device supports given event type and code
+-- @tparam string ev_type - event type name, e.g. 'EV_REL'
+-- @tparam string ev_code - event code name, e.g. 'REL_X',
+-- @treturn boolean
+function Hid:supports(ev_type, ev_code)
+   local ev_type_num = Hid.event_types_rev[ev_type]
+   if ev_type_num == nil then return false end   
+   local ev_code_num = Hid.event_codes_rev[ev_type][ev_code]
+   if ev_code_num == nil then return false end
+   if self.types[ev_type_num] then
+      if self.codes[ev_type_num][ev_code_num] then return true end
+   end
+   return false      
+end
+
+--- print some information about a device
+function Hid:print()
+   print(self.id, self.serial, self.name)
+   print('supported events: ')
+   for t,arr in pairs(self.codes) do
+      if Hid.event_types[t] ~= nil then
+	 print(t, Hid.event_types[t])
+      else
+	 print(t, '(unsupported)')
+      end
+      for id,name in pairs(arr) do
+	 print('', id, name)
+      end
+   end
+end
+
+---------------------------------------------------
+--- global norns functions (C glue)
+
+--- add a device
+-- @param id - arbitrary id number (int)
+-- @param serial (string)
+-- @param name (string)
+-- @param types - table of event types  (int)
+-- @param codes - table of table of event codes (int), indexed by type (int)
+norns.hid.add = function(id, serial, name, types, codes)
+   local d = Hid.new(id, serial, name, types, codes)
+   Hid.devices[id] = d
+   if Hid.add ~= nil then Hid.add(d) end
+end
+
+--- remove a device
+-- @param id - arbitrary id numer (int) 
+norns.hid.remove = function(id)
+   local d = Hid.devices[id]
+   if d then
+      if Hid.remove then Hid.remove(d) end
+      Hid.devices[id] = nil
+   end
+   
+end
+
+--- handle a hid event
+-- @tparam integer id- arbitrary device id number
+-- @tparam integer ev_type - event type id
+-- @tparam integer ev_code - event code id
+-- @tparam integer value
+norns.hid.event = function(id, ev_type, ev_code, value)
+   local ev_type_name = Hid.event_types[ev_type]
+   assert(ev_type_name)
+   local ev_code_name = Hid.event_codes[ev_type][ev_code]
+   -- print("norns.hid.event ", id, ev_type_name, ev_code_name, value)
+   local dev = Hid.devices[id]
+   if  dev then
+      local cb = dev.callbacks[ev_code_name]      
+      if cb then
+	 cb(value)
+      end
+   end
+end
+
+----------------------------------
+---- input event codes
+---------
+---- FIXME: we shouldn't need any of this mess. just get matron to send us code names instead of [type, code] numbers.
+
+
+-- tables and reverse tables mapping hex to string for event types and codes
+
 
 -- event types
-norns.input.event_types = { 
+Hid.event_types = { 
    [0x01] = 'EV_KEY',
    [0x02] = 'EV_REL',
    [0x03] = 'EV_ABS',
@@ -21,13 +173,13 @@ norns.input.event_types = {
    [0x11] = 'EV_LED',
 }
 
-norns.input.event_types_rev = {}
-for k,v in pairs(norns.input.event_types) do
-   norns.input.event_types_rev[v] = k
+Hid.event_types_rev = {}
+for k,v in pairs(Hid.event_types) do
+   Hid.event_types_rev[v] = k
 end
 
-norns.input.event_codes = {}
-norns.input.event_codes[norns.input.event_types_rev['EV_KEY']] = {
+Hid.event_codes = {}
+Hid.event_codes[Hid.event_types_rev['EV_KEY']] = {
    [0] = 'KEY_RESERVED',
    [1] = 'KEY_ESC',
    [2] = 'KEY_1',
@@ -310,8 +462,9 @@ norns.input.event_codes[norns.input.event_types_rev['EV_KEY']] = {
    [0x12a] = 'BTN_BASE5',
    [0x12b] = 'BTN_BASE6',
    [0x12f] = 'BTN_DEAD',
-   [0x130] = 'BTN_GAMEPAD',
+   --[0x130] = 'BTN_GAMEPAD', -- why is this duplicated??
    [0x130] = 'BTN_SOUTH',
+   ---- FIXME: these aliases should be preserved
    -- [BTN_SOUTH] = 'BTN_A',
    [0x131] = 'BTN_EAST',
    -- [BTN_EAST] = 'BTN_B',
@@ -591,7 +744,7 @@ norns.input.event_codes[norns.input.event_types_rev['EV_KEY']] = {
 }
 
 
-norns.input.event_codes[norns.input.event_types_rev['EV_REL']] = {
+Hid.event_codes[Hid.event_types_rev['EV_REL']] = {
    [0x00] = 'REL_X',
    [0x01] = 'REL_Y',
    [0x02] = 'REL_Z',
@@ -605,7 +758,7 @@ norns.input.event_codes[norns.input.event_types_rev['EV_REL']] = {
    [0x0f] = 'REL_MAX',
 }
 
-norns.input.event_codes[norns.input.event_types_rev['EV_ABS']] = {
+Hid.event_codes[Hid.event_types_rev['EV_ABS']] = {
    [0x00] = 'ABS_X',
    [0x01] = 'ABS_Y',
    [0x02] = 'ABS_Z',
@@ -650,7 +803,7 @@ norns.input.event_codes[norns.input.event_types_rev['EV_ABS']] = {
    [0x3f] = 'ABS_MAX',
 }
 
-norns.input.event_codes[norns.input.event_types_rev['EV_SW']] = {
+Hid.event_codes[Hid.event_types_rev['EV_SW']] = {
    [0x00] = 'SW_LID',
    [0x01] = 'SW_TABLET_MODE',
    [0x02] = 'SW_HEADPHONE_INSERT',
@@ -671,7 +824,7 @@ norns.input.event_codes[norns.input.event_types_rev['EV_SW']] = {
    [0x0f] = 'SW_MAX',
 }
 
-norns.input.event_codes[norns.input.event_types_rev['EV_LED']] = {
+Hid.event_codes[Hid.event_types_rev['EV_LED']] = {
    [0x00] = 'LED_NUML',
    [0x01] = 'LED_CAPSL',
    [0x02] = 'LED_SCROLLL',
@@ -686,11 +839,14 @@ norns.input.event_codes[norns.input.event_types_rev['EV_LED']] = {
    [0x0f] = 'LED_MAX',
 }
 
-norns.input.event_codes_rev = {}
-for t,tname in pairs(norns.input.event_types) do
-   norns.input.event_codes_rev[tname] = {}
-   for c,cname in pairs(norns.input.event_codes[t]) do
-	  norns.input.event_codes_rev[tname][cname] = c
+Hid.event_codes_rev = {}
+for t,tname in pairs(Hid.event_types) do
+   Hid.event_codes_rev[tname] = {}
+   -- print(tname)
+   for c,cname in pairs(Hid.event_codes[t]) do
+      -- print(c, cname)
+      Hid.event_codes_rev[tname][cname] = c
    end
 end
-	  
+
+return Hid

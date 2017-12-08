@@ -11,12 +11,13 @@ CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
-INC =  -Isrc -Isrc/device -Ilua
+INC =  -Isrc -Isrc/device -Ilua 
 INC += -I/usr/include/libevdev-1.0/libevdev
+INC += -I/usr/include/cairo -I/usr/include/freetype2
 
 LDFLAGS =
 
-LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm
+LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm -lcairo -lfreetype
 
 STATIC = lua/liblua.a
 
@@ -25,16 +26,20 @@ SRC_DIR = src
 
 _OBJ = main.o \
 	args.o \
+	battery.o \
 	device/device.o \
-	device/device_input.o \
+	device/device_hid.o \
 	device/device_list.o \
 	device/device_monitor.o \
 	device/device_monome.o \
 	events.o \
-	input.o \
+	gpio.o \
+	hid.o \
+	i2c.o \
 	lua_eval.o \
-	timers.o \
+	metro.o \
 	oracle.o \
+	screen.o \
 	weaver.o \
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))

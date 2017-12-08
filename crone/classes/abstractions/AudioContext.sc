@@ -92,6 +92,7 @@ AudioContext {
 	}
 
 	initPolls {
+		postln("AudioContext: initPolls");
 		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
 		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
 	}

@@ -15,7 +15,7 @@ CronePoll {
 	// create and define a new poll.
 	// function argument should return value or data
 	// type should be \value or \data
-	*new { arg i, n, f = {}, d=0.1, t=\value;
+	*new { arg i, n, f = {}, d=0.25, t=\value;
 		^super.new.init(i, n, f, d, t);
 	}
 
@@ -80,7 +80,7 @@ CronePollRegistry {
 	//	*initClass { polls = Dictionary.new; }
 
 	// create a CronePoll and add to the registry
-	*register { arg name, func, dt=0.1, type=\value;
+	*register { arg name, func, dt=0.25, type=\value;
 		name = name.asSymbol;
 		if(polls.keys.includes(name), {
 			postln("warning: attempted to add poll using existing key");
@@ -108,6 +108,8 @@ CronePollRegistry {
 	}
 
 	*getPollFromIdx { arg idx;
+		postln("getting poll for idx: " ++ idx);
+		postln("poll names: " ++ pollNames);
 		^polls[pollNames[idx]];
 	}
 

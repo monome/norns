@@ -1,15 +1,22 @@
--- add your startup code here!
--- see sys/norns.lua 
+--- add your startup code here!
 print("startup.lua")
+require 'norns'
 
--- some recommended (?), convenient shortcuts
-n = norns
-e = n.engine
+--- load all the norns modules to check their versions
+require 'engine'
+require 'grid'
+require 'input'
+require 'hid'
+require 'poll'
+require 'metro'
+print("norns module versions: ")
+  for mod,v in pairs(norns.version) do
+     print (mod,v)
+  end
 
---- test some things
---require('test_amp_poll')
-require('test_amp_poll')
+norns.state.resume()
 
--- require('test_time_query')
--- require('test_grid_timer')
--- require('test_input_devices')
+
+-- shortcuts
+run = norns.script.load
+stop = norns.script.cleanup

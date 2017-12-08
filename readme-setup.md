@@ -14,6 +14,7 @@ libncurses-dev
 libncursesw5-dev
 libreadline-dev
 libudev-dev
+libcairo2-dev
 ```
 
 for desktop: 
@@ -27,7 +28,7 @@ for rpi headless (building supercollider):
 libcwiid1 libasound2-dev libsamplerate0-dev libsndfile1-dev
 ```
 
-note that lua packages are *not* required anymore; instead, lua is included as a submoodule, built from source, and statically linked.
+note that lua packages are *not* required anymore; instead, lua is included as a submodule, built from source, and statically linked.
 
 ### sources
 
@@ -50,7 +51,7 @@ https://github.com/redFrik/supercolliderStandaloneRPI2/blob/master/BUILDING_NOTE
 ```
 git clone https://github.com/catfact/norns.git
 cd norns
-git subomdule init && git submodule update
+git submodule init && git submodule update
 make
 ```
 
