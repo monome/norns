@@ -65,4 +65,4 @@ if(MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mstackrealign")
 endif()
 
-add_library(${PROJECT} MODULE CutFadeLoop.cpp CutFadeLoopLogic.cpp CutFadeLoopLogic.h)
+add_library(${PROJECT} MODULE CutFadeLoop.cpp CutFadeLoopLogic.cpp CutFadeLoopLogic.h interp.h)

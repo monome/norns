@@ -6,11 +6,19 @@
 
 #include "CutFadeLoopLogic.h"
 
+#include "interp.h"
 
 /// wtf...
 #ifndef nullptr
 #define nullptr ((void*)0)
 #endif
+
+static int wrap(int val, int bound) {
+    if(val >= bound) { return val - bound; }
+    if(val < 0) { return val + bound; }
+    return val;
+}
+
 
 CutFadeLoopLogic::CutFadeLoopLogic() {
     this->init();
@@ -79,7 +87,7 @@ void CutFadeLoopLogic::updatePhase(int id)
                     if (p > end) {
                         if (loopFlag) {
                             // cutToPos(start + (p-end));
-                            cutToPos(start);
+                            cutToPhase(start);
                             // TODO: add trigger output on loop?
                         } else {
                             state[id] = FADEOUT;
@@ -89,7 +97,7 @@ void CutFadeLoopLogic::updatePhase(int id)
                     if (p < start) {
                         if(loopFlag) {
                             // cutToPos(end + (p - start));
-                            cutToPos(end);
+                            cutToPhase(end);
                             // TODO: add trigger output on loop?
                         } else {
                             state[id] = FADEOUT;
@@ -105,7 +113,7 @@ void CutFadeLoopLogic::updatePhase(int id)
     }
 }
 
-void CutFadeLoopLogic::cutToPos(float pos) {
+void CutFadeLoopLogic::cutToPhase(float pos) {
     int newActive = active == 0 ? 1 : 0;
     if(state[active] != INACTIVE) {
         state[active] = FADEOUT;
@@ -150,12 +158,19 @@ void CutFadeLoopLogic::doneFadeOut(int id) {
 }
 
 float CutFadeLoopLogic::peek(float phase) {
-    // TODO: ahahaha, not interpolating r/n
-    //return buf[((int)phase) % bufFrames];
-    int ip = (int)phase;
-    if(ip >= bufFrames) { ip = bufFrames - 1; }
-    if(ip < 0) { ip = 0; }
-    return buf[ip];
+
+    int phase1 = (int)phase;
+    int phase0 = phase1 - 1;
+    int phase2 = phase1 + 1;
+    int phase3 = phase1 + 2;
+
+    float y0 = buf[wrap(phase0, bufFrames)];
+    float y1 = buf[wrap(phase1, bufFrames)];
+    float y2 = buf[wrap(phase2, bufFrames)];
+    float y3 = buf[wrap(phase3, bufFrames)];
+
+    float x = phase - (float)phase1;
+    return cubicinterp(x, y0, y1, y2, y3);
 }
 
 void CutFadeLoopLogic::setBuffer(const float *b, uint32_t bf) {
@@ -167,8 +182,8 @@ void CutFadeLoopLogic::setLoopFlag(bool val) {
     loopFlag = val;
 }
 
-void CutFadeLoopLogic::resetPos() {
-    cutToPos(start);
+void CutFadeLoopLogic::cutToStart() {
+    cutToPhase(start);
 }
 
 void CutFadeLoopLogic::setSampleRate(float sr_) {

@@ -17,24 +17,23 @@ public:
     void setRate(float x);              // set the playback rate (as a ratio)
     void setLoopStartSeconds(float x);  // set the loop endpoint in seconds
     void setLoopEndSeconds(float x);    // set the loop start point in seconds
-    //void setPosSeconds(float x);        // immediately cut to a new position, initiating crossfade
     void nextSample(float* outAudio, float* outPhase); // per-sample update function
     void setFadeTime(float secs);
     void setLoopFlag(bool val);
-    void resetPos();
+    void cutToStart();
 private:
     void updatePhase(int id);
     void updateFade(int id);
-    void cutToPos(float newPhase); // immediately cut to a new position in samples
+    void cutToPhase(float newPhase); // fade in to new position (given in samples)
     void doneFadeIn(int id);
     void doneFadeOut(int id);
-    float peek(float phase); // lookup an audio sample from the buffer (interpolated)
+    float peek(float phase); // lookup an audio sample from the buffer
  private:
     enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 };
     float sr;           // sample rate
-    const float* buf;         // audio buffer (allocated elsewhere)
-    int bufFrames;        // samples in buffer
-    float start; // loop points
+    const float* buf;   // audio buffer (allocated elsewhere)
+    int bufFrames;      // samples in buffer
+    float start;        // loop points
     float end;
     float fadeInc;      // linear fade increment per sample
     float phaseInc;     // phase increment per sample
@@ -45,6 +44,5 @@ private:
     bool loopFlag;  // set to loop, unset for 1-shot
 
 };
-
 
 #endif //CUTFADELOOP_CUTFADELOOPLOGIC_H

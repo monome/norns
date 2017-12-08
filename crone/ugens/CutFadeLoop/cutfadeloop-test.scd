@@ -19,6 +19,9 @@ s.waitForBoot { Routine {
 	s.sync;
 
 	z = { Out.ar(0, AnalogEcho.ar(SoundIn.ar(0) * 0.1).dup); }.play(s);
+	/*
+	z.free;
+	*/
 
 	x = Synth.new(\cutfadeloop, [\buf, b.bufnum], s);
 	y = Synth.new(\cutfadeloop, [\buf, b.bufnum], s);

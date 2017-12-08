@@ -69,7 +69,7 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
     unit->cutfade.setLoopFlag(loop > 0);
 
     if((trig > 0.f) && (unit->prevTrig <= 0.f)) {
-         unit->cutfade.resetPos();
+         unit->cutfade.cutToStart();
     }
     unit->prevTrig = trig;
 
