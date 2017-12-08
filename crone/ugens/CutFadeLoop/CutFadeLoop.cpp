@@ -27,7 +27,6 @@ struct CutFadeLoop : public Unit {
    float m_fbufnum;
     float m_failedBufNum;
     SndBuf *m_buf;
-    float prevTrig;
     CutFadeLoopLogic cutfade; // NB: constructor is never called on this field
 };
 
@@ -54,6 +53,7 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
     unit->cutfade.setBuffer(bufData, bufFrames);
 
     float *out = OUT(0);
+    float *phase = OUT(1);
 
     float trig = IN0(1);
     float rate = IN0(2);
@@ -73,12 +73,12 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
     }
     unit->prevTrig = trig;
 
-    float x;
+    float x, y;
     for (int i=0; i<inNumSamples; ++i) {
         // FIXME: test phase output
-//        unit->cutfade.nextSample( &(out[i]), phase+i);
-        unit->cutfade.nextSample( &x, nullptr);
+        unit->cutfade.nextSample( &x, &y);
         out[i] = x;
+        phase[i] = y;
     }
 }
 

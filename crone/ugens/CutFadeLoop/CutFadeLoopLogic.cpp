@@ -53,7 +53,7 @@ void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase) {
     updateFade(1);
 
     // FIXME: connect phase output in ugen wrapper
-    // if(outPhase != nullptr) { *outPhase = phase[active]; }
+    if(outPhase != nullptr) { *outPhase = phase[active] / sr; }
 
     // TODO: linear fade for now. add cosine, exp via LUT
      *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
