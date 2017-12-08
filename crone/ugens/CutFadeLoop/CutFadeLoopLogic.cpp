@@ -25,7 +25,10 @@ void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase) {
     updatePhase(1);
     updateFade(0);
     updateFade(1);
-    if(outPhase != nullptr) { *outPhase = phase[active]; }
+
+    /// wrrg??
+//    if(outPhase != nullptr) { *outPhase = phase[active]; }
+
     // TODO: linear fade for now. add cosine, exp via LUT
      *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
 }
@@ -130,7 +133,11 @@ void CutFadeLoopLogic::doneFadeOut(int id) {
 
 float CutFadeLoopLogic::peek(float phase) {
     // TODO: ahahaha, not interpolating r/n
-    return buf[((int)phase) % bufFrames];
+    //return buf[((int)phase) % bufFrames];
+    int ip = (int)phase;
+    if(ip >= bufFrames) { ip = bufFrames - 1; }
+    if(ip < 0) { ip = 0; }
+    return buf[ip];
 }
 
 void CutFadeLoopLogic::setBuffer(const float *b, uint32_t bf) {

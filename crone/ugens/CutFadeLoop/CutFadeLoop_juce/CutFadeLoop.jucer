@@ -43,7 +43,7 @@
         <MODULEPATH id="juce_audio_utils" path="../../../../../../src/JUCE-5.1/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <CLION targetFolder="Builds/CLion">
+    <CLION targetFolder="Builds/CLion" clionXcodeEnabled="1">
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../../../../../src/JUCE-5.1/modules"/>
         <MODULEPATH id="juce_events" path="../../../../../../src/JUCE-5.1/modules"/>
