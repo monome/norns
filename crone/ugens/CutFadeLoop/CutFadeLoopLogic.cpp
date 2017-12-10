@@ -39,9 +39,11 @@ void CutFadeLoopLogic::init() {
     setFadeTime(0.1f);
     buf = (const float*) nullptr;
     bufFrames = 0;
+    isWrapping = false;
+    wasWrapping = false;
 }
 
-void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase) {
+void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase, float *outTrig) {
 
     if(buf == nullptr) {
         return;
@@ -57,6 +59,13 @@ void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase) {
 
     // TODO: linear fade for now. add cosine, exp via LUT
      *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
+
+    if(isWrapping && !wasWrapping) {
+        *outTrig = 1.f;
+    } else {
+        *outTrig = 0.f;
+    }
+    wasWrapping = isWrapping;
 }
 
 void CutFadeLoopLogic::setRate(float x)
@@ -88,20 +97,24 @@ void CutFadeLoopLogic::updatePhase(int id)
                         if (loopFlag) {
                             // cutToPos(start + (p-end));
                             cutToPhase(start);
-                            // TODO: add trigger output on loop?
+                            isWrapping = true;
                         } else {
                             state[id] = FADEOUT;
                         }
+                    } else {
+                        isWrapping = false;
                     }
                 } else { // negative rate
                     if (p < start) {
                         if(loopFlag) {
                             // cutToPos(end + (p - start));
                             cutToPhase(end);
-                            // TODO: add trigger output on loop?
+                            isWrapping = true;
                         } else {
                             state[id] = FADEOUT;
                         }
+                    } else {
+                        isWrapping = false;
                     }
                 } // rate sign check
             } // /active check

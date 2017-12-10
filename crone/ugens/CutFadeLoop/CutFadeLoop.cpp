@@ -12,7 +12,7 @@ if (!bufData) { \
 	ClearUnitOutputs(unit, inNumSamples); \
 	return; \
 } else { \
-	if (bufChannels != numOutputs) { \
+	if (bufChannels != (numOutputs-2)) { \
 		if(unit->mWorld->mVerbosity > -1 && !unit->mDone && (unit->m_failedBufNum != fbufnum)) { \
 			Print("Buffer UGen channel mismatch: expected %i, yet buffer has %i channels\n", \
 				  numOutputs, bufChannels); \
@@ -24,10 +24,11 @@ if (!bufData) { \
 static InterfaceTable *ft;
 
 struct CutFadeLoop : public Unit {
+    float prevTrig;
    float m_fbufnum;
     float m_failedBufNum;
     SndBuf *m_buf;
-    CutFadeLoopLogic cutfade; // NB: constructor is never called on this field
+    CutFadeLoopLogic cutfade; // NB: constructor is never called on this field!
 };
 
 
@@ -49,11 +50,14 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
 {
     GET_BUF_SHARED
     uint32 numOutputs = unit->mNumOutputs;
+    //Print("numOutputs: %d\n", numOutputs);
     CHECK_BUFFER_DATA
     unit->cutfade.setBuffer(bufData, bufFrames);
 
-    float *out = OUT(0);
-    float *phase = OUT(1);
+
+    float *phase_out = OUT(0);
+    float *trig_out = OUT(1);
+    float *snd_out = OUT(2);
 
     float trig = IN0(1);
     float rate = IN0(2);
@@ -73,12 +77,12 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
     }
     unit->prevTrig = trig;
 
-    float x, y;
+    float snd, phi, tr;
     for (int i=0; i<inNumSamples; ++i) {
-        // FIXME: test phase output
-        unit->cutfade.nextSample( &x, &y);
-        out[i] = x;
-        phase[i] = y;
+        unit->cutfade.nextSample( &snd, &phi, &tr);
+        phase_out[i] = phi;
+        trig_out[i] = tr;
+        snd_out[i] = snd;
     }
 }
 

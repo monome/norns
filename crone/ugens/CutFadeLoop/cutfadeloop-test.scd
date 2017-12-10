@@ -11,21 +11,20 @@ s.waitForBoot { Routine {
 
 	SynthDef.new(\cutfadeloop, {
 		arg buf, out, phase_out, amp=0.2, trig=0, rate=1, start=2, end=4, fade=0.1, loop=1;
-		var cfv, snd, phase;
-		#snd, phase=  CutFadeLoop.ar(buf, trig, rate, start, end, fade, loop);
-//		snd = cfv[0];
-//		phase = cfv[1];
+		var cfv, snd, phase, tr;
+		#phase, tr, snd =  CutFadeLoop.ar(buf, trig, rate, start, end, fade, loop);
 		Out.ar(out, (snd*amp).dup);
-		Out.kr(phase_out, A2K.kr(phase));
+		Out.ar(phase_out, phase.linlin(start, end, 0, 1));
+		SendTrig.ar(tr, 0, 0);
+//		phase.poll;
 	}).send(s);
 
 	s.sync;
 
+	~phase_b = Bus.audio(s, 2);
 
-	~phase_b = Bus.control(s, 2);
-
-	x = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0, \out_phase, ~phase_b.index], s);
-	y = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0, \out_phase, ~phase_b.index + 1], s);
+	x = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0, \phase_out, ~phase_b.index], s);
+	y = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0, \phase_out, ~phase_b.index + 1], s);
 
 	{ ~phase_b.scope }.defer;
 
@@ -43,41 +42,8 @@ s.waitForBoot { Routine {
 	Routine  { x.set(\trig, 0); s.sync; x.set(\trig, 1); }.play;
 	Routine  { y.set(\trig, 0); s.sync; y.set(\trig, 1); }.play;
 
-
-//	y.free;
-
-
-	/*
-	*/
-
-	/*
-	x.set(\loop, 0);
-	x.set(\loop, 1);
-	*/
-
+	t = OSCFunc({ arg msg, time;
+		    [time, msg].postln;
+	},'/tr', s.addr);
 
 }.play };
-
-/*
-
-z.free;
-
-x.set(\trig, 0);
-x.set(\trig, 1);
-
-x.set(\rate, 2.0);
-
-x.set(\start, 1.0);
-x.set(\end, 2.0);
-
-x.set(\fade, 0.1);
-x.set(\loop, 1);
-
-
-
-DiskIn
-
-//		snd = PlayBuf.ar(1, b.bufnum, 1.0, loop:1);
-
-b.plot;
-*/

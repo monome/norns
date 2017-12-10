@@ -17,7 +17,7 @@ public:
     void setRate(float x);              // set the playback rate (as a ratio)
     void setLoopStartSeconds(float x);  // set the loop endpoint in seconds
     void setLoopEndSeconds(float x);    // set the loop start point in seconds
-    void nextSample(float* outAudio, float* outPhase); // per-sample update function
+    void nextSample(float* outAudio, float* outPhase, float *outTrig); // per-sample update function
     void setFadeTime(float secs);
     void setLoopFlag(bool val);
     void cutToStart();
@@ -42,6 +42,7 @@ private:
     int state[2];       // active/inactive/fading state of each head
     int active;     // current active play head (0 or 1)
     bool loopFlag;  // set to loop, unset for 1-shot
+    bool isWrapping, wasWrapping;
 
 };
 
