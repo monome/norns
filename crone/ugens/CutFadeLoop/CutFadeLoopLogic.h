@@ -42,7 +42,7 @@ private:
     int state[2];       // active/inactive/fading state of each head
     int active;     // current active play head (0 or 1)
     bool loopFlag;  // set to loop, unset for 1-shot
-    bool isWrapping, wasWrapping;
+    float trig[2]; // trigger output value
 
 };
 

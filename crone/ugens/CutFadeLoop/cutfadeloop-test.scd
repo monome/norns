@@ -10,21 +10,30 @@ s.waitForBoot { Routine {
 	b.numChannels.postln;
 
 	SynthDef.new(\cutfadeloop, {
-		arg buf, out, phase_out, amp=0.2, trig=0, rate=1, start=2, end=4, fade=0.1, loop=1;
+		arg buf, out, phase_out, trig_out, amp=0.2, trig=0, rate=1, start=2, end=4, fade=0.1, loop=1;
 		var cfv, snd, phase, tr;
 		#phase, tr, snd =  CutFadeLoop.ar(buf, trig, rate, start, end, fade, loop);
 		Out.ar(out, (snd*amp).dup);
 		Out.ar(phase_out, phase.linlin(start, end, 0, 1));
+		Out.ar(trig_out, tr);
 		SendTrig.ar(tr, 0, 0);
 //		phase.poll;
 	}).send(s);
 
 	s.sync;
 
-	~phase_b = Bus.audio(s, 2);
+	~phase_b = Bus.audio(s, 4);
+//	~trig_b = Bus.audio(s, 2);
 
-	x = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0, \phase_out, ~phase_b.index], s);
-	y = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0, \phase_out, ~phase_b.index + 1], s);
+	x = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0,
+		\phase_out, ~phase_b.index,
+		\trig_out, ~phase_b.index + 2
+	], s);
+
+	y = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0,
+		\phase_out, ~phase_b.index + 1,
+		\trig_out, ~phase_b.index + 3
+	], s);
 
 	{ ~phase_b.scope }.defer;
 

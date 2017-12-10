@@ -39,8 +39,10 @@ void CutFadeLoopLogic::init() {
     setFadeTime(0.1f);
     buf = (const float*) nullptr;
     bufFrames = 0;
-    isWrapping = false;
-    wasWrapping = false;
+    //isWrapping = false;
+    //wasWrapping = false;
+    trig[0] = 0.f;
+    trig[1] = 0.f;
 }
 
 void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase, float *outTrig) {
@@ -54,18 +56,11 @@ void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase, float *outTr
     updateFade(0);
     updateFade(1);
 
-    // FIXME: connect phase output in ugen wrapper
     if(outPhase != nullptr) { *outPhase = phase[active] / sr; }
 
     // TODO: linear fade for now. add cosine, exp via LUT
-     *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
-
-    if(isWrapping && !wasWrapping) {
-        *outTrig = 1.f;
-    } else {
-        *outTrig = 0.f;
-    }
-    wasWrapping = isWrapping;
+    *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
+    *outTrig = trig[0] + trig[1];
 }
 
 void CutFadeLoopLogic::setRate(float x)
@@ -86,6 +81,7 @@ void CutFadeLoopLogic::setLoopEndSeconds(float x)
 void CutFadeLoopLogic::updatePhase(int id)
 {
     float p;
+    trig[id] = 0.f;
     switch(state[id]) {
         case FADEIN:
         case FADEOUT:
@@ -95,26 +91,22 @@ void CutFadeLoopLogic::updatePhase(int id)
                 if (phaseInc > 0.f) {
                     if (p > end) {
                         if (loopFlag) {
-                            // cutToPos(start + (p-end));
+                            // cutToPos(start + (p-end)); // preserve phase overshoot?
                             cutToPhase(start);
-                            isWrapping = true;
+                            trig[id] = 1.f;
                         } else {
                             state[id] = FADEOUT;
                         }
-                    } else {
-                        isWrapping = false;
                     }
                 } else { // negative rate
                     if (p < start) {
                         if(loopFlag) {
                             // cutToPos(end + (p - start));
                             cutToPhase(end);
-                            isWrapping = true;
+                            trig[id] = 1.f;
                         } else {
                             state[id] = FADEOUT;
                         }
-                    } else {
-                        isWrapping = false;
                     }
                 } // rate sign check
             } // /active check
