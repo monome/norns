@@ -1,6 +1,7 @@
---- norns.lua;
+--- norns.lua
 -- main norns script.
 -- defines top-level global tables and functions needed by other modules
+-- @module norns
 
 norns = {}
 norns.version = {}
@@ -16,11 +17,11 @@ end
 --- Global Functions
 -- @section global_functions
 
---- global functions required by the C interface; 
+-- global functions required by the C interface; 
 -- we "declare" these here with placeholders;
 -- indeividual modules will redefine them as needed.
 
---- monome device callbacks
+-- monome device callbacks
 norns.monome = {}
 --- monome device added
 norns.monome.add = function(id, serial, name, dev)

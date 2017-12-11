@@ -6,8 +6,8 @@ require 'norns'
 norns.version.engine = '0.0.2'
 
 local Engine = {}
---------------------------
---- static data
+-- ------------------------
+-- static data
 
 -- registered engine names
 Engine.names = {}
@@ -16,7 +16,7 @@ Engine.name = nil
 -- current command table
 Engine.commands = {}
 
-------------------------------
+-- ----------------------------
 -- static methods
 
 --- register all available engines; 

@@ -53,7 +53,7 @@ end
 
 --- return the first available device that supports the given event
 -- @tparam string ev_type - event type name, e.g. 'EV_KEY'
--- @tparam string code - event code name, e.g. 'BTN_START'
+-- @tparam string ev_code - event code name, e.g. 'BTN_START'
 -- @return - a Hid or nil
 function Hid.findDeviceSupporting(ev_type, ev_code)
    local ev_type_num = Hid.event_types_rev[ev_type]
@@ -69,8 +69,8 @@ function Hid.findDeviceSupporting(ev_type, ev_code)
    return nil -- didn't find any
 end
 
-------------------------------------
---- instance methods
+-- ----------------------------------
+-- instance methods
 
 --- unset all callbacks
 function Hid:clearCallbacks()
@@ -110,8 +110,8 @@ function Hid:print()
    end
 end
 
----------------------------------------------------
---- global norns functions (C glue)
+-- -------------------------------------------------
+-- global norns functions (C glue)
 
 --- add a device
 -- @param id - arbitrary id number (int)
@@ -155,10 +155,9 @@ norns.hid.event = function(id, ev_type, ev_code, value)
    end
 end
 
-----------------------------------
----- input event codes
----------
----- FIXME: we shouldn't need any of this mess. just get matron to send us code names instead of [type, code] numbers.
+-- --------------------------------
+-- input event codes
+-- FIXME: we shouldn't need any of this mess. just get matron to send us code names instead of [type, code] numbers.
 
 
 -- tables and reverse tables mapping hex to string for event types and codes
@@ -464,7 +463,7 @@ Hid.event_codes[Hid.event_types_rev['EV_KEY']] = {
    [0x12f] = 'BTN_DEAD',
    --[0x130] = 'BTN_GAMEPAD', -- why is this duplicated??
    [0x130] = 'BTN_SOUTH',
-   ---- FIXME: these aliases should be preserved
+   -- FIXME: these aliases should be preserved
    -- [BTN_SOUTH] = 'BTN_A',
    [0x131] = 'BTN_EAST',
    -- [BTN_EAST] = 'BTN_B',
