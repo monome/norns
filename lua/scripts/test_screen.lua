@@ -5,10 +5,10 @@ y = 15
 z = 15
 aa = 1
 
-s_clear()
+s.clear()
 s_line_width(1.0)
 
-norns.enc = function(n, delta)
+enc = function(n, delta)
 	if(n==2) then x = x + delta end
 	if(n==3) then y = y + delta end
 	if(n==1) then z = z + delta end
@@ -24,22 +24,31 @@ norns.enc = function(n, delta)
 	--screen_line(63,31,x,y,z)
 end
 
-norns.key = function(n, z)
-	if(n==1 and z==1) then
+key = function(n, z)
+	if(n==3 and z==1) then
 		aa = 1 - aa
 		s_aa(aa)
-		s_clear()
-	end
-	if(n==2 and z==1) then 
+		redraw()
+    elseif(n==2 and z==1) then 
 		s_move(math.random()*128,math.random()*64)
 		s_level(15)
 		s_text("skull")
 	end
-	if(n==3 and z==1) then
-		s_move(math.random()*128,math.random()*64)
-		s_level(0)
-		s_text("SKULL")
-	end
-
 end
 
+local metro = require('metro')
+k = metro[1]
+k.count = -1
+k.time = 0.25
+k.callback = function(stage)
+    s_move(math.random()*128,math.random()*64)
+	s_level(2)
+	s.text("*")
+end
+k:start()
+
+redraw = function()
+    s.clear()
+    s.move(0,63)
+    s.text("norns")
+end
