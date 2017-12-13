@@ -1,7 +1,6 @@
 --- Grid class
 -- @module grid
 -- @alias Grid
-print('grid.lua')
 require 'norns'
 norns.version.grid = '0.0.2'
 

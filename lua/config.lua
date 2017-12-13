@@ -1,8 +1,6 @@
 -- add some stuff to package.path
 -- this consists of search patterns lua will use for require('foo')
 
-print('config.lua')
-
 local home = os.getenv('HOME')
 local norns = home..'/norns/lua'
 local sys = norns..'/sys/?.lua;'

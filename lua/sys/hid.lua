@@ -1,8 +1,6 @@
 --- hid devices
 -- @module hid
 -- @alias Hid
-
-print('hid.lua')
 require 'norns'
 norns.version.hid = '0.0.2'
 

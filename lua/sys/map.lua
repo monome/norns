@@ -19,23 +19,10 @@ t.callback = function(stage)
 end
 
 
-init = function() end
 
-connect = function() 
+init = function() 
     map.set_mode(map.state)
-    init()
 end
-
--- default handlers, to be overwritten by app
-
-redraw = function()
-    s.clear()
-end
-
-local nowhere = function() end
-
-key = nowhere
-enc = nowhere
 
 s = {}
 local restore_s = function()
@@ -138,17 +125,26 @@ end
 
 -- interfaces
 map.nav = {}
+map.nav.pos = 0
+map.nav.list = scandir(script_dir)
 map.key_map = function(n,z)
-    print("key>map")
+    if n==2 and z==1 then 
+        line = string.gsub(map.nav.list[map.nav.pos+1],'.lua','')
+        norns.script.load(line)
+    end
 end
 
 map.nav.refresh = function()
     s_clear()
     s_level(15)
-    list = scandir(script_dir)
     for i=1,6 do
         s_move(0,10*i)
-        line = string.gsub(list[i],'.lua','')
+        line = string.gsub(map.nav.list[i],'.lua','')
+        if(i==map.nav.pos+1) then
+            s_level(15)
+        else
+            s_level(4)
+        end
         s_text(line) 
      end
 end
@@ -158,6 +154,10 @@ map.key_alt = function(n,z)
 end
 
 map.enc_map = function(n,delta)
+    if n==2 then
+        map.nav.pos = (map.nav.pos + delta) % 6
+        map.nav.refresh()
+    end
 end
 
 map.enc_alt = function(n,delta)

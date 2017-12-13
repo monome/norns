@@ -2,8 +2,6 @@
 -- API for receiving values from audio system.
 -- @module poll
 -- @alias Poll
-
-print ('poll.lua')
 require 'norns'
 norns.version.poll = '0.0.2'
 

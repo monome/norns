@@ -6,9 +6,6 @@ accum = 1
 step = 0
 aa = 0
 
-s_aa(aa)
-s_line_width(1.0)
-
 enc = function(n, delta)
 	if(n==2) then 
         accum = (accum + delta) % 64
@@ -42,6 +39,8 @@ k.callback = function(stage)
 end
 
 redraw = function()
+    s_aa(aa)
+    s_line_width(1.0)
     s.clear()
     s.level(15)
     s.move(0,63)
@@ -63,6 +62,4 @@ redraw = function()
     s.stroke()
 end
 
-init = function()
-    k:start()
-end
+k:start()
