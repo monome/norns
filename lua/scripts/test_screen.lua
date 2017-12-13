@@ -1,38 +1,34 @@
 math.randomseed(os.time())
 
-x = 15
-y = 15
-z = 15
-aa = 1
+sliders = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+edit = 1
+accum = 1
+step = 0
+aa = 0
 
-s.clear()
+s_aa(aa)
 s_line_width(1.0)
 
 enc = function(n, delta)
-	if(n==2) then x = x + delta end
-	if(n==3) then y = y + delta end
-	if(n==1) then z = z + delta end
-
-	x = x % 128;
-	y = y % 64;
-	z = z % 16;
-
-	s_level(z)
-	s_move(63,31)
-	s_line(x,y)
-	s_stroke()
-	--screen_line(63,31,x,y,z)
+	if(n==2) then 
+        accum = (accum + delta) % 64
+        edit = accum >> 2 
+    elseif(n==3) then 
+        sliders[edit+1] = sliders[edit+1] + delta
+        if sliders[edit+1] > 32 then sliders[edit+1] = 32 end
+        if sliders[edit+1] < 0 then sliders[edit+1] = 0 end 
+    end 
+    redraw()
 end
 
 key = function(n, z)
 	if(n==3 and z==1) then
 		aa = 1 - aa
-		s_aa(aa)
+		s.aa(aa)
 		redraw()
     elseif(n==2 and z==1) then 
-		s_move(math.random()*128,math.random()*64)
-		s_level(15)
-		s_text("skull")
+        step = 0
+        redraw()
 	end
 end
 
@@ -41,14 +37,32 @@ k = metro[1]
 k.count = -1
 k.time = 0.25
 k.callback = function(stage)
-    s_move(math.random()*128,math.random()*64)
-	s_level(2)
-	s.text("*")
+    step = (step + 1) % 16
+    redraw()
 end
-k:start()
 
 redraw = function()
     s.clear()
+    s.level(15)
     s.move(0,63)
     s.text("norns")
+
+    for i=0,15 do
+	    if(i==edit) then
+            s.level(15)
+        else
+            s.level(2)
+        end
+	    s.move(32+i*4,48)
+	    s.line(32+i*4,46-sliders[i+1])
+	    s.stroke()
+    end
+
+    s.move(32+step*4,50)
+    s.line(32+step*4,52)
+    s.stroke()
+end
+
+init = function()
+    k:start()
 end

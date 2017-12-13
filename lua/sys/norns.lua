@@ -114,6 +114,7 @@ norns.script.load = function(filename)
     dofile(filepath)
     norns.state.script = filename
     norns.state.save()
+    connect()
   end 
 end
 
