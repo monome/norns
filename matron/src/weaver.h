@@ -8,8 +8,8 @@ extern void w_init(void);
 // stop the VM
 extern void w_deinit(void);
 
-// run the user-defined startup routine
-extern void w_user_startup(void);
+// run the startup routine
+extern void w_startup(void);
 
 // compile and execute a complete chunk of lua
 // this blocks execution and access the VM directly;

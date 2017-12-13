@@ -165,9 +165,9 @@ void w_init(void) {
     w_run_code("require('norns')");
 }
 
-// run user startup code
+// run startup code
 // audio backend should be running
-void w_user_startup(void) {
+void w_startup(void) {
     lua_getglobal(lvm, "startup");
     l_report( lvm, l_docall(lvm, 0, 0) );
 }

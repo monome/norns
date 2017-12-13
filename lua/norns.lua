@@ -11,6 +11,7 @@ norns.version.norns = "0.0.2"
 startup = function()
    require('startup')
 end
+
 --- Global Functions
 -- @section global_functions
 
@@ -67,7 +68,8 @@ end
 
 
 -- default handlers, to be overwritten by app 
-nowhere = function() end 
-redraw = nowhere
-key = nowhere
-enc = nowhere 
+norns.none = function() end 
+norns.blank = function() end
+key = norns.none
+enc = norns.none
+redraw = norns.blank

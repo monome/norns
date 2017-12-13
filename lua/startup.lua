@@ -1,6 +1,3 @@
---- add your startup code here!
-
---- load all the norns modules to check their versions
 require 'engine'
 require 'grid'
 require 'hid'
@@ -14,6 +11,9 @@ require 'system'
 for mod,v in pairs(norns.version) do
     print (mod,v)
 end
+
+-- user startup script
+--require 'first'
 
 norns.state.resume()
 

@@ -1,8 +1,4 @@
-print('test_engine.lua')
-
-norns = require 'norns'
-e = require 'engine'
-
+e = require 'engine' 
 
 --e.load('Cutter',
 e.load('TestSine',

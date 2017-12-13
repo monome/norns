@@ -29,9 +29,9 @@ end
 norns.script.cleanup = norns.script.cleanup_default
 
 norns.script.deinit = function()
-    redraw = nowhere
-    key = nowhere
-    enc = nowhere
+    redraw = norns.blank
+    key = norns.none
+    enc = norns.none
 end
 
 
@@ -57,3 +57,19 @@ norns.script.load = function(filename)
 end
 
 
+scandir = function(directory)
+    local i, t, popen = 0, {}, io.popen
+    local pfile = popen('ls "'..directory..'"')
+    for filename in pfile:lines() do
+        i = i + 1
+        t[i] = filename
+    end
+    pfile:close()
+    return t
+end
+
+function tablelength(T)
+  local count = 0
+  for _ in pairs(T) do count = count + 1 end
+  return count
+end

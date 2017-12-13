@@ -120,7 +120,7 @@ void screen_init(void) {
 
     char filename[256];
     // FIXME should be path relative to norns/
-    snprintf( filename, 256, "%s/norns/assets/04B_03__.TTF", getenv("HOME") );
+    snprintf( filename, 256, "%s/norns/resources/04B_03__.TTF", getenv("HOME") );
     //const char * filename = "/home/pi/slkscr.ttf";
 
     status = FT_Init_FreeType(&value);
@@ -171,12 +171,12 @@ void screen_line_width(long w) {
     cairo_set_line_width(cr,w);
 }
 
-void screen_move(int x, int y) {
-    cairo_move_to(cr,x,y);
+void screen_move(long x, long y) {
+    cairo_move_to(cr,x+0.5,y+0.5);
 }
 
-void screen_line(int x, int y) {
-    cairo_line_to(cr,x,y);
+void screen_line(long x, long y) {
+    cairo_line_to(cr,x+0.5,y+0.5);
 }
 
 void screen_stroke(void) {

@@ -1,10 +1,29 @@
+--16sliders
+
 math.randomseed(os.time())
 
 sliders = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 edit = 1
 accum = 1
 step = 0
-aa = 0
+
+e = require 'engine' 
+e.load('TestSine',
+	    function(commands, count)
+	       e.hz(100)
+	       e.amp(0.25)
+	    end
+)
+
+local metro = require('metro')
+k = metro[1]
+k.count = -1
+k.time = 0.1
+k.callback = function(stage)
+    step = (step + 1) % 16
+    e.hz(2^(sliders[step+1]/12) * 80)
+    redraw()
+end 
 
 enc = function(n, delta)
 	if(n==2) then 
@@ -20,31 +39,23 @@ end
 
 key = function(n, z)
 	if(n==3 and z==1) then
-		aa = 1 - aa
-		s.aa(aa)
+        sliders[1] = math.random()*4
+        for i=2,16 do
+            sliders[i] = sliders[i-1]+math.floor(math.random()*9)-3
+        end
 		redraw()
     elseif(n==2 and z==1) then 
-        step = 0
+        for i=1,16 do
+            sliders[i] = sliders[i]+math.floor(math.random()*5)-2
+        end
         redraw()
 	end
 end
 
-local metro = require('metro')
-k = metro[1]
-k.count = -1
-k.time = 0.25
-k.callback = function(stage)
-    step = (step + 1) % 16
-    redraw()
-end
-
 redraw = function()
-    s_aa(aa)
+    s.aa(1)
     s_line_width(1.0)
     s.clear()
-    s.level(15)
-    s.move(0,63)
-    s.text("norns")
 
     for i=0,15 do
 	    if(i==edit) then
@@ -57,8 +68,9 @@ redraw = function()
 	    s.stroke()
     end
 
+    s.level(10)
     s.move(32+step*4,50)
-    s.line(32+step*4,52)
+    s.line(32+step*4,54)
     s.stroke()
 end
 
