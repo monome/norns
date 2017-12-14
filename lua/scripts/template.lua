@@ -18,6 +18,16 @@ key = function(n, z)
     redraw()
 end
 
+redraw = function()
+    s.clear()
+    s.level(15)
+
+    for i=1,5 do
+	    s.move(0,i*8)
+        s.text("> "..numbers[i])
+    end 
+end
+
 local metro = require('metro')
 c = metro[1]
 c.count = -1
@@ -27,14 +37,8 @@ c.callback = function(stage)
     redraw()
 end
 
-redraw = function()
-    s.clear()
-    s.level(15)
-
-    for i=1,5 do
-	    s.move(0,i*8)
-        s.text("> "..numbers[i])
-    end 
+norns.script.cleanup = function()
+    c:stop()
 end
 
 c:start()

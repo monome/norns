@@ -1,2 +1,2 @@
 -- state
-norns.state.script = 'test_metro'
+norns.state.script = 'template'

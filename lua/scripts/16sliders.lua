@@ -25,8 +25,8 @@ k.callback = function(stage)
     redraw()
 end 
 
-norns.cleanup = function()
-    k.stop()
+norns.script.cleanup = function()
+    k:stop()
 end
 
 enc = function(n, delta)
