@@ -1,8 +1,6 @@
 --- high-resolution metro API;
 -- @module metro
 -- @alias Metro_mt
-
-print('metro.lua')
 require 'norns'
 norns.version.metro = '0.0.3'
 

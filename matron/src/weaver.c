@@ -1,9 +1,8 @@
-/*
- * weaver.c
- *
- * c->lua and lua->c interface
- *
- */
+/***
+weaver
+c->lua and lua->c interface
+@module system
+*/
 
 // standard
 #include <stdio.h>
@@ -166,9 +165,9 @@ void w_init(void) {
     w_run_code("require('norns')");
 }
 
-// run user startup code
+// run startup code
 // audio backend should be running
-void w_user_startup(void) {
+void w_startup(void) {
     lua_getglobal(lvm, "startup");
     l_report( lvm, l_docall(lvm, 0, 0) );
 }
@@ -179,7 +178,12 @@ void w_deinit(void) {
 
 //----------------------------------
 //---- static definitions
-//
+
+/***
+screen: change antialias mode for drawing
+@function s_aa
+@tparam integer state, 0=off, 1=on
+*/
 int w_screen_aa(lua_State *l) {
     int x;
     if(lua_gettop(l) != 1) { // check num args
@@ -202,6 +206,11 @@ args_error:
     return 0;
 }
 
+/***
+screen: change level (color)
+@function s_level
+@tparam integer level, 0 (black) to 15 (white)
+*/
 int w_screen_level(lua_State *l) {
     int x;
     if(lua_gettop(l) != 1) { // check num args
@@ -224,6 +233,11 @@ args_error:
     return 0;
 }
 
+/***
+screen: set line width
+@function s_line_width
+@tparam integer width line width
+*/
 int w_screen_line_width(lua_State *l) {
     long x;
     if(lua_gettop(l) != 1) { // check num args
@@ -246,6 +260,12 @@ args_error:
     return 0;
 }
 
+/***
+screen: move position
+@function s_move
+@param x
+@param y
+*/
 int w_screen_move(lua_State *l) {
     int x, y;
     if(lua_gettop(l) != 2) { // check num args
@@ -274,6 +294,12 @@ args_error:
     return 0;
 }
 
+/***
+screen: draw line to position
+@function s_line
+@param x
+@param y
+*/
 int w_screen_line(lua_State *l) {
     int x, y;
     if(lua_gettop(l) != 2) { // check num args
@@ -302,6 +328,10 @@ args_error:
     return 0;
 }
 
+/***
+screen: stroke, or apply width/color to line(s)
+@function s_stroke
+*/
 int w_screen_stroke(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
@@ -317,6 +347,11 @@ args_error:
     return 0;
 }
 
+/***
+screen: text
+@function s_text
+@tparam string text test to print
+*/
 int w_screen_text(lua_State *l) {
     char s[64];
 
@@ -340,6 +375,10 @@ args_error:
     return 0;
 }
 
+/***
+screen: clear to black
+@function s_clear
+*/
 int w_screen_clear(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
@@ -355,6 +394,11 @@ args_error:
     return 0;
 }
 
+/***
+headphone: set level
+@function level_hp
+@tparam integer level level (0-63)
+*/
 int w_level_hp(lua_State *l) {
     int level;
     if(lua_gettop(l) != 1) { // check num args
@@ -377,6 +421,12 @@ args_error:
     return 0;
 }
 
+/***
+output: set level, per channel
+@function level_out
+@tparam integer level level (0-63)
+@tparam integer ch channel (0=L,1=R)
+*/
 int w_level_out(lua_State *l) {
     int level, ch;
     if(lua_gettop(l) != 2) { // check num args
@@ -405,6 +455,12 @@ args_error:
     return 0;
 }
 
+/***
+input: set level, per channel
+@function level_in
+@tparam integer level level (0-63)
+@tparam integer ch channel (0=L,1=R)
+*/
 int w_level_in(lua_State *l) {
     int level, ch;
     if(lua_gettop(l) != 2) { // check num args
@@ -433,6 +489,14 @@ args_error:
     return 0;
 }
 
+/***
+grid: set led
+@function grid_set_led
+@param dev grid device
+@param x x
+@param y y
+@param z level (0-15) 
+*/
 int w_grid_set_led(lua_State *l) {
     struct dev_monome *md;
     int x, y, z;
@@ -472,6 +536,12 @@ args_error:
     return 0;
 }
 
+/***
+grid: set all LEDs
+@function grid_all_led
+@param dev grid device
+@param z level (0-15) 
+*/
 int w_grid_all_led(lua_State *l) {
     struct dev_monome *md;
     int z;
@@ -500,6 +570,11 @@ args_error:
     return 0;
 }
 
+/***
+grid: refresh
+@function grid_refresh
+@param dev grid device
+*/
 int w_grid_refresh(lua_State *l) {
     struct dev_monome *md;
     if(lua_gettop(l) != 1) { // check num args
@@ -625,7 +700,10 @@ int w_request_command_report(lua_State *l) {
     return 0;
 }
 
-//--- metro management:
+/***
+metro: start
+@function metro_start
+*/
 int w_metro_start(lua_State *l) {
     static int idx = 0;
     double seconds;
@@ -678,6 +756,10 @@ args_error:
     return 0;
 }
 
+/***
+metro: stop
+@function metro_stop
+*/
 int w_metro_stop(lua_State *l) {
     int idx;
     int nargs = lua_gettop(l);
@@ -699,6 +781,10 @@ args_error:
     return 1;
 }
 
+/***
+metro: set time
+@function metro_set_time
+*/
 int w_metro_set_time(lua_State *l) {
     int idx;
     float sec;
@@ -725,7 +811,10 @@ args_error:
     return 1;
 }
 
-// request current time since Epoch
+/***
+request current time since Epoch
+@function get_time
+*/
 int w_get_time(lua_State *l) {
     struct timeval tv;
     struct timezone tz;

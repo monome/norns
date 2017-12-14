@@ -11,7 +11,7 @@ CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
-INC =  -Isrc -Isrc/device -Ilua 
+INC =  -Isrc -Isrc/device -Ilua -Isrc/hardware
 INC += -I/usr/include/libevdev-1.0/libevdev
 INC += -I/usr/include/cairo -I/usr/include/freetype2
 
@@ -26,20 +26,20 @@ SRC_DIR = src
 
 _OBJ = main.o \
 	args.o \
-	battery.o \
 	device/device.o \
 	device/device_hid.o \
 	device/device_list.o \
 	device/device_monitor.o \
 	device/device_monome.o \
 	events.o \
-	gpio.o \
+	hardware/battery.o \
+	hardware/gpio.o \
+	hardware/i2c.o \
+	hardware/screen.o \
 	hid.o \
-	i2c.o \
 	lua_eval.o \
 	metro.o \
 	oracle.o \
-	screen.o \
 	weaver.o \
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))

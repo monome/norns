@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     // start reading input to interpreter
     hid_init();
     // i/o subsystems are ready; run user startup routine
-    w_user_startup();
+    w_startup();
     // scan for connected input devices
     dev_monitor_scan();
 

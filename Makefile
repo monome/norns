@@ -11,6 +11,9 @@ matron:
 ipc-wrapper:
 	cd ipc-wrapper && make
 
+docs:
+	ldoc .
+
 clean:
 	cd maiden && make clean
 	cd matron && make clean

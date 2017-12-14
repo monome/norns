@@ -1,7 +1,6 @@
 --- Grid class
 -- @module grid
 -- @alias Grid
-print('grid.lua')
 require 'norns'
 norns.version.grid = '0.0.2'
 
@@ -70,8 +69,8 @@ function Grid:print()
    end
 end
 
----------------------------------
---- monome device manager
+-- -------------------------------
+-- monome device manager
 
 -- @fixme shouldn'e be in this module, shouldn't assume all monomes are grids
 

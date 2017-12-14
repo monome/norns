@@ -202,7 +202,7 @@ void metro_stop(int idx) {
     if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
         pthread_mutex_lock( &(metros[idx].status_lock) );
         if( metros[idx].status == METRO_STATUS_STOPPED) {
-            printf("metro is already stopped\n"); fflush(stdout);
+            //printf("metro is already stopped\n"); fflush(stdout);
             ;; // nothing to do
         } else {
             metro_cancel(&metros[idx]);

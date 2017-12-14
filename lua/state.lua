@@ -1,2 +1,2 @@
 -- state
-norns.state.script = 'test_engine'
+norns.state.script = 'template'

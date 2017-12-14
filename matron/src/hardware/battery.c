@@ -32,7 +32,7 @@ void battery_init() {
     fd[1] = open("/sys/class/power_supply/bq27441-0/status",
                  O_RDONLY | O_NONBLOCK); // K2
     if(fd[0] > 0) {
-        printf( "BATTERY: %s\n", strerror(errno) ); fflush(stdout);
+        //printf( "BATTERY: %s\n", strerror(errno) ); fflush(stdout);
         if( pthread_create(&p, NULL, battery_check, 0) ) {
             printf("BATTERY: Error creating thread\n"); fflush(stdout);
         }
