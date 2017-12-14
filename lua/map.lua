@@ -197,29 +197,17 @@ map.alt.redraw = function()
     s_clear()
     s_aa(1)
 
+    status = "battery > "..norns.batterypercent 
+    if norns.powerpresent==1 then status = status.." (powered)" end
+
     -- draw battery bar
-    s_level(2)
-    s_move(0,1)
-    s_line(100,1)
-    s_stroke()
-
     s_level(10)
-    s_move(0,0)
-    s_line(norns.batterypercent,0)
-    s_stroke()
-
-    -- draw power present indicator
-    if norns.powerpresent==1 then
-        s_move(104,0)
-        s_line(106,0)
-        s_move(104,1)
-        s_line(106,1)
-        s_stroke()
-    end
+    s_move(0,10)
+    s_text(status)
 
     -- draw current script loaded
-    s_move(0,50)
+    s_move(0,60)
     s_level(15)
-    s_text(norns.state.script)
+    s_text("script > "..norns.state.script)
 end
 

@@ -1,7 +1,8 @@
 e = require 'engine' 
 
 --e.load('Cutter',
-e.load('TestSine',
+--e.load('TestSine',
+e.load('PolyPerc',
 	    function(commands, count)
 	       print("commands: ")
 	       for i,v in pairs(commands) do

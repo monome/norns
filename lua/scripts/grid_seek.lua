@@ -1,19 +1,9 @@
 --test grid sequencer
-
-print('grid_seek.lua')
-require 'norns'
-local grid = require 'grid'
-local metro = require 'metro'
-
 e = require 'engine'
+grid = require 'grid'
+metro = require 'metro'
 
-e.load('TestSine',
-  function(commands, count)
-    print("sine loaded")
-    e.hz(100)
-    e.amp(0.25)
-  end
-)
+e.load('PolyPerc')
 
 g = nil -- grid device
 
@@ -55,13 +45,17 @@ t.time = 0.1
 
 pos = 1
 
-steps = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8}
-notes = {400,350,300,250,200,150,125,100}
+steps = {}
+notes = {0,2,3,5,7,9,10,12}
+freqs = {}
+
+for i=1,8 do freqs[i] = 100*2^(notes[i]/12) end
+for i=1,16 do steps[i] = math.floor(math.random()*8+1) end
 
 t.callback = function(stage)
   pos = pos + 1
   if pos == 17 then pos = 1 end
-  e.hz(notes[steps[pos]])
+  e.hz(freqs[9-steps[pos]])
   if g ~= nil then refresh() end
 end
 
@@ -70,6 +64,29 @@ refresh = function()
   for x = 1,16 do g:led(x,steps[x],5) end 
   g:led(pos,steps[pos],15) 
   g:refresh();
+end
+
+cutoff=5
+release=5
+
+enc = function(n,delta)
+    if n==2 then
+        cutoff = math.min(100,math.max(0,cutoff+delta))
+        e.cutoff(50*2^(cutoff/12))
+    elseif n==3 then
+        release = math.min(100,math.max(0,release+delta))
+        e.release(0.1*2^(release/12))
+    end
+
+    redraw() 
+end
+
+redraw = function()
+    s.clear()
+    s.move(0,10)
+    s.text("cutoff > "..string.format('%.1f',(50*2^(cutoff/12))))
+    s.move(0,20)
+    s.text("release > "..string.format('%.3f',0.1*2^(release/12)))
 end
 
 

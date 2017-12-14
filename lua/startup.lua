@@ -18,6 +18,10 @@ end
 norns.state.resume()
 
 
+grid = require 'grid'
+metro = require 'metro'
+e = require 'engine'
+
 -- shortcuts
 run = norns.script.load
 stop = norns.script.cleanup
