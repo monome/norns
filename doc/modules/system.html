@@ -32,20 +32,20 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Functions">Functions</a></li>
+<li><a href="#power_management">power management </a></li>
 </ul>
 
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><strong>system</strong></li>
   <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/input.html">input</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
+  <li><strong>system</strong></li>
 </ul>
 
 </div>
@@ -53,84 +53,19 @@
 <div id="content">
 
 <h1>Module <code>system</code></h1>
-<p>weaver
-c->lua and lua->c interface</p>
+<p>system module</p>
 <p></p>
 
 
-<h2><a href="#Functions">Functions</a></h2>
+<h2><a href="#power_management">power management </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#s_aa">s_aa (state)</a></td>
-	<td class="summary">screen: change antialias mode for drawing</td>
+	<td class="name" nowrap><a href="#norns.battery">norns.battery (percent)</a></td>
+	<td class="summary">redefine battery percent handler</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#s_level">s_level (level)</a></td>
-	<td class="summary">screen: change level (color)</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s_line_width">s_line_width (width)</a></td>
-	<td class="summary">screen: set line width</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s_move">s_move (x, y)</a></td>
-	<td class="summary">screen: move position</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s_line">s_line (x, y)</a></td>
-	<td class="summary">screen: draw line to position</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s_stroke">s_stroke ()</a></td>
-	<td class="summary">screen: stroke, or apply width/color to line(s)</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s_text">s_text (text)</a></td>
-	<td class="summary">screen: text</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s_clear">s_clear ()</a></td>
-	<td class="summary">screen: clear to black</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#level_hp">level_hp (level)</a></td>
-	<td class="summary">headphone: set level</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#level_out">level_out (level, ch)</a></td>
-	<td class="summary">output: set level, per channel</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#level_in">level_in (level, ch)</a></td>
-	<td class="summary">input: set level, per channel</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#grid_set_led">grid_set_led (dev, x, y, z)</a></td>
-	<td class="summary">grid: set led</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#grid_all_led">grid_all_led (dev, z)</a></td>
-	<td class="summary">grid: set all LEDs</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#grid_refresh">grid_refresh (dev)</a></td>
-	<td class="summary">grid: refresh</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#metro_start">metro_start ()</a></td>
-	<td class="summary">metro: start</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#metro_stop">metro_stop ()</a></td>
-	<td class="summary">metro: stop</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#metro_set_time">metro_set_time ()</a></td>
-	<td class="summary">metro: set time</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_time">get_time ()</a></td>
-	<td class="summary">request current time since Epoch</td>
+	<td class="name" nowrap><a href="#norns.power">norns.power (present)</a></td>
+	<td class="summary">redefine power present handler</td>
 	</tr>
 </table>
 
@@ -138,22 +73,21 @@ c->lua and lua->c interface</p>
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="power_management"></a>power management </h2>
 
     <dl class="function">
     <dt>
-    <a name = "s_aa"></a>
-    <strong>s_aa (state)</strong>
+    <a name = "norns.battery"></a>
+    <strong>norns.battery (percent)</strong>
     </dt>
     <dd>
-    screen: change antialias mode for drawing
+    redefine battery percent handler
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">state</span>
-            <span class="types"><span class="type">integer</span></span>
-        , 0=off, 1=on
+        <li><span class="parameter">percent</span>
+         battery full percentage
         </li>
     </ul>
 
@@ -163,335 +97,19 @@ c->lua and lua->c interface</p>
 
 </dd>
     <dt>
-    <a name = "s_level"></a>
-    <strong>s_level (level)</strong>
+    <a name = "norns.power"></a>
+    <strong>norns.power (present)</strong>
     </dt>
     <dd>
-    screen: change level (color)
+    redefine power present handler
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">level</span>
-            <span class="types"><span class="type">integer</span></span>
-        , 0 (black) to 15 (white)
+        <li><span class="parameter">present</span>
+         power plug present (0=no,1=yes)
         </li>
     </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s_line_width"></a>
-    <strong>s_line_width (width)</strong>
-    </dt>
-    <dd>
-    screen: set line width
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">width</span>
-            <span class="types"><span class="type">integer</span></span>
-         line width
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s_move"></a>
-    <strong>s_move (x, y)</strong>
-    </dt>
-    <dd>
-    screen: move position
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x</span>
-
-        </li>
-        <li><span class="parameter">y</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s_line"></a>
-    <strong>s_line (x, y)</strong>
-    </dt>
-    <dd>
-    screen: draw line to position
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x</span>
-
-        </li>
-        <li><span class="parameter">y</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s_stroke"></a>
-    <strong>s_stroke ()</strong>
-    </dt>
-    <dd>
-    screen: stroke, or apply width/color to line(s)
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s_text"></a>
-    <strong>s_text (text)</strong>
-    </dt>
-    <dd>
-    screen: text
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">text</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         test to print
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s_clear"></a>
-    <strong>s_clear ()</strong>
-    </dt>
-    <dd>
-    screen: clear to black
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "level_hp"></a>
-    <strong>level_hp (level)</strong>
-    </dt>
-    <dd>
-    headphone: set level
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">level</span>
-            <span class="types"><span class="type">integer</span></span>
-         level (0-63)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "level_out"></a>
-    <strong>level_out (level, ch)</strong>
-    </dt>
-    <dd>
-    output: set level, per channel
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">level</span>
-            <span class="types"><span class="type">integer</span></span>
-         level (0-63)
-        </li>
-        <li><span class="parameter">ch</span>
-            <span class="types"><span class="type">integer</span></span>
-         channel (0=L,1=R)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "level_in"></a>
-    <strong>level_in (level, ch)</strong>
-    </dt>
-    <dd>
-    input: set level, per channel
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">level</span>
-            <span class="types"><span class="type">integer</span></span>
-         level (0-63)
-        </li>
-        <li><span class="parameter">ch</span>
-            <span class="types"><span class="type">integer</span></span>
-         channel (0=L,1=R)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "grid_set_led"></a>
-    <strong>grid_set_led (dev, x, y, z)</strong>
-    </dt>
-    <dd>
-    grid: set led
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev</span>
-         grid device
-        </li>
-        <li><span class="parameter">x</span>
-         x
-        </li>
-        <li><span class="parameter">y</span>
-         y
-        </li>
-        <li><span class="parameter">z</span>
-         level (0-15)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "grid_all_led"></a>
-    <strong>grid_all_led (dev, z)</strong>
-    </dt>
-    <dd>
-    grid: set all LEDs
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev</span>
-         grid device
-        </li>
-        <li><span class="parameter">z</span>
-         level (0-15)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "grid_refresh"></a>
-    <strong>grid_refresh (dev)</strong>
-    </dt>
-    <dd>
-    grid: refresh
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev</span>
-         grid device
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "metro_start"></a>
-    <strong>metro_start ()</strong>
-    </dt>
-    <dd>
-    metro: start
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "metro_stop"></a>
-    <strong>metro_stop ()</strong>
-    </dt>
-    <dd>
-    metro: stop
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "metro_set_time"></a>
-    <strong>metro_set_time ()</strong>
-    </dt>
-    <dd>
-    metro: set time
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "get_time"></a>
-    <strong>get_time ()</strong>
-    </dt>
-    <dd>
-    request current time since Epoch
-
-
 
 
 
@@ -505,7 +123,7 @@ c->lua and lua->c interface</p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-12-11 18:24:37 </i>
+<i style="float:right;">Last updated 2017-12-13 18:27:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

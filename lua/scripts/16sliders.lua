@@ -25,6 +25,10 @@ k.callback = function(stage)
     redraw()
 end 
 
+norns.cleanup = function()
+    k.stop()
+end
+
 enc = function(n, delta)
 	if(n==2) then 
         accum = (accum + delta) % 64

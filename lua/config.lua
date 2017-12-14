@@ -8,7 +8,7 @@ local script = norns..'/scripts/?.lua;'
 
 package.path = sys..script..package.path
 
---- full path to directory containing user scripts
+-- full path to directory containing user scripts
 script_dir = norns..'/scripts/'
 
 -- print('package.path: ' .. package.path)

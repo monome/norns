@@ -1,31 +1,40 @@
---- map.lua
+-- map.lua
+-- norns screen-based navigation module
+-- also contains 'alt' view, by holding map key
+
 local map = {}
 
-local mNormal = 0
+-- mode enums
+local mRun = 0
 local mNav = 1
 local mAlt = 2 
 
-map.state = mNormal
+map.state = mRun
 
 local pending = false
+local previous = mRun
+-- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
 t.count = 2
 t.callback = function(stage)
     if(stage==2) then
+        previous = map.state
         map.set(mAlt)
         pending = false
     end
 end
 
 
-
+-- assigns key/enc/screen handlers after user script has loaded
 init = function() 
     map.set(map.state)
 end
 
+-- redirection for scripts that don't define refresh()
 norns.blank = function() s.clear() end
 
+-- screen redirection functions
 s = {}
 local restore_s = function()
     s.aa = s_aa
@@ -48,10 +57,12 @@ end
 
 -- input redirection
 norns.enc = function(n, delta)
+    -- level enc always managed by map script
     if(n==1) then
         map.level(delta)
+    -- other encs conditionally passed
     else 
-        if(map.state==mNormal) then
+        if(map.state==mRun) then
             enc(n, delta)
         else
             map.enc(n, delta)
@@ -62,16 +73,15 @@ end
 norns.key = function(n, z)
     -- map key mode detection
 	if(n==1) then
-		if z==1 and map.state==mNav then
-            map.set(mNormal)  
-        elseif z==1 and map.state==mNormal then
+        if z==1 then
             pending = true
             t.time = 0.5
             t:start()
         elseif z==0 and map.state==mAlt then
-            map.set(mNormal)
+            map.set(previous)
         elseif z==0 and pending==true then
-            map.set(mNav)
+            if map.state == mNav then map.set(mRun)
+            else map.set(mNav) end
             t:stop()
             pending = false
 		end
@@ -81,24 +91,22 @@ norns.key = function(n, z)
 	end
 end
 
-
+-- map set mode
 map.set = function(mode)
-    if mode==mNormal then
-        map.state = mNormal 
+    if mode==mRun then
+        map.state = mRun 
         restore_s()
         map.key =  key
         map.enc = enc
         map.level = map.nav.level
-        redraw()
-
+        redraw() 
     elseif mode==mNav then
         map.state = mNav
         block_s()
         map.key = map.nav.key
         map.enc = map.nav.enc
         map.level = map.nav.level
-        map.nav.redraw()
-
+        map.nav.redraw() 
     elseif mode==mAlt then
         map.state = mAlt
         block_s()
@@ -109,10 +117,11 @@ map.set = function(mode)
     end
 end
 
-----------------------------------------------------
+
+-- --------------------------------------------------
 -- interfaces
 
-----------
+-- --------
 -- nav
 map.nav = {}
 map.nav.pos = 0
@@ -122,14 +131,16 @@ map.nav.len = tablelength(map.nav.list)
 map.nav.out = 0
 
 map.nav.key = function(n,z)
+    -- load file
     if n==2 and z==1 then 
         line = string.gsub(map.nav.list[map.nav.pos+1],'.lua','')
         norns.script.load(line)
-        map.set(mNormal)
+        map.set(mRun)
     end
 end
 
 map.nav.enc = function(n,delta)
+    -- scroll file list
     if n==2 then
         map.nav.pos = map.nav.pos + delta
 		if map.nav.pos > map.nav.len - 1 then map.nav.pos = map.nav.len - 1 end
@@ -153,6 +164,7 @@ map.nav.level = function(delta)
 end 
 
 map.nav.redraw = function()
+    -- draw file list and selector
     s_clear()
     s_level(15)
     for i=1,6 do
@@ -169,7 +181,7 @@ map.nav.redraw = function()
      end
 end
 
-----------
+-- --------
 -- alt
 map.alt = {}
 map.alt.key = function(n,z)
@@ -184,6 +196,8 @@ end
 map.alt.redraw = function()
     s_clear()
     s_aa(1)
+
+    -- draw battery bar
     s_level(2)
     s_move(0,1)
     s_line(100,1)
@@ -194,6 +208,7 @@ map.alt.redraw = function()
     s_line(norns.batterypercent,0)
     s_stroke()
 
+    -- draw power present indicator
     if norns.powerpresent==1 then
         s_move(104,0)
         s_line(106,0)
@@ -202,6 +217,7 @@ map.alt.redraw = function()
         s_stroke()
     end
 
+    -- draw current script loaded
     s_move(0,50)
     s_level(15)
     s_text(norns.state.script)

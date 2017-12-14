@@ -7,8 +7,8 @@ t.count = -1
 
 -- test the get_time() function
 t.callback = function(stage)
-	print("-")
---   sec, usec = get_time()
+   print("> "..stage)
+   --sec, usec = get_time()
    --   print("stage: ".. stage .. " t: " .. sec .. "s + " .. usec .. "us")
    if stage == 1 then print ('...')
    elseif stage == n then print('!!!') end
@@ -18,21 +18,4 @@ t:start()
 
 norns.script.cleanup = function()
    t:stop()
-   s:stop()
 end
-
-
-local tick = require 'metro'
-
-s = tick[1]
-
-s.time = 2
-s.count = -1
-
-s.callback = function(stage)
-	print("+")
-end
-
-s:start()
-
-

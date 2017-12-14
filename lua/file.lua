@@ -1,3 +1,7 @@
+--- file system
+-- @module file
+norns.version.file = '0.0.1'
+
 --- state management
 -- @section state
 
@@ -28,7 +32,7 @@ end
 
 norns.script.cleanup = norns.script.cleanup_default
 
-norns.script.deinit = function()
+norns.script.clear = function()
     redraw = norns.blank
     key = norns.none
     enc = norns.none
@@ -48,7 +52,7 @@ norns.script.load = function(filename)
     io.close(f)
     norns.script.cleanup() -- cleanup the old script
     norns.script.cleanup = norns.script.cleanup_default
-    norns.script.deinit()
+    norns.script.clear()
     dofile(filepath)
     norns.state.script = filename
     norns.state.save()
@@ -56,7 +60,11 @@ norns.script.load = function(filename)
   end 
 end
 
+--- general file access
+-- @section general
 
+--- scan directory, return file list
+-- @param directory path to directory
 scandir = function(directory)
     local i, t, popen = 0, {}, io.popen
     local pfile = popen('ls "'..directory..'"')
@@ -68,8 +76,10 @@ scandir = function(directory)
     return t
 end
 
-function tablelength(T)
-  local count = 0
-  for _ in pairs(T) do count = count + 1 end
-  return count
+--- get table length
+-- @param t table
+function tablelength(t)
+  local c = 0
+  for _ in pairs(t) do c = c + 1 end
+  return c
 end

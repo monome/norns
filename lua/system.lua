@@ -1,3 +1,6 @@
+--- system module
+-- @module system
+
 --- power management
 -- @section power
 

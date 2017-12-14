@@ -67,7 +67,7 @@ norns.report.polls = function(polls, count)
 end
 
 
--- default handlers, to be overwritten by app 
+-- default handlers, to be overwritten by script
 norns.none = function() end 
 norns.blank = function() end
 key = norns.none
