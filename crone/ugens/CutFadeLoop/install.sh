@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cp CutFadeLoop.sc ~/Library/Application\ Support/SuperCollider/Extensions/CutFadeLoop.sc
+cp CutFadeLoop.sc ~/.local/share/SuperCollider/Extensions/norns/CutFadeLoop.sc
 
-cp cmake-build-debug/CutFadeLoop.scx ~/Library/Application\ Support/SuperCollider/Extensions/CutFadeLoop.scx
+cp build/CutFadeLoop.so ~/.local/share/SuperCollider/Extensions/norns/CutFadeLoop.so
