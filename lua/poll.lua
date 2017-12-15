@@ -2,8 +2,6 @@
 -- API for receiving values from audio system.
 -- @module poll
 -- @alias Poll
-
-print ('poll.lua')
 require 'norns'
 norns.version.poll = '0.0.2'
 
@@ -118,8 +116,8 @@ norns.report.polls = function(polls, count)
 end
 
 --- main callback; called from C
--- @tparam integer id - identfier
--- @param value: value (float OR sequence of bytes)
+-- @tparam integer id identfier
+-- @param value value (float OR sequence of bytes)
 norns.poll = function(id, value)
    local name = Poll.pollNames[id]
    local p = Poll.polls[name]

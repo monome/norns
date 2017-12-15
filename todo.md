@@ -1,0 +1,2 @@
+- script load, deal with grid state (key funcs, reconnect, etc)
+- script load, deal with timer stop

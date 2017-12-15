@@ -1,3 +1,5 @@
+--test grid sequencer
+
 print('grid_seek.lua')
 require 'norns'
 local grid = require 'grid'
@@ -60,23 +62,13 @@ t.callback = function(stage)
   pos = pos + 1
   if pos == 17 then pos = 1 end
   e.hz(notes[steps[pos]])
-  if g ~= nil then redraw() end
+  if g ~= nil then refresh() end
 end
 
-redraw = function()
-  --[[for x = 1,16 do
-    for y = 1,8 do
-      g:led(x,y,0)
-    end
-  end
-  --]]
-
-  g:all(1)
-
-  for x = 1,16 do g:led(x,steps[x],5) end
-
-  g:led(pos,steps[pos],15)
-
+refresh = function()
+  g:all(1) 
+  for x = 1,16 do g:led(x,steps[x],5) end 
+  g:led(pos,steps[pos],15) 
   g:refresh();
 end
 

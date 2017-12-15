@@ -1,9 +1,6 @@
-print('test_engine.lua')
+e = require 'engine' 
 
-norns = require 'norns'
-e = require 'engine'
-
-
+--e.load('Cutter',
 e.load('TestSine',
 	    function(commands, count)
 	       print("commands: ")

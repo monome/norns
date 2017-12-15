@@ -1,5 +1,5 @@
 print('test_grid.lua')
-require 'norns'
+--require 'norns'
 local grid = require 'grid'
 
 -- variables. not making them local here, so that we can access them in the REPL

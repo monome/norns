@@ -209,7 +209,7 @@ static int add_return (lua_State *L) {
     }
     else {
         lua_pop(L, 2);     /* pop result from 'luaL_loadbuffer' and modified
-                            *line */
+                            * line */
     }
     return status;
 }

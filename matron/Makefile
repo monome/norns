@@ -11,12 +11,13 @@ CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
-INC =  -Isrc -Isrc/device -Ilua
+INC =  -Isrc -Isrc/device -Ilua -Isrc/hardware
 INC += -I/usr/include/libevdev-1.0/libevdev
+INC += -I/usr/include/cairo -I/usr/include/freetype2
 
 LDFLAGS =
 
-LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm
+LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm -lcairo -lfreetype
 
 STATIC = lua/liblua.a
 
@@ -31,7 +32,10 @@ _OBJ = main.o \
 	device/device_monitor.o \
 	device/device_monome.o \
 	events.o \
-	gpio.o \
+	hardware/battery.o \
+	hardware/gpio.o \
+	hardware/i2c.o \
+	hardware/screen.o \
 	hid.o \
 	lua_eval.o \
 	metro.o \
