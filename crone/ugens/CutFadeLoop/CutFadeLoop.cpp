@@ -66,6 +66,8 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
     float fade = IN0(5);
     float loop = IN0(6);
 
+    // Print("Rate: %f\n", rate);
+
     unit->cutfade.setRate(rate);
     unit->cutfade.setLoopStartSeconds(start);
     unit->cutfade.setLoopEndSeconds(end);
