@@ -42,6 +42,7 @@ void CutFadeLoopLogic::init() {
     bufFrames = 0;
     trig[0] = 0.f;
     trig[1] = 0.f;
+    // fadeMode = FADE_LIN;
     fadeMode = FADE_EQ;
 }
 
@@ -58,7 +59,7 @@ void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase, float *outTr
 
     if(outPhase != nullptr) { *outPhase = phase[active] / sr; }
 
-//    *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
+    // *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
     *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
     *outTrig = trig[0] + trig[1];
 }
@@ -198,14 +199,9 @@ void CutFadeLoopLogic::setSampleRate(float sr_) {
 }
 
 float CutFadeLoopLogic::mixFade(float x, float y, float a, float b) {
-    switch (fadeMode) {
-
-        case FADE_EQ:
-            return x * cosf(a * (float)M_PI_2) + y * cosf(b * (float)M_PI_2);
-            break;
-        case FADE_LIN:
-        case FADE_EXP: // FIXME! use a LUT for exp
-        default:
-            return x * a + y * b;
+    if(fadeMode == FADE_EQ) {
+        return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
+    } else {
+        return (x * a) + (y * b);
     }
 }

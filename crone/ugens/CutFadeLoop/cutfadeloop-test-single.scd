@@ -30,7 +30,10 @@ s.waitForBoot { Routine {
 		\trig_out, ~phase_b.index + 2
 	], s);
 
-	{ ~phase_b.scope }.defer;
+	x.set(\fade, 1.9);
+
+//	{ ~phase_b.scope }.defer;
+
 	Routine  { x.set(\trig, 0); s.sync; x.set(\trig, 1); }.play;
 
 	t = OSCFunc({ arg msg, time;
