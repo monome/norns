@@ -18,13 +18,11 @@ s.waitForBoot { Routine {
 		Out.ar(phase_out, phase.linlin(start, end, 0, 1));
 		Out.ar(trig_out, tr);
 		SendTrig.ar(tr, 0, 0);
-//		phase.poll;
 	}).send(s);
 
 	s.sync;
 
 	~phase_b = Bus.audio(s, 4);
-//	~trig_b = Bus.audio(s, 2);
 
 	x = Synth.new(\cutfadeloop, [\buf, b.bufnum, \out, 0,
 		\phase_out, ~phase_b.index,

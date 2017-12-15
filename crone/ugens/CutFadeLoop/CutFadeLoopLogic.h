@@ -28,6 +28,9 @@ private:
     void doneFadeIn(int id);
     void doneFadeOut(int id);
     float peek(float phase); // lookup an audio sample from the buffer
+    float mixFade(float x, float y, float a, float b); // mix two inputs with phases
+public:
+    typedef enum { FADE_LIN, FADE_EQ, FADE_EXP } fade_t;
  private:
     enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 };
     float sr;           // sample rate
@@ -43,7 +46,7 @@ private:
     int active;     // current active play head (0 or 1)
     bool loopFlag;  // set to loop, unset for 1-shot
     float trig[2]; // trigger output value
-
+    fade_t fadeMode; // type of fade to use
 };
 
 #endif //CUTFADELOOP_CUTFADELOOPLOGIC_H
