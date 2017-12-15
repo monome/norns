@@ -8,10 +8,11 @@ s.waitForBoot { Routine {
 	s.sync;
 
 	b.numChannels.postln;
+	b.sampleRate.postln;
 
 	SynthDef.new(\cutfadeloop, {
 		arg buf, out, phase_out, trig_out, amp=0.2, trig=0, rate=1, start=2, end=4, fade=0.1, loop=1;
-		var cfv, snd, phase, tr;
+		var snd, phase, tr;
 		#phase, tr, snd =  CutFadeLoop.ar(buf, trig, rate, start, end, fade, loop);
 		Out.ar(out, (snd*amp).dup);
 		Out.ar(phase_out, phase.linlin(start, end, 0, 1));
@@ -37,8 +38,8 @@ s.waitForBoot { Routine {
 
 	{ ~phase_b.scope }.defer;
 
-	y.set(\rate, 6/5);
-	x.set(\rate, -4/5);
+//	y.set(\rate, 6/5);
+//	x.set(\rate, -4/5);
 
 	x.set(\start, 2.0);
 	y.set(\end, 6.0);

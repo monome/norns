@@ -66,6 +66,7 @@ void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase, float *outTr
 void CutFadeLoopLogic::setRate(float x)
 {
     phaseInc = x;
+
 }
 
 void CutFadeLoopLogic::setLoopStartSeconds(float x)
