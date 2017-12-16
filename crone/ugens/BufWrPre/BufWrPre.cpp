@@ -60,13 +60,14 @@ void BufWrPre_Ctor(BufWrPre *unit) {
   ClearUnitOutputs(unit, 1);
 }
 
+// FIXME: check rates and add BufWrPre_next_aa, _ak
 void BufWrPre_next(BufWrPre *unit, int inNumSamples) {
   float *phasein  = ZIN(1);
-  float *prein = ZIN(2); // fixme: should allow this to be .kr... somehow
+  float *prein = ZIN(2);
   int32 loop     = (int32)ZIN0(3);
 
   GET_BUF;
-  uint32 numInputChannels = unit->mNumInputs - 3;
+  uint32 numInputChannels = unit->mNumInputs - 4;
   if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
     return;
   
@@ -74,11 +75,11 @@ void BufWrPre_next(BufWrPre *unit, int inNumSamples) {
 
   for (int32 k=0; k<inNumSamples; ++k) {
     double phase = sc_loop((Unit*)unit, ZXP(phasein), loopMax, loop);
-    float pre = sc_loop((Unit*)unit, ZXP(prein), loopMax, loop);
+    float pre = ZXP(prein);
     int32 iphase = (int32)phase;
     float* table0 = bufData + iphase * bufChannels;
     for (uint32 channel=0; channel<numInputChannels; ++channel)
-      table0[channel] = (table0[channel] * pre) + IN(channel+3)[k];
+    table0[channel] = (table0[channel] * pre) + IN(channel+4)[k];
   }
 }
 
