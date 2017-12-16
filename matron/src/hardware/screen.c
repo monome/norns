@@ -15,6 +15,11 @@
 #include <cairo.h>
 #include <cairo-ft.h>
 
+// skip this if you don't want every screen module call to perform null checks
+#ifndef CHECK_CR
+#define CHECK_CR if (cr == NULL) return;
+#endif
+
 static float c[16] = {0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333, 0.4, 0.46666666666667, 0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
 
 static cairo_surface_t *surface;
@@ -60,7 +65,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     device = malloc( sizeof(*device) );
     if (!device) {
         printf("ERROR (screen) cannot allocate memory\n"); fflush(stdout);
-        exit(1);
+	return NULL;
     }
 
     // Open the file for reading and writing
@@ -84,7 +89,8 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     device->fb_data = (unsigned char *)mmap(0, device->fb_screensize,
                                             PROT_READ | PROT_WRITE, MAP_SHARED,
                                             device->fb_fd, 0);
-    if ( (int)device->fb_data == -1 ) {
+    
+    if ( device->fb_data == (unsigned char *)-1 ) {
         printf("ERROR (screen) failed to map framebuffer device to memory"); fflush(stdout);
         goto handle_ioctl_error;
     }
@@ -107,15 +113,17 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
 
     return surface;
 
-handle_ioctl_error:
+ handle_ioctl_error:
     close(device->fb_fd);
-handle_allocate_error:
+ handle_allocate_error:
     free(device);
-    exit(1);
+    return NULL;
 }
 
 void screen_init(void) {
     surface = cairo_linuxfb_surface_create("/dev/fb1");
+    if(surface == NULL) { return; }
+    
     cr = cairo_create(surface);
 
     char filename[256];
@@ -151,11 +159,13 @@ void screen_init(void) {
 }
 
 void screen_deinit(void) {
+  CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 }
 
 void screen_aa(int s) {
+  CHECK_CR
     if(s) {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
     } else {
@@ -164,31 +174,40 @@ void screen_aa(int s) {
 }
 
 void screen_level(int z) {
+  CHECK_CR
     cairo_set_source_rgb(cr,c[z],c[z],c[z]);
 }
 
 void screen_line_width(long w) {
+  CHECK_CR
     cairo_set_line_width(cr,w);
 }
 
 void screen_move(long x, long y) {
+  CHECK_CR
     cairo_move_to(cr,x+0.5,y+0.5);
 }
 
 void screen_line(long x, long y) {
+  CHECK_CR
     cairo_line_to(cr,x+0.5,y+0.5);
 }
 
 void screen_stroke(void) {
+  CHECK_CR
     cairo_stroke(cr);
 }
 
 void screen_text(const char *s) {
+  CHECK_CR
     cairo_show_text(cr, s);
 }
 
 void screen_clear(void) {
+  CHECK_CR
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 }
+
+#undef CHECK_CR

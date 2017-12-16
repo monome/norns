@@ -46,6 +46,7 @@ OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	@ mkdir -p $(OBJ_DIR)/device
+	@ mkdir -p $(OBJ_DIR)/hardware
 	$(CC) -c $(CFLAGS) $(INC) $< -o $@  
 
 $(TARGET): $(OBJ) $(STATIC)
