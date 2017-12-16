@@ -62,21 +62,23 @@ void BufWrPre_Ctor(BufWrPre *unit) {
 
 void BufWrPre_next(BufWrPre *unit, int inNumSamples) {
   float *phasein  = ZIN(1);
-  int32 loop     = (int32)ZIN0(2);
+  float *prein = ZIN(2); // fixme: should allow this to be .kr... somehow
+  int32 loop     = (int32)ZIN0(3);
 
-  GET_BUF
-    uint32 numInputChannels = unit->mNumInputs - 3;
+  GET_BUF;
+  uint32 numInputChannels = unit->mNumInputs - 3;
   if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
     return;
-
+  
   double loopMax = (double)(bufFrames - (loop ? 0 : 1));
 
   for (int32 k=0; k<inNumSamples; ++k) {
     double phase = sc_loop((Unit*)unit, ZXP(phasein), loopMax, loop);
+    float pre = sc_loop((Unit*)unit, ZXP(prein), loopMax, loop);
     int32 iphase = (int32)phase;
     float* table0 = bufData + iphase * bufChannels;
     for (uint32 channel=0; channel<numInputChannels; ++channel)
-      table0[channel] = IN(channel+3)[k];
+      table0[channel] = (table0[channel] * pre) + IN(channel+3)[k];
   }
 }
 
