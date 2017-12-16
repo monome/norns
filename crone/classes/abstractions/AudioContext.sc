@@ -16,7 +16,7 @@ AudioContext {
 
 	// polls available in base context
 	var <pollNames;
-	
+
 	*new { arg srv;
 		^super.new.init(srv);
 	}
@@ -26,35 +26,38 @@ AudioContext {
 		server = srv;
 
 		//---- groups
-		
+
 		ig = Group.new(server);
 		xg = Group.after(ig);
 		og = Group.after(xg);
 
 		//---- busses
-		
+
 		// input 2xmono, output stereo, seems like a "normal" arrangement
-		in_b = Array.fill(2, { Bus.audio(server, 1); });		
+		in_b = Array.fill(2, { Bus.audio(server, 1); });
 		out_b = Bus.audio(server, 2);
-		
+
+		postln("AudioContext: in_b[0] index: " ++ in_b[0].index);
+		postln("AudioContext: in_b[1] index: " ++ in_b[1].index);
+		postln("AudioContext: out_b index (stereo): " ++ out_b.index);
+
 		amp_in_b = Array.fill(2, { Bus.control(server, 1); });
 		amp_out_b = Array.fill(2, { Bus.control(server, 1); });
-		
+
 		// each pitch bus is 2 channels:  [freq, clarity]
 		pitch_in_b = Array.fill(2, { Bus.control(server, 2); });
 
-
 		//---- routing synths
-		
+
 		in_s = Array.fill(2, { |i|
 			Synth.new(\adc, [\in, i, \out, in_b[i].index], ig);
 		});
 
-		out_s = Synth.new(\adc, [\in, out_b.index, \out, 0], og);
+		out_s = Synth.new(\patch_stereo, [\in, out_b.index, \out, 0], og);
 
 		mon_s = Array.fill(2, { |i|
 			Synth.new(\patch_pan,
-				[\in, in_b[i].index, \out, out_b.index],
+				[\in, in_b[i].index, \out, out_b.index, \level, 0],
 				ig, \addAfter
 			);
 		});
@@ -83,9 +86,9 @@ AudioContext {
 		});
 
 		this.initPolls();
-		
+
 	}
-	
+
 	registerPoll  { arg name, func, dt=0.1;
 		pollNames.add(name);
 		CronePollRegistry.register(name, func, dt);
@@ -96,13 +99,13 @@ AudioContext {
 		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
 		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
 	}
-	
+
 	// control monitor level / pan
-	
+
 	setMonitorLevel { arg level;
 		mon_s.do({|syn| syn.set(\level, level) });
 	}
-	
+
 	monitorMono {
 		mon_s[0].set(\pan, 0);
 		mon_s[1].set(\pan, 0);
@@ -110,11 +113,11 @@ AudioContext {
 
 	monitorStereo {
 		mon_s[0].set(\pan, -1);
-		mon_s[1].set(\pan, 1);	
+		mon_s[1].set(\pan, 1);
 	}
 
 	// toggle monitoring altogether (will cause clicks)
-	
+
 	monitorOn {
 		mon_s.do({ |syn| syn.run(true); });
 	}
@@ -124,7 +127,7 @@ AudioContext {
 	}
 
 	// toggle pitch analysis (save CPU)
-	
+
 	pitchOn {
 		pitch_in_s.do({ |syn| syn.run(true); });
 	}
@@ -133,5 +136,5 @@ AudioContext {
 		pitch_in_s.do({ |syn| syn.run(false); });
 	}
 
-	
+
 }

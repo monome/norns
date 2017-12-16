@@ -81,7 +81,7 @@ void CutFadeLoop_next(CutFadeLoop *unit, int inNumSamples)
 
     float snd, phi, tr;
     for (int i=0; i<inNumSamples; ++i) {
-        unit->cutfade.nextSample( &snd, &phi, &tr);
+      unit->cutfade.nextSample( &phi, &tr, &snd);
         phase_out[i] = phi;
         trig_out[i] = tr;
         snd_out[i] = snd;

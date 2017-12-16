@@ -17,7 +17,7 @@ public:
     void setRate(float x);              // set the playback rate (as a ratio)
     void setLoopStartSeconds(float x);  // set the loop endpoint in seconds
     void setLoopEndSeconds(float x);    // set the loop start point in seconds
-    void nextSample(float* outAudio, float* outPhase, float *outTrig); // per-sample update function
+    void nextSample(float* outPhase, float *outTrig, float* outAudio); // per-sample update function
     void setFadeTime(float secs);
     void setLoopFlag(bool val);
     void cutToStart();

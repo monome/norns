@@ -46,7 +46,7 @@ void CutFadeLoopLogic::init() {
     fadeMode = FADE_EQ;
 }
 
-void CutFadeLoopLogic::nextSample(float *outAudio, float *outPhase, float *outTrig) {
+void CutFadeLoopLogic::nextSample(float *outPhase, float *outTrig, float *outAudio) {
 
     if(buf == nullptr) {
         return;

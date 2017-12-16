@@ -15,6 +15,7 @@ Crone {
 	classvar <>ctx;
 
 	*initClass {
+
 		StartUp.add { // defer until after sclang init
 
 			postln("\n-------------------------------------------------");
@@ -37,6 +38,7 @@ Crone {
 					server.sync;
 					// create the audio context
 					// sets up boilerplate routing and analysis
+
 					ctx = AudioContext.new(server);
 
 				}.play;
