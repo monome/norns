@@ -28,13 +28,18 @@ Crone {
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
-					this.reportEngines;
+					this.doTimed( time, {
+						this.reportEngines;
+
+					});
 				}, '/report/engines'),
 
 				'/report/commands':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
-					this.reportCommands;
+					this.doTimed( time, {
+						this.reportCommands;
+					});
 				}, '/report/commands'),
 
 				'/engine/kill':OSCFunc.new({
@@ -45,7 +50,9 @@ Crone {
 				'/engine/load/name':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg,time,addr,recvPort].postln;
-					this.setEngine("Crone_" ++ msg[1]);
+					this.doTimed( time, {
+						this.setEngine("CroneEngine_" ++ msg[1]);
+						});
 				}, '/engine/load/name')
 			);
 		}
@@ -54,13 +61,15 @@ Crone {
 	*setEngine { arg name;
 		var class;
 		class = CroneEngine.subclasses.select({ arg n; n.asString == name.asString })[0];
-		//		postln("setEngine class: " ++ class);
+		postln("setEngine class: " ++ class);
 		if(class.notNil, {
 			if(engine.notNil, {
 				engine.kill;
 			});
 			engine = class.new(Server.default);
 			postln("set engine: " ++ engine);
+		}, {
+			postln("warning: engine class is nil");
 		});
 
 	}
@@ -81,7 +90,10 @@ Crone {
 	}
 
 	*reportCommands {
-		var cmds = engine.commands;
+		var cmds;
+
+		postln(engine);
+		cmds = engine.commands;
 		postln("commands: " ++ cmds);
 		//		postln("commands report start");
 		remote_addr.sendMsg("/report/commands/start", cmds.size);
@@ -91,5 +103,11 @@ Crone {
 		});
 		remote_addr.sendMsg("/report/commands/end");
 		//		postln("commands report end");
+	}
+
+	*doTimed { arg t, fn;
+		var dt = (t - SystemClock.seconds ).max(0);
+		dt.postln;
+		SystemClock.sched(dt, { fn.value(); nil });
 	}
 }
