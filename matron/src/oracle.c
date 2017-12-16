@@ -203,9 +203,16 @@ void o_request_engine_report(void) {
 
 void o_load_engine(const char *name) {
     //  printf("loading engine: %s \n", name);  fflush(stdout);
-    lo_send(remote_addr, "/engine/load/name", "s", name);
-    o_request_command_report();
-    o_request_poll_report();
+    /* lo_send(remote_addr, "/engine/load/name", "s", name); */
+    /* o_request_command_report(); */
+    /* o_request_poll_report(); */
+  lo_timetag now;
+  lo_timetag_now(&now);
+  lo_send_timestamped(remote_addr, now, "/engine/load/name", "s", name);
+  // test with a big delay
+  now.sec += 1;
+  lo_send_timestamped(remote_addr, now, "/report/commands", "");
+  lo_send_timestamped(remote_addr, now, "/report/polls", "");
 }
 
 void o_request_command_report(void) {
