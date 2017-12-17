@@ -21,3 +21,5 @@ norns.state.resume()
 -- shortcuts
 run = norns.script.load
 stop = norns.script.cleanup
+
+run ('test_engine')
