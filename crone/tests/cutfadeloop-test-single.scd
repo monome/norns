@@ -36,7 +36,7 @@ s.waitForBoot { Routine {
 	s.sync;
 
 	postln("phase_b index: " ++ ~phase_b.index);
-	0.1.wait;
+	//0.1.wait;
 
 	x = Synth.new(\cutfadeloop, [
 		\buf, b.bufnum,

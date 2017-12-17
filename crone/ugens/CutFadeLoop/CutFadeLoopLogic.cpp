@@ -92,21 +92,24 @@ void CutFadeLoopLogic::updatePhase(int id)
             p = phase[id] + phaseInc;
             if(id == active) {
                 if (phaseInc > 0.f) {
-                    if (p > end) {
+                    if (p > end || p < start) {
                         if (loopFlag) {
                             // cutToPos(start + (p-end)); // preserve phase overshoot?
-                            cutToPhase(start);
-                            trig[id] = 1.f;
+
+                                cutToPhase(start);
+                                trig[id] = 1.f;
+
                         } else {
                             state[id] = FADEOUT;
                         }
                     }
                 } else { // negative rate
-                    if (p < start) {
+                    if (p > end || p < start) {
                         if(loopFlag) {
                             // cutToPos(end + (p - start));
-                            cutToPhase(end);
-                            trig[id] = 1.f;
+                                cutToPhase(end);
+                                trig[id] = 1.f;
+
                         } else {
                             state[id] = FADEOUT;
                         }
@@ -122,6 +125,7 @@ void CutFadeLoopLogic::updatePhase(int id)
 }
 
 void CutFadeLoopLogic::cutToPhase(float pos) {
+    if(state[active] == FADEIN || state[active] == FADEOUT) { return; }
     int newActive = active == 0 ? 1 : 0;
     if(state[active] != INACTIVE) {
         state[active] = FADEOUT;
