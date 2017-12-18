@@ -2,6 +2,8 @@
 // Created by ezra on 12/6/17.
 //
 
+// TODO: looping/1shot behavior flag
+
 #include <cmath>
 #include <limits>
 #include "CutFadeVoiceLogic.h"
@@ -18,6 +20,7 @@ static int wrap(int val, int bound) {
     if(val < 0) { return val + bound; }
     return val;
 }
+
 
 CutFadeVoiceLogic::CutFadeVoiceLogic() {
     this->init();
@@ -44,7 +47,7 @@ void CutFadeVoiceLogic::init() {
     fadeMode = FADE_EQ;
 }
 
-void CutFadeVoiceLogic::nextSample(const float in, float* outPhase, float *outTrig, float* outAudio) {
+void CutFadeVoiceLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
 
     if(buf == nullptr) {
         return;
@@ -55,13 +58,13 @@ void CutFadeVoiceLogic::nextSample(const float in, float* outPhase, float *outTr
     updateFade(0);
     updateFade(1);
 
-    if(outPhase != nullptr) { *outPhase = phase[active] / sr; }
+    if(outPhase != nullptr) { *outPhase = phase[active]; }
 
     *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
     *outTrig = trig[0] + trig[1];
 
-    poke(in, phase[0], fade[0]);
-    poke(in, phase[1], fade[1]);
+//    poke(in, phase[0], fade[0]);
+//    poke(in, phase[1], fade[1]);
 }
 
 
@@ -89,11 +92,32 @@ void CutFadeVoiceLogic::updatePhase(int id)
         case FADEIN:
         case FADEOUT:
         case ACTIVE:
+            p = phase[id] + phaseInc;
             if(id == active) {
-                p = phase[id] + phaseInc;
-                applyPhase(id, p);
-                phase[id] = p;
+                if (phaseInc > 0.f) {
+                    if (p > end || p < start) {
+                        if (loopFlag) {
+                            // cutToPos(start + (p-end)); // preserve phase overshoot?
+                            cutToPhase(start);
+                            trig[id] = 1.f;
+
+                        } else {
+                            state[id] = FADEOUT;
+                        }
+                    }
+                } else { // negative rate
+                    if (p > end || p < start) {
+                        if(loopFlag) {
+                            // cutToPos(end + (p - start));
+                            cutToPhase(end);
+                            trig[id] = 1.f;
+                        } else {
+                            state[id] = FADEOUT;
+                        }
+                    }
+                } // rate sign check
             } // /active check
+            phase[id] = p;
             break;
         case INACTIVE:
         default:
@@ -101,31 +125,8 @@ void CutFadeVoiceLogic::updatePhase(int id)
     }
 }
 
-void CutFadeVoiceLogic::applyPhase(int id, float p) {
-    if (phaseInc > 0.f) {
-        if (p > end) {
-            if (loopFlag) {
-                cutToPhase(start + (p - end)); // preserve phase overshoot
-                //cutToPhase(start);
-                trig[id] = 1.f;
-            } else {
-                state[id] = FADEOUT;
-            }
-        }
-    } else { // negative rate
-        if (p < start) {
-            if(loopFlag) {
-                cutToPhase(end + (p - start)); // preserve phase overshoot
-                //cutToPhase(end);
-                trig[id] = 1.f;
-            } else {
-                state[id] = FADEOUT;
-            }
-        }
-    } // rate sign check
-}
-
 void CutFadeVoiceLogic::cutToPhase(float pos) {
+    if(state[active] == FADEIN || state[active] == FADEOUT) { return; }
     int newActive = active == 0 ? 1 : 0;
     if(state[active] != INACTIVE) {
         state[active] = FADEOUT;
@@ -169,12 +170,7 @@ void CutFadeVoiceLogic::doneFadeOut(int id) {
     state[id] = INACTIVE;
 }
 
-
 float CutFadeVoiceLogic::peek(float phase) {
-    return peek4(phase);
-}
-
-float CutFadeVoiceLogic::peek4(float phase) {
 
     int phase1 = (int)phase;
     int phase0 = phase1 - 1;
@@ -188,6 +184,31 @@ float CutFadeVoiceLogic::peek4(float phase) {
 
     float x = phase - (float)phase1;
     return cubicinterp(x, y0, y1, y2, y3);
+}
+
+void CutFadeVoiceLogic::setBuffer(float *b, uint32_t bf) {
+    buf = b;
+    bufFrames = bf;
+}
+
+void CutFadeVoiceLogic::setLoopFlag(bool val) {
+    loopFlag = val;
+}
+
+void CutFadeVoiceLogic::cutToStart() {
+    cutToPhase(start);
+}
+
+void CutFadeVoiceLogic::setSampleRate(float sr_) {
+    sr = sr_;
+}
+
+float CutFadeVoiceLogic::mixFade(float x, float y, float a, float b) {
+    if(fadeMode == FADE_EQ) {
+        return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
+    } else {
+        return (x * a) + (y * b);
+    }
 }
 
 
@@ -214,30 +235,11 @@ void CutFadeVoiceLogic::poke2(float x, float phase, float fade) {
     buf[phase1] = x1*rec*fade + buf[phase1] * prefade;
 }
 
-void CutFadeVoiceLogic::setBuffer( float *b, uint32_t bf) {
-    buf = b;
-    bufFrames = bf;
+void CutFadeVoiceLogic::setRec(float x) {
+    rec = x;
 }
 
-void CutFadeVoiceLogic::setLoopFlag(bool val) {
-    loopFlag = val;
+
+void CutFadeVoiceLogic::setPre(float x) {
+    pre= x;
 }
-
-void CutFadeVoiceLogic::cutToStart() {
-    cutToPhase(start);
-}
-
-void CutFadeVoiceLogic::setSampleRate(float sr_) {
-    sr = sr_;
-}
-
-void CutFadeVoiceLogic::setPre(float x) { pre = x; }
-
-float CutFadeVoiceLogic::mixFade(float x, float y, float a, float b) {
-    if(fadeMode == FADE_EQ) {
-        return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
-    } else { // FIXME: add LUT for EXP
-        return (x * a) + (y * b);
-    }
-}
-

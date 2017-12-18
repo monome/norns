@@ -49,7 +49,7 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples)
 {
   GET_BUF;
   uint32 numOutputs = unit->mNumOutputs;
-  uint32 numInputChannels = unit->mNumInputs - 7;
+  uint32 numInputChannels = unit->mNumInputs - 9;
   
   if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
     return;
@@ -67,7 +67,8 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples)
   float end = IN0(5);
   float fade = IN0(6);
   float loop = IN0(7);
-  float pre = IN0(8);
+    float rec = IN0(8);
+  float pre = IN0(9);
 
   // Print("Rate: %f\n", rate);
 
@@ -76,6 +77,7 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples)
   unit->cutfade.setLoopEndSeconds(end);
   unit->cutfade.setFadeTime(fade);
   unit->cutfade.setLoopFlag(loop > 0);
+    unit->cutfade.setRec(rec);
   unit->cutfade.setPre(pre);
 
   if((trig > 0.f) && (unit->prevTrig <= 0.f)) {

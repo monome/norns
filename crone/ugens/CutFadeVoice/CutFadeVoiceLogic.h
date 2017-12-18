@@ -21,6 +21,7 @@ public:
     void setFadeTime(float secs);
     void setLoopFlag(bool val);
     void cutToStart();
+    void setRec(float x);
     void setPre(float x);
 private:
     void updatePhase(int id);
