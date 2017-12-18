@@ -3,6 +3,7 @@
 //
 
 #include <cmath>
+#include <limits>
 #include "CutFadeVoiceLogic.h"
 
 #include "interp.h"
@@ -26,8 +27,8 @@ void CutFadeVoiceLogic::init() {
     sr = 44100.f;
     start = 0.f;
     end = 0.f;
-    phase_rd[0] = 0.f;
-    phase_rd[1] = 0.f;
+    phase[0] = 0.f;
+    phase[1] = 0.f;
     fade[0] = 0.f;
     fade[1] = 0.f;
     state[0] = INACTIVE;
@@ -35,7 +36,7 @@ void CutFadeVoiceLogic::init() {
     active = 0;
     phaseInc = 0.f;
     setFadeTime(0.1f);
-    buf = (const float*) nullptr;
+    buf = (float*) nullptr;
     bufFrames = 0;
     trig[0] = 0.f;
     trig[1] = 0.f;
@@ -43,7 +44,7 @@ void CutFadeVoiceLogic::init() {
     fadeMode = FADE_EQ;
 }
 
-void CutFadeVoiceLogic::nextSample(float* in, float* outPhase, float *outTrig, float* outAudio) {
+void CutFadeVoiceLogic::nextSample(const float in, float* outPhase, float *outTrig, float* outAudio) {
 
     if(buf == nullptr) {
         return;
@@ -54,10 +55,13 @@ void CutFadeVoiceLogic::nextSample(float* in, float* outPhase, float *outTrig, f
     updateFade(0);
     updateFade(1);
 
-    if(outPhase != nullptr) { *outPhase = phase_rd[active] / sr; }
+    if(outPhase != nullptr) { *outPhase = phase[active] / sr; }
 
-    *outAudio = mixFade(peek(phase_rd[0]), peek(phase_rd[1]), fade[0], fade[1]);
+    *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
     *outTrig = trig[0] + trig[1];
+
+    poke(in, phase[0], fade[0]);
+    poke(in, phase[1], fade[1]);
 }
 
 
@@ -86,9 +90,9 @@ void CutFadeVoiceLogic::updatePhase(int id)
         case FADEOUT:
         case ACTIVE:
             if(id == active) {
-                p = phase_rd[id] + phaseInc;
+                p = phase[id] + phaseInc;
                 applyPhase(id, p);
-                phase_rd[id] = p;
+                phase[id] = p;
             } // /active check
             break;
         case INACTIVE:
@@ -127,7 +131,7 @@ void CutFadeVoiceLogic::cutToPhase(float pos) {
         state[active] = FADEOUT;
     }
     state[newActive] = FADEIN;
-    phase_rd[newActive] = pos;
+    phase[newActive] = pos;
     active = newActive;
 }
 
@@ -167,7 +171,7 @@ void CutFadeVoiceLogic::doneFadeOut(int id) {
 
 
 float CutFadeVoiceLogic::peek(float phase) {
-    return peek4(float phase);
+    return peek4(phase);
 }
 
 float CutFadeVoiceLogic::peek4(float phase) {
@@ -187,27 +191,30 @@ float CutFadeVoiceLogic::peek4(float phase) {
 }
 
 
-void CutFadeVoiceLogic::poke(float phase, float x) {
-    poke2(phase, x);
+void CutFadeVoiceLogic::poke(float x, float phase, float fade) {
+    poke2(x, phase, fade);
 }
 
-void CutFadeVoiceLogic::poke2(float phase, float x) {
+void CutFadeVoiceLogic::poke2(float x, float phase, float fade) {
 
-    int phase1 = (int)phase;
-    int phase0 = phase1 - 1;
-    int phase2 = phase1 + 1;
-    int phase3 = phase1 + 2;
+    // bail if record fade level is ~=0, so we don't introduce noise
+    if(fade < std::numeric_limits<float>::epsilon()) { return; }
 
-    float y0 = buf[wrap(phase0, bufFrames)];
-    float y1 = buf[wrap(phase1, bufFrames)];
-    float y2 = buf[wrap(phase2, bufFrames)];
-    float y3 = buf[wrap(phase3, bufFrames)];
+    int phase0 = wrap((int)phase, bufFrames);
+    int phase1 = wrap(phase0 + 1, bufFrames);
+    float fr = phase - (float)((int)phase);
 
-    float x = phase - (float)phase1;
-    //return cubicinterp(x, y0, y1, y2, y3);
+    // linaer-interpolated write values
+    float x0 = (1.f - fr)*buf[phase0] + fr*x;
+    float x1 = fr*buf[phase1] + (1.f-fr)*x;
+
+    float prefade = std::fmax(pre * fade, 1-fade);
+
+    buf[phase0] = x0*rec*fade + buf[phase0] * prefade;
+    buf[phase1] = x1*rec*fade + buf[phase1] * prefade;
 }
 
-void CutFadeVoiceLogic::setBuffer(const float *b, uint32_t bf) {
+void CutFadeVoiceLogic::setBuffer( float *b, uint32_t bf) {
     buf = b;
     bufFrames = bf;
 }
@@ -224,6 +231,8 @@ void CutFadeVoiceLogic::setSampleRate(float sr_) {
     sr = sr_;
 }
 
+void CutFadeVoiceLogic::setPre(float x) { pre = x; }
+
 float CutFadeVoiceLogic::mixFade(float x, float y, float a, float b) {
     if(fadeMode == FADE_EQ) {
         return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
@@ -231,3 +240,4 @@ float CutFadeVoiceLogic::mixFade(float x, float y, float a, float b) {
         return (x * a) + (y * b);
     }
 }
+

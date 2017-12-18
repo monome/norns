@@ -28,7 +28,8 @@ s.waitForBoot { Routine {
 
 		trig = InTrig.kr(trig_in);
 
-		cutfade =  CutFadeLoop.ar(buf, trig, rate * brs, start, end, fade, loop);
+//		cutfade =  CutFadeLoop.ar(buf, trig, rate * brs, start, end, fade, loop);
+		cutfade =  CutFadeVoice.ar(buf, 0.0, trig, rate * brs, start, end, fade, loop);
 		phase = cutfade[0];
 		tr = cutfade[1];
 		snd = cutfade[2];
@@ -86,17 +87,12 @@ s.waitForBoot { Routine {
 
 //		phase = (sin_phase - delay_samps).wrap(0, bs-1);
 		phase = sin_phase;
-//		phase.poll;
-		//		hmmm...
-		//		phase = sin_phase;
-
-		// FIXME: use loop trigger and select between two different writers... or something
-		// currently, will click on loop...
 
 		wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
 	}).send(s);
 
 	s.sync;
+
 	//--- state
 
 	~start_pos = 0.0;

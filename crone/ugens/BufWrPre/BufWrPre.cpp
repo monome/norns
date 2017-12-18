@@ -60,7 +60,7 @@ void BufWrPre_Ctor(BufWrPre *unit) {
   ClearUnitOutputs(unit, 1);
 }
 
-// FIXME: check rates and add BufWrPre_next_aa, _ak
+// FIXME: check rates and add BufWrPre_next_aa, _ak?
 void BufWrPre_next(BufWrPre *unit, int inNumSamples) {
   float *phasein  = ZIN(1);
   float *prein = ZIN(2);
