@@ -13,7 +13,7 @@ CroneEngine_PolyPerc : CroneEngine {
 
 	initSub {
         SynthDef("PolyPerc", {arg freq = 440, pw=pw, amp=amp, cutoff=cutoff, gain=gain, release=release;
-			var snd = LFPulse.ar(freq, 0, pw);
+			var snd = Pulse.ar(freq, 0, pw);
 			var filt = MoogFF.ar(snd,cutoff,gain);
 			var env = Env.perc(level: amp, releaseTime: release).kr(2);
 			Out.ar(0, filt*env);
