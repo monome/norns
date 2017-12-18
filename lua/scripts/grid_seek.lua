@@ -3,7 +3,13 @@ e = require 'engine'
 grid = require 'grid'
 metro = require 'metro'
 
-e.load('PolyPerc')
+e.load('PolyPerc',function(commands,count)
+    init()
+    t:start()
+    end
+)
+
+--print("e.hz = "..e.hz)
 
 g = nil -- grid device
 
@@ -83,11 +89,9 @@ end
 
 redraw = function()
     s.clear()
+    s.level(15)
     s.move(0,10)
     s.text("cutoff > "..string.format('%.1f',(50*2^(cutoff/12))))
     s.move(0,20)
     s.text("release > "..string.format('%.3f',0.1*2^(release/12)))
 end
-
-
-if e.hz then t:start() end

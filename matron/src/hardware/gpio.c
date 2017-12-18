@@ -73,6 +73,7 @@ void gpio_deinit() {
 void *gpio_check(void *x) {
     (void)x;
     int n;
+    unsigned int c[NUM_PINS] = {0,0,0,0,0,0,0,0,0};
     while(1) {
         n = epoll_wait(epfd, &events, 1, -1); // wait for 1 event
         //printf("GPIO epoll returned %d: %s\n", n, strerror(errno));
@@ -92,10 +93,12 @@ void *gpio_check(void *x) {
             for(i = 0; i < NUM_PINS && fd[i] != events.data.fd; i++) {;}
 
             if(i < 3) {
-                union event_data *ev = event_data_new(EVENT_KEY);
-                ev->key.n = i + 1;
-                ev->key.val = !(buf & 0x1);
-                event_post(ev);
+                if(c[i]++) {
+                    union event_data *ev = event_data_new(EVENT_KEY);
+                    ev->key.n = i + 1;
+                    ev->key.val = !(buf & 0x1);
+                    event_post(ev);
+                }
             }
             else {
                 i = i - 3;
@@ -109,7 +112,7 @@ void *gpio_check(void *x) {
                 // enc_val[(a<<1)+1], d); fflush(stdout);
 
                 if(pos_now[a] != pos_old[a]) {
-                    if(d) {
+                    if(d && c[i+3]++) {
                         union event_data *ev = event_data_new(EVENT_ENC);
                         ev->enc.n = a + 1;
                         ev->enc.delta = d;

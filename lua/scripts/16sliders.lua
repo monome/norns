@@ -8,12 +8,13 @@ accum = 1
 step = 0
 
 e = require 'engine' 
-e.load('TestSine',
-	    function(commands, count)
-	       e.hz(100)
-	       e.amp(0.25)
-	    end
+e.load('TestSine',function(commands,count)
+            print("loaded")
+            e.hz(100)
+            k:start()
+    end
 )
+
 
 local metro = require('metro')
 k = metro[1]
@@ -77,5 +78,3 @@ redraw = function()
     s.line(32+step*4,54)
     s.stroke()
 end
-
-k:start()
