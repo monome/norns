@@ -41,6 +41,45 @@ s.waitForBoot { Routine {
 	}).send(s);
 
 
+	// looped, crossfaded playback
+	SynthDef.new(\cutfadevoice, {
+		arg buf, in, out, phase_out= -1, trig_out= -1, trig_in = -1,
+		amp=0.2, rec=0.0, pre=0.0,
+		rate=1, start=0, end=1, fade=0.1, loop=1,
+		fadeRec=1.0, fadePre = 1.0, recRun = 0;
+
+		var snd, phase, tr;
+		var brs;
+		var cutfade;
+		var trig;
+		var sin;
+
+		brs = BufRateScale.kr(buf);
+
+		trig = InTrig.kr(trig_in);
+		sin = In.ar(in);
+
+		pre = Lag.ar(K2A.ar(pre), 0.1);
+		rec = Lag.ar(K2A.ar(rec), 0.1);
+
+//		[pre, rec].poll;
+
+		fadePre.poll;
+		cutfade =  CutFadeVoice.ar(buf, sin, trig,
+			rate * brs, start, end, fade, loop,
+			rec, pre, fadeRec, fadePre, recRun);
+
+		phase = cutfade[0];
+		tr = cutfade[1];
+		snd = cutfade[2];
+
+		Out.ar(out, (snd*amp).dup);
+		Out.ar(phase_out, phase);
+		Out.ar(trig_out, tr);
+	}).send(s);
+
+
+
 	// triggered recording from arbitrary position
 	SynthDef(\cutfade_rec_trig_gate, {
 		arg buf, in, gate=0,
@@ -98,23 +137,25 @@ s.waitForBoot { Routine {
 	~start_pos = 0.0;
 	~end_pos = 1.0;
 	~fade_dur = 0.1;
-	~play_dur = ~end_pos - ~start_pos;
+	~loop_dur = ~end_pos - ~start_pos;
 
 	~phase_rd_b= Bus.audio(s, 1);
 	~trig_rd_b= Bus.audio(s, 1);
 
 	// touching this control bus will trigger playback
-	~play_trig_b = Bus.control(s, 1);
+	~loop_trig_b = Bus.control(s, 1);
 
-	~play_s = Synth.new(\cutfadeloop_play, [
+	~loop_s = Synth.new(\cutfadevoice, [
 		\buf, ~buf.bufnum,
+		\in, Crone.ctx.in_b[0].index,
 		\out, Crone.ctx.out_b.index,
 		\start, ~start_pos, \end, ~end_pos,
 		\phase_out, ~phase_rd_b.index,
 		\trig_out, ~trig_rd_b.index,
-		\trig_in, ~play_trig_b.index,
-		\fade, ~fade_dur
-	], s);
+		\trig_in, ~loop_trig_b.index,
+		\fade, ~fade_dur,
+		\pre, 1.0, \rec, 0.0
+	], Crone.ctx.xg);
 
 	~rec_trig_s = Synth.new(\cutfade_rec_trig_gate, [
 		\in, Crone.ctx.in_b[0].index,
@@ -126,6 +167,8 @@ s.waitForBoot { Routine {
 	/*
 	~rec_follow_s.free;
 	*/
+
+	/*
 	~rec_follow_s = Synth.new(\cutfade_rec_follow_gate, [
 		\in, Crone.ctx.in_b[0].index,
 		\in_phase, ~phase_rd_b.index,
@@ -133,54 +176,60 @@ s.waitForBoot { Routine {
 		\buf, ~buf.bufnum,
 	], s, addAction: \addToTail);
 	~rec_follow_s.set(\pre, 0.5);
+*/
 
 	//--- methods
 
 	~update_end_pos = { arg pos;
 		~end_pos = pos.min(~buf.duration - ~fade_dur);
-		[~start_pos, ~play_dur, ~end_pos].postln;
-		~play_s.set(\end, ~end_pos);
+		[~start_pos, ~loop_dur, ~end_pos].postln;
+		~loop_s.set(\end, ~end_pos);
 	};
 
-	~update_play_dur = { arg dur;
+	~update_loop_dur = { arg dur;
 		dur.postln;
-		~play_dur = dur.max(~fade_dur + (10.0 / s.sampleRate));
-		~update_end_pos.value(~start_pos + ~play_dur);
+		~loop_dur = dur.max(~fade_dur + (10.0 / s.sampleRate));
+		~update_end_pos.value(~start_pos + ~loop_dur);
 	};
 
-	~start_playback = { ~play_trig_b.set(1); };
+	~start_loop = { ~loop_trig_b.set(1); };
 
-	~set_play_loop = { arg val; ~play_s.set(\loop, val); };
+	~set_loop_flag = { arg val; ~loop_s.set(\loop, val); };
 
 	~set_rec_trig_gate = { arg val; ~rec_trig_s.set(\gate, val); };
 
-	~set_rec_follow_gate = { arg val; ~rec_follow_s.set(\gate, val); };
+//	~set_rec_follow_gate = { arg val; ~rec_follow_s.set(\gate, val); };
 
-	~set_play_start = { arg pos, keepDur=true;
+	~set_rec_follow_gate = { arg val; ~loop_s.set(\recRun, val);
+		postln("rec follow: " ++ val);
+	};
+
+	~set_loop_start = { arg pos, keepDur=true;
 		~start_pos = pos;
-		[~start_pos, ~play_dur, ~end_pos].postln;
-		~play_s.set(\start, ~start_pos);
+		[~start_pos, ~loop_dur, ~end_pos].postln;
+		~loop_s.set(\start, ~start_pos);
 		if(keepDur, {
-			~update_end_pos.value(~start_pos + ~play_dur);
+			~update_end_pos.value(~start_pos + ~loop_dur);
 		});
 	};
 
-	~set_play_end = { arg pos; ~update_end_pos.value(pos); };
-	~set_play_dur = { arg dur; ~update_play_dur.value(dur); };
+	~set_loop_end = { arg pos; ~update_end_pos.value(pos); };
+	~set_loop_dur = { arg dur; ~update_loop_dur.value(dur); };
 
 	//-- test gui
 	{
-		w = Window("", Rect(0, 0, 720, 270));
+		w = Window("", Rect(0, 0, 720, 320));
 		w.view.decorator = d = FlowLayout( w.view.bounds, 0@0, 0@0 );
 		w.front;
 
 		Button(w.view, 80@40)
-		.states_([["play", Color.black, Color.grey]])
-		.action_({~start_playback.value});
+		.states_([["start", Color.black, Color.grey]])
+		.action_({~start_loop.value});
 
 		Button(w.view, 100@40)
 		.states_([["record trigger", Color.black, Color.grey], ["stop", Color.red, Color.grey]])
 		.action_({ |bt| ~set_rec_trig_gate.value(bt.value); });
+
 
 
 		Button(w.view, 100@40)
@@ -193,21 +242,44 @@ s.waitForBoot { Routine {
 		d.nextLine;
 		StaticText(w, 80@40).string_("start: ");
 		Slider(w.view, (720-80)@40)
-		.action_({|sl| ~set_play_start.value(sl.value * ~buf.duration); });
+		.action_({|sl| ~set_loop_start.value(sl.value * ~buf.duration); });
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("dur: ");
 		Slider(w.view, (720-80)@40)
-		.action_({|sl| ~set_play_dur.value(sl.value * ~buf.duration / 8.0); });
+		.action_({|sl| ~set_loop_dur.value(sl.value * ~buf.duration / 8.0); });
+
+		d.nextLine;
+		StaticText(w, 80@40).string_("rec level: ");
+		Slider(w.view, (720-80)@40)
+		.action_({|sl| ~loop_s.set(\rec, sl.value); });
+		d.nextLine;
+		StaticText(w, 80@40).string_("pre level: ");
+		Slider(w.view, (720-80)@40)
+		.action_({|sl| ~loop_s.set(\pre, sl.value); });
+		d.nextLine;
+		StaticText(w, 80@40).string_("rec-fade level: ");
+		Slider(w.view, (720-80)@40)
+		.action_({|sl| ~loop_s.set(\fadeRec, sl.value); sl.value.postln;});
+		StaticText(w, 80@40).string_("pre-fade level: ");
+		Slider(w.view, (720-80)@40)
+		.action_({|sl| ~loop_s.set(\fadePre, sl.value); sl.value.postln;});
 	}.defer;
 
 	/*
 	~rec_trig_s.set(\pre, 1);
 	~rec_trig_s.set(\pre, 0.25);
-	~play_s.set(\fade, 0.1);
+	~loop_s.set(\fade, 0.1);
 
 	~rec_follow_s.set(\pre, 0.5);
-	*/
 
+	~loop_s.set(\pre, 0.8);
+
+	~loop_s.set(\pre, 0.0);
+	~loop_s.set(\fadePre, 0.0);
+
+	~loop_s.set(\pre, 0.0);
+	~loop_s.set(\fadePre, 0.0);
+	*/
 
 }.play; };

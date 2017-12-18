@@ -49,11 +49,11 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples)
 {
   GET_BUF;
   uint32 numOutputs = unit->mNumOutputs;
-  uint32 numInputChannels = unit->mNumInputs - 9;
-  
+  uint32 numInputChannels = unit->mNumInputs - 12;
+
   if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
     return;
-  
+
   unit->cutfade.setBuffer(bufData, bufFrames);
 
   float *phase_out = OUT(0);
@@ -61,33 +61,48 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples)
   float *snd_out = OUT(2);
 
     const float *in = IN(1);
+
+    // Print("CutFadeVoice input: %f\n", in);
+
   float trig = IN0(2);
   float rate = IN0(3);
   float start = IN0(4);
   float end = IN0(5);
   float fade = IN0(6);
   float loop = IN0(7);
-    float rec = IN0(8);
-  float pre = IN0(9);
 
-  // Print("Rate: %f\n", rate);
+
+    const float* rec = IN(8);
+  const float* pre = IN(9);
+
+    float fadeRec = IN0(10);
+    float fadePre = IN0(11);
+
+    float recRun = IN0(12);
 
   unit->cutfade.setRate(rate);
   unit->cutfade.setLoopStartSeconds(start);
   unit->cutfade.setLoopEndSeconds(end);
   unit->cutfade.setFadeTime(fade);
   unit->cutfade.setLoopFlag(loop > 0);
-    unit->cutfade.setRec(rec);
-  unit->cutfade.setPre(pre);
 
-  if((trig > 0.f) && (unit->prevTrig <= 0.f)) {
+
+    unit->cutfade.setFadeRec(fadeRec);
+    unit->cutfade.setFadePre(fadePre);
+    unit->cutfade.setRecRun(recRun > 0);
+
+  if((trig > 0) && (unit->prevTrig <= 0)) {
     unit->cutfade.cutToStart();
   }
   unit->prevTrig = trig;
 
   float snd, phi, tr;
   for (int i=0; i<inNumSamples; ++i) {
-    // unit->cutfade.nextSample( &phi, &tr, &snd);
+
+      unit->cutfade.setRec(rec[i]);
+      unit->cutfade.setPre(pre[i]);
+
+
     unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
     phase_out[i] = phi;
     trig_out[i] = tr;

@@ -23,6 +23,9 @@ public:
     void cutToStart();
     void setRec(float x);
     void setPre(float x);
+    void setFadePre(float x);
+    void setFadeRec(float x);
+    void setRecRun(bool val);
 private:
     void updatePhase(int id);
     void updateFade(int id);
@@ -32,9 +35,9 @@ private:
     float peek(float phase); // lookup an audio sample from the buffer
     float peek4(float phase); // interpolated
     void poke(float x, float phase, float fade); // write an audio sample to the buffer
+    void poke0(float x, float phase, float fade); // non-interpolated
     void poke2(float x, float phase, float fade); // interpolated
     float mixFade(float x, float y, float a, float b); // mix two inputs with phases
-    void applyPhase(int id, float p);
 public:
     typedef enum { FADE_LIN, FADE_EQ, FADE_EXP } fade_t;
  private:
@@ -55,6 +58,9 @@ public:
     fade_t fadeMode; // type of fade to use
     float pre; // pre-record level
     float rec; // record level
+    float fadePre; // pre-level modulated by xfade
+    float fadeRec; // record level modulated by xfade
+    bool recRun;
 };
 
 #endif //CUTFADEVOICE_CUTFADEVOICELOGIC_H

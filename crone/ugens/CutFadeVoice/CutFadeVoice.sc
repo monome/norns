@@ -1,7 +1,7 @@
 CutFadeVoice : MultiOutUGen {
 	// output is 3+ channels: #phase_rd, trig, audio...
-    *ar { arg bufnum=0, in=0.0, trigger=0, rate=1.0,  start=0.0, end=1.0, fade=0.1, loop=1, rec=0, pre=0;
-		^this.multiNew('audio', bufnum, in, trigger, rate, start, end, fade, loop, rec, pre);
+    *ar { arg bufnum=0, in=0, trigger=0, rate=1.0, start=0.0, end=1.0, fade=0.1, loop=1, rec=0, pre=0, fadeRec=0.0, fadePre=1.0, recRun=0 ;
+		^this.multiNew('audio', bufnum, in, trigger, rate, start, end, fade, loop, rec, pre, fadeRec, fadePre, recRun);
 	}
 
 	init { arg ... theInputs;

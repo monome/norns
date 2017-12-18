@@ -45,6 +45,7 @@ void CutFadeVoiceLogic::init() {
     trig[1] = 0.f;
     // fadeMode = FADE_LIN;
     fadeMode = FADE_EQ;
+    recRun = false;
 }
 
 void CutFadeVoiceLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
@@ -63,8 +64,10 @@ void CutFadeVoiceLogic::nextSample(float in, float *outPhase, float *outTrig, fl
     *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
     *outTrig = trig[0] + trig[1];
 
-//    poke(in, phase[0], fade[0]);
-//    poke(in, phase[1], fade[1]);
+    if(recRun) {
+        poke(in, phase[0], fade[0]);
+        poke(in, phase[1], fade[1]);
+    }
 }
 
 
@@ -170,7 +173,12 @@ void CutFadeVoiceLogic::doneFadeOut(int id) {
     state[id] = INACTIVE;
 }
 
+
 float CutFadeVoiceLogic::peek(float phase) {
+    return peek4(phase);
+}
+
+float CutFadeVoiceLogic::peek4(float phase) {
 
     int phase1 = (int)phase;
     int phase0 = phase1 - 1;
@@ -184,6 +192,47 @@ float CutFadeVoiceLogic::peek(float phase) {
 
     float x = phase - (float)phase1;
     return cubicinterp(x, y0, y1, y2, y3);
+}
+
+
+void CutFadeVoiceLogic::poke(float x, float phase, float fade) {
+    poke0(x, phase, fade);
+}
+
+void CutFadeVoiceLogic::poke0(float x, float phase, float fade) {
+    if(fade < std::numeric_limits<float>::epsilon()) { return; }
+    if(rec < std::numeric_limits<float>::epsilon()) { return; }
+
+    int phase0 = wrap((int)phase, bufFrames);
+
+    float fadeInv = 1.f - fade;
+// fade = sinf(fade * (float)M_PI_2);
+// fadeInv = sinf(fadeInv * (float)M_PI_2);
+
+    float preFade = std::fmax(pre * fade, fadeInv * fadePre);
+    float recFade = std::fmax(fade*rec, fadeInv * fadeRec);
+
+    buf[phase0] = (x*recFade) + (buf[phase0] * preFade);
+}
+
+void CutFadeVoiceLogic::poke2(float x, float phase, float fade) {
+
+    // bail if record/fade level is ~=0, so we don't introduce noise
+    if(fade < std::numeric_limits<float>::epsilon()) { return; }
+    if(rec < std::numeric_limits<float>::epsilon()) { return; }
+
+    float prefade = std::fmax(pre*fade, (1.f-fade) * fadePre);
+
+    int phase0 = wrap((int)phase, bufFrames);
+    int phase1 = wrap(phase0 + 1, bufFrames);
+    float fr = phase - (float)((int)phase);
+
+    // linear-interpolated write values
+    float x0 = fr*x;
+    float x1 = (1.f-fr)*x;
+
+    buf[phase0] = (x0*rec*fade) + (buf[phase0] * prefade);
+    buf[phase1] = (x1*rec*fade) + (buf[phase1] * prefade);
 }
 
 void CutFadeVoiceLogic::setBuffer(float *b, uint32_t bf) {
@@ -211,30 +260,6 @@ float CutFadeVoiceLogic::mixFade(float x, float y, float a, float b) {
     }
 }
 
-
-void CutFadeVoiceLogic::poke(float x, float phase, float fade) {
-    poke2(x, phase, fade);
-}
-
-void CutFadeVoiceLogic::poke2(float x, float phase, float fade) {
-
-    // bail if record fade level is ~=0, so we don't introduce noise
-    if(fade < std::numeric_limits<float>::epsilon()) { return; }
-
-    int phase0 = wrap((int)phase, bufFrames);
-    int phase1 = wrap(phase0 + 1, bufFrames);
-    float fr = phase - (float)((int)phase);
-
-    // linaer-interpolated write values
-    float x0 = (1.f - fr)*buf[phase0] + fr*x;
-    float x1 = fr*buf[phase1] + (1.f-fr)*x;
-
-    float prefade = std::fmax(pre * fade, 1-fade);
-
-    buf[phase0] = x0*rec*fade + buf[phase0] * prefade;
-    buf[phase1] = x1*rec*fade + buf[phase1] * prefade;
-}
-
 void CutFadeVoiceLogic::setRec(float x) {
     rec = x;
 }
@@ -242,4 +267,17 @@ void CutFadeVoiceLogic::setRec(float x) {
 
 void CutFadeVoiceLogic::setPre(float x) {
     pre= x;
+}
+
+void CutFadeVoiceLogic::setFadePre(float x) {
+    fadePre = x;
+
+}
+
+void CutFadeVoiceLogic::setFadeRec(float x) {
+    fadeRec = x;
+}
+
+void CutFadeVoiceLogic::setRecRun(bool val) {
+    recRun = val;
 }
