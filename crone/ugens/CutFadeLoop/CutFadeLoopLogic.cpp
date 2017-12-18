@@ -57,7 +57,8 @@ void CutFadeLoopLogic::nextSample(float *outPhase, float *outTrig, float *outAud
     updateFade(0);
     updateFade(1);
 
-    if(outPhase != nullptr) { *outPhase = phase[active] / sr; }
+//    if(outPhase != nullptr) { *outPhase = phase[active] / sr; }
+    if(outPhase != nullptr) { *outPhase = phase[active]; }
 
     // *outAudio = peek(phase[0]) * fade[0] + peek(phase[1]) * fade[1];
     *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
@@ -95,7 +96,6 @@ void CutFadeLoopLogic::updatePhase(int id)
                     if (p > end || p < start) {
                         if (loopFlag) {
                             // cutToPos(start + (p-end)); // preserve phase overshoot?
-
                                 cutToPhase(start);
                                 trig[id] = 1.f;
 
@@ -109,7 +109,6 @@ void CutFadeLoopLogic::updatePhase(int id)
                             // cutToPos(end + (p - start));
                                 cutToPhase(end);
                                 trig[id] = 1.f;
-
                         } else {
                             state[id] = FADEOUT;
                         }
