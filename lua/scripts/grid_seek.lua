@@ -4,7 +4,8 @@ grid = require 'grid'
 metro = require 'metro'
 
 e.load('PolyPerc',function(commands,count)
-    init()
+    e.cutoff(50*2^(cutoff/12))
+    e.release(0.1*2^(release/12))
     t:start()
     end
 )
@@ -72,8 +73,8 @@ refresh = function()
   g:refresh();
 end
 
-cutoff=5
-release=5
+cutoff=30
+release=20
 
 enc = function(n,delta)
     if n==2 then
