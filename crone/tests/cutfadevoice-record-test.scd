@@ -64,7 +64,8 @@ s.waitForBoot { Routine {
 
 //		[pre, rec].poll;
 
-		fadePre.poll;
+		// fadePre.poll;
+
 		cutfade =  CutFadeVoice.ar(buf, sin, trig,
 			rate * brs, start, end, fade, loop,
 			rec, pre, fadeRec, fadePre, recRun);
@@ -253,17 +254,26 @@ s.waitForBoot { Routine {
 		StaticText(w, 80@40).string_("rec level: ");
 		Slider(w.view, (720-80)@40)
 		.action_({|sl| ~loop_s.set(\rec, sl.value); });
+
 		d.nextLine;
 		StaticText(w, 80@40).string_("pre level: ");
 		Slider(w.view, (720-80)@40)
 		.action_({|sl| ~loop_s.set(\pre, sl.value); });
+
 		d.nextLine;
 		StaticText(w, 80@40).string_("rec-fade level: ");
 		Slider(w.view, (720-80)@40)
 		.action_({|sl| ~loop_s.set(\fadeRec, sl.value); sl.value.postln;});
+
+		d.nextLine;
 		StaticText(w, 80@40).string_("pre-fade level: ");
 		Slider(w.view, (720-80)@40)
 		.action_({|sl| ~loop_s.set(\fadePre, sl.value); sl.value.postln;});
+
+		d.nextLine;
+		StaticText(w, 80@40).string_("fade time: ");
+		Slider(w.view, (720-80)@40)
+		.action_({|sl| ~loop_s.set(\fade, sl.value); sl.value.postln;});
 	}.defer;
 
 	/*

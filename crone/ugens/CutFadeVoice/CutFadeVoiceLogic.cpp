@@ -200,19 +200,18 @@ void CutFadeVoiceLogic::poke(float x, float phase, float fade) {
 }
 
 void CutFadeVoiceLogic::poke0(float x, float phase, float fade) {
-    if(fade < std::numeric_limits<float>::epsilon()) { return; }
-    if(rec < std::numeric_limits<float>::epsilon()) { return; }
+    if (fade < std::numeric_limits<float>::epsilon()) { return; }
+    if (rec < std::numeric_limits<float>::epsilon()) { return; }
 
-    int phase0 = wrap((int)phase, bufFrames);
+    int phase0 = wrap((int) phase, bufFrames);
 
     float fadeInv = 1.f - fade;
-// fade = sinf(fade * (float)M_PI_2);
-// fadeInv = sinf(fadeInv * (float)M_PI_2);
 
-    float preFade = std::fmax(pre * fade, fadeInv * fadePre);
-    float recFade = std::fmax(fade*rec, fadeInv * fadeRec);
+    float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
+    float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 
-    buf[phase0] = (x*recFade) + (buf[phase0] * preFade);
+    buf[phase0] *= preFade;
+    buf[phase0] += x * recFade;
 }
 
 void CutFadeVoiceLogic::poke2(float x, float phase, float fade) {
