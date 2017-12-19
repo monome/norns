@@ -45,7 +45,8 @@ s.waitForBoot { Routine {
 	SynthDef.new(\cutfadevoice, {
 		arg buf, in, out, phase_out= -1, trig_out= -1, trig_in = -1,
 		amp=0.2, rec=0.0, pre=0.0,
-		rate=1, start=0, end=1, fade=0.1, loop=1,
+		rate=1, ratelag = 0.1,
+		start=0, end=1, fade=0.1, loop=1,
 		fadeRec=1.0, fadePre = 1.0, recRun = 0;
 
 		var snd, phase, tr;
@@ -62,9 +63,7 @@ s.waitForBoot { Routine {
 		pre = Lag.ar(K2A.ar(pre), 0.1);
 		rec = Lag.ar(K2A.ar(rec), 0.1);
 
-//		[pre, rec].poll;
-
-		// fadePre.poll;
+		rate = Lag.ar(K2A.ar(rate), ratelag);
 
 		cutfade =  CutFadeVoice.ar(buf, sin, trig,
 			rate * brs, start, end, fade, loop,
@@ -219,7 +218,7 @@ s.waitForBoot { Routine {
 
 	//-- test gui
 	{
-		w = Window("", Rect(0, 0, 720, 320));
+		w = Window("", Rect(0, 0, 720, 360));
 		w.view.decorator = d = FlowLayout( w.view.bounds, 0@0, 0@0 );
 		w.front;
 
@@ -274,6 +273,19 @@ s.waitForBoot { Routine {
 		StaticText(w, 80@40).string_("fade time: ");
 		Slider(w.view, (720-80)@40)
 		.action_({|sl| ~loop_s.set(\fade, sl.value); sl.value.postln;});
+
+
+		d.nextLine;
+		StaticText(w, 80@40).string_("rate: ");
+		Slider(w.view, (720-80)@40)
+		.action_({|sl|
+			var x, r;
+			x = sl.value.linlin(0, 1, -1, 1);
+			r = x * 4.0;
+			~loop_s.set(\rate, r);
+			r.postln;
+		});
+
 	}.defer;
 
 	/*
