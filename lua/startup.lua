@@ -25,3 +25,5 @@ e = require 'engine'
 -- shortcuts
 run = norns.script.load
 stop = norns.script.cleanup
+
+run ('test_engine')

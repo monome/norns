@@ -1,11 +1,18 @@
 // the Crone, a singleton class
 // it receives OSC from *matron* and manages the current CroneEngine
 Crone {
-	classvar <>engine; // current CroneEngine instance
+	// the audio server
+	classvar <>server;
+	// current CroneEngine subclass instance
+	classvar <>engine;
+	// available OSC functions
 	classvar <>oscfunc;
-	classvar <>remote_addr;
-	classvar <>tx_port = 8888;
-	classvar <>remote_addr;
+	// address of remote client
+	classvar <>remoteAddr;
+	// port to send OSC on
+	classvar <>txPort = 8888;
+	// an AudioContext
+	classvar <>ctx;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
@@ -14,100 +21,163 @@ Crone {
 			postln(" Crone startup");
 			postln("");
 			postln(" \OSC rx port: " ++ NetAddr.langPort);
-			postln(" \OSC tx port: " ++ tx_port);
+			postln(" \OSC tx port: " ++ txPort);
 			postln("--------------------------------------------------\n");
 
-			Server.default.waitForBoot {
-				CroneDefs.sendDefs;
-			};
+			server = Server.local;
+			server.waitForBoot ({
+				Routine {
+					// this is necessary due to a bug in sclang terminal timer!
+					// GH issue 2144 on upstream supercollider
+					// hoping for fix in 3.9 release...
+					///... arg, actually this messes with SendTrig....
+					// server.statusWatcher.stopAliveThread;
+					// server.initTree;
+					// server.sync;
+					CroneDefs.sendDefs(server);
+					server.sync;
+					// create the audio context
+					// sets up boilerplate routing and analysis
+					ctx = AudioContext.new(server);
 
-			remote_addr =NetAddr("127.0.0.1", tx_port);
+				}.play;
+			});
+
+
+			// FIXME? matron address is hardcoded here
+			remoteAddr =NetAddr("127.0.0.1", txPort);
 
 			oscfunc = (
 
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
-					this.doTimed( time, {
-						this.reportEngines;
-
-					});
+					this.reportEngines;
 				}, '/report/engines'),
 
 				'/report/commands':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;
-					this.doTimed( time, {
-						this.reportCommands;
-					});
+					this.reportCommands;
 				}, '/report/commands'),
+
+				'/report/polls':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg, time, addr, recvPort].postln;
+					this.reportPolls;
+				}, '/report/polls'),
 
 				'/engine/kill':OSCFunc.new({
 					if(engine.notNil, { engine.kill; });
 				}, '/engine/kill'),
 
-
 				'/engine/load/name':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg,time,addr,recvPort].postln;
-					this.doTimed( time, {
-						this.setEngine("CroneEngine_" ++ msg[1]);
-						});
-				}, '/engine/load/name')
+					this.setEngine('CroneEngine_' ++ msg[1]);
+				}, '/engine/load/name'),
+
+				'/poll/start':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg,time,addr,recvPort].postln;
+					this.startPoll(msg[1]);
+				}, '/poll/start'),
+
+				'/poll/stop':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg,time,addr,recvPort].postln;
+					this.stopPoll(msg[1]);
+				}, '/poll/stop'),
+
+				'/poll/time':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					[msg,time,addr,recvPort].postln;
+					this.setPollTime(msg[1], msg[2]);
+				}, '/poll/time')
+
 			);
 		}
+
 	}
 
 	*setEngine { arg name;
 		var class;
 		class = CroneEngine.subclasses.select({ arg n; n.asString == name.asString })[0];
-		postln("setEngine class: " ++ class);
-		if(class.notNil, {
-			if(engine.notNil, {
-				engine.kill;
+		postln(class);
+		if(engine.class != class, {
+			if(class.notNil, {
+				if(engine.notNil, {
+					engine.kill;
+				});
+				engine = class.new(Server.default, ctx.xg, ctx.in_b, ctx.out_b);
+				postln('set engine: ' ++ engine);
 			});
-			engine = class.new(Server.default);
-			postln("set engine: " ++ engine);
-		}, {
-			postln("warning: engine class is nil");
 		});
-
 	}
 
-	*reportEngines{
+	// start a thread to continuously send a named report with a given interval
+	*startPoll { arg idx, intervalMs =100;
+		var poll = CronePollRegistry.getPollFromIdx(idx);
+		if(poll.notNil, {
+			poll.start(remoteAddr);
+		}, {
+			postln("startPoll failed; couldn't find index " ++ idx);
+		});
+	}
+
+	*stopPoll { arg idx;
+		var poll = CronePollRegistry.getPollFromIdx(idx);
+		if(poll.notNil, {
+			poll.stop;
+		}, {
+			postln("stopPoll failed; couldn't find index " ++ idx);
+		});
+	}
+
+	*setPollTime { arg idx, dt;
+		var pt = CronePollRegistry.getPollFromIdx(idx);
+		if(pt.notNil, {
+			pt.setTime(dt);
+		}, {
+			postln("setPollTime failed; couldn't find index " ++ idx);
+		});
+	}
+
+	*reportEngines {
 		var names = CroneEngine.subclasses.collect({ arg n;
 			n.asString.split($_)[1]
 		});
-		postln("engines: " ++ names);
-		//		postln("engines report start");
-		remote_addr.sendMsg("/report/engines/start", names.size);
+		postln('engines: ' ++ names);
+		remoteAddr.sendMsg('/report/engines/start', names.size);
 		names.do({ arg name, i;
-			remote_addr.sendMsg("/report/engines/entry", i, name);
+			remoteAddr.sendMsg('/report/engines/entry', i, name);
 
 		});
-		remote_addr.sendMsg("/report/engines/end");
-		//		postln("engines report end");
+		remoteAddr.sendMsg('/report/engines/end');
 	}
 
 	*reportCommands {
-		var cmds;
-
-		postln(engine);
-		cmds = engine.commands;
-		postln("commands: " ++ cmds);
-		//		postln("commands report start");
-		remote_addr.sendMsg("/report/commands/start", cmds.size);
-		cmds.do({ arg cmd, i;
-			postln("command entry: " ++ [i, cmd.name, cmd.format]);
-			remote_addr.sendMsg("/report/commands/entry", i, cmd.name, cmd.format);
+		var commands = engine.commands;
+		postln("commands: " ++ commands);
+		remoteAddr.sendMsg('/report/commands/start', commands.size);
+		commands.do({ arg cmd, i;
+			postln('command entry: ' ++ [i, cmd.name, cmd.format]);
+			remoteAddr.sendMsg('/report/commands/entry', i, cmd.name, cmd.format);
 		});
-		remote_addr.sendMsg("/report/commands/end");
-		//		postln("commands report end");
+		remoteAddr.sendMsg('/report/commands/end');
 	}
 
-	*doTimed { arg t, fn;
-		var dt = (t - SystemClock.seconds ).max(0);
-		dt.postln;
-		SystemClock.sched(dt, { fn.value(); nil });
+	*reportPolls {
+		var num = CronePollRegistry.getNumPolls;
+		remoteAddr.sendMsg('/report/polls/start', num);
+		num.do({ arg i;
+			var poll = CronePollRegistry.getPollFromIdx(i);
+			postln(poll.name);
+			// FIXME: polls should just have format system like commands
+			remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
+		});
+
+		remoteAddr.sendMsg('/report/polls/end');
 	}
+
 }
