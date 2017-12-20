@@ -12,14 +12,20 @@ for mod,v in pairs(norns.version) do
     print (mod,v)
 end
 
+-- globals
+grid = require 'grid'
+metro = require 'metro'
+e = require 'engine'
+
 -- user startup script
---require 'first'
-
-norns.state.resume()
-
+--require 'first' 
 
 -- shortcuts
 run = norns.script.load
 stop = norns.script.cleanup
 
-run ('test_engine')
+-- helper
+math.randomseed(os.time())
+
+-- resume last loaded script
+norns.state.resume()

@@ -56,19 +56,44 @@ local block_s = function()
 end
 
 -- input redirection
+local _enc = {{},{}}
+_enc[1].sens = 1
+_enc[1].tick = 0
+_enc[2].sens = 1
+_enc[2].tick = 0
+
 norns.enc = function(n, delta)
     -- level enc always managed by map script
     if(n==1) then
         map.level(delta)
     -- other encs conditionally passed
-    else 
-        if(map.state==mRun) then
-            enc(n, delta)
-        else
-            map.enc(n, delta)
+    elseif(n==2) then
+        _enc[1].tick = _enc[1].tick + delta
+        if math.abs(_enc[1].tick) > _enc[1].sens then
+            _enc[1].tick = 0
+            if(map.state==mRun) then
+                enc(2, delta)
+            else
+                map.enc(2, delta)
+            end
+        end
+    elseif(n==3) then
+        _enc[2].tick = _enc[2].tick + delta
+        if math.abs(_enc[2].tick) >= _enc[2].sens then
+            if(map.state==mRun) then
+                enc(3, delta)
+            else
+                map.enc(3, delta)
+            end
         end
     end
 end
+
+set_enc_sens = function(n, sens)
+    _enc[n].sens = sens
+    _enc[n].tick = 0
+end
+
 
 norns.key = function(n, z)
     -- map key mode detection
@@ -99,6 +124,8 @@ map.set = function(mode)
         map.key =  key
         map.enc = enc
         map.level = map.nav.level
+        set_enc_sens(1,1)
+        set_enc_sens(2,1)
         redraw() 
     elseif mode==mNav then
         map.state = mNav
@@ -106,6 +133,7 @@ map.set = function(mode)
         map.key = map.nav.key
         map.enc = map.nav.enc
         map.level = map.nav.level
+        set_enc_sens(1,5)
         map.nav.redraw() 
     elseif mode==mAlt then
         map.state = mAlt
@@ -141,15 +169,15 @@ end
 
 map.nav.enc = function(n,delta)
     -- scroll file list
-    if n==2 then
+    if n==2 then 
         map.nav.pos = map.nav.pos + delta
-		if map.nav.pos > map.nav.len - 1 then map.nav.pos = map.nav.len - 1 end
-		if map.nav.pos < 0 then map.nav.pos = 0 end
-		if map.nav.pos > 2 or map.nav.offset > 0 then
-			map.nav.offset = map.nav.offset + delta
-			if map.nav.offset < 0 then map.nav.offset = 0 end
-			if map.nav.offset > map.nav.len - 3 then map.nav.offset = map.nav.len - 3 end
-		end
+	    if map.nav.pos > map.nav.len - 1 then map.nav.pos = map.nav.len - 1 end
+	    if map.nav.pos < 0 then map.nav.pos = 0 end
+	    if map.nav.pos > 2 or map.nav.offset > 0 then
+		    map.nav.offset = map.nav.offset + delta
+		    if map.nav.offset < 0 then map.nav.offset = 0 end
+		    if map.nav.offset > map.nav.len - 3 then map.nav.offset = map.nav.len - 3 end
+	    end
         map.nav.redraw()
     end
 end
@@ -197,29 +225,22 @@ map.alt.redraw = function()
     s_clear()
     s_aa(1)
 
+    status = "battery > "..norns.batterypercent 
+    if norns.powerpresent==1 then status = status.." (powered)" end
+
     -- draw battery bar
-    s_level(2)
-    s_move(0,1)
-    s_line(100,1)
-    s_stroke()
-
     s_level(10)
-    s_move(0,0)
-    s_line(norns.batterypercent,0)
-    s_stroke()
+    s_move(0,10)
+    s_text(status)
 
-    -- draw power present indicator
-    if norns.powerpresent==1 then
-        s_move(104,0)
-        s_line(106,0)
-        s_move(104,1)
-        s_line(106,1)
-        s_stroke()
-    end
+    s_move(0,20)
+    local net = 'ip > '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
+    if net == 'ip > ' then net = 'no wifi' end
+    s_text(net)
 
     -- draw current script loaded
-    s_move(0,50)
+    s_move(0,60)
     s_level(15)
-    s_text(norns.state.script)
+    s_text("script > "..norns.state.script)
 end
 

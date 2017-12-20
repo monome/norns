@@ -1,21 +1,22 @@
 --16sliders
 
-math.randomseed(os.time())
 
 sliders = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 edit = 1
 accum = 1
 step = 0
 
-e = require 'engine' 
-e.load('TestSine',
-	    function(commands, count)
-	       e.hz(100)
-	       e.amp(0.25)
-	    end
+--e = require 'engine' 
+e.load('TestSine',function(commands,count)
+            print("16sliders: loaded engine")
+            e.hz(100)
+            e.amp(0.1)
+            k:start()
+    end
 )
 
-local metro = require('metro')
+
+--local metro = require('metro')
 k = metro[1]
 k.count = -1
 k.time = 0.1
@@ -77,5 +78,3 @@ redraw = function()
     s.line(32+step*4,54)
     s.stroke()
 end
-
-k:start()
