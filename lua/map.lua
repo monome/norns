@@ -205,6 +205,11 @@ map.alt.redraw = function()
     s_move(0,10)
     s_text(status)
 
+    s_move(0,20)
+    local net = 'ip > '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
+    if net == 'ip > ' then net = 'no wifi' end
+    s_text(net)
+
     -- draw current script loaded
     s_move(0,60)
     s_level(15)
