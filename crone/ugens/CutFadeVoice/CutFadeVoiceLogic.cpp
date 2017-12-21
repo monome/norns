@@ -6,7 +6,6 @@
 
 #include <cmath>
 #include <limits>
-#include <cstdint>
 
 #include "CutFadeVoiceLogic.h"
 
@@ -17,7 +16,7 @@
 #define nullptr ((void*)0)
 #endif
 
-static uint32_t wrap(uint32_t val, uint32_t bound) {
+static int wrap(int val, int bound) {
     if(val >= bound) { return val - bound; }
     if(val < 0) { return val + bound; }
     return val;
@@ -61,7 +60,7 @@ void CutFadeVoiceLogic::nextSample(float in, float *outPhase, float *outTrig, fl
     updateFade(0);
     updateFade(1);
 
-    if(outPhase != nullptr) { *outPhase = phase[active]; }
+    if(outPhase != nullptr) { *outPhase = static_cast<float>(phase[active]); }
 
     *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
     *outTrig = trig[0] + trig[1];
@@ -90,7 +89,7 @@ void CutFadeVoiceLogic::setLoopEndSeconds(float x)
 
 void CutFadeVoiceLogic::updatePhase(int id)
 {
-    float p;
+    double p;
     trig[id] = 0.f;
     switch(state[id]) {
         case FADEIN:
@@ -179,10 +178,10 @@ float CutFadeVoiceLogic::peek(double phase) {
 }
 
 float CutFadeVoiceLogic::peek4(double phase) {
-    uint32_t phase1 = static_cast<uint32_t>(phase);
-    uint32_t phase0 = phase1 - 1;
-    uint32_t phase2 = phase1 + 1;
-    uint32_t phase3 = phase1 + 2;
+    int phase1 = static_cast<int>(phase);
+    int phase0 = phase1 - 1;
+    int phase2 = phase1 + 1;
+    int phase3 = phase1 + 2;
 
     double y0 = buf[wrap(phase0, bufFrames)];
     double y1 = buf[wrap(phase1, bufFrames)];
@@ -190,18 +189,15 @@ float CutFadeVoiceLogic::peek4(double phase) {
     double y3 = buf[wrap(phase3, bufFrames)];
 
     double x = phase - (double)phase1;
-    this->x = static_cast<float>(x);
-    /// test..
-    //this->x = phase;
     return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));
 }
 
 
-void CutFadeVoiceLogic::poke(float x, float phase, float fade) {
+void CutFadeVoiceLogic::poke(float x, double phase, float fade) {
     poke2(x, phase, fade);
 }
 
-void CutFadeVoiceLogic::poke0(float x, float phase, float fade) {
+void CutFadeVoiceLogic::poke0(float x, double phase, float fade) {
     if (fade < std::numeric_limits<float>::epsilon()) { return; }
     if (rec < std::numeric_limits<float>::epsilon()) { return; }
 
@@ -216,13 +212,13 @@ void CutFadeVoiceLogic::poke0(float x, float phase, float fade) {
     buf[phase0] += x * recFade;
 }
 
-void CutFadeVoiceLogic::poke2(float x, float phase, float fade) {
+void CutFadeVoiceLogic::poke2(float x, double phase, float fade) {
 
     // bail if record/fade level is ~=0, so we don't introduce noise
     if (fade < std::numeric_limits<float>::epsilon()) { return; }
     if (rec < std::numeric_limits<float>::epsilon()) { return; }
 
-    int phase0 = wrap((int) phase, bufFrames);
+    int phase0 = static_cast<int>(phase);
     int phase1 = wrap(phase0 + 1, bufFrames);
 
     float fadeInv = 1.f - fade;
@@ -230,7 +226,7 @@ void CutFadeVoiceLogic::poke2(float x, float phase, float fade) {
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 
-    float fr = phase - (float)((int)phase);
+    auto fr = static_cast<float>(phase - static_cast<double>(phase0));
 
     // linear-interpolated write values
     float x1 = fr*x;

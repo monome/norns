@@ -34,9 +34,9 @@ private:
     void doneFadeOut(int id);
     float peek(double phase); // lookup an audio sample from the buffer
     float peek4(double phase); // interpolated
-    void poke(float x, float phase, float fade); // write an audio sample to the buffer
-    void poke0(float x, float phase, float fade); // non-interpolated
-    void poke2(float x, float phase, float fade); // interpolated
+    void poke(float x, double phase, float fade); // write an audio sample to the buffer
+    void poke0(float x, double phase, float fade); // non-interpolated
+    void poke2(float x, double phase, float fade); // interpolated
     float mixFade(float x, float y, float a, float b); // mix two inputs with phases
 public:
     typedef enum { FADE_LIN, FADE_EQ, FADE_EXP } fade_t;
@@ -61,9 +61,6 @@ public:
     float fadePre; // pre-level modulated by xfade
     float fadeRec; // record level modulated by xfade
     bool recRun;
-    ///// debug
-public:
-    float x; // current fractional phase
 };
 
 #endif //CUTFADEVOICE_CUTFADEVOICELOGIC_H

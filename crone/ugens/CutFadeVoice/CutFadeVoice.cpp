@@ -102,16 +102,10 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples) {
         unit->cutfade.setPre(pre[i]);
 
         unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
-   //     phase_out[i] = phi;
-
-        ///// debug!
-        phase_out[i] = unit->cutfade.x;
-
+        phase_out[i] = phi;
 
         trig_out[i] = tr;
         snd_out[i] = snd;
-
-//s        Print("fract phase: %f\n", unit->cutfade.x);
     }
 }
 
