@@ -194,7 +194,8 @@ float CutFadeVoiceLogic::peek4(double phase) {
 
 
 void CutFadeVoiceLogic::poke(float x, double phase, float fade) {
-    poke2(x, phase, fade);
+    double p = phase + recPhaseOffset;
+    poke2(x, p, fade);
 }
 
 void CutFadeVoiceLogic::poke0(float x, double phase, float fade) {
@@ -218,7 +219,7 @@ void CutFadeVoiceLogic::poke2(float x, double phase, float fade) {
     if (fade < std::numeric_limits<float>::epsilon()) { return; }
     if (rec < std::numeric_limits<float>::epsilon()) { return; }
 
-    int phase0 = static_cast<int>(phase);
+    int phase0 = wrap(static_cast<int>(phase), bufFrames);
     int phase1 = wrap(phase0 + 1, bufFrames);
 
     float fadeInv = 1.f - fade;
@@ -226,7 +227,7 @@ void CutFadeVoiceLogic::poke2(float x, double phase, float fade) {
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 
-    auto fr = static_cast<float>(phase - static_cast<double>(phase0));
+    auto fr = static_cast<float>(phase - static_cast<int>(phase));
 
     // linear-interpolated write values
     float x1 = fr*x;
@@ -287,4 +288,8 @@ void CutFadeVoiceLogic::setFadeRec(float x) {
 
 void CutFadeVoiceLogic::setRecRun(bool val) {
     recRun = val;
+}
+
+void CutFadeVoiceLogic::setRecOffset(float x) {
+    recPhaseOffset = x;
 }

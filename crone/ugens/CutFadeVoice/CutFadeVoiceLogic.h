@@ -26,6 +26,7 @@ public:
     void setFadePre(float x);
     void setFadeRec(float x);
     void setRecRun(bool val);
+    void setRecOffset(float x);
 private:
     void updatePhase(int id);
     void updateFade(int id);
@@ -61,6 +62,7 @@ public:
     float fadePre; // pre-level modulated by xfade
     float fadeRec; // record level modulated by xfade
     bool recRun;
+    double recPhaseOffset;
 };
 
 #endif //CUTFADEVOICE_CUTFADEVOICELOGIC_H

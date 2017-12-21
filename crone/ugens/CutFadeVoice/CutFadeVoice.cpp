@@ -48,7 +48,7 @@ void CutFadeVoice_Ctor(CutFadeVoice *unit) {
 void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples) {
     GET_BUF;
     uint32 numOutputs = unit->mNumOutputs;
-    uint32 numInputChannels = unit->mNumInputs - 12;
+    uint32 numInputChannels = unit->mNumInputs - 13;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
         return;
@@ -76,8 +76,8 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples) {
 
     float fadeRec = IN0(10);
     float fadePre = IN0(11);
-
     float recRun = IN0(12);
+    float recOffset= IN0(13);
 
     unit->cutfade.setLoopStartSeconds(start);
     unit->cutfade.setLoopEndSeconds(end);
@@ -88,6 +88,7 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples) {
     unit->cutfade.setFadeRec(fadeRec);
     unit->cutfade.setFadePre(fadePre);
     unit->cutfade.setRecRun(recRun > 0);
+    unit->cutfade.setRecOffset(recOffset);
 
     if ((trig > 0) && (unit->prevTrig <= 0)) {
         unit->cutfade.cutToStart();
