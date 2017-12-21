@@ -6,6 +6,8 @@
 
 #include <cmath>
 #include <limits>
+#include <cstdint>
+
 #include "CutFadeVoiceLogic.h"
 
 #include "interp.h"
@@ -15,7 +17,7 @@
 #define nullptr ((void*)0)
 #endif
 
-static int wrap(int val, int bound) {
+static uint32_t wrap(uint32_t val, uint32_t bound) {
     if(val >= bound) { return val - bound; }
     if(val < 0) { return val + bound; }
     return val;
@@ -74,7 +76,6 @@ void CutFadeVoiceLogic::nextSample(float in, float *outPhase, float *outTrig, fl
 void CutFadeVoiceLogic::setRate(float x)
 {
     phaseInc = x;
-
 }
 
 void CutFadeVoiceLogic::setLoopStartSeconds(float x)
@@ -173,25 +174,26 @@ void CutFadeVoiceLogic::doneFadeOut(int id) {
     state[id] = INACTIVE;
 }
 
-
-float CutFadeVoiceLogic::peek(float phase) {
+float CutFadeVoiceLogic::peek(double phase) {
     return peek4(phase);
 }
 
-float CutFadeVoiceLogic::peek4(float phase) {
+float CutFadeVoiceLogic::peek4(double phase) {
+    uint32_t phase1 = static_cast<uint32_t>(phase);
+    uint32_t phase0 = phase1 - 1;
+    uint32_t phase2 = phase1 + 1;
+    uint32_t phase3 = phase1 + 2;
 
-    int phase1 = (int)phase;
-    int phase0 = phase1 - 1;
-    int phase2 = phase1 + 1;
-    int phase3 = phase1 + 2;
+    double y0 = buf[wrap(phase0, bufFrames)];
+    double y1 = buf[wrap(phase1, bufFrames)];
+    double y2 = buf[wrap(phase2, bufFrames)];
+    double y3 = buf[wrap(phase3, bufFrames)];
 
-    float y0 = buf[wrap(phase0, bufFrames)];
-    float y1 = buf[wrap(phase1, bufFrames)];
-    float y2 = buf[wrap(phase2, bufFrames)];
-    float y3 = buf[wrap(phase3, bufFrames)];
-
-    float x = phase - (float)phase1;
-    return cubicinterp(x, y0, y1, y2, y3);
+    double x = phase - (double)phase1;
+    this->x = static_cast<float>(x);
+    /// test..
+    //this->x = phase;
+    return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));
 }
 
 

@@ -32,8 +32,8 @@ private:
     void cutToPhase(float newPhase); // fade in to new position (given in samples)
     void doneFadeIn(int id);
     void doneFadeOut(int id);
-    float peek(float phase); // lookup an audio sample from the buffer
-    float peek4(float phase); // interpolated
+    float peek(double phase); // lookup an audio sample from the buffer
+    float peek4(double phase); // interpolated
     void poke(float x, float phase, float fade); // write an audio sample to the buffer
     void poke0(float x, float phase, float fade); // non-interpolated
     void poke2(float x, float phase, float fade); // interpolated
@@ -48,8 +48,8 @@ public:
     float start;        // Voice points
     float end;
     float fadeInc;      // linear fade increment per sample
-    float phaseInc;     // phase_rd increment per sample
-    float phase[2];     // current buffer read phase
+    double phaseInc;     // phase_rd increment per sample
+    double phase[2];     // current buffer read phase
     float fade[2];      // current playback fade phase
     int state[2];       // active/inactive/fading state of each head
     int active;     // current active play head (0 or 1)
@@ -61,6 +61,9 @@ public:
     float fadePre; // pre-level modulated by xfade
     float fadeRec; // record level modulated by xfade
     bool recRun;
+    ///// debug
+public:
+    float x; // current fractional phase
 };
 
 #endif //CUTFADEVOICE_CUTFADEVOICELOGIC_H

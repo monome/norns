@@ -28,8 +28,7 @@ s.waitForBoot { Routine {
 
 		trig = InTrig.kr(trig_in);
 
-//		cutfade =  CutFadeLoop.ar(buf, trig, rate * brs, start, end, fade, loop);
-		cutfade =  CutFadeVoice.ar(buf, 0.0, trig, rate * brs, start, end, fade, loop);
+		cutfade =  CutFadeLoop.ar(buf, trig, rate * brs, start, end, fade, loop);
 		phase = cutfade[0];
 		tr = cutfade[1];
 		snd = cutfade[2];
@@ -39,7 +38,6 @@ s.waitForBoot { Routine {
 		Out.ar(phase_out, phase);
 		Out.ar(trig_out, tr);
 	}).send(s);
-
 
 	// looped, crossfaded playback
 	SynthDef.new(\cutfadevoice, {
@@ -73,11 +71,12 @@ s.waitForBoot { Routine {
 		tr = cutfade[1];
 		snd = cutfade[2];
 
+		[rate, phase].poll;
+
 		Out.ar(out, (snd*amp).dup);
 		Out.ar(phase_out, phase);
 		Out.ar(trig_out, tr);
 	}).send(s);
-
 
 
 	// triggered recording from arbitrary position
@@ -98,35 +97,6 @@ s.waitForBoot { Routine {
 
 		sin = In.ar(in);
 		phase = Phasor.ar(gate, rate * brs, start*sr, end*sr, start);
-		wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
-	}).send(s);
-
-	// continuous recording following play head
-	SynthDef.new(\cutfade_rec_follow_gate, {
-		arg buf, in, in_phase, in_trig, gate=0,
-		rec=1, pre=0, fade=0.01, delay_samps=0;
-
-		var sr, bs,
-		sin, sin_phase, sin_trig,
-		phase, wr, trig,
-		env_pre, env_rec;
-
-		sr = SampleRate.ir;
-		bs = BufSamples.kr(buf);
-
-		env_rec = EnvGen.ar(Env.asr(fade, 1, fade), gate) * rec;
-		env_pre = (pre * env_rec).max(1-env_rec);
-	//	[env_rec, env_pre].poll;
-
-		sin = In.ar(in);
-		sin_phase = In.ar(in_phase);
-		sin_trig= In.ar(in_trig);
-
-		sin_phase.poll;
-
-//		phase = (sin_phase - delay_samps).wrap(0, bs-1);
-		phase = sin_phase;
-
 		wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
 	}).send(s);
 
@@ -164,20 +134,6 @@ s.waitForBoot { Routine {
 		\buf, ~buf.bufnum,
 	], s, addAction: \addToTail);
 
-	/*
-	~rec_follow_s.free;
-	*/
-
-	/*
-	~rec_follow_s = Synth.new(\cutfade_rec_follow_gate, [
-		\in, Crone.ctx.in_b[0].index,
-		\in_phase, ~phase_rd_b.index,
-		\in_trig, ~trig_rd_b.index,
-		\buf, ~buf.bufnum,
-	], s, addAction: \addToTail);
-	~rec_follow_s.set(\pre, 0.5);
-*/
-
 	//--- methods
 
 	~update_end_pos = { arg pos;
@@ -188,7 +144,7 @@ s.waitForBoot { Routine {
 
 	~update_loop_dur = { arg dur;
 		dur.postln;
-		~loop_dur = dur.max(~fade_dur + (10.0 / s.sampleRate));
+		~loop_dur = dur.max(~fade_dur + (1.0 / s.sampleRate));
 		~update_end_pos.value(~start_pos + ~loop_dur);
 	};
 
@@ -197,8 +153,6 @@ s.waitForBoot { Routine {
 	~set_loop_flag = { arg val; ~loop_s.set(\loop, val); };
 
 	~set_rec_trig_gate = { arg val; ~rec_trig_s.set(\gate, val); };
-
-//	~set_rec_follow_gate = { arg val; ~rec_follow_s.set(\gate, val); };
 
 	~set_rec_follow_gate = { arg val; ~loop_s.set(\recRun, val);
 		postln("rec follow: " ++ val);
@@ -215,6 +169,7 @@ s.waitForBoot { Routine {
 
 	~set_loop_end = { arg pos; ~update_end_pos.value(pos); };
 	~set_loop_dur = { arg dur; ~update_loop_dur.value(dur); };
+	~set_fade_dur = { arg dur; ~fade_dur = dur; dur.postln; ~loop_s.set(\fade, dur); };
 
 	//-- test gui
 	{
@@ -237,7 +192,6 @@ s.waitForBoot { Routine {
 		.action_({ |bt|
 			~set_rec_follow_gate.value(bt.value);
 		});
-
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("start: ");
@@ -272,7 +226,7 @@ s.waitForBoot { Routine {
 		d.nextLine;
 		StaticText(w, 80@40).string_("fade time: ");
 		Slider(w.view, (720-80)@40)
-		.action_({|sl| ~loop_s.set(\fade, sl.value); sl.value.postln;});
+		.action_({|sl| ~set_fade_dur.value(sl.value); });
 
 
 		d.nextLine;
