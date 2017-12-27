@@ -6,6 +6,7 @@ metro = require 'metro'
 e.load('PolyPerc',function(commands,count)
     e.cutoff(50*2^(cutoff/12))
     e.release(0.1*2^(release/12))
+    e.amp(1)
     t:start()
     end
 )

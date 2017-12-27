@@ -25,7 +25,7 @@ CroneEngine_PolyPerc : CroneEngine {
 		});
 
 		this.addCommand("amp", "f", { arg msg;
-			var val = msg[1];
+			amp = msg[1];
 		});
 
 		this.addCommand("pw", "f", { arg msg;
