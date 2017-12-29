@@ -1,6 +1,3 @@
-local metro = require 'metro'
-
--- leep this global so we can ply with it from the repl
 t = metro[2]
 t.time = 1
 t.count = -1
@@ -15,7 +12,3 @@ t.callback = function(stage)
 end
 
 t:start()
-
-norns.script.cleanup = function()
-   t:stop()
-end

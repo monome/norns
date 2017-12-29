@@ -5,6 +5,8 @@ edit = 1
 accum = 1
 step = 0
 
+engine = 'TestSine'
+
 init = function()
     print("16sliders: loaded engine")
     e.hz(100)
@@ -12,7 +14,6 @@ init = function()
     k:start()
 end
 
---local metro = require('metro')
 k = metro[1]
 k.count = -1
 k.time = 0.1
@@ -71,5 +72,3 @@ redraw = function()
     s.line(32+step*4,54)
     s.stroke()
 end
-
-e.load('TestSine',init)

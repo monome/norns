@@ -1,3 +1,15 @@
+engine = 'TestSine'
+
+init = function(commands, count)
+    print("commands: ")
+    for i,v in pairs(commands) do
+        print(i, v.fmt)
+    end
+    e.hz(100)
+    e.amp(0.125)
+    c:start()
+end
+
 numbers = {0,0,0,0,0}
 
 enc = function(n, delta)
@@ -20,7 +32,7 @@ redraw = function()
     end 
 end
 
-local metro = require('metro')
+--local metro = require('metro')
 c = metro[1]
 c.count = -1
 c.time = 1
@@ -32,5 +44,3 @@ end
 cleanup = function()
     numbers = nil
 end
-
-c:start()
