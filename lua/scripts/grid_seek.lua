@@ -1,24 +1,14 @@
---test grid sequencer
-e = require 'engine'
-grid = require 'grid'
-metro = require 'metro'
+--test grid sequencer 
 
-e.load('PolyPerc',function(commands,count)
+init = function()
     e.cutoff(50*2^(cutoff/12))
     e.release(0.1*2^(release/12))
     e.amp(1)
     t:start()
-    end
-)
-
---print("e.hz = "..e.hz)
-
-g = nil -- grid device
+end
 
 -- global vars should be cleaned up when the next script loads
-norns.script.cleanup = function()
-   g = nil
-   t:stop()
+cleanup = function()
 end
 
 -- function to grab grid device when we find one
@@ -27,11 +17,6 @@ setGrid = function (device)
    g:print()
    g.key = keyCallback -- set the callback function
 end
-
--- grab a grid if there is one
-_, g = next(grid.devices) -- hacky way to get basically random item in a table
-print("connected grid: ", g) -- should be nil if grid.devices is empty (e.g. on startup)
-if g then setGrid(g) end
 
 -- grab a grid when one shows up
 grid.add = function(device)
@@ -47,6 +32,13 @@ keyCallback = function(x, y, state)
    end
    g:refresh()
 end
+
+-- this must come AFTER keyCallback definition
+-- grab a grid if there is one
+_, g = next(grid.devices) -- hacky way to get basically random item in a table
+print("connected grid: ", g) -- should be nil if grid.devices is empty (e.g. on startup)
+if g then setGrid(g) end
+
 
 t = metro[1]
 t.time = 0.1
@@ -64,7 +56,10 @@ t.callback = function(stage)
   pos = pos + 1
   if pos == 17 then pos = 1 end
   e.hz(freqs[9-steps[pos]])
-  if g ~= nil then refresh() end
+  if g ~= nil then 
+    refresh()
+  end
+  redraw()
 end
 
 refresh = function()
@@ -78,10 +73,10 @@ cutoff=30
 release=20
 
 enc = function(n,delta)
-    if n==2 then
+    if n==1 then
         cutoff = math.min(100,math.max(0,cutoff+delta))
         e.cutoff(50*2^(cutoff/12))
-    elseif n==3 then
+    elseif n==2 then
         release = math.min(100,math.max(0,release+delta))
         e.release(0.1*2^(release/12))
     end
@@ -96,4 +91,9 @@ redraw = function()
     s.text("cutoff > "..string.format('%.1f',(50*2^(cutoff/12))))
     s.move(0,20)
     s.text("release > "..string.format('%.3f',0.1*2^(release/12)))
+    s.move(0,60)
+    s.text("step > "..pos)
 end
+
+-- THIS needs to go at the end to ensure everything else is set up (eg timers)
+e.load('PolyPerc', init)

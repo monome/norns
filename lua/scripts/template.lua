@@ -1,20 +1,12 @@
 numbers = {0,0,0,0,0}
 
 enc = function(n, delta)
-	if(n==2) then 
-        numbers[1] = numbers[1] + delta
-    elseif(n==3) then 
-        numbers[2] = numbers[2] + delta
-    end 
+    numbers[n] = numbers[n] + delta
     redraw()
 end
 
 key = function(n, z)
-	if n==2 then
-        numbers[3] = z
-    elseif n==3 then
-        numbers[4] = z
-	end
+    numbers[n+2] = z
     redraw()
 end
 
@@ -37,8 +29,8 @@ c.callback = function(stage)
     redraw()
 end
 
-norns.script.cleanup = function()
-    c:stop()
+cleanup = function()
+    numbers = nil
 end
 
 c:start()

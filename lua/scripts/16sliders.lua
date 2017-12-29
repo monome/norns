@@ -1,20 +1,16 @@
 --16sliders
 
-
 sliders = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 edit = 1
 accum = 1
 step = 0
 
---e = require 'engine' 
-e.load('TestSine',function(commands,count)
-            print("16sliders: loaded engine")
-            e.hz(100)
-            e.amp(0.1)
-            k:start()
-    end
-)
-
+init = function()
+    print("16sliders: loaded engine")
+    e.hz(100)
+    e.amp(0.1)
+    k:start()
+end
 
 --local metro = require('metro')
 k = metro[1]
@@ -26,15 +22,12 @@ k.callback = function(stage)
     redraw()
 end 
 
-norns.script.cleanup = function()
-    k:stop()
-end
 
 enc = function(n, delta)
-	if(n==2) then 
+	if(n==1) then 
         accum = (accum + delta) % 64
         edit = accum >> 2 
-    elseif(n==3) then 
+    elseif(n==2) then 
         sliders[edit+1] = sliders[edit+1] + delta
         if sliders[edit+1] > 32 then sliders[edit+1] = 32 end
         if sliders[edit+1] < 0 then sliders[edit+1] = 0 end 
@@ -43,13 +36,13 @@ enc = function(n, delta)
 end
 
 key = function(n, z)
-	if(n==3 and z==1) then
+	if(n==2 and z==1) then
         sliders[1] = math.random()*4
         for i=2,16 do
             sliders[i] = sliders[i-1]+math.floor(math.random()*9)-3
         end
 		redraw()
-    elseif(n==2 and z==1) then 
+    elseif(n==1 and z==1) then 
         for i=1,16 do
             sliders[i] = sliders[i]+math.floor(math.random()*5)-2
         end
@@ -78,3 +71,5 @@ redraw = function()
     s.line(32+step*4,54)
     s.stroke()
 end
+
+e.load('TestSine',init)

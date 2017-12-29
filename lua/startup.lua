@@ -16,6 +16,7 @@ end
 grid = require 'grid'
 metro = require 'metro'
 e = require 'engine'
+g = nil
 
 -- user startup script
 --require 'first' 

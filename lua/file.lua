@@ -26,16 +26,25 @@ end
 -- @section script
 
 norns.script = {}
-norns.script.cleanup_default = function()
+norns.script.cleanup = function()
    print("cleanup (default)")
 end
 
-norns.script.cleanup = norns.script.cleanup_default
+cleanup = norns.script.cleanup
 
 norns.script.clear = function()
+    -- reset cleanup script
+    cleanup = norns.script.cleanup
+    -- reset oled redraw
     redraw = norns.blank
+    -- redirect inputs to nowhere
     key = norns.none
     enc = norns.none
+    -- redirect and reset grid
+    if g then g.key = norns.none end
+    g = nil
+    -- stop all timers
+    for i=1,30 do metro[i]:stop() end
 end
 
 
@@ -50,13 +59,12 @@ norns.script.load = function(filename)
     print("file not found: "..filepath)
   else
     io.close(f)
-    norns.script.cleanup() -- cleanup the old script
-    norns.script.cleanup = norns.script.cleanup_default
+    cleanup() -- cleanup the old script
     norns.script.clear()
     dofile(filepath)
     norns.state.script = filename
     norns.state.save()
-    init()
+    norns.map.init()
   end 
 end
 

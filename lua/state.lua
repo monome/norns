@@ -1,2 +1,2 @@
 -- state
-norns.state.script = '16sliders'
+norns.state.script = 'template'

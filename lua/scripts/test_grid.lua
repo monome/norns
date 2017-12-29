@@ -1,6 +1,6 @@
 print('test_grid.lua')
 --require 'norns'
-local grid = require 'grid'
+--grid = require 'grid'
 
 -- variables. not making them local here, so that we can access them in the REPL
 g = nil -- grid device
@@ -19,11 +19,6 @@ setGrid = function (device)
    g.key = keyCallback -- set the callback function
 end
 
--- grab a grid if there is one
-_, g = next(grid.devices) -- hacky way to get basically random item in a table
-print("connected grid: ", g) -- should be nil if grid.devices is empty (e.g. on startup)
-if g then setGrid(g) end
-
 -- grab a grid when one shows up
 grid.add = function(device)
    print("grabbing new grid ")
@@ -41,3 +36,9 @@ keyCallback = function(x, y, state)
    end
    g:refresh()
 end
+
+-- THIS MUST COME LAST
+-- grab a grid if there is one
+_, g = next(grid.devices) -- hacky way to get basically random item in a table
+print("connected grid: ", g) -- should be nil if grid.devices is empty (e.g. on startup)
+if g then setGrid(g) end 
