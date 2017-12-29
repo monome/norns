@@ -1,6 +1,5 @@
 print('test_grid.lua')
 
-g = nil -- grid device
 ledVal = 9 -- level of LED output
 
 gridkey = function(x, y, state)
