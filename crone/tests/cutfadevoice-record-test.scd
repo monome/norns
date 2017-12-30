@@ -39,13 +39,13 @@ s.waitForBoot { Routine {
 		Out.ar(trig_out, tr);
 	}).send(s);
 
-	// looped, crossfaded playback
+	// looped, crossfaded playback + recording
 	SynthDef.new(\cutfadevoice, {
 		arg buf, in, out, phase_out= -1, trig_out= -1, trig_in = -1,
 		amp=0.2, rec=0.0, pre=0.0,
 		rate=1, ratelag = 0.1,
 		start=0, end=1, fade=0.1, loop=1,
-		fadeRec=1.0, fadePre = 1.0, recRun = 0;
+		fadeRec=1.0, fadePre = 1.0, recRun = 0, recOff=0;
 
 		var snd, phase, tr;
 		var brs;
@@ -65,13 +65,13 @@ s.waitForBoot { Routine {
 
 		cutfade =  CutFadeVoice.ar(buf, sin, trig,
 			rate * brs, start, end, fade, loop,
-			rec, pre, fadeRec, fadePre, recRun);
+			rec, pre, fadeRec, fadePre, recRun, recOff);
 
 		phase = cutfade[0];
 		tr = cutfade[1];
 		snd = cutfade[2];
 
-		[rate, phase].poll;
+		// [rate, phase].poll;
 
 		Out.ar(out, (snd*amp).dup);
 		Out.ar(phase_out, phase);
@@ -170,10 +170,14 @@ s.waitForBoot { Routine {
 	~set_loop_end = { arg pos; ~update_end_pos.value(pos); };
 	~set_loop_dur = { arg dur; ~update_loop_dur.value(dur); };
 	~set_fade_dur = { arg dur; ~fade_dur = dur; dur.postln; ~loop_s.set(\fade, dur); };
+	~set_rate = { arg r; ~loop_s.set(\rate, r); r.postln; };
+	~set_rec_off = { arg x; var n = s.sampleRate * x; n.postln; ~loop_s.set(\recOff, n); };
 
 	//-- test gui
 	{
-		w = Window("", Rect(0, 0, 720, 360));
+		var wh = 760;
+		
+		w = Window("", Rect(0, 0, wh, 360));
 		w.view.decorator = d = FlowLayout( w.view.bounds, 0@0, 0@0 );
 		w.front;
 
@@ -195,67 +199,66 @@ s.waitForBoot { Routine {
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("start: ");
-		Slider(w.view, (720-80)@40)
+		Slider(w.view, (wh-80)@40)
 		.action_({|sl| ~set_loop_start.value(sl.value * ~buf.duration); });
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("dur: ");
-		Slider(w.view, (720-80)@40)
+		Slider(w.view, (wh-80)@40)
 		.action_({|sl| ~set_loop_dur.value(sl.value * ~buf.duration / 8.0); });
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("rec level: ");
-		Slider(w.view, (720-80)@40)
+		Slider(w.view, (wh-80)@40)
 		.action_({|sl| ~loop_s.set(\rec, sl.value); });
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("pre level: ");
-		Slider(w.view, (720-80)@40)
+		Slider(w.view, (wh-80)@40)
 		.action_({|sl| ~loop_s.set(\pre, sl.value); });
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("rec-fade level: ");
-		Slider(w.view, (720-80)@40)
+		Slider(w.view, (wh-80)@40)
 		.action_({|sl| ~loop_s.set(\fadeRec, sl.value); sl.value.postln;});
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("pre-fade level: ");
-		Slider(w.view, (720-80)@40)
+		Slider(w.view, (wh-80)@40)
 		.action_({|sl| ~loop_s.set(\fadePre, sl.value); sl.value.postln;});
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("fade time: ");
-		Slider(w.view, (720-80)@40)
+		Slider(w.view, (wh-80)@40)
 		.action_({|sl| ~set_fade_dur.value(sl.value); });
-
 
 		d.nextLine;
 		StaticText(w, 80@40).string_("rate: ");
-		Slider(w.view, (720-80)@40)
-		.action_({|sl|
-			var x, r;
-			x = sl.value.linlin(0, 1, -1, 1);
-			r = x * 4.0;
-			~loop_s.set(\rate, r);
-			r.postln;
-		});
+		Slider(w.view, (wh-80)@40)
+		.action_({|sl| ~set_rate.value(sl.value.linlin(0, 1, -1, 1) * 4.0); });
+		
+		d.nextLine;
+		StaticText(w, 80@40).string_("offset: ");
+		Slider(w.view, (wh-80)@40)
+		.action_({|sl| ~set_rec_off.value(sl.value); });
+
 
 	}.defer;
 
 	/*
-	~rec_trig_s.set(\pre, 1);
-	~rec_trig_s.set(\pre, 0.25);
-	~loop_s.set(\fade, 0.1);
+		~rec_trig_s.set(\pre, 1);
+		~rec_trig_s.set(\pre, 0.25);
+		~loop_s.set(\fade, 0.1);
 
-	~rec_follow_s.set(\pre, 0.5);
+		~rec_follow_s.set(\pre, 0.5);
 
-	~loop_s.set(\pre, 0.8);
+		~loop_s.set(\pre, 0.8);
 
-	~loop_s.set(\pre, 0.0);
-	~loop_s.set(\fadePre, 0.0);
+		~loop_s.set(\pre, 0.0);
+		~loop_s.set(\fadePre, 0.0);
 
-	~loop_s.set(\pre, 0.0);
-	~loop_s.set(\fadePre, 0.0);
+		~loop_s.set(\pre, 0.0);
+		~loop_s.set(\fadePre, 0.0);
 	*/
 
 }.play; };

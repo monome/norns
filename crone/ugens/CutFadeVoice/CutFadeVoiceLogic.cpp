@@ -192,7 +192,6 @@ float CutFadeVoiceLogic::peek4(double phase) {
     return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));
 }
 
-
 void CutFadeVoiceLogic::poke(float x, double phase, float fade) {
     double p = phase + recPhaseOffset;
     poke2(x, p, fade);

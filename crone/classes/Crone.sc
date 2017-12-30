@@ -39,7 +39,6 @@ Crone {
 					// create the audio context
 					// sets up boilerplate routing and analysis
 					ctx = AudioContext.new(server);
-
 				}.play;
 			});
 
