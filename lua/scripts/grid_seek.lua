@@ -5,13 +5,17 @@ engine = 'PolyPerc'
 init = function()
     e.cutoff(50*2^(cutoff/12))
     e.release(0.1*2^(release/12))
-    e.amp(1)
+    e.amp(0.5)
     t:start()
 end
 
 gridkey = function(x, y, state)
    if state > 0 then 
-      steps[x] = y
+      if steps[x] == y then
+          steps[x] = 0
+      else
+          steps[x] = y
+      end
    end
    g:refresh()
 end
@@ -31,7 +35,7 @@ for i=1,16 do steps[i] = math.floor(math.random()*8+1) end
 t.callback = function(stage)
   pos = pos + 1
   if pos == 17 then pos = 1 end
-  e.hz(freqs[9-steps[pos]])
+  if steps[pos] > 0 then e.hz(freqs[9-steps[pos]]) end
   if g ~= nil then 
     gridredraw()
   end
@@ -40,8 +44,14 @@ end
 
 gridredraw = function()
   g:all(1) 
-  for x = 1,16 do g:led(x,steps[x],5) end 
-  g:led(pos,steps[pos],15) 
+  for x = 1,16 do
+      if steps[x] > 0 then g:led(x,steps[x],5) end 
+  end
+  if steps[pos] > 0 then
+      g:led(pos,steps[pos],15) 
+  else
+      g:led(pos,1,3)
+  end
   g:refresh();
 end
 
@@ -69,4 +79,53 @@ redraw = function()
     s.text("release > "..string.format('%.3f',0.1*2^(release/12)))
     s.move(0,60)
     s.text("step > "..pos)
+    s.move(0,40)
+    s.aa(1)
+    s.line(vu,40)
+    s.stroke()
 end 
+
+
+require 'math'
+local poll = require 'poll'
+local p = nil
+
+cleanup = function()
+   if p then p:stop() end
+end
+
+vu = 0
+
+local function printAsciiMeter(amp, n, floor)
+   n = n or 64
+   floor = floor or -72
+   local db = 20.0 * math.log10(amp)
+   local norm = 1.0 - (db / floor)
+   local x = norm * n
+   vu = x
+   redraw()
+   --local str = ""
+   --for i=0,x do
+      --str = str.."#"
+   --end
+   --print(str)
+end
+
+local ampCallback = function(amp) printAsciiMeter(amp, 64, -72) end
+
+poll.report = function(polls)
+   print("available polls: ")
+   for _,p in pairs(polls) do
+      print("",p.name)
+   end   
+   p = polls['amp_out_l']
+   if p then
+      p.callback = ampCallback
+      p.time = 0.03;
+      p:start()
+   else
+      print("couldn't get requested poll, dang")
+   end 
+end
+
+report_polls()

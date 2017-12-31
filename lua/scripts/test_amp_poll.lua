@@ -5,7 +5,7 @@ local poll = require 'poll'
 
 local p = nil
 
-norns.script.cleanup = function()
+cleanup = function()
    if p then p:stop() end
 end
 
@@ -29,7 +29,7 @@ poll.report = function(polls)
    for _,p in pairs(polls) do
       print("",p.name)
    end   
-   p = polls['amp_in_r']
+   p = polls['amp_out_l']
    if p then
       p.callback = ampCallback
       p.time = 0.03;
