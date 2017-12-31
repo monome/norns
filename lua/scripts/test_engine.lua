@@ -1,5 +1,3 @@
-e = require 'engine' 
-
 --e.load('Cutter',
 --e.load('TestSine',
 e.load('PolyPerc',

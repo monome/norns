@@ -14,11 +14,11 @@ norns.state.resume = function()
 end
 
 norns.state.save = function()
-  local last=io.open(script_dir .. "../state.lua","w+")
-  io.output(last)
+  local fd=io.open(script_dir .. "../state.lua","w+")
+  io.output(fd)
   io.write("-- state\n")
   io.write("norns.state.script = '" .. norns.state.script .. "'\n")
-  io.close(last)   
+  io.close(fd)   
 end
 
 
@@ -26,16 +26,26 @@ end
 -- @section script
 
 norns.script = {}
-norns.script.cleanup_default = function()
-   print("cleanup (default)")
-end
 
-norns.script.cleanup = norns.script.cleanup_default
+cleanup = norns.none
 
 norns.script.clear = function()
+    -- reset cleanup script
+    cleanup = norns.none
+    -- reset oled redraw
     redraw = norns.blank
+    -- redirect inputs to nowhere
     key = norns.none
     enc = norns.none
+    -- redirect and reset grid
+    if g then g.key = norns.none end
+    g = nil
+    -- stop all timers
+    for i=1,30 do metro[i]:stop() end
+    -- clear engine 
+    engine = nil
+    -- clear init
+    init = norns.none
 end
 
 
@@ -50,14 +60,24 @@ norns.script.load = function(filename)
     print("file not found: "..filepath)
   else
     io.close(f)
-    norns.script.cleanup() -- cleanup the old script
-    norns.script.cleanup = norns.script.cleanup_default
-    norns.script.clear()
-    dofile(filepath)
-    norns.state.script = filename
-    norns.state.save()
-    init()
+    cleanup() -- script-specified memory free
+    norns.script.clear() -- clear script variables and functions
+    dofile(filepath) -- do the new script
+    norns.state.script = filename -- store script name
+    norns.state.save() -- remember this script for next launch
+    norns.map.init() -- redirect i/o functions to script
+    norns.script.run() -- load engine then run script-specified init function
   end 
+end
+
+--- load engine, execute script-specified init (if present)
+norns.script.run = function()
+    if engine ~= nil then 
+        e.load(engine, init)
+    else
+        init()
+    end
+    grid.reconnect()
 end
 
 --- general file access

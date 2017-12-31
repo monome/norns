@@ -129,6 +129,7 @@ void screen_init(void) {
     char filename[256];
     // FIXME should be path relative to norns/
     snprintf( filename, 256, "%s/norns/resources/04B_03__.TTF", getenv("HOME") );
+    //snprintf( filename, 256, "%s/norns/resources/liquid.ttf", getenv("HOME") );
     //const char * filename = "/home/pi/slkscr.ttf";
 
     status = FT_Init_FreeType(&value);
@@ -155,6 +156,7 @@ void screen_init(void) {
     // CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_face (cr, ct);
     cairo_set_font_options(cr, font_options);
+    //cairo_set_font_size(cr, 7.0);
     cairo_set_font_size(cr, 8.0);
 }
 

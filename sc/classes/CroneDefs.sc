@@ -71,7 +71,7 @@ CroneDefs {
 
 		// envelope follower (audio input, control output)
 		SynthDef.new(\amp_env, {
-			arg in, out, atk=0.01, rel=0.01;
+			arg in, out, atk=0.01, rel=0.25;
 			//			var amp = abs(A2K.kr(In.ar(in)));
 			//			Out.kr(out, LagUD.kr(amp, atk, rel));
 			var absin = abs(In.ar(in));

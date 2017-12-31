@@ -32,7 +32,7 @@ CronePoll {
 		});
 		cb = {
 			ret = func.value;
-			postln("poll callback " ++ [ name , oscAddr, oscPath, ret ]);
+			//postln("poll callback " ++ [ name , oscAddr, oscPath, ret ]);
 			oscAddr.sendMsg(oscPath, idx, ret);
 		};
 		task = Task { inf.do {

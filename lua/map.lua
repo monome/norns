@@ -3,6 +3,7 @@
 -- also contains 'alt' view, by holding map key
 
 local map = {}
+norns.map = {}
 
 -- mode enums
 local mRun = 0
@@ -27,7 +28,7 @@ end
 
 
 -- assigns key/enc/screen handlers after user script has loaded
-init = function() 
+norns.map.init = function() 
     map.set(map.state)
 end
 
@@ -72,7 +73,8 @@ norns.enc = function(n, delta)
         if math.abs(_enc[1].tick) > _enc[1].sens then
             _enc[1].tick = 0
             if(map.state==mRun) then
-                enc(2, delta)
+                -- offset for user script
+                enc(1, delta)
             else
                 map.enc(2, delta)
             end
@@ -81,7 +83,8 @@ norns.enc = function(n, delta)
         _enc[2].tick = _enc[2].tick + delta
         if math.abs(_enc[2].tick) >= _enc[2].sens then
             if(map.state==mRun) then
-                enc(3, delta)
+                -- offset for user script
+                enc(2, delta)
             else
                 map.enc(3, delta)
             end
@@ -112,7 +115,8 @@ norns.key = function(n, z)
 		end
     -- key 2/3 conditional pass
 	else 
-        map.key(n,z)
+        -- remap to key 1/2
+        map.key(n-1,z)
 	end
 end
 
@@ -133,7 +137,8 @@ map.set = function(mode)
         map.key = map.nav.key
         map.enc = map.nav.enc
         map.level = map.nav.level
-        set_enc_sens(1,5)
+        set_enc_sens(1,3)
+        map.nav.list = scandir(script_dir)
         map.nav.redraw() 
     elseif mode==mAlt then
         map.state = mAlt
@@ -160,7 +165,7 @@ map.nav.out = 0
 
 map.nav.key = function(n,z)
     -- load file
-    if n==2 and z==1 then 
+    if n==1 and z==1 then 
         line = string.gsub(map.nav.list[map.nav.pos+1],'.lua','')
         norns.script.load(line)
         map.set(mRun)
