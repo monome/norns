@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-set(PROJECT "CutFadeVoice")
+set(PROJECT "SoftCutHead")
 project (${PROJECT})
 
 set(SC_PATH "~/src/supercollider")
@@ -66,4 +66,4 @@ if(MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mstackrealign")
 endif()
 
-add_library(${PROJECT} MODULE CutFadeVoice.cpp CutFadeVoiceLogic.cpp CutFadeVoiceLogic.h interp.h)
+add_library(${PROJECT} MODULE SoftCutHead.cpp SoftCutHeadLogic.cpp SoftCutHeadLogic.h interp.h)

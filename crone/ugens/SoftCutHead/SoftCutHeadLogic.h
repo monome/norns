@@ -7,10 +7,10 @@
 
 #include <cstdint>
 
-class CutFadeVoiceLogic {
+class SoftCutHeadLogic {
 
 public:
-    CutFadeVoiceLogic();
+    SoftCutHeadLogic();
     void init();
     void setSampleRate(float sr);
     void setBuffer(float* buf, uint32_t size);

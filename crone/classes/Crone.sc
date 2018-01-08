@@ -112,6 +112,7 @@ Crone {
 				postln('set engine: ' ++ engine);
 			});
 		});
+
 	}
 
 	// start a thread to continuously send a named report with a given interval
@@ -157,6 +158,8 @@ Crone {
 
 	*reportCommands {
 		var commands = engine.commands;
+		/// FIXME: do this
+		// commands = commands + ctx.commands;
 		postln("commands: " ++ commands);
 		remoteAddr.sendMsg('/report/commands/start', commands.size);
 		commands.do({ arg cmd, i;

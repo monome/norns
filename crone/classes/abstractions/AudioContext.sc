@@ -33,7 +33,7 @@ AudioContext {
 
 		//---- busses
 
-		// input 2xmono, output stereo, seems like a "normal" arrangement
+		// input 2xmono, output stereo, seems like a "normal" arrangement (?)
 		in_b = Array.fill(2, { Bus.audio(server, 1); });
 		out_b = Bus.audio(server, 2);
 
@@ -85,19 +85,10 @@ AudioContext {
 			);
 		});
 
+		
+		this.initCommands();
 		this.initPolls();
 
-	}
-
-	registerPoll  { arg name, func, dt=0.1;
-		pollNames.add(name);
-		CronePollRegistry.register(name, func, dt);
-	}
-
-	initPolls {
-		postln("AudioContext: initPolls");
-		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
-		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
 	}
 
 	// control monitor level / pan
@@ -137,4 +128,27 @@ AudioContext {
 	}
 
 
+	initCommands {
+		
+	}
+
+	registerPoll  { arg name, func, dt=0.1;
+		pollNames.add(name);
+		CronePollRegistry.register(name, func, dt);
+	}
+
+	
+	initPolls {
+		postln("AudioContext: initPolls");
+		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
+		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
+		this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous(); });
+		this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous(); });
+		this.registerPoll(\pitch_in_l, {
+			var pitch, clar;
+			amp_in_b[1].getSynchronous(); });
+		this.registerPoll(\pitch_in_r, { amp_in_b[1].getSynchronous(); });
+
+	}
+	
 }

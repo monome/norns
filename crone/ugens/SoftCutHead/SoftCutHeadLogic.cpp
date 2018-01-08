@@ -7,7 +7,7 @@
 #include <cmath>
 #include <limits>
 
-#include "CutFadeVoiceLogic.h"
+#include "SoftCutHeadLogic.h"
 
 #include "interp.h"
 
@@ -23,11 +23,11 @@ static int wrap(int val, int bound) {
 }
 
 
-CutFadeVoiceLogic::CutFadeVoiceLogic() {
+SoftCutHeadLogic::SoftCutHeadLogic() {
     this->init();
 }
 
-void CutFadeVoiceLogic::init() {
+void SoftCutHeadLogic::init() {
     sr = 44100.f;
     start = 0.f;
     end = 0.f;
@@ -49,7 +49,7 @@ void CutFadeVoiceLogic::init() {
     recRun = false;
 }
 
-void CutFadeVoiceLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
+void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
 
     if(buf == nullptr) {
         return;
@@ -72,22 +72,22 @@ void CutFadeVoiceLogic::nextSample(float in, float *outPhase, float *outTrig, fl
 }
 
 
-void CutFadeVoiceLogic::setRate(float x)
+void SoftCutHeadLogic::setRate(float x)
 {
     phaseInc = x;
 }
 
-void CutFadeVoiceLogic::setLoopStartSeconds(float x)
+void SoftCutHeadLogic::setLoopStartSeconds(float x)
 {
     start = x * sr;
 }
 
-void CutFadeVoiceLogic::setLoopEndSeconds(float x)
+void SoftCutHeadLogic::setLoopEndSeconds(float x)
 {
     end = x * sr;
 }
 
-void CutFadeVoiceLogic::updatePhase(int id)
+void SoftCutHeadLogic::updatePhase(int id)
 {
     double p;
     trig[id] = 0.f;
@@ -128,7 +128,7 @@ void CutFadeVoiceLogic::updatePhase(int id)
     }
 }
 
-void CutFadeVoiceLogic::cutToPhase(float pos) {
+void SoftCutHeadLogic::cutToPhase(float pos) {
     if(state[active] == FADEIN || state[active] == FADEOUT) { return; }
     int newActive = active == 0 ? 1 : 0;
     if(state[active] != INACTIVE) {
@@ -139,7 +139,7 @@ void CutFadeVoiceLogic::cutToPhase(float pos) {
     active = newActive;
 }
 
-void CutFadeVoiceLogic::updateFade(int id) {
+void SoftCutHeadLogic::updateFade(int id) {
     switch(state[id]) {
         case FADEIN:
             fade[id] += fadeInc;
@@ -161,23 +161,23 @@ void CutFadeVoiceLogic::updateFade(int id) {
     }
 }
 
-void CutFadeVoiceLogic::setFadeTime(float secs) {
+void SoftCutHeadLogic::setFadeTime(float secs) {
     fadeInc = (float) 1.0 / (secs * sr);
 }
 
-void CutFadeVoiceLogic::doneFadeIn(int id) {
+void SoftCutHeadLogic::doneFadeIn(int id) {
     state[id] = ACTIVE;
 }
 
-void CutFadeVoiceLogic::doneFadeOut(int id) {
+void SoftCutHeadLogic::doneFadeOut(int id) {
     state[id] = INACTIVE;
 }
 
-float CutFadeVoiceLogic::peek(double phase) {
+float SoftCutHeadLogic::peek(double phase) {
     return peek4(phase);
 }
 
-float CutFadeVoiceLogic::peek4(double phase) {
+float SoftCutHeadLogic::peek4(double phase) {
     int phase1 = static_cast<int>(phase);
     int phase0 = phase1 - 1;
     int phase2 = phase1 + 1;
@@ -192,27 +192,27 @@ float CutFadeVoiceLogic::peek4(double phase) {
     return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));
 }
 
-void CutFadeVoiceLogic::poke(float x, double phase, float fade) {
+void SoftCutHeadLogic::poke(float x, double phase, float fade) {
     double p = phase + recPhaseOffset;
     poke2(x, p, fade);
 }
 
-void CutFadeVoiceLogic::poke0(float x, double phase, float fade) {
-    if (fade < std::numeric_limits<float>::epsilon()) { return; }
-    if (rec < std::numeric_limits<float>::epsilon()) { return; }
+// void SoftCutHeadLogic::poke0(float x, double phase, float fade) {
+//     if (fade < std::numeric_limits<float>::epsilon()) { return; }
+//     if (rec < std::numeric_limits<float>::epsilon()) { return; }
 
-    int phase0 = wrap((int) phase, bufFrames);
+//     int phase0 = wrap((int) phase, bufFrames);
 
-    float fadeInv = 1.f - fade;
+//     float fadeInv = 1.f - fade;
 
-    float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
-    float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
+//     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
+//     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 
-    buf[phase0] *= preFade;
-    buf[phase0] += x * recFade;
-}
+//     buf[phase0] *= preFade;
+//     buf[phase0] += x * recFade;
+// }
 
-void CutFadeVoiceLogic::poke2(float x, double phase, float fade) {
+void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
 
     // bail if record/fade level is ~=0, so we don't introduce noise
     if (fade < std::numeric_limits<float>::epsilon()) { return; }
@@ -229,8 +229,9 @@ void CutFadeVoiceLogic::poke2(float x, double phase, float fade) {
     auto fr = static_cast<float>(phase - static_cast<int>(phase));
 
     // linear-interpolated write values
+    //// FIXME: this could be better somehow
     float x1 = fr*x;
-    float x0 = (1.f-fr)*x;
+    float x0 = (1.f-fr)*x; 
 
     // mix old signal with interpolation
     buf[phase0] = buf[phase0] * fr + (1.f-fr) * (preFade * buf[phase0]);
@@ -242,24 +243,24 @@ void CutFadeVoiceLogic::poke2(float x, double phase, float fade) {
 
 }
 
-void CutFadeVoiceLogic::setBuffer(float *b, uint32_t bf) {
+void SoftCutHeadLogic::setBuffer(float *b, uint32_t bf) {
     buf = b;
     bufFrames = bf;
 }
 
-void CutFadeVoiceLogic::setLoopFlag(bool val) {
+void SoftCutHeadLogic::setLoopFlag(bool val) {
     loopFlag = val;
 }
 
-void CutFadeVoiceLogic::cutToStart() {
+void SoftCutHeadLogic::cutToStart() {
     cutToPhase(start);
 }
 
-void CutFadeVoiceLogic::setSampleRate(float sr_) {
+void SoftCutHeadLogic::setSampleRate(float sr_) {
     sr = sr_;
 }
 
-float CutFadeVoiceLogic::mixFade(float x, float y, float a, float b) {
+float SoftCutHeadLogic::mixFade(float x, float y, float a, float b) {
     if(fadeMode == FADE_EQ) {
         return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
     } else {
@@ -267,28 +268,28 @@ float CutFadeVoiceLogic::mixFade(float x, float y, float a, float b) {
     }
 }
 
-void CutFadeVoiceLogic::setRec(float x) {
+void SoftCutHeadLogic::setRec(float x) {
     rec = x;
 }
 
 
-void CutFadeVoiceLogic::setPre(float x) {
+void SoftCutHeadLogic::setPre(float x) {
     pre= x;
 }
 
-void CutFadeVoiceLogic::setFadePre(float x) {
+void SoftCutHeadLogic::setFadePre(float x) {
     fadePre = x;
 
 }
 
-void CutFadeVoiceLogic::setFadeRec(float x) {
+void SoftCutHeadLogic::setFadeRec(float x) {
     fadeRec = x;
 }
 
-void CutFadeVoiceLogic::setRecRun(bool val) {
+void SoftCutHeadLogic::setRecRun(bool val) {
     recRun = val;
 }
 
-void CutFadeVoiceLogic::setRecOffset(float x) {
+void SoftCutHeadLogic::setRecOffset(float x) {
     recPhaseOffset = x;
 }

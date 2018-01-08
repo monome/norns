@@ -1,13 +1,13 @@
 #include "SC_PlugIn.h"
 
-#include "CutFadeVoiceLogic.h"
+#include "SoftCutHeadLogic.h"
 
-struct CutFadeVoice : public Unit {
+struct SoftCutHead : public Unit {
     float prevTrig;
     float m_fbufnum;
     float m_failedBufNum;
     SndBuf *m_buf;
-    CutFadeVoiceLogic cutfade; // NB: constructor is never called on this field!
+    SoftCutHeadLogic cutfade; // NB: constructor is never called on this field!
 };
 
 static InterfaceTable *ft;
@@ -30,22 +30,22 @@ static inline bool checkBuffer(Unit *unit, const float *bufData, uint32 bufChann
     return false;
 }
 
-static void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples);
+static void SoftCutHead_next(SoftCutHead *unit, int inNumSamples);
 
-static void CutFadeVoice_Ctor(CutFadeVoice *unit);
+static void SoftCutHead_Ctor(SoftCutHead *unit);
 
-void CutFadeVoice_Ctor(CutFadeVoice *unit) {
-    Print("CutFadeVoice_Ctor() : samplerate %f \n", SAMPLERATE);
+void SoftCutHead_Ctor(SoftCutHead *unit) {
+    Print("SoftCutHead_Ctor() : samplerate %f \n", SAMPLERATE);
     unit->cutfade.init();
     unit->cutfade.setSampleRate(SAMPLERATE);
     unit->m_fbufnum = -1e9f;
     unit->m_failedBufNum = -1e9f;
     unit->prevTrig = 0.f;
-    SETCALC(CutFadeVoice_next);
-    CutFadeVoice_next(unit, 1);
+    SETCALC(SoftCutHead_next);
+    SoftCutHead_next(unit, 1);
 }
 
-void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples) {
+void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     GET_BUF;
     uint32 numOutputs = unit->mNumOutputs;
     uint32 numInputChannels = unit->mNumInputs - 13;
@@ -61,15 +61,15 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples) {
 
     const float *in = IN(1);
 
-    // Print("CutFadeVoice input: %f\n", in);
+    // Print("SoftCutHead input: %f\n", in);
 
+    
     float trig = IN0(2);
     float* rate = IN(3);
     float start = IN0(4);
     float end = IN0(5);
     float fade = IN0(6);
     float loop = IN0(7);
-
 
     const float *rec = IN(8);
     const float *pre = IN(9);
@@ -110,8 +110,8 @@ void CutFadeVoice_next(CutFadeVoice *unit, int inNumSamples) {
     }
 }
 
-PluginLoad(CutFadeVoice) {
+PluginLoad(SoftCutHead) {
     ft = inTable;
-    DefineSimpleUnit(CutFadeVoice);
-    Print("PluginLoad(CutFadeVoice)\n");
+    DefineSimpleUnit(SoftCutHead);
+    Print("PluginLoad(SoftCutHead)\n");
 }
