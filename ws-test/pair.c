@@ -19,15 +19,18 @@ int send_name(int sock, const char *name)
 
 int recv_name(int sock, const char *name)
 {
-  char *buf = nn_allocmsg (128, 0);
+  char *buf = NULL;
   int result = nn_recv (sock, &buf, NN_MSG, 0);
   if (result > 0)
     {
       printf ("RECEIVED \"%s\" len: %d\n", buf, strlen(buf)+1);
-      nn_send(sock, buf, strlen(buf)+1,0);
-      printf ("SEND \"%s\"\n", buf);
+      void *msg = nn_allocmsg (128, 0);
+      strcpy(msg,buf);
+      nn_send(sock, msg, strlen(msg)+1, 0);
+      printf ("SEND \"%s\"\n", msg);
+      nn_freemsg (buf);
+      nn_freemsg (msg);
     }
-  nn_freemsg (buf);
   return result;
 }
 
