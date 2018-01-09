@@ -4,6 +4,7 @@
 #include <nanomsg/nn.h>
 #include <unistd.h>
 #include <nanomsg/pair.h>
+#include <nanomsg/ws.h>
 #include <stdio.h>
 
 #define NODE0 "node0"
@@ -18,25 +19,28 @@ int send_name(int sock, const char *name)
 
 int recv_name(int sock, const char *name)
 {
-  char *buf = NULL;
+  char *buf = nn_allocmsg (128, 0);
   int result = nn_recv (sock, &buf, NN_MSG, 0);
   if (result > 0)
     {
-      printf ("%s: RECEIVED \"%s\"\n", name, buf);
-      nn_freemsg (buf);
+      printf ("RECEIVED \"%s\" len: %d\n", buf, strlen(buf)+1);
+      nn_send(sock, buf, strlen(buf)+1,0);
+      printf ("SEND \"%s\"\n", buf);
     }
+  nn_freemsg (buf);
   return result;
 }
 
 int send_recv(int sock, const char *name)
 {
-  int to = 100;
-  assert (nn_setsockopt (sock, NN_SOL_SOCKET, NN_RCVTIMEO, &to, sizeof (to)) >= 0);
+  //int to = 100;
+  int to = NN_WS_MSG_TYPE_TEXT;
+  //assert (nn_setsockopt (sock, NN_SOL_SOCKET, NN_RCVTIMEO, &to, sizeof (to)) >= 0);
+  assert (nn_setsockopt (sock, NN_WS, NN_WS_MSG_TYPE_TEXT, &to, sizeof (to)) >= 0);
   while(1)
     {
       recv_name(sock, name);
-      sleep(1);
-      send_name(sock, name);
+      sleep(0.1);
     }
 }
 
