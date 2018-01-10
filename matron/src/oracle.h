@@ -31,6 +31,8 @@ struct engine_poll {
     poll_type_t type; // value or data
 };
 
+// check for audio engine boot completion
+extern int o_ready();
 // initialize
 extern void o_init();
 // shutdown

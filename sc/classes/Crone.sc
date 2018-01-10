@@ -24,6 +24,9 @@ Crone {
 			postln(" \OSC tx port: " ++ txPort);
 			postln("--------------------------------------------------\n");
 
+			// FIXME? matron address is hardcoded here
+			remoteAddr =NetAddr("127.0.0.1", txPort); 
+
 			server = Server.local;
 			server.waitForBoot ({
 				Routine {
@@ -40,12 +43,11 @@ Crone {
 					// sets up boilerplate routing and analysis
 					ctx = AudioContext.new(server);
 
+                    // send sc-ready
+                    postln(">>> /crone/ready");
+                    remoteAddr.sendMsg('/crone/ready'); 
 				}.play;
-			});
-
-
-			// FIXME? matron address is hardcoded here
-			remoteAddr =NetAddr("127.0.0.1", txPort);
+			}); 
 
 			oscfunc = (
 
