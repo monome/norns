@@ -55,7 +55,7 @@ Crone {
                     remoteAddr.sendMsg('/crone/ready'); 
 				}, '/ready'),
 
-				'/command/out/level':OSCFunc.new({
+				'/audio/out/level':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					//[msg, time, addr, recvPort].postln;
 					ctx.outLevel(msg[1]);
