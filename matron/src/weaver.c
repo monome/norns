@@ -442,7 +442,7 @@ int w_level_out(lua_State *l) {
 
     lo_message msg = lo_message_new();
     lo_message_add_double( msg, level );
-    o_send_command("out/level", msg);
+    o_send("/audio/out/level", msg);
 
     lua_settop(l, 0);
     return 0;

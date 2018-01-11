@@ -42,21 +42,24 @@ Crone {
 					// create the audio context
 					// sets up boilerplate routing and analysis
 					ctx = AudioContext.new(server);
-
-                    // send sc-ready
-                    postln(">>> /crone/ready");
-                    remoteAddr.sendMsg('/crone/ready'); 
 				}.play;
 			}); 
 
             // FIXME get rid of these postln's later
 			oscfunc = (
 
+				'/ready':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					//[msg, time, addr, recvPort].postln; 
+                    postln(">>> /crone/ready");
+                    remoteAddr.sendMsg('/crone/ready'); 
+				}, '/ready'),
+
 				'/command/out/level':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					//[msg, time, addr, recvPort].postln;
 					ctx.outLevel(msg[1]);
-				}, '/command/out/level'),
+				}, '/audio/out/level'),
 
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;

@@ -106,6 +106,7 @@ static void lo_error_handler(int num, const char *m, const char *path);
 //-----------------------------------
 //---- extern function definitions
 int o_ready(void) {
+    lo_send(remote_addr, "/ready","");
     return ready;
 }
 
@@ -244,6 +245,11 @@ void o_send_command(const char *name, lo_message msg) {
     lo_send_message(remote_addr, path, msg);
     free(msg);
 }
+
+void o_send(const char *name, lo_message msg) {
+    lo_send_message(remote_addr, name, msg);
+    free(msg);
+} 
 
 //void o_set_poll_state(const char *name, bool state) {
 void o_set_poll_state(int idx, bool state) {
