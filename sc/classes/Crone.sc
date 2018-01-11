@@ -49,7 +49,14 @@ Crone {
 				}.play;
 			}); 
 
+            // FIXME get rid of these postln's later
 			oscfunc = (
+
+				'/command/out/level':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					//[msg, time, addr, recvPort].postln;
+					ctx.outLevel(msg[1]);
+				}, '/command/out/level'),
 
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;

@@ -61,9 +61,10 @@ static int w_screen_stroke(lua_State *l);
 static int w_screen_text(lua_State *l);
 static int w_screen_clear(lua_State *l);
 //i2c
-static int w_level_hp(lua_State *l);
+static int w_gain_hp(lua_State *l);
+static int w_gain_in(lua_State *l);
 static int w_level_out(lua_State *l);
-static int w_level_in(lua_State *l);
+//static int w_level_in(lua_State *l);
 
 // crone
 /// engines
@@ -121,9 +122,10 @@ void w_init(void) {
     lua_register(lvm, "s_clear", &w_screen_clear);
 
     // analog output control
-    lua_register(lvm, "level_hp", &w_level_hp);
+    lua_register(lvm, "gain_hp", &w_gain_hp);
+    lua_register(lvm, "gain_in", &w_gain_in);
     lua_register(lvm, "level_out", &w_level_out);
-    lua_register(lvm, "level_in", &w_level_in);
+    //lua_register(lvm, "level_in", &w_level_in);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &w_request_engine_report);
@@ -396,10 +398,10 @@ args_error:
 
 /***
 headphone: set level
-@function level_hp
+@function gain_hp
 @tparam integer level level (0-63)
 */
-int w_level_hp(lua_State *l) {
+int w_gain_hp(lua_State *l) {
     int level;
     if(lua_gettop(l) != 1) { // check num args
         goto args_error;
@@ -416,7 +418,7 @@ int w_level_hp(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to level_out() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to gain_hp() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -424,12 +426,11 @@ args_error:
 /***
 output: set level, per channel
 @function level_out
-@tparam integer level level (0-63)
-@tparam integer ch channel (0=L,1=R)
+@tparam float level level
 */
 int w_level_out(lua_State *l) {
-    int level, ch;
-    if(lua_gettop(l) != 2) { // check num args
+    float level;
+    if(lua_gettop(l) != 1) { // check num args
         goto args_error;
     }
 
@@ -439,13 +440,10 @@ int w_level_out(lua_State *l) {
         goto args_error;
     }
 
-    if( lua_isnumber(l, 2) ) {
-        ch = lua_tonumber(l, 2);
-    } else {
-        goto args_error;
-    }
+    lo_message msg = lo_message_new();
+    lo_message_add_double( msg, level );
+    o_send_command("out/level", msg);
 
-    i2c_aout(level,ch);
     lua_settop(l, 0);
     return 0;
 
@@ -456,12 +454,12 @@ args_error:
 }
 
 /***
-input: set level, per channel
-@function level_in
+input: set gain, per channel
+@function gain_in
 @tparam integer level level (0-63)
 @tparam integer ch channel (0=L,1=R)
 */
-int w_level_in(lua_State *l) {
+int w_gain_in(lua_State *l) {
     int level, ch;
     if(lua_gettop(l) != 2) { // check num args
         goto args_error;
@@ -484,7 +482,7 @@ int w_level_in(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to level_out() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to gain_in() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }

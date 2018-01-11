@@ -6,6 +6,7 @@ init = function()
     e.cutoff(50*2^(cutoff/12))
     e.release(0.1*2^(release/12))
     e.amp(0.5)
+    report_polls()
     t:start()
 end
 
@@ -63,7 +64,7 @@ enc = function(n,delta)
         cutoff = math.min(100,math.max(0,cutoff+delta))
         e.cutoff(50*2^(cutoff/12))
     elseif n==2 then
-        release = math.min(100,math.max(0,release+delta))
+        release = math.min(60,math.max(0,release+delta))
         e.release(0.1*2^(release/12))
     end
 
@@ -85,18 +86,10 @@ redraw = function()
     s.stroke()
 end 
 
-
-require 'math'
-local poll = require 'poll'
-local p = nil
-
-cleanup = function()
-   if p then p:stop() end
-end
-
+p = nil
 vu = 0
 
-local function printAsciiMeter(amp, n, floor)
+local function calcMeter(amp, n, floor)
    n = n or 64
    floor = floor or -72
    local db = 20.0 * math.log10(amp)
@@ -104,20 +97,11 @@ local function printAsciiMeter(amp, n, floor)
    local x = norm * n
    vu = x
    redraw()
-   --local str = ""
-   --for i=0,x do
-      --str = str.."#"
-   --end
-   --print(str)
 end
 
-local ampCallback = function(amp) printAsciiMeter(amp, 64, -72) end
+local ampCallback = function(amp) calcMeter(amp, 64, -72) end
 
 poll.report = function(polls)
-   print("available polls: ")
-   for _,p in pairs(polls) do
-      print("",p.name)
-   end   
    p = polls['amp_out_l']
    if p then
       p.callback = ampCallback
@@ -126,6 +110,9 @@ poll.report = function(polls)
    else
       print("couldn't get requested poll, dang")
    end 
-end
+end 
 
-report_polls()
+
+cleanup = function()
+   if p then p:stop() end
+end 

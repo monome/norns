@@ -161,7 +161,7 @@ map.nav.pos = 0
 map.nav.offset = 0
 map.nav.list = scandir(script_dir)
 map.nav.len = tablelength(map.nav.list)
-map.nav.out = 0
+map.nav.out = 64
 
 map.nav.key = function(n,z)
     -- load file
@@ -190,10 +190,11 @@ end
 map.nav.level = function(delta)
     map.nav.out = map.nav.out + delta
     if map.nav.out < 0 then map.nav.out = 0 
-    elseif map.nav.out > 63 then map.nav.out = 63 end
+    elseif map.nav.out > 64 then map.nav.out = 64 end
     --level_out(map.nav.out,0) 
     --level_out(map.nav.out,1) 
-    level_hp(map.nav.out)
+    --level_hp(map.nav.out)
+    level_out(map.nav.out/64)
 end 
 
 map.nav.redraw = function()

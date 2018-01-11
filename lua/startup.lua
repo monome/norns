@@ -15,17 +15,15 @@ end
 -- globals
 grid = require 'grid'
 metro = require 'metro'
+poll = require 'poll'
 e = require 'engine'
 g = nil
 
 -- user startup script
 --require 'first' 
 
--- shortcuts
-run = norns.script.load
-stop = norns.script.cleanup
-
 -- helper
+require 'math'
 math.randomseed(os.time())
 
 -- resume last loaded script

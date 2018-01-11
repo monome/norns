@@ -73,7 +73,8 @@ AudioContext {
 
 		amp_out_s = Array.fill(2, { |i|
 			Synth.new(\amp_env,
-				[\in, out_b.index + i, \out, amp_out_b[i].index],
+				//[\in, out_b.index + i, \out, amp_out_b[i].index],
+				[\in, i, \out, amp_out_b[i].index],
 				og, \addAfter
 			);
 		});
@@ -138,5 +139,8 @@ AudioContext {
 		pitch_in_s.do({ |syn| syn.run(false); });
 	}
 
+    outLevel { arg level=1.0;
+        out_s.set(\level, level);
+    }
 
 }
