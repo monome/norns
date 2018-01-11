@@ -42,6 +42,8 @@ norns.script.clear = function()
     g = nil
     -- stop all timers
     for i=1,30 do metro[i]:stop() end
+    -- clear polls
+    poll.report = norns.none
     -- clear engine 
     engine = nil
     -- clear init

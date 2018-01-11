@@ -3,6 +3,7 @@
 engine = 'PolyPerc'
 
 init = function()
+    print("grid/seek")
     e.cutoff(50*2^(cutoff/12))
     e.release(0.1*2^(release/12))
     e.amp(0.5)
@@ -31,7 +32,7 @@ notes = {0,2,3,5,7,9,10,12}
 freqs = {}
 
 for i=1,8 do freqs[i] = 100*2^(notes[i]/12) end
-for i=1,16 do steps[i] = math.floor(math.random()*8+1) end
+for i=1,16 do steps[i] = math.floor(math.random()*8) end
 
 t.callback = function(stage)
   pos = pos + 1
@@ -71,6 +72,14 @@ enc = function(n,delta)
     redraw() 
 end
 
+key = function(n)
+    if n==1 then
+        for i=1,16 do steps[i] = math.floor(math.random()*8) end
+    elseif n==2 then
+        e.pw(math.random()*1)
+    end
+end
+
 redraw = function()
     s.clear()
     s.level(15)
@@ -94,8 +103,7 @@ local function calcMeter(amp, n, floor)
    floor = floor or -72
    local db = 20.0 * math.log10(amp)
    local norm = 1.0 - (db / floor)
-   local x = norm * n
-   vu = x
+   vu = norm * n
    redraw()
 end
 
