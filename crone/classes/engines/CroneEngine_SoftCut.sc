@@ -42,101 +42,104 @@ CroneEngine_SoftCut : CroneEngine {
 		}
 }
 
-	*new { arg server, group, in, out;
-		^super.new.init(server, group, in, out).initSub(server, group, in, out);
-	}
+*new { arg server, group, in, out;
+^super.new.init(server, group, in, out).initSub(server, group, in, out);
+}
 
-	kill {
-		buf.do({ |b| b.free; });
-		bus.rec.do({ |b| b.free; });
-		syn.do({ arg synth; synth.free; });
-	}
+kill {
+buf.do({ |b| b.free; });
+bus.rec.do({ |b| b.free; });
+syn.do({ arg synth; synth.free; });
+}
 
-	//---  buffer and routing methods	
-	startRec { |id, pos| } // one-shot record
-	stopRec { |id| }
-	readBuf { |id, path| }
-	writeBuf { |id, path| }
-	trimBuf { |id, start, end| }
-	normBuf { |id, level| }
-	playRecLevel { |srcId, dstId, level| }
-	adcRecLevel { |srcId, dstId, level| }
+//---  buffer and routing methods	
+startRec { |id, pos| } // one-shot record
+stopRec { |id| }
+readBuf { |id, path| }
+writeBuf { |id, path| }
+trimBuf { |id, start, end| }
+normBuf { |id, level| }
+playRecLevel { |srcId, dstId, level| }
+adcRecLevel { |srcId, dstId, level| }
 
-	initSub {
-		var com;
-		var bus_pb_idx; // tmp collection of playback bus indices
-		var bus_rec_idx;
-		var bufcon;
+initSub {
+var com;
+var bus_pb_idx; // tmp collection of playback bus indices
+var bus_rec_idx;
+var bufcon;
 
-		Routine {
-			var s = server;
+Routine {
+	var s = server;
 
-			postln("SoftCut: init routine");
+	postln("SoftCut: init routine");
 
-			//--- groups
-			gr = Event.new;
-			gr.pb = Group.new(Crone.ctx.xg);
-			gr.rec = Group.new(Crone.ctx.ig);
-			// phase bus per voice (output)
-			bus = Event.new;
+	//--- groups
+	gr = Event.new;
+	gr.pb = Group.new(Crone.ctx.xg);
+	gr.rec = Group.new(Crone.ctx.ig);
+	// phase bus per voice (output)
+	bus = Event.new;
 
-			s.sync;
+	s.sync;
 
-			// use an array of Conditions to delay execution until all buffers are allocated
-			//			bufcon = Array.fill(nvoices, { Condition.new });
+	// use an array of Conditions to delay execution until all buffers are allocated
+	//			bufcon = Array.fill(nvoices, { Condition.new });
 
-			postln("SoftCut: allocating buffers");
-			//--- buffers
-			buf = Array.fill(nvoices, { arg i;
-				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
-					//					bufcon[i].unhang;
-				})
-			});
-			s.sync;
-			//			bufcon.do({ arg con; con.hang; });
+	postln("SoftCut: allocating buffers");
+	//--- buffers
+	buf = Array.fill(nvoices, { arg i;
+		Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
+			//					bufcon[i].unhang;
+		})
+	});
+	s.sync;
+	//			bufcon.do({ arg con; con.hang; });
 
-			postln("SoftCut: done waiting on buffer allocation");
+	postln("SoftCut: done waiting on buffer allocation");
 
-			
-			//-- voices
-			voice = Array.fill(nvoices, { |i|
-				SoftCutVoice.new(s, buf[i], s);
-			});
-			
-			bus_pb_idx = voice.collect({ |v| v.bus.pb.index });
-			bus_rec_idx = voice.collect({ |v| v.bus.rec.index });
-		
-			
-			//--- patch matrices
-			pm = Event.new;
+	
+	//-- voices
+	voice = Array.fill(nvoices, { |i|
+		SoftCutVoice.new(s, buf[i], s);
+	});
+	
+	bus_pb_idx = voice.collect({ |v| v.bus.pb.index });
+	bus_rec_idx = voice.collect({ |v| v.bus.rec.index });
+	
+	
+	//--- patch matrices
+	pm = Event.new;
 
-			
-			postln("softcut: in->rec patchmatrix");
-			// input -> record
-			pm.adc_rec = PatchMatrix.new(
-				server:s, target:gr.rec, action:\addToTail,
-				in: bus.adc.collect({ |b| b.index }),
-				out: bus_rec_idx
-			);
-			postln("softcut: pb->out patchmatrix");
-			// playback -> output
-			pm.pb_dac = PatchMatrix.new(
-				server:s, target:gr.pb, action:\addAfter,
-				in: bus_pb_idx,
-				out: bus.dac.collect({ |b| b.index })
-			);
+	
+	postln("softcut: in->rec patchmatrix");
+	// input -> record
+	pm.adc_rec = PatchMatrix.new(
+		server:s, target:gr.rec, action:\addToTail,
+		in: bus.adc.collect({ |b| b.index }),
+		out: bus_rec_idx
+	);
+	postln("softcut: pb->out patchmatrix");
+	// playback -> output
+	pm.pb_dac = PatchMatrix.new(
+		server:s, target:gr.pb, action:\addAfter,
+		in: bus_pb_idx,
+		out: bus.dac.collect({ |b| b.index })
+	);
 
-			// playback -> record
-			postln("softcut: pb->rec patchmatrix");
-			pm.pb_rec = PatchMatrix.new(
-				server:s, target:gr.pb, action:\addAfter,
-				in: bus_pb_idx,
-				out: bus_rec_idx
-			);
-			
-		}.play;
+	// playback -> record
+	postln("softcut: pb->rec patchmatrix");
+	pm.pb_rec = PatchMatrix.new(
+		server:s, target:gr.pb, action:\addAfter,
+		in: bus_pb_idx,
+		out: bus_rec_idx
+	);
+	
+}.play;
 
+} // initSub
 
-	}
+addCommands {
+
+}
 
 }
