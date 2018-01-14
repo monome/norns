@@ -4,6 +4,7 @@ AudioContext {
 
 	var <>server;
 	// input, process, output groups
+	// FIXME: not good naming, use an Event to match engine style
 	var <>ig, <>xg, <>og;
 	// input, output busses
 	var <>in_b, <>out_b;
@@ -144,11 +145,17 @@ AudioContext {
 		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
 		this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous(); });
 		this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous(); });
+
 		this.registerPoll(\pitch_in_l, {
 			var pitch, clar;
-			amp_in_b[1].getSynchronous(); });
-		this.registerPoll(\pitch_in_r, { amp_in_b[1].getSynchronous(); });
-
+			#[pitch, clar] = pitch_in_b[0].getSynchronous(2);
+			if(clar > 0) { pitch }, {-1});
+		});
+		this.registerPoll(\pitch_in_r, {
+			var pitch, clar;
+			#[pitch, clar] = pitch_in_b[1].getSynchronous(2);
+			if(clar > 0) { pitch }, {-1});
+		});
 	}
 	
 }

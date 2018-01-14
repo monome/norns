@@ -100,7 +100,8 @@ void SoftCutHeadLogic::updatePhase(int id)
                 if (phaseInc > 0.f) {
                     if (p > end || p < start) {
                         if (loopFlag) {
-                            // cutToPos(start + (p-end)); // preserve phase overshoot?
+			  // FIXME: not sure whether or not to preserve phase overshoot
+                            // cutToPos(start + (p-end));
                             cutToPhase(start);
                             trig[id] = 1.f;
 

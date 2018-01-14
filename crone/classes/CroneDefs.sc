@@ -130,6 +130,7 @@ CroneDefs {
 	*sendDefs { arg s;
 		postln("CroneDefs: sending defs");
 		defs.do({ arg def;
+			postln(def.name);
 			def.send(s);
 		});		
 	}
