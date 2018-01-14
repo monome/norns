@@ -13,6 +13,8 @@ Crone {
 	classvar <>txPort = 8888;
 	// an AudioContext
 	classvar <>ctx;
+    // boot completion flag
+    classvar complete = 0;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
@@ -42,6 +44,7 @@ Crone {
 					// create the audio context
 					// sets up boilerplate routing and analysis
 					ctx = AudioContext.new(server);
+                    complete = 1;
 				}.play;
 			}); 
 
@@ -51,8 +54,10 @@ Crone {
 				'/ready':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					//[msg, time, addr, recvPort].postln; 
-                    postln(">>> /crone/ready");
-                    remoteAddr.sendMsg('/crone/ready'); 
+                    if(complete==1) {
+                        postln(">>> /crone/ready");
+                        remoteAddr.sendMsg('/crone/ready'); 
+                    }
 				}, '/ready'),
 
 				'/audio/out/level':OSCFunc.new({
