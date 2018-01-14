@@ -63,8 +63,6 @@ static int w_screen_clear(lua_State *l);
 //i2c
 static int w_gain_hp(lua_State *l);
 static int w_gain_in(lua_State *l);
-static int w_level_out(lua_State *l);
-//static int w_level_in(lua_State *l);
 
 // crone
 /// engines
@@ -124,8 +122,6 @@ void w_init(void) {
     // analog output control
     lua_register(lvm, "gain_hp", &w_gain_hp);
     lua_register(lvm, "gain_in", &w_gain_in);
-    lua_register(lvm, "level_out", &w_level_out);
-    //lua_register(lvm, "level_in", &w_level_in);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &w_request_engine_report);
@@ -419,36 +415,6 @@ int w_gain_hp(lua_State *l) {
 
 args_error:
     printf("warning: incorrect arguments to gain_hp() \n"); fflush(stdout);
-    lua_settop(l, 0);
-    return 0;
-}
-
-/***
-output: set level, per channel
-@function level_out
-@tparam float level level
-*/
-int w_level_out(lua_State *l) {
-    float level;
-    if(lua_gettop(l) != 1) { // check num args
-        goto args_error;
-    }
-
-    if( lua_isnumber(l, 1) ) {
-        level = lua_tonumber(l, 1);
-    } else {
-        goto args_error;
-    }
-
-    lo_message msg = lo_message_new();
-    lo_message_add_double( msg, level );
-    o_send("/audio/out/level", msg);
-
-    lua_settop(l, 0);
-    return 0;
-
-args_error:
-    printf("warning: incorrect arguments to level_out() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }

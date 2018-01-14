@@ -137,10 +137,5 @@ AudioContext {
 
 	pitchOff {
 		pitch_in_s.do({ |syn| syn.run(false); });
-	}
-
-    outLevel { arg level=1.0;
-        out_s.set(\level, level);
-    }
-
+	} 
 }

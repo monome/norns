@@ -60,12 +60,6 @@ Crone {
                     }
 				}, '/ready'),
 
-				'/audio/out/level':OSCFunc.new({
-					arg msg, time, addr, recvPort;
-					//[msg, time, addr, recvPort].postln;
-					ctx.outLevel(msg[1]);
-				}, '/audio/out/level'),
-
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg, time, addr, recvPort].postln;

@@ -233,7 +233,7 @@ map.nav.level = function(delta)
     --level_out(norns.state.out,0) 
     --level_out(norns.state.out,1) 
     --level_hp(norns.state.out)
-    level_out(norns.state.out/64)
+    --level_out(norns.state.out/64)
 end 
 
 map.nav.redraw = function()
