@@ -148,12 +148,12 @@ AudioContext {
 
 		this.registerPoll(\pitch_in_l, {
 			var pitch, clar;
-			#[pitch, clar] = pitch_in_b[0].getSynchronous(2);
+			#pitch, clar = pitch_in_b[0].getSynchronous(2);
 			if(clar > 0, { pitch }, {-1});
 		});
 		this.registerPoll(\pitch_in_r, {
 			var pitch, clar;
-			#[pitch, clar] = pitch_in_b[1].getSynchronous(2);
+			#pitch, clar = pitch_in_b[1].getSynchronous(2);
 			if(clar > 0, { pitch }, {-1});
 		});
 	}
