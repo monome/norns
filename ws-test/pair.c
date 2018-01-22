@@ -13,10 +13,13 @@ int echo(int sock)
   int result = nn_recv (sock, &buf, NN_MSG, 0);
   if (result > 0)
     {
-      printf ("RECEIVED \"%s\" len: %d\n", buf, strlen(buf));
-      nn_send(sock, buf, strlen(buf)+1, 0);
-      printf ("SEND \"%s\"\n", buf);
-      nn_freemsg (buf);
+      // following lines just to print the buffer right (can't assume null ending)
+      char output[80];
+      strcpy(output,buf);
+      output[result]=0;
+      printf ("RECEIVED \"%s\" len: %d\n", output, result);
+      // actual echo
+      nn_send(sock, buf, result, NN_MSG);
     }
   return result;
 }

@@ -47,8 +47,7 @@ window.onload = function() {
     e.preventDefault();
 
     // Retrieve the message from the textarea.
-    // FIXED: need explicit termination or nn_recv() gets confused
-    var message = messageField.value + "\0";
+    var message = messageField.value;
 
     // Send the message through the WebSocket.
     socket.send(message);
