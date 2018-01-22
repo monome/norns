@@ -1,2 +1,3 @@
 -- state
-norns.state.script = 'grid_seek'
+norns.state.script = 'template.lua'
+norns.state.out = '54'

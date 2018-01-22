@@ -6,6 +6,7 @@ norns.version.file = '0.0.1'
 -- @section state
 
 norns.state = {}
+norns.state.out = 0
 
 norns.state.resume = function()
   dofile(script_dir .. '../state.lua')
@@ -18,6 +19,7 @@ norns.state.save = function()
   io.output(fd)
   io.write("-- state\n")
   io.write("norns.state.script = '" .. norns.state.script .. "'\n")
+  io.write("norns.state.out = '" .. norns.state.out .. "'\n")
   io.close(fd)   
 end
 
@@ -42,6 +44,8 @@ norns.script.clear = function()
     g = nil
     -- stop all timers
     for i=1,30 do metro[i]:stop() end
+    -- clear polls
+    poll.report = norns.none
     -- clear engine 
     engine = nil
     -- clear init
@@ -54,7 +58,7 @@ end
 norns.script.load = function(filename)
   if filename == nil then
     filename = norns.state.script end
-  local filepath = script_dir .. filename .. '.lua'
+  local filepath = script_dir .. filename
   local f=io.open(filepath,"r")
   if f==nil then 
     print("file not found: "..filepath)
@@ -87,7 +91,7 @@ end
 -- @param directory path to directory
 scandir = function(directory)
     local i, t, popen = 0, {}, io.popen
-    local pfile = popen('ls "'..directory..'"')
+    local pfile = popen('ls -p --group-directories-first "'..directory..'"')
     for filename in pfile:lines() do
         i = i + 1
         t[i] = filename

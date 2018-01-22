@@ -7,6 +7,7 @@ engine = 'TestSine'
 
 -- init function
 init = function(commands, count)
+    print("template!")
     -- show engine commands available
     print("commands: ")
     for i,v in pairs(commands) do

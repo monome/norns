@@ -19,13 +19,13 @@ CroneEngine_TestSine : CroneEngine {
 		
 		this.addCommand("hz", "f", { arg msg;
 			var val = msg[1];
-			postln("set hz : " ++ val);
+			//postln("set hz : " ++ val);
 			synth.set(\hz, val);			
 		});
 
 		this.addCommand("amp", "f", { arg msg;
 			var val = msg[1];
-			postln("set amp : " ++ val);
+			//postln("set amp : " ++ val);
 			synth.set(\amp, val);
 		});
 	}

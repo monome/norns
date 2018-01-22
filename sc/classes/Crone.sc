@@ -13,6 +13,8 @@ Crone {
 	classvar <>txPort = 8888;
 	// an AudioContext
 	classvar <>ctx;
+    // boot completion flag
+    classvar complete = 0;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
@@ -23,6 +25,9 @@ Crone {
 			postln(" \OSC rx port: " ++ NetAddr.langPort);
 			postln(" \OSC tx port: " ++ txPort);
 			postln("--------------------------------------------------\n");
+
+			// FIXME? matron address is hardcoded here
+			remoteAddr =NetAddr("127.0.0.1", txPort); 
 
 			server = Server.local;
 			server.waitForBoot ({
@@ -39,15 +44,21 @@ Crone {
 					// create the audio context
 					// sets up boilerplate routing and analysis
 					ctx = AudioContext.new(server);
-
+                    complete = 1;
 				}.play;
-			});
+			}); 
 
-
-			// FIXME? matron address is hardcoded here
-			remoteAddr =NetAddr("127.0.0.1", txPort);
-
+            // FIXME get rid of these postln's later
 			oscfunc = (
+
+				'/ready':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					//[msg, time, addr, recvPort].postln; 
+                    if(complete==1) {
+                        postln(">>> /crone/ready");
+                        remoteAddr.sendMsg('/crone/ready'); 
+                    }
+				}, '/ready'),
 
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;

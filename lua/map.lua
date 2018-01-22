@@ -76,17 +76,18 @@ norns.enc = function(n, delta)
                 -- offset for user script
                 enc(1, delta)
             else
-                map.enc(2, delta)
+                map.enc(1, delta)
             end
         end
     elseif(n==3) then
         _enc[2].tick = _enc[2].tick + delta
         if math.abs(_enc[2].tick) >= _enc[2].sens then
+            _enc[2].tick = 0
             if(map.state==mRun) then
                 -- offset for user script
                 enc(2, delta)
             else
-                map.enc(3, delta)
+                map.enc(2, delta)
             end
         end
     end
@@ -138,7 +139,9 @@ map.set = function(mode)
         map.enc = map.nav.enc
         map.level = map.nav.level
         set_enc_sens(1,3)
-        map.nav.list = scandir(script_dir)
+        set_enc_sens(2,16)
+        map.nav.list = scandir(map.nav.dir())
+        map.nav.len = tablelength(map.nav.list)
         map.nav.redraw() 
     elseif mode==mAlt then
         map.state = mAlt
@@ -158,42 +161,79 @@ end
 -- nav
 map.nav = {}
 map.nav.pos = 0
-map.nav.offset = 0
 map.nav.list = scandir(script_dir)
 map.nav.len = tablelength(map.nav.list)
-map.nav.out = 0
+map.nav.depth = 0
+map.nav.folders = {}
+map.nav.page = 0
+
+map.nav.dir = function()
+    local path = script_dir
+    for k,v in pairs(map.nav.folders) do
+        path = path .. v
+    end
+    print("path: "..path)
+    return path
+end
 
 map.nav.key = function(n,z)
-    -- load file
-    if n==1 and z==1 then 
-        line = string.gsub(map.nav.list[map.nav.pos+1],'.lua','')
-        norns.script.load(line)
-        map.set(mRun)
+    -- back
+    if n==1 and z==1 then
+        if map.nav.depth > 0 then
+            print('back')
+            map.nav.folders[map.nav.depth] = nil
+            map.nav.depth = map.nav.depth - 1
+            -- FIXME return to folder position
+            map.nav.list = scandir(map.nav.dir())
+            map.nav.len = tablelength(map.nav.list)
+            map.nav.pos = 0
+            map.nav.redraw()
+        end 
+    -- select
+    elseif n==2 and z==1 then 
+        local s = map.nav.list[map.nav.pos+1]
+        if string.find(s,'/') then 
+            print("folder")
+            map.nav.depth = map.nav.depth + 1
+            map.nav.folders[map.nav.depth] = s
+            map.nav.list = scandir(map.nav.dir())
+            map.nav.len = tablelength(map.nav.list)
+            map.nav.pos = 0
+            map.nav.redraw()
+        else 
+            --line = string.gsub(s,'.lua','')
+            local path = ""
+            for k,v in pairs(map.nav.folders) do
+                path = path .. v
+            end
+            path = path .. s
+            norns.script.load(path)
+            map.set(mRun)
+        end
     end
 end
 
 map.nav.enc = function(n,delta)
     -- scroll file list
-    if n==2 then 
-        map.nav.pos = map.nav.pos + delta
-	    if map.nav.pos > map.nav.len - 1 then map.nav.pos = map.nav.len - 1 end
-	    if map.nav.pos < 0 then map.nav.pos = 0 end
-	    if map.nav.pos > 2 or map.nav.offset > 0 then
-		    map.nav.offset = map.nav.offset + delta
-		    if map.nav.offset < 0 then map.nav.offset = 0 end
-		    if map.nav.offset > map.nav.len - 3 then map.nav.offset = map.nav.len - 3 end
-	    end
+    if n==1 then 
+        map.nav.pos = map.nav.pos + delta 
+	    if map.nav.pos > map.nav.len - 1 then map.nav.pos = map.nav.len - 1
+        elseif map.nav.pos < 0 then map.nav.pos = 0 end
         map.nav.redraw()
+    elseif n==2 then
+        map.nav.page = 1 - map.nav.page
+        print("page "..map.nav.page)
     end
 end
 
 map.nav.level = function(delta)
-    map.nav.out = map.nav.out + delta
-    if map.nav.out < 0 then map.nav.out = 0 
-    elseif map.nav.out > 63 then map.nav.out = 63 end
-    --level_out(map.nav.out,0) 
-    --level_out(map.nav.out,1) 
-    level_hp(map.nav.out)
+    norns.state.out = norns.state.out + delta
+    if norns.state.out < 0 then norns.state.out = 0 
+    elseif norns.state.out > 64 then norns.state.out = 64 end
+    --level_out(norns.state.out,0) 
+    --level_out(norns.state.out,1) 
+    --level_hp(norns.state.out)
+    --level_out(norns.state.out/64)
 end 
 
 map.nav.redraw = function()
@@ -201,10 +241,10 @@ map.nav.redraw = function()
     s_clear()
     s_level(15)
     for i=1,6 do
-		if i < map.nav.len - map.nav.offset + 1 then
+		if (i > 2 - map.nav.pos) and (i < map.nav.len - map.nav.pos + 3) then
         	s_move(0,10*i)
-        	line = string.gsub(map.nav.list[i+map.nav.offset],'.lua','')
-        	if(i==map.nav.pos-map.nav.offset+1) then
+        	line = string.gsub(map.nav.list[i+map.nav.pos-2],'.lua','')
+        	if(i==3) then
             	s_level(15)
         	else
             	s_level(4)
