@@ -10,8 +10,7 @@ window.onload = function() {
 
   // Create a new WebSocket.
   var socket = new WebSocket(
-      'ws://192.168.1.21:5555',
-      [ 'pair.sp.nanomsg.org' ]);
+      'ws://192.168.1.21:5555', ['pair.sp.nanomsg.org']);
       // see the rfc on sp websocket mapping:
       // raw.githubusercontent.com/nanomsg/nanomsg/master/rfc/sp-websocket-mapping-01.txt 
 
@@ -48,7 +47,8 @@ window.onload = function() {
     e.preventDefault();
 
     // Retrieve the message from the textarea.
-    var message = messageField.value;
+    // FIXED: need explicit termination or nn_recv() gets confused
+    var message = messageField.value + "\0";
 
     // Send the message through the WebSocket.
     socket.send(message);
