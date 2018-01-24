@@ -10,8 +10,7 @@ window.onload = function() {
 
   // Create a new WebSocket.
   var socket = new WebSocket(
-      'ws://192.168.1.21:5555',
-      [ 'pair.sp.nanomsg.org' ]);
+      'ws://192.168.1.21:5555', ['pair.sp.nanomsg.org']);
       // see the rfc on sp websocket mapping:
       // raw.githubusercontent.com/nanomsg/nanomsg/master/rfc/sp-websocket-mapping-01.txt 
 
