@@ -1,3 +1,3 @@
 -- state
 norns.state.script = 'template.lua'
-norns.state.out = '54'
+norns.state.out = '46'

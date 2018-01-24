@@ -13,15 +13,15 @@ local mAlt = 2
 map.state = mRun
 
 local pending = false
-local previous = mRun
 -- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
 t.count = 2
 t.callback = function(stage)
     if(stage==2) then
-        previous = map.state
-        map.set(mAlt)
+        if map.state == mRun then
+            map.key(1,1)
+        end 
         pending = false
     end
 end
@@ -57,38 +57,22 @@ local block_s = function()
 end
 
 -- input redirection
-local _enc = {{},{}}
+local _enc = {{},{},{}}
 _enc[1].sens = 1
 _enc[1].tick = 0
 _enc[2].sens = 1
-_enc[2].tick = 0
+_enc[2].tick = 0 
+_enc[3].sens = 1
+_enc[3].tick = 0
 
-norns.enc = function(n, delta)
-    -- level enc always managed by map script
-    if(n==1) then
-        map.level(delta)
-    -- other encs conditionally passed
-    elseif(n==2) then
-        _enc[1].tick = _enc[1].tick + delta
-        if math.abs(_enc[1].tick) > _enc[1].sens then
-            _enc[1].tick = 0
-            if(map.state==mRun) then
-                -- offset for user script
-                enc(1, delta)
-            else
-                map.enc(1, delta)
-            end
-        end
-    elseif(n==3) then
-        _enc[2].tick = _enc[2].tick + delta
-        if math.abs(_enc[2].tick) >= _enc[2].sens then
-            _enc[2].tick = 0
-            if(map.state==mRun) then
-                -- offset for user script
-                enc(2, delta)
-            else
-                map.enc(2, delta)
-            end
+norns.enc = function(n, delta) 
+    _enc[n].tick = _enc[n].tick + delta
+    if math.abs(_enc[n].tick) > _enc[n].sens then
+        _enc[n].tick = 0
+        if(map.state==mRun) then
+            enc(n, delta)
+        else
+            map.enc(n, delta)
         end
     end
 end
@@ -100,24 +84,25 @@ end
 
 
 norns.key = function(n, z)
-    -- map key mode detection
+    -- key 1 detect for short press
 	if(n==1) then
         if z==1 then
             pending = true
-            t.time = 0.5
+            t.time = 0.25
             t:start()
-        elseif z==0 and map.state==mAlt then
-            map.set(previous)
         elseif z==0 and pending==true then
             if map.state == mNav then map.set(mRun)
             else map.set(mNav) end
             t:stop()
             pending = false
-		end
-    -- key 2/3 conditional pass
+        elseif z==0 and map.state==mRun then
+            map.key(n,z) -- always 1,0
+        else
+            map.set(mRun)
+ 		end
+    -- key 2/3 pass
 	else 
-        -- remap to key 1/2
-        map.key(n-1,z)
+        map.key(n,z)
 	end
 end
 
@@ -131,6 +116,7 @@ map.set = function(mode)
         map.level = map.nav.level
         set_enc_sens(1,1)
         set_enc_sens(2,1)
+        set_enc_sens(3,1)
         redraw() 
     elseif mode==mNav then
         map.state = mNav
@@ -138,18 +124,12 @@ map.set = function(mode)
         map.key = map.nav.key
         map.enc = map.nav.enc
         map.level = map.nav.level
-        set_enc_sens(1,3)
-        set_enc_sens(2,16)
+        set_enc_sens(1,1)
+        set_enc_sens(2,3)
+        set_enc_sens(3,16)
         map.nav.list = scandir(map.nav.dir())
         map.nav.len = tablelength(map.nav.list)
         map.nav.redraw() 
-    elseif mode==mAlt then
-        map.state = mAlt
-        block_s()
-        map.key = map.alt.key
-        map.enc = map.alt.enc
-        map.level = map.alt.level
-        map.alt.redraw()
     end
 end
 
@@ -215,12 +195,14 @@ end
 
 map.nav.enc = function(n,delta)
     -- scroll file list
-    if n==1 then 
+    if n == 1 then
+        map.nav.level(delta)
+    elseif n==2 then 
         map.nav.pos = map.nav.pos + delta 
 	    if map.nav.pos > map.nav.len - 1 then map.nav.pos = map.nav.len - 1
         elseif map.nav.pos < 0 then map.nav.pos = 0 end
         map.nav.redraw()
-    elseif n==2 then
+    elseif n==3 then
         map.nav.page = 1 - map.nav.page
         print("page "..map.nav.page)
     end
@@ -230,6 +212,7 @@ map.nav.level = function(delta)
     norns.state.out = norns.state.out + delta
     if norns.state.out < 0 then norns.state.out = 0 
     elseif norns.state.out > 64 then norns.state.out = 64 end
+    print("level: " .. norns.state.out)
     --level_out(norns.state.out,0) 
     --level_out(norns.state.out,1) 
     --level_hp(norns.state.out)
@@ -254,17 +237,6 @@ map.nav.redraw = function()
      end
 end
 
--- --------
--- alt
-map.alt = {}
-map.alt.key = function(n,z)
-end
-
-map.alt.enc = function(n,delta)
-end
-
-map.alt.level = function(delta)
-end
 
 map.alt.redraw = function()
     s_clear()
