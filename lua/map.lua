@@ -1,16 +1,26 @@
 -- map.lua
 -- norns screen-based navigation module
--- also contains 'alt' view, by holding map key
 
 local map = {}
 norns.map = {}
 
--- mode enums
-local mRun = 0
-local mNav = 1
-local mAlt = 2 
+-- level enums
+local pHOME = 1
+local pSELECT = 2
+local pPREVIEW = 3
+local pSTATUS = 4
+local pPARAMS = 5
+local pSETTINGS = 6
+local pWIFI = 7
+local pSLEEP = 8
 
-map.state = mRun
+local p = {}
+p.key = {}
+p.enc = {}
+p.redraw = {}
+
+map.mode = false
+map.page = pSELECT
 
 local pending = false
 -- metro for key hold detection
@@ -19,7 +29,7 @@ local t = metro[31]
 t.count = 2
 t.callback = function(stage)
     if(stage==2) then
-        if map.state == mRun then
+        if map.mode == false then
             map.key(1,1)
         end 
         pending = false
@@ -29,7 +39,7 @@ end
 
 -- assigns key/enc/screen handlers after user script has loaded
 norns.map.init = function() 
-    map.set(map.state)
+    map.set_mode(map.mode)
 end
 
 -- redirection for scripts that don't define refresh()
@@ -69,7 +79,7 @@ norns.enc = function(n, delta)
     _enc[n].tick = _enc[n].tick + delta
     if math.abs(_enc[n].tick) > _enc[n].sens then
         _enc[n].tick = 0
-        if(map.state==mRun) then
+        if(map.mode==false) then
             enc(n, delta)
         else
             map.enc(n, delta)
@@ -91,14 +101,14 @@ norns.key = function(n, z)
             t.time = 0.25
             t:start()
         elseif z==0 and pending==true then
-            if map.state == mNav then map.set(mRun)
-            else map.set(mNav) end
+            if map.mode == true then map.set_mode(false)
+            else map.set_mode(true) end
             t:stop()
             pending = false
-        elseif z==0 and map.state==mRun then
+        elseif z==0 and map.mode==false then
             map.key(n,z) -- always 1,0
         else
-            map.set(mRun)
+            map.set_mode(false)
  		end
     -- key 2/3 pass
 	else 
@@ -107,31 +117,35 @@ norns.key = function(n, z)
 end
 
 -- map set mode
-map.set = function(mode)
-    if mode==mRun then
-        map.state = mRun 
+map.set_mode = function(mode)
+    if mode==false then
+        map.mode = false 
         restore_s()
-        map.key =  key
+        map.key = key
         map.enc = enc
-        map.level = map.nav.level
         set_enc_sens(1,1)
         set_enc_sens(2,1)
         set_enc_sens(3,1)
         redraw() 
-    elseif mode==mNav then
-        map.state = mNav
+    else -- enable map mode
+        map.mode = true
         block_s()
-        map.key = map.nav.key
-        map.enc = map.nav.enc
-        map.level = map.nav.level
+        map.set_page(map.page)
         set_enc_sens(1,1)
         set_enc_sens(2,3)
-        set_enc_sens(3,16)
-        map.nav.list = scandir(map.nav.dir())
-        map.nav.len = tablelength(map.nav.list)
-        map.nav.redraw() 
+        set_enc_sens(3,16) 
+        map.redraw() 
     end
 end
+
+-- set page
+map.set_page = function(page)
+    map.key = p.key[page]
+    map.enc = p.enc[page]
+    map.redraw = p.redraw[page]
+    --FIXME init function here?
+end
+
 
 
 -- --------------------------------------------------
@@ -139,76 +153,76 @@ end
 
 -- --------
 -- nav
-map.nav = {}
-map.nav.pos = 0
-map.nav.list = scandir(script_dir)
-map.nav.len = tablelength(map.nav.list)
-map.nav.depth = 0
-map.nav.folders = {}
-map.nav.page = 0
+p.sel = {}
+p.sel.pos = 0
+p.sel.list = scandir(script_dir)
+p.sel.len = tablelength(p.sel.list)
+p.sel.depth = 0
+p.sel.folders = {}
 
-map.nav.dir = function()
+p.sel.dir = function()
     local path = script_dir
-    for k,v in pairs(map.nav.folders) do
+    for k,v in pairs(p.sel.folders) do
         path = path .. v
     end
     print("path: "..path)
     return path
 end
 
-map.nav.key = function(n,z)
+p.key[pSELECT] = function(n,z)
     -- back
     if n==1 and z==1 then
-        if map.nav.depth > 0 then
+        if p.sel.depth > 0 then
             print('back')
-            map.nav.folders[map.nav.depth] = nil
-            map.nav.depth = map.nav.depth - 1
+            p.sel.folders[p.sel.depth] = nil
+            p.sel.depth = p.sel.depth - 1
             -- FIXME return to folder position
-            map.nav.list = scandir(map.nav.dir())
-            map.nav.len = tablelength(map.nav.list)
-            map.nav.pos = 0
-            map.nav.redraw()
+            p.sel.list = scandir(p.sel.dir())
+            p.sel.len = tablelength(p.sel.list)
+            p.sel.pos = 0
+            map.redraw()
         end 
     -- select
     elseif n==2 and z==1 then 
-        local s = map.nav.list[map.nav.pos+1]
+        local s = p.sel.list[p.sel.pos+1]
         if string.find(s,'/') then 
             print("folder")
-            map.nav.depth = map.nav.depth + 1
-            map.nav.folders[map.nav.depth] = s
-            map.nav.list = scandir(map.nav.dir())
-            map.nav.len = tablelength(map.nav.list)
-            map.nav.pos = 0
-            map.nav.redraw()
+            p.sel.depth = p.sel.depth + 1
+            p.sel.folders[p.sel.depth] = s
+            p.sel.list = scandir(p.sel.dir())
+            p.sel.len = tablelength(p.sel.list)
+            p.sel.pos = 0
+            map.redraw()
         else 
             --line = string.gsub(s,'.lua','')
             local path = ""
-            for k,v in pairs(map.nav.folders) do
+            for k,v in pairs(p.sel.folders) do
                 path = path .. v
             end
             path = path .. s
             norns.script.load(path)
-            map.set(mRun)
+            map.set_mode(false)
         end
     end
 end
 
-map.nav.enc = function(n,delta)
+p.enc[pSELECT] = function(n,delta)
     -- scroll file list
     if n == 1 then
-        map.nav.level(delta)
+        p.sel.level(delta)
     elseif n==2 then 
-        map.nav.pos = map.nav.pos + delta 
-	    if map.nav.pos > map.nav.len - 1 then map.nav.pos = map.nav.len - 1
-        elseif map.nav.pos < 0 then map.nav.pos = 0 end
-        map.nav.redraw()
+        p.sel.pos = p.sel.pos + delta 
+	    if p.sel.pos > p.sel.len - 1 then p.sel.pos = p.sel.len - 1
+        elseif p.sel.pos < 0 then p.sel.pos = 0 end
+        map.redraw()
     elseif n==3 then
-        map.nav.page = 1 - map.nav.page
-        print("page "..map.nav.page)
+        p.sel.page = 1 - p.sel.page
+        print("page "..p.sel.page)
     end
 end
 
-map.nav.level = function(delta)
+
+map.level = function(delta)
     norns.state.out = norns.state.out + delta
     if norns.state.out < 0 then norns.state.out = 0 
     elseif norns.state.out > 64 then norns.state.out = 64 end
@@ -219,14 +233,14 @@ map.nav.level = function(delta)
     --level_out(norns.state.out/64)
 end 
 
-map.nav.redraw = function()
+p.redraw[pSELECT] = function()
     -- draw file list and selector
     s_clear()
     s_level(15)
     for i=1,6 do
-		if (i > 2 - map.nav.pos) and (i < map.nav.len - map.nav.pos + 3) then
+		if (i > 2 - p.sel.pos) and (i < p.sel.len - p.sel.pos + 3) then
         	s_move(0,10*i)
-        	line = string.gsub(map.nav.list[i+map.nav.pos-2],'.lua','')
+        	line = string.gsub(p.sel.list[i+p.sel.pos-2],'.lua','')
         	if(i==3) then
             	s_level(15)
         	else
@@ -237,7 +251,7 @@ map.nav.redraw = function()
      end
 end
 
-
+map.alt = {}
 map.alt.redraw = function()
     s_clear()
     s_aa(1)
