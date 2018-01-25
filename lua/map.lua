@@ -18,6 +18,7 @@ local p = {}
 p.key = {}
 p.enc = {}
 p.redraw = {}
+p.init = {}
 
 map.mode = false
 map.page = pSELECT
@@ -143,7 +144,7 @@ map.set_page = function(page)
     map.key = p.key[page]
     map.enc = p.enc[page]
     map.redraw = p.redraw[page]
-    --FIXME init function here?
+    p.init[page]()
 end
 
 
@@ -151,8 +152,58 @@ end
 -- --------------------------------------------------
 -- interfaces
 
--- --------
--- nav
+-- HOME
+
+p.home = {}
+p.home.pos = 0
+p.home.list = {"SELECT >", "PARAMETERS >", "SETTINGS >", "SLEEP >"}
+p.home.len = 4
+
+p.init[pHOME] = norns.none
+
+p.key[pHOME] = function(n,z)
+    if n==2 and z==1 then
+        print("STATUS MODE") 
+    elseif n==3 and z==1 then 
+        option = {pSELECT, pPARAM, pSETTINGS, pSLEEP}
+        map.set_page(option[p.home.pos+1]) 
+        map.redraw()
+    end
+end 
+
+p.enc[pHOME] = function(n,delta)
+    -- scroll file list
+    if n==2 then 
+        p.home.pos = p.home.pos + delta 
+	    if p.home.pos > p.home.len - 1 then p.home.pos = p.home.len - 1
+        elseif p.home.pos < 0 then p.home.pos = 0 end
+        map.redraw()
+    end
+end
+
+p.redraw[pHOME] = function()
+    -- draw file list and selector
+    s_clear()
+    s_level(10)
+    s_move(0,10)
+    s_text("norns v"..norns.version.norns)
+    for i=3,6 do
+       	s_move(0,10*i)
+       	line = string.gsub(p.home.list[i-2],'.lua','')
+       	if(i==p.home.pos+3) then
+           	s_level(15)
+       	else
+           	s_level(4)
+       	end
+       	s_text(string.upper(line)) 
+     end
+end
+
+
+
+
+-- SELECT
+
 p.sel = {}
 p.sel.pos = 0
 p.sel.list = scandir(script_dir)
@@ -169,9 +220,14 @@ p.sel.dir = function()
     return path
 end
 
+p.init[pSELECT] = function()
+    p.sel.list = scandir(script_dir)
+    p.sel.len = tablelength(p.sel.list)
+end
+
 p.key[pSELECT] = function(n,z)
     -- back
-    if n==1 and z==1 then
+    if n==2 and z==1 then
         if p.sel.depth > 0 then
             print('back')
             p.sel.folders[p.sel.depth] = nil
@@ -181,9 +237,12 @@ p.key[pSELECT] = function(n,z)
             p.sel.len = tablelength(p.sel.list)
             p.sel.pos = 0
             map.redraw()
+        else
+            map.set_page(pHOME)
+            map.redraw()
         end 
     -- select
-    elseif n==2 and z==1 then 
+    elseif n==3 and z==1 then 
         local s = p.sel.list[p.sel.pos+1]
         if string.find(s,'/') then 
             print("folder")
@@ -221,17 +280,6 @@ p.enc[pSELECT] = function(n,delta)
     end
 end
 
-
-map.level = function(delta)
-    norns.state.out = norns.state.out + delta
-    if norns.state.out < 0 then norns.state.out = 0 
-    elseif norns.state.out > 64 then norns.state.out = 64 end
-    print("level: " .. norns.state.out)
-    --level_out(norns.state.out,0) 
-    --level_out(norns.state.out,1) 
-    --level_hp(norns.state.out)
-    --level_out(norns.state.out/64)
-end 
 
 p.redraw[pSELECT] = function()
     -- draw file list and selector
@@ -274,4 +322,16 @@ map.alt.redraw = function()
     s_level(15)
     s_text("script > "..norns.state.script)
 end
+
+map.level = function(delta)
+    norns.state.out = norns.state.out + delta
+    if norns.state.out < 0 then norns.state.out = 0 
+    elseif norns.state.out > 64 then norns.state.out = 64 end
+    print("level: " .. norns.state.out)
+    --level_out(norns.state.out,0) 
+    --level_out(norns.state.out,1) 
+    --level_hp(norns.state.out)
+    --level_out(norns.state.out/64)
+end 
+
 
