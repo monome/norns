@@ -25,6 +25,7 @@ init = function(commands, count)
     end 
     -- screen: turn on anti-alias
     s.aa(0)
+    s.line_width(1.0)
 end
 
 -- make a variable

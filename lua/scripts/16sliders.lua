@@ -25,10 +25,10 @@ end
 
 
 enc = function(n, delta)
-	if(n==1) then 
+	if(n==2) then 
         accum = (accum + delta) % 64
         edit = accum >> 2 
-    elseif(n==2) then 
+    elseif(n==3) then 
         sliders[edit+1] = sliders[edit+1] + delta
         if sliders[edit+1] > 32 then sliders[edit+1] = 32 end
         if sliders[edit+1] < 0 then sliders[edit+1] = 0 end 
@@ -43,7 +43,7 @@ key = function(n, z)
             sliders[i] = sliders[i-1]+math.floor(math.random()*9)-3
         end
 		redraw()
-    elseif(n==1 and z==1) then 
+    elseif(n==3 and z==1) then 
         for i=1,16 do
             sliders[i] = sliders[i]+math.floor(math.random()*5)-2
         end
@@ -53,7 +53,7 @@ end
 
 redraw = function()
     s.aa(1)
-    s_line_width(1.0)
+    s.line_width(1.0)
     s.clear()
 
     for i=0,15 do

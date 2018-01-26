@@ -61,10 +61,10 @@ cutoff=30
 release=20
 
 enc = function(n,delta)
-    if n==1 then
+    if n==2 then
         cutoff = math.min(100,math.max(0,cutoff+delta))
         e.cutoff(50*2^(cutoff/12))
-    elseif n==2 then
+    elseif n==3 then
         release = math.min(60,math.max(0,release+delta))
         e.release(0.1*2^(release/12))
     end
@@ -73,9 +73,9 @@ enc = function(n,delta)
 end
 
 key = function(n)
-    if n==1 then
+    if n==2 then
         for i=1,16 do steps[i] = math.floor(math.random()*8) end
-    elseif n==2 then
+    elseif n==3 then
         e.pw(math.random()*1)
     end
 end

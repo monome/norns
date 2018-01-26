@@ -21,7 +21,7 @@ p.redraw = {}
 p.init = {}
 
 map.mode = false
-map.page = pSELECT
+map.page = pHOME
 
 local pending = false
 -- metro for key hold detection
@@ -53,6 +53,7 @@ local restore_s = function()
     s.clear = s_clear
     s.level = s_level
     s.line = s_line
+    s.line_width = s_line_width
     s.move = s_move
     s.stroke = s_stroke
     s.text = s_text
@@ -62,6 +63,7 @@ local block_s = function()
     s.clear = norns.none
     s.level = norns.none
     s.line = norns.none
+    s.line_width = norns.none
     s.move = norns.none
     s.stroke = norns.none
     s.text = norns.none
@@ -141,10 +143,12 @@ end
 
 -- set page
 map.set_page = function(page)
+    map.page = page
     map.key = p.key[page]
     map.enc = p.enc[page]
     map.redraw = p.redraw[page]
     p.init[page]()
+    map.redraw()
 end
 
 
@@ -163,16 +167,14 @@ p.init[pHOME] = norns.none
 
 p.key[pHOME] = function(n,z)
     if n==2 and z==1 then
-        print("STATUS MODE") 
+        map.set_page(pSTATUS)
     elseif n==3 and z==1 then 
-        option = {pSELECT, pPARAM, pSETTINGS, pSLEEP}
+        option = {pSELECT, pPARAMS, pSETTINGS, pSLEEP}
         map.set_page(option[p.home.pos+1]) 
-        map.redraw()
     end
 end 
 
 p.enc[pHOME] = function(n,delta)
-    -- scroll file list
     if n==2 then 
         p.home.pos = p.home.pos + delta 
 	    if p.home.pos > p.home.len - 1 then p.home.pos = p.home.len - 1
@@ -198,8 +200,6 @@ p.redraw[pHOME] = function()
        	s_text(string.upper(line)) 
      end
 end
-
-
 
 
 -- SELECT
@@ -280,7 +280,6 @@ p.enc[pSELECT] = function(n,delta)
     end
 end
 
-
 p.redraw[pSELECT] = function()
     -- draw file list and selector
     s_clear()
@@ -299,29 +298,131 @@ p.redraw[pSELECT] = function()
      end
 end
 
-map.alt = {}
-map.alt.redraw = function()
+
+
+-- PARAMS
+
+p.key[pPARAMS] = function(n,z)
+    if n==2 and z==1 then 
+        map.set_page(pHOME)
+        map.redraw()
+    end
+end
+
+p.enc[pPARAMS] = norns.none
+
+p.redraw[pPARAMS] = function()
+    s_clear()
+    s_level(10)
+    s_move(0,10)
+    s_text("params")
+end
+
+p.init[pPARAMS] = norns.none
+
+
+-- SETTINGS
+p.set = {}
+p.set.pos = 0
+p.set.list = {"audio in gain:","headphone gain:", "wifi >"}
+p.set.len = 3
+
+p.key[pSETTINGS] = function(n,z)
+    if n==2 and z==1 then 
+        map.set_page(pHOME)
+        map.redraw()
+    end
+end
+
+p.enc[pSETTINGS] = function(n,delta)
+    if n==2 then 
+        p.set.pos = p.set.pos + delta 
+	    if p.set.pos > p.set.len - 1 then p.set.pos = p.set.len - 1
+        elseif p.set.pos < 0 then p.set.pos = 0 end
+        map.redraw()
+    end
+end
+
+p.redraw[pSETTINGS] = function()
+    s_clear()
+    s_level(10)
+    s_move(0,10)
+    s_text("settings")
+    for i=3,5 do
+       	s_move(0,10*i)
+       	line = string.gsub(p.set.list[i-2],'.lua','')
+       	if(i==p.set.pos+3) then
+           	s_level(15)
+       	else
+           	s_level(4)
+       	end
+       	s_text(string.upper(line)) 
+     end
+end
+
+p.init[pSETTINGS] = norns.none
+
+
+-- SLEEP
+
+p.key[pSLEEP] = function(n,z)
+    if n==2 and z==1 then 
+        map.set_page(pHOME)
+        map.redraw()
+    elseif n==3 and z==1 then
+        print("SLEEP")
+        --TODO fade out screen then run the shutdown script
+    end
+end
+
+p.enc[pSLEEP] = norns.none
+
+p.redraw[pSLEEP] = function()
+    s_clear()
+    s_move(48,40)
+    s_text("sleep?")
+    --TODO do an animation here! fade the volume down
+end
+
+p.init[pSLEEP] = norns.none
+
+
+-- STATUS
+p.key[pSTATUS] = function(n,z)
+    if z==1 then 
+        map.set_page(pHOME)
+        map.redraw()
+    end
+end
+
+p.enc[pSTATUS] = norns.none
+
+p.redraw[pSTATUS] = function()
     s_clear()
     s_aa(1)
 
-    status = "battery > "..norns.batterypercent 
-    if norns.powerpresent==1 then status = status.." (powered)" end
+    status = "b "..norns.batterypercent 
+    if norns.powerpresent==1 then status = status.."+" end
 
-    -- draw battery bar
     s_level(10)
     s_move(0,10)
     s_text(status)
 
     s_move(0,20)
-    local net = 'ip > '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
-    if net == 'ip > ' then net = 'no wifi' end
+    local net = 'ip '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
+    if net == 'ip ' then net = 'no wifi' end
     s_text(net)
 
     -- draw current script loaded
     s_move(0,60)
     s_level(15)
-    s_text("script > "..norns.state.script)
+    s_text(norns.state.script)
 end
+
+p.init[pSTATUS] = norns.none
+
+
+
 
 map.level = function(delta)
     norns.state.out = norns.state.out + delta
@@ -333,5 +434,3 @@ map.level = function(delta)
     --level_hp(norns.state.out)
     --level_out(norns.state.out/64)
 end 
-
-
