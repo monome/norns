@@ -18,6 +18,7 @@
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
 #define CHECK_CR if (cr == NULL) return;
+#define CHECK_CRR if (cr == NULL) return 0;
 #endif
 
 static float c[16] = {0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333, 0.4, 0.46666666666667, 0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
@@ -28,6 +29,7 @@ static cairo_font_face_t *ct;
 static FT_Library value;
 static FT_Error status;
 static FT_Face face;
+static double text_xy[2];
 
 typedef struct _cairo_linuxfb_device {
     int fb_fd;
@@ -168,7 +170,7 @@ void screen_deinit(void) {
 
 void screen_aa(int s) {
   CHECK_CR
-    if(s) {
+    if(s==0) {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
     } else {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_DEFAULT);
@@ -193,11 +195,31 @@ void screen_move(long x, long y) {
 void screen_line(long x, long y) {
   CHECK_CR
     cairo_line_to(cr,x+0.5,y+0.5);
+} 
+
+void screen_line_rel(long x, long y) {
+  CHECK_CR
+    cairo_rel_line_to(cr,x+0.5,y+0.5);
+}
+
+void screen_move_rel(long x, long y) {
+  CHECK_CR
+    cairo_rel_move_to(cr,x+0.5,y+0.5);
+}
+
+void screen_close_path(void) {
+  CHECK_CR
+    cairo_close_path(cr);
 }
 
 void screen_stroke(void) {
   CHECK_CR
     cairo_stroke(cr);
+}
+
+void screen_fill(void) {
+  CHECK_CR
+    cairo_fill(cr);
 }
 
 void screen_text(const char *s) {
@@ -212,4 +234,13 @@ void screen_clear(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 }
 
+double * screen_extents(const char *s) {
+  CHECK_CRR
+    cairo_text_extents_t extents;
+    cairo_text_extents(cr, s, &extents);
+    text_xy[0] = extents.width; 
+    text_xy[1] = extents.height; 
+    return text_xy;
+}
 #undef CHECK_CR
+#undef CHECK_CRR

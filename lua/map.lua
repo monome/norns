@@ -47,29 +47,6 @@ end
 -- redirection for scripts that don't define refresh()
 norns.blank = function() s.clear() end
 
--- screen redirection functions
-s = {}
-local restore_s = function()
-    s.aa = s_aa
-    s.clear = s_clear
-    s.level = s_level
-    s.line = s_line
-    s.line_width = s_line_width
-    s.move = s_move
-    s.stroke = s_stroke
-    s.text = s_text
-end
-local block_s = function()
-    s.aa = norns.none
-    s.clear = norns.none
-    s.level = norns.none
-    s.line = norns.none
-    s.line_width = norns.none
-    s.move = norns.none
-    s.stroke = norns.none
-    s.text = norns.none
-end
-
 -- input redirection
 local _enc = {{},{},{}}
 _enc[1].sens = 1
@@ -124,7 +101,7 @@ end
 map.set_mode = function(mode)
     if mode==false then
         map.mode = false 
-        restore_s()
+        norns.s.restore()
         map.key = key
         map.enc = enc
         set_enc_sens(1,1)
@@ -133,7 +110,7 @@ map.set_mode = function(mode)
         redraw() 
     else -- enable map mode
         map.mode = true
-        block_s()
+        norns.s.block()
         map.set_page(map.page)
         set_enc_sens(1,1)
         set_enc_sens(2,3)

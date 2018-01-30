@@ -27,8 +27,8 @@ init = function(commands, count)
         g:refresh()
     end 
     -- screen: turn on anti-alias
-    s.aa(0)
-    s.line_width(1.0)
+    s.aa(1)
+    s.line_width(1.0) 
 end
 
 -- make a variable
@@ -74,6 +74,16 @@ redraw = function()
     s.move(math.random()*64+64,math.random()*64)
     s.line(math.random()*64+64,math.random()*64)
     s.stroke() 
+
+    s.move(63,8)
+    s.text_center("hello there")
+
+    s.move(numbers[2],numbers[3])
+    s.line(80,30)
+    s.line(40,numbers[1])
+    s.close()
+    s.level(3)
+    s.fill()
 end
 
 -- set up a metro

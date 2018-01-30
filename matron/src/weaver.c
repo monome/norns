@@ -57,9 +57,14 @@ static int w_screen_level(lua_State *l);
 static int w_screen_line_width(lua_State *l);
 static int w_screen_move(lua_State *l);
 static int w_screen_line(lua_State *l);
+static int w_screen_move_rel(lua_State *l);
+static int w_screen_line_rel(lua_State *l);
 static int w_screen_stroke(lua_State *l);
+static int w_screen_fill(lua_State *l);
 static int w_screen_text(lua_State *l);
 static int w_screen_clear(lua_State *l);
+static int w_screen_close(lua_State *l);
+static int w_screen_extents(lua_State *l);
 //i2c
 static int w_gain_hp(lua_State *l);
 static int w_gain_in(lua_State *l);
@@ -115,9 +120,14 @@ void w_init(void) {
     lua_register(lvm, "s_line_width", &w_screen_line_width);
     lua_register(lvm, "s_move", &w_screen_move);
     lua_register(lvm, "s_line", &w_screen_line);
+    lua_register(lvm, "s_move_rel", &w_screen_move_rel);
+    lua_register(lvm, "s_line_rel", &w_screen_line_rel);
     lua_register(lvm, "s_stroke", &w_screen_stroke);
+    lua_register(lvm, "s_fill", &w_screen_fill);
     lua_register(lvm, "s_text", &w_screen_text);
     lua_register(lvm, "s_clear", &w_screen_clear);
+    lua_register(lvm, "s_close", &w_screen_close);
+    lua_register(lvm, "s_extents", &w_screen_extents);
 
     // analog output control
     lua_register(lvm, "gain_hp", &w_gain_hp);
@@ -327,6 +337,74 @@ args_error:
 }
 
 /***
+screen: move position rel
+@function s_move_rel
+@param x
+@param y
+*/
+int w_screen_move_rel(lua_State *l) {
+    int x, y;
+    if(lua_gettop(l) != 2) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    screen_move_rel(x,y);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_move_rel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+screen: draw line to position rel
+@function s_line_rel
+@param x
+@param y
+*/
+int w_screen_line_rel(lua_State *l) {
+    int x, y;
+    if(lua_gettop(l) != 2) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    screen_line_rel(x,y);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_line_rel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
 screen: stroke, or apply width/color to line(s)
 @function s_stroke
 */
@@ -341,6 +419,25 @@ int w_screen_stroke(lua_State *l) {
 
 args_error:
     printf("warning: incorrect arguments to s_stroke() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+screen: fill path
+@function s_fill
+*/
+int w_screen_fill(lua_State *l) {
+    if(lua_gettop(l) != 0) { // check num args
+        goto args_error;
+    }
+
+    screen_fill();
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_fill() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -391,6 +488,59 @@ args_error:
     lua_settop(l, 0);
     return 0;
 }
+
+/***
+screen: close path
+@function s_close
+*/
+int w_screen_close(lua_State *l) {
+    if(lua_gettop(l) != 0) { // check num args
+        goto args_error;
+    }
+
+    screen_close_path();
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_close() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+
+/***
+screen: extents
+@function s_extents
+@tparam gets x/y displacement of a string
+*/
+int w_screen_extents(lua_State *l) {
+    char s[64];
+    double * xy;
+
+    if(lua_gettop(l) != 1) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isstring(l,1) ) {
+        strcpy( s,lua_tostring(l,1) );
+    } else {
+        goto args_error;
+    }
+
+    xy = screen_extents(s);
+    //lua_settop(l, 0);
+    lua_pushinteger(l, xy[0]);
+    lua_pushinteger(l, xy[1]);
+    return 2;
+
+args_error:
+    printf("warning: incorrect arguments to s_extents() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+
 
 /***
 headphone: set level
