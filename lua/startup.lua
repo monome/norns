@@ -26,6 +26,8 @@ g = nil
 require 'math'
 math.randomseed(os.time())
 
+norns.run = norns.script.load
+
 -- resume last loaded script
 norns.state.resume()
 
