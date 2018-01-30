@@ -369,16 +369,14 @@ p.init[pSLEEP] = norns.none
 
 -- STATUS
 p.key[pSTATUS] = function(n,z)
-    if z==1 then 
+    if n==3 and z==1 then 
         map.set_page(pHOME)
-    end
-end
-
-p.enc[pSTATUS] = function(n,d)
-    if n==3 and d<0 then
+    elseif n==2 and z==1 then 
         map.set_page(pLOG)
     end
 end
+
+p.enc[pSTATUS] = norns.none
 
 p.redraw[pSTATUS] = function()
     s_clear()
@@ -390,9 +388,6 @@ p.redraw[pSTATUS] = function()
     s_level(10)
     s_move(0,10)
     s_text(status)
-
-    s_move(0,50)
-    s_text(norns.log.get(1))
 
     -- draw current script loaded
     s_move(0,60)
@@ -424,13 +419,15 @@ p.init[pWIFI] = norns.none
 
 
 -- LOG
-p.key[pLOG] = norns.none
-
-p.enc[pLOG] = function(n,d)
-    if n==3 and d>0 then
+p.key[pLOG] = function(n,z)
+    if n==3 and z==1 then 
+        map.set_page(pHOME)
+    elseif n==2 and z==1 then
         map.set_page(pSTATUS)
     end
 end
+
+p.enc[pLOG] = norns.none
 
 p.redraw[pLOG] = function()
     s_clear()
