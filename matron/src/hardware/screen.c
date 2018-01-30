@@ -217,6 +217,11 @@ void screen_arc(double x, double y, double r, double a1, double a2) {
     cairo_arc(cr,x+0.5,y+0.5,r,a1,a2);
 }
 
+void screen_rect(double x, double y, double w, double h) {
+  CHECK_CR
+    cairo_rectangle(cr,x+0.5,y+0.5,w,h);
+}
+
 void screen_close_path(void) {
   CHECK_CR
     cairo_close_path(cr);
