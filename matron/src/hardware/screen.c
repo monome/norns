@@ -212,6 +212,11 @@ void screen_move_rel(long x, long y) {
     cairo_rel_move_to(cr,x+0.5,y+0.5);
 }
 
+void screen_arc(double x, double y, double r, double a1, double a2) {
+  CHECK_CR
+    cairo_arc(cr,x+0.5,y+0.5,r,a1,a2);
+}
+
 void screen_close_path(void) {
   CHECK_CR
     cairo_close_path(cr);

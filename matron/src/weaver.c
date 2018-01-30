@@ -60,6 +60,7 @@ static int w_screen_move(lua_State *l);
 static int w_screen_line(lua_State *l);
 static int w_screen_move_rel(lua_State *l);
 static int w_screen_line_rel(lua_State *l);
+static int w_screen_arc(lua_State *l);
 static int w_screen_stroke(lua_State *l);
 static int w_screen_fill(lua_State *l);
 static int w_screen_text(lua_State *l);
@@ -124,6 +125,7 @@ void w_init(void) {
     lua_register(lvm, "s_line", &w_screen_line);
     lua_register(lvm, "s_move_rel", &w_screen_move_rel);
     lua_register(lvm, "s_line_rel", &w_screen_line_rel);
+    lua_register(lvm, "s_arc", &w_screen_arc);
     lua_register(lvm, "s_stroke", &w_screen_stroke);
     lua_register(lvm, "s_fill", &w_screen_fill);
     lua_register(lvm, "s_text", &w_screen_text);
@@ -428,6 +430,58 @@ int w_screen_line_rel(lua_State *l) {
 
 args_error:
     printf("warning: incorrect arguments to s_line_rel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+screen: draw arc
+@function s_arc
+@param x
+@param y
+*/
+int w_screen_arc(lua_State *l) {
+    double x, y, r, a1, a2;
+    if(lua_gettop(l) != 5) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        r = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        a1 = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 5) ) {
+        a2 = lua_tonumber(l, 5);
+    } else {
+        goto args_error;
+    }
+
+    screen_arc(x,y,r,a1,a2);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_arc() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }

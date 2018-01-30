@@ -7,6 +7,7 @@ norns.s.restore = function()
     s.clear = s_clear
     s.level = s_level
     s.line = s_line
+    s.arc = s_arc
     s.line_width = s_line_width
     s.move = s_move
     s.stroke = s_stroke

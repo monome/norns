@@ -79,11 +79,15 @@ redraw = function()
     s.text_center("hello there")
 
     s.move(numbers[2],numbers[3])
-    s.line(80,30)
     s.line(40,numbers[1])
     s.close()
     s.level(3)
     s.fill()
+
+
+    s.level(15)
+    s.arc(32,32,numbers[2],0,numbers[3]*0.1)
+    s.stroke()
 end
 
 -- set up a metro

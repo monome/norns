@@ -13,6 +13,7 @@ extern void screen_move(long x, long y);
 extern void screen_line(long x, long y);
 extern void screen_move_rel(long x, long y);
 extern void screen_line_rel(long x, long y);
+extern void screen_arc(double x, double y, double r, double a1, double a2);
 extern void screen_stroke(void);
 extern void screen_fill(void);
 extern void screen_text(const char *s);
