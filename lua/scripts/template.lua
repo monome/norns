@@ -88,6 +88,10 @@ redraw = function()
     s.level(15)
     s.arc(32,32,numbers[2],0,numbers[3]*0.1)
     s.stroke()
+
+    s.circle(64,32,8)
+    s.level(numbers[1])
+    s.stroke()
 end
 
 -- set up a metro

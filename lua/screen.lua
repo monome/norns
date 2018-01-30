@@ -17,6 +17,7 @@ norns.s.restore = function()
     s.text_center = s_text_center
     s.close = s_close
     s.font_size = s_font_size
+    s.circle = s_circle
 end
 
 norns.s.block = function()
@@ -36,3 +37,7 @@ s_text_center = function(str)
     s_move_rel(-x/2,0)
     s_text(str)
 end 
+
+s_circle = function(x,y,r)
+    s_arc(x,y,r,0,math.pi*2)
+end
