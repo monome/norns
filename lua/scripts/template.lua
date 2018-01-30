@@ -7,7 +7,10 @@ engine = 'TestSine'
 
 -- init function
 init = function(commands, count)
+    -- print to command line
     print("template!")
+    -- add log message
+    norns.log.post("loaded template")
     -- show engine commands available
     print("commands: ")
     for i,v in pairs(commands) do

@@ -13,6 +13,7 @@ local pPARAMS = 5
 local pSETTINGS = 6
 local pWIFI = 7
 local pSLEEP = 8
+local pLOG = 9
 
 local p = {}
 p.key = {}
@@ -137,7 +138,6 @@ map.set_mode = function(mode)
         set_enc_sens(1,1)
         set_enc_sens(2,3)
         set_enc_sens(3,16) 
-        map.redraw() 
     end
 end
 
@@ -208,7 +208,7 @@ p.sel = {}
 p.sel.pos = 0
 p.sel.list = scandir(script_dir)
 p.sel.len = tablelength(p.sel.list)
-p.sel.depth = 0
+p.sel.depth = 1
 p.sel.folders = {}
 
 p.sel.dir = function()
@@ -221,7 +221,11 @@ p.sel.dir = function()
 end
 
 p.init[pSELECT] = function()
-    p.sel.list = scandir(script_dir)
+    if p.sel.depth == 0 then
+        p.sel.list = scandir(script_dir)
+    else
+        p.sel.list = scandir(p.sel.dir())
+    end
     p.sel.len = tablelength(p.sel.list)
 end
 
@@ -239,7 +243,6 @@ p.key[pSELECT] = function(n,z)
             map.redraw()
         else
             map.set_page(pHOME)
-            map.redraw()
         end 
     -- select
     elseif n==3 and z==1 then 
@@ -305,7 +308,6 @@ end
 p.key[pPARAMS] = function(n,z)
     if n==2 and z==1 then 
         map.set_page(pHOME)
-        map.redraw()
     end
 end
 
@@ -330,7 +332,8 @@ p.set.len = 3
 p.key[pSETTINGS] = function(n,z)
     if n==2 and z==1 then 
         map.set_page(pHOME)
-        map.redraw()
+    elseif n==3 and z==1 and p.set.pos==2 then
+        map.set_page(pWIFI) 
     end
 end
 
@@ -368,7 +371,6 @@ p.init[pSETTINGS] = norns.none
 p.key[pSLEEP] = function(n,z)
     if n==2 and z==1 then 
         map.set_page(pHOME)
-        map.redraw()
     elseif n==3 and z==1 then
         print("SLEEP")
         --TODO fade out screen then run the shutdown script
@@ -391,11 +393,14 @@ p.init[pSLEEP] = norns.none
 p.key[pSTATUS] = function(n,z)
     if z==1 then 
         map.set_page(pHOME)
-        map.redraw()
     end
 end
 
-p.enc[pSTATUS] = norns.none
+p.enc[pSTATUS] = function(n,d)
+    if n==3 and d<0 then
+        map.set_page(pLOG)
+    end
+end
 
 p.redraw[pSTATUS] = function()
     s_clear()
@@ -408,10 +413,8 @@ p.redraw[pSTATUS] = function()
     s_move(0,10)
     s_text(status)
 
-    s_move(0,20)
-    local net = 'ip '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
-    if net == 'ip ' then net = 'no wifi' end
-    s_text(net)
+    s_move(0,50)
+    s_text(norns.log.get(1))
 
     -- draw current script loaded
     s_move(0,60)
@@ -422,7 +425,45 @@ end
 p.init[pSTATUS] = norns.none
 
 
+-- WIFI
+p.key[pWIFI] = function(n,z)
+    if n==2 and z==1 then
+        map.set_page(pSETTINGS)
+    end
+end
 
+p.enc[pWIFI] = norns.none
+
+p.redraw[pWIFI] = function()
+    s_clear()
+    s_move(0,10)
+    local net = 'ip '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
+    if net == 'ip ' then net = 'no wifi' end
+    s_text(net)
+end 
+
+p.init[pWIFI] = norns.none
+
+
+-- LOG
+p.key[pLOG] = norns.none
+
+p.enc[pLOG] = function(n,d)
+    if n==3 and d>0 then
+        map.set_page(pSTATUS)
+    end
+end
+
+p.redraw[pLOG] = function()
+    s_clear()
+    s_level(10)
+    for i=1,6 do
+        s_move(0,i*10)
+        s_text(norns.log.get(i))
+    end
+end
+
+p.init[pLOG] = norns.none
 
 map.level = function(delta)
     norns.state.out = norns.state.out + delta
