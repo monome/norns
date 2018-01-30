@@ -1,0 +1,37 @@
+-- screen redirection functions
+s = {}
+norns.s = {}
+
+norns.s.restore = function()
+    s.aa = s_aa
+    s.clear = s_clear
+    s.level = s_level
+    s.line = s_line
+    s.line_width = s_line_width
+    s.move = s_move
+    s.stroke = s_stroke
+    s.fill = s_fill
+    s.text = s_text
+    s.text_right = s_text_right
+    s.text_center = s_text_center
+    s.close = s_close
+    s.font_size = s_font_size
+end
+
+norns.s.block = function()
+    for k,v in pairs(s) do
+        s[k] = norns.none
+    end
+end
+
+s_text_right = function(str)
+    x,y = s_extents(str)
+    s_move_rel(-x,0)
+    s_text(str)
+end 
+
+s_text_center = function(str)
+    x,y = s_extents(str)
+    s_move_rel(-x/2,0)
+    s_text(str)
+end 

@@ -168,6 +168,11 @@ void screen_deinit(void) {
     cairo_surface_destroy(surface);
 }
 
+void screen_font_size(long z) {
+  CHECK_CR
+    cairo_set_font_size(cr,z);
+} 
+
 void screen_aa(int s) {
   CHECK_CR
     if(s==0) {
