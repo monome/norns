@@ -5,12 +5,12 @@ window.onload = function() {
   var messageField = document.getElementById('message');
   var messagesList = document.getElementById('messages');
   var socketStatus = document.getElementById('status');
-  var closeBtn = document.getElementById('close');
+  var runBtn = document.getElementById('run');
 
 
   // Create a new WebSocket.
   var socket = new WebSocket(
-      'ws://192.168.1.21:5555', ['pair.sp.nanomsg.org']);
+      'ws://192.168.1.35:5555', ['bus.sp.nanomsg.org']);
       // see the rfc on sp websocket mapping:
       // raw.githubusercontent.com/nanomsg/nanomsg/master/rfc/sp-websocket-mapping-01.txt 
 
@@ -22,7 +22,8 @@ window.onload = function() {
 
   // Show a connected message when the WebSocket is opened.
   socket.onopen = function(event) {
-    socketStatus.innerHTML = 'Connected to: ' + event.currentTarget.URL;
+    //socketStatus.innerHTML = 'Connected to: ' + event.currentTarget.URL;
+    socketStatus.innerHTML = 'connected';
     socketStatus.className = 'open';
   };
 
@@ -30,14 +31,13 @@ window.onload = function() {
   // Handle messages sent by the server.
   socket.onmessage = function(event) {
     var message = event.data;
-    messagesList.innerHTML += '<li class="received"><span>Received:</span>' +
-                               message + '</li>';
+    messagesList.innerHTML = message + messagesList.innerHTML;
   };
 
 
   // Show a disconnected message when the WebSocket is closed.
   socket.onclose = function(event) {
-    socketStatus.innerHTML = 'Disconnected from WebSocket.';
+    socketStatus.innerHTML = 'disconnected';
     socketStatus.className = 'closed';
   };
 
@@ -53,8 +53,7 @@ window.onload = function() {
     socket.send(message);
 
     // Add the message to the messages list.
-    messagesList.innerHTML += '<li class="sent"><span>Sent:</span>' + message +
-                              '</li>';
+    messagesList.innerHTML = '> ' + message + messagesList.innerHTML;
 
     // Clear out the message field.
     messageField.value = '';
@@ -63,14 +62,11 @@ window.onload = function() {
   };
 
 
-  // Close the WebSocket connection when the close button is clicked.
-  closeBtn.onclick = function(e) {
-    e.preventDefault();
-
-    // Close the WebSocket.
-    socket.close();
-
-    return false;
+  runBtn.onclick = function(e) {
+	e.preventDefault();
+	var message = "norns.run()\n";
+	socket.send(message);
+	return false;
   };
 
 };
