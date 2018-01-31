@@ -125,6 +125,8 @@ map.set_page = function(page)
     map.enc = p.enc[page]
     map.redraw = p.redraw[page]
     p.init[page]()
+    s_font_face(0)
+    s_font_size(8)
     map.redraw()
 end
 

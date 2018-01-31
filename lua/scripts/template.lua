@@ -10,7 +10,7 @@ init = function(commands, count)
     -- print to command line
     print("template!")
     -- add log message
-    norns.log.post("loaded template")
+    norns.log.post("hello!")
     -- show engine commands available
     print("commands: ")
     for i,v in pairs(commands) do
@@ -68,34 +68,7 @@ redraw = function()
 
     -- show timer
     s.move(0,63)
-    s.text("> "..t)
-
-    -- draw a line
-    s.move(math.random()*64+64,math.random()*64)
-    s.line(math.random()*64+64,math.random()*64)
-    s.stroke() 
-
-    s.move(63,8)
-    s.text_center("hello there")
-
-    s.move(numbers[2],numbers[3])
-    s.line(40,numbers[1])
-    s.close()
-    s.level(3)
-    s.fill()
-
-    s.level(15)
-    s.arc(32,32,numbers[2],0,numbers[3]*0.1)
-    s.stroke()
-
-    s.rect(numbers[2],numbers[3],10,10)
-    s.level(numbers[1])
-    s.stroke() 
-
-    s.level(15)
-    s.move(10,10)
-    s.curve(10,30,10,30,50,40)
-    s.stroke()
+    s.text("> "..t) 
 end
 
 

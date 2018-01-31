@@ -16,6 +16,7 @@ norns.s.restore = function()
     s.text_right = s_text_right
     s.text_center = s_text_center
     s.close = s_close
+    s.font_face = s_font_face
     s.font_size = s_font_size
     s.circle = s_circle
     s.rect = s_rect

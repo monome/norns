@@ -52,6 +52,7 @@ static int w_grid_set_led(lua_State *l);
 static int w_grid_all_led(lua_State *l);
 static int w_grid_refresh(lua_State *l);
 //screen
+static int w_screen_font_face(lua_State *l);
 static int w_screen_font_size(lua_State *l);
 static int w_screen_aa(lua_State *l);
 static int w_screen_level(lua_State *l);
@@ -120,6 +121,7 @@ void w_init(void) {
     lua_register(lvm, "grid_refresh", &w_grid_refresh);
 
     // register screen funcs
+    lua_register(lvm, "s_font_face", &w_screen_font_face);
     lua_register(lvm, "s_font_size", &w_screen_font_size);
     lua_register(lvm, "s_aa", &w_screen_aa);
     lua_register(lvm, "s_level", &w_screen_level);
@@ -196,6 +198,32 @@ void w_deinit(void) {
 
 //----------------------------------
 //---- static definitions
+
+/***
+screen: set font face
+@function s_font_face
+*/
+int w_screen_font_face(lua_State *l) {
+    int x;
+    if(lua_gettop(l) != 1) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    screen_font_face(x);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_font_face() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+} 
 
 /***
 screen: set font size
