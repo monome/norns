@@ -66,6 +66,7 @@ norns.script.load = function(filename)
     io.close(f)
     cleanup() -- script-specified memory free
     norns.script.clear() -- clear script variables and functions
+    norns.log.post("loaded " .. filename) -- post to log
     dofile(filepath) -- do the new script
     norns.state.script = filename -- store script name
     norns.state.save() -- remember this script for next launch

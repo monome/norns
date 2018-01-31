@@ -7,7 +7,10 @@ engine = 'TestSine'
 
 -- init function
 init = function(commands, count)
+    -- print to command line
     print("template!")
+    -- add log message
+    norns.log.post("hello!")
     -- show engine commands available
     print("commands: ")
     for i,v in pairs(commands) do
@@ -23,10 +26,15 @@ init = function(commands, count)
         g:all(1) 
         g:refresh()
     end 
+    -- screen: turn on anti-alias
+    s.aa(1)
+    s.line_width(1.0) 
 end
 
+-- make a variable
+t = 0
 -- make an array for storing
-numbers = {0,0,0,0,0}
+numbers = {0,0,0,0,0,0,0}
 -- make a var, led brightness for grid
 level = 5
 
@@ -39,7 +47,7 @@ end
 
 -- key function
 key = function(n, z)
-    numbers[n+2] = z
+    numbers[n+3] = z
     -- redraw screen
     redraw()
 end
@@ -51,13 +59,19 @@ redraw = function()
     -- set pixel brightness (0-15)
     s.level(15)
 
-    for i=1,5 do
+    for i=1,6 do
         -- move cursor
-	    s.move(0,i*8)
+	    s.move(0,i*8-1)
         -- draw text
         s.text("> "..numbers[i])
     end 
+
+    -- show timer
+    s.move(0,63)
+    s.text("> "..t) 
 end
+
+
 
 -- set up a metro
 c = metro[1]
@@ -67,7 +81,7 @@ c.count = -1
 c.time = 1
 -- callback function on each count
 c.callback = function(stage)
-    numbers[5] = numbers[5] + 1
+    t = t + 1
     redraw()
 end
 

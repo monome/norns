@@ -1,8 +1,8 @@
 /***
-weaver
-c->lua and lua->c interface
-@module system
-*/
+ * weaver
+ * c->lua and lua->c interface
+ * @module system
+ */
 
 // standard
 #include <stdio.h>
@@ -52,14 +52,25 @@ static int w_grid_set_led(lua_State *l);
 static int w_grid_all_led(lua_State *l);
 static int w_grid_refresh(lua_State *l);
 //screen
+static int w_screen_font_face(lua_State *l);
+static int w_screen_font_size(lua_State *l);
 static int w_screen_aa(lua_State *l);
 static int w_screen_level(lua_State *l);
 static int w_screen_line_width(lua_State *l);
 static int w_screen_move(lua_State *l);
 static int w_screen_line(lua_State *l);
+static int w_screen_move_rel(lua_State *l);
+static int w_screen_line_rel(lua_State *l);
+static int w_screen_curve(lua_State *l);
+static int w_screen_curve_rel(lua_State *l);
+static int w_screen_arc(lua_State *l);
+static int w_screen_rect(lua_State *l);
 static int w_screen_stroke(lua_State *l);
+static int w_screen_fill(lua_State *l);
 static int w_screen_text(lua_State *l);
 static int w_screen_clear(lua_State *l);
+static int w_screen_close(lua_State *l);
+static int w_screen_extents(lua_State *l);
 //i2c
 static int w_gain_hp(lua_State *l);
 static int w_gain_in(lua_State *l);
@@ -110,14 +121,25 @@ void w_init(void) {
     lua_register(lvm, "grid_refresh", &w_grid_refresh);
 
     // register screen funcs
+    lua_register(lvm, "s_font_face", &w_screen_font_face);
+    lua_register(lvm, "s_font_size", &w_screen_font_size);
     lua_register(lvm, "s_aa", &w_screen_aa);
     lua_register(lvm, "s_level", &w_screen_level);
     lua_register(lvm, "s_line_width", &w_screen_line_width);
     lua_register(lvm, "s_move", &w_screen_move);
     lua_register(lvm, "s_line", &w_screen_line);
+    lua_register(lvm, "s_move_rel", &w_screen_move_rel);
+    lua_register(lvm, "s_line_rel", &w_screen_line_rel);
+    lua_register(lvm, "s_curve", &w_screen_curve);
+    lua_register(lvm, "s_curve_rel", &w_screen_curve_rel);
+    lua_register(lvm, "s_arc", &w_screen_arc);
+    lua_register(lvm, "s_rect", &w_screen_rect);
     lua_register(lvm, "s_stroke", &w_screen_stroke);
+    lua_register(lvm, "s_fill", &w_screen_fill);
     lua_register(lvm, "s_text", &w_screen_text);
     lua_register(lvm, "s_clear", &w_screen_clear);
+    lua_register(lvm, "s_close", &w_screen_close);
+    lua_register(lvm, "s_extents", &w_screen_extents);
 
     // analog output control
     lua_register(lvm, "gain_hp", &w_gain_hp);
@@ -178,10 +200,62 @@ void w_deinit(void) {
 //---- static definitions
 
 /***
-screen: change antialias mode for drawing
-@function s_aa
-@tparam integer state, 0=off, 1=on
-*/
+ * screen: set font face
+ * @function s_font_face
+ */
+int w_screen_font_face(lua_State *l) {
+    int x;
+    if(lua_gettop(l) != 1) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    screen_font_face(x);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_font_face() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: set font size
+ * @function s_font_size
+ */
+int w_screen_font_size(lua_State *l) {
+    long x;
+    if(lua_gettop(l) != 1) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    screen_font_size(x);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_font_size() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: change antialias mode for drawing
+ * @function s_aa
+ * @tparam integer state, 0=off, 1=on
+ */
 int w_screen_aa(lua_State *l) {
     int x;
     if(lua_gettop(l) != 1) { // check num args
@@ -205,10 +279,10 @@ args_error:
 }
 
 /***
-screen: change level (color)
-@function s_level
-@tparam integer level, 0 (black) to 15 (white)
-*/
+ * screen: change level (color)
+ * @function s_level
+ * @tparam integer level, 0 (black) to 15 (white)
+ */
 int w_screen_level(lua_State *l) {
     int x;
     if(lua_gettop(l) != 1) { // check num args
@@ -232,10 +306,10 @@ args_error:
 }
 
 /***
-screen: set line width
-@function s_line_width
-@tparam integer width line width
-*/
+ * screen: set line width
+ * @function s_line_width
+ * @tparam integer width line width
+ */
 int w_screen_line_width(lua_State *l) {
     long x;
     if(lua_gettop(l) != 1) { // check num args
@@ -259,11 +333,11 @@ args_error:
 }
 
 /***
-screen: move position
-@function s_move
-@param x
-@param y
-*/
+ * screen: move position
+ * @function s_move
+ * @param x
+ * @param y
+ */
 int w_screen_move(lua_State *l) {
     int x, y;
     if(lua_gettop(l) != 2) { // check num args
@@ -293,11 +367,11 @@ args_error:
 }
 
 /***
-screen: draw line to position
-@function s_line
-@param x
-@param y
-*/
+ * screen: draw line to position
+ * @function s_line
+ * @param x
+ * @param y
+ */
 int w_screen_line(lua_State *l) {
     int x, y;
     if(lua_gettop(l) != 2) { // check num args
@@ -327,9 +401,291 @@ args_error:
 }
 
 /***
-screen: stroke, or apply width/color to line(s)
-@function s_stroke
-*/
+ * screen: move position rel
+ * @function s_move_rel
+ * @param x
+ * @param y
+ */
+int w_screen_move_rel(lua_State *l) {
+    int x, y;
+    if(lua_gettop(l) != 2) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    screen_move_rel(x,y);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_move_rel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: draw line to position rel
+ * @function s_line_rel
+ * @param x
+ * @param y
+ */
+int w_screen_line_rel(lua_State *l) {
+    int x, y;
+    if(lua_gettop(l) != 2) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    screen_line_rel(x,y);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_line_rel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: draw curve
+ * @function s_curve
+ * @param x
+ * @param y
+ */
+int w_screen_curve(lua_State *l) {
+    double x1,y1,x2,y2,x3,y3;
+    if(lua_gettop(l) != 6) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x1 = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y1 = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        x2 = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        y2 = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 5) ) {
+        x3 = lua_tonumber(l, 5);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 6) ) {
+        y3 = lua_tonumber(l, 6);
+    } else {
+        goto args_error;
+    }
+
+    screen_curve(x1,y1,x2,y2,x3,y3);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_curve() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: draw curve rel
+ * @function s_curve_rel
+ * @param x
+ * @param y
+ */
+int w_screen_curve_rel(lua_State *l) {
+    double x1,y1,x2,y2,x3,y3;
+    if(lua_gettop(l) != 6) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x1 = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y1 = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        x2 = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        y2 = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 5) ) {
+        x3 = lua_tonumber(l, 5);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 6) ) {
+        y3 = lua_tonumber(l, 6);
+    } else {
+        goto args_error;
+    }
+
+    screen_curve_rel(x1,y1,x2,y2,x3,y3);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_curve_rel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: draw arc
+ * @function s_arc
+ * @param x
+ * @param y
+ */
+int w_screen_arc(lua_State *l) {
+    double x, y, r, a1, a2;
+    if(lua_gettop(l) != 5) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        r = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        a1 = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 5) ) {
+        a2 = lua_tonumber(l, 5);
+    } else {
+        goto args_error;
+    }
+
+    screen_arc(x,y,r,a1,a2);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_arc() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: draw rect
+ * @function s_rect
+ * @param x
+ * @param y
+ */
+int w_screen_rect(lua_State *l) {
+    double x,y,w,h;
+    if(lua_gettop(l) != 4) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        w = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        h = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    screen_rect(x,y,w,h);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_rect() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: stroke, or apply width/color to line(s)
+ * @function s_stroke
+ */
 int w_screen_stroke(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
@@ -346,10 +702,29 @@ args_error:
 }
 
 /***
-screen: text
-@function s_text
-@tparam string text test to print
-*/
+ * screen: fill path
+ * @function s_fill
+ */
+int w_screen_fill(lua_State *l) {
+    if(lua_gettop(l) != 0) { // check num args
+        goto args_error;
+    }
+
+    screen_fill();
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_fill() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: text
+ * @function s_text
+ * @tparam string text test to print
+ */
 int w_screen_text(lua_State *l) {
     char s[64];
 
@@ -374,9 +749,9 @@ args_error:
 }
 
 /***
-screen: clear to black
-@function s_clear
-*/
+ * screen: clear to black
+ * @function s_clear
+ */
 int w_screen_clear(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
@@ -393,10 +768,60 @@ args_error:
 }
 
 /***
-headphone: set level
-@function gain_hp
-@tparam integer level level (0-63)
-*/
+ * screen: close path
+ * @function s_close
+ */
+int w_screen_close(lua_State *l) {
+    if(lua_gettop(l) != 0) { // check num args
+        goto args_error;
+    }
+
+    screen_close_path();
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_close() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: extents
+ * @function s_extents
+ * @tparam gets x/y displacement of a string
+ */
+int w_screen_extents(lua_State *l) {
+    char s[64];
+    double *xy;
+
+    if(lua_gettop(l) != 1) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isstring(l,1) ) {
+        strcpy( s,lua_tostring(l,1) );
+    } else {
+        goto args_error;
+    }
+
+    xy = screen_extents(s);
+    //lua_settop(l, 0);
+    lua_pushinteger(l, xy[0]);
+    lua_pushinteger(l, xy[1]);
+    return 2;
+
+args_error:
+    printf("warning: incorrect arguments to s_extents() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * headphone: set level
+ * @function gain_hp
+ * @tparam integer level level (0-63)
+ */
 int w_gain_hp(lua_State *l) {
     int level;
     if(lua_gettop(l) != 1) { // check num args
@@ -420,11 +845,11 @@ args_error:
 }
 
 /***
-input: set gain, per channel
-@function gain_in
-@tparam integer level level (0-63)
-@tparam integer ch channel (0=L,1=R)
-*/
+ * input: set gain, per channel
+ * @function gain_in
+ * @tparam integer level level (0-63)
+ * @tparam integer ch channel (0=L,1=R)
+ */
 int w_gain_in(lua_State *l) {
     int level, ch;
     if(lua_gettop(l) != 2) { // check num args
@@ -454,13 +879,13 @@ args_error:
 }
 
 /***
-grid: set led
-@function grid_set_led
-@param dev grid device
-@param x x
-@param y y
-@param z level (0-15) 
-*/
+ * grid: set led
+ * @function grid_set_led
+ * @param dev grid device
+ * @param x x
+ * @param y y
+ * @param z level (0-15)
+ */
 int w_grid_set_led(lua_State *l) {
     struct dev_monome *md;
     int x, y, z;
@@ -501,11 +926,11 @@ args_error:
 }
 
 /***
-grid: set all LEDs
-@function grid_all_led
-@param dev grid device
-@param z level (0-15) 
-*/
+ * grid: set all LEDs
+ * @function grid_all_led
+ * @param dev grid device
+ * @param z level (0-15)
+ */
 int w_grid_all_led(lua_State *l) {
     struct dev_monome *md;
     int z;
@@ -535,10 +960,10 @@ args_error:
 }
 
 /***
-grid: refresh
-@function grid_refresh
-@param dev grid device
-*/
+ * grid: refresh
+ * @function grid_refresh
+ * @param dev grid device
+ */
 int w_grid_refresh(lua_State *l) {
     struct dev_monome *md;
     if(lua_gettop(l) != 1) { // check num args
@@ -665,9 +1090,9 @@ int w_request_command_report(lua_State *l) {
 }
 
 /***
-metro: start
-@function metro_start
-*/
+ * metro: start
+ * @function metro_start
+ */
 int w_metro_start(lua_State *l) {
     static int idx = 0;
     double seconds;
@@ -721,9 +1146,9 @@ args_error:
 }
 
 /***
-metro: stop
-@function metro_stop
-*/
+ * metro: stop
+ * @function metro_stop
+ */
 int w_metro_stop(lua_State *l) {
     int idx;
     int nargs = lua_gettop(l);
@@ -746,9 +1171,9 @@ args_error:
 }
 
 /***
-metro: set time
-@function metro_set_time
-*/
+ * metro: set time
+ * @function metro_set_time
+ */
 int w_metro_set_time(lua_State *l) {
     int idx;
     float sec;
@@ -776,9 +1201,9 @@ args_error:
 }
 
 /***
-request current time since Epoch
-@function get_time
-*/
+ * request current time since Epoch
+ * @function get_time
+ */
 int w_get_time(lua_State *l) {
     struct timeval tv;
     struct timezone tz;

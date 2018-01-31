@@ -17,17 +17,22 @@
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
-#define CHECK_CR if (cr == NULL) return;
+#define CHECK_CR if (cr == NULL) {return;}
+#define CHECK_CRR if (cr == NULL) {return 0;}
 #endif
+
+#define NUM_FONTS 14
+static char font_path[NUM_FONTS][32];
 
 static float c[16] = {0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333, 0.4, 0.46666666666667, 0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
 
 static cairo_surface_t *surface;
 static cairo_t *cr;
-static cairo_font_face_t *ct;
+static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
 static FT_Error status;
-static FT_Face face;
+static FT_Face face[NUM_FONTS];
+static double text_xy[2];
 
 typedef struct _cairo_linuxfb_device {
     int fb_fd;
@@ -65,7 +70,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     device = malloc( sizeof(*device) );
     if (!device) {
         printf("ERROR (screen) cannot allocate memory\n"); fflush(stdout);
-	return NULL;
+        return NULL;
     }
 
     // Open the file for reading and writing
@@ -89,7 +94,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     device->fb_data = (unsigned char *)mmap(0, device->fb_screensize,
                                             PROT_READ | PROT_WRITE, MAP_SHARED,
                                             device->fb_fd, 0);
-    
+
     if ( device->fb_data == (unsigned char *)-1 ) {
         printf("ERROR (screen) failed to map framebuffer device to memory"); fflush(stdout);
         goto handle_ioctl_error;
@@ -113,9 +118,9 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
 
     return surface;
 
- handle_ioctl_error:
+handle_ioctl_error:
     close(device->fb_fd);
- handle_allocate_error:
+handle_allocate_error:
     free(device);
     return NULL;
 }
@@ -123,26 +128,45 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
 void screen_init(void) {
     surface = cairo_linuxfb_surface_create("/dev/fb1");
     if(surface == NULL) { return; }
-    
-    cr = cairo_create(surface);
 
-    char filename[256];
-    // FIXME should be path relative to norns/
-    snprintf( filename, 256, "%s/norns/resources/04B_03__.TTF", getenv("HOME") );
-    //snprintf( filename, 256, "%s/norns/resources/liquid.ttf", getenv("HOME") );
-    //const char * filename = "/home/pi/slkscr.ttf";
+    cr = cairo_create(surface);
 
     status = FT_Init_FreeType(&value);
     if(status != 0) {
         printf("ERROR (screen) freetype init\n"); fflush(stdout);
         return;
     }
-    status = FT_New_Face(value, filename, 0, &face);
-    if(status != 0) {
-        printf("ERROR (screen) font load: %s\n", filename); fflush(stdout);
-        return;
+
+    strcpy(font_path[0],"04B_03__.TTF");
+    strcpy(font_path[1],"liquid.ttf");
+    strcpy(font_path[2],"Roboto-Thin.ttf");
+    strcpy(font_path[3],"Roboto-Light.ttf");
+    strcpy(font_path[4],"Roboto-Regular.ttf");
+    strcpy(font_path[5],"Roboto-Medium.ttf");
+    strcpy(font_path[6],"Roboto-Bold.ttf");
+    strcpy(font_path[7],"Roboto-Black.ttf");
+    strcpy(font_path[8],"Roboto-ThinItalic.ttf");
+    strcpy(font_path[9],"Roboto-LightItalic.ttf");
+    strcpy(font_path[10],"Roboto-Italic.ttf");
+    strcpy(font_path[11],"Roboto-MediumItalic.ttf");
+    strcpy(font_path[12],"Roboto-BoldItalic.ttf");
+    strcpy(font_path[13],"Roboto-BlackItalic.ttf");
+
+    char filename[256];
+
+    for(int i = 0; i < NUM_FONTS; i++) {
+        // FIXME should be path relative to norns/
+        snprintf( filename, 256, "%s/norns/resources/%s", getenv("HOME"), font_path[i] );
+
+        status = FT_New_Face(value, filename, 0, &face[i]);
+        if(status != 0) {
+            printf("ERROR (screen) font load: %s\n", filename); fflush(stdout);
+            return;
+        }
+        else{
+            ct[i] = cairo_ft_font_face_create_for_ft_face(face[i], 0);
+        }
     }
-    ct = cairo_ft_font_face_create_for_ft_face(face, 0);
 
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
@@ -152,23 +176,33 @@ void screen_init(void) {
     font_options = cairo_font_options_create();
     cairo_font_options_set_antialias(font_options,CAIRO_ANTIALIAS_SUBPIXEL);
 
-    //cairo_select_font_face(cr, "cairo:sans", CAIRO_FONT_SLANT_NORMAL,
-    // CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_face (cr, ct);
+    // default font
+    cairo_set_font_face (cr, ct[0]);
     cairo_set_font_options(cr, font_options);
-    //cairo_set_font_size(cr, 7.0);
     cairo_set_font_size(cr, 8.0);
 }
 
 void screen_deinit(void) {
-  CHECK_CR
+    CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 }
 
+void screen_font_face(int i) {
+    CHECK_CR
+    if( (i >= 0) && (i < NUM_FONTS) ) {
+        cairo_set_font_face(cr,ct[i]);
+    }
+}
+
+void screen_font_size(long z) {
+    CHECK_CR
+    cairo_set_font_size(cr,z);
+}
+
 void screen_aa(int s) {
-  CHECK_CR
-    if(s) {
+    CHECK_CR
+    if(s == 0) {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
     } else {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_DEFAULT);
@@ -176,40 +210,89 @@ void screen_aa(int s) {
 }
 
 void screen_level(int z) {
-  CHECK_CR
+    CHECK_CR
     cairo_set_source_rgb(cr,c[z],c[z],c[z]);
 }
 
 void screen_line_width(long w) {
-  CHECK_CR
+    CHECK_CR
     cairo_set_line_width(cr,w);
 }
 
 void screen_move(long x, long y) {
-  CHECK_CR
-    cairo_move_to(cr,x+0.5,y+0.5);
+    CHECK_CR
+    cairo_move_to(cr,x + 0.5,y + 0.5);
 }
 
 void screen_line(long x, long y) {
-  CHECK_CR
-    cairo_line_to(cr,x+0.5,y+0.5);
+    CHECK_CR
+    cairo_line_to(cr,x + 0.5,y + 0.5);
+}
+
+void screen_line_rel(long x, long y) {
+    CHECK_CR
+    cairo_rel_line_to(cr,x + 0.5,y + 0.5);
+}
+
+void screen_move_rel(long x, long y) {
+    CHECK_CR
+    cairo_rel_move_to(cr,x + 0.5,y + 0.5);
+}
+
+void screen_curve(double x1, double y1, double x2, double y2, double x3, double y3) {
+    CHECK_CR
+    cairo_curve_to(cr,x1,y1,x2,y2,x3,y3);
+}
+
+void screen_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
+    CHECK_CR
+    cairo_rel_curve_to(cr,dx1,dy1,dx2,dy2,dx3,dy3);
+}
+
+void screen_arc(double x, double y, double r, double a1, double a2) {
+    CHECK_CR
+    cairo_arc(cr,x + 0.5,y + 0.5,r,a1,a2);
+}
+
+void screen_rect(double x, double y, double w, double h) {
+    CHECK_CR
+    cairo_rectangle(cr,x + 0.5,y + 0.5,w,h);
+}
+
+void screen_close_path(void) {
+    CHECK_CR
+    cairo_close_path(cr);
 }
 
 void screen_stroke(void) {
-  CHECK_CR
+    CHECK_CR
     cairo_stroke(cr);
 }
 
+void screen_fill(void) {
+    CHECK_CR
+    cairo_fill(cr);
+}
+
 void screen_text(const char *s) {
-  CHECK_CR
+    CHECK_CR
     cairo_show_text(cr, s);
 }
 
 void screen_clear(void) {
-  CHECK_CR
+    CHECK_CR
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 }
 
+double *screen_extents(const char *s) {
+    CHECK_CRR
+    cairo_text_extents_t extents;
+    cairo_text_extents(cr, s, &extents);
+    text_xy[0] = extents.width;
+    text_xy[1] = extents.height;
+    return text_xy;
+}
 #undef CHECK_CR
+#undef CHECK_CRR
