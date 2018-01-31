@@ -112,7 +112,7 @@ void *gpio_check(void *x) {
                 // enc_val[(a<<1)+1], d); fflush(stdout);
 
                 if(pos_now[a] != pos_old[a]) {
-                    if(d && c[i+3]++) {
+                    if(d && c[i + 3]++) {
                         union event_data *ev = event_data_new(EVENT_ENC);
                         ev->enc.n = a + 1;
                         ev->enc.delta = d;

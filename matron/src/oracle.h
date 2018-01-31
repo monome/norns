@@ -76,10 +76,9 @@ extern void o_request_poll_report(void);
 // issue a command to the engine, adds /command/ pattern
 // NB: this requires a pre-allocated lo_message, which will be freed!
 extern void o_send_command(const char *name, lo_message msg);
-// send osc message 
+// send osc message
 // NB: this requires a pre-allocated lo_message, which will be freed!
 extern void o_send(const char *name, lo_message msg);
-
 
 // start or stop a poll
 //extern void o_set_poll_state(const char *name, bool state);

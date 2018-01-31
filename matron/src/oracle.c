@@ -68,8 +68,8 @@ static void o_set_num_desc(int *dst, int num);
 //--- OSC handlers
 
 static int handle_crone_ready(const char *path, const char *types,
-                                      lo_arg **argv, int argc,
-                                      void *data, void *user_data);
+                              lo_arg **argv, int argc,
+                              void *data, void *user_data);
 static int handle_engine_report_start(const char *path, const char *types,
                                       lo_arg **argv, int argc,
                                       void *data, void *user_data);
@@ -221,7 +221,7 @@ void o_load_engine(const char *name) {
     lo_timetag now;
     lo_timetag_now(&now);
     lo_send_timestamped(remote_addr, now, "/engine/load/name", "s", name);
-    // test with a delay 
+    // test with a delay
     // now.frac++ ; // each unit here is 1/32s i think
     lo_send_timestamped(remote_addr, now, "/report/commands", "");
     lo_send_timestamped(remote_addr, now, "/report/polls", "");
@@ -249,7 +249,7 @@ void o_send_command(const char *name, lo_message msg) {
 void o_send(const char *name, lo_message msg) {
     lo_send_message(remote_addr, name, msg);
     free(msg);
-} 
+}
 
 //void o_set_poll_state(const char *name, bool state) {
 void o_set_poll_state(int idx, bool state) {
@@ -383,11 +383,11 @@ void o_set_num_desc(int *dst, int num) {
 
 //---- OSC handlers
 int handle_crone_ready(const char *path,
-                               const char *types,
-                               lo_arg **argv,
-                               int argc,
-                               void *data,
-                               void *user_data)
+                       const char *types,
+                       lo_arg **argv,
+                       int argc,
+                       void *data,
+                       void *user_data)
 {
     (void)path;
     (void)types;
