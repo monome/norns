@@ -91,6 +91,11 @@ redraw = function()
     s.rect(numbers[2],numbers[3],10,10)
     s.level(numbers[1])
     s.stroke() 
+
+    s.level(15)
+    s.move(10,10)
+    s.curve(10,30,10,30,50,40)
+    s.stroke()
 end
 
 

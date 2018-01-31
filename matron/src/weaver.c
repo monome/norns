@@ -60,6 +60,8 @@ static int w_screen_move(lua_State *l);
 static int w_screen_line(lua_State *l);
 static int w_screen_move_rel(lua_State *l);
 static int w_screen_line_rel(lua_State *l);
+static int w_screen_curve(lua_State *l);
+static int w_screen_curve_rel(lua_State *l);
 static int w_screen_arc(lua_State *l);
 static int w_screen_rect(lua_State *l);
 static int w_screen_stroke(lua_State *l);
@@ -126,6 +128,8 @@ void w_init(void) {
     lua_register(lvm, "s_line", &w_screen_line);
     lua_register(lvm, "s_move_rel", &w_screen_move_rel);
     lua_register(lvm, "s_line_rel", &w_screen_line_rel);
+    lua_register(lvm, "s_curve", &w_screen_curve);
+    lua_register(lvm, "s_curve_rel", &w_screen_curve_rel);
     lua_register(lvm, "s_arc", &w_screen_arc);
     lua_register(lvm, "s_rect", &w_screen_rect);
     lua_register(lvm, "s_stroke", &w_screen_stroke);
@@ -432,6 +436,122 @@ int w_screen_line_rel(lua_State *l) {
 
 args_error:
     printf("warning: incorrect arguments to s_line_rel() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+screen: draw curve
+@function s_curve
+@param x
+@param y
+*/
+int w_screen_curve(lua_State *l) {
+    double x1,y1,x2,y2,x3,y3;
+    if(lua_gettop(l) != 6) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x1 = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y1 = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        x2 = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        y2 = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 5) ) {
+        x3 = lua_tonumber(l, 5);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 6) ) {
+        y3 = lua_tonumber(l, 6);
+    } else {
+        goto args_error;
+    }
+
+    screen_curve(x1,y1,x2,y2,x3,y3);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_curve() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+screen: draw curve rel
+@function s_curve_rel
+@param x
+@param y
+*/
+int w_screen_curve_rel(lua_State *l) {
+    double x1,y1,x2,y2,x3,y3;
+    if(lua_gettop(l) != 6) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 1) ) {
+        x1 = lua_tonumber(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2) ) {
+        y1 = lua_tonumber(l, 2);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 3) ) {
+        x2 = lua_tonumber(l, 3);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 4) ) {
+        y2 = lua_tonumber(l, 4);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 5) ) {
+        x3 = lua_tonumber(l, 5);
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 6) ) {
+        y3 = lua_tonumber(l, 6);
+    } else {
+        goto args_error;
+    }
+
+    screen_curve_rel(x1,y1,x2,y2,x3,y3);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to s_curve_rel() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }

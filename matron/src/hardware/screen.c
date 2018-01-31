@@ -212,6 +212,16 @@ void screen_move_rel(long x, long y) {
     cairo_rel_move_to(cr,x+0.5,y+0.5);
 }
 
+void screen_curve(double x1, double y1, double x2, double y2, double x3, double y3) {
+  CHECK_CR
+    cairo_curve_to(cr,x1,y1,x2,y2,x3,y3);
+}
+
+void screen_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
+  CHECK_CR
+    cairo_rel_curve_to(cr,dx1,dy1,dx2,dy2,dx3,dy3);
+}
+
 void screen_arc(double x, double y, double r, double a1, double a2) {
   CHECK_CR
     cairo_arc(cr,x+0.5,y+0.5,r,a1,a2);
