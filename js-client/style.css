@@ -7,16 +7,11 @@
 html {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 100%;
-  background: #333;
+  background: #fff;
 }
 
 #page-wrapper {
   width: 650px;
-  background: #FFF;
-  padding: 1em;
-  margin: 1em auto;
-  border-top: 5px solid #69c773;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.8);
 }
 
 h1 {
@@ -45,22 +40,11 @@ ul {
 }
 
 ul li {
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #EEE;
+  padding: 0.5rem 0.25rem;
 }
 
 ul li:first-child {
   border-top: 1px solid #EEE;
-}
-
-ul li span {
-  display: inline-block;
-  width: 90px;
-  font-weight: bold;
-  color: #999;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 .sent {

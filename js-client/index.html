@@ -2,23 +2,20 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>WebSockets Demo</title>
-
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
 	<div id="page-wrapper">
-		<h1>WebSockets Demo</h1>
-
 		<div id="status">Connecting...</div>
 
-		<ul id="messages"></ul>
 
 		<form id="message-form" action="#" method="post">
-			<textarea id="message" placeholder="Write your message here..." required></textarea>
-			<button type="submit">Send Message</button>
-			<button type="button" id="close">Close Connection</button>
+			<textarea id="message" placeholder=">" required></textarea>
+			<button type="submit">send</button>
+			<button type="button" id="run">RUN</button>
 		</form>
+
+		<pre id="messages"></pre>
 	</div>
 
 	<script src="app.js"></script>
