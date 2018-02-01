@@ -401,24 +401,65 @@ p.init[pSTATUS] = norns.none
 
 
 -- WIFI
+p.wifi = {}
+p.wifi.pos = 0
+p.wifi.list = {}
+p.wifi.len = 3 
+
 p.key[pWIFI] = function(n,z)
     if n==2 and z==1 then
         map.set_page(pSETTINGS)
+    elseif n==3 and z==1 then
+        if p.wifi.pos == 0 then
+            print "wifi off"
+            os.execute("~/norns-image/scripts/wifi.sh off &")
+            map.set_page(pSETTINGS)
+        elseif p.wifi.pos == 1 then
+            print "wifi on"
+            os.execute("~/norns-image/scripts/wifi.sh on &")
+            map.set_page(pSETTINGS)
+        else
+            print "wifi hotspot"
+            os.execute("~/norns-image/scripts/wifi.sh hotspot &")
+            map.set_page(pSETTINGS)
+        end
     end
 end
 
-p.enc[pWIFI] = norns.none
+p.enc[pWIFI] = function(n,delta)
+    if n==2 then 
+        p.wifi.pos = p.wifi.pos + delta 
+	    if p.wifi.pos > p.wifi.len - 1 then p.wifi.pos = p.wifi.len - 1
+        elseif p.wifi.pos < 0 then p.wifi.pos = 0 end
+        map.redraw()
+    end
+end
 
 p.redraw[pWIFI] = function()
     s_clear()
+    s_level(15)
     s_move(0,10)
     local net = 'ip '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
     if net == 'ip ' then net = 'no wifi' end
     s_text(net)
+
+    for i=3,5 do
+       	s_move(0,10*i)
+       	line = p.wifi.list[i-2]
+       	if(i==p.wifi.pos+3) then
+           	s_level(15)
+       	else
+           	s_level(4)
+       	end
+       	s_text(string.upper(line)) 
+     end
+
 end 
 
-p.init[pWIFI] = norns.none
-
+p.init[pWIFI] = function()
+    ssid = os.capture("cat ~/ssid.wifi") 
+    p.wifi.list = {"off","on: "..ssid,"hotspot"}
+end
 
 -- LOG
 p.key[pLOG] = function(n,z)
