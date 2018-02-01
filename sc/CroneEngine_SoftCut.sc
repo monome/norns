@@ -146,7 +146,7 @@ CroneEngine_SoftCut : CroneEngine {
 			});
 
 			//-- 1-shot recorders; one per voice
-			// TODO
+			// TODO:
 			/*
 			rec = buf.collect( {|b| Synth.newPaused(\softcut_rec_trig_gate, [
 				\buf, b.bufnum, \in, bus.adc[0].index
