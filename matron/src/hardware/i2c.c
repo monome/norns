@@ -38,7 +38,8 @@ void i2c_init(void) {
 
     // enable hp
     if(ioctl(file,I2C_SLAVE,ADDR_HP) < 0) {
-        printf("ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+        printf(
+            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = 1; // reg for settings p21
@@ -50,7 +51,8 @@ void i2c_init(void) {
 
     // set up digipot audio out
     if(ioctl(file,I2C_SLAVE,ADDR_OUT) < 0) {
-        printf("ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+        printf(
+            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
 
@@ -62,7 +64,8 @@ void i2c_init(void) {
 
     // set up digipot audio in
     if(ioctl(file,I2C_SLAVE,ADDR_IN) < 0) {
-        printf("ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+        printf(
+            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
 
@@ -82,7 +85,8 @@ void i2c_hp(int level) {
     }
 
     if(ioctl(file,I2C_SLAVE,ADDR_HP) < 0) {
-        printf("ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+        printf(
+            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = 2; // reg for set level p17
@@ -108,7 +112,8 @@ void i2c_aout(int level, int ch) {
     }
 
     if(ioctl(file,I2C_SLAVE,ADDR_OUT) < 0) {
-        printf("ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+        printf(
+            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = level | ch; // p10
@@ -133,7 +138,8 @@ void i2c_ain(int level, int ch) {
     }
 
     if(ioctl(file,I2C_SLAVE,ADDR_IN) < 0) {
-        printf("ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+        printf(
+            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = level | ch; // p10
