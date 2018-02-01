@@ -154,7 +154,7 @@ CroneEngine_Cutter : CroneEngine {
 			[\rec_loop, \ii, { |msg| rec[msg[1]-1].loop_(msg[2]) }],
 			//-- routing
 			// level from given ADC channel to given recorder
-			[\adc_rec, \iif, { |msg| pm.adc_rec(msg[1]-1, msg[2], msg[3]); }],
+			[\adc_rec, \iif, { |msg| pm.adc_rec.level_(msg[1]-1, msg[2], msg[3]); }],
 			// level from given playback channel to given recorder
 			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2], msg[3]); }],
 			// level from given playback channel to given DAC channel

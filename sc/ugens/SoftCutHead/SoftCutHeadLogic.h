@@ -7,10 +7,10 @@
 
 #include <cstdint>
 
-class CutFadeVoiceLogic {
+class SoftCutHeadLogic {
 
 public:
-    CutFadeVoiceLogic();
+    SoftCutHeadLogic();
     void init();
     void setSampleRate(float sr);
     void setBuffer(float* buf, uint32_t size);
@@ -26,17 +26,18 @@ public:
     void setFadePre(float x);
     void setFadeRec(float x);
     void setRecRun(bool val);
+    void setRecOffset(float x);
 private:
     void updatePhase(int id);
     void updateFade(int id);
     void cutToPhase(float newPhase); // fade in to new position (given in samples)
     void doneFadeIn(int id);
     void doneFadeOut(int id);
-    float peek(float phase); // lookup an audio sample from the buffer
-    float peek4(float phase); // interpolated
-    void poke(float x, float phase, float fade); // write an audio sample to the buffer
-    void poke0(float x, float phase, float fade); // non-interpolated
-    void poke2(float x, float phase, float fade); // interpolated
+    float peek(double phase); // lookup an audio sample from the buffer
+    float peek4(double phase); // interpolated
+    void poke(float x, double phase, float fade); // write an audio sample to the buffer
+    void poke0(float x, double phase, float fade); // non-interpolated
+    void poke2(float x, double phase, float fade); // interpolated
     float mixFade(float x, float y, float a, float b); // mix two inputs with phases
 public:
     typedef enum { FADE_LIN, FADE_EQ, FADE_EXP } fade_t;
@@ -48,8 +49,8 @@ public:
     float start;        // Voice points
     float end;
     float fadeInc;      // linear fade increment per sample
-    float phaseInc;     // phase_rd increment per sample
-    float phase[2];     // current buffer read phase
+    double phaseInc;     // phase_rd increment per sample
+    double phase[2];     // current buffer read phase
     float fade[2];      // current playback fade phase
     int state[2];       // active/inactive/fading state of each head
     int active;     // current active play head (0 or 1)
@@ -61,6 +62,7 @@ public:
     float fadePre; // pre-level modulated by xfade
     float fadeRec; // record level modulated by xfade
     bool recRun;
+    double recPhaseOffset;
 };
 
 #endif //CUTFADEVOICE_CUTFADEVOICELOGIC_H

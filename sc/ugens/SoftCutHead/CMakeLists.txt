@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
-set(PROJECT "BufWrPre")
+set(PROJECT "SoftCutHead")
 project (${PROJECT})
 
+set(SC_PATH "~/src/supercollider")
 include_directories(${SC_PATH}/include/plugin_interface)
 include_directories(${SC_PATH}/include/common)
 include_directories(${SC_PATH}/common)
@@ -65,4 +66,4 @@ if(MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mstackrealign")
 endif()
 
-add_library(${PROJECT} MODULE BufWrPre.cpp )
+add_library(${PROJECT} MODULE SoftCutHead.cpp SoftCutHeadLogic.cpp SoftCutHeadLogic.h interp.h)
