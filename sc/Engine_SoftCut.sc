@@ -1,5 +1,5 @@
 // a sample capture / playback matrix
-CroneEngine_SoftCut : CroneEngine {
+Engine_SoftCut : CroneEngine {
 	classvar nvoices = 8;
 	//	classvar nbufs = 8;
 	classvar bufdur = 64.0;
