@@ -129,7 +129,7 @@ s.waitForBoot { Routine {
 	};
 
 	~update_loop_dur = { arg dur;
-		dur.postln;
+		[dur, ~fade_dur].postln;
 		~loop_dur = dur.max(~fade_dur + (10.0 / s.sampleRate));
 		~update_end_pos.value(~start_pos + ~loop_dur);
 	};
@@ -206,7 +206,7 @@ s.waitForBoot { Routine {
 		d.nextLine;
 		StaticText(w, 80@40).string_("fade time: ");
 		Slider(w.view, (720-80)@40)
-		.action_({|sl| ~loop_s.set(\fade, sl.value); sl.value.postln;});
+		.action_({|sl| ~fade_dur = sl.value; ~loop_s.set(\fade, sl.value); sl.value.postln;});
 
 
 		d.nextLine;
