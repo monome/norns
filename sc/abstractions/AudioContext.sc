@@ -94,7 +94,7 @@ AudioContext {
 	}
 
 	// control monitor level / pan
-	setMonitorLevel { arg level;
+	monitorLevel { arg level;
 		mon_s.do({|syn| syn.set(\level, level) });
 	}
 
@@ -128,9 +128,8 @@ AudioContext {
 
 	}
 
-
 	initCommands {
-		
+		// FIXME?/...
 	}
 
 	registerPoll  { arg name, func, dt=0.1;

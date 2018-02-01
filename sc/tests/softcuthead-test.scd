@@ -174,7 +174,7 @@ s.waitForBoot { Routine {
 			~loop_s.set(\recRun, bt.value); });
 
 		d.nextLine;
-		StaticTexet(w, 80@40).string_("start: ");
+		StaticText(w, 80@40).string_("start: ");
 		Slider(w.view, (720-80)@40)
 		.action_({|sl| ~set_loop_start.value(sl.value * ~buf.duration); });
 
