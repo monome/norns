@@ -19,6 +19,11 @@ PatchMatrix {
 		^super.new.init(server, in, out, feedback, target, action);
 	}
 
+	free {
+		gr.free; // frees all synths
+		bus.do({ |b| b.free; });
+	}
+
 	init { arg srv, in, out, fb, target, action;
 		var patchdef;
 		patchdef = if(fb, {\patch_mono_fb}, {\patch_mono});
