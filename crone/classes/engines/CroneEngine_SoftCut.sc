@@ -190,40 +190,33 @@ CroneEngine_SoftCut : CroneEngine {
 		var com = [
 			// set output level of a playback voice
 			[\level, \if, { |msg| voices[msg[1]-1].level_(msg[2]) }],
-			// set mute flag for playback voice
-			[\mute, \if, { |msg| }],//pb[msg[1]-1].mute_(msg[2]) }],
 			// cut playback to position
-			[\pos, \if, { |msg| }], //pb[msg[1]-1].pos_(msg[2]) }],
+			[\pos, \if, { |msg| voices[msg[1]-1].pos_(msg[2]) }],
 			// set playback to new rate, with crossfade
-			[\rate, \if, { |msg| }], //pb[msg[1]-1].rate_(msg[2]) }],
+			[\rate, \if, { |msg| voices[msg[1]-1].rate_(msg[2]) }],
 			// set crossfade time for given playback voice
-			[\fade, \if, { |msg| }], //pb[msg[1]-1].fade_(msg[2]) }],
-			// set crossfade curve for given playback voice
-			[\curve, \if, { |msg| }], //pb[msg[1]-1].curve_(msg[2]) }],
-			// set source buffer for playback voice
-			[\buf, \ii, { |msg| }], //pb[msg[1]-1].buffer_(buf[msg[2]-1]) }],
-			// set (raw) looping behavior for playback voice.
-			[\loop, \ii, { |msg| }], //pb[msg[1]-1].loop_(msg[2]) }],
-			//-- control recording
-			// start recording given buffer at last set position
-			[\rec, \i, { |msg| }], //rec[msg[1]-1].start }],
-			// start recording given buffer at given position
-			[\rec_pos, \if, { |msg| }], //rec[msg[1]-1].start(msg[2]) }],
-			// stop recording given buffer
-			[\rec_stop, \i, { |msg| }], //rec[msg[1]-1].stop }],
-			// set record level for given buffer
-			[\rec_level, \if, { |msg| }], //rec[msg[1]-1].rec_(msg[2]) }],
-			// set prerecord (overdub) level for given buffer
-			[\rec_pre, \if, { |msg| }], //rec[msg[1]-1].pre_(msg[2]) }],
-			// set loop flag for given recorder.
-			[\rec_loop, \ii, { |msg| }], //rec[msg[1]-1].loop_(msg[2]) }],
+			[\fade, \if, { |msg| voices[msg[1]-1].fade_(msg[2]) }],
+
+
+			// voice synth parameters
+			[\offset, \if, {|msg| voices[msg[1]-1].offset_(msg[2]) }],
+			[\recLevel, \if, {|msg| voices[msg[1]-1].recLevel_(msg[2]) }],
+			[\preLevel, \if, {|msg| voices[msg[1]-1].preLevel_(msg[2]) }],
+			[\recFade, \if, {|msg| voices[msg[1]-1].recFade_(msg[2]) }],
+			[\preFade, \if, {|msg| voices[msg[1]-1].preFade_(msg[2]) }],
+			[\loopStart, \if, {|msg| voices[msg[1]-1].loopStart_(msg[2]) }],
+			[\loopEnd, \if, {|msg| voices[msg[1]-1].loopEnd_(msg[2]) }],
+			[\loopFlag, \if, {|msg| voices[msg[1]-1].loopFlag_(msg[2]) }],
+			
+
 			//-- routing
 			// level from given ADC channel to given recorder
-			[\adc_rec, \iif, { |msg| }], //pm.adc_rec(msg[1]-1, msg[2], msg[3]); }],
+			[\adc_rec, \iif, { |msg| pm.adc_rec(msg[1]-1, msg[2], msg[3]); }],
 			// level from given playback channel to given recorder
-			[\play_rec, \iif, { |msg| }], //pm.pb_rec.level_(msg[1]-1, msg[2], msg[3]); }],
+			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2], msg[3]); }],
 			// level from given playback channel to given DAC channel
-			[\play_dac, \iif, { |msg| }], //pm.pb_dac.level_(msg[1]-1, msg[2], msg[3]); }],
+			[\play_dac, \iif, { |msg| pm.pb_dac.level_(msg[1]-1, msg[2], msg[3]); }],
+			
 			//--- buffers
 			// read named soundfile to given buffer
 			[\read, \is, { |msg| this.readBuf(msg[1]-1, msg[2]) }],
