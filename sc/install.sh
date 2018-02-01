@@ -2,6 +2,7 @@
 
 norns_ext_dir=~/.local/share/SuperCollider/Extensions/norns
 
+rm -rf norns_ext_dir
 mkdir -p $norns_ext_dir
 
 link() {
