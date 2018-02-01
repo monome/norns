@@ -10,8 +10,8 @@ SoftCutVoice {
 
 	var <syn; // the main synth
 
-	*new { arg srv, buf, in, out;
-		^super.new.init(srv, buf, in, out);
+	*new { arg srv, tgt, buf, in, out;
+		^super.new.init(srv, tgt, buf, in, out);
 	}
 
 
@@ -22,7 +22,7 @@ SoftCutVoice {
 			CroneDefs.add(
 				// looped, crossfaded , synchronized playback and record
 				SynthDef.new(\soft_cut_voice, {
-					arg buf, in, out, gate=0,
+					arg buf, in, out, gate=1,
 					phase_out= -1, trig_out= -1, trig_in = -1,
 					amp=0.2, rec=0.0, pre=0.0,
 					rate=1, ratelag=0.1,
@@ -98,15 +98,15 @@ SoftCutVoice {
 	}
 
 	init {
-		arg server, buf, in, out;
+		arg server, target, buf, in, out;
 
 		reset_b = Bus.control(server);
 		phase_b = Bus.audio(server);
 		loop_b = Bus.audio(server);
 
-		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 1,
+		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 0,
 			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
-		], server);
+	], target);
 	}
 
 
