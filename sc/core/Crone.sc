@@ -85,7 +85,7 @@ Crone {
 				'/engine/load/name':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					[msg,time,addr,recvPort].postln;
-					this.setEngine('CroneEngine_' ++ msg[1]);
+					this.setEngine('Engine_' ++ msg[1]);
 				}, '/engine/load/name'),
 
 				'/poll/start':OSCFunc.new({

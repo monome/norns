@@ -90,7 +90,7 @@ void *gpio_check(void *x) {
             //printf("GPIO buf = 0x%x\n", buf);
 
             int i;
-            for(i = 0; i < NUM_PINS && fd[i] != events.data.fd; i++) {;}
+            for(i = 0; i < NUM_PINS && fd[i] != events.data.fd; i++) {; }
 
             if(i < 3) {
                 if(c[i]++) {

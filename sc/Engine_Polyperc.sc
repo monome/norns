@@ -1,6 +1,6 @@
 // CroneEngine_PolyPerc
 // sine with perc envelopes, triggered on freq
-CroneEngine_PolyPerc : CroneEngine {
+Engine_PolyPerc : CroneEngine {
     var amp=0.3;
     var release=0.5;
     var pw=0.5;

@@ -1,5 +1,5 @@
 // a sample capture / playback matrix
-CroneEngine_Cutter : CroneEngine {
+Engine_Cutter : CroneEngine {
 	classvar nvoices = 4;
 	classvar nbufs = 4;
 	classvar bufdur = 64.0;

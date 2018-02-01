@@ -17,14 +17,18 @@
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
-#define CHECK_CR if (cr == NULL) {return;}
-#define CHECK_CRR if (cr == NULL) {return 0;}
+#define CHECK_CR if (cr == NULL) {return; }
+#define CHECK_CRR if (cr == NULL) {return 0; }
 #endif
 
 #define NUM_FONTS 14
 static char font_path[NUM_FONTS][32];
 
-static float c[16] = {0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333, 0.4, 0.46666666666667, 0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
+static float c[16] =
+{0, 0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667,
+ 0.33333333333333,
+ 0.4, 0.46666666666667, 0.53333333333333, 0.6, 0.66666666666667,
+ 0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
 
 static cairo_surface_t *surface;
 static cairo_t *cr;
@@ -96,7 +100,8 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
                                             device->fb_fd, 0);
 
     if ( device->fb_data == (unsigned char *)-1 ) {
-        printf("ERROR (screen) failed to map framebuffer device to memory"); fflush(stdout);
+        printf("ERROR (screen) failed to map framebuffer device to memory");
+        fflush(stdout);
         goto handle_ioctl_error;
     }
 
@@ -107,12 +112,15 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     }
 
     /* Create the cairo surface which will be used to draw to */
-    surface = cairo_image_surface_create_for_data( device->fb_data,
-                                                   CAIRO_FORMAT_RGB16_565,
-                                                   device->fb_vinfo.xres,
-                                                   device->fb_vinfo.yres,
-                                                   cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565,
-                                                                                 device->fb_vinfo.xres) );
+    surface = cairo_image_surface_create_for_data(
+         device->fb_data,
+        CAIRO_FORMAT_RGB16_565,
+        device->fb_vinfo.xres,
+        device->fb_vinfo.yres,
+        cairo_format_stride_for_width(
+            CAIRO_FORMAT_RGB16_565,
+            device
+            ->fb_vinfo.xres) );
     cairo_surface_set_user_data(surface, NULL, device,
                                 &cairo_linuxfb_surface_destroy);
 
@@ -156,7 +164,8 @@ void screen_init(void) {
 
     for(int i = 0; i < NUM_FONTS; i++) {
         // FIXME should be path relative to norns/
-        snprintf( filename, 256, "%s/norns/resources/%s", getenv("HOME"), font_path[i] );
+        snprintf( filename, 256, "%s/norns/resources/%s", getenv(
+                      "HOME"), font_path[i] );
 
         status = FT_New_Face(value, filename, 0, &face[i]);
         if(status != 0) {
@@ -239,12 +248,22 @@ void screen_move_rel(long x, long y) {
     cairo_rel_move_to(cr,x + 0.5,y + 0.5);
 }
 
-void screen_curve(double x1, double y1, double x2, double y2, double x3, double y3) {
+void screen_curve(double x1,
+                  double y1,
+                  double x2,
+                  double y2,
+                  double x3,
+                  double y3) {
     CHECK_CR
     cairo_curve_to(cr,x1,y1,x2,y2,x3,y3);
 }
 
-void screen_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
+void screen_curve_rel(double dx1,
+                      double dy1,
+                      double dx2,
+                      double dy2,
+                      double dx3,
+                      double dy3) {
     CHECK_CR
     cairo_rel_curve_to(cr,dx1,dy1,dx2,dy2,dx3,dy3);
 }

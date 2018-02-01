@@ -1,6 +1,6 @@
 // CroneEngine_TestSine
 // dumbest possible test: a single, mono sinewave
-CroneEngine_TestSine : CroneEngine {
+Engine_TestSine : CroneEngine {
 	var <synth;
 
 	*new { arg server, group, in, out;
