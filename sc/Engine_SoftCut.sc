@@ -15,34 +15,6 @@ Engine_SoftCut : CroneEngine {
 	var <rec; // recorders
 
 	var <voices; // array of voices
-
-	*initClass {
-		StartUp {
-			CroneDefs.add(	// triggered recording from arbitrary position
-				SynthDef(\softcut_rec_trig_gate, {
-					arg buf, in, gate=0,
-					rate=1, start=0.0, end=1.0, loop=0,
-					rec=1, pre=0, fade=0.01;
-
-					var sr, brs,
-					sin, sin_phase,
-					phase, wr, trig,
-					env_pre, env_rec;
-
-					sr = SampleRate.ir;
-					brs = BufRateScale.kr(buf); // NB: BfWr and BufWrPre are non-interpolating...
-					env_rec = EnvGen.ar(Env.asr(fade, 1, fade), gate) * rec;
-					env_pre = (pre * env_rec).max(1-env_rec);
-
-					sin = In.ar(in);
-					// FIXME: use Sweep or something, trigger bus to reset / start
-					phase = Phasor.ar(gate, rate * brs, start*sr, end*sr, start);
-					wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
-				})
-			);
-		}
-	}
-
 	*new { arg server, group, in, out;
 		^super.new.init(server, group, in, out).initSub(server, group, in, out);
 	}
@@ -124,14 +96,10 @@ Engine_SoftCut : CroneEngine {
 
 			s.sync;
 
-			// use an array of Conditions to delay execution until all buffers are allocated
-			//			bufcon = Array.fill(nvoices, { Condition.new });
-
 			postln("SoftCut: allocating buffers");
 			//--- buffers
 			buf = Array.fill(nvoices, { arg i;
 				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
-					//					bufcon[i].unhang;
 				})
 			});
 			s.sync;
@@ -149,7 +117,7 @@ Engine_SoftCut : CroneEngine {
 			// TODO:
 			/*
 			rec = buf.collect( {|b| Synth.newPaused(\softcut_rec_trig_gate, [
-				\buf, b.bufnum, \in, bus.adc[0].index
+			\buf, b.bufnum, \in, bus.adc[0].index
 			], gr.rec); });
 			*/
 
@@ -207,16 +175,16 @@ Engine_SoftCut : CroneEngine {
 			[\loopStart, \if, {|msg| voices[msg[1]-1].loopStart_(msg[2]) }],
 			[\loopEnd, \if, {|msg| voices[msg[1]-1].loopEnd_(msg[2]) }],
 			[\loopFlag, \if, {|msg| voices[msg[1]-1].loopFlag_(msg[2]) }],
-			
+
 
 			//-- routing
 			// level from given ADC channel to given recorder
-			[\adc_rec, \iif, { |msg| pm.adc_rec(msg[1]-1, msg[2], msg[3]); }],
+			[\adc_rec, \iif, { |msg| pm.adc_rec(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given recorder
-			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2], msg[3]); }],
+			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given DAC channel
-			[\play_dac, \iif, { |msg| pm.pb_dac.level_(msg[1]-1, msg[2], msg[3]); }],
-			
+			[\play_dac, \iif, { |msg| pm.pb_dac.level_(msg[1]-1, msg[2]-1, msg[3]); }],
+
 			//--- buffers
 			// read named soundfile to given buffer
 			[\read, \is, { |msg| this.readBuf(msg[1]-1, msg[2]) }],

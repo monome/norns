@@ -7,7 +7,7 @@
 
 s.waitForBoot { Routine {
 
-	
+
 	~buf = if(~sndFilename.notNil, {
 		Buffer.read(s, PathName(Document.current.path).pathOnly ++ ~soundfilename);
 	}, {
@@ -103,7 +103,7 @@ s.waitForBoot { Routine {
 
 	~loop_s = Synth.new(\softcuthead, [
 		\buf, ~buf.bufnum,
-		\in, Crone.ctx.in_b[0].index,
+		\in, Crone.ctx.in_b[1].index,
 		\out, Crone.ctx.out_b.index,
 		\start, ~start_pos, \end, ~end_pos,
 		\phase_out, ~phase_rd_b.index,
