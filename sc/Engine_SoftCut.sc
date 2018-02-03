@@ -96,8 +96,9 @@ Engine_SoftCut : CroneEngine {
 
 			s.sync;
 
-			postln("SoftCut: allocating buffers");
 			//--- buffers
+
+			postln("SoftCut: allocating buffers");
 			buf = Array.fill(nvoices, { arg i;
 				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
 				})
@@ -107,23 +108,23 @@ Engine_SoftCut : CroneEngine {
 
 			postln("SoftCut: done waiting on buffer allocation");
 
+			//--- busses
+			bus.adc = Crone.ctx.in_b;
+			// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
+			// here we convert  output busto a mono array
+			bus.dac = Array.with( Bus.newFrom(Crone.ctx.out_b, 0), Bus.newFrom(Crone.ctx.out_b, 1));
+			bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
+			bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
 
 			//-- voices
 			voices = Array.fill(nvoices, { |i|
-				SoftCutVoice.new(s, buf[i], s);
+				// 	arg server, target, buf, in, out;
+				SoftCutVoice.new(s, Crone.ctx.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
 			});
 
-			//-- 1-shot recorders; one per voice
-			// TODO:
-			/*
-			rec = buf.collect( {|b| Synth.newPaused(\softcut_rec_trig_gate, [
-			\buf, b.bufnum, \in, bus.adc[0].index
-			], gr.rec); });
-			*/
-
 			//--- patch matrices
-			bus_pb_idx = voices.collect({ |v| v.bus.pb.index });
-			bus_rec_idx = voices.collect({ |v| v.bus.rec.index });
+			bus_pb_idx = bus.pb.collect({ |b| b.index });
+			bus_rec_idx = bus.rec.collect({ |b| b.index });
 			pm = Event.new;
 
 			postln("softcut: in->rec patchmatrix");
@@ -155,26 +156,25 @@ Engine_SoftCut : CroneEngine {
 
 	addCommands {
 
+
 		var com = [
-			// set output level of a playback voice
-			[\level, \if, { |msg| voices[msg[1]-1].level_(msg[2]) }],
-			// cut playback to position
-			[\pos, \if, { |msg| voices[msg[1]-1].pos_(msg[2]) }],
-			// set playback to new rate, with crossfade
-			[\rate, \if, { |msg| voices[msg[1]-1].rate_(msg[2]) }],
-			// set crossfade time for given playback voice
-			[\fade, \if, { |msg| voices[msg[1]-1].fade_(msg[2]) }],
 
-
-			// voice synth parameters
-			[\offset, \if, {|msg| voices[msg[1]-1].offset_(msg[2]) }],
-			[\recLevel, \if, {|msg| voices[msg[1]-1].recLevel_(msg[2]) }],
-			[\preLevel, \if, {|msg| voices[msg[1]-1].preLevel_(msg[2]) }],
-			[\recFade, \if, {|msg| voices[msg[1]-1].recFade_(msg[2]) }],
-			[\preFade, \if, {|msg| voices[msg[1]-1].preFade_(msg[2]) }],
-			[\loopStart, \if, {|msg| voices[msg[1]-1].loopStart_(msg[2]) }],
-			[\loopEnd, \if, {|msg| voices[msg[1]-1].loopEnd_(msg[2]) }],
-			[\loopFlag, \if, {|msg| voices[msg[1]-1].loopFlag_(msg[2]) }],
+			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
+			[\rec, \if, { |msg| voices[msg[1]-1].syn.set(\rec, msg[2]); }],
+			[\pre, \if, { |msg| voices[msg[1]-1].syn.set(\pre, msg[2]); }],
+			[\rate, \if, { |msg| voices[msg[1]-1].syn.set(\rate, msg[2]); }],
+			[\ratelag, \if, { |msg| voices[msg[1]-1].syn.set(\ratelag, msg[2]); }],
+			[\start, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
+			[\end, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
+			[\fade, \if, { |msg| voices[msg[1]-1].syn.set(\fade, msg[2]); }],
+			[\loop, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
+			[\fadeRec, \if, { |msg| voices[msg[1]-1].syn.set(\fadeRec, msg[2]); }],
+			[\fadePre, \if, { |msg| voices[msg[1]-1].syn.set(\fadePre, msg[2]); }],
+			[\recRun, \if, { |msg| voices[msg[1]-1].syn.set(\recRun, msg[2]); }],
+			[\offset, \if, { |msg| voices[msg[1]-1].syn.set(\offset, msg[2]); }],
+			[\preLag, \if, { |msg| voices[msg[1]-1].syn.set(\preLag, msg[2]); }],
+			[\recLag, \if, { |msg| voices[msg[1]-1].syn.set(\recLag, msg[2]); }],
+			[\envTimeScale, \if, { |msg| voices[msg[1]-1].syn.set(\envTimeScale, msg[2]); }],
 
 
 			//-- routing
@@ -195,7 +195,7 @@ Engine_SoftCut : CroneEngine {
 			// detructively trim to new start and end
 			[\trim, \iff, { |msg| this.trimBuf(msg[1]-1, msg[2], msg[3]) }],
 			// normalize given buffer to given maximum level
-			[\norm, \if, { |msg| this.normalizeBuf(msg[1]-1, msg[2]) }],
+			[\norm, \if, { |msg| this.normalizeBuf(msg[1]-1, msg[2]) }]
 		];
 
 		com.do({ arg comarr;
