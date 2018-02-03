@@ -132,14 +132,16 @@ Engine_SoftCut : CroneEngine {
 			pm.adc_rec = PatchMatrix.new(
 				server:s, target:gr.rec, action:\addToTail,
 				in: bus.adc.collect({ |b| b.index }),
-				out: bus_rec_idx
+				out: bus_rec_idx,
+				feedback:true
 			);
 			postln("softcut: pb->out patchmatrix");
 			// playback -> output
 			pm.pb_dac = PatchMatrix.new(
 				server:s, target:gr.pb, action:\addAfter,
 				in: bus_pb_idx,
-				out: bus.dac.collect({ |b| b.index })
+				out: bus.dac.collect({ |b| b.index }),
+				feedback:true
 			);
 
 			// playback -> record
@@ -147,10 +149,13 @@ Engine_SoftCut : CroneEngine {
 			pm.pb_rec = PatchMatrix.new(
 				server:s, target:gr.pb, action:\addAfter,
 				in: bus_pb_idx,
-				out: bus_rec_idx
+				out: bus_rec_idx,
+				feedback:true
 			);
 
 		}.play;
+
+		this.addCommands;
 
 	} // initSub
 
@@ -179,7 +184,9 @@ Engine_SoftCut : CroneEngine {
 
 			//-- routing
 			// level from given ADC channel to given recorder
-			[\adc_rec, \iif, { |msg| pm.adc_rec(msg[1]-1, msg[2]-1, msg[3]); }],
+			[\adc_rec, \iif, { |msg|
+				postln(["Engine_SoftCut: adc_rec", msg]);
+				pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given recorder
 			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given DAC channel
@@ -199,7 +206,7 @@ Engine_SoftCut : CroneEngine {
 		];
 
 		com.do({ arg comarr;
-			postln("adding command: " ++ comarr);
+//			postln("adding command: " ++ comarr);
 			this.addCommand(comarr[0], comarr[1], comarr[2]);
 		});
 

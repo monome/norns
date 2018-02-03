@@ -18,7 +18,7 @@ CroneEngine {
 	// list of registered polls
 	var <pollNames;
 
-	
+
 	*new { arg srv, grp, inb, outb;
 		^super.new.init(srv, grp, inb, outb);
 	}
@@ -38,7 +38,7 @@ CroneEngine {
 		CronePollRegistry.register(name, func);
 		pollNames.add(name);
 	}
-	
+
 	// NB: subclasses should override this if they need to free resources
 	// but the superclass method should be called as well
 	kill {
@@ -54,6 +54,7 @@ CroneEngine {
 	addCommand { arg name, format, func;
 		var idx, cmd;
 		name = name.asSymbol;
+		postln([ "CroneEngine adding command", name, format, func ]);
 		if(commandNames[name].isNil, {
 			idx = commandNames.size;
 			commandNames[name] = idx;
@@ -61,7 +62,8 @@ CroneEngine {
 			cmd.name = name;
 			cmd.format = format;
 			cmd.oscdef = OSCdef(name.asSymbol, {
-				arg msg, time, addr, recvPort;
+				arg msg, time, addr, rxport;
+				["CroneEngine rx command", msg, time, addr, rxport].postln;
 				func.value(msg);
 			}, ("/command/"++name).asSymbol);
 			commands.add(cmd);
