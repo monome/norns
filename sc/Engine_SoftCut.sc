@@ -164,6 +164,12 @@ Engine_SoftCut : CroneEngine {
 
 		var com = [
 
+			//-- voice functions
+			[\start, \i, {|msg| voices[msg[1]-1].start; }],
+			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
+			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
+
+			//-- direct control of synth params
 			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
 			[\rec, \if, { |msg| voices[msg[1]-1].syn.set(\rec, msg[2]); }],
 			[\pre, \if, { |msg| voices[msg[1]-1].syn.set(\pre, msg[2]); }],
