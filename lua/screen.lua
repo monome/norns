@@ -1,8 +1,8 @@
 -- screen redirection functions
 s = {}
-norns.s = {}
+sys.s = {}
 
-norns.s.restore = function()
+sys.s.restore = function()
     s.aa = s_aa
     s.clear = s_clear
     s.level = s_level
@@ -24,9 +24,9 @@ norns.s.restore = function()
     s.curve_rel = s_curve_rel
 end
 
-norns.s.block = function()
+sys.s.block = function()
     for k,v in pairs(s) do
-        s[k] = norns.none
+        s[k] = sys.none
     end
 end
 

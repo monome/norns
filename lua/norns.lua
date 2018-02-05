@@ -64,12 +64,4 @@ end
 norns.report.polls = function(polls, count)
    -- ok, this could happen if we aren't using the poll module
    -- print("norns.report.polls", commands, count)
-end
-
-
--- default handlers, to be overwritten by script
-norns.none = function() end 
-norns.blank = function() end
-key = norns.none
-enc = norns.none
-redraw = norns.blank
+end 

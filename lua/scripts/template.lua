@@ -10,7 +10,7 @@ init = function(commands, count)
     -- print to command line
     print("template!")
     -- add log message
-    norns.log.post("hello!")
+    sys.log.post("hello!")
     -- show engine commands available
     print("commands: ")
     for i,v in pairs(commands) do

@@ -1,24 +1,32 @@
+--- Log class
+-- @module Log
+
+require 'norns'
+
+
 local LOG_MAX = 24
 
-norns.log = {}
-norns.log.last = 1
-norns.log.msg = {}
-norns.log.time = {}
-norns.log.len = 0
+local Log = {}
+Log.last = 1
+Log.msg = {}
+Log.time = {}
+Log.len = 0
 
-norns.log.post = function(txt)
-    norns.log.msg[norns.log.last] = txt
-    norns.log.time[norns.log.last] = norns.time()
-    norns.log.last = (norns.log.last + 1) % LOG_MAX
-    norns.log.len = norns.log.len + 1
+Log.post = function(txt)
+    Log.msg[Log.last] = txt
+    Log.time[Log.last] = sys.time()
+    Log.last = (Log.last + 1) % LOG_MAX
+    Log.len = Log.len + 1
 end
 
-norns.log.get = function(index)
-    if index <= norns.log.len then
-        local i = (norns.log.last - index) % LOG_MAX
-        local m = (norns.time() - norns.log.time[i]) .. " " .. norns.log.msg[i] 
+Log.get = function(index)
+    if index <= Log.len then
+        local i = (Log.last - index) % LOG_MAX
+        local m = (sys.time() - Log.time[i]) .. " " .. Log.msg[i] 
         return m 
     else
         return "..."
     end
 end
+
+return Log 
