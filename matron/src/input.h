@@ -9,4 +9,4 @@
 
 #include <pthread.h>
 
-extern void hid_init(void);
+extern void input_init(void);
