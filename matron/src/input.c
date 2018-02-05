@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #include "events.h"
-#include "hid.h"
+#include "input.h"
 
 static pthread_t pid;
 

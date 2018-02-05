@@ -14,8 +14,8 @@
 #include "events.h"
 #include "battery.h"
 #include "gpio.h"
-#include "hid.h"
 #include "i2c.h"
+#include "input.h"
 #include "metro.h"
 #include "screen.h"
 

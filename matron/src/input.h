@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * hid.h
+ * input.h
  *
  * control input to interpreter
  *
