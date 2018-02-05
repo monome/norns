@@ -84,7 +84,6 @@ end
 -- [] accessor returns a command function;
 -- this allows e.g. engine.hz(100) 
 function Engine.__index(self, idx)
-   --if idx == 'name' then return rawget(Engine, name);
    if Engine.commands[idx] then
       return Engine.commands[idx].func
    else

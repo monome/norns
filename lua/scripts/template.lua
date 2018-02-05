@@ -1,7 +1,6 @@
 -- template
 -- a very basic example
 
-
 -- specify dsp engine to load:
 engine = 'TestSine'
 

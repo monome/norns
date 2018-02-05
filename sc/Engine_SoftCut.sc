@@ -157,6 +157,14 @@ Engine_SoftCut : CroneEngine {
 
 		this.addCommands;
 
+		nvoices.do({ arg i;
+			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
+				voices[i].phase_b.getSynchronous
+			});
+		});
+
+
+
 	} // initSub
 
 	addCommands {
