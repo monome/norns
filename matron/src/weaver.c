@@ -170,6 +170,17 @@ void w_init(void) {
     lua_register(lvm, "stop_poll", &w_stop_poll);
     lua_register(lvm, "set_poll_time", &w_set_poll_time);
 
+    // audio context controls
+    lua_register(lvm, "set_audio_input_level", &w_set_audio_input_level);
+    lua_register(lvm, "set_audio_output_level", &w_set_audio_output_level);
+    lua_register(lvm, "set_audio_monitor_level", &w_set_audio_monitor_level);
+    lua_register(lvm, "set_audio_monitor_mono", &w_set_audio_monitor_mono);
+    lua_register(lvm, "set_audio_monitor_stereo", &w_set_audio_monitor_stereo);
+    lua_register(lvm, "set_audio_monitor_on", &w_set_audio_monitor_on);
+    lua_register(lvm, "set_audio_monitor_off", &w_set_audio_monitor_off);
+    lua_register(lvm, "set_audio_pitch_on", &w_set_audio_pitch_on);
+    lua_register(lvm, "set_audio_pitch_off", &w_set_audio_pitch_off);
+
     // run system init code
     char *config = getenv("NORNS_CONFIG");
     char *home = getenv("HOME");
