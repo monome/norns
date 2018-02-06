@@ -189,15 +189,15 @@ void w_init(void) {
   lua_register(lvm, "set_poll_time", &_set_poll_time);
 
   // audio context controls
-  lua_register(lvm, "set_audio_input_level", &_set_audio_input_level);
-  lua_register(lvm, "set_audio_output_level", &_set_audio_output_level);
-  lua_register(lvm, "set_audio_monitor_level", &_set_audio_monitor_level);
-  lua_register(lvm, "set_audio_monitor_mono", &_set_audio_monitor_mono);
-  lua_register(lvm, "set_audio_monitor_stereo", &_set_audio_monitor_stereo);
-  lua_register(lvm, "set_audio_monitor_on", &_set_audio_monitor_on);
-  lua_register(lvm, "set_audio_monitor_off", &_set_audio_monitor_off);
-  lua_register(lvm, "set_audio_pitch_on", &_set_audio_pitch_on);
-  lua_register(lvm, "set_audio_pitch_off", &_set_audio_pitch_off);
+  lua_register(lvm, "audio_input_level", &_set_audio_input_level);
+  lua_register(lvm, "audio_output_level", &_set_audio_output_level);
+  lua_register(lvm, "audio_monitor_level", &_set_audio_monitor_level);
+  lua_register(lvm, "audio_monitor_mono", &_set_audio_monitor_mono);
+  lua_register(lvm, "audio_monitor_stereo", &_set_audio_monitor_stereo);
+  lua_register(lvm, "audio_monitor_on", &_set_audio_monitor_on);
+  lua_register(lvm, "audio_monitor_off", &_set_audio_monitor_off);
+  lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
+  lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
