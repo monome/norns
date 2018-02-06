@@ -251,7 +251,6 @@ void o_send(const char *name, lo_message msg) {
     free(msg);
 }
 
-//void o_set_poll_state(const char *name, bool state) {
 void o_set_poll_state(int idx, bool state) {
     if(state) {
         lo_send(remote_addr, "/poll/start", "i", idx);
@@ -259,6 +258,9 @@ void o_set_poll_state(int idx, bool state) {
         lo_send(remote_addr, "/poll/stop", "i", idx);
     }
 }
+
+
+
 
 //-------------------------
 //--- static function definitions
@@ -380,6 +382,55 @@ void o_set_num_desc(int *dst, int num) {
     *dst = num;
     o_unlock_descriptors();
 }
+
+
+// set poll period
+void o_set_poll_time(int idx, float dt) {
+    lo_send(remote_addr, "/poll/time", "if", idx, dt);
+}
+
+
+//---- audio context control
+
+void o_set_audio_input_level(int idx, float level) {
+  lo_send(remote_addr, "/audio/input/level", "if", idx, level);
+}
+
+void o_set_audio_output_level(float level) {
+  lo_send(remote_addr, "/audio/output/level", "f", level);
+}
+
+void o_set_audio_monitor_level(float level) {
+  lo_send(remote_addr, "/audio/monitor/level", "f", level);
+}
+
+void o_set_audio_monitor_mono() {
+  lo_send(remote_addr, "/audio/monitor/mono", NULL);
+}
+
+void o_set_audio_monitor_stereo() {
+  lo_send(remote_addr, "/audio/monitor/stereo", NULL);
+}
+
+void o_set_audio_monitor_on() {
+  lo_send(remote_addr, "/audio/monitor/on", NULL);
+}
+
+void o_set_audio_monitor_off() {
+  lo_send(remote_addr, "/audio/monitor/off", NULL);
+}
+
+void o_set_audio_pitch_on() {
+  lo_send(remote_addr, "/audio/pitch/on", NULL);
+}
+
+void o_set_audio_pitch_off() {
+  lo_send(remote_addr, "/audio/pitch/off", NULL);
+}
+
+
+///////////////////////////////
+/// static function definitions
 
 //---- OSC handlers
 int handle_crone_ready(const char *path,
@@ -590,9 +641,4 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
 void lo_error_handler(int num, const char *m, const char *path) {
     printf("liblo error %d in path %s: %s\n", num, path, m);
     fflush(stdout);
-}
-
-// set poll period
-void o_set_poll_time(int idx, float dt) {
-    lo_send(remote_addr, "/poll/time", "if", idx, dt);
 }
