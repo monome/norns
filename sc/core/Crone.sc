@@ -42,6 +42,12 @@ Crone {
 
 			oscfunc = (
 
+				// @module crone
+				// @alias crone
+
+				/// send a `/crone/ready` response if Crone is done starting up,
+				/// otherwise send nothing
+				// @function /ready
 				'/ready':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					if(complete==1) {
@@ -50,88 +56,123 @@ Crone {
 					}
 				}, '/ready'),
 
+				// @section report management
+
+				/// begin OSC engine report sequence
+				// @function /report/engines
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					this.reportEngines;
 				}, '/report/engines'),
 
+
+				/// begin OSC command report sequence
+				// @function /report/commands
 				'/report/commands':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					this.reportCommands;
 				}, '/report/commands'),
 
+				/// begin OSC poll report sequence
+				// @function /report/polls
 				'/report/polls':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					this.reportPolls;
 				}, '/report/polls'),
 
+				// @function /engine/kill
 				'/engine/kill':OSCFunc.new({
 					if(engine.notNil, { engine.kill; });
 				}, '/engine/kill'),
 
+				// @function /engine/load/name
+				// @param engine name (string)
 				'/engine/load/name':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					this.setEngine('Engine_' ++ msg[1]);
 				}, '/engine/load/name'),
 
+				// @function /poll/start
+				// @param poll index (integer)
 				'/poll/start':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					this.startPoll(msg[1]);
 				}, '/poll/start'),
 
+				// @function /poll/stop
+				// @param poll index (integer)
 				'/poll/stop':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					this.stopPoll(msg[1]);
 				}, '/poll/stop'),
 
+				/// set the period of a poll
+				// @function /poll/time
+				// @param poll index (integer)
+				// @param poll period(float)
 				'/poll/time':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					this.setPollTime(msg[1], msg[2]);
 				}, '/poll/time'),
 
-				//---- just add some hardcoded glue to the audio context
+				// @section AudioContext control
+
+				// @function /audio/input/level
+				// @param input channel (integer: 0 or 1)
+				// @param level (float: [0, 1])
 				'/audio/input/level':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.in_s[msg[1]].set(\level, msg[2]);
 				}, '/audio/input/level'),
 
+				// @function /audio/output/level
+				// @param level (float)
+				// @param level (float: [0, 1])
 				'/audio/output/level':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.out_s.set(\level, msg[1]);
 				}, '/audio/output/level'),
 
+				// @function /audio/monitor/level
+				// @param level (float: [0, 1])
 				'/audio/monitor/level':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.monitorLevel(msg[1]);
 				}, '/audio/monitor/level'),
 
+				// @function /audio/monitor/mono
 				'/audio/monitor/mono':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.monitorMono;
 				}, '/audio/monitor/mono'),
 
+				// @function /audio/monitor/stereo
 				'/audio/monitor/stereo':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.monitorStereo;
 				}, '/audio/monitor/stereo'),
 
 				// toggle monitoring altogether (will cause clicks)
+				// @function /audio/monitor/on
 				'/audio/monitor/on':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.monitorOn;
 				}, '/audio/monitor/on'),
 
+				// @function /audio/monitor/off
 				'/audio/monitor/off':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.monitorOff;
 				}, '/audio/monitor/off'),
 
 				// toggle pitch analysis (save CPU)
+				// @function /audio/pitch/on
 				'/audio/pitch/on':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.pitchOn;
 				}, '/audio/pitch/on'),
 
+				// @function /audio/pitch/off
 				'/audio/pitch/off':OSCFunc.new({
 					arg msg, time, addr, recvPort;
 					ctx.pitchOff;
