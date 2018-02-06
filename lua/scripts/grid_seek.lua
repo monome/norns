@@ -1,48 +1,23 @@
---test grid sequencer
-e = require 'engine'
-grid = require 'grid'
-metro = require 'metro'
+--test grid sequencer 
 
-e.load('PolyPerc',function(commands,count)
+engine = 'PolyPerc'
+
+init = function()
+    print("grid/seek")
     e.cutoff(50*2^(cutoff/12))
     e.release(0.1*2^(release/12))
+    e.amp(0.5)
+    report_polls()
     t:start()
-    end
-)
-
---print("e.hz = "..e.hz)
-
-g = nil -- grid device
-
--- global vars should be cleaned up when the next script loads
-norns.script.cleanup = function()
-   g = nil
-   t:stop()
 end
 
--- function to grab grid device when we find one
-setGrid = function (device)
-   g = device
-   g:print()
-   g.key = keyCallback -- set the callback function
-end
-
--- grab a grid if there is one
-_, g = next(grid.devices) -- hacky way to get basically random item in a table
-print("connected grid: ", g) -- should be nil if grid.devices is empty (e.g. on startup)
-if g then setGrid(g) end
-
--- grab a grid when one shows up
-grid.add = function(device)
-   print("grabbing new grid ")
-   setGrid(device)
-end
-
--- function we assign to grabbed grids
-keyCallback = function(x, y, state)
-   assert(g) -- its an error to receive callback if we have no device
+gridkey = function(x, y, state)
    if state > 0 then 
-      steps[x] = y
+      if steps[x] == y then
+          steps[x] = 0
+      else
+          steps[x] = y
+      end
    end
    g:refresh()
 end
@@ -57,19 +32,28 @@ notes = {0,2,3,5,7,9,10,12}
 freqs = {}
 
 for i=1,8 do freqs[i] = 100*2^(notes[i]/12) end
-for i=1,16 do steps[i] = math.floor(math.random()*8+1) end
+for i=1,16 do steps[i] = math.floor(math.random()*8) end
 
 t.callback = function(stage)
   pos = pos + 1
   if pos == 17 then pos = 1 end
-  e.hz(freqs[9-steps[pos]])
-  if g ~= nil then refresh() end
+  if steps[pos] > 0 then e.hz(freqs[9-steps[pos]]) end
+  if g ~= nil then 
+    gridredraw()
+  end
+  redraw()
 end
 
-refresh = function()
+gridredraw = function()
   g:all(1) 
-  for x = 1,16 do g:led(x,steps[x],5) end 
-  g:led(pos,steps[pos],15) 
+  for x = 1,16 do
+      if steps[x] > 0 then g:led(x,steps[x],5) end 
+  end
+  if steps[pos] > 0 then
+      g:led(pos,steps[pos],15) 
+  else
+      g:led(pos,1,3)
+  end
   g:refresh();
 end
 
@@ -81,11 +65,19 @@ enc = function(n,delta)
         cutoff = math.min(100,math.max(0,cutoff+delta))
         e.cutoff(50*2^(cutoff/12))
     elseif n==3 then
-        release = math.min(100,math.max(0,release+delta))
+        release = math.min(60,math.max(0,release+delta))
         e.release(0.1*2^(release/12))
     end
 
     redraw() 
+end
+
+key = function(n)
+    if n==2 then
+        for i=1,16 do steps[i] = math.floor(math.random()*8) end
+    elseif n==3 then
+        e.pw(math.random()*1)
+    end
 end
 
 redraw = function()
@@ -95,4 +87,40 @@ redraw = function()
     s.text("cutoff > "..string.format('%.1f',(50*2^(cutoff/12))))
     s.move(0,20)
     s.text("release > "..string.format('%.3f',0.1*2^(release/12)))
+    s.move(0,60)
+    s.text("step > "..pos)
+    s.move(0,40)
+    s.aa(1)
+    s.line(vu,40)
+    s.stroke()
+end 
+
+p = nil
+vu = 0
+
+local function calcMeter(amp, n, floor)
+   n = n or 64
+   floor = floor or -72
+   local db = 20.0 * math.log10(amp)
+   local norm = 1.0 - (db / floor)
+   vu = norm * n
+   redraw()
 end
+
+local ampCallback = function(amp) calcMeter(amp, 64, -72) end
+
+poll.report = function(polls)
+   p = polls['amp_out_l']
+   if p then
+      p.callback = ampCallback
+      p.time = 0.03;
+      p:start()
+   else
+      print("couldn't get requested poll, dang")
+   end 
+end 
+
+
+cleanup = function()
+   if p then p:stop() end
+end 

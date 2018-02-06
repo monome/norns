@@ -30,6 +30,8 @@ static lo_server_thread st;
 //-------------------
 //--- audio engine descriptor management
 
+// audio engine ready
+int ready = 0;
 // count of audio engine descriptors
 int num_engines = 0;
 // count of command descriptors
@@ -65,6 +67,9 @@ static void o_set_num_desc(int *dst, int num);
 
 //--- OSC handlers
 
+static int handle_crone_ready(const char *path, const char *types,
+                              lo_arg **argv, int argc,
+                              void *data, void *user_data);
 static int handle_engine_report_start(const char *path, const char *types,
                                       lo_arg **argv, int argc,
                                       void *data, void *user_data);
@@ -100,6 +105,10 @@ static void lo_error_handler(int num, const char *m, const char *path);
 
 //-----------------------------------
 //---- extern function definitions
+int o_ready(void) {
+    lo_send(remote_addr, "/ready","");
+    return ready;
+}
 
 //--- init
 void o_init(void) {
@@ -113,6 +122,9 @@ void o_init(void) {
     remote_addr = lo_address_new("127.0.0.1", rem_port);
     st = lo_server_thread_new(loc_port, lo_error_handler);
 
+    // crone ready
+    lo_server_thread_add_method(st, "/crone/ready", "",
+                                handle_crone_ready, NULL);
     // engine report sequence
     lo_server_thread_add_method(st, "/report/engines/start", "i",
                                 handle_engine_report_start, NULL);
@@ -209,7 +221,7 @@ void o_load_engine(const char *name) {
     lo_timetag now;
     lo_timetag_now(&now);
     lo_send_timestamped(remote_addr, now, "/engine/load/name", "s", name);
-    // test with a delay 
+    // test with a delay
     // now.frac++ ; // each unit here is 1/32s i think
     lo_send_timestamped(remote_addr, now, "/report/commands", "");
     lo_send_timestamped(remote_addr, now, "/report/polls", "");
@@ -231,6 +243,11 @@ void o_send_command(const char *name, lo_message msg) {
     path = malloc(len);
     sprintf(path, "/command/%s", name);
     lo_send_message(remote_addr, path, msg);
+    free(msg);
+}
+
+void o_send(const char *name, lo_message msg) {
+    lo_send_message(remote_addr, name, msg);
     free(msg);
 }
 
@@ -365,6 +382,23 @@ void o_set_num_desc(int *dst, int num) {
 }
 
 //---- OSC handlers
+int handle_crone_ready(const char *path,
+                       const char *types,
+                       lo_arg **argv,
+                       int argc,
+                       void *data,
+                       void *user_data)
+{
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)argv;
+    (void)data;
+    (void)user_data;
+    ready = 1;
+    return 0;
+}
+
 int handle_engine_report_start(const char *path,
                                const char *types,
                                lo_arg **argv,

@@ -4,6 +4,10 @@
 
 ## launching components
 
+### 0. setup environment
+
+run `install.sh` in `norns/crone/` to copy/link required files
+
 ### 1. launch `crone` (audio engine)
 
 run `crone.sh` from the norns directory. this creates a `sclang` process wrapped with `ipc-wrapper`, and a pair of ipc sockets in `/tmp`.

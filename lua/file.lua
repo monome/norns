@@ -6,6 +6,7 @@ norns.version.file = '0.0.1'
 -- @section state
 
 norns.state = {}
+norns.state.out = 0
 
 norns.state.resume = function()
   dofile(script_dir .. '../state.lua')
@@ -14,11 +15,12 @@ norns.state.resume = function()
 end
 
 norns.state.save = function()
-  local last=io.open(script_dir .. "../state.lua","w+")
-  io.output(last)
+  local fd=io.open(script_dir .. "../state.lua","w+")
+  io.output(fd)
   io.write("-- state\n")
   io.write("norns.state.script = '" .. norns.state.script .. "'\n")
-  io.close(last)   
+  io.write("norns.state.out = '" .. norns.state.out .. "'\n")
+  io.close(fd)   
 end
 
 
@@ -26,16 +28,28 @@ end
 -- @section script
 
 norns.script = {}
-norns.script.cleanup_default = function()
-   print("cleanup (default)")
-end
 
-norns.script.cleanup = norns.script.cleanup_default
+cleanup = norns.none
 
 norns.script.clear = function()
+    -- reset cleanup script
+    cleanup = norns.none
+    -- reset oled redraw
     redraw = norns.blank
+    -- redirect inputs to nowhere
     key = norns.none
     enc = norns.none
+    -- redirect and reset grid
+    if g then g.key = norns.none end
+    g = nil
+    -- stop all timers
+    for i=1,30 do metro[i]:stop() end
+    -- clear polls
+    poll.report = norns.none
+    -- clear engine 
+    engine = nil
+    -- clear init
+    init = norns.none
 end
 
 
@@ -44,20 +58,31 @@ end
 norns.script.load = function(filename)
   if filename == nil then
     filename = norns.state.script end
-  local filepath = script_dir .. filename .. '.lua'
+  local filepath = script_dir .. filename
   local f=io.open(filepath,"r")
   if f==nil then 
     print("file not found: "..filepath)
   else
     io.close(f)
-    norns.script.cleanup() -- cleanup the old script
-    norns.script.cleanup = norns.script.cleanup_default
-    norns.script.clear()
-    dofile(filepath)
-    norns.state.script = filename
-    norns.state.save()
-    init()
+    cleanup() -- script-specified memory free
+    norns.script.clear() -- clear script variables and functions
+    norns.log.post("loaded " .. filename) -- post to log
+    dofile(filepath) -- do the new script
+    norns.state.script = filename -- store script name
+    norns.state.save() -- remember this script for next launch
+    norns.map.init() -- redirect i/o functions to script
+    norns.script.run() -- load engine then run script-specified init function
   end 
+end
+
+--- load engine, execute script-specified init (if present)
+norns.script.run = function()
+    if engine ~= nil then 
+        e.load(engine, init)
+    else
+        init()
+    end
+    grid.reconnect()
 end
 
 --- general file access
@@ -67,7 +92,7 @@ end
 -- @param directory path to directory
 scandir = function(directory)
     local i, t, popen = 0, {}, io.popen
-    local pfile = popen('ls "'..directory..'"')
+    local pfile = popen('ls -p --group-directories-first "'..directory..'"')
     for filename in pfile:lines() do
         i = i + 1
         t[i] = filename

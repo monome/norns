@@ -6,18 +6,16 @@
 #include <unistd.h>
 
 #include "args.h"
-
 #include "device.h"
 #include "device_list.h"
 #include "device_hid.h"
 #include "device_monitor.h"
 #include "device_monome.h"
-
 #include "events.h"
 #include "battery.h"
 #include "gpio.h"
-#include "hid.h"
 #include "i2c.h"
+#include "input.h"
 #include "metro.h"
 #include "screen.h"
 
@@ -44,15 +42,27 @@ int main(int argc, char **argv) {
     print_version();
 
     events_init(); // <-- must come first!
+    screen_init();
+
+    // SPLASH
+    screen_level(15);
+    screen_move(0,50);
+    screen_text("norns");
+
     metros_init();
     gpio_init();
-    screen_init();
     battery_init();
     i2c_init();
     o_init(); // oracle (audio)
 
-    //=== FIXME:
-    //--- we should wait here for a signal from the audio server...
+    // wait here for a signal from the audio server...
+    printf("waiting for crone...");
+    fflush(stdout);
+    do {
+        screen_text(".");
+        sleep(1);
+    } while(o_ready() != 1);
+    printf(" ready.\n");
 
     w_init(); // weaver (scripting)
     dev_list_init();
@@ -60,7 +70,7 @@ int main(int argc, char **argv) {
     // now is a good time to set our cleanup
     atexit(cleanup);
     // start reading input to interpreter
-    hid_init();
+    input_init();
     // i/o subsystems are ready; run user startup routine
     w_startup();
     // scan for connected input devices
