@@ -13,8 +13,8 @@ Crone {
 	classvar <>txPort = 8888;
 	// an AudioContext
 	classvar <>ctx;
-    // boot completion flag
-    classvar complete = 0;
+	// boot completion flag
+	classvar complete = 0;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
@@ -27,54 +27,41 @@ Crone {
 			postln("--------------------------------------------------\n");
 
 			// FIXME? matron address is hardcoded here
-			remoteAddr =NetAddr("127.0.0.1", txPort); 
+			remoteAddr =NetAddr("127.0.0.1", txPort);
 
 			server = Server.local;
 			server.waitForBoot ({
 				Routine {
-					// this is necessary due to a bug in sclang terminal timer!
-					// GH issue 2144 on upstream supercollider
-					// hoping for fix in 3.9 release...
-					///... arg, actually this messes with SendTrig....
-					// server.statusWatcher.stopAliveThread;
-					// server.initTree;
-					// server.sync;
 					CroneDefs.sendDefs(server);
 					server.sync;
-					// create the audio context
-					// sets up boilerplate routing and analysis
+					// create the audio context (boilerplate routing and analysis)
 					ctx = AudioContext.new(server);
-                    complete = 1;
+					complete = 1;
 				}.play;
-			}); 
+			});
 
-            // FIXME get rid of these postln's later
 			oscfunc = (
 
 				'/ready':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					//[msg, time, addr, recvPort].postln; 
-                    if(complete==1) {
-                        postln(">>> /crone/ready");
-                        remoteAddr.sendMsg('/crone/ready'); 
-                    }
+					if(complete==1) {
+						postln(">>> /crone/ready");
+						remoteAddr.sendMsg('/crone/ready');
+					}
 				}, '/ready'),
 
 				'/report/engines':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					[msg, time, addr, recvPort].postln;
 					this.reportEngines;
 				}, '/report/engines'),
 
 				'/report/commands':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					[msg, time, addr, recvPort].postln;
 					this.reportCommands;
 				}, '/report/commands'),
 
 				'/report/polls':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					[msg, time, addr, recvPort].postln;
 					this.reportPolls;
 				}, '/report/polls'),
 
@@ -84,27 +71,71 @@ Crone {
 
 				'/engine/load/name':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					[msg,time,addr,recvPort].postln;
 					this.setEngine('Engine_' ++ msg[1]);
 				}, '/engine/load/name'),
 
 				'/poll/start':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					[msg,time,addr,recvPort].postln;
 					this.startPoll(msg[1]);
 				}, '/poll/start'),
 
 				'/poll/stop':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					[msg,time,addr,recvPort].postln;
 					this.stopPoll(msg[1]);
 				}, '/poll/stop'),
 
 				'/poll/time':OSCFunc.new({
 					arg msg, time, addr, recvPort;
-					[msg,time,addr,recvPort].postln;
 					this.setPollTime(msg[1], msg[2]);
-				}, '/poll/time')
+				}, '/poll/time'),
+
+				//---- just add some hardcoded glue to the audio context
+				'/audio/input/level':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.in_s[msg[1]].set(\level, msg[2]);
+				}, '/audio/input/level'),
+
+				'/audio/output/level':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.out_s.set(\level, msg[1]);
+				}, '/audio/output/level'),
+
+				'/audio/monitor/level':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.monitorLevel(msg[1]);
+				}, '/audio/monitor/level'),
+
+				'/audio/monitor/mono':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.monitorMono;
+				}, '/audio/monitor/mono'),
+
+				'/audio/monitor/stereo':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.monitorStereo;
+				}, '/audio/monitor/stereo'),
+
+				// toggle monitoring altogether (will cause clicks)
+				'/audio/monitor/on':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.monitorOn;
+				}, '/audio/monitor/on'),
+
+				'/audio/monitor/off':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.monitorOff;
+				}, '/audio/monitor/off'),
+
+				// toggle pitch analysis (save CPU)
+				'/audio/pitch/on':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.pitchOn;
+				}, '/audio/pitch/on'),
+
+				'/audio/pitch/off':OSCFunc.new({
+					arg msg, time, addr, recvPort;
+					ctx.pitchOff;
+				}, '/audio/pitch/off'),
 
 			);
 		}
@@ -185,7 +216,7 @@ Crone {
 		num.do({ arg i;
 			var poll = CronePollRegistry.getPollFromIdx(i);
 			postln(poll.name);
-			// FIXME: polls should just have format system like commands
+			// FIXME: polls should just have format system like commands?
 			remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));
 		});
 
