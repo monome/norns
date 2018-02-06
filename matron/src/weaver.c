@@ -36,175 +36,193 @@
 lua_State *lvm;
 
 void w_run_code(const char *code) {
-    l_dostring(lvm, code, "w_run_code");
-    fflush(stdout);
+  l_dostring(lvm, code, "w_run_code");
+  fflush(stdout);
 }
 
 void w_handle_line(char *line) {
-    l_handle_line(lvm, line);
+  l_handle_line(lvm, line);
 }
 
 //-------------
 //--- declare lua->c glue
 
+// NB these static functions are prefixed  with '_'
+// to avoid shadowing similar-named extern functions in other moduels (like screen)
+// and also to distinguish from extern 'w_' functions.
+
 // grid
-static int w_grid_set_led(lua_State *l);
-static int w_grid_all_led(lua_State *l);
-static int w_grid_refresh(lua_State *l);
+static int _grid_set_led(lua_State *l);
+static int _grid_all_led(lua_State *l);
+static int _grid_refresh(lua_State *l);
 //screen
-static int w_screen_font_face(lua_State *l);
-static int w_screen_font_size(lua_State *l);
-static int w_screen_aa(lua_State *l);
-static int w_screen_level(lua_State *l);
-static int w_screen_line_width(lua_State *l);
-static int w_screen_move(lua_State *l);
-static int w_screen_line(lua_State *l);
-static int w_screen_move_rel(lua_State *l);
-static int w_screen_line_rel(lua_State *l);
-static int w_screen_curve(lua_State *l);
-static int w_screen_curve_rel(lua_State *l);
-static int w_screen_arc(lua_State *l);
-static int w_screen_rect(lua_State *l);
-static int w_screen_stroke(lua_State *l);
-static int w_screen_fill(lua_State *l);
-static int w_screen_text(lua_State *l);
-static int w_screen_clear(lua_State *l);
-static int w_screen_close(lua_State *l);
-static int w_screen_extents(lua_State *l);
+static int _screen_font_face(lua_State *l);
+static int _screen_font_size(lua_State *l);
+static int _screen_aa(lua_State *l);
+static int _screen_level(lua_State *l);
+static int _screen_line_width(lua_State *l);
+static int _screen_move(lua_State *l);
+static int _screen_line(lua_State *l);
+static int _screen_move_rel(lua_State *l);
+static int _screen_line_rel(lua_State *l);
+static int _screen_curve(lua_State *l);
+static int _screen_curve_rel(lua_State *l);
+static int _screen_arc(lua_State *l);
+static int _screen_rect(lua_State *l);
+static int _screen_stroke(lua_State *l);
+static int _screen_fill(lua_State *l);
+static int _screen_text(lua_State *l);
+static int _screen_clear(lua_State *l);
+static int _screen_close(lua_State *l);
+static int _screen_extents(lua_State *l);
 //i2c
-static int w_gain_hp(lua_State *l);
-static int w_gain_in(lua_State *l);
+static int _gain_hp(lua_State *l);
+static int _gain_in(lua_State *l);
 
 // crone
 /// engines
-static int w_request_engine_report(lua_State *l);
-static int w_load_engine(lua_State *l);
+static int _request_engine_report(lua_State *l);
+static int _load_engine(lua_State *l);
 /// commands
-static int w_request_command_report(lua_State *l);
-static int w_send_command(lua_State *l);
-static int w_request_poll_report(lua_State *l);
-static int w_start_poll(lua_State *l);
-static int w_stop_poll(lua_State *l);
-static int w_set_poll_time(lua_State *l);
+static int _request_command_report(lua_State *l);
+static int _send_command(lua_State *l);
+static int _request_poll_report(lua_State *l);
+static int _start_poll(lua_State *l);
+static int _stop_poll(lua_State *l);
+static int _set_poll_time(lua_State *l);
 // timing
-static int w_metro_start(lua_State *l);
-static int w_metro_stop(lua_State *l);
-static int w_metro_set_time(lua_State *l);
+static int _metro_start(lua_State *l);
+static int _metro_stop(lua_State *l);
+static int _metro_set_time(lua_State *l);
 // get the current system time
-static int w_get_time(lua_State *l);
+static int _get_time(lua_State *l);
+
+// audio context control
+static int _set_audio_input_level(lua_State *l);
+static int _set_audio_output_level(lua_State *l);
+static int _set_audio_monitor_level(lua_State *l);
+static int _set_audio_monitor_mono(lua_State *l);
+static int _set_audio_monitor_stereo(lua_State *l);
+static int _set_audio_monitor_on(lua_State *l);
+static int _set_audio_monitor_off(lua_State *l);
+static int _set_audio_pitch_on(lua_State *l);
+static int _set_audio_pitch_off(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
-w_push_norns_func(const char *field, const char *func) {
-    //    printf("calling norns.%s.%s\n", field, func); fflush(stdout);
-    lua_getglobal(lvm, "norns");
-    lua_getfield(lvm, -1, field);
-    lua_remove(lvm, -2);
-    lua_getfield(lvm, -1, func);
-    lua_remove(lvm, -2);
+_push_norns_func(const char *field, const char *func) {
+  //    printf("calling norns.%s.%s\n", field, func); fflush(stdout);
+  lua_getglobal(lvm, "norns");
+  lua_getfield(lvm, -1, field);
+  lua_remove(lvm, -2);
+  lua_getfield(lvm, -1, func);
+  lua_remove(lvm, -2);
 }
 
+////////////////////////////////
+//// extern function definitions
+
 void w_init(void) {
-    printf("starting lua vm \n");
-    lvm = luaL_newstate();
-    luaL_openlibs(lvm);
-    lua_pcall(lvm, 0, 0, 0);
-    fflush(stdout);
+  printf("starting lua vm \n");
+  lvm = luaL_newstate();
+  luaL_openlibs(lvm);
+  lua_pcall(lvm, 0, 0, 0);
+  fflush(stdout);
 
-    ////////////////////////
-    // FIXME: document these in lua in some deliberate fashion
-    //////////////////
+  ////////////////////////
+  // FIXME: document these in lua in some deliberate fashion
+  //////////////////
 
-    // low-level monome grid control
-    lua_register(lvm, "grid_set_led", &w_grid_set_led);
-    lua_register(lvm, "grid_all_led", &w_grid_all_led);
-    lua_register(lvm, "grid_refresh", &w_grid_refresh);
+  // low-level monome grid control
+  lua_register(lvm, "grid_set_led", &_grid_set_led);
+  lua_register(lvm, "grid_all_led", &_grid_all_led);
+  lua_register(lvm, "grid_refresh", &_grid_refresh);
 
-    // register screen funcs
-    lua_register(lvm, "s_font_face", &w_screen_font_face);
-    lua_register(lvm, "s_font_size", &w_screen_font_size);
-    lua_register(lvm, "s_aa", &w_screen_aa);
-    lua_register(lvm, "s_level", &w_screen_level);
-    lua_register(lvm, "s_line_width", &w_screen_line_width);
-    lua_register(lvm, "s_move", &w_screen_move);
-    lua_register(lvm, "s_line", &w_screen_line);
-    lua_register(lvm, "s_move_rel", &w_screen_move_rel);
-    lua_register(lvm, "s_line_rel", &w_screen_line_rel);
-    lua_register(lvm, "s_curve", &w_screen_curve);
-    lua_register(lvm, "s_curve_rel", &w_screen_curve_rel);
-    lua_register(lvm, "s_arc", &w_screen_arc);
-    lua_register(lvm, "s_rect", &w_screen_rect);
-    lua_register(lvm, "s_stroke", &w_screen_stroke);
-    lua_register(lvm, "s_fill", &w_screen_fill);
-    lua_register(lvm, "s_text", &w_screen_text);
-    lua_register(lvm, "s_clear", &w_screen_clear);
-    lua_register(lvm, "s_close", &w_screen_close);
-    lua_register(lvm, "s_extents", &w_screen_extents);
+  // register screen funcs
+  lua_register(lvm, "s_font_face", &_screen_font_face);
+  lua_register(lvm, "s_font_size", &_screen_font_size);
+  lua_register(lvm, "s_aa", &_screen_aa);
+  lua_register(lvm, "s_level", &_screen_level);
+  lua_register(lvm, "s_line_width", &_screen_line_width);
+  lua_register(lvm, "s_move", &_screen_move);
+  lua_register(lvm, "s_line", &_screen_line);
+  lua_register(lvm, "s_move_rel", &_screen_move_rel);
+  lua_register(lvm, "s_line_rel", &_screen_line_rel);
+  lua_register(lvm, "s_curve", &_screen_curve);
+  lua_register(lvm, "s_curve_rel", &_screen_curve_rel);
+  lua_register(lvm, "s_arc", &_screen_arc);
+  lua_register(lvm, "s_rect", &_screen_rect);
+  lua_register(lvm, "s_stroke", &_screen_stroke);
+  lua_register(lvm, "s_fill", &_screen_fill);
+  lua_register(lvm, "s_text", &_screen_text);
+  lua_register(lvm, "s_clear", &_screen_clear);
+  lua_register(lvm, "s_close", &_screen_close);
+  lua_register(lvm, "s_extents", &_screen_extents);
 
-    // analog output control
-    lua_register(lvm, "gain_hp", &w_gain_hp);
-    lua_register(lvm, "gain_in", &w_gain_in);
+  // analog output control
+  lua_register(lvm, "gain_hp", &_gain_hp);
+  lua_register(lvm, "gain_in", &_gain_in);
 
-    // get list of available crone engines
-    lua_register(lvm, "report_engines", &w_request_engine_report);
-    // load a named engine
-    lua_register(lvm, "load_engine", &w_load_engine);
+  // get list of available crone engines
+  lua_register(lvm, "report_engines", &_request_engine_report);
+  // load a named engine
+  lua_register(lvm, "load_engine", &_load_engine);
 
-    // get list of available crone commmands based on current engine
-    lua_register(lvm, "report_commands", &w_request_command_report);
-    // send an indexed command
-    lua_register(lvm, "send_command", &w_send_command);
+  // get list of available crone commmands based on current engine
+  lua_register(lvm, "report_commands", &_request_command_report);
+  // send an indexed command
+  lua_register(lvm, "send_command", &_send_command);
 
-    // start/stop an indexed metro with callback
-    lua_register(lvm, "metro_start", &w_metro_start);
-    lua_register(lvm, "metro_stop", &w_metro_stop);
-    lua_register(lvm, "metro_set_time", &w_metro_set_time);
+  // start/stop an indexed metro with callback
+  lua_register(lvm, "metro_start", &_metro_start);
+  lua_register(lvm, "metro_stop", &_metro_stop);
+  lua_register(lvm, "metro_set_time", &_metro_set_time);
 
-    // get the current high-resolution CPU time
-    lua_register(lvm, "get_time", &w_get_time);
+  // get the current high-resolution CPU time
+  lua_register(lvm, "get_time", &_get_time);
 
-    // report available polling functions
-    lua_register(lvm, "report_polls", &w_request_poll_report);
-    // start / stop a poll
-    lua_register(lvm, "start_poll", &w_start_poll);
-    lua_register(lvm, "stop_poll", &w_stop_poll);
-    lua_register(lvm, "set_poll_time", &w_set_poll_time);
+  // report available polling functions
+  lua_register(lvm, "report_polls", &_request_poll_report);
+  // start / stop a poll
+  lua_register(lvm, "start_poll", &_start_poll);
+  lua_register(lvm, "stop_poll", &_stop_poll);
+  lua_register(lvm, "set_poll_time", &_set_poll_time);
 
-    // audio context controls
-    lua_register(lvm, "set_audio_input_level", &w_set_audio_input_level);
-    lua_register(lvm, "set_audio_output_level", &w_set_audio_output_level);
-    lua_register(lvm, "set_audio_monitor_level", &w_set_audio_monitor_level);
-    lua_register(lvm, "set_audio_monitor_mono", &w_set_audio_monitor_mono);
-    lua_register(lvm, "set_audio_monitor_stereo", &w_set_audio_monitor_stereo);
-    lua_register(lvm, "set_audio_monitor_on", &w_set_audio_monitor_on);
-    lua_register(lvm, "set_audio_monitor_off", &w_set_audio_monitor_off);
-    lua_register(lvm, "set_audio_pitch_on", &w_set_audio_pitch_on);
-    lua_register(lvm, "set_audio_pitch_off", &w_set_audio_pitch_off);
+  // audio context controls
+  lua_register(lvm, "set_audio_input_level", &_set_audio_input_level);
+  lua_register(lvm, "set_audio_output_level", &_set_audio_output_level);
+  lua_register(lvm, "set_audio_monitor_level", &_set_audio_monitor_level);
+  lua_register(lvm, "set_audio_monitor_mono", &_set_audio_monitor_mono);
+  lua_register(lvm, "set_audio_monitor_stereo", &_set_audio_monitor_stereo);
+  lua_register(lvm, "set_audio_monitor_on", &_set_audio_monitor_on);
+  lua_register(lvm, "set_audio_monitor_off", &_set_audio_monitor_off);
+  lua_register(lvm, "set_audio_pitch_on", &_set_audio_pitch_on);
+  lua_register(lvm, "set_audio_pitch_off", &_set_audio_pitch_off);
 
-    // run system init code
-    char *config = getenv("NORNS_CONFIG");
-    char *home = getenv("HOME");
-    char cmd[256];
+  // run system init code
+  char *config = getenv("NORNS_CONFIG");
+  char *home = getenv("HOME");
+  char cmd[256];
 
-    if(config == NULL) {
-        snprintf(cmd, 256, "dofile('%s/norns/lua/config.lua')\n", home);
-    } else {
-        snprintf(cmd, 256, "dofile('%s')\n", config);
-    }
-    printf("running lua config file: %s", cmd);
-    w_run_code(cmd);
-    w_run_code("require('norns')");
+  if(config == NULL) {
+    snprintf(cmd, 256, "dofile('%s/norns/lua/config.lua')\n", home);
+  } else {
+    snprintf(cmd, 256, "dofile('%s')\n", config);
+  }
+  printf("running lua config file: %s", cmd);
+  w_run_code(cmd);
+  w_run_code("require('norns')");
 }
 
 // run startup code
 // audio backend should be running
 void w_startup(void) {
-    lua_getglobal(lvm, "startup");
-    l_report( lvm, l_docall(lvm, 0, 0) );
+  lua_getglobal(lvm, "startup");
+  l_report( lvm, l_docall(lvm, 0, 0) );
 }
 
 void w_deinit(void) {
-    // FIXME: lua is leaking memory. doesn't really matter
+  // FIXME: lua is leaking memory. doesn't really matter
 }
 
 //----------------------------------
@@ -214,52 +232,52 @@ void w_deinit(void) {
  * screen: set font face
  * @function s_font_face
  */
-int w_screen_font_face(lua_State *l) {
-    int x;
-    if(lua_gettop(l) != 1) { // check num args
-        goto args_error;
-    }
+int _screen_font_face(lua_State *l) {
+  int x;
+  if(lua_gettop(l) != 1) { // check num args
+    goto args_error;
+  }
 
-    if( lua_isnumber(l, 1) ) {
-        x = lua_tonumber(l, 1);
-    } else {
-        goto args_error;
-    }
+  if( lua_isnumber(l, 1) ) {
+    x = lua_tonumber(l, 1);
+  } else {
+    goto args_error;
+  }
 
-    screen_font_face(x);
-    lua_settop(l, 0);
-    return 0;
+  screen_font_face(x);
+  lua_settop(l, 0);
+  return 0;
 
-args_error:
-    printf("warning: incorrect arguments to s_font_face() \n"); fflush(stdout);
-    lua_settop(l, 0);
-    return 0;
+ args_error:
+  printf("warning: incorrect arguments to s_font_face() \n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***
  * screen: set font size
  * @function s_font_size
  */
-int w_screen_font_size(lua_State *l) {
-    long x;
-    if(lua_gettop(l) != 1) { // check num args
-        goto args_error;
-    }
+int _screen_font_size(lua_State *l) {
+  long x;
+  if(lua_gettop(l) != 1) { // check num args
+    goto args_error;
+  }
 
-    if( lua_isnumber(l, 1) ) {
-        x = lua_tonumber(l, 1);
-    } else {
-        goto args_error;
-    }
+  if( lua_isnumber(l, 1) ) {
+    x = lua_tonumber(l, 1);
+  } else {
+    goto args_error;
+  }
 
-    screen_font_size(x);
-    lua_settop(l, 0);
-    return 0;
+  screen_font_size(x);
+  lua_settop(l, 0);
+  return 0;
 
-args_error:
-    printf("warning: incorrect arguments to s_font_size() \n"); fflush(stdout);
-    lua_settop(l, 0);
-    return 0;
+ args_error:
+  printf("warning: incorrect arguments to s_font_size() \n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***
@@ -267,26 +285,26 @@ args_error:
  * @function s_aa
  * @tparam integer state, 0=off, 1=on
  */
-int w_screen_aa(lua_State *l) {
-    int x;
-    if(lua_gettop(l) != 1) { // check num args
-        goto args_error;
-    }
+int _screen_aa(lua_State *l) {
+  int x;
+  if(lua_gettop(l) != 1) { // check num args
+    goto args_error;
+  }
 
-    if( lua_isnumber(l, 1) ) {
-        x = lua_tonumber(l, 1);
-    } else {
-        goto args_error;
-    }
+  if( lua_isnumber(l, 1) ) {
+    x = lua_tonumber(l, 1);
+  } else {
+    goto args_error;
+  }
 
-    screen_aa(x);
-    lua_settop(l, 0);
-    return 0;
+  screen_aa(x);
+  lua_settop(l, 0);
+  return 0;
 
-args_error:
-    printf("warning: incorrect arguments to s_aa() \n"); fflush(stdout);
-    lua_settop(l, 0);
-    return 0;
+ args_error:
+  printf("warning: incorrect arguments to s_aa() \n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***
@@ -294,26 +312,26 @@ args_error:
  * @function s_level
  * @tparam integer level, 0 (black) to 15 (white)
  */
-int w_screen_level(lua_State *l) {
-    int x;
-    if(lua_gettop(l) != 1) { // check num args
-        goto args_error;
-    }
+int _screen_level(lua_State *l) {
+  int x;
+  if(lua_gettop(l) != 1) { // check num args
+    goto args_error;
+  }
 
-    if( lua_isnumber(l, 1) ) {
-        x = lua_tonumber(l, 1);
-    } else {
-        goto args_error;
-    }
+  if( lua_isnumber(l, 1) ) {
+    x = lua_tonumber(l, 1);
+  } else {
+    goto args_error;
+  }
 
-    screen_level(x);
-    lua_settop(l, 0);
-    return 0;
+  screen_level(x);
+  lua_settop(l, 0);
+  return 0;
 
-args_error:
-    printf("warning: incorrect arguments to s_level() \n"); fflush(stdout);
-    lua_settop(l, 0);
-    return 0;
+ args_error:
+  printf("warning: incorrect arguments to s_level() \n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***
@@ -321,26 +339,26 @@ args_error:
  * @function s_line_width
  * @tparam integer width line width
  */
-int w_screen_line_width(lua_State *l) {
-    long x;
-    if(lua_gettop(l) != 1) { // check num args
-        goto args_error;
-    }
+int _screen_line_width(lua_State *l) {
+  long x;
+  if(lua_gettop(l) != 1) { // check num args
+    goto args_error;
+  }
 
-    if( lua_isnumber(l, 1) ) {
-        x = lua_tonumber(l, 1);
-    } else {
-        goto args_error;
-    }
+  if( lua_isnumber(l, 1) ) {
+    x = lua_tonumber(l, 1);
+  } else {
+    goto args_error;
+  }
 
-    screen_line_width(x);
-    lua_settop(l, 0);
-    return 0;
+  screen_line_width(x);
+  lua_settop(l, 0);
+  return 0;
 
-args_error:
-    printf("warning: incorrect arguments to s_line_width() \n"); fflush(stdout);
-    lua_settop(l, 0);
-    return 0;
+ args_error:
+  printf("warning: incorrect arguments to s_line_width() \n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***
@@ -349,32 +367,32 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_move(lua_State *l) {
-    int x, y;
-    if(lua_gettop(l) != 2) { // check num args
-        goto args_error;
-    }
+int _screen_move(lua_State *l) {
+  int x, y;
+  if(lua_gettop(l) != 2) { // check num args
+    goto args_error;
+  }
 
-    if( lua_isnumber(l, 1) ) {
-        x = lua_tonumber(l, 1);
-    } else {
-        goto args_error;
-    }
+  if( lua_isnumber(l, 1) ) {
+    x = lua_tonumber(l, 1);
+  } else {
+    goto args_error;
+  }
 
-    if( lua_isnumber(l, 2) ) {
-        y = lua_tonumber(l, 2);
-    } else {
-        goto args_error;
-    }
+  if( lua_isnumber(l, 2) ) {
+    y = lua_tonumber(l, 2);
+  } else {
+    goto args_error;
+  }
 
-    screen_move(x,y);
-    lua_settop(l, 0);
-    return 0;
+  screen_move(x,y);
+  lua_settop(l, 0);
+  return 0;
 
-args_error:
-    printf("warning: incorrect arguments to s_move() \n"); fflush(stdout);
-    lua_settop(l, 0);
-    return 0;
+ args_error:
+  printf("warning: incorrect arguments to s_move() \n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***
@@ -383,7 +401,7 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_line(lua_State *l) {
+int _screen_line(lua_State *l) {
     int x, y;
     if(lua_gettop(l) != 2) { // check num args
         goto args_error;
@@ -417,7 +435,7 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_move_rel(lua_State *l) {
+int _screen_move_rel(lua_State *l) {
     int x, y;
     if(lua_gettop(l) != 2) { // check num args
         goto args_error;
@@ -451,7 +469,7 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_line_rel(lua_State *l) {
+int _screen_line_rel(lua_State *l) {
     int x, y;
     if(lua_gettop(l) != 2) { // check num args
         goto args_error;
@@ -485,7 +503,7 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_curve(lua_State *l) {
+int _screen_curve(lua_State *l) {
     double x1,y1,x2,y2,x3,y3;
     if(lua_gettop(l) != 6) { // check num args
         goto args_error;
@@ -543,7 +561,7 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_curve_rel(lua_State *l) {
+int _screen_curve_rel(lua_State *l) {
     double x1,y1,x2,y2,x3,y3;
     if(lua_gettop(l) != 6) { // check num args
         goto args_error;
@@ -601,7 +619,7 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_arc(lua_State *l) {
+int _screen_arc(lua_State *l) {
     double x, y, r, a1, a2;
     if(lua_gettop(l) != 5) { // check num args
         goto args_error;
@@ -653,7 +671,7 @@ args_error:
  * @param x
  * @param y
  */
-int w_screen_rect(lua_State *l) {
+int _screen_rect(lua_State *l) {
     double x,y,w,h;
     if(lua_gettop(l) != 4) { // check num args
         goto args_error;
@@ -697,7 +715,7 @@ args_error:
  * screen: stroke, or apply width/color to line(s)
  * @function s_stroke
  */
-int w_screen_stroke(lua_State *l) {
+int _screen_stroke(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
     }
@@ -716,7 +734,7 @@ args_error:
  * screen: fill path
  * @function s_fill
  */
-int w_screen_fill(lua_State *l) {
+int _screen_fill(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
     }
@@ -736,7 +754,7 @@ args_error:
  * @function s_text
  * @tparam string text test to print
  */
-int w_screen_text(lua_State *l) {
+int _screen_text(lua_State *l) {
     char s[64];
 
     if(lua_gettop(l) != 1) { // check num args
@@ -763,7 +781,7 @@ args_error:
  * screen: clear to black
  * @function s_clear
  */
-int w_screen_clear(lua_State *l) {
+int _screen_clear(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
     }
@@ -782,7 +800,7 @@ args_error:
  * screen: close path
  * @function s_close
  */
-int w_screen_close(lua_State *l) {
+int _screen_close(lua_State *l) {
     if(lua_gettop(l) != 0) { // check num args
         goto args_error;
     }
@@ -802,7 +820,7 @@ args_error:
  * @function s_extents
  * @tparam gets x/y displacement of a string
  */
-int w_screen_extents(lua_State *l) {
+int _screen_extents(lua_State *l) {
     char s[64];
     double *xy;
 
@@ -833,7 +851,7 @@ args_error:
  * @function gain_hp
  * @tparam integer level level (0-63)
  */
-int w_gain_hp(lua_State *l) {
+int _gain_hp(lua_State *l) {
     int level;
     if(lua_gettop(l) != 1) { // check num args
         goto args_error;
@@ -861,7 +879,7 @@ args_error:
  * @tparam integer level level (0-63)
  * @tparam integer ch channel (0=L,1=R)
  */
-int w_gain_in(lua_State *l) {
+int _gain_in(lua_State *l) {
     int level, ch;
     if(lua_gettop(l) != 2) { // check num args
         goto args_error;
@@ -897,7 +915,7 @@ args_error:
  * @param y y
  * @param z level (0-15)
  */
-int w_grid_set_led(lua_State *l) {
+int _grid_set_led(lua_State *l) {
     struct dev_monome *md;
     int x, y, z;
     if(lua_gettop(l) != 4) { // check num args
@@ -942,7 +960,7 @@ args_error:
  * @param dev grid device
  * @param z level (0-15)
  */
-int w_grid_all_led(lua_State *l) {
+int _grid_all_led(lua_State *l) {
     struct dev_monome *md;
     int z;
     if(lua_gettop(l) != 2) { // check num args
@@ -975,7 +993,7 @@ args_error:
  * @function grid_refresh
  * @param dev grid device
  */
-int w_grid_refresh(lua_State *l) {
+int _grid_refresh(lua_State *l) {
     struct dev_monome *md;
     if(lua_gettop(l) != 1) { // check num args
         goto args_error;
@@ -995,7 +1013,7 @@ args_error:
 }
 
 //-- audio processing controls
-int w_load_engine(lua_State *l) {
+int _load_engine(lua_State *l) {
     if(lua_gettop(l) != 1) {
         goto args_error;
     }
@@ -1014,7 +1032,7 @@ args_error:
     return 0;
 }
 
-int w_send_command(lua_State *l) {
+int _send_command(lua_State *l) {
     int nargs = lua_gettop(l);
     if(nargs < 1) { goto args_error; }
 
@@ -1088,13 +1106,13 @@ args_error:
     return 0;
 }
 
-int w_request_engine_report(lua_State *l) {
+int _request_engine_report(lua_State *l) {
     (void)l;
     o_request_engine_report();
     return 0;
 }
 
-int w_request_command_report(lua_State *l) {
+int _request_command_report(lua_State *l) {
     (void)l;
     o_request_command_report();
     return 0;
@@ -1104,7 +1122,7 @@ int w_request_command_report(lua_State *l) {
  * metro: start
  * @function metro_start
  */
-int w_metro_start(lua_State *l) {
+int _metro_start(lua_State *l) {
     static int idx = 0;
     double seconds;
     int count, stage;
@@ -1160,7 +1178,7 @@ args_error:
  * metro: stop
  * @function metro_stop
  */
-int w_metro_stop(lua_State *l) {
+int _metro_stop(lua_State *l) {
     int idx;
     int nargs = lua_gettop(l);
     if( nargs != 1) {
@@ -1185,7 +1203,7 @@ args_error:
  * metro: set time
  * @function metro_set_time
  */
-int w_metro_set_time(lua_State *l) {
+int _metro_set_time(lua_State *l) {
     int idx;
     float sec;
     int nargs = lua_gettop(l);
@@ -1215,7 +1233,7 @@ args_error:
  * request current time since Epoch
  * @function get_time
  */
-int w_get_time(lua_State *l) {
+int _get_time(lua_State *l) {
     struct timeval tv;
     struct timezone tz;
     gettimeofday(&tv, &tz);
@@ -1231,8 +1249,8 @@ int w_get_time(lua_State *l) {
 
 // helper for calling grid handlers
 static inline void
-w_call_grid_handler(int id, int x, int y, int state) {
-    w_push_norns_func("grid", "key");
+_call_grid_handler(int id, int x, int y, int state) {
+    _push_norns_func("grid", "key");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushinteger(lvm, x + 1);  // convert to 1-base
     lua_pushinteger(lvm, y + 1);  // convert to 1-base
@@ -1245,7 +1263,7 @@ void w_handle_monome_add(void *mdev) {
     int id = md->dev.id;
     const char *serial = md->dev.serial;
     const char *name =  md->dev.name;
-    w_push_norns_func("monome", "add");
+    _push_norns_func("monome", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, serial);
     lua_pushstring(lvm, name);
@@ -1254,13 +1272,13 @@ void w_handle_monome_add(void *mdev) {
 }
 
 void w_handle_monome_remove(int id) {
-    w_push_norns_func("monome", "remove");
+    _push_norns_func("monome", "remove");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     l_report( lvm, l_docall(lvm, 1, 0) );
 }
 
 void w_handle_grid_key(int id, int x, int y, int state) {
-    w_call_grid_handler( id, x, y, state > 0);
+    _call_grid_handler( id, x, y, state > 0);
 }
 
 void w_handle_hid_add(void *p) {
@@ -1268,7 +1286,7 @@ void w_handle_hid_add(void *p) {
     struct dev_common *base = (struct dev_common *)p;
     int id = base->id;
 
-    w_push_norns_func("hid", "add");
+    _push_norns_func("hid", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, base->serial);
     lua_pushstring(lvm, base->name);
@@ -1296,13 +1314,13 @@ void w_handle_hid_add(void *p) {
 }
 
 void w_handle_hid_remove(int id) {
-    w_push_norns_func("hid", "remove");
+    _push_norns_func("hid", "remove");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     l_report( lvm, l_docall(lvm, 1, 0) );
 }
 
 void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
-    w_push_norns_func("hid", "event");
+    _push_norns_func("hid", "event");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushinteger(lvm, type);
     lua_pushinteger(lvm, code);
@@ -1312,7 +1330,7 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
 
 // helper for pushing array of c strings
 static inline void
-w_push_string_array(const char **arr, const int n) {
+_push_string_array(const char **arr, const int n) {
     // push a table of strings
     lua_createtable(lvm, n, 0);
     for (int i = 0; i < n; i++) {
@@ -1325,14 +1343,14 @@ w_push_string_array(const char **arr, const int n) {
 
 // audio engine report handlers
 void w_handle_engine_report(const char **arr, const int n) {
-    w_push_norns_func("report", "engines");
-    w_push_string_array(arr, n);
+    _push_norns_func("report", "engines");
+    _push_string_array(arr, n);
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
 void w_handle_command_report(const struct engine_command *arr,
                              const int num) {
-    w_push_norns_func("report", "commands");
+    _push_norns_func("report", "commands");
     // push a table of tables: {{cmd, fmt}, {cmd,fmt}, ...}
     lua_createtable(lvm, num, 0);
     for(int i = 0; i < num; i++) {
@@ -1357,9 +1375,9 @@ void w_handle_poll_report(const struct engine_poll *arr,
     (void)arr;
     (void)num;
 
-    // printf("w_handle_poll_report\n"); fflush(stdout);
+    // printf("_handle_poll_report\n"); fflush(stdout);
 
-    w_push_norns_func("report", "polls");
+    _push_norns_func("report", "polls");
     lua_createtable(lvm, num, 0);
 
     for(int i = 0; i < num; ++i) {
@@ -1434,7 +1452,7 @@ void w_handle_power(const int present) {
 }
 
 void w_handle_poll_value(int idx, float val) {
-    // printf("w_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);
+    // printf("_handle_poll_value: %d, %f \n", idx, val); fflush(stdout);
     lua_getglobal(lvm, "norns");
     lua_getfield(lvm, -1, "poll");
     lua_remove(lvm, -2);
@@ -1458,7 +1476,7 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
-int w_request_poll_report(lua_State *l) {
+int _request_poll_report(lua_State *l) {
     (void)l;
     o_request_poll_report();
     return 0;
@@ -1483,16 +1501,15 @@ static int poll_set_state(lua_State *l, bool val) {
     }
 }
 
-int w_start_poll(lua_State *l) {
+int _start_poll(lua_State *l) {
     return poll_set_state(l, true);
 }
 
-int w_stop_poll(lua_State *l) {
+int _stop_poll(lua_State *l) {
     return poll_set_state(l, false);
 }
 
-int w_set_poll_time(lua_State *l) {
-    (void)l;
+int _set_poll_time(lua_State *l) {
     int nargs = lua_gettop(l);
     if(nargs == 2) {
         if( lua_isinteger(l, 1) ) {
@@ -1508,5 +1525,95 @@ int w_set_poll_time(lua_State *l) {
     printf("wrong arguments for w_set_poll_time(); ");
     printf("expects idx(int), dt(float) \n"); fflush(stdout);
     lua_settop(l, 0);
-    return 0;
+    return 1;
 }
+
+
+// audio context control
+int _set_audio_input_level(lua_State *l) {
+  int nargs = lua_gettop(l);
+  if(nargs == 2) {
+    if( lua_isinteger(l, 1) ) {
+      int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
+      if( lua_isnumber(l, 2) ) {
+	float val = lua_tonumber(l, 2);		
+	o_set_audio_input_level(idx, val);
+	lua_settop(l, 0);
+	return 0;
+      }
+    }
+  }
+  printf("wrong arguments for _set_audio_input_level; ");
+  printf("expects idx(int), level(float)\n"); fflush(stdout);
+    lua_settop(l, 0);
+  return 1;
+}
+
+int _set_audio_output_level(lua_State *l) {
+  int nargs = lua_gettop(l);
+  if(nargs == 1) {
+    if( lua_isnumber(l, 2) ) {
+      float val = lua_tonumber(l, 2);		
+      o_set_audio_output_level(val) ;
+      lua_settop(l, 0);
+      return 0;
+    }
+  }
+  printf("wrong arguments for _set_audio_output_level; ");
+  printf("expects level(float)\n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 1;
+}
+
+int _set_audio_monitor_level(lua_State *l) {
+    int nargs = lua_gettop(l);
+  if(nargs == 1) {
+    if( lua_isnumber(l, 2) ) {
+      float val = lua_tonumber(l, 2);	
+   o_set_audio_monitor_level(val) ;	
+      lua_settop(l, 0);
+      return 0;
+    }
+  }
+  printf("wrong arguments for _set_audio_monitor_level; ");
+  printf("expects level(float)\n"); fflush(stdout);
+  lua_settop(l, 0);
+  return 1;
+}
+
+int _set_audio_monitor_mono(lua_State *l) {
+  (void)l;
+   o_set_audio_monitor_mono() ;
+   return 0;
+}
+
+int _set_audio_monitor_stereo(lua_State *l) {
+  (void)l;
+   o_set_audio_monitor_stereo() ;
+   return 0;
+}
+
+int _set_audio_monitor_on(lua_State *l) {
+  (void)l;
+   o_set_audio_monitor_on() ;
+   return 0;
+}
+
+int _set_audio_monitor_off(lua_State *l) {
+  (void)l;
+   o_set_audio_monitor_off() ;
+   return 0;
+}
+
+int _set_audio_pitch_on(lua_State *l) {
+  (void)l;
+   o_set_audio_pitch_on() ;
+   return 0;
+}
+
+int _set_audio_pitch_off(lua_State *l) {
+  (void)l;
+   o_set_audio_pitch_off() ;
+   return 0;
+}
+
