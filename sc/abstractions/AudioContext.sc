@@ -87,7 +87,7 @@ AudioContext {
 			);
 		});
 
-		
+
 		this.initCommands();
 		this.initPolls();
 
@@ -132,18 +132,37 @@ AudioContext {
 		// FIXME?/...
 	}
 
-	registerPoll  { arg name, func, dt=0.1;
+	registerPoll  { arg name, func, dt=0.1, type=\value;
 		pollNames.add(name);
-		CronePollRegistry.register(name, func, dt);
+		CronePollRegistry.register(name, func, dt, type);
 	}
 
-	
+	// pack low-resolution, log-scaled bus amplitudes
+	buildVuBlob {
+
+		var vals = Array.with(
+			amp_in_b[0].getSynchronous();
+			amp_in_b[1].getSynchronous();
+			amp_out_b[0].getSynchronous();
+			amp_out_b[1].getSynchronous();
+		);
+
+		^Int8Array.fill(4, { |i|
+			ReverseAudioTaper.lookup( vals[i] )
+		});
+	}
+
+
 	initPolls {
 		postln("AudioContext: initPolls");
-		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
-		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
-		this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous(); });
-		this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous(); });
+		// this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
+		// this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
+		// this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous(); });
+		// this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous(); });
+
+		this.registerPoll(\io_levels, {
+			this.buildVuBlob()
+		}, dt:0.1, type:\data);
 
 		this.registerPoll(\pitch_in_l, {
 			var pitch, clar;
@@ -156,5 +175,4 @@ AudioContext {
 			if(clar > 0, { pitch }, {-1});
 		});
 	}
-	
 }

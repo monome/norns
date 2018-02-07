@@ -50,9 +50,9 @@ ReverseAudioTaper {
 
 	*lookup { arg amp;
 		if(amp < breaklin, {
-			^amp / breaklin * (breakn-1);
+			^(amp / breaklin * (breakn-1)).floor.asInteger;
 		}, {
-			^linlogarr[((amp - breaklin) / lininc).floor]
+			^linlogarr[((amp - breaklin) / lininc).floor].asInteger;
 		})
 	}
 }
