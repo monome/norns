@@ -34,6 +34,9 @@ enc = sys.none
 redraw = sys.blank
 cleanup = sys.none 
 
+sys.input = 20 --default, overwritten by saved state
+sys.hp = 20 -- default 
+
 -- SHORTCUTS
 sys.run = sys.script.load
 sys.time = get_time 
@@ -41,3 +44,4 @@ sys.time = get_time
 -- HELPERS
 require 'math'
 math.randomseed(os.time()) 
+clamp = function(n, min, max) return math.min(max,(math.max(n,min))) end

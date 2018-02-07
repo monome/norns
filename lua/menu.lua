@@ -111,8 +111,8 @@ menu.set_mode = function(mode)
         sys.s.block()
         menu.set_page(menu.page)
         set_enc_sens(1,1)
-        set_enc_sens(2,3)
-        set_enc_sens(3,16) 
+        set_enc_sens(2,4)
+        set_enc_sens(3,4) 
     end
 end
 
@@ -308,6 +308,7 @@ p.set.len = 3
 
 p.key[pSETTINGS] = function(n,z)
     if n==2 and z==1 then 
+        sys.file.state.save()
         menu.set_page(pHOME)
     elseif n==3 and z==1 and p.set.pos==2 then
         menu.set_page(pWIFI) 
@@ -317,9 +318,23 @@ end
 p.enc[pSETTINGS] = function(n,delta)
     if n==2 then 
         p.set.pos = p.set.pos + delta 
-	    if p.set.pos > p.set.len - 1 then p.set.pos = p.set.len - 1
-        elseif p.set.pos < 0 then p.set.pos = 0 end
+        p.set.pos = clamp(p.set.pos, 0, p.set.len-1)
+	    --if p.set.pos > p.set.len - 1 then p.set.pos = p.set.len - 1
+        --elseif p.set.pos < 0 then p.set.pos = 0 end
         menu.redraw()
+    elseif n==3 then
+        if p.set.pos == 0 then
+            sys.input = sys.input + delta
+            sys.input = clamp(sys.input,0,63)
+            gain_in(sys.input,0) --L
+            gain_in(sys.input,1) --R
+            menu.redraw()
+        elseif p.set.pos == 1 then
+            sys.hp = sys.hp + delta
+            sys.hp = clamp(sys.hp,0,63)
+            gain_hp(sys.hp) 
+            menu.redraw()
+        end
     end
 end
 
@@ -337,7 +352,14 @@ p.redraw[pSETTINGS] = function()
            	s_level(4)
        	end
        	s_text(string.upper(line)) 
-     end
+    end
+
+    if p.set.pos==0 then s_level(15) else s_level(4) end
+    s_move(127,30)
+    s_text_right(sys.input)
+    if p.set.pos==1 then s_level(15) else s_level(4) end
+    s_move(127,40)
+    s_text_right(sys.hp)
 end
 
 p.init[pSETTINGS] = sys.none
@@ -382,15 +404,17 @@ p.redraw[pSTATUS] = function()
     s_clear()
     s_aa(1)
 
-    status = "b "..norns.batterypercent 
-    if norns.powerpresent==1 then status = status.."+" end
+    local status = "battery "..norns.batterypercent 
+    if norns.powerpresent==1 then status = status.."+" end 
+    local current = os.capture("cat /sys/class/power_supply/bq27441-0/current_now")
+    current = tonumber(current) / 1000
 
-    s_level(10)
-    s_move(0,10)
-    s_text(status)
-
+    s_level(4)
+    s_move(0,8)
+    s_text(status .. " > "..current.."mA")
+    
     -- draw current script loaded
-    s_move(0,60)
+    s_move(0,16)
     s_level(15)
     s_text(sys.file.state.script)
 end
@@ -437,8 +461,14 @@ p.redraw[pWIFI] = function()
     s_clear()
     s_level(15)
     s_move(0,10)
-    local net = 'ip '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
-    if net == 'ip ' then net = 'no wifi' end
+    --FIXME wifi queries shouldn't be in refresh, called way too often
+    local net = ''..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
+    if net == '' then net = 'no wifi' 
+    else
+        net = net .. " at "
+        net = net .. os.capture("iw dev wlan0 link | grep 'signal' | awk '{print $2}'")
+        net = net .. "dBm"
+    end
     s_text(net)
 
     for i=3,5 do
@@ -456,7 +486,7 @@ end
 
 p.init[pWIFI] = function()
     ssid = os.capture("cat ~/ssid.wifi") 
-    p.wifi.list = {"off","on: "..ssid,"hotspot"}
+    p.wifi.list = {"off","> "..ssid,"hotspot"}
 end
 
 -- LOG

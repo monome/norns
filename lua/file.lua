@@ -18,6 +18,8 @@ File.state.save = function()
   io.write("-- state\n")
   io.write("sys.file.state.script = '" .. File.state.script .. "'\n")
   io.write("sys.file.state.out = '" .. File.state.out .. "'\n")
+  io.write("sys.input = '" .. sys.input .. "'\n")
+  io.write("sys.hp = '" .. sys.hp .. "'\n")
   io.close(fd)   
 end
 
