@@ -185,7 +185,7 @@ p.sel = {}
 p.sel.pos = 0
 p.sel.list = sys.file.scandir(script_dir)
 p.sel.len = sys.file.tablelength(p.sel.list)
-p.sel.depth = 1
+p.sel.depth = 0
 p.sel.folders = {}
 
 p.sel.dir = function()
@@ -305,11 +305,15 @@ p.set = {}
 p.set.pos = 0
 p.set.list = {"audio in gain:","headphone gain:", "wifi >"}
 p.set.len = 3
+p.set.input = 0
 
 p.key[pSETTINGS] = function(n,z)
     if n==2 and z==1 then 
         sys.file.state.save()
         menu.set_page(pHOME)
+    elseif n==3 and z==1 and p.set.pos==0 then
+        p.set.input = (p.set.input + 1) % 3
+        menu.redraw()
     elseif n==3 and z==1 and p.set.pos==2 then
         menu.set_page(pWIFI) 
     end
@@ -324,10 +328,16 @@ p.enc[pSETTINGS] = function(n,delta)
         menu.redraw()
     elseif n==3 then
         if p.set.pos == 0 then
-            sys.input = sys.input + delta
-            sys.input = clamp(sys.input,0,63)
-            gain_in(sys.input,0) --L
-            gain_in(sys.input,1) --R
+            if p.set.input == 0 or p.set.input == 1 then
+                sys.input_left = sys.input_left + delta
+                sys.input_left = clamp(sys.input_left,0,63)
+                gain_in(sys.input_left,0)
+            end 
+            if p.set.input == 0 or p.set.input == 2 then
+                sys.input_right = sys.input_right + delta
+                sys.input_right = clamp(sys.input_right,0,63)
+                gain_in(sys.input_right,1)
+            end 
             menu.redraw()
         elseif p.set.pos == 1 then
             sys.hp = sys.hp + delta
@@ -354,9 +364,14 @@ p.redraw[pSETTINGS] = function()
        	s_text(string.upper(line)) 
     end
 
-    if p.set.pos==0 then s_level(15) else s_level(4) end
+    if p.set.pos==0 and p.set.input == 0 or p.set.input == 1 then
+        s_level(15) else s_level(4) end
+    s_move(107,30)
+    s_text_right(sys.input_left)
+    if p.set.pos==0 and p.set.input == 0 or p.set.input == 2 then 
+        s_level(15) else s_level(4) end
     s_move(127,30)
-    s_text_right(sys.input)
+    s_text_right(sys.input_right)
     if p.set.pos==1 then s_level(15) else s_level(4) end
     s_move(127,40)
     s_text_right(sys.hp)

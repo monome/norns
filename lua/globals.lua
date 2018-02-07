@@ -34,7 +34,8 @@ enc = sys.none
 redraw = sys.blank
 cleanup = sys.none 
 
-sys.input = 20 --default, overwritten by saved state
+sys.input_left = 20 --default, overwritten by saved state
+sys.input_right = 20 --default, overwritten by saved state
 sys.hp = 20 -- default 
 
 -- SHORTCUTS
