@@ -152,7 +152,7 @@ void o_init(void) {
     lo_server_thread_add_method(st, "/poll/value", "if",
                                 handle_poll_value, NULL);
     lo_server_thread_add_method(st, "/poll/data", "ib",
-                                handle_poll_value, NULL);
+                                handle_poll_data, NULL);
 
     lo_server_thread_start(st);
 }
