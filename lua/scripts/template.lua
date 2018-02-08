@@ -82,6 +82,7 @@ c.time = 1
 -- callback function on each count
 c.callback = function(stage)
     t = t + 1
+    sys.log.post("tick "..t)
     redraw()
 end
 

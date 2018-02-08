@@ -9,7 +9,7 @@ local pSELECT = 2
 local pPREVIEW = 3
 local pSTATUS = 4
 local pPARAMS = 5
-local pSETTINGS = 6
+local pSYSTEM = 6
 local pWIFI = 7
 local pSLEEP = 8
 local pLOG = 9
@@ -137,7 +137,7 @@ end
 
 p.home = {}
 p.home.pos = 0
-p.home.list = {"SELECT >", "PARAMETERS >", "SETTINGS >", "SLEEP >"}
+p.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
 p.home.len = 4
 
 p.init[pHOME] = sys.none
@@ -146,7 +146,7 @@ p.key[pHOME] = function(n,z)
     if n==2 and z==1 then
         menu.set_page(pSTATUS)
     elseif n==3 and z==1 then 
-        option = {pSELECT, pPARAMS, pSETTINGS, pSLEEP}
+        option = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
         menu.set_page(option[p.home.pos+1]) 
     end
 end 
@@ -161,11 +161,14 @@ p.enc[pHOME] = function(n,delta)
 end
 
 p.redraw[pHOME] = function()
-    -- draw file list and selector
     s_clear()
-    s_level(10)
+    -- draw current script loaded
     s_move(0,10)
-    s_text("norns v"..norns.version.norns)
+    s_level(15)
+    line = string.gsub(sys.file.state.script,'.lua','')
+    s_text(string.upper(line))
+
+    -- draw file list and selector
     for i=3,6 do
        	s_move(0,10*i)
        	line = string.gsub(p.home.list[i-2],'.lua','')
@@ -300,46 +303,50 @@ end
 p.init[pPARAMS] = sys.none
 
 
--- SETTINGS
-p.set = {}
-p.set.pos = 0
-p.set.list = {"audio in gain:","headphone gain:", "wifi >"}
-p.set.len = 3
-p.set.input = 0
+-- SYSTEM
+p.sys = {}
+p.sys.pos = 0
+p.sys.list = {"wifi >", "input gain:","headphone gain:", "log >"}
+p.sys.len = 4
+p.sys.input = 0
+p.sys.battery = ''
+p.sys.net = ''
 
-p.key[pSETTINGS] = function(n,z)
+p.key[pSYSTEM] = function(n,z)
     if n==2 and z==1 then 
         sys.file.state.save()
         menu.set_page(pHOME)
-    elseif n==3 and z==1 and p.set.pos==0 then
-        p.set.input = (p.set.input + 1) % 3
+    elseif n==3 and z==1 and p.sys.pos==3 then
+        menu.set_page(pLOG)
+    elseif n==3 and z==1 and p.sys.pos==1 then
+        p.sys.input = (p.sys.input + 1) % 3
         menu.redraw()
-    elseif n==3 and z==1 and p.set.pos==2 then
+    elseif n==3 and z==1 and p.sys.pos==0 then
         menu.set_page(pWIFI) 
     end
 end
 
-p.enc[pSETTINGS] = function(n,delta)
+p.enc[pSYSTEM] = function(n,delta)
     if n==2 then 
-        p.set.pos = p.set.pos + delta 
-        p.set.pos = clamp(p.set.pos, 0, p.set.len-1)
-	    --if p.set.pos > p.set.len - 1 then p.set.pos = p.set.len - 1
-        --elseif p.set.pos < 0 then p.set.pos = 0 end
+        p.sys.pos = p.sys.pos + delta 
+        p.sys.pos = clamp(p.sys.pos, 0, p.sys.len-1)
+	    --if p.sys.pos > p.sys.len - 1 then p.sys.pos = p.sys.len - 1
+        --elseif p.sys.pos < 0 then p.sys.pos = 0 end
         menu.redraw()
     elseif n==3 then
-        if p.set.pos == 0 then
-            if p.set.input == 0 or p.set.input == 1 then
+        if p.sys.pos == 1 then
+            if p.sys.input == 0 or p.sys.input == 1 then
                 sys.input_left = sys.input_left + delta
                 sys.input_left = clamp(sys.input_left,0,63)
                 gain_in(sys.input_left,0)
             end 
-            if p.set.input == 0 or p.set.input == 2 then
+            if p.sys.input == 2 or p.sys.input == 2 then
                 sys.input_right = sys.input_right + delta
                 sys.input_right = clamp(sys.input_right,0,63)
                 gain_in(sys.input_right,1)
             end 
             menu.redraw()
-        elseif p.set.pos == 1 then
+        elseif p.sys.pos == 1 then
             sys.hp = sys.hp + delta
             sys.hp = clamp(sys.hp,0,63)
             gain_hp(sys.hp) 
@@ -348,36 +355,56 @@ p.enc[pSETTINGS] = function(n,delta)
     end
 end
 
-p.redraw[pSETTINGS] = function()
-    s_clear()
-    s_level(10)
+p.redraw[pSYSTEM] = function()
+    s_clear() 
+    s_level(4)
     s_move(0,10)
-    s_text("settings")
-    for i=3,5 do
-       	s_move(0,10*i)
-       	line = string.gsub(p.set.list[i-2],'.lua','')
-       	if(i==p.set.pos+3) then
+    s_text(p.sys.battery)
+ 
+    for i=1,p.sys.len do
+       	s_move(0,10*i+20)
+       	if(i==p.sys.pos+1) then
            	s_level(15)
        	else
            	s_level(4)
        	end
-       	s_text(string.upper(line)) 
+       	s_text(string.upper(p.sys.list[i])) 
     end
 
-    if p.set.pos==0 and p.set.input == 0 or p.set.input == 1 then
+    if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 1) then
         s_level(15) else s_level(4) end
-    s_move(107,30)
+    s_move(107,40)
     s_text_right(sys.input_left)
-    if p.set.pos==0 and p.set.input == 0 or p.set.input == 2 then 
+    if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 2) then 
         s_level(15) else s_level(4) end
-    s_move(127,30)
-    s_text_right(sys.input_right)
-    if p.set.pos==1 then s_level(15) else s_level(4) end
     s_move(127,40)
+    s_text_right(sys.input_right)
+    if p.sys.pos==2 then s_level(15) else s_level(4) end
+    s_move(127,50)
     s_text_right(sys.hp)
+    s_level(4)
+    s_move(127,30) 
+    s_text_right(p.sys.net)
+    s_move(127,60)
+    s_text_right("norns v"..norns.version.norns)
 end
 
-p.init[pSETTINGS] = sys.none
+p.init[pSYSTEM] = function()
+    p.sys.battery = "battery "..norns.batterypercent 
+    if norns.powerpresent==1 then p.sys.battery = p.sys.battery.."+" end 
+    local current = os.capture("cat /sys/class/power_supply/bq27441-0/current_now")
+    current = tonumber(current) / 1000 
+    p.sys.battery = p.sys.battery .. " / "..current.."mA"
+
+    p.sys.net = ''..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
+    if p.sys.net == '' then p.sys.net = 'no wifi' 
+    else
+        p.sys.net = p.sys.net .. " / "
+        p.sys.net = p.sys.net .. os.capture("iw dev wlan0 link | grep 'signal' | awk '{print $2}'")
+        p.sys.net = p.sys.net .. "dBm"
+    end 
+end
+
 
 
 -- SLEEP
@@ -408,8 +435,6 @@ p.init[pSLEEP] = sys.none
 p.key[pSTATUS] = function(n,z)
     if n==3 and z==1 then 
         menu.set_page(pHOME)
-    elseif n==2 and z==1 then 
-        menu.set_page(pLOG)
     end
 end
 
@@ -417,21 +442,9 @@ p.enc[pSTATUS] = sys.none
 
 p.redraw[pSTATUS] = function()
     s_clear()
-    s_aa(1)
-
-    local status = "battery "..norns.batterypercent 
-    if norns.powerpresent==1 then status = status.."+" end 
-    local current = os.capture("cat /sys/class/power_supply/bq27441-0/current_now")
-    current = tonumber(current) / 1000
-
     s_level(4)
-    s_move(0,8)
-    s_text(status .. " > "..current.."mA")
-    
-    -- draw current script loaded
-    s_move(0,16)
-    s_level(15)
-    s_text(sys.file.state.script)
+    s_move(63,40)
+    s_text_center("hella vu's") 
 end
 
 p.init[pSTATUS] = sys.none
@@ -445,20 +458,20 @@ p.wifi.len = 3
 
 p.key[pWIFI] = function(n,z)
     if n==2 and z==1 then
-        menu.set_page(pSETTINGS)
+        menu.set_page(pSYSTEM)
     elseif n==3 and z==1 then
         if p.wifi.pos == 0 then
             print "wifi off"
             os.execute("~/norns-image/scripts/wifi.sh off &")
-            menu.set_page(pSETTINGS)
+            menu.set_page(pSYSTEM)
         elseif p.wifi.pos == 1 then
             print "wifi on"
             os.execute("~/norns-image/scripts/wifi.sh on &")
-            menu.set_page(pSETTINGS)
+            menu.set_page(pSYSTEM)
         else
             print "wifi hotspot"
             os.execute("~/norns-image/scripts/wifi.sh hotspot &")
-            menu.set_page(pSETTINGS)
+            menu.set_page(pSYSTEM)
         end
     end
 end
@@ -476,16 +489,6 @@ p.redraw[pWIFI] = function()
     s_clear()
     s_level(15)
     s_move(0,10)
-    --FIXME wifi queries shouldn't be in refresh, called way too often
-    local net = ''..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
-    if net == '' then net = 'no wifi' 
-    else
-        net = net .. " at "
-        net = net .. os.capture("iw dev wlan0 link | grep 'signal' | awk '{print $2}'")
-        net = net .. "dBm"
-    end
-    s_text(net)
-
     for i=3,5 do
        	s_move(0,10*i)
        	line = p.wifi.list[i-2]
@@ -505,27 +508,37 @@ p.init[pWIFI] = function()
 end
 
 -- LOG
+p.log = {}
+p.log.pos = 0
+
 p.key[pLOG] = function(n,z)
-    if n==3 and z==1 then 
-        menu.set_page(pHOME)
-    elseif n==2 and z==1 then
-        menu.set_page(pSTATUS)
+    if n==2 and z==1 then
+        menu.set_page(pSYSTEM)
+    elseif n==3 and z==1 then
+        p.log.pos = 0
+        menu.redraw()
+    end
+end 
+
+p.enc[pLOG] = function(n,delta)
+    if n==2 then
+        p.log.pos = clamp(p.log.pos+delta,0,sys.log.len()-7)
+        menu.redraw()
     end
 end
-
-
-p.enc[pLOG] = sys.none
 
 p.redraw[pLOG] = function()
     s_clear()
     s_level(10)
     for i=1,8 do
-        s_move(0,i*8)
-        s_text(sys.log.get(i))
+        s_move(0,(i*8)-1)
+        s_text(sys.log.get(i+p.log.pos))
     end
 end
 
-p.init[pLOG] = sys.none
+p.init[pLOG] = function()
+    p.log.pos = 0
+end
 
 menu.level = function(delta)
     sys.file.state.out = sys.file.state.out + delta
