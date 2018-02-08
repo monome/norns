@@ -2,7 +2,6 @@
 
 #include "event_types.h"
 
-
 // number of bytes in waveform data blob
 #define EVENT_WAVE_DISPLAY_BYTES 128
 

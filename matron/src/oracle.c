@@ -101,14 +101,14 @@ static int handle_poll_value(const char *path, const char *types,
                              lo_arg **argv, int argc,
                              void *data, void *user_data);
 static int handle_poll_data(const char *path, const char *types,
-                             lo_arg **argv, int argc,
-                             void *data, void *user_data);
+                            lo_arg **argv, int argc,
+                            void *data, void *user_data);
 /* static int handle_poll_wave(const char *path, const char *types, */
 /*                              lo_arg **argv, int argc, */
 /*                              void *data, void *user_data); */
 static int handle_poll_io_levels(const char *path, const char *types,
-                             lo_arg **argv, int argc,
-                             void *data, void *user_data);
+                                 lo_arg **argv, int argc,
+                                 void *data, void *user_data);
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
@@ -167,7 +167,7 @@ void o_init(void) {
     // dedicated path for audio I/O levels
     lo_server_thread_add_method(st, "/poll/vu", "b",
                                 handle_poll_io_levels, NULL);
-    
+
     lo_server_thread_start(st);
 }
 
@@ -272,9 +272,6 @@ void o_set_poll_state(int idx, bool state) {
         lo_send(remote_addr, "/poll/stop", "i", idx);
     }
 }
-
-
-
 
 //-------------------------
 //--- static function definitions
@@ -397,51 +394,48 @@ void o_set_num_desc(int *dst, int num) {
     o_unlock_descriptors();
 }
 
-
 // set poll period
 void o_set_poll_time(int idx, float dt) {
     lo_send(remote_addr, "/poll/time", "if", idx, dt);
 }
 
-
 //---- audio context control
 
 void o_set_audio_input_level(int idx, float level) {
-  lo_send(remote_addr, "/audio/input/level", "if", idx, level);
+    lo_send(remote_addr, "/audio/input/level", "if", idx, level);
 }
 
 void o_set_audio_output_level(float level) {
-  lo_send(remote_addr, "/audio/output/level", "f", level);
+    lo_send(remote_addr, "/audio/output/level", "f", level);
 }
 
 void o_set_audio_monitor_level(float level) {
-  lo_send(remote_addr, "/audio/monitor/level", "f", level);
+    lo_send(remote_addr, "/audio/monitor/level", "f", level);
 }
 
 void o_set_audio_monitor_mono() {
-  lo_send(remote_addr, "/audio/monitor/mono", NULL);
+    lo_send(remote_addr, "/audio/monitor/mono", NULL);
 }
 
 void o_set_audio_monitor_stereo() {
-  lo_send(remote_addr, "/audio/monitor/stereo", NULL);
+    lo_send(remote_addr, "/audio/monitor/stereo", NULL);
 }
 
 void o_set_audio_monitor_on() {
-  lo_send(remote_addr, "/audio/monitor/on", NULL);
+    lo_send(remote_addr, "/audio/monitor/on", NULL);
 }
 
 void o_set_audio_monitor_off() {
-  lo_send(remote_addr, "/audio/monitor/off", NULL);
+    lo_send(remote_addr, "/audio/monitor/off", NULL);
 }
 
 void o_set_audio_pitch_on() {
-  lo_send(remote_addr, "/audio/pitch/on", NULL);
+    lo_send(remote_addr, "/audio/pitch/on", NULL);
 }
 
 void o_set_audio_pitch_off() {
-  lo_send(remote_addr, "/audio/pitch/off", NULL);
+    lo_send(remote_addr, "/audio/pitch/off", NULL);
 }
-
 
 ///////////////////////////////
 /// static function definitions
@@ -648,7 +642,7 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
 }
 
 int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
-                     int argc, void *data, void *user_data) {
+                          int argc, void *data, void *user_data) {
     (void)path;
     (void)types;
     (void)argc;
@@ -657,19 +651,13 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
     union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
     uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[0] );
     int sz = lo_blob_datasize( (lo_blob)argv[0] );
-    assert(sz == sizeof(quad_levels_t));
-    ev->poll_io_levels.value.uint = *((uint32_t*)blobdata);
-    /* printf("%d\t%d\t%d\t%d\n", */
-    /* 	   ev->poll_io_levels.value.bytes[0], */
-    /* 	   ev->poll_io_levels.value.bytes[1], */
-    /* 	   ev->poll_io_levels.value.bytes[2], */
-    /* 	   ev->poll_io_levels.value.bytes[3]); */
+    assert( sz == sizeof(quad_levels_t) );
+    ev->poll_io_levels.value.uint = *( (uint32_t *)blobdata );
     fflush(stdout);
     event_post( ev );
-	   
+
     return 0;
 }
-
 
 void lo_error_handler(int num, const char *m, const char *path) {
     printf("liblo error %d in path %s: %s\n", num, path, m);

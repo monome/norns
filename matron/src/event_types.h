@@ -48,15 +48,14 @@ typedef enum {
     EVENT_QUIT,
 } event_t;
 
-
 // a packed data structure for four volume levels
 // each channel is represented by unsigned byte with audio taper:
 // 255 == 0db
 // each step represents 0.25db, down to -60db
-// the 
+// the
 typedef union {
-  uint8_t bytes[4];
-  uint32_t uint;
+    uint8_t bytes[4];
+    uint32_t uint;
 } quad_levels_t;
 
 struct event_common {
@@ -141,19 +140,17 @@ struct event_poll_value {
 }; // + 8
 
 struct event_poll_io_levels {
-  struct event_common common;
-  uint32_t idx;
-  quad_levels_t value;
+    struct event_common common;
+    uint32_t idx;
+    quad_levels_t value;
 }; // + 8
-  
-  
+
 struct event_poll_data {
     struct event_common common;
     uint32_t idx;
     uint32_t size;
     uint8_t *data;
 }; // + 12
-
 
 // like DATA, but size is fixed
 struct event_poll_wave {
@@ -162,24 +159,22 @@ struct event_poll_wave {
     uint8_t *data;
 }; // + 8
 
-
-
 union event_data {
-  uint32_t type;
-  struct event_exec_code_line exec_code_line;
-  struct event_monome_add monome_add;
-  struct event_monome_remove monome_remove;
-  struct event_grid_key grid_key;
-  struct event_hid_add hid_add;
-  struct event_hid_remove hid_remove;
-  struct event_hid_event hid_event;
-  struct event_key key;
-  struct event_enc enc;
-  struct event_battery battery;
-  struct event_power power;
-  struct event_metro metro;
-  struct event_poll_value poll_value;
-  struct event_poll_data poll_data;
-  struct event_poll_io_levels poll_io_levels;
-  struct event_poll_wave poll_wave;
+    uint32_t type;
+    struct event_exec_code_line exec_code_line;
+    struct event_monome_add monome_add;
+    struct event_monome_remove monome_remove;
+    struct event_grid_key grid_key;
+    struct event_hid_add hid_add;
+    struct event_hid_remove hid_remove;
+    struct event_hid_event hid_event;
+    struct event_key key;
+    struct event_enc enc;
+    struct event_battery battery;
+    struct event_power power;
+    struct event_metro metro;
+    struct event_poll_value poll_value;
+    struct event_poll_data poll_data;
+    struct event_poll_io_levels poll_io_levels;
+    struct event_poll_wave poll_wave;
 };

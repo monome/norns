@@ -144,19 +144,6 @@ AudioContext {
 	// pack low-resolution, log-scaled bus amplitudes
 	buildVuBlob {
 
-		/*
-		var vals = Array.with(
-			amp_in_b[0].getSynchronous;
-			amp_in_b[1].getSynchronous;
-			amp_out_b[0].getSynchronous;
-			amp_out_b[1].getSynchronous;
-		);
-
-		^Int8Array.fill(4, { |i|
-			ReverseAudioTaper.lookup( vals[i] )
-		});
-		*/
-
 		var ret = Int8Array.newClear(4);
 		ret[0] = ReverseAudioTaper.lookup( amp_in_b[0].getSynchronous );
 		ret[1] = ReverseAudioTaper.lookup( amp_in_b[1].getSynchronous );

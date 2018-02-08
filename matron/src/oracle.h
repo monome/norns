@@ -88,12 +88,12 @@ extern void o_set_poll_state(int idx, bool state);
 extern void o_set_poll_time(int idx, float dt);
 
 //--- audio context controls
-extern void o_set_audio_input_level(int idx, float level) ;
-extern void o_set_audio_output_level(float level) ;
-extern void o_set_audio_monitor_level(float level) ;
-extern void o_set_audio_monitor_mono() ;
-extern void o_set_audio_monitor_stereo() ;
-extern void o_set_audio_monitor_on() ;
-extern void o_set_audio_monitor_off() ;
-extern void o_set_audio_pitch_on() ;
-extern void o_set_audio_pitch_off() ;
+extern void o_set_audio_input_level(int idx, float level);
+extern void o_set_audio_output_level(float level);
+extern void o_set_audio_monitor_level(float level);
+extern void o_set_audio_monitor_mono();
+extern void o_set_audio_monitor_stereo();
+extern void o_set_audio_monitor_on();
+extern void o_set_audio_monitor_off();
+extern void o_set_audio_pitch_on();
+extern void o_set_audio_pitch_off();

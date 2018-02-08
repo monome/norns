@@ -138,9 +138,7 @@ Crone {
 		// VU levels are reported to a dedicated OSC address.
 		vuInterval = 0.05;
 		vuThread = Routine { inf.do {
-			var val = ctx.buildVuBlob;
-			postln(val);
-			remoteAddr.sendMsg('/poll/vu', val);
+			remoteAddr.sendMsg('/poll/vu', ctx.buildVuBlob);
 			vuInterval.wait;
 		}}.play;
 	}
