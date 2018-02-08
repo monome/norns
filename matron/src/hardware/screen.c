@@ -113,7 +113,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
 
     /* Create the cairo surface which will be used to draw to */
     surface = cairo_image_surface_create_for_data(
-         device->fb_data,
+        device->fb_data,
         CAIRO_FORMAT_RGB16_565,
         device->fb_vinfo.xres,
         device->fb_vinfo.yres,

@@ -100,6 +100,15 @@ static int handle_poll_report_end(const char *path, const char *types,
 static int handle_poll_value(const char *path, const char *types,
                              lo_arg **argv, int argc,
                              void *data, void *user_data);
+static int handle_poll_data(const char *path, const char *types,
+                            lo_arg **argv, int argc,
+                            void *data, void *user_data);
+/* static int handle_poll_wave(const char *path, const char *types, */
+/*                              lo_arg **argv, int argc, */
+/*                              void *data, void *user_data); */
+static int handle_poll_io_levels(const char *path, const char *types,
+                                 lo_arg **argv, int argc,
+                                 void *data, void *user_data);
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
@@ -148,11 +157,16 @@ void o_init(void) {
                                 handle_poll_report_entry, NULL);
     lo_server_thread_add_method(st, "/report/polls/end", "",
                                 handle_poll_report_end, NULL);
-    // poll results
+    //// poll results
+    // generic single value
     lo_server_thread_add_method(st, "/poll/value", "if",
                                 handle_poll_value, NULL);
+    // generic data blob
     lo_server_thread_add_method(st, "/poll/data", "ib",
-                                handle_poll_value, NULL);
+                                handle_poll_data, NULL);
+    // dedicated path for audio I/O levels
+    lo_server_thread_add_method(st, "/poll/vu", "b",
+                                handle_poll_io_levels, NULL);
 
     lo_server_thread_start(st);
 }
@@ -251,7 +265,6 @@ void o_send(const char *name, lo_message msg) {
     free(msg);
 }
 
-//void o_set_poll_state(const char *name, bool state) {
 void o_set_poll_state(int idx, bool state) {
     if(state) {
         lo_send(remote_addr, "/poll/start", "i", idx);
@@ -380,6 +393,52 @@ void o_set_num_desc(int *dst, int num) {
     *dst = num;
     o_unlock_descriptors();
 }
+
+// set poll period
+void o_set_poll_time(int idx, float dt) {
+    lo_send(remote_addr, "/poll/time", "if", idx, dt);
+}
+
+//---- audio context control
+
+void o_set_audio_input_level(int idx, float level) {
+    lo_send(remote_addr, "/audio/input/level", "if", idx, level);
+}
+
+void o_set_audio_output_level(float level) {
+    lo_send(remote_addr, "/audio/output/level", "f", level);
+}
+
+void o_set_audio_monitor_level(float level) {
+    lo_send(remote_addr, "/audio/monitor/level", "f", level);
+}
+
+void o_set_audio_monitor_mono() {
+    lo_send(remote_addr, "/audio/monitor/mono", NULL);
+}
+
+void o_set_audio_monitor_stereo() {
+    lo_send(remote_addr, "/audio/monitor/stereo", NULL);
+}
+
+void o_set_audio_monitor_on() {
+    lo_send(remote_addr, "/audio/monitor/on", NULL);
+}
+
+void o_set_audio_monitor_off() {
+    lo_send(remote_addr, "/audio/monitor/off", NULL);
+}
+
+void o_set_audio_pitch_on() {
+    lo_send(remote_addr, "/audio/pitch/on", NULL);
+}
+
+void o_set_audio_pitch_off() {
+    lo_send(remote_addr, "/audio/pitch/off", NULL);
+}
+
+///////////////////////////////
+/// static function definitions
 
 //---- OSC handlers
 int handle_crone_ready(const char *path,
@@ -555,11 +614,8 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
     (void)path;
     (void)types;
     (void)argc;
-    (void)argv;
     (void)data;
     (void)user_data;
-    // printf("(oracle) handle_poll_value; idx: %d; value: %f\n", argv[0]->i,
-    // argv[1]->f); fflush(stdout);
     union event_data *ev = event_data_new(EVENT_POLL_VALUE);
     ev->poll_value.idx = argv[0]->i;
     ev->poll_value.value = argv[1]->f;
@@ -572,10 +628,8 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
     (void)path;
     (void)types;
     (void)argc;
-    (void)argv;
     (void)data;
     (void)user_data;
-    // printf("handle_poll_data\n"); fflush(stdout);
     union event_data *ev = event_data_new(EVENT_POLL_DATA);
     ev->poll_data.idx = argv[0]->i;
     uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[1] );
@@ -587,12 +641,25 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
+int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
+                          int argc, void *data, void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)data;
+    (void)user_data;
+    union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
+    uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[0] );
+    int sz = lo_blob_datasize( (lo_blob)argv[0] );
+    assert( sz == sizeof(quad_levels_t) );
+    ev->poll_io_levels.value.uint = *( (uint32_t *)blobdata );
+    fflush(stdout);
+    event_post( ev );
+
+    return 0;
+}
+
 void lo_error_handler(int num, const char *m, const char *path) {
     printf("liblo error %d in path %s: %s\n", num, path, m);
     fflush(stdout);
-}
-
-// set poll period
-void o_set_poll_time(int idx, float dt) {
-    lo_send(remote_addr, "/poll/time", "if", idx, dt);
 }

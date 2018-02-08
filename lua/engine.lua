@@ -67,7 +67,7 @@ end
 
 --- load a named engine, with a callback
 -- @param name - name of engine
--- @param callback - functoin to call on engine load. will receive command list
+-- @param callback - function to call on engine load. will receive command list
 Engine.load = function(name, callback)
    -- on engine load, command report will be generated
    norns.report.commands = function(commands, count)
