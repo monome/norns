@@ -60,7 +60,7 @@ Crone {
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
-					engine.kill;
+					engine.free;
 				});
 				engine = class.new(Server.default, ctx.xg, ctx.in_b, ctx.out_b);
 				postln('set engine: ' ++ engine);

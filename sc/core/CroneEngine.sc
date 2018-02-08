@@ -1,6 +1,6 @@
 // an audio "engine."
 // maintains some DSP processing and provides control over parameters and analysis results
-
+// new engines should inherit from this
 CroneEngine {
 	// audio server
 	var <server;
@@ -41,7 +41,7 @@ CroneEngine {
 	
 	// NB: subclasses should override this if they need to free resources
 	// but the superclass method should be called as well
-	kill {
+	free {
 		group.free;
 		commands.do({ arg com;
 			com.oscdef.free;
