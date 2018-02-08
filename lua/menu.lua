@@ -1,8 +1,7 @@
--- map.lua
+-- menu.lua
 -- norns screen-based navigation module
 
-local map = {}
-norns.map = {}
+local menu = {}
 
 -- level enums
 local pHOME = 1
@@ -10,7 +9,7 @@ local pSELECT = 2
 local pPREVIEW = 3
 local pSTATUS = 4
 local pPARAMS = 5
-local pSETTINGS = 6
+local pSYSTEM = 6
 local pWIFI = 7
 local pSLEEP = 8
 local pLOG = 9
@@ -21,8 +20,8 @@ p.enc = {}
 p.redraw = {}
 p.init = {}
 
-map.mode = false
-map.page = pHOME
+menu.mode = false
+menu.page = pHOME
 
 local pending = false
 -- metro for key hold detection
@@ -31,8 +30,8 @@ local t = metro[31]
 t.count = 2
 t.callback = function(stage)
     if(stage==2) then
-        if map.mode == false then
-            map.key(1,1)
+        if menu.mode == false then
+            menu.key(1,1)
         end 
         pending = false
     end
@@ -40,12 +39,11 @@ end
 
 
 -- assigns key/enc/screen handlers after user script has loaded
-norns.map.init = function() 
-    map.set_mode(map.mode)
+sys.menu = {}
+sys.menu.init = function() 
+    menu.set_mode(menu.mode)
 end
 
--- redirection for scripts that don't define refresh()
-norns.blank = function() s.clear() end
 
 -- input redirection
 local _enc = {{},{},{}}
@@ -60,10 +58,10 @@ norns.enc = function(n, delta)
     _enc[n].tick = _enc[n].tick + delta
     if math.abs(_enc[n].tick) > _enc[n].sens then
         _enc[n].tick = 0
-        if(map.mode==false) then
+        if(menu.mode==false) then
             enc(n, delta)
         else
-            map.enc(n, delta)
+            menu.enc(n, delta)
         end
     end
 end
@@ -82,52 +80,52 @@ norns.key = function(n, z)
             t.time = 0.25
             t:start()
         elseif z==0 and pending==true then
-            if map.mode == true then map.set_mode(false)
-            else map.set_mode(true) end
+            if menu.mode == true then menu.set_mode(false)
+            else menu.set_mode(true) end
             t:stop()
             pending = false
-        elseif z==0 and map.mode==false then
-            map.key(n,z) -- always 1,0
+        elseif z==0 and menu.mode==false then
+            menu.key(n,z) -- always 1,0
         else
-            map.set_mode(false)
+            menu.set_mode(false)
  		end
     -- key 2/3 pass
 	else 
-        map.key(n,z)
+        menu.key(n,z)
 	end
 end
 
--- map set mode
-map.set_mode = function(mode)
+-- menu set mode
+menu.set_mode = function(mode)
     if mode==false then
-        map.mode = false 
-        norns.s.restore()
-        map.key = key
-        map.enc = enc
+        menu.mode = false 
+        sys.s.restore()
+        menu.key = key
+        menu.enc = enc
         set_enc_sens(1,1)
         set_enc_sens(2,1)
         set_enc_sens(3,1)
         redraw() 
-    else -- enable map mode
-        map.mode = true
-        norns.s.block()
-        map.set_page(map.page)
+    else -- enable menu mode
+        menu.mode = true
+        sys.s.block()
+        menu.set_page(menu.page)
         set_enc_sens(1,1)
-        set_enc_sens(2,3)
-        set_enc_sens(3,16) 
+        set_enc_sens(2,4)
+        set_enc_sens(3,4) 
     end
 end
 
 -- set page
-map.set_page = function(page)
-    map.page = page
-    map.key = p.key[page]
-    map.enc = p.enc[page]
-    map.redraw = p.redraw[page]
+menu.set_page = function(page)
+    menu.page = page
+    menu.key = p.key[page]
+    menu.enc = p.enc[page]
+    menu.redraw = p.redraw[page]
     p.init[page]()
     s_font_face(0)
     s_font_size(8)
-    map.redraw()
+    menu.redraw()
 end
 
 
@@ -139,17 +137,17 @@ end
 
 p.home = {}
 p.home.pos = 0
-p.home.list = {"SELECT >", "PARAMETERS >", "SETTINGS >", "SLEEP >"}
+p.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
 p.home.len = 4
 
-p.init[pHOME] = norns.none
+p.init[pHOME] = sys.none
 
 p.key[pHOME] = function(n,z)
     if n==2 and z==1 then
-        map.set_page(pSTATUS)
+        menu.set_page(pSTATUS)
     elseif n==3 and z==1 then 
-        option = {pSELECT, pPARAMS, pSETTINGS, pSLEEP}
-        map.set_page(option[p.home.pos+1]) 
+        option = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
+        menu.set_page(option[p.home.pos+1]) 
     end
 end 
 
@@ -158,16 +156,19 @@ p.enc[pHOME] = function(n,delta)
         p.home.pos = p.home.pos + delta 
 	    if p.home.pos > p.home.len - 1 then p.home.pos = p.home.len - 1
         elseif p.home.pos < 0 then p.home.pos = 0 end
-        map.redraw()
+        menu.redraw()
     end
 end
 
 p.redraw[pHOME] = function()
-    -- draw file list and selector
     s_clear()
-    s_level(10)
+    -- draw current script loaded
     s_move(0,10)
-    s_text("norns v"..norns.version.norns)
+    s_level(15)
+    line = string.gsub(sys.file.state.script,'.lua','')
+    s_text(string.upper(line))
+
+    -- draw file list and selector
     for i=3,6 do
        	s_move(0,10*i)
        	line = string.gsub(p.home.list[i-2],'.lua','')
@@ -185,9 +186,9 @@ end
 
 p.sel = {}
 p.sel.pos = 0
-p.sel.list = scandir(script_dir)
-p.sel.len = tablelength(p.sel.list)
-p.sel.depth = 1
+p.sel.list = sys.file.scandir(script_dir)
+p.sel.len = sys.file.tablelength(p.sel.list)
+p.sel.depth = 0
 p.sel.folders = {}
 
 p.sel.dir = function()
@@ -201,11 +202,11 @@ end
 
 p.init[pSELECT] = function()
     if p.sel.depth == 0 then
-        p.sel.list = scandir(script_dir)
+        p.sel.list = sys.file.scandir(script_dir)
     else
-        p.sel.list = scandir(p.sel.dir())
+        p.sel.list = sys.file.scandir(p.sel.dir())
     end
-    p.sel.len = tablelength(p.sel.list)
+    p.sel.len = sys.file.tablelength(p.sel.list)
 end
 
 p.key[pSELECT] = function(n,z)
@@ -216,12 +217,12 @@ p.key[pSELECT] = function(n,z)
             p.sel.folders[p.sel.depth] = nil
             p.sel.depth = p.sel.depth - 1
             -- FIXME return to folder position
-            p.sel.list = scandir(p.sel.dir())
-            p.sel.len = tablelength(p.sel.list)
+            p.sel.list = sys.file.scandir(p.sel.dir())
+            p.sel.len = sys.file.tablelength(p.sel.list)
             p.sel.pos = 0
-            map.redraw()
+            menu.redraw()
         else
-            map.set_page(pHOME)
+            menu.set_page(pHOME)
         end 
     -- select
     elseif n==3 and z==1 then 
@@ -230,10 +231,10 @@ p.key[pSELECT] = function(n,z)
             print("folder")
             p.sel.depth = p.sel.depth + 1
             p.sel.folders[p.sel.depth] = s
-            p.sel.list = scandir(p.sel.dir())
-            p.sel.len = tablelength(p.sel.list)
+            p.sel.list = sys.file.scandir(p.sel.dir())
+            p.sel.len = sys.file.tablelength(p.sel.list)
             p.sel.pos = 0
-            map.redraw()
+            menu.redraw()
         else 
             --line = string.gsub(s,'.lua','')
             local path = ""
@@ -241,8 +242,8 @@ p.key[pSELECT] = function(n,z)
                 path = path .. v
             end
             path = path .. s
-            norns.script.load(path)
-            map.set_mode(false)
+            sys.script.load(path)
+            menu.set_mode(false)
         end
     end
 end
@@ -255,7 +256,7 @@ p.enc[pSELECT] = function(n,delta)
         p.sel.pos = p.sel.pos + delta 
 	    if p.sel.pos > p.sel.len - 1 then p.sel.pos = p.sel.len - 1
         elseif p.sel.pos < 0 then p.sel.pos = 0 end
-        map.redraw()
+        menu.redraw()
     elseif n==3 then
         p.sel.page = 1 - p.sel.page
         print("page "..p.sel.page)
@@ -286,11 +287,11 @@ end
 
 p.key[pPARAMS] = function(n,z)
     if n==2 and z==1 then 
-        map.set_page(pHOME)
+        menu.set_page(pHOME)
     end
 end
 
-p.enc[pPARAMS] = norns.none
+p.enc[pPARAMS] = sys.none
 
 p.redraw[pPARAMS] = function()
     s_clear()
@@ -299,57 +300,118 @@ p.redraw[pPARAMS] = function()
     s_text("params")
 end
 
-p.init[pPARAMS] = norns.none
+p.init[pPARAMS] = sys.none
 
 
--- SETTINGS
-p.set = {}
-p.set.pos = 0
-p.set.list = {"audio in gain:","headphone gain:", "wifi >"}
-p.set.len = 3
+-- SYSTEM
+p.sys = {}
+p.sys.pos = 0
+p.sys.list = {"wifi >", "input gain:","headphone gain:", "log >"}
+p.sys.len = 4
+p.sys.input = 0
+p.sys.battery = ''
+p.sys.net = ''
 
-p.key[pSETTINGS] = function(n,z)
+p.key[pSYSTEM] = function(n,z)
     if n==2 and z==1 then 
-        map.set_page(pHOME)
-    elseif n==3 and z==1 and p.set.pos==2 then
-        map.set_page(pWIFI) 
+        sys.file.state.save()
+        menu.set_page(pHOME)
+    elseif n==3 and z==1 and p.sys.pos==3 then
+        menu.set_page(pLOG)
+    elseif n==3 and z==1 and p.sys.pos==1 then
+        p.sys.input = (p.sys.input + 1) % 3
+        menu.redraw()
+    elseif n==3 and z==1 and p.sys.pos==0 then
+        menu.set_page(pWIFI) 
     end
 end
 
-p.enc[pSETTINGS] = function(n,delta)
+p.enc[pSYSTEM] = function(n,delta)
     if n==2 then 
-        p.set.pos = p.set.pos + delta 
-	    if p.set.pos > p.set.len - 1 then p.set.pos = p.set.len - 1
-        elseif p.set.pos < 0 then p.set.pos = 0 end
-        map.redraw()
+        p.sys.pos = p.sys.pos + delta 
+        p.sys.pos = clamp(p.sys.pos, 0, p.sys.len-1)
+	    --if p.sys.pos > p.sys.len - 1 then p.sys.pos = p.sys.len - 1
+        --elseif p.sys.pos < 0 then p.sys.pos = 0 end
+        menu.redraw()
+    elseif n==3 then
+        if p.sys.pos == 1 then
+            if p.sys.input == 0 or p.sys.input == 1 then
+                sys.input_left = sys.input_left + delta
+                sys.input_left = clamp(sys.input_left,0,63)
+                gain_in(sys.input_left,0)
+            end 
+            if p.sys.input == 2 or p.sys.input == 2 then
+                sys.input_right = sys.input_right + delta
+                sys.input_right = clamp(sys.input_right,0,63)
+                gain_in(sys.input_right,1)
+            end 
+            menu.redraw()
+        elseif p.sys.pos == 1 then
+            sys.hp = sys.hp + delta
+            sys.hp = clamp(sys.hp,0,63)
+            gain_hp(sys.hp) 
+            menu.redraw()
+        end
     end
 end
 
-p.redraw[pSETTINGS] = function()
-    s_clear()
-    s_level(10)
+p.redraw[pSYSTEM] = function()
+    s_clear() 
+    s_level(4)
     s_move(0,10)
-    s_text("settings")
-    for i=3,5 do
-       	s_move(0,10*i)
-       	line = string.gsub(p.set.list[i-2],'.lua','')
-       	if(i==p.set.pos+3) then
+    s_text(p.sys.battery)
+ 
+    for i=1,p.sys.len do
+       	s_move(0,10*i+20)
+       	if(i==p.sys.pos+1) then
            	s_level(15)
        	else
            	s_level(4)
        	end
-       	s_text(string.upper(line)) 
-     end
+       	s_text(string.upper(p.sys.list[i])) 
+    end
+
+    if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 1) then
+        s_level(15) else s_level(4) end
+    s_move(107,40)
+    s_text_right(sys.input_left)
+    if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 2) then 
+        s_level(15) else s_level(4) end
+    s_move(127,40)
+    s_text_right(sys.input_right)
+    if p.sys.pos==2 then s_level(15) else s_level(4) end
+    s_move(127,50)
+    s_text_right(sys.hp)
+    s_level(4)
+    s_move(127,30) 
+    s_text_right(p.sys.net)
+    s_move(127,60)
+    s_text_right("norns v"..norns.version.norns)
 end
 
-p.init[pSETTINGS] = norns.none
+p.init[pSYSTEM] = function()
+    p.sys.battery = "battery "..norns.batterypercent 
+    if norns.powerpresent==1 then p.sys.battery = p.sys.battery.."+" end 
+    local current = os.capture("cat /sys/class/power_supply/bq27441-0/current_now")
+    current = tonumber(current) / 1000 
+    p.sys.battery = p.sys.battery .. " / "..current.."mA"
+
+    p.sys.net = ''..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
+    if p.sys.net == '' then p.sys.net = 'no wifi' 
+    else
+        p.sys.net = p.sys.net .. " / "
+        p.sys.net = p.sys.net .. os.capture("iw dev wlan0 link | grep 'signal' | awk '{print $2}'")
+        p.sys.net = p.sys.net .. "dBm"
+    end 
+end
+
 
 
 -- SLEEP
 
 p.key[pSLEEP] = function(n,z)
     if n==2 and z==1 then 
-        map.set_page(pHOME)
+        menu.set_page(pHOME)
     elseif n==3 and z==1 then
         print("SLEEP")
         --TODO fade out screen then run the shutdown script
@@ -357,7 +419,7 @@ p.key[pSLEEP] = function(n,z)
     end
 end
 
-p.enc[pSLEEP] = norns.none
+p.enc[pSLEEP] = sys.none
 
 p.redraw[pSLEEP] = function()
     s_clear()
@@ -366,38 +428,26 @@ p.redraw[pSLEEP] = function()
     --TODO do an animation here! fade the volume down
 end
 
-p.init[pSLEEP] = norns.none
+p.init[pSLEEP] = sys.none
 
 
 -- STATUS
 p.key[pSTATUS] = function(n,z)
     if n==3 and z==1 then 
-        map.set_page(pHOME)
-    elseif n==2 and z==1 then 
-        map.set_page(pLOG)
+        menu.set_page(pHOME)
     end
 end
 
-p.enc[pSTATUS] = norns.none
+p.enc[pSTATUS] = sys.none
 
 p.redraw[pSTATUS] = function()
     s_clear()
-    s_aa(1)
-
-    status = "b "..norns.batterypercent 
-    if norns.powerpresent==1 then status = status.."+" end
-
-    s_level(10)
-    s_move(0,10)
-    s_text(status)
-
-    -- draw current script loaded
-    s_move(0,60)
-    s_level(15)
-    s_text(norns.state.script)
+    s_level(4)
+    s_move(63,40)
+    s_text_center("hella vu's") 
 end
 
-p.init[pSTATUS] = norns.none
+p.init[pSTATUS] = sys.none
 
 
 -- WIFI
@@ -408,20 +458,20 @@ p.wifi.len = 3
 
 p.key[pWIFI] = function(n,z)
     if n==2 and z==1 then
-        map.set_page(pSETTINGS)
+        menu.set_page(pSYSTEM)
     elseif n==3 and z==1 then
         if p.wifi.pos == 0 then
             print "wifi off"
             os.execute("~/norns-image/scripts/wifi.sh off &")
-            map.set_page(pSETTINGS)
+            menu.set_page(pSYSTEM)
         elseif p.wifi.pos == 1 then
             print "wifi on"
             os.execute("~/norns-image/scripts/wifi.sh on &")
-            map.set_page(pSETTINGS)
+            menu.set_page(pSYSTEM)
         else
             print "wifi hotspot"
             os.execute("~/norns-image/scripts/wifi.sh hotspot &")
-            map.set_page(pSETTINGS)
+            menu.set_page(pSYSTEM)
         end
     end
 end
@@ -431,7 +481,7 @@ p.enc[pWIFI] = function(n,delta)
         p.wifi.pos = p.wifi.pos + delta 
 	    if p.wifi.pos > p.wifi.len - 1 then p.wifi.pos = p.wifi.len - 1
         elseif p.wifi.pos < 0 then p.wifi.pos = 0 end
-        map.redraw()
+        menu.redraw()
     end
 end
 
@@ -439,10 +489,6 @@ p.redraw[pWIFI] = function()
     s_clear()
     s_level(15)
     s_move(0,10)
-    local net = 'ip '..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
-    if net == 'ip ' then net = 'no wifi' end
-    s_text(net)
-
     for i=3,5 do
        	s_move(0,10*i)
        	line = p.wifi.list[i-2]
@@ -458,36 +504,47 @@ end
 
 p.init[pWIFI] = function()
     ssid = os.capture("cat ~/ssid.wifi") 
-    p.wifi.list = {"off","on: "..ssid,"hotspot"}
+    p.wifi.list = {"off","> "..ssid,"hotspot"}
 end
 
 -- LOG
+p.log = {}
+p.log.pos = 0
+
 p.key[pLOG] = function(n,z)
-    if n==3 and z==1 then 
-        map.set_page(pHOME)
-    elseif n==2 and z==1 then
-        map.set_page(pSTATUS)
+    if n==2 and z==1 then
+        menu.set_page(pSYSTEM)
+    elseif n==3 and z==1 then
+        p.log.pos = 0
+        menu.redraw()
+    end
+end 
+
+p.enc[pLOG] = function(n,delta)
+    if n==2 then
+        p.log.pos = clamp(p.log.pos+delta,0,sys.log.len()-7)
+        menu.redraw()
     end
 end
-
-p.enc[pLOG] = norns.none
 
 p.redraw[pLOG] = function()
     s_clear()
     s_level(10)
-    for i=1,6 do
-        s_move(0,i*10)
-        s_text(norns.log.get(i))
+    for i=1,8 do
+        s_move(0,(i*8)-1)
+        s_text(sys.log.get(i+p.log.pos))
     end
 end
 
-p.init[pLOG] = norns.none
+p.init[pLOG] = function()
+    p.log.pos = 0
+end
 
-map.level = function(delta)
-    norns.state.out = norns.state.out + delta
-    if norns.state.out < 0 then norns.state.out = 0 
-    elseif norns.state.out > 64 then norns.state.out = 64 end
-    print("level: " .. norns.state.out)
+menu.level = function(delta)
+    sys.file.state.out = sys.file.state.out + delta
+    if sys.file.state.out < 0 then sys.file.state.out = 0 
+    elseif sys.file.state.out > 64 then sys.file.state.out = 64 end
+    print("level: " .. sys.file.state.out)
     --level_out(norns.state.out,0) 
     --level_out(norns.state.out,1) 
     --level_hp(norns.state.out)
