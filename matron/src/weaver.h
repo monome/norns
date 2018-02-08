@@ -55,3 +55,5 @@ extern void w_handle_metro(const int idx, const int stage);
 //--- crone poll handlers
 extern void w_handle_poll_value(int idx, float val);
 extern void w_handle_poll_data(int idx, int size, uint8_t *data);
+extern void w_handle_poll_wave(int idx, uint8_t *data);
+extern void w_handle_poll_io_levels(uint8_t *levels);

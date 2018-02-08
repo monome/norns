@@ -38,11 +38,25 @@ typedef enum {
     EVENT_POLL_REPORT,
     // polled value from crone
     EVENT_POLL_VALUE,
-    // polled data from crone
+    // arbitrary polled data from crone
     EVENT_POLL_DATA,
+    // polled waveform from crone
+    EVENT_POLL_WAVE,
+    // polled i/o VU levels from crone
+    EVENT_POLL_IO_LEVELS,
     // quit the event loop
     EVENT_QUIT,
 } event_t;
+
+// a packed data structure for four volume levels
+// each channel is represented by unsigned byte with audio taper:
+// 255 == 0db
+// each step represents 0.25db, down to -60db
+// the
+typedef union {
+    uint8_t bytes[4];
+    uint32_t uint;
+} quad_levels_t;
 
 struct event_common {
     uint32_t type;
@@ -125,12 +139,25 @@ struct event_poll_value {
     float value;
 }; // + 8
 
+struct event_poll_io_levels {
+    struct event_common common;
+    uint32_t idx;
+    quad_levels_t value;
+}; // + 8
+
 struct event_poll_data {
     struct event_common common;
     uint32_t idx;
     uint32_t size;
     uint8_t *data;
 }; // + 12
+
+// like DATA, but size is fixed
+struct event_poll_wave {
+    struct event_common common;
+    uint32_t idx;
+    uint8_t *data;
+}; // + 8
 
 union event_data {
     uint32_t type;
@@ -148,4 +175,6 @@ union event_data {
     struct event_metro metro;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;
+    struct event_poll_io_levels poll_io_levels;
+    struct event_poll_wave poll_wave;
 };

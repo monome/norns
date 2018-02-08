@@ -28,7 +28,7 @@ static void *input_run(void *p) {
             if(nb < RX_BUF_LEN) {
                 read(STDIN_FILENO, &b, 1);
                 if(b == '\0') { continue; }
-                if(b == '\n' || b == '\r') { newline = true; }
+                if( (b == '\n') || (b == '\r') ) { newline = true; }
                 rxbuf[nb++] = b;
             }
         }
