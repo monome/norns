@@ -10,8 +10,8 @@ CronePoll {
 	var <oscPath; 	// Symbol, full descination path
 	var <>oscAddr; 	// address to send to.
 	var ret; 	// current return value
-	var cb; 	// full (private) callback function 
-	
+	var cb; 	// full (private) callback function
+
 	// create and define a new poll.
 	// function argument should return value or data
 	// type should be \value or \data
@@ -61,7 +61,7 @@ CronePoll {
 	setTime { arg time;
 		dt = time;
 	}
-	
+
 	bang {
 		cb.value();
 	}
@@ -101,15 +101,15 @@ CronePollRegistry {
 			polls.removeAt(name);
 		})
 	}
-	
+
 	*clear {
 		polls.do({ |p| p.stop; });
-		polls.clear;		
+		polls.clear;
 	}
 
 	*getPollFromIdx { arg idx;
-		postln("getting poll for idx: " ++ idx);
-		postln("poll names: " ++ pollNames);
+//		postln("getting poll for idx: " ++ idx);
+//		postln("poll names: " ++ pollNames);
 		^polls[pollNames[idx]];
 	}
 
@@ -117,7 +117,7 @@ CronePollRegistry {
 		^polls[name];
 	}
 
-	*getNumPolls { ^polls.size } 
+	*getNumPolls { ^polls.size }
 
 }
- 
+
