@@ -1477,21 +1477,22 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
+/* void w_handle_poll_wave(int idx, uint8_t *data) { */
+/*   // TODO */
+/* } */
 
 // argument is an array of 4 bytes
-void w_handle_poll_io_levels(int ix, uint8_t *levels) {
+void w_handle_poll_io_levels(uint8_t *levels) {
   lua_getglobal(lvm, "norns");
-    lua_getfield(lvm, -1, "poll");
+    lua_getfield(lvm, -1, "vu");
     lua_remove(lvm, -2);
-    lua_pushinteger(lvm, idx + 1); // convert index to 1-based
-    lua_createtable(lvm, size, 0);
-    // FIXME: would like a better way of passing a byte array to lua!
-    for(int i = 0; i < size; ++i) {
-        lua_pushinteger(lvm, data[i]);
+    lua_createtable(lvm, 4, 0);
+    for(int i = 0; i < 4; ++i) {
+        lua_pushinteger(lvm, levels[i]);
         lua_rawseti(lvm, -2, 1);
     }
-    lua_pushinteger(lvm, size);
-    l_report( lvm, l_docall(lvm, 2, 0) );
+    lua_pushinteger(lvm, 4);
+    l_report( lvm, l_docall(lvm, 1, 0) );
 }
 
 

@@ -144,32 +144,34 @@ AudioContext {
 	// pack low-resolution, log-scaled bus amplitudes
 	buildVuBlob {
 
+		/*
 		var vals = Array.with(
-			amp_in_b[0].getSynchronous();
-			amp_in_b[1].getSynchronous();
-			amp_out_b[0].getSynchronous();
-			amp_out_b[1].getSynchronous();
+			amp_in_b[0].getSynchronous;
+			amp_in_b[1].getSynchronous;
+			amp_out_b[0].getSynchronous;
+			amp_out_b[1].getSynchronous;
 		);
 
 		^Int8Array.fill(4, { |i|
 			ReverseAudioTaper.lookup( vals[i] )
 		});
+		*/
+
+		var ret = Int8Array.newClear(4);
+		ret[0] = ReverseAudioTaper.lookup( amp_in_b[0].getSynchronous );
+		ret[1] = ReverseAudioTaper.lookup( amp_in_b[1].getSynchronous );
+		ret[2] = ReverseAudioTaper.lookup( amp_out_b[0].getSynchronous );
+		ret[3] = ReverseAudioTaper.lookup( amp_out_b[1].getSynchronous );
 	}
 
 
 	initPolls {
 		postln("AudioContext: initPolls");
 
-
-		// IO VU levels are reported by default to a dedicated OSC address..
-		this.registerPoll(\io_levels, {
-			this.buildVuBlob()
-		}, dt:0.1, type:\data);
-
-		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
-		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
-		this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous(); });
-		this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous(); });
+		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous; });
+		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous; });
+		this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous; });
+		this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous; });
 
 		this.registerPoll(\pitch_in_l, {
 			var pitch, clar;

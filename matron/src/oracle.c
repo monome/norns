@@ -100,6 +100,15 @@ static int handle_poll_report_end(const char *path, const char *types,
 static int handle_poll_value(const char *path, const char *types,
                              lo_arg **argv, int argc,
                              void *data, void *user_data);
+static int handle_poll_data(const char *path, const char *types,
+                             lo_arg **argv, int argc,
+                             void *data, void *user_data);
+/* static int handle_poll_wave(const char *path, const char *types, */
+/*                              lo_arg **argv, int argc, */
+/*                              void *data, void *user_data); */
+static int handle_poll_io_levels(const char *path, const char *types,
+                             lo_arg **argv, int argc,
+                             void *data, void *user_data);
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
@@ -157,7 +166,7 @@ void o_init(void) {
                                 handle_poll_data, NULL);
     // dedicated path for audio I/O levels
     lo_server_thread_add_method(st, "/poll/io/levels", "b",
-                                handle_poll_data, NULL);
+                                handle_poll_io_levels, NULL);
     
     lo_server_thread_start(st);
 }

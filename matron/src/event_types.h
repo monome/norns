@@ -155,7 +155,6 @@ struct event_poll_data {
 }; // + 12
 
 
-
 // like DATA, but size is fixed
 struct event_poll_wave {
     struct event_common common;
@@ -180,6 +179,7 @@ union event_data {
   struct event_power power;
   struct event_metro metro;
   struct event_poll_value poll_value;
+  struct event_poll_data poll_data;
   struct event_poll_io_levels poll_io_levels;
   struct event_poll_wave poll_wave;
 };
