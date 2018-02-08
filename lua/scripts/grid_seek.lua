@@ -82,6 +82,7 @@ end
 
 redraw = function()
     s.clear()
+    s.line_width(1)
     s.level(15)
     s.move(0,10)
     s.text("cutoff > "..string.format('%.1f',(50*2^(cutoff/12))))

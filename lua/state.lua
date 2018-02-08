@@ -1,3 +1,6 @@
 -- state
-norns.state.script = 'grid_seek.lua'
-norns.state.out = '46'
+sys.file.state.script = 'draw.lua'
+sys.file.state.out = '46'
+sys.input_left = '38.0'
+sys.input_right = '38.0'
+sys.hp = '44.0'

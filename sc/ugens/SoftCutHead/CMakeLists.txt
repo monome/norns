@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 set(PROJECT "SoftCutHead")
 project (${PROJECT})
 
-set(SC_PATH "~/src/supercollider")
+set(SC_PATH "~/norns/supercollider")
 include_directories(${SC_PATH}/include/plugin_interface)
 include_directories(${SC_PATH}/include/common)
 include_directories(${SC_PATH}/common)

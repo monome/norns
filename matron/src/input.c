@@ -13,7 +13,7 @@
 static pthread_t pid;
 
 #define RX_BUF_LEN 4096
-static void *hid_run(void *p) {
+static void *input_run(void *p) {
     (void)p;
     bool quit = false;
     char rxbuf[RX_BUF_LEN];
@@ -28,7 +28,7 @@ static void *hid_run(void *p) {
             if(nb < RX_BUF_LEN) {
                 read(STDIN_FILENO, &b, 1);
                 if(b == '\0') { continue; }
-                if(b == '\n') { newline = true; }
+                if(b == '\n' || b == '\r') { newline = true; }
                 rxbuf[nb++] = b;
             }
         }
@@ -53,12 +53,12 @@ static void *hid_run(void *p) {
     return NULL;
 }
 
-void hid_init(void) {
+void input_init(void) {
     pthread_attr_t attr;
     int s;
     s = pthread_attr_init(&attr);
-    if(s != 0) { printf("hid_init(): error in pthread_attr_init(): %d\n", s); }
-    s = pthread_create(&pid, &attr, &hid_run, NULL);
-    if(s != 0) { printf("hid_init(): error in pthread_create(): %d\n", s); }
+    if(s != 0) { printf("input_init(): error in pthread_attr_init(): %d\n", s); }
+    s = pthread_create(&pid, &attr, &input_run, NULL);
+    if(s != 0) { printf("input_init(): error in pthread_create(): %d\n", s); }
     pthread_attr_destroy(&attr);
 }
