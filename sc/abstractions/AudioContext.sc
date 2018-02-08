@@ -162,6 +162,7 @@ AudioContext {
 		ret[1] = ReverseAudioTaper.lookup( amp_in_b[1].getSynchronous );
 		ret[2] = ReverseAudioTaper.lookup( amp_out_b[0].getSynchronous );
 		ret[3] = ReverseAudioTaper.lookup( amp_out_b[1].getSynchronous );
+		^ret;
 	}
 
 

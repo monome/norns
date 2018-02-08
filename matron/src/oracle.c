@@ -165,7 +165,7 @@ void o_init(void) {
     lo_server_thread_add_method(st, "/poll/data", "ib",
                                 handle_poll_data, NULL);
     // dedicated path for audio I/O levels
-    lo_server_thread_add_method(st, "/poll/io/levels", "b",
+    lo_server_thread_add_method(st, "/poll/vu", "b",
                                 handle_poll_io_levels, NULL);
     
     lo_server_thread_start(st);
@@ -654,12 +654,19 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
     (void)argc;
     (void)data;
     (void)user_data;
-    union event_data *ev = event_data_new(EVENT_POLL_DATA);
-    uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[1] );
-    int sz = lo_blob_datasize( (lo_blob)argv[1] );
+    union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
+    uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[0] );
+    int sz = lo_blob_datasize( (lo_blob)argv[0] );
     assert(sz == sizeof(quad_levels_t));
     ev->poll_io_levels.value.uint = *((uint32_t*)blobdata);
+    /* printf("%d\t%d\t%d\t%d\n", */
+    /* 	   ev->poll_io_levels.value.bytes[0], */
+    /* 	   ev->poll_io_levels.value.bytes[1], */
+    /* 	   ev->poll_io_levels.value.bytes[2], */
+    /* 	   ev->poll_io_levels.value.bytes[3]); */
+    fflush(stdout);
     event_post( ev );
+	   
     return 0;
 }
 

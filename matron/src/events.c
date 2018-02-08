@@ -330,7 +330,12 @@ void handle_poll_data(struct event_poll_data *ev) {
 /* } */
 
 void handle_poll_io_levels(struct event_poll_io_levels *ev) {
-  w_handle_poll_io_levels(ev->idx, ev->value.bytes);
+      /* printf("%d\t%d\t%d\t%d\n", */
+      /* 	   ev->value.bytes[0], */
+      /* 	   ev->value.bytes[1], */
+      /* 	   ev->value.bytes[2], */
+      /* 	   ev->value.bytes[3]); */
+  w_handle_poll_io_levels(ev->value.bytes);
 }
 
 //--- quit
