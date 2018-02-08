@@ -148,12 +148,17 @@ void o_init(void) {
                                 handle_poll_report_entry, NULL);
     lo_server_thread_add_method(st, "/report/polls/end", "",
                                 handle_poll_report_end, NULL);
-    // poll results
+    //// poll results
+    // generic single value
     lo_server_thread_add_method(st, "/poll/value", "if",
                                 handle_poll_value, NULL);
+    // generic data blob
     lo_server_thread_add_method(st, "/poll/data", "ib",
                                 handle_poll_data, NULL);
-
+    // dedicated path for audio I/O levels
+    lo_server_thread_add_method(st, "/poll/io/levels", "b",
+                                handle_poll_data, NULL);
+    
     lo_server_thread_start(st);
 }
 
@@ -606,11 +611,8 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
     (void)path;
     (void)types;
     (void)argc;
-    (void)argv;
     (void)data;
     (void)user_data;
-    // printf("(oracle) handle_poll_value; idx: %d; value: %f\n", argv[0]->i,
-    // argv[1]->f); fflush(stdout);
     union event_data *ev = event_data_new(EVENT_POLL_VALUE);
     ev->poll_value.idx = argv[0]->i;
     ev->poll_value.value = argv[1]->f;
@@ -623,10 +625,8 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
     (void)path;
     (void)types;
     (void)argc;
-    (void)argv;
     (void)data;
     (void)user_data;
-    // printf("handle_poll_data\n"); fflush(stdout);
     union event_data *ev = event_data_new(EVENT_POLL_DATA);
     ev->poll_data.idx = argv[0]->i;
     uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[1] );
@@ -637,6 +637,23 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
     event_post( ev );
     return 0;
 }
+
+int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
+                     int argc, void *data, void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)data;
+    (void)user_data;
+    union event_data *ev = event_data_new(EVENT_POLL_DATA);
+    uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[1] );
+    int sz = lo_blob_datasize( (lo_blob)argv[1] );
+    assert(sz == sizeof(quad_levels_t));
+    ev->poll_io_levels.value.uint = *((uint32_t*)blobdata);
+    event_post( ev );
+    return 0;
+}
+
 
 void lo_error_handler(int num, const char *m, const char *path) {
     printf("liblo error %d in path %s: %s\n", num, path, m);

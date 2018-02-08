@@ -18,6 +18,11 @@ AudioContext {
 	// polls available in base context
 	var <pollNames;
 
+	// I/O VU levels are reported on a dedicated OSC address
+	var vu_thread;
+	var <>vu_dt;
+
+
 	*new { arg srv;
 		^super.new.init(srv);
 	}
@@ -125,7 +130,6 @@ AudioContext {
 
 	pitchOff {
 		pitch_in_s.do({ |syn| syn.run(false); });
-
 	}
 
 	initCommands {
@@ -155,14 +159,17 @@ AudioContext {
 
 	initPolls {
 		postln("AudioContext: initPolls");
-		// this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
-		// this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
-		// this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous(); });
-		// this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous(); });
 
+
+		// IO VU levels are reported by default to a dedicated OSC address..
 		this.registerPoll(\io_levels, {
 			this.buildVuBlob()
 		}, dt:0.1, type:\data);
+
+		this.registerPoll(\amp_in_l, { amp_in_b[0].getSynchronous(); });
+		this.registerPoll(\amp_in_r, { amp_in_b[1].getSynchronous(); });
+		this.registerPoll(\amp_out_l, { amp_out_b[0].getSynchronous(); });
+		this.registerPoll(\amp_out_r, { amp_out_b[1].getSynchronous(); });
 
 		this.registerPoll(\pitch_in_l, {
 			var pitch, clar;

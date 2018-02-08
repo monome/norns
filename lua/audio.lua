@@ -48,7 +48,6 @@ Audio.monitor_off = function()
    audio_monitor_off()
 end
 
-
 --- enable input pitch analysis
 Audio.pitch_on = function()
    audio_pitch_on()
