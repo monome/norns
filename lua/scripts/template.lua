@@ -10,7 +10,7 @@ init = function(commands, count)
     -- print to command line
     print("template!")
     -- add log message
-    norns.log.post("hello!")
+    sys.log.post("hello!")
     -- show engine commands available
     print("commands: ")
     for i,v in pairs(commands) do
@@ -82,6 +82,7 @@ c.time = 1
 -- callback function on each count
 c.callback = function(stage)
     t = t + 1
+    sys.log.post("tick "..t)
     redraw()
 end
 
