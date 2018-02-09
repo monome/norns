@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     fflush(stdout);
     do {
         screen_text(".");
-        sleep(1);
+        usleep(1000);
     } while(o_ready() != 1);
     printf(" ready.\n");
 

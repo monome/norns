@@ -19,7 +19,7 @@ Engine_SoftCut : CroneEngine {
 		^super.new.init(server, group, in, out).initSub(server, group, in, out);
 	}
 
-	kill {
+	free {
 		buf.do({ |b| b.free; });
 		bus.rec.do({ |b| b.free; });
 		syn.do({ arg synth; synth.free; });
@@ -107,6 +107,14 @@ Engine_SoftCut : CroneEngine {
 
 			postln("SoftCut: done waiting on buffer allocation");
 
+			//--- busses
+			bus.adc = Crone.ctx.in_b;
+			// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
+			// FIXME: oh! actually just use array of panners, instead of output patch matrix.
+			// here we convert  output bus to a mono array
+			bus.dac = Array.with( Bus.newFrom(Crone.ctx.out_b, 0), Bus.newFrom(Crone.ctx.out_b, 1));
+			bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
+			bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
 
 			//-- voices
 			voices = Array.fill(nvoices, { |i|
@@ -151,6 +159,18 @@ Engine_SoftCut : CroneEngine {
 
 		}.play;
 
+		this.addCommands;
+
+		nvoices.do({ arg i;
+			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
+				var val = voices[i].phase_b.getSynchronous;
+				postln("phase: " ++ val);
+				val				
+			});
+			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
+				voices[i].phase_b.getSynchronous / voices[i].buf.duration
+			});
+		});
 	} // initSub
 
 	addCommands {

@@ -36,7 +36,8 @@ end
 -- @param data - array of [name, format]
 -- @param count - number of commands
 Engine.registerCommands = function(data, count)
-   local name, fmt   
+   local name, fmt
+--   Engine.numCommands = count;
    Engine.commands = {}
    for i=1,count do
       name = data[i][1]
@@ -61,14 +62,33 @@ Engine.addCommand = function(id, name, fmt)
       id = id,
       name = name,
       fmt = fmt,
-      func = func      
+      func = func,
    }
+end
+
+Engine.showCommands = function()
+   -- unsorted
+   --[[
+   for i,com in pairs(Engine.commands) do
+      if type(com) ~= "function" then
+	 print(com.id ..'\t'..com.name ..' ('.. com.fmt .. ')')
+      end
+   end
+   --]]
+   -- lexicographically sorted
+   local names = {}
+   for k in pairs(Engine.commands) do table.insert(names, k) end
+   table.sort(names)
+   for i,n in ipairs(names) do
+      print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
+   end   
 end
 
 --- load a named engine, with a callback
 -- @param name - name of engine
 -- @param callback - functoin to call on engine load. will receive command list
 Engine.load = function(name, callback)
+--   print("loading engine; callback: ") print (callback)
    -- on engine load, command report will be generated
    norns.report.commands = function(commands, count)
       Engine.registerCommands(commands, count)
@@ -78,7 +98,6 @@ Engine.load = function(name, callback)
    end
    load_engine(name)
 end
-
 
 --- custom getters; 
 -- [] accessor returns a command function;

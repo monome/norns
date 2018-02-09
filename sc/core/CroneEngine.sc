@@ -4,8 +4,6 @@
 CroneEngine {
 	// audio server
 	var <server;
-	// top-level group for all our synths
-	var <group;
 	// input busses (2x mono)
 	var <in_b;
 	// output bus (1x stereo)
@@ -25,7 +23,6 @@ CroneEngine {
 
 	init { arg srv, grp, inb, outb;
 		server = srv;
-		group = Group.new(grp);
 		in_b = inb;
 		out_b = outb;
 		commands = List.new;
@@ -41,8 +38,7 @@ CroneEngine {
 	
 	// NB: subclasses should override this if they need to free resources
 	// but the superclass method should be called as well
-	kill {
-		group.free;
+	free {
 		commands.do({ arg com;
 			com.oscdef.free;
 		});
