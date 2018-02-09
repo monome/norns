@@ -161,9 +161,10 @@ Engine_SoftCut : CroneEngine {
 			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
 				voices[i].phase_b.getSynchronous
 			});
+			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
+				voices[i].phase_b.getSynchronous / voices[i].buf.duration
+			});
 		});
-
-
 
 	} // initSub
 

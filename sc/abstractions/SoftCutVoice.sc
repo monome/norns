@@ -12,6 +12,7 @@ SoftCutVoice {
 	var <phase_kr_s; // synth to map audio-rate phase to control rate
 
 	var <syn; // the main synth
+	var <buf; // the current buffer
 
 	*new { arg srv, tgt, buf, in, out;
 		^super.new.init(srv, tgt, buf, in, out);
@@ -21,7 +22,7 @@ SoftCutVoice {
 	*initClass {
 
 		StartUp.add {
-			postln("softvutvoice startup");
+			postln("softcutvoice startup");
 			CroneDefs.add(
 				// looped, crossfaded , synchronized playback and record
 				SynthDef.new(\soft_cut_voice, {
@@ -102,8 +103,8 @@ SoftCutVoice {
 	}
 
 	init {
-		arg server, target, buf, in, out;
-
+		arg server, target, buf_, in, out;
+		buf = buf_;
 		reset_b = Bus.control(server);
 		phase_audio_b = Bus.audio(server);
 		phase_b = Bus.control(server);
@@ -120,5 +121,6 @@ SoftCutVoice {
 	start { syn.set(\gate, 1); syn.run(true); this.reset; }
 	stop { syn.set(\gate, 0); } // will pause when done
 	reset { reset_b.set(1); }
+	buf_ { arg bf; buf = bf; syn.set(\buf, buf); }
 
 }
