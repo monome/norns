@@ -52,7 +52,7 @@ ReverseAudioTaper {
 		if(amp < breaklin, {
 			^(amp / breaklin * (breakn-1)).floor.asInteger;
 		}, {
-			^linlogarr[((amp - breaklin) / lininc).floor].asInteger;
+			^linlogarr[((amp - breaklin) / lininc).floor.min(nlininc-1)].asInteger;
 		})
 	}
 }
