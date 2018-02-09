@@ -2,6 +2,8 @@
 -- @module engine
 -- @alias Engine
 require 'norns'
+local tab = require 'tabutil'
+
 norns.version.engine = '0.0.2'
 
 local Engine = {}
@@ -66,20 +68,9 @@ Engine.addCommand = function(id, name, fmt)
    }
 end
 
-Engine.showCommands = function()
-   -- unsorted
-   --[[
-   for i,com in pairs(Engine.commands) do
-      if type(com) ~= "function" then
-	 print(com.id ..'\t'..com.name ..' ('.. com.fmt .. ')')
-      end
-   end
-   --]]
-   -- lexicographically sorted
-   local names = {}
-   for k in pairs(Engine.commands) do table.insert(names, k) end
-   table.sort(names)
-   for i,n in ipairs(names) do
+Engine.listCommands = function()
+   local sorted = tab.sort(Engine.commands);
+   for i,n in ipairs(sorted) do
       print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
    end   
 end

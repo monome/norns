@@ -1,3 +1,5 @@
+local tab = {}
+
 -- print the contents of a table
 tab.print = function(t)
    for k,v in pairs(t) do print(k .. '\t' .. v) end
@@ -18,3 +20,5 @@ tab.count = function(t)
   for _ in pairs(t) do c = c + 1 end
   return c
 end
+
+return tab
