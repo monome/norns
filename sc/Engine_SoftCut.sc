@@ -111,7 +111,8 @@ Engine_SoftCut : CroneEngine {
 			//--- busses
 			bus.adc = Crone.ctx.in_b;
 			// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
-			// here we convert  output busto a mono array
+			// FIXME: oh! actually just use array of panners, instead of output patch matrix.
+			// here we convert  output bus to a mono array
 			bus.dac = Array.with( Bus.newFrom(Crone.ctx.out_b, 0), Bus.newFrom(Crone.ctx.out_b, 1));
 			bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
 			bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
@@ -159,7 +160,9 @@ Engine_SoftCut : CroneEngine {
 
 		nvoices.do({ arg i;
 			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
-				voices[i].phase_b.getSynchronous
+				var val = voices[i].phase_b.getSynchronous;
+				postln("phase: " ++ val);
+				val				
 			});
 			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
 				voices[i].phase_b.getSynchronous / voices[i].buf.duration
