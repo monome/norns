@@ -1,6 +1,6 @@
 --test grid sequencer 
 
--- engine = 'PolyPerc'
+engine = 'PolyPerc'
 
 init = function()
     print("grid/seek")

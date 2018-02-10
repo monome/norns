@@ -69,7 +69,7 @@ end
 -- @param out1 
 -- @param out2
 Audio.vu = function(in1, in2, out1, out2)
-    print (in1 .. '\t' .. in2 .. '\t' .. out1 .. '\t' .. out2)
+    -- print (in1 .. '\t' .. in2 .. '\t' .. out1 .. '\t' .. out2)
 end
 
 norns.vu = function(in1, in2, out1, out2)

@@ -34,7 +34,7 @@ with the other components running, run the `maiden` executable from anywhere. th
 
 special characters:
 
-- `TAB` : switch between lua and sclang REPLs
+- ~~`TAB` : switch between lua and sclang REPLs~~ this is disabled actually
 - `shift+TAB` : switch between output log and input log for each REPL
 (_**TODO: input log isn't really implemented**_)
 - `q` : quits the client.
