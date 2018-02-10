@@ -1,4 +1,4 @@
-g// CroneEngine_TestSine
+// CroneEngine_TestSine
 // dumbest possible test: a single, mono sinewave
 Engine_TestSine : CroneEngine {
 	var <synth;
