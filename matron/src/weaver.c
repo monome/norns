@@ -1582,6 +1582,7 @@ int _set_audio_output_level(lua_State *l) {
 
 int _set_audio_monitor_level(lua_State *l) {
     int nargs = lua_gettop(l);
+    printf("set_audio_monitor_level nargs: %d\n", nargs);
     if(nargs == 1) {
         if( lua_isnumber(l, 1) ) {
             float val = lua_tonumber(l, 1);
