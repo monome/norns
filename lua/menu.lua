@@ -397,11 +397,15 @@ p.init[pSYSTEM] = function()
     p.sys.battery = p.sys.battery .. " / "..current.."mA"
 
     p.sys.net = ''..os.capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
-    if p.sys.net == '' then p.sys.net = os.capture("cat ~/status.wifi")
-    else
+    local wifi_status = os.capture("cat ~/status.wifi");
+    -- if p.sys.net == '' or wifi
+    if wifi_status == 'router'
+    then
         p.sys.net = p.sys.net .. " / "
         p.sys.net = p.sys.net .. os.capture("iw dev wlan0 link | grep 'signal' | awk '{print $2}'")
         p.sys.net = p.sys.net .. "dBm"
+    else
+       p.sys.net = wifi_status
     end 
 end
 
