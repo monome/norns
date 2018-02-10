@@ -114,8 +114,17 @@ SoftCutVoice {
 			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
 		], target);
 		phase_kr_s = { Out.kr(phase_b.index, A2K.kr(In.ar(phase_audio_b.index)))}
-			.play(target: syn, addAction:\addAfter);
+		.play(target: syn, addAction:\addAfter);
 
+	}
+
+	free {
+		phase_audio_b.free;
+		phase_b.free;
+		loop_b.free;
+		reset_b.free;
+		phase_kr_s.free;
+		syn.free;
 	}
 
 	start { syn.set(\gate, 1); syn.run(true); this.reset; }

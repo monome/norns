@@ -60,9 +60,10 @@ Crone {
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
+					postln("free engine: " ++ engine);
 					engine.free;
 				});
-				engine = class.new(Server.default, ctx.xg, ctx.in_b, ctx.out_b);
+				engine = class.new(ctx);
 				postln('set engine: ' ++ engine);
 			});
 		});
@@ -286,4 +287,4 @@ Crone {
 
 	}
 }
-	
+

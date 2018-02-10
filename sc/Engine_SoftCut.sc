@@ -5,7 +5,7 @@ Engine_SoftCut : CroneEngine {
 
 	classvar commands;
 
-	var <s; // server
+	var <ctx; // audio context
 	var <bus; // busses
 	var <buf; // buffers
 	var <syn; // synths
@@ -14,14 +14,16 @@ Engine_SoftCut : CroneEngine {
 	var <rec; // recorders
 
 	var <voices; // array of voices
-	*new { arg server, group, in, out;
-		^super.new.init(server, group, in, out).initSub(server, group, in, out);
+	*new { arg context; // argument is an AudioContext
+		^super.new.init(context).initSub(context);
 	}
 
 	free {
+		voices.do({ arg voice; voice.free; });
 		buf.do({ |b| b.free; });
-		bus.rec.do({ |b| b.free; });
-		syn.do({ arg synth; synth.free; });
+		bus.do({ arg bs; bs.do({ arg b; b.free; }); });
+		pm.do({ arg p; p.free; });
+		super.free;
 	}
 
 	//---  buffer and routing methods
@@ -42,10 +44,10 @@ Engine_SoftCut : CroneEngine {
 	// destructive trim
 	trimBuf { arg i, start, end;
 		var startsamp, endsamp, samps, newbuf;
-		startsamp = start * s.sampleRate;
-		endsamp = end * s.sampleRate;
+		startsamp = start * ctx.server.sampleRate;
+		endsamp = end * ctx.server.sampleRate;
 		samps = endsamp - startsamp;
-		newbuf = Buffer.alloc(s, samps);
+		newbuf = Buffer.alloc(ctx.server, samps);
 		buf[i].copyData(newbuf, 0, startsamp, samps);
 		// any voices using this buffer need to be reassigned
 		voices.do({ arg v;
@@ -76,20 +78,24 @@ Engine_SoftCut : CroneEngine {
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
 	initSub {
+		arg context;
+
 		var com;
 		var bus_pb_idx; // tmp collection of playback bus indices
 		var bus_rec_idx;
 		var bufcon;
 
+		ctx = context;
+
 		Routine {
-			var s = server;
+			var s = ctx.server;
 
 			postln("SoftCut: init routine");
 
 			//--- groups
 			gr = Event.new;
-			gr.pb = Group.new(Crone.ctx.xg);
-			gr.rec = Group.after(Crone.ctx.ig);
+			gr.pb = Group.new(ctx.xg);
+			gr.rec = Group.after(ctx.ig);
 			// phase bus per voice (output)
 			bus = Event.new;
 
@@ -102,24 +108,22 @@ Engine_SoftCut : CroneEngine {
 				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
 				})
 			});
-			s.sync;
-			//			bufcon.do({ arg con; con.hang; });
 
-			postln("SoftCut: done waiting on buffer allocation");
+			s.sync;
 
 			//--- busses
-			bus.adc = Crone.ctx.in_b;
+			bus.adc = ctx.in_b;
 			// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
 			// FIXME: oh! actually just use array of panners, instead of output patch matrix.
 			// here we convert  output bus to a mono array
-			bus.dac = Array.with( Bus.newFrom(Crone.ctx.out_b, 0), Bus.newFrom(Crone.ctx.out_b, 1));
+			bus.dac = Array.with( Bus.newFrom(ctx.out_b, 0), Bus.newFrom(ctx.out_b, 1));
 			bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
 			bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
 
 			//-- voices
 			voices = Array.fill(nvoices, { |i|
 				// 	arg server, target, buf, in, out;
-				SoftCutVoice.new(s, Crone.ctx.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
+				SoftCutVoice.new(s, ctx.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
 			});
 
 			//--- patch matrices
@@ -161,7 +165,7 @@ Engine_SoftCut : CroneEngine {
 			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
 				var val = voices[i].phase_b.getSynchronous;
 				postln("phase: " ++ val);
-				val				
+				val
 			});
 			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
 				voices[i].phase_b.getSynchronous / voices[i].buf.duration

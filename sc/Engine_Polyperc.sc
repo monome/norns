@@ -7,18 +7,19 @@ Engine_PolyPerc : CroneEngine {
     var cutoff=1000;
     var gain=2;
 
-	*new { arg server, group, in, out;
-		^super.new.init(server, group, in, out).initSub();
+	*new { arg context;
+		^super.new.init(context).initSub(context);
 	}
 
-	initSub {
-        SynthDef("PolyPerc", {arg freq = 440, pw=pw, amp=amp, cutoff=cutoff, gain=gain, release=release;
+	initSub { arg ctx;
+        SynthDef("PolyPerc", {
+			arg out = ctx.out_b, freq = 440, pw=pw, amp=amp, cutoff=cutoff, gain=gain, release=release;
 			var snd = LFPulse.ar(freq, 0, pw);
 			var filt = MoogFF.ar(snd,cutoff,gain);
 			var env = Env.perc(level: amp, releaseTime: release).kr(2);
-			Out.ar(this.out_b.index, (filt*env).dup);
-		}).add; 
-		
+			Out.ar(out, (filt*env).dup);
+		}).add;
+
 		this.addCommand("hz", "f", { arg msg;
 			var val = msg[1];
             Synth("PolyPerc", [\freq,val,\pw,pw,\amp,amp,\cutoff,cutoff,\gain,gain,\release,release]);
