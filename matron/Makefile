@@ -36,7 +36,7 @@ _OBJ = main.o \
 	hardware/gpio.o \
 	hardware/i2c.o \
 	hardware/screen.o \
-	hid.o \
+	input.o \
 	lua_eval.o \
 	metro.o \
 	oracle.o \

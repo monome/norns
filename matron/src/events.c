@@ -59,6 +59,9 @@ static void handle_command_report(void);
 static void handle_poll_report(void);
 static void handle_poll_value(struct event_poll_value *ev);
 static void handle_poll_data(struct event_poll_data *ev);
+// TODO
+//static void handle_poll_wave(struct event_poll_wave *ev);
+static void handle_poll_io_levels(struct event_poll_io_levels *ev);
 static void handle_quit(void);
 
 // add an event data struct to the end of the event queue
@@ -209,6 +212,13 @@ static void handle_event(union event_data *ev) {
     case EVENT_POLL_DATA:
         handle_poll_data( &(ev->poll_data) );
         break;
+    case EVENT_POLL_IO_LEVELS:
+        handle_poll_io_levels( &(ev->poll_io_levels) );
+        break;
+    // TODO
+    /* case EVENT_POLL_WAVE: */
+    /*   handle_poll_wave( &(ev->poll_wave) ); */
+    /*     break; */
     case EVENT_QUIT:
         handle_quit();
         break;
@@ -311,6 +321,16 @@ void handle_poll_value(struct event_poll_value *ev) {
 void handle_poll_data(struct event_poll_data *ev) {
     w_handle_poll_data(ev->idx, ev->size, ev->data);
     free(ev->data);
+}
+
+// TODO
+/* void handle_poll_wave(struct event_poll_wave *ev) { */
+/*   w_handle_poll_wave(ev->idx, ev->data); */
+/*   free(ev->data); */
+/* } */
+
+void handle_poll_io_levels(struct event_poll_io_levels *ev) {
+    w_handle_poll_io_levels(ev->value.bytes);
 }
 
 //--- quit

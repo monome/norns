@@ -5,7 +5,6 @@ poll = require 'poll'
 e = require 'engine'
 g = nil 
 
-
 grid.add = function(device)
    print("attaching grid ")
    g = device

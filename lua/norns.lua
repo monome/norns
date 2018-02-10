@@ -58,10 +58,17 @@ norns.report = {}
 norns.report.engines = function(names, count)
    assert(false); -- shouldn't happen
 end
+
 norns.report.commands = function(commands, count)
    assert(false) -- shouldn't happen
 end
+
 norns.report.polls = function(polls, count)
    -- ok, this could happen if we aren't using the poll module
    -- print("norns.report.polls", commands, count)
-end 
+end
+
+-- I/O level callback
+norns.vu = function(in1, in2, out1, out2)
+   print(in1 .. "\t" .. in2 .. "\t" .. out1 .. "\t" .. out2)
+end
