@@ -39,12 +39,7 @@ https://github.com/monome/libmonome.git
 https://github.com/nanomsg/nanomsg.git
 ```
 
-for running on raspberry pi headless, supercollider must be built with some particular twists. 
-see here:
-http://supercollider.github.io/development/building-raspberrypi.html
-and maybe here:
-https://github.com/redFrik/supercolliderStandaloneRPI2/blob/master/BUILDING_NOTES.md
-
+supercollider is included as a submodule.
 
 ## building norns
 
@@ -57,7 +52,7 @@ make
 
 this should build all the c-based components (`matron`, `maiden`, and `ipc-wrapper`.)
 
-the `crone` audio engine consists of supercollider classes. run `crone/install.sh` to copy these to the default location for user SC extensions. 
+the `crone` audio engine consists of supercollider classes. run `sc/install.sh` to copy these to the default location for user SC extensions. 
 
 see  [readme-usage.md](readme-usage.md) for instructions on running and using norns.
 
