@@ -19,7 +19,7 @@ Engine_SoftCut : CroneEngine {
 		^super.new.init(server, group, in, out).initSub(server, group, in, out);
 	}
 
-	kill {
+	free {
 		buf.do({ |b| b.free; });
 		bus.rec.do({ |b| b.free; });
 		syn.do({ arg synth; synth.free; });

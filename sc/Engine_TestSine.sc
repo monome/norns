@@ -1,4 +1,4 @@
-// CroneEngine_TestSine
+g// CroneEngine_TestSine
 // dumbest possible test: a single, mono sinewave
 Engine_TestSine : CroneEngine {
 	var <synth;
@@ -28,5 +28,9 @@ Engine_TestSine : CroneEngine {
 			//postln("set amp : " ++ val);
 			synth.set(\amp, val);
 		});
+	}
+
+	free {
+		synth.free;
 	}
 }

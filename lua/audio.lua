@@ -22,8 +22,8 @@ end
 
 -- set monitor level for *both* input channels
 -- @param level in [0, 1]
-Audio.monitor_level = function()
-   audio_monitor_level()
+Audio.monitor_level = function(level)
+   audio_monitor_level(level)
 end
 
 --- set monitor mode to mono
