@@ -184,10 +184,10 @@ Crone {
 				this.reportPolls;
 			}, '/report/polls'),
 
-			// @function /engine/kill
-			'/engine/kill':OSCFunc.new({
-				if(engine.notNil, { engine.kill; });
-			}, '/engine/kill'),
+			// @function /engine/free
+			'/engine/free':OSCFunc.new({
+				if(engine.notNil, { engine.free; });
+			}, '/engine/free'),
 
 			// @function /engine/load/name
 			// @param engine name (string)
