@@ -340,13 +340,13 @@ p.enc[pSYSTEM] = function(n,delta)
                 sys.input_left = clamp(sys.input_left,0,63)
                 gain_in(sys.input_left,0)
             end 
-            if p.sys.input == 2 or p.sys.input == 2 then
+            if p.sys.input == 0 or p.sys.input == 2 then
                 sys.input_right = sys.input_right + delta
                 sys.input_right = clamp(sys.input_right,0,63)
                 gain_in(sys.input_right,1)
             end 
             menu.redraw()
-        elseif p.sys.pos == 1 then
+        elseif p.sys.pos == 2 then
             sys.hp = sys.hp + delta
             sys.hp = clamp(sys.hp,0,63)
             gain_hp(sys.hp) 
