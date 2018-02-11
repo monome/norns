@@ -493,6 +493,7 @@ p.redraw[pWIFI] = function()
     s_clear()
     s_level(15)
     s_move(0,10)
+    s_text(os.capture("cat ~/status.wifi"));
     for i=3,5 do
        	s_move(0,10*i)
        	line = p.wifi.list[i-2]
@@ -507,8 +508,17 @@ p.redraw[pWIFI] = function()
 end 
 
 p.init[pWIFI] = function()
-    ssid = os.capture("cat ~/ssid.wifi") 
-    p.wifi.list = {"off","> "..ssid,"hotspot"}
+   ssid = os.capture("cat ~/ssid.wifi")
+   wifi_status = os.capture("cat ~/status.wifi");
+   if wifi_status == 'hotspot' then
+      p.wifi.list = {"  off","  "..ssid,"> hotspot"}
+   elseif wifi_status == 'router' then
+      p.wifi.list = {"  off","> "..ssid,"  hotspot"}
+   elseif wifi_status == 'stopped' then
+      p.wifi.list = {"> off","  "..ssid,"  hotspot"}
+   else
+      p.wifi.list = {"  off","  "..ssid,"  hotspot"}
+   end
 end
 
 -- LOG
