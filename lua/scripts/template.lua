@@ -1,5 +1,8 @@
--- template
--- a very basic example
+-- @name template
+-- @version 1.0.2
+-- @author tehn
+-- @url http://monome.org
+-- @txt a very basic example
 
 -- specify dsp engine to load:
 engine = 'TestSine'
