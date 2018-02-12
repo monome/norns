@@ -37,6 +37,11 @@ t.callback = function(stage)
     end
 end
 
+-- metro for status updates
+local u = metro[30]
+u.time = 2
+u.count = -1
+
 
 -- assigns key/enc/screen handlers after user script has loaded
 sys.menu = {}
@@ -99,6 +104,8 @@ end
 menu.set_mode = function(mode)
     if mode==false then
         menu.mode = false 
+        u:stop()
+        norns.vu = sys.none
         sys.s.restore()
         menu.key = key
         menu.enc = enc
@@ -190,6 +197,8 @@ p.sel.list = sys.file.scandir(script_dir)
 p.sel.len = sys.file.tablelength(p.sel.list)
 p.sel.depth = 0
 p.sel.folders = {}
+p.sel.path = ""
+p.sel.file = ""
 
 p.sel.dir = function()
     local path = script_dir
@@ -226,24 +235,22 @@ p.key[pSELECT] = function(n,z)
         end 
     -- select
     elseif n==3 and z==1 then 
-        local s = p.sel.list[p.sel.pos+1]
-        if string.find(s,'/') then 
+        p.sel.file = p.sel.list[p.sel.pos+1]
+        if string.find(p.sel.file,'/') then 
             print("folder")
             p.sel.depth = p.sel.depth + 1
-            p.sel.folders[p.sel.depth] = s
+            p.sel.folders[p.sel.depth] = p.sel.file
             p.sel.list = sys.file.scandir(p.sel.dir())
             p.sel.len = sys.file.tablelength(p.sel.list)
             p.sel.pos = 0
             menu.redraw()
         else 
-            --line = string.gsub(s,'.lua','')
             local path = ""
             for k,v in pairs(p.sel.folders) do
                 path = path .. v
             end
-            path = path .. s
-            sys.script.load(path)
-            menu.set_mode(false)
+            p.sel.path = path .. p.sel.file
+            menu.set_page(pPREVIEW)
         end
     end
 end
@@ -283,6 +290,65 @@ end
 
 
 
+-- PREVIEW
+
+p.pre = {}
+p.pre.meta = {}
+
+p.init[pPREVIEW] = function()
+    p.pre.meta = sys.script.metadata(p.sel.path)
+end
+
+p.key[pPREVIEW] = function(n,z)
+    if n==3 and z ==1 then
+        sys.script.load(p.sel.path)
+        menu.set_mode(false)
+    elseif n == 2 and z == 1 then
+        menu.set_page(pSELECT)
+    end
+end
+
+p.enc[pPREVIEW] = sys.none
+
+p.redraw[pPREVIEW] = function()
+    s_clear()
+	if tablelength(p.pre.meta) == 0 then
+		p.pre.meta.name = string.gsub(p.sel.file,'.lua','') .. " (no metadata)"
+	end 
+    if p.pre.meta.name == nil then
+		p.pre.meta.name = string.gsub(p.sel.file,'.lua','')
+    end 
+	local name = string.upper(p.pre.meta.name)
+	local version = ""
+	if p.pre.meta.version ~= nil then
+		version = p.pre.meta.version		
+	end 
+	name = name .. " " .. version
+	local l = 8
+	s_move(0,l)
+	s_level(15)
+	s_text(name)
+	local byline = ''
+	if p.pre.meta.author ~= nil then
+		byline = p.pre.meta.author
+	end
+	if p.pre.meta.url ~= nil then
+		byline = byline .. " - " .. p.pre.meta.url
+	end
+	if byline ~= '' then
+        l = l + 8
+		s_level(8)
+		s_move(0,l) 
+		s_text(byline)	
+	end
+	l = l + 16 
+	if p.pre.meta.txt ~= nil then
+		s_move(0,l)
+		--TODO this should wrap and scroll!
+		s_text(p.pre.meta.txt)
+	end 
+end
+
 -- PARAMS
 
 p.key[pPARAMS] = function(n,z)
@@ -315,13 +381,16 @@ p.sys.net = ''
 p.key[pSYSTEM] = function(n,z)
     if n==2 and z==1 then 
         sys.file.state.save()
+        u:stop()
         menu.set_page(pHOME)
     elseif n==3 and z==1 and p.sys.pos==3 then
+        u:stop()
         menu.set_page(pLOG)
     elseif n==3 and z==1 and p.sys.pos==1 then
         p.sys.input = (p.sys.input + 1) % 3
         menu.redraw()
     elseif n==3 and z==1 and p.sys.pos==0 then
+        u:stop()
         menu.set_page(pWIFI) 
     end
 end
@@ -390,6 +459,14 @@ p.redraw[pSYSTEM] = function()
 end
 
 p.init[pSYSTEM] = function()
+    u.callback = function()
+        p.sysquery()
+        menu.redraw()
+    end
+    u:start()
+end
+
+p.sysquery = function()
     p.sys.battery = "battery "..norns.batterypercent 
     if norns.powerpresent==1 then p.sys.battery = p.sys.battery.."+" end 
     local current = os.capture("cat /sys/class/power_supply/bq27441-0/current_now")
@@ -408,6 +485,7 @@ p.init[pSYSTEM] = function()
        p.sys.net = wifi_status
     end 
 end
+ 
 
 
 
@@ -436,8 +514,11 @@ p.init[pSLEEP] = sys.none
 
 
 -- STATUS
+p.stat = {}
+
 p.key[pSTATUS] = function(n,z)
     if n==3 and z==1 then 
+        norns.vu = sys.none
         menu.set_page(pHOME)
     end
 end
@@ -446,12 +527,35 @@ p.enc[pSTATUS] = sys.none
 
 p.redraw[pSTATUS] = function()
     s_clear()
-    s_level(4)
-    s_move(63,40)
-    s_text_center("hella vu's") 
+    s_aa(1)
+    s_level(15)
+    s_move(16,63)
+    s_line(16,63-p.stat.out1)
+    s_move(32,63)
+    s_line(32,63-p.stat.out2)
+    s_move(80,63)
+    s_line(80,63-p.stat.in1)
+    s_move(96,63)
+    s_line(96,63-p.stat.in2)
+    s_stroke()
 end
 
-p.init[pSTATUS] = sys.none
+p.init[pSTATUS] = function()
+    norns.vu = p.stat.vu
+    p.stat.in1 = 0
+    p.stat.in2 = 0
+    p.stat.out1 = 0
+    p.stat.out2 = 0
+end
+
+p.stat.vu = function(in1,in2,out1,out2)
+    p.stat.in1 = in1
+    p.stat.in2 = in2
+    p.stat.out1 = out1
+    p.stat.out2 = out2 
+    menu.redraw()
+end
+
 
 
 -- WIFI
@@ -511,11 +615,11 @@ p.init[pWIFI] = function()
    ssid = os.capture("cat ~/ssid.wifi")
    wifi_status = os.capture("cat ~/status.wifi");
    if wifi_status == 'hotspot' then
-      p.wifi.list = {"  off","  "..ssid,"> hotspot"}
+      p.wifi.list = {"  off","  "..ssid,"- hotspot"}
    elseif wifi_status == 'router' then
-      p.wifi.list = {"  off","> "..ssid,"  hotspot"}
+      p.wifi.list = {"  off","- "..ssid,"  hotspot"}
    elseif wifi_status == 'stopped' then
-      p.wifi.list = {"> off","  "..ssid,"  hotspot"}
+      p.wifi.list = {"- off","  "..ssid,"  hotspot"}
    else
       p.wifi.list = {"  off","  "..ssid,"  hotspot"}
    end

@@ -57,4 +57,37 @@ Script.run = function()
     grid.reconnect()
 end
 
+--- load script metadata
+Script.metadata = function(filename)
+  local meta = {}
+  if filename == nil then
+    filename = sys.file.state.script end
+  local filepath = script_dir .. filename
+  local f=io.open(filepath,"r")
+  if f==nil then 
+    print("file not found: "..filepath)
+  else
+    io.close(f)
+    for line in io.lines(filepath) do
+        if string.starts(line,"--") then
+			-- FIXME: this should be smart and be able to extract any @thing
+			if string.starts(line,"-- @name ") then
+            	meta.name = string.sub(line,string.len("-- @name ")+1,-1)
+			elseif string.starts(line,"-- @version ") then
+            	meta.version = string.sub(line,string.len("-- @version ")+1,-1)
+			elseif string.starts(line,"-- @author ") then
+            	meta.author = string.sub(line,string.len("-- @author ")+1,-1)
+			elseif string.starts(line,"-- @url ") then
+            	meta.url = string.sub(line,string.len("-- @url ")+1,-1)
+			elseif string.starts(line,"-- @txt ") then
+            	meta.txt = string.sub(line,string.len("-- @txt ")+1,-1)
+			end
+        else return meta end 
+    end
+  end 
+  return meta
+end
+
+
+
 return Script
