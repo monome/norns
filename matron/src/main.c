@@ -16,6 +16,7 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "input.h"
+#include "osc.h"
 #include "metro.h"
 #include "screen.h"
 
@@ -26,6 +27,7 @@ void print_version(void);
 
 void cleanup(void) {
     dev_monitor_deinit();
+    osc_deinit();
     o_deinit();
     w_deinit();
     gpio_deinit();
@@ -53,6 +55,7 @@ int main(int argc, char **argv) {
     gpio_init();
     battery_init();
     i2c_init();
+    osc_init();
     o_init(); // oracle (audio)
 
     // wait here for a signal from the audio server...

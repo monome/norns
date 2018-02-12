@@ -27,7 +27,8 @@
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
-#include "i2c.h"
+#include "i2c.h" 
+#include "osc.h" 
 #include "oracle.h"
 #include "weaver.h"
 
@@ -79,6 +80,8 @@ static int _screen_extents(lua_State *l);
 //i2c
 static int _gain_hp(lua_State *l);
 static int _gain_in(lua_State *l);
+//osc
+static int _osc_send(lua_State *l);
 
 // crone
 /// engines
@@ -163,6 +166,9 @@ void w_init(void) {
     // analog output control
     lua_register(lvm, "gain_hp", &_gain_hp);
     lua_register(lvm, "gain_in", &_gain_in);
+
+    // osc
+    lua_register(lvm, "osc_send", &_osc_send);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &_request_engine_report);
@@ -907,6 +913,59 @@ args_error:
     lua_settop(l, 0);
     return 0;
 }
+
+/***
+ * osc: send
+ * @function osc_send
+ */
+int _osc_send(lua_State *l) {
+    int nargs = lua_gettop(l);
+    printf("osc: nargs = %d\n",nargs); fflush(stdout);
+    if(nargs < 1) { goto args_error; }
+
+    char path[64];
+
+    if( lua_isstring(l, 1) ) {
+        strcpy( path,lua_tostring(l,1) );
+    } else {
+        goto args_error;
+    }
+
+    lo_message msg = lo_message_new();
+    const char *s;
+    int d;
+    double f;
+
+    for(int i = 2; i <= nargs; i++) {
+        if( lua_isnumber(l, i) ) {
+            f = lua_tonumber(l, i);
+            lo_message_add_double( msg, f );
+            printf("added double\n"); fflush(stdout);
+        } else if( lua_isnumber(l, i) ) {
+            d =  (int)lua_tonumber(l, i);
+            lo_message_add_int32( msg, d);
+            printf("added int\n"); fflush(stdout);
+        } else if( lua_isstring(l, i) ) {
+            s = lua_tostring(l, i);
+            lo_message_add_string(msg, s);
+            printf("added string\n"); fflush(stdout);
+        } else {
+            //goto args_error;
+            printf("break\n"); fflush(stdout);
+            break;
+        }
+    }
+
+    osc_send(path,msg);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to osc_send() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
 
 /***
  * grid: set led
