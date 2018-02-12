@@ -65,7 +65,7 @@ end
 
 norns.report.polls = function(polls, count)
    -- ok, this could happen if we aren't using the poll module
-   -- print("norns.report.polls", commands, count)
+   -- print("norns.report.polls", polls, count)
 end
 
 -- I/O level callback

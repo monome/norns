@@ -8,7 +8,11 @@ Routine {
 
 	x = SoftCutVoice.new(s, c.xg, b.bufnum, c.in_b[1].index, c.out_b.index);
 
-	x.syn.set(\gate, 1); x.syn.run(true);  x.syn.set(\recRun, 1);
+
+//	c.in_b[1].scope;
+//	c.out_b.scope;
+
+	x.syn.set(\recRun, 1);
 	x.start;
 	x.reset;
 	x.syn.set(\start, 0.1); x.syn.set(\end, 0.4); x.syn.set(\loop, 1);
@@ -18,7 +22,7 @@ Routine {
 
 	y = SoftCutVoice.new(s, c.xg, d.bufnum, c.in_b[1].index, c.out_b.index + 1);
 
-	y.syn.set(\gate, 1); y.syn.run(true);  y.syn.set(\recRun, 1);
+	y.syn.set(\recRun, 1);
 	y.start;
 	y.reset;
 	y.syn.set(\start, 0.1); y.syn.set(\end, 0.45); y.syn.set(\loop, 1);
@@ -28,9 +32,11 @@ Routine {
 }.play;
 
 /*
-x.stop; y.stop;
+x.stop;
+y.stop;
 
-x.start; y.start;
+x.start;
+y.start;
 
 */
 

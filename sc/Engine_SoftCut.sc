@@ -1,12 +1,11 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
-	classvar nvoices = 8;
-	//	classvar nbufs = 8;
+	classvar nvoices = 4;
 	classvar bufdur = 64.0;
 
 	classvar commands;
 
-	var <s; // server
+	var <ctx; // audio context
 	var <bus; // busses
 	var <buf; // buffers
 	var <syn; // synths
@@ -15,14 +14,16 @@ Engine_SoftCut : CroneEngine {
 	var <rec; // recorders
 
 	var <voices; // array of voices
-	*new { arg server, group, in, out;
-		^super.new.init(server, group, in, out).initSub(server, group, in, out);
+	*new { arg context; // argument is an AudioContext
+		^super.new.init(context).initSub(context);
 	}
 
-	kill {
+	free {
+		voices.do({ arg voice; voice.free; });
 		buf.do({ |b| b.free; });
-		bus.rec.do({ |b| b.free; });
-		syn.do({ arg synth; synth.free; });
+		bus.do({ arg bs; bs.do({ arg b; b.free; }); });
+		pm.do({ arg p; p.free; });
+		super.free;
 	}
 
 	//---  buffer and routing methods
@@ -43,10 +44,10 @@ Engine_SoftCut : CroneEngine {
 	// destructive trim
 	trimBuf { arg i, start, end;
 		var startsamp, endsamp, samps, newbuf;
-		startsamp = start * s.sampleRate;
-		endsamp = end * s.sampleRate;
+		startsamp = start * ctx.server.sampleRate;
+		endsamp = end * ctx.server.sampleRate;
 		samps = endsamp - startsamp;
-		newbuf = Buffer.alloc(s, samps);
+		newbuf = Buffer.alloc(ctx.server, samps);
 		buf[i].copyData(newbuf, 0, startsamp, samps);
 		// any voices using this buffer need to be reassigned
 		voices.do({ arg v;
@@ -77,53 +78,57 @@ Engine_SoftCut : CroneEngine {
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
 	initSub {
+		arg context;
+
 		var com;
 		var bus_pb_idx; // tmp collection of playback bus indices
 		var bus_rec_idx;
 		var bufcon;
 
+		ctx = context;
+
 		Routine {
-			var s = server;
+			var s = ctx.server;
 
 			postln("SoftCut: init routine");
 
 			//--- groups
 			gr = Event.new;
-			gr.pb = Group.new(Crone.ctx.xg);
-			gr.rec = Group.after(Crone.ctx.ig);
+			gr.pb = Group.new(ctx.xg);
+			gr.rec = Group.after(ctx.ig);
 			// phase bus per voice (output)
 			bus = Event.new;
 
 			s.sync;
 
-			postln("SoftCut: allocating buffers");
 			//--- buffers
+
+			postln("SoftCut: allocating buffers");
 			buf = Array.fill(nvoices, { arg i;
 				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
 				})
 			});
+
 			s.sync;
-			//			bufcon.do({ arg con; con.hang; });
 
-			postln("SoftCut: done waiting on buffer allocation");
-
+			//--- busses
+			bus.adc = ctx.in_b;
+			// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
+			// FIXME: oh! actually just use array of panners, instead of output patch matrix.
+			// here we convert  output bus to a mono array
+			bus.dac = Array.with( Bus.newFrom(ctx.out_b, 0), Bus.newFrom(ctx.out_b, 1));
+			bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
+			bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
 
 			//-- voices
 			voices = Array.fill(nvoices, { |i|
-				SoftCutVoice.new(s, buf[i], s);
+				// 	arg server, target, buf, in, out;
+				SoftCutVoice.new(s, ctx.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
 			});
 
-			//-- 1-shot recorders; one per voice
-			// TODO:
-			/*
-			rec = buf.collect( {|b| Synth.newPaused(\softcut_rec_trig_gate, [
-			\buf, b.bufnum, \in, bus.adc[0].index
-			], gr.rec); });
-			*/
-
 			//--- patch matrices
-			bus_pb_idx = voices.collect({ |v| v.bus.pb.index });
-			bus_rec_idx = voices.collect({ |v| v.bus.rec.index });
+			bus_pb_idx = bus.pb.collect({ |b| b.index });
+			bus_rec_idx = bus.rec.collect({ |b| b.index });
 			pm = Event.new;
 
 			postln("softcut: in->rec patchmatrix");
@@ -131,14 +136,16 @@ Engine_SoftCut : CroneEngine {
 			pm.adc_rec = PatchMatrix.new(
 				server:s, target:gr.rec, action:\addToTail,
 				in: bus.adc.collect({ |b| b.index }),
-				out: bus_rec_idx
+				out: bus_rec_idx,
+				feedback:true
 			);
 			postln("softcut: pb->out patchmatrix");
 			// playback -> output
 			pm.pb_dac = PatchMatrix.new(
 				server:s, target:gr.pb, action:\addAfter,
 				in: bus_pb_idx,
-				out: bus.dac.collect({ |b| b.index })
+				out: bus.dac.collect({ |b| b.index }),
+				feedback:true
 			);
 
 			// playback -> record
@@ -146,40 +153,61 @@ Engine_SoftCut : CroneEngine {
 			pm.pb_rec = PatchMatrix.new(
 				server:s, target:gr.pb, action:\addAfter,
 				in: bus_pb_idx,
-				out: bus_rec_idx
+				out: bus_rec_idx,
+				feedback:true
 			);
 
 		}.play;
+
+		this.addCommands;
+
+		nvoices.do({ arg i;
+			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
+				var val = voices[i].phase_b.getSynchronous;
+				postln("phase: " ++ val);
+				val
+			});
+			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
+				voices[i].phase_b.getSynchronous / voices[i].buf.duration
+			});
+		});
 
 	} // initSub
 
 	addCommands {
 
+
 		var com = [
-			// set output level of a playback voice
-			[\level, \if, { |msg| voices[msg[1]-1].level_(msg[2]) }],
-			// cut playback to position
-			[\pos, \if, { |msg| voices[msg[1]-1].pos_(msg[2]) }],
-			// set playback to new rate, with crossfade
-			[\rate, \if, { |msg| voices[msg[1]-1].rate_(msg[2]) }],
-			// set crossfade time for given playback voice
-			[\fade, \if, { |msg| voices[msg[1]-1].fade_(msg[2]) }],
 
+			//-- voice functions
+			[\start, \i, {|msg| voices[msg[1]-1].start; }],
+			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
+			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
 
-			// voice synth parameters
-			[\offset, \if, {|msg| voices[msg[1]-1].offset_(msg[2]) }],
-			[\recLevel, \if, {|msg| voices[msg[1]-1].recLevel_(msg[2]) }],
-			[\preLevel, \if, {|msg| voices[msg[1]-1].preLevel_(msg[2]) }],
-			[\recFade, \if, {|msg| voices[msg[1]-1].recFade_(msg[2]) }],
-			[\preFade, \if, {|msg| voices[msg[1]-1].preFade_(msg[2]) }],
-			[\loopStart, \if, {|msg| voices[msg[1]-1].loopStart_(msg[2]) }],
-			[\loopEnd, \if, {|msg| voices[msg[1]-1].loopEnd_(msg[2]) }],
-			[\loopFlag, \if, {|msg| voices[msg[1]-1].loopFlag_(msg[2]) }],
+			//-- direct control of synth params
+			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
+			[\rec, \if, { |msg| voices[msg[1]-1].syn.set(\rec, msg[2]); }],
+			[\pre, \if, { |msg| voices[msg[1]-1].syn.set(\pre, msg[2]); }],
+			[\rate, \if, { |msg| voices[msg[1]-1].syn.set(\rate, msg[2]); }],
+			[\ratelag, \if, { |msg| voices[msg[1]-1].syn.set(\ratelag, msg[2]); }],
+			[\start, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
+			[\end, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
+			[\fade, \if, { |msg| voices[msg[1]-1].syn.set(\fade, msg[2]); }],
+			[\loop, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
+			[\fadeRec, \if, { |msg| voices[msg[1]-1].syn.set(\fadeRec, msg[2]); }],
+			[\fadePre, \if, { |msg| voices[msg[1]-1].syn.set(\fadePre, msg[2]); }],
+			[\recRun, \if, { |msg| voices[msg[1]-1].syn.set(\recRun, msg[2]); }],
+			[\offset, \if, { |msg| voices[msg[1]-1].syn.set(\offset, msg[2]); }],
+			[\preLag, \if, { |msg| voices[msg[1]-1].syn.set(\preLag, msg[2]); }],
+			[\recLag, \if, { |msg| voices[msg[1]-1].syn.set(\recLag, msg[2]); }],
+			[\envTimeScale, \if, { |msg| voices[msg[1]-1].syn.set(\envTimeScale, msg[2]); }],
 
 
 			//-- routing
 			// level from given ADC channel to given recorder
-			[\adc_rec, \iif, { |msg| pm.adc_rec(msg[1]-1, msg[2]-1, msg[3]); }],
+			[\adc_rec, \iif, { |msg|
+				postln(["Engine_SoftCut: adc_rec", msg]);
+				pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given recorder
 			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given DAC channel
@@ -195,11 +223,11 @@ Engine_SoftCut : CroneEngine {
 			// detructively trim to new start and end
 			[\trim, \iff, { |msg| this.trimBuf(msg[1]-1, msg[2], msg[3]) }],
 			// normalize given buffer to given maximum level
-			[\norm, \if, { |msg| this.normalizeBuf(msg[1]-1, msg[2]) }],
+			[\norm, \if, { |msg| this.normalizeBuf(msg[1]-1, msg[2]) }]
 		];
 
 		com.do({ arg comarr;
-			postln("adding command: " ++ comarr);
+//			postln("adding command: " ++ comarr);
 			this.addCommand(comarr[0], comarr[1], comarr[2]);
 		});
 

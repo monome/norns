@@ -28,7 +28,7 @@ CroneDefs {
 				snd =  BufRd.ar(1, buf, phase + start, loop:loop);
 				aenv = Env.asr(fade_time, 1.0, fade_time, fade_shape);
 				amp = EnvGen.ar(aenv, gate);
-				amp = amp * Lag.ar(K2A.ar(level * (1 - mute)));
+				amp = amp * Lag.kr(level * (1 - mute));
 				Out.ar(out, (snd * amp));
 			})
 		);
@@ -37,7 +37,7 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\patch_mono, {
 				arg in, out, level=1.0, lag=0.01;
-				var ampenv = Lag.ar(K2A.ar(level), lag);
+				var ampenv = Lag.kr(level, lag);
 				Out.ar(out, In.ar(in) * ampenv);
 			})
 		);
@@ -47,7 +47,7 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\patch_mono_fb, {
 				arg in, out, level=1.0, lag=0.01;
-				var ampenv = Lag.ar(K2A.ar(level), lag);
+				var ampenv = Lag.kr(level, lag);
 				Out.ar(out, InFeedback.ar(in) * ampenv);
 			})
 		);
@@ -56,7 +56,7 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\patch_stereo, {
 				arg in, out, level=1.0, lag=0.01;
-				var ampenv = Lag.ar(K2A.ar(level), lag);
+				var ampenv = Lag.kr(level, lag);
 				Out.ar(out, In.ar(in, 2) * ampenv);
 			})
 		);
@@ -65,8 +65,8 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\patch_pan, {
 				arg in, out, level=1.0, pan=0, lag=0.01;
-				var ampenv = Lag.ar(K2A.ar(level), lag);
-				var panenv = Lag.ar(K2A.ar(pan), lag);
+				var ampenv = Lag.kr(level, lag);
+				var panenv = Lag.kr(pan, lag);
 				Out.ar(out, Pan2.ar(In.ar(in) * ampenv, pan));
 			})
 		);
@@ -100,8 +100,8 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\amp_env, {
 				arg in, out, atk=0.01, rel=0.01;
-				var absin = abs(In.ar(in));
-				var amp = A2K.kr(LagUD.ar(absin, atk, rel));
+				var absin = abs(A2K.kr(In.ar(in)));
+				var amp = LagUD.kr(absin, atk, rel);
 				Out.kr(out, amp);
 			})
 		);

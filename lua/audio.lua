@@ -22,8 +22,8 @@ end
 
 -- set monitor level for *both* input channels
 -- @param level in [0, 1]
-Audio.monitor_level = function()
-   audio_monitor_level()
+Audio.monitor_level = function(level)
+   audio_monitor_level(level)
 end
 
 --- set monitor mode to mono
@@ -58,5 +58,23 @@ Audio.pitch_off = function()
    audio_pitch_off()
 end
 
+
+--- global functions
+-- @section globals
+
+--- callback for VU meters
+--- scripts should redefine this
+-- @param in1 input level 1 in [0, 63], audio taper
+-- @param in2 
+-- @param out1 
+-- @param out2
+Audio.vu = function(in1, in2, out1, out2)
+    -- print (in1 .. '\t' .. in2 .. '\t' .. out1 .. '\t' .. out2)
+end
+
+norns.vu = function(in1, in2, out1, out2)
+   -- anything else to do?
+   Audio.vu(in1, in2, out1, out2)
+end
 
 return Audio

@@ -60,9 +60,10 @@ Crone {
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
-					engine.kill;
+					postln("free engine: " ++ engine);
+					engine.free;
 				});
-				engine = class.new(Server.default, ctx.xg, ctx.in_b, ctx.out_b);
+				engine = class.new(ctx);
 				postln('set engine: ' ++ engine);
 			});
 		});
@@ -184,10 +185,10 @@ Crone {
 				this.reportPolls;
 			}, '/report/polls'),
 
-			// @function /engine/kill
-			'/engine/kill':OSCFunc.new({
-				if(engine.notNil, { engine.kill; });
-			}, '/engine/kill'),
+			// @function /engine/free
+			'/engine/free':OSCFunc.new({
+				if(engine.notNil, { engine.free; });
+			}, '/engine/free'),
 
 			// @function /engine/load/name
 			// @param engine name (string)
@@ -286,4 +287,4 @@ Crone {
 
 	}
 }
-	
+
