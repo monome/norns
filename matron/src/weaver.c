@@ -82,6 +82,7 @@ static int _gain_hp(lua_State *l);
 static int _gain_in(lua_State *l);
 //osc
 static int _osc_send(lua_State *l);
+static int _osc_remote_addr(lua_State *l);
 
 // crone
 /// engines
@@ -169,6 +170,7 @@ void w_init(void) {
 
     // osc
     lua_register(lvm, "osc_send", &_osc_send);
+    lua_register(lvm, "osc_remote_addr", &_osc_remote_addr);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &_request_engine_report);
@@ -920,12 +922,11 @@ args_error:
  */
 int _osc_send(lua_State *l) {
     int nargs = lua_gettop(l);
-    printf("osc: nargs = %d\n",nargs); fflush(stdout);
     if(nargs < 1) { goto args_error; }
 
     char path[64];
 
-    if( lua_isstring(l, 1) ) {
+    if( lua_type(l, 1) == LUA_TSTRING ) {
         strcpy( path,lua_tostring(l,1) );
     } else {
         goto args_error;
@@ -933,25 +934,17 @@ int _osc_send(lua_State *l) {
 
     lo_message msg = lo_message_new();
     const char *s;
-    int d;
     double f;
 
     for(int i = 2; i <= nargs; i++) {
-        if( lua_isnumber(l, i) ) {
+        if( lua_type(l, i) == LUA_TNUMBER) {
             f = lua_tonumber(l, i);
             lo_message_add_double( msg, f );
-            printf("added double\n"); fflush(stdout);
-        } else if( lua_isnumber(l, i) ) {
-            d =  (int)lua_tonumber(l, i);
-            lo_message_add_int32( msg, d);
-            printf("added int\n"); fflush(stdout);
-        } else if( lua_isstring(l, i) ) {
+        } else if( lua_type(l, i) == LUA_TSTRING ) {
             s = lua_tostring(l, i);
             lo_message_add_string(msg, s);
-            printf("added string\n"); fflush(stdout);
         } else {
             //goto args_error;
-            printf("break\n"); fflush(stdout);
             break;
         }
     }
@@ -962,6 +955,41 @@ int _osc_send(lua_State *l) {
 
 args_error:
     printf("warning: incorrect arguments to osc_send() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * osc: set remote address
+ * @function osc_remote_addr
+ */
+int _osc_remote_addr(lua_State *l) {
+    int nargs = lua_gettop(l);
+    if(nargs != 2) { goto args_error; }
+
+    char ip[24];
+    char port[16];
+
+    if( lua_type(l, 1) == LUA_TSTRING ) {
+        strcpy( ip,lua_tostring(l,1) );
+    } else {
+        goto args_error;
+    }
+
+    if( lua_isnumber(l, 2)) {
+        strcpy( port,lua_tostring(l,2) );
+    } else {
+        goto args_error;
+    }
+
+    osc_remote_addr(ip,port);
+    //printf("ip: %s @ %s",ip,port); fflush(stdout);
+
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    printf("warning: incorrect arguments to osc_remote_addr() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }

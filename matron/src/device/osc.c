@@ -29,8 +29,12 @@ void osc_deinit(void) {
     lo_address_free(remote_addr);
 }
 
-int osc_send(const char *path, lo_message msg) {
-    lo_send(remote_addr, path, msg);
+void osc_send(const char *path, lo_message msg) {
+    lo_send_message(remote_addr, path, msg);
     free(msg);
-    return 0;
 } 
+
+void osc_remote_addr(const char *ip, const char *port) {
+    free(remote_addr);
+    remote_addr = lo_address_new(ip,port);
+}
