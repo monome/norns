@@ -437,6 +437,14 @@ void o_set_audio_pitch_off() {
     lo_send(remote_addr, "/audio/pitch/off", NULL);
 }
 
+
+void o_restart_audio() {
+  printf("o_restart_audio(); \n"); fflush(stdout);
+  lo_send(remote_addr, "/recompile", NULL);
+  
+}
+
+
 ///////////////////////////////
 /// static function definitions
 

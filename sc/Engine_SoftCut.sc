@@ -180,7 +180,7 @@ Engine_SoftCut : CroneEngine {
 		var com = [
 
 			//-- voice functions
-			[\start, \i, {|msg| voices[msg[1]-1].start; }],
+			[\start, \i, {|msg| msg.postln; voices.postln; voices[msg[1]-1].start; }],
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
 
@@ -190,10 +190,10 @@ Engine_SoftCut : CroneEngine {
 			[\pre, \if, { |msg| voices[msg[1]-1].syn.set(\pre, msg[2]); }],
 			[\rate, \if, { |msg| voices[msg[1]-1].syn.set(\rate, msg[2]); }],
 			[\ratelag, \if, { |msg| voices[msg[1]-1].syn.set(\ratelag, msg[2]); }],
-			[\start, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
-			[\end, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
+			[\loopStart, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
+			[\loopEnd, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
 			[\fade, \if, { |msg| voices[msg[1]-1].syn.set(\fade, msg[2]); }],
-			[\loop, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
+			[\loopFlag, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
 			[\fadeRec, \if, { |msg| voices[msg[1]-1].syn.set(\fadeRec, msg[2]); }],
 			[\fadePre, \if, { |msg| voices[msg[1]-1].syn.set(\fadePre, msg[2]); }],
 			[\recRun, \if, { |msg| voices[msg[1]-1].syn.set(\recRun, msg[2]); }],
