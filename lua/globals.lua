@@ -18,6 +18,8 @@ grid.reconnect = function()
     if g then grid.add(g) end 
 end
 
+grid.remove = function(device) g = nil end
+
 
 sys = {}
 
