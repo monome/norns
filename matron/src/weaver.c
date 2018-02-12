@@ -1631,5 +1631,4 @@ int _set_audio_pitch_off(lua_State *l) {
     (void)l;
     o_set_audio_pitch_off();
     return 0;
-}
-
+} 
