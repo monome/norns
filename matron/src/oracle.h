@@ -97,3 +97,5 @@ extern void o_set_audio_monitor_on();
 extern void o_set_audio_monitor_off();
 extern void o_set_audio_pitch_on();
 extern void o_set_audio_pitch_off();
+
+extern void o_restart_audio();

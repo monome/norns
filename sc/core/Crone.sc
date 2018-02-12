@@ -283,6 +283,11 @@ Crone {
 				ctx.pitchOff;
 			}, '/audio/pitch/off'),
 
+			// recompile the sclang library!
+			'/recompile':OSCFunc.new({
+				thisProcess.recompile;
+			}, '/recompile')
+
 		);
 
 	}

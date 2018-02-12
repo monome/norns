@@ -109,6 +109,10 @@ static int _set_audio_monitor_off(lua_State *l);
 static int _set_audio_pitch_on(lua_State *l);
 static int _set_audio_pitch_off(lua_State *l);
 
+// restart audio completely (recompile sclang)
+static int _restart_audio(lua_State *l);
+
+
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
 _push_norns_func(const char *field, const char *func) {
@@ -200,6 +204,11 @@ void w_init(void) {
     lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
     lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
 
+    // completely restart the audio process (recompile sclang)
+    lua_register(lvm, "audio_restart", &_restart_audio);
+    
+    
+    
     // run system init code
     char *config = getenv("NORNS_CONFIG");
     char *home = getenv("HOME");
@@ -1633,3 +1642,8 @@ int _set_audio_pitch_off(lua_State *l) {
     return 0;
 }
 
+int _restart_audio(lua_State *l) {
+  (void)l;
+  o_restart_audio();
+  return 0;
+}
