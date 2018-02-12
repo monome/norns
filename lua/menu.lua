@@ -66,7 +66,8 @@ norns.enc = function(n, delta)
         if(menu.mode==false) then
             enc(n, delta)
         else
-            menu.enc(n, delta)
+            if n==1 then menu.level(delta)
+            else menu.enc(n, delta) end
         end
     end
 end
@@ -104,6 +105,7 @@ end
 menu.set_mode = function(mode)
     if mode==false then
         menu.mode = false 
+        --FIXME: should the interface pages have deinits?
         u:stop()
         norns.vu = sys.none
         sys.s.restore()
@@ -135,7 +137,14 @@ menu.set_page = function(page)
     menu.redraw()
 end
 
-
+-- set audio level
+menu.level = function(delta)
+    local l = clamp(sys.file.state.out + delta,0,64)
+    if l ~= sys.file.state.out then
+        sys.file.state.out = l 
+        audio_output_level(l / 64.0)
+    end
+end 
 
 -- --------------------------------------------------
 -- interfaces
@@ -528,6 +537,10 @@ p.enc[pSTATUS] = sys.none
 p.redraw[pSTATUS] = function()
     s_clear()
     s_aa(1)
+    s_level(6)
+    s_move(18,64-sys.file.state.out)
+    s_line(30,64-sys.file.state.out)
+    s_stroke()
     s_level(15)
     s_move(16,63)
     s_line(16,63-p.stat.out1)
@@ -658,13 +671,3 @@ p.init[pLOG] = function()
     p.log.pos = 0
 end
 
-menu.level = function(delta)
-    sys.file.state.out = sys.file.state.out + delta
-    if sys.file.state.out < 0 then sys.file.state.out = 0 
-    elseif sys.file.state.out > 64 then sys.file.state.out = 64 end
-    print("level: " .. sys.file.state.out)
-    --level_out(norns.state.out,0) 
-    --level_out(norns.state.out,1) 
-    --level_hp(norns.state.out)
-    --level_out(norns.state.out/64)
-end 

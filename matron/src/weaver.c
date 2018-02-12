@@ -1567,8 +1567,8 @@ int _set_audio_input_level(lua_State *l) {
 int _set_audio_output_level(lua_State *l) {
     int nargs = lua_gettop(l);
     if(nargs == 1) {
-        if( lua_isnumber(l, 2) ) {
-            float val = lua_tonumber(l, 2);
+        if( lua_isnumber(l, 1) ) {
+            float val = lua_tonumber(l, 1);
             o_set_audio_output_level(val);
             lua_settop(l, 0);
             return 0;
@@ -1583,8 +1583,8 @@ int _set_audio_output_level(lua_State *l) {
 int _set_audio_monitor_level(lua_State *l) {
     int nargs = lua_gettop(l);
     if(nargs == 1) {
-        if( lua_isnumber(l, 2) ) {
-            float val = lua_tonumber(l, 2);
+        if( lua_isnumber(l, 1) ) {
+            float val = lua_tonumber(l, 1);
             o_set_audio_monitor_level(val);
             lua_settop(l, 0);
             return 0;
@@ -1630,5 +1630,4 @@ int _set_audio_pitch_off(lua_State *l) {
     (void)l;
     o_set_audio_pitch_off();
     return 0;
-}
-
+} 
