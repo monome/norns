@@ -30,3 +30,13 @@ function os.capture(cmd, raw)
     s = string.gsub(s, '[\n\r]+', ' ')
     return s
 end
+
+function string.starts(s,start)
+    return string.sub(s,1,string.len(start))==start
+end
+
+function tablelength(T)
+	local count = 0
+	for _ in pairs(T) do count = count + 1 end
+	return count
+end
