@@ -2,10 +2,9 @@ cmake_minimum_required (VERSION 2.8)
 set(PROJECT "SoftCutHead")
 project (${PROJECT})
 
-set(SC_PATH "~/norns/supercollider")
-include_directories(${SC_PATH}/include/plugin_interface)
-include_directories(${SC_PATH}/include/common)
-include_directories(${SC_PATH}/common)
+set(SC_INCLUDE_PATH "/usr/local/include/SuperCollider")
+include_directories(${SC_INCLUDE_PATH}/plugin_interface)
+include_directories(${SC_INCLUDE_PATH}/common)
 
 set(CMAKE_SHARED_MODULE_PREFIX "")
 if(APPLE OR WIN32)
