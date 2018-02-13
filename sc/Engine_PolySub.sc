@@ -87,9 +87,14 @@ Engine_PolySub : CroneEngine {
 				room=0.5, damp=0.0,
 				verbMix=0.0;
 
-				var snd = In.ar(in, 2);
-				snd = SelectX.ar(compMix, [snd, Compander.ar(snd, snd, thresh, slopeAbove:slope, clampTime:atk, relaxTime:rel)]);
-				snd = SelectX.ar(verbMix, [snd, FreeVerb2.ar(snd[0], snd[1], mix:1.0, room:room, damp:damp)]);
+				var snd, comp, lim, verb;
+				snd = In.ar(in, 2);
+				comp = Compander.ar(snd, snd, thresh, slopeAbove:slope, clampTime:atk, relaxTime:rel);
+				snd = SelectX.ar(compMix, [snd, comp]);
+				// hard-limit before reverb
+				lim = Limiter.ar(snd, 0.9);
+				verb = FreeVerb2.ar(lim[0], lim[1], mix:1.0, room:room, damp:damp);
+				snd = SelectX.ar(verbMix, [snd, verb]);
 				Out.ar(out, snd);
 			});
 
@@ -144,17 +149,38 @@ Engine_PolySub : CroneEngine {
 		compVerbSyn = Synth.new(\compVerb, [\in, mixBus.index, \out, ctx.out_b.index], gr, \addAfter);
 
 
+		//--------------
+		//--- voice control, all are indexed by arbitarry ID number
+		// (voice allocation should be performed by caller)
+
+		// start a new voice
 		this.addCommand(\start, "if", { arg msg;
 			var id = msg[1];
 			// FIXME: should have a NodeWatcher or something to limit number of synths
 			if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
 			voices.add(id -> Synth.new(\polySub, [\out, mixBus.index, \hz, msg[2]], gr));
-			postln(voices);
 			ctlBus.keys.do({ arg name;
-				postln("mapping param: " ++ name);
-				voices[msg[1]].map(name, ctlBus[name]); });
+				voices[id].map(name, ctlBus[name]);
+			});
 		});
 
+
+		// same as start, but don't map control busses, just copy their current values
+		this.addCommand(\solo, "i", { arg msg;
+			var id = msg[1];
+			var params = List.with(\out, mixBus.index, \hz, msg[2]);
+
+			// FIXME: should have a NodeWatcher or something to limit number of synths
+			if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
+
+			ctlBus.keys.do({ arg name;
+				params.add(name);
+				params.add(ctlBus[name].getSynchronous);
+			});
+			voices.add(id -> Synth.new(\polySub, params, gr));
+		});
+
+		// stop a voice
 		this.addCommand(\stop, "i", { arg msg;
 			var syn = voices[msg[1]];
 			if(syn.notNil, { syn.set(\gate, 0); });
