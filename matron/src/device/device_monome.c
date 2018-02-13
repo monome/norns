@@ -14,8 +14,6 @@
 #include "device.h"
 #include "device_monome.h"
 
-#define DEV_MONOME_PATH_SIZE 64
-
 //------------------------
 //-- static functions
 static void dev_monome_handle_press(const monome_event_t *e, void *p);
