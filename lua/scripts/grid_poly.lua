@@ -112,6 +112,7 @@ gridkey = function(x, y, state)
       g:led(x, y, 1)
       nvoices = nvoices - 1
    end
+   g:refresh()
 end
 
 enc = function(n,delta)
