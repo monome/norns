@@ -15,10 +15,11 @@ Engine_PolySub : CroneEngine {
 	*initClass {
 		StartUp.add {
 			// a decently versatile subtractive synth voice
-			polyDef = SynthDef.new(\polysub, {
+			polyDef = SynthDef.new(\polySub, {
 				arg out, gate=1, hz, level=0.2, // the basics
 				shape=0.0, // base waveshape selection
 				timbre=0.5, // modulation of waveshape
+				sub=0.4, // sub-octave sine level
 				noise = 0.0, // pink noise level (before filter)
 				cut=8.0, // RLPF cutoff frequency as ratio of fundamental
 				// amplitude envelope params
@@ -53,7 +54,7 @@ Engine_PolySub : CroneEngine {
 
 				// FIXME: probably a better way to do this channel selection
 				snd = [SelectX.ar(shape, [osc1[0], osc2[0]]), SelectX.ar(shape, [osc1[1], osc2[1]])];
-
+				snd = snd + ((SinOsc.ar(hz / 2) * sub).dup);
 				aenv = EnvGen.ar(
 					Env.adsr(ampAtk, ampDec, ampSus, ampRel, 1.0, ampCurve),
 					gate);
@@ -67,11 +68,12 @@ Engine_PolySub : CroneEngine {
 				snd = SelectX.ar(noise, [snd, [PinkNoise.ar, PinkNoise.ar]]);
 				snd = MoogFF.ar(snd, cut, fgain) * aenv;
 				del = DelayC.ar(snd, 0.5, [(delTime + delSpread).max(0), (delTime - delSpread).max(0)]);
-				LocalOut.ar(del);
 				del = del + (delFb * LocalIn.ar(2));
 				snd = SelectX.ar(delMix, [snd, del]);
 				FreeSelf.kr(DetectSilence.ar(snd));
 				Out.ar(out, level * SelectX.ar(width, [Mix.new(snd).dup, snd]));
+
+				LocalOut.ar(del);
 			});
 
 			// a basic (hard-knee) stereo compressor and reverb
@@ -131,20 +133,25 @@ Engine_PolySub : CroneEngine {
 			});
 		});
 
-		ctlBus[\level] = 0.2;
+		ctlBus.postln;
+
+		ctlBus[\level].setSynchronous( 0.2 );
 
 		// mix bus for all synth outputs
 		mixBus =  Bus.audio(ctx.server, 2);
-
 
 		// throw a little crummy comp and reverb on there, send to the context output
 		compVerbSyn = Synth.new(\compVerb, [\in, mixBus, \out, ctx.out_b], gr, \addAfter);
 
 
 		this.addCommand(\start, "if", { arg msg;
+			msg.postln;
 			// FIXME: should have a NodeWatcher or something to limit number of synths
-			voices.add(msg[1]-> Synth.new(\polySub, [\out, mixBus, \hz, msg[2]], gr));
-			ctlBus.keys.do({ arg param; voices[msg[1]].map(param, ctlBus[param]); });
+			voices.add(msg[1] -> Synth.new(\polySub, [\out, mixBus, \hz, msg[2]], gr));
+			postln(voices);
+			ctlBus.keys.do({ arg name;
+				postln("mapping param: " ++ name);
+				voices[msg[1]].map(name, ctlBus[name]); });
 		});
 
 		this.addCommand(\stop, "i", { arg msg;
@@ -158,6 +165,11 @@ Engine_PolySub : CroneEngine {
 		// generate commands to set each control bus
 		ctlBus.keys.do({ arg name;
 			this.addCommand(name, "f", { arg msg; ctlBus[name].setSynchronous(msg[1]); });
+		});
+
+		// ... and each master fx param
+		compVerbDef.allControlNames.do({ arg ctl; var name = ctl.name;
+			this.addCommand(name, "f", { arg msg; compVerbSyn.set(\name, msg[1]); });
 		});
 
 
