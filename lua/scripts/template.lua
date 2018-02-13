@@ -25,7 +25,7 @@ init = function(commands, count)
     c:start()
     -- clear grid, if it exists
     if g then 
-        g:all(1) 
+        g:all(0)
         g:refresh()
     end 
     -- screen: turn on anti-alias
