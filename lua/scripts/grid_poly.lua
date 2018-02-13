@@ -105,11 +105,11 @@ end
 
 gridkey = function(x, y, state)
    --- FIXME: implement voice stealing?
-   if x < 9 then
+   if x < 9 and y < 8 then
      local id= x*8 + y
      if state > 0 then
         if nvoices < 8 then
-  	 e.start(id, getHz(x, y * 0.5)) -- 1/2 octaves! ha
+  	 e.start(id, getHz(x, y-1))
   	 g:led(x, y, 10)
 	 nvoices = nvoices + 1
        end
