@@ -16,11 +16,6 @@
 
 #define DEV_MONOME_PATH_SIZE 64
 
-//--------------------
-//--- static variables
-
-static int port = 8000;
-
 //------------------------
 //-- static functions
 static void dev_monome_handle_press(const monome_event_t *e, void *p);
@@ -39,11 +34,9 @@ int dev_monome_init(void *self) {
     const char *name;
     const char *serial;
     monome_t *m;
-    m = monome_open(md->dev.path, port);
+    m = monome_open(md->dev.path);
     if(!m) {
-        printf("error: couldn't open monome device at %s:%d\n",
-               md->dev.path,
-               port);
+        printf("error: couldn't open monome device at %s\n", md->dev.path);
         return -1;
     }
     md->m = m;
