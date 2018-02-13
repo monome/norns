@@ -56,10 +56,6 @@ int osc_receive(const char *path,
                        void *data,
                        void *user_data)
 {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
     (void)data;
     (void)user_data;
 
