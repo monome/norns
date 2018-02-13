@@ -205,7 +205,7 @@ void w_init(void) {
     lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
 
     // completely restart the audio process (recompile sclang)
-    lua_register(lvm, "audio_restart", &_restart_audio);
+    lua_register(lvm, "restart_audio", &_restart_audio);
     
     
     
@@ -1644,6 +1644,7 @@ int _set_audio_pitch_off(lua_State *l) {
 
 int _restart_audio(lua_State *l) {
   (void)l;
+  printf("weaver: _restart_audio()\n"); fflush(stdout);
   o_restart_audio();
   return 0;
 }

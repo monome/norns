@@ -285,6 +285,7 @@ Crone {
 
 			// recompile the sclang library!
 			'/recompile':OSCFunc.new({
+				postln("recompile...");
 				thisProcess.recompile;
 			}, '/recompile')
 
