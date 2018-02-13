@@ -1,15 +1,9 @@
 // an audio "engine."
 // maintains some DSP processing and provides control over parameters and analysis results
-
+// new engines should inherit from this
 CroneEngine {
-	// audio server
-	var <server;
-	// top-level group for all our synths
-	var <group;
-	// input busses (2x mono)
-	var <in_b;
-	// output bus (1x stereo)
-	var <out_b;
+	// an AudioContext
+	var <context;
 
 	// list of registered commands
 	var <commands;
@@ -18,16 +12,11 @@ CroneEngine {
 	// list of registered polls
 	var <pollNames;
 
-	
-	*new { arg srv, grp, inb, outb;
-		^super.new.init(srv, grp, inb, outb);
+	*new { arg context;
+		^super.new.init(context);
 	}
 
-	init { arg srv, grp, inb, outb;
-		server = srv;
-		group = Group.new(grp);
-		in_b = inb;
-		out_b = outb;
+	init { arg ctx;
 		commands = List.new;
 		commandNames = Dictionary.new;
 		pollNames = Set.new;
@@ -38,11 +27,11 @@ CroneEngine {
 		CronePollRegistry.register(name, func);
 		pollNames.add(name);
 	}
-	
+
 	// NB: subclasses should override this if they need to free resources
 	// but the superclass method should be called as well
-	kill {
-		group.free;
+	free {
+		postln("CroneEngine.free");
 		commands.do({ arg com;
 			com.oscdef.free;
 		});
@@ -54,6 +43,7 @@ CroneEngine {
 	addCommand { arg name, format, func;
 		var idx, cmd;
 		name = name.asSymbol;
+		postln([ "CroneEngine adding command", name, format, func ]);
 		if(commandNames[name].isNil, {
 			idx = commandNames.size;
 			commandNames[name] = idx;
@@ -61,7 +51,8 @@ CroneEngine {
 			cmd.name = name;
 			cmd.format = format;
 			cmd.oscdef = OSCdef(name.asSymbol, {
-				arg msg, time, addr, recvPort;
+				arg msg, time, addr, rxport;
+				// ["CroneEngine rx command", msg, time, addr, rxport].postln;
 				func.value(msg);
 			}, ("/command/"++name).asSymbol);
 			commands.add(cmd);

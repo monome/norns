@@ -2,6 +2,8 @@
 -- @module engine
 -- @alias Engine
 require 'norns'
+local tab = require 'tabutil'
+
 norns.version.engine = '0.0.2'
 
 local Engine = {}
@@ -36,7 +38,8 @@ end
 -- @param data - array of [name, format]
 -- @param count - number of commands
 Engine.registerCommands = function(data, count)
-   local name, fmt   
+   local name, fmt
+--   Engine.numCommands = count;
    Engine.commands = {}
    for i=1,count do
       name = data[i][1]
@@ -61,14 +64,22 @@ Engine.addCommand = function(id, name, fmt)
       id = id,
       name = name,
       fmt = fmt,
-      func = func      
+      func = func,
    }
+end
+
+Engine.listCommands = function()
+   local sorted = tab.sort(Engine.commands);
+   for i,n in ipairs(sorted) do
+      print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
+   end   
 end
 
 --- load a named engine, with a callback
 -- @param name - name of engine
--- @param callback - functoin to call on engine load. will receive command list
+-- @param callback - function to call on engine load. will receive command list
 Engine.load = function(name, callback)
+--   print("loading engine; callback: ") print (callback)
    -- on engine load, command report will be generated
    norns.report.commands = function(commands, count)
       Engine.registerCommands(commands, count)
@@ -79,12 +90,10 @@ Engine.load = function(name, callback)
    load_engine(name)
 end
 
-
 --- custom getters; 
 -- [] accessor returns a command function;
 -- this allows e.g. engine.hz(100) 
 function Engine.__index(self, idx)
-   --if idx == 'name' then return rawget(Engine, name);
    if Engine.commands[idx] then
       return Engine.commands[idx].func
    else

@@ -3,6 +3,9 @@
 -- @module poll
 -- @alias Poll
 require 'norns'
+
+local tab = require 'tabutil'
+
 norns.version.poll = '0.0.2'
 
 local Poll = {}
@@ -62,7 +65,6 @@ end
 
 --- custom getters;
 -- available properties: name, callback, start, stop
-
 function Poll:__index(idx)
    if idx == 'id' then return self.props.id
    elseif idx == 'name' then return self.props.name
@@ -96,10 +98,15 @@ Poll.register = function(data, count)
    end
 end
 
---- get a registered Poll object by name
+Poll.listNames = function()
+   local names = tab.sort(Poll.polls)
+   for i,n in ipairs(names) do print(n) end
+end
+
+--- set callback function for registered Poll object by name
 -- @tparam string name
 -- @param callback function to call with value on each poll
-Poll.named = function(name, callback)
+Poll.set = function(name, callback)
    local p = Poll.polls[name]
    if(p) then
       p.props.callback = callback

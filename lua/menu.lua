@@ -1,7 +1,8 @@
 -- menu.lua
 -- norns screen-based navigation module
-
+local tab = require 'tabutil'
 local menu = {}
+
 
 -- level enums
 local pHOME = 1
@@ -203,7 +204,7 @@ end
 p.sel = {}
 p.sel.pos = 0
 p.sel.list = sys.file.scandir(script_dir)
-p.sel.len = sys.file.tablelength(p.sel.list)
+p.sel.len = tab.count(p.sel.list)
 p.sel.depth = 0
 p.sel.folders = {}
 p.sel.path = ""
@@ -224,7 +225,7 @@ p.init[pSELECT] = function()
     else
         p.sel.list = sys.file.scandir(p.sel.dir())
     end
-    p.sel.len = sys.file.tablelength(p.sel.list)
+    p.sel.len = tab.count(p.sel.list)
 end
 
 p.key[pSELECT] = function(n,z)
@@ -236,7 +237,7 @@ p.key[pSELECT] = function(n,z)
             p.sel.depth = p.sel.depth - 1
             -- FIXME return to folder position
             p.sel.list = sys.file.scandir(p.sel.dir())
-            p.sel.len = sys.file.tablelength(p.sel.list)
+            p.sel.len = tab.count(p.sel.list)
             p.sel.pos = 0
             menu.redraw()
         else
@@ -250,7 +251,7 @@ p.key[pSELECT] = function(n,z)
             p.sel.depth = p.sel.depth + 1
             p.sel.folders[p.sel.depth] = p.sel.file
             p.sel.list = sys.file.scandir(p.sel.dir())
-            p.sel.len = sys.file.tablelength(p.sel.list)
+            p.sel.len = tab.count(p.sel.list)
             p.sel.pos = 0
             menu.redraw()
         else 

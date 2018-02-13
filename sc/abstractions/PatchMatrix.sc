@@ -1,10 +1,10 @@
-/* 
-	an audio patch matrix 
+/*
+	an audio patch matrix
 	connects arbitrary input and output bus arrays
 */
 
 PatchMatrix {
-	var <bus; // collection of busses	
+	var <bus; // collection of busses
 	var <gr; // collection of groups
 	var <syn; // collection of synths
 
@@ -28,7 +28,7 @@ PatchMatrix {
 		var patchdef;
 		patchdef = if(fb, {\patch_mono_fb}, {\patch_mono});
 		if(target.isNil, { target = srv });
-		gr = Group.new(target, action);		
+		gr = Group.new(target, action);
 		syn = in.collect({ arg in, i;
 			out.collect({ arg out, j;
 				Synth.new( patchdef, [
@@ -39,6 +39,7 @@ PatchMatrix {
 	}
 
 	level_ { arg in, out, val;
+		postln(["PatchMatrix: level_ ", in, out, val]);
 		syn[in][out].set(\level, val);
 	}
 

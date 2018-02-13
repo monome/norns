@@ -48,6 +48,7 @@ File.scandir = function(directory)
     return t
 end
 
+--[[
 --- get table length
 -- @param t table
 function File.tablelength(t)
@@ -55,5 +56,5 @@ function File.tablelength(t)
   for _ in pairs(t) do c = c + 1 end
   return c
 end
-
+--]]
 return File

@@ -4,11 +4,15 @@
 // light wrapper around synth, busses, some methods
 
 SoftCutVoice {
-	var <phase_b; // phase output bus (audio)
+
+	var phase_audio_b; // phase output bus (audio rate)
+	var <phase_b; // phase output bus (control rate)
 	var <loop_b;  // trigger output on loop (audio, single sample)
 	var <reset_b; // touch to reset to start position
+	var <phase_kr_s; // synth to map audio-rate phase to control rate
 
 	var <syn; // the main synth
+	var <buf; // the current buffer
 
 	*new { arg srv, tgt, buf, in, out;
 		^super.new.init(srv, tgt, buf, in, out);
@@ -18,7 +22,7 @@ SoftCutVoice {
 	*initClass {
 
 		StartUp.add {
-			postln("softvutvoice startup");
+			postln("softcutvoice startup");
 			CroneDefs.add(
 				// looped, crossfaded , synchronized playback and record
 				SynthDef.new(\soft_cut_voice, {
@@ -63,6 +67,7 @@ SoftCutVoice {
 						timeScale:envTimeScale, doneAction:done);
 
 					Out.ar(out, ( snd * amp * aenv));
+					// NB: phase output is audio rate.
 					Out.ar(phase_out, phase);
 					// NB: this is an _audio_ rate trigger;
 					// it stays high for only one sample
@@ -98,20 +103,33 @@ SoftCutVoice {
 	}
 
 	init {
-		arg server, target, buf, in, out;
-
+		arg server, target, buf_, in, out;
+		buf = buf_;
 		reset_b = Bus.control(server);
-		phase_b = Bus.audio(server);
+		phase_audio_b = Bus.audio(server);
+		phase_b = Bus.control(server);
 		loop_b = Bus.audio(server);
 
 		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 0,
 			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
-	], target);
+		], target);
+		phase_kr_s = { Out.kr(phase_b.index, A2K.kr(In.ar(phase_audio_b.index)))}
+		.play(target: syn, addAction:\addAfter);
+
 	}
 
+	free {
+		phase_audio_b.free;
+		phase_b.free;
+		loop_b.free;
+		reset_b.free;
+		phase_kr_s.free;
+		syn.free;
+	}
 
 	start { syn.set(\gate, 1); syn.run(true); this.reset; }
 	stop { syn.set(\gate, 0); } // will pause when done
 	reset { reset_b.set(1); }
+	buf_ { arg bf; buf = bf; syn.set(\buf, buf); }
 
 }
