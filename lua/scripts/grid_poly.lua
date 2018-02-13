@@ -8,7 +8,7 @@ engine = 'PolySub'
 
 -- pythagorean minor/major, kinda
 local ratios = { 1, 9/8, 6/5, 5/4, 4/3, 3/2, 27/16, 16/9 }
-local base = 55 -- low A
+local base = 27.5 -- low A
 
 local getHz = function ( deg, oct )
    return base * ratios[deg] * (2^oct)
@@ -86,7 +86,8 @@ local curParamId = 1
 local nvoices = 0
 
 local incParam = function(name, delta)
-   local val = params[name]
+      print("inc " .. name .. " " .. delta)
+   local val = params[name] + delta
    if val < paramRanges[name][1] then val = paramRanges[name][1] end
    if val > paramRanges[name][2] then val = paramRanges[name][2] end
    params[name] = val
@@ -94,30 +95,36 @@ local incParam = function(name, delta)
 end
 
 init = function()
-   if g ~= nil then grid:all(1) end
+   if g ~= nil then
+      g:all(1)
+      g:refresh()
+   end
+   e.level(0.05)
    print("grid/poly")
 end
 
 gridkey = function(x, y, state)
-   --- FIXME: implement voice stealing
-   local id= x*8 + y
-   if state > 0 then
-      if nvoices < 8 then
-	 e.start(id, getHz(y, x))
-	 g:led(x, y, 10)
+   --- FIXME: implement voice stealing?
+   if x < 9 then
+     local id= x*8 + y
+     if state > 0 then
+        if nvoices < 8 then
+  	 e.start(id, getHz(x, y * 0.5)) -- 1/2 octaves! ha
+  	 g:led(x, y, 10)
 	 nvoices = nvoices + 1
-      end
-   else
-      e.stop(id)
-      g:led(x, y, 1)
-      nvoices = nvoices - 1
+       end
+     else
+       e.stop(id)
+       g:led(x, y, 0)
+       nvoices = nvoices - 1
+     end
+     g:refresh()
    end
-   g:refresh()
 end
 
 enc = function(n,delta)
    if n==2 then
-      curParamId = curParamId + 1
+      curParamId = curParamId + delta
    elseif n==3 then
       incParam(paramNames[curParamId], delta * 0.01)
    end

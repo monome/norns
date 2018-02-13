@@ -166,6 +166,7 @@ Engine_PolySub : CroneEngine {
 
 
 		// same as start, but don't map control busses, just copy their current values
+		/*
 		this.addCommand(\solo, "i", { arg msg;
 			var id = msg[1];
 			var params = List.with(\out, mixBus.index, \hz, msg[2]);
@@ -179,6 +180,7 @@ Engine_PolySub : CroneEngine {
 			});
 			voices.add(id -> Synth.new(\polySub, params, gr));
 		});
+		*/
 
 		// stop a voice
 		this.addCommand(\stop, "i", { arg msg;
