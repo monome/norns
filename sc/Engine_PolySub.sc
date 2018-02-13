@@ -1,7 +1,6 @@
 // a subtractive polysynth engine
 
-Engine_Polysub : CroneEngine {
-
+Engine_PolySub : CroneEngine {
 
 	classvar polyDef, compVerbDef;
 	classvar paramDefaults;
@@ -114,24 +113,25 @@ Engine_Polysub : CroneEngine {
 		} // Startup
 	} // initClass
 
-	*new { arg ctx; super.new.init(ctx).initSub(ctx); }
+	*new { arg context; ^super.new.init(context).initSub(context); }
 
-	init  { arg ctx_;
-		ctx = ctx_;
+	initSub  { arg context;
+		context.postln;
+		ctx = context;
 		gr = Group.new(ctx.xg);
 
 		voices = Dictionary.new;
 		ctlBus = Dictionary.new;
-		polyDef.allControlNames.select({ arg name;
-			(name != \gate) && (name != \hz) && (name != \out);
-		}).do({ arg name;
-			ctlBus.add(name -> Bus.control(ctx.server));
-			ctlBus[name].set(paramDefaults[name]);
+		polyDef.allControlNames.do({ arg ctl;
+			var name = ctl.name;
+			postln("control name: " ++ name);
+			if((name != \gate) && (name != \hz) && (name != \out), {
+				ctlBus.add(name -> Bus.control(ctx.server));
+				ctlBus[name].set(paramDefaults[name]);
+			});
 		});
 
-
 		ctlBus[\level] = 0.2;
-
 
 		// mix bus for all synth outputs
 		mixBus =  Bus.audio(ctx.server, 2);
@@ -157,7 +157,7 @@ Engine_Polysub : CroneEngine {
 
 		// generate commands to set each control bus
 		ctlBus.keys.do({ arg name;
-			this.addCommand(name, "f", { arg msg; ctlBus[name].set(msg[1]); });
+			this.addCommand(name, "f", { arg msg; ctlBus[name].setSynchronous(msg[1]); });
 		});
 
 
@@ -169,6 +169,7 @@ Engine_Polysub : CroneEngine {
 		compVerbSyn.free;
 		mixBus.free;
 		ctlBus.do({ arg bus, i; bus.free; });
+		super.free;
 	}
 
 } // class
