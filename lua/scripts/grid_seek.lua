@@ -45,7 +45,7 @@ t.callback = function(stage)
 end
 
 gridredraw = function()
-  g:all(1) 
+  g:all(0)
   for x = 1,16 do
       if steps[x] > 0 then g:led(x,steps[x],5) end 
   end

@@ -983,7 +983,7 @@ int _grid_all_led(lua_State *l) {
     }
 
     if( lua_isnumber(l, 2) ) {
-        z = lua_tonumber(l, 2) - 1; // convert from 1-base
+        z = lua_tonumber(l, 2); // don't convert value!
     } else {
         goto args_error;
     }

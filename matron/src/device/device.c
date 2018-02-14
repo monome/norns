@@ -21,20 +21,27 @@ union dev *dev_new(device_t type, const char *path) {
     // initialize the subclass
     switch(type) {
     case DEV_TYPE_MONOME:
-        dev_monome_init(d);
+        if (dev_monome_init(d) < 0) {
+            goto err_init;
+        };
         break;
     case DEV_TYPE_HID:
-        dev_hid_init(d, false);
+        if (dev_hid_init(d, false) < 0) {
+            goto err_init;
+        }
         break;
     default:
         printf(
             "calling device.c:dev_new() with unkmown device type; this is an error!");
-        free(d);
-        return NULL;
+        goto err_init;
     }
     // start the thread
     dev_start(d);
     return d;
+
+err_init:
+    free(d);
+    return NULL;
 }
 
 int dev_delete(union dev *d) {
