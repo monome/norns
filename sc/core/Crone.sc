@@ -112,7 +112,7 @@ Crone {
 	}
 
 	*reportCommands {
-		var commands = engine.commands;
+		var commands = engine !? _.commands;
 		postln("commands: " ++ commands);
 		remoteAddr.sendMsg('/report/commands/start', commands.size);
 		commands.do({ arg cmd, i;
