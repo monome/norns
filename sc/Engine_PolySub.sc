@@ -33,7 +33,7 @@ Engine_PolySub : CroneEngine {
 				delSpread=0.0, // delay offset in seconds between L/R channels
 				width=0.5; // stereo width
 
-				var osc1, osc2, snd, freq, del, aenv, fenv;
+				var osc1, osc2, snd, freq, del, aenv, fenv, deltime;
 
 				// TODO: could add control over these lag times if you wanna get crazy
 				detune = Lag.kr(detune);
@@ -62,14 +62,16 @@ Engine_PolySub : CroneEngine {
 				fenv = EnvGen.ar(Env.adsr(cutAtk, cutDec, cutSus, cutRel), gate);
 
 				cut = SelectX.kr(cutEnvAmt, [cut, cut * fenv]);
-				cut = cut * hz;
-
+				cut = cut * hz.min(SampleRate.ir * 0.5);
 
 				snd = SelectX.ar(noise, [snd, [PinkNoise.ar, PinkNoise.ar]]);
 				snd = MoogFF.ar(snd, cut, fgain) * aenv;
-				del = DelayC.ar(snd, 1.0, [(delTime + delSpread).max(0), (delTime - delSpread).max(0)]);
-				del = del + (delFb * LocalIn.ar(2));
+				deltime = [(delTime + delSpread).max(0).min(1.0), (delTime - delSpread).max(0).min(1.0) ];
+
+				del = DelayL.ar(snd + (delFb * LocalIn.ar(2)), 1.0, deltime);
+
 				snd = SelectX.ar(delMix, [snd, del]);
+
 				FreeSelf.kr(DetectSilence.ar(snd));
 				Out.ar(out, level * SelectX.ar(width, [Mix.new(snd).dup, snd]));
 
@@ -155,41 +157,27 @@ Engine_PolySub : CroneEngine {
 
 		// start a new voice
 		this.addCommand(\start, "if", { arg msg;
-			var id = msg[1];
-			// FIXME: should have a NodeWatcher or something to limit number of synths
-			if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
-			voices.add(id -> Synth.new(\polySub, [\out, mixBus.index, \hz, msg[2]], gr));
-			ctlBus.keys.do({ arg name;
-				voices[id].map(name, ctlBus[name]);
-			});
+			this.addVoice(msg[1], msg[2], true);
 		});
 
 
 		// same as start, but don't map control busses, just copy their current values
-		/*
+
 		this.addCommand(\solo, "i", { arg msg;
-			var id = msg[1];
-			var params = List.with(\out, mixBus.index, \hz, msg[2]);
-
-			// FIXME: should have a NodeWatcher or something to limit number of synths
-			if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
-
-			ctlBus.keys.do({ arg name;
-				params.add(name);
-				params.add(ctlBus[name].getSynchronous);
-			});
-			voices.add(id -> Synth.new(\polySub, params, gr));
+			this.addVoice(msg[1], msg[2], false);
 		});
-		*/
+
 
 		// stop a voice
 		this.addCommand(\stop, "i", { arg msg;
-			var syn = voices[msg[1]];
-			if(syn.notNil, { syn.set(\gate, 0); });
+			this.removeVoice(msg[1]);
 		});
 
 		// free all synths
-		this.addCommand(\freeAll, "", { gr.set(\gate, 0); });
+		this.addCommand(\stopAll, "", {
+			gr.set(\gate, 0);
+			voices.clear;
+		});
 
 		// generate commands to set each control bus
 		ctlBus.keys.do({ arg name;
@@ -204,6 +192,29 @@ Engine_PolySub : CroneEngine {
 
 	} // init
 
+
+	addVoice { arg id, hz, map=true;
+		var params = List.with(\out, mixBus.index, \hz, hz);
+
+		postln("addvoice; map: " ++ map);
+
+		this.removeVoice(id);
+
+		ctlBus.keys.do({ arg name;
+			params.add(name);
+			params.add(ctlBus[name].getSynchronous);
+		});
+		voices.add(id -> Synth.new(\polySub, params, gr));
+		if(map, {
+			ctlBus.keys.do({ arg name;
+				voices[id].map(name, ctlBus[name]);
+			});
+		});
+	}
+
+	removeVoice { arg id;
+		if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
+	}
 
 	free {
 		gr.free;
