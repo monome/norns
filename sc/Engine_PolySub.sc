@@ -62,7 +62,7 @@ Engine_PolySub : CroneEngine {
 				fenv = EnvGen.ar(Env.adsr(cutAtk, cutDec, cutSus, cutRel), gate);
 
 				cut = SelectX.kr(cutEnvAmt, [cut, cut * fenv]);
-				cut = cut * hz;
+				cut = cut * hz.min(SampleRate.ir * 0.5);
 
 				snd = SelectX.ar(noise, [snd, [PinkNoise.ar, PinkNoise.ar]]);
 				snd = MoogFF.ar(snd, cut, fgain) * aenv;
