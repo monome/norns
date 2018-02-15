@@ -439,8 +439,7 @@ void o_set_audio_pitch_off() {
 
 
 void o_restart_audio() {
-  printf("o_restart_audio(); \n"); fflush(stdout);
-  lo_send(remote_addr, "/recompile", NULL);
+    lo_send(remote_addr, "/recompile", NULL);
   
 }
 
