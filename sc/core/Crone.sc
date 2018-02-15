@@ -35,6 +35,9 @@ Crone {
 			remoteAddr =NetAddr("127.0.0.1", txPort);
 
 			server = Server.local;
+			server.options.memSize = 2**16;
+			server.latency = 0.05;
+
 			server.waitForBoot ({
 				Routine {
 					CroneDefs.sendDefs(server);
@@ -81,6 +84,7 @@ Crone {
 	}
 
 	*stopPoll { arg idx;
+
 		var poll = CronePollRegistry.getPollFromIdx(idx);
 		if(poll.notNil, {
 			poll.stop;
