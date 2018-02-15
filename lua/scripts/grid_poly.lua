@@ -14,6 +14,12 @@ local getHz = function ( deg, oct )
    return base * ratios[deg] * (2^oct)
 end
 
+local getHzET = function ( note )
+    return 55*2^(note/12)
+end
+
+
+
 -- table of param values indexed by name
 local params = {
    shape = 0.0,
@@ -105,33 +111,35 @@ end
 
 gridkey = function(x, y, state)
    --- FIXME: implement voice stealing?
-   if x < 9 and y < 8 then
-     local id= x*8 + y
-     if state > 0 then
-        if nvoices < 8 then
-  	 e.start(id, getHz(x, y-1))
-  	 g:led(x, y, 10)
-	 nvoices = nvoices + 1
-       end
-     else
-       e.stop(id)
-       g:led(x, y, 0)
-       nvoices = nvoices - 1
+   --if x < 9 and y < 8 then
+   local id= x*8 + y
+   local note = ((7-y)*5) + x
+   if state > 0 then
+      if nvoices < 6 then
+	    --e.start(id, getHz(x, y-1))
+	    e.start(id, getHzET(note))
+        g:led(x, y, 10)
+	    nvoices = nvoices + 1
      end
-     g:refresh()
+   else
+     e.stop(id)
+     g:led(x, y, 0)
+     nvoices = nvoices - 1
    end
+   g:refresh()
+   --end
 end
 
 enc = function(n,delta)
    if n==2 then
-      curParamId = curParamId + delta
+      curParamId = clamp(curParamId + delta,1,tab.count(params))
    elseif n==3 then
       incParam(paramNames[curParamId], delta * 0.01)
    end
     redraw() 
 end
 
-key = function(n)
+key = function(n,z)
 --[[
     if n==2 then
        -- TODO: randomize params or something
