@@ -157,50 +157,27 @@ Engine_PolySub : CroneEngine {
 
 		// start a new voice
 		this.addCommand(\start, "if", { arg msg;
-			var id = msg[1];
-			postln("polysub: start: " ++ id ++ " " ++ voices[id]);
-			// FIXME: should have a NodeWatcher or something to limit number of synths
-			if(voices[id].notNil, {
-				voices[id].set(\gate, 0);
-				voices.removeAt(id);
-			});
-			voices.add(id -> Synth.new(\polySub, [\out, mixBus.index, \hz, msg[2]], gr));
-			ctlBus.keys.do({ arg name;
-				voices[id].map(name, ctlBus[name]);
-			});
+			this.addVoice(msg[1], msg[2], true);
 		});
 
 
 		// same as start, but don't map control busses, just copy their current values
-		/*
+
 		this.addCommand(\solo, "i", { arg msg;
-		var id = msg[1];
-		var params = List.with(\out, mixBus.index, \hz, msg[2]);
-
-		// FIXME: should have a NodeWatcher or something to limit number of synths
-		if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
-
-		ctlBus.keys.do({ arg name;
-		params.add(name);
-		params.add(ctlBus[name].getSynchronous);
+			this.addVoice(msg[1], msg[2], false);
 		});
-		voices.add(id -> Synth.new(\polySub, params, gr));
-		});
-		*/
+
 
 		// stop a voice
 		this.addCommand(\stop, "i", { arg msg;
-			var syn = voices[msg[1]];
-			postln("polysub: stop: " ++ msg[1] ++ " " ++ syn);
-			if(syn.notNil, {
-				syn.set(\gate, 0);
-				voices.removeAt(msg[1]);
-			});
-			postln("voices: " ++ voices);
+			this.removeVoice(msg[1]);
 		});
 
 		// free all synths
-		this.addCommand(\freeAll, "", { gr.set(\gate, 0); });
+		this.addCommand(\stopAll, "", {
+			gr.set(\gate, 0);
+			voices.clear;
+		});
 
 		// generate commands to set each control bus
 		ctlBus.keys.do({ arg name;
@@ -215,6 +192,29 @@ Engine_PolySub : CroneEngine {
 
 	} // init
 
+
+	addVoice { arg id, hz, map=true;
+		var params = List.with(\out, mixBus.index, \hz, hz);
+
+		postln("addvoice; map: " ++ map);
+
+		this.removeVoice(id);
+
+		ctlBus.keys.do({ arg name;
+			params.add(name);
+			params.add(ctlBus[name].getSynchronous);
+		});
+		voices.add(id -> Synth.new(\polySub, params, gr));
+		if(map, {
+			ctlBus.keys.do({ arg name;
+				voices[id].map(name, ctlBus[name]);
+			});
+		});
+	}
+
+	removeVoice { arg id;
+		if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
+	}
 
 	free {
 		gr.free;
