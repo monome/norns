@@ -111,6 +111,7 @@ Poll.set = function(name, callback)
    if(p) then
       p.props.callback = callback
    end
+   return p
 end
 
 --- Globals
