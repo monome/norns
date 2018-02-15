@@ -33,7 +33,7 @@ Engine_PolySub : CroneEngine {
 				delSpread=0.0, // delay offset in seconds between L/R channels
 				width=0.5; // stereo width
 
-				var osc1, osc2, snd, freq, del, aenv, fenv;
+				var osc1, osc2, snd, freq, del, aenv, fenv, deltime;
 
 				// TODO: could add control over these lag times if you wanna get crazy
 				detune = Lag.kr(detune);
@@ -64,12 +64,14 @@ Engine_PolySub : CroneEngine {
 				cut = SelectX.kr(cutEnvAmt, [cut, cut * fenv]);
 				cut = cut * hz;
 
-
 				snd = SelectX.ar(noise, [snd, [PinkNoise.ar, PinkNoise.ar]]);
 				snd = MoogFF.ar(snd, cut, fgain) * aenv;
-				del = DelayC.ar(snd, 1.0, [(delTime + delSpread).max(0), (delTime - delSpread).max(0)]);
-				del = del + (delFb * LocalIn.ar(2));
+				deltime = [(delTime + delSpread).max(0).min(1.0), (delTime - delSpread).max(0).min(1.0) ];
+
+				del = DelayL.ar(snd + (delFb * LocalIn.ar(2)), 1.0, deltime);
+
 				snd = SelectX.ar(delMix, [snd, del]);
+
 				FreeSelf.kr(DetectSilence.ar(snd));
 				Out.ar(out, level * SelectX.ar(width, [Mix.new(snd).dup, snd]));
 
@@ -156,8 +158,12 @@ Engine_PolySub : CroneEngine {
 		// start a new voice
 		this.addCommand(\start, "if", { arg msg;
 			var id = msg[1];
+			postln("polysub: start: " ++ id ++ " " ++ voices[id]);
 			// FIXME: should have a NodeWatcher or something to limit number of synths
-			if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
+			if(voices[id].notNil, {
+				voices[id].set(\gate, 0);
+				voices.removeAt(id);
+			});
 			voices.add(id -> Synth.new(\polySub, [\out, mixBus.index, \hz, msg[2]], gr));
 			ctlBus.keys.do({ arg name;
 				voices[id].map(name, ctlBus[name]);
@@ -168,24 +174,29 @@ Engine_PolySub : CroneEngine {
 		// same as start, but don't map control busses, just copy their current values
 		/*
 		this.addCommand(\solo, "i", { arg msg;
-			var id = msg[1];
-			var params = List.with(\out, mixBus.index, \hz, msg[2]);
+		var id = msg[1];
+		var params = List.with(\out, mixBus.index, \hz, msg[2]);
 
-			// FIXME: should have a NodeWatcher or something to limit number of synths
-			if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
+		// FIXME: should have a NodeWatcher or something to limit number of synths
+		if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
 
-			ctlBus.keys.do({ arg name;
-				params.add(name);
-				params.add(ctlBus[name].getSynchronous);
-			});
-			voices.add(id -> Synth.new(\polySub, params, gr));
+		ctlBus.keys.do({ arg name;
+		params.add(name);
+		params.add(ctlBus[name].getSynchronous);
+		});
+		voices.add(id -> Synth.new(\polySub, params, gr));
 		});
 		*/
 
 		// stop a voice
 		this.addCommand(\stop, "i", { arg msg;
 			var syn = voices[msg[1]];
-			if(syn.notNil, { syn.set(\gate, 0); });
+			postln("polysub: stop: " ++ msg[1] ++ " " ++ syn);
+			if(syn.notNil, {
+				syn.set(\gate, 0);
+				voices.removeAt(msg[1]);
+			});
+			postln("voices: " ++ voices);
 		});
 
 		// free all synths
