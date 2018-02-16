@@ -52,7 +52,7 @@ make
 
 this should build all the c-based components (`matron`, `maiden`, and `ipc-wrapper`.)
 
-the `crone` audio engine consists of supercollider classes. run `sc/install.sh` to copy these to the default location for user SC extensions. 
+the `crone` audio engine consists of supercollider classes. cd to `sc` folder and run `install.sh` to copy these to the default location for user SC extensions. 
 
 see  [readme-usage.md](readme-usage.md) for instructions on running and using norns.
 
