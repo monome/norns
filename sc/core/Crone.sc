@@ -126,6 +126,18 @@ Crone {
 		remoteAddr.sendMsg('/report/commands/end');
 	}
 
+	*reportParameters {
+		var parameters = engine !? _.parameters;
+		postln("parameters: " ++ parameters);
+		remoteAddr.sendMsg('/report/parameters/start', parameters.size);
+		parameters.do({ arg parameter, i;
+			var spec = parameter.spec;
+			postln('command entry: ' ++ [i, parameter.name, spec.minval, spec.maxval, spec.warp, spec.step, spec.default, spec.units]);
+			remoteAddr.sendMsg('/report/parameters/entry', i, parameter.name, spec.minval, spec.maxval, spec.warp, spec.step, spec.default, spec.units);
+		});
+		remoteAddr.sendMsg('/report/parameters/end');
+	}
+
 	*reportPolls {
 		var num = CronePollRegistry.getNumPolls;
 		remoteAddr.sendMsg('/report/polls/start', num);
@@ -181,6 +193,13 @@ Crone {
 				arg msg, time, addr, recvPort;
 				this.reportCommands;
 			}, '/report/commands'),
+
+			/// begin OSC command report sequence
+			// @function /report/parameters
+			'/report/parameters':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.reportParameters;
+			}, '/report/parameters'),
 
 			/// begin OSC poll report sequence
 			// @function /report/polls
