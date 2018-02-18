@@ -19,7 +19,7 @@ extern void w_run_code(const char *code);
 // handle a single line of user input
 // this blocks execution and access the VM directly;
 // call it only from the main thread
-extern void w_handle_line(char *line);
+extern void w_handle_exec_code_line(char *line);
 
 //-------------------------
 //---- c -> lua glue
