@@ -71,7 +71,7 @@ void metro_start(int idx, double seconds, int count, int stage) {
     uint64_t nsec;
 
     if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
-      struct metro *t = &metros[idx];
+        struct metro *t = &metros[idx];
         pthread_mutex_lock(&t->status_lock);
         if(t->status == METRO_STATUS_RUNNING) {
             metro_cancel(t);
@@ -165,7 +165,7 @@ void *metro_thread_loop(void *metro) {
         pthread_mutex_lock( &(t->stage_lock) );
         metro_bang(t);
         t->stage += 1;
-	
+
         pthread_mutex_unlock( &(t->stage_lock) );
         metro_sleep(t);
     }
@@ -210,8 +210,9 @@ void metro_stop(int idx) {
         }
         pthread_mutex_unlock( &(metros[idx].status_lock) );
     } else {
-        printf("metro_stop(): invalid metro index, max count of metros is %d\n",
-               MAX_NUM_METROS_OK );  fflush(stdout);
+        printf(
+            "metro_stop(): invalid metro index, max count of metros is %d\n",
+            MAX_NUM_METROS_OK);  fflush(stdout);
     }
 }
 
@@ -219,14 +220,14 @@ void metro_cancel(struct metro *t) {
     int ret = pthread_cancel(t->tid);
     if(ret) {
         printf("metro_stop(): pthread_cancel() failed; error: ");
-	switch(ret) {
-            case ESRCH:
-                printf("specified thread does not exist\n");
-                break;
-            default:
-                printf("unknown error code \n");
-                assert(false);
-            }
+        switch(ret) {
+        case ESRCH:
+            printf("specified thread does not exist\n");
+            break;
+        default:
+            printf("unknown error code \n");
+            assert(false);
+        }
         fflush(stdout);
     } else {
         t->status = METRO_STATUS_STOPPED;

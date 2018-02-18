@@ -63,7 +63,7 @@ static void add_codes(struct dev_hid *d) {
     }
 }
 
-static void dev_hid_print(struct dev_hid *d ) {
+static void dev_hid_print(struct dev_hid *d) {
     printf("%s\n", d->base.name);
     for(int i = 0; i < d->num_types; i++) {
         printf( "  %d : %d (%s) : \n",

@@ -110,9 +110,11 @@ static int msghandler (lua_State *L) {
     if (msg == NULL) {                             /* is error object not a
                                                     * string?
                                                     * */
-        if ( luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod
+        if ( luaL_callmeta(L, 1, "__tostring") &&  /* does it have a
+                                                    * metamethod
+                                                    **/
+             ( lua_type(L, -1) == LUA_TSTRING) ) { /* that produces a string?
                                                    **/
-             ( lua_type(L, -1) == LUA_TSTRING) ) { /* that produces a string? */
             return 1;                              /* that is the message */
         }
         else{

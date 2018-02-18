@@ -291,7 +291,8 @@ void o_clear_engine_names(void) {
             free(engine_names[i]);
             engine_names[i] = NULL;
         } else {
-            printf("o_clear_engine_names: encountered unexpected null entry \n");
+            printf(
+                "o_clear_engine_names: encountered unexpected null entry \n");
         }
     }
     o_unlock_descriptors();
@@ -437,12 +438,9 @@ void o_set_audio_pitch_off() {
     lo_send(remote_addr, "/audio/pitch/off", NULL);
 }
 
-
 void o_restart_audio() {
     lo_send(remote_addr, "/recompile", NULL);
-  
 }
-
 
 ///////////////////////////////
 /// static function definitions
@@ -503,8 +501,12 @@ int handle_engine_report_entry(const char *path,
     return 0;
 }
 
-int handle_engine_report_end(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data) {
+int handle_engine_report_end(const char *path,
+                             const char *types,
+                             lo_arg **argv,
+                             int argc,
+                             void *data,
+                             void *user_data) {
     (void)path;
     (void)types;
     (void)argc;
@@ -577,8 +579,12 @@ int handle_command_report_end(const char *path,
 //---------------------
 //--- poll report
 
-int handle_poll_report_start(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data) {
+int handle_poll_report_start(const char *path,
+                             const char *types,
+                             lo_arg **argv,
+                             int argc,
+                             void *data,
+                             void *user_data) {
     (void)path;
     (void)types;
     (void)argc;
@@ -591,8 +597,12 @@ int handle_poll_report_start(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
-                             int argc, void *data, void *user_data) {
+int handle_poll_report_entry(const char *path,
+                             const char *types,
+                             lo_arg **argv,
+                             int argc,
+                             void *data,
+                             void *user_data) {
     (void)path;
     (void)types;
     (void)argc;
@@ -626,7 +636,7 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
     union event_data *ev = event_data_new(EVENT_POLL_VALUE);
     ev->poll_value.idx = argv[0]->i;
     ev->poll_value.value = argv[1]->f;
-    event_post( ev );
+    event_post(ev);
     return 0;
 }
 
@@ -644,7 +654,7 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
     ev->poll_data.size = sz;
     ev->poll_data.data = calloc(1, sz);
     memcpy(ev->poll_data.data, blobdata, sz);
-    event_post( ev );
+    event_post(ev);
     return 0;
 }
 
@@ -661,7 +671,7 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
     assert( sz == sizeof(quad_levels_t) );
     ev->poll_io_levels.value.uint = *( (uint32_t *)blobdata );
     fflush(stdout);
-    event_post( ev );
+    event_post(ev);
 
     return 0;
 }

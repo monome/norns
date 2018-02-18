@@ -84,7 +84,7 @@ void launch_thread(pthread_t *tid, void *(*start_routine)(void *),
     pthread_attr_destroy(&attr);
 }
 
-int launch_exe( int argc,  char **argv) {
+int launch_exe(int argc,  char **argv) {
     (void)argc;
     char *exe = argv[1];
     char *url_rx = argv[2];
@@ -169,7 +169,7 @@ int launch_exe( int argc,  char **argv) {
     // wait for the child process to exit
     int wpid, status;
     do {
-        wpid = waitpid(child_pid, &status, WUNTRACED | WCONTINUED );
+        wpid = waitpid(child_pid, &status, WUNTRACED | WCONTINUED);
         if (wpid == -1) {
             perror("waitpid");
             exit(EXIT_FAILURE);
@@ -190,7 +190,7 @@ int launch_exe( int argc,  char **argv) {
     return 0;
 }
 
-int main( int argc,  char **argv) {
+int main(int argc,  char **argv) {
     if(argc < 4) {
         printf(
             "usage: ipc-wrapper BINARY IN_SOCKET OUT_SOCKET <child args...>");

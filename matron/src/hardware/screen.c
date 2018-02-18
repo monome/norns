@@ -80,7 +80,8 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
     if (device->fb_fd == -1) {
-        printf("ERROR (screen) cannot open framebuffer device"); fflush(stdout);
+        printf("ERROR (screen) cannot open framebuffer device"); fflush(
+            stdout);
         goto handle_allocate_error;
     }
 
@@ -164,12 +165,13 @@ void screen_init(void) {
 
     for(int i = 0; i < NUM_FONTS; i++) {
         // FIXME should be path relative to norns/
-        snprintf( filename, 256, "%s/norns/resources/%s", getenv(
-                      "HOME"), font_path[i] );
+        snprintf(filename, 256, "%s/norns/resources/%s", getenv(
+                     "HOME"), font_path[i]);
 
         status = FT_New_Face(value, filename, 0, &face[i]);
         if(status != 0) {
-            printf("ERROR (screen) font load: %s\n", filename); fflush(stdout);
+            printf("ERROR (screen) font load: %s\n", filename); fflush(
+                stdout);
             return;
         }
         else{

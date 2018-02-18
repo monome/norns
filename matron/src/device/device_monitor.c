@@ -265,7 +265,8 @@ device_t check_dev_type (struct udev_device *dev) {
 #ifdef DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
         if(1) {
 #else
-        if( udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL) ) {
+        if( udev_device_get_parent_with_subsystem_devtype(dev, "usb",
+                                                          NULL) ) {
 #endif
             for(int i = 0; i < DEV_TYPE_COUNT; i++) {
                 fflush(stdout);
