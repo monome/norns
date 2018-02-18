@@ -1408,6 +1408,28 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
     l_report( lvm, l_docall(lvm, 4, 0) );
 }
 
+void w_handle_midi_add() {
+    _push_norns_func("midi", "add");
+    // TODO: params
+    l_report(lvm, l_docall(lvm, 0, 0));
+}
+
+void w_handle_midi_remove() {
+    _push_norns_func("midi", "remove");
+    // TODO: params
+    l_report(lvm, l_docall(lvm, 0, 0));
+}
+
+void w_handle_midi_event(uint8_t *data) {
+    (void)data;
+    _push_norns_func("midi", "event");
+    // TODO: params
+    lua_pushinteger(lvm, 0);
+    lua_pushinteger(lvm, 0);
+    lua_pushinteger(lvm, 0);
+    l_report( lvm, l_docall(lvm, 3, 0) );
+}
+
 // helper for pushing array of c strings
 static inline void
 _push_string_array(const char **arr, const int n) {
