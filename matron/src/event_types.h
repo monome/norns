@@ -30,6 +30,12 @@ typedef enum {
     EVENT_HID_REMOVE,
     // hid gesture
     EVENT_HID_EVENT,
+    // midi client (port?) added
+    EVENT_MIDI_ADD,
+    // midi client (port?) removed
+    EVENT_MIDI_REMOVE,
+    // midi event
+    EVENT_MIDI_EVENT,
     // finished receiving audio engine list
     EVENT_ENGINE_REPORT,
     /* // finished receiving commands list */
@@ -96,6 +102,19 @@ struct event_hid_add {
 struct event_hid_remove {
     struct event_common common;
     uint32_t id;
+}; // +4
+
+struct event_midi_add {
+    struct event_common common;
+}; // +4
+
+struct event_midi_remove {
+    struct event_common common;
+}; // +4
+
+struct event_midi_event {
+    struct event_common common;
+    uint8_t *data;
 }; // +4
 
 /// fixme: maybe break this up into hid_key, hid_abs, &c?
@@ -170,6 +189,9 @@ union event_data {
     struct event_hid_add hid_add;
     struct event_hid_remove hid_remove;
     struct event_hid_event hid_event;
+    struct event_midi_add midi_add;
+    struct event_midi_remove midi_remove;
+    struct event_midi_event midi_event;
     struct event_key key;
     struct event_enc enc;
     struct event_battery battery;
