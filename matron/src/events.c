@@ -41,7 +41,7 @@ bool quit;
 //--- static function declarations
 
 //---- handlers
- static void handle_event(union event_data *ev);
+static void handle_event(union event_data *ev);
 
 /// helpers
 static void handle_engine_report(void);
@@ -144,68 +144,76 @@ void event_loop(void) {
 //-- static function definitions
 
 static void handle_event(union event_data *ev) {
-  switch(ev->type) {
-  case EVENT_EXEC_CODE_LINE:
-    w_handle_exec_code_line( ev->exec_code_line.line);
-    break;
-  case EVENT_METRO:
-    w_handle_metro( ev->metro.id, ev->metro.stage );
-    break;
-  case EVENT_KEY:
-    w_handle_key( ev->key.n, ev->key.val );
-    break;
-  case EVENT_ENC:
-    w_handle_enc( ev->enc.n, ev->enc.delta);
-    break;
-  case EVENT_BATTERY:
-    w_handle_battery( ev->battery.percent );
-    break;
-  case EVENT_POWER:
-    w_handle_power( ev->power.present );
-    break;
-  case EVENT_MONOME_ADD:
-    w_handle_monome_add( ev->monome_add.dev);
-    break;
-  case EVENT_MONOME_REMOVE:
-    w_handle_monome_remove( ev->monome_remove.id );
-    break;
-  case EVENT_GRID_KEY:
-    w_handle_grid_key( ev->grid_key.id, ev->grid_key.x, ev->grid_key.y, ev->grid_key.state);
-  break;
- case EVENT_HID_ADD:
-   w_handle_hid_add( ev->hid_add.dev );
-   break;
- case EVENT_HID_REMOVE:
-   w_handle_hid_remove( ev->hid_remove.id );
-   break;
- case EVENT_HID_EVENT:
-   w_handle_hid_event( ev->hid_event.id, ev->hid_event.type, ev->hid_event.code, ev->hid_event.value );
-   break;
- case EVENT_ENGINE_REPORT:
-   handle_engine_report();
-   break;
- case EVENT_COMMAND_REPORT:
-   handle_command_report();
-   break;
- case EVENT_POLL_REPORT:
-   handle_poll_report();
-   break;
- case EVENT_POLL_VALUE:
-   w_handle_poll_value( ev->poll_value.idx, ev->poll_value.value );
-   break;
- case EVENT_POLL_DATA:
-   w_handle_poll_data( ev->poll_data.idx, ev->poll_data.size, ev->poll_data.data );
-   break;
- case EVENT_POLL_IO_LEVELS:
-   w_handle_poll_io_levels( ev->poll_io_levels.value.bytes );
-   break;
-   
-   //--- TODO: MIDI
-   
-  case EVENT_QUIT:
-    quit = true;
-    break;
-  } /* switch */
+    switch(ev->type) {
+    case EVENT_EXEC_CODE_LINE:
+        w_handle_exec_code_line( ev->exec_code_line.line);
+        break;
+    case EVENT_METRO:
+        w_handle_metro( ev->metro.id, ev->metro.stage );
+        break;
+    case EVENT_KEY:
+        w_handle_key( ev->key.n, ev->key.val );
+        break;
+    case EVENT_ENC:
+        w_handle_enc( ev->enc.n, ev->enc.delta);
+        break;
+    case EVENT_BATTERY:
+        w_handle_battery( ev->battery.percent );
+        break;
+    case EVENT_POWER:
+        w_handle_power( ev->power.present );
+        break;
+    case EVENT_MONOME_ADD:
+        w_handle_monome_add( ev->monome_add.dev);
+        break;
+    case EVENT_MONOME_REMOVE:
+        w_handle_monome_remove( ev->monome_remove.id );
+        break;
+    case EVENT_GRID_KEY:
+        w_handle_grid_key( ev->grid_key.id,
+                           ev->grid_key.x,
+                           ev->grid_key.y,
+                           ev->grid_key.state);
+        break;
+    case EVENT_HID_ADD:
+        w_handle_hid_add( ev->hid_add.dev );
+        break;
+    case EVENT_HID_REMOVE:
+        w_handle_hid_remove( ev->hid_remove.id );
+        break;
+    case EVENT_HID_EVENT:
+        w_handle_hid_event( ev->hid_event.id,
+                            ev->hid_event.type,
+                            ev->hid_event.code,
+                            ev->hid_event.value );
+        break;
+    case EVENT_ENGINE_REPORT:
+        handle_engine_report();
+        break;
+    case EVENT_COMMAND_REPORT:
+        handle_command_report();
+        break;
+    case EVENT_POLL_REPORT:
+        handle_poll_report();
+        break;
+    case EVENT_POLL_VALUE:
+        w_handle_poll_value( ev->poll_value.idx, ev->poll_value.value );
+        break;
+    case EVENT_POLL_DATA:
+        w_handle_poll_data( ev->poll_data.idx,
+                            ev->poll_data.size,
+                            ev->poll_data.data );
+        break;
+    case EVENT_POLL_IO_LEVELS:
+        w_handle_poll_io_levels( ev->poll_io_levels.value.bytes );
+        break;
+
+    //--- TODO: MIDI
+
+    case EVENT_QUIT:
+        quit = true;
+        break;
+    } /* switch */
 }
 
 //---------------------------------
