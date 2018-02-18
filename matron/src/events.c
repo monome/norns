@@ -146,7 +146,7 @@ void event_loop(void) {
 static void handle_event(union event_data *ev) {
     switch(ev->type) {
     case EVENT_EXEC_CODE_LINE:
-        w_handle_exec_code_line( ev->exec_code_line.line);
+        w_handle_exec_code_line( ev->exec_code_line.line );
         break;
     case EVENT_METRO:
         w_handle_metro( ev->metro.id, ev->metro.stage );
@@ -155,7 +155,7 @@ static void handle_event(union event_data *ev) {
         w_handle_key( ev->key.n, ev->key.val );
         break;
     case EVENT_ENC:
-        w_handle_enc( ev->enc.n, ev->enc.delta);
+        w_handle_enc( ev->enc.n, ev->enc.delta );
         break;
     case EVENT_BATTERY:
         w_handle_battery( ev->battery.percent );
@@ -164,7 +164,7 @@ static void handle_event(union event_data *ev) {
         w_handle_power( ev->power.present );
         break;
     case EVENT_MONOME_ADD:
-        w_handle_monome_add( ev->monome_add.dev);
+        w_handle_monome_add( ev->monome_add.dev );
         break;
     case EVENT_MONOME_REMOVE:
         w_handle_monome_remove( ev->monome_remove.id );
