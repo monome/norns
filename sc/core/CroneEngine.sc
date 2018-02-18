@@ -9,6 +9,11 @@ CroneEngine {
 	var <commands;
 	var <commandNames;
 
+	// list of registered parameters
+	var <parameters;
+	var <parameterNames;
+	var <parameterControlBusses;
+
 	// list of registered polls
 	var <pollNames;
 
@@ -16,10 +21,14 @@ CroneEngine {
 		^super.new.init(context);
 	}
 
-	init { arg ctx;
+	init { arg argContext;
 		commands = List.new;
-		commandNames = Dictionary.new;
+		commandNames = IdentityDictionary.new;
+		parameters = List.new;
+		parameterNames = IdentityDictionary.new;
+		parameterControlBusses = IdentityDictionary.new;
 		pollNames = Set.new;
+		context = argContext;
 	}
 
 	addPoll { arg name, func;
@@ -35,6 +44,12 @@ CroneEngine {
 		commands.do({ arg com;
 			com.oscdef.free;
 		});
+		parameters.do({ arg parameter;
+			parameter.oscdef.free;
+		});
+		parameterControlBusses.do({ arg cbus;
+			cbus.free;
+		});
 		pollNames.do({ arg name;
 			CronePollRegistry.remove(name);
 		});
@@ -43,6 +58,7 @@ CroneEngine {
 	addCommand { arg name, format, func;
 		var idx, cmd;
 		name = name.asSymbol;
+		// TODO: check its a unique commands+parameters name
 		postln([ "CroneEngine adding command", name, format, func ]);
 		if(commandNames[name].isNil, {
 			idx = commandNames.size;
@@ -62,5 +78,33 @@ CroneEngine {
 		^idx
 	}
 
+	addParameter { arg name, spec;
+		var idx;
+		name = name.asSymbol;
+		// TODO: check its a unique commands+parameters name
+		postln([ "CroneEngine adding parameter", name, spec ]);
+		if(parameterNames[name].isNil, {
+			var bus;
+			idx = parameterNames.size;
+			parameterNames[name] = idx;
+			bus = Bus.control;
+			bus.setSynchronous(spec.default);
+			parameterControlBusses[name] = bus;
+			parameters.add(
+				(
+					name: name,
+					spec: spec,
+					oscdef: OSCdef(name.asSymbol, { // TODO: why not OSCFunc here?
+						arg msg, time, addr, rxport;
+						// ["CroneEngine rx parameter", msg, time, addr, rxport].postln;
+						bus.setSynchronous(spec.constrain(msg[1].asFloat));
+					}, ("/parameter/"++name).asSymbol)
+				)
+			);
+		}, {
+			idx = parameterNames[name];
+		});
+		^idx
+	}
 }
 
