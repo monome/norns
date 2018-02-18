@@ -41,28 +41,12 @@ bool quit;
 //--- static function declarations
 
 //---- handlers
-static void handle_event(union event_data *ev);
-static void handle_exec_code_line(struct event_exec_code_line *ev);
-static void handle_metro(struct event_metro *ev);
-static void handle_key(struct event_key *ev);
-static void handle_enc(struct event_enc *ev);
-static void handle_battery(struct event_battery *ev);
-static void handle_power(struct event_power *ev);
-static void handle_monome_add(struct event_monome_add *ev);
-static void handle_monome_remove(struct event_monome_remove *ev);
-static void handle_grid_key(struct event_grid_key *ev);
-static void handle_hid_add(struct event_hid_add *ev);
-static void handle_hid_remove(struct event_hid_remove *ev);
-static void handle_hid_event(struct event_hid_event *ev);
+ static void handle_event(union event_data *ev);
+
+/// helpers
 static void handle_engine_report(void);
 static void handle_command_report(void);
 static void handle_poll_report(void);
-static void handle_poll_value(struct event_poll_value *ev);
-static void handle_poll_data(struct event_poll_data *ev);
-// TODO
-//static void handle_poll_wave(struct event_poll_wave *ev);
-static void handle_poll_io_levels(struct event_poll_io_levels *ev);
-static void handle_quit(void);
 
 // add an event data struct to the end of the event queue
 // *does* allocate queue node memory!
@@ -160,131 +144,72 @@ void event_loop(void) {
 //-- static function definitions
 
 static void handle_event(union event_data *ev) {
-    switch(ev->type) {
-    case EVENT_EXEC_CODE_LINE:
-        handle_exec_code_line( &(ev->exec_code_line) );
-        break;
-    case EVENT_METRO:
-        handle_metro( &(ev->metro) );
-        break;
-    case EVENT_KEY:
-        handle_key( &(ev->key) );
-        break;
-    case EVENT_ENC:
-        handle_enc( &(ev->enc) );
-        break;
-    case EVENT_BATTERY:
-        handle_battery( &(ev->battery) );
-        break;
-    case EVENT_POWER:
-        handle_power( &(ev->power) );
-        break;
-    case EVENT_MONOME_ADD:
-        handle_monome_add( &(ev->monome_add) );
-        break;
-    case EVENT_MONOME_REMOVE:
-        handle_monome_remove( &(ev->monome_remove) );
-        break;
-    case EVENT_GRID_KEY:
-        handle_grid_key( &(ev->grid_key) );
-        break;
-    case EVENT_HID_ADD:
-        handle_hid_add( &(ev->hid_add) );
-        break;
-    case EVENT_HID_REMOVE:
-        handle_hid_remove( &(ev->hid_remove) );
-        break;
-    case EVENT_HID_EVENT:
-        handle_hid_event( &(ev->hid_event) );
-        break;
-    case EVENT_ENGINE_REPORT:
-        handle_engine_report();
-        break;
-    case EVENT_COMMAND_REPORT:
-        handle_command_report();
-        break;
-    case EVENT_POLL_REPORT:
-        handle_poll_report();
-        break;
-    case EVENT_POLL_VALUE:
-        handle_poll_value( &(ev->poll_value) );
-        break;
-    case EVENT_POLL_DATA:
-        handle_poll_data( &(ev->poll_data) );
-        break;
-    case EVENT_POLL_IO_LEVELS:
-        handle_poll_io_levels( &(ev->poll_io_levels) );
-        break;
-    // TODO
-    /* case EVENT_POLL_WAVE: */
-    /*   handle_poll_wave( &(ev->poll_wave) ); */
-    /*     break; */
-    case EVENT_QUIT:
-        handle_quit();
-        break;
-    } /* switch */
+  switch(ev->type) {
+  case EVENT_EXEC_CODE_LINE:
+    w_handle_exec_code_line( ev->exec_code_line.line);
+    break;
+  case EVENT_METRO:
+    w_handle_metro( ev->metro.id, ev->metro.stage );
+    break;
+  case EVENT_KEY:
+    w_handle_key( ev->key.n, ev->key.val );
+    break;
+  case EVENT_ENC:
+    w_handle_enc( ev->enc.n, ev->enc.delta);
+    break;
+  case EVENT_BATTERY:
+    w_handle_battery( ev->battery.percent );
+    break;
+  case EVENT_POWER:
+    w_handle_power( ev->power.present );
+    break;
+  case EVENT_MONOME_ADD:
+    w_handle_monome_add( ev->monome_add.dev);
+    break;
+  case EVENT_MONOME_REMOVE:
+    w_handle_monome_remove( ev->monome_remove.id );
+    break;
+  case EVENT_GRID_KEY:
+    w_handle_grid_key( ev->grid_key.id, ev->grid_key.x, ev->grid_key.y, ev->grid_key.state);
+  break;
+ case EVENT_HID_ADD:
+   w_handle_hid_add( ev->hid_add.dev );
+   break;
+ case EVENT_HID_REMOVE:
+   w_handle_hid_remove( ev->hid_remove.id );
+   break;
+ case EVENT_HID_EVENT:
+   w_handle_hid_event( ev->hid_event.id, ev->hid_event.type, ev->hid_event.code, ev->hid_event.value );
+   break;
+ case EVENT_ENGINE_REPORT:
+   handle_engine_report();
+   break;
+ case EVENT_COMMAND_REPORT:
+   handle_command_report();
+   break;
+ case EVENT_POLL_REPORT:
+   handle_poll_report();
+   break;
+ case EVENT_POLL_VALUE:
+   w_handle_poll_value( ev->poll_value.idx, ev->poll_value.value );
+   break;
+ case EVENT_POLL_DATA:
+   w_handle_poll_data( ev->poll_data.idx, ev->poll_data.size, ev->poll_data.data );
+   break;
+ case EVENT_POLL_IO_LEVELS:
+   w_handle_poll_io_levels( ev->poll_io_levels.value.bytes );
+   break;
+   
+   //--- TODO: MIDI
+   
+  case EVENT_QUIT:
+    quit = true;
+    break;
+  } /* switch */
 }
 
 //---------------------------------
-//---- handlers
-
-//--- code execution
-void handle_exec_code_line(struct event_exec_code_line *ev) {
-    w_handle_line(ev->line);
-    free(ev->line);
-}
-
-//--- metros
-void handle_metro(struct event_metro *ev) {
-    w_handle_metro(ev->id, ev->stage);
-}
-
-//--- gpio
-void handle_key(struct event_key *ev) {
-    w_handle_key(ev->n, ev->val);
-}
-
-void handle_enc(struct event_enc *ev) {
-    w_handle_enc(ev->n, ev->delta);
-}
-
-//--- system/battery
-void handle_battery(struct event_battery *ev) {
-    w_handle_battery(ev->percent);
-}
-
-void handle_power(struct event_power *ev) {
-    w_handle_power(ev->present);
-}
-
-//--- monome devices
-void handle_monome_add(struct event_monome_add *ev) {
-    w_handle_monome_add(ev->dev);
-}
-
-void handle_monome_remove(struct event_monome_remove *ev) {
-    w_handle_monome_remove(ev->id);
-}
-
-void handle_grid_key(struct event_grid_key *ev) {
-    w_handle_grid_key(ev->id, ev->x, ev->y, ev->state);
-    fflush(stdout);
-}
-
-//--- hid devices
-void handle_hid_add(struct event_hid_add *ev) {
-    w_handle_hid_add(ev->dev);
-}
-
-void handle_hid_remove(struct event_hid_remove *ev) {
-    w_handle_hid_remove(ev->id);
-}
-
-void handle_hid_event(struct event_hid_event *ev) {
-    w_handle_hid_event(ev->id, ev->type, ev->code, ev->value);
-}
-
-//--- TODO: MIDI
+//---- helpers
 
 //--- reports
 void handle_engine_report(void) {
@@ -311,29 +236,3 @@ void handle_poll_report(void) {
     w_handle_poll_report(p, n);
     o_unlock_descriptors();
 };
-
-void handle_poll_value(struct event_poll_value *ev) {
-    // printf("(events) handle_poll_value; idx: %d; value: %f\n", ev->idx,
-    // ev->value); fflush(stdout);
-    w_handle_poll_value(ev->idx, ev->value);
-}
-
-void handle_poll_data(struct event_poll_data *ev) {
-    w_handle_poll_data(ev->idx, ev->size, ev->data);
-    free(ev->data);
-}
-
-// TODO
-/* void handle_poll_wave(struct event_poll_wave *ev) { */
-/*   w_handle_poll_wave(ev->idx, ev->data); */
-/*   free(ev->data); */
-/* } */
-
-void handle_poll_io_levels(struct event_poll_io_levels *ev) {
-    w_handle_poll_io_levels(ev->value.bytes);
-}
-
-//--- quit
-void handle_quit(void) {
-    quit = true;
-}

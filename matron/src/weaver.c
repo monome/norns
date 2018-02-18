@@ -40,7 +40,7 @@ void w_run_code(const char *code) {
     fflush(stdout);
 }
 
-void w_handle_line(char *line) {
+void w_handle_exec_code_line(char *line) {
     l_handle_line(lvm, line);
 }
 
