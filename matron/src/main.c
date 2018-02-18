@@ -19,6 +19,7 @@
 #include "osc.h"
 #include "metro.h"
 #include "screen.h"
+#include "midi.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -57,6 +58,7 @@ int main(int argc, char **argv) {
     i2c_init();
     osc_init();
     o_init(); // oracle (audio)
+    midi_init();
 
     // wait here for a signal from the audio server...
     fprintf(stderr, "waiting for crone...");

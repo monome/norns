@@ -17,7 +17,7 @@ INC += -I/usr/include/cairo -I/usr/include/freetype2
 
 LDFLAGS =
 
-LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm -lcairo -lfreetype
+LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm -lcairo -lfreetype -lasound
 
 STATIC = lua/liblua.a
 
@@ -42,6 +42,7 @@ _OBJ = main.o \
 	metro.o \
 	oracle.o \
 	weaver.o \
+	midi.o
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 

@@ -1424,9 +1424,9 @@ void w_handle_midi_event(uint8_t *data) {
     (void)data;
     _push_norns_func("midi", "event");
     // TODO: params
-    lua_pushinteger(lvm, 0);
-    lua_pushinteger(lvm, 0);
-    lua_pushinteger(lvm, 0);
+    lua_pushinteger(lvm, data[0]);
+    lua_pushinteger(lvm, data[1]);
+    lua_pushinteger(lvm, data[2]);
     l_report( lvm, l_docall(lvm, 3, 0) );
 }
 
