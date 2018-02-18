@@ -187,6 +187,15 @@ static void handle_event(union event_data *ev) {
                             ev->hid_event.code,
                             ev->hid_event.value );
         break;
+    case EVENT_MIDI_ADD:
+        w_handle_midi_add();
+        break;
+    case EVENT_MIDI_REMOVE:
+        w_handle_midi_remove();
+        break;
+    case EVENT_MIDI_EVENT:
+        w_handle_midi_event(0);
+        break;
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
         break;
