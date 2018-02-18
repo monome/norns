@@ -210,8 +210,9 @@ void metro_stop(int idx) {
         }
         pthread_mutex_unlock( &(metros[idx].status_lock) );
     } else {
-        printf("metro_stop(): invalid metro index, max count of metros is %d\n",
-               MAX_NUM_METROS_OK );  fflush(stdout);
+        printf(
+            "metro_stop(): invalid metro index, max count of metros is %d\n",
+            MAX_NUM_METROS_OK);  fflush(stdout);
     }
 }
 

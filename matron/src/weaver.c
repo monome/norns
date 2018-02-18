@@ -256,7 +256,8 @@ int _screen_font_face(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to s_font_face() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to s_font_face() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -282,7 +283,8 @@ int _screen_font_size(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to s_font_size() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to s_font_size() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -363,7 +365,8 @@ int _screen_line_width(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to s_line_width() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to s_line_width() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -615,7 +618,8 @@ int _screen_curve_rel(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to s_curve_rel() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to s_curve_rel() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -956,7 +960,8 @@ int _grid_set_led(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to grid_set_led() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to grid_set_led() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -990,7 +995,8 @@ int _grid_all_led(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to grid_all_led() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to grid_all_led() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -1014,7 +1020,8 @@ int _grid_refresh(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 args_error:
-    printf("warning: incorrect arguments to grid_refresh() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to grid_refresh() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -1034,7 +1041,8 @@ int _load_engine(lua_State *l) {
     }
 
 args_error:
-    printf("warning: incorrect arguments to load_engine() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to load_engine() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -1070,7 +1078,7 @@ int _send_command(lua_State *l) {
         case 's':
             if( lua_isstring(l, i) ) {
                 s = lua_tostring(l, i);
-                lo_message_add_string(msg, s );
+                lo_message_add_string(msg, s);
             } else {
                 printf("failed string type check \n");
                 goto args_error;
@@ -1079,7 +1087,7 @@ int _send_command(lua_State *l) {
         case 'i':
             if( lua_isnumber(l, i) ) {
                 d =  (int)lua_tonumber(l, i);
-                lo_message_add_int32( msg, d);
+                lo_message_add_int32(msg, d);
             } else {
                 printf("failed int type check \n");
                 goto args_error;
@@ -1088,7 +1096,7 @@ int _send_command(lua_State *l) {
         case 'f':
             if( lua_isnumber(l, i) ) {
                 f = lua_tonumber(l, i);
-                lo_message_add_double( msg, f );
+                lo_message_add_double(msg, f);
             } else {
                 printf("failed double type check \n");
                 goto args_error;
@@ -1108,7 +1116,8 @@ int _send_command(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 args_error:
-    printf("warning: incorrect arguments to send_command() \n"); fflush(stdout);
+    printf("warning: incorrect arguments to send_command() \n"); fflush(
+        stdout);
     lua_settop(l, 0);
     return 0;
 }
@@ -1231,7 +1240,8 @@ int _metro_set_time(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 args_error:
-    printf("warning: incorrect arguments to metro_set_time(); expected [if] \n");
+    printf(
+        "warning: incorrect arguments to metro_set_time(); expected [if] \n");
     fflush(stdout);
     return 1;
 }
@@ -1285,7 +1295,7 @@ void w_handle_monome_remove(int id) {
 }
 
 void w_handle_grid_key(int id, int x, int y, int state) {
-    _call_grid_handler( id, x, y, state > 0);
+    _call_grid_handler(id, x, y, state > 0);
 }
 
 void w_handle_hid_add(void *p) {
