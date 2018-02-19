@@ -32,10 +32,12 @@ typedef enum {
     EVENT_HID_EVENT,
     // finished receiving audio engine list
     EVENT_ENGINE_REPORT,
-    // finished receiving commands list
-    EVENT_COMMAND_REPORT,
-    // finished receiving polls list
-    EVENT_POLL_REPORT,
+    /* // finished receiving commands list */
+    /* EVENT_COMMAND_REPORT, */
+    /* // finished receiving polls list */
+    /* EVENT_POLL_REPORT, */
+    // finished loading engine
+    EVENT_ENGINE_LOADED,
     // polled value from crone
     EVENT_POLL_VALUE,
     // arbitrary polled data from crone

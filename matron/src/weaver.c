@@ -1354,6 +1354,7 @@ void w_handle_engine_report(const char **arr, const int n) {
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
+/*
 void w_handle_command_report(const struct engine_command *arr,
                              const int num) {
     _push_norns_func("report", "commands");
@@ -1407,6 +1408,70 @@ void w_handle_poll_report(const struct engine_poll *arr,
     }
     lua_pushinteger(lvm, num);
     l_report( lvm, l_docall(lvm, 2, 0) );
+}
+*/
+
+
+// helper: push table of commands
+// each entry is a subtatble: {name, format}
+static void _push_commands() {
+  o_lock_descriptors();
+    const struct engine_command *p = o_get_commands();
+    const int n = o_get_num_commands();
+    lua_createtable(lvm, n, 0);
+        for(int i = 0; i < n; i++) {
+        // create subtable on stack
+        lua_createtable(lvm, 2, 0);
+        // put command string on stack; assign to subtable, pop
+        lua_pushstring(lvm, p[i].name);
+        lua_rawseti(lvm, -2, 1);
+        // put format string on stack; assign to subtable, pop
+        lua_pushstring(lvm, p[i].format);
+        lua_rawseti(lvm, -2, 2);
+        // subtable is on stack; assign to master table and pop
+        lua_rawseti(lvm, -2, i + 1);
+    }
+    o_unlock_descriptors();
+}
+
+// helper: push table of polls
+// each entry is a subtable: { name, type }
+// FIXME: this is silly, just use full format specification as for commands
+static void _push_polls() {
+  o_lock_descriptors();
+    const struct engine_poll *p = o_get_polls();
+    const int n = o_get_num_polls();
+    lua_createtable(lvm, n, 0);
+    for(int i = 0; i < n; ++i) {
+        // create subtable on stack
+        lua_createtable(lvm, 2, 0);
+        // put poll index on stack; assign to subtable, pop
+        lua_pushinteger(lvm, i + 1); // convert to 1-base
+        lua_rawseti(lvm, -2, 1);
+        // put poll name on stack; assign to subtable, pop
+        lua_pushstring(lvm, p[i].name);
+        lua_rawseti(lvm, -2, 2);
+	/// FIXME: just use a format string.... 
+        if(p[i].type == POLL_TYPE_VALUE) {
+            lua_pushstring(lvm, "value");
+        } else {
+            lua_pushstring(lvm, "data");
+        }
+        // put type string on stack; assign to subtable, pop
+        lua_rawseti(lvm, -2, 3);
+        // subtable is on stack; assign to master table and pop
+        lua_rawseti(lvm, -2, i + 1); // convert to 1-base
+    }    
+    o_unlock_descriptors();
+}
+
+void w_handle_engine_loaded() {
+  _push_norns_func("engine", "loaded");
+  _push_commands();
+  _push_polls();
+  // FIXME:
+  // _push_params();
+  l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 // metro handler
