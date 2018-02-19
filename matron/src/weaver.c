@@ -85,9 +85,7 @@ static int _gain_in(lua_State *l);
 static int _request_engine_report(lua_State *l);
 static int _load_engine(lua_State *l);
 /// commands
-static int _request_command_report(lua_State *l);
 static int _send_command(lua_State *l);
-static int _request_poll_report(lua_State *l);
 static int _start_poll(lua_State *l);
 static int _stop_poll(lua_State *l);
 static int _set_poll_time(lua_State *l);
@@ -172,8 +170,6 @@ void w_init(void) {
     // load a named engine
     lua_register(lvm, "load_engine", &_load_engine);
 
-    // get list of available crone commmands based on current engine
-    lua_register(lvm, "report_commands", &_request_command_report);
     // send an indexed command
     lua_register(lvm, "send_command", &_send_command);
 
@@ -185,8 +181,6 @@ void w_init(void) {
     // get the current high-resolution CPU time
     lua_register(lvm, "get_time", &_get_time);
 
-    // report available polling functions
-    lua_register(lvm, "report_polls", &_request_poll_report);
     // start / stop a poll
     lua_register(lvm, "start_poll", &_start_poll);
     lua_register(lvm, "stop_poll", &_stop_poll);
@@ -1128,11 +1122,6 @@ int _request_engine_report(lua_State *l) {
     return 0;
 }
 
-int _request_command_report(lua_State *l) {
-    (void)l;
-    o_request_command_report();
-    return 0;
-}
 
 /***
  * metro: start
@@ -1508,11 +1497,6 @@ void w_handle_poll_io_levels(uint8_t *levels) {
     l_report( lvm, l_docall(lvm, 4, 0) );
 }
 
-int _request_poll_report(lua_State *l) {
-    (void)l;
-    o_request_poll_report();
-    return 0;
-}
 
 // helper: set poll given by lua to given state
 static int poll_set_state(lua_State *l, bool val) {
