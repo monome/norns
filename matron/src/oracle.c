@@ -686,6 +686,7 @@ void lo_error_handler(int num, const char *m, const char *path) {
 void test_engine_load_done() {
   if(!get_need_reports()) {
     union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
+    printf("oracle: done loading engine\n"); fflush(stdout);
     event_post(ev);
   }
 }

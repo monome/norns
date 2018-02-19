@@ -38,6 +38,7 @@ end
 -- @param count - number of commands
 Engine.registerCommands = function(data, count)
    local name, fmt
+   print('Engine.registerCommands; count: '..count)
 --   Engine.numCommands = count;
    Engine.commands = {}
    for i=1,count do
@@ -81,7 +82,10 @@ end
 -- @param callback - function to call on engine load. will receive command list
 Engine.load = function(name, callback)
    if type(callback) == 'function' then
-      norns.report.didEngineLoad = function() callback() end
+      norns.report.didEngineLoad = function()
+	 print("Engine: norns.report.didEngineLoad callback")
+	 callback()
+      end
    end
    load_engine(name)
 end

@@ -67,6 +67,9 @@ Crone {
 					engine.free;
 				});
 				engine = class.new(ctx, {
+					postln("-----------------------");
+					postln("-- crone: done loading engine, starting reports");
+					postln("--------");
 					this.reportCommands;
 					this.reportPolls;
 				});

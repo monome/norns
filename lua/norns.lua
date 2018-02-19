@@ -8,6 +8,7 @@ norns.version.norns = "0.0.2"
 
 local engine = require 'engine'
 local poll = require 'poll'
+local tab = require 'tabutil'
 
 --- startup function will be run after I/O subsystems are initialized, 
 -- but before I/O event loop starts ticking
@@ -63,19 +64,27 @@ norns.report.engines = function(names, count)
    engine.listCommands()
 end
 
--- called when all reports are complete after engine load
-norns.report.didEngineLoad = function()
-   -- engine module should assign callback
-end
-
 norns.report.commands = function(commands, count)
+   print("norns.report.commands; count: " .. count)
+   --[[
    engine.registerCommands(commands, count)
+   engine.listCommands()
+   --]]
 end
 
 norns.report.polls = function(names, count)
+   print("norns.report.polls")
    poll.register(names, count)
-   Poll.listNames()
+   poll.listNames()
 end
+
+
+-- called when all reports are complete after engine load
+norns.report.didEngineLoad = function()
+   print("norns.report.didEngineLoad (default)")
+   -- engine module should assign callback
+end
+
 
 -- poll callback; used by C interface
 -- @param integer id identfier

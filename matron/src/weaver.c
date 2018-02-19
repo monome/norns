@@ -1466,12 +1466,17 @@ static void _push_polls() {
 }
 
 void w_handle_engine_loaded() {
+  printf("w_handle_engine_loaded()\n"); fflush(stdout);
   _push_norns_func("report", "commands");
   _push_commands();
   l_report(lvm, l_docall(lvm, 2, 0));
+  
   _push_norns_func("report", "polls");
   _push_polls();
   l_report(lvm, l_docall(lvm, 2, 0));
+  
+  _push_norns_func("report", "didEngineLoad");
+  l_report(lvm, l_docall(lvm, 0, 0));
   // TODO
   // _push_params();
 }
