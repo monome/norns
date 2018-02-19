@@ -1466,12 +1466,14 @@ static void _push_polls() {
 }
 
 void w_handle_engine_loaded() {
-  _push_norns_func("engine", "loaded");
+  _push_norns_func("report", "commands");
   _push_commands();
-  _push_polls();
-  // FIXME:
-  // _push_params();
   l_report(lvm, l_docall(lvm, 2, 0));
+  _push_norns_func("report", "polls");
+  _push_polls();
+  l_report(lvm, l_docall(lvm, 2, 0));
+  // TODO
+  // _push_params();
 }
 
 // metro handler

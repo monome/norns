@@ -1,7 +1,6 @@
 --- Engine class
 -- @module engine
 -- @alias Engine
-require 'norns'
 local tab = require 'tabutil'
 
 norns.version.engine = '0.0.2'
@@ -81,14 +80,8 @@ end
 -- @param name - name of engine
 -- @param callback - function to call on engine load. will receive command list
 Engine.load = function(name, callback)
---   print("loading engine; callback: ") print (callback)
-   -- on engine load, command report will be generated
-   norns.report.commands = function(commands, count)
-      Engine.registerCommands(commands, count)
-      Engine.listCommands()
-      if callback then
-	 callback(Engine.commands)
-      end
+   if type(callback) == 'function' then
+      norns.report.didEngineLoad = function() callback() end
    end
    load_engine(name)
 end
@@ -105,13 +98,5 @@ function Engine.__index(self, idx)
 end
 
 setmetatable(Engine, Engine)
-
---- Global Functions
--- @section globals
-
---- redefines engine report
-norns.report.engines = function(names, count)
-   Engine.register(names, count)
-end
 
 return Engine

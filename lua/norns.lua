@@ -6,6 +6,9 @@ norns = {}
 norns.version = {}
 norns.version.norns = "0.0.2"
 
+local engine = require 'engine'
+local poll = require 'poll'
+
 --- startup function will be run after I/O subsystems are initialized, 
 -- but before I/O event loop starts ticking
 startup = function()
@@ -45,7 +48,7 @@ end
 norns.hid.event = function(id, ev_type, ev_code, value)
    -- print("norns.input.event ", id, ev_type, ev_code, value)
 end
-   
+
 --- TODO
 -- @todo : arc, midi
 norns.arc = {}
@@ -56,16 +59,36 @@ norns.midi = {}
 
 norns.report = {}
 norns.report.engines = function(names, count)
-   assert(false); -- shouldn't happen
+   engine.register(names, count)
+   engine.listCommands()
+end
+
+-- called when all reports are complete after engine load
+norns.report.didEngineLoad = function()
+   -- engine module should assign callback
 end
 
 norns.report.commands = function(commands, count)
-   assert(false) -- shouldn't happen
+   engine.registerCommands(commands, count)
 end
 
-norns.report.polls = function(polls, count)
-   -- ok, this could happen if we aren't using the poll module
-   -- print("norns.report.polls", polls, count)
+norns.report.polls = function(names, count)
+   poll.register(names, count)
+   Poll.listNames()
+end
+
+-- poll callback; used by C interface
+-- @param integer id identfier
+-- @param value value (float OR sequence of bytes)
+norns.poll = function(id, value)
+   local name = poll.pollNames[id]
+   local p = poll.polls[name]
+   -- print(id, name, p)
+   if p then
+      p:performCallback(value)
+   else
+      print ("warning: norns.poll callback couldn't find poll")
+   end
 end
 
 -- I/O level callback
