@@ -99,8 +99,10 @@ Poll.register = function(data, count)
 end
 
 Poll.listNames = function()
+   print('--- polls ---')
    local names = tab.sort(Poll.polls)
    for i,n in ipairs(names) do print(n) end
+   print('------\n')
 end
 
 --- set callback function for registered Poll object by name
@@ -120,6 +122,7 @@ end
 --- poll report callback; called from C
 norns.report.polls = function(polls, count)
    Poll.register(polls, count)
+   Poll.listNames()
    Poll.report(Poll.polls)
 end
 

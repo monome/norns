@@ -122,9 +122,11 @@ Engine_PolySub : CroneEngine {
 		} // Startup
 	} // initClass
 
-	*new { arg context; ^super.new.init(context).initSub(context); }
+	*new { arg context, callback;
+		^super.new.init(context, callback).init_PolySub(context, callback); }
 
-	initSub  { arg context;
+	init_PolySub {
+		arg context, callback;
 		context.postln;
 		ctx = context;
 		gr = Group.new(ctx.xg);
@@ -189,6 +191,8 @@ Engine_PolySub : CroneEngine {
 			this.addCommand(name, "f", { arg msg; compVerbSyn.set(name, msg[1]); });
 		});
 
+
+		callback.value;
 
 	} // init
 

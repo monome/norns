@@ -12,11 +12,11 @@ CroneEngine {
 	// list of registered polls
 	var <pollNames;
 
-	*new { arg context;
-		^super.new.init(context);
+	*new { arg context, doneCallback;
+		^super.new.init(context, doneCallback);
 	}
 
-	init { arg ctx;
+	init { arg ctx, doneCallback;
 		commands = List.new;
 		commandNames = Dictionary.new;
 		pollNames = Set.new;

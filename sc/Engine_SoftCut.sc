@@ -14,8 +14,10 @@ Engine_SoftCut : CroneEngine {
 	var <rec; // recorders
 
 	var <voices; // array of voices
-	*new { arg context; // argument is an AudioContext
-		^super.new.init(context).initSub(context);
+	// @param: audio context
+	// @param: callback when done initializing resourcess
+	*new { arg context, doneCallback;
+		^super.new.init(context, doneCallback).init_SoftCut(context, doneCallback);
 	}
 
 	free {
@@ -77,8 +79,8 @@ Engine_SoftCut : CroneEngine {
 	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
-	initSub {
-		arg context;
+	init_SoftCut {
+		arg context, callback;
 
 		var com;
 		var bus_pb_idx; // tmp collection of playback bus indices
@@ -157,22 +159,27 @@ Engine_SoftCut : CroneEngine {
 				feedback:true
 			);
 
+			this.addCommands;
+
+			nvoices.do({ arg i;
+				this.addPoll(("phase_" ++ (i+1)).asSymbol, {
+					var val = voices[i].phase_b.getSynchronous;
+					postln("phase: " ++ val);
+					val
+				});
+				this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
+					voices[i].phase_b.getSynchronous / voices[i].buf.duration
+				});
+			});
+
+
+			s.sync;
+			callback.value;
+
 		}.play;
 
-		this.addCommands;
 
-		nvoices.do({ arg i;
-			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
-				var val = voices[i].phase_b.getSynchronous;
-				postln("phase: " ++ val);
-				val
-			});
-			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
-				voices[i].phase_b.getSynchronous / voices[i].buf.duration
-			});
-		});
-
-	} // initSub
+	} // init_SoftCut
 
 	addCommands {
 
@@ -227,7 +234,7 @@ Engine_SoftCut : CroneEngine {
 		];
 
 		com.do({ arg comarr;
-//			postln("adding command: " ++ comarr);
+			//			postln("adding command: " ++ comarr);
 			this.addCommand(comarr[0], comarr[1], comarr[2]);
 		});
 

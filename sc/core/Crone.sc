@@ -66,7 +66,10 @@ Crone {
 					postln("free engine: " ++ engine);
 					engine.free;
 				});
-				engine = class.new(ctx);
+				engine = class.new(ctx, {
+					this.reportCommands;
+					this.reportPolls;
+				});
 				postln('set engine: ' ++ engine);
 			});
 		});
@@ -173,7 +176,6 @@ Crone {
 				arg msg, time, addr, recvPort;
 				this.reportEngines;
 			}, '/report/engines'),
-
 
 			/// begin OSC command report sequence
 			// @function /report/commands

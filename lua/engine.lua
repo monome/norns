@@ -69,10 +69,12 @@ Engine.addCommand = function(id, name, fmt)
 end
 
 Engine.listCommands = function()
-   local sorted = tab.sort(Engine.commands);
+   print("--- engine commands ---")
+   local sorted = tab.sort(Engine.commands)
    for i,n in ipairs(sorted) do
       print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
-   end   
+   end
+   print("------\n")
 end
 
 --- load a named engine, with a callback
@@ -83,6 +85,7 @@ Engine.load = function(name, callback)
    -- on engine load, command report will be generated
    norns.report.commands = function(commands, count)
       Engine.registerCommands(commands, count)
+      Engine.listCommands()
       if callback then
 	 callback(Engine.commands)
       end
