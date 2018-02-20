@@ -9,7 +9,9 @@ Routine {
 	x = SoftCutVoice.new(s, c.xg, b.bufnum, c.in_b[1].index, c.out_b.index);
 
 
+//
 //	c.in_b[1].scope;
+//
 //	c.out_b.scope;
 
 	x.syn.set(\recRun, 1);

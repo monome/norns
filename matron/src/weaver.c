@@ -1376,7 +1376,6 @@ static void _push_commands() {
     o_unlock_descriptors();    
     lua_pushinteger(lvm, n);
 }
-#endif
 
 // helper: push table of polls
 // each entry is a subtable: { name, type }

@@ -66,12 +66,15 @@ function Poll:__index(idx)
    elseif idx == 'callback' then return self.props.callback
    elseif idx == 'start' then return Poll.start
    elseif idx == 'stop' then return Poll.stop
+   elseif idx == 'perform' then return Poll.perform
    else
       return rawget(self, idx)
    end      
 end
 
-function Poll:performCallback(value)
+-- perform the poll's assigned callback function, if it exists
+-- (fixme: this all seems a little over-complicated)
+function Poll:perform(value)
    if p.props then
       if p.props.callback then 
 	 if type(p.props.callback) == "function" then
