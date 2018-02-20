@@ -21,7 +21,7 @@ end
 
 -- global functions required by the C interface; 
 -- we "declare" these here with placeholders;
--- indeividual modules will redefine them as needed.
+-- individual modules will redefine them as needed.
 
 -- monome device callbacks
 norns.monome = {}
@@ -64,13 +64,11 @@ norns.report.engines = function(names, count)
 end
 
 norns.report.commands = function(commands, count)
-   print("norns.report.commands; count: " .. count)
    engine.registerCommands(commands, count)
    engine.listCommands()   
 end
 
 norns.report.polls = function(names, count)
-   print("norns.report.polls")
    poll.register(names, count)
    poll.listNames()
 end
@@ -89,7 +87,6 @@ end
 norns.poll = function(id, value)
    local name = poll.pollNames[id]
    local p = poll.polls[name]
-   -- print(id, name, p)
    if p then
       p:perform(value)
    else

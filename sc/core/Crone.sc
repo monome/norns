@@ -59,7 +59,6 @@ Crone {
 	*setEngine { arg name;
 		var class;
 		class = CroneEngine.subclasses.select({ arg n; n.asString == name.asString })[0];
-		postln(class);
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
@@ -127,7 +126,6 @@ Crone {
 
 	*reportCommands {
 		var commands = engine !? _.commands;
-		postln("commands: " ++ commands);
 		remoteAddr.sendMsg('/report/commands/start', commands.size);
 		commands.do({ arg cmd, i;
 			postln('command entry: ' ++ [i, cmd.name, cmd.format]);

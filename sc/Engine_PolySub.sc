@@ -201,8 +201,6 @@ Engine_PolySub : CroneEngine {
 	addVoice { arg id, hz, map=true;
 		var params = List.with(\out, mixBus.index, \hz, hz);
 
-		postln("addvoice; map: " ++ map);
-
 		this.removeVoice(id);
 
 		ctlBus.keys.do({ arg name;
