@@ -104,6 +104,7 @@ init = function()
       g:refresh()
    end
    e.level(0.05)
+   e.stopAll()
    print("grid/poly")
 end
 

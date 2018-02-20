@@ -137,6 +137,7 @@ static void test_engine_load_done();
 //---- extern function definitions
 
 int o_ready(void) {
+  //  printf("sending /ready: %d", rem_port); fflush(stdout);
     lo_send(remote_addr, "/ready","");
     return ready;
 }
