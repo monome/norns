@@ -129,6 +129,8 @@ SoftCutVoice {
 
 	start { syn.set(\gate, 1); syn.run(true); this.reset; }
 	stop { syn.set(\gate, 0); } // will pause when done
+	// reset { reset_b.setSynchronous(1); }
+	// hm....
 	reset { reset_b.set(1); }
 	buf_ { arg bf; buf = bf; syn.set(\buf, buf); }
 
