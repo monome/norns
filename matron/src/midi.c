@@ -32,14 +32,12 @@ void* midi_run(void *p) {
     snd_seq_set_client_name(seq, "norns");
     
     snd_seq_create_simple_port(seq, "in",
-        SND_SEQ_PORT_CAP_WRITE | 
-        SND_SEQ_PORT_CAP_SUBS_WRITE,
-        SND_SEQ_PORT_TYPE_APPLICATION);
+        SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
+        SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
 
     snd_seq_create_simple_port(seq, "out",
-        SND_SEQ_PORT_CAP_READ |
-        SND_SEQ_PORT_CAP_SUBS_READ,
-        SND_SEQ_PORT_TYPE_APPLICATION);
+        SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+        SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
 
     npfd = snd_seq_poll_descriptors_count(seq, POLLIN);
     pfd = (struct pollfd *) alloca(npfd * sizeof(struct pollfd));
