@@ -66,14 +66,18 @@ Crone {
 					postln("free engine: " ++ engine);
 					engine.free;
 				});
-				engine = class.new(ctx, {
+				class.new(ctx, {
+					arg theEngine;
 					postln("-----------------------");
 					postln("-- crone: done loading engine, starting reports");
 					postln("--------");
+					
+					this.engine = theEngine;
+					postln("engine: " ++ this.engine);
+					
 					this.reportCommands;
 					this.reportPolls;
 				});
-				postln('set engine: ' ++ engine);
 			});
 		});
 

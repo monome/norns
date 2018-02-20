@@ -174,7 +174,7 @@ Engine_SoftCut : CroneEngine {
 
 
 			s.sync;
-			callback.value;
+			callback.value(this);
 
 		}.play;
 

@@ -24,7 +24,7 @@ Engine_TestSine : CroneEngine {
 			synth.set(\amp, msg[1]);
 		});
 
-		callback.value;
+		callback.value(this);
 	}
 
 	free {

@@ -1354,64 +1354,6 @@ void w_handle_engine_report(const char **arr, const int n) {
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
-/*
-void w_handle_command_report(const struct engine_command *arr,
-                             const int num) {
-    _push_norns_func("report", "commands");
-    // push a table of tables: {{cmd, fmt}, {cmd,fmt}, ...}
-    lua_createtable(lvm, num, 0);
-    for(int i = 0; i < num; i++) {
-        // create subtable on stack
-        lua_createtable(lvm, 2, 0);
-        // put command string on stack; assign to subtable, pop
-        lua_pushstring(lvm, arr[i].name);
-        lua_rawseti(lvm, -2, 1);
-        // put format string on stack; assign to subtable, pop
-        lua_pushstring(lvm, arr[i].format);
-        lua_rawseti(lvm, -2, 2);
-        // subtable is on stack; assign to master table and pop
-        lua_rawseti(lvm, -2, i + 1);
-    }
-    // second return value is table size
-    lua_pushinteger(lvm, num);
-    l_report( lvm, l_docall(lvm, 2, 0) );
-}
-
-void w_handle_poll_report(const struct engine_poll *arr,
-                          const int num) {
-    (void)arr;
-    (void)num;
-
-    // printf("_handle_poll_report\n"); fflush(stdout);
-
-    _push_norns_func("report", "polls");
-    lua_createtable(lvm, num, 0);
-
-    for(int i = 0; i < num; ++i) {
-        // create subtable on stack
-        lua_createtable(lvm, 2, 0);
-        // put poll index on stack; assign to subtable, pop
-        lua_pushinteger(lvm, i + 1); // convert to 1-base
-        lua_rawseti(lvm, -2, 1);
-        // put poll name on stack; assign to subtable, pop
-        lua_pushstring(lvm, arr[i].name);
-        lua_rawseti(lvm, -2, 2);
-        if(arr[i].type == POLL_TYPE_VALUE) {
-            lua_pushstring(lvm, "value");
-        } else {
-            lua_pushstring(lvm, "data");
-        }
-        // put type string on stack; assign to subtable, pop
-        lua_rawseti(lvm, -2, 3);
-        // subtable is on stack; assign to master table and pop
-        lua_rawseti(lvm, -2, i + 1); // convert to 1-base
-    }
-    lua_pushinteger(lvm, num);
-    l_report( lvm, l_docall(lvm, 2, 0) );
-}
-*/
-
-
 // helper: push table of commands
 // each entry is a subtatble: {name, format}
 static void _push_commands() {
@@ -1431,8 +1373,10 @@ static void _push_commands() {
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1);
     }
-    o_unlock_descriptors();
+    o_unlock_descriptors();    
+    lua_pushinteger(lvm, n);
 }
+#endif
 
 // helper: push table of polls
 // each entry is a subtable: { name, type }
@@ -1463,10 +1407,12 @@ static void _push_polls() {
         lua_rawseti(lvm, -2, i + 1); // convert to 1-base
     }    
     o_unlock_descriptors();
+    lua_pushinteger(lvm, n);
 }
 
 void w_handle_engine_loaded() {
   printf("w_handle_engine_loaded()\n"); fflush(stdout);
+
   _push_norns_func("report", "commands");
   _push_commands();
   l_report(lvm, l_docall(lvm, 2, 0));

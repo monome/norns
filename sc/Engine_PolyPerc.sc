@@ -42,6 +42,6 @@ Engine_PolyPerc : CroneEngine {
 			gain = msg[1];
 		});
 
-		callback.value;
+		callback.value(this);
 	}
 }

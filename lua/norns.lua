@@ -61,15 +61,12 @@ norns.midi = {}
 norns.report = {}
 norns.report.engines = function(names, count)
    engine.register(names, count)
-   engine.listCommands()
 end
 
 norns.report.commands = function(commands, count)
    print("norns.report.commands; count: " .. count)
-   --[[
    engine.registerCommands(commands, count)
-   engine.listCommands()
-   --]]
+   engine.listCommands()   
 end
 
 norns.report.polls = function(names, count)

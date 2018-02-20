@@ -192,7 +192,8 @@ Engine_PolySub : CroneEngine {
 		});
 
 
-		callback.value;
+		postln("polysub: performing init callback");
+		callback.value(this);
 
 	} // init
 
