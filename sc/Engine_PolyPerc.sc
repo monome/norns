@@ -8,7 +8,7 @@ Engine_PolyPerc : CroneEngine {
     var gain=2;
 
 	*new { arg context, doneCallback;
-		^super.new.init(context, doneCallback).initSub(context, doneCallback);
+		^super.new.init(context, doneCallback).init_PolyPerc(context, doneCallback);
 	}
 
 	init_PolyPerc{ arg ctx, callback;
