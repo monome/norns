@@ -18,8 +18,6 @@ local getHzET = function ( note )
     return 55*2^(note/12)
 end
 
-
-
 -- table of param values indexed by name
 local params = {
    shape = 0.0,
@@ -106,6 +104,7 @@ init = function()
       g:refresh()
    end
    e.level(0.05)
+   e.stopAll()
    print("grid/poly")
 end
 

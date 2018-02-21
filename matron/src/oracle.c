@@ -39,11 +39,19 @@ int num_commands = 0;
 // count of poll descriptors
 int num_polls = 0;
 
+// state flags for receiving command/poll/param reports
+bool needCommandReport;
+bool needPollReport;
+bool needParamReport = false; // FIXME
+
 // max count of any single desciptor type
 #define MAX_NUM_DESC 1024
 
+// list of registered engine names
 char *engine_names[MAX_NUM_DESC];
+// list of registered engine commands
 struct engine_command commands[MAX_NUM_DESC];
+// list of registered poll
 struct engine_poll polls[MAX_NUM_DESC];
 
 // mutex for desctiptor data
@@ -112,9 +120,24 @@ static int handle_poll_io_levels(const char *path, const char *types,
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
+static void set_need_reports() {
+  needCommandReport = true;
+  needPollReport = true;
+  needParamReport = false; // FIXME true;
+}
+
+static bool get_need_reports() {
+  return needCommandReport || needPollReport || needParamReport;
+}
+
+static void test_engine_load_done();
+
+
 //-----------------------------------
 //---- extern function definitions
+
 int o_ready(void) {
+  //  printf("sending /ready: %d", rem_port); fflush(stdout);
     lo_send(remote_addr, "/ready","");
     return ready;
 }
@@ -228,26 +251,8 @@ void o_request_engine_report(void) {
 }
 
 void o_load_engine(const char *name) {
-    /* lo_send(remote_addr, "/engine/load/name", "s", name); */
-    /* o_request_command_report(); */
-    /* o_request_poll_report(); */
-    // how to do it with timestamps:
-    lo_timetag now;
-    lo_timetag_now(&now);
-    lo_send_timestamped(remote_addr, now, "/engine/load/name", "s", name);
-    // test with a delay
-    // now.frac++ ; // each unit here is 1/32s i think
-    lo_send_timestamped(remote_addr, now, "/report/commands", "");
-    lo_send_timestamped(remote_addr, now, "/report/polls", "");
-}
-
-void o_request_command_report(void) {
-    lo_send(remote_addr, "/report/commands", "");
-}
-
-void o_request_poll_report(void) {
-    // printf("requesting poll report...");  fflush(stdout);
-    lo_send(remote_addr, "/report/polls", "");
+  set_need_reports();
+    lo_send(remote_addr, "/engine/load/name", "s", name);
 }
 
 void o_send_command(const char *name, lo_message msg) {
@@ -514,11 +519,6 @@ int handle_engine_report_end(const char *path,
     (void)data;
     (void)user_data;
     // no arguments; post event
-    // FIXME: as yet no outstanding need for report_end message to occur at all.
-    // could add counter from report_start to double-check the param count.
-    // or (better?) we could simply use binary blobs from Crone,
-    // replacing the whole response sequence with a single message
-    // (downside: nasty blob-construction code in supercollider?)
     event_post( event_data_new(EVENT_ENGINE_REPORT) );
     return 0;
 }
@@ -572,7 +572,8 @@ int handle_command_report_end(const char *path,
     (void)argv;
     (void)data;
     (void)user_data;
-    event_post( event_data_new(EVENT_COMMAND_REPORT) );
+    needCommandReport = false;
+    test_engine_load_done();
     return 0;
 }
 
@@ -622,7 +623,9 @@ int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
     (void)argv;
     (void)data;
     (void)user_data;
-    event_post( event_data_new(EVENT_POLL_REPORT) );
+    //event_post( event_data_new(EVENT_POLL_REPORT) );
+    needPollReport = false;
+    test_engine_load_done();
     return 0;
 }
 
@@ -679,4 +682,12 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
 void lo_error_handler(int num, const char *m, const char *path) {
     printf("liblo error %d in path %s: %s\n", num, path, m);
     fflush(stdout);
+}
+
+void test_engine_load_done() {
+  if(!get_need_reports()) {
+    union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
+    printf("oracle: done loading engine\n"); fflush(stdout);
+    event_post(ev);
+  }
 }

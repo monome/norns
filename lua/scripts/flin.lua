@@ -1,5 +1,4 @@
 -- @txt cyclic poly-rhythm music box
-
 engine = 'PolySub'
 
 local GRID_HEIGHT = 8
@@ -79,8 +78,8 @@ function stop_col(x)
 end
 
 init = function()
-  -- report_polls()
 
+  poll.listNames();
   local refresh_metro = metro[29] -- TODO: choose this so we don't grab menu timers
   refresh_metro.time = FRAMERATE
 

@@ -31,6 +31,12 @@ struct engine_poll {
     poll_type_t type; // value or data
 };
 
+// data structure for engine parameters
+struct engine_param {
+  char *name;
+  int busIdx; // control bus index
+};
+
 // check for audio engine boot completion
 extern int o_ready();
 // initialize
@@ -44,6 +50,7 @@ extern void o_deinit();
 extern int o_get_num_engines(void);
 extern int o_get_num_commands(void);
 extern int o_get_num_polls(void);
+extern int o_get_num_params(void);
 
 // get engine names (array of c strings)
 extern const char **o_get_engine_names(void);

@@ -7,7 +7,6 @@ init = function()
     e.cutoff(50*2^(cutoff/12))
     e.release(0.1*2^(release/12))
     e.amp(0.5)
-    report_polls()
     t:start()
 end
 

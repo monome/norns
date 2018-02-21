@@ -85,9 +85,7 @@ static int _gain_in(lua_State *l);
 static int _request_engine_report(lua_State *l);
 static int _load_engine(lua_State *l);
 /// commands
-static int _request_command_report(lua_State *l);
 static int _send_command(lua_State *l);
-static int _request_poll_report(lua_State *l);
 static int _start_poll(lua_State *l);
 static int _stop_poll(lua_State *l);
 static int _set_poll_time(lua_State *l);
@@ -172,8 +170,6 @@ void w_init(void) {
     // load a named engine
     lua_register(lvm, "load_engine", &_load_engine);
 
-    // get list of available crone commmands based on current engine
-    lua_register(lvm, "report_commands", &_request_command_report);
     // send an indexed command
     lua_register(lvm, "send_command", &_send_command);
 
@@ -185,8 +181,6 @@ void w_init(void) {
     // get the current high-resolution CPU time
     lua_register(lvm, "get_time", &_get_time);
 
-    // report available polling functions
-    lua_register(lvm, "report_polls", &_request_poll_report);
     // start / stop a poll
     lua_register(lvm, "start_poll", &_start_poll);
     lua_register(lvm, "stop_poll", &_stop_poll);
@@ -1128,11 +1122,6 @@ int _request_engine_report(lua_State *l) {
     return 0;
 }
 
-int _request_command_report(lua_State *l) {
-    (void)l;
-    o_request_command_report();
-    return 0;
-}
 
 /***
  * metro: start
@@ -1365,48 +1354,48 @@ void w_handle_engine_report(const char **arr, const int n) {
     l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
-void w_handle_command_report(const struct engine_command *arr,
-                             const int num) {
-    _push_norns_func("report", "commands");
-    // push a table of tables: {{cmd, fmt}, {cmd,fmt}, ...}
-    lua_createtable(lvm, num, 0);
-    for(int i = 0; i < num; i++) {
+// helper: push table of commands
+// each entry is a subtatble: {name, format}
+static void _push_commands() {
+  o_lock_descriptors();
+    const struct engine_command *p = o_get_commands();
+    const int n = o_get_num_commands();
+    lua_createtable(lvm, n, 0);
+        for(int i = 0; i < n; i++) {
         // create subtable on stack
         lua_createtable(lvm, 2, 0);
         // put command string on stack; assign to subtable, pop
-        lua_pushstring(lvm, arr[i].name);
+        lua_pushstring(lvm, p[i].name);
         lua_rawseti(lvm, -2, 1);
         // put format string on stack; assign to subtable, pop
-        lua_pushstring(lvm, arr[i].format);
+        lua_pushstring(lvm, p[i].format);
         lua_rawseti(lvm, -2, 2);
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1);
     }
-    // second return value is table size
-    lua_pushinteger(lvm, num);
-    l_report( lvm, l_docall(lvm, 2, 0) );
+    o_unlock_descriptors();    
+    lua_pushinteger(lvm, n);
 }
 
-void w_handle_poll_report(const struct engine_poll *arr,
-                          const int num) {
-    (void)arr;
-    (void)num;
-
-    // printf("_handle_poll_report\n"); fflush(stdout);
-
-    _push_norns_func("report", "polls");
-    lua_createtable(lvm, num, 0);
-
-    for(int i = 0; i < num; ++i) {
+// helper: push table of polls
+// each entry is a subtable: { name, type }
+// FIXME: this is silly, just use full format specification as for commands
+static void _push_polls() {
+  o_lock_descriptors();
+    const struct engine_poll *p = o_get_polls();
+    const int n = o_get_num_polls();
+    lua_createtable(lvm, n, 0);
+    for(int i = 0; i < n; ++i) {
         // create subtable on stack
         lua_createtable(lvm, 2, 0);
         // put poll index on stack; assign to subtable, pop
         lua_pushinteger(lvm, i + 1); // convert to 1-base
         lua_rawseti(lvm, -2, 1);
         // put poll name on stack; assign to subtable, pop
-        lua_pushstring(lvm, arr[i].name);
+        lua_pushstring(lvm, p[i].name);
         lua_rawseti(lvm, -2, 2);
-        if(arr[i].type == POLL_TYPE_VALUE) {
+	/// FIXME: just use a format string.... 
+        if(p[i].type == POLL_TYPE_VALUE) {
             lua_pushstring(lvm, "value");
         } else {
             lua_pushstring(lvm, "data");
@@ -1415,9 +1404,26 @@ void w_handle_poll_report(const struct engine_poll *arr,
         lua_rawseti(lvm, -2, 3);
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1); // convert to 1-base
-    }
-    lua_pushinteger(lvm, num);
-    l_report( lvm, l_docall(lvm, 2, 0) );
+    }    
+    o_unlock_descriptors();
+    lua_pushinteger(lvm, n);
+}
+
+void w_handle_engine_loaded() {
+  printf("w_handle_engine_loaded()\n"); fflush(stdout);
+
+  _push_norns_func("report", "commands");
+  _push_commands();
+  l_report(lvm, l_docall(lvm, 2, 0));
+  
+  _push_norns_func("report", "polls");
+  _push_polls();
+  l_report(lvm, l_docall(lvm, 2, 0));
+  
+  _push_norns_func("report", "didEngineLoad");
+  l_report(lvm, l_docall(lvm, 0, 0));
+  // TODO
+  // _push_params();
 }
 
 // metro handler
@@ -1508,11 +1514,6 @@ void w_handle_poll_io_levels(uint8_t *levels) {
     l_report( lvm, l_docall(lvm, 4, 0) );
 }
 
-int _request_poll_report(lua_State *l) {
-    (void)l;
-    o_request_poll_report();
-    return 0;
-}
 
 // helper: set poll given by lua to given state
 static int poll_set_state(lua_State *l, bool val) {

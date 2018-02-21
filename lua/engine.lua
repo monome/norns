@@ -1,7 +1,6 @@
 --- Engine class
 -- @module engine
 -- @alias Engine
-require 'norns'
 local tab = require 'tabutil'
 
 norns.version.engine = '0.0.2'
@@ -39,6 +38,7 @@ end
 -- @param count - number of commands
 Engine.registerCommands = function(data, count)
    local name, fmt
+   print('Engine.registerCommands; count: '..count)
 --   Engine.numCommands = count;
    Engine.commands = {}
    for i=1,count do
@@ -69,22 +69,22 @@ Engine.addCommand = function(id, name, fmt)
 end
 
 Engine.listCommands = function()
-   local sorted = tab.sort(Engine.commands);
+   print("--- engine commands ---")
+   local sorted = tab.sort(Engine.commands)
    for i,n in ipairs(sorted) do
       print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
-   end   
+   end
+   print("------\n")
 end
 
 --- load a named engine, with a callback
 -- @param name - name of engine
 -- @param callback - function to call on engine load. will receive command list
 Engine.load = function(name, callback)
---   print("loading engine; callback: ") print (callback)
-   -- on engine load, command report will be generated
-   norns.report.commands = function(commands, count)
-      Engine.registerCommands(commands, count)
-      if callback then
-	 callback(Engine.commands)
+   if type(callback) == 'function' then
+      norns.report.didEngineLoad = function()
+	 print("Engine: norns.report.didEngineLoad callback")
+	 callback()
       end
    end
    load_engine(name)
@@ -102,13 +102,5 @@ function Engine.__index(self, idx)
 end
 
 setmetatable(Engine, Engine)
-
---- Global Functions
--- @section globals
-
---- redefines engine report
-norns.report.engines = function(names, count)
-   Engine.register(names, count)
-end
 
 return Engine

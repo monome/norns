@@ -36,10 +36,11 @@ extern void w_handle_hid_event(int id, uint8_t type, dev_code_t code,
 
 //--- audio engine introspection
 extern void w_handle_engine_report(const char **arr, const int num);
-extern void w_handle_command_report(const struct engine_command *arr,
-                                    const int num);
-extern void w_handle_poll_report(const struct engine_poll *arr,
-                                 const int num);
+/* extern void w_handle_command_report(const struct engine_command *arr, */
+/*                                     const int num); */
+/* extern void w_handle_poll_report(const struct engine_poll *arr, */
+/*                                  const int num); */
+extern void w_handle_engine_load_done();
 
 //--- gpio handler
 extern void w_handle_key(const int n, const int val);
@@ -57,3 +58,5 @@ extern void w_handle_poll_value(int idx, float val);
 extern void w_handle_poll_data(int idx, int size, uint8_t *data);
 extern void w_handle_poll_wave(int idx, uint8_t *data);
 extern void w_handle_poll_io_levels(uint8_t *levels);
+
+extern void w_handle_engine_loaded();

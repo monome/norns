@@ -59,15 +59,24 @@ Crone {
 	*setEngine { arg name;
 		var class;
 		class = CroneEngine.subclasses.select({ arg n; n.asString == name.asString })[0];
-		postln(class);
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
 					postln("free engine: " ++ engine);
 					engine.free;
 				});
-				engine = class.new(ctx);
-				postln('set engine: ' ++ engine);
+				class.new(ctx, {
+					arg theEngine;
+					postln("-----------------------");
+					postln("-- crone: done loading engine, starting reports");
+					postln("--------");
+					
+					this.engine = theEngine;
+					postln("engine: " ++ this.engine);
+					
+					this.reportCommands;
+					this.reportPolls;
+				});
 			});
 		});
 
@@ -117,7 +126,6 @@ Crone {
 
 	*reportCommands {
 		var commands = engine !? _.commands;
-		postln("commands: " ++ commands);
 		remoteAddr.sendMsg('/report/commands/start', commands.size);
 		commands.do({ arg cmd, i;
 			postln('command entry: ' ++ [i, cmd.name, cmd.format]);
@@ -173,7 +181,6 @@ Crone {
 				arg msg, time, addr, recvPort;
 				this.reportEngines;
 			}, '/report/engines'),
-
 
 			/// begin OSC command report sequence
 			// @function /report/commands

@@ -7,11 +7,11 @@ Engine_PolyPerc : CroneEngine {
     var cutoff=1000;
     var gain=2;
 
-	*new { arg context;
-		^super.new.init(context).initSub(context);
+	*new { arg context, doneCallback;
+		^super.new.init(context, doneCallback).init_PolyPerc(context, doneCallback);
 	}
 
-	initSub { arg ctx;
+	init_PolyPerc{ arg ctx, callback;
         SynthDef("PolyPerc", {
 			arg out = ctx.out_b, freq = 440, pw=pw, amp=amp, cutoff=cutoff, gain=gain, release=release;
 			var snd = LFPulse.ar(freq, 0, pw);
@@ -41,5 +41,7 @@ Engine_PolyPerc : CroneEngine {
 		this.addCommand("gain", "f", { arg msg;
 			gain = msg[1];
 		});
+
+		callback.value(this);
 	}
 }

@@ -11,4 +11,6 @@ package.path = sys..script..package.path
 -- full path to directory containing user scripts
 script_dir = norns..'/scripts/'
 
+require 'norns'
+
 -- print('package.path: ' .. package.path)

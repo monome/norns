@@ -2,7 +2,7 @@
 -- API for receiving values from audio system.
 -- @module poll
 -- @alias Poll
-require 'norns'
+-- require 'norns'
 
 local tab = require 'tabutil'
 
@@ -31,11 +31,6 @@ function Poll.new(props)
    setmetatable(p, Poll)
    return p
 end
-
---- static report callback;
--- user script should redefine if needed
--- @param polls : table of polls
-Poll.report = function(polls) end
 
 --- Instance Methods
 -- @section instance
@@ -71,11 +66,27 @@ function Poll:__index(idx)
    elseif idx == 'callback' then return self.props.callback
    elseif idx == 'start' then return Poll.start
    elseif idx == 'stop' then return Poll.stop
+   elseif idx == 'perform' then return Poll.perform
    else
       return rawget(self, idx)
    end      
 end
 
+-- perform the poll's assigned callback function, if it exists
+-- (fixme: this all seems a little over-complicated)
+function Poll:perform(value)
+   if p.props then
+      if p.props.callback then 
+	 if type(p.props.callback) == "function" then
+	    p.props.callback(value)
+	 end
+      else
+	 -- print("no callback") -- ok
+      end
+   else
+      print("error: poll has no properties!") assert(false)
+   end
+end
 
 --- Static Methods
 -- @section static
@@ -99,8 +110,10 @@ Poll.register = function(data, count)
 end
 
 Poll.listNames = function()
+   print('--- polls ---')
    local names = tab.sort(Poll.polls)
    for i,n in ipairs(names) do print(n) end
+   print('------\n')
 end
 
 --- set callback function for registered Poll object by name
@@ -112,39 +125,6 @@ Poll.set = function(name, callback)
       p.props.callback = callback
    end
    return p
-end
-
---- Globals
--- @section globals
-
---- poll report callback; called from C
-norns.report.polls = function(polls, count)
-   Poll.register(polls, count)
-   Poll.report(Poll.polls)
-end
-
---- main callback; called from C
--- @tparam integer id identfier
--- @param value value (float OR sequence of bytes)
-norns.poll = function(id, value)
-   local name = Poll.pollNames[id]
-   local p = Poll.polls[name]
-   -- print(id, name, p)
-   if p then
-      if p.props then
-	 if p.props.callback then 
-	    if type(p.props.callback) == "function" then
-	       p.props.callback(value)
-	    end
-	 else
-	    -- print("no callback") -- ok
-	 end
-      else
-	 print("error: poll has no properties!") assert(false)
-      end
-   else
-      print ("warning: norns.poll callback couldn't find poll")
-   end
 end
 
 

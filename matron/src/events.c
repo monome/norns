@@ -45,8 +45,8 @@ static void handle_event(union event_data *ev);
 
 /// helpers
 static void handle_engine_report(void);
-static void handle_command_report(void);
-static void handle_poll_report(void);
+//static void handle_command_report(void);
+//static void handle_poll_report(void);
 
 // add an event data struct to the end of the event queue
 // *does* allocate queue node memory!
@@ -190,12 +190,15 @@ static void handle_event(union event_data *ev) {
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
         break;
-    case EVENT_COMMAND_REPORT:
-        handle_command_report();
-        break;
-    case EVENT_POLL_REPORT:
-        handle_poll_report();
-        break;
+    /* case EVENT_COMMAND_REPORT: */
+    /*     handle_command_report(); */
+    /*     break; */
+    /* case EVENT_POLL_REPORT: */
+    /*     handle_poll_report(); */
+    /*     break; */
+    case EVENT_ENGINE_LOADED:
+      w_handle_engine_loaded();
+      break;
     case EVENT_POLL_VALUE:
         w_handle_poll_value( ev->poll_value.idx, ev->poll_value.value );
         break;
@@ -228,6 +231,7 @@ void handle_engine_report(void) {
     o_unlock_descriptors();
 }
 
+/*
 void handle_command_report(void) {
     o_lock_descriptors();
     const struct engine_command *p = o_get_commands();
@@ -244,3 +248,5 @@ void handle_poll_report(void) {
     w_handle_poll_report(p, n);
     o_unlock_descriptors();
 };
+
+*/
