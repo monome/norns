@@ -6,6 +6,8 @@
 
 struct midi_t {
     snd_seq_t *seq;
+    int input_port;
+    int output_port;
     int npfd;
     struct pollfd *pfd;
     snd_midi_event_t *parser;
@@ -14,7 +16,38 @@ struct midi_t {
 
 void handle_event() {
     int nbytes;
+    int error;
     union event_data *nev;
+    snd_seq_port_info_t *port_info;
+    unsigned int port_caps;
+
+    // TODO: handle SND_SEQ_EVENT_PORT_EXIT and SND_SEQ_EVENT_PORT_CHANGE
+    if (midi.sev->type == SND_SEQ_EVENT_PORT_START) {
+        snd_seq_port_info_alloca(&port_info);
+
+        fprintf(stderr, "new midi port %i:%i\n", midi.sev->data.addr.client, midi.sev->data.addr.port);
+
+        error = snd_seq_get_any_port_info(midi.seq,
+            midi.sev->data.addr.client,
+            midi.sev->data.addr.port,
+            port_info);
+
+        if (error < 0) {
+            fprintf(stderr, "failed to get port information\n");
+        }
+
+        port_caps = snd_seq_port_info_get_capability(port_info);
+
+        if ((port_caps & SND_SEQ_PORT_CAP_READ) && (port_caps & SND_SEQ_PORT_CAP_SUBS_READ)) {
+            error = snd_seq_connect_from(midi.seq, midi.input_port, midi.sev->data.addr.client, midi.sev->data.addr.port);
+
+            if (error < 0) {
+                fprintf(stderr, "failed to connect to port\n");
+            }
+        }
+
+        return;
+    }
 
     // ignore sysex and subscribe events
     if (snd_seq_ev_is_subscribe_type(midi.sev) || snd_seq_ev_is_variable_type(midi.sev)) {
@@ -58,13 +91,15 @@ void midi_init() {
     snd_seq_open(&midi.seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
     snd_seq_set_client_name(midi.seq, "norns");
 
-    snd_seq_create_simple_port(midi.seq, "in",
+    midi.input_port = snd_seq_create_simple_port(midi.seq, "in",
         SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
         SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
 
-    snd_seq_create_simple_port(midi.seq, "out",
+    midi.output_port = snd_seq_create_simple_port(midi.seq, "out",
         SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
         SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
+
+    snd_seq_connect_from(midi.seq, midi.input_port, SND_SEQ_CLIENT_SYSTEM, SND_SEQ_PORT_SYSTEM_ANNOUNCE);
 
     snd_midi_event_new(0, &midi.parser);
 
