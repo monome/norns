@@ -164,7 +164,6 @@ Engine_SoftCut : CroneEngine {
 			nvoices.do({ arg i;
 				this.addPoll(("phase_" ++ (i+1)).asSymbol, {
 					var val = voices[i].phase_b.getSynchronous;
-					postln("phase: " ++ val);
 					val
 				});
 				this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
