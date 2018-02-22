@@ -1,20 +1,16 @@
-all: maiden matron ipc-wrapper
+all: matron ws-wrapper
 
-.PHONY: maiden matron ipc-wrapper clean
-
-maiden:
-	cd maiden && make
+.PHONY: matron ws-wrapper clean
 
 matron: 
 	cd matron && make
 
-ipc-wrapper:
-	cd ipc-wrapper && make
+ws-wrapper:
+	cd ws-wrapper && make
 
 docs:
 	ldoc .
 
 clean:
-	cd maiden && make clean
 	cd matron && make clean
-	cd ipc-wrapper && make clean
+	cd ws-wrapper && make clean
