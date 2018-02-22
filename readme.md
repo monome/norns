@@ -1,7 +1,7 @@
 # norns
 
-see [readme-setup.md](readme-setup.md) for build, install, and configuration.
+see [readme-setup.md](readme-setup.md) for build, install, configuration, and execution.
 
-see [readme-usage.md](readme-usage.md) for running and scripting.
+see [readme-interface.md](readme-interface.md) for hardware interface and menu description.
 
-see the [wiki](github.com/catfact/norns/wiki) for development guidelines.
+see [readme-script.md](readme-script.md) for scripting.
