@@ -1421,7 +1421,6 @@ void w_handle_midi_remove() {
 }
 
 void w_handle_midi_event(uint8_t *data) {
-    (void)data;
     _push_norns_func("midi", "event");
     // TODO: params
     lua_pushinteger(lvm, data[0]);

@@ -114,7 +114,7 @@ struct event_midi_remove {
 
 struct event_midi_event {
     struct event_common common;
-    uint8_t *data;
+    uint8_t data[3];
 }; // +4
 
 /// fixme: maybe break this up into hid_key, hid_abs, &c?

@@ -14,4 +14,8 @@ end
 
 --- handle a midi event
 norns.midi.event = function(status, data1, data2)
+  print("incoming midi message",
+    string.format("%X", status),
+    string.format("%X", data1),
+    string.format("%X", data2))
 end
