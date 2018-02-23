@@ -22,7 +22,6 @@ static int wrap(int val, int bound) {
     return val;
 }
 
-
 SoftCutHeadLogic::SoftCutHeadLogic() {
     this->init();
 }
@@ -47,6 +46,12 @@ void SoftCutHeadLogic::init() {
     // fadeMode = FADE_LIN;
     fadeMode = FADE_EQ;
     recRun = false;
+    wrPhase[0] = 0.f;
+    wrPhase[1] = 0.f;
+    wrVal[0] = 0.f;
+    wrVal[1] = 0.f;
+    wrIdx[0] = 0;
+    wrIdx[1] = 0;
 }
 
 void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
@@ -66,8 +71,8 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
     *outTrig = trig[0] + trig[1];
 
     if(recRun) {
-        poke(in, phase[0], fade[0]);
-        poke(in, phase[1], fade[1]);
+      poke(0, in);
+      poke(1, in);
     }
 }
 
@@ -104,7 +109,6 @@ void SoftCutHeadLogic::updatePhase(int id)
                             // cutToPos(start + (p-end));
                             cutToPhase(start);
                             trig[id] = 1.f;
-
                         } else {
                             state[id] = FADEOUT;
                         }
@@ -193,10 +197,10 @@ float SoftCutHeadLogic::peek4(double phase) {
     return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));
 }
 
-void SoftCutHeadLogic::poke(float x, double phase, float fade) {
-    double p = phase + recPhaseOffset;
-    poke2(x, p, fade);
-}
+// void SoftCutHeadLogic::poke(int channeL) float* xhist, float x, double phase, float fade) {
+//     double p = phase + recPhaseOffset;
+//     poke2(xhist, x, p, fade);
+// }
 
 // void SoftCutHeadLogic::poke0(float x, double phase, float fade) {
 //     if (fade < std::numeric_limits<float>::epsilon()) { return; }
@@ -227,26 +231,63 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 
-
     float fr = phase - floor(phase);
     float frInv = 1.0 - fr;
     
     // linear-interpolated write values
+    //    float x1 = fr*x + frInv * xhist[0];
+    //    float x0 = frInv*x + fr * xhist[0];
+
     float x1 = fr*x;
-    float x0 = frInv*x; 
+    float x0 = frInv*x;
 
     // mix old signal with interpolation
     float preFade1 = fr*preFade + (1.f * frInv);
     float preFade0 = frInv*preFade + fr;
 
     //// seems like this shoulld be correct...
-    buf[phase1] = (buf[phase1] * preFade * fr) + (buf[phase1] * frInv);
-    buf[phase0] = (buf[phase0] * preFade * frInv) + (buf[phase0] * fr);
+    //    buf[phase1] = (buf[phase1] * preFade * fr) + (buf[phase1] * frInv);
+    // buf[phase0] = (buf[phase0] * preFade * frInv) + (buf[phase0] * fr);
     
     // add new signal with interpolation
+
     buf[phase0] += x0 * recFade;
     buf[phase1] += x1 * recFade;
 
+    //    xhist[0] = x;
+
+}
+
+void SoftCutHeadLogic::poke(int ch, float val) {
+  float newPhase = wrPhase[ch] + phaseInc;
+  int n = static_cast<int>(newPhase);
+
+    float valInc = val / static_cast<float>(n);
+    while(newPhase > 1.0) {
+      wrVal[ch] += valInc;
+      //      poke0(wrIdx[ch] + recPhaseOffset, wrVal[ch], fade[ch]);
+      // hm...
+      poke0(wrIdx[ch] + recPhaseOffset, val, fade[ch]);
+      wrIdx[ch]++;
+      newPhase -= 1.0;
+    }
+
+    wrPhase[ch] = newPhase;
+    //      if(n > 0) {
+    wrIdx[ch] = static_cast<int>(phase[ch]);
+    //      }
+    wrVal[ch] = val;
+}
+
+void SoftCutHeadLogic::poke0(int phase, float val, float fade) {
+  if (fade < std::numeric_limits<float>::epsilon()) { return; }
+  if (rec < std::numeric_limits<float>::epsilon()) { return; }
+float fadeInv = 1.f - fade;
+  float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
+  float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
+  float* p = &(buf[wrap(phase, bufFrames)]);
+  *p *= preFade;
+  *p += recFade * val;
 }
 
 void SoftCutHeadLogic::setBuffer(float *b, uint32_t bf) {
@@ -297,5 +338,5 @@ void SoftCutHeadLogic::setRecRun(bool val) {
 }
 
 void SoftCutHeadLogic::setRecOffset(float x) {
-    recPhaseOffset = x;
+  recPhaseOffset = static_cast<int>(x);
 }

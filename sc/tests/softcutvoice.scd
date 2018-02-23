@@ -19,6 +19,10 @@ Routine {
 	x.reset;
 	x.syn.set(\start, 0.1); x.syn.set(\end, 0.4); x.syn.set(\loop, 1);
 	x.syn.set(\rec, 1.0); x.syn.set(\pre, 0.8); x.syn.set(\amp, 1);
+	/*
+	x.syn.set(\rate, 0.5);
+	*/
+	x.syn.set(\rate, 1.5);
 
 	x.syn.set(\fade, 0.25);
 
@@ -28,9 +32,12 @@ Routine {
 	y.start;
 	y.reset;
 	y.syn.set(\start, 0.1); y.syn.set(\end, 0.45); y.syn.set(\loop, 1);
-	y.syn.set(\rate, 1.0); y.syn.set(\end, 0.65); y.syn.set(\loop, 1);
+	y.syn.set(\rate, 1.0); y.syn.set(\end, 1.65); y.syn.set(\loop, 1);
 	y.syn.set(\rec, 1.0); y.syn.set(\pre, 0.8); y.syn.set(\amp, 1);
-
+	y.syn.set(\rate, 1.5);
+	/*
+	y.syn.set(\rate, 0.25);
+	*/
 }.play;
 
 /*
@@ -39,6 +46,7 @@ y.stop;
 
 x.start;
 y.start;
+
 
 */
 
