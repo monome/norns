@@ -2,10 +2,10 @@
 // Created by ezra on 12/6/17.
 //
 
-// TODO: looping/1shot behavior flag
 
 #include <cmath>
 #include <limits>
+#include <algorithm>
 
 #include "SoftCutHeadLogic.h"
 
@@ -79,7 +79,7 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
 void SoftCutHeadLogic::setRate(float x)
 {
-    phaseInc = x;
+    phaseInc = std::max(std::min(static_cast<float>(MAX_RATE), x), static_cast<float>(MAX_RATE * -1));
 }
 
 void SoftCutHeadLogic::setLoopStartSeconds(float x)
@@ -227,24 +227,24 @@ void SoftCutHeadLogic::poke0(int phase, float val, float fade) {
   *p += recFade * val;
 }
 
-void SoftCutHeadLogic::poke2(float phase, float val, float fade) {
-  if (fade < std::numeric_limits<float>::epsilon()) { return; }
-  if (rec < std::numeric_limits<float>::epsilon()) { return; }
-  float fadeInv = 1.f - fade;
-  float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
-  float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
-  int phase0 = static_cast<int>(phase);
-  int phase1 = wrap(phase0 + 1, bufFrames);
-  float fr = phase - static_cast<float>(phase0);
-  float frInv = 1.f - fr;
-  phase0 = wrap(phase0, bufFrames);
-  
-  buf[phase0] *= (preFade * frInv) + fr;
-  buf[phase1] *= (preFade * fr) + frInv;
-  
-  buf[phase0] *= recFade * val * frInv;
-  buf[phase1] *= recFade * val * fr;
-}
+//void SoftCutHeadLogic::poke2(float phase, float val, float fade) {
+//  if (fade < std::numeric_limits<float>::epsilon()) { return; }
+//  if (rec < std::numeric_limits<float>::epsilon()) { return; }
+//  float fadeInv = 1.f - fade;
+//  float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
+//  float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
+//  int phase0 = static_cast<int>(phase);
+//  int phase1 = wrap(phase0 + 1, bufFrames);
+//  float fr = phase - static_cast<float>(phase0);
+//  float frInv = 1.f - fr;
+//  phase0 = wrap(phase0, bufFrames);
+//
+//  buf[phase0] *= (preFade * frInv) + fr;
+//  buf[phase1] *= (preFade * fr) + frInv;
+//
+//  buf[phase0] *= recFade * val * frInv;
+//  buf[phase1] *= recFade * val * fr;
+//}
 
 
 void SoftCutHeadLogic::setBuffer(float *b, uint32_t bf) {
