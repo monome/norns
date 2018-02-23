@@ -42,8 +42,9 @@ void VariHead_Ctor(VariHead *unit) {
     unit->m_failedBufNum = -1e9f;
     unit->prevTrig = 0.f;
     SETCALC(VariHead_next);
-    VariHead_next(unit, 1);
 }
+
+// FIXME: d-tor?
 
 void VariHead_next(VariHead *unit, int inNumSamples) {
     GET_BUF;
