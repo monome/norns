@@ -38,9 +38,9 @@ private:
     /* void poke(float* xHist, float x, double phase, float fade); // write an audio sample to the buffer */
     /* void poke0(float* xHist, float x, double phase, float fade); // non-interpolated */
 
-     void poke2(float x, double phase, float fade); // interpolated 
-     void poke(int channel, float x); // write zero or more values and update write state
-    void poke0(int phase, float x, float fade); // write a single value
+     void poke(int channel, float val); // write zero or more values and update write state
+    void poke0(int phase, float val, float fade); // write a single value, uninterpolated
+    void poke2(float phase, float val, float fade); // write single value, lin interp
     float mixFade(float x, float y, float a, float b); // mix two inputs with phases
 public:
     typedef enum { FADE_LIN, FADE_EQ, FADE_EXP } fade_t;
@@ -68,9 +68,9 @@ public:
     bool recRun;
     int recPhaseOffset;
     //    float writeBuf[WRITE_BUF_LEN][2]; // ringbuffer for write interpolation
-    double wrPhase[2]; // last fractional write phase
-    int wrIdx[2]; // last integer write phase
-    double wrVal[2]; // last write value
+    double wrPhase[2]; // phase accumulator for writing
+    int wrIdx[2]; // last buffer index written to
+    double wrVal[2]; // last value written
 
     
 };
