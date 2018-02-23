@@ -6,10 +6,12 @@ set(SC_INCLUDE_PATH "/usr/local/include/SuperCollider")
 include_directories(${SC_INCLUDE_PATH}/plugin_interface)
 include_directories(${SC_INCLUDE_PATH}/common)
 
+
 set(CMAKE_SHARED_MODULE_PREFIX "")
 if(APPLE OR WIN32)
 set(CMAKE_SHARED_MODULE_SUFFIX ".scx")
 endif()
+
 
 option(CPP11 "Build with c++11." ON)
 
@@ -66,6 +68,5 @@ if(MINGW)
 endif()
 
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lsamplerate")
-
 add_library(${PROJECT} MODULE VariHead.cpp VariHeadLogic.cpp VariHeadLogic.cpp VariHeadLogic.h)
+target_link_libraries(${PROJECT} samplerate)

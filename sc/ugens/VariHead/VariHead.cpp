@@ -77,7 +77,7 @@ void VariHead_next(VariHead *unit, int inNumSamples) {
         unit->variHead.setRate(rate[i]);
         unit->variHead.setPre(pre[i]);
 
-        float phi = unit->variHead.nextSample(in[i]);
+        float phi = unit->variHead.nextSample(&in[i]);
         //phase_out[i] = phi;
     }
 }
