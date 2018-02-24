@@ -49,37 +49,26 @@ void VariHead_Ctor(VariHead *unit) {
 void VariHead_next(VariHead *unit, int inNumSamples) {
     GET_BUF;
     uint32 numOutputs = unit->mNumOutputs;
-    uint32 numInputChannels = unit->mNumInputs - 6;
+    uint32 numInputChannels = unit->mNumInputs - 4;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
         return;
 
     unit->variHead.setBuffer(bufData, bufFrames);
 
-//    arg bufnum=0, in=0, rate=1.0, pre=0.0, loop=1.0, start=0, end=1.0;
 
     const float *in = IN(1);
-
     float rate = IN0(2);
-    float pre= IN0(3);
-
-    float loop = IN0(4);
-    float start = IN0(5);
-    float end = IN0(6);
-
-    unit->variHead.setLoopStartSeconds(start);
-    unit->variHead.setLoopEndSeconds(end);
-    unit->variHead.setLoopFlag(loop > 0);
+    float start = IN0(3);
+    float end = IN0(4);
 
     unit->variHead.setRate(rate);
-    unit->variHead.setPre(pre);
+    unit->variHead.setLoopStartSeconds(start);
+    unit->variHead.setLoopEndSeconds(end);
 
     float phi = unit->variHead.processBlock(in, inNumSamples);
 
 //    for (int i = 0; i < inNumSamples; ++i) {
-//
-//
-//
 //        float phi = unit->variHead.nextSample(&in[i]);
 //        //phase_out[i] = phi;
 //    }
