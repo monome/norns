@@ -13,7 +13,6 @@ void VariHeadLogic::init() {
     srcData.output_frames = WRITE_BUF_LEN;
 }
 
-
 void VariHeadLogic::deinit() {
     src_delete(srcState);
 }
@@ -54,7 +53,14 @@ void VariHeadLogic::setLoopFlag(bool loop) {
 }
 
 float VariHeadLogic::nextSample(const float* in) {
-    // setup the conversion
+#if 1 // test: just write to the buffer in the dumbest way
+    buf[writeIdx] = *in;
+    writeIdx++;
+    if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
+
+#else
+
+    // setup the conversions
     srcData.data_in = in;
     srcData.data_out = writeBuf;
     srcData.input_frames = 1;
@@ -69,6 +75,8 @@ float VariHeadLogic::nextSample(const float* in) {
         writeIdx++;
         if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
     }
+#endif
+
     // update the phase for output
     phase += rate;
     if(phase > end) { resetPhase(); }
