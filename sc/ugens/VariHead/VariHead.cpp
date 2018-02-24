@@ -49,7 +49,7 @@ void VariHead_Ctor(VariHead *unit) {
 void VariHead_next(VariHead *unit, int inNumSamples) {
     GET_BUF;
     uint32 numOutputs = unit->mNumOutputs;
-    uint32 numInputChannels = unit->mNumInputs - 13;
+    uint32 numInputChannels = unit->mNumInputs - 7;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
         return;
