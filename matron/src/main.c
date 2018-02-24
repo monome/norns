@@ -32,7 +32,7 @@ void cleanup(void) {
     screen_deinit();
     battery_deinit();
 
-    printf("matron shutdown complete \n"); fflush(stdout);
+    fprintf(stderr, "matron shutdown complete\n");
     exit(0);
 }
 
@@ -56,13 +56,12 @@ int main(int argc, char **argv) {
     o_init(); // oracle (audio)
 
     // wait here for a signal from the audio server...
-    printf("waiting for crone...");
-    fflush(stdout);
+    fprintf(stderr, "waiting for crone...");
     do {
         screen_text(".");
         sleep(1);
     } while(o_ready() != 1);
-    printf(" ready.\n");
+    fprintf(stderr, " ready.\n");
 
     w_init(); // weaver (scripting)
     dev_list_init();

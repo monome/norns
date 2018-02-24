@@ -267,7 +267,7 @@ static void l_print (lua_State *L) {
 
 // push and evaluate a line buffer provided by caller
 int l_handle_line (lua_State *L, char *line) {
-    //  printf("l_handle_line: %s \n", line); fflush(stdout);
+    // fprintf(stderr, "l_handle_line: %s \n", line);
     size_t l;
     int status;
     lua_settop(L, 0);
@@ -289,7 +289,7 @@ int l_handle_line (lua_State *L, char *line) {
     }
 
     if(status == STATUS_INCOMPLETE) {
-        printf("<incomplete>\n"); fflush(stdout);
+        fprintf(stderr, "<incomplete>\n");
         goto exit;
     }
 
@@ -299,12 +299,10 @@ call: // call the compiled function on the top of the stack
         //    printf("<evaluation completed with %d stack elements>\n",
         // lua_gettop(L));
         if(lua_gettop(L) == 0) {
-            printf("<ok>\n");
-            fflush(stdout);
+            fprintf(stderr, "<ok>\n");
         }
         l_print(L);
-        printf("\n");
-        fflush(stdout);
+        fprintf(stderr, "\n");
     } else {
         report(L, status);
     }

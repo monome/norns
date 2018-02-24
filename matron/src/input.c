@@ -35,7 +35,6 @@ static void *input_run(void *p) {
         if(nb == 2) {
             if(rxbuf[0] == 'q') {
                 event_post( event_data_new(EVENT_QUIT) );
-                fflush(stdout);
                 quit = true;
                 continue;
             }
@@ -57,8 +56,8 @@ void input_init(void) {
     pthread_attr_t attr;
     int s;
     s = pthread_attr_init(&attr);
-    if(s != 0) { printf("input_init(): error in pthread_attr_init(): %d\n", s); }
+    if (s != 0) { fprintf(stderr, "input_init(): error in pthread_attr_init(): %d\n", s); }
     s = pthread_create(&pid, &attr, &input_run, NULL);
-    if(s != 0) { printf("input_init(): error in pthread_create(): %d\n", s); }
+    if (s != 0) { fprintf(stderr, "input_init(): error in pthread_create(): %d\n", s); }
     pthread_attr_destroy(&attr);
 }

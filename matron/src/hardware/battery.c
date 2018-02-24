@@ -32,13 +32,13 @@ void battery_init() {
     fd[1] = open("/sys/class/power_supply/bq27441-0/status",
                  O_RDONLY | O_NONBLOCK); // K2
     if(fd[0] > 0) {
-        //printf( "BATTERY: %s\n", strerror(errno) ); fflush(stdout);
+        //fprintf(stderr, "BATTERY: %s\n", strerror(errno));
         if( pthread_create(&p, NULL, battery_check, 0) ) {
-            printf("BATTERY: Error creating thread\n"); fflush(stdout);
+            fprintf(stderr, "BATTERY: Error creating thread\n");
         }
     }
     else {
-        printf("BATTERY: FAIL.\n"); fflush(stdout);
+        fprintf(stderr, "BATTERY: FAIL.\n");
     }
 }
 
@@ -56,7 +56,7 @@ void *battery_check(void *x) {
         lseek(fd[0],0,SEEK_SET);
         read(fd[0],&buf,3);
         n = atoi(buf);
-        //printf("BATTERY = %d\n", n); fflush(stdout);
+        //fprintf(stderr, "BATTERY = %d\n", n);
         if(n != percent) {
             percent = n;
             union event_data *ev = event_data_new(EVENT_BATTERY);
@@ -67,7 +67,7 @@ void *battery_check(void *x) {
         lseek(fd[1],0,SEEK_SET);
         read(fd[1],&buf,1);
         n = (buf[0] == 'C');
-        //printf("POWER = %d\n", n); fflush(stdout);
+        //fprintf(stderr, "POWER = %d\n", n);
         if(n != present) {
             present = n;
             union event_data *ev = event_data_new(EVENT_POWER);

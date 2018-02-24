@@ -34,7 +34,7 @@ int dev_monome_init(void *self) {
     monome_t *m;
     m = monome_open(md->dev.path);
     if(!m) {
-        printf("error: couldn't open monome device at %s\n", md->dev.path);
+        fprintf(stderr, "error: couldn't open monome device at %s\n", md->dev.path);
         return -1;
     }
     md->m = m;
@@ -70,8 +70,8 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
 // set a given LED value
 void dev_monome_set_led(struct dev_monome *md,
                         uint8_t x, uint8_t y, uint8_t val) {
-    /* printf("dev_monome_set_led: %d %s %d %d %d\n", */
-    /*             md->dev.id, md->dev.serial, x, y, val); fflush(stdout); */
+    /* fprintf(stderr, "dev_monome_set_led: %d %s %d %d %d\n", */
+    /*             md->dev.id, md->dev.serial, x, y, val); */
     uint8_t q = dev_monome_quad_idx(x,y);
     md->data[q][dev_monome_quad_offset(x,y)] = val;
     md->dirty[q] = true;
@@ -114,18 +114,18 @@ grid_key_event(const monome_event_t *e, void *p, int state) {
     ev->grid_key.x = e->grid.x;
     ev->grid_key.y = e->grid.y;
     ev->grid_key.state = state;
-    //    printf("%d\t%d\t%d\t%d\n", md->dev.id, e->grid.x, e->grid.y,
-    // state);fflush(stdout);
+    // fprintf(stderr, "%d\t%d\t%d\t%d\n", md->dev.id, e->grid.x, e->grid.y,
+    // state);
     event_post(ev);
 }
 
 void dev_monome_handle_press(const monome_event_t *e, void *p) {
-    //    printf("dev_monome_handle_press()\n"); fflush(stdout);
+    // fprintf(stderr, "dev_monome_handle_press()\n");
     grid_key_event(e, p, 1);
 }
 
 void dev_monome_handle_lift(const monome_event_t *e, void *p) {
-    //    printf("dev_monome_handle_lift()\n"); fflush(stdout);
+    // fprintf(stderr, "dev_monome_handle_lift()\n");
     grid_key_event(e, p, 0);
 }
 

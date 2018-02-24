@@ -130,7 +130,7 @@ void event_loop(void) {
             // wakeup
             pthread_cond_wait(&evq.nonempty, &evq.lock);
         }
-        // printf("evq.size : %d\n", (int) evq.size); fflush(stdout);
+        // fprintf(stderr, "evq.size : %d\n", (int) evq.size);
         assert(evq.size > 0);
         ev = evq_pop();
         pthread_mutex_unlock(&evq.lock);
