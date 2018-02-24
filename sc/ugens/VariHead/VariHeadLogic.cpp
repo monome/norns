@@ -4,6 +4,7 @@
 
 #include <samplerate.h>
 #include <cstdio>
+#include <cmath>
 #include "VariHeadLogic.h"
 
 void VariHeadLogic::init() {
@@ -46,52 +47,12 @@ void VariHeadLogic::setLoopEndSeconds(float t) {
 void VariHeadLogic::setRate(float r) {
     rate = r;
     // FIXME: support negative rates
-    if(rate < 0.0) { rate = 0.0; }
+    if(rate < (MAX_RATE * -1)) { rate = (MAX_RATE * -1); }
     if(rate > MAX_RATE) { rate = MAX_RATE; }
     //... SRC's internal ratio interpolation is too slow..
     // try to bypass it (not recommended in API docs)
-    src_set_ratio(srcState, rate);
+    src_set_ratio(srcState, abs(rate));
 }
-
-//float VariHeadLogic::nextSample(const float* in) {
-//#if 0 // test: just write to the buffer in the dumbest way
-//    /// this works as expected
-//    buf[writeIdx] = *in;
-//    writeIdx++;
-//    if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
-//
-//#else
-//    // setup the conversions
-//    srcData.data_in = in;
-//    srcData.data_out = writeBuf;
-//    srcData.input_frames += 1;
-//    srcData.src_ratio = rate;
-//    srcData.end_of_input = 0;
-//
-//    int err = src_process(srcState, &srcData);
-//    if(err) {
-//        printf ("src_process error: %s\n", src_strerror (err));
-//        printf("rate: %f; src_ratio: %f\n", rate, srcData.src_ratio);
-//        printf("input_frames: %ld; input_frames_used: %ld\n", srcData.input_frames, srcData.input_frames_used);
-//        printf("output_frames: %ld; output_frames_gen: %ld\n", srcData.output_frames, srcData.output_frames_gen);
-//    }
-//
-//    // copy temp buffer to ugen buffer
-//    for(int i=0; i<srcData.output_frames_gen; ++i) {
-//        buf[writeIdx] = writeBuf[i];
-//        writeIdx++;
-//        if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
-//    }
-//    srcData.input_frames -= srcData.input_frames_used;
-//    // FIXME: need to store unused frames?
-//    // (doesn't seem to be an issue using linear interpolation)
-//#endif
-//
-//    // update the phase for output
-//    phase += rate;
-//    if(phase > end) { resetPhase(); }
-//    return phase;
-//}
 
 void VariHeadLogic::resetPhase() {
     while(phase > end) { phase -= dur; }
@@ -101,7 +62,7 @@ float VariHeadLogic::processBlock(const float *in, int numFrames) {
     srcData.data_in = in;
     srcData.data_out = writeBuf;
     srcData.input_frames += numFrames;
-    // test
+    // don't do this b/c we are setting the ratio directly in SRC state structure
     // srcData.src_ratio = rate;
     srcData.end_of_input = 0;
     int err = src_process(srcState, &srcData);
@@ -113,16 +74,18 @@ float VariHeadLogic::processBlock(const float *in, int numFrames) {
     }
 
     // copy temp buffer to ugen buffer
-    for(int i=0; i<srcData.output_frames_gen; ++i) {
-        if(writeIdx < start) {
-            // printf("writeIdx underflow\n");
-            writeIdx = start;
+    if(rate < 0.f) {
+        for (int i = 0; i < srcData.output_frames_gen; ++i) {
+            buf[writeIdx] = writeBuf[i];
+            writeIdx--;
+            if (writeIdx < start || writeIdx < 0) {  writeIdx = end; }
         }
-        buf[writeIdx] = writeBuf[i];
-        writeIdx++;
-        if(writeIdx >= end || writeIdx >= bufFrames) {
-            // printf("writeIdx overflow\n");
-            writeIdx = start;
+    } else {
+        for (int i = 0; i < srcData.output_frames_gen; ++i) {
+            if (writeIdx < start) {  writeIdx = start; }
+            buf[writeIdx] = writeBuf[i];
+            writeIdx++;
+            if (writeIdx >= end || writeIdx >= bufFrames) {  writeIdx = start;  }
         }
     }
     if(srcData.input_frames_used != numFrames) {

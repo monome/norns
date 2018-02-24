@@ -66,12 +66,15 @@ void VariHead_next(VariHead *unit, int inNumSamples) {
     unit->variHead.setLoopStartSeconds(start);
     unit->variHead.setLoopEndSeconds(end);
 
+#if 1
     float phi = unit->variHead.processBlock(in, inNumSamples);
-
-//    for (int i = 0; i < inNumSamples; ++i) {
-//        float phi = unit->variHead.nextSample(&in[i]);
-//        //phase_out[i] = phi;
-//    }
+#else
+    // single-sample is still audibly glitched... suggesting an indexing error?
+    const float* p = in;
+    for (int i = 0; i < inNumSamples; ++i) {
+        float phi = unit->variHead.processBlock(p++, 1);
+    }
+#endif
 }
 
 PluginLoad(VariHead) {
