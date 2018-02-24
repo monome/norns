@@ -54,15 +54,15 @@ void gpio_init() {
             n = epoll_ctl(epfd, EPOLL_CTL_ADD, fd[i], &ev[i]);
         }
         if(n) {
-            printf( "ERROR (gpio) epoll_ctl returned %d: %s\n", n,
-                    strerror(errno) ); fflush(stdout);
+            fprintf(stderr, "ERROR (gpio) epoll_ctl returned %d: %s\n", n,
+                    strerror(errno));
         }
         if( pthread_create(&p, NULL, gpio_check, 0) ) {
-            printf("ERROR (gpio) pthread error\n"); fflush(stdout);
+            fprintf(stderr, "ERROR (gpio) pthread error\n");
         }
     }
     else {
-        printf("ERROR (gpio) check gpio exports!\n"); fflush(stdout);
+        fprintf(stderr, "ERROR (gpio) check gpio exports!\n");
     }
 }
 
@@ -76,18 +76,15 @@ void *gpio_check(void *x) {
     unsigned int c[NUM_PINS] = {0,0,0,0,0,0,0,0,0};
     while(1) {
         n = epoll_wait(epfd, &events, 1, -1); // wait for 1 event
-        //printf("GPIO epoll returned %d: %s\n", n, strerror(errno));
-        // fflush(stdout);
-        //printf("GPIO event: %d\n", events.data.fd); fflush(stdout);
+        // fprintf(stderr, "GPIO epoll returned %d: %s\n", n, strerror(errno));
+        // fprintf(stderr, "GPIO event: %d\n", events.data.fd);
 
         if(n > 0) {
             n = lseek(events.data.fd, 0, SEEK_SET);
-            //printf("GPIO seek %d bytes: %s\n", n, strerror(errno));
-            // fflush(stdout);
+            // fprintf(stderr, "GPIO seek %d bytes: %s\n", n, strerror(errno));
             n = read(events.data.fd, &buf, 1);
-            //printf("GPIO read %d bytes: %s\n", n, strerror(errno));
-            // fflush(stdout);
-            //printf("GPIO buf = 0x%x\n", buf);
+            // fprintf(stderr, "GPIO read %d bytes: %s\n", n, strerror(errno));
+            // fprintf(stderr, "GPIO buf = 0x%x\n", buf);
 
             int i;
             for(i = 0; i < NUM_PINS && fd[i] != events.data.fd; i++) {; }
@@ -108,8 +105,8 @@ void *gpio_check(void *x) {
                 pos_now[a] = enc_val[a << 1] + (enc_val[(a << 1) + 1] << 1);
                 int d = map[pos_old[a]][pos_now[a]];
 
-                //printf("i=%d a=%d e=%d%d d=%d\n", i, a, enc_val[a<<1],
-                // enc_val[(a<<1)+1], d); fflush(stdout);
+                // fprintf(stderr, "i=%d a=%d e=%d%d d=%d\n", i, a, enc_val[a<<1],
+                // enc_val[(a<<1)+1], d);
 
                 if(pos_now[a] != pos_old[a]) {
                     if(d && c[i + 3]++) {

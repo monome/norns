@@ -73,21 +73,20 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
 
     device = malloc( sizeof(*device) );
     if (!device) {
-        printf("ERROR (screen) cannot allocate memory\n"); fflush(stdout);
+        fprintf(stderr, "ERROR (screen) cannot allocate memory\n");
         return NULL;
     }
 
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
     if (device->fb_fd == -1) {
-        printf("ERROR (screen) cannot open framebuffer device"); fflush(
-            stdout);
+        fprintf(stderr, "ERROR (screen) cannot open framebuffer device");
         goto handle_allocate_error;
     }
 
     // Get variable screen information
     if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
-        printf("ERROR (screen) reading variable information"); fflush(stdout);
+        fprintf(stderr, "ERROR (screen) reading variable information");
         goto handle_ioctl_error;
     }
 
@@ -101,14 +100,13 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
                                             device->fb_fd, 0);
 
     if ( device->fb_data == (unsigned char *)-1 ) {
-        printf("ERROR (screen) failed to map framebuffer device to memory");
-        fflush(stdout);
+        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory");
         goto handle_ioctl_error;
     }
 
     // Get fixed screen information
     if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
-        printf("ERROR (screen) reading fixed information"); fflush(stdout);
+        fprintf(stderr, "ERROR (screen) reading fixed information");
         goto handle_ioctl_error;
     }
 
@@ -142,7 +140,7 @@ void screen_init(void) {
 
     status = FT_Init_FreeType(&value);
     if(status != 0) {
-        printf("ERROR (screen) freetype init\n"); fflush(stdout);
+        fprintf(stderr, "ERROR (screen) freetype init\n");
         return;
     }
 
@@ -170,8 +168,7 @@ void screen_init(void) {
 
         status = FT_New_Face(value, filename, 0, &face[i]);
         if(status != 0) {
-            printf("ERROR (screen) font load: %s\n", filename); fflush(
-                stdout);
+            fprintf(stderr, "ERROR (screen) font load: %s\n", filename);
             return;
         }
         else{

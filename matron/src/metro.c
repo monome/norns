@@ -46,7 +46,7 @@ struct metro metros[MAX_NUM_METROS_OK];
 //---- static declarations
 
 static void metro_handle_error(int code, const char *msg) {
-    printf("error code: %d ; message: \"%s\"", code, msg); fflush(stdout);
+    fprintf(stderr, "error code: %d ; message: \"%s\"", code, msg);
 }
 
 static void metro_init(struct metro *t, uint64_t nsec, int count);
@@ -85,8 +85,8 @@ void metro_start(int idx, double seconds, int count, int stage) {
         metro_reset(&metros[idx], stage);
         metro_init(&metros[idx], nsec, count);
     } else {
-        printf("invalid metro index, not added. max count of metros is %d\n",
-               MAX_NUM_METROS_OK);  fflush(stdout);
+        fprintf(stderr, "invalid metro index, not added. max count of metros is %d\n",
+               MAX_NUM_METROS_OK);
     }
 }
 
@@ -124,21 +124,21 @@ void metro_init(struct metro *t, uint64_t nsec, int count) {
             metro_handle_error(res, "pthread_setschedparam");
             switch(res) {
             case ESRCH:
-                printf("specified thread does not exist\n");
+                fprintf(stderr, "specified thread does not exist\n");
                 assert(false);
                 break;
             case EINVAL:
-                printf("invalid thread policy value or associated parameter\n");
+                fprintf(stderr, "invalid thread policy value or associated parameter\n");
                 assert(false);
                 break;
             case EPERM:
-                printf("failed to set scheduling priority.\n");
+                fprintf(stderr, "failed to set scheduling priority.\n");
                 // this doesn't need to assert; it can happen with wrong
                 // permissions
                 // still good for user to know about
                 break;
             default:
-                printf("unknown error code \n");
+                fprintf(stderr, "unknown error code\n");
                 assert(false);
             } /* switch */
             return;
@@ -203,39 +203,38 @@ void metro_stop(int idx) {
     if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
         pthread_mutex_lock( &(metros[idx].status_lock) );
         if( metros[idx].status == METRO_STATUS_STOPPED) {
-            //printf("metro is already stopped\n"); fflush(stdout);
+            //fprintf(stderr, "metro is already stopped\n");
             ;; // nothing to do
         } else {
             metro_cancel(&metros[idx]);
         }
         pthread_mutex_unlock( &(metros[idx].status_lock) );
     } else {
-        printf(
+        fprintf(stderr,
             "metro_stop(): invalid metro index, max count of metros is %d\n",
-            MAX_NUM_METROS_OK);  fflush(stdout);
+            MAX_NUM_METROS_OK);
     }
 }
 
 void metro_cancel(struct metro *t) {
     int ret = pthread_cancel(t->tid);
     if(ret) {
-        printf("metro_stop(): pthread_cancel() failed; error: ");
+        fprintf(stderr, "metro_stop(): pthread_cancel() failed; error: ");
         switch(ret) {
         case ESRCH:
-            printf("specified thread does not exist\n");
+            fprintf(stderr, "specified thread does not exist\n");
             break;
         default:
-            printf("unknown error code \n");
+            fprintf(stderr, "unknown error code\n");
             assert(false);
         }
-        fflush(stdout);
     } else {
         t->status = METRO_STATUS_STOPPED;
     }
 }
 
 void metro_set_time(int idx, float sec) {
-    printf("metro_set_time(%d, %f)\n", idx, sec); fflush(stdout);
+    fprintf(stderr, "metro_set_time(%d, %f)\n", idx, sec);
     if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
         metros[idx].seconds = sec;
         metros[idx].delta = (uint64_t) (sec * 1000000000.0);

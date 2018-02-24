@@ -30,7 +30,7 @@ void i2c_init(void) {
 
     sprintf(filename,"/dev/i2c-1");
     if( ( file = open(filename,O_RDWR) ) < 0 ) {
-        printf("ERROR (i2c) failed to open bus");
+        fprintf(stderr, "ERROR (i2c) failed to open bus");
         return;
     }
 
@@ -38,40 +38,40 @@ void i2c_init(void) {
 
     // enable hp
     if(ioctl(file,I2C_SLAVE,ADDR_HP) < 0) {
-        printf(
+        fprintf(stderr,
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = 1; // reg for settings p21
     buf[1] = 192;
     if (write(file,buf,2) != 2) {
-        printf("ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c) failed to write\n");
         return;
     }
 
     // set up digipot audio out
     if(ioctl(file,I2C_SLAVE,ADDR_OUT) < 0) {
-        printf(
+        fprintf(stderr,
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
 
     buf[0] = 0b10000010; // p11, config zero-cross enable, 0-63 range
     if (write(file,buf,1) != 1) {
-        printf("ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c) failed to write\n");
         return;
     }
 
     // set up digipot audio in
     if(ioctl(file,I2C_SLAVE,ADDR_IN) < 0) {
-        printf(
+        fprintf(stderr,
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
 
     buf[0] = 0b10000010;
     if (write(file,buf,1) != 1) {
-        printf("ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c) failed to write\n");
         return;
     }
 }
@@ -85,14 +85,14 @@ void i2c_hp(int level) {
     }
 
     if(ioctl(file,I2C_SLAVE,ADDR_HP) < 0) {
-        printf(
+        fprintf(stderr,
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = 2; // reg for set level p17
     buf[1] = level;
     if (write(file,buf,2) != 2) {
-        printf("ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c) failed to write\n");
         return;
     }
 }
@@ -112,13 +112,13 @@ void i2c_aout(int level, int ch) {
     }
 
     if(ioctl(file,I2C_SLAVE,ADDR_OUT) < 0) {
-        printf(
+        fprintf(stderr, 
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = level | ch; // p10
     if (write(file,buf,1) != 1) {
-        printf("ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c) failed to write\n");
         return;
     }
 }
@@ -138,13 +138,13 @@ void i2c_ain(int level, int ch) {
     }
 
     if(ioctl(file,I2C_SLAVE,ADDR_IN) < 0) {
-        printf(
+        fprintf(stderr,
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = level | ch; // p10
     if (write(file,buf,1) != 1) {
-        printf("ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c) failed to write\n");
         return;
     }
 }

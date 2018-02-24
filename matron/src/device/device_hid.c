@@ -12,7 +12,7 @@
 #include "events.h"
 
 #define TEST_NULL_AND_FREE(p) if( (p) != NULL ) { free(p); } \
-    else { printf("error: double free in device_hid.c \n"); }
+    else { fprintf(stderr, "error: double free in device_hid.c\n"); }
 
 static void add_types(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
@@ -76,7 +76,6 @@ static void dev_hid_print(struct dev_hid *d) {
                     libevdev_event_code_get_name(d->types[i], d->codes[i][j]) );
         }
     }
-    fflush(stdout);
 }
 
 int dev_hid_init(void *self, bool print) {
@@ -88,15 +87,13 @@ int dev_hid_init(void *self, bool print) {
     const char *name;
 
     if (fd < 0) {
-        printf("failed to open hid device: %s\n", d->base.path);
-        fflush(stdout);
+        fprintf(stderr, "failed to open hid device: %s\n", d->base.path);
         return -1;
     }
 
     ret = libevdev_new_from_fd(fd, &dev);
     if (ret < 0) {
-        printf( "failed to init libevdev (%s)\n", strerror(-ret) );
-        fflush(stdout);
+        fprintf(stderr, "failed to init libevdev (%s)\n", strerror(-ret));
         return ret;
     }
 
