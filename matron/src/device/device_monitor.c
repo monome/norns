@@ -222,6 +222,7 @@ void *watch_loop(void *p) {
             if(pfds[i].revents & POLLIN) {
                 dev = udev_monitor_receive_device(w[i].mon);
                 if (dev) {
+		  fprintf(stderr, "device_monitor: watch loop saw something: 0x%08x\n", (unsigned int)dev);
                     handle_device(dev);
                     udev_device_unref(dev);
                 }
@@ -237,9 +238,9 @@ void *watch_loop(void *p) {
 void handle_device(struct udev_device *dev) {
     device_t t = check_dev_type(dev);
     if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
-        fprintf(stderr, "handling device, type: %d\n", t);
         const char *act = udev_device_get_action(dev);
         const char *node = udev_device_get_devnode(dev);
+	fprintf(stderr, "handling device, type: %d; action: %s; node: %s\n", t, act, node);
         if(act[0] == 'a') {
             dev_list_add(t, node);
         } else if (act[0] == 'r') {
