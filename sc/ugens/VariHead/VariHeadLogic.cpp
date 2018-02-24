@@ -45,6 +45,9 @@ void VariHeadLogic::setRate(float r) {
     // FIXME: support negative rates
     if(rate < 0.0) { rate = 0.0; }
     if(rate > MAX_RATE) { rate = MAX_RATE; }
+    //... SRC's internal ratio interpolation is too slow..
+    // try to bypass it (not recommended in API docs)
+    src_set_ratio(srcState, rate);
 }
 
 void VariHeadLogic::setPre(const float level) {
@@ -63,11 +66,9 @@ float VariHeadLogic::nextSample(const float* in) {
     if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
 
 #else
-
     // setup the conversions
     srcData.data_in = in;
     srcData.data_out = writeBuf;
-    // FIXME: if we don't use all the input frames, we need to store them for next time.
     srcData.input_frames += 1;
     srcData.src_ratio = rate;
     srcData.end_of_input = 0;
@@ -87,6 +88,8 @@ float VariHeadLogic::nextSample(const float* in) {
         if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
     }
     srcData.input_frames -= srcData.input_frames_used;
+    // FIXME: need to store unused frames?
+    // (doesn't seem to be an issue using linear interpolation)
 #endif
 
     // update the phase for output
@@ -120,8 +123,9 @@ float VariHeadLogic::processBlock(const float *in, int numFrames) {
         if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
     }
     if(srcData.input_frames_used != numFrames) {
-     //   printf("uh oh: SRC didn't use %ld input samples this block\n", numFrames - srcData.input_frames_used);
+        printf("SRC didn't use %ld input samples this block\n", numFrames - srcData.input_frames_used);
         // FIXME: need to store unused frames for next block?
+        // (with linear interpolation, this never seems to be hit)
     }
     srcData.input_frames -= srcData.input_frames_used;
     phase += (numFrames * rate);
