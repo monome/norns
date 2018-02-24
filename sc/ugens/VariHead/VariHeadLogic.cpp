@@ -13,6 +13,7 @@ void VariHeadLogic::init() {
     srcState = src_new(WRITE_RESAMP_QUALITY, 1, &err);
     srcData.output_frames = WRITE_BUF_LEN;
     srcData.input_frames = 0;
+    numStoredFrames = 0;
 }
 
 void VariHeadLogic::deinit() {
@@ -66,6 +67,7 @@ float VariHeadLogic::nextSample(const float* in) {
     // setup the conversions
     srcData.data_in = in;
     srcData.data_out = writeBuf;
+    // FIXME: if we don't use all the input frames, we need to store them for next time.
     srcData.input_frames += 1;
     srcData.src_ratio = rate;
     srcData.end_of_input = 0;
@@ -77,6 +79,7 @@ float VariHeadLogic::nextSample(const float* in) {
         printf("input_frames: %ld; input_frames_used: %ld\n", srcData.input_frames, srcData.input_frames_used);
         printf("output_frames: %ld; output_frames_gen: %ld\n", srcData.output_frames, srcData.output_frames_gen);
     }
+
     // copy temp buffer to ugen buffer
     for(int i=0; i<srcData.output_frames_gen; ++i) {
         buf[writeIdx] = writeBuf[i];
@@ -94,6 +97,34 @@ float VariHeadLogic::nextSample(const float* in) {
 
 void VariHeadLogic::resetPhase() {
     while(phase > end) { phase -= dur; }
-//    writeIdx = static_cast<int>(start + phase);
-//    src_reset(wrConv);
+}
+
+float VariHeadLogic::processBlock(const float *in, int numFrames) {
+    srcData.data_in = in;
+    srcData.data_out = writeBuf;
+    srcData.input_frames += numFrames;
+    srcData.src_ratio = rate;
+    srcData.end_of_input = 0;
+    int err = src_process(srcState, &srcData);
+    if(err) {
+        printf ("src_process error: %s\n", src_strerror (err));
+        printf("rate: %f; src_ratio: %f\n", rate, srcData.src_ratio);
+        printf("input_frames: %ld; input_frames_used: %ld\n", srcData.input_frames, srcData.input_frames_used);
+        printf("output_frames: %ld; output_frames_gen: %ld\n", srcData.output_frames, srcData.output_frames_gen);
+    }
+
+    // copy temp buffer to ugen buffer
+    for(int i=0; i<srcData.output_frames_gen; ++i) {
+        buf[writeIdx] = writeBuf[i];
+        writeIdx++;
+        if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
+    }
+    if(srcData.input_frames_used != numFrames) {
+     //   printf("uh oh: SRC didn't use %ld input samples this block\n", numFrames - srcData.input_frames_used);
+        // FIXME: need to store unused frames for next block?
+    }
+    srcData.input_frames -= srcData.input_frames_used;
+    phase += (numFrames * rate);
+    if (phase > end) { resetPhase(); }
+    return phase;
 }

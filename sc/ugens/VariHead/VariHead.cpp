@@ -60,8 +60,8 @@ void VariHead_next(VariHead *unit, int inNumSamples) {
 
     const float *in = IN(1);
 
-    float* rate = IN(2);
-    const float *pre= IN(3);
+    float rate = IN0(2);
+    float pre= IN0(3);
 
     float loop = IN0(4);
     float start = IN0(5);
@@ -71,14 +71,18 @@ void VariHead_next(VariHead *unit, int inNumSamples) {
     unit->variHead.setLoopEndSeconds(end);
     unit->variHead.setLoopFlag(loop > 0);
 
-    for (int i = 0; i < inNumSamples; ++i) {
+    unit->variHead.setRate(rate);
+    unit->variHead.setPre(pre);
 
-        unit->variHead.setRate(rate[i]);
-        unit->variHead.setPre(pre[i]);
+    float phi = unit->variHead.processBlock(in, inNumSamples);
 
-        float phi = unit->variHead.nextSample(&in[i]);
-        //phase_out[i] = phi;
-    }
+//    for (int i = 0; i < inNumSamples; ++i) {
+//
+//
+//
+//        float phi = unit->variHead.nextSample(&in[i]);
+//        //phase_out[i] = phi;
+//    }
 }
 
 PluginLoad(VariHead) {
