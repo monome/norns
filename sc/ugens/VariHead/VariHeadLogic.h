@@ -35,8 +35,8 @@ private:
     int end; // loop end (sample index)
     int dur; // loop duration (num samples)
 
-    //enum { WRITE_RESAMP_QUALITY = SRC_SINC_FASTEST };
-    enum { WRITE_RESAMP_QUALITY = SRC_LINEAR };
+    enum { WRITE_RESAMP_QUALITY = SRC_SINC_FASTEST };
+    //enum { WRITE_RESAMP_QUALITY = SRC_LINEAR };
 
     // for block processing, we need to store up to (blocksize * rate) output samples!
     enum { WRITE_BUF_LEN = 1024 * 32, MAX_RATE = 32 };

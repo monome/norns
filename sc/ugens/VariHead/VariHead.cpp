@@ -66,13 +66,12 @@ void VariHead_next(VariHead *unit, int inNumSamples) {
     unit->variHead.setLoopStartSeconds(start);
     unit->variHead.setLoopEndSeconds(end);
 
-#if 1
+#if 0
     float phi = unit->variHead.processBlock(in, inNumSamples);
 #else
     // single-sample is still audibly glitched... suggesting an indexing error?
-    const float* p = in;
     for (int i = 0; i < inNumSamples; ++i) {
-        float phi = unit->variHead.processBlock(p++, 1);
+        float phi = unit->variHead.processBlock(in+i, 1);
     }
 #endif
 }
