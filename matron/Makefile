@@ -10,6 +10,7 @@ CFLAGS += $(VERSION)
 CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
+CFLAGS += -D_GNU_SOURCE
 
 INC =  -Isrc -Isrc/device -Ilua -Isrc/hardware
 INC += -I/usr/include/libevdev-1.0
@@ -31,7 +32,8 @@ _OBJ = main.o \
 	device/device_list.o \
 	device/device_monitor.o \
 	device/device_monome.o \
-    device/osc.o \
+	device/device_midi.o \
+	device/osc.o \
 	events.o \
 	hardware/battery.o \
 	hardware/gpio.o \
@@ -41,8 +43,7 @@ _OBJ = main.o \
 	lua_eval.o \
 	metro.o \
 	oracle.o \
-	weaver.o \
-	midi.o
+	weaver.o
 
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 

@@ -59,6 +59,10 @@ static struct watch w[DEV_TYPE_COUNT] = {
     {
         .sub_name = "input",
         .node_pattern = "/dev/input/event.*"
+    },
+    {
+        .sub_name = "sound",
+        .node_pattern = "/dev/snd/midiC.*D.*"
     }
 };
 
@@ -251,6 +255,7 @@ device_t check_dev_type (struct udev_device *dev) {
     static char msgbuf[128];
     device_t t = DEV_TYPE_INVALID;
     const char *node = udev_device_get_devnode(dev);
+
     int reti;
     if(node) {
         // for now, just get USB devices.

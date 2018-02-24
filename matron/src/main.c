@@ -11,6 +11,7 @@
 #include "device_hid.h"
 #include "device_monitor.h"
 #include "device_monome.h"
+#include "device_midi.h"
 #include "events.h"
 #include "battery.h"
 #include "gpio.h"
@@ -19,7 +20,6 @@
 #include "osc.h"
 #include "metro.h"
 #include "screen.h"
-#include "midi.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -58,7 +58,6 @@ int main(int argc, char **argv) {
     i2c_init();
     osc_init();
     o_init(); // oracle (audio)
-    midi_init();
 
     // wait here for a signal from the audio server...
     fprintf(stderr, "waiting for crone...");

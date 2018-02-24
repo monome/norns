@@ -31,6 +31,11 @@ union dev *dev_new(device_t type, const char *path) {
             goto err_init;
         }
         break;
+    case DEV_TYPE_MIDI:
+        if (dev_midi_init(d) < 0) {
+            goto err_init;
+        }
+        break;
     default:
         fprintf(stderr,
             "calling device.c:dev_new() with unkmown device type; this is an error!");

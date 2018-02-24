@@ -30,9 +30,9 @@ typedef enum {
     EVENT_HID_REMOVE,
     // hid gesture
     EVENT_HID_EVENT,
-    // midi client (port?) added
+    // midi device added
     EVENT_MIDI_ADD,
-    // midi client (port?) removed
+    // midi device removed
     EVENT_MIDI_REMOVE,
     // midi event
     EVENT_MIDI_EVENT,
@@ -106,10 +106,12 @@ struct event_hid_remove {
 
 struct event_midi_add {
     struct event_common common;
+    void *dev;
 }; // +4
 
 struct event_midi_remove {
     struct event_common common;
+    uint32_t id;
 }; // +4
 
 struct event_midi_event {
