@@ -3,6 +3,7 @@
 //
 
 #include <samplerate.h>
+#include <cstdio>
 #include "VariHeadLogic.h"
 
 void VariHeadLogic::init() {
@@ -11,6 +12,7 @@ void VariHeadLogic::init() {
     for(int i=0; i<WRITE_BUF_LEN; ++i) { writeBuf[i] = 0.f; }
     srcState = src_new(WRITE_RESAMP_QUALITY, 1, &err);
     srcData.output_frames = WRITE_BUF_LEN;
+    srcData.input_frames = 0;
 }
 
 void VariHeadLogic::deinit() {
@@ -53,7 +55,8 @@ void VariHeadLogic::setLoopFlag(bool loop) {
 }
 
 float VariHeadLogic::nextSample(const float* in) {
-#if 1 // test: just write to the buffer in the dumbest way
+#if 0 // test: just write to the buffer in the dumbest way
+    /// this works as expected
     buf[writeIdx] = *in;
     writeIdx++;
     if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
@@ -63,18 +66,24 @@ float VariHeadLogic::nextSample(const float* in) {
     // setup the conversions
     srcData.data_in = in;
     srcData.data_out = writeBuf;
-    srcData.input_frames = 1;
+    srcData.input_frames += 1;
     srcData.src_ratio = rate;
+    srcData.end_of_input = 0;
 
-    // process to temp buffer
-    src_process(srcState, &srcData);
-
+    int err = src_process(srcState, &srcData);
+    if(err) {
+        printf ("src_process error: %s\n", src_strerror (err));
+        printf("rate: %f; src_ratio: %f\n", rate, srcData.src_ratio);
+        printf("input_frames: %ld; input_frames_used: %ld\n", srcData.input_frames, srcData.input_frames_used);
+        printf("output_frames: %ld; output_frames_gen: %ld\n", srcData.output_frames, srcData.output_frames_gen);
+    }
     // copy temp buffer to ugen buffer
     for(int i=0; i<srcData.output_frames_gen; ++i) {
         buf[writeIdx] = writeBuf[i];
         writeIdx++;
         if(writeIdx > end || writeIdx >= bufFrames) { writeIdx = start; }
     }
+    srcData.input_frames -= srcData.input_frames_used;
 #endif
 
     // update the phase for output

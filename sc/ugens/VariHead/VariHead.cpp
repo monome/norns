@@ -49,7 +49,7 @@ void VariHead_Ctor(VariHead *unit) {
 void VariHead_next(VariHead *unit, int inNumSamples) {
     GET_BUF;
     uint32 numOutputs = unit->mNumOutputs;
-    uint32 numInputChannels = unit->mNumInputs - 7;
+    uint32 numInputChannels = unit->mNumInputs - 6;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
         return;
@@ -71,7 +71,6 @@ void VariHead_next(VariHead *unit, int inNumSamples) {
     unit->variHead.setLoopEndSeconds(end);
     unit->variHead.setLoopFlag(loop > 0);
 
-    float snd, phi, tr;
     for (int i = 0; i < inNumSamples; ++i) {
 
         unit->variHead.setRate(rate[i]);

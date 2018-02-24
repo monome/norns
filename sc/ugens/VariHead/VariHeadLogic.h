@@ -37,7 +37,8 @@ private:
     int end; // loop end (sample index)
     int dur; // loop duration (num samples)
     bool runState;
-    enum { WRITE_RESAMP_QUALITY = SRC_SINC_FASTEST};
+    enum { WRITE_RESAMP_QUALITY = SRC_SINC_FASTEST };
+    //enum { WRITE_RESAMP_QUALITY = SRC_LINEAR };
     enum { WRITE_BUF_LEN = 64, MAX_RATE = 32 };
     float writeBuf[WRITE_BUF_LEN]; // temp buffer for resampling write
     SRC_STATE* srcState; // write resampler
