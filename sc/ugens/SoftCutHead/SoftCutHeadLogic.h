@@ -35,14 +35,18 @@ private:
     void doneFadeOut(int id);
     float peek(double phase); // lookup an audio sample from the buffer
     float peek4(double phase); // interpolated
-    void poke(float x, double phase, float fade); // write an audio sample to the buffer
-    void poke0(float x, double phase, float fade); // non-interpolated
-    void poke2(float x, double phase, float fade); // interpolated
+    /* void poke(float* xHist, float x, double phase, float fade); // write an audio sample to the buffer */
+    /* void poke0(float* xHist, float x, double phase, float fade); // non-interpolated */
+
+     void poke(int channel, float val); // write zero or more values and update write state
+    void poke0(int phase, float val, float fade); // write a single value, uninterpolated
+    void poke2(float phase, float val, float fade); // write single value, lin interp
     float mixFade(float x, float y, float a, float b); // mix two inputs with phases
 public:
     typedef enum { FADE_LIN, FADE_EQ, FADE_EXP } fade_t;
  private:
     enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 };
+    enum { WRITE_BUF_LEN = 1 }; // ringbuffer length for write interpolation
     float sr;           // sample rate
     float* buf;   // audio buffer (allocated elsewhere)
     int bufFrames;      // samples in buffer
@@ -62,7 +66,13 @@ public:
     float fadePre; // pre-level modulated by xfade
     float fadeRec; // record level modulated by xfade
     bool recRun;
-    double recPhaseOffset;
+    int recPhaseOffset;
+    //    float writeBuf[WRITE_BUF_LEN][2]; // ringbuffer for write interpolation
+    double wrPhase[2]; // phase accumulator for writing
+    int wrIdx[2]; // last buffer index written to
+    double wrVal[2]; // last value written
+
+    
 };
 
 #endif //CUTFADEVOICE_CUTFADEVOICELOGIC_H
