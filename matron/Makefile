@@ -12,7 +12,7 @@ CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -g
 
 INC =  -Isrc -Isrc/device -Ilua -Isrc/hardware
-INC += -I/usr/include/libevdev-1.0/libevdev
+INC += -I/usr/include/libevdev-1.0
 INC += -I/usr/include/cairo -I/usr/include/freetype2
 
 LDFLAGS =
@@ -47,13 +47,13 @@ OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	@ mkdir -p $(OBJ_DIR)/device
 	@ mkdir -p $(OBJ_DIR)/hardware
-	$(CC) -c $(CFLAGS) $(INC) $< -o $@  
+	$(CC) -c $(CFLAGS) $(INC) $< -o $@
 
 $(TARGET): $(OBJ) $(STATIC)
 	$(LD) $(LDFLAGS) $(OBJ) -o $@ $(STATIC) $(LIB)
 
 lua/liblua.a:
-	cd lua && make 
+	cd lua && make
 
 clean:
 	rm $(TARGET)
