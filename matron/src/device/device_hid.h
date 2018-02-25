@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <libevdev.h>
+#include <libevdev/libevdev.h>
 #include "device_common.h"
 
 typedef uint8_t dev_vid_t;
