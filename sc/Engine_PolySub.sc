@@ -5,7 +5,6 @@ Engine_PolySub : CroneEngine {
 	classvar polyDef, compVerbDef;
 	classvar paramDefaults;
 
-	var <ctx; // audio context
 	var <ctlBus; // collection of control busses
 	var <mixBus; // audio bus for mixing synth voices
 	var <gr; // parent group for voice nodes
@@ -123,13 +122,11 @@ Engine_PolySub : CroneEngine {
 	} // initClass
 
 	*new { arg context, callback;
-		^super.new.init(context, callback).init_PolySub(context, callback); }
+		^super.new(context, callback).init_PolySub;
+	}
 
 	init_PolySub {
-		arg context, callback;
-		context.postln;
-		ctx = context;
-		gr = Group.new(ctx.xg);
+		gr = Group.new(context.xg);
 
 		voices = Dictionary.new;
 		ctlBus = Dictionary.new;
@@ -137,7 +134,7 @@ Engine_PolySub : CroneEngine {
 			var name = ctl.name;
 			postln("control name: " ++ name);
 			if((name != \gate) && (name != \hz) && (name != \out), {
-				ctlBus.add(name -> Bus.control(ctx.server));
+				ctlBus.add(name -> Bus.control(context.server));
 				ctlBus[name].set(paramDefaults[name]);
 			});
 		});
@@ -147,10 +144,10 @@ Engine_PolySub : CroneEngine {
 		ctlBus[\level].setSynchronous( 0.2 );
 
 		// mix bus for all synth outputs
-		mixBus =  Bus.audio(ctx.server, 2);
+		mixBus =  Bus.audio(context.server, 2);
 
 		// throw a little crummy comp and reverb on there, send to the context output
-		compVerbSyn = Synth.new(\compVerb, [\in, mixBus.index, \out, ctx.out_b.index], gr, \addAfter);
+		compVerbSyn = Synth.new(\compVerb, [\in, mixBus.index, \out, context.out_b.index], gr, \addAfter);
 
 
 		//--------------
@@ -193,7 +190,7 @@ Engine_PolySub : CroneEngine {
 
 
 		postln("polysub: performing init callback");
-		callback.value(this);
+		doneCallback.value(this);
 
 	} // init
 
