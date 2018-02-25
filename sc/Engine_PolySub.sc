@@ -122,10 +122,10 @@ Engine_PolySub : CroneEngine {
 	} // initClass
 
 	*new { arg context, callback;
-		^super.new(context, callback).init_PolySub;
+		^super.new(context, callback);
 	}
 
-	init_PolySub {
+	alloc {
 		gr = Group.new(context.xg);
 
 		voices = Dictionary.new;
@@ -188,12 +188,8 @@ Engine_PolySub : CroneEngine {
 			this.addCommand(name, "f", { arg msg; compVerbSyn.set(name, msg[1]); });
 		});
 
-
 		postln("polysub: performing init callback");
-		doneCallback.value(this);
-
-	} // init
-
+	}
 
 	addVoice { arg id, hz, map=true;
 		var params = List.with(\out, mixBus.index, \hz, hz);
