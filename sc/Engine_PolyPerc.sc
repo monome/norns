@@ -8,12 +8,12 @@ Engine_PolyPerc : CroneEngine {
     var gain=2;
 
 	*new { arg context, doneCallback;
-		^super.new.init(context, doneCallback).init_PolyPerc(context, doneCallback);
+		^super.new(context, doneCallback).init_PolyPerc;
 	}
 
-	init_PolyPerc{ arg ctx, callback;
+	init_PolyPerc{
         SynthDef("PolyPerc", {
-			arg out = ctx.out_b, freq = 440, pw=pw, amp=amp, cutoff=cutoff, gain=gain, release=release;
+			arg out = context.out_b, freq = 440, pw=pw, amp=amp, cutoff=cutoff, gain=gain, release=release;
 			var snd = LFPulse.ar(freq, 0, pw);
 			var filt = MoogFF.ar(snd,cutoff,gain);
 			var env = Env.perc(level: amp, releaseTime: release).kr(2);
@@ -42,6 +42,6 @@ Engine_PolyPerc : CroneEngine {
 			gain = msg[1];
 		});
 
-		callback.value(this);
+		doneCallback.value(this);
 	}
 }

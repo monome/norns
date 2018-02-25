@@ -4,17 +4,17 @@ Engine_TestSine : CroneEngine {
 	var <synth;
 
 	*new { arg context, doneCallback;
-		^super.new.init(context, doneCallback).init_TestSine(context, doneCallback);
+		^super.new(context, doneCallback).init_TestSine;
 	}
 
-	init_TestSine { arg ctx, callback;
+	init_TestSine {
 		synth = {
 			arg out=context.out_b, hz=220, amp=0.5, amplag=0.02, hzlag=0.01;
 			var amp_, hz_;
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
 			hz_ = Lag.ar(K2A.ar(hz), hzlag);
 			Out.ar(out, (SinOsc.ar(hz_) * amp_).dup);
-		}.play(ctx.xg);
+		}.play(context.xg);
 
 		this.addCommand("hz", "f", { arg msg;
 			synth.set(\hz, msg[1]);
@@ -24,7 +24,7 @@ Engine_TestSine : CroneEngine {
 			synth.set(\amp, msg[1]);
 		});
 
-		callback.value(this);
+		doneCallback.value(this);
 	}
 
 	free {
