@@ -4,3 +4,8 @@
 # ignore emacs cruft
 \#*\#
 *.*~
+
+# waf
+.lock-waf*
+.waf*
+build/
