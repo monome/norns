@@ -15,6 +15,7 @@ libncursesw5-dev
 libreadline-dev
 libudev-dev
 libcairo2-dev
+liblua5.3-dev
 ```
 
 for desktop: 
@@ -47,7 +48,8 @@ supercollider is included as a submodule.
 git clone https://github.com/catfact/norns.git
 cd norns
 git submodule init && git submodule update
-make
+./waf configure
+./waf
 ```
 
 this should build all the c-based components (`matron`, `maiden`, and `ipc-wrapper`.)
