@@ -584,15 +584,15 @@ p.key[pWIFI] = function(n,z)
     elseif n==3 and z==1 then
         if p.wifi.pos == 0 then
             print "wifi off"
-            os.execute("~/norns-image/scripts/wifi.sh off &")
+            os.execute("~/norns/wifi.sh off &")
             menu.set_page(pSYSTEM)
         elseif p.wifi.pos == 1 then
             print "wifi on"
-            os.execute("~/norns-image/scripts/wifi.sh on &")
+            os.execute("~/norns/wifi.sh on &")
             menu.set_page(pSYSTEM)
         else
             print "wifi hotspot"
-            os.execute("~/norns-image/scripts/wifi.sh hotspot &")
+            os.execute("~/norns/wifi.sh hotspot &")
             menu.set_page(pSYSTEM)
         end
     end
