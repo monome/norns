@@ -5,6 +5,7 @@ def build(bld):
         'src/device/device.c',
         'src/device/device_hid.c',
         'src/device/device_list.c',
+        'src/device/device_midi.c',
         'src/device/device_monitor.c',
         'src/device/device_monome.c',
         'src/device/osc.c',
@@ -31,6 +32,7 @@ def build(bld):
             'src/hardware',
             'lua',
         ], use=[
+            'ALSA',
             'LIBUDEV',
             'LIBEVDEV',
             'CAIRO',

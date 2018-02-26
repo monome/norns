@@ -26,6 +26,7 @@ def configure(conf):
     conf.env.append_unique('CXXFLAGS', ['-std=c++11'])
     conf.define('_GNU_SOURCE', 1)
 
+    conf.check_cfg(package='alsa', args=['--cflags', '--libs'])
     conf.check_cfg(package='libudev', args=['--cflags', '--libs'])
     conf.check_cfg(package='libevdev', args=['--cflags', '--libs'])
     conf.check_cfg(package='liblo', args=['--cflags', '--libs'])
