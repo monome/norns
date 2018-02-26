@@ -15,20 +15,15 @@ libncursesw5-dev
 libreadline-dev
 libudev-dev
 libcairo2-dev
+liblua5.3-dev
 ```
 
 for desktop: 
 ```
 supercollider-language
 supercollider-server
+supercollider-dev
 ```
-
-for rpi headless (building supercollider): 
-```
-libcwiid1 libasound2-dev libsamplerate0-dev libsndfile1-dev
-```
-
-note that lua packages are *not* required anymore; instead, lua is included as a submodule, built from source, and statically linked.
 
 ### sources
 
@@ -39,7 +34,14 @@ https://github.com/monome/libmonome.git
 https://github.com/nanomsg/nanomsg.git
 ```
 
-supercollider is included as a submodule.
+or use the debian repository as follows:
+
+```
+curl https://keybase.io/artfwo/pgp_keys.asc | sudo apt-key add -
+echo "deb http://norns.catfact.net/ debian/" | sudo tee /etc/apt/sources.list.d/norns.list
+sudo apt update
+sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-dev
+```
 
 ## building norns
 
@@ -47,7 +49,8 @@ supercollider is included as a submodule.
 git clone https://github.com/catfact/norns.git
 cd norns
 git submodule init && git submodule update
-make
+./waf configure
+./waf
 ```
 
 this should build all the c-based components (`matron`, `maiden`, and `ipc-wrapper`.)
@@ -58,7 +61,7 @@ see  [readme-usage.md](readme-usage.md) for instructions on running and using no
 
 ## configure
 
-- add `/usr/local/lib` to library serach paths (needed by libmonome.)
+- add `/usr/local/lib` to library serach paths (if libmonome is installed from sources.)
 the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_LIBRARY_PATH` variable is deprecated, since it willl override binary-specific settings.)
 
 - add udev rules. matron uses `libudev` and `libevdev` for low-level access to input devices. (TODO: see (http://www.reactivated.net/writing-udev-rules.html) ... )
