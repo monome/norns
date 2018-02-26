@@ -53,32 +53,22 @@ git submodule init && git submodule update
 ./waf
 ```
 
-this should build all the c-based components (`matron`, `maiden`, and `ipc-wrapper`.)
+this should build all the c-based components (`matron` and `ws-wrapper`.)
 
 the `crone` audio engine consists of supercollider classes. run `sc/install.sh` to copy these to the default location for user SC extensions. 
 
-see  [readme-usage.md](readme-usage.md) for instructions on running and using norns.
 
 ## configure
 
 - add `/usr/local/lib` to library serach paths (if libmonome is installed from sources.)
 the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_LIBRARY_PATH` variable is deprecated, since it willl override binary-specific settings.)
 
-- add udev rules. matron uses `libudev` and `libevdev` for low-level access to input devices. (TODO: see (http://www.reactivated.net/writing-udev-rules.html) ... )
-
-_**TODO: additional setup steps for raspberry pi?**_
-
-
 
 ## launching components
 
-### 0. setup environment
-
-run `install.sh` in `norns/crone/` to copy/link required files
-
 ### 1. launch `crone` (audio engine)
 
-run `crone.sh` from the norns directory. this creates a `sclang` process wrapped with `ipc-wrapper`, and a pair of ipc sockets in `/tmp`.
+run `crone.sh` from the norns directory. this creates a `sclang` process wrapped with `ws-wrapper`
 
 if the crone classes are installed correctly, you should see some lines like this in output from sclang initialization: 
 ```
@@ -94,20 +84,12 @@ and immediately after sclang init, you should see the server being booted and so
 
 ### 2. launch `matron` (lua interpreter)
 
-with the audio engine running, run `matron.sh` from the norns directory. this creates a `matron` process wrapped with `ipc-wrapper`, and a pair of ipc sockets in `/tmp`.
+with the audio engine running, run `matron.sh` from the norns directory. this creates a `matron` process wrapped with `ws-wrapper`
 
-### 3. launch `maiden` (UI client)
+matron waits for crone to finish loading before entering the main event loop.
 
-with the other components running, run the `maiden` executable from anywhere. this presents the user with a REPL interface to both the lua interpreter and the sclang backend.
+### 3. launch `maiden` (web UI client)
 
-special characters:
+TODO
 
-- ~~`TAB` : switch between lua and sclang REPLs~~ this is disabled actually
-- `shift+TAB` : switch between output log and input log for each REPL
-(_**TODO: input log isn't really implemented**_)
-- `q` : quits the client.
-
-_**TODO: output scrolling works, but no commands for it yet.**_
-
-_**TODO: more robust command input, e.g. `ctl-a` as an escape sequence.**_
-
+ie. `./norns-web.arm -debug -site ./app/build -data ~/norns/lua`
