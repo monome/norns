@@ -1,0 +1,42 @@
+top = '..'
+
+def build(bld):
+    matron_sources = [
+        'src/device/device.c',
+        'src/device/device_hid.c',
+        'src/device/device_list.c',
+        'src/device/device_monitor.c',
+        'src/device/device_monome.c',
+        'src/hardware/battery.c',
+        'src/hardware/gpio.c',
+        'src/hardware/i2c.c',
+        'src/hardware/screen.c',
+        'src/args.c',
+        'src/events.c',
+        'src/input.c',
+        'src/lua_eval.c',
+        'src/main.c',
+        'src/metro.c',
+        'src/oracle.c',
+        'src/weaver.c',
+    ]
+
+    bld.program(features='c cprogram',
+        source=matron_sources,
+        target='matron',
+        includes=[
+            'src',
+            'src/device',
+            'src/hardware',
+            'lua',
+        ], use=[
+            'LIBUDEV',
+            'LIBEVDEV',
+            'CAIRO',
+            'CAIRO-FT',
+            'LUA53',
+            'LIBLO',
+            'LIBMONOME',
+        ], lib=[
+            'pthread',
+        ])

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./ipc-wrapper/ipc-wrapper ./matron/matron ipc:///tmp/matron_in.ipc ipc:///tmp/matron_out.ipc
+./build/ws-wrapper/ws-wrapper ./build/matron/matron ws://*:5555

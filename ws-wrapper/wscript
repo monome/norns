@@ -1,0 +1,8 @@
+top = '..'
+
+def build(bld):
+    bld.program(features='c cprogram',
+        source='src/main.c',
+        target='ws-wrapper',
+        use=['NANOMSG'],
+        lib=['pthread'])
