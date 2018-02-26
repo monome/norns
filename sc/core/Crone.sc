@@ -56,7 +56,7 @@ Crone {
 
 	*setEngine { arg name;
 		var class;
-		class = CroneEngine.subclasses.select({ arg n; n.asString == name.asString })[0];
+		class = CroneEngine.subclasses.detect({ arg n; n.asString == name.asString });
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
