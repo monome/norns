@@ -16,6 +16,7 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "input.h"
+#include "osc.h"
 #include "metro.h"
 #include "screen.h"
 
@@ -26,13 +27,14 @@ void print_version(void);
 
 void cleanup(void) {
     dev_monitor_deinit();
+    osc_deinit();
     o_deinit();
     w_deinit();
     gpio_deinit();
     screen_deinit();
     battery_deinit();
 
-    printf("matron shutdown complete \n"); fflush(stdout);
+    fprintf(stderr, "matron shutdown complete\n");
     exit(0);
 }
 
@@ -53,16 +55,16 @@ int main(int argc, char **argv) {
     gpio_init();
     battery_init();
     i2c_init();
+    osc_init();
     o_init(); // oracle (audio)
 
     // wait here for a signal from the audio server...
-    printf("waiting for crone...");
-    fflush(stdout);
+    fprintf(stderr, "waiting for crone...");
     do {
         screen_text(".");
         sleep(1);
     } while(o_ready() != 1);
-    printf(" ready.\n");
+    fprintf(stderr, " ready.\n");
 
     w_init(); // weaver (scripting)
     dev_list_init();

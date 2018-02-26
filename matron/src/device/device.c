@@ -31,7 +31,7 @@ union dev *dev_new(device_t type, const char *path) {
         }
         break;
     default:
-        printf(
+        fprintf(stderr,
             "calling device.c:dev_new() with unkmown device type; this is an error!");
         goto err_init;
     }
@@ -45,19 +45,19 @@ err_init:
 }
 
 int dev_delete(union dev *d) {
-    printf("dev_delete()\n"); fflush(stdout);
+    fprintf(stderr, "dev_delete()\n");
     int ret = pthread_cancel(d->base.tid);
     if(ret) {
-        printf("dev_delete(): error in pthread_cancel(): %d\n", ret);
+        fprintf(stderr, "dev_delete(): error in pthread_cancel(): %d\n", ret);
         /// FIXME: getting this error on every device removal (double delete?)
-        if(ret == ESRCH) { printf("no such thread. (this is a known error)\n"); }
-        fflush(stdout);
+        if(ret == ESRCH) {
+            fprintf(stderr, "no such thread. (this is a known error)\n");
+        }
         return -1;
     }
     ret = pthread_join(d->base.tid, NULL); // wait before free
     if(ret) {
-        printf("dev_delete(): error in pthread_join(): %d\n", ret);
-        fflush(stdout);
+        fprintf(stderr, "dev_delete(): error in pthread_join(): %d\n", ret);
         return -1;
     }
     d->base.deinit(d);
@@ -78,13 +78,13 @@ int dev_start(union dev *d) {
 
     ret = pthread_attr_init(&attr);
     if(ret) {
-        printf("m_init(): error on thread attributes \n"); fflush(stdout);
+        fprintf(stderr, "m_init(): error on thread attributes \n");
         return -1;
     }
     ret = pthread_create(&d->base.tid, &attr, d->base.start, d);
     pthread_attr_destroy(&attr);
     if(ret) {
-        printf("m_init(): error creating thread\n"); fflush(stdout);
+        fprintf(stderr, "m_init(): error creating thread\n");
         return -1;
     }
     return 0;

@@ -16,6 +16,6 @@ for file in $(find . -name '*.sc'); do
     link $file
 done
 
-for file in $(find . -name '*.so'); do
+for file in $(find ../build/sc -name '*.so'); do
     link $file
 done

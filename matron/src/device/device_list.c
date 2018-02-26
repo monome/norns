@@ -47,16 +47,13 @@ void dev_list_add(device_t type, const char *path) {
         return;
     }
     struct dev_node *dn = calloc( 1, sizeof(struct dev_node) );
-    fflush(stdout);
     if (dn == NULL) {
-        printf("dev_list_add: error allocating device queue node\n");
-        fflush(stdout);
+        fprintf(stderr, "dev_list_add: error allocating device queue node\n");
         return;
     }
     union dev *d = dev_new(type, path);
     if (d == NULL) {
-        printf("dev_list_add: error allocating device data\n");
-        fflush(stdout);
+        fprintf(stderr, "dev_list_add: error allocating device data\n");
         return;
     }
 
@@ -82,8 +79,7 @@ void dev_list_add(device_t type, const char *path) {
         ev->hid_add.dev = d;
         break;
     default:
-        printf("dev_list_add(): error posting event (unknown type)\n");
-        fflush(stdout);
+        fprintf(stderr, "dev_list_add(): error posting event (unknown type)\n");
         return;
     }
     event_post(ev);
@@ -103,8 +99,7 @@ void dev_list_remove(device_t type, const char *node) {
         ev->hid_remove.id = dn->d->base.id;
         break;
     default:
-        printf("dev_list_remove(): error posting event (unknown type)\n");
-        fflush(stdout);
+        fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");
         return;
     }
     event_post(ev);

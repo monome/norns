@@ -87,29 +87,26 @@ void dev_monitor_init(void) {
     for(int i = 0; i < DEV_TYPE_COUNT; i++) {
         w[i].mon = udev_monitor_new_from_netlink(udev, "udev");
         if(w[i].mon == NULL) {
-            printf(
+            fprintf(stderr,
                 "failed to start udev_monitor for subsystem %s, pattern %s\n",
                 w[i].sub_name,
                 w[i].node_pattern);
-            fflush(stdout);
             continue;
         }
         if( udev_monitor_filter_add_match_subsystem_devtype(w[i].mon,
                                                             w[i].sub_name,
                                                             NULL) < 0) {
-            printf(
+            fprintf(stderr,
                 "failed to add udev monitor filter for subsystem %s, pattern %s\n",
                 w[i].sub_name,
                 w[i].node_pattern);
-            fflush(stdout);
             continue;
         }
         if (udev_monitor_enable_receiving(w[i].mon) < 0) {
-            printf(
+            fprintf(stderr,
                 "failed to enable monitor receiving for for subsystem %s, pattern %s\n",
                 w[i].sub_name,
                 w[i].node_pattern);
-            fflush(stdout);
             continue;
         }
 
@@ -117,14 +114,14 @@ void dev_monitor_init(void) {
         pfds[i].events = POLLIN;
 
         if( regcomp(&w[i].node_regex, w[i].node_pattern, 0) ) {
-            printf("error compiling regex for device pattern: %s\n",
+            fprintf(stderr, "error compiling regex for device pattern: %s\n",
                    w[i].node_pattern);
         }
     } // end dev type loop
     s = pthread_attr_init(&attr);
-    if(s) { printf("error initializing thread attributes \n"); }
+    if (s) { fprintf(stderr, "error initializing thread attributes \n"); }
     s = pthread_create(&watch_tid, &attr, watch_loop, NULL);
-    if(s) { printf("error creating thread\n"); }
+    if (s) { fprintf(stderr, "error creating thread\n"); }
     pthread_attr_destroy(&attr);
 }
 
@@ -142,8 +139,7 @@ int dev_monitor_scan(void) {
 
     udev = udev_new();
     if (!udev) {
-        printf("device_monitor_scan(): failed to create udev\n");
-        fflush(stdout);
+        fprintf(stderr, "device_monitor_scan(): failed to create udev\n");
         return 1;
     }
 
@@ -151,8 +147,7 @@ int dev_monitor_scan(void) {
         struct udev_enumerate *ue;
         struct udev_list_entry *devices, *dev_list_entry;
 #ifdef DEVICE_MONITOR_SHOW_DEVICE_SCANNING
-        printf("scanning for devices of type %s\n", w[i].sub_name); fflush(
-            stdout);
+        fprintf(stderr, "scanning for devices of type %s\n", w[i].sub_name);
 #endif
         ue = udev_enumerate_new(udev);
         udev_enumerate_add_match_subsystem(ue, w[i].sub_name);
@@ -162,7 +157,7 @@ int dev_monitor_scan(void) {
             const char *path;
             path = udev_list_entry_get_name(dev_list_entry);
 #ifdef DEVICE_MONITOR_SHOW_DEVICE_SCANNING
-            printf("scanning with udev at path: %s \n", path);
+            fprintf(stderr, "scanning with udev at path: %s\n", path);
 #endif
             dev = udev_device_new_from_syspath(udev, path);
             if (dev != NULL) {
@@ -178,7 +173,7 @@ int dev_monitor_scan(void) {
                         device_t t = check_dev_type(dev);
                         if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
 #ifdef DEVICE_MONITOR_SHOW_USB_DEVICES
-                            printf("found usb input device; type: %d \n", t);
+                            fprintf(stderr, "found usb input device; type: %d\n", t);
 #endif
                             dev_list_add(t, node);
                         }
@@ -187,9 +182,8 @@ int dev_monitor_scan(void) {
                 }
 #ifdef DEVICE_MONITOR_SHOW_NON_USB_DEVICES
                 else {
-                    printf( "found non-usb input device; type: %d \n",
-                            check_dev_type(
-                                dev) );
+                    fprintf(stderr, "found non-usb input device; type: %d \n",
+                        check_dev_type(dev));
                 }
 #endif
             }
@@ -228,7 +222,7 @@ void *watch_loop(void *p) {
                     udev_device_unref(dev);
                 }
                 else {
-                    printf(
+                    fprintf(stderr,
                         "no device data from receive_device(). this is an error!\n");
                 }
             }
@@ -239,7 +233,7 @@ void *watch_loop(void *p) {
 void handle_device(struct udev_device *dev) {
     device_t t = check_dev_type(dev);
     if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
-        printf("handling device, type: %d\n", t); fflush(stdout);
+        fprintf(stderr, "handling device, type: %d\n", t);
         const char *act = udev_device_get_action(dev);
         const char *node = udev_device_get_devnode(dev);
         if(act[0] == 'a') {
@@ -249,8 +243,7 @@ void handle_device(struct udev_device *dev) {
         }
     }
 #ifdef DEVICE_MONITOR_PRINT_UNHANDLED_DEVICES
-    printf("device_monitor:handle_device(): unknown device type\n"); fflush(
-        stdout);
+    fprintf(stderr, "device_monitor:handle_device(): unknown device type\n");
 #endif
 }
 
@@ -269,7 +262,6 @@ device_t check_dev_type (struct udev_device *dev) {
                                                           NULL) ) {
 #endif
             for(int i = 0; i < DEV_TYPE_COUNT; i++) {
-                fflush(stdout);
                 reti = regexec(&w[i].node_regex, node, 0, NULL, 0);
                 if(reti == 0) {
                     t = i;

@@ -78,6 +78,10 @@ Crone {
 					this.reportPolls;
 				});
 			});
+		}, {
+		    // if we didn't change engines, just resend the reports
+                        this.reportCommands;
+                        this.reportPolls;
 		});
 
 	}

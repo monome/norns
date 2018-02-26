@@ -5,4 +5,4 @@ export JACK_NO_AUDIO_RESERVATION=1
 
 # ipc wrapper requires full path 
 SCLANG=$(which sclang)
-./ws-wrapper/ws-wrapper $SCLANG ws://*:5557
+./build/ws-wrapper/ws-wrapper $SCLANG ws://*:5556

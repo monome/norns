@@ -2,6 +2,8 @@
 // maintains some DSP processing and provides control over parameters and analysis results
 // new engines should inherit from this
 CroneEngine {
+	var <doneCallback;
+
 	// an AudioContext
 	var <context;
 
@@ -16,10 +18,20 @@ CroneEngine {
 		^super.new.init(context, doneCallback);
 	}
 
-	init { arg ctx, doneCallback;
+	init { arg argContext, doneCallback;
 		commands = List.new;
 		commandNames = Dictionary.new;
 		pollNames = Set.new;
+		context = argContext;
+		context.postln;
+		fork {
+			this.alloc;
+			doneCallback.value(this);
+		};
+	}
+
+	alloc {
+		// subclass responsibility to allocate server resources, this method is called in a Routine so it's okay to s.sync
 	}
 
 	addPoll { arg name, func;

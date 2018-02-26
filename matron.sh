@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./ws-wrapper/ws-wrapper ./matron/matron ws://*:5555
+./build/ws-wrapper/ws-wrapper ./build/matron/matron ws://*:5555

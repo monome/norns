@@ -137,7 +137,7 @@ static void test_engine_load_done();
 //---- extern function definitions
 
 int o_ready(void) {
-  //  printf("sending /ready: %d", rem_port); fflush(stdout);
+    // fprintf(stderr, "sending /ready: %d", rem_port);
     lo_send(remote_addr, "/ready","");
     return ready;
 }
@@ -147,7 +147,7 @@ void o_init(void) {
     const char *loc_port = args_local_port();
     const char *rem_port = args_remote_port();
 
-    printf("OSC rx port: %s \nOSC tx port: %s\n",
+    fprintf(stderr, "OSC rx port: %s \nOSC tx port: %s\n",
            loc_port, rem_port);
     o_init_descriptors();
 
@@ -195,9 +195,9 @@ void o_init(void) {
 }
 
 void o_deinit(void) {
-    printf("killing audio engine\n"); fflush(stdout);
+    fprintf(stderr, "killing audio engine\n");
     lo_send(remote_addr, "/engine/kill", "");
-    printf("stopping OSC server\n"); fflush(stdout);
+    fprintf(stderr, "stopping OSC server\n");
     lo_server_thread_free(st);
 }
 
@@ -230,23 +230,21 @@ const struct engine_poll *o_get_polls(void) {
 void o_lock_descriptors() {
     int res = pthread_mutex_lock(&desc_lock);
     if(res) {
-        printf("o_lock_descriptors failed with code %d \b", res);
-        fflush(stdout);
+        fprintf(stderr, "o_lock_descriptors failed with code %d \b", res);
     }
 }
 
 void o_unlock_descriptors() {
     int res = pthread_mutex_unlock(&desc_lock);
     if(res)  {
-        printf("o_unlock_descriptors failed with code %d \b", res); fflush(
-            stdout);
+        fprintf(stderr, "o_unlock_descriptors failed with code %d \b", res);
     }
 }
 
 //--- tranmission to audio engine
 
 void o_request_engine_report(void) {
-    //  printf("requesting engine report... \n"); fflush(stdout);
+    // fprintf(stderr, "requesting engine report... \n");
     lo_send(remote_addr, "/report/engines", "");
 }
 
@@ -296,8 +294,8 @@ void o_clear_engine_names(void) {
             free(engine_names[i]);
             engine_names[i] = NULL;
         } else {
-            printf(
-                "o_clear_engine_names: encountered unexpected null entry \n");
+            fprintf(stderr,
+                "o_clear_engine_names: encountered unexpected null entry\n");
         }
     }
     o_unlock_descriptors();
@@ -312,7 +310,7 @@ void o_clear_commands(void) {
             commands[i].name = NULL;
             commands[i].format = NULL;
         } else {
-            printf("o_clear_commands: encountered unexpected null entry \n");
+            fprintf(stderr, "o_clear_commands: encountered unexpected null entry\n");
         }
     }
     o_unlock_descriptors();
@@ -325,7 +323,7 @@ void o_clear_polls(void) {
             free(polls[i].name);
             polls[i].name = NULL;
         } else {
-            printf("o_clear_polls: encountered unexpected null entry \n");
+            fprintf(stderr, "o_clear_polls: encountered unexpected null entry\n");
         }
     }
     o_unlock_descriptors();
@@ -336,12 +334,12 @@ void o_set_engine_name(int idx, const char *name) {
     size_t len;
     o_lock_descriptors();
     if(engine_names[idx] != NULL) {
-        printf("refusing to allocate engine name %d; already exists", idx);
+        fprintf(stderr, "refusing to allocate engine name %d; already exists", idx);
     } else {
         len = strlen(name);
         engine_names[idx] = malloc(len);
         if ( engine_names[idx] == NULL ) {
-            printf("failure to malloc for engine name %d : %s \n", idx, name);
+            fprintf(stderr, "failure to malloc for engine name %d : %s\n", idx, name);
         } else {
             strncpy(engine_names[idx], name, len + 1);
         }
@@ -354,7 +352,7 @@ void o_set_command(int idx, const char *name, const char *format) {
     size_t name_len, format_len;
     o_lock_descriptors();
     if( (commands[idx].name != NULL) || (commands[idx].format != NULL) ) {
-        printf("refusing to allocate command name %d; already exists", idx);
+        fprintf(stderr, "refusing to allocate command name %d; already exists", idx);
     } else {
         name_len = strlen(name);
         format_len = strlen(format);
@@ -362,7 +360,7 @@ void o_set_command(int idx, const char *name, const char *format) {
         commands[idx].format = malloc(format_len + 1);
         if ( ( commands[idx].name == NULL) ||
              ( commands[idx].format == NULL) ) {
-            printf("failure to malloc for command %d : %s %s \n",
+            fprintf(stderr, "failure to malloc for command %d : %s %s\n",
                    idx,
                    name,
                    format);
@@ -379,12 +377,12 @@ void o_set_poll(int idx, const char *name, poll_type_t type) {
     size_t name_len;
     o_lock_descriptors();
     if( polls[idx].name != NULL ) {
-        printf("refusing to allocate poll name %d; already exists", idx);
+        fprintf(stderr, "refusing to allocate poll name %d; already exists", idx);
     } else {
         name_len = strlen(name);
         polls[idx].name = malloc(name_len + 1);
         if ( ( polls[idx].name == NULL) ) {
-            printf("failure to malloc for poll %d : %s \n", idx, name);
+            fprintf(stderr, "failure to malloc for poll %d : %s\n", idx, name);
         } else {
             strncpy(polls[idx].name, name, name_len + 1);
         }
@@ -680,14 +678,13 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
 }
 
 void lo_error_handler(int num, const char *m, const char *path) {
-    printf("liblo error %d in path %s: %s\n", num, path, m);
-    fflush(stdout);
+    fprintf(stderr, "liblo error %d in path %s: %s\n", num, path, m);
 }
 
 void test_engine_load_done() {
   if(!get_need_reports()) {
     union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
-    printf("oracle: done loading engine\n"); fflush(stdout);
+    fprintf(stderr, "oracle: done loading engine\n");
     event_post(ev);
   }
 }
