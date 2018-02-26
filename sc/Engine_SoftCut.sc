@@ -16,7 +16,7 @@ Engine_SoftCut : CroneEngine {
 	// @param: audio context
 	// @param: callback when done initializing resourcess
 	*new { arg context, doneCallback;
-		^super.new(context, doneCallback).init_SoftCut;
+		^super.new(context, doneCallback);
 	}
 
 	free {
@@ -78,103 +78,96 @@ Engine_SoftCut : CroneEngine {
 	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
-	init_SoftCut {
+	alloc {
 		var com;
 		var bus_pb_idx; // tmp collection of playback bus indices
 		var bus_rec_idx;
 		var bufcon;
+		var s = context.server;
 
-		Routine {
-			var s = context.server;
+		postln("SoftCut: init routine");
 
-			postln("SoftCut: init routine");
+		//--- groups
+		gr = Event.new;
+		gr.pb = Group.new(context.xg);
+		gr.rec = Group.after(context.ig);
+		// phase bus per voice (output)
+		bus = Event.new;
 
-			//--- groups
-			gr = Event.new;
-			gr.pb = Group.new(context.xg);
-			gr.rec = Group.after(context.ig);
-			// phase bus per voice (output)
-			bus = Event.new;
+		s.sync;
 
-			s.sync;
+		//--- buffers
 
-			//--- buffers
+		postln("SoftCut: allocating buffers");
+		buf = Array.fill(nvoices, { arg i;
+			Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
+			})
+		});
 
-			postln("SoftCut: allocating buffers");
-			buf = Array.fill(nvoices, { arg i;
-				Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
-				})
+		s.sync;
+
+		//--- busses
+		bus.adc = context.in_b;
+		// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
+		// FIXME: oh! actually just use array of panners, instead of output patch matrix.
+		// here we convert  output bus to a mono array
+		bus.dac = Array.with( Bus.newFrom(context.out_b, 0), Bus.newFrom(context.out_b, 1));
+		bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
+		bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
+
+		//-- voices
+		voices = Array.fill(nvoices, { |i|
+			// 	arg server, target, buf, in, out;
+			SoftCutVoice.new(s, context.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
+		});
+
+		//--- patch matrices
+		bus_pb_idx = bus.pb.collect({ |b| b.index });
+		bus_rec_idx = bus.rec.collect({ |b| b.index });
+		pm = Event.new;
+
+		postln("softcut: in->rec patchmatrix");
+		// input -> record
+		pm.adc_rec = PatchMatrix.new(
+			server:s, target:gr.rec, action:\addToTail,
+			in: bus.adc.collect({ |b| b.index }),
+			out: bus_rec_idx,
+			feedback:true
+		);
+		postln("softcut: pb->out patchmatrix");
+		// playback -> output
+		pm.pb_dac = PatchMatrix.new(
+			server:s, target:gr.pb, action:\addAfter,
+			in: bus_pb_idx,
+			out: bus.dac.collect({ |b| b.index }),
+			feedback:true
+		);
+
+		// playback -> record
+		postln("softcut: pb->rec patchmatrix");
+		pm.pb_rec = PatchMatrix.new(
+			server:s, target:gr.pb, action:\addAfter,
+			in: bus_pb_idx,
+			out: bus_rec_idx,
+			feedback:true
+		);
+
+		this.addCommands;
+
+		nvoices.do({ arg i;
+			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
+				var val = voices[i].phase_b.getSynchronous;
+				postln("phase: " ++ val);
+				val
 			});
-
-			s.sync;
-
-			//--- busses
-			bus.adc = context.in_b;
-			// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
-			// FIXME: oh! actually just use array of panners, instead of output patch matrix.
-			// here we convert  output bus to a mono array
-			bus.dac = Array.with( Bus.newFrom(context.out_b, 0), Bus.newFrom(context.out_b, 1));
-			bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
-			bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
-
-			//-- voices
-			voices = Array.fill(nvoices, { |i|
-				// 	arg server, target, buf, in, out;
-				SoftCutVoice.new(s, context.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
+			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
+				voices[i].phase_b.getSynchronous / voices[i].buf.duration
 			});
-
-			//--- patch matrices
-			bus_pb_idx = bus.pb.collect({ |b| b.index });
-			bus_rec_idx = bus.rec.collect({ |b| b.index });
-			pm = Event.new;
-
-			postln("softcut: in->rec patchmatrix");
-			// input -> record
-			pm.adc_rec = PatchMatrix.new(
-				server:s, target:gr.rec, action:\addToTail,
-				in: bus.adc.collect({ |b| b.index }),
-				out: bus_rec_idx,
-				feedback:true
-			);
-			postln("softcut: pb->out patchmatrix");
-			// playback -> output
-			pm.pb_dac = PatchMatrix.new(
-				server:s, target:gr.pb, action:\addAfter,
-				in: bus_pb_idx,
-				out: bus.dac.collect({ |b| b.index }),
-				feedback:true
-			);
-
-			// playback -> record
-			postln("softcut: pb->rec patchmatrix");
-			pm.pb_rec = PatchMatrix.new(
-				server:s, target:gr.pb, action:\addAfter,
-				in: bus_pb_idx,
-				out: bus_rec_idx,
-				feedback:true
-			);
-
-			this.addCommands;
-
-			nvoices.do({ arg i;
-				this.addPoll(("phase_" ++ (i+1)).asSymbol, {
-					var val = voices[i].phase_b.getSynchronous;
-					postln("phase: " ++ val);
-					val
-				});
-				this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
-					voices[i].phase_b.getSynchronous / voices[i].buf.duration
-				});
-			});
+		});
 
 
-			s.sync;
-			doneCallback.value(this);
-
-		}.play;
-
-
-	} // init_SoftCut
+		s.sync;
+	}
 
 	addCommands {
 

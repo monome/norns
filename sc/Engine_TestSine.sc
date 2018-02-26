@@ -4,10 +4,10 @@ Engine_TestSine : CroneEngine {
 	var <synth;
 
 	*new { arg context, doneCallback;
-		^super.new(context, doneCallback).init_TestSine;
+		^super.new(context, doneCallback);
 	}
 
-	init_TestSine {
+	alloc {
 		synth = {
 			arg out=context.out_b, hz=220, amp=0.5, amplag=0.02, hzlag=0.01;
 			var amp_, hz_;
@@ -23,8 +23,6 @@ Engine_TestSine : CroneEngine {
 		this.addCommand("amp", "f", { arg msg;
 			synth.set(\amp, msg[1]);
 		});
-
-		doneCallback.value(this);
 	}
 
 	free {

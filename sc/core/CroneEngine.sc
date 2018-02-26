@@ -18,13 +18,20 @@ CroneEngine {
 		^super.new.init(context, doneCallback);
 	}
 
-	init { arg argContext, argDoneCallback;
+	init { arg argContext, doneCallback;
 		commands = List.new;
 		commandNames = Dictionary.new;
 		pollNames = Set.new;
 		context = argContext;
 		context.postln;
-		doneCallback = argDoneCallback;
+		fork {
+			this.alloc;
+			doneCallback.value(this);
+		};
+	}
+
+	alloc {
+		// subclass responsibility to allocate server resources, this method is called in a Routine so it's okay to s.sync
 	}
 
 	addPoll { arg name, func;
