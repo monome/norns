@@ -222,7 +222,7 @@ void *watch_loop(void *p) {
             if(pfds[i].revents & POLLIN) {
                 dev = udev_monitor_receive_device(w[i].mon);
                 if (dev) {
-		  fprintf(stderr, "device_monitor: watch loop saw something: 0x%08lx\n", (uintptr_t) dev);
+                    fprintf(stderr, "device_monitor: watch loop saw something: %p\n", dev);
                     handle_device(dev);
                     udev_device_unref(dev);
                 }
