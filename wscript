@@ -44,6 +44,8 @@ def configure(conf):
         define_name='HAVE_SUPERCOLLIDER',
         mandatory=True,
         includes=[
+            '{}/include/SuperCollider/plugin_interface'.format(conf.env.PREFIX),
+            '{}/include/SuperCollider/common'.format(conf.env.PREFIX),
             '/usr/include/SuperCollider/plugin_interface',
             '/usr/include/SuperCollider/common',
             '/usr/local/include/SuperCollider/plugin_interface',
