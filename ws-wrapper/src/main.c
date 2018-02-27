@@ -19,8 +19,6 @@
 #include <nanomsg/nn.h>
 #include <nanomsg/bus.h>
 #include <nanomsg/ws.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 
 #define PIPE_READ 0
 #define PIPE_WRITE 1
