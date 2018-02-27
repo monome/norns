@@ -49,8 +49,8 @@ void battery_deinit() {
 void *battery_check(void *x) {
     (void)x;
     int n;
-    int percent;
-    int present;
+    int percent = 0;
+    int present = 0;
 
     while(1) {
         lseek(fd[0],0,SEEK_SET);
