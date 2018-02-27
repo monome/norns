@@ -30,7 +30,7 @@ void i2c_init(void) {
 
     sprintf(filename,"/dev/i2c-1");
     if( ( file = open(filename,O_RDWR) ) < 0 ) {
-        fprintf(stderr, "ERROR (i2c) failed to open bus");
+        fprintf(stderr, "ERROR (i2c) failed to open bus\n");
         return;
     }
 
@@ -112,7 +112,7 @@ void i2c_aout(int level, int ch) {
     }
 
     if(ioctl(file,I2C_SLAVE,ADDR_OUT) < 0) {
-        fprintf(stderr, 
+        fprintf(stderr,
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
