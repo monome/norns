@@ -19,7 +19,7 @@ extern void devices_init(void);
 // create a device from a file path
 extern union dev *dev_new(device_t type, const char *path);
 // destroy given device
-extern int dev_delete(union dev *d);
+extern void dev_delete(union dev *d);
 
 // get id from device pointer
 extern int dev_id(union dev *d);

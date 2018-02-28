@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "device.h"
 
@@ -44,28 +45,32 @@ err_init:
     return NULL;
 }
 
-int dev_delete(union dev *d) {
-    fprintf(stderr, "dev_delete()\n");
-    int ret = pthread_cancel(d->base.tid);
-    if(ret) {
-        fprintf(stderr, "dev_delete(): error in pthread_cancel(): %d\n", ret);
-        /// FIXME: getting this error on every device removal (double delete?)
-        if(ret == ESRCH) {
-            fprintf(stderr, "no such thread. (this is a known error)\n");
+void dev_delete(union dev *d) {
+    int ret;
+    fprintf(stderr, "dev_delete(): removing device %d\n", d->base.id);
+
+    if (pthread_kill(d->base.tid, 0) == 0) {
+        // device i/o thread still running
+        ret = pthread_cancel(d->base.tid);
+        if (ret) {
+            fprintf(stderr, "dev_delete(): error in pthread_cancel(): %d\n", ret);
+            exit(EXIT_FAILURE);
         }
-        return -1;
     }
-    ret = pthread_join(d->base.tid, NULL); // wait before free
-    if(ret) {
+
+    ret = pthread_join(d->base.tid, NULL);
+    if (ret) {
         fprintf(stderr, "dev_delete(): error in pthread_join(): %d\n", ret);
-        return -1;
+        exit(EXIT_FAILURE);
     }
+
     d->base.deinit(d);
+
     TEST_NULL_AND_FREE(d->base.path);
     TEST_NULL_AND_FREE(d->base.serial);
     TEST_NULL_AND_FREE(d->base.name);
+
     free(d);
-    return 0;
 }
 
 int dev_start(union dev *d) {
