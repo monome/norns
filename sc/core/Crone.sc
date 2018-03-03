@@ -56,7 +56,7 @@ Crone {
 
 	*setEngine { arg name;
 		var class;
-		class = CroneEngine.subclasses.detect({ arg n; n.asString == name.asString });
+		class = CroneEngine.allSubclasses.detect({ arg n; n.asString == name.asString });
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
@@ -114,7 +114,9 @@ Crone {
 	}
 
 	*reportEngines {
-		var names = CroneEngine.subclasses.collect({ arg n;
+		var names = CroneEngine.allSubclasses.select {
+			|class| class.name.asString.beginsWith("Engine_");
+		}.collect({ arg n;
 			n.asString.split($_)[1]
 		});
 		postln('engines: ' ++ names);
