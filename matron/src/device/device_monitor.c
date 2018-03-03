@@ -14,22 +14,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include "device.h"
 #include "device_list.h"
 #include "device_hid.h"
 #include "device_monome.h"
 #include "events.h"
-
-//--- debug flags
-// #define DEVICE_MONITOR_SHOW_DEVICE_SCANNING
-// #define DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
-// #define DEVICE_MONITOR_PRINT_UNHANDLED_DEVICES
-// #define DEVICE_MONITOR_SHOW_USB_DEVICES
-// #define DEVICE_MONITOR_SHOW_NON_USB_DEVICES
-
-//---------------------
-//--- types and defines
 
 #define SUB_NAME_SIZE 32
 #define NODE_NAME_SIZE 128
@@ -73,9 +64,11 @@ pthread_t watch_tid;
 
 //--------------------------------
 //--- static function declarations
-static void *watch_loop(void *data);
+static void* watch_loop(void *data);
 static void handle_device(struct udev_device *dev);
-static device_t check_dev_type (struct udev_device *dev);
+static device_t check_dev_type(struct udev_device *dev);
+static char* get_alsa_midi_node(struct udev_device *dev);
+
 
 //--------------------------------
 //---- extern function definitions
@@ -97,7 +90,7 @@ void dev_monitor_init(void) {
                 w[i].node_pattern);
             continue;
         }
-        if( udev_monitor_filter_add_match_subsystem_devtype(w[i].mon,
+        if (udev_monitor_filter_add_match_subsystem_devtype(w[i].mon,
                                                             w[i].sub_name,
                                                             NULL) < 0) {
             fprintf(stderr,
@@ -117,13 +110,13 @@ void dev_monitor_init(void) {
         pfds[i].fd = udev_monitor_get_fd(w[i].mon);
         pfds[i].events = POLLIN;
 
-        if( regcomp(&w[i].node_regex, w[i].node_pattern, 0) ) {
+        if (regcomp(&w[i].node_regex, w[i].node_pattern, 0)) {
             fprintf(stderr, "error compiling regex for device pattern: %s\n",
-                   w[i].node_pattern);
+                w[i].node_pattern);
         }
     } // end dev type loop
     s = pthread_attr_init(&attr);
-    if (s) { fprintf(stderr, "error initializing thread attributes \n"); }
+    if (s) { fprintf(stderr, "error initializing thread attributes\n"); }
     s = pthread_create(&watch_tid, &attr, watch_loop, NULL);
     if (s) { fprintf(stderr, "error creating thread\n"); }
     pthread_attr_destroy(&attr);
@@ -131,7 +124,7 @@ void dev_monitor_init(void) {
 
 void dev_monitor_deinit(void) {
     pthread_cancel(watch_tid);
-    for(int i = 0; i < DEV_TYPE_COUNT; i++) {
+    for (int i = 0; i < DEV_TYPE_COUNT; i++) {
         free(w[i].mon);
     }
 }
@@ -150,62 +143,45 @@ int dev_monitor_scan(void) {
     for(int i = 0; i < DEV_TYPE_COUNT; i++) {
         struct udev_enumerate *ue;
         struct udev_list_entry *devices, *dev_list_entry;
-#ifdef DEVICE_MONITOR_SHOW_DEVICE_SCANNING
-        fprintf(stderr, "scanning for devices of type %s\n", w[i].sub_name);
-#endif
+
         ue = udev_enumerate_new(udev);
         udev_enumerate_add_match_subsystem(ue, w[i].sub_name);
         udev_enumerate_scan_devices(ue);
         devices = udev_enumerate_get_list_entry(ue);
+
         udev_list_entry_foreach(dev_list_entry, devices) {
             const char *path;
             path = udev_list_entry_get_name(dev_list_entry);
-#ifdef DEVICE_MONITOR_SHOW_DEVICE_SCANNING
-            fprintf(stderr, "scanning with udev at path: %s\n", path);
-#endif
             dev = udev_device_new_from_syspath(udev, path);
-            if (dev != NULL) {
-#ifdef DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
-                if(1) {
-#else
-                if( udev_device_get_parent_with_subsystem_devtype(dev, "usb",
-                                                                  NULL) ) {
-#endif
 
+            if (dev != NULL) {
+                if (udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
                     node = udev_device_get_devnode(dev);
-                    if(node != NULL) {
+
+                    if (node != NULL) {
                         device_t t = check_dev_type(dev);
-                        if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
-#ifdef DEVICE_MONITOR_SHOW_USB_DEVICES
-                            fprintf(stderr, "found usb input device; type: %d\n", t);
-#endif
+
+                        if ((t >= 0) && (t < DEV_TYPE_COUNT)) {
                             dev_list_add(t, node);
                         }
                     }
                     udev_device_unref(dev);
                 }
-#ifdef DEVICE_MONITOR_SHOW_NON_USB_DEVICES
-                else {
-                    fprintf(stderr, "found non-usb input device; type: %d \n",
-                        check_dev_type(dev));
-                }
-#endif
             }
         }
         udev_enumerate_unref(ue);
     }
-
     return 0;
 }
 
 //-------------------------------
 //--- static function definitions
 
-void *watch_loop(void *p) {
-    (void)p;
+void* watch_loop(void *p) {
+    (void) p;
     struct udev_device *dev;
 
-    while(1) {
+    while (1) {
         if (poll(pfds, DEV_TYPE_COUNT, WATCH_TIMEOUT_MS) < 0) {
             switch (errno) {
             case EINVAL:
@@ -218,17 +194,14 @@ void *watch_loop(void *p) {
         }
 
         // see which monitor has data
-        for(int i = 0; i < DEV_TYPE_COUNT; i++) {
-            if(pfds[i].revents & POLLIN) {
+        for (int i = 0; i < DEV_TYPE_COUNT; i++) {
+            if (pfds[i].revents & POLLIN) {
                 dev = udev_monitor_receive_device(w[i].mon);
                 if (dev) {
-                    fprintf(stderr, "device_monitor: watch loop saw something: %p\n", dev);
                     handle_device(dev);
                     udev_device_unref(dev);
-                }
-                else {
-                    fprintf(stderr,
-                        "no device data from receive_device(). this is an error!\n");
+                } else {
+                    fprintf(stderr, "no device data from receive_device(). this is an error!\n");
                 }
             }
         }
@@ -236,48 +209,55 @@ void *watch_loop(void *p) {
 }
 
 void handle_device(struct udev_device *dev) {
-    device_t t = check_dev_type(dev);
-    if( ( t >= 0) && ( t < DEV_TYPE_COUNT) ) {
-        const char *act = udev_device_get_action(dev);
-        const char *node = udev_device_get_devnode(dev);
-	fprintf(stderr, "handling device, type: %d; action: %s; node: %s\n", t, act, node);
-        if(act[0] == 'a') {
-            dev_list_add(t, node);
-        } else if (act[0] == 'r') {
-            dev_list_remove(t, node);
+    const char *action = udev_device_get_action(dev);
+    const char *node = udev_device_get_devnode(dev);
+    const char *subsys = udev_device_get_subsystem(dev);
+
+    if (strcmp(subsys, "sound") == 0) {
+        // try to act according to
+        // https://github.com/systemd/systemd/blob/master/rules/78-sound-card.rules
+        if (strcmp(action, "change") == 0) {
+            char* alsa_node = get_alsa_midi_node(dev);
+            if (alsa_node != NULL) {
+                dev_list_add(DEV_TYPE_MIDI, alsa_node);
+            }
+        } else if (strcmp(action, "remove") == 0) {
+            if (node != NULL) {
+                dev_list_remove(DEV_TYPE_MIDI, node);
+            }
+        }
+    } else {
+        device_t t = check_dev_type(dev);
+
+        if ((t >= 0) && (t < DEV_TYPE_COUNT)) {
+            if (strcmp(action, "add") == 0) {
+                dev_list_add(t, node);
+            } else if (strcmp(action, "remove") == 0) {
+                dev_list_remove(t, node);
+            }
         }
     }
-#ifdef DEVICE_MONITOR_PRINT_UNHANDLED_DEVICES
-    fprintf(stderr, "device_monitor:handle_device(): unknown device type\n");
-#endif
 }
 
-device_t check_dev_type (struct udev_device *dev) {
+device_t check_dev_type(struct udev_device *dev) {
     static char msgbuf[128];
     device_t t = DEV_TYPE_INVALID;
     const char *node = udev_device_get_devnode(dev);
-
     int reti;
-    if(node) {
+
+    if (node) {
         // for now, just get USB devices.
         // eventually we might want to use this same system for GPIO, &c...
-#ifdef DEVICE_MONITOR_TRY_ALL_INPUT_DEVICES
-        if(1) {
-#else
-        if( udev_device_get_parent_with_subsystem_devtype(dev, "usb",
-                                                          NULL) ) {
-#endif
-            for(int i = 0; i < DEV_TYPE_COUNT; i++) {
+        if (udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
+            for (int i = 0; i < DEV_TYPE_COUNT; i++) {
                 reti = regexec(&w[i].node_regex, node, 0, NULL, 0);
-                if(reti == 0) {
+                if (reti == 0) {
                     t = i;
                     break;
-                }
-                else if (reti == REG_NOMATCH) {
+                } else if (reti == REG_NOMATCH) {
                     ;; // nothing to do
-                }
-                else {
-                    regerror( reti, &w[i].node_regex, msgbuf, sizeof(msgbuf) );
+                } else {
+                    regerror(reti, &w[i].node_regex, msgbuf, sizeof(msgbuf));
                     fprintf(stderr, "regex match failed: %s\n", msgbuf);
                     exit(1);
                 }
@@ -285,4 +265,29 @@ device_t check_dev_type (struct udev_device *dev) {
         }
     }
     return t;
+}
+
+// try to get midi device node from udev_device
+char* get_alsa_midi_node(struct udev_device *dev) {
+    const char *subsys;
+    const char *syspath;
+    DIR *sysdir;
+    struct dirent *sysdir_ent;
+    int alsa_card, alsa_dev;
+    char *result = NULL;
+
+    subsys = udev_device_get_subsystem(dev);
+
+    if (strcmp(subsys, "sound") == 0) {
+        syspath = udev_device_get_syspath(dev);
+        sysdir = opendir(syspath);
+
+        while ((sysdir_ent = readdir(sysdir)) != NULL) {
+            if (sscanf(sysdir_ent->d_name, "midiC%uD%u", &alsa_card, &alsa_dev) == 2) {
+                asprintf(&result, "/dev/snd/%s", sysdir_ent->d_name);
+            }
+        }
+    }
+
+    return result;
 }
