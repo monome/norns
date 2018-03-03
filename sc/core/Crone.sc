@@ -85,7 +85,7 @@ Crone {
 	}
 
 	// start a thread to continuously send a named report with a given interval
-	*startPoll { arg idx, intervalMs =100;
+	*startPoll { arg idx;
 		var poll = CronePollRegistry.getPollFromIdx(idx);
 		if(poll.notNil, {
 			poll.start(remoteAddr);
