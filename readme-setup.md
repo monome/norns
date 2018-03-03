@@ -3,19 +3,8 @@
 ## build prerequisites
 
 ### packages
-
-install with pacman / apt-get:
-
 ```
-cmake
-libevdev-dev
-liblo-dev
-libncurses-dev
-libncursesw5-dev
-libreadline-dev
-libudev-dev
-libcairo2-dev
-liblua5.3-dev
+sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev
 ```
 
 for desktop: 
@@ -48,7 +37,6 @@ sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollid
 ```
 git clone https://github.com/catfact/norns.git
 cd norns
-git submodule init && git submodule update
 ./waf configure
 ./waf
 ```
