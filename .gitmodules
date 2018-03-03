@@ -1,6 +1,0 @@
-[submodule "matron/lua"]
-	path = matron/lua
-	url = https://github.com/catfact/lua.git
-[submodule "supercollider"]
-	path = supercollider
-	url = https://github.com/catfact/supercollider
