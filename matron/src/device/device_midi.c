@@ -49,7 +49,9 @@ void *dev_midi_start(void *self) {
         read = snd_rawmidi_read(midi->handle_in, &byte, 1);
 
         if (byte >= 0xf8) {
-            // TODO: post realtime event
+            ev = event_data_new(EVENT_MIDI_EVENT);
+            ev->midi_event.data[0] = byte;
+            event_post(ev);
         } else {
             if (byte >= 0x80) {
                 msg_buf[0] = byte;
