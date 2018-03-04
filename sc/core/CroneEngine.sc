@@ -2,8 +2,6 @@
 // maintains some DSP processing and provides control over parameters and analysis results
 // new engines should inherit from this
 CroneEngine {
-	var <doneCallback;
-
 	// an AudioContext
 	var <context;
 

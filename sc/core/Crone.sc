@@ -38,19 +38,17 @@ Crone {
 			server.options.memSize = 2**16;
 			server.latency = 0.05;
 
-			server.waitForBoot ({
-				Routine {
-					CroneDefs.sendDefs(server);
-					server.sync;
-					// create the audio context (boilerplate routing and analysis)
-					ctx = AudioContext.new(server);
+			server.waitForBoot {
+				CroneDefs.sendDefs(server);
+				server.sync;
+				// create the audio context (boilerplate routing and analysis)
+				ctx = AudioContext.new(server);
 
-					Crone.initOscRx;
-					Crone.initVu;
+				Crone.initOscRx;
+				Crone.initVu;
 
-					complete = 1;
-				}.play;
-			});
+				complete = 1;
+			};
 
 		}
 
@@ -58,7 +56,7 @@ Crone {
 
 	*setEngine { arg name;
 		var class;
-		class = CroneEngine.subclasses.select({ arg n; n.asString == name.asString })[0];
+		class = CroneEngine.subclasses.detect({ arg n; n.asString == name.asString });
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {

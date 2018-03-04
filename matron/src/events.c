@@ -170,22 +170,31 @@ static void handle_event(union event_data *ev) {
         w_handle_monome_remove( ev->monome_remove.id );
         break;
     case EVENT_GRID_KEY:
-        w_handle_grid_key( ev->grid_key.id,
-                           ev->grid_key.x,
-                           ev->grid_key.y,
-                           ev->grid_key.state);
+        w_handle_grid_key(ev->grid_key.id,
+                          ev->grid_key.x,
+                          ev->grid_key.y,
+                          ev->grid_key.state);
         break;
     case EVENT_HID_ADD:
-        w_handle_hid_add( ev->hid_add.dev );
+        w_handle_hid_add(ev->hid_add.dev);
         break;
     case EVENT_HID_REMOVE:
-        w_handle_hid_remove( ev->hid_remove.id );
+        w_handle_hid_remove(ev->hid_remove.id);
         break;
     case EVENT_HID_EVENT:
-        w_handle_hid_event( ev->hid_event.id,
-                            ev->hid_event.type,
-                            ev->hid_event.code,
-                            ev->hid_event.value );
+        w_handle_hid_event(ev->hid_event.id,
+                           ev->hid_event.type,
+                           ev->hid_event.code,
+                           ev->hid_event.value);
+        break;
+    case EVENT_MIDI_ADD:
+        w_handle_midi_add(ev->midi_add.dev);
+        break;
+    case EVENT_MIDI_REMOVE:
+        w_handle_midi_remove(ev->midi_remove.id);
+        break;
+    case EVENT_MIDI_EVENT:
+        w_handle_midi_event(ev->midi_event.id, ev->midi_event.data);
         break;
     case EVENT_ENGINE_REPORT:
         handle_engine_report();

@@ -8,6 +8,9 @@ init = function()
     e.release(0.1*2^(release/12))
     e.amp(0.5)
     t:start()
+
+    start_amp_poll()
+    
 end
 
 gridkey = function(x, y, state)
@@ -109,15 +112,11 @@ end
 
 local ampCallback = function(amp) calcMeter(amp, 64, -72) end
 
-poll.report = function(polls)
-   p = polls['amp_out_l']
-   if p then
-      p.callback = ampCallback
-      p.time = 0.03;
-      p:start()
-   else
-      print("couldn't get requested poll, dang")
-   end 
+start_amp_poll = function()
+   print('starting amp poll in grid_seek')
+   p = poll.set('amp_out_l', ampCallback)
+   p.time = 0.03;
+   p:start()
 end 
 
 
