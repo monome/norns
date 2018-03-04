@@ -11,6 +11,7 @@
 #include "device_hid.h"
 #include "device_monitor.h"
 #include "device_monome.h"
+#include "device_midi.h"
 #include "events.h"
 #include "battery.h"
 #include "gpio.h"
