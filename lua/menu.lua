@@ -119,6 +119,9 @@ menu.set_mode = function(mode)
     else -- enable menu mode
         menu.mode = true
         sys.s.block()
+        s_font_face(0)
+        s_font_size(8)
+        s_line_width(1)
         menu.set_page(menu.page)
         set_enc_sens(1,1)
         set_enc_sens(2,4)
@@ -133,8 +136,6 @@ menu.set_page = function(page)
     menu.enc = p.enc[page]
     menu.redraw = p.redraw[page]
     p.init[page]()
-    s_font_face(0)
-    s_font_size(8)
     menu.redraw()
 end
 
