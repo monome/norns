@@ -1,5 +1,5 @@
 -- @name template
--- @version 1.0.2
+-- @version 1.0.3
 -- @author tehn
 -- @url http://monome.org
 -- @txt a very basic example
@@ -13,11 +13,6 @@ init = function(commands, count)
     print("template!")
     -- add log message
     sys.log.post("hello!")
-    -- show engine commands available
-    print("commands: ")
-    for i,v in pairs(commands) do
-        print(i, v.fmt)
-    end
     -- set engine params
     e.hz(100)
     e.amp(0.125)

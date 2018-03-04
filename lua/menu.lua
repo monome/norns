@@ -305,15 +305,19 @@ end
 
 p.pre = {}
 p.pre.meta = {}
+p.pre.state = 0
 
 p.init[pPREVIEW] = function()
     p.pre.meta = sys.script.metadata(p.sel.path)
+    p.pre.state = 0
 end
 
 p.key[pPREVIEW] = function(n,z)
-    if n==3 and z == 0 then -- load on key up so no extra key events passed to script
+    if n==3 and p.pre.state == 1 then
         sys.script.load(p.sel.path)
         menu.set_mode(false)
+    elseif n ==3 and z == 1 then
+        p.pre.state = 1
     elseif n == 2 and z == 1 then
         menu.set_page(pSELECT)
     end
