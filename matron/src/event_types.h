@@ -104,6 +104,15 @@ struct event_hid_remove {
     uint32_t id;
 }; // +4
 
+/// fixme: maybe break this up into hid_key, hid_abs, &c?
+struct event_hid_event {
+    struct event_common common;
+    uint8_t id;
+    uint8_t type;
+    uint16_t code;
+    int32_t value;
+}; // +8
+
 struct event_midi_add {
     struct event_common common;
     void *dev;
@@ -116,17 +125,9 @@ struct event_midi_remove {
 
 struct event_midi_event {
     struct event_common common;
+    uint32_t id;
     uint8_t data[3];
 }; // +4
-
-/// fixme: maybe break this up into hid_key, hid_abs, &c?
-struct event_hid_event {
-    struct event_common common;
-    uint8_t id;
-    uint8_t type;
-    uint16_t code;
-    int32_t value;
-}; // +8
 
 struct event_metro {
     struct event_common common;

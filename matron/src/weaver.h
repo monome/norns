@@ -34,9 +34,9 @@ extern void w_handle_hid_remove(int id);
 extern void w_handle_hid_event(int id, uint8_t type, dev_code_t code,
                                int val);
 
-extern void w_handle_midi_add();
-extern void w_handle_midi_remove();
-extern void w_handle_midi_event(uint8_t *data);
+extern void w_handle_midi_add(void *dev);
+extern void w_handle_midi_remove(int id);
+extern void w_handle_midi_event(int id, uint8_t *data);
 
 //--- audio engine introspection
 extern void w_handle_engine_report(const char **arr, const int num);

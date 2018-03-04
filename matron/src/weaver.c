@@ -1409,25 +1409,30 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
     l_report( lvm, l_docall(lvm, 4, 0) );
 }
 
-void w_handle_midi_add() {
+void w_handle_midi_add(void *p) {
+    //struct dev_midi *dev = (struct dev_midi *)p;
+    struct dev_common *base = (struct dev_common *)p;
+    int id = base->id;
+
     _push_norns_func("midi", "add");
-    // TODO: params
-    l_report(lvm, l_docall(lvm, 0, 0));
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    l_report(lvm, l_docall(lvm, 1, 0));
 }
 
-void w_handle_midi_remove() {
+void w_handle_midi_remove(int id) {
     _push_norns_func("midi", "remove");
-    // TODO: params
-    l_report(lvm, l_docall(lvm, 0, 0));
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    l_report(lvm, l_docall(lvm, 1, 0));
 }
 
-void w_handle_midi_event(uint8_t *data) {
+void w_handle_midi_event(int id, uint8_t *data) {
     _push_norns_func("midi", "event");
     // TODO: params
+    lua_pushinteger(lvm, id);
     lua_pushinteger(lvm, data[0]);
     lua_pushinteger(lvm, data[1]);
     lua_pushinteger(lvm, data[2]);
-    l_report( lvm, l_docall(lvm, 3, 0) );
+    l_report( lvm, l_docall(lvm, 4, 0) );
 }
 
 // helper for pushing array of c strings
