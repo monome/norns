@@ -457,12 +457,14 @@ p.redraw[pSYSTEM] = function()
 
     if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 1) then
         s_level(15) else s_level(4) end
-    s_move(107,40)
-    s_text_right(sys.input_left)
+    s_move(101,40)
+    if(sys.input_left == 0) then s_text_right("m")
+    else s_text_right(sys.input_left - 48) end -- show 48 as unity (0)
     if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 2) then 
         s_level(15) else s_level(4) end
     s_move(127,40)
-    s_text_right(sys.input_right)
+    if(sys.input_right == 0) then s_text_right("m")
+    else s_text_right(sys.input_right - 48) end
     if p.sys.pos==2 then s_level(15) else s_level(4) end
     s_move(127,50)
     s_text_right(sys.hp)
