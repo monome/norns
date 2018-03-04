@@ -56,6 +56,9 @@ redraw = function()
     s.line_width(1.0)
     s.clear()
 
+    s.move(0,10)
+    s.text("peter and alex")
+    
     for i=0,15 do
 	    if(i==edit) then
             s.level(15)

@@ -310,7 +310,7 @@ p.init[pPREVIEW] = function()
 end
 
 p.key[pPREVIEW] = function(n,z)
-    if n==3 and z ==1 then
+    if n==3 and z == 0 then -- load on key up so no extra key events passed to script
         sys.script.load(p.sel.path)
         menu.set_mode(false)
     elseif n == 2 and z == 1 then
