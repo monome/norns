@@ -1,7 +1,7 @@
--- @name step8
+-- @name 8steps
 -- @version 0.1.0
 -- @author jah
--- @txt simple 8x8 step sequencer
+-- @txt 8x8 step sequencer
 
 engine = 'Step'
 
@@ -156,7 +156,7 @@ redraw = function()
 
     -- show timer
     s.move(0,8)
-    s.text("STEP8")
+    s.text("8STEPS")
 
 	s.move(0, 24)
     s.text("Tempo: "..round(tempo_spec_map(tempo), 1).."BPM")
