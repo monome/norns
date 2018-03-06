@@ -13,10 +13,6 @@ CLEAR_LEVEL = 0
 local warpLIN = 1
 local warpEXP = 2
 
-local add_clip_delta = function(value, delta)
-	return math.max(math.min(1, value + delta/200), 0)
-end
-	
 local linexp = function(slo, shi, dlo, dhi, f)
     if f < slo then
         return dlo
@@ -128,10 +124,10 @@ end
 -- encoder function
 enc = function(n, delta)
     if n == 2 then
-        tempo = add_clip_delta(tempo, delta)
+        tempo = clamp(tempo+delta/200, 0, 1)
         e.setTempo(tempo_spec_map(tempo))
     elseif n == 3 then
-        swing_amount = add_clip_delta(swing_amount, delta)
+        swing_amount = clamp(swing_amount+delta/200, 0, 1)
         e.setSwingAmount(swing_amount_spec_map(swing_amount))
     end
     redraw()
