@@ -33,7 +33,7 @@ _OBJ = main.o \
 	device/device_monitor.o \
 	device/device_monome.o \
 	device/device_midi.o \
-	device/osc.o \
+	osc.o \
 	events.o \
 	hardware/battery.o \
 	hardware/gpio.o \
