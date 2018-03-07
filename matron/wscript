@@ -40,6 +40,7 @@ def build(bld):
             'LUA53',
             'LIBLO',
             'LIBMONOME',
+            'AVAHI-COMPAT-LIBDNS_SD',
         ], lib=[
             'pthread',
         ])
