@@ -8,11 +8,13 @@
 engine = 'TestSine'
 
 -- init function
-init = function(commands, count)
+init = function()
     -- print to command line
     print("template!")
     -- add log message
     sys.log.post("hello!")
+    -- show engine commands available
+	  e.listCommands()
     -- set engine params
     e.hz(100)
     e.amp(0.125)

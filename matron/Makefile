@@ -15,10 +15,11 @@ CFLAGS += -D_GNU_SOURCE
 INC =  -Isrc -Isrc/device -Ilua -Isrc/hardware
 INC += -I/usr/include/libevdev-1.0
 INC += -I/usr/include/cairo -I/usr/include/freetype2
+INC += -I/usr/include/avahi-compat-libdns_sd
 
 LDFLAGS =
 
-LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm -lcairo -lfreetype -lasound
+LIB = -ldl -llo -lpthread -lmonome -ludev -levdev -lm -lcairo -lfreetype -lasound -ldns_sd
 
 STATIC = lua/liblua.a
 
@@ -33,7 +34,7 @@ _OBJ = main.o \
 	device/device_monitor.o \
 	device/device_monome.o \
 	device/device_midi.o \
-	device/osc.o \
+	osc.o \
 	events.o \
 	hardware/battery.o \
 	hardware/gpio.o \

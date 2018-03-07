@@ -181,7 +181,7 @@ local set_defaults = function()
     reverbDamp = 0.5
 end
 
-init = function(commands, count)
+init = function()
     -- print to command line
     print("pusher!")
     -- add log message

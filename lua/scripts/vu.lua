@@ -2,6 +2,6 @@
 engine = 'TestSine'
 
 -- init function
-init = function(commands, count)
+init = function()
 
 end
