@@ -7,7 +7,7 @@
 engine = 'Knaster'
 
 -- init function
-init = function(commands, count)
+init = function()
     -- print to command line
     print("knaster!")
     -- add log message
