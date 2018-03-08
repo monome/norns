@@ -37,7 +37,7 @@ Engine_Knaster : CroneEngine {
 	*new { |context, callback| ^super.new(context, callback) }
 
 	alloc {
-		this.knasterSynthDef.add;
+		this.class.knasterSynthDef.add;
 
 		context.server.sync;
 
