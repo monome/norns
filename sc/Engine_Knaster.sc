@@ -32,23 +32,22 @@ Engine_Knaster : CroneEngine {
 
 	*initClass {
 		Class.initClassTree(ControlSpec);
-		StartUp.add {
-			var synthDef = this.knasterSynthDef;
-			synthDef.add; // CroneDefs *sends* SynthDef, this *adds*
-			CroneDefs.add(synthDef);
-		}
 	}
 
 	*new { |context, callback| ^super.new(context, callback) }
 
 	alloc {
+		this.class.knasterSynthDef.add;
+
+		context.server.sync;
+
 		group = Group.new(context.xg);
 
 		volumeBus = if (volumeIsParameter) {
 			// TODO: parameterControlBusses[\volume];
 		} { Bus.control };
 
-		Server.default.bind { // TODO
+		context.server.bind { // TODO
 		    volumeBus.set(0); // TODO
 			synth = Synth.new(
 				'knaster',
