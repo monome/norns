@@ -1,5 +1,5 @@
 -- @name template
--- @version 1.0.2
+-- @version 1.0.3
 -- @author tehn
 -- @url http://monome.org
 -- @txt a very basic example
@@ -14,7 +14,7 @@ init = function()
     -- add log message
     sys.log.post("hello!")
     -- show engine commands available
-	e.listCommands()
+	  e.listCommands()
     -- set engine params
     e.hz(100)
     e.amp(0.125)

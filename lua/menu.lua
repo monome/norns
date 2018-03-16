@@ -119,6 +119,9 @@ menu.set_mode = function(mode)
     else -- enable menu mode
         menu.mode = true
         sys.s.block()
+        s_font_face(0)
+        s_font_size(8)
+        s_line_width(1)
         menu.set_page(menu.page)
         set_enc_sens(1,1)
         set_enc_sens(2,4)
@@ -133,8 +136,6 @@ menu.set_page = function(page)
     menu.enc = p.enc[page]
     menu.redraw = p.redraw[page]
     p.init[page]()
-    s_font_face(0)
-    s_font_size(8)
     menu.redraw()
 end
 
@@ -304,15 +305,19 @@ end
 
 p.pre = {}
 p.pre.meta = {}
+p.pre.state = 0
 
 p.init[pPREVIEW] = function()
     p.pre.meta = sys.script.metadata(p.sel.path)
+    p.pre.state = 0
 end
 
 p.key[pPREVIEW] = function(n,z)
-    if n==3 and z ==1 then
+    if n==3 and p.pre.state == 1 then
         sys.script.load(p.sel.path)
         menu.set_mode(false)
+    elseif n ==3 and z == 1 then
+        p.pre.state = 1
     elseif n == 2 and z == 1 then
         menu.set_page(pSELECT)
     end
@@ -452,12 +457,14 @@ p.redraw[pSYSTEM] = function()
 
     if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 1) then
         s_level(15) else s_level(4) end
-    s_move(107,40)
-    s_text_right(sys.input_left)
+    s_move(101,40)
+    if(sys.input_left == 0) then s_text_right("m")
+    else s_text_right(sys.input_left - 48) end -- show 48 as unity (0)
     if p.sys.pos==1 and (p.sys.input == 0 or p.sys.input == 2) then 
         s_level(15) else s_level(4) end
     s_move(127,40)
-    s_text_right(sys.input_right)
+    if(sys.input_right == 0) then s_text_right("m")
+    else s_text_right(sys.input_right - 48) end
     if p.sys.pos==2 then s_level(15) else s_level(4) end
     s_move(127,50)
     s_text_right(sys.hp)

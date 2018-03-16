@@ -4,7 +4,7 @@
 
 ### packages
 ```
-sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev
+sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev
 ```
 
 for desktop: 
