@@ -4,11 +4,10 @@ WIFI_INTERFACE=$(ip addr|grep 2: | awk '{print $2}'|sed -e s/:$//)
 function wpa_boot {
     WPA_PS=$(ps aux | grep wpa_supplicant |grep -v grep | awk '{print $2}')
     if [ -z $WPA_PS ]; then
-	echo "starting wpa_supplicant..."
 	WPA_FILE=$HOME/wpa_supplicant.conf
 	echo ctrl_interface=/run/wpa_supplicant > $WPA_FILE
 	echo update_config=1 >> $WPA_FILE
-	sudo wpa_supplicant -B -i$WIFI_INTERFACE -c$WPA_FILE
+	sudo wpa_supplicant -B -i$WIFI_INTERFACE -c$WPA_FILE > /dev/null
     fi
 }
 
@@ -18,6 +17,13 @@ function all_off {
     sudo killall wpa_supplicant &> /dev/null
     sudo killall dhcpcd &> /dev/null
     sudo ip addr flush dev $WIFI_INTERFACE
+}
+
+function wait_scanning {
+    while [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` == "SCANNING" ]
+    do
+	sleep 0.1
+    done
 }
 
 if [ -d $1 ]; then
@@ -60,7 +66,7 @@ elif [ $1 = "on" ]; then
     sudo wpa_cli enable_network 0
 
     sudo wpa_cli list_networks
-    sleep 5
+    wait_scanning;
     sudo dhcpcd
     gw=$(ip route |grep default |awk '{print $3}')
     if [ -d $gw ]; then
@@ -76,7 +82,7 @@ elif [ $1 = "on" ]; then
 elif [ $1 = "scan" ]; then
     wpa_boot;
     sudo wpa_cli scan > /dev/null;
-    sleep 5;
+    wait_scanning;
     sudo wpa_cli scan_results \
 	| sed -e s/.\*\\\]// -e s/\[\ \\t\]\*// \
 	| awk '(NR>2) {print};'
