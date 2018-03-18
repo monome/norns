@@ -20,6 +20,13 @@ function all_off {
     sudo ip addr flush dev $WIFI_INTERFACE
 }
 
+function wait_scanning {
+    while [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` == "SCANNING" ]
+    do
+	sleep 0.1
+    done
+}
+
 if [ -d $1 ]; then
     echo usage:
     echo ./wifi.sh on
@@ -60,7 +67,7 @@ elif [ $1 = "on" ]; then
     sudo wpa_cli enable_network 0
 
     sudo wpa_cli list_networks
-    sleep 5
+    wait_scanning;
     sudo dhcpcd
     gw=$(ip route |grep default |awk '{print $3}')
     if [ -d $gw ]; then
@@ -76,7 +83,7 @@ elif [ $1 = "on" ]; then
 elif [ $1 = "scan" ]; then
     wpa_boot;
     sudo wpa_cli scan > /dev/null;
-    sleep 5;
+    wait_scanning;
     sudo wpa_cli scan_results \
 	| sed -e s/.\*\\\]// -e s/\[\ \\t\]\*// \
 	| awk '(NR>2) {print};'
