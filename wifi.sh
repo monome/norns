@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WIFI_INTERFACE=$(ip addr|grep 2: | awk '{print $2}'|sed -e s/:$//)
+WIFI_INTERFACE=$(ip addr|grep "^2:" | awk '{print $2}'|sed -e s/:$//)
 function wpa_boot {
     WPA_PS=$(ps aux | grep wpa_supplicant |grep -v grep | awk '{print $2}')
     if [ -z $WPA_PS ]; then
