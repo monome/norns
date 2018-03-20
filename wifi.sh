@@ -21,6 +21,11 @@ function all_off {
     sudo service hostapd stop &> /dev/null
     sudo service dnsmasq stop &> /dev/null
     sudo killall wpa_supplicant &> /dev/null
+    while [ "`ps aux |grep wpa_supplicant |grep -v grep`" ] 
+    do
+	    echo waiting for wpa_supplicant to die
+	    sleep 0.1
+    done
     sudo killall dhcpcd &> /dev/null
     sudo ip addr flush dev $WIFI_INTERFACE
 }
