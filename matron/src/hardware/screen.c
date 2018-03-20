@@ -133,7 +133,7 @@ handle_allocate_error:
 }
 
 void screen_init(void) {
-    surface = cairo_linuxfb_surface_create("/dev/fb1");
+    surface = cairo_linuxfb_surface_create("/dev/fb0");
     if(surface == NULL) { return; }
 
     cr = cairo_create(surface);

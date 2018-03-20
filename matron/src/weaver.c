@@ -906,7 +906,7 @@ int _gain_in(lua_State *l) {
         goto args_error;
     }
 
-    i2c_ain(level,ch);
+    i2c_gain(level,ch);
     lua_settop(l, 0);
     return 0;
 
