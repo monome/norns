@@ -111,6 +111,7 @@ elif [ $1 = "hotspot" ]; then
 	    echo hotspot > $HOME/status.wifi
     fi
 elif [ $1 = "off" ]; then
+    kill `ps aux | grep wifi.sh | grep -v $$ | awk '{print $2}'` &> /dev/null
     echo stopped > $HOME/status.wifi
     all_off
 else
