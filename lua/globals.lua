@@ -47,3 +47,4 @@ sys.time = get_time
 require 'math'
 math.randomseed(os.time()) 
 clamp = function(n, min, max) return math.min(max,(math.max(n,min))) end
+tab = require 'tabutil'

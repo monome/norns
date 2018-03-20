@@ -29,4 +29,15 @@ tab.contains = function(t,e)
     return false
 end
 
+-- split multi-line string into table of strings
+tab.lines = function(str)
+   local t = {}
+   local function helper(line)
+      table.insert(t, line)
+      return ""
+   end
+   helper((str:gsub("(.-)\r?\n", helper)))
+   return t
+end
+
 return tab
