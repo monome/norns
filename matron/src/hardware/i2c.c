@@ -44,7 +44,7 @@ void i2c_init(void) {
     buf[0] = 1; // reg for settings p21
     buf[1] = 192;
     if (write(file,buf,2) != 2) {
-        fprintf(stderr, "ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/hp) failed to write\n");
         return;
     }
 
@@ -57,7 +57,7 @@ void i2c_init(void) {
 
     buf[0] = 0b10000010;
     if (write(file,buf,1) != 1) {
-        fprintf(stderr, "ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/gain) failed to write\n");
         return;
     }
 }
@@ -78,7 +78,7 @@ void i2c_hp(int level) {
     buf[0] = 2; // reg for set level p17
     buf[1] = level;
     if (write(file,buf,2) != 2) {
-        fprintf(stderr, "ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/hp) failed to write\n");
         return;
     }
 }
@@ -104,7 +104,7 @@ void i2c_gain(int level, int ch) {
     }
     buf[0] = level | ch; // p10
     if (write(file,buf,1) != 1) {
-        fprintf(stderr, "ERROR (i2c) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/gain) failed to write (level set)\n");
         return;
     }
 }

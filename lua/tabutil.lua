@@ -21,4 +21,12 @@ tab.count = function(t)
   return c
 end
 
+-- return t/f if table contains element
+tab.contains = function(t,e)
+    for index, value in ipairs(t) do
+        if value == e then return true end
+    end
+    return false
+end
+
 return tab
