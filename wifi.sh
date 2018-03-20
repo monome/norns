@@ -7,9 +7,7 @@ function wpa_boot {
 	WPA_FILE=$HOME/wpa_supplicant.conf
 	echo ctrl_interface=/run/wpa_supplicant > $WPA_FILE
 	echo update_config=1 >> $WPA_FILE
-	#WPA_FILE=/etc/wpa_supplicant/wpa_supplicant.conf
 	sudo wpa_supplicant -B -i$WIFI_INTERFACE -c$WPA_FILE > /dev/null
-	#sudo wpa_supplicant -B -iwlan0 -c/etc/wpa_supplicant/wpa_supplicant.conf
     fi
     
     while [ ! -z `sudo wpa_cli status |grep "ctrl_ifname: (nil)"` ]
@@ -40,13 +38,13 @@ function wait_associating {
     tries=0;
     while [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` != "COMPLETED" ]
     do
-	    sudo wpa_cli status
-	    tries=$((tries+1));
+	sudo wpa_cli status
+	tries=$((tries+1));
 	sleep 0.1
 	if [ $tries -gt 50 ]
        	then
-		echo "auth failure" > ~/status.wifi
-		exit
+	    echo "password fail" > ~/status.wifi
+	    exit
 	fi
     done
 }
@@ -68,7 +66,7 @@ elif [ $1 = "on" ]; then
     wpa_boot;
     SSID=$(cat $HOME/ssid.wifi);
     PSK=$(cat $HOME/psk.wifi);
-     sudo wpa_cli list_networks
+
     sudo wpa_cli disable_network 0 &> /dev/null
 
     sudo wpa_cli remove_network 0 &> /dev/null
@@ -90,8 +88,6 @@ elif [ $1 = "on" ]; then
 
     sudo wpa_cli enable_network 0
 
-    #sudo wpa_cli list_networks
-    #wait_scanning;
     wait_associating;
     sudo dhcpcd
     gw=$(ip route |grep default |awk '{print $3}')
