@@ -9,6 +9,12 @@ function wpa_boot {
 	echo update_config=1 >> $WPA_FILE
 	sudo wpa_supplicant -B -i$WIFI_INTERFACE -c$WPA_FILE > /dev/null
     fi
+    
+    while [ ! -z `sudo wpa_cli status |grep "ctrl_ifname: (nil)"` ]
+    do
+	    echo connecting
+	    sleep 0.1
+	done
 }
 
 function all_off {
@@ -20,9 +26,24 @@ function all_off {
 }
 
 function wait_scanning {
+	sudo wpa_cli status
     while [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` == "SCANNING" ]
     do
 	sleep 0.1
+    done
+}
+
+function wait_associating {
+	sudo wpa_cli status
+    while [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` != "COMPLETED" ]
+    do
+	    sudo wpa_cli status
+	sleep 0.1
+	if [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` == "SCANNING" ]
+       	then
+		echo "auth failure" > ~/status.wifi
+		exit
+	fi
     done
 }
 
@@ -67,6 +88,7 @@ elif [ $1 = "on" ]; then
 
     sudo wpa_cli list_networks
     wait_scanning;
+    wait_associating;
     sudo dhcpcd
     gw=$(ip route |grep default |awk '{print $3}')
     if [ -d $gw ]; then
