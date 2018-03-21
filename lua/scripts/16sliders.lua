@@ -26,8 +26,8 @@ end
 
 enc = function(n, delta)
 	if(n==2) then 
-        accum = (accum + delta) % 64
-        edit = accum >> 2 
+        accum = (accum + delta) % 16
+        edit = accum 
     elseif(n==3) then 
         sliders[edit+1] = sliders[edit+1] + delta
         if sliders[edit+1] > 32 then sliders[edit+1] = 32 end

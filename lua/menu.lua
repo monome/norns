@@ -124,8 +124,8 @@ menu.set_mode = function(mode)
         s_line_width(1)
         menu.set_page(menu.page)
         set_enc_sens(1,1)
-        set_enc_sens(2,4)
-        set_enc_sens(3,4) 
+        set_enc_sens(2,2)
+        set_enc_sens(3,2) 
     end
 end
 

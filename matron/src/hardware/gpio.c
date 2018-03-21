@@ -13,10 +13,11 @@
 #include <stdlib.h>
 #include <sys/epoll.h>
 #include <pthread.h>
+#include <linux/input.h>
 
 #include "events.h"
 
-#define NUM_PINS 9
+#define NUM_PINS 3
 
 int epfd;
 int fd[NUM_PINS];
@@ -25,12 +26,11 @@ struct epoll_event ev[NUM_PINS];
 struct epoll_event events;
 pthread_t p;
 
-const int8_t map[4][4] = { {0,1,-1,0}, {-1,0,0,1}, {1,0,0,-1}, {0,-1,1,0} };
-uint8_t pos_now[3];
-uint8_t pos_old[3];
-uint8_t enc_val[6];
+int enc_fd[3];
+pthread_t enc_p[3];
 
 void *gpio_check(void *);
+void *enc_check(void *);
 
 // extern def
 
@@ -39,12 +39,6 @@ void gpio_init() {
     fd[0] = open("/sys/class/gpio/gpio31/value", O_RDONLY | O_NONBLOCK); // K1
     fd[1] = open("/sys/class/gpio/gpio35/value", O_RDONLY | O_NONBLOCK); // K2
     fd[2] = open("/sys/class/gpio/gpio39/value", O_RDONLY | O_NONBLOCK); // K3
-    fd[3] = open("/sys/class/gpio/gpio28/value", O_RDONLY | O_NONBLOCK); // A1
-    fd[4] = open("/sys/class/gpio/gpio29/value", O_RDONLY | O_NONBLOCK); // B1
-    fd[5] = open("/sys/class/gpio/gpio32/value", O_RDONLY | O_NONBLOCK); // A2
-    fd[6] = open("/sys/class/gpio/gpio33/value", O_RDONLY | O_NONBLOCK); // B2
-    fd[7] = open("/sys/class/gpio/gpio36/value", O_RDONLY | O_NONBLOCK); // A3
-    fd[8] = open("/sys/class/gpio/gpio37/value", O_RDONLY | O_NONBLOCK); // B3
     if(fd[0] > 0) {
         buf = 0;
         int n;
@@ -64,16 +58,68 @@ void gpio_init() {
     else {
         fprintf(stderr, "ERROR (gpio) check gpio exports!\n");
     }
+
+    enc_fd[0] = open("/dev/input/by-path/platform-soc:knob1-event", O_RDONLY);
+    enc_fd[1] = open("/dev/input/by-path/platform-soc:knob2-event", O_RDONLY);
+    enc_fd[2] = open("/dev/input/by-path/platform-soc:knob3-event", O_RDONLY);
+    if(enc_fd[0] > 0) {
+        for(int i = 0; i< 3; i++) {
+
+            if(ioctl(enc_fd[i], EVIOCGRAB, 1) == 0) {
+                ioctl(enc_fd[i], EVIOCGRAB, (void*)0);
+            }
+            else {
+                fprintf(stderr, "ERROR (enc) grab fail\n");
+            }
+    
+            int *arg = malloc(sizeof(int));
+            *arg = i; 
+            if(pthread_create(&enc_p[i], NULL, enc_check, arg) ) {
+                fprintf(stderr, "ERROR (enc) pthread error\n");
+            } 
+        }
+    }
+    else {
+        fprintf(stderr, "ERROR (enc) didn't work\n");
+    } 
 }
 
 void gpio_deinit() {
     pthread_cancel(p);
+    pthread_cancel(enc_p[0]);
+    pthread_cancel(enc_p[1]);
+    pthread_cancel(enc_p[2]);
+}
+
+void *enc_check(void *x) {
+    int n = *((int *)x);
+    free(x);
+    int rd;
+    unsigned int i;
+    struct input_event event[64];
+
+    while(1) {
+        rd = read(enc_fd[n], event, sizeof(struct input_event) * 64);
+        if(rd < (int) sizeof(struct input_event)) {
+            fprintf(stderr, "ERROR (enc) read error\n");
+        }
+
+        for(i=0;i<rd/sizeof(struct input_event);i++) {
+            if(event[i].type) { // make sure it's not EV_SYN == 0
+                //fprintf(stderr, "enc%d = %d\n", n, event[i].value);
+                union event_data *ev = event_data_new(EVENT_ENC);
+                ev->enc.n = n + 1;
+                ev->enc.delta = event[i].value;
+                event_post(ev);
+            }
+        }
+    } 
 }
 
 void *gpio_check(void *x) {
     (void)x;
     int n;
-    unsigned int c[NUM_PINS] = {0,0,0,0,0,0,0,0,0};
+    unsigned int c[NUM_PINS] = {0,0,0};
     while(1) {
         n = epoll_wait(epfd, &events, 1, -1); // wait for 1 event
         // fprintf(stderr, "GPIO epoll returned %d: %s\n", n, strerror(errno));
@@ -97,7 +143,7 @@ void *gpio_check(void *x) {
                     event_post(ev);
                 }
             }
-            else {
+/*            else {
                 i = i - 3;
                 enc_val[i] = (buf & 0x1);
 
@@ -117,7 +163,7 @@ void *gpio_check(void *x) {
                     }
                     pos_old[a] = pos_now[a];
                 }
-            }
+            }*/
         }
     }
 }
