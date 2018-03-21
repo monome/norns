@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
     screen_level(15);
     screen_move(0,50);
     screen_text("norns");
+    screen_update();
 
     metros_init();
     gpio_init();
@@ -63,6 +64,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "waiting for crone...");
     do {
         screen_text(".");
+        screen_update();
         sleep(1);
     } while(o_ready() != 1);
     fprintf(stderr, " ready.\n");
