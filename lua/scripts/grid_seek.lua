@@ -97,7 +97,7 @@ redraw = function()
     s.line(vu,40)
     s.stroke()
 
-    s.refresh()
+    s.update()
 end 
 
 p = nil

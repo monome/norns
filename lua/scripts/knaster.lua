@@ -45,7 +45,7 @@ redraw = function()
     s.stroke()
     ]]
 
-    s.refresh()
+    s.update()
 end 
 
 -- TODO: amp_out-polls not working atm

@@ -166,7 +166,7 @@ redraw = function()
 		s.text("capture a new sound.")
 	end
 
-    s.refresh()
+    s.update()
 end
 
 local set_defaults = function()

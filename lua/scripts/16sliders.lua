@@ -75,5 +75,5 @@ redraw = function()
     s.line(32+step*4,54)
     s.stroke()
 
-    s.refresh()
+    s.update()
 end

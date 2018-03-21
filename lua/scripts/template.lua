@@ -70,7 +70,7 @@ redraw = function()
     s.text("> "..t) 
 
     -- refresh screen
-    s.refresh()
+    s.update()
 end
 
 

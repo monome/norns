@@ -65,5 +65,5 @@ redraw = function()
     s.move(127,63)
     s.text_right("1992")
 
-    s.refresh()
+    s.update()
 end
