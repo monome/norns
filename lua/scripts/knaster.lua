@@ -44,6 +44,8 @@ redraw = function()
     s.line(vu,40)
     s.stroke()
     ]]
+
+    s.refresh()
 end 
 
 -- TODO: amp_out-polls not working atm

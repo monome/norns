@@ -154,6 +154,8 @@ redraw = function()
     s.level(15)
     s.move(0,10)
     s.text(paramNames[curParamId] .. " = " .. params[paramNames[curParamId]])
+
+    s.refresh()
 end 
 
 

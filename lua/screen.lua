@@ -3,6 +3,7 @@ s = {}
 sys.s = {}
 
 sys.s.restore = function()
+    s.refresh = s_refresh
     s.aa = s_aa
     s.clear = s_clear
     s.level = s_level

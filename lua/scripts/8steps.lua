@@ -168,6 +168,8 @@ redraw = function()
     else
         s.text("Stopped")
     end
+
+    s.refresh()
 end
 
 -- grid key function
