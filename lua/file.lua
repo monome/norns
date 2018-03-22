@@ -8,7 +8,7 @@ File.state.out = 0
 
 -- read state.lua and set parameters back to stored vals
 File.state.resume = function()
-  dofile(script_dir .. '../state.lua')
+  dofile(data_dir .. 'state.lua')
   -- set stored output level
   audio_output_level(sys.file.state.out / 64.0)
   -- set inputs 
@@ -23,7 +23,7 @@ end
 
 --- save current state to state.lua
 File.state.save = function()
-  local fd=io.open(script_dir .. "../state.lua","w+")
+  local fd=io.open(data_dir .. "state.lua","w+")
   io.output(fd)
   io.write("-- state\n")
   io.write("sys.file.state.script = '" .. File.state.script .. "'\n")
