@@ -1,7 +1,12 @@
--- screen redirection functions
+--- Screen class
+-- @module screen
+-- @alias Screen
 local Screen = {} 
 
+--- update: copy buffer to screen 
 Screen.update = s_update
+--- aa: enable/disable anti-aliasing
+-- @param: anti-aliasing on(1) or off(0)
 Screen.aa = s_aa
 Screen.clear = s_clear
 Screen.level = s_level
