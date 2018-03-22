@@ -124,8 +124,8 @@ menu.set_mode = function(mode)
         s_line_width(1)
         menu.set_page(menu.page)
         set_enc_sens(1,1)
-        set_enc_sens(2,4)
-        set_enc_sens(3,4) 
+        set_enc_sens(2,2)
+        set_enc_sens(3,2) 
     end
 end
 
@@ -196,7 +196,8 @@ p.redraw[pHOME] = function()
            	s_level(4)
        	end
        	s_text(string.upper(line)) 
-     end
+    end
+    s_update()
 end
 
 
@@ -296,7 +297,8 @@ p.redraw[pSELECT] = function()
         	end
         	s_text(string.upper(line)) 
 		end
-     end
+    end
+    s_update()
 end
 
 
@@ -362,6 +364,7 @@ p.redraw[pPREVIEW] = function()
 		--TODO this should wrap and scroll!
 		s_text(p.pre.meta.txt)
 	end 
+    s_update()
 end
 
 -- PARAMS
@@ -379,6 +382,7 @@ p.redraw[pPARAMS] = function()
     s_level(10)
     s_move(0,10)
     s_text("params")
+    s_update()
 end
 
 p.init[pPARAMS] = sys.none
@@ -473,6 +477,7 @@ p.redraw[pSYSTEM] = function()
     s_text_right(p.sys.net)
     s_move(127,60)
     s_text_right("norns v"..norns.version.norns)
+    s_update()
 end
 
 p.init[pSYSTEM] = function()
@@ -525,6 +530,7 @@ p.redraw[pSLEEP] = function()
     s_move(48,40)
     s_text("sleep?")
     --TODO do an animation here! fade the volume down
+    s_update()
 end
 
 p.init[pSLEEP] = sys.none
@@ -559,6 +565,7 @@ p.redraw[pSTATUS] = function()
     s_move(96,63)
     s_line(96,63-p.stat.in2)
     s_stroke()
+    s_update()
 end
 
 p.init[pSTATUS] = function()
@@ -628,8 +635,8 @@ p.redraw[pWIFI] = function()
            	s_level(4)
        	end
        	s_text(string.upper(line)) 
-     end
-
+    end
+    s_update() 
 end 
 
 p.init[pWIFI] = function()
@@ -673,6 +680,7 @@ p.redraw[pLOG] = function()
         s_move(0,(i*8)-1)
         s_text(sys.log.get(i+p.log.pos))
     end
+    s_update()
 end
 
 p.init[pLOG] = function()

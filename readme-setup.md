@@ -78,6 +78,8 @@ matron waits for crone to finish loading before entering the main event loop.
 
 ### 3. launch `maiden` (web UI client)
 
-TODO
+get most recent version from https://github.com/ngwese/maiden/releases
 
-ie. `./norns-web.arm -debug -site ./app/build -data ~/norns/lua`
+download to `~/maiden/` and untar
+
+execute with `./maiden.arm -debug -site ./app/build -data ~/norns/lua/`
