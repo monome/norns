@@ -109,7 +109,7 @@ menu.set_mode = function(mode)
         --FIXME: should the interface pages have deinits?
         u:stop()
         norns.vu = sys.none
-        s.enable()
+        s_enable()
         menu.key = key
         menu.enc = enc
         set_enc_sens(1,1)
@@ -118,7 +118,7 @@ menu.set_mode = function(mode)
         redraw() 
     else -- enable menu mode
         menu.mode = true
-        s.disable()
+        s_disable()
         s_font_face(0)
         s_font_size(8)
         s_line_width(1)
