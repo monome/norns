@@ -9,20 +9,48 @@ function wpa_boot {
 	echo update_config=1 >> $WPA_FILE
 	sudo wpa_supplicant -B -i$WIFI_INTERFACE -c$WPA_FILE > /dev/null
     fi
+    
+    while [ ! -z `sudo wpa_cli status |grep "ctrl_ifname: (nil)"` ]
+    do
+	    echo connecting
+	    sleep 0.1
+	done
 }
 
 function all_off {
     sudo service hostapd stop &> /dev/null
     sudo service dnsmasq stop &> /dev/null
     sudo killall wpa_supplicant &> /dev/null
+    while [ "`ps aux |grep wpa_supplicant |grep -v grep`" ]
+    do
+	echo waiting for wpa_supplicant to die
+	sleep 0.1
+    done
     sudo killall dhcpcd &> /dev/null
     sudo ip addr flush dev $WIFI_INTERFACE
 }
 
 function wait_scanning {
+	sudo wpa_cli status
     while [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` == "SCANNING" ]
     do
 	sleep 0.1
+    done
+}
+
+function wait_associating {
+	sudo wpa_cli status
+    tries=0;
+    while [ `sudo wpa_cli status|grep wpa_state|sed -e s/wpa_state=//` != "COMPLETED" ]
+    do
+	sudo wpa_cli status
+	tries=$((tries+1));
+	sleep 0.1
+	if [ $tries -gt 50 ]
+       	then
+	    echo "password fail" > ~/status.wifi
+	    exit
+	fi
     done
 }
 
@@ -43,7 +71,7 @@ elif [ $1 = "on" ]; then
     wpa_boot;
     SSID=$(cat $HOME/ssid.wifi);
     PSK=$(cat $HOME/psk.wifi);
-    # sudo wpa_cli list_networks
+
     sudo wpa_cli disable_network 0 &> /dev/null
 
     sudo wpa_cli remove_network 0 &> /dev/null
@@ -65,8 +93,7 @@ elif [ $1 = "on" ]; then
 
     sudo wpa_cli enable_network 0
 
-    sudo wpa_cli list_networks
-    wait_scanning;
+    wait_associating;
     sudo dhcpcd
     gw=$(ip route |grep default |awk '{print $3}')
     if [ -d $gw ]; then
@@ -111,6 +138,7 @@ elif [ $1 = "hotspot" ]; then
 	    echo hotspot > $HOME/status.wifi
     fi
 elif [ $1 = "off" ]; then
+    kill `ps aux | grep wifi.sh | grep -v $$ | awk '{print $2}'` &> /dev/null
     echo stopped > $HOME/status.wifi
     all_off
 else
