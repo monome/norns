@@ -34,6 +34,7 @@
 <ul>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Global_Functions">Global Functions </a></li>
+<li><a href="#report_callbacks">report callbacks </a></li>
 </ul>
 
 
@@ -44,7 +45,7 @@
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/Log.html">Log</a></li>
+  <li><a href="../modules/log.html">log</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><strong>norns</strong></li>
@@ -52,6 +53,7 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/system.html">system</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
 </ul>
 
 </div>
@@ -70,11 +72,27 @@
 	<tr>
 	<td class="name" nowrap><a href="#startup">startup ()</a></td>
 	<td class="summary">startup function will be run after I/O subsystems are initialized,
- but before I/O event loop starts ticking</td>
+ but before I/O event loop starts ticking (see readme-script.md)</td>
 	</tr>
 </table>
 <h2><a href="#Global_Functions">Global Functions </a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#battery">battery (percent)</a></td>
+	<td class="summary">battery percent handler</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#power">power (present)</a></td>
+	<td class="summary">power present handler</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#key">key (n, z)</a></td>
+	<td class="summary">key callback (redefined in menu)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#enc">enc (n, delta)</a></td>
+	<td class="summary">enc callback (redefined in menu)</td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#norns.monome.add">norns.monome.add (id, serial, name, dev)</a></td>
 	<td class="summary">monome device added</td>
@@ -84,10 +102,6 @@
 	<td class="summary">monome device removed</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#grid">grid</a></td>
-	<td class="summary">grid device callbacks</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#norns.grid.key">norns.grid.key (id, x, y, val)</a></td>
 	<td class="summary">grid key event</td>
 	</tr>
@@ -95,9 +109,20 @@
 	<td class="name" nowrap><a href="#norns.hid.add">norns.hid.add (id, serial, name, types, codes)</a></td>
 	<td class="summary">HID or other input device added</td>
 	</tr>
+</table>
+<h2><a href="#report_callbacks">report callbacks </a></h2>
+<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#arc">arc</a></td>
-	<td class="summary">TODO</td>
+	<td class="name" nowrap><a href="#norns.report.didEngineLoad">norns.report.didEngineLoad ()</a></td>
+	<td class="summary">called when all reports are complete after engine load</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll">poll (id, value)</a></td>
+	<td class="summary">poll callback; used by C interface</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#vu">vu (in1, in2, out1, out2)</a></td>
+	<td class="summary">I/O level callback</td>
 	</tr>
 </table>
 
@@ -114,7 +139,7 @@
     </dt>
     <dd>
     startup function will be run after I/O subsystems are initialized,
- but before I/O event loop starts ticking
+ but before I/O event loop starts ticking (see readme-script.md)
 
 
 
@@ -127,6 +152,92 @@
     <h2 class="section-header "><a name="Global_Functions"></a>Global Functions </h2>
 
     <dl class="function">
+    <dt>
+    <a name = "battery"></a>
+    <strong>battery (percent)</strong>
+    </dt>
+    <dd>
+    battery percent handler
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">percent</span>
+         battery full percentage
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "power"></a>
+    <strong>power (present)</strong>
+    </dt>
+    <dd>
+    power present handler
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">present</span>
+         power plug present (0=no,1=yes)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "key"></a>
+    <strong>key (n, z)</strong>
+    </dt>
+    <dd>
+    key callback (redefined in menu)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+
+        </li>
+        <li><span class="parameter">z</span>
+        print ("norns.key "..n.." "..z)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "enc"></a>
+    <strong>enc (n, delta)</strong>
+    </dt>
+    <dd>
+    enc callback (redefined in menu)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+
+        </li>
+        <li><span class="parameter">delta</span>
+        print ("norns.enc "..n.." "..delta)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
     <dt>
     <a name = "norns.monome.add"></a>
     <strong>norns.monome.add (id, serial, name, dev)</strong>
@@ -170,20 +281,6 @@
         print("norns.monome.remove "..id)
         </li>
     </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "grid"></a>
-    <strong>grid</strong>
-    </dt>
-    <dd>
-    grid device callbacks
-
-
 
 
 
@@ -251,14 +348,70 @@
 
 
 </dd>
+</dl>
+    <h2 class="section-header "><a name="report_callbacks"></a>report callbacks </h2>
+
+    <dl class="function">
     <dt>
-    <a name = "arc"></a>
-    <strong>arc</strong>
+    <a name = "norns.report.didEngineLoad"></a>
+    <strong>norns.report.didEngineLoad ()</strong>
     </dt>
     <dd>
-    TODO
+    called when all reports are complete after engine load
 
 
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll"></a>
+    <strong>poll (id, value)</strong>
+    </dt>
+    <dd>
+    poll callback; used by C interface
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+         identfier
+        </li>
+        <li><span class="parameter">value</span>
+         value (float OR sequence of bytes)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "vu"></a>
+    <strong>vu (in1, in2, out1, out2)</strong>
+    </dt>
+    <dd>
+    I/O level callback
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">in1</span>
+
+        </li>
+        <li><span class="parameter">in2</span>
+
+        </li>
+        <li><span class="parameter">out1</span>
+
+        </li>
+        <li><span class="parameter">out2</span>
+        print(in1 .. "\t" .. in2 .. "\t" .. out1 .. "\t" .. out2)
+        </li>
+    </ul>
 
 
 
@@ -272,7 +425,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-03-23 13:41:01 </i>
+<i style="float:right;">Last updated 2018-03-23 16:02:32 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

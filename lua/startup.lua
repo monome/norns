@@ -1,3 +1,5 @@
+-- STARTUP
+
 require 'globals'
 require 'engine'
 require 'grid'

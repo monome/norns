@@ -1,4 +1,4 @@
---- high-resolution metro API;
+--- high-resolution metro API
 -- @module metro
 -- @alias Metro_mt
 require 'norns'

@@ -2,7 +2,6 @@
 -- API for receiving values from audio system.
 -- @module poll
 -- @alias Poll
--- require 'norns'
 
 local tab = require 'tabutil'
 
@@ -10,7 +9,6 @@ norns.version.poll = '0.0.2'
 
 local Poll = {}
 Poll.__index = Poll
-
 
 --- poll objects (index by name)
 Poll.polls = {}

@@ -3,6 +3,8 @@
 
 local Script = {}
 
+--- reset script environment;
+-- ie redirect draw, key, enc functions, stop timers, clear engine, etc
 Script.clear = function()
     -- reset cleanup script
     cleanup = sys.none
@@ -26,7 +28,7 @@ end
 
 
 --- load a script from the /scripts folder
--- @param filename (string) - file to load, no extension. leave blank to reload current file.
+-- @param filename (string) - file to load. leave blank to reload current file.
 Script.load = function(filename)
   if filename == nil then
     filename = sys.file.state.script end
@@ -58,6 +60,8 @@ Script.run = function()
 end
 
 --- load script metadata
+-- @param filename file to load
+-- @return meta table with metadata
 Script.metadata = function(filename)
   local meta = {}
   if filename == nil then

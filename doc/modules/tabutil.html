@@ -33,7 +33,6 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Global_Functions">Global Functions </a></li>
 </ul>
 
 
@@ -45,50 +44,47 @@
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/log.html">log</a></li>
-  <li><strong>metro</strong></li>
+  <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/system.html">system</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><strong>tabutil</strong></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>metro</code></h1>
-<p>high-resolution metro API</p>
+<h1>Module <code>tabutil</code></h1>
+<p>table utility</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Metro.new">Metro.new (id)</a></td>
-	<td class="summary">constructor;</td>
+	<td class="name" nowrap><a href="#tab.print">tab.print (t)</a></td>
+	<td class="summary">print the contents of a table</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:start">Metro:start (time, count, stage)</a></td>
-	<td class="summary">start a metro</td>
+	<td class="name" nowrap><a href="#tab.sort">tab.sort (t)</a></td>
+	<td class="summary">return a lexigraphically sorted array of keys for a table</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:stop">Metro:stop ()</a></td>
-	<td class="summary">stop a metro</td>
+	<td class="name" nowrap><a href="#tab.count">tab.count (t)</a></td>
+	<td class="summary">count the number of entries in a table;
+ unlike table.getn() or #table, nil entries won't break the loop</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro.__index">Metro.__index (self, idx)</a></td>
-	<td class="summary">class custom .__index;
- [] accessor returns one of the static metro objects</td>
+	<td class="name" nowrap><a href="#tab.contains">tab.contains (t, e)</a></td>
+	<td class="summary">search table for element</td>
 	</tr>
-</table>
-<h2><a href="#Global_Functions">Global Functions </a></h2>
-<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#norns.metro">norns.metro (idx, stage)</a></td>
-	<td class="summary">callback on metro tick from C;</td>
+	<td class="name" nowrap><a href="#tab.lines">tab.lines (str)</a></td>
+	<td class="summary">split multi-line string into table of strings</td>
 	</tr>
 </table>
 
@@ -100,17 +96,17 @@
 
     <dl class="function">
     <dt>
-    <a name = "Metro.new"></a>
-    <strong>Metro.new (id)</strong>
+    <a name = "tab.print"></a>
+    <strong>tab.print (t)</strong>
     </dt>
     <dd>
-    constructor;
+    print the contents of a table
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">id</span>
-         : identifier (integer)
+        <li><span class="parameter">t</span>
+         table to print
         </li>
     </ul>
 
@@ -120,91 +116,104 @@
 
 </dd>
     <dt>
-    <a name = "Metro:start"></a>
-    <strong>Metro:start (time, count, stage)</strong>
+    <a name = "tab.sort"></a>
+    <strong>tab.sort (t)</strong>
     </dt>
     <dd>
-    start a metro
+    return a lexigraphically sorted array of keys for a table
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">time</span>
-         - (optional) time period between ticks (seconds.) by default, re-use the last period
-        </li>
-        <li><span class="parameter">count</span>
-         - (optional) number of ticks. infinite by default
-        </li>
-        <li><span class="parameter">stage</span>
-         - (optional) initial stage number (1-based.) 1 by default
+        <li><span class="parameter">t</span>
+         table to sort
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        sorted table
+    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "Metro:stop"></a>
-    <strong>Metro:stop ()</strong>
+    <a name = "tab.count"></a>
+    <strong>tab.count (t)</strong>
     </dt>
     <dd>
-    stop a metro
+    count the number of entries in a table;
+ unlike table.getn() or #table, nil entries won't break the loop
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table to count
+        </li>
+    </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        count
+    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "Metro.__index"></a>
-    <strong>Metro.__index (self, idx)</strong>
+    <a name = "tab.contains"></a>
+    <strong>tab.contains (t, e)</strong>
     </dt>
     <dd>
-    class custom .__index;
- [] accessor returns one of the static metro objects
+    search table for element
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">self</span>
-
+        <li><span class="parameter">t</span>
+         table to check
         </li>
-        <li><span class="parameter">idx</span>
-
+        <li><span class="parameter">e</span>
+         element to look for
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        t/f is element is present
+    </ol>
 
 
 
 
 </dd>
-</dl>
-    <h2 class="section-header "><a name="Global_Functions"></a>Global Functions </h2>
-
-    <dl class="function">
     <dt>
-    <a name = "norns.metro"></a>
-    <strong>norns.metro (idx, stage)</strong>
+    <a name = "tab.lines"></a>
+    <strong>tab.lines (str)</strong>
     </dt>
     <dd>
-    callback on metro tick from C;
+    split multi-line string into table of strings
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">idx</span>
-
-        </li>
-        <li><span class="parameter">stage</span>
-
+        <li><span class="parameter">str</span>
+         string with line breaks
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        table with entries for each line
+    </ol>
 
 
 

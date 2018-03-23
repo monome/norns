@@ -1,4 +1,4 @@
--- GLOBALS
+-- GLOBALS 
 s = require 'screen' 
 grid = require 'grid'
 metro = require 'metro'

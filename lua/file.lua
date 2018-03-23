@@ -21,7 +21,7 @@ File.state.resume = function()
   sys.script.load()
 end
 
---- save current state to state.lua
+--- save current norns state to state.lua
 File.state.save = function()
   local fd=io.open(data_dir .. "state.lua","w+")
   io.output(fd)
