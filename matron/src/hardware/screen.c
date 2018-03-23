@@ -31,7 +31,9 @@ static float c[16] =
  0.73333333333333, 0.8, 0.86666666666667, 0.93333333333333, 1};
 
 static cairo_surface_t *surface;
+static cairo_surface_t *surfacefb;
 static cairo_t *cr;
+static cairo_t *crfb;
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
 static FT_Error status;
@@ -133,9 +135,11 @@ handle_allocate_error:
 }
 
 void screen_init(void) {
-    surface = cairo_linuxfb_surface_create("/dev/fb1");
-    if(surface == NULL) { return; }
+    surfacefb = cairo_linuxfb_surface_create("/dev/fb1");
+    if(surfacefb == NULL) { return; }
+    crfb = cairo_create(surfacefb);
 
+    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,128,64);
     cr = cairo_create(surface);
 
     status = FT_Init_FreeType(&value);
@@ -188,12 +192,23 @@ void screen_init(void) {
     cairo_set_font_face (cr, ct[0]);
     cairo_set_font_options(cr, font_options);
     cairo_set_font_size(cr, 8.0);
+
+    // config buffer
+    cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
+    cairo_set_source_surface(crfb,surface,0,0); 
 }
 
 void screen_deinit(void) {
     CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
+    cairo_destroy(crfb);
+    cairo_surface_destroy(surfacefb);
+}
+
+void screen_update(void) {
+    CHECK_CR
+    cairo_paint(crfb);
 }
 
 void screen_font_face(int i) {

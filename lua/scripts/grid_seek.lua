@@ -96,6 +96,8 @@ redraw = function()
     s.aa(1)
     s.line(vu,40)
     s.stroke()
+
+    s.update()
 end 
 
 p = nil

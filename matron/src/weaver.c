@@ -59,6 +59,7 @@ static int _grid_set_led(lua_State *l);
 static int _grid_all_led(lua_State *l);
 static int _grid_refresh(lua_State *l);
 //screen
+static int _screen_update(lua_State *l);
 static int _screen_font_face(lua_State *l);
 static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
@@ -145,6 +146,7 @@ void w_init(void) {
     lua_register(lvm, "grid_refresh", &_grid_refresh);
 
     // register screen funcs
+    lua_register(lvm, "s_update", &_screen_update);
     lua_register(lvm, "s_font_face", &_screen_font_face);
     lua_register(lvm, "s_font_size", &_screen_font_size);
     lua_register(lvm, "s_aa", &_screen_aa);
@@ -236,6 +238,25 @@ void w_deinit(void) {
 
 //----------------------------------
 //---- static definitions
+
+/***
+ * screen: update (flip buffer)
+ * @function s_update
+ */
+int _screen_update(lua_State *l) {
+    if(lua_gettop(l) != 0) { // check num args
+        goto args_error;
+    }
+
+    screen_update();
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    fprintf(stderr, "warning: incorrect arguments to s_update() \n");
+    lua_settop(l, 0);
+    return 0;
+}
 
 /***
  * screen: set font face
@@ -906,7 +927,7 @@ int _gain_in(lua_State *l) {
         goto args_error;
     }
 
-    i2c_ain(level,ch);
+    i2c_gain(level,ch);
     lua_settop(l, 0);
     return 0;
 

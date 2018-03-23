@@ -21,4 +21,23 @@ tab.count = function(t)
   return c
 end
 
+-- return t/f if table contains element
+tab.contains = function(t,e)
+    for index, value in ipairs(t) do
+        if value == e then return true end
+    end
+    return false
+end
+
+-- split multi-line string into table of strings
+tab.lines = function(str)
+   local t = {}
+   local function helper(line)
+      table.insert(t, line)
+      return ""
+   end
+   helper((str:gsub("(.-)\r?\n", helper)))
+   return t
+end
+
 return tab

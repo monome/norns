@@ -68,6 +68,9 @@ redraw = function()
     -- show timer
     s.move(0,63)
     s.text("> "..t) 
+
+    -- refresh screen
+    s.update()
 end
 
 

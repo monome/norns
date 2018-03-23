@@ -64,4 +64,6 @@ redraw = function()
     -- draw right aliged text
     s.move(127,63)
     s.text_right("1992")
+
+    s.update()
 end

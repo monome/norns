@@ -26,8 +26,8 @@ end
 
 enc = function(n, delta)
 	if(n==2) then 
-        accum = (accum + delta) % 64
-        edit = accum >> 2 
+        accum = (accum + delta) % 16
+        edit = accum 
     elseif(n==3) then 
         sliders[edit+1] = sliders[edit+1] + delta
         if sliders[edit+1] > 32 then sliders[edit+1] = 32 end
@@ -55,9 +55,6 @@ redraw = function()
     s.aa(1)
     s.line_width(1.0)
     s.clear()
-
-    s.move(0,10)
-    s.text("peter and alex")
     
     for i=0,15 do
 	    if(i==edit) then
@@ -74,4 +71,6 @@ redraw = function()
     s.move(32+step*4,50)
     s.line(32+step*4,54)
     s.stroke()
+
+    s.update()
 end
