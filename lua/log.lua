@@ -1,6 +1,8 @@
 --- Log class
 -- @module log
 
+local util = require 'util'
+
 local LOG_MAX = 24
 
 local Log = {}
@@ -13,9 +15,9 @@ Log.length = 0
 -- @param txt log message
 Log.post = function(txt)
     Log.msg[Log.last] = txt
-    Log.time[Log.last] = sys.time()
+    Log.time[Log.last] = get_time()
     Log.last = (Log.last + 1) % LOG_MAX
-    Log.length = clamp(Log.length + 1, 0, 24)
+    Log.length = util.clamp(Log.length + 1, 0, LOG_MAX)
 end
 
 --- get log message at index, with timestamp (seconds old)
@@ -23,7 +25,7 @@ end
 Log.get = function(index)
     if index <= Log.length then
         local i = (Log.last - index) % LOG_MAX
-        local m = (sys.time() - Log.time[i]) .. " " .. Log.msg[i] 
+        local m = (get_time() - Log.time[i]) .. " " .. Log.msg[i] 
         return m 
     else
         return "..."

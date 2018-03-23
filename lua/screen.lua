@@ -173,7 +173,7 @@ end
 --- disable screen functions (menu only controls screen)
 s_disable = function()
     for k,v in pairs(s) do
-	s[k] = sys.none
+	s[k] = norns.none
     end
 end
 
