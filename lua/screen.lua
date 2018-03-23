@@ -5,14 +5,14 @@
 local Screen = {} 
 
 --- copy buffer to screen 
-Screen.update = function() s_update end
+Screen.update = function() s_update() end
 
 --- enable/disable anti-aliasing
 -- @param state on(1) or off(0)
 Screen.aa = function(state) s_aa(state) end 
 
 --- clear
-Screen.clear = function() s_clear end
+Screen.clear = function() s_clear() end
 
 --- set level (color/brightness)
 -- @param value 0-15 (0=off, 15=white)
