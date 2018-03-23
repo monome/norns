@@ -3,14 +3,25 @@
 -- @alias Screen
 local Screen = {} 
 
---- update: copy buffer to screen 
-Screen.update = s_update
---- aa: enable/disable anti-aliasing
--- @param: anti-aliasing on(1) or off(0)
-Screen.aa = s_aa
-Screen.clear = s_clear
-Screen.level = s_level
-Screen.line = s_line
+--- copy buffer to screen 
+Screen.update = function() s_update end
+
+--- enable/disable anti-aliasing
+-- @param state on(1) or off(0)
+Screen.aa = function(state) s_aa(state) end 
+
+--- clear
+Screen.clear = function() s_clear end
+
+--- set level (color/brightness)
+-- @param value 0-15 (0=off, 15=white)
+Screen.level = function(value) s_level(value) end
+
+--- draw line to specified point
+-- @param x destination x
+-- @param y destination y 
+Screen.line = function() s_line() end
+
 Screen.arc = s_arc
 Screen.line_width = s_line_width
 Screen.move = s_move
@@ -27,6 +38,7 @@ Screen.rect = s_rect
 Screen.curve = s_curve
 Screen.curve_rel = s_curve_rel
 
+--- enable screen functions (allow user script to modify screen)
 s_enable = function()
     Screen.update = s_update
     Screen.aa = s_aa
@@ -50,6 +62,7 @@ s_enable = function()
     Screen.curve_rel = s_curve_rel
 end
 
+--- disable screen functions (menu only controls screen)
 s_disable = function()
     for k,v in pairs(s) do
 	s[k] = sys.none

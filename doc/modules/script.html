@@ -40,7 +40,7 @@
 <ul class="nowrap">
   <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
-  <li><strong>file</strong></li>
+  <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/Log.html">Log</a></li>
@@ -49,7 +49,7 @@
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
-  <li><a href="../modules/script.html">script</a></li>
+  <li><strong>script</strong></li>
   <li><a href="../modules/system.html">system</a></li>
 </ul>
 
@@ -57,20 +57,24 @@
 
 <div id="content">
 
-<h1>Module <code>file</code></h1>
-<p>file system</p>
+<h1>Module <code>script</code></h1>
+<p>Script class</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#File.state.save">File.state.save ()</a></td>
-	<td class="summary">save current state to state.lua</td>
+	<td class="name" nowrap><a href="#Script.load">Script.load (filename)</a></td>
+	<td class="summary">load a script from the /scripts folder</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#File.scandir">File.scandir (directory)</a></td>
-	<td class="summary">scan directory, return file list</td>
+	<td class="name" nowrap><a href="#Script.run">Script.run ()</a></td>
+	<td class="summary">load engine, execute script-specified init (if present)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Script.metadata">Script.metadata (filename)</a></td>
+	<td class="summary">load script metadata</td>
 	</tr>
 </table>
 
@@ -82,11 +86,31 @@
 
     <dl class="function">
     <dt>
-    <a name = "File.state.save"></a>
-    <strong>File.state.save ()</strong>
+    <a name = "Script.load"></a>
+    <strong>Script.load (filename)</strong>
     </dt>
     <dd>
-    save current state to state.lua
+    load a script from the /scripts folder
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         (string) - file to load, no extension. leave blank to reload current file.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Script.run"></a>
+    <strong>Script.run ()</strong>
+    </dt>
+    <dd>
+    load engine, execute script-specified init (if present)
 
 
 
@@ -96,17 +120,17 @@
 
 </dd>
     <dt>
-    <a name = "File.scandir"></a>
-    <strong>File.scandir (directory)</strong>
+    <a name = "Script.metadata"></a>
+    <strong>Script.metadata (filename)</strong>
     </dt>
     <dd>
-    scan directory, return file list
+    load script metadata
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">directory</span>
-         path to directory
+        <li><span class="parameter">filename</span>
+
         </li>
     </ul>
 
