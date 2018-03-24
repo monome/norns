@@ -19,3 +19,7 @@ done
 for file in $(find ../build/sc -name '*.so'); do
     link $file
 done
+
+
+mkdir ~/.local/share/SuperCollider/Extensions/sc
+ln -sf ~/dust/sc ~/.local/share/SuperCollider/Extensions/sc

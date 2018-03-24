@@ -33,7 +33,6 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Global_Functions">Global Functions </a></li>
 </ul>
 
 
@@ -44,7 +43,7 @@
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/log.html">log</a></li>
-  <li><strong>metro</strong></li>
+  <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
@@ -52,43 +51,35 @@
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/state.html">state</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/util.html">util</a></li>
+  <li><strong>util</strong></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>metro</code></h1>
-<p>high-resolution metro API</p>
+<h1>Module <code>util</code></h1>
+<p>Utility module;</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Metro.new">Metro.new (id)</a></td>
-	<td class="summary">constructor;</td>
+	<td class="name" nowrap><a href="#scandir">scandir (directory)</a></td>
+	<td class="summary">scan directory, return file list</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:start">Metro:start (time, count, stage)</a></td>
-	<td class="summary">start a metro</td>
+	<td class="name" nowrap><a href="#os_capture">os_capture (cmd, raw)</a></td>
+	<td class="summary">execute os command, capture output</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:stop">Metro:stop ()</a></td>
-	<td class="summary">stop a metro</td>
+	<td class="name" nowrap><a href="#string_starts">string_starts (s, start)</a></td>
+	<td class="summary">string begins with</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro.__index">Metro.__index (self, idx)</a></td>
-	<td class="summary">class custom .__index;
- [] accessor returns one of the static metro objects</td>
-	</tr>
-</table>
-<h2><a href="#Global_Functions">Global Functions </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#norns.metro">norns.metro (idx, stage)</a></td>
-	<td class="summary">callback on metro tick from C;</td>
+	<td class="name" nowrap><a href="#clamp">clamp (n, min, max)</a></td>
+	<td class="summary">clamp values to min max</td>
 	</tr>
 </table>
 
@@ -100,17 +91,17 @@
 
     <dl class="function">
     <dt>
-    <a name = "Metro.new"></a>
-    <strong>Metro.new (id)</strong>
+    <a name = "scandir"></a>
+    <strong>scandir (directory)</strong>
     </dt>
     <dd>
-    constructor;
+    scan directory, return file list
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">id</span>
-         : identifier (integer)
+        <li><span class="parameter">directory</span>
+         path to directory
         </li>
     </ul>
 
@@ -120,91 +111,87 @@
 
 </dd>
     <dt>
-    <a name = "Metro:start"></a>
-    <strong>Metro:start (time, count, stage)</strong>
+    <a name = "os_capture"></a>
+    <strong>os_capture (cmd, raw)</strong>
     </dt>
     <dd>
-    start a metro
+    execute os command, capture output
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">time</span>
-         - (optional) time period between ticks (seconds.) by default, re-use the last period
+        <li><span class="parameter">cmd</span>
+         command
         </li>
-        <li><span class="parameter">count</span>
-         - (optional) number of ticks. infinite by default
-        </li>
-        <li><span class="parameter">stage</span>
-         - (optional) initial stage number (1-based.) 1 by default
+        <li><span class="parameter">raw</span>
+         raw output (omit for scrubbed)
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        ouput
+    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "Metro:stop"></a>
-    <strong>Metro:stop ()</strong>
+    <a name = "string_starts"></a>
+    <strong>string_starts (s, start)</strong>
     </dt>
     <dd>
-    stop a metro
+    string begins with
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to examine
+        </li>
+        <li><span class="parameter">start</span>
+         string to search for
+        </li>
+    </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        true or false
+    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "Metro.__index"></a>
-    <strong>Metro.__index (self, idx)</strong>
+    <a name = "clamp"></a>
+    <strong>clamp (n, min, max)</strong>
     </dt>
     <dd>
-    class custom .__index;
- [] accessor returns one of the static metro objects
+    clamp values to min max
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">self</span>
-
+        <li><span class="parameter">n</span>
+         value
         </li>
-        <li><span class="parameter">idx</span>
-
+        <li><span class="parameter">min</span>
+         minimum
         </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="Global_Functions"></a>Global Functions </h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "norns.metro"></a>
-    <strong>norns.metro (idx, stage)</strong>
-    </dt>
-    <dd>
-    callback on metro tick from C;
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">idx</span>
-
-        </li>
-        <li><span class="parameter">stage</span>
-
+        <li><span class="parameter">max</span>
+         maximum
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        clamped value
+    </ol>
 
 
 

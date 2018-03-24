@@ -1,6 +1,42 @@
--- state
-sys.file.state.script = 'template.lua'
-sys.file.state.out = '62.0'
-sys.input_left = '48.0'
-sys.input_right = '48.0'
-sys.hp = '45'
+--- State
+-- @module state
+
+state = {}
+-- volumes and gains
+state.out = 0
+state.input_left = 0
+state.input_right = 0
+state.hp = 0
+-- last script
+state.script = ''
+
+-- read state.lua and set parameters back to stored vals
+state.resume = function()
+  dofile(data_dir .. 'state.lua')
+  -- set stored output level
+  audio_output_level(state.out / 64.0)
+  -- set inputs 
+  gain_in(state.input_left,0) 
+  gain_in(state.input_right,1)
+  -- set hp
+  gain_hp(state.hp) 
+  -- reume last file
+  -- FIXME check for file not found, then be smart
+  print("last file loaded: " .. state.script)
+  norns.script.load()
+end
+
+--- save current norns state to state.lua
+state.save = function()
+  local fd=io.open(data_dir .. "state.lua","w+")
+  io.output(fd)
+  io.write("-- state\n")
+  io.write("norns.state.script = '" .. state.script .. "'\n")
+  io.write("norns.state.out = '" .. state.out .. "'\n")
+  io.write("norns.state.input_left = '" .. state.input_left .. "'\n")
+  io.write("norns.state.input_right = '" .. state.input_right .. "'\n")
+  io.write("norns.state.hp = '" .. state.hp .. "'\n")
+  io.close(fd)   
+end 
+
+return state
