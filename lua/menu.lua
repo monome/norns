@@ -328,7 +328,7 @@ p.key[pPREVIEW] = function(n,z)
     elseif n ==3 and z == 1 then
         p.pre.state = 1
     elseif n == 2 and z == 1 then
-        menu.set_page(pSELECT)
+        menu.set_page(pHOME)
     end
 end
 
@@ -545,11 +545,15 @@ p.init[pSLEEP] = norns.none
 
 -- STATUS
 p.stat = {}
+p.stat.tape = false
 
 p.key[pSTATUS] = function(n,z)
     if n==3 and z==1 then 
         norns.vu = norns.none
         menu.set_page(pHOME)
+    elseif n==2 then
+	if z==1 then p.stat.tape = true
+	else p.stat.tape = false end
     end
 end
 
@@ -558,20 +562,36 @@ p.enc[pSTATUS] = norns.none
 p.redraw[pSTATUS] = function()
     s_clear()
     s_aa(1)
-    s_level(6)
-    s_move(18,64-norns.state.out)
-    s_line(30,64-norns.state.out)
+
+    s_line_width(1)
+    s_level(2)
+    s_move(0,64-norns.state.out)
+    s_line(0,63)
     s_stroke()
+
     s_level(15)
+    s_move(3,63)
+    s_line(3,63-p.stat.out1)
+    s_move(6,63)
+    s_line(6,63-p.stat.out2)
     s_move(16,63)
-    s_line(16,63-p.stat.out1)
-    s_move(32,63)
-    s_line(32,63-p.stat.out2)
-    s_move(80,63)
-    s_line(80,63-p.stat.in1)
-    s_move(96,63)
-    s_line(96,63-p.stat.in2)
+    s_line(16,63-p.stat.in1)
+    s_move(19,63)
+    s_line(19,63-p.stat.in2)
     s_stroke()
+
+    if p.stat.tape then
+	s_level(2)
+        s_move(127,63)
+	s_text_right("TAPE")
+    end
+
+    if norns.powerpresent==0 then
+	s_level(2)
+	s_move(24,63)
+	s_text("99") -- add batt percentage
+    end
+
     s_update()
 end
 
