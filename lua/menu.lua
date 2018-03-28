@@ -56,7 +56,6 @@ u.count = -1
 norns.menu = {}
 norns.menu.init = function() 
     menu.set_mode(menu.mode)
-    os.execute("~/norns/wifi.sh scan &")
 end
 
 
@@ -619,8 +618,8 @@ end
 -- WIFI
 p.wifi = {}
 p.wifi.pos = 0
-p.wifi.list = {"off","hotspot","connect:","select >"}
-p.wifi.len = 4 
+p.wifi.list = {"off","hotspot","network:","scan","select >"}
+p.wifi.len = 5
 p.wifi.scan = {}
 p.wifi.num = 0
 p.wifi.selected = 0
@@ -644,6 +643,10 @@ p.key[pWIFI] = function(n,z)
             print "wifi on"
             os.execute("~/norns/wifi.sh on &")
             menu.set_page(pSYSTEM)
+	elseif p.wifi.pos == 3 then
+	    os.execute("~/norns/wifi.sh scan &")
+	    p.wifi.pos = p.wifi.pos + 1
+	    menu.set_page(pSYSTEM)
 	elseif p.wifi.num > 0 then
 	    p.wifi.try = p.wifi.scan[p.wifi.selected+1]
 	    menu.set_page(pWIFIPASS)
@@ -666,11 +669,12 @@ end
 p.redraw[pWIFI] = function()
     s_clear()
     s_level(15)
-    s_move(0,30+p.wifi.status*10)
+    s_move(0,10)
+    s_move(0,20+p.wifi.status*10)
     s_text("-")
 
-    for i=1,4 do
-       	s_move(8,20+10*i)
+    for i=1,p.wifi.len do
+       	s_move(8,10+10*i)
        	line = p.wifi.list[i]
        	if(i==p.wifi.pos+1) then
            	s_level(15)
@@ -680,11 +684,11 @@ p.redraw[pWIFI] = function()
        	s_text(string.upper(line)) 
     end
 
-    s_move(127,50)
+    s_move(127,40)
     if p.wifi.pos==2 then s_level(15) else s_level(4) end
     s_text_right(p.wifi.ssid) 
     s_move(127,60)
-    if p.wifi.pos==3 then s_level(15) else s_level(4) end
+    if p.wifi.pos==4 then s_level(15) else s_level(4) end
     if p.wifi.num > 0 then
     	s_text_right(p.wifi.scan[p.wifi.selected+1])
     else
@@ -709,7 +713,7 @@ end
 
 -- WIFIPASS
 p.wifipass = {}
-p.wifipass.x = 0
+p.wifipass.x = 27
 p.wifipass.y = 0
 p.wifipass.psk = ""
 p.wifipass.page = 33
@@ -729,7 +733,7 @@ p.key[pWIFIPASS] = function(n,z)
             p.wifipass.psk = string.sub(p.wifipass.psk,0,-2)
           elseif i==1 then 
             os.execute("~/norns/wifi.sh select "..p.wifi.try.." "..p.wifipass.psk.." &")
-            menu.set_page(pSYSTEM)
+            menu.set_page(pWIFI)
           end 
           menu.redraw()
 	end
@@ -752,7 +756,7 @@ p.redraw[pWIFIPASS] = function()
     s_clear()
     s_level(15)
     s_move(0,10)
-    s_text("PASSWORD: "..p.wifipass.psk)
+    s_text(p.wifipass.psk)
     local x,y
     for x=0,15 do
         for y=0,3 do
