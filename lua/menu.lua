@@ -324,11 +324,12 @@ end
 p.key[pPREVIEW] = function(n,z)
     if n==3 and p.pre.state == 1 then
         norns.script.load(p.sel.path)
+        menu.set_page(pHOME)
         menu.set_mode(false)
     elseif n ==3 and z == 1 then
         p.pre.state = 1
     elseif n == 2 and z == 1 then
-        menu.set_page(pHOME)
+        menu.set_page(pSELECT)
     end
 end
 
@@ -617,7 +618,7 @@ end
 p.wifi = {}
 p.wifi.pos = 0
 p.wifi.list = {}
-p.wifi.len = 3 
+p.wifi.len = 4 
 
 p.key[pWIFI] = function(n,z)
     if n==2 and z==1 then
@@ -628,14 +629,14 @@ p.key[pWIFI] = function(n,z)
             os.execute("~/norns/wifi.sh off &")
             menu.set_page(pSYSTEM)
         elseif p.wifi.pos == 1 then
-            print "wifi on"
-            os.execute("~/norns/wifi.sh on &")
-            menu.set_page(pSYSTEM)
-        else
             print "wifi hotspot"
             os.execute("~/norns/wifi.sh hotspot &")
             menu.set_page(pSYSTEM)
-        end
+        elseif p.wifi.pos == 2 then
+            print "wifi on"
+            os.execute("~/norns/wifi.sh on &")
+            menu.set_page(pSYSTEM)
+	else menu.set_page(pWIFISELECT) end
     end
 end
 
@@ -653,7 +654,7 @@ p.redraw[pWIFI] = function()
     s_level(15)
     s_move(0,10)
     s_text(util.os_capture("cat ~/status.wifi"));
-    for i=3,5 do
+    for i=3,6 do
        	s_move(0,10*i)
        	line = p.wifi.list[i-2]
        	if(i==p.wifi.pos+3) then
@@ -670,13 +671,13 @@ p.init[pWIFI] = function()
    ssid = util.os_capture("cat ~/ssid.wifi")
    wifi_status = util.os_capture("cat ~/status.wifi");
    if wifi_status == 'hotspot' then
-      p.wifi.list = {"  off","  "..ssid,"- hotspot"}
+      p.wifi.list = {"  off","> hotspot","  "..ssid, "  select"}
    elseif wifi_status == 'router' then
-      p.wifi.list = {"  off","- "..ssid,"  hotspot"}
+      p.wifi.list = {"  off","  hotspot","> "..ssid, "  select"}
    elseif wifi_status == 'stopped' then
-      p.wifi.list = {"- off","  "..ssid,"  hotspot"}
+      p.wifi.list = {"> off","  hotspot","  "..ssid, "  select"}
    else
-      p.wifi.list = {"  off","  "..ssid,"  hotspot"}
+      p.wifi.list = {"  off","  hotspot","  "..ssid, "  select"}
    end
 end
 
