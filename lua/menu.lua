@@ -20,6 +20,7 @@ local pSYSTEM = 6
 local pWIFI = 7
 local pSLEEP = 8
 local pLOG = 9
+local pWIFIPASS = 10
 
 -- page pointer
 local p = {}
@@ -55,6 +56,7 @@ u.count = -1
 norns.menu = {}
 norns.menu.init = function() 
     menu.set_mode(menu.mode)
+    os.execute("~/norns/wifi.sh scan &")
 end
 
 
@@ -617,8 +619,14 @@ end
 -- WIFI
 p.wifi = {}
 p.wifi.pos = 0
-p.wifi.list = {}
+p.wifi.list = {"off","hotspot","connect:","select >"}
 p.wifi.len = 4 
+p.wifi.scan = {}
+p.wifi.num = 0
+p.wifi.selected = 0
+p.wifi.status = ""
+p.wifi.ssid = ""
+p.wifi.try = ""
 
 p.key[pWIFI] = function(n,z)
     if n==2 and z==1 then
@@ -636,7 +644,10 @@ p.key[pWIFI] = function(n,z)
             print "wifi on"
             os.execute("~/norns/wifi.sh on &")
             menu.set_page(pSYSTEM)
-	else menu.set_page(pWIFISELECT) end
+	elseif p.wifi.num > 0 then
+	    p.wifi.try = p.wifi.scan[p.wifi.selected+1]
+	    menu.set_page(pWIFIPASS)
+	end
     end
 end
 
@@ -646,40 +657,124 @@ p.enc[pWIFI] = function(n,delta)
 	    if p.wifi.pos > p.wifi.len - 1 then p.wifi.pos = p.wifi.len - 1
         elseif p.wifi.pos < 0 then p.wifi.pos = 0 end
         menu.redraw()
+    elseif n==3 and p.wifi.pos == 3 then
+	p.wifi.selected = util.clamp(0,p.wifi.selected+delta,p.wifi.num-1)
+	menu.redraw()
     end
 end
 
 p.redraw[pWIFI] = function()
     s_clear()
     s_level(15)
-    s_move(0,10)
-    s_text(util.os_capture("cat ~/status.wifi"));
-    for i=3,6 do
-       	s_move(0,10*i)
-       	line = p.wifi.list[i-2]
-       	if(i==p.wifi.pos+3) then
+    s_move(0,30+p.wifi.status*10)
+    s_text("-")
+
+    for i=1,4 do
+       	s_move(8,20+10*i)
+       	line = p.wifi.list[i]
+       	if(i==p.wifi.pos+1) then
            	s_level(15)
        	else
            	s_level(4)
        	end
        	s_text(string.upper(line)) 
     end
+
+    s_move(127,50)
+    if p.wifi.pos==2 then s_level(15) else s_level(4) end
+    s_text_right(p.wifi.ssid) 
+    s_move(127,60)
+    if p.wifi.pos==3 then s_level(15) else s_level(4) end
+    if p.wifi.num > 0 then
+    	s_text_right(p.wifi.scan[p.wifi.selected+1])
+    else
+	s_text_right("NONE")
+    end
+
     s_update() 
 end 
 
 p.init[pWIFI] = function()
-   ssid = util.os_capture("cat ~/ssid.wifi")
+   p.wifi.status = 0
+   p.wifi.ssid = util.os_capture("cat ~/ssid.wifi")
    wifi_status = util.os_capture("cat ~/status.wifi");
-   if wifi_status == 'hotspot' then
-      p.wifi.list = {"  off","> hotspot","  "..ssid, "  select"}
-   elseif wifi_status == 'router' then
-      p.wifi.list = {"  off","  hotspot","> "..ssid, "  select"}
-   elseif wifi_status == 'stopped' then
-      p.wifi.list = {"> off","  hotspot","  "..ssid, "  select"}
-   else
-      p.wifi.list = {"  off","  hotspot","  "..ssid, "  select"}
+   if wifi_status == 'hotspot' then p.wifi.status = 1 
+   elseif wifi_status == 'router' then p.wifi.status = 2 end
+
+   for line in io.lines(home_dir.."/scan.wifi") do
+       table.insert(p.wifi.scan,line)
    end
+   p.wifi.num = tab.count(p.wifi.scan)
 end
+
+-- WIFIPASS
+p.wifipass = {}
+p.wifipass.x = 0
+p.wifipass.y = 0
+p.wifipass.psk = ""
+p.wifipass.page = 33
+p.wifipass.delok = 0
+
+p.key[pWIFIPASS] = function(n,z)
+    if n==2 and z==1 then
+        menu.set_page(pWIFI)
+    elseif n==3 and z==1 then
+	if p.wifipass.y < 4 then
+            local ch = 5+(p.wifipass.x+p.wifipass.y*23)%92+33
+            p.wifipass.psk = p.wifipass.psk .. string.char(ch)
+	    menu.redraw() 
+	else 
+          local i = p.wifipass.delok >> 2
+          if i==0 then
+            p.wifipass.psk = string.sub(p.wifipass.psk,0,-2)
+          elseif i==1 then 
+            os.execute("~/norns/wifi.sh select "..p.wifi.try.." "..p.wifipass.psk.." &")
+            menu.set_page(pSYSTEM)
+          end 
+          menu.redraw()
+	end
+    end
+end
+
+p.enc[pWIFIPASS] = function(n,delta)
+    if n==2 then 
+        if p.wifipass.y == 4 then
+	  p.wifipass.delok = (p.wifipass.delok + delta) % 8
+        else p.wifipass.x = (p.wifipass.x + delta) % 92 end
+        menu.redraw()
+    elseif n==3 then
+	p.wifipass.y = util.clamp(p.wifipass.y-delta,0,4)
+	menu.redraw()
+    end
+end
+
+p.redraw[pWIFIPASS] = function()
+    s_clear()
+    s_level(15)
+    s_move(0,10)
+    s_text("PASSWORD: "..p.wifipass.psk)
+    local x,y
+    for x=0,15 do
+        for y=0,3 do
+	    if x==5 and y==p.wifipass.y then s_level(15) else s_level(2) end
+	    s_move(x*8,y*8+24)
+	    s_text(string.char((x+p.wifipass.x+y*23)%92+33))
+	end
+    end
+
+    local i = p.wifipass.delok >> 2 
+    s_move(0,60)
+    if p.wifipass.y==4 and i==0 then s_level(15) else s_level(2) end
+    s_text("DEL")
+    s_move(127,60)
+    if p.wifipass.y==4 and i==1 then s_level(15) else s_level(2) end
+    s_text_right("OK")
+
+    s_update() 
+end 
+
+p.init[pWIFIPASS] = function() end
+
 
 -- LOG
 p.log = {}
