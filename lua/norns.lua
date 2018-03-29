@@ -86,13 +86,13 @@ norns.report.engines = function(names, count)
 end
 
 norns.report.commands = function(commands, count)
-   engine.registerCommands(commands, count)
-   engine.listCommands()
+   engine.register_commands(commands, count)
+   engine.list_commands()
 end
 
 norns.report.polls = function(names, count)
    poll.register(names, count)
-   poll.listNames()
+   poll.list_names()
 end
 
 
@@ -107,7 +107,7 @@ end
 -- @param id identfier
 -- @param value value (float OR sequence of bytes)
 norns.poll = function(id, value)
-   local name = poll.pollNames[id]
+   local name = poll.poll_names[id]
    local p = poll.polls[name]
    if p then
     p:perform(value)
