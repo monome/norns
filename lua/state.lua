@@ -15,11 +15,11 @@ state.resume = function()
   dofile(data_dir .. 'state.lua')
   -- set stored output level
   audio_output_level(state.out / 64.0)
-  -- set inputs 
-  gain_in(state.input_left,0) 
+  -- set inputs
+  gain_in(state.input_left,0)
   gain_in(state.input_right,1)
   -- set hp
-  gain_hp(state.hp) 
+  gain_hp(state.hp)
   -- reume last file
   -- FIXME check for file not found, then be smart
   print("last file loaded: " .. state.script)
@@ -36,7 +36,7 @@ state.save = function()
   io.write("norns.state.input_left = '" .. state.input_left .. "'\n")
   io.write("norns.state.input_right = '" .. state.input_right .. "'\n")
   io.write("norns.state.hp = '" .. state.hp .. "'\n")
-  io.close(fd)   
-end 
+  io.close(fd)
+end
 
 return state

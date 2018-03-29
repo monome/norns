@@ -11,10 +11,10 @@ require 'metro'
 require 'menu'
 
 -- more random
-math.randomseed(os.time()) 
+math.randomseed(os.time())
 
 -- globals
-s = require 'screen' 
+s = require 'screen'
 grid = require 'grid'
 metro = require 'metro'
 poll = require 'poll'
@@ -24,23 +24,23 @@ tab = require 'tabutil'
 util = require 'util'
 
 -- management of grids
-g = nil 
+g = nil
 
 grid.add = function(device)
-   print("attaching grid ")
-   g = device
-   g.key = gridkey
-   g:print()
-   norns.log.post("connected: grid")
-end 
-
-grid.reconnect = function()
-    _, g = next(grid.devices) -- hacky way to get basically random item in a table
-    if g then grid.add(g) end 
+  print("attaching grid ")
+  g = device
+  g.key = gridkey
+  g:print()
+  norns.log.post("connected: grid")
 end
 
-grid.remove = function(device) g = nil end 
+grid.reconnect = function()
+  _, g = next(grid.devices) -- hacky way to get basically random item in a table
+  if g then grid.add(g) end
+end
+
+grid.remove = function(device) g = nil end
 
 -- resume last loaded script
 norns.log.post("norns started")
-norns.state.resume() 
+norns.state.resume()

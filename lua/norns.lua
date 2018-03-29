@@ -10,41 +10,41 @@ local engine = require 'engine'
 local poll = require 'poll'
 local tab = require 'tabutil'
 
---- startup function will be run after I/O subsystems are initialized, 
+--- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 startup = function()
-   require('startup')
+  require('startup')
 end
 
 --- Global Functions
 -- @section global_functions
 
--- global functions required by the C interface; 
+-- global functions required by the C interface;
 -- we "declare" these here with placeholders;
 -- individual modules will redefine them as needed.
 
 --- battery percent handler
 -- @param percent battery full percentage
 norns.battery = function(percent)
-    norns.batterypercent = tonumber(percent)
-    --print("battery: "..norns.batterypercent.."%")
+  norns.batterypercent = tonumber(percent)
+  --print("battery: "..norns.batterypercent.."%")
 end
 
 --- power present handler
 -- @param present power plug present (0=no,1=yes)
 norns.power = function(present)
-    norns.powerpresent = present
-    --print("power: "..present)
+  norns.powerpresent = present
+  --print("power: "..present)
 end
 
 --- key callback (redefined in menu)
 norns.key = function(n,z)
    --print ("norns.key "..n.." "..z)
-end 
+end
 --- enc callback (redefined in menu)
 norns.enc = function(n,delta)
    --print ("norns.enc "..n.." "..delta)
-end 
+end
 
 -- monome device callbacks
 norns.monome = {}
@@ -86,19 +86,19 @@ norns.report.engines = function(names, count)
 end
 
 norns.report.commands = function(commands, count)
-   engine.registerCommands(commands, count)
-   engine.listCommands()   
+   engine.register_commands(commands, count)
+   engine.list_commands()
 end
 
 norns.report.polls = function(names, count)
    poll.register(names, count)
-   poll.listNames()
+   poll.list_names()
 end
 
 
 --- called when all reports are complete after engine load
-norns.report.didEngineLoad = function()
-   print("norns.report.didEngineLoad (default)")
+norns.report.did_engine_load = function()
+   print("norns.report.did_engine_load (default)")
    -- engine module should assign callback
 end
 
@@ -107,12 +107,12 @@ end
 -- @param id identfier
 -- @param value value (float OR sequence of bytes)
 norns.poll = function(id, value)
-   local name = poll.pollNames[id]
+   local name = poll.poll_names[id]
    local p = poll.polls[name]
    if p then
-      p:perform(value)
+    p:perform(value)
    else
-      print ("warning: norns.poll callback couldn't find poll")
+    print ("warning: norns.poll callback couldn't find poll")
    end
 end
 
@@ -136,6 +136,6 @@ norns.none = function() end
 
 --- blank screen
 norns.blank = function()
-    s_clear()
-    s_update()
+  s_clear()
+  s_update()
 end
