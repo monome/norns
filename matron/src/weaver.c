@@ -1542,7 +1542,7 @@ void w_handle_engine_loaded() {
   _push_polls();
   l_report(lvm, l_docall(lvm, 2, 0));
   
-  _push_norns_func("report", "didEngineLoad");
+  _push_norns_func("report", "did_engine_load");
   l_report(lvm, l_docall(lvm, 0, 0));
   // TODO
   // _push_params();

@@ -2,14 +2,14 @@
 -- subset of cairo drawing functions. see https://www.cairographics.org/tutorial/
 -- @module screen
 -- @alias Screen
-local Screen = {} 
+local Screen = {}
 
---- copy buffer to screen 
+--- copy buffer to screen
 Screen.update = function() s_update() end
 
 --- enable/disable anti-aliasing
 -- @param state on(1) or off(0)
-Screen.aa = function(state) s_aa(state) end 
+Screen.aa = function(state) s_aa(state) end
 
 --- clear
 Screen.clear = function() s_clear() end
@@ -25,21 +25,21 @@ Screen.line_width = function(w) s_line_width(w) end
 --- move drawing position
 -- @param x position x
 -- @param y position y
-Screen.move = function(x,y) s_move(x,y) end 
+Screen.move = function(x, y) s_move(x, y) end
 
 --- move drawing position relative to current position
 -- @param x relative position x
 -- @param y relative position y
-Screen.move_rel = function(x,y) s_move_rel(x,y) end 
+Screen.move_rel = function(x, y) s_move_rel(x, y) end
 
 --- draw line to specified point
 -- @param x destination x
--- @param y destination y 
+-- @param y destination y
 Screen.line = function() s_line() end
 
 --- draw line to specified point relative to current position
 -- @param x relative destination x
--- @param y relative destination y 
+-- @param y relative destination y
 Screen.line_rel = function() s_line_rel() end
 
 --- draw arc
@@ -48,20 +48,20 @@ Screen.line_rel = function() s_line_rel() end
 -- @param r radius
 -- @param angle1 start angle
 -- @param angle2 end angle
-Screen.arc = function(x,y,r,angle1,angle2) s_arc(x,y,r,angle1,angle2) end
+Screen.arc = function(x, y, r, angle1, angle2) s_arc(x, y, r, angle1, angle2) end
 
 --- draw circle
 -- @param x origin x
 -- @param y origin y
 -- @param r radius
-Screen.circle = function(x,y,r) s_circle(x,y,r) end
+Screen.circle = function(x, y, r) s_circle(x, y, r) end
 
 --- draw rectangle
 -- @param x x position
 -- @param y y position
 -- @param w width
 -- @param h height
-Screen.rect = function(x,y,w,h) s_rect(x,y,w,h) end
+Screen.rect = function(x, y, w, h) s_rect(x, y, w, h) end
 
 --- draw curve (cubic Bézier spline)
 -- @param x1 destination x
@@ -70,7 +70,7 @@ Screen.rect = function(x,y,w,h) s_rect(x,y,w,h) end
 -- @param y2 handle 1 y
 -- @param x3 handle 2 x
 -- @param y3 handle 2 y
-Screen.curve = function(x1,y1,x2,y2,x3,y3) s_curve(x1,y1,x2,y2,x3,y3) end
+Screen.curve = function(x1, y1, x2, y2, x3, y3) s_curve(x1, y1, x2, y2, x3, y3) end
 
 --- draw curve (cubic Bézier spline) relative coordinates
 -- @param x1 relative destination x
@@ -78,8 +78,8 @@ Screen.curve = function(x1,y1,x2,y2,x3,y3) s_curve(x1,y1,x2,y2,x3,y3) end
 -- @param x2 handle 1 x
 -- @param y2 handle 1 y
 -- @param x3 handle 2 x
--- @param y3 handle 2 y 
-Screen.curve_rel = function(x1,y1,x2,y2,x3,y3) s_curve_rel(x1,y1,x2,y2,x3,y3) end 
+-- @param y3 handle 2 y
+Screen.curve_rel = function(x1, y1, x2, y2, x3, y3) s_curve_rel(x1, y1, x2, y2, x3, y3) end
 
 --- close current path
 Screen.close = function() s_close() end
@@ -146,51 +146,51 @@ Screen.font_size = function(size) s_font_size(size) end
 
 --- enable screen functions (allow user script to modify screen)
 s_enable = function()
-    Screen.update = s_update
-    Screen.aa = s_aa
-    Screen.clear = s_clear
-    Screen.level = s_level
-    Screen.line = s_line
-    Screen.line_rel = s_line_rel
-    Screen.arc = s_arc
-    Screen.line_width = s_line_width
-    Screen.move = s_move
-    Screen.move_rel = s_move_rel
-    Screen.stroke = s_stroke
-    Screen.fill = s_fill
-    Screen.text = s_text
-    Screen.text_right = s_text_right
-    Screen.text_center = s_text_center
-    Screen.close = s_close
-    Screen.font_face = s_font_face
-    Screen.font_size = s_font_size
-    Screen.circle = s_circle
-    Screen.rect = s_rect
-    Screen.curve = s_curve
-    Screen.curve_rel = s_curve_rel
+  Screen.update = s_update
+  Screen.aa = s_aa
+  Screen.clear = s_clear
+  Screen.level = s_level
+  Screen.line = s_line
+  Screen.line_rel = s_line_rel
+  Screen.arc = s_arc
+  Screen.line_width = s_line_width
+  Screen.move = s_move
+  Screen.move_rel = s_move_rel
+  Screen.stroke = s_stroke
+  Screen.fill = s_fill
+  Screen.text = s_text
+  Screen.text_right = s_text_right
+  Screen.text_center = s_text_center
+  Screen.close = s_close
+  Screen.font_face = s_font_face
+  Screen.font_size = s_font_size
+  Screen.circle = s_circle
+  Screen.rect = s_rect
+  Screen.curve = s_curve
+  Screen.curve_rel = s_curve_rel
 end
 
 --- disable screen functions (menu only controls screen)
 s_disable = function()
-    for k,v in pairs(s) do
-	s[k] = norns.none
-    end
+  for k, v in pairs(s) do
+    s[k] = norns.none
+  end
 end
 
 s_text_right = function(str)
-    x,y = s_extents(str)
-    s_move_rel(-x,0)
-    s_text(str)
-end 
+  x, y = s_extents(str)
+  s_move_rel(-x, 0)
+  s_text(str)
+end
 
 s_text_center = function(str)
-    x,y = s_extents(str)
-    s_move_rel(-x/2,0)
-    s_text(str)
-end 
+  x, y = s_extents(str)
+  s_move_rel(-x/2, 0)
+  s_text(str)
+end
 
-s_circle = function(x,y,r)
-    s_arc(x,y,r,0,math.pi*2)
+s_circle = function(x, y, r)
+  s_arc(x, y, r, 0, math.pi*2)
 end
 
 return Screen
