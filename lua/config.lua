@@ -11,6 +11,7 @@ package.path = sys..script..package.path
 -- full path to directory containing user scripts
 script_dir = home..'/dust/lua/'
 data_dir = home..'/dust/data/'
+home_dir = home
 
 require 'norns'
 

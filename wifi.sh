@@ -112,7 +112,7 @@ elif [ $1 = "scan" ]; then
     wait_scanning;
     sudo wpa_cli scan_results \
 	| sed -e s/.\*\\\]// -e s/\[\ \\t\]\*// \
-	| awk '(NR>2) {print};'
+	| awk '(NR>2) {print};' > $HOME/scan.wifi
 elif [ $1 = "select" ]; then
     if [ -n "$1" ]; then
 	echo $2 > $HOME/ssid.wifi;
