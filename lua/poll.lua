@@ -107,7 +107,7 @@ Poll.register = function(data, count)
   end
 end
 
-Poll.listNames = function()
+Poll.list_names = function()
   print('--- polls ---')
   local names = tab.sort(Poll.polls)
   for i,n in ipairs(names) do print(n) end
