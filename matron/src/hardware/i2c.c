@@ -104,8 +104,7 @@ void i2c_gain(int level, int ch) {
     }
     buf[0] = level | ch; // p10
     while (write(file,buf,1) != 1) {
-        //fprintf(stderr, "ERROR (i2c/gain) failed to write (level set)\n");
-        sleep(0.001);
-        //return;
+        fprintf(stderr, "ERROR (i2c/gain) failed to write (level set)\n");
+        return;
     }
 }
