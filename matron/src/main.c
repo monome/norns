@@ -32,6 +32,7 @@ void cleanup(void) {
     o_deinit();
     w_deinit();
     gpio_deinit();
+    i2c_deinit();
     screen_deinit();
     battery_deinit();
 
