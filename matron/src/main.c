@@ -61,13 +61,12 @@ int main(int argc, char **argv) {
     o_init(); // oracle (audio)
 
     // wait here for a signal from the audio server...
-    fprintf(stderr, "waiting for crone...");
+    fprintf(stderr, "waiting for crone...\n");
     do {
         screen_text(".");
         screen_update();
         sleep(1);
     } while(o_ready() != 1);
-    fprintf(stderr, " ready.\n");
 
     w_init(); // weaver (scripting)
     dev_list_init();
