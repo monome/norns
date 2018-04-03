@@ -795,7 +795,7 @@ end
 
 p.enc[pLOG] = function(n,delta)
   if n==2 then
-    p.log.pos = util.clamp(p.log.pos+delta, 0, norns.log.len()-7)
+    p.log.pos = util.clamp(p.log.pos+delta, 0, math.max(norns.log.len()-7,0))
     menu.redraw()
   end
 end
