@@ -20,10 +20,17 @@ state.resume = function()
   gain_in(state.input_right,1)
   -- set hp
   gain_hp(state.hp)
-  -- reume last file
-  -- FIXME check for file not found, then be smart
-  print("last file loaded: " .. state.script)
-  norns.script.load()
+  -- resume last file
+  local f=io.open(script_dir .. state.script,"r")
+  if f~=nil then
+    io.close(f)
+    print("last file loaded: " .. state.script)
+    norns.script.load()
+  else
+    state.script=''
+    norns.script.clear()
+    redraw()
+  end
 end
 
 --- save current norns state to state.lua

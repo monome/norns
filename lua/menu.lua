@@ -506,7 +506,6 @@ p.sysquery = function()
 
   p.sys.net = ''..util.os_capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
   local wifi_status = util.os_capture("cat ~/status.wifi");
-  -- if p.sys.net == '' or wifi
   if wifi_status == 'router'
   then
     p.sys.net = p.sys.net .. " / "
@@ -643,14 +642,14 @@ p.key[pWIFI] = function(n,z)
       print "wifi on"
       os.execute("~/norns/wifi.sh on &")
       menu.set_page(pSYSTEM)
-  elseif p.wifi.pos == 3 then
-    os.execute("~/norns/wifi.sh scan &")
-    p.wifi.pos = p.wifi.pos + 1
-    menu.set_page(pSYSTEM)
-  elseif p.wifi.num > 0 then
-    p.wifi.try = p.wifi.scan[p.wifi.selected+1]
-    menu.set_page(pWIFIPASS)
-  end
+    elseif p.wifi.pos == 3 then
+      os.execute("~/norns/wifi.sh scan &")
+      p.wifi.pos = p.wifi.pos + 1
+      menu.set_page(pSYSTEM)
+    elseif p.wifi.num > 0 then
+      p.wifi.try = p.wifi.scan[p.wifi.selected+1]
+      menu.set_page(pWIFIPASS)
+    end
   end
 end
 
@@ -699,16 +698,17 @@ p.redraw[pWIFI] = function()
 end
 
 p.init[pWIFI] = function()
-   p.wifi.status = 0
-   p.wifi.ssid = util.os_capture("cat ~/ssid.wifi")
-   wifi_status = util.os_capture("cat ~/status.wifi");
-   if wifi_status == 'hotspot' then p.wifi.status = 1
-   elseif wifi_status == 'router' then p.wifi.status = 2 end
+  p.wifi.status = 0
+  p.wifi.ssid = util.os_capture("cat ~/ssid.wifi")
+  wifi_status = util.os_capture("cat ~/status.wifi");
+  if wifi_status == 'hotspot' then p.wifi.status = 1
+  elseif wifi_status == 'router' then p.wifi.status = 2 end
 
-   for line in io.lines(home_dir.."/scan.wifi") do
-     table.insert(p.wifi.scan,line)
-   end
-   p.wifi.num = tab.count(p.wifi.scan)
+  p.wifi.scan = {}
+  for line in io.lines(home_dir.."/scan.wifi") do
+    table.insert(p.wifi.scan,line)
+  end
+  p.wifi.num = tab.count(p.wifi.scan)
 end
 
 -- WIFIPASS
@@ -723,32 +723,32 @@ p.key[pWIFIPASS] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pWIFI)
   elseif n==3 and z==1 then
-  if p.wifipass.y < 4 then
+    if p.wifipass.y < 4 then
       local ch = 5+(p.wifipass.x+p.wifipass.y*23)%92+33
       p.wifipass.psk = p.wifipass.psk .. string.char(ch)
-    menu.redraw()
-  else
+      menu.redraw()
+    else
       local i = p.wifipass.delok >> 2
       if i==0 then
-      p.wifipass.psk = string.sub(p.wifipass.psk,0,-2)
+        p.wifipass.psk = string.sub(p.wifipass.psk,0,-2)
       elseif i==1 then
-      os.execute("~/norns/wifi.sh select "..p.wifi.try.." "..p.wifipass.psk.." &")
-      menu.set_page(pWIFI)
+        os.execute("~/norns/wifi.sh select "..p.wifi.try.." "..p.wifipass.psk.." &")
+        menu.set_page(pWIFI)
       end
       menu.redraw()
-  end
+    end
   end
 end
 
 p.enc[pWIFIPASS] = function(n,delta)
   if n==2 then
     if p.wifipass.y == 4 then
-    p.wifipass.delok = (p.wifipass.delok + delta) % 8
+      p.wifipass.delok = (p.wifipass.delok + delta) % 8
     else p.wifipass.x = (p.wifipass.x + delta) % 92 end
     menu.redraw()
   elseif n==3 then
-  p.wifipass.y = util.clamp(p.wifipass.y-delta,0,4)
-  menu.redraw()
+    p.wifipass.y = util.clamp(p.wifipass.y-delta,0,4)
+    menu.redraw()
   end
 end
 
@@ -760,10 +760,10 @@ p.redraw[pWIFIPASS] = function()
   local x,y
   for x=0,15 do
     for y=0,3 do
-    if x==5 and y==p.wifipass.y then s_level(15) else s_level(2) end
-    s_move(x*8,y*8+24)
-    s_text(string.char((x+p.wifipass.x+y*23)%92+33))
-  end
+      if x==5 and y==p.wifipass.y then s_level(15) else s_level(2) end
+      s_move(x*8,y*8+24)
+      s_text(string.char((x+p.wifipass.x+y*23)%92+33))
+    end
   end
 
   local i = p.wifipass.delok >> 2
@@ -777,7 +777,14 @@ p.redraw[pWIFIPASS] = function()
   s_update()
 end
 
-p.init[pWIFIPASS] = function() end
+p.init[pWIFIPASS] = function()
+  -- reparse scanned network file
+  p.wifi.scan = {}
+  for line in io.lines(home_dir.."/scan.wifi") do
+    table.insert(p.wifi.scan,line)
+  end
+  p.wifi.num = tab.count(p.wifi.scan)
+end
 
 
 -- LOG
@@ -795,7 +802,7 @@ end
 
 p.enc[pLOG] = function(n,delta)
   if n==2 then
-    p.log.pos = util.clamp(p.log.pos+delta, 0, norns.log.len()-7)
+    p.log.pos = util.clamp(p.log.pos+delta, 0, math.max(norns.log.len()-7,0))
     menu.redraw()
   end
 end
