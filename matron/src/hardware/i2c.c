@@ -103,8 +103,10 @@ void i2c_gain(int level, int ch) {
         return;
     }
     buf[0] = level | ch; // p10
+    // FIXME: this should be better than a sleep loop
     while (write(file,buf,1) != 1) {
-        fprintf(stderr, "ERROR (i2c/gain) failed to write (level set)\n");
-        return;
+        //fprintf(stderr, "ERROR (i2c/gain) failed to write (level set)\n");
+        //return;
+        sleep(0.001);
     }
 }
