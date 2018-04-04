@@ -14,7 +14,7 @@ state.script = ''
 
 -- read state.lua and set parameters back to stored vals
 state.resume = function()
-  dofile(data_dir .. 'state.lua')
+  dofile(data_dir .. 'system.lua')
   -- set stored output level
   audio_output_level(state.out / 64.0)
   -- set inputs
@@ -37,9 +37,9 @@ end
 
 --- save current norns state to state.lua
 state.save = function()
-  local fd=io.open(data_dir .. "state.lua","w+")
+  local fd=io.open(data_dir .. "system.lua","w+")
   io.output(fd)
-  io.write("-- state\n")
+  io.write("-- system state\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
   io.write("norns.state.out = '" .. state.out .. "'\n")
   io.write("norns.state.monitor = '" .. state.monitor .. "'\n")

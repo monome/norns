@@ -669,7 +669,7 @@ p.key[pWIFI] = function(n,z)
       os.execute("~/norns/wifi.sh on &")
       menu.set_page(pSYSTEM)
     elseif p.wifi.pos == 3 then
-      os.execute("~/norns/wifi.sh scan &")
+      os.execute("~/norns/wifi.sh scan > /dev/null &")
       p.wifi.pos = p.wifi.pos + 1
       menu.set_page(pSYSTEM)
     elseif p.wifi.num > 0 then
