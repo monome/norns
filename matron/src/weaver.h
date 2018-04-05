@@ -51,7 +51,7 @@ extern void w_handle_key(const int n, const int val);
 extern void w_handle_enc(const int n, const int delta);
 
 //--- system/battery
-extern void w_handle_battery(const int percent);
+extern void w_handle_battery(const int percent, const int current);
 extern void w_handle_power(const int present);
 
 //--- metro bang handler

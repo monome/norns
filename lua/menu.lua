@@ -2,6 +2,7 @@
 -- norns screen-based navigation module
 local tab = require 'tabutil'
 local util = require 'util'
+local wifi = require 'wifi'
 local menu = {}
 
 -- global functions for scripts
@@ -28,6 +29,7 @@ p.key = {}
 p.enc = {}
 p.redraw = {}
 p.init = {}
+p.deinit = {}
 
 menu.mode = false
 menu.page = pHOME
@@ -38,19 +40,18 @@ local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
+t.time = 0.25
 t.count = 2
 t.callback = function(stage)
   if(stage == 2) then
-    menu.key(1,1)
     if(menu.mode == true) then menu.alt = true end
+    menu.key(1,1)
     pending = false
   end
 end
 
 -- metro for status updates
 local u = metro[30]
-u.time = 2
-u.count = -1
 
 
 -- assigns key/enc/screen handlers after user script has loaded
@@ -94,7 +95,6 @@ norns.key = function(n, z)
   if n == 1 then
     if z == 1 then
       pending = true
-      t.time = 0.25
       t:start()
     elseif z == 0 and pending == true then
       if menu.mode == true and menu.scripterror == false then
@@ -103,8 +103,8 @@ norns.key = function(n, z)
       t:stop()
       pending = false
     elseif z == 0 then
-      menu.key(n,z) -- always 1,0
       menu.alt = false
+      menu.key(n,z) -- always 1,0
     else
       menu.key(n,z) -- always 1,1
     end
@@ -118,9 +118,7 @@ end
 menu.set_mode = function(mode)
   if mode == false then
     menu.mode = false
-    --FIXME: should the interface pages have deinits?
-    u:stop()
-    norns.vu = norns.none
+    p.deinit[menu.page]()
     s_enable()
     menu.key = key
     menu.enc = enc
@@ -130,6 +128,7 @@ menu.set_mode = function(mode)
     redraw()
   else -- enable menu mode
     menu.mode = true
+    menu.alt = false
     s_disable()
     s_font_face(0)
     s_font_size(8)
@@ -143,6 +142,7 @@ end
 
 -- set page
 menu.set_page = function(page)
+  p.deinit[menu.page]()
   menu.page = page
   menu.key = p.key[page]
   menu.enc = p.enc[page]
@@ -180,6 +180,7 @@ p.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
 p.home.len = 4
 
 p.init[pHOME] = norns.none
+p.deinit[pHOME] = norns.none
 
 p.key[pHOME] = function(n,z)
   if n == 2 and z == 1 then
@@ -254,6 +255,8 @@ p.init[pSELECT] = function()
   end
   p.sel.len = tab.count(p.sel.list)
 end
+
+p.deinit[pSELECT] = norns.none
 
 p.key[pSELECT] = function(n,z)
   -- back
@@ -338,6 +341,8 @@ p.init[pPREVIEW] = function()
   p.pre.state = 0
 end
 
+p.deinit[pPREVIEW] = norns.none
+
 p.key[pPREVIEW] = function(n,z)
   if n==3 and p.pre.state == 1 then
     u.time = 1
@@ -421,7 +426,7 @@ p.redraw[pPARAMS] = function()
 end
 
 p.init[pPARAMS] = norns.none
-
+p.deinit[pPARAMS] = norns.none
 
 -- SYSTEM
 p.sys = {}
@@ -429,23 +434,20 @@ p.sys.pos = 0
 p.sys.list = {"wifi >", "input gain:","headphone gain:", "log >"}
 p.sys.len = 4
 p.sys.input = 0
-p.sys.battery = ''
-p.sys.net = ''
 
 p.key[pSYSTEM] = function(n,z)
   if n==2 and z==1 then
     norns.state.save()
-    u:stop()
     menu.set_page(pHOME)
   elseif n==3 and z==1 and p.sys.pos==3 then
-    u:stop()
     menu.set_page(pLOG)
   elseif n==3 and z==1 and p.sys.pos==1 then
     p.sys.input = (p.sys.input + 1) % 3
     menu.redraw()
   elseif n==3 and z==1 and p.sys.pos==0 then
-    u:stop()
     menu.set_page(pWIFI)
+  elseif n==1 then
+    menu.redraw()
   end
 end
 
@@ -481,8 +483,14 @@ end
 p.redraw[pSYSTEM] = function()
   s_clear()
   s_level(4)
-  s_move(0,10)
-  s_text(p.sys.battery)
+  s_move(127,10)
+  if not menu.alt then
+    local pwr = ''
+    if norns.powerpresent==1 then pwr="+" end
+    s_text_right("battery "..norns.battery_percent..pwr)
+  else
+    s_text_right(norns.battery_current.."mA")
+  end
 
   for i=1,p.sys.len do
     s_move(0,10*i+20)
@@ -509,6 +517,12 @@ p.redraw[pSYSTEM] = function()
   s_text_right(norns.state.hp)
   s_level(4)
   s_move(127,30)
+  if wifi.state == 2 then
+    if not menu.alt then p.sys.net = wifi.ip
+    else p.sys.net = wifi.signal .. "dBm" end
+  else
+    p.sys.net = wifi.status
+  end
   s_text_right(p.sys.net)
   s_move(127,60)
   s_text_right("norns v"..norns.version.norns)
@@ -525,23 +539,12 @@ p.init[pSYSTEM] = function()
   u:start()
 end
 
-p.sysquery = function()
-  p.sys.battery = "battery "..norns.batterypercent
-  if norns.powerpresent==1 then p.sys.battery = p.sys.battery.."+" end
-  local current = util.os_capture("cat /sys/class/power_supply/bq27441-0/current_now")
-  current = tonumber(current) / 1000
-  p.sys.battery = p.sys.battery .. " / "..current.."mA"
+p.deinit[pSYSTEM] = function()
+  u:stop()
+end
 
-  p.sys.net = ''..util.os_capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
-  local wifi_status = util.os_capture("cat ~/status.wifi");
-  if wifi_status == 'router'
-  then
-    p.sys.net = p.sys.net .. " / "
-    p.sys.net = p.sys.net .. util.os_capture("iw dev wlan0 link | grep 'signal' | awk '{print $2}'")
-    p.sys.net = p.sys.net .. "dBm"
-  else
-     p.sys.net = wifi_status
-  end
+p.sysquery = function()
+  wifi.update()
 end
 
 
@@ -570,6 +573,7 @@ p.redraw[pSLEEP] = function()
 end
 
 p.init[pSLEEP] = norns.none
+p.deinit[pSLEEP] = norns.none
 
 
 -- AUDIO
@@ -578,7 +582,6 @@ p.audio.tape = false
 
 p.key[pAUDIO] = function(n,z)
   if n==3 and z==1 then
-    norns.vu = norns.none
     menu.set_page(pHOME)
   elseif n==2 then
     if z==1 then p.audio.tape = true
@@ -647,6 +650,10 @@ p.init[pAUDIO] = function()
   p.audio.out2 = 0 
 end
 
+p.deinit[pAUDIO] = function()
+  norns.vu = norns.none
+end
+
 p.audio.vu = function(in1,in2,out1,out2)
   p.audio.in1 = in1
   p.audio.in2 = in2
@@ -660,13 +667,9 @@ end
 -- WIFI
 p.wifi = {}
 p.wifi.pos = 0
-p.wifi.list = {"off","hotspot","network:","scan","select >"}
-p.wifi.len = 5
-p.wifi.scan = {}
-p.wifi.num = 0
-p.wifi.selected = 0
-p.wifi.status = ""
-p.wifi.ssid = ""
+p.wifi.list = {"off","hotspot","network >"}
+p.wifi.len = 3
+p.wifi.selected = 1
 p.wifi.try = ""
 
 p.key[pWIFI] = function(n,z)
@@ -675,22 +678,12 @@ p.key[pWIFI] = function(n,z)
   elseif n==3 and z==1 then
     if p.wifi.pos == 0 then
       print "wifi off"
-      os.execute("~/norns/wifi.sh off &")
-      menu.set_page(pSYSTEM)
+      wifi.off()
     elseif p.wifi.pos == 1 then
       print "wifi hotspot"
-      os.execute("~/norns/wifi.sh hotspot &")
-      menu.set_page(pSYSTEM)
+      wifi.hotspot()
     elseif p.wifi.pos == 2 then
-      print "wifi on"
-      os.execute("~/norns/wifi.sh on &")
-      menu.set_page(pSYSTEM)
-    elseif p.wifi.pos == 3 then
-      os.execute("~/norns/wifi.sh scan > /dev/null &")
-      p.wifi.pos = p.wifi.pos + 1
-      menu.set_page(pSYSTEM)
-    elseif p.wifi.num > 0 then
-      p.wifi.try = p.wifi.scan[p.wifi.selected+1]
+      p.wifi.try = wifi.scan_list[p.wifi.selected]
       menu.set_page(pWIFIPASS)
     end
   end
@@ -702,9 +695,9 @@ p.enc[pWIFI] = function(n,delta)
     if p.wifi.pos > p.wifi.len - 1 then p.wifi.pos = p.wifi.len - 1
     elseif p.wifi.pos < 0 then p.wifi.pos = 0 end
     menu.redraw()
-  elseif n==3 and p.wifi.pos == 3 then
-  p.wifi.selected = util.clamp(0,p.wifi.selected+delta,p.wifi.num-1)
-  menu.redraw()
+  elseif n==3 and p.wifi.pos == 2 then
+    p.wifi.selected = util.clamp(1,p.wifi.selected+delta,wifi.scan_count)
+    menu.redraw()
   end
 end
 
@@ -712,11 +705,22 @@ p.redraw[pWIFI] = function()
   s_clear()
   s_level(15)
   s_move(0,10)
-  s_move(0,20+p.wifi.status*10)
+  if wifi.state == 2 then
+    s_text("status: router "..wifi.ssid)
+  else s_text("status: "..wifi.status) end
+  if wifi.state > 0 then
+    s_level(4)
+    s_move(0,20)
+    s_text(wifi.ip)
+    s_move(127,20)
+    s_text_right(wifi.signal .. "dBm")
+  end
+
+  s_move(0,40+wifi.state*10)
   s_text("-")
 
   for i=1,p.wifi.len do
-    s_move(8,10+10*i)
+    s_move(8,30+10*i)
     line = p.wifi.list[i]
     if(i==p.wifi.pos+1) then
       s_level(15)
@@ -726,32 +730,30 @@ p.redraw[pWIFI] = function()
     s_text(string.upper(line))
   end
 
-  s_move(127,40)
-  if p.wifi.pos==2 then s_level(15) else s_level(4) end
-  s_text_right(p.wifi.ssid)
   s_move(127,60)
-  if p.wifi.pos==4 then s_level(15) else s_level(4) end
-  if p.wifi.num > 0 then
-    s_text_right(p.wifi.scan[p.wifi.selected+1])
-  else
-  s_text_right("NONE")
-  end
+  if p.wifi.pos==2 then s_level(15) else s_level(4) end
+  if wifi.scan_count > 0 then
+    s_text_right(wifi.scan_list[p.wifi.selected])
+  else s_text_right("NONE") end
 
   s_update()
 end
 
 p.init[pWIFI] = function()
-  p.wifi.status = 0
-  p.wifi.ssid = util.os_capture("cat ~/ssid.wifi")
-  wifi_status = util.os_capture("cat ~/status.wifi");
-  if wifi_status == 'hotspot' then p.wifi.status = 1
-  elseif wifi_status == 'router' then p.wifi.status = 2 end
-
-  p.wifi.scan = {}
-  for line in io.lines(home_dir.."/scan.wifi") do
-    table.insert(p.wifi.scan,line)
+  wifi.scan()
+  wifi.update()
+  p.wifi.selected = wifi.scan_active
+  u.time = 1
+  u.count = -1
+  u.callback = function()
+    wifi.update()
+    menu.redraw()
   end
-  p.wifi.num = tab.count(p.wifi.scan)
+  u:start()
+end
+
+p.deinit[pWIFI] = function()
+  u:stop()
 end
 
 -- WIFIPASS
@@ -776,6 +778,7 @@ p.key[pWIFIPASS] = function(n,z)
         p.wifipass.psk = string.sub(p.wifipass.psk,0,-2)
       elseif i==1 then
         os.execute("~/norns/wifi.sh select "..p.wifi.try.." "..p.wifipass.psk.." &")
+        wifi.on()
         menu.set_page(pWIFI)
       end
       menu.redraw()
@@ -821,13 +824,16 @@ p.redraw[pWIFIPASS] = function()
 end
 
 p.init[pWIFIPASS] = function()
-  -- reparse scanned network file
-  p.wifi.scan = {}
-  for line in io.lines(home_dir.."/scan.wifi") do
-    table.insert(p.wifi.scan,line)
+
+  if wifi.scan_active then
+    p.wifipass.y = 4
+    p.wifipass.delok = 4
+    p.wifipass.psk = wifi.psk
   end
-  p.wifi.num = tab.count(p.wifi.scan)
 end
+
+p.deinit[pWIFIPASS] = norns.none
+
 
 
 -- LOG
@@ -862,5 +868,12 @@ end
 
 p.init[pLOG] = function()
   p.log.pos = 0
+  u.time = 1
+  u.count = -1
+  u.callback = menu.redraw
+  u:start()
 end
 
+p.deinit[pLOG] = function()
+  u:stop()
+end 

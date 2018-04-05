@@ -40,6 +40,18 @@ tab.contains = function(t,e)
   return false
 end
 
+--- search table for element, return key
+-- @param t table to check
+-- @param e element to look for
+-- @return key, nil if not found
+tab.key = function(t,e)
+  for index, value in ipairs(t) do
+    if value == e then return index end
+  end
+  return nil
+end
+
+
 --- split multi-line string into table of strings
 -- @param str string with line breaks
 -- @return table with entries for each line

@@ -1579,12 +1579,13 @@ void w_handle_enc(const int n, const int delta) {
 }
 
 // system/battery
-void w_handle_battery(const int percent) {
+void w_handle_battery(const int percent, const int current) {
     lua_getglobal(lvm, "norns");
     lua_getfield(lvm, -1, "battery");
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, percent);
-    l_report( lvm, l_docall(lvm, 1, 0) );
+    lua_pushinteger(lvm, current);
+    l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
 // system/power

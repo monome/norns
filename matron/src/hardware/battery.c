@@ -18,8 +18,8 @@
 
 #define BATTERY_POLL_INTERVAL 5
 
-static int fd[2];
-static char buf[3];
+static int fd[3];
+static char buf[7];
 static pthread_t p;
 
 void *battery_check(void *);
@@ -28,9 +28,11 @@ void *battery_check(void *);
 
 void battery_init() {
     fd[0] = open("/sys/class/power_supply/bq27441-0/capacity",
-                 O_RDONLY | O_NONBLOCK); // K1
+                 O_RDONLY | O_NONBLOCK);
     fd[1] = open("/sys/class/power_supply/bq27441-0/status",
-                 O_RDONLY | O_NONBLOCK); // K2
+                 O_RDONLY | O_NONBLOCK);
+    fd[2] = open("/sys/class/power_supply/bq27441-0/current_now",
+                 O_RDONLY | O_NONBLOCK);
     if(fd[0] > 0) {
         //fprintf(stderr, "BATTERY: %s\n", strerror(errno));
         if( pthread_create(&p, NULL, battery_check, 0) ) {
@@ -49,29 +51,36 @@ void battery_deinit() {
 void *battery_check(void *x) {
     (void)x;
     int n;
-    int percent = 0;
-    int present = 0;
+    int percent = -1; // use -1 to trigger first reading
+    int present = -1;
+    int current = -1;
 
     while(1) {
         lseek(fd[0],0,SEEK_SET);
-        read(fd[0],&buf,3);
-        n = atoi(buf);
-        //fprintf(stderr, "BATTERY = %d\n", n);
-        if(n != percent) {
-            percent = n;
-            union event_data *ev = event_data_new(EVENT_BATTERY);
-            ev->battery.percent = percent;
-            event_post(ev);
-        }
+        read(fd[0],&buf,4);
+        percent = atoi(buf);
+        //fprintf(stderr, "BATTERY = %d\n", percent);
 
         lseek(fd[1],0,SEEK_SET);
         read(fd[1],&buf,1);
-        n = (buf[0] == 'C');
+        n = (buf[0] == 'C'); // Charging
         //fprintf(stderr, "POWER = %d\n", n);
         if(n != present) {
             present = n;
             union event_data *ev = event_data_new(EVENT_POWER);
             ev->power.present = present;
+            event_post(ev);
+        }
+
+        lseek(fd[2],0,SEEK_SET);
+        read(fd[2],&buf,7);
+        n = atoi(buf) / 1000;
+        //fprintf(stderr, "current = %d\n", n);
+        if(n != current) {
+            current = n;
+            union event_data *ev = event_data_new(EVENT_BATTERY);
+            ev->battery.percent = percent;
+            ev->battery.current = current;
             event_post(ev);
         }
 
