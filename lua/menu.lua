@@ -14,7 +14,7 @@ cleanup = norns.none
 local pHOME = 1
 local pSELECT = 2
 local pPREVIEW = 3
-local pSTATUS = 4
+local pAUDIO = 4
 local pPARAMS = 5
 local pSYSTEM = 6
 local pWIFI = 7
@@ -31,6 +31,7 @@ p.init = {}
 
 menu.mode = false
 menu.page = pHOME
+menu.alt = false
 
 local pending = false
 -- metro for key hold detection
@@ -39,9 +40,8 @@ local t = metro[31]
 t.count = 2
 t.callback = function(stage)
   if(stage == 2) then
-    if menu.mode == false then
-      menu.key(1,1)
-    end
+    menu.key(1,1)
+    if(menu.mode == true) then menu.alt = true end
     pending = false
   end
 end
@@ -75,7 +75,8 @@ norns.enc = function(n, delta)
     if(menu.mode==false) then
       enc(n, delta)
     else
-      if n==1 then menu.level(delta)
+      if n==1 and menu.alt == false then menu.level(delta)
+      elseif n==1 and menu.alt == true then menu.monitor(delta)
       else menu.enc(n, delta) end
     end
   end
@@ -99,10 +100,11 @@ norns.key = function(n, z)
       else menu.set_mode(true) end
       t:stop()
       pending = false
-    elseif z == 0 and menu.mode == false then
+    elseif z == 0 then
       menu.key(n,z) -- always 1,0
+      menu.alt = false
     else
-      menu.set_mode(false)
+      menu.key(n,z) -- always 1,1
     end
   -- key 2/3 pass
   else
@@ -156,6 +158,15 @@ menu.level = function(delta)
   end
 end
 
+-- set monitor level
+menu.monitor = function(delta)
+  local l = util.clamp(norns.state.monitor + delta,0,64)
+  if l ~= norns.state.monitor then
+    norns.state.monitor = l
+    audio_monitor_level(l / 64.0)
+  end
+end
+
 -- --------------------------------------------------
 -- interfaces
 
@@ -170,7 +181,7 @@ p.init[pHOME] = norns.none
 
 p.key[pHOME] = function(n,z)
   if n == 2 and z == 1 then
-    menu.set_page(pSTATUS)
+    menu.set_page(pAUDIO)
   elseif n == 3 and z == 1 then
     option = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
     menu.set_page(option[p.home.pos+1])
@@ -544,23 +555,24 @@ end
 p.init[pSLEEP] = norns.none
 
 
--- STATUS
-p.stat = {}
-p.stat.tape = false
+-- AUDIO
+p.audio = {}
+p.audio.tape = false
 
-p.key[pSTATUS] = function(n,z)
+p.key[pAUDIO] = function(n,z)
   if n==3 and z==1 then
     norns.vu = norns.none
     menu.set_page(pHOME)
   elseif n==2 then
-  if z==1 then p.stat.tape = true
-  else p.stat.tape = false end
+    if z==1 then p.audio.tape = true
+    else p.audio.tape = false end
   end
 end
 
-p.enc[pSTATUS] = norns.none
+p.enc[pAUDIO] = function(n,d)
+end
 
-p.redraw[pSTATUS] = function()
+p.redraw[pAUDIO] = function()
   s_clear()
   s_aa(1)
 
@@ -572,43 +584,57 @@ p.redraw[pSTATUS] = function()
 
   s_level(15)
   s_move(3,63)
-  s_line(3,63-p.stat.out1)
+  s_line(3,63-p.audio.out1)
   s_move(6,63)
-  s_line(6,63-p.stat.out2)
-  s_move(16,63)
-  s_line(16,63-p.stat.in1)
-  s_move(19,63)
-  s_line(19,63-p.stat.in2)
+  s_line(6,63-p.audio.out2)
   s_stroke()
 
-  if p.stat.tape then
   s_level(2)
+  s_move(13,64-norns.state.monitor)
+  s_line(13,63)
+  s_stroke()
+
+  s_level(15)
+  s_move(16,63)
+  s_line(16,63-p.audio.in1)
+  s_move(19,63)
+  s_line(19,63-p.audio.in2)
+  s_stroke()
+
+  if menu.alt then
+    s_level(2)
+    s_move(127,53)
+    s_text_right("ALT")
+  end
+
+  if p.audio.tape then
+    s_level(2)
     s_move(127,63)
-  s_text_right("TAPE")
+    s_text_right("TAPE")
   end
 
   if norns.powerpresent==0 then
-  s_level(2)
-  s_move(24,63)
-  s_text("99") -- add batt percentage
+    s_level(2)
+    s_move(24,63)
+    s_text("99") -- add batt percentage
   end
 
   s_update()
 end
 
-p.init[pSTATUS] = function()
-  norns.vu = p.stat.vu
-  p.stat.in1 = 0
-  p.stat.in2 = 0
-  p.stat.out1 = 0
-  p.stat.out2 = 0
+p.init[pAUDIO] = function()
+  norns.vu = p.audio.vu
+  p.audio.in1 = 0
+  p.audio.in2 = 0
+  p.audio.out1 = 0
+  p.audio.out2 = 0 
 end
 
-p.stat.vu = function(in1,in2,out1,out2)
-  p.stat.in1 = in1
-  p.stat.in2 = in2
-  p.stat.out1 = out1
-  p.stat.out2 = out2
+p.audio.vu = function(in1,in2,out1,out2)
+  p.audio.in1 = in1
+  p.audio.in2 = in2
+  p.audio.out1 = out1
+  p.audio.out2 = out2
   menu.redraw()
 end
 
@@ -643,7 +669,7 @@ p.key[pWIFI] = function(n,z)
       os.execute("~/norns/wifi.sh on &")
       menu.set_page(pSYSTEM)
     elseif p.wifi.pos == 3 then
-      os.execute("~/norns/wifi.sh scan &")
+      os.execute("~/norns/wifi.sh scan > /dev/null &")
       p.wifi.pos = p.wifi.pos + 1
       menu.set_page(pSYSTEM)
     elseif p.wifi.num > 0 then

@@ -121,6 +121,9 @@ norns.vu = function(in1, in2, out1, out2)
    --print(in1 .. "\t" .. in2 .. "\t" .. out1 .. "\t" .. out2)
 end
 
+--- Audio
+norns.audio = require 'audio'
+
 
 --- Management
 -- @section management

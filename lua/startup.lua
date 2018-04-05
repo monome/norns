@@ -42,7 +42,7 @@ end
 grid.remove = function(device) g = nil end
 
 -- check for local networks
-os.execute("~/norns/wifi.sh scan &")
+os.execute("~/norns/wifi.sh scan > /dev/null &")
       
 -- resume last loaded script
 norns.log.post("norns started")
