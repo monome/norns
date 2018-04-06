@@ -433,6 +433,7 @@ p.sys.pos = 0
 p.sys.list = {"wifi >", "input gain:","headphone gain:", "log >"}
 p.sys.len = 4
 p.sys.input = 0
+p.sys.disk = ""
 
 p.key[pSYSTEM] = function(n,z)
   if n==2 and z==1 then
@@ -486,7 +487,7 @@ p.redraw[pSYSTEM] = function()
   if not menu.alt then
     local pwr = ''
     if norns.powerpresent==1 then pwr="+" end
-    s_text_right("battery "..norns.battery_percent..pwr)
+    s_text_right("disk: "..p.sys.disk.." / bat: "..norns.battery_percent..pwr)
   else
     s_text_right(norns.battery_current.."mA")
   end
@@ -529,6 +530,7 @@ p.redraw[pSYSTEM] = function()
 end
 
 p.init[pSYSTEM] = function()
+  p.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
   u.callback = function()
     p.sysquery()
     menu.redraw()
