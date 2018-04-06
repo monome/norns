@@ -2,7 +2,6 @@
 -- norns screen-based navigation module
 local tab = require 'tabutil'
 local util = require 'util'
-local wifi = require 'wifi'
 local menu = {}
 
 -- global functions for scripts

@@ -19,6 +19,7 @@ grid = require 'grid'
 metro = require 'metro'
 poll = require 'poll'
 e = require 'engine'
+wifi = require 'wifi'
 
 tab = require 'tabutil'
 util = require 'util'
