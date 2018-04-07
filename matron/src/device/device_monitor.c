@@ -132,10 +132,9 @@ void dev_monitor_deinit(void) {
 int dev_monitor_scan(void) {
     struct udev *udev;
     struct udev_device *dev;
-    const char *node;
 
     udev = udev_new();
-    if (!udev) {
+    if (udev == NULL) {
         fprintf(stderr, "device_monitor_scan(): failed to create udev\n");
         return 1;
     }
@@ -156,15 +155,7 @@ int dev_monitor_scan(void) {
 
             if (dev != NULL) {
                 if (udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
-                    node = udev_device_get_devnode(dev);
-
-                    if (node != NULL) {
-                        device_t t = check_dev_type(dev);
-
-                        if ((t >= 0) && (t < DEV_TYPE_COUNT)) {
-                            dev_list_add(t, node);
-                        }
-                    }
+                    handle_device(dev);
                     udev_device_unref(dev);
                 }
             }
@@ -213,27 +204,39 @@ void handle_device(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
     const char *subsys = udev_device_get_subsystem(dev);
 
-    if (strcmp(subsys, "sound") == 0) {
-        // try to act according to
-        // https://github.com/systemd/systemd/blob/master/rules/78-sound-card.rules
-        if (strcmp(action, "change") == 0) {
-            char* alsa_node = get_alsa_midi_node(dev);
-            if (alsa_node != NULL) {
-                dev_list_add(DEV_TYPE_MIDI, alsa_node);
-            }
-        } else if (strcmp(action, "remove") == 0) {
-            if (node != NULL) {
-                dev_list_remove(DEV_TYPE_MIDI, node);
+    if (action == NULL) {
+        // scan
+        if (node != NULL) {
+            device_t t = check_dev_type(dev);
+
+            if (t >= 0 && t < DEV_TYPE_COUNT) {
+                dev_list_add(t, node);
             }
         }
     } else {
-        device_t t = check_dev_type(dev);
-
-        if ((t >= 0) && (t < DEV_TYPE_COUNT)) {
-            if (strcmp(action, "add") == 0) {
-                dev_list_add(t, node);
+        // monitor
+        if (strcmp(subsys, "sound") == 0) {
+            // try to act according to
+            // https://github.com/systemd/systemd/blob/master/rules/78-sound-card.rules
+            if (strcmp(action, "change") == 0) {
+                char* alsa_node = get_alsa_midi_node(dev);
+                if (alsa_node != NULL) {
+                    dev_list_add(DEV_TYPE_MIDI, alsa_node);
+                }
             } else if (strcmp(action, "remove") == 0) {
-                dev_list_remove(t, node);
+                if (node != NULL) {
+                    dev_list_remove(DEV_TYPE_MIDI, node);
+                }
+            }
+        } else {
+            device_t t = check_dev_type(dev);
+
+            if (t >= 0 && t < DEV_TYPE_COUNT) {
+                if (strcmp(action, "add") == 0) {
+                    dev_list_add(t, node);
+                } else if (strcmp(action, "remove") == 0) {
+                    dev_list_remove(t, node);
+                }
             }
         }
     }
