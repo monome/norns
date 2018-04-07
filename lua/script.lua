@@ -24,6 +24,8 @@ Script.clear = function()
   engine = nil
   -- clear init
   init = norns.none
+  -- clear last run
+  norns.state.script = ''
 end
 
 
@@ -40,8 +42,8 @@ Script.load = function(filename)
     io.close(f)
     cleanup() -- script-specified memory free
     Script.clear() -- clear script variables and functions
-    norns.log.post("loaded " .. filename) -- post to log
     dofile(filepath) -- do the new script
+    norns.log.post("loaded " .. filename) -- post to log
     norns.state.script = filename -- store script name
     norns.state.save() -- remember this script for next launch
     norns.menu.init() -- redirect i/o functions to script

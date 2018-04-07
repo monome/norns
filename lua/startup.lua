@@ -19,6 +19,7 @@ grid = require 'grid'
 metro = require 'metro'
 poll = require 'poll'
 e = require 'engine'
+wifi = require 'wifi'
 
 tab = require 'tabutil'
 util = require 'util'
@@ -41,9 +42,6 @@ end
 
 grid.remove = function(device) g = nil end
 
--- check for local networks
-os.execute("~/norns/wifi.sh scan > /dev/null &")
-      
 -- resume last loaded script
 norns.log.post("norns started")
 norns.state.resume()

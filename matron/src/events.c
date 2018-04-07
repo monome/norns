@@ -158,7 +158,8 @@ static void handle_event(union event_data *ev) {
         w_handle_enc( ev->enc.n, ev->enc.delta );
         break;
     case EVENT_BATTERY:
-        w_handle_battery( ev->battery.percent );
+        w_handle_battery( ev->battery.percent,
+                          ev->battery.current );
         break;
     case EVENT_POWER:
         w_handle_power( ev->power.present );

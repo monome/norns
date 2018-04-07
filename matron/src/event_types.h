@@ -144,6 +144,7 @@ struct event_key {
 struct event_battery {
     struct event_common common;
     uint8_t percent;
+    int16_t current;
 }; // +8
 
 struct event_power {

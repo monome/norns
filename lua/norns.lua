@@ -25,9 +25,10 @@ end
 
 --- battery percent handler
 -- @param percent battery full percentage
-norns.battery = function(percent)
-  norns.batterypercent = tonumber(percent)
-  --print("battery: "..norns.batterypercent.."%")
+norns.battery = function(percent, current)
+  norns.battery_percent = tonumber(percent)
+  norns.battery_current = tonumber(current)
+  --print("battery: "..norns.battery_percent.."% "..norns.battery_current.."mA")
 end
 
 --- power present handler
