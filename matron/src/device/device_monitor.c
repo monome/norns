@@ -8,7 +8,7 @@
 #include <locale.h>
 #include <poll.h>
 #include <pthread.h>
-#include <regex.h>
+#include <fnmatch.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,10 +29,8 @@
 struct watch {
     // subsystem name to use as a filter on udev_monitor
     const char sub_name[NODE_NAME_SIZE];
-    // regex pattern for checking the device node
+    // glob pattern for checking the device node
     const char node_pattern[NODE_NAME_SIZE];
-    // compiled regex
-    regex_t node_regex;
     // udev monitor
     struct udev_monitor *mon;
 };
@@ -45,15 +43,15 @@ struct watch {
 static struct watch w[DEV_TYPE_COUNT] = {
     {
         .sub_name = "tty",
-        .node_pattern = "/dev/ttyUSB.*"
+        .node_pattern = "/dev/ttyUSB*"
     },
     {
         .sub_name = "input",
-        .node_pattern = "/dev/input/event.*"
+        .node_pattern = "/dev/input/event*"
     },
     {
         .sub_name = "sound",
-        .node_pattern = "/dev/snd/midiC.*D.*"
+        .node_pattern = "/dev/snd/midiC*D*"
     }
 };
 
@@ -109,12 +107,8 @@ void dev_monitor_init(void) {
 
         pfds[i].fd = udev_monitor_get_fd(w[i].mon);
         pfds[i].events = POLLIN;
-
-        if (regcomp(&w[i].node_regex, w[i].node_pattern, 0)) {
-            fprintf(stderr, "error compiling regex for device pattern: %s\n",
-                w[i].node_pattern);
-        }
     } // end dev type loop
+
     s = pthread_attr_init(&attr);
     if (s) { fprintf(stderr, "error initializing thread attributes\n"); }
     s = pthread_create(&watch_tid, &attr, watch_loop, NULL);
@@ -243,26 +237,17 @@ void handle_device(struct udev_device *dev) {
 }
 
 device_t check_dev_type(struct udev_device *dev) {
-    static char msgbuf[128];
     device_t t = DEV_TYPE_INVALID;
     const char *node = udev_device_get_devnode(dev);
-    int reti;
 
     if (node) {
         // for now, just get USB devices.
         // eventually we might want to use this same system for GPIO, &c...
         if (udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
             for (int i = 0; i < DEV_TYPE_COUNT; i++) {
-                reti = regexec(&w[i].node_regex, node, 0, NULL, 0);
-                if (reti == 0) {
+                if (fnmatch(w[i].node_pattern, node, 0) == 0) {
                     t = i;
                     break;
-                } else if (reti == REG_NOMATCH) {
-                    ;; // nothing to do
-                } else {
-                    regerror(reti, &w[i].node_regex, msgbuf, sizeof(msgbuf));
-                    fprintf(stderr, "regex match failed: %s\n", msgbuf);
-                    exit(1);
                 }
             }
         }
