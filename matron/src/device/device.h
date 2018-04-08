@@ -19,7 +19,7 @@ union dev {
 // initialize device registry
 extern void devices_init(void);
 // create a device from a file path
-extern union dev *dev_new(device_t type, const char *path);
+extern union dev *dev_new(device_t type, const char *path, const char *name);
 // destroy given device
 extern void dev_delete(union dev *d);
 

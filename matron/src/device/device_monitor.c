@@ -65,8 +65,8 @@ pthread_t watch_tid;
 static void* watch_loop(void *data);
 static void handle_device(struct udev_device *dev);
 static device_t check_dev_type(struct udev_device *dev);
-static char* get_alsa_midi_node(struct udev_device *dev);
-
+static const char* get_alsa_midi_node(struct udev_device *dev);
+static const char* get_device_name(struct udev_device *dev);
 
 //--------------------------------
 //---- extern function definitions
@@ -140,10 +140,12 @@ int dev_monitor_scan(void) {
         ue = udev_enumerate_new(udev);
         udev_enumerate_add_match_subsystem(ue, w[i].sub_name);
         udev_enumerate_scan_devices(ue);
+
         devices = udev_enumerate_get_list_entry(ue);
 
         udev_list_entry_foreach(dev_list_entry, devices) {
             const char *path;
+
             path = udev_list_entry_get_name(dev_list_entry);
             dev = udev_device_new_from_syspath(udev, path);
 
@@ -154,6 +156,7 @@ int dev_monitor_scan(void) {
                 }
             }
         }
+
         udev_enumerate_unref(ue);
     }
     return 0;
@@ -204,7 +207,7 @@ void handle_device(struct udev_device *dev) {
             device_t t = check_dev_type(dev);
 
             if (t >= 0 && t < DEV_TYPE_COUNT) {
-                dev_list_add(t, node);
+                dev_list_add(t, node, get_device_name(dev));
             }
         }
     } else {
@@ -213,9 +216,10 @@ void handle_device(struct udev_device *dev) {
             // try to act according to
             // https://github.com/systemd/systemd/blob/master/rules/78-sound-card.rules
             if (strcmp(action, "change") == 0) {
-                char* alsa_node = get_alsa_midi_node(dev);
+                const char* alsa_node = get_alsa_midi_node(dev);
+
                 if (alsa_node != NULL) {
-                    dev_list_add(DEV_TYPE_MIDI, alsa_node);
+                    dev_list_add(DEV_TYPE_MIDI, alsa_node, get_device_name(dev));
                 }
             } else if (strcmp(action, "remove") == 0) {
                 if (node != NULL) {
@@ -227,7 +231,7 @@ void handle_device(struct udev_device *dev) {
 
             if (t >= 0 && t < DEV_TYPE_COUNT) {
                 if (strcmp(action, "add") == 0) {
-                    dev_list_add(t, node);
+                    dev_list_add(t, node, get_device_name(dev));
                 } else if (strcmp(action, "remove") == 0) {
                     dev_list_remove(t, node);
                 }
@@ -256,7 +260,7 @@ device_t check_dev_type(struct udev_device *dev) {
 }
 
 // try to get midi device node from udev_device
-char* get_alsa_midi_node(struct udev_device *dev) {
+const char* get_alsa_midi_node(struct udev_device *dev) {
     const char *subsys;
     const char *syspath;
     DIR *sysdir;
@@ -278,4 +282,23 @@ char* get_alsa_midi_node(struct udev_device *dev) {
     }
 
     return result;
+}
+
+// try to get product name from udev_device or its parents
+const char* get_device_name(struct udev_device *dev) {
+    char *name;
+    char *current_name = NULL;
+    struct udev_device *current_dev = dev;
+
+    while (current_name == NULL) {
+        current_name = (char *) udev_device_get_sysattr_value(current_dev, "product");
+        current_dev = udev_device_get_parent(current_dev);
+
+        if (current_dev == NULL) {
+            break;
+        }
+    }
+
+    asprintf(&name, "%s", current_name);
+    return name;
 }

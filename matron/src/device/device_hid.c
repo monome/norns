@@ -84,7 +84,6 @@ int dev_hid_init(void *self, bool print) {
     struct libevdev *dev = NULL;
     int ret = 1;
     int fd = open(d->base.path, O_RDONLY);
-    const char *name;
 
     if (fd < 0) {
         fprintf(stderr, "failed to open hid device: %s\n", d->base.path);
@@ -104,13 +103,6 @@ int dev_hid_init(void *self, bool print) {
 
     d->vid = libevdev_get_id_vendor(dev);
     d->pid = libevdev_get_id_product(dev);
-
-    name = libevdev_get_name(dev);
-    base->name = calloc( strlen(name) + 1, sizeof(char) );
-    strcpy(base->name, name);
-    // FIXME: probably not the ideal way to create serial string
-    base->serial = calloc( 12, sizeof(char) );
-    sprintf(base->serial, "%04X%04X", d->vid, d->pid);
 
     if(print ) { dev_hid_print(d); }
 

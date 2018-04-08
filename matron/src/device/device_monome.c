@@ -45,6 +45,7 @@ int dev_monome_init(void *self) {
     monome_register_handler(m, MONOME_BUTTON_DOWN, dev_monome_handle_press, md);
     monome_register_handler(m, MONOME_BUTTON_UP, dev_monome_handle_lift, md);
 
+    free(base->name);
     name = monome_get_friendly_name(m);
     base->name = malloc(strlen(name) + 1);
     strcpy(base->name, name);
