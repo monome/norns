@@ -75,7 +75,7 @@ function Formatters.unipolar_as_multimode_filter_freq(param)
     for i=1,num do widget = (widget or "").."|" end
   end
 
-  local mapped_value = ControlSpec.bipolar_spec():map(param.value)
+  local mapped_value = ControlSpec.bipolar():map(param.value)
   local abs_mapped_value = math.abs(mapped_value)
   local percentage = util.round(abs_mapped_value*100)
   local descr

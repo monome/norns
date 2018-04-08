@@ -1,9 +1,3 @@
-local function map(warp, minval, maxval, value)
-end
-
-local function unmap(warp, minval, maxval, value)
-end
-
 local ControlSpec = {}
 ControlSpec.WARP_LIN = 1
 ControlSpec.WARP_EXP = 2
@@ -57,84 +51,79 @@ function ControlSpec:print()
   end
 end
 
---[[
-TODO 1:
-consider defining these default specs as global constants, ie. ControlSpec.UNIPOLAR, ControlSpec.BIPOLAR, ControlSpec.FREQ, etc (akin to how SuperCollider works) however, since afaik there's no way of freezing objects in lua either storing default specs this way as globals is error prone: if someone changes the properties of a ControlSpec.GLOBAL spec it would affect all usages (this is the root cause of weird unexpected errors in SuperCollider too)
-TODO 2: naming consider removing _spec suffix
-]]
-function ControlSpec.unipolar_spec()
+function ControlSpec.unipolar()
   return ControlSpec.new(0, 1, 'lin', 0, 0, "")
 end
 
-function ControlSpec.bipolar_spec()
+function ControlSpec.bipolar()
   return ControlSpec.new(-1, 1, 'lin', 0, 0, "")
 end
 
-function ControlSpec.freq_spec()
+function ControlSpec.freq()
   return ControlSpec.new(20, 20000, 'exp', 0, 440, "Hz")
 end
 
-function ControlSpec.lofreq_spec()
+function ControlSpec.lofreq()
   return ControlSpec.new(0.1, 100, 'exp', 0, 6, "Hz")
 end
 
-function ControlSpec.midfreq_spec()
+function ControlSpec.midfreq()
   return ControlSpec.new(25, 4200, 'exp', 0, 440, "Hz")
 end
 
-function ControlSpec.widefreq_spec()
+function ControlSpec.widefreq()
   return ControlSpec.new(0.1, 20000, 'exp', 0, 440, "Hz")
 end
 
-function ControlSpec.phase_spec()
+function ControlSpec.phase()
   return ControlSpec.new(0, math.pi, 'lin', 0, 0, "")
 end
 
-function ControlSpec.rq_spec()
+function ControlSpec.rq()
   return ControlSpec.new(0.001, 2, 'exp', 0, 0.707, "")
 end
 
-function ControlSpec.midi_spec()
+function ControlSpec.midi()
   return ControlSpec.new(0, 127, 'lin', 0, 64, "")
 end
 
-function ControlSpec.midinote_spec()
+function ControlSpec.midinote()
   return ControlSpec.new(0, 127, 'lin', 0, 60, "")
 end
 
-function ControlSpec.midivelocity_spec()
+function ControlSpec.midivelocity()
   return ControlSpec.new(1, 127, 'lin', 0, 64, "")
 end
 
-function ControlSpec.db_spec()
+function ControlSpec.db()
   return ControlSpec.new(-60, 0, 'lin', nil, nil, "dB") -- TODO: this uses DbFaderWarp in SuperCollider, would be good to have in lua too
 end
 
-function ControlSpec.amp_spec()
+function ControlSpec.amp()
   return ControlSpec.new(0, 1, 'lin', 0, 0, "") -- TODO: this uses FaderWarp in SuperCollider, would be good to have in lua too
 end
 
-function ControlSpec.boostcut_spec()
+function ControlSpec.boostcut()
   return ControlSpec.new(-20, 20, 'lin', 0, 0, "dB")
 end
 
-function ControlSpec.pan_spec()
+function ControlSpec.pan()
   return ControlSpec.new(-1, 1, 'lin', 0, 0, "")
 end
 
-function ControlSpec.detune_spec()
+function ControlSpec.detune()
   return ControlSpec.new(-20, 20, 'lin', 0, 0, "Hz")
 end
 
-function ControlSpec.rate_spec()
+function ControlSpec.rate()
   return ControlSpec.new(0.125, 8, 'exp', 0, 1, "")
 end
 
-function ControlSpec.beats_spec()
+function ControlSpec.beats()
   return ControlSpec.new(0, 20, 'lin', 0, 0, "Hz")
 end
 
-function ControlSpec.delay_spec()
+function ControlSpec.delay()
   return ControlSpec.new(0.0001, 1, 'exp', 0, 0.3, "Hz")
 end
 

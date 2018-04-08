@@ -51,17 +51,17 @@ function Param:set(value)
   if self.value ~= clamped_value then
     prev_value = self.value
     self.value = clamped_value
-    self:bang()
+    self:bang() -- TODO: this broke on_change(newvalue, prevvalue)
   end
 end
 
 function Param:bang()
-  if self.on_change then
-    self.on_change(self.value, self.value)
+  if self.on_change then -- TODO: i'm not fond of splitting up on_change / on_change_mapped, it would be wiser to just have on_change(param, old_vaule) or something
+    self.on_change(self.value, self.value) -- TODO: this was first intended as on_change(newvalue, prevvalue) but is not working now
   end
   if self.on_change_mapped then
     local value_mapped = self.controlspec:map(self.value)
-    self.on_change_mapped(value_mapped, value_mapped)
+    self.on_change_mapped(value_mapped, value_mapped) -- TODO: this was first intended as on_change(newvalue, prevvalue) but is not working now
   end
 end
 
@@ -71,10 +71,6 @@ end
 
 function Param:adjust(delta)
   self:set(self.value + delta)
-end
-
-function Param:adjust_wrap(delta) -- TODO: prune if not used anywhere
-  self.value = util.clamp(self.value + delta, 0, 1)
 end
 
 function Param:mapped_value()
