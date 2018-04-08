@@ -48,4 +48,63 @@ util.clamp = function(n, min, max)
   return math.min(max,(math.max(n,min)))
 end
 
+-- linlin, linexp, explin, expexp ripped from SC source code
+-- https://github.com/supercollider/supercollider/blob/cca12ff02a774a9ea212e8883551d3565bb24a6f/lang/LangSource/MiscInlineMath.h 
+
+function util.linexp(slo, shi, dlo, dhi, f)
+  if f <= slo then
+    return dlo
+  elseif f >= shi then
+    return dhi
+  else
+    return math.pow( dhi/dlo, (f-slo) / (shi-slo) ) * dlo
+  end
+end
+
+function util.linlin(slo, shi, dlo, dhi, f)
+  if f <= slo then
+    return dlo
+  elseif f >= shi then
+    return dhi
+  else
+    return (f-slo) / (shi-slo) * (dhi-dlo) + dlo
+  end
+end
+
+function util.explin(slo, shi, dlo, dhi, f)
+  if f <= slo then
+    return dlo
+  elseif f >= shi then
+    return dhi
+  else
+    return math.log(f/slo) / math.log(shi/slo) * (dhi-dlo) + dlo
+  end
+end
+
+function util.expexp(slo, shi, dlo, dhi, f)
+  if f <= slo then
+    return dlo
+  elseif f >= shi then
+    return dhi
+  else
+    return math.pow(dhi/dlo, math.log(f/slo)) / (math.log(shi/slo)) * dlo
+  end
+end
+
+function util.round(number, quant)
+  if not quant or quant == 0 then
+    return number
+  else
+    return math.floor(number/quant + 0.5) * quant
+  end
+end
+
+function util.round_up(number, quant)
+  if not quant or quant == 0 then
+    return number
+  else
+    return math.ceil(number/quant + 0.5) * quant
+  end
+end
+
 return util

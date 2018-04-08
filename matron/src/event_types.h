@@ -36,6 +36,8 @@ typedef enum {
     EVENT_MIDI_REMOVE,
     // midi event
     EVENT_MIDI_EVENT,
+    // incoming OSC event
+    EVENT_OSC,
     // finished receiving audio engine list
     EVENT_ENGINE_REPORT,
     /* // finished receiving commands list */
