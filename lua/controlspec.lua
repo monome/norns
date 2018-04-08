@@ -51,6 +51,10 @@ function ControlSpec:print()
   end
 end
 
+function ControlSpec.default()
+  return ControlSpec.new(-32768, 32767, 'lin', 0, 0, "")
+end
+
 function ControlSpec.unipolar()
   return ControlSpec.new(0, 1, 'lin', 0, 0, "")
 end

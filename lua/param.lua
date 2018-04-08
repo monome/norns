@@ -1,13 +1,17 @@
+local ControlSpec = require 'controlspec'
+
 local Param = {}
 Param.__index = Param
 
 function Param.new(title, controlspec, formatter)
   local p = setmetatable({}, Param)
+  if not controlspec then controlspec = ControlSpec.default() end
   p.title = title
   p.controlspec = controlspec
   p.formatter = formatter
 
-  if controlspec and controlspec.default then
+
+  if controlspec.default then
     p.value = controlspec:unmap(controlspec.default)
   else
     p.value = 0
@@ -71,6 +75,10 @@ end
 
 function Param:adjust(delta)
   self:set(self.value + delta)
+end
+
+function Param:adjust_mapped(delta)
+  self:set(self.controlspec:unmap(self:mapped_value()+delta))
 end
 
 function Param:mapped_value()
