@@ -152,11 +152,7 @@ end
 
 -- set audio level
 menu.level = function(delta)
-  local l = util.clamp(norns.state.out + delta,0,64)
-  if l ~= norns.state.out then
-    norns.state.out = l
-    audio_output_level(l / 64.0)
-  end
+  norns.audio.adjust_output_level(delta)
 end
 
 -- set monitor level
@@ -579,14 +575,21 @@ p.deinit[pSLEEP] = norns.none
 
 -- AUDIO
 p.audio = {}
-p.audio.tape = false
+
+local tOFF = 0
+local tREC = 1
+local tPLAY = 2
+
+local tape = {} 
+tape.key = false
+tape.mode = tOFF 
 
 p.key[pAUDIO] = function(n,z)
   if n==3 and z==1 then
     menu.set_page(pHOME)
   elseif n==2 then
-    if z==1 then p.audio.tape = true
-    else p.audio.tape = false end
+  if z==1 then tape.key = true
+    else tape.key = false end
   end
 end
 
@@ -628,7 +631,7 @@ p.redraw[pAUDIO] = function()
     s_text_right("ALT")
   end
 
-  if p.audio.tape then
+  if tape.key then
     s_level(2)
     s_move(127,63)
     s_text_right("TAPE")

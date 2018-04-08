@@ -73,4 +73,29 @@ Audio.vu = function(in1, in2, out1, out2)
    -- print (in1 .. '\t' .. in2 .. '\t' .. out1 .. '\t' .. out2)
 end
 
+
+--- helpers
+-- @section helpers
+
+--- set output level, clamped, save state
+-- @param value audio level (0-64)
+function Audio.set_audio_level(value)
+  local l = util.clamp(value,0,64)
+  if l ~= norns.state.out then
+    norns.state.out = l
+    Audio.output_level(l / 64.0)
+  end
+end
+
+--- adjust output level, clamped, save state
+-- @param delta amount to change output level
+function Audio.adjust_output_level(delta)
+  local l = util.clamp(norns.state.out + delta,0,64)
+  if l ~= norns.state.out then
+    norns.state.out = l
+    Audio.output_level(l / 64.0)
+  end
+end
+
+
 return Audio
