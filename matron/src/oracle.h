@@ -83,6 +83,9 @@ extern void o_request_poll_report(void);
 // issue a command to the engine, adds /command/ pattern
 // NB: this requires a pre-allocated lo_message, which will be freed!
 extern void o_send_command(const char *name, lo_message msg);
+// set an engine parameter to the specified value, effectively causing
+// scsynth controlbus to be changed using standard /c_set command
+extern void o_set_parameter_value(int bus, float value);
 // send osc message
 // NB: this requires a pre-allocated lo_message, which will be freed!
 extern void o_send(const char *name, lo_message msg);

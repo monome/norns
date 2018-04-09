@@ -22,6 +22,7 @@
 #include "oracle.h"
 
 static lo_address remote_addr;
+static lo_address scsynth_addr;
 static lo_server_thread st;
 
 // TODO: semaphore for waiting on audio backend init?
@@ -146,12 +147,16 @@ int o_ready(void) {
 void o_init(void) {
     const char *loc_port = args_local_port();
     const char *rem_port = args_remote_port();
+    const char *scsynth_port = args_scsynth_port();
 
     fprintf(stderr, "OSC rx port: %s \nOSC tx port: %s\n",
            loc_port, rem_port);
+    fprintf(stderr, "OSC scsynth port: %s \n",
+           scsynth_port);
     o_init_descriptors();
 
     remote_addr = lo_address_new("127.0.0.1", rem_port);
+    scsynth_addr = lo_address_new("127.0.0.1", scsynth_port);
     st = lo_server_thread_new(loc_port, lo_error_handler);
 
     // crone ready
@@ -261,6 +266,10 @@ void o_send_command(const char *name, lo_message msg) {
     sprintf(path, "/command/%s", name);
     lo_send_message(remote_addr, path, msg);
     free(msg);
+}
+
+void o_set_parameter_value(int bus, float value) {
+    lo_send(remote_addr, "/c_set", "if", bus, value);
 }
 
 void o_send(const char *name, lo_message msg) {
