@@ -149,11 +149,13 @@ Engine.load = function(name, callback)
 end
 
 --- custom getters;
--- [] accessor returns a command function;
+-- [] accessor returns a command or parameter function;
 -- this allows e.g. engine.hz(100)
 function Engine.__index(self, idx)
   if Engine.commands[idx] then
     return Engine.commands[idx].func
+  elseif Engine.parameters[idx] then
+    return Engine.parameters[idx].func
   else
     return rawget(Engine, idx)
   end
