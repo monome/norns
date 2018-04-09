@@ -1223,16 +1223,16 @@ int _set_parameter_value(lua_State *l) {
     int nargs = lua_gettop(l);
     if(nargs == 2) {
         if( lua_isinteger(l, 1) ) {
-            int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
+            int bus = lua_tointeger(l, 1);
             if( lua_isnumber(l, 2) ) {
                 float val = lua_tonumber(l, 2);
-                o_set_parameter_value(idx, val);
+                o_set_parameter_value(bus, val);
                 lua_settop(l, 0);
                 return 0;
             }
         }
     }
-    fprintf(stderr, "wrong arguments for w_set_poll_time(); ");
+    fprintf(stderr, "wrong arguments for _set_parameter_value(); ");
     fprintf(stderr, "expects bus(int), value(float)\n");
     lua_settop(l, 0);
     return 1;
@@ -1692,17 +1692,17 @@ int _set_poll_time(lua_State *l) {
     int nargs = lua_gettop(l);
     if(nargs == 2) {
         if( lua_isinteger(l, 1) ) {
-            int bus = lua_tointeger(l, 1);
+            int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
             if( lua_isnumber(l, 2) ) {
                 float val = lua_tonumber(l, 2);
-                o_set_parameter_value(bus, val);
+                o_set_poll_time(idx, val);
                 lua_settop(l, 0);
                 return 0;
             }
         }
     }
-    fprintf(stderr, "wrong arguments for _set_parameter_value(); ");
-    fprintf(stderr, "expects bus(int), value(float)\n");
+    fprintf(stderr, "wrong arguments for w_set_poll_time(); ");
+    fprintf(stderr, "expects idx(int), dt(float)\n");
     lua_settop(l, 0);
     return 1;
 }
