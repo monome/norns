@@ -94,7 +94,7 @@ CroneEngine {
 			idx = parameterNames.size;
 			parameterNames[name] = idx;
 			bus = Bus.control;
-			bus.set(spec.default);
+			bus.set(spec.default ?? 0);
 			parameterControlBusses[name] = bus;
 			parameters.add(
 				(
