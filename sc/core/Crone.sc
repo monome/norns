@@ -150,7 +150,7 @@ Crone {
 			if (spec.notNil) {
 				minval = spec.minval;
 				maxval = spec.maxval;
-				warp = Warp.warps.findKeyForValue(spec.warp.asSpec.class); // NOTE: for now, only warps having Symbol-asWarp support is sent to matron
+				warp = Warp.warps.findKeyForValue(spec.warp.asWarp.class); // NOTE: for now, only warps having Symbol-asWarp support is sent to matron
 				// TODO: might also be good to include CurveWarp specified by a number, not a Symbol, too (*initClass in core Spec.sc for details)
 				step = spec.step;
 				default = spec.default;
