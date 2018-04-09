@@ -1,41 +1,44 @@
+local WARP_LIN = 1
+local WARP_EXP = 2
+
 local ControlSpec = {}
-ControlSpec.WARP_LIN = 1
-ControlSpec.WARP_EXP = 2
 ControlSpec.__index = ControlSpec
 
-function ControlSpec.new(minval, maxval, warp, step, default, units)
+function ControlSpec.new(minval, maxval, warp, step, default, units, delta_map, delta_div)
   local s = setmetatable({}, ControlSpec)
   s.minval = minval
   s.maxval = maxval
   if type(warp) == "string" then
     if warp == 'exp' then
-      s.warp = ControlSpec.WARP_EXP
+      s.warp = WARP_EXP
     else
-      s.warp = ControlSpec.WARP_LIN
+      s.warp = WARP_LIN
     end
   elseif type(warp) == "number" then
-    s.warp = warp -- TODO: assumes number is in [ControlSpec.WARP_LIN, ControlSpec.WARP_EXP]
+    s.warp = warp -- TODO: assumes number is in [WARP_LIN, WARP_EXP]
   else
-    s.warp = ControlSpec.WARP_LIN
+    s.warp = WARP_LIN
   end
   s.step = step
   s.default = default or minval -- TODO: test to ensure minval fallback works
   s.units = units or ""
+  if delta_map ~= nil then s.delta_map = delta_map else s.delta_map = true end
+  if delta_div ~= nil then s.delta_div = delta_div else s.delta_div = 100 end
   return s
 end
 
 function ControlSpec:map(value)
-  if self.warp == ControlSpec.WARP_LIN then
+  if self.warp == WARP_LIN then
     return util.linlin(0, 1, self.minval, self.maxval, value)
-  elseif self.warp == ControlSpec.WARP_EXP then
+  elseif self.warp == WARP_EXP then
     return util.linexp(0, 1, self.minval, self.maxval, value)
   end
 end
 
 function ControlSpec:unmap(value)
-  if self.warp == ControlSpec.WARP_LIN then
+  if self.warp == WARP_LIN then
     return util.linlin(self.minval, self.maxval, 0, 1, value)
-  elseif self.warp == ControlSpec.WARP_EXP then
+  elseif self.warp == WARP_EXP then
     return util.explin(self.minval, self.maxval, 0, 1, value)
   end
 end
@@ -52,7 +55,7 @@ function ControlSpec:print()
 end
 
 function ControlSpec.default()
-  return ControlSpec.new(-32768, 32767, 'lin', 0, 0, "")
+  return ControlSpec.new(-32768, 32767, 'lin', 0, 0, "", false, 1)
 end
 
 function ControlSpec.unipolar()
@@ -88,15 +91,15 @@ function ControlSpec.rq()
 end
 
 function ControlSpec.midi()
-  return ControlSpec.new(0, 127, 'lin', 0, 64, "")
+  return ControlSpec.new(0, 127, 'lin', 0, 64, "", false, 1)
 end
 
 function ControlSpec.midinote()
-  return ControlSpec.new(0, 127, 'lin', 0, 60, "")
+  return ControlSpec.new(0, 127, 'lin', 0, 60, "", false, 1)
 end
 
 function ControlSpec.midivelocity()
-  return ControlSpec.new(1, 127, 'lin', 0, 64, "")
+  return ControlSpec.new(1, 127, 'lin', 0, 64, "", false, 1)
 end
 
 function ControlSpec.db()

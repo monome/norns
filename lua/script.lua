@@ -26,6 +26,8 @@ Script.clear = function()
   init = norns.none
   -- clear last run
   norns.state.script = ''
+  -- clear params
+  p = {}
 end
 
 
