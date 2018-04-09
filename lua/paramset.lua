@@ -23,9 +23,6 @@ Paramset.bang = function(p)
   for k,v in pairs(p) do
     v:bang()
   end
-end
-
-
-
+end 
 
 return Paramset

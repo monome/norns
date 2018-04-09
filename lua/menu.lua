@@ -431,7 +431,7 @@ m.redraw[pPARAMS] = function()
         s_move(0,10*i)
         s_text(p[m.params.list[i+m.params.pos-2]].name)
         s_move(127,10*i)
-        s_text_right(p[m.params.list[i+m.params.pos-2]]:string(0.01))
+        s_text_right(p[m.params.list[i+m.params.pos-2]]:string())
       end 
     end
   else

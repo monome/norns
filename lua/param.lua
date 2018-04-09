@@ -65,37 +65,13 @@ function Param:bang()
 end
 
 
-function Param:string(quant)
+function Param:string()
   if self.formatter then
     return self.formatter(self)
   else
-    local mapped_value = self:get()
-    local display_value
-    if quant then
-      display_value = util.round(mapped_value, quant)
-    else
-      display_value = mapped_value
-    end
-    return self:string_format(display_value)
+    local a = util.round(self:get(), self.controlspec.display_prec)
+    return a.." "..self.controlspec.units
   end
 end
-
-function Param:string_format(value, units, name)
-  local u
-  if units then
-    u = units
-  elseif self.controlspec then
-    u = self.controlspec.units
-  else
-    u = ""
-  end
-  --return Param.stringify(name or self.name or "", u, value)
-  return value.." "..u
-end
-
-function Param.stringify(name, units, value)
-  return name..": "..value.." "..units
-end
-
 
 return Param
