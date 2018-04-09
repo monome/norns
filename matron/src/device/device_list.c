@@ -26,9 +26,9 @@ struct dev_q dq;
 static struct dev_node *dev_lookup_path(const char *path) {
     struct dev_node *n = dq.head;
     const char *npath;
-    while(n != NULL) {
+    while (n != NULL) {
         npath = n->d->base.path;
-        if(strcmp(path, npath) == 0) {
+        if (strcmp(path, npath) == 0) {
             return n;
         }
         n = n->next;
@@ -42,23 +42,26 @@ void dev_list_init(void) {
     dq.tail = NULL;
 }
 
-void dev_list_add(device_t type, const char *path) {
-    if(type < 0) {
+void dev_list_add(device_t type, const char *path, const char *name) {
+    if (type < 0) {
         return;
     }
-    struct dev_node *dn = calloc( 1, sizeof(struct dev_node) );
+
+    struct dev_node *dn = calloc(1, sizeof(struct dev_node));
+
     if (dn == NULL) {
         fprintf(stderr, "dev_list_add: error allocating device queue node\n");
         return;
     }
-    union dev *d = dev_new(type, path);
+
+    union dev *d = dev_new(type, path, name);
+
     if (d == NULL) {
         fprintf(stderr, "dev_list_add: error allocating device data\n");
         return;
     }
 
     d->base.id = id++;
-
     dn->d = d;
 
     insque(dn, dq.tail);
@@ -69,7 +72,7 @@ void dev_list_add(device_t type, const char *path) {
     dq.size++;
 
     union event_data *ev;
-    switch(type) {
+    switch (type) {
     case DEV_TYPE_MONOME:
         ev = event_data_new(EVENT_MONOME_ADD);
         ev->monome_add.dev = d;

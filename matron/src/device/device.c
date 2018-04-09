@@ -12,13 +12,20 @@
 // start the rx thread for a device
 static int dev_start(union dev *d);
 
-union dev *dev_new(device_t type, const char *path) {
-    union dev *d = calloc( 1, sizeof(union dev) );
-    if(!d) {return NULL; }
+union dev *dev_new(device_t type, const char *path, const char *name) {
+    union dev *d = calloc(1, sizeof(union dev));
+
+    if (d == NULL) {
+        return NULL;
+    }
+
     // initialize the base class
     d->base.type = type;
     d->base.path = malloc(strlen(path) + 1);
     strcpy(d->base.path, path);
+
+    d->base.name = (char *) name;
+
     // initialize the subclass
     switch(type) {
     case DEV_TYPE_MONOME:
