@@ -9,6 +9,11 @@ CroneEngine {
 	var <commands;
 	var <commandNames;
 
+	// list of registered parameters
+	var <parameters;
+	var <parameterNames;
+	var <parameterControlBusses;
+
 	// list of registered polls
 	var <pollNames;
 
@@ -18,7 +23,10 @@ CroneEngine {
 
 	init { arg argContext, doneCallback;
 		commands = List.new;
-		commandNames = Dictionary.new;
+		commandNames = IdentityDictionary.new;
+		parameters = List.new;
+		parameterNames = IdentityDictionary.new;
+		parameterControlBusses = IdentityDictionary.new;
 		pollNames = Set.new;
 		context = argContext;
 		context.postln;
@@ -45,6 +53,9 @@ CroneEngine {
 		commands.do({ arg com;
 			com.oscdef.free;
 		});
+		parameterControlBusses.do({ arg cbus;
+			cbus.free;
+		});
 		pollNames.do({ arg name;
 			CronePollRegistry.remove(name);
 		});
@@ -53,6 +64,7 @@ CroneEngine {
 	addCommand { arg name, format, func;
 		var idx, cmd;
 		name = name.asSymbol;
+		this.validateUniqueCommandParameterName(name);
 		postln([ "CroneEngine adding command", name, format, func ]);
 		if(commandNames[name].isNil, {
 			idx = commandNames.size;
@@ -72,5 +84,39 @@ CroneEngine {
 		^idx
 	}
 
+	addParameter { arg name, spec;
+		var idx;
+		name = name.asSymbol;
+		this.validateUniqueCommandParameterName(name);
+		postln([ "CroneEngine adding parameter", name, spec ]);
+		if(parameterNames[name].isNil, {
+			var bus;
+			idx = parameterNames.size;
+			parameterNames[name] = idx;
+			bus = Bus.control;
+			bus.set(spec.default ?? 0);
+			parameterControlBusses[name] = bus;
+			parameters.add(
+				(
+					name: name,
+					controlBusIndex: bus.index,
+					spec: if (spec.notNil) { spec.asSpec } { nil } // to get around nil.asSpec which is an actual spec in sc
+				)
+			);
+		}, {
+			idx = parameterNames[name];
+		});
+		^idx
+	}
+
+	validateUniqueCommandParameterName { |name|
+		var errstr = "command and parameter names must be unique.";
+		if (commandNames.includes(name)) {
+			Error("a command named" + name.quote + "already exists." + errstr).throw
+		};
+		if (parameterNames.includes(name)) {
+			Error("a parameter named" + name.quote + "already exists." + errstr).throw
+		};
+	}
 }
 

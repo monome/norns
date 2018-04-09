@@ -91,6 +91,11 @@ norns.report.commands = function(commands, count)
    engine.list_commands()
 end
 
+norns.report.params = function(params, count)
+   engine.register_params(params, count)
+   engine.list_params()
+end
+
 norns.report.polls = function(names, count)
    poll.register(names, count)
    poll.list_names()

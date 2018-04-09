@@ -73,13 +73,15 @@ Crone {
 					postln("engine: " ++ this.engine);
 					
 					this.reportCommands;
+					this.reportParameters;
 					this.reportPolls;
 				});
 			});
 		}, {
-		    // if we didn't change engines, just resend the reports
-                        this.reportCommands;
-                        this.reportPolls;
+			// if we didn't change engines, just resend the reports
+			this.reportCommands;
+			this.reportParameters;
+			this.reportPolls;
 		});
 
 	}
@@ -138,6 +140,51 @@ Crone {
 		remoteAddr.sendMsg('/report/commands/end');
 	}
 
+	*reportParameters {
+		var parameters = engine !? _.parameters;
+		postln("parameters: " ++ parameters);
+		remoteAddr.sendMsg('/report/parameters/start', parameters.size);
+		parameters.do({ arg parameter, i;
+			var spec = parameter.spec;
+			var minval, maxval, warp, step, default, units;
+			if (spec.notNil) {
+				minval = spec.minval;
+				maxval = spec.maxval;
+				warp = Warp.warps.findKeyForValue(spec.warp.asWarp.class); // NOTE: for now, only warps having Symbol-asWarp support is sent to matron
+				// TODO: might also be good to include CurveWarp specified by a number, not a Symbol, too (*initClass in core Spec.sc for details)
+				step = spec.step;
+				default = spec.default;
+				units = spec.units;
+			};
+
+			postln('parameters entry: ' ++ [
+				i,
+				parameter.name,
+				parameter.controlBusIndex,
+				minval,
+				maxval,
+				warp,
+				step,
+				default,
+				units
+			]);
+
+			remoteAddr.sendMsg(
+				'/report/parameters/entry',
+				i,
+				parameter.name,
+				parameter.controlBusIndex,
+				minval,
+				maxval,
+				warp,
+				step,
+				default,
+				units
+			);
+		});
+		remoteAddr.sendMsg('/report/parameters/end');
+	}
+
 	*reportPolls {
 		var num = CronePollRegistry.getNumPolls;
 		remoteAddr.sendMsg('/report/polls/start', num);
@@ -192,6 +239,13 @@ Crone {
 				arg msg, time, addr, recvPort;
 				this.reportCommands;
 			}, '/report/commands'),
+
+			/// begin OSC parameter report sequence
+			// @function /report/parameters
+			'/report/parameters':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.reportParameters;
+			}, '/report/parameters'),
 
 			/// begin OSC poll report sequence
 			// @function /report/polls

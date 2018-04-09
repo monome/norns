@@ -5,6 +5,9 @@
 \#*\#
 *.*~
 
+# ignore vim swap files
+*.swp
+
 # waf
 .lock-waf*
 .waf*

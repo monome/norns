@@ -15,6 +15,8 @@ Engine.names = {}
 Engine.name = nil
 -- current command table
 Engine.commands = {}
+-- current parameters table
+Engine.params = {}
 
 -- ----------------------------
 -- static methods
@@ -77,6 +79,63 @@ Engine.list_commands = function()
   print("------\n")
 end
 
+--- populate the current engine object with available parameters;
+-- called from OSC handler
+-- NB: we *can* count on the order of entries to be meaningful
+-- @param data - array of [name, bus, minval, maxval, warp, step, default, units]
+-- @param count - number of parameters
+Engine.register_params = function(data, count)
+  print('Engine.register_params; count: '..count)
+  Engine.params = {}
+  for i=1,count do
+    local name = data[i][1]
+    local bus = data[i][2]
+    local minval = data[i][3]
+    local maxval = data[i][4]
+    local warp = data[i][5]
+    local step = data[i][6]
+    local default = data[i][7]
+    local units = data[i][8]
+    Engine.add_parameter(i, name, bus, minval, maxval, warp, step, default, units)
+  end
+end
+
+--- add a parameter to the current engine
+-- @param id - integer index
+-- @param name - parameter name (string)
+-- @param bus - crone controlbus index (number)
+-- @param minval - the minimum value of the range (number)
+-- @param maxval - the maximum value of the range (number)
+-- @param warp - a string describing the warp (exponential, linear) (string)
+-- @param step - the smallest possible increment (number)
+-- @param default - the default value (number)
+-- @param units - the units, e.g. "Hz" possible for use as a ui label (string)
+Engine.add_parameter = function(id, name, bus, minval, maxval, warp, step, default, units)
+  local controlspec = ControlSpec.new(minval, maxval, warp, step, default, units)
+  local func = function(value)
+    print("set_parameter_value: "..bus..", "..value..", "..controlspec:constrain(value))
+    set_parameter_value(bus, controlspec:constrain(value))
+  end
+  Engine.params[name] = {
+    id = id,
+    name = name,
+    bus = bus,
+    controlspec = controlspec,
+    func = func,
+  }
+end
+
+Engine.list_params = function()
+  print("--- engine parameters ---")
+  local sorted = tab.sort(Engine.params)
+  for i,n in ipairs(sorted) do
+    local param = Engine.params[n]
+    local controlspec = param.controlspec
+    print(param.name ..'  ('.. param.bus .. ', '.. controlspec.minval ..', '.. controlspec.maxval ..', '.. controlspec.warp ..', '.. controlspec.step ..', '.. controlspec.default ..', '.. controlspec.units ..')')
+  end
+  print("------\n")
+end
+
 --- load a named engine, with a callback
 -- @param name - name of engine
 -- @param callback - function to call on engine load. will receive command list
@@ -91,11 +150,13 @@ Engine.load = function(name, callback)
 end
 
 --- custom getters;
--- [] accessor returns a command function;
+-- [] accessor returns a command or parameter function;
 -- this allows e.g. engine.hz(100)
 function Engine.__index(self, idx)
   if Engine.commands[idx] then
     return Engine.commands[idx].func
+  elseif Engine.params[idx] then
+    return Engine.params[idx].func
   else
     return rawget(Engine, idx)
   end
