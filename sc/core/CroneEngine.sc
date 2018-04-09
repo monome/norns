@@ -87,7 +87,6 @@ CroneEngine {
 	addParameter { arg name, spec;
 		var idx;
 		name = name.asSymbol;
-		this.validateSpecWarp(spec.warp);
 		this.validateUniqueCommandParameterName(name);
 		postln([ "CroneEngine adding parameter", name, spec ]);
 		if(parameterNames[name].isNil, {
@@ -108,12 +107,6 @@ CroneEngine {
 			idx = parameterNames[name];
 		});
 		^idx
-	}
-
-	validateSpecWarp { |warp|
-		if (warp.isNil or: ['lin', 'exp', 'linear', 'exponential'].includes(warp)) {
-			Error("only linear and exponential warps are supported. supplied spec uses warp " + warp.asString.quote).throw
-		};
 	}
 
 	validateUniqueCommandParameterName { |name|
