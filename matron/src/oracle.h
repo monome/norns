@@ -35,6 +35,12 @@ struct engine_poll {
 struct engine_param {
   char *name;
   int busIdx; // control bus index
+  float minval;
+  float maxval;
+  char *warp;
+  float step;
+  float default_value;
+  char *units;
 };
 
 // check for audio engine boot completion
@@ -56,6 +62,8 @@ extern int o_get_num_params(void);
 extern const char **o_get_engine_names(void);
 // get available engine commands (array of structs)
 extern const struct engine_command *o_get_commands(void);
+// get available engine parameters (array of structs)
+extern const struct engine_param *o_get_params(void);
 // get available polls
 extern const struct engine_poll *o_get_polls(void);
 

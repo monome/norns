@@ -37,13 +37,15 @@ int ready = 0;
 int num_engines = 0;
 // count of command descriptors
 int num_commands = 0;
+// count of parameter descriptors
+int num_params = 0;
 // count of poll descriptors
 int num_polls = 0;
 
 // state flags for receiving command/poll/param reports
 bool needCommandReport;
 bool needPollReport;
-bool needParamReport = false; // FIXME
+bool needParamReport;
 
 // max count of any single desciptor type
 #define MAX_NUM_DESC 1024
@@ -52,6 +54,8 @@ bool needParamReport = false; // FIXME
 char *engine_names[MAX_NUM_DESC];
 // list of registered engine commands
 struct engine_command commands[MAX_NUM_DESC];
+// list of registered engine commands
+struct engine_param params[MAX_NUM_DESC];
 // list of registered poll
 struct engine_poll polls[MAX_NUM_DESC];
 
@@ -66,11 +70,13 @@ static void o_init_descriptors(void);
 // clear a given array of descriptors
 void o_clear_engine_names(void);
 void o_clear_commands(void);
+void o_clear_params(void);
 void o_clear_polls(void);
 
 // set a given entry in the engine name list
 static void o_set_engine_name(int idx, const char *name);
 static void o_set_command(int idx, const char *name, const char *format);
+static void o_set_param(int idx, const char *name, int busIdx, float minval, float maxval, const char *warp, float step, float default_value, const char *units);
 // set a given descriptor count variable
 static void o_set_num_desc(int *dst, int num);
 
@@ -95,6 +101,15 @@ static int handle_command_report_entry(const char *path, const char *types,
                                        lo_arg **argv, int argc,
                                        void *data, void *user_data);
 static int handle_command_report_end(const char *path, const char *types,
+                                     lo_arg **argv, int argc,
+                                     void *data, void *user_data);
+static int handle_param_report_start(const char *path, const char *types,
+                                       lo_arg **argv, int argc,
+                                       void *data, void *user_data);
+static int handle_param_report_entry(const char *path, const char *types,
+                                       lo_arg **argv, int argc,
+                                       void *data, void *user_data);
+static int handle_param_report_end(const char *path, const char *types,
                                      lo_arg **argv, int argc,
                                      void *data, void *user_data);
 static int handle_poll_report_start(const char *path, const char *types,
@@ -124,7 +139,7 @@ static void lo_error_handler(int num, const char *m, const char *path);
 static void set_need_reports() {
   needCommandReport = true;
   needPollReport = true;
-  needParamReport = false; // FIXME true;
+  needParamReport = true;
 }
 
 static bool get_need_reports() {
@@ -178,6 +193,14 @@ void o_init(void) {
     lo_server_thread_add_method(st, "/report/commands/end", "",
                                 handle_command_report_end, NULL);
 
+    // param report sequence
+    lo_server_thread_add_method(st, "/report/parameters/start", "i",
+                                handle_param_report_start, NULL);
+    lo_server_thread_add_method(st, "/report/parameters/entry", "isiffsffs",
+                                handle_param_report_entry, NULL);
+    lo_server_thread_add_method(st, "/report/parameters/end", "",
+                                handle_param_report_end, NULL);
+
     // poll report sequence
     lo_server_thread_add_method(st, "/report/polls/start", "i",
                                 handle_poll_report_start, NULL);
@@ -215,6 +238,10 @@ int o_get_num_commands(void) {
     return num_commands;
 }
 
+int o_get_num_params(void) {
+    return num_params;
+}
+
 int o_get_num_polls(void) {
     return num_polls;
 }
@@ -225,6 +252,10 @@ const char **o_get_engine_names(void) {
 
 const struct engine_command *o_get_commands(void) {
     return (const struct engine_command *)commands;
+}
+
+const struct engine_param *o_get_params(void) {
+    return (const struct engine_param *)params;
 }
 
 const struct engine_poll *o_get_polls(void) {
@@ -269,7 +300,7 @@ void o_send_command(const char *name, lo_message msg) {
 }
 
 void o_set_parameter_value(int bus, float value) {
-    lo_send(remote_addr, "/c_set", "if", bus, value);
+    lo_send(scsynth_addr, "/c_set", "if", bus, value);
 }
 
 void o_send(const char *name, lo_message msg) {
@@ -293,6 +324,9 @@ void o_init_descriptors(void) {
         engine_names[i] = NULL;
         commands[i].name = NULL;
         commands[i].format = NULL;
+        params[i].name = NULL;
+        params[i].warp = NULL;
+        params[i].units = NULL;
     }
 }
 
@@ -320,6 +354,23 @@ void o_clear_commands(void) {
             commands[i].format = NULL;
         } else {
             fprintf(stderr, "o_clear_commands: encountered unexpected null entry\n");
+        }
+    }
+    o_unlock_descriptors();
+}
+
+void o_clear_params(void) {
+    o_lock_descriptors();
+    for(int i = 0; i < num_params; i++) {
+        if( ( params[i].name != NULL) && ( params[i].warp != NULL) && ( params[i].units != NULL) ) {
+            free(params[i].name);
+            free(params[i].warp);
+            free(params[i].units);
+            params[i].name = NULL;
+            params[i].warp = NULL;
+            params[i].units = NULL;
+        } else {
+            fprintf(stderr, "o_clear_params: encountered unexpected null entry\n");
         }
     }
     o_unlock_descriptors();
@@ -376,6 +427,41 @@ void o_set_command(int idx, const char *name, const char *format) {
         } else {
             strncpy(commands[idx].name, name, name_len + 1);
             strncpy(commands[idx].format, format, format_len + 1);
+        }
+    }
+    o_unlock_descriptors();
+}
+
+// set a given entry in command list
+void o_set_param(int idx, const char *name, int busIdx, float minval, float maxval, const char *warp, float step, float default_value, const char *units) {
+    size_t name_len, warp_len, units_len;
+    o_lock_descriptors();
+    if( (params[idx].name != NULL) || (params[idx].warp != NULL) || (params[idx].units != NULL) ) {
+        fprintf(stderr, "refusing to allocate params name %d; already exists", idx);
+    } else {
+        name_len = strlen(name);
+        warp_len = strlen(warp);
+        units_len = strlen(units);
+        params[idx].name = malloc(name_len + 1);
+        params[idx].warp = malloc(warp_len + 1);
+        params[idx].units = malloc(units_len + 1);
+        if ( ( params[idx].name == NULL) ||
+             ( params[idx].warp == NULL) ||
+             ( params[idx].units == NULL) ) {
+            fprintf(stderr, "failure to malloc for command %d : %s %s_%s\n",
+                   idx,
+                   name,
+                   warp,
+                   units);
+        } else {
+            strncpy(params[idx].name, name, name_len + 1);
+			params[idx].busIdx = busIdx;
+			params[idx].minval = minval;
+			params[idx].maxval = maxval;
+            strncpy(params[idx].warp, warp, warp_len + 1);
+			params[idx].step = step;
+			params[idx].default_value = default_value;
+            strncpy(params[idx].units, units, units_len + 1);
         }
     }
     o_unlock_descriptors();
@@ -580,6 +666,60 @@ int handle_command_report_end(const char *path,
     (void)data;
     (void)user_data;
     needCommandReport = false;
+    test_engine_load_done();
+    return 0;
+}
+
+//---------------------
+//--- parameters report
+
+int handle_param_report_start(const char *path,
+                                const char *types,
+                                lo_arg **argv,
+                                int argc,
+                                void *data,
+                                void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)argv;
+    (void)data;
+    (void)user_data;
+    assert(argc > 0);
+    o_clear_params();
+    o_set_num_desc(&num_params, argv[0]->i);
+    return 0;
+}
+
+int handle_param_report_entry(const char *path,
+                                const char *types,
+                                lo_arg **argv,
+                                int argc,
+                                void *data,
+                                void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)data;
+    (void)user_data;
+    assert(argc > 2);
+    o_set_param(argv[0]->i, &argv[1]->s, argv[2]->i, argv[3]->f, argv[4]->f, &argv[5]->s, argv[6]->f, argv[7]->f, &argv[8]->s);
+    return 0;
+}
+
+int handle_param_report_end(const char *path,
+                              const char *types,
+                              lo_arg **argv,
+                              int argc,
+                              void *data,
+                              void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)argv;
+    (void)data;
+    (void)user_data;
+    needParamReport = false;
     test_engine_load_done();
     return 0;
 }

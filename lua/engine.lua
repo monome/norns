@@ -16,7 +16,7 @@ Engine.name = nil
 -- current command table
 Engine.commands = {}
 -- current parameters table
-Engine.parameters = {}
+Engine.params = {}
 
 -- ----------------------------
 -- static methods
@@ -84,9 +84,9 @@ end
 -- NB: we *can* count on the order of entries to be meaningful
 -- @param data - array of [name, bus, minval, maxval, warp, step, default, units]
 -- @param count - number of parameters
-Engine.register_parameters = function(data, count)
-  print('Engine.register_parameters; count: '..count)
-  Engine.parameters = {}
+Engine.register_params = function(data, count)
+  print('Engine.register_params; count: '..count)
+  Engine.params = {}
   for i=1,count do
     local name = data[i][1]
     local bus = data[i][2]
@@ -113,9 +113,10 @@ end
 Engine.add_parameter = function(id, name, bus, minval, maxval, warp, step, default, units)
   local controlspec = ControlSpec.new(minval, maxval, warp, step, default, units)
   local func = function(value)
-    set_parameter_value(id, controlspec.constrain(value)) -- TODO: use bus instead of id? is constrain implemented in lua ControlSpec?
+    print("set_parameter_value: "..bus..", "..value..", "..controlspec:constrain(value))
+    set_parameter_value(bus, controlspec:constrain(value))
   end
-  Engine.parameters[name] = {
+  Engine.params[name] = {
     id = id,
     name = name,
     bus = bus,
@@ -124,13 +125,13 @@ Engine.add_parameter = function(id, name, bus, minval, maxval, warp, step, defau
   }
 end
 
-Engine.list_parameters = function()
+Engine.list_params = function()
   print("--- engine parameters ---")
-  local sorted = tab.sort(Engine.parameters)
+  local sorted = tab.sort(Engine.params)
   for i,n in ipairs(sorted) do
-    local param = Engine.parameters[n]
-    local spec = param.spec
-    print(param.name ..'  ('.. param.bus .. ', '.. spec.minval ..', '.. spec.maxval ..', '.. spec.warp ..', '.. spec.step ..', '.. spec.default ..', '.. spec.units ..')')
+    local param = Engine.params[n]
+    local controlspec = param.controlspec
+    print(param.name ..'  ('.. param.bus .. ', '.. controlspec.minval ..', '.. controlspec.maxval ..', '.. controlspec.warp ..', '.. controlspec.step ..', '.. controlspec.default ..', '.. controlspec.units ..')')
   end
   print("------\n")
 end
@@ -154,8 +155,8 @@ end
 function Engine.__index(self, idx)
   if Engine.commands[idx] then
     return Engine.commands[idx].func
-  elseif Engine.parameters[idx] then
-    return Engine.parameters[idx].func
+  elseif Engine.params[idx] then
+    return Engine.params[idx].func
   else
     return rawget(Engine, idx)
   end

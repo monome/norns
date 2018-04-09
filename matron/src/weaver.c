@@ -1522,6 +1522,48 @@ static void _push_commands() {
     lua_pushinteger(lvm, n);
 }
 
+// helper: push table of parameters
+// each entry is a subtatble: {name, format}
+static void _push_params() {
+  o_lock_descriptors();
+    const struct engine_param *p = o_get_params();
+    const int n = o_get_num_params();
+    lua_createtable(lvm, n, 0);
+        for(int i = 0; i < n; i++) {
+        // create subtable on stack
+        lua_createtable(lvm, 2, 0);
+        // put name string on stack; assign to subtable, pop
+        lua_pushstring(lvm, p[i].name);
+        lua_rawseti(lvm, -2, 1);
+        // put bus index on stack; assign to subtable, pop
+        lua_pushinteger(lvm, p[i].busIdx); // *not* converting to 1-base here
+        lua_rawseti(lvm, -2, 2);
+        // put minval on stack; assign to subtable, pop
+        lua_pushnumber(lvm, p[i].minval);
+        lua_rawseti(lvm, -2, 3);
+        // put maxval on stack; assign to subtable, pop
+        lua_pushnumber(lvm, p[i].maxval);
+        lua_rawseti(lvm, -2, 4);
+        // put warp string on stack; assign to subtable, pop
+        lua_pushstring(lvm, p[i].warp);
+        lua_rawseti(lvm, -2, 5);
+        // put step on stack; assign to subtable, pop
+        lua_pushnumber(lvm, p[i].step);
+        lua_rawseti(lvm, -2, 6);
+        // put default value on stack; assign to subtable, pop
+        lua_pushnumber(lvm, p[i].default_value);
+        lua_rawseti(lvm, -2, 7);
+        // put units string on stack; assign to subtable, pop
+        lua_pushstring(lvm, p[i].units);
+        lua_rawseti(lvm, -2, 8);
+
+        // subtable is on stack; assign to master table and pop
+        lua_rawseti(lvm, -2, i + 1);
+    }
+    o_unlock_descriptors();    
+    lua_pushinteger(lvm, n);
+}
+
 // helper: push table of polls
 // each entry is a subtable: { name, type }
 // FIXME: this is silly, just use full format specification as for commands
@@ -1561,14 +1603,16 @@ void w_handle_engine_loaded() {
   _push_commands();
   l_report(lvm, l_docall(lvm, 2, 0));
   
+  _push_norns_func("report", "params");
+  _push_params();
+  l_report(lvm, l_docall(lvm, 2, 0));
+  
   _push_norns_func("report", "polls");
   _push_polls();
   l_report(lvm, l_docall(lvm, 2, 0));
   
   _push_norns_func("report", "did_engine_load");
   l_report(lvm, l_docall(lvm, 0, 0));
-  // TODO
-  // _push_params();
 }
 
 // metro handler
