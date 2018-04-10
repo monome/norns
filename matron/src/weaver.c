@@ -1390,7 +1390,6 @@ void w_handle_hid_add(void *p) {
 
     _push_norns_func("hid", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    lua_pushstring(lvm, base->serial);
     lua_pushstring(lvm, base->name);
 
     // push table of event types
@@ -1412,7 +1411,7 @@ void w_handle_hid_add(void *p) {
         }
         lua_rawseti(lvm, -2, i + 1);
     }
-    l_report( lvm, l_docall(lvm, 5, 0) );
+    l_report(lvm, l_docall(lvm, 4, 0));
 }
 
 void w_handle_hid_remove(int id) {

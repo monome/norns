@@ -25,15 +25,13 @@ end
 
 -- `codes` is indexed by event type, values are subtables
 -- @tparam integer id : arbitrary numberical index of the device
--- @tparam string serial : serial device string from USB
 -- @tparam string name: device name string from USB
 -- @param types: array of supported event types. keys are type codes, values are strings
 -- @param codes: array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
-function Hid.new(id, serial, name, types, codes)
+function Hid.new(id, name, types, codes)
   local d = setmetatable({}, Hid)
-  -- print(id, serial, name, types, codes)
+  -- print(id, name, types, codes)
   d.id = id
-  d.serial = serial
   d.name = name
   d.types = types
   d.codes = {}
@@ -94,7 +92,7 @@ end
 
 --- print some information about a device
 function Hid:print()
-  print(self.id, self.serial, self.name)
+  print(self.id, self.name)
   print('supported events: ')
   for t,arr in pairs(self.codes) do
     if Hid.event_types[t] ~= nil then
@@ -113,12 +111,11 @@ end
 
 --- add a device
 -- @param id - arbitrary id number (int)
--- @param serial (string)
 -- @param name (string)
 -- @param types - table of event types  (int)
 -- @param codes - table of table of event codes (int), indexed by type (int)
-norns.hid.add = function(id, serial, name, types, codes)
-  local d = Hid.new(id, serial, name, types, codes)
+norns.hid.add = function(id, name, types, codes)
+  local d = Hid.new(id, name, types, codes)
   Hid.devices[id] = d
   if Hid.add ~= nil then Hid.add(d) end
 end
