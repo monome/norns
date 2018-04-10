@@ -12,7 +12,7 @@ Param.__index = Param
 -- @param formatter
 function Param.new(name, controlspec, formatter)
   local p = setmetatable({}, Param)
-  if not controlspec then controlspec = ControlSpec.default() end
+  if not controlspec then controlspec = ControlSpec.unipolar() end
   p.name = name
   p.controlspec = controlspec
   p.formatter = formatter 
@@ -41,7 +41,7 @@ end
 --- set
 -- accepts a mapped value
 function Param:set(value)
-  self:set_raw(self.controlspec:unmap(value))
+  self:set_raw(util.round(self.controlspec:unmap(value),controlspec.step))
 end
 
 --- set_raw
@@ -56,27 +56,14 @@ end
 
 --- delta
 -- add delta to current value. checks controlspec for mapped vs not
+-- default division of delta for 100 steps range
 function Param:delta(d)
-  if self.controlspec.delta_map then
-    self:delta_raw(d/self.controlspec.delta_div)
-  else
-    self:set(self:get() + d/self.controlspec.delta_div)
-  end
-end
-
---- delta_raw
--- called by delta() if needed
-function Param:delta_raw(d)
-  self:set_raw(self.raw + d)
+  self:set_raw(self.raw + d/100)
 end
 
 --- set_default
 function Param:set_default()
-  if self.controlspec.default then
-    self:set(self.controlspec.default)
-  else
-    self:set(0)
-  end
+  self:set(self.controlspec.default)
 end
 
 --- bang
@@ -90,7 +77,7 @@ function Param:string()
   if self.formatter then
     return self.formatter(self)
   else
-    local a = util.round(self:get(), self.controlspec.display_prec)
+  local a = util.round(self:get(), 0.01)
     return a.." "..self.controlspec.units
   end
 end

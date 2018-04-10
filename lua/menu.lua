@@ -30,7 +30,7 @@ m.redraw = {}
 m.init = {}
 m.deinit = {}
 
-menu.mode = false
+menu.mode = true
 menu.page = pHOME
 menu.alt = false
 menu.scripterror = false
@@ -56,7 +56,7 @@ local u = metro[30]
 -- assigns key/enc/screen handlers after user script has loaded
 norns.menu = {}
 norns.menu.init = function()
-  menu.set_mode(menu.mode)
+  menu.set_mode(false)
 end
 
 

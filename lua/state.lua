@@ -31,7 +31,7 @@ state.resume = function()
   else
     state.script=''
     norns.script.clear()
-    redraw()
+    -- FIXME does tis work?
   end
 end
 

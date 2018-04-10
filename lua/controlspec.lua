@@ -4,7 +4,7 @@ local WARP_EXP = 2
 local ControlSpec = {}
 ControlSpec.__index = ControlSpec
 
-function ControlSpec.new(minval, maxval, warp, step, default, units, delta_map, delta_div, display_prec)
+function ControlSpec.new(minval, maxval, warp, step, default, units)
   local s = setmetatable({}, ControlSpec)
   s.minval = minval
   s.maxval = maxval
@@ -22,9 +22,6 @@ function ControlSpec.new(minval, maxval, warp, step, default, units, delta_map, 
   s.step = step
   s.default = default or minval -- TODO: test to ensure minval fallback works
   s.units = units or ""
-  if delta_map ~= nil then s.delta_map = delta_map else s.delta_map = true end
-  if delta_div ~= nil then s.delta_div = delta_div else s.delta_div = 100 end
-  if display_prec ~= nil then s.display_prec = display_prec else s.display_prec = 0.01 end
   return s
 end
 
@@ -53,10 +50,6 @@ function ControlSpec:print()
     print("ControlSpec:")
     print('>> ', k, v)
   end
-end
-
-function ControlSpec.default()
-  return ControlSpec.new(-32768, 32767, 'lin', 0, 0, "", false, 1, 1)
 end
 
 function ControlSpec.unipolar()
@@ -92,15 +85,15 @@ function ControlSpec.rq()
 end
 
 function ControlSpec.midi()
-  return ControlSpec.new(0, 127, 'lin', 0, 64, "", false, 1)
+  return ControlSpec.new(0, 127, 'lin', 0, 64, "")
 end
 
 function ControlSpec.midinote()
-  return ControlSpec.new(0, 127, 'lin', 0, 60, "", false, 1)
+  return ControlSpec.new(0, 127, 'lin', 0, 60, "")
 end
 
 function ControlSpec.midivelocity()
-  return ControlSpec.new(1, 127, 'lin', 0, 64, "", false, 1)
+  return ControlSpec.new(1, 127, 'lin', 0, 64, "")
 end
 
 function ControlSpec.db()

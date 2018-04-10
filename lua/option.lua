@@ -1,3 +1,6 @@
+--- Option class
+-- @module option
+
 local Option = {}
 Option.__index = Option
 
@@ -9,7 +12,8 @@ function Option.new(name, options, default)
     o.options[k] = v
   end
   o.count = tab.count(o.options)
-  if default then o.selected = default else o.selected = 1 end
+  o.default = default or 1
+  o.selected = o.default
   o.action = function() end
   return o
 end 

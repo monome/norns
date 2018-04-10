@@ -30,6 +30,10 @@ Script.clear = function()
   p = {}
 end
 
+Script.init = function()
+  init()
+  norns.menu.init()
+end
 
 --- load a script from the /scripts folder
 -- @param filename (string) - file to load. leave blank to reload current file.
@@ -48,7 +52,6 @@ Script.load = function(filename)
     norns.log.post("loaded " .. filename) -- post to log
     norns.state.script = filename -- store script name
     norns.state.save() -- remember this script for next launch
-    norns.menu.init() -- redirect i/o functions to script
     Script.run() -- load engine then run script-specified init function
   end
 end
@@ -56,9 +59,9 @@ end
 --- load engine, execute script-specified init (if present)
 Script.run = function()
   if engine ~= nil then
-    e.load(engine, init)
+    e.load(engine, Script.init)
   else
-    init()
+    Script.init()
   end
   grid.reconnect()
 end
