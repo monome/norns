@@ -4,8 +4,11 @@
 local Number = {}
 Number.__index = Number
 
-function Number.new(name, default, min, max)
+local tNUMBER = 1
+
+function Number.new(name, min, max, default)
   local o = setmetatable({}, Number)
+  o.t = tNUMBER
   o.name = name
   o.default = default or 0
   o.value = o.default

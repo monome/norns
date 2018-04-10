@@ -27,10 +27,11 @@ Script.clear = function()
   -- clear last run
   norns.state.script = ''
   -- clear params
-  p = {}
+  p:clear()
 end
 
 Script.init = function()
+  p.name = norns.state.script
   init()
   norns.menu.init()
 end

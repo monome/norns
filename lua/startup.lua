@@ -26,7 +26,8 @@ option = require 'option'
 param = require 'param'
 controlspec = require 'controlspec'
 paramset = require 'paramset'
-p = {} -- param table
+
+p = paramset.new()
 
 tab = require 'tabutil'
 util = require 'util'

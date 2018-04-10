@@ -6,12 +6,15 @@ local ControlSpec = require 'controlspec'
 local Param = {}
 Param.__index = Param
 
+local tPARAM = 3
+
 --- constructor
 -- @param name of param
 -- @param controlspec
 -- @param formatter
 function Param.new(name, controlspec, formatter)
   local p = setmetatable({}, Param)
+  p.t = tPARAM
   if not controlspec then controlspec = ControlSpec.unipolar() end
   p.name = name
   p.controlspec = controlspec
