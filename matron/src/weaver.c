@@ -28,8 +28,8 @@
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
-#include "i2c.h" 
-#include "osc.h" 
+#include "i2c.h"
+#include "osc.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -1437,7 +1437,8 @@ void w_handle_midi_add(void *p) {
 
     _push_norns_func("midi", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    l_report(lvm, l_docall(lvm, 1, 0));
+    lua_pushstring(lvm, base->name);
+    l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 void w_handle_midi_remove(int id) {
@@ -1453,7 +1454,7 @@ void w_handle_midi_event(int id, uint8_t *data) {
     lua_pushinteger(lvm, data[0]);
     lua_pushinteger(lvm, data[1]);
     lua_pushinteger(lvm, data[2]);
-    l_report( lvm, l_docall(lvm, 4, 0) );
+    l_report(lvm, l_docall(lvm, 4, 0));
 }
 
 // helper for pushing array of c strings

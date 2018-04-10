@@ -5,8 +5,8 @@ require 'norns'
 norns.version.midi = '0.0.0'
 
 --- add a device
-norns.midi.add = function(id)
-  print("midi device added", id)
+norns.midi.add = function(id, name)
+  print("midi device added", id, name)
 end
 
 --- remove a device
