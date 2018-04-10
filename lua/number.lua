@@ -39,7 +39,7 @@ function Number:set_default()
 end
 
 function Number:bang()
-  self:action(self:get())
+  self.action(self.value)
 end
 
 function Number:string()

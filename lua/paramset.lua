@@ -78,7 +78,7 @@ function Paramset:delta(index, d)
 end
 
 --- set action
-function Paramset:action(index, func)
+function Paramset:set_action(index, func)
   if type(index) == "string" then index = self.lookup[index] end
   self.params[index].action = func
 end

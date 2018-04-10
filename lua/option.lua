@@ -42,7 +42,7 @@ function Option:set_default()
 end
 
 function Option:bang()
-  self:action(self:get())
+  self.action(self.selected)
 end
 
 function Option:string()
