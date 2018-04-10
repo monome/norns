@@ -1430,14 +1430,15 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
 }
 
 void w_handle_midi_add(void *p) {
-    //struct dev_midi *dev = (struct dev_midi *)p;
+    struct dev_midi *dev = (struct dev_midi *)p;
     struct dev_common *base = (struct dev_common *)p;
     int id = base->id;
 
     _push_norns_func("midi", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, base->name);
-    l_report(lvm, l_docall(lvm, 2, 0));
+    lua_pushlightuserdata(lvm, dev);
+    l_report(lvm, l_docall(lvm, 3, 0));
 }
 
 void w_handle_midi_remove(int id) {
