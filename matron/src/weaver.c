@@ -1495,7 +1495,7 @@ static void _push_commands() {
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1);
     }
-    o_unlock_descriptors();    
+    o_unlock_descriptors();
     lua_pushinteger(lvm, n);
 }
 
@@ -1516,7 +1516,7 @@ static void _push_polls() {
         // put poll name on stack; assign to subtable, pop
         lua_pushstring(lvm, p[i].name);
         lua_rawseti(lvm, -2, 2);
-	/// FIXME: just use a format string.... 
+	/// FIXME: just use a format string....
         if(p[i].type == POLL_TYPE_VALUE) {
             lua_pushstring(lvm, "value");
         } else {
@@ -1526,7 +1526,7 @@ static void _push_polls() {
         lua_rawseti(lvm, -2, 3);
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1); // convert to 1-base
-    }    
+    }
     o_unlock_descriptors();
     lua_pushinteger(lvm, n);
 }
@@ -1537,11 +1537,11 @@ void w_handle_engine_loaded() {
   _push_norns_func("report", "commands");
   _push_commands();
   l_report(lvm, l_docall(lvm, 2, 0));
-  
+
   _push_norns_func("report", "polls");
   _push_polls();
   l_report(lvm, l_docall(lvm, 2, 0));
-  
+
   _push_norns_func("report", "did_engine_load");
   l_report(lvm, l_docall(lvm, 0, 0));
   // TODO
