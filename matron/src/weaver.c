@@ -28,8 +28,8 @@
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
-#include "i2c.h" 
-#include "osc.h" 
+#include "i2c.h"
+#include "osc.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -1390,7 +1390,6 @@ void w_handle_hid_add(void *p) {
 
     _push_norns_func("hid", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    lua_pushstring(lvm, base->serial);
     lua_pushstring(lvm, base->name);
 
     // push table of event types
@@ -1412,7 +1411,7 @@ void w_handle_hid_add(void *p) {
         }
         lua_rawseti(lvm, -2, i + 1);
     }
-    l_report( lvm, l_docall(lvm, 5, 0) );
+    l_report(lvm, l_docall(lvm, 4, 0));
 }
 
 void w_handle_hid_remove(int id) {
@@ -1431,13 +1430,15 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
 }
 
 void w_handle_midi_add(void *p) {
-    //struct dev_midi *dev = (struct dev_midi *)p;
+    struct dev_midi *dev = (struct dev_midi *)p;
     struct dev_common *base = (struct dev_common *)p;
     int id = base->id;
 
     _push_norns_func("midi", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    l_report(lvm, l_docall(lvm, 1, 0));
+    lua_pushstring(lvm, base->name);
+    lua_pushlightuserdata(lvm, dev);
+    l_report(lvm, l_docall(lvm, 3, 0));
 }
 
 void w_handle_midi_remove(int id) {
@@ -1453,7 +1454,7 @@ void w_handle_midi_event(int id, uint8_t *data) {
     lua_pushinteger(lvm, data[0]);
     lua_pushinteger(lvm, data[1]);
     lua_pushinteger(lvm, data[2]);
-    l_report( lvm, l_docall(lvm, 4, 0) );
+    l_report(lvm, l_docall(lvm, 4, 0));
 }
 
 // helper for pushing array of c strings
@@ -1495,7 +1496,7 @@ static void _push_commands() {
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1);
     }
-    o_unlock_descriptors();    
+    o_unlock_descriptors();
     lua_pushinteger(lvm, n);
 }
 
@@ -1516,7 +1517,7 @@ static void _push_polls() {
         // put poll name on stack; assign to subtable, pop
         lua_pushstring(lvm, p[i].name);
         lua_rawseti(lvm, -2, 2);
-	/// FIXME: just use a format string.... 
+	/// FIXME: just use a format string....
         if(p[i].type == POLL_TYPE_VALUE) {
             lua_pushstring(lvm, "value");
         } else {
@@ -1526,7 +1527,7 @@ static void _push_polls() {
         lua_rawseti(lvm, -2, 3);
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1); // convert to 1-base
-    }    
+    }
     o_unlock_descriptors();
     lua_pushinteger(lvm, n);
 }
@@ -1537,11 +1538,11 @@ void w_handle_engine_loaded() {
   _push_norns_func("report", "commands");
   _push_commands();
   l_report(lvm, l_docall(lvm, 2, 0));
-  
+
   _push_norns_func("report", "polls");
   _push_polls();
   l_report(lvm, l_docall(lvm, 2, 0));
-  
+
   _push_norns_func("report", "did_engine_load");
   l_report(lvm, l_docall(lvm, 0, 0));
   // TODO
