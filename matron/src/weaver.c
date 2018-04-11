@@ -980,7 +980,7 @@ int _osc_send(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to osc_send() \n"); fflush(stdout);
+    fprintf(stderr, "warning: incorrect arguments to osc_send()\n");
     lua_settop(l, 0);
     return 0;
 }
@@ -1015,7 +1015,7 @@ int _osc_remote_addr(lua_State *l) {
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to osc_remote_addr() \n"); fflush(stdout);
+    fprintf(stderr, "warning: incorrect arguments to osc_remote_addr()\n");
     lua_settop(l, 0);
     return 0;
 }
