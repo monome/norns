@@ -1,6 +1,7 @@
+local WARP_LIN = 1
+local WARP_EXP = 2
+
 local ControlSpec = {}
-ControlSpec.WARP_LIN = 1
-ControlSpec.WARP_EXP = 2
 ControlSpec.__index = ControlSpec
 
 function ControlSpec.new(minval, maxval, warp, step, default, units)
@@ -9,14 +10,14 @@ function ControlSpec.new(minval, maxval, warp, step, default, units)
   s.maxval = maxval
   if type(warp) == "string" then
     if warp == 'exp' then
-      s.warp = ControlSpec.WARP_EXP
+      s.warp = WARP_EXP
     else
-      s.warp = ControlSpec.WARP_LIN
+      s.warp = WARP_LIN
     end
   elseif type(warp) == "number" then
-    s.warp = warp -- TODO: assumes number is in [ControlSpec.WARP_LIN, ControlSpec.WARP_EXP]
+    s.warp = warp -- TODO: assumes number is in [WARP_LIN, WARP_EXP]
   else
-    s.warp = ControlSpec.WARP_LIN
+    s.warp = WARP_LIN
   end
   s.step = step
   s.default = default or minval -- TODO: test to ensure minval fallback works
@@ -25,17 +26,17 @@ function ControlSpec.new(minval, maxval, warp, step, default, units)
 end
 
 function ControlSpec:map(value)
-  if self.warp == ControlSpec.WARP_LIN then
+  if self.warp == WARP_LIN then
     return util.linlin(0, 1, self.minval, self.maxval, value)
-  elseif self.warp == ControlSpec.WARP_EXP then
+  elseif self.warp == WARP_EXP then
     return util.linexp(0, 1, self.minval, self.maxval, value)
   end
 end
 
 function ControlSpec:unmap(value)
-  if self.warp == ControlSpec.WARP_LIN then
+  if self.warp == WARP_LIN then
     return util.linlin(self.minval, self.maxval, 0, 1, value)
-  elseif self.warp == ControlSpec.WARP_EXP then
+  elseif self.warp == WARP_EXP then
     return util.explin(self.minval, self.maxval, 0, 1, value)
   end
 end
@@ -49,10 +50,6 @@ function ControlSpec:print()
     print("ControlSpec:")
     print('>> ', k, v)
   end
-end
-
-function ControlSpec.default()
-  return ControlSpec.new(-32768, 32767, 'lin', 0, 0, "")
 end
 
 function ControlSpec.unipolar()

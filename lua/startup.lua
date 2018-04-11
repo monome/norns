@@ -21,6 +21,14 @@ poll = require 'poll'
 e = require 'engine'
 wifi = require 'wifi'
 
+number = require 'number'
+option = require 'option'
+param = require 'param'
+controlspec = require 'controlspec'
+paramset = require 'paramset'
+
+p = paramset.new()
+
 tab = require 'tabutil'
 util = require 'util'
 
