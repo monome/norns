@@ -85,6 +85,8 @@ static int _gain_in(lua_State *l);
 //osc
 static int _osc_send(lua_State *l);
 static int _osc_remote_addr(lua_State *l);
+// midi
+static int _midi_send(lua_State *l);
 
 // crone
 /// engines
@@ -174,6 +176,9 @@ void w_init(void) {
     // osc
     lua_register(lvm, "osc_send", &_osc_send);
     lua_register(lvm, "osc_remote_addr", &_osc_remote_addr);
+
+    // midi
+    lua_register(lvm, "midi_send", &_midi_send);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &_request_engine_report);
@@ -1011,6 +1016,53 @@ int _osc_remote_addr(lua_State *l) {
 
 args_error:
     printf("warning: incorrect arguments to osc_remote_addr() \n"); fflush(stdout);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * midi: send
+ * @function midi_send
+ */
+int _midi_send(lua_State *l) {
+    struct dev_midi *md;
+    size_t nbytes;
+    uint8_t *data;
+
+    int nargs = lua_gettop(l);
+    if (nargs != 2) {
+        goto args_error;
+    }
+
+    if (lua_islightuserdata(l, 1)) {
+        md = lua_touserdata(l, 1);
+    } else {
+        goto args_error;
+    }
+
+    if (!lua_istable(l, 2)) {
+        goto args_error;
+    }
+
+    nbytes = lua_rawlen(l, 2);
+    data = malloc(nbytes);
+
+    for (unsigned int i = 1; i <= nbytes; i++) {
+        lua_pushinteger(l, i);
+        lua_gettable(l, 2);
+
+        // TODO: lua_isnumber
+        data[i - 1] = lua_tointeger(l, -1);
+        lua_pop(l, 1);
+    }
+
+    dev_midi_send(md, data, nbytes);
+    free(data);
+
+    return 0;
+
+args_error:
+    fprintf(stderr, "warning: incorrect arguments to midi_send()\n");
     lua_settop(l, 0);
     return 0;
 }

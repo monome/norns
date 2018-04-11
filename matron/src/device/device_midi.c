@@ -35,7 +35,7 @@ void dev_midi_deinit(void *self) {
     snd_rawmidi_close(midi->handle_out);
 }
 
-void *dev_midi_start(void *self) {
+void* dev_midi_start(void *self) {
     struct dev_midi *midi = (struct dev_midi *) self;
     union event_data *ev;
 
@@ -103,4 +103,9 @@ void *dev_midi_start(void *self) {
     } while (read > 0);
 
     return NULL;
+}
+
+ssize_t dev_midi_send(void *self, uint8_t *data, size_t n) {
+    struct dev_midi *midi = (struct dev_midi *) self;
+    return snd_rawmidi_write(midi->handle_out, data, n);
 }
