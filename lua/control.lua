@@ -1,19 +1,19 @@
---- Param class
+--- Control class
 -- @module paramset
 
 local ControlSpec = require 'controlspec'
 
-local Param = {}
-Param.__index = Param
+local Control = {}
+Control.__index = Control
 
-local tPARAM = 3
+local tCONTROL = 3
 
 --- constructor
 -- @param name of param
 -- @param controlspec
 -- @param formatter
-function Param.new(name, controlspec, formatter)
-  local p = setmetatable({}, Param)
+function Control.new(name, controlspec, formatter)
+  local p = setmetatable({}, Control)
   p.t = tPARAM
   if not controlspec then controlspec = ControlSpec.unipolar() end
   p.name = name
@@ -31,25 +31,25 @@ end
 
 --- get
 -- returns mapped value
-function Param:get()
+function Control:get()
   return self.controlspec:map(self.raw)
 end
 
 --- get_raw
 -- get 0-1
-function Param:get_raw()
+function Control:get_raw()
   return self.raw
 end
 
 --- set
 -- accepts a mapped value
-function Param:set(value)
+function Control:set(value)
   self:set_raw(util.round(self.controlspec:unmap(value),controlspec.step))
 end
 
 --- set_raw
 -- set 0-1
-function Param:set_raw(value)
+function Control:set_raw(value)
   clamped_value = util.clamp(value, 0, 1)
   if self.raw ~= clamped_value then
     self.raw = clamped_value
@@ -60,23 +60,23 @@ end
 --- delta
 -- add delta to current value. checks controlspec for mapped vs not
 -- default division of delta for 100 steps range
-function Param:delta(d)
+function Control:delta(d)
   self:set_raw(self.raw + d/100)
 end
 
 --- set_default
-function Param:set_default()
+function Control:set_default()
   self:set(self.controlspec.default)
 end
 
 --- bang
-function Param:bang()
+function Control:bang()
   self.action(self:get())
 end
 
 --- string
 -- @return formatted string
-function Param:string()
+function Control:string()
   if self.formatter then
     return self.formatter(self)
   else
@@ -85,4 +85,4 @@ function Param:string()
   end
 end
 
-return Param
+return Control

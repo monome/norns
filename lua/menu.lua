@@ -413,25 +413,25 @@ end
 m.enc[pPARAMS] = function(n,d)
   if n==2 then
     local prev = m.params.pos
-    m.params.pos = util.clamp(m.params.pos + d, 0, p.count - 1)
+    m.params.pos = util.clamp(m.params.pos + d, 0, params.count - 1)
     if m.params.pos ~= prev then menu.redraw() end
-  elseif n==3 and p.count > 0 then
-    p:delta(m.params.pos+1,d)
+  elseif n==3 and params.count > 0 then
+    params:delta(m.params.pos+1,d)
     menu.redraw()
   end
 end
 
 m.redraw[pPARAMS] = function()
   s_clear()
-  if(p.count > 0) then 
+  if(params.count > 0) then 
     local i
     for i=1,6 do
-      if (i > 2 - m.params.pos) and (i < p.count - m.params.pos + 3) then
+      if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
         if i==3 then s_level(15) else s_level(4) end
         s_move(0,10*i)
-        s_text(p:get_name(i+m.params.pos-2))
+        s_text(params:get_name(i+m.params.pos-2))
         s_move(127,10*i)
-        s_text_right(p:string(i+m.params.pos-2))
+        s_text_right(params:string(i+m.params.pos-2))
       end 
     end
   else

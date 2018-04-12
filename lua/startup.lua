@@ -1,33 +1,26 @@
--- STARTUP
-
-require 'math'
-
-require 'engine'
-require 'grid'
-require 'hid'
-require 'midi'
-require 'poll'
-require 'metro'
+-- STARTUP 
 require 'menu'
 
--- more random
-math.randomseed(os.time())
+require 'math' 
+math.randomseed(os.time()) -- more random
 
 -- globals
-s = require 'screen'
+screen = require 'screen'
 grid = require 'grid'
+hid = require 'hid'
 metro = require 'metro'
+midi = require 'midi'
 poll = require 'poll'
-e = require 'engine'
+engine = require 'engine'
 wifi = require 'wifi'
 
 number = require 'number'
 option = require 'option'
-param = require 'param'
+control = require 'control'
 controlspec = require 'controlspec'
-paramset = require 'paramset'
+paramset = require 'paramset' 
 
-p = paramset.new()
+params = paramset.new()
 
 tab = require 'tabutil'
 util = require 'util'
