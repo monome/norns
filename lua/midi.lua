@@ -36,6 +36,12 @@ function Midi.remove(dev)
   print("midi removed:", dev.id, dev.name)
 end
 
+--- send midi event to device
+-- @tparam array
+function Midi:send(data)
+  midi_send(self.dev, data)
+end
+
 --- add a device
 norns.midi.add = function(id, name, dev)
   local d = Midi.new(id, name, dev)
@@ -68,3 +74,5 @@ norns.midi.event = function(id, status, data1, data2)
     end
   end
 end
+
+return Midi
