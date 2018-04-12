@@ -21,17 +21,17 @@ Script.clear = function()
   -- clear polls
   poll.report = norns.none
   -- clear engine
-  engine = nil
+  engine.name = nil
   -- clear init
   init = norns.none
   -- clear last run
   norns.state.script = ''
   -- clear params
-  p:clear()
+  params:clear()
 end
 
 Script.init = function()
-  p.name = norns.state.script
+  params.name = norns.state.script
   init()
   norns.menu.init()
 end
@@ -59,8 +59,8 @@ end
 
 --- load engine, execute script-specified init (if present)
 Script.run = function()
-  if engine ~= nil then
-    e.load(engine, Script.init)
+  if engine.name ~= nil then
+    engine.load(engine.name, Script.init)
   else
     Script.init()
   end

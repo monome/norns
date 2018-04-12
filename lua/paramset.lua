@@ -1,17 +1,17 @@
---- Paramset class
+--- ParamSet class
 -- @module paramset
 
-local Paramset = {}
-Paramset.__index = Paramset
+local ParamSet = {}
+ParamSet.__index = ParamSet
 
 local tNUMBER = 1
 local tOPTION = 2
-local tPARAM = 3
+local tCONTROL = 3
 
 --- constructor
 -- @param name
-function Paramset.new(name)
-  local ps = setmetatable({}, Paramset)
+function ParamSet.new(name)
+  local ps = setmetatable({}, ParamSet)
   ps.name = name or ""
   ps.params = {}
   ps.count = 0
@@ -20,28 +20,28 @@ function Paramset.new(name)
 end
 
 --- add number
-function Paramset:add_number(name, min, max, default)
+function ParamSet:add_number(name, min, max, default)
   table.insert(self.params, number.new(name, min, max, default))
   self.count = self.count + 1
   self.lookup[name] = self.count
 end
 
 --- add option
-function Paramset:add_option(name, options, default)
+function ParamSet:add_option(name, options, default)
   table.insert(self.params, option.new(name, options, default))
   self.count = self.count + 1
   self.lookup[name] = self.count
 end
 
---- add param
-function Paramset:add_param(name, controlspec, formatter)
-  table.insert(self.params, param.new(name, controlspec, formatter))
+--- add control
+function ParamSet:add_control(name, controlspec, formatter)
+  table.insert(self.params, control.new(name, controlspec, formatter))
   self.count = self.count + 1
   self.lookup[name] = self.count
 end
 
 --- print
-function Paramset:print()
+function ParamSet:print()
   print("paramset ["..self.name.."]")
   for k,v in pairs(self.params) do
     print(k.." "..v.name.." = "..v:string())
@@ -49,36 +49,36 @@ function Paramset:print()
 end
 
 --- name
-function Paramset:get_name(index)
+function ParamSet:get_name(index)
   return self.params[index].name
 end
 
 --- string
-function Paramset:string(index)
+function ParamSet:string(index)
   if type(index) == "string" then index = self.lookup[index] end
   return self.params[index]:string()
 end
 
 --- set
-function Paramset:set(index, v)
+function ParamSet:set(index, v)
   if type(index) == "string" then index = self.lookup[index] end
   self.params[index]:set(v)
 end
 
 --- get
-function Paramset:get(index)
+function ParamSet:get(index)
   if type(index) == "string" then index = self.lookup[index] end
   return self.params[index]:get()
 end
 
 --- delta
-function Paramset:delta(index, d)
+function ParamSet:delta(index, d)
   if type(index) == "string" then index = self.lookup[index] end
   self.params[index]:delta(d)
 end
 
 --- set action
-function Paramset:set_action(index, func)
+function ParamSet:set_action(index, func)
   if type(index) == "string" then index = self.lookup[index] end
   self.params[index].action = func
 end
@@ -87,7 +87,7 @@ end
  
 --- write to disk
 -- @param filename relative to data_dir
-function Paramset:write(filename) 
+function ParamSet:write(filename) 
   local fd=io.open(data_dir .. filename,"w+")
   io.output(fd)
   for k,v in pairs(self.params) do
@@ -99,7 +99,7 @@ end
 
 --- read from disk
 -- @param filename relative to data_dir
-function Paramset:read(filename)
+function ParamSet:read(filename)
   local fd=io.open(data_dir .. filename,"r")
   if fd then
     io.close(fd)
@@ -112,17 +112,17 @@ function Paramset:read(filename)
 end
 
 --- bang all params
-function Paramset:bang()
+function ParamSet:bang()
   for k,v in pairs(self.params) do
     v:bang()
   end
 end 
 
 --- clear
-function Paramset:clear()
+function ParamSet:clear()
   self.name = ""
   self.params = {}
   self.count = 0
 end
 
-return Paramset
+return ParamSet
