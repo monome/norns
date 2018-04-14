@@ -92,18 +92,18 @@ function util.expexp(slo, shi, dlo, dhi, f)
 end
 
 function util.round(number, quant)
-  if not quant or quant == 0 then
+  if quant == 0 then
     return number
   else
-    return math.floor(number/quant + 0.5) * quant
+    return math.floor(number/(quant or 1) + 0.5) * (quant or 1)
   end
 end
 
 function util.round_up(number, quant)
-  if not quant or quant == 0 then
+  if quant == 0 then
     return number
   else
-    return math.ceil(number/quant + 0.5) * quant
+    return math.ceil(number/(quant or 1) + 0.5) * (quant or 1)
   end
 end
 
