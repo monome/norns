@@ -129,6 +129,7 @@ struct event_midi_event {
     struct event_common common;
     uint32_t id;
     uint8_t data[3];
+    size_t nbytes;
 }; // +4
 
 struct event_metro {

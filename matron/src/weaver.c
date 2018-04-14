@@ -1499,14 +1499,16 @@ void w_handle_midi_remove(int id) {
     l_report(lvm, l_docall(lvm, 1, 0));
 }
 
-void w_handle_midi_event(int id, uint8_t *data) {
+void w_handle_midi_event(int id, uint8_t *data, size_t nbytes) {
     _push_norns_func("midi", "event");
     // TODO: params
     lua_pushinteger(lvm, id);
-    lua_pushinteger(lvm, data[0]);
-    lua_pushinteger(lvm, data[1]);
-    lua_pushinteger(lvm, data[2]);
-    l_report(lvm, l_docall(lvm, 4, 0));
+    lua_createtable(lvm, nbytes, 0);
+    for (size_t i = 0; i < nbytes; i++) {
+        lua_pushinteger(lvm, data[i]);
+        lua_rawseti(lvm, -2, i + 1);
+    }
+    l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 // helper for pushing array of c strings
