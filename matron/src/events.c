@@ -195,7 +195,7 @@ static void handle_event(union event_data *ev) {
         w_handle_midi_remove(ev->midi_remove.id);
         break;
     case EVENT_MIDI_EVENT:
-        w_handle_midi_event(ev->midi_event.id, ev->midi_event.data);
+        w_handle_midi_event(ev->midi_event.id, ev->midi_event.data, ev->midi_event.nbytes);
         break;
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
