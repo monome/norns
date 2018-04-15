@@ -30,7 +30,7 @@ m.redraw = {}
 m.init = {}
 m.deinit = {}
 
-menu.mode = true
+menu.mode = false
 menu.page = pHOME
 menu.alt = false
 menu.scripterror = false
@@ -56,8 +56,9 @@ local u = metro[30]
 -- assigns key/enc/screen handlers after user script has loaded
 norns.menu = {}
 norns.menu.init = function()
-  menu.set_mode(false)
+  menu.set_mode(menu.mode)
 end
+ 
 
 
 -- input redirection
@@ -83,7 +84,7 @@ norns.enc = function(n, delta)
   end
 end
 
-set_enc_sens = function(n, sens)
+local set_enc_sens = function(n, sens)
   _enc[n].sens = sens
   _enc[n].tick = 0
 end
@@ -120,7 +121,6 @@ menu.set_mode = function(mode)
     m.deinit[menu.page]()
     s_enable()
     menu.key = key
-    menu.enc = enc
     set_enc_sens(1,1)
     set_enc_sens(2,1)
     set_enc_sens(3,1)
@@ -295,9 +295,6 @@ m.enc[pSELECT] = function(n,delta)
   if n==2 then
     m.sel.pos = util.clamp(m.sel.pos + delta, 0, m.sel.len - 1)
     menu.redraw()
-  elseif n==3 then
-    m.sel.page = 1 - m.sel.page
-    print("page "..m.sel.page)
   end
 end
 

@@ -18,9 +18,9 @@ Poll.poll_names = {}
 -- constructor
 function Poll.new(props)
   local p = {}
-    if props then
+  if props then
     if props.id and props.name then
-   p.props = props
+      p.props = props
     end
   else
     props = {}
