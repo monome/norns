@@ -134,5 +134,6 @@ void *i2c_write(void *x) {
       } 
       q_rd = (q_rd + 1) % I2C_QUEUE_LEN;
     } 
+    sleep(0.001);
   }
 }
