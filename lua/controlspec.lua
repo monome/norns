@@ -19,7 +19,7 @@ function ControlSpec.new(minval, maxval, warp, step, default, units)
   else
     s.warp = WARP_LIN
   end
-  s.step = step
+  s.step = step or 0
   s.default = default or minval -- TODO: test to ensure minval fallback works
   s.units = units or ""
   return s

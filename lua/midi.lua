@@ -2,7 +2,10 @@
 -- @module midi
 -- @alias Midi
 require 'norns'
+
 norns.version.midi = '0.0.0'
+
+local tab = require 'tabutil'
 
 local Midi = {}
 Midi.devices = {}
@@ -60,17 +63,14 @@ norns.midi.remove = function(id)
 end
 
 --- handle a midi event
-norns.midi.event = function(id, status, data1, data2)
-  print("incoming midi message",
-    string.format("%X", id),
-    string.format("%X", status),
-    string.format("%X", data1),
-    string.format("%X", data2))
+norns.midi.event = function(id, data)
+  print("incoming midi message from device", string.format("%X", id))
+  tab.print(data)
 
   local d = Midi.devices[id]
   if d ~= nil then
     if d.event ~= nil then
-      d.event(status, data1, data2)
+      d.event(data)
     end
   end
 end
