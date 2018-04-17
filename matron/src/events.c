@@ -197,6 +197,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_MIDI_EVENT:
         w_handle_midi_event(ev->midi_event.id, ev->midi_event.data, ev->midi_event.nbytes);
         break;
+    case EVENT_OSC:
+        w_handle_osc_event(ev->osc_event.path, ev->osc_event.msg);
+        break;
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
         break;

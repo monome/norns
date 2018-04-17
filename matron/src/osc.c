@@ -23,7 +23,7 @@ static lo_server_thread st;
 static DNSServiceRef dnssd_ref;
 
 static int osc_receive(const char *path, const char *types,
-			lo_arg **argv, int argc, void *data, void *user_data);
+			lo_arg **argv, int argc, lo_message msg, void *user_data);
 static void lo_error_handler(int num, const char *m, const char *path);
 
 void osc_init(void) {
@@ -31,8 +31,8 @@ void osc_init(void) {
     remote_addr = lo_address_new("127.0.0.1", "9001");
 
     // receive
-    st = lo_server_thread_new("10111", lo_error_handler); 
-    lo_server_thread_add_method(st, NULL, NULL, osc_receive, NULL); 
+    st = lo_server_thread_new("10111", lo_error_handler);
+    lo_server_thread_add_method(st, NULL, NULL, osc_receive, NULL);
     lo_server_thread_start(st);
 
     DNSServiceRegister(&dnssd_ref,
@@ -58,32 +58,32 @@ void osc_deinit(void) {
 void osc_send(const char *path, lo_message msg) {
     lo_send_message(remote_addr, path, msg);
     free(msg);
-} 
+}
 
 void osc_remote_addr(const char *ip, const char *port) {
     free(remote_addr);
-    remote_addr = lo_address_new(ip,port);
+    remote_addr = lo_address_new(ip, port);
 }
 
 int osc_receive(const char *path,
                        const char *types,
                        lo_arg **argv,
                        int argc,
-                       void *data,
+                       lo_message msg,
                        void *user_data)
 {
-    (void)data;
+    (void)types;
+    (void)argv;
+    (void)argc;
     (void)user_data;
 
-	int i;
-    printf("path: <%s>\n", path);
-    for (i = 0; i < argc; i++) {
-        printf("arg %d '%c' ", i, types[i]);
-        lo_arg_pp((lo_type)types[i], argv[i]);
-        printf("\n");
-    }
-    printf("\n");
-    fflush(stdout);
+    union event_data *ev = event_data_new(EVENT_OSC);
+
+    ev->osc_event.path = (char *) malloc(strlen(path) + 1);
+    strcpy(ev->osc_event.path, path);
+
+    ev->osc_event.msg = lo_message_clone(msg);
+    event_post(ev);
 
     return 0;
 }

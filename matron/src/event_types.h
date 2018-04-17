@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "oracle.h"
+#include "osc.h"
 
 typedef enum {
     // unused (do not remove)
@@ -132,6 +133,12 @@ struct event_midi_event {
     size_t nbytes;
 }; // +4
 
+struct event_osc {
+    struct event_common common;
+    char *path;
+    lo_message msg;
+}; // +4
+
 struct event_metro {
     struct event_common common;
     uint32_t id;
@@ -199,6 +206,7 @@ union event_data {
     struct event_midi_add midi_add;
     struct event_midi_remove midi_remove;
     struct event_midi_event midi_event;
+    struct event_osc osc_event;
     struct event_key key;
     struct event_enc enc;
     struct event_battery battery;

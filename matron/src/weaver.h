@@ -38,6 +38,8 @@ extern void w_handle_midi_add(void *dev);
 extern void w_handle_midi_remove(int id);
 extern void w_handle_midi_event(int id, uint8_t *data, size_t nbytes);
 
+extern void w_handle_osc_event(char *path, lo_message msg);
+
 //--- audio engine introspection
 extern void w_handle_engine_report(const char **arr, const int num);
 /* extern void w_handle_command_report(const struct engine_command *arr, */
