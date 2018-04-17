@@ -43,7 +43,10 @@ t.time = 0.25
 t.count = 2
 t.callback = function(stage)
   if(stage == 2) then
-    if(menu.mode == true) then menu.alt = true menu.redraw() end
+    if(menu.mode == true) then
+      menu.alt = true
+      --menu.redraw()
+    end
     menu.key(1,1)
     pending = false
   end
@@ -85,7 +88,7 @@ norns.key = function(n, z)
     elseif z == 0 then
       menu.alt = false
       menu.key(n,z) -- always 1,0
-      menu.redraw()
+      if menu.mode == true then menu.redraw() end
     else
       menu.key(n,z) -- always 1,1
     end
