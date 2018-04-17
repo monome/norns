@@ -114,12 +114,10 @@ menu.set_mode = function(mode)
     s_line_width(1)
     menu.set_page(menu.page)
     norns.encoders.callback = menu.enc
-    norns.encoders.set_accel(1,true)
-    norns.encoders.set_accel(2,false)
-    norns.encoders.set_accel(3,true)
+    norns.encoders.set_accel(0,true)
     norns.encoders.set_sens(1,1)
-    norns.encoders.set_sens(2,0.2)
-    norns.encoders.set_sens(3,0.2)
+    norns.encoders.set_sens(2,0.5)
+    norns.encoders.set_sens(3,0.5)
   end
 end
 

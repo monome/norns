@@ -43,12 +43,10 @@ encoders.process = function(n,d)
   encoders.time[n] = now
 
   if encoders.accel[n] then
-    if diff < 0.005 then d = d*10 --print(".........|")
-    elseif diff < 0.01 then d = d*6 --print(".....|")
-    elseif diff < 0.02 then d = d*4 --print("...|")
-    elseif diff < 0.03 then d = d*3 --print("..|")
-    elseif diff < 0.04 then d = d*2 --print(".|")
-      --else print("|")
+    if diff < 0.005 then d = d*6
+    elseif diff < 0.01 then d = d*4
+    elseif diff < 0.02 then d = d*3
+    elseif diff < 0.03 then d = d*2
     end
   end
 
@@ -59,7 +57,6 @@ encoders.process = function(n,d)
     local delta = util.round(encoders.tick[n],1)
     encoders.callback(n,delta)
     encoders.tick[n] = encoders.tick[n] - delta
-    --print(tick)
   end
 end 
 
