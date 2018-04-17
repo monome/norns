@@ -53,6 +53,7 @@ Script.load = function(filename)
     norns.log.post("loaded " .. filename) -- post to log
     norns.state.script = filename -- store script name
     norns.state.name = string.gsub(filename,'.lua','') -- store name
+    norns.state.name = norns.state.name:match("[^/]*$") -- strip path from name
     norns.state.save() -- remember this script for next launch
     Script.run() -- load engine then run script-specified init function
   end
