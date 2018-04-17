@@ -31,7 +31,7 @@ Script.clear = function()
 end
 
 Script.init = function()
-  params.name = norns.state.script
+  params.name = norns.state.name
   init()
   norns.menu.init()
 end
@@ -52,6 +52,7 @@ Script.load = function(filename)
     dofile(filepath) -- do the new script
     norns.log.post("loaded " .. filename) -- post to log
     norns.state.script = filename -- store script name
+    norns.state.name = string.gsub(filename,'.lua','') -- store name
     norns.state.save() -- remember this script for next launch
     Script.run() -- load engine then run script-specified init function
   end

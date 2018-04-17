@@ -43,7 +43,7 @@ t.time = 0.25
 t.count = 2
 t.callback = function(stage)
   if(stage == 2) then
-    if(menu.mode == true) then menu.alt = true end
+    if(menu.mode == true) then menu.alt = true menu.redraw() end
     menu.key(1,1)
     pending = false
   end
@@ -85,6 +85,7 @@ norns.key = function(n, z)
     elseif z == 0 then
       menu.alt = false
       menu.key(n,z) -- always 1,0
+      menu.redraw()
     else
       menu.key(n,z) -- always 1,1
     end
@@ -384,7 +385,13 @@ m.params = {}
 m.params.pos = 0
 
 m.key[pPARAMS] = function(n,z)
-  if n==2 and z==1 then
+  if menu.alt then
+    if n==2 and z==1 then
+      params:read(norns.state.name..".pset")
+    elseif n==3 and z==1 then
+      params:write(norns.state.name..".pset")
+    end 
+  elseif n==2 and z==1 then
     menu.set_page(pHOME)
   end
 end
@@ -403,15 +410,22 @@ end
 m.redraw[pPARAMS] = function()
   s_clear()
   if(params.count > 0) then 
-    local i
-    for i=1,6 do
-      if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
-        if i==3 then s_level(15) else s_level(4) end
-        s_move(0,10*i)
-        s_text(params:get_name(i+m.params.pos-2))
-        s_move(127,10*i)
-        s_text_right(params:string(i+m.params.pos-2))
-      end 
+    if not menu.alt then
+      local i
+      for i=1,6 do
+        if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
+          if i==3 then s_level(15) else s_level(4) end
+          s_move(0,10*i)
+          s_text(params:get_name(i+m.params.pos-2))
+          s_move(127,10*i)
+          s_text_right(params:string(i+m.params.pos-2))
+        end 
+      end
+    else
+      s_move(20,50)
+      s_text("load")
+      s_move(90,50)
+      s_text("save")
     end
   else
     s_move(0,10)
