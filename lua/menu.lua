@@ -792,22 +792,20 @@ m.wifipass = {}
 m.wifipass.x = 27
 m.wifipass.y = 0
 m.wifipass.psk = ""
-m.wifipass.page = 33
-m.wifipass.delok = 0
+m.wifipass.delok = 1
 
 m.key[pWIFIPASS] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pWIFI)
   elseif n==3 and z==1 then
-    if m.wifipass.y < 4 then
-      local ch = 5+(m.wifipass.x+m.wifipass.y*23)%92+33
+    if m.wifipass.y == 0 then
+      local ch = ((5+m.wifipass.x)%94)+33
       m.wifipass.psk = m.wifipass.psk .. string.char(ch)
       menu.redraw()
     else
-      local i = m.wifipass.delok >> 2
-      if i==0 then
+      if m.wifipass.delok==0 then
         m.wifipass.psk = string.sub(m.wifipass.psk,0,-2)
-      elseif i==1 then
+      elseif m.wifipass.delok==1 then
         os.execute("~/norns/wifi.sh select "..m.wifi.try.." "..m.wifipass.psk.." &")
         wifi.on()
         menu.set_page(pWIFI)
@@ -819,12 +817,14 @@ end
 
 m.enc[pWIFIPASS] = function(n,delta)
   if n==2 then
-    if m.wifipass.y == 4 then
-      m.wifipass.delok = (m.wifipass.delok + delta) % 8
-    else m.wifipass.x = (m.wifipass.x + delta) % 92 end
+    if m.wifipass.y == 1 then
+      if delta > 0 then m.wifipass.delok = 1
+      else m.wifipass.delok = 0 end
+    else m.wifipass.x = (m.wifipass.x + delta) % 94 end
     menu.redraw()
   elseif n==3 then
-    m.wifipass.y = util.clamp(m.wifipass.y-delta,0,4)
+    if delta > 0 then m.wifipass.y = 1
+    else m.wifipass.y = 0 end
     menu.redraw()
   end
 end
@@ -832,33 +832,29 @@ end
 m.redraw[pWIFIPASS] = function()
   s_clear()
   s_level(15)
-  s_move(0,10)
+  s_move(0,32)
   s_text(m.wifipass.psk)
   local x,y
   for x=0,15 do
-    for y=0,3 do
-      if x==5 and y==m.wifipass.y then s_level(15) else s_level(2) end
-      s_move(x*8,y*8+24)
-      s_text(string.char((x+m.wifipass.x+y*23)%92+33))
-    end
+    if x==5 and m.wifipass.y==0 then s_level(15) else s_level(2) end
+    s_move(x*8,46)
+    s_text(string.char((x+m.wifipass.x)%94+33))
   end
 
-  local i = m.wifipass.delok >> 2
   s_move(0,60)
-  if m.wifipass.y==4 and i==0 then s_level(15) else s_level(2) end
+  if m.wifipass.y==1 and m.wifipass.delok==0 then s_level(15) else s_level(2) end
   s_text("DEL")
   s_move(127,60)
-  if m.wifipass.y==4 and i==1 then s_level(15) else s_level(2) end
+  if m.wifipass.y==1 and m.wifipass.delok==1 then s_level(15) else s_level(2) end
   s_text_right("OK")
 
   s_update()
 end
 
-m.init[pWIFIPASS] = function()
-
+m.init[pWIFIPASS] = function() 
   if wifi.scan_active then
-    m.wifipass.y = 4
-    m.wifipass.delok = 4
+    m.wifipass.y = 1
+    m.wifipass.delok = 1
     m.wifipass.psk = wifi.psk
   end
 end
