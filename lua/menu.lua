@@ -62,31 +62,11 @@ end
 
 
 -- input redirection
-local _enc = {{},{},{}}
-_enc[1].sens = 1
-_enc[1].tick = 0
-_enc[2].sens = 1
-_enc[2].tick = 0
-_enc[3].sens = 1
-_enc[3].tick = 0
 
-norns.enc = function(n, delta)
-  _enc[n].tick = _enc[n].tick + delta
-  if math.abs(_enc[n].tick) > _enc[n].sens then
-    _enc[n].tick = 0
-    if(menu.mode==false) then
-      enc(n, delta)
-    else
-      if n==1 and menu.alt == false then menu.level(delta)
-      elseif n==1 and menu.alt == true then menu.monitor(delta)
-      else menu.enc(n, delta) end
-    end
-  end
-end
-
-local set_enc_sens = function(n, sens)
-  _enc[n].sens = sens
-  _enc[n].tick = 0
+menu.enc = function(n, delta)
+  if n==1 and menu.alt == false then menu.level(delta)
+  elseif n==1 and menu.alt == true then menu.monitor(delta)
+  else menu.penc(n, delta) end
 end
 
 
@@ -121,9 +101,9 @@ menu.set_mode = function(mode)
     m.deinit[menu.page]()
     s_enable()
     menu.key = key
-    set_enc_sens(1,1)
-    set_enc_sens(2,1)
-    set_enc_sens(3,1)
+    norns.encoders.callback = enc
+    norns.encoders.set_accel(0,true)
+    norns.encoders.set_sens(0,1)
     redraw()
   else -- enable menu mode
     menu.mode = true
@@ -133,9 +113,13 @@ menu.set_mode = function(mode)
     s_font_size(8)
     s_line_width(1)
     menu.set_page(menu.page)
-    set_enc_sens(1,1)
-    set_enc_sens(2,2)
-    set_enc_sens(3,2)
+    norns.encoders.callback = menu.enc
+    norns.encoders.set_accel(1,true)
+    norns.encoders.set_accel(2,false)
+    norns.encoders.set_accel(3,true)
+    norns.encoders.set_sens(1,1)
+    norns.encoders.set_sens(2,0.2)
+    norns.encoders.set_sens(3,0.2)
   end
 end
 
@@ -144,7 +128,7 @@ menu.set_page = function(page)
   m.deinit[menu.page]()
   menu.page = page
   menu.key = m.key[page]
-  menu.enc = m.enc[page]
+  menu.penc = m.enc[page]
   menu.redraw = m.redraw[page]
   m.init[page]()
   menu.redraw()
