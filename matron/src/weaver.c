@@ -1537,10 +1537,10 @@ void w_handle_osc_event(char *path, lo_message msg) {
         case LO_STRING:
             lua_pushstring(lvm, &argv[i]->s);
             break;
-        case LO_BLOB:
-            // TODO: use table?
-            lua_pushlstring(lvm, &argv[i]->blob.data, argv[i]->blob.size);
-            break;
+        //case LO_BLOB:
+        //    // TODO: use table?
+        //    lua_pushlstring(lvm, &argv[i]->blob.data, argv[i]->blob.size);
+        //    break;
         case LO_INT64:
             lua_pushinteger(lvm, argv[i]->h);
             break;
