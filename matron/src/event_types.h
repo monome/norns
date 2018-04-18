@@ -136,6 +136,8 @@ struct event_midi_event {
 struct event_osc {
     struct event_common common;
     char *path;
+    char *from_host;
+    char *from_port;
     lo_message msg;
 }; // +4
 
