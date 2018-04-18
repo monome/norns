@@ -948,12 +948,12 @@ args_error:
  */
 int _osc_send(lua_State *l) {
     int nargs = lua_gettop(l);
-    if(nargs < 1) { goto args_error; }
+    if (nargs < 1) { goto args_error; }
 
     char path[64];
 
-    if( lua_type(l, 1) == LUA_TSTRING ) {
-        strcpy( path,lua_tostring(l,1) );
+    if (lua_type(l, 1) == LUA_TSTRING) {
+        strcpy(path,lua_tostring(l,1));
     } else {
         goto args_error;
     }
@@ -963,10 +963,10 @@ int _osc_send(lua_State *l) {
     double f;
 
     for(int i = 2; i <= nargs; i++) {
-        if( lua_type(l, i) == LUA_TNUMBER) {
+        if (lua_type(l, i) == LUA_TNUMBER) {
             f = lua_tonumber(l, i);
-            lo_message_add_double( msg, f );
-        } else if( lua_type(l, i) == LUA_TSTRING ) {
+            lo_message_add_double(msg, f);
+        } else if (lua_type(l, i) == LUA_TSTRING) {
             s = lua_tostring(l, i);
             lo_message_add_string(msg, s);
         } else {
@@ -975,7 +975,7 @@ int _osc_send(lua_State *l) {
         }
     }
 
-    osc_send(path,msg);
+    osc_send(path, msg);
     lua_settop(l, 0);
     return 0;
 
@@ -1008,7 +1008,7 @@ int _osc_remote_addr(lua_State *l) {
         goto args_error;
     }
 
-    osc_remote_addr(ip,port);
+    osc_remote_addr(ip, port);
     //printf("ip: %s @ %s",ip,port); fflush(stdout);
 
     lua_settop(l, 0);
@@ -1509,6 +1509,82 @@ void w_handle_midi_event(int id, uint8_t *data, size_t nbytes) {
         lua_rawseti(lvm, -2, i + 1);
     }
     l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+void w_handle_osc_event(char *path, lo_message msg) {
+    const char *types = NULL;
+    int argc;
+    lo_arg **argv = NULL;
+
+    types = lo_message_get_types(msg);
+    argc = lo_message_get_argc(msg);
+    argv = lo_message_get_argv(msg);
+
+    _push_norns_func("osc", "event");
+
+    lua_pushnil(lvm); // TODO: address
+    lua_pushstring(lvm, path);
+
+    lua_createtable(lvm, argc, 0);
+    for (int i = 0; i < argc; i++) {
+        switch (types[i]) {
+        case LO_INT32:
+            lua_pushinteger(lvm, argv[i]->i);
+            break;
+        case LO_FLOAT:
+            lua_pushnumber(lvm, argv[i]->f);
+            break;
+        case LO_STRING:
+            lua_pushstring(lvm, &argv[i]->s);
+            break;
+        //case LO_BLOB:
+        //    // TODO: use table?
+        //    lua_pushlstring(lvm, &argv[i]->blob.data, argv[i]->blob.size);
+        //    break;
+        case LO_INT64:
+            lua_pushinteger(lvm, argv[i]->h);
+            break;
+        case LO_TIMETAG:
+            // TODO:
+            lua_pushinteger(lvm, 0);
+            break;
+        case  LO_DOUBLE:
+            lua_pushnumber(lvm, argv[i]->d);
+            break;
+        case LO_SYMBOL:
+            lua_pushstring(lvm, &argv[i]->S);
+            break;
+        case LO_CHAR:
+            lua_pushlstring(lvm, (const char *) &argv[i]->c, 1);
+            break;
+        case LO_MIDI:
+            // TODO: table?
+            lua_pushlstring(lvm, (const char *) &argv[i]->m, 4);
+            break;
+        case LO_TRUE:
+            lua_pushboolean(lvm, 1);
+            break;
+        case LO_FALSE:
+            lua_pushboolean(lvm, 0);
+            break;
+        case LO_NIL:
+            lua_pushnil(lvm);
+            break;
+        case LO_INFINITUM:
+            // TODO:
+            lua_pushnil(lvm);
+            break;
+        default:
+            lua_pushnil(lvm);
+            break;
+        }
+        lua_rawseti(lvm, -2, i + 1);
+    }
+
+    l_report(lvm, l_docall(lvm, 3, 0));
+
+    free(path);
+    lo_message_free(msg);
 }
 
 // helper for pushing array of c strings

@@ -78,6 +78,9 @@ end
 -- midi callbacks (defined in midi.lua)
 norns.midi = {}
 
+-- osc callbacks (defined in osc.lua)
+norns.osc = {}
+
 --- report callbacks
 -- @section report
 
