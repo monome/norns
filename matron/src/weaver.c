@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 // linux / posix
 #include <pthread.h>
@@ -1511,7 +1512,7 @@ void w_handle_midi_event(int id, uint8_t *data, size_t nbytes) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-void w_handle_osc_event(char *path, lo_message msg) {
+void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message msg) {
     const char *types = NULL;
     int argc;
     lo_arg **argv = NULL;
@@ -1522,7 +1523,12 @@ void w_handle_osc_event(char *path, lo_message msg) {
 
     _push_norns_func("osc", "event");
 
-    lua_pushnil(lvm); // TODO: address
+    lua_createtable(lvm, 2, 0);
+    lua_pushstring(lvm, from_host);
+    lua_rawseti(lvm, -2, 1);
+    lua_pushstring(lvm, from_port);
+    lua_rawseti(lvm, -2, 2);
+
     lua_pushstring(lvm, path);
 
     lua_createtable(lvm, argc, 0);
@@ -1537,16 +1543,13 @@ void w_handle_osc_event(char *path, lo_message msg) {
         case LO_STRING:
             lua_pushstring(lvm, &argv[i]->s);
             break;
-        //case LO_BLOB:
-        //    // TODO: use table?
-        //    lua_pushlstring(lvm, &argv[i]->blob.data, argv[i]->blob.size);
-        //    break;
+        case LO_BLOB:
+            lua_pushlstring(lvm,
+                lo_blob_dataptr((lo_blob)argv[i]),
+                lo_blob_datasize((lo_blob)argv[i]));
+            break;
         case LO_INT64:
             lua_pushinteger(lvm, argv[i]->h);
-            break;
-        case LO_TIMETAG:
-            // TODO:
-            lua_pushinteger(lvm, 0);
             break;
         case  LO_DOUBLE:
             lua_pushnumber(lvm, argv[i]->d);
@@ -1558,7 +1561,6 @@ void w_handle_osc_event(char *path, lo_message msg) {
             lua_pushlstring(lvm, (const char *) &argv[i]->c, 1);
             break;
         case LO_MIDI:
-            // TODO: table?
             lua_pushlstring(lvm, (const char *) &argv[i]->m, 4);
             break;
         case LO_TRUE:
@@ -1571,10 +1573,10 @@ void w_handle_osc_event(char *path, lo_message msg) {
             lua_pushnil(lvm);
             break;
         case LO_INFINITUM:
-            // TODO:
-            lua_pushnil(lvm);
+            lua_pushnumber(lvm, INFINITY);
             break;
         default:
+            fprintf(stderr, "unknown osc typetag: %c\n", types[i]);
             lua_pushnil(lvm);
             break;
         }
