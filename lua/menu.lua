@@ -582,7 +582,9 @@ m.key[pSLEEP] = function(n,z)
   elseif n==3 and z==1 then
     print("SLEEP")
     --TODO fade out screen then run the shutdown script
-    os.execute("sudo shutdown now")
+    norns.audio.set_audio_level(0)
+    wifi.off()
+    os.execute("sleep 0.5; sudo shutdown now")
   end
 end
 
