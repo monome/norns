@@ -134,6 +134,9 @@ norns.audio = require 'audio'
 norns.script = require 'script'
 norns.state = require 'state'
 norns.log = require 'log'
+norns.encoders = require 'encoders'
+
+norns.enc = norns.encoders.process
 
 --- Null functions
 -- @section null

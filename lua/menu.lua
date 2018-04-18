@@ -30,7 +30,7 @@ m.redraw = {}
 m.init = {}
 m.deinit = {}
 
-menu.mode = true
+menu.mode = false
 menu.page = pHOME
 menu.alt = false
 menu.scripterror = false
@@ -43,7 +43,10 @@ t.time = 0.25
 t.count = 2
 t.callback = function(stage)
   if(stage == 2) then
-    if(menu.mode == true) then menu.alt = true end
+    if(menu.mode == true) then
+      menu.alt = true
+      --menu.redraw()
+    end
     menu.key(1,1)
     pending = false
   end
@@ -56,36 +59,17 @@ local u = metro[30]
 -- assigns key/enc/screen handlers after user script has loaded
 norns.menu = {}
 norns.menu.init = function()
-  menu.set_mode(false)
+  menu.set_mode(menu.mode)
 end
+ 
 
 
 -- input redirection
-local _enc = {{},{},{}}
-_enc[1].sens = 1
-_enc[1].tick = 0
-_enc[2].sens = 1
-_enc[2].tick = 0
-_enc[3].sens = 1
-_enc[3].tick = 0
 
-norns.enc = function(n, delta)
-  _enc[n].tick = _enc[n].tick + delta
-  if math.abs(_enc[n].tick) > _enc[n].sens then
-    _enc[n].tick = 0
-    if(menu.mode==false) then
-      enc(n, delta)
-    else
-      if n==1 and menu.alt == false then menu.level(delta)
-      elseif n==1 and menu.alt == true then menu.monitor(delta)
-      else menu.enc(n, delta) end
-    end
-  end
-end
-
-set_enc_sens = function(n, sens)
-  _enc[n].sens = sens
-  _enc[n].tick = 0
+menu.enc = function(n, delta)
+  if n==1 and menu.alt == false then menu.level(delta)
+  elseif n==1 and menu.alt == true then menu.monitor(delta)
+  else menu.penc(n, delta) end
 end
 
 
@@ -104,6 +88,7 @@ norns.key = function(n, z)
     elseif z == 0 then
       menu.alt = false
       menu.key(n,z) -- always 1,0
+      if menu.mode == true then menu.redraw() end
     else
       menu.key(n,z) -- always 1,1
     end
@@ -120,10 +105,9 @@ menu.set_mode = function(mode)
     m.deinit[menu.page]()
     s_enable()
     menu.key = key
-    menu.enc = enc
-    set_enc_sens(1,1)
-    set_enc_sens(2,1)
-    set_enc_sens(3,1)
+    norns.encoders.callback = enc
+    norns.encoders.set_accel(0,true)
+    norns.encoders.set_sens(0,1)
     redraw()
   else -- enable menu mode
     menu.mode = true
@@ -133,9 +117,11 @@ menu.set_mode = function(mode)
     s_font_size(8)
     s_line_width(1)
     menu.set_page(menu.page)
-    set_enc_sens(1,1)
-    set_enc_sens(2,2)
-    set_enc_sens(3,2)
+    norns.encoders.callback = menu.enc
+    norns.encoders.set_accel(0,true)
+    norns.encoders.set_sens(1,1)
+    norns.encoders.set_sens(2,0.5)
+    norns.encoders.set_sens(3,0.5)
   end
 end
 
@@ -144,7 +130,7 @@ menu.set_page = function(page)
   m.deinit[menu.page]()
   menu.page = page
   menu.key = m.key[page]
-  menu.enc = m.enc[page]
+  menu.penc = m.enc[page]
   menu.redraw = m.redraw[page]
   m.init[page]()
   menu.redraw()
@@ -295,9 +281,6 @@ m.enc[pSELECT] = function(n,delta)
   if n==2 then
     m.sel.pos = util.clamp(m.sel.pos + delta, 0, m.sel.len - 1)
     menu.redraw()
-  elseif n==3 then
-    m.sel.page = 1 - m.sel.page
-    print("page "..m.sel.page)
   end
 end
 
@@ -329,7 +312,14 @@ m.pre.meta = {}
 
 m.init[pPREVIEW] = function()
   m.pre.meta = norns.script.metadata(m.sel.path)
+  m.pre.len = tab.count(m.pre.meta)
+  if m.pre.len == 0 then
+    table.insert(m.pre.meta, string.gsub(m.sel.file,'.lua','') .. " (no metadata)")
+  end 
   m.pre.state = 0
+  m.pre.pos = 0
+  m.pre.posmax = m.pre.len - 8
+  if m.pre.posmax < 0 then m.pre.posmax = 0 end
 end
 
 m.deinit[pPREVIEW] = norns.none
@@ -357,45 +347,23 @@ m.key[pPREVIEW] = function(n,z)
   end
 end
 
-m.enc[pPREVIEW] = norns.none
+m.enc[pPREVIEW] = function(n,d)
+  if n==2 then
+    m.pre.pos = util.clamp(m.pre.pos + d, 0, m.pre.posmax)
+    menu.redraw()
+  end
+end 
 
 m.redraw[pPREVIEW] = function()
   s_clear()
-  if tab.count(m.pre.meta) == 0 then
-    m.pre.meta.name = string.gsub(m.sel.file,'.lua','') .. " (no metadata)"
-  end
-  if m.pre.meta.name == nil then
-    m.pre.meta.name = string.gsub(m.sel.file,'.lua','')
-  end
-  local name = string.upper(m.pre.meta.name)
-  local version = ""
-  if m.pre.meta.version ~= nil then
-    version = m.pre.meta.version
-  end
-  name = name .. " " .. version
-  local l = 8
-  s_move(0,l)
   s_level(15)
-  s_text(name)
-  local byline = ''
-  if m.pre.meta.author ~= nil then
-    byline = m.pre.meta.author
-  end
-  if m.pre.meta.url ~= nil then
-    byline = byline .. " - " .. m.pre.meta.url
-  end
-  if byline ~= '' then
-    l = l + 8
-    s_level(8)
-    s_move(0,l)
-    s_text(byline)
-  end
-  l = l + 16
-  if m.pre.meta.txt ~= nil then
-    s_move(0,l)
-    --TODO this should wrap and scroll!
-    s_text(m.pre.meta.txt)
-  end
+  local i
+  for i=1,8 do
+    if i <= m.pre.len then
+      s_move(0,i*8-2)
+      s_text(m.pre.meta[i+m.pre.pos])
+    end
+  end 
   s_update()
 end
 
@@ -405,7 +373,13 @@ m.params = {}
 m.params.pos = 0
 
 m.key[pPARAMS] = function(n,z)
-  if n==2 and z==1 then
+  if menu.alt then
+    if n==2 and z==1 then
+      params:read(norns.state.name..".pset")
+    elseif n==3 and z==1 then
+      params:write(norns.state.name..".pset")
+    end 
+  elseif n==2 and z==1 then
     menu.set_page(pHOME)
   end
 end
@@ -424,15 +398,22 @@ end
 m.redraw[pPARAMS] = function()
   s_clear()
   if(params.count > 0) then 
-    local i
-    for i=1,6 do
-      if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
-        if i==3 then s_level(15) else s_level(4) end
-        s_move(0,10*i)
-        s_text(params:get_name(i+m.params.pos-2))
-        s_move(127,10*i)
-        s_text_right(params:string(i+m.params.pos-2))
-      end 
+    if not menu.alt then
+      local i
+      for i=1,6 do
+        if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
+          if i==3 then s_level(15) else s_level(4) end
+          s_move(0,10*i)
+          s_text(params:get_name(i+m.params.pos-2))
+          s_move(127,10*i)
+          s_text_right(params:string(i+m.params.pos-2))
+        end 
+      end
+    else
+      s_move(20,50)
+      s_text("load")
+      s_move(90,50)
+      s_text("save")
     end
   else
     s_move(0,10)
@@ -586,7 +567,9 @@ m.key[pSLEEP] = function(n,z)
   elseif n==3 and z==1 then
     print("SLEEP")
     --TODO fade out screen then run the shutdown script
-    os.execute("sudo shutdown now")
+    norns.audio.set_audio_level(0)
+    wifi.off()
+    os.execute("sleep 0.5; sudo shutdown now")
   end
 end
 
@@ -796,22 +779,20 @@ m.wifipass = {}
 m.wifipass.x = 27
 m.wifipass.y = 0
 m.wifipass.psk = ""
-m.wifipass.page = 33
-m.wifipass.delok = 0
+m.wifipass.delok = 1
 
 m.key[pWIFIPASS] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pWIFI)
   elseif n==3 and z==1 then
-    if m.wifipass.y < 4 then
-      local ch = 5+(m.wifipass.x+m.wifipass.y*23)%92+33
+    if m.wifipass.y == 0 then
+      local ch = ((5+m.wifipass.x)%94)+33
       m.wifipass.psk = m.wifipass.psk .. string.char(ch)
       menu.redraw()
     else
-      local i = m.wifipass.delok >> 2
-      if i==0 then
+      if m.wifipass.delok==0 then
         m.wifipass.psk = string.sub(m.wifipass.psk,0,-2)
-      elseif i==1 then
+      elseif m.wifipass.delok==1 then
         os.execute("~/norns/wifi.sh select "..m.wifi.try.." "..m.wifipass.psk.." &")
         wifi.on()
         menu.set_page(pWIFI)
@@ -823,12 +804,14 @@ end
 
 m.enc[pWIFIPASS] = function(n,delta)
   if n==2 then
-    if m.wifipass.y == 4 then
-      m.wifipass.delok = (m.wifipass.delok + delta) % 8
-    else m.wifipass.x = (m.wifipass.x + delta) % 92 end
+    if m.wifipass.y == 1 then
+      if delta > 0 then m.wifipass.delok = 1
+      else m.wifipass.delok = 0 end
+    else m.wifipass.x = (m.wifipass.x + delta) % 94 end
     menu.redraw()
   elseif n==3 then
-    m.wifipass.y = util.clamp(m.wifipass.y-delta,0,4)
+    if delta > 0 then m.wifipass.y = 1
+    else m.wifipass.y = 0 end
     menu.redraw()
   end
 end
@@ -836,33 +819,29 @@ end
 m.redraw[pWIFIPASS] = function()
   s_clear()
   s_level(15)
-  s_move(0,10)
+  s_move(0,32)
   s_text(m.wifipass.psk)
   local x,y
   for x=0,15 do
-    for y=0,3 do
-      if x==5 and y==m.wifipass.y then s_level(15) else s_level(2) end
-      s_move(x*8,y*8+24)
-      s_text(string.char((x+m.wifipass.x+y*23)%92+33))
-    end
+    if x==5 and m.wifipass.y==0 then s_level(15) else s_level(2) end
+    s_move(x*8,46)
+    s_text(string.char((x+m.wifipass.x)%94+33))
   end
 
-  local i = m.wifipass.delok >> 2
   s_move(0,60)
-  if m.wifipass.y==4 and i==0 then s_level(15) else s_level(2) end
+  if m.wifipass.y==1 and m.wifipass.delok==0 then s_level(15) else s_level(2) end
   s_text("DEL")
   s_move(127,60)
-  if m.wifipass.y==4 and i==1 then s_level(15) else s_level(2) end
+  if m.wifipass.y==1 and m.wifipass.delok==1 then s_level(15) else s_level(2) end
   s_text_right("OK")
 
   s_update()
 end
 
-m.init[pWIFIPASS] = function()
-
+m.init[pWIFIPASS] = function() 
   if wifi.scan_active then
-    m.wifipass.y = 4
-    m.wifipass.delok = 4
+    m.wifipass.y = 1
+    m.wifipass.delok = 1
     m.wifipass.psk = wifi.psk
   end
 end

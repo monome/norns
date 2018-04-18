@@ -31,6 +31,7 @@ static int q_rd = 0;
 static int q_wr = 0;
 
 static pthread_t p;
+static pthread_mutex_t lock;
 
 void *i2c_write(void *);
 
@@ -115,8 +116,10 @@ void i2c_gain(int level, int ch) {
         ch = 0b01000000;
     }
 
+    pthread_mutex_lock(&lock);
     queue[q_wr] = level | ch; //p10
     q_wr = (q_wr + 1) % I2C_QUEUE_LEN; 
+    pthread_mutex_unlock(&lock);
 }
 
 void *i2c_write(void *x) {
@@ -124,15 +127,19 @@ void *i2c_write(void *x) {
 
   while(1) {
     if(q_rd != q_wr) {
+      buf[0] = queue[q_rd];
+      pthread_mutex_lock(&lock);
+      q_rd = (q_rd + 1) % I2C_QUEUE_LEN; 
+      pthread_mutex_unlock(&lock);
+
       if(ioctl(file,I2C_SLAVE,ADDR_IN) < 0) {
         fprintf(stderr,
             "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
       }
-      buf[0] = queue[q_rd];
       while (write(file,buf,1) != 1) {
         sleep(0.001);
       } 
-      q_rd = (q_rd + 1) % I2C_QUEUE_LEN;
     } 
+    sleep(0.001);
   }
 }

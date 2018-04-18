@@ -17,6 +17,7 @@ state.resume = function()
   dofile(data_dir .. 'system.lua')
   -- set stored output level
   audio_output_level(state.out / 64.0)
+  audio_monitor_level(state.monitor / 64.0)
   -- set inputs
   gain_in(state.input_left,0)
   gain_in(state.input_right,1)
