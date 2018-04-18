@@ -84,19 +84,8 @@ Script.metadata = function(filename)
     io.close(f)
     for line in io.lines(filepath) do
       if util.string_starts(line,"--") then
-        -- FIXME: this should be smart and be able to extract any @thing
-        if util.string_starts(line,"-- @name ") then
-          meta.name = string.sub(line,string.len("-- @name ")+1,-1)
-        elseif util.string_starts(line,"-- @version ") then
-          meta.version = string.sub(line,string.len("-- @version ")+1,-1)
-        elseif util.string_starts(line,"-- @author ") then
-          meta.author = string.sub(line,string.len("-- @author ")+1,-1)
-        elseif util.string_starts(line,"-- @url ") then
-          meta.url = string.sub(line,string.len("-- @url ")+1,-1)
-        elseif util.string_starts(line,"-- @txt ") then
-          meta.txt = string.sub(line,string.len("-- @txt ")+1,-1)
-      end
-        else return meta end
+        table.insert(meta, string.sub(line,4,-1)) 
+      else return meta end
     end
   end
   return meta

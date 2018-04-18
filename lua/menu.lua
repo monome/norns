@@ -312,7 +312,14 @@ m.pre.meta = {}
 
 m.init[pPREVIEW] = function()
   m.pre.meta = norns.script.metadata(m.sel.path)
+  m.pre.len = tab.count(m.pre.meta)
+  if m.pre.len == 0 then
+    table.insert(m.pre.meta, string.gsub(m.sel.file,'.lua','') .. " (no metadata)")
+  end 
   m.pre.state = 0
+  m.pre.pos = 0
+  m.pre.posmax = m.pre.len - 8
+  if m.pre.posmax < 0 then m.pre.posmax = 0 end
 end
 
 m.deinit[pPREVIEW] = norns.none
@@ -340,45 +347,23 @@ m.key[pPREVIEW] = function(n,z)
   end
 end
 
-m.enc[pPREVIEW] = norns.none
+m.enc[pPREVIEW] = function(n,d)
+  if n==2 then
+    m.pre.pos = util.clamp(m.pre.pos + d, 0, m.pre.posmax)
+    menu.redraw()
+  end
+end 
 
 m.redraw[pPREVIEW] = function()
   s_clear()
-  if tab.count(m.pre.meta) == 0 then
-    m.pre.meta.name = string.gsub(m.sel.file,'.lua','') .. " (no metadata)"
-  end
-  if m.pre.meta.name == nil then
-    m.pre.meta.name = string.gsub(m.sel.file,'.lua','')
-  end
-  local name = string.upper(m.pre.meta.name)
-  local version = ""
-  if m.pre.meta.version ~= nil then
-    version = m.pre.meta.version
-  end
-  name = name .. " " .. version
-  local l = 8
-  s_move(0,l)
   s_level(15)
-  s_text(name)
-  local byline = ''
-  if m.pre.meta.author ~= nil then
-    byline = m.pre.meta.author
-  end
-  if m.pre.meta.url ~= nil then
-    byline = byline .. " - " .. m.pre.meta.url
-  end
-  if byline ~= '' then
-    l = l + 8
-    s_level(8)
-    s_move(0,l)
-    s_text(byline)
-  end
-  l = l + 16
-  if m.pre.meta.txt ~= nil then
-    s_move(0,l)
-    --TODO this should wrap and scroll!
-    s_text(m.pre.meta.txt)
-  end
+  local i
+  for i=1,8 do
+    if i <= m.pre.len then
+      s_move(0,i*8-2)
+      s_text(m.pre.meta[i+m.pre.pos])
+    end
+  end 
   s_update()
 end
 
