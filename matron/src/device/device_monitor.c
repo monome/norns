@@ -152,8 +152,8 @@ int dev_monitor_scan(void) {
             if (dev != NULL) {
                 if (udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
                     handle_device(dev);
-                    udev_device_unref(dev);
                 }
+                udev_device_unref(dev);
             }
         }
 
