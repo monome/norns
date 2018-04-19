@@ -15,7 +15,7 @@ local tCONTROL = 3
 function Control.new(name, controlspec, formatter)
   local p = setmetatable({}, Control)
   p.t = tPARAM
-  if not controlspec then controlspec = ControlSpec.unipolar() end
+  if not controlspec then controlspec = ControlSpec.UNIPOLAR end
   p.name = name
   p.controlspec = controlspec
   p.formatter = formatter 
