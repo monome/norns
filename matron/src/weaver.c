@@ -1584,11 +1584,6 @@ void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message
     }
 
     l_report(lvm, l_docall(lvm, 3, 0));
-
-    free(path);
-    lo_message_free(msg);
-    free(from_host);
-    free(from_port);
 }
 
 // helper for pushing array of c strings
