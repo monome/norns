@@ -111,7 +111,7 @@ SoftCutVoice {
 		loop_b = Bus.audio(server);
 
 		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 0,
-			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
+			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_audio_b.index
 		], target);
 		phase_kr_s = { Out.kr(phase_b.index, A2K.kr(In.ar(phase_audio_b.index)))}
 		.play(target: syn, addAction:\addAfter);
