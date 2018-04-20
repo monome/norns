@@ -1,12 +1,18 @@
 --- ParamSet class
 -- @module paramset
 
+local number = require 'number'
+local option = require 'option'
+local control = require 'control'
+local file = require 'file' 
+
 local ParamSet = {}
 ParamSet.__index = ParamSet
 
 local tNUMBER = 1
 local tOPTION = 2
 local tCONTROL = 3
+local tFILE = 3
 
 --- constructor
 -- @param name
@@ -36,6 +42,13 @@ end
 --- add control
 function ParamSet:add_control(name, controlspec, formatter)
   table.insert(self.params, control.new(name, controlspec, formatter))
+  self.count = self.count + 1
+  self.lookup[name] = self.count
+end
+
+--- add file
+function ParamSet:add_file(name, path)
+  table.insert(self.params, file.new(name, path))
   self.count = self.count + 1
   self.lookup[name] = self.count
 end
