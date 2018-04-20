@@ -1533,12 +1533,6 @@ void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message
 
     _push_norns_func("osc", "event");
 
-    lua_createtable(lvm, 2, 0);
-    lua_pushstring(lvm, from_host);
-    lua_rawseti(lvm, -2, 1);
-    lua_pushstring(lvm, from_port);
-    lua_rawseti(lvm, -2, 2);
-
     lua_pushstring(lvm, path);
 
     lua_createtable(lvm, argc, 0);
@@ -1592,6 +1586,12 @@ void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message
         }
         lua_rawseti(lvm, -2, i + 1);
     }
+
+    lua_createtable(lvm, 2, 0);
+    lua_pushstring(lvm, from_host);
+    lua_rawseti(lvm, -2, 1);
+    lua_pushstring(lvm, from_port);
+    lua_rawseti(lvm, -2, 2);
 
     l_report(lvm, l_docall(lvm, 3, 0));
 }

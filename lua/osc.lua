@@ -15,7 +15,7 @@ OSC.__index = OSC
 -- @param from : a {host, port} table with the source address
 -- @param path : osc message path
 -- @param args : osc message args
-function OSC.event(from, path, args)
+function OSC.event(path, args, from)
   print("incoming osc message from", from, path)
   tab.print(args)
 end
@@ -33,8 +33,8 @@ function OSC.send(to, path, args)
 end
 
 --- handle an osc event
-norns.osc.event = function(addr, path, args)
-  if OSC.event ~= nil then OSC.event(addr, path, args) end
+norns.osc.event = function(path, args, from)
+  if OSC.event ~= nil then OSC.event(path, args, from) end
 end
 
 return OSC
