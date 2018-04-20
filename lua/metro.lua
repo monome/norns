@@ -64,6 +64,12 @@ anyway for now, user must explicitly restart.
 --   print ("metro setter calling .start: ", self, idx, val)
     --   self.start(self, self.props.time, self.props.count, self.props.stage)
     --   end
+
+-- NB: metro time isn't applied until the next wakeup.
+-- this is true even if you are setting time from the metro callback; 
+-- metro has already gone to sleep when lua main thread gets 
+-- if you need a fully dynamic metro, re-schedule on the wakeup
+    metro_set_time(self.props.time)
   elseif idx == 'count' then self.props.count = val
   elseif idx == 'init_stage' then self.props.init_stage = val
   else -- FIXME: dunno if this is even necessary / a good idea to allow

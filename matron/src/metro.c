@@ -90,6 +90,32 @@ void metro_start(int idx, double seconds, int count, int stage) {
     }
 }
 
+
+void metro_stop(int idx) {
+    if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
+        pthread_mutex_lock( &(metros[idx].status_lock) );
+        if( metros[idx].status == METRO_STATUS_STOPPED) {
+            //fprintf(stderr, "metro is already stopped\n");
+            ;; // nothing to do
+        } else {
+            metro_cancel(&metros[idx]);
+        }
+        pthread_mutex_unlock( &(metros[idx].status_lock) );
+    } else {
+        fprintf(stderr,
+            "metro_stop(): invalid metro index, max count of metros is %d\n",
+            MAX_NUM_METROS_OK);
+    }
+}
+
+void metro_set_time(int idx, float sec) {
+    fprintf(stderr, "metro_set_time(%d, %f)\n", idx, sec);
+    if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
+        metros[idx].seconds = sec;
+        metros[idx].delta = (uint64_t) (sec * 1000000000.0);
+    }
+}
+
 //------------------------
 //---- static definitions
 
@@ -165,7 +191,6 @@ void *metro_thread_loop(void *metro) {
         pthread_mutex_lock( &(t->stage_lock) );
         metro_bang(t);
         t->stage += 1;
-
         pthread_mutex_unlock( &(t->stage_lock) );
         metro_sleep(t);
     }
@@ -199,23 +224,6 @@ void metro_wait(int idx) {
     pthread_join(metros[idx].tid, NULL);
 }
 
-void metro_stop(int idx) {
-    if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
-        pthread_mutex_lock( &(metros[idx].status_lock) );
-        if( metros[idx].status == METRO_STATUS_STOPPED) {
-            //fprintf(stderr, "metro is already stopped\n");
-            ;; // nothing to do
-        } else {
-            metro_cancel(&metros[idx]);
-        }
-        pthread_mutex_unlock( &(metros[idx].status_lock) );
-    } else {
-        fprintf(stderr,
-            "metro_stop(): invalid metro index, max count of metros is %d\n",
-            MAX_NUM_METROS_OK);
-    }
-}
-
 void metro_cancel(struct metro *t) {
     int ret = pthread_cancel(t->tid);
     if(ret) {
@@ -233,12 +241,5 @@ void metro_cancel(struct metro *t) {
     }
 }
 
-void metro_set_time(int idx, float sec) {
-    fprintf(stderr, "metro_set_time(%d, %f)\n", idx, sec);
-    if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
-        metros[idx].seconds = sec;
-        metros[idx].delta = (uint64_t) (sec * 1000000000.0);
-    }
-}
 
 #undef MAX_NUM_METROS_OK
