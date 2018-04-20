@@ -1402,7 +1402,7 @@ int _get_time(lua_State *l) {
     struct timeval tv;
     struct timezone tz;
     gettimeofday(&tv, &tz);
-    // returns two results: seconds, microseconds
+    // returns two results: microseconds, seconds
     lua_pushinteger(l, (lua_Integer)tv.tv_sec);
     lua_pushinteger(l, (lua_Integer)tv.tv_usec);
     return 2;

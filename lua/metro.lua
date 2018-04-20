@@ -50,20 +50,11 @@ end
 Metro.__newindex = function(self, idx, val)
   if idx == "time" then
     self.props.time = val
-    --[[
-   FIXME: would like to change time of a running metro.
-here we restart it when setting the time property;
-problem is that `is_running` prop is not updated when a finite metro is finished on its own.
-(we could track of its stage in lua and unset the flag, or have an additional callback.)
-
-another method would be to add a time setter to the C API (requiring mutex, et al.)
-
-anyway for now, user must explicitly restart.
-    --]]
---      if self.is_running then
---   print ("metro setter calling .start: ", self, idx, val)
-    --   self.start(self, self.props.time, self.props.count, self.props.stage)
-    --   end
+-- NB: metro time isn't applied until the next wakeup.
+-- this is true even if you are setting time from the metro callback; 
+-- metro has already gone to sleep when lua main thread gets 
+-- if you need a fully dynamic metro, re-schedule on the wakeup
+    metro_set_time(self.props.id, self.props.time)
   elseif idx == 'count' then self.props.count = val
   elseif idx == 'init_stage' then self.props.init_stage = val
   else -- FIXME: dunno if this is even necessary / a good idea to allow
