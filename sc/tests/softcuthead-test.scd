@@ -115,6 +115,8 @@ s.waitForBoot { Routine {
 	}).send(s);
 
 
+	/*
+
 	// triggered overdub-recording from arbitrary position
 	SynthDef(\rec_dub_trig_gate, {
 		arg buf, in, gate=0,
@@ -135,6 +137,7 @@ s.waitForBoot { Routine {
 		phase = Phasor.ar(gate, rate * brs, start*sr, end*sr, start);
 		wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
 	}).send(s);
+*/
 
 	s.sync;
 
@@ -163,12 +166,14 @@ s.waitForBoot { Routine {
 		\pre, 1.0, \rec, 0.0
 	], Crone.ctx.xg);
 
+	/*
 	~rec_trig_s = Synth.new(\rec_dub_trig_gate, [
 		\in, Crone.ctx.in_b[0].index,
 		\start, 0,
 		\end, ~buf.duration,
 		\buf, ~buf.bufnum,
 	], s, addAction: \addToTail);
+*/
 
 	//--- methods
 
@@ -188,7 +193,7 @@ s.waitForBoot { Routine {
 
 	~set_loop_flag = { arg val; ~loop_s.set(\loop, val); };
 
-	~set_rec_trig_gate = { arg val; ~rec_trig_s.set(\gate, val); };
+//	~set_rec_trig_gate = { arg val; ~rec_trig_s.set(\gate, val); };
 
 
 	~set_rec_follow_gate = { arg val; ~loop_s.set(\recRun, val);
@@ -220,7 +225,7 @@ s.waitForBoot { Routine {
 		Button(w.view, 100@40)
 		.states_([["record on", Color.black, Color.grey], ["record off", Color.red, Color.grey]])
 		.action_({ |bt|
-			~b.value.postln;
+			//~b.value.postln;
 			~loop_s.set(\recRun, bt.value); });
 
 		d.nextLine;

@@ -24,6 +24,7 @@ void SubHead::init() {
     trig_ = 0;
     state_ = INACTIVE;
     memset(ringBuf, 0, sizeof(ringBuf) * sizeof(float));
+    resamp_.setPhase(0);
 }
 
 Action SubHead::updatePhase(double start, double end, bool loop) {
@@ -109,7 +110,7 @@ void SubHead::poke(float in, float pre, float rec, float fadePre, float fadeRec)
     int nframes = resamp_.processFrame(in);
     for(int i=0; i<nframes; ++i) {
         idx = wrap(static_cast<int>(phase_ + i), bufFrames_);
-        y = resamp_.getBuffer()[wrap(frame + i, RING_BUF_SIZE)];
+        y = resamp_.buffer()[wrap(frame + i, RING_BUF_SIZE)];
         buf_[idx] *= preFade;
         buf_[idx] += y * recFade;
     }
@@ -127,13 +128,10 @@ float SubHead::peek4(double phase) {
     int phase2 = phase1 + 1;
     int phase3 = phase1 + 2;
 
-    const float* buf = resamp_.getBuffer();
-    const int bufFrames = resamp_.getBufferFrames();
-
-    double y0 = buf[wrap(phase0, bufFrames)];
-    double y1 = buf[wrap(phase1, bufFrames)];
-    double y2 = buf[wrap(phase2, bufFrames)];
-    double y3 = buf[wrap(phase3, bufFrames)];
+    double y0 = buf_[wrap(phase0, bufFrames_)];
+    double y1 = buf_[wrap(phase1, bufFrames_)];
+    double y2 = buf_[wrap(phase2, bufFrames_)];
+    double y3 = buf_[wrap(phase3, bufFrames_)];
 
     double x = phase_ - (double)phase1;
     return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));

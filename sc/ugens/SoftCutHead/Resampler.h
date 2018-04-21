@@ -113,9 +113,11 @@ namespace softcuthead {
             buf_  = buf;
             bufFrames_ = frames;
         }
+        void setPhase(double phase) { phase_ = phase; }
 
-        float* getBuffer() { return buf_; }
-        int getBufferFrames() { return bufFrames_; }
+        float* buffer() { return buf_; }
+        int bufferFrames() { return bufFrames_; }
+
         int frame() { return frame_; }
     };
 

@@ -28,8 +28,8 @@ namespace  softcuthead {
         void setLoopFlag(bool val);
         void setRec(float x);
         void setPre(float x);
-        void setFadePre(float x);
         void setFadeRec(float x);
+        void setFadePre(float x);
         void setRecRun(bool val);
         void setRecOffset(float x);
 

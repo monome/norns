@@ -48,8 +48,6 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
         return;
     }
 
-
-
     *outAudio = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
     *outTrig = head[0].trig() + head[1].trig();
     if(outPhase != nullptr) { *outPhase = static_cast<float>(head[active].phase()); }
@@ -121,7 +119,6 @@ void SoftCutHeadLogic::cutToPhase(float pos) {
 void SoftCutHeadLogic::setFadeTime(float secs) {
     fadeInc = (float) 1.0 / (secs * sr);
 }
-
 
 void SoftCutHeadLogic::setBuffer(float *b, uint32_t bf) {
     buf = b;
