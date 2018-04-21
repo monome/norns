@@ -21,13 +21,6 @@
 
 using namespace softcuthead;
 
-static int wrap(int val, int bound) {
-    if(val >= bound) { return val - bound; }
-    if(val < 0) { return val + bound; }
-    return val;
-}
-
-
 SoftCutHeadLogic::SoftCutHeadLogic() {
     this->init();
 }
@@ -50,6 +43,7 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
     *outAudio = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
     *outTrig = head[0].trig() + head[1].trig();
+
     if(outPhase != nullptr) { *outPhase = static_cast<float>(head[active].phase()); }
 
     if(recRun) {
@@ -103,14 +97,18 @@ void SoftCutHeadLogic::takeAction(Action act, int id)
 void SoftCutHeadLogic::cutToPhase(float pos) {
     State s = head[active].state();
 
-
+    // ignore if we are already in a crossfade
     if(s == State::FADEIN || s == State::FADEOUT) { return; }
+
+    // activate the other head
     int newActive = active == 0 ? 1 : 0;
     if(s != State::INACTIVE) {
         head[active].setState(State::FADEOUT);
     }
+
     head[newActive].setState(State::FADEIN);
     head[newActive].setPhase(pos);
+
     head[active].active_ = false;
     head[newActive].active_ = true;
     active = newActive;
@@ -145,7 +143,6 @@ float SoftCutHeadLogic::mixFade(float x, float y, float a, float b) {
 void SoftCutHeadLogic::setRec(float x) {
     rec = x;
 }
-
 
 void SoftCutHeadLogic::setPre(float x) {
     pre= x;

@@ -18,37 +18,30 @@ namespace softcuthead {
 
     class SubHead {
         friend class SoftCutHeadLogic;
+
     public:
         SubHead();
         void init();
-    protected:
+
+    private:
         enum { RING_BUF_SIZE = 64 }; // this limits rate multiplier
+
+    private:
+        float peek4(double phase);
+
+    protected:
+        float peek();
+        void poke(float in, float pre, float rec, float fadePre, float fadeRec);
+        Action updatePhase(double start, double end, bool loop);
+        void updateFade(double inc);
+
+        // getters
         double phase() { return phase_; }
         float fade() { return fade_; }
         float trig() { return trig_; }
         State state() { return state_; }
-    private:
-        float * buf_; // output buffer
-        int bufFrames_;
-
-        float ringBuf[RING_BUF_SIZE]; // ring buffer
-        Resampler resamp_;
-        State state_;
-        double rate_;
-        double phase_;
-        float fade_;
-        float trig_; // output trigger value
-        bool active_;
-
-
-        float peek4(double phase);
-    protected:
-        Action updatePhase(double start, double end, bool loop);
-        void updateFade(double inc);
-
-        void poke(float in, float pre, float rec, float fadePre, float fadeRec);
-        float peek();
-
+        
+        // setters
         void setState(State state) { state_ = state; }
         void setPhase(double phase) {
             phase_ = phase;
@@ -64,6 +57,21 @@ namespace softcuthead {
             rate_ = rate;
             resamp_.setRate(rate);
         }
+
+    private:
+        float * buf_; // output buffer
+        int bufFrames_;
+
+        float ringBuf[RING_BUF_SIZE]; // ring buffer
+        Resampler resamp_;
+        State state_;
+        double rate_;
+        double phase_;
+        float fade_;
+        float trig_; // output trigger value
+        bool active_;
+
+
     };
 
 }
