@@ -14,7 +14,7 @@ static int wrap(int val, int bound) {
 }
 
 
-SubHead::SubHead(): resamp_(ringBuf, RING_BUF_SIZE){
+SubHead::SubHead(): resamp_(ringBuf, RING_BUF_SIZE) {
     this->init();
 }
 
@@ -23,7 +23,7 @@ void SubHead::init() {
     fade_ = 0;
     trig_ = 0;
     state_ = INACTIVE;
-    memset(ringBuf, 0, sizeof(ringBuf) * sizeof(float));
+    memset(ringBuf, 0, sizeof(ringBuf));
     resamp_.setPhase(0);
 }
 
@@ -116,11 +116,9 @@ void SubHead::poke(float in, float pre, float rec, float fadePre, float fadeRec)
     }
 }
 
-
 float SubHead::peek() {
     return peek4(phase_);
 }
-
 
 float SubHead::peek4(double phase) {
     int phase1 = static_cast<int>(phase_);
