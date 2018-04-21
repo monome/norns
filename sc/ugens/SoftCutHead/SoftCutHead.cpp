@@ -43,12 +43,13 @@ void SoftCutHead_Ctor(SoftCutHead *unit) {
     unit->prevTrig = 0.f;
     SETCALC(SoftCutHead_next);
     SoftCutHead_next(unit, 1);
+    Print("SoftCutHead_CTor(): num inputs: %i\n", unit->mNumInputs);
 }
 
 void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     GET_BUF;
     uint32 numOutputs = unit->mNumOutputs;
-    uint32 numInputChannels = unit->mNumInputs - 13;
+    uint32 numInputChannels = unit->mNumInputs - 14;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
         return;
@@ -68,16 +69,17 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     float* rate = IN(3);
     float start = IN0(4);
     float end = IN0(5);
-    float fade = IN0(6);
-    float loop = IN0(7);
+    float pos = IN0(6);
+    float fade = IN0(7);
+    float loop = IN0(8);
 
-    const float *rec = IN(8);
-    const float *pre = IN(9);
+    const float *rec = IN(9);
+    const float *pre = IN(10);
 
-    float fadeRec = IN0(10);
-    float fadePre = IN0(11);
-    float recRun = IN0(12);
-    float recOffset= IN0(13);
+    float fadeRec = IN0(11);
+    float fadePre = IN0(12);
+    float recRun = IN0(13);
+    float recOffset= IN0(14);
 
     unit->cutfade.setLoopStartSeconds(start);
     unit->cutfade.setLoopEndSeconds(end);
@@ -91,7 +93,9 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->cutfade.setRecOffset(recOffset);
 
     if ((trig > 0) && (unit->prevTrig <= 0)) {
-        unit->cutfade.cutToStart();
+      // FIXME: i think it will be ok for now,
+      // but should convert and wrap this result in the logic class rather than in here.
+	unit->cutfade.cutToPhase(pos * SAMPLERATE);
     }
     unit->prevTrig = trig;
 
