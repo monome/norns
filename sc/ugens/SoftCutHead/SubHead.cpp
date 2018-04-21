@@ -26,7 +26,7 @@ void SubHead::init() {
     memset(ringBuf, 0, sizeof(ringBuf) * sizeof(float));
 }
 
-SubHead::Action SubHead::updatePhase(double inc, double start, double end, bool loop) {
+Action SubHead::updatePhase(double inc, double start, double end, bool loop) {
     Action res = NONE;
     trig_ = 0.f;
     double p;
@@ -35,13 +35,10 @@ SubHead::Action SubHead::updatePhase(double inc, double start, double end, bool 
         case FADEOUT:
         case ACTIVE:
             p = phase_ + inc;
-            if(active) {
+            if(active_) {
                 if (inc > 0.f) {
                     if (p > end || p < start) {
                         if (loop) {
-                            // FIXME: not sure whether or not to preserve phase overshoot
-                            // cutToPos(start + (p-end));
-                            //cutToPhase(start);
                             trig_ = 1.f;
                             res = LOOP_POS;
                         } else {
@@ -106,6 +103,9 @@ void SubHead::poke(float in, float pre, float rec, float fadePre, float fadeRec)
     int idx; // write index
     float y; // write value
     int frame = resamp_.frame();
+
+    // FIXME: set resampler rate
+    // FIXME: allow for negative rates (see VariWrite for method)
 
     int nframes = resamp_.processFrame(in);
     for(int i=0; i<nframes; ++i) {

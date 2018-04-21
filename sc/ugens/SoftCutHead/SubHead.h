@@ -13,19 +13,19 @@
 
 namespace softcuthead {
 
+    typedef enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 } State;
+    typedef enum { NONE, STOP, LOOP_POS, LOOP_NEG } Action ;
+
     class SubHead {
         friend class SoftCutHeadLogic;
     public:
         SubHead();
         void init();
     protected:
-        typedef enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 } State;
-        typedef enum { NONE, STOP, LOOP_POS, LOOP_NEG } Action ;
         enum { RING_BUF_SIZE = 64 }; // this limits rate multiplier
         double phase() { return phase_; }
         float fade() { return fade_; }
         float trig() { return trig_; }
-        float active() { return active_; }
         State state() { return state_; }
     private:
         float * buf_; // output buffer
