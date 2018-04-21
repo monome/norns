@@ -46,19 +46,21 @@ namespace  softcuthead {
 
         void cutToPhase(float newPhase); // fade in to new position (given in samples)
     private:
-        void updatePhase(int id);
+        //void updatePhase(int id);
 
-        void updateFade(int id);
+        //void updateFade(int id);
+        void takeAction(SubHead::Action act, int id);
 
         void doneFadeIn(int id);
 
         void doneFadeOut(int id);
 
-        float peek(double phase); // lookup an audio sample from the buffer
+        //float peek(double phase); // lookup an audio sample from the buffer
         float peek4(double phase); // interpolated
-        void poke(float x, double phase, float fade); // write an audio sample to the buffer
+        //void poke(float x, double phase, float fade); // write an audio sample to the buffer
         void poke2(float x, double phase, float fade); // interpolated
         float mixFade(float x, float y, float a, float b); // mix two inputs with phases
+
     public:
         typedef enum {
             FADE_LIN, FADE_EQ, FADE_EXP

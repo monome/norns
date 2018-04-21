@@ -52,28 +52,22 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
         return;
     }
 
-    head[0].updatePhase();
-    head[1].updatePhase();
-    head[0].updateFade();
-    head[1].updateFade();
-
-//
-//    updatePhase(0);
-//    updatePhase(1);
-//    updateFade(0);
-//    updateFade(1);
-
-    if(outPhase != nullptr) { *outPhase = static_cast<float>(head[active].phase()); }
-
     *outAudio = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
-
-    if(recRun) { head[0].poke(); head[1].poke();
-    }
+    *outTrig = head[0].trig() + head[1].trig();
+    if(outPhase != nullptr) { *outPhase = head[active].phase(); }
 
     if(recRun) {
-        poke(in, phase[0], fade[0]);
-        poke(in, phase[1], fade[1]);
+        head[0].poke(in, pre, rec, fadePre, fadeRec);
+        head[1].poke(in, pre, rec, fadePre, fadeRec);
     }
+
+    SubHead::Action act0 = head[0].updatePhase(phaseInc, start, end, loopFlag);
+    takeAction(act0, 0);
+    SubHead::Action act1 = head[1].updatePhase(phaseInc, start, end, loopFlag);
+    takeAction(act1, 1);
+
+    head[0].updateFade(fadeInc);
+    head[1].updateFade(fadeInc);
 }
 
 
@@ -92,6 +86,7 @@ void SoftCutHeadLogic::setLoopEndSeconds(float x)
     end = x * sr;
 }
 
+/*
 void SoftCutHeadLogic::updatePhase(int id)
 {
     double p;
@@ -133,18 +128,41 @@ void SoftCutHeadLogic::updatePhase(int id)
             ;; // nothing to do
     }
 }
+ */
+
+void SoftCutHeadLogic::takeAction(SubHead::Action act, int id)
+{
+    switch (act) {
+        case SubHead::LOOP_POS:
+            cutToPhase(start);
+            break;
+        case SubHead::LOOP_NEG:
+            cutToPhase(end);
+            break;
+        case SubHead::STOP:
+        case SubHead::NONE:
+        default: ;;
+    }
+
+}
 
 void SoftCutHeadLogic::cutToPhase(float pos) {
-    if(state[active] == FADEIN || state[active] == FADEOUT) { return; }
+    SubHead::State s = head[active].state();
+
+
+    if(s == SubHead::State::FADEIN || s == SubHead::State::FADEOUT) { return; }
     int newActive = active == 0 ? 1 : 0;
-    if(state[active] != INACTIVE) {
-        state[active] = FADEOUT;
+    if(s != SubHead::State::INACTIVE) {
+        head[active].setState(SubHead::State::FADEOUT);
     }
-    state[newActive] = FADEIN;
-    phase[newActive] = pos;
+    head[newActive].setState(SubHead::State::FADEIN);
+    //state[newActive] = FADEIN;
+    //phase[newActive] = pos;
+    head[newActive].setPhase(pos);
     active = newActive;
 }
 
+/*
 void SoftCutHeadLogic::updateFade(int id) {
     switch(state[id]) {
         case FADEIN:
@@ -166,11 +184,13 @@ void SoftCutHeadLogic::updateFade(int id) {
         default:;; // nothing to do
     }
 }
+ */
 
 void SoftCutHeadLogic::setFadeTime(float secs) {
     fadeInc = (float) 1.0 / (secs * sr);
 }
 
+/*
 void SoftCutHeadLogic::doneFadeIn(int id) {
     state[id] = ACTIVE;
 }
@@ -182,6 +202,7 @@ void SoftCutHeadLogic::doneFadeOut(int id) {
 float SoftCutHeadLogic::peek(double phase) {
     return peek4(phase);
 }
+
 
 float SoftCutHeadLogic::peek4(double phase) {
     int phase1 = static_cast<int>(phase);
@@ -202,6 +223,7 @@ void SoftCutHeadLogic::poke(float x, double phase, float fade) {
     double p = phase + recPhaseOffset;
     poke2(x, p, fade);
 }
+ */
 
 // void SoftCutHeadLogic::poke0(float x, double phase, float fade) {
 //     if (fade < std::numeric_limits<float>::epsilon()) { return; }
@@ -218,36 +240,36 @@ void SoftCutHeadLogic::poke(float x, double phase, float fade) {
 //     buf[phase0] += x * recFade;
 // }
 
-void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
-
-    // bail if record/fade level is ~=0, so we don't introduce noise
-    if (fade < std::numeric_limits<float>::epsilon()) { return; }
-    if (rec < std::numeric_limits<float>::epsilon()) { return; }
-
-    int phase0 = wrap(static_cast<int>(phase), bufFrames);
-    int phase1 = wrap(phase0 + 1, bufFrames);
-
-    float fadeInv = 1.f - fade;
-
-    float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
-    float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
-
-    float fr = static_cast<float>(phase - static_cast<int>(phase));
-
-    // linear-interpolated write values
-    //// FIXME: this could be better somehow
-    float x1 = fr*x;
-    float x0 = (1.f-fr)*x; 
-
-    // mix old signal with interpolation
-    buf[phase0] = buf[phase0] * fr + (1.f-fr) * (preFade * buf[phase0]);
-    buf[phase1] = buf[phase1] * (1.f-fr) + fr * (preFade * buf[phase1]);
-
-    // add new signal with interpolation
-    buf[phase0] += x0 * recFade;
-    buf[phase1] += x1 * recFade;
-
-}
+//void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
+//
+//    // bail if record/fade level is ~=0, so we don't introduce noise
+//    if (fade < std::numeric_limits<float>::epsilon()) { return; }
+//    if (rec < std::numeric_limits<float>::epsilon()) { return; }
+//
+//    int phase0 = wrap(static_cast<int>(phase), bufFrames);
+//    int phase1 = wrap(phase0 + 1, bufFrames);
+//
+//    float fadeInv = 1.f - fade;
+//
+//    float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
+//    float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
+//
+//    float fr = static_cast<float>(phase - static_cast<int>(phase));
+//
+//    // linear-interpolated write values
+//    //// FIXME: this could be better somehow
+//    float x1 = fr*x;
+//    float x0 = (1.f-fr)*x;
+//
+//    // mix old signal with interpolation
+//    buf[phase0] = buf[phase0] * fr + (1.f-fr) * (preFade * buf[phase0]);
+//    buf[phase1] = buf[phase1] * (1.f-fr) + fr * (preFade * buf[phase1]);
+//
+//    // add new signal with interpolation
+//    buf[phase0] += x0 * recFade;
+//    buf[phase1] += x1 * recFade;
+//
+//}
 
 void SoftCutHeadLogic::setBuffer(float *b, uint32_t bf) {
     buf = b;
