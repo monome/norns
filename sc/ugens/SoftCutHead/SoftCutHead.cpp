@@ -2,6 +2,8 @@
 
 #include "SoftCutHeadLogic.h"
 
+using namespace softcuthead;
+
 struct SoftCutHead : public Unit {
     float prevTrig;
     float m_fbufnum;

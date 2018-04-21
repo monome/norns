@@ -7,14 +7,19 @@
 #include <cmath>
 #include <limits>
 
-#include "SoftCutHeadLogic.h"
 
 #include "interp.h"
+#include "Resampler.h"
+
+#include "SoftCutHeadLogic.h"
+
 
 /// wtf...
 #ifndef nullptr
 #define nullptr ((void*)0)
 #endif
+
+using namespace softcuthead;
 
 static int wrap(int val, int bound) {
     if(val >= bound) { return val - bound; }
@@ -31,19 +36,11 @@ void SoftCutHeadLogic::init() {
     sr = 44100.f;
     start = 0.f;
     end = 0.f;
-    phase[0] = 0.f;
-    phase[1] = 0.f;
-    fade[0] = 0.f;
-    fade[1] = 0.f;
-    state[0] = INACTIVE;
-    state[1] = INACTIVE;
     active = 0;
     phaseInc = 0.f;
     setFadeTime(0.1f);
     buf = (float*) nullptr;
     bufFrames = 0;
-    trig[0] = 0.f;
-    trig[1] = 0.f;
     // fadeMode = FADE_LIN;
     fadeMode = FADE_EQ;
     recRun = false;
@@ -55,15 +52,23 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
         return;
     }
 
-    updatePhase(0);
-    updatePhase(1);
-    updateFade(0);
-    updateFade(1);
+    head[0].updatePhase();
+    head[1].updatePhase();
+    head[0].updateFade();
+    head[1].updateFade();
 
-    if(outPhase != nullptr) { *outPhase = static_cast<float>(phase[active]); }
+//
+//    updatePhase(0);
+//    updatePhase(1);
+//    updateFade(0);
+//    updateFade(1);
 
-    *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
-    *outTrig = trig[0] + trig[1];
+    if(outPhase != nullptr) { *outPhase = static_cast<float>(head[active].phase()); }
+
+    *outAudio = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
+
+    if(recRun) { head[0].poke(); head[1].poke();
+    }
 
     if(recRun) {
         poke(in, phase[0], fade[0]);
@@ -227,7 +232,7 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 
-    auto fr = static_cast<float>(phase - static_cast<int>(phase));
+    float fr = static_cast<float>(phase - static_cast<int>(phase));
 
     // linear-interpolated write values
     //// FIXME: this could be better somehow
@@ -251,10 +256,6 @@ void SoftCutHeadLogic::setBuffer(float *b, uint32_t bf) {
 
 void SoftCutHeadLogic::setLoopFlag(bool val) {
     loopFlag = val;
-}
-
-void SoftCutHeadLogic::cutToStart() {
-    cutToPhase(start);
 }
 
 void SoftCutHeadLogic::setSampleRate(float sr_) {

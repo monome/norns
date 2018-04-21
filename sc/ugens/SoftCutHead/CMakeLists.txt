@@ -65,4 +65,4 @@ if(MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mstackrealign")
 endif()
 
-add_library(${PROJECT} MODULE SoftCutHead.cpp SoftCutHeadLogic.cpp SoftCutHeadLogic.h interp.h)
+add_library(${PROJECT} MODULE SoftCutHead.cpp SoftCutHeadLogic.cpp SoftCutHeadLogic.h interp.h Resampler.h SubHead.cpp SubHead.h)
