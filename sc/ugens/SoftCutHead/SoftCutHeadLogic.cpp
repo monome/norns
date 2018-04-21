@@ -37,7 +37,6 @@ void SoftCutHeadLogic::init() {
     start = 0.f;
     end = 0.f;
     active = 0;
-    phaseInc = 0.f;
     setFadeTime(0.1f);
     fadeMode = FADE_EQ;
     recRun = false;
@@ -49,6 +48,8 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
         return;
     }
 
+
+
     *outAudio = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
     *outTrig = head[0].trig() + head[1].trig();
     if(outPhase != nullptr) { *outPhase = static_cast<float>(head[active].phase()); }
@@ -58,9 +59,9 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
         head[1].poke(in, pre, rec, fadePre, fadeRec);
     }
 
-    Action act0 = head[0].updatePhase(phaseInc, start, end, loopFlag);
+    Action act0 = head[0].updatePhase(start, end, loopFlag);
     takeAction(act0, 0);
-    Action act1 = head[1].updatePhase(phaseInc, start, end, loopFlag);
+    Action act1 = head[1].updatePhase(start, end, loopFlag);
     takeAction(act1, 1);
 
     head[0].updateFade(fadeInc);
@@ -70,7 +71,8 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
 void SoftCutHeadLogic::setRate(float x)
 {
-    phaseInc = x;
+    head[0].setRate(x);
+    head[1].setRate(x);
 }
 
 void SoftCutHeadLogic::setLoopStartSeconds(float x)

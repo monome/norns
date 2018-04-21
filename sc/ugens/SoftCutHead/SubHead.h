@@ -33,15 +33,17 @@ namespace softcuthead {
 
         float ringBuf[RING_BUF_SIZE]; // ring buffer
         Resampler resamp_;
+        State state_;
+        double rate_;
         double phase_;
         float fade_;
         float trig_; // output trigger value
         bool active_;
-        State state_;
+
 
         float peek4(double phase);
     protected:
-        Action updatePhase(double inc, double start, double end, bool loop);
+        Action updatePhase(double start, double end, bool loop);
         void updateFade(double inc);
 
         void poke(float in, float pre, float rec, float fadePre, float fadeRec);
@@ -53,6 +55,11 @@ namespace softcuthead {
         void setBuffer(float *buf, int frames) {
             buf_  = buf;
             bufFrames_ = frames;
+        }
+
+        void setRate(float rate) {
+            rate_ = rate;
+            resamp_.setRate(rate);
         }
     };
 
