@@ -1,46 +1,47 @@
 // define and execute a poll
 CronePoll {
 	var task; // Task; timing thread
-	var <dt; // Number; callback interval
-	var func; // Function; what produces the value/data
+	var <period; // Number; callback interval
+	var function; // Function; what produces the value/data
 	var <name; // Symbol; label for outside world
-	var <idx;  // Integer; another label, for ordering/efficiency
+	var <index;  // Integer; another label, for ordering/efficiency
 	var <type; 	// Symbol; either \value or \data
 	var isRunning; 	// Boolean; running state
-	var <oscPath; 	// Symbol, full descination path
-	var <>oscAddr; 	// address to send to.
-	var ret; 	// current return value
-	var cb; 	// full (private) callback function
+	var <oscPath; 	// Symbol, full destination path
+	var <>oscAddr; 	// NetAddr; address to send to.
+	var callback; 	// Function; full (private) callback function
+	var periodic; // Boolean; is this a scheduled/repeating poll or not
 
 	// create and define a new poll.
 	// function argument should return value or data
 	// type should be \value or \data
-	*new { arg i, n, f = {}, d=0.25, t=\value;
-		^super.new.init(i, n, f, d, t);
+	*new { arg index, name, function = {}, period=0.25, type=\value, periodic=true;
+		^super.new.init(index, name, function, period, type, periodic);
 	}
 
-	init { arg i, n, f, d, t;
-		idx = i;
-		name = n;
-		dt = d;
-		type = t;
-		func = f;
+	init { arg argIndex, argName, argFunction, argPeriod, argType, argPeriodic;
+		index = argIndex;
+		name = argName;
+		period = argPeriod;
+		type = argType;
+		function = argFunction;
+		periodic = argPeriodic;
 		if(type == \value, {
 			oscPath = '/poll/value';
 		}, {
 			oscPath = '/poll/data';
 		});
-		cb = {
-			ret = func.value;
-			//postln("poll callback " ++ [ name , oscAddr, oscPath, ret ]);
-			oscAddr.sendMsg(oscPath, idx, ret);
+		callback = {
+			perform(function.value);
 		};
-		task = Task { inf.do {
-			cb.value;
-			dt.wait;
-		}};
-		isRunning = false;
+		if(periodic, {
+			task = Task { inf.do {
+				callback.value;
+				period.wait;
+			}};
 
+		});
+		isRunning = false;		
 	}
 
 	start { arg addr;
@@ -59,11 +60,14 @@ CronePoll {
 	}
 
 	setTime { arg time;
-		dt = time;
+		period = time;
 	}
 
-	bang {
-		cb.value();
+	// send the poll's message with value
+	// non-periodic polls can call this explicitly
+	perform {
+		arg val;
+		oscAddr.sendMsg(oscPath, index, val);
 	}
 }
 
@@ -80,14 +84,14 @@ CronePollRegistry {
 	//	*initClass { polls = Dictionary.new; }
 
 	// create a CronePoll and add to the registry
-	*register { arg name, func, dt=0.25, type=\value;
+	*register { arg name, func, dt=0.25, type=\value, periodic=true;
 		name = name.asSymbol;
 		if(polls.keys.includes(name), {
 			postln("warning: attempted to add poll using existing key");
 			^false;
 		}, {
 			pollNames[polls.size] = name;
-			polls[name] = CronePoll.new(polls.size, name, func, dt, type);
+			polls[name] = CronePoll.new(polls.size, name, func, dt, type, periodic);
 			^true;
 		});
 
