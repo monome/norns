@@ -173,5 +173,11 @@ AudioContext {
 			#pitch, clar = pitch_in_b[1].getSynchronous(2);
 			if(clar > 0, { pitch }, {-1});
 		});
+/*
+		this.registerPoll(\tape_record_duration, {
+		});
+		this.registerPoll(\tape_play_position, {
+		});
+*/
 	}
 }
