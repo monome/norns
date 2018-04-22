@@ -54,8 +54,8 @@ Script.load = function(filename)
     if pcall(cleanup) then print("# cleanup") 
     else print("### cleanup failed") end
     Script.clear() -- clear script variables and functions
-    norns.try(function() dofile(filepath) end, "load fail") -- do the new script
-    if not norns.err then
+    local status = norns.try(function() dofile(filepath) end, "load fail") -- do the new script
+    if status == true then
       norns.log.post("loaded " .. filename) -- post to log
       norns.state.script = filename -- store script name
       norns.state.name = string.gsub(filename,'.lua','') -- store name

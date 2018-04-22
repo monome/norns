@@ -71,9 +71,9 @@ norns.scripterror = function(msg)
   menu.set_mode(true)
 end 
 
-norns.init_done = function()
+norns.init_done = function(status)
   menu.set_page(pHOME)
-  if not norns.err then
+  if status == true then
     menu.scripterror = false
     m.params.pos = 0
     menu.set_mode(false)

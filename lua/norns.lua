@@ -139,14 +139,13 @@ norns.encoders = require 'encoders'
 norns.enc = norns.encoders.process
 
 --- Error handling
-norns.err = false
 norns.try = function(f,msg)
   local status, err = pcall(f)
   if not status then
     norns.scripterror(msg)
     print(err)
-    norns.err = true
-  else norns.err = false end
+  end
+  return status
 end
 
 --- Null functions
