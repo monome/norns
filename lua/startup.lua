@@ -45,5 +45,6 @@ end
 grid.remove = function(device) g = nil end
 
 -- resume last loaded script
+norns.script.clear()
 norns.log.post("norns started")
 norns.state.resume()

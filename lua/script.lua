@@ -6,6 +6,7 @@ local Script = {}
 --- reset script environment;
 -- ie redirect draw, key, enc functions, stop timers, clear engine, etc
 Script.clear = function()
+  print("# script clear")
   -- reset cleanup script
   cleanup = norns.none
   -- reset oled redraw
@@ -31,6 +32,7 @@ Script.clear = function()
 end
 
 Script.init = function()
+  print("# script init")
   params.name = norns.state.name
   init()
   norns.menu.init()
@@ -39,6 +41,7 @@ end
 --- load a script from the /scripts folder
 -- @param filename (string) - file to load. leave blank to reload current file.
 Script.load = function(filename)
+  print("# script load")
   if filename == nil then
     filename = norns.state.script end
   local filepath = script_dir .. filename
@@ -47,7 +50,8 @@ Script.load = function(filename)
     print("file not found: "..filepath)
   else
     io.close(f)
-    cleanup() -- script-specified memory free
+    if pcall(cleanup) then print("cleanup script ok") 
+    else print("FAIL cleanup") end
     Script.clear() -- clear script variables and functions
     dofile(filepath) -- do the new script
     norns.log.post("loaded " .. filename) -- post to log
@@ -61,6 +65,7 @@ end
 
 --- load engine, execute script-specified init (if present)
 Script.run = function()
+  print("# script run")
   if engine.name ~= nil then
     engine.load(engine.name, Script.init)
   else
