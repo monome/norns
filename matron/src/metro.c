@@ -109,7 +109,7 @@ void metro_stop(int idx) {
 }
 
 void metro_set_time(int idx, float sec) {
-    fprintf(stderr, "metro_set_time(%d, %f)\n", idx, sec);
+    //fprintf(stderr, "metro_set_time(%d, %f)\n", idx, sec);
     if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
         metros[idx].seconds = sec;
         metros[idx].delta = (uint64_t) (sec * 1000000000.0);

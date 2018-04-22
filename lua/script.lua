@@ -6,6 +6,7 @@ local Script = {}
 --- reset script environment;
 -- ie redirect draw, key, enc functions, stop timers, clear engine, etc
 Script.clear = function()
+  print("# script clear")
   -- reset cleanup script
   cleanup = norns.none
   -- reset oled redraw
@@ -26,11 +27,13 @@ Script.clear = function()
   init = norns.none
   -- clear last run
   norns.state.script = ''
+  norns.state.name = 'none'
   -- clear params
   params:clear()
 end
 
 Script.init = function()
+  print("# script init")
   params.name = norns.state.name
   init()
   norns.menu.init()
@@ -39,6 +42,7 @@ end
 --- load a script from the /scripts folder
 -- @param filename (string) - file to load. leave blank to reload current file.
 Script.load = function(filename)
+  print("# script load")
   if filename == nil then
     filename = norns.state.script end
   local filepath = script_dir .. filename
@@ -47,24 +51,28 @@ Script.load = function(filename)
     print("file not found: "..filepath)
   else
     io.close(f)
-    cleanup() -- script-specified memory free
+    if pcall(cleanup) then print("# cleanup") 
+    else print("### cleanup failed") end
     Script.clear() -- clear script variables and functions
-    dofile(filepath) -- do the new script
-    norns.log.post("loaded " .. filename) -- post to log
-    norns.state.script = filename -- store script name
-    norns.state.name = string.gsub(filename,'.lua','') -- store name
-    norns.state.name = norns.state.name:match("[^/]*$") -- strip path from name
-    norns.state.save() -- remember this script for next launch
-    Script.run() -- load engine then run script-specified init function
+    local status = norns.try(function() dofile(filepath) end, "load fail") -- do the new script
+    if status == true then
+      norns.log.post("loaded " .. filename) -- post to log
+      norns.state.script = filename -- store script name
+      norns.state.name = string.gsub(filename,'.lua','') -- store name
+      norns.state.name = norns.state.name:match("[^/]*$") -- strip path from name
+      norns.state.save() -- remember this script for next launch
+      Script.run() -- load engine then run script-specified init function
+    end
   end
 end
 
 --- load engine, execute script-specified init (if present)
 Script.run = function()
+  print("# script run")
   if engine.name ~= nil then
     engine.load(engine.name, Script.init)
   else
-    Script.init()
+    if not pcall(Script.init) then norns.scripterror() end
   end
   grid.reconnect()
 end
@@ -90,7 +98,6 @@ Script.metadata = function(filename)
   end
   return meta
 end
-
 
 
 return Script

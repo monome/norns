@@ -15,9 +15,10 @@ poll = require 'poll'
 engine = require 'engine'
 wifi = require 'wifi'
 
-number = require 'number'
-option = require 'option'
-control = require 'control'
+--number = require 'number'
+--option = require 'option'
+--control = require 'control'
+--file = require 'file'
 controlspec = require 'controlspec'
 paramset = require 'paramset' 
 
@@ -45,5 +46,6 @@ end
 grid.remove = function(device) g = nil end
 
 -- resume last loaded script
+norns.script.clear()
 norns.log.post("norns started")
 norns.state.resume()

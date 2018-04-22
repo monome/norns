@@ -178,13 +178,13 @@ s_disable = function()
 end
 
 s_text_right = function(str)
-  x, y = s_extents(str)
+  local x, y = s_extents(str)
   s_move_rel(-x, 0)
   s_text(str)
 end
 
 s_text_center = function(str)
-  x, y = s_extents(str)
+  local x, y = s_extents(str)
   s_move_rel(-x/2, 0)
   s_text(str)
 end
