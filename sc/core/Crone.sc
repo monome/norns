@@ -166,8 +166,8 @@ Crone {
 			server.sync;
 			recorderState = 'prepared';
 			postln("tape recorder state:" + recorderState);
-			remoteAddr.sendMsg('/tape/recorder/state', recorderState);
-			remoteAddr.sendMsg('/tape/recorder/filename', filename);
+			remoteAddr.sendMsg('/tape/rec/state', recorderState);
+			remoteAddr.sendMsg('/tape/rec/filename', filename);
 			postln("tape recorder filename:" + filename);
 		};
 		if (#[stopped, prepared, init].includes(recorderState).not) {
@@ -175,7 +175,7 @@ Crone {
 				recorder.stopRecording;
 				server.sync;
 				recorderState = 'stopped';
-				remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+				remoteAddr.sendMsg('/tape/rec/state', recorderState);
 				postln("tape recorder state:" + recorderState);
 				prepareFunc.fork;
 			};
@@ -196,7 +196,7 @@ Crone {
 					server.sync;
 					recorderState = 'recording';
 					postln("tape recorder state:" + recorderState);
-					remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+					remoteAddr.sendMsg('/tape/rec/state', recorderState);
 				}
 		};
 	}
@@ -208,7 +208,7 @@ Crone {
 				server.sync;
 				recorderState = 'paused';
 				postln("tape recorder state:" + recorderState);
-				remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+				remoteAddr.sendMsg('/tape/rec/state', recorderState);
 			};
 		};
 	}
@@ -220,7 +220,7 @@ Crone {
 				server.sync;
 				recorderState = 'stopped';
 				postln("tape recorder state:" + recorderState);
-				remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+				remoteAddr.sendMsg('/tape/rec/state', recorderState);
 			};
 		};
 	}
@@ -241,8 +241,8 @@ Crone {
 				playerClock.beats = 0;
 				playerState = 'fileopened';
 				postln("tape player state:" + playerState);
-				remoteAddr.sendMsg('/tape/player/state', playerState);
-				remoteAddr.sendMsg('/tape/player/filename', filename);
+				remoteAddr.sendMsg('/tape/play/state', playerState);
+				remoteAddr.sendMsg('/tape/play/filename', filename);
 				postln("tape player filename:" + filename.quote);
 			};
 		} {
@@ -258,7 +258,7 @@ Crone {
 				server.sync;
 				playerState = 'playing';
 				postln("tape player state:" + playerState);
-				remoteAddr.sendMsg('/tape/player/state', playerState);
+				remoteAddr.sendMsg('/tape/play/state', playerState);
 			};
 		};
 	}
@@ -270,7 +270,7 @@ Crone {
 				server.sync;
 				playerState = 'paused';
 				postln("tape player state:" + playerState);
-				remoteAddr.sendMsg('/tape/player/state', playerState);
+				remoteAddr.sendMsg('/tape/play/state', playerState);
 			};
 		};
 	}
