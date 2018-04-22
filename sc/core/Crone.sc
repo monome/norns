@@ -10,6 +10,7 @@ Crone {
 	classvar <>player;
 	classvar <>playerClock;
 	classvar <>playerState = 'init';
+	classvar <>playerFile;
 	// current CroneEngine subclass instance
 	classvar <>engine;
 	// available OSC functions
@@ -160,7 +161,6 @@ Crone {
 	}
 
 	*tapeNewfile { |filename|
-		// TODO: error handling
 		var prepareFunc = {
 			recorder.prepareForRecord(recordingsDir +/+ filename, 2);
 			server.sync;
@@ -170,8 +170,8 @@ Crone {
 			remoteAddr.sendMsg('/tape/recorder/filename', filename);
 			postln("tape recorder filename:" + filename);
 		};
-		if (#[stopped, init].includes(recorderState).not) { // TODO: what about 'prepared'?
-			fork { // TODO: dry refactor, same as below
+		if (#[stopped, prepared, init].includes(recorderState).not) {
+			fork {
 				recorder.stopRecording;
 				server.sync;
 				recorderState = 'stopped';
@@ -188,7 +188,7 @@ Crone {
 		fork {
 			switch (recorderState)
 				{ 'prepared' } {
-					recorder.record(bus: ctx.out_b, node: ctx.xg); // TODO: bus: 0, node: ctx.og or (topmost group) for post-fade recording
+					recorder.record(bus: ctx.out_b, node: ctx.xg);
 				}
 				{ 'paused' } {
 					recorder.record;
@@ -231,13 +231,14 @@ Crone {
 				player.stop;
 			};
 			fork {
-				// TODO: error handling
-				player = SoundFile(recordingsDir +/+ filename).cue(
+				playerFile = filename;
+				player = SoundFile(recordingsDir +/+ playerFile).cue(
 					(
-						out: ctx.out_b // TODO: correct to route this to out_b ?
+						out: ctx.out_b
 					)
 				);
 				server.sync;
+				playerClock.beats = 0;
 				playerState = 'fileopened';
 				postln("tape player state:" + playerState);
 				remoteAddr.sendMsg('/tape/player/state', playerState);
@@ -274,13 +275,18 @@ Crone {
 		};
 	}
 
-	*tapeReset { |filename|
-		if (playerState == \playing) {
+	*tapeReset { |filename| // this is a hack to get this going: file is closed, reopened and played from the beginning
+		if (#[playing, paused].includes(playerState)) {
 			fork {
-				player.stop;
-				server.sync;
-				player.play;
-				server.sync;
+				var stateWas = playerState;
+				player.close;
+				this.tapeOpenfile(playerFile);
+				if (stateWas == 'playing') {
+					0.1.wait;
+					this.tapePlay;
+				} {
+					playerState == 'paused';
+				}
 			};
 		};
 	}
