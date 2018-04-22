@@ -40,12 +40,11 @@ namespace softcuthead {
     private:
         // write multiple output frames, interpolating between two values
         void writeInterp(float x, int n) {
-            int i = frame_;
-            double m = (x - x_) / rate_;
-            double y; // interpolated value
+            int i = frame_;                 // index into buffer
+            double m = (x - x_) / rate_;    // slope
+            double y;                       // interpolated value
             // interpolate up to first frame boundary; distance is 1-(old phase)
             y = x_ + m * (1.0 - phase_);
-            i = (i + 1) % bufFrames_;
             buf_[i] = y;
             n--;
             // for the rest,
@@ -62,7 +61,6 @@ namespace softcuthead {
 // return frames written (>= 1)
 // assume rate_ > 1.0
         int writeUp(float x) {
-            //std::cout << "writeUp: " << x << std::endl;
             double phase = phase_ + rate_;
             int nframes = (int) phase;
             writeInterp(x, nframes);

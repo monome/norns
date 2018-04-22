@@ -43,9 +43,10 @@ namespace softcuthead {
         
         // setters
         void setState(State state) { state_ = state; }
+        
         void setPhase(double phase) {
             phase_ = phase;
-            //resamp_.setPhase(phase_);
+            // on phase change, the resampler should clear and reset its internal ringbuffer
             resamp_.reset();
         }
 
