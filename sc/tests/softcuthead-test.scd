@@ -1,8 +1,9 @@
-//--- leave undefined,, start with a blank 1m buffer
+//--- leave undefined,, start with a blank buffer
 ~soundfilename = nil;
 
 //... or load a file
 //~soundfilename = "vla_test_48.wav";
+s = Server.local;
 
 
 s.waitForBoot { Routine {
@@ -24,53 +25,12 @@ s.waitForBoot { Routine {
 
 	{ s.scope }.defer;
 
-	/*
-	// looped, crossfaded playback
-	SynthDef.new(\softcuthead, {
-	arg buf, in, out, phase_out= -1, trig_out= -1, trig_in = -1,
-	amp=0.2, rec=0.0, pre=0.0,
-	rate=1, ratelag = 0.1,
-	start=0, end=1, fade=0.1, loop=1,
-	fadeRec=1.0, fadePre = 1.0, recRun = 0;
-
-	var snd, phase, tr;
-	var brs;
-	var cutfade;
-	var trig;
-	var sin;
-
-	brs = BufRateScale.kr(buf);
-
-	trig = InTrig.kr(trig_in);
-	sin = In.ar(in);
-
-	pre = Lag.ar(K2A.ar(pre), 0.1);
-	rec = Lag.ar(K2A.ar(rec), 0.1);
-
-	rate = Lag.ar(K2A.ar(rate), ratelag);
-
-	cutfade =  SoftCutHead.ar(buf, sin, trig,
-	rate * brs, start, end, fade, loop,
-	rec, pre, fadeRec, fadePre, recRun);
-
-	phase = cutfade[0];
-	tr = cutfade[1];
-	snd = cutfade[2];
-
-	Out.ar(out, (snd*amp).dup);
-	Out.ar(phase_out, phase);
-	// NB: this is an _audio_ rate trigger;
-	// it stays high for only one sample
-	// .kr ugens that read once per audio block will miss it
-	Out.ar(trig_out, tr);
-	}).send(s);
-	*/
 	SynthDef.new(\softcuthead, {
 		arg buf, in, out, gate=1,
 		phase_out= -1, trig_out= -1, trig_in = -1,
 		amp=0.2, rec=0.0, pre=0.0,
 		rate=1, ratelag=0.1,
-		start=0, end=1, fade=0.1, loop=1,
+		start=0, end=1, pos=0.0, fade=0.1, loop=1,
 		fadeRec=1.0, fadePre = 1.0, recRun=0, offset=0,
 		preLag=0.0005, recLag=0.0005, envTimeScale = 1.0, done=0;
 
@@ -96,12 +56,14 @@ s.waitForBoot { Routine {
 		rate = Lag.ar(K2A.ar(rate), ratelag);
 
 		cutfade =  SoftCutHead.ar(buf, sin, trig,
-			rate * brs, start, end, fade, loop,
+			rate * brs, start, end, pos, fade, loop,
 			rec, pre, fadeRec, fadePre, recRun, offset);
 
 		phase = cutfade[0];
 		tr = cutfade[1];
 		snd = cutfade[2];
+
+		phase.poll;
 
 		aenv = EnvGen.ar(Env.asr(0.0001, 1, 0.005), gate,
 			timeScale:envTimeScale, doneAction:done);
@@ -156,9 +118,10 @@ s.waitForBoot { Routine {
 
 	~loop_s = Synth.new(\softcuthead, [
 		\buf, ~buf.bufnum,
-		\in, Crone.ctx.in_b[1].index,
+		\in, Crone.ctx.in_b[0].index,
 		\out, Crone.ctx.out_b.index,
 		\start, ~start_pos, \end, ~end_pos,
+		\pos, ~start_pos,
 		\phase_out, ~phase_rd_b.index,
 		\trig_out, ~trig_rd_b.index,
 		\trig_in, ~loop_trig_b.index,
@@ -174,6 +137,8 @@ s.waitForBoot { Routine {
 		\buf, ~buf.bufnum,
 	], s, addAction: \addToTail);
 */
+
+
 
 	//--- methods
 
@@ -204,6 +169,7 @@ s.waitForBoot { Routine {
 		~start_pos = pos;
 		[~start_pos, ~loop_dur, ~end_pos].postln;
 		~loop_s.set(\start, ~start_pos);
+		~loop_s.set(\pos, ~start_pos);
 		if(keepDur, {
 			~update_end_pos.value(~start_pos + ~loop_dur);
 		});

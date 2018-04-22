@@ -95,10 +95,12 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->softcut.setRecOffset(recOffset);
 
     if ((trig > 0) && (unit->prevTrig <= 0)) {
+        Print("triggering...\n");
       // FIXME: i think it will be ok for now,
       // but should convert and wrap this result in the logic class rather than in here.
-	unit->softcut.cutToPhase(pos * SAMPLERATE);
+	    unit->softcut.cutToPhase(pos * SAMPLERATE);
     }
+
     unit->prevTrig = trig;
 
     float snd, phi, tr;
