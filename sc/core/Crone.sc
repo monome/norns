@@ -8,6 +8,7 @@ Crone {
 	classvar <>recorderState = 'init';
 	classvar <>recordingsDir = "/home/pi/dust/audio/tape";
 	classvar <>player;
+	classvar <>playerClock;
 	classvar <>playerState = 'init';
 	// current CroneEngine subclass instance
 	classvar <>engine;
@@ -52,9 +53,7 @@ Crone {
 
 				Crone.initOscRx;
 				Crone.initVu;
-
-				recorder = Recorder.new(server);
-				recorder.recSampleFormat = "int16";
+				Crone.initTape;
 
 				complete = 1;
 			};
@@ -171,7 +170,7 @@ Crone {
 			remoteAddr.sendMsg('/tape/recorder/filename', filename);
 			postln("tape recorder filename:" + filename);
 		};
-		if (recorderState != 'stopped') {
+		if (#[stopped, init].includes(recorderState).not) { // TODO: what about 'prepared'?
 			fork { // TODO: dry refactor, same as below
 				recorder.stopRecording;
 				server.sync;
@@ -193,11 +192,12 @@ Crone {
 				}
 				{ 'paused' } {
 					recorder.record;
-				};
-			server.sync;
-			recorderState = 'recording';
-			postln("tape recorder state:" + recorderState);
-			remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+				} !? {
+					server.sync;
+					recorderState = 'recording';
+					postln("tape recorder state:" + recorderState);
+					remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+				}
 		};
 	}
 
@@ -214,7 +214,7 @@ Crone {
 	}
 
 	*tapeStopRec {
-		if (['recording', 'paused'].includes(recorderState)) {
+		if (#[recording, paused].includes(recorderState)) {
 			fork {
 				recorder.stopRecording;
 				server.sync;
@@ -226,25 +226,34 @@ Crone {
 	}
 
 	*tapeOpenfile { |filename|
-		if (['playing', 'paused', 'fileloaded'].includes(playerState)) {
-			player.stop;
-		};
-		fork {
-			// TODO: error handling
-			player = SoundFile(recordingsDir +/+ filename).cue;
-			server.sync;
-			playerState = 'fileloaded';
-			postln("tape player state:" + playerState);
-			remoteAddr.sendMsg('/tape/player/state', playerState);
-			remoteAddr.sendMsg('/tape/player/filename', filename);
-			postln("tape player filename:" + filename);
+		if (PathName(recordingsDir +/+ filename).isFile) {
+			if (#[playing, paused, fileopened].includes(playerState)) {
+				player.stop;
+			};
+			fork {
+				// TODO: error handling
+				player = SoundFile(recordingsDir +/+ filename).cue(
+					(
+						out: ctx.out_b // TODO: correct to route this to out_b ?
+					)
+				);
+				server.sync;
+				playerState = 'fileopened';
+				postln("tape player state:" + playerState);
+				remoteAddr.sendMsg('/tape/player/state', playerState);
+				remoteAddr.sendMsg('/tape/player/filename', filename);
+				postln("tape player filename:" + filename.quote);
+			};
+		} {
+			postln("tape error, file" + filename.quote + "does not exist");
 		};
 	}
 
 	*tapePlay { |filename|
-		if (['paused', 'fileloaded'].includes(playerState)) {
+		if (#[paused, fileopened].includes(playerState)) {
 			fork {
 				player.play;
+				playerClock.beats = 0;
 				server.sync;
 				playerState = 'playing';
 				postln("tape player state:" + playerState);
@@ -491,6 +500,33 @@ Crone {
 
 		);
 
+	}
+
+	*initTape {
+		recorder = Recorder.new(server);
+		recorder.recSampleFormat = "int16";
+		playerClock = TempoClock.new;
+
+		CronePollRegistry.register(
+			name: \tape_rec_dur,
+			func: {
+				recorder.duration
+			},
+			dt: 0.1,
+			type: \value
+		);
+		CronePollRegistry.register(
+			name: \tape_play_pos,
+			func: {
+				if (#[playing, paused].includes(playerState)) {
+					playerClock.beats
+				} {
+					0
+				};
+			},
+			dt: 0.1,
+			type: \value
+		);
 	}
 }
 
