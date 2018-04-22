@@ -71,6 +71,17 @@ norns.scripterror = function(msg)
   menu.set_mode(true)
 end 
 
+norns.init_done = function()
+  menu.set_page(pHOME)
+  if not norns.err then
+    menu.scripterror = false
+    m.params.pos = 0
+    menu.set_mode(false)
+  end 
+end
+
+
+
 
 -- input redirection
 
@@ -332,12 +343,6 @@ m.deinit[pPREVIEW] = norns.none
 m.key[pPREVIEW] = function(n,z)
   if n==3 and m.pre.state == 1 then
     norns.script.load(m.sel.path)
-    if not norns.err then
-      menu.scripterror = false
-      m.params.pos = 0
-      menu.set_mode(false)
-    end 
-    menu.set_page(pHOME)
   elseif n ==3 and z == 1 then
     m.pre.state = 1
   elseif n == 2 and z == 1 then

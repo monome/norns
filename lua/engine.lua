@@ -85,6 +85,7 @@ Engine.load = function(name, callback)
     norns.report.did_engine_load = function()
       --print("Engine: norns.report.did_engine_load callback")
       norns.try(callback,"init")
+      norns.init_done()
     end
   end
   load_engine(name)
