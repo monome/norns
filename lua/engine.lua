@@ -19,86 +19,86 @@ Engine.commands = {}
 -- ----------------------------
 -- static methods
 
---- register all available engines; 
+--- register all available engines;
 -- called from OSC handler
 -- @param data - an array of strings
 -- @param count - number of names
 Engine.register = function(data, count)
-   print("available engines ("..count.."): ")
-   for i=1,count do
-      print("  " .. data[i])
-   end
-   Engine.names = data
+  print("available engines ("..count.."): ")
+  for i=1,count do
+    print("  " .. data[i])
+  end
+  Engine.names = data
 end
 
---- populate the current engine object with available commands; 
+--- populate the current engine object with available commands;
 -- called from OSC handler
 -- NB: we *can* count on the order of entries to be meaningful
 -- @param data - array of [name, format]
 -- @param count - number of commands
-Engine.registerCommands = function(data, count)
-   local name, fmt
-   print('Engine.registerCommands; count: '..count)
---   Engine.numCommands = count;
-   Engine.commands = {}
-   for i=1,count do
-      name = data[i][1]
-      fmt = data[i][2]
-      Engine.addCommand(i, name, fmt)
-   end
+Engine.register_commands = function(data, count)
+  local name, fmt
+  print('Engine.register_commands; count: '..count)
+-- Engine.numCommands = count;
+  Engine.commands = {}
+  for i=1,count do
+    name = data[i][1]
+    fmt = data[i][2]
+    Engine.add_command(i, name, fmt)
+  end
 end
 
 --- add a command to the current engine
 -- @param id - integer index
 -- @param name - command name (string)
 -- @param fmt - OSC format string (e.g. 'isf' for "int string float")
-Engine.addCommand = function(id, name, fmt)
-   local func = function(...)
-      local arg={...}
-      if select("#",...) ~= #fmt then
-	 print("warning: wrong count of arguments for command '"..name.."'")
-      end
-      send_command(id, table.unpack(arg))
-   end
-   Engine.commands[name] = {
-      id = id,
-      name = name,
-      fmt = fmt,
-      func = func,
-   }
+Engine.add_command = function(id, name, fmt)
+  local func = function(...)
+    local arg={...}
+    if select("#",...) ~= #fmt then
+   print("warning: wrong count of arguments for command '"..name.."'")
+    end
+    send_command(id, table.unpack(arg))
+  end
+  Engine.commands[name] = {
+    id = id,
+    name = name,
+    fmt = fmt,
+    func = func,
+  }
 end
 
-Engine.listCommands = function()
-   print("--- engine commands ---")
-   local sorted = tab.sort(Engine.commands)
-   for i,n in ipairs(sorted) do
-      print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
-   end
-   print("------\n")
+Engine.list_commands = function()
+  print("--- engine commands ---")
+  local sorted = tab.sort(Engine.commands)
+  for i,n in ipairs(sorted) do
+    print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
+  end
+  print("------\n")
 end
 
 --- load a named engine, with a callback
 -- @param name - name of engine
 -- @param callback - function to call on engine load. will receive command list
 Engine.load = function(name, callback)
-   if type(callback) == 'function' then
-      norns.report.didEngineLoad = function()
-	 print("Engine: norns.report.didEngineLoad callback")
-	 callback()
-      end
-   end
-   load_engine(name)
+  if type(callback) == 'function' then
+    norns.report.did_engine_load = function()
+      print("Engine: norns.report.did_engine_load callback")
+      callback()
+    end
+  end
+  load_engine(name)
 end
 
---- custom getters; 
+--- custom getters;
 -- [] accessor returns a command function;
--- this allows e.g. engine.hz(100) 
+-- this allows e.g. engine.hz(100)
 function Engine.__index(self, idx)
-   if Engine.commands[idx] then
-      return Engine.commands[idx].func
-   else
-      return rawget(Engine, idx)
-   end
+  if Engine.commands[idx] then
+    return Engine.commands[idx].func
+  else
+    return rawget(Engine, idx)
+  end
 end
 
 setmetatable(Engine, Engine)

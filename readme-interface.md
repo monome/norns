@@ -36,7 +36,10 @@ HOME is not the leftmost screen. go LEFT from HOME and you get to STATUS.
 
 ### STATUS
 
-system vu's
+- audio output/input vu's
+- master output level setting (change with enc 1)
+- battery level (TODO) 
+- generic "activity" indicator (TODO)
 
 TODO: direct-to-disk record (tape), monitor control
 
@@ -52,9 +55,7 @@ go right with key 3, into select.
 
 you'll get a folder/file list. you can dig into subfolders and then go back.
 
-key 3 on a file to load it.
-
-(TODO: key 3 on a file will go into PREVIEW mode which will display some meta-data luadoc-style about the file you're about to load, whereupon you can then hit key 3 again to load. function like a confirmation and whatisit, or you can back out of course.)
+key 3 on a file to PREVIEW mode which will display some meta-data luadoc-style about the file you're about to load, whereupon you can then hit key 3 again to load. function like a confirmation and whatisit, or you can back out of course.
 
 ### PARAMETERS
 
@@ -62,10 +63,10 @@ TODO. basic list a params like a default view VST, list of params and sliders. o
 
 ### SYSTEM
 
-shows battery percentage and power draw at the top (should this move?)
+shows battery percentage and power draw at the top, add cpu (TODO)
 
 - wifi: shows ip and signal strength. FORWARD to get into wifi menu
-- input gain: key 3 to toggle which level is selected, then enc 3 to change (pretty cool!)
+- input gain: key 3 to toggle which level is selected, then enc 3 to change
 - headphone: enc 3 to change
 - log: norns version and key 3 to get into the log
 
@@ -73,7 +74,7 @@ shows battery percentage and power draw at the top (should this move?)
 
 off/router/hotspot
 
-router ssid/password set elsewhere, probably via maiden (norns-web)
+TODO router ssid scan and password entry
 
 #### log
 
@@ -81,4 +82,4 @@ enc 2 to scroll. contains both system messages and whatever things the user scri
 
 ### SLEEP
 
-key 3 to confirm and shut down!
+key 3 to confirm and shut down

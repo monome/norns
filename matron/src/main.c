@@ -11,6 +11,7 @@
 #include "device_hid.h"
 #include "device_monitor.h"
 #include "device_monome.h"
+#include "device_midi.h"
 #include "events.h"
 #include "battery.h"
 #include "gpio.h"
@@ -31,6 +32,7 @@ void cleanup(void) {
     o_deinit();
     w_deinit();
     gpio_deinit();
+    i2c_deinit();
     screen_deinit();
     battery_deinit();
 
@@ -50,6 +52,7 @@ int main(int argc, char **argv) {
     screen_level(15);
     screen_move(0,50);
     screen_text("norns");
+    screen_update();
 
     metros_init();
     gpio_init();
@@ -59,12 +62,12 @@ int main(int argc, char **argv) {
     o_init(); // oracle (audio)
 
     // wait here for a signal from the audio server...
-    fprintf(stderr, "waiting for crone...");
+    fprintf(stderr, "waiting for crone...\n");
     do {
         screen_text(".");
+        screen_update();
         sleep(1);
     } while(o_ready() != 1);
-    fprintf(stderr, " ready.\n");
 
     w_init(); // weaver (scripting)
     dev_list_init();

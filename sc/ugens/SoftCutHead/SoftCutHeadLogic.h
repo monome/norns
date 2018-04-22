@@ -27,10 +27,12 @@ public:
     void setFadeRec(float x);
     void setRecRun(bool val);
     void setRecOffset(float x);
+    // FIXME: this method accepts samples and doesn't wrap.
+    // should add something like cutToPos(seconds) 
+    void cutToPhase(float newPhase); // fade in to new position (given in samples)
 private:
     void updatePhase(int id);
     void updateFade(int id);
-    void cutToPhase(float newPhase); // fade in to new position (given in samples)
     void doneFadeIn(int id);
     void doneFadeOut(int id);
     float peek(double phase); // lookup an audio sample from the buffer

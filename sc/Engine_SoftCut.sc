@@ -156,12 +156,12 @@ Engine_SoftCut : CroneEngine {
 
 		nvoices.do({ arg i;
 			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
-				var val = voices[i].phase_b.getSynchronous;
+			 	var val = voices[i].phase_b.getSynchronous / context.server.sampleRate;
 				postln("phase: " ++ val);
 				val
 			});
 			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
-				voices[i].phase_b.getSynchronous / voices[i].buf.duration
+				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
 			});
 		});
 
@@ -184,18 +184,19 @@ Engine_SoftCut : CroneEngine {
 			[\rec, \if, { |msg| voices[msg[1]-1].syn.set(\rec, msg[2]); }],
 			[\pre, \if, { |msg| voices[msg[1]-1].syn.set(\pre, msg[2]); }],
 			[\rate, \if, { |msg| voices[msg[1]-1].syn.set(\rate, msg[2]); }],
-			[\ratelag, \if, { |msg| voices[msg[1]-1].syn.set(\ratelag, msg[2]); }],
-			[\loopStart, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
-			[\loopEnd, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
+			[\rate_lag, \if, { |msg| voices[msg[1]-1].syn.set(\ratelag, msg[2]); }],
+			[\loop_start, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
+			[\loop_end, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
+			[\pos, \if, { |msg| voices[msg[1]-1].syn.set(\pos, msg[2]); }],
 			[\fade, \if, { |msg| voices[msg[1]-1].syn.set(\fade, msg[2]); }],
-			[\loopFlag, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
-			[\fadeRec, \if, { |msg| voices[msg[1]-1].syn.set(\fadeRec, msg[2]); }],
-			[\fadePre, \if, { |msg| voices[msg[1]-1].syn.set(\fadePre, msg[2]); }],
-			[\recRun, \if, { |msg| voices[msg[1]-1].syn.set(\recRun, msg[2]); }],
+			[\loop_on, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
+			[\fade_rec, \if, { |msg| voices[msg[1]-1].syn.set(\fadeRec, msg[2]); }],
+			[\fade_pre, \if, { |msg| voices[msg[1]-1].syn.set(\fadePre, msg[2]); }],
+			[\rec_on, \if, { |msg| voices[msg[1]-1].syn.set(\recRun, msg[2]); }],
 			[\offset, \if, { |msg| voices[msg[1]-1].syn.set(\offset, msg[2]); }],
-			[\preLag, \if, { |msg| voices[msg[1]-1].syn.set(\preLag, msg[2]); }],
-			[\recLag, \if, { |msg| voices[msg[1]-1].syn.set(\recLag, msg[2]); }],
-			[\envTimeScale, \if, { |msg| voices[msg[1]-1].syn.set(\envTimeScale, msg[2]); }],
+			[\pre_lag, \if, { |msg| voices[msg[1]-1].syn.set(\preLag, msg[2]); }],
+			[\rec_lag, \if, { |msg| voices[msg[1]-1].syn.set(\recLag, msg[2]); }],
+			[\env_time, \if, { |msg| voices[msg[1]-1].syn.set(\envTimeScale, msg[2]); }],
 
 
 			//-- routing

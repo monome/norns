@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 // linux / posix
 #include <pthread.h>
@@ -23,12 +24,13 @@
 // norns
 #include "device_hid.h"
 #include "device_monome.h"
+#include "device_midi.h"
 #include "events.h"
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
-#include "i2c.h" 
-#include "osc.h" 
+#include "i2c.h"
+#include "osc.h"
 #include "oracle.h"
 #include "weaver.h"
 
@@ -58,6 +60,7 @@ static int _grid_set_led(lua_State *l);
 static int _grid_all_led(lua_State *l);
 static int _grid_refresh(lua_State *l);
 //screen
+static int _screen_update(lua_State *l);
 static int _screen_font_face(lua_State *l);
 static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
@@ -82,7 +85,8 @@ static int _gain_hp(lua_State *l);
 static int _gain_in(lua_State *l);
 //osc
 static int _osc_send(lua_State *l);
-static int _osc_remote_addr(lua_State *l);
+// midi
+static int _midi_send(lua_State *l);
 
 // crone
 /// engines
@@ -144,6 +148,7 @@ void w_init(void) {
     lua_register(lvm, "grid_refresh", &_grid_refresh);
 
     // register screen funcs
+    lua_register(lvm, "s_update", &_screen_update);
     lua_register(lvm, "s_font_face", &_screen_font_face);
     lua_register(lvm, "s_font_size", &_screen_font_size);
     lua_register(lvm, "s_aa", &_screen_aa);
@@ -170,7 +175,9 @@ void w_init(void) {
 
     // osc
     lua_register(lvm, "osc_send", &_osc_send);
-    lua_register(lvm, "osc_remote_addr", &_osc_remote_addr);
+
+    // midi
+    lua_register(lvm, "midi_send", &_midi_send);
 
     // get list of available crone engines
     lua_register(lvm, "report_engines", &_request_engine_report);
@@ -235,6 +242,25 @@ void w_deinit(void) {
 
 //----------------------------------
 //---- static definitions
+
+/***
+ * screen: update (flip buffer)
+ * @function s_update
+ */
+int _screen_update(lua_State *l) {
+    if(lua_gettop(l) != 0) { // check num args
+        goto args_error;
+    }
+
+    screen_update();
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    fprintf(stderr, "warning: incorrect arguments to s_update() \n");
+    lua_settop(l, 0);
+    return 0;
+}
 
 /***
  * screen: set font face
@@ -905,7 +931,7 @@ int _gain_in(lua_State *l) {
         goto args_error;
     }
 
-    i2c_ain(level,ch);
+    i2c_gain(level,ch);
     lua_settop(l, 0);
     return 0;
 
@@ -920,75 +946,134 @@ args_error:
  * @function osc_send
  */
 int _osc_send(lua_State *l) {
+    const char *host;
+    const char *port;
+    const char *path;
+    lo_message msg;
+
     int nargs = lua_gettop(l);
-    if(nargs < 1) { goto args_error; }
 
-    char path[64];
+    // address
+    luaL_checktype(l, 1, LUA_TTABLE);
 
-    if( lua_type(l, 1) == LUA_TSTRING ) {
-        strcpy( path,lua_tostring(l,1) );
+    if (lua_rawlen(l, 1) != 2) {
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
+    }
+
+    lua_pushnumber(l, 1);
+    lua_gettable(l, 1);
+    if (lua_isstring(l, -1)) {
+        host = lua_tostring(l, -1);
     } else {
-        goto args_error;
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
     }
+    lua_pop(l, 1);
 
-    lo_message msg = lo_message_new();
-    const char *s;
-    double f;
+    lua_pushnumber(l, 2);
+    lua_gettable(l, 1);
+    if (lua_isstring(l, -1)) {
+        port = lua_tostring(l, -1);
+    } else {
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
+    }
+    lua_pop(l, 1);
 
-    for(int i = 2; i <= nargs; i++) {
-        if( lua_type(l, i) == LUA_TNUMBER) {
-            f = lua_tonumber(l, i);
-            lo_message_add_double( msg, f );
-        } else if( lua_type(l, i) == LUA_TSTRING ) {
-            s = lua_tostring(l, i);
-            lo_message_add_string(msg, s);
-        } else {
-            //goto args_error;
-            break;
+    // path
+    luaL_checktype(l, 2, LUA_TSTRING);
+    path = lua_tostring(l, 2);
+
+    // args
+    if (nargs > 2) {
+        luaL_checktype(l, 3, LUA_TTABLE);
+        msg = lo_message_new();
+
+        for (size_t i = 1; i <= lua_rawlen(l, 3); i++) {
+            lua_pushnumber(l, i);
+            lua_gettable(l, 3);
+            int argtype = lua_type(l, -1);
+
+            switch (argtype) {
+            case LUA_TNIL:
+                lo_message_add_nil(msg);
+                break;
+            case LUA_TNUMBER:
+                lo_message_add_float(msg, lua_tonumber(l, -1));
+                break;
+            case LUA_TBOOLEAN:
+                if (lua_toboolean(l, -1)) {
+                    lo_message_add_true(msg);
+                } else {
+                    lo_message_add_false(msg);
+                }
+                break;
+            case LUA_TSTRING:
+                lo_message_add_string(msg, lua_tostring(l, -1));
+                break;
+            default:
+                lo_message_free(msg);
+                luaL_error(l, "invalid osc argument type %s",
+                    lua_typename(l, argtype));
+                break;
+            }
+
+            lua_pop(l, 1);
         }
+
+        osc_send(host, port, path, msg);
+        lo_message_free(msg);
+    } else {
+        msg = lo_message_new();
+        osc_send(host, port, path, msg);
+        lo_message_free(msg);
     }
 
-    osc_send(path,msg);
-    lua_settop(l, 0);
-    return 0;
-
-args_error:
-    printf("warning: incorrect arguments to osc_send() \n"); fflush(stdout);
     lua_settop(l, 0);
     return 0;
 }
 
 /***
- * osc: set remote address
- * @function osc_remote_addr
+ * midi: send
+ * @function midi_send
  */
-int _osc_remote_addr(lua_State *l) {
+int _midi_send(lua_State *l) {
+    struct dev_midi *md;
+    size_t nbytes;
+    uint8_t *data;
+
     int nargs = lua_gettop(l);
-    if(nargs != 2) { goto args_error; }
+    if (nargs != 2) {
+        goto args_error;
+    }
 
-    char ip[24];
-    char port[16];
-
-    if( lua_type(l, 1) == LUA_TSTRING ) {
-        strcpy( ip,lua_tostring(l,1) );
+    if (lua_islightuserdata(l, 1)) {
+        md = lua_touserdata(l, 1);
     } else {
         goto args_error;
     }
 
-    if( lua_isnumber(l, 2)) {
-        strcpy( port,lua_tostring(l,2) );
-    } else {
+    if (!lua_istable(l, 2)) {
         goto args_error;
     }
 
-    osc_remote_addr(ip,port);
-    //printf("ip: %s @ %s",ip,port); fflush(stdout);
+    nbytes = lua_rawlen(l, 2);
+    data = malloc(nbytes);
 
-    lua_settop(l, 0);
+    for (unsigned int i = 1; i <= nbytes; i++) {
+        lua_pushinteger(l, i);
+        lua_gettable(l, 2);
+
+        // TODO: lua_isnumber
+        data[i - 1] = lua_tointeger(l, -1);
+        lua_pop(l, 1);
+    }
+
+    dev_midi_send(md, data, nbytes);
+    free(data);
+
     return 0;
 
 args_error:
-    printf("warning: incorrect arguments to osc_remote_addr() \n"); fflush(stdout);
+    fprintf(stderr, "warning: incorrect arguments to midi_send()\n");
     lua_settop(l, 0);
     return 0;
 }
@@ -1317,7 +1402,7 @@ int _get_time(lua_State *l) {
     struct timeval tv;
     struct timezone tz;
     gettimeofday(&tv, &tz);
-    // returns two results: seconds, microseconds
+    // returns two results: microseconds, seconds
     lua_pushinteger(l, (lua_Integer)tv.tv_sec);
     lua_pushinteger(l, (lua_Integer)tv.tv_usec);
     return 2;
@@ -1368,7 +1453,6 @@ void w_handle_hid_add(void *p) {
 
     _push_norns_func("hid", "add");
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    lua_pushstring(lvm, base->serial);
     lua_pushstring(lvm, base->name);
 
     // push table of event types
@@ -1390,7 +1474,7 @@ void w_handle_hid_add(void *p) {
         }
         lua_rawseti(lvm, -2, i + 1);
     }
-    l_report( lvm, l_docall(lvm, 5, 0) );
+    l_report(lvm, l_docall(lvm, 4, 0));
 }
 
 void w_handle_hid_remove(int id) {
@@ -1406,6 +1490,110 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
     lua_pushinteger(lvm, code);
     lua_pushinteger(lvm, value);
     l_report( lvm, l_docall(lvm, 4, 0) );
+}
+
+void w_handle_midi_add(void *p) {
+    struct dev_midi *dev = (struct dev_midi *)p;
+    struct dev_common *base = (struct dev_common *)p;
+    int id = base->id;
+
+    _push_norns_func("midi", "add");
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    lua_pushstring(lvm, base->name);
+    lua_pushlightuserdata(lvm, dev);
+    l_report(lvm, l_docall(lvm, 3, 0));
+}
+
+void w_handle_midi_remove(int id) {
+    _push_norns_func("midi", "remove");
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+void w_handle_midi_event(int id, uint8_t *data, size_t nbytes) {
+    _push_norns_func("midi", "event");
+    // TODO: params
+    lua_pushinteger(lvm, id);
+    lua_createtable(lvm, nbytes, 0);
+    for (size_t i = 0; i < nbytes; i++) {
+        lua_pushinteger(lvm, data[i]);
+        lua_rawseti(lvm, -2, i + 1);
+    }
+    l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message msg) {
+    const char *types = NULL;
+    int argc;
+    lo_arg **argv = NULL;
+
+    types = lo_message_get_types(msg);
+    argc = lo_message_get_argc(msg);
+    argv = lo_message_get_argv(msg);
+
+    _push_norns_func("osc", "event");
+
+    lua_pushstring(lvm, path);
+
+    lua_createtable(lvm, argc, 0);
+    for (int i = 0; i < argc; i++) {
+        switch (types[i]) {
+        case LO_INT32:
+            lua_pushinteger(lvm, argv[i]->i);
+            break;
+        case LO_FLOAT:
+            lua_pushnumber(lvm, argv[i]->f);
+            break;
+        case LO_STRING:
+            lua_pushstring(lvm, &argv[i]->s);
+            break;
+        case LO_BLOB:
+            lua_pushlstring(lvm,
+                lo_blob_dataptr((lo_blob)argv[i]),
+                lo_blob_datasize((lo_blob)argv[i]));
+            break;
+        case LO_INT64:
+            lua_pushinteger(lvm, argv[i]->h);
+            break;
+        case  LO_DOUBLE:
+            lua_pushnumber(lvm, argv[i]->d);
+            break;
+        case LO_SYMBOL:
+            lua_pushstring(lvm, &argv[i]->S);
+            break;
+        case LO_CHAR:
+            lua_pushlstring(lvm, (const char *) &argv[i]->c, 1);
+            break;
+        case LO_MIDI:
+            lua_pushlstring(lvm, (const char *) &argv[i]->m, 4);
+            break;
+        case LO_TRUE:
+            lua_pushboolean(lvm, 1);
+            break;
+        case LO_FALSE:
+            lua_pushboolean(lvm, 0);
+            break;
+        case LO_NIL:
+            lua_pushnil(lvm);
+            break;
+        case LO_INFINITUM:
+            lua_pushnumber(lvm, INFINITY);
+            break;
+        default:
+            fprintf(stderr, "unknown osc typetag: %c\n", types[i]);
+            lua_pushnil(lvm);
+            break;
+        }
+        lua_rawseti(lvm, -2, i + 1);
+    }
+
+    lua_createtable(lvm, 2, 0);
+    lua_pushstring(lvm, from_host);
+    lua_rawseti(lvm, -2, 1);
+    lua_pushstring(lvm, from_port);
+    lua_rawseti(lvm, -2, 2);
+
+    l_report(lvm, l_docall(lvm, 3, 0));
 }
 
 // helper for pushing array of c strings
@@ -1447,7 +1635,7 @@ static void _push_commands() {
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1);
     }
-    o_unlock_descriptors();    
+    o_unlock_descriptors();
     lua_pushinteger(lvm, n);
 }
 
@@ -1468,7 +1656,7 @@ static void _push_polls() {
         // put poll name on stack; assign to subtable, pop
         lua_pushstring(lvm, p[i].name);
         lua_rawseti(lvm, -2, 2);
-	/// FIXME: just use a format string.... 
+	/// FIXME: just use a format string....
         if(p[i].type == POLL_TYPE_VALUE) {
             lua_pushstring(lvm, "value");
         } else {
@@ -1478,7 +1666,7 @@ static void _push_polls() {
         lua_rawseti(lvm, -2, 3);
         // subtable is on stack; assign to master table and pop
         lua_rawseti(lvm, -2, i + 1); // convert to 1-base
-    }    
+    }
     o_unlock_descriptors();
     lua_pushinteger(lvm, n);
 }
@@ -1489,12 +1677,12 @@ void w_handle_engine_loaded() {
   _push_norns_func("report", "commands");
   _push_commands();
   l_report(lvm, l_docall(lvm, 2, 0));
-  
+
   _push_norns_func("report", "polls");
   _push_polls();
   l_report(lvm, l_docall(lvm, 2, 0));
-  
-  _push_norns_func("report", "didEngineLoad");
+
+  _push_norns_func("report", "did_engine_load");
   l_report(lvm, l_docall(lvm, 0, 0));
   // TODO
   // _push_params();
@@ -1531,12 +1719,13 @@ void w_handle_enc(const int n, const int delta) {
 }
 
 // system/battery
-void w_handle_battery(const int percent) {
+void w_handle_battery(const int percent, const int current) {
     lua_getglobal(lvm, "norns");
     lua_getfield(lvm, -1, "battery");
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, percent);
-    l_report( lvm, l_docall(lvm, 1, 0) );
+    lua_pushinteger(lvm, current);
+    l_report( lvm, l_docall(lvm, 2, 0) );
 }
 
 // system/power
@@ -1673,7 +1862,7 @@ int _set_audio_output_level(lua_State *l) {
 
 int _set_audio_monitor_level(lua_State *l) {
     int nargs = lua_gettop(l);
-    fprintf(stderr, "set_audio_monitor_level nargs: %d\n", nargs);
+    //fprintf(stderr, "set_audio_monitor_level nargs: %d\n", nargs);
     if(nargs == 1) {
         if( lua_isnumber(l, 1) ) {
             float val = lua_tonumber(l, 1);

@@ -3,19 +3,8 @@
 ## build prerequisites
 
 ### packages
-
-install with pacman / apt-get:
-
 ```
-cmake
-libevdev-dev
-liblo-dev
-libncurses-dev
-libncursesw5-dev
-libreadline-dev
-libudev-dev
-libcairo2-dev
-liblua5.3-dev
+sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev libasound2-dev
 ```
 
 for desktop: 
@@ -48,7 +37,6 @@ sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollid
 ```
 git clone https://github.com/catfact/norns.git
 cd norns
-git submodule init && git submodule update
 ./waf configure
 ./waf
 ```
@@ -90,6 +78,8 @@ matron waits for crone to finish loading before entering the main event loop.
 
 ### 3. launch `maiden` (web UI client)
 
-TODO
+get most recent version from https://github.com/ngwese/maiden/releases
 
-ie. `./norns-web.arm -debug -site ./app/build -data ~/norns/lua`
+download to `~/maiden/` and untar
+
+execute with `./maiden.arm -debug -site ./app/build -data ~/norns/lua/`

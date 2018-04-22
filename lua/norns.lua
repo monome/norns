@@ -10,18 +10,42 @@ local engine = require 'engine'
 local poll = require 'poll'
 local tab = require 'tabutil'
 
---- startup function will be run after I/O subsystems are initialized, 
--- but before I/O event loop starts ticking
+--- startup function will be run after I/O subsystems are initialized,
+-- but before I/O event loop starts ticking (see readme-script.md)
 startup = function()
-   require('startup')
+  require('startup')
 end
 
 --- Global Functions
 -- @section global_functions
 
--- global functions required by the C interface; 
+-- global functions required by the C interface;
 -- we "declare" these here with placeholders;
 -- individual modules will redefine them as needed.
+
+--- battery percent handler
+-- @param percent battery full percentage
+norns.battery = function(percent, current)
+  norns.battery_percent = tonumber(percent)
+  norns.battery_current = tonumber(current)
+  --print("battery: "..norns.battery_percent.."% "..norns.battery_current.."mA")
+end
+
+--- power present handler
+-- @param present power plug present (0=no,1=yes)
+norns.power = function(present)
+  norns.powerpresent = present
+  --print("power: "..present)
+end
+
+--- key callback (redefined in menu)
+norns.key = function(n,z)
+   --print ("norns.key "..n.." "..z)
+end
+--- enc callback (redefined in menu)
+norns.enc = function(n,delta)
+   --print ("norns.enc "..n.." "..delta)
+end
 
 -- monome device callbacks
 norns.monome = {}
@@ -34,13 +58,14 @@ norns.monome.remove = function(id)
    -- print("norns.monome.remove "..id)
 end
 
---- grid device callbacks
+-- grid device callbacks
 norns.grid = {}
 --- grid key event
 norns.grid.key = function(id, x, y, val)
    -- print("norns.grid.key ", id,x,y,val)
 end
 
+-- hid callbacks
 norns.hid = {}
 --- HID or other input device added
 norns.hid.add = function(id, serial, name, types, codes)
@@ -50,10 +75,11 @@ norns.hid.event = function(id, ev_type, ev_code, value)
    -- print("norns.input.event ", id, ev_type, ev_code, value)
 end
 
---- TODO
--- @todo : arc, midi
-norns.arc = {}
+-- midi callbacks (defined in midi.lua)
 norns.midi = {}
+
+-- osc callbacks (defined in osc.lua)
+norns.osc = {}
 
 --- report callbacks
 -- @section report
@@ -64,37 +90,62 @@ norns.report.engines = function(names, count)
 end
 
 norns.report.commands = function(commands, count)
-   engine.registerCommands(commands, count)
-   engine.listCommands()   
+   engine.register_commands(commands, count)
+   engine.list_commands()
 end
 
 norns.report.polls = function(names, count)
    poll.register(names, count)
-   poll.listNames()
+   poll.list_names()
 end
 
 
--- called when all reports are complete after engine load
-norns.report.didEngineLoad = function()
-   print("norns.report.didEngineLoad (default)")
+--- called when all reports are complete after engine load
+norns.report.did_engine_load = function()
+   print("norns.report.did_engine_load (default)")
    -- engine module should assign callback
 end
 
 
--- poll callback; used by C interface
--- @param integer id identfier
+--- poll callback; used by C interface
+-- @param id identfier
 -- @param value value (float OR sequence of bytes)
 norns.poll = function(id, value)
-   local name = poll.pollNames[id]
+   local name = poll.poll_names[id]
    local p = poll.polls[name]
    if p then
-      p:perform(value)
+    p:perform(value)
    else
-      print ("warning: norns.poll callback couldn't find poll")
+    print ("warning: norns.poll callback couldn't find poll")
    end
 end
 
--- I/O level callback
+--- I/O level callback
 norns.vu = function(in1, in2, out1, out2)
    --print(in1 .. "\t" .. in2 .. "\t" .. out1 .. "\t" .. out2)
+end
+
+--- Audio
+norns.audio = require 'audio'
+
+
+--- Management
+-- @section management
+norns.script = require 'script'
+norns.state = require 'state'
+norns.log = require 'log'
+norns.encoders = require 'encoders'
+
+norns.enc = norns.encoders.process
+
+--- Null functions
+-- @section null
+
+--- do nothing
+norns.none = function() end
+
+--- blank screen
+norns.blank = function()
+  s_clear()
+  s_update()
 end

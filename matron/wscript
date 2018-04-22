@@ -5,9 +5,10 @@ def build(bld):
         'src/device/device.c',
         'src/device/device_hid.c',
         'src/device/device_list.c',
+        'src/device/device_midi.c',
         'src/device/device_monitor.c',
         'src/device/device_monome.c',
-        'src/device/osc.c',
+        'src/osc.c',
         'src/hardware/battery.c',
         'src/hardware/gpio.c',
         'src/hardware/i2c.c',
@@ -31,6 +32,7 @@ def build(bld):
             'src/hardware',
             'lua',
         ], use=[
+            'ALSA',
             'LIBUDEV',
             'LIBEVDEV',
             'CAIRO',
@@ -38,6 +40,7 @@ def build(bld):
             'LUA53',
             'LIBLO',
             'LIBMONOME',
+            'AVAHI-COMPAT-LIBDNS_SD',
         ], lib=[
             'pthread',
         ])

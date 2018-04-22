@@ -30,7 +30,7 @@ SoftCutVoice {
 					phase_out= -1, trig_out= -1, trig_in = -1,
 					amp=0.2, rec=0.0, pre=0.0,
 					rate=1, ratelag=0.1,
-					start=0, end=1, fade=0.1, loop=1,
+					start=0, end=1, pos=0, fade=0.1, loop=1,
 					fadeRec=1.0, fadePre = 1.0, recRun=0, offset=0,
 					preLag=0.0005, recLag=0.0005, envTimeScale = 1.0, done=0;
 
@@ -56,7 +56,7 @@ SoftCutVoice {
 					rate = Lag.ar(K2A.ar(rate), ratelag);
 
 					cutfade =  SoftCutHead.ar(buf, sin, trig,
-						rate * brs, start, end, fade, loop,
+						rate * brs, start, end, pos, fade, loop,
 						rec, pre, fadeRec, fadePre, recRun, offset);
 
 					phase = cutfade[0];
@@ -111,7 +111,7 @@ SoftCutVoice {
 		loop_b = Bus.audio(server);
 
 		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 0,
-			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
+			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_audio_b.index
 		], target);
 		phase_kr_s = { Out.kr(phase_b.index, A2K.kr(In.ar(phase_audio_b.index)))}
 		.play(target: syn, addAction:\addAfter);

@@ -98,9 +98,29 @@ void events_init(void) {
 
 union event_data *event_data_new(event_t type) {
     // FIXME: better not to allocate here, use object pool
-    union event_data *ev = calloc( 1, sizeof(union event_data) );
+    union event_data *ev = calloc(1, sizeof(union event_data));
     ev->type = type;
     return ev;
+}
+
+void event_data_free(union event_data *ev) {
+    switch (ev->type) {
+    case EVENT_EXEC_CODE_LINE:
+        free(ev->exec_code_line.line);
+        break;
+    case EVENT_OSC:
+        free(ev->osc_event.path);
+        free(ev->osc_event.from_host);
+        free(ev->osc_event.from_port);
+        lo_message_free(ev->osc_event.msg);
+        break;
+    case EVENT_POLL_DATA:
+        free(ev->poll_data.data);
+        break;
+    case EVENT_POLL_WAVE:
+        free(ev->poll_wave.data);
+        break;
+    }
 }
 
 // add an event to the q and signal if necessary
@@ -146,46 +166,62 @@ void event_loop(void) {
 static void handle_event(union event_data *ev) {
     switch(ev->type) {
     case EVENT_EXEC_CODE_LINE:
-        w_handle_exec_code_line( ev->exec_code_line.line );
+        w_handle_exec_code_line(ev->exec_code_line.line);
         break;
     case EVENT_METRO:
-        w_handle_metro( ev->metro.id, ev->metro.stage );
+        w_handle_metro(ev->metro.id, ev->metro.stage);
         break;
     case EVENT_KEY:
-        w_handle_key( ev->key.n, ev->key.val );
+        w_handle_key(ev->key.n, ev->key.val);
         break;
     case EVENT_ENC:
-        w_handle_enc( ev->enc.n, ev->enc.delta );
+        w_handle_enc(ev->enc.n, ev->enc.delta);
         break;
     case EVENT_BATTERY:
-        w_handle_battery( ev->battery.percent );
+        w_handle_battery(ev->battery.percent,
+                         ev->battery.current);
         break;
     case EVENT_POWER:
-        w_handle_power( ev->power.present );
+        w_handle_power(ev->power.present);
         break;
     case EVENT_MONOME_ADD:
-        w_handle_monome_add( ev->monome_add.dev );
+        w_handle_monome_add(ev->monome_add.dev);
         break;
     case EVENT_MONOME_REMOVE:
-        w_handle_monome_remove( ev->monome_remove.id );
+        w_handle_monome_remove(ev->monome_remove.id);
         break;
     case EVENT_GRID_KEY:
-        w_handle_grid_key( ev->grid_key.id,
-                           ev->grid_key.x,
-                           ev->grid_key.y,
-                           ev->grid_key.state);
+        w_handle_grid_key(ev->grid_key.id,
+                          ev->grid_key.x,
+                          ev->grid_key.y,
+                          ev->grid_key.state);
         break;
     case EVENT_HID_ADD:
-        w_handle_hid_add( ev->hid_add.dev );
+        w_handle_hid_add(ev->hid_add.dev);
         break;
     case EVENT_HID_REMOVE:
-        w_handle_hid_remove( ev->hid_remove.id );
+        w_handle_hid_remove(ev->hid_remove.id);
         break;
     case EVENT_HID_EVENT:
-        w_handle_hid_event( ev->hid_event.id,
-                            ev->hid_event.type,
-                            ev->hid_event.code,
-                            ev->hid_event.value );
+        w_handle_hid_event(ev->hid_event.id,
+                           ev->hid_event.type,
+                           ev->hid_event.code,
+                           ev->hid_event.value);
+        break;
+    case EVENT_MIDI_ADD:
+        w_handle_midi_add(ev->midi_add.dev);
+        break;
+    case EVENT_MIDI_REMOVE:
+        w_handle_midi_remove(ev->midi_remove.id);
+        break;
+    case EVENT_MIDI_EVENT:
+        w_handle_midi_event(ev->midi_event.id, ev->midi_event.data, ev->midi_event.nbytes);
+        break;
+    case EVENT_OSC:
+        w_handle_osc_event(ev->osc_event.from_host,
+            ev->osc_event.from_port,
+            ev->osc_event.path,
+            ev->osc_event.msg);
         break;
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
@@ -200,23 +236,22 @@ static void handle_event(union event_data *ev) {
       w_handle_engine_loaded();
       break;
     case EVENT_POLL_VALUE:
-        w_handle_poll_value( ev->poll_value.idx, ev->poll_value.value );
+        w_handle_poll_value(ev->poll_value.idx, ev->poll_value.value);
         break;
     case EVENT_POLL_DATA:
-        w_handle_poll_data( ev->poll_data.idx,
-                            ev->poll_data.size,
-                            ev->poll_data.data );
+        w_handle_poll_data(ev->poll_data.idx,
+                           ev->poll_data.size,
+                           ev->poll_data.data);
         break;
     case EVENT_POLL_IO_LEVELS:
-        w_handle_poll_io_levels( ev->poll_io_levels.value.bytes );
+        w_handle_poll_io_levels(ev->poll_io_levels.value.bytes);
         break;
-
-    //--- TODO: MIDI
-
     case EVENT_QUIT:
         quit = true;
         break;
     } /* switch */
+
+    event_data_free(ev);
 }
 
 //---------------------------------

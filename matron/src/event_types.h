@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "oracle.h"
+#include "osc.h"
 
 typedef enum {
     // unused (do not remove)
@@ -30,6 +31,14 @@ typedef enum {
     EVENT_HID_REMOVE,
     // hid gesture
     EVENT_HID_EVENT,
+    // midi device added
+    EVENT_MIDI_ADD,
+    // midi device removed
+    EVENT_MIDI_REMOVE,
+    // midi event
+    EVENT_MIDI_EVENT,
+    // incoming OSC event
+    EVENT_OSC,
     // finished receiving audio engine list
     EVENT_ENGINE_REPORT,
     /* // finished receiving commands list */
@@ -107,6 +116,31 @@ struct event_hid_event {
     int32_t value;
 }; // +8
 
+struct event_midi_add {
+    struct event_common common;
+    void *dev;
+}; // +4
+
+struct event_midi_remove {
+    struct event_common common;
+    uint32_t id;
+}; // +4
+
+struct event_midi_event {
+    struct event_common common;
+    uint32_t id;
+    uint8_t data[3];
+    size_t nbytes;
+}; // +4
+
+struct event_osc {
+    struct event_common common;
+    char *path;
+    char *from_host;
+    char *from_port;
+    lo_message msg;
+}; // +4
+
 struct event_metro {
     struct event_common common;
     uint32_t id;
@@ -122,6 +156,7 @@ struct event_key {
 struct event_battery {
     struct event_common common;
     uint8_t percent;
+    int16_t current;
 }; // +8
 
 struct event_power {
@@ -170,6 +205,10 @@ union event_data {
     struct event_hid_add hid_add;
     struct event_hid_remove hid_remove;
     struct event_hid_event hid_event;
+    struct event_midi_add midi_add;
+    struct event_midi_remove midi_remove;
+    struct event_midi_event midi_event;
+    struct event_osc osc_event;
     struct event_key key;
     struct event_enc enc;
     struct event_battery battery;
