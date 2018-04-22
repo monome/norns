@@ -3,6 +3,12 @@
 Crone {
 	// the audio server
 	classvar <>server;
+	// audio to disk recorder / player
+	classvar <>recorder;
+	classvar <>recorderState = 'init';
+	classvar <>recordingsDir = "/home/pi/dust/audio/tape";
+	classvar <>player;
+	classvar <>playerState = 'init';
 	// current CroneEngine subclass instance
 	classvar <>engine;
 	// available OSC functions
@@ -46,6 +52,9 @@ Crone {
 
 				Crone.initOscRx;
 				Crone.initVu;
+
+				recorder = Recorder.new(server);
+				recorder.recSampleFormat = "int16";
 
 				complete = 1;
 			};
@@ -149,6 +158,122 @@ Crone {
 		});
 
 		remoteAddr.sendMsg('/report/polls/end');
+	}
+
+	*tapeNewfile { |filename|
+		// TODO: error handling
+		var prepareFunc = {
+			recorder.prepareForRecord(recordingsDir +/+ filename, 2);
+			server.sync;
+			recorderState = 'prepared';
+			postln("tape recorder state:" + recorderState);
+			remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+			remoteAddr.sendMsg('/tape/recorder/filename', filename);
+			postln("tape recorder filename:" + filename);
+		};
+		if (recorderState != 'stopped') {
+			fork { // TODO: dry refactor, same as below
+				recorder.stopRecording;
+				server.sync;
+				recorderState = 'stopped';
+				remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+				postln("tape recorder state:" + recorderState);
+				prepareFunc.fork;
+			};
+		} {
+			prepareFunc.fork;
+		};
+	}
+
+	*tapeStartRec {
+		fork {
+			switch (recorderState)
+				{ 'prepared' } {
+					recorder.record(bus: ctx.out_b, node: ctx.xg); // TODO: bus: 0, node: ctx.og or (topmost group) for post-fade recording
+				}
+				{ 'paused' } {
+					recorder.record;
+				};
+			server.sync;
+			recorderState = 'recording';
+			postln("tape recorder state:" + recorderState);
+			remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+		};
+	}
+
+	*tapePauseRec {
+		if (recorderState == \recording) {
+			fork {
+				recorder.pauseRecording;
+				server.sync;
+				recorderState = 'paused';
+				postln("tape recorder state:" + recorderState);
+				remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+			};
+		};
+	}
+
+	*tapeStopRec {
+		if (['recording', 'paused'].includes(recorderState)) {
+			fork {
+				recorder.stopRecording;
+				server.sync;
+				recorderState = 'stopped';
+				postln("tape recorder state:" + recorderState);
+				remoteAddr.sendMsg('/tape/recorder/state', recorderState);
+			};
+		};
+	}
+
+	*tapeOpenfile { |filename|
+		if (['playing', 'paused', 'fileloaded'].includes(playerState)) {
+			player.stop;
+		};
+		fork {
+			// TODO: error handling
+			player = SoundFile(recordingsDir +/+ filename).cue;
+			server.sync;
+			playerState = 'fileloaded';
+			postln("tape player state:" + playerState);
+			remoteAddr.sendMsg('/tape/player/state', playerState);
+			remoteAddr.sendMsg('/tape/player/filename', filename);
+			postln("tape player filename:" + filename);
+		};
+	}
+
+	*tapePlay { |filename|
+		if (['paused', 'fileloaded'].includes(playerState)) {
+			fork {
+				player.play;
+				server.sync;
+				playerState = 'playing';
+				postln("tape player state:" + playerState);
+				remoteAddr.sendMsg('/tape/player/state', playerState);
+			};
+		};
+	}
+
+	*tapePause { |filename|
+		if (playerState == 'playing') {
+			fork {
+				player.pause;
+				server.sync;
+				playerState = 'paused';
+				postln("tape player state:" + playerState);
+				remoteAddr.sendMsg('/tape/player/state', playerState);
+			};
+		};
+	}
+
+	*tapeReset { |filename|
+		if (playerState == \playing) {
+			fork {
+				player.stop;
+				server.sync;
+				player.play;
+				server.sync;
+			};
+		};
 	}
 
 	*initVu {
@@ -302,7 +427,67 @@ Crone {
 			'/recompile':OSCFunc.new({
 				postln("recompile...");
 				thisProcess.recompile;
-			}, '/recompile')
+			}, '/recompile'),
+
+			// @section tape
+
+			/// determines file to record
+			// @function /tape/newfile
+			// @param filename (string)
+			'/tape/newfile':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeNewfile(msg[1]);
+			}, '/tape/newfile'),
+
+			/// start / resume recording
+			// @function /tape/start_rec
+			'/tape/start_rec':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeStartRec;
+			}, '/tape/start_rec'),
+
+			/// pause recording
+			// @function /tape/pause_rec
+			'/tape/pause_rec':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapePauseRec;
+			}, '/tape/pause_rec'),
+
+			/// stop recording and close file
+			// @function /tape/stop_rec
+			'/tape/stop_rec':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeStopRec;
+			}, '/tape/stop_rec'),
+
+			/// determines file to play
+			// @function /tape/openfile
+			// @param path (string)
+			'/tape/openfile':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeOpenfile(msg[1]);
+			}, '/tape/openfile'),
+
+			/// starts playing file
+			// @function /tape/play
+			'/tape/play':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapePlay;
+			}, '/tape/play'),
+
+			/// pauses playing file
+			// @function /tape/pause
+			'/tape/pause':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapePause;
+			}, '/tape/pause'),
+
+			/// reset playpos to 0
+			// @function /tape/stop
+			'/tape/reset':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeReset;
+			}, '/tape/reset'),
 
 		);
 
