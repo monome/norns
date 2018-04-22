@@ -45,7 +45,8 @@ namespace softcuthead {
         void setState(State state) { state_ = state; }
         void setPhase(double phase) {
             phase_ = phase;
-            resamp_.setPhase(phase_);
+            //resamp_.setPhase(phase_);
+            resamp_.reset();
         }
 
         void setBuffer(float *buf, int frames) {

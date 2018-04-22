@@ -7,12 +7,6 @@
 
 using namespace softcuthead;
 
-static int wrap(int val, int bound) {
-    if(val >= bound) { return val - bound; }
-    if(val < 0) { return val + bound; }
-    return val;
-}
-
 
 SubHead::SubHead(): resamp_(ringBuf, RING_BUF_SIZE) {
     this->init();

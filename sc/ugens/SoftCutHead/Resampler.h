@@ -12,6 +12,15 @@
 // works on mono output buffer and processes one input sample at a time
 
 namespace softcuthead {
+    
+    static int wrap(int val, int bound) {
+        int x = val;
+        while(x >= bound) { x -= bound; }
+        while(x < 0) { return x += bound; }
+        return x;
+    }
+
+    
     class Resampler {
 
     private:
@@ -58,7 +67,7 @@ namespace softcuthead {
             int nframes = (int) phase;
             writeInterp(x, nframes);
             phase_ = phase - std::floor(phase);
-            frame_ += nframes;
+            frame_ = (frame_ + nframes) % bufFrames_;
             x_ = x;
             return nframes;
         }
@@ -70,9 +79,9 @@ namespace softcuthead {
             double phase = phase_ + rate_;
             int nframes = (int) phase;
             if (nframes > 0) {
-                frame_ = (frame_ + 1) % bufFrames_;
                 double m = (x - x_) / rate_;
                 buf_[frame_] = x + (m * (1.0 - phase_));
+                frame_ = (frame_ + 1) % bufFrames_;
             }
             phase_ = phase - std::floor(phase);
             x_ = x;
@@ -86,18 +95,14 @@ namespace softcuthead {
 
     public:
 
-// constructor
+        // constructor
         Resampler(float *buf, int frames) :
                 buf_(buf), bufFrames_(frames),
                 rate_(1.0), phase_(0.0), frame_(0) {}
 
         int processFrame(float x) {
-            //std::cout << frame_ << " : " << x << std::endl;
-            if (frame_ >= bufFrames_) {
-                return 0;
-            }
-
-            // std::cout << x << std::endl;
+            //frame_ = wrap(frame_, bufFrames_);
+            frame_ %= bufFrames_;
             if (rate_ > 1.0) {
                 return writeUp(x);
             } else if (rate_ < 1.0) {
@@ -119,6 +124,11 @@ namespace softcuthead {
         int bufferFrames() { return bufFrames_; }
 
         int frame() { return frame_; }
+
+        void reset() {
+            frame_ = 0;
+            x_ = 0.f;
+        }
     };
 
 }

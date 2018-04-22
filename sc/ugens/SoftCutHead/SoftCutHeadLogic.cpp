@@ -54,21 +54,21 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
     Action act0 = head[0].updatePhase(start, end, loopFlag);
     takeAction(act0, 0);
-    switch(act0) {
-        case NONE:
-            break;
-        case LOOP_POS:
-            cerr << "head 0: loop positive" << endl;
-            break;
-        case LOOP_NEG:
-            cerr << "head 0: loop negative" << endl;
-            break;
-        case STOP:
-            cerr << "head 0: stopping" << endl;
-            break;
-        default:
-            ;;
-    }
+//    switch(act0) {
+//        case NONE:
+//            break;
+//        case LOOP_POS:
+//            cerr << "head 0: loop positive" << endl;
+//            break;
+//        case LOOP_NEG:
+//            cerr << "head 0: loop negative" << endl;
+//            break;
+//        case STOP:
+//            cerr << "head 0: stopping" << endl;
+//            break;
+//        default:
+//            ;;
+//    }
     Action act1 = head[1].updatePhase(start, end, loopFlag);
     takeAction(act1, 1);
 
