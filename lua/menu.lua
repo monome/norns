@@ -34,6 +34,7 @@ menu.mode = false
 menu.page = pHOME
 menu.alt = false
 menu.scripterror = false
+menu.errormsg = ""
 
 local pending = false
 -- metro for key hold detection
@@ -61,7 +62,14 @@ norns.menu = {}
 norns.menu.init = function()
   menu.set_mode(menu.mode)
 end
- 
+
+norns.scripterror = function(msg)
+  print("### SCRIPT ERROR: "..msg)
+  menu.errormsg = msg
+  menu.scripterror = true
+  menu.set_page(pHOME)
+  menu.set_mode(true)
+end 
 
 
 -- input redirection
@@ -186,12 +194,9 @@ m.redraw[pHOME] = function()
   -- draw current script loaded
   s_move(0,10)
   s_level(15)
-  if menu.scripterror == false then
-    line = string.gsub(norns.state.script,'.lua','')
-    s_text(string.upper(line))
-  else
-    s_text("script error")
-  end
+  local line = string.upper(norns.state.name)
+  if(menu.scripterror) then line = line .. " (error: " .. menu.errormsg .. ")" end
+  s_text(line)
 
   -- draw file list and selector
   for i=3,6 do
@@ -326,20 +331,13 @@ m.deinit[pPREVIEW] = norns.none
 
 m.key[pPREVIEW] = function(n,z)
   if n==3 and m.pre.state == 1 then
-    u.time = 1
-    u.count = 1
-    u.callback = function()
-      if menu.scripterror == true then
-        menu.set_page(pHOME)
-      end
+    norns.script.load(m.sel.path)
+    if not norns.err then
+      menu.scripterror = false
+      m.params.pos = 0
+      menu.set_mode(false)
     end 
-    u:start()
-    menu.scripterror = true
-    norns.script.load(m.sel.path) 
-    menu.scripterror = false
-    m.params.pos = 0
     menu.set_page(pHOME)
-    menu.set_mode(false)
   elseif n ==3 and z == 1 then
     m.pre.state = 1
   elseif n == 2 and z == 1 then

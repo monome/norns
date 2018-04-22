@@ -83,8 +83,8 @@ end
 Engine.load = function(name, callback)
   if type(callback) == 'function' then
     norns.report.did_engine_load = function()
-      print("Engine: norns.report.did_engine_load callback")
-      callback()
+      --print("Engine: norns.report.did_engine_load callback")
+      norns.try(callback,"init")
     end
   end
   load_engine(name)

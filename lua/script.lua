@@ -27,6 +27,7 @@ Script.clear = function()
   init = norns.none
   -- clear last run
   norns.state.script = ''
+  norns.state.name = 'none'
   -- clear params
   params:clear()
 end
@@ -50,16 +51,18 @@ Script.load = function(filename)
     print("file not found: "..filepath)
   else
     io.close(f)
-    if pcall(cleanup) then print("cleanup script ok") 
-    else print("FAIL cleanup") end
+    if pcall(cleanup) then print("# cleanup") 
+    else print("### cleanup failed") end
     Script.clear() -- clear script variables and functions
-    dofile(filepath) -- do the new script
-    norns.log.post("loaded " .. filename) -- post to log
-    norns.state.script = filename -- store script name
-    norns.state.name = string.gsub(filename,'.lua','') -- store name
-    norns.state.name = norns.state.name:match("[^/]*$") -- strip path from name
-    norns.state.save() -- remember this script for next launch
-    Script.run() -- load engine then run script-specified init function
+    norns.try(function() dofile(filepath) end, "load fail") -- do the new script
+    if not norns.err then
+      norns.log.post("loaded " .. filename) -- post to log
+      norns.state.script = filename -- store script name
+      norns.state.name = string.gsub(filename,'.lua','') -- store name
+      norns.state.name = norns.state.name:match("[^/]*$") -- strip path from name
+      norns.state.save() -- remember this script for next launch
+      Script.run() -- load engine then run script-specified init function
+    end
   end
 end
 
@@ -69,7 +72,7 @@ Script.run = function()
   if engine.name ~= nil then
     engine.load(engine.name, Script.init)
   else
-    Script.init()
+    if not pcall(Script.init) then norns.scripterror() end
   end
   grid.reconnect()
 end
