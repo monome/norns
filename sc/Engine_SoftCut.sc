@@ -1,5 +1,6 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
+
 	classvar nbuf = 4; // count of buffes and "fixed" voices
 	classvar nvfloat = 4; // count of "floating" voices
 	classvar nvoices = 8; // total number of voices
@@ -72,17 +73,16 @@ Engine_SoftCut : CroneEngine {
 	// disk read
 	readBuf { arg i, path;
 		if(buf[i].notNil, {
-			/* FIXME:
-			 we'd like to automatically trim the buffer to the filesize.
-			 so we have to:
-			- allocate and read a new buffer.
-			[then, asynchronously:]
-			- tell any voices using the old buffer to use the new buffer instead
-			- change the buffer array to point at the new buffer
-			- free the old buffer
-			*/
-			// (something like trimBuf method)
-			buf[i].readChannel(path, channels:[0]);
+			// fixme: should set some upper bound here on number of frames
+			var newbuf = Buffer.readChannel(context.server, path, 0, -1, [0], {
+				voices.do({ arg v;
+					if(v.buf == buf[i], {
+						v.buf = newbuf;
+					});
+				});
+				buf[i].free;
+				buf[i] = newbuf;
+			});
 		});
 	}
 
