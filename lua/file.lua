@@ -4,13 +4,13 @@
 local File = {}
 File.__index = File
 
-local tFILE = 1
+local tFILE = 4
 
 function File.new(name, path)
   local o = setmetatable({}, File)
   o.t = tFILE
   o.name = name
-  o.path = path or ''
+  o.path = path or '-'
   o.action = function() end
   return o
 end 
@@ -39,7 +39,9 @@ function File:bang()
 end
 
 function File:string()
-  return self.path
+  if self.path == '-' then return "-" end
+  local display = self.path:match("[^/]*$") -- strip path from name
+  return display 
 end
 
 

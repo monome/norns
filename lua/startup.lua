@@ -15,10 +15,9 @@ poll = require 'poll'
 engine = require 'engine'
 wifi = require 'wifi'
 
---number = require 'number'
---option = require 'option'
---control = require 'control'
---file = require 'file'
+fileselect = require 'fileselect'
+textentry = require 'textentry'
+
 controlspec = require 'controlspec'
 paramset = require 'paramset' 
 

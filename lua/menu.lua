@@ -20,7 +20,6 @@ local pSYSTEM = 6
 local pWIFI = 7
 local pSLEEP = 8
 local pLOG = 9
-local pWIFIPASS = 10
 
 -- page pointer
 local m = {}
@@ -62,6 +61,15 @@ norns.menu = {}
 norns.menu.init = function()
   menu.set_mode(menu.mode)
 end
+norns.menu.status = function() return menu.mode end
+norns.menu.set = function(new_enc, new_key, new_redraw)
+  menu.penc = new_enc
+  menu.key = new_key
+  menu.redraw = new_redraw
+end
+norns.menu.get_enc = function() return menu.penc end
+norns.menu.get_key = function() return menu.key end
+norns.menu.get_redraw = function() return menu.redraw end
 
 norns.scripterror = function(msg)
   print("### SCRIPT ERROR: "..msg)
@@ -111,7 +119,7 @@ norns.key = function(n, z)
     else
       menu.key(n,z) -- always 1,1
     end
-  -- key 2/3 pass
+    -- key 2/3 pass
   else
     menu.key(n,z)
   end
@@ -122,7 +130,7 @@ menu.set_mode = function(mode)
   if mode == false then
     menu.mode = false
     m.deinit[menu.page]()
-    s_enable()
+    redraw = norns.script.redraw
     menu.key = key
     norns.encoders.callback = enc
     norns.encoders.set_accel(0,true)
@@ -131,7 +139,7 @@ menu.set_mode = function(mode)
   else -- enable menu mode
     menu.mode = true
     menu.alt = false
-    s_disable()
+    redraw = norns.none
     s_font_face(0)
     s_font_size(8)
     s_line_width(1)
@@ -270,7 +278,7 @@ m.key[pSELECT] = function(n,z)
     else
       menu.set_page(pHOME)
     end
-  -- select
+    -- select
   elseif n==3 and z==1 then
     m.sel.file = m.sel.list[m.sel.pos+1]
     if string.find(m.sel.file,'/') then
@@ -384,6 +392,17 @@ m.key[pPARAMS] = function(n,z)
     end 
   elseif n==2 and z==1 then
     menu.set_page(pHOME)
+  elseif n==3 and z==1 then
+    if params:t(m.params.pos+1) == tFILE then
+      fileselect.enter("/home/pi/dust", m.params.newfile)
+    end
+  end
+end
+
+m.params.newfile = function(file)
+  if file ~= "cancel" then
+    params:set(m.params.pos+1,file)
+    menu.redraw()
   end
 end
 
@@ -515,382 +534,315 @@ m.redraw[pSYSTEM] = function()
 
   if m.sys.pos==1 and (m.sys.input == 0 or m.sys.input == 1) then
     s_level(15) else s_level(4) end
-  s_move(101,40)
-  if(norns.state.input_left == 0) then s_text_right("m")
-  else s_text_right(norns.state.input_left - 48) end -- show 48 as unity (0)
-  if m.sys.pos==1 and (m.sys.input == 0 or m.sys.input == 2) then
-    s_level(15) else s_level(4) end
-  s_move(127,40)
-  if(norns.state.input_right == 0) then s_text_right("m")
-  else s_text_right(norns.state.input_right - 48) end
-  if m.sys.pos==2 then s_level(15) else s_level(4) end
-  s_move(127,50)
-  s_text_right(norns.state.hp)
-  s_level(4)
-  s_move(127,30)
-  if wifi.state == 2 then
-    if not menu.alt then m.sys.net = wifi.ip
-    else m.sys.net = wifi.signal .. "dBm" end
-  else
-    m.sys.net = wifi.status
-  end
-  s_text_right(m.sys.net)
-  s_move(127,60)
-  s_text_right("norns v"..norns.version.norns)
-  s_update()
-end
-
-m.init[pSYSTEM] = function()
-  m.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
-  u.callback = function()
-    m.sysquery()
-    menu.redraw()
-  end
-  u.time = 3
-  u.count = -1
-  u:start()
-end
-
-m.deinit[pSYSTEM] = function()
-  u:stop()
-end
-
-m.sysquery = function()
-  wifi.update()
-end
-
-
-
-
--- SLEEP
-
-m.key[pSLEEP] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pHOME)
-  elseif n==3 and z==1 then
-    print("SLEEP")
-    --TODO fade out screen then run the shutdown script
-    norns.audio.set_audio_level(0)
-    wifi.off()
-    os.execute("sleep 0.5; sudo shutdown now")
-  end
-end
-
-m.enc[pSLEEP] = norns.none
-
-m.redraw[pSLEEP] = function()
-  s_clear()
-  s_move(48,40)
-  s_text("sleep?")
-  --TODO do an animation here! fade the volume down
-  s_update()
-end
-
-m.init[pSLEEP] = norns.none
-m.deinit[pSLEEP] = norns.none
-
-
--- AUDIO
-m.audio = {}
-
-local tOFF = 0
-local tREC = 1
-local tPLAY = 2
-
-local tape = {} 
-tape.key = false
-tape.mode = tOFF 
-
-m.key[pAUDIO] = function(n,z)
-  if n==3 and z==1 then
-    menu.set_page(pHOME)
-  elseif n==2 then
-  if z==1 then tape.key = true
-    else tape.key = false end
-  end
-end
-
-m.enc[pAUDIO] = function(n,d)
-end
-
-m.redraw[pAUDIO] = function()
-  s_clear()
-  s_aa(1)
-
-  s_line_width(1)
-  s_level(2)
-  s_move(0,64-norns.state.out)
-  s_line(0,63)
-  s_stroke()
-
-  s_level(15)
-  s_move(3,63)
-  s_line(3,63-m.audio.out1)
-  s_move(6,63)
-  s_line(6,63-m.audio.out2)
-  s_stroke()
-
-  s_level(2)
-  s_move(13,64-norns.state.monitor)
-  s_line(13,63)
-  s_stroke()
-
-  s_level(15)
-  s_move(16,63)
-  s_line(16,63-m.audio.in1)
-  s_move(19,63)
-  s_line(19,63-m.audio.in2)
-  s_stroke()
-
-  if menu.alt then
-    s_level(2)
-    s_move(127,53)
-    s_text_right("ALT")
-  end
-
-  if tape.key then
-    s_level(2)
-    s_move(127,63)
-    s_text_right("TAPE")
-  end
-
-  if norns.powerpresent==0 then
-    s_level(2)
-    s_move(24,63)
-    s_text("99") -- add batt percentage
-  end
-
-  s_update()
-end
-
-m.init[pAUDIO] = function()
-  norns.vu = m.audio.vu
-  m.audio.in1 = 0
-  m.audio.in2 = 0
-  m.audio.out1 = 0
-  m.audio.out2 = 0 
-end
-
-m.deinit[pAUDIO] = function()
-  norns.vu = norns.none
-end
-
-m.audio.vu = function(in1,in2,out1,out2)
-  m.audio.in1 = in1
-  m.audio.in2 = in2
-  m.audio.out1 = out1
-  m.audio.out2 = out2
-  menu.redraw()
-end
-
-
-
--- WIFI
-m.wifi = {}
-m.wifi.pos = 0
-m.wifi.list = {"off","hotspot","network >"}
-m.wifi.len = 3
-m.wifi.selected = 1
-m.wifi.try = ""
-
-m.key[pWIFI] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 then
-    if m.wifi.pos == 0 then
-      print "wifi off"
-      wifi.off()
-    elseif m.wifi.pos == 1 then
-      print "wifi hotspot"
-      wifi.hotspot()
-    elseif m.wifi.pos == 2 then
-      m.wifi.try = wifi.scan_list[m.wifi.selected]
-      menu.set_page(pWIFIPASS)
-    end
-  end
-end
-
-m.enc[pWIFI] = function(n,delta)
-  if n==2 then
-    m.wifi.pos = m.wifi.pos + delta
-    if m.wifi.pos > m.wifi.len - 1 then m.wifi.pos = m.wifi.len - 1
-    elseif m.wifi.pos < 0 then m.wifi.pos = 0 end
-    menu.redraw()
-  elseif n==3 and m.wifi.pos == 2 then
-    m.wifi.selected = util.clamp(1,m.wifi.selected+delta,wifi.scan_count)
-    menu.redraw()
-  end
-end
-
-m.redraw[pWIFI] = function()
-  s_clear()
-  s_level(15)
-  s_move(0,10)
-  if wifi.state == 2 then
-    s_text("status: router "..wifi.ssid)
-  else s_text("status: "..wifi.status) end
-  if wifi.state > 0 then
-    s_level(4)
-    s_move(0,20)
-    s_text(wifi.ip)
-    s_move(127,20)
-    s_text_right(wifi.signal .. "dBm")
-  end
-
-  s_move(0,40+wifi.state*10)
-  s_text("-")
-
-  for i=1,m.wifi.len do
-    s_move(8,30+10*i)
-    line = m.wifi.list[i]
-    if(i==m.wifi.pos+1) then
-      s_level(15)
-    else
+    s_move(101,40)
+    if(norns.state.input_left == 0) then s_text_right("m")
+    else s_text_right(norns.state.input_left - 48) end -- show 48 as unity (0)
+    if m.sys.pos==1 and (m.sys.input == 0 or m.sys.input == 2) then
+      s_level(15) else s_level(4) end
+      s_move(127,40)
+      if(norns.state.input_right == 0) then s_text_right("m")
+      else s_text_right(norns.state.input_right - 48) end
+      if m.sys.pos==2 then s_level(15) else s_level(4) end
+      s_move(127,50)
+      s_text_right(norns.state.hp)
       s_level(4)
+      s_move(127,30)
+      if wifi.state == 2 then
+        if not menu.alt then m.sys.net = wifi.ip
+        else m.sys.net = wifi.signal .. "dBm" end
+      else
+        m.sys.net = wifi.status
+      end
+      s_text_right(m.sys.net)
+      s_move(127,60)
+      s_text_right("norns v"..norns.version.norns)
+      s_update()
     end
-    s_text(string.upper(line))
-  end
 
-  s_move(127,60)
-  if m.wifi.pos==2 then s_level(15) else s_level(4) end
-  if wifi.scan_count > 0 then
-    s_text_right(wifi.scan_list[m.wifi.selected])
-  else s_text_right("NONE") end
+    m.init[pSYSTEM] = function()
+      m.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
+      u.callback = function()
+        m.sysquery()
+        menu.redraw()
+      end
+      u.time = 3
+      u.count = -1
+      u:start()
+    end
 
-  s_update()
-end
+    m.deinit[pSYSTEM] = function()
+      u:stop()
+    end
 
-m.init[pWIFI] = function()
-  wifi.scan()
-  wifi.update()
-  m.wifi.selected = wifi.scan_active
-  u.time = 1
-  u.count = -1
-  u.callback = function()
-    wifi.update()
-    menu.redraw()
-  end
-  u:start()
-end
+    m.sysquery = function()
+      wifi.update()
+    end
 
-m.deinit[pWIFI] = function()
-  u:stop()
-end
 
--- WIFIPASS
-m.wifipass = {}
-m.wifipass.x = 27
-m.wifipass.y = 0
-m.wifipass.psk = ""
-m.wifipass.delok = 1
 
-m.key[pWIFIPASS] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pWIFI)
-  elseif n==3 and z==1 then
-    if m.wifipass.y == 0 then
-      local ch = ((5+m.wifipass.x)%94)+33
-      m.wifipass.psk = m.wifipass.psk .. string.char(ch)
+
+    -- SLEEP
+
+    m.key[pSLEEP] = function(n,z)
+      if n==2 and z==1 then
+        menu.set_page(pHOME)
+      elseif n==3 and z==1 then
+        print("SLEEP")
+        --TODO fade out screen then run the shutdown script
+        norns.audio.set_audio_level(0)
+        wifi.off()
+        os.execute("sleep 0.5; sudo shutdown now")
+      end
+    end
+
+    m.enc[pSLEEP] = norns.none
+
+    m.redraw[pSLEEP] = function()
+      s_clear()
+      s_move(48,40)
+      s_text("sleep?")
+      --TODO do an animation here! fade the volume down
+      s_update()
+    end
+
+    m.init[pSLEEP] = norns.none
+    m.deinit[pSLEEP] = norns.none
+
+
+    -- AUDIO
+    m.audio = {}
+
+    local tOFF = 0
+    local tREC = 1
+    local tPLAY = 2
+
+    local tape = {} 
+    tape.key = false
+    tape.mode = tOFF 
+
+    m.key[pAUDIO] = function(n,z)
+      if n==3 and z==1 then
+        menu.set_page(pHOME)
+      elseif n==2 then
+        if z==1 then tape.key = true
+        else tape.key = false end
+      end
+    end
+
+    m.enc[pAUDIO] = function(n,d)
+    end
+
+    m.redraw[pAUDIO] = function()
+      s_clear()
+      s_aa(1)
+
+      s_line_width(1)
+      s_level(2)
+      s_move(0,64-norns.state.out)
+      s_line(0,63)
+      s_stroke()
+
+      s_level(15)
+      s_move(3,63)
+      s_line(3,63-m.audio.out1)
+      s_move(6,63)
+      s_line(6,63-m.audio.out2)
+      s_stroke()
+
+      s_level(2)
+      s_move(13,64-norns.state.monitor)
+      s_line(13,63)
+      s_stroke()
+
+      s_level(15)
+      s_move(16,63)
+      s_line(16,63-m.audio.in1)
+      s_move(19,63)
+      s_line(19,63-m.audio.in2)
+      s_stroke()
+
+      if menu.alt then
+        s_level(2)
+        s_move(127,53)
+        s_text_right("ALT")
+      end
+
+      if tape.key then
+        s_level(2)
+        s_move(127,63)
+        s_text_right("TAPE")
+      end
+
+      if norns.powerpresent==0 then
+        s_level(2)
+        s_move(24,63)
+        s_text("99") -- add batt percentage
+      end
+
+      s_update()
+    end
+
+    m.init[pAUDIO] = function()
+      norns.vu = m.audio.vu
+      m.audio.in1 = 0
+      m.audio.in2 = 0
+      m.audio.out1 = 0
+      m.audio.out2 = 0 
+    end
+
+    m.deinit[pAUDIO] = function()
+      norns.vu = norns.none
+    end
+
+    m.audio.vu = function(in1,in2,out1,out2)
+      m.audio.in1 = in1
+      m.audio.in2 = in2
+      m.audio.out1 = out1
+      m.audio.out2 = out2
       menu.redraw()
-    else
-      if m.wifipass.delok==0 then
-        m.wifipass.psk = string.sub(m.wifipass.psk,0,-2)
-      elseif m.wifipass.delok==1 then
-        os.execute("~/norns/wifi.sh select "..m.wifi.try.." "..m.wifipass.psk.." &")
+    end
+
+
+
+    -- WIFI
+    m.wifi = {}
+    m.wifi.pos = 0
+    m.wifi.list = {"off","hotspot","network >"}
+    m.wifi.len = 3
+    m.wifi.selected = 1
+    m.wifi.try = ""
+
+    m.key[pWIFI] = function(n,z)
+      if n==2 and z==1 then
+        menu.set_page(pSYSTEM)
+      elseif n==3 and z==1 then
+        if m.wifi.pos == 0 then
+          print "wifi off"
+          wifi.off()
+        elseif m.wifi.pos == 1 then
+          print "wifi hotspot"
+          wifi.hotspot()
+        elseif m.wifi.pos == 2 then
+          m.wifi.try = wifi.scan_list[m.wifi.selected]
+          textentry.enter(m.wifi.passdone, wifi.psk)
+        end
+      end
+    end
+
+    m.wifi.passdone = function(txt)
+      if txt ~= nil then
+        os.execute("~/norns/wifi.sh select "..m.wifi.try.." "..txt.." &")
         wifi.on()
-        menu.set_page(pWIFI)
       end
       menu.redraw()
+    end 
+
+    m.enc[pWIFI] = function(n,delta)
+      if n==2 then
+        m.wifi.pos = m.wifi.pos + delta
+        if m.wifi.pos > m.wifi.len - 1 then m.wifi.pos = m.wifi.len - 1
+        elseif m.wifi.pos < 0 then m.wifi.pos = 0 end
+        menu.redraw()
+      elseif n==3 and m.wifi.pos == 2 then
+        m.wifi.selected = util.clamp(1,m.wifi.selected+delta,wifi.scan_count)
+        menu.redraw()
+      end
     end
-  end
-end
 
-m.enc[pWIFIPASS] = function(n,delta)
-  if n==2 then
-    if m.wifipass.y == 1 then
-      if delta > 0 then m.wifipass.delok = 1
-      else m.wifipass.delok = 0 end
-    else m.wifipass.x = (m.wifipass.x + delta) % 94 end
-    menu.redraw()
-  elseif n==3 then
-    if delta > 0 then m.wifipass.y = 1
-    else m.wifipass.y = 0 end
-    menu.redraw()
-  end
-end
+    m.redraw[pWIFI] = function()
+      s_clear()
+      s_level(15)
+      s_move(0,10)
+      if wifi.state == 2 then
+        s_text("status: router "..wifi.ssid)
+      else s_text("status: "..wifi.status) end
+      if wifi.state > 0 then
+        s_level(4)
+        s_move(0,20)
+        s_text(wifi.ip)
+        s_move(127,20)
+        s_text_right(wifi.signal .. "dBm")
+      end
 
-m.redraw[pWIFIPASS] = function()
-  s_clear()
-  s_level(15)
-  s_move(0,32)
-  s_text(m.wifipass.psk)
-  local x,y
-  for x=0,15 do
-    if x==5 and m.wifipass.y==0 then s_level(15) else s_level(2) end
-    s_move(x*8,46)
-    s_text(string.char((x+m.wifipass.x)%94+33))
-  end
+      s_move(0,40+wifi.state*10)
+      s_text("-")
 
-  s_move(0,60)
-  if m.wifipass.y==1 and m.wifipass.delok==0 then s_level(15) else s_level(2) end
-  s_text("DEL")
-  s_move(127,60)
-  if m.wifipass.y==1 and m.wifipass.delok==1 then s_level(15) else s_level(2) end
-  s_text_right("OK")
+      for i=1,m.wifi.len do
+        s_move(8,30+10*i)
+        line = m.wifi.list[i]
+        if(i==m.wifi.pos+1) then
+          s_level(15)
+        else
+          s_level(4)
+        end
+        s_text(string.upper(line))
+      end
 
-  s_update()
-end
+      s_move(127,60)
+      if m.wifi.pos==2 then s_level(15) else s_level(4) end
+      if wifi.scan_count > 0 then
+        s_text_right(wifi.scan_list[m.wifi.selected])
+      else s_text_right("NONE") end
 
-m.init[pWIFIPASS] = function() 
-  if wifi.scan_active then
-    m.wifipass.y = 1
-    m.wifipass.delok = 1
-    m.wifipass.psk = wifi.psk
-  end
-end
+      s_update()
+    end
 
-m.deinit[pWIFIPASS] = norns.none
+    m.init[pWIFI] = function()
+      wifi.scan()
+      wifi.update()
+      m.wifi.selected = wifi.scan_active
+      u.time = 1
+      u.count = -1
+      u.callback = function()
+        wifi.update()
+        menu.redraw()
+      end
+      u:start()
+    end
+
+    m.deinit[pWIFI] = function()
+      u:stop()
+    end
 
 
-
--- LOG
-m.log = {}
-m.log.pos = 0
-
-m.key[pLOG] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 then
+    -- LOG
+    m.log = {}
     m.log.pos = 0
-    menu.redraw()
-  end
-end
 
-m.enc[pLOG] = function(n,delta)
-  if n==2 then
-    m.log.pos = util.clamp(m.log.pos+delta, 0, math.max(norns.log.len()-7,0))
-    menu.redraw()
-  end
-end
+    m.key[pLOG] = function(n,z)
+      if n==2 and z==1 then
+        menu.set_page(pSYSTEM)
+      elseif n==3 and z==1 then
+        m.log.pos = 0
+        menu.redraw()
+      end
+    end
 
-m.redraw[pLOG] = function()
-  s_clear()
-  s_level(10)
-  for i=1,8 do
-    s_move(0,(i*8)-1)
-    s_text(norns.log.get(i+m.log.pos))
-  end
-  s_update()
-end
+    m.enc[pLOG] = function(n,delta)
+      if n==2 then
+        m.log.pos = util.clamp(m.log.pos+delta, 0, math.max(norns.log.len()-7,0))
+        menu.redraw()
+      end
+    end
 
-m.init[pLOG] = function()
-  m.log.pos = 0
-  u.time = 1
-  u.count = -1
-  u.callback = menu.redraw
-  u:start()
-end
+    m.redraw[pLOG] = function()
+      s_clear()
+      s_level(10)
+      for i=1,8 do
+        s_move(0,(i*8)-1)
+        s_text(norns.log.get(i+m.log.pos))
+      end
+      s_update()
+    end
 
-m.deinit[pLOG] = function()
-  u:stop()
-end 
+    m.init[pLOG] = function()
+      m.log.pos = 0
+      u.time = 1
+      u.count = -1
+      u.callback = menu.redraw
+      u:start()
+    end
+
+    m.deinit[pLOG] = function()
+      u:stop()
+    end 

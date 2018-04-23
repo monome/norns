@@ -20,20 +20,32 @@ function fs.enter(folder, callback)
   fs.list = fs.getlist()
   fs.len = tab.count(fs.list)
 
-  fs.key_restore = key
-  fs.enc_restore = enc
-  fs.redraw_restore = redraw
-  key = fs.key
-  enc = fs.enc
-  redraw = fs.redraw
-  norns.menu.init()
+  if norns.menu.status() == false then
+    fs.key_restore = key
+    fs.enc_restore = enc
+    fs.redraw_restore = redraw
+    key = fs.key
+    enc = fs.enc
+    redraw = norns.none
+    norns.menu.init()
+  else
+    fs.key_restore = norns.menu.get_key()
+    fs.enc_restore = norns.menu.get_enc()
+    fs.redraw_restore = norns.menu.get_redraw()
+    norns.menu.set(fs.enc, fs.key, fs.redraw)
+  end 
+  fs.redraw()
 end
 
 function fs.exit()
-  key = fs.key_restore
-  enc = fs.enc_restore
-  redraw = fs.redraw_restore 
-  norns.menu.init()
+  if norns.menu.status() == false then
+    key = fs.key_restore
+    enc = fs.enc_restore
+    redraw = fs.redraw_restore 
+    norns.menu.init()
+  else
+    norns.menu.set(fs.enc_restore, fs.key_restore, fs.redraw_restore)
+  end
   if fs.path then fs.callback(fs.path)
   else fs.callback("cancel") end
 end
@@ -62,7 +74,7 @@ fs.key = function(n,z)
       fs.list = util.scandir(fs.getdir())
       fs.len = tab.count(fs.list)
       fs.pos = 0 
-      redraw()
+      fs.redraw()
     else
       fs.done = true
     end
@@ -76,7 +88,7 @@ fs.key = function(n,z)
       fs.list = util.scandir(fs.getdir())
       fs.len = tab.count(fs.list)
       fs.pos = 0
-      redraw()
+      fs.redraw()
     else
       local path = fs.folder 
       for k,v in pairs(fs.folders) do
@@ -93,7 +105,7 @@ end
 fs.enc = function(n,d)
   if n==2 then
     fs.pos = util.clamp(fs.pos + d, 0, fs.len - 1)
-    redraw()
+    fs.redraw()
   end
 end
 

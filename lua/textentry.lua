@@ -3,26 +3,40 @@
 local te = {}
 
 te.enter = function(callback, default)
+  print("te enter")
   te.txt = default or ""
   te.pos = 27
-  te.row = 0
+  if default then te.row=1 else te.row = 0 end
   te.delok = 1
   te.callback = callback
+  local pending = false
 
-  te.key_restore = key
-  te.enc_restore = enc
-  te.redraw_restore = redraw
-  key = te.key
-  enc = te.enc
-  redraw = te.redraw
-  norns.menu.init() 
+  if norns.menu.status() == false then
+    te.key_restore = key
+    te.enc_restore = enc
+    te.redraw_restore = redraw
+    key = te.key
+    enc = te.enc
+    redraw = norns.none
+    norns.menu.init()
+  else
+    te.key_restore = norns.menu.get_key()
+    te.enc_restore = norns.menu.get_enc()
+    te.redraw_restore = norns.menu.get_redraw()
+    norns.menu.set(te.enc, te.key, te.redraw)
+  end 
+  te.redraw()
 end
 
 te.exit = function()
-  key = te.key_restore
-  enc = te.enc_restore
-  redraw = te.redraw_restore 
-  norns.menu.init()
+  if norns.menu.status() == false then
+    key = te.key_restore
+    enc = te.enc_restore
+    redraw = te.redraw_restore 
+    norns.menu.init()
+  else
+    norns.menu.set(te.enc_restore, te.key_restore, te.redraw_restore)
+  end
   if te.txt then te.callback(te.txt)
   else te.callback(nil) end
 end
@@ -36,15 +50,17 @@ te.key = function(n,z)
     if te.row == 0 then
       local ch = ((5+te.pos)%94)+33
       te.txt = te.txt .. string.char(ch)
-      redraw()
+      te.redraw()
     else
       if te.delok==0 then
         te.txt = string.sub(te.txt,0,-2)
-      elseif te.delok==1 then
-        te.exit()
+        te.redraw()
+      elseif te.delok == 1 then
+        pending = true
       end
-      redraw()
     end
+  elseif n==3 and z==0 and pending == true then
+    if te.row == 1 and te.delok==1 then te.exit() end 
   end
 end
 
@@ -54,11 +70,11 @@ te.enc = function(n,delta)
       if delta > 0 then te.delok = 1
       else te.delok = 0 end
     else te.pos = (te.pos + delta) % 94 end
-    redraw()
+    te.redraw()
   elseif n==3 then
     if delta > 0 then te.row = 1
     else te.row = 0 end
-    redraw()
+    te.redraw()
   end
 end
 

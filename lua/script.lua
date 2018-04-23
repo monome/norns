@@ -61,6 +61,8 @@ Script.load = function(filename)
       norns.state.name = string.gsub(filename,'.lua','') -- store name
       norns.state.name = norns.state.name:match("[^/]*$") -- strip path from name
       norns.state.save() -- remember this script for next launch
+      norns.script.redraw = redraw -- store redraw function for context switching
+      redraw = norns.none -- block redraw until Script.init
       Script.run() -- load engine then run script-specified init function
     end
   end

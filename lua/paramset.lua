@@ -9,10 +9,10 @@ local file = require 'file'
 local ParamSet = {}
 ParamSet.__index = ParamSet
 
-local tNUMBER = 1
-local tOPTION = 2
-local tCONTROL = 3
-local tFILE = 3
+tNUMBER = 1
+tOPTION = 2
+tCONTROL = 3
+tFILE = 4
 
 --- constructor
 -- @param name
@@ -94,6 +94,11 @@ end
 function ParamSet:set_action(index, func)
   if type(index) == "string" then index = self.lookup[index] end
   self.params[index].action = func
+end
+
+--- get type
+function ParamSet:t(index)
+  return self.params[index].t
 end
 
 
