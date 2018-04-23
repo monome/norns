@@ -2,8 +2,8 @@
 Engine_SoftCut : CroneEngine {
 
 	classvar nbuf = 4; // count of buffes and "fixed" voices
-	classvar nvfloat = 2; // count of "floating" voices
-	classvar nvoices = 2; // total number of voices
+	classvar nvfloat = 4; // count of "floating" voices
+	classvar nvoices = 8; // total number of voices
 	classvar bufdur = 64.0;
 
 	classvar vfloatIdx; // array of indices for floating voices
@@ -53,7 +53,7 @@ Engine_SoftCut : CroneEngine {
 
 		postln("SoftCut: allocating buffers");
 
-		buf = Array.fill(nvoices, { arg i;
+		buf = Array.fill(nbuf, { arg i;
 			Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
 			})
 		});
@@ -75,15 +75,21 @@ Engine_SoftCut : CroneEngine {
 			SoftCutVoice.new(s, context.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
 		});
 
+		"voices: ".postln; voices.postln;
+
 		vfloatIdx.do({ arg idx, i;
-			voices[idx].buf_(buf[i]);
-			voices[idx].syn.set(\phase_att_in, voices[vfixIdx[i]].phase_b.index);
-			voices[idx].syn.set(\phase_att_bypass, 0.0);
+		    postln("attaching to phase bus for buffer: " ++ vfixIdx[i]);    
+		    voices[idx].buf_(buf[i]);
+		    voices[idx].syn.set(\phase_att_in, voices[vfixIdx[i]].phase_b.index);
+		    voices[idx].syn.set(\phase_att_bypass, 0.0);
 		});
 
+		"buffers: ".post; buf.postln;
+		
 		vfixIdx.do({ arg idx, i;
-			voices[idx].buf_(buf[i]);
-			voices[idx].syn.set(\phase_att_bypass, 1.0);
+		    postln("setting buffer for fixed voice idx " ++ idx ++ ", count " ++ i);		
+		    voices[idx].buf_(buf[i]);
+		    voices[idx].syn.set(\phase_att_bypass, 1.0);
 		});
 
 
