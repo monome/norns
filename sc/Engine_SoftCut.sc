@@ -57,17 +57,16 @@ Engine_SoftCut : CroneEngine {
 		startsamp = start * context.server.sampleRate;
 		endsamp = end * context.server.sampleRate;
 		samps = endsamp - startsamp;
-		newbuf = Buffer.alloc(context.server, samps);
-		// FIXME: this should be asynchronous
-		buf[i].copyData(newbuf, 0, startsamp, samps);
-		// any voices using this buffer need to be reassigned
-		voices.do({ arg v;
-			if(v.buf == buf[i], {
-				v.buf = newbuf;
+		newbuf = Buffer.alloc(context.server, samps, 1, {
+			buf[i].copyData(newbuf, 0, startsamp, samps);
+			voices.do({ arg v;
+				if(v.buf == buf[i], {
+					v.buf = newbuf;
+				});
 			});
+			buf[i].free;
+			buf[i] = newbuf;
 		});
-		buf[i].free;
-		buf[i] = newbuf;
 	}
 
 	// disk read
@@ -242,9 +241,7 @@ Engine_SoftCut : CroneEngine {
 
 			//-- routing
 			// level from given ADC channel to given recorder
-			[\adc_rec, \iif, { |msg|
-				postln(["Engine_SoftCut: adc_rec", msg]);
-				pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
+			[\adc_rec, \iif, { |msg| pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given recorder
 			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given DAC channel
