@@ -223,11 +223,10 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     int phase1 = wrap(phase0 + 1, bufFrames);
 
     float fadeInv = 1.f - fade;
-
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 
-    auto fr = static_cast<float>(phase - static_cast<int>(phase));
+    float fr = static_cast<float>(phase - static_cast<int>(phase));
 
     // linear-interpolated write values
     //// FIXME: this could be better somehow
