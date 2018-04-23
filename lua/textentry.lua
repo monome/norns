@@ -3,7 +3,6 @@
 local te = {}
 
 te.enter = function(callback, default)
-  print("te enter")
   te.txt = default or ""
   te.pos = 27
   if default then te.row=1 else te.row = 0 end
