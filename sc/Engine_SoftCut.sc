@@ -1,8 +1,8 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
 
-	classvar nbuf = 3; // count of buffes and "fixed" voices
-	classvar nvfloat = 3; // count of "floating" voices
+	classvar nbuf = 4; // count of buffes and "fixed" voices
+	classvar nvfloat = 2; // count of "floating" voices
 	classvar nvoices = 6; // total number of voices
 	classvar bufdur = 64.0;
 
