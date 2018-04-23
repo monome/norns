@@ -32,7 +32,7 @@ CronePoll {
 			oscPath = '/poll/data';
 		});
 		callback = {
-			perform(function.value);
+			this.sendValue(function.value);
 		};
 		if(periodic, {
 			task = Task { inf.do {
@@ -65,8 +65,9 @@ CronePoll {
 
 	// send the poll's message with value
 	// non-periodic polls can call this explicitly
-	perform {
+	sendValue {
 		arg val;
+		// postln("sendValue: " ++ val);
 		oscAddr.sendMsg(oscPath, index, val);
 	}
 }
