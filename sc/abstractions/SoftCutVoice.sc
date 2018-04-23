@@ -28,11 +28,12 @@ SoftCutVoice {
 				SynthDef.new(\soft_cut_voice, {
 					arg buf, in, out, gate=1,
 					phase_out= -1, trig_out= -1, trig_in = -1,
+					phase_att_in, phase_att_bypass=0.0,// phase attenuation input
 					amp=0.2, rec=0.0, pre=0.0,
 					rate=1, ratelag=0.1,
 					start=0, end=1, pos=0, fade=0.1, loop=1,
 					fadeRec=1.0, fadePre = 1.0, recRun=0, offset=0,
-					preLag=0.0005, recLag=0.0005, envTimeScale = 1.0, done=0;
+					preLag=0.001, recLag=0.001, envTimeScale = 0.001, done=0;
 
 					var snd, phase, tr;
 					var brs;
@@ -40,6 +41,7 @@ SoftCutVoice {
 					var trig;
 					var sin;
 					var aenv;
+					var att; // attenuation from input phase
 
 					/// TODO: add an input for arbitrary record head.
 					/// this should allow for a crossfade when heads cross
@@ -63,10 +65,13 @@ SoftCutVoice {
 					tr = cutfade[1];
 					snd = cutfade[2];
 
-					aenv = EnvGen.ar(Env.asr(0.0001, 1, 0.005), gate,
+					aenv = EnvGen.ar(Env.asr(1, 1, 1), gate,
 						timeScale:envTimeScale, doneAction:done);
 
-					Out.ar(out, ( snd * amp * aenv));
+					att = (abs(phase - In.ar(phase_att_in)) * 0.01).min(1.0);
+					att = att.max(phase_att_bypass);
+
+					Out.ar(out, ( snd * amp * aenv * att));
 					// NB: phase output is audio rate.
 					Out.ar(phase_out, phase);
 					// NB: this is an _audio_ rate trigger;
@@ -76,29 +81,29 @@ SoftCutVoice {
 				})
 			);
 
-			CroneDefs.add(
-				// triggered overdub-recording from arbitrary position
-				SynthDef(\rec_dub_trig_gate, {
-					arg buf, in, gate=0, done=0,
-					rate=1, start=0.0, end=1.0, loop=0,
-					rec=1, pre=0, fade=0.01;
-
-					var sr, brs,
-					sin, sin_phase,
-					phase, wr, trig,
-					env_pre, env_rec;
-
-					sr = SampleRate.ir;
-					brs = BufRateScale.kr(buf); // NB: BfWr and BufWrPre are non-interpolating...
-					env_rec = EnvGen.ar(Env.asr(fade, 1, fade), gate, doneAction:done) * rec;
-					env_pre = (pre * env_rec).max(1-env_rec); // soft in/out
-
-					sin = In.ar(in);
-					phase = Phasor.ar(gate, rate * brs, start*sr, end*sr, start);
-					///// TODO: additional output for phase (see above)
-					wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
-				})
-			);
+			// CroneDefs.add(
+			// 	// triggered overdub-recording from arbitrary position
+			// 	SynthDef(\rec_dub_trig_gate, {
+			// 		arg buf, in, gate=0, done=0,
+			// 		rate=1, start=0.0, end=1.0, loop=0,
+			// 		rec=1, pre=0, fade=0.01;
+			//
+			// 		var sr, brs,
+			// 		sin, sin_phase,
+			// 		phase, wr, trig,
+			// 		env_pre, env_rec;
+			//
+			// 		sr = SampleRate.ir;
+			// 		brs = BufRateScale.kr(buf); // NB: BfWr and BufWrPre are non-interpolating...
+			// 		env_rec = EnvGen.ar(Env.asr(fade, 1, fade), gate, doneAction:done) * rec;
+			// 		env_pre = (pre * env_rec).max(1-env_rec); // soft in/out
+			//
+			// 		sin = In.ar(in);
+			// 		phase = Phasor.ar(gate, rate * brs, start*sr, end*sr, start);
+			// 		///// TODO: additional output for phase (see above)
+			// 		wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
+			// 	})
+			// );
 		}
 	}
 

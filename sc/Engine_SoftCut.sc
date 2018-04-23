@@ -1,7 +1,13 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
-	classvar nvoices = 4;
+
+	classvar nbuf = 4; // count of buffes and "fixed" voices
+	classvar nvfloat = 4; // count of "floating" voices
+	classvar nvoices = 8; // total number of voices
 	classvar bufdur = 64.0;
+
+	classvar vfloatIdx; // array of indices for floating voices
+	classvar vfixIdx; // array of indices for fixed voices
 
 	classvar commands;
 
@@ -13,8 +19,14 @@ Engine_SoftCut : CroneEngine {
 	var <rec; // recorders
 
 	var <voices; // array of voices
-	// @param: audio context
-	// @param: callback when done initializing resourcess
+
+	*initClass {
+		// lower indices address the floating voices,
+		vfloatIdx = Array.series(nvfloat);
+		// upper indices are the fixed voices
+		vfixIdx =Array.series(nbuf, nvfloat);
+	}
+
 	*new { arg context, doneCallback;
 		^super.new(context, doneCallback);
 	}
@@ -28,9 +40,6 @@ Engine_SoftCut : CroneEngine {
 	}
 
 	//---  buffer and routing methods
-	startRec { |id, pos| /* TODO */} // one-shot record
-	stopRec { |id| /* TODO */}
-
 
 	// clear a buffer
 	clearBuf { arg i;
@@ -49,6 +58,7 @@ Engine_SoftCut : CroneEngine {
 		endsamp = end * context.server.sampleRate;
 		samps = endsamp - startsamp;
 		newbuf = Buffer.alloc(context.server, samps);
+		// FIXME: this should be asynchronous
 		buf[i].copyData(newbuf, 0, startsamp, samps);
 		// any voices using this buffer need to be reassigned
 		voices.do({ arg v;
@@ -63,7 +73,16 @@ Engine_SoftCut : CroneEngine {
 	// disk read
 	readBuf { arg i, path;
 		if(buf[i].notNil, {
-			buf[i].readChannel(path, channels:[0]);
+			// fixme: should set some upper bound here on number of frames
+			var newbuf = Buffer.readChannel(context.server, path, 0, -1, [0], {
+				voices.do({ arg v;
+					if(v.buf == buf[i], {
+						v.buf = newbuf;
+					});
+				});
+				buf[i].free;
+				buf[i] = newbuf;
+			});
 		});
 	}
 
@@ -73,6 +92,13 @@ Engine_SoftCut : CroneEngine {
 			buf[i].write(path, "wav");
 		});
 	}
+
+	setBuf { arg vidx, bidx;
+		if(vidx < nvfloat && bidx < nbuf, {
+			voices[vidx].buf_(buf[bidx]);
+		});
+	}
+
 
 	playRecLevel { |srcId, dstId, level| pm.pb_rec.level_(srcId, dstId, level); }
 	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
@@ -89,7 +115,7 @@ Engine_SoftCut : CroneEngine {
 
 		//--- groups
 		gr = Event.new;
-		gr.pb = Group.new(context.xg);
+		gr.pb = Group.new(context.xg, addAction:\addToTail);
 		gr.rec = Group.after(context.ig);
 		// phase bus per voice (output)
 		bus = Event.new;
@@ -99,6 +125,7 @@ Engine_SoftCut : CroneEngine {
 		//--- buffers
 
 		postln("SoftCut: allocating buffers");
+
 		buf = Array.fill(nvoices, { arg i;
 			Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
 			})
@@ -121,6 +148,18 @@ Engine_SoftCut : CroneEngine {
 			SoftCutVoice.new(s, context.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
 		});
 
+		vfloatIdx.do({ arg idx, i;
+			voices[idx].buf_(buf[i]);
+			voices[idx].syn.set(\phase_att_in, voices[vfixIdx[i]].phase_b.index);
+			voices[idx].syn.set(\phase_att_bypass, 0.0);
+		});
+
+		vfixIdx.do({ arg idx, i;
+			voices[idx].buf_(buf[i]);
+			voices[idx].syn.set(\phase_att_bypass, 1.0);
+		});
+
+
 		//--- patch matrices
 		bus_pb_idx = bus.pb.collect({ |b| b.index });
 		bus_rec_idx = bus.rec.collect({ |b| b.index });
@@ -132,21 +171,22 @@ Engine_SoftCut : CroneEngine {
 			server:s, target:gr.rec, action:\addToTail,
 			in: bus.adc.collect({ |b| b.index }),
 			out: bus_rec_idx,
-			feedback:true
+			feedback:false
 		);
 		postln("softcut: pb->out patchmatrix");
+
 		// playback -> output
 		pm.pb_dac = PatchMatrix.new(
 			server:s, target:gr.pb, action:\addAfter,
 			in: bus_pb_idx,
 			out: bus.dac.collect({ |b| b.index }),
-			feedback:true
+			feedback:false
 		);
 
 		// playback -> record
 		postln("softcut: pb->rec patchmatrix");
 		pm.pb_rec = PatchMatrix.new(
-			server:s, target:gr.pb, action:\addAfter,
+			server:s, target:gr.rec, action:\addBefore,
 			in: bus_pb_idx,
 			out: bus_rec_idx,
 			feedback:true
@@ -175,9 +215,10 @@ Engine_SoftCut : CroneEngine {
 		var com = [
 
 			//-- voice functions
-			[\start, \i, {|msg| msg.postln; voices.postln; voices[msg[1]-1].start; }],
+			[\start, \i, {|msg| msg.postln; voices[msg[1]-1].start; }],
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
+			[\set_buf, \ii, {|msg| setBuf(msg[1]-1, msg[2]-1); }],
 
 			//-- direct control of synth params
 			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
