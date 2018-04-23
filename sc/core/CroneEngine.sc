@@ -32,9 +32,9 @@ CroneEngine {
 		// subclass responsibility to allocate server resources, this method is called in a Routine so it's okay to s.sync
 	}
 
-	addPoll { arg name, func;
+	addPoll { arg name, func, periodic=true;
 		name = name.asSymbol;
-		CronePollRegistry.register(name, func);
+		CronePollRegistry.register(name, func, periodic:periodic);
 		pollNames.add(name);
 	}
 
