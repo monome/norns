@@ -33,7 +33,7 @@ SoftCutVoice {
 					rate=1, ratelag=0.1,
 					start=0, end=1, pos=0, fade=0.1, loop=1,
 					fadeRec=1.0, fadePre = 1.0, recRun=0, offset=0,
-					preLag=0.0005, recLag=0.0005, envTimeScale = 1.0, done=0;
+					preLag=0.001, recLag=0.001, envTimeScale = 0.001, done=0;
 
 					var snd, phase, tr;
 					var brs;
@@ -65,11 +65,11 @@ SoftCutVoice {
 					tr = cutfade[1];
 					snd = cutfade[2];
 
-					aenv = EnvGen.ar(Env.asr(0.0001, 1, 0.005), gate,
+					aenv = EnvGen.ar(Env.asr(1, 1, 1), gate,
 						timeScale:envTimeScale, doneAction:done);
 
 					att = (abs(phase - In.ar(phase_att_in)) * 0.01).min(1.0);
-					att = att.min(phase_att_bypass);
+					att = att.max(phase_att_bypass);
 
 					Out.ar(out, ( snd * amp * aenv * att));
 					// NB: phase output is audio rate.
