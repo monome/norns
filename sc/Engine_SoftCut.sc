@@ -115,7 +115,7 @@ Engine_SoftCut : CroneEngine {
 
 		//--- groups
 		gr = Event.new;
-		gr.pb = Group.new(context.xg);
+		gr.pb = Group.new(context.xg, addAction:\addToTail);
 		gr.rec = Group.after(context.ig);
 		// phase bus per voice (output)
 		bus = Event.new;
@@ -171,21 +171,22 @@ Engine_SoftCut : CroneEngine {
 			server:s, target:gr.rec, action:\addToTail,
 			in: bus.adc.collect({ |b| b.index }),
 			out: bus_rec_idx,
-			feedback:true
+			feedback:false
 		);
 		postln("softcut: pb->out patchmatrix");
+
 		// playback -> output
 		pm.pb_dac = PatchMatrix.new(
 			server:s, target:gr.pb, action:\addAfter,
 			in: bus_pb_idx,
 			out: bus.dac.collect({ |b| b.index }),
-			feedback:true
+			feedback:false
 		);
 
 		// playback -> record
 		postln("softcut: pb->rec patchmatrix");
 		pm.pb_rec = PatchMatrix.new(
-			server:s, target:gr.pb, action:\addAfter,
+			server:s, target:gr.rec, action:\addBefore,
 			in: bus_pb_idx,
 			out: bus_rec_idx,
 			feedback:true
@@ -214,7 +215,7 @@ Engine_SoftCut : CroneEngine {
 		var com = [
 
 			//-- voice functions
-			[\start, \i, {|msg| msg.postln; voices.postln; voices[msg[1]-1].start; }],
+			[\start, \i, {|msg| msg.postln; voices[msg[1]-1].start; }],
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
 			[\set_buf, \ii, {|msg| setBuf(msg[1]-1, msg[2]-1); }],
