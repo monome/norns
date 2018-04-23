@@ -2,8 +2,8 @@
 Engine_SoftCut : CroneEngine {
 
 	classvar nbuf = 4; // count of buffes and "fixed" voices
-	classvar nvfloat = 4; // count of "floating" voices
-	classvar nvoices = 8; // total number of voices
+	classvar nvfloat = 2; // count of "floating" voices
+	classvar nvoices = 2; // total number of voices
 	classvar bufdur = 64.0;
 
 	classvar vfloatIdx; // array of indices for floating voices
