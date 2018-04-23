@@ -60,18 +60,20 @@ Crone {
 		if(engine.class != class, {
 			if(class.notNil, {
 				if(engine.notNil, {
+					var cond = Condition.new(false);
 					postln("free engine: " ++ engine);
-					engine.free;
+					engine.deinit({ cond.test = true; cond.signal; });
+					cond.wait;
 				});
 				class.new(ctx, {
 					arg theEngine;
 					postln("-----------------------");
 					postln("-- crone: done loading engine, starting reports");
 					postln("--------");
-					
+
 					this.engine = theEngine;
 					postln("engine: " ++ this.engine);
-					
+
 					this.reportCommands;
 					this.reportPolls;
 				});
