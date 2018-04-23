@@ -35,7 +35,7 @@ static void SoftCutHead_next(SoftCutHead *unit, int inNumSamples);
 static void SoftCutHead_Ctor(SoftCutHead *unit);
 
 void SoftCutHead_Ctor(SoftCutHead *unit) {
-    Print("SoftCutHead_Ctor() : samplerate %f \n", SAMPLERATE);
+    //Print("SoftCutHead_Ctor() : samplerate %f \n", SAMPLERATE);
     unit->cutfade.init();
     unit->cutfade.setSampleRate(SAMPLERATE);
     unit->m_fbufnum = -1e9f;
@@ -43,7 +43,7 @@ void SoftCutHead_Ctor(SoftCutHead *unit) {
     unit->prevTrig = 0.f;
     SETCALC(SoftCutHead_next);
     SoftCutHead_next(unit, 1);
-    Print("SoftCutHead_CTor(): num inputs: %i\n", unit->mNumInputs);
+    //Print("SoftCutHead_CTor(): num inputs: %i\n", unit->mNumInputs);
 }
 
 void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
@@ -65,16 +65,16 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     // Print("SoftCutHead input: %f\n", in);
 
     
-    float trig = IN0(2);
-    float* rate = IN(3);
-    float start = IN0(4);
-    float end = IN0(5);
-    float pos = IN0(6);
-    float fade = IN0(7);
-    float loop = IN0(8);
+    const float trig = IN0(2);
+    const float rate = IN0(3);
+    const float start = IN0(4);
+    const float end = IN0(5);
+    const float pos = IN0(6);
+    const float fade = IN0(7);
+    const float loop = IN0(8);
 
-    const float *rec = IN(9);
-    const float *pre = IN(10);
+    const float rec = IN0(9);
+    const float pre = IN0(10);
 
     float fadeRec = IN0(11);
     float fadePre = IN0(12);
@@ -99,12 +99,14 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     }
     unit->prevTrig = trig;
 
+
+    unit->cutfade.setRate(rate);
+    unit->cutfade.setRec(rec);
+    unit->cutfade.setPre(pre);
+
+
     float snd, phi, tr;
     for (int i = 0; i < inNumSamples; ++i) {
-
-        unit->cutfade.setRate(rate[i]);
-        unit->cutfade.setRec(rec[i]);
-        unit->cutfade.setPre(pre[i]);
 
         unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
         phase_out[i] = phi;

@@ -16,7 +16,6 @@ Engine_SoftCut : CroneEngine {
 	var <syn; // synths
 	var <gr; // groups
 	var <pm; // patch matrix
-	var <rec; // recorders
 
 	var <voices; // array of voices
 
@@ -31,78 +30,6 @@ Engine_SoftCut : CroneEngine {
 		^super.new(context, doneCallback);
 	}
 
-	free {
-		voices.do({ arg voice; voice.free; });
-		buf.do({ |b| b.free; });
-		bus.do({ arg bs; bs.do({ arg b; b.free; }); });
-		pm.do({ arg p; p.free; });
-		super.free;
-	}
-
-	//---  buffer and routing methods
-
-	// clear a buffer
-	clearBuf { arg i;
-		buf[i].zero;
-	}
-
-	// normalize buffer to given max
-	normalizeBuf { arg i, x;
-		buf[i].normalize(x);
-	}
-
-	// destructive trim
-	trimBuf { arg i, start, end;
-		var startsamp, endsamp, samps, newbuf;
-		startsamp = start * context.server.sampleRate;
-		endsamp = end * context.server.sampleRate;
-		samps = endsamp - startsamp;
-		newbuf = Buffer.alloc(context.server, samps);
-		// FIXME: this should be asynchronous
-		buf[i].copyData(newbuf, 0, startsamp, samps);
-		// any voices using this buffer need to be reassigned
-		voices.do({ arg v;
-			if(v.buf == buf[i], {
-				v.buf = newbuf;
-			});
-		});
-		buf[i].free;
-		buf[i] = newbuf;
-	}
-
-	// disk read
-	readBuf { arg i, path;
-		if(buf[i].notNil, {
-			// fixme: should set some upper bound here on number of frames
-			var newbuf = Buffer.readChannel(context.server, path, 0, -1, [0], {
-				voices.do({ arg v;
-					if(v.buf == buf[i], {
-						v.buf = newbuf;
-					});
-				});
-				buf[i].free;
-				buf[i] = newbuf;
-			});
-		});
-	}
-
-	// disk write
-	writeBuf { arg i, path;
-		if(buf[i].notNil, {
-			buf[i].write(path, "wav");
-		});
-	}
-
-	setBuf { arg vidx, bidx;
-		if(vidx < nvfloat && bidx < nbuf, {
-			voices[vidx].buf_(buf[bidx]);
-		});
-	}
-
-
-	playRecLevel { |srcId, dstId, level| pm.pb_rec.level_(srcId, dstId, level); }
-	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
-	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
 	alloc {
 		var com;
@@ -204,13 +131,81 @@ Engine_SoftCut : CroneEngine {
 				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
 			});
 		});
-
-
-		s.sync;
 	}
 
-	addCommands {
+	free {
+		voices.do({ arg voice; voice.free; });
+		buf.do({ |b| b.free; });
+		bus.do({ arg bs; bs.do({ arg b; b.free; }); });
+		pm.do({ arg p; p.free; });
+		super.free;
+	}
 
+	//---  buffer and routing methods
+
+	// clear a buffer
+	clearBuf { arg i;
+		buf[i].zero;
+	}
+
+	// normalize buffer to given max
+	normalizeBuf { arg i, x;
+		buf[i].normalize(x);
+	}
+
+	// destructive trim
+	trimBuf { arg i, start, end;
+		var startsamp, endsamp, samps, newbuf;
+		startsamp = start * context.server.sampleRate;
+		endsamp = end * context.server.sampleRate;
+		samps = endsamp - startsamp;
+		newbuf = Buffer.alloc(context.server, samps, 1, {
+			buf[i].copyData(newbuf, 0, startsamp, samps);
+			voices.do({ arg v;
+				if(v.buf == buf[i], {
+					v.buf = newbuf;
+				});
+			});
+			buf[i].free;
+			buf[i] = newbuf;
+		});
+	}
+
+	// disk read
+	readBuf { arg i, path;
+		if(buf[i].notNil, {
+			// fixme: should set some upper bound here on number of frames
+			var newbuf = Buffer.readChannel(context.server, path, 0, -1, [0], {
+				voices.do({ arg v;
+					if(v.buf == buf[i], {
+						v.buf = newbuf;
+					});
+				});
+				buf[i].free;
+				buf[i] = newbuf;
+			});
+		});
+	}
+
+	// disk write
+	writeBuf { arg i, path;
+		if(buf[i].notNil, {
+			buf[i].write(path, "wav");
+		});
+	}
+
+	setBuf { arg vidx, bidx;
+		if(vidx < nvfloat && bidx < nbuf, {
+			voices[vidx].buf_(buf[bidx]);
+		});
+	}
+
+
+	playRecLevel { |srcId, dstId, level| pm.pb_rec.level_(srcId, dstId, level); }
+	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
+	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
+
+	addCommands {
 
 		var com = [
 
@@ -242,9 +237,7 @@ Engine_SoftCut : CroneEngine {
 
 			//-- routing
 			// level from given ADC channel to given recorder
-			[\adc_rec, \iif, { |msg|
-				postln(["Engine_SoftCut: adc_rec", msg]);
-				pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
+			[\adc_rec, \iif, { |msg| pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given recorder
 			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 			// level from given playback channel to given DAC channel
