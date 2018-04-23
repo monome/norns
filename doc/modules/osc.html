@@ -52,12 +52,12 @@
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/option.html">option</a></li>
-  <li><a href="../modules/osc.html">osc</a></li>
+  <li><strong>osc</strong></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
-  <li><strong>state</strong></li>
+  <li><a href="../modules/state.html">state</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
   <li><a href="../modules/textentry.html">textentry</a></li>
   <li><a href="../modules/util.html">util</a></li>
@@ -67,16 +67,25 @@
 
 <div id="content">
 
-<h1>Module <code>state</code></h1>
-<p>State</p>
+<h1>Module <code>osc</code></h1>
+<p>osc device</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#save">save ()</a></td>
-	<td class="summary">save current norns state to state.lua</td>
+	<td class="name" nowrap><a href="#event">event (from, path, args)</a></td>
+	<td class="summary">static callback when an osc event is received
+ user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#send">send (to, path, args)</a></td>
+	<td class="summary">static method to send osc event</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#norns.osc.event">norns.osc.event (path, args, from)</a></td>
+	<td class="summary">handle an osc event</td>
 	</tr>
 </table>
 
@@ -88,13 +97,78 @@
 
     <dl class="function">
     <dt>
-    <a name = "save"></a>
-    <strong>save ()</strong>
+    <a name = "event"></a>
+    <strong>event (from, path, args)</strong>
     </dt>
     <dd>
-    save current norns state to state.lua
+    static callback when an osc event is received
+ user scripts can redefine
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">from</span>
+         : a {host, port} table with the source address
+        </li>
+        <li><span class="parameter">path</span>
+         : osc message path
+        </li>
+        <li><span class="parameter">args</span>
+         : osc message args
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "send"></a>
+    <strong>send (to, path, args)</strong>
+    </dt>
+    <dd>
+    static method to send osc event
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">to</span>
+         : a {host, port} table with the destination address
+        </li>
+        <li><span class="parameter">path</span>
+         : osc message path
+        </li>
+        <li><span class="parameter">args</span>
+         : osc message args
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "norns.osc.event"></a>
+    <strong>norns.osc.event (path, args, from)</strong>
+    </dt>
+    <dd>
+    handle an osc event
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+
+        </li>
+        <li><span class="parameter">args</span>
+
+        </li>
+        <li><span class="parameter">from</span>
+
+        </li>
+    </ul>
 
 
 

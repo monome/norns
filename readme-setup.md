@@ -83,3 +83,17 @@ get most recent version from https://github.com/ngwese/maiden/releases
 download to `~/maiden/` and untar
 
 execute with `./maiden.arm -debug -site ./app/build -data ~/norns/lua/`
+
+
+## docs addendum
+
+if you want to generate the docs (using ldoc) first install:
+
+```
+sudo apt-get install luarocks liblua5.1-dev
+sudo luarocks install ldoc
+```
+
+to generate the docs:
+
+`ldoc .` in the root norns folder
