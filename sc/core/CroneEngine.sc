@@ -47,9 +47,11 @@ CroneEngine {
 			pollNames.do({ arg name;
 				CronePollRegistry.remove(name);
 			});
+			// subclass should implement free, and this method should also be called in a routine
 			this.free;
 			doneCallback.value(this);
 		}
+
 	}
 
 	addCommand { arg name, format, func;

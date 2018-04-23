@@ -41,7 +41,7 @@ CronePoll {
 			}};
 
 		});
-		isRunning = false;		
+		isRunning = false;
 	}
 
 	start { arg addr;
@@ -101,7 +101,7 @@ CronePollRegistry {
 		name = name.asSymbol;
 		if(polls.keys.includes(name), {
 			polls[name].stop;
-			pollNames.removeAt(polls[name].idx);
+			pollNames.removeAt(polls[name].index);
 			polls.removeAt(name);
 		})
 	}
@@ -111,10 +111,10 @@ CronePollRegistry {
 		polls.clear;
 	}
 
-	*getPollFromIdx { arg idx;
-//		postln("getting poll for idx: " ++ idx);
+	*getPollFromIndex { arg index;
+//		postln("getting poll for index: " ++ index);
 //		postln("poll names: " ++ pollNames);
-		^polls[pollNames[idx]];
+		^polls[pollNames[index]];
 	}
 
 	*getPollFromName { arg name;
