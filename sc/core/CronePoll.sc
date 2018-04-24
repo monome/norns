@@ -32,7 +32,7 @@ CronePoll {
 			oscPath = '/poll/data';
 		});
 		callback = {
-			perform(function.value);
+			this.sendValue(function.value);
 		};
 		if(periodic, {
 			task = Task { inf.do {
@@ -41,7 +41,7 @@ CronePoll {
 			}};
 
 		});
-		isRunning = false;		
+		isRunning = false;
 	}
 
 	start { arg addr;
@@ -65,8 +65,9 @@ CronePoll {
 
 	// send the poll's message with value
 	// non-periodic polls can call this explicitly
-	perform {
+	sendValue {
 		arg val;
+		// postln("sendValue: " ++ val);
 		oscAddr.sendMsg(oscPath, index, val);
 	}
 }
@@ -101,7 +102,7 @@ CronePollRegistry {
 		name = name.asSymbol;
 		if(polls.keys.includes(name), {
 			polls[name].stop;
-			pollNames.removeAt(polls[name].idx);
+			pollNames.removeAt(polls[name].index);
 			polls.removeAt(name);
 		})
 	}
@@ -111,10 +112,10 @@ CronePollRegistry {
 		polls.clear;
 	}
 
-	*getPollFromIdx { arg idx;
-//		postln("getting poll for idx: " ++ idx);
+	*getPollFromIndex { arg index;
+//		postln("getting poll for index: " ++ index);
 //		postln("poll names: " ++ pollNames);
-		^polls[pollNames[idx]];
+		^polls[pollNames[index]];
 	}
 
 	*getPollFromName { arg name;

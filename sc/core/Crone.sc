@@ -59,34 +59,39 @@ Crone {
 		class = CroneEngine.allSubclasses.detect({ arg n; n.asString == name.asString });
 		if(engine.class != class, {
 			if(class.notNil, {
-				if(engine.notNil, {
-					postln("free engine: " ++ engine);
-					engine.free;
-				});
-				class.new(ctx, {
-					arg theEngine;
-					postln("-----------------------");
-					postln("-- crone: done loading engine, starting reports");
-					postln("--------");
-					
-					this.engine = theEngine;
-					postln("engine: " ++ this.engine);
-					
-					this.reportCommands;
-					this.reportPolls;
-				});
+				fork {
+					if(engine.notNil, {
+						var cond = Condition.new(false);
+						postln("free engine: " ++ engine);
+						engine.deinit({ cond.test = true; cond.signal; });
+						cond.wait;
+
+					});
+					class.new(ctx, {
+						arg theEngine;
+						postln("-----------------------");
+						postln("-- crone: done loading engine, starting reports");
+						postln("--------");
+
+						this.engine = theEngine;
+						postln("engine: " ++ this.engine);
+
+						this.reportCommands;
+						this.reportPolls;
+					});
+				}
 			});
 		}, {
-		    // if we didn't change engines, just resend the reports
-                        this.reportCommands;
-                        this.reportPolls;
+			// if we didn't change engines, just resend the reports
+			this.reportCommands;
+			this.reportPolls;
 		});
 
 	}
 
 	// start a thread to continuously send a named report with a given interval
 	*startPoll { arg idx;
-		var poll = CronePollRegistry.getPollFromIdx(idx);
+		var poll = CronePollRegistry.getPollFromIndex(idx);
 		if(poll.notNil, {
 			poll.start(remoteAddr);
 		}, {
@@ -96,7 +101,7 @@ Crone {
 
 	*stopPoll { arg idx;
 
-		var poll = CronePollRegistry.getPollFromIdx(idx);
+		var poll = CronePollRegistry.getPollFromIndex(idx);
 		if(poll.notNil, {
 			poll.stop;
 		}, {
@@ -105,7 +110,7 @@ Crone {
 	}
 
 	*setPollTime { arg idx, dt;
-		var pt = CronePollRegistry.getPollFromIdx(idx);
+		var pt = CronePollRegistry.getPollFromIndex(idx);
 		if(pt.notNil, {
 			pt.setTime(dt);
 		}, {
@@ -142,7 +147,7 @@ Crone {
 		var num = CronePollRegistry.getNumPolls;
 		remoteAddr.sendMsg('/report/polls/start', num);
 		num.do({ arg i;
-			var poll = CronePollRegistry.getPollFromIdx(i);
+			var poll = CronePollRegistry.getPollFromIndex(i);
 			postln(poll.name);
 			// FIXME: polls should just have format system like commands?
 			remoteAddr.sendMsg('/report/polls/entry', i, poll.name, if(poll.type == \value, {0}, {1}));

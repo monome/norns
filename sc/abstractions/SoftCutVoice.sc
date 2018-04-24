@@ -52,10 +52,10 @@ SoftCutVoice {
 					trig = InTrig.kr(trig_in);
 					sin = In.ar(in);
 
-					pre = Lag.ar(K2A.ar(pre), preLag);
-					rec = Lag.ar(K2A.ar(rec), recLag);
+					pre = Lag.kr(pre, preLag);
+					rec = Lag.kr(rec, recLag);
 
-					rate = Lag.ar(K2A.ar(rate), ratelag);
+					rate = Lag.kr(rate, ratelag);
 
 					cutfade =  SoftCutHead.ar(buf, sin, trig,
 						rate * brs, start, end, pos, fade, loop,
@@ -133,10 +133,13 @@ SoftCutVoice {
 	}
 
 	start { syn.set(\gate, 1); syn.run(true); this.reset; }
+	
 	stop { syn.set(\gate, 0); } // will pause when done
+	
 	// reset { reset_b.setSynchronous(1); }
 	// hm....
 	reset { reset_b.set(1); }
+
 	buf_ { arg bf; buf = bf; syn.set(\buf, buf); }
 
 }
