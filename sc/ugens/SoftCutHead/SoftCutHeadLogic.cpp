@@ -217,7 +217,9 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
 
     // bail if record/fade level is ~=0, so we don't introduce noise
     if (fade < std::numeric_limits<float>::epsilon()) { return; }
-    if (rec < std::numeric_limits<float>::epsilon()) { return; }
+
+    // nb: actually no, we don't want to do this b/c we might still want to apply pre-level multiplier
+    // if (rec < std::numeric_limits<float>::epsilon()) { return; }
 
     int phase0 = wrap(static_cast<int>(phase), bufFrames);
     int phase1 = wrap(phase0 + 1, bufFrames);
