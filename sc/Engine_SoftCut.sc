@@ -2,8 +2,8 @@
 Engine_SoftCut : CroneEngine {
 
 	classvar nbuf = 4; // count of buffes and "fixed" voices
-	classvar nvfloat = 4; // count of "floating" voices
-	classvar nvoices = 8; // total number of voices
+	classvar nvfloat = 2; // count of "floating" voices
+	classvar nvoices = 6; // total number of voices
 	classvar bufdur = 64.0;
 
 	classvar vfloatIdx; // array of indices for floating voices
@@ -166,14 +166,15 @@ Engine_SoftCut : CroneEngine {
 		endsamp = end * context.server.sampleRate;
 		samps = endsamp - startsamp;
 		newbuf = Buffer.alloc(context.server, samps, 1, {
-			buf[i].copyData(newbuf, 0, startsamp, samps);
+		       arg theBuf;
+			buf[i].copyData(theBuf, 0, startsamp, samps);
 			voices.do({ arg v;
 				if(v.buf == buf[i], {
-					v.buf = newbuf;
+					v.buf = theBuf;
 				});
 			});
 			buf[i].free;
-			buf[i] = newbuf;
+			buf[i] = theBuf;
 		});
 	}
 
