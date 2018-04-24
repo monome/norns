@@ -124,7 +124,11 @@ function ParamSet:read(filename)
     for line in io.lines(data_dir .. filename) do
       --print(line)
       k,v = line:match("([^,]+),([^,]+)")
-      self.params[tonumber(k)]:set(tonumber(v))
+      if tonumber(v) ~= nil then
+        self.params[tonumber(k)]:set(tonumber(v))
+      else
+        self.params[tonumber(k)]:set(v)
+      end
     end 
   end 
 end
