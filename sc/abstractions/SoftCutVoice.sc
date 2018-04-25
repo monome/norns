@@ -33,7 +33,7 @@ SoftCutVoice {
 					rate=1, ratelag=0.1,
 					start=0, end=1, pos=0, fade=0.1, loop=1,
 					fadeRec=1.0, fadePre = 1.0, recRun=0, offset=0,
-					preLag=0.001, recLag=0.001, envTimeScale = 0.001, done=0;
+					preLag=0.001, recLag=0.001, envTimeScale = 0.001;
 
 					var snd, phase, tr;
 					var brs;
@@ -42,10 +42,6 @@ SoftCutVoice {
 					var sin;
 					var aenv;
 					var att; // attenuation from input phase
-
-					/// TODO: add an input for arbitrary record head.
-					/// this should allow for a crossfade when heads cross
-					/// using abs(distance between heads) as xfade envelope
 
 					brs = BufRateScale.kr(buf);
 
@@ -65,8 +61,8 @@ SoftCutVoice {
 					tr = cutfade[1];
 					snd = cutfade[2];
 
-					aenv = EnvGen.ar(Env.asr(1, 1, 1), gate,
-						timeScale:envTimeScale, doneAction:done);
+					aenv = EnvGen.kr(Env.asr(1, 1, 1), gate,
+						timeScale:envTimeScale);
 
 					att = (abs(phase - In.ar(phase_att_in)) * 0.01).min(1.0);
 					att = att.max(phase_att_bypass);
@@ -80,30 +76,6 @@ SoftCutVoice {
 					Out.ar(trig_out, tr);
 				})
 			);
-
-			// CroneDefs.add(
-			// 	// triggered overdub-recording from arbitrary position
-			// 	SynthDef(\rec_dub_trig_gate, {
-			// 		arg buf, in, gate=0, done=0,
-			// 		rate=1, start=0.0, end=1.0, loop=0,
-			// 		rec=1, pre=0, fade=0.01;
-			//
-			// 		var sr, brs,
-			// 		sin, sin_phase,
-			// 		phase, wr, trig,
-			// 		env_pre, env_rec;
-			//
-			// 		sr = SampleRate.ir;
-			// 		brs = BufRateScale.kr(buf); // NB: BfWr and BufWrPre are non-interpolating...
-			// 		env_rec = EnvGen.ar(Env.asr(fade, 1, fade), gate, doneAction:done) * rec;
-			// 		env_pre = (pre * env_rec).max(1-env_rec); // soft in/out
-			//
-			// 		sin = In.ar(in);
-			// 		phase = Phasor.ar(gate, rate * brs, start*sr, end*sr, start);
-			// 		///// TODO: additional output for phase (see above)
-			// 		wr = BufWrPre.ar(sin * env_rec, buf, phase, env_pre);
-			// 	})
-			// );
 		}
 	}
 
@@ -115,11 +87,15 @@ SoftCutVoice {
 		phase_b = Bus.control(server);
 		loop_b = Bus.audio(server);
 
-		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 0,
+		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 1,
 			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_audio_b.index
 		], target);
-		phase_kr_s = { Out.kr(phase_b.index, A2K.kr(In.ar(phase_audio_b.index)))}
-		.play(target: syn, addAction:\addAfter);
+		phase_kr_s = { arg gate = 1;
+			// FIXME: we aren't using AR phase at the moment
+			var phase = A2K.kr(In.ar(phase_audio_b.index));
+			phase = Gate.kr(phase, gate);
+			Out.kr(phase_b.index, phase);
+		}.play(target: syn, addAction:\addAfter);
 
 	}
 
@@ -132,14 +108,11 @@ SoftCutVoice {
 		syn.free;
 	}
 
-	start { syn.set(\gate, 1); syn.run(true); this.reset; }
-	
-	stop { syn.set(\gate, 0); } // will pause when done
-	
+	start { syn.set(\gate, 1); syn.run(true); this.reset; phase_kr_s.set(\gate, 1); }
+	stop { syn.set(\gate, 0); phase_kr_s.set(\gate, 0); }
 	// reset { reset_b.setSynchronous(1); }
 	// hm....
 	reset { reset_b.set(1); }
-
 	buf_ { arg bf; buf = bf; syn.set(\buf, buf); }
 
 }
