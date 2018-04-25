@@ -122,11 +122,10 @@ Engine_SoftCut : CroneEngine {
 
 		this.addCommands;
 
+		//--- polls
 		nvoices.do({ arg i;
 			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
-			 	var val = voices[i].phase_b.getSynchronous / context.server.sampleRate;
-				postln("phase: " ++ val);
-				val
+			 	voices[i].phase_b.getSynchronous / context.server.sampleRate;
 			});
 			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
 				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
