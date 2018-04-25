@@ -68,7 +68,7 @@ SoftCutVoice {
 					att = att.max(phase_att_bypass);
 
 					Out.ar(out, ( snd * amp * aenv * att));
-					Out.ar(phase_out, Gate.kr(A2K.kr(phase), gate));
+					Out.kr(phase_out, Gate.kr(A2K.kr(phase), gate));
 					Out.kr(trig_out, A2K.kr(tr));
 				})
 			);
