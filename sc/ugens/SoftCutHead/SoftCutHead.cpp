@@ -61,10 +61,6 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     float *snd_out = OUT(2);
 
     const float *in = IN(1);
-
-    // Print("SoftCutHead input: %f\n", in);
-
-    
     const float trig = IN0(2);
     const float rate = IN0(3);
     const float start = IN0(4);
@@ -86,7 +82,6 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->cutfade.setFadeTime(fade);
     unit->cutfade.setLoopFlag(loop > 0);
 
-
     unit->cutfade.setFadeRec(fadeRec);
     unit->cutfade.setFadePre(fadePre);
     unit->cutfade.setRecRun(recRun > 0);
@@ -95,10 +90,10 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     if ((trig > 0) && (unit->prevTrig <= 0)) {
       // FIXME: i think it will be ok for now,
       // but should convert and wrap this result in the logic class rather than in here.
-	unit->cutfade.cutToPhase(pos * SAMPLERATE);
+	    unit->cutfade.cutToPhase(pos * SAMPLERATE);
     }
-    unit->prevTrig = trig;
 
+    unit->prevTrig = trig;
 
     unit->cutfade.setRate(rate);
     unit->cutfade.setRec(rec);
@@ -106,13 +101,19 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
 
     float snd, phi, tr;
+    float trBlock = 0.f; // trigger should be high/low for the entire block...
     for (int i = 0; i < inNumSamples; ++i) {
-
         unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
+        if(tr > 0.f) { trBlock = 1.f;}
         phase_out[i] = phi;
-
-        trig_out[i] = tr;
         snd_out[i] = snd;
+    }
+
+    OUT0(1) = unit->cutfade.getActivePhase();
+    OUT0(2) = unit->cutfade.getTrig();
+    unit->cutfade.resetTrig();
+    for (int i = 0; i < inNumSamples; ++i) {
+        trig_out[i] = trBlock;
     }
 }
 

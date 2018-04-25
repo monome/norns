@@ -20,7 +20,6 @@ public:
     void nextSample(const float in, float* outPhase, float *outTrig, float* outAudio); // per-sample update function
     void setFadeTime(float secs);
     void setLoopFlag(bool val);
-    void cutToStart();
     void setRec(float x);
     void setPre(float x);
     void setFadePre(float x);
@@ -29,7 +28,10 @@ public:
     void setRecOffset(float x);
     // FIXME: this method accepts samples and doesn't wrap.
     // should add something like cutToPos(seconds) 
-    void cutToPhase(float newPhase); // fade in to new position (given in samples)
+    void cutToPhase(double newPhase); // fade in to new position (given in samples)
+    float getActivePhase();
+    float getTrig();
+    void resetTrig();
 private:
     void updatePhase(int id);
     void updateFade(int id);

@@ -68,12 +68,8 @@ SoftCutVoice {
 					att = att.max(phase_att_bypass);
 
 					Out.ar(out, ( snd * amp * aenv * att));
-					// NB: phase output is audio rate.
-					Out.ar(phase_out, phase);
-					// NB: this is an _audio_ rate trigger;
-					// it stays high for only one sample
-					// .kr ugens that read once per audio block will miss it
-					Out.ar(trig_out, tr);
+					Out.ar(phase_out, Gate.kr(A2K.kr(phase), gate));
+					Out.kr(trig_out, A2K.kr(tr));
 				})
 			);
 		}
@@ -83,19 +79,18 @@ SoftCutVoice {
 		arg server, target, buf_, in, out;
 		buf = buf_;
 		reset_b = Bus.control(server);
-		phase_audio_b = Bus.audio(server);
 		phase_b = Bus.control(server);
 		loop_b = Bus.audio(server);
 
 		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 1,
-			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_audio_b.index
+			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
 		], target);
-		phase_kr_s = { arg gate = 1;
+		/*phase_kr_s = { arg gate = 1;
 			// FIXME: we aren't using AR phase at the moment
 			var phase = A2K.kr(In.ar(phase_audio_b.index));
 			phase = Gate.kr(phase, gate);
 			Out.kr(phase_b.index, phase);
-		}.play(target: syn, addAction:\addAfter);
+		}.play(target: syn, addAction:\addAfter);*/
 
 	}
 
@@ -108,9 +103,8 @@ SoftCutVoice {
 		syn.free;
 	}
 
-	start { syn.set(\gate, 1); syn.run(true); this.reset; phase_kr_s.set(\gate, 1); }
-	stop { syn.set(\gate, 0); phase_kr_s.set(\gate, 0); }
-	// reset { reset_b.setSynchronous(1); }
+	start { syn.set(\gate, 1); } //syn.run(true); this.reset; phase_kr_s.set(\gate, 1); }
+stop { syn.set(\gate, 0); } //phase_kr_s.set(\gate, 0); }
 	// hm....
 	reset { reset_b.set(1); }
 	buf_ { arg bf; buf = bf; syn.set(\buf, buf); }
