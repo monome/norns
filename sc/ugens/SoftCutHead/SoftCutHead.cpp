@@ -109,8 +109,6 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
         snd_out[i] = snd;
     }
 
-    OUT0(1) = unit->cutfade.getActivePhase();
-    OUT0(2) = unit->cutfade.getTrig();
     unit->cutfade.resetTrig();
     for (int i = 0; i < inNumSamples; ++i) {
         trig_out[i] = trBlock;
