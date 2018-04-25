@@ -3,6 +3,14 @@
 Crone {
 	// the audio server
 	classvar <>server;
+	// audio to disk recorder / player
+	classvar <>recorder;
+	classvar <>recorderState = 'init';
+	classvar <>recordingsDir = "/home/pi/dust/audio/tape";
+	classvar <>player;
+	classvar <>playerClock;
+	classvar <>playerState = 'init';
+	classvar <>playerFile;
 	// current CroneEngine subclass instance
 	classvar <>engine;
 	// available OSC functions
@@ -46,6 +54,7 @@ Crone {
 
 				Crone.initOscRx;
 				Crone.initVu;
+				Crone.initTape;
 
 				complete = 1;
 			};
@@ -154,6 +163,137 @@ Crone {
 		});
 
 		remoteAddr.sendMsg('/report/polls/end');
+	}
+
+	*tapeNewfile { |filename|
+		var prepareFunc = {
+			recorder.prepareForRecord(recordingsDir +/+ filename, 2);
+			server.sync;
+			recorderState = 'prepared';
+			postln("tape recorder state:" + recorderState);
+			remoteAddr.sendMsg('/tape/rec/state', recorderState);
+			remoteAddr.sendMsg('/tape/rec/filename', filename);
+			postln("tape recorder filename:" + filename);
+		};
+		if (#[stopped, prepared, init].includes(recorderState).not) {
+			fork {
+				recorder.stopRecording;
+				server.sync;
+				recorderState = 'stopped';
+				remoteAddr.sendMsg('/tape/rec/state', recorderState);
+				postln("tape recorder state:" + recorderState);
+				prepareFunc.fork;
+			};
+		} {
+			prepareFunc.fork;
+		};
+	}
+
+	*tapeStartRec {
+		fork {
+			switch (recorderState)
+				{ 'prepared' } {
+					recorder.record(bus: ctx.out_b, node: ctx.xg);
+				}
+				{ 'paused' } {
+					recorder.record;
+				} !? {
+					server.sync;
+					recorderState = 'recording';
+					postln("tape recorder state:" + recorderState);
+					remoteAddr.sendMsg('/tape/rec/state', recorderState);
+				}
+		};
+	}
+
+	*tapePauseRec {
+		if (recorderState == \recording) {
+			fork {
+				recorder.pauseRecording;
+				server.sync;
+				recorderState = 'paused';
+				postln("tape recorder state:" + recorderState);
+				remoteAddr.sendMsg('/tape/rec/state', recorderState);
+			};
+		};
+	}
+
+	*tapeStopRec {
+		if (#[recording, paused].includes(recorderState)) {
+			fork {
+				recorder.stopRecording;
+				server.sync;
+				recorderState = 'stopped';
+				postln("tape recorder state:" + recorderState);
+				remoteAddr.sendMsg('/tape/rec/state', recorderState);
+			};
+		};
+	}
+
+	*tapeOpenfile { |filename|
+		if (PathName(recordingsDir +/+ filename).isFile) {
+			if (#[playing, paused, fileopened].includes(playerState)) {
+				player.stop;
+			};
+			fork {
+				playerFile = filename;
+				player = SoundFile(recordingsDir +/+ playerFile).cue(
+					(
+						out: ctx.out_b
+					)
+				);
+				server.sync;
+				playerClock.beats = 0;
+				playerState = 'fileopened';
+				postln("tape player state:" + playerState);
+				remoteAddr.sendMsg('/tape/play/state', playerState);
+				remoteAddr.sendMsg('/tape/play/filename', filename);
+				postln("tape player filename:" + filename.quote);
+			};
+		} {
+			postln("tape error, file" + filename.quote + "does not exist");
+		};
+	}
+
+	*tapePlay { |filename|
+		if (#[paused, fileopened].includes(playerState)) {
+			fork {
+				player.play;
+				playerClock.beats = 0;
+				server.sync;
+				playerState = 'playing';
+				postln("tape player state:" + playerState);
+				remoteAddr.sendMsg('/tape/play/state', playerState);
+			};
+		};
+	}
+
+	*tapePause { |filename|
+		if (playerState == 'playing') {
+			fork {
+				player.pause;
+				server.sync;
+				playerState = 'paused';
+				postln("tape player state:" + playerState);
+				remoteAddr.sendMsg('/tape/play/state', playerState);
+			};
+		};
+	}
+
+	*tapeReset { |filename| // this is a hack to get this going: file is closed, reopened and played from the beginning
+		if (#[playing, paused].includes(playerState)) {
+			fork {
+				var stateWas = playerState;
+				player.close;
+				this.tapeOpenfile(playerFile);
+				if (stateWas == 'playing') {
+					0.1.wait;
+					this.tapePlay;
+				} {
+					playerState == 'paused';
+				}
+			};
+		};
 	}
 
 	*initVu {
@@ -307,10 +447,97 @@ Crone {
 			'/recompile':OSCFunc.new({
 				postln("recompile...");
 				thisProcess.recompile;
-			}, '/recompile')
+			}, '/recompile'),
+
+			// @section tape
+
+			/// determines file to record
+			// @function /tape/newfile
+			// @param filename (string)
+			'/tape/newfile':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeNewfile(msg[1]);
+			}, '/tape/newfile'),
+
+			/// start / resume recording
+			// @function /tape/start_rec
+			'/tape/start_rec':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeStartRec;
+			}, '/tape/start_rec'),
+
+			/// pause recording
+			// @function /tape/pause_rec
+			'/tape/pause_rec':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapePauseRec;
+			}, '/tape/pause_rec'),
+
+			/// stop recording and close file
+			// @function /tape/stop_rec
+			'/tape/stop_rec':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeStopRec;
+			}, '/tape/stop_rec'),
+
+			/// determines file to play
+			// @function /tape/openfile
+			// @param path (string)
+			'/tape/openfile':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeOpenfile(msg[1]);
+			}, '/tape/openfile'),
+
+			/// starts playing file
+			// @function /tape/play
+			'/tape/play':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapePlay;
+			}, '/tape/play'),
+
+			/// pauses playing file
+			// @function /tape/pause
+			'/tape/pause':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapePause;
+			}, '/tape/pause'),
+
+			/// reset playpos to 0
+			// @function /tape/stop
+			'/tape/reset':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.tapeReset;
+			}, '/tape/reset'),
 
 		);
 
+	}
+
+	*initTape {
+		recorder = Recorder.new(server);
+		recorder.recSampleFormat = "int16";
+		playerClock = TempoClock.new;
+
+		CronePollRegistry.register(
+			name: \tape_rec_dur,
+			func: {
+				recorder.duration
+			},
+			dt: 0.1,
+			type: \value
+		);
+		CronePollRegistry.register(
+			name: \tape_play_pos,
+			func: {
+				if (#[playing, paused].includes(playerState)) {
+					playerClock.beats
+				} {
+					0
+				};
+			},
+			dt: 0.1,
+			type: \value
+		);
 	}
 }
 
