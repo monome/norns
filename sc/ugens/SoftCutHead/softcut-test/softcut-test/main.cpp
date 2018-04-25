@@ -4,7 +4,7 @@
 #include "SoftCutHeadLogic.h"
 
 using namespace std;
-using namespace softcuthead;
+//using namespace softcuthead;
 
 PaStream *stream;
 PaStreamParameters inStreamParams;
@@ -112,6 +112,11 @@ int main(void)
     {
         return 1;
     }
+    
+    char ch;
+    cin >> ch;
+    
+    softcut.stop
     
     char ch;
     cin >> ch;
