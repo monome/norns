@@ -73,10 +73,10 @@ end
 -- perform the poll's assigned callback function, if it exists
 -- (fixme: this all seems a little over-complicated)
 function Poll:perform(value)
-  if p.props then
-    if p.props.callback then
-      if type(p.props.callback) == "function" then
-        p.props.callback(value)
+  if self.props then
+    if self.props.callback then
+      if type(self.props.callback) == "function" then
+        self.props.callback(value)
       end
     else
       -- print("no callback") -- ok
