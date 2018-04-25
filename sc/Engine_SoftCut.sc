@@ -2,8 +2,8 @@
 Engine_SoftCut : CroneEngine {
 
 	classvar nbuf = 4; // count of buffes and "fixed" voices
-	classvar nvfloat = 2; // count of "floating" voices
-	classvar nvoices = 6; // total number of voices
+	classvar nvfloat = 4; // count of "floating" voices
+	classvar nvoices = 8; // total number of voices
 	classvar bufdur = 64.0;
 
 	classvar vfloatIdx; // array of indices for floating voices
@@ -71,25 +71,20 @@ Engine_SoftCut : CroneEngine {
 
 		//-- voices
 		voices = Array.fill(nvoices, { |i|
-			// 	arg server, target, buf, in, out;
-			SoftCutVoice.new(s, context.xg, buf[i], bus.rec[i].index, bus.pb[i].index);
+			// 	arg server, target, buf, in, out
+			var bidx = if(i>nvfloat, { i - nvfloat }, { i });
+			SoftCutVoice.new(s, context.xg, buf[bidx], bus.rec[i].index, bus.pb[i].index);
 		});
-
-		"voices: ".postln; voices.postln;
 
 		vfloatIdx.do({ arg idx, i;
-		    postln("attaching to phase bus for buffer: " ++ vfixIdx[i]);    
-		    voices[idx].buf_(buf[i]);
-		    voices[idx].syn.set(\phase_att_in, voices[vfixIdx[i]].phase_b.index);
-		    voices[idx].syn.set(\phase_att_bypass, 0.0);
+			voices[idx].buf_(buf[i]);
+			voices[idx].syn.set(\phase_att_in, voices[vfixIdx[i]].phase_b.index);
+			voices[idx].syn.set(\phase_att_bypass, 0.0);
 		});
 
-		"buffers: ".post; buf.postln;
-		
 		vfixIdx.do({ arg idx, i;
-		    postln("setting buffer for fixed voice idx " ++ idx ++ ", count " ++ i);		
-		    voices[idx].buf_(buf[i]);
-		    voices[idx].syn.set(\phase_att_bypass, 1.0);
+			voices[idx].buf_(buf[i]);
+			voices[idx].syn.set(\phase_att_bypass, 1.0);
 		});
 
 
@@ -166,15 +161,14 @@ Engine_SoftCut : CroneEngine {
 		endsamp = end * context.server.sampleRate;
 		samps = endsamp - startsamp;
 		newbuf = Buffer.alloc(context.server, samps, 1, {
-		       arg theBuf;
-			buf[i].copyData(theBuf, 0, startsamp, samps);
+			buf[i].copyData(newbuf, 0, startsamp, samps);
 			voices.do({ arg v;
 				if(v.buf == buf[i], {
-					v.buf = theBuf;
+					v.buf = newbuf;
 				});
 			});
 			buf[i].free;
-			buf[i] = theBuf;
+			buf[i] = newbuf;
 		});
 	}
 
@@ -220,7 +214,7 @@ Engine_SoftCut : CroneEngine {
 			[\start, \i, {|msg| msg.postln; voices[msg[1]-1].start; }],
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
-			[\set_buf, \ii, {|msg| setBuf(msg[1]-1, msg[2]-1); }],
+			[\set_buf, \ii, {|msg| this.setBuf(msg[1]-1, msg[2]-1); }],
 
 			//-- direct control of synth params
 			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
