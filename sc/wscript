@@ -5,8 +5,9 @@ def build(bld):
         source='ugens/BufWrPre/BufWrPre.cpp',
         target='BufWrPre',
         use=['SUPERCOLLIDER'],
-        install_path='${PREFIX}/lib/SuperCollider/plugins')
-
+        install_path='${PREFIX}/lib/SuperCollider/plugins',
+        clafgs=['-O3', '-Wall'])
+	
     if bld.env.DEST_OS == 'darwin':
         ugen.env.cxxshlib_PATTERN = '%s.scx'
     else:
