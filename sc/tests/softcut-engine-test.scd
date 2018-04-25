@@ -77,3 +77,22 @@ n.sendMsg("/command/pos", 5, 1);
 n.sendMsg("/command/reset", 5);
 n.sendMsg("/command/start", 5);
 
+
+// assign voice 1 to buffer 2
+n.sendMsg("/command/set_buf", 1, 2);
+
+
+
+// ok, set up a short loop recording into buffer 2 (voice 6)
+n.sendMsg("/command/adc_rec", 1, 6, 1);
+n.sendMsg("/command/rec", 6, 1);
+n.sendMsg("/command/pre", 6, 0.75);
+n.sendMsg("/command/rec_on", 6, 1);
+
+n.sendMsg("/command/loop_on", 6, 1);
+n.sendMsg("/command/loop_start", 6, 2);
+n.sendMsg("/command/loop_end", 6, 3.2);
+
+n.sendMsg("/command/pos", 6, 1);
+n.sendMsg("/command/reset", 6);
+n.sendMsg("/command/start", 6);
