@@ -196,7 +196,7 @@ Engine_SoftCut : CroneEngine {
 	}
 
 	setBuf { arg vidx, bidx;
-		if(vidx < nvfloat && bidx < nbuf, {
+		if((vidx < nvfloat) && (bidx < nbuf), {
 			voices[vidx].buf_(buf[bidx]);
 		});
 	}
