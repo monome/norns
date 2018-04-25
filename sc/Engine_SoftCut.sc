@@ -1,10 +1,10 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
 
-	classvar nbuf = 4; // count of buffes and "fixed" voices
-	classvar nvfloat = 4; // count of "floating" voices
-	classvar nvoices = 8; // total number of voices
-	classvar bufdur = 64.0;
+	classvar nbuf = 2; // count of buffes and "fixed" voices
+	classvar nvfloat = 2; // count of "floating" voices
+	classvar nvoices = 4; // total number of voices
+	classvar bufdur = 64;
 
 	classvar vfloatIdx; // array of indices for floating voices
 	classvar vfixIdx; // array of indices for fixed voices
@@ -155,42 +155,43 @@ Engine_SoftCut : CroneEngine {
 
 	// destructive trim
 	trimBuf { arg i, start, end;
-		var startsamp, endsamp, samps, newbuf;
-		startsamp = start * context.server.sampleRate;
-		endsamp = end * context.server.sampleRate;
-		samps = endsamp - startsamp;
-		newbuf = Buffer.alloc(context.server, samps, 1, {
-			buf[i].copyData(newbuf, 0, startsamp, samps);
+		BufUtil.trim (buf[i], start, end, {
+			arg newbuf;
 			voices.do({ arg v;
 				if(v.buf == buf[i], {
 					v.buf = newbuf;
 				});
 			});
-			buf[i].free;
 			buf[i] = newbuf;
 		});
 	}
 
-	// disk read
-	readBuf { arg i, path;
+	// disk read (replacing)
+	replaceBuf { arg i, path;
 		if(buf[i].notNil, {
-			// fixme: should set some upper bound here on number of frames
-			var newbuf = Buffer.readChannel(context.server, path, 0, -1, [0], {
+			BufUtil.readChannel(buf, path, {
+				arg newbuf;
 				voices.do({ arg v;
 					if(v.buf == buf[i], {
 						v.buf = newbuf;
 					});
 				});
 				buf[i].free;
-				buf[i] = newbuf;
 			});
 		});
 	}
 
-	// disk write
-	writeBuf { arg i, path;
+	// disk read (copying over current contents)
+	readBuf { arg i, path, start, dur;
 		if(buf[i].notNil, {
-			buf[i].write(path, "wav");
+			BufUtil.copyChannel(buf[i], path, start:start, dur:dur);
+		});
+	}
+
+	// disk write
+	writeBuf { arg i, path, start, dur;
+		if(buf[i].notNil, {
+			BufUtil.write(buf[i], path, start:start, dur:dur);
 		});
 	}
 
@@ -244,7 +245,7 @@ Engine_SoftCut : CroneEngine {
 			[\play_dac, \iif, { |msg| pm.pb_dac.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 
 			//--- buffers
-			// read named soundfile to given buffer
+			// read named soundfile to given buffer (overwriting region)
 			[\read, \is, { |msg| this.readBuf(msg[1]-1, msg[2]) }],
 			// write given buffer to named soundfile
 			[\write, \is, { |msg| this.writeBuf(msg[1]-1, msg[2]) }],

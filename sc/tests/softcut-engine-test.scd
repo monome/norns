@@ -1,28 +1,38 @@
 // one chunk at a time..
-Crone.setEngine("Engine_SoftCut");
+( Routine {
+	Crone.setEngine("Engine_SoftCut");
 
-c = Crone.ctx;
-e = Crone.engine;
-n = NetAddr.localAddr;
+	s.sync;
 
-// start voice 1 looping
-n.sendMsg("/command/rec", 1, 1);
-n.sendMsg("/command/pre", 1, 0.75);
-n.sendMsg("/command/amp", 1, 1);
+	c = Crone.ctx;
+	e = Crone.engine;
+	n = NetAddr.localAddr;
 
-n.sendMsg("/command/rec_on", 1, 1);
-n.sendMsg("/command/loop_on", 1, 1);
+	0.5.wait;
 
-n.sendMsg("/command/play_dac", 1, 1, 1);
-n.sendMsg("/command/play_dac", 1, 2, 1);
-n.sendMsg("/command/adc_rec", 1, 1, 0.5);
-n.sendMsg("/command/adc_rec", 2, 1, 0.5);
+	// start voice 1 looping
+	n.sendMsg("/command/rec", 1, 1);
+	n.sendMsg("/command/pre", 1, 0.75);
+	n.sendMsg("/command/amp", 1, 1);
 
-n.sendMsg("/command/loop_start", 1, 1);
-n.sendMsg("/command/loop_end", 1, 5);
-n.sendMsg("/command/pos", 1, 4);
-n.sendMsg("/command/reset", 1);
-n.sendMsg("/command/start", 1);
+	n.sendMsg("/command/rec_on", 1, 1);
+	n.sendMsg("/command/loop_on", 1, 1);
+
+	n.sendMsg("/command/play_dac", 1, 1, 1);
+	n.sendMsg("/command/play_dac", 1, 2, 1);
+	n.sendMsg("/command/adc_rec", 1, 1, 0.5);
+	n.sendMsg("/command/adc_rec", 2, 1, 0.5);
+
+	n.sendMsg("/command/loop_start", 1, 1);
+	n.sendMsg("/command/loop_end", 1, 5);
+	n.sendMsg("/command/pos", 1, 4);
+	n.sendMsg("/command/reset", 1);
+	n.sendMsg("/command/start", 1);
+
+	n.sendMsg("/command/offset", 1, -10);
+
+}.play;
+)
 
 n.sendMsg("/command/offset", 1, -10);
 
