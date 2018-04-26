@@ -178,7 +178,8 @@ void *metro_thread_loop(void *metro) {
 
     metro_set_current_time(t);
 
-    while(!stop) {
+    while(!stop) {      
+        metro_sleep(t);
         pthread_mutex_lock( &(t->stage_lock) );
         if( ( t->stage >= t->count) && ( t->count > 0) ) {
             stop = 1;
@@ -192,7 +193,6 @@ void *metro_thread_loop(void *metro) {
         metro_bang(t);
         t->stage += 1;
         pthread_mutex_unlock( &(t->stage_lock) );
-        metro_sleep(t);
     }
     return NULL;
 }
