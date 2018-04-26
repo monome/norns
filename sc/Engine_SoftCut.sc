@@ -31,7 +31,6 @@ Engine_SoftCut : CroneEngine {
 		gr.rw = Group.new(context.xg, addAction:\addToTail);
 		gr.rec = Group.after(context.ig);
 
-
 		s.sync;
 
 		//--- buffers
@@ -105,11 +104,11 @@ Engine_SoftCut : CroneEngine {
 				voices[i].phase_b.getSynchronous / context.server.sampleRate;
 			});
 
-			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
+			this.addPoll(("phase_buf_" ++ (i+1)).asSymbol, {
 				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
 			});
 			this.addPoll(("phase_loop_" ++ (i+1)).asSymbol, {
-				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
+				voices[i].phase_b.getSynchronous / ((voices[i].end - voices[i].start) * context.server.sampleRate);
 			});
 		});
 	}
@@ -175,7 +174,6 @@ Engine_SoftCut : CroneEngine {
 			BufUtil.write(buf[i], path, start:start, dur:dur);
 		});
 	}
-
 
 	syncVoice { arg src, dst, offset;
 		voices[dst].syn.set(\pos, voices[src].phase_b.getSynchronous / context.sampleRate + offset);
