@@ -3,6 +3,14 @@
 
 util = {}
 
+--- get system time in s+ms
+-- @return time
+util.time = function()
+  m,s = get_time()
+  return m + s/1000000
+end 
+
+
 --- scan directory, return file list
 -- @param directory path to directory
 util.scandir = function(directory)

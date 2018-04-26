@@ -1,11 +1,6 @@
 local encoders = {}
 
-local time = function()
-  m,s = get_time()
-  return m + s/1000000
-end 
-
-local now = time()
+local now = util.time()
 
 encoders.tick = {0,0,0}
 encoders.accel = {true,true,true}
@@ -38,7 +33,7 @@ encoders.set_sens = function(n,s)
 end
 
 encoders.process = function(n,d)
-  now = time()
+  now = util.time()
   local diff = now - encoders.time[n]
   encoders.time[n] = now
 
