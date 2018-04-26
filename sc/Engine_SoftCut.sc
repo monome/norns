@@ -1,13 +1,7 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
-
-	classvar nbuf = 2; // count of buffes and "fixed" voices
-	classvar nvfloat = 2; // count of "floating" voices
 	classvar nvoices = 4; // total number of voices
-	classvar bufdur = 64;
-
-	classvar vfloatIdx; // array of indices for floating voices
-	classvar vfixIdx; // array of indices for fixed voices
+	classvar bufdur = 2048; // 64 * 32, >30min
 
 	classvar commands;
 
@@ -17,7 +11,7 @@ Engine_SoftCut : CroneEngine {
 	var <gr; // groups
 	var <pm; // patch matrix
 
-	var <voices; // array of voices
+	var <voices; // array of voices (r/w heads)
 
 	*initClass {
 		// lower indices address the floating voices,
@@ -30,7 +24,6 @@ Engine_SoftCut : CroneEngine {
 		^super.new(context, doneCallback);
 	}
 
-
 	alloc {
 		var com;
 		var bus_pb_idx; // tmp collection of playback bus indices
@@ -42,10 +35,9 @@ Engine_SoftCut : CroneEngine {
 
 		//--- groups
 		gr = Event.new;
-		gr.pb = Group.new(context.xg, addAction:\addToTail);
+		gr.rw = Group.new(context.xg, addAction:\addToTail);
 		gr.rec = Group.after(context.ig);
-		// phase bus per voice (output)
-		bus = Event.new;
+
 
 		s.sync;
 
@@ -61,9 +53,9 @@ Engine_SoftCut : CroneEngine {
 		s.sync;
 
 		//--- busses
+		bus = Event.new;
 		bus.adc = context.in_b;
-		// FIXME? not sure about the peculiar arrangement of dual mono in / stereo out.
-		// FIXME: oh! actually just use array of panners, instead of output patch matrix.
+
 		// here we convert  output bus to a mono array
 		bus.dac = Array.with( Bus.newFrom(context.out_b, 0), Bus.newFrom(context.out_b, 1));
 		bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
@@ -71,22 +63,15 @@ Engine_SoftCut : CroneEngine {
 
 		//-- voices
 		voices = Array.fill(nvoices, { |i|
-			// 	arg server, target, buf, in, out
-			var bidx = if(i>nvfloat, { i - nvfloat }, { i });
-			SoftCutVoice.new(s, context.xg, buf[bidx], bus.rec[i].index, bus.pb[i].index);
+			var v = SoftCutVoice.new(s, context.xg, buf, bus.rec[i].index, bus.pb[i].index);
+			s.sync;
+			if(i == (nvoices-1), {
+				voices[idx].syn.set(\phase_att_bypass, 1.0);
+			}, {
+				v.syn.set(\phase_att_in, rec.phase_b.index);
+				v
+			});
 		});
-
-		vfloatIdx.do({ arg idx, i;
-			voices[idx].buf_(buf[i]);
-			voices[idx].syn.set(\phase_att_in, voices[vfixIdx[i]].phase_b.index);
-			voices[idx].syn.set(\phase_att_bypass, 0.0);
-		});
-
-		vfixIdx.do({ arg idx, i;
-			voices[idx].buf_(buf[i]);
-			voices[idx].syn.set(\phase_att_bypass, 1.0);
-		});
-
 
 		//--- patch matrices
 		bus_pb_idx = bus.pb.collect({ |b| b.index });
@@ -94,6 +79,7 @@ Engine_SoftCut : CroneEngine {
 		pm = Event.new;
 
 		postln("softcut: in->rec patchmatrix");
+
 		// input -> record
 		pm.adc_rec = PatchMatrix.new(
 			server:s, target:gr.rec, action:\addToTail,
@@ -125,9 +111,13 @@ Engine_SoftCut : CroneEngine {
 		//--- polls
 		nvoices.do({ arg i;
 			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
-			 	voices[i].phase_b.getSynchronous / context.server.sampleRate;
+				voices[i].phase_b.getSynchronous / context.server.sampleRate;
 			});
+
 			this.addPoll(("phase_norm_" ++ (i+1)).asSymbol, {
+				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
+			});
+			this.addPoll(("phase_loop_" ++ (i+1)).asSymbol, {
 				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
 			});
 		});
@@ -135,6 +125,7 @@ Engine_SoftCut : CroneEngine {
 
 	free {
 		voices.do({ arg voice; voice.free; });
+		rec.free;
 		buf.do({ |b| b.free; });
 		bus.do({ arg bs; bs.do({ arg b; b.free; }); });
 		pm.do({ arg p; p.free; });
@@ -201,7 +192,12 @@ Engine_SoftCut : CroneEngine {
 		});
 	}
 
+	syncVoice { arg src, dst, offset;
+		voices[dst].syn.set(\pos, voices[src].phase_b.getSynchronous / context.sampleRate + offset);
+		voices[dst].reset;
+	}
 
+	// helpers
 	playRecLevel { |srcId, dstId, level| pm.pb_rec.level_(srcId, dstId, level); }
 	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
@@ -214,7 +210,7 @@ Engine_SoftCut : CroneEngine {
 			[\start, \i, {|msg| msg.postln; voices[msg[1]-1].start; }],
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
-			[\set_buf, \ii, {|msg| this.setBuf(msg[1]-1, msg[2]-1); }],
+			[\sync, \ii, {|msg| syncVoice(msg[1]-1, msg[2]-1)],
 
 			//-- direct control of synth params
 			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
@@ -234,7 +230,6 @@ Engine_SoftCut : CroneEngine {
 			[\pre_lag, \if, { |msg| voices[msg[1]-1].syn.set(\preLag, msg[2]); }],
 			[\rec_lag, \if, { |msg| voices[msg[1]-1].syn.set(\recLag, msg[2]); }],
 			[\env_time, \if, { |msg| voices[msg[1]-1].syn.set(\envTimeScale, msg[2]); }],
-
 
 			//-- routing
 			// level from given ADC channel to given recorder
@@ -258,7 +253,6 @@ Engine_SoftCut : CroneEngine {
 		];
 
 		com.do({ arg comarr;
-			//			postln("adding command: " ++ comarr);
 			this.addCommand(comarr[0], comarr[1], comarr[2]);
 		});
 
