@@ -7,11 +7,12 @@ Engine_SoftCut : CroneEngine {
 
 	var <bus; // busses
 	var <buf; // buffer
-	var <syn; // synths
 	var <gr; // groups
 	var <pm; // patch matrix
 
 	var <voices; // array of voices (r/w heads)
+	var <trigdef; // array of trigger  responders
+	var <trigsyn;
 
 	*new { arg context, doneCallback;
 		^super.new(context, doneCallback);
@@ -188,57 +189,110 @@ Engine_SoftCut : CroneEngine {
 		voices[dst].reset;
 	}
 
+
+
 	// helpers
 	playRecLevel { |srcId, dstId, level| pm.pb_rec.level_(srcId, dstId, level); }
 	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
+
+
+	addOscTriggers {
+
+	}
 
 	addCommands {
 
 		var com = [
 
 			//-- voice functions
+			// start playing/recording
 			[\start, \i, {|msg| msg.postln; voices[msg[1]-1].start; }],
+
+			// stop playing/recording
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
+
+			// immediately jump to the position indicated by `pos`
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
+
+			// immediately set one voice's position to that of another voice
 			[\sync, \ii, {|msg| syncVoice(msg[1]-1, msg[2]-1) }],
 
 			//-- direct control of synth params
+			// output amplitude
 			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
+
+			// level of new audio while recording
 			[\rec, \if, { |msg| voices[msg[1]-1].syn.set(\rec, msg[2]); }],
+
+			// level of existing audio while recording
 			[\pre, \if, { |msg| voices[msg[1]-1].syn.set(\pre, msg[2]); }],
+
+			// playback rate
 			[\rate, \if, { |msg| voices[msg[1]-1].syn.set(\rate, msg[2]); }],
+
+			// playback rate lag time
 			[\rate_lag, \if, { |msg| voices[msg[1]-1].syn.set(\ratelag, msg[2]); }],
-			[\loop_start, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
-			[\loop_end, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
-			[\pos, \if, { |msg| voices[msg[1]-1].syn.set(\pos, msg[2]); }],
-			[\fade, \if, { |msg| voices[msg[1]-1].syn.set(\fade, msg[2]); }],
-			[\loop_on, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
-			[\fade_rec, \if, { |msg| voices[msg[1]-1].syn.set(\fadeRec, msg[2]); }],
-			[\fade_pre, \if, { |msg| voices[msg[1]-1].syn.set(\fadePre, msg[2]); }],
-			[\rec_on, \if, { |msg| voices[msg[1]-1].syn.set(\recRun, msg[2]); }],
-			[\offset, \if, { |msg| voices[msg[1]-1].syn.set(\offset, msg[2]); }],
+
+			// pre-level lag time
 			[\pre_lag, \if, { |msg| voices[msg[1]-1].syn.set(\preLag, msg[2]); }],
+
+			// record level lag time
 			[\rec_lag, \if, { |msg| voices[msg[1]-1].syn.set(\recLag, msg[2]); }],
+
+			// loop start point in seconds
+			[\loop_start, \if, { |msg| voices[msg[1]-1].syn.set(\start, msg[2]); }],
+
+			// loop end point in seconds
+			[\loop_end, \if, { |msg| voices[msg[1]-1].syn.set(\end, msg[2]); }],
+
+			// position (in seconds) to jump to when reset is triggered
+			[\pos, \if, { |msg| voices[msg[1]-1].syn.set(\pos, msg[2]);}],
+
+			// offset in *samples* between record and play
+			[\offset, \if, { |msg| voices[msg[1]-1].syn.set(\offset, msg[2]); }],
+
+			// cross-fade time
+			[\fade, \if, { |msg| voices[msg[1]-1].syn.set(\fade, msg[2]); }],
+
+			// amount by which crossfade applies to record level
+			[\fade_rec, \if, { |msg| voices[msg[1]-1].syn.set(\fadeRec, msg[2]); }],
+
+			// amount by which inverse of crossfade applies to pre-record level
+			[\fade_pre, \if, { |msg| voices[msg[1]-1].syn.set(\fadePre, msg[2]); }],
+
+			// toggle looping on/off
+			[\loop_on, \if, { |msg| voices[msg[1]-1].syn.set(\loop, msg[2]); }],
+
+			// toggle recording on/off
+			[\rec_on, \if, { |msg| voices[msg[1]-1].syn.set(\recRun, msg[2]); }],
+
+			// amplitude envelope time scaling (attack and release)
 			[\env_time, \if, { |msg| voices[msg[1]-1].syn.set(\envTimeScale, msg[2]); }],
 
 			//-- routing
 			// level from given ADC channel to given recorder
 			[\adc_rec, \iif, { |msg| pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
+
 			// level from given playback channel to given recorder
 			[\play_rec, \iif, { |msg| pm.pb_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
+
 			// level from given playback channel to given DAC channel
 			[\play_dac, \iif, { |msg| pm.pb_dac.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 
 			//--- buffers
 			// read named soundfile to given buffer (overwriting region)
 			[\read, \is, { |msg| this.readBuf(msg[1]-1, msg[2]) }],
+
 			// write given buffer to named soundfile
 			[\write, \is, { |msg| this.writeBuf(msg[1]-1, msg[2]) }],
+
 			// clear given buffer
 			[\clear, \i, { |msg| this.clearBuf(msg[1]-1) }],
+
 			// detructively trim to new start and end
 			[\trim, \iff, { |msg| this.trimBuf(msg[1]-1, msg[2], msg[3]) }],
+
 			// normalize given buffer to given maximum level
 			[\norm, \if, { |msg| this.normalizeBuf(msg[1]-1, msg[2]) }]
 		];
