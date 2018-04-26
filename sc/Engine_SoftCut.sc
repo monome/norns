@@ -13,13 +13,6 @@ Engine_SoftCut : CroneEngine {
 
 	var <voices; // array of voices (r/w heads)
 
-	*initClass {
-		// lower indices address the floating voices,
-		vfloatIdx = Array.series(nvfloat);
-		// upper indices are the fixed voices
-		vfixIdx =Array.series(nbuf, nvfloat);
-	}
-
 	*new { arg context, doneCallback;
 		^super.new(context, doneCallback);
 	}
@@ -45,10 +38,8 @@ Engine_SoftCut : CroneEngine {
 
 		postln("SoftCut: allocating buffers");
 
-		buf = Array.fill(nbuf, { arg i;
-			Buffer.alloc(s, s.sampleRate * bufdur, completionMessage: {
-			})
-		});
+
+		buf = Buffer.alloc(s, s.sampleRate * bufdur);
 
 		s.sync;
 
@@ -66,9 +57,9 @@ Engine_SoftCut : CroneEngine {
 			var v = SoftCutVoice.new(s, context.xg, buf, bus.rec[i].index, bus.pb[i].index);
 			s.sync;
 			if(i == (nvoices-1), {
-				voices[idx].syn.set(\phase_att_bypass, 1.0);
+				voices[i].syn.set(\phase_att_bypass, 1.0);
 			}, {
-				v.syn.set(\phase_att_in, rec.phase_b.index);
+				v.syn.set(\phase_att_in, voices[nvoices-1].phase_b.index);
 				v
 			});
 		});
@@ -125,8 +116,7 @@ Engine_SoftCut : CroneEngine {
 
 	free {
 		voices.do({ arg voice; voice.free; });
-		rec.free;
-		buf.do({ |b| b.free; });
+		buf.free;
 		bus.do({ arg bs; bs.do({ arg b; b.free; }); });
 		pm.do({ arg p; p.free; });
 		super.free;
@@ -186,11 +176,6 @@ Engine_SoftCut : CroneEngine {
 		});
 	}
 
-	setBuf { arg vidx, bidx;
-		if((vidx < nvfloat) && (bidx < nbuf), {
-			voices[vidx].buf_(buf[bidx]);
-		});
-	}
 
 	syncVoice { arg src, dst, offset;
 		voices[dst].syn.set(\pos, voices[src].phase_b.getSynchronous / context.sampleRate + offset);
@@ -210,7 +195,7 @@ Engine_SoftCut : CroneEngine {
 			[\start, \i, {|msg| msg.postln; voices[msg[1]-1].start; }],
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
-			[\sync, \ii, {|msg| syncVoice(msg[1]-1, msg[2]-1)],
+			[\sync, \ii, {|msg| syncVoice(msg[1]-1, msg[2]-1) }],
 
 			//-- direct control of synth params
 			[\amp, \if, { |msg| voices[msg[1]-1].syn.set(\amp, msg[2]); }],
