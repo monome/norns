@@ -50,7 +50,7 @@ void SoftCutHeadLogic::init() {
 }
 
 void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
-
+// FIXME: shuld not be checking thigns every sample
     if(buf == nullptr) {
         return;
     }
@@ -62,7 +62,9 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
     if(outPhase != nullptr) { *outPhase = static_cast<float>(phase[active]); }
 
-    *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
+    if(playRun) {
+        *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
+    }
     //*outTrig = trig[0] + trig[1];
 
     if(recRun) {
@@ -242,11 +244,12 @@ void SoftCutHeadLogic::setSampleRate(float sr_) {
 }
 
 float SoftCutHeadLogic::mixFade(float x, float y, float a, float b) {
-    if(fadeMode == FADE_EQ) {
+    //if(fadeMode == FADE_EQ) {
+    // FIXME: use xfade table
         return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
-    } else {
-        return (x * a) + (y * b);
-    }
+    //} else {
+    //    return (x * a) + (y * b);
+    //}
 }
 
 void SoftCutHeadLogic::setRec(float x) {

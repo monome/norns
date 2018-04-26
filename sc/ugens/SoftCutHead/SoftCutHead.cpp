@@ -35,7 +35,6 @@ static void SoftCutHead_next(SoftCutHead *unit, int inNumSamples);
 static void SoftCutHead_Ctor(SoftCutHead *unit);
 
 void SoftCutHead_Ctor(SoftCutHead *unit) {
-    //Print("SoftCutHead_Ctor() : samplerate %f \n", SAMPLERATE);
     unit->cutfade.init();
     unit->cutfade.setSampleRate(SAMPLERATE);
     unit->m_fbufnum = -1e9f;
@@ -43,12 +42,11 @@ void SoftCutHead_Ctor(SoftCutHead *unit) {
     unit->prevTrig = 0.f;
     SETCALC(SoftCutHead_next);
     SoftCutHead_next(unit, 1);
-    //Print("SoftCutHead_CTor(): num inputs: %i\n", unit->mNumInputs);
 }
 
 void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     GET_BUF;
-    uint32 numOutputs = unit->mNumOutputs;
+//    uint32 numOutputs = unit->mNumOutputs;
     uint32 numInputChannels = unit->mNumInputs - 14;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
