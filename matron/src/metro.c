@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 // posix / linux
 #include <assert.h>
@@ -46,7 +47,7 @@ struct metro metros[MAX_NUM_METROS_OK];
 //---- static declarations
 
 static void metro_handle_error(int code, const char *msg) {
-    fprintf(stderr, "error code: %d ; message: \"%s\"", code, msg);
+  fprintf(stderr, "error code: %d (%s) in \"%s\"\n", code, strerror(code), msg);    
 }
 
 static void metro_init(struct metro *t, uint64_t nsec, int count);
@@ -135,6 +136,7 @@ void metro_init(struct metro *t, uint64_t nsec, int count) {
         metro_handle_error(res, "pthread_attr_init");
         return;
     }
+    
     // set other thread attributes here...
 
     t->delta = nsec;
