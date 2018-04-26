@@ -33,7 +33,6 @@
 
 }.play;
 )
-
 n.sendMsg("/command/offset", 1, -10);
 
 /// test the envelope
