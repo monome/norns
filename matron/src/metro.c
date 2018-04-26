@@ -97,7 +97,7 @@ void metro_stop(int idx) {
     if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
         pthread_mutex_lock( &(metros[idx].status_lock) );
         if( metros[idx].status == METRO_STATUS_STOPPED) {
-	  fprintf(stderr, "metro_stopped: already stopped\n");
+	  // fprintf(stderr, "metro_stop: already stopped\n");
             ;; // nothing to do
         } else {
             metro_cancel(&metros[idx]);
@@ -236,11 +236,11 @@ void metro_wait(int idx) {
 }
 
 void metro_cancel(struct metro *t) {
-  // NB: we don't want to lock here because we're already locking in callers
-  //  pthread_mutex_lock(&t->status_lock);
+  // NB: no, we don't want to lock the state mutex here,
+  // b/c we're already locking in callers
     if (t->status == METRO_STATUS_STOPPED) {
-      fprintf(stderr, "metro_cancel(): already stopped\n");
-      return; //goto end;
+      fprintf(stderr, "metro_cancel(): already stopped. shouldn't get here\n");
+      return;
     }
     int ret = pthread_cancel(t->tid);
     if(ret) {
@@ -256,7 +256,6 @@ void metro_cancel(struct metro *t) {
     } else {      
         t->status = METRO_STATUS_STOPPED;
     }
-    //  pthread_mutex_unlock(&t->status_lock);
 }
 
 #undef MAX_NUM_METROS_OK
