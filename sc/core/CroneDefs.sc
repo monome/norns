@@ -15,7 +15,7 @@ CroneDefs {
 	*initClass {
 		if(defs.isNil, { defs = List.new;
 		});
-		
+
 		// single read head with fade in/out trigger
 		defs.add(
 			SynthDef.new(\play_fade, {
@@ -27,7 +27,7 @@ CroneDefs {
 				phase = Sweep.ar(InTrig.kr(trig), BufSampleRate.kr(buf) * rate);
 				snd =  BufRd.ar(1, buf, phase + start, loop:loop);
 				aenv = Env.asr(fade_time, 1.0, fade_time, fade_shape);
-				amp = EnvGen.ar(aenv, gate);
+				amp = EnvGen.kr(aenv, gate);
 				amp = amp * Lag.kr(level * (1 - mute));
 				Out.ar(out, (snd * amp));
 			})
@@ -91,7 +91,7 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\adc, {
 				arg in, out;
-				
+
 				Out.ar(out, SoundIn.ar(in))
 			})
 		);
@@ -125,13 +125,13 @@ CroneDefs {
 			})
 		);
 	}
-	
-	
+
+
 	*sendDefs { arg s;
 		postln("CroneDefs: sending defs");
 		defs.do({ arg def;
 			postln(def.name);
 			def.send(s);
-		});		
+		});
 	}
 }
