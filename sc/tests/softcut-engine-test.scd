@@ -67,16 +67,17 @@ n.sendMsg("/command/amp", 2, 1);
 n.sendMsg("/command/rec_on", 2, 1);
 
 n.sendMsg("/command/loop_on", 2, 1);
-n.sendMsg("/command/loop_start", 2, 1);
-n.sendMsg("/command/loop_end", 2, 1.4);
+n.sendMsg("/command/loop_start", 2, 6);
+n.sendMsg("/command/loop_end", 2, 6.4);
 
-n.sendMsg("/command/pos", 2, 1);
+n.sendMsg("/command/pos", 2, 6);
 n.sendMsg("/command/reset", 2);
 n.sendMsg("/command/start", 2);
 )
 
 
-// ok, set up a short loop recording into buffer 2 from last voice
+// ok, set up a short loop recording over voice 1's region using last voice (ducking source)
+(
 n.sendMsg("/command/adc_rec", 1, 4, 1);
 n.sendMsg("/command/rec", 4, 1);
 n.sendMsg("/command/pre", 4, 0.75);
@@ -86,6 +87,10 @@ n.sendMsg("/command/loop_on", 4, 1);
 n.sendMsg("/command/loop_start", 4, 2);
 n.sendMsg("/command/loop_end", 4, 3.2);
 
-n.sendMsg("/command/pos", 4, 1);
+n.sendMsg("/command/pos", 4, 2);
 n.sendMsg("/command/reset", 4);
 n.sendMsg("/command/start", 4);
+)
+/*
+n.sendMsg("/command/stop", 4);
+*/

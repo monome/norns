@@ -13,9 +13,25 @@ Engine_SoftCut : CroneEngine {
 	var <voices; // array of voices (r/w heads)
 	var <trigdef; // array of trigger  responders
 	var <trigsyn;
+	var <phase_quant_poll;
 
 	*new { arg context, doneCallback;
 		^super.new(context, doneCallback);
+	}
+
+	*initClass {
+		StartUp.add {
+			CroneDefs.add(
+				// send trigger when quantized KR signal changes
+				SynthDef.new(\quant_trig,  {
+					arg in, quant, id=0;
+					var sgl, tr;
+					sgl = In.kr(in).round(quant);
+					tr = Changed.kr(sgl);
+					SendTrig.kr(tr, id, sgl);
+				});
+			);
+		}
 	}
 
 	alloc {
@@ -120,6 +136,10 @@ Engine_SoftCut : CroneEngine {
 				voices[i].phase_b.getSynchronous / ((voices[i].end - voices[i].start) * context.server.sampleRate);
 			});
 		});
+
+		phase_quant_poll = Array.fill(nvoices, { arg i;
+			this.addPoll("phase_quant_" ++ (i+1), periodic:false);
+		});
 	}
 
 	free {
@@ -132,31 +152,34 @@ Engine_SoftCut : CroneEngine {
 
 	//---  buffer and routing methods
 
-	// clear a buffer
-	clearBuf { arg i;
-		buf[i].zero;
+
+	// clear the entire buffer
+	clearBuf {
+		buf.zero;
 	}
+
+	// fixme: need command to clear arbitrary section
 
 	// normalize buffer to given max
-	normalizeBuf { arg i, x;
-		buf[i].normalize(x);
+	normalizeBuf { arg x;
+		buf.normalize(x);
 	}
 
-	// destructive trim
-	trimBuf { arg i, start, end;
-		BufUtil.trim (buf[i], start, end, {
-			arg newbuf;
-			voices.do({ arg v;
-				if(v.buf == buf[i], {
-					v.buf = newbuf;
-				});
-			});
-			buf[i] = newbuf;
-		});
-	}
+	// // destructive trim
+	// trimBuf { arg i, start, end;
+	// 	BufUtil.trim (buf[i], start, end, {
+	// 		arg newbuf;
+	// 		voices.do({ arg v;
+	// 			if(v.buf == buf[i], {
+	// 				v.buf = newbuf;
+	// 			});
+	// 		});
+	// 		buf[i] = newbuf;
+	// 	});
+	// }
 
-	// disk read (replacing)
-	replaceBuf { arg i, path;
+	/*// disk read (replacing)
+	replaceBuf { path;
 		if(buf[i].notNil, {
 			BufUtil.readChannel(buf, path, {
 				arg newbuf;
@@ -168,20 +191,16 @@ Engine_SoftCut : CroneEngine {
 				buf[i].free;
 			});
 		});
-	}
+	}*/
 
-	// disk read (copying over current contents)
-	readBuf { arg i, path, start, dur;
-		if(buf[i].notNil, {
-			BufUtil.copyChannel(buf[i], path, start:start, dur:dur);
-		});
+	// disk read to (copying over current contents)
+	readBuf { arg path, start, dur;
+			BufUtil.copyChannel(buf, path, start:start, dur:dur);
 	}
 
 	// disk write
-	writeBuf { arg i, path, start, dur;
-		if(buf[i].notNil, {
-			BufUtil.write(buf[i], path, start:start, dur:dur);
-		});
+	writeBuf { arg path, start, dur;
+			BufUtil.write(buf, path, start:start, dur:dur);
 	}
 
 	syncVoice { arg src, dst, offset;
@@ -189,16 +208,21 @@ Engine_SoftCut : CroneEngine {
 		voices[dst].reset;
 	}
 
-
-
 	// helpers
 	playRecLevel { |srcId, dstId, level| pm.pb_rec.level_(srcId, dstId, level); }
 	adcRecLevel { |srcId, dstId, level| pm.adc_rec.level_(srcId, dstId, level); }
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
-
 	addOscTriggers {
+		trigsyn = voices.collect({ arg voice, i;
+			Synth.new(\rangeTrig, [\in, voice.phase_b, \id, i, \quant, 1/16], gr.pb, \addAfter);
+		});
 
+		OSCdef(\quant_trig, { arg msg, time;
+			var idx = msg[2];
+			var val = msg[3];
+			phase_quant_poll[idx].sendValue(val);
+		}, '/tr', context.server.addr);
 	}
 
 	addCommands {
@@ -217,6 +241,9 @@ Engine_SoftCut : CroneEngine {
 
 			// immediately set one voice's position to that of another voice
 			[\sync, \ii, {|msg| syncVoice(msg[1]-1, msg[2]-1) }],
+
+			// set the quantization (rounding) interval for phase reporting on given voice
+			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2]); }],
 
 			//-- direct control of synth params
 			// output amplitude
@@ -270,6 +297,7 @@ Engine_SoftCut : CroneEngine {
 			// amplitude envelope time scaling (attack and release)
 			[\env_time, \if, { |msg| voices[msg[1]-1].syn.set(\envTimeScale, msg[2]); }],
 
+
 			//-- routing
 			// level from given ADC channel to given recorder
 			[\adc_rec, \iif, { |msg| pm.adc_rec.level_(msg[1]-1, msg[2]-1, msg[3]); }],
@@ -280,21 +308,26 @@ Engine_SoftCut : CroneEngine {
 			// level from given playback channel to given DAC channel
 			[\play_dac, \iif, { |msg| pm.pb_dac.level_(msg[1]-1, msg[2]-1, msg[3]); }],
 
+
 			//--- buffers
-			// read named soundfile to given buffer (overwriting region)
-			[\read, \is, { |msg| this.readBuf(msg[1]-1, msg[2]) }],
+			// read named soundfile to buffer region
+			[\read, \sff, { |msg| this.readBuf(msg[1], msg[2], msg[3]) }],
 
-			// write given buffer to named soundfile
-			[\write, \is, { |msg| this.writeBuf(msg[1]-1, msg[2]) }],
+			// write buffer region to named soundfile
+			[\write, \sff, { |msg| this.writeBuf(msg[1], msg[2], msg[3]) }],
 
-			// clear given buffer
-			[\clear, \i, { |msg| this.clearBuf(msg[1]-1) }],
+			// clear the entire buffer
+			[\clear, '', { |msg| this.clearBuf }],
+
+			// TODO: clear range in buffer
 
 			// detructively trim to new start and end
-			[\trim, \iff, { |msg| this.trimBuf(msg[1]-1, msg[2], msg[3]) }],
+			//[\trim, \ff, { |msg| this.trimBuf(msg[1]-1, msg[2], msg[3]) }],
 
-			// normalize given buffer to given maximum level
-			[\norm, \if, { |msg| this.normalizeBuf(msg[1]-1, msg[2]) }]
+			// normalize buffer to given maximum level
+			[\norm, \f, { |msg| this.normalizeBuf(msg[1]) }]
+
+			// TODO: normalize range?
 		];
 
 		com.do({ arg comarr;
