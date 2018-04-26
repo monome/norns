@@ -13,6 +13,7 @@
 // posix / linux
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <pthread.h>
 #include <time.h>
 
@@ -140,7 +141,11 @@ void metro_init(struct metro *t, uint64_t nsec, int count) {
     }
 
     // set other thread attributes here...
-
+    res = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN );
+    if(res != 0) { metro_handle_error(res, "pthread_attr_init"); return; }
+    res |= pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED); 
+    if(res != 0) { metro_handle_error(res, "pthread_attr_init"); return; }
+    
     t->delta = nsec;
     t->count = count;
     res = pthread_create(&(t->tid), &attr, &metro_thread_loop, (void *)t);
