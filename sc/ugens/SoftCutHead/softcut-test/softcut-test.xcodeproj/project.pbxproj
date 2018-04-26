@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		81B8F5C1208BD219003B420F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81B8F5C0208BD219003B420F /* main.cpp */; };
 		81B8F5CD208BD236003B420F /* SoftCutHeadLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81B8F5C9208BD235003B420F /* SoftCutHeadLogic.cpp */; };
-		81B8F5CE208BD236003B420F /* SubHead.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81B8F5CB208BD236003B420F /* SubHead.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,12 +26,9 @@
 /* Begin PBXFileReference section */
 		81B8F5BD208BD219003B420F /* softcut-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "softcut-test"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81B8F5C0208BD219003B420F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		81B8F5C7208BD235003B420F /* Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Resampler.h; path = ../../Resampler.h; sourceTree = "<group>"; };
 		81B8F5C8208BD235003B420F /* SoftCutHeadLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoftCutHeadLogic.h; path = ../../SoftCutHeadLogic.h; sourceTree = "<group>"; };
 		81B8F5C9208BD235003B420F /* SoftCutHeadLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoftCutHeadLogic.cpp; path = ../../SoftCutHeadLogic.cpp; sourceTree = "<group>"; };
 		81B8F5CA208BD236003B420F /* interp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = interp.h; path = ../../interp.h; sourceTree = "<group>"; };
-		81B8F5CB208BD236003B420F /* SubHead.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SubHead.cpp; path = ../../SubHead.cpp; sourceTree = "<group>"; };
-		81B8F5CC208BD236003B420F /* SubHead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SubHead.h; path = ../../SubHead.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,11 +62,8 @@
 			isa = PBXGroup;
 			children = (
 				81B8F5CA208BD236003B420F /* interp.h */,
-				81B8F5C7208BD235003B420F /* Resampler.h */,
 				81B8F5C9208BD235003B420F /* SoftCutHeadLogic.cpp */,
 				81B8F5C8208BD235003B420F /* SoftCutHeadLogic.h */,
-				81B8F5CB208BD236003B420F /* SubHead.cpp */,
-				81B8F5CC208BD236003B420F /* SubHead.h */,
 				81B8F5C0208BD219003B420F /* main.cpp */,
 			);
 			path = "softcut-test";
@@ -133,7 +126,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				81B8F5C1208BD219003B420F /* main.cpp in Sources */,
-				81B8F5CE208BD236003B420F /* SubHead.cpp in Sources */,
 				81B8F5CD208BD236003B420F /* SoftCutHeadLogic.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

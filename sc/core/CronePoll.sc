@@ -21,7 +21,7 @@ CronePoll {
 
 	init { arg argIndex, argName, argFunction, argPeriod, argType, argPeriodic;
 		index = argIndex;
-		name = argName;
+		name = argName.asSymbol;
 		period = argPeriod;
 		type = argType;
 		function = argFunction;
@@ -67,7 +67,6 @@ CronePoll {
 	// non-periodic polls can call this explicitly
 	sendValue {
 		arg val;
-		// postln("sendValue: " ++ val);
 		oscAddr.sendMsg(oscPath, index, val);
 	}
 }
@@ -82,7 +81,6 @@ CronePollRegistry {
 		polls = Dictionary.new;
 		pollNames = Dictionary.new;
 	}
-	//	*initClass { polls = Dictionary.new; }
 
 	// create a CronePoll and add to the registry
 	*register { arg name, func, dt=0.25, type=\value, periodic=true;
@@ -113,8 +111,6 @@ CronePollRegistry {
 	}
 
 	*getPollFromIndex { arg index;
-//		postln("getting poll for index: " ++ index);
-//		postln("poll names: " ++ pollNames);
 		^polls[pollNames[index]];
 	}
 

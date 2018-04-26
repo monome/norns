@@ -33,6 +33,7 @@
 
 }.play;
 )
+n.sendMsg("/command/offset", 1, -10);
 
 /// test the envelope
 n.sendMsg("/command/env_time", 1, 5.0);

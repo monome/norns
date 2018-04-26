@@ -12,3 +12,16 @@
 .lock-waf*
 .waf*
 build/
+
+
+sc/ugens/SoftCutHead/cmake-build-debug/
+sc/ugens/VariWrite/cmake-build-debug/
+sc/ugens/BufWrPRE/cmake-build-debug/
+
+# xcode
+sc/ugens/SoftCutHead/softcut-test/Index/
+*.xcbkptlist
+*.xcuserstate
+
+# vscode
+.vscode/

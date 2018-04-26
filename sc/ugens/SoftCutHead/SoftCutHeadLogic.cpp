@@ -63,7 +63,7 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
     if(outPhase != nullptr) { *outPhase = static_cast<float>(phase[active]); }
 
     *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
-    *outTrig = trig[0] + trig[1];
+    //*outTrig = trig[0] + trig[1];
 
     if(recRun) {
         poke(in, phase[0], fade[0]);
@@ -129,7 +129,7 @@ void SoftCutHeadLogic::updatePhase(int id)
     }
 }
 
-void SoftCutHeadLogic::cutToPhase(float pos) {
+void SoftCutHeadLogic::cutToPhase(double pos) {
     if(state[active] == FADEIN || state[active] == FADEOUT) { return; }
     int newActive = active == 0 ? 1 : 0;
     if(state[active] != INACTIVE) {
@@ -198,28 +198,10 @@ void SoftCutHeadLogic::poke(float x, double phase, float fade) {
     poke2(x, p, fade);
 }
 
-// void SoftCutHeadLogic::poke0(float x, double phase, float fade) {
-//     if (fade < std::numeric_limits<float>::epsilon()) { return; }
-//     if (rec < std::numeric_limits<float>::epsilon()) { return; }
-
-//     int phase0 = wrap((int) phase, bufFrames);
-
-//     float fadeInv = 1.f - fade;
-
-//     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
-//     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
-
-//     buf[phase0] *= preFade;
-//     buf[phase0] += x * recFade;
-// }
-
 void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
 
-    // bail if record/fade level is ~=0, so we don't introduce noise
+    // bail if fade level is ~=0, so we don't introduce noise
     if (fade < std::numeric_limits<float>::epsilon()) { return; }
-
-    // nb: actually no, we don't want to do this b/c we might still want to apply pre-level multiplier
-    // if (rec < std::numeric_limits<float>::epsilon()) { return; }
 
     int phase0 = wrap(static_cast<int>(phase), bufFrames);
     int phase1 = wrap(phase0 + 1, bufFrames);
@@ -231,7 +213,7 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     float fr = static_cast<float>(phase - static_cast<int>(phase));
 
     // linear-interpolated write values
-    //// FIXME: this could be better somehow
+    //// FIXME: this could be a lot better. see resampling branch.
     float x1 = fr*x;
     float x0 = (1.f-fr)*x; 
 
@@ -239,6 +221,7 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     buf[phase0] = buf[phase0] * fr + (1.f-fr) * (preFade * buf[phase0]);
     buf[phase1] = buf[phase1] * (1.f-fr) + fr * (preFade * buf[phase1]);
 
+    if (rec < std::numeric_limits<float>::epsilon()) { return; }
     // add new signal with interpolation
     buf[phase0] += x0 * recFade;
     buf[phase1] += x1 * recFade;
@@ -252,10 +235,6 @@ void SoftCutHeadLogic::setBuffer(float *b, uint32_t bf) {
 
 void SoftCutHeadLogic::setLoopFlag(bool val) {
     loopFlag = val;
-}
-
-void SoftCutHeadLogic::cutToStart() {
-    cutToPhase(start);
 }
 
 void SoftCutHeadLogic::setSampleRate(float sr_) {
@@ -294,4 +273,17 @@ void SoftCutHeadLogic::setRecRun(bool val) {
 
 void SoftCutHeadLogic::setRecOffset(float x) {
     recPhaseOffset = x;
+}
+
+float SoftCutHeadLogic::getActivePhase() {
+    return static_cast<float>(phase[active]);
+}
+
+float SoftCutHeadLogic::getTrig() {
+    return trig[0] + trig[1];
+}
+
+void SoftCutHeadLogic::resetTrig() {
+    trig[0] = 0.f;
+    trig[1] = 0.f;
 }
