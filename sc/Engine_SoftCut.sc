@@ -6,7 +6,7 @@ Engine_SoftCut : CroneEngine {
 	classvar commands;
 
 	var <bus; // busses
-	var <buf; // buffers
+	var <buf; // buffer
 	var <syn; // synths
 	var <gr; // groups
 	var <pm; // patch matrix
@@ -23,26 +23,24 @@ Engine_SoftCut : CroneEngine {
 		var bus_rec_idx;
 		var bufcon;
 		var s = context.server;
+		var start_stride = bufdur / (nvoices-1);
 
 		postln("SoftCut: init routine");
 
 		//--- groups
 		gr = Event.new;
-		gr.rw = Group.new(context.xg, addAction:\addToTail);
+		gr.pb = Group.new(context.xg, addAction:\addToTail);
 		gr.rec = Group.after(context.ig);
 
 		s.sync;
 
 		//--- buffers
-
-		postln("SoftCut: allocating buffers");
-
-
 		buf = Buffer.alloc(s, s.sampleRate * bufdur);
 
 		s.sync;
 
 		//--- busses
+		postln("busses...");
 		bus = Event.new;
 		bus.adc = context.in_b;
 
@@ -52,34 +50,42 @@ Engine_SoftCut : CroneEngine {
 		bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
 
 		//-- voices
+		postln("voices...");
 		voices = Array.fill(nvoices, { |i|
-			var v = SoftCutVoice.new(s, context.xg, buf, bus.rec[i].index, bus.pb[i].index);
-			s.sync;
-			if(i == (nvoices-1), {
-				voices[i].syn.set(\phase_att_bypass, 1.0);
-			}, {
-				v.syn.set(\phase_att_in, voices[nvoices-1].phase_b.index);
-				v
-			});
+			SoftCutVoice.new(s, context.xg, buf, bus.rec[i].index, bus.pb[i].index);
 		});
+		s.sync;
+			// by default, place the first n-1 voices equally in the buffer, without overlap
+			voices.do({ arg voice, i;
+				if(i == (nvoices-1), {
+					voice.syn.set(\phase_att_bypass, 1.0);
+					voice.syn.set(\start, 0);
+					voice.syn.set(\end, buf.duration);
+				}, {
+					voice.syn.set(\start, i * start_stride);
+					voice.syn.set(\end, (i+1)*start_stride);
+					voice.syn.set(\phase_att_bypass, 0.0);
+					voice.syn.set(\phase_att_in, voices[nvoices-1].phase_b.index);
+				});
+			});
 
 		//--- patch matrices
+		postln("patch matrices...");
 		bus_pb_idx = bus.pb.collect({ |b| b.index });
 		bus_rec_idx = bus.rec.collect({ |b| b.index });
 		pm = Event.new;
 
-		postln("softcut: in->rec patchmatrix");
-
 		// input -> record
+		postln("(in->rec)");
 		pm.adc_rec = PatchMatrix.new(
 			server:s, target:gr.rec, action:\addToTail,
 			in: bus.adc.collect({ |b| b.index }),
 			out: bus_rec_idx,
 			feedback:false
 		);
-		postln("softcut: pb->out patchmatrix");
 
 		// playback -> output
+		postln("(pb->out)");
 		pm.pb_dac = PatchMatrix.new(
 			server:s, target:gr.pb, action:\addAfter,
 			in: bus_pb_idx,
@@ -88,7 +94,7 @@ Engine_SoftCut : CroneEngine {
 		);
 
 		// playback -> record
-		postln("softcut: pb->rec patchmatrix");
+		postln("(pb->rec)");
 		pm.pb_rec = PatchMatrix.new(
 			server:s, target:gr.rec, action:\addBefore,
 			in: bus_pb_idx,
@@ -99,7 +105,9 @@ Engine_SoftCut : CroneEngine {
 		this.addCommands;
 
 		//--- polls
+		postln("polls...");
 		nvoices.do({ arg i;
+			Post << "adding polls " << i << "\n";
 			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
 				voices[i].phase_b.getSynchronous / context.server.sampleRate;
 			});
