@@ -239,8 +239,8 @@ Engine_SoftCut : CroneEngine {
 			// immediately jump to the position indicated by `pos`
 			[\reset, \i, {|msg| voices[msg[1]-1].reset; }],
 
-			// immediately set one voice's position to that of another voice
-			[\sync, \ii, {|msg| syncVoice(msg[1]-1, msg[2]-1) }],
+			// immediately set one voice's position to that of another voice, plus offset
+			[\sync, \iif, {|msg| syncVoice(msg[1]-1, msg[2]-1), msg[3] }],
 
 			// set the quantization (rounding) interval for phase reporting on given voice
 			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2]); }],
