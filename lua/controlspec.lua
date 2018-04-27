@@ -104,6 +104,6 @@ ControlSpec.PAN = ControlSpec.new(-1, 1, 'lin', 0, 0, "")
 ControlSpec.DETUNE = ControlSpec.new(-20, 20, 'lin', 0, 0, "Hz")
 ControlSpec.RATE = ControlSpec.new(0.125, 8, 'exp', 0, 1, "")
 ControlSpec.BEATS = ControlSpec.new(0, 20, 'lin', 0, 0, "Hz")
-ControlSpec.DELAY = ControlSpec.new(0.0001, 1, 'exp', 0, 0.3, "Hz")
+ControlSpec.DELAY = ControlSpec.new(0.0001, 1, 'exp', 0, 0.3, "secs")
 
 return ControlSpec
