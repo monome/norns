@@ -101,8 +101,8 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     float snd, phi, tr;
     float trBlock = 0.f; // trigger should be high/low for the entire block...
     for (int i = 0; i < inNumSamples; ++i) {
-        unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
         if(tr > 0.f) { trBlock = 1.f;}
+        unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
         phase_out[i] = phi;
         snd_out[i] = snd;
     }
