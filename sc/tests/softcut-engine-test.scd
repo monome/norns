@@ -77,7 +77,7 @@ n.sendMsg("/command/start", 2);
 // ok, set up a short loop recording into buffer 1
 n.sendMsg("/command/adc_rec", 1, 5, 1);
 n.sendMsg("/command/rec", 5, 1);
-n.sendMsg("/command/pre", 5, 0.75);
+n.sendMsg("/command/pre", 5, 0.0);
 n.sendMsg("/command/rec_on", 5, 1);
 
 n.sendMsg("/command/loop_on", 5, 1);
@@ -107,3 +107,14 @@ n.sendMsg("/command/loop_end", 6, 3.2);
 n.sendMsg("/command/pos", 6, 1);
 n.sendMsg("/command/reset", 6);
 n.sendMsg("/command/start", 6);
+
+
+n.sendMsg("/command/stop", 1);
+
+// fake poll
+p = Routine { inf.do {
+	postln(e.voices[0].phase_b.getSynchronous / c.server.sampleRate);
+	0.25.wait;
+} }.play;
+
+
