@@ -25,6 +25,7 @@ static inline bool checkBuffer(Unit *unit, const float *bufData, uint32 bufChann
     }
     return true;
     handle_failure:
+    Print("checkBuffer failed!");
     unit->mDone = true;
     ClearUnitOutputs(unit, inNumSamples);
     return false;
@@ -54,11 +55,13 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     unit->cutfade.setBuffer(bufData, bufFrames);
 
+    // audio rate
     float *phase_out = OUT(0);
     float *trig_out = OUT(1);
     float *snd_out = OUT(2);
-
     const float *in = IN(1);
+
+    // control rate
     const float trig = IN0(2);
     const float rate = IN0(3);
     const float start = IN0(4);
@@ -100,19 +103,22 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     float snd, phi, tr;
     float trBlock = 0.f; // trigger should be high/low for the entire block...
+    
     for (int i = 0; i < inNumSamples; ++i) {
-        if(tr > 0.f) { trBlock = 1.f;}
         unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
         phase_out[i] = phi;
         snd_out[i] = snd;
+	if(tr > 0.f) { trBlock = 1.f;}
     }
 
     unit->cutfade.resetTrig();
-    /*
+
+    //    Print("trig this block: %f\n", trBlock);
+    
     for (int i = 0; i < inNumSamples; ++i) {
         trig_out[i] = trBlock;
     }
-    */
+    
 }
 
 PluginLoad(SoftCutHead) {

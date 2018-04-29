@@ -25,6 +25,7 @@ static int wrap(int val, int bound) {
 
 SoftCutHeadLogic::SoftCutHeadLogic() {
     this->init();
+    playRun = true;
 }
 
 void SoftCutHeadLogic::init() {
@@ -64,8 +65,11 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
     if(playRun) {
         *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
+    } else {
+      *outAudio = 0.f;
     }
-    //*outTrig = trig[0] + trig[1];
+
+    *outTrig = trig[0] + trig[1];
 
     if(recRun) {
         poke(in, phase[0], fade[0]);
