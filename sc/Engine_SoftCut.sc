@@ -123,6 +123,7 @@ Engine_SoftCut : CroneEngine {
 		);
 
 		this.addCommands;
+		this.addOscTriggers;
 
 		//--- polls
 		postln("polls...");
@@ -217,15 +218,14 @@ Engine_SoftCut : CroneEngine {
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
 	addOscTriggers {
-		/*
+
 		trigsyn = voices.collect({ arg voice, i;
 			Synth.new(\quant_trig, [\in, voice.phase_b, \id, i, \quant, 1/16 * buf.sampleRate], gr.pb, \addAfter);
 		});
-		*/
+
 		OSCdef(\quant_trig, { arg msg, time;
 			var idx = msg[2];
 			var val = msg[3];
-			postln(msg);
 			phase_quant_poll[idx].sendValue(val);
 		}, '/tr', context.server.addr);
 	}
@@ -236,7 +236,7 @@ Engine_SoftCut : CroneEngine {
 
 			//-- voice functions
 			// start playing/recording
-			[\start, \i, {|msg| msg.postln; voices[msg[1]-1].start; }],
+			[\start, \i, {|msg| voices[msg[1]-1].start; }],
 
 			// stop playing/recording
 			[\stop, \i, {|msg| voices[msg[1]-1].stop; }],
