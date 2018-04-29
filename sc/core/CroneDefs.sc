@@ -78,8 +78,8 @@ CroneDefs {
 				run=1, loop=0, trig=0, done=0;
 				var ins, pres, recs;
 				ins = In.ar(in);
-				pres = Lag.ar(K2A.ar(pre), lag);
-				recs = Lag.ar(K2A.ar(rec), lag);
+				pres = Lag.kr(pre, lag);
+				recs = Lag.kr(rec, lag);
 				RecordBuf.ar(ins, buf,
 					recLevel:rec, preLevel:pre,
 					offset:offset, trigger: InTrig.kr(trig),
