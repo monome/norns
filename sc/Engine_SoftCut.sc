@@ -1,7 +1,7 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
 	classvar nvoices = 4; // total number of voices
-	classvar bufdur = 512; // 64 * 8,
+	classvar bufdur = 64; // 64 * 8,
 
 	classvar commands;
 
@@ -40,7 +40,7 @@ Engine_SoftCut : CroneEngine {
 		var bus_rec_idx;
 		var bufcon;
 		var s = context.server;
-		var start_stride = bufdur / (nvoices);
+		var start_stride = (bufdur - 2.0) / nvoices;
 
 		postln("SoftCut: init routine");
 
@@ -55,6 +55,8 @@ Engine_SoftCut : CroneEngine {
 		buf = Buffer.alloc(s, s.sampleRate * bufdur, 1);
 
 		s.sync;
+
+		postln(buf);
 
 		//--- busses
 		postln("busses...");
@@ -79,7 +81,7 @@ Engine_SoftCut : CroneEngine {
 					voice.syn.set(\start, 0);
 					voice.syn.set(\end, buf.duration);
 				}, {
-					voice.syn.set(\start, i * start_stride);
+					voice.syn.set(\start, i * start_stride + 1.0);
 					voice.syn.set(\pos, i * start_stride);
 					voice.syn.set(\end, (i+1)*start_stride);
 					voice.syn.set(\phase_att_bypass, 0.0);
