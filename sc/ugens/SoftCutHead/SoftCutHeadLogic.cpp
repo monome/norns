@@ -63,11 +63,11 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
     if(outPhase != nullptr) { *outPhase = static_cast<float>(phase[active]); }
 
-    if(playRun) {
+    //    if(playRun) {
         *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
-    } else {
-      *outAudio = 0.f;
-    }
+	//    } else {
+	//      *outAudio = 0.f;
+	//    }
 
     *outTrig = trig[0] + trig[1];
 
