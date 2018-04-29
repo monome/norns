@@ -1,7 +1,7 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
 	classvar nvoices = 4; // total number of voices
-	classvar bufdur = 2048; // 64 * 32, >30min
+	classvar bufdur = 512; // 64 * 8,
 
 	classvar commands;
 
@@ -24,7 +24,7 @@ Engine_SoftCut : CroneEngine {
 			CroneDefs.add(
 				// send trigger when quantized KR signal changes
 				SynthDef.new(\quant_trig,  {
-					arg in, quant, id=0;
+					arg in, quant=48000, id=0;
 					var sgl, tr;
 					sgl = In.kr(in).round(quant);
 					tr = Changed.kr(sgl);
@@ -40,7 +40,7 @@ Engine_SoftCut : CroneEngine {
 		var bus_rec_idx;
 		var bufcon;
 		var s = context.server;
-		var start_stride = bufdur / (nvoices-1);
+		var start_stride = bufdur / (nvoices);
 
 		postln("SoftCut: init routine");
 
@@ -52,7 +52,7 @@ Engine_SoftCut : CroneEngine {
 		s.sync;
 
 		//--- buffers
-		buf = Buffer.alloc(s, s.sampleRate * bufdur);
+		buf = Buffer.alloc(s, s.sampleRate * bufdur, 1);
 
 		s.sync;
 
@@ -80,6 +80,7 @@ Engine_SoftCut : CroneEngine {
 					voice.syn.set(\end, buf.duration);
 				}, {
 					voice.syn.set(\start, i * start_stride);
+					voice.syn.set(\pos, i * start_stride);
 					voice.syn.set(\end, (i+1)*start_stride);
 					voice.syn.set(\phase_att_bypass, 0.0);
 					voice.syn.set(\phase_att_in, voices[nvoices-1].phase_b.index);
@@ -214,13 +215,15 @@ Engine_SoftCut : CroneEngine {
 	playDacLevel { |srcId, dstId, level| pm.pb_dac.level_(srcId, dstId, level); }
 
 	addOscTriggers {
+		/*
 		trigsyn = voices.collect({ arg voice, i;
-			Synth.new(\rangeTrig, [\in, voice.phase_b, \id, i, \quant, 1/16], gr.pb, \addAfter);
+			Synth.new(\quant_trig, [\in, voice.phase_b, \id, i, \quant, 1/16 * buf.sampleRate], gr.pb, \addAfter);
 		});
-
+		*/
 		OSCdef(\quant_trig, { arg msg, time;
 			var idx = msg[2];
 			var val = msg[3];
+			postln(msg);
 			phase_quant_poll[idx].sendValue(val);
 		}, '/tr', context.server.addr);
 	}
@@ -243,7 +246,8 @@ Engine_SoftCut : CroneEngine {
 			[\sync, \iif, {|msg| syncVoice(msg[1]-1, msg[2]-1, msg[3]); }],
 
 			// set the quantization (rounding) interval for phase reporting on given voice
-			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2]); }],
+			// FIXME: clamp this to something reasonable instaed of 100 samples
+			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2].max(100)); }],
 
 			//-- direct control of synth params
 			// output amplitude
@@ -326,7 +330,6 @@ Engine_SoftCut : CroneEngine {
 
 			// normalize buffer to given maximum level
 			[\norm, \f, { |msg| this.normalizeBuf(msg[1]) }]
-
 			// TODO: normalize range?
 		];
 

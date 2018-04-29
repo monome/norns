@@ -108,9 +108,11 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     }
 
     unit->cutfade.resetTrig();
+    /*
     for (int i = 0; i < inNumSamples; ++i) {
         trig_out[i] = trBlock;
     }
+    */
 }
 
 PluginLoad(SoftCutHead) {
