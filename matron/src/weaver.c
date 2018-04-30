@@ -59,6 +59,8 @@ void w_handle_exec_code_line(char *line) {
 static int _grid_set_led(lua_State *l);
 static int _grid_all_led(lua_State *l);
 static int _grid_refresh(lua_State *l);
+static int _grid_rows(lua_State *l);
+static int _grid_cols(lua_State *l);
 //screen
 static int _screen_update(lua_State *l);
 static int _screen_font_face(lua_State *l);
@@ -146,6 +148,8 @@ void w_init(void) {
     lua_register(lvm, "grid_set_led", &_grid_set_led);
     lua_register(lvm, "grid_all_led", &_grid_all_led);
     lua_register(lvm, "grid_refresh", &_grid_refresh);
+    lua_register(lvm, "grid_rows", &_grid_rows);
+    lua_register(lvm, "grid_cols", &_grid_cols);
 
     // register screen funcs
     lua_register(lvm, "s_update", &_screen_update);
@@ -1182,6 +1186,34 @@ args_error:
     fprintf(stderr, "warning: incorrect arguments to grid_refresh()\n");
     lua_settop(l, 0);
     return 0;
+}
+
+/***
+ * grid: rows
+ * @function grid_rows
+ * @param dev grid device
+ */
+int _grid_rows(lua_State *l) {
+    struct dev_monome *md;
+    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+    md = lua_touserdata(l, 1);
+
+    lua_pushinteger(l, dev_monome_grid_rows(md));
+    return 1;
+}
+
+/***
+ * grid: cold
+ * @function grid_cols
+ * @param dev grid device
+ */
+int _grid_cols(lua_State *l) {
+    struct dev_monome *md;
+    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+    md = lua_touserdata(l, 1);
+
+    lua_pushinteger(l, dev_monome_grid_cols(md));
+    return 1;
 }
 
 //-- audio processing controls

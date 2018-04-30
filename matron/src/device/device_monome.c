@@ -45,6 +45,7 @@ int dev_monome_init(void *self) {
     monome_register_handler(m, MONOME_BUTTON_DOWN, dev_monome_handle_press, md);
     monome_register_handler(m, MONOME_BUTTON_UP, dev_monome_handle_lift, md);
 
+    // drop the name set by udev and use libmonome-provided name
     free(base->name);
     name = monome_get_friendly_name(m);
     base->name = malloc(strlen(name) + 1);
@@ -130,16 +131,12 @@ void dev_monome_handle_lift(const monome_event_t *e, void *p) {
     grid_key_event(e, p, 0);
 }
 
-int dev_monome_id(struct dev_monome *md) {
-    return md->dev.id;
+int dev_monome_grid_rows(struct dev_monome *md) {
+    return monome_get_rows(md->m);
 }
 
-const char *dev_monome_serial(struct dev_monome *md) {
-    return monome_get_serial(md->m);
-}
-
-const char *dev_monome_name(struct dev_monome *md) {
-    return monome_get_friendly_name(md->m);
+int dev_monome_grid_cols(struct dev_monome *md) {
+    return monome_get_cols(md->m);
 }
 
 void *dev_monome_start(void *md) {

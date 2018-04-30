@@ -25,6 +25,8 @@ extern void dev_monome_set_quad(struct dev_monome *md,
                                 uint8_t quad, uint8_t *data);
 // transmit data for all dirty quads
 extern void dev_monome_refresh(struct dev_monome *md);
+extern int dev_monome_grid_rows(struct dev_monome *md);
+extern int dev_monome_grid_cols(struct dev_monome *md);
 
 // device management
 extern int dev_monome_init(void *self);
