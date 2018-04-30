@@ -3,11 +3,11 @@
 
 util = {}
 
---- get system time in s+ms
+--- get system time in s+us
 -- @return time
 util.time = function()
-  m,s = get_time()
-  return m + s/1000000
+  us,s = get_time()
+  return us + s/1000000
 end 
 
 
