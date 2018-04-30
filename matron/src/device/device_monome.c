@@ -139,18 +139,6 @@ int dev_monome_grid_cols(struct dev_monome *md) {
     return monome_get_cols(md->m);
 }
 
-int dev_monome_id(struct dev_monome *md) {
-    return md->dev.id;
-}
-
-const char *dev_monome_serial(struct dev_monome *md) {
-    return monome_get_serial(md->m);
-}
-
-const char *dev_monome_name(struct dev_monome *md) {
-    return monome_get_friendly_name(md->m);
-}
-
 void *dev_monome_start(void *md) {
     monome_event_loop( ( (struct dev_monome *)md )->m );
     return NULL;
