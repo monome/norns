@@ -25,6 +25,7 @@ static inline bool checkBuffer(Unit *unit, const float *bufData, uint32 bufChann
     }
     return true;
     handle_failure:
+    Print("checkBuffer failed!");
     unit->mDone = true;
     ClearUnitOutputs(unit, inNumSamples);
     return false;
@@ -35,7 +36,6 @@ static void SoftCutHead_next(SoftCutHead *unit, int inNumSamples);
 static void SoftCutHead_Ctor(SoftCutHead *unit);
 
 void SoftCutHead_Ctor(SoftCutHead *unit) {
-    //Print("SoftCutHead_Ctor() : samplerate %f \n", SAMPLERATE);
     unit->cutfade.init();
     unit->cutfade.setSampleRate(SAMPLERATE);
     unit->m_fbufnum = -1e9f;
@@ -43,12 +43,11 @@ void SoftCutHead_Ctor(SoftCutHead *unit) {
     unit->prevTrig = 0.f;
     SETCALC(SoftCutHead_next);
     SoftCutHead_next(unit, 1);
-    //Print("SoftCutHead_CTor(): num inputs: %i\n", unit->mNumInputs);
 }
 
 void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     GET_BUF;
-    uint32 numOutputs = unit->mNumOutputs;
+//    uint32 numOutputs = unit->mNumOutputs;
     uint32 numInputChannels = unit->mNumInputs - 14;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
@@ -56,11 +55,13 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     unit->cutfade.setBuffer(bufData, bufFrames);
 
+    // audio rate
     float *phase_out = OUT(0);
     float *trig_out = OUT(1);
     float *snd_out = OUT(2);
-
     const float *in = IN(1);
+
+    // control rate
     const float trig = IN0(2);
     const float rate = IN0(3);
     const float start = IN0(4);
@@ -102,17 +103,18 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     float snd, phi, tr;
     float trBlock = 0.f; // trigger should be high/low for the entire block...
+    
     for (int i = 0; i < inNumSamples; ++i) {
-        unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
-        if(tr > 0.f) { trBlock = 1.f;}
+      unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
         phase_out[i] = phi;
         snd_out[i] = snd;
+	if(tr > 0.f) { trBlock = 1.f;}
     }
-
-    unit->cutfade.resetTrig();
+    
     for (int i = 0; i < inNumSamples; ++i) {
-        trig_out[i] = trBlock;
+      trig_out[i] = trBlock;
     }
+    
 }
 
 PluginLoad(SoftCutHead) {

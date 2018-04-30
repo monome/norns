@@ -66,6 +66,7 @@ public:
     float fadePre; // pre-level modulated by xfade
     float fadeRec; // record level modulated by xfade
     bool recRun;
+    bool playRun;
     double recPhaseOffset;
 };
 

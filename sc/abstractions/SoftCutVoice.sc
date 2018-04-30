@@ -18,7 +18,6 @@ SoftCutVoice {
 		^super.new.init(srv, tgt, buf, in, out);
 	}
 
-
 	*initClass {
 
 		StartUp.add {
@@ -67,7 +66,8 @@ SoftCutVoice {
 					att = (abs(phase - In.ar(phase_att_in)) * 0.01).min(1.0);
 					att = att.max(phase_att_bypass);
 
-					Out.ar(out, ( snd * amp * aenv * att));
+					// Out.ar(out, ( snd * amp * aenv * att));
+					Out.ar(out, ( snd * amp * aenv));
 					Out.kr(phase_out, Gate.kr(A2K.kr(phase), gate));
 					Out.kr(trig_out, A2K.kr(tr));
 				})
@@ -80,9 +80,9 @@ SoftCutVoice {
 		buf = buf_;
 		reset_b = Bus.control(server);
 		phase_b = Bus.control(server);
-		loop_b = Bus.audio(server);
+		loop_b = Bus.control(server);
 
-		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out, \done, 1,
+		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out,
 			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
 		], target);
 		/*phase_kr_s = { arg gate = 1;
@@ -104,7 +104,7 @@ SoftCutVoice {
 	}
 
 	start { syn.set(\gate, 1); } //syn.run(true); this.reset; phase_kr_s.set(\gate, 1); }
-stop { syn.set(\gate, 0); } //phase_kr_s.set(\gate, 0); }
+	stop { syn.set(\gate, 0); } //phase_kr_s.set(\gate, 0); }
 	// hm....
 	reset { reset_b.set(1); }
 	buf_ { arg bf; buf = bf; syn.set(\buf, buf); }

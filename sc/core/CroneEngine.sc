@@ -36,6 +36,7 @@ CroneEngine {
 		name = name.asSymbol;
 		CronePollRegistry.register(name, func, periodic:periodic);
 		pollNames.add(name);
+		^CronePollRegistry.getPollFromName(name);
 	}
 
 	deinit { arg doneCallback;
