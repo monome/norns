@@ -33,7 +33,8 @@ CronePoll {
 			oscPath = '/poll/data';
 		});
 		callback = {
-			this.sendValue(function.value);
+			this.value = function.value;
+			this.sendValue();
 		};
 		if(periodic, {
 			task = Task { inf.do {
@@ -74,16 +75,14 @@ CronePoll {
 		arg val;
 		value = val;
 		if(isRunning, { 
-			oscAddr.sendMsg(oscPath, index, val);
+			this.sendValue;
 		});
 	}
 
-	// same for update tasks, skipping the test
 	sendValue {
-		arg val;
-		value = val;
-		oscAddr.sendMsg(oscPath, index, val);
+		oscAddr.sendMsg(oscPath, index, value);
 	}
+
 }
 
 

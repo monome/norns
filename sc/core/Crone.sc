@@ -109,7 +109,6 @@ Crone {
 	}
 
 	*stopPoll { arg idx;
-
 		var poll = CronePollRegistry.getPollFromIndex(idx);
 		if(poll.notNil, {
 			poll.stop;
@@ -124,6 +123,14 @@ Crone {
 			pt.setTime(dt);
 		}, {
 			postln("setPollTime failed; couldn't find index " ++ idx);
+		});
+	}
+
+	
+	*requestPollValue { arg idx;
+		var poll = CronePollRegistry.getPollFromIndex(idx);
+		if(poll.notNil, {
+			poll.sendValue;
 		});
 	}
 
