@@ -9,8 +9,9 @@ CronePoll {
 	var isRunning; 	// Boolean; running state
 	var <oscPath; 	// Symbol, full destination path
 	var <>oscAddr; 	// NetAddr; address to send to.
-	var callback; 	// Function; full (private) callback function
-	var periodic; // Boolean; is this a scheduled/repeating poll or not
+	var <callback; 	// Function; full (private) callback function
+	var <periodic; // Boolean; is this a scheduled/repeating poll or not
+	var <value;   // last value
 
 	// create and define a new poll.
 	// function argument should return value or data
@@ -48,14 +49,18 @@ CronePoll {
 		oscAddr = addr;
 		if(isRunning.not, {
 			isRunning = true;
-			task.play;
+			if(periodic, {
+				task.play;
+			});
 		});
 	}
 
 	stop {
 		if(isRunning, {
 			isRunning = false;
-			task.stop;
+			if(periodic, {
+				task.stop;
+			});
 		});
 	}
 
@@ -65,8 +70,18 @@ CronePoll {
 
 	// send the poll's message with value
 	// non-periodic polls can call this explicitly
+	update {
+		arg val;
+		value = val;
+		if(isRunning, { 
+			oscAddr.sendMsg(oscPath, index, val);
+		});
+	}
+
+	// same for update tasks, skipping the test
 	sendValue {
 		arg val;
+		value = val;
 		oscAddr.sendMsg(oscPath, index, val);
 	}
 }

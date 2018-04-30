@@ -134,10 +134,10 @@ Engine_SoftCut : CroneEngine {
 			});
 
 			this.addPoll(("phase_buf_" ++ (i+1)).asSymbol, {
-				voices[i].phase_b.getSynchronous / (voices[i].buf.duration * context.server.sampleRate);
+				voices[i].phase_b.getSynchronous / voices[i].buf.duration;
 			});
 			this.addPoll(("phase_loop_" ++ (i+1)).asSymbol, {
-				voices[i].phase_b.getSynchronous / ((voices[i].end - voices[i].start) * context.server.sampleRate);
+				voices[i].phase_b.getSynchronous / (voices[i].end - voices[i].start);
 			});
 		});
 
@@ -220,13 +220,13 @@ Engine_SoftCut : CroneEngine {
 	addOscTriggers {
 
 		trigsyn = voices.collect({ arg voice, i;
-			Synth.new(\quant_trig, [\in, voice.phase_b, \id, i, \quant, 1/16 * buf.sampleRate], gr.pb, \addAfter);
+			Synth.new(\quant_trig, [\in, voice.phase_b, \id, i, \quant, 1/16], gr.pb, \addAfter);
 		});
 
 		OSCdef(\quant_trig, { arg msg, time;
 			var idx = msg[2];
 			var val = msg[3];
-			phase_quant_poll[idx].sendValue(val);
+			phase_quant_poll[idx].update(val);
 		}, '/tr', context.server.addr);
 	}
 

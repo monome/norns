@@ -68,7 +68,7 @@ SoftCutVoice {
 
 					// Out.ar(out, ( snd * amp * aenv * att));
 					Out.ar(out, ( snd * amp * aenv));
-					Out.kr(phase_out, Gate.kr(A2K.kr(phase), gate));
+					Out.kr(phase_out, Gate.kr(A2K.kr(phase) * SampleDur.ir, gate));
 					Out.kr(trig_out, A2K.kr(tr));
 				})
 			);
@@ -85,12 +85,16 @@ SoftCutVoice {
 		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out,
 			\trig_in, reset_b.index, \trig_out, loop_b.index, \phase_out, phase_b.index
 		], target);
-		/*phase_kr_s = { arg gate = 1;
-			// FIXME: we aren't using AR phase at the moment
+
+
+		/*
+		// FIXME: we aren't using AR phase at the moment
+		phase_kr_s = { arg gate = 1;
 			var phase = A2K.kr(In.ar(phase_audio_b.index));
 			phase = Gate.kr(phase, gate);
 			Out.kr(phase_b.index, phase);
-		}.play(target: syn, addAction:\addAfter);*/
+			}.play(target: syn, addAction:\addAfter);
+		*/
 
 	}
 
