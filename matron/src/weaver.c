@@ -950,9 +950,9 @@ args_error:
  * @function osc_send
  */
 int _osc_send(lua_State *l) {
-    const char *host;
-    const char *port;
-    const char *path;
+    const char *host = NULL;
+    const char *port = NULL;
+    const char *path = NULL;
     lo_message msg;
 
     int nargs = lua_gettop(l);
@@ -986,11 +986,13 @@ int _osc_send(lua_State *l) {
     luaL_checktype(l, 2, LUA_TSTRING);
     path = lua_tostring(l, 2);
 
-    // args
+    if(host == NULL || port == NULL || path == NULL) { return 1; }
+    
+    msg = lo_message_new();
+    
+    // add args (optional)
     if (nargs > 2) {
         luaL_checktype(l, 3, LUA_TTABLE);
-        msg = lo_message_new();
-
         for (size_t i = 1; i <= lua_rawlen(l, 3); i++) {
             lua_pushnumber(l, i);
             lua_gettable(l, 3);
@@ -1022,14 +1024,9 @@ int _osc_send(lua_State *l) {
 
             lua_pop(l, 1);
         }
-
-        osc_send(host, port, path, msg);
-        lo_message_free(msg);
-    } else {
-        msg = lo_message_new();
-        osc_send(host, port, path, msg);
-        lo_message_free(msg);
     }
+    osc_send(host, port, path, msg);
+    lo_message_free(msg);
 
     lua_settop(l, 0);
     return 0;

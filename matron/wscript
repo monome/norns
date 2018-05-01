@@ -43,4 +43,4 @@ def build(bld):
             'AVAHI-COMPAT-LIBDNS_SD',
         ], lib=[
             'pthread',
-        ], cflags=['-O3'])
+        ], cflags=['-O3', '-Wall'])
