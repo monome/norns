@@ -43,6 +43,10 @@ function Poll:stop()
   stop_poll(self.props.id)
 end
 
+--- request a single update immediately
+function Poll:update()
+   request_poll_value(self.props.id)
+end
 
 --- custom setters;
 -- `.time` and `.callback` set the corresponding private properties and perform approriate actions.
@@ -64,6 +68,7 @@ function Poll:__index(idx)
   elseif idx == 'callback' then return self.props.callback
   elseif idx == 'start' then return Poll.start
   elseif idx == 'stop' then return Poll.stop
+  elseif idx == 'update' then return Poll.update
   elseif idx == 'perform' then return Poll.perform
   else
     return rawget(self, idx)

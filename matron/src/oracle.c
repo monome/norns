@@ -403,6 +403,12 @@ void o_set_poll_time(int idx, float dt) {
     lo_send(remote_addr, "/poll/time", "if", idx, dt);
 }
 
+
+// request current value of poll
+void o_request_poll_value(int idx) {
+  lo_send(remote_addr, "/poll/value", "i", idx);
+}
+
 //---- audio context control
 
 void o_set_audio_input_level(int idx, float level) {
@@ -688,3 +694,4 @@ void test_engine_load_done() {
     event_post(ev);
   }
 }
+

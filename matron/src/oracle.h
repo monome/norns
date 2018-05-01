@@ -94,6 +94,9 @@ extern void o_set_poll_state(int idx, bool state);
 // set poll period
 extern void o_set_poll_time(int idx, float dt);
 
+// request current value of poll
+extern void o_request_poll_value(int idx);
+
 //--- audio context controls
 extern void o_set_audio_input_level(int idx, float level);
 extern void o_set_audio_output_level(float level);
