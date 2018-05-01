@@ -72,10 +72,15 @@ end
 Script.run = function()
   print("# script run")
   if engine.name ~= nil then
-    engine.load(engine.name, Script.init)
+     print("loading engine; name: " .. engine.name)
+     engine.load(engine.name, function()
+		    if not pcall(Script.init) then norns.scripterror() end
+     end)
   else
+     print("running init...")
     if not pcall(Script.init) then norns.scripterror() end
   end
+  print("reconnecting grid...")
   grid.reconnect()
 end
 
