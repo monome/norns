@@ -63,15 +63,17 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     // control rate
     const float trig = IN0(2);
-    const float rate = IN0(3);
+
+    const float *rate = IN(3);
+    
     const float start = IN0(4);
     const float end = IN0(5);
     const float pos = IN0(6);
     const float fade = IN0(7);
     const float loop = IN0(8);
 
-    const float rec = IN0(9);
-    const float pre = IN0(10);
+    const float *rec = IN(9);
+    const float *pre = IN(10);
 
     float fadeRec = IN0(11);
     float fadePre = IN0(12);
@@ -96,15 +98,15 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     unit->prevTrig = trig;
 
-    unit->cutfade.setRate(rate);
-    unit->cutfade.setRec(rec);
-    unit->cutfade.setPre(pre);
-
-
     float snd, phi, tr;
     float trBlock = 0.f; // trigger should be high/low for the entire block...
     
     for (int i = 0; i < inNumSamples; ++i) {
+     
+    unit->cutfade.setRec(rec[i]);
+    unit->cutfade.setPre(pre[i]); 
+    unit->cutfade.setRate(rate[i]);
+
       unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
         phase_out[i] = phi;
         snd_out[i] = snd;
