@@ -47,10 +47,10 @@ SoftCutVoice {
 					trig = InTrig.kr(trig_in);
 					sin = In.ar(in);
 
-					pre = Lag.kr(pre, preLag);
-					rec = Lag.kr(rec, recLag);
+					pre = Lag.ar(K2A.ar(pre), preLag);
+					rec = Lag.ar(K2A.ar(rec), recLag);
 
-					rate = Lag.kr(rate, ratelag);
+					rate = Lag.ar(K2A.ar(rate), ratelag);
 
 					cutfade =  SoftCutHead.ar(buf, sin, trig,
 						rate * brs, start, end, pos, fade, loop,
