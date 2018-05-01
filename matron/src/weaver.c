@@ -99,6 +99,7 @@ static int _send_command(lua_State *l);
 static int _start_poll(lua_State *l);
 static int _stop_poll(lua_State *l);
 static int _set_poll_time(lua_State *l);
+static int _request_poll_value(lua_State *l);
 // timing
 static int _metro_start(lua_State *l);
 static int _metro_stop(lua_State *l);
@@ -203,6 +204,7 @@ void w_init(void) {
     lua_register(lvm, "start_poll", &_start_poll);
     lua_register(lvm, "stop_poll", &_stop_poll);
     lua_register(lvm, "set_poll_time", &_set_poll_time);
+    lua_register(lvm, "request_poll_value", &_request_poll_value);
 
     // audio context controls
     lua_register(lvm, "audio_input_level", &_set_audio_input_level);
@@ -1849,6 +1851,21 @@ int _set_poll_time(lua_State *l) {
     }
     fprintf(stderr, "wrong arguments for w_set_poll_time(); ");
     fprintf(stderr, "expects idx(int), dt(float)\n");
+    lua_settop(l, 0);
+    return 1;
+}
+
+int _request_poll_value(lua_State *l) {
+      int nargs = lua_gettop(l);
+    if(nargs == 1) {
+        if( lua_isinteger(l, 1) ) {
+            int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
+	    o_request_poll_value(idx);
+	    return 0;
+        }
+    }
+    fprintf(stderr, "wrong arguments for w_request_poll_value(); ");
+    fprintf(stderr, "expects idx(int)\n");
     lua_settop(l, 0);
     return 1;
 }
