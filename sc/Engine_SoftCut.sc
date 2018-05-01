@@ -148,11 +148,7 @@ Engine_SoftCut : CroneEngine {
 		});
 		
 		buf_dur_poll = this.addPoll("buf_dur", periodic:false);
-		buf_dur_poll.postln;
-		//EH.. kludeg
-		buf_dur_poll.start(Crone.remoteAddr);
-		buf_dur_poll.update( buf.duration );
-		
+		buf_dur_poll.update(buf.duration);
 	}
 
 	free {
