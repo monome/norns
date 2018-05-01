@@ -80,7 +80,7 @@ CronePoll {
 	}
 
 	sendValue {
-		oscAddr.sendMsg(oscPath, index, value);
+		this.oscAddr.sendMsg(oscPath, index, value);
 	}
 
 }

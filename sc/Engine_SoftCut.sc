@@ -14,6 +14,7 @@ Engine_SoftCut : CroneEngine {
 	var <trigdef; // array of trigger  responders
 	var <trigsyn;
 	var <phase_quant_poll;
+	var <buf_dur_poll;
 
 	*new { arg context, doneCallback;
 		^super.new(context, doneCallback);
@@ -26,7 +27,8 @@ Engine_SoftCut : CroneEngine {
 				SynthDef.new(\quant_trig,  {
 					arg in, quant=48000, id=0;
 					var sgl, tr;
-					sgl = In.kr(in).round(quant);
+					//sgl = In.kr(in).round(quant);
+					sgl = (In.kr(in) / quant).floor * quant;
 					tr = Changed.kr(sgl);
 					SendTrig.kr(tr, id, sgl);
 				});
@@ -129,14 +131,14 @@ Engine_SoftCut : CroneEngine {
 		postln("polls...");
 		nvoices.do({ arg i;
 			Post << "adding polls " << i << "\n";
-			this.addPoll(("phase_" ++ (i+1)).asSymbol, {
+			this.addPoll(("phase_" ++ (i+1)), {
 				voices[i].phase_b.getSynchronous / context.server.sampleRate;
 			});
 
-			this.addPoll(("phase_buf_" ++ (i+1)).asSymbol, {
+			this.addPoll(("phase_buf_" ++ (i+1)), {
 				voices[i].phase_b.getSynchronous / voices[i].buf.duration;
 			});
-			this.addPoll(("phase_loop_" ++ (i+1)).asSymbol, {
+			this.addPoll(("phase_loop_" ++ (i+1)), {
 				voices[i].phase_b.getSynchronous / (voices[i].end - voices[i].start);
 			});
 		});
@@ -144,6 +146,13 @@ Engine_SoftCut : CroneEngine {
 		phase_quant_poll = Array.fill(nvoices, { arg i;
 			this.addPoll("phase_quant_" ++ (i+1), periodic:false);
 		});
+		
+		buf_dur_poll = this.addPoll("buf_dur", periodic:false);
+		buf_dur_poll.postln;
+		//EH.. kludeg
+		buf_dur_poll.start(Crone.remoteAddr);
+		buf_dur_poll.update( buf.duration );
+		
 	}
 
 	free {

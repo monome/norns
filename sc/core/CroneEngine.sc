@@ -67,7 +67,7 @@ CroneEngine {
 			cmd.format = format;
 			cmd.oscdef = OSCdef(name.asSymbol, {
 				arg msg, time, addr, rxport;
-				["CroneEngine rx command", msg, time, addr, rxport].postln;
+				// ["CroneEngine rx command", msg, time, addr, rxport].postln;
 				func.value(msg);
 			}, ("/command/"++name).asSymbol);
 			commands.add(cmd);
