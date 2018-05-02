@@ -8,7 +8,7 @@ te.enter = function(callback, default)
   if default then te.row=1 else te.row = 0 end
   te.delok = 1
   te.callback = callback
-  local pending = false
+  te.pending = false
 
   if norns.menu.status() == false then
     te.key_restore = key
@@ -55,10 +55,10 @@ te.key = function(n,z)
         te.txt = string.sub(te.txt,0,-2)
         te.redraw()
       elseif te.delok == 1 then
-        pending = true
+        te.pending = true
       end
     end
-  elseif n==3 and z==0 and pending == true then
+  elseif n==3 and z==0 and te.pending == true then
     if te.row == 1 and te.delok==1 then te.exit() end 
   end
 end
