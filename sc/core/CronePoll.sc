@@ -11,7 +11,7 @@ CronePoll {
 	var <>oscAddr; 	// NetAddr; address to send to.
 	var <callback; 	// Function; full (private) callback function
 	var <periodic; // Boolean; is this a scheduled/repeating poll or not
-	var <value;   // last value
+	var <>value;   // last value
 
 	// create and define a new poll.
 	// function argument should return value or data
