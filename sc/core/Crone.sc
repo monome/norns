@@ -540,7 +540,7 @@ Crone {
 		CronePollRegistry.register(
 			name: \tape_rec_dur,
 			func: {
-				recorder.duration
+				recorder.duration // TODO: appears to only send duration as an integer(?)
 			},
 			dt: 0.1,
 			type: \value
@@ -549,7 +549,7 @@ Crone {
 			name: \tape_play_pos,
 			func: {
 				if (#[playing, paused].includes(playerState)) {
-					playerClock.beats
+					playerClock.beats // TODO: this doesn't work with tapePause
 				} {
 					0
 				};
