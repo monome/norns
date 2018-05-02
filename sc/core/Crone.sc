@@ -239,6 +239,7 @@ Crone {
 	}
 
 	*tapeOpenfile { |filename|
+		filename = filename.asString;
 		if (PathName(recordingsDir +/+ filename).isFile) {
 			if (#[playing, paused, fileopened].includes(playerState)) {
 				player.stop;
