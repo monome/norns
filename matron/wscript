@@ -21,6 +21,7 @@ def build(bld):
         'src/metro.c',
         'src/oracle.c',
         'src/weaver.c',
+	'src/snd_file.c'
     ]
 
     bld.program(features='c cprogram',
@@ -40,6 +41,7 @@ def build(bld):
             'LUA53',
             'LIBLO',
             'LIBMONOME',
+	    'SNDFILE',
             'AVAHI-COMPAT-LIBDNS_SD',
         ], lib=[
             'pthread',
