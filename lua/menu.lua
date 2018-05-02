@@ -72,6 +72,8 @@ norns.menu.get_key = function() return menu.key end
 norns.menu.get_redraw = function() return menu.redraw end
 
 norns.scripterror = function(msg)
+  local msg = msg;
+  if msg == nil then msg = "" end
   print("### SCRIPT ERROR: "..msg)
   menu.errormsg = msg
   menu.scripterror = true

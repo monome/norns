@@ -148,11 +148,7 @@ Engine_SoftCut : CroneEngine {
 		});
 		
 		buf_dur_poll = this.addPoll("buf_dur", periodic:false);
-		buf_dur_poll.postln;
-		//EH.. kludeg
-		buf_dur_poll.start(Crone.remoteAddr);
-		buf_dur_poll.update( buf.duration );
-		
+		buf_dur_poll.update(buf.duration);
 	}
 
 	free {
@@ -257,8 +253,8 @@ Engine_SoftCut : CroneEngine {
 			[\sync, \iif, {|msg| syncVoice(msg[1]-1, msg[2]-1, msg[3]); }],
 
 			// set the quantization (rounding) interval for phase reporting on given voice
-			// FIXME: clamp this to something reasonable instaed of 100 samples
-			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2].max(100)); }],
+			// FIXME: clamp this to something reasonable instaed of msec?
+			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2].max(0.001)); }],
 
 			//-- direct control of synth params
 			// output amplitude

@@ -27,6 +27,9 @@ CronePoll {
 		type = argType;
 		function = argFunction;
 		periodic = argPeriodic;
+
+		oscAddr = Crone.remoteAddr;
+		
 		if(type == \value, {
 			oscPath = '/poll/value';
 		}, {
@@ -46,8 +49,7 @@ CronePoll {
 		isRunning = false;
 	}
 
-	start { arg addr;
-		oscAddr = addr;
+	start {
 		if(isRunning.not, {
 			isRunning = true;
 			if(periodic, {
@@ -69,8 +71,8 @@ CronePoll {
 		period = time;
 	}
 
-	// send the poll's message with value
-	// non-periodic polls can call this explicitly
+	// update and send the poll's value
+	// non-periodic polls should call this
 	update {
 		arg val;
 		value = val;
@@ -79,6 +81,16 @@ CronePoll {
 		});
 	}
 
+	// triggered by remote client.
+	// sends the last value, and refresh it using the value-function if there is one
+	requestValue {
+		if(function.notNil, {
+			value = function.value
+		});
+		this.sendValue;
+	}
+
+	// send the most recent value
 	sendValue {
 		this.oscAddr.sendMsg(oscPath, index, value);
 	}

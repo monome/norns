@@ -103,7 +103,7 @@ Crone {
 	*startPoll { arg idx;
 		var poll = CronePollRegistry.getPollFromIndex(idx);
 		if(poll.notNil, {
-			poll.start(remoteAddr);
+			poll.start;
 		}, {
 			postln("startPoll failed; couldn't find index " ++ idx);
 		});
@@ -131,7 +131,7 @@ Crone {
 	*requestPollValue { arg idx;
 		var poll = CronePollRegistry.getPollFromIndex(idx);
 		if(poll.notNil, {
-			poll.sendValue;
+			poll.requestValue;
 		});
 	}
 
@@ -528,6 +528,13 @@ Crone {
 				this.tapeReset;
 			}, '/tape/reset'),
 
+			/// testing..
+			// @function /tape/stop
+			'dump':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				[msg, time, addr, recvPort].postln;
+			}),
+			
 		);
 
 	}
