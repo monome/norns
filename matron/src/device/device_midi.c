@@ -16,7 +16,11 @@ int dev_midi_init(void *self) {
     char *alsa_name;
 
     sscanf(base->path, "/dev/snd/midiC%uD%u", &alsa_card, &alsa_dev);
-    asprintf(&alsa_name, "hw:%u,%u", alsa_card, alsa_dev);
+
+    if (asprintf(&alsa_name, "hw:%u,%u", alsa_card, alsa_dev) < 0) {
+        fprintf(stderr, "failed to create alsa device name for card %d,%d\n", alsa_card, alsa_dev);
+        return -1;
+    }
 
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, alsa_name, 0) < 0) {
         fprintf(stderr, "failed to open alsa device %s\n", alsa_name);

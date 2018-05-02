@@ -74,20 +74,15 @@ int osc_receive(const char *path,
 
     union event_data *ev = event_data_new(EVENT_OSC);
 
-    ev->osc_event.path = (char *) malloc(strlen(path) + 1);
-    strcpy(ev->osc_event.path, path);
-
+    ev->osc_event.path = strdup(path);
     ev->osc_event.msg = lo_message_clone(msg);
 
     lo_address source = lo_message_get_source(msg);
     const char *host = lo_address_get_hostname(source);
     const char *port = lo_address_get_port(source);
 
-    ev->osc_event.from_host = (char *) malloc(strlen(host) + 1);
-    strcpy(ev->osc_event.from_host, host);
-
-    ev->osc_event.from_port = (char *) malloc(strlen(port) + 1);
-    strcpy(ev->osc_event.from_port, port);
+    ev->osc_event.from_host = strdup(host);
+    ev->osc_event.from_port = strdup(port);
 
     event_post(ev);
 

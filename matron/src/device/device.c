@@ -21,8 +21,7 @@ union dev *dev_new(device_t type, const char *path, const char *name) {
 
     // initialize the base class
     d->base.type = type;
-    d->base.path = malloc(strlen(path) + 1);
-    strcpy(d->base.path, path);
+    d->base.path = strdup(path);
 
     d->base.name = (char *) name;
 
