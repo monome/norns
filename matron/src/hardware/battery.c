@@ -56,7 +56,7 @@ void *battery_check(void *x) {
 
     while (1) {
         lseek(fd[0], 0, SEEK_SET);
-        if (read(fd[0], &buf, 4) == 4) {
+        if (read(fd[0], &buf, 4) > 0) {
             percent = atoi(buf);
         } else {
             fprintf(stderr, "failed to read battery percentage\n");
@@ -64,7 +64,7 @@ void *battery_check(void *x) {
         }
 
         lseek(fd[1], 0, SEEK_SET);
-        if (read(fd[1], &buf, 1) == 1) {
+        if (read(fd[1], &buf, 1) > 0) {
             n = (buf[0] == 'C'); // Charging
         } else {
             fprintf(stderr, "failed to read battery charging status\n");
@@ -79,7 +79,7 @@ void *battery_check(void *x) {
         }
 
         lseek(fd[2], 0, SEEK_SET);
-        if (read(fd[2], &buf, 7) == 7) {
+        if (read(fd[2], &buf, 7) > 0) {
             n = atoi(buf) / 1000;
         } else {
             fprintf(stderr, "failed to read battery current\n");
