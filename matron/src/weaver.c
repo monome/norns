@@ -119,6 +119,13 @@ static int _set_audio_monitor_off(lua_State *l);
 static int _set_audio_pitch_on(lua_State *l);
 static int _set_audio_pitch_off(lua_State *l);
 
+// tape control
+
+static int _tape_new(lua_State *l);
+static int _tape_start_rec(lua_State *l);
+static int _tape_pause_rec(lua_State *l);
+static int _tape_stop_rec(lua_State *l);
+
 // restart audio completely (recompile sclang)
 static int _restart_audio(lua_State *l);
 
@@ -220,6 +227,12 @@ void w_init(void) {
     lua_register(lvm, "audio_monitor_off", &_set_audio_monitor_off);
     lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
     lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
+
+    // tape controls
+    lua_register(lvm, "tape_new", &_tape_new);
+    lua_register(lvm, "tape_start_rec", &_tape_start_rec);
+    lua_register(lvm, "tape_pause_rec", &_tape_pause_rec);
+    lua_register(lvm, "tape_stop_rec", &_tape_stop_rec);
 
     // completely restart the audio process (recompile sclang)
     lua_register(lvm, "restart_audio", &_restart_audio);
@@ -970,9 +983,7 @@ int _osc_send(lua_State *l) {
     luaL_checktype(l, 1, LUA_TTABLE);
 
     if (lua_rawlen(l, 1) != 2) {
-        luaL_argerror(l,
-                      1,
-                      "address should be a table in the form {host, port}");
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
     }
 
     lua_pushnumber(l, 1);
@@ -980,9 +991,7 @@ int _osc_send(lua_State *l) {
     if ( lua_isstring(l, -1) ) {
         host = lua_tostring(l, -1);
     } else {
-        luaL_argerror(l,
-                      1,
-                      "address should be a table in the form {host, port}");
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
     }
     lua_pop(l, 1);
 
@@ -991,9 +1000,7 @@ int _osc_send(lua_State *l) {
     if ( lua_isstring(l, -1) ) {
         port = lua_tostring(l, -1);
     } else {
-        luaL_argerror(l,
-                      1,
-                      "address should be a table in the form {host, port}");
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
     }
     lua_pop(l, 1);
 
@@ -1001,7 +1008,7 @@ int _osc_send(lua_State *l) {
     luaL_checktype(l, 2, LUA_TSTRING);
     path = lua_tostring(l, 2);
 
-    if( ( host == NULL) || ( port == NULL) || ( path == NULL) ) { return 1; }
+    if( (host == NULL) || (port == NULL) || (path == NULL) ) { return 1; }
 
     msg = lo_message_new();
 
@@ -1376,9 +1383,8 @@ int _metro_start(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 args_error:
-    fprintf(
-        stderr,
-        "warning: incorrect argument(s) to start_metro(); expected [i(fii)]\n");
+    fprintf(stderr,
+            "warning: incorrect argument(s) to start_metro(); expected [i(fii)]\n");
     lua_settop(l, 0);
     return 0;
 }
@@ -1971,6 +1977,47 @@ int _set_audio_pitch_on(lua_State *l) {
 int _set_audio_pitch_off(lua_State *l) {
     (void)l;
     o_set_audio_pitch_off();
+    return 0;
+}
+
+int _tape_new(lua_State *l) {
+    char s[64];
+
+    if(lua_gettop(l) != 1) { // check num args
+        goto args_error;
+    }
+
+    if( lua_isstring(l,1) ) {
+        strcpy( s,lua_tostring(l,1) );
+    } else {
+        goto args_error;
+    }
+
+    o_tape_new(s);
+    lua_settop(l, 0);
+    return 0;
+
+args_error:
+    fprintf(stderr, "warning: incorrect arguments to s_text()\n");
+    lua_settop(l, 0);
+    return 0;
+}
+
+int _tape_start_rec(lua_State *l) {
+    (void)l;
+    o_tape_start_rec();
+    return 0;
+}
+
+int _tape_pause_rec(lua_State *l) {
+    (void)l;
+    o_tape_pause_rec();
+    return 0;
+}
+
+int _tape_stop_rec(lua_State *l) {
+    (void)l;
+    o_tape_stop_rec();
     return 0;
 }
 

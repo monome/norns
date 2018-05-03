@@ -121,17 +121,16 @@ static int handle_poll_io_levels(const char *path, const char *types,
 static void lo_error_handler(int num, const char *m, const char *path);
 
 static void set_need_reports() {
-  needCommandReport = true;
-  needPollReport = true;
-  needParamReport = false; // FIXME true;
+    needCommandReport = true;
+    needPollReport = true;
+    needParamReport = false; // FIXME true;
 }
 
 static bool get_need_reports() {
-  return needCommandReport || needPollReport || needParamReport;
+    return needCommandReport || needPollReport || needParamReport;
 }
 
 static void test_engine_load_done();
-
 
 //-----------------------------------
 //---- extern function definitions
@@ -148,7 +147,7 @@ void o_init(void) {
     const char *rem_port = args_remote_port();
 
     fprintf(stderr, "OSC rx port: %s \nOSC tx port: %s\n",
-           loc_port, rem_port);
+            loc_port, rem_port);
     o_init_descriptors();
 
     remote_addr = lo_address_new("127.0.0.1", rem_port);
@@ -249,7 +248,7 @@ void o_request_engine_report(void) {
 }
 
 void o_load_engine(const char *name) {
-  set_need_reports();
+    set_need_reports();
     lo_send(remote_addr, "/engine/load/name", "s", name);
 }
 
@@ -295,7 +294,7 @@ void o_clear_engine_names(void) {
             engine_names[i] = NULL;
         } else {
             fprintf(stderr,
-                "o_clear_engine_names: encountered unexpected null entry\n");
+                    "o_clear_engine_names: encountered unexpected null entry\n");
         }
     }
     o_unlock_descriptors();
@@ -310,7 +309,8 @@ void o_clear_commands(void) {
             commands[i].name = NULL;
             commands[i].format = NULL;
         } else {
-            fprintf(stderr, "o_clear_commands: encountered unexpected null entry\n");
+            fprintf(stderr,
+                    "o_clear_commands: encountered unexpected null entry\n");
         }
     }
     o_unlock_descriptors();
@@ -323,7 +323,8 @@ void o_clear_polls(void) {
             free(polls[i].name);
             polls[i].name = NULL;
         } else {
-            fprintf(stderr, "o_clear_polls: encountered unexpected null entry\n");
+            fprintf(stderr,
+                    "o_clear_polls: encountered unexpected null entry\n");
         }
     }
     o_unlock_descriptors();
@@ -334,12 +335,17 @@ void o_set_engine_name(int idx, const char *name) {
     size_t len;
     o_lock_descriptors();
     if(engine_names[idx] != NULL) {
-        fprintf(stderr, "refusing to allocate engine name %d; already exists", idx);
+        fprintf(stderr,
+                "refusing to allocate engine name %d; already exists",
+                idx);
     } else {
         len = strlen(name);
         engine_names[idx] = malloc(len);
         if ( engine_names[idx] == NULL ) {
-            fprintf(stderr, "failure to malloc for engine name %d : %s\n", idx, name);
+            fprintf(stderr,
+                    "failure to malloc for engine name %d : %s\n",
+                    idx,
+                    name);
         } else {
             strncpy(engine_names[idx], name, len + 1);
         }
@@ -352,7 +358,9 @@ void o_set_command(int idx, const char *name, const char *format) {
     size_t name_len, format_len;
     o_lock_descriptors();
     if( (commands[idx].name != NULL) || (commands[idx].format != NULL) ) {
-        fprintf(stderr, "refusing to allocate command name %d; already exists", idx);
+        fprintf(stderr,
+                "refusing to allocate command name %d; already exists",
+                idx);
     } else {
         name_len = strlen(name);
         format_len = strlen(format);
@@ -361,9 +369,9 @@ void o_set_command(int idx, const char *name, const char *format) {
         if ( ( commands[idx].name == NULL) ||
              ( commands[idx].format == NULL) ) {
             fprintf(stderr, "failure to malloc for command %d : %s %s\n",
-                   idx,
-                   name,
-                   format);
+                    idx,
+                    name,
+                    format);
         } else {
             strncpy(commands[idx].name, name, name_len + 1);
             strncpy(commands[idx].format, format, format_len + 1);
@@ -377,7 +385,8 @@ void o_set_poll(int idx, const char *name, poll_type_t type) {
     size_t name_len;
     o_lock_descriptors();
     if( polls[idx].name != NULL ) {
-        fprintf(stderr, "refusing to allocate poll name %d; already exists", idx);
+        fprintf(stderr, "refusing to allocate poll name %d; already exists",
+                idx);
     } else {
         name_len = strlen(name);
         polls[idx].name = malloc(name_len + 1);
@@ -403,10 +412,9 @@ void o_set_poll_time(int idx, float dt) {
     lo_send(remote_addr, "/poll/time", "if", idx, dt);
 }
 
-
 // request current value of poll
 void o_request_poll_value(int idx) {
-  lo_send(remote_addr, "/poll/value", "i", idx);
+    lo_send(remote_addr, "/poll/value", "i", idx);
 }
 
 //---- audio context control
@@ -449,6 +457,24 @@ void o_set_audio_pitch_off() {
 
 void o_restart_audio() {
     lo_send(remote_addr, "/recompile", NULL);
+}
+
+//---- tape controls
+
+void o_tape_new(char *file) {
+    lo_send(remote_addr, "/tape/newfile", "s", file);
+}
+
+void o_tape_start_rec() {
+    lo_send(remote_addr, "/tape/start_rec", NULL);
+}
+
+void o_tape_pause_rec() {
+    lo_send(remote_addr, "/tape/pause_rec", NULL);
+}
+
+void o_tape_stop_rec() {
+    lo_send(remote_addr, "/tape/stop_rec", NULL);
 }
 
 ///////////////////////////////
@@ -688,10 +714,9 @@ void lo_error_handler(int num, const char *m, const char *path) {
 }
 
 void test_engine_load_done() {
-  if(!get_need_reports()) {
-    union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
-    fprintf(stderr, "oracle: done loading engine\n");
-    event_post(ev);
-  }
+    if( !get_need_reports() ) {
+        union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
+        fprintf(stderr, "oracle: done loading engine\n");
+        event_post(ev);
+    }
 }
-

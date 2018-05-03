@@ -620,16 +620,37 @@ local tOFF = 0
 local tREC = 1
 local tPLAY = 2
 
+local tsREC = 0
+local tsPAUSE = 1
+
 local tape = {} 
 tape.key = false
 tape.mode = tOFF 
+tape.status = 0
+tape.name = ""
 
 m.key[pAUDIO] = function(n,z)
-  if n==3 and z==1 then
+  if n==3 and z==1 and tape.key == false then
     menu.set_page(pHOME)
   elseif n==2 then
     if z==1 then tape.key = true
     else tape.key = false end
+  elseif n==3 and tape.key == true and z==1 then
+    if tape.mode == tOFF then 
+      tape.name = os.date("%y-%m-%d_%H-%M") .. ".aif"
+      tape_new(tape.name)
+      print("new tape > "..tape.name)
+      tape.mode = tREC
+      tape.status = tsPAUSE
+      redraw()
+    elseif tape.mode == tREC and tape.status == tsPAUSE then 
+      tape.status = tsREC
+      tape_start_rec()
+    elseif tape.mode == tREC and tape.status == tsREC then
+      print("stopping tape")
+      tape_stop_rec()
+      tape.mode = tOFF 
+    end 
   end
 end
 
@@ -675,6 +696,15 @@ m.redraw[pAUDIO] = function()
     s_level(2)
     s_move(127,63)
     s_text_right("TAPE")
+  end
+
+  if tape.mode == tREC then
+    s_move(127,10)
+    if tape.status == tsPAUSE then
+      s_text_right("ready")
+    elseif tape.status == tsREC then
+      s_text_right("recording")
+    end 
   end
 
   --[[if norns.powerpresent==0 then

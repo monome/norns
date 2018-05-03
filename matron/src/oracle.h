@@ -33,8 +33,8 @@ struct engine_poll {
 
 // data structure for engine parameters
 struct engine_param {
-  char *name;
-  int busIdx; // control bus index
+    char *name;
+    int busIdx; // control bus index
 };
 
 // check for audio engine boot completion
@@ -107,5 +107,11 @@ extern void o_set_audio_monitor_on();
 extern void o_set_audio_monitor_off();
 extern void o_set_audio_pitch_on();
 extern void o_set_audio_pitch_off();
+
+//--- tape control
+extern void o_tape_new(char *file);
+extern void o_tape_start_rec();
+extern void o_tape_pause_rec();
+extern void o_tape_stop_rec();
 
 extern void o_restart_audio();
