@@ -637,7 +637,7 @@ m.key[pAUDIO] = function(n,z)
     else tape.key = false end
   elseif n==3 and tape.key == true and z==1 then
     if tape.mode == tOFF then 
-      tape.name = os.date("%y-%m-%d_%H-%M") .. ".wav"
+      tape.name = os.date("%y-%m-%d_%H-%M") .. ".aif"
       tape_new(tape.name)
       print("new tape > "..tape.name)
       tape.mode = tREC
