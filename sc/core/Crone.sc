@@ -44,7 +44,6 @@ Crone {
 
 			server = Server.local;
 			server.options.memSize = 2**16;
-			server.options.zeroConf = false;
 			server.latency = 0.05;
 
 			server.waitForBoot {
