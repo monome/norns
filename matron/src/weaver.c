@@ -29,6 +29,7 @@
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
+#include "snd_file.h"
 #include "i2c.h"
 #include "osc.h"
 #include "oracle.h"
@@ -127,6 +128,9 @@ static int _tape_stop_rec(lua_State *l);
 
 // restart audio completely (recompile sclang)
 static int _restart_audio(lua_State *l);
+
+// soundfile inspection
+static int _sound_file_inspect(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -232,6 +236,9 @@ void w_init(void) {
 
     // completely restart the audio process (recompile sclang)
     lua_register(lvm, "restart_audio", &_restart_audio);
+
+    // returns channels, frames, samplerate
+    lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
 
     // run system init code
     char *config = getenv("NORNS_CONFIG");
@@ -976,8 +983,7 @@ int _osc_send(lua_State *l) {
     luaL_checktype(l, 1, LUA_TTABLE);
 
     if (lua_rawlen(l, 1) != 2) {
-        luaL_argerror(l, 1,
-                      "address should be a table in the form {host, port}");
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
     }
 
     lua_pushnumber(l, 1);
@@ -985,8 +991,7 @@ int _osc_send(lua_State *l) {
     if ( lua_isstring(l, -1) ) {
         host = lua_tostring(l, -1);
     } else {
-        luaL_argerror(l, 1,
-                      "address should be a table in the form {host, port}");
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
     }
     lua_pop(l, 1);
 
@@ -995,8 +1000,7 @@ int _osc_send(lua_State *l) {
     if ( lua_isstring(l, -1) ) {
         port = lua_tostring(l, -1);
     } else {
-        luaL_argerror(l, 1,
-                      "address should be a table in the form {host, port}");
+        luaL_argerror(l, 1, "address should be a table in the form {host, port}");
     }
     lua_pop(l, 1);
 
@@ -2020,5 +2024,22 @@ int _tape_stop_rec(lua_State *l) {
 int _restart_audio(lua_State *l) {
     (void)l;
     o_restart_audio();
+    return 0;
+}
+
+int _sound_file_inspect(lua_State *l) {
+    if(lua_gettop(l) != 1) { goto args_error; }
+    if( !lua_isstring(l, 1) ) { goto args_error; }
+
+    const char *path  = lua_tostring(l, 1);
+    struct snd_file_desc desc = snd_file_inspect(path);
+    lua_pushinteger(l, desc.channels);
+    lua_pushinteger(l, desc.frames);
+    lua_pushinteger(l, desc.samplerate);
+    return 3;
+
+args_error:
+    fprintf(stderr, "warning: incorrect arguments to sound_file_inspect() \n");
+    lua_settop(l, 0);
     return 0;
 }
