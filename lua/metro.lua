@@ -128,15 +128,18 @@ end
 
 
 --- debug
+--[[
 function Metro.inspect ()
+   local m
    for i=1,Metro.num_metros do
-      local m = Metro.metros[i]
+      m = Metro.metros[i]
       print("metro", i, m,
 	    "running", m.is_running,
-	    "avail". Metro.available[i], "assigned". Metro.assigned[i]
+	    "avail", Metro.available[i], "assigned". Metro.assigned[i]
       )
    end
 end
+--]]
 
 ---------------------
 ---- static initialization
