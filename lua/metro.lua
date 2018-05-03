@@ -8,7 +8,12 @@ local Metro = {}
 Metro.__index = Metro
 
 Metro.num_metros = 32
+-- 31 and 32 are reserved for system
+Metro.num_script_metros = 30
 Metro.metros = {}
+Metro.available = {}
+Metro.assigned = {}
+
 
 --- constructor;
  -- @param id : identifier (integer)
@@ -22,6 +27,35 @@ function Metro.new(id)
   t.props.init_stage = 1
   setmetatable(t, Metro)
   return t
+end
+
+--- assign
+-- "allocate" a metro (assigns unused id)
+function Metro.alloc ()
+   local id = nil
+   for i, val in pairs(Metro.available) do
+      if val == true then id = i break end
+   end
+   if id ~= nil then
+      Metro.assigned[id] = true
+      Metro.available[id] = false
+   end
+end
+
+function Metro.free(id)
+   if metro.assigned[id] == true then
+      Metro.metros[id]:stop()
+      Metro.available[i] = true
+      Metro.assigned[i] = false
+   end
+end
+
+function Metro.free_all()
+   for i=1,Metro.num_script_metros do
+      if Metro.assigned[i] == true then Metro.metros[i]:stop() end
+      Metro.available[i] = true
+      Metro.assigned[i] = false
+   end
 end
 
 --- start a metro
@@ -43,9 +77,6 @@ function Metro:stop()
   self.is_running = false
 end
 
-for i=1,Metro.num_metros do
-  Metro.metros[i] = Metro.new(i)
-end
 
 Metro.__newindex = function(self, idx, val)
   if idx == "time" then
@@ -67,7 +98,6 @@ end
 -- [] accessor returns one of the static metro objects
 Metro.__index = function(self, idx)
   if type(idx) == "number" then
-    -- print("class meta: .__index ("..idx..")")
     return Metro.metros[idx]
   elseif idx == "start" then return Metro.start
   elseif idx == "stop" then return Metro.stop
@@ -75,7 +105,6 @@ Metro.__index = function(self, idx)
   elseif idx == 'count' then return self.props.count
   elseif idx == 'time' then return self.props.time
   elseif idx == 'init_stage' then return self.props.init_stage
-    -- hm, why doesn't this work:
   elseif self.props.idx then
     return self.props.idx
   else
@@ -96,6 +125,35 @@ norns.metro = function(idx, stage)
     end
   end
 end
+
+
+--- debug
+function Metro.inspect ()
+   for i=1,Metro.num_metros do
+      local m = Metro.metros[i]
+      print("metro", i, m,
+	    "running", m.is_running,
+	    "avail". Metro.available[i], "assigned". Metro.assigned[i]
+      )
+   end
+end
+
+---------------------
+---- static initialization
+
+--- initialize module data
+for i=1,Metro.num_metros do
+   Metro.metros[i] = Metro.new(i)
+end
+
+for i=1,Metro.num_script_metros do
+   Metro.available[i] = true
+   Metro.assigned[i] = false
+end
+
+
+
+
 
 
 return Metro
