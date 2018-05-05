@@ -66,36 +66,29 @@ Crone {
 	*setEngine { arg name;
 		var class;
 		class = CroneEngine.allSubclasses.detect({ arg n; n.asString == name.asString });
-		if(engine.class != class, {
-			if(class.notNil, {
-				fork {
-					if(engine.notNil, {
-						var cond = Condition.new(false);
-						postln("free engine: " ++ engine);
-						engine.deinit({ cond.test = true; cond.signal; });
-						cond.wait;
+		if(class.notNil, {
+			fork {
+				if(engine.notNil, {
+					var cond = Condition.new(false);
+					postln("free engine: " ++ engine);
+					engine.deinit({ cond.test = true; cond.signal; });
+					cond.wait;
 
-					});
-					class.new(ctx, {
-						arg theEngine;
-						postln("-----------------------");
-						postln("-- crone: done loading engine, starting reports");
-						postln("--------");
+				});
+				class.new(ctx, {
+					arg theEngine;
+					postln("-----------------------");
+					postln("-- crone: done loading engine, starting reports");
+					postln("--------");
 
-						this.engine = theEngine;
-						postln("engine: " ++ this.engine);
+					this.engine = theEngine;
+					postln("engine: " ++ this.engine);
 
-						this.reportCommands;
-						this.reportPolls;
-					});
-				}
-			});
-		}, {
-			// if we didn't change engines, just resend the reports
-			this.reportCommands;
-			this.reportPolls;
+					this.reportCommands;
+					this.reportPolls;
+				});
+			}
 		});
-
 	}
 
 	// start a thread to continuously send a named report with a given interval
