@@ -892,28 +892,48 @@ int _send_command(lua_State *l) {
     for(int i = 2; i <= nargs; i++) {
         switch(fmt[i - 2]) {
         case 's':
-            s = luaL_checkstring(l, i);
-            lo_message_add_string(msg, s);
+            if (lua_isstring(l, i)) {
+                s = lua_tostring(l, i);
+                lo_message_add_string(msg, s);
+            } else {
+                fprintf(stderr, "failed string type check\n");
+                goto args_error;
+            }
             break;
         case 'i':
-            d = (int) luaL_checkinteger(l, i);
-            lo_message_add_int32(msg, d);
+            if (lua_isnumber(l, i)) {
+                d =  (int)lua_tonumber(l, i);
+                lo_message_add_int32(msg, d);
+            } else {
+                fprintf(stderr, "failed int type check\n");
+                goto args_error;
+            }
             break;
         case 'f':
-            f = (double) luaL_checknumber(l, i);
-            lo_message_add_double(msg, f);
+            if (lua_isnumber(l, i)) {
+                f = lua_tonumber(l, i);
+                lo_message_add_double(msg, f);
+            } else {
+                fprintf(stderr, "failed double type check\n");
+                goto args_error;
+            }
             break;
         default:
             break;
         } /* switch */
     }
-
     if ((cmd == NULL) || (fmt == NULL)) {
-        lo_message_free(msg);
-        return luaL_error(l, "null format/command string");
+        fprintf(stderr, "error: null format/command string\n");
+        lua_settop(l, 0);
+        return 0;
+    } else {
+        o_send_command(cmd, msg);
     }
+    lua_settop(l, 0);
+    return 0;
 
-    o_send_command(cmd, msg);
+args_error:
+    fprintf(stderr, "warning: incorrect arguments to send_command()\n");
     lua_settop(l, 0);
     return 0;
 }
@@ -1379,11 +1399,16 @@ static int poll_set_state(lua_State *l, bool val) {
     if (lua_gettop(l) != 1) {
         return luaL_error(l, "wrong number of arguments");
     }
-
-    int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
-    o_set_poll_state(idx, val);
-    lua_settop(l, 0);
-    return 0;
+    if (lua_isinteger(l, 1)) {
+        int idx = lua_tointeger(l, 1) - 1; // convert from 1-based
+        o_set_poll_state(idx, val);
+        lua_settop(l, 0);
+        return 0;
+    } else {
+        fprintf(stderr, "poll_state_state(); wrong argument type\n");
+        lua_settop(l, 0);
+        return 0;
+    }
 }
 
 int _start_poll(lua_State *l) {
