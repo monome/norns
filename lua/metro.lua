@@ -17,15 +17,21 @@ Metro.assigned = {}
 
 --- assign
 -- "allocate" a metro (assigns unused id)
-function Metro.alloc ()
+function Metro.alloc (cb, time, count)
     local id = nil
     for i, val in pairs(Metro.available) do
         if val == true then id = i break end
     end
-    if id ~= nil then
+    if id ~= nil then       
         Metro.assigned[id] = true
         Metro.available[id] = false
+	local m = Metro.metros[id]
+	if cb then m.callback = cb end
+	if time then m.time = time end
+	if count then m.count= count end
+	return m
     end
+    return nil
 end
 
 function Metro.free(id)
@@ -38,7 +44,6 @@ function Metro.free(id)
 end
 
 function Metro.free_all()
-    local m
     for i=1,Metro.num_script_metros do
         Metro.free(id)
     end
@@ -57,7 +62,8 @@ function Metro.new(id)
     m.props.time = 1
     m.props.count = -1
     m.props.callback = nil
-    m.props.init_stage = 1
+    m.props.init_stage = 1    
+    setmetatable(m, Metro) 
     return m
 end
 
