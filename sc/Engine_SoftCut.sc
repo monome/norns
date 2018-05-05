@@ -25,10 +25,10 @@ Engine_SoftCut : CroneEngine {
 			CroneDefs.add(
 				// send trigger when quantized KR signal changes
 				SynthDef.new(\quant_trig,  {
-					arg in, quant=48000, id=0;
+					arg in, quant=48000, offset=0, id=0;
 					var sgl, tr;
 					//sgl = In.kr(in).round(quant);
-					sgl = (In.kr(in) / quant).floor * quant;
+					sgl = ((In.kr(in)+offset) / quant).floor * quant;
 					tr = Changed.kr(sgl);
 					SendTrig.kr(tr, id, sgl);
 				});
@@ -255,6 +255,9 @@ Engine_SoftCut : CroneEngine {
 			// set the quantization (rounding) interval for phase reporting on given voice
 			// FIXME: clamp this to something reasonable instaed of msec?
 			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2].max(0.001)); }],
+
+      // set offset for quantization calculation
+			[\quant_offset, \if, {|msg| trigsyn[msg[1]-1].set(\offset, msg[2]); }],
 
 			//-- direct control of synth params
 			// output amplitude
