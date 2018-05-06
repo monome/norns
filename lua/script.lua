@@ -18,7 +18,7 @@ Script.clear = function()
   if g then g.key = norns.none end
   g = nil
   -- stop all timers
-  for i=1,30 do metro[i]:stop() end
+  metro.free_all()
   -- clear polls
   poll.report = norns.none
   -- clear engine
