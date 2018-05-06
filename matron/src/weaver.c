@@ -107,6 +107,8 @@ static int _metro_stop(lua_State *l);
 static int _metro_set_time(lua_State *l);
 // get the current system time
 static int _get_time(lua_State *l);
+// usleep!
+static int _micro_sleep(lua_State *l);
 
 // audio context control
 static int _set_audio_input_level(lua_State *l);
@@ -210,6 +212,8 @@ void w_init(void) {
 
     // get the current high-resolution CPU time
     lua_register(lvm, "get_time", &_get_time);
+    // usleep!
+    lua_register(lvm, "usleep", &_micro_sleep);
 
     // start / stop a poll
     lua_register(lvm, "start_poll", &_start_poll);
@@ -1015,6 +1019,20 @@ int _get_time(lua_State *l) {
     lua_pushinteger(l, (lua_Integer)tv.tv_sec);
     lua_pushinteger(l, (lua_Integer)tv.tv_usec);
     return 2;
+}
+
+
+
+// usleep 
+int _micro_sleep(lua_State *l) {
+     if (lua_gettop(l) != 1) {
+        return luaL_error(l, "wrong number of arguments");
+    }
+     
+    int usec = (float) luaL_checknumber(l, 1);
+    usleep(usec);
+    lua_settop(l, 0);
+    return 0;
 }
 
 //---- c -> lua glue
