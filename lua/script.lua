@@ -19,8 +19,8 @@ Script.clear = function()
   g = nil
   -- stop all timers
   metro.free_all()
-  -- clear polls
-  poll.report = norns.none
+  -- stop all polls and clear callbacks
+  poll.clear_all()
   -- clear engine
   engine.name = nil
   -- clear init
