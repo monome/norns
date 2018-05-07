@@ -8,45 +8,46 @@ local Metro = {}
 Metro.__index = Metro
 
 Metro.num_metros = 32
--- 31 and 32 are reserved for system
-Metro.num_script_metros = 30
+Metro.num_script_metros = 30 -- 31 and 32 are reserved
+
 Metro.metros = {}
 Metro.available = {}
 Metro.assigned = {}
-
 
 --- assign
 -- "allocate" a metro (assigns unused id)
 function Metro.alloc (cb, time, count)
     local id = nil
     for i, val in pairs(Metro.available) do
-        if val == true then id = i break end
+       if val == true then
+	  id = i
+	  break
+       end
     end
     if id ~= nil then       
         Metro.assigned[id] = true
         Metro.available[id] = false
 	local m = Metro.metros[id]
+	m:init()
 	if cb then m.callback = cb end
 	if time then m.time = time end
 	if count then m.count= count end
 	return m
     end
+    print("metro.alloc: nothing available")
     return nil
 end
 
 function Metro.free(id)
-    if metro.assigned[id] == true then
-        Metro.metros[id]:stop()
-        Metro.metros[id]:init()
-        Metro.available[i] = true
-        Metro.assigned[i] = false
-    end
+    Metro.metros[id]:stop()
+    Metro.available[id] = true
+    Metro.assigned[id] = false
 end
 
 function Metro.free_all()
-    for i=1,Metro.num_script_metros do
-        Metro.free(id)
-    end
+   for i=1,Metro.num_script_metros do
+      Metro.free(i)
+   end
 end
 
 
@@ -55,9 +56,6 @@ end
 function Metro.new(id)
     local m = {}
     m.props = {}
-    -- FIXME:
-    -- this doesn't work Because Metatables.
-    -- m:init()
     m.props.id = id
     m.props.time = 1
     m.props.count = -1
@@ -69,11 +67,11 @@ end
 
 --- reset to default state
 function Metro:init()
-    self.props.id = id
-    self.props.time = 1
-    self.props.count = -1
-    self.props.callback = nil
-    self.props.init_stage = 1
+    self.id = id
+    self.time = 1
+    self.count = -1
+    self.callback = nil
+    self.init_stage = 1
 end
 
 --- start a metro
@@ -118,6 +116,7 @@ Metro.__index = function(self, idx)
         return Metro.metros[idx]
     elseif idx == "start" then return Metro.start
     elseif idx == "stop" then return Metro.stop
+    elseif idx == "init" then return Metro.init
     elseif idx == 'id' then return self.props.id
     elseif idx == 'count' then return self.props.count
     elseif idx == 'time' then return self.props.time
@@ -129,35 +128,7 @@ Metro.__index = function(self, idx)
     end
 end
 
-
 setmetatable(Metro, Metro)
-
---- Global Functions
--- @section globals
-
---- callback on metro tick from C;
-norns.metro = function(idx, stage)
-  if Metro.metros[idx] then
-    if Metro.metros[idx].callback then
-      Metro.metros[idx].callback(stage)
-    end
-  end
-end
-
-
---- debug
---[[
-function Metro.inspect ()
-   local m
-   for i=1,Metro.num_metros do
-      m = Metro.metros[i]
-      print("metro", i, m,
-	    "running", m.is_running,
-	    "avail", Metro.available[i], "assigned". Metro.assigned[i]
-      )
-   end
-end
---]]
 
 ---------------------
 ---- static initialization
@@ -174,6 +145,17 @@ end
 
 
 
+--- Global Functions
+-- @section globals
+
+--- callback on metro tick from C;
+norns.metro = function(idx, stage)
+  if Metro.metros[idx] then
+    if Metro.metros[idx].callback then
+      Metro.metros[idx].callback(stage)
+    end
+  end
+end
 
 
 

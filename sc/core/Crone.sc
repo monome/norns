@@ -520,13 +520,6 @@ Crone {
 				this.tapeReset;
 			}, '/tape/reset'),
 
-			/// testing..
-			// @function /tape/stop
-			'dump':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				[msg, time, addr, recvPort].postln;
-			}),
-			
 		);
 
 	}
