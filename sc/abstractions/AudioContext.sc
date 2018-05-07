@@ -92,7 +92,6 @@ AudioContext {
 			);
 		});
 
-
 		this.initCommands();
 		this.initPolls();
 
@@ -125,6 +124,7 @@ AudioContext {
 	// toggle pitch analysis (save CPU)
 
 	pitchOn {
+		postln("AudioContext.pitchOn");
 		pitch_in_s.do({ |syn| syn.run(true); });
 	}
 
@@ -152,7 +152,6 @@ AudioContext {
 		^ret;
 	}
 
-
 	initPolls {
 		postln("AudioContext: initPolls");
 		this.registerPoll(\cpu_peak, { server.peakCPU });
@@ -165,12 +164,13 @@ AudioContext {
 
 		this.registerPoll(\pitch_in_l, {
 			var pitch, clar;
-			#pitch, clar = pitch_in_b[0].getSynchronous(2);
+			#pitch, clar = this.pitch_in_b[0].getnSynchronous(2);
+			// postln(["pitch_in_l", pitch, clar]);
 			if(clar > 0, { pitch }, {-1});
 		});
 		this.registerPoll(\pitch_in_r, {
 			var pitch, clar;
-			#pitch, clar = pitch_in_b[1].getSynchronous(2);
+			#pitch, clar = this.pitch_in_b[1].getnSynchronous(2);
 			if(clar > 0, { pitch }, {-1});
 		});
 	}

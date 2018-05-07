@@ -35,12 +35,17 @@ CronePoll {
 		}, {
 			oscPath = '/poll/data';
 		});
+		
 		callback = {
-			this.value = function.value;
+			var val = function.value;
+			//postln(val);
+			this.value = val; 
 			this.sendValue();
 		};
+		
 		if(periodic, {
 			task = Task { inf.do {
+				//postln("poll task callback...");
 				callback.value;
 				period.wait;
 			}};
@@ -50,6 +55,7 @@ CronePoll {
 	}
 
 	start {
+		postln("starting poll...");
 		if(isRunning.not, {
 			isRunning = true;
 			if(periodic, {

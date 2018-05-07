@@ -110,17 +110,18 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\pitch, {
 				arg in, out,
-				initFreq = 440.0, minFreq = 60.0, maxFreq = 4000.0,
+				initFreq = 440.0, minFreq = 30.0, maxFreq = 4000.0,
 				execFreq = 100.0, maxBinsPerOctave = 16, median = 1,
 				ampThreshold = 0.01, peakThreshold = 0.5, downSample = 1, clar=0;
 				// Pitch ugen outputs an array of two values:
 				// first value is pitch, second is a clarity value in [0,1]
 				// if 'clar' argument is 0 (default) then clarity output is binary
-				var pc = Pitch.kr(in,
+				var pc = Pitch.kr(In.ar(in),
 					initFreq , minFreq , maxFreq ,
 					execFreq , maxBinsPerOctave , median ,
 					ampThreshold , peakThreshold , downSample , clar
 				);
+				//pc.poll;
 				Out.kr(out, pc);
 			})
 		);
