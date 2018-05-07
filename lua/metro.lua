@@ -39,11 +39,9 @@ function Metro.alloc (cb, time, count)
 end
 
 function Metro.free(id)
-   if metro.assigned[id] == true then
-       Metro.metros[id]:stop()
-       Metro.available[id] = true
-       Metro.assigned[id] = false
-    end
+    Metro.metros[id]:stop()
+    Metro.available[id] = true
+    Metro.assigned[id] = false
 end
 
 function Metro.free_all()
