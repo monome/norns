@@ -23,14 +23,17 @@ int done = 0;
 
 
 
-void error(int num, const char *m, const char *path) { fprintf(stderr, "boo\n"); }
+void error(int num, const char *m, const char *path) {
+  fprintf(stderr, "error creating server thread\n");
+}
 
 int main(int argc, char *argv[]) {
 
   lo_server_thread st = lo_server_thread_new("57120", error);
+
   lo_server_thread_add_method(st, "/test/start", NULL, start_handler, NULL);
-  lo_server_thread_add_method(st, "/test/ping", NULL, start_handler, NULL);
-  lo_server_thread_add_method(st, "/test/end", NULL, start_handler, NULL);
+  lo_server_thread_add_method(st, "/test/ping", NULL, ping_handler, NULL);
+  lo_server_thread_add_method(st, "/test/end", NULL, end_handler, NULL);
 
   lo_server_thread_start(st);    
   while(!done) { ;; } 
