@@ -4,8 +4,21 @@
 -- @alias Screen
 local Screen = {}
 
+local metro = require 'metro'
+local screensaver = metro[33]
+
+screensaver.callback = function()
+  s_clear()
+  s_update()
+end
+screensaver.time = 900
+screensaver.count = 1
+
 --- copy buffer to screen
-Screen.update = function() s_update() end
+Screen.update = function()
+  s_update()
+  screensaver:start()
+end
 
 --- enable/disable anti-aliasing
 -- @param state on(1) or off(0)
@@ -159,5 +172,6 @@ end
 s_circle = function(x, y, r)
   s_arc(x, y, r, 0, math.pi*2)
 end
+
 
 return Screen
