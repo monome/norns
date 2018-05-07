@@ -110,7 +110,7 @@ CroneDefs {
 		defs.add(
 			SynthDef.new(\pitch, {
 				arg in, out,
-				initFreq = 440.0, minFreq = 30.0, maxFreq = 4000.0,
+				initFreq = 440.0, minFreq = 30.0, maxFreq = 10000.0,
 				execFreq = 100.0, maxBinsPerOctave = 16, median = 1,
 				ampThreshold = 0.01, peakThreshold = 0.5, downSample = 1, clar=0;
 				// Pitch ugen outputs an array of two values:
@@ -119,7 +119,7 @@ CroneDefs {
 				var pc = Pitch.kr(In.ar(in),
 					initFreq , minFreq , maxFreq ,
 					execFreq , maxBinsPerOctave , median ,
-					ampThreshold , peakThreshold , downSample , clar
+					ampThreshold , peakThreshold , downSample, clar
 				);
 				//pc.poll;
 				Out.kr(out, pc);
