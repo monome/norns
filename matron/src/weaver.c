@@ -933,6 +933,7 @@ int _send_command(lua_State *l) {
     }
 
     o_send_command(cmd, msg);
+        free(msg);
     lua_settop(l, 0);
     return 0;
 }
