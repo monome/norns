@@ -35,11 +35,12 @@ function Metro.alloc (cb, time, count)
 end
 
 function Metro.free(id)
-    if metro.assigned[id] == true then
+   if metro.assigned[id] == true then
+      print("unassigning metro " .. id)
         Metro.metros[id]:stop()
         Metro.metros[id]:init()
-        Metro.available[i] = true
-        Metro.assigned[i] = false
+        Metro.available[id] = true
+        Metro.assigned[id] = false
     end
 end
 
