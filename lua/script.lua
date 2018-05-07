@@ -35,7 +35,7 @@ end
 Script.init = function()
   print("# script init")
   params.name = norns.state.name
-  init()
+  if not pcall(init) then norns.scripterror() end
   norns.menu.init()
 end
 
@@ -53,7 +53,9 @@ Script.load = function(filename)
     io.close(f)
     if pcall(cleanup) then print("# cleanup") 
     else print("### cleanup failed") end
+
     Script.clear() -- clear script variables and functions
+    
     local status = norns.try(function() dofile(filepath) end, "load fail") -- do the new script
     if status == true then
       norns.log.post("loaded " .. filename) -- post to log
@@ -73,12 +75,9 @@ Script.run = function()
   print("# script run")
   if engine.name ~= nil then
      print("loading engine; name: " .. engine.name)
-     engine.load(engine.name, function()
-		    if not pcall(Script.init) then norns.scripterror() end
-     end)
+     engine.load(engine.name, Script.init) 
   else
-     print("running init...")
-    if not pcall(Script.init) then norns.scripterror() end
+     Script.init()
   end
   print("reconnecting grid...")
   grid.reconnect()
