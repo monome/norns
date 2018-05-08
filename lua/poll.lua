@@ -115,7 +115,7 @@ end
 Poll.list_names = function()
   print('--- polls ---')
   local names = tab.sort(Poll.polls)
-  for i,n in ipairs(names) do print(n) end
+  for _,n in ipairs(names) do print(n) end
   print('------\n')
 end
 
@@ -125,9 +125,17 @@ end
 Poll.set = function(name, callback)
   local p = Poll.polls[name]
   if(p) then
-    p.props.callback = callback
+     p.props.callback = callback
   end
   return p
+end
+
+--- stop all polls
+Poll.clear_all = function()
+   for _,p in pairs(Poll.polls) do
+      p:stop()
+      p.props.callback = nil
+   end
 end
 
 
