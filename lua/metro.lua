@@ -7,8 +7,8 @@ norns.version.metro = '0.0.3'
 local Metro = {}
 Metro.__index = Metro
 
-Metro.num_metros = 32
-Metro.num_script_metros = 30 -- 31 and 32 are reserved
+Metro.num_metros = 33
+Metro.num_script_metros = 30 -- 31-33 are reserved
 
 Metro.metros = {}
 Metro.available = {}
