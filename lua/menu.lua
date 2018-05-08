@@ -427,10 +427,17 @@ m.redraw[pPARAMS] = function()
       for i=1,6 do
         if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
           if i==3 then s_level(15) else s_level(4) end
-          s_move(0,10*i)
-          s_text(params:get_name(i+m.params.pos-2))
-          s_move(127,10*i)
-          s_text_right(params:string(i+m.params.pos-2))
+          local param_index = i+m.params.pos-2
+
+          if params:t(param_index) == params.tSEPARATOR then
+            s_move(0,10*i)
+            s_text(params:string(param_index))
+          else
+            s_move(0,10*i)
+            s_text(params:get_name(param_index))
+            s_move(127,10*i)
+            s_text_right(params:string(param_index))
+          end
         end 
       end
     else
