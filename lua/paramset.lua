@@ -1,18 +1,22 @@
 --- ParamSet class
 -- @module paramset
 
-local number = require 'number'
-local option = require 'option'
-local control = require 'control'
-local file = require 'file' 
+local separator = require 'params/separator'
+local number = require 'params/number'
+local option = require 'params/option'
+local control = require 'params/control'
+local file = require 'params/file'
 
-local ParamSet = {}
+
+local ParamSet = {
+  tSEPARATOR = 0,
+  tNUMBER = 1,
+  tOPTION = 2,
+  tCONTROL = 3,
+  tFILE = 4,
+}
+
 ParamSet.__index = ParamSet
-
-tNUMBER = 1
-tOPTION = 2
-tCONTROL = 3
-tFILE = 4
 
 --- constructor
 -- @param name
@@ -23,6 +27,12 @@ function ParamSet.new(name)
   ps.count = 0
   ps.lookup = {}
   return ps
+end
+
+--- add separator
+function ParamSet:add_separator()
+  table.insert(self.params, separator.new())
+  self.count = self.count + 1
 end
 
 --- add number
@@ -110,7 +120,6 @@ function ParamSet:write(filename)
   io.output(fd)
   for k,v in pairs(self.params) do
     io.write(k..","..v:get().."\n")
-    --print(k..","..v:get())
   end
   io.close(fd)
 end
@@ -122,7 +131,6 @@ function ParamSet:read(filename)
   if fd then
     io.close(fd)
     for line in io.lines(data_dir .. filename) do
-      --print(line)
       k,v = line:match("([^,]+),([^,]+)")
       if tonumber(v) ~= nil then
         self.params[tonumber(k)]:set(tonumber(v))
