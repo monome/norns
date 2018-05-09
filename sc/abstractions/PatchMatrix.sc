@@ -49,7 +49,7 @@ PatchMatrix {
 
 
 	// convenience method to create a command on a given CroneEngine, affecting a patch point level
-	addLevelCommand { arg name, engine;
+	addLevelCommand { arg engine, name;
 		engine.addCommand(name, "iif", {
 			arg msg;
 			var i = msg[1]-1;
@@ -60,6 +60,4 @@ PatchMatrix {
 			});
 		});
 	}
-	
-
 }
