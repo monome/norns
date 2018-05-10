@@ -60,11 +60,15 @@ function sync_from_target {
 if [ -d $1 ]; then
     echo usage:
     echo ./sync.sh targets
+    echo ./sync.sh labels
     echo ./sync.sh to LABEL
     echo ./sync.sh from LABEL
 
 elif [ $1 = "targets" ]; then
     targets;
+
+elif [ $1 = "labels" ]; then
+    targets | cut -f3 -d' '
 
 elif [ $1 = "to" ]; then
     if [ -z "$2" ]; then
