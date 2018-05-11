@@ -6,7 +6,7 @@ Crone {
 	// audio to disk recorder / player
 	classvar <>recorder;
 	classvar <>recorderState = 'init';
-	classvar <>recordingsDir = Platform.userHomeDir ++ "/dust/audio/tape";
+	classvar <>recordingsDir;
 	classvar <>player;
 	classvar <>playerClock;
 	classvar <>playerState = 'init';
@@ -38,6 +38,8 @@ Crone {
 			postln(" \OSC rx port: " ++ NetAddr.langPort);
 			postln(" \OSC tx port: " ++ txPort);
 			postln("--------------------------------------------------\n");
+
+			recordingsDir = Platform.userHomeDir ++ "/dust/audio/tape";
 
 			// FIXME? matron address is hardcoded here
 			remoteAddr =NetAddr("127.0.0.1", txPort);
@@ -119,7 +121,7 @@ Crone {
 		});
 	}
 
-	
+
 	*requestPollValue { arg idx;
 		var poll = CronePollRegistry.getPollFromIndex(idx);
 		if(poll.notNil, {
@@ -381,7 +383,7 @@ Crone {
 				this.setPollTime(msg[1], msg[2]);
 			}, '/poll/time'),
 
-			
+
 			/// set the period of a poll
 			// @function /poll/request/value
 			// @param poll index (integer)
