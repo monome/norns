@@ -6,7 +6,7 @@ Crone {
 	// audio to disk recorder / player
 	classvar <>recorder;
 	classvar <>recorderState = 'init';
-	classvar <>recordingsDir = "/home/pi/dust/audio/tape";
+	classvar <>recordingsDir = Platform.userHomeDir ++ "/dust/audio/tape";
 	classvar <>player;
 	classvar <>playerClock;
 	classvar <>playerState = 'init';
