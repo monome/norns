@@ -396,7 +396,7 @@ m.key[pPARAMS] = function(n,z)
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
     if params:t(m.params.pos+1) == params.tFILE then
-      fileselect.enter("/home/pi/dust", m.params.newfile)
+      fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
     end
   end
 end
