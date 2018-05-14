@@ -127,6 +127,10 @@ static int _tape_new(lua_State *l);
 static int _tape_start_rec(lua_State *l);
 static int _tape_pause_rec(lua_State *l);
 static int _tape_stop_rec(lua_State *l);
+static int _tape_open(lua_State *l);
+static int _tape_play(lua_State *l);
+static int _tape_pause(lua_State *l);
+static int _tape_stop(lua_State *l);
 
 // restart audio completely (recompile sclang)
 static int _restart_audio(lua_State *l);
@@ -237,6 +241,10 @@ void w_init(void) {
     lua_register(lvm, "tape_start_rec", &_tape_start_rec);
     lua_register(lvm, "tape_pause_rec", &_tape_pause_rec);
     lua_register(lvm, "tape_stop_rec", &_tape_stop_rec);
+    lua_register(lvm, "tape_open", &_tape_open);
+    lua_register(lvm, "tape_play", &_tape_play);
+    lua_register(lvm, "tape_pause", &_tape_pause);
+    lua_register(lvm, "tape_stop", &_tape_stop);
 
     // completely restart the audio process (recompile sclang)
     lua_register(lvm, "restart_audio", &_restart_audio);
@@ -1548,6 +1556,36 @@ int _tape_stop_rec(lua_State *l) {
     o_tape_stop_rec();
     return 0;
 }
+
+int _tape_open(lua_State *l) {
+    if (lua_gettop(l) != 1) {
+        return luaL_error(l, "wrong number of arguments");
+    }
+
+    const char *s = luaL_checkstring(l, 1);
+    o_tape_new((char *) s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+int _tape_play(lua_State *l) {
+    (void)l;
+    o_tape_play();
+    return 0;
+}
+
+int _tape_pause(lua_State *l) {
+    (void)l;
+    o_tape_pause();
+    return 0;
+}
+
+int _tape_stop(lua_State *l) {
+    (void)l;
+    o_tape_stop();
+    return 0;
+}
+
 
 int _restart_audio(lua_State *l) {
     (void)l;

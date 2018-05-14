@@ -110,5 +110,9 @@ extern void o_tape_new(char *file);
 extern void o_tape_start_rec();
 extern void o_tape_pause_rec();
 extern void o_tape_stop_rec();
+extern void o_tape_open(char *file);
+extern void o_tape_play();
+extern void o_tape_pause();
+extern void o_tape_stop();
 
 extern void o_restart_audio();

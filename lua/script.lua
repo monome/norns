@@ -14,8 +14,11 @@ Script.clear = function()
   -- redirect inputs to nowhere
   key = norns.none
   enc = norns.none
-  -- redirect and reset grid
-  if g then g.key = norns.none end
+  -- clear, redirect, and reset grid
+  if g then 
+    g:all(0)
+    g.key = norns.none
+  end
   g = nil
   -- stop all timers
   metro.free_all()
