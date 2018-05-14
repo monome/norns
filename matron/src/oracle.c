@@ -476,6 +476,22 @@ void o_tape_stop_rec() {
     lo_send(remote_addr, "/tape/stop_rec", NULL);
 }
 
+void o_tape_open(char *file) {
+    lo_send(remote_addr, "/tape/openfile", "s", file);
+}
+
+void o_tape_play() {
+    lo_send(remote_addr, "/tape/play", NULL);
+}
+
+void o_tape_pause() {
+    lo_send(remote_addr, "/tape/pause", NULL);
+}
+
+void o_tape_stop() {
+    lo_send(remote_addr, "/tape/stop", NULL);
+}
+
 ///////////////////////////////
 /// static function definitions
 

@@ -138,6 +138,7 @@ function ParamSet:read(filename)
         self.params[tonumber(k)]:set(v)
       end
     end 
+  else print("paramset: " .. filename .. " not read.")
   end 
 end
 
