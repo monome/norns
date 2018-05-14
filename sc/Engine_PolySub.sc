@@ -104,6 +104,7 @@ Engine_PolySub : CroneEngine {
 
 			//// FIXME: probably a better way... ehh.
 			paramDefaults = Dictionary.with(
+				\level -> -12.dbamp,
 				\shape -> 0.0,
 				\timbre -> 0.5,
 				\noise  ->  0.0,

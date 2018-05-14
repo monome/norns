@@ -186,9 +186,9 @@ menu.set_mode = function(mode)
     menu.mode = true
     menu.alt = false
     redraw = norns.none
-    s_font_face(0)
-    s_font_size(8)
-    s_line_width(1)
+    screen.font_face(0)
+    screen.font_size(8)
+    screen.line_width(1)
     menu.set_page(menu.page)
     norns.encoders.callback = menu.enc
     norns.encoders.set_accel(0,true)
@@ -279,85 +279,85 @@ end
 
 m.redraw[pMIX] = function()
   local n
-  s_clear()
-  s_aa(1)
-  s_line_width(1)
+  screen.clear()
+  screen.aa(1)
+  screen.line_width(1)
 
   local x = -40
-  s_level(2)
+  screen.level(2)
   n = mix:get("output")/64*48
-  s_rect(x+42,56,2,-n)
-  s_stroke()
+  screen.rect(x+42,56,2,-n)
+  screen.stroke()
 
-  s_level(15)
+  screen.level(15)
   n = m.mix.out1/64*48
-  s_rect(x+48,56,2,-n)
-  s_stroke()
+  screen.rect(x+48,56,2,-n)
+  screen.stroke()
 
   n = m.mix.out1/64*48
-  s_rect(x+54,56,2,-n)
-  s_stroke()
+  screen.rect(x+54,56,2,-n)
+  screen.stroke()
 
-  s_level(2)
+  screen.level(2)
   n = mix:get("input")/64*48
-  s_rect(x+64,56,2,-n)
-  s_stroke()
+  screen.rect(x+64,56,2,-n)
+  screen.stroke()
 
-  s_level(15)
+  screen.level(15)
   n = m.mix.in1/64*48
-  s_rect(x+70,56,2,-n)
-  s_stroke()
+  screen.rect(x+70,56,2,-n)
+  screen.stroke()
   n = m.mix.in2/64*48
-  s_rect(x+76,56,2,-n)
-  s_stroke()
+  screen.rect(x+76,56,2,-n)
+  screen.stroke()
 
-  if menu.alt then s_level(7) else s_level(2) end
+  if menu.alt then screen.level(7) else screen.level(2) end
   n = mix:get("monitor")/64*48
-  s_rect(x+86,56,2,-n)
-  s_stroke()
+  screen.rect(x+86,56,2,-n)
+  screen.stroke()
 
-  --s_aa(0)
-  --s_line_width(1)
-  s_level(7)
+  --screen.aa(0)
+  --screen.line_width(1)
+  screen.level(7)
 
-  s_move(1,62)
-  s_line(3,60)
-  s_line(5,62)
-  s_stroke()
+  screen.move(1,62)
+  screen.line(3,60)
+  screen.line(5,62)
+  screen.stroke()
 
-  s_move(23,60)
-  s_line(25,62)
-  s_line(27,60)
-  s_stroke()
+  screen.move(23,60)
+  screen.line(25,62)
+  screen.line(27,60)
+  screen.stroke()
 
-  s_move(45,61)
-  s_line(49,61)
-  s_stroke()
+  screen.move(45,61)
+  screen.line(49,61)
+  screen.stroke()
 
-  if tape.key then s_level(15) else s_level(2) end
-  s_move(127,56)
-  s_text_right("TAPE")
+  if tape.key then screen.level(15) else screen.level(2) end
+  screen.move(127,56)
+  screen.text_right("TAPE")
 
-  s_level(10) 
+  screen.level(10) 
   if tape.mode == tREC then
-    s_move(127,48)
+    screen.move(127,48)
     if tape.status == tsPAUSE then
-      s_text_right("ready")
+      screen.text_right("ready")
     elseif tape.status == tsREC then
-      s_text_right("recording")
-      s_move(127,40)
+      screen.text_right("recording")
+      screen.move(127,40)
       local min = math.floor(tape.time / 60)
       local sec = tape.time % 60
-      s_text_right(min..":"..sec)
+      screen.text_right(min..":"..sec)
     end 
   end
 
-  s_level(2)
-  s_move(127,12)
-  if menu.alt == false then s_text_right(norns.battery_percent)
-  else s_text_right(norns.battery_current.."mA") end
+  screen.level(2)
+  screen.move(127,12)
+  if menu.alt == false then screen.text_right(norns.battery_percent)
+  else screen.text_right(norns.battery_current.."mA") end
 
-  s_update()
+  screen.update()
 end
 
 m.init[pMIX] = function()
@@ -412,26 +412,26 @@ m.enc[pHOME] = function(n,delta)
 end
 
 m.redraw[pHOME] = function()
-  s_clear()
+  screen.clear()
   -- draw current script loaded
-  s_move(0,10)
-  s_level(15)
+  screen.move(0,10)
+  screen.level(15)
   local line = string.upper(norns.state.name)
   if(menu.scripterror) then line = line .. " (error: " .. menu.errormsg .. ")" end
-  s_text(line)
+  screen.text(line)
 
   -- draw file list and selector
   for i=3,6 do
-    s_move(0,10*i)
+    screen.move(0,10*i)
     line = string.gsub(m.home.list[i-2],'.lua','')
     if(i==m.home.pos+3) then
-      s_level(15)
+      screen.level(15)
     else
-      s_level(4)
+      screen.level(4)
     end
-    s_text(string.upper(line))
+    screen.text(string.upper(line))
   end
-  s_update()
+  screen.update()
 end
 
 
@@ -514,21 +514,21 @@ end
 
 m.redraw[pSELECT] = function()
   -- draw file list and selector
-  s_clear()
-  s_level(15)
+  screen.clear()
+  screen.level(15)
   for i=1,6 do
     if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
-      s_move(0,10*i)
+      screen.move(0,10*i)
       line = string.gsub(m.sel.list[i+m.sel.pos-2],'.lua','')
       if(i==3) then
-        s_level(15)
+        screen.level(15)
       else
-        s_level(4)
+        screen.level(4)
       end
-      s_text(string.upper(line))
+      screen.text(string.upper(line))
     end
   end
-  s_update()
+  screen.update()
 end
 
 
@@ -571,16 +571,16 @@ m.enc[pPREVIEW] = function(n,d)
 end 
 
 m.redraw[pPREVIEW] = function()
-  s_clear()
-  s_level(15)
+  screen.clear()
+  screen.level(15)
   local i
   for i=1,8 do
     if i <= m.pre.len then
-      s_move(0,i*8-2)
-      s_text(m.pre.meta[i+m.pre.pos])
+      screen.move(0,i*8-2)
+      screen.text(m.pre.meta[i+m.pre.pos])
     end
   end 
-  s_update()
+  screen.update()
 end
 
 
@@ -625,38 +625,38 @@ m.enc[pPARAMS] = function(n,d)
 end
 
 m.redraw[pPARAMS] = function()
-  s_clear()
+  screen.clear()
   if(params.count > 0) then 
     if not menu.alt then
       local i
       for i=1,6 do
         if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
-          if i==3 then s_level(15) else s_level(4) end
+          if i==3 then screen.level(15) else screen.level(4) end
           local param_index = i+m.params.pos-2
 
           if params:t(param_index) == params.tSEPARATOR then
-            s_move(0,10*i)
-            s_text(params:string(param_index))
+            screen.move(0,10*i)
+            screen.text(params:string(param_index))
           else
-            s_move(0,10*i)
-            s_text(params:get_name(param_index))
-            s_move(127,10*i)
-            s_text_right(params:string(param_index))
+            screen.move(0,10*i)
+            screen.text(params:get_name(param_index))
+            screen.move(127,10*i)
+            screen.text_right(params:string(param_index))
           end
         end 
       end
     else
-      s_move(20,50)
-      s_text("load")
-      s_move(90,50)
-      s_text("save")
+      screen.move(20,50)
+      screen.text("load")
+      screen.move(90,50)
+      screen.text("save")
     end
   else
-    s_move(0,10)
-    s_level(4)
-    s_text("no parameters")
+    screen.move(0,10)
+    screen.level(4)
+    screen.text("no parameters")
   end
-  s_update()
+  screen.update()
 end
 
 m.init[pPARAMS] = function()
@@ -722,38 +722,38 @@ m.enc[pSYSTEM] = function(n,delta)
 end
 
 m.redraw[pSYSTEM] = function()
-  s_clear()
+  screen.clear()
 
   for i=1,#m.sys.list do
-    s_move(0,10*i+10)
+    screen.move(0,10*i+10)
     if(i==m.sys.pos+1) then
-      s_level(15)
+      screen.level(15)
     else
-      s_level(4)
+      screen.level(4)
     end
-    s_text(string.upper(m.sys.list[i]))
+    screen.text(string.upper(m.sys.list[i]))
   end
 
   if m.sys.pos==1 and (m.sys.input == 0 or m.sys.input == 1) then
-    s_level(15) else s_level(4)
+    screen.level(15) else screen.level(4)
   end
 
-  s_move(127,30)
+  screen.move(127,30)
   if wifi.state == 2 then m.sys.net = wifi.ip
   else m.sys.net = wifi.status end
-  s_text_right(m.sys.net)
+  screen.text_right(m.sys.net)
 
-  s_level(2)
-  s_move(127,40)
-  s_text_right("disk free: "..m.sys.disk)
+  screen.level(2)
+  screen.move(127,40)
+  screen.text_right("disk free: "..m.sys.disk)
 
-  s_move(127,50)
-  s_text_right("v"..norns.version.norns)
-  s_update()
+  screen.move(127,50)
+  screen.text_right("v"..norns.version.norns)
+  screen.update()
 end
 
 m.init[pSYSTEM] = function()
-  m.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
+  m.sys.disk = util.oscreen.capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
   u.callback = function()
     m.sysquery()
     menu.redraw()
@@ -823,43 +823,43 @@ m.enc[pWIFI] = function(n,delta)
 end
 
 m.redraw[pWIFI] = function()
-  s_clear()
-  s_level(15)
-  s_move(0,10)
+  screen.clear()
+  screen.level(15)
+  screen.move(0,10)
   if wifi.state == 2 then
-    s_text("status: router "..wifi.ssid)
-  else s_text("status: "..wifi.status) end
+    screen.text("status: router "..wifi.ssid)
+  else screen.text("status: "..wifi.status) end
   if wifi.state > 0 then
-    s_level(4)
-    s_move(0,20)
-    s_text(wifi.ip)
+    screen.level(4)
+    screen.move(0,20)
+    screen.text(wifi.ip)
     if wifi.state == 2 then
-      s_move(127,20)
-      s_text_right(wifi.signal .. "dBm")
+      screen.move(127,20)
+      screen.text_right(wifi.signal .. "dBm")
     end
   end
 
-  s_move(0,40+wifi.state*10)
-  s_text("-")
+  screen.move(0,40+wifi.state*10)
+  screen.text("-")
 
   for i=1,m.wifi.len do
-    s_move(8,30+10*i)
+    screen.move(8,30+10*i)
     line = m.wifi.list[i]
     if(i==m.wifi.pos+1) then
-      s_level(15)
+      screen.level(15)
     else
-      s_level(4)
+      screen.level(4)
     end
-    s_text(string.upper(line))
+    screen.text(string.upper(line))
   end
 
-  s_move(127,60)
-  if m.wifi.pos==2 then s_level(15) else s_level(4) end
+  screen.move(127,60)
+  if m.wifi.pos==2 then screen.level(15) else screen.level(4) end
   if wifi.scan_count > 0 then
-    s_text_right(wifi.scan_list[m.wifi.selected])
-  else s_text_right("NONE") end
+    screen.text_right(wifi.scan_list[m.wifi.selected])
+  else screen.text_right("NONE") end
 
-  s_update()
+  screen.update()
 end
 
 m.init[pWIFI] = function()
@@ -922,25 +922,25 @@ m.enc[pAUDIO] = function(n,d)
 end
 
 m.redraw[pAUDIO] = function()
-  s_clear()
+  screen.clear()
   local i
   for i=1,6 do
     if (i > 2 - m.audio.pos) and (i < mix.count - m.audio.pos + 3) then
-      if i==3 then s_level(15) else s_level(4) end
+      if i==3 then screen.level(15) else screen.level(4) end
       local param_index = i+m.audio.pos-2
 
       if mix:t(param_index) == mix.tSEPARATOR then
-        s_move(0,10*i)
-        s_text(mix:string(param_index))
+        screen.move(0,10*i)
+        screen.text(mix:string(param_index))
       else
-        s_move(0,10*i)
-        s_text(mix:get_name(param_index))
-        s_move(127,10*i)
-        s_text_right(mix:string(param_index))
+        screen.move(0,10*i)
+        screen.text(mix:get_name(param_index))
+        screen.move(127,10*i)
+        screen.text_right(mix:string(param_index))
       end
     end 
   end
-  s_update()
+  screen.update()
 end
 
 m.init[pAUDIO] = function()
@@ -979,13 +979,13 @@ m.enc[pLOG] = function(n,delta)
 end
 
 m.redraw[pLOG] = function()
-  s_clear()
-  s_level(10)
+  screen.clear()
+  screen.level(10)
   for i=1,8 do
-    s_move(0,(i*8)-1)
-    s_text(norns.log.get(i+m.log.pos))
+    screen.move(0,(i*8)-1)
+    screen.text(norns.log.get(i+m.log.pos))
   end
-  s_update()
+  screen.update()
 end
 
 m.init[pLOG] = function()
@@ -1020,11 +1020,11 @@ end
 m.enc[pSLEEP] = norns.none
 
 m.redraw[pSLEEP] = function()
-  s_clear()
-  s_move(48,40)
-  s_text("sleep?")
+  screen.clear()
+  screen.move(48,40)
+  screen.text("sleep?")
   --TODO do an animation here! fade the volume down
-  s_update()
+  screen.update()
 end
 
 m.init[pSLEEP] = norns.none
