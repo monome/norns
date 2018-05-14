@@ -19,7 +19,7 @@ local pSELECT = 2
 local pPREVIEW = 3
 local pPARAMS = 4
 local pSYSTEM = 5
-local pAUDIO = 6 
+local pAUDIO = 6
 local pWIFI = 7
 local pSYNC = 8
 local pUPDATE = 9
@@ -122,7 +122,7 @@ norns.scripterror = function(msg)
   menu.scripterror = true
   menu.set_page(pHOME)
   menu.set_mode(true)
-end 
+end
 
 norns.init_done = function(status)
   menu.set_page(pHOME)
@@ -130,7 +130,7 @@ norns.init_done = function(status)
     menu.scripterror = false
     m.params.pos = 0
     menu.set_mode(false)
-  end 
+  end
 end
 
 
@@ -270,7 +270,7 @@ m.key[pMIX] = function(n,z)
       tape_stop_rec()
       tape.mode = tOFF 
       tape.metro:stop()
-    end 
+    end
   end
 end
 
@@ -349,7 +349,7 @@ m.redraw[pMIX] = function()
       local min = math.floor(tape.time / 60)
       local sec = tape.time % 60
       screen.text_right(min..":"..sec)
-    end 
+    end
   end
 
   screen.level(2)
@@ -544,7 +544,7 @@ m.init[pPREVIEW] = function()
   m.pre.len = tab.count(m.pre.meta)
   if m.pre.len == 0 then
     table.insert(m.pre.meta, string.gsub(m.sel.file,'.lua','') .. " (no metadata)")
-  end 
+  end
   m.pre.state = 0
   m.pre.pos = 0
   m.pre.posmax = m.pre.len - 8
@@ -568,7 +568,7 @@ m.enc[pPREVIEW] = function(n,d)
     m.pre.pos = util.clamp(m.pre.pos + d, 0, m.pre.posmax)
     menu.redraw()
   end
-end 
+end
 
 m.redraw[pPREVIEW] = function()
   screen.clear()
@@ -579,7 +579,7 @@ m.redraw[pPREVIEW] = function()
       screen.move(0,i*8-2)
       screen.text(m.pre.meta[i+m.pre.pos])
     end
-  end 
+  end
   screen.update()
 end
 
@@ -596,7 +596,7 @@ m.key[pPARAMS] = function(n,z)
       params:read(norns.state.name..".pset")
     elseif n==3 and z==1 then
       params:write(norns.state.name..".pset")
-    end 
+    end
   elseif n==2 and z==1 then
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
@@ -626,7 +626,7 @@ end
 
 m.redraw[pPARAMS] = function()
   screen.clear()
-  if(params.count > 0) then 
+  if(params.count > 0) then
     if not menu.alt then
       local i
       for i=1,6 do
@@ -643,7 +643,7 @@ m.redraw[pPARAMS] = function()
             screen.move(127,10*i)
             screen.text_right(params:string(param_index))
           end
-        end 
+        end
       end
     else
       screen.move(20,50)
@@ -699,25 +699,6 @@ m.enc[pSYSTEM] = function(n,delta)
     m.sys.pos = m.sys.pos + delta
     m.sys.pos = util.clamp(m.sys.pos, 0, #m.sys.list - 1)
     menu.redraw()
-  --[[elseif n==3 then
-    if m.sys.pos == 1 then
-      if m.sys.input == 0 or m.sys.input == 1 then
-        norns.state.input_left = norns.state.input_left + delta
-        norns.state.input_left = util.clamp(norns.state.input_left,0,63)
-        gain_in(norns.state.input_left,0)
-      end
-      if m.sys.input == 0 or m.sys.input == 2 then
-        norns.state.input_right = norns.state.input_right + delta
-        norns.state.input_right = util.clamp(norns.state.input_right,0,63)
-        gain_in(norns.state.input_right,1)
-      end
-      menu.redraw()
-    elseif m.sys.pos == 2 then
-      norns.state.hp = norns.state.hp + delta
-      norns.state.hp = util.clamp(norns.state.hp,0,63)
-      gain_hp(norns.state.hp)
-      menu.redraw()
-    end]]--
   end
 end
 
@@ -808,7 +789,7 @@ m.wifi.passdone = function(txt)
     wifi.on()
   end
   menu.redraw()
-end 
+end
 
 m.enc[pWIFI] = function(n,delta)
   if n==2 then
@@ -893,7 +874,7 @@ m.key[pAUDIO] = function(n,z)
       mix:read(norns.state.name..".pset")
     elseif n==3 and z==1 then
       mix:write(norns.state.name..".pset")
-    end 
+    end
   elseif n==2 and z==1 then
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
@@ -938,7 +919,7 @@ m.redraw[pAUDIO] = function()
         screen.move(127,10*i)
         screen.text_right(mix:string(param_index))
       end
-    end 
+    end
   end
   screen.update()
 end
@@ -998,7 +979,7 @@ end
 
 m.deinit[pLOG] = function()
   u:stop()
-end 
+end
 
 
 -----------------------------------------
