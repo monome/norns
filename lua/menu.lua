@@ -753,7 +753,7 @@ m.redraw[pSYSTEM] = function()
 end
 
 m.init[pSYSTEM] = function()
-  m.sys.disk = util.oscreen.capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
+  m.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
   u.callback = function()
     m.sysquery()
     menu.redraw()
