@@ -48,10 +48,12 @@ void bind_sock(int *sock, int *eid, char *url) {
 void *loop_rx(void *p) {
     (void)p;
     int nb;
-    while(1) {
+    while (1) {
         char *buf = NULL;
         nb = nn_recv(sock_ws, &buf, NN_MSG, 0);
-        write(pipe_rx[PIPE_WRITE], buf, nb);
+        if (write(pipe_rx[PIPE_WRITE], buf, nb) < 0) {
+            fprintf(stderr, "write to pipe failed\n");
+        }
         nn_freemsg(buf);
     }
 }
