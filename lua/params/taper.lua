@@ -62,7 +62,8 @@ function Taper:set_raw(v)
 end
 
 function Taper:delta(d)
-  self:set_raw(self.value + d / 200)
+  local range = math.abs(self.max - self.min)
+  self:set_raw(self.value + d / math.min(math.max(range, 200), 800))
 end
 
 function Taper:set_default()
@@ -71,7 +72,7 @@ end
 
 function Taper:bang()
   if self.value ~= nil then
-    self.action(self.value)
+    self.action(self:get())
   end
 end
 
@@ -79,15 +80,22 @@ function Taper:string()
   local format
   local range = math.abs(self.max - self.min)
 
-  if range > 99 then
-    format = "%.1f "..self.units
-  elseif range > 9 then
-    format = "%.2f "..self.units
+  local v = self:get()
+  local absv = math.abs(v)
+
+  if absv >= 100 then
+    format = "%.0f "..string.gsub(self.units, "%%", "%%%%")
+  elseif absv >= 10 then
+    format = "%.1f "..string.gsub(self.units, "%%", "%%%%")
+  elseif absv >= 1 then
+    format = "%.2f "..string.gsub(self.units, "%%", "%%%%")
+  elseif absv >= 0.001 then
+    format = "%.3f "..string.gsub(self.units, "%%", "%%%%")
   else
-    format = "%.3f "..self.units
+    format = "%.0f "..string.gsub(self.units, "%%", "%%%%")
   end
 
-  return string.format(format, self:get())
+  return string.format(format, v)
 end
 
 return Taper
