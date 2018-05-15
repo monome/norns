@@ -367,7 +367,7 @@ int _screen_line_width(lua_State *l) {
         return luaL_error(l, "wrong number of arguments");
     }
 
-    int x = (int) luaL_checkinteger(l, 1);
+    double x = luaL_checknumber(l, 1);
     screen_line_width(x);
     lua_settop(l, 0);
     return 0;
@@ -384,8 +384,8 @@ int _screen_move(lua_State *l) {
         return luaL_error(l, "wrong number of arguments");
     }
 
-    int x = (int) luaL_checkinteger(l, 1);
-    int y = (int) luaL_checkinteger(l, 2);
+    double x = luaL_checknumber(l, 1);
+    double y = luaL_checknumber(l, 2);
     screen_move(x,y);
     lua_settop(l, 0);
     return 0;
@@ -402,8 +402,8 @@ int _screen_line(lua_State *l) {
         return luaL_error(l, "wrong number of arguments");
     }
 
-    int x = (int) luaL_checkinteger(l, 1);
-    int y = (int) luaL_checkinteger(l, 2);
+    double x = luaL_checkinteger(l, 1);
+    double y = luaL_checkinteger(l, 2);
     screen_line(x,y);
     lua_settop(l, 0);
     return 0;
@@ -420,8 +420,8 @@ int _screen_move_rel(lua_State *l) {
         return luaL_error(l, "wrong number of arguments");
     }
 
-    int x = (int) luaL_checkinteger(l, 1);
-    int y = (int) luaL_checkinteger(l, 2);
+    double x = luaL_checknumber(l, 1);
+    double y = luaL_checknumber(l, 2);
     screen_move_rel(x,y);
     lua_settop(l, 0);
     return 0;
@@ -438,8 +438,8 @@ int _screen_line_rel(lua_State *l) {
         return luaL_error(l, "wrong number of arguments");
     }
 
-    int x = (int) luaL_checkinteger(l, 1);
-    int y = (int) luaL_checkinteger(l, 2);
+    double x = (int) luaL_checknumber(l, 1);
+    double y = (int) luaL_checknumber(l, 2);
     screen_line_rel(x,y);
     lua_settop(l, 0);
     return 0;
@@ -1563,7 +1563,7 @@ int _tape_open(lua_State *l) {
     }
 
     const char *s = luaL_checkstring(l, 1);
-    o_tape_new((char *) s);
+    o_tape_open((char *) s);
     lua_settop(l, 0);
     return 0;
 }
