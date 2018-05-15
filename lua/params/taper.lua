@@ -76,7 +76,18 @@ function Taper:bang()
 end
 
 function Taper:string()
-  return string.format("%.2f "..self.units, self:get())
+  local format
+  local range = math.abs(self.max - self.min)
+
+  if range > 99 then
+    format = "%.1f "..self.units
+  elseif range > 9 then
+    format = "%.2f "..self.units
+  else
+    format = "%.3f "..self.units
+  end
+
+  return string.format(format, self:get())
 end
 
 return Taper
