@@ -56,7 +56,7 @@ end
 
 function Taper:set_raw(v)
   if self.value ~= v then
-    self.value = v
+    self.value = util.clamp(v, 0, 1)
     self:bang()
   end
 end
