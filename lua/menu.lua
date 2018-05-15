@@ -330,8 +330,14 @@ m.key[pMIX] = function(n,z)
 end
 
 m.enc[pMIX] = function(n,d)
-  if n==3 then
-    if tape.selectmode == true then
+  if n==2 then
+    if tape.key == false then
+      mix:delta("input",d)
+    end 
+  elseif n==3 then
+    if tape.key == false then
+      mix:delta("monitor",d)
+    elseif tape.selectmode == true then
       if d < 0 then tape.lastmode = tREC
       else tape.lastmode = tPLAY end
     elseif tape.mode == tPLAY then
