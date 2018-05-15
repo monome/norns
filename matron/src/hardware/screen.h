@@ -10,7 +10,7 @@ extern void screen_font_face(int i);
 extern void screen_font_size(long z);
 extern void screen_aa(int s);
 extern void screen_level(int z);
-extern void screen_line_width(long w);
+extern void screen_line_width(double w);
 extern void screen_move(long x, long y);
 extern void screen_line(long x, long y);
 extern void screen_move_rel(long x, long y);
