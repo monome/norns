@@ -7,7 +7,7 @@
 #       apt-get install usbmount
 #
 #   (2) MountFlags has been tweaked in systemd-udevd.service
-#       https://www.raspberrypi.org/forums/viewtopic.php?t=205016
+#       https://www.raspberrypi.org/forums/viewtopic.php?t=205016#p1271455
 #       (change MountFlags=slave to MountFlags=shared)
 #
 #   (3) the invoking user can sudo w/o providing a password
