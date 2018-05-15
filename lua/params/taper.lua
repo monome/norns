@@ -76,7 +76,7 @@ function Taper:bang()
 end
 
 function Taper:string()
-  return util.round(self:get(), 0.001).." "..self.units
+  return string.format("%.2f "..self.units, self:get())
 end
 
 return Taper
