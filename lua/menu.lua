@@ -1038,14 +1038,28 @@ m.sync.pos = 0
 m.key[pSYNC] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 then
+  elseif n==3 and z==1 and m.sync.pos==0 then
+    m.sync.busy = true
+    menu.redraw() 
+    os.execute("sudo rsync --recursive --links --verbose --update $HOME/dust/ "..m.sync.disk.."/dust; sudo sync")
+    norns.log.post("sync to usb")
+    menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.sync.pos==1 then
+    m.sync.busy = true
+    os.execute("rsync --recursive --links --verbose --update "..m.sync.disk.."/dust/ $HOME/dust; sudo sync")
     menu.redraw()
+    norns.log.post("sync from usb")
+    menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.sync.pos==2 then
+    os.execute("sudo umount "..m.sync.disk)
+    norns.log.post("usb disk ejected")
+    menu.set_page(pSYSTEM)
   end
 end
 
 m.enc[pSYNC] = function(n,delta)
   if n==2 then
-    m.sync.pos = util.clamp(m.sync.pos+delta, 0, 4) --4 = options
+    m.sync.pos = util.clamp(m.sync.pos+delta, 0, 2)
     menu.redraw()
   end
 end
@@ -1053,15 +1067,30 @@ end
 m.redraw[pSYNC] = function()
   screen.clear()
   screen.level(10)
-  for i=1,8 do
-    screen.move(0,(i*8)-1)
-    screen.text("sync")
+  if m.sync.disk=='' then
+    screen.move(0,30)
+    screen.text("no usb disk available")
+  elseif m.sync.busy then
+    screen.move(0,30)
+    screen.text("usb sync... (wait)")
+  else
+    screen.level(m.sync.pos==0 and 10 or 3)
+    screen.move(0,40)
+    screen.text("SYNC TO USB") 
+    screen.level(m.sync.pos==1 and 10 or 3)
+    screen.move(0,50)
+    screen.text("SYNC FROM USB") 
+    screen.level(m.sync.pos==2 and 10 or 3)
+    screen.move(0,60)
+    screen.text("EJECT USB") 
   end
   screen.update()
 end
 
 m.init[pSYNC] = function()
   m.sync.pos = 0
+  m.sync.busy = false
+  m.sync.disk = util.os_capture("lsblk -o mountpoint | grep media")
 end
 
 m.deinit[pSYNC] = function()
@@ -1078,10 +1107,13 @@ m.key[pUPDATE] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.update.confirm == false and #m.update.list > 0 then
+    -- CONFIRM UPDATE
     m.update.confirm = true
     menu.redraw()
   elseif n==3 and z==1 and m.update.confirm == true then
-    -- CONFIRM UPDATE
+    -- RUN UPDATE
+    m.update.busy = true
+    menu.redraw()
     os.execute("$HOME/update/"..m.update.list[m.update.pos+1].."/update.sh")
     menu.set_page(pHOME)
   end
@@ -1097,7 +1129,13 @@ end
 m.redraw[pUPDATE] = function()
   screen.clear()
   screen.level(15)
-  if #m.update.list == 0 then
+  if m.update.checking then
+    screen.move(64,32)
+    screen.text_center("checking for updates")
+  elseif m.update.busy then
+    screen.move(64,32)
+    screen.text_center("updating... (wait)")
+  elseif #m.update.list == 0 then
     screen.move(64,32)
     screen.text_center("no updates")
   elseif m.update.confirm == false then
@@ -1115,7 +1153,7 @@ m.redraw[pUPDATE] = function()
     end
   else
     screen.move(64,32)
-    screen.text_center("run update "..m.update.list[m.update.pos+1])
+    screen.text_center("run update? "..m.update.list[m.update.pos+1])
   end
   screen.update()
 end
@@ -1123,9 +1161,18 @@ end
 m.init[pUPDATE] = function()
   m.update.confirm = false
   m.update.pos = 0
-  -- PREPARE
   local i, t, popen = 0, {}, io.popen
-  local pfile = popen('ls -p $HOME/update/norns*.tgz')
+  m.update.checking = true
+  m.update.busy = false
+  menu.redraw()
+  -- COPY FROM USB
+  local disk = util.os_capture("lsblk -o mountpoint | grep media")
+  local pfile = popen("ls -p "..disk.."/norns*.tgz")
+  for filename in pfile:lines() do
+    os.execute("cp "..filename.." $HOME/update/")
+  end 
+  -- PREPARE
+  pfile = popen('ls -p $HOME/update/norns*.tgz')
   for filename in pfile:lines() do
     print(filename)
     -- extract
@@ -1150,6 +1197,8 @@ m.init[pUPDATE] = function()
     table.insert(m.update.list,string.sub(file,0,-2))
   end
   tab.print(m.update.list)
+  m.update.checking = false
+  menu.redraw()
 end
 
 m.deinit[pUPDATE] = function()

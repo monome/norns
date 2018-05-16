@@ -25,9 +25,10 @@ function label_scan {
 }
 
 function targets {
-    mount_scan;
-    label_scan;
-    join $MOUNTS_FILE $LABELS_FILE
+    #mount_scan;
+    #label_scan;
+    #join $MOUNTS_FILE $LABELS_FILE
+    sudo lsblk -o mountpoint,label | grep media
 }
 
 function mount_for_label {
