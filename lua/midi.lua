@@ -39,6 +39,14 @@ function Midi.remove(dev)
   print("midi removed:", dev.id, dev.name)
 end
 
+--- call add() for currently available devices
+-- when scripts are restarted
+function Midi.reconnect()
+  for id,dev in pairs(Midi.devices) do
+    Midi.add(dev)
+  end
+end
+
 --- send midi event to device
 -- @tparam array
 function Midi:send(data)
