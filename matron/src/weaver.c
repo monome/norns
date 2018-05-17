@@ -1148,8 +1148,7 @@ void w_handle_midi_remove(int id) {
 
 void w_handle_midi_event(int id, uint8_t *data, size_t nbytes) {
     _push_norns_func("midi", "event");
-    // TODO: params
-    lua_pushinteger(lvm, id);
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_createtable(lvm, nbytes, 0);
     for (size_t i = 0; i < nbytes; i++) {
         lua_pushinteger(lvm, data[i]);
