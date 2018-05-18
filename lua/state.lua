@@ -9,10 +9,21 @@ state.resume = function()
   -- restore mix state
   mix:read("system.pset")
   mix:bang()
+
+  local f = io.open(data_dir..'system.lua')
+  if f ~= nil then
+    io.close(f)
+    dofile(data_dir..'system.lua')
+  end
+
+  -- TODO: default script
+  if state.script == nil or state.script == '' then
+    state.script = 'earthsea.lua'
+  end
+
   -- resume last file
-  dofile(data_dir .. 'system.lua')
-  local f=io.open(script_dir .. state.script,"r")
-  if f~=nil then
+  local f = io.open(script_dir..state.script, "r")
+  if f ~= nil then
     io.close(f)
     print("last file loaded: " .. state.script)
     norns.script.load()
