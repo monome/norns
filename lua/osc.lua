@@ -35,11 +35,11 @@ end
 --- static method to send osc event directly to sclang
 -- @param path : osc message path
 -- @param args : osc message args
-function OSC.send_sclang(path, args)
+function OSC.send_crone(path, args)
   if (args ~= nil) then
-    osc_send(path, args)
+    osc_send_crone(path, args)
   else
-    osc_send(path)
+    osc_send_crone(path)
   end
 end
 

@@ -37,6 +37,14 @@ struct engine_param {
     int busIdx; // control bus index
 };
 
+
+// data structure for engine parameters
+struct engine_param {
+    char *name;
+    int busIdx; // control bus index
+};
+
+
 // check for audio engine boot completion
 extern int o_ready();
 // initialize
@@ -114,5 +122,26 @@ extern void o_tape_open(char *file);
 extern void o_tape_play();
 extern void o_tape_pause();
 extern void o_tape_stop();
+
+//--- aux effects controls
+// enable / disable aux fx processing
+extern void o_set_aux_fx_on();
+extern void o_set_aux_fx_off();
+// mono input -> aux level
+extern void o_set_aux_fx_input_level(int channel, float value);
+// mono input -> aux pan
+extern void o_set_aux_fx_input_pan(int channel, float value);
+// stereo output -> aux
+extern void o_set_aux_fx_output_level(float value);
+// aux return -> dac
+extern void o_set_aux_fx_return_level(float value);
+extern void o_set_aux_fx_param(const char* name, float value);
+
+//--- insert effects controls
+extern void o_set_insert_fx_on();
+extern void o_set_insert_fx_off();
+extern void o_set_insert_fx_mix(float level);
+extern void o_set_insert_fx_param(const char* name, float value);
+
 
 extern void o_restart_audio();

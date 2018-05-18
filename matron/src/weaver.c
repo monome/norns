@@ -88,6 +88,8 @@ static int _gain_hp(lua_State *l);
 static int _gain_in(lua_State *l);
 //osc
 static int _osc_send(lua_State *l);
+static int _osc_send_crone(lua_State *l);
+// midi
 // midi
 static int _midi_send(lua_State *l);
 
@@ -197,6 +199,7 @@ void w_init(void) {
 
     // osc
     lua_register(lvm, "osc_send", &_osc_send);
+    lua_register(lvm, "osc_send_crone", &_osc_send_crone);
 
     // midi
     lua_register(lvm, "midi_send", &_midi_send);
@@ -654,7 +657,7 @@ int _gain_in(lua_State *l) {
 }
 
 /***
- * osc: send
+ * osc: send to arbitrary address
  * @function osc_send
  */
 int _osc_send(lua_State *l) {
@@ -739,6 +742,69 @@ int _osc_send(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 }
+
+
+/***
+ * osc: send to crone
+ * @function osc_send
+ */
+int _osc_send_crone(lua_State *l) {
+    const char *path = NULL;
+    lo_message msg;
+
+    int nargs = lua_gettop(l);
+
+
+    // path
+    luaL_checktype(l, 1, LUA_TSTRING);
+    path = lua_tostring(l, 1);
+
+    if (path == NULL) { return 1; }
+
+    msg = lo_message_new();
+
+    // add args (optional)
+    if (nargs > 2) {
+        luaL_checktype(l, 3, LUA_TTABLE);
+        for (size_t i = 1; i <= lua_rawlen(l, 3); i++) {
+            lua_pushnumber(l, i);
+            lua_gettable(l, 3);
+            int argtype = lua_type(l, -1);
+
+            switch (argtype) {
+            case LUA_TNIL:
+                lo_message_add_nil(msg);
+                break;
+            case LUA_TNUMBER:
+                lo_message_add_float(msg, lua_tonumber(l, -1));
+                break;
+            case LUA_TBOOLEAN:
+                if (lua_toboolean(l, -1)) {
+                    lo_message_add_true(msg);
+                } else {
+                    lo_message_add_false(msg);
+                }
+                break;
+            case LUA_TSTRING:
+                lo_message_add_string(msg, lua_tostring(l, -1));
+                break;
+            default:
+                lo_message_free(msg);
+                luaL_error(l, "invalid osc argument type %s",
+                           lua_typename(l, argtype));
+                break;
+            } /* switch */
+
+            lua_pop(l, 1);
+        }
+    }
+    osc_send_crone(path, msg);
+    lo_message_free(msg);
+
+    lua_settop(l, 0);
+    return 0;
+}
+
 
 /***
  * midi: send
