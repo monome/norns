@@ -7,6 +7,8 @@ PatchMatrix {
 	var <bus; // collection of busses
 	var <gr; // collection of groups
 	var <syn; // collection of synths
+	var <numInputs;
+	var <numOutputs;
 
 	// arg 1: server
 	// arg 2: array of input bus indices
@@ -29,6 +31,8 @@ PatchMatrix {
 		patchdef = if(fb, {\patch_mono_fb}, {\patch_mono});
 		if(target.isNil, { target = srv });
 		gr = Group.new(target, action);
+		numInputs = in.size;
+		numOutputs = out.size;
 		syn = in.collect({ arg in, i;
 			out.collect({ arg out, j;
 				Synth.new( patchdef, [
@@ -36,11 +40,24 @@ PatchMatrix {
 				], gr, \addToTail)
 			})
 		})
-	}
+	}	
 
 	level_ { arg in, out, val;
 		postln(["PatchMatrix: level_ ", in, out, val]);
 		syn[in][out].set(\level, val);
 	}
 
+
+	// convenience method to create a command on a given CroneEngine, affecting a patch point level
+	addLevelCommand { arg engine, name;
+		engine.addCommand(name, "iif", {
+			arg msg;
+			var i = msg[1]-1;
+			var j = msg[2]-1;
+			var v = msg[3];
+			if(i>0 && j>0 && i<numInputs && j<numOutputs, {
+				syn[i][j].set(\level, v.min(1.0).max(0.0));
+			});
+		});
+	}
 }
