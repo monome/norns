@@ -44,7 +44,12 @@ function Poll:stop()
 end
 
 --- request a single update immediately
-function Poll:update()
+function Poll:update(callback)
+   if callback then
+      if type(callback) == "function" then
+	 self.props.callback = callback
+	 end
+   end
    request_poll_value(self.props.id)
 end
 
