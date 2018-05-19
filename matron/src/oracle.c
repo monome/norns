@@ -734,3 +734,46 @@ void test_engine_load_done() {
         event_post(ev);
     }
 }
+
+
+//--- aux effects controls
+// enable / disable aux fx processing
+void o_set_aux_fx_on() {
+}
+
+void o_set_aux_fx_off() {
+}
+
+// mono input -> aux level
+void o_set_aux_fx_input_level(int channel, float value) {
+}
+
+// mono input -> aux pan
+void o_set_aux_fx_input_pan(int channel, float value) {
+}
+
+// stereo output -> aux
+void o_set_aux_fx_output_level(float value) {
+}
+
+// aux return -> dac
+void o_set_aux_fx_return_level(float value) {
+}
+
+void o_set_aux_fx_param(const char* name, float value) {
+}
+
+
+//--- insert effects controls
+void o_set_insert_fx_on() {
+}
+
+void o_set_insert_fx_off() {
+}
+
+void o_set_insert_fx_mix(float level) {
+}
+
+void o_set_insert_fx_param(const char* name, float value) {
+}
+

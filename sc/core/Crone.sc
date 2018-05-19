@@ -58,6 +58,7 @@ Crone {
 				Crone.initVu;
 				Crone.initTape;
 
+
 				complete = 1;
 			};
 
@@ -522,6 +523,50 @@ Crone {
 				this.tapeReset;
 			}, '/tape/reset'),
 
+
+			'/auxfx/on':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/auxfx/on'),
+			
+			'/auxfx/off':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/auxfx/off'),
+			
+			'/auxfx/input/level':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/auxfx/input/level'),
+
+			'/auxfx/input/pan':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/auxfx/input/pan'),
+			
+			'/auxfx/output/level':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/auxfx/output/level'),
+			
+			'/auxfx/return/level':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/auxfx/return/level'),
+			
+			'/auxfx/param':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/auxfx/param'),
+			
+			'/insertfx/on':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/insertfx/on'),
+
+			'/insertfx/off':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/insertfx/off'),
+
+			'/insertfx/mix':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/insertfx/mix'),
+		
+			'/insertfx/param':OSCFunc.new({
+				arg msg, time, addr, recvPort;
+			}, '/insertfx/param'),
 		);
 
 	}
