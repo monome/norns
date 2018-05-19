@@ -492,6 +492,60 @@ void o_tape_stop() {
     lo_send(remote_addr, "/tape/stop", NULL);
 }
 
+
+//--- aux effects controls
+// enable / disable aux fx processing
+void o_set_aux_fx_on() {
+  lo_send(remote_addr, "/auxfx/on", NULL);
+}
+
+void o_set_aux_fx_off() {
+  lo_send(remote_addr, "/auxfx/off", NULL);
+}
+
+// mono input -> aux level
+void o_set_aux_fx_input_level(int channel, float value) {
+  lo_send(remote_addr, "/auxfx/input_level", "if", channel, value);
+}
+
+// mono input -> aux pan
+void o_set_aux_fx_input_pan(int channel, float value) {
+  lo_send(remote_addr, "/auxfx/input_pan", "if", channel, value);
+}
+
+// stereo output -> aux
+void o_set_aux_fx_output_level(float value) {
+  lo_send(remote_addr, "/auxfx/output_level", "f", value);
+}
+
+// aux return -> dac
+void o_set_aux_fx_return_level(float value) {
+  lo_send(remote_addr, "/auxfx/return_level",  "f", value);
+}
+
+void o_set_aux_fx_param(const char* name, float value) {
+  lo_send(remote_addr, "/auxfx/param",  "sf", name, value);
+}
+
+
+//--- insert effects controls
+void o_set_insert_fx_on() {
+  lo_send(remote_addr, "/insertfx/on", NULL);
+}
+
+void o_set_insert_fx_off() {
+  lo_send(remote_addr, "/insertfx/off", NULL);
+}
+
+void o_set_insert_fx_mix(float value) {
+  lo_send(remote_addr, "/insertfx/mix", "f", value);
+}
+
+void o_set_insert_fx_param(const char* name, float value) {
+  lo_send(remote_addr, "/insertfx/param", "sf", name, value);
+}
+
+
 ///////////////////////////////
 /// static function definitions
 
@@ -733,47 +787,5 @@ void test_engine_load_done() {
         union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
         event_post(ev);
     }
-}
-
-
-//--- aux effects controls
-// enable / disable aux fx processing
-void o_set_aux_fx_on() {
-}
-
-void o_set_aux_fx_off() {
-}
-
-// mono input -> aux level
-void o_set_aux_fx_input_level(int channel, float value) {
-}
-
-// mono input -> aux pan
-void o_set_aux_fx_input_pan(int channel, float value) {
-}
-
-// stereo output -> aux
-void o_set_aux_fx_output_level(float value) {
-}
-
-// aux return -> dac
-void o_set_aux_fx_return_level(float value) {
-}
-
-void o_set_aux_fx_param(const char* name, float value) {
-}
-
-
-//--- insert effects controls
-void o_set_insert_fx_on() {
-}
-
-void o_set_insert_fx_off() {
-}
-
-void o_set_insert_fx_mix(float level) {
-}
-
-void o_set_insert_fx_param(const char* name, float value) {
 }
 

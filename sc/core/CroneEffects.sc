@@ -61,7 +61,7 @@ CroneEffects {
 			], target:ins_gr, addAction:\addToTail);
 
 			s.sync;
-
+			or
 		}.play;
 	}
 

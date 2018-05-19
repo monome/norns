@@ -38,13 +38,6 @@ struct engine_param {
 };
 
 
-// data structure for engine parameters
-struct engine_param {
-    char *name;
-    int busIdx; // control bus index
-};
-
-
 // check for audio engine boot completion
 extern int o_ready();
 // initialize
