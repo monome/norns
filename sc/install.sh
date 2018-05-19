@@ -26,4 +26,4 @@ done
 dust_ext_dir=$sc_ext_dir/dust
 rm -rf $dust_ext_dir
 mkdir $dust_ext_dir
-ln -sf ~/dust/sc $dust_ext_dir
+ln -sf ~/dust/lib/sc $dust_ext_dir
