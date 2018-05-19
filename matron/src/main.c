@@ -15,6 +15,7 @@
 #include "events.h"
 #include "battery.h"
 #include "gpio.h"
+#include "hello.h"
 #include "i2c.h"
 #include "input.h"
 #include "osc.h"
