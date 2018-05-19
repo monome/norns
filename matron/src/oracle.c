@@ -496,53 +496,53 @@ void o_tape_stop() {
 //--- aux effects controls
 // enable / disable aux fx processing
 void o_set_aux_fx_on() {
-  lo_send(remote_addr, "/auxfx/on", NULL);
+    lo_send(remote_addr, "/auxfx/on", NULL);
 }
 
 void o_set_aux_fx_off() {
-  lo_send(remote_addr, "/auxfx/off", NULL);
+    lo_send(remote_addr, "/auxfx/off", NULL);
 }
 
 // mono input -> aux level
 void o_set_aux_fx_input_level(int channel, float value) {
-  lo_send(remote_addr, "/auxfx/input/level", "if", channel, value);
+    lo_send(remote_addr, "/auxfx/input/level", "if", channel, value);
 }
 
 // mono input -> aux pan
 void o_set_aux_fx_input_pan(int channel, float value) {
-  lo_send(remote_addr, "/auxfx/input/pan", "if", channel, value);
+    lo_send(remote_addr, "/auxfx/input/pan", "if", channel, value);
 }
 
 // stereo output -> aux
 void o_set_aux_fx_output_level(float value) {
-  lo_send(remote_addr, "/auxfx/output/level", "f", value);
+    lo_send(remote_addr, "/auxfx/output/level", "f", value);
 }
 
 // aux return -> dac
 void o_set_aux_fx_return_level(float value) {
-  lo_send(remote_addr, "/auxfx/return/level",  "f", value);
+    lo_send(remote_addr, "/auxfx/return/level",  "f", value);
 }
 
 void o_set_aux_fx_param(const char* name, float value) {
-  lo_send(remote_addr, "/auxfx/param",  "sf", name, value);
+    lo_send(remote_addr, "/auxfx/param",  "sf", name, value);
 }
 
 
 //--- insert effects controls
 void o_set_insert_fx_on() {
-  lo_send(remote_addr, "/insertfx/on", NULL);
+    lo_send(remote_addr, "/insertfx/on", NULL);
 }
 
 void o_set_insert_fx_off() {
-  lo_send(remote_addr, "/insertfx/off", NULL);
+    lo_send(remote_addr, "/insertfx/off", NULL);
 }
 
 void o_set_insert_fx_mix(float value) {
-  lo_send(remote_addr, "/insertfx/mix", "f", value);
+    lo_send(remote_addr, "/insertfx/mix", "f", value);
 }
 
 void o_set_insert_fx_param(const char* name, float value) {
-  lo_send(remote_addr, "/insertfx/param", "sf", name, value);
+    lo_send(remote_addr, "/insertfx/param", "sf", name, value);
 }
 
 
