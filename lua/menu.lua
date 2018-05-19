@@ -42,24 +42,24 @@ menu.errormsg = ""
 
 -- mix paramset
 mix = paramset.new()
-mix:add_number("output",0,64)
+mix:add_number("output", 0, 64, 64)
 mix:set_action("output",
   function(x)
     norns.state.out = x
-    norns.audio.output_level(x/64) 
+    norns.audio.output_level(x/64)
   end)
-mix:add_number("input",0,64)
+mix:add_number("input", 0, 64, 64)
 mix:set_action("input",
   function(x)
     norns.state.input = x
-    norns.audio.input_level(1,x/64) 
-    norns.audio.input_level(2,x/64) 
-  end) 
-mix:add_number("monitor",0,64)
+    norns.audio.input_level(1,x/64)
+    norns.audio.input_level(2,x/64)
+  end)
+mix:add_number("monitor", 0, 64, 0)
 mix:set_action("monitor",
   function(x)
     norns.state.monitor = x
-    norns.audio.monitor_level(x/64) 
+    norns.audio.monitor_level(x/64)
   end)
 mix:add_option("monitor_mode",{"STEREO","MONO"})
 mix:set_action("monitor_mode",
@@ -72,7 +72,7 @@ mix:set_action("monitor_mode",
       norns.audio.monitor_mono()
     end
   end)
-mix:add_number("headphone",0,63)
+mix:add_number("headphone",0, 63, 40)
 mix:set_action("headphone",
   function(x)
     norns.state.hp = x
@@ -234,47 +234,119 @@ local tPLAY = 2
 
 local tsREC = 0
 local tsPAUSE = 1
+local paPLAY = 0
+local paPAUSE = 1
+local paSTOP = 2
 
-local tape = {} 
+local tape = {}
 tape.key = false
-tape.mode = tOFF 
+tape.mode = tOFF
+tape.lastmode = tREC
+tape.selectmode = false
+tape.playaction = paPLAY
 tape.status = 0
 tape.name = ""
 tape.time = 0
+tape.playfile = ""
 
 m.key[pMIX] = function(n,z)
   if n==3 and z==1 and tape.key == false then
     menu.set_page(pHOME)
   elseif n==2 then
-    if z==1 then tape.key = true
-    else tape.key = false end
+    if z==1 then
+      tape.key = true
+      if tape.mode == tOFF then tape.selectmode = true end
+    else
+      tape.key = false
+      tape.selectmode = false
+    end
   elseif n==3 and tape.key == true and z==1 then
-    if tape.mode == tOFF then 
-      tape.name = os.date("%y-%m-%d_%H-%M") .. ".aif"
-      tape_new(tape.name)
-      print("new tape > "..tape.name)
-      tape.mode = tREC
-      tape.status = tsPAUSE
-      redraw()
-    elseif tape.mode == tREC and tape.status == tsPAUSE then 
+    if tape.mode == tOFF then
+      if tape.lastmode == tREC then
+        -- REC: ready
+        tape.selectmode = false
+        tape.name = os.date("%y-%m-%d_%H-%M") .. ".aif"
+        tape_new(tape.name)
+        print("new tape > "..tape.name)
+        tape.mode = tREC
+        tape.status = tsPAUSE
+        redraw()
+      else
+        -- PLAY: select tape
+        local playfile_callback = function(path)
+          if path ~= "cancel" then
+            tape.playfile = path
+            tape.playfile = tape.playfile:match("[^/]*$") -- strip path from name
+            tape_open(tape.playfile)
+            tape.mode = tPLAY
+            tape.status = tsPAUSE
+            tape.playaction = paPLAY
+            tape.metro = metro.alloc()
+            tape.metro.callback = function() tape.time = tape.time + 1 end
+            tape.metro.count = -1
+            tape.metro.time = 1
+            tape.time = 0
+          else
+            tape.mode = tOFF
+          end
+          tape.key = false
+          tape.selectmode = false
+          redraw()
+        end
+        fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
+      end
+    elseif tape.mode == tREC and tape.status == tsPAUSE then
+      -- REC: start recording
       tape.status = tsREC
       tape_start_rec()
       tape.metro = metro.alloc()
       tape.metro.callback = function() tape.time = tape.time + 1 end
       tape.metro.count = -1
       tape.metro.time = 1
-      tape.time = 0 
+      tape.time = 0
       tape.metro:start()
     elseif tape.mode == tREC and tape.status == tsREC then
+      -- REC: stop recording
       print("stopping tape")
       tape_stop_rec()
-      tape.mode = tOFF 
+      tape.mode = tOFF
       tape.metro:stop()
+    elseif tape.mode == tPLAY and tape.playaction == paPLAY then
+      tape_play()
+      tape.metro:start()
+      tape.status = paPLAY
+      tape.playaction = paPAUSE
+    elseif tape.mode == tPLAY and tape.playaction == paPAUSE then
+      tape_pause()
+      tape.metro:stop()
+      tape.status = paPAUSE
+      tape.playaction = paPLAY
+    elseif tape.mode == tPLAY and tape.playaction == paSTOP then
+      tape_stop()
+      tape.metro:stop()
+      tape.mode = tOFF
     end
   end
 end
 
 m.enc[pMIX] = function(n,d)
+  if n==2 then
+    if tape.key == false then
+      mix:delta("input",d)
+    end
+  elseif n==3 then
+    if tape.key == false then
+      mix:delta("monitor",d)
+    elseif tape.selectmode == true then
+      if d < 0 then tape.lastmode = tREC
+      else tape.lastmode = tPLAY end
+    elseif tape.mode == tPLAY then
+      if d < 0 then tape.playaction = paSTOP
+      elseif tape.status == paPLAY then tape.playaction = paPAUSE
+      elseif tape.status == paPAUSE then tape.playaction = paPLAY
+      end
+    end
+  end
 end
 
 m.redraw[pMIX] = function()
@@ -334,22 +406,47 @@ m.redraw[pMIX] = function()
   screen.line(49,61)
   screen.stroke()
 
-  if tape.key then screen.level(15) else screen.level(2) end
-  screen.move(127,56)
-  screen.text_right("TAPE")
+  if tape.selectmode then
+    screen.level(10)
+    screen.move(90,40)
+    if tape.lastmode == tPLAY then
+      screen.text_center("TAPE > PLAY")
+    else
+      screen.text_center("TAPE > REC")
+    end
+  end
 
-  screen.level(10) 
   if tape.mode == tREC then
-    screen.move(127,48)
+    screen.move(90,40)
     if tape.status == tsPAUSE then
-      screen.text_right("ready")
+      screen.text_center("READY")
     elseif tape.status == tsREC then
-      screen.text_right("recording")
-      screen.move(127,40)
+      screen.text_center("RECORDING")
+      screen.move(90,48)
       local min = math.floor(tape.time / 60)
       local sec = tape.time % 60
-      screen.text_right(min..":"..sec)
+      screen.text_center(min..":"..sec)
     end
+  elseif tape.mode == tPLAY then
+    screen.move(90,40)
+    if tape.key then
+      if tape.playaction == paPAUSE then
+        screen.text_center("TAPE > PAUSE")
+      elseif tape.playaction == paPLAY then
+        screen.text_center("TAPE > PLAY")
+      elseif tape.playaction == paSTOP then
+        screen.text_center("TAPE > STOP")
+      end
+    else
+      screen.text_center("TAPE")
+    end
+    screen.level(4)
+    screen.move(90,48)
+    local min = math.floor(tape.time / 60)
+    local sec = tape.time % 60
+    screen.text_center(min..":"..sec)
+    screen.move(90,62)
+    screen.text_center(tape.playfile)
   end
 
   screen.level(2)
@@ -365,7 +462,7 @@ m.init[pMIX] = function()
   m.mix.in1 = 0
   m.mix.in2 = 0
   m.mix.out1 = 0
-  m.mix.out2 = 0 
+  m.mix.out2 = 0
 end
 
 m.deinit[pMIX] = function()
@@ -676,6 +773,7 @@ end
 m.sys = {}
 m.sys.pos = 0
 m.sys.list = {"audio > ", "wifi >", "sync >", "update >", "log >"}
+m.sys.pages = {pAUDIO, pWIFI, pSYNC, pUPDATE, pLOG}
 m.sys.input = 0
 m.sys.disk = ""
 
@@ -683,14 +781,8 @@ m.key[pSYSTEM] = function(n,z)
   if n==2 and z==1 then
     norns.state.save()
     menu.set_page(pHOME)
-  elseif n==3 and z==1 and m.sys.pos==0 then
-    menu.set_page(pAUDIO) 
-  elseif n==3 and z==1 and m.sys.pos==1 then
-    menu.set_page(pWIFI)
-  elseif n==3 and z==1 and m.sys.pos==4 then
-    menu.set_page(pLOG)
-  elseif n==1 then
-    menu.redraw()
+  elseif n==3 and z==1 then
+    menu.set_page(m.sys.pages[m.sys.pos+1])
   end
 end
 
@@ -734,7 +826,7 @@ m.redraw[pSYSTEM] = function()
 end
 
 m.init[pSYSTEM] = function()
-  m.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'") 
+  m.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'")
   u.callback = function()
     m.sysquery()
     menu.redraw()
@@ -876,7 +968,7 @@ m.key[pAUDIO] = function(n,z)
       mix:write(norns.state.name..".pset")
     end
   elseif n==2 and z==1 then
-    menu.set_page(pHOME)
+    menu.set_page(pSYSTEM)
   elseif n==3 and z==1 then
     if mix:t(m.audio.pos+1) == mix.tFILE then
       fileselect.enter(os.getenv("HOME").."/dust", m.audio.newfile)
@@ -935,6 +1027,182 @@ m.deinit[pAUDIO] = function()
   u:stop()
 end
 
+
+
+
+-----------------------------------------
+-- SYNC
+m.sync = {}
+m.sync.pos = 0
+
+m.key[pSYNC] = function(n,z)
+  if n==2 and z==1 then
+    menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.sync.pos==0 then
+    m.sync.busy = true
+    menu.redraw()
+    os.execute("sudo rsync --recursive --links --verbose --update $HOME/dust/ "..m.sync.disk.."/dust; sudo sync")
+    norns.log.post("sync to usb")
+    menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.sync.pos==1 then
+    m.sync.busy = true
+    menu.redraw()
+    os.execute("rsync --recursive --links --verbose --update "..m.sync.disk.."/dust/ $HOME/dust; sudo sync")
+    norns.log.post("sync from usb")
+    menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.sync.pos==2 then
+    os.execute("sudo umount "..m.sync.disk)
+    norns.log.post("usb disk ejected")
+    menu.set_page(pSYSTEM)
+  end
+end
+
+m.enc[pSYNC] = function(n,delta)
+  if n==2 then
+    m.sync.pos = util.clamp(m.sync.pos+delta, 0, 2)
+    menu.redraw()
+  end
+end
+
+m.redraw[pSYNC] = function()
+  screen.clear()
+  screen.level(10)
+  if m.sync.disk=='' then
+    screen.move(0,30)
+    screen.text("no usb disk available")
+  elseif m.sync.busy then
+    screen.move(0,30)
+    screen.text("usb sync... (wait)")
+  else
+    screen.level(m.sync.pos==0 and 10 or 3)
+    screen.move(0,40)
+    screen.text("SYNC TO USB") 
+    screen.level(m.sync.pos==1 and 10 or 3)
+    screen.move(0,50)
+    screen.text("SYNC FROM USB") 
+    screen.level(m.sync.pos==2 and 10 or 3)
+    screen.move(0,60)
+    screen.text("EJECT USB") 
+  end
+  screen.update()
+end
+
+m.init[pSYNC] = function()
+  m.sync.pos = 0
+  m.sync.busy = false
+  m.sync.disk = util.os_capture("lsblk -o mountpoint | grep media")
+end
+
+m.deinit[pSYNC] = function()
+end
+
+
+-----------------------------------------
+-- UPDATE
+m.update = {}
+m.update.pos = 0
+m.update.confirm = false
+
+m.key[pUPDATE] = function(n,z)
+  if n==2 and z==1 then
+    menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.update.confirm == false and #m.update.list > 0 then
+    -- CONFIRM UPDATE
+    m.update.confirm = true
+    menu.redraw()
+  elseif n==3 and z==1 and m.update.confirm == true then
+    -- RUN UPDATE
+    m.update.busy = true
+    menu.redraw()
+    os.execute("$HOME/update/"..m.update.list[m.update.pos+1].."/update.sh")
+    menu.set_page(pHOME)
+  end
+end
+
+m.enc[pUPDATE] = function(n,delta)
+  if n==2 then
+    m.update.pos = util.clamp(m.update.pos+delta, 0, #m.update.list - 1) --4 = options
+    menu.redraw()
+  end
+end
+
+m.redraw[pUPDATE] = function()
+  screen.clear()
+  screen.level(15)
+  if m.update.checking then
+    screen.move(64,32)
+    screen.text_center("checking for updates")
+  elseif m.update.busy then
+    screen.move(64,32)
+    screen.text_center("updating... (wait)")
+  elseif #m.update.list == 0 then
+    screen.move(64,32)
+    screen.text_center("no updates")
+  elseif m.update.confirm == false then
+    for i=1,6 do
+      if (i > 2 - m.update.pos) and (i < #m.update.list - m.update.pos + 3) then
+        screen.move(0,10*i)
+        line = m.update.list[i+m.update.pos-2]
+        if(i==3) then
+          screen.level(15)
+        else
+          screen.level(4)
+        end
+        screen.text(line)
+      end
+    end
+  else
+    screen.move(64,32)
+    screen.text_center("run update? "..m.update.list[m.update.pos+1])
+  end
+  screen.update()
+end
+
+m.init[pUPDATE] = function()
+  m.update.confirm = false
+  m.update.pos = 0
+  local i, t, popen = 0, {}, io.popen
+  m.update.checking = true
+  m.update.busy = false
+  menu.redraw()
+  -- COPY FROM USB
+  local disk = util.os_capture("lsblk -o mountpoint | grep media")
+  local pfile = popen("ls -p "..disk.."/norns*.tgz")
+  for filename in pfile:lines() do
+    os.execute("cp "..filename.." $HOME/update/")
+  end 
+  -- PREPARE
+  pfile = popen('ls -p $HOME/update/norns*.tgz')
+  for filename in pfile:lines() do
+    print(filename)
+    -- extract
+    os.execute("tar -xzvC $HOME/update -f "..filename)
+    -- check md5
+    local md5 = util.os_capture("cd $HOME/update; md5sum -c *.md5")
+    print(">> "..md5)
+    if string.find(md5,"OK") then
+      norns.log.post("new update found")
+      -- unpack
+      local file = string.sub(md5,1,-5)
+      os.execute("tar -xzvC $HOME/update -f $HOME/update/"..file)
+    else norns.log.post("bad update file") end
+    -- delete
+    os.execute("rm $HOME/update/*.tgz; rm $HOME/update/*.md5")
+  end
+  pfile:close()
+  m.update.list = {}
+  print("LIST")
+  pfile = popen('ls -tp $HOME/update')
+  for file in pfile:lines() do
+    table.insert(m.update.list,string.sub(file,0,-2))
+  end
+  tab.print(m.update.list)
+  m.update.checking = false
+  menu.redraw()
+end
+
+m.deinit[pUPDATE] = function()
+end
 
 
 

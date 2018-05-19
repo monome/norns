@@ -401,10 +401,10 @@ int _screen_line_width(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
-  screen_line_width(x);
-  lua_settop(l, 0);
-  return 0;
+    double x = luaL_checknumber(l, 1);
+    screen_line_width(x);
+    lua_settop(l, 0);
+    return 0;
 }
 
 /***
@@ -418,11 +418,11 @@ int _screen_move(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
-  int y = (int) luaL_checkinteger(l, 2);
-  screen_move(x,y);
-  lua_settop(l, 0);
-  return 0;
+    double x = luaL_checknumber(l, 1);
+    double y = luaL_checknumber(l, 2);
+    screen_move(x,y);
+    lua_settop(l, 0);
+    return 0;
 }
 
 /***
@@ -436,11 +436,11 @@ int _screen_line(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
-  int y = (int) luaL_checkinteger(l, 2);
-  screen_line(x,y);
-  lua_settop(l, 0);
-  return 0;
+    double x = luaL_checkinteger(l, 1);
+    double y = luaL_checkinteger(l, 2);
+    screen_line(x,y);
+    lua_settop(l, 0);
+    return 0;
 }
 
 /***
@@ -454,11 +454,11 @@ int _screen_move_rel(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
-  int y = (int) luaL_checkinteger(l, 2);
-  screen_move_rel(x,y);
-  lua_settop(l, 0);
-  return 0;
+    double x = luaL_checknumber(l, 1);
+    double y = luaL_checknumber(l, 2);
+    screen_move_rel(x,y);
+    lua_settop(l, 0);
+    return 0;
 }
 
 /***
@@ -472,11 +472,11 @@ int _screen_line_rel(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
-  int y = (int) luaL_checkinteger(l, 2);
-  screen_line_rel(x,y);
-  lua_settop(l, 0);
-  return 0;
+    double x = (int) luaL_checknumber(l, 1);
+    double y = (int) luaL_checknumber(l, 2);
+    screen_line_rel(x,y);
+    lua_settop(l, 0);
+    return 0;
 }
 
 /***
@@ -1244,15 +1244,14 @@ void w_handle_midi_remove(int id) {
 }
 
 void w_handle_midi_event(int id, uint8_t *data, size_t nbytes) {
-  _push_norns_func("midi", "event");
-  // TODO: params
-  lua_pushinteger(lvm, id);
-  lua_createtable(lvm, nbytes, 0);
-  for (size_t i = 0; i < nbytes; i++) {
-    lua_pushinteger(lvm, data[i]);
-    lua_rawseti(lvm, -2, i + 1);
-  }
-  l_report(lvm, l_docall(lvm, 2, 0));
+    _push_norns_func("midi", "event");
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    lua_createtable(lvm, nbytes, 0);
+    for (size_t i = 0; i < nbytes; i++) {
+        lua_pushinteger(lvm, data[i]);
+        lua_rawseti(lvm, -2, i + 1);
+    }
+    l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 void w_handle_osc_event(char *from_host,
@@ -1659,10 +1658,10 @@ int _tape_open(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  const char *s = luaL_checkstring(l, 1);
-  o_tape_new((char *) s);
-  lua_settop(l, 0);
-  return 0;
+    const char *s = luaL_checkstring(l, 1);
+    o_tape_open((char *) s);
+    lua_settop(l, 0);
+    return 0;
 }
 
 int _tape_play(lua_State *l) {
