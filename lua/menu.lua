@@ -383,7 +383,7 @@ m.redraw[pMIX] = function()
   screen.rect(x+76,56,2,-n)
   screen.stroke()
 
-  if menu.alt then screen.level(7) else screen.level(2) end
+  screen.level(2)
   n = mix:get("monitor")/64*48
   screen.rect(x+86,56,2,-n)
   screen.stroke()
