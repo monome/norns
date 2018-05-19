@@ -1040,14 +1040,14 @@ m.key[pSYNC] = function(n,z)
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.sync.pos==0 then
     m.sync.busy = true
-    menu.redraw() 
+    menu.redraw()
     os.execute("sudo rsync --recursive --links --verbose --update $HOME/dust/ "..m.sync.disk.."/dust; sudo sync")
     norns.log.post("sync to usb")
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.sync.pos==1 then
     m.sync.busy = true
-    os.execute("rsync --recursive --links --verbose --update "..m.sync.disk.."/dust/ $HOME/dust; sudo sync")
     menu.redraw()
+    os.execute("rsync --recursive --links --verbose --update "..m.sync.disk.."/dust/ $HOME/dust; sudo sync")
     norns.log.post("sync from usb")
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.sync.pos==2 then
