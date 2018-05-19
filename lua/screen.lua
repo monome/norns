@@ -53,7 +53,7 @@ Screen.line = function(x,y) s_line(x,y) end
 --- draw line to specified point relative to current position
 -- @param x relative destination x
 -- @param y relative destination y
-Screen.line_rel = function() s_line_rel() end
+Screen.line_rel = function(x, y) s_line_rel(x, y) end
 
 --- draw arc
 -- @param x circle center x

@@ -6,7 +6,7 @@ local number = require 'params/number'
 local option = require 'params/option'
 local control = require 'params/control'
 local file = require 'params/file'
-
+local taper = require 'params/taper'
 
 local ParamSet = {
   tSEPARATOR = 0,
@@ -14,6 +14,7 @@ local ParamSet = {
   tOPTION = 2,
   tCONTROL = 3,
   tFILE = 4,
+  tTAPER = 5,
 }
 
 ParamSet.__index = ParamSet
@@ -59,6 +60,13 @@ end
 --- add file
 function ParamSet:add_file(name, path)
   table.insert(self.params, file.new(name, path))
+  self.count = self.count + 1
+  self.lookup[name] = self.count
+end
+
+--- add taper
+function ParamSet:add_taper(name, min, max, default, k, units)
+  table.insert(self.params, taper.new(name, min, max, default, k, units))
   self.count = self.count + 1
   self.lookup[name] = self.count
 end

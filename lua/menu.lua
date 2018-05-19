@@ -42,20 +42,20 @@ menu.errormsg = ""
 
 -- mix paramset
 mix = paramset.new()
-mix:add_number("output",0,64)
+mix:add_number("output", 0, 64, 64)
 mix:set_action("output",
   function(x)
     norns.state.out = x
     norns.audio.output_level(x/64)
   end)
-mix:add_number("input",0,64)
+mix:add_number("input", 0, 64, 64)
 mix:set_action("input",
   function(x)
     norns.state.input = x
     norns.audio.input_level(1,x/64)
     norns.audio.input_level(2,x/64)
   end)
-mix:add_number("monitor",0,64)
+mix:add_number("monitor", 0, 64, 0)
 mix:set_action("monitor",
   function(x)
     norns.state.monitor = x
@@ -72,7 +72,7 @@ mix:set_action("monitor_mode",
       norns.audio.monitor_mono()
     end
   end)
-mix:add_number("headphone",0,63)
+mix:add_number("headphone",0, 63, 40)
 mix:set_action("headphone",
   function(x)
     norns.state.hp = x

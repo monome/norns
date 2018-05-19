@@ -84,6 +84,8 @@ Script.run = function()
   end
   print("reconnecting grid...")
   grid.reconnect()
+  print("reconnecting midi...")
+  midi.reconnect()
 end
 
 --- load script metadata
