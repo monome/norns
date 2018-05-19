@@ -50,10 +50,10 @@ int main(int argc, char **argv) {
     screen_init();
 
     // SPLASH
-    screen_level(15);
-    screen_move(0,50);
-    screen_text("norns");
-    screen_update();
+    //screen_level(15);
+    //screen_move(0,50);
+    //screen_text("norns");
+    //screen_update();
 
     metros_init();
     gpio_init();
@@ -62,12 +62,15 @@ int main(int argc, char **argv) {
     osc_init();
     o_init(); // oracle (audio)
 
+    norns_hello_init();
+
     // wait here for a signal from the audio server...
     fprintf(stderr, "waiting for crone...\n");
     do {
-        screen_text(".");
-        screen_update();
-        sleep(1);
+        //screen_text(".");
+        //screen_update();
+        norns_hello();
+        sleep(0.05);
     } while(o_ready() != 1);
 
     w_init(); // weaver (scripting)
