@@ -505,22 +505,22 @@ void o_set_aux_fx_off() {
 
 // mono input -> aux level
 void o_set_aux_fx_input_level(int channel, float value) {
-  lo_send(remote_addr, "/auxfx/input_level", "if", channel, value);
+  lo_send(remote_addr, "/auxfx/input/level", "if", channel, value);
 }
 
 // mono input -> aux pan
 void o_set_aux_fx_input_pan(int channel, float value) {
-  lo_send(remote_addr, "/auxfx/input_pan", "if", channel, value);
+  lo_send(remote_addr, "/auxfx/input/pan", "if", channel, value);
 }
 
 // stereo output -> aux
 void o_set_aux_fx_output_level(float value) {
-  lo_send(remote_addr, "/auxfx/output_level", "f", value);
+  lo_send(remote_addr, "/auxfx/output/level", "f", value);
 }
 
 // aux return -> dac
 void o_set_aux_fx_return_level(float value) {
-  lo_send(remote_addr, "/auxfx/return_level",  "f", value);
+  lo_send(remote_addr, "/auxfx/return/level",  "f", value);
 }
 
 void o_set_aux_fx_param(const char* name, float value) {

@@ -2,9 +2,9 @@
 // kind of quick and dirty in that regard :/
 
 CroneEffects {
-	classvar aux_in_b;
-	classvar in_aux_s;   // patch input to aux
-	classvar out_aux_s;  // patch output to aux
+	classvar <aux_in_b;
+	classvar <in_aux_s;   // patch input to aux
+	classvar <out_aux_s;  // patch output to aux
 	classvar <aux_gr;    // aux fx group
 	classvar <ins_gr;    // insert fx gruop
 	classvar <aux_s;     // aux fx synth
@@ -41,9 +41,11 @@ CroneEffects {
 			ins_gr = Group.after(aux_gr);
 
 			aux_in_b = Bus.audio(s, 2);
+
 			in_aux_s = Array.fill(2, { |i| Synth.new(\patch_pan,
 				[\in, c.in_b[i].index, \out, aux_in_b.index],
 				aux_gr, \addBefore); });
+
 			out_aux_s = Synth.new(\patch_stereo,
 				[\in, c.out_b.index, \out, aux_in_b.index],
 				aux_gr, \addBefore );
@@ -61,7 +63,7 @@ CroneEffects {
 			], target:ins_gr, addAction:\addToTail);
 
 			s.sync;
-			or
+
 		}.play;
 	}
 
