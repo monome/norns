@@ -526,46 +526,57 @@ Crone {
 
 			'/auxfx/on':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.aux_enable;
 			}, '/auxfx/on'),
 			
 			'/auxfx/off':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.aux_disable;
 			}, '/auxfx/off'),
 			
 			'/auxfx/input/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.set_in_aux_db(msg[1]-1, msg[2]);
 			}, '/auxfx/input/level'),
 
 			'/auxfx/input/pan':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.set_in_aux_pan(msg[1]-1, msg[2]);
 			}, '/auxfx/input/pan'),
 			
 			'/auxfx/output/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.set_out_aux_db(msg[1]);
 			}, '/auxfx/output/level'),
 			
 			'/auxfx/return/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.set_aux_return_db(msg[1]);
 			}, '/auxfx/return/level'),
 			
 			'/auxfx/param':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.set_aux_param(msg[1], msg[2]);
 			}, '/auxfx/param'),
 			
 			'/insertfx/on':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.ins_enable;
 			}, '/insertfx/on'),
 
 			'/insertfx/off':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.ins_disable;
 			}, '/insertfx/off'),
 
 			'/insertfx/mix':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.set_ins_wet_mix(msg[1]);
 			}, '/insertfx/mix'),
 		
 			'/insertfx/param':OSCFunc.new({
 				arg msg, time, addr, recvPort;
+				CroneEffects.set_ins_param(msg[1], msg[2]);
 			}, '/insertfx/param'),
 		);
 

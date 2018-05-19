@@ -41,8 +41,12 @@ CroneEffects {
 			ins_gr = Group.after(aux_gr);
 
 			aux_in_b = Bus.audio(s, 2);
-			in_aux_s = Array.fill(2, { |i| Synth.new(\patch_pan, [\in, c.in_b[i].index, \out, aux_in_b.index], aux_gr, \addBefore); });
-			out_aux_s = Synth.new(\patch_stereo, [\in, c.out_b.index, \out, aux_in_b.index], aux_gr, \addBefore);
+			in_aux_s = Array.fill(2, { |i| Synth.new(\patch_pan,
+				[\in, c.in_b[i].index, \out, aux_in_b.index],
+				aux_gr, \addBefore); });
+			out_aux_s = Synth.new(\patch_stereo,
+				[\in, c.out_b.index, \out, aux_in_b.index],
+				aux_gr, \addBefore );
 
 			ins_s = Synth.newPaused(\faust_comp, [
 				\out, c.out_b.index,
@@ -70,7 +74,10 @@ CroneEffects {
 	*set_out_aux_db { arg val; out_aux_s.set(\level, val.dbamp); }
 
 	// aux return level
-	*set_aux_return_db { arg val; aux_s.set(\level, val);}
+	*set_aux_return_db { arg val; aux_s.set(\level, val); }
+
+	// set aux synth parameter
+	*set_aux_param { arg name, val; aux_s.set(name.asSymbol, val); }
 
 	// enable / disable aux processing
 	*aux_enable  { aux_s.run(true); }
@@ -82,5 +89,9 @@ CroneEffects {
 	// enable / disable insert processing
 	*ins_enable  { ins_s.run(true); }
 	*ins_disable { ins_s.run(false); }
+
+	// set insert synth parameter
+	*set_ins_param { arg name, val; ins_s.set(name.asSymbol, val); }
+
 
 }
