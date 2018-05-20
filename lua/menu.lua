@@ -4,6 +4,8 @@
 local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'paramset'
+local fx = require 'effects'
+local cs = require 'controlspec'
 local menu = {}
 
 -- global functions for scripts
@@ -77,10 +79,57 @@ mix:set_action("headphone",
   function(x)
     norns.state.hp = x
     gain_hp(norns.state.hp)
+  end) 
+-- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
+-- TODO TAPE (playback) VOL, SPEED?
+mix:add_separator()
+mix:add_option("aux_fx", {"OFF","ON"})
+mix:set_action("aux_fx",
+  function(x)
+    if x == 1 then
+      fx.aux_fx_off()
+    else
+      fx.aux_fx_on()
+    end
   end)
+mix:add_control("aux_input1_level", cs.DB)
+mix:set_action("aux_input1_level",
+  function(x) fx.aux_fx_input_level(1,x) end) 
+mix:add_control("aux_input2_level", cs.DB)
+mix:set_action("aux_input2_level",
+  function(x) fx.aux_fx_input_level(2,x) end) 
+mix:add_control("aux_input1_pan", cs.DB)
+mix:set_action("aux_input1_pan",
+  function(x) fx.aux_fx_input_pan(1,x) end) 
+mix:add_control("aux_input2_pan", cs.DB)
+mix:set_action("aux_input2_pan",
+  function(x) fx.aux_fx_input_pan(2,x) end) 
+mix:add_control("aux_output_level", cs.DB)
+mix:set_action("aux_output_level",
+  function(x) fx.aux_fx_output_level(x) end) 
+mix:add_control("aux_return_level", cs.DB)
+mix:set_action("aux_return_level",
+  function(x) fx.aux_fx_return_level(x) end) 
+mix:add_control("rev_eq1_level", cs.DB)
+mix:set_action("rev_eq1_level",
+  function(x) fx.aux_fx_param("eq1_level",x) end)
 
--- TAPE modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
--- TAPE (playback) VOL, SPEED?
+
+mix:add_separator()
+mix:add_option("insert_fx", {"OFF","ON"})
+mix:set_action("insert_fx",
+  function(x)
+    if x == 1 then
+      fx.insert_fx_off()
+    else
+      fx.insert_fx_on()
+    end
+  end)
+mix:add_control("insert_mix", cs.UNIPOLAR)
+mix:set_action("insert_mix",
+  function(x) fx.insert_fx_mix(x) end) 
+
+
 
 
 
