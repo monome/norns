@@ -44,42 +44,28 @@ menu.errormsg = ""
 
 -- mix paramset
 mix = paramset.new()
-mix:add_number("output", 0, 64, 64)
+mix:add_control("output",cs.DB)
 mix:set_action("output",
-  function(x)
-    norns.state.out = x
-    norns.audio.output_level(x/64)
-  end)
-mix:add_number("input", 0, 64, 64)
+  function(x) norns.audio.output_level(x) end)
+mix:add_control("input",cs.DB)
 mix:set_action("input",
   function(x)
-    norns.state.input = x
-    norns.audio.input_level(1,x/64)
-    norns.audio.input_level(2,x/64)
+    norns.audio.input_level(1,x)
+    norns.audio.input_level(2,x)
   end)
-mix:add_number("monitor", 0, 64, 0)
+mix:add_control("monitor",cs.DB)
 mix:set_action("monitor",
-  function(x)
-    norns.state.monitor = x
-    norns.audio.monitor_level(x/64)
-  end)
+  function(x) norns.audio.monitor_level(x) end)
 mix:add_option("monitor_mode",{"STEREO","MONO"})
 mix:set_action("monitor_mode",
   function(x)
-    if x == 1 then
-      norns.state.monitor_mode = x
-      norns.audio.monitor_stereo()
-    else
-      norns.state.monitor_mode = x
-      norns.audio.monitor_mono()
-    end
+    if x == 1 then norns.audio.monitor_stereo()
+    else norns.audio.monitor_mono() end
   end)
 mix:add_number("headphone",0, 63, 40)
 mix:set_action("headphone",
-  function(x)
-    norns.state.hp = x
-    gain_hp(norns.state.hp)
-  end) 
+  function(x) gain_hp(x) end) 
+
 -- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
 -- TODO TAPE (playback) VOL, SPEED?
   
@@ -333,16 +319,6 @@ menu.set_page = function(page)
   menu.redraw()
 end
 
--- set monitor level
-menu.monitor = function(delta)
-  local l = util.clamp(norns.state.monitor + delta,0,64)
-  if l ~= norns.state.monitor then
-    norns.state.monitor = l
-    mix:set("monitor",l)
-    --audio_monitor_level(l / 64.0)
-  end
-end
-
 
 -- --------------------------------------------------
 -- interfaces
@@ -481,7 +457,7 @@ m.redraw[pMIX] = function()
 
   local x = -40
   screen.level(2)
-  n = mix:get("output")/64*48
+  n = (60+mix:get("output"))/60*48
   screen.rect(x+42,56,2,-n)
   screen.stroke()
 
@@ -495,7 +471,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get("input")/64*48
+  n = (60+mix:get("input"))/60*48
   screen.rect(x+64,56,2,-n)
   screen.stroke()
 
@@ -508,7 +484,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get("monitor")/64*48
+  n = (60+mix:get("monitor"))/60*48
   screen.rect(x+86,56,2,-n)
   screen.stroke()
 
