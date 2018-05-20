@@ -8,7 +8,7 @@ BufUtil {
 	*trim {
 		arg buf, action={}, start=0, end = -1, server=nil;
 		var startsamp, endsamp, samps, newbuf;
-		if(server == nil, { server = Crone.ctx.server; });
+		if(server == nil, { server = Crone.context.server; });
 		startsamp = (start * buf.sampleRate).min(buf.numFrames);
 		if(end < -1, {
 			endsamp = buf.numFrames;
@@ -28,7 +28,7 @@ BufUtil {
 	*readChannel {
 		arg buf, path, action={}, channel=0, server=nil;
 
-		if(server == nil, { server = Crone.ctx.server; });
+		if(server == nil, { server = Crone.context.server; });
 		Buffer.readChannel(server, path, 0, -1, [channel], {
 			arg newbuf;
 			buf.free;
@@ -42,7 +42,7 @@ BufUtil {
 		arg buf, path, action={}, start=0, dur= -1, channel=0, server=nil;
 
 		var newbuf, frstart, frend, numfr;
-		if(server == nil, { server = Crone.ctx.server; });
+		if(server == nil, { server = Crone.context.server; });
 
 		Buffer.readChannel(server, path, 0, -1, [channel], {
 			arg newbuf;
