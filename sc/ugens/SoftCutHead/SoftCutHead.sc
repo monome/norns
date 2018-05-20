@@ -8,6 +8,7 @@ SoftCutHead : MultiOutUGen {
 	init { arg ... theInputs;
 		inputs = theInputs;
 		// FIXME: get number of channels in buffer
+		//
 		^this.initOutputs(3, rate);
 	}
 }

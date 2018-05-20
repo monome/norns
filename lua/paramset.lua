@@ -1,12 +1,23 @@
 --- ParamSet class
 -- @module paramset
 
-local ParamSet = {}
-ParamSet.__index = ParamSet
+local separator = require 'params/separator'
+local number = require 'params/number'
+local option = require 'params/option'
+local control = require 'params/control'
+local file = require 'params/file'
+local taper = require 'params/taper'
 
-local tNUMBER = 1
-local tOPTION = 2
-local tCONTROL = 3
+local ParamSet = {
+  tSEPARATOR = 0,
+  tNUMBER = 1,
+  tOPTION = 2,
+  tCONTROL = 3,
+  tFILE = 4,
+  tTAPER = 5,
+}
+
+ParamSet.__index = ParamSet
 
 --- constructor
 -- @param name
@@ -17,6 +28,12 @@ function ParamSet.new(name)
   ps.count = 0
   ps.lookup = {}
   return ps
+end
+
+--- add separator
+function ParamSet:add_separator()
+  table.insert(self.params, separator.new())
+  self.count = self.count + 1
 end
 
 --- add number
@@ -36,6 +53,20 @@ end
 --- add control
 function ParamSet:add_control(name, controlspec, formatter)
   table.insert(self.params, control.new(name, controlspec, formatter))
+  self.count = self.count + 1
+  self.lookup[name] = self.count
+end
+
+--- add file
+function ParamSet:add_file(name, path)
+  table.insert(self.params, file.new(name, path))
+  self.count = self.count + 1
+  self.lookup[name] = self.count
+end
+
+--- add taper
+function ParamSet:add_taper(name, min, max, default, k, units)
+  table.insert(self.params, taper.new(name, min, max, default, k, units))
   self.count = self.count + 1
   self.lookup[name] = self.count
 end
@@ -83,6 +114,11 @@ function ParamSet:set_action(index, func)
   self.params[index].action = func
 end
 
+--- get type
+function ParamSet:t(index)
+  return self.params[index].t
+end
+
 
  
 --- write to disk
@@ -92,7 +128,6 @@ function ParamSet:write(filename)
   io.output(fd)
   for k,v in pairs(self.params) do
     io.write(k..","..v:get().."\n")
-    --print(k..","..v:get())
   end
   io.close(fd)
 end
@@ -104,10 +139,14 @@ function ParamSet:read(filename)
   if fd then
     io.close(fd)
     for line in io.lines(data_dir .. filename) do
-      --print(line)
       k,v = line:match("([^,]+),([^,]+)")
-      self.params[tonumber(k)]:set(tonumber(v))
+      if tonumber(v) ~= nil then
+        self.params[tonumber(k)]:set(tonumber(v))
+      elseif v then
+        self.params[tonumber(k)]:set(v)
+      end
     end 
+  else print("paramset: " .. filename .. " not read.")
   end 
 end
 

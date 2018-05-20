@@ -15,9 +15,9 @@ poll = require 'poll'
 engine = require 'engine'
 wifi = require 'wifi'
 
-number = require 'number'
-option = require 'option'
-control = require 'control'
+fileselect = require 'fileselect'
+textentry = require 'textentry'
+
 controlspec = require 'controlspec'
 paramset = require 'paramset' 
 
@@ -38,12 +38,16 @@ grid.add = function(device)
 end
 
 grid.reconnect = function()
+   print("grid.reconnect (default)")
   _, g = next(grid.devices) -- hacky way to get basically random item in a table
-  if g then grid.add(g) end
+  if g then
+     grid.add(g)
+  end
 end
 
 grid.remove = function(device) g = nil end
 
 -- resume last loaded script
+norns.script.clear()
 norns.log.post("norns started")
 norns.state.resume()

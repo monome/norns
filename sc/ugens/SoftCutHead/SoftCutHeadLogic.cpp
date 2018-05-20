@@ -24,6 +24,7 @@ using namespace std;
 
 SoftCutHeadLogic::SoftCutHeadLogic() {
     this->init();
+    playRun = true;
 }
 
 void SoftCutHeadLogic::init() {
@@ -37,7 +38,7 @@ void SoftCutHeadLogic::init() {
 }
 
 void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
-
+// FIXME: shuld not be checking thigns every sample
     if(buf == nullptr) {
         return;
     }
@@ -149,11 +150,12 @@ void SoftCutHeadLogic::setSampleRate(float sr_) {
 }
 
 float SoftCutHeadLogic::mixFade(float x, float y, float a, float b) {
-    if(fadeMode == FADE_EQ) {
+    //if(fadeMode == FADE_EQ) {
+    // FIXME: use xfade table
         return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
-    } else {
-        return (x * a) + (y * b);
-    }
+    //} else {
+    //    return (x * a) + (y * b);
+    //}
 }
 
 void SoftCutHeadLogic::setRec(float x) {
@@ -178,4 +180,17 @@ void SoftCutHeadLogic::setRecRun(bool val) {
 
 void SoftCutHeadLogic::setRecOffset(float x) {
     recPhaseOffset = x;
+}
+
+float SoftCutHeadLogic::getActivePhase() {
+    return static_cast<float>(phase[active]);
+}
+
+float SoftCutHeadLogic::getTrig() {
+    return trig[0] + trig[1];
+}
+
+void SoftCutHeadLogic::resetTrig() {
+    trig[0] = 0.f;
+    trig[1] = 0.f;
 }

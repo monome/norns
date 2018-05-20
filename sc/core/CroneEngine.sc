@@ -32,23 +32,29 @@ CroneEngine {
 		// subclass responsibility to allocate server resources, this method is called in a Routine so it's okay to s.sync
 	}
 
-	addPoll { arg name, func;
+	addPoll { arg name, func, periodic=true;
 		name = name.asSymbol;
-		CronePollRegistry.register(name, func);
+		CronePollRegistry.register(name, func, periodic:periodic);
 		pollNames.add(name);
+		^CronePollRegistry.getPollFromName(name);
 	}
 
-	// NB: subclasses should override this if they need to free resources
-	// but the superclass method should be called as well
-	free {
-		postln("CroneEngine.free");
-		commands.do({ arg com;
-			com.oscdef.free;
-		});
-		pollNames.do({ arg name;
-			CronePollRegistry.remove(name);
-		});
+	deinit { arg doneCallback;
+		fork {
+			postln("CroneEngine.free");
+			commands.do({ arg com;
+				com.oscdef.free;
+			});
+			pollNames.do({ arg name;
+				CronePollRegistry.remove(name);
+			});
+			// subclass should implement free, and this method should also be called in a routine
+			this.free;
+			doneCallback.value(this);
+		}
+
 	}
+
 
 	addCommand { arg name, format, func;
 		var idx, cmd;

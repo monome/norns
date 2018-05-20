@@ -4,8 +4,21 @@
 -- @alias Screen
 local Screen = {}
 
+local metro = require 'metro'
+local screensaver = metro[33]
+
+screensaver.callback = function()
+  s_clear()
+  s_update()
+end
+screensaver.time = 900
+screensaver.count = 1
+
 --- copy buffer to screen
-Screen.update = function() s_update() end
+Screen.update = function()
+  s_update()
+  screensaver:start()
+end
 
 --- enable/disable anti-aliasing
 -- @param state on(1) or off(0)
@@ -35,12 +48,12 @@ Screen.move_rel = function(x, y) s_move_rel(x, y) end
 --- draw line to specified point
 -- @param x destination x
 -- @param y destination y
-Screen.line = function() s_line() end
+Screen.line = function(x,y) s_line(x,y) end
 
 --- draw line to specified point relative to current position
 -- @param x relative destination x
 -- @param y relative destination y
-Screen.line_rel = function() s_line_rel() end
+Screen.line_rel = function(x, y) s_line_rel(x, y) end
 
 --- draw arc
 -- @param x circle center x
@@ -95,17 +108,17 @@ Screen.fill = function() s_fill() end
 --- draw text (left aligned)
 -- uses currently selected font
 -- @param string text to write
-Screen.text = function() s_text() end
+Screen.text = function(str) s_text(str) end
 
 --- draw text, right aligned
 -- uses currently selected font
 -- @param string text to write
-Screen.text_right = function() s_text_right() end
+Screen.text_right = function(str) s_text_right(str) end
 
 --- draw text, center aligned
 -- uses currently selected font
 -- @param string text to write
-Screen.text_center = function() s_text_center() end
+Screen.text_center = function(str) s_text_center(str) end
 
 --- select font face
 -- @param index font face (see list)
@@ -144,47 +157,14 @@ Screen.font_face = function(index) s_font_face(index) end
 Screen.font_size = function(size) s_font_size(size) end
 
 
---- enable screen functions (allow user script to modify screen)
-s_enable = function()
-  Screen.update = s_update
-  Screen.aa = s_aa
-  Screen.clear = s_clear
-  Screen.level = s_level
-  Screen.line = s_line
-  Screen.line_rel = s_line_rel
-  Screen.arc = s_arc
-  Screen.line_width = s_line_width
-  Screen.move = s_move
-  Screen.move_rel = s_move_rel
-  Screen.stroke = s_stroke
-  Screen.fill = s_fill
-  Screen.text = s_text
-  Screen.text_right = s_text_right
-  Screen.text_center = s_text_center
-  Screen.close = s_close
-  Screen.font_face = s_font_face
-  Screen.font_size = s_font_size
-  Screen.circle = s_circle
-  Screen.rect = s_rect
-  Screen.curve = s_curve
-  Screen.curve_rel = s_curve_rel
-end
-
---- disable screen functions (menu only controls screen)
-s_disable = function()
-  for k, v in pairs(screen) do
-    screen[k] = norns.none
-  end
-end
-
 s_text_right = function(str)
-  x, y = s_extents(str)
+  local x, y = s_extents(str)
   s_move_rel(-x, 0)
   s_text(str)
 end
 
 s_text_center = function(str)
-  x, y = s_extents(str)
+  local x, y = s_extents(str)
   s_move_rel(-x/2, 0)
   s_text(str)
 end
@@ -192,5 +172,6 @@ end
 s_circle = function(x, y, r)
   s_arc(x, y, r, 0, math.pi*2)
 end
+
 
 return Screen

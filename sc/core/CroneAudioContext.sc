@@ -1,6 +1,6 @@
 // boilerplate audio processing class
 // sets up input, output, and simple analysis for stereo enivronment
-AudioContext {
+CroneAudioContext {
 
 	var <>server;
 	// input, process, output groups
@@ -59,7 +59,7 @@ AudioContext {
 			Synth.new(\adc, [\in, i, \out, in_b[i].index], ig);
 		});
 
-		out_s = Synth.new(\patch_stereo, [\in, out_b.index, \out, 0], og);
+		out_s = Synth.new(\patch_stereo, [\in, out_b.index, \out, 0, \level, 1.0], og);
 
 		mon_s = Array.fill(2, { |i|
 			Synth.new(\patch_pan,
@@ -92,15 +92,17 @@ AudioContext {
 			);
 		});
 
-
-		this.initCommands();
 		this.initPolls();
 
 	}
 
+
+	inputLevel { arg chan, db; in_s[chan].set(\level, db.dbamp);  }
+	outputLevel { arg db; out_s.set(\level, db.dbamp); }
+
 	// control monitor level / pan
-	monitorLevel { arg level;
-		mon_s.do({|syn| syn.set(\level, level) });
+	monitorLevel { arg db;
+		mon_s.do({|syn| syn.set(\level, db.dbamp) });
 	}
 
 	monitorMono {
@@ -125,15 +127,12 @@ AudioContext {
 	// toggle pitch analysis (save CPU)
 
 	pitchOn {
+		postln("AudioContext.pitchOn");
 		pitch_in_s.do({ |syn| syn.run(true); });
 	}
 
 	pitchOff {
 		pitch_in_s.do({ |syn| syn.run(false); });
-	}
-
-	initCommands {
-		// FIXME?/...
 	}
 
 	registerPoll  { arg name, func, dt=0.1, type=\value;
@@ -152,7 +151,6 @@ AudioContext {
 		^ret;
 	}
 
-
 	initPolls {
 		postln("AudioContext: initPolls");
 		this.registerPoll(\cpu_peak, { server.peakCPU });
@@ -165,12 +163,13 @@ AudioContext {
 
 		this.registerPoll(\pitch_in_l, {
 			var pitch, clar;
-			#pitch, clar = pitch_in_b[0].getSynchronous(2);
+			#pitch, clar = this.pitch_in_b[0].getnSynchronous(2);
+			// postln(["pitch_in_l", pitch, clar]);
 			if(clar > 0, { pitch }, {-1});
 		});
 		this.registerPoll(\pitch_in_r, {
 			var pitch, clar;
-			#pitch, clar = pitch_in_b[1].getSynchronous(2);
+			#pitch, clar = this.pitch_in_b[1].getnSynchronous(2);
 			if(clar > 0, { pitch }, {-1});
 		});
 	}

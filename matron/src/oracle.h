@@ -33,9 +33,10 @@ struct engine_poll {
 
 // data structure for engine parameters
 struct engine_param {
-  char *name;
-  int busIdx; // control bus index
+    char *name;
+    int busIdx; // control bus index
 };
+
 
 // check for audio engine boot completion
 extern int o_ready();
@@ -81,11 +82,8 @@ extern void o_request_command_report(void);
 extern void o_request_poll_report(void);
 
 // issue a command to the engine, adds /command/ pattern
-// NB: this requires a pre-allocated lo_message, which will be freed!
+// caller is responsible for freeing memory
 extern void o_send_command(const char *name, lo_message msg);
-// send osc message
-// NB: this requires a pre-allocated lo_message, which will be freed!
-extern void o_send(const char *name, lo_message msg);
 
 // start or stop a poll
 //extern void o_set_poll_state(const char *name, bool state);
@@ -93,6 +91,9 @@ extern void o_set_poll_state(int idx, bool state);
 
 // set poll period
 extern void o_set_poll_time(int idx, float dt);
+
+// request current value of poll
+extern void o_request_poll_value(int idx);
 
 //--- audio context controls
 extern void o_set_audio_input_level(int idx, float level);
@@ -104,5 +105,36 @@ extern void o_set_audio_monitor_on();
 extern void o_set_audio_monitor_off();
 extern void o_set_audio_pitch_on();
 extern void o_set_audio_pitch_off();
+
+//--- tape control
+extern void o_tape_new(char *file);
+extern void o_tape_start_rec();
+extern void o_tape_pause_rec();
+extern void o_tape_stop_rec();
+extern void o_tape_open(char *file);
+extern void o_tape_play();
+extern void o_tape_pause();
+extern void o_tape_stop();
+
+//--- aux effects controls
+// enable / disable aux fx processing
+extern void o_set_aux_fx_on();
+extern void o_set_aux_fx_off();
+// mono input -> aux level
+extern void o_set_aux_fx_input_level(int channel, float value);
+// mono input -> aux pan
+extern void o_set_aux_fx_input_pan(int channel, float value);
+// stereo output -> aux
+extern void o_set_aux_fx_output_level(float value);
+// aux return -> dac
+extern void o_set_aux_fx_return_level(float value);
+extern void o_set_aux_fx_param(const char* name, float value);
+
+//--- insert effects controls
+extern void o_set_insert_fx_on();
+extern void o_set_insert_fx_off();
+extern void o_set_insert_fx_mix(float level);
+extern void o_set_insert_fx_param(const char* name, float value);
+
 
 extern void o_restart_audio();

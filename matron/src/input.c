@@ -21,18 +21,22 @@ static void *input_run(void *p) {
     bool newline;
     char b;
 
-    while(!quit) {
+    while (!quit) {
         nb = 0;
         newline = false;
-        while(!newline) {
-            if(nb < RX_BUF_LEN) {
-                read(STDIN_FILENO, &b, 1);
-                if(b == '\0') { continue; }
+        while (!newline) {
+            if (nb < RX_BUF_LEN) {
+                if (read(STDIN_FILENO, &b, 1) < 1) {
+                    fprintf(stderr, "failed to read from stdin\n");
+                    return NULL;
+                }
+
+                if (b == '\0') { continue; }
                 if( (b == '\n') || (b == '\r') ) { newline = true; }
                 rxbuf[nb++] = b;
             }
         }
-        if(nb == 2) {
+        if (nb == 2) {
             if(rxbuf[0] == 'q') {
                 event_post( event_data_new(EVENT_QUIT) );
                 quit = true;

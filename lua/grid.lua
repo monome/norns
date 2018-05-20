@@ -25,6 +25,8 @@ function Grid.new(id, serial, name, dev)
   g.dev = dev -- opaque pointer
   g.key = nil -- key event callback
   g.remove = nil -- device unplug callback
+  g.rows = grid_rows(dev)
+  g.cols = grid_cols(dev)
   return g
 end
 

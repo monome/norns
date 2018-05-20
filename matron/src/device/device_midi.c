@@ -16,7 +16,11 @@ int dev_midi_init(void *self) {
     char *alsa_name;
 
     sscanf(base->path, "/dev/snd/midiC%uD%u", &alsa_card, &alsa_dev);
-    asprintf(&alsa_name, "hw:%u,%u", alsa_card, alsa_dev);
+
+    if (asprintf(&alsa_name, "hw:%u,%u", alsa_card, alsa_dev) < 0) {
+        fprintf(stderr, "failed to create alsa device name for card %d,%d\n", alsa_card, alsa_dev);
+        return -1;
+    }
 
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, alsa_name, 0) < 0) {
         fprintf(stderr, "failed to open alsa device %s\n", alsa_name);
@@ -59,7 +63,7 @@ void* dev_midi_start(void *self) {
                 msg_buf[0] = byte;
                 msg_pos = 1;
 
-                switch (byte) {
+                switch (byte & 0xf0) {
                 case 0x80:
                 case 0x90:
                 case 0xa0:
@@ -70,19 +74,29 @@ void* dev_midi_start(void *self) {
                     break;
                 case 0xc0:
                 case 0xd0:
-                case 0xf1:
-                case 0xf3:
                     msg_len = 2;
                     break;
-                case 0xf7:
-                    // TODO: properly handle sysex length
-                    msg_len = msg_pos; // sysex end
-                    break;
                 case 0xf0:
-                    msg_len = 0; // sysex start
+                    switch (byte & 0x0f) {
+                    case 0x01:
+                    case 0x03:
+                        msg_len = 2;
+                        break;
+                    case 0x07:
+                        // TODO: properly handle sysex length
+                        msg_len = msg_pos; // sysex end
+                        break;
+                    case 0x00:
+                        msg_len = 0; // sysex start
+                        break;
+                    default:
+                        msg_len = 2;
+                        break;
+                    }
                     break;
                 default:
                     msg_len = 2;
+                    break;
                 }
             } else {
                 msg_buf[msg_pos] = byte;

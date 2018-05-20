@@ -1,27 +1,21 @@
 top = '..'
 
+def build_ugen(bld, target, source):
+    ugen = bld.shlib(features='c cxx',
+        source=source,
+        target=target,
+        use=['SUPERCOLLIDER'],
+        install_path='${PREFIX}/lib/SuperCollider/plugins',
+        cflags=['-O3', '-Wall'])
+
+    if bld.env.DEST_OS == 'darwin':
+        ugen.env.cxxshlib_PATTERN = '%s.scx'
+    else:
+        ugen.env.cxxshlib_PATTERN = '%s.so'
+
 def build(bld):
-    ugen = bld.shlib(features='c cxx',
-        source='ugens/BufWrPre/BufWrPre.cpp',
-        target='BufWrPre',
-        use=['SUPERCOLLIDER'],
-        install_path='${PREFIX}/lib/SuperCollider/plugins')
-
-    if bld.env.DEST_OS == 'darwin':
-        ugen.env.cxxshlib_PATTERN = '%s.scx'
-    else:
-        ugen.env.cxxshlib_PATTERN = '%s.so'
-
-    ugen = bld.shlib(features='c cxx',
-        source=[
-            'ugens/SoftCutHead/SoftCutHead.cpp',
-            'ugens/SoftCutHead/SoftCutHeadLogic.cpp',
-        ],
-        target='SoftCutHead',
-        use=['SUPERCOLLIDER'],
-        install_path='${PREFIX}/lib/SuperCollider/plugins')
-
-    if bld.env.DEST_OS == 'darwin':
-        ugen.env.cxxshlib_PATTERN = '%s.scx'
-    else:
-        ugen.env.cxxshlib_PATTERN = '%s.so'
+    build_ugen(bld, 'BufWrPre', 'ugens/BufWrPre/BufWrPre.cpp')
+    build_ugen(bld, 'SoftCutHead', [
+        'ugens/SoftCutHead/SoftCutHead.cpp',
+        'ugens/SoftCutHead/SoftCutHeadLogic.cpp',
+    ])

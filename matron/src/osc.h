@@ -11,5 +11,5 @@
 extern void osc_init();
 extern void osc_deinit();
 
-extern void osc_send(const char *, lo_message);
-extern void osc_remote_addr(const char *, const char *);
+extern void osc_send(const char *, const char *, const char *, lo_message);
+extern void osc_send_crone(const char *, lo_message);

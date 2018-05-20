@@ -152,8 +152,8 @@ int dev_monitor_scan(void) {
             if (dev != NULL) {
                 if (udev_device_get_parent_with_subsystem_devtype(dev, "usb", NULL)) {
                     handle_device(dev);
-                    udev_device_unref(dev);
                 }
+                udev_device_unref(dev);
             }
         }
 
@@ -276,7 +276,10 @@ const char* get_alsa_midi_node(struct udev_device *dev) {
 
         while ((sysdir_ent = readdir(sysdir)) != NULL) {
             if (sscanf(sysdir_ent->d_name, "midiC%uD%u", &alsa_card, &alsa_dev) == 2) {
-                asprintf(&result, "/dev/snd/%s", sysdir_ent->d_name);
+                if (asprintf(&result, "/dev/snd/%s", sysdir_ent->d_name) < 0) {
+                    fprintf(stderr, "failed to create alsa device path for %s\n", sysdir_ent->d_name);
+                    return NULL;
+                }
             }
         }
     }
@@ -286,7 +289,6 @@ const char* get_alsa_midi_node(struct udev_device *dev) {
 
 // try to get product name from udev_device or its parents
 const char* get_device_name(struct udev_device *dev) {
-    char *name;
     char *current_name = NULL;
     struct udev_device *current_dev = dev;
 
@@ -299,6 +301,5 @@ const char* get_device_name(struct udev_device *dev) {
         }
     }
 
-    asprintf(&name, "%s", current_name);
-    return name;
+    return strdup(current_name);
 }

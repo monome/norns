@@ -27,6 +27,7 @@ static inline bool checkBuffer(Unit *unit, const float *bufData, uint32 bufChann
     }
     return true;
     handle_failure:
+    Print("checkBuffer failed!");
     unit->mDone = true;
     ClearUnitOutputs(unit, inNumSamples);
     return false;
@@ -45,12 +46,11 @@ void SoftCutHead_Ctor(SoftCutHead *unit) {
     unit->prevTrig = 0.f;
     SETCALC(SoftCutHead_next);
     SoftCutHead_next(unit, 1);
-    Print("SoftCutHead_CTor(): num inputs: %i\n", unit->mNumInputs);
 }
 
 void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     GET_BUF;
-    uint32 numOutputs = unit->mNumOutputs;
+//    uint32 numOutputs = unit->mNumOutputs;
     uint32 numInputChannels = unit->mNumInputs - 14;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
@@ -58,22 +58,22 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     unit->softcut.setBuffer(bufData, bufFrames);
 
+    // audio rate
     float *phase_out = OUT(0);
     float *trig_out = OUT(1);
     float *snd_out = OUT(2);
-
     const float *in = IN(1);
 
-    // Print("SoftCutHead input: %f\n", in);
+    // control rate
+    const float trig = IN0(2);
 
+    const float *rate = IN(3);
     
-    float trig = IN0(2);
-    float* rate = IN(3);
-    float start = IN0(4);
-    float end = IN0(5);
-    float pos = IN0(6);
-    float fade = IN0(7);
-    float loop = IN0(8);
+    const float start = IN0(4);
+    const float end = IN0(5);
+    const float pos = IN0(6);
+    const float fade = IN0(7);
+    const float loop = IN0(8);
 
     const float *rec = IN(9);
     const float *pre = IN(10);
@@ -104,7 +104,13 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->prevTrig = trig;
 
     float snd, phi, tr;
+    float trBlock = 0.f; // trigger should be high/low for the entire block...
+    
     for (int i = 0; i < inNumSamples; ++i) {
+     
+    unit->cutfade.setRec(rec[i]);
+    unit->cutfade.setPre(pre[i]); 
+    unit->cutfade.setRate(rate[i]);
 
         unit->softcut.setRate(rate[i]);
         unit->softcut.setRec(rec[i]);
@@ -112,10 +118,14 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
         unit->softcut.nextSample(in[i], &phi, &tr, &snd);
         phase_out[i] = phi;
-
-        trig_out[i] = tr;
         snd_out[i] = snd;
+	if(tr > 0.f) { trBlock = 1.f;}
     }
+    
+    for (int i = 0; i < inNumSamples; ++i) {
+      trig_out[i] = trBlock;
+    }
+    
 }
 
 PluginLoad(SoftCutHead) {

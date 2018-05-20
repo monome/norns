@@ -43,6 +43,15 @@ function Poll:stop()
   stop_poll(self.props.id)
 end
 
+--- request a single update immediately
+function Poll:update(callback)
+   if callback then
+      if type(callback) == "function" then
+	 self.props.callback = callback
+	 end
+   end
+   request_poll_value(self.props.id)
+end
 
 --- custom setters;
 -- `.time` and `.callback` set the corresponding private properties and perform approriate actions.
@@ -64,6 +73,7 @@ function Poll:__index(idx)
   elseif idx == 'callback' then return self.props.callback
   elseif idx == 'start' then return Poll.start
   elseif idx == 'stop' then return Poll.stop
+  elseif idx == 'update' then return Poll.update
   elseif idx == 'perform' then return Poll.perform
   else
     return rawget(self, idx)
@@ -73,10 +83,10 @@ end
 -- perform the poll's assigned callback function, if it exists
 -- (fixme: this all seems a little over-complicated)
 function Poll:perform(value)
-  if p.props then
-    if p.props.callback then
-      if type(p.props.callback) == "function" then
-        p.props.callback(value)
+  if self.props then
+    if self.props.callback then
+      if type(self.props.callback) == "function" then
+        self.props.callback(value)
       end
     else
       -- print("no callback") -- ok
@@ -110,7 +120,7 @@ end
 Poll.list_names = function()
   print('--- polls ---')
   local names = tab.sort(Poll.polls)
-  for i,n in ipairs(names) do print(n) end
+  for _,n in ipairs(names) do print(n) end
   print('------\n')
 end
 
@@ -120,9 +130,17 @@ end
 Poll.set = function(name, callback)
   local p = Poll.polls[name]
   if(p) then
-    p.props.callback = callback
+     p.props.callback = callback
   end
   return p
+end
+
+--- stop all polls
+Poll.clear_all = function()
+   for _,p in pairs(Poll.polls) do
+      p:stop()
+      p.props.callback = nil
+   end
 end
 
 
