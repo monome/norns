@@ -383,7 +383,7 @@ m.redraw[pMIX] = function()
   screen.rect(x+76,56,2,-n)
   screen.stroke()
 
-  if menu.alt then screen.level(7) else screen.level(2) end
+  screen.level(2)
   n = mix:get("monitor")/64*48
   screen.rect(x+86,56,2,-n)
   screen.stroke()
@@ -1038,6 +1038,8 @@ m.sync.pos = 0
 m.key[pSYNC] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.sync.disk=='' then
+    menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.sync.pos==0 then
     m.sync.busy = true
     menu.redraw()
@@ -1106,6 +1108,8 @@ m.update.confirm = false
 m.key[pUPDATE] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and #m.update.list == 0 then
+    menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.update.confirm == false and #m.update.list > 0 then
     -- CONFIRM UPDATE
     m.update.confirm = true
@@ -1167,12 +1171,12 @@ m.init[pUPDATE] = function()
   menu.redraw()
   -- COPY FROM USB
   local disk = util.os_capture("lsblk -o mountpoint | grep media")
-  local pfile = popen("ls -p "..disk.."/norns*.tgz")
+  local pfile = popen("ls -p "..disk.."/{norns,dust}*.tgz")
   for filename in pfile:lines() do
     os.execute("cp "..filename.." $HOME/update/")
   end 
   -- PREPARE
-  pfile = popen('ls -p $HOME/update/norns*.tgz')
+  pfile = popen('ls -p $HOME/update/{norns,dust}*.tgz')
   for filename in pfile:lines() do
     print(filename)
     -- extract
