@@ -15,6 +15,7 @@
 #include "events.h"
 #include "battery.h"
 #include "gpio.h"
+#include "hello.h"
 #include "i2c.h"
 #include "input.h"
 #include "osc.h"
@@ -48,12 +49,6 @@ int main(int argc, char **argv) {
     events_init(); // <-- must come first!
     screen_init();
 
-    // SPLASH
-    screen_level(15);
-    screen_move(0,50);
-    screen_text("norns");
-    screen_update();
-
     metros_init();
     gpio_init();
     battery_init();
@@ -61,13 +56,19 @@ int main(int argc, char **argv) {
     osc_init();
     o_init(); // oracle (audio)
 
+    norns_hello_init();
+
     // wait here for a signal from the audio server...
     fprintf(stderr, "waiting for crone...\n");
     do {
-        screen_text(".");
-        screen_update();
-        sleep(1);
+        norns_hello(1);
+        usleep(5000);
     } while(o_ready() != 1);
+
+    // fade out
+    while(norns_hello(0)) {
+        usleep(5000);
+    }
 
     w_init(); // weaver (scripting)
     dev_list_init();
