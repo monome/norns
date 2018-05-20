@@ -10,7 +10,7 @@ additionally, there are 2 EQ sections using 2nd-order Regalia-Mitra peaking filt
 
 ### parameters:
 
-- *in_delay(60.0)* : delay before reverberation; [20, 100] milliseconds
+- *in_delay* : delay before reverberation; [20, 100] milliseconds
 - *lf_x* : crossover frequency between low and middle bands; [50, 1000] hz
 - *low_rt60* : time to decay by 60dB in low band; [1, 8] seconds
 - *mid_rt60* : time to decay by 60dB in high band; [1, 8] seconds
