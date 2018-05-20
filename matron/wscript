@@ -15,6 +15,7 @@ def build(bld):
         'src/hardware/screen.c',
         'src/args.c',
         'src/events.c',
+        'src/hello.c',
         'src/input.c',
         'src/lua_eval.c',
         'src/main.c',

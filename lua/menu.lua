@@ -4,6 +4,8 @@
 local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'paramset'
+local fx = require 'effects'
+local cs = require 'controlspec'
 local menu = {}
 
 -- global functions for scripts
@@ -77,10 +79,57 @@ mix:set_action("headphone",
   function(x)
     norns.state.hp = x
     gain_hp(norns.state.hp)
+  end) 
+-- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
+-- TODO TAPE (playback) VOL, SPEED?
+mix:add_separator()
+mix:add_option("aux_fx", {"OFF","ON"})
+mix:set_action("aux_fx",
+  function(x)
+    if x == 1 then
+      fx.aux_fx_off()
+    else
+      fx.aux_fx_on()
+    end
   end)
+mix:add_control("aux_input1_level", cs.DB)
+mix:set_action("aux_input1_level",
+  function(x) fx.aux_fx_input_level(1,x) end) 
+mix:add_control("aux_input2_level", cs.DB)
+mix:set_action("aux_input2_level",
+  function(x) fx.aux_fx_input_level(2,x) end) 
+mix:add_control("aux_input1_pan", cs.DB)
+mix:set_action("aux_input1_pan",
+  function(x) fx.aux_fx_input_pan(1,x) end) 
+mix:add_control("aux_input2_pan", cs.DB)
+mix:set_action("aux_input2_pan",
+  function(x) fx.aux_fx_input_pan(2,x) end) 
+mix:add_control("aux_output_level", cs.DB)
+mix:set_action("aux_output_level",
+  function(x) fx.aux_fx_output_level(x) end) 
+mix:add_control("aux_return_level", cs.DB)
+mix:set_action("aux_return_level",
+  function(x) fx.aux_fx_return_level(x) end) 
+mix:add_control("rev_eq1_level", cs.DB)
+mix:set_action("rev_eq1_level",
+  function(x) fx.aux_fx_param("eq1_level",x) end)
 
--- TAPE modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
--- TAPE (playback) VOL, SPEED?
+
+mix:add_separator()
+mix:add_option("insert_fx", {"OFF","ON"})
+mix:set_action("insert_fx",
+  function(x)
+    if x == 1 then
+      fx.insert_fx_off()
+    else
+      fx.insert_fx_on()
+    end
+  end)
+mix:add_control("insert_mix", cs.UNIPOLAR)
+mix:set_action("insert_mix",
+  function(x) fx.insert_fx_mix(x) end) 
+
+
 
 
 
@@ -383,7 +432,7 @@ m.redraw[pMIX] = function()
   screen.rect(x+76,56,2,-n)
   screen.stroke()
 
-  if menu.alt then screen.level(7) else screen.level(2) end
+  screen.level(2)
   n = mix:get("monitor")/64*48
   screen.rect(x+86,56,2,-n)
   screen.stroke()
@@ -1038,6 +1087,8 @@ m.sync.pos = 0
 m.key[pSYNC] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and m.sync.disk=='' then
+    menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.sync.pos==0 then
     m.sync.busy = true
     menu.redraw()
@@ -1106,6 +1157,8 @@ m.update.confirm = false
 m.key[pUPDATE] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
+  elseif n==3 and z==1 and #m.update.list == 0 then
+    menu.set_page(pSYSTEM)
   elseif n==3 and z==1 and m.update.confirm == false and #m.update.list > 0 then
     -- CONFIRM UPDATE
     m.update.confirm = true
@@ -1167,12 +1220,12 @@ m.init[pUPDATE] = function()
   menu.redraw()
   -- COPY FROM USB
   local disk = util.os_capture("lsblk -o mountpoint | grep media")
-  local pfile = popen("ls -p "..disk.."/norns*.tgz")
+  local pfile = popen("ls -p "..disk.."/{norns,dust}*.tgz")
   for filename in pfile:lines() do
     os.execute("cp "..filename.." $HOME/update/")
   end 
   -- PREPARE
-  pfile = popen('ls -p $HOME/update/norns*.tgz')
+  pfile = popen('ls -p $HOME/update/{norns,dust}*.tgz')
   for filename in pfile:lines() do
     print(filename)
     -- extract

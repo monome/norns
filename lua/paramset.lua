@@ -142,7 +142,7 @@ function ParamSet:read(filename)
       k,v = line:match("([^,]+),([^,]+)")
       if tonumber(v) ~= nil then
         self.params[tonumber(k)]:set(tonumber(v))
-      else
+      elseif v then
         self.params[tonumber(k)]:set(v)
       end
     end 
