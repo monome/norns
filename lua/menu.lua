@@ -82,6 +82,8 @@ mix:set_action("headphone",
   end) 
 -- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
 -- TODO TAPE (playback) VOL, SPEED?
+  
+-- ControlSpec.new(minval, maxval, warp, step, default, units) 
 mix:add_separator()
 mix:add_option("aux_fx", {"OFF","ON"})
 mix:set_action("aux_fx",
@@ -110,9 +112,56 @@ mix:set_action("aux_output_level",
 mix:add_control("aux_return_level", cs.DB)
 mix:set_action("aux_return_level",
   function(x) fx.aux_fx_return_level(x) end) 
-mix:add_control("rev_eq1_level", cs.DB)
+
+
+cs.IN_DELAY = cs.new(20,100,'lin',0,50,'ms')
+mix:add_control("rev_in_delay", cs.IN_DELAY)
+mix:set_action("rev_in_delay",
+  function(x) fx.aux_fx_param("rev_in_delay",x) end)
+
+cs.LF_X = cs.new(50,1000,'exp',0,200,'hz')
+mix:add_control("rev_lf_x", cs.LF_X)
+mix:set_action("rev_lf_x",
+  function(x) fx.aux_fx_param("rev_lf_x",x) end)
+
+cs.RT60 = cs.new(1,8,'lin',0,2,'s')
+mix:add_control("low_rt60", cs.RT60)
+mix:set_action("low_rt60",
+  function(x) fx.aux_fx_param("low_rt60",x) end) 
+mix:add_control("mid_rt60", cs.RT60)
+mix:set_action("mid_rt60",
+  function(x) fx.aux_fx_param("mid_rt60",x) end)
+
+cs.HF_DAMP = cs.new(1500,20000,'exp',0,5000,'hz')
+mix:add_control("hf_damping", cs.HP_DAMP)
+mix:set_action("hf_damping",
+  function(x) fx.aux_fx_param("hf_damping",x) end) 
+
+cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,400,'hz')
+mix:add_control("rev_eq1_freq", cs.EQ_FREQ1)
+mix:set_action("rev_eq1_freq",
+  function(x) fx.aux_fx_param("eq1_freq",x) end)
+cs.EQ_LVL = cs.new(-15,15,'lin',0,0,"dB")
+mix:add_control("rev_eq1_level", cs.EQ_LVL)
 mix:set_action("rev_eq1_level",
   function(x) fx.aux_fx_param("eq1_level",x) end)
+
+cs.EQ_FREQ2 = cs.new(160,10000,'exp',0,1000,'hz')
+mix:add_control("rev_eq2_freq", cs.EQ_FREQ2)
+mix:set_action("rev_eq2_freq",
+  function(x) fx.aux_fx_param("eq2_freq",x) end)
+mix:add_control("rev_eq2_level", cs.EQ_LVL)
+mix:set_action("rev_eq2_level",
+  function(x) fx.aux_fx_param("eq2_level",x) end)
+
+mix:add_control("rev_dry_wet", cs.BIPOLAR)
+mix:set_action("rev_dry_wet",
+  function(x) fx.aux_fx_param("eq2_dry_wet",x) end)
+
+cs.LEVEL = cs.new(-70,40,'lin',0,0,'dB')
+mix:add_control("rev_level", cs.LEVEL)
+mix:set_action("rev_level",
+  function(x) fx.aux_fx_param("level",x) end)
 
 
 mix:add_separator()
