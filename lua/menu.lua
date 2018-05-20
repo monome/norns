@@ -44,42 +44,29 @@ menu.errormsg = ""
 
 -- mix paramset
 mix = paramset.new()
-mix:add_number("output", 0, 64, 64)
+cs.MAIN_LEVEL = cs.new(-60,0,'lin',0,0,"dB")
+mix:add_control("output",cs.MAIN_LEVEL)
 mix:set_action("output",
-  function(x)
-    norns.state.out = x
-    norns.audio.output_level(x/64)
-  end)
-mix:add_number("input", 0, 64, 64)
+  function(x) norns.audio.output_level(x) end)
+mix:add_control("input",cs.MAIN_LEVEL)
 mix:set_action("input",
   function(x)
-    norns.state.input = x
-    norns.audio.input_level(1,x/64)
-    norns.audio.input_level(2,x/64)
+    norns.audio.input_level(1,x)
+    norns.audio.input_level(2,x)
   end)
-mix:add_number("monitor", 0, 64, 0)
+mix:add_control("monitor",cs.MAIN_LEVEL)
 mix:set_action("monitor",
-  function(x)
-    norns.state.monitor = x
-    norns.audio.monitor_level(x/64)
-  end)
+  function(x) norns.audio.monitor_level(x) end)
 mix:add_option("monitor_mode",{"STEREO","MONO"})
 mix:set_action("monitor_mode",
   function(x)
-    if x == 1 then
-      norns.state.monitor_mode = x
-      norns.audio.monitor_stereo()
-    else
-      norns.state.monitor_mode = x
-      norns.audio.monitor_mono()
-    end
+    if x == 1 then norns.audio.monitor_stereo()
+    else norns.audio.monitor_mono() end
   end)
 mix:add_number("headphone",0, 63, 40)
 mix:set_action("headphone",
-  function(x)
-    norns.state.hp = x
-    gain_hp(norns.state.hp)
-  end) 
+  function(x) gain_hp(x) end) 
+
 -- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
 -- TODO TAPE (playback) VOL, SPEED?
   
@@ -94,10 +81,11 @@ mix:set_action("aux_fx",
       fx.aux_fx_on()
     end
   end)
-mix:add_control("aux_input1_level", cs.DB)
+cs.DB_LEVEL = cs.new(-60,18,'lin',0,0,"dB")
+mix:add_control("aux_input1_level", cs.DB_LEVEL)
 mix:set_action("aux_input1_level",
   function(x) fx.aux_fx_input_level(1,x) end) 
-mix:add_control("aux_input2_level", cs.DB)
+mix:add_control("aux_input2_level", cs.DB_LEVEL)
 mix:set_action("aux_input2_level",
   function(x) fx.aux_fx_input_level(2,x) end) 
 mix:add_control("aux_input1_pan", cs.PAN)
@@ -106,15 +94,15 @@ mix:set_action("aux_input1_pan",
 mix:add_control("aux_input2_pan", cs.PAN)
 mix:set_action("aux_input2_pan",
   function(x) fx.aux_fx_input_pan(2,x) end) 
-mix:add_control("aux_output_level", cs.DB)
+mix:add_control("aux_output_level", cs.DB_LEVEL)
 mix:set_action("aux_output_level",
   function(x) fx.aux_fx_output_level(x) end) 
-mix:add_control("aux_return_level", cs.DB)
+mix:add_control("aux_return_level", cs.DB_LEVEL)
 mix:set_action("aux_return_level",
   function(x) fx.aux_fx_return_level(x) end) 
 
 
-cs.IN_DELAY = cs.new(20,100,'lin',0,50,'ms')
+cs.IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
 mix:add_control("rev_in_delay", cs.IN_DELAY)
 mix:set_action("rev_in_delay",
   function(x) fx.aux_fx_param("rev_in_delay",x) end)
@@ -124,7 +112,7 @@ mix:add_control("rev_lf_x", cs.LF_X)
 mix:set_action("rev_lf_x",
   function(x) fx.aux_fx_param("rev_lf_x",x) end)
 
-cs.RT60 = cs.new(1,8,'lin',0,2,'s')
+cs.RT60 = cs.new(1,8,'lin',0,3,'s')
 mix:add_control("low_rt60", cs.RT60)
 mix:set_action("low_rt60",
   function(x) fx.aux_fx_param("low_rt60",x) end) 
@@ -132,12 +120,12 @@ mix:add_control("mid_rt60", cs.RT60)
 mix:set_action("mid_rt60",
   function(x) fx.aux_fx_param("mid_rt60",x) end)
 
-cs.HF_DAMP = cs.new(1500,20000,'exp',0,5000,'hz')
+cs.HF_DAMP = cs.new(1500,20000,'exp',0,6000,'hz')
 mix:add_control("hf_damping", cs.HF_DAMP)
 mix:set_action("hf_damping",
   function(x) fx.aux_fx_param("hf_damping",x) end) 
 
-cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,400,'hz')
+cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
 mix:add_control("rev_eq1_freq", cs.EQ_FREQ1)
 mix:set_action("rev_eq1_freq",
   function(x) fx.aux_fx_param("eq1_freq",x) end)
@@ -146,7 +134,7 @@ mix:add_control("rev_eq1_level", cs.EQ_LVL)
 mix:set_action("rev_eq1_level",
   function(x) fx.aux_fx_param("eq1_level",x) end)
 
-cs.EQ_FREQ2 = cs.new(160,10000,'exp',0,1000,'hz')
+cs.EQ_FREQ2 = cs.new(160,10000,'exp',0,1500,'hz')
 mix:add_control("rev_eq2_freq", cs.EQ_FREQ2)
 mix:set_action("rev_eq2_freq",
   function(x) fx.aux_fx_param("eq2_freq",x) end)
@@ -154,14 +142,10 @@ mix:add_control("rev_eq2_level", cs.EQ_LVL)
 mix:set_action("rev_eq2_level",
   function(x) fx.aux_fx_param("eq2_level",x) end)
 
-mix:add_control("rev_dry_wet", cs.BIPOLAR)
-mix:set_action("rev_dry_wet",
-  function(x) fx.aux_fx_param("eq2_dry_wet",x) end)
-
-cs.LEVEL = cs.new(-70,40,'lin',0,0,'dB')
-mix:add_control("rev_level", cs.LEVEL)
-mix:set_action("rev_level",
-  function(x) fx.aux_fx_param("level",x) end)
+--cs.LEVEL = cs.new(-70,40,'lin',0,0,'dB')
+--mix:add_control("rev_level", cs.LEVEL)
+--mix:set_action("rev_level",
+  --function(x) fx.aux_fx_param("level",x) end)
 
 
 mix:add_separator()
@@ -178,29 +162,26 @@ mix:add_control("insert_mix", cs.UNIPOLAR)
 mix:set_action("insert_mix",
   function(x) fx.insert_fx_mix(x) end) 
 
-mix:add_control("comp_bypass", cs.UNIPOLAR)
-mix:set_action("comp_bypass",
-  function(x) fx.insert_fx_param("bypass",x) end)
-
-cs.RATIO = cs.new(1,20,'lin',0,10,'')
+cs.RATIO = cs.new(1,20,'lin',0,4,'')
 mix:add_control("comp_ratio", cs.RATIO)
 mix:set_action("comp_ratio",
   function(x) fx.insert_fx_param("level",x) end)
 
-cs.THRESH = cs.new(-100,10,'lin',0,-3,'dB')
+cs.THRESH = cs.new(-100,10,'lin',0,-30,'dB')
 mix:add_control("comp_threshold", cs.THRESH)
 mix:set_action("comp_threshold",
   function(x) fx.insert_fx_param("threshold",x) end)
 
-cs.CTIME = cs.new(1,1000,'exp',0,10,'ms')
-mix:add_control("comp_attack", cs.CTIME)
+cs.ATTACK = cs.new(1,1000,'exp',0,5,'ms')
+mix:add_control("comp_attack", cs.ATTACK)
 mix:set_action("comp_attack",
   function(x) fx.insert_fx_param("attack",x) end) 
-mix:add_control("comp_release", cs.CTIME)
+cs.RELEASE = cs.new(1,1000,'exp',0,50,'ms')
+mix:add_control("comp_release", cs.RELEASE)
 mix:set_action("comp_release",
   function(x) fx.insert_fx_param("release",x) end)
 
-cs.MAKEUP = cs.new(-96,96,'lin',0,3,'dB')
+cs.MAKEUP = cs.new(-60,60,'lin',0,18,'dB')
 mix:add_control("comp_makeup_gain", cs.MAKEUP)
 mix:set_action("comp_makeup_gain",
   function(x) fx.insert_fx_param("makeup_gain",x) end) 
@@ -331,16 +312,6 @@ menu.set_page = function(page)
   menu.redraw = m.redraw[page]
   m.init[page]()
   menu.redraw()
-end
-
--- set monitor level
-menu.monitor = function(delta)
-  local l = util.clamp(norns.state.monitor + delta,0,64)
-  if l ~= norns.state.monitor then
-    norns.state.monitor = l
-    mix:set("monitor",l)
-    --audio_monitor_level(l / 64.0)
-  end
 end
 
 
@@ -481,7 +452,7 @@ m.redraw[pMIX] = function()
 
   local x = -40
   screen.level(2)
-  n = mix:get("output")/64*48
+  n = (60+mix:get("output"))/60*48
   screen.rect(x+42,56,2,-n)
   screen.stroke()
 
@@ -495,7 +466,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get("input")/64*48
+  n = (60+mix:get("input"))/60*48
   screen.rect(x+64,56,2,-n)
   screen.stroke()
 
@@ -508,7 +479,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get("monitor")/64*48
+  n = (60+mix:get("monitor"))/60*48
   screen.rect(x+86,56,2,-n)
   screen.stroke()
 

@@ -19,8 +19,8 @@ Crone {
 	classvar <>remoteAddr;
 	// port to send OSC on
 	classvar <>txPort = 8888;
-	// an AudioContext
-	classvar <>ctx;
+	// a CroneAudioContext
+	classvar <>context;
 	// boot completion flag
 	classvar complete = 0;
 
@@ -52,7 +52,7 @@ Crone {
 				CroneDefs.sendDefs(server);
 				server.sync;
 				// create the audio context (boilerplate routing and analysis)
-				ctx = AudioContext.new(server);
+				context = CroneAudioContext.new(server);
 
 				Crone.initOscRx;
 				Crone.initVu;
@@ -78,7 +78,7 @@ Crone {
 					cond.wait;
 
 				});
-				class.new(ctx, {
+				class.new(context, {
 					arg theEngine;
 					postln("-----------------------");
 					postln("-- crone: done loading engine, starting reports");
@@ -196,7 +196,7 @@ Crone {
 		fork {
 			switch (recorderState)
 				{ 'prepared' } {
-					recorder.record(bus: ctx.out_b, node: ctx.xg);
+					recorder.record(bus: context.out_b, node: context.xg);
 				}
 				{ 'paused' } {
 					recorder.record;
@@ -243,7 +243,7 @@ Crone {
 				playerFile = filename;
 				player = SoundFile(recordingsDir +/+ playerFile).cue(
 					(
-						out: ctx.out_b
+						out: context.out_b
 					)
 				);
 				server.sync;
@@ -304,7 +304,7 @@ Crone {
 		// VU levels are reported to a dedicated OSC address.
 		vuInterval = 0.05;
 		vuThread = Routine { inf.do {
-			remoteAddr.sendMsg('/poll/vu', ctx.buildVuBlob);
+			remoteAddr.sendMsg('/poll/vu', context.buildVuBlob);
 			vuInterval.wait;
 		}}.play;
 	}
@@ -401,7 +401,7 @@ Crone {
 			// @param level (float: [0, 1])
 			'/audio/input/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.in_s[msg[1]].set(\level, msg[2]);
+				context.inputLevel(msg[1], msg[2]);
 			}, '/audio/input/level'),
 
 			// @function /audio/output/level
@@ -409,52 +409,52 @@ Crone {
 			// @param level (float: [0, 1])
 			'/audio/output/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.out_s.set(\level, msg[1]);
+				context.outputLevel(msg[1]);
 			}, '/audio/output/level'),
 
 			// @function /audio/monitor/level
 			// @param level (float: [0, 1])
 			'/audio/monitor/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.monitorLevel(msg[1]);
+				context.monitorLevel(msg[1]);
 			}, '/audio/monitor/level'),
 
 			// @function /audio/monitor/mono
 			'/audio/monitor/mono':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.monitorMono;
+				context.monitorMono;
 			}, '/audio/monitor/mono'),
 
 			// @function /audio/monitor/stereo
 			'/audio/monitor/stereo':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.monitorStereo;
+				context.monitorStereo;
 			}, '/audio/monitor/stereo'),
 
 			// toggle monitoring altogether (will cause clicks)
 			// @function /audio/monitor/on
 			'/audio/monitor/on':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.monitorOn;
+				context.monitorOn;
 			}, '/audio/monitor/on'),
 
 			// @function /audio/monitor/off
 			'/audio/monitor/off':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.monitorOff;
+				context.monitorOff;
 			}, '/audio/monitor/off'),
 
 			// toggle pitch analysis (save CPU)
 			// @function /audio/pitch/on
 			'/audio/pitch/on':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.pitchOn;
+				context.pitchOn;
 			}, '/audio/pitch/on'),
 
 			// @function /audio/pitch/off
 			'/audio/pitch/off':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				ctx.pitchOff;
+				context.pitchOff;
 			}, '/audio/pitch/off'),
 
 			// recompile the sclang library!

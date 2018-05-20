@@ -1,6 +1,6 @@
 // boilerplate audio processing class
 // sets up input, output, and simple analysis for stereo enivronment
-AudioContext {
+CroneAudioContext {
 
 	var <>server;
 	// input, process, output groups
@@ -92,14 +92,17 @@ AudioContext {
 			);
 		});
 
-		this.initCommands();
 		this.initPolls();
 
 	}
 
+
+	inputLevel { arg chan, db; in_s[chan].set(\level, db.dbamp);  }
+	outputLevel { arg db; out_s.set(\level, db.dbamp); }
+
 	// control monitor level / pan
-	monitorLevel { arg level;
-		mon_s.do({|syn| syn.set(\level, level) });
+	monitorLevel { arg db;
+		mon_s.do({|syn| syn.set(\level, db.dbamp) });
 	}
 
 	monitorMono {
@@ -130,10 +133,6 @@ AudioContext {
 
 	pitchOff {
 		pitch_in_s.do({ |syn| syn.run(false); });
-	}
-
-	initCommands {
-		// FIXME?/...
 	}
 
 	registerPoll  { arg name, func, dt=0.1, type=\value;
