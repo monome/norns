@@ -108,10 +108,6 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     
     for (int i = 0; i < inNumSamples; ++i) {
      
-    unit->cutfade.setRec(rec[i]);
-    unit->cutfade.setPre(pre[i]); 
-    unit->cutfade.setRate(rate[i]);
-
         unit->softcut.setRate(rate[i]);
         unit->softcut.setRec(rec[i]);
         unit->softcut.setPre(pre[i]);

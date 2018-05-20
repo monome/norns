@@ -60,6 +60,8 @@ namespace softcuthead {
             resamp_.setRate(rate);
         }
 
+	void setTrig(float trig) { trig_ = trig; }
+
     private:
         float * buf_; // output buffer
         int bufFrames_;

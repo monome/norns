@@ -55,21 +55,6 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
 
     Action act0 = head[0].updatePhase(start, end, loopFlag);
     takeAction(act0, 0);
-//    switch(act0) {
-//        case NONE:
-//            break;
-//        case LOOP_POS:
-//            cerr << "head 0: loop positive" << endl;
-//            break;
-//        case LOOP_NEG:
-//            cerr << "head 0: loop negative" << endl;
-//            break;
-//        case STOP:
-//            cerr << "head 0: stopping" << endl;
-//            break;
-//        default:
-//            ;;
-//    }
     Action act1 = head[1].updatePhase(start, end, loopFlag);
     takeAction(act1, 1);
 
@@ -183,14 +168,14 @@ void SoftCutHeadLogic::setRecOffset(float x) {
 }
 
 float SoftCutHeadLogic::getActivePhase() {
-    return static_cast<float>(phase[active]);
+  return static_cast<float>(head[active].phase());
 }
 
 float SoftCutHeadLogic::getTrig() {
-    return trig[0] + trig[1];
+  return head[0].trig()+ head[1].trig();
 }
 
 void SoftCutHeadLogic::resetTrig() {
-    trig[0] = 0.f;
-    trig[1] = 0.f;
+  head[0].setTrig(0);
+  head[1].setTrig(0);
 }

@@ -36,7 +36,10 @@ namespace  softcuthead {
         /// FIXME: this method accepts samples and doesn't wrap.
         /// should add something like cutToPos(seconds)
         void cutToPhase(float newPhase); // fade in to new position (given in samples)
-
+	float getActivePhase();
+	float getTrig();
+	void resetTrig();
+	
     private:
         void takeAction(Action act, int id);
         float mixFade(float x, float y, float a, float b); // mix two inputs with phases
@@ -63,6 +66,7 @@ namespace  softcuthead {
         float fadePre; // pre-level modulated by xfade
         float fadeRec; // record level modulated by xfade
         bool recRun;
+	bool playRun;
 
         // FIXME: not using this right now...
         double recPhaseOffset;
