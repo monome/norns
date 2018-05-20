@@ -59,7 +59,7 @@ AudioContext {
 			Synth.new(\adc, [\in, i, \out, in_b[i].index], ig);
 		});
 
-		out_s = Synth.new(\patch_stereo, [\in, out_b.index, \out, 0], og);
+		out_s = Synth.new(\patch_stereo, [\in, out_b.index, \out, 0, \level, 1.0], og);
 
 		mon_s = Array.fill(2, { |i|
 			Synth.new(\patch_pan,

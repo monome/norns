@@ -17,6 +17,11 @@ for file in $(find . -name '*.sc'); do
     link $file
 done
 
+# FIXME: some faust-generated ugens are just precompiled in the repo here :/
+for file in $(find . -name '*.so'); do
+    link $file
+done
+
 for file in $(find ../build/sc -name '*.so'); do
     link $file
 done

@@ -18,6 +18,10 @@
 #include "events.h"
 #include "oracle.h"
 
+#define OSC_CRONE_HOST "127.0.0.1"
+#define OSC_CRONE_PORT "57120"
+static lo_address crone_addr;
+
 static lo_server_thread st;
 static DNSServiceRef dnssd_ref;
 
@@ -43,11 +47,14 @@ void osc_init(void) {
         NULL,
         NULL,
         NULL);
+
+    crone_addr = lo_address_new(OSC_CRONE_HOST, OSC_CRONE_PORT);
 }
 
 void osc_deinit(void) {
     DNSServiceRefDeallocate(dnssd_ref);
     lo_server_thread_free(st);
+    lo_address_free(crone_addr);
 }
 
 void osc_send(const char *host, const char *port, const char *path, lo_message msg) {
@@ -58,6 +65,10 @@ void osc_send(const char *host, const char *port, const char *path, lo_message m
     }
     lo_send_message(address, path, msg);
     lo_address_free(address);
+}
+
+void osc_send_crone(const char *path, lo_message msg) {
+  lo_send_message(crone_addr, path, msg);
 }
 
 int osc_receive(const char *path,

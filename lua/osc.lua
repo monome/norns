@@ -32,6 +32,17 @@ function OSC.send(to, path, args)
   end
 end
 
+--- static method to send osc event directly to sclang
+-- @param path : osc message path
+-- @param args : osc message args
+function OSC.send_crone(path, args)
+  if (args ~= nil) then
+    osc_send_crone(path, args)
+  else
+    osc_send_crone(path)
+  end
+end
+
 --- handle an osc event
 norns.osc.event = function(path, args, from)
   if OSC.event ~= nil then OSC.event(path, args, from) end
