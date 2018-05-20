@@ -99,14 +99,15 @@ void SubHead::poke(float in, float pre, float rec, float fadePre, float fadeRec)
     float y; // write value
     int frame = resamp_.frame();
 
-    // FIXME: allow for negative rates (see VariWrite for method)
-
+    int inc = rate_ > 0.f ? 1 : -1;
     int nframes = resamp_.processFrame(in);
-    for(int i=0; i<nframes; ++i) {
-        idx = wrap(static_cast<int>(phase_ + i), bufFrames_);
+
+    idx = static_cast<int>(phase_);
+    for(int i=0; i<nframes; ++i) {        
         y = resamp_.buffer()[wrap(frame + i, RING_BUF_SIZE)];
         buf_[idx] *= preFade;
         buf_[idx] += y * recFade;
+	idx = wrap(static_cast<int>(idx + inc), bufFrames_);
     }
 }
 
