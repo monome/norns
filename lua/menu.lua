@@ -100,10 +100,10 @@ mix:set_action("aux_input1_level",
 mix:add_control("aux_input2_level", cs.DB)
 mix:set_action("aux_input2_level",
   function(x) fx.aux_fx_input_level(2,x) end) 
-mix:add_control("aux_input1_pan", cs.DB)
+mix:add_control("aux_input1_pan", cs.PAN)
 mix:set_action("aux_input1_pan",
   function(x) fx.aux_fx_input_pan(1,x) end) 
-mix:add_control("aux_input2_pan", cs.DB)
+mix:add_control("aux_input2_pan", cs.PAN)
 mix:set_action("aux_input2_pan",
   function(x) fx.aux_fx_input_pan(2,x) end) 
 mix:add_control("aux_output_level", cs.DB)
@@ -178,6 +178,32 @@ mix:add_control("insert_mix", cs.UNIPOLAR)
 mix:set_action("insert_mix",
   function(x) fx.insert_fx_mix(x) end) 
 
+mix:add_control("comp_bypass", cs.UNIPOLAR)
+mix:set_action("comp_bypass",
+  function(x) fx.insert_fx_param("bypass",x) end)
+
+cs.RATIO = cs.new(1,20,'lin',0,10,'')
+mix:add_control("comp_ratio", cs.RATIO)
+mix:set_action("comp_ratio",
+  function(x) fx.insert_fx_param("level",x) end)
+
+cs.THRESH = cs.new(-100,10,'lin',0,-3,'dB')
+mix:add_control("comp_threshold", cs.THRESH)
+mix:set_action("comp_threshold",
+  function(x) fx.insert_fx_param("threshold",x) end)
+
+cs.CTIME = cs.new(1,1000,'exp',0,10,'ms')
+mix:add_control("comp_attack", cs.CTIME)
+mix:set_action("comp_attack",
+  function(x) fx.insert_fx_param("attack",x) end) 
+mix:add_control("comp_release", cs.CTIME)
+mix:set_action("comp_release",
+  function(x) fx.insert_fx_param("release",x) end)
+
+cs.MAKEUP = cs.new(-96,96,'lin',0,3,'dB')
+mix:add_control("comp_makeup_gain", cs.MAKEUP)
+mix:set_action("comp_makeup_gain",
+  function(x) fx.insert_fx_param("makeup_gain",x) end) 
 
 
 
