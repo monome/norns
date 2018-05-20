@@ -23,7 +23,7 @@ CroneEffects {
 				input = [In.ar(in1), In.ar(in2)];
 				snd = FaustCompressor.ar(input[0],	input[1],
 					0, ratio, threshold, attack, release, makeup_gain);
-				ReplaceOut.ar(out, bypass*input + (1.0-bypass)*snd);
+				ReplaceOut.ar(out, Mix.new([bypass*input, (1.0-bypass)*snd]));
 			}).send(s);
 
 
