@@ -4,6 +4,8 @@
 local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'paramset'
+local fx = require 'effects'
+local cs = require 'controlspec'
 local menu = {}
 
 -- global functions for scripts
@@ -77,10 +79,132 @@ mix:set_action("headphone",
   function(x)
     norns.state.hp = x
     gain_hp(norns.state.hp)
+  end) 
+-- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
+-- TODO TAPE (playback) VOL, SPEED?
+  
+-- ControlSpec.new(minval, maxval, warp, step, default, units) 
+mix:add_separator()
+mix:add_option("aux_fx", {"OFF","ON"})
+mix:set_action("aux_fx",
+  function(x)
+    if x == 1 then
+      fx.aux_fx_off()
+    else
+      fx.aux_fx_on()
+    end
   end)
+mix:add_control("aux_input1_level", cs.DB)
+mix:set_action("aux_input1_level",
+  function(x) fx.aux_fx_input_level(1,x) end) 
+mix:add_control("aux_input2_level", cs.DB)
+mix:set_action("aux_input2_level",
+  function(x) fx.aux_fx_input_level(2,x) end) 
+mix:add_control("aux_input1_pan", cs.PAN)
+mix:set_action("aux_input1_pan",
+  function(x) fx.aux_fx_input_pan(1,x) end) 
+mix:add_control("aux_input2_pan", cs.PAN)
+mix:set_action("aux_input2_pan",
+  function(x) fx.aux_fx_input_pan(2,x) end) 
+mix:add_control("aux_output_level", cs.DB)
+mix:set_action("aux_output_level",
+  function(x) fx.aux_fx_output_level(x) end) 
+mix:add_control("aux_return_level", cs.DB)
+mix:set_action("aux_return_level",
+  function(x) fx.aux_fx_return_level(x) end) 
 
--- TAPE modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
--- TAPE (playback) VOL, SPEED?
+
+cs.IN_DELAY = cs.new(20,100,'lin',0,50,'ms')
+mix:add_control("rev_in_delay", cs.IN_DELAY)
+mix:set_action("rev_in_delay",
+  function(x) fx.aux_fx_param("rev_in_delay",x) end)
+
+cs.LF_X = cs.new(50,1000,'exp',0,200,'hz')
+mix:add_control("rev_lf_x", cs.LF_X)
+mix:set_action("rev_lf_x",
+  function(x) fx.aux_fx_param("rev_lf_x",x) end)
+
+cs.RT60 = cs.new(1,8,'lin',0,2,'s')
+mix:add_control("low_rt60", cs.RT60)
+mix:set_action("low_rt60",
+  function(x) fx.aux_fx_param("low_rt60",x) end) 
+mix:add_control("mid_rt60", cs.RT60)
+mix:set_action("mid_rt60",
+  function(x) fx.aux_fx_param("mid_rt60",x) end)
+
+cs.HF_DAMP = cs.new(1500,20000,'exp',0,5000,'hz')
+mix:add_control("hf_damping", cs.HF_DAMP)
+mix:set_action("hf_damping",
+  function(x) fx.aux_fx_param("hf_damping",x) end) 
+
+cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,400,'hz')
+mix:add_control("rev_eq1_freq", cs.EQ_FREQ1)
+mix:set_action("rev_eq1_freq",
+  function(x) fx.aux_fx_param("eq1_freq",x) end)
+cs.EQ_LVL = cs.new(-15,15,'lin',0,0,"dB")
+mix:add_control("rev_eq1_level", cs.EQ_LVL)
+mix:set_action("rev_eq1_level",
+  function(x) fx.aux_fx_param("eq1_level",x) end)
+
+cs.EQ_FREQ2 = cs.new(160,10000,'exp',0,1000,'hz')
+mix:add_control("rev_eq2_freq", cs.EQ_FREQ2)
+mix:set_action("rev_eq2_freq",
+  function(x) fx.aux_fx_param("eq2_freq",x) end)
+mix:add_control("rev_eq2_level", cs.EQ_LVL)
+mix:set_action("rev_eq2_level",
+  function(x) fx.aux_fx_param("eq2_level",x) end)
+
+mix:add_control("rev_dry_wet", cs.BIPOLAR)
+mix:set_action("rev_dry_wet",
+  function(x) fx.aux_fx_param("eq2_dry_wet",x) end)
+
+cs.LEVEL = cs.new(-70,40,'lin',0,0,'dB')
+mix:add_control("rev_level", cs.LEVEL)
+mix:set_action("rev_level",
+  function(x) fx.aux_fx_param("level",x) end)
+
+
+mix:add_separator()
+mix:add_option("insert_fx", {"OFF","ON"})
+mix:set_action("insert_fx",
+  function(x)
+    if x == 1 then
+      fx.insert_fx_off()
+    else
+      fx.insert_fx_on()
+    end
+  end)
+mix:add_control("insert_mix", cs.UNIPOLAR)
+mix:set_action("insert_mix",
+  function(x) fx.insert_fx_mix(x) end) 
+
+mix:add_control("comp_bypass", cs.UNIPOLAR)
+mix:set_action("comp_bypass",
+  function(x) fx.insert_fx_param("bypass",x) end)
+
+cs.RATIO = cs.new(1,20,'lin',0,10,'')
+mix:add_control("comp_ratio", cs.RATIO)
+mix:set_action("comp_ratio",
+  function(x) fx.insert_fx_param("level",x) end)
+
+cs.THRESH = cs.new(-100,10,'lin',0,-3,'dB')
+mix:add_control("comp_threshold", cs.THRESH)
+mix:set_action("comp_threshold",
+  function(x) fx.insert_fx_param("threshold",x) end)
+
+cs.CTIME = cs.new(1,1000,'exp',0,10,'ms')
+mix:add_control("comp_attack", cs.CTIME)
+mix:set_action("comp_attack",
+  function(x) fx.insert_fx_param("attack",x) end) 
+mix:add_control("comp_release", cs.CTIME)
+mix:set_action("comp_release",
+  function(x) fx.insert_fx_param("release",x) end)
+
+cs.MAKEUP = cs.new(-96,96,'lin',0,3,'dB')
+mix:add_control("comp_makeup_gain", cs.MAKEUP)
+mix:set_action("comp_makeup_gain",
+  function(x) fx.insert_fx_param("makeup_gain",x) end) 
+
 
 
 
