@@ -45,5 +45,5 @@ def build(bld):
             'SNDFILE',
             'AVAHI-COMPAT-LIBDNS_SD',
         ], lib=[
-            'pthread',
+            'pthread', 'm'
         ], cflags=['-O3', '-Wall'])
