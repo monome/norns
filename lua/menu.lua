@@ -133,7 +133,7 @@ mix:set_action("mid_rt60",
   function(x) fx.aux_fx_param("mid_rt60",x) end)
 
 cs.HF_DAMP = cs.new(1500,20000,'exp',0,5000,'hz')
-mix:add_control("hf_damping", cs.HP_DAMP)
+mix:add_control("hf_damping", cs.HF_DAMP)
 mix:set_action("hf_damping",
   function(x) fx.aux_fx_param("hf_damping",x) end) 
 
