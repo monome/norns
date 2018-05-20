@@ -55,6 +55,7 @@ CroneEngine {
 
 	}
 
+
 	addCommand { arg name, format, func;
 		var idx, cmd;
 		name = name.asSymbol;
