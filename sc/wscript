@@ -18,7 +18,6 @@ def build(bld):
     build_ugen(bld, 'SoftCutHead', [
         'ugens/SoftCutHead/SoftCutHead.cpp',
         'ugens/SoftCutHead/SoftCutHeadLogic.cpp',
-	'ugens/SoftCutHead/SubHead.cpp'
     ])
     build_ugen(bld, 'FaustZitaRev', 'ugens/FaustZitaRev/FaustZitaRev.cpp')
     build_ugen(bld, 'FaustCompressor', 'ugens/FaustCompressor/FaustCompressor.cpp')	
