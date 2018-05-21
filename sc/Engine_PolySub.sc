@@ -4,6 +4,7 @@ Engine_PolySub : CroneEngine {
 
 	classvar <polyDef;
 	classvar <paramDefaults;
+	classvar <maxNumVoices;
 
 	var <ctlBus; // collection of control busses
 	var <mixBus; // audio bus for mixing synth voices
@@ -11,6 +12,7 @@ Engine_PolySub : CroneEngine {
 	var <voices; // collection of voice nodes
 
 	*initClass {
+		maxNumVoices = 12;
 		StartUp.add {
 			// a decently versatile subtractive synth voice
 			polyDef = SynthDef.new(\polySub, {
@@ -51,7 +53,8 @@ Engine_PolySub : CroneEngine {
 				snd = snd + ((SinOsc.ar(hz / 2) * sub).dup);
 				aenv = EnvGen.ar(
 					Env.adsr(ampAtk, ampDec, ampSus, ampRel, 1.0, ampCurve),
-					gate, doneAction:2);
+					gate);
+
 
 				fenv = EnvGen.ar(Env.adsr(cutAtk, cutDec, cutSus, cutRel), gate);
 
@@ -60,6 +63,9 @@ Engine_PolySub : CroneEngine {
 
 				snd = SelectX.ar(noise, [snd, [PinkNoise.ar, PinkNoise.ar]]);
 				snd = MoogFF.ar(snd, cut, fgain) * aenv;
+
+				// hm... doneAction is still busted!!!
+				FreeSelf.kr(DetectSilence.ar(snd));
 				Out.ar(out, level * SelectX.ar(width, [Mix.new(snd).dup, snd]));
 			});
 
@@ -144,31 +150,40 @@ Engine_PolySub : CroneEngine {
 
 	addVoice { arg id, hz, map=true;
 		var params = List.with(\out, context.out_b.index, \hz, hz);
+		var numVoices = voices.size;
+		//postln("num voices: " ++ numVoices);
 
-		this.removeVoice(id);
+		if(voices[id].notNil, {
+			voices[id].set(\gate, 1);
+		}, {
+			if(numVoices < maxNumVoices, {
+				this.removeVoice(id);
 
-		ctlBus.keys.do({ arg name;
-			params.add(name);
-			params.add(ctlBus[name].getSynchronous);
-		});
-		
-		voices.add(id -> Synth.new(\polySub, params, gr));
-		voices[id].onFree({
-			postln("freed voice: " ++ id);
-			voices.removeAt(id);
-			voices.postln;
-			voices.size.postln;
-		});
+				ctlBus.keys.do({ arg name;
+					params.add(name);
+					params.add(ctlBus[name].getSynchronous);
+				});
+				
+				voices.add(id -> Synth.new(\polySub, params, gr));
+				NodeWatcher.register(voices[id]);
+				voices[id].onFree({
+					//postln("freed voice: " ++ id);
+					voices.removeAt(id);
+					//voices.postln;
+					//voices.size.postln;
+				});
 
-		if(map, {
-			ctlBus.keys.do({ arg name;
-				voices[id].map(name, ctlBus[name]);
+				if(map, {
+					ctlBus.keys.do({ arg name;
+						voices[id].map(name, ctlBus[name]);
+					});
+				});
 			});
 		});
 	}
 
 	removeVoice { arg id;
-		if(voices[id].notNil, {
+		if(true, { //voices[id].notNil, {
 			voices[id].set(\gate, 0);
 			//voices.removeAt(id);
 		});
