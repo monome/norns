@@ -2,6 +2,9 @@
 // Created by ezra on 4/21/18.
 //
 
+#include <string.h>
+#include <limits>
+
 #include "interp.h"
 #include "SubHead.h"
 

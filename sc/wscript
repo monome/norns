@@ -18,4 +18,5 @@ def build(bld):
     build_ugen(bld, 'SoftCutHead', [
         'ugens/SoftCutHead/SoftCutHead.cpp',
         'ugens/SoftCutHead/SoftCutHeadLogic.cpp',
+	'ugens/SoftCutHead/SubHead.cpp'
     ])
