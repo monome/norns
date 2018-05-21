@@ -151,7 +151,15 @@ Engine_PolySub : CroneEngine {
 			params.add(name);
 			params.add(ctlBus[name].getSynchronous);
 		});
+		
 		voices.add(id -> Synth.new(\polySub, params, gr));
+		voices[id].onFree({
+			postln("freed voice: " ++ id);
+			voices.removeAt(id);
+			voices.postln;
+			voices.size.postln;
+		});
+
 		if(map, {
 			ctlBus.keys.do({ arg name;
 				voices[id].map(name, ctlBus[name]);
@@ -160,7 +168,10 @@ Engine_PolySub : CroneEngine {
 	}
 
 	removeVoice { arg id;
-		if(voices[id].notNil, { voices[id].set(\gate, 0); voices.removeAt(id); });
+		if(voices[id].notNil, {
+			voices[id].set(\gate, 0);
+			//voices.removeAt(id);
+		});
 	}
 
 	free {
