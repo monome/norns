@@ -2,7 +2,8 @@ cmake_minimum_required (VERSION 2.8)
 set(PROJECT "SoftCutHead")
 project (${PROJECT})
 
-set(SC_INCLUDE_PATH "/usr/local/include/SuperCollider")
+set(SC_INCLUDE_PATH "/Users/emb/src/supercollider/include")
+#set(SC_INCLUDE_PATH "/usr/local/include/SuperCollider")
 include_directories(${SC_INCLUDE_PATH}/plugin_interface)
 include_directories(${SC_INCLUDE_PATH}/common)
 
@@ -65,4 +66,4 @@ if(MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mstackrealign")
 endif()
 
-add_library(${PROJECT} MODULE SoftCutHead.cpp SoftCutHeadLogic.cpp SoftCutHeadLogic.h interp.h)
+add_library(${PROJECT} MODULE SoftCutHead.cpp SoftCutHeadLogic.cpp SoftCutHeadLogic.h interp.h Resampler.h SubHead.cpp SubHead.h)
