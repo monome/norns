@@ -1264,6 +1264,9 @@ m.init[pUPDATE] = function()
   m.update.checking = true
   m.update.busy = false
   menu.redraw()
+  -- CHECK FOR UPDATE FOLDER
+  local test = util.os_capture("ls $HOME | grep update")
+  if test ~= "update" then os.execute("mkdir $HOME/update") end
   -- COPY FROM USB
   local disk = util.os_capture("lsblk -o mountpoint | grep media")
   local pfile = popen("ls -p "..disk.."/norns*.tgz")
