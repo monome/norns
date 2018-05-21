@@ -1266,12 +1266,12 @@ m.init[pUPDATE] = function()
   menu.redraw()
   -- COPY FROM USB
   local disk = util.os_capture("lsblk -o mountpoint | grep media")
-  local pfile = popen("ls -p "..disk.."/{norns,dust}*.tgz")
+  local pfile = popen("ls -p "..disk.."/norns*.tgz")
   for filename in pfile:lines() do
     os.execute("cp "..filename.." $HOME/update/")
   end 
   -- PREPARE
-  pfile = popen('ls -p $HOME/update/{norns,dust}*.tgz')
+  pfile = popen('ls -p $HOME/update/norns*.tgz')
   for filename in pfile:lines() do
     print(filename)
     -- extract
