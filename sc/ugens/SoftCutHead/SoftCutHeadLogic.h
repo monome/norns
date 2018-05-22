@@ -38,7 +38,8 @@ private:
     void doneFadeIn(int id);
     void doneFadeOut(int id);
     float peek(double phase); // lookup an audio sample from the buffer
-    float peek4(double phase); // interpolated
+    float peek2(double phase); // interpolated (linear)
+    float peek4(double phase); // interpolated (cubic)
     void poke(float x, double phase, float fade); // write an audio sample to the buffer
     void poke0(float x, double phase, float fade); // non-interpolated
     void poke2(float x, double phase, float fade); // interpolated
@@ -49,7 +50,7 @@ public:
     enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 };
     float sr;           // sample rate
     float* buf;   // audio buffer (allocated elsewhere)
-    int bufFrames;      // samples in buffer - must be 2^N
+    int bufFrames;      // samples in buffer - must be 2^N !
     int bufFramesMask;      // samples in buffer, minus 1
     float start;        // Voice points
     float end;

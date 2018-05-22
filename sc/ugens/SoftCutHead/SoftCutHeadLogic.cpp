@@ -181,9 +181,16 @@ void SoftCutHeadLogic::doneFadeOut(int id) {
 }
 
 float SoftCutHeadLogic::peek(double phase) {
-    return peek4(phase);
+  // return peek4(phase);
+    return peek2(phase);
 }
 
+float SoftCutHeadLogic::peek2(double phase) {
+    int phase0 = static_cast<int>(phase);
+    int phase1 = (phase0 + 1) & bufFramesMask;
+    double x = phase - static_cast<double>(phase);
+    return buf[phase0] + x * (buf[phase1] - buf[phase0]);
+}
 
 float SoftCutHeadLogic::peek4(double phase) {
     int phase1 = static_cast<int>(phase);
@@ -213,7 +220,7 @@ void SoftCutHeadLogic::poke(float x, double phase, float fade) {
 void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
 
     // bail if fade level is ~=0, so we don't introduce noise
-    if (fade < std::numeric_limits<float>::epsilon()) { return; }
+    // if (fade < std::numeric_limits<float>::epsilon()) { return; }
 
     // int phase0 = wrap(static_cast<int>(phase), bufFrames);
     // int phase1 = wrap(phase0 + 1, bufFrames);
@@ -225,8 +232,8 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 #else
-    float preFade = fadePre * std::fmax(pre, (pre * fadeInv));
-    float recFade = fadeRec * (rec * fade);
+    float preFade = std::fmax(pre, (pre * fadeInv));
+    float recFade = rec * fade;
 #endif
     
     float fr = static_cast<float>(phase - static_cast<int>(phase));
@@ -264,7 +271,7 @@ void SoftCutHeadLogic::setSampleRate(float sr_) {
 float SoftCutHeadLogic::mixFade(float x, float y, float a, float b) {
 
   // FIXME: use xfade table
-#if 0
+#if 1
   return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
 #else
   return (x * a) + (y * b);
