@@ -2,14 +2,12 @@
 
 #include "SoftCutHeadLogic.h"
 
-using namespace softcuthead;
-
 struct SoftCutHead : public Unit {
     float prevTrig;
     float m_fbufnum;
     float m_failedBufNum;
     SndBuf *m_buf;
-    SoftCutHeadLogic softcut; // NB: constructor is never called on this field!
+    SoftCutHeadLogic cutfade; // NB: constructor is never called on this field!
 };
 
 static InterfaceTable *ft;
@@ -38,9 +36,8 @@ static void SoftCutHead_next(SoftCutHead *unit, int inNumSamples);
 static void SoftCutHead_Ctor(SoftCutHead *unit);
 
 void SoftCutHead_Ctor(SoftCutHead *unit) {
-    Print("SoftCutHead_Ctor() : samplerate %f \n", SAMPLERATE);
-    unit->softcut.init();
-    unit->softcut.setSampleRate(SAMPLERATE);
+    unit->cutfade.init();
+    unit->cutfade.setSampleRate(SAMPLERATE);
     unit->m_fbufnum = -1e9f;
     unit->m_failedBufNum = -1e9f;
     unit->prevTrig = 0.f;
@@ -56,7 +53,7 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
         return;
 
-    unit->softcut.setBuffer(bufData, bufFrames);
+    unit->cutfade.setBuffer(bufData, bufFrames);
 
     // audio rate
     float *phase_out = OUT(0);
@@ -83,22 +80,20 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     float recRun = IN0(13);
     float recOffset= IN0(14);
 
-    unit->softcut.setLoopStartSeconds(start);
-    unit->softcut.setLoopEndSeconds(end);
-    unit->softcut.setFadeTime(fade);
-    unit->softcut.setLoopFlag(loop > 0);
+    unit->cutfade.setLoopStartSeconds(start);
+    unit->cutfade.setLoopEndSeconds(end);
+    unit->cutfade.setFadeTime(fade);
+    unit->cutfade.setLoopFlag(loop > 0);
 
-
-    unit->softcut.setFadeRec(fadeRec);
-    unit->softcut.setFadePre(fadePre);
-    unit->softcut.setRecRun(recRun > 0);
-    unit->softcut.setRecOffset(recOffset);
+    unit->cutfade.setFadeRec(fadeRec);
+    unit->cutfade.setFadePre(fadePre);
+    unit->cutfade.setRecRun(recRun > 0);
+    unit->cutfade.setRecOffset(recOffset);
 
     if ((trig > 0) && (unit->prevTrig <= 0)) {
-        Print("triggering...\n");
       // FIXME: i think it will be ok for now,
       // but should convert and wrap this result in the logic class rather than in here.
-	    unit->softcut.cutToPhase(pos * SAMPLERATE);
+	    unit->cutfade.cutToPhase(pos * SAMPLERATE);
     }
 
     unit->prevTrig = trig;
@@ -108,11 +103,11 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     
     for (int i = 0; i < inNumSamples; ++i) {
      
-        unit->softcut.setRate(rate[i]);
-        unit->softcut.setRec(rec[i]);
-        unit->softcut.setPre(pre[i]);
+    unit->cutfade.setRec(rec[i]);
+    unit->cutfade.setPre(pre[i]); 
+    unit->cutfade.setRate(rate[i]);
 
-        unit->softcut.nextSample(in[i], &phi, &tr, &snd);
+      unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
         phase_out[i] = phi;
         snd_out[i] = snd;
 	if(tr > 0.f) { trBlock = 1.f;}

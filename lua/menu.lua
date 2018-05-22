@@ -1264,14 +1264,17 @@ m.init[pUPDATE] = function()
   m.update.checking = true
   m.update.busy = false
   menu.redraw()
+  -- CHECK FOR UPDATE FOLDER
+  local test = util.os_capture("ls $HOME | grep update")
+  if test ~= "update" then os.execute("mkdir $HOME/update") end
   -- COPY FROM USB
   local disk = util.os_capture("lsblk -o mountpoint | grep media")
-  local pfile = popen("ls -p "..disk.."/{norns,dust}*.tgz")
+  local pfile = popen("ls -p "..disk.."/norns*.tgz")
   for filename in pfile:lines() do
     os.execute("cp "..filename.." $HOME/update/")
   end 
   -- PREPARE
-  pfile = popen('ls -p $HOME/update/{norns,dust}*.tgz')
+  pfile = popen('ls -p $HOME/update/norns*.tgz')
   for filename in pfile:lines() do
     print(filename)
     -- extract

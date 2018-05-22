@@ -119,15 +119,23 @@ function ParamSet:t(index)
   return self.params[index].t
 end
 
+local function quote(s)
+  return '"'..s:gsub('"', '\\"')..'"'
+end
 
- 
+local function unquote(s)
+  return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
+end
+
 --- write to disk
 -- @param filename relative to data_dir
-function ParamSet:write(filename) 
-  local fd=io.open(data_dir .. filename,"w+")
+function ParamSet:write(filename)
+  local fd = io.open(data_dir..filename, "w+")
   io.output(fd)
-  for k,v in pairs(self.params) do
-    io.write(k..","..v:get().."\n")
+  for k,param in pairs(self.params) do
+    if param.name then
+      io.write(string.format("%s: %s\n", quote(param.name), param:get()))
+    end
   end
   io.close(fd)
 end
@@ -135,19 +143,29 @@ end
 --- read from disk
 -- @param filename relative to data_dir
 function ParamSet:read(filename)
-  local fd=io.open(data_dir .. filename,"r")
+  local fd = io.open(data_dir..filename, "r")
   if fd then
     io.close(fd)
-    for line in io.lines(data_dir .. filename) do
-      k,v = line:match("([^,]+),([^,]+)")
-      if tonumber(v) ~= nil then
-        self.params[tonumber(k)]:set(tonumber(v))
-      elseif v then
-        self.params[tonumber(k)]:set(v)
+    for line in io.lines(data_dir..filename) do
+      local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+
+      if name and value then
+        name = unquote(name)
+        local index = self.lookup[name]
+
+        if index then
+          if tonumber(value) ~= nil then
+            self.params[index]:set(tonumber(value))
+          elseif value then
+            self.params[index]:set(value)
+          end
+        end
       end
-    end 
-  else print("paramset: " .. filename .. " not read.")
-  end 
+
+    end
+  else
+    print("paramset: "..filename.." not read.")
+  end
 end
 
 --- bang all params

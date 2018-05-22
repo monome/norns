@@ -18,7 +18,7 @@ state.resume = function()
 
   -- TODO: default script
   if state.script == nil or state.script == '' then
-    state.script = 'tehn/earthsea.lua'
+    state.script = 'tehn/awake.lua'
   end
 
   -- resume last file
