@@ -49,7 +49,8 @@ public:
     enum { ACTIVE=0, INACTIVE=1, FADEIN=2, FADEOUT=3 };
     float sr;           // sample rate
     float* buf;   // audio buffer (allocated elsewhere)
-    int bufFrames;      // samples in buffer
+    int bufFrames;      // samples in buffer - must be 2^N
+    int bufFramesMask;      // samples in buffer, minus 1
     float start;        // Voice points
     float end;
     float fadeInc;      // linear fade increment per sample
