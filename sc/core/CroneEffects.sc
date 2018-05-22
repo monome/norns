@@ -30,10 +30,12 @@ CroneEffects {
 			SynthDef.new(\faust_verb, {
 				arg in1, in2, out,
 				in_delay= 20.0, lf_x= 200.0, low_rt60= 3.0, mid_rt60= 2.0, hf_damping= 6000.0,
-				eq1_freq= 315.0, eq1_level= 0.0, eq2_freq= 1500.0, eq2_level= 0.0, level= -12;
+				eq1_freq= 315.0, eq1_level= 0.0, eq2_freq= 1500.0, eq2_level= 0.0, level= 0.25;
 
-				Out.ar(out, FaustZitaRev.ar(In.ar(in1), In.ar(in2),
-					in_delay, lf_x, low_rt60, mid_rt60, hf_damping, eq1_freq, eq1_level, eq2_freq, eq2_level, -1, level));
+//				Out.ar(out, FaustZitaRev.ar(In.ar(in1), In.ar(in2),
+//					in_delay, lf_x, low_rt60, mid_rt60, hf_damping, eq1_freq, eq1_level, eq2_freq, eq2_level, -1, level));
+
+				Out.ar(out, FaustZitaVerbLight.ar(In.ar(in1), In.ar(in2), in_delay, lf_x, low_rt60, mid_rt60, hf_damping) * level);
 			}).send(s);
 
 			s.sync;
@@ -77,7 +79,7 @@ CroneEffects {
 	*set_out_aux_db { arg val; out_aux_s.set(\level, val.dbamp); }
 
 	// aux return level
-	*set_aux_return_db { arg val; aux_s.set(\level, val); }
+	*set_aux_return_db { arg val; aux_s.set(\level, val.dbamp); }
 
 	// set aux synth parameter
 	*set_aux_param { arg name, val; aux_s.set(name.asSymbol, val); }
