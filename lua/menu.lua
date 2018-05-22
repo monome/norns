@@ -182,8 +182,8 @@ mix:set_action("comp release",
   function(x) fx.insert_fx_param("release",x) end)
 
 cs.MAKEUP = cs.new(-60,60,'lin',0,18,'dB')
-mix:add_control("comp makeup_gain", cs.MAKEUP)
-mix:set_action("comp makeup_gain",
+mix:add_control("comp makeup gain", cs.MAKEUP)
+mix:set_action("comp makeup gain",
   function(x) fx.insert_fx_param("makeup_gain",x) end) 
 
 
