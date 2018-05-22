@@ -75,7 +75,12 @@ PatchMatrix {
 	level_ { arg in, out, val;
 		postln(["PatchMatrix: level_ ", in, out, val]);
 		syn[in][out].set(\level, val);
-		if(val > 0, { syn[in][out].run(true); });
+		if(val > 0, {
+			syn[in][out].run(true);
+			syn[in][out].set(\gate, 1);
+		}, {
+			syn[in][out].set(\gate, 0);
+		});
 	}
 
 	// convenience method to create a command on a given CroneEngine, affecting a patch point level
