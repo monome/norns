@@ -6,7 +6,7 @@ local tab = {}
 --- print the contents of a table
 -- @param t table to print
 tab.print = function(t)
-  for k,v in pairs(t) do print(k .. '\t' .. v) end
+  for k,v in pairs(t) do print(k .. '\t' .. tostring(v)) end
 end
 
 --- return a lexigraphically sorted array of keys for a table
