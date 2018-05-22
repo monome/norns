@@ -54,7 +54,7 @@ Engine_SoftCut : CroneEngine {
 		s.sync;
 
 		//--- buffers
-		buf = Buffer.alloc(s, s.sampleRate * bufdur, 1);
+		buf = Buffer.alloc(s, (s.sampleRate * bufdur).nextPowerOfTwo, 1);
 
 		s.sync;
 

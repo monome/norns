@@ -47,8 +47,11 @@ SoftCutVoice {
 					trig = InTrig.kr(trig_in);
 					sin = In.ar(in);
 
-					pre = Lag.ar(K2A.ar(pre), preLag);
-					rec = Lag.ar(K2A.ar(rec), recLag);
+					//pre = Lag.ar(K2A.ar(pre), preLag);
+					//rec = Lag.ar(K2A.ar(rec), recLag);
+
+					//pre = Lag.kr(pre, preLag);
+					//rec = Lag.kr(rec, recLag);
 
 					rate = Lag.ar(K2A.ar(rate), ratelag);
 
@@ -79,7 +82,7 @@ SoftCutVoice {
 		arg server, target, buf_, in, out;
 		buf = buf_;
 		reset_b = Bus.control(server);
-		phase_b = Bus.control(server);
+		phase_b = Bus.control(server); 
 		loop_b = Bus.control(server);
 
 		syn = Synth.new(\soft_cut_voice, [ \buf, buf, \in, in, \out, out,
