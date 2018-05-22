@@ -5,8 +5,6 @@ require 'norns'
 
 norns.version.midi = '0.0.0'
 
-local tab = require 'tabutil'
-
 local Midi = {}
 Midi.devices = {}
 Midi.__index = Midi
@@ -72,9 +70,6 @@ end
 
 --- handle a midi event
 norns.midi.event = function(id, data)
-  print("incoming midi message from device", string.format("%X", id))
-  tab.print(data)
-
   local d = Midi.devices[id]
   if d ~= nil then
     if d.event ~= nil then
