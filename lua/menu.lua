@@ -72,7 +72,7 @@ mix:set_action("headphone",
   
 -- ControlSpec.new(minval, maxval, warp, step, default, units) 
 mix:add_separator()
-mix:add_option("aux fx", {"OFF","ON"})
+mix:add_option("aux fx", {"OFF","ON"}, 2)
 mix:set_action("aux fx",
   function(x)
     if x == 1 then
