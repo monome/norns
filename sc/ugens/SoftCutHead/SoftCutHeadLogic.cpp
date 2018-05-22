@@ -29,7 +29,7 @@ SoftCutHeadLogic::SoftCutHeadLogic() {
 }
 
 void SoftCutHeadLogic::init() {
-    sr = 44100.f;
+    sr = 48000.f;
     start = 0.f;
     end = 0.f;
     phase[0] = 0.f;
@@ -184,6 +184,7 @@ float SoftCutHeadLogic::peek(double phase) {
     return peek4(phase);
 }
 
+
 float SoftCutHeadLogic::peek4(double phase) {
     int phase1 = static_cast<int>(phase);
     int phase0 = phase1 - 1;
@@ -213,9 +214,14 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     int phase1 = wrap(phase0 + 1, bufFrames);
 
     float fadeInv = 1.f - fade;
+#if 0
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
-
+#else
+    float preFade = fadePre * std::fmax(pre, (pre * fadeInv));
+    float recFade = fadeRec * (rec * fade);
+#endif
+    
     float fr = static_cast<float>(phase - static_cast<int>(phase));
 
     // linear-interpolated write values
@@ -248,18 +254,18 @@ void SoftCutHeadLogic::setSampleRate(float sr_) {
 }
 
 float SoftCutHeadLogic::mixFade(float x, float y, float a, float b) {
-    //if(fadeMode == FADE_EQ) {
-    // FIXME: use xfade table
-        return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
-    //} else {
-    //    return (x * a) + (y * b);
-    //}
+
+  // FIXME: use xfade table
+#if 0
+  return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
+#else
+  return (x * a) + (y * b);
+#endif
 }
 
 void SoftCutHeadLogic::setRec(float x) {
     rec = x;
 }
-
 
 void SoftCutHeadLogic::setPre(float x) {
     pre= x;
