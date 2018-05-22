@@ -156,7 +156,6 @@ Engine_SoftCut : CroneEngine {
 		buf.free;
 		bus.do({ arg bs; bs.do({ arg b; b.free; }); });
 		pm.do({ arg p; p.free; });
-		super.free;
 	}
 
 	//---  buffer and routing methods
