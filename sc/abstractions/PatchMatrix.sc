@@ -10,6 +10,32 @@ PatchMatrix {
 	var <numInputs;
 	var <numOutputs;
 
+	*initClass {
+		StartUp.add {
+			CroneDefs.add(
+				SynthDef.new(\patch_mono_gate_pause, {
+					arg in, out, level, gate=0, time=0.1;
+					var ampenv, input;
+					ampenv = EnvGen.kr(Env.asr(1, 1, 1),
+						levelScale: level, timeScale:time, gate:gate, doneAction:1);
+					input = In.ar(in);
+					Out.ar(out, input * ampenv);
+				})
+			);
+			
+			CroneDefs.add(
+				SynthDef.new(\patch_mono_gate_pause_fb, {
+					arg in, out, level, gate=0, time=0.1;
+					var ampenv, input;
+					ampenv = EnvGen.kr(Env.asr(1, 1, 1),
+						levelScale: level, timeScale:time, gate:gate, doneAction:1);
+					input = InFeedback.ar(in);
+					Out.ar(out, input * ampenv);
+				})
+			);
+		}
+	}
+	
 	// arg 1: server
 	// arg 2: array of input bus indices
 	// arg 3: array of output bus indices
@@ -28,7 +54,11 @@ PatchMatrix {
 
 	init { arg srv, in, out, fb, target, action;
 		var patchdef;
-		patchdef = if(fb, {\patch_mono_fb}, {\patch_mono});
+		patchdef = if(fb,
+			{\patch_mono_gate_pause_fb},
+			{\patch_mono_gate_pause}
+		);
+		
 		if(target.isNil, { target = srv });
 		gr = Group.new(target, action);
 		numInputs = in.size;
@@ -45,8 +75,8 @@ PatchMatrix {
 	level_ { arg in, out, val;
 		postln(["PatchMatrix: level_ ", in, out, val]);
 		syn[in][out].set(\level, val);
+		if(val > 0, { syn[in][out].run(true); });
 	}
-
 
 	// convenience method to create a command on a given CroneEngine, affecting a patch point level
 	addLevelCommand { arg engine, name;
