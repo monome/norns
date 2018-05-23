@@ -1364,6 +1364,8 @@ m.key[pSLEEP] = function(n,z)
   elseif n==3 and z==1 then
     print("SLEEP")
     --TODO fade out screen then run the shutdown script
+    m.sleep = true
+    menu.redraw()
     mix:set("output",0)
     --norns.audio.set_audio_level(0)
     wifi.off()
@@ -1376,7 +1378,13 @@ m.enc[pSLEEP] = norns.none
 m.redraw[pSLEEP] = function()
   screen.clear()
   screen.move(48,40)
-  screen.text("sleep?")
+  if m.sleep then
+	screen.level(1)
+	screen.text("sleep.")
+  else
+	screen.level(15)
+  	screen.text("sleep?")
+  end
   --TODO do an animation here! fade the volume down
   screen.update()
 end
