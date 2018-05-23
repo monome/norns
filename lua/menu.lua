@@ -160,7 +160,8 @@ mix:set_action("insert fx",
       fx.insert_fx_on()
     end
   end)
-mix:add_control("insert mix", cs.UNIPOLAR)
+cs.MIX = cs.new(0,1,'lin',0,1,'')
+mix:add_control("insert mix", cs.MIX)
 mix:set_action("insert mix",
   function(x) fx.insert_fx_mix(x) end) 
 
@@ -169,7 +170,7 @@ mix:add_control("comp ratio", cs.RATIO)
 mix:set_action("comp ratio",
   function(x) fx.insert_fx_param("level",x) end)
 
-cs.THRESH = cs.new(-100,10,'lin',0,-30,'dB')
+cs.THRESH = cs.new(-100,10,'lin',0,-18,'dB')
 mix:add_control("comp threshold", cs.THRESH)
 mix:set_action("comp threshold",
   function(x) fx.insert_fx_param("threshold",x) end)
@@ -183,7 +184,7 @@ mix:add_control("comp release", cs.RELEASE)
 mix:set_action("comp release",
   function(x) fx.insert_fx_param("release",x) end)
 
-cs.MAKEUP = cs.new(-60,60,'lin',0,18,'dB')
+cs.MAKEUP = cs.new(-60,60,'lin',0,9,'dB')
 mix:add_control("comp makeup gain", cs.MAKEUP)
 mix:set_action("comp makeup gain",
   function(x) fx.insert_fx_param("makeup_gain",x) end) 
