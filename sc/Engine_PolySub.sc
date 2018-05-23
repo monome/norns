@@ -29,7 +29,8 @@ Engine_PolySub : CroneEngine {
 				cutCurve = -1.0, cutEnvAmt=0.0,
 				fgain=0.0, // filter gain (moogFF model)
 				detune=0, // linear frequency detuning between channels
-				width=0.5; // stereo width
+				width=0.5,// stereo width
+				hzLag = 0.1;
 
 				var osc1, osc2, snd, freq, del, aenv, fenv, deltime;
 
@@ -43,6 +44,7 @@ Engine_PolySub : CroneEngine {
 
 				detune = detune / 2;
 				freq = [hz + detune, hz - detune];
+				freq = Lag.kr(freq, hzLag);
 				osc1 = VarSaw.ar(freq:freq, width:timbre);
 				osc2 = Pulse.ar(freq:freq, width:timbre);
 				// TODO: could add more oscillator types
@@ -59,7 +61,7 @@ Engine_PolySub : CroneEngine {
 				fenv = EnvGen.ar(Env.adsr(cutAtk, cutDec, cutSus, cutRel), gate);
 
 				cut = SelectX.kr(cutEnvAmt, [cut, cut * fenv]);
-				cut = (cut * hz).min(SampleRate.ir * 0.5);
+				cut = cut * hz.min(SampleRate.ir * 0.5);
 
 				snd = SelectX.ar(noise, [snd, [PinkNoise.ar, PinkNoise.ar]]);
 				snd = MoogFF.ar(snd, cut, fgain) * aenv;
@@ -83,7 +85,8 @@ Engine_PolySub : CroneEngine {
 				\cutCurve  ->  -1.0, \cutEnvAmt -> 0.0,
 				\fgain -> 0.0,
 				\detune -> 0,
-				\width -> 0.5
+				\width -> 0.5,
+				\hzLag -> 0.1
 			);
 
 		} // Startup
@@ -155,10 +158,11 @@ Engine_PolySub : CroneEngine {
 
 		if(voices[id].notNil, {
 			voices[id].set(\gate, 1);
+			voices[id].set(\hz, hz);
 		}, {
 			if(numVoices < maxNumVoices, {
-				this.removeVoice(id);
-
+				// shouldn't need this
+				// this.removeVoice(id);
 				ctlBus.keys.do({ arg name;
 					params.add(name);
 					params.add(ctlBus[name].getSynchronous);
@@ -167,10 +171,7 @@ Engine_PolySub : CroneEngine {
 				voices.add(id -> Synth.new(\polySub, params, gr));
 				NodeWatcher.register(voices[id]);
 				voices[id].onFree({
-					//postln("freed voice: " ++ id);
 					voices.removeAt(id);
-					//voices.postln;
-					//voices.size.postln;
 				});
 
 				if(map, {
