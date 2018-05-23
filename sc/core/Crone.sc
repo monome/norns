@@ -196,7 +196,7 @@ Crone {
 		fork {
 			switch (recorderState)
 				{ 'prepared' } {
-					recorder.record(bus: context.out_b, node: context.xg);
+					recorder.record(bus: 0, node: context.xg); // TODO: this records *everything* - what to record really?
 				}
 				{ 'paused' } {
 					recorder.record;
