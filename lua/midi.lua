@@ -41,7 +41,7 @@ end
 -- when scripts are restarted
 function Midi.reconnect()
   for id,dev in pairs(Midi.devices) do
-    Midi.add(dev)
+    if Midi.add ~= nil then Midi.add(dev) end
   end
 end
 
