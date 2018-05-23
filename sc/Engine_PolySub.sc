@@ -43,8 +43,8 @@ Engine_PolySub : CroneEngine {
 				width = Lag.kr(width);
 
 				detune = detune / 2;
+				hz = Lag.kr(hz, hzLag);
 				freq = [hz + detune, hz - detune];
-				freq = Lag.kr(freq, hzLag);
 				osc1 = VarSaw.ar(freq:freq, width:timbre);
 				osc2 = Pulse.ar(freq:freq, width:timbre);
 				// TODO: could add more oscillator types
