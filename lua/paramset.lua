@@ -38,35 +38,32 @@ end
 
 --- add number
 function ParamSet:add_number(name, min, max, default)
-  table.insert(self.params, number.new(name, min, max, default))
-  self.count = self.count + 1
-  self.lookup[name] = self.count
+  self:add(number.new(name, min, max, default))
 end
 
 --- add option
 function ParamSet:add_option(name, options, default)
-  table.insert(self.params, option.new(name, options, default))
-  self.count = self.count + 1
-  self.lookup[name] = self.count
+  self:add(option.new(name, options, default))
 end
 
 --- add control
 function ParamSet:add_control(name, controlspec, formatter)
-  table.insert(self.params, control.new(name, controlspec, formatter))
-  self.count = self.count + 1
-  self.lookup[name] = self.count
+  self:add(control.new(name, controlspec, formatter))
 end
 
 --- add file
 function ParamSet:add_file(name, path)
-  table.insert(self.params, file.new(name, path))
-  self.count = self.count + 1
-  self.lookup[name] = self.count
+  self:add(file.new(name, path))
 end
 
 --- add taper
 function ParamSet:add_taper(name, min, max, default, k, units)
-  table.insert(self.params, taper.new(name, min, max, default, k, units))
+  self:add(taper.new(name, min, max, default, k, units))
+end
+
+--- add generic parameter
+function ParamSet:add(param)
+  table.insert(self.params, param)
   self.count = self.count + 1
   self.lookup[name] = self.count
 end
