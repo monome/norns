@@ -75,17 +75,21 @@ end
 
 --- load engine, execute script-specified init (if present)
 Script.run = function()
+  local bootstrap = function()
+    Script.init()
+    print("reconnecting grid...")
+    grid.reconnect()
+    print("reconnecting midi...")
+    midi.reconnect()
+  end
+
   print("# script run")
   if engine.name ~= nil then
-     print("loading engine; name: " .. engine.name)
-     engine.load(engine.name, Script.init) 
+    print("loading engine; name: " .. engine.name)
+    engine.load(engine.name, bootstrap)
   else
-     Script.init()
+    bootstrap()
   end
-  print("reconnecting grid...")
-  grid.reconnect()
-  print("reconnecting midi...")
-  midi.reconnect()
 end
 
 --- load script metadata
