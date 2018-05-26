@@ -72,8 +72,8 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     const float fade = IN0(7);
     const float loop = IN0(8);
 
-    const float *rec = IN(9);
-    const float *pre = IN(10);
+    const float rec = IN0(9);
+    const float pre = IN0(10);
 
     float fadeRec = IN0(11);
     float fadePre = IN0(12);
@@ -90,6 +90,10 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->cutfade.setRecRun(recRun > 0);
     unit->cutfade.setRecOffset(recOffset);
 
+    
+    unit->cutfade.setRec(rec);
+    unit->cutfade.setPre(pre); 
+
     if ((trig > 0) && (unit->prevTrig <= 0)) {
       // FIXME: i think it will be ok for now,
       // but should convert and wrap this result in the logic class rather than in here.
@@ -103,14 +107,14 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     
     for (int i = 0; i < inNumSamples; ++i) {
      
-    unit->cutfade.setRec(rec[i]);
-    unit->cutfade.setPre(pre[i]); 
-    unit->cutfade.setRate(rate[i]);
+      //unit->cutfade.setRec(rec[i]);
+      //unit->cutfade.setPre(pre[i]); 
+      unit->cutfade.setRate(rate[i]);
 
       unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
-        phase_out[i] = phi;
-        snd_out[i] = snd;
-	if(tr > 0.f) { trBlock = 1.f;}
+      phase_out[i] = phi;
+      snd_out[i] = snd;
+      if(tr > 0.f) { trBlock = 1.f;}
     }
     
     for (int i = 0; i < inNumSamples; ++i) {
@@ -120,7 +124,7 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 }
 
 PluginLoad(SoftCutHead) {
-    ft = inTable;
-    DefineSimpleUnit(SoftCutHead);
-    Print("PluginLoad(SoftCutHead)\n");
+  ft = inTable;
+  DefineSimpleUnit(SoftCutHead);
+  Print("PluginLoad(SoftCutHead)\n");
 }

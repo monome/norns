@@ -72,7 +72,7 @@ mix:set_action("headphone",
   
 -- ControlSpec.new(minval, maxval, warp, step, default, units) 
 mix:add_separator()
-mix:add_option("aux fx", {"OFF","ON"})
+mix:add_option("aux fx", {"OFF","ON"}, 2)
 mix:set_action("aux fx",
   function(x)
     if x == 1 then
@@ -125,6 +125,7 @@ mix:add_control("rev hf damping", cs.HF_DAMP)
 mix:set_action("rev hf damping",
   function(x) fx.aux_fx_param("hf_damping",x) end) 
 
+--[[
 cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
 mix:add_control("rev eq1 freq", cs.EQ_FREQ1)
 mix:set_action("rev eq1 freq",
@@ -141,6 +142,7 @@ mix:set_action("rev eq2 freq",
 mix:add_control("rev eq2 level", cs.EQ_LVL)
 mix:set_action("rev eq2 level",
   function(x) fx.aux_fx_param("eq2_level",x) end)
+--]]
 
 --cs.LEVEL = cs.new(-70,40,'lin',0,0,'dB')
 --mix:add_control("rev_level", cs.LEVEL)
@@ -158,7 +160,8 @@ mix:set_action("insert fx",
       fx.insert_fx_on()
     end
   end)
-mix:add_control("insert mix", cs.UNIPOLAR)
+cs.MIX = cs.new(0,1,'lin',0,1,'')
+mix:add_control("insert mix", cs.MIX)
 mix:set_action("insert mix",
   function(x) fx.insert_fx_mix(x) end) 
 
@@ -167,7 +170,7 @@ mix:add_control("comp ratio", cs.RATIO)
 mix:set_action("comp ratio",
   function(x) fx.insert_fx_param("level",x) end)
 
-cs.THRESH = cs.new(-100,10,'lin',0,-30,'dB')
+cs.THRESH = cs.new(-100,10,'lin',0,-18,'dB')
 mix:add_control("comp threshold", cs.THRESH)
 mix:set_action("comp threshold",
   function(x) fx.insert_fx_param("threshold",x) end)
@@ -181,7 +184,7 @@ mix:add_control("comp release", cs.RELEASE)
 mix:set_action("comp release",
   function(x) fx.insert_fx_param("release",x) end)
 
-cs.MAKEUP = cs.new(-60,60,'lin',0,18,'dB')
+cs.MAKEUP = cs.new(-60,60,'lin',0,9,'dB')
 mix:add_control("comp makeup gain", cs.MAKEUP)
 mix:set_action("comp makeup gain",
   function(x) fx.insert_fx_param("makeup_gain",x) end) 
@@ -1361,6 +1364,8 @@ m.key[pSLEEP] = function(n,z)
   elseif n==3 and z==1 then
     print("SLEEP")
     --TODO fade out screen then run the shutdown script
+    m.sleep = true
+    menu.redraw()
     mix:set("output",0)
     --norns.audio.set_audio_level(0)
     wifi.off()
@@ -1373,7 +1378,13 @@ m.enc[pSLEEP] = norns.none
 m.redraw[pSLEEP] = function()
   screen.clear()
   screen.move(48,40)
-  screen.text("sleep?")
+  if m.sleep then
+	screen.level(1)
+	screen.text("sleep.")
+  else
+	screen.level(15)
+  	screen.text("sleep?")
+  end
   --TODO do an animation here! fade the volume down
   screen.update()
 end

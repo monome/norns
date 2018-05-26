@@ -5,8 +5,6 @@ require 'norns'
 
 norns.version.midi = '0.0.0'
 
-local tab = require 'tabutil'
-
 local Midi = {}
 Midi.devices = {}
 Midi.__index = Midi
@@ -43,7 +41,7 @@ end
 -- when scripts are restarted
 function Midi.reconnect()
   for id,dev in pairs(Midi.devices) do
-    Midi.add(dev)
+    if Midi.add ~= nil then Midi.add(dev) end
   end
 end
 
@@ -72,9 +70,6 @@ end
 
 --- handle a midi event
 norns.midi.event = function(id, data)
-  print("incoming midi message from device", string.format("%X", id))
-  tab.print(data)
-
   local d = Midi.devices[id]
   if d ~= nil then
     if d.event ~= nil then
