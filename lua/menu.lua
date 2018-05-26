@@ -1366,8 +1366,8 @@ m.key[pSLEEP] = function(n,z)
     --TODO fade out screen then run the shutdown script
     m.sleep = true
     menu.redraw()
-    mix:set("output", -100)
-    mix:set("headphone", -100)
+    norns.audio.output_level(-100)
+    gain_hp(0)
     --norns.audio.set_audio_level(0)
     wifi.off()
     os.execute("sleep 0.5; sudo shutdown now")
