@@ -95,7 +95,16 @@ elif [ $1 = "on" ]; then
 
     wait_associating;
     sudo dhcpcd
+    
     gw=$(ip route |grep default |awk '{print $3}')
+    n=0
+    until [ -n "$gw" ] || [ $n -ge 5 ] ; do # retry
+	    echo retrying gateway check...
+	    sleep 1s
+	    gw=$(ip route |grep default |awk '{print $3}')
+	    n=$[$n+1]
+    done
+    
     if [ -d $gw ]; then
 	    echo failed > $HOME/status.wifi
     else
