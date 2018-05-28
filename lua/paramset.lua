@@ -36,6 +36,13 @@ function ParamSet:add_separator()
   self.count = self.count + 1
 end
 
+--- add generic parameter
+function ParamSet:add(param)
+  table.insert(self.params, param)
+  self.count = self.count + 1
+  self.lookup[param.name] = self.count
+end
+
 --- add number
 function ParamSet:add_number(name, min, max, default)
   self:add(number.new(name, min, max, default))
@@ -59,13 +66,6 @@ end
 --- add taper
 function ParamSet:add_taper(name, min, max, default, k, units)
   self:add(taper.new(name, min, max, default, k, units))
-end
-
---- add generic parameter
-function ParamSet:add(param)
-  table.insert(self.params, param)
-  self.count = self.count + 1
-  self.lookup[name] = self.count
 end
 
 --- print
