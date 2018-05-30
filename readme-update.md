@@ -11,13 +11,13 @@ if present the following process happens:
 - if success, extract data to folder
 - cleanup (delete archives and md5)
 
-updates are stored as folders. (*)
+updates are stored as folders.\*
 
 when an update is "executed" via the menu, the application runs `update.sh`
 within the selected update's folder and then updates `version.txt` which is
 also stored in `~/update`.
 
-(*) there is no reason to keep the update folders, they should be deleted after being run. also, an 
+\* there is no reason to keep the update folders, they should be deleted after being run. also, an 
 update's version number should be checked against the current version, to prevent backwards
 updating (which would likely only break a bunch of functionality).
 
@@ -37,7 +37,7 @@ the md5 validates the tgz. if passed, `180401.tgz` is extracted to `180401/`.
 inside `180401/` is `update.sh`, `version.txt`, and the payload.
 
 `update.sh` copies included files to the correct locations (and does whatever
-else needs to be done.)
+else needs to be done).
 
 `version.txt` simply contains the version (ie `180401`) and is copied to `~/update` 
 (which is later read by matron).
