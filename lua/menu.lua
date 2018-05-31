@@ -54,7 +54,8 @@ mix:set_action("input",
     norns.audio.input_level(1,x)
     norns.audio.input_level(2,x)
   end)
-mix:add_control("monitor",cs.MAIN_LEVEL)
+cs.MUTE_LEVEL = cs.new(-60,0,'lin',0,-60,"dB")
+mix:add_control("monitor",cs.MUTE_LEVEL)
 mix:set_action("monitor",
   function(x) norns.audio.monitor_level(x) end)
 mix:add_option("monitor mode",{"STEREO","MONO"})
@@ -82,10 +83,15 @@ mix:set_action("aux fx",
     end
   end)
 cs.DB_LEVEL = cs.new(-60,18,'lin',0,0,"dB")
-mix:add_control("aux input1 level", cs.DB_LEVEL)
+cs.DB_LEVEL_MUTE = cs.new(-60,18,'lin',0,-60,"dB")
+cs.DB_LEVEL_9DB = cs.new(-60,18,'lin',0,-9,"dB")
+mix:add_control("aux output level", cs.DB_LEVEL_9DB)
+mix:set_action("aux output level",
+  function(x) fx.aux_fx_output_level(x) end) 
+mix:add_control("aux input1 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input1 level",
   function(x) fx.aux_fx_input_level(1,x) end) 
-mix:add_control("aux input2 level", cs.DB_LEVEL)
+mix:add_control("aux input2 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input2 level",
   function(x) fx.aux_fx_input_level(2,x) end) 
 mix:add_control("aux input1 pan", cs.PAN)
@@ -94,9 +100,6 @@ mix:set_action("aux input1 pan",
 mix:add_control("aux input2 pan", cs.PAN)
 mix:set_action("aux input2 pan",
   function(x) fx.aux_fx_input_pan(2,x) end) 
-mix:add_control("aux output level", cs.DB_LEVEL)
-mix:set_action("aux output level",
-  function(x) fx.aux_fx_output_level(x) end) 
 mix:add_control("aux return level", cs.DB_LEVEL)
 mix:set_action("aux return level",
   function(x) fx.aux_fx_return_level(x) end) 
