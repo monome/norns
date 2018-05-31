@@ -563,6 +563,7 @@ int handle_crone_ready(const char *path,
     (void)argv;
     (void)data;
     (void)user_data;
+    /// FIXME
     ready = 1;
     return 0;
 }

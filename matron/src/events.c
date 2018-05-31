@@ -246,6 +246,12 @@ static void handle_event(union event_data *ev) {
     case EVENT_POLL_IO_LEVELS:
         w_handle_poll_io_levels(ev->poll_io_levels.value.bytes);
         break;
+    case EVENT_STARTUP_READY_ACK:
+        w_handle_startup_ready_ack();
+        break;
+    case EVENT_STARTUP_READY_TIMEOUT:
+        w_handle_startup_ready_timeout();
+        break;
     case EVENT_QUIT:
         quit = true;
         break;
@@ -266,22 +272,3 @@ void handle_engine_report(void) {
     o_unlock_descriptors();
 }
 
-/*
-void handle_command_report(void) {
-    o_lock_descriptors();
-    const struct engine_command *p = o_get_commands();
-    const int n = o_get_num_commands();
-    printf("handling command report with %d commands \n", n);
-    w_handle_command_report(p, n);
-    o_unlock_descriptors();
-}
-
-void handle_poll_report(void) {
-    o_lock_descriptors();
-    const struct engine_poll *p = o_get_polls();
-    const int n = o_get_num_polls();
-    w_handle_poll_report(p, n);
-    o_unlock_descriptors();
-};
-
-*/

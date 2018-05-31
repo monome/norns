@@ -58,7 +58,9 @@ Audio.pitch_off = function()
 end
 
 --- restart the audio engine (recompile sclang)
-Audio.restart = function() restart_audio() end
+Audio.restart = function()
+   restart_audio()
+end
 
 --- global functions
 -- @section globals
