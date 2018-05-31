@@ -4,8 +4,19 @@
 -- @module norns
 norns = {}
 norns.version = {}
-norns.version.norns = "0.0.2"
+norns.version.norns = "1.0.0"
 
+-- import update version number
+local fd = io.open(os.getenv("HOME").."/version.txt","r")
+if fd then
+  io.input(fd)
+  norns.version.update = io.read()
+  io.close(fd)
+else
+  norns.version.update = "000000"
+end
+
+-- needed requires
 local engine = require 'engine'
 local poll = require 'poll'
 local tab = require 'tabutil'
