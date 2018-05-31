@@ -4,7 +4,7 @@
 -- @module norns
 norns = {}
 norns.version = {}
-norns.version.norns = "0.0.2"
+norns.version.norns = "1.0.0"
 
 local engine = require 'engine'
 local poll = require 'poll'
