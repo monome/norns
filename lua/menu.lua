@@ -919,7 +919,7 @@ m.redraw[pSYSTEM] = function()
   screen.text_right("disk free: "..m.sys.disk)
 
   screen.move(127,50)
-  screen.text_right("v"..norns.version.update)
+  screen.text_right(norns.version.update)
   screen.update()
 end
 
