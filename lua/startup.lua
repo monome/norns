@@ -4,15 +4,6 @@ require 'menu'
 require 'math' 
 math.randomseed(os.time()) -- more random
 
-local fd = io.open(os.getenv("HOME").."/version.txt","r")
-if fd then
-  io.input(fd)
-  norns.version.update = io.read()
-  io.close(fd)
-else
-  norns.version.update = "000000"
-end
-
 -- globals
 screen = require 'screen'
 grid = require 'grid'
