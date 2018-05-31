@@ -46,7 +46,7 @@ function Midi.reconnect()
 end
 
 --- send midi event to device
--- @tparam array
+-- @param array
 function Midi:send(data)
   midi_send(self.dev, data)
 end

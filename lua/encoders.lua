@@ -1,3 +1,6 @@
+--- Encoders class
+-- @module encoders
+
 local encoders = {}
 
 local now = util.time()

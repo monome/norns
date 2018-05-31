@@ -39,18 +39,27 @@
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/log.html">log</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><strong>midi</strong></li>
   <li><a href="../modules/norns.html">norns</a></li>
+  <li><a href="../modules/number.html">number</a></li>
+  <li><a href="../modules/option.html">option</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/state.html">state</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/textentry.html">textentry</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 
@@ -66,7 +75,25 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#norns.midi.add">norns.midi.add (id)</a></td>
+	<td class="name" nowrap><a href="#new">new (id, name, dev)</a></td>
+	<td class="summary">constructor</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#add">add (dev)</a></td>
+	<td class="summary">static callback when any midi device is added;
+ user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#remove">remove (dev)</a></td>
+	<td class="summary">static callback when any midi device is removed;
+ user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#send">send (array)</a></td>
+	<td class="summary">send midi event to device</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#norns.midi.add">norns.midi.add (id, name, dev)</a></td>
 	<td class="summary">add a device</td>
 	</tr>
 	<tr>
@@ -74,7 +101,7 @@
 	<td class="summary">remove a device</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#norns.midi.event">norns.midi.event (id, status, data1, data2)</a></td>
+	<td class="name" nowrap><a href="#norns.midi.event">norns.midi.event (id, data)</a></td>
 	<td class="summary">handle a midi event</td>
 	</tr>
 </table>
@@ -87,8 +114,99 @@
 
     <dl class="function">
     <dt>
+    <a name = "new"></a>
+    <strong>new (id, name, dev)</strong>
+    </dt>
+    <dd>
+    constructor
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : arbitrary numeric identifier
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : name
+        </li>
+        <li><span class="parameter">dev</span>
+            <span class="types"><span class="type">userdata</span></span>
+         : opaque pointer to device
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "add"></a>
+    <strong>add (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any midi device is added;
+ user scripts can redefine
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Midi table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "remove"></a>
+    <strong>remove (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any midi device is removed;
+ user scripts can redefine
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Midi table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "send"></a>
+    <strong>send (array)</strong>
+    </dt>
+    <dd>
+    send midi event to device
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">array</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "norns.midi.add"></a>
-    <strong>norns.midi.add (id)</strong>
+    <strong>norns.midi.add (id, name, dev)</strong>
     </dt>
     <dd>
     add a device
@@ -97,6 +215,12 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">id</span>
+
+        </li>
+        <li><span class="parameter">name</span>
+
+        </li>
+        <li><span class="parameter">dev</span>
 
         </li>
     </ul>
@@ -128,7 +252,7 @@
 </dd>
     <dt>
     <a name = "norns.midi.event"></a>
-    <strong>norns.midi.event (id, status, data1, data2)</strong>
+    <strong>norns.midi.event (id, data)</strong>
     </dt>
     <dd>
     handle a midi event
@@ -139,13 +263,7 @@
         <li><span class="parameter">id</span>
 
         </li>
-        <li><span class="parameter">status</span>
-
-        </li>
-        <li><span class="parameter">data1</span>
-
-        </li>
-        <li><span class="parameter">data2</span>
+        <li><span class="parameter">data</span>
 
         </li>
     </ul>
@@ -162,7 +280,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-03-23 19:28:24 </i>
+<i style="float:right;">Last updated 2018-04-23 17:20:49 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

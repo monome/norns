@@ -1,3 +1,6 @@
+--- Controlspec Class
+-- @module controlspec
+
 local LinearWarp = {}
 function LinearWarp.map(spec, value)
   return util.linlin(0, 1, spec.minval, spec.maxval, value)
