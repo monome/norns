@@ -1794,14 +1794,13 @@ int _set_insert_fx_param(lua_State *l) {
 int _start_audio(lua_State *l) {
   (void)l;  
   norns_hello_start();
-  o_query_startup();
   return 0;
 }
 
 int _restart_audio(lua_State *l) {
   (void)l;
-  norns_hello_start();
   o_restart_audio();
+  norns_hello_start();
   return 0;
 }
 
