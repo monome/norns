@@ -22,24 +22,24 @@ static const int tick_us = 5000;
 static const int timeout_ticks = 1600; // 8 seconds?
 
 struct {
-    double x;
-    double y;
-    double dx;
-    double dy;
-    int range;
-    int life;
+  double x;
+  double y;
+  double dx;
+  double dy;
+  int range;
+  int life;
 } light[LIGHTS];
 
 struct {
-    double x;
-    double y;
-    double dx;
-    double dy;
+  double x;
+  double y;
+  double dx;
+  double dy;
 } center;
 
 struct {
-    int x;
-    int y;
+  int x;
+  int y;
 } black;
 
 static int count = 0;
@@ -47,28 +47,39 @@ static int start = 1;
 
 static int status = 0;
 static int timeout = 0;
+static int ok = 0;
 
 
 static int norns_hello();
 static void* hello_loop(void*);
 static void start_thread();
 
- void* hello_loop(void * p) {
-   (void)p;
-  while(norns_hello(status)) {
-    if((count & 4095) == 0) {
-      o_query_startup();
-      fprintf(stderr, "query audio startup");
-    }
+void* hello_loop(void * p) {
+  (void)p;
+
+  fprintf(stderr, "hello_loop()\n");
+
+  while(!ok && !timeout) { 
+
+    norns_hello(1);
+    o_query_startup();
 
     if(count > timeout_ticks) {
       fprintf(stderr, "audio startup timeout \n");
       timeout = 1;
       status = 0;
-      usleep(tick_us);
     }
+    
+    usleep(tick_us);
+    count++;
+    // fprintf(stderr, "%d\n", count);
   }
 
+  // fadeout
+  while(norns_hello(0)) {
+    usleep(tick_us);
+  }  
+  
   if(timeout) {
     event_post( event_data_new(EVENT_STARTUP_READY_TIMEOUT) );
   } else {
@@ -78,88 +89,89 @@ static void start_thread();
   return NULL;
 }
 
- void start_thread() {
-      // start thread
-    int res;
-    pthread_attr_t attr;
+void start_thread() {
+  // start thread
+  int res;
+  pthread_attr_t attr;
 
-    res = pthread_attr_init(&attr);
-    if(res != 0) {
-      // oops
-      return;
-    }
-    res = pthread_create(&tid, &attr, &hello_loop, NULL);
-    if(res != 0) {
-      // oops
-    }
+  res = pthread_attr_init(&attr);
+  if(res != 0) {
+    fprintf(stderr, "error creating pthread attributes\n");
+    return;
+  }
+  res = pthread_create(&tid, &attr, &hello_loop, NULL);
+  if(res != 0) {
+    fprintf(stderr, "error creating pthread\n");
+  }
 }
 
 void norns_hello_start() {
-    srand(time(NULL));
-    screen_aa(0);
-    for(int i=0;i<LIGHTS;i++)
-        light[i].range = 1;
-    black.x = 60 + rand()%8;
-    black.y = 28 + rand()%8;
-    center.x = 60 + rand()%8;
-    center.y = 28 + rand()%8;
-    center.dx = 0;
-    center.dy = 0;
-    count = 0;
-    status = 1;
-    start_thread();    
- }
+    fprintf(stderr, "norns_hello_start()\n");
+    
+  srand(time(NULL));
+  screen_aa(0);
+
+  for(int i=0;i<LIGHTS;i++) {
+    light[i].range = 1;
+  }
+  
+  black.x = 60 + rand()%8;
+  black.y = 28 + rand()%8;
+  center.x = 60 + rand()%8;
+  center.y = 28 + rand()%8;
+  center.dx = 0;
+  center.dy = 0;
+  count = 0;
+
+  timeout = 0;
+  status = 1;
+
+  start_thread();
+}
 
 void norns_hello_stop() {
   status =0;
 }
 
 int norns_hello(int live) {
-    count++;
 
-    if((count & 255) == 0) {
-        black.x = 60 + rand()%8;
-        black.y = 28 + rand()%8;
-    }
+  if((count & 255) == 0) {
+    black.x = 60 + rand()%8;
+    black.y = 28 + rand()%8;
+  }
 
-    screen_clear();
-    //screen_line_width(1.0); // FIXME: for some reason setting this disables drawing
+  screen_clear();
+  //screen_line_width(1.0); // FIXME: for some reason setting this disables drawing
     
-    center.dx = center.dx + (black.x - center.x)/GRAVITY;
-    center.dy = center.dy + (black.y - center.y)/GRAVITY;
-    center.x = center.x + center.dx;
-    center.y = center.y + center.dy;
+  center.dx = center.dx + (black.x - center.x)/GRAVITY;
+  center.dy = center.dy + (black.y - center.y)/GRAVITY;
+  center.x = center.x + center.dx;
+  center.y = center.y + center.dy;
+  int alive = 0;
 
-    //screen_move(center.x,center.y);
-    //screen_line_rel(1,0);
-    //screen_level(15);
-    //screen_stroke();
-    
-    int alive = 0;
+  for(int i=0;i<LIGHTS;i++) {
+    if(light[i].range == 2) {
+      if(start<64) start++; 
+      light[i].range--;
+    } else if(light[i].range > 2) {
+      light[i].range--;
+      light[i].x += light[i].dx;
+      light[i].y += light[i].dy; 
+      alive++;
+      screen_move(light[i].x,light[i].y);
+      screen_line_rel(1,0);
+      screen_level(ceil(15*light[i].range/light[i].life)*(start/64.0));
+      screen_stroke();
+    } else if(live) { 
+      light[i].life = 64 + rand()%64;
+      light[i].range = light[i].life;
+      light[i].x = center.x;
+      light[i].y = center.y;
+      light[i].dx = (rand()%32-16)/96.0;
+      light[i].dy = (rand()%32-16)/96.0;
+    } 
+  }
+  screen_update();
 
-    for(int i=0;i<LIGHTS;i++) {
-        if(light[i].range == 2) {
-            if(start<64) start++; 
-            light[i].range--;
-        } else if(light[i].range > 2) {
-            light[i].range--;
-            light[i].x += light[i].dx;
-            light[i].y += light[i].dy; 
-            alive++;
-            screen_move(light[i].x,light[i].y);
-            screen_line_rel(1,0);
-            screen_level(ceil(15*light[i].range/light[i].life)*(start/64.0));
-            screen_stroke();
-        } else if(live) { 
-            light[i].life = 64 + rand()%64;
-            light[i].range = light[i].life;
-            light[i].x = center.x;
-            light[i].y = center.y;
-            light[i].dx = (rand()%32-16)/96.0;
-            light[i].dy = (rand()%32-16)/96.0;
-        } 
-    }
-    screen_update();
-
-    return alive;
+  return alive;
 }

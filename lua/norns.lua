@@ -6,6 +6,8 @@ norns = {}
 norns.version = {}
 norns.version.norns = "1.0.0"
 
+print("norns.lua")
+
 -- import update version number
 local fd = io.open(os.getenv("HOME").."/version.txt","r")
 if fd then
@@ -20,7 +22,6 @@ end
 local engine = require 'engine'
 local poll = require 'poll'
 local tab = require 'tabutil'
-
 
 --- Global Functions
 -- @section global_functions
@@ -178,5 +179,6 @@ end
 --- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 startup = function()
+   print("norns.lua:startup()")
   require('startup')
 end
