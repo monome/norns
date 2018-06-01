@@ -19,7 +19,8 @@ static pthread_t tid;
 // microseconds per frame
 static const int tick_us = 5000;
 // frames before timeout
-static const int timeout_ticks = 1600; // 8 seconds?
+static const int timeout_ticks = 2400; // ~12 seconds?
+
 
 struct {
   double x;
@@ -45,9 +46,9 @@ struct {
 static int count = 0;
 static int start = 1;
 
-static int status = 0;
 static int timeout = 0;
 static int ok = 0;
+static volatile int thread_running = 0;
 
 
 static int norns_hello();
@@ -57,7 +58,7 @@ static void start_thread();
 void* hello_loop(void * p) {
   (void)p;
 
-  fprintf(stderr, "hello_loop()\n");
+  thread_running = true;
 
   while(!ok && !timeout) { 
 
@@ -65,9 +66,7 @@ void* hello_loop(void * p) {
     o_query_startup();
 
     if(count > timeout_ticks) {
-      fprintf(stderr, "audio startup timeout \n");
       timeout = 1;
-      status = 0;
     }
     
     usleep(tick_us);
@@ -86,6 +85,7 @@ void* hello_loop(void * p) {
     event_post( event_data_new(EVENT_STARTUP_READY_OK) );
   }
 
+  thread_running = false;
   return NULL;
 }
 
@@ -106,7 +106,7 @@ void start_thread() {
 }
 
 void norns_hello_start() {
-    fprintf(stderr, "norns_hello_start()\n");
+  if(thread_running) { return; }
     
   srand(time(NULL));
   screen_aa(0);
@@ -124,14 +124,12 @@ void norns_hello_start() {
   count = 0;
 
   timeout = 0;
-  status = 1;
+  ok = 0;
 
   start_thread();
 }
 
-void norns_hello_stop() {
-  status =0;
-}
+void norns_hello_ok() { ok = 1; } 
 
 int norns_hello(int live) {
 

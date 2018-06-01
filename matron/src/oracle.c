@@ -19,6 +19,7 @@
 
 #include "args.h"
 #include "events.h"
+#include "hello.h"
 #include "oracle.h"
 
 static lo_address remote_addr;
@@ -562,9 +563,7 @@ int handle_crone_ready(const char *path,
     (void)argv;
     (void)data;
     (void)user_data;
-    /// FIXME
-    ///
-    
+    norns_hello_ok();
     return 0;
 }
 
