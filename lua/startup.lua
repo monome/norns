@@ -58,19 +58,10 @@ norns.startup_status.ok = function()
 end
 
 norns.startup_status.timeout = function()
-   print("norns.startup_status.timeout")
-   screen.clear()
-   screen.aa(1)
-   screen.line_width(1)
-   screen.level(10)
-   screen.move(10, 10)
-   screen.text("error: audio timed out")
-   screen.update()
-   --- FIXME: should probably do something different here,
-   --- but menu breaks if we don't try to load a script :/
-   norns.state.resume()
+  print("norns.startup_status.timeout")
+  norns.script.clear()
+  norns.scripterror("AUDIO ENGINE")
 end
-
 
 print("start_audio(): ")
 -- start the process of syncing with crone boot
