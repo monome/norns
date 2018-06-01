@@ -6,6 +6,8 @@ norns = {}
 norns.version = {}
 norns.version.norns = "1.0.0"
 
+print("norns.lua")
+
 -- import update version number
 local fd = io.open(os.getenv("HOME").."/version.txt","r")
 if fd then
@@ -20,12 +22,6 @@ end
 local engine = require 'engine'
 local poll = require 'poll'
 local tab = require 'tabutil'
-
---- startup function will be run after I/O subsystems are initialized,
--- but before I/O event loop starts ticking (see readme-script.md)
-startup = function()
-  require('startup')
-end
 
 --- Global Functions
 -- @section global_functions
@@ -117,6 +113,13 @@ norns.report.did_engine_load = function()
    -- engine module should assign callback
 end
 
+--- startup callbacks
+-- @section startup
+
+--- startup handlers
+norns.startup_status = {}
+norns.startup_status.ok = function() print("startup ok") end
+norns.startup_status.timeout = function() print("startup timeout") end
 
 --- poll callback; used by C interface
 -- @param id identfier
@@ -142,6 +145,7 @@ norns.audio = require 'audio'
 
 --- Management
 -- @section management
+---- ... whaaat?? why are all of these made global here?
 norns.script = require 'script'
 norns.state = require 'state'
 norns.log = require 'log'
@@ -169,4 +173,12 @@ norns.none = function() end
 norns.blank = function()
   s_clear()
   s_update()
+end
+
+
+--- startup function will be run after I/O subsystems are initialized,
+-- but before I/O event loop starts ticking (see readme-script.md)
+startup = function()
+   print("norns.lua:startup()")
+  require('startup')
 end

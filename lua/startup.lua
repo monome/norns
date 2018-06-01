@@ -47,7 +47,22 @@ end
 
 grid.remove = function(device) g = nil end
 
+print("setting startup_status callbacks...")
+
+norns.startup_status.ok = function()
+   print("norns.startup_status.ok")
 -- resume last loaded script
-norns.script.clear()
-norns.log.post("norns started")
-norns.state.resume()
+   norns.script.clear()
+   norns.log.post("norns started")
+   norns.state.resume()
+end
+
+norns.startup_status.timeout = function()
+  print("norns.startup_status.timeout")
+  norns.script.clear()
+  norns.scripterror("AUDIO ENGINE")
+end
+
+print("start_audio(): ")
+-- start the process of syncing with crone boot
+start_audio()

@@ -19,6 +19,7 @@
 
 #include "args.h"
 #include "events.h"
+#include "hello.h"
 #include "oracle.h"
 
 static lo_address remote_addr;
@@ -135,10 +136,9 @@ static void test_engine_load_done();
 //-----------------------------------
 //---- extern function definitions
 
-int o_ready(void) {
+void o_query_startup(void) {
     // fprintf(stderr, "sending /ready: %d", rem_port);
     lo_send(remote_addr, "/ready","");
-    return ready;
 }
 
 //--- init
@@ -563,7 +563,7 @@ int handle_crone_ready(const char *path,
     (void)argv;
     (void)data;
     (void)user_data;
-    ready = 1;
+    norns_hello_ok();
     return 0;
 }
 

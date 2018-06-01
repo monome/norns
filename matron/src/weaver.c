@@ -26,6 +26,7 @@
 #include "device_monome.h"
 #include "device_midi.h"
 #include "events.h"
+#include "hello.h"
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
@@ -149,7 +150,9 @@ static int _set_insert_fx_off(lua_State *l);
 static int _set_insert_fx_mix(lua_State *l);
 static int _set_insert_fx_param(lua_State *l);
 
-// restart audio completely (recompile sclang)
+// start audio (sync with sclang startup)
+static int _start_audio(lua_State *l);
+// restart audio (recompile sclang)
 static int _restart_audio(lua_State *l);
 
 // soundfile inspection
@@ -279,10 +282,11 @@ void w_init(void) {
   lua_register(lvm, "set_insert_fx_mix", &_set_insert_fx_mix);
   lua_register(lvm, "set_insert_fx_param", &_set_insert_fx_param);
 
-
-  // completely restart the audio process (recompile sclang)
+  // start audio (query for sclang readiness)
+  lua_register(lvm, "start_audio", &_start_audio);
+  // restart the audio process (recompile sclang)
   lua_register(lvm, "restart_audio", &_restart_audio);
-
+ 
   // returns channels, frames, samplerate
   lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
 
@@ -1351,6 +1355,16 @@ void w_handle_engine_report(const char **arr, const int n) {
   l_report(lvm, l_docall(lvm, 2, 0));
 }
 
+void w_handle_startup_ready_ok() {
+  _push_norns_func("startup_status", "ok");
+  l_report(lvm, l_docall(lvm, 0, 0));
+}
+
+void w_handle_startup_ready_timeout() {
+  _push_norns_func("startup_status", "timeout");
+  l_report(lvm, l_docall(lvm, 0, 0));
+}
+
 // helper: push table of commands
 // each entry is a subtatble: {name, format}
 static void _push_commands() {
@@ -1777,10 +1791,16 @@ int _set_insert_fx_param(lua_State *l) {
   return 0;
 }
 
+int _start_audio(lua_State *l) {
+  (void)l;  
+  norns_hello_start();
+  return 0;
+}
 
 int _restart_audio(lua_State *l) {
   (void)l;
   o_restart_audio();
+  norns_hello_start();
   return 0;
 }
 
@@ -1796,3 +1816,4 @@ int _sound_file_inspect(lua_State *l) {
   lua_pushinteger(l, desc.samplerate);
   return 3;
 }
+

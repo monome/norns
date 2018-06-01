@@ -190,8 +190,6 @@ mix:set_action("comp makeup gain",
   function(x) fx.insert_fx_param("makeup_gain",x) end) 
 
 
-
-
 local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
