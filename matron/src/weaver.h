@@ -71,5 +71,5 @@ extern void w_handle_poll_io_levels(uint8_t *levels);
 extern void w_handle_engine_loaded();
 
 // callbacks for ACK and timeout of sclang startup
-extern void w_handle_startup_ready_ack();
+extern void w_handle_startup_ready_ok();
 extern void w_handle_startup_ready_timeout();

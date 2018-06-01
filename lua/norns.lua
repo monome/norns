@@ -21,11 +21,6 @@ local engine = require 'engine'
 local poll = require 'poll'
 local tab = require 'tabutil'
 
---- startup function will be run after I/O subsystems are initialized,
--- but before I/O event loop starts ticking (see readme-script.md)
-startup = function()
-  require('startup')
-end
 
 --- Global Functions
 -- @section global_functions
@@ -119,7 +114,11 @@ end
 
 --- startup callbacks
 -- @section startup
-norns.
+
+--- startup handlers
+norns.startup_status = {}
+norns.startup_status.ok = function() print("startup ok") end
+norns.startup_status.timeout = function() print("startup timeout") end
 
 --- poll callback; used by C interface
 -- @param id identfier
@@ -173,4 +172,11 @@ norns.none = function() end
 norns.blank = function()
   s_clear()
   s_update()
+end
+
+
+--- startup function will be run after I/O subsystems are initialized,
+-- but before I/O event loop starts ticking (see readme-script.md)
+startup = function()
+  require('startup')
 end

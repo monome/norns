@@ -38,12 +38,14 @@ struct engine_param {
 };
 
 
-// check for audio engine boot completion
-extern int o_ready();
+
 // initialize
 extern void o_init();
 // shutdown
 extern void o_deinit();
+
+// send query for audio engine boot completion
+extern void o_query_startup();
 
 //----------------------
 //--- access param and buffer descriptors

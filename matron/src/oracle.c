@@ -135,10 +135,9 @@ static void test_engine_load_done();
 //-----------------------------------
 //---- extern function definitions
 
-int o_ready(void) {
+void o_query_startup(void) {
     // fprintf(stderr, "sending /ready: %d", rem_port);
     lo_send(remote_addr, "/ready","");
-    return ready;
 }
 
 //--- init
@@ -564,7 +563,8 @@ int handle_crone_ready(const char *path,
     (void)data;
     (void)user_data;
     /// FIXME
-    ready = 1;
+    ///
+    
     return 0;
 }
 

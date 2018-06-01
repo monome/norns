@@ -26,6 +26,7 @@
 #include "device_monome.h"
 #include "device_midi.h"
 #include "events.h"
+#include "hello.h"
 #include "lua_eval.h"
 #include "metro.h"
 #include "screen.h"
@@ -1354,13 +1355,13 @@ void w_handle_engine_report(const char **arr, const int n) {
   l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-void w_handle_startup_ready_ack() {
-  _push_norns_func("startup", "ready");
+void w_handle_startup_ready_ok() {
+  _push_norns_func("startup_status", "ready");
   l_report(lvm, l_docall(lvm, 0, 0));
 }
 
 void w_handle_startup_ready_timeout() {
-  _push_norns_func("startup", "timeout");
+  _push_norns_func("startup_status", "timeout");
   l_report(lvm, l_docall(lvm, 0, 0));
 }
 
@@ -1792,11 +1793,14 @@ int _set_insert_fx_param(lua_State *l) {
 
 int _start_audio(lua_State *l) {
   (void)l;
+  norns_hello_start();
+  o_query_startup();
   return 0;
 }
 
 int _restart_audio(lua_State *l) {
   (void)l;
+  norns_hello_start();
   o_restart_audio();
   return 0;
 }

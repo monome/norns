@@ -47,7 +47,16 @@ end
 
 grid.remove = function(device) g = nil end
 
+norns.startup_status.ok = function()
 -- resume last loaded script
-norns.script.clear()
-norns.log.post("norns started")
-norns.state.resume()
+   norns.script.clear()
+   norns.log.post("norns started")
+   norns.state.resume()
+end
+
+norns.startup_status.timeout = function()
+   -- FIXME: show something on the screen or whatever
+end
+
+-- start the process of syncing with crone boot
+start_audio()

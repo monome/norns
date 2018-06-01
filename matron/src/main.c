@@ -54,8 +54,10 @@ int main(int argc, char **argv) {
     battery_init();
     i2c_init();
     osc_init();
+    
     o_init(); // oracle (audio)
 
+    /*
     norns_hello_init();
 
     // wait here for a signal from the audio server...
@@ -69,6 +71,7 @@ int main(int argc, char **argv) {
     while(norns_hello(0)) {
         usleep(5000);
     }
+    */
 
     w_init(); // weaver (scripting)
     dev_list_init();

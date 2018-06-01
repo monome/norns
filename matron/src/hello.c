@@ -1,13 +1,25 @@
 #include <math.h>
+#include <pthread.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
+#include "events.h"
+#include "oracle.h"
 #include "screen.h"
+#include "weaver.h"
 
 #define LIGHTS 32
 #define GRAVITY 2048
+
+// thread id
+static pthread_t tid;
+// microseconds per frame
+static const int tick_us = 5000;
+// frames before timeout
+static const int timeout_ticks = 1600; // 8 seconds?
 
 struct {
     double x;
@@ -33,7 +45,56 @@ struct {
 static int count = 0;
 static int start = 1;
 
-void norns_hello_init() {
+static int status = 0;
+static int timeout = 0;
+
+
+static int norns_hello();
+static void* hello_loop(void*);
+static void start_thread();
+
+ void* hello_loop(void * p) {
+   (void)p;
+  while(norns_hello(status)) {
+    if((count & 4095) == 0) {
+      o_query_startup();
+      fprintf(stderr, "query audio startup");
+    }
+
+    if(count > timeout_ticks) {
+      fprintf(stderr, "audio startup timeout \n");
+      timeout = 1;
+      status = 0;
+      usleep(tick_us);
+    }
+  }
+
+  if(timeout) {
+    event_post( event_data_new(EVENT_STARTUP_READY_TIMEOUT) );
+  } else {
+    event_post( event_data_new(EVENT_STARTUP_READY_OK) );
+  }
+
+  return NULL;
+}
+
+ void start_thread() {
+      // start thread
+    int res;
+    pthread_attr_t attr;
+
+    res = pthread_attr_init(&attr);
+    if(res != 0) {
+      // oops
+      return;
+    }
+    res = pthread_create(&tid, &attr, &hello_loop, NULL);
+    if(res != 0) {
+      // oops
+    }
+}
+
+void norns_hello_start() {
     srand(time(NULL));
     screen_aa(0);
     for(int i=0;i<LIGHTS;i++)
@@ -43,16 +104,22 @@ void norns_hello_init() {
     center.x = 60 + rand()%8;
     center.y = 28 + rand()%8;
     center.dx = 0;
-    center.dy = 0; 
+    center.dy = 0;
+    count = 0;
+    status = 1;
+    start_thread();    
  }
+
+void norns_hello_stop() {
+  status =0;
+}
 
 int norns_hello(int live) {
     count++;
 
-    if(count == 256) {
+    if((count & 255) == 0) {
         black.x = 60 + rand()%8;
         black.y = 28 + rand()%8;
-        count = 0;
     }
 
     screen_clear();

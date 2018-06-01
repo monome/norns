@@ -52,14 +52,14 @@ typedef enum {
     // polled i/o VU levels from crone
     EVENT_POLL_IO_LEVELS,
     // crone startup ack event
-    EVENT_STARTUP_READY_ACK,
+    EVENT_STARTUP_READY_OK,
     // crone startup timeout event
     EVENT_STARTUP_READY_TIMEOUT,
     // quit the event loop
     EVENT_QUIT,
 } event_t;
 
-// a packed data structure for four volume levels
+// a poked data structure for four volume levels
 // each channel is represented by unsigned byte with audio taper:
 // 255 == 0db
 // each step represents 0.25db, down to -60db
@@ -196,7 +196,7 @@ struct event_poll_wave {
     uint8_t *data;
 }; // + 8
 
-struct event_startup_ready_ack {
+struct event_startup_ready_ok {
     struct event_common common;
 }; // + 0
 
@@ -226,6 +226,6 @@ union event_data {
     struct event_poll_data poll_data;
     struct event_poll_io_levels poll_io_levels;
     struct event_poll_wave poll_wave;
-    struct event_startup_ready_ack startup_ready_ack;
+    struct event_startup_ready_ok startup_ready_ok;
     struct event_startup_ready_timeout startup_ready_timeout;
 };
