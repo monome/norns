@@ -787,14 +787,30 @@ end
 
 m.params = {}
 m.params.pos = 0
+m.params.n = 0
+m.params.loadable = true
 
 m.key[pPARAMS] = function(n,z)
   if menu.alt then
     if n==2 and z==1 then
-      params:read(norns.state.name..".pset")
+      if m.params.n == 0 then
+        params:read(norns.state.folder_name..".pset")
+      else
+        params:read(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+      end
+      m.params.action = 15
+      m.params.action_text = "loaded"
     elseif n==3 and z==1 then
-      params:write(norns.state.name..".pset")
+      if m.params.n == 0 then
+        params:write(norns.state.folder_name..".pset")
+      else
+        params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
+      end
+      m.params.action = 15
+      m.params.action_text = "saved"
+      m.params.loadable = true
     end
+    menu.redraw()
   elseif n==2 and z==1 then
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
@@ -812,7 +828,28 @@ m.params.newfile = function(file)
 end
 
 m.enc[pPARAMS] = function(n,d)
-  if n==2 then
+  if menu.alt then
+    if n==3 then
+      m.params.n = util.clamp(m.params.n + d,0,100)
+      local path
+      local f
+      if m.params.n == 0 then
+        path = data_dir..norns.state.folder_name..".pset" 
+        f=io.open(path,"r") 
+      else
+        path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
+        f=io.open(path ,"r") 
+      end
+      --print("pset: "..path)
+      if f~=nil then
+        m.params.loadable = true
+        io.close(f)
+      else
+        m.params.loadable = false
+      end
+      menu.redraw()
+    end 
+  elseif n==2 then
     local prev = m.params.pos
     m.params.pos = util.clamp(m.params.pos + d, 0, params.count - 1)
     if m.params.pos ~= prev then menu.redraw() end
@@ -843,11 +880,23 @@ m.redraw[pPARAMS] = function()
           end
         end
       end
-    else
+    else -- menu.alt == true -- param save/load
+      screen.level(10)
+      screen.move(64,40)
+      if m.params.n == 0 then
+        screen.text_center("default")
+      else
+        screen.text_center(string.format("%02d",m.params.n))
+      end
+      screen.level(m.params.loadable and 5 or 1)
       screen.move(20,50)
       screen.text("load")
+      screen.level(5)
       screen.move(90,50)
       screen.text("save")
+      screen.move(64,20)
+      screen.level(m.params.action)
+      screen.text_center(m.params.action_text)
     end
   else
     screen.move(0,10)
@@ -858,8 +907,13 @@ m.redraw[pPARAMS] = function()
 end
 
 m.init[pPARAMS] = function()
-  u.callback = function() menu.redraw() end
-  u.time = 1
+  m.params.action_text = ""
+  m.params.action = 0
+  u.callback = function()
+    if m.params.action > 0 then m.params.action = m.params.action - 1 end
+    menu.redraw()
+  end
+  u.time = 0.2
   u.count = -1
   u:start()
 end
@@ -1062,13 +1116,7 @@ m.audio = {}
 m.audio.pos = 0
 
 m.key[pAUDIO] = function(n,z)
-  if menu.alt then
-    if n==2 and z==1 then
-      mix:read(norns.state.name..".pset")
-    elseif n==3 and z==1 then
-      mix:write(norns.state.name..".pset")
-    end
-  elseif n==2 and z==1 then
+  if n==2 and z==1 then
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 then
     if mix:t(m.audio.pos+1) == mix.tFILE then
