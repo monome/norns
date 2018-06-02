@@ -639,6 +639,7 @@ m.sel.pos = 0
 m.sel.list = util.scandir(script_dir)
 m.sel.len = tab.count(m.sel.list)
 m.sel.depth = 0
+m.sel.folderpos = {}
 m.sel.folders = {}
 m.sel.path = ""
 m.sel.file = ""
@@ -673,7 +674,7 @@ m.key[pSELECT] = function(n,z)
       -- FIXME return to folder position
       m.sel.list = util.scandir(m.sel.dir())
       m.sel.len = tab.count(m.sel.list)
-      m.sel.pos = 0
+      m.sel.pos = m.sel.folderpos[m.sel.depth] or 0
       menu.redraw()
     else
       menu.set_page(pHOME)
@@ -683,6 +684,7 @@ m.key[pSELECT] = function(n,z)
     m.sel.file = m.sel.list[m.sel.pos+1]
     if string.find(m.sel.file,'/') then
       print("folder")
+      m.sel.folderpos[m.sel.depth] = m.sel.pos
       m.sel.depth = m.sel.depth + 1
       m.sel.folders[m.sel.depth] = m.sel.file
       m.sel.list = util.scandir(m.sel.dir())
