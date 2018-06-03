@@ -127,6 +127,18 @@ end
 --- write to disk
 -- @param filename relative to data_dir
 function ParamSet:write(filename)
+  -- check for subfolder in filename, create subfolder if it doesn't exist
+  local subfolder, found = string.gsub(filename,"/(.*)","")
+  if found==1 then
+    local fd = io.open(data_dir..subfolder,"r")
+    if fd then
+      io.close(fd) 
+    else
+      print("creating subfolder")
+      os.execute("mkdir "..data_dir..subfolder) 
+    end
+  end
+  -- write file
   local fd = io.open(data_dir..filename, "w+")
   io.output(fd)
   for k,param in pairs(self.params) do

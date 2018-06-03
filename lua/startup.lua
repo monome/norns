@@ -1,4 +1,5 @@
 -- STARTUP 
+
 require 'menu'
 
 require 'math' 
@@ -62,6 +63,10 @@ norns.startup_status.timeout = function()
   norns.script.clear()
   norns.scripterror("AUDIO ENGINE")
 end
+
+
+-- check for pending updates
+norns.update.run()
 
 print("start_audio(): ")
 -- start the process of syncing with crone boot
