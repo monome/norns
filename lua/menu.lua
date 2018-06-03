@@ -1255,21 +1255,7 @@ m.update.pos = 0
 m.update.confirm = false
 
 m.key[pUPDATE] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and #m.update.list == 0 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and m.update.confirm == false and #m.update.list > 0 then
-    -- CONFIRM UPDATE
-    m.update.confirm = true
-    menu.redraw()
-  elseif n==3 and z==1 and m.update.confirm == true then
-    -- RUN UPDATE
-    m.update.busy = true
-    menu.redraw()
-    os.execute("$HOME/update/"..m.update.list[m.update.pos+1].."/update.sh")
-    menu.set_page(pHOME)
-  end
+  if z == 1 then menu.set_page(pSYSTEM) end
 end
 
 m.enc[pUPDATE] = function(n,delta)
@@ -1282,31 +1268,15 @@ end
 m.redraw[pUPDATE] = function()
   screen.clear()
   screen.level(15)
+  screen.move(64,32)
   if m.update.checking then
-    screen.move(64,32)
     screen.text_center("checking for updates")
-  elseif m.update.busy then
-    screen.move(64,32)
-    screen.text_center("updating... (wait)")
-  elseif #m.update.list == 0 then
-    screen.move(64,32)
-    screen.text_center("no updates")
-  elseif m.update.confirm == false then
-    for i=1,6 do
-      if (i > 2 - m.update.pos) and (i < #m.update.list - m.update.pos + 3) then
-        screen.move(0,10*i)
-        line = m.update.list[i+m.update.pos-2]
-        if(i==3) then
-          screen.level(15)
-        else
-          screen.level(4)
-        end
-        screen.text(line)
-      end
-    end
+  elseif m.update.found then
+    screen.text_center("update found")
+    screen.move(64,42)
+    screen.text_center("reboot to apply")
   else
-    screen.move(64,32)
-    screen.text_center("run update? "..m.update.list[m.update.pos+1])
+    screen.text_center("no updates found")
   end
   screen.update()
 end
@@ -1314,45 +1284,12 @@ end
 m.init[pUPDATE] = function()
   m.update.confirm = false
   m.update.pos = 0
-  local i, t, popen = 0, {}, io.popen
   m.update.checking = true
-  m.update.busy = false
+  m.update.found = false
   menu.redraw()
-  -- CHECK FOR UPDATE FOLDER
-  local test = util.os_capture("ls $HOME | grep update")
-  if test ~= "update" then os.execute("mkdir $HOME/update") end
-  -- COPY FROM USB
-  local disk = util.os_capture("lsblk -o mountpoint | grep media")
-  local pfile = popen("ls -p "..disk.."/norns*.tgz")
-  for filename in pfile:lines() do
-    os.execute("cp "..filename.." $HOME/update/")
-  end 
-  -- PREPARE
-  pfile = popen('ls -p $HOME/update/norns*.tgz')
-  for filename in pfile:lines() do
-    print(filename)
-    -- extract
-    os.execute("tar -xzvC $HOME/update -f "..filename)
-    -- check md5
-    local md5 = util.os_capture("cd $HOME/update; md5sum -c *.md5")
-    print(">> "..md5)
-    if string.find(md5,"OK") then
-      norns.log.post("new update found")
-      -- unpack
-      local file = string.sub(md5,1,-5)
-      os.execute("tar -xzvC $HOME/update -f $HOME/update/"..file)
-    else norns.log.post("bad update file") end
-    -- delete
-    os.execute("rm $HOME/update/*.tgz; rm $HOME/update/*.md5")
-  end
-  pfile:close()
-  m.update.list = {}
-  print("LIST")
-  pfile = popen('ls -tp $HOME/update')
-  for file in pfile:lines() do
-    table.insert(m.update.list,string.sub(file,0,-2))
-  end
-  tab.print(m.update.list)
+
+  m.update.found = norns.update.check()
+
   m.update.checking = false
   menu.redraw()
 end
