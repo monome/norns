@@ -63,8 +63,8 @@ Script.load = function(filename)
     if status == true then
       norns.log.post("loaded " .. filename) -- post to log
       norns.state.script = filename -- store script name
-      norns.state.name = string.gsub(filename,'.lua','') -- store name
-      norns.state.name = norns.state.name:match("[^/]*$") -- strip path from name
+      norns.state.folder_name = string.gsub(filename,'.lua','') -- store name
+      norns.state.name = norns.state.folder_name:match("[^/]*$") -- strip path from name
       norns.state.save() -- remember this script for next launch
       norns.script.redraw = redraw -- store redraw function for context switching
       redraw = norns.none -- block redraw until Script.init

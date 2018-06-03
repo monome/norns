@@ -639,6 +639,7 @@ m.sel.pos = 0
 m.sel.list = util.scandir(script_dir)
 m.sel.len = tab.count(m.sel.list)
 m.sel.depth = 0
+m.sel.folderpos = {}
 m.sel.folders = {}
 m.sel.path = ""
 m.sel.file = ""
@@ -673,7 +674,7 @@ m.key[pSELECT] = function(n,z)
       -- FIXME return to folder position
       m.sel.list = util.scandir(m.sel.dir())
       m.sel.len = tab.count(m.sel.list)
-      m.sel.pos = 0
+      m.sel.pos = m.sel.folderpos[m.sel.depth] or 0
       menu.redraw()
     else
       menu.set_page(pHOME)
@@ -683,6 +684,7 @@ m.key[pSELECT] = function(n,z)
     m.sel.file = m.sel.list[m.sel.pos+1]
     if string.find(m.sel.file,'/') then
       print("folder")
+      m.sel.folderpos[m.sel.depth] = m.sel.pos
       m.sel.depth = m.sel.depth + 1
       m.sel.folders[m.sel.depth] = m.sel.file
       m.sel.list = util.scandir(m.sel.dir())
@@ -785,14 +787,30 @@ end
 
 m.params = {}
 m.params.pos = 0
+m.params.n = 0
+m.params.loadable = true
 
 m.key[pPARAMS] = function(n,z)
   if menu.alt then
     if n==2 and z==1 then
-      params:read(norns.state.name..".pset")
+      if m.params.n == 0 then
+        params:read(norns.state.folder_name..".pset")
+      else
+        params:read(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+      end
+      m.params.action = 15
+      m.params.action_text = "loaded"
     elseif n==3 and z==1 then
-      params:write(norns.state.name..".pset")
+      if m.params.n == 0 then
+        params:write(norns.state.folder_name..".pset")
+      else
+        params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
+      end
+      m.params.action = 15
+      m.params.action_text = "saved"
+      m.params.loadable = true
     end
+    menu.redraw()
   elseif n==2 and z==1 then
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
@@ -810,7 +828,28 @@ m.params.newfile = function(file)
 end
 
 m.enc[pPARAMS] = function(n,d)
-  if n==2 then
+  if menu.alt then
+    if n==3 then
+      m.params.n = util.clamp(m.params.n + d,0,100)
+      local path
+      local f
+      if m.params.n == 0 then
+        path = data_dir..norns.state.folder_name..".pset" 
+        f=io.open(path,"r") 
+      else
+        path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
+        f=io.open(path ,"r") 
+      end
+      --print("pset: "..path)
+      if f~=nil then
+        m.params.loadable = true
+        io.close(f)
+      else
+        m.params.loadable = false
+      end
+      menu.redraw()
+    end 
+  elseif n==2 then
     local prev = m.params.pos
     m.params.pos = util.clamp(m.params.pos + d, 0, params.count - 1)
     if m.params.pos ~= prev then menu.redraw() end
@@ -841,11 +880,23 @@ m.redraw[pPARAMS] = function()
           end
         end
       end
-    else
+    else -- menu.alt == true -- param save/load
+      screen.level(10)
+      screen.move(64,40)
+      if m.params.n == 0 then
+        screen.text_center("default")
+      else
+        screen.text_center(string.format("%02d",m.params.n))
+      end
+      screen.level(m.params.loadable and 5 or 1)
       screen.move(20,50)
       screen.text("load")
+      screen.level(5)
       screen.move(90,50)
       screen.text("save")
+      screen.move(64,20)
+      screen.level(m.params.action)
+      screen.text_center(m.params.action_text)
     end
   else
     screen.move(0,10)
@@ -856,8 +907,13 @@ m.redraw[pPARAMS] = function()
 end
 
 m.init[pPARAMS] = function()
-  u.callback = function() menu.redraw() end
-  u.time = 1
+  m.params.action_text = ""
+  m.params.action = 0
+  u.callback = function()
+    if m.params.action > 0 then m.params.action = m.params.action - 1 end
+    menu.redraw()
+  end
+  u.time = 0.2
   u.count = -1
   u:start()
 end
@@ -1060,13 +1116,7 @@ m.audio = {}
 m.audio.pos = 0
 
 m.key[pAUDIO] = function(n,z)
-  if menu.alt then
-    if n==2 and z==1 then
-      mix:read(norns.state.name..".pset")
-    elseif n==3 and z==1 then
-      mix:write(norns.state.name..".pset")
-    end
-  elseif n==2 and z==1 then
+  if n==2 and z==1 then
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 then
     if mix:t(m.audio.pos+1) == mix.tFILE then
@@ -1205,21 +1255,7 @@ m.update.pos = 0
 m.update.confirm = false
 
 m.key[pUPDATE] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and #m.update.list == 0 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and m.update.confirm == false and #m.update.list > 0 then
-    -- CONFIRM UPDATE
-    m.update.confirm = true
-    menu.redraw()
-  elseif n==3 and z==1 and m.update.confirm == true then
-    -- RUN UPDATE
-    m.update.busy = true
-    menu.redraw()
-    os.execute("$HOME/update/"..m.update.list[m.update.pos+1].."/update.sh")
-    menu.set_page(pHOME)
-  end
+  if z == 1 then menu.set_page(pSYSTEM) end
 end
 
 m.enc[pUPDATE] = function(n,delta)
@@ -1232,31 +1268,15 @@ end
 m.redraw[pUPDATE] = function()
   screen.clear()
   screen.level(15)
+  screen.move(64,32)
   if m.update.checking then
-    screen.move(64,32)
     screen.text_center("checking for updates")
-  elseif m.update.busy then
-    screen.move(64,32)
-    screen.text_center("updating... (wait)")
-  elseif #m.update.list == 0 then
-    screen.move(64,32)
-    screen.text_center("no updates")
-  elseif m.update.confirm == false then
-    for i=1,6 do
-      if (i > 2 - m.update.pos) and (i < #m.update.list - m.update.pos + 3) then
-        screen.move(0,10*i)
-        line = m.update.list[i+m.update.pos-2]
-        if(i==3) then
-          screen.level(15)
-        else
-          screen.level(4)
-        end
-        screen.text(line)
-      end
-    end
+  elseif m.update.found then
+    screen.text_center("update found")
+    screen.move(64,42)
+    screen.text_center("reboot to apply")
   else
-    screen.move(64,32)
-    screen.text_center("run update? "..m.update.list[m.update.pos+1])
+    screen.text_center("no updates found")
   end
   screen.update()
 end
@@ -1264,45 +1284,12 @@ end
 m.init[pUPDATE] = function()
   m.update.confirm = false
   m.update.pos = 0
-  local i, t, popen = 0, {}, io.popen
   m.update.checking = true
-  m.update.busy = false
+  m.update.found = false
   menu.redraw()
-  -- CHECK FOR UPDATE FOLDER
-  local test = util.os_capture("ls $HOME | grep update")
-  if test ~= "update" then os.execute("mkdir $HOME/update") end
-  -- COPY FROM USB
-  local disk = util.os_capture("lsblk -o mountpoint | grep media")
-  local pfile = popen("ls -p "..disk.."/norns*.tgz")
-  for filename in pfile:lines() do
-    os.execute("cp "..filename.." $HOME/update/")
-  end 
-  -- PREPARE
-  pfile = popen('ls -p $HOME/update/norns*.tgz')
-  for filename in pfile:lines() do
-    print(filename)
-    -- extract
-    os.execute("tar -xzvC $HOME/update -f "..filename)
-    -- check md5
-    local md5 = util.os_capture("cd $HOME/update; md5sum -c *.md5")
-    print(">> "..md5)
-    if string.find(md5,"OK") then
-      norns.log.post("new update found")
-      -- unpack
-      local file = string.sub(md5,1,-5)
-      os.execute("tar -xzvC $HOME/update -f $HOME/update/"..file)
-    else norns.log.post("bad update file") end
-    -- delete
-    os.execute("rm $HOME/update/*.tgz; rm $HOME/update/*.md5")
-  end
-  pfile:close()
-  m.update.list = {}
-  print("LIST")
-  pfile = popen('ls -tp $HOME/update')
-  for file in pfile:lines() do
-    table.insert(m.update.list,string.sub(file,0,-2))
-  end
-  tab.print(m.update.list)
+
+  m.update.found = norns.update.check()
+
   m.update.checking = false
   menu.redraw()
 end

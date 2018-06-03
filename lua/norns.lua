@@ -150,6 +150,7 @@ norns.script = require 'script'
 norns.state = require 'state'
 norns.log = require 'log'
 norns.encoders = require 'encoders'
+norns.update = require 'update'
 
 norns.enc = norns.encoders.process
 
