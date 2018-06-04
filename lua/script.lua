@@ -38,8 +38,9 @@ end
 Script.init = function()
   print("# script init")
   params.name = norns.state.name
-  if not pcall(init) then norns.scripterror() end
-  norns.menu.init()
+  if norns.try(init, "init") then
+    norns.menu.init()
+  end
 end
 
 --- load a script from the /scripts folder
