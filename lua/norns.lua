@@ -156,7 +156,8 @@ norns.enc = norns.encoders.process
 
 --- Error handling
 norns.try = function(f,msg)
-  local status, err = pcall(f)
+  local handler = function (err) return err .. "\n" .. debug.traceback() end
+  local status, err = xpcall(f, handler)
   if not status then
     norns.scripterror(msg)
     print(err)
