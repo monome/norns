@@ -35,7 +35,7 @@ sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollid
 ## building norns
 
 ```
-git clone https://github.com/catfact/norns.git
+git clone https://github.com/monome/norns.git
 cd norns
 ./waf configure
 ./waf
@@ -78,7 +78,7 @@ matron waits for crone to finish loading before entering the main event loop.
 
 ### 3. launch `maiden` (web UI client)
 
-get most recent version from https://github.com/ngwese/maiden/releases
+get most recent version from https://github.com/monome/maiden/releases
 
 download to `~/maiden/` and untar
 
