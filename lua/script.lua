@@ -17,6 +17,7 @@ Script.clear = function()
   -- clear, redirect, and reset grid
   if g then 
     g:all(0)
+    g:refresh()
     g.key = norns.none
   end
   g = nil
