@@ -44,7 +44,7 @@ end
 --- set
 -- accepts a mapped value
 function Control:set(value)
-  self:set_raw(util.round(self.controlspec:unmap(value),self.controlspec.step))
+  self:set_raw(self.controlspec:unmap(util.round(value,self.controlspec.step)))
 end
 
 --- set_raw
