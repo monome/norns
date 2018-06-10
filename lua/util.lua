@@ -130,7 +130,7 @@ function util.expexp(slo, shi, dlo, dhi, f)
   elseif f >= shi then
     return dhi
   else
-    return math.pow(dhi/dlo, math.log(f/slo)) / (math.log(shi/slo)) * dlo
+    return math.pow(dhi/dlo, math.log(f/slo) / math.log(shi/slo)) * dlo
   end
 end
 
