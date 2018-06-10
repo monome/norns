@@ -47,6 +47,17 @@ util.string_starts = function(s,start)
   return string.sub(s,1,string.len(start))==start
 end
 
+--- convert midi note number to name
+-- @param note_num midi note number (0-127)
+-- @param include_octave optional, include octave number in return string if set to true
+-- @return name string (eg, C#3)
+function util.midi_note_to_name(note_num, include_octave)
+  local NAMES = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
+  local name = NAMES[note_num % 12 + 1]
+  if include_octave then name = name .. math.floor(note_num / 12 - 1) end
+  return name
+end
+
 --- clamp values to min max
 -- @param n value
 -- @param min minimum
