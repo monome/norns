@@ -59,6 +59,12 @@ end
 -- linlin, linexp, explin, expexp ripped from SC source code
 -- https://github.com/supercollider/supercollider/blob/cca12ff02a774a9ea212e8883551d3565bb24a6f/lang/LangSource/MiscInlineMath.h 
 
+--- convert a linear range to an exponential range
+-- @param slo lower limit of input range
+-- @param shi upper limit of input range
+-- @param dlo lower limit of output range (must be non-zero and of the same sign as dhi)
+-- @param dhi upper limit of output range (must be non-zero and of the same sign as dlo)
+-- @param f input to convert
 function util.linexp(slo, shi, dlo, dhi, f)
   if f <= slo then
     return dlo
@@ -69,6 +75,12 @@ function util.linexp(slo, shi, dlo, dhi, f)
   end
 end
 
+--- map a linear range to another linear range
+-- @param slo lower limit of input range
+-- @param shi upper limit of input range
+-- @param dlo lower limit of output range
+-- @param dhi upper limit of output range
+-- @param f input to convert
 function util.linlin(slo, shi, dlo, dhi, f)
   if f <= slo then
     return dlo
@@ -79,6 +91,12 @@ function util.linlin(slo, shi, dlo, dhi, f)
   end
 end
 
+--- convert an exponential range to a linear range
+-- @param slo lower limit of input range (must be non-zero and of the same sign as shi)
+-- @param shi upper limit of input range (must be non-zero and of the same sign as slo)
+-- @param dlo lower limit of output range
+-- @param dhi upper limit of output range
+-- @param f input to convert
 function util.explin(slo, shi, dlo, dhi, f)
   if f <= slo then
     return dlo
@@ -89,6 +107,12 @@ function util.explin(slo, shi, dlo, dhi, f)
   end
 end
 
+--- map an exponential range to another exponential range
+-- @param slo lower limit of input range (must be non-zero and of the same sign as shi)
+-- @param shi upper limit of input range (must be non-zero and of the same sign as slo)
+-- @param dlo lower limit of output range (must be non-zero and of the same sign as dhi)
+-- @param dhi upper limit of output range (must be non-zero and of the same sign as dlo)
+-- @param f input to convert
 function util.expexp(slo, shi, dlo, dhi, f)
   if f <= slo then
     return dlo
@@ -99,6 +123,9 @@ function util.expexp(slo, shi, dlo, dhi, f)
   end
 end
 
+--- round to a multiple of a number
+-- @param number number to round
+-- @param quant precision to round to
 function util.round(number, quant)
   if quant == 0 then
     return number
@@ -107,6 +134,9 @@ function util.round(number, quant)
   end
 end
 
+--- round up to a multiple of a number
+-- @param number number to round
+-- @param quant precision to round to
 function util.round_up(number, quant)
   if quant == 0 then
     return number
