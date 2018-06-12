@@ -218,7 +218,7 @@ void screen_font_face(int i) {
     }
 }
 
-void screen_font_size(long z) {
+void screen_font_size(double z) {
     CHECK_CR
     cairo_set_font_size(cr,z);
 }
@@ -237,27 +237,27 @@ void screen_level(int z) {
     cairo_set_source_rgb(cr,c[z],c[z],c[z]);
 }
 
-void screen_line_width(long w) {
+void screen_line_width(double w) {
     CHECK_CR
     cairo_set_line_width(cr,w);
 }
 
-void screen_move(long x, long y) {
+void screen_move(double x, double y) {
     CHECK_CR
     cairo_move_to(cr,x + 0.5,y + 0.5);
 }
 
-void screen_line(long x, long y) {
+void screen_line(double x, double y) {
     CHECK_CR
     cairo_line_to(cr,x + 0.5,y + 0.5);
 }
 
-void screen_line_rel(long x, long y) {
+void screen_line_rel(double x, double y) {
     CHECK_CR
     cairo_rel_line_to(cr,x,y);
 }
 
-void screen_move_rel(long x, long y) {
+void screen_move_rel(double x, double y) {
     CHECK_CR
     cairo_rel_move_to(cr,x,y);
 }
