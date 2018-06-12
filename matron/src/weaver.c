@@ -357,7 +357,7 @@ int _screen_font_size(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
+  int x = (int) luaL_checknumber(l, 1);
   screen_font_size(x);
   lua_settop(l, 0);
   return 0;
