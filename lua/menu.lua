@@ -465,7 +465,7 @@ m.redraw[pMIX] = function()
   screen.rect(x+48,56,2,-n)
   screen.stroke()
 
-  n = m.mix.out1/64*48
+  n = m.mix.out2/64*48
   screen.rect(x+54,56,2,-n)
   screen.stroke()
 
