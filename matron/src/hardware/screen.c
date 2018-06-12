@@ -254,12 +254,12 @@ void screen_line(long x, long y) {
 
 void screen_line_rel(long x, long y) {
     CHECK_CR
-    cairo_rel_line_to(cr,x + 0.5,y + 0.5);
+    cairo_rel_line_to(cr,x,y);
 }
 
 void screen_move_rel(long x, long y) {
     CHECK_CR
-    cairo_rel_move_to(cr,x + 0.5,y + 0.5);
+    cairo_rel_move_to(cr,x,y);
 }
 
 void screen_curve(double x1,
