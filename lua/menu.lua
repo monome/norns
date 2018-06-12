@@ -457,53 +457,43 @@ m.redraw[pMIX] = function()
   local x = -40
   screen.level(2)
   n = (60+mix:get("output"))/60*48
-  screen.rect(x+42,56,2,-n)
+  screen.rect(x+42.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(15)
   n = m.mix.out1/64*48
-  screen.rect(x+48,56,2,-n)
+  screen.rect(x+48.5,56.5,2,-n)
   screen.stroke()
 
   n = m.mix.out2/64*48
-  screen.rect(x+54,56,2,-n)
+  screen.rect(x+54.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(2)
   n = (60+mix:get("input"))/60*48
-  screen.rect(x+64,56,2,-n)
+  screen.rect(x+64.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(15)
   n = m.mix.in1/64*48
-  screen.rect(x+70,56,2,-n)
+  screen.rect(x+70.5,56.5,2,-n)
   screen.stroke()
   n = m.mix.in2/64*48
-  screen.rect(x+76,56,2,-n)
+  screen.rect(x+76.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(2)
   n = (60+mix:get("monitor"))/60*48
-  screen.rect(x+86,56,2,-n)
+  screen.rect(x+86.5,56.5,2,-n)
   screen.stroke()
 
-  --screen.aa(0)
-  --screen.line_width(1)
-  screen.level(7)
-
-  screen.move(1,62)
-  screen.line(3,60)
-  screen.line(5,62)
-  screen.stroke()
-
-  screen.move(23,60)
-  screen.line(25,62)
-  screen.line(27,60)
-  screen.stroke()
-
-  screen.move(45,61)
-  screen.line(49,61)
-  screen.stroke()
+  screen.level(1) 
+  screen.move(2,64)
+  screen.text("out")
+  screen.move(24,64)
+  screen.text("in")
+  screen.move(46,64)
+  screen.text("mon")
 
   if tape.selectmode then
     screen.level(10)
@@ -544,12 +534,12 @@ m.redraw[pMIX] = function()
     local min = math.floor(tape.time / 60)
     local sec = tape.time % 60
     screen.text_center(min..":"..sec)
-    screen.move(90,62)
+    screen.move(90,32)
     screen.text_center(tape.playfile)
   end
 
-  screen.level(2)
-  screen.move(127,12)
+  screen.level(1)
+  screen.move(127,64)
   if menu.alt == false then screen.text_right(norns.battery_percent)
   else screen.text_right(norns.battery_current.."mA") end
 

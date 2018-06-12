@@ -244,12 +244,12 @@ void screen_line_width(double w) {
 
 void screen_move(double x, double y) {
     CHECK_CR
-    cairo_move_to(cr,x + 0.5,y + 0.5);
+    cairo_move_to(cr,x,y);
 }
 
 void screen_line(double x, double y) {
     CHECK_CR
-    cairo_line_to(cr,x + 0.5,y + 0.5);
+    cairo_line_to(cr,x,y);
 }
 
 void screen_line_rel(double x, double y) {
@@ -284,12 +284,12 @@ void screen_curve_rel(double dx1,
 
 void screen_arc(double x, double y, double r, double a1, double a2) {
     CHECK_CR
-    cairo_arc(cr,x + 0.5,y + 0.5,r,a1,a2);
+    cairo_arc(cr,x,y,r,a1,a2);
 }
 
 void screen_rect(double x, double y, double w, double h) {
     CHECK_CR
-    cairo_rectangle(cr,x + 0.5,y + 0.5,w,h);
+    cairo_rectangle(cr,x,y,w,h);
 }
 
 void screen_close_path(void) {
