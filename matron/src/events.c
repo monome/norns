@@ -196,6 +196,11 @@ static void handle_event(union event_data *ev) {
                           ev->grid_key.y,
                           ev->grid_key.state);
         break;
+    case EVENT_ARC_ENC:
+        w_handle_arc_enc(ev->arc_enc.id,
+                         ev->arc_enc.n,
+                         ev->arc_enc.delta);
+        break;
     case EVENT_HID_ADD:
         w_handle_hid_add(ev->hid_add.dev);
         break;
