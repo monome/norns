@@ -67,8 +67,8 @@ local function do_load(file)
     chunk()
   end
 
-  -- review overwritten state
-  print("*** overwritten globals: ")
+  -- review written state
+  print("*** written globals: ")
   for k,_ in pairs(_G.__norns_init_state) do 
     print("  "..tostring(k))
   end
