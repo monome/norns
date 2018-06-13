@@ -1,6 +1,7 @@
 -- STARTUP 
 
 require 'menu'
+require 'monome'
 
 require 'math' 
 math.randomseed(os.time()) -- more random
@@ -8,6 +9,7 @@ math.randomseed(os.time()) -- more random
 -- globals
 screen = require 'screen'
 grid = require 'grid'
+_arc = require 'arc'
 hid = require 'hid'
 metro = require 'metro'
 midi = require 'midi'
@@ -47,6 +49,27 @@ grid.reconnect = function()
 end
 
 grid.remove = function(device) g = nil end
+
+-- management of arcs
+arc = nil
+
+_arc.add = function(device)
+  print("attaching arc ")
+  arc = device
+  arc.enc = arcenc
+  arc:print()
+  norns.log.post("connected: arc")
+end
+
+_arc.reconnect = function()
+   print("arc.reconnect (default)")
+  _, arc = next(_arc.devices) -- hacky way to get basically random item in a table
+  if arc then
+     _arc.add(arc)
+  end
+end
+
+_arc.remove = function(device) arc = nil end
 
 print("setting startup_status callbacks...")
 

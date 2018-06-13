@@ -49,6 +49,7 @@
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/arc.html">arc</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/log.html">log</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
@@ -115,6 +116,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#norns.grid.key">norns.grid.key (id, x, y, val)</a></td>
 	<td class="summary">grid key event</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#norns.arc.enc">norns.arc.enc (id, n, delta)</a></td>
+	<td class="summary">arc encoder event</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#norns.hid.add">norns.hid.add (id, serial, name, types, codes)</a></td>
@@ -341,6 +346,32 @@
         </li>
         <li><span class="parameter">val</span>
         print("norns.grid.key ", id,x,y,val)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "norns.arc.enc"></a>
+    <strong>norns.arc.enc (id, n, delta)</strong>
+    </dt>
+    <dd>
+    arc encoder event
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
+        <li><span class="parameter">n</span>
+
+        </li>
+        <li><span class="parameter">delta</span>
+        print("norns.arc.enc ", id,n,delta)
         </li>
     </ul>
 

@@ -18,9 +18,7 @@
 //-- static functions
 static void dev_monome_handle_press(const monome_event_t *e, void *p);
 static void dev_monome_handle_lift(const monome_event_t *e, void *p);
-
-static void dev_monome_handle_press(const monome_event_t *e, void *p);
-static void dev_monome_handle_lift(const monome_event_t *e, void *p);
+static void dev_arc_handle_enc(const monome_event_t *e, void *p);
 
 //-------------------------
 //--- monome device class
@@ -44,6 +42,7 @@ int dev_monome_init(void *self) {
 
     monome_register_handler(m, MONOME_BUTTON_DOWN, dev_monome_handle_press, md);
     monome_register_handler(m, MONOME_BUTTON_UP, dev_monome_handle_lift, md);
+    monome_register_handler(m, MONOME_ENCODER_DELTA, dev_arc_handle_enc, md);
 
     // drop the name set by udev and use libmonome-provided name
     free(base->name);
@@ -87,6 +86,22 @@ void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
     }
 }
 
+// set a given arc LED value
+void dev_arc_set_led(struct dev_monome *md,
+                        uint8_t enc, uint8_t led, uint8_t val) {
+    /* fprintf(stderr, "dev_monome_set_led: %d %s %d %d %d\n", */
+    /*             md->dev.id, md->dev.serial, enc, led, val); */
+    md->data[enc][led] = val;
+    md->dirty[enc] = true;
+    md->arc = true;
+}
+
+// set all arc LEDs to value
+void dev_arc_all_led(struct dev_monome *md, uint8_t val) {
+    dev_monome_all_led(md, val);
+    md->arc = true;
+}
+
 // transmit all dirty quads
 void dev_monome_refresh(struct dev_monome *md) {
     static const int quad_xoff[4] = {0, 8, 0, 8};
@@ -94,10 +109,16 @@ void dev_monome_refresh(struct dev_monome *md) {
     if (md->m == NULL) { return; }
     for(int quad = 0; quad < 4; quad++) {
         if(md->dirty[quad]) {
-            monome_led_level_map(md->m,
-                                 quad_xoff[quad],
-                                 quad_yoff[quad],
-                                 md->data[quad]);
+            if (md->arc) {
+                monome_led_ring_map(md->m,
+                                    quad,
+                                    md->data[quad]);
+            } else {
+                monome_led_level_map(md->m,
+                                     quad_xoff[quad],
+                                     quad_yoff[quad],
+                                     md->data[quad]);
+            }
             md->dirty[quad] = false;
         }
     }
@@ -119,6 +140,17 @@ grid_key_event(const monome_event_t *e, void *p, int state) {
     event_post(ev);
 }
 
+static inline void
+arc_enc_event(const monome_event_t *e, void *p) {
+    struct dev_monome *md = (struct dev_monome *)p;
+    union event_data *ev = event_data_new(EVENT_ARC_ENC);
+    ev->arc_enc.id = md->dev.id;
+    ev->arc_enc.n = e->encoder.number;
+    ev->arc_enc.delta = e->encoder.delta;
+    // fprintf(stderr, "%d\t%d\t%d\n", md->dev.id, e->encoder.number, e->encoder.delta);
+    event_post(ev);
+}
+
 void dev_monome_handle_press(const monome_event_t *e, void *p) {
     // fprintf(stderr, "dev_monome_handle_press()\n");
     grid_key_event(e, p, 1);
@@ -129,12 +161,22 @@ void dev_monome_handle_lift(const monome_event_t *e, void *p) {
     grid_key_event(e, p, 0);
 }
 
+void dev_arc_handle_enc(const monome_event_t *e, void *p) {
+    // fprintf(stderr, "dev_arc_handle_enc()\n");
+    arc_enc_event(e, p);
+}
+
 int dev_monome_grid_rows(struct dev_monome *md) {
     return monome_get_rows(md->m);
 }
 
 int dev_monome_grid_cols(struct dev_monome *md) {
     return monome_get_cols(md->m);
+}
+
+int dev_monome_arc_encs(struct dev_monome *md) {
+    // FIXME returning rows, libmonome currently doesn't support returning encoders
+    return monome_get_rows(md->m);
 }
 
 void *dev_monome_start(void *md) {

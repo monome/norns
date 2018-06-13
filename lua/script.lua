@@ -14,13 +14,19 @@ Script.clear = function()
   -- redirect inputs to nowhere
   key = norns.none
   enc = norns.none
-  -- clear, redirect, and reset grid
+  -- clear, redirect, and reset grid/arc
   if g then 
     g:all(0)
     g:refresh()
     g.key = norns.none
   end
   g = nil
+  if arc then 
+    arc:all(0)
+    arc:refresh()
+    arc.enc = norns.none
+  end
+  arc = nil
   -- stop all timers
   metro.free_all()
   -- stop all polls and clear callbacks
@@ -81,6 +87,8 @@ Script.run = function()
     Script.init()
     print("reconnecting grid...")
     grid.reconnect()
+    print("reconnecting arc...")
+    arc.reconnect()
     print("reconnecting midi...")
     midi.reconnect()
   end

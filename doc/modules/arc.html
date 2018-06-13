@@ -45,11 +45,11 @@
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
-  <li><a href="../modules/arc.html">arc</a></li>
+  <li><strong>arc</strong></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/log.html">log</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
-  <li><strong>midi</strong></li>
+  <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/option.html">option</a></li>
@@ -68,42 +68,50 @@
 
 <div id="content">
 
-<h1>Module <code>midi</code></h1>
-<p>midi devices</p>
+<h1>Module <code>arc</code></h1>
+<p>Arc class</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#new">new (id, name, dev)</a></td>
+	<td class="name" nowrap><a href="#new">new (id, serial, name, dev)</a></td>
 	<td class="summary">constructor</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#add">add (dev)</a></td>
-	<td class="summary">static callback when any midi device is added;
+	<td class="summary">static callback when any arc device is added;
  user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#reconnect">reconnect ()</a></td>
+	<td class="summary">scan device list and grab one, redefined later</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#remove">remove (dev)</a></td>
-	<td class="summary">static callback when any midi device is removed;
+	<td class="summary">static callback when any arc device is removed;
  user scripts can redefine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#send">send (array)</a></td>
-	<td class="summary">send midi event to device</td>
+	<td class="name" nowrap><a href="#led">led (enc, led, val)</a></td>
+	<td class="summary">set state of single LED on this arc device</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#norns.midi.add">norns.midi.add (id, name, dev)</a></td>
-	<td class="summary">add a device</td>
+	<td class="name" nowrap><a href="#all">all (val)</a></td>
+	<td class="summary">set state of all LEDs on this arc device</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#norns.midi.remove">norns.midi.remove (id)</a></td>
-	<td class="summary">remove a device</td>
+	<td class="name" nowrap><a href="#refresh">refresh ()</a></td>
+	<td class="summary">update any dirty encoders on this arc device</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#norns.midi.event">norns.midi.event (id, data)</a></td>
-	<td class="summary">handle a midi event</td>
+	<td class="name" nowrap><a href="#print">print ()</a></td>
+	<td class="summary">print a description of this arc device</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#norns.arc.enc">norns.arc.enc (id, n, delta)</a></td>
+	<td class="summary">redefine global arc encoder input handler</td>
 	</tr>
 </table>
 
@@ -116,7 +124,7 @@
     <dl class="function">
     <dt>
     <a name = "new"></a>
-    <strong>new (id, name, dev)</strong>
+    <strong>new (id, serial, name, dev)</strong>
     </dt>
     <dd>
     constructor
@@ -127,6 +135,10 @@
         <li><span class="parameter">id</span>
             <span class="types"><span class="type">integer</span></span>
          : arbitrary numeric identifier
+        </li>
+        <li><span class="parameter">serial</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : serial
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
@@ -148,16 +160,30 @@
     <strong>add (dev)</strong>
     </dt>
     <dd>
-    static callback when any midi device is added;
+    static callback when any arc device is added;
  user scripts can redefine
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">dev</span>
-         : a Midi table
+         : a Arc table
         </li>
     </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "reconnect"></a>
+    <strong>reconnect ()</strong>
+    </dt>
+    <dd>
+    scan device list and grab one, redefined later
+
+
 
 
 
@@ -169,14 +195,14 @@
     <strong>remove (dev)</strong>
     </dt>
     <dd>
-    static callback when any midi device is removed;
+    static callback when any arc device is removed;
  user scripts can redefine
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">dev</span>
-         : a Midi table
+         : a Arc table
         </li>
     </ul>
 
@@ -186,17 +212,26 @@
 
 </dd>
     <dt>
-    <a name = "send"></a>
-    <strong>send (array)</strong>
+    <a name = "led"></a>
+    <strong>led (enc, led, val)</strong>
     </dt>
     <dd>
-    send midi event to device
+    set state of single LED on this arc device
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">array</span>
-
+        <li><span class="parameter">enc</span>
+            <span class="types"><span class="type">integer</span></span>
+         : encoder index (1-based!)
+        </li>
+        <li><span class="parameter">led</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED index (1-based!)
+        </li>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [1, 16]
         </li>
     </ul>
 
@@ -206,11 +241,60 @@
 
 </dd>
     <dt>
-    <a name = "norns.midi.add"></a>
-    <strong>norns.midi.add (id, name, dev)</strong>
+    <a name = "all"></a>
+    <strong>all (val)</strong>
     </dt>
     <dd>
-    add a device
+    set state of all LEDs on this arc device
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [1, 16]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "refresh"></a>
+    <strong>refresh ()</strong>
+    </dt>
+    <dd>
+    update any dirty encoders on this arc device
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "print"></a>
+    <strong>print ()</strong>
+    </dt>
+    <dd>
+    print a description of this arc device
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "norns.arc.enc"></a>
+    <strong>norns.arc.enc (id, n, delta)</strong>
+    </dt>
+    <dd>
+    redefine global arc encoder input handler
 
 
     <h3>Parameters:</h3>
@@ -218,53 +302,10 @@
         <li><span class="parameter">id</span>
 
         </li>
-        <li><span class="parameter">name</span>
+        <li><span class="parameter">n</span>
 
         </li>
-        <li><span class="parameter">dev</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "norns.midi.remove"></a>
-    <strong>norns.midi.remove (id)</strong>
-    </dt>
-    <dd>
-    remove a device
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">id</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "norns.midi.event"></a>
-    <strong>norns.midi.event (id, data)</strong>
-    </dt>
-    <dd>
-    handle a midi event
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">id</span>
-
-        </li>
-        <li><span class="parameter">data</span>
+        <li><span class="parameter">delta</span>
 
         </li>
     </ul>
