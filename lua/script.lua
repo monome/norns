@@ -88,7 +88,7 @@ Script.run = function()
     print("reconnecting grid...")
     grid.reconnect()
     print("reconnecting arc...")
-    arc.reconnect()
+    _arc.reconnect()
     print("reconnecting midi...")
     midi.reconnect()
   end
