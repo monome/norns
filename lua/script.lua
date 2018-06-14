@@ -21,6 +21,8 @@ Script.clear = function()
     g.key = norns.none
   end
   g = nil
+  -- reset gridkey callback
+  gridkey = norns.none
   -- stop all timers
   metro.free_all()
   -- stop all polls and clear callbacks
