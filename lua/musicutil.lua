@@ -6,9 +6,8 @@ MusicUtil = {}
 
 MusicUtil.NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"}
 MusicUtil.SCALES = {
-  {name = "Chromatic", intervals = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}},
-  {name = "Ionian (Major)", intervals = {0, 2, 4, 5, 7, 9, 11, 12}},
-  {name = "Aeolian (Natural Minor)", intervals = {0, 2, 3, 5, 7, 8, 10, 12}},
+  {name = "Major", alt_names = {"Ionian"}, intervals = {0, 2, 4, 5, 7, 9, 11, 12}},
+  {name = "Natural Minor", alt_names = {"Minor", "Aeolian"}, intervals = {0, 2, 3, 5, 7, 8, 10, 12}},
   {name = "Harmonic Minor", intervals = {0, 2, 3, 5, 7, 8, 11, 12}},
   {name = "Melodic Minor", intervals = {0, 2, 3, 5, 7, 9, 11, 12}},
   {name = "Dorian", intervals = {0, 2, 3, 5, 7, 9, 10, 12}},
@@ -24,7 +23,7 @@ MusicUtil.SCALES = {
   {name = "Altered Scale", intervals = {0, 1, 3, 4, 6, 8, 10, 12}},
   {name = "Dorian Bebop", intervals = {0, 2, 3, 4, 5, 7, 9, 10, 12}},
   {name = "Mixolydian Bebop", intervals = {0, 2, 4, 5, 7, 9, 10, 11, 12}},
-  {name = "Blues Scale", intervals = {0, 3, 5, 6, 7, 10, 12}},
+  {name = "Blues Scale", alt_names = {"Blues"}, intervals = {0, 3, 5, 6, 7, 10, 12}},
   {name = "Diminished Whole Half", intervals = {0, 2, 3, 5, 6, 8, 9, 11, 12}},
   {name = "Diminished Half Whole", intervals = {0, 1, 3, 4, 6, 7, 9, 10, 12}},
   {name = "Neapolitan Major", intervals = {0, 1, 3, 5, 7, 9, 11, 12}},
@@ -52,7 +51,8 @@ MusicUtil.SCALES = {
   {name = "Gagaku Ryo Sen Pou", intervals = {0, 2, 4, 7, 9, 12}},
   {name = "Zokugaku Yo Sen Pou", intervals = {0, 3, 5, 7, 10, 12}},
   {name = "In Sen Pou", intervals = {0, 1, 5, 2, 8, 12}},
-  {name = "Okinawa", intervals = {0, 4, 5, 7, 11, 12}}
+  {name = "Okinawa", intervals = {0, 4, 5, 7, 11, 12}},
+  {name = "Chromatic", intervals = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}}
 }
 -- Scale data from https://github.com/fredericcormier/WesternMusicElements
 
@@ -70,14 +70,22 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
   -- Lookup by name
   if type(scale_type) == "string" then
     scale_type = string.lower(scale_type)
-    if scale_type == "major" or scale_type == "ionian" then scale_type = 2
-    elseif scale_type == "minor" or scale_type == "natural minor" or scale_type == "aeolian" then scale_type = 3
-    else
-      for k, v in pairs(MusicUtil.SCALES) do
-        if string.lower(v.name) == scale_type then
-          scale_type = k
-          break
+    for k, v in pairs(MusicUtil.SCALES) do
+      if string.lower(v.name) == scale_type then
+        scale_type = k
+        print(v)
+        break
+      else
+        local found = false
+        for _, av in pairs(v.alt_names) do
+          if string.lower(av) == scale_type then
+            scale_type = k
+            print(av)
+            found = true
+            break
+          end
         end
+        if found then break end
       end
     end
   end
