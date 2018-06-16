@@ -73,14 +73,12 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
     for k, v in pairs(MusicUtil.SCALES) do
       if string.lower(v.name) == scale_type then
         scale_type = k
-        print(v)
         break
-      else
+      elseif v.alt_names then
         local found = false
         for _, av in pairs(v.alt_names) do
           if string.lower(av) == scale_type then
             scale_type = k
-            print(av)
             found = true
             break
           end
@@ -179,7 +177,7 @@ function MusicUtil.freqs_to_note_nums(freqs)
   if type(freqs) == "number" then freqs = {freqs} end
   local output = {}
   for k, v in pairs(freqs) do
-    table.insert(output, math.floor(12 * math.log(v / 440.0) / math.log(2) + 69.5))
+    table.insert(output, math.floor(12 * math.log(v / 440.0) / math.log(2) + 69.5)) -- TODO clamp
   end
   if #output == 1 then return output[1]
   else return output end
@@ -190,17 +188,17 @@ end
 
 -- print(MusicUtil.note_nums_to_names(61))
 
--- for k, v in pairs(MusicUtil.note_nums_to_names(MusicUtil.generate_scale(60, "major", 2), true)) do
---   print(v)
--- end
+for k, v in pairs(MusicUtil.note_nums_to_names(MusicUtil.generate_scale(60, "minor", 2), true)) do
+  print(v)
+end
 
 -- for k, v in pairs(MusicUtil.snap_notes_to_table({45,64,12,60,63,61,78,60},{60,62,64})) do
 --   print(v)
 -- end
 
 -- print(MusicUtil.note_nums_to_freqs(60))
-for k, v in pairs(MusicUtil.freqs_to_note_nums({8.1757, 4186, 261.63, 440})) do
-  print(v)
-end
+-- for k, v in pairs(MusicUtil.freqs_to_note_nums({8.1757, 4186, 261.63, 440})) do
+--   print(v)
+-- end
 
 return MusicUtil
