@@ -109,7 +109,7 @@ end
 
 --- Snap MIDI note numbers to a table of note numbers
 -- @param note_nums MIDI note number (0-127) or table of note numbers in any order
--- @param snap_table Table of note numbers to snap to, must be in low to high order
+-- @param snap_table Table of note numbers to snap to, must be in array format
 -- return Table of adjusted note numbers or a single note number
 function MusicUtil.snap_notes_to_table(note_nums, snap_table)
   if not note_nums or not snap_table then return nil end
