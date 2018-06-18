@@ -61,7 +61,7 @@ MusicUtil.SCALES = {
 -- @param root_num MIDI note number (0-127) where scale will begin
 -- @param scale_type String or number defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list
 -- @param octaves Number of octaves to return, defaults to 1
--- @return Table of MIDI note numbers
+-- @return Array of MIDI note numbers
 function MusicUtil.generate_scale(root_num, scale_type, octaves)
   if root_num < 0 or root_num > 127 then return nil end
   octaves = octaves or 1
@@ -91,7 +91,7 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
   local scale_data =  MusicUtil.SCALES[scale_type]
   if not scale_data then return nil end
 
-  -- Generate output table
+  -- Generate output array
   local output = {}
   local scale_length = #scale_data.intervals
   local note_num
@@ -107,22 +107,22 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
   return output
 end
 
---- Snap MIDI note numbers to a table of note numbers
--- @param note_nums MIDI note number (0-127) or table of note numbers in any order
--- @param snap_table Table of note numbers to snap to, must be in array format
--- return Table of adjusted note numbers or a single note number
-function MusicUtil.snap_notes_to_table(note_nums, snap_table)
-  if not note_nums or not snap_table then return nil end
+--- Snap MIDI note numbers to an array of note numbers
+-- @param note_nums MIDI note number (0-127) or array of note numbers
+-- @param snap_array Array of note numbers to snap to, must be in low to high order
+-- return Array of adjusted note numbers or a single note number
+function MusicUtil.snap_notes_to_array(note_nums, snap_array)
+  if not note_nums or not snap_array then return nil end
   if type(note_nums) == "number" then note_nums = {note_nums} end
   
   local delta
   local prev_delta
   for nk, nv in pairs(note_nums) do
     prev_delta = 999
-    if nv >= snap_table[#snap_table] then
-      note_nums[nk] = snap_table[#snap_table]
+    if nv >= snap_array[#snap_array] then
+      note_nums[nk] = snap_array[#snap_array]
     else
-      for sk, sv in pairs(snap_table) do
+      for sk, sv in pairs(snap_array) do
         delta = sv - nv
         if delta == 0 then
           break
@@ -139,9 +139,9 @@ function MusicUtil.snap_notes_to_table(note_nums, snap_table)
 end
 
 --- Convert MIDI note numbers to names
--- @param note_nums MIDI note number (0-127) or table of note numbers
+-- @param note_nums MIDI note number (0-127) or array of note numbers
 -- @param include_octave Optional, include octave number in return string if set to true
--- @return Name string or table of strings (eg, C#3)
+-- @return Name string (eg, "C#3") or array of strings
 function MusicUtil.note_nums_to_names(note_nums, include_octave)
   if not note_nums then return nil end
   if type(note_nums) == "number" then note_nums = {note_nums} end
@@ -156,8 +156,8 @@ function MusicUtil.note_nums_to_names(note_nums, include_octave)
 end
 
 --- Convert MIDI note numbers to frequencies
--- @param note_nums MIDI note number (0-127) or table of note numbers
--- @return Frequency number in Hz or table of frequencies
+-- @param note_nums MIDI note number (0-127) or array of note numbers
+-- @return Frequency number in Hz or array of frequencies
 function MusicUtil.note_nums_to_freqs(note_nums)
   if not note_nums then return nil end
   if type(note_nums) == "number" then note_nums = {note_nums} end
@@ -170,8 +170,8 @@ function MusicUtil.note_nums_to_freqs(note_nums)
 end
 
 --- Convert frequencies to nearest MIDI note numbers
--- @param freqs Frequency number in Hz or table of frequencies
--- @return MIDI note number (0-127) or table of note numbers
+-- @param freqs Frequency number in Hz or array of frequencies
+-- @return MIDI note number (0-127) or array of note numbers
 function MusicUtil.freqs_to_note_nums(freqs)
   if not freqs then return nil end
   if type(freqs) == "number" then freqs = {freqs} end
@@ -192,7 +192,7 @@ for k, v in pairs(MusicUtil.note_nums_to_names(MusicUtil.generate_scale(60, "min
   print(v)
 end
 
--- for k, v in pairs(MusicUtil.snap_notes_to_table({45,64,12,60,63,61,78,60},{60,62,64})) do
+-- for k, v in pairs(MusicUtil.snap_notes_to_array({45,64,12,60,63,61,78,60},{60,62,64})) do
 --   print(v)
 -- end
 
