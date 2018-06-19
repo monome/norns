@@ -2,7 +2,7 @@
 -- Utility methods for working with notes and scales.
 -- @module MusicUtil
 
-MusicUtil = {}
+local MusicUtil = {}
 
 MusicUtil.NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"}
 MusicUtil.SCALES = {
@@ -59,7 +59,7 @@ MusicUtil.SCALES = {
 
 --- Generate scales from a root note
 -- @param root_num MIDI note number (0-127) where scale will begin
--- @param scale_type String or number defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list
+-- @param scale_type String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list
 -- @param octaves Number of octaves to return, defaults to 1
 -- @return Array of MIDI note numbers
 function MusicUtil.generate_scale(root_num, scale_type, octaves)
@@ -70,15 +70,15 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
   -- Lookup by name
   if type(scale_type) == "string" then
     scale_type = string.lower(scale_type)
-    for k, v in pairs(MusicUtil.SCALES) do
-      if string.lower(v.name) == scale_type then
-        scale_type = k
+    for i = 1, #MusicUtil.SCALES do
+      if string.lower(MusicUtil.SCALES[i].name) == scale_type then
+        scale_type = i
         break
-      elseif v.alt_names then
+      elseif MusicUtil.SCALES[i].alt_names then
         local found = false
-        for _, av in pairs(v.alt_names) do
-          if string.lower(av) == scale_type then
-            scale_type = k
+        for j = 1, #MusicUtil.SCALES[i].alt_names do
+          if string.lower(MusicUtil.SCALES[i].alt_names[j]) == scale_type then
+            scale_type = i
             found = true
             break
           end
@@ -87,7 +87,7 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
       end
     end
   end
-
+  
   local scale_data =  MusicUtil.SCALES[scale_type]
   if not scale_data then return nil end
 
@@ -117,17 +117,17 @@ function MusicUtil.snap_notes_to_array(note_nums, snap_array)
   
   local delta
   local prev_delta
-  for nk, nv in pairs(note_nums) do
-    prev_delta = 999
-    if nv >= snap_array[#snap_array] then
-      note_nums[nk] = snap_array[#snap_array]
+  for n = 1, #note_nums do
+    prev_delta = math.huge
+    if note_nums[n] >= snap_array[#snap_array] then
+      note_nums[n] = snap_array[#snap_array]
     else
-      for sk, sv in pairs(snap_array) do
-        delta = sv - nv
+      for s = 1, #snap_array do
+        delta = snap_array[s] - note_nums[n]
         if delta == 0 then
           break
         elseif math.abs(delta) >= math.abs(prev_delta) then
-          note_nums[nk] = nv + prev_delta
+          note_nums[n] = note_nums[n] + prev_delta
           break
         end
         prev_delta = delta
@@ -146,10 +146,10 @@ function MusicUtil.note_nums_to_names(note_nums, include_octave)
   if not note_nums then return nil end
   if type(note_nums) == "number" then note_nums = {note_nums} end
   local output = {}
-  for k, v in pairs(note_nums) do
-    local name = MusicUtil.NOTE_NAMES[v % 12 + 1]
-    if include_octave then name = name .. math.floor(v / 12 - 1) end
-    table.insert(output, name)
+  for i = 1, #note_nums do
+    local name = MusicUtil.NOTE_NAMES[note_nums[i] % 12 + 1]
+    if include_octave then name = name .. math.floor(note_nums[i] / 12 - 1) end
+    output[i] = name
   end
   if #output == 1 then return output[1]
   else return output end
@@ -162,8 +162,8 @@ function MusicUtil.note_nums_to_freqs(note_nums)
   if not note_nums then return nil end
   if type(note_nums) == "number" then note_nums = {note_nums} end
   local output = {}
-  for k, v in pairs(note_nums) do
-    table.insert(output, (440 / 32) * (2 ^ ((v - 9) / 12)))
+  for i = 1, #note_nums do
+    output[i] = (440 / 32) * (2 ^ ((note_nums[i] - 9) / 12))
   end
   if #output == 1 then return output[1]
   else return output end
@@ -176,8 +176,8 @@ function MusicUtil.freqs_to_note_nums(freqs)
   if not freqs then return nil end
   if type(freqs) == "number" then freqs = {freqs} end
   local output = {}
-  for k, v in pairs(freqs) do
-    table.insert(output, math.floor(12 * math.log(v / 440.0) / math.log(2) + 69.5)) -- TODO clamp
+  for i = 1, #freqs do
+    output[i] = math.floor(12 * math.log(freqs[i] / 440.0) / math.log(2) + 69.5) -- TODO clamp
   end
   if #output == 1 then return output[1]
   else return output end
@@ -188,16 +188,22 @@ end
 
 -- print(MusicUtil.note_nums_to_names(61))
 
-for k, v in pairs(MusicUtil.note_nums_to_names(MusicUtil.generate_scale(60, "minor", 2), true)) do
+for k, v in ipairs(MusicUtil.note_nums_to_names(MusicUtil.generate_scale(60, "major", 2), true)) do
   print(v)
 end
 
--- for k, v in pairs(MusicUtil.snap_notes_to_array({45,64,12,60,63,61,78,60},{60,62,64})) do
+-- print(MusicUtil.snap_notes_to_array(71,{60,62,64}))
+-- for k, v in ipairs(MusicUtil.snap_notes_to_array({64,40,12,60,63,61,78,60,163},{60,62,64})) do
 --   print(v)
 -- end
 
--- print(MusicUtil.note_nums_to_freqs(60))
--- for k, v in pairs(MusicUtil.freqs_to_note_nums({8.1757, 4186, 261.63, 440})) do
+-- print(MusicUtil.note_nums_to_freqs(69))
+-- for k, v in ipairs(MusicUtil.note_nums_to_freqs(MusicUtil.generate_scale(60, "major", 2.5))) do
+--   print(v)
+-- end
+
+-- print(MusicUtil.freqs_to_note_nums({440}))
+-- for k, v in ipairs(MusicUtil.freqs_to_note_nums({8.1757, 4186, 261.63, 440, 99900})) do
 --   print(v)
 -- end
 
