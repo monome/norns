@@ -57,7 +57,7 @@ MusicUtil.SCALES = {
 -- Scale data from https://github.com/fredericcormier/WesternMusicElements
 
 
---- Generate scales from a root note
+--- Generate scale from a root note.
 -- @param root_num MIDI note number (0-127) where scale will begin
 -- @param scale_type String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list
 -- @param octaves Number of octaves to return, defaults to 1
@@ -107,7 +107,7 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
   return output
 end
 
---- Snap MIDI note numbers to an array of note numbers
+--- Snap MIDI note numbers to an array of note numbers.
 -- @param note_nums MIDI note number (0-127) or array of note numbers
 -- @param snap_array Array of note numbers to snap to, must be in low to high order
 -- return Array of adjusted note numbers or a single note number
@@ -138,7 +138,7 @@ function MusicUtil.snap_notes_to_array(note_nums, snap_array)
   else return note_nums end
 end
 
---- Convert MIDI note numbers to names
+--- Convert MIDI note numbers to names.
 -- @param note_nums MIDI note number (0-127) or array of note numbers
 -- @param include_octave Optional, include octave number in return string if set to true
 -- @return Name string (eg, "C#3") or array of strings
@@ -155,7 +155,7 @@ function MusicUtil.note_nums_to_names(note_nums, include_octave)
   else return output end
 end
 
---- Convert MIDI note numbers to frequencies
+--- Convert MIDI note numbers to frequencies.
 -- @param note_nums MIDI note number (0-127) or array of note numbers
 -- @return Frequency number in Hz or array of frequencies
 function MusicUtil.note_nums_to_freqs(note_nums)
@@ -169,7 +169,7 @@ function MusicUtil.note_nums_to_freqs(note_nums)
   else return output end
 end
 
---- Convert frequencies to nearest MIDI note numbers
+--- Convert frequencies to nearest MIDI note numbers.
 -- @param freqs Frequency number in Hz or array of frequencies
 -- @return MIDI note number (0-127) or array of note numbers
 function MusicUtil.freqs_to_note_nums(freqs)
