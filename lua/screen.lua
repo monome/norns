@@ -156,6 +156,13 @@ Screen.font_face = function(index) s_font_face(index) end
 -- @param size in pixel height
 Screen.font_size = function(size) s_font_size(size) end
 
+-- draw single pixel (requires integer x/y, line_width == 1, stroke afterwards)
+-- @param x position
+-- @param y position
+Screen.pixel = function(x,y)
+  s_rect(x-0.25,y-0.25,0.5,0.5)
+end
+
 
 s_text_right = function(str)
   local x, y = s_extents(str)
@@ -172,6 +179,7 @@ end
 s_circle = function(x, y, r)
   s_arc(x, y, r, 0, math.pi*2)
 end
+
 
 
 return Screen

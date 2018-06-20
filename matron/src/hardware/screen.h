@@ -7,14 +7,14 @@ extern void screen_deinit(void);
 
 extern void screen_update(void);
 extern void screen_font_face(int i);
-extern void screen_font_size(long z);
+extern void screen_font_size(double z);
 extern void screen_aa(int s);
 extern void screen_level(int z);
 extern void screen_line_width(double w);
-extern void screen_move(long x, long y);
-extern void screen_line(long x, long y);
-extern void screen_move_rel(long x, long y);
-extern void screen_line_rel(long x, long y);
+extern void screen_move(double x, double y);
+extern void screen_line(double x, double y);
+extern void screen_move_rel(double x, double y);
+extern void screen_line_rel(double x, double y);
 extern void screen_curve(double x1,
                          double y1,
                          double x2,
