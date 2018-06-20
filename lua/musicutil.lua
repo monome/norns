@@ -177,34 +177,10 @@ function MusicUtil.freqs_to_note_nums(freqs)
   if type(freqs) == "number" then freqs = {freqs} end
   local output = {}
   for i = 1, #freqs do
-    output[i] = math.floor(12 * math.log(freqs[i] / 440.0) / math.log(2) + 69.5) -- TODO clamp
+    output[i] = util.clamp(math.floor(12 * math.log(freqs[i] / 440.0) / math.log(2) + 69.5), 0, 127)
   end
   if #output == 1 then return output[1]
   else return output end
 end
-
-
--- Tests
-
--- print(MusicUtil.note_nums_to_names(61))
-
-for k, v in ipairs(MusicUtil.note_nums_to_names(MusicUtil.generate_scale(60, "major", 2), true)) do
-  print(v)
-end
-
--- print(MusicUtil.snap_notes_to_array(71,{60,62,64}))
--- for k, v in ipairs(MusicUtil.snap_notes_to_array({64,40,12,60,63,61,78,60,163},{60,62,64})) do
---   print(v)
--- end
-
--- print(MusicUtil.note_nums_to_freqs(69))
--- for k, v in ipairs(MusicUtil.note_nums_to_freqs(MusicUtil.generate_scale(60, "major", 2.5))) do
---   print(v)
--- end
-
--- print(MusicUtil.freqs_to_note_nums({440}))
--- for k, v in ipairs(MusicUtil.freqs_to_note_nums({8.1757, 4186, 261.63, 440, 99900})) do
---   print(v)
--- end
 
 return MusicUtil
