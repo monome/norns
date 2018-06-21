@@ -110,6 +110,7 @@ void norns_hello_start() {
 
     srand(time(NULL));
     screen_aa(0);
+    screen_line_width(1);
 
     for(int i=0; i<LIGHTS; i++) {
         light[i].range = 1;
@@ -158,8 +159,7 @@ int norns_hello(int live) {
             light[i].x += light[i].dx;
             light[i].y += light[i].dy;
             alive++;
-            screen_move(light[i].x,light[i].y);
-            screen_line_rel(1,0);
+            screen_rect(light[i].x,light[i].y,1,1);
             screen_level(ceil(15*light[i].range/light[i].life)*(start/64.0));
             screen_stroke();
         } else if(live) {

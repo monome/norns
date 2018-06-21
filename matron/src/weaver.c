@@ -357,7 +357,7 @@ int _screen_font_size(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
+  int x = (int) luaL_checknumber(l, 1);
   screen_font_size(x);
   lua_settop(l, 0);
   return 0;
@@ -440,8 +440,8 @@ int _screen_line(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-    double x = luaL_checkinteger(l, 1);
-    double y = luaL_checkinteger(l, 2);
+    double x = luaL_checknumber(l, 1);
+    double y = luaL_checknumber(l, 2);
     screen_line(x,y);
     lua_settop(l, 0);
     return 0;
