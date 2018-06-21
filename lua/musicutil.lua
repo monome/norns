@@ -60,12 +60,12 @@ MusicUtil.SCALES = {
 --- Generate scale from a root note.
 -- @param root_num MIDI note number (0-127) where scale will begin
 -- @param scale_type String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list
--- @param octaves Number of octaves to return, defaults to 1
+-- @param[opt] octaves Number of octaves to return, defaults to 1
 -- @return Array of MIDI note numbers
 function MusicUtil.generate_scale(root_num, scale_type, octaves)
-  if root_num < 0 or root_num > 127 then return nil end
-  octaves = octaves or 1
+  if type(root_num) ~= "number" or root_num < 0 or root_num > 127 then return nil end
   scale_type = scale_type or 1
+  octaves = octaves or 1
 
   -- Lookup by name
   if type(scale_type) == "string" then
@@ -140,7 +140,7 @@ end
 
 --- Convert MIDI note numbers to names.
 -- @param note_nums MIDI note number (0-127) or array of note numbers
--- @param include_octave Optional, include octave number in return string if set to true
+-- @param[opt] include_octave Include octave number in return string if set to true
 -- @return Name string (eg, "C#3") or array of strings
 function MusicUtil.note_nums_to_names(note_nums, include_octave)
   if not note_nums then return nil end
