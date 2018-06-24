@@ -1022,7 +1022,7 @@ end
 
 m.wifi.passdone = function(txt)
   if txt ~= nil then
-    os.execute("~/norns/wifi.sh select "..m.wifi.try.." "..txt.." &")
+    os.execute("~/norns/wifi.sh select \""..m.wifi.try.."\" \""..txt.."\" &")
     wifi.on()
   end
   menu.redraw()
