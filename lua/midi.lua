@@ -64,6 +64,9 @@ norns.midi.remove = function(id)
     if Midi.remove ~= nil then
       Midi.remove(Midi.devices[id])
     end
+    if Midi.devices[id].remove then
+      Midi.devices[id].remove()
+    end
   end
   Midi.devices[id] = nil
 end
