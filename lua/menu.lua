@@ -108,14 +108,14 @@ mix:set_action("aux return level",
 cs.IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
 mix:add_control("rev in delay", cs.IN_DELAY)
 mix:set_action("rev in delay",
-  function(x) fx.aux_fx_param("rev_in_delay",x) end)
+  function(x) fx.aux_fx_param("in_delay",x) end)
 
 cs.LF_X = cs.new(50,1000,'exp',0,200,'hz')
 mix:add_control("rev lf x", cs.LF_X)
 mix:set_action("rev lf x",
-  function(x) fx.aux_fx_param("rev_lf_x",x) end)
+  function(x) fx.aux_fx_param("lf_x",x) end)
 
-cs.RT60 = cs.new(1,8,'lin',0,3,'s')
+cs.RT60 = cs.new(0.1,8,'lin',0,3,'s')
 mix:add_control("rev low rt60", cs.RT60)
 mix:set_action("rev low rt60",
   function(x) fx.aux_fx_param("low_rt60",x) end) 
