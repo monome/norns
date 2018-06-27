@@ -107,6 +107,9 @@ norns.grid.remove = function(id)
     if Grid.remove ~= nil then
       Grid.remove(Grid.devices[id])
     end
+    if Grid.devices[id].remove then
+      Grid.devices[id].remove()
+    end
   end
   Grid.devices[id] = nil
 end
