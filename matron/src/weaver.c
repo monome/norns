@@ -158,6 +158,9 @@ static int _restart_audio(lua_State *l);
 // soundfile inspection
 static int _sound_file_inspect(lua_State *l);
 
+// reset LVM
+static int _reset_lvm(lua_State *l);
+
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
 _push_norns_func(const char *field, const char *func) {
@@ -290,6 +293,9 @@ void w_init(void) {
   // returns channels, frames, samplerate
   lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
 
+  // reset LVM
+  lua_register(lvm, "_reset_lvm", &_reset_lvm);
+
   // run system init code
   char *config = getenv("NORNS_CONFIG");
   char *home = getenv("HOME");
@@ -308,16 +314,38 @@ void w_init(void) {
 // run startup code
 // audio backend should be running
 void w_startup(void) {
+  fprintf(stderr, "running startup\n");
   lua_getglobal(lvm, "startup");
   l_report(lvm, l_docall(lvm, 0, 0));
 }
 
 void w_deinit(void) {
-  // FIXME: lua is leaking memory. doesn't really matter
+  fprintf(stderr, "shutting down lua vm\n");
+  lua_close(lvm);
 }
+
+void w_reset_lvm() {     
+  w_deinit();
+  w_init();
+  w_startup();
+}
+ 
 
 //----------------------------------
 //---- static definitions
+//
+int _reset_lvm(lua_State *l) {
+  if (lua_gettop(l) != 0) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  lua_settop(l, 0); 
+
+  // do this through the event loop, not from inside a lua pcall
+  event_post( event_data_new(EVENT_RESET_LVM) );
+
+  return 0;
+}
+
 
 /***
  * screen: update (flip buffer)
