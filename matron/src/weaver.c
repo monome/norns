@@ -324,6 +324,13 @@ void w_deinit(void) {
   lua_close(lvm);
 }
 
+void w_reset_lvm() {     
+  w_deinit();
+  w_init();
+  w_startup();
+}
+ 
+
 //----------------------------------
 //---- static definitions
 //
@@ -333,9 +340,8 @@ int _reset_lvm(lua_State *l) {
   }
   lua_settop(l, 0); 
 
-  w_deinit();
-  w_init();
-  w_startup();
+  // do this through the event loop, not from inside a lua pcall
+  event_post( event_data_new(EVENT_RESET_LVM) );
 
   return 0;
 }

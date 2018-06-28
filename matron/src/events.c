@@ -252,6 +252,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_STARTUP_READY_TIMEOUT:
         w_handle_startup_ready_timeout();
         break;
+    case EVENT_RESET_LVM:
+        w_reset_lvm();
+	break;
     case EVENT_QUIT:
         quit = true;
         break;
