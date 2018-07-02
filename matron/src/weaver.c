@@ -70,6 +70,9 @@ static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
 static int _screen_level(lua_State *l);
 static int _screen_line_width(lua_State *l);
+static int _screen_line_cap(lua_State *l);
+static int _screen_line_join(lua_State *l);
+static int _screen_miter_limit(lua_State *l);
 static int _screen_move(lua_State *l);
 static int _screen_line(lua_State *l);
 static int _screen_move_rel(lua_State *l);
@@ -199,6 +202,9 @@ void w_init(void) {
   lua_register(lvm, "s_aa", &_screen_aa);
   lua_register(lvm, "s_level", &_screen_level);
   lua_register(lvm, "s_line_width", &_screen_line_width);
+  lua_register(lvm, "s_line_cap", &_screen_line_cap);
+  lua_register(lvm, "s_line_join", &_screen_line_join);
+  lua_register(lvm, "s_miter_limit", &_screen_miter_limit);
   lua_register(lvm, "s_move", &_screen_move);
   lua_register(lvm, "s_line", &_screen_line);
   lua_register(lvm, "s_move_rel", &_screen_move_rel);
@@ -435,6 +441,54 @@ int _screen_line_width(lua_State *l) {
 
     double x = luaL_checknumber(l, 1);
     screen_line_width(x);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: set line cap
+ * @function s_line_cap
+ * @tparam string line cap style ("butt", "round" or "square"). default is "butt".
+ */
+int _screen_line_cap(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+    const char *s = luaL_checkstring(l, 1);
+    screen_line_cap(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: set line join
+ * @function s_line_join
+ * @tparam string line join style ("miter", "round" or "bevel"). default is "miter".
+ */
+int _screen_line_join(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+    const char *s = luaL_checkstring(l, 1);
+    screen_line_join(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: set miter limit
+ * @function s_miter_limit
+ * @tparam double miter limit
+ */
+int _screen_miter_limit(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+    double limit = luaL_checknumber(l, 1);
+    screen_miter_limit(limit);
     lua_settop(l, 0);
     return 0;
 }
