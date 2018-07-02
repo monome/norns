@@ -242,6 +242,33 @@ void screen_line_width(double w) {
     cairo_set_line_width(cr,w);
 }
 
+void screen_line_cap(const char *style) {
+    CHECK_CR
+    if(strcmp(style, "round") == 0){
+      cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND);
+    }else if(strcmp(style, "square") == 0){
+      cairo_set_line_cap(cr,CAIRO_LINE_CAP_SQUARE);
+    }else{
+      cairo_set_line_cap(cr,CAIRO_LINE_CAP_BUTT);
+    }
+}
+
+void screen_line_join(const char *style) {
+    CHECK_CR
+    if(strcmp(style, "round") == 0){
+      cairo_set_line_join(cr,CAIRO_LINE_JOIN_ROUND);
+    }else if(strcmp(style, "bevel") == 0){
+      cairo_set_line_join(cr,CAIRO_LINE_JOIN_BEVEL);
+    }else{
+      cairo_set_line_join(cr,CAIRO_LINE_JOIN_MITER);
+    }
+}
+
+void screen_miter_limit(double limit) {
+    CHECK_CR
+    cairo_set_miter_limit(cr,limit);
+}
+
 void screen_move(double x, double y) {
     CHECK_CR
     cairo_move_to(cr,x,y);
