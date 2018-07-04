@@ -56,23 +56,6 @@ int main(int argc, char **argv) {
     osc_init();
     
     o_init(); // oracle (audio)
-
-    /*
-    norns_hello_init();
-
-    // wait here for a signal from the audio server...
-    fprintf(stderr, "waiting for crone...\n");
-    do {
-        norns_hello(1);
-        usleep(5000);
-    } while(o_ready() != 1);
-
-    // fade out
-    while(norns_hello(0)) {
-        usleep(5000);
-    }
-    */
-
     w_init(); // weaver (scripting)
     dev_list_init();
     dev_monitor_init();

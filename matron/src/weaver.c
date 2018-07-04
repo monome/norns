@@ -179,7 +179,7 @@ _push_norns_func(const char *field, const char *func) {
 //// extern function definitions
 
 void w_init(void) {
-  fprintf(stderr, "starting lua vm\n");
+  fprintf(stderr, "matron > starting lua vm\n");
   lvm = luaL_newstate();
   luaL_openlibs(lvm);
   lua_pcall(lvm, 0, 0, 0);
@@ -312,7 +312,7 @@ void w_init(void) {
   } else {
     snprintf(cmd, 256, "dofile('%s')\n", config);
   }
-  fprintf(stderr, "running lua config file: %s", cmd);
+  fprintf(stderr, "matron > running lua config file: %s", cmd);
   w_run_code(cmd);
   w_run_code("require('norns')");
 }
@@ -320,13 +320,13 @@ void w_init(void) {
 // run startup code
 // audio backend should be running
 void w_startup(void) {
-  fprintf(stderr, "running startup\n");
+  fprintf(stderr, "matron > running startup\n");
   lua_getglobal(lvm, "startup");
   l_report(lvm, l_docall(lvm, 0, 0));
 }
 
 void w_deinit(void) {
-  fprintf(stderr, "shutting down lua vm\n");
+  fprintf(stderr, "matron > shutting down lua vm\n");
   lua_close(lvm);
 }
 
