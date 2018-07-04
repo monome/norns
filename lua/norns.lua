@@ -6,7 +6,7 @@ norns = {}
 norns.version = {}
 norns.version.norns = "1.0.0"
 
-print("norns.lua")
+print("### norns.lua")
 
 -- import update version number
 local fd = io.open(os.getenv("HOME").."/version.txt","r")
@@ -145,9 +145,7 @@ norns.audio = require 'audio'
 
 --- Management
 -- @section management
----- ... whaaat?? why are all of these made global here?
 norns.script = require 'script'
-norns.state = require 'state'
 norns.log = require 'log'
 norns.encoders = require 'encoders'
 norns.update = require 'update'
@@ -159,7 +157,7 @@ norns.try = function(f,msg)
   local handler = function (err) return err .. "\n" .. debug.traceback() end
   local status, err = xpcall(f, handler)
   if not status then
-    norns.scripterror(msg)
+    norns.script.error(msg)
     print(err)
   end
   return status
@@ -181,6 +179,6 @@ end
 --- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 startup = function()
-   print("norns.lua:startup()")
+  --print("norns.lua:startup()")
   require('startup')
 end

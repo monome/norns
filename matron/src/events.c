@@ -9,6 +9,8 @@
 #include <pthread.h>
 
 #include "events.h"
+#include "device_list.h"
+#include "device_monitor.h"
 #include "device_monome.h"
 #include "gpio.h"
 #include "oracle.h"

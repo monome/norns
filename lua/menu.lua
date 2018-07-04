@@ -210,9 +210,6 @@ local u = metro[30]
 
 -- assigns key/enc/screen handlers after user script has loaded
 norns.menu = {}
-norns.menu.init = function()
-  menu.set_mode(menu.mode)
-end
 norns.menu.status = function() return menu.mode end
 norns.menu.set = function(new_enc, new_key, new_redraw)
   menu.penc = new_enc
@@ -223,25 +220,15 @@ norns.menu.get_enc = function() return menu.penc end
 norns.menu.get_key = function() return menu.key end
 norns.menu.get_redraw = function() return menu.redraw end
 
-norns.scripterror = function(msg)
-  local msg = msg;
-  if msg == nil then msg = "" end
-  print("### SCRIPT ERROR: "..msg)
-  menu.errormsg = msg
-  menu.scripterror = true
-  menu.set_page(pHOME)
-  menu.set_mode(true)
-end
-
+-- init menu after script load
 norns.init_done = function(status)
   menu.set_page(pHOME)
-  if status == true then
-    menu.scripterror = false
+  if norns.script.errorstate == true then
     m.params.pos = 0
-    menu.set_mode(false)
+    menu.mode = true
   end
+  menu.set_mode(menu.mode)
 end
-
 
 
 
@@ -262,7 +249,7 @@ norns.key = function(n, z)
       t:start()
     elseif z == 0 and pending == true then
       menu.alt = false
-      if menu.mode == true and menu.scripterror == false then
+      if menu.mode == true and norns.script.errorstate == false then
         menu.set_mode(false)
       else menu.set_mode(true) end
       t:stop()
@@ -602,8 +589,8 @@ m.redraw[pHOME] = function()
   -- draw current script loaded
   screen.move(0,10)
   screen.level(15)
-  local line = string.upper(norns.state.name)
-  if(menu.scripterror) then line = line .. " (error: " .. menu.errormsg .. ")" end
+  local line = string.upper(norns.script.name)
+  if norns.script.errorstate then line = line .. " (error: " .. norns.script.errormsg .. ")" end
   screen.text(line)
 
   -- draw file list and selector
@@ -784,17 +771,17 @@ m.key[pPARAMS] = function(n,z)
   if menu.alt then
     if n==2 and z==1 then
       if m.params.n == 0 then
-        params:read(norns.state.folder_name..".pset")
+        params:read(norns.script.folder_name..".pset")
       else
-        params:read(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+        params:read(norns.script.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
       end
       m.params.action = 15
       m.params.action_text = "loaded"
     elseif n==3 and z==1 then
       if m.params.n == 0 then
-        params:write(norns.state.folder_name..".pset")
+        params:write(norns.script.folder_name..".pset")
       else
-        params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
+        params:write(norns.script.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
       end
       m.params.action = 15
       m.params.action_text = "saved"
@@ -824,10 +811,10 @@ m.enc[pPARAMS] = function(n,d)
       local path
       local f
       if m.params.n == 0 then
-        path = data_dir..norns.state.folder_name..".pset" 
+        path = data_dir..norns.script.folder_name..".pset" 
         f=io.open(path,"r") 
       else
-        path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
+        path =data_dir..norns.script.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
         f=io.open(path ,"r") 
       end
       --print("pset: "..path)
@@ -924,7 +911,7 @@ m.sys.disk = ""
 
 m.key[pSYSTEM] = function(n,z)
   if n==2 and z==1 then
-    norns.state.save()
+    norns.script.savestate()
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
     menu.set_page(m.sys.pages[m.sys.pos+1])
