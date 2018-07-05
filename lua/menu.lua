@@ -1344,6 +1344,7 @@ m.key[pSLEEP] = function(n,z)
     --TODO fade out screen then run the shutdown script
     m.sleep = true
     menu.redraw()
+    norns.state.save()
     norns.audio.output_level(-100)
     gain_hp(0)
     --norns.audio.set_audio_level(0)
