@@ -1345,6 +1345,7 @@ m.key[pSLEEP] = function(n,z)
     m.sleep = true
     menu.redraw()
     norns.state.save() 
+    cleanup()
     if tape.mode == tREC then tape_stop_rec() end
     norns.audio.output_level(-100)
     gain_hp(0)
