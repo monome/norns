@@ -93,6 +93,12 @@ function ParamSet:set(index, v)
   self.params[index]:set(v)
 end
 
+--- set_raw (for control types only)
+function ParamSet:set_raw(index, v)
+  if type(index) == "string" then index = self.lookup[index] end
+  self.params[index]:set_raw(v)
+end
+
 --- get
 function ParamSet:get(index)
   if type(index) == "string" then index = self.lookup[index] end
