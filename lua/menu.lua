@@ -989,7 +989,7 @@ norns.menu_midi_event = function(data)
       if p then
         params:set_raw(p,data[3]/127)
       end
-      print(data[2] .. " " .. data[3])
+      --print(data[2] .. " " .. data[3])
     end
   end
 end
