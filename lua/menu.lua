@@ -241,6 +241,7 @@ norns.init_done = function(status)
     menu.set_mode(false)
   end
   m.params.init_map()
+  m.params.read(norns.state.folder_name..".pmap")
 end
 
 
@@ -514,8 +515,8 @@ m.redraw[pMIX] = function()
       screen.text_center("RECORDING")
       screen.move(90,48)
       local min = math.floor(tape.time / 60)
-      local sec = tape.time % 60
-      screen.text_center(min..":"..sec)
+      local sec = tape.time % 60 
+      screen.text_center(string.format("%02d:%02d",min,sec))
     end
   elseif tape.mode == tPLAY then
     screen.move(90,40)
@@ -534,7 +535,7 @@ m.redraw[pMIX] = function()
     screen.move(90,48)
     local min = math.floor(tape.time / 60)
     local sec = tape.time % 60
-    screen.text_center(min..":"..sec)
+    screen.text_center(string.format("%02d:%02d",min,sec))
     screen.move(90,32)
     screen.text_center(tape.playfile)
   end
@@ -931,7 +932,7 @@ m.redraw[pPARAMS] = function()
       screen.text("save")
       if m.params.altpos == 2 then
         screen.move(127,40)
-        screen.level(m.params.loadable and 10 or 1)
+        screen.level(m.params.loadable and 10 or 4)
         if m.params.n == 0 then
           screen.text_right("default")
         else
@@ -972,6 +973,7 @@ m.init[pPARAMS] = function()
 end
 
 m.deinit[pPARAMS] = function()
+  m.params.write(norns.state.folder_name..".pmap")
   m.params.midilearn = false
   u:stop()
 end
@@ -991,6 +993,52 @@ norns.menu_midi_event = function(data)
       end
       --print(data[2] .. " " .. data[3])
     end
+  end
+end
+
+function m.params.write(filename)
+  local function quote(s)
+    return '"'..s:gsub('"', '\\"')..'"'
+  end 
+  -- check for subfolder in filename, create subfolder if it doesn't exist
+  local subfolder, found = string.gsub(filename,"/(.*)","")
+  if found==1 then
+    local fd = io.open(data_dir..subfolder,"r")
+    if fd then
+      io.close(fd) 
+    else
+      print("creating subfolder")
+      os.execute("mkdir "..data_dir..subfolder) 
+    end
+  end
+  -- write file
+  local fd = io.open(data_dir..filename, "w+")
+  io.output(fd)
+  for k,v in pairs(m.params.map) do
+    io.write(string.format("%s: %d\n", quote(tostring(k)), v))
+  end
+  io.close(fd)
+end
+
+function m.params.read(filename)
+  local function unquote(s)
+    return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
+  end 
+  print("READING PMAP")
+  local fd = io.open(data_dir..filename, "r")
+  if fd then
+    io.close(fd)
+    for line in io.lines(data_dir..filename) do
+      --local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+      local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+
+      if name and value then
+        --print(unquote(name) .. " : " .. value)
+        m.params.map[tonumber(unquote(name),10)] = tonumber(value)
+      end 
+    end
+  else
+    --print("m.params.read: "..filename.." not read.")
   end
 end
 
