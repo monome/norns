@@ -79,6 +79,8 @@ norns.midi.event = function(id, data)
       d.event(data)
     end
   end
+  -- hack = send all midi to menu for param-cc-map
+  norns.menu_midi_event(data)
 end
 
 return Midi

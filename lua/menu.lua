@@ -240,6 +240,8 @@ norns.init_done = function(status)
     m.params.pos = 0
     menu.set_mode(false)
   end
+  m.params.init_map()
+  m.params.read(norns.state.folder_name..".pmap")
 end
 
 
@@ -514,7 +516,7 @@ m.redraw[pMIX] = function()
       screen.move(90,48)
       local min = math.floor(tape.time / 60)
       local sec = tape.time % 60
-      screen.text_center(min..":"..sec)
+      screen.text_center(string.format("%02d:%02d",min,sec))
     end
   elseif tape.mode == tPLAY then
     screen.move(90,40)
@@ -533,7 +535,7 @@ m.redraw[pMIX] = function()
     screen.move(90,48)
     local min = math.floor(tape.time / 60)
     local sec = tape.time % 60
-    screen.text_center(min..":"..sec)
+    screen.text_center(string.format("%02d:%02d",min,sec))
     screen.move(90,32)
     screen.text_center(tape.playfile)
   end
@@ -779,33 +781,44 @@ m.params = {}
 m.params.pos = 0
 m.params.n = 0
 m.params.loadable = true
+m.params.altpos = 1
+m.params.map = {}
+m.params.init_map = function()
+  for i = 1,params.count do m.params.map[i] = -1 end
+end
 
 m.key[pPARAMS] = function(n,z)
   if menu.alt then
-    if n==2 and z==1 then
-      if m.params.n == 0 then
-        params:read(norns.state.folder_name..".pset")
-      else
-        params:read(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+    if n==3 and z==1 then
+      if m.params.altpos == 1 then
+        if m.params.n == 0 then
+          params:read(norns.state.folder_name..".pset")
+        else
+          params:read(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+        end
+        m.params.action = 15
+        m.params.action_text = "loaded"
+      elseif m.params.altpos == 2 then
+        if m.params.n == 0 then
+          params:write(norns.state.folder_name..".pset")
+        else
+          params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
+        end
+        m.params.action = 15
+        m.params.action_text = "saved"
+        m.params.loadable = true
       end
-      m.params.action = 15
-      m.params.action_text = "loaded"
-    elseif n==3 and z==1 then
-      if m.params.n == 0 then
-        params:write(norns.state.folder_name..".pset")
-      else
-        params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
-      end
-      m.params.action = 15
-      m.params.action_text = "saved"
-      m.params.loadable = true
+      menu.redraw()
     end
-    menu.redraw()
   elseif n==2 and z==1 then
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
-    if params:t(m.params.pos+1) == params.tFILE then
-      fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+    if not m.params.midimap then
+      if params:t(m.params.pos+1) == params.tFILE then
+        fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+      end
+    else
+      m.params.midilearn = not m.params.midilearn
     end
   end
 end
@@ -819,33 +832,46 @@ end
 
 m.enc[pPARAMS] = function(n,d)
   if menu.alt then
-    if n==3 then
-      m.params.n = util.clamp(m.params.n + d,0,100)
-      local path
-      local f
-      if m.params.n == 0 then
-        path = data_dir..norns.state.folder_name..".pset" 
-        f=io.open(path,"r") 
-      else
-        path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
-        f=io.open(path ,"r") 
-      end
-      --print("pset: "..path)
-      if f~=nil then
-        m.params.loadable = true
-        io.close(f)
-      else
-        m.params.loadable = false
-      end
+    if n == 2 then
+      m.params.altpos = util.clamp(m.params.altpos+d, 1, 3)
       menu.redraw()
+    elseif n==3 then
+      if m.params.altpos < 3 then
+        m.params.n = util.clamp(m.params.n + d,0,100)
+        local path
+        local f
+        if m.params.n == 0 then
+          path = data_dir..norns.state.folder_name..".pset" 
+          f=io.open(path,"r") 
+        else
+          path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
+          f=io.open(path ,"r") 
+        end
+        --print("pset: "..path)
+        if f~=nil then
+          m.params.loadable = true
+          io.close(f)
+        else
+          m.params.loadable = false
+        end
+        menu.redraw()
+      else
+        m.params.midimap = d > 0
+        menu.redraw()
+      end
     end 
   elseif n==2 then
     local prev = m.params.pos
     m.params.pos = util.clamp(m.params.pos + d, 0, params.count - 1)
     if m.params.pos ~= prev then menu.redraw() end
   elseif n==3 and params.count > 0 then
-    params:delta(m.params.pos+1,d)
-    menu.redraw()
+    if not m.params.midimap then
+      params:delta(m.params.pos+1,d)
+      menu.redraw()
+    else
+      m.params.map[m.params.pos+1] = util.clamp(m.params.map[m.params.pos+1]+d,-1,127)
+      menu.redraw()
+    end
   end
 end
 
@@ -865,28 +891,64 @@ m.redraw[pPARAMS] = function()
           else
             screen.move(0,10*i)
             screen.text(params:get_name(param_index))
-            screen.move(127,10*i)
-            screen.text_right(params:string(param_index))
+            if m.params.midimap then
+              if params:t(param_index) == params.tCONTROL then
+                screen.move(127,10*i)
+                if m.params.map[param_index] >= 0 then
+                  screen.text_right(m.params.map[param_index])
+                else
+                  screen.text_right("-")
+                end 
+              end
+            else
+              screen.move(127,10*i)
+              screen.text_right(params:string(param_index))
+            end
           end
         end
       end
-    else -- menu.alt == true -- param save/load
-      screen.level(10)
-      screen.move(64,40)
-      if m.params.n == 0 then
-        screen.text_center("default")
-      else
-        screen.text_center(string.format("%02d",m.params.n))
+      if m.params.midilearn then
+        screen.level(15)
+        screen.move(80,30)
+        screen.text("(learn)")
       end
-      screen.level(m.params.loadable and 5 or 1)
-      screen.move(20,50)
+    else -- menu.alt == true -- param save/load
+
+      screen.level((m.params.altpos == 1) and 15 or 4)
+      screen.move(0,30)
       screen.text("load")
-      screen.level(5)
-      screen.move(90,50)
+      if m.params.altpos == 1 then
+        screen.move(127,30)
+        screen.level(m.params.loadable and 10 or 1)
+        if m.params.n == 0 then
+          screen.text_right("default")
+        else
+          screen.text_right(string.format("%02d",m.params.n))
+        end
+      end
+
+      screen.level((m.params.altpos == 2) and 15 or 4)
+      screen.move(0,40)
       screen.text("save")
-      screen.move(64,20)
+      if m.params.altpos == 2 then
+        screen.move(127,40)
+        screen.level(m.params.loadable and 10 or 4)
+        if m.params.n == 0 then
+          screen.text_right("default")
+        else
+          screen.text_right(string.format("%02d",m.params.n))
+        end
+      end
+
+      screen.level((m.params.altpos == 3) and 15 or 4)
+      screen.move(0,50)
+      screen.text("midi-cc mapping")
+      screen.move(127,50)
+      screen.text_right(m.params.midimap and "on" or "off")
+
+      screen.move(0,10)
       screen.level(m.params.action)
-      screen.text_center(m.params.action_text)
+      screen.text(m.params.action_text)
     end
   else
     screen.move(0,10)
@@ -897,6 +959,8 @@ m.redraw[pPARAMS] = function()
 end
 
 m.init[pPARAMS] = function()
+  m.params.midimap = false
+  m.params.midilearn = false
   m.params.action_text = ""
   m.params.action = 0
   u.callback = function()
@@ -909,7 +973,73 @@ m.init[pPARAMS] = function()
 end
 
 m.deinit[pPARAMS] = function()
+  m.params.write(norns.state.folder_name..".pmap")
+  m.params.midilearn = false
   u:stop()
+end
+
+norns.menu_midi_event = function(data)
+  if data[1] == 176 then -- cc
+    if m.params.midilearn then
+      if params:t(m.params.pos+1) == params.tCONTROL then
+        m.params.map[m.params.pos+1] = data[2]
+        menu.redraw()
+      end
+      m.params.midilearn = false
+    else
+      local p = tab.key(m.params.map,data[2])
+      if p then
+        params:set_raw(p,data[3]/127)
+      end
+      --print(data[2] .. " " .. data[3])
+    end
+  end
+end
+
+function m.params.write(filename)
+  local function quote(s)
+    return '"'..s:gsub('"', '\\"')..'"'
+  end 
+  -- check for subfolder in filename, create subfolder if it doesn't exist
+  local subfolder, found = string.gsub(filename,"/(.*)","")
+  if found==1 then
+    local fd = io.open(data_dir..subfolder,"r")
+    if fd then
+      io.close(fd) 
+    else
+      print("creating subfolder")
+      os.execute("mkdir "..data_dir..subfolder) 
+    end
+  end
+  -- write file
+  local fd = io.open(data_dir..filename, "w+")
+  io.output(fd)
+  for k,v in pairs(m.params.map) do
+    io.write(string.format("%s: %d\n", quote(tostring(k)), v))
+  end
+  io.close(fd)
+end
+
+function m.params.read(filename)
+  local function unquote(s)
+    return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
+  end 
+  print("READING PMAP")
+  local fd = io.open(data_dir..filename, "r")
+  if fd then
+    io.close(fd)
+    for line in io.lines(data_dir..filename) do
+      --local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+      local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+
+      if name and value then
+        --print(unquote(name) .. " : " .. value)
+        m.params.map[tonumber(unquote(name),10)] = tonumber(value)
+      end 
+    end
+  else
+    --print("m.params.read: "..filename.." not read.")
+  end
 end
 
 
