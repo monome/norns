@@ -39,20 +39,23 @@
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/audio.html">audio</a></li>
-  <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
-  <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/log.html">log</a></li>
+  <li><a href="../modules/menu.html">menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/option.html">option</a></li>
-  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/separator.html">separator</a></li>
+  <li><a href="../modules/taper.html">taper</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
@@ -60,6 +63,7 @@
   <li><a href="../modules/state.html">state</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
   <li><a href="../modules/textentry.html">textentry</a></li>
+  <li><a href="../modules/update.html">update</a></li>
   <li><strong>util</strong></li>
 </ul>
 
@@ -68,12 +72,16 @@
 <div id="content">
 
 <h1>Module <code>util</code></h1>
-<p>Utility module;</p>
+<p>Utility module</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#time">time ()</a></td>
+	<td class="summary">get system time in s+us</td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#scandir">scandir (directory)</a></td>
 	<td class="summary">scan directory, return file list</td>
@@ -90,6 +98,30 @@
 	<td class="name" nowrap><a href="#clamp">clamp (n, min, max)</a></td>
 	<td class="summary">clamp values to min max</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#linexp">linexp (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">convert a linear range to an exponential range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#linlin">linlin (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">map a linear range to another linear range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#explin">explin (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">convert an exponential range to a linear range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expexp">expexp (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">map an exponential range to another exponential range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#round">round (number, quant)</a></td>
+	<td class="summary">round to a multiple of a number</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#round_up">round_up (number, quant)</a></td>
+	<td class="summary">round up to a multiple of a number</td>
+	</tr>
 </table>
 
 <br/>
@@ -99,6 +131,25 @@
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "time"></a>
+    <strong>time ()</strong>
+    </dt>
+    <dd>
+    get system time in s+us
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        time
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "scandir"></a>
     <strong>scandir (directory)</strong>
@@ -206,6 +257,180 @@
 
 
 </dd>
+    <dt>
+    <a name = "linexp"></a>
+    <strong>linexp (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    convert a linear range to an exponential range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range (must be non-zero and of the same sign as dhi)
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range (must be non-zero and of the same sign as dlo)
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "linlin"></a>
+    <strong>linlin (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    map a linear range to another linear range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "explin"></a>
+    <strong>explin (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    convert an exponential range to a linear range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range (must be non-zero and of the same sign as shi)
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range (must be non-zero and of the same sign as slo)
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expexp"></a>
+    <strong>expexp (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    map an exponential range to another exponential range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range (must be non-zero and of the same sign as shi)
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range (must be non-zero and of the same sign as slo)
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range (must be non-zero and of the same sign as dhi)
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range (must be non-zero and of the same sign as dlo)
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "round"></a>
+    <strong>round (number, quant)</strong>
+    </dt>
+    <dd>
+    round to a multiple of a number
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+         number to round
+        </li>
+        <li><span class="parameter">quant</span>
+         precision to round to
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "round_up"></a>
+    <strong>round_up (number, quant)</strong>
+    </dt>
+    <dd>
+    round up to a multiple of a number
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+         number to round
+        </li>
+        <li><span class="parameter">quant</span>
+         precision to round to
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
 </dl>
 
 
@@ -213,7 +438,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-04-23 17:20:49 </i>
+<i style="float:right;">Last updated 2018-07-07 02:18:09 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

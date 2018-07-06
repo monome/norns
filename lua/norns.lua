@@ -145,7 +145,6 @@ norns.audio = require 'audio'
 
 --- Management
 -- @section management
----- ... whaaat?? why are all of these made global here?
 norns.script = require 'script'
 norns.state = require 'state'
 norns.log = require 'log'
