@@ -515,7 +515,7 @@ m.redraw[pMIX] = function()
       screen.text_center("RECORDING")
       screen.move(90,48)
       local min = math.floor(tape.time / 60)
-      local sec = tape.time % 60 
+      local sec = tape.time % 60
       screen.text_center(string.format("%02d:%02d",min,sec))
     end
   elseif tape.mode == tPLAY then
@@ -948,7 +948,7 @@ m.redraw[pPARAMS] = function()
 
       screen.move(0,10)
       screen.level(m.params.action)
-      screen.text(m.params.action_text) 
+      screen.text(m.params.action_text)
     end
   else
     screen.move(0,10)
