@@ -171,6 +171,10 @@ function ParamSet:read(filename)
         if index then
           if tonumber(value) ~= nil then
             self.params[index]:set(tonumber(value))
+          elseif value == "-inf" then
+            self.params[index]:set(-math.huge)
+          elseif value == "inf" then
+            self.params[index]:set(math.huge)
           elseif value then
             self.params[index]:set(value)
           end
