@@ -46,7 +46,8 @@ Crone {
 
 			Server.supernova;
 			server = Server.local;
-			server.options.memSize = 2**16;
+			// don't use with supernova
+			// server.options.memSize = 2**16;
 			server.latency = 0.05;
 
 			server.waitForBoot {
