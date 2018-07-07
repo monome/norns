@@ -28,20 +28,25 @@ local function ampdb(amp)
 end
 
 local DbFaderWarp = {}
+
 function DbFaderWarp.map(spec, value)
-  local	range = dbamp(spec.maxval) - dbamp(spec.minval)
+  local minval = spec.minval
+  local maxval = spec.maxval
+  local range = dbamp(maxval) - dbamp(minval)
   if range >= 0 then
-    return ampdb(value * value * range + dbamp(spec.minval))
+    return ampdb(value * value * range + dbamp(minval))
   else
-    return ampdb(1 - (1-value) * (1-value)) * range + dbamp(spec.minval)
+    return ampdb((1 - (1-value) * (1-value)) * range + dbamp(minval))
   end
 end
 
 function DbFaderWarp.unmap(spec, value)
+  local minval = spec.minval
+  local maxval = spec.maxval
   if spec:range() >= 0 then
-    return math.sqrt((dbamp(value) - dbamp(spec.minval)) / (dbamp(spec.maxval) - dbamp(spec.minval)))
+    return math.sqrt((dbamp(value) - dbamp(minval)) / (dbamp(maxval) - dbamp(minval)))
   else
-    return 1 - math.sqrt(1 - ((dbamp(value) - dbamp(spec.minval)) / (dbamp(spec.maxval) - dbamp(spec.minval))))
+    return 1 - math.sqrt(1 - ((dbamp(value) - dbamp(minval)) / (dbamp(maxval) - dbamp(minval))))
   end
 end
 
