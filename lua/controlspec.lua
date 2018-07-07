@@ -33,12 +33,9 @@ function DbFaderWarp.map(spec, value)
   local minval = spec.minval
   local maxval = spec.maxval
   local range = dbamp(maxval) - dbamp(minval)
-  print("range:"..range)
   if range >= 0 then
-    print("range isPositive")
     return ampdb(value * value * range + dbamp(minval))
   else
-    print("range isPositive == false")
     return ampdb((1 - (1-value) * (1-value)) * range + dbamp(minval))
   end
 end
@@ -47,10 +44,8 @@ function DbFaderWarp.unmap(spec, value)
   local minval = spec.minval
   local maxval = spec.maxval
   if spec:range() >= 0 then
-    print("spec:range() isPositive")
     return math.sqrt((dbamp(value) - dbamp(minval)) / (dbamp(maxval) - dbamp(minval)))
   else
-    print("spec:range() isPositive == false")
     return 1 - math.sqrt(1 - ((dbamp(value) - dbamp(minval)) / (dbamp(maxval) - dbamp(minval))))
   end
 end
@@ -93,7 +88,6 @@ function ControlSpec:map(value)
 end
 
 function ControlSpec:unmap(value)
-  print("ControlSpec:unmap value: "..value)
   local clamped = util.clamp(util.round(value, self.step), self:cliplo(), self:cliphi())
   return self.warp.unmap(self, clamped)
 end
