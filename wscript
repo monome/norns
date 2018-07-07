@@ -54,6 +54,8 @@ def configure(conf):
             '/usr/include/SuperCollider/common',
             '/usr/local/include/SuperCollider/plugin_interface',
             '/usr/local/include/SuperCollider/common',
+	    '/home/we/supercollider/external_libraries/nova-simd',
+   	    '/home/we/supercollider/external_libraries/nova-tt'
         ],
         header_name='SC_PlugIn.h',
         uselib_store='SUPERCOLLIDER')
