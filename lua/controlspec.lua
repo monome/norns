@@ -97,11 +97,11 @@ function ControlSpec:constrain(value)
 end
 
 function ControlSpec:range()
-  return maxval - minval
+  return self.maxval - self.minval
 end
 
 function ControlSpec:ratio()
-  return maxval / minval
+  return self.maxval / self.minval
 end
 
 function ControlSpec:copy()
