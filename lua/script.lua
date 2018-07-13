@@ -3,6 +3,8 @@
 
 local Script = {}
 
+local Grid = require 'grid'
+
 --- reset script environment;
 -- ie redirect draw, key, enc functions, stop timers, clear engine, etc
 Script.clear = function()
@@ -14,11 +16,11 @@ Script.clear = function()
   -- redirect inputs to nowhere
   key = norns.none
   enc = norns.none
-  -- clear, redirect, and reset grid
-  if g then 
-    g:all(0)
-    g:refresh()
-    g.key = norns.none
+  -- clear, redirect, and reset grids
+  for _,dev in pairs(Grid.devices) do
+    dev:all(0)
+    dev:refresh()
+    dev.key = norns.none
   end
   g = nil
   -- reset gridkey callback
