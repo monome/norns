@@ -26,6 +26,9 @@ Script.clear = function()
   -- reset midi callbacks
   midi.add = norns.none
   midi.remove = norns.none
+  for _,dev in pairs(midi.devices) do
+    dev.event = norns.none
+  end
   -- stop all timers
   metro.free_all()
   -- stop all polls and clear callbacks
