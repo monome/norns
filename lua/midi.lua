@@ -7,6 +7,9 @@ norns.version.midi = '0.0.0'
 
 local Midi = {}
 Midi.devices = {}
+Midi.callbacks = {} -- tables per device, with subscription callbacks
+Midi.broadcast = {} -- table with callbacks for "all devices"
+Midi.reverse = {} -- reverse lookup, names/id
 Midi.__index = Midi
 
 --- constructor
@@ -19,7 +22,14 @@ function Midi.new(id, name, dev)
   d.name = name
   d.dev = dev -- opaque pointer
   d.event = nil -- event callback
-  d.remove = nil -- device unplug callback
+  d.remove = nil -- device unplug callback 
+  -- update callback table
+  if not Midi.callbacks[name] then
+    Midi.callbacks[name] = {}
+  end
+  d.callbacks = Midi.callbacks[name] 
+  -- update reverse lookup
+  Midi.reverse[name] = id 
   return d
 end
 
@@ -51,6 +61,64 @@ function Midi:send(data)
   midi_send(self.dev, data)
 end
 
+--- send midi event to named device
+function Midi:send_named(name, data)
+  if Midi.reverse[name] then
+    midi_send(Midi.devices[Midi.reverse[name]],data)
+  end
+end
+
+--- send midi event to all devices
+function Midi.send_all(data)
+  for id,device in pairs(Midi.devices) do
+    midi_send(device.dev, data)
+  end
+end
+
+
+--- subscribe
+function Midi.subscribe(callback, name)
+  if not name then
+    table.insert(Midi.broadcast, callback)
+    return function(data) midi.send_all(data) end
+  else
+    if not Midi.callbacks[name] then
+      Midi.callbacks[name] = {}
+      Midi.reverse[name] = nil -- will be overwritten with device insertion
+    end
+    table.insert(Midi.callbacks[name], callback)
+    return function(data) midi.send_name(name, data) end
+  end
+end
+
+--- unsubscribe
+function Midi.unsubscribe(callback)
+  for i,v in pairs(Midi.broadcast) do
+    if v == callback then
+      Midi.broadcast[i] = nil
+    end
+  end
+  for name, t in pairs(Midi.callbacks) do
+    for i,v in pairs(t) do
+      if v == callback then
+        Midi.callbacks[name][i] = nil
+      end
+    end
+  end
+end
+
+--- clear subscriptions
+function Midi.clear()
+  Midi.broadcast = {}
+  for name, t in pairs(Midi.callbacks) do
+    Midi.callbacks[name] = {}
+  end
+end
+
+
+
+--- norns functions
+
 --- add a device
 norns.midi.add = function(id, name, dev)
   local d = Midi.new(id, name, dev)
@@ -77,6 +145,14 @@ norns.midi.event = function(id, data)
   if d ~= nil then
     if d.event ~= nil then
       d.event(data)
+    end
+    -- do any individual subscribed callbacks
+    for name,callback in pairs(Midi.devices[id].callbacks) do
+      callback(data)
+    end
+    -- do broadcast callbacks
+    for n,callback in pairs(Midi.broadcast) do
+      callback(data)
     end
   end
   -- hack = send all midi to menu for param-cc-map
