@@ -62,9 +62,9 @@ function Midi:send(data)
 end
 
 --- send midi event to named device
-function Midi:send_named(name, data)
+function Midi.send_named(name, data)
   if Midi.reverse[name] then
-    midi_send(Midi.devices[Midi.reverse[name]],data)
+    Midi.devices[Midi.reverse[name]]:send(data)
   end
 end
 
@@ -87,7 +87,7 @@ function Midi.subscribe(callback, name)
       Midi.reverse[name] = nil -- will be overwritten with device insertion
     end
     table.insert(Midi.callbacks[name], callback)
-    return function(data) midi.send_name(name, data) end
+    return function(data) midi.send_named(name, data) end
   end
 end
 
