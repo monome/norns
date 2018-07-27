@@ -36,16 +36,12 @@ end
 --- static callback when any midi device is added;
 -- user scripts can redefine
 -- @param dev : a Midi table
-function Midi.add(dev)
-  print("midi added:", dev.id, dev.name)
-end
+function Midi.add(dev) end
 
 --- static callback when any midi device is removed;
 -- user scripts can redefine
 -- @param dev : a Midi table
-function Midi.remove(dev)
-  print("midi removed:", dev.id, dev.name)
-end
+function Midi.remove(dev) end
 
 --- call add() for currently available devices
 -- when scripts are restarted
@@ -58,7 +54,13 @@ end
 --- send midi event to device
 -- @param array
 function Midi:send(data)
-  midi_send(self.dev, data)
+  if data.type then
+    print("msg")
+    midi_send(self.dev, Midi.to_data(data))
+  else
+    print("data")
+    midi_send(self.dev, data)
+  end
 end
 
 --- send midi event to named device
@@ -70,49 +72,57 @@ end
 
 --- send midi event to all devices
 function Midi.send_all(data)
-  for id,device in pairs(Midi.devices) do
-    midi_send(device.dev, data)
+  for _,device in pairs(Midi.devices) do
+    device:send(data)
   end
 end
 
 
---- subscribe
-function Midi.subscribe(callback, name)
+--- create device, returns object with handler and send
+function Midi.device(name)
+  local d = {
+    handler = function(data) print("midi input") end,
+  }
   if not name then
-    table.insert(Midi.broadcast, callback)
-    return function(data) midi.send_all(data) end
+    d.send = function(data) midi.send_all(data) end
+    table.insert(Midi.broadcast, d)
   else
     if not Midi.callbacks[name] then
       Midi.callbacks[name] = {}
       Midi.reverse[name] = nil -- will be overwritten with device insertion
     end
-    table.insert(Midi.callbacks[name], callback)
-    return function(data) midi.send_named(name, data) end
+    d.send = function(data) midi.send_named(name, data) end
+    table.insert(Midi.callbacks[name], d)
   end
+  return d
 end
 
---- unsubscribe
-function Midi.unsubscribe(callback)
-  for i,v in pairs(Midi.broadcast) do
-    if v == callback then
-      Midi.broadcast[i] = nil
-    end
-  end
-  for name, t in pairs(Midi.callbacks) do
-    for i,v in pairs(t) do
-      if v == callback then
-        Midi.callbacks[name][i] = nil
-      end
-    end
-  end
-end
-
---- clear subscriptions
+--- clear handlers
 function Midi.clear()
   Midi.broadcast = {}
   for name, t in pairs(Midi.callbacks) do
     Midi.callbacks[name] = {}
   end
+end
+
+-- utility
+
+-- function table for msg-to-data conversion
+local to_data = {
+  -- FIXME: should all subfields have default values (ie note/vel?)
+  note = function(msg)
+    return {144 + (msg.ch or 1) - 1, msg.note, msg.vel}
+    end,
+  cc = function(msg)
+    return {176 + (msg.ch or 1) - 1, msg.cc, msg.val}
+    end
+}
+
+--- convert msg to data (midi bytes)
+function Midi.to_data(msg)
+  if msg.type then
+    return to_data[msg.type](msg)
+  else return nil end
 end
 
 
@@ -121,6 +131,7 @@ end
 
 --- add a device
 norns.midi.add = function(id, name, dev)
+  print("midi added:", id, name)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
   if Midi.add ~= nil then Midi.add(d) end
@@ -147,12 +158,12 @@ norns.midi.event = function(id, data)
       d.event(data)
     end
     -- do any individual subscribed callbacks
-    for name,callback in pairs(Midi.devices[id].callbacks) do
-      callback(data)
+    for _,device in pairs(Midi.devices[id].callbacks) do
+      device.handler(data)
     end
     -- do broadcast callbacks
-    for n,callback in pairs(Midi.broadcast) do
-      callback(data)
+    for _,device in pairs(Midi.broadcast) do
+      device.handler(data)
     end
   end
   -- hack = send all midi to menu for param-cc-map
