@@ -3,8 +3,6 @@
 
 local Script = {}
 
-local Grid = require 'grid'
-
 --- reset script environment;
 -- ie redirect draw, key, enc functions, stop timers, clear engine, etc
 Script.clear = function()
@@ -17,7 +15,7 @@ Script.clear = function()
   key = norns.none
   enc = norns.none
   -- clear, redirect, and reset grids
-  for _,dev in pairs(Grid.devices) do
+  for _,dev in pairs(grid.devices) do
     dev:all(0)
     dev:refresh()
     dev.key = norns.none
