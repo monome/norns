@@ -44,7 +44,7 @@ menu.errormsg = ""
 
 -- mix paramset
 mix = paramset.new()
-cs.MAIN_LEVEL = cs.new(-60,0,'lin',0,0,"dB")
+cs.MAIN_LEVEL = cs.new(-math.huge,0,'db',0,0,"dB")
 mix:add_control("output",cs.MAIN_LEVEL)
 mix:set_action("output",
   function(x) norns.audio.output_level(x) end)
@@ -54,7 +54,7 @@ mix:set_action("input",
     norns.audio.input_level(1,x)
     norns.audio.input_level(2,x)
   end)
-cs.MUTE_LEVEL = cs.new(-60,0,'lin',0,-60,"dB")
+cs.MUTE_LEVEL = cs.new(-math.huge,0,'db',0,-math.huge,"dB")
 mix:add_control("monitor",cs.MUTE_LEVEL)
 mix:set_action("monitor",
   function(x) norns.audio.monitor_level(x) end)
@@ -82,9 +82,9 @@ mix:set_action("aux fx",
       fx.aux_fx_on()
     end
   end)
-cs.DB_LEVEL = cs.new(-60,18,'lin',0,0,"dB")
-cs.DB_LEVEL_MUTE = cs.new(-60,18,'lin',0,-60,"dB")
-cs.DB_LEVEL_9DB = cs.new(-60,18,'lin',0,-9,"dB")
+cs.DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
+cs.DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
+cs.DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 mix:add_control("aux output level", cs.DB_LEVEL_9DB)
 mix:set_action("aux output level",
   function(x) fx.aux_fx_output_level(x) end) 
@@ -173,7 +173,7 @@ mix:add_control("comp ratio", cs.RATIO)
 mix:set_action("comp ratio",
   function(x) fx.insert_fx_param("level",x) end)
 
-cs.THRESH = cs.new(-100,10,'lin',0,-18,'dB')
+cs.THRESH = cs.new(-100,10,'db',0,-18,'dB')
 mix:add_control("comp threshold", cs.THRESH)
 mix:set_action("comp threshold",
   function(x) fx.insert_fx_param("threshold",x) end)
@@ -187,7 +187,7 @@ mix:add_control("comp release", cs.RELEASE)
 mix:set_action("comp release",
   function(x) fx.insert_fx_param("release",x) end)
 
-cs.MAKEUP = cs.new(-60,60,'lin',0,9,'dB')
+cs.MAKEUP = cs.new(-20,60,'db',0,9,'dB')
 mix:add_control("comp makeup gain", cs.MAKEUP)
 mix:set_action("comp makeup gain",
   function(x) fx.insert_fx_param("makeup_gain",x) end) 
