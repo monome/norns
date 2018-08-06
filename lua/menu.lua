@@ -302,7 +302,7 @@ menu.set_mode = function(mode)
     screen.line_width(1)
     menu.set_page(menu.page)
     norns.encoders.callback = menu.enc
-    norns.encoders.set_accel(0,true)
+    norns.encoders.set_accel(0,false)
     norns.encoders.set_sens(1,1)
     norns.encoders.set_sens(2,0.5)
     norns.encoders.set_sens(3,0.5)
