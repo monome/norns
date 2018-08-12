@@ -52,6 +52,40 @@ Script.init = function()
   end
 end
 
+local function do_load(file)
+  -- print(">> loading from... "..file)
+  
+  -- carve out some space in the global env to track our state
+  _G.__norns_init_state = { }
+
+  local wrapper = { 
+    __index = _G,
+    __newindex = function(_, k, v) 
+      -- store written state for later inspection
+      _G.__norns_init_state[k] = v
+      _G[k] = v
+    end,
+  }
+
+  local env = { }
+  setmetatable(env, wrapper)
+
+  local chunk, status = assert(loadfile(file, "bt", env))
+  if chunk then
+    chunk()
+  end
+
+  -- review written state
+  print("*** written globals: ")
+  for k,_ in pairs(_G.__norns_init_state) do 
+    print("  "..tostring(k))
+  end
+
+  -- todo: consider another metatable and not write to _G (or blanking __norns_init_state)
+
+  return status
+end
+
 --- load a script from the /scripts folder
 -- @param filename (string) - file to load. leave blank to reload current file.
 Script.load = function(filename)
@@ -69,7 +103,7 @@ Script.load = function(filename)
 
     Script.clear() -- clear script variables and functions
     
-    local status = norns.try(function() dofile(filepath) end, "load fail") -- do the new script
+    local status = norns.try(function() do_load(filepath) end, "load fail") -- do the new script
     if status == true then
       norns.log.post("loaded " .. filename) -- post to log
       norns.state.script = filename -- store script name
