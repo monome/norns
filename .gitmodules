@@ -1,3 +1,0 @@
-[submodule "sc/external_libraries/nova-simd"]
-	path = sc/external_libraries/nova-simd
-	url = git://github.com/timblechmann/nova-simd.git
