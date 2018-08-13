@@ -174,11 +174,11 @@ Screen.font_face = function(index) s_font_face(index) end
 -- @param size in pixel height
 Screen.font_size = function(size) s_font_size(size) end
 
--- draw single pixel (requires integer x/y, line_width == 1, stroke afterwards)
+--- draw single pixel (requires integer x/y, fill afterwards)
 -- @param x position
 -- @param y position
-Screen.pixel = function(x,y)
-  s_rect(x-0.25,y-0.25,0.5,0.5)
+Screen.pixel = function(x, y)
+  s_rect(x, y, 1, 1)
 end
 
 
