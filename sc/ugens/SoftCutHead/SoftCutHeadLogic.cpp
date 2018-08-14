@@ -16,13 +16,6 @@
 #define nullptr ((void*)0)
 #endif
 
-// static int wrap(int val, int bound) {
-//     if(val >= bound) { return val - bound; }
-//     if(val < 0) { return val + bound; }
-//     return val;
-// }
-
-
 SoftCutHeadLogic::SoftCutHeadLogic() {
     this->init();
     playRun = true;
@@ -51,10 +44,6 @@ void SoftCutHeadLogic::init() {
 }
 
 void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
-// FIXME: shuld not be checking thigns every sample
-    // if(buf == nullptr) {
-    //     return;
-    // }
 
     updatePhase(0);
     updatePhase(1);
@@ -192,11 +181,6 @@ float SoftCutHeadLogic::peek4(double phase) {
     unsigned int phase0 = (phase1 + bufFrames - 1) & bufFramesMask;
     unsigned int phase2 = (phase1 + 1) & bufFramesMask;
     unsigned int phase3 = (phase1 + 2) & bufFramesMask;
-
-    // double y0 = buf[wrap(phase0, bufFrames)];
-    // double y1 = buf[wrap(phase1, bufFrames)];
-    // double y2 = buf[wrap(phase2, bufFrames)];
-    // double y3 = buf[wrap(phase3, bufFrames)];
     double y0 = buf[phase0];
     double y1 = buf[phase1];
     double y2 = buf[phase2];
@@ -213,12 +197,6 @@ void SoftCutHeadLogic::poke(float x, double phase, float fade) {
 }
 
 void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
-
-    // bail if fade level is ~=0, so we don't introduce noise
-    // if (fade < std::numeric_limits<float>::epsilon()) { return; }
-
-    // int phase0 = wrap(static_cast<int>(phase), bufFrames);
-    // int phase1 = wrap(phase0 + 1, bufFrames);
     int phase0 = static_cast<unsigned int>(phase) & bufFramesMask;
     int phase1 = (phase0 + 1) & bufFramesMask;
 
@@ -235,6 +213,8 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
 
     // linear-interpolated write values
     //// FIXME: this could be a lot better. see resampling branch.
+    //// in fact it is a real bug...     
+    /// when rate > 1, samples are actually skipped for write.
     float x1 = fr*x;
     float x0 = (1.f-fr)*x; 
 
@@ -265,7 +245,7 @@ void SoftCutHeadLogic::setSampleRate(float sr_) {
 
 float SoftCutHeadLogic::mixFade(float x, float y, float a, float b) {
 
-  // FIXME: use xfade table
+  // FIXME: use xfade table?
 #if 1
   return x * sinf(a * (float) M_PI_2) + y * sinf(b * (float) M_PI_2);
 #else
