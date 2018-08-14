@@ -557,12 +557,10 @@ m.init[pMIX] = function()
   m.mix.out1 = 0
   m.mix.out2 = 0
   norns.encoders.set_accel(2,true)
-  print("accel on")
 end
 
 m.deinit[pMIX] = function()
   norns.encoders.set_accel(2,false)
-  print("accel off")
   norns.vu = norns.none
 end
 
