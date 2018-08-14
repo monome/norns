@@ -11,7 +11,13 @@ function Update.check()
   local disk = util.os_capture("lsblk -o mountpoint | grep media")
   local pfile = popen("ls -p "..disk.."/norns*.tgz")
   for filename in pfile:lines() do
-    os.execute("cp "..filename.." $HOME/update/")
+    local s = string.sub(filename,-10,-5)
+    local n = tonumber(s)
+    print("found update version: " .. n)
+    if n > tonumber(norns.version.update) then
+      print("copying update version: " .. n)
+      os.execute("cp "..filename.." $HOME/update/")
+    end
   end 
   -- PREPARE
   pfile = popen('ls -p $HOME/update/norns*.tgz')

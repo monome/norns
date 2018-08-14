@@ -105,6 +105,12 @@ function ParamSet:get(index)
   return self.params[index]:get()
 end
 
+--- get_raw (for control types only)
+function ParamSet:get_raw(index)
+  if type(index) == "string" then index = self.lookup[index] end
+  return self.params[index]:get_raw()
+end
+
 --- delta
 function ParamSet:delta(index, d)
   if type(index) == "string" then index = self.lookup[index] end

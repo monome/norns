@@ -85,8 +85,8 @@ mix:set_action("aux fx",
 cs.DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
 cs.DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
 cs.DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
-mix:add_control("aux output level", cs.DB_LEVEL_9DB)
-mix:set_action("aux output level",
+mix:add_control("aux engine level", cs.DB_LEVEL_9DB)
+mix:set_action("aux engine level",
   function(x) fx.aux_fx_output_level(x) end) 
 mix:add_control("aux input1 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input1 level",
@@ -106,8 +106,8 @@ mix:set_action("aux return level",
 
 
 cs.IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
-mix:add_control("rev in delay", cs.IN_DELAY)
-mix:set_action("rev in delay",
+mix:add_control("rev pre delay", cs.IN_DELAY)
+mix:set_action("rev pre delay",
   function(x) fx.aux_fx_param("in_delay",x) end)
 
 cs.LF_X = cs.new(50,1000,'exp',0,200,'hz')
@@ -115,12 +115,12 @@ mix:add_control("rev lf x", cs.LF_X)
 mix:set_action("rev lf x",
   function(x) fx.aux_fx_param("lf_x",x) end)
 
-cs.RT60 = cs.new(0.1,8,'lin',0,3,'s')
-mix:add_control("rev low rt60", cs.RT60)
-mix:set_action("rev low rt60",
+cs.RT60 = cs.new(0.1,8,'lin',0,6,'s')
+mix:add_control("rev low time", cs.RT60)
+mix:set_action("rev low time",
   function(x) fx.aux_fx_param("low_rt60",x) end) 
-mix:add_control("rev mid rt60", cs.RT60)
-mix:set_action("rev mid rt60",
+mix:add_control("rev mid time", cs.RT60)
+mix:set_action("rev mid time",
   function(x) fx.aux_fx_param("mid_rt60",x) end)
 
 cs.HF_DAMP = cs.new(1500,20000,'exp',0,6000,'hz')
@@ -197,7 +197,7 @@ local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
-t.time = 0.25
+t.time = 0.15 -- time for KEY1
 t.count = 1
 t.callback = function(stage)
   menu.key(1,1)
@@ -460,7 +460,7 @@ m.redraw[pMIX] = function()
 
   local x = -40
   screen.level(2)
-  n = (60+mix:get("output"))/60*48
+  n = mix:get_raw("output")*48
   screen.rect(x+42.5,56.5,2,-n)
   screen.stroke()
 
@@ -474,7 +474,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = (60+mix:get("input"))/60*48
+  n = mix:get_raw("input")*48
   screen.rect(x+64.5,56.5,2,-n)
   screen.stroke()
 
@@ -487,7 +487,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = (60+mix:get("monitor"))/60*48
+  n = mix:get_raw("monitor")*48
   screen.rect(x+86.5,56.5,2,-n)
   screen.stroke()
 
@@ -556,9 +556,13 @@ m.init[pMIX] = function()
   m.mix.in2 = 0
   m.mix.out1 = 0
   m.mix.out2 = 0
+  norns.encoders.set_accel(2,true)
+  print("accel on")
 end
 
 m.deinit[pMIX] = function()
+  norns.encoders.set_accel(2,false)
+  print("accel off")
   norns.vu = norns.none
 end
 
