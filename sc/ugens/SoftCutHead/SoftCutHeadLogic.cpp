@@ -62,13 +62,8 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
     updateFade(1);
 
     if(outPhase != nullptr) { *outPhase = static_cast<float>(phase[active]); }
-
-    //    if(playRun) {
-        *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
-	//    } else {
-	//      *outAudio = 0.f;
-	//    }
-
+    
+    *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
     *outTrig = trig[0] + trig[1];
 
     if(recRun) {
@@ -193,19 +188,19 @@ float SoftCutHeadLogic::peek2(double phase) {
 }
 
 float SoftCutHeadLogic::peek4(double phase) {
-    int phase1 = static_cast<int>(phase);
-    int phase0 = phase1 - 1;
-    int phase2 = phase1 + 1;
-    int phase3 = phase1 + 2;
+    unsigned int phase1 = static_cast<unsigned int>(phase) & bufFramesMask;
+    unsigned int phase0 = (phase1 + bufFrames - 1) & bufFramesMask;
+    unsigned int phase2 = (phase1 + 1) & bufFramesMask;
+    unsigned int phase3 = (phase1 + 2) & bufFramesMask;
 
     // double y0 = buf[wrap(phase0, bufFrames)];
     // double y1 = buf[wrap(phase1, bufFrames)];
     // double y2 = buf[wrap(phase2, bufFrames)];
     // double y3 = buf[wrap(phase3, bufFrames)];
-    double y0 = buf[phase0 & bufFramesMask];
-    double y1 = buf[phase1 & bufFramesMask];
-    double y2 = buf[phase2 & bufFramesMask];
-    double y3 = buf[phase3 & bufFramesMask];
+    double y0 = buf[phase0];
+    double y1 = buf[phase1];
+    double y2 = buf[phase2];
+    double y3 = buf[phase3];
     
 
     double x = phase - (double)phase1;
@@ -224,7 +219,7 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
 
     // int phase0 = wrap(static_cast<int>(phase), bufFrames);
     // int phase1 = wrap(phase0 + 1, bufFrames);
-    int phase0 = static_cast<int>(phase) & bufFramesMask;
+    int phase0 = static_cast<unsigned int>(phase) & bufFramesMask;
     int phase1 = (phase0 + 1) & bufFramesMask;
 
     float fadeInv = 1.f - fade;
