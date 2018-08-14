@@ -16,13 +16,6 @@
 #define nullptr ((void*)0)
 #endif
 
-// static int wrap(int val, int bound) {
-//     if(val >= bound) { return val - bound; }
-//     if(val < 0) { return val + bound; }
-//     return val;
-// }
-
-
 SoftCutHeadLogic::SoftCutHeadLogic() {
     this->init();
     playRun = true;
@@ -45,16 +38,11 @@ void SoftCutHeadLogic::init() {
     bufFrames = 0;
     trig[0] = 0.f;
     trig[1] = 0.f;
-    // fadeMode = FADE_LIN;
     fadeMode = FADE_EQ;
     recRun = false;
 }
 
 void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, float *outAudio) {
-// FIXME: shuld not be checking thigns every sample
-    // if(buf == nullptr) {
-    //     return;
-    // }
 
     updatePhase(0);
     updatePhase(1);
@@ -66,7 +54,7 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
     //    if(playRun) {
         *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
 	//    } else {
-	//      *outAudio = 0.f;
+        *outAudio = 0.f;
 	//    }
 
     *outTrig = trig[0] + trig[1];
@@ -181,8 +169,7 @@ void SoftCutHeadLogic::doneFadeOut(int id) {
 }
 
 float SoftCutHeadLogic::peek(double phase) {
-  // return peek4(phase);
-    return peek2(phase);
+  return peek4(phase);
 }
 
 float SoftCutHeadLogic::peek2(double phase) {
@@ -198,16 +185,11 @@ float SoftCutHeadLogic::peek4(double phase) {
     int phase2 = phase1 + 1;
     int phase3 = phase1 + 2;
 
-    // double y0 = buf[wrap(phase0, bufFrames)];
-    // double y1 = buf[wrap(phase1, bufFrames)];
-    // double y2 = buf[wrap(phase2, bufFrames)];
-    // double y3 = buf[wrap(phase3, bufFrames)];
     double y0 = buf[phase0 & bufFramesMask];
     double y1 = buf[phase1 & bufFramesMask];
     double y2 = buf[phase2 & bufFramesMask];
     double y3 = buf[phase3 & bufFramesMask];
     
-
     double x = phase - (double)phase1;
     return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));
 }
@@ -220,15 +202,13 @@ void SoftCutHeadLogic::poke(float x, double phase, float fade) {
 void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
 
     // bail if fade level is ~=0, so we don't introduce noise
-    // if (fade < std::numeric_limits<float>::epsilon()) { return; }
+  if (fade < std::numeric_limits<float>::epsilon()) { return; }
 
-    // int phase0 = wrap(static_cast<int>(phase), bufFrames);
-    // int phase1 = wrap(phase0 + 1, bufFrames);
-    int phase0 = static_cast<int>(phase) & bufFramesMask;
+    int phase0 = static_cast<unsigned int>(phase) & bufFramesMask;
     int phase1 = (phase0 + 1) & bufFramesMask;
 
     float fadeInv = 1.f - fade;
-#if 0
+#if 1
     float preFade = pre * (1.f - fadePre) + fadePre * std::fmax(pre, (pre * fadeInv));
     float recFade = rec * (1.f - fadeRec) + fadeRec * (rec * fade);
 #else
