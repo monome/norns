@@ -112,10 +112,13 @@ end
 local to_data = {
   -- FIXME: should all subfields have default values (ie note/vel?)
   note = function(msg)
-    return {144 + (msg.ch or 1) - 1, msg.note, msg.vel}
+    return {0x90 + (msg.ch or 1) - 1, msg.note, msg.vel}
     end,
   cc = function(msg)
-    return {176 + (msg.ch or 1) - 1, msg.cc, msg.val}
+    return {0xb0 + (msg.ch or 1) - 1, msg.cc, msg.val}
+    end,
+  aftertouch = function(msg)
+    return {0xa0 + (msg.ch or 1) - 1, msg.note, msg.val}
     end
 }
 
@@ -152,9 +155,17 @@ function Midi.to_msg(data)
   elseif data[1] >= 0xb0 and data[1] <= 0xb0 + 15 then
     local msg = {
       type = "cc",
-      number = data[2],
-      value = data[3],
+      cc = data[2],
+      val = data[3],
       ch = data[1] - 0xb0 + 1
+    }
+  -- aftertouch
+  elseif data[1] >= 0xa0 and data[1] <= 0xa0 + 15 then
+    local msg = {
+      type = "aftertouch",
+      note = data[2],
+      val = data[3],
+      ch = data[1] - 0xa0 + 1
     }
   -- everything else
   else
