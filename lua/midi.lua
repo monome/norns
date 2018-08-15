@@ -22,14 +22,14 @@ function Midi.new(id, name, dev)
   d.name = name
   d.dev = dev -- opaque pointer
   d.event = nil -- event callback
-  d.remove = nil -- device unplug callback 
+  d.remove = nil -- device unplug callback
   -- update callback table
   if not Midi.callbacks[name] then
     Midi.callbacks[name] = {}
   end
-  d.callbacks = Midi.callbacks[name] 
+  d.callbacks = Midi.callbacks[name]
   -- update reverse lookup
-  Midi.reverse[name] = id 
+  Midi.reverse[name] = id
   return d
 end
 
@@ -56,7 +56,8 @@ end
 function Midi:send(data)
   if data.type then
     print("msg")
-    midi_send(self.dev, Midi.to_data(data))
+    local d = Midi.to_data(data)
+    if d then midi_send(self.dev, d) end
   else
     print("data")
     midi_send(self.dev, data)
@@ -79,7 +80,7 @@ end
 
 
 --- create device, returns object with handler and send
-function Midi.device(name)
+function Midi.connect(name)
   local d = {
     handler = function(data) print("midi input") end,
   }
@@ -123,6 +124,45 @@ function Midi.to_data(msg)
   if msg.type then
     return to_data[msg.type](msg)
   else return nil end
+end
+
+--- convert data (midi bytes) to msg
+function Midi.to_msg(data)
+  -- FIXME these comparisons might be faster with bitops in lua?
+  -- note on
+  if data[1] >= 0x90 and data[1] <= 0x90 + 15 then
+    local msg = {
+      type = "note",
+      note = data[2],
+      vel = data[3],
+      ch = data[1] - 0x90 + 1
+    }
+  -- note off
+  elseif data[1] >= 0x80 and data[1] <= 0x80 + 15 then
+    local msg = {
+      type = "note",
+      note = data[2],
+      --vel = data[3],
+      -- FIXME (maybe?) ignoring note-off velocity
+      -- otherwise we can create two types: note_on and note_off
+      vel = 0,
+      ch = data[1] - 0x80 + 1
+    }
+  -- cc
+  elseif data[1] >= 0xb0 and data[1] <= 0xb0 + 15 then
+    local msg = {
+      type = "cc",
+      number = data[2],
+      value = data[3],
+      ch = data[1] - 0xb0 + 1
+    }
+  -- everything else
+  else
+    local msg = {
+      type = "other"
+    }
+  end
+  return msg
 end
 
 
