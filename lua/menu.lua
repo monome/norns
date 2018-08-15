@@ -44,7 +44,7 @@ menu.errormsg = ""
 
 -- mix paramset
 mix = paramset.new()
-cs.MAIN_LEVEL = cs.new(-60,0,'lin',0,0,"dB")
+cs.MAIN_LEVEL = cs.new(-math.huge,0,'db',0,0,"dB")
 mix:add_control("output",cs.MAIN_LEVEL)
 mix:set_action("output",
   function(x) norns.audio.output_level(x) end)
@@ -54,7 +54,7 @@ mix:set_action("input",
     norns.audio.input_level(1,x)
     norns.audio.input_level(2,x)
   end)
-cs.MUTE_LEVEL = cs.new(-60,0,'lin',0,-60,"dB")
+cs.MUTE_LEVEL = cs.new(-math.huge,0,'db',0,-math.huge,"dB")
 mix:add_control("monitor",cs.MUTE_LEVEL)
 mix:set_action("monitor",
   function(x) norns.audio.monitor_level(x) end)
@@ -82,11 +82,11 @@ mix:set_action("aux fx",
       fx.aux_fx_on()
     end
   end)
-cs.DB_LEVEL = cs.new(-60,18,'lin',0,0,"dB")
-cs.DB_LEVEL_MUTE = cs.new(-60,18,'lin',0,-60,"dB")
-cs.DB_LEVEL_9DB = cs.new(-60,18,'lin',0,-9,"dB")
-mix:add_control("aux output level", cs.DB_LEVEL_9DB)
-mix:set_action("aux output level",
+cs.DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
+cs.DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
+cs.DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
+mix:add_control("aux engine level", cs.DB_LEVEL_9DB)
+mix:set_action("aux engine level",
   function(x) fx.aux_fx_output_level(x) end) 
 mix:add_control("aux input1 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input1 level",
@@ -106,8 +106,8 @@ mix:set_action("aux return level",
 
 
 cs.IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
-mix:add_control("rev in delay", cs.IN_DELAY)
-mix:set_action("rev in delay",
+mix:add_control("rev pre delay", cs.IN_DELAY)
+mix:set_action("rev pre delay",
   function(x) fx.aux_fx_param("in_delay",x) end)
 
 cs.LF_X = cs.new(50,1000,'exp',0,200,'hz')
@@ -115,12 +115,12 @@ mix:add_control("rev lf x", cs.LF_X)
 mix:set_action("rev lf x",
   function(x) fx.aux_fx_param("lf_x",x) end)
 
-cs.RT60 = cs.new(0.1,8,'lin',0,3,'s')
-mix:add_control("rev low rt60", cs.RT60)
-mix:set_action("rev low rt60",
+cs.RT60 = cs.new(0.1,8,'lin',0,6,'s')
+mix:add_control("rev low time", cs.RT60)
+mix:set_action("rev low time",
   function(x) fx.aux_fx_param("low_rt60",x) end) 
-mix:add_control("rev mid rt60", cs.RT60)
-mix:set_action("rev mid rt60",
+mix:add_control("rev mid time", cs.RT60)
+mix:set_action("rev mid time",
   function(x) fx.aux_fx_param("mid_rt60",x) end)
 
 cs.HF_DAMP = cs.new(1500,20000,'exp',0,6000,'hz')
@@ -173,7 +173,7 @@ mix:add_control("comp ratio", cs.RATIO)
 mix:set_action("comp ratio",
   function(x) fx.insert_fx_param("level",x) end)
 
-cs.THRESH = cs.new(-100,10,'lin',0,-18,'dB')
+cs.THRESH = cs.new(-100,10,'db',0,-18,'dB')
 mix:add_control("comp threshold", cs.THRESH)
 mix:set_action("comp threshold",
   function(x) fx.insert_fx_param("threshold",x) end)
@@ -187,7 +187,7 @@ mix:add_control("comp release", cs.RELEASE)
 mix:set_action("comp release",
   function(x) fx.insert_fx_param("release",x) end)
 
-cs.MAKEUP = cs.new(-60,60,'lin',0,9,'dB')
+cs.MAKEUP = cs.new(-20,60,'db',0,9,'dB')
 mix:add_control("comp makeup gain", cs.MAKEUP)
 mix:set_action("comp makeup gain",
   function(x) fx.insert_fx_param("makeup_gain",x) end) 
@@ -197,7 +197,7 @@ local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
-t.time = 0.25
+t.time = 0.15 -- time for KEY1
 t.count = 1
 t.callback = function(stage)
   menu.key(1,1)
@@ -302,9 +302,11 @@ menu.set_mode = function(mode)
     screen.line_width(1)
     menu.set_page(menu.page)
     norns.encoders.callback = menu.enc
-    norns.encoders.set_accel(0,true)
+    norns.encoders.set_accel(1,true)
     norns.encoders.set_sens(1,1)
+    norns.encoders.set_accel(2,false)
     norns.encoders.set_sens(2,0.5)
+    norns.encoders.set_accel(3,true)
     norns.encoders.set_sens(3,0.5)
   end
 end
@@ -458,7 +460,7 @@ m.redraw[pMIX] = function()
 
   local x = -40
   screen.level(2)
-  n = (60+mix:get("output"))/60*48
+  n = mix:get_raw("output")*48
   screen.rect(x+42.5,56.5,2,-n)
   screen.stroke()
 
@@ -472,7 +474,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = (60+mix:get("input"))/60*48
+  n = mix:get_raw("input")*48
   screen.rect(x+64.5,56.5,2,-n)
   screen.stroke()
 
@@ -485,7 +487,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = (60+mix:get("monitor"))/60*48
+  n = mix:get_raw("monitor")*48
   screen.rect(x+86.5,56.5,2,-n)
   screen.stroke()
 
@@ -554,9 +556,11 @@ m.init[pMIX] = function()
   m.mix.in2 = 0
   m.mix.out1 = 0
   m.mix.out2 = 0
+  norns.encoders.set_accel(2,true)
 end
 
 m.deinit[pMIX] = function()
+  norns.encoders.set_accel(2,false)
   norns.vu = norns.none
 end
 
@@ -574,9 +578,8 @@ end
 -- HOME
 
 m.home = {}
-m.home.pos = 0
+m.home.pos = 1
 m.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
-m.home.len = 4
 
 m.init[pHOME] = norns.none
 m.deinit[pHOME] = norns.none
@@ -586,15 +589,13 @@ m.key[pHOME] = function(n,z)
     menu.set_page(pMIX)
   elseif n == 3 and z == 1 then
     local choices = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
-    menu.set_page(choices[m.home.pos+1])
+    menu.set_page(choices[m.home.pos])
   end
 end
 
 m.enc[pHOME] = function(n,delta)
   if n == 2 then
-    m.home.pos = m.home.pos + delta
-    if m.home.pos > m.home.len - 1 then m.home.pos = m.home.len - 1
-    elseif m.home.pos < 0 then m.home.pos = 0 end
+    m.home.pos = util.clamp(m.home.pos + delta, 1, 4)
     menu.redraw()
   end
 end
@@ -605,14 +606,16 @@ m.redraw[pHOME] = function()
   screen.move(0,10)
   screen.level(15)
   local line = string.upper(norns.state.name)
-  if(menu.scripterror) then line = line .. " (error: " .. menu.errormsg .. ")" end
+  if(menu.scripterror and state.script ~= '') then
+    line = line .. " (error: " .. menu.errormsg .. ")"
+  end
   screen.text(line)
 
   -- draw file list and selector
   for i=3,6 do
     screen.move(0,10*i)
     line = string.gsub(m.home.list[i-2],'.lua','')
-    if(i==m.home.pos+3) then
+    if(i==m.home.pos+2) then
       screen.level(15)
     else
       screen.level(4)
@@ -973,7 +976,9 @@ m.init[pPARAMS] = function()
 end
 
 m.deinit[pPARAMS] = function()
-  m.params.write(norns.state.folder_name..".pmap")
+  if state.script ~= '' then
+    m.params.write(norns.state.folder_name..".pmap")
+  end
   m.params.midilearn = false
   u:stop()
 end
@@ -1474,12 +1479,12 @@ m.key[pSLEEP] = function(n,z)
     --TODO fade out screen then run the shutdown script
     m.sleep = true
     menu.redraw()
+    norns.state.clean_shutdown = true
     norns.state.save() 
     cleanup()
     if tape.mode == tREC then tape_stop_rec() end
     norns.audio.output_level(-100)
     gain_hp(0)
-    --norns.audio.set_audio_level(0)
     wifi.off()
     os.execute("sleep 0.5; sudo shutdown now")
   end

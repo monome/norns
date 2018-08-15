@@ -19,6 +19,37 @@ function ExponentialWarp.unmap(spec, value)
   return util.explin(spec.minval, spec.maxval, 0, 1, value)
 end
 
+local function ampdb(amp)
+  return math.log10(amp) * 20.0
+end
+
+local function dbamp(db)
+  return math.pow(10.0, db*0.05)
+end
+
+local DbFaderWarp = {}
+
+function DbFaderWarp.map(spec, value)
+  local minval = spec.minval
+  local maxval = spec.maxval
+  local range = dbamp(maxval) - dbamp(minval)
+  if range >= 0 then
+    return ampdb(value * value * range + dbamp(minval))
+  else
+    return ampdb((1 - (1-value) * (1-value)) * range + dbamp(minval))
+  end
+end
+
+function DbFaderWarp.unmap(spec, value)
+  local minval = spec.minval
+  local maxval = spec.maxval
+  if spec:range() >= 0 then
+    return math.sqrt((dbamp(value) - dbamp(minval)) / (dbamp(maxval) - dbamp(minval)))
+  else
+    return 1 - math.sqrt(1 - ((dbamp(value) - dbamp(minval)) / (dbamp(maxval) - dbamp(minval))))
+  end
+end
+
 local ControlSpec = {}
 ControlSpec.__index = ControlSpec
 
@@ -29,6 +60,8 @@ function ControlSpec.new(minval, maxval, warp, step, default, units)
   if type(warp) == "string" then
     if warp == 'exp' then
       s.warp = ExponentialWarp
+    elseif warp == 'db' then
+      s.warp = DbFaderWarp
     else
       s.warp = LinearWarp
     end
@@ -64,11 +97,11 @@ function ControlSpec:constrain(value)
 end
 
 function ControlSpec:range()
-  return maxval - minval
+  return self.maxval - self.minval
 end
 
 function ControlSpec:ratio()
-  return maxval / minval
+  return self.maxval / self.minval
 end
 
 function ControlSpec:copy()
@@ -100,7 +133,7 @@ ControlSpec.RQ = ControlSpec.new(0.001, 2, 'exp', 0, 0.707, "")
 ControlSpec.MIDI = ControlSpec.new(0, 127, 'lin', 0, 64, "")
 ControlSpec.MIDINOTE = ControlSpec.new(0, 127, 'lin', 0, 60, "")
 ControlSpec.MIDIVELOCITY = ControlSpec.new(1, 127, 'lin', 0, 64, "")
-ControlSpec.DB = ControlSpec.new(-60, 0, 'lin', nil, nil, "dB") -- TODO: this uses \db warp == DbFaderWarp in SuperCollider, would be good to have in lua too
+ControlSpec.DB = ControlSpec.new(-math.huge, 0, 'db', nil, nil, "dB")
 ControlSpec.AMP = ControlSpec.new(0, 1, 'lin', 0, 0, "") -- TODO: this uses \amp warp == FaderWarp in SuperCollider, would be good to have in lua too
 ControlSpec.BOOSTCUT = ControlSpec.new(-20, 20, 'lin', 0, 0, "dB")
 ControlSpec.PAN = ControlSpec.new(-1, 1, 'lin', 0, 0, "")

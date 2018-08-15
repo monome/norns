@@ -1,5 +1,7 @@
 # norns
 
+[documentation](https://github.com/monome/docs/tree/master/docs/norns) is in [github.com/monome/docs](https://github.com/monome/docs)
+
 see [readme-setup.md](readme-setup.md) for build, install, configuration, and execution.
 
 see [readme-interface.md](readme-interface.md) for hardware interface and menu description.

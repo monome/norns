@@ -13,13 +13,35 @@ def build_ugen(bld, target, source):
     else:
         ugen.env.cxxshlib_PATTERN = '%s.so'
 
+        
+def build_ugen_supernova(bld, target, source):
+    ugen = bld.shlib(features='c cxx',
+        source=source,
+        target=target,
+        use=['SUPERCOLLIDER'],
+        install_path='${PREFIX}/lib/SuperCollider/plugins',
+        cflags=['-O3', '-Wall'],
+	cxxflags=['-DSUPERNOVA', '-DNOVA_SIMD'])
+
+    if bld.env.DEST_OS == 'darwin':
+        ugen.env.cxxshlib_PATTERN = '%s_supernova.scx'
+    else:
+        ugen.env.cxxshlib_PATTERN = '%s_supernova.so'
+
 def build(bld):
-    build_ugen(bld, 'BufWrPre', 'ugens/BufWrPre/BufWrPre.cpp')
-    build_ugen(bld, 'SoftCutHead', [
-        'ugens/SoftCutHead/SoftCutHead.cpp',
-        'ugens/SoftCutHead/SoftCutHeadLogic.cpp',
-    ])
-    build_ugen(bld, 'FaustZitaRev', 'ugens/FaustZitaRev/FaustZitaRev.cpp')
-    build_ugen(bld, 'FaustZitaRevLight', 'ugens/FaustZitaRevLight/FaustZitaRevLight.cpp')
-    build_ugen(bld, 'FaustCompressor', 'ugens/FaustCompressor/FaustCompressor.cpp')
-    build_ugen(bld, 'TrigPhasor', 'ugens/TrigPhasor/TrigPhasor.cpp')
+                     
+    ugens = [
+        {'target':'BufWrPre', 'source':'ugens/BufWrPre/BufWrPre.cpp' },
+        {'target':'SoftCutHead', 'source':[
+            'ugens/SoftCutHead/SoftCutHead.cpp',
+            'ugens/SoftCutHead/SoftCutHeadLogic.cpp',
+        ]},
+        {'target':'FaustZitaRev', 'source':'ugens/FaustZitaRev/FaustZitaRev.cpp' },
+        {'target':'FaustZitaRevLight', 'source':'ugens/FaustZitaRevLight/FaustZitaRevLight.cpp' },
+        {'target':'FaustCompressor', 'source':'ugens/FaustCompressor/FaustCompressor.cpp' },
+        {'target':'TrigPhasor', 'source':'ugens/TrigPhasor/TrigPhasor.cpp' }
+    ]
+    for u in ugens:
+        build_ugen(bld, u['target'], u['source'])
+        build_ugen_supernova(bld, u['target'], u['source'])
+        

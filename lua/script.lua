@@ -14,11 +14,11 @@ Script.clear = function()
   -- redirect inputs to nowhere
   key = norns.none
   enc = norns.none
-  -- clear, redirect, and reset grid
-  if g then 
-    g:all(0)
-    g:refresh()
-    g.key = norns.none
+  -- clear, redirect, and reset grids
+  for _,dev in pairs(grid.devices) do
+    dev:all(0)
+    dev:refresh()
+    dev.key = norns.none
   end
   g = nil
   -- reset gridkey callback
@@ -26,6 +26,9 @@ Script.clear = function()
   -- reset midi callbacks
   midi.add = norns.none
   midi.remove = norns.none
+  for _,dev in pairs(midi.devices) do
+    dev.event = norns.none
+  end
   -- stop all timers
   metro.free_all()
   -- stop all polls and clear callbacks
