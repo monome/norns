@@ -112,10 +112,10 @@ end
 local to_data = {
   -- FIXME: should all subfields have default values (ie note/vel?)
   note_on = function(msg)
-      return {0x90 + (msg.ch or 1) - 1, msg.note, msg.vel}
+      return {0x90 + (msg.ch or 1) - 1, msg.note, msg.vel or 100}
     end,
   note_off = function(msg)
-      return {0x80 + (msg.ch or 1) - 1, msg.note, msg.vel}
+      return {0x80 + (msg.ch or 1) - 1, msg.note, msg.vel or 100}
     end,
   cc = function(msg)
       return {0xb0 + (msg.ch or 1) - 1, msg.cc, msg.val}
