@@ -4,6 +4,10 @@
 state = {}
 state.script = ''
 state.clean_shutdown = false
+state.ports = {
+  midi = {"all","all","all","all"},
+  grid = {"all","all","all","all"}
+}
 
 -- read state.lua and set parameters back to stored vals
 state.resume = function()
@@ -35,7 +39,7 @@ state.resume = function()
     -- if the script causes a crash we don't restart into it
     state.clean_shutdown = false
     state.save_state()
-  else 
+  else
     state.script=''
     norns.scripterror("NO SCRIPT")
   end
@@ -57,6 +61,12 @@ state.save_state = function()
   io.write("-- system state\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
+  for k,v in pairs(norns.state.ports.midi) do
+    io.write("norns.state.ports.midi[" .. k .. "] = '" .. v .. "'\n")
+  end
+  for k,v in pairs(norns.state.ports.grid) do
+    io.write("norns.state.ports.grid[" .. k .. "] = '" .. v .. "'\n")
+  end
   io.close(fd)
 end
 
