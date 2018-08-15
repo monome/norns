@@ -134,34 +134,35 @@ end
 
 --- convert data (midi bytes) to msg
 function Midi.to_msg(data)
-  -- FIXME these comparisons might be faster with bitops in lua?
+  local msg = {}
   -- note on
-  if data[1] >= 0x90 and data[1] <= 0x90 + 15 then
-    local msg = {
+  if (data[1] & 0x90) == 0x90 then
+    print("note")
+    msg = {
       type = "note_on",
       note = data[2],
       vel = data[3],
       ch = data[1] - 0x90 + 1
     }
   -- note off
-  elseif data[1] >= 0x80 and data[1] <= 0x80 + 15 then
-    local msg = {
+  elseif data[1] & 0x80 == 0x80 then
+    msg = {
       type = "note_off",
       note = data[2],
       vel = data[3],
       ch = data[1] - 0x80 + 1
     }
   -- cc
-  elseif data[1] >= 0xb0 and data[1] <= 0xb0 + 15 then
-    local msg = {
+  elseif data[1] & 0xb0 == 0xb0 then
+    msg = {
       type = "cc",
       cc = data[2],
       val = data[3],
       ch = data[1] - 0xb0 + 1
     }
   -- aftertouch
-  elseif data[1] >= 0xa0 and data[1] <= 0xa0 + 15 then
-    local msg = {
+  elseif data[1] & 0xa0 == 0xa0 then
+    msg = {
       type = "aftertouch",
       note = data[2],
       val = data[3],
@@ -169,7 +170,7 @@ function Midi.to_msg(data)
     }
   -- everything else
   else
-    local msg = {
+    msg = {
       type = "other"
     }
   end
