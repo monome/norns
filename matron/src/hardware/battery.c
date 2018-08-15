@@ -1,7 +1,7 @@
 /*
  * battery.c
  *
- * keys and encoders
+ * bq27441 power supply
  */
 
 #include <stdio.h>
