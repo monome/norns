@@ -18,13 +18,8 @@ state.resume = function()
     dofile(data_dir..'system.lua')
   end
 
-  -- TODO: default script
-  if state.script == nil or state.script == '' then
-    state.script = 'tehn/awake.lua'
-  end
-
   -- only resume the script if we shut down cleanly
-  if state.clean_shutdown then
+  if state.clean_shutdown and state.script ~= '' then
     -- resume last file
     local f = io.open(script_dir..state.script, "r")
     if f ~= nil then
@@ -40,8 +35,9 @@ state.resume = function()
     -- if the script causes a crash we don't restart into it
     state.clean_shutdown = false
     state.save_state()
-  else
-    print("did not shutdown cleanly; not loading script")
+  else 
+    state.script=''
+    norns.scripterror("NO SCRIPT")
   end
 end
 
