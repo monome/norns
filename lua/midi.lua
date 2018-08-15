@@ -111,14 +111,17 @@ end
 -- function table for msg-to-data conversion
 local to_data = {
   -- FIXME: should all subfields have default values (ie note/vel?)
-  note = function(msg)
-    return {0x90 + (msg.ch or 1) - 1, msg.note, msg.vel}
+  note_on = function(msg)
+      return {0x90 + (msg.ch or 1) - 1, msg.note, msg.vel}
+    end,
+  note_off = function(msg)
+      return {0x80 + (msg.ch or 1) - 1, msg.note, msg.vel}
     end,
   cc = function(msg)
-    return {0xb0 + (msg.ch or 1) - 1, msg.cc, msg.val}
+      return {0xb0 + (msg.ch or 1) - 1, msg.cc, msg.val}
     end,
   aftertouch = function(msg)
-    return {0xa0 + (msg.ch or 1) - 1, msg.note, msg.val}
+      return {0xa0 + (msg.ch or 1) - 1, msg.note, msg.val}
     end
 }
 
@@ -135,7 +138,7 @@ function Midi.to_msg(data)
   -- note on
   if data[1] >= 0x90 and data[1] <= 0x90 + 15 then
     local msg = {
-      type = "note",
+      type = "note_on",
       note = data[2],
       vel = data[3],
       ch = data[1] - 0x90 + 1
@@ -143,12 +146,9 @@ function Midi.to_msg(data)
   -- note off
   elseif data[1] >= 0x80 and data[1] <= 0x80 + 15 then
     local msg = {
-      type = "note",
+      type = "note_off",
       note = data[2],
-      --vel = data[3],
-      -- FIXME (maybe?) ignoring note-off velocity
-      -- otherwise we can create two types: note_on and note_off
-      vel = 0,
+      vel = data[3],
       ch = data[1] - 0x80 + 1
     }
   -- cc
