@@ -95,6 +95,22 @@ function Midi.connect(name)
     d.send = function(data) midi.send_named(name, data) end
     table.insert(Midi.callbacks[name], d)
   end
+  -- midi send helper functions
+  d.note_on = function(note, vel, ch)
+      d.send{type="note_on", note=note, vel=vel, ch=ch or 1}
+    end
+  d.note_off = function(note, vel, ch)
+      d.send{type="note_off", note=note, vel=vel or 100, ch=ch or 1}
+    end
+  d.cc = function(cc, val, ch)
+      d.send{type="cc", cc=cc, val=val, ch=ch or 1}
+    end
+  d.pitchbend = function(val, ch)
+      d.send{type="pitchbend", val=val, ch=ch or 1}
+    end
+  d.aftertouch = function(note, val, ch)
+      d.send{type="aftertouch", note=note, val=val, ch=ch or 1}
+    end
   return d
 end
 
@@ -120,6 +136,9 @@ local to_data = {
   cc = function(msg)
       return {0xb0 + (msg.ch or 1) - 1, msg.cc, msg.val}
     end,
+  pitchbend = function(msg)
+      return {0xe0 + (msg.ch or 1) - 1, msg.val & 0x7f, (msg.val >> 7) & 0x7f}
+    end,
   aftertouch = function(msg)
       return {0xa0 + (msg.ch or 1) - 1, msg.note, msg.val}
     end
@@ -136,7 +155,7 @@ end
 function Midi.to_msg(data)
   local msg = {}
   -- note on
-  if (data[1] & 0x90) == 0x90 then
+  if data[1] & 0xf0 == 0x90 then
     print("note")
     msg = {
       type = "note_on",
@@ -145,7 +164,7 @@ function Midi.to_msg(data)
       ch = data[1] - 0x90 + 1
     }
   -- note off
-  elseif data[1] & 0x80 == 0x80 then
+  elseif data[1] & 0xf0 == 0x80 then
     msg = {
       type = "note_off",
       note = data[2],
@@ -153,15 +172,22 @@ function Midi.to_msg(data)
       ch = data[1] - 0x80 + 1
     }
   -- cc
-  elseif data[1] & 0xb0 == 0xb0 then
+  elseif data[1] & 0xf0 == 0xb0 then
     msg = {
       type = "cc",
       cc = data[2],
       val = data[3],
       ch = data[1] - 0xb0 + 1
     }
+  -- pitchbend
+  elseif data[1] & 0xf0 == 0xe0 then
+    msg = {
+      type = "pitchbend",
+      val = data[2] + (data[3] << 7),
+      ch = data[1] - 0xe0 + 1
+    }
   -- aftertouch
-  elseif data[1] & 0xa0 == 0xa0 then
+  elseif data[1] & 0xf0 == 0xa0 then
     msg = {
       type = "aftertouch",
       note = data[2],
