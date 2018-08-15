@@ -578,9 +578,8 @@ end
 -- HOME
 
 m.home = {}
-m.home.pos = 0
+m.home.pos = 1
 m.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
-m.home.len = 4
 
 m.init[pHOME] = norns.none
 m.deinit[pHOME] = norns.none
@@ -590,15 +589,13 @@ m.key[pHOME] = function(n,z)
     menu.set_page(pMIX)
   elseif n == 3 and z == 1 then
     local choices = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
-    menu.set_page(choices[m.home.pos+1])
+    menu.set_page(choices[m.home.pos])
   end
 end
 
 m.enc[pHOME] = function(n,delta)
   if n == 2 then
-    m.home.pos = m.home.pos + delta
-    if m.home.pos > m.home.len - 1 then m.home.pos = m.home.len - 1
-    elseif m.home.pos < 0 then m.home.pos = 0 end
+    m.home.pos = util.clamp(m.home.pos + delta, 1, 4)
     menu.redraw()
   end
 end
@@ -609,14 +606,16 @@ m.redraw[pHOME] = function()
   screen.move(0,10)
   screen.level(15)
   local line = string.upper(norns.state.name)
-  if(menu.scripterror) then line = line .. " (error: " .. menu.errormsg .. ")" end
+  if(menu.scripterror and state.script ~= '') then
+    line = line .. " (error: " .. menu.errormsg .. ")"
+  end
   screen.text(line)
 
   -- draw file list and selector
   for i=3,6 do
     screen.move(0,10*i)
     line = string.gsub(m.home.list[i-2],'.lua','')
-    if(i==m.home.pos+3) then
+    if(i==m.home.pos+2) then
       screen.level(15)
     else
       screen.level(4)
@@ -977,7 +976,9 @@ m.init[pPARAMS] = function()
 end
 
 m.deinit[pPARAMS] = function()
-  m.params.write(norns.state.folder_name..".pmap")
+  if state.script ~= '' then
+    m.params.write(norns.state.folder_name..".pmap")
+  end
   m.params.midilearn = false
   u:stop()
 end
@@ -1484,7 +1485,6 @@ m.key[pSLEEP] = function(n,z)
     if tape.mode == tREC then tape_stop_rec() end
     norns.audio.output_level(-100)
     gain_hp(0)
-    --norns.audio.set_audio_level(0)
     wifi.off()
     os.execute("sleep 0.5; sudo shutdown now")
   end
