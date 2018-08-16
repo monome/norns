@@ -84,7 +84,10 @@ function Midi.connect(name)
   local d = {
     handler = function(data) print("midi input") end,
   }
-  if not name then
+  if name and type(name) == "number" then
+    name = norns.state.ports.midi[name]
+  end
+  if not name or name == "all" then
     d.send = function(data) midi.send_all(data) end
     table.insert(Midi.broadcast, d)
   else
