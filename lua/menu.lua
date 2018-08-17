@@ -1209,6 +1209,10 @@ m.init[pDEVICES] = function()
     print("found: " .. v.name)
     table.insert(m.devices.options["midi"],v.name)
   end
+  for _, v in pairs(grid.devices) do
+    print("found: " .. v.serial)
+    table.insert(m.devices.options["grid"],v.serial)
+  end
 end
 
 m.deinit[pDEVICES] = function() end
