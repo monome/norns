@@ -118,7 +118,7 @@ function Midi.connect(name)
 end
 
 --- clear handlers
-function Midi.clear()
+function Midi.cleanup()
   Midi.broadcast = {}
   for name, t in pairs(Midi.callbacks) do
     Midi.callbacks[name] = {}
@@ -239,7 +239,7 @@ norns.midi.event = function(id, data)
       d.event(data)
     end
     -- do any individual subscribed callbacks
-    for _,device in pairs(Midi.devices[id].callbacks) do
+    for _,device in pairs(Midi.callbacks[Midi.devices[id].name]) do
       device.handler(data)
     end
     -- do broadcast callbacks

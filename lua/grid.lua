@@ -10,6 +10,9 @@ norns.version.grid = '0.0.2'
 
 local Grid = {}
 Grid.devices = {}
+Grid.callbacks = {} -- tables per device, with subscription callbacks
+Grid.broadcast = {} -- table with callbacks for "all devices"
+Grid.reverse = {} -- reverse lookup, names/id
 Grid.__index = Grid
 
 --- constructor
@@ -27,6 +30,13 @@ function Grid.new(id, serial, name, dev)
   g.remove = nil -- device unplug callback
   g.rows = grid_rows(dev)
   g.cols = grid_cols(dev)
+  -- update callback table
+  if not Grid.callbacks[serial] then
+    Grid.callbacks[serial] = {}
+  end
+  g.callbacks = Grid.callbacks[serial]
+  -- update reverse lookup
+  Grid.reverse[serial] = id
   return g
 end
 
@@ -34,20 +44,18 @@ end
 -- user scripts can redefine
 -- @param dev : a Grid table
 function Grid.add(dev)
-  print("grid added", dev.id, dev.name)
+  print("grid added:", dev.id, dev.name, dev.serial)
 end
 
 --- scan device list and grab one, redefined later
 function Grid.reconnect()
+  -- FIXME should this emulate behavior in midi.lua?
 end
 
 --- static callback when any grid device is removed;
 -- user scripts can redefine
 -- @param dev : a Grid table
-function Grid.remove(dev)
-  -- print("Grid.add")
-  -- dev:print()
-end
+function Grid.remove(dev) end
 
 --- set state of single LED on this grid device
 -- @tparam integer x : column index (1-based!)
@@ -74,6 +82,85 @@ function Grid:print()
     print('>> ', k,v)
   end
 end
+
+
+--- send grid:led to named device
+function Grid.led_named(name, x, y, val)
+  if Grid.reverse[name] then
+    Grid.devices[Grid.reverse[name]]:led(x, y, val)
+  end
+end
+
+--- send grid:led to all devices
+function Grid.led_all(x, y, val)
+  for _,device in pairs(Grid.devices) do
+    device:led(x, y, val)
+  end
+end
+
+--- send grid:all to named device
+function Grid.all_named(name, val)
+  if Grid.reverse[name] then
+    Grid.devices[Grid.reverse[name]]:all(val)
+  end
+end
+
+--- send grid:all to all devices
+function Grid.all_all(val)
+  for _,device in pairs(Grid.devices) do
+    device:all(val)
+  end
+end
+
+--- send grid:refresh to named device
+function Grid.refresh_named(name)
+  if Grid.reverse[name] then
+    Grid.devices[Grid.reverse[name]]:refresh()
+  end
+end
+
+--- send grid:refresh to all devices
+function Grid.refresh_all()
+  for _,device in pairs(Grid.devices) do
+    device:refresh()
+  end
+end
+
+
+--- create device, returns object with handler and send
+function Grid.connect(name)
+  local d = {
+    handler = function(data) print("grid input") end,
+  }
+  if name and type(name) == "number" then
+    name = norns.state.ports.grid[name]
+  end
+  if not name or name == "all" then
+    d.led = function(x, y, val) Grid.led_all(x, y, val) end
+    d.all = function(val) Grid.all_all(val) end
+    d.refresh = function() Grid.refresh_all() end
+    table.insert(Grid.broadcast, d)
+  else
+    if not Grid.callbacks[name] then
+      Grid.callbacks[name] = {}
+      Grid.reverse[name] = nil -- will be overwritten with device insertion
+    end
+    d.led = function(x, y, val) Grid.led_named(name, x, y, val) end
+    d.all = function(val) Grid.all_named(name, val) end
+    d.refresh = function() Grid.refresh_named(name) end
+    table.insert(Grid.callbacks[name], d)
+  end
+  return d
+end
+
+--- clear handlers
+function Grid.cleanup()
+  Grid.broadcast = {}
+  for name, t in pairs(Grid.callbacks) do
+    Grid.callbacks[name] = {}
+  end
+end
+
 
 -- -------------------------------
 -- monome device manager
@@ -118,9 +205,18 @@ end
 norns.grid.key = function(id, x, y, val)
   local g = Grid.devices[id]
   if g ~= nil then
-    if g.key ~= nil then
-      g.key(x, y, val)
+    -- do any individual subscribed callbacks
+    for _,device in pairs(Grid.callbacks[Grid.devices[id].serial]) do
+      device.handler(x,y,val)
     end
+    -- do broadcast callbacks
+    for _,device in pairs(Grid.broadcast) do
+      device.handler(x,y,val)
+    end
+
+    --if g.key ~= nil then
+      --g.key(x, y, val)
+    --end
   else
     print('>> error: no entry for grid ' .. id)
   end
