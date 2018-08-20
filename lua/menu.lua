@@ -1200,7 +1200,9 @@ m.redraw[pDEVICES] = function()
 end
 
 m.init[pDEVICES] = function()
+  m.devices.pos = 1
   m.devices.mode = "type"
+  m.devices.len = #m.devices.list
   m.devices.options = {
     midi = {"all"},
     grid = {"all"}
