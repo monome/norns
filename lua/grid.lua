@@ -214,9 +214,9 @@ norns.grid.key = function(id, x, y, val)
       device.handler(x,y,val)
     end
 
-    --if g.key ~= nil then
-      --g.key(x, y, val)
-    --end
+    if g.key ~= nil then
+      g.key(x, y, val)
+    end
   else
     print('>> error: no entry for grid ' .. id)
   end
