@@ -83,7 +83,7 @@ end
 function Midi.connect(name)
   name = name or 1
   local d = {
-    handler = function(data) print("midi input") end,
+    event = function(data) print("midi input") end,
   }
   if name and type(name) == "number" then
     name = norns.state.ports.midi[name]
@@ -241,11 +241,11 @@ norns.midi.event = function(id, data)
     end
     -- do any individual subscribed callbacks
     for _,device in pairs(Midi.callbacks[Midi.devices[id].name]) do
-      device.handler(data)
+      device.event(data)
     end
     -- do broadcast callbacks
     for _,device in pairs(Midi.broadcast) do
-      device.handler(data)
+      device.event(data)
     end
   end
   -- hack = send all midi to menu for param-cc-map

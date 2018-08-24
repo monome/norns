@@ -131,7 +131,7 @@ end
 function Grid.connect(name)
   name = name or 1
   local d = {
-    handler = function(data) print("grid input") end,
+    event = function(data) print("grid input") end,
   }
   if name and type(name) == "number" then
     name = norns.state.ports.grid[name]
@@ -208,11 +208,11 @@ norns.grid.key = function(id, x, y, val)
   if g ~= nil then
     -- do any individual subscribed callbacks
     for _,device in pairs(Grid.callbacks[Grid.devices[id].serial]) do
-      device.handler(x,y,val)
+      device.event(x,y,val)
     end
     -- do broadcast callbacks
     for _,device in pairs(Grid.broadcast) do
-      device.handler(x,y,val)
+      device.event(x,y,val)
     end
 
     if g.key ~= nil then
