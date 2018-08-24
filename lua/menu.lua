@@ -579,7 +579,7 @@ end
 
 m.home = {}
 m.home.pos = 1
-m.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
+m.home.list = {"PARAMETERS >", "SELECT >", "SYSTEM >", "SLEEP >"}
 
 m.init[pHOME] = norns.none
 m.deinit[pHOME] = norns.none
@@ -588,7 +588,7 @@ m.key[pHOME] = function(n,z)
   if n == 2 and z == 1 then
     menu.set_page(pMIX)
   elseif n == 3 and z == 1 then
-    local choices = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
+    local choices = {pPARAMS, pSELECT, pSYSTEM, pSLEEP}
     menu.set_page(choices[m.home.pos])
   end
 end
@@ -1508,5 +1508,3 @@ end
 
 m.init[pSLEEP] = norns.none
 m.deinit[pSLEEP] = norns.none
-
-
