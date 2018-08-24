@@ -67,12 +67,12 @@ mix:set_action("monitor mode",
   end)
 mix:add_number("headphone",0, 63, 40)
 mix:set_action("headphone",
-  function(x) gain_hp(x) end) 
+  function(x) gain_hp(x) end)
 
 -- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
 -- TODO TAPE (playback) VOL, SPEED?
-  
--- ControlSpec.new(minval, maxval, warp, step, default, units) 
+
+-- ControlSpec.new(minval, maxval, warp, step, default, units)
 mix:add_separator()
 mix:add_option("aux fx", {"OFF","ON"}, 2)
 mix:set_action("aux fx",
@@ -88,22 +88,22 @@ cs.DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
 cs.DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 mix:add_control("aux engine level", cs.DB_LEVEL_9DB)
 mix:set_action("aux engine level",
-  function(x) fx.aux_fx_output_level(x) end) 
+  function(x) fx.aux_fx_output_level(x) end)
 mix:add_control("aux input1 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input1 level",
-  function(x) fx.aux_fx_input_level(1,x) end) 
+  function(x) fx.aux_fx_input_level(1,x) end)
 mix:add_control("aux input2 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input2 level",
-  function(x) fx.aux_fx_input_level(2,x) end) 
+  function(x) fx.aux_fx_input_level(2,x) end)
 mix:add_control("aux input1 pan", cs.PAN)
 mix:set_action("aux input1 pan",
-  function(x) fx.aux_fx_input_pan(1,x) end) 
+  function(x) fx.aux_fx_input_pan(1,x) end)
 mix:add_control("aux input2 pan", cs.PAN)
 mix:set_action("aux input2 pan",
-  function(x) fx.aux_fx_input_pan(2,x) end) 
+  function(x) fx.aux_fx_input_pan(2,x) end)
 mix:add_control("aux return level", cs.DB_LEVEL)
 mix:set_action("aux return level",
-  function(x) fx.aux_fx_return_level(x) end) 
+  function(x) fx.aux_fx_return_level(x) end)
 
 
 cs.IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
@@ -119,7 +119,7 @@ mix:set_action("rev lf x",
 cs.RT60 = cs.new(0.1,8,'lin',0,6,'s')
 mix:add_control("rev low time", cs.RT60)
 mix:set_action("rev low time",
-  function(x) fx.aux_fx_param("low_rt60",x) end) 
+  function(x) fx.aux_fx_param("low_rt60",x) end)
 mix:add_control("rev mid time", cs.RT60)
 mix:set_action("rev mid time",
   function(x) fx.aux_fx_param("mid_rt60",x) end)
@@ -127,7 +127,7 @@ mix:set_action("rev mid time",
 cs.HF_DAMP = cs.new(1500,20000,'exp',0,6000,'hz')
 mix:add_control("rev hf damping", cs.HF_DAMP)
 mix:set_action("rev hf damping",
-  function(x) fx.aux_fx_param("hf_damping",x) end) 
+  function(x) fx.aux_fx_param("hf_damping",x) end)
 
 --[[
 cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
@@ -167,7 +167,7 @@ mix:set_action("insert fx",
 cs.MIX = cs.new(0,1,'lin',0,1,'')
 mix:add_control("insert mix", cs.MIX)
 mix:set_action("insert mix",
-  function(x) fx.insert_fx_mix(x) end) 
+  function(x) fx.insert_fx_mix(x) end)
 
 cs.RATIO = cs.new(1,20,'lin',0,4,'')
 mix:add_control("comp ratio", cs.RATIO)
@@ -182,7 +182,7 @@ mix:set_action("comp threshold",
 cs.ATTACK = cs.new(1,1000,'exp',0,5,'ms')
 mix:add_control("comp attack", cs.ATTACK)
 mix:set_action("comp attack",
-  function(x) fx.insert_fx_param("attack",x) end) 
+  function(x) fx.insert_fx_param("attack",x) end)
 cs.RELEASE = cs.new(1,1000,'exp',0,50,'ms')
 mix:add_control("comp release", cs.RELEASE)
 mix:set_action("comp release",
@@ -191,7 +191,7 @@ mix:set_action("comp release",
 cs.MAKEUP = cs.new(-20,60,'db',0,9,'dB')
 mix:add_control("comp makeup gain", cs.MAKEUP)
 mix:set_action("comp makeup gain",
-  function(x) fx.insert_fx_param("makeup_gain",x) end) 
+  function(x) fx.insert_fx_param("makeup_gain",x) end)
 
 
 local pending = false
@@ -492,7 +492,7 @@ m.redraw[pMIX] = function()
   screen.rect(x+86.5,56.5,2,-n)
   screen.stroke()
 
-  screen.level(1) 
+  screen.level(1)
   screen.move(2,64)
   screen.text("out")
   screen.move(24,64)
@@ -580,7 +580,7 @@ end
 
 m.home = {}
 m.home.pos = 1
-m.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
+m.home.list = {"PARAMETERS >", "SELECT >", "SYSTEM >", "SLEEP >"}
 
 m.init[pHOME] = norns.none
 m.deinit[pHOME] = norns.none
@@ -589,7 +589,7 @@ m.key[pHOME] = function(n,z)
   if n == 2 and z == 1 then
     menu.set_page(pMIX)
   elseif n == 3 and z == 1 then
-    local choices = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
+    local choices = {pPARAMS, pSELECT, pSYSTEM, pSLEEP}
     menu.set_page(choices[m.home.pos])
   end
 end
@@ -607,7 +607,8 @@ m.redraw[pHOME] = function()
   screen.move(0,10)
   screen.level(15)
   local line = string.upper(norns.state.name)
-  if(menu.scripterror and state.script ~= '') then
+  --if(menu.scripterror and state.script ~= '') then
+  if(menu.scripterror) then
     line = line .. " (error: " .. menu.errormsg .. ")"
   end
   screen.text(line)
@@ -806,7 +807,7 @@ m.key[pPARAMS] = function(n,z)
         if m.params.n == 0 then
           params:write(norns.state.folder_name..".pset")
         else
-          params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
+          params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
         end
         m.params.action = 15
         m.params.action_text = "saved"
@@ -845,11 +846,11 @@ m.enc[pPARAMS] = function(n,d)
         local path
         local f
         if m.params.n == 0 then
-          path = data_dir..norns.state.folder_name..".pset" 
-          f=io.open(path,"r") 
+          path = data_dir..norns.state.folder_name..".pset"
+          f=io.open(path,"r")
         else
           path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
-          f=io.open(path ,"r") 
+          f=io.open(path ,"r")
         end
         --print("pset: "..path)
         if f~=nil then
@@ -863,7 +864,7 @@ m.enc[pPARAMS] = function(n,d)
         m.params.midimap = d > 0
         menu.redraw()
       end
-    end 
+    end
   elseif n==2 then
     local prev = m.params.pos
     m.params.pos = util.clamp(m.params.pos + d, 0, params.count - 1)
@@ -902,7 +903,7 @@ m.redraw[pPARAMS] = function()
                   screen.text_right(m.params.map[param_index])
                 else
                   screen.text_right("-")
-                end 
+                end
               end
             else
               screen.move(127,10*i)
@@ -1005,16 +1006,16 @@ end
 function m.params.write(filename)
   local function quote(s)
     return '"'..s:gsub('"', '\\"')..'"'
-  end 
+  end
   -- check for subfolder in filename, create subfolder if it doesn't exist
   local subfolder, found = string.gsub(filename,"/(.*)","")
   if found==1 then
     local fd = io.open(data_dir..subfolder,"r")
     if fd then
-      io.close(fd) 
+      io.close(fd)
     else
       print("creating subfolder")
-      os.execute("mkdir "..data_dir..subfolder) 
+      os.execute("mkdir "..data_dir..subfolder)
     end
   end
   -- write file
@@ -1445,13 +1446,13 @@ m.redraw[pSYNC] = function()
   else
     screen.level(m.sync.pos==0 and 10 or 3)
     screen.move(0,40)
-    screen.text("SYNC TO USB") 
+    screen.text("SYNC TO USB")
     screen.level(m.sync.pos==1 and 10 or 3)
     screen.move(0,50)
-    screen.text("SYNC FROM USB") 
+    screen.text("SYNC FROM USB")
     screen.level(m.sync.pos==2 and 10 or 3)
     screen.move(0,60)
-    screen.text("EJECT USB") 
+    screen.text("EJECT USB")
   end
   screen.update()
 end
@@ -1573,7 +1574,7 @@ m.key[pSLEEP] = function(n,z)
     m.sleep = true
     menu.redraw()
     norns.state.clean_shutdown = true
-    norns.state.save() 
+    norns.state.save()
     cleanup()
     if tape.mode == tREC then tape_stop_rec() end
     norns.audio.output_level(-100)
@@ -1601,5 +1602,3 @@ end
 
 m.init[pSLEEP] = norns.none
 m.deinit[pSLEEP] = norns.none
-
-
