@@ -55,11 +55,11 @@ end
 -- @param array
 function Midi:send(data)
   if data.type then
-    print("msg")
+    --print("msg")
     local d = Midi.to_data(data)
     if d then midi_send(self.dev, d) end
   else
-    print("data")
+    --print("data")
     midi_send(self.dev, data)
   end
 end
@@ -83,7 +83,9 @@ end
 function Midi.connect(name)
   name = name or 1
   local d = {
-    event = function(data) print("midi input") end,
+    event = function(data)
+        --print("midi input")
+      end,
   }
   if name and type(name) == "number" then
     name = norns.state.ports.midi[name]
@@ -160,7 +162,7 @@ function Midi.to_msg(data)
   local msg = {}
   -- note on
   if data[1] & 0xf0 == 0x90 then
-    print("note")
+    --print("note")
     msg = {
       type = "note_on",
       note = data[2],
