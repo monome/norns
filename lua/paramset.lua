@@ -144,10 +144,10 @@ function ParamSet:write(filename)
   if found==1 then
     local fd = io.open(data_dir..subfolder,"r")
     if fd then
-      io.close(fd) 
+      io.close(fd)
     else
       print("creating subfolder")
-      os.execute("mkdir "..data_dir..subfolder) 
+      os.execute("mkdir "..data_dir..subfolder)
     end
   end
   -- write file
@@ -198,7 +198,7 @@ function ParamSet:bang()
   for k,v in pairs(self.params) do
     v:bang()
   end
-end 
+end
 
 --- clear
 function ParamSet:clear()

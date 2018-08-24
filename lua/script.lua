@@ -64,11 +64,11 @@ Script.load = function(filename)
     print("file not found: "..filepath)
   else
     io.close(f)
-    if pcall(cleanup) then print("# cleanup") 
+    if pcall(cleanup) then print("# cleanup")
     else print("### cleanup failed") end
 
     Script.clear() -- clear script variables and functions
-    
+
     local status = norns.try(function() dofile(filepath) end, "load fail") -- do the new script
     if status == true then
       norns.log.post("loaded " .. filename) -- post to log
@@ -117,7 +117,7 @@ Script.metadata = function(filename)
     io.close(f)
     for line in io.lines(filepath) do
       if util.string_starts(line,"--") then
-        table.insert(meta, string.sub(line,4,-1)) 
+        table.insert(meta, string.sub(line,4,-1))
       else return meta end
     end
   end

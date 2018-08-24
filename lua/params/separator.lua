@@ -12,7 +12,7 @@ function Separator.new()
   s.t = tSEPARATOR
   s.action = function() end
   return s
-end 
+end
 
 function Separator:get()
   return ""
