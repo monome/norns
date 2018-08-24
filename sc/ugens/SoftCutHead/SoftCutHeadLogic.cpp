@@ -51,7 +51,7 @@ void SoftCutHeadLogic::nextSample(float in, float *outPhase, float *outTrig, flo
     updateFade(1);
 
     if(outPhase != nullptr) { *outPhase = static_cast<float>(phase[active]); }
-    
+
     *outAudio = mixFade(peek(phase[0]), peek(phase[1]), fade[0], fade[1]);
     *outTrig = trig[0] + trig[1];
 
@@ -165,8 +165,8 @@ void SoftCutHeadLogic::doneFadeOut(int id) {
 }
 
 float SoftCutHeadLogic::peek(double phase) {
-  // return peek4(phase);
-    return peek2(phase);
+    return peek4(phase);
+    //return peek2(phase);
 }
 
 float SoftCutHeadLogic::peek2(double phase) {
@@ -185,7 +185,7 @@ float SoftCutHeadLogic::peek4(double phase) {
     double y1 = buf[phase1];
     double y2 = buf[phase2];
     double y3 = buf[phase3];
-    
+
 
     double x = phase - (double)phase1;
     return static_cast<float>(cubicinterp(x, y0, y1, y2, y3));
@@ -208,15 +208,15 @@ void SoftCutHeadLogic::poke2(float x, double phase, float fade) {
     float preFade = std::fmax(pre, (pre * fadeInv));
     float recFade = rec * fade;
 #endif
-    
+
     float fr = static_cast<float>(phase - static_cast<int>(phase));
 
     // linear-interpolated write values
     //// FIXME: this could be a lot better. see resampling branch.
-    //// in fact it is a real bug...     
+    //// in fact it is a real bug...
     /// when rate > 1, samples are actually skipped for write.
     float x1 = fr*x;
-    float x0 = (1.f-fr)*x; 
+    float x0 = (1.f-fr)*x;
 
     // mix old signal with interpolation
     buf[phase0] = buf[phase0] * fr + (1.f-fr) * (preFade * buf[phase0]);
