@@ -129,6 +129,7 @@ end
 
 --- create device, returns object with handler and send
 function Grid.connect(name)
+  name = name or 1
   local d = {
     handler = function(data) print("grid input") end,
   }

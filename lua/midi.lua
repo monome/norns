@@ -81,6 +81,7 @@ end
 
 --- create device, returns object with handler and send
 function Midi.connect(name)
+  name = name or 1
   local d = {
     handler = function(data) print("midi input") end,
   }
