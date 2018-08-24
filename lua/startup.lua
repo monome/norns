@@ -1,8 +1,8 @@
--- STARTUP 
+-- STARTUP
 
 require 'menu'
 
-require 'math' 
+require 'math'
 math.randomseed(os.time()) -- more random
 
 -- globals
@@ -20,7 +20,7 @@ fileselect = require 'fileselect'
 textentry = require 'textentry'
 
 controlspec = require 'controlspec'
-paramset = require 'paramset' 
+paramset = require 'paramset'
 
 params = paramset.new()
 

@@ -21,7 +21,7 @@ function Option.new(name, options, default)
   o.selected = o.default
   o.action = function() end
   return o
-end 
+end
 
 function Option:get()
   return self.selected

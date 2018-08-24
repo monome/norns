@@ -18,9 +18,9 @@ encoders.set_accel = function(n,z)
       encoders.tick[n] = 0
     end
   else
-    encoders.accel[n] = z 
+    encoders.accel[n] = z
     encoders.tick[n] = 0
-  end 
+  end
 end
 
 encoders.set_sens = function(n,s)
@@ -32,7 +32,7 @@ encoders.set_sens = function(n,s)
   else
     encoders.sens[n] = util.clamp(s,0.01,1)
     encoders.tick[n] = 0
-  end 
+  end
 end
 
 encoders.process = function(n,d)
@@ -56,6 +56,6 @@ encoders.process = function(n,d)
     encoders.callback(n,delta)
     encoders.tick[n] = encoders.tick[n] - delta
   end
-end 
+end
 
 return encoders

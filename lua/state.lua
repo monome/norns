@@ -35,7 +35,7 @@ state.resume = function()
     -- if the script causes a crash we don't restart into it
     state.clean_shutdown = false
     state.save_state()
-  else 
+  else
     state.script=''
     norns.scripterror("NO SCRIPT")
   end

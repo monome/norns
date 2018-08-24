@@ -13,7 +13,7 @@ function File.new(name, path)
   o.path = path or '-'
   o.action = function() end
   return o
-end 
+end
 
 function File:get()
   return self.path
@@ -41,7 +41,7 @@ end
 function File:string()
   if self.path == '-' then return "-" end
   local display = self.path:match("[^/]*$") -- strip path from name
-  return display 
+  return display
 end
 
 

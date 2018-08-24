@@ -24,7 +24,7 @@ function Metro.alloc (cb, time, count)
 	  break
        end
     end
-    if id ~= nil then       
+    if id ~= nil then
         Metro.assigned[id] = true
         Metro.available[id] = false
 	local m = Metro.metros[id]
@@ -60,8 +60,8 @@ function Metro.new(id)
     m.props.time = 1
     m.props.count = -1
     m.props.callback = nil
-    m.props.init_stage = 1    
-    setmetatable(m, Metro) 
+    m.props.init_stage = 1
+    setmetatable(m, Metro)
     return m
 end
 
@@ -98,8 +98,8 @@ Metro.__newindex = function(self, idx, val)
     if idx == "time" then
         self.props.time = val
 -- NB: metro time isn't applied until the next wakeup.
--- this is true even if you are setting time from the metro callback; 
--- metro has already gone to sleep when lua main thread gets 
+-- this is true even if you are setting time from the metro callback;
+-- metro has already gone to sleep when lua main thread gets
 -- if you need a fully dynamic metro, re-schedule on the wakeup
         metro_set_time(self.props.id, self.props.time)
     elseif idx == 'count' then self.props.count = val

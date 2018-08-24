@@ -23,7 +23,7 @@ te.enter = function(callback, default)
     te.enc_restore = norns.menu.get_enc()
     te.redraw_restore = norns.menu.get_redraw()
     norns.menu.set(te.enc, te.key, te.redraw)
-  end 
+  end
   te.redraw()
 end
 
@@ -31,7 +31,7 @@ te.exit = function()
   if norns.menu.status() == false then
     key = te.key_restore
     enc = te.enc_restore
-    redraw = te.redraw_restore 
+    redraw = te.redraw_restore
     norns.menu.init()
   else
     norns.menu.set(te.enc_restore, te.key_restore, te.redraw_restore)
@@ -59,7 +59,7 @@ te.key = function(n,z)
       end
     end
   elseif n==3 and z==0 and te.pending == true then
-    if te.row == 1 and te.delok==1 then te.exit() end 
+    if te.row == 1 and te.delok==1 then te.exit() end
   end
 end
 

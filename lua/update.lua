@@ -18,7 +18,7 @@ function Update.check()
       print("copying update version: " .. n)
       os.execute("cp "..filename.." $HOME/update/")
     end
-  end 
+  end
   -- PREPARE
   pfile = popen('ls -p $HOME/update/norns*.tgz')
   for filename in pfile:lines() do
@@ -40,17 +40,17 @@ function Update.check()
   end
   pfile:close()
 
-  return found 
+  return found
 end
 
-function Update.run() 
-  local pfile = io.popen('ls -tp $HOME/update') 
+function Update.run()
+  local pfile = io.popen('ls -tp $HOME/update')
   local l = {}
   local newest = 0
   for file in pfile:lines() do
     local s = string.sub(file,0,-2)
     local n = tonumber(s)
-    if n then 
+    if n then
       print("update found: "..n)
       if n > newest then newest = n end
     end
@@ -69,8 +69,8 @@ function Update.run()
     screen.text_center("complete. shutting down.")
     screen.update()
     os.execute("rm -rf $HOME/update/*")
-    os.execute("sleep 0.5; sudo shutdown now") 
-  end 
+    os.execute("sleep 0.5; sudo shutdown now")
+  end
 end
 
 return Update
