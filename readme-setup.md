@@ -27,7 +27,7 @@ or use the debian repository as follows:
 
 ```
 curl https://keybase.io/artfwo/pgp_keys.asc | sudo apt-key add -
-echo "deb http://norns.catfact.net/ debian/" | sudo tee /etc/apt/sources.list.d/norns.list
+echo "deb http://package.monome.org/ debian/" | sudo tee /etc/apt/sources.list.d/norns.list
 sudo apt update
 sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-dev
 ```
