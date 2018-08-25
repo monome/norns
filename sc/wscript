@@ -13,7 +13,6 @@ def build_ugen(bld, target, source):
     else:
         ugen.env.cxxshlib_PATTERN = '%s.so'
 
-        
 def build_ugen_supernova(bld, target, source):
     ugen = bld.shlib(features='c cxx',
         source=source,
@@ -21,15 +20,14 @@ def build_ugen_supernova(bld, target, source):
         use=['SUPERCOLLIDER'],
         install_path='${PREFIX}/lib/SuperCollider/plugins',
         cflags=['-O3', '-Wall'],
-	cxxflags=['-DSUPERNOVA', '-DNOVA_SIMD'])
+        cxxflags=['-DSUPERNOVA', '-DNOVA_SIMD'])
 
     if bld.env.DEST_OS == 'darwin':
         ugen.env.cxxshlib_PATTERN = '%s_supernova.scx'
     else:
         ugen.env.cxxshlib_PATTERN = '%s_supernova.so'
 
-def build(bld):
-                     
+def build(bld):     
     ugens = [
         {'target':'BufWrPre', 'source':'ugens/BufWrPre/BufWrPre.cpp' },
         {'target':'SoftCutHead', 'source':[
