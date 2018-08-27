@@ -7,3 +7,5 @@ see [readme-setup.md](readme-setup.md) for build, install, configuration, and ex
 see [readme-interface.md](readme-interface.md) for hardware interface and menu description.
 
 see [readme-script.md](readme-script.md) for scripting.
+
+check [known bugs](https://github.com/monome/norns/wiki/known-bugs) for any current strange behavior.
