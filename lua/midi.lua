@@ -24,6 +24,10 @@ Midi.__index = Midi
 function Midi.new(id, name, dev)
   local d = setmetatable({}, Midi)
   d.id = id
+  -- append duplicate device names
+  while tab.contains(Midi.list,name) do
+    name = name .. "+"
+  end
   d.name = name
   d.dev = dev -- opaque pointer
   d.event = nil -- event callback
