@@ -5,8 +5,8 @@ state = {}
 state.script = ''
 state.clean_shutdown = false
 state.ports = {
-  midi = {"all","all","all","all"},
-  grid = {"all","all","all","all"}
+  midi = {"all","none","none","none"},
+  grid = {"all","none","none","none"}
 }
 
 -- read state.lua and set parameters back to stored vals
@@ -21,6 +21,12 @@ state.resume = function()
     io.close(f)
     dofile(data_dir..'system.lua')
   end
+
+  for i=1,4 do
+    midi.vport[i].name = state.ports.midi[i]
+  end
+
+  midi.update_devices()
 
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then

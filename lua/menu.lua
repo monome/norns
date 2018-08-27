@@ -1165,6 +1165,10 @@ m.key[pDEVICES] = function(n,z)
     elseif n==3 and z==1 then
       local s = m.devices.options[m.devices.section][m.devices.pos]
       norns.state.ports[m.devices.section][m.devices.setpos] = s
+      if m.devices.section == "midi" then
+        midi.vport[m.devices.setpos].name = s
+        midi.update_devices()
+      end
       m.devices.mode = "list"
       m.devices.len = 4
       m.devices.pos = 1
@@ -1208,10 +1212,13 @@ m.init[pDEVICES] = function()
     midi = {"all"},
     grid = {"all"}
   }
-  for _, v in pairs(midi.devices) do
-    print("found: " .. v.name)
-    table.insert(m.devices.options["midi"],v.name)
-  end
+  m.devices.options.midi = midi.list
+  table.insert(m.devices.options.midi, "all")
+  table.insert(m.devices.options.midi, "none")
+  --for _, v in pairs(midi.devices) do
+    --print("found: " .. v.name)
+    --table.insert(m.devices.options["midi"],v.name)
+  --end
   for _, v in pairs(grid.devices) do
     print("found: " .. v.serial)
     table.insert(m.devices.options["grid"],v.serial)

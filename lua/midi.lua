@@ -3,13 +3,18 @@
 -- @alias Midi
 require 'norns'
 
-norns.version.midi = '0.0.0'
-
 local Midi = {}
 Midi.devices = {}
-Midi.callbacks = {} -- tables per device, with subscription callbacks
-Midi.broadcast = {} -- table with callbacks for "all devices"
-Midi.reverse = {} -- reverse lookup, names/id
+Midi.list = {}
+Midi.vport = {}
+for i=1,4 do
+  Midi.vport[i] = {
+    name = nil,
+    callbacks = {},
+    send = nil,
+    attached = false
+  }
+end
 Midi.__index = Midi
 
 --- constructor
@@ -23,13 +28,7 @@ function Midi.new(id, name, dev)
   d.dev = dev -- opaque pointer
   d.event = nil -- event callback
   d.remove = nil -- device unplug callback
-  -- update callback table
-  if not Midi.callbacks[name] then
-    Midi.callbacks[name] = {}
-  end
-  d.callbacks = Midi.callbacks[name]
-  -- update reverse lookup
-  Midi.reverse[name] = id
+  d.ports = {} -- list of virtual ports this device is attached to
   return d
 end
 
@@ -64,13 +63,6 @@ function Midi:send(data)
   end
 end
 
---- send midi event to named device
-function Midi.send_named(name, data)
-  if Midi.reverse[name] then
-    Midi.devices[Midi.reverse[name]]:send(data)
-  end
-end
-
 --- send midi event to all devices
 function Midi.send_all(data)
   for _,device in pairs(Midi.devices) do
@@ -80,27 +72,19 @@ end
 
 
 --- create device, returns object with handler and send
-function Midi.connect(name)
-  name = name or 1
+function Midi.connect(n)
+  n = n or 1
+  if n>4 then n=4 end
+
   local d = {
     event = function(data)
-        --print("midi input")
+        print(n..": midi input")
       end,
+    send = function(data) Midi.vport[n].send(data) end
   }
-  if name and type(name) == "number" then
-    name = norns.state.ports.midi[name]
-  end
-  if not name or name == "all" then
-    d.send = function(data) midi.send_all(data) end
-    table.insert(Midi.broadcast, d)
-  else
-    if not Midi.callbacks[name] then
-      Midi.callbacks[name] = {}
-      Midi.reverse[name] = nil -- will be overwritten with device insertion
-    end
-    d.send = function(data) midi.send_named(name, data) end
-    table.insert(Midi.callbacks[name], d)
-  end
+
+  table.insert(Midi.vport[n].callbacks, function(data) d.event(data) end)
+
   -- midi send helper functions
   d.note_on = function(note, vel, ch)
       d.send{type="note_on", note=note, vel=vel, ch=ch or 1}
@@ -122,9 +106,8 @@ end
 
 --- clear handlers
 function Midi.cleanup()
-  Midi.broadcast = {}
-  for name, t in pairs(Midi.callbacks) do
-    Midi.callbacks[name] = {}
+  for i=1,4 do
+    Midi.vport[i].callbacks = {}
   end
 end
 
@@ -210,6 +193,33 @@ function Midi.to_msg(data)
 end
 
 
+function Midi.update_devices()
+  -- build list of available devices
+  Midi.list = {}
+  for _,device in pairs(Midi.devices) do
+    table.insert(Midi.list, device.name)
+    device.ports = {}
+  end
+  -- connect available devices to vports
+  for i=1,4 do
+    Midi.vport[i].attached = false
+    if Midi.vport[i].name == "all" then
+      Midi.vport[i].send = function(data) Midi.send_all(data) end
+      Midi.vport[i].attached = tab.count(Midi.devices) > 0
+      for _,device in pairs(Midi.devices) do
+        table.insert(device.ports, i)
+      end
+    else
+      for _,device in pairs(Midi.devices) do
+        if device.name == Midi.vport[i].name then
+          Midi.vport[i].send = function(data) device:send(data) end
+          Midi.vport[i].attached = true
+          table.insert(device.ports, i)
+        end
+      end
+    end
+  end
+end
 
 --- norns functions
 
@@ -218,36 +228,39 @@ norns.midi.add = function(id, name, dev)
   print("midi added:", id, name)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
+
+  Midi.update_devices()
+
   if Midi.add ~= nil then Midi.add(d) end
 end
 
 --- remove a device
 norns.midi.remove = function(id)
   if Midi.devices[id] then
-    if Midi.remove ~= nil then
-      Midi.remove(Midi.devices[id])
-    end
     if Midi.devices[id].remove then
       Midi.devices[id].remove()
     end
   end
   Midi.devices[id] = nil
+
+  Midi.update_devices()
 end
 
 --- handle a midi event
 norns.midi.event = function(id, data)
+  -- iterate through port table
+
   local d = Midi.devices[id]
   if d ~= nil then
     if d.event ~= nil then
       d.event(data)
     end
-    -- do any individual subscribed callbacks
-    for _,device in pairs(Midi.callbacks[Midi.devices[id].name]) do
-      device.event(data)
-    end
-    -- do broadcast callbacks
-    for _,device in pairs(Midi.broadcast) do
-      device.event(data)
+
+    for _,n in pairs(d.ports) do
+      for _,event in pairs(Midi.vport[n].callbacks) do
+        --print("vport " .. n)
+        event(data)
+      end
     end
   end
   -- hack = send all midi to menu for param-cc-map
