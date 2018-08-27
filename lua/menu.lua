@@ -14,6 +14,9 @@ enc = norns.none
 redraw = norns.blank
 cleanup = norns.none
 
+-- tuning
+local KEY1_HOLD_TIME = 0.2
+
 -- level enums
 local pMIX = 0
 local pHOME = 1
@@ -198,7 +201,7 @@ local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
-t.time = 0.15 -- time for KEY1
+t.time = KEY1_HOLD_TIME
 t.count = 1
 t.callback = function(stage)
   menu.key(1,1)
@@ -1168,6 +1171,9 @@ m.key[pDEVICES] = function(n,z)
       if m.devices.section == "midi" then
         midi.vport[m.devices.setpos].name = s
         midi.update_devices()
+      elseif m.devices.section == "grid" then
+        grid.vport[m.devices.setpos].name = s
+        grid.update_devices()
       end
       m.devices.mode = "list"
       m.devices.len = 4
@@ -1215,14 +1221,9 @@ m.init[pDEVICES] = function()
   m.devices.options.midi = midi.list
   table.insert(m.devices.options.midi, "all")
   table.insert(m.devices.options.midi, "none")
-  --for _, v in pairs(midi.devices) do
-    --print("found: " .. v.name)
-    --table.insert(m.devices.options["midi"],v.name)
-  --end
-  for _, v in pairs(grid.devices) do
-    print("found: " .. v.serial)
-    table.insert(m.devices.options["grid"],v.serial)
-  end
+  m.devices.options.grid = grid.list
+  table.insert(m.devices.options.grid, "all")
+  table.insert(m.devices.options.grid, "none")
 end
 
 m.deinit[pDEVICES] = function() end

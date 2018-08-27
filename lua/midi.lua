@@ -232,9 +232,7 @@ norns.midi.add = function(id, name, dev)
   print("midi added:", id, name)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
-
   Midi.update_devices()
-
   if Midi.add ~= nil then Midi.add(d) end
 end
 
@@ -246,7 +244,6 @@ norns.midi.remove = function(id)
     end
   end
   Midi.devices[id] = nil
-
   Midi.update_devices()
 end
 

@@ -10,9 +10,18 @@ norns.version.grid = '0.0.2'
 
 local Grid = {}
 Grid.devices = {}
-Grid.callbacks = {} -- tables per device, with subscription callbacks
-Grid.broadcast = {} -- table with callbacks for "all devices"
-Grid.reverse = {} -- reverse lookup, names/id
+Grid.list = {}
+Grid.vport = {}
+for i=1,4 do
+  Grid.vport[i] = {
+    name = nil,
+    callbacks = {},
+    led = nil,
+    all = nil,
+    refresh = nil,
+    attached = false
+  }
+end
 Grid.__index = Grid
 
 --- constructor
@@ -24,19 +33,17 @@ function Grid.new(id, serial, name, dev)
   local g = setmetatable({}, Grid)
   g.id = id
   g.serial = serial
+  name = name .. " " .. serial
+  while tab.contains(Grid.list,name) do
+    name = name .. "+"
+  end
   g.name = name
   g.dev = dev -- opaque pointer
   g.key = nil -- key event callback
   g.remove = nil -- device unplug callback
   g.rows = grid_rows(dev)
   g.cols = grid_cols(dev)
-  -- update callback table
-  if not Grid.callbacks[serial] then
-    Grid.callbacks[serial] = {}
-  end
-  g.callbacks = Grid.callbacks[serial]
-  -- update reverse lookup
-  Grid.reverse[serial] = id
+  g.ports = {} -- list of virtual ports this device is attached to
   return g
 end
 
@@ -48,9 +55,7 @@ function Grid.add(dev)
 end
 
 --- scan device list and grab one, redefined later
-function Grid.reconnect()
-  -- FIXME should this emulate behavior in midi.lua?
-end
+function Grid.reconnect() end
 
 --- static callback when any grid device is removed;
 -- user scripts can redefine
@@ -84,24 +89,10 @@ function Grid:print()
 end
 
 
---- send grid:led to named device
-function Grid.led_named(name, x, y, val)
-  if Grid.reverse[name] then
-    Grid.devices[Grid.reverse[name]]:led(x, y, val)
-  end
-end
-
 --- send grid:led to all devices
 function Grid.led_all(x, y, val)
   for _,device in pairs(Grid.devices) do
     device:led(x, y, val)
-  end
-end
-
---- send grid:all to named device
-function Grid.all_named(name, val)
-  if Grid.reverse[name] then
-    Grid.devices[Grid.reverse[name]]:all(val)
   end
 end
 
@@ -111,14 +102,6 @@ function Grid.all_all(val)
     device:all(val)
   end
 end
-
---- send grid:refresh to named device
-function Grid.refresh_named(name)
-  if Grid.reverse[name] then
-    Grid.devices[Grid.reverse[name]]:refresh()
-  end
-end
-
 --- send grid:refresh to all devices
 function Grid.refresh_all()
   for _,device in pairs(Grid.devices) do
@@ -129,38 +112,62 @@ end
 
 --- create device, returns object with handler and send
 function Grid.connect(name)
-  name = name or 1
+  n = n or 1
+  if n>4 then n=4 end
+
   local d = {
-    event = function(data) print("grid input") end,
+    event = function(x,y,z)
+        print(n..": grid input")
+      end,
+    led = function(x,y,z) Grid.vport[n].led(x,y,z) end,
+    all = function(val) Grid.vport[n].all(val) end,
+    refresh = function() Grid.vport[n].refresh() end
   }
-  if name and type(name) == "number" then
-    name = norns.state.ports.grid[name]
-  end
-  if not name or name == "all" then
-    d.led = function(x, y, val) Grid.led_all(x, y, val) end
-    d.all = function(val) Grid.all_all(val) end
-    d.refresh = function() Grid.refresh_all() end
-    table.insert(Grid.broadcast, d)
-  else
-    if not Grid.callbacks[name] then
-      Grid.callbacks[name] = {}
-      Grid.reverse[name] = nil -- will be overwritten with device insertion
-    end
-    d.led = function(x, y, val) Grid.led_named(name, x, y, val) end
-    d.all = function(val) Grid.all_named(name, val) end
-    d.refresh = function() Grid.refresh_named(name) end
-    table.insert(Grid.callbacks[name], d)
-  end
+
+  table.insert(Grid.vport[n].callbacks, function(x,y,z) d.event(x,y,z) end)
+
   return d
 end
 
 --- clear handlers
 function Grid.cleanup()
-  Grid.broadcast = {}
-  for name, t in pairs(Grid.callbacks) do
-    Grid.callbacks[name] = {}
+  for i=1,4 do
+    Grid.vport[i].callbacks = {}
   end
 end
+
+function Grid.update_devices()
+  -- build list of available devices
+  Grid.list = {}
+  for _,device in pairs(Grid.devices) do
+    table.insert(Grid.list, device.name)
+    device.ports = {}
+  end
+  -- connect available devices to vports
+  for i=1,4 do
+    Grid.vport[i].attached = false
+    if Grid.vport[i].name == "all" then
+      Grid.vport[i].led = function(x, y, val) Grid.led_all(x, y, val) end
+      Grid.vport[i].all = function(val) Grid.all_all(val) end
+      Grid.vport[i].refresh = function() Grid.refresh_all() end
+      Grid.vport[i].attached = tab.count(Grid.devices) > 0
+      for _,device in pairs(Grid.devices) do
+        table.insert(device.ports, i)
+      end
+    else
+      for _,device in pairs(Grid.devices) do
+        if device.name == Grid.vport[i].name then
+          Grid.vport[i].led = function(x, y, val) device:led(x, y, val) end
+          Grid.vport[i].all = function(val) device:all(val) end
+          Grid.vport[i].refresh = function() device:refresh() end
+          Grid.vport[i].attached = true
+          table.insert(device.ports, i)
+        end
+      end
+    end
+  end
+end
+
 
 
 -- -------------------------------
@@ -187,6 +194,7 @@ end
 norns.grid.add = function(id, serial, name, dev)
   local g = Grid.new(id,serial,name,dev)
   Grid.devices[id] = g
+  Grid.update_devices()
   if Grid.add ~= nil then Grid.add(g) end
 end
 
@@ -200,23 +208,22 @@ norns.grid.remove = function(id)
     end
   end
   Grid.devices[id] = nil
+  Grid.update_devices()
 end
 
 --- redefine global grid key input handler
-norns.grid.key = function(id, x, y, val)
+norns.grid.key = function(id, x, y, z)
   local g = Grid.devices[id]
   if g ~= nil then
-    -- do any individual subscribed callbacks
-    for _,device in pairs(Grid.callbacks[Grid.devices[id].serial]) do
-      device.event(x,y,val)
-    end
-    -- do broadcast callbacks
-    for _,device in pairs(Grid.broadcast) do
-      device.event(x,y,val)
+    if g.key ~= nil then
+      g.key(x, y, z)
     end
 
-    if g.key ~= nil then
-      g.key(x, y, val)
+    for _,n in pairs(g.ports) do
+      for _,event in pairs(Grid.vport[n].callbacks) do
+        --print("vport " .. n)
+        event(x,y,z)
+      end
     end
   else
     print('>> error: no entry for grid ' .. id)

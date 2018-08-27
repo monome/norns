@@ -24,9 +24,10 @@ state.resume = function()
 
   for i=1,4 do
     midi.vport[i].name = state.ports.midi[i]
+    grid.vport[i].name = state.ports.grid[i]
   end
-
   midi.update_devices()
+  grid.update_devices()
 
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then
