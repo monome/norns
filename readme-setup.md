@@ -11,6 +11,7 @@ for desktop:
 ```
 supercollider-language
 supercollider-server
+supercollider-supernova
 supercollider-dev
 ```
 
@@ -29,7 +30,7 @@ or use the debian repository as follows:
 curl https://keybase.io/artfwo/pgp_keys.asc | sudo apt-key add -
 echo "deb https://package.monome.org/ debian/" | sudo tee /etc/apt/sources.list.d/norns.list
 sudo apt update
-sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-dev
+sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-supernova supercollider-dev
 ```
 
 ## building norns
