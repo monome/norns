@@ -1132,6 +1132,23 @@ m.devices = {}
 m.devices.pos = 1
 m.devices.list = {"midi", "grid"}
 m.devices.len = #m.devices.list
+function m.devices.refresh()
+  m.devices.options = {
+    midi = {},
+    grid = {}
+  }
+  for _,i in pairs(midi.list) do
+    table.insert(m.devices.options.midi,i)
+  end
+  table.insert(m.devices.options.midi, "all")
+  table.insert(m.devices.options.midi, "none")
+  for _,i in pairs(grid.list) do
+    table.insert(m.devices.options.grid,i)
+  end
+  table.insert(m.devices.options.grid, "all")
+  table.insert(m.devices.options.grid, "none")
+end
+
 
 m.key[pDEVICES] = function(n,z)
   if m.devices.mode == "type" then
@@ -1152,6 +1169,7 @@ m.key[pDEVICES] = function(n,z)
       m.devices.pos = 1
       menu.redraw()
     elseif n==3 and z==1 then
+      m.devices.refresh()
       m.devices.mode = "select"
       m.devices.setpos = m.devices.pos
       m.devices.len = #m.devices.options[m.devices.section]
@@ -1214,16 +1232,6 @@ m.init[pDEVICES] = function()
   m.devices.pos = 1
   m.devices.mode = "type"
   m.devices.len = #m.devices.list
-  m.devices.options = {
-    midi = {"all"},
-    grid = {"all"}
-  }
-  m.devices.options.midi = midi.list
-  table.insert(m.devices.options.midi, "all")
-  table.insert(m.devices.options.midi, "none")
-  m.devices.options.grid = grid.list
-  table.insert(m.devices.options.grid, "all")
-  table.insert(m.devices.options.grid, "none")
 end
 
 m.deinit[pDEVICES] = function() end

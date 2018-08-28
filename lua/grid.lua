@@ -119,6 +119,7 @@ function Grid.connect(name)
     event = function(x,y,z)
         print(n..": grid input")
       end,
+    attached = function() return Grid.vport[n].attached end,
     led = function(x,y,z) Grid.vport[n].led(x,y,z) end,
     all = function(val) Grid.vport[n].all(val) end,
     refresh = function() Grid.vport[n].refresh() end
