@@ -84,6 +84,7 @@ function Midi.connect(n)
     event = function(data)
         print(n..": midi input")
       end,
+    attached = function() return Midi.vport[n].attached end,
     send = function(data) Midi.vport[n].send(data) end
   }
 
