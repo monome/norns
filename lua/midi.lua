@@ -77,7 +77,7 @@ end
 
 --- create device, returns object with handler and send
 function Midi.connect(n)
-  n = n or 1
+  local n = n or 1
   if n>4 then n=4 end
 
   local d = {
