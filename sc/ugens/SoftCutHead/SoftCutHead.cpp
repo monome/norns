@@ -67,14 +67,14 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     const float *pre = IN(3);
     const float *rate = IN(4);
 
-    // KR inputs    
+    // KR inputs
     const float pos = IN0(5);
     const float trig = IN0(6);
     const float start = IN0(7);
     const float end = IN0(8);
     const float fade = IN0(9);
     const float loop = IN0(10);
-    
+
     const float fadeRec = IN0(11);
     const float fadePre = IN0(12);
     const float recRun = IN0(13);
@@ -89,7 +89,7 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->cutfade.setFadePre(fadePre);
     unit->cutfade.setRecRun(recRun > 0);
     unit->cutfade.setRecOffset(recOffset);
-    
+
 
     if ((trig > 0) && (unit->prevTrig <= 0)) {
       // FIXME: i think it will be ok for now,
@@ -102,22 +102,22 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     float snd, phi, tr;
     // trigger should be high/low for the entire block...
     // unfortunately it doesn't seem possible to avoid using audio bus for tr output
-    float trBlock = 0.f; 
-    
-    for (int i = 0; i < inNumSamples; ++i) {     
+    float trBlock = 0.f;
+
+    for (int i = 0; i < inNumSamples; ++i) {
       unit->cutfade.setRec(rec[i]);
-      unit->cutfade.setPre(pre[i]); 
+      unit->cutfade.setPre(pre[i]);
       unit->cutfade.setRate(rate[i]);
-      
+
       unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
       phase_out[i] = phi;
       snd_out[i] = snd;
       if(tr > 0.f) { trBlock = 1.f;}
     }
-    
+
     for (int i = 0; i < inNumSamples; ++i) {
       trig_out[i] = trBlock;
-    }    
+    }
 }
 
 PluginLoad(SoftCutHead) {
