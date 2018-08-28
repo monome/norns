@@ -4,6 +4,10 @@
 state = {}
 state.script = ''
 state.clean_shutdown = false
+state.ports = {
+  midi = {"all","none","none","none"},
+  grid = {"all","none","none","none"}
+}
 
 -- read state.lua and set parameters back to stored vals
 state.resume = function()
@@ -17,6 +21,13 @@ state.resume = function()
     io.close(f)
     dofile(data_dir..'system.lua')
   end
+
+  for i=1,4 do
+    midi.vport[i].name = state.ports.midi[i]
+    grid.vport[i].name = state.ports.grid[i]
+  end
+  midi.update_devices()
+  grid.update_devices()
 
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then
@@ -57,6 +68,12 @@ state.save_state = function()
   io.write("-- system state\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
+  for k,v in pairs(norns.state.ports.midi) do
+    io.write("norns.state.ports.midi[" .. k .. "] = '" .. v .. "'\n")
+  end
+  for k,v in pairs(norns.state.ports.grid) do
+    io.write("norns.state.ports.grid[" .. k .. "] = '" .. v .. "'\n")
+  end
   io.close(fd)
 end
 

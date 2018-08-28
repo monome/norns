@@ -14,6 +14,9 @@ enc = norns.none
 redraw = norns.blank
 cleanup = norns.none
 
+-- tuning
+local KEY1_HOLD_TIME = 0.2
+
 -- level enums
 local pMIX = 0
 local pHOME = 1
@@ -22,11 +25,12 @@ local pPREVIEW = 3
 local pPARAMS = 4
 local pSYSTEM = 5
 local pAUDIO = 6
-local pWIFI = 7
-local pSYNC = 8
-local pUPDATE = 9
-local pLOG = 10
-local pSLEEP = 11
+local pDEVICES = 7
+local pWIFI = 8
+local pSYNC = 9
+local pUPDATE =10
+local pLOG = 12
+local pSLEEP = 12
 
 -- page pointer
 local m = {}
@@ -197,7 +201,7 @@ local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
-t.time = 0.15 -- time for KEY1
+t.time = KEY1_HOLD_TIME
 t.count = 1
 t.callback = function(stage)
   menu.key(1,1)
@@ -1049,12 +1053,13 @@ function m.params.read(filename)
 end
 
 
+
 -----------------------------------------
 -- SYSTEM
 m.sys = {}
-m.sys.pos = 0
-m.sys.list = {"audio > ", "wifi >", "sync >", "update >", "log >"}
-m.sys.pages = {pAUDIO, pWIFI, pSYNC, pUPDATE, pLOG}
+m.sys.pos = 1
+m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "SYNC >", "UPDATE >", "LOG >"}
+m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pSYNC, pUPDATE, pLOG}
 m.sys.input = 0
 m.sys.disk = ""
 
@@ -1063,14 +1068,13 @@ m.key[pSYSTEM] = function(n,z)
     norns.state.save()
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
-    menu.set_page(m.sys.pages[m.sys.pos+1])
+    menu.set_page(m.sys.pages[m.sys.pos])
   end
 end
 
 m.enc[pSYSTEM] = function(n,delta)
   if n==2 then
-    m.sys.pos = m.sys.pos + delta
-    m.sys.pos = util.clamp(m.sys.pos, 0, #m.sys.list - 1)
+    m.sys.pos = util.clamp(m.sys.pos + delta, 1, #m.sys.list)
     menu.redraw()
   end
 end
@@ -1079,25 +1083,21 @@ m.redraw[pSYSTEM] = function()
   screen.clear()
 
   for i=1,#m.sys.list do
-    screen.move(0,10*i+10)
-    if(i==m.sys.pos+1) then
+    screen.move(0,10*i)
+    if(i==m.sys.pos) then
       screen.level(15)
     else
       screen.level(4)
     end
-    screen.text(string.upper(m.sys.list[i]))
+    screen.text(m.sys.list[i])
   end
 
-  if m.sys.pos==1 and (m.sys.input == 0 or m.sys.input == 1) then
-    screen.level(15) else screen.level(4)
-  end
-
+  screen.level(2)
   screen.move(127,30)
   if wifi.state == 2 then m.sys.net = wifi.ip
   else m.sys.net = wifi.status end
   screen.text_right(m.sys.net)
 
-  screen.level(2)
   screen.move(127,40)
   screen.text_right("disk free: "..m.sys.disk)
 
@@ -1126,6 +1126,107 @@ m.sysquery = function()
 end
 
 
+-----------------------------------------
+-- DEVICES
+m.devices = {}
+m.devices.pos = 1
+m.devices.list = {"midi", "grid"}
+m.devices.len = #m.devices.list
+
+m.key[pDEVICES] = function(n,z)
+  if m.devices.mode == "type" then
+    if n==2 and z==1 then
+      norns.state.save()
+      menu.set_page(pSYSTEM)
+    elseif n==3 and z==1 then
+      m.devices.section = m.devices.list[m.devices.pos]
+      m.devices.mode = "list"
+      m.devices.len = 4
+      m.devices.pos = 1
+      menu.redraw()
+    end
+  elseif m.devices.mode == "list" then
+    if n==2 and z==1 then
+      m.devices.mode = "type"
+      m.devices.len = #m.devices.list
+      m.devices.pos = 1
+      menu.redraw()
+    elseif n==3 and z==1 then
+      m.devices.mode = "select"
+      m.devices.setpos = m.devices.pos
+      m.devices.len = #m.devices.options[m.devices.section]
+      --tab.print(m.devices.options[m.devices.section])
+      m.devices.pos = 1
+      menu.redraw()
+    end
+  elseif m.devices.mode == "select" then
+    if n==2 and z==1 then
+      m.devices.mode = "list"
+      m.devices.len = 4
+      m.devices.pos = 1
+      menu.redraw()
+    elseif n==3 and z==1 then
+      local s = m.devices.options[m.devices.section][m.devices.pos]
+      norns.state.ports[m.devices.section][m.devices.setpos] = s
+      if m.devices.section == "midi" then
+        midi.vport[m.devices.setpos].name = s
+        midi.update_devices()
+      elseif m.devices.section == "grid" then
+        grid.vport[m.devices.setpos].name = s
+        grid.update_devices()
+      end
+      m.devices.mode = "list"
+      m.devices.len = 4
+      m.devices.pos = 1
+      menu.redraw()
+    end
+  end
+end
+
+m.enc[pDEVICES] = function(n,delta)
+  if n==2 then
+    m.devices.pos = util.clamp(m.devices.pos + delta, 1, m.devices.len)
+    menu.redraw()
+  end
+end
+
+m.redraw[pDEVICES] = function()
+  screen.clear()
+  for i=1,m.devices.len do
+    screen.move(0,10*i+20)
+    if(i==m.devices.pos) then
+      screen.level(15)
+    else
+      screen.level(4)
+    end
+    if m.devices.mode == "type" then
+      screen.text(string.upper(m.devices.list[i]) .. " >")
+    elseif m.devices.mode == "list" then
+      screen.text(i .. ". " .. norns.state.ports[m.devices.section][i])
+    elseif m.devices.mode == "select" then
+      screen.text(m.devices.options[m.devices.section][i])
+    end
+  end
+  screen.update()
+end
+
+m.init[pDEVICES] = function()
+  m.devices.pos = 1
+  m.devices.mode = "type"
+  m.devices.len = #m.devices.list
+  m.devices.options = {
+    midi = {"all"},
+    grid = {"all"}
+  }
+  m.devices.options.midi = midi.list
+  table.insert(m.devices.options.midi, "all")
+  table.insert(m.devices.options.midi, "none")
+  m.devices.options.grid = grid.list
+  table.insert(m.devices.options.grid, "all")
+  table.insert(m.devices.options.grid, "none")
+end
+
+m.deinit[pDEVICES] = function() end
 
 
 

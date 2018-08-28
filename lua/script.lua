@@ -20,15 +20,17 @@ Script.clear = function()
     dev:refresh()
     dev.key = norns.none
   end
-  g = nil
+  grid.cleanup()
+  --g = nil
   -- reset gridkey callback
-  gridkey = norns.none
+  --gridkey = norns.none
   -- reset midi callbacks
   midi.add = norns.none
   midi.remove = norns.none
   for _,dev in pairs(midi.devices) do
     dev.event = norns.none
   end
+  midi.cleanup()
   -- stop all timers
   metro.free_all()
   -- stop all polls and clear callbacks
