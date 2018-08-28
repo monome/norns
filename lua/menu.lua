@@ -1149,7 +1149,6 @@ function m.devices.refresh()
   table.insert(m.devices.options.grid, "none")
 end
 
-
 m.key[pDEVICES] = function(n,z)
   if m.devices.mode == "type" then
     if n==2 and z==1 then
