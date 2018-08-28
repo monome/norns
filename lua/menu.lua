@@ -15,7 +15,7 @@ redraw = norns.blank
 cleanup = norns.none
 
 -- tuning
-local KEY1_HOLD_TIME = 0.2
+local KEY1_HOLD_TIME = 0.25
 
 -- level enums
 local pMIX = 0
