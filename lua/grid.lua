@@ -112,7 +112,7 @@ end
 
 --- create device, returns object with handler and send
 function Grid.connect(name)
-  n = n or 1
+  local n = n or 1
   if n>4 then n=4 end
 
   local d = {
