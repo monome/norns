@@ -30,7 +30,7 @@ local pWIFI = 8
 local pSYNC = 9
 local pUPDATE =10
 local pLOG = 12
-local pSLEEP = 12
+local pSLEEP = 13
 
 -- page pointer
 local m = {}
