@@ -1508,7 +1508,7 @@ m.redraw[pUPDATE] = function()
   elseif m.update.found then
     screen.text_center("update found")
     screen.move(64,42)
-    screen.text_center("reboot to apply")
+    screen.text_center("sleep to apply")
   else
     screen.text_center("no updates found")
   end
