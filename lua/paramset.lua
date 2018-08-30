@@ -64,12 +64,12 @@ end
 
 --- add file
 function ParamSet:add_file(name, path)
-  self:add { file.new(name, path) }
+  self:add { param=file.new(name, path) }
 end
 
 --- add taper
 function ParamSet:add_taper(name, min, max, default, k, units)
-  self:add { taper.new(name, min, max, default, k, units) }
+  self:add { param=taper.new(name, min, max, default, k, units) }
 end
 
 --- print
