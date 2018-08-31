@@ -37,35 +37,39 @@ function ParamSet:add_separator()
 end
 
 --- add generic parameter
-function ParamSet:add(param)
+function ParamSet:add(args)
+  local param = args.param -- param is mandatory
   table.insert(self.params, param)
   self.count = self.count + 1
   self.lookup[param.name] = self.count
+  if args.action then -- action is optional
+    param.action = args.action
+  end
 end
 
 --- add number
 function ParamSet:add_number(name, min, max, default)
-  self:add(number.new(name, min, max, default))
+  self:add { param=number.new(name, min, max, default) }
 end
 
 --- add option
 function ParamSet:add_option(name, options, default)
-  self:add(option.new(name, options, default))
+  self:add { param=option.new(name, options, default) }
 end
 
 --- add control
 function ParamSet:add_control(name, controlspec, formatter)
-  self:add(control.new(name, controlspec, formatter))
+  self:add { param=control.new(name, controlspec, formatter) }
 end
 
 --- add file
 function ParamSet:add_file(name, path)
-  self:add(file.new(name, path))
+  self:add { param=file.new(name, path) }
 end
 
 --- add taper
 function ParamSet:add_taper(name, min, max, default, k, units)
-  self:add(taper.new(name, min, max, default, k, units))
+  self:add { param=taper.new(name, min, max, default, k, units) }
 end
 
 --- print
