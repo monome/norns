@@ -237,6 +237,7 @@ function Midi.update_devices()
   -- connect available devices to vports
   for i=1,4 do
     Midi.vport[i].attached = false
+    Midi.vport[i].send = function(data) end
     for _,device in pairs(Midi.devices) do
       if device.name == Midi.vport[i].name then
         Midi.vport[i].send = function(data) device:send(data) end
