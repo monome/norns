@@ -34,6 +34,19 @@ function Midi.new(id, name, dev)
   d.event = nil -- event callback
   d.remove = nil -- device unplug callback
   d.ports = {} -- list of virtual ports this device is attached to
+
+  -- autofill next postiion
+  local connected = {}
+  for i=1,4 do table.insert(connected, Midi.vport[i].name) end
+  if not tab.contains(connected, name) then
+    for i=1,4 do
+      if Midi.vport[i].name == "none" then
+        Midi.vport[i].name = name
+        break
+      end
+    end
+  end
+
   return d
 end
 
