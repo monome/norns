@@ -96,3 +96,5 @@ sudo luarocks install ldoc
 to generate the docs:
 
 `ldoc .` in the root norns folder
+
+To read the documentation, point the browser window with Maiden loaded to [http://norns.local:5000/doc](http://norns.local:5000/doc)
