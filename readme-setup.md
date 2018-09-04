@@ -97,4 +97,4 @@ to generate the docs:
 
 `ldoc .` in the root norns folder
 
-To read the documentation, point the browser window with Maiden loaded to [http://norns.local/doc](http://norns.local:5000/doc)
+To read the documentation, point the browser window with Maiden loaded to [http://norns.local/doc](http://norns.local/doc) (or use IP address if this doesn't work).
