@@ -9,9 +9,10 @@ Midi.list = {}
 Midi.vport = {}
 for i=1,4 do
   Midi.vport[i] = {
-    name = nil,
+    name = "none",
     callbacks = {},
-    send = nil,
+    index = 0,
+    send = function() end,
     attached = false
   }
 end
@@ -33,6 +34,19 @@ function Midi.new(id, name, dev)
   d.event = nil -- event callback
   d.remove = nil -- device unplug callback
   d.ports = {} -- list of virtual ports this device is attached to
+
+  -- autofill next postiion
+  local connected = {}
+  for i=1,4 do table.insert(connected, Midi.vport[i].name) end
+  if not tab.contains(connected, name) then
+    for i=1,4 do
+      if Midi.vport[i].name == "none" then
+        Midi.vport[i].name = name
+        break
+      end
+    end
+  end
+
   return d
 end
 
@@ -67,28 +81,42 @@ function Midi:send(data)
   end
 end
 
---- send midi event to all devices
-function Midi.send_all(data)
-  for _,device in pairs(Midi.devices) do
-    device:send(data)
-  end
-end
-
 
 --- create device, returns object with handler and send
 function Midi.connect(n)
   local n = n or 1
   if n>4 then n=4 end
 
+  Midi.vport[n].index = Midi.vport[n].index + 1
+
   local d = {
+    index = Midi.vport[n].index,
+    port = n,
     event = function(data)
-        print(n..": midi input")
+        print("midi input")
       end,
     attached = function() return Midi.vport[n].attached end,
-    send = function(data) Midi.vport[n].send(data) end
+    send = function(data) Midi.vport[n].send(data) end,
+    disconnect = function(self)
+        self.send = function() print("not connected") end
+        table.remove(Midi.vport[self.port].callbacks, self.index)
+        self.index = nil
+        self.port = nil
+      end,
+    reconnect = function(self, p)
+        if self.index then
+          table.remove(Midi.vport[self.port].callbacks, self.index)
+        end
+        self.send = function(data) Midi.vport[p].send(data) end
+        attached = function() return Midi.vport[p].attached end
+        Midi.vport[p].index = Midi.vport[p].index + 1
+        self.index = Midi.vport[p].index
+        self.port = p
+        Midi.vport[p].callbacks[self.index] = function(data) self.event(data) end
+      end
   }
 
-  table.insert(Midi.vport[n].callbacks, function(data) d.event(data) end)
+  Midi.vport[n].callbacks[d.index] = function(data) d.event(data) end
 
   -- midi send helper functions
   d.note_on = function(note, vel, ch)
@@ -113,6 +141,7 @@ end
 function Midi.cleanup()
   for i=1,4 do
     Midi.vport[i].callbacks = {}
+    Midi.vport[i].index = 0
   end
 end
 
@@ -208,19 +237,12 @@ function Midi.update_devices()
   -- connect available devices to vports
   for i=1,4 do
     Midi.vport[i].attached = false
-    if Midi.vport[i].name == "all" then
-      Midi.vport[i].send = function(data) Midi.send_all(data) end
-      Midi.vport[i].attached = tab.count(Midi.devices) > 0
-      for _,device in pairs(Midi.devices) do
+    Midi.vport[i].send = function(data) end
+    for _,device in pairs(Midi.devices) do
+      if device.name == Midi.vport[i].name then
+        Midi.vport[i].send = function(data) device:send(data) end
+        Midi.vport[i].attached = true
         table.insert(device.ports, i)
-      end
-    else
-      for _,device in pairs(Midi.devices) do
-        if device.name == Midi.vport[i].name then
-          Midi.vport[i].send = function(data) device:send(data) end
-          Midi.vport[i].attached = true
-          table.insert(device.ports, i)
-        end
       end
     end
   end
