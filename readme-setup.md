@@ -7,14 +7,6 @@
 sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev libasound2-dev
 ```
 
-for desktop: 
-```
-supercollider-language
-supercollider-server
-supercollider-supernova
-supercollider-dev
-```
-
 ### sources
 
 build and install:
@@ -28,7 +20,7 @@ or use the debian repository as follows:
 
 ```
 curl https://keybase.io/artfwo/pgp_keys.asc | sudo apt-key add -
-echo "deb https://package.monome.org/ debian/" | sudo tee /etc/apt/sources.list.d/norns.list
+echo "deb https://package.monome.org/ stretch main" | sudo tee /etc/apt/sources.list.d/norns.list
 sudo apt update
 sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-supernova supercollider-dev
 ```
@@ -44,8 +36,13 @@ cd norns
 
 this should build all the c-based components (`matron` and `ws-wrapper`.)
 
-the `crone` audio engine consists of supercollider classes. run `sc/install.sh` to copy these to the default location for user SC extensions. 
+the `crone` audio engine consists of supercollider classes. copy files to the default location for user SC extensions
 
+```
+pushd sc
+./install.sh
+popd
+```
 
 ## configure
 
@@ -60,6 +57,7 @@ the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_
 run `crone.sh` from the norns directory. this creates a `sclang` process wrapped with `ws-wrapper`
 
 if the crone classes are installed correctly, you should see some lines like this in output from sclang initialization: 
+
 ```
 -------------------------------------------------
  Crone startup
@@ -79,7 +77,7 @@ matron waits for crone to finish loading before entering the main event loop.
 
 ### 3. launch `maiden` (web UI client)
 
-get most recent version from https://github.com/monome/maiden/releases
+get most [recent version](https://github.com/monome/maiden/releases)
 
 download to `~/maiden/` and untar
 
@@ -98,3 +96,5 @@ sudo luarocks install ldoc
 to generate the docs:
 
 `ldoc .` in the root norns folder
+
+To read the documentation, point the browser window with Maiden loaded to [http://norns.local/doc](http://norns.local/doc) (or use IP address if this doesn't work).
