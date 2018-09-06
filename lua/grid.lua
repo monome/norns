@@ -34,9 +34,9 @@ function Grid.new(id, serial, name, dev)
   g.id = id
   g.serial = serial
   name = name .. " " .. serial
-  while tab.contains(Grid.list,name) do
-    name = name .. "+"
-  end
+  --while tab.contains(Grid.list,name) do
+    --name = name .. "+"
+  --end
   g.name = name
   g.dev = dev -- opaque pointer
   g.key = nil -- key event callback
