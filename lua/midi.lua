@@ -252,7 +252,7 @@ end
 
 --- add a device
 norns.midi.add = function(id, name, dev)
-  print("midi added:", id, name)
+  print("midi added:", name)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
   Midi.update_devices()
@@ -262,6 +262,7 @@ end
 --- remove a device
 norns.midi.remove = function(id)
   if Midi.devices[id] then
+  print("midi removed:", Midi.devices[id].name)
     if Midi.devices[id].remove then
       Midi.devices[id].remove()
     end
