@@ -2,7 +2,6 @@
 -- @module grid
 -- @alias Grid
 require 'norns'
-norns.version.grid = '0.0.2'
 
 
 ---------------------------------
@@ -14,11 +13,12 @@ Grid.list = {}
 Grid.vport = {}
 for i=1,4 do
   Grid.vport[i] = {
-    name = nil,
+    name = "none",
     callbacks = {},
-    led = nil,
-    all = nil,
-    refresh = nil,
+    index = 0,
+    led = function() end,
+    all = function() end,
+    refresh = function() end,
     attached = false
   }
 end
@@ -34,9 +34,9 @@ function Grid.new(id, serial, name, dev)
   g.id = id
   g.serial = serial
   name = name .. " " .. serial
-  while tab.contains(Grid.list,name) do
-    name = name .. "+"
-  end
+  --while tab.contains(Grid.list,name) do
+    --name = name .. "+"
+  --end
   g.name = name
   g.dev = dev -- opaque pointer
   g.key = nil -- key event callback
@@ -44,6 +44,19 @@ function Grid.new(id, serial, name, dev)
   g.rows = grid_rows(dev)
   g.cols = grid_cols(dev)
   g.ports = {} -- list of virtual ports this device is attached to
+
+  -- autofill next postiion
+  local connected = {}
+  for i=1,4 do table.insert(connected, Grid.vport[i].name) end
+  if not tab.contains(connected, name) then
+    for i=1,4 do
+      if Grid.vport[i].name == "none" then
+        Grid.vport[i].name = name
+        break
+      end
+    end
+  end
+
   return g
 end
 
@@ -89,43 +102,43 @@ function Grid:print()
 end
 
 
---- send grid:led to all devices
-function Grid.led_all(x, y, val)
-  for _,device in pairs(Grid.devices) do
-    device:led(x, y, val)
-  end
-end
-
---- send grid:all to all devices
-function Grid.all_all(val)
-  for _,device in pairs(Grid.devices) do
-    device:all(val)
-  end
-end
---- send grid:refresh to all devices
-function Grid.refresh_all()
-  for _,device in pairs(Grid.devices) do
-    device:refresh()
-  end
-end
-
-
 --- create device, returns object with handler and send
 function Grid.connect(n)
   local n = n or 1
   if n>4 then n=4 end
 
+  Grid.vport[n].index = Grid.vport[n].index + 1
+
   local d = {
+    index = Grid.vport[n].index,
+    port = n,
     event = function(x,y,z)
-        print(n..": grid input")
+        print("grid input")
       end,
     attached = function() return Grid.vport[n].attached end,
     led = function(x,y,z) Grid.vport[n].led(x,y,z) end,
     all = function(val) Grid.vport[n].all(val) end,
-    refresh = function() Grid.vport[n].refresh() end
+    refresh = function() Grid.vport[n].refresh() end,
+    disconnect = function(self)
+        self.send = function() print("not connected") end
+        table.remove(Grid.vport[self.port].callbacks, self.index)
+        self.index = nil
+        self.port = nil
+      end,
+    reconnect = function(self, p)
+        if self.index then
+          table.remove(Grid.vport[self.port].callbacks, self.index)
+        end
+        self.send = function(data) Grid.vport[p].send(data) end
+        attached = function() return Grid.vport[p].attached end
+        Grid.vport[p].index = Grid.vport[p].index + 1
+        self.index = Grid.vport[p].index
+        self.port = p
+        Grid.vport[p].callbacks[self.index] = function(data) self.event(data) end
+      end
   }
 
-  table.insert(Grid.vport[n].callbacks, function(x,y,z) d.event(x,y,z) end)
+	Grid.vport[n].callbacks[d.index] = function(x,y,z) d.event(x,y,z) end
 
   return d
 end
@@ -134,6 +147,7 @@ end
 function Grid.cleanup()
   for i=1,4 do
     Grid.vport[i].callbacks = {}
+		Grid.vport[i].index = 0
   end
 end
 
@@ -147,23 +161,16 @@ function Grid.update_devices()
   -- connect available devices to vports
   for i=1,4 do
     Grid.vport[i].attached = false
-    if Grid.vport[i].name == "all" then
-      Grid.vport[i].led = function(x, y, val) Grid.led_all(x, y, val) end
-      Grid.vport[i].all = function(val) Grid.all_all(val) end
-      Grid.vport[i].refresh = function() Grid.refresh_all() end
-      Grid.vport[i].attached = tab.count(Grid.devices) > 0
-      for _,device in pairs(Grid.devices) do
+    Grid.vport[i].led = function(x, y, val) end
+    Grid.vport[i].all = function(val) end
+    Grid.vport[i].refresh = function() end
+    for _,device in pairs(Grid.devices) do
+      if device.name == Grid.vport[i].name then
+        Grid.vport[i].led = function(x, y, val) device:led(x, y, val) end
+        Grid.vport[i].all = function(val) device:all(val) end
+        Grid.vport[i].refresh = function() device:refresh() end
+        Grid.vport[i].attached = true
         table.insert(device.ports, i)
-      end
-    else
-      for _,device in pairs(Grid.devices) do
-        if device.name == Grid.vport[i].name then
-          Grid.vport[i].led = function(x, y, val) device:led(x, y, val) end
-          Grid.vport[i].all = function(val) device:all(val) end
-          Grid.vport[i].refresh = function() device:refresh() end
-          Grid.vport[i].attached = true
-          table.insert(device.ports, i)
-        end
       end
     end
   end

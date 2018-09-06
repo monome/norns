@@ -561,10 +561,12 @@ m.init[pMIX] = function()
   m.mix.out1 = 0
   m.mix.out2 = 0
   norns.encoders.set_accel(2,true)
+  norns.encoders.set_sens(2,1)
 end
 
 m.deinit[pMIX] = function()
   norns.encoders.set_accel(2,false)
+  norns.encoders.set_sens(2,0.5)
   norns.vu = norns.none
 end
 
@@ -1134,19 +1136,16 @@ m.devices.list = {"midi", "grid"}
 m.devices.len = #m.devices.list
 function m.devices.refresh()
   m.devices.options = {
-    midi = {},
-    grid = {}
+    midi = {"none"},
+    grid = {"none"}
   }
+  -- create midi list
   for _,i in pairs(midi.list) do
     table.insert(m.devices.options.midi,i)
   end
-  table.insert(m.devices.options.midi, "all")
-  table.insert(m.devices.options.midi, "none")
   for _,i in pairs(grid.list) do
     table.insert(m.devices.options.grid,i)
   end
-  table.insert(m.devices.options.grid, "all")
-  table.insert(m.devices.options.grid, "none")
 end
 
 m.key[pDEVICES] = function(n,z)
@@ -1184,7 +1183,6 @@ m.key[pDEVICES] = function(n,z)
       menu.redraw()
     elseif n==3 and z==1 then
       local s = m.devices.options[m.devices.section][m.devices.pos]
-      norns.state.ports[m.devices.section][m.devices.setpos] = s
       if m.devices.section == "midi" then
         midi.vport[m.devices.setpos].name = s
         midi.update_devices()
@@ -1219,7 +1217,11 @@ m.redraw[pDEVICES] = function()
     if m.devices.mode == "type" then
       screen.text(string.upper(m.devices.list[i]) .. " >")
     elseif m.devices.mode == "list" then
-      screen.text(i .. ". " .. norns.state.ports[m.devices.section][i])
+      if m.devices.section == "midi" then
+        screen.text(i .. ". " .. midi.vport[i].name)
+      elseif m.devices.section == "grid" then
+        screen.text(i .. ". " .. grid.vport[i].name)
+      end
     elseif m.devices.mode == "select" then
       screen.text(m.devices.options[m.devices.section][i])
     end
