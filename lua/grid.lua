@@ -19,6 +19,8 @@ for i=1,4 do
     led = function() end,
     all = function() end,
     refresh = function() end,
+    cols = 0,
+    rows = 0,
     attached = false
   }
 end
@@ -34,9 +36,9 @@ function Grid.new(id, serial, name, dev)
   g.id = id
   g.serial = serial
   name = name .. " " .. serial
-  --while tab.contains(Grid.list,name) do
-    --name = name .. "+"
-  --end
+  while tab.contains(Grid.list,name) do
+    name = name .. "+"
+  end
   g.name = name
   g.dev = dev -- opaque pointer
   g.key = nil -- key event callback
@@ -47,11 +49,17 @@ function Grid.new(id, serial, name, dev)
 
   -- autofill next postiion
   local connected = {}
-  for i=1,4 do table.insert(connected, Grid.vport[i].name) end
+  for i=1,4 do 
+    table.insert(connected, Grid.vport[i].name) 
+    table.insert(connected, Grid.vport[i].cols) 
+    table.insert(connected, Grid.vport[i].rows) 
+  end
   if not tab.contains(connected, name) then
     for i=1,4 do
       if Grid.vport[i].name == "none" then
         Grid.vport[i].name = name
+        Grid.vport[i].cols = grid_cols(dev)
+        Grid.vport[i].rows = grid_rows(dev)
         break
       end
     end
