@@ -49,11 +49,11 @@ function Grid.new(id, serial, name, dev)
 
   -- autofill next postiion
   local connected = {}
-  --for i=1,4 do 
-  --  table.insert(connected, Grid.vport[i].name) 
-  --  table.insert(connected, Grid.vport[i].cols) 
-  --  table.insert(connected, Grid.vport[i].rows) 
-  --end
+  for i=1,4 do 
+    table.insert(connected, Grid.vport[i].name) 
+    table.insert(connected, Grid.vport[i].cols) 
+    table.insert(connected, Grid.vport[i].rows) 
+  end
   if not tab.contains(connected, name) then
     for i=1,4 do
       if Grid.vport[i].name == "none" then
