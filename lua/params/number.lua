@@ -16,7 +16,7 @@ function Number.new(name, min, max, default)
   o.max = max or 2147483647 -- 32 bit signed
   o.action = function() end
   return o
-end 
+end
 
 function Number:get()
   return self.value

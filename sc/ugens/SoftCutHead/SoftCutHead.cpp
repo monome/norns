@@ -47,7 +47,8 @@ void SoftCutHead_Ctor(SoftCutHead *unit) {
 
 void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     GET_BUF;
-//    uint32 numOutputs = unit->mNumOutputs;
+    // FIXME: for stereo...
+    //    uint32 numOutputs = unit->mNumOutputs;
     uint32 numInputChannels = unit->mNumInputs - 14;
 
     if (!checkBuffer(unit, bufData, bufChannels, numInputChannels, inNumSamples))
@@ -55,30 +56,29 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
 
     unit->cutfade.setBuffer(bufData, bufFrames);
 
-    // audio rate
+    // AR outputs
     float *phase_out = OUT(0);
     float *trig_out = OUT(1);
     float *snd_out = OUT(2);
+
+    // AR inputs
     const float *in = IN(1);
+    const float *rec = IN(2);
+    const float *pre = IN(3);
+    const float *rate = IN(4);
 
-    // control rate
-    const float trig = IN0(2);
+    // KR inputs
+    const float pos = IN0(5);
+    const float trig = IN0(6);
+    const float start = IN0(7);
+    const float end = IN0(8);
+    const float fade = IN0(9);
+    const float loop = IN0(10);
 
-    const float *rate = IN(3);
-    
-    const float start = IN0(4);
-    const float end = IN0(5);
-    const float pos = IN0(6);
-    const float fade = IN0(7);
-    const float loop = IN0(8);
-
-    const float rec = IN0(9);
-    const float pre = IN0(10);
-
-    float fadeRec = IN0(11);
-    float fadePre = IN0(12);
-    float recRun = IN0(13);
-    float recOffset= IN0(14);
+    const float fadeRec = IN0(11);
+    const float fadePre = IN0(12);
+    const float recRun = IN0(13);
+    const float recOffset= IN0(14);
 
     unit->cutfade.setLoopStartSeconds(start);
     unit->cutfade.setLoopEndSeconds(end);
@@ -90,9 +90,6 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->cutfade.setRecRun(recRun > 0);
     unit->cutfade.setRecOffset(recOffset);
 
-    
-    unit->cutfade.setRec(rec);
-    unit->cutfade.setPre(pre); 
 
     if ((trig > 0) && (unit->prevTrig <= 0)) {
       // FIXME: i think it will be ok for now,
@@ -103,12 +100,13 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
     unit->prevTrig = trig;
 
     float snd, phi, tr;
-    float trBlock = 0.f; // trigger should be high/low for the entire block...
-    
+    // trigger should be high/low for the entire block...
+    // unfortunately it doesn't seem possible to avoid using audio bus for tr output
+    float trBlock = 0.f;
+
     for (int i = 0; i < inNumSamples; ++i) {
-     
-      //unit->cutfade.setRec(rec[i]);
-      //unit->cutfade.setPre(pre[i]); 
+      unit->cutfade.setRec(rec[i]);
+      unit->cutfade.setPre(pre[i]);
       unit->cutfade.setRate(rate[i]);
 
       unit->cutfade.nextSample(in[i], &phi, &tr, &snd);
@@ -116,11 +114,10 @@ void SoftCutHead_next(SoftCutHead *unit, int inNumSamples) {
       snd_out[i] = snd;
       if(tr > 0.f) { trBlock = 1.f;}
     }
-    
+
     for (int i = 0; i < inNumSamples; ++i) {
       trig_out[i] = trBlock;
     }
-    
 }
 
 PluginLoad(SoftCutHead) {

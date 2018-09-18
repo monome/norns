@@ -218,7 +218,7 @@ void screen_font_face(int i) {
     }
 }
 
-void screen_font_size(long z) {
+void screen_font_size(double z) {
     CHECK_CR
     cairo_set_font_size(cr,z);
 }
@@ -237,29 +237,56 @@ void screen_level(int z) {
     cairo_set_source_rgb(cr,c[z],c[z],c[z]);
 }
 
-void screen_line_width(long w) {
+void screen_line_width(double w) {
     CHECK_CR
     cairo_set_line_width(cr,w);
 }
 
-void screen_move(long x, long y) {
+void screen_line_cap(const char *style) {
     CHECK_CR
-    cairo_move_to(cr,x + 0.5,y + 0.5);
+    if(strcmp(style, "round") == 0){
+      cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND);
+    }else if(strcmp(style, "square") == 0){
+      cairo_set_line_cap(cr,CAIRO_LINE_CAP_SQUARE);
+    }else{
+      cairo_set_line_cap(cr,CAIRO_LINE_CAP_BUTT);
+    }
 }
 
-void screen_line(long x, long y) {
+void screen_line_join(const char *style) {
     CHECK_CR
-    cairo_line_to(cr,x + 0.5,y + 0.5);
+    if(strcmp(style, "round") == 0){
+      cairo_set_line_join(cr,CAIRO_LINE_JOIN_ROUND);
+    }else if(strcmp(style, "bevel") == 0){
+      cairo_set_line_join(cr,CAIRO_LINE_JOIN_BEVEL);
+    }else{
+      cairo_set_line_join(cr,CAIRO_LINE_JOIN_MITER);
+    }
 }
 
-void screen_line_rel(long x, long y) {
+void screen_miter_limit(double limit) {
     CHECK_CR
-    cairo_rel_line_to(cr,x + 0.5,y + 0.5);
+    cairo_set_miter_limit(cr,limit);
 }
 
-void screen_move_rel(long x, long y) {
+void screen_move(double x, double y) {
     CHECK_CR
-    cairo_rel_move_to(cr,x + 0.5,y + 0.5);
+    cairo_move_to(cr,x,y);
+}
+
+void screen_line(double x, double y) {
+    CHECK_CR
+    cairo_line_to(cr,x,y);
+}
+
+void screen_line_rel(double x, double y) {
+    CHECK_CR
+    cairo_rel_line_to(cr,x,y);
+}
+
+void screen_move_rel(double x, double y) {
+    CHECK_CR
+    cairo_rel_move_to(cr,x,y);
 }
 
 void screen_curve(double x1,
@@ -284,12 +311,12 @@ void screen_curve_rel(double dx1,
 
 void screen_arc(double x, double y, double r, double a1, double a2) {
     CHECK_CR
-    cairo_arc(cr,x + 0.5,y + 0.5,r,a1,a2);
+    cairo_arc(cr,x,y,r,a1,a2);
 }
 
 void screen_rect(double x, double y, double w, double h) {
     CHECK_CR
-    cairo_rectangle(cr,x + 0.5,y + 0.5,w,h);
+    cairo_rectangle(cr,x,y,w,h);
 }
 
 void screen_close_path(void) {

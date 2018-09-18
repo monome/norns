@@ -1,7 +1,7 @@
 /*
  * battery.c
  *
- * keys and encoders
+ * bq27441 power supply
  */
 
 #include <stdio.h>
@@ -59,7 +59,7 @@ void *battery_check(void *x) {
         if (read(fd[0], &buf, 4) > 0) {
             percent = atoi(buf);
         } else {
-            fprintf(stderr, "failed to read battery percentage\n");
+            //fprintf(stderr, "failed to read battery percentage\n");
             percent = -1;
         }
 
@@ -67,7 +67,7 @@ void *battery_check(void *x) {
         if (read(fd[1], &buf, 1) > 0) {
             n = (buf[0] == 'C'); // Charging
         } else {
-            fprintf(stderr, "failed to read battery charging status\n");
+            //fprintf(stderr, "failed to read battery charging status\n");
             n = 0;
         }
 
@@ -82,7 +82,7 @@ void *battery_check(void *x) {
         if (read(fd[2], &buf, 7) > 0) {
             n = atoi(buf) / 1000;
         } else {
-            fprintf(stderr, "failed to read battery current\n");
+            //fprintf(stderr, "failed to read battery current\n");
             n = -1;
         }
 

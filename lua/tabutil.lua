@@ -65,4 +65,118 @@ tab.lines = function(str)
   return t
 end
 
+
+--- Save a table to disk.
+-- Saves tables, numbers, booleans and strings.
+-- Inside table references are saved.
+-- Does not save userdata, metatables, functions and indices of these.
+-- Based on http://lua-users.org/wiki/SaveTableToFile by ChillCode.
+-- @param tbl Table to save.
+-- @param filename Location to save to.
+-- @return On failure, returns an error msg.
+function tab.save(tbl, filename)
+  local charS, charE = "   ", "\n"
+  local file, err = io.open(filename, "wb")
+  if err then return err end
+  
+  -- initiate variables for save procedure
+  local tables, lookup = { tbl }, { [tbl] = 1 }
+  file:write("return {"..charE)
+  
+  for idx, t in ipairs(tables) do
+    file:write("-- Table: {"..idx.."}"..charE)
+    file:write("{"..charE)
+    local thandled = {}
+    
+    for i, v in ipairs(t) do
+      thandled[i] = true
+      local stype = type(v)
+      -- only handle value
+      if stype == "table" then
+        if not lookup[v] then
+          table.insert(tables, v)
+          lookup[v] = #tables
+        end
+        file:write(charS.."{"..lookup[v].."},"..charE)
+      elseif stype == "string" then
+        file:write(charS..string.format("%q", v)..","..charE)
+      elseif stype == "number" then
+        file:write(charS..tostring(v)..","..charE)
+      elseif stype == "boolean" then
+        file:write(charS..tostring(v)..","..charE)
+      end
+    end
+    
+    for i, v in pairs(t) do
+      -- escape handled values
+      if (not thandled[i]) then
+          
+        local str = ""
+        local stype = type(i)
+        -- handle index
+        if stype == "table" then
+          if not lookup[i] then
+             table.insert(tables, i)
+             lookup[i] = #tables
+          end
+          str = charS.."[{"..lookup[i].."}]="
+        elseif stype == "string" then
+          str = charS.."["..string.format("%q", i).."]="
+        elseif stype == "number" then
+          str = charS.."["..tostring(i).."]="
+        elseif stype == "boolean" then
+          str = charS.."["..tostring(i).."]="
+        end
+          
+        if str ~= "" then
+          stype = type(v)
+          -- handle value
+          if stype == "table" then
+            if not lookup[v] then
+              table.insert(tables, v)
+              lookup[v] = #tables
+            end
+            file:write(str.."{"..lookup[v].."},"..charE)
+          elseif stype == "string" then
+            file:write(str..string.format("%q", v)..","..charE)
+          elseif stype == "number" then
+            file:write(str..tostring(v)..","..charE)
+          elseif stype == "boolean" then
+            file:write(str..tostring(v)..","..charE)
+          end
+        end
+      end
+    end
+    file:write("},"..charE)
+  end
+  file:write("}")
+  file:close()
+end
+
+--- Load a table that has been saved via the tab.save() function.
+-- @param sfile Filename or stringtable to load.
+-- @return On success, returns a previously saved table. On failure, returns as second argument an error msg.
+function tab.load(sfile)
+  local ftables,err = loadfile(sfile)
+  if err then return _, err end
+  local tables = ftables()
+  for idx = 1, #tables do
+    local tolinki = {}
+    for i, v in pairs(tables[idx]) do
+      if type(v) == "table" then
+        tables[idx][i] = tables[v[1]]
+      end
+      if type(i) == "table" and tables[i[1]] then
+        table.insert(tolinki, { i, tables[i[1]] })
+      end
+    end
+    -- link indices
+    for _, v in ipairs(tolinki) do
+      tables[idx][v[2]], tables[idx][v[1]] =  tables[idx][v[1]], nil
+    end
+  end
+  return tables[1]
+end
+
+
 return tab

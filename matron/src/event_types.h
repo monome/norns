@@ -55,6 +55,8 @@ typedef enum {
     EVENT_STARTUP_READY_OK,
     // crone startup timeout event
     EVENT_STARTUP_READY_TIMEOUT,
+    // reset the lua state
+    EVENT_RESET_LVM,
     // quit the event loop
     EVENT_QUIT,
 } event_t;

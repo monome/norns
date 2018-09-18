@@ -44,8 +44,10 @@ Crone {
 			// FIXME? matron address is hardcoded here
 			remoteAddr =NetAddr("127.0.0.1", txPort);
 
+			Server.supernova;
 			server = Server.local;
-			server.options.memSize = 2**16;
+			// don't use with supernova
+			// server.options.memSize = 2**16;
 			server.latency = 0.05;
 
 			server.waitForBoot {
@@ -240,10 +242,18 @@ Crone {
 				player.stop;
 			};
 			fork {
+				// TODO: old school SoundFile.cue SynthDef that actually works
+				SynthDef('cronetape', { | out, amp = 1, bufnum, sustain, ar = 0, dr = 0.01 gate = 1 |
+					Out.ar(out, VDiskIn.ar(2, bufnum, BufRateScale.kr(bufnum) )
+					* Linen.kr(gate, ar, 1, dr, 2)
+					* EnvGen.kr(Env.linen(ar, sustain - ar - dr max: 0 ,dr),1, doneAction: 2) * amp)
+				}).add;
+
 				playerFile = filename;
 				player = SoundFile(recordingsDir +/+ playerFile).cue(
 					(
-						out: context.out_b
+						out: context.out_b,
+						instrument: \cronetape
 					)
 				);
 				server.sync;
@@ -398,15 +408,14 @@ Crone {
 
 			// @function /audio/input/level
 			// @param input channel (integer: 0 or 1)
-			// @param level (float: [0, 1])
+			// @param level in db (float: -inf..)
 			'/audio/input/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
 				context.inputLevel(msg[1], msg[2]);
 			}, '/audio/input/level'),
 
 			// @function /audio/output/level
-			// @param level (float)
-			// @param level (float: [0, 1])
+			// @param level in db (float: -inf..)
 			'/audio/output/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
 				context.outputLevel(msg[1]);

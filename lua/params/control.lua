@@ -18,7 +18,7 @@ function Control.new(name, controlspec, formatter)
   if not controlspec then controlspec = ControlSpec.UNIPOLAR end
   p.name = name
   p.controlspec = controlspec
-  p.formatter = formatter 
+  p.formatter = formatter
   p.action = function(x) end
 
   if controlspec.default then

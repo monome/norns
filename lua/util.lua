@@ -8,7 +8,7 @@ util = {}
 util.time = function()
   us,s = get_time()
   return us + s/1000000
-end 
+end
 
 
 --- scan directory, return file list
@@ -57,7 +57,7 @@ util.clamp = function(n, min, max)
 end
 
 -- linlin, linexp, explin, expexp ripped from SC source code
--- https://github.com/supercollider/supercollider/blob/cca12ff02a774a9ea212e8883551d3565bb24a6f/lang/LangSource/MiscInlineMath.h 
+-- https://github.com/supercollider/supercollider/blob/cca12ff02a774a9ea212e8883551d3565bb24a6f/lang/LangSource/MiscInlineMath.h
 
 --- convert a linear range to an exponential range
 -- @param slo lower limit of input range

@@ -6,16 +6,16 @@ local fs = {}
 function fs.enter(folder, callback)
   fs.folders = {}
   fs.list = {}
-  fs.pos = 0 
+  fs.pos = 0
   fs.depth = 0
   fs.folder = folder
   fs.callback = callback
   fs.done = false
-  fs.path = nil 
+  fs.path = nil
 
   if fs.folder:sub(-1,-1) ~= "/" then
     fs.folder = fs.folder .. "/"
-  end 
+  end
 
   fs.list = fs.getlist()
   fs.len = tab.count(fs.list)
@@ -33,7 +33,7 @@ function fs.enter(folder, callback)
     fs.enc_restore = norns.menu.get_enc()
     fs.redraw_restore = norns.menu.get_redraw()
     norns.menu.set(fs.enc, fs.key, fs.redraw)
-  end 
+  end
   fs.redraw()
 end
 
@@ -41,7 +41,7 @@ function fs.exit()
   if norns.menu.status() == false then
     key = fs.key_restore
     enc = fs.enc_restore
-    redraw = fs.redraw_restore 
+    redraw = fs.redraw_restore
     norns.menu.init()
   else
     norns.menu.set(fs.enc_restore, fs.key_restore, fs.redraw_restore)
@@ -64,7 +64,7 @@ fs.getlist = function()
   return util.scandir(fs.getdir())
 end
 
-fs.key = function(n,z) 
+fs.key = function(n,z)
   -- back
   if n==2 and z==1 then
     if fs.depth > 0 then
@@ -73,7 +73,7 @@ fs.key = function(n,z)
       fs.depth = fs.depth - 1
       fs.list = util.scandir(fs.getdir())
       fs.len = tab.count(fs.list)
-      fs.pos = 0 
+      fs.pos = 0
       fs.redraw()
     else
       fs.done = true
@@ -90,7 +90,7 @@ fs.key = function(n,z)
       fs.pos = 0
       fs.redraw()
     else
-      local path = fs.folder 
+      local path = fs.folder
       for k,v in pairs(fs.folders) do
         path = path .. v
       end
@@ -99,7 +99,7 @@ fs.key = function(n,z)
     end
   elseif z == 0 and fs.done == true then
     fs.exit()
-  end 
+  end
 end
 
 fs.enc = function(n,d)

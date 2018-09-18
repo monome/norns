@@ -21,6 +21,9 @@ extern void w_run_code(const char *code);
 // call it only from the main thread
 extern void w_handle_exec_code_line(char *line);
 
+// reset the lua state machine
+extern void w_reset_lvm();
+
 //-------------------------
 //---- c -> lua glue
 

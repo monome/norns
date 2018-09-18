@@ -14,6 +14,9 @@ enc = norns.none
 redraw = norns.blank
 cleanup = norns.none
 
+-- tuning
+local KEY1_HOLD_TIME = 0.25
+
 -- level enums
 local pMIX = 0
 local pHOME = 1
@@ -22,11 +25,12 @@ local pPREVIEW = 3
 local pPARAMS = 4
 local pSYSTEM = 5
 local pAUDIO = 6
-local pWIFI = 7
-local pSYNC = 8
-local pUPDATE = 9
-local pLOG = 10
-local pSLEEP = 11
+local pDEVICES = 7
+local pWIFI = 8
+local pSYNC = 9
+local pUPDATE =10
+local pLOG = 12
+local pSLEEP = 13
 
 -- page pointer
 local m = {}
@@ -44,7 +48,7 @@ menu.errormsg = ""
 
 -- mix paramset
 mix = paramset.new()
-cs.MAIN_LEVEL = cs.new(-60,0,'lin',0,0,"dB")
+cs.MAIN_LEVEL = cs.new(-math.huge,0,'db',0,0,"dB")
 mix:add_control("output",cs.MAIN_LEVEL)
 mix:set_action("output",
   function(x) norns.audio.output_level(x) end)
@@ -54,7 +58,7 @@ mix:set_action("input",
     norns.audio.input_level(1,x)
     norns.audio.input_level(2,x)
   end)
-cs.MUTE_LEVEL = cs.new(-60,0,'lin',0,-60,"dB")
+cs.MUTE_LEVEL = cs.new(-math.huge,0,'db',0,-math.huge,"dB")
 mix:add_control("monitor",cs.MUTE_LEVEL)
 mix:set_action("monitor",
   function(x) norns.audio.monitor_level(x) end)
@@ -66,12 +70,12 @@ mix:set_action("monitor mode",
   end)
 mix:add_number("headphone",0, 63, 40)
 mix:set_action("headphone",
-  function(x) gain_hp(x) end) 
+  function(x) gain_hp(x) end)
 
 -- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
 -- TODO TAPE (playback) VOL, SPEED?
-  
--- ControlSpec.new(minval, maxval, warp, step, default, units) 
+
+-- ControlSpec.new(minval, maxval, warp, step, default, units)
 mix:add_separator()
 mix:add_option("aux fx", {"OFF","ON"}, 2)
 mix:set_action("aux fx",
@@ -82,51 +86,51 @@ mix:set_action("aux fx",
       fx.aux_fx_on()
     end
   end)
-cs.DB_LEVEL = cs.new(-60,18,'lin',0,0,"dB")
-cs.DB_LEVEL_MUTE = cs.new(-60,18,'lin',0,-60,"dB")
-cs.DB_LEVEL_9DB = cs.new(-60,18,'lin',0,-9,"dB")
-mix:add_control("aux output level", cs.DB_LEVEL_9DB)
-mix:set_action("aux output level",
-  function(x) fx.aux_fx_output_level(x) end) 
+cs.DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
+cs.DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
+cs.DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
+mix:add_control("aux engine level", cs.DB_LEVEL_9DB)
+mix:set_action("aux engine level",
+  function(x) fx.aux_fx_output_level(x) end)
 mix:add_control("aux input1 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input1 level",
-  function(x) fx.aux_fx_input_level(1,x) end) 
+  function(x) fx.aux_fx_input_level(1,x) end)
 mix:add_control("aux input2 level", cs.DB_LEVEL_MUTE)
 mix:set_action("aux input2 level",
-  function(x) fx.aux_fx_input_level(2,x) end) 
+  function(x) fx.aux_fx_input_level(2,x) end)
 mix:add_control("aux input1 pan", cs.PAN)
 mix:set_action("aux input1 pan",
-  function(x) fx.aux_fx_input_pan(1,x) end) 
+  function(x) fx.aux_fx_input_pan(1,x) end)
 mix:add_control("aux input2 pan", cs.PAN)
 mix:set_action("aux input2 pan",
-  function(x) fx.aux_fx_input_pan(2,x) end) 
+  function(x) fx.aux_fx_input_pan(2,x) end)
 mix:add_control("aux return level", cs.DB_LEVEL)
 mix:set_action("aux return level",
-  function(x) fx.aux_fx_return_level(x) end) 
+  function(x) fx.aux_fx_return_level(x) end)
 
 
 cs.IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
-mix:add_control("rev in delay", cs.IN_DELAY)
-mix:set_action("rev in delay",
-  function(x) fx.aux_fx_param("rev_in_delay",x) end)
+mix:add_control("rev pre delay", cs.IN_DELAY)
+mix:set_action("rev pre delay",
+  function(x) fx.aux_fx_param("in_delay",x) end)
 
 cs.LF_X = cs.new(50,1000,'exp',0,200,'hz')
 mix:add_control("rev lf x", cs.LF_X)
 mix:set_action("rev lf x",
-  function(x) fx.aux_fx_param("rev_lf_x",x) end)
+  function(x) fx.aux_fx_param("lf_x",x) end)
 
-cs.RT60 = cs.new(1,8,'lin',0,3,'s')
-mix:add_control("rev low rt60", cs.RT60)
-mix:set_action("rev low rt60",
-  function(x) fx.aux_fx_param("low_rt60",x) end) 
-mix:add_control("rev mid rt60", cs.RT60)
-mix:set_action("rev mid rt60",
+cs.RT60 = cs.new(0.1,8,'lin',0,6,'s')
+mix:add_control("rev low time", cs.RT60)
+mix:set_action("rev low time",
+  function(x) fx.aux_fx_param("low_rt60",x) end)
+mix:add_control("rev mid time", cs.RT60)
+mix:set_action("rev mid time",
   function(x) fx.aux_fx_param("mid_rt60",x) end)
 
 cs.HF_DAMP = cs.new(1500,20000,'exp',0,6000,'hz')
 mix:add_control("rev hf damping", cs.HF_DAMP)
 mix:set_action("rev hf damping",
-  function(x) fx.aux_fx_param("hf_damping",x) end) 
+  function(x) fx.aux_fx_param("hf_damping",x) end)
 
 --[[
 cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
@@ -166,14 +170,14 @@ mix:set_action("insert fx",
 cs.MIX = cs.new(0,1,'lin',0,1,'')
 mix:add_control("insert mix", cs.MIX)
 mix:set_action("insert mix",
-  function(x) fx.insert_fx_mix(x) end) 
+  function(x) fx.insert_fx_mix(x) end)
 
 cs.RATIO = cs.new(1,20,'lin',0,4,'')
 mix:add_control("comp ratio", cs.RATIO)
 mix:set_action("comp ratio",
   function(x) fx.insert_fx_param("level",x) end)
 
-cs.THRESH = cs.new(-100,10,'lin',0,-18,'dB')
+cs.THRESH = cs.new(-100,10,'db',0,-18,'dB')
 mix:add_control("comp threshold", cs.THRESH)
 mix:set_action("comp threshold",
   function(x) fx.insert_fx_param("threshold",x) end)
@@ -181,23 +185,23 @@ mix:set_action("comp threshold",
 cs.ATTACK = cs.new(1,1000,'exp',0,5,'ms')
 mix:add_control("comp attack", cs.ATTACK)
 mix:set_action("comp attack",
-  function(x) fx.insert_fx_param("attack",x) end) 
+  function(x) fx.insert_fx_param("attack",x) end)
 cs.RELEASE = cs.new(1,1000,'exp',0,50,'ms')
 mix:add_control("comp release", cs.RELEASE)
 mix:set_action("comp release",
   function(x) fx.insert_fx_param("release",x) end)
 
-cs.MAKEUP = cs.new(-60,60,'lin',0,9,'dB')
+cs.MAKEUP = cs.new(-20,60,'db',0,9,'dB')
 mix:add_control("comp makeup gain", cs.MAKEUP)
 mix:set_action("comp makeup gain",
-  function(x) fx.insert_fx_param("makeup_gain",x) end) 
+  function(x) fx.insert_fx_param("makeup_gain",x) end)
 
 
 local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
 local t = metro[31]
-t.time = 0.25
+t.time = KEY1_HOLD_TIME
 t.count = 1
 t.callback = function(stage)
   menu.key(1,1)
@@ -240,6 +244,8 @@ norns.init_done = function(status)
     m.params.pos = 0
     menu.set_mode(false)
   end
+  m.params.init_map()
+  m.params.read(norns.state.folder_name..".pmap")
 end
 
 
@@ -300,9 +306,11 @@ menu.set_mode = function(mode)
     screen.line_width(1)
     menu.set_page(menu.page)
     norns.encoders.callback = menu.enc
-    norns.encoders.set_accel(0,true)
+    norns.encoders.set_accel(1,true)
     norns.encoders.set_sens(1,1)
+    norns.encoders.set_accel(2,false)
     norns.encoders.set_sens(2,0.5)
+    norns.encoders.set_accel(3,true)
     norns.encoders.set_sens(3,0.5)
   end
 end
@@ -456,54 +464,44 @@ m.redraw[pMIX] = function()
 
   local x = -40
   screen.level(2)
-  n = (60+mix:get("output"))/60*48
-  screen.rect(x+42,56,2,-n)
+  n = mix:get_raw("output")*48
+  screen.rect(x+42.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(15)
   n = m.mix.out1/64*48
-  screen.rect(x+48,56,2,-n)
+  screen.rect(x+48.5,56.5,2,-n)
   screen.stroke()
 
-  n = m.mix.out1/64*48
-  screen.rect(x+54,56,2,-n)
+  n = m.mix.out2/64*48
+  screen.rect(x+54.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(2)
-  n = (60+mix:get("input"))/60*48
-  screen.rect(x+64,56,2,-n)
+  n = mix:get_raw("input")*48
+  screen.rect(x+64.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(15)
   n = m.mix.in1/64*48
-  screen.rect(x+70,56,2,-n)
+  screen.rect(x+70.5,56.5,2,-n)
   screen.stroke()
   n = m.mix.in2/64*48
-  screen.rect(x+76,56,2,-n)
+  screen.rect(x+76.5,56.5,2,-n)
   screen.stroke()
 
   screen.level(2)
-  n = (60+mix:get("monitor"))/60*48
-  screen.rect(x+86,56,2,-n)
+  n = mix:get_raw("monitor")*48
+  screen.rect(x+86.5,56.5,2,-n)
   screen.stroke()
 
-  --screen.aa(0)
-  --screen.line_width(1)
-  screen.level(7)
-
-  screen.move(1,62)
-  screen.line(3,60)
-  screen.line(5,62)
-  screen.stroke()
-
-  screen.move(23,60)
-  screen.line(25,62)
-  screen.line(27,60)
-  screen.stroke()
-
-  screen.move(45,61)
-  screen.line(49,61)
-  screen.stroke()
+  screen.level(1)
+  screen.move(2,64)
+  screen.text("out")
+  screen.move(24,64)
+  screen.text("in")
+  screen.move(46,64)
+  screen.text("mon")
 
   if tape.selectmode then
     screen.level(10)
@@ -524,7 +522,7 @@ m.redraw[pMIX] = function()
       screen.move(90,48)
       local min = math.floor(tape.time / 60)
       local sec = tape.time % 60
-      screen.text_center(min..":"..sec)
+      screen.text_center(string.format("%02d:%02d",min,sec))
     end
   elseif tape.mode == tPLAY then
     screen.move(90,40)
@@ -543,13 +541,13 @@ m.redraw[pMIX] = function()
     screen.move(90,48)
     local min = math.floor(tape.time / 60)
     local sec = tape.time % 60
-    screen.text_center(min..":"..sec)
-    screen.move(90,62)
+    screen.text_center(string.format("%02d:%02d",min,sec))
+    screen.move(90,32)
     screen.text_center(tape.playfile)
   end
 
-  screen.level(2)
-  screen.move(127,12)
+  screen.level(1)
+  screen.move(127,64)
   if menu.alt == false then screen.text_right(norns.battery_percent)
   else screen.text_right(norns.battery_current.."mA") end
 
@@ -562,9 +560,13 @@ m.init[pMIX] = function()
   m.mix.in2 = 0
   m.mix.out1 = 0
   m.mix.out2 = 0
+  norns.encoders.set_accel(2,true)
+  norns.encoders.set_sens(2,1)
 end
 
 m.deinit[pMIX] = function()
+  norns.encoders.set_accel(2,false)
+  norns.encoders.set_sens(2,0.5)
   norns.vu = norns.none
 end
 
@@ -582,9 +584,8 @@ end
 -- HOME
 
 m.home = {}
-m.home.pos = 0
-m.home.list = {"SELECT >", "PARAMETERS >", "SYSTEM >", "SLEEP >"}
-m.home.len = 4
+m.home.pos = 1
+m.home.list = {"PARAMETERS >", "SELECT >", "SYSTEM >", "SLEEP >"}
 
 m.init[pHOME] = norns.none
 m.deinit[pHOME] = norns.none
@@ -593,16 +594,14 @@ m.key[pHOME] = function(n,z)
   if n == 2 and z == 1 then
     menu.set_page(pMIX)
   elseif n == 3 and z == 1 then
-    local choices = {pSELECT, pPARAMS, pSYSTEM, pSLEEP}
-    menu.set_page(choices[m.home.pos+1])
+    local choices = {pPARAMS, pSELECT, pSYSTEM, pSLEEP}
+    menu.set_page(choices[m.home.pos])
   end
 end
 
 m.enc[pHOME] = function(n,delta)
   if n == 2 then
-    m.home.pos = m.home.pos + delta
-    if m.home.pos > m.home.len - 1 then m.home.pos = m.home.len - 1
-    elseif m.home.pos < 0 then m.home.pos = 0 end
+    m.home.pos = util.clamp(m.home.pos + delta, 1, 4)
     menu.redraw()
   end
 end
@@ -613,14 +612,17 @@ m.redraw[pHOME] = function()
   screen.move(0,10)
   screen.level(15)
   local line = string.upper(norns.state.name)
-  if(menu.scripterror) then line = line .. " (error: " .. menu.errormsg .. ")" end
+  --if(menu.scripterror and state.script ~= '') then
+  if(menu.scripterror) then
+    line = line .. " (error: " .. menu.errormsg .. ")"
+  end
   screen.text(line)
 
   -- draw file list and selector
   for i=3,6 do
     screen.move(0,10*i)
     line = string.gsub(m.home.list[i-2],'.lua','')
-    if(i==m.home.pos+3) then
+    if(i==m.home.pos+2) then
       screen.level(15)
     else
       screen.level(4)
@@ -789,33 +791,44 @@ m.params = {}
 m.params.pos = 0
 m.params.n = 0
 m.params.loadable = true
+m.params.altpos = 1
+m.params.map = {}
+m.params.init_map = function()
+  for i = 1,params.count do m.params.map[i] = -1 end
+end
 
 m.key[pPARAMS] = function(n,z)
   if menu.alt then
-    if n==2 and z==1 then
-      if m.params.n == 0 then
-        params:read(norns.state.folder_name..".pset")
-      else
-        params:read(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+    if n==3 and z==1 then
+      if m.params.altpos == 1 then
+        if m.params.n == 0 then
+          params:read(norns.state.folder_name..".pset")
+        else
+          params:read(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+        end
+        m.params.action = 15
+        m.params.action_text = "loaded"
+      elseif m.params.altpos == 2 then
+        if m.params.n == 0 then
+          params:write(norns.state.folder_name..".pset")
+        else
+          params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset")
+        end
+        m.params.action = 15
+        m.params.action_text = "saved"
+        m.params.loadable = true
       end
-      m.params.action = 15
-      m.params.action_text = "loaded"
-    elseif n==3 and z==1 then
-      if m.params.n == 0 then
-        params:write(norns.state.folder_name..".pset")
-      else
-        params:write(norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset") 
-      end
-      m.params.action = 15
-      m.params.action_text = "saved"
-      m.params.loadable = true
+      menu.redraw()
     end
-    menu.redraw()
   elseif n==2 and z==1 then
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
-    if params:t(m.params.pos+1) == params.tFILE then
-      fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+    if not m.params.midimap then
+      if params:t(m.params.pos+1) == params.tFILE then
+        fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+      end
+    else
+      m.params.midilearn = not m.params.midilearn
     end
   end
 end
@@ -829,33 +842,46 @@ end
 
 m.enc[pPARAMS] = function(n,d)
   if menu.alt then
-    if n==3 then
-      m.params.n = util.clamp(m.params.n + d,0,100)
-      local path
-      local f
-      if m.params.n == 0 then
-        path = data_dir..norns.state.folder_name..".pset" 
-        f=io.open(path,"r") 
-      else
-        path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
-        f=io.open(path ,"r") 
-      end
-      --print("pset: "..path)
-      if f~=nil then
-        m.params.loadable = true
-        io.close(f)
-      else
-        m.params.loadable = false
-      end
+    if n == 2 then
+      m.params.altpos = util.clamp(m.params.altpos+d, 1, 3)
       menu.redraw()
-    end 
+    elseif n==3 then
+      if m.params.altpos < 3 then
+        m.params.n = util.clamp(m.params.n + d,0,100)
+        local path
+        local f
+        if m.params.n == 0 then
+          path = data_dir..norns.state.folder_name..".pset"
+          f=io.open(path,"r")
+        else
+          path =data_dir..norns.state.folder_name.."-"..string.format("%02d",m.params.n)..".pset"
+          f=io.open(path ,"r")
+        end
+        --print("pset: "..path)
+        if f~=nil then
+          m.params.loadable = true
+          io.close(f)
+        else
+          m.params.loadable = false
+        end
+        menu.redraw()
+      else
+        m.params.midimap = d > 0
+        menu.redraw()
+      end
+    end
   elseif n==2 then
     local prev = m.params.pos
     m.params.pos = util.clamp(m.params.pos + d, 0, params.count - 1)
     if m.params.pos ~= prev then menu.redraw() end
   elseif n==3 and params.count > 0 then
-    params:delta(m.params.pos+1,d)
-    menu.redraw()
+    if not m.params.midimap then
+      params:delta(m.params.pos+1,d)
+      menu.redraw()
+    else
+      m.params.map[m.params.pos+1] = util.clamp(m.params.map[m.params.pos+1]+d,-1,127)
+      menu.redraw()
+    end
   end
 end
 
@@ -875,28 +901,64 @@ m.redraw[pPARAMS] = function()
           else
             screen.move(0,10*i)
             screen.text(params:get_name(param_index))
-            screen.move(127,10*i)
-            screen.text_right(params:string(param_index))
+            if m.params.midimap then
+              if params:t(param_index) == params.tCONTROL then
+                screen.move(127,10*i)
+                if m.params.map[param_index] >= 0 then
+                  screen.text_right(m.params.map[param_index])
+                else
+                  screen.text_right("-")
+                end
+              end
+            else
+              screen.move(127,10*i)
+              screen.text_right(params:string(param_index))
+            end
           end
         end
       end
-    else -- menu.alt == true -- param save/load
-      screen.level(10)
-      screen.move(64,40)
-      if m.params.n == 0 then
-        screen.text_center("default")
-      else
-        screen.text_center(string.format("%02d",m.params.n))
+      if m.params.midilearn then
+        screen.level(15)
+        screen.move(80,30)
+        screen.text("(learn)")
       end
-      screen.level(m.params.loadable and 5 or 1)
-      screen.move(20,50)
+    else -- menu.alt == true -- param save/load
+
+      screen.level((m.params.altpos == 1) and 15 or 4)
+      screen.move(0,30)
       screen.text("load")
-      screen.level(5)
-      screen.move(90,50)
+      if m.params.altpos == 1 then
+        screen.move(127,30)
+        screen.level(m.params.loadable and 10 or 1)
+        if m.params.n == 0 then
+          screen.text_right("default")
+        else
+          screen.text_right(string.format("%02d",m.params.n))
+        end
+      end
+
+      screen.level((m.params.altpos == 2) and 15 or 4)
+      screen.move(0,40)
       screen.text("save")
-      screen.move(64,20)
+      if m.params.altpos == 2 then
+        screen.move(127,40)
+        screen.level(m.params.loadable and 10 or 4)
+        if m.params.n == 0 then
+          screen.text_right("default")
+        else
+          screen.text_right(string.format("%02d",m.params.n))
+        end
+      end
+
+      screen.level((m.params.altpos == 3) and 15 or 4)
+      screen.move(0,50)
+      screen.text("midi-cc mapping")
+      screen.move(127,50)
+      screen.text_right(m.params.midimap and "on" or "off")
+
+      screen.move(0,10)
       screen.level(m.params.action)
-      screen.text_center(m.params.action_text)
+      screen.text(m.params.action_text)
     end
   else
     screen.move(0,10)
@@ -907,6 +969,8 @@ m.redraw[pPARAMS] = function()
 end
 
 m.init[pPARAMS] = function()
+  m.params.midimap = false
+  m.params.midilearn = false
   m.params.action_text = ""
   m.params.action = 0
   u.callback = function()
@@ -919,16 +983,85 @@ m.init[pPARAMS] = function()
 end
 
 m.deinit[pPARAMS] = function()
+  if state.script ~= '' then
+    m.params.write(norns.state.folder_name..".pmap")
+  end
+  m.params.midilearn = false
   u:stop()
 end
+
+norns.menu_midi_event = function(data)
+  if data[1] == 176 then -- cc
+    if m.params.midilearn then
+      if params:t(m.params.pos+1) == params.tCONTROL then
+        m.params.map[m.params.pos+1] = data[2]
+        menu.redraw()
+      end
+      m.params.midilearn = false
+    else
+      local p = tab.key(m.params.map,data[2])
+      if p then
+        params:set_raw(p,data[3]/127)
+      end
+      --print(data[2] .. " " .. data[3])
+    end
+  end
+end
+
+function m.params.write(filename)
+  local function quote(s)
+    return '"'..s:gsub('"', '\\"')..'"'
+  end
+  -- check for subfolder in filename, create subfolder if it doesn't exist
+  local subfolder, found = string.gsub(filename,"/(.*)","")
+  if found==1 then
+    local fd = io.open(data_dir..subfolder,"r")
+    if fd then
+      io.close(fd)
+    else
+      print("creating subfolder")
+      os.execute("mkdir "..data_dir..subfolder)
+    end
+  end
+  -- write file
+  local fd = io.open(data_dir..filename, "w+")
+  io.output(fd)
+  for k,v in pairs(m.params.map) do
+    io.write(string.format("%s: %d\n", quote(tostring(k)), v))
+  end
+  io.close(fd)
+end
+
+function m.params.read(filename)
+  local function unquote(s)
+    return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
+  end
+  print("READING PMAP")
+  local fd = io.open(data_dir..filename, "r")
+  if fd then
+    io.close(fd)
+    for line in io.lines(data_dir..filename) do
+      --local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+      local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+
+      if name and value then
+        --print(unquote(name) .. " : " .. value)
+        m.params.map[tonumber(unquote(name),10)] = tonumber(value)
+      end
+    end
+  else
+    --print("m.params.read: "..filename.." not read.")
+  end
+end
+
 
 
 -----------------------------------------
 -- SYSTEM
 m.sys = {}
-m.sys.pos = 0
-m.sys.list = {"audio > ", "wifi >", "sync >", "update >", "log >"}
-m.sys.pages = {pAUDIO, pWIFI, pSYNC, pUPDATE, pLOG}
+m.sys.pos = 1
+m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "SYNC >", "UPDATE >", "LOG >"}
+m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pSYNC, pUPDATE, pLOG}
 m.sys.input = 0
 m.sys.disk = ""
 
@@ -937,14 +1070,13 @@ m.key[pSYSTEM] = function(n,z)
     norns.state.save()
     menu.set_page(pHOME)
   elseif n==3 and z==1 then
-    menu.set_page(m.sys.pages[m.sys.pos+1])
+    menu.set_page(m.sys.pages[m.sys.pos])
   end
 end
 
 m.enc[pSYSTEM] = function(n,delta)
   if n==2 then
-    m.sys.pos = m.sys.pos + delta
-    m.sys.pos = util.clamp(m.sys.pos, 0, #m.sys.list - 1)
+    m.sys.pos = util.clamp(m.sys.pos + delta, 1, #m.sys.list)
     menu.redraw()
   end
 end
@@ -953,25 +1085,21 @@ m.redraw[pSYSTEM] = function()
   screen.clear()
 
   for i=1,#m.sys.list do
-    screen.move(0,10*i+10)
-    if(i==m.sys.pos+1) then
+    screen.move(0,10*i)
+    if(i==m.sys.pos) then
       screen.level(15)
     else
       screen.level(4)
     end
-    screen.text(string.upper(m.sys.list[i]))
+    screen.text(m.sys.list[i])
   end
 
-  if m.sys.pos==1 and (m.sys.input == 0 or m.sys.input == 1) then
-    screen.level(15) else screen.level(4)
-  end
-
+  screen.level(2)
   screen.move(127,30)
   if wifi.state == 2 then m.sys.net = wifi.ip
   else m.sys.net = wifi.status end
   screen.text_right(m.sys.net)
 
-  screen.level(2)
   screen.move(127,40)
   screen.text_right("disk free: "..m.sys.disk)
 
@@ -1000,6 +1128,114 @@ m.sysquery = function()
 end
 
 
+-----------------------------------------
+-- DEVICES
+m.devices = {}
+m.devices.pos = 1
+m.devices.list = {"midi", "grid"}
+m.devices.len = #m.devices.list
+function m.devices.refresh()
+  m.devices.options = {
+    midi = {"none"},
+    grid = {"none"}
+  }
+  -- create midi list
+  for _,i in pairs(midi.list) do
+    table.insert(m.devices.options.midi,i)
+  end
+  for _,i in pairs(grid.list) do
+    table.insert(m.devices.options.grid,i)
+  end
+end
+
+m.key[pDEVICES] = function(n,z)
+  if m.devices.mode == "type" then
+    if n==2 and z==1 then
+      norns.state.save()
+      menu.set_page(pSYSTEM)
+    elseif n==3 and z==1 then
+      m.devices.section = m.devices.list[m.devices.pos]
+      m.devices.mode = "list"
+      m.devices.len = 4
+      m.devices.pos = 1
+      menu.redraw()
+    end
+  elseif m.devices.mode == "list" then
+    if n==2 and z==1 then
+      m.devices.mode = "type"
+      m.devices.len = #m.devices.list
+      m.devices.pos = 1
+      menu.redraw()
+    elseif n==3 and z==1 then
+      m.devices.refresh()
+      m.devices.mode = "select"
+      m.devices.setpos = m.devices.pos
+      m.devices.len = #m.devices.options[m.devices.section]
+      --tab.print(m.devices.options[m.devices.section])
+      m.devices.pos = 1
+      menu.redraw()
+    end
+  elseif m.devices.mode == "select" then
+    if n==2 and z==1 then
+      m.devices.mode = "list"
+      m.devices.len = 4
+      m.devices.pos = 1
+      menu.redraw()
+    elseif n==3 and z==1 then
+      local s = m.devices.options[m.devices.section][m.devices.pos]
+      if m.devices.section == "midi" then
+        midi.vport[m.devices.setpos].name = s
+        midi.update_devices()
+      elseif m.devices.section == "grid" then
+        grid.vport[m.devices.setpos].name = s
+        grid.update_devices()
+      end
+      m.devices.mode = "list"
+      m.devices.len = 4
+      m.devices.pos = 1
+      menu.redraw()
+    end
+  end
+end
+
+m.enc[pDEVICES] = function(n,delta)
+  if n==2 then
+    m.devices.pos = util.clamp(m.devices.pos + delta, 1, m.devices.len)
+    menu.redraw()
+  end
+end
+
+m.redraw[pDEVICES] = function()
+  screen.clear()
+  for i=1,m.devices.len do
+    screen.move(0,10*i+20)
+    if(i==m.devices.pos) then
+      screen.level(15)
+    else
+      screen.level(4)
+    end
+    if m.devices.mode == "type" then
+      screen.text(string.upper(m.devices.list[i]) .. " >")
+    elseif m.devices.mode == "list" then
+      if m.devices.section == "midi" then
+        screen.text(i .. ". " .. midi.vport[i].name)
+      elseif m.devices.section == "grid" then
+        screen.text(i .. ". " .. grid.vport[i].name)
+      end
+    elseif m.devices.mode == "select" then
+      screen.text(m.devices.options[m.devices.section][i])
+    end
+  end
+  screen.update()
+end
+
+m.init[pDEVICES] = function()
+  m.devices.pos = 1
+  m.devices.mode = "type"
+  m.devices.len = #m.devices.list
+end
+
+m.deinit[pDEVICES] = function() end
 
 
 
@@ -1032,7 +1268,7 @@ end
 
 m.wifi.passdone = function(txt)
   if txt ~= nil then
-    os.execute("~/norns/wifi.sh select "..m.wifi.try.." "..txt.." &")
+    os.execute("~/norns/wifi.sh select \""..m.wifi.try.."\" \""..txt.."\" &")
     wifi.on()
   end
   menu.redraw()
@@ -1227,13 +1463,13 @@ m.redraw[pSYNC] = function()
   else
     screen.level(m.sync.pos==0 and 10 or 3)
     screen.move(0,40)
-    screen.text("SYNC TO USB") 
+    screen.text("SYNC TO USB")
     screen.level(m.sync.pos==1 and 10 or 3)
     screen.move(0,50)
-    screen.text("SYNC FROM USB") 
+    screen.text("SYNC FROM USB")
     screen.level(m.sync.pos==2 and 10 or 3)
     screen.move(0,60)
-    screen.text("EJECT USB") 
+    screen.text("EJECT USB")
   end
   screen.update()
 end
@@ -1274,7 +1510,7 @@ m.redraw[pUPDATE] = function()
   elseif m.update.found then
     screen.text_center("update found")
     screen.move(64,42)
-    screen.text_center("reboot to apply")
+    screen.text_center("sleep to apply")
   else
     screen.text_center("no updates found")
   end
@@ -1354,9 +1590,12 @@ m.key[pSLEEP] = function(n,z)
     --TODO fade out screen then run the shutdown script
     m.sleep = true
     menu.redraw()
+    norns.state.clean_shutdown = true
+    norns.state.save()
+    cleanup()
+    if tape.mode == tREC then tape_stop_rec() end
     norns.audio.output_level(-100)
     gain_hp(0)
-    --norns.audio.set_audio_level(0)
     wifi.off()
     os.execute("sleep 0.5; sudo shutdown now")
   end
@@ -1380,5 +1619,3 @@ end
 
 m.init[pSLEEP] = norns.none
 m.deinit[pSLEEP] = norns.none
-
-

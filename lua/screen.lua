@@ -35,6 +35,24 @@ Screen.level = function(value) s_level(value) end
 -- @param w line width (in pixels, floats permitted)
 Screen.line_width = function(w) s_line_width(w) end
 
+--- set line cap style
+-- @param style line cap style string ("butt", "round" or "square"). default is "butt".
+Screen.line_cap = function(style)
+  s_line_cap(style)
+end
+
+--- set line join style
+-- @param style line join style string ("miter", "round" or "bevel"). default is "miter"
+Screen.line_join = function(style)
+  s_line_join(style)
+end
+
+--- set miter limit
+-- @param limit if the current line join style is set to "miter", the miter limit is used to determine whether the lines should be joined with a bevel instead of a miter. if the length of the miter divided by the line width is greater than the miter limit, the style is converted to a bevel. default value 10.
+Screen.miter_limit = function(limit)
+  s_miter_limit(limit)
+end
+
 --- move drawing position
 -- @param x position x
 -- @param y position y
@@ -156,6 +174,13 @@ Screen.font_face = function(index) s_font_face(index) end
 -- @param size in pixel height
 Screen.font_size = function(size) s_font_size(size) end
 
+--- draw single pixel (requires integer x/y, fill afterwards)
+-- @param x position
+-- @param y position
+Screen.pixel = function(x, y)
+  s_rect(x, y, 1, 1)
+end
+
 
 s_text_right = function(str)
   local x, y = s_extents(str)
@@ -172,6 +197,7 @@ end
 s_circle = function(x, y, r)
   s_arc(x, y, r, 0, math.pi*2)
 end
+
 
 
 return Screen

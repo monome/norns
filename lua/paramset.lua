@@ -37,35 +37,39 @@ function ParamSet:add_separator()
 end
 
 --- add generic parameter
-function ParamSet:add(param)
+function ParamSet:add(args)
+  local param = args.param -- param is mandatory
   table.insert(self.params, param)
   self.count = self.count + 1
   self.lookup[param.name] = self.count
+  if args.action then -- action is optional
+    param.action = args.action
+  end
 end
 
 --- add number
 function ParamSet:add_number(name, min, max, default)
-  self:add(number.new(name, min, max, default))
+  self:add { param=number.new(name, min, max, default) }
 end
 
 --- add option
 function ParamSet:add_option(name, options, default)
-  self:add(option.new(name, options, default))
+  self:add { param=option.new(name, options, default) }
 end
 
 --- add control
 function ParamSet:add_control(name, controlspec, formatter)
-  self:add(control.new(name, controlspec, formatter))
+  self:add { param=control.new(name, controlspec, formatter) }
 end
 
 --- add file
 function ParamSet:add_file(name, path)
-  self:add(file.new(name, path))
+  self:add { param=file.new(name, path) }
 end
 
 --- add taper
 function ParamSet:add_taper(name, min, max, default, k, units)
-  self:add(taper.new(name, min, max, default, k, units))
+  self:add { param=taper.new(name, min, max, default, k, units) }
 end
 
 --- print
@@ -93,10 +97,22 @@ function ParamSet:set(index, v)
   self.params[index]:set(v)
 end
 
+--- set_raw (for control types only)
+function ParamSet:set_raw(index, v)
+  if type(index) == "string" then index = self.lookup[index] end
+  self.params[index]:set_raw(v)
+end
+
 --- get
 function ParamSet:get(index)
   if type(index) == "string" then index = self.lookup[index] end
   return self.params[index]:get()
+end
+
+--- get_raw (for control types only)
+function ParamSet:get_raw(index)
+  if type(index) == "string" then index = self.lookup[index] end
+  return self.params[index]:get_raw()
 end
 
 --- delta
@@ -132,10 +148,10 @@ function ParamSet:write(filename)
   if found==1 then
     local fd = io.open(data_dir..subfolder,"r")
     if fd then
-      io.close(fd) 
+      io.close(fd)
     else
       print("creating subfolder")
-      os.execute("mkdir "..data_dir..subfolder) 
+      os.execute("mkdir "..data_dir..subfolder)
     end
   end
   -- write file
@@ -165,6 +181,10 @@ function ParamSet:read(filename)
         if index then
           if tonumber(value) ~= nil then
             self.params[index]:set(tonumber(value))
+          elseif value == "-inf" then
+            self.params[index]:set(-math.huge)
+          elseif value == "inf" then
+            self.params[index]:set(math.huge)
           elseif value then
             self.params[index]:set(value)
           end
@@ -182,7 +202,7 @@ function ParamSet:bang()
   for k,v in pairs(self.params) do
     v:bang()
   end
-end 
+end
 
 --- clear
 function ParamSet:clear()

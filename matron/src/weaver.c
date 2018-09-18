@@ -70,6 +70,9 @@ static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
 static int _screen_level(lua_State *l);
 static int _screen_line_width(lua_State *l);
+static int _screen_line_cap(lua_State *l);
+static int _screen_line_join(lua_State *l);
+static int _screen_miter_limit(lua_State *l);
 static int _screen_move(lua_State *l);
 static int _screen_line(lua_State *l);
 static int _screen_move_rel(lua_State *l);
@@ -158,6 +161,9 @@ static int _restart_audio(lua_State *l);
 // soundfile inspection
 static int _sound_file_inspect(lua_State *l);
 
+// reset LVM
+static int _reset_lvm(lua_State *l);
+
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
 _push_norns_func(const char *field, const char *func) {
@@ -196,6 +202,9 @@ void w_init(void) {
   lua_register(lvm, "s_aa", &_screen_aa);
   lua_register(lvm, "s_level", &_screen_level);
   lua_register(lvm, "s_line_width", &_screen_line_width);
+  lua_register(lvm, "s_line_cap", &_screen_line_cap);
+  lua_register(lvm, "s_line_join", &_screen_line_join);
+  lua_register(lvm, "s_miter_limit", &_screen_miter_limit);
   lua_register(lvm, "s_move", &_screen_move);
   lua_register(lvm, "s_line", &_screen_line);
   lua_register(lvm, "s_move_rel", &_screen_move_rel);
@@ -290,6 +299,9 @@ void w_init(void) {
   // returns channels, frames, samplerate
   lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
 
+  // reset LVM
+  lua_register(lvm, "_reset_lvm", &_reset_lvm);
+
   // run system init code
   char *config = getenv("NORNS_CONFIG");
   char *home = getenv("HOME");
@@ -308,16 +320,38 @@ void w_init(void) {
 // run startup code
 // audio backend should be running
 void w_startup(void) {
+  fprintf(stderr, "running startup\n");
   lua_getglobal(lvm, "startup");
   l_report(lvm, l_docall(lvm, 0, 0));
 }
 
 void w_deinit(void) {
-  // FIXME: lua is leaking memory. doesn't really matter
+  fprintf(stderr, "shutting down lua vm\n");
+  lua_close(lvm);
 }
+
+void w_reset_lvm() {     
+  w_deinit();
+  w_init();
+  w_startup();
+}
+ 
 
 //----------------------------------
 //---- static definitions
+//
+int _reset_lvm(lua_State *l) {
+  if (lua_gettop(l) != 0) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  lua_settop(l, 0); 
+
+  // do this through the event loop, not from inside a lua pcall
+  event_post( event_data_new(EVENT_RESET_LVM) );
+
+  return 0;
+}
+
 
 /***
  * screen: update (flip buffer)
@@ -357,7 +391,7 @@ int _screen_font_size(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
+  int x = (int) luaL_checknumber(l, 1);
   screen_font_size(x);
   lua_settop(l, 0);
   return 0;
@@ -412,6 +446,54 @@ int _screen_line_width(lua_State *l) {
 }
 
 /***
+ * screen: set line cap
+ * @function s_line_cap
+ * @tparam string line cap style ("butt", "round" or "square"). default is "butt".
+ */
+int _screen_line_cap(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+    const char *s = luaL_checkstring(l, 1);
+    screen_line_cap(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: set line join
+ * @function s_line_join
+ * @tparam string line join style ("miter", "round" or "bevel"). default is "miter".
+ */
+int _screen_line_join(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+    const char *s = luaL_checkstring(l, 1);
+    screen_line_join(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: set miter limit
+ * @function s_miter_limit
+ * @tparam double miter limit
+ */
+int _screen_miter_limit(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+    double limit = luaL_checknumber(l, 1);
+    screen_miter_limit(limit);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
  * screen: move position
  * @function s_move
  * @param x
@@ -440,8 +522,8 @@ int _screen_line(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-    double x = luaL_checkinteger(l, 1);
-    double y = luaL_checkinteger(l, 2);
+    double x = luaL_checknumber(l, 1);
+    double y = luaL_checknumber(l, 2);
     screen_line(x,y);
     lua_settop(l, 0);
     return 0;

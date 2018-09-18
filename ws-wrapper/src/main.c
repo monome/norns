@@ -83,10 +83,10 @@ void launch_thread(pthread_t *tid, void *(*start_routine)(void *),
     pthread_attr_destroy(&attr);
 }
 
-int launch_exe( int argc,  char **argv) {
+int launch_exe(int argc,  char **argv) {
     (void)argc;
-    char *exe = argv[1];
-    char *url_ws = argv[2];
+    char *url_ws = argv[1];
+    char *exe = argv[2];
 
     // create pipes
     if(pipe(pipe_rx) < 0) {
@@ -129,9 +129,9 @@ int launch_exe( int argc,  char **argv) {
         close(pipe_tx[PIPE_WRITE]);
 
         // launch the child executable
-        char **child_argv = &(argv[4]);
-        execv(exe, child_argv);
-        perror("execv"); // shouldn't get here
+        char **child_argv = &(argv[2]);
+        execvp(exe, child_argv);
+        perror("execvp"); // shouldn't get here
     } else {
         // parent continues...
 
@@ -169,10 +169,10 @@ int launch_exe( int argc,  char **argv) {
     return 0;
 }
 
-int main( int argc,  char **argv) {
+int main(int argc,  char **argv) {
     if(argc < 3) {
         printf(
-            "usage: ws-wrapper BINARY WS_SOCKET <child args...>");
+            "usage: ws-wrapper WS_SOCKET BINARY <child args...>");
     }
 
     launch_exe(argc, argv);

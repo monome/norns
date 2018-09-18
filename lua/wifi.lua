@@ -10,8 +10,8 @@ Wifi.scan_list = {}
 Wifi.scan_count = 0
 Wifi.scan_active = -1
 
-Wifi.off = function() os.execute("~/norns/wifi.sh off &") end 
-Wifi.hotspot = function() os.execute("~/norns/wifi.sh hotspot &") end 
+Wifi.off = function() os.execute("~/norns/wifi.sh off &") end
+Wifi.hotspot = function() os.execute("~/norns/wifi.sh hotspot &") end
 Wifi.on = function() os.execute("~/norns/wifi.sh on &") end
 Wifi.scan = function() os.execute("~/norns/wifi.sh scan &") end
 
@@ -21,7 +21,7 @@ Wifi.update = function()
   Wifi.status = util.os_capture("cat ~/status.wifi")
   Wifi.state = 0
   if Wifi.status == 'hotspot' then Wifi.state = 1
-  elseif Wifi.status == 'router' then Wifi.state = 2 end 
+  elseif Wifi.status == 'router' then Wifi.state = 2 end
   Wifi.scan_list = {}
   for line in io.lines(home_dir.."/scan.wifi") do
     table.insert(Wifi.scan_list,line)
@@ -32,6 +32,6 @@ Wifi.update = function()
     wifi.ip = util.os_capture("ifconfig wlan0| grep 'inet ' | awk '{print $2}'")
     wifi.signal = util.os_capture("iw dev wlan0 link | grep 'signal' | awk '{print $2}'")
   end
-end 
+end
 
 return Wifi

@@ -1101,10 +1101,10 @@ class mydsp : public dsp {
 		ui_interface->addVerticalSlider("low band cutoff frequency", &fVslider3, 200.0f, 30.0f, 1200.0f, 1.0f);
 		ui_interface->declare(&fVslider2, "3", "");
 		ui_interface->declare(&fVslider2, "unit", "s");
-		ui_interface->addVerticalSlider("-60db decay time for low band", &fVslider2, 1.0f, 10.0f, 3.0f, 0.100000001f);
+		ui_interface->addVerticalSlider("-60db decay time for low band", &fVslider2, 1.0f, 0.1f, 10.0f, 0.100000001f);
 		ui_interface->declare(&fVslider0, "4", "");
 		ui_interface->declare(&fVslider0, "unit", "s");
-		ui_interface->addVerticalSlider("-60db decay time for middle band", &fVslider0, 1.0f, 10.0f, 3.0f, 0.100000001f);
+		ui_interface->addVerticalSlider("-60db decay time for middle band", &fVslider0, 1.0f, 0.1f, 10.0f, 0.100000001f);
 		ui_interface->declare(&fVslider1, "5", "");
 		ui_interface->declare(&fVslider1, "scale", "log");
 		ui_interface->declare(&fVslider1, "unit", "Hz");

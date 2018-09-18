@@ -90,9 +90,9 @@ CroneDefs {
 		// raw mono adc input
 		defs.add(
 			SynthDef.new(\adc, {
-				arg in, out;
-
-				Out.ar(out, SoundIn.ar(in))
+				arg in, out, level=1.0, lag=0.01;
+				var ampenv = Lag.kr(level, lag);
+				Out.ar(out, SoundIn.ar(in) * ampenv)
 			})
 		);
 
