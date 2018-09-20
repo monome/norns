@@ -79,7 +79,7 @@ void *battery_check(void *x) {
         }
 
         lseek(fd[2], 0, SEEK_SET);
-        if (read(fd[2], &buf, 7) > 0) {
+        if (read(fd[2], &buf, 8) > 0) {
             n = atoi(buf) / 1000;
         } else {
             //fprintf(stderr, "failed to read battery current\n");
