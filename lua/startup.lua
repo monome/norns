@@ -64,6 +64,8 @@ norns.startup_status.timeout = function()
   norns.scripterror("AUDIO ENGINE")
 end
 
+-- initial screen state
+s_save()
 
 -- check for pending updates
 norns.update.run()
