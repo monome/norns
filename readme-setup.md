@@ -46,7 +46,7 @@ popd
 
 ## configure
 
-- add `/usr/local/lib` to library serach paths (if libmonome is installed from sources.)
+- add `/usr/local/lib` to library search paths (if libmonome is installed from sources.)
 the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_LIBRARY_PATH` variable is deprecated, since it willl override binary-specific settings.)
 
 
