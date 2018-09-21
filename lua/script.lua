@@ -60,6 +60,19 @@ Script.load = function(filename)
   print("# script load")
   if filename == nil then
     filename = norns.state.script end
+
+  -- script local state  
+  local state = { }
+
+  setmetatable(_G, {
+    __index = function (t,k)
+      return state[k]
+    end,
+    __newindex = function(t,k,v)
+      state[k] = v
+    end,
+  })
+
   local filepath = script_dir .. filename
   local f=io.open(filepath,"r")
   if f==nil then
