@@ -49,10 +49,10 @@ function Grid.new(id, serial, name, dev)
 
   -- autofill next postiion
   local connected = {}
-  for i=1,4 do 
-    table.insert(connected, Grid.vport[i].name) 
-    table.insert(connected, Grid.vport[i].cols) 
-    table.insert(connected, Grid.vport[i].rows) 
+  for i=1,4 do
+    table.insert(connected, Grid.vport[i].name)
+    table.insert(connected, Grid.vport[i].cols)
+    table.insert(connected, Grid.vport[i].rows)
   end
   if not tab.contains(connected, name) then
     for i=1,4 do
@@ -129,13 +129,14 @@ function Grid.connect(n)
     refresh = function() Grid.vport[n].refresh() end,
     disconnect = function(self)
         self.send = function() print("not connected") end
-        table.remove(Grid.vport[self.port].callbacks, self.index)
+        Grid.vport[self.port].callbacks[self.index] = nil
         self.index = nil
         self.port = nil
       end,
     reconnect = function(self, p)
+        p = p or 1
         if self.index then
-          table.remove(Grid.vport[self.port].callbacks, self.index)
+          Grid.vport[self.port].callbacks[self.index] = nil
         end
         self.send = function(data) Grid.vport[p].send(data) end
         attached = function() return Grid.vport[p].attached end
