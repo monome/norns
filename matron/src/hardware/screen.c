@@ -195,7 +195,7 @@ void screen_init(void) {
 
     // config buffer
     cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_surface(crfb,surface,0,0); 
+    cairo_set_source_surface(crfb,surface,0,0);
 }
 
 void screen_deinit(void) {
@@ -209,6 +209,16 @@ void screen_deinit(void) {
 void screen_update(void) {
     CHECK_CR
     cairo_paint(crfb);
+}
+
+void screen_save(void) {
+    CHECK_CR
+    cairo_save(cr);
+}
+
+void screen_restore(void) {
+    CHECK_CR
+    cairo_restore(cr);
 }
 
 void screen_font_face(int i) {
