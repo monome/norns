@@ -129,13 +129,14 @@ function Grid.connect(n)
     refresh = function() Grid.vport[n].refresh() end,
     disconnect = function(self)
         self.send = function() print("not connected") end
-        table.remove(Grid.vport[self.port].callbacks, self.index)
+        Grid.vport[self.port].callbacks[self.index] = nil
         self.index = nil
         self.port = nil
       end,
     reconnect = function(self, p)
+        p = p or 1
         if self.index then
-          table.remove(Grid.vport[self.port].callbacks, self.index)
+          Grid.vport[self.port].callbacks[self.index] = nil
         end
         self.send = function(data) Grid.vport[p].send(data) end
         attached = function() return Grid.vport[p].attached end

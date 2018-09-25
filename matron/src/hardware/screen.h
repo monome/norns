@@ -6,6 +6,8 @@ extern void screen_init(void);
 extern void screen_deinit(void);
 
 extern void screen_update(void);
+extern void screen_save(void);
+extern void screen_restore(void);
 extern void screen_font_face(int i);
 extern void screen_font_size(double z);
 extern void screen_aa(int s);

@@ -52,6 +52,7 @@ Script.init = function()
   if norns.try(init, "init") then
     norns.menu.init()
   end
+  s_save()
 end
 
 --- load a script from the /scripts folder

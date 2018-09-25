@@ -65,6 +65,8 @@ static int _grid_rows(lua_State *l);
 static int _grid_cols(lua_State *l);
 //screen
 static int _screen_update(lua_State *l);
+static int _screen_save(lua_State *l);
+static int _screen_restore(lua_State *l);
 static int _screen_font_face(lua_State *l);
 static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
@@ -197,6 +199,8 @@ void w_init(void) {
 
   // register screen funcs
   lua_register(lvm, "s_update", &_screen_update);
+  lua_register(lvm, "s_save", &_screen_save);
+  lua_register(lvm, "s_restore", &_screen_restore);
   lua_register(lvm, "s_font_face", &_screen_font_face);
   lua_register(lvm, "s_font_size", &_screen_font_size);
   lua_register(lvm, "s_aa", &_screen_aa);
@@ -363,6 +367,34 @@ int _screen_update(lua_State *l) {
   }
 
   screen_update();
+  lua_settop(l, 0);
+  return 0;
+}
+
+/***
+ * screen: save attributes
+ * @function s_save
+ */
+int _screen_save(lua_State *l) {
+  if (lua_gettop(l) != 0) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  screen_save();
+  lua_settop(l, 0);
+  return 0;
+}
+
+/***
+ * screen: restore attributes
+ * @function s_restore
+ */
+int _screen_restore(lua_State *l) {
+  if (lua_gettop(l) != 0) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  screen_restore();
   lua_settop(l, 0);
   return 0;
 }
