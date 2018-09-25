@@ -99,13 +99,14 @@ function Midi.connect(n)
     send = function(data) Midi.vport[n].send(data) end,
     disconnect = function(self)
         self.send = function() print("not connected") end
-        table.remove(Midi.vport[self.port].callbacks, self.index)
+        Midi.vport[self.port].callbacks[self.index] = nil
         self.index = nil
         self.port = nil
       end,
     reconnect = function(self, p)
+        p = p or 1
         if self.index then
-          table.remove(Midi.vport[self.port].callbacks, self.index)
+          Midi.vport[self.port].callbacks[self.index] = nil
         end
         self.send = function(data) Midi.vport[p].send(data) end
         attached = function() return Midi.vport[p].attached end
