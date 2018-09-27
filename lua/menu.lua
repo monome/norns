@@ -289,7 +289,7 @@ end
 -- menu set mode
 menu.set_mode = function(mode)
   if mode == false then
-    s_restore()
+    if menu.mode == true then s_restore() end
     menu.mode = false
     m.deinit[menu.page]()
     redraw = norns.script.redraw
@@ -299,7 +299,7 @@ menu.set_mode = function(mode)
     norns.encoders.set_sens(0,1)
     redraw()
   else -- enable menu mode
-    s_save()
+    if menu.mode == false then s_save() end
     menu.mode = true
     menu.alt = false
     redraw = norns.none
