@@ -7,6 +7,7 @@ local option = require 'params/option'
 local control = require 'params/control'
 local file = require 'params/file'
 local taper = require 'params/taper'
+local trigger = require 'params/trigger'
 
 local ParamSet = {
   tSEPARATOR = 0,
@@ -15,6 +16,7 @@ local ParamSet = {
   tCONTROL = 3,
   tFILE = 4,
   tTAPER = 5,
+  tTRIGGER = 6
 }
 
 ParamSet.__index = ParamSet
@@ -70,6 +72,11 @@ end
 --- add taper
 function ParamSet:add_taper(name, min, max, default, k, units)
   self:add { param=taper.new(name, min, max, default, k, units) }
+end
+
+--- add trigger
+function ParamSet:add_trigger(name)
+  self:add { param=trigger.new(name) }
 end
 
 --- print
@@ -158,7 +165,7 @@ function ParamSet:write(filename)
   local fd = io.open(data_dir..filename, "w+")
   io.output(fd)
   for k,param in pairs(self.params) do
-    if param.name then
+    if param.name and param.t ~= self.tTRIGGER then
       io.write(string.format("%s: %s\n", quote(param.name), param:get()))
     end
   end

@@ -828,6 +828,9 @@ m.key[pPARAMS] = function(n,z)
     if not m.params.midimap then
       if params:t(m.params.pos+1) == params.tFILE then
         fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+      elseif params:t(m.params.pos+1) == params.tTRIGGER then
+        params:set(m.params.pos+1)
+        m.params.triggered[m.params.pos+1] = 2
       end
     else
       m.params.midilearn = not m.params.midilearn
@@ -914,7 +917,14 @@ m.redraw[pPARAMS] = function()
               end
             else
               screen.move(127,10*i)
-              screen.text_right(params:string(param_index))
+              if params:t(param_index) ==  params.tTRIGGER then
+                if m.params.triggered[param_index] and m.params.triggered[param_index] > 0 then
+                  screen.rect(124, 10 * i - 4, 3, 3)
+                  screen.fill()
+                end
+              else
+                screen.text_right(params:string(param_index))
+              end
             end
           end
         end
@@ -975,8 +985,12 @@ m.init[pPARAMS] = function()
   m.params.midilearn = false
   m.params.action_text = ""
   m.params.action = 0
+  m.params.triggered = {}
   u.callback = function()
     if m.params.action > 0 then m.params.action = m.params.action - 1 end
+    for k, v in pairs(m.params.triggered) do
+      if v > 0 then m.params.triggered[k] = v - 1 end
+    end
     menu.redraw()
   end
   u.time = 0.2

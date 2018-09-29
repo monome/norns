@@ -1,5 +1,5 @@
 --- Control class
--- @module paramset
+-- @module control
 
 local ControlSpec = require 'controlspec'
 
