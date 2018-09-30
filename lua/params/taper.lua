@@ -13,9 +13,10 @@ local function map(x, from_min, from_max, to_min, to_max)
   return (x - from_min) * (to_max - to_min) / (from_max - from_min) + to_min
 end
 
-function Taper.new(name, min, max, default, k, units)
+function Taper.new(id, name, min, max, default, k, units)
   local p = setmetatable({}, Taper)
   p.t = tTAPER
+  p.id = id
   p.name = name
   p.min = min or 0
   p.max = max or 1

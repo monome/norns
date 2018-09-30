@@ -43,35 +43,36 @@ function ParamSet:add(args)
   local param = args.param -- param is mandatory
   table.insert(self.params, param)
   self.count = self.count + 1
-  self.lookup[param.name] = self.count
+  self.lookup[param.id] = self.count
   if args.action then -- action is optional
     param.action = args.action
   end
 end
 
 --- add number
-function ParamSet:add_number(name, min, max, default)
-  self:add { param=number.new(name, min, max, default) }
+function ParamSet:add_number(id, name, min, max, default)
+  self:add { param=number.new(id, name, min, max, default) }
 end
 
 --- add option
-function ParamSet:add_option(name, options, default)
-  self:add { param=option.new(name, options, default) }
+function ParamSet:add_option(id, name, options, default)
+  p = option.new(id, name, options, default)
+  self:add { param=option.new(id, name, options, default) }
 end
 
 --- add control
-function ParamSet:add_control(name, controlspec, formatter)
-  self:add { param=control.new(name, controlspec, formatter) }
+function ParamSet:add_control(id, name, controlspec, formatter)
+  self:add { param=control.new(id, name, controlspec, formatter) }
 end
 
 --- add file
-function ParamSet:add_file(name, path)
-  self:add { param=file.new(name, path) }
+function ParamSet:add_file(id, name, path)
+  self:add { param=file.new(id, name, path) }
 end
 
 --- add taper
-function ParamSet:add_taper(name, min, max, default, k, units)
-  self:add { param=taper.new(name, min, max, default, k, units) }
+function ParamSet:add_taper(id, name, min, max, default, k, units)
+  self:add { param=taper.new(id, name, min, max, default, k, units) }
 end
 
 --- add trigger
@@ -165,8 +166,8 @@ function ParamSet:write(filename)
   local fd = io.open(data_dir..filename, "w+")
   io.output(fd)
   for k,param in pairs(self.params) do
-    if param.name and param.t ~= self.tTRIGGER then
-      io.write(string.format("%s: %s\n", quote(param.name), param:get()))
+    if param.id and param.t ~= self.tTRIGGER then
+      io.write(string.format("%s: %s\n", quote(param.id), param:get()))
     end
   end
   io.close(fd)
@@ -179,11 +180,11 @@ function ParamSet:read(filename)
   if fd then
     io.close(fd)
     for line in io.lines(data_dir..filename) do
-      local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+      local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
 
-      if name and value then
-        name = unquote(name)
-        local index = self.lookup[name]
+      if id and value then
+        id = unquote(id)
+        local index = self.lookup[id]
 
         if index then
           if tonumber(value) ~= nil then
