@@ -1,5 +1,5 @@
 --- File class
--- @module number
+-- @module file
 
 local File = {}
 File.__index = File
