@@ -109,7 +109,7 @@ function Midi.connect(n)
           Midi.vport[self.port].callbacks[self.index] = nil
         end
         self.send = function(data) Midi.vport[p].send(data) end
-        attached = function() return Midi.vport[p].attached end
+        self.attached = function() return Midi.vport[p].attached end
         Midi.vport[p].index = Midi.vport[p].index + 1
         self.index = Midi.vport[p].index
         self.port = p
