@@ -30,7 +30,8 @@ local pWIFI = 8
 local pSYNC = 9
 local pUPDATE =10
 local pLOG = 12
-local pSLEEP = 13
+local pRESET = 13
+local pSLEEP = 14
 
 -- page pointer
 local m = {}
@@ -615,7 +616,7 @@ m.redraw[pHOME] = function()
   screen.level(15)
   local line = string.upper(norns.state.name)
   --if(menu.scripterror and state.script ~= '') then
-  if(menu.scripterror) then
+  if(menu.scripterror and menu.errormsg ~= 'NO SCRIPT') then
     line = line .. " (error: " .. menu.errormsg .. ")"
   end
   screen.text(line)
@@ -1076,8 +1077,8 @@ end
 -- SYSTEM
 m.sys = {}
 m.sys.pos = 1
-m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "SYNC >", "UPDATE >", "LOG >"}
-m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pSYNC, pUPDATE, pLOG}
+m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "SYNC >", "UPDATE >", "RESET AUDIO"}
+m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pSYNC, pUPDATE, pRESET}
 m.sys.input = 0
 m.sys.disk = ""
 
@@ -1285,7 +1286,9 @@ end
 m.wifi.passdone = function(txt)
   if txt ~= nil then
     os.execute("~/norns/wifi.sh select \""..m.wifi.try.."\" \""..txt.."\" &")
+    os.execute("sudo systemctl stop norns-crone.service")
     wifi.on()
+    norns.startup_status.timeout()
   end
   menu.redraw()
 end
@@ -1591,6 +1594,44 @@ m.init[pLOG] = function()
 end
 
 m.deinit[pLOG] = function()
+  u:stop()
+end
+
+
+-----------------------------------------
+-- RESET
+m.reset = {}
+m.reset.countdown = 0
+
+m.key[pRESET] = function(n,z) end
+
+m.enc[pRESET] = function(n,delta) end
+
+m.redraw[pRESET] = function()
+  screen.clear()
+  screen.level(10)
+  screen.move(64,40)
+  screen.text_center("resetting audio")
+  screen.update()
+end
+
+m.init[pRESET] = function()
+  m.reset.countdown = 9
+  norns.script.clear()
+  os.execute("sudo systemctl restart norns-crone.service")
+  u.time = 1
+  u.count = -1
+  u.callback = function()
+    m.reset.countdown = m.reset.countdown - 1
+    if m.reset.countdown == 0 then
+      menu.set_page(pSYSTEM)
+      norns.startup_status.ok()
+    end
+  end
+  u:start()
+end
+
+m.deinit[pRESET] = function()
   u:stop()
 end
 
