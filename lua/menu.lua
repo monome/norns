@@ -204,7 +204,7 @@ local metro = require 'metro'
 local t = metro[31]
 t.time = KEY1_HOLD_TIME
 t.count = 1
-t.callback = function(stage)
+t.event = function(stage)
   menu.key(1,1)
   pending = false
 end
@@ -391,8 +391,8 @@ m.key[pMIX] = function(n,z)
             tape.mode = tPLAY
             tape.status = tsPAUSE
             tape.playaction = paPLAY
-            tape.metro = metro.alloc()
-            tape.metro.callback = function() tape.time = tape.time + 1 end
+            tape.metro = metro.init()
+            tape.metro.event = function() tape.time = tape.time + 1 end
             tape.metro.count = -1
             tape.metro.time = 1
             tape.time = 0
@@ -409,8 +409,8 @@ m.key[pMIX] = function(n,z)
       -- REC: start recording
       tape.status = tsREC
       tape_start_rec()
-      tape.metro = metro.alloc()
-      tape.metro.callback = function() tape.time = tape.time + 1 end
+      tape.metro = metro.init()
+      tape.metro.event = function() tape.time = tape.time + 1 end
       tape.metro.count = -1
       tape.metro.time = 1
       tape.time = 0
