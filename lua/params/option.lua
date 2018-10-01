@@ -8,9 +8,10 @@ Option.__index = Option
 
 local tOPTION = 2
 
-function Option.new(name, options, default)
+function Option.new(id, name, options, default)
   local o = setmetatable({}, Option)
   o.t = tOPTION
+  o.id = id
   o.name = name
   o.options = {}
   for k,v in pairs(options) do

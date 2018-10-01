@@ -6,9 +6,10 @@ Number.__index = Number
 
 local tNUMBER = 1
 
-function Number.new(name, min, max, default)
+function Number.new(id, name, min, max, default)
   local o = setmetatable({}, Number)
   o.t = tNUMBER
+  o.id = id
   o.name = name
   o.default = default or 0
   o.value = o.default

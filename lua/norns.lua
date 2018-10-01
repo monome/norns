@@ -181,6 +181,6 @@ end
 --- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 startup = function()
-   print("norns.lua:startup()")
+  print("norns.lua:startup()")
   require('startup')
 end
