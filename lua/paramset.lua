@@ -76,8 +76,8 @@ function ParamSet:add_taper(id, name, min, max, default, k, units)
 end
 
 --- add trigger
-function ParamSet:add_trigger(name)
-  self:add { param=trigger.new(name) }
+function ParamSet:add_trigger(id, name)
+  self:add { param=trigger.new(id, name) }
 end
 
 --- print

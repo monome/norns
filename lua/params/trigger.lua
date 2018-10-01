@@ -6,9 +6,10 @@ Trigger.__index = Trigger
 
 local tTRIGGER = 6
 
-function Trigger.new(name)
+function Trigger.new(id, name)
   local o = setmetatable({}, Trigger)
   o.t = tTRIGGER
+  o.id = id
   o.name = name
   o.action = function() end
   return o
