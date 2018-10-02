@@ -57,17 +57,17 @@ function ParamSet:add(args)
     local id = args.id
     local name = args.name or id
 
-    if args.number then
+    if args.type == "number"  then
       param = number.new(id, name, args.min, args.max, args.default)
-    elseif args.option then
+    elseif args.type == "option" then
       param = option.new(id, name, args.options, args.default)
-    elseif args.control then
+    elseif args.type == "control" then
       param = control.add(id, name, args.controlspec, args.formatter)
-    elseif args.file then
+    elseif args.type == "file" then
       param = file.add(id, name, args.path)
-    elseif args.taper then
+    elseif args.type == "taper" then
       param = taper.add(id, name, args.min, args.max, args.default, args.k, args.units)
-    elseif args.trigger then
+    elseif args.type == "trigger" then
       param = trigger.add(id, name)
     else
       print("paramset.add() error: unknown type")
