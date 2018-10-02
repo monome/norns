@@ -39,6 +39,10 @@ function ParamSet:add_separator()
 end
 
 --- add generic parameter
+-- helper function to add param to paramset
+-- two uses:
+-- - pass "param" table with optional "action" function
+-- - pass keyed table to generate "param" table. required keys are "type" and "id"
 function ParamSet:add(args)
   local param = args.param
   if param == nil then
