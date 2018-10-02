@@ -40,11 +40,39 @@ end
 
 --- add generic parameter
 function ParamSet:add(args)
-  local param = args.param -- param is mandatory
+  local param = args.param
+  if param == nil then
+    if args.number then
+      local id = args.number
+      local name = args.name or id
+      param = number.new(id, name, args.min, args.max, args.default)
+    elseif args.option then
+      local id = args.option
+      local name = args.name or id
+      param = option.new(id, name, args.options, args.default)
+    elseif args.control then
+      local id = args.control
+      local name = args.name or id
+      param = control.add(id, name, args.controlspec, args.formatter)
+    elseif args.file then
+      local id = args.file
+      local name = args.name or id
+      param = file.add(id, name, args.path)
+    elseif args.taper then
+      local id = args.taper
+      local name = args.name or id
+      param = taper.add(id, name, args.min, args.max, args.default, args.k, args.units)
+    elseif args.trigger then
+      local id = args.trigger
+      local name = args.name or id
+      param = trigger.add(id, name)
+    end
+  end
+
   table.insert(self.params, param)
   self.count = self.count + 1
   self.lookup[param.id] = self.count
-  if args.action then -- action is optional
+  if args.action then
     param.action = args.action
   end
 end
