@@ -66,8 +66,12 @@ function ParamSet:add(args)
       local id = args.trigger
       local name = args.name or id
       param = trigger.add(id, name)
+    else
+      print("paramset.add() error")
+      return nil
     end
   end
+
 
   table.insert(self.params, param)
   self.count = self.count + 1
