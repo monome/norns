@@ -39,12 +39,46 @@ function ParamSet:add_separator()
 end
 
 --- add generic parameter
+-- helper function to add param to paramset
+-- two uses:
+-- - pass "param" table with optional "action" function
+-- - pass keyed table to generate "param" table. required keys are "type" and "id"
 function ParamSet:add(args)
-  local param = args.param -- param is mandatory
+  local param = args.param
+  if param == nil then
+    if args.type == nil then
+      print("paramset.add() error: type required")
+      return nil
+    elseif args.id == nil then
+      print("paramset.add() error: id required")
+      return nil
+    end
+
+    local id = args.id
+    local name = args.name or id
+
+    if args.type == "number"  then
+      param = number.new(id, name, args.min, args.max, args.default)
+    elseif args.type == "option" then
+      param = option.new(id, name, args.options, args.default)
+    elseif args.type == "control" then
+      param = control.add(id, name, args.controlspec, args.formatter)
+    elseif args.type == "file" then
+      param = file.add(id, name, args.path)
+    elseif args.type == "taper" then
+      param = taper.add(id, name, args.min, args.max, args.default, args.k, args.units)
+    elseif args.type == "trigger" then
+      param = trigger.add(id, name)
+    else
+      print("paramset.add() error: unknown type")
+      return nil
+    end
+  end
+
   table.insert(self.params, param)
   self.count = self.count + 1
   self.lookup[param.id] = self.count
-  if args.action then -- action is optional
+  if args.action then
     param.action = args.action
   end
 end
