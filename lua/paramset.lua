@@ -129,44 +129,44 @@ end
 
 --- string
 function ParamSet:string(index)
-  if type(index) == "string" then index = self.lookup[index] end
-  return self.params[index]:string()
+  local param = self:lookup_param(index)
+  return param:string()
 end
 
 --- set
 function ParamSet:set(index, v)
-  if type(index) == "string" then index = self.lookup[index] end
-  self.params[index]:set(v)
+  local param = self:lookup_param(index)
+  return param:set(v)
 end
 
 --- set_raw (for control types only)
 function ParamSet:set_raw(index, v)
-  if type(index) == "string" then index = self.lookup[index] end
-  self.params[index]:set_raw(v)
+  local param = self:lookup_param(index)
+  param:set_raw(v)
 end
 
 --- get
 function ParamSet:get(index)
-  if type(index) == "string" then index = self.lookup[index] end
-  return self.params[index]:get()
+  local param = self:lookup_param(index)
+  return param:get()
 end
 
 --- get_raw (for control types only)
 function ParamSet:get_raw(index)
-  if type(index) == "string" then index = self.lookup[index] end
-  return self.params[index]:get_raw()
+  local param = self:lookup_param(index)
+  return param:get_raw()
 end
 
 --- delta
 function ParamSet:delta(index, d)
-  if type(index) == "string" then index = self.lookup[index] end
-  self.params[index]:delta(d)
+  local param = self:lookup_param(index)
+  param:delta(d)
 end
 
 --- set action
 function ParamSet:set_action(index, func)
-  if type(index) == "string" then index = self.lookup[index] end
-  self.params[index].action = func
+  local param = self:lookup_param(index)
+  param.action = func
 end
 
 --- get type
@@ -180,6 +180,16 @@ end
 
 local function unquote(s)
   return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
+end
+
+function ParamSet:lookup_param(index)
+  if type(index) == "string" and self.lookup[index] then
+    return self.params[self.lookup[index]]
+  elseif self.params[index] then
+    return self.params[index]
+  else
+    error("invalid paramset index: "..index)
+  end
 end
 
 --- write to disk
