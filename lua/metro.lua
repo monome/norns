@@ -16,13 +16,11 @@ Metro.assigned = {}
 
 
 --- init/assign
--- "allocate" a metro (assigns unused id)
+-- initialize a metro (assigns unused id)
 function Metro.init(arg, arg_time, arg_count)
   local event = 0
   local time = arg_time or 1
   local count = arg_count or -1
-
-  print("what "..time)
 
   if type(arg) == "table" then
     event = arg.event
@@ -44,7 +42,6 @@ function Metro.init(arg, arg_time, arg_count)
     Metro.available[id] = false
     local m = Metro.metros[id]
     m.event = event
-    print("set time: "..time)
     m.time = time
     m.count= count
     return m
@@ -70,12 +67,13 @@ end
 -- @param id : identifier (integer)
 function Metro.new(id)
   local m = {}
-  m.props = {}
-  m.props.id = id
-  m.props.time = 1
-  m.props.count = -1
-  m.props.event = nil
-  m.props.init_stage = 1
+  m.props = {
+    id = id
+    time = 1
+    count = -1
+    event = nil
+    init_stage = 1
+  }
   setmetatable(m, Metro)
   return m
 end
@@ -85,10 +83,15 @@ end
 -- @param count - (optional) number of ticks. infinite by default
 -- @param stage - (optional) initial stage number (1-based.) 1 by default
 function Metro:start(time, count, stage)
-  local vargs = {}
-  if time then self.props.time = time end
-  if count then self.props.count = count end
-  if stage then self.init_stage = stage end
+  if type(time) == "table" then
+    if time.time then self.props.time = time.time end
+    if time.count then self.props.count = time.count end
+    if time.stage then self.props.stage = time.stage end
+  else
+    if time then self.props.time = time end
+    if count then self.props.count = count end
+    if stage then self.init_stage = stage end
+  end
   self.is_running = true
   metro_start(self.props.id, self.props.time, self.props.count, self.props.init_stage) -- C function
 end
