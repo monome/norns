@@ -42,36 +42,34 @@ end
 function ParamSet:add(args)
   local param = args.param
   if param == nil then
+    if args.type == nil then
+      print("paramset.add() error: type required")
+      return nil
+    elseif args.id == nil then
+      print("paramset.add() error: id required")
+      return nil
+    end
+
+    local id = args.id
+    local name = args.name or id
+
     if args.number then
-      local id = args.number
-      local name = args.name or id
       param = number.new(id, name, args.min, args.max, args.default)
     elseif args.option then
-      local id = args.option
-      local name = args.name or id
       param = option.new(id, name, args.options, args.default)
     elseif args.control then
-      local id = args.control
-      local name = args.name or id
       param = control.add(id, name, args.controlspec, args.formatter)
     elseif args.file then
-      local id = args.file
-      local name = args.name or id
       param = file.add(id, name, args.path)
     elseif args.taper then
-      local id = args.taper
-      local name = args.name or id
       param = taper.add(id, name, args.min, args.max, args.default, args.k, args.units)
     elseif args.trigger then
-      local id = args.trigger
-      local name = args.name or id
       param = trigger.add(id, name)
     else
-      print("paramset.add() error")
+      print("paramset.add() error: unknown type")
       return nil
     end
   end
-
 
   table.insert(self.params, param)
   self.count = self.count + 1
