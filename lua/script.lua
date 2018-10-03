@@ -44,6 +44,15 @@ Script.clear = function()
   norns.state.name = 'none'
   -- clear params
   params:clear()
+  -- reset PLAY mode screen settings
+  local status = norns.menu.status()
+  if status == true then s_restore() end
+  screen.aa(0)
+  screen.level(15)
+  screen.line_width(1)
+  screen.font_face(0)
+  screen.font_size(8)
+  if status == true then s_save() end
 end
 
 Script.init = function()
