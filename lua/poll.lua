@@ -118,10 +118,9 @@ Poll.register = function(data, count)
 end
 
 Poll.list_names = function()
-  print('--- polls ---')
+  print('___ polls ___')
   local names = tab.sort(Poll.polls)
   for _,n in ipairs(names) do print(n) end
-  print('------\n')
 end
 
 --- set callback function for registered Poll object by name

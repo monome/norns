@@ -49,10 +49,9 @@ end
 Script.init = function()
   print("# script init")
   params.name = norns.state.name
-  if norns.try(init, "init") then
-    norns.menu.init()
-  end
-  s_save()
+  init()
+  grid.reconnect()
+  midi.reconnect()
 end
 
 --- load a script from the /scripts folder
@@ -62,7 +61,7 @@ Script.load = function(filename)
   if filename == nil then
     filename = norns.state.script end
 
-  -- script local state  
+  -- script local state
   local state = { }
 
   setmetatable(_G, {
@@ -101,20 +100,12 @@ end
 
 --- load engine, execute script-specified init (if present)
 Script.run = function()
-  local bootstrap = function()
-    Script.init()
-    print("reconnecting grid...")
-    grid.reconnect()
-    print("reconnecting midi...")
-    midi.reconnect()
-  end
-
   print("# script run")
   if engine.name ~= nil then
-    print("loading engine; name: " .. engine.name)
-    engine.load(engine.name, bootstrap)
+    print("loading engine: " .. engine.name)
+    engine.load(engine.name, Script.init)
   else
-    bootstrap()
+    Script.init()
   end
 end
 
