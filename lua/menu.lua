@@ -133,29 +133,27 @@ mix:add_control("rev_hf_damping", "rev hf damping", cs.HF_DAMP)
 mix:set_action("rev_hf_damping",
   function(x) fx.aux_fx_param("hf_damping",x) end)
 
---[[
 cs.EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
-mix:add_control("rev eq1 freq", cs.EQ_FREQ1)
-mix:set_action("rev eq1 freq",
+mix:add_control("rev_eq1_freq","rev eq1 freq", cs.EQ_FREQ1)
+mix:set_action("rev_eq1_freq",
   function(x) fx.aux_fx_param("eq1_freq",x) end)
 cs.EQ_LVL = cs.new(-15,15,'lin',0,0,"dB")
-mix:add_control("rev eq1 level", cs.EQ_LVL)
-mix:set_action("rev eq1 level",
+mix:add_control("rev_eq1_level","rev eq1 level", cs.EQ_LVL)
+mix:set_action("rev_eq1_level",
   function(x) fx.aux_fx_param("eq1_level",x) end)
 
 cs.EQ_FREQ2 = cs.new(160,10000,'exp',0,1500,'hz')
-mix:add_control("rev eq2 freq", cs.EQ_FREQ2)
-mix:set_action("rev eq2 freq",
+mix:add_control("rev_eq2_freq","rev eq2 freq", cs.EQ_FREQ2)
+mix:set_action("rev_eq2_freq",
   function(x) fx.aux_fx_param("eq2_freq",x) end)
-mix:add_control("rev eq2 level", cs.EQ_LVL)
-mix:set_action("rev eq2 level",
+mix:add_control("rev_eq2_level","rev eq2 level", cs.EQ_LVL)
+mix:set_action("rev_eq2_level",
   function(x) fx.aux_fx_param("eq2_level",x) end)
---]]
 
---cs.LEVEL = cs.new(-70,40,'lin',0,0,'dB')
---mix:add_control("rev_level", cs.LEVEL)
---mix:set_action("rev_level",
-  --function(x) fx.aux_fx_param("level",x) end)
+cs.LEVEL = cs.new(-70,40,'lin',0,0,'dB')
+mix:add_control("rev_level","rev level", cs.LEVEL)
+mix:set_action("rev_level",
+  function(x) fx.aux_fx_param("level",x) end)
 
 
 mix:add_separator()
