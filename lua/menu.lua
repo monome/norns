@@ -1260,6 +1260,7 @@ m.wifi.list = {"off","hotspot","network >"}
 m.wifi.len = 3
 m.wifi.selected = 1
 m.wifi.try = ""
+m.wifi.countdown = -1
 
 m.key[pWIFI] = function(n,z)
   if n==2 and z==1 then
@@ -1283,7 +1284,7 @@ m.wifi.passdone = function(txt)
     os.execute("~/norns/wifi.sh select \""..m.wifi.try.."\" \""..txt.."\" &")
     os.execute("sudo systemctl stop norns-crone.service")
     wifi.on()
-    norns.startup_status.timeout()
+    m.wifi.countdown = 4
   end
   menu.redraw()
 end
@@ -1303,44 +1304,53 @@ end
 m.redraw[pWIFI] = function()
   screen.clear()
   screen.level(15)
-  screen.move(0,10)
-  if wifi.state == 2 then
-    screen.text("status: router "..wifi.ssid)
-  else screen.text("status: "..wifi.status) end
-  if wifi.state > 0 then
-    screen.level(4)
-    screen.move(0,20)
-    screen.text(wifi.ip)
+
+  if m.wifi.countdown == -1 then
+    screen.move(0,10)
     if wifi.state == 2 then
-      screen.move(127,20)
-      screen.text_right(wifi.signal .. "dBm")
-    end
-  end
-
-  screen.move(0,40+wifi.state*10)
-  screen.text("-")
-
-  for i=1,m.wifi.len do
-    screen.move(8,30+10*i)
-    line = m.wifi.list[i]
-    if(i==m.wifi.pos+1) then
-      screen.level(15)
-    else
+      screen.text("status: router "..wifi.ssid)
+    else screen.text("status: "..wifi.status) end
+    if wifi.state > 0 then
       screen.level(4)
+      screen.move(0,20)
+      screen.text(wifi.ip)
+      if wifi.state == 2 then
+        screen.move(127,20)
+        screen.text_right(wifi.signal .. "dBm")
+      end
     end
-    screen.text(string.upper(line))
+
+    screen.move(0,40+wifi.state*10)
+    screen.text("-")
+
+    for i=1,m.wifi.len do
+      screen.move(8,30+10*i)
+      line = m.wifi.list[i]
+      if(i==m.wifi.pos+1) then
+        screen.level(15)
+      else
+        screen.level(4)
+      end
+      screen.text(string.upper(line))
+    end
+
+    screen.move(127,60)
+    if m.wifi.pos==2 then screen.level(15) else screen.level(4) end
+    if wifi.scan_count > 0 then
+      screen.text_right(wifi.scan_list[m.wifi.selected])
+    else screen.text_right("NONE") end
+
+  else -- countdown
+    screen.move(64,40)
+    screen.text_center("disabling audio")
+    screen.move(64,50)
+    screen.text_center("reset in system menu")
   end
-
-  screen.move(127,60)
-  if m.wifi.pos==2 then screen.level(15) else screen.level(4) end
-  if wifi.scan_count > 0 then
-    screen.text_right(wifi.scan_list[m.wifi.selected])
-  else screen.text_right("NONE") end
-
   screen.update()
 end
 
 m.init[pWIFI] = function()
+  m.wifi.countdown = -1
   wifi.scan()
   wifi.update()
   --m.wifi.selected = wifi.scan_active
@@ -1348,8 +1358,16 @@ m.init[pWIFI] = function()
   u.time = 1
   u.count = -1
   u.callback = function()
-    wifi.update()
-    menu.redraw()
+    if m.wifi.countdown > 0 then m.wifi.countdown = m.wifi.countdown - 1
+    elseif m.wifi.countdown == 0 then
+      print("wifi timeout")
+      m.wifi.countdown = -1
+      norns.startup_status.timeout()
+      menu.redraw()
+    else
+      wifi.update()
+      menu.redraw()
+    end
   end
   u:start()
 end
