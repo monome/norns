@@ -903,7 +903,7 @@ m.redraw[pPARAMS] = function()
             screen.move(0,10*i)
             screen.text(params:get_name(param_index))
             if m.params.midimap then
-              if params:t(param_index) == params.tCONTROL then
+              if params:t(param_index) == params.tCONTROL or params:t(param_index) == params.tTAPER then
                 screen.move(127,10*i)
                 if m.params.map[param_index] >= 0 then
                   screen.text_right(m.params.map[param_index])
@@ -1005,7 +1005,7 @@ end
 norns.menu_midi_event = function(data)
   if data[1] == 176 then -- cc
     if m.params.midilearn then
-      if params:t(m.params.pos+1) == params.tCONTROL then
+      if params:t(m.params.pos+1) == params.tCONTROL or params:t(m.params.pos+1) == params.tTAPER then
         m.params.map[m.params.pos+1] = data[2]
         menu.redraw()
       end
