@@ -48,7 +48,7 @@ menu.scripterror = false
 menu.errormsg = ""
 
 -- mix paramset
-mix = paramset.new()
+mix = paramset.new("mix", "mix")
 cs.MAIN_LEVEL = cs.new(-math.huge,0,'db',0,0,"dB")
 mix:add_control("output", "output", cs.MAIN_LEVEL)
 mix:set_action("output",
