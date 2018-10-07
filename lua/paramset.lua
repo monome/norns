@@ -16,19 +16,22 @@ local ParamSet = {
   tCONTROL = 3,
   tFILE = 4,
   tTAPER = 5,
-  tTRIGGER = 6
+  tTRIGGER = 6,
+  sets = {}
 }
 
 ParamSet.__index = ParamSet
 
 --- constructor
 -- @param name
-function ParamSet.new(name)
+function ParamSet.new(id, name)
   local ps = setmetatable({}, ParamSet)
+  ps.id = id or ""
   ps.name = name or ""
   ps.params = {}
   ps.count = 0
   ps.lookup = {}
+  ParamSet.sets[ps.id] = ps
   return ps
 end
 
