@@ -34,7 +34,7 @@ function Metro.alloc (cb, time, count)
 	if count then m.count= count end
 	return m
     end
-    print("metro.alloc: already used max numbert of allocated script metros")
+    print("metro.alloc: already used max number of allocated script metros")
     return nil
 end
 
