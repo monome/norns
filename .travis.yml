@@ -16,4 +16,5 @@ install:
   - luarocks install ldoc
   
 script:
-  - echo "do stuff here..."
+  - echo "generating api docs.."
+  - (cd lua; ldoc -c ../config.ld .)
