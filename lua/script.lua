@@ -59,6 +59,7 @@ Script.init = function()
   print("# script init")
   params.name = norns.state.name
   init()
+  s_save()
   grid.reconnect()
   midi.reconnect()
 end
@@ -114,7 +115,8 @@ Script.run = function()
     print("loading engine: " .. engine.name)
     engine.load(engine.name, Script.init)
   else
-    Script.init()
+    local status = norns.try(Script.init,"init")
+    norns.init_done(status)
   end
 end
 
