@@ -49,8 +49,8 @@
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
-  <li><strong>osc</strong></li>
-  <li><a href="../modules/control.html">control</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><strong>control</strong></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/option.html">option</a></li>
@@ -72,29 +72,53 @@
 
 <div id="content">
 
-<h1>Module <code>osc</code></h1>
-<p>osc device</p>
+<h1>Module <code>control</code></h1>
+<p>Control class</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#event">event (from, path, args)</a></td>
-	<td class="summary">static callback when an osc event is received
- user scripts can redefine</td>
+	<td class="name" nowrap><a href="#Control.new">Control.new (name, controlspec, formatter)</a></td>
+	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#send">send (to, path, args)</a></td>
-	<td class="summary">static method to send osc event</td>
+	<td class="name" nowrap><a href="#Control:get">Control:get ()</a></td>
+	<td class="summary">get
+ returns mapped value</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#send_crone">send_crone (path, args)</a></td>
-	<td class="summary">static method to send osc event directly to sclang</td>
+	<td class="name" nowrap><a href="#Control:get_raw">Control:get_raw ()</a></td>
+	<td class="summary">get_raw
+ get 0-1</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#norns.osc.event">norns.osc.event (path, args, from)</a></td>
-	<td class="summary">handle an osc event</td>
+	<td class="name" nowrap><a href="#Control:set">Control:set (value)</a></td>
+	<td class="summary">set
+ accepts a mapped value</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set_raw">Control:set_raw (value)</a></td>
+	<td class="summary">set_raw
+ set 0-1</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:delta">Control:delta (d)</a></td>
+	<td class="summary">delta
+ add delta to current value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set_default">Control:set_default ()</a></td>
+	<td class="summary">set_default</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:bang">Control:bang ()</a></td>
+	<td class="summary">bang</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:string">Control:string ()</a></td>
+	<td class="summary">string</td>
 	</tr>
 </table>
 
@@ -106,24 +130,23 @@
 
     <dl class="function">
     <dt>
-    <a name = "event"></a>
-    <strong>event (from, path, args)</strong>
+    <a name = "Control.new"></a>
+    <strong>Control.new (name, controlspec, formatter)</strong>
     </dt>
     <dd>
-    static callback when an osc event is received
- user scripts can redefine
+    constructor
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">from</span>
-         : a {host, port} table with the source address
+        <li><span class="parameter">name</span>
+         of param
         </li>
-        <li><span class="parameter">path</span>
-         : osc message path
+        <li><span class="parameter">controlspec</span>
+
         </li>
-        <li><span class="parameter">args</span>
-         : osc message args
+        <li><span class="parameter">formatter</span>
+
         </li>
     </ul>
 
@@ -133,23 +156,48 @@
 
 </dd>
     <dt>
-    <a name = "send"></a>
-    <strong>send (to, path, args)</strong>
+    <a name = "Control:get"></a>
+    <strong>Control:get ()</strong>
     </dt>
     <dd>
-    static method to send osc event
+    get
+ returns mapped value
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:get_raw"></a>
+    <strong>Control:get_raw ()</strong>
+    </dt>
+    <dd>
+    get_raw
+ get 0-1
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set"></a>
+    <strong>Control:set (value)</strong>
+    </dt>
+    <dd>
+    set
+ accepts a mapped value
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">to</span>
-         : a {host, port} table with the destination address
-        </li>
-        <li><span class="parameter">path</span>
-         : osc message path
-        </li>
-        <li><span class="parameter">args</span>
-         : osc message args
+        <li><span class="parameter">value</span>
+
         </li>
     </ul>
 
@@ -159,20 +207,18 @@
 
 </dd>
     <dt>
-    <a name = "send_crone"></a>
-    <strong>send_crone (path, args)</strong>
+    <a name = "Control:set_raw"></a>
+    <strong>Control:set_raw (value)</strong>
     </dt>
     <dd>
-    static method to send osc event directly to sclang
+    set_raw
+ set 0-1
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">path</span>
-         : osc message path
-        </li>
-        <li><span class="parameter">args</span>
-         : osc message args
+        <li><span class="parameter">value</span>
+
         </li>
     </ul>
 
@@ -182,26 +228,69 @@
 
 </dd>
     <dt>
-    <a name = "norns.osc.event"></a>
-    <strong>norns.osc.event (path, args, from)</strong>
+    <a name = "Control:delta"></a>
+    <strong>Control:delta (d)</strong>
     </dt>
     <dd>
-    handle an osc event
+    delta
+ add delta to current value.  checks controlspec for mapped vs not
+ default division of delta for 100 steps range
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">path</span>
-
-        </li>
-        <li><span class="parameter">args</span>
-
-        </li>
-        <li><span class="parameter">from</span>
+        <li><span class="parameter">d</span>
 
         </li>
     </ul>
 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set_default"></a>
+    <strong>Control:set_default ()</strong>
+    </dt>
+    <dd>
+    set_default
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:bang"></a>
+    <strong>Control:bang ()</strong>
+    </dt>
+    <dd>
+    bang
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:string"></a>
+    <strong>Control:string ()</strong>
+    </dt>
+    <dd>
+    string
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        formatted string
+    </ol>
 
 
 
