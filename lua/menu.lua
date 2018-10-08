@@ -213,6 +213,7 @@ local u = metro[30]
 
 -- assigns key/enc/screen handlers after user script has loaded
 norns.menu = {}
+norns.menu.init = function() menu.set_mode(menu.mode) end -- used by fileselect.lua
 norns.menu.status = function() return menu.mode end
 norns.menu.set = function(new_enc, new_key, new_redraw)
   menu.penc = new_enc
