@@ -83,6 +83,72 @@ int osc_receive(const char *path,
     (void)argc;
     (void)user_data;
 
+    int i;
+    float x;
+
+
+    //printf("path: <%s>\n", path);
+    for (i = 0; i < argc; i++) {
+
+        x = argv[0]->f;
+        char enc0 = strcmp(path, "/enc0");
+        char enc1 = strcmp(path, "/enc1");
+        char enc2 = strcmp(path, "/enc2");
+        char key0 = strcmp(path, "/key0");
+        char key1 = strcmp(path, "/key1");
+        char key2 = strcmp(path, "/key2");
+    
+        if (enc0 == 0)
+        {
+            union event_data *ev = event_data_new(EVENT_ENC);
+                ev->enc.n =  1;
+                ev->enc.delta = x;
+                event_post(ev);
+        }
+
+        if (enc1 == 0)
+        {
+            union event_data *ev = event_data_new(EVENT_ENC);
+                ev->enc.n =  2;
+                ev->enc.delta = x;
+                event_post(ev);
+        }
+
+        if (enc2 == 0)
+        {
+            union event_data *ev = event_data_new(EVENT_ENC);
+                ev->enc.n =  3;
+                ev->enc.delta = x;
+                event_post(ev);
+        }
+    
+        if (key0 == 0)
+        {
+        union event_data *ev = event_data_new(EVENT_KEY);
+                ev->enc.n = 1;
+                ev->enc.delta = x;
+                event_post(ev);
+        }   
+
+        if (key1 == 0)
+        {
+        union event_data *ev = event_data_new(EVENT_KEY);
+                ev->enc.n = 2;
+                ev->enc.delta = x;
+                event_post(ev);
+        }   
+
+        if (key2 == 0)
+        {
+        union event_data *ev = event_data_new(EVENT_KEY);
+                ev->enc.n = 3;
+                ev->enc.delta = x;
+                event_post(ev);
+        }   
+
+    }
+   
+
     union event_data *ev = event_data_new(EVENT_OSC);
 
     ev->osc_event.path = strdup(path);

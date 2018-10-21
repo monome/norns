@@ -115,11 +115,11 @@ cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
     /* Create the cairo surface which will be used to draw to */
     surface = cairo_image_surface_create_for_data(
         device->fb_data,
-        CAIRO_FORMAT_RGB16_565,
+        CAIRO_FORMAT_ARGB32,
         device->fb_vinfo.xres,
         device->fb_vinfo.yres,
         cairo_format_stride_for_width(
-            CAIRO_FORMAT_RGB16_565,
+            CAIRO_FORMAT_ARGB32,
             device
             ->fb_vinfo.xres) );
     cairo_surface_set_user_data(surface, NULL, device,
@@ -139,7 +139,7 @@ void screen_init(void) {
     if(surfacefb == NULL) { return; }
     crfb = cairo_create(surfacefb);
 
-    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,128,64);
+    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,1024,600);
     cr = cairo_create(surface);
 
     status = FT_Init_FreeType(&value);
@@ -147,6 +147,8 @@ void screen_init(void) {
         fprintf(stderr, "ERROR (screen) freetype init\n");
         return;
     }
+    
+    cairo_scale(cr, 4.5, 6);
 
     strcpy(font_path[0],"04B_03__.TTF");
     strcpy(font_path[1],"liquid.ttf");
