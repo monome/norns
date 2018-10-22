@@ -361,8 +361,7 @@ Crone {
 
 			// @function /engine/free
 			'/engine/free':OSCFunc.new({
-				postln("attempt to free engine");
-				if(engine.notNil, { postln("freeing engine"); engine.deinit; });
+				if(engine.notNil, { engine.deinit; });
 			}, '/engine/free'),
 
 			// @function /engine/load/name
