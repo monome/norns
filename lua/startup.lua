@@ -1,7 +1,5 @@
 -- STARTUP
 
-require 'menu'
-
 require 'math'
 math.randomseed(os.time()) -- more random
 
@@ -27,28 +25,9 @@ params = paramset.new()
 tab = require 'tabutil'
 util = require 'util'
 
--- management of grids
---g = nil
+-- load menu
+require 'menu'
 
---grid.add = function(device)
-  --print("attaching grid ")
-  --g = device
-  --g.key = gridkey
-  --g:print()
-  --norns.log.post("connected: grid")
---end
-
---grid.reconnect = function()
-   --print("grid.reconnect (default)")
-  --_, g = next(grid.devices) -- hacky way to get basically random item in a table
-  --if g then
-     --grid.add(g)
-  --end
---end
-
---grid.remove = function(device) g = nil end
-
---print("setting startup_status callbacks...")
 
 norns.startup_status.ok = function()
   print("norns.startup_status.ok")
