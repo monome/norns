@@ -50,6 +50,7 @@ CroneEngine {
 			});
 			// subclass should implement free, and this method should also be called in a routine
 			this.free;
+			Crone.server.sync;
 			doneCallback.value(this);
 		}
 
