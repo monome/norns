@@ -252,6 +252,10 @@ void o_load_engine(const char *name) {
     lo_send(remote_addr, "/engine/load/name", "s", name);
 }
 
+void o_free_engine() {
+    lo_send(remote_addr, "/engine/free", "");
+}
+
 void o_send_command(const char *name, lo_message msg) {
     char *path;
     // FIXME: better not to allocate here

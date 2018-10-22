@@ -103,6 +103,7 @@ static int _midi_send(lua_State *l);
 /// engines
 static int _request_engine_report(lua_State *l);
 static int _load_engine(lua_State *l);
+static int _free_engine(lua_State *l);
 /// commands
 static int _send_command(lua_State *l);
 static int _start_poll(lua_State *l);
@@ -239,6 +240,8 @@ void w_init(void) {
   lua_register(lvm, "report_engines", &_request_engine_report);
   // load a named engine
   lua_register(lvm, "load_engine", &_load_engine);
+  // free engine
+  lua_register(lvm, "free_engine", &_free_engine);
 
   // send an indexed command
   lua_register(lvm, "send_command", &_send_command);
@@ -1089,6 +1092,16 @@ int _load_engine(lua_State *l) {
 
   const char *s = luaL_checkstring(l, 1);
   o_load_engine(s);
+  lua_settop(l, 0);
+  return 0;
+}
+
+int _free_engine(lua_State *l) {
+  if (lua_gettop(l) != 0) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  o_free_engine();
   lua_settop(l, 0);
   return 0;
 }
