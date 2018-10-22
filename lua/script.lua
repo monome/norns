@@ -37,6 +37,7 @@ Script.clear = function()
   poll.clear_all()
   -- clear engine
   engine.name = nil
+  free_engine()
   -- clear init
   init = norns.none
   -- clear last run
