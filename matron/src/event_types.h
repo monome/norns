@@ -19,6 +19,8 @@ typedef enum {
     EVENT_BATTERY,
     // power cable present
     EVENT_POWER,
+    // stat update (disk, temp, cpu)
+    EVENT_STAT,
     // libmonome device added
     EVENT_MONOME_ADD,
     // libmonome device removed
@@ -166,6 +168,13 @@ struct event_power {
     uint8_t present;
 }; // +8
 
+struct event_stat {
+    struct event_common common;
+    uint16_t disk;
+    uint8_t temp;
+    uint8_t cpu;
+};
+
 struct event_enc {
     struct event_common common;
     uint8_t n;
@@ -203,7 +212,7 @@ struct event_startup_ready_ok {
 }; // + 0
 
 struct event_startup_ready_timeout {
-    struct event_common common;  
+    struct event_common common;
 }; // + 0
 
 union event_data {
@@ -223,6 +232,7 @@ union event_data {
     struct event_enc enc;
     struct event_battery battery;
     struct event_power power;
+    struct event_stat stat;
     struct event_metro metro;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;

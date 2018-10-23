@@ -13,6 +13,7 @@
 #include "gpio.h"
 #include "oracle.h"
 #include "battery.h"
+#include "stat.h"
 #include "weaver.h"
 
 #include "event_types.h"
@@ -183,6 +184,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_POWER:
         w_handle_power(ev->power.present);
+        break;
+    case EVENT_STAT:
+        w_handle_stat(ev->stat.disk, ev->stat.temp, ev->stat.cpu);
         break;
     case EVENT_MONOME_ADD:
         w_handle_monome_add(ev->monome_add.dev);

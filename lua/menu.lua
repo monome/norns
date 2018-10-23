@@ -930,7 +930,6 @@ m.sys.pos = 1
 m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "SYNC >", "UPDATE >", "RESET AUDIO"}
 m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pSYNC, pUPDATE, pRESET}
 m.sys.input = 0
-m.sys.disk = ""
 
 m.key[pSYSTEM] = function(n,z)
   if n==2 and z==1 then
@@ -968,16 +967,17 @@ m.redraw[pSYSTEM] = function()
   screen.text_right(m.sys.net)
 
   screen.move(127,40)
-  screen.text_right("disk free: "..m.sys.disk)
+  screen.text_right("disk free: "..norns.disk.."MB")
 
   screen.move(127,50)
   screen.text_right(norns.version.update)
+
+  screen.move(127,60)
+  screen.text_right(norns.temp .. 'c / ' .. norns.cpu .. '%')
   screen.update()
 end
 
 m.init[pSYSTEM] = function()
--- FIxME use new stat functions
-  m.sys.disk = util.os_capture("df -hl | grep '/dev/root' | awk '{print $4}'")
   u.callback = function()
     m.sysquery()
     menu.redraw()

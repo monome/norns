@@ -45,13 +45,14 @@ norns.power = function(present)
   --print("power: "..present)
 end
 
---- hardware queries
-norns.hw = {}
-
----get cpu temperature
-function norns.hw.temperature()
-
+--- stat handler
+norns.stat = function(disk, temp, cpu)
+  --print("stat",disk,temp,cpu)
+  norns.disk = disk
+  norns.temp = temp
+  norns.cpu = cpu
 end
+
 
 --- key callback (redefined in menu)
 norns.key = function(n,z)
