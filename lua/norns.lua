@@ -45,6 +45,15 @@ norns.power = function(present)
   --print("power: "..present)
 end
 
+--- stat handler
+norns.stat = function(disk, temp, cpu)
+  --print("stat",disk,temp,cpu)
+  norns.disk = disk
+  norns.temp = temp
+  norns.cpu = cpu
+end
+
+
 --- key callback (redefined in menu)
 norns.key = function(n,z)
    --print ("norns.key "..n.." "..z)

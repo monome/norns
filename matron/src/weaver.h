@@ -62,6 +62,9 @@ extern void w_handle_enc(const int n, const int delta);
 extern void w_handle_battery(const int percent, const int current);
 extern void w_handle_power(const int present);
 
+//--- system/stat
+extern void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu);
+
 //--- metro bang handler
 extern void w_handle_metro(const int idx, const int stage);
 

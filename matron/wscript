@@ -13,6 +13,7 @@ def build(bld):
         'src/hardware/gpio.c',
         'src/hardware/i2c.c',
         'src/hardware/screen.c',
+        'src/hardware/stat.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',
