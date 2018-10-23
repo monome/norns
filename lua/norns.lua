@@ -45,6 +45,14 @@ norns.power = function(present)
   --print("power: "..present)
 end
 
+--- hardware queries
+norns.hw = {}
+
+---get cpu temperature
+function norns.hw.temperature()
+
+end
+
 --- key callback (redefined in menu)
 norns.key = function(n,z)
    --print ("norns.key "..n.." "..z)
