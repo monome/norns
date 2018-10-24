@@ -243,10 +243,9 @@ Crone {
 			};
 			fork {
 				// TODO: old school SoundFile.cue SynthDef that actually works
-				SynthDef('cronetape', { | out, amp = 1, bufnum, sustain, ar = 0, dr = 0.01 gate = 1 |
-					Out.ar(out, VDiskIn.ar(2, bufnum, BufRateScale.kr(bufnum) )
-					* Linen.kr(gate, ar, 1, dr, 2)
-					* EnvGen.kr(Env.linen(ar, sustain - ar - dr max: 0 ,dr),1, doneAction: 2) * amp)
+				SynthDef('cronetape', { | out, amp = 1, bufnum, gate = 1|
+					Out.ar(out, DiskIn.ar(2, bufnum, loop:1 )
+					* EnvGen.kr(Env.asr(0.1, 1.0, 0.1), gate:gate, doneAction:2))
 				}).add;
 
 				playerFile = filename;
