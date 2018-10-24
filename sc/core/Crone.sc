@@ -244,7 +244,7 @@ Crone {
 			fork {
 				// TODO: old school SoundFile.cue SynthDef that actually works
 				SynthDef('cronetape', { | out, amp = 1, bufnum, sustain, ar = 0, dr = 0.01 gate = 1 |
-					Out.ar(out, VDiskIn.ar(2, bufnum, BufRateScale.kr(bufnum) )
+					Out.ar(out, DiskIn.ar(2, bufnum, loop:1 )
 					* Linen.kr(gate, ar, 1, dr, 2)
 					* EnvGen.kr(Env.linen(ar, sustain - ar - dr max: 0 ,dr),1, doneAction: 2) * amp)
 				}).add;
