@@ -87,6 +87,7 @@ mix:add_control("rev_hf_damping", "rev hf damping", cs_HF_DAMP)
 mix:set_action("rev_hf_damping",
   function(x) fx.aux_fx_param("hf_damping",x) end)
 
+--[[ -- heavy reverb
 local cs_EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
 mix:add_control("rev_eq1_freq","rev eq1 freq", cs_EQ_FREQ1)
 mix:set_action("rev_eq1_freq",
@@ -103,6 +104,7 @@ mix:set_action("rev_eq2_freq",
 mix:add_control("rev_eq2_level","rev eq2 level", cs_EQ_LVL)
 mix:set_action("rev_eq2_level",
   function(x) fx.aux_fx_param("eq2_level",x) end)
+]]--
 
 local cs_LEVEL = cs.new(-70,40,'lin',0,0,'dB')
 mix:add_control("rev_level","rev level", cs_LEVEL)
