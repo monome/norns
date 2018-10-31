@@ -25,14 +25,6 @@
 static int file;
 static char buf[10];
 
-#define I2C_QUEUE_LEN 64
-static char queue[I2C_QUEUE_LEN];
-static int q_rd = 0;
-static int q_wr = 0;
-
-static pthread_t p;
-static pthread_mutex_t lock;
-
 void *i2c_write(void *);
 
 void i2c_init(void) {
@@ -58,27 +50,9 @@ void i2c_init(void) {
         fprintf(stderr, "ERROR (i2c/hp) failed to write\n");
         return;
     }
-
-    // set up digipot audio in
-    if(ioctl(file,I2C_SLAVE,ADDR_IN) < 0) {
-        fprintf(stderr,
-            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
-        return;
-    }
-
-    buf[0] = 0b10000010;
-    if (write(file,buf,1) != 1) {
-        fprintf(stderr, "ERROR (i2c/gain) failed to write\n");
-        return;
-    }
-
-    if(pthread_create(&p, NULL, i2c_write, 0) ) {
-        fprintf(stderr, "ERROR (i2c_write) pthread error\n");
-    } 
 }
 
 void i2c_deinit() {
-  pthread_cancel(p); 
 }
 
 void i2c_hp(int level) {
@@ -100,46 +74,4 @@ void i2c_hp(int level) {
         fprintf(stderr, "ERROR (i2c/hp) failed to write\n");
         return;
     }
-}
-
-void i2c_gain(int level, int ch) {
-    if(level < 0) {
-        level = 0;
-    }
-    else if(level > 63) {
-        level = 63;
-    }
-
-    level = 63 - level;
-
-    if(ch == 1) {
-        ch = 0b01000000;
-    }
-
-    pthread_mutex_lock(&lock);
-    queue[q_wr] = level | ch; //p10
-    q_wr = (q_wr + 1) % I2C_QUEUE_LEN; 
-    pthread_mutex_unlock(&lock);
-}
-
-void *i2c_write(void *x) {
-  (void)x;
-
-  while(1) {
-    if(q_rd != q_wr) {
-      buf[0] = queue[q_rd];
-      pthread_mutex_lock(&lock);
-      q_rd = (q_rd + 1) % I2C_QUEUE_LEN; 
-      pthread_mutex_unlock(&lock);
-
-      if(ioctl(file,I2C_SLAVE,ADDR_IN) < 0) {
-        fprintf(stderr,
-            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
-      }
-      while (write(file,buf,1) != 1) {
-        sleep(0.001);
-      } 
-    } 
-    sleep(0.001);
-  }
 }
