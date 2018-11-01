@@ -91,7 +91,6 @@ static int _screen_close(lua_State *l);
 static int _screen_extents(lua_State *l);
 //i2c
 static int _gain_hp(lua_State *l);
-static int _gain_in(lua_State *l);
 //osc
 static int _osc_send(lua_State *l);
 static int _osc_send_crone(lua_State *l);
@@ -227,7 +226,6 @@ void w_init(void) {
 
   // analog output control
   lua_register(lvm, "gain_hp", &_gain_hp);
-  lua_register(lvm, "gain_in", &_gain_in);
 
   // osc
   lua_register(lvm, "osc_send", &_osc_send);
@@ -786,24 +784,6 @@ int _gain_hp(lua_State *l) {
 
   int level = (int) luaL_checkinteger(l, 1);
   i2c_hp(level);
-  lua_settop(l, 0);
-  return 0;
-}
-
-/***
- * input: set gain, per channel
- * @function gain_in
- * @tparam integer level level (0-63)
- * @tparam integer ch channel (0=L,1=R)
- */
-int _gain_in(lua_State *l) {
-  if (lua_gettop(l) != 2) {
-    return luaL_error(l, "wrong number of arguments");
-  }
-
-  int level = (int) luaL_checkinteger(l, 1);
-  int ch = (int) luaL_checkinteger(l, 2);
-  i2c_gain(level,ch);
   lua_settop(l, 0);
   return 0;
 }
