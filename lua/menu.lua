@@ -165,7 +165,6 @@ menu.set_mode = function(mode)
     screen.font_face(0)
     screen.font_size(8)
     screen.line_width(1)
-    menu.set_page(menu.page)
     norns.encoders.callback = menu.enc
     norns.encoders.set_accel(1,true)
     norns.encoders.set_sens(1,1)
@@ -173,6 +172,7 @@ menu.set_mode = function(mode)
     norns.encoders.set_sens(2,0.5)
     norns.encoders.set_accel(3,true)
     norns.encoders.set_sens(3,0.5)
+    menu.set_page(menu.page)
   end
 end
 
@@ -423,11 +423,13 @@ m.init[pMIX] = function()
   m.mix.out2 = 0
   norns.encoders.set_accel(2,true)
   norns.encoders.set_sens(2,1)
+  norns.encoders.set_sens(3,1)
 end
 
 m.deinit[pMIX] = function()
   norns.encoders.set_accel(2,false)
   norns.encoders.set_sens(2,0.5)
+  norns.encoders.set_sens(3,0.5)
   norns.vu = norns.none
 end
 
