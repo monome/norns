@@ -96,8 +96,10 @@ norns.init_done = function(status)
     menu.scripterror = false
     m.params.pos = 0
     if norns.script.nointerface == true then
-      menu.locked = true
-      menu.set_page(pPARAMS)
+      --menu.locked = true
+      --menu.set_page(pPARAMS)
+      menu.locked = false
+      menu.set_mode(false)
     else
       menu.locked = false
       menu.set_mode(false)
