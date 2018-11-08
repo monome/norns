@@ -1,11 +1,14 @@
 -- STARTUP
 
+require 'monome'
+
 require 'math'
 math.randomseed(os.time()) -- more random
 
 -- globals
 screen = require 'screen'
 grid = require 'grid'
+arc = require 'arc'
 hid = require 'hid'
 metro = require 'metro'
 midi = require 'midi'

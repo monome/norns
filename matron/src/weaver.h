@@ -31,6 +31,7 @@ extern void w_reset_lvm();
 extern void w_handle_monome_add(void *dev);
 extern void w_handle_monome_remove(int id);
 extern void w_handle_grid_key(int id, int x, int y, int state);
+extern void w_handle_arc_enc(int id, int n, int delta);
 
 extern void w_handle_hid_add(void *dev);
 extern void w_handle_hid_remove(int id);

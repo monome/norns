@@ -13,13 +13,20 @@ struct dev_monome {
     monome_t *m;
     uint8_t data[4][64]; // led data by quad
     bool dirty[4];       // quad-dirty flags
+    bool arc;
 };
 
 // set a single led
 extern void dev_monome_set_led(struct dev_monome *md,
                                uint8_t x, uint8_t y, uint8_t val);
+// set arc led
+extern void dev_arc_set_led(struct dev_monome *md,
+                             uint8_t enc, uint8_t led, uint8_t val);
 // set all led
 extern void dev_monome_all_led(struct dev_monome *md, uint8_t val);
+// set all arc led
+extern void dev_arc_all_led(struct dev_monome *md, uint8_t val);
+
 // set all data for a quad
 extern void dev_monome_set_quad(struct dev_monome *md,
                                 uint8_t quad, uint8_t *data);
@@ -27,6 +34,7 @@ extern void dev_monome_set_quad(struct dev_monome *md,
 extern void dev_monome_refresh(struct dev_monome *md);
 extern int dev_monome_grid_rows(struct dev_monome *md);
 extern int dev_monome_grid_cols(struct dev_monome *md);
+extern int dev_monome_arc_encs(struct dev_monome *md);
 
 // device management
 extern int dev_monome_init(void *self);

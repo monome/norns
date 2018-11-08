@@ -14,7 +14,7 @@ Script.clear = function()
   -- redirect inputs to nowhere
   key = norns.none
   enc = norns.none
-  -- clear, redirect, and reset grids
+  -- clear, redirect, and reset grids/arc
   for _,dev in pairs(grid.devices) do
     dev:all(0)
     dev:refresh()
@@ -24,6 +24,13 @@ Script.clear = function()
   --g = nil
   -- reset gridkey callback
   --gridkey = norns.none
+  for _,dev in pairs(arc.devices) do
+    dev:all(0)
+    dev:refresh()
+    dev.enc = norns.none
+  end
+  grid.cleanup()
+
   -- reset midi callbacks
   midi.add = norns.none
   midi.remove = norns.none
@@ -62,6 +69,7 @@ Script.init = function()
   init()
   s_save()
   grid.reconnect()
+  arc.reconnect()
   midi.reconnect()
 end
 

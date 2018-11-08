@@ -195,25 +195,6 @@ end
 
 
 
--- -------------------------------
--- monome device manager
-
--- @fixme shouldn'e be in this module, shouldn't assume all monomes are grids
-
-norns.monome = {}
-
-norns.monome.add = function(id, serial, name, dev)
-  -- TODO: distinguish between grids and arcs
-  -- for now, assume its a grid
-  norns.grid.add(id,serial,name,dev)
-end
-
-
-norns.monome.remove = function(id)
-  -- TODO: distinguish between grids and arcs
-  -- for now, assume its a grid
-  norns.grid.remove(id)
-end
 
 -- grid devices
 norns.grid.add = function(id, serial, name, dev)
