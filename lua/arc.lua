@@ -81,7 +81,7 @@ function Arc.remove(dev) end
 -- @tparam integer led : led index (1-based!)
 -- @tparam integer val : LED brightness in [1, 16]
 function Arc:led(enc, led, val)
-  arc_set_led(self.dev, x, y, val)
+  arc_set_led(self.dev, enc, led, val)
 end
 
 --- set state of all LEDs on this arc device
