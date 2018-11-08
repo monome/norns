@@ -7,10 +7,12 @@ norns.monome = {}
 norns.monome.add = function(id, serial, name, dev)
   -- TODO is there a better way to determine?
   if (string.find(name, "arc") == nil) then
-    -- print("grid detected")
+    print("grid detected")
+    print (name)
     norns.grid.add(id,serial,name,dev)
   else
-    -- print("arc detected")
+    print("arc detected")
+    print (name)
     norns.arc.add(id,serial,name,dev)
   end
 end

@@ -174,12 +174,8 @@ function Arc.update_devices()
     Arc.vport[i].led = function(x, y, val) end
     Arc.vport[i].all = function(val) end
     Arc.vport[i].refresh = function() end
-    Arc.vport[i].cols = 0
-    Arc.vport[i].rows = 0
     for _,device in pairs(Arc.devices) do
       if device.name == Arc.vport[i].name then
-        Arc.vport[i].cols = device.cols
-        Arc.vport[i].rows = device.rows
         Arc.vport[i].led = function(x, y, val) device:led(x, y, val) end
         Arc.vport[i].all = function(val) device:all(val) end
         Arc.vport[i].refresh = function() device:refresh() end
