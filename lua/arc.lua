@@ -85,9 +85,10 @@ function Arc:led(enc, led, val)
 end
 
 --- set state of all LEDs on this arc device
+-- @tparam integer enc : encoder index (1-based!)
 -- @tparam integer val : LED brightness in [1, 16]
-function Arc:all(val)
-  arc_all_led(self.dev, val)
+function Arc:all(enc, val)
+  arc_all_led(self.dev, enc, val)
 end
 
 --- update any dirty quads on this arc device
@@ -120,7 +121,7 @@ function Arc.connect(n)
       end,
     attached = function() return Arc.vport[n].attached end,
     led = function(x,y,z) Arc.vport[n].led(x,y,z) end,
-    all = function(val) Arc.vport[n].all(val) end,
+    all = function(x,val) Arc.vport[n].all(x,val) end,
     refresh = function() Arc.vport[n].refresh() end,
     disconnect = function(self)
         self.led = function() end
@@ -137,7 +138,7 @@ function Arc.connect(n)
         end
         self.attached = function() return Arc.vport[p].attached end
         self.led = function(x,y,z) Arc.vport[p].led(x,y,z) end
-        self.all = function(val) Arc.vport[p].all(val) end
+        self.all = function(x,val) Arc.vport[p].all(x,val) end
         self.refresh = function() Arc.vport[p].refresh() end
         Arc.vport[p].index = Arc.vport[p].index + 1
         self.index = Arc.vport[p].index
@@ -171,13 +172,13 @@ function Arc.update_devices()
   -- connect available devices to vports
   for i=1,4 do
     Arc.vport[i].attached = false
-    Arc.vport[i].led = function(x, y, val) end
-    Arc.vport[i].all = function(val) end
+    Arc.vport[i].led = function(x,y,val) end
+    Arc.vport[i].all = function(x,val) end
     Arc.vport[i].refresh = function() end
     for _,device in pairs(Arc.devices) do
       if device.name == Arc.vport[i].name then
-        Arc.vport[i].led = function(x, y, val) device:led(x, y, val) end
-        Arc.vport[i].all = function(val) device:all(val) end
+        Arc.vport[i].led = function(x,y,val) device:led(x,y,val) end
+        Arc.vport[i].all = function(x,val) device:all(x,val) end
         Arc.vport[i].refresh = function() device:refresh() end
         Arc.vport[i].attached = true
         table.insert(device.ports, i)

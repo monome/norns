@@ -25,7 +25,7 @@ extern void dev_arc_set_led(struct dev_monome *md,
 // set all led
 extern void dev_monome_all_led(struct dev_monome *md, uint8_t val);
 // set all arc led
-extern void dev_arc_all_led(struct dev_monome *md, uint8_t val);
+extern void dev_arc_all_led(struct dev_monome *md, uint8_t enc, uint8_t val);
 
 // set all data for a quad
 extern void dev_monome_set_quad(struct dev_monome *md,

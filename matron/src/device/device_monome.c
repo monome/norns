@@ -92,17 +92,20 @@ void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
 // set a given arc LED value
  void dev_arc_set_led(struct dev_monome *md,
                          uint8_t enc, uint8_t led, uint8_t val) {
-     /* fprintf(stderr, "dev_monome_set_led: %d %s %d %d %d\n", */
+     /* fprintf(stderr, "dev_arc_set_led: %d %s %d %d %d\n", */
      /*             md->dev.id, md->dev.serial, enc, led, val); */
      md->data[enc][led] = val;
      md->dirty[enc] = true;
      md->arc = true;
  }
 
- // set all arc LEDs to value
- void dev_arc_all_led(struct dev_monome *md, uint8_t val) {
-     dev_monome_all_led(md, val);
-     md->arc = true;
+ // set all arc LEDs for a given enc to value
+ void dev_arc_all_led(struct dev_monome *md, uint8_t enc, uint8_t val) {
+        for(uint8_t i = 0; i < 64; i++) {
+            md->data[enc][i] = val;
+        }
+        md->dirty[enc] = true;
+     	md->arc = true;
 }
 
 // transmit all dirty quads

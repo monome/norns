@@ -1102,17 +1102,19 @@ int _grid_cols(lua_State *l) {
   * arc: set all LEDs
   * @function arc_all_led
   * @param dev arc device
+  * @param enc enc
   * @param val level (0-15)
   */
  int _arc_all_led(lua_State *l) {
-   if (lua_gettop(l) != 2) {
+   if (lua_gettop(l) != 3) {
      return luaL_error(l, "wrong number of arguments");
    }
 
    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
    struct dev_monome *md = lua_touserdata(l, 1);
+   int enc = (int) luaL_checkinteger(l, 2) - 1; // convert from 1-base
    int val = (int) luaL_checkinteger(l, 2); // don't convert value!
-   dev_arc_all_led(md, val);
+   dev_arc_all_led(md, enc, val);
    lua_settop(l, 0);
    return 0;
  }
