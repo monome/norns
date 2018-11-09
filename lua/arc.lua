@@ -211,17 +211,17 @@ end
 
 
 --- redefine global arc enc input handler
-norns.arc.enc = function(id, n, delta)
+norns.arc.enc = function(id, x, delta)
   local a = Arc.devices[id]
   if a ~= nil then
     if a.enc ~= nil then
-      a.enc(n, delta)
+      a.enc(x, delta)
     end
 
     for _,n in pairs(a.ports) do
       for _,event in pairs(Arc.vport[n].callbacks) do
         --print("vport " .. n)
-        event(n,delta)
+        event(x,delta)
       end
     end
   else
