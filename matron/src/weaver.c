@@ -1113,7 +1113,7 @@ int _grid_cols(lua_State *l) {
    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
    struct dev_monome *md = lua_touserdata(l, 1);
    int enc = (int) luaL_checkinteger(l, 2) - 1; // convert from 1-base
-   int val = (int) luaL_checkinteger(l, 2); // don't convert value!
+   int val = (int) luaL_checkinteger(l, 3); // don't convert value!
    dev_arc_all_led(md, enc, val);
    lua_settop(l, 0);
    return 0;
