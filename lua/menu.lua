@@ -52,6 +52,8 @@ menu.alt = false
 menu.scripterror = false
 menu.locked = true
 menu.errormsg = ""
+menu.shownav = false
+menu.showstats = false
 
 
 local pending = false
@@ -68,6 +70,14 @@ end
 -- metro for status updates
 local u = metro[30]
 
+-- metro for nav vanish
+local nav_vanish = metro[34]
+nav_vanish.time = 1
+nav_vanish.callback = function()
+  menu.shownav = false
+  if menu.mode == true then menu.redraw() end
+  nav_vanish:stop()
+end
 
 -- assigns key/enc/screen handlers after user script has loaded
 norns.menu = {}
@@ -120,8 +130,10 @@ menu.enc = function(n, delta)
     --mix:delta("output",delta)
     local c = util.clamp(menu.panel+delta,1,4)
     if c ~= menu.panel then
+      menu.shownav = true
       menu.panel = c
       menu.set_page(menu.panels[menu.panel])
+      nav_vanish:start()
     end
   else menu.penc(n, delta) end
 end
@@ -198,13 +210,15 @@ end
 
 -- draw panel indicator
 function menu.draw_panel()
-  screen.aa(1)
-  screen.line_width(1)
-  for i = 1,4 do
-    screen.level(i == menu.panel and 8 or 2)
-    screen.move((i-1)*32,0)
-    screen.line_rel(30,0)
-    screen.stroke()
+  if menu.shownav then
+    screen.aa(1)
+    screen.line_width(1)
+    for i = 1,4 do
+      screen.level(i == menu.panel and 8 or 2)
+      screen.move((i-1)*32,0)
+      screen.line_rel(30,0)
+      screen.stroke()
+    end
   end
 end
 
@@ -221,11 +235,21 @@ m.home = {}
 m.home.pos = 1
 m.home.list = {"SELECT >", "SYSTEM >", "SLEEP >"}
 
-m.init[pHOME] = norns.none
-m.deinit[pHOME] = norns.none
+m.init[pHOME] = function()
+  u.time = 1
+  u.count = -1
+  u.callback = function() menu.redraw() end
+  u:start()
+end
+m.deinit[pHOME] = function()
+  u:stop()
+end
 
 m.key[pHOME] = function(n,z)
-  if n == 3 and z == 1 then
+  if n == 2 and z == 1 then
+    menu.showstats = not menu.showstats
+    menu.redraw()
+  elseif n == 3 and z == 1 then
     local choices = {pSELECT, pSYSTEM, pSLEEP}
     menu.set_page(choices[m.home.pos])
   end
@@ -243,26 +267,50 @@ m.redraw[pHOME] = function()
 
   menu.draw_panel()
 
--- draw current script loaded
-  screen.move(0,10)
-  screen.level(15)
-  local line = string.upper(norns.state.name)
-  --if(menu.scripterror and state.script ~= '') then
-  if(menu.scripterror and menu.errormsg ~= 'NO SCRIPT') then
-    line = line .. " (error: " .. menu.errormsg .. ")"
-  end
-  screen.text(line)
-
   -- draw file list and selector
-  for i=3,5 do
-    screen.move(0,10*i)
-    line = string.gsub(m.home.list[i-2],'.lua','')
-    if(i==m.home.pos+2) then
+  for i=1,3 do
+    screen.move(0,25+10*i)
+    line = string.gsub(m.home.list[i],'.lua','')
+    if(i==m.home.pos) then
       screen.level(15)
     else
       screen.level(4)
     end
     screen.text(string.upper(line))
+  end
+
+  if not menu.showstats then
+    screen.move(0,15)
+    screen.level(15)
+    local line = string.upper(norns.state.name)
+    --if(menu.scripterror and state.script ~= '') then
+    if(menu.scripterror and menu.errormsg ~= 'NO SCRIPT') then
+      line = line .. " (error: " .. menu.errormsg .. ")"
+    end
+    screen.text(line)
+  else
+    screen.level(1)
+    screen.move(0,10)
+    screen.text("BAT " .. norns.battery_percent)
+    screen.move(36,10)
+    screen.text(norns.battery_current .. "mA")
+    screen.move(127,10)
+    screen.text_right("DISK 1323M")
+    screen.move(0,20)
+    screen.text("CPU " .. norns.cpu .. "%")
+    screen.move(36,20)
+    screen.text(norns.temp .. "c")
+    screen.move(127,20)
+    screen.text_right("IP 192.168.1.12")
+    if wifi.state > 0 then
+      screen.text_right(wifi.ip)
+    end
+    screen.move(127,45)
+    screen.text_right(norns.version.update)
+
+    screen.level(15)
+    screen.move(127,35)
+    screen.text_right(string.upper(norns.state.name))
   end
   screen.update()
 end

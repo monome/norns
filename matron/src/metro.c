@@ -21,7 +21,7 @@
 #include "events.h"
 #include "metro.h"
 
-#define MAX_NUM_METROS_OK 33
+#define MAX_NUM_METROS_OK 34
 
 enum {
     METRO_STATUS_RUNNING,
