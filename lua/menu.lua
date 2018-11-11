@@ -251,6 +251,7 @@ m.key[pHOME] = function(n,z)
     menu.redraw()
   elseif n == 3 and z == 1 then
     local choices = {pSELECT, pSYSTEM, pSLEEP}
+    if m.home.pos == 2 then m.sel.depth = 0 end -- reset folder position to root
     menu.set_page(choices[m.home.pos])
   end
 end
@@ -353,10 +354,8 @@ m.key[pSELECT] = function(n,z)
   -- back
   if n==2 and z==1 then
     if m.sel.depth > 0 then
-      --print('back')
       m.sel.folders[m.sel.depth] = nil
       m.sel.depth = m.sel.depth - 1
-      -- FIXME return to folder position
       m.sel.list = util.scandir(m.sel.dir())
       m.sel.len = tab.count(m.sel.list)
       m.sel.pos = m.sel.folderpos[m.sel.depth] or 0
@@ -368,7 +367,6 @@ m.key[pSELECT] = function(n,z)
   elseif n==3 and z==1 then
     m.sel.file = m.sel.list[m.sel.pos+1]
     if string.find(m.sel.file,'/') then
-      print("folder")
       m.sel.folderpos[m.sel.depth] = m.sel.pos
       m.sel.depth = m.sel.depth + 1
       m.sel.folders[m.sel.depth] = m.sel.file
@@ -504,6 +502,7 @@ m.key[pPARAMS] = function(n,z)
       menu.redraw()
     end
   elseif n==2 and z==1 then
+    --NOT USED
     --menu.set_page(pHOME)
   elseif n==3 and z==1 then
     if not m.params.midimap then
@@ -793,39 +792,31 @@ m.redraw[pSYSTEM] = function()
     screen.text(m.sys.list[i])
   end
 
-  screen.level(2)
-  screen.move(127,30)
-  if wifi.state == 2 then m.sys.net = wifi.ip
-  else m.sys.net = wifi.status end
-  screen.text_right(m.sys.net)
+  --screen.level(2)
+  --screen.move(127,30)
+  --if wifi.state == 2 then m.sys.net = wifi.ip
+  --else m.sys.net = wifi.status end
+  --screen.text_right(m.sys.net)
 
-  screen.move(127,40)
-  screen.text_right("disk free: "..norns.disk.."MB")
-
-  screen.move(127,50)
-  screen.text_right(norns.version.update)
-
-  screen.move(127,60)
-  screen.text_right(norns.temp .. 'c / ' .. norns.cpu .. '%')
   screen.update()
 end
 
 m.init[pSYSTEM] = function()
-  u.callback = function()
-    m.sysquery()
-    menu.redraw()
-  end
-  u.time = 3
-  u.count = -1
-  u:start()
+  --u.callback = function()
+    --m.sysquery()
+    --menu.redraw()
+  --end
+  --u.time = 3
+  --u.count = -1
+  --u:start()
 end
 
 m.deinit[pSYSTEM] = function()
-  u:stop()
+  --u:stop()
 end
 
 m.sysquery = function()
-  wifi.update()
+  --wifi.update()
 end
 
 
@@ -1517,43 +1508,50 @@ m.redraw[pMIX] = function()
   local x = -40
   screen.level(2)
   n = mix:get_raw("output")*48
-  screen.rect(x+42.5,56.5,2,-n)
+  screen.rect(x+42.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(15)
   n = m.mix.out1/64*48
-  screen.rect(x+48.5,56.5,2,-n)
+  screen.rect(x+48.5,55.5,2,-n)
   screen.stroke()
 
   n = m.mix.out2/64*48
-  screen.rect(x+54.5,56.5,2,-n)
+  screen.rect(x+54.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
   n = mix:get_raw("input")*48
-  screen.rect(x+64.5,56.5,2,-n)
+  screen.rect(x+64.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(15)
   n = m.mix.in1/64*48
-  screen.rect(x+70.5,56.5,2,-n)
+  screen.rect(x+70.5,55.5,2,-n)
   screen.stroke()
   n = m.mix.in2/64*48
-  screen.rect(x+76.5,56.5,2,-n)
+  screen.rect(x+76.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
   n = mix:get_raw("monitor")*48
-  screen.rect(x+86.5,56.5,2,-n)
+  screen.rect(x+86.5,55.5,2,-n)
+  screen.stroke()
+
+  screen.level(2)
+  n = mix:get_raw("tape")*48
+  screen.rect(x+108.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(1)
-  screen.move(2,64)
+  screen.move(2,63)
   screen.text("out")
-  screen.move(24,64)
+  screen.move(24,63)
   screen.text("in")
-  screen.move(46,64)
+  screen.move(46,63)
   screen.text("mon")
+  screen.move(68,63)
+  screen.text("tape")
 
   if tape.selectmode then
     screen.level(10)
@@ -1597,11 +1595,6 @@ m.redraw[pMIX] = function()
     screen.move(90,32)
     screen.text_center(tape.playfile)
   end
-
-  screen.level(1)
-  screen.move(127,64)
-  if menu.alt == false then screen.text_right(norns.battery_percent)
-  else screen.text_right(norns.battery_current.."mA") end
 
   screen.update()
 end

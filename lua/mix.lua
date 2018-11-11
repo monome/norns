@@ -27,6 +27,10 @@ mix:add_number("headphone", "headphone", 0, 63, 40)
 mix:set_action("headphone",
   function(x) gain_hp(x) end)
 
+mix:add_control("tape", "tape", cs_MUTE_LEVEL)
+mix:set_action("tape",
+  function(x) print(x) end)
+
 -- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT
 -- TODO TAPE (playback) VOL, SPEED?
 
