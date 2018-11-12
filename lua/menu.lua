@@ -215,7 +215,7 @@ function menu.draw_panel()
     screen.line_width(1)
     for i = 1,4 do
       screen.level(i == menu.panel and 8 or 2)
-      screen.move((i-1)*32,0)
+      screen.move((i-1)*33,0)
       screen.line_rel(30,0)
       screen.stroke()
     end
@@ -1375,6 +1375,7 @@ m.deinit[pSLEEP] = norns.none
 -- MIX
 
 m.mix = {}
+m.mix.sel = 1
 
 local tOFF = 0
 local tREC = 1
@@ -1398,101 +1399,24 @@ tape.time = 0
 tape.playfile = ""
 
 m.key[pMIX] = function(n,z)
-  if n==3 and z==1 and tape.key == false then
-    --menu.set_page(pHOME)
-  elseif n==2 then
-    if z==1 then
-      tape.key = true
-      if tape.mode == tOFF then tape.selectmode = true end
-    else
-      tape.key = false
-      tape.selectmode = false
-    end
-  elseif n==3 and tape.key == true and z==1 then
-    if tape.mode == tOFF then
-      if tape.lastmode == tREC then
-        -- REC: ready
-        tape.selectmode = false
-        tape.name = os.date("%y-%m-%d_%H-%M") .. ".aif"
-        tape_new(tape.name)
-        print("new tape > "..tape.name)
-        tape.mode = tREC
-        tape.status = tsPAUSE
-        redraw()
-      else
-        -- PLAY: select tape
-        local playfile_callback = function(path)
-          if path ~= "cancel" then
-            tape.playfile = path
-            tape.playfile = tape.playfile:match("[^/]*$") -- strip path from name
-            tape_open(tape.playfile)
-            tape.mode = tPLAY
-            tape.status = tsPAUSE
-            tape.playaction = paPLAY
-            tape.metro = metro.alloc()
-            tape.metro.callback = function() tape.time = tape.time + 1 end
-            tape.metro.count = -1
-            tape.metro.time = 1
-            tape.time = 0
-          else
-            tape.mode = tOFF
-          end
-          tape.key = false
-          tape.selectmode = false
-          redraw()
-        end
-        fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
-      end
-    elseif tape.mode == tREC and tape.status == tsPAUSE then
-      -- REC: start recording
-      tape.status = tsREC
-      tape_start_rec()
-      tape.metro = metro.alloc()
-      tape.metro.callback = function() tape.time = tape.time + 1 end
-      tape.metro.count = -1
-      tape.metro.time = 1
-      tape.time = 0
-      tape.metro:start()
-    elseif tape.mode == tREC and tape.status == tsREC then
-      -- REC: stop recording
-      print("stopping tape")
-      tape_stop_rec()
-      tape.mode = tOFF
-      tape.metro:stop()
-    elseif tape.mode == tPLAY and tape.playaction == paPLAY then
-      tape_play()
-      tape.metro:start()
-      tape.status = paPLAY
-      tape.playaction = paPAUSE
-    elseif tape.mode == tPLAY and tape.playaction == paPAUSE then
-      tape_pause()
-      tape.metro:stop()
-      tape.status = paPAUSE
-      tape.playaction = paPLAY
-    elseif tape.mode == tPLAY and tape.playaction == paSTOP then
-      tape_stop()
-      tape.metro:stop()
-      tape.mode = tOFF
-    end
+  if n==2 and z==1 then
+    m.mix.sel = (m.mix.sel==1) and 2 or 1
   end
+  -- KEY3 not used
 end
 
 m.enc[pMIX] = function(n,d)
   if n==2 then
-    if tape.key == false then
-      mix:delta("input",d)
+    if m.mix.sel==1 then
+      mix:delta("output",d)
+    else
+      mix:delta("monitor",d)
     end
   elseif n==3 then
-    if tape.key == false then
-      mix:delta("monitor",d)
-    elseif tape.selectmode == true then
-      if d < 0 then tape.lastmode = tREC
-      else tape.lastmode = tPLAY end
-    elseif tape.mode == tPLAY then
-      if d < 0 then tape.playaction = paSTOP
-      elseif tape.status == paPLAY then tape.playaction = paPAUSE
-      elseif tape.status == paPAUSE then tape.playaction = paPLAY
-      end
+    if m.mix.sel==1 then
+      mix:delta("input",d)
+    else
+      mix:delta("tape",d)
     end
   end
 end
@@ -1543,16 +1467,203 @@ m.redraw[pMIX] = function()
   screen.rect(x+108.5,55.5,2,-n)
   screen.stroke()
 
-  screen.level(1)
+  screen.level(m.mix.sel==1 and 15 or 1)
   screen.move(2,63)
   screen.text("out")
   screen.move(24,63)
   screen.text("in")
+  screen.level(m.mix.sel==2 and 15 or 1)
   screen.move(46,63)
   screen.text("mon")
   screen.move(68,63)
   screen.text("tape")
 
+  screen.update()
+end
+
+m.init[pMIX] = function()
+  norns.vu = m.mix.vu
+  m.mix.in1 = 0
+  m.mix.in2 = 0
+  m.mix.out1 = 0
+  m.mix.out2 = 0
+  norns.encoders.set_accel(2,true)
+  norns.encoders.set_sens(2,1)
+  norns.encoders.set_sens(3,1)
+end
+
+m.deinit[pMIX] = function()
+  norns.encoders.set_accel(2,false)
+  norns.encoders.set_sens(2,2)
+  norns.encoders.set_sens(3,2)
+  norns.vu = norns.none
+end
+
+m.mix.vu = function(in1,in2,out1,out2)
+  m.mix.in1 = in1
+  m.mix.in2 = in2
+  m.mix.out1 = out1
+  m.mix.out2 = out2
+  menu.redraw()
+end
+
+
+
+
+-----------------------------------------
+-- TAPE
+
+local TAPE_MODE_PLAY = 1
+local TAPE_MODE_REC = 2
+
+local TAPE_PLAY_LOAD = 1
+local TAPE_PLAY_PLAY = 2
+local TAPE_PLAY_STOP = 3
+local TAPE_PLAY_PAUSE = 4
+local TAPE_PLAY_RESUME = 5
+
+m.tape = {}
+m.tape.mode = TAPE_MODE_PLAY
+m.tape.play = {}
+m.tape.play.sel = TAPE_PLAY_LOAD
+m.tape.play.file = nil
+m.tape.play.pos_tick = 6.5
+m.tape.rec = {}
+
+m.key[pTAPE] = function(n,z)
+  if n==2 and z==1 then
+    m.tape.mode = (m.tape.mode==1) and 2 or 1
+    menu.redraw()
+  elseif n==3 and z==1 then
+    if m.tape.mode == TAPE_MODE_PLAY then
+      if m.tape.play.sel == TAPE_PLAY_LOAD then
+        print("load tape")
+        local playfile_callback = function(path)
+          if path ~= "cancel" then
+            tape_open(path)
+            m.tape.play.file = path:match("[^/]*$")
+            m.tape.play.status = TAPE_PLAY_PAUSE
+            local ch, samples, rate = sound_file_inspect(path)
+            m.tape.play.length = samples / rate
+            m.tape.play.length_text = math.floor(m.tape.play.length / 60) .. ":" .. math.floor(m.tape.play.length % 60)
+          else
+            m.tape.play.file = nil
+          end
+          menu.redraw()
+        end
+        fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
+      else
+
+      end
+    else
+
+    end
+  end
+--[[
+        -- REC: ready
+        tape.selectmode = false
+        tape.name = os.date("%y-%m-%d_%H-%M") .. ".aif"
+        tape_new(tape.name)
+        print("new tape > "..tape.name)
+        tape.mode = tREC
+        tape.status = tsPAUSE
+        redraw()
+      else
+        -- PLAY: select tape
+          else
+            tape.mode = tOFF
+          end
+          tape.key = false
+          tape.selectmode = false
+          redraw()
+        end
+      end
+    elseif tape.mode == tREC and tape.status == tsPAUSE then
+      -- REC: start recording
+      tape.status = tsREC
+      tape_start_rec()
+      tape.metro = metro.alloc()
+      tape.metro.callback = function() tape.time = tape.time + 1 end
+      tape.metro.count = -1
+      tape.metro.time = 1
+      tape.time = 0
+      tape.metro:start()
+    elseif tape.mode == tREC and tape.status == tsREC then
+      -- REC: stop recording
+      print("stopping tape")
+      tape_stop_rec()
+      tape.mode = tOFF
+      tape.metro:stop()
+    elseif tape.mode == tPLAY and tape.playaction == paPLAY then
+      tape_play()
+      tape.metro:start()
+      tape.status = paPLAY
+      tape.playaction = paPAUSE
+    elseif tape.mode == tPLAY and tape.playaction == paPAUSE then
+      tape_pause()
+      tape.metro:stop()
+      tape.status = paPAUSE
+      tape.playaction = paPLAY
+    elseif tape.mode == tPLAY and tape.playaction == paSTOP then
+      tape_stop()
+      tape.metro:stop()
+      tape.mode = tOFF
+    end
+]]--
+end
+
+m.enc[pTAPE] = norns.none
+
+m.redraw[pTAPE] = function()
+  screen.clear()
+
+  menu.draw_panel()
+
+  screen.move(128,10)
+	screen.level(m.tape.mode==TAPE_MODE_PLAY and 15 or 1)
+	screen.text_right("PLAY")
+  screen.level(2)
+  screen.rect(0.5,13.5,127,2)
+  screen.stroke()
+
+  if m.tape.play.file then
+    screen.level(1)
+    screen.move(0,10)
+    screen.text(m.tape.play.file)
+    screen.move(0,24)
+    screen.text("0:00")
+    screen.move(128,24)
+    screen.text_right(m.tape.play.length_text)
+    screen.level(15)
+    screen.move(m.tape.play.pos_tick,13.5)
+    screen.line_rel(0,2)
+    screen.stroke()
+    if m.tape.mode==TAPE_MODE_PLAY then
+      screen.level(2)
+      screen.move(28,24)
+      screen.text("PLAY PAUSE STOP")
+      --screen.text("E  >  ||")
+    end
+  end
+
+  screen.move(128,48)
+  screen.level(m.tape.mode==TAPE_MODE_REC and 15 or 1)
+  screen.text_right("REC")
+  screen.level(2)
+  screen.rect(0.5,51.5,127,2)
+  screen.stroke()
+  screen.move(0,62)
+  screen.text("0:00")
+  if m.tape.mode==TAPE_MODE_REC then
+    screen.move(28,62)
+    screen.text("output / input")
+  end
+
+
+
+  screen.update()
+
+  --[[
   if tape.selectmode then
     screen.level(10)
     screen.move(90,40)
@@ -1595,56 +1706,9 @@ m.redraw[pMIX] = function()
     screen.move(90,32)
     screen.text_center(tape.playfile)
   end
-
-  screen.update()
-end
-
-m.init[pMIX] = function()
-  norns.vu = m.mix.vu
-  m.mix.in1 = 0
-  m.mix.in2 = 0
-  m.mix.out1 = 0
-  m.mix.out2 = 0
-  norns.encoders.set_accel(2,true)
-  norns.encoders.set_sens(2,1)
-  norns.encoders.set_sens(3,1)
-end
-
-m.deinit[pMIX] = function()
-  norns.encoders.set_accel(2,false)
-  norns.encoders.set_sens(2,2)
-  norns.encoders.set_sens(3,2)
-  norns.vu = norns.none
-end
-
-m.mix.vu = function(in1,in2,out1,out2)
-  m.mix.in1 = in1
-  m.mix.in2 = in2
-  m.mix.out1 = out1
-  m.mix.out2 = out2
-  menu.redraw()
-end
+  ]]--
 
 
-
-
------------------------------------------
--- TAPE
-
-m.key[pTAPE] = function(n,z)
-end
-
-m.enc[pTAPE] = norns.none
-
-m.redraw[pTAPE] = function()
-  screen.clear()
-
-  menu.draw_panel()
-
-  screen.move(64,40)
-	screen.level(1)
-	screen.text_center("TAPE")
-  screen.update()
 end
 
 m.init[pTAPE] = norns.none
