@@ -63,7 +63,7 @@ typedef enum {
     EVENT_QUIT,
 } event_t;
 
-// a poked data structure for four volume levels
+// a packed data structure for four volume levels
 // each channel is represented by unsigned byte with audio taper:
 // 255 == 0db
 // each step represents 0.25db, down to -60db
@@ -135,7 +135,7 @@ struct event_midi_event {
     uint32_t id;
     uint8_t data[3];
     size_t nbytes;
-}; // +4
+}; // +11
 
 struct event_osc {
     struct event_common common;
@@ -143,7 +143,7 @@ struct event_osc {
     char *from_host;
     char *from_port;
     lo_message msg;
-}; // +4
+}; // +16?
 
 struct event_metro {
     struct event_common common;
@@ -155,18 +155,18 @@ struct event_key {
     struct event_common common;
     uint8_t n;
     uint8_t val;
-}; // +8
+}; // +2
 
 struct event_battery {
     struct event_common common;
     uint8_t percent;
     int16_t current;
-}; // +8
+}; // +3
 
 struct event_power {
     struct event_common common;
     uint8_t present;
-}; // +8
+}; // +1
 
 struct event_stat {
     struct event_common common;
@@ -179,7 +179,7 @@ struct event_enc {
     struct event_common common;
     uint8_t n;
     int8_t delta;
-}; // +8
+}; // +2
 
 struct event_poll_value {
     struct event_common common;
