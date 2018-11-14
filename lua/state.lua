@@ -21,6 +21,7 @@ state.resume = function()
   -- update vports
   midi.update_devices()
   grid.update_devices()
+  arc.update_devices()
 
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then
