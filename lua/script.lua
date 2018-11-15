@@ -25,8 +25,6 @@ Script.clear = function()
   for _, dev in pairs(arc.devices) do
     dev:all(0)
     dev:refresh()
-    dev.delta = norns.none
-    dev.key = norns.none
   end
   arc.cleanup()
   --g = nil
