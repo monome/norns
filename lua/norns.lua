@@ -81,7 +81,7 @@ norns.grid.key = function(id, x, y, val)
    -- print("norns.grid.key ", id,x,y,val)
 end
 
--- grid device callbacks
+-- arc device callbacks
 norns.arc = {}
 --- arc key event
 norns.arc.event = function(id, n, delta)
