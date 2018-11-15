@@ -83,7 +83,7 @@ end
 
 -- grid device callbacks
 norns.arc = {}
---- grid key event
+--- arc key event
 norns.arc.event = function(id, n, delta)
    -- print("norns.arc.delta ", id, n, delta)
 end
