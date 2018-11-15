@@ -1106,15 +1106,15 @@ int _grid_cols(lua_State *l) {
   * @param val level (0-15)
   */
  int _arc_all_led(lua_State *l) {
-   if (lua_gettop(l) != 3) {
+   if (lua_gettop(l) != 2) {
      return luaL_error(l, "wrong number of arguments");
    }
 
    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
    struct dev_monome *md = lua_touserdata(l, 1);
-   int enc = (int) luaL_checkinteger(l, 2) - 1; // convert from 1-base
-   int val = (int) luaL_checkinteger(l, 3); // don't convert value!
-   dev_arc_all_led(md, enc, val);
+   //int enc = (int) luaL_checkinteger(l, 2) - 1; // convert from 1-base
+   int val = (int) luaL_checkinteger(l, 2); // don't convert value!
+   dev_arc_all_led(md, val);
    lua_settop(l, 0);
    return 0;
  }
@@ -1355,9 +1355,19 @@ _call_grid_handler(int id, int x, int y, int state) {
   l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-// helper for calling arc handlers
+// helper for calling arc key handlers
  static inline void
- _call_arc_handler(int id, int n, int delta) {
+ _call_arc_key_handler(int id, int n, int state) {
+   _push_norns_func("arc", "key");
+   lua_pushinteger(lvm, id + 1); // convert to 1-base
+   lua_pushinteger(lvm, n + 1);  // convert to 1-base
+  lua_pushinteger(lvm, state);
+   l_report(lvm, l_docall(lvm, 3, 0));
+ }
+
+// helper for calling arc enc handlers
+ static inline void
+ _call_arc_enc_handler(int id, int n, int delta) {
    _push_norns_func("arc", "enc");
    lua_pushinteger(lvm, id + 1); // convert to 1-base
    lua_pushinteger(lvm, n + 1);  // convert to 1-base
@@ -1388,8 +1398,12 @@ void w_handle_grid_key(int id, int x, int y, int state) {
   _call_grid_handler(id, x, y, state > 0);
 }
 
+void w_handle_arc_key(int id, int n, int state) {
+  _call_arc_key_handler(id, n, state > 0);
+}
+
 void w_handle_arc_enc(int id, int n, int delta) {
-   _call_arc_handler(id, n, delta);
+   _call_arc_enc_handler(id, n, delta);
    // fprintf(stderr, "w_handle_arc_enc: %d %d %d\n", id, n, delta);
 }
  

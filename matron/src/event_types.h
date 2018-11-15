@@ -28,7 +28,9 @@ typedef enum {
     // monome grid press/lift
     EVENT_GRID_KEY,
 	// monome arc encoder moved
-     EVENT_ARC_ENC,
+    EVENT_ARC_ENC,
+    // monome arc encoder key press/lift
+	EVENT_ARC_KEY,
     // libevdev device added
     EVENT_HID_ADD,
     // libevdev device removed
@@ -102,6 +104,13 @@ struct event_grid_key {
     uint8_t y;
     uint8_t state;
 }; // +4
+
+struct event_arc_key {
+    struct event_common common;
+    uint8_t id;
+    uint8_t n;
+    uint8_t state;
+}; 
 
 struct event_arc_enc {
      struct event_common common;
@@ -230,6 +239,7 @@ union event_data {
     struct event_monome_add monome_add;
     struct event_monome_remove monome_remove;
     struct event_grid_key grid_key;
+    struct event_arc_key arc_key;
     struct event_arc_enc arc_enc;
     struct event_hid_add hid_add;
     struct event_hid_remove hid_remove;

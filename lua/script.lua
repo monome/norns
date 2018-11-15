@@ -26,10 +26,7 @@ Script.clear = function()
   --gridkey = norns.none
 
   for _,dev in pairs(arc.devices) do
-    dev:all(1,0)
-    dev:all(2,0)
-    dev:all(3,0)
-    dev:all(4,0)
+    dev:all(0)
     dev:refresh()
     dev.enc = norns.none
   end

@@ -68,6 +68,9 @@ state.save_state = function()
   for i=1,4 do
     io.write("grid.vport[" .. i .. "].name = '" .. grid.vport[i].name .. "'\n")
   end
+  for i=1,4 do
+    io.write("arc.vport[" .. i .. "].name = '" .. arc.vport[i].name .. "'\n")
+  end
   io.close(fd)
 end
 
