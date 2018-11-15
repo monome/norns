@@ -81,6 +81,17 @@ norns.grid.key = function(id, x, y, val)
    -- print("norns.grid.key ", id,x,y,val)
 end
 
+-- grid device callbacks
+norns.arc = {}
+--- grid key event
+norns.arc.event = function(id, n, delta)
+   -- print("norns.arc.delta ", id, n, delta)
+end
+norns.arc.key = function(id, n, s)
+   -- print("norns.arc.delta ", id, n, s)
+end
+
+
 -- hid callbacks
 norns.hid = {}
 --- HID or other input device added
