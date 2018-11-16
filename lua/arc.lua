@@ -150,7 +150,7 @@ function Arc.connect(n)
     end
   }
 
-	Arc.vport[n].delta_callbacks[d.index] = function(n, delta) d.delta(n, delta) end
+  Arc.vport[n].delta_callbacks[d.index] = function(n, delta) d.delta(n, delta) end
   Arc.vport[n].key_callbacks[d.index] = function(n, s) d.key(n, s) end
 
   return d
@@ -161,7 +161,7 @@ function Arc.cleanup()
   for i=1,4 do
     Arc.vport[i].delta_callbacks = {}
     Arc.vport[i].key_callbacks = {}
-		Arc.vport[i].index = 0
+    Arc.vport[i].index = 0
   end
 end
 
