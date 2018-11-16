@@ -200,6 +200,16 @@ static void handle_event(union event_data *ev) {
                           ev->grid_key.y,
                           ev->grid_key.state);
         break;
+    case EVENT_ARC_ENCODER_DELTA:
+        w_handle_arc_encoder_delta(ev->arc_encoder_delta.id,
+                                   ev->arc_encoder_delta.number,
+                                   ev->arc_encoder_delta.delta);
+        break;
+    case EVENT_ARC_ENCODER_KEY:
+        w_handle_arc_encoder_key(ev->arc_encoder_key.id,
+                                 ev->arc_encoder_key.number,
+                                 ev->arc_encoder_key.state);
+        break;
     case EVENT_HID_ADD:
         w_handle_hid_add(ev->hid_add.dev);
         break;
@@ -258,7 +268,7 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_RESET_LVM:
         w_reset_lvm();
-	break;
+        break;
     case EVENT_QUIT:
         quit = true;
         break;
