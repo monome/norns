@@ -296,13 +296,13 @@ m.redraw[pHOME] = function()
     screen.move(36,10)
     screen.text(norns.battery_current .. "mA")
     screen.move(127,10)
-    screen.text_right("DISK 1323M")
+    screen.text_right("DISK " .. norns.disk .. "M")
     screen.move(0,20)
     screen.text("CPU " .. norns.cpu .. "%")
     screen.move(36,20)
     screen.text(norns.temp .. "c")
     screen.move(127,20)
-    screen.text_right("IP 192.168.1.12")
+    screen.text_right("IP 192.168.1.xx")
     if wifi.state > 0 then
       screen.text_right(wifi.ip)
     end
@@ -1377,27 +1377,6 @@ m.deinit[pSLEEP] = norns.none
 m.mix = {}
 m.mix.sel = 1
 
-local tOFF = 0
-local tREC = 1
-local tPLAY = 2
-
-local tsREC = 0
-local tsPAUSE = 1
-local paPLAY = 0
-local paPAUSE = 1
-local paSTOP = 2
-
-local tape = {}
-tape.key = false
-tape.mode = tOFF
-tape.lastmode = tREC
-tape.selectmode = false
-tape.playaction = paPLAY
-tape.status = 0
-tape.name = ""
-tape.time = 0
-tape.playfile = ""
-
 m.key[pMIX] = function(n,z)
   if n==2 and z==1 then
     m.mix.sel = (m.mix.sel==1) and 2 or 1
@@ -1526,9 +1505,16 @@ m.tape = {}
 m.tape.mode = TAPE_MODE_PLAY
 m.tape.play = {}
 m.tape.play.sel = TAPE_PLAY_LOAD
+m.tape.play.status = TAPE_PLAY_STOP
 m.tape.play.file = nil
 m.tape.play.pos_tick = 6.5
 m.tape.rec = {}
+m.tape.diskfree = 0
+
+local DISK_RESERVE = 250
+local function tape_diskfree()
+  m.tape.diskfree = math.floor((norns.disk - DISK_RESERVE) / .192) -- seconds of 48k/16bit stereo disk free with reserve
+end
 
 m.key[pTAPE] = function(n,z)
   if n==2 and z==1 then
@@ -1543,6 +1529,7 @@ m.key[pTAPE] = function(n,z)
             tape_open(path)
             m.tape.play.file = path:match("[^/]*$")
             m.tape.play.status = TAPE_PLAY_PAUSE
+            m.tape.play.sel = TAPE_PLAY_PLAY
             local ch, samples, rate = sound_file_inspect(path)
             m.tape.play.length = samples / rate
             m.tape.play.length_text = math.floor(m.tape.play.length / 60) .. ":" .. math.floor(m.tape.play.length % 60)
@@ -1552,10 +1539,27 @@ m.key[pTAPE] = function(n,z)
           menu.redraw()
         end
         fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
-      else
+      elseif m.tape.play.sel == TAPE_PLAY_PLAY then
+        tape_play()
+        m.tape.play.status = m.tape.play.sel
+        m.tape.play.sel = TAPE_PLAY_PAUSE
+        menu.redraw()
+      elseif m.tape.play.sel == TAPE_PLAY_STOP then
+        tape_stop()
+        m.tape.play.file = nil
+        m.tape.play.status = m.tape.play.sel
+        m.tape.play.sel = TAPE_PLAY_LOAD
+        menu.redraw()
+      elseif m.tape.play.sel == TAPE_PLAY_PAUSE then
+        tape_pause()
+        m.tape.play.status = m.tape.play.sel
+        m.tape.play.sel = TAPE_PLAY_PLAY
+        menu.redraw()
+      elseif m.tape.play.sel == TAPE_PLAY_RESUME then
 
       end
-    else
+    else -- REC CONTROLS
+      -- do not engage ARM if no disk space free
 
     end
   end
@@ -1594,25 +1598,31 @@ m.key[pTAPE] = function(n,z)
       tape_stop_rec()
       tape.mode = tOFF
       tape.metro:stop()
-    elseif tape.mode == tPLAY and tape.playaction == paPLAY then
-      tape_play()
-      tape.metro:start()
-      tape.status = paPLAY
-      tape.playaction = paPAUSE
-    elseif tape.mode == tPLAY and tape.playaction == paPAUSE then
-      tape_pause()
-      tape.metro:stop()
-      tape.status = paPAUSE
-      tape.playaction = paPLAY
-    elseif tape.mode == tPLAY and tape.playaction == paSTOP then
-      tape_stop()
-      tape.metro:stop()
-      tape.mode = tOFF
-    end
 ]]--
 end
 
-m.enc[pTAPE] = norns.none
+m.enc[pTAPE] = function(n,d)
+  if m.tape.mode == TAPE_MODE_PLAY then
+    if m.tape.play.file then
+      if n == 2 and d > 0 then
+        if m.tape.play.sel ~= TAPE_PLAY_STOP then
+          m.tape.play.sel = TAPE_PLAY_STOP
+          menu.redraw()
+        end
+      else
+        if m.tape.play.sel == TAPE_PLAY_STOP then
+          if m.tape.play.status == TAPE_PLAY_PAUSE then
+            m.tape.play.sel = TAPE_PLAY_PLAY
+          else
+            m.tape.play.sel = TAPE_PLAY_PAUSE
+          end
+          menu.redraw()
+        end
+      end
+    end
+  end
+end
+
 
 m.redraw[pTAPE] = function()
   screen.clear()
@@ -1639,9 +1649,15 @@ m.redraw[pTAPE] = function()
     screen.line_rel(0,2)
     screen.stroke()
     if m.tape.mode==TAPE_MODE_PLAY then
-      screen.level(2)
       screen.move(28,24)
-      screen.text("PLAY PAUSE STOP")
+      screen.level(m.tape.play.sel == TAPE_PLAY_PLAY and 15 or 2)
+      screen.text("PLAY")
+      screen.move_rel(10,0)
+      screen.level(m.tape.play.sel == TAPE_PLAY_PAUSE and 15 or 2)
+      screen.text("PAUSE")
+      screen.move_rel(10,0)
+      screen.level(m.tape.play.sel == TAPE_PLAY_STOP and 15 or 2)
+      screen.text("STOP")
       --screen.text("E  >  ||")
     end
   end
@@ -1652,11 +1668,13 @@ m.redraw[pTAPE] = function()
   screen.level(2)
   screen.rect(0.5,51.5,127,2)
   screen.stroke()
-  screen.move(0,62)
-  screen.text("0:00")
   if m.tape.mode==TAPE_MODE_REC then
     screen.move(28,62)
     screen.text("output / input")
+    screen.move(127,62)
+    screen.text_right(util.s_to_hms(m.tape.diskfree))
+    screen.move(0,62)
+    --screen.text("0:00")
   end
 
 
@@ -1711,5 +1729,7 @@ m.redraw[pTAPE] = function()
 
 end
 
-m.init[pTAPE] = norns.none
+m.init[pTAPE] = function()
+  tape_diskfree()
+end
 m.deinit[pTAPE] = norns.none

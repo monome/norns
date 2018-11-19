@@ -145,4 +145,15 @@ function util.round_up(number, quant)
   end
 end
 
+--- format string, seconds to h:m:s
+-- @param seconds seconds
+-- @return string seconds in h:m:s
+function util.s_to_hms(s)
+  local m = math.floor(s/60)
+  local h = math.floor(m/60)
+  m = m%60
+  s = s%60
+  return h ..":".. string.format("%02d",m) ..":".. string.format("%02d",s)
+end
+
 return util
