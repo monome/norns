@@ -1045,7 +1045,7 @@ int _arc_all_led(lua_State *l) {
 /***
  * grid: set rotation
  * @param dev grid device
- * @param z (rotation 0-3)
+ * @param z (rotation 0-3 - or is it 0,90,180,270?)
  */
 int _grid_set_rotation(lua_State *l) {
   if (lua_gettop(l) != 2) {

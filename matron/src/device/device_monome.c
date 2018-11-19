@@ -83,11 +83,6 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
 // set grid rotation
 void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
 	monome_set_rotation(md->m, rotation);
-/*		MONOME_ROTATE_0    = 0
-		MONOME_ROTATE_90   = 1
-		MONOME_ROTATE_180  = 2
-		MONOME_ROTATE_270  = 3
-*/
 }
 
 // set a given LED value
