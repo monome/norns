@@ -54,6 +54,8 @@ Script.clear = function()
   screen.font_face(0)
   screen.font_size(8)
   if status == true then s_save() end
+  -- ensure finalizers run before next script
+  collectgarbage()
 end
 
 Script.init = function()
