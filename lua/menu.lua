@@ -109,8 +109,10 @@ norns.init_done = function(status)
     menu.scripterror = false
     m.params.pos = 0
     if norns.script.nointerface == true then
-      menu.locked = true
-      menu.set_page(pPARAMS)
+      --menu.locked = true
+      --menu.set_page(pPARAMS)
+      menu.locked = false
+      menu.set_mode(false)
     else
       menu.locked = false
       menu.set_mode(false)
@@ -824,12 +826,13 @@ end
 -- DEVICES
 m.devices = {}
 m.devices.pos = 1
-m.devices.list = {"midi", "grid"}
+m.devices.list = {"midi", "grid", "arc"}
 m.devices.len = #m.devices.list
 function m.devices.refresh()
   m.devices.options = {
     midi = {"none"},
-    grid = {"none"}
+    grid = {"none"},
+    arc = {"none"},
   }
   -- create midi list
   for _,i in pairs(midi.list) do
@@ -837,6 +840,9 @@ function m.devices.refresh()
   end
   for _,i in pairs(grid.list) do
     table.insert(m.devices.options.grid,i)
+  end
+  for _,i in pairs(arc.list) do
+    table.insert(m.devices.options.arc,i)
   end
 end
 
@@ -881,6 +887,9 @@ m.key[pDEVICES] = function(n,z)
       elseif m.devices.section == "grid" then
         grid.vport[m.devices.setpos].name = s
         grid.update_devices()
+      elseif m.devices.section == "arc" then
+        arc.vport[m.devices.setpos].name = s
+        arc.update_devices()
       end
       m.devices.mode = "list"
       m.devices.len = 4
@@ -913,6 +922,8 @@ m.redraw[pDEVICES] = function()
         screen.text(i .. ". " .. midi.vport[i].name)
       elseif m.devices.section == "grid" then
         screen.text(i .. ". " .. grid.vport[i].name)
+      elseif m.devices.section == "arc" then
+        screen.text(i .. ". " .. arc.vport[i].name)
       end
     elseif m.devices.mode == "select" then
       screen.text(m.devices.options[m.devices.section][i])

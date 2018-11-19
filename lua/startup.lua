@@ -5,7 +5,9 @@ math.randomseed(os.time()) -- more random
 
 -- globals
 screen = require 'screen'
+monome = require 'monome'
 grid = require 'grid'
+arc = require 'arc'
 hid = require 'hid'
 metro = require 'metro'
 midi = require 'midi'

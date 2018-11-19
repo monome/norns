@@ -27,6 +27,10 @@ typedef enum {
     EVENT_MONOME_REMOVE,
     // monome grid press/lift
     EVENT_GRID_KEY,
+    // monome arc encoder delta
+    EVENT_ARC_ENCODER_DELTA,
+    // monome arc encoder key
+    EVENT_ARC_ENCODER_KEY,
     // libevdev device added
     EVENT_HID_ADD,
     // libevdev device removed
@@ -63,7 +67,7 @@ typedef enum {
     EVENT_QUIT,
 } event_t;
 
-// a poked data structure for four volume levels
+// a packed data structure for four volume levels
 // each channel is represented by unsigned byte with audio taper:
 // 255 == 0db
 // each step represents 0.25db, down to -60db
@@ -101,6 +105,20 @@ struct event_grid_key {
     uint8_t state;
 }; // +4
 
+struct event_arc_encoder_delta {
+    struct event_common common;
+    uint8_t id;
+    uint8_t number;
+    int8_t delta;
+}; // +4
+
+struct event_arc_encoder_key {
+    struct event_common common;
+    uint8_t id;
+    uint8_t number;
+    int8_t state;
+}; // +4
+
 struct event_hid_add {
     struct event_common common;
     void *dev;
@@ -135,7 +153,7 @@ struct event_midi_event {
     uint32_t id;
     uint8_t data[3];
     size_t nbytes;
-}; // +4
+}; // +11
 
 struct event_osc {
     struct event_common common;
@@ -143,7 +161,7 @@ struct event_osc {
     char *from_host;
     char *from_port;
     lo_message msg;
-}; // +4
+}; // +16?
 
 struct event_metro {
     struct event_common common;
@@ -155,18 +173,18 @@ struct event_key {
     struct event_common common;
     uint8_t n;
     uint8_t val;
-}; // +8
+}; // +2
 
 struct event_battery {
     struct event_common common;
     uint8_t percent;
     int16_t current;
-}; // +8
+}; // +3
 
 struct event_power {
     struct event_common common;
     uint8_t present;
-}; // +8
+}; // +1
 
 struct event_stat {
     struct event_common common;
@@ -179,7 +197,7 @@ struct event_enc {
     struct event_common common;
     uint8_t n;
     int8_t delta;
-}; // +8
+}; // +2
 
 struct event_poll_value {
     struct event_common common;
@@ -221,6 +239,8 @@ union event_data {
     struct event_monome_add monome_add;
     struct event_monome_remove monome_remove;
     struct event_grid_key grid_key;
+    struct event_arc_encoder_delta arc_encoder_delta;
+    struct event_arc_encoder_key arc_encoder_key;
     struct event_hid_add hid_add;
     struct event_hid_remove hid_remove;
     struct event_hid_event hid_event;
