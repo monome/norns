@@ -80,6 +80,11 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
     return ( (y & 7) * 8 ) + (x & 7);
 }
 
+// set grid rotation
+void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
+	monome_set_rotation(md->m, rotation);
+}
+
 // set a given LED value
 void dev_monome_grid_set_led(struct dev_monome *md,
                              uint8_t x, uint8_t y, uint8_t val) {

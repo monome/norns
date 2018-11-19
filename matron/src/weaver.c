@@ -62,6 +62,8 @@ static int _grid_set_led(lua_State *l);
 static int _grid_all_led(lua_State *l);
 static int _grid_rows(lua_State *l);
 static int _grid_cols(lua_State *l);
+static int _grid_set_rotation(lua_State *l);
+
 static int _arc_set_led(lua_State *l);
 static int _arc_all_led(lua_State *l);
 static int _monome_refresh(lua_State *l);
@@ -198,6 +200,7 @@ void w_init(void) {
   lua_register(lvm, "grid_all_led", &_grid_all_led);
   lua_register(lvm, "grid_rows", &_grid_rows);
   lua_register(lvm, "grid_cols", &_grid_cols);
+  lua_register(lvm, "grid_set_rotation", &_grid_set_rotation);
   lua_register(lvm, "arc_set_led", &_arc_set_led);
   lua_register(lvm, "arc_all_led", &_arc_all_led);
   lua_register(lvm, "monome_refresh", &_monome_refresh);
@@ -1037,6 +1040,24 @@ int _grid_all_led(lua_State *l) {
 
 int _arc_all_led(lua_State *l) {
   return _grid_all_led(l);
+}
+
+/***
+ * grid: set rotation
+ * @param dev grid device
+ * @param z (rotation 0-3 - or is it 0,90,180,270?)
+ */
+int _grid_set_rotation(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+  struct dev_monome *md = lua_touserdata(l, 1);
+  int z = (int) luaL_checkinteger(l, 2); // don't convert value!
+  dev_monome_set_rotation(md, z);
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***

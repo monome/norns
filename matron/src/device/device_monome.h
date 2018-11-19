@@ -35,6 +35,9 @@ extern void dev_monome_refresh(struct dev_monome *md);
 extern int dev_monome_grid_rows(struct dev_monome *md);
 extern int dev_monome_grid_cols(struct dev_monome *md);
 
+// set grid rotation
+extern void dev_monome_set_rotation(struct dev_monome *md, uint8_t val);
+
 // device management
 extern int dev_monome_init(void *self);
 extern void dev_monome_deinit(void *self);
