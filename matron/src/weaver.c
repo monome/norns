@@ -60,9 +60,14 @@ void w_handle_exec_code_line(char *line) {
 // grid
 static int _grid_set_led(lua_State *l);
 static int _grid_all_led(lua_State *l);
-static int _grid_refresh(lua_State *l);
 static int _grid_rows(lua_State *l);
 static int _grid_cols(lua_State *l);
+static int _grid_set_rotation(lua_State *l);
+
+static int _arc_set_led(lua_State *l);
+static int _arc_all_led(lua_State *l);
+static int _monome_refresh(lua_State *l);
+
 //screen
 static int _screen_update(lua_State *l);
 static int _screen_save(lua_State *l);
@@ -193,9 +198,12 @@ void w_init(void) {
   // low-level monome grid control
   lua_register(lvm, "grid_set_led", &_grid_set_led);
   lua_register(lvm, "grid_all_led", &_grid_all_led);
-  lua_register(lvm, "grid_refresh", &_grid_refresh);
   lua_register(lvm, "grid_rows", &_grid_rows);
   lua_register(lvm, "grid_cols", &_grid_cols);
+  lua_register(lvm, "grid_set_rotation", &_grid_set_rotation);
+  lua_register(lvm, "arc_set_led", &_arc_set_led);
+  lua_register(lvm, "arc_all_led", &_arc_all_led);
+  lua_register(lvm, "monome_refresh", &_monome_refresh);
 
   // register screen funcs
   lua_register(lvm, "s_update", &_screen_update);
@@ -991,7 +999,22 @@ int _grid_set_led(lua_State *l) {
   int x = (int) luaL_checkinteger(l, 2) - 1; // convert from 1-base
   int y = (int) luaL_checkinteger(l, 3) - 1; // convert from 1-base
   int z = (int) luaL_checkinteger(l, 4); // don't convert value!
-  dev_monome_set_led(md, x, y, z);
+  dev_monome_grid_set_led(md, x, y, z);
+  lua_settop(l, 0);
+  return 0;
+}
+
+int _arc_set_led(lua_State *l) {
+  if (lua_gettop(l) != 4) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+  struct dev_monome *md = lua_touserdata(l, 1);
+  int n = (int) luaL_checkinteger(l, 2) - 1; // convert from 1-base
+  int x = (int) luaL_checkinteger(l, 3) - 1; // convert from 1-base
+  int val = (int) luaL_checkinteger(l, 4); // don't convert value!
+  dev_monome_arc_set_led(md, n, x, val);
   lua_settop(l, 0);
   return 0;
 }
@@ -1015,12 +1038,34 @@ int _grid_all_led(lua_State *l) {
   return 0;
 }
 
+int _arc_all_led(lua_State *l) {
+  return _grid_all_led(l);
+}
+
 /***
- * grid: refresh
- * @function grid_refresh
+ * grid: set rotation
+ * @param dev grid device
+ * @param z (rotation 0-3 - or is it 0,90,180,270?)
+ */
+int _grid_set_rotation(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+  struct dev_monome *md = lua_touserdata(l, 1);
+  int z = (int) luaL_checkinteger(l, 2); // don't convert value!
+  dev_monome_set_rotation(md, z);
+  lua_settop(l, 0);
+  return 0;
+}
+
+/***
+ * monome: refresh
+ * @function monome_refresh
  * @param dev grid device
  */
-int _grid_refresh(lua_State *l) {
+int _monome_refresh(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
@@ -1288,6 +1333,22 @@ void w_handle_monome_remove(int id) {
 
 void w_handle_grid_key(int id, int x, int y, int state) {
   _call_grid_handler(id, x, y, state > 0);
+}
+
+void w_handle_arc_encoder_delta(int id, int n, int delta) {
+  _push_norns_func("arc", "delta");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  lua_pushinteger(lvm, n + 1);  // convert to 1-base
+  lua_pushinteger(lvm, delta);
+  l_report(lvm, l_docall(lvm, 3, 0));
+}
+
+void w_handle_arc_encoder_key(int id, int n, int state) {
+  _push_norns_func("arc", "key");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  lua_pushinteger(lvm, n + 1);  // convert to 1-base
+  lua_pushinteger(lvm, state);
+  l_report(lvm, l_docall(lvm, 3, 0));
 }
 
 void w_handle_hid_add(void *p) {

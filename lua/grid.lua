@@ -18,6 +18,7 @@ for i=1,4 do
     index = 0,
     led = function() end,
     all = function() end,
+    rotation = function() end,
     refresh = function() end,
     cols = 0,
     rows = 0,
@@ -79,23 +80,29 @@ function Grid.reconnect() end
 -- @param dev : a Grid table
 function Grid.remove(dev) end
 
+-- set grid rotation
+-- @tparam integer val : rotation 0,90,180,270 as [0, 3]
+function Grid:rotation(val)
+  grid_set_rotation(self.dev, val)
+end
+
 --- set state of single LED on this grid device
 -- @tparam integer x : column index (1-based!)
 -- @tparam integer y : row index (1-based!)
--- @tparam integer val : LED brightness in [1, 16]
+-- @tparam integer val : LED brightness in [0, 15]
 function Grid:led(x, y, val)
   grid_set_led(self.dev, x, y, val)
 end
 
 --- set state of all LEDs on this grid device
--- @tparam integer val : LED brightness in [1, 16]
+-- @tparam integer val : LED brightness in [0, 15]
 function Grid:all(val)
   grid_all_led(self.dev, val)
 end
 
 --- update any dirty quads on this grid device
 function Grid:refresh()
-  grid_refresh(self.dev)
+  monome_refresh(self.dev)
 end
 
 --- print a description of this grid device
@@ -124,10 +131,12 @@ function Grid.connect(n)
     attached = function() return Grid.vport[n].attached end,
     led = function(x,y,z) Grid.vport[n].led(x,y,z) end,
     all = function(val) Grid.vport[n].all(val) end,
+    rotation = function(val) Grid.vport[n].rotation(val) end,
     refresh = function() Grid.vport[n].refresh() end,
     disconnect = function(self)
         self.led = function() end
         self.all = function() end
+        self.rotation = function() end
         self.refresh = function() print("refresh: grid not connected") end
         Grid.vport[self.port].callbacks[self.index] = nil
         self.index = nil
@@ -141,6 +150,7 @@ function Grid.connect(n)
         self.attached = function() return Grid.vport[p].attached end
         self.led = function(x,y,z) Grid.vport[p].led(x,y,z) end
         self.all = function(val) Grid.vport[p].all(val) end
+        self.rotation = function(val) Grid.vport[p].rotation(val) end
         self.refresh = function() Grid.vport[p].refresh() end
         Grid.vport[p].index = Grid.vport[p].index + 1
         self.index = Grid.vport[p].index
@@ -176,6 +186,7 @@ function Grid.update_devices()
     Grid.vport[i].attached = false
     Grid.vport[i].led = function(x, y, val) end
     Grid.vport[i].all = function(val) end
+    Grid.vport[i].rotation = function(val) end
     Grid.vport[i].refresh = function() end
     Grid.vport[i].cols = 0
     Grid.vport[i].rows = 0
@@ -185,6 +196,7 @@ function Grid.update_devices()
         Grid.vport[i].rows = device.rows
         Grid.vport[i].led = function(x, y, val) device:led(x, y, val) end
         Grid.vport[i].all = function(val) device:all(val) end
+        Grid.vport[i].rotation = function(val) device:rotation(val) end
         Grid.vport[i].refresh = function() device:refresh() end
         Grid.vport[i].attached = true
         table.insert(device.ports, i)
@@ -193,27 +205,6 @@ function Grid.update_devices()
   end
 end
 
-
-
--- -------------------------------
--- monome device manager
-
--- @fixme shouldn'e be in this module, shouldn't assume all monomes are grids
-
-norns.monome = {}
-
-norns.monome.add = function(id, serial, name, dev)
-  -- TODO: distinguish between grids and arcs
-  -- for now, assume its a grid
-  norns.grid.add(id,serial,name,dev)
-end
-
-
-norns.monome.remove = function(id)
-  -- TODO: distinguish between grids and arcs
-  -- for now, assume its a grid
-  norns.grid.remove(id)
-end
 
 -- grid devices
 norns.grid.add = function(id, serial, name, dev)

@@ -18,9 +18,9 @@
 //-- static functions
 static void dev_monome_handle_press(const monome_event_t *e, void *p);
 static void dev_monome_handle_lift(const monome_event_t *e, void *p);
-
-static void dev_monome_handle_press(const monome_event_t *e, void *p);
-static void dev_monome_handle_lift(const monome_event_t *e, void *p);
+static void dev_monome_handle_encoder_delta(const monome_event_t *e, void *p);
+static void dev_monome_handle_encoder_press(const monome_event_t *e, void *p);
+static void dev_monome_handle_encoder_lift(const monome_event_t *e, void *p);
 
 //-------------------------
 //--- monome device class
@@ -32,18 +32,30 @@ int dev_monome_init(void *self) {
     const char *name;
     const char *serial;
     monome_t *m;
+
     m = monome_open(md->dev.path);
-    if(!m) {
+
+    if (!m) {
         fprintf(stderr, "error: couldn't open monome device at %s\n", md->dev.path);
         return -1;
     }
+
     md->m = m;
 
-    memset( md->data, 0, sizeof(md->data) );
-    memset( md->dirty, 0, sizeof(md->dirty) );
+    memset(md->data, 0, sizeof(md->data));
+    memset(md->dirty, 0, sizeof(md->dirty));
+
+    if (monome_get_rows(md->m) == 0 && monome_get_cols(md->m) == 0) {
+        md->type = DEVICE_MONOME_TYPE_ARC;
+    } else {
+        md->type = DEVICE_MONOME_TYPE_GRID;
+    }
 
     monome_register_handler(m, MONOME_BUTTON_DOWN, dev_monome_handle_press, md);
     monome_register_handler(m, MONOME_BUTTON_UP, dev_monome_handle_lift, md);
+    monome_register_handler(m, MONOME_ENCODER_DELTA, dev_monome_handle_encoder_delta, md);
+    monome_register_handler(m, MONOME_ENCODER_KEY_DOWN, dev_monome_handle_encoder_press, md);
+    monome_register_handler(m, MONOME_ENCODER_KEY_UP, dev_monome_handle_encoder_lift, md);
 
     // drop the name set by udev and use libmonome-provided name
     free(base->name);
@@ -55,6 +67,7 @@ int dev_monome_init(void *self) {
 
     base->start = &dev_monome_start;
     base->deinit = &dev_monome_deinit;
+
     return 0;
 }
 
@@ -67,14 +80,24 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
     return ( (y & 7) * 8 ) + (x & 7);
 }
 
+// set grid rotation
+void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
+	monome_set_rotation(md->m, rotation);
+}
+
 // set a given LED value
-void dev_monome_set_led(struct dev_monome *md,
-                        uint8_t x, uint8_t y, uint8_t val) {
-    /* fprintf(stderr, "dev_monome_set_led: %d %s %d %d %d\n", */
-    /*             md->dev.id, md->dev.serial, x, y, val); */
-    uint8_t q = dev_monome_quad_idx(x,y);
-    md->data[q][dev_monome_quad_offset(x,y)] = val;
+void dev_monome_grid_set_led(struct dev_monome *md,
+                             uint8_t x, uint8_t y, uint8_t val) {
+    uint8_t q = dev_monome_quad_idx(x, y);
+    md->data[q][dev_monome_quad_offset(x, y)] = val;
     md->dirty[q] = true;
+}
+
+// set a given LED value
+void dev_monome_arc_set_led(struct dev_monome *md,
+                            uint8_t n, uint8_t x, uint8_t val) {
+    md->data[n & 3][x & 63] = val;
+    md->dirty[n & 3] = true;
 }
 
 // set all LEDs to value
@@ -91,13 +114,21 @@ void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
 void dev_monome_refresh(struct dev_monome *md) {
     static const int quad_xoff[4] = {0, 8, 0, 8};
     static const int quad_yoff[4] = {0, 0, 8, 8};
-    if (md->m == NULL) { return; }
-    for(int quad = 0; quad < 4; quad++) {
-        if(md->dirty[quad]) {
-            monome_led_level_map(md->m,
-                                 quad_xoff[quad],
-                                 quad_yoff[quad],
-                                 md->data[quad]);
+
+    if (md->m == NULL) {
+        return;
+    }
+
+    for (int quad = 0; quad < 4; quad++) {
+        if (md->dirty[quad]) {
+            if (md->type == DEVICE_MONOME_TYPE_ARC) {
+                monome_led_ring_map(md->m, quad, md->data[quad]);
+            } else {
+                monome_led_level_map(md->m,
+                                     quad_xoff[quad],
+                                     quad_yoff[quad],
+                                     md->data[quad]);
+            }
             md->dirty[quad] = false;
         }
     }
@@ -114,19 +145,42 @@ grid_key_event(const monome_event_t *e, void *p, int state) {
     ev->grid_key.x = e->grid.x;
     ev->grid_key.y = e->grid.y;
     ev->grid_key.state = state;
-    // fprintf(stderr, "%d\t%d\t%d\t%d\n", md->dev.id, e->grid.x, e->grid.y,
-    // state);
     event_post(ev);
 }
 
 void dev_monome_handle_press(const monome_event_t *e, void *p) {
-    // fprintf(stderr, "dev_monome_handle_press()\n");
     grid_key_event(e, p, 1);
 }
 
 void dev_monome_handle_lift(const monome_event_t *e, void *p) {
-    // fprintf(stderr, "dev_monome_handle_lift()\n");
     grid_key_event(e, p, 0);
+}
+
+void dev_monome_handle_encoder_delta(const monome_event_t *e, void *p) {
+    struct dev_monome *md = (struct dev_monome *)p;
+    union event_data *ev = event_data_new(EVENT_ARC_ENCODER_DELTA);
+    ev->arc_encoder_delta.id = md->dev.id;
+    ev->arc_encoder_delta.number = e->encoder.number;
+    ev->arc_encoder_delta.delta = e->encoder.delta;
+    event_post(ev);
+}
+
+void dev_monome_handle_encoder_press(const monome_event_t *e, void *p) {
+    struct dev_monome *md = (struct dev_monome *)p;
+    union event_data *ev = event_data_new(EVENT_ARC_ENCODER_KEY);
+    ev->arc_encoder_key.id = md->dev.id;
+    ev->arc_encoder_key.number = e->encoder.number;
+    ev->arc_encoder_key.state = 1;
+    event_post(ev);
+}
+
+void dev_monome_handle_encoder_lift(const monome_event_t *e, void *p) {
+    struct dev_monome *md = (struct dev_monome *)p;
+    union event_data *ev = event_data_new(EVENT_ARC_ENCODER_KEY);
+    ev->arc_encoder_key.id = md->dev.id;
+    ev->arc_encoder_key.number = e->encoder.number;
+    ev->arc_encoder_key.state = 0;
+    event_post(ev);
 }
 
 int dev_monome_grid_rows(struct dev_monome *md) {
@@ -138,7 +192,7 @@ int dev_monome_grid_cols(struct dev_monome *md) {
 }
 
 void *dev_monome_start(void *md) {
-    monome_event_loop( ( (struct dev_monome *)md )->m );
+    monome_event_loop(((struct dev_monome *)md)->m);
     return NULL;
 }
 

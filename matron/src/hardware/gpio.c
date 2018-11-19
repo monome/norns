@@ -112,15 +112,15 @@ void *key_check(void *x) {
     while(1) {
         rd = read(fd, event, sizeof(struct input_event) * 64);
         if(rd < (int) sizeof(struct input_event)) {
-            fprintf(stderr, "ERROR (enc) read error\n");
+            fprintf(stderr, "ERROR (key) read error\n");
         }
 
         for(i=0;i<rd/sizeof(struct input_event);i++) {
             if(event[i].type) { // make sure it's not EV_SYN == 0
                 //fprintf(stderr, "enc%d = %d\n", n, event[i].value);
                 union event_data *ev = event_data_new(EVENT_KEY);
-                ev->enc.n = event[i].code;
-                ev->enc.delta = event[i].value;
+                ev->key.n = event[i].code;
+                ev->key.val = event[i].value;
                 event_post(ev);
             }
         }
