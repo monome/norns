@@ -6,8 +6,10 @@
 #define CRONE_AUDIOMAIN_H
 
 #include "Bus.h"
+#include "Commands.h"
 
 namespace  crone {
+
     class AudioMain {
         enum {
             MAX_BUF_SIZE = 512
@@ -21,10 +23,15 @@ namespace  crone {
                 float *out[2],
                 size_t numFrames);
 
+        void handleCommand(Commands::CommandPacket *p);
+
+    private:
+        void clearBusses(size_t numFrames);
     private:
         typedef Bus<2, MAX_BUF_SIZE> StereoBus;
         struct BusList {
             StereoBus adc_out;
+            StereoBus ext_out;
             StereoBus dac_in;
             StereoBus ins_in;
             StereoBus ins_out;
@@ -39,7 +46,9 @@ namespace  crone {
         public:
             LogRamp adc;
             LogRamp dac;
+            LogRamp ext;
             LogRamp monitor;
+            LogRamp ext_aux;
             LogRamp ins_mix;
             LogRamp monitor_aux;
             LogRamp aux_dac;

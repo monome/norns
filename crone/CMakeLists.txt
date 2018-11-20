@@ -4,7 +4,7 @@ project(crone VERSION 1.0.0 DESCRIPTION "main audio DSP process for norns")
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
-set (SRC src/main.cpp src/JackClient.cpp src/AudioMain.cpp src/Utilities.h src/OscInterface.cpp)
+set (SRC src/main.cpp src/JackClient.cpp src/AudioMain.cpp src/Utilities.h src/OscInterface.cpp src/Commands.cpp)
 
 add_executable(crone ${SRC})
 
