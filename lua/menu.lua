@@ -1517,6 +1517,8 @@ local TAPE_REC_ARM = 1
 local TAPE_REC_START = 2
 local TAPE_REC_STOP = 3
 
+local p_tape_play
+
 m.tape = {}
 m.tape.mode = TAPE_MODE_PLAY
 m.tape.play = {}
@@ -1551,6 +1553,15 @@ m.key[pTAPE] = function(n,z)
             local ch, samples, rate = sound_file_inspect(path)
             m.tape.play.length = math.floor(samples / rate)
             m.tape.play.length_text = util.s_to_hms(m.tape.play.length)
+            p_tape_play = poll.set("tape_play_pos")
+            p_tape_play.time = 0.25
+            p_tape_play.callback = function(x)
+              m.tape.play.pos_tick = x
+              if menu.mode == true and menu.page == pTAPE then
+                menu.redraw()
+              end
+            end
+            p_tape_play:start()
           else
             m.tape.play.file = nil
           end
@@ -1564,6 +1575,7 @@ m.key[pTAPE] = function(n,z)
         menu.redraw()
       elseif m.tape.play.sel == TAPE_PLAY_STOP then
         tape_stop()
+        p_tape_play:stop()
         m.tape.play.file = nil
         m.tape.play.status = m.tape.play.sel
         m.tape.play.sel = TAPE_PLAY_LOAD
@@ -1634,11 +1646,11 @@ m.redraw[pTAPE] = function()
     screen.move(0,10)
     screen.text(m.tape.play.file)
     screen.move(0,24)
-    screen.text("0:00")
+    screen.text(util.s_to_hms(math.floor(m.tape.play.pos_tick)))
     screen.move(128,24)
     screen.text_right(m.tape.play.length_text)
     screen.level(15)
-    screen.move(m.tape.play.pos_tick,13.5)
+    screen.move((m.tape.play.pos_tick / m.tape.play.length * 128),13.5)
     screen.line_rel(0,2)
     screen.stroke()
     if m.tape.mode==TAPE_MODE_PLAY then
@@ -1730,3 +1742,5 @@ m.init[pTAPE] = function()
   tape_diskfree()
 end
 m.deinit[pTAPE] = norns.none
+
+

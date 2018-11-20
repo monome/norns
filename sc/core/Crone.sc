@@ -9,6 +9,7 @@ Crone {
 	classvar <>recordingsDir;
 	classvar <>player;
 	classvar <>playerClock;
+  classvar <>play_position;
 	classvar <>playerState = 'init';
 	classvar <>playerFile;
 	// current CroneEngine subclass instance
@@ -245,7 +246,7 @@ Crone {
 			fork {
 				// TODO: old school SoundFile.cue SynthDef that actually works
 				SynthDef('cronetape', { | out, amp = 1, bufnum, gate = 1|
-					Out.ar(out, DiskIn.ar(2, bufnum, loop:1 )
+					Out.ar(out, DiskIn.ar(2, bufnum, loop:0 )
 					* EnvGen.kr(Env.asr(0.1, 1.0, 0.1), gate:gate, doneAction:2))
 				}).add;
 
@@ -257,6 +258,7 @@ Crone {
 					)
 				);
 				server.sync;
+        play_position = 0;
 				playerClock.beats = 0;
 				playerState = 'fileopened';
 				postln("tape player state:" + playerState);
@@ -273,7 +275,8 @@ Crone {
 		if (#[paused, fileopened].includes(playerState)) {
 			fork {
 				player.play;
-				playerClock.beats = 0;
+        if (play_position == 0, { playerClock.beats = 0 },
+          { playerClock.beats = play_position });
 				server.sync;
 				playerState = 'playing';
 				postln("tape player state:" + playerState);
@@ -285,6 +288,7 @@ Crone {
 	*tapePause { |filename|
 		if (playerState == 'playing') {
 			fork {
+        play_position = playerClock.beats;
 				player.pause;
 				server.sync;
 				playerState = 'paused';
@@ -298,6 +302,7 @@ Crone {
 		if (#[playing, paused].includes(playerState)) {
 			fork {
 				var stateWas = playerState;
+        play_position = 0;
 				player.close;
 				this.tapeOpenfile(playerFile);
 				if (stateWas == 'playing') {
@@ -606,6 +611,7 @@ Crone {
 		recorder = Recorder.new(server);
 		recorder.recSampleFormat = "int16";
 		playerClock = TempoClock.new;
+    play_position = 0;
 
 		CronePollRegistry.register(
 			name: \tape_rec_dur,
@@ -618,10 +624,10 @@ Crone {
 		CronePollRegistry.register(
 			name: \tape_play_pos,
 			func: {
-				if (#[playing, paused].includes(playerState)) {
+				if (#[playing].includes(playerState)) {
 					playerClock.beats // TODO: this doesn't work with tapePause
 				} {
-					0
+				  play_position
 				};
 			},
 			dt: 0.1,
