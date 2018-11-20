@@ -145,8 +145,9 @@ namespace crone {
         float x0;
         float y0;
     public:
-        LogRamp(float sr, float t = 0.001) : sampleRate(sr), b(1.f), x0(0.f), y0(0.f) {
+        explicit LogRamp(float sr=48000, float t=0.001) : sampleRate(sr), b(1.f), x0(0.f), y0(0.f) {
             sampleRate = sr;
+            time = t;
             setTime(t);
         }
 
@@ -170,9 +171,8 @@ namespace crone {
 
         // update output only
         float update() {
-            float y = smooth1pole(x0, y0, b);
-            y0 = y;
-            return y;
+            y0 = smooth1pole(x0, y0, b);
+            return y0;
         }
 
         // update input and output
@@ -212,12 +212,10 @@ namespace crone {
         }
 
         float process(float x) {
-            float b = x > x0 ? bR : bF;
-            float y = smooth1pole(x, x0, b);
             // FIXME: zapgremlins is weirdly slow (at least on x86)
             //x0 = zapgremlins(y);
-            x0 = y;
-            return y;
+            x0 = smooth1pole(x, x0, x > x0 ? bR : bF);
+            return x0;
         }
 
         void setRiseTime(float t) {

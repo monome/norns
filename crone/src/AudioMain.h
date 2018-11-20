@@ -9,10 +9,21 @@
 
 namespace  crone {
     class AudioMain {
-        enum { MAX_BUF_SIZE = 512};
+        enum {
+            MAX_BUF_SIZE = 512
+        };
+    public:
+        AudioMain();
+
+        void processBlock(
+                const float *in_adc[2],
+                const float *in_ext[2],
+                float *out[2],
+                size_t numFrames);
+
     private:
         typedef Bus<2, MAX_BUF_SIZE> StereoBus;
-        struct {
+        struct BusList {
             StereoBus adc_out;
             StereoBus dac_in;
             StereoBus ins_in;
@@ -20,19 +31,30 @@ namespace  crone {
             StereoBus aux_in;
             StereoBus aux_out;
             StereoBus adc_monitor;
-        } bus;
-        struct {
-            LogRamp adc;
-            LogRamp monitor;
-            LogRamp dac;
-        } smoothLevels;
+            BusList();
+        };
+        BusList bus;
 
-        struct {
+        struct SmoothLevelList{
+        public:
+            LogRamp adc;
+            LogRamp dac;
+            LogRamp monitor;
+            LogRamp ins_mix;
+            LogRamp monitor_aux;
+            LogRamp aux_dac;
+            SmoothLevelList();
+        };
+        SmoothLevelList smoothLevels;
+
+        struct StaticLevelList {
             float monitor_l_l;
             float monitor_l_r;
             float monitor_r_l;
             float monitor_r_r;
-        } staticLevels;
+            StaticLevelList();
+        };
+        StaticLevelList staticLevels;
     };
 }
 

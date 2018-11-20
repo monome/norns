@@ -15,6 +15,8 @@ using namespace crone;
 class JackClient::Imp {
 
     friend class JackClient;
+public:
+    Imp() {}
 private:
     AudioMain audioMain;
     jack_port_t *input_port[4];
@@ -22,22 +24,25 @@ private:
     jack_client_t *client;
 
     static int process (jack_nframes_t numFrames, void *data) {
-        jack_default_audio_sample_t *in[4], *out[2];
+        const jack_default_audio_sample_t *in_adc[2];
+        const jack_default_audio_sample_t *in_ext[2];
+        jack_default_audio_sample_t *out[2];
 
         auto * imp = (JackClient::Imp*)(data);
-
-        in[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[0], numFrames);
-        in[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
-        in[2] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[0], numFrames);
-        in[3] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
+        in_adc[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[0], numFrames);
+        in_adc[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
+        in_ext[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[0], numFrames);
+        in_ext[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
         out[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[0], numFrames);
         out[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[1], numFrames);
 
-        // test: sum and wire:
-        for(int i=0; i<numFrames; ++i) {
-            out[0][i] = in[0][i] + in[2][i];
-            out[1][i] = in[1][i] + in[3][i];
-        }
+        imp->audioMain.processBlock(in_adc, in_ext, out, numFrames);
+
+//        // test: sum and wire:
+//        for(size_t i=0; i<numFrames; ++i) {
+//            out[0][i] = in[0][i] + in[2][i];
+//            out[1][i] = in[1][i] + in[3][i];
+//        }
 
         return 0;
     }
