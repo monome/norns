@@ -1557,6 +1557,13 @@ m.key[pTAPE] = function(n,z)
             p_tape_play.time = 0.25
             p_tape_play.callback = function(x)
               m.tape.play.pos_tick = x
+              if x > m.tape.play.length then
+                tape_stop()
+                p_tape_play:stop()
+                m.tape.play.file = nil
+                m.tape.play.stats = TAPE_PLAY_STOP
+                m.tape.play.sel = TAPE_PLAY_LOAD
+              end
               if menu.mode == true and menu.page == pTAPE then
                 menu.redraw()
               end
