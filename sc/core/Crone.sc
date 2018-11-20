@@ -242,10 +242,9 @@ Crone {
 				player.stop;
 			};
 			fork {
-				// TODO: old school SoundFile.cue SynthDef that actually works
 				SynthDef('cronetape', { | out, amp = 1, bufnum, gate = 1|
 					Out.ar(out, DiskIn.ar(2, bufnum, loop:1 )
-					* EnvGen.kr(Env.asr(0.1, 1.0, 0.1), gate:gate, doneAction:2))
+					* EnvGen.kr(Env.asr(0.01, 1.0, 0.1), gate:gate, doneAction:2) * Lag.kr(amp))
 				}).add;
 
 				playerFile = filename;
@@ -494,6 +493,13 @@ Crone {
 				arg msg, time, addr, recvPort;
 				this.tapePauseRec;
 			}, '/tape/pause_rec'),
+
+			/// set tape level
+			// @function /tape/level
+			'/tape/level':OSCFunc.new({
+			  arg msg, time, addr, recvPort;
+			  Node.basicNew(server, player.id.first).set(\amp, msg[1]);
+			}, '/tape/level'),
 
 			/// stop recording and close file
 			// @function /tape/stop_rec
