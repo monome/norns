@@ -186,13 +186,24 @@ function Midi.to_msg(data)
   local msg = {}
   -- note on
   if data[1] & 0xf0 == 0x90 then
-    --print("note")
-    msg = {
-      type = "note_on",
-      note = data[2],
-      vel = data[3],
-      ch = data[1] - 0x90 + 1
-    }
+    if data[3] > 0 then
+      --print("note")
+      msg = {
+        type = "note_on",
+        note = data[2],
+        vel = data[3],
+        ch = data[1] - 0x90 + 1
+      }
+      -- if velocity is zero then send note off
+    elseif data[3] == 0 then 
+      --print("noteoff")
+      msg = {
+        type = "note_off",
+        note = data[2],
+        vel = data[3],
+        ch = data[1] - 0x80 + 1
+      }
+    end
   -- note off
   elseif data[1] & 0xf0 == 0x80 then
     msg = {
