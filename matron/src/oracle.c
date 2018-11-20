@@ -802,7 +802,7 @@ int handle_tape_play_state(const char *path,
     (void)data;
     (void)user_data;
     assert(argc > 0);
-    fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
+    //fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
     return 0;
 }
 
