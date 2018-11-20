@@ -12,10 +12,7 @@ void crone::AudioMain::processBlock(const float **in_adc, const float **in_ext, 
     // TODO: all the things
 
     bus.dac_in.mixTo(out, numFrames, smoothLevels.dac);
-
-
 }
-
 
 crone::AudioMain::BusList::BusList() {
     for (auto *p: { &adc_out, &dac_in, &adc_monitor, &aux_in, &aux_out, &ins_in, &ins_out}) {
