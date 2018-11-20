@@ -237,7 +237,8 @@ Crone {
 
 	*tapeOpenfile { |filename|
 		filename = filename.asString;
-		if (PathName(recordingsDir +/+ filename).isFile) {
+		postln("tape, load:" + filename.quote);
+		if (PathName(filename).isFile) {
 			if (#[playing, paused, fileopened].includes(playerState)) {
 				player.stop;
 			};
@@ -249,7 +250,7 @@ Crone {
 				}).add;
 
 				playerFile = filename;
-				player = SoundFile(recordingsDir +/+ playerFile).cue(
+				player = SoundFile(playerFile).cue(
 					(
 						out: context.out_b,
 						instrument: \cronetape

@@ -119,6 +119,10 @@ static int handle_poll_io_levels(const char *path, const char *types,
                                  lo_arg **argv, int argc,
                                  void *data, void *user_data);
 
+static int handle_tape_play_state(const char *path, const char *types,
+                                 lo_arg **argv, int argc,
+                                 void *data, void *user_data);
+
 static void lo_error_handler(int num, const char *m, const char *path);
 
 static void set_need_reports() {
@@ -189,6 +193,9 @@ void o_init(void) {
     // dedicated path for audio I/O levels
     lo_server_thread_add_method(st, "/poll/vu", "b",
                                 handle_poll_io_levels, NULL);
+    // tape reports
+    lo_server_thread_add_method(st, "/tape/play/state", "s",
+                                handle_tape_play_state, NULL);
 
     lo_server_thread_start(st);
 }
@@ -781,6 +788,24 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
 
     return 0;
 }
+
+int handle_tape_play_state(const char *path,
+                                const char *types,
+                                lo_arg **argv,
+                                int argc,
+                                void *data,
+                                void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)argv;
+    (void)data;
+    (void)user_data;
+    assert(argc > 0);
+    fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
+    return 0;
+}
+
 
 void lo_error_handler(int num, const char *m, const char *path) {
     fprintf(stderr, "liblo error %d in path %s: %s\n", num, path, m);

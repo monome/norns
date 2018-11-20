@@ -508,14 +508,16 @@ m.key[pPARAMS] = function(n,z)
     --menu.set_page(pHOME)
   elseif n==3 and z==1 then
     if not m.params.midimap then
-      if params:t(m.params.pos+1) == params.tFILE then
-        fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
-      elseif params:t(m.params.pos+1) == params.tTRIGGER then
-        params:set(m.params.pos+1)
-        m.params.triggered[m.params.pos+1] = 2
+      if params.count > 0 then
+        if params:t(m.params.pos+1) == params.tFILE then
+          fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+        elseif params:t(m.params.pos+1) == params.tTRIGGER then
+          params:set(m.params.pos+1)
+          m.params.triggered[m.params.pos+1] = 2
+        end
+      else
+        m.params.midilearn = not m.params.midilearn
       end
-    else
-      m.params.midilearn = not m.params.midilearn
     end
   end
 end
@@ -1511,6 +1513,9 @@ local TAPE_PLAY_PLAY = 2
 local TAPE_PLAY_STOP = 3
 local TAPE_PLAY_PAUSE = 4
 local TAPE_PLAY_RESUME = 5
+local TAPE_REC_ARM = 1
+local TAPE_REC_START = 2
+local TAPE_REC_STOP = 3
 
 m.tape = {}
 m.tape.mode = TAPE_MODE_PLAY
@@ -1520,6 +1525,8 @@ m.tape.play.status = TAPE_PLAY_STOP
 m.tape.play.file = nil
 m.tape.play.pos_tick = 6.5
 m.tape.rec = {}
+m.tape.rec.file = nil
+m.tape.rec.sel = TAPE_REC_ARM
 m.tape.diskfree = 0
 
 local DISK_RESERVE = 250
@@ -1542,8 +1549,8 @@ m.key[pTAPE] = function(n,z)
             m.tape.play.status = TAPE_PLAY_PAUSE
             m.tape.play.sel = TAPE_PLAY_PLAY
             local ch, samples, rate = sound_file_inspect(path)
-            m.tape.play.length = samples / rate
-            m.tape.play.length_text = math.floor(m.tape.play.length / 60) .. ":" .. math.floor(m.tape.play.length % 60)
+            m.tape.play.length = math.floor(samples / rate)
+            m.tape.play.length_text = util.s_to_hms(m.tape.play.length)
           else
             m.tape.play.file = nil
           end
@@ -1570,46 +1577,21 @@ m.key[pTAPE] = function(n,z)
 
       end
     else -- REC CONTROLS
-      -- do not engage ARM if no disk space free
-
+      if m.tape.rec.sel == TAPE_REC_ARM then
+        m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".wav"
+        tape_new(m.tape.rec.file)
+        m.tape.rec.sel = TAPE_REC_START
+      elseif m.tape.rec.sel == TAPE_REC_START then
+        tape_start_rec()
+        m.tape.rec.sel = TAPE_REC_STOP
+      elseif m.tape.rec.sel == TAPE_REC_STOP then
+        norns.state.tape = norns.state.tape + 1
+        tape_stop_rec()
+        m.tape.rec.sel = TAPE_REC_ARM
+      end
+      menu.redraw()
     end
   end
---[[
-        -- REC: ready
-        tape.selectmode = false
-        tape.name = os.date("%y-%m-%d_%H-%M") .. ".aif"
-        tape_new(tape.name)
-        print("new tape > "..tape.name)
-        tape.mode = tREC
-        tape.status = tsPAUSE
-        redraw()
-      else
-        -- PLAY: select tape
-          else
-            tape.mode = tOFF
-          end
-          tape.key = false
-          tape.selectmode = false
-          redraw()
-        end
-      end
-    elseif tape.mode == tREC and tape.status == tsPAUSE then
-      -- REC: start recording
-      tape.status = tsREC
-      tape_start_rec()
-      tape.metro = metro.alloc()
-      tape.metro.callback = function() tape.time = tape.time + 1 end
-      tape.metro.count = -1
-      tape.metro.time = 1
-      tape.time = 0
-      tape.metro:start()
-    elseif tape.mode == tREC and tape.status == tsREC then
-      -- REC: stop recording
-      print("stopping tape")
-      tape_stop_rec()
-      tape.mode = tOFF
-      tape.metro:stop()
-]]--
 end
 
 m.enc[pTAPE] = function(n,d)
@@ -1660,13 +1642,13 @@ m.redraw[pTAPE] = function()
     screen.line_rel(0,2)
     screen.stroke()
     if m.tape.mode==TAPE_MODE_PLAY then
-      screen.move(28,24)
+      screen.move(26,36)
       screen.level(m.tape.play.sel == TAPE_PLAY_PLAY and 15 or 2)
       screen.text("PLAY")
-      screen.move_rel(10,0)
+      screen.move_rel(8,0)
       screen.level(m.tape.play.sel == TAPE_PLAY_PAUSE and 15 or 2)
       screen.text("PAUSE")
-      screen.move_rel(10,0)
+      screen.move_rel(8,0)
       screen.level(m.tape.play.sel == TAPE_PLAY_STOP and 15 or 2)
       screen.text("STOP")
       --screen.text("E  >  ||")
@@ -1680,11 +1662,15 @@ m.redraw[pTAPE] = function()
   screen.rect(0.5,51.5,127,2)
   screen.stroke()
   if m.tape.mode==TAPE_MODE_REC then
-    screen.move(28,62)
-    screen.text("output / input")
+      screen.level(15)
+      screen.move(64,36)
+    if m.tape.rec.sel == TAPE_REC_START then screen.text_center("START")
+    elseif m.tape.rec.sel == TAPE_REC_STOP then screen.text_center("STOP") end
+    --screen.move(28,62)
+    --screen.text("output / input")
     screen.move(127,62)
     screen.text_right(util.s_to_hms(m.tape.diskfree))
-    screen.move(0,62)
+    --screen.move(0,62)
     --screen.text("0:00")
   end
 
