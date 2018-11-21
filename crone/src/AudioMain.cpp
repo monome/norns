@@ -10,11 +10,14 @@ using namespace crone;
 AudioMain::AudioMain() = default;
 
 void AudioMain::processBlock(const float **in_adc, const float **in_ext, float **out, size_t numFrames) {
+
+    // test..
+    // return;
+
+
     // clear all our internal busses
     clearBusses(numFrames);
 
-    // test..
-    return;
 
     // clear the output
     for(int ch=0; ch<2; ++ch) {

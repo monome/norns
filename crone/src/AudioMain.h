@@ -12,7 +12,7 @@ namespace  crone {
 
     class AudioMain {
         enum {
-            MAX_BUF_SIZE = 512
+            MAX_BUF_SIZE = 2048
         };
     public:
         AudioMain();
