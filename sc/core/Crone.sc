@@ -504,7 +504,7 @@ Crone {
 			// @function /tape/level
 			'/tape/level':OSCFunc.new({
 			  arg msg, time, addr, recvPort;
-			  Node.basicNew(server, player.id.first).set(\amp, msg[1]);
+			  Node.basicNew(server, player.id.first).set(\amp, msg[1].dbamp);
 			}, '/tape/level'),
 
 			/// stop recording and close file

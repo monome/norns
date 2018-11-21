@@ -470,6 +470,9 @@ void o_restart_audio() {
 }
 
 //---- tape controls
+void o_tape_level(float level) {
+    lo_send(remote_addr, "/tape/level", "f", level);
+}
 
 void o_tape_new(char *file) {
     lo_send(remote_addr, "/tape/newfile", "s", file);
