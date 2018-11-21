@@ -304,7 +304,7 @@ m.redraw[pHOME] = function()
     screen.move(36,20)
     screen.text(norns.temp .. "c")
     screen.move(127,20)
-    screen.text_right("IP 192.168.1.xx")
+    screen.text_right("IP "..wifi.ip)
     if wifi.state > 0 then
       screen.text_right(wifi.ip)
     end
