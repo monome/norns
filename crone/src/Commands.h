@@ -65,7 +65,6 @@ namespace crone {
         struct CommandPacket {
             CommandPacket() = default;
             CommandPacket(Commands::Id i, int v, float f) : id(i), voice(v), value(f) {}
-            //Command type;
             Id id;
             int voice;
             float value;
@@ -73,7 +72,6 @@ namespace crone {
 
     private:
         static boost::lockfree::spsc_queue <CommandPacket> q;
-
     };
 
 }

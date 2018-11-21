@@ -21,34 +21,22 @@ private:
     jack_port_t *output_port[2];
     jack_client_t *client;
 
-    static int process (jack_nframes_t numFrames, void *data) {
-        const jack_default_audio_sample_t *in_adc[2];
-        const jack_default_audio_sample_t *in_ext[2];
-        jack_default_audio_sample_t *out[2];
+    static const jack_default_audio_sample_t *in_adc[2];
+    static const jack_default_audio_sample_t *in_ext[2];
+    static jack_default_audio_sample_t *out[2];
 
-        auto * imp = (JackClient::Imp*)(data);
+    static int process (jack_nframes_t numFrames, void *data) {
+
+        auto *imp = (JackClient::Imp*)(data);
+
         in_adc[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[0], numFrames);
         in_adc[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
-        in_ext[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[0], numFrames);
-        in_ext[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
+        in_ext[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[2], numFrames);
+        in_ext[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[3], numFrames);
         out[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[0], numFrames);
         out[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[1], numFrames);
-#if 0
-        if(in_adc[0] == nullptr) { return 0; }
-        if(in_adc[1] == nullptr) { return 0; }
-        if(in_ext[0] == nullptr) { return 0; }
-        if(in_ext[1] == nullptr) { return 0; }
-        if(out[0] == nullptr) { return 0; }
-        if(out[1] == nullptr) { return 0; }
-#endif
 
         imp->audioMain.processBlock(in_adc, in_ext, out, numFrames);
-
-//        // test: sum and wire:
-//        for(size_t i=0; i<numFrames; ++i) {
-//            out[0][i] = in[0][i] + in[2][i];
-//            out[1][i] = in[1][i] + in[3][i];
-//        }
 
         return 0;
     }
@@ -205,3 +193,8 @@ void JackClient::start() {
 void JackClient::stop() {
     JackClient::imp.stop();
 }
+
+
+const jack_default_audio_sample_t *JackClient::Imp::in_adc[2];
+const jack_default_audio_sample_t *JackClient::Imp::in_ext[2];
+jack_default_audio_sample_t *JackClient::Imp::out[2];

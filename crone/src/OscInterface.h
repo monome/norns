@@ -25,7 +25,8 @@ namespace crone {
         static string port;
         static unsigned int numMethods;
         enum { MAX_NUM_METHODS = 256 };
-        // basically wrapper class for passing lambdas to OSC server thread
+
+        // OscMethod: thin wrapper for passing lambdas to OSC server thread
         class OscMethod {
             typedef void(*Handler)(lo_arg **argv, int argc);
             string path;
@@ -54,8 +55,8 @@ namespace crone {
                 (void) path;
                 (void) types;
                 (void) msg;
-                auto m = static_cast<OscMethod*>(data);
-                m->handler(argv, argc);
+                auto pm = static_cast<OscMethod*>(data);
+                pm->handler(argv, argc);
                 return 0;
             }, &(methods[numMethods]));
             numMethods++;

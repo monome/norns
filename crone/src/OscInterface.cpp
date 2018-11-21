@@ -28,6 +28,12 @@ void OscInterface::addServerMethods() {
     addServerMethod("/goodbye", "", [](lo_arg **argv, int argc) {
         (void)argv; (void)argc;
         std::cout << "goodbye" << std::endl;
+        OscInterface::quitFlag = true;
+    });
+
+    addServerMethod("/quit", "", [](lo_arg **argv, int argc) {
+        (void)argv; (void)argc;
+        OscInterface::quitFlag = true;
     });
 
     addServerMethod("/set/level/adc", "f", [](lo_arg **argv, int argc) {

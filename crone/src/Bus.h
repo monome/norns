@@ -88,8 +88,8 @@ namespace  crone {
 
         constexpr void stereoMixFrom(BusT &b, size_t numFrames, float level[4]) {
             for(size_t fr=0; fr<numFrames; ++fr) {
-                buf[0][fr] += b.buf[0][fr] * level[0] + b.buf[1][fr] * level[1];
-                buf[1][fr] += b.buf[0][fr] * level[2] + b.buf[1][fr] * level[3];
+                buf[0][fr] += b.buf[0][fr] * level[0] + b.buf[1][fr] * level[2];
+                buf[1][fr] += b.buf[0][fr] * level[1] + b.buf[1][fr] * level[3];
             }
         }
     };

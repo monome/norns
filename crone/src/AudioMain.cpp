@@ -10,9 +10,10 @@ using namespace crone;
 AudioMain::AudioMain() = default;
 
 void AudioMain::processBlock(const float **in_adc, const float **in_ext, float **out, size_t numFrames) {
+    Commands::handlePending(this);
+
     // clear all our internal busses
     clearBusses(numFrames);
-
 
     // clear the output
     for(int ch=0; ch<2; ++ch) {
@@ -40,6 +41,8 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
 #endif
 
     // mix to insert bus
+    bus.ins_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor);
+    bus.ins_in.sumFrom(bus.ext_out, numFrames);
     bus.ins_in.mixFrom(bus.aux_out, numFrames, smoothLevels.aux);
 
     // apply insert fx
@@ -89,7 +92,6 @@ AudioMain::StaticLevelList::StaticLevelList() {
     }
 }
 
-
 void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
     switch(p->id) {
         case Commands::Id::SET_LEVEL_ADC:
@@ -123,5 +125,4 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         default:
             ;;
     }
-
 }
