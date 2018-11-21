@@ -796,32 +796,11 @@ m.redraw[pSYSTEM] = function()
     screen.text(m.sys.list[i])
   end
 
-  --screen.level(2)
-  --screen.move(127,30)
-  --if wifi.state == 2 then m.sys.net = wifi.ip
-  --else m.sys.net = wifi.status end
-  --screen.text_right(m.sys.net)
-
   screen.update()
 end
 
-m.init[pSYSTEM] = function()
-  --u.callback = function()
-    --m.sysquery()
-    --menu.redraw()
-  --end
-  --u.time = 3
-  --u.count = -1
-  --u:start()
-end
-
-m.deinit[pSYSTEM] = function()
-  --u:stop()
-end
-
-m.sysquery = function()
-  --wifi.update()
-end
+m.init[pSYSTEM] = norns.none
+m.deinit[pSYSTEM] = norns.none
 
 
 -----------------------------------------
