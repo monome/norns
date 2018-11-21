@@ -16,7 +16,7 @@ void Commands::post(Commands::Id id, float value) {
     q.push(p);
 }
 
-void Commands::post(Commands::Id id, int voice, bool value) {
+void Commands::post(Commands::Id id, int voice, float value) {
     CommandPacket p(id, voice, value);
     q.push(p);
 }

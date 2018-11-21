@@ -33,7 +33,6 @@ private:
         in_ext[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
         out[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[0], numFrames);
         out[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[1], numFrames);
-
 #if 0
         if(in_adc[0] == nullptr) { return 0; }
         if(in_adc[1] == nullptr) { return 0; }

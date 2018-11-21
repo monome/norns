@@ -24,7 +24,7 @@ namespace crone {
             SET_LEVEL_MONITOR,
             SET_LEVEL_MONITOR_MIX,
             SET_LEVEL_MONITOR_AUX,
-            SET_LEVEL_INS__MIX,
+            SET_LEVEL_INS_MIX,
 
             //-- softcut commands
             SET_SOFTCUT_RATE,
@@ -58,8 +58,8 @@ namespace crone {
 
     public:
 
-        void post(Commands::Id id, float value);
-        void post(Commands::Id id, int voice, bool value);
+        static void post(Commands::Id id, float value);
+        static void post(Commands::Id id, int voice, float value);
         static void handlePending(AudioMain *audio);
 
         struct CommandPacket {

@@ -10,11 +10,6 @@ using namespace crone;
 AudioMain::AudioMain() = default;
 
 void AudioMain::processBlock(const float **in_adc, const float **in_ext, float **out, size_t numFrames) {
-
-    // test..
-    // return;
-
-
     // clear all our internal busses
     clearBusses(numFrames);
 
@@ -118,7 +113,7 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         case Commands::Id::SET_LEVEL_MONITOR_AUX:
             smoothLevels.monitor_aux.setTarget(p->value);
             break;
-        case Commands::Id::SET_LEVEL_INS__MIX:
+        case Commands::Id::SET_LEVEL_INS_MIX:
             smoothLevels.ins_mix.setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_MONITOR_MIX:
