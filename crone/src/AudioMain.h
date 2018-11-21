@@ -51,16 +51,13 @@ namespace  crone {
             LogRamp ext_aux;
             LogRamp ins_mix;
             LogRamp monitor_aux;
-            LogRamp aux_dac;
+            LogRamp aux;
             SmoothLevelList();
         };
         SmoothLevelList smoothLevels;
 
         struct StaticLevelList {
-            float monitor_l_l;
-            float monitor_l_r;
-            float monitor_r_l;
-            float monitor_r_r;
+            float monitor_mix[4];
             StaticLevelList();
         };
         StaticLevelList staticLevels;

@@ -25,6 +25,7 @@ namespace  crone {
             }
         }
 
+        // clear the first N frames in the bus
         constexpr void clear(size_t numFrames) {
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
@@ -33,6 +34,7 @@ namespace  crone {
             }
         }
 
+        // sum from bus, without amplitude scaling
         constexpr void sumFrom(BusT &b, size_t numFrames) {
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
@@ -41,6 +43,7 @@ namespace  crone {
             }
         }
 
+        // mix from bus, with fixed amplitude
         constexpr void mixFrom(BusT &b, size_t numFrames, float level) {
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
@@ -50,6 +53,7 @@ namespace  crone {
         }
 
 
+        // mix from bus, with smoothed amplitude
         void mixFrom(BusT &b, size_t numFrames, LogRamp &level) {
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
@@ -60,7 +64,7 @@ namespace  crone {
             }
         }
 
-        // mix from array of pointers
+        // mix from pointer array, with smoothed amplitude
         void mixFrom(const float *src[NumChannels], size_t numFrames, LogRamp &level) {
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
@@ -71,8 +75,7 @@ namespace  crone {
             }
         }
 
-
-        // mix to array of pointers
+        // mix to pointer array, with smoothed amplitude
         void mixTo(float *dst[NumChannels], size_t numFrames, LogRamp &level) {
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
@@ -83,10 +86,10 @@ namespace  crone {
             }
         }
 
-        constexpr void stereoMixFrom(BusT &b, size_t numFrames, float l00, float l01, float l10, float l11) {
+        constexpr void stereoMixFrom(BusT &b, size_t numFrames, float level[4]) {
             for(size_t fr=0; fr<numFrames; ++fr) {
-                buf[0][fr] += b.buf[0][fr] * l00 + b.buf[1][fr] * l10;
-                buf[1][fr] += b.buf[0][fr] * l01 + b.buf[1][fr] * l11;
+                buf[0][fr] += b.buf[0][fr] * level[0] + b.buf[1][fr] * level[1];
+                buf[1][fr] += b.buf[0][fr] * level[2] + b.buf[1][fr] * level[3];
             }
         }
     };
