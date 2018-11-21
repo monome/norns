@@ -8,8 +8,6 @@ set (SRC src/main.cpp src/JackClient.cpp src/AudioMain.cpp src/Utilities.h src/O
 
 add_executable(crone ${SRC})
 
-#find_library(lo_lib liblo.so REQUIRED)
-#target_link_libraries(crone ${lo_lib}))
 target_link_libraries(crone lo)
 target_link_libraries(crone jack)
 target_link_libraries(crone pthread)

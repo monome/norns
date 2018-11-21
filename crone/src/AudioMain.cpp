@@ -13,6 +13,9 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     // clear all our internal busses
     clearBusses(numFrames);
 
+    // test..
+    return;
+
     // clear the output
     for(int ch=0; ch<2; ++ch) {
         for (size_t fr=0; fr<numFrames; ++fr) {
@@ -54,7 +57,6 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
 #else
     // TODO
 #endif
-
 
     // apply final output level
     bus.dac_in.mixTo(out, numFrames, smoothLevels.dac);

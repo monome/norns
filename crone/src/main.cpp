@@ -9,8 +9,6 @@
 int main() {
     using namespace crone;
 
-
-
     JackClient::setup();
     JackClient::start();
 

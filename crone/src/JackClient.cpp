@@ -15,8 +15,6 @@ using namespace crone;
 class JackClient::Imp {
 
     friend class JackClient;
-public:
-    Imp() {}
 private:
     AudioMain audioMain;
     jack_port_t *input_port[4];
@@ -35,6 +33,15 @@ private:
         in_ext[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->input_port[1], numFrames);
         out[0] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[0], numFrames);
         out[1] = (jack_default_audio_sample_t *) jack_port_get_buffer (imp->output_port[1], numFrames);
+
+#if 0
+        if(in_adc[0] == nullptr) { return 0; }
+        if(in_adc[1] == nullptr) { return 0; }
+        if(in_ext[0] == nullptr) { return 0; }
+        if(in_ext[1] == nullptr) { return 0; }
+        if(out[0] == nullptr) { return 0; }
+        if(out[1] == nullptr) { return 0; }
+#endif
 
         imp->audioMain.processBlock(in_adc, in_ext, out, numFrames);
 
@@ -56,7 +63,7 @@ private:
 
 public:
     void setup() {
-        const char *client_name = "simple";
+        const char *client_name = "crone";
         const char *server_name = nullptr;
         jack_options_t options = JackNullOption;
         jack_status_t status;
@@ -102,7 +109,7 @@ public:
         output_port[0] = jack_port_register (client, "out_0",
                                              JACK_DEFAULT_AUDIO_TYPE,
                                              JackPortIsOutput, 0);
-        output_port[1] = jack_port_register (client, "out_r",
+        output_port[1] = jack_port_register (client, "out_1",
                                              JACK_DEFAULT_AUDIO_TYPE,
                                              JackPortIsOutput, 0);
 
@@ -149,6 +156,8 @@ public:
         if (jack_connect (client, ports[1], jack_port_name (input_port[1]))) {
             fprintf (stderr, "cannot connect ADC port 1\n");
         }
+
+        // FIXME: connect additional input ports to supercollider, &c
 
         free (ports);
 
