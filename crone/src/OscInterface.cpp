@@ -9,15 +9,15 @@
 
 using namespace crone;
 
+
 bool OscInterface::quitFlag;
 std::string OscInterface::port;
 lo_server_thread OscInterface::st;
 std::array<OscInterface::OscMethod, OscInterface::MAX_NUM_METHODS> OscInterface::methods;
 unsigned int OscInterface::numMethods = 0;
 
-
 OscInterface::OscMethod::OscMethod(string p, string f, OscInterface::Handler h)
-: path(std::move(p)), format(std::move(f)), handler(h) {}
+        : path(std::move(p)), format(std::move(f)), handler(h) {}
 
 void OscInterface::addServerMethods() {
     addServerMethod("/hello", "", [](lo_arg **argv, int argc) {

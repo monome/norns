@@ -4,8 +4,8 @@
 // Created by ezra on 11/4/18.
 //
 
-#ifndef SOFTCUT_OSCINTERFACE_H
-#define SOFTCUT_OSCINTERFACE_H
+#ifndef CRONE_OSCINTERFACE_H
+#define CRONE_OSCINTERFACE_H
 
 #include <iostream>
 #include <string>
@@ -80,4 +80,4 @@ namespace crone {
     };
 }
 
-#endif //SOFTCUT_OSCINTERFACE_H
+#endif //CRONE_OSCINTERFACE_H

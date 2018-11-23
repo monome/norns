@@ -86,12 +86,40 @@ namespace  crone {
             }
         }
 
-        constexpr void stereoMixFrom(BusT &b, size_t numFrames, float level[4]) {
+        // mix from stereo bus with 2x2 level matrix
+        void stereoMixFrom(BusT &b, size_t numFrames, const float level[4]) {
             for(size_t fr=0; fr<numFrames; ++fr) {
                 buf[0][fr] += b.buf[0][fr] * level[0] + b.buf[1][fr] * level[2];
                 buf[1][fr] += b.buf[0][fr] * level[1] + b.buf[1][fr] * level[3];
             }
         }
+
+        // mix from two busses with balance coefficient (linear)
+        void xfade(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
+            float x, y, c;
+            for(size_t fr=0; fr<numFrames; ++fr) {
+                c = level.update();
+                for(size_t ch=0; ch<NumChannels; ++ch) {
+                    x = a.buf[ch][fr];
+                    y = b.buf[ch][fr];
+                    buf[ch][fr] = x + (y-x) * c;
+                }
+            }
+        }
+
+        // mix from two busses with balance coefficient (equal power)
+        void xfadeEpFrom(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
+            float x, y, c;
+            for(size_t fr=0; fr<numFrames; ++fr) {
+                c = level.update();
+                for(size_t ch=0; ch<NumChannels; ++ch) {
+                    x = a.buf[ch][fr];
+                    y = b.buf[ch][fr];
+                    buf[ch][fr] = x * sinf(c * (float)M_PI_2) + y * sinf((1.f-c) * (float)M_PI_2);
+                }
+            }
+        }
+
     };
 
 }

@@ -8,6 +8,8 @@ set (SRC src/main.cpp src/JackClient.cpp src/AudioMain.cpp src/Utilities.h src/O
 
 add_executable(crone ${SRC})
 
+include_directories(./faust)
+
 target_link_libraries(crone lo)
 target_link_libraries(crone jack)
 target_link_libraries(crone pthread)

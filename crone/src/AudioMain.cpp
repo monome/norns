@@ -2,12 +2,41 @@
 // Created by emb on 11/19/18.
 //
 
+// hack: faust APIUI should include this, but doesn't
+#include <cstring>
+#include "faust/gui/APIUI.h"
+
 #include "AudioMain.h"
 #include "Commands.h"
 
-using namespace crone;
 
-AudioMain::AudioMain() = default;
+using namespace crone;
+using std::cout;
+using std::endl;
+
+AudioMain::AudioMain() {
+    comp.init(48000);
+
+    APIUI &ui = comp.getUi();
+
+    ui.setParamValue(ui.getParamIndex("/StereoCompressor/ratio"), 4.f);
+    ui.setParamValue(ui.getParamIndex("/StereoCompressor/threshold"), -20.f);
+    ui.setParamValue(ui.getParamIndex("/StereoCompressor/attack"), 0.005f);
+    ui.setParamValue(ui.getParamIndex("/StereoCompressor/release"), 0.05f);
+    ui.setParamValue(ui.getParamIndex("/StereoCompressor/preGain"), 0.0);
+    ui.setParamValue(ui.getParamIndex("/StereoCompressor/postGain"), 4.0);
+
+    cout << " compressor params: " << endl;
+    for(int i=0; i<ui.getParamsCount(); ++i) {
+        cout << "  " << i << ": " << ui.getParamLabel(i)
+        << " (" << ui.getParamAddress(i) << ")"
+        << " = " << ui.getParamValue(i) << endl;
+    }
+}
+
+AudioMain::AudioMain(int sampleRate) {
+    comp.init(sampleRate);
+}
 
 void AudioMain::processBlock(const float **in_adc, const float **in_ext, float **out, size_t numFrames) {
     Commands::handlePending(this);
@@ -46,17 +75,20 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     bus.ins_in.mixFrom(bus.aux_out, numFrames, smoothLevels.aux);
 
     // apply insert fx
-#if 1
+#if 0
     bus.ins_out.sumFrom(bus.ins_in, numFrames);
 #else
-    // TODO
+//    // FIXME: arg.
+    float *pin[] = {bus.ins_in.buf[0], bus.ins_in.buf[1]};
+    float *pout[] = {bus.ins_out.buf[0], bus.ins_out.buf[1]};
+    comp.processBlock(pin, pout, numFrames);
 #endif
 
     // apply insert wet/dry balance
-#if 1
+#if 0
     bus.dac_in.sumFrom(bus.ins_out, numFrames);
 #else
-    // TODO
+    bus.dac_in.xfade(bus.ins_in, bus.ins_out, numFrames, smoothLevels.ins_mix);
 #endif
 
     // apply final output level

@@ -7,6 +7,7 @@
 
 #include "Bus.h"
 #include "Commands.h"
+#include "effects/StereoCompressor.h"
 
 namespace  crone {
 
@@ -16,6 +17,7 @@ namespace  crone {
         };
     public:
         AudioMain();
+        AudioMain(int sampleRate);
 
         void processBlock(
                 const float *in_adc[2],
@@ -28,6 +30,9 @@ namespace  crone {
     private:
         void clearBusses(size_t numFrames);
     private:
+        // processors
+        StereoCompressor comp;
+        // busses
         typedef Bus<2, MAX_BUF_SIZE> StereoBus;
         struct BusList {
             StereoBus adc_out;

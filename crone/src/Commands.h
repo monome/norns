@@ -2,11 +2,10 @@
 // Created by ezra on 11/3/18.
 //
 
-#ifndef SOFTCUT_COMMANDS_H
-#define SOFTCUT_COMMANDS_H
+#ifndef CRONE_COMMANDS_H
+#define CRONE_COMMANDS_H
 
 #include <boost/lockfree/spsc_queue.hpp>
-
 
 namespace crone {
 
@@ -76,4 +75,4 @@ namespace crone {
 
 }
 
-#endif //SOFTCUT_COMMANDS_H
+#endif //CRONE_COMMANDS_H
