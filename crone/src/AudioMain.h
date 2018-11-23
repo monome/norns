@@ -8,6 +8,7 @@
 #include "Bus.h"
 #include "Commands.h"
 #include "effects/StereoCompressor.h"
+#include "effects/ZitaReverb.h"
 
 namespace  crone {
 
@@ -32,6 +33,8 @@ namespace  crone {
     private:
         // processors
         StereoCompressor comp;
+        ZitaReverb reverb;
+
         // busses
         typedef Bus<2, MAX_BUF_SIZE> StereoBus;
         struct BusList {

@@ -1,11 +1,14 @@
 n = NetAddr("localhost", 9999);
 
-
-// "ext" level (input from supercollider, pd or &c.) also pre-send
+// compressor wet/dry mix
 n.sendMsg("/set/level/ins_mix", 1.0);
+n.sendMsg("/set/level/ins_mix", 0.7);
+n.sendMsg("/set/level/ins_mix", 0.0);
 
-// "ext" level (input from supercollider, pd or &c.) also pre-send
-n.sendMsg("/set/level/ins_mix", 1.0);
 
-// quit
-n.sendMsg("/goodbye");
+// reverb on, ADC -> reverb
+n.sendMsg("/set/level/aux_dac", 1.0);
+n.sendMsg("/set/level/monitor_aux", 1.0);
+
+// EXT -> reverb
+// TODO

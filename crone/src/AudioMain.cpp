@@ -2,8 +2,7 @@
 // Created by emb on 11/19/18.
 //
 
-// hack: faust APIUI should include this, but doesn't
-#include <cstring>
+#include <cstring> // hack: faust APIUI should include, but doesn't
 #include "faust/gui/APIUI.h"
 
 #include "AudioMain.h"
@@ -16,6 +15,7 @@ using std::endl;
 
 AudioMain::AudioMain() {
     comp.init(48000);
+    reverb.init(48000);
 
     APIUI &ui = comp.getUi();
 
@@ -32,6 +32,22 @@ AudioMain::AudioMain() {
         << " (" << ui.getParamAddress(i) << ")"
         << " = " << ui.getParamValue(i) << endl;
     }
+
+    ui = reverb.getUi();
+
+    ui.setParamValue(ui.getParamIndex("/ZitaReverb/pre_del"), 47);
+    ui.setParamValue(ui.getParamIndex("/ZitaReverb/lf_fc"), 666);
+    ui.setParamValue(ui.getParamIndex("/ZitaReverb/low_rt60"), 3.33);
+    ui.setParamValue(ui.getParamIndex("/ZitaReverb/mid_rt60"), 4.44);
+    ui.setParamValue(ui.getParamIndex("/ZitaReverb/hf_damp"), 5555);
+
+
+    cout << " reverb params: " << endl;
+    for(int i=0; i<ui.getParamsCount(); ++i) {
+        cout << "  " << i << ": " << ui.getParamLabel(i)
+             << " (" << ui.getParamAddress(i) << ")"
+             << " = " << ui.getParamValue(i) << endl;
+    }
 }
 
 AudioMain::AudioMain(int sampleRate) {
@@ -39,10 +55,15 @@ AudioMain::AudioMain(int sampleRate) {
 }
 
 void AudioMain::processBlock(const float **in_adc, const float **in_ext, float **out, size_t numFrames) {
+    // apply pending param changes
     Commands::handlePending(this);
 
     // clear all our internal busses
     clearBusses(numFrames);
+
+    // FIXME: current faust architecture needs this
+    float* pin[2];
+    float* pout[2];
 
     // clear the output
     for(int ch=0; ch<2; ++ch) {
@@ -62,35 +83,35 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     bus.aux_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor_aux);
     bus.aux_in.mixFrom(bus.ext_out, numFrames, smoothLevels.ext_aux);
 
-    // apply aux fx
-#if 1
-    bus.aux_out.sumFrom(bus.aux_in, numFrames);
-#else
-    // TODO
-#endif
+    if (0) { // bypass aux
+        bus.aux_out.sumFrom(bus.aux_in, numFrames);
+    } else { // process aux
+        // FIXME: arg!
+        pin[0] = bus.aux_in.buf[0];
+        pin[1] = bus.aux_in.buf[1];
+        pout[0] = bus.aux_out.buf[0];
+        pout[1] = bus.aux_out.buf[1];
+        reverb.processBlock(pin, pout, static_cast<int>(numFrames));
+    }
 
     // mix to insert bus
     bus.ins_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor);
     bus.ins_in.sumFrom(bus.ext_out, numFrames);
     bus.ins_in.mixFrom(bus.aux_out, numFrames, smoothLevels.aux);
 
-    // apply insert fx
-#if 0
-    bus.ins_out.sumFrom(bus.ins_in, numFrames);
-#else
-//    // FIXME: arg.
-    float *pin[] = {bus.ins_in.buf[0], bus.ins_in.buf[1]};
-    float *pout[] = {bus.ins_out.buf[0], bus.ins_out.buf[1]};
-    comp.processBlock(pin, pout, numFrames);
-#endif
-
-    // apply insert wet/dry balance
-#if 0
-    bus.dac_in.sumFrom(bus.ins_out, numFrames);
-#else
-    bus.dac_in.xfade(bus.ins_in, bus.ins_out, numFrames, smoothLevels.ins_mix);
-#endif
-
+    if(0) { // bypass_insert
+        bus.ins_out.sumFrom(bus.ins_in, numFrames);
+        bus.dac_in.sumFrom(bus.ins_out, numFrames);
+    } else { // process insert
+        // FIXME: arg!
+        pin[0] = bus.ins_in.buf[0];
+        pin[1] = bus.ins_in.buf[1];
+        pout[0] = bus.ins_out.buf[0];
+        pout[1] = bus.ins_out.buf[1];
+        comp.processBlock(pin, pout, static_cast<int>(numFrames));
+        // apply insert wet/dry
+        bus.dac_in.xfade(bus.ins_in, bus.ins_out, numFrames, smoothLevels.ins_mix);
+    }
     // apply final output level
     bus.dac_in.mixTo(out, numFrames, smoothLevels.dac);
 }

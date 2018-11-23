@@ -24,4 +24,6 @@ n.sendMsg("/set/level/monitor_mix", 3, 0.5);
 n.sendMsg("/set/level/ext", 0.5);
 
 // quit
+/*
 n.sendMsg("/goodbye");
+*/

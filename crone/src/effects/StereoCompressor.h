@@ -30,7 +30,7 @@ Compilation options: cpp, -scal -ftz 0
 #define exp10 __exp10
 #endif
 
-class mydsp : public dsp {
+class StereoCompressor_dsp : public dsp {
 	
  private:
 	
@@ -148,7 +148,7 @@ class mydsp : public dsp {
 	}
 	
 	static void classInit(int samplingFreq) {
-		
+        (void)samplingFreq;
 	}
 	
 	virtual void instanceConstants(int samplingFreq) {
@@ -195,8 +195,8 @@ class mydsp : public dsp {
 		instanceClear();
 	}
 	
-	virtual mydsp* clone() {
-		return new mydsp();
+	virtual StereoCompressor_dsp* clone() {
+		return new StereoCompressor_dsp();
 	}
 	virtual int getSampleRate() {
 		return fSamplingFreq;
@@ -267,7 +267,7 @@ class StereoCompressor
 {
   private:
 
-    mydsp _dsp;
+    StereoCompressor_dsp _dsp;
     APIUI ui;
 
   public:        
@@ -277,7 +277,7 @@ class StereoCompressor
 
     void init(double sampleRate)
     {
-        mydsp::classInit(int(sampleRate));
+        StereoCompressor_dsp::classInit(int(sampleRate));
         _dsp.instanceConstants(int(sampleRate));
         _dsp.instanceClear();
     }
