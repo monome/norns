@@ -7,47 +7,45 @@
 
 #include "AudioMain.h"
 #include "Commands.h"
+#include "Evil.h"
 
 
 using namespace crone;
 using std::cout;
 using std::endl;
 
+void AudioMain::setDefaultParams() {
+
+    APIUI *ui;
+    ui = &comp.getUi();
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/ratio"), 4.f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/threshold"), -20.f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/attack"), 0.005f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/release"), 0.05f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/gain_pre"), 0.0);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/gain_post"), 4.0);
+
+    ui = &reverb.getUi();
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/pre_del"), 47);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/lf_fc"), 666);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/low_rt60"), 3.33);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/mid_rt60"), 4.44);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/hf_damp"), 5555);
+
+    if(0) {
+        std::vector<Evil::FaustModule> mods;
+        Evil::FaustModule mcomp("StereoCompressor", &comp.getUi());
+        mods.push_back(mcomp);
+        Evil::FaustModule mverb("ZitaReverb", &reverb.getUi());
+        mods.push_back(mverb);
+        Evil::DO_EVIL(mods); /// ayyehehee
+    }
+}
+
 AudioMain::AudioMain() {
     comp.init(48000);
     reverb.init(48000);
-
-    APIUI &ui = comp.getUi();
-
-    ui.setParamValue(ui.getParamIndex("/StereoCompressor/ratio"), 4.f);
-    ui.setParamValue(ui.getParamIndex("/StereoCompressor/threshold"), -20.f);
-    ui.setParamValue(ui.getParamIndex("/StereoCompressor/attack"), 0.005f);
-    ui.setParamValue(ui.getParamIndex("/StereoCompressor/release"), 0.05f);
-    ui.setParamValue(ui.getParamIndex("/StereoCompressor/preGain"), 0.0);
-    ui.setParamValue(ui.getParamIndex("/StereoCompressor/postGain"), 4.0);
-
-    cout << " compressor params: " << endl;
-    for(int i=0; i<ui.getParamsCount(); ++i) {
-        cout << "  " << i << ": " << ui.getParamLabel(i)
-        << " (" << ui.getParamAddress(i) << ")"
-        << " = " << ui.getParamValue(i) << endl;
-    }
-
-    ui = reverb.getUi();
-
-    ui.setParamValue(ui.getParamIndex("/ZitaReverb/pre_del"), 47);
-    ui.setParamValue(ui.getParamIndex("/ZitaReverb/lf_fc"), 666);
-    ui.setParamValue(ui.getParamIndex("/ZitaReverb/low_rt60"), 3.33);
-    ui.setParamValue(ui.getParamIndex("/ZitaReverb/mid_rt60"), 4.44);
-    ui.setParamValue(ui.getParamIndex("/ZitaReverb/hf_damp"), 5555);
-
-
-    cout << " reverb params: " << endl;
-    for(int i=0; i<ui.getParamsCount(); ++i) {
-        cout << "  " << i << ": " << ui.getParamLabel(i)
-             << " (" << ui.getParamAddress(i) << ")"
-             << " = " << ui.getParamValue(i) << endl;
-    }
+    setDefaultParams();
 }
 
 AudioMain::AudioMain(int sampleRate) {
@@ -174,7 +172,7 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         case Commands::Id::SET_LEVEL_MONITOR_MIX:
             if(p->voice < 0 || p->voice > 3) { return; }
             staticLevels.monitor_mix[p->voice] = p->value;
-            break;
+            break;	    
         default:
             ;;
     }

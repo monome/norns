@@ -220,10 +220,10 @@ class StereoCompressor_dsp : public dsp {
 		ui_interface->addVerticalSlider("release", &fVslider4, 0.100000001f, 0.00100000005f, 4.0f, 0.00100000005f);
 		ui_interface->declare(&fVslider0, "5", "");
 		ui_interface->declare(&fVslider0, "unit", "dB");
-		ui_interface->addVerticalSlider("preGain", &fVslider0, 0.0f, -24.0f, 24.0f, 0.5f);
+		ui_interface->addVerticalSlider("gain_pre", &fVslider0, 0.0f, -24.0f, 24.0f, 0.5f);
 		ui_interface->declare(&fVslider1, "6", "");
 		ui_interface->declare(&fVslider1, "unit", "dB");
-		ui_interface->addVerticalSlider("postGain", &fVslider1, 0.0f, -24.0f, 24.0f, 0.5f);
+		ui_interface->addVerticalSlider("gain_post", &fVslider1, 0.0f, -24.0f, 24.0f, 0.5f);
 		ui_interface->closeBox();
 		
 	}

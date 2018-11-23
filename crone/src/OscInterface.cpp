@@ -80,5 +80,8 @@ void OscInterface::addServerMethods() {
         if(argc<1) { return; }
         Commands::post(Commands::Id::SET_LEVEL_INS_MIX, argv[0]->f);
     });
+
+#include "effects/StereoCompressor_param_lambdas.hpp"
+#include "effects/ZitaReverb_param_lambdas.hpp"
 }
 

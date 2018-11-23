@@ -13,6 +13,7 @@
 namespace  crone {
 
     class AudioMain {
+        friend class Commands;
         enum {
             MAX_BUF_SIZE = 2048
         };
@@ -25,11 +26,15 @@ namespace  crone {
                 const float *in_ext[2],
                 float *out[2],
                 size_t numFrames);
-
+      
+      void setDefaultParams();
+      
+    protected:
         void handleCommand(Commands::CommandPacket *p);
-
+	
     private:
         void clearBusses(size_t numFrames);
+	
     private:
         // processors
         StereoCompressor comp;
@@ -69,6 +74,7 @@ namespace  crone {
             StaticLevelList();
         };
         StaticLevelList staticLevels;
+
     };
 }
 

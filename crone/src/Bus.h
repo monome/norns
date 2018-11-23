@@ -27,6 +27,7 @@ namespace  crone {
 
         // clear the first N frames in the bus
         constexpr void clear(size_t numFrames) {
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     buf[ch][fr] = 0.f;
@@ -36,6 +37,7 @@ namespace  crone {
 
         // sum from bus, without amplitude scaling
         constexpr void sumFrom(BusT &b, size_t numFrames) {
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     buf[ch][fr] += b.buf[ch][fr];
@@ -45,6 +47,7 @@ namespace  crone {
 
         // mix from bus, with fixed amplitude
         constexpr void mixFrom(BusT &b, size_t numFrames, float level) {
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     buf[ch][fr] += b.buf[ch][fr] * level;
@@ -55,6 +58,7 @@ namespace  crone {
 
         // mix from bus, with smoothed amplitude
         void mixFrom(BusT &b, size_t numFrames, LogRamp &level) {
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -66,6 +70,7 @@ namespace  crone {
 
         // mix from pointer array, with smoothed amplitude
         void mixFrom(const float *src[NumChannels], size_t numFrames, LogRamp &level) {
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -77,6 +82,7 @@ namespace  crone {
 
         // mix to pointer array, with smoothed amplitude
         void mixTo(float *dst[NumChannels], size_t numFrames, LogRamp &level) {
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -88,6 +94,7 @@ namespace  crone {
 
         // mix from stereo bus with 2x2 level matrix
         void stereoMixFrom(BusT &b, size_t numFrames, const float level[4]) {
+            assert(numFrames < BlockSize);
             for(size_t fr=0; fr<numFrames; ++fr) {
                 buf[0][fr] += b.buf[0][fr] * level[0] + b.buf[1][fr] * level[2];
                 buf[1][fr] += b.buf[0][fr] * level[1] + b.buf[1][fr] * level[3];
@@ -96,6 +103,7 @@ namespace  crone {
 
         // mix from two busses with balance coefficient (linear)
         void xfade(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
+            assert(numFrames < BlockSize);
             float x, y, c;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 c = level.update();
@@ -109,6 +117,7 @@ namespace  crone {
 
         // mix from two busses with balance coefficient (equal power)
         void xfadeEpFrom(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
+            assert(numFrames < BlockSize);
             float x, y, c;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 c = level.update();
@@ -119,7 +128,6 @@ namespace  crone {
                 }
             }
         }
-
     };
 
 }
