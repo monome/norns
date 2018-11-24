@@ -5,7 +5,7 @@ export JACK_NO_AUDIO_RESERVATION=1
 
 # start jack clients
 
-supernova -u 57122 &
+supernova -u 57122 -i 2 -o 2 &
 ./build/crone/crone &
 
 # start sclang (performs connections)
