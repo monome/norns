@@ -17,9 +17,10 @@ Crone {
 	classvar <>oscfunc;
 	// address of remote client
 	classvar <>remoteAddr;
-	// port to send OSC on
+	// port for sending OSC to matron
 	classvar <>txPort = 8888;
-	classvar <>serverPort = 57122;
+	// server port
+	classvar <>serverPort = 57110;
 	// a CroneAudioContext
 	classvar <>context;
 	// boot completion flag
@@ -30,45 +31,60 @@ Crone {
 	// VU report interval
 	classvar vuInterval;
 
+	classvar useRemoteServer = true;
+
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
 			postln("\n-------------------------------------------------");
 			postln(" Crone startup");
 			postln("");
-			postln(" \OSC rx port from matron: " ++ NetAddr.langPort);
-			postln(" \OSC tx port to matron:   " ++ txPort);
-			postln(" \OSC tx port to server:   " ++ serverPort);
+			postln(" OSC rx port: " ++ NetAddr.langPort);
+			postln(" OSC tx port: " ++ txPort);
+			postln(" server port: " ++ serverPort);
 			postln("--------------------------------------------------\n");
 
 			recordingsDir = Platform.userHomeDir ++ "/dust/audio/tape";
 
-			// FIXME? matron address is hardcoded here
 			remoteAddr =NetAddr("127.0.0.1", txPort);
 
-			Server.supernova;
-			server = Server.local;
-			// don't use with supernova
-			// server.options.memSize = 2**16;
-			server.latency = 0.05;
-
-			/*
-			server.waitForBoot {
-				CroneDefs.sendDefs(server);
-				server.sync;
-				// create the audio context (boilerplate routing and analysis)
-				context = CroneAudioContext.new(server);
-
-				Crone.initOscRx;
-				Crone.initVu;
-				Crone.initTape;
-				CroneEffects.init;
-
-				complete = 1;
-			};
-			*/
+			Crone.startBoot;
 
 		}
+
+	}
+
+	*startBoot { 
+		if(useRemoteServer, {
+			Server.default = Server.remote(\crone, NetAddr("127.0.0.1", serverPort));
+			server = Server.default;
+			server.doWhenBooted {
+				Crone.finishBoot;
+			};
+		}, {
+			Server.supernova;
+			server = Server.local;
+			// doesn't work on supernova - "invallid argument" - too big?
+			// server.options.memSize = 2**16;
+			server.latency = 0.05;
+			server.waitForBoot {
+				Crone.finishBoot;
+			};
+		});
+	}
+
+	*finishBoot { 
+		CroneDefs.sendDefs(server);
+		server.sync;
+		// create the audio context (boilerplate routing and analysis)
+		context = CroneAudioContext.new(server);
+
+		Crone.initOscRx;
+		Crone.initVu;
+		Crone.initTape;
+		CroneEffects.init;
+
+		complete = 1;
 
 	}
 
