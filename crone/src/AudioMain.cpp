@@ -177,7 +177,7 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
             reverb.getUi().setParamValue(p->voice, p->value);
             break;
         case Commands::Id::SET_PARAM_COMPRESSOR:
-            reverb.getUi().setParamValue(p->voice, p->value);
+            comp.getUi().setParamValue(p->voice, p->value);
             break;
         default:
             ;;
