@@ -20,7 +20,7 @@ Crone {
 	// port for sending OSC to matron
 	classvar <>txPort = 8888;
 	// server port
-	classvar <>serverPort = 57110;
+	classvar <>serverPort = 57122;
 	// a CroneAudioContext
 	classvar <>context;
 	// boot completion flag
@@ -54,7 +54,15 @@ Crone {
 
 	}
 
-	*startBoot { 
+	*runShellCommand { arg str;
+		var p,l;
+		p = Pipe.new(str, "r");
+		l = p.getLine;
+		while({l.notNil}, {l.postln; l = p.getLine; });
+		p.close;
+	}
+
+	*startBoot {
 		if(useRemoteServer, {
 			Server.default = Server.remote(\crone, NetAddr("127.0.0.1", serverPort));
 			server = Server.default;
@@ -73,7 +81,10 @@ Crone {
 		});
 	}
 
-	*finishBoot { 
+	*finishBoot {
+		// FIXME: connect to `crone` client instead
+		Crone.runShellCommand("jack_connect \"supernova:output_1\" \"system:playback_1\"");
+		Crone.runShellCommand("jack_connect \"supernova:output_2\" \"system:playback_2\"");
 		CroneDefs.sendDefs(server);
 		server.sync;
 		// create the audio context (boilerplate routing and analysis)
@@ -85,6 +96,10 @@ Crone {
 		CroneEffects.init;
 
 		complete = 1;
+
+		/// test..
+		{ SinOsc.ar([218,223]) * 0.125 * EnvGen.ar(Env.linen(2, 4, 6), doneAction:2) }.play(server);
+		////
 
 	}
 
