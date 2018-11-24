@@ -17,7 +17,7 @@ namespace  crone {
         float buf[NumChannels][BlockSize];
 
         // clear the entire bus
-        constexpr void clear() {
+         void clear() {
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<BlockSize; ++fr) {
                     buf[ch][fr] = 0.f;
@@ -26,7 +26,7 @@ namespace  crone {
         }
 
         // clear the first N frames in the bus
-        constexpr void clear(size_t numFrames) {
+         void clear(size_t numFrames) {
             assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
@@ -36,7 +36,7 @@ namespace  crone {
         }
 
         // sum from bus, without amplitude scaling
-        constexpr void sumFrom(BusT &b, size_t numFrames) {
+         void sumFrom(BusT &b, size_t numFrames) {
             assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
@@ -46,7 +46,7 @@ namespace  crone {
         }
 
         // mix from bus, with fixed amplitude
-        constexpr void mixFrom(BusT &b, size_t numFrames, float level) {
+         void mixFrom(BusT &b, size_t numFrames, float level) {
             assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
