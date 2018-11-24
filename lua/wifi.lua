@@ -145,7 +145,7 @@ function Wifi.on(connection)
     print("enabling connection: '" .. connection .. "'")
     Wifi.ensure_radio_is_on()
     -- change connection in bg to allow ui to update
-    os.execute("sudo nmcli --wait 5 connection up id '" .. connection .. "' &")
+    os.execute("sudo nmcli --wait 2 connection up id '" .. connection .. "' &")
   end
 end
 
@@ -194,6 +194,20 @@ function Wifi.ensure_radio_is_on()
   end
 end
 
+function Wifi.add(ssid, psk)
+  Wifi.ensure_radio_is_on()
+  print("adding wifi network: " .. ssid)
+  local cmd = "sudo nmcli --wait 10 device wifi connect"
+  cmd = cmd .. " '" .. ssid .. "' password '" .. psk .. "'"
+  cmd = cmd .. " ifname " .. Wifi.device.name
+  os.execute(cmd)
+end
+
+function Wifi.delete(name)
+  -- FIXME: do we need to turn off radio if name == active_connection?
+  print("deleting wifi network: " .. name)
+  os.execute("sudo nmcli connection delete id '" .. name .. "'")
+end
 
 function Wifi.update()
   Wifi.device:refresh()

@@ -32,6 +32,7 @@ local pRESET = 9
 local pSLEEP = 10
 local pTAPE = 11
 local pMIX = 12
+local pCONN = 13
 
 -- page pointer
 local m = {}
@@ -926,7 +927,7 @@ m.deinit[pDEVICES] = function() end
 -- WIFI
 m.wifi = {}
 m.wifi.pos = 0
-m.wifi.list = {"off","hotspot","network >", "new >"}
+m.wifi.list = {"off","hotspot","network >", "edit >"}
 m.wifi.len = 4
 m.wifi.selected = 1
 m.wifi.try = ""
@@ -944,8 +945,7 @@ m.key[pWIFI] = function(n,z)
       m.wifi.try = wifi.conn_list[m.wifi.selected]
       wifi.on(m.wifi.try)
     elseif m.wifi.pos == 3 then
-      -- TODO: new connection wizard
-      textentry.enter(m.wifi.passdone, "something")
+      menu.set_page(pCONN)
     end
   end
 end
@@ -1046,6 +1046,94 @@ m.deinit[pWIFI] = function()
   u:stop()
 end
 
+-----------------------------------------
+-- CONN(ECTIONS)
+
+m.conn = {}
+m.conn.list = {"add", "delete"}
+m.conn.len = #m.conn.list
+m.conn.pos = 1
+
+m.key[pCONN] = function(n,z)
+  if n==2 and z==1 then
+    menu.set_page(pWIFI)
+  elseif n==3 and z==1 then
+    if m.conn.pos==1 then
+      textentry.enter(m.conn.passdone(m.conn.ssid_list[m.conn.add_choice]))
+    elseif m.conn.pos==2 then
+      wifi.delete(m.conn.conn_list[m.conn.del_choice])
+      menu.set_page(pWIFI)
+    end
+  end
+end
+
+m.conn.passdone = function(ssid)
+  return function(txt)
+    if txt ~= nil then
+      wifi.add(ssid, txt)
+    end
+    menu.set_page(pWIFI)
+  end
+end
+
+m.enc[pCONN] = function(n,delta)
+  if n==2 then
+    m.conn.pos = util.clamp(1,m.conn.pos+delta,m.conn.len)
+    menu.redraw()
+  elseif n==3 then
+    if m.conn.pos==1 then
+      m.conn.add_choice = util.clamp(1,m.conn.add_choice+delta,#m.conn.ssid_list)
+      menu.redraw()
+    elseif m.conn.pos==2 then
+      m.conn.del_choice = util.clamp(1,m.conn.del_choice+delta,#m.conn.conn_list)
+      menu.redraw()
+    end
+  end
+end
+
+m.redraw[pCONN] = function()
+  screen.clear()
+  screen.level(15)
+
+  for i=1,m.conn.len do
+    screen.move(0,10*i+20)
+    if i==m.conn.pos then
+      screen.level(15)
+    else
+      screen.level(4)
+    end
+    screen.text(string.upper(m.conn.list[i]) .. " >")
+    screen.move(127,10*i+20)
+    if i==1 and m.conn.pos==i then
+      screen.text_right(m.conn.ssid_list[m.conn.add_choice] or "")
+    elseif i==2 and m.conn.pos==i then
+      screen.text_right(m.conn.conn_list[m.conn.del_choice] or "")
+    end
+  end
+
+  screen.update()
+end
+
+m.init[pCONN] = function()
+  wifi.ensure_radio_is_on()
+  m.conn.ssid_list = wifi.ssids() or {}
+  m.conn.conn_list = wifi.connections() or {}
+  m.conn.add_choice = 0
+  m.conn.mod_choice = 0
+  m.conn.del_choice = 0
+
+  u.time = 1
+  u.count = -1
+  u.callback = function()
+    m.conn.ssid_list = wifi.ssids()
+    menu.redraw()
+  end
+  u:start()
+end
+
+m.deinit[pCONN] = function()
+  u:stop()
+end
 
 -----------------------------------------
 -- AUDIO
