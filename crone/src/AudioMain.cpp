@@ -14,34 +14,6 @@ using namespace crone;
 using std::cout;
 using std::endl;
 
-void AudioMain::setDefaultParams() {
-
-    APIUI *ui;
-    ui = &comp.getUi();
-    ui->setParamValue(ui->getParamIndex("/StereoCompressor/ratio"), 4.f);
-    ui->setParamValue(ui->getParamIndex("/StereoCompressor/threshold"), -20.f);
-    ui->setParamValue(ui->getParamIndex("/StereoCompressor/attack"), 0.005f);
-    ui->setParamValue(ui->getParamIndex("/StereoCompressor/release"), 0.05f);
-    ui->setParamValue(ui->getParamIndex("/StereoCompressor/gain_pre"), 0.0);
-    ui->setParamValue(ui->getParamIndex("/StereoCompressor/gain_post"), 4.0);
-
-    ui = &reverb.getUi();
-    ui->setParamValue(ui->getParamIndex("/ZitaReverb/pre_del"), 47);
-    ui->setParamValue(ui->getParamIndex("/ZitaReverb/lf_fc"), 666);
-    ui->setParamValue(ui->getParamIndex("/ZitaReverb/low_rt60"), 3.33);
-    ui->setParamValue(ui->getParamIndex("/ZitaReverb/mid_rt60"), 4.44);
-    ui->setParamValue(ui->getParamIndex("/ZitaReverb/hf_damp"), 5555);
-
-    if(0) {
-        std::vector<Evil::FaustModule> mods;
-        Evil::FaustModule mcomp("StereoCompressor", &comp.getUi());
-        mods.push_back(mcomp);
-        Evil::FaustModule mverb("ZitaReverb", &reverb.getUi());
-        mods.push_back(mverb);
-        Evil::DO_EVIL(mods); /// ayyehehee
-    }
-}
-
 AudioMain::AudioMain() {
     comp.init(48000);
     reverb.init(48000);
@@ -51,6 +23,34 @@ AudioMain::AudioMain() {
 AudioMain::AudioMain(int sampleRate) {
     comp.init(sampleRate);
 }
+
+
+// state constructors
+AudioMain::BusList::BusList() {
+    for (auto *p: { &adc_out, &dac_in, &adc_monitor, &aux_in, &aux_out, &ins_in, &ins_out}) {
+        p->clear();
+    }
+}
+
+AudioMain::SmoothLevelList::SmoothLevelList() {
+    for (auto *p : { &adc, &monitor, &monitor_aux, &aux}) {
+        p->setTarget(0);
+    }
+}
+
+AudioMain::StaticLevelList::StaticLevelList() {
+    for (auto &f : monitor_mix) {
+        f = 0.f;
+    }
+}
+
+AudioMain::EnabledList::EnabledList() {
+    comp = false;
+    reverb = false;
+}
+
+/////////////////////////
+/// main process function
 
 void AudioMain::processBlock(const float **in_adc, const float **in_ext, float **out, size_t numFrames) {
     // apply pending param changes
@@ -81,7 +81,7 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     bus.aux_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor_aux);
     bus.aux_in.mixFrom(bus.ext_out, numFrames, smoothLevels.ext_aux);
 
-    if (0) { // bypass aux
+    if (!enabled.reverb) { // bypass aux
         bus.aux_out.sumFrom(bus.aux_in, numFrames);
     } else { // process aux
         // FIXME: arg!
@@ -97,7 +97,7 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     bus.ins_in.sumFrom(bus.ext_out, numFrames);
     bus.ins_in.mixFrom(bus.aux_out, numFrames, smoothLevels.aux);
 
-    if(0) { // bypass_insert
+    if(!enabled.comp) { // bypass_insert
         bus.ins_out.sumFrom(bus.ins_in, numFrames);
         bus.dac_in.sumFrom(bus.ins_out, numFrames);
     } else { // process insert
@@ -114,6 +114,36 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     bus.dac_in.mixTo(out, numFrames, smoothLevels.dac);
 }
 
+
+void AudioMain::setDefaultParams() {
+
+    APIUI *ui;
+    ui = &comp.getUi();
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/ratio"), 4.f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/threshold"), -20.f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/attack"), 0.005f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/release"), 0.05f);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/gain_pre"), 0.0);
+    ui->setParamValue(ui->getParamIndex("/StereoCompressor/gain_post"), 4.0);
+
+    ui = &reverb.getUi();
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/pre_del"), 47);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/lf_fc"), 666);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/low_rt60"), 3.33);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/mid_rt60"), 4.44);
+    ui->setParamValue(ui->getParamIndex("/ZitaReverb/hf_damp"), 5555);
+
+    if(0) {
+        std::vector<Evil::FaustModule> mods;
+        Evil::FaustModule mcomp("Compressor", &comp.getUi());
+        mods.push_back(mcomp);
+        Evil::FaustModule mverb("Reverb", &reverb.getUi());
+        mods.push_back(mverb);
+        Evil::DO_EVIL(mods); /// ayyehehee
+    }
+}
+
+
 void AudioMain::clearBusses(size_t numFrames) {
     bus.adc_out.clear(numFrames);
     bus.ext_out.clear(numFrames);
@@ -123,24 +153,6 @@ void AudioMain::clearBusses(size_t numFrames) {
     bus.aux_in.clear(numFrames);
     bus.aux_out.clear(numFrames);
     bus.adc_monitor.clear(numFrames);
-}
-
-AudioMain::BusList::BusList() {
-    for (auto *p: { &adc_out, &dac_in, &adc_monitor, &aux_in, &aux_out, &ins_in, &ins_out}) {
-        p->clear();
-    }
-}
-
-AudioMain::SmoothLevelList::SmoothLevelList() {
-    for (auto *p : { &adc, &monitor, &monitor_aux, &aux}) {
-        p->setTarget(0);
-    }
-}
-
-AudioMain::StaticLevelList::StaticLevelList() {
-    for (auto &f : monitor_mix) {
-        f = 0.f;
-    }
 }
 
 void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
@@ -179,7 +191,14 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         case Commands::Id::SET_PARAM_COMPRESSOR:
             comp.getUi().setParamValue(p->voice, p->value);
             break;
+        case Commands::Id::SET_ENABLED_REVERB:
+            enabled.reverb = p->value > 0.f;
+            break;
+        case Commands::Id::SET_ENABLED_COMPRESSOR:
+            enabled.comp = p->value > 0.f;
+            break;
         default:
             ;;
     }
 }
+

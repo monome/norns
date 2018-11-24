@@ -116,7 +116,7 @@ namespace  crone {
         }
 
         // mix from two busses with balance coefficient (equal power)
-        void xfadeEpFrom(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
+        void xfadeEp(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
             assert(numFrames < BlockSize);
             float x, y, c;
             for(size_t fr=0; fr<numFrames; ++fr) {

@@ -55,6 +55,7 @@ namespace  crone {
         };
         BusList bus;
 
+        // levels
         struct SmoothLevelList{
         public:
             LogRamp adc;
@@ -75,6 +76,13 @@ namespace  crone {
         };
         StaticLevelList staticLevels;
 
+        // other state
+        struct EnabledList {
+            bool reverb;
+            bool comp;
+            EnabledList();
+        };
+        EnabledList enabled;
     };
 }
 

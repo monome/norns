@@ -22,8 +22,10 @@ public:
         std::string name;
         APIUI *ui;
         std::string upname;
-        FaustModule(std::string s, APIUI *u): name(s), ui(u), upname(name) {
+        std::string lowname;
+        FaustModule(std::string s, APIUI *u): name(s), ui(u), upname(name), lowname(name) {
             boost::to_upper(upname);
+            boost::to_lower(lowname);
         }
 
         // arg: param offset (params gen'd so far)
@@ -67,12 +69,11 @@ public:
                 boost::replace_all(lab, name, "");
                 boost::replace_all(lab, "__", "");
                 boost::to_lower(lab);
-
-                ofs << "addServerMethod(\"/set/param/" << name << "/" << lab;
+                ofs << "addServerMethod(\"/set/param/" << lowname << "/" << lab;
                 //ofs << "\",\"f\". [](lo_arg **argv, int argc) {" << endl << "\t";
 
                 ofs << R"evil(", "f", [](lo_arg **argv, int argc) {
-        if(argc<2) { return; }
+        if(argc<1) { return; }
         Commands::post(Commands::Id::SET_PARAM_)evil";
                 ofs << upname;
                 boost::to_upper(lab);

@@ -28,6 +28,9 @@ namespace crone {
             SET_PARAM_REVERB,
             SET_PARAM_COMPRESSOR,
 
+            SET_ENABLED_REVERB,
+            SET_ENABLED_COMPRESSOR,
+
             //-- softcut commands
                     SET_SOFTCUT_RATE,
             SET_SOFTCUT_LOOP_START,
