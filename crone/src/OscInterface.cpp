@@ -7,6 +7,9 @@
 #include "OscInterface.h"
 #include "Commands.h"
 
+#include "effects/CompressorParams.h"
+#include "effects/ReverbParams.h"
+
 using namespace crone;
 
 
@@ -81,7 +84,70 @@ void OscInterface::addServerMethods() {
         Commands::post(Commands::Id::SET_LEVEL_INS_MIX, argv[0]->f);
     });
 
-#include "effects/StereoCompressor_param_lambdas.hpp"
-#include "effects/ZitaReverb_param_lambdas.hpp"
+
+    //-------------------------
+    //-- compressor params
+
+    addServerMethod("/set/param/Compressor/ratio", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_COMPRESSOR, CompressorParam::RATIO, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Compressor/threshold", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_COMPRESSOR, CompressorParam::THRESHOLD, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Compressor/attack", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_COMPRESSOR, CompressorParam::ATTACK, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Compressor/release", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_COMPRESSOR, CompressorParam::RELEASE, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Compressor/gain_pre", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_COMPRESSOR, CompressorParam::GAIN_PRE, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Compressor/gain_post", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_COMPRESSOR, CompressorParam::GAIN_POST, argv[0]->f);
+    });
+
+
+    //--------------------------
+    //-- reverb params
+
+    addServerMethod("/set/param/Reverb/pre_del", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_REVERB, ReverbParam::PRE_DEL, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Reverb/lf_fc", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_REVERB, ReverbParam::LF_FC, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Reverb/low_rt60", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_REVERB, ReverbParam::LOW_RT60, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Reverb/mid_rt60", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_REVERB, ReverbParam::MID_RT60, argv[0]->f);
+    });
+
+    addServerMethod("/set/param/Reverb/hf_damp", "f", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PARAM_REVERB, ReverbParam::HF_DAMP, argv[0]->f);
+    });
+
+
+
 }
 

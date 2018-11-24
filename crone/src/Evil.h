@@ -15,6 +15,7 @@
 #include <boost/algorithm/string.hpp>
 #include "faust/gui/APIUI.h"
 
+namespace crone {
 class Evil  {
 public:
     struct FaustModule {
@@ -32,10 +33,12 @@ public:
             using std::string;
             using std::endl;
             std::ostringstream os;
-            os << name << "_param_enum.hpp";
+            os << name << "Params.h";
             string ofname(os.str());
             std::ofstream ofs(ofname, std::ios::out | std::ios::trunc);
-            //ofs << "enum { " << endl;
+            ofs << "#pragma once" << endl << endl;
+            ofs << "namespace crone { " << endl;
+            ofs << "typedef enum { " << endl;
             int n = ui->getParamsCount();
             for (int i=0; i<n; ++i) {
                 string lab(ui->getParamLabel(i));
@@ -43,11 +46,10 @@ public:
                 boost::replace_all(lab, name, "");
                 boost::replace_all(lab, "__", "");
                 boost::to_upper(lab);
-                ofs << "  SET_PARAM_" << upname << "_" << lab
-                // << " = " << i+poff
-                << "," << endl;
+                ofs << lab << " = " << i << "," << endl;
             }
-            //ofs << "};";
+            ofs << "} " << name << "Param;" << endl;
+            ofs << "} // namespace crone" << endl;
             ofs.close();
             return n;
         };
@@ -70,10 +72,11 @@ public:
                 //ofs << "\",\"f\". [](lo_arg **argv, int argc) {" << endl << "\t";
 
                 ofs << R"evil(", "f", [](lo_arg **argv, int argc) {
-        if(argc<1) { return; }
+        if(argc<2) { return; }
         Commands::post(Commands::Id::SET_PARAM_)evil";
+                ofs << upname;
                 boost::to_upper(lab);
-                ofs << upname << "_" << lab;
+                ofs << ", "<< name << "Param::" << lab;
                 ofs << ", argv[0]->f);" << endl << "});" << endl << endl;
             }
             ofs.close();
@@ -108,5 +111,7 @@ public:
         }
     }
 };
+
+}
 
 #endif //CRONE_ACCESSGENERATOR_H

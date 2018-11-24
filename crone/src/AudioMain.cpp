@@ -172,7 +172,13 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         case Commands::Id::SET_LEVEL_MONITOR_MIX:
             if(p->voice < 0 || p->voice > 3) { return; }
             staticLevels.monitor_mix[p->voice] = p->value;
-            break;	    
+            break;
+        case Commands::Id::SET_PARAM_REVERB:
+            reverb.getUi().setParamValue(p->voice, p->value);
+            break;
+        case Commands::Id::SET_PARAM_COMPRESSOR:
+            reverb.getUi().setParamValue(p->voice, p->value);
+            break;
         default:
             ;;
     }

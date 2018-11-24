@@ -25,6 +25,9 @@ namespace crone {
             SET_LEVEL_MONITOR_AUX,
             SET_LEVEL_INS_MIX,
 
+            SET_PARAM_REVERB,
+            SET_PARAM_COMPRESSOR,
+
             //-- softcut commands
                     SET_SOFTCUT_RATE,
             SET_SOFTCUT_LOOP_START,
@@ -52,9 +55,6 @@ namespace crone {
             SET_SOFTCUT_REC_FADE_SHAPE,
             SET_SOFTCUT_LEVEL_SLEW_TIME,
             SET_SOFTCUT_RATE_SLEW_TIME,
-
-#include "effects/StereoCompressor_param_enum.hpp"
-#include "effects/ZitaReverb_param_enum.hpp"
 
             NUM_COMMANDS
         } Id;
