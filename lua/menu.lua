@@ -301,9 +301,10 @@ m.redraw[pHOME] = function()
     screen.move(36,20)
     screen.text(norns.temp .. "c")
     screen.move(127,20)
-    screen.text_right("IP "..wifi.ip)
     if wifi.state > 0 then
-      screen.text_right(wifi.ip)
+      screen.text_right("IP "..wifi.ip)
+    else
+      screen.text_right("IP -")
     end
     screen.move(127,45)
     screen.text_right(norns.version.update)
@@ -925,8 +926,8 @@ m.deinit[pDEVICES] = function() end
 -- WIFI
 m.wifi = {}
 m.wifi.pos = 0
-m.wifi.list = {"off","hotspot","network >"}
-m.wifi.len = 3
+m.wifi.list = {"off","hotspot","network >", "new >"}
+m.wifi.len = 4
 m.wifi.selected = 1
 m.wifi.try = ""
 m.wifi.countdown = -1
@@ -936,14 +937,15 @@ m.key[pWIFI] = function(n,z)
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 then
     if m.wifi.pos == 0 then
-      print "wifi off"
       wifi.off()
     elseif m.wifi.pos == 1 then
-      print "wifi hotspot"
       wifi.hotspot()
     elseif m.wifi.pos == 2 then
-      m.wifi.try = wifi.scan_list[m.wifi.selected]
-      textentry.enter(m.wifi.passdone, wifi.psk)
+      m.wifi.try = wifi.conn_list[m.wifi.selected]
+      wifi.on(m.wifi.try)
+    elseif m.wifi.pos == 3 then
+      -- TODO: new connection wizard
+      textentry.enter(m.wifi.passdone, "something")
     end
   end
 end
@@ -965,7 +967,7 @@ m.enc[pWIFI] = function(n,delta)
     elseif m.wifi.pos < 0 then m.wifi.pos = 0 end
     menu.redraw()
   elseif n==3 and m.wifi.pos == 2 then
-    m.wifi.selected = util.clamp(1,m.wifi.selected+delta,wifi.scan_count)
+    m.wifi.selected = util.clamp(1,m.wifi.selected+delta,wifi.conn_count)
     menu.redraw()
   end
 end
@@ -977,7 +979,8 @@ m.redraw[pWIFI] = function()
   if m.wifi.countdown == -1 then
     screen.move(0,10)
     if wifi.state == 2 then
-      screen.text("status: router "..wifi.ssid)
+      --screen.text("status: router "..wifi.ssid)
+      screen.text("status: router "..wifi.connection)
     else screen.text("status: "..wifi.status) end
     if wifi.state > 0 then
       screen.level(4)
@@ -989,11 +992,11 @@ m.redraw[pWIFI] = function()
       end
     end
 
-    screen.move(0,40+wifi.state*10)
+    screen.move(0,30+wifi.state*10)
     screen.text("-")
 
     for i=1,m.wifi.len do
-      screen.move(8,30+10*i)
+      screen.move(8,20+10*i)
       line = m.wifi.list[i]
       if(i==m.wifi.pos+1) then
         screen.level(15)
@@ -1003,10 +1006,10 @@ m.redraw[pWIFI] = function()
       screen.text(string.upper(line))
     end
 
-    screen.move(127,60)
+    screen.move(127,50)
     if m.wifi.pos==2 then screen.level(15) else screen.level(4) end
-    if wifi.scan_count > 0 then
-      screen.text_right(wifi.scan_list[m.wifi.selected])
+    if wifi.conn_count > 0 then
+      screen.text_right(wifi.conn_list[m.wifi.selected])
     else screen.text_right("NONE") end
 
   else -- countdown
@@ -1020,9 +1023,7 @@ end
 
 m.init[pWIFI] = function()
   m.wifi.countdown = -1
-  wifi.scan()
   wifi.update()
-  --m.wifi.selected = wifi.scan_active
   m.wifi.selected = 1
   u.time = 1
   u.count = -1

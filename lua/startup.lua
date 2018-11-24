@@ -15,6 +15,7 @@ osc = require 'osc'
 poll = require 'poll'
 engine = require 'engine'
 wifi = require 'wifi'
+wifi.init()
 
 fileselect = require 'fileselect'
 textentry = require 'textentry'
