@@ -19,6 +19,7 @@ Crone {
 	classvar <>remoteAddr;
 	// port to send OSC on
 	classvar <>txPort = 8888;
+	classvar <>serverPort = 57122;
 	// a CroneAudioContext
 	classvar <>context;
 	// boot completion flag
@@ -35,8 +36,9 @@ Crone {
 			postln("\n-------------------------------------------------");
 			postln(" Crone startup");
 			postln("");
-			postln(" \OSC rx port: " ++ NetAddr.langPort);
-			postln(" \OSC tx port: " ++ txPort);
+			postln(" \OSC rx port from matron: " ++ NetAddr.langPort);
+			postln(" \OSC tx port to matron:   " ++ txPort);
+			postln(" \OSC tx port to server:   " ++ serverPort);
 			postln("--------------------------------------------------\n");
 
 			recordingsDir = Platform.userHomeDir ++ "/dust/audio/tape";
@@ -50,6 +52,7 @@ Crone {
 			// server.options.memSize = 2**16;
 			server.latency = 0.05;
 
+			/*
 			server.waitForBoot {
 				CroneDefs.sendDefs(server);
 				server.sync;
@@ -63,6 +66,7 @@ Crone {
 
 				complete = 1;
 			};
+			*/
 
 		}
 
