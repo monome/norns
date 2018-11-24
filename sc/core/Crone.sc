@@ -83,8 +83,10 @@ Crone {
 
 	*finishBoot {
 		// FIXME: connect to `crone` client instead
-		Crone.runShellCommand("jack_connect \"supernova:output_1\" \"system:playback_1\"");
-		Crone.runShellCommand("jack_connect \"supernova:output_2\" \"system:playback_2\"");
+		Crone.runShellCommand("jack_connect \"system:capture_1\" \"supernova:input_1\"");
+		Crone.runShellCommand("jack_connect \"system:capture_2\" \"supernova:input_2\"");
+		Crone.runShellCommand("jack_connect \"supernova:output_1\" \"crone:input_3\"");
+		Crone.runShellCommand("jack_connect \"supernova:output_2\" \"crone:input_4\"");
 		CroneDefs.sendDefs(server);
 		server.sync;
 		// create the audio context (boilerplate routing and analysis)

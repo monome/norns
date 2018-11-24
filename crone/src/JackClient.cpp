@@ -81,22 +81,22 @@ public:
         jack_on_shutdown (client, jack_shutdown, this);
 
         // create client ports
-        input_port[0] = jack_port_register (client, "in_0",
+        input_port[0] = jack_port_register (client, "input_1",
                                             JACK_DEFAULT_AUDIO_TYPE,
                                             JackPortIsInput, 0);
-        input_port[1] = jack_port_register (client, "in_1",
+        input_port[1] = jack_port_register (client, "input_2",
                                             JACK_DEFAULT_AUDIO_TYPE,
                                             JackPortIsInput, 0);
-        input_port[2] = jack_port_register (client, "in_2",
+        input_port[2] = jack_port_register (client, "input_3",
                                             JACK_DEFAULT_AUDIO_TYPE,
                                             JackPortIsInput, 0);
-        input_port[3] = jack_port_register (client, "in_3",
+        input_port[3] = jack_port_register (client, "input_4",
                                             JACK_DEFAULT_AUDIO_TYPE,
                                             JackPortIsInput, 0);
-        output_port[0] = jack_port_register (client, "out_0",
+        output_port[0] = jack_port_register (client, "output_1",
                                              JACK_DEFAULT_AUDIO_TYPE,
                                              JackPortIsOutput, 0);
-        output_port[1] = jack_port_register (client, "out_1",
+        output_port[1] = jack_port_register (client, "output_2",
                                              JACK_DEFAULT_AUDIO_TYPE,
                                              JackPortIsOutput, 0);
 
