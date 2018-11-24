@@ -21,7 +21,8 @@ def build(bld):
                  target='crone',
                  
                  includes=[
-                     'src'
+                     'src',
+                     './'
                  ],
                  
                  use=[
