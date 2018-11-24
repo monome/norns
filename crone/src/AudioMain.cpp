@@ -33,14 +33,18 @@ AudioMain::BusList::BusList() {
 }
 
 AudioMain::SmoothLevelList::SmoothLevelList() {
-    for (auto *p : { &adc, &monitor, &monitor_aux, &aux}) {
-        p->setTarget(0);
-    }
+    adc.setTarget(1.f);
+    dac.setTarget(1.f);
+    ext.setTarget(1.f);
+    monitor.setTarget(0.f);
+    ext_aux.setTarget(0.f);
+    monitor_aux.setTarget(0.f);
+    ins_mix.setTarget(0.f);
 }
 
 AudioMain::StaticLevelList::StaticLevelList() {
     for (auto &f : monitor_mix) {
-        f = 0.f;
+        f = 0.5f;
     }
 }
 
