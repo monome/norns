@@ -102,7 +102,6 @@ void* dev_midi_start(void *self) {
                 msg_buf[msg_pos] = byte;
                 msg_pos += 1;
             }
-        }
 
         if (msg_pos == msg_len) {
             ev = event_data_new(EVENT_MIDI_EVENT);
@@ -116,6 +115,7 @@ void* dev_midi_start(void *self) {
             msg_pos = 0;
             msg_len = 0;
         }
+      }
     } while (read > 0);
 
     return NULL;
