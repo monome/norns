@@ -23,6 +23,9 @@ mix:set_action("monitor_mode",
     if x == 1 then norns.audio.monitor_stereo()
     else norns.audio.monitor_mono() end
   end)
+mix:add_control("tape", "tape", cs_MUTE_LEVEL)
+mix:set_action("tape",
+  function(x) tape_level(x) end)
 mix:add_number("headphone", "headphone", 0, 63, 40)
 mix:set_action("headphone",
   function(x) gain_hp(x) end)

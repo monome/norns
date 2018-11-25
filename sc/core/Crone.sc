@@ -9,6 +9,7 @@ Crone {
 	classvar <>recordingsDir;
 	classvar <>player;
 	classvar <>playerClock;
+  classvar <>play_position;
 	classvar <>playerState = 'init';
 	classvar <>playerFile;
 	// current CroneEngine subclass instance
@@ -237,7 +238,8 @@ Crone {
 
 	*tapeOpenfile { |filename|
 		filename = filename.asString;
-		if (PathName(recordingsDir +/+ filename).isFile) {
+		postln("tape, load:" + filename.quote);
+		if (PathName(filename).isFile) {
 			if (#[playing, paused, fileopened].includes(playerState)) {
 				player.stop;
 			};
@@ -248,13 +250,14 @@ Crone {
 				}).add;
 
 				playerFile = filename;
-				player = SoundFile(recordingsDir +/+ playerFile).cue(
+				player = SoundFile(playerFile).cue(
 					(
 						out: context.out_b,
 						instrument: \cronetape
 					)
 				);
 				server.sync;
+        play_position = 0;
 				playerClock.beats = 0;
 				playerState = 'fileopened';
 				postln("tape player state:" + playerState);
@@ -271,7 +274,8 @@ Crone {
 		if (#[paused, fileopened].includes(playerState)) {
 			fork {
 				player.play;
-				playerClock.beats = 0;
+        if (play_position == 0, { playerClock.beats = 0 },
+          { playerClock.beats = play_position });
 				server.sync;
 				playerState = 'playing';
 				postln("tape player state:" + playerState);
@@ -283,6 +287,7 @@ Crone {
 	*tapePause { |filename|
 		if (playerState == 'playing') {
 			fork {
+        play_position = playerClock.beats;
 				player.pause;
 				server.sync;
 				playerState = 'paused';
@@ -296,6 +301,7 @@ Crone {
 		if (#[playing, paused].includes(playerState)) {
 			fork {
 				var stateWas = playerState;
+        play_position = 0;
 				player.close;
 				this.tapeOpenfile(playerFile);
 				if (stateWas == 'playing') {
@@ -498,7 +504,7 @@ Crone {
 			// @function /tape/level
 			'/tape/level':OSCFunc.new({
 			  arg msg, time, addr, recvPort;
-			  Node.basicNew(server, player.id.first).set(\amp, msg[1]);
+			  Node.basicNew(server, player.id.first).set(\amp, msg[1].dbamp);
 			}, '/tape/level'),
 
 			/// stop recording and close file
@@ -611,6 +617,7 @@ Crone {
 		recorder = Recorder.new(server);
 		recorder.recSampleFormat = "int16";
 		playerClock = TempoClock.new;
+    play_position = 0;
 
 		CronePollRegistry.register(
 			name: \tape_rec_dur,
@@ -623,10 +630,10 @@ Crone {
 		CronePollRegistry.register(
 			name: \tape_play_pos,
 			func: {
-				if (#[playing, paused].includes(playerState)) {
+				if (#[playing].includes(playerState)) {
 					playerClock.beats // TODO: this doesn't work with tapePause
 				} {
-					0
+				  play_position
 				};
 			},
 			dt: 0.1,
