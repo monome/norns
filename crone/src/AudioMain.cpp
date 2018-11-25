@@ -81,29 +81,29 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     // mix to monitor bus
     bus.adc_monitor.stereoMixFrom(bus.adc_out, numFrames, staticLevels.monitor_mix);
 
-    // mix to aux input
-    bus.aux_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor_aux);
-    bus.aux_in.mixFrom(bus.ext_out, numFrames, smoothLevels.ext_aux);
+
 
     if (!enabled.reverb) { // bypass aux
         bus.aux_out.sumFrom(bus.aux_in, numFrames);
     } else { // process aux
+        // mix to aux input
+        bus.aux_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor_aux);
+        bus.aux_in.mixFrom(bus.ext_out, numFrames, smoothLevels.ext_aux);
         // FIXME: arg!
         pin[0] = bus.aux_in.buf[0];
         pin[1] = bus.aux_in.buf[1];
         pout[0] = bus.aux_out.buf[0];
         pout[1] = bus.aux_out.buf[1];
         reverb.processBlock(pin, pout, static_cast<int>(numFrames));
+        bus.ins_in.mixFrom(bus.aux_out, numFrames, smoothLevels.aux);
     }
 
     // mix to insert bus
     bus.ins_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor);
     bus.ins_in.sumFrom(bus.ext_out, numFrames);
-    bus.ins_in.mixFrom(bus.aux_out, numFrames, smoothLevels.aux);
 
     if(!enabled.comp) { // bypass_insert
-        bus.ins_out.sumFrom(bus.ins_in, numFrames);
-        bus.dac_in.sumFrom(bus.ins_out, numFrames);
+        bus.dac_in.sumFrom(bus.ins_in, numFrames);
     } else { // process insert
         // FIXME: arg!
         pin[0] = bus.ins_in.buf[0];
