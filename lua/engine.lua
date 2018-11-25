@@ -101,6 +101,10 @@ function Engine.__index(self, idx)
   end
 end
 
+function Engine.__newindex(self, idx, val)
+  error("attempted to set a new field of Engine; try engine.field(value) instead")
+end
+
 setmetatable(Engine, Engine)
 
 return Engine
