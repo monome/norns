@@ -28,13 +28,10 @@ local pSYSTEM = 5
 local pAUDIO = 6
 local pDEVICES = 7
 local pWIFI = 8
-local pSYNC = 9
-local pUPDATE =10
-local pLOG = 12
-local pRESET = 13
-local pSLEEP = 14
-local pTAPE = 15
-local pMIX = 16
+local pRESET = 9
+local pSLEEP = 10
+local pTAPE = 11
+local pMIX = 12
 
 -- page pointer
 local m = {}
@@ -763,8 +760,8 @@ end
 -- SYSTEM
 m.sys = {}
 m.sys.pos = 1
-m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "SYNC >", "UPDATE >", "RESET AUDIO"}
-m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pSYNC, pUPDATE, pRESET}
+m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "RESET AUDIO"}
+m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pRESET}
 m.sys.input = 0
 
 m.key[pSYSTEM] = function(n,z)
@@ -787,7 +784,7 @@ m.redraw[pSYSTEM] = function()
   screen.clear()
 
   for i=1,#m.sys.list do
-    screen.move(0,10*i)
+    screen.move(0,10+10*i)
     if(i==m.sys.pos) then
       screen.level(15)
     else
@@ -1113,172 +1110,6 @@ m.init[pAUDIO] = function()
 end
 
 m.deinit[pAUDIO] = function()
-  u:stop()
-end
-
-
-
-
------------------------------------------
--- SYNC
-m.sync = {}
-m.sync.pos = 0
-
-m.key[pSYNC] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and m.sync.disk=='' then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and m.sync.pos==0 then
-    m.sync.busy = true
-    menu.redraw()
-    os.execute("sudo rsync --recursive --links --verbose --update $HOME/dust/ "..m.sync.disk.."/dust; sudo sync")
-    norns.log.post("sync to usb")
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and m.sync.pos==1 then
-    m.sync.busy = true
-    menu.redraw()
-    os.execute("rsync --recursive --links --verbose --update "..m.sync.disk.."/dust/ $HOME/dust; sudo sync")
-    norns.log.post("sync from usb")
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 and m.sync.pos==2 then
-    os.execute("sudo umount "..m.sync.disk)
-    norns.log.post("usb disk ejected")
-    menu.set_page(pSYSTEM)
-  end
-end
-
-m.enc[pSYNC] = function(n,delta)
-  if n==2 then
-    m.sync.pos = util.clamp(m.sync.pos+delta, 0, 2)
-    menu.redraw()
-  end
-end
-
-m.redraw[pSYNC] = function()
-  screen.clear()
-  screen.level(10)
-  if m.sync.disk=='' then
-    screen.move(0,30)
-    screen.text("no usb disk available")
-  elseif m.sync.busy then
-    screen.move(0,30)
-    screen.text("usb sync... (wait)")
-  else
-    screen.level(m.sync.pos==0 and 10 or 3)
-    screen.move(0,40)
-    screen.text("SYNC TO USB")
-    screen.level(m.sync.pos==1 and 10 or 3)
-    screen.move(0,50)
-    screen.text("SYNC FROM USB")
-    screen.level(m.sync.pos==2 and 10 or 3)
-    screen.move(0,60)
-    screen.text("EJECT USB")
-  end
-  screen.update()
-end
-
-m.init[pSYNC] = function()
-  m.sync.pos = 0
-  m.sync.busy = false
-  m.sync.disk = util.os_capture("lsblk -o mountpoint | grep media")
-end
-
-m.deinit[pSYNC] = function()
-end
-
-
------------------------------------------
--- UPDATE
-m.update = {}
-m.update.pos = 0
-m.update.confirm = false
-
-m.key[pUPDATE] = function(n,z)
-  if z == 1 then menu.set_page(pSYSTEM) end
-end
-
-m.enc[pUPDATE] = function(n,delta)
-  if n==2 then
-    m.update.pos = util.clamp(m.update.pos+delta, 0, #m.update.list - 1) --4 = options
-    menu.redraw()
-  end
-end
-
-m.redraw[pUPDATE] = function()
-  screen.clear()
-  screen.level(15)
-  screen.move(64,32)
-  if m.update.checking then
-    screen.text_center("checking for updates")
-  elseif m.update.found then
-    screen.text_center("update found")
-    screen.move(64,42)
-    screen.text_center("sleep to apply")
-  else
-    screen.text_center("no updates found")
-  end
-  screen.update()
-end
-
-m.init[pUPDATE] = function()
-  m.update.confirm = false
-  m.update.pos = 0
-  m.update.checking = true
-  m.update.found = false
-  menu.redraw()
-
-  m.update.found = norns.update.check()
-
-  m.update.checking = false
-  menu.redraw()
-end
-
-m.deinit[pUPDATE] = function()
-end
-
-
-
------------------------------------------
--- LOG
-m.log = {}
-m.log.pos = 0
-
-m.key[pLOG] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pSYSTEM)
-  elseif n==3 and z==1 then
-    m.log.pos = 0
-    menu.redraw()
-  end
-end
-
-m.enc[pLOG] = function(n,delta)
-  if n==2 then
-    m.log.pos = util.clamp(m.log.pos+delta, 0, math.max(norns.log.len()-7,0))
-    menu.redraw()
-  end
-end
-
-m.redraw[pLOG] = function()
-  screen.clear()
-  screen.level(10)
-  for i=1,8 do
-    screen.move(0,(i*8)-1)
-    screen.text(norns.log.get(i+m.log.pos))
-  end
-  screen.update()
-end
-
-m.init[pLOG] = function()
-  m.log.pos = 0
-  u.time = 1
-  u.count = -1
-  u.callback = menu.redraw
-  u:start()
-end
-
-m.deinit[pLOG] = function()
   u:stop()
 end
 
