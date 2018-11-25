@@ -444,11 +444,10 @@ Crone {
 			// @section AudioContext control
 
 			// @function /audio/input/level
-			// @param input channel (integer: 0 or 1)
 			// @param level in db (float: -inf..)
 			'/audio/input/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				context.inputLevel(msg[1], msg[2]);
+				context.inputLevel(msg[1]);
 			}, '/audio/input/level'),
 
 			// @function /audio/output/level

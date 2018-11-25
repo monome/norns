@@ -18,9 +18,11 @@ CroneAudioContext {
 	// polls available in base context
 	var <pollNames;
 
-	// I/O VU levels are reported on a dedicated OSC address
 	var vu_thread;
 	var <>vu_dt;
+
+// FIXME? shouldn't be here?
+	var <croneAddr;
 
 
 	*new { arg srv;
@@ -30,6 +32,8 @@ CroneAudioContext {
 	init {
 		arg srv;
 		server = srv;
+
+		croneAddr = NetAddr("127.0.0.1", 9999);
 
 		//---- groups
 
@@ -41,7 +45,10 @@ CroneAudioContext {
 
 		// input 2xmono, output stereo, seems like a "normal" arrangement (?)
 		in_b = Array.fill(2, { Bus.audio(server, 1); });
-		out_b = Bus.audio(server, 2);
+		//out_b = Bus.audio(server, 2);
+
+		// send output directly to jack client ports
+		out_b = Bus.new('audio', 0, 2);
 
 		postln("AudioContext: in_b[0] index: " ++ in_b[0].index);
 		postln("AudioContext: in_b[1] index: " ++ in_b[1].index);
@@ -59,6 +66,7 @@ CroneAudioContext {
 			Synth.new(\adc, [\in, i, \out, in_b[i].index], ig);
 		});
 
+/*
 		out_s = Synth.new(\patch_stereo, [\in, out_b.index, \out, 0, \level, 1.0], og);
 
 		mon_s = Array.fill(2, { |i|
@@ -67,6 +75,7 @@ CroneAudioContext {
 				ig, \addAfter
 			);
 		});
+*/
 
 		//---- analysis synths
 
@@ -77,6 +86,7 @@ CroneAudioContext {
 			);
 		});
 
+
 		amp_out_s = Array.fill(2, { |i|
 			Synth.new(\amp_env,
 				//[\in, out_b.index + i, \out, amp_out_b[i].index],
@@ -84,6 +94,7 @@ CroneAudioContext {
 				og, \addAfter
 			);
 		});
+		
 
 		pitch_in_s = Array.fill(2, { |i|
 			Synth.new(\pitch,
@@ -96,32 +107,42 @@ CroneAudioContext {
 
 	}
 
-
-	inputLevel { arg chan, db; in_s[chan].set(\level, db.dbamp);  }
-	outputLevel { arg db; out_s.set(\level, db.dbamp); }
+	inputLevel { arg chan, db; 
+		in_s[chan].set(\level, db.dbamp);  
+	}
+	outputLevel { arg db; 
+		croneAddr.sendMsg("/set/level/dac", db.dbamp)
+	}
 
 	// control monitor level / pan
 	monitorLevel { arg db;
-		mon_s.do({|syn| syn.set(\level, db.dbamp) });
+		postln("set monitor level: " ++ db ++ " dB");
+		croneAddr.sendMsg("/set/level/monitor", db.dbamp);
 	}
 
+	// FIXME: provide more granular control, or collapse these into one command
 	monitorMono {
-		mon_s[0].set(\pan, 0);
-		mon_s[1].set(\pan, 0);
+		croneAddr.sendMsg("/set/level/monitor_mix", 0, 0.5);
+		croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.5);
+		croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.5);
+		croneAddr.sendMsg("/set/level/monitor_mix", 3, 0.5);
 	}
 
 	monitorStereo {
-		mon_s[0].set(\pan, -1);
-		mon_s[1].set(\pan, 1);
+		croneAddr.sendMsg("/set/level/monitor_mix", 0, 1.0);
+		croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.0);
+		croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.0);
+		croneAddr.sendMsg("/set/level/monitor_mix", 3, 1.0);
 	}
 
-	// toggle monitoring altogether (will cause clicks)
+	// toggle monitoring altogether
+	// FIXME: not actually working now
 	monitorOn {
-		mon_s.do({ |syn| syn.run(true); });
+		postln("warning: monitorOn() doesn't do anything");
 	}
 
 	monitorOff {
-		mon_s.do({ |syn| syn.run(false); });
+		postln("warning: monitorOff() doesn't do anything");
 	}
 
 	// toggle pitch analysis (save CPU)
