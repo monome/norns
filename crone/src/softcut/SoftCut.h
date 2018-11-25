@@ -38,7 +38,7 @@ namespace softcut {
         }
 
     public:
-        SoftCut() {
+        SoftCut() : buf{} {
             this->init();
         }
 
@@ -168,7 +168,6 @@ namespace softcut {
         void setRateSlewTime(int i, float d) {
             scv[i].setRateSlewTime(d);
         }
-
 
         void printTestBuffers() {
             scv[0].printTestBuffers();

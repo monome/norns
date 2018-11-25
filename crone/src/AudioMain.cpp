@@ -206,6 +206,81 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         case Commands::Id::SET_ENABLED_COMPRESSOR:
             enabled.comp = p->value > 0.f;
             break;
+
+            //-- softcut commands
+        case Commands::Id::SET_SOFTCUT_RATE:
+            cut.setRate(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_LOOP_START:
+            cut.setLoopStart(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_LOOP_END:
+            cut.setLoopEnd(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_LOOP_FLAG:
+            cut.setLoopFlag(p->voice, p->value > 0.f);
+            break;
+        case Commands::Id::SET_SOFTCUT_FADE_TIME:
+            cut.setFadeTime(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_REC_LEVEL:
+            cut.setRecLevel(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_PRE_LEVEL:
+            cut.setPreLevel(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_REC_FLAG:
+            cut.setRecFlag(p->voice, p->value > 0.f);
+            break;
+        case Commands::Id::SET_SOFTCUT_REC_OFFSET:
+            cut.setRecOffset(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_POSITION:
+            cut.cutToPos(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_FC:
+            cut.setFilterFc(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_FC_MOD:
+            cut.setFilterFcMod(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_RQ:
+            cut.setFilterRq(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_LP:
+            cut.setFilterLp(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_HP:
+            cut.setFilterHp(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_BP:
+            cut.setFilterBp(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_BR:
+            cut.setFilterBr(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_FILTER_DRY:
+            cut.setFilterDry(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_PRE_FADE_WINDOW:
+            cut.setPreFadeWindow(p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_REC_FADE_DELAY:
+            cut.setRecFadeDelay(p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_PRE_FADE_SHAPE:
+            cut.setPreFadeShape(p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_REC_FADE_SHAPE:
+            cut.setRecFadeShape(p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_LEVEL_SLEW_TIME:
+            cut.setLevelSlewTime(p->voice, p->value);
+            break;
+        case Commands::Id::SET_SOFTCUT_RATE_SLEW_TIME:
+            cut.setRateSlewTime(p->voice, p->value);
+            break;
+
         default:
             ;;
     }

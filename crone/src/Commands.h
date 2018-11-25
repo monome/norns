@@ -32,7 +32,7 @@ namespace crone {
             SET_ENABLED_COMPRESSOR,
 
             //-- softcut commands
-                    SET_SOFTCUT_RATE,
+            SET_SOFTCUT_RATE,
             SET_SOFTCUT_LOOP_START,
             SET_SOFTCUT_LOOP_END,
             SET_SOFTCUT_LOOP_FLAG,
