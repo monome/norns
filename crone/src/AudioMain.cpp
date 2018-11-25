@@ -15,16 +15,21 @@ using std::cout;
 using std::endl;
 
 AudioMain::AudioMain() {
-    comp.init(48000);
-    reverb.init(48000);
-    setDefaultParams();
+    this->init(48000);
 }
 
 AudioMain::AudioMain(int sampleRate) {
-    comp.init(sampleRate);
+    this->init(sampleRate);
 }
 
 
+void AudioMain::init(int sampleRate) {
+
+    comp.init(sampleRate);
+    reverb.init(sampleRate);
+    reverb.init(sampleRate);
+    setDefaultParams();
+}
 // state constructors
 AudioMain::BusList::BusList() {
     for (auto *p: { &adc_out, &dac_in, &adc_monitor, &aux_in, &aux_out, &ins_in, &ins_out}) {
