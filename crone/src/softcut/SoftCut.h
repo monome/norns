@@ -43,15 +43,8 @@ namespace softcut {
         }
 
         // assumption: channel count is equal to voice count!
-        void processBlock(const float **in, float **out, int numFrames) {
-            for(int v=0; v<numVoices; ++v) {
-                for(int fr=0; fr<numFrames; ++fr) {
-                    out[v][fr] = 0.f;
-                }
-            }
-            for (int v=0; v<numVoices; ++v) {
-                scv[v].processBlockMono(in[v], out[v], numFrames);
-            }
+        void processBlock(int v, const float *in, float *out, int numFrames) {
+            scv[v].processBlockMono(in, out, numFrames);
         }
 
         void setSampleRate(unsigned int hz) {

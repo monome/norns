@@ -40,7 +40,9 @@ namespace  crone {
     private:
         void init(int sampleRate);
         void clearBusses(size_t numFrames);
-	
+        void processFx(size_t numFrames);
+        void processSoftCut(size_t numFrames);
+
     private:
         // processors
         StereoCompressor comp;
@@ -60,6 +62,7 @@ namespace  crone {
             StereoBus adc_monitor;
             MonoBus cut_in[SOFTCUT_COUNT];
             MonoBus cut_out[SOFTCUT_COUNT];
+            StereoBus cut_mix;
             BusList();
         };
         BusList bus;
@@ -76,9 +79,11 @@ namespace  crone {
             LogRamp monitor_aux;
             LogRamp aux;
             LogRamp cut[SOFTCUT_COUNT];
-            LogRamp adc_cut[SOFTCUT_COUNT];
-            LogRamp ext_cut[SOFTCUT_COUNT];
+            LogRamp cut_pan[SOFTCUT_COUNT];
+            LogRamp adc_cut[SOFTCUT_COUNT][2];
+            LogRamp ext_cut[SOFTCUT_COUNT][2];
             LogRamp cut_fb[SOFTCUT_COUNT];
+            LogRamp cut_aux;
             SmoothLevelList();
         };
         SmoothLevelList smoothLevels;
@@ -96,6 +101,7 @@ namespace  crone {
             EnabledList();
         };
         EnabledList enabled;
+
     };
 }
 

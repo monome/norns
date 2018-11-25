@@ -28,6 +28,7 @@ void AudioMain::init(int sampleRate) {
     comp.init(sampleRate);
     reverb.init(sampleRate);
     reverb.init(sampleRate);
+    cut.setSampleRate(static_cast<unsigned int>(sampleRate));
     setDefaultParams();
 }
 // state constructors
@@ -68,9 +69,6 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     // clear all our internal busses
     clearBusses(numFrames);
 
-    // FIXME: current faust architecture needs this
-    float* pin[2];
-    float* pout[2];
 
     // clear the output
     for(int ch=0; ch<2; ++ch) {
@@ -82,12 +80,21 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     // apply input levels
     bus.adc_out.mixFrom(in_adc, numFrames, smoothLevels.adc);
     bus.ext_out.mixFrom(in_ext, numFrames, smoothLevels.ext);
-
     // mix to monitor bus
     bus.adc_monitor.stereoMixFrom(bus.adc_out, numFrames, staticLevels.monitor_mix);
 
+    processSoftCut(numFrames);
+    processFx(numFrames);
 
+    // apply final output level
+    bus.dac_in.mixTo(out, numFrames, smoothLevels.dac);
+}
 
+void AudioMain::processFx(size_t numFrames)  {
+
+    // FIXME: current faust architecture needs this
+    float* pin[2];
+    float* pout[2];
     if (!enabled.reverb) { // bypass aux
         bus.aux_out.sumFrom(bus.aux_in, numFrames);
     } else { // process aux
@@ -119,8 +126,29 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
         // apply insert wet/dry
         bus.dac_in.xfade(bus.ins_in, bus.ins_out, numFrames, smoothLevels.ins_mix);
     }
-    // apply final output level
-    bus.dac_in.mixTo(out, numFrames, smoothLevels.dac);
+}
+
+
+void AudioMain::processSoftCut(size_t numFrames) {
+    const float* padc[2] = { bus.adc_out.buf[0], bus.adc_out.buf[1] };
+    for(int v=0; v<SOFTCUT_COUNT; ++v) {
+        bus.cut_in[v].clear();
+        bus.cut_in[v].mixFrom(padc, numFrames, smoothLevels.adc_cut[v][0]);
+        bus.cut_in[v].mixFrom(padc+1, numFrames, smoothLevels.adc_cut[v][1]);
+        // TODO: feedback
+    }
+    // TODO: ext in
+    // process softcuts
+    for(int v=0; v<SOFTCUT_COUNT; ++v) {
+        cut.processBlock(v, bus.cut_in[v].buf[0], bus.cut_out[v].buf[0], static_cast<int>(numFrames));
+    }
+    // mixdown with level/pan
+    for(int v=0; v<SOFTCUT_COUNT; ++v) {
+        bus.cut_mix.panMixFrom(bus.cut_out[v], numFrames, smoothLevels.cut[v], smoothLevels.cut_pan[v]);
+    }
+    // mix to output/send
+    bus.aux_in.mixFrom(bus.cut_mix, numFrames, smoothLevels.cut_aux);
+    bus.ins_in.sumFrom(bus.cut_mix, numFrames);
 }
 
 
