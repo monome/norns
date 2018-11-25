@@ -95,7 +95,7 @@ Crone {
 		Crone.initOscRx;
 		Crone.initVu;
 		Crone.initTape;
-		CroneEffects.init;
+		// CroneEffects.init;
 
 		complete = 1;
 
