@@ -121,6 +121,9 @@ function Wifi.init()
     cmd = cmd .. " ssid '" .. HOTSPOT_SSID .. "'"
     cmd = cmd .. " password '" .. HOTSPOT_PSK .. "'"
     os.execute(cmd)
+    -- ensure consistent hotspot addresses
+    cmd = "sudo nmcli conn modify " .. HOTSPOT .. " ipv4.addresses 172.24.1.1/24"
+    os.execute(cmd)
   end
 end
 
