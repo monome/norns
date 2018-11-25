@@ -130,20 +130,35 @@ void AudioMain::processFx(size_t numFrames)  {
 
 
 void AudioMain::processSoftCut(size_t numFrames) {
-    const float* padc[2] = { bus.adc_out.buf[0], bus.adc_out.buf[1] };
+    // mix adc in
+    const float* pin[2] = { bus.adc_out.buf[0], bus.adc_out.buf[1] };
     for(int v=0; v<SOFTCUT_COUNT; ++v) {
+        if(!enabled.cut[v]) { continue; }
         bus.cut_in[v].clear();
-        bus.cut_in[v].mixFrom(padc, numFrames, smoothLevels.adc_cut[v][0]);
-        bus.cut_in[v].mixFrom(padc+1, numFrames, smoothLevels.adc_cut[v][1]);
-        // TODO: feedback
+        bus.cut_in[v].mixFrom(pin, numFrames, smoothLevels.adc_cut[v][0]);
+        bus.cut_in[v].mixFrom(pin+1, numFrames, smoothLevels.adc_cut[v][1]);
+        // mix feedback
+        for(int w=0; w<SOFTCUT_COUNT; ++w) {
+            bus.cut_in[v].mixFrom(bus.cut_out[w], numFrames, smoothLevels.cut_fb[v][w]);
+        }
     }
-    // TODO: ext in
-    // process softcuts
+    // mix ext in
+    pin[0] = bus.ext_out.buf[0];
+    pin[1] = bus.ext_out.buf[1];
     for(int v=0; v<SOFTCUT_COUNT; ++v) {
+        if(!enabled.cut[v]) { continue; }
+        bus.cut_in[v].mixFrom(pin, numFrames, smoothLevels.ext_cut[v][0]);
+        bus.cut_in[v].mixFrom(pin+1, numFrames, smoothLevels.ext_cut[v][1]);
+    }
+    // process softcuts (overwrites output bus)
+    for(int v=0; v<SOFTCUT_COUNT; ++v) {
+        if(!enabled.cut[v]) { continue; }
         cut.processBlock(v, bus.cut_in[v].buf[0], bus.cut_out[v].buf[0], static_cast<int>(numFrames));
     }
+
     // mixdown with level/pan
     for(int v=0; v<SOFTCUT_COUNT; ++v) {
+        if(!enabled.cut[v]) { continue; }
         bus.cut_mix.panMixFrom(bus.cut_out[v], numFrames, smoothLevels.cut[v], smoothLevels.cut_pan[v]);
     }
     // mix to output/send
@@ -290,18 +305,6 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         case Commands::Id::SET_SOFTCUT_FILTER_DRY:
             cut.setFilterDry(p->voice, p->value);
             break;
-        // case Commands::Id::SET_SOFTCUT_PRE_FADE_WINDOW:
-        //     cut.setPreFadeWindow(p->value);
-        //     break;
-        // case Commands::Id::SET_SOFTCUT_REC_FADE_DELAY:
-        //     cut.setRecFadeDelay(p->value);
-        //     break;
-        // case Commands::Id::SET_SOFTCUT_PRE_FADE_SHAPE:
-        //     cut.setPreFadeShape(p->value);
-        //     break;
-        // case Commands::Id::SET_SOFTCUT_REC_FADE_SHAPE:
-        //     cut.setRecFadeShape(p->value);
-        //     break;
         case Commands::Id::SET_SOFTCUT_LEVEL_SLEW_TIME:
             cut.setLevelSlewTime(p->voice, p->value);
             break;

@@ -82,7 +82,7 @@ namespace  crone {
             LogRamp cut_pan[SOFTCUT_COUNT];
             LogRamp adc_cut[SOFTCUT_COUNT][2];
             LogRamp ext_cut[SOFTCUT_COUNT][2];
-            LogRamp cut_fb[SOFTCUT_COUNT];
+            LogRamp cut_fb[SOFTCUT_COUNT][SOFTCUT_COUNT];
             LogRamp cut_aux;
             SmoothLevelList();
         };
@@ -98,6 +98,7 @@ namespace  crone {
         struct EnabledList {
             bool reverb;
             bool comp;
+            bool cut[SOFTCUT_COUNT];
             EnabledList();
         };
         EnabledList enabled;
