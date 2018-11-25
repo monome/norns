@@ -48,21 +48,17 @@ mix:set_action("aux_fx",
 local cs_DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
 local cs_DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
 local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
+
 mix:add_control("aux_engine_level", "aux engine level", cs_DB_LEVEL_9DB)
 mix:set_action("aux_engine_level",
   function(x) fx.aux_fx_output_level(x) end)
-mix:add_control("aux_input1_level", "aux input1 level", cs_DB_LEVEL_MUTE)
-mix:set_action("aux_input1_level",
-  function(x) fx.aux_fx_input_level(1,x) end)
-mix:add_control("aux_input2_level", "aux input2 level", cs_DB_LEVEL_MUTE)
-mix:set_action("aux_input2_level",
-  function(x) fx.aux_fx_input_level(2,x) end)
-mix:add_control("aux_input1_pan", "aux input1 pan", cs_PAN)
-mix:set_action("aux_input1_pan",
-  function(x) fx.aux_fx_input_pan(1,x) end)
-mix:add_control("aux_input2_pan", "aux input2 pan", cs_PAN)
-mix:set_action("aux_input2_pan",
-  function(x) fx.aux_fx_input_pan(2,x) end)
+
+mix:add_control("aux_monitor_level", "aux monitor level", cs_DB_LEVEL_MUTE)
+mix:set_action("aux_monitor_level",
+-- FIXME: new crone has a slightly different monitor->aux structure, 
+-- need to change it back or clean this up
+  function(x) fx.aux_fx_input_level(0,x) end)
+
 mix:add_control("aux_return_level", "aux return level", cs_DB_LEVEL)
 mix:set_action("aux_return_level",
   function(x) fx.aux_fx_return_level(x) end)
@@ -73,10 +69,10 @@ mix:add_control("rev_pre_delay", "rev pre delay", cs_IN_DELAY)
 mix:set_action("rev_pre_delay",
   function(x) fx.aux_fx_param("in_delay",x) end)
 
-local cs_LF_X = cs.new(50,1000,'exp',0,200,'hz')
-mix:add_control("rev_lf_x", "rev lf x", cs_LF_X)
-mix:set_action("rev_lf_x",
-  function(x) fx.aux_fx_param("lf_x",x) end)
+local cs_LF_FC = cs.new(50,1000,'exp',0, 200,'hz')
+mix:add_control("rev_lf_fc", "rev lf fc", cs_LF_FC)
+mix:set_action("rev_lf_fc",
+  function(x) fx.aux_fx_param("lf_fc",x) end)
 
 local cs_RT60 = cs.new(0.1,8,'lin',0,6,'s')
 mix:add_control("rev_low_time", "rev low time", cs_RT60)
