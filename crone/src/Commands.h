@@ -32,6 +32,15 @@ namespace crone {
             SET_ENABLED_COMPRESSOR,
 
             //-- softcut commands
+
+	    // mix
+	    SET_ENABLED_SOFTCUT,
+	    SET_LEVEL_SOFTCUT,
+	    SET_PAN_SOFTCUT,
+	    SET_LEVEL_EXT_CUT,
+	    SET_LEVEL_CUT_AUX,
+	    
+	    // params
             SET_SOFTCUT_RATE,
             SET_SOFTCUT_LOOP_START,
             SET_SOFTCUT_LOOP_END,
@@ -50,15 +59,9 @@ namespace crone {
             SET_SOFTCUT_FILTER_BP,
             SET_SOFTCUT_FILTER_BR,
             SET_SOFTCUT_FILTER_DRY,
-            SET_SOFTCUT_AMP_L,
-            SET_SOFTCUT_AMP_R,
-            SET_SOFTCUT_PRE_FADE_WINDOW,
-            SET_SOFTCUT_REC_FADE_DELAY,
-            SET_SOFTCUT_PRE_FADE_SHAPE,
-            SET_SOFTCUT_REC_FADE_SHAPE,
             SET_SOFTCUT_LEVEL_SLEW_TIME,
             SET_SOFTCUT_RATE_SLEW_TIME,
-
+	    
             NUM_COMMANDS
         } Id;
 

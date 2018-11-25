@@ -122,6 +122,7 @@ namespace softcut {
             scv[voice].setFilterFcMod( x);
         }
 
+
         void setPreFadeWindow(float x) {
             auto t = std::thread([x] {
                 FadeCurves::setPreWindowRatio(x);
@@ -149,7 +150,7 @@ namespace softcut {
             });
             t.detach();
         }
-
+	
         void setRecOffset(int i, float d) {
             scv[i].setRecOffset(d);
         }

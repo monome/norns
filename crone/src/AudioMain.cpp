@@ -290,18 +290,18 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
         case Commands::Id::SET_SOFTCUT_FILTER_DRY:
             cut.setFilterDry(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_PRE_FADE_WINDOW:
-            cut.setPreFadeWindow(p->value);
-            break;
-        case Commands::Id::SET_SOFTCUT_REC_FADE_DELAY:
-            cut.setRecFadeDelay(p->value);
-            break;
-        case Commands::Id::SET_SOFTCUT_PRE_FADE_SHAPE:
-            cut.setPreFadeShape(p->value);
-            break;
-        case Commands::Id::SET_SOFTCUT_REC_FADE_SHAPE:
-            cut.setRecFadeShape(p->value);
-            break;
+        // case Commands::Id::SET_SOFTCUT_PRE_FADE_WINDOW:
+        //     cut.setPreFadeWindow(p->value);
+        //     break;
+        // case Commands::Id::SET_SOFTCUT_REC_FADE_DELAY:
+        //     cut.setRecFadeDelay(p->value);
+        //     break;
+        // case Commands::Id::SET_SOFTCUT_PRE_FADE_SHAPE:
+        //     cut.setPreFadeShape(p->value);
+        //     break;
+        // case Commands::Id::SET_SOFTCUT_REC_FADE_SHAPE:
+        //     cut.setRecFadeShape(p->value);
+        //     break;
         case Commands::Id::SET_SOFTCUT_LEVEL_SLEW_TIME:
             cut.setLevelSlewTime(p->voice, p->value);
             break;
