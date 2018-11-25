@@ -50,7 +50,7 @@ AudioMain::StaticLevelList::StaticLevelList() {
 
 AudioMain::EnabledList::EnabledList() {
     comp = false;
-    reverb = false;
+    reverb = true;
 }
 
 /////////////////////////

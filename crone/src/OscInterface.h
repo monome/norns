@@ -56,6 +56,7 @@ namespace crone {
                 (void) types;
                 (void) msg;
                 auto pm = static_cast<OscMethod*>(data);
+                std::cerr << "osc rx: " << path << std::endl;
                 pm->handler(argv, argc);
                 return 0;
             }, &(methods[numMethods]));
