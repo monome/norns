@@ -158,7 +158,5 @@ void OscInterface::addServerMethods() {
         Commands::post(Commands::Id::SET_PARAM_REVERB, ReverbParam::HF_DAMP, argv[0]->f);
     });
 
-
-
 }
 

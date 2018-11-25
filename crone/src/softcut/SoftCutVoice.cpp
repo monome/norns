@@ -1,10 +1,7 @@
 //
 // Created by ezra on 11/3/18.
 //
-// main audo
-//
 
-#include "Commands.h"
 #include "SoftCutVoice.h"
 
 using namespace softcut;

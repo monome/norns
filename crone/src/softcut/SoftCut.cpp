@@ -4,7 +4,6 @@
 
 #include <thread>
 
-#include "Commands.h"
 #include "FadeCurves.h"
 #include "SoftCut.h"
 
@@ -29,22 +28,16 @@ void SoftCut::init() {
     FadeCurves::setRecDelayRatio(1.f/(8*16));
 }
 
-void SoftCut::processBlock(const float *in0, const float* in1, float *out0, float* out1, int numFrames) {
-    (void)in1;
-    Commands::handlePending(this);
+// assumption: channel count is equal to voice count
+void SoftCut::processBlock(const float **in, float **out, int numFrames) {
 
-    for(int fr=0; fr<numFrames; ++fr) {
-        out0[fr] = 0;
-        out1[fr] = 0;
+    for(int v=0; v<numVoices; ++v) {
+        for(int fr=0; fr<numFrames; ++fr) {
+            out[v][fr] = 0.f;
+        }
     }
     for (int v=0; v<numVoices; ++v) {
-        scv[v].processBlockMono(in0, outBus, numFrames);
-        float amp0 = outAmp[v][0];
-        float amp1 = outAmp[v][1];
-        for(int fr=0; fr<numFrames; ++fr) {
-            out0[fr] += outBus[fr] * amp0;
-            out1[fr] += outBus[fr] * amp1;
-        }
+        scv[v].processBlockMono(in[v], out[v], numFrames);
     }
 }
 
@@ -122,13 +115,6 @@ void SoftCut::setFilterFcMod(int voice, float x) {
   scv[voice].setFilterFcMod( x);
 }
 
-void SoftCut::setAmpLeft(int voice, float x) {
-    outAmp[voice][0] = x;
-}
-
-void SoftCut::setAmpRight(int voice, float x) {
-    outAmp[voice][1] = x;
-}
 
 // NB fade curve recalculation happens on a separate thread
 // the update function first fills a new buffer, then copies the final values

@@ -10,6 +10,9 @@
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
 
+
+#include "softcut/SoftCutVoice.h"
+
 namespace  crone {
 
     class AudioMain {
@@ -39,7 +42,7 @@ namespace  crone {
         // processors
         StereoCompressor comp;
         ZitaReverb reverb;
-
+	softcut::SoftCutVoice scv[2];
         // busses
         typedef Bus<2, MAX_BUF_SIZE> StereoBus;
         struct BusList {

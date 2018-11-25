@@ -4,7 +4,9 @@ project(crone VERSION 1.0.0)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
-set (SRC src/main.cpp src/JackClient.cpp src/AudioMain.cpp src/Utilities.h src/OscInterface.cpp src/Commands.cpp src/Evil.h)
+set (SRC src/main.cpp src/JackClient.cpp src/AudioMain.cpp src/Utilities.h src/OscInterface.cpp src/Commands.cpp src/Evil.h
+        src/softcut/FadeCurves.cpp src/softcut/SoftCut.cpp src/softcut/SoftCutHead.cpp src/softcut/SoftCutVoice.cpp
+        src/softcut/SubHead.cpp src/softcut/Svf.cpp src/softcut/TestBuffers.cpp)
 
 add_executable(crone ${SRC})
 

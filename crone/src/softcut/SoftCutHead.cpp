@@ -30,7 +30,7 @@ void SoftCutHead::init() {
 
 void SoftCutHead::processSample(sample_t in, float *outPhase, float *outTrig, sample_t *outAudio) {
 
-#if 1 // testing...
+#if 0 // testing...
     testBuf.update(static_cast<float>(head[0].phase_), head[0].wrIdx_, head[0].fade_, head[0].state_, head[0].preFade, head[0].recFade);
 #endif
 

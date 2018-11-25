@@ -7,8 +7,8 @@ output edit for efficiency - don't regenerate!
 
 ------------------------------------------------------------ */
 
-#ifndef  __mydsp_H__
-#define  __mydsp_H__
+#ifndef  _FAUST_LOWPASSBRICKWALL_H_
+#define  _FAUST_LOWPASSBRICKWALL_H_
 
 #include <algorithm>
 
@@ -22,9 +22,6 @@ using std::min;
 #include <cmath>
 #include <math.h>
 
-static float mydsp_faustpower2_f(float value) {
-	return (value * value);
-}
 
 #ifndef FAUSTCLASS 
 #define FAUSTCLASS mydsp
@@ -34,8 +31,11 @@ static float mydsp_faustpower2_f(float value) {
 #define exp10 __exp10
 #endif
 
-class mydsp {
-	
+class FaustLowpassBrickwall {
+
+	static float mydsp_faustpower2_f(float value) {
+		return (value * value);
+	}
  private:
 	
 	int fSamplingFreq;
@@ -112,7 +112,7 @@ class mydsp {
 };
 
 class LowpassBrickwall { 
-    mydsp dsp_;
+    FaustLowpassBrickwall dsp_;
 public:        
     void init(int sr) {
         dsp_.instanceConstants(sr);

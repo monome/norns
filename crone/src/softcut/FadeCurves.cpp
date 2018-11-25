@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <boost/assert.hpp>
+#include <cstring>
 
 #include "Interpolate.h"
 #include "FadeCurves.h"

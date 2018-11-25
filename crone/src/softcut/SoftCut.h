@@ -15,7 +15,6 @@ namespace softcut {
     public:
         enum { numVoices = 2 };
         enum { bufFrames = 16777216 };
-        enum { maxBlockSize = 8192 };
 
         int getNumVoices() { return numVoices; }
 
@@ -23,7 +22,8 @@ namespace softcut {
 
         void init();
 
-        void processBlock(const float *in0, const float* in1, float *out0, float* out1, int numFrames);
+        // assumption: channel count is equal to voice count
+        void processBlock(const float **in, float **out, int numFrames);
 
         void setSampleRate(unsigned int i);
 
@@ -46,9 +46,6 @@ namespace softcut {
         void setFilterDry(int voice, float);
         void setFilterFcMod(int voice, float x);
 
-        // FIXME: yes this is an ugly API, but easiest r/n to keep consistent count of args for all setters
-		void setAmpLeft(int voice, float x);
-		void setAmpRight(int voice, float x);
 
 		void setPreFadeWindow(float x);
         void setRecFadeDelay(float x);
@@ -63,8 +60,6 @@ namespace softcut {
 		void printTestBuffers();
 	private:
         SoftCutVoice scv[numVoices];
-        float outAmp[numVoices][2];
-        float outBus[maxBlockSize];
 		float buf[bufFrames];
 	};
 }
