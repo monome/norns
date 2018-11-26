@@ -30,7 +30,7 @@ void SoftCutHead::init() {
 
 void SoftCutHead::processSample(sample_t in, float *outPhase, float *outTrig, sample_t *outAudio) {
 
-#if 1 // testing...
+#if 0 // testing...
     testBuf.update(static_cast<float>(head[0].phase_), head[0].wrIdx_, head[0].fade_, head[0].state_, head[0].preFade, head[0].recFade);
 #endif
 
@@ -82,11 +82,11 @@ void SoftCutHead::takeAction(Action act)
 {
     switch (act) {
         case Action::LOOP_POS:
-            std::cerr << "looping: go to start" << std::endl;
+            // std::cerr << "looping: go to start" << std::endl;
             cutToPhase(start);
             break;
         case Action::LOOP_NEG:
-            std::cerr << "looping: go to end" << std::endl;
+            // std::cerr << "looping: go to end" << std::endl;
             cutToPhase(end);
             break;
         case Action::STOP:
@@ -116,7 +116,7 @@ void SoftCutHead::cutToPhase(phase_t pos) {
     head[active].active_ = false;
     head[newActive].active_ = true;
     active = newActive;
-    std::cerr << "active: " << active << std::endl;
+    // std::cerr << "active: " << active << std::endl;
 }
 
 void SoftCutHead::setFadeTime(float secs) {

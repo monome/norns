@@ -1,4 +1,5 @@
 #include <utility>
+#include <thread>
 
 //
 // Created by ezra on 11/4/18.
@@ -9,8 +10,13 @@
 
 #include "effects/CompressorParams.h"
 #include "effects/ReverbParams.h"
+#include "softcut/FadeCurves.h"
 
 using namespace crone;
+using softcut::FadeCurves;
+
+/// TODO: softcut trigger/ phase output
+/// TODO: softcut soundfile load / write
 
 
 bool OscInterface::quitFlag;
@@ -159,6 +165,204 @@ void OscInterface::addServerMethods() {
     });
 
 
+    //--------------------------------
+    //-- softcut routing
 
+    addServerMethod("/set/enabled/cut", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_ENABLED_CUT, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/level/cut", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_LEVEL_CUT, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/pan/cut", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_PAN_CUT, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/level/adc_cut", "iif", [](lo_arg **argv, int argc) {
+        if(argc<3) { return; }
+        switch(argv[1]->i) {
+            case 1:
+                Commands::post(Commands::Id::SET_LEVEL_ADC_1_CUT, argv[0]->i, argv[2]->f);
+                break;
+            case 0:
+            default:
+                Commands::post(Commands::Id::SET_LEVEL_ADC_0_CUT, argv[0]->i, argv[2]->f);
+        }
+    });
+
+    addServerMethod("/set/level/ext_cut", "iif", [](lo_arg **argv, int argc) {
+        if(argc<3) { return; }
+        switch(argv[1]->i) {
+            case 1:
+                Commands::post(Commands::Id::SET_LEVEL_EXT_1_CUT, argv[0]->i, argv[2]->f);
+                break;
+            case 0:
+            default:
+                Commands::post(Commands::Id::SET_LEVEL_EXT_0_CUT, argv[0]->i, argv[2]->f);
+        }
+    });
+
+    addServerMethod("/set/level/cut_aux", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_LEVEL_CUT_AUX, argv[0]->i, argv[1]->f);
+    });
+
+    //--------------------------------
+    //-- softcut params
+    addServerMethod("/set/param/cut/rate", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_RATE, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/loop_start", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_LOOP_START, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/loop_end", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_LOOP_END, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/loop_flag", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_LOOP_FLAG, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/fade_time", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FADE_TIME, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/rec_level", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_REC_LEVEL, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/pre_level", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_PRE_LEVEL, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/rec_flag", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_REC_FLAG, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/rec_offset", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_REC_OFFSET, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/position", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_POSITION, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_fc", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_FC, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_fc_mod", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_FC_MOD, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_rq", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_RQ, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_lp", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_LP, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_hp", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_HP, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_bp", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_BP, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_br", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_BR, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_dry", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_FILTER_DRY, argv[0]->i, argv[1]->f);
+    });
+
+
+    //////////////////////////////////////////////////////////
+    /// FIXME: these fade calculation methods create worker threads,
+    /// so as not to hold up either OSC server or audio processing.
+    /// this might not be the best place to do that;
+    /// it also doesn't prevent glitching during fade anyways.
+
+    addServerMethod("/set/param/cut/pre_fade_window", "if", [](lo_arg **argv, int argc) {
+        if(argc<1) { return; }
+        float x = argv[0]->f;
+        auto t = std::thread([x] {
+            FadeCurves::setPreWindowRatio(x);
+        });
+        t.detach();
+    });
+
+    addServerMethod("/set/param/cut/rec_fade_delay", "if", [](lo_arg **argv, int argc) {
+        if(argc<1) { return; }
+        float x = argv[0]->f;
+        auto t = std::thread([x] {
+            FadeCurves::setRecDelayRatio(x);
+        });
+        t.detach();
+    });
+
+    addServerMethod("/set/param/cut/pre_fade_shape", "if", [](lo_arg **argv, int argc) {
+        if(argc<1) { return; }
+        float x = argv[0]->f;
+        auto t = std::thread([x] {
+            FadeCurves::setPreShape(static_cast<FadeCurves::Shape>(x));
+        });
+        t.detach();
+    });
+
+    addServerMethod("/set/param/cut/rec_fade_shape", "if", [](lo_arg **argv, int argc) {
+        if(argc<1) { return; }
+        float x = argv[0]->f;
+        auto t = std::thread([x] {
+            FadeCurves::setRecShape(static_cast<FadeCurves::Shape>(x));
+        });
+        t.detach();
+    });
+    //////////////////
+    ///////////////////
+
+    addServerMethod("/set/param/cut/level_slew_time", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_LEVEL_SLEW_TIME, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/rate_slew_time", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::post(Commands::Id::SET_CUT_RATE_SLEW_TIME, argv[0]->i, argv[1]->f);
+    });
+
+
+}
+
+void OscInterface::printServerMethods() {
+/// TODO
 }
 

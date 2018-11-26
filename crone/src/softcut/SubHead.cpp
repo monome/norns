@@ -169,7 +169,8 @@ void SubHead::setSampleRate(float sr) {
 void SubHead::setPhase(phase_t phase) {
     phase_ = phase;
     wrIdx_ = wrapBufIndex(static_cast<int>(phase_) + (inc_dir_ * recOffset_));
-    std::cerr << "new phase="<<phase_ << "; wrIdx="<<wrIdx_ << std::endl;
+    // std::cerr << "new phase="<<phase_ << "; wrIdx="<<wrIdx_ << std::endl;
+    
     // FIXME: we are hitting this sometimes. fade is always quite small...
     // rounding error? wrong order of calculations?
 #if 0

@@ -8,7 +8,7 @@
 #include <array>
 #include "SoftCutHead.h"
 #include "Svf.h"
-#include "Utilities.h"
+#include "../Utilities.h"
 
 namespace softcut {
     class SoftCutVoice {
@@ -44,9 +44,7 @@ namespace softcut {
         void printTestBuffers();
 
         void setRecOffset(float d);
-
         void setLevelSlewTime(float d);
-
         void setRateSlewTime(float d);
 
     private:
@@ -59,11 +57,11 @@ namespace softcut {
         // input filter
         Svf svf;
         // rate ramp
-        LogRamp rateRamp;
+        crone::LogRamp rateRamp;
         // pre-level ramp
-        LogRamp preRamp;
+        crone::LogRamp preRamp;
         // record-level ramp
-        LogRamp recRamp;
+        crone::LogRamp recRamp;
 
         // default frequency for SVF
         // reduced automatically when setting rate

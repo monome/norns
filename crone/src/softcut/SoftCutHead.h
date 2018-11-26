@@ -24,16 +24,13 @@ namespace  softcut{
         void setSampleRate(float sr);
         void setBuffer(sample_t *buf, uint32_t size);
         void setRate(rate_t x);              // set the playback rate (as a ratio)
-        void setLoopStartSeconds(float x);  // set the Voice endpoint in seconds
-        void setLoopEndSeconds(float x);    // set the Voice start point in seconds
+        void setLoopStartSeconds(float x);  // set the loop end point in seconds
+        void setLoopEndSeconds(float x);    // set the loop start point in seconds
         void setFadeTime(float secs);
         void setLoopFlag(bool val);
         void setRec(float x);
         void setPre(float x);
         void setRecRun(bool val);
-
-        /// FIXME: this method accepts samples and doesn't wrap.
-        /// should add something like cutToPos(seconds)
         void cutToPos(float seconds);
 
         phase_t getActivePhase();
@@ -57,20 +54,20 @@ namespace  softcut{
     private:
         SubHead head[2];
 
-        sample_t *buf;     // audio buffer (allocated elsewhere)
-        float sr;       // sample rate
-        phase_t start;    // start/end points
+        sample_t *buf;      // audio buffer (allocated elsewhere)
+        float sr;           // sample rate
+        phase_t start;      // start/end points
         phase_t end;
-        float fadeTime; // fade time in seconds
-        float fadeInc;  // linear fade increment per sample
+        float fadeTime;     // fade time in seconds
+        float fadeInc;      // linear fade increment per sample
 
-        int active;     // current active play head index (0 or 1)
-        bool loopFlag;  // set to loop, unset for 1-shot
-        float pre; // pre-record level
-        float rec; // record level
-        bool recFlag;
+        int active;         // current active play head index (0 or 1)
+        bool loopFlag;      // set to loop, unset for 1-shot
+        float pre;      // pre-record level
+        float rec;      // record level
+        bool recFlag;   // record processing flag
 
-        rate_t rate;
+        rate_t rate;    // current rate
         TestBuffers testBuf;
     };
 }
