@@ -14,9 +14,9 @@ n.sendMsg("/set/level/monitor", 1.0);
 // L -> L
 n.sendMsg("/set/level/monitor_mix", 0, 0.5);
 // L -> R
-n.sendMsg("/set/level/monitor_mix", 1, 0.25);
+n.sendMsg("/set/level/monitor_mix", 1, 0.5);
 // R -> L
-n.sendMsg("/set/level/monitor_mix", 2, 0.25);
+n.sendMsg("/set/level/monitor_mix", 2, 0.5);
 // R -> R
 n.sendMsg("/set/level/monitor_mix", 3, 0.5);
 

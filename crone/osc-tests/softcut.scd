@@ -29,6 +29,7 @@ n.sendMsg("/set/param/cut/filter_dry", 0, 0.125);
 n.sendMsg("/set/param/cut/filter_fc", 0, 1200);
 n.sendMsg("/set/param/cut/filter_lp", 0, 0);
 n.sendMsg("/set/param/cut/filter_bp", 0, 1.0);
+n.sendMsg("/set/param/cut/filter_rq", 0, 2.0);
 
 n.sendMsg("/set/param/cut/rate", 0, 0.75);
 n.sendMsg("/set/param/cut/rate", 0, 1.0);
