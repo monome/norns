@@ -309,7 +309,8 @@ void OscInterface::addServerMethods() {
     /// FIXME: these fade calculation methods create worker threads,
     /// so as not to hold up either OSC server or audio processing.
     /// this might not be the best place to do that;
-    /// it also doesn't prevent glitching during fade anyways.
+    /// it also doesn't entirely rule out glitches during fades.
+    /// it's probably just not appropriate to make these parameters modulatable.
 
     addServerMethod("/set/param/cut/pre_fade_window", "if", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
