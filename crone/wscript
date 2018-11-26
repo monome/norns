@@ -13,7 +13,13 @@ def build(bld):
         'src/JackClient.cpp',
         'src/AudioMain.cpp',
         'src/OscInterface.cpp',
-        'src/Commands.cpp'
+        'src/Commands.cpp',
+        'src/softcut/FadeCurves.cpp',
+        'src/softcut/SoftCutHead.cpp', 
+        'src/softcut/SoftCutVoice.cpp',
+        'src/softcut/SubHead.cpp',
+        'src/softcut/Svf.cpp',
+        'src/softcut/TestBuffers.cpp'
     ]
     
     bld.program( features='c cxx cxxprogram',
