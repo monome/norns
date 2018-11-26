@@ -136,6 +136,7 @@ static int _set_audio_pitch_off(lua_State *l);
 
 // tape control
 
+static int _tape_level(lua_State *l);
 static int _tape_new(lua_State *l);
 static int _tape_start_rec(lua_State *l);
 static int _tape_pause_rec(lua_State *l);
@@ -280,6 +281,7 @@ void w_init(void) {
   lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
 
   // tape controls
+  lua_register(lvm, "tape_level", &_tape_level);
   lua_register(lvm, "tape_new", &_tape_new);
   lua_register(lvm, "tape_start_rec", &_tape_start_rec);
   lua_register(lvm, "tape_pause_rec", &_tape_pause_rec);
@@ -1814,6 +1816,17 @@ int _set_audio_pitch_on(lua_State *l) {
 int _set_audio_pitch_off(lua_State *l) {
   (void)l;
   o_set_audio_pitch_off();
+  return 0;
+}
+
+int _tape_level(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  float val = (float) luaL_checknumber(l, 1);
+  o_tape_level(val);
+  lua_settop(l, 0);
   return 0;
 }
 

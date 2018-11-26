@@ -470,6 +470,9 @@ void o_restart_audio() {
 }
 
 //---- tape controls
+void o_tape_level(float level) {
+    lo_send(remote_addr, "/tape/level", "f", level);
+}
 
 void o_tape_new(char *file) {
     lo_send(remote_addr, "/tape/newfile", "s", file);
@@ -802,7 +805,7 @@ int handle_tape_play_state(const char *path,
     (void)data;
     (void)user_data;
     assert(argc > 0);
-    fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
+    //fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
     return 0;
 }
 

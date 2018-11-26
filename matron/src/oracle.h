@@ -111,6 +111,7 @@ extern void o_set_audio_pitch_on();
 extern void o_set_audio_pitch_off();
 
 //--- tape control
+extern void o_tape_level(float level);
 extern void o_tape_new(char *file);
 extern void o_tape_start_rec();
 extern void o_tape_pause_rec();

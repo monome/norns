@@ -102,19 +102,19 @@ void* dev_midi_start(void *self) {
                 msg_buf[msg_pos] = byte;
                 msg_pos += 1;
             }
-        }
 
-        if (msg_pos == msg_len) {
-            ev = event_data_new(EVENT_MIDI_EVENT);
-            ev->midi_event.id = midi->dev.id;
-            ev->midi_event.data[0] = msg_buf[0];
-            ev->midi_event.data[1] = msg_len > 1 ? msg_buf[1] : 0;
-            ev->midi_event.data[2] = msg_len > 2 ? msg_buf[2] : 0;
-            ev->midi_event.nbytes = msg_len;
-            event_post(ev);
+            if (msg_pos == msg_len) {
+                ev = event_data_new(EVENT_MIDI_EVENT);
+                ev->midi_event.id = midi->dev.id;
+                ev->midi_event.data[0] = msg_buf[0];
+                ev->midi_event.data[1] = msg_len > 1 ? msg_buf[1] : 0;
+                ev->midi_event.data[2] = msg_len > 2 ? msg_buf[2] : 0;
+                ev->midi_event.nbytes = msg_len;
+                event_post(ev);
 
-            msg_pos = 0;
-            msg_len = 0;
+                msg_pos = 0;
+                msg_len = 0;
+            }
         }
     } while (read > 0);
 
