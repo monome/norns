@@ -11,8 +11,10 @@
 #include "effects/ZitaReverb.h"
 
 
-#include "softcut/SoftCutVoice.h"
-#include "softcut/SoftCut.h"
+//#include "softcut/SoftCutVoice.h"
+
+
+#include "CutWorker.h"
 
 namespace  crone {
 
@@ -41,16 +43,16 @@ namespace  crone {
         void init(int sampleRate);
         void clearBusses(size_t numFrames);
         void processFx(size_t numFrames);
-        void processSoftCut(size_t numFrames);
+        void mixCutInputs(size_t numFrames);
+        void mixCutOutputs(size_t numFrames);
 
     private:
         // processors
         StereoCompressor comp;
         ZitaReverb reverb;
-        softcut::SoftCut<SOFTCUT_COUNT> cut;
+    	CutWorker<SOFTCUT_COUNT, MAX_BUF_SIZE>cw;
         // busses
-        typedef Bus<2, MAX_BUF_SIZE> StereoBus;
-        typedef Bus<1, MAX_BUF_SIZE> MonoBus;
+	typedef Bus<2, MAX_BUF_SIZE> StereoBus;
         struct BusList {
             StereoBus adc_out;
             StereoBus ext_out;
@@ -60,9 +62,7 @@ namespace  crone {
             StereoBus aux_in;
             StereoBus aux_out;
             StereoBus adc_monitor;
-            MonoBus cut_in[SOFTCUT_COUNT];
-            MonoBus cut_out[SOFTCUT_COUNT];
-            StereoBus cut_mix;
+	      StereoBus cut_mix;
             BusList();
         };
         BusList bus;

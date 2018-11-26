@@ -9,7 +9,6 @@
 #include "Commands.h"
 #include "Evil.h"
 
-
 using namespace crone;
 using std::cout;
 using std::endl;
@@ -28,7 +27,7 @@ void AudioMain::init(int sampleRate) {
     comp.init(sampleRate);
     reverb.init(sampleRate);
     reverb.init(sampleRate);
-    cut.setSampleRate(static_cast<unsigned int>(sampleRate));
+    cw.cut.setSampleRate(static_cast<unsigned int>(sampleRate));
     setDefaultParams();
 }
 // state constructors
@@ -68,11 +67,8 @@ AudioMain::EnabledList::EnabledList() {
 void AudioMain::processBlock(const float **in_adc, const float **in_ext, float **out, size_t numFrames) {
     // apply pending param changes
     Commands::handlePending(this);
-
-    // clear all our internal busses
+    // clear internal busses
     clearBusses(numFrames);
-
-
     // clear the output
     for(int ch=0; ch<2; ++ch) {
         for (size_t fr=0; fr<numFrames; ++fr) {
@@ -80,17 +76,30 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
         }
     }
 
+    /// -- simplest way of dividing softcut work:
+    /// -- 1) mix all of SC I/O using using data from last buffer
+    mixCutInputs(numFrames);
+    mixCutOutputs(numFrames);
+
+    /// -- 2) start softcut work
+    cw.startProcess(numFrames);
+
+    /// -- 3) continue mixing and processing other fx
     // apply input levels
     bus.adc_out.mixFrom(in_adc, numFrames, smoothLevels.adc);
     bus.ext_out.mixFrom(in_ext, numFrames, smoothLevels.ext);
     // mix to monitor bus
     bus.adc_monitor.stereoMixFrom(bus.adc_out, numFrames, staticLevels.monitor_mix);
 
-    processSoftCut(numFrames);
     processFx(numFrames);
 
     // apply final output level
     bus.dac_in.mixTo(out, numFrames, smoothLevels.dac);
+
+    /// -- 4) wait for softcut worker to finish
+    /// FIXME: shouldn't really be necessary,
+    /// but without it underruns might put very bad stuff in the audio buffer.
+    // cw.waitForDone();
 }
 
 void AudioMain::processFx(size_t numFrames)  {
@@ -132,15 +141,16 @@ void AudioMain::processFx(size_t numFrames)  {
 }
 
 
-void AudioMain::processSoftCut(size_t numFrames) {
+void AudioMain::mixCutInputs(size_t numFrames) {
+    for (auto &b: cw.cut_in) { b.clear(numFrames); };
     // mix adc in
-    const float* pin[2] = { bus.adc_out.buf[0], bus.adc_out.buf[1] };
-    for(int v=0; v<SOFTCUT_COUNT; ++v) {
-        if(!enabled.cut[v]) { continue; }
-        bus.cut_in[v].clear();
-        bus.cut_in[v].mixFrom(pin, numFrames, smoothLevels.adc_cut[v][0]);
-        bus.cut_in[v].mixFrom(pin+1, numFrames, smoothLevels.adc_cut[v][1]);
-#if 0 // FIXME this is messed up
+    const float *pin[2] = {bus.adc_out.buf[0], bus.adc_out.buf[1]};
+    for (int v = 0; v < SOFTCUT_COUNT; ++v) {
+        if (!enabled.cut[v]) { continue; }
+        cw.cut_in[v].clear();
+        cw.cut_in[v].mixFrom(pin, numFrames, smoothLevels.adc_cut[v][0]);
+        cw.cut_in[v].mixFrom(pin + 1, numFrames, smoothLevels.adc_cut[v][1]);
+#if 0 // FIXME this is messed up?
         // mix feedback
         for(int w=0; w<SOFTCUT_COUNT; ++w) {
             bus.cut_in[v].mixFrom(bus.cut_out[w], numFrames, smoothLevels.cut_fb[v][w]);
@@ -150,21 +160,24 @@ void AudioMain::processSoftCut(size_t numFrames) {
     // mix ext in
     pin[0] = bus.ext_out.buf[0];
     pin[1] = bus.ext_out.buf[1];
-    for(int v=0; v<SOFTCUT_COUNT; ++v) {
-        if(!enabled.cut[v]) { continue; }
-        bus.cut_in[v].mixFrom(pin, numFrames, smoothLevels.ext_cut[v][0]);
-        bus.cut_in[v].mixFrom(pin+1, numFrames, smoothLevels.ext_cut[v][1]);
+    for (int v = 0; v < SOFTCUT_COUNT; ++v) {
+        if (!enabled.cut[v]) { continue; }
+        cw.cut_in[v].mixFrom(pin, numFrames, smoothLevels.ext_cut[v][0]);
+        cw.cut_in[v].mixFrom(pin + 1, numFrames, smoothLevels.ext_cut[v][1]);
     }
-    // process softcuts (overwrites output bus)
-    for(int v=0; v<SOFTCUT_COUNT; ++v) {
-        if(!enabled.cut[v]) { continue; }
-        cut.processBlock(v, bus.cut_in[v].buf[0], bus.cut_out[v].buf[0], static_cast<int>(numFrames));
-    }
+//    // process softcuts (overwrites output bus)
+//    for(int v=0; v<SOFTCUT_COUNT; ++v) {
+//        if(!enabled.cut[v]) { continue; }
+//        cut.processBlock(v, bus.cut_in[v].buf[0], bus.cut_out[v].buf[0], static_cast<int>(numFrames));
+//    }
 
+}
+
+void AudioMain::mixCutOutputs(size_t numFrames) {
     // mixdown with level/pan
     for(int v=0; v<SOFTCUT_COUNT; ++v) {
         if(!enabled.cut[v]) { continue; }
-        bus.cut_mix.panMixFrom(bus.cut_out[v], numFrames, smoothLevels.cut[v], smoothLevels.cut_pan[v]);
+        bus.cut_mix.panMixFrom(cw.cut_out[v], numFrames, smoothLevels.cut[v], smoothLevels.cut_pan[v]);
     }
     // mix to output/send
     bus.aux_in.mixFrom(bus.cut_mix, numFrames, smoothLevels.cut_aux);
@@ -211,7 +224,6 @@ void AudioMain::clearBusses(size_t numFrames) {
     bus.aux_out.clear(numFrames);
     bus.adc_monitor.clear(numFrames);
     bus.cut_mix.clear(numFrames);
-    for (auto &b: bus.cut_in) { b.clear(numFrames); };
 }
 
 void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
@@ -285,64 +297,64 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
 
             //-- softcut commands
         case Commands::Id::SET_CUT_RATE:
-            cut.setRate(p->voice, p->value);
+            cw.cut.setRate(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_LOOP_START:
-            cut.setLoopStart(p->voice, p->value);
+            cw.cut.setLoopStart(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_LOOP_END:
-            cut.setLoopEnd(p->voice, p->value);
+            cw.cut.setLoopEnd(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_LOOP_FLAG:
-            cut.setLoopFlag(p->voice, p->value > 0.f);
+            cw.cut.setLoopFlag(p->voice, p->value > 0.f);
             break;
         case Commands::Id::SET_CUT_FADE_TIME:
-            cut.setFadeTime(p->voice, p->value);
+            cw.cut.setFadeTime(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_REC_LEVEL:
-            cut.setRecLevel(p->voice, p->value);
+            cw.cut.setRecLevel(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_PRE_LEVEL:
-            cut.setPreLevel(p->voice, p->value);
+            cw.cut.setPreLevel(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_REC_FLAG:
-            cut.setRecFlag(p->voice, p->value > 0.f);
+            cw.cut.setRecFlag(p->voice, p->value > 0.f);
             break;
         case Commands::Id::SET_CUT_REC_OFFSET:
-            cut.setRecOffset(p->voice, p->value);
+            cw.cut.setRecOffset(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_POSITION:
-            cut.cutToPos(p->voice, p->value);
+            cw.cut.cutToPos(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_FC:
-            cut.setFilterFc(p->voice, p->value);
+            cw.cut.setFilterFc(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_FC_MOD:
-            cut.setFilterFcMod(p->voice, p->value);
+            cw.cut.setFilterFcMod(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_RQ:
-            cut.setFilterRq(p->voice, p->value);
+            cw.cut.setFilterRq(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_LP:
-            cut.setFilterLp(p->voice, p->value);
+            cw.cut.setFilterLp(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_HP:
-            cut.setFilterHp(p->voice, p->value);
+            cw.cut.setFilterHp(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_BP:
-            cut.setFilterBp(p->voice, p->value);
+            cw.cut.setFilterBp(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_BR:
-            cut.setFilterBr(p->voice, p->value);
+            cw.cut.setFilterBr(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_DRY:
-            cut.setFilterDry(p->voice, p->value);
+            cw.cut.setFilterDry(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
-            cut.setLevelSlewTime(p->voice, p->value);
+            cw.cut.setLevelSlewTime(p->voice, p->value);
             break;
         case Commands::Id::SET_CUT_RATE_SLEW_TIME:
-            cut.setRateSlewTime(p->voice, p->value);
+            cw.cut.setRateSlewTime(p->voice, p->value);
             break;
 
         default:
