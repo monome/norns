@@ -82,11 +82,11 @@ void SoftCutHead::takeAction(Action act)
 {
     switch (act) {
         case Action::LOOP_POS:
-            std::cerr << "looping: go to start" << std::endl;
+            // std::cerr << "looping: go to start" << std::endl;
             cutToPhase(start);
             break;
         case Action::LOOP_NEG:
-            std::cerr << "looping: go to end" << std::endl;
+            // std::cerr << "looping: go to end" << std::endl;
             cutToPhase(end);
             break;
         case Action::STOP:
@@ -116,7 +116,7 @@ void SoftCutHead::cutToPhase(phase_t pos) {
     head[active].active_ = false;
     head[newActive].active_ = true;
     active = newActive;
-    std::cerr << "active: " << active << std::endl;
+    // std::cerr << "active: " << active << std::endl;
 }
 
 void SoftCutHead::setFadeTime(float secs) {
