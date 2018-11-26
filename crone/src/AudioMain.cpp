@@ -98,7 +98,7 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     /// -- 4) wait for softcut worker to finish
     /// FIXME: shouldn't really be necessary,
     /// but without it underruns might put very bad stuff in the audio buffer.
-    // cw.waitForDone();
+    cw.waitForDone();
 }
 
 void AudioMain::processFx(size_t numFrames)  {
@@ -141,7 +141,6 @@ void AudioMain::processFx(size_t numFrames)  {
 
 
 void AudioMain::mixCutInputs(size_t numFrames) {
-    for (auto &b: cw.cut_in) { b.clear(numFrames); };
     // mix adc in
     const float *pin[2] = {bus.adc_out.buf[0], bus.adc_out.buf[1]};
     for (int v = 0; v < SOFTCUT_COUNT; ++v) {
@@ -182,7 +181,6 @@ void AudioMain::mixCutOutputs(size_t numFrames) {
     bus.aux_in.mixFrom(bus.cut_mix, numFrames, smoothLevels.cut_aux);
     bus.ins_in.sumFrom(bus.cut_mix, numFrames);
 }
-
 
 void AudioMain::setDefaultParams() {
 
