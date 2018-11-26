@@ -9,79 +9,82 @@
 
 namespace crone {
 
-    class AudioMain;
+	class AudioMain;
 
-    class Commands {
-    public:
-        typedef enum {
-            //-- level commands
-            SET_LEVEL_ADC,
-            SET_LEVEL_DAC,
-            SET_LEVEL_EXT,
-            SET_LEVEL_EXT_AUX,
-            SET_LEVEL_AUX_DAC,
-            SET_LEVEL_MONITOR,
-            SET_LEVEL_MONITOR_MIX,
-            SET_LEVEL_MONITOR_AUX,
-            SET_LEVEL_INS_MIX,
+	class Commands {
+	public:
+		typedef enum {
+			//-- level commands
+					SET_LEVEL_ADC,
+			SET_LEVEL_DAC,
+			SET_LEVEL_EXT,
+			SET_LEVEL_EXT_AUX,
+			SET_LEVEL_AUX_DAC,
+			SET_LEVEL_MONITOR,
+			SET_LEVEL_MONITOR_MIX,
+			SET_LEVEL_MONITOR_AUX,
+			SET_LEVEL_INS_MIX,
 
-            SET_PARAM_REVERB,
-            SET_PARAM_COMPRESSOR,
+			SET_PARAM_REVERB,
+			SET_PARAM_COMPRESSOR,
 
-            SET_ENABLED_REVERB,
-            SET_ENABLED_COMPRESSOR,
+			SET_ENABLED_REVERB,
+			SET_ENABLED_COMPRESSOR,
 
-            //-- softcut commands
+			//-- softcut commands
 
-	    // mix
-	    SET_ENABLED_SOFTCUT,
-	    SET_LEVEL_SOFTCUT,
-	    SET_PAN_SOFTCUT,
-	    SET_LEVEL_EXT_CUT,
-	    SET_LEVEL_CUT_AUX,
-	    
-	    // params
-            SET_SOFTCUT_RATE,
-            SET_SOFTCUT_LOOP_START,
-            SET_SOFTCUT_LOOP_END,
-            SET_SOFTCUT_LOOP_FLAG,
-            SET_SOFTCUT_FADE_TIME,
-            SET_SOFTCUT_REC_LEVEL,
-            SET_SOFTCUT_PRE_LEVEL,
-            SET_SOFTCUT_REC_FLAG,
-            SET_SOFTCUT_REC_OFFSET,
-            SET_SOFTCUT_POSITION,
-            SET_SOFTCUT_FILTER_FC,
-            SET_SOFTCUT_FILTER_FC_MOD,
-            SET_SOFTCUT_FILTER_RQ,
-            SET_SOFTCUT_FILTER_LP,
-            SET_SOFTCUT_FILTER_HP,
-            SET_SOFTCUT_FILTER_BP,
-            SET_SOFTCUT_FILTER_BR,
-            SET_SOFTCUT_FILTER_DRY,
-            SET_SOFTCUT_LEVEL_SLEW_TIME,
-            SET_SOFTCUT_RATE_SLEW_TIME,
-	    
-            NUM_COMMANDS
-        } Id;
+			// mix
+			SET_ENABLED_CUT,
+			SET_LEVEL_CUT,
+			SET_PAN_CUT,
+			SET_LEVEL_CUT_AUX,
+			SET_LEVEL_ADC_0_CUT,
+			SET_LEVEL_ADC_1_CUT,
+			SET_LEVEL_EXT_0_CUT,
+			SET_LEVEL_EXT_1_CUT,
 
-    public:
+			// params
+			SET_CUT_RATE,
+			SET_CUT_LOOP_START,
+			SET_CUT_LOOP_END,
+			SET_CUT_LOOP_FLAG,
+			SET_CUT_FADE_TIME,
+			SET_CUT_REC_LEVEL,
+			SET_CUT_PRE_LEVEL,
+			SET_CUT_REC_FLAG,
+			SET_CUT_REC_OFFSET,
+			SET_CUT_POSITION,
+			SET_CUT_FILTER_FC,
+			SET_CUT_FILTER_FC_MOD,
+			SET_CUT_FILTER_RQ,
+			SET_CUT_FILTER_LP,
+			SET_CUT_FILTER_HP,
+			SET_CUT_FILTER_BP,
+			SET_CUT_FILTER_BR,
+			SET_CUT_FILTER_DRY,
+			SET_CUT_LEVEL_SLEW_TIME,
+			SET_CUT_RATE_SLEW_TIME,
 
-        static void post(Commands::Id id, float value);
-        static void post(Commands::Id id, int voice, float value);
-        static void handlePending(AudioMain *audio);
+			NUM_COMMANDS
+		} Id;
 
-        struct CommandPacket {
-            CommandPacket() = default;
-            CommandPacket(Commands::Id i, int v, float f) : id(i), voice(v), value(f) {}
-            Id id;
-            int voice;
-            float value;
-        };
+	public:
 
-    private:
-        static boost::lockfree::spsc_queue <CommandPacket> q;
-    };
+		static void post(Commands::Id id, float value);
+		static void post(Commands::Id id, int voice, float value);
+		static void handlePending(AudioMain *audio);
+
+		struct CommandPacket {
+			CommandPacket() = default;
+			CommandPacket(Commands::Id i, int v, float f) : id(i), voice(v), value(f) {}
+			Id id;
+			int voice;
+			float value;
+		};
+
+	private:
+		static boost::lockfree::spsc_queue <CommandPacket> q;
+	};
 
 }
 

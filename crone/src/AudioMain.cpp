@@ -56,7 +56,10 @@ AudioMain::StaticLevelList::StaticLevelList() {
 
 AudioMain::EnabledList::EnabledList() {
     comp = false;
-    reverb = true;
+    reverb = false;
+    for(auto &b: cut) {
+        b = false;
+    }
 }
 
 /////////////////////////
@@ -137,10 +140,12 @@ void AudioMain::processSoftCut(size_t numFrames) {
         bus.cut_in[v].clear();
         bus.cut_in[v].mixFrom(pin, numFrames, smoothLevels.adc_cut[v][0]);
         bus.cut_in[v].mixFrom(pin+1, numFrames, smoothLevels.adc_cut[v][1]);
+#if 0 // FIXME this is messed up
         // mix feedback
         for(int w=0; w<SOFTCUT_COUNT; ++w) {
             bus.cut_in[v].mixFrom(bus.cut_out[w], numFrames, smoothLevels.cut_fb[v][w]);
         }
+#endif
     }
     // mix ext in
     pin[0] = bus.ext_out.buf[0];
@@ -205,6 +210,8 @@ void AudioMain::clearBusses(size_t numFrames) {
     bus.aux_in.clear(numFrames);
     bus.aux_out.clear(numFrames);
     bus.adc_monitor.clear(numFrames);
+    bus.cut_mix.clear(numFrames);
+    for (auto &b: bus.cut_in) { b.clear(numFrames); };
 }
 
 void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
@@ -250,65 +257,91 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
             enabled.comp = p->value > 0.f;
             break;
 
+            //-- softcut routing
+        case Commands::Id::SET_ENABLED_CUT:
+            enabled.cut[p->voice] = p->value > 0.f;
+            break;
+        case Commands::Id::SET_LEVEL_CUT:
+            smoothLevels.cut[p->voice].setTarget(p->value);
+            break;;
+        case Commands::Id::SET_PAN_CUT:
+            smoothLevels.cut_pan[p->voice].setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_CUT_AUX:
+            smoothLevels.cut_aux.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_ADC_0_CUT:
+            smoothLevels.adc_cut[p->voice][0].setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_ADC_1_CUT:
+            smoothLevels.adc_cut[p->voice][1].setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_EXT_0_CUT:
+            smoothLevels.ext_cut[p->voice][0].setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_EXT_1_CUT:
+            smoothLevels.ext_cut[p->voice][1].setTarget(p->value);
+            break;
+
             //-- softcut commands
-        case Commands::Id::SET_SOFTCUT_RATE:
+        case Commands::Id::SET_CUT_RATE:
             cut.setRate(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_LOOP_START:
+        case Commands::Id::SET_CUT_LOOP_START:
             cut.setLoopStart(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_LOOP_END:
+        case Commands::Id::SET_CUT_LOOP_END:
             cut.setLoopEnd(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_LOOP_FLAG:
+        case Commands::Id::SET_CUT_LOOP_FLAG:
             cut.setLoopFlag(p->voice, p->value > 0.f);
             break;
-        case Commands::Id::SET_SOFTCUT_FADE_TIME:
+        case Commands::Id::SET_CUT_FADE_TIME:
             cut.setFadeTime(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_REC_LEVEL:
+        case Commands::Id::SET_CUT_REC_LEVEL:
             cut.setRecLevel(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_PRE_LEVEL:
+        case Commands::Id::SET_CUT_PRE_LEVEL:
             cut.setPreLevel(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_REC_FLAG:
+        case Commands::Id::SET_CUT_REC_FLAG:
             cut.setRecFlag(p->voice, p->value > 0.f);
             break;
-        case Commands::Id::SET_SOFTCUT_REC_OFFSET:
+        case Commands::Id::SET_CUT_REC_OFFSET:
             cut.setRecOffset(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_POSITION:
+        case Commands::Id::SET_CUT_POSITION:
             cut.cutToPos(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_FC:
+        case Commands::Id::SET_CUT_FILTER_FC:
             cut.setFilterFc(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_FC_MOD:
+        case Commands::Id::SET_CUT_FILTER_FC_MOD:
             cut.setFilterFcMod(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_RQ:
+        case Commands::Id::SET_CUT_FILTER_RQ:
             cut.setFilterRq(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_LP:
+        case Commands::Id::SET_CUT_FILTER_LP:
             cut.setFilterLp(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_HP:
+        case Commands::Id::SET_CUT_FILTER_HP:
             cut.setFilterHp(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_BP:
+        case Commands::Id::SET_CUT_FILTER_BP:
             cut.setFilterBp(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_BR:
+        case Commands::Id::SET_CUT_FILTER_BR:
             cut.setFilterBr(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_FILTER_DRY:
+        case Commands::Id::SET_CUT_FILTER_DRY:
             cut.setFilterDry(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_LEVEL_SLEW_TIME:
+        case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
             cut.setLevelSlewTime(p->voice, p->value);
             break;
-        case Commands::Id::SET_SOFTCUT_RATE_SLEW_TIME:
+        case Commands::Id::SET_CUT_RATE_SLEW_TIME:
             cut.setRateSlewTime(p->voice, p->value);
             break;
 
