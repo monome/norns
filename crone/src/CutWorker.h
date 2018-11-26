@@ -32,7 +32,7 @@ namespace crone {
         bool start;
         bool done;
         bool quit;
-        int numFrames;
+        size_t numFrames;
         std::thread t;
         std::mutex m;
         std::condition_variable cv;
@@ -42,11 +42,14 @@ namespace crone {
         void workLoop() {
 
             while(true) {
+                /// FIXME: need stopping condition?
                 std::unique_lock<std::mutex> lk(m);
                 cv.wait(lk, [this] { return this->start; });
                 if(quit) { break; }
                 start = false;
+
                 process();
+
                 done = true;
                 lk.unlock(); // explicit unlock for spurious wakeup
                 cv.notify_one();
@@ -54,19 +57,18 @@ namespace crone {
         }
 
         void process() {
-
             // process softcuts (overwrites output bus)
             for(int v=0; v<NumCuts; ++v) {
-                if(!enabled[v]) { continue; }
+                if (!enabled[v]) {
+                    continue;
+                }
                 cut.processBlock(v, cut_in[v].buf[0], cut_out[v].buf[0], static_cast<int>(numFrames));
             }
-
-
         }
 
 
         // call from main
-        void startProcess(int nf) {
+        void startProcess(size_t nf) {
             {
                 std::lock_guard<std::mutex> lk(m);
                 numFrames = nf;
@@ -84,6 +86,8 @@ namespace crone {
     public:
         CutWorker() : start(false), done(false), quit(false),
                       t([this] { this->workLoop(); })
-        {}
+        {
+            for (auto &b: enabled) { b = false; }
+        }
     };
 }

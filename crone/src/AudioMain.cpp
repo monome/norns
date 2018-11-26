@@ -56,9 +56,6 @@ AudioMain::StaticLevelList::StaticLevelList() {
 AudioMain::EnabledList::EnabledList() {
     comp = false;
     reverb = false;
-    for(auto &b: cut) {
-        b = false;
-    }
 }
 
 /////////////////////////
@@ -76,6 +73,11 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
         }
     }
 
+
+    // mix input ports to input busses, applying levels
+    bus.adc_out.mixFrom(in_adc, numFrames, smoothLevels.adc);
+    bus.ext_out.mixFrom(in_ext, numFrames, smoothLevels.ext);
+
     /// -- simplest way of dividing softcut work:
     /// -- 1) mix all of SC I/O using using data from last buffer
     mixCutInputs(numFrames);
@@ -85,9 +87,6 @@ void AudioMain::processBlock(const float **in_adc, const float **in_ext, float *
     cw.startProcess(numFrames);
 
     /// -- 3) continue mixing and processing other fx
-    // apply input levels
-    bus.adc_out.mixFrom(in_adc, numFrames, smoothLevels.adc);
-    bus.ext_out.mixFrom(in_ext, numFrames, smoothLevels.ext);
     // mix to monitor bus
     bus.adc_monitor.stereoMixFrom(bus.adc_out, numFrames, staticLevels.monitor_mix);
 
@@ -146,7 +145,7 @@ void AudioMain::mixCutInputs(size_t numFrames) {
     // mix adc in
     const float *pin[2] = {bus.adc_out.buf[0], bus.adc_out.buf[1]};
     for (int v = 0; v < SOFTCUT_COUNT; ++v) {
-        if (!enabled.cut[v]) { continue; }
+        if (!cw.enabled[v]) { continue; }
         cw.cut_in[v].clear();
         cw.cut_in[v].mixFrom(pin, numFrames, smoothLevels.adc_cut[v][0]);
         cw.cut_in[v].mixFrom(pin + 1, numFrames, smoothLevels.adc_cut[v][1]);
@@ -161,7 +160,7 @@ void AudioMain::mixCutInputs(size_t numFrames) {
     pin[0] = bus.ext_out.buf[0];
     pin[1] = bus.ext_out.buf[1];
     for (int v = 0; v < SOFTCUT_COUNT; ++v) {
-        if (!enabled.cut[v]) { continue; }
+        if (!cw.enabled[v]) { continue; }
         cw.cut_in[v].mixFrom(pin, numFrames, smoothLevels.ext_cut[v][0]);
         cw.cut_in[v].mixFrom(pin + 1, numFrames, smoothLevels.ext_cut[v][1]);
     }
@@ -176,7 +175,7 @@ void AudioMain::mixCutInputs(size_t numFrames) {
 void AudioMain::mixCutOutputs(size_t numFrames) {
     // mixdown with level/pan
     for(int v=0; v<SOFTCUT_COUNT; ++v) {
-        if(!enabled.cut[v]) { continue; }
+        if(!cw.enabled[v]) { continue; }
         bus.cut_mix.panMixFrom(cw.cut_out[v], numFrames, smoothLevels.cut[v], smoothLevels.cut_pan[v]);
     }
     // mix to output/send
@@ -271,7 +270,7 @@ void AudioMain::handleCommand(crone::Commands::CommandPacket *p) {
 
             //-- softcut routing
         case Commands::Id::SET_ENABLED_CUT:
-            enabled.cut[p->voice] = p->value > 0.f;
+            cw.enabled[p->voice] = p->value > 0.f;
             break;
         case Commands::Id::SET_LEVEL_CUT:
             smoothLevels.cut[p->voice].setTarget(p->value);

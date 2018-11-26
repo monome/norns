@@ -98,7 +98,6 @@ namespace  crone {
         struct EnabledList {
             bool reverb;
             bool comp;
-            bool cut[SOFTCUT_COUNT];
             EnabledList();
         };
         EnabledList enabled;
