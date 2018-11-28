@@ -979,8 +979,7 @@ m.redraw[pWIFI] = function()
   if m.wifi.countdown == -1 then
     screen.move(0,10)
     if wifi.state == 2 then
-      --screen.text("status: router "..wifi.ssid)
-      screen.text("status: router "..wifi.connection)
+      screen.text("status: router "..wifi.connection_name)
     else screen.text("status: "..wifi.status) end
     if wifi.state > 0 then
       screen.level(4)
@@ -988,7 +987,9 @@ m.redraw[pWIFI] = function()
       screen.text(wifi.ip)
       if wifi.state == 2 then
         screen.move(127,20)
-        screen.text_right(wifi.signal .. "dBm")
+	if wifi.connection and wifi.connection:is_wireless() then
+	  screen.text_right(wifi.signal .. "dBm")
+	end
       end
     end
 
