@@ -3,9 +3,7 @@
 -- @module poll
 -- @alias Poll
 
-local tab = require 'tabutil'
-
-norns.version.poll = '0.0.2'
+local tab = require 'lib/tabutil'
 
 local Poll = {}
 Poll.__index = Poll

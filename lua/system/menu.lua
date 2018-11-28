@@ -1,14 +1,12 @@
 -- menu.lua
 -- norns screen-based navigation module
 
-local tab = require 'tabutil'
-local util = require 'util'
-local paramset = require 'paramset'
-local fx = require 'effects'
-local cs = require 'controlspec'
+local tab = require 'lib/tabutil'
+local util = require 'lib/util'
+local paramset = require 'system/lib/paramset'
 local menu = {}
 
-mix = require 'mix'
+mix = require 'system/lib/mix'
 
 -- global functions for scripts
 key = norns.none
@@ -55,7 +53,7 @@ menu.showstats = false
 
 local pending = false
 -- metro for key hold detection
-local metro = require 'metro'
+local metro = require 'system/lib/metro'
 local t = metro[31]
 t.time = KEY1_HOLD_TIME
 t.count = 1

@@ -1,8 +1,6 @@
 --- hid devices
 -- @module hid
 -- @alias Hid
-require 'norns'
-norns.version.hid = '0.0.2'
 
 local Hid = {}
 Hid.__index = Hid

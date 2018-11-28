@@ -1,8 +1,6 @@
 --- Grid class
 -- @module grid
 -- @alias Grid
-require 'norns'
-
 
 ---------------------------------
 -- Grid device class

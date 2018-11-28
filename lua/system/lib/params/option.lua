@@ -1,7 +1,7 @@
 --- Option class
 -- @module option
 
-local tab = require 'tabutil'
+local tab = require 'lib/tabutil'
 
 local Option = {}
 Option.__index = Option

@@ -4,7 +4,7 @@
 -- @alias Screen
 local Screen = {}
 
-local metro = require 'metro'
+local metro = require 'system/lib/metro'
 local screensaver = metro[33]
 
 screensaver.callback = function()
@@ -17,6 +17,7 @@ screensaver.count = 1
 --- copy buffer to screen
 Screen.update = function()
   s_update()
+  -- TODO: this should be called by key/encoder activity
   screensaver:start()
 end
 

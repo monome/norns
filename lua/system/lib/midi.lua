@@ -1,7 +1,6 @@
 --- midi devices
 -- @module midi
 -- @alias Midi
-require 'norns'
 
 local Midi = {}
 Midi.devices = {}

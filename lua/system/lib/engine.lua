@@ -1,7 +1,7 @@
 --- Engine class
 -- @module engine
 -- @alias Engine
-local tab = require 'tabutil'
+local tab = require 'lib/tabutil'
 
 norns.version.engine = '0.0.2'
 

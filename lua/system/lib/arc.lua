@@ -1,8 +1,6 @@
 --- Arc class
 -- @module arc
 -- @alias Arc
-require 'norns'
-
 
 ---------------------------------
 -- Arc device class

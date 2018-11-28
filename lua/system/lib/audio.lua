@@ -2,8 +2,6 @@
 -- @module audio
 -- @alias Audio
 
-norns.version.audio = '0.0.2'
-
 local Audio = {}
 
 --- set level for one input channel

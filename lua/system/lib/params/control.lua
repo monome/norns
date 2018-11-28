@@ -1,7 +1,7 @@
 --- Control class
 -- @module control
 
-local ControlSpec = require 'controlspec'
+local ControlSpec = require 'system/lib/controlspec'
 
 local Control = {}
 Control.__index = Control

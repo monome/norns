@@ -1,13 +1,10 @@
 --- osc device
 -- @module osc
 -- @alias OSC
-require 'norns'
 
-norns.version.osc = '0.0.0'
-
-local tab = require 'tabutil'
-local paramset = require 'paramset'
-local util = require 'util'
+local tab = require 'lib/tabutil'
+local paramset = require 'system/lib/paramset'
+local util = require 'lib/util'
 
 local OSC = {}
 OSC.__index = OSC

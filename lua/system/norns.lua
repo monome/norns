@@ -19,9 +19,9 @@ else
 end
 
 -- needed requires
-local engine = require 'engine'
-local poll = require 'poll'
-local tab = require 'tabutil'
+local engine = require 'system/lib/engine'
+local poll = require 'system/lib/poll'
+local tab = require 'lib/tabutil'
 
 --- Global Functions
 -- @section global_functions
@@ -160,17 +160,15 @@ norns.vu = function(in1, in2, out1, out2)
 end
 
 --- Audio
-norns.audio = require 'audio'
+norns.audio = require 'system/lib/audio'
 
 
 --- Management
 -- @section management
 ---- ... whaaat?? why are all of these made global here?
-norns.script = require 'script'
-norns.state = require 'state'
-norns.log = require 'log'
-norns.encoders = require 'encoders'
-norns.update = require 'update'
+norns.script = require 'system/lib/script'
+norns.state = require 'system/lib/state'
+norns.encoders = require 'system/lib/encoders'
 
 norns.enc = norns.encoders.process
 
@@ -200,7 +198,7 @@ end
 
 --- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
-startup = function()
+_startup = function()
   print("norns.lua:startup()")
-  require('startup')
+  require('system/startup')
 end
