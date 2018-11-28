@@ -4,7 +4,6 @@
 */
 
 PatchMatrix {
-	var <bus; // collection of busses
 	var <gr; // collection of groups
 	var <syn; // collection of synths
 	var <numInputs;
@@ -17,9 +16,9 @@ PatchMatrix {
 					arg in, out, level, gate=0, time=0.1;
 					var ampenv, input;
 					ampenv = EnvGen.kr(Env.asr(1, 1, 1),
-						levelScale: level, timeScale:time, gate:gate, doneAction:1);
+						timeScale:time, gate:gate, doneAction:1);
 					input = In.ar(in);
-					Out.ar(out, input * ampenv);
+					Out.ar(out, input * ampenv * level);
 				})
 			);
 			
@@ -28,9 +27,9 @@ PatchMatrix {
 					arg in, out, level, gate=0, time=0.1;
 					var ampenv, input;
 					ampenv = EnvGen.kr(Env.asr(1, 1, 1),
-						levelScale: level, timeScale:time, gate:gate, doneAction:1);
+						timeScale:time, gate:gate, doneAction:1);
 					input = InFeedback.ar(in);
-					Out.ar(out, input * ampenv);
+					Out.ar(out, input * ampenv * level);
 				})
 			);
 		}
@@ -48,8 +47,7 @@ PatchMatrix {
 	}
 
 	free {
-		gr.free; // frees all synths
-		bus.do({ |b| b.free; });
+		gr.free; // frees all synth
 	}
 
 	init { arg srv, in, out, fb, target, action;

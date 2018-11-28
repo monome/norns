@@ -23,6 +23,8 @@ function BeatClock.new(name)
   i:bpm_change(110)
 
   i.on_step = function(e) print("BeatClock executing step") end
+  i.on_start = function(e) end
+  i.on_stop = function(e) end
   i.on_select_internal = function(e) print("BeatClock using internal clock") end
   i.on_select_external = function(e) print("BeatClock using external clock") end
   
@@ -44,6 +46,7 @@ function BeatClock:start(dev_id)
       end
     end
   end
+  self.on_start()
 end
 
 function BeatClock:stop(dev_id)
@@ -56,6 +59,7 @@ function BeatClock:stop(dev_id)
       end
     end
   end
+  self.on_stop()
 end
 
 function BeatClock:advance_step()

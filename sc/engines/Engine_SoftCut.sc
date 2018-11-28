@@ -1,7 +1,7 @@
 // a sample capture / playback matrix
 Engine_SoftCut : CroneEngine {
 	classvar nvoices = 4; // total number of voices
-	classvar bufDur = 480; // 8 minutes +
+	classvar bufDur = 480; // 8 minutes +clear
 	
 	classvar commands;
 
@@ -11,8 +11,9 @@ Engine_SoftCut : CroneEngine {
 	var <pm; // patch matrix
 
 	var <voices; // array of voices (r/w heads)
-	var <trigdef; // array of trigger  responders
-	var <trigsyn;
+	var <trig_s; // array of trigger synths
+	var <adc_s;
+	var <dac_s;
 	var <phase_quant_poll;
 	var <buf_dur_poll;
 
@@ -51,6 +52,8 @@ Engine_SoftCut : CroneEngine {
 		gr = Event.new;
 		gr.pb = Group.new(context.xg, addAction:\addToTail);
 		gr.rec = Group.after(context.ig);
+		gr.adc = Group.before(gr.rec);
+		gr.dac = Group.after(gr.pb);
 		gr.voices = ParGroup.new(context.xg, addAction:\addToHead);
 
 		s.sync;
@@ -68,10 +71,9 @@ Engine_SoftCut : CroneEngine {
 
 		//--- busses
 		postln("busses...");
-		bus = Event.new;
-		bus.adc = context.in_b;
-		// here we convert  output bus to a mono array
-		bus.dac = Array.with( Bus.newFrom(context.out_b, 0), Bus.newFrom(context.out_b, 1));
+		bus = Event.new;	
+		bus.adc = Array.fill(2, { Bus.audio(s, 1) });
+		bus.dac = Array.fill(2, { Bus.audio(s, 1) });
 		bus.rec = Array.fill(nvoices, { Bus.audio(s, 1); });
 		bus.pb = Array.fill(nvoices, { Bus.audio(s, 1); });
 
@@ -129,6 +131,17 @@ Engine_SoftCut : CroneEngine {
 			feedback:true
 		);
 
+		// make our own I/O busses and synths... shouldn't be necessary but weird things seem to happen otherwise.
+		postln("adc synths");
+		adc_s = Array.fill(2, { |i|
+			Synth.new(\patch_mono, [\in, context.in_b[i].index, \out, bus.adc[i].index], gr.adc);
+		});
+
+		postln("dac synths");
+		dac_s = Array.fill(2, { |i|
+			Synth.new(\patch_mono, [\in, bus.dac[i].index, \out, context.out_b.index + i], gr.dac);
+		});
+
 		this.addCommands;
 		this.addOscTriggers;
 
@@ -159,35 +172,34 @@ Engine_SoftCut : CroneEngine {
 	free {
 		voices.do({ arg voice; voice.free; });
 		buf.free;
-		// ADC/DAC busses belong to the context; don't free them!
-		bus.rec.do({ arg b; b.free; });
-		bus.pb.do({ arg b; b.free; });
+		adc_s.do({ arg syn; syn.free; });
+		dac_s.do({ arg syn; syn.free; });
+		bus.do({ arg arr; arr.do({ arg b; b.free; }) });
 		pm.do({ arg p; p.free; });
 	}
 
 	//---  buffer and routing methods
-
 
 	// clear the entire buffer
 	clearBuf {
 		buf.zero;
 	}
 
-  // clear range of buffer
-  clearBufRange { arg startFrame, numFrames;
-    postln("clear buffer range start " ++ startFrame ++ " len " ++ numFrames);
-    buf.fill(startFrame, numFrames, 0.0);
-  }
+    // clear range of buffer
+    clearBufRange { arg startFrame, numFrames;
+        postln("clear buffer range start " ++ startFrame ++ " len " ++ numFrames);
+        buf.fill(startFrame, numFrames, 0.0);
+    }
 
 	// normalize buffer to given max
 	normalizeBuf { arg x;
 		buf.normalize(x);
 	}
 
-
 	// disk read to (copying over current contents)
 	readBuf { arg path, start, dur;
-			BufUtil.copyChannel(buf, path, start:start, dur:dur);
+		postln("copy channel range; start=" ++ start ++ "; dur=" ++ dur);
+		BufUtil.copyChannel(buf, path, start:start, dur:dur);
 	}
 
 	// disk write
@@ -207,7 +219,7 @@ Engine_SoftCut : CroneEngine {
 
 	addOscTriggers {
 
-		trigsyn = voices.collect({ arg voice, i;
+		trig_s = voices.collect({ arg voice, i;
 			Synth.new(\quant_trig, [\in, voice.phase_b, \id, i, \quant, 1/16], gr.pb, \addAfter);
 		});
 
@@ -237,10 +249,10 @@ Engine_SoftCut : CroneEngine {
 
 			// set the quantization (rounding) interval for phase reporting on given voice
 			// FIXME: clamp this to something reasonable instead of msec?
-			[\quant, \if, {|msg| trigsyn[msg[1]-1].set(\quant, msg[2].max(0.001)); }],
+			[\quant, \if, {|msg| trig_s[msg[1]-1].set(\quant, msg[2].max(0.001)); }],
 
 			// set offset for quantization calculation
-			[\quant_offset, \if, {|msg| trigsyn[msg[1]-1].set(\offset, msg[2]); }],
+			[\quant_offset, \if, {|msg| trig_s[msg[1]-1].set(\offset, msg[2]); }],
 
 			//-- direct control of synth params
 			// output amplitude
@@ -317,7 +329,7 @@ Engine_SoftCut : CroneEngine {
 			[\clear, '', { |msg| this.clearBuf }],
 
 			// clear buffer range
-      [\clear_range, \ii, { |msg| this.clearBufRange(msg[1], msg[2]) }],
+			[\clear_range, \ii, { |msg| this.clearBufRange(msg[1], msg[2]) }],
 
 			// normalize buffer to given maximum level
 			[\norm, \f, { |msg| this.normalizeBuf(msg[1]) }]

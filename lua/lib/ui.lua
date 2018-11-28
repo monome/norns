@@ -1,5 +1,5 @@
 --- UI widgets module.
--- Widgets for paging, tabs, lists, etc.
+-- Widgets for paging, tabs, lists, dials, sliders, etc.
 --
 -- @module UI
 -- @release v1.0.0
@@ -112,6 +112,7 @@ function UI.Tabs:redraw()
     screen.move(MARGIN + col_width * 0.5 + ((col_width + GUTTER) * (i - 1)), 6)
     screen.text_center(self.titles[i])
   end
+  screen.fill()
 end
 
 
@@ -121,8 +122,8 @@ UI.List = {}
 UI.List.__index = UI.List
 
 --- Create a new List object.
--- @param x X position.
--- @param y Y position.
+-- @param x X position, defaults to 0.
+-- @param y Y position, defaults to 0.
 -- @param index Selected entry, defaults to 1.
 -- @param entries Table of strings for list entries.
 -- @return Instance of List.
@@ -132,6 +133,7 @@ function UI.List.new(x, y, index, entries)
     y = y or 0,
     index = index or 1,
     entries = entries or {},
+    text_align = "left",
     active = true
   }
   setmetatable(UI.List, {__index = UI})
@@ -163,10 +165,17 @@ function UI.List:redraw()
   for i = 1, #self.entries do
     if self.active and i == self.index then screen.level(15)
     else screen.level(3) end
-    screen.move(self.x, self.y + (i - 1) * 11)
+    screen.move(self.x, self.y + 5 + (i - 1) * 11)
     local entry = self.entries[i] or ""
-    screen.text(entry)
+    if self.text_align == "center" then
+      screen.text_center(entry)
+    elseif self.text_align == "right" then
+      screen.text_right(entry)
+    else
+      screen.text(entry)
+    end
   end
+  screen.fill()
 end
 
 
@@ -176,8 +185,8 @@ UI.ScrollingList = {}
 UI.ScrollingList.__index = UI.ScrollingList
 
 --- Create a new ScrollingList object.
--- @param x X position.
--- @param y Y position.
+-- @param x X position, defaults to 0.
+-- @param y Y position, defaults to 0.
 -- @param index Selected entry, defaults to 1.
 -- @param entries Table of strings for list entries.
 -- @return Instance of ScrollingList.
@@ -187,6 +196,9 @@ function UI.ScrollingList.new(x, y, index, entries)
     y = y or 0,
     index = index or 1,
     entries = entries or {},
+    num_visible = 5,
+    num_above_selected = 1,
+    text_align = "left",
     active = true
   }
   setmetatable(UI.ScrollingList, {__index = UI})
@@ -215,14 +227,25 @@ end
 --- Redraw ScrollingList.
 -- Call when changed.
 function UI.ScrollingList:redraw()
-  local index_offset = math.max(self.index - (#self.entries - 2), 0)
-  for i = 1, 5 do
-    if self.active and i == math.min(2, #self.entries - 1) + index_offset then screen.level(15)
+  
+  local num_entries = #self.entries
+  local scroll_offset = self.index - 1 - math.max(self.index - (num_entries - 2), 0)
+  scroll_offset = scroll_offset - util.linlin(num_entries - self.num_above_selected, num_entries, self.num_above_selected, 0, self.index - 1) -- For end of list
+  
+  for i = 1, self.num_visible do
+    if self.active and self.index == i + scroll_offset then screen.level(15)
     else screen.level(3) end
-    screen.move(self.x, self.y + (i - 1) * 11)
-    local entry = self.entries[i - 2 + util.clamp(self.index, 1, #self.entries - math.min(2, #self.entries - 1))] or ""
-    screen.text(entry)
+    screen.move(self.x, self.y + 5 + (i - 1) * 11)
+    local entry = self.entries[i + scroll_offset] or ""
+    if self.text_align == "center" then
+      screen.text_center(entry)
+    elseif self.text_align == "right" then
+      screen.text_right(entry)
+    else
+      screen.text(entry)
+    end
   end
+  screen.fill()
 end
 
 
@@ -256,6 +279,144 @@ function UI.Message:redraw()
     screen.text_center(self.text[i])
     y = y + 11
   end
+  screen.fill()
+end
+
+
+-------- Slider --------
+
+UI.Slider = {}
+UI.Slider.__index = UI.Slider
+
+--- Create a new Slider object.
+-- @param x X position, defaults to 0.
+-- @param y Y position, defaults to 0.
+-- @param width Width of slider, defaults to 3.
+-- @param height Height of slider, defaults to 36.
+-- @param value Current value, defaults to 0.
+-- @param min_value Minimum value, defaults to 0.
+-- @param max_value Maximum value, defaults to 1.
+-- @param markers Array of marker positions.
+-- @return Instance of Slider.
+function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers)
+  local slider = {
+    x = x or 0,
+    y = y or 0,
+    width = width or 3,
+    height = height or 36,
+    value = value or 0,
+    min_value = min_value or 0,
+    max_value = max_value or 1,
+    markers = markers or {},
+    active = true
+  }
+  setmetatable(UI.Slider, {__index = UI})
+  setmetatable(slider, UI.Slider)
+  return slider
+end
+
+--- Set value.
+-- @param value Value number.
+function UI.Slider:set_value(number)
+  self.value = util.clamp(number, self.min_value, self.max_value)
+end
+
+--- Set value using delta.
+-- @param delta Number.
+function UI.Slider:set_value_delta(delta)
+  self:set_value(self.value + delta)
+end
+
+--- Set marker position.
+-- @param id Marker number.
+-- @param position Marker position number.
+function UI.Slider:set_marker_position(id, position)
+  self.markers[id] = util.clamp(position, self.min_value, self.max_value)
+end
+
+--- Redraw Slider.
+-- Call when changed.
+function UI.Slider:redraw()
+  screen.level(3)
+  screen.rect(self.x + 0.5, self.y + 0.5, self.width - 1, self.height - 1)
+  screen.stroke()
+  
+  for _, v in pairs(self.markers) do
+    screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, self.height - 1, 0, v)), self.width + 4, 1)
+  end
+  screen.fill()
+  
+  local filled_height = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))
+  screen.rect(self.x, self.y + self.height - filled_height, self.width, filled_height)
+  if self.active then screen.level(15) else screen.level(5) end
+  screen.fill()
+end
+
+
+-------- Dial --------
+
+UI.Dial = {}
+UI.Dial.__index = UI.Dial
+
+--- Create a new Dial object.
+-- @param x X position, defaults to 0.
+-- @param y Y position, defaults to 0.
+-- @param size Diameter of dial, defaults to 22.
+-- @param value Current value, defaults to 0.
+-- @param min_value Minimum value, defaults to 0.
+-- @param max_value Maximum value, defaults to 1.
+-- @param rounding Sets precision to round value to, defaults to 0.01.
+-- @return Instance of Dial.
+function UI.Dial.new(x, y, size, value, min_value, max_value, rounding)
+  local dial = {
+    x = x or 0,
+    y = y or 0,
+    size = size or 22,
+    value = value or 0,
+    min_value = min_value or 0,
+    max_value = max_value or 1,
+    rounding = rounding or 0.01,
+    active = true
+  }
+  setmetatable(UI.Dial, {__index = UI})
+  setmetatable(dial, UI.Dial)
+  return dial
+end
+
+--- Set value.
+-- @param value Value number.
+function UI.Dial:set_value(number)
+  self.value = util.clamp(number, self.min_value, self.max_value)
+end
+
+--- Set value using delta.
+-- @param delta Number.
+function UI.Dial:set_value_delta(delta)
+  self:set_value(self.value + delta)
+end
+
+--- Redraw Dial.
+-- Call when changed.
+function UI.Dial:redraw()
+  local radius = self.size * 0.5
+  local start_angle = math.pi * 0.7
+  local end_angle = math.pi * 2.3
+  local arc_amount = util.linlin(self.min_value, self.max_value, start_angle, end_angle, self.value)
+  
+  screen.level(5)
+  screen.arc(self.x + radius, self.y + radius, radius - 0.5, arc_amount, end_angle)
+  screen.stroke()
+  
+  screen.level(15)
+  screen.line_width(2.5)
+  screen.arc(self.x + radius, self.y + radius, radius - 0.5, start_angle, arc_amount)
+  screen.stroke()
+  screen.line_width(1)
+  
+  if self.active then screen.level(15) else screen.level(3) end
+  screen.move(self.x + radius, self.y + self.size + 6)
+  screen.text_center(util.round(self.value, self.rounding))
+  screen.fill()
 end
 
 
@@ -265,8 +426,8 @@ UI.PlaybackIcon = {}
 UI.PlaybackIcon.__index = UI.PlaybackIcon
 
 --- Create a new PlaybackIcon object.
--- @param x X position.
--- @param y Y position.
+-- @param x X position, defaults to 0.
+-- @param y Y position, defaults to 0.
 -- @param size Icon size, defaults to 6.
 -- @param status Status number. 1 = Play, 2 = Reverse Play, 3 = Pause, 4 = Stop. Defaults to 1.
 -- @return Instance of PlaybackIcon.
