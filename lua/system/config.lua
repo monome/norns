@@ -14,7 +14,7 @@ package.path = sys..lib..engine..package.path
 -- print('package.path: ' .. package.path)
 
 -- full path to directory containing user scripts
-script_dir = home..'/dust/scripts/'
+dust_dir = home..'/dust/'
 data_dir = home..'/dust/data/'
 audio_dir = home..'/dust/audio/'
 home_dir = home

@@ -319,28 +319,43 @@ end
 
 m.sel = {}
 m.sel.pos = 0
-m.sel.list = util.scandir(script_dir)
-m.sel.len = tab.count(m.sel.list)
-m.sel.depth = 0
-m.sel.folderpos = {}
-m.sel.folders = {}
+m.sel.list = {}
+m.sel.len = 0
 m.sel.path = ""
 m.sel.file = ""
 
-m.sel.dir = function()
-  local path = script_dir
-  for k,v in pairs(m.sel.folders) do
-    path = path .. v
+local function build_select_tree(root,dir)
+  --print("-- " .. root .. dir)
+  local p = root .. dir
+  local c = util.scandir(p)
+
+  for _,v in pairs(c) do
+    --print("---- " .. v)
+    if v == "data/" or v == "lib/" or v == "audio/" then
+      --print(".")
+    elseif string.find(v,'/') then
+      build_select_tree(p,v)
+    elseif string.find(v,'.lua') then
+      local file = p .. v
+      local n = string.gsub(v,'.lua','/')
+      if n ~= dir then
+        --print("strip folder")
+        n = p .. n
+      else
+        n = p
+      end
+      n = string.gsub(n,dust_dir,'')
+      n = string.sub(n,0,-2)
+      table.insert(m.sel.list,{name=n,file=file,path=p})
+    end
   end
-  print("path: "..path)
-  return path
 end
 
 m.init[pSELECT] = function()
-  if m.sel.depth == 0 then
-    m.sel.list = util.scandir(script_dir)
-  else
-    m.sel.list = util.scandir(m.sel.dir())
+  m.sel.list = {}
+  build_select_tree(dust_dir,"")
+  for k,v in pairs(m.sel.list) do
+    print(k, v.name, v.file, v.path)
   end
   m.sel.len = tab.count(m.sel.list)
 end
@@ -350,35 +365,13 @@ m.deinit[pSELECT] = norns.none
 m.key[pSELECT] = function(n,z)
   -- back
   if n==2 and z==1 then
-    if m.sel.depth > 0 then
-      m.sel.folders[m.sel.depth] = nil
-      m.sel.depth = m.sel.depth - 1
-      m.sel.list = util.scandir(m.sel.dir())
-      m.sel.len = tab.count(m.sel.list)
-      m.sel.pos = m.sel.folderpos[m.sel.depth] or 0
-      menu.redraw()
-    else
-      menu.set_page(pHOME)
-    end
-    -- select
+    menu.set_page(pHOME)
+  -- select
   elseif n==3 and z==1 then
-    m.sel.file = m.sel.list[m.sel.pos+1]
-    if string.find(m.sel.file,'/') then
-      m.sel.folderpos[m.sel.depth] = m.sel.pos
-      m.sel.depth = m.sel.depth + 1
-      m.sel.folders[m.sel.depth] = m.sel.file
-      m.sel.list = util.scandir(m.sel.dir())
-      m.sel.len = tab.count(m.sel.list)
-      m.sel.pos = 0
-      menu.redraw()
-    else
-      local path = ""
-      for k,v in pairs(m.sel.folders) do
-        path = path .. v
-      end
-      m.sel.path = path .. m.sel.file
-      menu.set_page(pPREVIEW)
-    end
+    m.sel.name = m.sel.list[m.sel.pos+1].name
+    m.sel.file = m.sel.list[m.sel.pos+1].file
+    m.sel.path = m.sel.list[m.sel.pos+1].path
+    menu.set_page(pPREVIEW)
   end
 end
 
@@ -397,7 +390,7 @@ m.redraw[pSELECT] = function()
   for i=1,6 do
     if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
       screen.move(0,10*i)
-      line = string.gsub(m.sel.list[i+m.sel.pos-2],'.lua','')
+      line = m.sel.list[i+m.sel.pos-2].name
       if(i==3) then
         screen.level(15)
       else
@@ -418,7 +411,7 @@ m.pre = {}
 m.pre.meta = {}
 
 m.init[pPREVIEW] = function()
-  m.pre.meta = norns.script.metadata(m.sel.path)
+  m.pre.meta = norns.script.metadata(m.sel.file)
   m.pre.len = tab.count(m.pre.meta)
   if m.pre.len == 0 then
     table.insert(m.pre.meta, string.gsub(m.sel.file,'.lua','') .. " (no metadata)")
@@ -433,7 +426,7 @@ m.deinit[pPREVIEW] = norns.none
 
 m.key[pPREVIEW] = function(n,z)
   if n==3 and m.pre.state == 1 then
-    norns.script.load(m.sel.path)
+    norns.script.load(m.sel.file)
   elseif n ==3 and z == 1 then
     m.pre.state = 1
   elseif n == 2 and z == 1 then

@@ -77,7 +77,7 @@ end
 --- load a script from the /scripts folder
 -- @param filename (string) - file to load. leave blank to reload current file.
 Script.load = function(filename)
-  print("# script load")
+  print("# script load: " .. filename)
   if filename == nil then
     filename = norns.state.script end
 
@@ -93,7 +93,7 @@ Script.load = function(filename)
     end,
   })
 
-  local filepath = script_dir .. filename
+  local filepath = filename
   local f=io.open(filepath,"r")
   if f==nil then
     print("file not found: "..filepath)
@@ -134,10 +134,11 @@ end
 -- @param filename file to load
 -- @return meta table with metadata
 Script.metadata = function(filename)
+  print("# script meta: " .. filename)
   local meta = {}
   if filename == nil then
     filename = norns.state.script end
-  local filepath = script_dir .. filename
+  local filepath = filename
   local f=io.open(filepath,"r")
   if f==nil then
     print("file not found: "..filepath)
