@@ -6,7 +6,8 @@
 #include <chrono>
 #include <thread>
 
-#include "JackClient.h"
+#include "MixerClient.h"
+#include "SoftCutClient.h"
 #include "OscInterface.h"
 
 
@@ -17,8 +18,11 @@ static inline void sleep(int ms) {
 int main() {
     using namespace crone;
 
-    JackClient::setup();
-    JackClient::start();
+//    JackClient::setup();
+//    JackClient::start();
+
+    MixerClient m;
+    SoftCutClient sc;
 
     OscInterface::init();
 
@@ -26,7 +30,7 @@ int main() {
         sleep(100);
     }
 
-    JackClient::stop();
-    JackClient::cleanup();
+//    JackClient::stop();
+//    JackClient::cleanup();
 
 }

@@ -21,9 +21,10 @@ void Commands::post(Commands::Id id, int voice, float value) {
     q.push(p);
 }
 
-void Commands::handlePending(AudioMain* a) {
-    CommandPacket p;
-    while (q.pop(p)) {
-        a->handleCommand(&p);
-    }
-}
+/// FIXME: audio Client subclasses should also use a Command subclass, i think
+//void Commands::handlePending(AudioMain* a) {
+//    CommandPacket p;
+//    while (q.pop(p)) {
+//        a->handleCommand(&p);
+//    }
+//}

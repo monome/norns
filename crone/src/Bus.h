@@ -36,6 +36,27 @@ namespace  crone {
             }
         }
 
+        // copy from bus, with no scaling (overwrites previous contents)
+        void copyFrom(Bus &b, size_t numFrames) {
+            BOOST_ASSERT(numFrames < BlockSize);
+            for(size_t ch=0; ch<NumChannels; ++ch) {
+                for(size_t fr=0; fr<numFrames; ++fr) {
+                    buf[ch][fr] = b.buf[ch][fr];
+                }
+            }
+         }
+
+        // copy from bus to pointer array, with no scaling (overwrites previous contents)
+        void copyTo(float *dst[NumChannels], size_t numFrames) {
+            BOOST_ASSERT(numFrames < BlockSize);
+            for(size_t ch=0; ch<NumChannels; ++ch) {
+                for(size_t fr=0; fr<numFrames; ++fr) {
+                    dst[ch][fr] = buf[ch][fr];
+                }
+            }
+        }
+
+
         // sum from bus, without amplitude scaling
          void sumFrom(BusT &b, size_t numFrames) {
             BOOST_ASSERT(numFrames < BlockSize);
@@ -77,6 +98,18 @@ namespace  crone {
                 l = level.update();
                 for(size_t ch=0; ch<NumChannels; ++ch) {
                     buf[ch][fr] += src[ch][fr] * l;
+                }
+            }
+        }
+
+        // set from pointer array, with smoothed amplitude
+        void setFrom(const float *src[NumChannels], size_t numFrames, LogRamp &level) {
+            BOOST_ASSERT(numFrames < BlockSize);
+            float l;
+            for(size_t fr=0; fr<numFrames; ++fr) {
+                l = level.update();
+                for(size_t ch=0; ch<NumChannels; ++ch) {
+                    buf[ch][fr] = src[ch][fr] * l;
                 }
             }
         }
@@ -161,7 +194,8 @@ namespace  crone {
                 buf[1][fr] += x*l * cosf(c);
             }
         }
-        
+
+
     };
 
 
