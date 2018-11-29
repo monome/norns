@@ -17,20 +17,43 @@ static inline void sleep(int ms) {
 
 int main() {
     using namespace crone;
-
-//    JackClient::setup();
-//    JackClient::start();
+    using std::cout;
+    using std::endl;
 
     MixerClient m;
     SoftCutClient sc;
 
+
+    cout << "setting up jack clients.." << endl;
+    m.setup();
+    sc.setup();
+
+    cout << "starting jack clients.." << endl;
+    m.start();
+    sc.start();
+
+
+    cout << "connecting ports... " << endl;
+    m.connectAdcPorts();
+    m.connectDacPorts();
+    m.connect<4, 2>(sc, MixerClient::SINK_CUT, SoftCutClient::SOURCE_ADC);
+
+    cout << "starting OSC interface..." << endl;
     OscInterface::init();
 
+    cout << "entering main loop..." << endl;
     while(!OscInterface::shouldQuit())  {
         sleep(100);
     }
 
-//    JackClient::stop();
-//    JackClient::cleanup();
 
+    cout << "stopping clients" << endl;
+    m.stop();
+    sc.stop();
+    cout << "cleaning up clients..." << endl;
+    m.cleanup();
+    sc.cleanup();
+    cout << "goodbye" << endl;
+
+    return 0;
 }
