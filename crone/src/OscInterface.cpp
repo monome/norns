@@ -202,21 +202,27 @@ void OscInterface::addServerMethods() {
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_CUT_AUX, argv[0]->f);
     });
 
+
+    //--- NB: these are handled by the softcut command queue,
+    // because their corresponding mix points are processed by the softcut client.
+
+    // input channel -> voice levels
+    addServerMethod("/set/level/in_cut", "iif", [](lo_arg **argv, int argc) {
+        if(argc<3) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_LEVEL_IN_CUT, argv[0]->i, argv[1]->i, argv[2]->f);
+    });
+
+
+    // voice ->  voice levels
+    addServerMethod("/set/level/cut_cut", "iif", [](lo_arg **argv, int argc) {
+        if(argc<3) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_LEVEL_CUT_CUT, argv[0]->i, argv[1]->i, argv[2]->f);
+    });
+
+
     //--------------------------------
     //-- softcut params
 
-    // input channel -> voice level
-    addServerMethod("/set/level/in_cut", "iif", [](lo_arg **argv, int argc) {
-        if(argc<3) { return; }
-        switch(argv[1]->i) {
-            case 1:
-                Commands::softcutCommands.post(Commands::Id::SET_LEVEL_INPUT_1_CUT, argv[0]->i, argv[2]->f);
-                break;
-            case 0:
-            default:
-                Commands::softcutCommands.post(Commands::Id::SET_LEVEL_INPUT_0_CUT, argv[0]->i, argv[2]->f);
-        }
-    });
 
     addServerMethod("/set/param/cut/rate", "if", [](lo_arg **argv, int argc) {
         if(argc<2) { return; }
@@ -374,13 +380,13 @@ void OscInterface::printServerMethods() {
     using boost::format;
     cout << "var osc_methods = [ " << endl;
 
-    for (int i=0; i<numMethods; ++i) {
+    for (unsigned int i=0; i<numMethods; ++i) {
         string p = str(format("\"%1%\"") % methods[i].path);
         string f = str(format("\"%1%\"")  % methods[i].format);
         cout << format("[ %1%, %2%, { |msg| \n") % p % f;
         cout << format("  Crone.croneAddr.sendMsg( %1%, ") % p;
         auto n= methods[i].format.length();
-        for(int j=0; j<n; ++j) {
+        for(unsigned int j=0; j<n; ++j) {
             cout << "msg[" << j << "]";
             if (j < (n-1)) {
                 cout << ", ";

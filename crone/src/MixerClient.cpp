@@ -115,14 +115,14 @@ void MixerClient::handleCommand(Commands::CommandPacket *p) {
             smoothLevels.ins_mix.setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_MONITOR_MIX:
-            if(p->voice < 0 || p->voice > 3) { return; }
-            staticLevels.monitor_mix[p->voice] = p->value;
+            if(p->idx_0 < 0 || p->idx_0 > 3) { return; }
+            staticLevels.monitor_mix[p->idx_0] = p->value;
             break;
         case Commands::Id::SET_PARAM_REVERB:
-            reverb.getUi().setParamValue(p->voice, p->value);
+            reverb.getUi().setParamValue(p->idx_0, p->value);
             break;
         case Commands::Id::SET_PARAM_COMPRESSOR:
-            comp.getUi().setParamValue(p->voice, p->value);
+            comp.getUi().setParamValue(p->idx_0, p->value);
             break;
         case Commands::Id::SET_ENABLED_REVERB:
             enabled.reverb = p->value > 0.f;

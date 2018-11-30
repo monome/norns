@@ -54,80 +54,80 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
     switch(p->id) {
             //-- softcut routing
         case Commands::Id::SET_ENABLED_CUT:
-            enabled[p->voice] = p->value > 0.f;
+            enabled[p->idx_0] = p->value > 0.f;
             break;
         case Commands::Id::SET_LEVEL_CUT:
-            outLevel[p->voice].setTarget(p->value);
+            outLevel[p->idx_0].setTarget(p->value);
             break;;
         case Commands::Id::SET_PAN_CUT:
-            outPan[p->voice].setTarget(p->value);
+            outPan[p->idx_0].setTarget(p->value);
             break;
-        case Commands::Id::SET_LEVEL_INPUT_0_CUT:
-            inLevel[p->voice][0].setTarget(p->value);
+        case Commands::Id::SET_LEVEL_IN_CUT:
+            inLevel[p->idx_0][p->idx_1].setTarget(p->value);
             break;
-        case Commands::Id::SET_LEVEL_INPUT_1_CUT:
-            inLevel[p->voice][1].setTarget(p->value);
+        case Commands::Id::SET_LEVEL_CUT_CUT:
+            fbLevel[p->idx_0][p->idx_1].setTarget(p->value);
             break;
             //-- softcut commands
         case Commands::Id::SET_CUT_RATE:
-            cut.setRate(p->voice, p->value);
+            cut.setRate(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_LOOP_START:
-            cut.setLoopStart(p->voice, p->value);
+            cut.setLoopStart(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_LOOP_END:
-            cut.setLoopEnd(p->voice, p->value);
+            cut.setLoopEnd(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_LOOP_FLAG:
-            cut.setLoopFlag(p->voice, p->value > 0.f);
+            cut.setLoopFlag(p->idx_0, p->value > 0.f);
             break;
         case Commands::Id::SET_CUT_FADE_TIME:
-            cut.setFadeTime(p->voice, p->value);
+            cut.setFadeTime(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_REC_LEVEL:
-            cut.setRecLevel(p->voice, p->value);
+            cut.setRecLevel(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_PRE_LEVEL:
-            cut.setPreLevel(p->voice, p->value);
+            cut.setPreLevel(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_REC_FLAG:
-            cut.setRecFlag(p->voice, p->value > 0.f);
+            cut.setRecFlag(p->idx_0, p->value > 0.f);
             break;
         case Commands::Id::SET_CUT_REC_OFFSET:
-            cut.setRecOffset(p->voice, p->value);
+            cut.setRecOffset(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_POSITION:
-            cut.cutToPos(p->voice, p->value);
+            cut.cutToPos(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_FC:
-            cut.setFilterFc(p->voice, p->value);
+            cut.setFilterFc(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_FC_MOD:
-            cut.setFilterFcMod(p->voice, p->value);
+            cut.setFilterFcMod(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_RQ:
-            cut.setFilterRq(p->voice, p->value);
+            cut.setFilterRq(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_LP:
-            cut.setFilterLp(p->voice, p->value);
+            cut.setFilterLp(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_HP:
-            cut.setFilterHp(p->voice, p->value);
+            cut.setFilterHp(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_BP:
-            cut.setFilterBp(p->voice, p->value);
+            cut.setFilterBp(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_BR:
-            cut.setFilterBr(p->voice, p->value);
+            cut.setFilterBr(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_FILTER_DRY:
-            cut.setFilterDry(p->voice, p->value);
+            cut.setFilterDry(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
-            cut.setLevelSlewTime(p->voice, p->value);
+            cut.setLevelSlewTime(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_RATE_SLEW_TIME:
-            cut.setRateSlewTime(p->voice, p->value);
+            cut.setRateSlewTime(p->idx_0, p->value);
             break;
 
         default:

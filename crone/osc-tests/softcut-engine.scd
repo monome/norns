@@ -34,4 +34,3 @@ n.sendMsg("/command/filter_dry", 0, 0 );
 //n.sendMsg("/command/rec_fade_shape", if );
 n.sendMsg("/command/level_lag", 0, 1.0 );
 n.sendMsg("/command/rate_lag", 0, 0.02 );
-

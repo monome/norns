@@ -37,7 +37,6 @@ n.sendMsg("/set/param/cut/rate", 0, 0.75);
 n.sendMsg("/set/param/cut/rate", 0, 1.0);
 n.sendMsg("/set/param/cut/rate", 0, 1.75);
 
-
 /// voice 2
 // args: channel index, voice index, level
 n.sendMsg("/set/level/in_cut", 0, 1, 1.0);
@@ -49,11 +48,11 @@ n.sendMsg("/set/enabled/cut", 1, 1.0);
 
 n.sendMsg("/set/param/cut/rate", 1, 1.0);
 n.sendMsg("/set/param/cut/loop_start", 1, 3.0);
-n.sendMsg("/set/param/cut/loop_end", 1, 4.250);
+n.sendMsg("/set/param/cut/loop_end", 1, 4.50);
 n.sendMsg("/set/param/cut/loop_flag", 1, 1.0);
 n.sendMsg("/set/param/cut/fade_time", 1, 0.1);
 n.sendMsg("/set/param/cut/rec_level", 1, 1.0);
-n.sendMsg("/set/param/cut/pre_level", 1, 0.7);
+n.sendMsg("/set/param/cut/pre_level", 1, 0.4);
 n.sendMsg("/set/param/cut/rec_flag", 1, 1);
 
 n.sendMsg("/set/param/cut/position", 1, 1);
@@ -67,3 +66,14 @@ n.sendMsg("/set/param/cut/filter_rq", 1, 2.0);
 n.sendMsg("/set/param/cut/rate", 1, 0.75);
 n.sendMsg("/set/param/cut/rate", 1, 1.0);
 n.sendMsg("/set/param/cut/rate", 1, 1.75);
+
+
+
+
+//// wooo xfeed
+/*
+n.sendMsg("/set/level/cut_cut", 0, 1, 0.6);
+n.sendMsg("/set/level/cut_cut", 1, 0, 0.2);
+
+n.sendMsg("/set/level/cut_cut", 1, 0, 0.0);
+/*

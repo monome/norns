@@ -16,13 +16,18 @@ Commands Commands::softcutCommands;
 
 Commands::Commands() = default;
 
-void Commands::post(Commands::Id id, float value) {
-    CommandPacket p(id, -1, value);
+void Commands::post(Commands::Id id, float f) {
+    CommandPacket p(id, -1, f);
     q.push(p);
 }
 
-void Commands::post(Commands::Id id, int voice, float value) {
-    CommandPacket p(id, voice, value);
+void Commands::post(Commands::Id id, int i, float f) {
+    CommandPacket p(id, i, f);
+    q.push(p);
+}
+
+void Commands::post(Commands::Id id, int i, int j, float f) {
+    CommandPacket p(id, i, j, f);
     q.push(p);
 }
 

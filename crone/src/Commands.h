@@ -47,8 +47,8 @@ namespace crone {
             SET_LEVEL_CUT_AUX,
             // level of individual input channel -> cut voice
             // (separate commands just to avoid a 3rd parameter)
-            SET_LEVEL_INPUT_0_CUT,
-            SET_LEVEL_INPUT_1_CUT,
+            SET_LEVEL_IN_CUT,
+            SET_LEVEL_CUT_CUT,
 
             // params
             SET_CUT_RATE,
@@ -77,8 +77,9 @@ namespace crone {
 
     public:
         Commands();
-        void post(Commands::Id id, float value);
-        void post(Commands::Id id, int voice, float value);
+        void post(Commands::Id id, float f);
+        void post(Commands::Id id, int i, float f);
+        void post(Commands::Id id, int i, int j, float f);
 
         // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
         void handlePending(MixerClient *client);
@@ -86,9 +87,11 @@ namespace crone {
 
         struct CommandPacket {
             CommandPacket() = default;
-            CommandPacket(Commands::Id i, int v, float f) : id(i), voice(v), value(f) {}
+            CommandPacket(Commands::Id i, int i0,  float f) : id(i), idx_0(i0), idx_1(-1), value(f) {}
+            CommandPacket(Commands::Id i, int i0, int i1, float f) : id(i), idx_0(i0), idx_1(i1), value(f) {}
             Id id;
-            int voice;
+            int idx_0;
+            int idx_1;
             float value;
         };
 
