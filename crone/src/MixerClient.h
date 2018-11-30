@@ -94,6 +94,18 @@ namespace  crone {
         };
         EnabledList enabled;
 
+        struct VuLevels {
+	    float absPeakIn[2];
+	    float absPeakOut[2];
+            // float minOut[2];
+            // float maxOut[2];
+            // float minIn[2];
+            // float maxIn[2];
+            void clear();
+            void update(StereoBus &in, StereoBus &out, size_t numFrames);
+        };
+        VuLevels vuLevels;
+
 
     };
 }

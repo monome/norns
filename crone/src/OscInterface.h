@@ -73,7 +73,7 @@ namespace crone {
             port = "9999";
             st = lo_server_thread_new(port.c_str(), handleLoError);
             addServerMethods();
-            printServerMethods();
+            // printServerMethods();
             lo_server_thread_start(st);
         }
 
