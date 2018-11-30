@@ -3,17 +3,19 @@
 //
 
 #include "MixerClient.h"
+#include "Commands.h"
 
 using namespace crone;
 
 MixerClient::MixerClient() : Client<6, 6>("crone") {}
 
 void MixerClient::process(jack_nframes_t numFrames) {
+    Commands::mixerCommands.handlePending(this);
     clearBusses(numFrames);
 
     // mix inputs
     bus.adc_source.setFrom(source[SOURCE_ADC], numFrames, smoothLevels.adc);
-    bus.cut_source.setFrom(source[SOURCE_CUT], numFrames, smoothLevels.cut);
+    bus.cut_source.setFrom(source[SOURCE_CUT], numFrames);
     bus.ext_source.setFrom(source[SOURCE_EXT], numFrames, smoothLevels.ext);
 
     // mix ADC monitor
@@ -21,12 +23,14 @@ void MixerClient::process(jack_nframes_t numFrames) {
     // copy ADC->ext
     bus.ext_sink.copyFrom(bus.adc_source, numFrames);
     // mix ADC->cut, ext->cut
-    bus.cut_sink.sumFrom(bus.adc_source, numFrames);
+    bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
     bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
 
     processFx(numFrames);
 
     bus.dac_sink.mixTo(sink[SinkId::SINK_DAC], numFrames, smoothLevels.dac);
+    bus.cut_sink.copyTo(sink[SinkId::SINK_CUT], numFrames);
+    bus.ext_sink.copyTo(sink[SinkId::SINK_EXT], numFrames);
 }
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
@@ -42,6 +46,7 @@ void MixerClient::processFx(size_t numFrames) {
         bus.aux_out.sumFrom(bus.aux_in, numFrames);
     } else { // process aux
         bus.aux_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor_aux);
+        bus.aux_in.mixFrom(bus.cut_source, numFrames, smoothLevels.cut_aux);
         bus.aux_in.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_aux);
         pin[0] = bus.aux_in.buf[0];
         pin[1] = bus.aux_in.buf[1];
@@ -77,6 +82,65 @@ void MixerClient::clearBusses(size_t numFrames) {
     bus.ins_in.clear(numFrames);
     bus.aux_in.clear(numFrames);
     bus.adc_monitor.clear(numFrames);
+}
+
+void MixerClient::handleCommand(Commands::CommandPacket *p) {
+    switch(p->id) {
+        case Commands::Id::SET_LEVEL_ADC:
+            smoothLevels.adc.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_DAC:
+            smoothLevels.dac.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_EXT:
+            smoothLevels.ext.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_EXT_AUX:
+            smoothLevels.ext_aux.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_AUX_DAC:
+            smoothLevels.aux.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_MONITOR:
+            smoothLevels.monitor.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_MONITOR_AUX:
+            smoothLevels.monitor_aux.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_INS_MIX:
+            smoothLevels.ins_mix.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_MONITOR_MIX:
+            if(p->voice < 0 || p->voice > 3) { return; }
+            staticLevels.monitor_mix[p->voice] = p->value;
+            break;
+        case Commands::Id::SET_PARAM_REVERB:
+            reverb.getUi().setParamValue(p->voice, p->value);
+            break;
+        case Commands::Id::SET_PARAM_COMPRESSOR:
+            comp.getUi().setParamValue(p->voice, p->value);
+            break;
+        case Commands::Id::SET_ENABLED_REVERB:
+            enabled.reverb = p->value > 0.f;
+            break;
+        case Commands::Id::SET_ENABLED_COMPRESSOR:
+            enabled.comp = p->value > 0.f;
+            break;
+
+            //-- softcut routing
+
+        case Commands::Id::SET_LEVEL_ADC_CUT:
+            smoothLevels.adc_cut.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_EXT_CUT:
+            smoothLevels.ext_cut.setTarget(p->value);
+            break;
+        case Commands::Id::SET_LEVEL_CUT_AUX:
+            smoothLevels.cut_aux.setTarget(p->value);
+            break;
+        default:
+            ;;
+    }
 }
 
 // state constructors

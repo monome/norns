@@ -22,12 +22,10 @@ namespace  crone {
 
     public:
         MixerClient();
+        void handleCommand(Commands::CommandPacket *p) override;
     private:
-        //------------------------------
-        //--- Client interface overrides
         void process(jack_nframes_t numFrames) override;
         void setSampleRate(jack_nframes_t) override;
-
     private:
         void clearBusses(size_t numFrames);
         void processFx(size_t numFrames);
@@ -67,12 +65,14 @@ namespace  crone {
             LogRamp ext;
             LogRamp cut;
             LogRamp monitor;
-            // send levels
+            // softcut input levels
+            LogRamp adc_cut;
+            LogRamp ext_cut;
+            // aux send levels
             LogRamp monitor_aux;
             LogRamp cut_aux;
             LogRamp ext_aux;
-            LogRamp ext_cut;
-            // FX levels
+            // FX return / mix levels
             LogRamp aux;
             LogRamp ins_mix;
             SmoothLevelList();

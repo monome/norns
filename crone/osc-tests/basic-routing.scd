@@ -8,7 +8,7 @@ n.sendMsg("/set/level/adc", 1.0);
 n.sendMsg("/set/level/dac", 1.0);
 
 // ADC monitor level. this is _before_ the aux effects send
-n.sendMsg("/set/level/monitor", 1.0);
+n.sendMsg("/set/level/monitor", 0.0);
 
 // monitor mix levels. 1st arg is which route in 2x2 matrix:
 // L -> L

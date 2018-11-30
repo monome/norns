@@ -11,10 +11,10 @@
 #include "softcut/SoftCut.h"
 
 namespace crone {
-    class SoftCutClient: public Client<4, 2> {
+    class SoftCutClient: public Client<2, 2> {
     public:
         enum { MAX_BUF_SIZE = 2048, NUM_VOICES = 2 };
-        typedef enum { SOURCE_ADC=0, SOURCE_EXT=2 } SourceId;
+        typedef enum { SOURCE_ADC=0 } SourceId;
         typedef Bus<2, MAX_BUF_SIZE> StereoBus;
         typedef Bus<1, MAX_BUF_SIZE> MonoBus;
     public:
@@ -27,21 +27,20 @@ namespace crone {
         MonoBus input[NUM_VOICES];
         MonoBus output[NUM_VOICES];
         // levels
-        LogRamp in_adc[2][NUM_VOICES];
-        LogRamp in_ext[2][NUM_VOICES];
-        LogRamp out_level[NUM_VOICES];
-        LogRamp out_pan[NUM_VOICES];
-        LogRamp feedback[NUM_VOICES][NUM_VOICES];
+        LogRamp inLevel[2][NUM_VOICES];
+        LogRamp outLevel[NUM_VOICES];
+        LogRamp outPan[NUM_VOICES];
+        LogRamp fbLevel[NUM_VOICES][NUM_VOICES];
         // enabled flags
         bool enabled[NUM_VOICES];
 
-    public:
-        //------------------------------
-        //--- Client interface overrides
-
+    private:
         void process(jack_nframes_t numFrames) override;
         void setSampleRate(jack_nframes_t) override;
+    public:
+        void handleCommand(Commands::CommandPacket *p) override;
     private:
+        void clearBusses(size_t numFrames);
         void mixInput(size_t numFrames);
         void mixOutput(size_t numFrames);
     };

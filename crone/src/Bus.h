@@ -114,6 +114,16 @@ namespace  crone {
             }
         }
 
+        // set from pointer array, without scaling
+        void setFrom(const float *src[NumChannels], size_t numFrames) {
+            BOOST_ASSERT(numFrames < BlockSize);
+            for(size_t fr=0; fr<numFrames; ++fr) {
+                for(size_t ch=0; ch<NumChannels; ++ch) {
+                    buf[ch][fr] = src[ch][fr];
+                }
+            }
+        }
+
         // mix to pointer array, with smoothed amplitude
         void mixTo(float *dst[NumChannels], size_t numFrames, LogRamp &level) {
             BOOST_ASSERT(numFrames < BlockSize);
