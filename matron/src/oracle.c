@@ -22,7 +22,19 @@
 #include "hello.h"
 #include "oracle.h"
 
-static lo_address remote_addr;
+#define ORACLE_VOID_LO_ARGS \
+    (void)path; \
+    (void)types; \
+    (void)argc; \
+    (void)argv; \
+    (void)data; \
+    (void)user_data; \
+
+// address of external DSP environment (e.g. supercollider)
+static lo_address ext_addr;
+// address of crone process
+static lo_address crone_addr;
+
 static lo_server_thread st;
 
 // TODO: semaphore for waiting on audio backend init?
@@ -142,20 +154,22 @@ static void test_engine_load_done();
 
 void o_query_startup(void) {
     // fprintf(stderr, "sending /ready: %d", rem_port);
-    lo_send(remote_addr, "/ready","");
+    lo_send(ext_addr, "/ready","");
 }
 
 //--- init
 void o_init(void) {
-    const char *loc_port = args_local_port();
-    const char *rem_port = args_remote_port();
+    const char *local_port = args_local_port();
+    const char *ext_port = args_ext_port();
+        const char *crone_port = args_crone_port();
 
     fprintf(stderr, "OSC rx port: %s \nOSC tx port: %s\n",
-            loc_port, rem_port);
+            local_port, ext_port);
     o_init_descriptors();
 
-    remote_addr = lo_address_new("127.0.0.1", rem_port);
-    st = lo_server_thread_new(loc_port, lo_error_handler);
+    ext_addr = lo_address_new("127.0.0.1", ext_port);
+    crone_addr = lo_address_new("127.0.0.1", crone_port);
+    st = lo_server_thread_new(local_port, lo_error_handler);
 
     // crone ready
     lo_server_thread_add_method(st, "/crone/ready", "",
@@ -202,9 +216,11 @@ void o_init(void) {
 
 void o_deinit(void) {
     fprintf(stderr, "killing audio engine\n");
-    lo_send(remote_addr, "/engine/kill", "");
+    lo_send(ext_addr, "/engine/kill", "");
     fprintf(stderr, "stopping OSC server\n");
-    lo_server_thread_free(st);
+    lo_server_thread_free(st);    
+    lo_address_free(ext_addr);
+    lo_address_free(crone_addr);
 }
 
 //--- descriptor access
@@ -251,16 +267,16 @@ void o_unlock_descriptors() {
 
 void o_request_engine_report(void) {
     // fprintf(stderr, "requesting engine report... \n");
-    lo_send(remote_addr, "/report/engines", "");
+    lo_send(ext_addr, "/report/engines", "");
 }
 
 void o_load_engine(const char *name) {
     set_need_reports();
-    lo_send(remote_addr, "/engine/load/name", "s", name);
+    lo_send(ext_addr, "/engine/load/name", "s", name);
 }
 
 void o_free_engine() {
-    lo_send(remote_addr, "/engine/free", "");
+    lo_send(ext_addr, "/engine/free", "");
 }
 
 void o_send_command(const char *name, lo_message msg) {
@@ -269,19 +285,19 @@ void o_send_command(const char *name, lo_message msg) {
     size_t len = sizeof(char) * (strlen(name) + 10);
     path = malloc(len);
     sprintf(path, "/command/%s", name);
-    lo_send_message(remote_addr, path, msg);
+    lo_send_message(ext_addr, path, msg);
 }
 
 void o_send(const char *name, lo_message msg) {
-    lo_send_message(remote_addr, name, msg);
+    lo_send_message(ext_addr, name, msg);
     free(msg);
 }
 
 void o_set_poll_state(int idx, bool state) {
     if(state) {
-        lo_send(remote_addr, "/poll/start", "i", idx);
+        lo_send(ext_addr, "/poll/start", "i", idx);
     } else {
-        lo_send(remote_addr, "/poll/stop", "i", idx);
+        lo_send(ext_addr, "/poll/stop", "i", idx);
     }
 }
 
@@ -419,144 +435,144 @@ void o_set_num_desc(int *dst, int num) {
 
 // set poll period
 void o_set_poll_time(int idx, float dt) {
-    lo_send(remote_addr, "/poll/time", "if", idx, dt);
+    lo_send(ext_addr, "/poll/time", "if", idx, dt);
 }
 
 // request current value of poll
 void o_request_poll_value(int idx) {
-    lo_send(remote_addr, "/poll/value", "i", idx);
+    lo_send(ext_addr, "/poll/value", "i", idx);
 }
 
 //---- audio context control
 
 void o_set_audio_input_level(int idx, float level) {
-    lo_send(remote_addr, "/audio/input/level", "if", idx, level);
+    lo_send(ext_addr, "/audio/input/level", "if", idx, level);
 }
 
 void o_set_audio_output_level(float level) {
-    lo_send(remote_addr, "/audio/output/level", "f", level);
+    lo_send(ext_addr, "/audio/output/level", "f", level);
 }
 
 void o_set_audio_monitor_level(float level) {
-    lo_send(remote_addr, "/audio/monitor/level", "f", level);
+    lo_send(ext_addr, "/audio/monitor/level", "f", level);
 }
 
 void o_set_audio_monitor_mono() {
-    lo_send(remote_addr, "/audio/monitor/mono", NULL);
+    lo_send(ext_addr, "/audio/monitor/mono", NULL);
 }
 
 void o_set_audio_monitor_stereo() {
-    lo_send(remote_addr, "/audio/monitor/stereo", NULL);
+    lo_send(ext_addr, "/audio/monitor/stereo", NULL);
 }
 
 void o_set_audio_monitor_on() {
-    lo_send(remote_addr, "/audio/monitor/on", NULL);
+    lo_send(ext_addr, "/audio/monitor/on", NULL);
 }
 
 void o_set_audio_monitor_off() {
-    lo_send(remote_addr, "/audio/monitor/off", NULL);
+    lo_send(ext_addr, "/audio/monitor/off", NULL);
 }
 
 void o_set_audio_pitch_on() {
-    lo_send(remote_addr, "/audio/pitch/on", NULL);
+    lo_send(ext_addr, "/audio/pitch/on", NULL);
 }
 
 void o_set_audio_pitch_off() {
-    lo_send(remote_addr, "/audio/pitch/off", NULL);
+    lo_send(ext_addr, "/audio/pitch/off", NULL);
 }
 
 void o_restart_audio() {
-    lo_send(remote_addr, "/recompile", NULL);
+    lo_send(ext_addr, "/recompile", NULL);
 }
 
 //---- tape controls
 void o_tape_level(float level) {
-    lo_send(remote_addr, "/tape/level", "f", level);
+    lo_send(ext_addr, "/tape/level", "f", level);
 }
 
 void o_tape_new(char *file) {
-    lo_send(remote_addr, "/tape/newfile", "s", file);
+    lo_send(ext_addr, "/tape/newfile", "s", file);
 }
 
 void o_tape_start_rec() {
-    lo_send(remote_addr, "/tape/start_rec", NULL);
+    lo_send(ext_addr, "/tape/start_rec", NULL);
 }
 
 void o_tape_pause_rec() {
-    lo_send(remote_addr, "/tape/pause_rec", NULL);
+    lo_send(ext_addr, "/tape/pause_rec", NULL);
 }
 
 void o_tape_stop_rec() {
-    lo_send(remote_addr, "/tape/stop_rec", NULL);
+    lo_send(ext_addr, "/tape/stop_rec", NULL);
 }
 
 void o_tape_open(char *file) {
-    lo_send(remote_addr, "/tape/openfile", "s", file);
+    lo_send(ext_addr, "/tape/openfile", "s", file);
 }
 
 void o_tape_play() {
-    lo_send(remote_addr, "/tape/play", NULL);
+    lo_send(ext_addr, "/tape/play", NULL);
 }
 
 void o_tape_pause() {
-    lo_send(remote_addr, "/tape/pause", NULL);
+    lo_send(ext_addr, "/tape/pause", NULL);
 }
 
 void o_tape_stop() {
-    lo_send(remote_addr, "/tape/stop", NULL);
+    lo_send(ext_addr, "/tape/stop", NULL);
 }
 
 
 //--- aux effects controls
 // enable / disable aux fx processing
 void o_set_aux_fx_on() {
-    lo_send(remote_addr, "/auxfx/on", NULL);
+    lo_send(ext_addr, "/auxfx/on", NULL);
 }
 
 void o_set_aux_fx_off() {
-    lo_send(remote_addr, "/auxfx/off", NULL);
+    lo_send(ext_addr, "/auxfx/off", NULL);
 }
 
 // mono input -> aux level
 void o_set_aux_fx_input_level(int channel, float value) {
-    lo_send(remote_addr, "/auxfx/input/level", "if", channel, value);
+    lo_send(ext_addr, "/auxfx/input/level", "if", channel, value);
 }
 
 // mono input -> aux pan
 void o_set_aux_fx_input_pan(int channel, float value) {
-    lo_send(remote_addr, "/auxfx/input/pan", "if", channel, value);
+    lo_send(ext_addr, "/auxfx/input/pan", "if", channel, value);
 }
 
 // stereo output -> aux
 void o_set_aux_fx_output_level(float value) {
-    lo_send(remote_addr, "/auxfx/output/level", "f", value);
+    lo_send(ext_addr, "/auxfx/output/level", "f", value);
 }
 
 // aux return -> dac
 void o_set_aux_fx_return_level(float value) {
-    lo_send(remote_addr, "/auxfx/return/level",  "f", value);
+    lo_send(ext_addr, "/auxfx/return/level",  "f", value);
 }
 
 void o_set_aux_fx_param(const char* name, float value) {
-    lo_send(remote_addr, "/auxfx/param",  "sf", name, value);
+    lo_send(ext_addr, "/auxfx/param",  "sf", name, value);
 }
 
 
 //--- insert effects controls
 void o_set_insert_fx_on() {
-    lo_send(remote_addr, "/insertfx/on", NULL);
+    lo_send(ext_addr, "/insertfx/on", NULL);
 }
 
 void o_set_insert_fx_off() {
-    lo_send(remote_addr, "/insertfx/off", NULL);
+    lo_send(ext_addr, "/insertfx/off", NULL);
 }
 
 void o_set_insert_fx_mix(float value) {
-    lo_send(remote_addr, "/insertfx/mix", "f", value);
+    lo_send(ext_addr, "/insertfx/mix", "f", value);
 }
 
 void o_set_insert_fx_param(const char* name, float value) {
-    lo_send(remote_addr, "/insertfx/param", "sf", name, value);
+    lo_send(ext_addr, "/insertfx/param", "sf", name, value);
 }
 
 
@@ -820,4 +836,3 @@ void test_engine_load_done() {
         event_post(ev);
     }
 }
-
