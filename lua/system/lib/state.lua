@@ -27,7 +27,7 @@ state.resume = function()
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then
     -- resume last file
-    local f = io.open(script_dir..state.script, "r")
+    local f = io.open(state.script, "r")
     if f ~= nil then
       io.close(f)
       print("last file loaded: " .. state.script)
@@ -63,6 +63,8 @@ state.save_state = function()
   io.write("-- system state\n")
   io.write("norns.state.tape = " .. norns.state.tape .. "\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
+  io.write("norns.state.name = '" .. state.name .. "'\n")
+  io.write("norns.state.path = '" .. state.path .. "'\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
   for i=1,4 do
     io.write("midi.vport[" .. i .. "].name = '" .. midi.vport[i].name .. "'\n")

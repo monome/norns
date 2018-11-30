@@ -76,10 +76,14 @@ end
 
 --- load a script from the /scripts folder
 -- @param filename (string) - file to load. leave blank to reload current file.
-Script.load = function(filename)
-  print("# script load: " .. filename)
+Script.load = function(filename,name,path)
   if filename == nil then
-    filename = norns.state.script end
+    filename = norns.state.script
+    name = norns.state.name
+    path = norns.state.path
+  end
+
+  print("# script load: " .. filename)
 
   -- script local state
   local state = { }
@@ -93,10 +97,9 @@ Script.load = function(filename)
     end,
   })
 
-  local filepath = filename
-  local f=io.open(filepath,"r")
+  local f=io.open(filename,"r")
   if f==nil then
-    print("file not found: "..filepath)
+    print("file not found: "..filename)
   else
     io.close(f)
     if pcall(cleanup) then print("# cleanup")
@@ -104,11 +107,11 @@ Script.load = function(filename)
 
     Script.clear() -- clear script variables and functions
 
-    local status = norns.try(function() dofile(filepath) end, "load fail") -- do the new script
+    local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
     if status == true then
-      norns.state.script = filename -- store script name
-      norns.state.folder_name = string.gsub(filename,'.lua','') -- store name
-      norns.state.name = norns.state.folder_name:match("[^/]*$") -- strip path from name
+      norns.state.script = filename
+      norns.state.path = path
+      norns.state.name = name
       norns.state.save() -- remember this script for next launch
       norns.script.nointerface = redraw == norns.blank -- check if redraw is present
       norns.script.redraw = redraw -- store redraw function for context switching
@@ -136,15 +139,12 @@ end
 Script.metadata = function(filename)
   print("# script meta: " .. filename)
   local meta = {}
-  if filename == nil then
-    filename = norns.state.script end
-  local filepath = filename
-  local f=io.open(filepath,"r")
+  local f=io.open(filename,"r")
   if f==nil then
-    print("file not found: "..filepath)
+    print("file not found: "..filename)
   else
     io.close(f)
-    for line in io.lines(filepath) do
+    for line in io.lines(filename) do
       if util.string_starts(line,"--") then
         table.insert(meta, string.sub(line,4,-1))
       else return meta end
