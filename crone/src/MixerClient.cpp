@@ -4,30 +4,39 @@
 
 #include "MixerClient.h"
 #include "Commands.h"
+#include "effects/CompressorParams.h"
+#include "effects/ReverbParams.h"
 
 using namespace crone;
 
-MixerClient::MixerClient() : Client<6, 6>("crone") {}
+MixerClient::MixerClient() : Client<6, 6>("crone") {
+
+}
 
 void MixerClient::process(jack_nframes_t numFrames) {
     Commands::mixerCommands.handlePending(this);
-    clearBusses(numFrames);
+    //clearBusses(numFrames);
 
-    // mix inputs
+    // copy inputs
     bus.adc_source.setFrom(source[SOURCE_ADC], numFrames, smoothLevels.adc);
     bus.cut_source.setFrom(source[SOURCE_CUT], numFrames);
     bus.ext_source.setFrom(source[SOURCE_EXT], numFrames, smoothLevels.ext);
 
     // mix ADC monitor
+    bus.adc_monitor.clear(numFrames);
     bus.adc_monitor.stereoMixFrom(bus.adc_source, numFrames, staticLevels.monitor_mix);
+
     // copy ADC->ext
     bus.ext_sink.copyFrom(bus.adc_source, numFrames);
+
     // mix ADC->cut, ext->cut
+    bus.cut_sink.clear(numFrames);
     bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
     bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
 
     processFx(numFrames);
 
+    // perform  output
     bus.dac_sink.mixTo(sink[SinkId::SINK_DAC], numFrames, smoothLevels.dac);
     bus.cut_sink.copyTo(sink[SinkId::SINK_CUT], numFrames);
     bus.ext_sink.copyTo(sink[SinkId::SINK_EXT], numFrames);
@@ -35,16 +44,23 @@ void MixerClient::process(jack_nframes_t numFrames) {
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
     smoothLevels.setSampleRate(sr);
+    comp.init(sr);
+    reverb.init(sr);
+    setFxDefaults();
 }
 
 
 void MixerClient::processFx(size_t numFrames) {
+    bus.ins_in.clear(numFrames);
+
     // FIXME: current faust architecture needs this, for some reason :?
     float* pin[2];
     float* pout[2];
     if (!enabled.reverb) { // bypass aux
+        bus.aux_out.clear(numFrames);
         bus.aux_out.sumFrom(bus.aux_in, numFrames);
     } else { // process aux
+        bus.aux_in.clear(numFrames);
         bus.aux_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor_aux);
         bus.aux_in.mixFrom(bus.cut_source, numFrames, smoothLevels.cut_aux);
         bus.aux_in.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_aux);
@@ -61,6 +77,7 @@ void MixerClient::processFx(size_t numFrames) {
     bus.ins_in.sumFrom(bus.cut_source, numFrames);
     bus.ins_in.sumFrom(bus.ext_source, numFrames);
 
+    bus.dac_sink.clear(numFrames);
     if(!enabled.comp) { // bypass_insert
         bus.dac_sink.sumFrom(bus.ins_in, numFrames);
     } else {
@@ -73,16 +90,18 @@ void MixerClient::processFx(size_t numFrames) {
         bus.dac_sink.xfade(bus.ins_in, bus.ins_out, numFrames, smoothLevels.ins_mix);
     }
 }
-
-void MixerClient::clearBusses(size_t numFrames) {
-    // NB: we only need clear busses that are used as mix destinations each block.
-    // if a bus is simply copied to, there's no need to clear it.
-    bus.cut_sink.clear(numFrames);
-    bus.dac_sink.clear(numFrames);
-    bus.ins_in.clear(numFrames);
-    bus.aux_in.clear(numFrames);
-    bus.adc_monitor.clear(numFrames);
-}
+//
+//void MixerClient::clearBusses(size_t numFrames) {
+//    // NB: we only need clear busses that are used as mix destinations each block.
+//    // if a bus is simply copied to, there's no need to clear it.
+//    bus.cut_sink.clear(numFrames);
+//    bus.dac_sink.clear(numFrames);
+//    bus.ins_in.clear(numFrames);;
+//    bus.ins_out.clear(numFrames);
+//    bus.aux_in.clear(numFrames);;
+//    bus.aux_out.clear(numFrames);
+//    bus.adc_monitor.clear(numFrames);
+//}
 
 void MixerClient::handleCommand(Commands::CommandPacket *p) {
     switch(p->id) {
@@ -143,6 +162,7 @@ void MixerClient::handleCommand(Commands::CommandPacket *p) {
     }
 }
 
+
 // state constructors
 MixerClient::BusList::BusList() {
     adc_source.clear();
@@ -193,4 +213,21 @@ MixerClient::StaticLevelList::StaticLevelList() {
 MixerClient::EnabledList::EnabledList() {
     comp = false;
     reverb = false;
+}
+
+
+void MixerClient::setFxDefaults() {
+  comp.getUi().setParamValue(CompressorParam::RATIO, 4.0);
+  comp.getUi().setParamValue(CompressorParam::THRESHOLD, -12.0);
+  comp.getUi().setParamValue(CompressorParam::ATTACK, 0.005);
+  comp.getUi().setParamValue(CompressorParam::RELEASE, 0.08);
+  comp.getUi().setParamValue(CompressorParam::GAIN_PRE, 0.0);
+  comp.getUi().setParamValue(CompressorParam::GAIN_POST, 4.0);
+  reverb.getUi().setParamValue(ReverbParam::PRE_DEL, 20);
+  reverb.getUi().setParamValue(ReverbParam::LF_FC, 555);
+  reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
+  reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
+  reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
+
+
 }

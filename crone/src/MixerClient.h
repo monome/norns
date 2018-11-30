@@ -27,9 +27,11 @@ namespace  crone {
         void process(jack_nframes_t numFrames) override;
         void setSampleRate(jack_nframes_t) override;
     private:
-        void clearBusses(size_t numFrames);
+        // currently, busses are cleared as they are used.
+        // which is probably worse  from maintenance standpoint
+        // void clearBusses(size_t numFrames);
         void processFx(size_t numFrames);
-
+        void setFxDefaults();
     private:
         // processors
         StereoCompressor comp;
