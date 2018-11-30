@@ -22,13 +22,17 @@
 #include "hello.h"
 #include "oracle.h"
 
-#define ORACLE_VOID_LO_ARGS \
-    (void)path; \
-    (void)types; \
-    (void)argc; \
-    (void)argv; \
-    (void)data; \
-    (void)user_data; \
+#define ORACLE_VOID_LO_ARGS (void)path; \
+  (void)types;				\
+  (void)data;				\
+  (void)user_data;
+
+#define ORACLE_VOID_ALL_LO_ARGS (void)path;	\
+  (void)types;					\
+  (void)argc;					\
+  (void)argv;					\
+  (void)data;					\
+  (void)user_data;
 
 // address of external DSP environment (e.g. supercollider)
 static lo_address ext_addr;
@@ -587,12 +591,7 @@ int handle_crone_ready(const char *path,
                        void *data,
                        void *user_data)
 {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
-    (void)data;
-    (void)user_data;
+    ORACLE_VOID_ALL_LO_ARGS      
     norns_hello_ok();
     return 0;
 }
@@ -604,11 +603,7 @@ int handle_engine_report_start(const char *path,
                                void *data,
                                void *user_data)
 {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)data;
-    (void)user_data;
+    ORACLE_VOID_LO_ARGS
     assert(argc > 0);
     // arg 1: count of buffers
     o_clear_engine_names();
@@ -622,11 +617,7 @@ int handle_engine_report_entry(const char *path,
                                int argc,
                                void *data,
                                void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)data;
-    (void)user_data;
+    ORACLE_VOID_LO_ARGS
     assert(argc > 1);
     // arg 1: buffer index
     // arg 2: buffer name
@@ -641,12 +632,7 @@ int handle_engine_report_end(const char *path,
                              int argc,
                              void *data,
                              void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
-    (void)data;
-    (void)user_data;
+    ORACLE_VOID_ALL_LO_ARGS
     // no arguments; post event
     event_post( event_data_new(EVENT_ENGINE_REPORT) );
     return 0;
@@ -661,12 +647,7 @@ int handle_command_report_start(const char *path,
                                 int argc,
                                 void *data,
                                 void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
-    (void)data;
-    (void)user_data;
+    ORACLE_VOID_LO_ARGS
     assert(argc > 0);
     o_clear_commands();
     o_set_num_desc(&num_commands, argv[0]->i);
@@ -679,11 +660,7 @@ int handle_command_report_entry(const char *path,
                                 int argc,
                                 void *data,
                                 void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)data;
-    (void)user_data;
+    ORACLE_VOID_LO_ARGS
     assert(argc > 2);
     o_set_command(argv[0]->i, &argv[1]->s, &argv[2]->s);
     return 0;
@@ -695,12 +672,7 @@ int handle_command_report_end(const char *path,
                               int argc,
                               void *data,
                               void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
-    (void)data;
-    (void)user_data;
+    ORACLE_VOID_ALL_LO_ARGS
     needCommandReport = false;
     test_engine_load_done();
     return 0;
@@ -715,12 +687,8 @@ int handle_poll_report_start(const char *path,
                              int argc,
                              void *data,
                              void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
-    (void)data;
-    (void)user_data;
+
+    ORACLE_VOID_LO_ARGS
     assert(argc > 0);
     o_clear_polls();
     o_set_num_desc(&num_polls, argv[0]->i);
@@ -733,11 +701,8 @@ int handle_poll_report_entry(const char *path,
                              int argc,
                              void *data,
                              void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)data;
-    (void)user_data;
+
+    ORACLE_VOID_LO_ARGS
     assert(argc > 2);
     fflush(stdout);
     o_set_poll(argv[0]->i, &argv[1]->s, argv[2]->i);
@@ -746,12 +711,8 @@ int handle_poll_report_entry(const char *path,
 
 int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
                            int argc, void *data, void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
-    (void)data;
-    (void)user_data;
+
+    ORACLE_VOID_ALL_LO_ARGS
     //event_post( event_data_new(EVENT_POLL_REPORT) );
     needPollReport = false;
     test_engine_load_done();
@@ -760,11 +721,9 @@ int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
 
 int handle_poll_value(const char *path, const char *types, lo_arg **argv,
                       int argc, void *data, void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)data;
-    (void)user_data;
+
+    ORACLE_VOID_LO_ARGS
+    assert(argc > 1);
     union event_data *ev = event_data_new(EVENT_POLL_VALUE);
     ev->poll_value.idx = argv[0]->i;
     ev->poll_value.value = argv[1]->f;
@@ -774,11 +733,9 @@ int handle_poll_value(const char *path, const char *types, lo_arg **argv,
 
 int handle_poll_data(const char *path, const char *types, lo_arg **argv,
                      int argc, void *data, void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)data;
-    (void)user_data;
+
+    ORACLE_VOID_LO_ARGS
+    assert(argc > 1);
     union event_data *ev = event_data_new(EVENT_POLL_DATA);
     ev->poll_data.idx = argv[0]->i;
     uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[1] );
@@ -792,11 +749,9 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
 
 int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
                           int argc, void *data, void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)data;
-    (void)user_data;
+
+    ORACLE_VOID_LO_ARGS
+    assert(argc > 0);
     union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
     uint8_t *blobdata = (uint8_t *)lo_blob_dataptr( (lo_blob)argv[0] );
     int sz = lo_blob_datasize( (lo_blob)argv[0] );
@@ -814,13 +769,9 @@ int handle_tape_play_state(const char *path,
                                 int argc,
                                 void *data,
                                 void *user_data) {
-    (void)path;
-    (void)types;
-    (void)argc;
-    (void)argv;
-    (void)data;
-    (void)user_data;
-    assert(argc > 0);
+
+    ORACLE_VOID_ALL_LO_ARGS
+    //assert(argc > 0);
     //fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
     return 0;
 }
