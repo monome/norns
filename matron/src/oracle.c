@@ -449,32 +449,41 @@ void o_request_poll_value(int idx) {
 
 //---- audio context control
 
+//// FIXME: needs 2 levels (OR DOES IT?)
 void o_set_audio_input_level(int idx, float level) {
-    lo_send(ext_addr, "/audio/input/level", "if", idx, level);
+    (void)idx;
+    lo_send(crone_addr, "/set/level/adc", "f", level);
 }
 
 void o_set_audio_output_level(float level) {
-    lo_send(ext_addr, "/audio/output/level", "f", level);
+    lo_send(crone_addr, "/set/level/dac", "f", level);
 }
 
-void o_set_audio_monitor_level(float level) {
-    lo_send(ext_addr, "/audio/monitor/level", "f", level);
+void o_set_audio_monitor_level(float level) {    
+    lo_send(crone_addr, "/set/level/monitor", "f", level);
 }
 
 void o_set_audio_monitor_mono() {
-    lo_send(ext_addr, "/audio/monitor/mono", NULL);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 0.5);
+
 }
 
 void o_set_audio_monitor_stereo() {
-    lo_send(ext_addr, "/audio/monitor/stereo", NULL);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 1.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 1.0);
 }
 
 void o_set_audio_monitor_on() {
-    lo_send(ext_addr, "/audio/monitor/on", NULL);
+    fprintf(stderr, "o_set_audio_monitor_on() currently unavailable");
 }
 
 void o_set_audio_monitor_off() {
-    lo_send(ext_addr, "/audio/monitor/off", NULL);
+    fprintf(stderr, "o_set_audio_monitor_off() currently unavailable");
 }
 
 void o_set_audio_pitch_on() {
@@ -526,58 +535,132 @@ void o_tape_stop() {
     lo_send(ext_addr, "/tape/stop", NULL);
 }
 
-
 //--- aux effects controls
 // enable / disable aux fx processing
 void o_set_aux_fx_on() {
-    lo_send(ext_addr, "/auxfx/on", NULL);
+    lo_send(crone_addr, "/set/enabled/reverb", "f", 1);
 }
 
 void o_set_aux_fx_off() {
-    lo_send(ext_addr, "/auxfx/off", NULL);
-}
-
-// mono input -> aux level
-void o_set_aux_fx_input_level(int channel, float value) {
-    lo_send(ext_addr, "/auxfx/input/level", "if", channel, value);
-}
-
-// mono input -> aux pan
-void o_set_aux_fx_input_pan(int channel, float value) {
-    lo_send(ext_addr, "/auxfx/input/pan", "if", channel, value);
-}
-
-// stereo output -> aux
-void o_set_aux_fx_output_level(float value) {
-    lo_send(ext_addr, "/auxfx/output/level", "f", value);
-}
-
-// aux return -> dac
-void o_set_aux_fx_return_level(float value) {
-    lo_send(ext_addr, "/auxfx/return/level",  "f", value);
-}
-
-void o_set_aux_fx_param(const char* name, float value) {
-    lo_send(ext_addr, "/auxfx/param",  "sf", name, value);
+    lo_send(crone_addr, "/set/enabled/reverb", "f", 0);
 }
 
 
 //--- insert effects controls
 void o_set_insert_fx_on() {
-    lo_send(ext_addr, "/insertfx/on", NULL);
+    lo_send(crone_addr, "/set/enabled/compressor", "f", 1);
 }
 
 void o_set_insert_fx_off() {
-    lo_send(ext_addr, "/insertfx/off", NULL);
+    lo_send(crone_addr, "/set/enabled/compressor", "f", 0);
 }
 
 void o_set_insert_fx_mix(float value) {
-    lo_send(ext_addr, "/insertfx/mix", "f", value);
+    lo_send(crone_addr, "/set/level/ins_mix", "f", value);
 }
 
-void o_set_insert_fx_param(const char* name, float value) {
-    lo_send(ext_addr, "/insertfx/param", "sf", name, value);
+
+// stereo output -> aux
+void o_set_aux_fx_output_level(float value) {
+    lo_send(crone_addr, "/set/level/ext/aux", "f", value);
 }
+
+// aux return -> dac
+void o_set_aux_fx_return_level(float value) {
+    lo_send(crone_addr, "/set/level/aux/dac", "f", value);
+}
+
+///////////////////////////////
+///////////////////////////
+///// FIXME EEEEEEEE ???
+
+/// FIXME: doesn't need channel count?
+// monitor mix -> aux level (stereo!)
+void o_set_aux_fx_input_level(int channel, float value) {
+    (void) channel;
+    lo_send(crone_addr, "/set/level/monitor/aux", "f", value);
+}
+
+// mono input -> aux pan
+void o_set_aux_fx_input_pan(int channel, float value) {
+    (void)channel;
+    (void)value;
+    fprintf(stderr, "o_set_aux_fx_input_pan() currently unavailable");}
+
+
+//// !!!!!!!!
+void o_set_aux_fx_param(const char* name, float value) {
+    (void)name;
+    (void)value;
+}
+
+/// !!!!!!!!!!!!!!!!!!!
+void o_set_insert_fx_param(const char* name, float value) {
+    (void)name;
+    (void)value;
+    //lo_send(ext_addr, "/insertfx/param", "sf", name, value);
+}
+
+
+///////////////////
+/// TODO OOOOOOOOOO
+/*
+  /set/level/ext [f]
+  /set/level/ext_aux [f]
+  /set/level/aux_dac [f]
+  /set/level/monitor [f]
+  /set/level/monitor_mix [if]
+  /set/level/monitor_aux [f]
+  /set/level/ins_mix [f]
+  /set/enabled/compressor [f]
+  /set/enabled/reverb [f]
+  /set/param/compressor/ratio [f]
+  /set/param/compressor/threshold [f]
+  /set/param/compressor/attack [f]
+  /set/param/compressor/release [f]
+  /set/param/compressor/gain_pre [f]
+  /set/param/compressor/gain_post [f]
+  /set/param/reverb/pre_del [f]
+  /set/param/reverb/lf_fc [f]
+  /set/param/reverb/low_rt60 [f]
+  /set/param/reverb/mid_rt60 [f]
+  /set/param/reverb/hf_damp [f]
+  /set/enabled/cut [if]
+  /set/level/cut [if]
+  /set/pan/cut [if]
+  /set/level/adc_cut [f]
+  /set/level/ext_cut [f]
+  /set/level/cut_aux [f]
+  /set/level/in_cut [iif]
+  /set/param/cut/rate [if]
+  /set/param/cut/loop_start [if]
+  /set/param/cut/loop_end [if]
+  /set/param/cut/loop_flag [if]
+  /set/param/cut/fade_time [if]
+  /set/param/cut/rec_level [if]
+  /set/param/cut/pre_level [if]
+  /set/param/cut/rec_flag [if]
+  /set/param/cut/rec_offset [if]
+  /set/param/cut/position [if]
+  /set/param/cut/filter_fc [if]
+  /set/param/cut/filter_fc_mod [if]
+  /set/param/cut/filter_rq [if]
+  /set/param/cut/filter_lp [if]
+  /set/param/cut/filter_hp [if]
+  /set/param/cut/filter_bp [if]
+  /set/param/cut/filter_br [if]
+  /set/param/cut/filter_dry [if]
+  /set/param/cut/pre_fade_window [if]
+  /set/param/cut/rec_fade_delay [if]
+  /set/param/cut/pre_fade_shape [if]
+  /set/param/cut/rec_fade_shape [if]
+  /set/param/cut/level_slew_time [if]
+  /set/param/cut/rate_slew_time [if]
+*/
+
+
+/////////////////////
+//////////////////////
 
 
 ///////////////////////////////
