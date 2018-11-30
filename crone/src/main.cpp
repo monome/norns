@@ -56,7 +56,6 @@ int main() {
     sc->cleanup();
     cout << "goodbye" << endl;
 #else
-
     std::unique_ptr<SoftCutClient> sc;
     sc = std::make_unique<SoftCutClient>();
 

@@ -33,16 +33,21 @@ Crone {
 	classvar vuInterval;
 
 	classvar useRemoteServer = true;
+	
+	classvar <croneAddr;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
+			croneAddr = NetAddr("127.0.0.1", 9999);
+			
 			postln("\n-------------------------------------------------");
 			postln(" Crone startup");
 			postln("");
 			postln(" OSC rx port: " ++ NetAddr.langPort);
 			postln(" OSC tx port: " ++ txPort);
 			postln(" server port: " ++ serverPort);
+			postln(" server port: " ++ croneAddr.port);
 			postln("--------------------------------------------------\n");
 
 			recordingsDir = Platform.userHomeDir ++ "/dust/audio/tape";

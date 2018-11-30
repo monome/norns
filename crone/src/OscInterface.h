@@ -29,9 +29,9 @@ namespace crone {
         // OscMethod: thin wrapper for passing lambdas to OSC server thread
         class OscMethod {
             typedef void(*Handler)(lo_arg **argv, int argc);
+        public:
             string path;
             string format;
-        public:
             OscMethod() = default;
             OscMethod(string p, string f, Handler h);
             Handler handler;

@@ -1,16 +1,19 @@
-#include <utility>
-#include <thread>
+
 
 //
 // Created by ezra on 11/4/18.
 //
 
-#include "OscInterface.h"
-#include "Commands.h"
+#include <utility>
+#include <thread>
+#include <boost/format.hpp>
 
 #include "effects/CompressorParams.h"
 #include "effects/ReverbParams.h"
 #include "softcut/FadeCurves.h"
+
+#include "Commands.h"
+#include "OscInterface.h"
 
 using namespace crone;
 using softcut::FadeCurves;
@@ -365,6 +368,27 @@ void OscInterface::addServerMethods() {
 }
 
 void OscInterface::printServerMethods() {
-/// TODO?
+    using std::cout;
+    using std::endl;
+    using std::string;
+    using boost::format;
+    cout << "var osc_methods = [ " << endl;
+
+    for (int i=0; i<numMethods; ++i) {
+        string p = str(format("\"%1%\"") % methods[i].path);
+        string f = str(format("\"%1%\"")  % methods[i].format);
+        cout << format("[ %1%, %2%, { |msg| \n") % p % f;
+        cout << format("  Crone.croneAddr.sendMsg( %1%, ") % p;
+        auto n= methods[i].format.length();
+        for(int j=0; j<n; ++j) {
+            cout << "msg[" << j << "]";
+            if (j < (n-1)) {
+                cout << ", ";
+            }
+        }
+        cout << ");" << endl;
+        cout << "  }]," << endl;
+    }
+    cout << endl << "];" << endl;
 }
 

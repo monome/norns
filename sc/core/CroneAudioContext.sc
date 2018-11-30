@@ -21,10 +21,6 @@ CroneAudioContext {
 	var vu_thread;
 	var <>vu_dt;
 
-// FIXME? shouldn't be here?
-	var <croneAddr;
-
-
 	*new { arg srv;
 		^super.new.init(srv);
 	}
@@ -33,7 +29,6 @@ CroneAudioContext {
 		arg srv;
 		server = srv;
 
-		croneAddr = NetAddr("127.0.0.1", 9999);
 
 		//---- groups
 
@@ -111,28 +106,28 @@ CroneAudioContext {
 		in_s[chan].set(\level, db.dbamp);  
 	}
 	outputLevel { arg db; 
-		croneAddr.sendMsg("/set/level/dac", db.dbamp)
+		Crone.croneAddr.sendMsg("/set/level/dac", db.dbamp)
 	}
 
 	// control monitor level / pan
 	monitorLevel { arg db;
 		postln("set monitor level: " ++ db ++ " dB");
-		croneAddr.sendMsg("/set/level/monitor", db.dbamp);
+		Crone.croneAddr.sendMsg("/set/level/monitor", db.dbamp);
 	}
 
 	// FIXME: provide more granular control, or collapse these into one command
 	monitorMono {
-		croneAddr.sendMsg("/set/level/monitor_mix", 0, 0.5);
-		croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.5);
-		croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.5);
-		croneAddr.sendMsg("/set/level/monitor_mix", 3, 0.5);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 0, 0.5);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.5);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.5);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 3, 0.5);
 	}
 
 	monitorStereo {
-		croneAddr.sendMsg("/set/level/monitor_mix", 0, 1.0);
-		croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.0);
-		croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.0);
-		croneAddr.sendMsg("/set/level/monitor_mix", 3, 1.0);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 0, 1.0);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.0);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.0);
+		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 3, 1.0);
 	}
 
 	// toggle monitoring altogether
@@ -163,7 +158,6 @@ CroneAudioContext {
 
 	// pack low-resolution, log-scaled bus amplitudes
 	buildVuBlob {
-
 		var ret = Int8Array.newClear(4);
 		ret[0] = ReverseAudioTaper.lookup( amp_in_b[0].getSynchronous );
 		ret[1] = ReverseAudioTaper.lookup( amp_in_b[1].getSynchronous );
