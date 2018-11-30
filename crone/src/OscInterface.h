@@ -14,6 +14,11 @@
 #include <lo/lo.h>
 #include <array>
 
+#include "Poll.h"
+
+// FIXME: didn't realize that liblo has a perfectly ok-looking cpp interface already.
+// could RAII-ize some things.
+// having a custom method wrapper is probably fine, easier to refactor if we move to different IPC.
 
 namespace crone {
     using std::string;
@@ -38,7 +43,6 @@ namespace crone {
         };
 
         static std::array<OscMethod, MAX_NUM_METHODS> methods;
-
     private:
 
         typedef void(*Handler)(lo_arg **argv, int argc);
