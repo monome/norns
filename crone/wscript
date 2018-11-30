@@ -10,10 +10,10 @@ def configure(conf):
 def build(bld):
     crone_sources = [
         'src/main.cpp',
-        'src/JackClient.cpp',
-        'src/AudioMain.cpp',
         'src/OscInterface.cpp',
         'src/Commands.cpp',
+	'src/MixerClient.cpp',	
+	'src/SoftCutClient.cpp',
         'src/softcut/FadeCurves.cpp',
         'src/softcut/SoftCutHead.cpp', 
         'src/softcut/SoftCutVoice.cpp',
@@ -40,7 +40,8 @@ def build(bld):
                      'pthread',
                      'm'
                  ],
-                 cflags=[
-                     'O3',
-                     'Wall'
+                 cxxflags=[
+                     '-std=c++14',
+                     '-O3',
+                     '-Wall'
                  ])
