@@ -149,6 +149,9 @@ Script.metadata = function(filename)
         table.insert(meta, string.sub(line,4,-1))
       else return meta end
     end
+    if #meta == 0 then 
+      table.insert(meta, "no script information")
+    end
   end
   return meta
 end
