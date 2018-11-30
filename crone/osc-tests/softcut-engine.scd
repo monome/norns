@@ -1,6 +1,5 @@
 Crone.setEngine("Engine_SoftCut");
 
-
 n = NetAddr.localAddr;
 
 n.sendMsg("/command/enabled", 0, 1 );

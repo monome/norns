@@ -9,13 +9,10 @@
 
 using namespace crone;
 
-MixerClient::MixerClient() : Client<6, 6>("crone") {
-
-}
+MixerClient::MixerClient() : Client<6, 6>("crone") {}
 
 void MixerClient::process(jack_nframes_t numFrames) {
     Commands::mixerCommands.handlePending(this);
-    //clearBusses(numFrames);
 
     // copy inputs
     bus.adc_source.setFrom(source[SOURCE_ADC], numFrames, smoothLevels.adc);
@@ -90,18 +87,6 @@ void MixerClient::processFx(size_t numFrames) {
         bus.dac_sink.xfade(bus.ins_in, bus.ins_out, numFrames, smoothLevels.ins_mix);
     }
 }
-//
-//void MixerClient::clearBusses(size_t numFrames) {
-//    // NB: we only need clear busses that are used as mix destinations each block.
-//    // if a bus is simply copied to, there's no need to clear it.
-//    bus.cut_sink.clear(numFrames);
-//    bus.dac_sink.clear(numFrames);
-//    bus.ins_in.clear(numFrames);;
-//    bus.ins_out.clear(numFrames);
-//    bus.aux_in.clear(numFrames);;
-//    bus.aux_out.clear(numFrames);
-//    bus.adc_monitor.clear(numFrames);
-//}
 
 void MixerClient::handleCommand(Commands::CommandPacket *p) {
     switch(p->id) {
@@ -228,6 +213,4 @@ void MixerClient::setFxDefaults() {
   reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
   reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
   reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
-
-
 }

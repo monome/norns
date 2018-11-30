@@ -1,5 +1,5 @@
 n = NetAddr("localhost", 9999);
-//n = NetAddr("172.20.10.5", 9999);
+
 
 // global mix
 n.sendMsg("/set/level/adc_cut", 1.0);
@@ -9,10 +9,10 @@ n.sendMsg("/set/level/cut_aux", 1.0);
 /// voice 1
 
 // args: channel index, voice index, level
-n.sendMsg("/set/level/in_cut", 0, 1, 1.0);
-n.sendMsg("/set/level/in_cut", 1, 1, 1.0);
+n.sendMsg("/set/level/in_cut", 0, 0, 0.0);
+n.sendMsg("/set/level/in_cut", 1, 0, 1.0);
 
-n.sendMsg("/set/level/cut", 0, 0.6);
+n.sendMsg("/set/level/cut", 0, 0.9);
 n.sendMsg("/set/pan/cut", 0, 0);
 n.sendMsg("/set/enabled/cut", 0, 1.0);
 
@@ -40,10 +40,10 @@ n.sendMsg("/set/param/cut/rate", 0, 1.75);
 
 /// voice 2
 // args: channel index, voice index, level
-n.sendMsg("/set/level/in_cut", 0, 0, 1.0);
-n.sendMsg("/set/level/in_cut", 1, 0, 1.0);
+n.sendMsg("/set/level/in_cut", 0, 1, 1.0);
+n.sendMsg("/set/level/in_cut", 1, 1, 0.0);
 
-n.sendMsg("/set/level/cut", 1, 0.6);
+n.sendMsg("/set/level/cut", 1, 0.9);
 n.sendMsg("/set/pan/cut", 1, 1.0);
 n.sendMsg("/set/enabled/cut", 1, 1.0);
 
