@@ -8,7 +8,7 @@ n.sendMsg("/set/level/adc", 1.0);
 n.sendMsg("/set/level/dac", 1.0);
 
 // ADC monitor level. this is _before_ the aux effects send
-n.sendMsg("/set/level/monitor", 0.0);
+n.sendMsg("/set/level/monitor", 1.0);
 
 // monitor mix levels. 1st arg is which route in 2x2 matrix:
 // L -> L
@@ -22,6 +22,15 @@ n.sendMsg("/set/level/monitor_mix", 3, 0.5);
 
 // "ext" level (input from supercollider, pd or &c.) also pre-send
 n.sendMsg("/set/level/ext", 0.5);
+
+
+// VU polls
+
+~vu = OSCFunc.new({ arg msg, time, addr, recvPort;
+	postln(msg);
+}, '/poll/vu');
+
+n.sendMsg("/poll/start/vu");
 
 // quit
 /*

@@ -33,14 +33,14 @@ Crone {
 	classvar vuInterval;
 
 	classvar useRemoteServer = true;
-	
+
 	classvar <croneAddr;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
 			croneAddr = NetAddr("127.0.0.1", 9999);
-			
+
 			postln("\n-------------------------------------------------");
 			postln(" Crone startup");
 			postln("");
@@ -89,10 +89,10 @@ Crone {
 
 	*finishBoot {
 		// FIXME: connect to `crone` client instead
-		Crone.runShellCommand("jack_connect \"system:capture_1\" \"supernova:input_1\"");
-		Crone.runShellCommand("jack_connect \"system:capture_2\" \"supernova:input_2\"");
-		Crone.runShellCommand("jack_connect \"supernova:output_1\" \"crone:input_3\"");
-		Crone.runShellCommand("jack_connect \"supernova:output_2\" \"crone:input_4\"");
+		Crone.runShellCommand("jack_connect \"crone:output_5\" \"supernova:input_1\"");
+		Crone.runShellCommand("jack_connect \"crone:output_6\" \"supernova:input_2\"");
+		Crone.runShellCommand("jack_connect \"supernova:output_1\" \"crone:input_5\"");
+		Crone.runShellCommand("jack_connect \"supernova:output_2\" \"crone:input_6\"");
 		CroneDefs.sendDefs(server);
 		server.sync;
 		// create the audio context (boilerplate routing and analysis)

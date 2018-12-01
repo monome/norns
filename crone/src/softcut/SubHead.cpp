@@ -11,7 +11,6 @@
 
 using namespace softcut;
 
-
 SubHead::SubHead() {
     this->init();
 }

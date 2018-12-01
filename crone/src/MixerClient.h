@@ -5,6 +5,8 @@
 #ifndef CRONE_MIXERCLIENT_H
 #define CRONE_MIXERCLIENT_H
 
+#include <atomic>
+
 #include "Client.h"
 #include "Utilities.h"
 #include "Bus.h"
@@ -77,6 +79,7 @@ namespace  crone {
             SmoothLevelList();
             void setSampleRate(float sr);
         };
+
         SmoothLevelList smoothLevels;
 
         struct StaticLevelList {
@@ -94,18 +97,17 @@ namespace  crone {
         };
         EnabledList enabled;
 
+
+    public:
         struct VuLevels {
-	    float absPeakIn[2];
-	    float absPeakOut[2];
-            // float minOut[2];
-            // float maxOut[2];
-            // float minIn[2];
-            // float maxIn[2];
+            std::atomic<float> absPeakIn[2];
+            std::atomic<float> absPeakOut[2];
             void clear();
             void update(StereoBus &in, StereoBus &out, size_t numFrames);
         };
         VuLevels vuLevels;
 
+        VuLevels* getVuLevels() { return &vuLevels; }
 
     };
 }
