@@ -4,8 +4,11 @@
 
 #include "MixerClient.h"
 #include "Commands.h"
+
 #include "effects/CompressorParams.h"
 #include "effects/ReverbParams.h"
+
+#include "Tape.h"
 
 using namespace crone;
 
