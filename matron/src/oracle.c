@@ -591,12 +591,12 @@ void o_set_softcut_voice_param(const char* name, int voice, float value) {
     lo_send(crone_addr, buf, "if", voice, value);
 }
 
-void o_set_softcut_input_level(const char* name, int src, int dst, float level) {
+void o_set_softcut_input_level(int src, int dst, float level) {
     lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
 }
 
-void o_set_softcut_feedback_level(const char* name, int src, int dst, float level) {
-    lo_send(crone_addr, "/set/level/in_cut", "iif", level);
+void o_set_softcut_feedback_level(int src, int dst, float level) {
+    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
 }
 
 
