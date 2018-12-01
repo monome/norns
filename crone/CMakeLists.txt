@@ -31,6 +31,7 @@ target_link_libraries(crone lo)
 target_link_libraries(crone jack)
 target_link_libraries(crone pthread)
 target_link_libraries(crone asound)
+target_link_libraries(crone sndfile)
 
 set_target_properties(crone PROPERTIES
 CXX_STANDARD 14

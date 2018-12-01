@@ -44,10 +44,10 @@ namespace crone {
 
         class Writer : DiskAccess {
         private:
+            volatile bool isRunning;
             volatile bool captureReady;
             volatile bool dataReady;
             volatile bool shouldStop;
-            volatile bool isRunning;
             Sample frameBuf[frameSize];
             size_t numFramesCaptured;
             size_t maxFrames;
@@ -57,10 +57,10 @@ namespace crone {
             void process(const float *src[NumChannels], size_t numFrames) {
                 if (!isRunning) { return; }
                 // push to ringbuffer
-                for (int fr = 0; fr < numFrames; ++fr) {
+                for (size_t fr = 0; fr < numFrames; ++fr) {
                     // libsndfile needs interleaved data, so we do that here
                     for (int ch = 0; ch < NumChannels; ++ch) {
-                        if (jack_ringbuffer_write(this->ringBuf.get(), (void*)(src[ch]+fr), sampleSize) < sampleSize) {
+                        if (jack_ringbuffer_write(this->ringBuf.get(), (const char*)(src[ch]+fr), sampleSize) < sampleSize) {
                             // overrun! TODO: say something
                         }
                     }
@@ -149,9 +149,10 @@ namespace crone {
             void start() {
                 if (isRunning) {
                     // TODO: capture is already running; what to do...
-                    /// - can't forcibly terminate with an open file pointer.
-                    /// - best would be to issue stop and wait/join on disk thread.
-                    ///   but that means stalling the caller,(which is maybe fine.)
+                    /// - could forcibly terminate old thread and start a new one,
+                    ///   but then need to handle file cleanup (class wrapper with d-tor)
+                    /// - probably better to issue stop and wait/join on disk thread.
+                    ///   but that means stalling the caller (which in this application is likely fine)
                 } else {
                     this->th = std::make_unique<std::thread>(
                             [this]() {
