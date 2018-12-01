@@ -87,7 +87,8 @@ void OscInterface::addServerMethod(const char* path, const char* format, Handler
                                     lo_arg **argv,
                                     int argc,
                                     lo_message msg,
-                                    void *data) -> int
+                                    void *data)
+                                    -> int
                                 {
                                     (void) path;
                                     (void) types;
@@ -448,14 +449,35 @@ void OscInterface::addServerMethods() {
     ///////////////////
 
     addServerMethod("/set/param/cut/level_slew_time", "if", [](lo_arg **argv, int argc) {
-        if(argc<2) { return; }
+        if (argc<2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_LEVEL_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/rate_slew_time", "if", [](lo_arg **argv, int argc) {
-        if(argc<2) { return; }
+        if (argc<2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_RATE_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
+
+    //------------------------
+    //--- tape control
+
+    addServerMethod("/tape/record/open", "s", [](lo_arg **argv, int argc) {
+        if (argc<1) { return; }
+        mixerClient->openTapeRecord(&argv[0]->s);
+    });
+
+    addServerMethod("/tape/record/start", "", [](lo_arg **argv, int argc) {
+        (void) argv; (void) argc;
+        mixerClient->startTapeRecord();
+    });
+
+    addServerMethod("/tape/record/stop", "", [](lo_arg **argv, int argc) {
+        (void) argv; (void) argc;
+        mixerClient->stopTapeRecord();
+    });
+
+    // TODO: tape playback
+
 
 
 }
@@ -469,25 +491,6 @@ void OscInterface::printServerMethods() {
     for (unsigned int i=0; i<numMethods; ++i) {
         cout << format(" %1% [%2%]") % methods[i].path % methods[i].format << endl;
     }
-
-//    cout << "var osc_methods = [ " << endl;
-//
-//    for (unsigned int i=0; i<numMethods; ++i) {
-//        string p = str(format("\"%1%\"") % methods[i].path);
-//        string f = str(format("\"%1%\"")  % methods[i].format);
-//        cout << format("[ %1%, %2%, { |msg| \n") % p % f;
-//        cout << format("  Crone.croneAddr.sendMsg( %1%, ") % p;
-//        auto n= methods[i].format.length();
-//        for(unsigned int j=0; j<n; ++j) {
-//            cout << "msg[" << j << "]";
-//            if (j < (n-1)) {
-//                cout << ", ";
-//            }
-//        }
-//        cout << ");" << endl;
-//        cout << "  }]," << endl;
-//    }
-//    cout << endl << "];" << endl;
 }
 
 void OscInterface::deinit() {

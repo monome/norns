@@ -38,7 +38,8 @@ def build(bld):
                  lib=[
                      'jack',
                      'pthread',
-                     'm'
+                     'm',
+                     'sndfile'
                  ],
                  cxxflags=[
                      '-std=c++14',
