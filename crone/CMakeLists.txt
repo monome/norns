@@ -16,7 +16,12 @@ set (SRC src/main.cpp
         src/softcut/SoftCutVoice.cpp
         src/softcut/SubHead.cpp
         src/softcut/Svf.cpp
-        src/softcut/TestBuffers.cpp src/Client.h src/MixerClient.h src/MixerClient.cpp src/SoftCutClient.cpp src/SoftCutClient.h)
+        src/Client.h
+        src/MixerClient.h
+        src/MixerClient.cpp
+        src/SoftCutClient.cpp
+        src/SoftCutClient.h
+        src/Poll.h)
 
 add_executable(crone ${SRC})
 

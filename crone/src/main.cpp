@@ -41,7 +41,8 @@ int main() {
     sc->connect<6, 6>(m.get(), 0, MixerClient::SOURCE_CUT);
 
     cout << "starting OSC interface..." << endl;
-    OscInterface::init();
+    OscInterface::init(m.get(), sc.get());
+    OscInterface::printServerMethods();
 
     cout << "entering main loop..." << endl;
     while(!OscInterface::shouldQuit())  {
@@ -54,6 +55,7 @@ int main() {
     cout << "cleaning up clients..." << endl;
     m->cleanup();
     sc->cleanup();
+    OscInterface::deinit();
     cout << "goodbye" << endl;
 #else
     std::unique_ptr<SoftCutClient> sc;

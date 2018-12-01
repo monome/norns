@@ -37,6 +37,11 @@ void MixerClient::process(jack_nframes_t numFrames) {
     bus.dac_sink.mixTo(sink[SinkId::SINK_DAC], numFrames, smoothLevels.dac);
     bus.cut_sink.copyTo(sink[SinkId::SINK_CUT], numFrames);
     bus.ext_sink.copyTo(sink[SinkId::SINK_EXT], numFrames);
+
+    // update VU
+    // FIXME: for peak level, clear() should be called at poll/report time
+    vuLevels.clear();
+    vuLevels.update(bus.adc_source, bus.dac_sink, numFrames);
 }
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
@@ -213,4 +218,23 @@ void MixerClient::setFxDefaults() {
   reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
   reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
   reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
+}
+
+void MixerClient::VuLevels::clear() {
+    for(int i=0; i<2; ++i) {
+        absPeakIn[i] = 0.f;
+        absPeakOut[i] = 0.f;
+    }
+}
+
+void MixerClient::VuLevels::update(MixerClient::StereoBus &in, MixerClient::StereoBus &out, size_t numFrames) {
+    float f;
+    for (size_t fr=0; fr<numFrames; ++fr) {
+        for(int ch=0; ch<2; ++ch) {
+            f = fabsf(in.buf[ch][fr]);
+            if (f > absPeakIn[ch]) { absPeakIn[ch] = f; }
+            f = fabsf(out.buf[ch][fr]);
+            if (f > absPeakOut[ch]) { absPeakOut[ch] = f; }
+        }
+    }
 }

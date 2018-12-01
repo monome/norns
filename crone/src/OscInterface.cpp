@@ -22,13 +22,85 @@ using softcut::FadeCurves;
 /// TODO: softcut soundfile load / write
 
 bool OscInterface::quitFlag;
+
 std::string OscInterface::port;
 lo_server_thread OscInterface::st;
+lo_address OscInterface::matronAddress;
+
 std::array<OscInterface::OscMethod, OscInterface::MAX_NUM_METHODS> OscInterface::methods;
 unsigned int OscInterface::numMethods = 0;
 
+
+std::unique_ptr<Poll> OscInterface::vuPoll;
+std::unique_ptr<Poll> OscInterface::phasePoll;
+MixerClient* OscInterface::mixerClient;
+SoftCutClient* OscInterface::softCutClient;
+
 OscInterface::OscMethod::OscMethod(string p, string f, OscInterface::Handler h)
         : path(std::move(p)), format(std::move(f)), handler(h) {}
+
+
+void OscInterface::init(MixerClient *m, SoftCutClient *sc)
+{
+    quitFlag = false;
+    // FIXME: probably should get port configs from program args or elsewhere
+    port = "9999";
+#if 1
+    matronAddress = lo_address_new("127.0.0.1", "8888");
+#else  // testing with SC
+    matronAddress = lo_address_new("127.0.0.1", "57120");
+
+#endif
+
+    st = lo_server_thread_new(port.c_str(), handleLoError);
+    addServerMethods();
+
+    mixerClient = m;
+    softCutClient = sc;
+
+    vuPoll = std::make_unique<Poll>("vu");
+    vuPoll->setCallback([](const char* path){
+        auto vl = mixerClient->getVuLevels();
+        // FIXME: perform exponential scaling here
+        lo_send(matronAddress, path, "ffff",
+                vl->absPeakIn[0].load(),
+                vl->absPeakIn[1].load(),
+                vl->absPeakOut[0].load(),
+                vl->absPeakOut[1].load());
+        vl->clear();
+    });
+    vuPoll->setPeriod(50);
+
+    phasePoll = std::make_unique<Poll>("softcut/phase");
+    // TODO
+    // phasePoll->setCallback([]() { /* */ });
+
+    lo_server_thread_start(st);
+}
+
+
+void OscInterface::addServerMethod(const char* path, const char* format, Handler handler) {
+    OscMethod m(path, format, handler);
+    methods[numMethods] = m;
+    lo_server_thread_add_method(st, path, format,
+                                [] (const char *path,
+                                    const char *types,
+                                    lo_arg **argv,
+                                    int argc,
+                                    lo_message msg,
+                                    void *data) -> int
+                                {
+                                    (void) path;
+                                    (void) types;
+                                    (void) msg;
+                                    auto pm = static_cast<OscMethod*>(data);
+                                    std::cerr << "osc rx: " << path << std::endl;
+                                    pm->handler(argv, argc);
+                                    return 0;
+                                }, &(methods[numMethods]));
+    numMethods++;
+}
+
 
 void OscInterface::addServerMethods() {
     addServerMethod("/hello", "", [](lo_arg **argv, int argc) {
@@ -47,6 +119,22 @@ void OscInterface::addServerMethods() {
         OscInterface::quitFlag = true;
     });
 
+
+    //---------------------------
+    //--- polls
+    addServerMethod("/poll/start/vu", "", [](lo_arg **argv, int argc) {
+        (void)argv; (void)argc;
+        vuPoll->start();
+    });
+
+    addServerMethod("/poll/stop/vu", "", [](lo_arg **argv, int argc) {
+        (void)argv; (void)argc;
+        vuPoll->stop();
+    });
+
+
+    //--------------------------
+    //--- levels
     addServerMethod("/set/level/adc", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_ADC, argv[0]->f);
@@ -378,23 +466,32 @@ void OscInterface::printServerMethods() {
     using std::endl;
     using std::string;
     using boost::format;
-    cout << "var osc_methods = [ " << endl;
-
+    cout << "osc methods: " << endl;
     for (unsigned int i=0; i<numMethods; ++i) {
-        string p = str(format("\"%1%\"") % methods[i].path);
-        string f = str(format("\"%1%\"")  % methods[i].format);
-        cout << format("[ %1%, %2%, { |msg| \n") % p % f;
-        cout << format("  Crone.croneAddr.sendMsg( %1%, ") % p;
-        auto n= methods[i].format.length();
-        for(unsigned int j=0; j<n; ++j) {
-            cout << "msg[" << j << "]";
-            if (j < (n-1)) {
-                cout << ", ";
-            }
-        }
-        cout << ");" << endl;
-        cout << "  }]," << endl;
+        cout << format(" %1% [%2%]") % methods[i].path % methods[i].format << endl;
     }
-    cout << endl << "];" << endl;
+
+//    cout << "var osc_methods = [ " << endl;
+//
+//    for (unsigned int i=0; i<numMethods; ++i) {
+//        string p = str(format("\"%1%\"") % methods[i].path);
+//        string f = str(format("\"%1%\"")  % methods[i].format);
+//        cout << format("[ %1%, %2%, { |msg| \n") % p % f;
+//        cout << format("  Crone.croneAddr.sendMsg( %1%, ") % p;
+//        auto n= methods[i].format.length();
+//        for(unsigned int j=0; j<n; ++j) {
+//            cout << "msg[" << j << "]";
+//            if (j < (n-1)) {
+//                cout << ", ";
+//            }
+//        }
+//        cout << ");" << endl;
+//        cout << "  }]," << endl;
+//    }
+//    cout << endl << "];" << endl;
+}
+
+void OscInterface::deinit() {
+    lo_address_free(matronAddress);
 }
 

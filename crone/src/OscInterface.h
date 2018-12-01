@@ -14,13 +14,22 @@
 #include <lo/lo.h>
 #include <array>
 
+#include "MixerClient.h"
+#include "SoftCutClient.h"
+#include "Poll.h"
+
+// FIXME: didn't realize that liblo has a perfectly ok-looking cpp interface already. this could be cleaner.
+// having a custom method wrapper is probably fine, easier to refactor if we move to different IPC.
 
 namespace crone {
     using std::string;
 
     class OscInterface {
+
     private:
         static lo_server_thread st;
+        static lo_address matronAddress;
+
         static bool quitFlag;
         static string port;
         static unsigned int numMethods;
@@ -38,47 +47,28 @@ namespace crone {
         };
 
         static std::array<OscMethod, MAX_NUM_METHODS> methods;
+        static std::unique_ptr<Poll> vuPoll;
+        static std::unique_ptr<Poll> phasePoll;
+        static MixerClient *mixerClient;
+        static SoftCutClient *softCutClient;
 
     private:
-
         typedef void(*Handler)(lo_arg **argv, int argc);
         static void handleLoError(int num, const char *m, const char *path) {
             std::cerr << "liblo error: " << num << "; " << m << "; " << path << std::endl;
         }
 
-        static void addServerMethod(const char* path, const char* format, Handler handler) {
-            OscMethod m(path, format, handler);
-            methods[numMethods] = m;
-            lo_server_thread_add_method(st, path, format,
-            [] (const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *data) -> int
-            {
-                (void) path;
-                (void) types;
-                (void) msg;
-                auto pm = static_cast<OscMethod*>(data);
-                std::cerr << "osc rx: " << path << std::endl;
-                pm->handler(argv, argc);
-                return 0;
-            }, &(methods[numMethods]));
-            numMethods++;
-        }
+        static void addServerMethod(const char* path, const char* format, Handler handler);
 
         static void addServerMethods();
-        static void printServerMethods();
 
 
     public:
-        static void init() {
-            quitFlag = false;
-            port = "9999";
-            st = lo_server_thread_new(port.c_str(), handleLoError);
-            addServerMethods();
-            printServerMethods();
-            lo_server_thread_start(st);
-        }
+        static void init(MixerClient *m, SoftCutClient *sc);
+        static void deinit();
+        static void printServerMethods();
 
         static bool shouldQuit() { return quitFlag; }
-
         static std::string getPortNumber() { return port; }
     };
 }
