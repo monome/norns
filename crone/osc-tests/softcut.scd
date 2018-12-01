@@ -83,5 +83,11 @@ n.sendMsg("/set/param/cut/rec_level", 0, 0);
 n.sendMsg("/set/param/cut/pre_level", 1, 1);
 n.sendMsg("/set/param/cut/rec_level", 1, 0);
 
+// go.
+n.sendMsg("/set/param/cut/pre_level", 0, 0.5);
+n.sendMsg("/set/param/cut/rec_level", 0, 1);
+n.sendMsg("/set/param/cut/pre_level", 1, 0.5);
+n.sendMsg("/set/param/cut/rec_level", 1, 1);
+
 
 */

@@ -42,7 +42,9 @@ void MixerClient::process(jack_nframes_t numFrames) {
     bus.ext_sink.copyTo(sink[SinkId::SINK_EXT], numFrames);
 
     // process tape
-    tape.writer.process((const float**)bus.dac_sink.buf, numFrames);
+    // FIXME: another stupid pointer array.
+    const float* src[2] = { (const float*)bus.dac_sink.buf[0], (const float*)bus.dac_sink.buf[1] };
+    tape.writer.process(src, numFrames);
 
     // update VU
     vuLevels.update(bus.adc_source, bus.dac_sink, numFrames);
@@ -58,8 +60,7 @@ void MixerClient::setSampleRate(jack_nframes_t sr) {
 
 void MixerClient::processFx(size_t numFrames) {
     bus.ins_in.clear(numFrames);
-
-    // FIXME: current faust architecture needs this, for some reason :?
+    // FIXME: current faust architecture needs stupid pointer arrays.
     float* pin[2];
     float* pout[2];
     if (!enabled.reverb) { // bypass aux
