@@ -29,9 +29,6 @@ static lo_address crone_addr;
 
 static lo_server_thread st;
 
-// TODO: semaphore for waiting on audio backend init?
-//static sem_t audio_init_sem;
-
 //-------------------
 //--- audio engine descriptor management
 
@@ -576,17 +573,33 @@ void o_set_aux_fx_input_pan(int channel, float value) {
     fprintf(stderr, "o_set_aux_fx_input_pan() currently unavailable");}
 
 
-//// !!!!!!!!
 void o_set_aux_fx_param(const char* name, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/reverb/%s", name);
     lo_send(crone_addr, buf, "f", value);
 }
 
-/// !!!!!!!!!!!!!!!!!!!
-void o_set_insert_fx_param(const char* name, float value) {    static char buf[128];
+void o_set_insert_fx_param(const char* name, float value) {
+    static char buf[128];
     sprintf(buf, "/set/param/compressor/%s", name);
-    lo_send(crone_addr, buf, "f", value);}
+    lo_send(crone_addr, buf, "f", value);
+}
+
+void o_set_softcut_voice_param(const char* name, int voice, float value) {
+    static char buf[128];
+    sprintf(buf, "/set/param/cut/%s", name);    
+    lo_send(crone_addr, buf, "if", voice, value);
+}
+
+void o_set_softcut_input_level(const char* name, int src, int dst, float level) {
+    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
+}
+
+void o_set_softcut_feedback_level(const char* name, int src, int dst, float level) {
+    lo_send(crone_addr, "/set/level/in_cut", "iif", level);
+}
+
+
 
 
 ///////////////////

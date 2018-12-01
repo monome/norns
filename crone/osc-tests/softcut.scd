@@ -33,7 +33,7 @@ n.sendMsg("/set/param/cut/filter_lp", 0, 0);
 n.sendMsg("/set/param/cut/filter_bp", 0, 1.0);
 n.sendMsg("/set/param/cut/filter_rq", 0, 2.0);
 
-n.sendMsg("/set/param/cut/rate", 0, 0.75);
+n.sendMsg("/set/param/cut/rate", 0, 0.165);
 n.sendMsg("/set/param/cut/rate", 0, 1.0);
 n.sendMsg("/set/param/cut/rate", 0, 1.75);
 
@@ -48,7 +48,7 @@ n.sendMsg("/set/enabled/cut", 1, 1.0);
 
 n.sendMsg("/set/param/cut/rate", 1, 1.0);
 n.sendMsg("/set/param/cut/loop_start", 1, 3.0);
-n.sendMsg("/set/param/cut/loop_end", 1, 4.50);
+n.sendMsg("/set/param/cut/loop_end", 1, 4.555);
 n.sendMsg("/set/param/cut/loop_flag", 1, 1.0);
 n.sendMsg("/set/param/cut/fade_time", 1, 0.1);
 n.sendMsg("/set/param/cut/rec_level", 1, 1.0);
@@ -58,12 +58,12 @@ n.sendMsg("/set/param/cut/rec_flag", 1, 1);
 n.sendMsg("/set/param/cut/position", 1, 1);
 
 n.sendMsg("/set/param/cut/filter_dry", 1, 0.125);
-n.sendMsg("/set/param/cut/filter_fc", 1, 1200);
+n.sendMsg("/set/param/cut/filter_fc", 1, 800);
 n.sendMsg("/set/param/cut/filter_lp", 1, 0);
 n.sendMsg("/set/param/cut/filter_bp", 1, 1.0);
 n.sendMsg("/set/param/cut/filter_rq", 1, 2.0);
 
-n.sendMsg("/set/param/cut/rate", 1, 0.75);
+n.sendMsg("/set/param/cut/rate", 1, 0.1175);
 n.sendMsg("/set/param/cut/rate", 1, 1.0);
 n.sendMsg("/set/param/cut/rate", 1, 1.75);
 
@@ -76,4 +76,12 @@ n.sendMsg("/set/level/cut_cut", 0, 1, 0.6);
 n.sendMsg("/set/level/cut_cut", 1, 0, 0.2);
 
 n.sendMsg("/set/level/cut_cut", 1, 0, 0.0);
+
+// freeze...
+n.sendMsg("/set/param/cut/pre_level", 0, 1);
+n.sendMsg("/set/param/cut/rec_level", 0, 0);
+n.sendMsg("/set/param/cut/pre_level", 1, 1);
+n.sendMsg("/set/param/cut/rec_level", 1, 0);
+
+
 */

@@ -49,7 +49,6 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     matronAddress = lo_address_new("127.0.0.1", "8888");
 #else  // testing with SC
     matronAddress = lo_address_new("127.0.0.1", "57120");
-
 #endif
 
     st = lo_server_thread_new(port.c_str(), handleLoError);

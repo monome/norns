@@ -141,5 +141,16 @@ extern void o_set_insert_fx_off();
 extern void o_set_insert_fx_mix(float level);
 extern void o_set_insert_fx_param(const char* name, float value);
 
+//--- softcut parameter controls
+//--- TODO: no lua glue for these yet
+
+
+// most softcut parameter changs take single voice index...
+extern void o_set_softcut_voice_param(const char* name, int voice, float value);
+//... these ones take two channel indices
+extern void o_set_softcut_input_level(const char* name, int src, int dst, float level);
+extern void o_set_softcut_feedback_level(const char* name, int src, int dst, float level);
+
+
 
 extern void o_restart_audio();

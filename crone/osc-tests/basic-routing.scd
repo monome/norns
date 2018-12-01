@@ -25,7 +25,7 @@ n.sendMsg("/set/level/ext", 0.5);
 
 
 // VU polls
-
+//// this will only work if `crone` is using sclang port instead of matron
 ~vu = OSCFunc.new({ arg msg, time, addr, recvPort;
 	postln(msg);
 }, '/poll/vu');
