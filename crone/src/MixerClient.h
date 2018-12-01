@@ -7,11 +7,14 @@
 
 #include <atomic>
 
-#include "Client.h"
-#include "Utilities.h"
 #include "Bus.h"
+#include "Client.h"
+#include "Tape.h"
+#include "Utilities.h"
+
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
+
 
 namespace  crone {
     class MixerClient: public Client<6, 6> {
@@ -35,6 +38,7 @@ namespace  crone {
         // processors
         StereoCompressor comp;
         ZitaReverb reverb;
+        Tape<2> tape;
 
         // busses
         struct BusList {
@@ -106,8 +110,20 @@ namespace  crone {
             void update(StereoBus &in, StereoBus &out, size_t numFrames);
         };
         VuLevels vuLevels;
-
         VuLevels* getVuLevels() { return &vuLevels; }
+
+        void openTapeRecord(const char* path) {
+            tape.writer.open(path);
+        }
+
+        void startTapeRecord() {
+            tape.writer.start();
+        }
+
+        void stopTapeRecord() {
+            tape.writer.stop();
+        }
+
 
     };
 }

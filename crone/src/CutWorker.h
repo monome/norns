@@ -29,9 +29,9 @@ namespace crone {
         // LogRamp cut_pan[SOFTCUT_COUNT];
 
     private:
-        bool start;
-        bool done;
-        bool quit;
+        volatile bool start;
+        volatile bool done;
+        volatile bool quit;
         size_t numFrames;
         std::thread t;
         std::mutex m;

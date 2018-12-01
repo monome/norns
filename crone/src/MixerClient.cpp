@@ -41,9 +41,10 @@ void MixerClient::process(jack_nframes_t numFrames) {
     bus.cut_sink.copyTo(sink[SinkId::SINK_CUT], numFrames);
     bus.ext_sink.copyTo(sink[SinkId::SINK_EXT], numFrames);
 
+    // process tape
+    tape.writer.process((const float**)bus.dac_sink.buf, numFrames);
+
     // update VU
-    // FIXME: for peak level, clear() should be called at poll/report time
-    vuLevels.clear();
     vuLevels.update(bus.adc_source, bus.dac_sink, numFrames);
 }
 
