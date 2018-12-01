@@ -93,7 +93,6 @@ end
 
 --- add option
 function ParamSet:add_option(id, name, options, default)
-  p = option.new(id, name, options, default)
   self:add { param=option.new(id, name, options, default) }
 end
 
