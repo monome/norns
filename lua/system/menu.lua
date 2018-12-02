@@ -114,7 +114,7 @@ norns.init_done = function(status)
     end
   end
   m.params.init_map()
-  m.params.read(norns.state.data_path..".pmap")
+  m.params.read(norns.state.name..".pmap")
 end
 
 
@@ -471,19 +471,19 @@ end
 m.key[pPARAMS] = function(n,z)
   if menu.alt then
     if n==3 and z==1 then
-      if m.params.altpos == 1 then
+      if m.params.altpos == 1 and m.params.loadable==true then
         if m.params.n == 0 then
-          params:read(norns.state.data_path..".pset")
+          params:read(norns.state.name..".pset")
         else
-          params:read(norns.state.data_path.."-"..string.format("%02d",m.params.n)..".pset")
+          params:read(norns.state.name.."-"..string.format("%02d",m.params.n)..".pset")
         end
         m.params.action = 15
         m.params.action_text = "loaded"
       elseif m.params.altpos == 2 then
         if m.params.n == 0 then
-          params:write(norns.state.data_path..".pset")
+          params:write(norns.state.name..".pset")
         else
-          params:write(norns.state.data_path.."-"..string.format("%02d",m.params.n)..".pset")
+          params:write(norns.state.name.."-"..string.format("%02d",m.params.n)..".pset")
         end
         m.params.action = 15
         m.params.action_text = "saved"
@@ -528,10 +528,10 @@ m.enc[pPARAMS] = function(n,d)
         local path
         local f
         if m.params.n == 0 then
-          path = data_dir..norns.state.data_path..".pset"
+          path = norns.state.path..'/data/'..norns.state.name..".pset"
           f=io.open(path,"r")
         else
-          path =data_dir..norns.state.data_path.."-"..string.format("%02d",m.params.n)..".pset"
+          path = norns.state.path..'/data/'..norns.state.name.."-"..string.format("%02d",m.params.n)..".pset"
           f=io.open(path ,"r")
         end
         --print("pset: "..path)
@@ -675,7 +675,7 @@ end
 
 m.deinit[pPARAMS] = function()
   if state.script ~= '' then
-    m.params.write(norns.state.data_path..".pmap")
+    m.params.write(norns.state.name..".pmap")
   end
   m.params.midilearn = false
   u:stop()

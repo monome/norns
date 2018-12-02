@@ -49,6 +49,7 @@ Script.clear = function()
   -- clear last run
   norns.state.script = ''
   norns.state.name = 'none'
+  norns.state.path = ''
   -- clear params
   params:clear()
   -- reset PLAY mode screen settings

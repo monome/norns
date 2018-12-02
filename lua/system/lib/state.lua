@@ -4,10 +4,14 @@
 state = {}
 state.tape = 0
 state.script = ''
+state.path = dust_dir
+state.name = ''
 state.clean_shutdown = false
 
 -- read state.lua and set parameters back to stored vals
 state.resume = function()
+  state.path = dust_dir
+
   -- restore mix state
   mix:read("system.pset")
   mix:bang()
@@ -33,9 +37,7 @@ state.resume = function()
       print("last file loaded: " .. state.script)
       norns.script.load()
     else
-      state.script=''
       norns.script.clear()
-      -- FIXME does tis work?
     end
     -- reset clean_shutdown flag and save state so that
     -- if the script causes a crash we don't restart into it
@@ -43,6 +45,8 @@ state.resume = function()
     state.save_state()
   else
     state.script=''
+    state.name = 'none'
+    state.path = dust_dir
     norns.scripterror("NO SCRIPT")
   end
 end
@@ -61,11 +65,11 @@ state.save_state = function()
   local fd=io.open(data_dir .. "system.lua","w+")
   io.output(fd)
   io.write("-- system state\n")
+  io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
   io.write("norns.state.tape = " .. norns.state.tape .. "\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
   io.write("norns.state.name = '" .. state.name .. "'\n")
   io.write("norns.state.path = '" .. state.path .. "'\n")
-  io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
   for i=1,4 do
     io.write("midi.vport[" .. i .. "].name = '" .. midi.vport[i].name .. "'\n")
   end

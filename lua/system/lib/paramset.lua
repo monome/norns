@@ -198,19 +198,19 @@ end
 --- write to disk
 -- @param filename relative to data_dir
 function ParamSet:write(filename)
-  -- check for subfolder in filename, create subfolder if it doesn't exist
-  local subfolder, found = string.gsub(filename,"/(.*)","")
-  if found==1 then
-    local fd = io.open(data_dir..subfolder,"r")
-    if fd then
-      io.close(fd)
-    else
-      print("creating subfolder")
-      os.execute("mkdir "..data_dir..subfolder)
-    end
+  print("pset/write > " .. filename)
+  local data_dir = norns.state.path .. 'data'
+  local fd = io.open(data_dir,"r")
+  if fd then
+    io.close(fd)
+  else
+    print(">> creating subfolder")
+    os.execute("mkdir " .. data_dir)
   end
   -- write file
-  local fd = io.open(data_dir..filename, "w+")
+  local file = data_dir..'/'..filename
+  print(">>>> "..file)
+  local fd = io.open(file, "w+")
   io.output(fd)
   for k,param in pairs(self.params) do
     if param.id and param.t ~= self.tTRIGGER then
@@ -223,10 +223,13 @@ end
 --- read from disk
 -- @param filename relative to data_dir
 function ParamSet:read(filename)
-  local fd = io.open(data_dir..filename, "r")
+  print("pset/read > " .. filename)
+  local data_dir = norns.state.path .. 'data/'
+  local file = data_dir .. '/' .. filename
+  local fd = io.open(file, "r")
   if fd then
     io.close(fd)
-    for line in io.lines(data_dir..filename) do
+    for line in io.lines(file) do
       local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
 
       if id and value then
@@ -245,7 +248,6 @@ function ParamSet:read(filename)
           end
         end
       end
-
     end
   else
     print("paramset: "..filename.." not read.")
