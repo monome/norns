@@ -18,9 +18,9 @@ void MixerClient::process(jack_nframes_t numFrames) {
     Commands::mixerCommands.handlePending(this);
 
     // copy inputs
-    bus.adc_source.setFrom(source[SOURCE_ADC], numFrames, smoothLevels.adc);
-    bus.cut_source.setFrom(source[SOURCE_CUT], numFrames);
-    bus.ext_source.setFrom(source[SOURCE_EXT], numFrames, smoothLevels.ext);
+    bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
+    bus.cut_source.setFrom(source[SourceCut], numFrames);
+    bus.ext_source.setFrom(source[SourceExt], numFrames, smoothLevels.ext);
 
     // mix ADC monitor
     bus.adc_monitor.clear(numFrames);
@@ -37,9 +37,9 @@ void MixerClient::process(jack_nframes_t numFrames) {
     processFx(numFrames);
 
     // perform  output
-    bus.dac_sink.mixTo(sink[SinkId::SINK_DAC], numFrames, smoothLevels.dac);
-    bus.cut_sink.copyTo(sink[SinkId::SINK_CUT], numFrames);
-    bus.ext_sink.copyTo(sink[SinkId::SINK_EXT], numFrames);
+    bus.dac_sink.mixTo(sink[SinkId::SinkDac], numFrames, smoothLevels.dac);
+    bus.cut_sink.copyTo(sink[SinkId::SinkCut], numFrames);
+    bus.ext_sink.copyTo(sink[SinkId::SinkExt], numFrames);
 
     // process tape
     // FIXME: another stupid pointer array.

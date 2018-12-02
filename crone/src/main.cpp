@@ -37,8 +37,8 @@ int main() {
     cout << "connecting ports... " << endl;
     m->connectAdcPorts();
     m->connectDacPorts();
-    m->connect<2, 2>(sc.get(), MixerClient::SINK_CUT, SoftCutClient::SOURCE_ADC);
-    sc->connect<6, 6>(m.get(), 0, MixerClient::SOURCE_CUT);
+    m->connect<2, 2>(sc.get(), MixerClient::SinkCut, SoftCutClient::SourceAdc);
+    sc->connect<6, 6>(m.get(), 0, MixerClient::SourceCut);
 
     cout << "starting OSC interface..." << endl;
     OscInterface::init(m.get(), sc.get());

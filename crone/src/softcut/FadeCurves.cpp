@@ -21,8 +21,8 @@ unsigned int FadeCurves::recDelayMinFrames;
 unsigned int FadeCurves::preWindowMinFrames;
 float FadeCurves::recFadeBuf[fadeBufSize];
 float FadeCurves::preFadeBuf[fadeBufSize];
-FadeCurves::Shape FadeCurves::recShape = LINEAR;
-FadeCurves::Shape FadeCurves::preShape = LINEAR;
+FadeCurves::Shape FadeCurves::recShape = Linear;
+FadeCurves::Shape FadeCurves::preShape = Linear;
 
 void FadeCurves::calcRecFade() {
     float buf[fadeBufSize];
@@ -47,7 +47,7 @@ void FadeCurves::calcRecFade() {
             x += phi;
         }
         buf[n] = 1.f;
-    } else if (recShape == LINEAR) {
+    } else if (recShape == Linear) {
         const float phi = 1.f / nr;
         float x = 0.f;
         while (i < ndr) {
@@ -58,7 +58,7 @@ void FadeCurves::calcRecFade() {
             x += phi;
         }
         buf[n] = 1.f;
-    } else if (recShape == RAISED) {
+    } else if (recShape == Raised) {
         const float phi = fpi/(nr*2);
         float x = fpi;
         float y = 0.f;
@@ -92,14 +92,14 @@ void FadeCurves::calcPreFade() {
             buf[i++] = cosf(x) * 0.5f + 0.5f;
             x += phi;
         }
-    } else if (preShape == LINEAR){
+    } else if (preShape == Linear){
         const float phi = 1.f / nwp;
         while (i < nwp) {
             buf[i++] = 1.f - x;
             x += phi;
         }
-    } else if (recShape == RAISED) {
-        BOOST_ASSERT(preShape == RAISED);
+    } else if (recShape == Raised) {
+        BOOST_ASSERT(preShape == Raised);
         const float phi = fpi / (nwp*2);
         while (i < nwp) {
             buf[i++] = cosf(x);

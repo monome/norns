@@ -2,17 +2,25 @@
 // Created by emb on 11/28/18.
 //
 
+#include <sndfile.hh>
+
 #include "SoftCutClient.h"
 #include "Commands.h"
 
-crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut"), cut(buf, BUF_FRAMES) {}
+
+// clamp unsigned int to upper bound, inclusive
+static inline void clamp(size_t &x, const size_t a) {
+    if (x > a) { x = a; }
+}
+
+crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut"), cut(buf, BufFrames) {}
 
 void crone::SoftCutClient::process(jack_nframes_t numFrames) {
     Commands::softcutCommands.handlePending(this);
     clearBusses(numFrames);
     mixInput(numFrames);
     // process softcuts (overwrites output bus)
-    for(int v=0; v<NUM_VOICES; ++v) {
+    for(int v=0; v<NumVoices; ++v) {
         if (!enabled[v]) {
             continue;
         }
@@ -34,10 +42,10 @@ void crone::SoftCutClient::clearBusses(size_t numFrames) {
 
 void crone::SoftCutClient::mixInput(size_t numFrames) {
     for(int ch=0; ch<2; ++ch) {
-        for(int v=0; v<NUM_VOICES; ++v) {
-            input[v].mixFrom(&source[SOURCE_ADC][ch], numFrames, inLevel[ch][v]);
-            //input[v].mixFrom(&source[SOURCE_EXT][ch], numFrames, in_ext[ch][v]);
-            for(int w=0; w<NUM_VOICES; ++w) {
+        for(int v=0; v<NumVoices; ++v) {
+            input[v].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][v]);
+            //input[v].mixFrom(&source[SourceExt][ch], numFrames, in_ext[ch][v]);
+            for(int w=0; w<NumVoices; ++w) {
                 input[v].mixFrom(output[w], numFrames, fbLevel[v][w]);
             }
         }
@@ -45,7 +53,7 @@ void crone::SoftCutClient::mixInput(size_t numFrames) {
 }
 
 void crone::SoftCutClient::mixOutput(size_t numFrames) {
-    for(int v=0; v<NUM_VOICES; ++v) {
+    for(int v=0; v<NumVoices; ++v) {
         mix.panMixFrom(output[v], numFrames, outLevel[v], outPan[v]);
     }
 }
@@ -135,6 +143,47 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
     }
 }
 
-void crone::SoftCutClient::clearBuffer(float startTime, float dur) {
+void crone::SoftCutClient::clearBuffer(float start, float dur) {
+    size_t frA =secToFrame(start);
+    clamp(frA, BufFrames-1);
+    size_t frB = frA + secToFrame(dur);
+    clamp(frB, BufFrames);
+    for(size_t i=frA; i<frB; ++i) { buf[i] = 0.f; }
+}
 
+void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc, float startTimeDst, float dur, int channel) {
+
+
+    SndfileHandle file(path);
+    // FIXME: bail here if fail to open
+
+
+    size_t frSrc = secToFrame(startTimeSrc);
+    clamp(frSrc, BufFrames-1);
+
+    size_t frDst = secToFrame(startTimeDst);
+    clamp(frDst, BufFrames-1);
+
+    size_t frDur;
+    if (dur < 0.f) {
+        frDur = std::min(file.frames() - frSrc, BufFrames - frDst);
+    } else {
+        frDur = secToFrame(dur);
+    }
+
+    auto numSrcChan = file.channels();
+    std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
+
+    for (size_t fr=0; fr<frDur; ++fr) {
+        // FIXME: is there a downside to seeking every frame with libsndfile?
+        file.seek(frSrc, SEEK_SET);
+        file.read(frBuf.get(), numSrcChan);
+        buf[frDst] = frBuf[channel];
+        ++frDst;
+        ++frSrc;
+        if (frDst >= BufFrames) {
+            std::cerr << "SoftCutClient::loadFile() exceeded buffer size; aborting" << std::endl;
+            return;
+        }
+    }
 }

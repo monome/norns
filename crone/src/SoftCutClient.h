@@ -13,35 +13,38 @@
 namespace crone {
     class SoftCutClient: public Client<2, 2> {
     public:
-        enum { MAX_BLOCK_FRAMES = 2048, NUM_VOICES = 2 };
+        enum { MaxBlockFrames = 2048, NumVoices = 2 };
 
-        enum { BUF_FRAMES = 16777216 };
-        typedef enum { SOURCE_ADC=0 } SourceId;
-        typedef Bus<2, MAX_BLOCK_FRAMES> StereoBus;
-        typedef Bus<1, MAX_BLOCK_FRAMES> MonoBus;
+        enum { BufFrames = 16777216 };
+        typedef enum { SourceAdc=0 } SourceId;
+        typedef Bus<2, MaxBlockFrames> StereoBus;
+        typedef Bus<1, MaxBlockFrames> MonoBus;
     public:
         SoftCutClient();
 
     private:
         // processors
-        softcut::SoftCut<NUM_VOICES> cut;
+        softcut::SoftCut<NumVoices> cut;
         // main buffer
-        float buf[BUF_FRAMES];
+        float buf[BufFrames];
         // busses
         StereoBus mix;
-        MonoBus input[NUM_VOICES];
-        MonoBus output[NUM_VOICES];
+        MonoBus input[NumVoices];
+        MonoBus output[NumVoices];
         // levels
-        LogRamp inLevel[2][NUM_VOICES];
-        LogRamp outLevel[NUM_VOICES];
-        LogRamp outPan[NUM_VOICES];
-        LogRamp fbLevel[NUM_VOICES][NUM_VOICES];
+        LogRamp inLevel[2][NumVoices];
+        LogRamp outLevel[NumVoices];
+        LogRamp outPan[NumVoices];
+        LogRamp fbLevel[NumVoices][NumVoices];
         // enabled flags
-        bool enabled[NUM_VOICES];
+        bool enabled[NumVoices];
 
     private:
         void process(jack_nframes_t numFrames) override;
         void setSampleRate(jack_nframes_t) override;
+        inline size_t secToFrame(float sec) {
+            return static_cast<size_t >(sec * jack_get_sample_rate(Client::client));
+        }
     public:
         /// FIXME: the "commands" structure shouldn't really be necessary.
         /// should be able to refactor most/all parameters for atomic access.
@@ -51,7 +54,7 @@ namespace crone {
         //-- buffer manipulation
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears as much as possible.
-        void loadFile(std::string path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f, int channel=0);
+        void loadFile(const std::string &path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f, int channel=0);
         void clearBuffer(float startTime=0.f, float dur=-1);
     private:
         void clearBusses(size_t numFrames);

@@ -13,7 +13,7 @@ namespace softcut {
 
     class FadeCurves {
     public:
-        typedef enum { LINEAR=0, SINE=1, RAISED=2 } Shape;
+        typedef enum { Linear=0, SINE=1, Raised=2 } Shape;
         static void setRecDelayRatio(float x);
         static void setPreWindowRatio(float x);
         static void setMinRecDelayFrames(unsigned int x);

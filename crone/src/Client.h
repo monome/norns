@@ -37,11 +37,10 @@ namespace crone {
 
         std::array<jack_port_t*, NumIns> inPort;
         std::array<jack_port_t*, NumOuts> outPort;
-
-        jack_client_t *client{};
         const char *name;
 
     protected:
+        jack_client_t *client{};
         std::array<Source, NumIns/2> source;
         std::array<Sink, NumOuts/2> sink;
 
@@ -147,7 +146,7 @@ namespace crone {
 
         // NB: alas, we can't call setup() from c-tor because it includes a virtual method call
         // setup() will have to be called explicitly after creation
-        explicit Client(const char* n) : client(nullptr), name(n)  {
+        explicit Client(const char* n) : name(n), client(nullptr) {
             std::cout << "constructed Client: " << name << std::endl;
         }
         virtual ~Client() = default;
