@@ -37,6 +37,13 @@ Script.clear = function()
     dev.event = norns.none
   end
   midi.cleanup()
+   -- clear, redirect, and reset hid
+  hid.add = norns.none
+  hid.remove = norns.none
+  for _, dev in pairs(hid.devices) do
+    dev.event = norns.none
+  end
+  hid.cleanup()
   -- stop all timers
   metro.free_all()
   -- stop all polls and clear callbacks
@@ -72,6 +79,7 @@ Script.init = function()
   grid.reconnect()
   midi.reconnect()
   arc.reconnect()
+  hid.reconnect()
 end
 
 --- load a script from the /scripts folder
