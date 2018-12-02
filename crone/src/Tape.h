@@ -5,11 +5,12 @@
 #ifndef CRONE_TAPE_H
 #define CRONE_TAPE_H
 
-#include <string>
+#include <atomic>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <iostream>
+#include <string>
 
 #include <jack/types.h>
 #include <jack/ringbuffer.h>
@@ -52,10 +53,9 @@ namespace crone {
 
         class Writer : SfAccess {
         private:
-            volatile bool isRunning;
-            volatile bool captureReady;
-            volatile bool dataReady;
-            volatile bool shouldStop;
+            std::atomic<bool> isRunning;
+            bool dataReady;
+            std::atomic<bool> shouldStop;
             Sample frameBuf[frameSize];
             size_t numFramesCaptured;
             size_t maxFrames;
@@ -87,17 +87,16 @@ namespace crone {
             void diskLoop() {
                 isRunning = true;
                 numFramesCaptured = 0;
-                captureReady = true;
                 shouldStop = false;
                 while (!shouldStop) {
-
-                    std::unique_lock<std::mutex> lock(this->mut);
-                    this->cv.wait(lock, [this] {
-                        return this->dataReady;
-                    });
-                    // check for spurious wakeup
-                    if (!dataReady) { continue; }
-
+                    {
+                        std::unique_lock<std::mutex> lock(this->mut);
+                        this->cv.wait(lock, [this] {
+                            return this->dataReady;
+                        });
+                        // check for spurious wakeup
+                        if (!dataReady) { continue; }
+                    }
                     /// FIXME: writing tape one frame at a time! not efficient at all...
                     /// for this application we can probably assume that writes happen in [blocksize] chunks
                     while (jack_ringbuffer_read_space(this->ringBuf.get()) > frameSize) {
@@ -183,7 +182,6 @@ namespace crone {
 
             Writer() : SfAccess(),
                        isRunning(false),
-                       captureReady(false),
                        dataReady(false),
                        shouldStop(false),
                        numFramesCaptured(0),
@@ -195,9 +193,9 @@ namespace crone {
 
         class Reader : SfAccess {
         private:
-            volatile bool isRunning;
-            volatile bool shouldStop;
-            volatile bool needsData;
+            bool isRunning;
+            bool shouldStop;
+            bool needsData;
             size_t frames;
         public:
             // from audio thread

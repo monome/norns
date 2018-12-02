@@ -59,7 +59,7 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([](const char* path){
         auto vl = mixerClient->getVuLevels();
-        // FIXME: perform exponential scaling here
+        // FIXME: perform exponential scaling here?
         lo_send(matronAddress, path, "ffff",
                 vl->absPeakIn[0].load(),
                 vl->absPeakIn[1].load(),
