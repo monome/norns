@@ -458,6 +458,49 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_RATE_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
+
+    //-------------------------------
+    //--- softcut buffer manipulation
+
+    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
+    addServerMethod("/softcut/buffer/read", "sfffi", [](lo_arg **argv, int argc) {
+        float startSrc = 0.f;
+        float startDst = 0.f;
+        float dur = -1.f;
+        int channel=0;
+        if (argc < 1) {
+            std::cerr << "/softcut/buffer/read requires at least one argument (file path)" << std::endl;
+            return;
+        }
+        if (argc > 1) {
+            startSrc = argv[1]->f;
+        }
+        if (argc > 2) {
+            startDst = argv[2]->f;
+        }
+        if (argc > 3) {
+            dur = argv[3]->f;
+        }
+        if (argc > 4) {
+            channel = argv[4]->i;
+        }
+        const char *str = &argv[0]->s;
+        softCutClient->loadFile(str, startSrc, startDst, dur, channel);
+    });
+
+    addServerMethod("/softcut/buffer/clear", "ff", [](lo_arg **argv, int argc) {
+        if (argc < 2) {
+            return;
+        }
+        softCutClient->clearBuffer(argv[0]->f, argv[1]->f);
+    });
+
+    // FIXME: does it even work to do this?
+    addServerMethod("/softcut/buffer/clear", "", [](lo_arg **argv, int argc) {
+        (void)argc; (void)argv;
+        softCutClient->clearBuffer();
+    });
+
     //------------------------
     //--- tape control
 
@@ -476,9 +519,8 @@ void OscInterface::addServerMethods() {
         mixerClient->stopTapeRecord();
     });
 
+
     // TODO: tape playback
-
-
 
 }
 

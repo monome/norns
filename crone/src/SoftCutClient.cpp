@@ -152,25 +152,35 @@ void crone::SoftCutClient::clearBuffer(float start, float dur) {
 }
 
 void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc, float startTimeDst, float dur, int channel) {
-    size_t frDur = secToFrame(dur);
-    size_t frASrc = secToFrame(startTimeSrc);
-    clamp(frASrc, BufFrames-1);
 
-    size_t frBSrc = frASrc + frDur;
-    clamp(frBSrc, BufFrames);
+
+    SndfileHandle file(path);
+    // FIXME: bail here if fail to open
+
+
+    size_t frSrc = secToFrame(startTimeSrc);
+    clamp(frSrc, BufFrames-1);
 
     size_t frDst = secToFrame(startTimeDst);
     clamp(frDst, BufFrames-1);
 
-    SndfileHandle file(path);
-    file.seek(frASrc, SEEK_SET);
+    size_t frDur;
+    if (dur < 0.f) {
+        frDur = std::min(file.frames() - frSrc, BufFrames - frDst);
+    } else {
+        frDur = secToFrame(dur);
+    }
+
     auto numSrcChan = file.channels();
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
 
     for (size_t fr=0; fr<frDur; ++fr) {
+        // FIXME: is there a downside to seeking every frame with libsndfile?
+        file.seek(frSrc, SEEK_SET);
         file.read(frBuf.get(), numSrcChan);
         buf[frDst] = frBuf[channel];
         ++frDst;
+        ++frSrc;
         if (frDst >= BufFrames) {
             std::cerr << "SoftCutClient::loadFile() exceeded buffer size; aborting" << std::endl;
             return;
