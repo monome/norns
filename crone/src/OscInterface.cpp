@@ -19,7 +19,6 @@ using namespace crone;
 using softcut::FadeCurves;
 
 /// TODO: softcut trigger/ phase output
-/// TODO: softcut soundfile load / write
 
 bool OscInterface::quitFlag;
 
