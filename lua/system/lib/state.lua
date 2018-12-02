@@ -10,8 +10,6 @@ state.clean_shutdown = false
 
 -- read state.lua and set parameters back to stored vals
 state.resume = function()
-  state.path = dust_dir
-
   -- restore mix state
   mix:read("system.pset")
   mix:bang()
