@@ -42,6 +42,9 @@ namespace crone {
     private:
         void process(jack_nframes_t numFrames) override;
         void setSampleRate(jack_nframes_t) override;
+        inline size_t secToFrame(float sec) {
+            return static_cast<size_t >(sec * jack_get_sample_rate(Client::client));
+        }
     public:
         /// FIXME: the "commands" structure shouldn't really be necessary.
         /// should be able to refactor most/all parameters for atomic access.
@@ -51,7 +54,7 @@ namespace crone {
         //-- buffer manipulation
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears as much as possible.
-        void loadFile(std::string path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f, int channel=0);
+        void loadFile(const std::string &path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f, int channel=0);
         void clearBuffer(float startTime=0.f, float dur=-1);
     private:
         void clearBusses(size_t numFrames);

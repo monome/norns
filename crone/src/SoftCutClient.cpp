@@ -2,8 +2,16 @@
 // Created by emb on 11/28/18.
 //
 
+#include <sndfile.hh>
+
 #include "SoftCutClient.h"
 #include "Commands.h"
+
+
+// clamp unsigned int to upper bound, inclusive
+static inline void clamp(size_t &x, const size_t a) {
+    if (x > a) { x = a; }
+}
 
 crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut"), cut(buf, BufFrames) {}
 
@@ -135,6 +143,37 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
     }
 }
 
-void crone::SoftCutClient::clearBuffer(float startTime, float dur) {
+void crone::SoftCutClient::clearBuffer(float start, float dur) {
+    size_t frA =secToFrame(start);
+    clamp(frA, BufFrames-1);
+    size_t frB = frA + secToFrame(dur);
+    clamp(frB, BufFrames);
+    for(size_t i=frA; i<frB; ++i) { buf[i] = 0.f; }
+}
 
+void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc, float startTimeDst, float dur, int channel) {
+    size_t frDur = secToFrame(dur);
+    size_t frASrc = secToFrame(startTimeSrc);
+    clamp(frASrc, BufFrames-1);
+
+    size_t frBSrc = frASrc + frDur;
+    clamp(frBSrc, BufFrames);
+
+    size_t frDst = secToFrame(startTimeDst);
+    clamp(frDst, BufFrames-1);
+
+    SndfileHandle file(path);
+    file.seek(frASrc, SEEK_SET);
+    auto numSrcChan = file.channels();
+    std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
+
+    for (size_t fr=0; fr<frDur; ++fr) {
+        file.read(frBuf.get(), numSrcChan);
+        buf[frDst] = frBuf[channel];
+        ++frDst;
+        if (frDst >= BufFrames) {
+            std::cerr << "SoftCutClient::loadFile() exceeded buffer size; aborting" << std::endl;
+            return;
+        }
+    }
 }

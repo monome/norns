@@ -26,7 +26,11 @@ namespace crone {
         static constexpr size_t frameSize = sampleSize * NumChannels;
 
     public:
-        class DiskAccess {
+
+        //-----------------------------------------------------------------------------------------------
+        //-- base class for sound file access
+
+        class SfAccess {
         protected:
             SNDFILE *file;
             std::unique_ptr<std::thread> th;
@@ -36,13 +40,17 @@ namespace crone {
             volatile int status;
 
         public:
-            DiskAccess(int ringBufSize = 2048) : file(nullptr), status(0) {
+            SfAccess(int ringBufSize = 2048) : file(nullptr), status(0) {
                 ringBuf = std::unique_ptr<jack_ringbuffer_t>
                         (jack_ringbuffer_create(sampleSize * NumChannels * ringBufSize));
             }
         };
 
-        class Writer : DiskAccess {
+
+        //--------------------------------------------------------------------------------------------------------------
+        //---- Writer class
+
+        class Writer : SfAccess {
         private:
             volatile bool isRunning;
             volatile bool captureReady;
@@ -60,8 +68,10 @@ namespace crone {
                 for (size_t fr = 0; fr < numFrames; ++fr) {
                     // libsndfile needs interleaved data, so we do that here
                     for (int ch = 0; ch < NumChannels; ++ch) {
-                        if (jack_ringbuffer_write(this->ringBuf.get(), (const char*)(src[ch]+fr), sampleSize) < sampleSize) {
-                            // overrun! TODO: say something
+                        if (jack_ringbuffer_write(this->ringBuf.get(),
+                                (const char*)(src[ch]+fr), sampleSize) < sampleSize)
+                        {
+                            // overrun! TODO: say something about overruns
                         }
                     }
                 }
@@ -88,7 +98,7 @@ namespace crone {
                     // check for spurious wakeup
                     if (!dataReady) { continue; }
 
-                    /// FIXME: writing one frame at a time! not efficient at all...
+                    /// FIXME: writing tape one frame at a time! not efficient at all...
                     /// for this application we can probably assume that writes happen in [blocksize] chunks
                     while (jack_ringbuffer_read_space(this->ringBuf.get()) > frameSize) {
                         jack_ringbuffer_read(this->ringBuf.get(), (char*)frameBuf, frameSize);
@@ -108,8 +118,11 @@ namespace crone {
                 isRunning = false;
             }
 
-            bool open(std::string path, size_t maxFrames = JACK_MAX_FRAMES, int sampleRate = 48000,
-                      int bitDepth = 24) {
+            // from any thread
+            bool open(const std::string &path,
+                    size_t maxFrames = JACK_MAX_FRAMES,
+                    int sampleRate = 48000,
+                    int bitDepth = 24) {
                 SF_INFO sf_info;
                 int short_mask;
 
@@ -146,11 +159,12 @@ namespace crone {
                 return true;
             }
 
+            // from any thread
             void start() {
                 if (isRunning) {
-                    // TODO: capture is already running; what to do...
+                    // TODO: tape capture is already running; what to do...
                     /// - could forcibly terminate old thread and start a new one,
-                    ///   but then need to handle file cleanup (class wrapper with d-tor)
+                    ///   but then need to handle file cleanup (class wrapper with d-tor?)
                     /// - probably better to issue stop and wait/join on disk thread.
                     ///   but that means stalling the caller (which in this application is likely fine)
                 } else {
@@ -162,11 +176,12 @@ namespace crone {
                 }
             }
 
+            // from any thread
             void stop() {
                 shouldStop = true;
             }
 
-            Writer() : DiskAccess(),
+            Writer() : SfAccess(),
                        isRunning(false),
                        captureReady(false),
                        dataReady(false),
@@ -175,18 +190,60 @@ namespace crone {
                        maxFrames(JACK_MAX_FRAMES) {}
         };
 
+    //-----------------------------------------------------------------------------------------------------------------
+    //---- Reader class
 
-        class Reader : DiskAccess {
+        class Reader : SfAccess {
+        private:
+            volatile bool isRunning;
+            volatile bool shouldStop;
+            volatile bool needsData;
+            size_t frames;
         public:
             // from audio thread
-            void process(float *src[NumChannels], size_t numFrames) {
-                // TODO
+            void process(float *dst[NumChannels], size_t numFrames) {
+                // TODO: read from ringbuffer, write to dst, signal needsData
             }
+            // from any thread
+            bool open(const std::string &path) {
+                SF_INFO sf_info;
+
+                if ((this->file = sf_open(path.c_str(), SFM_READ, &sf_info)) == NULL) {
+                    char errstr[256];
+                    sf_error_str(0, errstr, sizeof(errstr) - 1);
+                    std::cerr << "cannot open sndfile" << path << " for output (" << errstr << ")" << std::endl;
+                    return false;
+                }
+
+                // TODO: read stuff
+                // this->frames = ...
+                // TODO: prime ringbuffer
+
+                return true;
+            }
+
+            // from any thread
+            void start() {
+                if (isRunning) {
+                } else {
+                    this->th = std::make_unique<std::thread>(
+                            [this]() {
+                                this->diskLoop();
+                            });
+                    this->th->detach();
+                }
+            }
+
+            // from any thread
+            void stop() {
+                shouldStop = true;
+            }
+
 
         private:
             // from disk thread
             void diskLoop() {
-                // TODO
+                // TODO: wait on needsData, fill ringbuffer
             }
 
         };
