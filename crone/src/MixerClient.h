@@ -27,6 +27,9 @@ namespace  crone {
 
     public:
         MixerClient();
+        /// FIXME: the "commands" structure shouldn't really be necessary.
+        /// should be able to refactor most/all parameters for atomic access.
+        // called from audio thread
         void handleCommand(Commands::CommandPacket *p) override;
     private:
         void process(jack_nframes_t numFrames) override;

@@ -17,13 +17,12 @@ namespace softcut {
     class SoftCut {
 
     public:
-        enum { bufFrames = 16777216 };
 
     private:
         SoftCutVoice scv[numVoices];
-        float buf[bufFrames];
 
-        void init() {
+        void init(float* buf, size_t bufFrames) {
+
             for (auto &v : scv) {
                 v.setBuffer(buf, bufFrames);
             }
@@ -38,8 +37,8 @@ namespace softcut {
         }
 
     public:
-        SoftCut() : buf{} {
-            this->init();
+        SoftCut(float *buf, size_t bufFrames){
+            this->init(buf, bufFrames);
         }
 
         // assumption: channel count is equal to voice count!

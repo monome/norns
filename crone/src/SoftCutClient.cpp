@@ -5,7 +5,7 @@
 #include "SoftCutClient.h"
 #include "Commands.h"
 
-crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut") {}
+crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut"), cut(buf, BUF_FRAMES) {}
 
 void crone::SoftCutClient::process(jack_nframes_t numFrames) {
     Commands::softcutCommands.handlePending(this);
@@ -133,4 +133,8 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         default:
             ;;
     }
+}
+
+void crone::SoftCutClient::clearBuffer(float startTime, float dur) {
+
 }

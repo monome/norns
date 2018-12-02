@@ -142,7 +142,6 @@ void MixerClient::handleCommand(Commands::CommandPacket *p) {
             break;
 
             //-- softcut routing
-
         case Commands::Id::SET_LEVEL_ADC_CUT:
             smoothLevels.adc_cut.setTarget(p->value);
             break;
@@ -213,7 +212,7 @@ MixerClient::EnabledList::EnabledList() {
 
 void MixerClient::setFxDefaults() {
   comp.getUi().setParamValue(CompressorParam::RATIO, 4.0);
-  comp.getUi().setParamValue(CompressorParam::THRESHOLD, -12.0);
+  comp.getUi().setParamValue(CompressorParam::THRESHOLD, -12.f);
   comp.getUi().setParamValue(CompressorParam::ATTACK, 0.005);
   comp.getUi().setParamValue(CompressorParam::RELEASE, 0.08);
   comp.getUi().setParamValue(CompressorParam::GAIN_PRE, 0.0);
