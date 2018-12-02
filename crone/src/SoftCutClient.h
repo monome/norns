@@ -13,31 +13,31 @@
 namespace crone {
     class SoftCutClient: public Client<2, 2> {
     public:
-        enum { MAX_BLOCK_FRAMES = 2048, NUM_VOICES = 2 };
+        enum { MaxBlockFrames = 2048, NumVoices = 2 };
 
-        enum { BUF_FRAMES = 16777216 };
-        typedef enum { SOURCE_ADC=0 } SourceId;
-        typedef Bus<2, MAX_BLOCK_FRAMES> StereoBus;
-        typedef Bus<1, MAX_BLOCK_FRAMES> MonoBus;
+        enum { BufFrames = 16777216 };
+        typedef enum { SourceAdc=0 } SourceId;
+        typedef Bus<2, MaxBlockFrames> StereoBus;
+        typedef Bus<1, MaxBlockFrames> MonoBus;
     public:
         SoftCutClient();
 
     private:
         // processors
-        softcut::SoftCut<NUM_VOICES> cut;
+        softcut::SoftCut<NumVoices> cut;
         // main buffer
-        float buf[BUF_FRAMES];
+        float buf[BufFrames];
         // busses
         StereoBus mix;
-        MonoBus input[NUM_VOICES];
-        MonoBus output[NUM_VOICES];
+        MonoBus input[NumVoices];
+        MonoBus output[NumVoices];
         // levels
-        LogRamp inLevel[2][NUM_VOICES];
-        LogRamp outLevel[NUM_VOICES];
-        LogRamp outPan[NUM_VOICES];
-        LogRamp fbLevel[NUM_VOICES][NUM_VOICES];
+        LogRamp inLevel[2][NumVoices];
+        LogRamp outLevel[NumVoices];
+        LogRamp outPan[NumVoices];
+        LogRamp fbLevel[NumVoices][NumVoices];
         // enabled flags
-        bool enabled[NUM_VOICES];
+        bool enabled[NumVoices];
 
     private:
         void process(jack_nframes_t numFrames) override;

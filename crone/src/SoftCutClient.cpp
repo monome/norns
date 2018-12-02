@@ -5,14 +5,14 @@
 #include "SoftCutClient.h"
 #include "Commands.h"
 
-crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut"), cut(buf, BUF_FRAMES) {}
+crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut"), cut(buf, BufFrames) {}
 
 void crone::SoftCutClient::process(jack_nframes_t numFrames) {
     Commands::softcutCommands.handlePending(this);
     clearBusses(numFrames);
     mixInput(numFrames);
     // process softcuts (overwrites output bus)
-    for(int v=0; v<NUM_VOICES; ++v) {
+    for(int v=0; v<NumVoices; ++v) {
         if (!enabled[v]) {
             continue;
         }
@@ -34,10 +34,10 @@ void crone::SoftCutClient::clearBusses(size_t numFrames) {
 
 void crone::SoftCutClient::mixInput(size_t numFrames) {
     for(int ch=0; ch<2; ++ch) {
-        for(int v=0; v<NUM_VOICES; ++v) {
-            input[v].mixFrom(&source[SOURCE_ADC][ch], numFrames, inLevel[ch][v]);
-            //input[v].mixFrom(&source[SOURCE_EXT][ch], numFrames, in_ext[ch][v]);
-            for(int w=0; w<NUM_VOICES; ++w) {
+        for(int v=0; v<NumVoices; ++v) {
+            input[v].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][v]);
+            //input[v].mixFrom(&source[SourceExt][ch], numFrames, in_ext[ch][v]);
+            for(int w=0; w<NumVoices; ++w) {
                 input[v].mixFrom(output[w], numFrames, fbLevel[v][w]);
             }
         }
@@ -45,7 +45,7 @@ void crone::SoftCutClient::mixInput(size_t numFrames) {
 }
 
 void crone::SoftCutClient::mixOutput(size_t numFrames) {
-    for(int v=0; v<NUM_VOICES; ++v) {
+    for(int v=0; v<NumVoices; ++v) {
         mix.panMixFrom(output[v], numFrames, outLevel[v], outPan[v]);
     }
 }

@@ -19,20 +19,20 @@ void SubHead::init() {
     phase_ = 0;
     fade_ = 0;
     trig_ = 0;
-    state_ = INACTIVE;
+    state_ = Inactive;
     resamp_.setPhase(0);
     inc_dir_ = 1;
     recOffset_ = -8;
 }
 
 Action SubHead::updatePhase(phase_t start, phase_t end, bool loop) {
-    Action res = NONE;
+    Action res = None;
     trig_ = 0.f;
     phase_t p;
     switch(state_) {
-        case FADEIN:
-        case FADEOUT:
-        case ACTIVE:
+        case FadeIn:
+        case FadeOut:
+        case Active:
             p = phase_ + rate_;
             if(active_) {
                 // FIXME: should refactor this a bit.
@@ -40,27 +40,27 @@ Action SubHead::updatePhase(phase_t start, phase_t end, bool loop) {
                     if (p > end || p < start) {
                         if (loop) {
                             trig_ = 1.f;
-                            res = LOOP_POS;
+                            res = LoopPos;
                         } else {
-                            state_ = FADEOUT;
-                            res = STOP;
+                            state_ = FadeOut;
+                            res = Stop;
                         }
                     }
                 } else { // negative rate
                     if (p > end || p < start) {
                         if(loop) {
                             trig_ = 1.f;
-                            res = LOOP_NEG;
+                            res = LoopNeg;
                         } else {
-                            state_ = FADEOUT;
-                            res = STOP;
+                            state_ = FadeOut;
+                            res = Stop;
                         }
                     }
                 } // rate sign check
             } // /active check
             phase_ = p;
             break;
-        case INACTIVE:
+        case Inactive:
         default:
             ;; // nothing to do
     }
@@ -69,22 +69,22 @@ Action SubHead::updatePhase(phase_t start, phase_t end, bool loop) {
 
 void SubHead::updateFade(float inc) {
     switch(state_) {
-        case FADEIN:
+        case FadeIn:
             fade_ += inc;
             if (fade_ > 1.f) {
                 fade_ = 1.f;
-                state_ = ACTIVE;
+                state_ = Active;
             }
             break;
-        case FADEOUT:
+        case FadeOut:
             fade_ -= inc;
             if (fade_ < 0.f) {
                 fade_ = 0.f;
-                state_ = INACTIVE;
+                state_ = Inactive;
             }
             break;
-        case ACTIVE:
-        case INACTIVE:
+        case Active:
+        case Inactive:
         default:;; // nothing to do
     }
 }
@@ -103,7 +103,7 @@ void SubHead::poke(float in, float pre, float rec, int numFades) {
     // it follows that all resamplers can share an input ringbuf
     int nframes = resamp_.processFrame(in);
 
-    if(state_ == INACTIVE) {
+    if(state_ == Inactive) {
         return;
     }
 

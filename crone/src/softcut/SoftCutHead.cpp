@@ -41,10 +41,10 @@ void SoftCutHead::processSample(sample_t in, float *outPhase, float *outTrig, sa
         *outPhase = static_cast<float>(head[active].phase());
     }
 
-    int numFades = (head[0].state_ == FADEIN || head[0].state_ == FADEOUT)
-            + (head[1].state_ == FADEIN || head[1].state_ == FADEOUT);
+    int numFades = (head[0].state_ == FadeIn || head[0].state_ == FadeOut)
+            + (head[1].state_ == FadeIn || head[1].state_ == FadeOut);
 
-    BOOST_ASSERT_MSG(!(head[0].state_ == ACTIVE && head[1].state_ == ACTIVE), "multiple active heads");
+    BOOST_ASSERT_MSG(!(head[0].state_ == Active && head[1].state_ == Active), "multiple active heads");
 
 
     // FIXME: should probably continue to push input to resampler when not recording
@@ -81,16 +81,16 @@ void SoftCutHead::setLoopEndSeconds(float x)
 void SoftCutHead::takeAction(Action act)
 {
     switch (act) {
-        case Action::LOOP_POS:
+        case Action::LoopPos:
             // std::cerr << "looping: go to start" << std::endl;
             cutToPhase(start);
             break;
-        case Action::LOOP_NEG:
+        case Action::LoopNeg:
             // std::cerr << "looping: go to end" << std::endl;
             cutToPhase(end);
             break;
-        case Action::STOP:
-        case Action::NONE:
+        case Action::Stop:
+        case Action::None:
         default: ;;
     }
 }
@@ -99,18 +99,18 @@ void SoftCutHead::cutToPhase(phase_t pos) {
     State s = head[active].state();
 
     // ignore if we are already in a crossfade
-    if(s == State::FADEIN || s == State::FADEOUT) {
+    if(s == State::FadeIn || s == State::FadeOut) {
         // std::cout << "skipping phase change due to ongoing xfade" << std::endl;
         return;
     }
 
     // activate the inactive head
     int newActive = active ^ 1;
-    if(s != State::INACTIVE) {
-        head[active].setState(State::FADEOUT);
+    if(s != State::Inactive) {
+        head[active].setState(State::FadeOut);
     }
 
-    head[newActive].setState(State::FADEIN);
+    head[newActive].setState(State::FadeIn);
     head[newActive].setPhase(pos);
 
     head[active].active_ = false;

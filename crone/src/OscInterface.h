@@ -33,7 +33,7 @@ namespace crone {
         static bool quitFlag;
         static string port;
         static unsigned int numMethods;
-        enum { MAX_NUM_METHODS = 256 };
+        enum { MaxNumMethods = 256 };
 
         // OscMethod: thin wrapper for passing lambdas to OSC server thread
         class OscMethod {
@@ -46,7 +46,7 @@ namespace crone {
             Handler handler;
         };
 
-        static std::array<OscMethod, MAX_NUM_METHODS> methods;
+        static std::array<OscMethod, MaxNumMethods> methods;
         static std::unique_ptr<Poll> vuPoll;
         static std::unique_ptr<Poll> phasePoll;
         static MixerClient *mixerClient;

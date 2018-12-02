@@ -20,10 +20,10 @@ namespace  crone {
     class MixerClient: public Client<6, 6> {
 
     public:
-        enum { MAX_BUF_SIZE = 2048 };
-        typedef enum { SOURCE_ADC=0, SOURCE_CUT=1, SOURCE_EXT=2 } SourceId;
-        typedef enum { SINK_DAC=0, SINK_CUT=1, SINK_EXT=2 } SinkId;
-        typedef Bus<2, MAX_BUF_SIZE> StereoBus;
+        enum { MaxBufFrames = 2048 };
+        typedef enum { SourceAdc=0, SourceCut=1, SourceExt=2 } SourceId;
+        typedef enum { SinkDac=0, SinkCut=1, SinkExt=2 } SinkId;
+        typedef Bus<2, MaxBufFrames> StereoBus;
 
     public:
         MixerClient();

@@ -27,7 +27,7 @@ std::string OscInterface::port;
 lo_server_thread OscInterface::st;
 lo_address OscInterface::matronAddress;
 
-std::array<OscInterface::OscMethod, OscInterface::MAX_NUM_METHODS> OscInterface::methods;
+std::array<OscInterface::OscMethod, OscInterface::MaxNumMethods> OscInterface::methods;
 unsigned int OscInterface::numMethods = 0;
 
 
