@@ -46,6 +46,7 @@ namespace softcut {
         void setRecOffset(float d);
         void setLevelSlewTime(float d);
         void setRateSlewTime(float d);
+        void setPhaseQuant(float x);
 
     private:
         float* buf;
@@ -69,8 +70,13 @@ namespace softcut {
         // the amount by which SVF frequency is modulated by rate
         float fcMod = 1.0;
         float svfDryLevel = 1.0;
+        // phase quantization unit, should be in [0,1]
+        phase_t phaseQuant;
+        // quantized phase
+        phase_t quantPhase;
 
         void updateFilterFc();
+        void updateQuantPhase();
     };
 }
 

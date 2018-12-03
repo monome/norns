@@ -37,6 +37,9 @@ void SoftCutVoice:: processBlockMono(const float *in, float *out, int numFrames)
         sch.setPre(preRamp.update());
         sch.setRec(recRamp.update());
         sch.processSample(x, &phaseDummy, &trigDummy, &(out[i]));
+
+        updateQuantPhase();
+
     }
 }
 
@@ -146,5 +149,17 @@ void SoftCutVoice::setLevelSlewTime(float d) {
 
 void SoftCutVoice::setRateSlewTime(float d) {
     rateRamp.setTime(d);
+}
+
+void SoftCutVoice::setPhaseQuant(float x) {
+    phaseQuant = x;
+}
+
+void SoftCutVoice::updateQuantPhase() {
+    if (phaseQuant == 0) {
+        quantPhase = sch.getActivePhase();
+    } else {
+        quantPhase = std::floor(sch.getActivePhase() / phaseQuant) * phaseQuant;
+    }
 }
 
