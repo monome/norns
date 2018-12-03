@@ -6,6 +6,8 @@
 #define SOFTCUT_SOFTCUTVOICE_H
 
 #include <array>
+#include <atomic>
+
 #include "SoftCutHead.h"
 #include "Svf.h"
 #include "../Utilities.h"
@@ -47,6 +49,7 @@ namespace softcut {
         void setLevelSlewTime(float d);
         void setRateSlewTime(float d);
         void setPhaseQuant(float x);
+        phase_t getQuantPhase();
 
     private:
         float* buf;
@@ -73,7 +76,7 @@ namespace softcut {
         // phase quantization unit, should be in [0,1]
         phase_t phaseQuant;
         // quantized phase
-        phase_t quantPhase;
+        std::atomic<phase_t> quantPhase;
 
         void updateFilterFc();
         void updateQuantPhase();

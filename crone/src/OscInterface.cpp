@@ -29,7 +29,6 @@ lo_address OscInterface::matronAddress;
 std::array<OscInterface::OscMethod, OscInterface::MaxNumMethods> OscInterface::methods;
 unsigned int OscInterface::numMethods = 0;
 
-
 std::unique_ptr<Poll> OscInterface::vuPoll;
 std::unique_ptr<Poll> OscInterface::phasePoll;
 MixerClient* OscInterface::mixerClient;
@@ -42,7 +41,7 @@ OscInterface::OscMethod::OscMethod(string p, string f, OscInterface::Handler h)
 void OscInterface::init(MixerClient *m, SoftCutClient *sc)
 {
     quitFlag = false;
-    // FIXME: probably should get port configs from program args or elsewhere
+    // FIXME: should get port configs from program args or elsewhere
     port = "9999";
 #if 1
     matronAddress = lo_address_new("127.0.0.1", "8888");
@@ -56,6 +55,7 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     mixerClient = m;
     softCutClient = sc;
 
+    //--- VU poll
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([](const char* path){
         auto vl = mixerClient->getVuLevels();
@@ -69,9 +69,19 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     });
     vuPoll->setPeriod(50);
 
+    //--- softcut phase poll
     phasePoll = std::make_unique<Poll>("softcut/phase");
-    // TODO
-    // phasePoll->setCallback([]() { /* */ });
+    phasePoll->setCallback([](const char* path) {
+        for (int i=0; i<softCutClient->getNumVoices(); ++i) {
+            if(softCutClient->checkVoiceQuantPhase(i)) {
+                lo_send(matronAddress, path, "if", i, softCutClient->getQuantPhase(i));
+            }
+        }
+    });
+    phasePoll->setPeriod(1);
+
+
+    //--- TODO: softcut trigger poll?
 
     lo_server_thread_start(st);
 }
@@ -120,7 +130,8 @@ void OscInterface::addServerMethods() {
 
 
     //---------------------------
-    //--- polls
+    //--- mixer polls
+
     addServerMethod("/poll/start/vu", "", [](lo_arg **argv, int argc) {
         (void)argv; (void)argc;
         vuPoll->start();
@@ -130,6 +141,7 @@ void OscInterface::addServerMethods() {
         (void)argv; (void)argc;
         vuPoll->stop();
     });
+
 
 
     //--------------------------
@@ -499,6 +511,26 @@ void OscInterface::addServerMethods() {
         (void)argc; (void)argv;
         softCutClient->clearBuffer();
     });
+
+
+    //---------------------
+    //--- softcut polls
+
+    addServerMethod("/set/param/cut/phase_quant", "if", [](lo_arg **argv, int argc) {
+        if (argc<2) { return; }
+        softCutClient->setPhaseQuant(argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/poll/start/cut/phase", "", [](lo_arg **argv, int argc) {
+        (void)argv; (void)argc;
+        phasePoll->start();
+    });
+
+    addServerMethod("/poll/stop/cut/phase", "", [](lo_arg **argv, int argc) {
+        (void)argv; (void)argc;
+        phasePoll->stop();
+    });
+
 
     //------------------------
     //--- tape control

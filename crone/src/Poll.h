@@ -32,18 +32,26 @@ public:
     }
 
     void start() {
+        shouldStop = false;
         th = std::make_unique<std::thread> (std::thread(
                 [this] {
-                    while (true) {
+                    while (!shouldStop) {
                         this->cb(path.c_str());
                         std::this_thread::sleep_for(std::chrono::milliseconds(period));
                     }
                 }));
-        th->detach();
+        // pfff no
+        /// th->detach();
     }
 
     void stop() {
         // destroying the std::thread object should terminate the thread..?
+        // wooop no, sigaborts
+        //th.reset();
+        // FIXME: blocking here until next poll wakeup! super bad
+        /// alas, std::thread is really limited. use pthread or boost
+        shouldStop = true;
+        th->join();
         th.reset();
     }
 
@@ -54,6 +62,7 @@ public:
 private:
     Callback cb;
     std::atomic<int> period;
+    std::atomic<bool> shouldStop;
     std::unique_ptr<std::thread> th;
     std::string path;
     lo_address addr;

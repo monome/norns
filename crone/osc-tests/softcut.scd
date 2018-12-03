@@ -89,5 +89,20 @@ n.sendMsg("/set/param/cut/rec_level", 0, 1);
 n.sendMsg("/set/param/cut/pre_level", 1, 0.5);
 n.sendMsg("/set/param/cut/rec_level", 1, 1);
 
-
 */
+
+////////////
+// phase poll
+n.sendMsg("/set/param/cut/phase_quant", 0, 0.125);
+n.sendMsg("/set/param/cut/phase_quant", 1, 0.5);
+
+
+~phase = OSCFunc.new({ arg msg, time, addr, recvPort;
+	if(msg[1] == 0, {
+		postln(msg);
+	});
+}, '/poll/softcut/phase');
+
+/*
+n.sendMsg("/poll/start/cut/phase");
+n.sendMsg("/poll/stop/cut/phase");
