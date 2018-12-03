@@ -2,7 +2,7 @@
 -- @module osc
 -- @alias OSC
 
-local tab = require 'lib/tabutil'
+local tab = require 'tabutil'
 local paramset = require 'system/lib/paramset'
 local util = require 'lib/util'
 

@@ -1,7 +1,7 @@
 -- -------------------------------
 -- monome device manager
 
-local util = require 'lib/util'
+local util = require 'util'
 local grid = require 'system/lib/grid'
 local arc = require 'system/lib/arc'
 

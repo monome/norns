@@ -1,8 +1,8 @@
 -- menu.lua
 -- norns screen-based navigation module
 
-local tab = require 'lib/tabutil'
-local util = require 'lib/util'
+local tab = require 'tabutil'
+local util = require 'util'
 local paramset = require 'system/lib/paramset'
 local menu = {}
 

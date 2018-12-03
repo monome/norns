@@ -3,7 +3,7 @@
 -- @module poll
 -- @alias Poll
 
-local tab = require 'lib/tabutil'
+local tab = require 'tabutil'
 
 local Poll = {}
 Poll.__index = Poll

@@ -21,7 +21,7 @@ end
 -- needed requires
 local engine = require 'system/lib/engine'
 local poll = require 'system/lib/poll'
-local tab = require 'lib/tabutil'
+local tab = require 'tabutil'
 
 --- Global Functions
 -- @section global_functions

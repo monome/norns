@@ -24,8 +24,8 @@ paramset = require 'system/lib/paramset'
 
 params = paramset.new()
 
-tab = require 'lib/tabutil'
-util = require 'lib/util'
+tab = require 'tabutil'
+util = require 'util'
 
 -- load menu
 require 'system/menu'

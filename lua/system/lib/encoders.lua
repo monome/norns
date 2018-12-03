@@ -1,9 +1,9 @@
 --- Encoders class
 -- @module encoders
 
-local util = require 'lib/util'
-
 local encoders = {}
+
+local util = require 'util'
 
 local now = util.time()
 
