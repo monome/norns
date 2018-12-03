@@ -34,17 +34,31 @@ void MixerClient::process(jack_nframes_t numFrames) {
     bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
     bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
 
+    // process tape playback
+    if (tape.isReading()) {
+        // FIXME: another stupid pointer array.
+        float *dst[2] = {static_cast<float*>(bus.tape.buf[0]), static_cast<float*>(bus.tape.buf[1])};
+        tape.reader.process(dst, numFrames);
+        bus.tape.applyGain(numFrames, smoothLevels.tape);
+    }
+
     processFx(numFrames);
+
+    // FIXME: probably want other options for tape playback routing.
+    /// for now, just sum tape to insert bus
+    bus.ins_in.sumFrom(bus.tape, numFrames);
 
     // perform  output
     bus.dac_sink.mixTo(sink[SinkId::SinkDac], numFrames, smoothLevels.dac);
     bus.cut_sink.copyTo(sink[SinkId::SinkCut], numFrames);
     bus.ext_sink.copyTo(sink[SinkId::SinkExt], numFrames);
 
-    // process tape
-    // FIXME: another stupid pointer array.
-    const float* src[2] = { (const float*)bus.dac_sink.buf[0], (const float*)bus.dac_sink.buf[1] };
-    tape.writer.process(src, numFrames);
+    // process tape record
+    if (tape.isWriting()) {
+        // FIXME: another stupid pointer array.
+        const float *src[2] = {(const float *) bus.dac_sink.buf[0], (const float *) bus.dac_sink.buf[1]};
+        tape.writer.process(src, numFrames);
+    }
 
     // update VU
     vuLevels.update(bus.adc_source, bus.dac_sink, numFrames);
@@ -128,6 +142,9 @@ void MixerClient::handleCommand(Commands::CommandPacket *p) {
             if(p->idx_0 < 0 || p->idx_0 > 3) { return; }
             staticLevels.monitor_mix[p->idx_0] = p->value;
             break;
+        case Commands::Id::SET_LEVEL_TAPE:
+            smoothLevels.tape.setTarget(p->value);
+            break;
         case Commands::Id::SET_PARAM_REVERB:
             reverb.getUi().setParamValue(p->idx_0, p->value);
             break;
@@ -160,6 +177,7 @@ void MixerClient::handleCommand(Commands::CommandPacket *p) {
 // state constructors
 MixerClient::BusList::BusList() {
     adc_source.clear();
+    cut_source.clear();
     ext_source.clear();
     ext_sink.clear();
     cut_sink.clear();
@@ -169,6 +187,8 @@ MixerClient::BusList::BusList() {
     aux_in.clear();
     aux_out.clear();
     adc_monitor.clear();
+    tape.clear();
+
 }
 
 MixerClient::SmoothLevelList::SmoothLevelList() {
@@ -195,7 +215,8 @@ void MixerClient::SmoothLevelList::setSampleRate(float sr) {
     ext_aux.setSampleRate(sr);
     monitor_aux.setSampleRate(sr);
     aux.setSampleRate(sr);
-    ins_mix.setSampleRate(sr);
+    ins_mix.setSampleRate(sr);    tape.setSampleRate(sr);
+
 }
 
 MixerClient::StaticLevelList::StaticLevelList() {

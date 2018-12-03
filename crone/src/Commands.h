@@ -49,6 +49,7 @@ namespace crone {
             // (separate commands just to avoid a 3rd parameter)
             SET_LEVEL_IN_CUT,
             SET_LEVEL_CUT_CUT,
+            SET_LEVEL_TAPE,
 
             // params
             SET_CUT_RATE,

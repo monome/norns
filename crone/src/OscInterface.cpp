@@ -43,7 +43,7 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     quitFlag = false;
     // FIXME: should get port configs from program args or elsewhere
     port = "9999";
-#if 1
+#if 0
     matronAddress = lo_address_new("127.0.0.1", "8888");
 #else  // testing with SC
     matronAddress = lo_address_new("127.0.0.1", "57120");
@@ -82,6 +82,8 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
 
 
     //--- TODO: softcut trigger poll?
+
+    //--- TODO: tape poll?
 
     lo_server_thread_start(st);
 }
@@ -143,6 +145,10 @@ void OscInterface::addServerMethods() {
     });
 
 
+    ////////////////////////////////
+    /// FIXME: many of these methods are trivial setters;
+    /// they could simply be structured around atomic fields instead of requiring the Command queue.
+    /// would require some refactoring e.g. to expose level ramp targets as atomics
 
     //--------------------------
     //--- levels
@@ -550,8 +556,25 @@ void OscInterface::addServerMethods() {
         mixerClient->stopTapeRecord();
     });
 
+    addServerMethod("/tape/play/open", "s", [](lo_arg **argv, int argc) {
+        if (argc<1) { return; }
+        mixerClient->openTapePlayback(&argv[0]->s);
+    });
 
-    // TODO: tape playback
+    addServerMethod("/tape/play/start", "", [](lo_arg **argv, int argc) {
+        (void) argv; (void) argc;
+        mixerClient->startTapePlayback();
+    });
+
+    addServerMethod("/tape/play/stop", "", [](lo_arg **argv, int argc) {
+        (void) argv; (void) argc;
+        mixerClient->stopTapePlayback();
+    });
+
+    addServerMethod("/tape/level", "f", [](lo_arg **argv, int argc) {
+        if (argc<1) { return; }
+        Commands::mixerCommands.post(Commands::Id::SET_LEVEL_TAPE, argv[0]->f);
+    });
 
 }
 

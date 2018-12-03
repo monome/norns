@@ -39,9 +39,10 @@ namespace crone {
             std::condition_variable cv;
             std::unique_ptr<jack_ringbuffer_t> ringBuf;
             volatile int status;
+            size_t ringBufFrames;
 
         public:
-            SfAccess(int ringBufFrames = 2048) : file(nullptr), status(0) {
+            SfAccess(size_t rbf = 2048) : file(nullptr), status(0), ringBufFrames(rbf) {
                 ringBuf = std::unique_ptr<jack_ringbuffer_t>
                         (jack_ringbuffer_create(sampleSize * NumChannels * ringBufFrames));
             }
@@ -52,8 +53,10 @@ namespace crone {
         //---- Writer class
 
         class Writer : SfAccess {
-        private:
+            friend class Tape;
+        protected:
             std::atomic<bool> isRunning;
+        private:
             bool dataReady;
             std::atomic<bool> shouldStop;
             Sample frameBuf[frameSize];
@@ -194,9 +197,11 @@ namespace crone {
     //---- Reader class
 
         class Reader : SfAccess {
+            friend class Tape;
+        protected:
+            std::atomic<bool> isRunning;
         private:
-            bool isRunning;
-            bool shouldStop;
+            std::atomic<bool> shouldStop;
             bool needsData;
             size_t frames;
             Sample frameBuf[frameSize];
@@ -211,7 +216,8 @@ namespace crone {
                         if (jack_ringbuffer_read_space(this->ringBuf.get()) < sampleSize) {
                             // underrun! TODO: say something about underruns (but not here on audio thread)
                         }
-                        jack_ringbuffer_read(this->ringBuf.get(), static_cast<char*>(dst[ch]+fr), sampleSize);
+                        // FIXME: why is C cast needed here?
+                        jack_ringbuffer_read(this->ringBuf.get(), (char*)(dst[ch]+fr), sampleSize);
                     }
                 }
 
@@ -242,9 +248,9 @@ namespace crone {
                 // prime the ringbuffer
                 this->frames = static_cast<size_t>(sfInfo.frames);
                 sf_count_t nf;
-                for (int fr=0; fr < this->ringBufFrames; ++fr) {
+                for (size_t fr=0; fr < this->ringBufFrames; ++fr) {
                     for (int ch = 0; ch < NumChannels; ++ch) {
-                        nf = sf_readf_float(this->file, static_cast<char *>(frameBuf), frameSize);
+                        nf = sf_readf_float(this->file, frameBuf, frameSize);
                         if (nf != 1) {
                             std::cerr << "error priming ringbuffer; couldn't read frame " << fr << std::endl;
                             return false;
@@ -253,7 +259,7 @@ namespace crone {
                             // double-check, shouldn't really get here
                             break;
                         }
-                        jack_ringbuffer_write(this->ringBuf.get(), static_cast<const char*>(frameBuf), frameSize);
+                        jack_ringbuffer_write(this->ringBuf.get(), (char*)frameBuf, frameSize);
                     }
                 }
                 return true;
@@ -301,7 +307,7 @@ namespace crone {
                             sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
                             std::cerr << "error reading soundfile (" << errstr << ")" << std::endl;
                         }
-                        jack_ringbuffer_write(this->ringBuf.get(), static_cast<const char*>(frameBuf), 1);
+                        jack_ringbuffer_write(this->ringBuf.get(), (char*)frameBuf, 1);
                     }
                 }
                 sf_close(this->file);
@@ -312,6 +318,10 @@ namespace crone {
 
         Writer writer;
         Reader reader;
+
+    public:
+        bool isWriting() { return writer.isRunning; }
+        bool isReading() { return reader.isRunning; }
 
     };
 

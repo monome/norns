@@ -90,6 +90,18 @@ namespace  crone {
             }
         }
 
+        // apply smoothed amplitude
+        void applyGain(size_t numFrames, LogRamp &level) {
+            BOOST_ASSERT(numFrames < BlockSize);
+            float l;
+            for(size_t fr=0; fr<numFrames; ++fr) {
+                l = level.update();
+                for(size_t ch=0; ch<NumChannels; ++ch) {
+                    buf[ch][fr] *= l;
+                }
+            }
+         }
+
         // mix from pointer array, with smoothed amplitude
         void mixFrom(const float *src[NumChannels], size_t numFrames, LogRamp &level) {
             BOOST_ASSERT(numFrames < BlockSize);

@@ -60,6 +60,8 @@ namespace  crone {
             StereoBus aux_out;
             // monitor mix
             StereoBus adc_monitor;
+            // tape playback
+            StereoBus tape;
             BusList();
         };
         BusList bus;
@@ -83,6 +85,8 @@ namespace  crone {
             // FX return / mix levels
             LogRamp aux;
             LogRamp ins_mix;
+            // tape playback level
+            LogRamp tape;
             SmoothLevelList();
             void setSampleRate(float sr);
         };
@@ -127,6 +131,18 @@ namespace  crone {
             tape.writer.stop();
         }
 
+
+        void openTapePlayback(const char* path) {
+            tape.reader.open(path);
+        }
+
+        void startTapePlayback() {
+            tape.reader.start();
+        }
+
+        void stopTapePlayback() {
+            tape.reader.stop();
+        }
 
     };
 }
