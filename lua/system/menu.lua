@@ -331,7 +331,7 @@ local function build_select_tree(root,dir)
 
   for _,v in pairs(c) do
     --print("---- " .. v)
-    if v == "data/" or v == "lib/" or v == "audio/" then
+    if v == "data/" or v == "lib/" or v == "audio/" or v == 'lib/' then
       --print(".")
     elseif string.find(v,'/') then
       build_select_tree(p,v)
