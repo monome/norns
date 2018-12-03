@@ -41,9 +41,9 @@ namespace crone {
             volatile int status;
 
         public:
-            SfAccess(int ringBufSize = 2048) : file(nullptr), status(0) {
+            SfAccess(int ringBufFrames = 2048) : file(nullptr), status(0) {
                 ringBuf = std::unique_ptr<jack_ringbuffer_t>
-                        (jack_ringbuffer_create(sampleSize * NumChannels * ringBufSize));
+                        (jack_ringbuffer_create(sampleSize * NumChannels * ringBufFrames));
             }
         };
 
@@ -69,9 +69,10 @@ namespace crone {
                     // libsndfile needs interleaved data, so we do that here
                     for (int ch = 0; ch < NumChannels; ++ch) {
                         if (jack_ringbuffer_write(this->ringBuf.get(),
+                                // FIXME: why does this need a C cast?
                                 (const char*)(src[ch]+fr), sampleSize) < sampleSize)
                         {
-                            // overrun! TODO: say something about overruns
+                            // overrun! TODO: say something about overruns (but not here on audio thread)
                         }
                     }
                 }
@@ -99,7 +100,8 @@ namespace crone {
                     }
                     /// FIXME: writing tape one frame at a time! not efficient at all...
                     /// for this application we can probably assume that writes happen in [blocksize] chunks
-                    while (jack_ringbuffer_read_space(this->ringBuf.get()) > frameSize) {
+                    while (jack_ringbuffer_read_space(this->ringBuf.get()) >= frameSize) {
+                        // FIXME: why does this need a c cast?
                         jack_ringbuffer_read(this->ringBuf.get(), (char*)frameBuf, frameSize);
                         if (sf_writef_float(this->file, frameBuf, 1) != 1) {
                             char errstr[256];
@@ -165,7 +167,7 @@ namespace crone {
                     /// - could forcibly terminate old thread and start a new one,
                     ///   but then need to handle file cleanup (class wrapper with d-tor?)
                     /// - probably better to issue stop and wait/join on disk thread.
-                    ///   but that means stalling the caller (which in this application is likely fine)
+                    ///   but that means stalling the caller (which in this application is likely fine?)
                 } else {
                     this->th = std::make_unique<std::thread>(
                             [this]() {
@@ -197,26 +199,63 @@ namespace crone {
             bool shouldStop;
             bool needsData;
             size_t frames;
+            Sample frameBuf[frameSize];
         public:
             // from audio thread
             void process(float *dst[NumChannels], size_t numFrames) {
-                // TODO: read from ringbuffer, write to dst, signal needsData
+                if (!isRunning) { return; }
+                // push to ringbuffer
+                for (size_t fr = 0; fr < numFrames; ++fr) {
+                    // data is interleaved in ringbuffer
+                    for (int ch = 0; ch < NumChannels; ++ch) {
+                        if (jack_ringbuffer_read_space(this->ringBuf.get()) < sampleSize) {
+                            // underrun! TODO: say something about underruns (but not here on audio thread)
+                        }
+                        jack_ringbuffer_read(this->ringBuf.get(), static_cast<char*>(dst[ch]+fr), sampleSize);
+                    }
+                }
+
+                if (this->mut.try_lock()) {
+                    this->needsData = true;
+                    this->cv.notify_one();
+                    this->mut.unlock();
+                }
+
             }
             // from any thread
             bool open(const std::string &path) {
-                SF_INFO sf_info;
+                SF_INFO sfInfo;
 
-                if ((this->file = sf_open(path.c_str(), SFM_READ, &sf_info)) == NULL) {
+                if ((this->file = sf_open(path.c_str(), SFM_READ, &sfInfo)) == NULL) {
                     char errstr[256];
                     sf_error_str(0, errstr, sizeof(errstr) - 1);
                     std::cerr << "cannot open sndfile" << path << " for output (" << errstr << ")" << std::endl;
                     return false;
                 }
 
-                // TODO: read stuff
-                // this->frames = ...
-                // TODO: prime ringbuffer
+                if(sfInfo.frames < 1) {
 
+                    std::cerr << "error reading file " << path << " (no frames available)" << std::endl;
+                    return false;
+                }
+
+                // prime the ringbuffer
+                this->frames = static_cast<size_t>(sfInfo.frames);
+                sf_count_t nf;
+                for (int fr=0; fr < this->ringBufFrames; ++fr) {
+                    for (int ch = 0; ch < NumChannels; ++ch) {
+                        nf = sf_readf_float(this->file, static_cast<char *>(frameBuf), frameSize);
+                        if (nf != 1) {
+                            std::cerr << "error priming ringbuffer; couldn't read frame " << fr << std::endl;
+                            return false;
+                        }
+                        if (jack_ringbuffer_write_space(this->ringBuf.get()) < frameSize) {
+                            // double-check, shouldn't really get here
+                            break;
+                        }
+                        jack_ringbuffer_write(this->ringBuf.get(), static_cast<const char*>(frameBuf), frameSize);
+                    }
+                }
                 return true;
             }
 
@@ -241,7 +280,32 @@ namespace crone {
         private:
             // from disk thread
             void diskLoop() {
-                // TODO: wait on needsData, fill ringbuffer
+                isRunning = true;
+                shouldStop = false;
+                while (!shouldStop) {
+                    {
+                        std::unique_lock<std::mutex> lock(this->mut);
+                        this->cv.wait(lock, [this] {
+                            return this->needsData;
+                        });
+                        // check for spurious wakeup
+                        if (!needsData) { continue; }
+                    }
+
+                    // FIXME: again, this loop doesn't need to be per-sample.
+                    /// seems like jack_ringbuffer API allows us to do a direct write to the buffer,
+                    /// followed by `jack_ringbuffer_write_advance()`
+                    while (jack_ringbuffer_write_space(this->ringBuf.get()) >= frameSize) {
+                        if (sf_readf_float(this->file, frameBuf, 1) != 1) {
+                            char errstr[256];
+                            sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
+                            std::cerr << "error reading soundfile (" << errstr << ")" << std::endl;
+                        }
+                        jack_ringbuffer_write(this->ringBuf.get(), static_cast<const char*>(frameBuf), 1);
+                    }
+                }
+                sf_close(this->file);
+                isRunning = false;
             }
 
         };
