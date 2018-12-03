@@ -2,7 +2,6 @@
 -- @module hid
 -- @alias Hid
 require 'norns'
-norns.version.hid = '0.0.2'
 
 local Hid = {}
 Hid.devices = {}
@@ -26,25 +25,22 @@ Hid.__index = Hid
 -- @param codes: array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
 function Hid.new(id, name, types, codes, dev)
   local d = setmetatable({}, Hid)
-  -- print(id, name, types, codes)
   d.id = id
   d.name = name  
-  d.types = types
-  d.codes = codes
   d.dev = dev -- opaque pointer
-
   d.event = nil -- event callback
   d.remove = nil -- device unplug callback
-
+  d.types = types
+  d.codes = {}
   d.callbacks = {}
   d.ports = {} -- list of virtual ports this device is attached to
 
   for i,t in pairs(types) do
     if Hid.event_types[t] ~= nil then
-   d.codes[t] = {}
-   for j,c in pairs(codes[i]) do
-     d.codes[t][c] = Hid.event_codes[t][c]
-   end
+      d.codes[t] = {}
+      for j,c in pairs(codes[i]) do
+        d.codes[t][c] = Hid.event_codes[t][c]
+      end
     end
   end
 
@@ -74,14 +70,17 @@ function Hid.add(dev)
 end
 
 --- scan device list and grab one, redefined later
-function Hid.reconnect() end
+function Hid.reconnect() 
+  for id,dev in pairs(Hid.devices) do
+    if Hid.add ~= nil then Hid.add(dev) end
+  end
+  print("hid reconnect")
+end
 
 --- device-removed callbacks;
 -- script should redefine to handle device hotplug events
 -- @param device - a Hid
-function Hid.remove(dev)
-  print("hid removed: ", dev.id, dev.name)
-end
+function Hid.remove(dev) end
 
 
 --- return the first available device that supports the given event
@@ -108,7 +107,7 @@ end
 function Hid.connect(n)
   local n = n or 1
   if n>4 then n=4 end
-
+    
   Hid.vport[n].index = Hid.vport[n].index + 1
 
   local d = {
@@ -148,12 +147,13 @@ end
 function Hid.cleanup()
   for i=1,4 do
     Hid.vport[i].callbacks = {}
-		Hid.vport[i].index = 0
+	Hid.vport[i].index = 0
   end
 end
 
 function Hid.update_devices()
   -- build list of available devices
+  --print ("update devices")
   Hid.list = {}
   for _,device in pairs(Hid.devices) do
     table.insert(Hid.list, device.name)
@@ -237,9 +237,10 @@ end
 -- @param id - arbitrary id numer (int)
 norns.hid.remove = function(id)
   if Hid.devices[id] then
-    if Hid.remove ~= nil then
-      Hid.remove(Hid.devices[id])
-    end
+    print("hid removed:", Hid.devices[id].name)
+    --if Hid.remove ~= nil then
+    --  Hid.remove(Hid.devices[id])
+    --end
     if Hid.devices[id].remove then
       Hid.devices[id].remove()
     end
