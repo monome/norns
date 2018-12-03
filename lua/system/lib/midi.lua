@@ -182,7 +182,7 @@ end
 
 --- convert data (midi bytes) to msg
 function Midi.to_msg(data)
-  local msg = {}
+  local msg
   -- note on
   if data[1] & 0xf0 == 0x90 then
     msg = {
@@ -190,7 +190,7 @@ function Midi.to_msg(data)
       vel = data[3],
       ch = data[1] - 0x90 + 1
     }
-    if data[3] > 0 then 
+    if data[3] > 0 then
       msg.type = "note_on"
     elseif data[3] == 0 then -- if velocity is zero then send note off
       msg.type = "note_off"
