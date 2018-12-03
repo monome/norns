@@ -5,6 +5,9 @@ local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'system/lib/paramset'
 local menu = {}
+local fileselect = require 'fileselect'
+local textentry = require 'textentry'
+
 
 mix = require 'system/lib/mix'
 
@@ -298,10 +301,9 @@ m.redraw[pHOME] = function()
     screen.text("CPU " .. norns.cpu .. "%")
     screen.move(36,20)
     screen.text(norns.temp .. "c")
-    screen.move(127,20)
-    screen.text_right("IP "..wifi.ip)
     if wifi.state > 0 then
-      screen.text_right(wifi.ip)
+      screen.move(127,20)
+      screen.text_right("IP "..wifi.ip)
     end
     screen.move(127,45)
     screen.text_right(norns.version.update)

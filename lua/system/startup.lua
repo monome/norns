@@ -16,9 +16,6 @@ poll = require 'system/lib/poll'
 engine = require 'system/lib/engine'
 wifi = require 'system/lib/wifi'
 
-fileselect = require 'system/lib/ui/fileselect'
-textentry = require 'system/lib/ui/textentry'
-
 controlspec = require 'system/lib/controlspec'
 paramset = require 'system/lib/paramset'
 
