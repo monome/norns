@@ -40,18 +40,13 @@ public:
                         std::this_thread::sleep_for(std::chrono::milliseconds(period));
                     }
                 }));
-        // pfff no
-        /// th->detach();
+        th->detach();
     }
 
     void stop() {
-        // destroying the std::thread object should terminate the thread..?
-        // wooop no, sigaborts
-        //th.reset();
-        // FIXME: blocking here until next poll wakeup! super bad
-        /// alas, std::thread is really limited. use pthread or boost
+        // in c++ there's no way to safely and non-cooperatively interrupt a thread.
         shouldStop = true;
-        th->join();
+        // i am reasonably sure this won't leak...
         th.reset();
     }
 
