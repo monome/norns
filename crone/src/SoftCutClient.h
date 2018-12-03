@@ -9,6 +9,7 @@
 #include "Bus.h"
 #include "Utilities.h"
 #include "softcut/SoftCut.h"
+#include "softcut/Types.h"
 
 namespace crone {
     class SoftCutClient: public Client<2, 2> {
@@ -38,6 +39,7 @@ namespace crone {
         LogRamp fbLevel[NumVoices][NumVoices];
         // enabled flags
         bool enabled[NumVoices];
+        softcut::phase_t quantPhase[NumVoices];
 
     private:
         void process(jack_nframes_t numFrames) override;
@@ -45,6 +47,7 @@ namespace crone {
         inline size_t secToFrame(float sec) {
             return static_cast<size_t >(sec * jack_get_sample_rate(Client::client));
         }
+
     public:
         /// FIXME: the "commands" structure shouldn't really be necessary.
         /// should be able to refactor most/all parameters for atomic access.
@@ -56,6 +59,25 @@ namespace crone {
         //-- negative 'dur' parameter reads/clears as much as possible.
         void loadFile(const std::string &path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f, int channel=0);
         void clearBuffer(float startTime=0.f, float dur=-1);
+        // check if quantized phase has changed for a given voice
+        // returns true
+        bool checkVoiceQuantPhase(int i) {
+            if (quantPhase[i] != cut.getQuantPhase(i)) {
+                quantPhase[i] = cut.getQuantPhase(i);
+                return true;
+            } else {
+                return false;
+            }
+        }
+        softcut::phase_t getQuantPhase(int i) {
+            return cut.getQuantPhase(i);
+        }
+        void setPhaseQuant(int i, softcut::phase_t q) {
+            cut.setPhaseQuant(i, q);
+        }
+
+        int getNumVoices() const { return NumVoices; }
+
     private:
         void clearBusses(size_t numFrames);
         void mixInput(size_t numFrames);

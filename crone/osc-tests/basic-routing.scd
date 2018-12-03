@@ -30,7 +30,10 @@ n.sendMsg("/set/level/ext", 0.5);
 	postln(msg);
 }, '/poll/vu');
 
+/*
 n.sendMsg("/poll/start/vu");
+n.sendMsg("/poll/stop/vu");
+*/
 
 // quit
 /*

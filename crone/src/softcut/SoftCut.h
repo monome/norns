@@ -16,11 +16,8 @@ namespace softcut {
     template<int numVoices>
     class SoftCut {
 
-    public:
-
     private:
         SoftCutVoice scv[numVoices];
-
         void init(float* buf, size_t bufFrames) {
 
             for (auto &v : scv) {
@@ -160,6 +157,14 @@ namespace softcut {
 
         void setRateSlewTime(int i, float d) {
             scv[i].setRateSlewTime(d);
+        }
+
+        phase_t getQuantPhase(int i) {
+            return scv[i].getQuantPhase();
+        }
+
+        void setPhaseQuant(int i, phase_t q) {
+            scv[i].setPhaseQuant(q);
         }
 
         void printTestBuffers() {
