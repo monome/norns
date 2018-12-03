@@ -3,7 +3,7 @@ local Update = {}
 
 function Update.check()
   local found = false
-  local i, t, popen = 0, {}, io.popen
+  local _, _, popen = 0, {}, io.popen
   -- CHECK FOR UPDATE FOLDER
   local test = util.os_capture("ls $HOME | grep update")
   if test ~= "update" then os.execute("mkdir $HOME/update") end
@@ -45,7 +45,6 @@ end
 
 function Update.run()
   local pfile = io.popen('ls -tp $HOME/update')
-  local l = {}
   local newest = 0
   for file in pfile:lines() do
     local s = string.sub(file,0,-2)

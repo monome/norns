@@ -48,7 +48,7 @@ end
 local function param_handler(path, args)
   local address_parts = {}
   local osc_pset_id = ""
-  local osc_param_id = ""
+  local osc_param_id
   local osc_param_value
 
   for part in path:gmatch("[^/]+") do
