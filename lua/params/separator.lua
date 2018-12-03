@@ -5,7 +5,6 @@ local Separator = {}
 Separator.__index = Separator
 
 local tSEPARATOR = 0
-local separator_count = 0
 
 function Separator.new()
   local s = setmetatable({}, Separator)

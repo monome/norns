@@ -67,7 +67,7 @@ end
 
 --- reset to default state
 function Metro:init()
-    self.id = id
+    self.id = nil
     self.time = 1
     self.count = -1
     self.callback = nil
@@ -79,7 +79,6 @@ end
 -- @param count - (optional) number of ticks. infinite by default
 -- @param stage - (optional) initial stage number (1-based.) 1 by default
 function Metro:start(time, count, stage)
-    local vargs = {}
     if time then self.props.time = time end
     if count then self.props.count = count end
     if stage then self.init_stage = stage end

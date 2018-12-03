@@ -78,16 +78,16 @@ function tab.save(tbl, filename)
   local charS, charE = "   ", "\n"
   local file, err = io.open(filename, "wb")
   if err then return err end
-  
+
   -- initiate variables for save procedure
   local tables, lookup = { tbl }, { [tbl] = 1 }
   file:write("return {"..charE)
-  
+
   for idx, t in ipairs(tables) do
     file:write("-- Table: {"..idx.."}"..charE)
     file:write("{"..charE)
     local thandled = {}
-    
+
     for i, v in ipairs(t) do
       thandled[i] = true
       local stype = type(v)
@@ -106,11 +106,11 @@ function tab.save(tbl, filename)
         file:write(charS..tostring(v)..","..charE)
       end
     end
-    
+
     for i, v in pairs(t) do
       -- escape handled values
       if (not thandled[i]) then
-          
+
         local str = ""
         local stype = type(i)
         -- handle index
@@ -127,7 +127,7 @@ function tab.save(tbl, filename)
         elseif stype == "boolean" then
           str = charS.."["..tostring(i).."]="
         end
-          
+
         if str ~= "" then
           stype = type(v)
           -- handle value
