@@ -178,5 +178,29 @@ function tab.load(sfile)
   return tables[1]
 end
 
+--- Create a read-only proxy for a given table.
+-- @params params
+-- @params params.table the table to proxy
+-- @params params.exceptFor a list of writable keys
+-- @return the proxied read-only table
+function tab.readonly(params)
+  local t = params.table
+  local exceptions = params.exceptFor or {}
+  local proxy = {}
+  local mt = {
+    __index = t,
+    __newindex = function (_,k,v)
+      if (tab.contains(exceptions, k)) then
+        t[k] = v
+      else
+        error("'"..k.."', a read-only key, cannot be re-assigned.")
+      end
+    end,
+    __pairs = function (_) return pairs(proxy) end,
+    __ipairs = function (_) return ipairs(proxy) end,
+  }
+  setmetatable(proxy, mt)
+  return proxy
+end
 
 return tab
