@@ -181,11 +181,11 @@ end
 --- Create a read-only proxy for a given table.
 -- @params params
 -- @params params.table the table to proxy
--- @params params.exceptFor a list of writable keys
+-- @params params.except a list of writable keys
 -- @return the proxied read-only table
 function tab.readonly(params)
   local t = params.table
-  local exceptions = params.exceptFor or {}
+  local exceptions = params.except or {}
   local proxy = {}
   local mt = {
     __index = t,

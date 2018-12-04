@@ -16,7 +16,7 @@ metro = require 'metro'
 midi = require 'midi'
 osc = require 'osc'
 poll = require 'poll'
-engine = tab.readonly{table = require 'engine', exceptFor = {'name'}}
+engine = tab.readonly{table = require 'engine', except = {'name'}}
 wifi = require 'wifi'
 
 fileselect = require 'fileselect'
