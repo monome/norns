@@ -571,7 +571,7 @@ void OscInterface::addServerMethods() {
         mixerClient->stopTapePlayback();
     });
 
-    addServerMethod("/tape/level", "f", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/level/tape", "f", [](lo_arg **argv, int argc) {
         if (argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_TAPE, argv[0]->f);
     });

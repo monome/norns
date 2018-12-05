@@ -34,19 +34,21 @@ void MixerClient::process(jack_nframes_t numFrames) {
     bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
     bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
 
+
+    bus.ins_in.clear(numFrames);
     // process tape playback
     if (tape.isReading()) {
+        bus.tape.clear();
         // FIXME: another stupid pointer array.
         float *dst[2] = {static_cast<float*>(bus.tape.buf[0]), static_cast<float*>(bus.tape.buf[1])};
         tape.reader.process(dst, numFrames);
         bus.tape.applyGain(numFrames, smoothLevels.tape);
+        // FIXME: probably want other options for tape playback routing.
+        /// for now, just sum tape to insert bus
+        bus.ins_in.addFrom(bus.tape, numFrames);
     }
 
     processFx(numFrames);
-
-    // FIXME: probably want other options for tape playback routing.
-    /// for now, just sum tape to insert bus
-    bus.ins_in.sumFrom(bus.tape, numFrames);
 
     // perform  output
     bus.dac_sink.mixTo(sink[SinkId::SinkDac], numFrames, smoothLevels.dac);
@@ -73,13 +75,12 @@ void MixerClient::setSampleRate(jack_nframes_t sr) {
 
 
 void MixerClient::processFx(size_t numFrames) {
-    bus.ins_in.clear(numFrames);
     // FIXME: current faust architecture needs stupid pointer arrays.
     float* pin[2];
     float* pout[2];
     if (!enabled.reverb) { // bypass aux
         bus.aux_out.clear(numFrames);
-        bus.aux_out.sumFrom(bus.aux_in, numFrames);
+        bus.aux_out.addFrom(bus.aux_in, numFrames);
     } else { // process aux
         bus.aux_in.clear(numFrames);
         bus.aux_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor_aux);
@@ -95,12 +96,12 @@ void MixerClient::processFx(size_t numFrames) {
 
     // mix to insert bus
     bus.ins_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor);
-    bus.ins_in.sumFrom(bus.cut_source, numFrames);
-    bus.ins_in.sumFrom(bus.ext_source, numFrames);
+    bus.ins_in.addFrom(bus.cut_source, numFrames);
+    bus.ins_in.addFrom(bus.ext_source, numFrames);
 
     bus.dac_sink.clear(numFrames);
     if(!enabled.comp) { // bypass_insert
-        bus.dac_sink.sumFrom(bus.ins_in, numFrames);
+        bus.dac_sink.addFrom(bus.ins_in, numFrames);
     } else {
         pin[0] = bus.ins_in.buf[0];
         pin[1] = bus.ins_in.buf[1];

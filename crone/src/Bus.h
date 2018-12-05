@@ -58,7 +58,7 @@ namespace  crone {
 
 
         // sum from bus, without amplitude scaling
-         void sumFrom(BusT &b, size_t numFrames) {
+         void addFrom(BusT &b, size_t numFrames) {
             BOOST_ASSERT(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {

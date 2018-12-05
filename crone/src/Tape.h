@@ -205,6 +205,28 @@ namespace crone {
             bool needsData;
             size_t frames;
             Sample frameBuf[frameSize];
+
+        private:
+            // prime the ringbuffer
+            bool prime() {
+                sf_count_t nf;
+                for (size_t fr = 0; fr < this->ringBufFrames; ++fr) {
+                    for (int ch = 0; ch < NumChannels; ++ch) {
+                        // FIXME: ? using "frames" variant, i dunno
+                        nf = sf_readf_float(this->file, frameBuf, 1);
+                        if (nf != 1) {
+                            std::cerr << "error priming ringbuffer; couldn't read frame " << fr << std::endl;
+                            return false;
+                        }
+                        if (jack_ringbuffer_write_space(this->ringBuf.get()) < frameSize) {
+                            // double-check, shouldn't really get here
+                            break;
+                        }
+                        jack_ringbuffer_write(this->ringBuf.get(), (char *) frameBuf, frameSize);
+                    }
+                }
+                return true;
+            }
         public:
             // from audio thread
             void process(float *dst[NumChannels], size_t numFrames) {
@@ -245,29 +267,16 @@ namespace crone {
                     return false;
                 }
 
-                // prime the ringbuffer
                 this->frames = static_cast<size_t>(sfInfo.frames);
-                sf_count_t nf;
-                for (size_t fr=0; fr < this->ringBufFrames; ++fr) {
-                    for (int ch = 0; ch < NumChannels; ++ch) {
-                        nf = sf_readf_float(this->file, frameBuf, frameSize);
-                        if (nf != 1) {
-                            std::cerr << "error priming ringbuffer; couldn't read frame " << fr << std::endl;
-                            return false;
-                        }
-                        if (jack_ringbuffer_write_space(this->ringBuf.get()) < frameSize) {
-                            // double-check, shouldn't really get here
-                            break;
-                        }
-                        jack_ringbuffer_write(this->ringBuf.get(), (char*)frameBuf, frameSize);
-                    }
-                }
+                if(!prime()) { return false; }
                 return true;
             }
 
             // from any thread
             void start() {
+
                 if (isRunning) {
+                    return;
                 } else {
                     this->th = std::make_unique<std::thread>(
                             [this]() {
@@ -286,6 +295,7 @@ namespace crone {
         private:
             // from disk thread
             void diskLoop() {
+                prime();
                 isRunning = true;
                 shouldStop = false;
                 while (!shouldStop) {
@@ -302,12 +312,14 @@ namespace crone {
                     /// seems like jack_ringbuffer API allows us to do a direct write to the buffer,
                     /// followed by `jack_ringbuffer_write_advance()`
                     while (jack_ringbuffer_write_space(this->ringBuf.get()) >= frameSize) {
-                        if (sf_readf_float(this->file, frameBuf, 1) != 1) {
-                            char errstr[256];
-                            sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
-                            std::cerr << "error reading soundfile (" << errstr << ")" << std::endl;
+                        sf_count_t nf = sf_readf_float(this->file, frameBuf, 1);
+                        if (nf != 1) {
+                            // FIXME? assuming this means we're out of stuff in the file
+                            std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
+                            shouldStop = true;
+                            break;
                         }
-                        jack_ringbuffer_write(this->ringBuf.get(), (char*)frameBuf, 1);
+                        jack_ringbuffer_write(this->ringBuf.get(), (char*)frameBuf, frameSize);
                     }
                 }
                 sf_close(this->file);
