@@ -88,7 +88,7 @@ int dev_hid_init(void *self, bool print) {
     struct dev_common *base = (struct dev_common *)self;
     struct libevdev *dev = NULL;
     int ret = 1;
-    int fd = open(d->base.path, O_RDONLY);
+    int fd = open(d->base.path, O_RDWR);
 
     if (fd < 0) {
         fprintf(stderr, "failed to open hid device: %s\n", d->base.path);

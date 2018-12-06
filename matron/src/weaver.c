@@ -102,6 +102,8 @@ static int _osc_send_crone(lua_State *l);
 // midi
 // midi
 static int _midi_send(lua_State *l);
+// hid
+static int _hid_send(lua_State *l);
 
 // crone
 /// engines
@@ -243,6 +245,9 @@ void w_init(void) {
   // midi
   lua_register(lvm, "midi_send", &_midi_send);
 
+  // hid
+  lua_register(lvm, "hid_send", &_hid_send);
+  
   // get list of available crone engines
   lua_register(lvm, "report_engines", &_request_engine_report);
   // load a named engine
@@ -983,6 +988,40 @@ int _midi_send(lua_State *l) {
   return 0;
 }
 
+/***
+ * hid: send
+ * @function hid_send
+ */
+int _hid_send(lua_State *l) {
+  struct dev_hid *hd;
+  size_t nbytes;
+  uint8_t *data;
+  int file, err;
+   if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+   luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+  hd = lua_touserdata(l, 1);
+   luaL_checktype(l, 2, LUA_TTABLE);
+  nbytes = lua_rawlen(l, 2);
+  data = malloc(nbytes);
+   for (unsigned int i = 1; i <= nbytes; i++) {
+    lua_pushinteger(l, i);
+    lua_gettable(l, 2);
+     // TODO: lua_isnumber
+    data[i - 1] = lua_tointeger(l, -1);
+    lua_pop(l, 1);
+  }
+   file = libevdev_get_fd(hd->dev);
+  err = write(file, data, nbytes);
+  free(data);
+   if (err < 0) {
+    return luaL_error(l, "could not write to HID device");
+  } else {
+    return 0;
+  }
+}
+  
 /***
  * grid: set led
  * @function grid_set_led
