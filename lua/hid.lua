@@ -61,10 +61,6 @@ function Hid.new(id, name, types, codes, dev)
   return d
 end
 
---- write data to a device
-function Hid:write(msg)
-  hid_send(self.dev, msg)
-end
 
 --- static callback when any hid device is added;
 -- user scripts can redefine
@@ -235,7 +231,6 @@ norns.hid.add = function(id, name, types, codes, dev)
   Hid.devices[id] = d
   Hid.update_devices()
   if Hid.add ~= nil then Hid.add(d) end
-  
 end
 
 --- remove a device
@@ -265,14 +260,12 @@ norns.hid.event = function(id, ev_type, ev_code, value)
   local ev_code_name = Hid.event_codes[ev_type][ev_code]
   --print("norns.hid.event ", id, ev_type_name, ev_code_name, value)
   local dev = Hid.devices[id]
-  if  dev then
-    local cb = dev.callbacks[ev_code_name]
-    if cb then
-      cb(value)
-    else
-      -- print("norns.hid.event unhandled ", id, ev_type, ev_type_name, ev_code, ev_code_name, value)
-    end
-  end
+  --if  dev then
+  --  local cb = dev.callbacks[ev_code_name]
+  --  if cb then
+  --   cb(value)
+  --  end
+  --end
 
     if dev ~= nil then
     if dev.event ~= nil then
@@ -572,14 +565,6 @@ Hid.event_codes[Hid.event_types_rev['EV_KEY']] = {
   [0x107] = 'BTN_7',
   [0x108] = 'BTN_8',
   [0x109] = 'BTN_9',
-  -- BTN_10 through BTN_15 are nonstandard, not in libevdev
-  [0x10A] = 'BTN_10',
-  [0x10B] = 'BTN_11',
-  [0x10C] = 'BTN_12',
-  [0x10D] = 'BTN_13',
-  [0x10E] = 'BTN_14',
-  [0x10F] = 'BTN_15',
-  -- end nonstandard codes
   [0x110] = 'BTN_MOUSE',
   [0x110] = 'BTN_LEFT',
   [0x111] = 'BTN_RIGHT',
