@@ -1059,9 +1059,9 @@ m.key[pCONN] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pWIFI)
   elseif n==3 and z==1 then
-    if m.conn.pos==1 then
-      textentry.enter(m.conn.passdone(m.conn.ssid_list[m.conn.add_choice]))
-    elseif m.conn.pos==2 then
+    if m.conn.pos==1 and m.conn.add_choice ~= 0 then
+      textentry.enter(m.conn.passdone(m.conn.ssid_list[m.conn.add_choice]), "", "enter password:")
+    elseif m.conn.pos==2 and m.conn.del_choice ~= 0 then
       wifi.delete(m.conn.conn_list[m.conn.del_choice])
       menu.set_page(pWIFI)
     end
@@ -1106,9 +1106,9 @@ m.redraw[pCONN] = function()
     screen.text(string.upper(m.conn.list[i]) .. " >")
     screen.move(127,10*i+20)
     if i==1 and m.conn.pos==i then
-      screen.text_right(m.conn.ssid_list[m.conn.add_choice] or "")
+      screen.text_right(m.conn.ssid_list[m.conn.add_choice] or "-")
     elseif i==2 and m.conn.pos==i then
-      screen.text_right(m.conn.conn_list[m.conn.del_choice] or "")
+      screen.text_right(m.conn.conn_list[m.conn.del_choice] or "-")
     end
   end
 
