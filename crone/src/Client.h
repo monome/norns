@@ -5,7 +5,7 @@
 /*
  * jack client abstraction
  *
- * notice that inputs and outputs are
+ * notice that inputs and outputs are assumed to exist in stereo pairs. 
  * the abstraction of a stereo pair of input ports is called a _sink_.
  * ... of output ports, a _source_.
  */
