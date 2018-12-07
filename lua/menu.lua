@@ -926,7 +926,7 @@ m.deinit[pDEVICES] = function() end
 -- WIFI
 m.wifi = {}
 m.wifi.pos = 0
-m.wifi.list = {"off","hotspot","connect >", "add >", "delete >"}
+m.wifi.list = {"off","hotspot","connect", "add", "del"}
 m.wifi.len = #m.wifi.list
 m.wifi.selected = 1
 m.wifi.try = ""
@@ -991,23 +991,23 @@ end
 
 m.redraw[pWIFI] = function()
   screen.clear()
-  screen.level(15)
+  screen.level(4)
 
   if m.wifi.countdown == -1 then
-    if wifi.state == 2 then
-      screen.move(127,10)
-      screen.text_right(wifi.connection_name)
-      screen.level(4)
-      screen.move(127,20)
-      screen.text_right(wifi.ip)
-      if wifi.connection and wifi.connection:is_wireless() then
-        screen.move(127,30)
-        screen.text_right(wifi.signal .. "dBm")
-      end
-    else screen.text("status: "..wifi.status) end
+    screen.move(0,10)
+    screen.text("STATUS: " .. wifi.status)
+    screen.move(0,20)
+    screen.text("NETWORK: " .. wifi.connection_name)
+    screen.move(0,30)
+    screen.text("IP: " .. wifi.ip)
+    if wifi.connection and wifi.connection:is_wireless() then
+      screen.move(0,40)
+      screen.text("SIGNAL: " .. wifi.signal .. "dBm")
+    end
 
+    local xp = {0,20,58,94,114}
     for i=1,m.wifi.len do
-      screen.move(0,10+10*i)
+      screen.move(xp[i],60)
       line = m.wifi.list[i]
       if(i==m.wifi.pos+1) then
         screen.level(15)
