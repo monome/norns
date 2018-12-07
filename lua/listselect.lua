@@ -8,6 +8,7 @@ function ls.enter(list, callback)
   ls.pos = 0
   ls.callback = callback
   ls.done = false
+  ls.selection = nil
 
   ls.len = tab.count(ls.list)
 
