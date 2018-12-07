@@ -4,20 +4,20 @@ require 'math'
 math.randomseed(os.time()) -- more random
 
 -- globals
-screen = require 'system/lib/screen'
-monome = require 'system/lib/monome'
-grid = require 'system/lib/grid'
-arc = require 'system/lib/arc'
-hid = require 'system/lib/hid'
-metro = require 'system/lib/metro'
-midi = require 'system/lib/midi'
-osc = require 'system/lib/osc'
-poll = require 'system/lib/poll'
-engine = require 'system/lib/engine'
-wifi = require 'system/lib/wifi'
+screen = require 'core/screen'
+monome = require 'core/monome'
+grid = require 'core/grid'
+arc = require 'core/arc'
+hid = require 'core/hid'
+metro = require 'core/metro'
+midi = require 'core/midi'
+osc = require 'core/osc'
+poll = require 'core/poll'
+engine = require 'core/engine'
+wifi = require 'core/wifi'
 
-controlspec = require 'system/lib/controlspec'
-paramset = require 'system/lib/paramset'
+controlspec = require 'core/controlspec'
+paramset = require 'core/paramset'
 
 params = paramset.new()
 
@@ -25,7 +25,7 @@ tab = require 'tabutil'
 util = require 'util'
 
 -- load menu
-require 'system/menu'
+require 'core/menu'
 
 
 norns.startup_status.ok = function()

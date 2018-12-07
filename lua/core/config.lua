@@ -6,11 +6,11 @@
 local home = os.getenv('HOME')
 local norns = home..'/norns/lua'
 local sys = norns..'/?.lua;'
-local lib = norns..'/lib/?.lua;'
-local engine = norns..'/engine/?.lua;'
+local user = norns..'/user/lib/?.lua;'
+local engines = norns..'/user/engines/?.lua;'
 --local lib = home..'/dust/lib/lua/?.lua;'
 
-package.path = sys..lib..engine..package.path
+package.path = sys..user..engines..package.path
 -- print('package.path: ' .. package.path)
 
 -- full path to directory containing user scripts

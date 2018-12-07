@@ -3,8 +3,8 @@
 -- @alias OSC
 
 local tab = require 'tabutil'
-local paramset = require 'system/lib/paramset'
-local util = require 'lib/util'
+local paramset = require 'core/paramset'
+local util = require 'util'
 
 local OSC = {}
 OSC.__index = OSC

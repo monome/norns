@@ -2,7 +2,7 @@
 -- non-linear parameter using @catfact's taper function
 -- @module taper
 
-local util = require 'lib/util'
+local util = require 'util'
 
 local Taper = {}
 Taper.__index = Taper

@@ -2,8 +2,8 @@
 -- monome device manager
 
 local util = require 'util'
-local grid = require 'system/lib/grid'
-local arc = require 'system/lib/arc'
+local grid = require 'core/grid'
+local arc = require 'core/arc'
 
 norns.monome = {}
 

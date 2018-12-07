@@ -323,13 +323,13 @@ void w_init(void) {
   char cmd[256];
 
   if (config == NULL) {
-    snprintf(cmd, 256, "dofile('%s/norns/lua/system/config.lua')\n", home);
+    snprintf(cmd, 256, "dofile('%s/norns/lua/core/config.lua')\n", home);
   } else {
     snprintf(cmd, 256, "dofile('%s')\n", config);
   }
   fprintf(stderr, "running lua config file: %s", cmd);
   w_run_code(cmd);
-  w_run_code("require('system/norns')");
+  w_run_code("require('core/norns')");
 }
 
 // run startup code

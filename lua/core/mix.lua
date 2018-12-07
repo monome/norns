@@ -1,5 +1,5 @@
-local cs = require 'system/lib/controlspec'
-local fx = require 'system/lib/effects'
+local cs = require 'core/controlspec'
+local fx = require 'core/effects'
 
 -- mix paramset
 local mix = paramset.new("mix", "mix")

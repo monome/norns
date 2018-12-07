@@ -3,8 +3,6 @@
 -- @alias Engine
 local tab = require 'tabutil'
 
-norns.version.engine = '0.0.2'
-
 local Engine = {}
 -- ------------------------
 -- static data

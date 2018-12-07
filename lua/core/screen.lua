@@ -4,7 +4,7 @@
 -- @alias Screen
 local Screen = {}
 
-local metro = require 'system/lib/metro'
+local metro = require 'core/metro'
 local screensaver = metro[33]
 
 screensaver.callback = function()

@@ -1,13 +1,13 @@
 --- ParamSet class
 -- @module paramset
 
-local separator = require 'system/lib/params/separator'
-local number = require 'system/lib/params/number'
-local option = require 'system/lib/params/option'
-local control = require 'system/lib/params/control'
-local file = require 'system/lib/params/file'
-local taper = require 'system/lib/params/taper'
-local trigger = require 'system/lib/params/trigger'
+local separator = require 'core/params/separator'
+local number = require 'core/params/number'
+local option = require 'core/params/option'
+local control = require 'core/params/control'
+local file = require 'core/params/file'
+local taper = require 'core/params/taper'
+local trigger = require 'core/params/trigger'
 
 local ParamSet = {
   tSEPARATOR = 0,

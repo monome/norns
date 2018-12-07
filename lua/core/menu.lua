@@ -3,13 +3,13 @@
 
 local tab = require 'tabutil'
 local util = require 'util'
-local paramset = require 'system/lib/paramset'
-local menu = {}
+local paramset = require 'core/paramset'
 local fileselect = require 'fileselect'
 local textentry = require 'textentry'
+local menu = {}
 
 
-mix = require 'system/lib/mix'
+mix = require 'core/mix'
 
 -- global functions for scripts
 key = norns.none
@@ -56,7 +56,7 @@ menu.showstats = false
 
 local pending = false
 -- metro for key hold detection
-local metro = require 'system/lib/metro'
+local metro = require 'core/metro'
 local t = metro[31]
 t.time = KEY1_HOLD_TIME
 t.count = 1
