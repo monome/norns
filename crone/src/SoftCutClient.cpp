@@ -44,7 +44,6 @@ void crone::SoftCutClient::mixInput(size_t numFrames) {
     for(int ch=0; ch<2; ++ch) {
         for(int v=0; v<NumVoices; ++v) {
             input[v].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][v]);
-            //input[v].mixFrom(&source[SourceExt][ch], numFrames, in_ext[ch][v]);
             for(int w=0; w<NumVoices; ++w) {
                 input[v].mixFrom(output[w], numFrames, fbLevel[v][w]);
             }
@@ -156,8 +155,7 @@ void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc,
 
     SndfileHandle file(path);
     // FIXME: bail here if fail to open
-
-
+    
     size_t frSrc = secToFrame(startTimeSrc);
     clamp(frSrc, BufFrames-1);
 
@@ -166,7 +164,9 @@ void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc,
 
     size_t frDur;
     if (dur < 0.f) {
-        frDur = std::min(file.frames() - frSrc, BufFrames - frDst);
+	auto maxDurSrc = file.frames() - frSrc;
+	auto maxDurDst = file.frames() - frDst;
+	frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
     } else {
         frDur = secToFrame(dur);
     }
@@ -175,7 +175,7 @@ void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc,
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
 
     for (size_t fr=0; fr<frDur; ++fr) {
-        // FIXME: is there a downside to seeking every frame with libsndfile?
+        // FIXME: don't seek every frame with libsndfile?
         file.seek(frSrc, SEEK_SET);
         file.read(frBuf.get(), numSrcChan);
         buf[frDst] = frBuf[channel];

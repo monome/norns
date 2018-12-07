@@ -18,8 +18,6 @@
 using namespace crone;
 using softcut::FadeCurves;
 
-/// TODO: softcut trigger/ phase output
-
 bool OscInterface::quitFlag;
 
 std::string OscInterface::port;
@@ -147,8 +145,8 @@ void OscInterface::addServerMethods() {
 
     ////////////////////////////////
     /// FIXME: many of these methods are trivial setters;
-    /// they could simply be structured around atomic fields instead of requiring the Command queue.
-    /// would require some refactoring e.g. to expose level ramp targets as atomics
+    // they could simply be structured around atomic fields instead of requiring the Command queue.
+    // would require some refactoring e.g. to expose level ramp targets as atomics
 
     //--------------------------
     //--- levels
@@ -512,7 +510,7 @@ void OscInterface::addServerMethods() {
         softCutClient->clearBuffer(argv[0]->f, argv[1]->f);
     });
 
-    // FIXME: does it even work to do this?
+    // FIXME: does it even work to have different "method signatures" like this?
     addServerMethod("/softcut/buffer/clear", "", [](lo_arg **argv, int argc) {
         (void)argc; (void)argv;
         softCutClient->clearBuffer();

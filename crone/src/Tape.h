@@ -231,7 +231,7 @@ namespace crone {
             // from audio thread
             void process(float *dst[NumChannels], size_t numFrames) {
                 if (!isRunning) { return; }
-                // push to ringbuffer
+                // pull from ringbuffer
                 for (size_t fr = 0; fr < numFrames; ++fr) {
                     // data is interleaved in ringbuffer
                     for (int ch = 0; ch < NumChannels; ++ch) {
@@ -290,6 +290,7 @@ namespace crone {
             void stop() {
                 shouldStop = true;
             }
+
 
 
         private:

@@ -45,11 +45,3 @@ void Commands::handlePending(SoftCutClient *client) {
         client->handleCommand(&p);
     }
 }
-
-/// FIXME: audio Client subclasses should also define a Command subclass?
-//void Commands::handlePending(AudioMain* a) {
-//    CommandPacket p;
-//    while (q.pop(p)) {
-//        a->handleCommand(&p);
-//    }
-//}
