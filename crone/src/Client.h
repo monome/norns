@@ -127,7 +127,7 @@ namespace crone {
 
             for(int i=0; i<NumOuts; ++i) {
                 std::ostringstream os;
-                os << "output_" << i;
+                os << "output_" << (i+1);
                 const char* name = os.str().c_str();
                 outPort[i] = jack_port_register (client, name,
                                                  JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
