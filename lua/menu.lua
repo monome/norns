@@ -32,7 +32,6 @@ local pRESET = 9
 local pSLEEP = 10
 local pTAPE = 11
 local pMIX = 12
-local pCONN = 13
 
 -- page pointer
 local m = {}
@@ -927,11 +926,38 @@ m.deinit[pDEVICES] = function() end
 -- WIFI
 m.wifi = {}
 m.wifi.pos = 0
-m.wifi.list = {"off","hotspot","network >", "edit >"}
-m.wifi.len = 4
+m.wifi.list = {"off","hotspot","connect", "add", "del"}
+m.wifi.len = #m.wifi.list
 m.wifi.selected = 1
 m.wifi.try = ""
 m.wifi.countdown = -1
+
+m.wifi.connect = function(x)
+  if x ~= "cancel" then
+    wifi.on(x)
+  end
+end
+
+m.wifi.add = function(x)
+  if x ~= "cancel" then
+    textentry.enter(m.wifi.passdone, "", "enter password:")
+  end
+end
+
+m.wifi.del = function(x)
+  if x ~= "cancel" then
+    wifi.delete(x)
+  end
+end
+
+m.wifi.passdone = function(ssid)
+  return function(txt)
+    if txt ~= nil then
+      wifi.add(ssid, txt)
+    end
+  end
+end
+
 
 m.key[pWIFI] = function(n,z)
   if n==2 and z==1 then
@@ -942,22 +968,13 @@ m.key[pWIFI] = function(n,z)
     elseif m.wifi.pos == 1 then
       wifi.hotspot()
     elseif m.wifi.pos == 2 then
-      m.wifi.try = wifi.conn_list[m.wifi.selected]
-      wifi.on(m.wifi.try)
+      listselect.enter(wifi.conn_list, m.wifi.connect)
     elseif m.wifi.pos == 3 then
-      menu.set_page(pCONN)
+      listselect.enter(m.wifi.ssid_list, m.wifi.add) 
+    elseif m.wifi.pos == 4 then
+      listselect.enter(wifi.conn_list, m.wifi.del) 
     end
   end
-end
-
-m.wifi.passdone = function(txt)
-  if txt ~= nil then
-    os.execute("~/norns/wifi.sh select \""..m.wifi.try.."\" \""..txt.."\" &")
-    os.execute("sudo systemctl stop norns-crone.service")
-    wifi.on()
-    m.wifi.countdown = 4
-  end
-  menu.redraw()
 end
 
 m.enc[pWIFI] = function(n,delta)
@@ -974,30 +991,23 @@ end
 
 m.redraw[pWIFI] = function()
   screen.clear()
-  screen.level(15)
+  screen.level(4)
 
   if m.wifi.countdown == -1 then
     screen.move(0,10)
-    if wifi.state == 2 then
-      screen.text("status: router "..wifi.connection_name)
-    else screen.text("status: "..wifi.status) end
-    if wifi.state > 0 then
-      screen.level(4)
-      screen.move(0,20)
-      screen.text(wifi.ip)
-      if wifi.state == 2 then
-        screen.move(127,20)
-	if wifi.connection and wifi.connection:is_wireless() then
-	  screen.text_right(wifi.signal .. "dBm")
-	end
-      end
+    screen.text("STATUS: " .. wifi.status)
+    screen.move(0,20)
+    screen.text("NETWORK: " .. wifi.connection_name)
+    screen.move(0,30)
+    screen.text("IP: " .. wifi.ip)
+    if wifi.connection and wifi.connection:is_wireless() then
+      screen.move(0,40)
+      screen.text("SIGNAL: " .. wifi.signal .. "dBm")
     end
 
-    screen.move(0,30+wifi.state*10)
-    screen.text("-")
-
+    local xp = {0,20,58,94,114}
     for i=1,m.wifi.len do
-      screen.move(8,20+10*i)
+      screen.move(xp[i],60)
       line = m.wifi.list[i]
       if(i==m.wifi.pos+1) then
         screen.level(15)
@@ -1006,12 +1016,6 @@ m.redraw[pWIFI] = function()
       end
       screen.text(string.upper(line))
     end
-
-    screen.move(127,50)
-    if m.wifi.pos==2 then screen.level(15) else screen.level(4) end
-    if wifi.conn_count > 0 then
-      screen.text_right(wifi.conn_list[m.wifi.selected])
-    else screen.text_right("NONE") end
 
   else -- countdown
     screen.move(64,40)
@@ -1023,6 +1027,8 @@ m.redraw[pWIFI] = function()
 end
 
 m.init[pWIFI] = function()
+  wifi.ensure_radio_is_on()
+  m.wifi.ssid_list = wifi.ssids() or {}
   m.wifi.countdown = -1
   wifi.update()
   m.wifi.selected = 1
@@ -1044,95 +1050,6 @@ m.init[pWIFI] = function()
 end
 
 m.deinit[pWIFI] = function()
-  u:stop()
-end
-
------------------------------------------
--- CONN(ECTIONS)
-
-m.conn = {}
-m.conn.list = {"add", "delete"}
-m.conn.len = #m.conn.list
-m.conn.pos = 1
-
-m.key[pCONN] = function(n,z)
-  if n==2 and z==1 then
-    menu.set_page(pWIFI)
-  elseif n==3 and z==1 then
-    if m.conn.pos==1 then
-      textentry.enter(m.conn.passdone(m.conn.ssid_list[m.conn.add_choice]))
-    elseif m.conn.pos==2 then
-      wifi.delete(m.conn.conn_list[m.conn.del_choice])
-      menu.set_page(pWIFI)
-    end
-  end
-end
-
-m.conn.passdone = function(ssid)
-  return function(txt)
-    if txt ~= nil then
-      wifi.add(ssid, txt)
-    end
-    menu.set_page(pWIFI)
-  end
-end
-
-m.enc[pCONN] = function(n,delta)
-  if n==2 then
-    m.conn.pos = util.clamp(1,m.conn.pos+delta,m.conn.len)
-    menu.redraw()
-  elseif n==3 then
-    if m.conn.pos==1 then
-      m.conn.add_choice = util.clamp(1,m.conn.add_choice+delta,#m.conn.ssid_list)
-      menu.redraw()
-    elseif m.conn.pos==2 then
-      m.conn.del_choice = util.clamp(1,m.conn.del_choice+delta,#m.conn.conn_list)
-      menu.redraw()
-    end
-  end
-end
-
-m.redraw[pCONN] = function()
-  screen.clear()
-  screen.level(15)
-
-  for i=1,m.conn.len do
-    screen.move(0,10*i+20)
-    if i==m.conn.pos then
-      screen.level(15)
-    else
-      screen.level(4)
-    end
-    screen.text(string.upper(m.conn.list[i]) .. " >")
-    screen.move(127,10*i+20)
-    if i==1 and m.conn.pos==i then
-      screen.text_right(m.conn.ssid_list[m.conn.add_choice] or "")
-    elseif i==2 and m.conn.pos==i then
-      screen.text_right(m.conn.conn_list[m.conn.del_choice] or "")
-    end
-  end
-
-  screen.update()
-end
-
-m.init[pCONN] = function()
-  wifi.ensure_radio_is_on()
-  m.conn.ssid_list = wifi.ssids() or {}
-  m.conn.conn_list = wifi.connections() or {}
-  m.conn.add_choice = 0
-  m.conn.mod_choice = 0
-  m.conn.del_choice = 0
-
-  u.time = 1
-  u.count = -1
-  u.callback = function()
-    m.conn.ssid_list = wifi.ssids()
-    menu.redraw()
-  end
-  u:start()
-end
-
-m.deinit[pCONN] = function()
   u:stop()
 end
 

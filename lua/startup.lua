@@ -18,6 +18,7 @@ wifi = require 'wifi'
 wifi.init()
 
 fileselect = require 'fileselect'
+listselect = require 'listselect'
 textentry = require 'textentry'
 
 controlspec = require 'controlspec'
