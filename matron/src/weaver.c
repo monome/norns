@@ -136,15 +136,13 @@ static int _set_audio_pitch_off(lua_State *l);
 
 // tape control
 
-static int _tape_level(lua_State *l);
-static int _tape_new(lua_State *l);
-static int _tape_start_rec(lua_State *l);
-static int _tape_pause_rec(lua_State *l);
-static int _tape_stop_rec(lua_State *l);
-static int _tape_open(lua_State *l);
-static int _tape_play(lua_State *l);
-static int _tape_pause(lua_State *l);
-static int _tape_stop(lua_State *l);
+static int _level_tape(lua_State *l);
+static int _tape_rec_open(lua_State *l);
+static int _tape_rec_start(lua_State *l);
+static int _tape_rec_stop(lua_State *l);
+static int _tape_play_open(lua_State *l);
+static int _tape_play_start(lua_State *l);
+static int _tape_play_stop(lua_State *l);
 
 // aux effects controls
 static int _set_aux_fx_on(lua_State *l);
@@ -183,6 +181,9 @@ _push_norns_func(const char *field, const char *func) {
   lua_remove(lvm, -2);
 }
 
+#define lua_register_norns(L,n,f) \
+              (lua_pushcfunction(L, f), lua_setfield(L, -2, n))
+
 ////////////////////////////////
 //// extern function definitions
 
@@ -195,6 +196,26 @@ void w_init(void) {
   ////////////////////////
   // FIXME: document these in lua in some deliberate fashion
   //////////////////
+  
+  // make table for global externs
+  lua_newtable(lvm);
+
+  // tape controls
+  lua_register_norns(lvm, "level_tape", &_level_tape);
+  lua_register_norns(lvm, "tape_record_open", &_tape_rec_open);
+  lua_register_norns(lvm, "tape_record_start", &_tape_rec_start);
+  lua_register_norns(lvm, "tape_record_stop", &_tape_rec_stop);
+  lua_register_norns(lvm, "tape_play_open", &_tape_play_open);
+  lua_register_norns(lvm, "tape_play_start", &_tape_play_start);
+  lua_register_norns(lvm, "tape_play_stop", &_tape_play_stop);
+
+
+  // name global extern table
+  lua_setglobal(lvm, "_norns");
+
+
+
+  // TODO: GET THESE INTO _norns TABLE
 
   // low-level monome grid control
   lua_register(lvm, "grid_set_led", &_grid_set_led);
@@ -279,17 +300,6 @@ void w_init(void) {
   lua_register(lvm, "audio_monitor_off", &_set_audio_monitor_off);
   lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
   lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
-
-  // tape controls
-  lua_register(lvm, "tape_level", &_tape_level);
-  lua_register(lvm, "tape_new", &_tape_new);
-  lua_register(lvm, "tape_start_rec", &_tape_start_rec);
-  lua_register(lvm, "tape_pause_rec", &_tape_pause_rec);
-  lua_register(lvm, "tape_stop_rec", &_tape_stop_rec);
-  lua_register(lvm, "tape_open", &_tape_open);
-  lua_register(lvm, "tape_play", &_tape_play);
-  lua_register(lvm, "tape_pause", &_tape_pause);
-  lua_register(lvm, "tape_stop", &_tape_stop);
 
   // aux effects controls
   lua_register(lvm, "set_aux_fx_on", &_set_aux_fx_on);
@@ -1819,72 +1829,51 @@ int _set_audio_pitch_off(lua_State *l) {
   return 0;
 }
 
-int _tape_level(lua_State *l) {
-  if (lua_gettop(l) != 1) {
-    return luaL_error(l, "wrong number of arguments");
-  }
-
+int _level_tape(lua_State *l) {
+  if (lua_gettop(l) != 1) { return luaL_error(l, "wrong number of arguments"); } 
   float val = (float) luaL_checknumber(l, 1);
-  o_tape_level(val);
+  o_level_tape(val);
   lua_settop(l, 0);
   return 0;
 }
 
-int _tape_new(lua_State *l) {
-  if (lua_gettop(l) != 1) {
-    return luaL_error(l, "wrong number of arguments");
-  }
-
+int _tape_rec_open(lua_State *l) {
+  if (lua_gettop(l) != 1) { return luaL_error(l, "wrong number of arguments"); }
   const char *s = luaL_checkstring(l, 1);
-  o_tape_new((char *) s);
+  o_tape_rec_open((char *) s);
   lua_settop(l, 0);
   return 0;
 }
 
-int _tape_start_rec(lua_State *l) {
+int _tape_rec_start(lua_State *l) {
   (void)l;
-  o_tape_start_rec();
+  o_tape_rec_start();
   return 0;
 }
 
-int _tape_pause_rec(lua_State *l) {
+int _tape_rec_stop(lua_State *l) {
   (void)l;
-  o_tape_pause_rec();
+  o_tape_rec_stop();
   return 0;
 }
 
-int _tape_stop_rec(lua_State *l) {
-  (void)l;
-  o_tape_stop_rec();
+int _tape_play_open(lua_State *l) {
+  if (lua_gettop(l) != 1) { return luaL_error(l, "wrong number of arguments"); }
+  const char *s = luaL_checkstring(l, 1);
+  o_tape_play_open((char *) s);
+  lua_settop(l, 0);
   return 0;
 }
 
-int _tape_open(lua_State *l) {
-  if (lua_gettop(l) != 1) {
-    return luaL_error(l, "wrong number of arguments");
-  }
-
-    const char *s = luaL_checkstring(l, 1);
-    o_tape_open((char *) s);
-    lua_settop(l, 0);
-    return 0;
-}
-
-int _tape_play(lua_State *l) {
+int _tape_play_start(lua_State *l) {
   (void)l;
-  o_tape_play();
+  o_tape_play_start();
   return 0;
 }
 
-int _tape_pause(lua_State *l) {
+int _tape_play_stop(lua_State *l) {
   (void)l;
-  o_tape_pause();
-  return 0;
-}
-
-int _tape_stop(lua_State *l) {
-  (void)l;
-  o_tape_stop();
+  o_tape_play_stop();
   return 0;
 }
 

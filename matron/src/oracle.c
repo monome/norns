@@ -152,8 +152,8 @@ void o_init(void) {
     const char *ext_port = args_ext_port();
         const char *crone_port = args_crone_port();
 
-    fprintf(stderr, "OSC rx port: %s \nOSC tx port: %s\n",
-            local_port, ext_port);
+    fprintf(stderr, "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\n",
+            local_port, crone_port, ext_port);
     o_init_descriptors();
 
     ext_addr = lo_address_new("127.0.0.1", ext_port);
@@ -484,41 +484,34 @@ void o_restart_audio() {
 }
 
 //---- tape controls
-void o_tape_level(float level) {
-    lo_send(ext_addr, "/tape/level", "f", level);
+void o_level_tape(float level) {
+    lo_send(crone_addr, "/set/level/tape", "f", level);
 }
 
-void o_tape_new(char *file) {
-    lo_send(ext_addr, "/tape/newfile", "s", file);
+void o_tape_rec_open(char *file) {
+    lo_send(crone_addr, "/tape/record/open", "s", file);
 }
 
-void o_tape_start_rec() {
-    lo_send(ext_addr, "/tape/start_rec", NULL);
+void o_tape_rec_start() {
+    lo_send(crone_addr, "/tape/record/start", NULL);
 }
 
-void o_tape_pause_rec() {
-    lo_send(ext_addr, "/tape/pause_rec", NULL);
+void o_tape_rec_stop() {
+    lo_send(crone_addr, "/tape/record/stop", NULL);
 }
 
-void o_tape_stop_rec() {
-    lo_send(ext_addr, "/tape/stop_rec", NULL);
+void o_tape_play_open(char *file) {
+    lo_send(crone_addr, "/tape/play/open", "s", file);
 }
 
-void o_tape_open(char *file) {
-    lo_send(ext_addr, "/tape/openfile", "s", file);
+void o_tape_play_start() {
+    lo_send(crone_addr, "/tape/play/start", NULL);
 }
 
-void o_tape_play() {
-    lo_send(ext_addr, "/tape/play", NULL);
+void o_tape_play_stop() {
+    lo_send(crone_addr, "/tape/play/stop", NULL);
 }
 
-void o_tape_pause() {
-    lo_send(ext_addr, "/tape/pause", NULL);
-}
-
-void o_tape_stop() {
-    lo_send(ext_addr, "/tape/stop", NULL);
-}
 
 //--- aux effects controls
 // enable / disable aux fx processing

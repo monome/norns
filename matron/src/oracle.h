@@ -111,15 +111,13 @@ extern void o_set_audio_pitch_on();
 extern void o_set_audio_pitch_off();
 
 //--- tape control
-extern void o_tape_level(float level);
-extern void o_tape_new(char *file);
-extern void o_tape_start_rec();
-extern void o_tape_pause_rec();
-extern void o_tape_stop_rec();
-extern void o_tape_open(char *file);
-extern void o_tape_play();
-extern void o_tape_pause();
-extern void o_tape_stop();
+extern void o_level_tape(float level);
+extern void o_tape_rec_open(char *file);
+extern void o_tape_rec_start();
+extern void o_tape_rec_stop();
+extern void o_tape_play_open(char *file);
+extern void o_tape_play_start();
+extern void o_tape_play_stop();
 
 //--- aux effects controls
 // enable / disable aux fx processing
