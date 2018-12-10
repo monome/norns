@@ -14,7 +14,7 @@
 namespace crone {
     class SoftCutClient: public Client<2, 2> {
     public:
-        enum { MaxBlockFrames = 2048, NumVoices = 2 };
+        enum { MaxBlockFrames = 2048, NumVoices = 6 };
 
         enum { BufFrames = 16777216 };
         typedef enum { SourceAdc=0 } SourceId;
