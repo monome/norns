@@ -516,21 +516,21 @@ void o_tape_play_stop() {
 //--- aux effects controls
 // enable / disable aux fx processing
 void o_set_aux_fx_on() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 1);
+    lo_send(crone_addr, "/set/enabled/reverb", "f", 1.0);
 }
 
 void o_set_aux_fx_off() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 0);
+    lo_send(crone_addr, "/set/enabled/reverb", "f", 0.0);
 }
 
 
 //--- insert effects controls
 void o_set_insert_fx_on() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 1);
+    lo_send(crone_addr, "/set/enabled/compressor", "f", 1.0);
 }
 
 void o_set_insert_fx_off() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 0);
+    lo_send(crone_addr, "/set/enabled/compressor", "f", 0.0);
 }
 
 void o_set_insert_fx_mix(float value) {

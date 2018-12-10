@@ -1359,7 +1359,7 @@ m.key[pTAPE] = function(n,z)
       if m.tape.play.sel == TAPE_PLAY_LOAD then
         local playfile_callback = function(path)
           if path ~= "cancel" then
-            tape_open(path)
+            _norns.tape_play_open(path)
             m.tape.play.file = path:match("[^/]*$")
             m.tape.play.status = TAPE_PLAY_PAUSE
             m.tape.play.sel = TAPE_PLAY_PLAY
@@ -1367,23 +1367,23 @@ m.key[pTAPE] = function(n,z)
             m.tape.play.length = math.floor(samples / rate)
             m.tape.play.length_text = util.s_to_hms(m.tape.play.length)
             m.tape.play.pos_tick = 0
-            p_tape_play = poll.set("tape_play_pos")
-            p_tape_play.time = 0.25
-            p_tape_play.callback = function(x)
-              m.tape.play.pos_tick = x
-              if x > m.tape.play.length and m.tape.play.status == TAPE_PLAY_PLAY then
-                print("tape is over!")
-                tape_pause()
-                p_tape_play:stop()
-                m.tape.play.file = nil
-                m.tape.play.stats = TAPE_PLAY_STOP
-                m.tape.play.sel = TAPE_PLAY_LOAD
-              end
-              if menu.mode == true and menu.page == pTAPE then
-                menu.redraw()
-              end
-            end
-            p_tape_play:start()
+            --p_tape_play = poll.set("tape_play_pos")
+            --p_tape_play.time = 0.25
+            --p_tape_play.callback = function(x)
+              --m.tape.play.pos_tick = x
+              --if x > m.tape.play.length and m.tape.play.status == TAPE_PLAY_PLAY then
+                --print("tape is over!")
+                --_norns.tape_play_stop()
+                --p_tape_play:stop()
+                --m.tape.play.file = nil
+                --m.tape.play.stats = TAPE_PLAY_STOP
+                --m.tape.play.sel = TAPE_PLAY_LOAD
+              --end
+              --if menu.mode == true and menu.page == pTAPE then
+                --menu.redraw()
+              --end
+            --end
+            --p_tape_play:start()
           else
             m.tape.play.file = nil
           end
@@ -1391,13 +1391,13 @@ m.key[pTAPE] = function(n,z)
         end
         fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
       elseif m.tape.play.sel == TAPE_PLAY_PLAY then
-        tape_play()
+        _norns.tape_play_start()
         m.tape.play.status = m.tape.play.sel
         m.tape.play.sel = TAPE_PLAY_STOP
         menu.redraw()
       elseif m.tape.play.sel == TAPE_PLAY_STOP then
-        tape_pause()
-        p_tape_play:stop()
+        _norns.tape_play_stop()
+        --p_tape_play:stop()
         m.tape.play.file = nil
         m.tape.play.status = m.tape.play.sel
         m.tape.play.sel = TAPE_PLAY_LOAD
@@ -1407,7 +1407,7 @@ m.key[pTAPE] = function(n,z)
       if m.tape.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
         m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".wav"
-        tape_new(m.tape.rec.file)
+        _norns.tape_rec_open(m.tape.rec.file)
         m.tape.rec.sel = TAPE_REC_START
             m.tape.rec.pos_tick = 0
             p_tape_rec = poll.set("tape_rec_dur")

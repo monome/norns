@@ -3,6 +3,13 @@
 
 util = {}
 
+--- db to amp
+-- @return amp
+util.dbamp = function(db)
+  if db < -80 then db = -math.huge end
+  return math.pow(10,db*0.05)
+end
+
 --- get system time in s+us
 -- @return time
 util.time = function()
