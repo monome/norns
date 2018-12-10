@@ -1,4 +1,5 @@
-n = NetAddr("localhost", 9999);
+//n = NetAddr("localhost", 9999);
+n = NetAddr("172.20.10.5", 9999);
 
 // test (does nothing, prints "hello")
 n.sendMsg("/hello");
