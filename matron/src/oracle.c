@@ -1,3 +1,75 @@
+/* TODO
+ /poll/start/cut/phase []
+ /poll/start/vu []
+ /poll/stop/cut/phase []
+ /poll/stop/vu []
+ /set/enabled/compressor [f]
+ /set/enabled/cut [if]
+ /set/enabled/reverb [f]
+ /set/level/adc [f]
+ /set/level/adc_cut [f]
+ /set/level/aux_dac [f]
+ /set/level/cut [if]
+ /set/level/cut_aux [f]
+ /set/level/cut_cut [iif]
+ /set/level/dac [f]
+ /set/level/ext [f]
+ /set/level/ext_aux [f]
+ /set/level/ext_cut [f]
+ /set/level/ins_mix [f]
+ /set/level/in_cut [iif]
+ /set/level/monitor [f]
+ /set/level/monitor_aux [f]
+ /set/level/monitor_mix [if]
+ /set/level/tape [f]
+ /set/pan/cut [if]
+ /set/param/compressor/attack [f]
+ /set/param/compressor/gain_post [f]
+ /set/param/compressor/gain_pre [f]
+ /set/param/compressor/ratio [f]
+ /set/param/compressor/release [f]
+ /set/param/compressor/threshold [f]
+ /set/param/cut/fade_time [if]
+ /set/param/cut/filter_bp [if]
+ /set/param/cut/filter_br [if]
+ /set/param/cut/filter_dry [if]
+ /set/param/cut/filter_fc [if]
+ /set/param/cut/filter_fc_mod [if]
+ /set/param/cut/filter_hp [if]
+ /set/param/cut/filter_lp [if]
+ /set/param/cut/filter_rq [if]
+ /set/param/cut/level_slew_time [if]
+ /set/param/cut/loop_end [if]
+ /set/param/cut/loop_flag [if]
+ /set/param/cut/loop_start [if]
+ /set/param/cut/phase_quant [if]
+ /set/param/cut/position [if]
+ /set/param/cut/pre_fade_shape [if]
+ /set/param/cut/pre_fade_window [if]
+ /set/param/cut/pre_level [if]
+ /set/param/cut/rate [if]
+ /set/param/cut/rate_slew_time [if]
+ /set/param/cut/rec_fade_delay [if]
+ /set/param/cut/rec_fade_shape [if]
+ /set/param/cut/rec_flag [if]
+ /set/param/cut/rec_level [if]
+ /set/param/cut/rec_offset [if]
+ /set/param/reverb/hf_damp [f]
+ /set/param/reverb/lf_fc [f]
+ /set/param/reverb/low_rt60 [f]
+ /set/param/reverb/mid_rt60 [f]
+ /set/param/reverb/pre_del [f]
+ /softcut/buffer/clear [ff]
+ /softcut/buffer/clear []
+ /softcut/buffer/read [sfffi]
+ /tape/play/open [s]
+ /tape/play/start []
+ /tape/play/stop []
+ /tape/record/open [s]
+ /tape/record/start []
+ /tape/record/stop []
+*/
+
 /*
  * oracle.c
  *
@@ -433,6 +505,15 @@ void o_request_poll_value(int idx) {
 }
 
 //---- audio context control
+
+void o_poll_start_vu() {
+    lo_send(crone_addr, "/poll/start/vu", NULL);
+}
+
+void o_poll_stop_vu() {
+    lo_send(crone_addr, "/poll/stop/vu", NULL);
+}
+
 
 //// FIXME: needs 2 levels (OR DOES IT?)
 void o_set_audio_input_level(int idx, float level) {

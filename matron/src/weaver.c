@@ -134,6 +134,9 @@ static int _set_audio_monitor_off(lua_State *l);
 static int _set_audio_pitch_on(lua_State *l);
 static int _set_audio_pitch_off(lua_State *l);
 
+static int _poll_start_vu(lua_State *l);
+static int _poll_stop_vu(lua_State *l);
+
 // tape control
 
 static int _level_tape(lua_State *l);
@@ -209,6 +212,8 @@ void w_init(void) {
   lua_register_norns(lvm, "tape_play_start", &_tape_play_start);
   lua_register_norns(lvm, "tape_play_stop", &_tape_play_stop);
 
+  lua_register_norns(lvm, "poll_start_vu", &_poll_start_vu);
+  lua_register_norns(lvm, "poll_stop_vu", &_poll_stop_vu);
 
   // name global extern table
   lua_setglobal(lvm, "_norns");
@@ -300,6 +305,7 @@ void w_init(void) {
   lua_register(lvm, "audio_monitor_off", &_set_audio_monitor_off);
   lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
   lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
+
 
   // aux effects controls
   lua_register(lvm, "set_aux_fx_on", &_set_aux_fx_on);
@@ -1874,6 +1880,18 @@ int _tape_play_start(lua_State *l) {
 int _tape_play_stop(lua_State *l) {
   (void)l;
   o_tape_play_stop();
+  return 0;
+}
+
+int _poll_start_vu(lua_State *l) {
+  (void)l;
+  o_poll_start_vu();
+  return 0;
+}
+
+int _poll_stop_vu(lua_State *l) {
+  (void)l;
+  o_poll_stop_vu();
   return 0;
 }
 

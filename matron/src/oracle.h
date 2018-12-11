@@ -100,6 +100,10 @@ extern void o_set_poll_time(int idx, float dt);
 extern void o_request_poll_value(int idx);
 
 //--- audio context controls
+
+extern void o_poll_start_vu();
+extern void o_poll_stop_vu();
+
 extern void o_set_audio_input_level(int idx, float level);
 extern void o_set_audio_output_level(float level);
 extern void o_set_audio_monitor_level(float level);
