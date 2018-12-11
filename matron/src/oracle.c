@@ -1,12 +1,3 @@
-/* TODO
- /poll/start/cut/phase []
- /poll/stop/cut/phase []
-
- /softcut/buffer/clear [ff]
- /softcut/buffer/clear []
- /softcut/buffer/read [sfffi]
-*/
-
 /*
  * oracle.c
  *
@@ -449,6 +440,14 @@ void o_poll_start_vu() {
 
 void o_poll_stop_vu() {
     lo_send(crone_addr, "/poll/stop/vu", NULL);
+}
+
+void o_poll_start_cut_phase() {
+    lo_send(crone_addr, "/poll/start/cut_phase", NULL);
+}
+
+void o_poll_stop_cut_phase() {
+    lo_send(crone_addr, "/poll/stop/cut_phase", NULL);
 }
 
 

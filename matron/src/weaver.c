@@ -137,6 +137,8 @@ static int _set_audio_pitch_off(lua_State *l);
 
 static int _poll_start_vu(lua_State *l);
 static int _poll_stop_vu(lua_State *l);
+static int _poll_start_cut_phase(lua_State *l);
+static int _poll_stop_cut_phase(lua_State *l);
 
 // tape control
 
@@ -227,6 +229,8 @@ void w_init(void) {
 
   lua_register_norns("poll_start_vu", &_poll_start_vu);
   lua_register_norns("poll_stop_vu", &_poll_stop_vu);
+  lua_register_norns("poll_start_cut_phase", &_poll_start_cut_phase);
+  lua_register_norns("poll_stop_cut_phase", &_poll_stop_cut_phase);
 
   lua_register_norns("enable_cut", &_enable_cut);
   lua_register_norns("level_adc_cut", &_set_level_adc_cut);
@@ -1925,6 +1929,18 @@ int _poll_start_vu(lua_State *l) {
 int _poll_stop_vu(lua_State *l) {
   (void)l;
   o_poll_stop_vu();
+  return 0;
+}
+
+int _poll_start_cut_phase(lua_State *l) {
+  (void)l;
+  o_poll_start_cut_phase();
+  return 0;
+}
+
+int _poll_stop_cut_phase(lua_State *l) {
+  (void)l;
+  o_poll_stop_cut_phase();
   return 0;
 }
 

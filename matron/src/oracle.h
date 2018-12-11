@@ -103,6 +103,8 @@ extern void o_request_poll_value(int idx);
 
 extern void o_poll_start_vu();
 extern void o_poll_stop_vu();
+extern void o_poll_start_cut_phase();
+extern void o_poll_stop_cut_phase();
 
 extern void o_set_audio_input_level(int idx, float level);
 extern void o_set_audio_output_level(float level);
