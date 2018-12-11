@@ -106,6 +106,7 @@ extern void o_poll_stop_vu();
 
 extern void o_set_audio_input_level(int idx, float level);
 extern void o_set_audio_output_level(float level);
+extern void o_set_level_ext(float level);
 extern void o_set_audio_monitor_level(float level);
 extern void o_set_audio_monitor_mono();
 extern void o_set_audio_monitor_stereo();
@@ -130,6 +131,7 @@ extern void o_set_level_ext_cut(float value);
 extern void o_set_level_cut_aux(float value);
 extern void o_set_level_cut(int index, float value);
 extern void o_set_level_cut_cut(int src, int dest, float value);
+extern void o_set_pan_cut(int index, float value);
 
 
 //--- aux effects controls

@@ -2,59 +2,9 @@
  /poll/start/cut/phase []
  /poll/stop/cut/phase []
 
- /set/level/ext [f]
- /set/level/ins_mix [f]
- /set/level/in_cut [iif]
- /set/level/monitor_aux [f]
- /set/level/monitor_mix [if]
- /set/pan/cut [if]
-
- /set/param/compressor/attack [f]
- /set/param/compressor/gain_post [f]
- /set/param/compressor/gain_pre [f]
- /set/param/compressor/ratio [f]
- /set/param/compressor/release [f]
- /set/param/compressor/threshold [f]
-
- /set/param/cut/fade_time [if]
- /set/param/cut/filter_bp [if]
- /set/param/cut/filter_br [if]
- /set/param/cut/filter_dry [if]
- /set/param/cut/filter_fc [if]
- /set/param/cut/filter_fc_mod [if]
- /set/param/cut/filter_hp [if]
- /set/param/cut/filter_lp [if]
- /set/param/cut/filter_rq [if]
- /set/param/cut/level_slew_time [if]
- /set/param/cut/loop_end [if]
- /set/param/cut/loop_flag [if]
- /set/param/cut/loop_start [if]
- /set/param/cut/phase_quant [if]
- /set/param/cut/position [if]
- /set/param/cut/pre_fade_shape [if]
- /set/param/cut/pre_fade_window [if]
- /set/param/cut/pre_level [if]
- /set/param/cut/rate [if]
- /set/param/cut/rate_slew_time [if]
- /set/param/cut/rec_fade_delay [if]
- /set/param/cut/rec_fade_shape [if]
- /set/param/cut/rec_flag [if]
- /set/param/cut/rec_level [if]
- /set/param/cut/rec_offset [if]
-
- /set/param/reverb/hf_damp [f]
- /set/param/reverb/lf_fc [f]
- /set/param/reverb/low_rt60 [f]
- /set/param/reverb/mid_rt60 [f]
- /set/param/reverb/pre_del [f]
-
  /softcut/buffer/clear [ff]
  /softcut/buffer/clear []
  /softcut/buffer/read [sfffi]
-
- /tape/record/open [s]
- /tape/record/start []
- /tape/record/stop []
 */
 
 /*
@@ -501,33 +451,16 @@ void o_poll_stop_vu() {
     lo_send(crone_addr, "/poll/stop/vu", NULL);
 }
 
-void o_set_level_adc_cut(float value) {
-    lo_send(crone_addr, "/set/level/adc_cut", "f", value);
-}
-
-void o_set_level_ext_cut(float value) {
-    lo_send(crone_addr, "/set/level/ext_cut", "f", value);
-}
-
-void o_set_level_cut_aux(float value) {
-    lo_send(crone_addr, "/set/level/cut_aux", "f", value);
-}
-
-void o_set_level_cut(int index, float value) {
-	lo_send(crone_addr, "/set/level/cut", "if", index, value);
-}
-
-void o_set_level_cut_cut(int src, int dest, float value) {
-	lo_send(crone_addr, "/set/level/cut_cut", "iif", src, dest, value);
-}
-
-
 
 
 //// FIXME: needs 2 levels (OR DOES IT?)
 void o_set_audio_input_level(int idx, float level) {
     (void)idx;
     lo_send(crone_addr, "/set/level/adc", "f", level);
+}
+
+void o_set_level_ext(float level) {
+    lo_send(crone_addr, "/set/level/ext", "f", level);
 }
 
 void o_set_audio_output_level(float level) {
@@ -607,6 +540,45 @@ void o_enable_cut(int i, float value) {
     lo_send(crone_addr, "/set/enabled/cut", "if", i, value);
 }
 
+void o_set_level_adc_cut(float value) {
+    lo_send(crone_addr, "/set/level/adc_cut", "f", value);
+}
+
+void o_set_level_ext_cut(float value) {
+    lo_send(crone_addr, "/set/level/ext_cut", "f", value);
+}
+
+void o_set_level_cut_aux(float value) {
+    lo_send(crone_addr, "/set/level/cut_aux", "f", value);
+}
+
+void o_set_level_cut(int index, float value) {
+	lo_send(crone_addr, "/set/level/cut", "if", index, value);
+}
+
+void o_set_level_cut_cut(int src, int dest, float value) {
+	lo_send(crone_addr, "/set/level/cut_cut", "iif", src, dest, value);
+}
+
+void o_set_pan_cut(int index, float value) {
+	lo_send(crone_addr, "/set/pan/cut", "if", index, value);
+}
+
+void o_set_softcut_voice_param(const char* name, int voice, float value) {
+    static char buf[128];
+    sprintf(buf, "/set/param/cut/%s", name);    
+    lo_send(crone_addr, buf, "if", voice, value);
+}
+
+void o_set_softcut_input_level(int src, int dst, float level) {
+    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
+}
+
+void o_set_softcut_feedback_level(int src, int dst, float level) {
+    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
+}
+
+
 
 
 
@@ -676,34 +648,6 @@ void o_set_insert_fx_param(const char* name, float value) {
     lo_send(crone_addr, buf, "f", value);
 }
 
-void o_set_softcut_voice_param(const char* name, int voice, float value) {
-    static char buf[128];
-    sprintf(buf, "/set/param/cut/%s", name);    
-    lo_send(crone_addr, buf, "if", voice, value);
-}
-
-void o_set_softcut_input_level(int src, int dst, float level) {
-    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
-}
-
-void o_set_softcut_feedback_level(int src, int dst, float level) {
-    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
-}
-
-
-
-
-///////////////////
-/// TODO OOOOOOOOOO
-/*
-  /set/level/ext [f]
-  /set/enabled/cut [if]
-  /set/level/cut [if]
-  /set/pan/cut [if]
-  /set/level/adc_cut [f]
-  /set/level/ext_cut [f]
-  /set/level/cut_aux [f]
-*/
 
 
 /////////////////////

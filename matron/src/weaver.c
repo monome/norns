@@ -126,6 +126,7 @@ static int _micro_sleep(lua_State *l);
 // audio context control
 static int _set_audio_input_level(lua_State *l);
 static int _set_audio_output_level(lua_State *l);
+static int _set_level_ext(lua_State *l);
 static int _set_audio_monitor_level(lua_State *l);
 static int _set_audio_monitor_mono(lua_State *l);
 static int _set_audio_monitor_stereo(lua_State *l);
@@ -154,6 +155,7 @@ static int _set_level_ext_cut(lua_State *l);
 static int _set_level_cut_aux(lua_State *l);
 static int _set_level_cut(lua_State *l);
 static int _set_level_cut_cut(lua_State *l);
+static int _set_pan_cut(lua_State *l);
 
 // aux effects controls
 static int _set_aux_fx_on(lua_State *l);
@@ -192,8 +194,8 @@ _push_norns_func(const char *field, const char *func) {
   lua_remove(lvm, -2);
 }
 
-#define lua_register_norns(L,n,f) \
-              (lua_pushcfunction(L, f), lua_setfield(L, -2, n))
+#define lua_register_norns(n,f) \
+              (lua_pushcfunction(lvm, f), lua_setfield(lvm, -2, n))
 
 ////////////////////////////////
 //// extern function definitions
@@ -212,23 +214,26 @@ void w_init(void) {
   lua_newtable(lvm);
 
   // tape controls
-  lua_register_norns(lvm, "level_tape", &_level_tape);
-  lua_register_norns(lvm, "tape_record_open", &_tape_rec_open);
-  lua_register_norns(lvm, "tape_record_start", &_tape_rec_start);
-  lua_register_norns(lvm, "tape_record_stop", &_tape_rec_stop);
-  lua_register_norns(lvm, "tape_play_open", &_tape_play_open);
-  lua_register_norns(lvm, "tape_play_start", &_tape_play_start);
-  lua_register_norns(lvm, "tape_play_stop", &_tape_play_stop);
+  lua_register_norns("level_tape", &_level_tape);
+  lua_register_norns("tape_record_open", &_tape_rec_open);
+  lua_register_norns("tape_record_start", &_tape_rec_start);
+  lua_register_norns("tape_record_stop", &_tape_rec_stop);
+  lua_register_norns("tape_play_open", &_tape_play_open);
+  lua_register_norns("tape_play_start", &_tape_play_start);
+  lua_register_norns("tape_play_stop", &_tape_play_stop);
 
-  lua_register_norns(lvm, "poll_start_vu", &_poll_start_vu);
-  lua_register_norns(lvm, "poll_stop_vu", &_poll_stop_vu);
+  lua_register_norns("poll_start_vu", &_poll_start_vu);
+  lua_register_norns("poll_stop_vu", &_poll_stop_vu);
 
-  lua_register_norns(lvm, "enable_cut", &_enable_cut);
-  lua_register_norns(lvm, "level_adc_cut", &_set_level_adc_cut);
-  lua_register_norns(lvm, "level_ext_cut", &_set_level_ext_cut);
-  lua_register_norns(lvm, "level_cut_aux", &_set_level_cut_aux);
-  lua_register_norns(lvm, "level_cut", &_set_level_cut);
-  lua_register_norns(lvm, "level_cut_cut", &_set_level_cut_cut);
+  lua_register_norns("enable_cut", &_enable_cut);
+  lua_register_norns("level_adc_cut", &_set_level_adc_cut);
+  lua_register_norns("level_ext_cut", &_set_level_ext_cut);
+  lua_register_norns("level_cut_aux", &_set_level_cut_aux);
+  lua_register_norns("level_cut", &_set_level_cut);
+  lua_register_norns("level_cut_cut", &_set_level_cut_cut);
+  lua_register_norns("pan_cut", &_set_pan_cut);
+
+  lua_register_norns("level_ext", &_set_level_ext);
 
   // name global extern table
   lua_setglobal(lvm, "_norns");
@@ -1784,7 +1789,6 @@ int _set_audio_input_level(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
-
   int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
   float val = (float) luaL_checknumber(l, 2);
   o_set_audio_input_level(idx, val);
@@ -1796,9 +1800,18 @@ int _set_audio_output_level(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
-
   float val = (float) luaL_checknumber(l, 1);
   o_set_audio_output_level(val);
+  lua_settop(l, 0);
+  return 0;
+}
+
+int _set_level_ext(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_ext(val);
   lua_settop(l, 0);
   return 0;
 }
@@ -1807,7 +1820,6 @@ int _set_audio_monitor_level(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
-
   float val = (float) luaL_checknumber(l, 1);
   o_set_audio_monitor_level(val);
   lua_settop(l, 0);
@@ -1966,6 +1978,16 @@ int _set_level_cut_cut(lua_State *l) {
   int dest = (int) luaL_checkinteger(l, 2);
   float val = (float) luaL_checknumber(l, 3);
   o_set_level_cut_cut(src, dest, val);
+  return 0;
+}
+
+int _set_pan_cut(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int idx = (int) luaL_checkinteger(l, 1);
+  float val = (float) luaL_checknumber(l, 2);
+  o_set_pan_cut(idx, val);
   return 0;
 }
 
