@@ -1292,6 +1292,11 @@ m.init[pMIX] = function()
   norns.encoders.set_accel(2,true)
   norns.encoders.set_sens(2,1)
   norns.encoders.set_sens(3,1)
+  -- FIXME: remove timer when VU works
+  u.time = 0.2
+  u.count = -1
+  u.callback = function() menu.redraw() end
+  u:start()
 end
 
 m.deinit[pMIX] = function()
@@ -1299,6 +1304,7 @@ m.deinit[pMIX] = function()
   norns.encoders.set_sens(2,2)
   norns.encoders.set_sens(3,2)
   norns.vu = norns.none
+  u:stop()
 end
 
 m.mix.vu = function(in1,in2,out1,out2)
@@ -1308,8 +1314,6 @@ m.mix.vu = function(in1,in2,out1,out2)
   m.mix.out2 = out2
   menu.redraw()
 end
-
-
 
 
 -----------------------------------------

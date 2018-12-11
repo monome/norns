@@ -123,6 +123,15 @@ extern void o_tape_play_open(char *file);
 extern void o_tape_play_start();
 extern void o_tape_play_stop();
 
+//--- cut
+extern void o_enable_cut(int i, float value);
+extern void o_set_level_adc_cut(float value);
+extern void o_set_level_ext_cut(float value);
+extern void o_set_level_cut_aux(float value);
+extern void o_set_level_cut(int index, float value);
+extern void o_set_level_cut_cut(int src, int dest, float value);
+
+
 //--- aux effects controls
 // enable / disable aux fx processing
 extern void o_set_aux_fx_on();

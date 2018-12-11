@@ -147,6 +147,14 @@ static int _tape_play_open(lua_State *l);
 static int _tape_play_start(lua_State *l);
 static int _tape_play_stop(lua_State *l);
 
+// cut
+static int _enable_cut(lua_State *l);
+static int _set_level_adc_cut(lua_State *l);
+static int _set_level_ext_cut(lua_State *l);
+static int _set_level_cut_aux(lua_State *l);
+static int _set_level_cut(lua_State *l);
+static int _set_level_cut_cut(lua_State *l);
+
 // aux effects controls
 static int _set_aux_fx_on(lua_State *l);
 static int _set_aux_fx_off(lua_State *l);
@@ -214,6 +222,13 @@ void w_init(void) {
 
   lua_register_norns(lvm, "poll_start_vu", &_poll_start_vu);
   lua_register_norns(lvm, "poll_stop_vu", &_poll_stop_vu);
+
+  lua_register_norns(lvm, "enable_cut", &_enable_cut);
+  lua_register_norns(lvm, "level_adc_cut", &_set_level_adc_cut);
+  lua_register_norns(lvm, "level_ext_cut", &_set_level_ext_cut);
+  lua_register_norns(lvm, "level_cut_aux", &_set_level_cut_aux);
+  lua_register_norns(lvm, "level_cut", &_set_level_cut);
+  lua_register_norns(lvm, "level_cut_cut", &_set_level_cut_cut);
 
   // name global extern table
   lua_setglobal(lvm, "_norns");
@@ -1894,6 +1909,66 @@ int _poll_stop_vu(lua_State *l) {
   o_poll_stop_vu();
   return 0;
 }
+
+
+int _enable_cut(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int idx = (int) luaL_checkinteger(l, 1);
+  float val = (float) luaL_checknumber(l, 2);
+  o_enable_cut(idx, val);
+  return 0;
+}
+
+int _set_level_adc_cut(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_adc_cut(val);
+  return 0;
+}
+
+int _set_level_ext_cut(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_ext_cut(val);
+  return 0;
+}
+
+int _set_level_cut_aux(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_cut_aux(val);
+  return 0;
+}
+
+int _set_level_cut(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int idx = (int) luaL_checkinteger(l, 1);
+  float val = (float) luaL_checknumber(l, 2);
+  o_set_level_cut(idx, val);
+  return 0;
+}
+
+int _set_level_cut_cut(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int src = (int) luaL_checkinteger(l, 1);
+  int dest = (int) luaL_checkinteger(l, 2);
+  float val = (float) luaL_checknumber(l, 3);
+  o_set_level_cut_cut(src, dest, val);
+  return 0;
+}
+
 
 
 // aux effects controls
