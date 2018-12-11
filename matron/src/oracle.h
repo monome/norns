@@ -132,6 +132,10 @@ extern void o_set_level_cut_aux(float value);
 extern void o_set_level_cut(int index, float value);
 extern void o_set_level_cut_cut(int src, int dest, float value);
 extern void o_set_pan_cut(int index, float value);
+extern void o_cut_buffer_clear_region(float start, float end);
+extern void o_cut_buffer_clear();
+extern void o_cut_buffer_read(char *file, float start_src,
+                float start_dst, float dur, int ch);
 
 
 //--- aux effects controls

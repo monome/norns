@@ -578,6 +578,20 @@ void o_set_softcut_feedback_level(int src, int dst, float level) {
     lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
 }
 
+void o_cut_buffer_clear_region(float start, float end) {
+    lo_send(crone_addr, "/softcut/buffer/clear", "ff", start, end);
+}
+
+void o_cut_buffer_clear() {
+    lo_send(crone_addr, "/softcut/buffer/clear", "");
+}
+
+void o_cut_buffer_read(char *file, float start_src, float start_dst, float dur, int ch) {
+	lo_send(crone_addr, "/softcut/buffer/read", "sfffi", file, start_src, start_dst, dur, ch);
+} 
+
+
+ //softcut/buffer/read [sfffi]
 
 
 

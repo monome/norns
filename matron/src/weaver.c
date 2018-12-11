@@ -156,6 +156,9 @@ static int _set_level_cut_aux(lua_State *l);
 static int _set_level_cut(lua_State *l);
 static int _set_level_cut_cut(lua_State *l);
 static int _set_pan_cut(lua_State *l);
+static int _cut_buffer_clear_region(lua_State *l);
+static int _cut_buffer_clear(lua_State *l);
+static int _cut_buffer_read(lua_State *l);
 
 // aux effects controls
 static int _set_aux_fx_on(lua_State *l);
@@ -232,6 +235,9 @@ void w_init(void) {
   lua_register_norns("level_cut", &_set_level_cut);
   lua_register_norns("level_cut_cut", &_set_level_cut_cut);
   lua_register_norns("pan_cut", &_set_pan_cut);
+  lua_register_norns("cut_buffer_clear_region", &_cut_buffer_clear_region);
+  lua_register_norns("cut_buffer_clear", &_cut_buffer_clear);
+  lua_register_norns("cut_buffer_read", &_cut_buffer_read);
 
   lua_register_norns("level_ext", &_set_level_ext);
 
@@ -1991,6 +1997,34 @@ int _set_pan_cut(lua_State *l) {
   return 0;
 }
 
+int _cut_buffer_clear_region(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float start = (float) luaL_checknumber(l, 1);
+  float end = (float) luaL_checknumber(l, 2);
+  o_cut_buffer_clear_region(start, end);
+  return 0;
+}
+
+int _cut_buffer_clear(lua_State *l) {
+  (void)l;
+  o_cut_buffer_clear();
+  return 0;
+}
+
+int _cut_buffer_read(lua_State *l) {
+  if (lua_gettop(l) != 5) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  float start_src = (float) luaL_checknumber(l, 2);
+  float start_dst = (float) luaL_checknumber(l, 3);
+  float dur = (float) luaL_checknumber(l, 4);
+  int ch = (int) luaL_checkinteger(l, 5);
+  o_cut_buffer_read((char *)s, start_src, start_dst, dur, ch);
+  return 0;
+}
 
 
 // aux effects controls
@@ -2049,7 +2083,7 @@ int _set_aux_fx_param(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }  
   const char *s = luaL_checkstring(l, 1);
-    float val = (float) luaL_checknumber(l, 2);
+  float val = (float) luaL_checknumber(l, 2);
   o_set_aux_fx_param(s, val);
   return 0;
 }
