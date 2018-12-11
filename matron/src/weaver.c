@@ -124,8 +124,8 @@ static int _get_time(lua_State *l);
 static int _micro_sleep(lua_State *l);
 
 // audio context control
-static int _set_audio_input_level(lua_State *l);
-static int _set_audio_output_level(lua_State *l);
+static int _set_level_dac(lua_State *l);
+static int _set_level_adc(lua_State *l);
 static int _set_level_ext(lua_State *l);
 static int _set_audio_monitor_level(lua_State *l);
 static int _set_audio_monitor_mono(lua_State *l);
@@ -218,8 +218,13 @@ void w_init(void) {
   // make table for global externs
   lua_newtable(lvm);
 
-  // tape controls
+  // levels
+  lua_register_norns("level_adc", &_set_level_adc);
+  lua_register_norns("level_dac", &_set_level_dac);
+  lua_register_norns("level_ext", &_set_level_ext);
   lua_register_norns("level_tape", &_level_tape);
+
+  // tape controls
   lua_register_norns("tape_record_open", &_tape_rec_open);
   lua_register_norns("tape_record_start", &_tape_rec_start);
   lua_register_norns("tape_record_stop", &_tape_rec_stop);
@@ -227,11 +232,13 @@ void w_init(void) {
   lua_register_norns("tape_play_start", &_tape_play_start);
   lua_register_norns("tape_play_stop", &_tape_play_stop);
 
+  // polls
   lua_register_norns("poll_start_vu", &_poll_start_vu);
   lua_register_norns("poll_stop_vu", &_poll_stop_vu);
   lua_register_norns("poll_start_cut_phase", &_poll_start_cut_phase);
   lua_register_norns("poll_stop_cut_phase", &_poll_stop_cut_phase);
 
+  // cut
   lua_register_norns("enable_cut", &_enable_cut);
   lua_register_norns("level_adc_cut", &_set_level_adc_cut);
   lua_register_norns("level_ext_cut", &_set_level_ext_cut);
@@ -243,11 +250,9 @@ void w_init(void) {
   lua_register_norns("cut_buffer_clear", &_cut_buffer_clear);
   lua_register_norns("cut_buffer_read", &_cut_buffer_read);
 
-  lua_register_norns("level_ext", &_set_level_ext);
 
   // name global extern table
   lua_setglobal(lvm, "_norns");
-
 
 
   // TODO: GET THESE INTO _norns TABLE
@@ -326,8 +331,6 @@ void w_init(void) {
   lua_register(lvm, "request_poll_value", &_request_poll_value);
 
   // audio context controls
-  lua_register(lvm, "audio_input_level", &_set_audio_input_level);
-  lua_register(lvm, "audio_output_level", &_set_audio_output_level);
   lua_register(lvm, "audio_monitor_level", &_set_audio_monitor_level);
   lua_register(lvm, "audio_monitor_mono", &_set_audio_monitor_mono);
   lua_register(lvm, "audio_monitor_stereo", &_set_audio_monitor_stereo);
@@ -1795,23 +1798,23 @@ int _request_poll_value(lua_State *l) {
 }
 
 // audio context control
-int _set_audio_input_level(lua_State *l) {
+int _set_level_adc(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
   int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
   float val = (float) luaL_checknumber(l, 2);
-  o_set_audio_input_level(idx, val);
+  o_set_level_adc(idx, val);
   lua_settop(l, 0);
   return 0;
 }
 
-int _set_audio_output_level(lua_State *l) {
+int _set_level_dac(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
   float val = (float) luaL_checknumber(l, 1);
-  o_set_audio_output_level(val);
+  o_set_level_dac(val);
   lua_settop(l, 0);
   return 0;
 }

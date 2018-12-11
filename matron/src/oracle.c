@@ -453,17 +453,17 @@ void o_poll_stop_cut_phase() {
 
 
 //// FIXME: needs 2 levels (OR DOES IT?)
-void o_set_audio_input_level(int idx, float level) {
+void o_set_level_adc(int idx, float level) {
     (void)idx;
     lo_send(crone_addr, "/set/level/adc", "f", level);
 }
 
-void o_set_level_ext(float level) {
-    lo_send(crone_addr, "/set/level/ext", "f", level);
+void o_set_level_dac(float level) {
+    lo_send(crone_addr, "/set/level/dac", "f", level);
 }
 
-void o_set_audio_output_level(float level) {
-    lo_send(crone_addr, "/set/level/dac", "f", level);
+void o_set_level_ext(float level) {
+    lo_send(crone_addr, "/set/level/ext", "f", level);
 }
 
 void o_set_audio_monitor_level(float level) {    

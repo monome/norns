@@ -1167,7 +1167,7 @@ m.key[pSLEEP] = function(n,z)
     norns.state.save()
     cleanup()
     if m.tape.rec.sel == TAPE_REC_STOP then tape_stop_rec() end
-    norns.audio.output_level(-100)
+    norns.audio.output_level(0)
     gain_hp(0)
     wifi.off()
     os.execute("sleep 0.5; sudo shutdown now")

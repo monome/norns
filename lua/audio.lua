@@ -10,13 +10,13 @@ local Audio = {}
 -- @param channel (1 or 2)
 -- @param level in [0, 1]
 Audio.input_level = function(channel, level)
-  audio_input_level(channel, level)
+  _norns.level_adc(channel, level)
 end
 
 --- set level for *both* output channels
 -- @param level in [0, 1]
 Audio.output_level = function(level)
-  audio_output_level(level)
+  _norns.level_dac(level)
 end
 
 -- set monitor level for *both* input channels
