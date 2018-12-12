@@ -141,7 +141,6 @@ static int _poll_start_cut_phase(lua_State *l);
 static int _poll_stop_cut_phase(lua_State *l);
 
 // tape control
-
 static int _tape_rec_open(lua_State *l);
 static int _tape_rec_start(lua_State *l);
 static int _tape_rec_stop(lua_State *l);
@@ -160,6 +159,8 @@ static int _cut_enable(lua_State *l);
 static int _cut_buffer_clear_region(lua_State *l);
 static int _cut_buffer_clear(lua_State *l);
 static int _cut_buffer_read(lua_State *l);
+static int _set_cut_param(lua_State *l);
+static int _set_cut_input_level(lua_State *l);
 
 // aux effects controls
 static int _set_aux_on(lua_State *l);
@@ -238,7 +239,6 @@ void w_init(void) {
   lua_register_norns("insert_param", &_set_insert_param);
   lua_register_norns("insert_mix", &_set_insert_mix);
 
-
   // tape controls
   lua_register_norns("tape_record_open", &_tape_rec_open);
   lua_register_norns("tape_record_start", &_tape_rec_start);
@@ -264,6 +264,8 @@ void w_init(void) {
   lua_register_norns("cut_buffer_clear_region", &_cut_buffer_clear_region);
   lua_register_norns("cut_buffer_clear", &_cut_buffer_clear);
   lua_register_norns("cut_buffer_read", &_cut_buffer_read);
+  lua_register_norns("cut_param", &_set_cut_param);
+  lua_register_norns("cut_input_level", &_set_cut_input_level);
 
 
   // name global extern table
@@ -348,7 +350,6 @@ void w_init(void) {
   // audio context controls
   lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
   lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
-
 
   // start audio (query for sclang readiness)
   lua_register(lvm, "start_audio", &_start_audio);
@@ -2015,7 +2016,7 @@ int _cut_buffer_clear(lua_State *l) {
 }
 
 int _cut_buffer_read(lua_State *l) {
-  if (lua_gettop(l) != 5) {
+  if (lua_gettop(l) != 3) {
     return luaL_error(l, "wrong number of arguments");
   }
   const char *s = luaL_checkstring(l, 1);
@@ -2026,6 +2027,30 @@ int _cut_buffer_read(lua_State *l) {
   o_cut_buffer_read((char *)s, start_src, start_dst, dur, ch);
   return 0;
 }
+
+int _set_cut_param(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  int voice = (int) luaL_checkinteger(l, 2);
+  float val = (float) luaL_checknumber(l, 3);
+  o_set_cut_param((char *)s, voice, val);
+  return 0;
+}
+
+int _set_cut_input_level(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int ch = (int) luaL_checkinteger(l, 1);
+  int voice = (int) luaL_checkinteger(l, 2);
+  float val = (float) luaL_checknumber(l, 3);
+  o_set_cut_input_level(ch, voice, val);
+  return 0;
+}
+
+
 
 
 // aux effects controls
