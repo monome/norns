@@ -10,10 +10,7 @@ mix:set_action("output",
   function(x) audio.output_level(util.dbamp(x)) end)
 mix:add_control("input", "input", cs_MAIN_LEVEL)
 mix:set_action("input",
-  function(x)
-    audio.input_level(1,util.dbamp(x))
-    audio.input_level(2,util.dbamp(x))
-  end)
+  function(x) audio.input_level(util.dbamp(x)) end)
 local cs_MUTE_LEVEL = cs.new(-math.huge,0,'db',0,-math.huge,"dB")
 mix:add_control("monitor", "monitor", cs_MUTE_LEVEL)
 mix:set_action("monitor",
@@ -52,15 +49,15 @@ local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 
 mix:add_control("aux_engine_level", "aux engine level", cs_DB_LEVEL_9DB)
 mix:set_action("aux_engine_level",
-  function(x) audio.level_ext_aux(x) end)
+  function(x) audio.level_ext_aux(util.dbamp(x)) end)
 
 mix:add_control("aux_monitor_level", "aux monitor level", cs_DB_LEVEL_MUTE)
 mix:set_action("aux_monitor_level",
-  function(x) audio.level_monitor_aux(0,x) end)
+  function(x) audio.level_monitor_aux(util.dbamp(x)) end)
 
 mix:add_control("aux_return_level", "aux return level", cs_DB_LEVEL)
 mix:set_action("aux_return_level",
-  function(x) audio.level_aux_dac(x) end)
+  function(x) audio.level_aux_dac(util.dbamp(x)) end)
 
 
 local cs_IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
@@ -73,7 +70,7 @@ mix:add_control("rev_lf_fc", "rev lf fc", cs_LF_FC)
 mix:set_action("rev_lf_fc",
   function(x) audio.aux_param("lf_fc",x) end)
 
-local cs_RT60 = cs.new(0.1,8,'lin',0,6,'s')
+local cs_RT60 = cs.new(0.1,16,'lin',0,6,'s')
 mix:add_control("rev_low_time", "rev low time", cs_RT60)
 mix:set_action("rev_low_time",
   function(x) audio.aux_param("low_rt60",x) end)
@@ -142,13 +139,13 @@ mix:add_control("comp_release", "comp release", cs_RELEASE)
 mix:set_action("comp_release",
   function(x) audio.insert_param("release",x) end)
 
-local cs_MAKEUP = cs.new(-20,60,'db',0,9,'dB')
-mix:add_control("comp_pre_gain", "comp pre gain", cs_MAKEUP)
+local cs_PREGAIN = cs.new(-20,60,'db',0,0,'dB')
+mix:add_control("comp_pre_gain", "comp pre gain", cs_PREGAIN)
 mix:set_action("comp_pre_gain",
   function(x) audio.insert_param("gain_pre",x) end)
 
-local cs_MAKEUP = cs.new(-20,60,'db',0,9,'dB')
-mix:add_control("comp_post_gain", "comp post gain", cs_MAKEUP)
+local cs_POSTGAIN = cs.new(-20,60,'db',0,9,'dB')
+mix:add_control("comp_post_gain", "comp post gain", cs_POSTGAIN)
 mix:set_action("comp_post_gain",
   function(x) audio.insert_param("gain_post",x) end)
 

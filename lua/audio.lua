@@ -12,11 +12,10 @@ Audio.headphone_gain = function(gain)
   gain_hp(gain)
 end
 
---- set level for one input channel
--- @param channel (1 or 2)
+--- set level for ADC input
 -- @param level in [0, 1]
-Audio.input_level = function(channel, level)
-  _norns.level_adc(channel, level)
+Audio.input_level = function(level)
+  _norns.level_adc(level)
 end
 
 --- set level for *both* output channels

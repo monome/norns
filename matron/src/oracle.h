@@ -106,7 +106,7 @@ extern void o_poll_stop_vu();
 extern void o_poll_start_cut_phase();
 extern void o_poll_stop_cut_phase();
 
-extern void o_set_level_adc(int idx, float level);
+extern void o_set_level_adc(float level);
 extern void o_set_level_dac(float level);
 extern void o_set_level_ext(float level);
 extern void o_set_level_tape(float level);

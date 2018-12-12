@@ -1794,12 +1794,11 @@ int _request_poll_value(lua_State *l) {
 
 // audio context control
 int _set_level_adc(lua_State *l) {
-  if (lua_gettop(l) != 2) {
+  if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
-  int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
-  float val = (float) luaL_checknumber(l, 2);
-  o_set_level_adc(idx, val);
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_adc(val);
   lua_settop(l, 0);
   return 0;
 }

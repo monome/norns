@@ -452,9 +452,7 @@ void o_poll_stop_cut_phase() {
 
 
 
-//// FIXME: needs 2 levels (OR DOES IT?)
-void o_set_level_adc(int idx, float level) {
-    (void)idx;
+void o_set_level_adc(float level) {
     lo_send(crone_addr, "/set/level/adc", "f", level);
 }
 
