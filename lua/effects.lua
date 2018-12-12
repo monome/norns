@@ -1,4 +1,5 @@
 local Effects = {}
+
 function Effects.aux_fx_on()
    set_aux_fx_on()
 end

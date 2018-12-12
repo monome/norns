@@ -109,16 +109,14 @@ extern void o_poll_stop_cut_phase();
 extern void o_set_level_adc(int idx, float level);
 extern void o_set_level_dac(float level);
 extern void o_set_level_ext(float level);
-extern void o_set_audio_monitor_level(float level);
-extern void o_set_audio_monitor_mono();
-extern void o_set_audio_monitor_stereo();
-extern void o_set_audio_monitor_on();
-extern void o_set_audio_monitor_off();
+extern void o_set_level_tape(float level);
+extern void o_set_level_monitor(float level);
+extern void o_set_monitor_mix_mono();
+extern void o_set_monitor_mix_stereo();
 extern void o_set_audio_pitch_on();
 extern void o_set_audio_pitch_off();
 
 //--- tape control
-extern void o_level_tape(float level);
 extern void o_tape_rec_open(char *file);
 extern void o_tape_rec_start();
 extern void o_tape_rec_stop();
@@ -127,13 +125,13 @@ extern void o_tape_play_start();
 extern void o_tape_play_stop();
 
 //--- cut
-extern void o_enable_cut(int i, float value);
 extern void o_set_level_adc_cut(float value);
 extern void o_set_level_ext_cut(float value);
 extern void o_set_level_cut_aux(float value);
 extern void o_set_level_cut(int index, float value);
 extern void o_set_level_cut_cut(int src, int dest, float value);
 extern void o_set_pan_cut(int index, float value);
+extern void o_cut_enable(int i, float value);
 extern void o_cut_buffer_clear_region(float start, float end);
 extern void o_cut_buffer_clear();
 extern void o_cut_buffer_read(char *file, float start_src,

@@ -127,11 +127,11 @@ static int _micro_sleep(lua_State *l);
 static int _set_level_dac(lua_State *l);
 static int _set_level_adc(lua_State *l);
 static int _set_level_ext(lua_State *l);
-static int _set_audio_monitor_level(lua_State *l);
-static int _set_audio_monitor_mono(lua_State *l);
-static int _set_audio_monitor_stereo(lua_State *l);
-static int _set_audio_monitor_on(lua_State *l);
-static int _set_audio_monitor_off(lua_State *l);
+static int _set_level_tape(lua_State *l);
+static int _set_level_monitor(lua_State *l);
+static int _set_monitor_mix_mono(lua_State *l);
+static int _set_monitor_mix_stereo(lua_State *l);
+
 static int _set_audio_pitch_on(lua_State *l);
 static int _set_audio_pitch_off(lua_State *l);
 
@@ -142,7 +142,6 @@ static int _poll_stop_cut_phase(lua_State *l);
 
 // tape control
 
-static int _level_tape(lua_State *l);
 static int _tape_rec_open(lua_State *l);
 static int _tape_rec_start(lua_State *l);
 static int _tape_rec_stop(lua_State *l);
@@ -151,13 +150,13 @@ static int _tape_play_start(lua_State *l);
 static int _tape_play_stop(lua_State *l);
 
 // cut
-static int _enable_cut(lua_State *l);
 static int _set_level_adc_cut(lua_State *l);
 static int _set_level_ext_cut(lua_State *l);
 static int _set_level_cut_aux(lua_State *l);
 static int _set_level_cut(lua_State *l);
 static int _set_level_cut_cut(lua_State *l);
 static int _set_pan_cut(lua_State *l);
+static int _cut_enable(lua_State *l);
 static int _cut_buffer_clear_region(lua_State *l);
 static int _cut_buffer_clear(lua_State *l);
 static int _cut_buffer_read(lua_State *l);
@@ -222,7 +221,12 @@ void w_init(void) {
   lua_register_norns("level_adc", &_set_level_adc);
   lua_register_norns("level_dac", &_set_level_dac);
   lua_register_norns("level_ext", &_set_level_ext);
-  lua_register_norns("level_tape", &_level_tape);
+  lua_register_norns("level_tape", &_set_level_tape);
+  lua_register_norns("level_monitor", &_set_level_monitor);
+
+  lua_register_norns("monitor_mix_mono", &_set_monitor_mix_mono);
+  lua_register_norns("monitor_mix_stereo", &_set_monitor_mix_stereo);
+
 
   // tape controls
   lua_register_norns("tape_record_open", &_tape_rec_open);
@@ -239,13 +243,13 @@ void w_init(void) {
   lua_register_norns("poll_stop_cut_phase", &_poll_stop_cut_phase);
 
   // cut
-  lua_register_norns("enable_cut", &_enable_cut);
   lua_register_norns("level_adc_cut", &_set_level_adc_cut);
   lua_register_norns("level_ext_cut", &_set_level_ext_cut);
   lua_register_norns("level_cut_aux", &_set_level_cut_aux);
   lua_register_norns("level_cut", &_set_level_cut);
   lua_register_norns("level_cut_cut", &_set_level_cut_cut);
   lua_register_norns("pan_cut", &_set_pan_cut);
+  lua_register_norns("cut_enable", &_cut_enable);
   lua_register_norns("cut_buffer_clear_region", &_cut_buffer_clear_region);
   lua_register_norns("cut_buffer_clear", &_cut_buffer_clear);
   lua_register_norns("cut_buffer_read", &_cut_buffer_read);
@@ -331,11 +335,6 @@ void w_init(void) {
   lua_register(lvm, "request_poll_value", &_request_poll_value);
 
   // audio context controls
-  lua_register(lvm, "audio_monitor_level", &_set_audio_monitor_level);
-  lua_register(lvm, "audio_monitor_mono", &_set_audio_monitor_mono);
-  lua_register(lvm, "audio_monitor_stereo", &_set_audio_monitor_stereo);
-  lua_register(lvm, "audio_monitor_on", &_set_audio_monitor_on);
-  lua_register(lvm, "audio_monitor_off", &_set_audio_monitor_off);
   lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
   lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
 
@@ -349,7 +348,7 @@ void w_init(void) {
   lua_register(lvm, "set_aux_fx_return_level", &_set_aux_fx_return_level);
   lua_register(lvm, "set_aux_fx_param", &_set_aux_fx_param);
 
-// insert effects controls
+  // insert effects controls
   lua_register(lvm, "set_insert_fx_on", &_set_insert_fx_on);
   lua_register(lvm, "set_insert_fx_off", &_set_insert_fx_off);
   lua_register(lvm, "set_insert_fx_mix", &_set_insert_fx_mix);
@@ -1829,37 +1828,25 @@ int _set_level_ext(lua_State *l) {
   return 0;
 }
 
-int _set_audio_monitor_level(lua_State *l) {
+int _set_level_monitor(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
   float val = (float) luaL_checknumber(l, 1);
-  o_set_audio_monitor_level(val);
+  o_set_level_monitor(val);
   lua_settop(l, 0);
   return 0;
 }
 
-int _set_audio_monitor_mono(lua_State *l) {
+int _set_monitor_mix_mono(lua_State *l) {
   (void)l;
-  o_set_audio_monitor_mono();
+  o_set_monitor_mix_mono();
   return 0;
 }
 
-int _set_audio_monitor_stereo(lua_State *l) {
+int _set_monitor_mix_stereo(lua_State *l) {
   (void)l;
-  o_set_audio_monitor_stereo();
-  return 0;
-}
-
-int _set_audio_monitor_on(lua_State *l) {
-  (void)l;
-  o_set_audio_monitor_on();
-  return 0;
-}
-
-int _set_audio_monitor_off(lua_State *l) {
-  (void)l;
-  o_set_audio_monitor_off();
+  o_set_monitor_mix_stereo();
   return 0;
 }
 
@@ -1875,10 +1862,10 @@ int _set_audio_pitch_off(lua_State *l) {
   return 0;
 }
 
-int _level_tape(lua_State *l) {
+int _set_level_tape(lua_State *l) {
   if (lua_gettop(l) != 1) { return luaL_error(l, "wrong number of arguments"); } 
   float val = (float) luaL_checknumber(l, 1);
-  o_level_tape(val);
+  o_set_level_tape(val);
   lua_settop(l, 0);
   return 0;
 }
@@ -1948,13 +1935,13 @@ int _poll_stop_cut_phase(lua_State *l) {
 }
 
 
-int _enable_cut(lua_State *l) {
+int _cut_enable(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
   int idx = (int) luaL_checkinteger(l, 1);
   float val = (float) luaL_checknumber(l, 2);
-  o_enable_cut(idx, val);
+  o_cut_enable(idx, val);
   return 0;
 }
 

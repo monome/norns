@@ -1,35 +1,36 @@
 local cs = require 'controlspec'
 local fx = require 'effects'
 local util = require 'util'
+local audio = require 'audio'
 
 -- mix paramset
 local mix = paramset.new("mix", "mix")
 local cs_MAIN_LEVEL = cs.new(-math.huge,0,'db',0,0,"dB")
 mix:add_control("output", "output", cs_MAIN_LEVEL)
 mix:set_action("output",
-  function(x) norns.audio.output_level(util.dbamp(x)) end)
+  function(x) audio.output_level(util.dbamp(x)) end)
 mix:add_control("input", "input", cs_MAIN_LEVEL)
 mix:set_action("input",
   function(x)
-    norns.audio.input_level(1,util.dbamp(x))
-    norns.audio.input_level(2,util.dbamp(x))
+    audio.input_level(1,util.dbamp(x))
+    audio.input_level(2,util.dbamp(x))
   end)
 local cs_MUTE_LEVEL = cs.new(-math.huge,0,'db',0,-math.huge,"dB")
 mix:add_control("monitor", "monitor", cs_MUTE_LEVEL)
 mix:set_action("monitor",
-  function(x) norns.audio.monitor_level(util.dbamp(x)) end)
+  function(x) audio.monitor_level(util.dbamp(x)) end)
 mix:add_option("monitor_mode", "monitor mode", {"STEREO", "MONO"})
 mix:set_action("monitor_mode",
   function(x)
-    if x == 1 then norns.audio.monitor_stereo()
-    else norns.audio.monitor_mono() end
+    if x == 1 then audio.monitor_stereo()
+    else audio.monitor_mono() end
   end)
 mix:add_control("tape", "tape", cs_MUTE_LEVEL)
 mix:set_action("tape",
-  function(x) _norns.level_tape(util.dbamp(x)) end)
+  function(x) audio.level_tape(util.dbamp(x)) end)
 mix:add_number("headphone", "headphone", 0, 63, 40)
 mix:set_action("headphone",
-  function(x) gain_hp(x) end)
+  function(x) audio.headphone_gain(x) end)
 
 
 -- TODO TAPE (rec) modes: OUTPUT, OUTPUT+MONITOR, OUTPUT/MONITOR SPLIT

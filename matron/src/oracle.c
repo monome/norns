@@ -466,31 +466,24 @@ void o_set_level_ext(float level) {
     lo_send(crone_addr, "/set/level/ext", "f", level);
 }
 
-void o_set_audio_monitor_level(float level) {    
+void o_set_level_monitor(float level) {    
     lo_send(crone_addr, "/set/level/monitor", "f", level);
 }
 
-void o_set_audio_monitor_mono() {
+void o_set_monitor_mix_mono() {
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 0.5);
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.5);
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.5);
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 0.5);
 }
 
-void o_set_audio_monitor_stereo() {
+void o_set_monitor_mix_stereo() {
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 1.0);
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.0);
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.0);
     lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 1.0);
 }
 
-void o_set_audio_monitor_on() {
-    fprintf(stderr, "o_set_audio_monitor_on() currently unavailable");
-}
-
-void o_set_audio_monitor_off() {
-    fprintf(stderr, "o_set_audio_monitor_off() currently unavailable");
-}
 
 void o_set_audio_pitch_on() {
     lo_send(ext_addr, "/audio/pitch/on", NULL);
@@ -505,7 +498,7 @@ void o_restart_audio() {
 }
 
 //---- tape controls
-void o_level_tape(float level) {
+void o_set_level_tape(float level) {
     lo_send(crone_addr, "/set/level/tape", "f", level);
 }
 
@@ -535,7 +528,7 @@ void o_tape_play_stop() {
 
 
 //--- cut
-void o_enable_cut(int i, float value) {
+void o_cut_enable(int i, float value) {
     lo_send(crone_addr, "/set/enabled/cut", "if", i, value);
 }
 

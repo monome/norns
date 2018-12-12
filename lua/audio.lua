@@ -6,6 +6,12 @@ norns.version.audio = '0.0.2'
 
 local Audio = {}
 
+--- set headphone gain
+-- @param gain (0-64)
+Audio.headphone_gain = function(gain)
+  gain_hp(gain)
+end
+
 --- set level for one input channel
 -- @param channel (1 or 2)
 -- @param level in [0, 1]
@@ -19,32 +25,32 @@ Audio.output_level = function(level)
   _norns.level_dac(level)
 end
 
+Audio.level_ext = function(level)
+  _norns.level_ext(level)
+end
+
 -- set monitor level for *both* input channels
 -- @param level in [0, 1]
 Audio.monitor_level = function(level)
-  audio_monitor_level(level)
+  _norns.level_monitor(level)
 end
 
 --- set monitor mode to mono
 --- both inputs will be mixed to both outputs
 Audio.monitor_mono = function()
-  audio_monitor_mono()
+  _norns.monitor_mix_mono()
 end
 
 --- set monitor mode to stereo
 --- each input will be monitored on the respective output
 Audio.monitor_stereo = function()
-  audio_monitor_stereo()
+  _norns.monitor_mix_stereo()
 end
 
---- enable monitoring (may cause clicks)
-Audio.monitor_on = function()
-  audio_monitor_on()
-end
-
---- disable monitoring (may cause clicks)
-Audio.monitor_off = function()
-  audio_monitor_off()
+--- set tape level
+-- @param level [0,1]
+Audio.level_tape = function(level)
+  _norns.level_tape(level)
 end
 
 --- enable input pitch analysis
@@ -61,6 +67,9 @@ end
 Audio.restart = function()
    restart_audio()
 end
+
+
+
 
 --- global functions
 -- @section globals
