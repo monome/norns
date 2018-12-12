@@ -5,6 +5,7 @@ local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'paramset'
 local cs = require 'controlspec'
+local audio = require 'audio'
 local menu = {}
 
 mix = require 'mix'
@@ -52,20 +53,22 @@ menu.shownav = false
 menu.showstats = false
 
 
+---- METROS
 local pending = false
 -- metro for key hold detection
 local metro = require 'metro'
-local t = metro[31]
+local t = metro[30]
 t.time = KEY1_HOLD_TIME
 t.count = 1
 t.callback = function(stage)
   menu.key(1,1)
   pending = false
 end
-
--- metro for status updates
-local u = metro[30]
-
+-- metro for page status updates
+local u = metro[31]
+-- metro for tape
+local tape_play_counter = metro[32]
+local tape_rec_counter = metro[33]
 -- metro for nav vanish
 local nav_vanish = metro[34]
 nav_vanish.time = 1
@@ -74,6 +77,7 @@ nav_vanish.callback = function()
   if menu.mode == true then menu.redraw() end
   nav_vanish:stop()
 end
+-- screen.lua has metro[35] for screensaver
 
 -- assigns key/enc/screen handlers after user script has loaded
 norns.menu = {}
@@ -1165,7 +1169,7 @@ m.key[pSLEEP] = function(n,z)
     norns.state.clean_shutdown = true
     norns.state.save()
     cleanup()
-    if m.tape.rec.sel == TAPE_REC_STOP then tape_stop_rec() end
+    if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     norns.audio.output_level(0)
     gain_hp(0)
     wifi.off()
@@ -1362,7 +1366,7 @@ m.key[pTAPE] = function(n,z)
       if m.tape.play.sel == TAPE_PLAY_LOAD then
         local playfile_callback = function(path)
           if path ~= "cancel" then
-            _norns.tape_play_open(path)
+            audio.tape_play_open(path)
             m.tape.play.file = path:match("[^/]*$")
             m.tape.play.status = TAPE_PLAY_PAUSE
             m.tape.play.sel = TAPE_PLAY_PLAY
@@ -1370,23 +1374,22 @@ m.key[pTAPE] = function(n,z)
             m.tape.play.length = math.floor(samples / rate)
             m.tape.play.length_text = util.s_to_hms(m.tape.play.length)
             m.tape.play.pos_tick = 0
-            --p_tape_play = poll.set("tape_play_pos")
-            --p_tape_play.time = 0.25
-            --p_tape_play.callback = function(x)
-              --m.tape.play.pos_tick = x
-              --if x > m.tape.play.length and m.tape.play.status == TAPE_PLAY_PLAY then
-                --print("tape is over!")
-                --_norns.tape_play_stop()
-                --p_tape_play:stop()
-                --m.tape.play.file = nil
-                --m.tape.play.stats = TAPE_PLAY_STOP
-                --m.tape.play.sel = TAPE_PLAY_LOAD
-              --end
-              --if menu.mode == true and menu.page == pTAPE then
-                --menu.redraw()
-              --end
-            --end
-            --p_tape_play:start()
+            tape_play_counter.time = 0.25
+            tape_play_counter.callback = function()
+              m.tape.play.pos_tick = m.tape.play.pos_tick + 0.25
+              if m.tape.play.pos_tick > m.tape.play.length 
+                  and m.tape.play.status == TAPE_PLAY_PLAY then
+                print("tape is over!")
+                audio.tape_play_stop()
+                tape_play_counter:stop()
+                m.tape.play.file = nil
+                m.tape.play.stats = TAPE_PLAY_STOP
+                m.tape.play.sel = TAPE_PLAY_LOAD
+              end
+              if menu.mode == true and menu.page == pTAPE then
+                menu.redraw()
+              end
+            end
           else
             m.tape.play.file = nil
           end
@@ -1394,13 +1397,14 @@ m.key[pTAPE] = function(n,z)
         end
         fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
       elseif m.tape.play.sel == TAPE_PLAY_PLAY then
-        _norns.tape_play_start()
+        tape_play_counter:start()
+        audio.tape_play_start()
         m.tape.play.status = m.tape.play.sel
         m.tape.play.sel = TAPE_PLAY_STOP
         menu.redraw()
       elseif m.tape.play.sel == TAPE_PLAY_STOP then
-        _norns.tape_play_stop()
-        --p_tape_play:stop()
+        audio.tape_play_stop()
+        tape_play_counter:stop()
         m.tape.play.file = nil
         m.tape.play.status = m.tape.play.sel
         m.tape.play.sel = TAPE_PLAY_LOAD
@@ -1410,32 +1414,31 @@ m.key[pTAPE] = function(n,z)
       if m.tape.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
         m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".wav"
-        _norns.tape_rec_open(m.tape.rec.file)
+        audio.tape_record_open(audio_dir.."/tape/"..m.tape.rec.file)
         m.tape.rec.sel = TAPE_REC_START
-            m.tape.rec.pos_tick = 0
-            p_tape_rec = poll.set("tape_rec_dur")
-            p_tape_rec.time = 0.25
-            p_tape_rec.callback = function(x)
-              m.tape.rec.pos_tick = x
-              if x > m.tape.diskfree then
-                print("out of space!")
-                tape_stop_rec()
-                norns.state.tape = norns.state.tape + 1
-                p_tape_rec:stop()
-                m.tape.rec.sel = TAPE_REC_ARM
-              end
-              if menu.mode == true and menu.page == pTAPE then
-                menu.redraw()
-              end
-            end
-            p_tape_rec:start()
+        m.tape.rec.pos_tick = 0
+        tape_rec_counter.time = 0.25
+        tape_rec_counter.callback = function()
+          m.tape.rec.pos_tick = m.tape.rec.pos_tick + 0.25
+          if m.tape.rec.pos_tick > m.tape.diskfree then
+            print("out of space!")
+            audio.tape_record_stop()
+            norns.state.tape = norns.state.tape + 1
+            tape_rec_counter:stop()
+            m.tape.rec.sel = TAPE_REC_ARM
+          end
+          if menu.mode == true and menu.page == pTAPE then
+            menu.redraw()
+          end
+        end
       elseif m.tape.rec.sel == TAPE_REC_START then
-        tape_start_rec()
+        tape_rec_counter:start()
+        audio.tape_record_start()
         m.tape.rec.sel = TAPE_REC_STOP
       elseif m.tape.rec.sel == TAPE_REC_STOP then
-        p_tape_rec:stop()
+        tape_rec_counter:stop()
         norns.state.tape = norns.state.tape + 1
-        tape_stop_rec()
+        audio.tape_record_stop()
         m.tape.rec.sel = TAPE_REC_ARM
         tape_diskfree()
       end

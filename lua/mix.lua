@@ -7,14 +7,14 @@ local mix = paramset.new("mix", "mix")
 local cs_MAIN_LEVEL = cs.new(-math.huge,0,'db',0,0,"dB")
 mix:add_control("output", "output", cs_MAIN_LEVEL)
 mix:set_action("output",
-  function(x) audio.output_level(util.dbamp(x)) end)
+  function(x) audio.level_dac(util.dbamp(x)) end)
 mix:add_control("input", "input", cs_MAIN_LEVEL)
 mix:set_action("input",
-  function(x) audio.input_level(util.dbamp(x)) end)
+  function(x) audio.level_adc(util.dbamp(x)) end)
 local cs_MUTE_LEVEL = cs.new(-math.huge,0,'db',0,-math.huge,"dB")
 mix:add_control("monitor", "monitor", cs_MUTE_LEVEL)
 mix:set_action("monitor",
-  function(x) audio.monitor_level(util.dbamp(x)) end)
+  function(x) audio.level_monitor(util.dbamp(x)) end)
 mix:add_option("monitor_mode", "monitor mode", {"STEREO", "MONO"})
 mix:set_action("monitor_mode",
   function(x)

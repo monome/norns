@@ -14,13 +14,13 @@ end
 
 --- set level for ADC input
 -- @param level in [0, 1]
-Audio.input_level = function(level)
+Audio.level_adc = function(level)
   _norns.level_adc(level)
 end
 
 --- set level for *both* output channels
 -- @param level in [0, 1]
-Audio.output_level = function(level)
+Audio.level_dac = function(level)
   _norns.level_dac(level)
 end
 
@@ -30,7 +30,7 @@ end
 
 -- set monitor level for *both* input channels
 -- @param level in [0, 1]
-Audio.monitor_level = function(level)
+Audio.level_monitor = function(level)
   _norns.level_monitor(level)
 end
 
