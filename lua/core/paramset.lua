@@ -198,16 +198,16 @@ end
 -- @param filename relative to data_dir
 function ParamSet:write(filename)
   print("pset/write > " .. filename)
-  local data_dir = norns.state.path .. 'data'
-  local fd = io.open(data_dir,"r")
+  local dir = norns.state.path .. 'data'
+  local fd = io.open(dir,"r")
   if fd then
     io.close(fd)
   else
     print(">> creating subfolder")
-    os.execute("mkdir " .. data_dir)
+    os.execute("mkdir " .. dir)
   end
   -- write file
-  local file = data_dir..'/'..filename
+  local file = dir..'/'..filename
   print(">>>> "..file)
   local fd = io.open(file, "w+")
   io.output(fd)

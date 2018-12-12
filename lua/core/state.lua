@@ -6,6 +6,7 @@ state.tape = 0
 state.script = ''
 state.path = dust_dir
 state.name = ''
+state.shortname = ''
 state.clean_shutdown = false
 
 -- read state.lua and set parameters back to stored vals
@@ -44,6 +45,7 @@ state.resume = function()
   else
     state.script=''
     state.name = 'none'
+    state.shortname = 'none'
     state.path = dust_dir
     norns.scripterror("NO SCRIPT")
   end
@@ -67,6 +69,7 @@ state.save_state = function()
   io.write("norns.state.tape = " .. norns.state.tape .. "\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
   io.write("norns.state.name = '" .. state.name .. "'\n")
+  io.write("norns.state.shortname = '" .. state.shortname .. "'\n")
   io.write("norns.state.path = '" .. state.path .. "'\n")
   for i=1,4 do
     io.write("midi.vport[" .. i .. "].name = '" .. midi.vport[i].name .. "'\n")

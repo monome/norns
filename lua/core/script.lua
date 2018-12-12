@@ -49,6 +49,7 @@ Script.clear = function()
   -- clear last run
   norns.state.script = ''
   norns.state.name = 'none'
+  norns.state.shortname = 'none'
   norns.state.path = dust_dir
   -- clear params
   params:clear()
@@ -67,7 +68,7 @@ end
 
 Script.init = function()
   print("# script init")
-  params.name = norns.state.name
+  params.name = norns.state.shortname
   init()
   s_save()
   grid.reconnect()
@@ -81,6 +82,7 @@ Script.load = function(filename,name,path)
   if filename == nil then
     filename = norns.state.script
     name = norns.state.name
+    shortname = norns.state.name:match("([^/]+)$")
     path = norns.state.path
   end
 
@@ -113,6 +115,7 @@ Script.load = function(filename,name,path)
       norns.state.script = filename
       norns.state.path = path
       norns.state.name = name
+      norns.state.shortname = norns.state.name:match( "([^/]+)$" )
       norns.state.save() -- remember this script for next launch
       norns.script.nointerface = redraw == norns.blank -- check if redraw is present
       norns.script.redraw = redraw -- store redraw function for context switching

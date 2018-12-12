@@ -117,7 +117,7 @@ norns.init_done = function(status)
     end
   end
   m.params.init_map()
-  m.params.read(norns.state.name..".pmap")
+  m.params.read(norns.state.shortname..".pmap")
 end
 
 
@@ -265,9 +265,7 @@ end
 
 m.redraw[pHOME] = function()
   screen.clear()
-
   menu.draw_panel()
-
   -- draw file list and selector
   for i=1,3 do
     screen.move(0,25+10*i)
@@ -356,9 +354,9 @@ end
 m.init[pSELECT] = function()
   m.sel.list = {}
   build_select_tree(dust_dir,"")
-  for k,v in pairs(m.sel.list) do
-    print(k, v.name, v.file, v.path)
-  end
+  --for k,v in pairs(m.sel.list) do
+    --print(k, v.name, v.file, v.path)
+  --end
   m.sel.len = tab.count(m.sel.list)
 end
 
@@ -475,17 +473,17 @@ m.key[pPARAMS] = function(n,z)
     if n==3 and z==1 then
       if m.params.altpos == 1 and m.params.loadable==true then
         if m.params.n == 0 then
-          params:read(norns.state.name..".pset")
+          params:read(norns.state.shortname..".pset")
         else
-          params:read(norns.state.name.."-"..string.format("%02d",m.params.n)..".pset")
+          params:read(norns.state.shortname.."-"..string.format("%02d",m.params.n)..".pset")
         end
         m.params.action = 15
         m.params.action_text = "loaded"
       elseif m.params.altpos == 2 then
         if m.params.n == 0 then
-          params:write(norns.state.name..".pset")
+          params:write(norns.state.shortname..".pset")
         else
-          params:write(norns.state.name.."-"..string.format("%02d",m.params.n)..".pset")
+          params:write(norns.state.shortname.."-"..string.format("%02d",m.params.n)..".pset")
         end
         m.params.action = 15
         m.params.action_text = "saved"
@@ -530,10 +528,10 @@ m.enc[pPARAMS] = function(n,d)
         local path
         local f
         if m.params.n == 0 then
-          path = norns.state.path..'/data/'..norns.state.name..".pset"
+          path = norns.state.path..'/data/'..norns.state.shortname..".pset"
           f=io.open(path,"r")
         else
-          path = norns.state.path..'/data/'..norns.state.name.."-"..string.format("%02d",m.params.n)..".pset"
+          path = norns.state.path..'/data/'..norns.state.shortname.."-"..string.format("%02d",m.params.n)..".pset"
           f=io.open(path ,"r")
         end
         --print("pset: "..path)
@@ -677,7 +675,7 @@ end
 
 m.deinit[pPARAMS] = function()
   if state.script ~= '' then
-    m.params.write(norns.state.name..".pmap")
+    m.params.write(norns.state.shortname..".pmap")
   end
   m.params.midilearn = false
   u:stop()
