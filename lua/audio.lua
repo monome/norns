@@ -71,6 +71,85 @@ end
 
 
 
+-- EFFECTS
+
+function Audio.aux_on()
+   _norns.aux_on()
+end
+
+function Audio.aux_off()
+   _norns.aux_off()
+end
+
+function Audio.level_monitor_aux(val)
+   _norns.level_monitor_aux(val)
+end
+
+function Audio.level_ext_aux(val)
+   _norns.level_ext_aux(val)
+end
+
+function Audio.level_aux_dac(val)
+   _norns.level_aux_dac(val)
+end
+
+function Audio.aux_param(name, val)
+   _norns.aux_param(name, val)
+end
+
+function Audio.insert_on()
+   _norns.insert_on()
+end
+
+function Audio.insert_off()
+   _norns.insert_off()
+end
+
+function Audio.insert_mix(val)
+   _norns.insert_mix(val)
+end
+
+function Audio.insert_param(name, val)
+   _norns.insert_param(name, val)
+end
+
+
+
+-- TAPE
+
+Audio.tape_play_open = function(file)
+  _norns.tape_play_open(file)
+end
+
+Audio.tape_play_start = function()
+  _norns.tape_play_start()
+end
+
+Audio.tape_play_stop = function()
+  _norns.tape_play_stop()
+end
+
+Audio.tape_record_open = function(file)
+  _norns.tape_record_open(file)
+end
+
+Audio.tape_record_start = function()
+  _norns.tape_record_start()
+end
+
+Audio.tape_record_stop = function()
+  _norns.tape_record_stop()
+end
+
+
+
+-- CUT
+
+
+
+
+
+
 --- global functions
 -- @section globals
 

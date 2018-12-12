@@ -162,19 +162,18 @@ static int _cut_buffer_clear(lua_State *l);
 static int _cut_buffer_read(lua_State *l);
 
 // aux effects controls
-static int _set_aux_fx_on(lua_State *l);
-static int _set_aux_fx_off(lua_State *l);
-static int _set_aux_fx_input_level(lua_State *l);
-static int _set_aux_fx_input_pan(lua_State *l);
-static int _set_aux_fx_output_level(lua_State *l);
-static int _set_aux_fx_return_level(lua_State *l);
-static int _set_aux_fx_param(lua_State *l);
+static int _set_aux_on(lua_State *l);
+static int _set_aux_off(lua_State *l);
+static int _set_level_monitor_aux(lua_State *l);
+static int _set_level_ext_aux(lua_State *l);
+static int _set_level_aux_dac(lua_State *l);
+static int _set_aux_param(lua_State *l);
 
 // insert effects controls
-static int _set_insert_fx_on(lua_State *l);
-static int _set_insert_fx_off(lua_State *l);
-static int _set_insert_fx_mix(lua_State *l);
-static int _set_insert_fx_param(lua_State *l);
+static int _set_insert_on(lua_State *l);
+static int _set_insert_off(lua_State *l);
+static int _set_insert_mix(lua_State *l);
+static int _set_insert_param(lua_State *l);
 
 // start audio (sync with sclang startup)
 static int _start_audio(lua_State *l);
@@ -226,6 +225,18 @@ void w_init(void) {
 
   lua_register_norns("monitor_mix_mono", &_set_monitor_mix_mono);
   lua_register_norns("monitor_mix_stereo", &_set_monitor_mix_stereo);
+
+  // fx
+  lua_register_norns("aux_on", &_set_aux_on);
+  lua_register_norns("aux_off", &_set_aux_off);
+  lua_register_norns("aux_param", &_set_aux_param);
+  lua_register_norns("level_ext_aux", &_set_level_ext_aux);
+  lua_register_norns("level_aux_dac", &_set_level_aux_dac);
+  lua_register_norns("level_monitor_aux", &_set_level_monitor_aux);
+  lua_register_norns("insert_on", &_set_insert_on);
+  lua_register_norns("insert_off", &_set_insert_off);
+  lua_register_norns("insert_param", &_set_insert_param);
+  lua_register_norns("insert_mix", &_set_insert_mix);
 
 
   // tape controls
@@ -338,21 +349,6 @@ void w_init(void) {
   lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
   lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
 
-
-  // aux effects controls
-  lua_register(lvm, "set_aux_fx_on", &_set_aux_fx_on);
-  lua_register(lvm, "set_aux_fx_off", &_set_aux_fx_off);
-  lua_register(lvm, "set_aux_fx_input_level", &_set_aux_fx_input_level);
-  lua_register(lvm, "set_aux_fx_input_pan", &_set_aux_fx_input_pan);
-  lua_register(lvm, "set_aux_fx_output_level", &_set_aux_fx_output_level);
-  lua_register(lvm, "set_aux_fx_return_level", &_set_aux_fx_return_level);
-  lua_register(lvm, "set_aux_fx_param", &_set_aux_fx_param);
-
-  // insert effects controls
-  lua_register(lvm, "set_insert_fx_on", &_set_insert_fx_on);
-  lua_register(lvm, "set_insert_fx_off", &_set_insert_fx_off);
-  lua_register(lvm, "set_insert_fx_mix", &_set_insert_fx_mix);
-  lua_register(lvm, "set_insert_fx_param", &_set_insert_fx_param);
 
   // start audio (query for sclang readiness)
   lua_register(lvm, "start_audio", &_start_audio);
@@ -2034,96 +2030,85 @@ int _cut_buffer_read(lua_State *l) {
 
 
 // aux effects controls
-int _set_aux_fx_on(lua_State *l) {
+int _set_aux_on(lua_State *l) {
   (void)l;
-  o_set_aux_fx_on();
+  o_set_aux_on();
   return 0;
 }
 
-int _set_aux_fx_off(lua_State *l) {
+int _set_aux_off(lua_State *l) {
   (void)l;
-  o_set_aux_fx_off();
+  o_set_aux_off();
   return 0;
 }
 
-int _set_aux_fx_input_level(lua_State *l) {
-  if (lua_gettop(l) != 2) {
+int _set_level_monitor_aux(lua_State *l) {
+  if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }  
-  int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
-  float val = (float) luaL_checknumber(l, 2);
-  o_set_aux_fx_input_level(idx, val);
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_monitor_aux(val);
   return 0;
 }
 
-int _set_aux_fx_input_pan(lua_State *l) {
-  if (lua_gettop(l) != 2) {
-    return luaL_error(l, "wrong number of arguments");
-  }  
-  int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
-  float val = (float) luaL_checknumber(l, 2);
-  o_set_aux_fx_input_pan(idx, val);
-  return 0;
-}
-
-int _set_aux_fx_output_level(lua_State *l) {
+int _set_level_ext_aux(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
   float val = (float) luaL_checknumber(l, 1);
-  o_set_aux_fx_output_level(val);
+  o_set_level_ext_aux(val);
   return 0;
 }
 
-int _set_aux_fx_return_level(lua_State *l) {
+int _set_level_aux_dac(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
   float val = (float) luaL_checknumber(l, 1);
-  o_set_aux_fx_return_level(val);
+  o_set_level_aux_dac(val);
   return 0;
 }
 
-int _set_aux_fx_param(lua_State *l) {
+int _set_aux_param(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }  
   const char *s = luaL_checkstring(l, 1);
   float val = (float) luaL_checknumber(l, 2);
-  o_set_aux_fx_param(s, val);
+  o_set_aux_param(s, val);
   return 0;
 }
 
 
 // insert effects controls
-int _set_insert_fx_on(lua_State *l) {
+int _set_insert_on(lua_State *l) {
   (void)l;
-  o_set_insert_fx_on();
+  o_set_insert_on();
   return 0;
 }
 
-int _set_insert_fx_off(lua_State *l) {
+int _set_insert_off(lua_State *l) {
   (void)l;
-  o_set_insert_fx_off();
+  o_set_insert_off();
   return 0;
 }
 
-int _set_insert_fx_mix(lua_State *l) {
+int _set_insert_mix(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }  
   float val = (float) luaL_checknumber(l, 1);
-  o_set_insert_fx_mix(val);
+  o_set_insert_mix(val);
   return 0;
 }
 
-int _set_insert_fx_param(lua_State *l) {
+int _set_insert_param(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
   const char *s = luaL_checkstring(l, 1);
     float val = (float) luaL_checknumber(l, 2);
-  o_set_insert_fx_param(s, val);
+  o_set_insert_param(s, val);
   return 0;
 }
 

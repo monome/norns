@@ -139,24 +139,18 @@ extern void o_cut_buffer_read(char *file, float start_src,
 
 
 //--- aux effects controls
-// enable / disable aux fx processing
-extern void o_set_aux_fx_on();
-extern void o_set_aux_fx_off();
-// mono input -> aux level
-extern void o_set_aux_fx_input_level(int channel, float value);
-// mono input -> aux pan
-extern void o_set_aux_fx_input_pan(int channel, float value);
-// stereo output -> aux
-extern void o_set_aux_fx_output_level(float value);
-// aux return -> dac
-extern void o_set_aux_fx_return_level(float value);
-extern void o_set_aux_fx_param(const char* name, float value);
+extern void o_set_aux_on();
+extern void o_set_aux_off();
+extern void o_set_level_monitor_aux(float value);
+extern void o_set_level_ext_aux(float value);
+extern void o_set_level_aux_dac(float value);
+extern void o_set_aux_param(const char* name, float value);
 
 //--- insert effects controls
-extern void o_set_insert_fx_on();
-extern void o_set_insert_fx_off();
-extern void o_set_insert_fx_mix(float level);
-extern void o_set_insert_fx_param(const char* name, float value);
+extern void o_set_insert_on();
+extern void o_set_insert_off();
+extern void o_set_insert_mix(float level);
+extern void o_set_insert_param(const char* name, float value);
 
 //--- softcut parameter controls
 //--- TODO: no lua glue for these yet

@@ -583,72 +583,55 @@ void o_cut_buffer_read(char *file, float start_src, float start_dst, float dur, 
 } 
 
 
- //softcut/buffer/read [sfffi]
-
-
 
 
 //--- aux effects controls
 // enable / disable aux fx processing
-void o_set_aux_fx_on() {
+void o_set_aux_on() {
     lo_send(crone_addr, "/set/enabled/reverb", "f", 1.0);
 }
 
-void o_set_aux_fx_off() {
+void o_set_aux_off() {
     lo_send(crone_addr, "/set/enabled/reverb", "f", 0.0);
 }
 
 
 //--- insert effects controls
-void o_set_insert_fx_on() {
+void o_set_insert_on() {
     lo_send(crone_addr, "/set/enabled/compressor", "f", 1.0);
 }
 
-void o_set_insert_fx_off() {
+void o_set_insert_off() {
     lo_send(crone_addr, "/set/enabled/compressor", "f", 0.0);
 }
 
-void o_set_insert_fx_mix(float value) {
+void o_set_insert_mix(float value) {
     lo_send(crone_addr, "/set/level/ins_mix", "f", value);
 }
 
 
 // stereo output -> aux
-void o_set_aux_fx_output_level(float value) {
+void o_set_level_ext_aux(float value) {
     lo_send(crone_addr, "/set/level/ext/aux", "f", value);
 }
 
 // aux return -> dac
-void o_set_aux_fx_return_level(float value) {
+void o_set_level_aux_dac(float value) {
     lo_send(crone_addr, "/set/level/aux/dac", "f", value);
 }
 
-///////////////////////////////
-///////////////////////////
-///// FIXME EEEEEEEE ???
-
-/// FIXME: doesn't need channel count?
-// monitor mix -> aux level (stereo!)
-void o_set_aux_fx_input_level(int channel, float value) {
-    (void) channel;
+// monitor mix -> aux level
+void o_set_level_monitor_aux(float value) {
     lo_send(crone_addr, "/set/level/monitor/aux", "f", value);
 }
 
-// mono input -> aux pan
-void o_set_aux_fx_input_pan(int channel, float value) {
-    (void)channel;
-    (void)value;
-    fprintf(stderr, "o_set_aux_fx_input_pan() currently unavailable");
-}
-
-
-void o_set_aux_fx_param(const char* name, float value) {
+void o_set_aux_param(const char* name, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/reverb/%s", name);
     lo_send(crone_addr, buf, "f", value);
 }
 
-void o_set_insert_fx_param(const char* name, float value) {
+void o_set_insert_param(const char* name, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/compressor/%s", name);
     lo_send(crone_addr, buf, "f", value);
