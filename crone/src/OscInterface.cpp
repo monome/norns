@@ -41,7 +41,7 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     quitFlag = false;
     // FIXME: should get port configs from program args or elsewhere
     port = "9999";
-#if 0
+#if 1
     matronAddress = lo_address_new("127.0.0.1", "8888");
 #else  // testing with SC
     matronAddress = lo_address_new("127.0.0.1", "57120");
