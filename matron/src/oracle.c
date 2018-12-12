@@ -471,17 +471,17 @@ void o_set_level_monitor(float level) {
 }
 
 void o_set_monitor_mix_mono() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 0.5);
 }
 
 void o_set_monitor_mix_stereo() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 1.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 1.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 1.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 1.0);
 }
 
 
@@ -612,17 +612,17 @@ void o_set_insert_mix(float value) {
 
 // stereo output -> aux
 void o_set_level_ext_aux(float value) {
-    lo_send(crone_addr, "/set/level/ext/aux", "f", value);
+    lo_send(crone_addr, "/set/level/ext_aux", "f", value);
 }
 
 // aux return -> dac
 void o_set_level_aux_dac(float value) {
-    lo_send(crone_addr, "/set/level/aux/dac", "f", value);
+    lo_send(crone_addr, "/set/level/aux_dac", "f", value);
 }
 
 // monitor mix -> aux level
 void o_set_level_monitor_aux(float value) {
-    lo_send(crone_addr, "/set/level/monitor/aux", "f", value);
+    lo_send(crone_addr, "/set/level/monitor_aux", "f", value);
 }
 
 void o_set_aux_param(const char* name, float value) {

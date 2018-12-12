@@ -66,7 +66,7 @@ mix:set_action("aux_return_level",
 local cs_IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
 mix:add_control("rev_pre_delay", "rev pre delay", cs_IN_DELAY)
 mix:set_action("rev_pre_delay",
-  function(x) audio.aux_param("in_delay",x) end)
+  function(x) audio.aux_param("pre_del",x) end)
 
 local cs_LF_FC = cs.new(50,1000,'exp',0, 200,'hz')
 mix:add_control("rev_lf_fc", "rev lf fc", cs_LF_FC)
@@ -84,8 +84,8 @@ mix:set_action("rev_mid_time",
 local cs_HF_DAMP = cs.new(1500,20000,'exp',0,6000,'hz')
 mix:add_control("rev_hf_damping", "rev hf damping", cs_HF_DAMP)
 mix:set_action("rev_hf_damping",
-  function(x) audio.aux_param("hf_damping",x) end)
-
+  function(x) audio.aux_param("hf_damp",x) end)
+--[[
 local cs_EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
 mix:add_control("rev_eq1_freq","rev eq1 freq", cs_EQ_FREQ1)
 mix:set_action("rev_eq1_freq",
@@ -106,7 +106,7 @@ mix:set_action("rev_eq2_level",
 mix:add_control("rev_level","rev level", cs_DB_LEVEL)
 mix:set_action("rev_level",
   function(x) audio.aux_param("level",x) end)
-
+--]]
 
 mix:add_separator()
 mix:add_option("insert", "insert", {"OFF", "ON"})
@@ -126,7 +126,7 @@ mix:set_action("insert_mix",
 local cs_RATIO = cs.new(1,20,'lin',0,4,'')
 mix:add_control("comp_ratio", "comp ratio", cs_RATIO)
 mix:set_action("comp_ratio",
-  function(x) audio.insert_param("level",x) end)
+  function(x) audio.insert_param("ratio",x) end)
 
 local cs_THRESH = cs.new(-100,10,'db',0,-18,'dB')
 mix:add_control("comp_threshold", "comp threshold", cs_THRESH)
@@ -143,8 +143,13 @@ mix:set_action("comp_release",
   function(x) audio.insert_param("release",x) end)
 
 local cs_MAKEUP = cs.new(-20,60,'db',0,9,'dB')
-mix:add_control("comp_makeup_gain", "comp makeup gain", cs_MAKEUP)
-mix:set_action("comp_makeup_gain",
-  function(x) audio.insert_param("makeup_gain",x) end)
+mix:add_control("comp_pre_gain", "comp pre gain", cs_MAKEUP)
+mix:set_action("comp_pre_gain",
+  function(x) audio.insert_param("gain_pre",x) end)
+
+local cs_MAKEUP = cs.new(-20,60,'db',0,9,'dB')
+mix:add_control("comp_post_gain", "comp post gain", cs_MAKEUP)
+mix:set_action("comp_post_gain",
+  function(x) audio.insert_param("gain_post",x) end)
 
 return mix

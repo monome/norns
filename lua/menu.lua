@@ -4,7 +4,6 @@
 local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'paramset'
-local fx = require 'effects'
 local cs = require 'controlspec'
 local menu = {}
 
