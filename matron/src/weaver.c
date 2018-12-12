@@ -160,7 +160,7 @@ static int _cut_buffer_clear_region(lua_State *l);
 static int _cut_buffer_clear(lua_State *l);
 static int _cut_buffer_read(lua_State *l);
 static int _set_cut_param(lua_State *l);
-static int _set_cut_input_level(lua_State *l);
+static int _set_level_input_cut(lua_State *l);
 
 // aux effects controls
 static int _set_aux_on(lua_State *l);
@@ -265,7 +265,7 @@ void w_init(void) {
   lua_register_norns("cut_buffer_clear", &_cut_buffer_clear);
   lua_register_norns("cut_buffer_read", &_cut_buffer_read);
   lua_register_norns("cut_param", &_set_cut_param);
-  lua_register_norns("cut_input_level", &_set_cut_input_level);
+  lua_register_norns("level_input_cut", &_set_level_input_cut);
 
 
   // name global extern table
@@ -2039,14 +2039,14 @@ int _set_cut_param(lua_State *l) {
   return 0;
 }
 
-int _set_cut_input_level(lua_State *l) {
+int _set_level_input_cut(lua_State *l) {
   if (lua_gettop(l) != 3) {
     return luaL_error(l, "wrong number of arguments");
   }
   int ch = (int) luaL_checkinteger(l, 1);
   int voice = (int) luaL_checkinteger(l, 2);
   float val = (float) luaL_checknumber(l, 3);
-  o_set_cut_input_level(ch, voice, val);
+  o_set_level_input_cut(ch, voice, val);
   return 0;
 }
 

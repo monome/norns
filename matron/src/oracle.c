@@ -560,7 +560,7 @@ void o_set_cut_param(const char* name, int voice, float value) {
     lo_send(crone_addr, buf, "if", voice, value);
 }
 
-void o_set_cut_input_level(int src, int dst, float level) {
+void o_set_level_input_cut(int src, int dst, float level) {
     lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
 }
 

@@ -130,6 +130,7 @@ extern void o_set_level_ext_cut(float value);
 extern void o_set_level_cut_aux(float value);
 extern void o_set_level_cut(int index, float value);
 extern void o_set_level_cut_cut(int src, int dest, float value);
+extern void o_set_level_input_cut(int src, int dst, float level);
 extern void o_set_pan_cut(int index, float value);
 extern void o_cut_enable(int i, float value);
 extern void o_cut_buffer_clear_region(float start, float end);
@@ -138,8 +139,6 @@ extern void o_cut_buffer_read(char *file, float start_src,
                 float start_dst, float dur, int ch);
 // most softcut parameter changs take single voice index...
 extern void o_set_cut_param(const char* name, int voice, float value);
-//... these ones take two channel indices
-extern void o_set_cut_input_level(int src, int dst, float level);
 
 //--- aux effects controls
 extern void o_set_aux_on();
