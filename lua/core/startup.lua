@@ -1,5 +1,8 @@
 -- STARTUP
 
+tab = require 'tabutil'
+util = require 'util'
+
 require 'math'
 math.randomseed(os.time()) -- more random
 
@@ -13,16 +16,13 @@ metro = require 'core/metro'
 midi = require 'core/midi'
 osc = require 'core/osc'
 poll = require 'core/poll'
-engine = require 'core/engine'
+engine = tab.readonly{table = require 'core/engine', except = {'name'}}
 wifi = require 'core/wifi'
 
 controlspec = require 'core/controlspec'
 paramset = require 'core/paramset'
-
 params = paramset.new()
 
-tab = require 'tabutil'
-util = require 'util'
 
 -- load menu
 require 'core/menu'
