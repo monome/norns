@@ -27,7 +27,13 @@ params = paramset.new()
 -- load menu
 require 'core/menu'
 
+-- global include function
+function include(file)
+  return dofile(norns.state.path .. "lib/" .. file)
+end
 
+
+-- sc init callbacks
 norns.startup_status.ok = function()
   print("norns.startup_status.ok")
   -- resume last loaded script
