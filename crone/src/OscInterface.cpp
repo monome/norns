@@ -503,7 +503,7 @@ void OscInterface::addServerMethods() {
         softCutClient->loadFile(str, startSrc, startDst, dur, channel);
     });
 
-    addServerMethod("/softcut/buffer/clear", "ff", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/clear_region", "ff", [](lo_arg **argv, int argc) {
         if (argc < 2) {
             return;
         }

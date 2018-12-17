@@ -565,7 +565,7 @@ void o_set_level_input_cut(int src, int dst, float level) {
 }
 
 void o_cut_buffer_clear_region(float start, float end) {
-    lo_send(crone_addr, "/softcut/buffer/clear", "ff", start, end);
+    lo_send(crone_addr, "/softcut/buffer/clear_region", "ff", start, end);
 }
 
 void o_cut_buffer_clear() {
