@@ -34,13 +34,13 @@ mix:set_action("headphone",
 
 -- ControlSpec.new(minval, maxval, warp, step, default, units)
 mix:add_separator()
-mix:add_option("aux", "aux", {"OFF", "ON"}, 2)
-mix:set_action("aux",
+mix:add_option("reverb", "reverb", {"OFF", "ON"}, 2)
+mix:set_action("reverb",
   function(x)
     if x == 1 then
-      audio.aux_off()
+      audio.rev_off()
     else
-      audio.aux_on()
+      audio.rev_on()
     end
   end)
 local cs_DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
@@ -49,39 +49,39 @@ local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 
 mix:add_control("aux_engine_level", "aux engine level", cs_DB_LEVEL_9DB)
 mix:set_action("aux_engine_level",
-  function(x) audio.level_ext_aux(util.dbamp(x)) end)
+  function(x) audio.level_ext_rev(util.dbamp(x)) end)
 
 mix:add_control("aux_monitor_level", "aux monitor level", cs_DB_LEVEL_MUTE)
 mix:set_action("aux_monitor_level",
-  function(x) audio.level_monitor_aux(util.dbamp(x)) end)
+  function(x) audio.level_monitor_rev(util.dbamp(x)) end)
 
 mix:add_control("aux_return_level", "aux return level", cs_DB_LEVEL)
 mix:set_action("aux_return_level",
-  function(x) audio.level_aux_dac(util.dbamp(x)) end)
+  function(x) audio.level_rev_dac(util.dbamp(x)) end)
 
 
 local cs_IN_DELAY = cs.new(20,100,'lin',0,60,'ms')
 mix:add_control("rev_pre_delay", "rev pre delay", cs_IN_DELAY)
 mix:set_action("rev_pre_delay",
-  function(x) audio.aux_param("pre_del",x) end)
+  function(x) audio.rev_param("pre_del",x) end)
 
 local cs_LF_FC = cs.new(50,1000,'exp',0, 200,'hz')
 mix:add_control("rev_lf_fc", "rev lf fc", cs_LF_FC)
 mix:set_action("rev_lf_fc",
-  function(x) audio.aux_param("lf_fc",x) end)
+  function(x) audio.rev_param("lf_fc",x) end)
 
 local cs_RT60 = cs.new(0.1,16,'lin',0,6,'s')
 mix:add_control("rev_low_time", "rev low time", cs_RT60)
 mix:set_action("rev_low_time",
-  function(x) audio.aux_param("low_rt60",x) end)
+  function(x) audio.rev_param("low_rt60",x) end)
 mix:add_control("rev_mid_time", "rev mid time", cs_RT60)
 mix:set_action("rev_mid_time",
-  function(x) audio.aux_param("mid_rt60",x) end)
+  function(x) audio.rev_param("mid_rt60",x) end)
 
 local cs_HF_DAMP = cs.new(1500,20000,'exp',0,6000,'hz')
 mix:add_control("rev_hf_damping", "rev hf damping", cs_HF_DAMP)
 mix:set_action("rev_hf_damping",
-  function(x) audio.aux_param("hf_damp",x) end)
+  function(x) audio.rev_param("hf_damp",x) end)
 --[[
 local cs_EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
 mix:add_control("rev_eq1_freq","rev eq1 freq", cs_EQ_FREQ1)
@@ -106,47 +106,47 @@ mix:set_action("rev_level",
 --]]
 
 mix:add_separator()
-mix:add_option("insert", "insert", {"OFF", "ON"})
-mix:set_action("insert",
+mix:add_option("compressor", "compressor", {"OFF", "ON"})
+mix:set_action("compressor",
   function(x)
     if x == 1 then
-      audio.insert_off()
+      audio.comp_off()
     else
-      audio.insert_on()
+      audio.comp_on()
     end
   end)
 local cs_MIX = cs.new(0,1,'lin',0,1,'')
-mix:add_control("insert_mix", "insert mix", cs_MIX)
-mix:set_action("insert_mix",
-  function(x) audio.insert_mix(x) end)
+mix:add_control("comp_mix", "comp mix", cs_MIX)
+mix:set_action("comp_mix",
+  function(x) audio.comp_mix(x) end)
 
 local cs_RATIO = cs.new(1,20,'lin',0,4,'')
 mix:add_control("comp_ratio", "comp ratio", cs_RATIO)
 mix:set_action("comp_ratio",
-  function(x) audio.insert_param("ratio",x) end)
+  function(x) audio.comp_param("ratio",x) end)
 
 local cs_THRESH = cs.new(-100,10,'db',0,-18,'dB')
 mix:add_control("comp_threshold", "comp threshold", cs_THRESH)
 mix:set_action("comp_threshold",
-  function(x) audio.insert_param("threshold",x) end)
+  function(x) audio.comp_param("threshold",x) end)
 
 local cs_ATTACK = cs.new(1,1000,'exp',0,5,'ms')
 mix:add_control("comp_attack", "comp attack", cs_ATTACK)
 mix:set_action("comp_attack",
-  function(x) audio.insert_param("attack",x) end)
+  function(x) audio.comp_param("attack",x) end)
 local cs_RELEASE = cs.new(1,1000,'exp',0,50,'ms')
 mix:add_control("comp_release", "comp release", cs_RELEASE)
 mix:set_action("comp_release",
-  function(x) audio.insert_param("release",x) end)
+  function(x) audio.comp_param("release",x) end)
 
 local cs_PREGAIN = cs.new(-20,60,'db',0,0,'dB')
 mix:add_control("comp_pre_gain", "comp pre gain", cs_PREGAIN)
 mix:set_action("comp_pre_gain",
-  function(x) audio.insert_param("gain_pre",x) end)
+  function(x) audio.comp_param("gain_pre",x) end)
 
 local cs_POSTGAIN = cs.new(-20,60,'db',0,9,'dB')
 mix:add_control("comp_post_gain", "comp post gain", cs_POSTGAIN)
 mix:set_action("comp_post_gain",
-  function(x) audio.insert_param("gain_post",x) end)
+  function(x) audio.comp_param("gain_post",x) end)
 
 return mix

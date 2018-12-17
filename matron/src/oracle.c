@@ -538,8 +538,8 @@ void o_set_level_ext_cut(float value) {
     lo_send(crone_addr, "/set/level/ext_cut", "f", value);
 }
 
-void o_set_level_cut_aux(float value) {
-    lo_send(crone_addr, "/set/level/cut_aux", "f", value);
+void o_set_level_cut_rev(float value) {
+    lo_send(crone_addr, "/set/level/cut_rev", "f", value);
 }
 
 void o_set_level_cut(int index, float value) {
@@ -579,53 +579,53 @@ void o_cut_buffer_read(char *file, float start_src, float start_dst, float dur, 
 
 
 
-//--- aux effects controls
-// enable / disable aux fx processing
-void o_set_aux_on() {
+//--- rev effects controls
+// enable / disable rev fx processing
+void o_set_rev_on() {
     lo_send(crone_addr, "/set/enabled/reverb", "f", 1.0);
 }
 
-void o_set_aux_off() {
+void o_set_rev_off() {
     lo_send(crone_addr, "/set/enabled/reverb", "f", 0.0);
 }
 
 
-//--- insert effects controls
-void o_set_insert_on() {
+//--- comp effects controls
+void o_set_comp_on() {
     lo_send(crone_addr, "/set/enabled/compressor", "f", 1.0);
 }
 
-void o_set_insert_off() {
+void o_set_comp_off() {
     lo_send(crone_addr, "/set/enabled/compressor", "f", 0.0);
 }
 
-void o_set_insert_mix(float value) {
-    lo_send(crone_addr, "/set/level/ins_mix", "f", value);
+void o_set_comp_mix(float value) {
+    lo_send(crone_addr, "/set/level/compressor_mix", "f", value);
 }
 
 
-// stereo output -> aux
-void o_set_level_ext_aux(float value) {
-    lo_send(crone_addr, "/set/level/ext_aux", "f", value);
+// stereo output -> rev
+void o_set_level_ext_rev(float value) {
+    lo_send(crone_addr, "/set/level/ext_rev", "f", value);
 }
 
-// aux return -> dac
-void o_set_level_aux_dac(float value) {
-    lo_send(crone_addr, "/set/level/aux_dac", "f", value);
+// rev return -> dac
+void o_set_level_rev_dac(float value) {
+    lo_send(crone_addr, "/set/level/rev_dac", "f", value);
 }
 
-// monitor mix -> aux level
-void o_set_level_monitor_aux(float value) {
-    lo_send(crone_addr, "/set/level/monitor_aux", "f", value);
+// monitor mix -> rev level
+void o_set_level_monitor_rev(float value) {
+    lo_send(crone_addr, "/set/level/monitor_rev", "f", value);
 }
 
-void o_set_aux_param(const char* name, float value) {
+void o_set_rev_param(const char* name, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/reverb/%s", name);
     lo_send(crone_addr, buf, "f", value);
 }
 
-void o_set_insert_param(const char* name, float value) {
+void o_set_comp_param(const char* name, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/compressor/%s", name);
     lo_send(crone_addr, buf, "f", value);

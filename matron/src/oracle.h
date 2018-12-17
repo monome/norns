@@ -127,7 +127,7 @@ extern void o_tape_play_stop();
 //--- cut
 extern void o_set_level_adc_cut(float value);
 extern void o_set_level_ext_cut(float value);
-extern void o_set_level_cut_aux(float value);
+extern void o_set_level_cut_rev(float value);
 extern void o_set_level_cut(int index, float value);
 extern void o_set_level_cut_cut(int src, int dest, float value);
 extern void o_set_level_input_cut(int src, int dst, float level);
@@ -140,18 +140,18 @@ extern void o_cut_buffer_read(char *file, float start_src,
 // most softcut parameter changs take single voice index...
 extern void o_set_cut_param(const char* name, int voice, float value);
 
-//--- aux effects controls
-extern void o_set_aux_on();
-extern void o_set_aux_off();
-extern void o_set_level_monitor_aux(float value);
-extern void o_set_level_ext_aux(float value);
-extern void o_set_level_aux_dac(float value);
-extern void o_set_aux_param(const char* name, float value);
+//--- reverb controls
+extern void o_set_rev_on();
+extern void o_set_rev_off();
+extern void o_set_level_monitor_rev(float value);
+extern void o_set_level_ext_rev(float value);
+extern void o_set_level_rev_dac(float value);
+extern void o_set_rev_param(const char* name, float value);
 
-//--- insert effects controls
-extern void o_set_insert_on();
-extern void o_set_insert_off();
-extern void o_set_insert_mix(float level);
-extern void o_set_insert_param(const char* name, float value);
+//--- compressor controls
+extern void o_set_comp_on();
+extern void o_set_comp_off();
+extern void o_set_comp_mix(float level);
+extern void o_set_comp_param(const char* name, float value);
 
 extern void o_restart_audio();

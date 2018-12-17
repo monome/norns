@@ -72,44 +72,44 @@ end
 
 -- EFFECTS
 
-function Audio.aux_on()
-   _norns.aux_on()
+function Audio.rev_on()
+   _norns.rev_on()
 end
 
-function Audio.aux_off()
-   _norns.aux_off()
+function Audio.rev_off()
+   _norns.rev_off()
 end
 
-function Audio.level_monitor_aux(val)
-   _norns.level_monitor_aux(val)
+function Audio.level_monitor_rev(val)
+   _norns.level_monitor_rev(val)
 end
 
-function Audio.level_ext_aux(val)
-   _norns.level_ext_aux(val)
+function Audio.level_ext_rev(val)
+   _norns.level_ext_rev(val)
 end
 
-function Audio.level_aux_dac(val)
-   _norns.level_aux_dac(val)
+function Audio.level_rev_dac(val)
+   _norns.level_rev_dac(val)
 end
 
-function Audio.aux_param(name, val)
-   _norns.aux_param(name, val)
+function Audio.rev_param(name, val)
+   _norns.rev_param(name, val)
 end
 
-function Audio.insert_on()
-   _norns.insert_on()
+function Audio.comp_on()
+   _norns.comp_on()
 end
 
-function Audio.insert_off()
-   _norns.insert_off()
+function Audio.comp_off()
+   _norns.comp_off()
 end
 
-function Audio.insert_mix(val)
-   _norns.insert_mix(val)
+function Audio.comp_mix(val)
+   _norns.comp_mix(val)
 end
 
-function Audio.insert_param(name, val)
-   _norns.insert_param(name, val)
+function Audio.comp_param(name, val)
+   _norns.comp_param(name, val)
 end
 
 
@@ -152,8 +152,8 @@ Audio.level_ext_cut = function(value)
   _norns.level_ext_cut(value)
 end
 
-Audio.level_cut_aux = function(value)
-  _norns.level_cut_aux(value)
+Audio.level_cut_rev = function(value)
+  _norns.level_cut_rev(value)
 end
 
 Audio.level_cut = function(voice, value)
