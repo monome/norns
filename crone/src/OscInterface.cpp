@@ -58,11 +58,14 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     vuPoll->setCallback([](const char* path){
         auto vl = mixerClient->getVuLevels();
         // FIXME: perform exponential scaling here?
-        lo_send(matronAddress, path, "ffff",
-                vl->absPeakIn[0].load(),
-                vl->absPeakIn[1].load(),
-                vl->absPeakOut[0].load(),
-                vl->absPeakOut[1].load());
+        // FIXME scaling is weird
+        char l[4];
+        l[0] = (uint8_t)(255*vl->absPeakIn[0].load());
+        l[1] = (uint8_t)(255*vl->absPeakIn[1].load());
+        l[2] = (uint8_t)(255*vl->absPeakIn[2].load());
+        l[3] = (uint8_t)(255*vl->absPeakIn[3].load());
+        lo_blob bl = lo_blob_new(sizeof(l), l);
+        lo_send(matronAddress, path, "b", bl);
         vl->clear();
     });
     vuPoll->setPeriod(50);
