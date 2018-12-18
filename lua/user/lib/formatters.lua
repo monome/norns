@@ -4,39 +4,34 @@ local function format(param, value, units)
   return value.." "..(units or param.controlspec.units or "")
 end
 
-function Formatters.default_with_label(param)
-  return param.name..": "..Formatters.default(param)
-end
 
-function Formatters.unipolar_as_percentage_with_label(param)
-  return param.name..": "..Formatters.unipolar_as_percentage(param)
-end
+-- Raw
 
-function Formatters.secs_as_ms_with_label(param)
-  return param.name..": "..Formatters.secs_as_ms(param)
-end
-
-function Formatters.unipolar_as_true_false_with_label(param)
-  return param.name..": "..Formatters.unipolar_as_true_false(param)
-end
-
-function Formatters.unipolar_as_enabled_disabled_with_label(param)
-  return param.name..": "..Formatters.unipolar_as_enabled_disabled(param)
-end
-
-function Formatters.bipolar_as_pan_widget_with_label(param)
-  return param.name..": "..Formatters.bipolar_as_pan_widget(param)
-end
-
-function Formatters.unipolar_as_multimode_filter_freq_with_label(param)
-  return param.name..": "..Formatters.unipolar_as_multimode_filter_freq(param)
-end
-
-function Formatters.round_with_label(precision)
-  return function(param)
-    return param.name..": "..Formatters.round(precision)(param)
+function Formatters.format_freq_raw(freq)
+  if freq < 0.1 then
+    freq = util.round(freq, 0.001) .. " Hz"
+  elseif freq < 100 then
+    freq = util.round(freq, 0.01) .. " Hz"
+  elseif util.round(freq, 1) < 1000 then
+    freq = util.round(freq, 1) .. " Hz"
+  else
+    freq = util.round(freq / 1000, 0.01) .. " kHz"
   end
+  return freq
 end
+
+function Formatters.format_secs_raw(secs)
+  if util.round(secs, 0.01) >= 1 then
+    secs = util.round(secs, 0.1)
+  else
+    secs = util.round(secs, 0.01)
+    if string.len(secs) < 4 then secs = secs .. "0" end
+  end
+  return secs .. " s"
+end
+
+
+-- Params
 
 function Formatters.default(param)
   return Formatters.round(0.01)(param)
@@ -161,6 +156,14 @@ function Formatters.round(precision)
   return function(param)
     return format(param, util.round(param:get(), precision))
   end
+end
+
+function Formatters.format_freq(param)
+  return Formatters.format_freq_raw(param:get())
+end
+
+function Formatters.format_secs(param)
+  return Formatters.format_secs_raw(param:get())
 end
 
 return Formatters

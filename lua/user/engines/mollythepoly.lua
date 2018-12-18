@@ -6,7 +6,7 @@
 -- @author Mark Eats
 
 local ControlSpec = require "controlspec"
-local MEFormatters = require "mark_eats/formatters"
+local Formatters = require "jah/formatters"
 
 local MollyThePoly = {}
 
@@ -77,7 +77,7 @@ function MollyThePoly.add_params()
   params:add{type = "option", id = "pulse_width_mod_src", name = "Pulse Width Mod Src", options = options.PW_MOD_SRC, action = function(value) engine.pwModSource(value - 1) end}
   params:add{type = "control", id = "freq_mod_lfo", name = "Frequency Mod (LFO)", controlspec = specs.FREQ_MOD_LFO, action = engine.freqModLfo}
   params:add{type = "control", id = "freq_mod_env", name = "Frequency Mod (Env-1)", controlspec = specs.FREQ_MOD_ENV, action = engine.freqModEnv}
-  params:add{type = "control", id = "glide", name = "Glide", controlspec = specs.GLIDE, formatter = MEFormatters.format_secs_param, action = engine.glide}
+  params:add{type = "control", id = "glide", name = "Glide", controlspec = specs.GLIDE, formatter = Formatters.format_secs, action = engine.glide}
   params:add_separator()
   
   params:add{type = "control", id = "main_osc_level", name = "Main Osc Level", controlspec = specs.MAIN_OSC_LEVEL, action = engine.mainOscLevel}
@@ -86,8 +86,8 @@ function MollyThePoly.add_params()
   params:add{type = "control", id = "noise_level", name = "Noise Level", controlspec = specs.NOISE_LEVEL, action = engine.noiseLevel}
   params:add_separator()
   
-  params:add{type = "control", id = "hp_filter_cutoff", name = "HP Filter Cutoff", controlspec = specs.HP_FILTER_CUTOFF, formatter = MEFormatters.format_freq_param, action = engine.hpFilterCutoff}
-  params:add{type = "control", id = "lp_filter_cutoff", name = "LP Filter Cutoff", controlspec = specs.LP_FILTER_CUTOFF, formatter = MEFormatters.format_freq_param, action = engine.lpFilterCutoff}
+  params:add{type = "control", id = "hp_filter_cutoff", name = "HP Filter Cutoff", controlspec = specs.HP_FILTER_CUTOFF, formatter = Formatters.format_freq, action = engine.hpFilterCutoff}
+  params:add{type = "control", id = "lp_filter_cutoff", name = "LP Filter Cutoff", controlspec = specs.LP_FILTER_CUTOFF, formatter = Formatters.format_freq, action = engine.lpFilterCutoff}
   params:add{type = "control", id = "lp_filter_resonance", name = "LP Filter Resonance", controlspec = specs.LP_FILTER_RESONANCE, action = engine.lpFilterResonance}
   params:add{type = "option", id = "lp_filter_type", name = "LP Filter Type", options = options.LP_FILTER_TYPE, default = 2, action = function(value) engine.lpFilterType(value - 1) end}
   params:add{type = "option", id = "lp_filter_env", name = "LP Filter Env", options = options.LP_FILTER_ENV, action = function(value) engine.lpFilterCutoffEnvSelect(value - 1) end}
@@ -96,7 +96,7 @@ function MollyThePoly.add_params()
   params:add{type = "control", id = "lp_filter_tracking", name = "LP Filter Tracking", controlspec = specs.LP_FILTER_TRACKING, formatter = format_ratio_to_one, action = engine.lpFilterTracking}
   params:add_separator()
   
-  params:add{type = "control", id = "lfo_freq", name = "LFO Frequency", controlspec = specs.LFO_FREQ, formatter = MEFormatters.format_freq_param, action = engine.lfoFreq}
+  params:add{type = "control", id = "lfo_freq", name = "LFO Frequency", controlspec = specs.LFO_FREQ, formatter = Formatters.format_freq, action = engine.lfoFreq}
   params:add{type = "option", id = "lfo_wave_shape", name = "LFO Wave Shape", options = options.LFO_WAVE_SHAPE, action = function(value) engine.lfoWaveShape(value - 1) end}
   params:add{type = "control", id = "lfo_fade", name = "LFO Fade", controlspec = specs.LFO_FADE, formatter = format_fade, action = function(value)
     if value < 0 then value = specs.LFO_FADE.minval - 0.00001 + math.abs(value) end
@@ -104,23 +104,23 @@ function MollyThePoly.add_params()
   end}
   params:add_separator()
   
-  params:add{type = "control", id = "env_1_attack", name = "Env-1 Attack", controlspec = specs.ENV_ATTACK, formatter = MEFormatters.format_secs_param, action = engine.env1Attack}
-  params:add{type = "control", id = "env_1_decay", name = "Env-1 Decay", controlspec = specs.ENV_DECAY, formatter = MEFormatters.format_secs_param, action = engine.env1Decay}
+  params:add{type = "control", id = "env_1_attack", name = "Env-1 Attack", controlspec = specs.ENV_ATTACK, formatter = Formatters.format_secs, action = engine.env1Attack}
+  params:add{type = "control", id = "env_1_decay", name = "Env-1 Decay", controlspec = specs.ENV_DECAY, formatter = Formatters.format_secs, action = engine.env1Decay}
   params:add{type = "control", id = "env_1_sustain", name = "Env-1 Sustain", controlspec = specs.ENV_SUSTAIN, action = engine.env1Sustain}
-  params:add{type = "control", id = "env_1_release", name = "Env-1 Release", controlspec = specs.ENV_RELEASE, formatter = MEFormatters.format_secs_param, action = engine.env1Release}
+  params:add{type = "control", id = "env_1_release", name = "Env-1 Release", controlspec = specs.ENV_RELEASE, formatter = Formatters.format_secs, action = engine.env1Release}
   params:add_separator()
   
-  params:add{type = "control", id = "env_2_attack", name = "Env-2 Attack", controlspec = specs.ENV_ATTACK, formatter = MEFormatters.format_secs_param, action = engine.env2Attack}
-  params:add{type = "control", id = "env_2_decay", name = "Env-2 Decay", controlspec = specs.ENV_DECAY, formatter = MEFormatters.format_secs_param, action = engine.env2Decay}
+  params:add{type = "control", id = "env_2_attack", name = "Env-2 Attack", controlspec = specs.ENV_ATTACK, formatter = Formatters.format_secs, action = engine.env2Attack}
+  params:add{type = "control", id = "env_2_decay", name = "Env-2 Decay", controlspec = specs.ENV_DECAY, formatter = Formatters.format_secs, action = engine.env2Decay}
   params:add{type = "control", id = "env_2_sustain", name = "Env-2 Sustain", controlspec = specs.ENV_SUSTAIN, action = engine.env2Sustain}
-  params:add{type = "control", id = "env_2_release", name = "Env-2 Release", controlspec = specs.ENV_RELEASE, formatter = MEFormatters.format_secs_param, action = engine.env2Release}
+  params:add{type = "control", id = "env_2_release", name = "Env-2 Release", controlspec = specs.ENV_RELEASE, formatter = Formatters.format_secs, action = engine.env2Release}
   params:add_separator()
   
   params:add{type = "control", id = "amp", name = "Amp", controlspec = specs.AMP, action = engine.amp}
   params:add{type = "control", id = "amp_mod", name = "Amp Mod (LFO)", controlspec = specs.AMP_MOD, action = engine.ampMod}
   params:add_separator()
   
-  params:add{type = "control", id = "ring_mod_freq", name = "Ring Mod Frequency", controlspec = specs.RING_MOD_FREQ, formatter = MEFormatters.format_freq_param, action = engine.ringModFreq}
+  params:add{type = "control", id = "ring_mod_freq", name = "Ring Mod Frequency", controlspec = specs.RING_MOD_FREQ, formatter = Formatters.format_freq, action = engine.ringModFreq}
   params:add{type = "control", id = "ring_mod_fade", name = "Ring Mod Fade", controlspec = specs.RING_MOD_FADE, formatter = format_fade, action = function(value)
     if value < 0 then value = specs.RING_MOD_FADE.minval - 0.00001 + math.abs(value) end
     engine.ringModFade(value)

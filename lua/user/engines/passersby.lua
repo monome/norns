@@ -6,7 +6,7 @@
 -- @author Mark Eats
 
 local ControlSpec = require "controlspec"
-local MEFormatters = require "mark_eats/formatters"
+local Formatters = require "jah/formatters"
 
 local Passersby = {}
 
@@ -53,7 +53,7 @@ local function format_attack(param)
   if params:get("env_type") == 1 then
     return_string = "N/A"
   else
-    return_string = MEFormatters.format_secs_param(param)
+    return_string = Formatters.format_secs(param)
   end
   return return_string
 end
@@ -71,14 +71,14 @@ function Passersby.add_params()
     engine.envType(value - 1)
   end}
   params:add{type = "control", id = "attack", name = "Attack", controlspec = specs.ATTACK, formatter = format_attack, action = engine.attack}
-  params:add{type = "control", id = "peak", name = "Peak", controlspec = specs.PEAK, formatter = MEFormatters.format_freq_param, action = engine.peak}
-  params:add{type = "control", id = "decay", name = "Decay", controlspec = specs.DECAY, formatter = MEFormatters.format_secs_param, action = engine.decay}
+  params:add{type = "control", id = "peak", name = "Peak", controlspec = specs.PEAK, formatter = Formatters.format_freq, action = engine.peak}
+  params:add{type = "control", id = "decay", name = "Decay", controlspec = specs.DECAY, formatter = Formatters.format_secs, action = engine.decay}
   params:add{type = "control", id = "amp", name = "Amp", controlspec = specs.AMP, action = engine.amp}
   params:add{type = "control", id = "reverb_mix", name = "Reverb Mix", controlspec = specs.REVERB_MIX, action = engine.reverbMix}
   params:add{type = "option", id = "lfo_shape", name = "LFO Shape", options = {"Triangle", "Ramp", "Square", "Random"}, action = function(value)
     engine.lfoShape(value - 1)
   end}
-  params:add{type = "control", id = "lfo_freq", name = "LFO Frequency", controlspec = specs.LFO_FREQ, formatter = MEFormatters.format_freq_param, action = engine.lfoFreq}
+  params:add{type = "control", id = "lfo_freq", name = "LFO Frequency", controlspec = specs.LFO_FREQ, formatter = Formatters.format_freq, action = engine.lfoFreq}
   params:add{type = "control", id = "lfo_to_freq_amount", name = "LFO > Frequency", controlspec = specs.LFO_AMOUNT, action = engine.lfoToFreqAmount}
   params:add{type = "control", id = "lfo_to_wave_shape_amount", name = "LFO > Wave Shape", controlspec = specs.LFO_AMOUNT, action = engine.lfoToWaveShapeAmount}
   params:add{type = "control", id = "lfo_to_wave_folds_amount", name = "LFO > Wave Folds", controlspec = specs.LFO_AMOUNT, action = engine.lfoToWaveFoldsAmount}
