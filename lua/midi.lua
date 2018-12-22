@@ -138,6 +138,19 @@ function Midi.connect(n)
   d.channel_pressure = function(val, ch)
       d.send{type="channel_pressure", val=val, ch=ch or 1}
     end
+  d.start = function()
+      d.send{0xfa}
+    end
+  d.stop = function()
+      d.send{0xfc}
+    end
+  d.continue = function()
+      d.send{0xfb}
+    end
+  d.clock = function()
+      d.send{0xf8}
+    end
+
   return d
 end
 
@@ -172,6 +185,7 @@ local to_data = {
   channel_pressure = function(msg)
       return {0xd0 + (msg.ch or 1) - 1, msg.val}
     end
+  -- start/stop/continue/clock have no data, just use send helper function
 }
 
 --- convert msg to data (midi bytes)
@@ -183,7 +197,7 @@ end
 
 --- convert data (midi bytes) to msg
 function Midi.to_msg(data)
-  local msg
+  local msg = {}
   -- note on
   if data[1] & 0xf0 == 0x90 then
     msg = {
@@ -191,7 +205,7 @@ function Midi.to_msg(data)
       vel = data[3],
       ch = data[1] - 0x90 + 1
     }
-    if data[3] > 0 then
+    if data[3] > 0 then 
       msg.type = "note_on"
     elseif data[3] == 0 then -- if velocity is zero then send note off
       msg.type = "note_off"
@@ -234,6 +248,21 @@ function Midi.to_msg(data)
       val = data[2],
       ch = data[1] - 0xd0 + 1
     }
+  -- start
+  elseif data[1] == 0xfa then
+    msg.type = "start"
+  -- stop
+  elseif data[1] == 0xfc then
+     msg.type = "stop"
+  -- continue
+  elseif data[1] == 0xfb then
+    msg.type = "continue"
+  -- clock
+  elseif data[1] == 0xf8 then
+    msg.type = "clock"
+  -- active sensing (should probably ignore)
+  elseif data[1] == 0xfe then
+      -- do nothing
   -- everything else
   else
     msg = {
