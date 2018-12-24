@@ -1406,7 +1406,7 @@ m.key[pTAPE] = function(n,z)
     else -- REC CONTROLS
       if m.tape.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
-        m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".wav"
+        m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".aiff"
         tape_new(m.tape.rec.file)
         m.tape.rec.sel = TAPE_REC_START
             m.tape.rec.pos_tick = 0
