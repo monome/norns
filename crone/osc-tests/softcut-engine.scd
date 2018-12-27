@@ -1,0 +1,36 @@
+Crone.setEngine("Engine_SoftCut");
+
+n = NetAddr.localAddr;
+
+n.sendMsg("/command/enabled", 0, 1 );
+n.sendMsg("/command/amp", 0, 1 );
+n.sendMsg("/command/pan", 0, 0 );
+n.sendMsg("/command/adc_cut", 1 );
+n.sendMsg("/command/ext_cut", 1 );
+n.sendMsg("/command/cut_aux", 1 );
+n.sendMsg("/command/in_cut", 0, 0, 1 );
+n.sendMsg("/command/in_cut", 1, 0, 1 );
+n.sendMsg("/command/rate", 0, 1.0 );
+n.sendMsg("/command/loop_start", 0, 1.0 );
+n.sendMsg("/command/loop_end", 0, 2.0 );
+n.sendMsg("/command/loop_flag", 0, 1 );
+n.sendMsg("/command/fade_time", 0, 0.1 );
+n.sendMsg("/command/rec_level", 0, 1.0 );
+n.sendMsg("/command/pre_level", 0, 0.6 );
+n.sendMsg("/command/rec_flag", 0, 1);
+// n.sendMsg("/command/rec_offset", 0, -20);
+n.sendMsg("/command/position", 0, 1 );
+n.sendMsg("/command/filter_fc", 0, 10000 );
+n.sendMsg("/command/filter_fc_mod", 0, 1.0 );
+n.sendMsg("/command/filter_rq", 0, 10.0 );
+n.sendMsg("/command/filter_lp", 0, 1.0 );
+n.sendMsg("/command/filter_hp", 0, 0 );
+n.sendMsg("/command/filter_bp", 0, 0 );
+n.sendMsg("/command/filter_br", 0, 0 );
+n.sendMsg("/command/filter_dry", 0, 0 );
+//n.sendMsg("/command/pre_fade_window", if );
+//n.sendMsg("/command/rec_fade_delay", if );
+//n.sendMsg("/command/pre_fade_shape", if );
+//n.sendMsg("/command/rec_fade_shape", if );
+n.sendMsg("/command/level_lag", 0, 1.0 );
+n.sendMsg("/command/rate_lag", 0, 0.02 );

@@ -126,7 +126,6 @@ norns.hid.remove = function(id)
     if Hid.remove then Hid.remove(d) end
     Hid.devices[id] = nil
   end
-
 end
 
 --- handle a hid event

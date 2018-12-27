@@ -39,6 +39,8 @@ norns.startup_status.ok = function()
   -- resume last loaded script
   norns.script.clear()
   norns.state.resume()
+  -- turn on VU
+  _norns.poll_start_vu()
 end
 
 norns.startup_status.timeout = function()
