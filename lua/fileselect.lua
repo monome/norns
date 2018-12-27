@@ -111,7 +111,6 @@ end
 
 
 fs.redraw = function()
-  local i
   screen.clear()
   screen.move(0,10)
   screen.level(15)

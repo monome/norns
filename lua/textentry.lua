@@ -82,7 +82,6 @@ te.redraw = function()
   screen.level(15)
   screen.move(0,32)
   screen.text(te.txt)
-  local x,y
   for x=0,15 do
     if x==5 and te.row==0 then screen.level(15) else screen.level(2) end
     screen.move(x*8,46)

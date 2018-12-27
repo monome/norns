@@ -13,9 +13,9 @@ encoders.callback = norns.none
 
 encoders.set_accel = function(n,z)
   if n == 0 then
-    for n=1,3 do
-      encoders.accel[n] = z
-      encoders.tick[n] = 0
+    for k=1,3 do
+      encoders.accel[k] = z
+      encoders.tick[k] = 0
     end
   else
     encoders.accel[n] = z
@@ -25,9 +25,9 @@ end
 
 encoders.set_sens = function(n,s)
   if n == 0 then
-    for n=1,3 do
-      encoders.sens[n] = util.clamp(s,1,16)
-      encoders.tick[n] = 0
+    for k=1,3 do
+      encoders.sens[k] = util.clamp(s,1,16)
+      encoders.tick[k] = 0
     end
   else
     encoders.sens[n] = util.clamp(s,1,16)
