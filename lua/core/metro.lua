@@ -66,10 +66,10 @@ end
 function Metro.new(id)
   local m = {}
   m.props = {
-    id = id
-    time = 1
-    count = -1
-    event = nil
+    id = id,
+    time = 1,
+    count = -1,
+    event = nil,
     init_stage = 1
   }
   setmetatable(m, Metro)

@@ -1,5 +1,5 @@
+local audio = require 'core/audio'
 local cs = require 'core/controlspec'
-local fx = require 'core/effects'
 
 -- mix paramset
 local mix = paramset.new("mix", "mix")
