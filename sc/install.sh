@@ -3,7 +3,7 @@
 sc_ext_dir=~/.local/share/SuperCollider/Extensions
 norns_ext_dir=$sc_ext_dir/norns
 rm -rf $norns_ext_dir
-mkdir $norns_ext_dir
+mkdir -p $norns_ext_dir
 
 
 link() {
@@ -30,5 +30,5 @@ done
 # user extensions supplied by "dust"
 dust_ext_dir=$sc_ext_dir/dust
 rm -rf $dust_ext_dir
-mkdir $dust_ext_dir
+mkdir -p $dust_ext_dir
 ln -sf ~/dust/lib/sc $dust_ext_dir

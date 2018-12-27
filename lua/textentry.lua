@@ -16,8 +16,8 @@ te.enter = function(callback, default)
     te.redraw_restore = redraw
     key = te.key
     enc = te.enc
-    redraw = norns.none
     norns.menu.init()
+    redraw = norns.none
   else
     te.key_restore = norns.menu.get_key()
     te.enc_restore = norns.menu.get_enc()
@@ -42,7 +42,7 @@ end
 
 
 te.key = function(n,z)
-  if n==2 and z==1 then
+  if n==2 and z==0 then
     te.txt = nil
     te.exit()
   elseif n==3 and z==1 then
@@ -82,7 +82,6 @@ te.redraw = function()
   screen.level(15)
   screen.move(0,32)
   screen.text(te.txt)
-  local x,y
   for x=0,15 do
     if x==5 and te.row==0 then screen.level(15) else screen.level(2) end
     screen.move(x*8,46)

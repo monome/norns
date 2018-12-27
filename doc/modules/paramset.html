@@ -50,12 +50,13 @@
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
-  <li><strong>paramset</strong></li>
-  <li><a href="../modules/number.html">number</a></li>
+  <li><a href="../modules/control.html">control</a></li>
+  <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/number.html">number</a></li>
   <li><a href="../modules/option.html">option</a></li>
   <li><a href="../modules/separator.html">separator</a></li>
   <li><a href="../modules/taper.html">taper</a></li>
+  <li><a href="../modules/trigger.html">trigger</a></li>
   <li><strong>paramset</strong></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
@@ -87,28 +88,36 @@
 	<td class="summary">add separator</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ParamSet:add">ParamSet:add (param)</a></td>
-	<td class="summary">add generic parameter</td>
+	<td class="name" nowrap><a href="#ParamSet:add">ParamSet:add (args)</a></td>
+	<td class="summary">add generic parameter
+ helper function to add param to paramset
+ two uses:
+ - pass "param" table with optional "action" function
+ - pass keyed table to generate "param" table.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ParamSet:add_number">ParamSet:add_number (name, min, max, default)</a></td>
+	<td class="name" nowrap><a href="#ParamSet:add_number">ParamSet:add_number (id, name, min, max, default)</a></td>
 	<td class="summary">add number</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ParamSet:add_option">ParamSet:add_option (name, options, default)</a></td>
+	<td class="name" nowrap><a href="#ParamSet:add_option">ParamSet:add_option (id, name, options, default)</a></td>
 	<td class="summary">add option</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ParamSet:add_control">ParamSet:add_control (name, controlspec, formatter)</a></td>
+	<td class="name" nowrap><a href="#ParamSet:add_control">ParamSet:add_control (id, name, controlspec, formatter)</a></td>
 	<td class="summary">add control</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ParamSet:add_file">ParamSet:add_file (name, path)</a></td>
+	<td class="name" nowrap><a href="#ParamSet:add_file">ParamSet:add_file (id, name, path)</a></td>
 	<td class="summary">add file</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ParamSet:add_taper">ParamSet:add_taper (name, min, max, default, k, units)</a></td>
+	<td class="name" nowrap><a href="#ParamSet:add_taper">ParamSet:add_taper (id, name, min, max, default, k, units)</a></td>
 	<td class="summary">add taper</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_trigger">ParamSet:add_trigger (id, name)</a></td>
+	<td class="summary">add trigger</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ParamSet:print">ParamSet:print ()</a></td>
@@ -133,6 +142,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#ParamSet:get">ParamSet:get (index)</a></td>
 	<td class="summary">get</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:get_raw">ParamSet:get_raw (index)</a></td>
+	<td class="summary">get_raw (for control types only)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ParamSet:delta">ParamSet:delta (index, d)</a></td>
@@ -207,15 +220,19 @@
 </dd>
     <dt>
     <a name = "ParamSet:add"></a>
-    <strong>ParamSet:add (param)</strong>
+    <strong>ParamSet:add (args)</strong>
     </dt>
     <dd>
     add generic parameter
+ helper function to add param to paramset
+ two uses:
+ - pass "param" table with optional "action" function
+ - pass keyed table to generate "param" table.  required keys are "type" and "id"
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">param</span>
+        <li><span class="parameter">args</span>
 
         </li>
     </ul>
@@ -227,7 +244,7 @@
 </dd>
     <dt>
     <a name = "ParamSet:add_number"></a>
-    <strong>ParamSet:add_number (name, min, max, default)</strong>
+    <strong>ParamSet:add_number (id, name, min, max, default)</strong>
     </dt>
     <dd>
     add number
@@ -235,6 +252,9 @@
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
         <li><span class="parameter">name</span>
 
         </li>
@@ -256,7 +276,7 @@
 </dd>
     <dt>
     <a name = "ParamSet:add_option"></a>
-    <strong>ParamSet:add_option (name, options, default)</strong>
+    <strong>ParamSet:add_option (id, name, options, default)</strong>
     </dt>
     <dd>
     add option
@@ -264,6 +284,9 @@
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
         <li><span class="parameter">name</span>
 
         </li>
@@ -282,7 +305,7 @@
 </dd>
     <dt>
     <a name = "ParamSet:add_control"></a>
-    <strong>ParamSet:add_control (name, controlspec, formatter)</strong>
+    <strong>ParamSet:add_control (id, name, controlspec, formatter)</strong>
     </dt>
     <dd>
     add control
@@ -290,6 +313,9 @@
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
         <li><span class="parameter">name</span>
 
         </li>
@@ -308,7 +334,7 @@
 </dd>
     <dt>
     <a name = "ParamSet:add_file"></a>
-    <strong>ParamSet:add_file (name, path)</strong>
+    <strong>ParamSet:add_file (id, name, path)</strong>
     </dt>
     <dd>
     add file
@@ -316,6 +342,9 @@
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
         <li><span class="parameter">name</span>
 
         </li>
@@ -331,7 +360,7 @@
 </dd>
     <dt>
     <a name = "ParamSet:add_taper"></a>
-    <strong>ParamSet:add_taper (name, min, max, default, k, units)</strong>
+    <strong>ParamSet:add_taper (id, name, min, max, default, k, units)</strong>
     </dt>
     <dd>
     add taper
@@ -339,6 +368,9 @@
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
         <li><span class="parameter">name</span>
 
         </li>
@@ -355,6 +387,29 @@
 
         </li>
         <li><span class="parameter">units</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_trigger"></a>
+    <strong>ParamSet:add_trigger (id, name)</strong>
+    </dt>
+    <dd>
+    add trigger
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
+        <li><span class="parameter">name</span>
 
         </li>
     </ul>
@@ -470,6 +525,26 @@
     </dt>
     <dd>
     get
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:get_raw"></a>
+    <strong>ParamSet:get_raw (index)</strong>
+    </dt>
+    <dd>
+    get_raw (for control types only)
 
 
     <h3>Parameters:</h3>
@@ -625,7 +700,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-07-07 03:32:57 </i>
+<i style="float:right;">Last updated 2018-10-08 09:41:02 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

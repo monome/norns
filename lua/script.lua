@@ -21,6 +21,12 @@ Script.clear = function()
     dev.key = norns.none
   end
   grid.cleanup()
+   -- clear, redirect, and reset arcs
+  for _, dev in pairs(arc.devices) do
+    dev:all(0)
+    dev:refresh()
+  end
+  arc.cleanup()
   --g = nil
   -- reset gridkey callback
   --gridkey = norns.none
@@ -37,6 +43,7 @@ Script.clear = function()
   poll.clear_all()
   -- clear engine
   engine.name = nil
+  free_engine()
   -- clear init
   init = norns.none
   -- clear last run
@@ -44,15 +51,27 @@ Script.clear = function()
   norns.state.name = 'none'
   -- clear params
   params:clear()
+  -- reset PLAY mode screen settings
+  local status = norns.menu.status()
+  if status == true then s_restore() end
+  screen.aa(0)
+  screen.level(15)
+  screen.line_width(1)
+  screen.font_face(0)
+  screen.font_size(8)
+  if status == true then s_save() end
+  -- ensure finalizers run before next script
+  collectgarbage()
 end
 
 Script.init = function()
   print("# script init")
   params.name = norns.state.name
-  if norns.try(init, "init") then
-    norns.menu.init()
-  end
+  init()
   s_save()
+  grid.reconnect()
+  midi.reconnect()
+  arc.reconnect()
 end
 
 --- load a script from the /scripts folder
@@ -62,7 +81,7 @@ Script.load = function(filename)
   if filename == nil then
     filename = norns.state.script end
 
-  -- script local state  
+  -- script local state
   local state = { }
 
   setmetatable(_G, {
@@ -92,6 +111,7 @@ Script.load = function(filename)
       norns.state.folder_name = string.gsub(filename,'.lua','') -- store name
       norns.state.name = norns.state.folder_name:match("[^/]*$") -- strip path from name
       norns.state.save() -- remember this script for next launch
+      norns.script.nointerface = redraw == norns.blank -- check if redraw is present
       norns.script.redraw = redraw -- store redraw function for context switching
       redraw = norns.none -- block redraw until Script.init
       Script.run() -- load engine then run script-specified init function
@@ -101,20 +121,13 @@ end
 
 --- load engine, execute script-specified init (if present)
 Script.run = function()
-  local bootstrap = function()
-    Script.init()
-    print("reconnecting grid...")
-    grid.reconnect()
-    print("reconnecting midi...")
-    midi.reconnect()
-  end
-
   print("# script run")
   if engine.name ~= nil then
-    print("loading engine; name: " .. engine.name)
-    engine.load(engine.name, bootstrap)
+    print("loading engine: " .. engine.name)
+    engine.load(engine.name, Script.init)
   else
-    bootstrap()
+    local status = norns.try(Script.init,"init")
+    norns.init_done(status)
   end
 end
 

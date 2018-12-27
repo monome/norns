@@ -31,6 +31,8 @@ extern void w_reset_lvm();
 extern void w_handle_monome_add(void *dev);
 extern void w_handle_monome_remove(int id);
 extern void w_handle_grid_key(int id, int x, int y, int state);
+extern void w_handle_arc_encoder_delta(int id, int number, int delta);
+extern void w_handle_arc_encoder_key(int id, int number, int state);
 
 extern void w_handle_hid_add(void *dev);
 extern void w_handle_hid_remove(int id);
@@ -61,6 +63,9 @@ extern void w_handle_enc(const int n, const int delta);
 //--- system/battery
 extern void w_handle_battery(const int percent, const int current);
 extern void w_handle_power(const int present);
+
+//--- system/stat
+extern void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu);
 
 //--- metro bang handler
 extern void w_handle_metro(const int idx, const int stage);

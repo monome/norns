@@ -6,7 +6,7 @@ Number.__index = Number
 
 local tNUMBER = 1
 
-function Number.new(id, name, min, max, default)
+function Number.new(id, name, min, max, default, formatter)
   local o = setmetatable({}, Number)
   o.t = tNUMBER
   o.id = id
@@ -15,6 +15,7 @@ function Number.new(id, name, min, max, default)
   o.value = o.default
   o.min = min or -2147483648
   o.max = max or 2147483647 -- 32 bit signed
+  o.formatter = formatter
   o.action = function() end
   return o
 end
@@ -44,7 +45,11 @@ function Number:bang()
 end
 
 function Number:string()
-  return self.value
+  if self.formatter then
+    return self.formatter(self)
+  else
+    return self.value
+  end
 end
 
 

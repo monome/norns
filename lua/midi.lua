@@ -138,6 +138,26 @@ function Midi.connect(n)
   d.channel_pressure = function(val, ch)
       d.send{type="channel_pressure", val=val, ch=ch or 1}
     end
+  d.start = function()
+      d.send{type="start"}
+    end
+  d.stop = function()
+      d.send{type="stop"}
+    end
+  d.continue = function()
+     d.send{type="continue"}
+      --d.send{0xfb}
+    end
+  d.clock = function()
+      d.send{type="clock"}
+    end
+  d.song_position = function(lsb, msb)
+      d.send{type="song_position", lsb=lsb, msb=msb}
+    end
+  d.song_select = function(val)
+      d.send{type="song_select", val=val}
+    end
+
   return d
 end
 
@@ -171,6 +191,24 @@ local to_data = {
     end,
   channel_pressure = function(msg)
       return {0xd0 + (msg.ch or 1) - 1, msg.val}
+    end,
+  start = function(msg)
+      return {0xfa}
+    end,
+  stop = function(msg)
+      return {0xfc}
+    end,
+  continue = function(msg)
+      return {0xfb}
+    end,
+  clock = function(msg)
+      return {0xf8}
+    end,
+  song_position = function(msg)
+      return {0xf2, msg.lsb, msg.msb}
+    end,
+  song_select = function(msg)
+      return {0xf3, msg.val}
     end
 }
 
@@ -186,13 +224,16 @@ function Midi.to_msg(data)
   local msg = {}
   -- note on
   if data[1] & 0xf0 == 0x90 then
-    --print("note")
     msg = {
-      type = "note_on",
       note = data[2],
       vel = data[3],
       ch = data[1] - 0x90 + 1
     }
+    if data[3] > 0 then 
+      msg.type = "note_on"
+    elseif data[3] == 0 then -- if velocity is zero then send note off
+      msg.type = "note_off"
+    end
   -- note off
   elseif data[1] & 0xf0 == 0x80 then
     msg = {
@@ -231,10 +272,38 @@ function Midi.to_msg(data)
       val = data[2],
       ch = data[1] - 0xd0 + 1
     }
+  -- start
+  elseif data[1] == 0xfa then
+    msg.type = "start"
+  -- stop
+  elseif data[1] == 0xfc then
+     msg.type = "stop"
+  -- continue
+  elseif data[1] == 0xfb then
+    msg.type = "continue"
+  -- clock
+  elseif data[1] == 0xf8 then
+    msg.type = "clock"
+  -- song position pointer
+  elseif data[1] == 0xf2 then
+    msg = {
+        type = "song_position",
+        lsb = data[2],
+        msb = data[3]
+    }    
+  -- song select
+  elseif data[1] == 0xf3 then
+    msg = {
+        type = "song_select",
+        val = data[2]
+    }    
+  -- active sensing (should probably ignore)
+  elseif data[1] == 0xfe then
+      -- do nothing
   -- everything else
   else
     msg = {
-      type = "other"
+      type = "other",
     }
   end
   return msg

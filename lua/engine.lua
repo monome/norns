@@ -69,12 +69,11 @@ Engine.add_command = function(id, name, fmt)
 end
 
 Engine.list_commands = function()
-  print("--- engine commands ---")
+  print("___ engine commands ___")
   local sorted = tab.sort(Engine.commands)
   for i,n in ipairs(sorted) do
-    print(Engine.commands[n].name ..'  ('.. Engine.commands[n].fmt .. ')')
+    print(Engine.commands[n].name,' ',Engine.commands[n].fmt)
   end
-  print("------\n")
 end
 
 --- load a named engine, with a callback
@@ -83,7 +82,6 @@ end
 Engine.load = function(name, callback)
   if type(callback) == 'function' then
     norns.report.did_engine_load = function()
-      --print("Engine: norns.report.did_engine_load callback")
       local status = norns.try(callback,"init")
       norns.init_done(status)
     end

@@ -51,7 +51,7 @@ end
 --- set_raw
 -- set 0-1
 function Control:set_raw(value)
-  clamped_value = util.clamp(value, 0, 1)
+  local clamped_value = util.clamp(value, 0, 1)
   if self.raw ~= clamped_value then
     self.raw = clamped_value
     self:bang()

@@ -1,0 +1,29 @@
+language: python
+sudo: false
+
+branches:
+  only: [master]
+
+env:
+  - LUA="lua=5.3"
+
+before_install:
+  - pip install hererocks
+  - hererocks lua_install -r^ --$LUA
+  - export PATH=$PATH:$PWD/lua_install/bin
+  
+install:
+  - luarocks install ldoc
+  
+script:
+  - echo "generating api docs.."
+  - (cd lua; ldoc -c ../config.ld .)
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  local-dir: doc
+  on:
+    branch: master

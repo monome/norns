@@ -13,6 +13,7 @@
 #include "gpio.h"
 #include "oracle.h"
 #include "battery.h"
+#include "stat.h"
 #include "weaver.h"
 
 #include "event_types.h"
@@ -184,6 +185,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_POWER:
         w_handle_power(ev->power.present);
         break;
+    case EVENT_STAT:
+        w_handle_stat(ev->stat.disk, ev->stat.temp, ev->stat.cpu);
+        break;
     case EVENT_MONOME_ADD:
         w_handle_monome_add(ev->monome_add.dev);
         break;
@@ -195,6 +199,16 @@ static void handle_event(union event_data *ev) {
                           ev->grid_key.x,
                           ev->grid_key.y,
                           ev->grid_key.state);
+        break;
+    case EVENT_ARC_ENCODER_DELTA:
+        w_handle_arc_encoder_delta(ev->arc_encoder_delta.id,
+                                   ev->arc_encoder_delta.number,
+                                   ev->arc_encoder_delta.delta);
+        break;
+    case EVENT_ARC_ENCODER_KEY:
+        w_handle_arc_encoder_key(ev->arc_encoder_key.id,
+                                 ev->arc_encoder_key.number,
+                                 ev->arc_encoder_key.state);
         break;
     case EVENT_HID_ADD:
         w_handle_hid_add(ev->hid_add.dev);
@@ -254,7 +268,7 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_RESET_LVM:
         w_reset_lvm();
-	break;
+        break;
     case EVENT_QUIT:
         quit = true;
         break;

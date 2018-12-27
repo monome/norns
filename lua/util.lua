@@ -3,10 +3,17 @@
 
 util = {}
 
+--- db to amp
+-- @return amp
+util.dbamp = function(db)
+  if db < -80 then db = -math.huge end
+  return math.pow(10,db*0.05)
+end
+
 --- get system time in s+us
 -- @return time
 util.time = function()
-  us,s = get_time()
+  local us,s = get_time()
   return us + s/1000000
 end
 
@@ -143,6 +150,17 @@ function util.round_up(number, quant)
   else
     return math.ceil(number/(quant or 1) + 0.5) * (quant or 1)
   end
+end
+
+--- format string, seconds to h:m:s
+-- @param seconds seconds
+-- @return string seconds in h:m:s
+function util.s_to_hms(s)
+  local m = math.floor(s/60)
+  local h = math.floor(m/60)
+  m = m%60
+  s = s%60
+  return h ..":".. string.format("%02d",m) ..":".. string.format("%02d",s)
 end
 
 return util

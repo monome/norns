@@ -78,16 +78,16 @@ function tab.save(tbl, filename)
   local charS, charE = "   ", "\n"
   local file, err = io.open(filename, "wb")
   if err then return err end
-  
+
   -- initiate variables for save procedure
   local tables, lookup = { tbl }, { [tbl] = 1 }
   file:write("return {"..charE)
-  
+
   for idx, t in ipairs(tables) do
     file:write("-- Table: {"..idx.."}"..charE)
     file:write("{"..charE)
     local thandled = {}
-    
+
     for i, v in ipairs(t) do
       thandled[i] = true
       local stype = type(v)
@@ -106,11 +106,11 @@ function tab.save(tbl, filename)
         file:write(charS..tostring(v)..","..charE)
       end
     end
-    
+
     for i, v in pairs(t) do
       -- escape handled values
       if (not thandled[i]) then
-          
+
         local str = ""
         local stype = type(i)
         -- handle index
@@ -127,7 +127,7 @@ function tab.save(tbl, filename)
         elseif stype == "boolean" then
           str = charS.."["..tostring(i).."]="
         end
-          
+
         if str ~= "" then
           stype = type(v)
           -- handle value
@@ -178,5 +178,29 @@ function tab.load(sfile)
   return tables[1]
 end
 
+--- Create a read-only proxy for a given table.
+-- @params params
+-- @params params.table the table to proxy
+-- @params params.except a list of writable keys
+-- @return the proxied read-only table
+function tab.readonly(params)
+  local t = params.table
+  local exceptions = params.except or {}
+  local proxy = {}
+  local mt = {
+    __index = t,
+    __newindex = function (_,k,v)
+      if (tab.contains(exceptions, k)) then
+        t[k] = v
+      else
+        error("'"..k.."', a read-only key, cannot be re-assigned.")
+      end
+    end,
+    __pairs = function (_) return pairs(proxy) end,
+    __ipairs = function (_) return ipairs(proxy) end,
+  }
+  setmetatable(proxy, mt)
+  return proxy
+end
 
 return tab

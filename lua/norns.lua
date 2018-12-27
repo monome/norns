@@ -45,6 +45,15 @@ norns.power = function(present)
   --print("power: "..present)
 end
 
+--- stat handler
+norns.stat = function(disk, temp, cpu)
+  --print("stat",disk,temp,cpu)
+  norns.disk = disk
+  norns.temp = temp
+  norns.cpu = cpu
+end
+
+
 --- key callback (redefined in menu)
 norns.key = function(n,z)
    --print ("norns.key "..n.." "..z)
@@ -71,6 +80,17 @@ norns.grid = {}
 norns.grid.key = function(id, x, y, val)
    -- print("norns.grid.key ", id,x,y,val)
 end
+
+-- arc device callbacks
+norns.arc = {}
+--- arc key event
+norns.arc.event = function(id, n, delta)
+   -- print("norns.arc.delta ", id, n, delta)
+end
+norns.arc.key = function(id, n, s)
+   -- print("norns.arc.delta ", id, n, s)
+end
+
 
 -- hid callbacks
 norns.hid = {}

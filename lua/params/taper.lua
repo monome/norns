@@ -79,7 +79,6 @@ end
 
 function Taper:string()
   local format
-  local range = math.abs(self.max - self.min)
 
   local v = self:get()
   local absv = math.abs(v)

@@ -19,7 +19,7 @@
 #define BATTERY_POLL_INTERVAL 5
 
 static int fd[3];
-static char buf[7];
+static char buf[8];
 static pthread_t p;
 
 void *battery_check(void *);

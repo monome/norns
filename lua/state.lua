@@ -2,6 +2,7 @@
 -- @module state
 
 state = {}
+state.tape = 0
 state.script = ''
 state.clean_shutdown = false
 
@@ -21,6 +22,7 @@ state.resume = function()
   -- update vports
   midi.update_devices()
   grid.update_devices()
+  arc.update_devices()
 
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then
@@ -59,6 +61,7 @@ state.save_state = function()
   local fd=io.open(data_dir .. "system.lua","w+")
   io.output(fd)
   io.write("-- system state\n")
+  io.write("norns.state.tape = " .. norns.state.tape .. "\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
   for i=1,4 do
@@ -66,6 +69,9 @@ state.save_state = function()
   end
   for i=1,4 do
     io.write("grid.vport[" .. i .. "].name = '" .. grid.vport[i].name .. "'\n")
+  end
+  for i=1,4 do
+    io.write("arc.vport[" .. i .. "].name = '" .. arc.vport[i].name .. "'\n")
   end
   io.close(fd)
 end

@@ -7,8 +7,8 @@ norns.version.metro = '0.0.3'
 local Metro = {}
 Metro.__index = Metro
 
-Metro.num_metros = 33
-Metro.num_script_metros = 30 -- 31-33 are reserved
+Metro.num_metros = 35
+Metro.num_script_metros = 30 -- 31-35 are reserved
 
 Metro.metros = {}
 Metro.available = {}
@@ -88,6 +88,7 @@ function Metro:start(time, count, stage)
     if time.count then self.props.count = time.count end
     if time.stage then self.props.stage = time.stage end
   else
+
     if time then self.props.time = time end
     if count then self.props.count = count end
     if stage then self.init_stage = stage end
