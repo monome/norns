@@ -124,42 +124,57 @@ static int _get_time(lua_State *l);
 static int _micro_sleep(lua_State *l);
 
 // audio context control
-static int _set_audio_input_level(lua_State *l);
-static int _set_audio_output_level(lua_State *l);
-static int _set_audio_monitor_level(lua_State *l);
-static int _set_audio_monitor_mono(lua_State *l);
-static int _set_audio_monitor_stereo(lua_State *l);
-static int _set_audio_monitor_on(lua_State *l);
-static int _set_audio_monitor_off(lua_State *l);
+static int _set_level_dac(lua_State *l);
+static int _set_level_adc(lua_State *l);
+static int _set_level_ext(lua_State *l);
+static int _set_level_tape(lua_State *l);
+static int _set_level_monitor(lua_State *l);
+static int _set_monitor_mix_mono(lua_State *l);
+static int _set_monitor_mix_stereo(lua_State *l);
+
 static int _set_audio_pitch_on(lua_State *l);
 static int _set_audio_pitch_off(lua_State *l);
 
+static int _poll_start_vu(lua_State *l);
+static int _poll_stop_vu(lua_State *l);
+static int _poll_start_cut_phase(lua_State *l);
+static int _poll_stop_cut_phase(lua_State *l);
+
 // tape control
+static int _tape_rec_open(lua_State *l);
+static int _tape_rec_start(lua_State *l);
+static int _tape_rec_stop(lua_State *l);
+static int _tape_play_open(lua_State *l);
+static int _tape_play_start(lua_State *l);
+static int _tape_play_stop(lua_State *l);
 
-static int _tape_level(lua_State *l);
-static int _tape_new(lua_State *l);
-static int _tape_start_rec(lua_State *l);
-static int _tape_pause_rec(lua_State *l);
-static int _tape_stop_rec(lua_State *l);
-static int _tape_open(lua_State *l);
-static int _tape_play(lua_State *l);
-static int _tape_pause(lua_State *l);
-static int _tape_stop(lua_State *l);
+// cut
+static int _set_level_adc_cut(lua_State *l);
+static int _set_level_ext_cut(lua_State *l);
+static int _set_level_cut_rev(lua_State *l);
+static int _set_level_cut(lua_State *l);
+static int _set_level_cut_cut(lua_State *l);
+static int _set_pan_cut(lua_State *l);
+static int _cut_enable(lua_State *l);
+static int _cut_buffer_clear_region(lua_State *l);
+static int _cut_buffer_clear(lua_State *l);
+static int _cut_buffer_read(lua_State *l);
+static int _set_cut_param(lua_State *l);
+static int _set_level_input_cut(lua_State *l);
 
-// aux effects controls
-static int _set_aux_fx_on(lua_State *l);
-static int _set_aux_fx_off(lua_State *l);
-static int _set_aux_fx_input_level(lua_State *l);
-static int _set_aux_fx_input_pan(lua_State *l);
-static int _set_aux_fx_output_level(lua_State *l);
-static int _set_aux_fx_return_level(lua_State *l);
-static int _set_aux_fx_param(lua_State *l);
+// rev effects controls
+static int _set_rev_on(lua_State *l);
+static int _set_rev_off(lua_State *l);
+static int _set_level_monitor_rev(lua_State *l);
+static int _set_level_ext_rev(lua_State *l);
+static int _set_level_rev_dac(lua_State *l);
+static int _set_rev_param(lua_State *l);
 
-// insert effects controls
-static int _set_insert_fx_on(lua_State *l);
-static int _set_insert_fx_off(lua_State *l);
-static int _set_insert_fx_mix(lua_State *l);
-static int _set_insert_fx_param(lua_State *l);
+// comp effects controls
+static int _set_comp_on(lua_State *l);
+static int _set_comp_off(lua_State *l);
+static int _set_comp_mix(lua_State *l);
+static int _set_comp_param(lua_State *l);
 
 // start audio (sync with sclang startup)
 static int _start_audio(lua_State *l);
@@ -183,6 +198,9 @@ _push_norns_func(const char *field, const char *func) {
   lua_remove(lvm, -2);
 }
 
+#define lua_register_norns(n,f) \
+              (lua_pushcfunction(lvm, f), lua_setfield(lvm, -2, n))
+
 ////////////////////////////////
 //// extern function definitions
 
@@ -195,6 +213,66 @@ void w_init(void) {
   ////////////////////////
   // FIXME: document these in lua in some deliberate fashion
   //////////////////
+  
+  // make table for global externs
+  lua_newtable(lvm);
+
+  // levels
+  lua_register_norns("level_adc", &_set_level_adc);
+  lua_register_norns("level_dac", &_set_level_dac);
+  lua_register_norns("level_ext", &_set_level_ext);
+  lua_register_norns("level_tape", &_set_level_tape);
+  lua_register_norns("level_monitor", &_set_level_monitor);
+
+  lua_register_norns("monitor_mix_mono", &_set_monitor_mix_mono);
+  lua_register_norns("monitor_mix_stereo", &_set_monitor_mix_stereo);
+
+  // fx
+  lua_register_norns("rev_on", &_set_rev_on);
+  lua_register_norns("rev_off", &_set_rev_off);
+  lua_register_norns("rev_param", &_set_rev_param);
+  lua_register_norns("level_ext_rev", &_set_level_ext_rev);
+  lua_register_norns("level_rev_dac", &_set_level_rev_dac);
+  lua_register_norns("level_monitor_rev", &_set_level_monitor_rev);
+  lua_register_norns("comp_on", &_set_comp_on);
+  lua_register_norns("comp_off", &_set_comp_off);
+  lua_register_norns("comp_param", &_set_comp_param);
+  lua_register_norns("comp_mix", &_set_comp_mix);
+
+  // tape controls
+  lua_register_norns("tape_record_open", &_tape_rec_open);
+  lua_register_norns("tape_record_start", &_tape_rec_start);
+  lua_register_norns("tape_record_stop", &_tape_rec_stop);
+  lua_register_norns("tape_play_open", &_tape_play_open);
+  lua_register_norns("tape_play_start", &_tape_play_start);
+  lua_register_norns("tape_play_stop", &_tape_play_stop);
+
+  // polls
+  lua_register_norns("poll_start_vu", &_poll_start_vu);
+  lua_register_norns("poll_stop_vu", &_poll_stop_vu);
+  lua_register_norns("poll_start_cut_phase", &_poll_start_cut_phase);
+  lua_register_norns("poll_stop_cut_phase", &_poll_stop_cut_phase);
+
+  // cut
+  lua_register_norns("level_adc_cut", &_set_level_adc_cut);
+  lua_register_norns("level_ext_cut", &_set_level_ext_cut);
+  lua_register_norns("level_cut_rev", &_set_level_cut_rev);
+  lua_register_norns("level_cut", &_set_level_cut);
+  lua_register_norns("level_cut_cut", &_set_level_cut_cut);
+  lua_register_norns("pan_cut", &_set_pan_cut);
+  lua_register_norns("cut_enable", &_cut_enable);
+  lua_register_norns("cut_buffer_clear_region", &_cut_buffer_clear_region);
+  lua_register_norns("cut_buffer_clear", &_cut_buffer_clear);
+  lua_register_norns("cut_buffer_read", &_cut_buffer_read);
+  lua_register_norns("cut_param", &_set_cut_param);
+  lua_register_norns("level_input_cut", &_set_level_input_cut);
+
+
+  // name global extern table
+  lua_setglobal(lvm, "_norns");
+
+
+  // TODO: GET THESE INTO _norns TABLE
 
   // low-level monome grid control
   lua_register(lvm, "grid_set_led", &_grid_set_led);
@@ -270,41 +348,8 @@ void w_init(void) {
   lua_register(lvm, "request_poll_value", &_request_poll_value);
 
   // audio context controls
-  lua_register(lvm, "audio_input_level", &_set_audio_input_level);
-  lua_register(lvm, "audio_output_level", &_set_audio_output_level);
-  lua_register(lvm, "audio_monitor_level", &_set_audio_monitor_level);
-  lua_register(lvm, "audio_monitor_mono", &_set_audio_monitor_mono);
-  lua_register(lvm, "audio_monitor_stereo", &_set_audio_monitor_stereo);
-  lua_register(lvm, "audio_monitor_on", &_set_audio_monitor_on);
-  lua_register(lvm, "audio_monitor_off", &_set_audio_monitor_off);
   lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
   lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
-
-  // tape controls
-  lua_register(lvm, "tape_level", &_tape_level);
-  lua_register(lvm, "tape_new", &_tape_new);
-  lua_register(lvm, "tape_start_rec", &_tape_start_rec);
-  lua_register(lvm, "tape_pause_rec", &_tape_pause_rec);
-  lua_register(lvm, "tape_stop_rec", &_tape_stop_rec);
-  lua_register(lvm, "tape_open", &_tape_open);
-  lua_register(lvm, "tape_play", &_tape_play);
-  lua_register(lvm, "tape_pause", &_tape_pause);
-  lua_register(lvm, "tape_stop", &_tape_stop);
-
-  // aux effects controls
-  lua_register(lvm, "set_aux_fx_on", &_set_aux_fx_on);
-  lua_register(lvm, "set_aux_fx_off", &_set_aux_fx_off);
-  lua_register(lvm, "set_aux_fx_input_level", &_set_aux_fx_input_level);
-  lua_register(lvm, "set_aux_fx_input_pan", &_set_aux_fx_input_pan);
-  lua_register(lvm, "set_aux_fx_output_level", &_set_aux_fx_output_level);
-  lua_register(lvm, "set_aux_fx_return_level", &_set_aux_fx_return_level);
-  lua_register(lvm, "set_aux_fx_param", &_set_aux_fx_param);
-
-// insert effects controls
-  lua_register(lvm, "set_insert_fx_on", &_set_insert_fx_on);
-  lua_register(lvm, "set_insert_fx_off", &_set_insert_fx_off);
-  lua_register(lvm, "set_insert_fx_mix", &_set_insert_fx_mix);
-  lua_register(lvm, "set_insert_fx_param", &_set_insert_fx_param);
 
   // start audio (query for sclang readiness)
   lua_register(lvm, "start_audio", &_start_audio);
@@ -1749,61 +1794,55 @@ int _request_poll_value(lua_State *l) {
 }
 
 // audio context control
-int _set_audio_input_level(lua_State *l) {
-  if (lua_gettop(l) != 2) {
-    return luaL_error(l, "wrong number of arguments");
-  }
-
-  int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
-  float val = (float) luaL_checknumber(l, 2);
-  o_set_audio_input_level(idx, val);
-  lua_settop(l, 0);
-  return 0;
-}
-
-int _set_audio_output_level(lua_State *l) {
+int _set_level_adc(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
-
   float val = (float) luaL_checknumber(l, 1);
-  o_set_audio_output_level(val);
+  o_set_level_adc(val);
   lua_settop(l, 0);
   return 0;
 }
 
-int _set_audio_monitor_level(lua_State *l) {
+int _set_level_dac(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
-
   float val = (float) luaL_checknumber(l, 1);
-  o_set_audio_monitor_level(val);
+  o_set_level_dac(val);
   lua_settop(l, 0);
   return 0;
 }
 
-int _set_audio_monitor_mono(lua_State *l) {
-  (void)l;
-  o_set_audio_monitor_mono();
+int _set_level_ext(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_ext(val);
+  lua_settop(l, 0);
   return 0;
 }
 
-int _set_audio_monitor_stereo(lua_State *l) {
-  (void)l;
-  o_set_audio_monitor_stereo();
+int _set_level_monitor(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_monitor(val);
+  lua_settop(l, 0);
   return 0;
 }
 
-int _set_audio_monitor_on(lua_State *l) {
+int _set_monitor_mix_mono(lua_State *l) {
   (void)l;
-  o_set_audio_monitor_on();
+  o_set_monitor_mix_mono();
   return 0;
 }
 
-int _set_audio_monitor_off(lua_State *l) {
+int _set_monitor_mix_stereo(lua_State *l) {
   (void)l;
-  o_set_audio_monitor_off();
+  o_set_monitor_mix_stereo();
   return 0;
 }
 
@@ -1819,167 +1858,281 @@ int _set_audio_pitch_off(lua_State *l) {
   return 0;
 }
 
-int _tape_level(lua_State *l) {
-  if (lua_gettop(l) != 1) {
-    return luaL_error(l, "wrong number of arguments");
-  }
-
+int _set_level_tape(lua_State *l) {
+  if (lua_gettop(l) != 1) { return luaL_error(l, "wrong number of arguments"); } 
   float val = (float) luaL_checknumber(l, 1);
-  o_tape_level(val);
+  o_set_level_tape(val);
   lua_settop(l, 0);
   return 0;
 }
 
-int _tape_new(lua_State *l) {
-  if (lua_gettop(l) != 1) {
-    return luaL_error(l, "wrong number of arguments");
-  }
-
+int _tape_rec_open(lua_State *l) {
+  if (lua_gettop(l) != 1) { return luaL_error(l, "wrong number of arguments"); }
   const char *s = luaL_checkstring(l, 1);
-  o_tape_new((char *) s);
+  o_tape_rec_open((char *) s);
   lua_settop(l, 0);
   return 0;
 }
 
-int _tape_start_rec(lua_State *l) {
+int _tape_rec_start(lua_State *l) {
   (void)l;
-  o_tape_start_rec();
+  o_tape_rec_start();
   return 0;
 }
 
-int _tape_pause_rec(lua_State *l) {
+int _tape_rec_stop(lua_State *l) {
   (void)l;
-  o_tape_pause_rec();
+  o_tape_rec_stop();
   return 0;
 }
 
-int _tape_stop_rec(lua_State *l) {
-  (void)l;
-  o_tape_stop_rec();
+int _tape_play_open(lua_State *l) {
+  if (lua_gettop(l) != 1) { return luaL_error(l, "wrong number of arguments"); }
+  const char *s = luaL_checkstring(l, 1);
+  o_tape_play_open((char *) s);
+  lua_settop(l, 0);
   return 0;
 }
 
-int _tape_open(lua_State *l) {
-  if (lua_gettop(l) != 1) {
+int _tape_play_start(lua_State *l) {
+  (void)l;
+  o_tape_play_start();
+  return 0;
+}
+
+int _tape_play_stop(lua_State *l) {
+  (void)l;
+  o_tape_play_stop();
+  return 0;
+}
+
+int _poll_start_vu(lua_State *l) {
+  (void)l;
+  o_poll_start_vu();
+  return 0;
+}
+
+int _poll_stop_vu(lua_State *l) {
+  (void)l;
+  o_poll_stop_vu();
+  return 0;
+}
+
+int _poll_start_cut_phase(lua_State *l) {
+  (void)l;
+  o_poll_start_cut_phase();
+  return 0;
+}
+
+int _poll_stop_cut_phase(lua_State *l) {
+  (void)l;
+  o_poll_stop_cut_phase();
+  return 0;
+}
+
+
+int _cut_enable(lua_State *l) {
+  if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
-
-    const char *s = luaL_checkstring(l, 1);
-    o_tape_open((char *) s);
-    lua_settop(l, 0);
-    return 0;
-}
-
-int _tape_play(lua_State *l) {
-  (void)l;
-  o_tape_play();
-  return 0;
-}
-
-int _tape_pause(lua_State *l) {
-  (void)l;
-  o_tape_pause();
-  return 0;
-}
-
-int _tape_stop(lua_State *l) {
-  (void)l;
-  o_tape_stop();
-  return 0;
-}
-
-
-// aux effects controls
-int _set_aux_fx_on(lua_State *l) {
-  (void)l;
-  o_set_aux_fx_on();
-  return 0;
-}
-
-int _set_aux_fx_off(lua_State *l) {
-  (void)l;
-  o_set_aux_fx_off();
-  return 0;
-}
-
-int _set_aux_fx_input_level(lua_State *l) {
-  if (lua_gettop(l) != 2) {
-    return luaL_error(l, "wrong number of arguments");
-  }  
-  int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
+  int idx = (int) luaL_checkinteger(l, 1);
   float val = (float) luaL_checknumber(l, 2);
-  o_set_aux_fx_input_level(idx, val);
+  o_cut_enable(idx, val);
   return 0;
 }
 
-int _set_aux_fx_input_pan(lua_State *l) {
-  if (lua_gettop(l) != 2) {
-    return luaL_error(l, "wrong number of arguments");
-  }  
-  int idx = (int) luaL_checkinteger(l, 1) - 1; // convert from 1-based
-  float val = (float) luaL_checknumber(l, 2);
-  o_set_aux_fx_input_pan(idx, val);
-  return 0;
-}
-
-int _set_aux_fx_output_level(lua_State *l) {
+int _set_level_adc_cut(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
   float val = (float) luaL_checknumber(l, 1);
-  o_set_aux_fx_output_level(val);
+  o_set_level_adc_cut(val);
   return 0;
 }
 
-int _set_aux_fx_return_level(lua_State *l) {
+int _set_level_ext_cut(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }
   float val = (float) luaL_checknumber(l, 1);
-  o_set_aux_fx_return_level(val);
+  o_set_level_ext_cut(val);
   return 0;
 }
 
-int _set_aux_fx_param(lua_State *l) {
+int _set_level_cut_rev(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_cut_rev(val);
+  return 0;
+}
+
+int _set_level_cut(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int idx = (int) luaL_checkinteger(l, 1);
+  float val = (float) luaL_checknumber(l, 2);
+  o_set_level_cut(idx, val);
+  return 0;
+}
+
+int _set_level_cut_cut(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int src = (int) luaL_checkinteger(l, 1);
+  int dest = (int) luaL_checkinteger(l, 2);
+  float val = (float) luaL_checknumber(l, 3);
+  o_set_level_cut_cut(src, dest, val);
+  return 0;
+}
+
+int _set_pan_cut(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int idx = (int) luaL_checkinteger(l, 1);
+  float val = (float) luaL_checknumber(l, 2);
+  o_set_pan_cut(idx, val);
+  return 0;
+}
+
+int _cut_buffer_clear_region(lua_State *l) {
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float start = (float) luaL_checknumber(l, 1);
+  float end = (float) luaL_checknumber(l, 2);
+  o_cut_buffer_clear_region(start, end);
+  return 0;
+}
+
+int _cut_buffer_clear(lua_State *l) {
+  (void)l;
+  o_cut_buffer_clear();
+  return 0;
+}
+
+int _cut_buffer_read(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  float start_src = (float) luaL_checknumber(l, 2);
+  float start_dst = (float) luaL_checknumber(l, 3);
+  float dur = (float) luaL_checknumber(l, 4);
+  int ch = (int) luaL_checkinteger(l, 5);
+  o_cut_buffer_read((char *)s, start_src, start_dst, dur, ch);
+  return 0;
+}
+
+int _set_cut_param(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  int voice = (int) luaL_checkinteger(l, 2);
+  float val = (float) luaL_checknumber(l, 3);
+  o_set_cut_param((char *)s, voice, val);
+  return 0;
+}
+
+int _set_level_input_cut(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  int ch = (int) luaL_checkinteger(l, 1);
+  int voice = (int) luaL_checkinteger(l, 2);
+  float val = (float) luaL_checknumber(l, 3);
+  o_set_level_input_cut(ch, voice, val);
+  return 0;
+}
+
+
+
+
+// rev effects controls
+int _set_rev_on(lua_State *l) {
+  (void)l;
+  o_set_rev_on();
+  return 0;
+}
+
+int _set_rev_off(lua_State *l) {
+  (void)l;
+  o_set_rev_off();
+  return 0;
+}
+
+int _set_level_monitor_rev(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }  
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_monitor_rev(val);
+  return 0;
+}
+
+int _set_level_ext_rev(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_ext_rev(val);
+  return 0;
+}
+
+int _set_level_rev_dac(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_rev_dac(val);
+  return 0;
+}
+
+int _set_rev_param(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }  
   const char *s = luaL_checkstring(l, 1);
-    float val = (float) luaL_checknumber(l, 2);
-  o_set_aux_fx_param(s, val);
+  float val = (float) luaL_checknumber(l, 2);
+  o_set_rev_param(s, val);
   return 0;
 }
 
 
-// insert effects controls
-int _set_insert_fx_on(lua_State *l) {
+// comp effects controls
+int _set_comp_on(lua_State *l) {
   (void)l;
-  o_set_insert_fx_on();
+  o_set_comp_on();
   return 0;
 }
 
-int _set_insert_fx_off(lua_State *l) {
+int _set_comp_off(lua_State *l) {
   (void)l;
-  o_set_insert_fx_off();
+  o_set_comp_off();
   return 0;
 }
 
-int _set_insert_fx_mix(lua_State *l) {
+int _set_comp_mix(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
   }  
   float val = (float) luaL_checknumber(l, 1);
-  o_set_insert_fx_mix(val);
+  o_set_comp_mix(val);
   return 0;
 }
 
-int _set_insert_fx_param(lua_State *l) {
+int _set_comp_param(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
   const char *s = luaL_checkstring(l, 1);
     float val = (float) luaL_checknumber(l, 2);
-  o_set_insert_fx_param(s, val);
+  o_set_comp_param(s, val);
   return 0;
 }
 

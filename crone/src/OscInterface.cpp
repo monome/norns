@@ -58,11 +58,13 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     vuPoll->setCallback([](const char* path){
         auto vl = mixerClient->getVuLevels();
         // FIXME: perform exponential scaling here?
-        lo_send(matronAddress, path, "ffff",
-                vl->absPeakIn[0].load(),
-                vl->absPeakIn[1].load(),
-                vl->absPeakOut[0].load(),
-                vl->absPeakOut[1].load());
+        char l[4];
+        l[0] = (uint8_t)(64*vl->absPeakIn[0].load());
+        l[1] = (uint8_t)(64*vl->absPeakIn[1].load());
+        l[2] = (uint8_t)(64*vl->absPeakIn[2].load());
+        l[3] = (uint8_t)(64*vl->absPeakIn[3].load());
+        lo_blob bl = lo_blob_new(sizeof(l), l);
+        lo_send(matronAddress, path, "b", bl);
         vl->clear();
     });
     vuPoll->setPeriod(50);
@@ -165,12 +167,12 @@ void OscInterface::addServerMethods() {
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_EXT, argv[0]->f);
     });
 
-    addServerMethod("/set/level/ext_aux", "f", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/level/ext_rev", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_EXT_AUX, argv[0]->f);
     });
 
-    addServerMethod("/set/level/aux_dac", "f", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/level/rev_dac", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_AUX_DAC, argv[0]->f);
     });
@@ -185,12 +187,12 @@ void OscInterface::addServerMethods() {
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_MONITOR_MIX, argv[0]->i, argv[1]->f);
     });
 
-    addServerMethod("/set/level/monitor_aux", "f", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/level/monitor_rev", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_MONITOR_AUX, argv[0]->f);
     });
 
-    addServerMethod("/set/level/ins_mix", "f", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/level/compressor_mix", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_INS_MIX, argv[0]->f);
     });
@@ -300,7 +302,7 @@ void OscInterface::addServerMethods() {
 
     });
 
-    addServerMethod("/set/level/cut_aux", "f", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/level/cut_rev", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_CUT_AUX, argv[0]->f);
     });
@@ -503,7 +505,7 @@ void OscInterface::addServerMethods() {
         softCutClient->loadFile(str, startSrc, startDst, dur, channel);
     });
 
-    addServerMethod("/softcut/buffer/clear", "ff", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/clear_region", "ff", [](lo_arg **argv, int argc) {
         if (argc < 2) {
             return;
         }

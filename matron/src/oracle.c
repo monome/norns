@@ -152,8 +152,8 @@ void o_init(void) {
     const char *ext_port = args_ext_port();
         const char *crone_port = args_crone_port();
 
-    fprintf(stderr, "OSC rx port: %s \nOSC tx port: %s\n",
-            local_port, ext_port);
+    fprintf(stderr, "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\n",
+            local_port, crone_port, ext_port);
     o_init_descriptors();
 
     ext_addr = lo_address_new("127.0.0.1", ext_port);
@@ -434,42 +434,54 @@ void o_request_poll_value(int idx) {
 
 //---- audio context control
 
-//// FIXME: needs 2 levels (OR DOES IT?)
-void o_set_audio_input_level(int idx, float level) {
-    (void)idx;
+void o_poll_start_vu() {
+    lo_send(crone_addr, "/poll/start/vu", NULL);
+}
+
+void o_poll_stop_vu() {
+    lo_send(crone_addr, "/poll/stop/vu", NULL);
+}
+
+void o_poll_start_cut_phase() {
+    lo_send(crone_addr, "/poll/start/cut_phase", NULL);
+}
+
+void o_poll_stop_cut_phase() {
+    lo_send(crone_addr, "/poll/stop/cut_phase", NULL);
+}
+
+
+
+void o_set_level_adc(float level) {
     lo_send(crone_addr, "/set/level/adc", "f", level);
 }
 
-void o_set_audio_output_level(float level) {
+void o_set_level_dac(float level) {
     lo_send(crone_addr, "/set/level/dac", "f", level);
 }
 
-void o_set_audio_monitor_level(float level) {    
+void o_set_level_ext(float level) {
+    lo_send(crone_addr, "/set/level/ext", "f", level);
+}
+
+void o_set_level_monitor(float level) {    
     lo_send(crone_addr, "/set/level/monitor", "f", level);
 }
 
-void o_set_audio_monitor_mono() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 0.5);
-
+void o_set_monitor_mix_mono() {
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 0.5);
 }
 
-void o_set_audio_monitor_stereo() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 0, 1.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 0, 1, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 0, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "iif", 1, 1, 1.0);
+void o_set_monitor_mix_stereo() {
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 1.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 1.0);
 }
 
-void o_set_audio_monitor_on() {
-    fprintf(stderr, "o_set_audio_monitor_on() currently unavailable");
-}
-
-void o_set_audio_monitor_off() {
-    fprintf(stderr, "o_set_audio_monitor_off() currently unavailable");
-}
 
 void o_set_audio_pitch_on() {
     lo_send(ext_addr, "/audio/pitch/on", NULL);
@@ -484,136 +496,141 @@ void o_restart_audio() {
 }
 
 //---- tape controls
-void o_tape_level(float level) {
-    lo_send(ext_addr, "/tape/level", "f", level);
+void o_set_level_tape(float level) {
+    lo_send(crone_addr, "/set/level/tape", "f", level);
 }
 
-void o_tape_new(char *file) {
-    lo_send(ext_addr, "/tape/newfile", "s", file);
+void o_tape_rec_open(char *file) {
+    lo_send(crone_addr, "/tape/record/open", "s", file);
 }
 
-void o_tape_start_rec() {
-    lo_send(ext_addr, "/tape/start_rec", NULL);
+void o_tape_rec_start() {
+    lo_send(crone_addr, "/tape/record/start", NULL);
 }
 
-void o_tape_pause_rec() {
-    lo_send(ext_addr, "/tape/pause_rec", NULL);
+void o_tape_rec_stop() {
+    lo_send(crone_addr, "/tape/record/stop", NULL);
 }
 
-void o_tape_stop_rec() {
-    lo_send(ext_addr, "/tape/stop_rec", NULL);
+void o_tape_play_open(char *file) {
+    lo_send(crone_addr, "/tape/play/open", "s", file);
 }
 
-void o_tape_open(char *file) {
-    lo_send(ext_addr, "/tape/openfile", "s", file);
+void o_tape_play_start() {
+    lo_send(crone_addr, "/tape/play/start", NULL);
 }
 
-void o_tape_play() {
-    lo_send(ext_addr, "/tape/play", NULL);
-}
-
-void o_tape_pause() {
-    lo_send(ext_addr, "/tape/pause", NULL);
-}
-
-void o_tape_stop() {
-    lo_send(ext_addr, "/tape/stop", NULL);
-}
-
-//--- aux effects controls
-// enable / disable aux fx processing
-void o_set_aux_fx_on() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 1);
-}
-
-void o_set_aux_fx_off() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 0);
+void o_tape_play_stop() {
+    lo_send(crone_addr, "/tape/play/stop", NULL);
 }
 
 
-//--- insert effects controls
-void o_set_insert_fx_on() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 1);
+//--- cut
+void o_cut_enable(int i, float value) {
+    lo_send(crone_addr, "/set/enabled/cut", "if", i, value);
 }
 
-void o_set_insert_fx_off() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 0);
+void o_set_level_adc_cut(float value) {
+    lo_send(crone_addr, "/set/level/adc_cut", "f", value);
 }
 
-void o_set_insert_fx_mix(float value) {
-    lo_send(crone_addr, "/set/level/ins_mix", "f", value);
+void o_set_level_ext_cut(float value) {
+    lo_send(crone_addr, "/set/level/ext_cut", "f", value);
 }
 
-
-// stereo output -> aux
-void o_set_aux_fx_output_level(float value) {
-    lo_send(crone_addr, "/set/level/ext/aux", "f", value);
+void o_set_level_cut_rev(float value) {
+    lo_send(crone_addr, "/set/level/cut_rev", "f", value);
 }
 
-// aux return -> dac
-void o_set_aux_fx_return_level(float value) {
-    lo_send(crone_addr, "/set/level/aux/dac", "f", value);
+void o_set_level_cut(int index, float value) {
+	lo_send(crone_addr, "/set/level/cut", "if", index, value);
 }
 
-///////////////////////////////
-///////////////////////////
-///// FIXME EEEEEEEE ???
-
-/// FIXME: doesn't need channel count?
-// monitor mix -> aux level (stereo!)
-void o_set_aux_fx_input_level(int channel, float value) {
-    (void) channel;
-    lo_send(crone_addr, "/set/level/monitor/aux", "f", value);
+void o_set_level_cut_cut(int src, int dest, float value) {
+	lo_send(crone_addr, "/set/level/cut_cut", "iif", src, dest, value);
 }
 
-// mono input -> aux pan
-void o_set_aux_fx_input_pan(int channel, float value) {
-    (void)channel;
-    (void)value;
-    fprintf(stderr, "o_set_aux_fx_input_pan() currently unavailable");
+void o_set_pan_cut(int index, float value) {
+	lo_send(crone_addr, "/set/pan/cut", "if", index, value);
 }
 
-
-void o_set_aux_fx_param(const char* name, float value) {
-    static char buf[128];
-    sprintf(buf, "/set/param/reverb/%s", name);
-    lo_send(crone_addr, buf, "f", value);
-}
-
-void o_set_insert_fx_param(const char* name, float value) {
-    static char buf[128];
-    sprintf(buf, "/set/param/compressor/%s", name);
-    lo_send(crone_addr, buf, "f", value);
-}
-
-void o_set_softcut_voice_param(const char* name, int voice, float value) {
+void o_set_cut_param(const char* name, int voice, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/cut/%s", name);    
     lo_send(crone_addr, buf, "if", voice, value);
 }
 
-void o_set_softcut_input_level(int src, int dst, float level) {
+void o_set_level_input_cut(int src, int dst, float level) {
     lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
 }
 
-void o_set_softcut_feedback_level(int src, int dst, float level) {
-    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
+void o_cut_buffer_clear_region(float start, float end) {
+    lo_send(crone_addr, "/softcut/buffer/clear_region", "ff", start, end);
+}
+
+void o_cut_buffer_clear() {
+    lo_send(crone_addr, "/softcut/buffer/clear", "");
+}
+
+void o_cut_buffer_read(char *file, float start_src, float start_dst, float dur, int ch) {
+	lo_send(crone_addr, "/softcut/buffer/read", "sfffi", file, start_src, start_dst, dur, ch);
+} 
+
+
+
+
+//--- rev effects controls
+// enable / disable rev fx processing
+void o_set_rev_on() {
+    lo_send(crone_addr, "/set/enabled/reverb", "f", 1.0);
+}
+
+void o_set_rev_off() {
+    lo_send(crone_addr, "/set/enabled/reverb", "f", 0.0);
 }
 
 
+//--- comp effects controls
+void o_set_comp_on() {
+    lo_send(crone_addr, "/set/enabled/compressor", "f", 1.0);
+}
+
+void o_set_comp_off() {
+    lo_send(crone_addr, "/set/enabled/compressor", "f", 0.0);
+}
+
+void o_set_comp_mix(float value) {
+    lo_send(crone_addr, "/set/level/compressor_mix", "f", value);
+}
 
 
-///////////////////
-/// TODO OOOOOOOOOO
-/*
-  /set/level/ext [f]
-  /set/enabled/cut [if]
-  /set/level/cut [if]
-  /set/pan/cut [if]
-  /set/level/adc_cut [f]
-  /set/level/ext_cut [f]
-  /set/level/cut_aux [f]
-*/
+// stereo output -> rev
+void o_set_level_ext_rev(float value) {
+    lo_send(crone_addr, "/set/level/ext_rev", "f", value);
+}
+
+// rev return -> dac
+void o_set_level_rev_dac(float value) {
+    lo_send(crone_addr, "/set/level/rev_dac", "f", value);
+}
+
+// monitor mix -> rev level
+void o_set_level_monitor_rev(float value) {
+    lo_send(crone_addr, "/set/level/monitor_rev", "f", value);
+}
+
+void o_set_rev_param(const char* name, float value) {
+    static char buf[128];
+    sprintf(buf, "/set/param/reverb/%s", name);
+    lo_send(crone_addr, buf, "f", value);
+}
+
+void o_set_comp_param(const char* name, float value) {
+    static char buf[128];
+    sprintf(buf, "/set/param/compressor/%s", name);
+    lo_send(crone_addr, buf, "f", value);
+}
+
 
 
 /////////////////////
