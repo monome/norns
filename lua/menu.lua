@@ -60,7 +60,7 @@ local metro = require 'metro'
 local t = metro[30]
 t.time = KEY1_HOLD_TIME
 t.count = 1
-t.callback = function(stage)
+t.event = function(stage)
   menu.key(1,1)
   pending = false
 end
