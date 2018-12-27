@@ -368,20 +368,20 @@ void w_init(void) {
   char cmd[256];
 
   if (config == NULL) {
-    snprintf(cmd, 256, "dofile('%s/norns/lua/config.lua')\n", home);
+    snprintf(cmd, 256, "dofile('%s/norns/lua/core/config.lua')\n", home);
   } else {
     snprintf(cmd, 256, "dofile('%s')\n", config);
   }
   fprintf(stderr, "running lua config file: %s", cmd);
   w_run_code(cmd);
-  w_run_code("require('norns')");
+  w_run_code("require('core/norns')");
 }
 
 // run startup code
 // audio backend should be running
 void w_startup(void) {
   fprintf(stderr, "running startup\n");
-  lua_getglobal(lvm, "startup");
+  lua_getglobal(lvm, "_startup");
   l_report(lvm, l_docall(lvm, 0, 0));
 }
 
