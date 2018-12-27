@@ -7,24 +7,29 @@
 
 struct args {
     char loc_port[ARG_BUF_SIZE];
-    char rem_port[ARG_BUF_SIZE];
+    char ext_port[ARG_BUF_SIZE];
+    char crone_port[ARG_BUF_SIZE];
 };
 
 static struct args a = {
     .loc_port = "8888",
-    .rem_port = "57120",
+    .crone_port = "9999",
+    .ext_port = "57120",
 };
 
 int args_parse(int argc, char **argv)
 {
     int opt;
-    while( ( opt = getopt(argc, argv, "r:l:m:") ) != -1 ) {
+    while( ( opt = getopt(argc, argv, "r:l:c:") ) != -1 ) {
         switch(opt) {
         case 'l':
             strncpy(a.loc_port, optarg, ARG_BUF_SIZE);
             break;
         case 'r':
-            strncpy(a.rem_port, optarg, ARG_BUF_SIZE);
+            strncpy(a.ext_port, optarg, ARG_BUF_SIZE);
+            break;
+	case 'c':
+            strncpy(a.crone_port, optarg, ARG_BUF_SIZE);
             break;
         default:
             ;;
@@ -37,6 +42,10 @@ const char *args_local_port(void) {
     return a.loc_port;
 }
 
-const char *args_remote_port(void) {
-    return a.rem_port;
+const char *args_ext_port(void) {
+    return a.ext_port;
+}
+
+const char *args_crone_port(void) {
+    return a.crone_port;
 }

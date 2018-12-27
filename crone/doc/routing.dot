@@ -1,0 +1,99 @@
+
+
+digraph G {
+	rankdir=LR;
+	subgraph cluster_01 { 
+		label="signal flow"
+		node [shape=square];
+		jack_in_adc [style=dashed];
+		jack_in_ext [style=dashed];
+		jack_out [style=dashed];
+
+		adc;
+		ext;
+		dac;
+
+		aux_in;	
+		aux_out;
+
+		ins_in;
+		ins_out;
+
+		monitor;
+
+		cut_in_1;
+		cut_in_2;
+			
+		cut_out_1;
+		cut_out_2;
+
+		cut_mix;
+		
+		node [shape=diamond];	
+		softcut;
+		reverb;
+		compression;
+
+		edge [color=deeppink2];	
+		jack_in_adc -> adc;
+		jack_in_ext -> ext;
+
+		monitor -> aux_in;
+		monitor -> ins_in;
+		ext -> aux_in;
+		aux_out -> ins_in;
+
+		ext -> cut_in_1;
+		ext -> cut_in_2;
+		adc -> cut_in_1;
+		adc -> cut_in_2;
+
+		cut_mix -> aux_in;
+
+		ins_in -> dac [label="dry"];
+		ins_out -> dac [label="wet"];
+		dac -> jack_out;
+
+		cut_out_1 -> cut_mix;
+		cut_out_2 -> cut_mix;
+
+		edge [color=blue];
+		adc -> monitor [label="monitor L/R mode"];
+
+		edge [color=black];
+		ext -> ins_in;
+		cut_mix -> ins_in;
+
+		edge [style=dashed];
+		cut_in_1 -> softcut -> cut_out_1;
+		cut_in_2 -> softcut -> cut_out_2;
+		aux_in -> reverb -> aux_out;
+		ins_in -> compression -> ins_out;
+	}
+	
+	subgraph cluster_02 {
+		label = "legend";
+
+	    nodesep=0.6;
+
+		subgraph cluster_03 { 
+			label="nodes";
+			node [shape=square];
+			bus;
+			pointer [style=dashed];
+			process [shape=diamond];
+		}
+		subgraph cluster_04 {
+			label="connections"; 
+			node [style=invis shape=square];
+			a; b; c; d; e; f; g; h;
+
+			edge [style=solid];
+			a -> b [color=deeppink2 label="smooth mix"];
+			c -> d [color=blue label="static mix"];
+			e -> f [label="unity mix"];
+			g -> h [style=dashed label="copy / reference"];
+		}
+	}
+
+}
