@@ -67,14 +67,14 @@ t.event = function(stage)
   pending = false
 end
 -- metro for page status updates
-local u = metro[31]
+local u = metro[32]
 -- metro for tape
-local tape_play_counter = metro[32]
-local tape_rec_counter = metro[33]
+local tape_play_counter = metro[33]
+local tape_rec_counter = metro[34]
 -- metro for nav vanish
-local nav_vanish = metro[34]
+local nav_vanish = metro[35]
 nav_vanish.time = 1
-nav_vanish.callback = function()
+nav_vanish.event = function()
   menu.shownav = false
   if menu.mode == true then menu.redraw() end
   nav_vanish:stop()
@@ -242,7 +242,7 @@ m.home.list = {"SELECT >", "SYSTEM >", "SLEEP >"}
 m.init[pHOME] = function()
   u.time = 1
   u.count = -1
-  u.callback = function() menu.redraw() end
+  u.event = function() menu.redraw() end
   u:start()
 end
 m.deinit[pHOME] = function()
@@ -667,7 +667,7 @@ m.init[pPARAMS] = function()
   m.params.action_text = ""
   m.params.action = 0
   m.params.triggered = {}
-  u.callback = function()
+  u.event = function()
     if m.params.action > 0 then m.params.action = m.params.action - 1 end
     for k, v in pairs(m.params.triggered) do
       if v > 0 then m.params.triggered[k] = v - 1 end
@@ -1037,7 +1037,7 @@ m.init[pWIFI] = function()
   m.wifi.selected = 1
   u.time = 1
   u.count = -1
-  u.callback = function()
+  u.event = function()
     if m.wifi.countdown > 0 then m.wifi.countdown = m.wifi.countdown - 1
     elseif m.wifi.countdown == 0 then
       print("wifi timeout")
@@ -1113,7 +1113,7 @@ m.redraw[pAUDIO] = function()
 end
 
 m.init[pAUDIO] = function()
-  u.callback = function() menu.redraw() end
+  u.event = function() menu.redraw() end
   u.time = 1
   u.count = -1
   u:start()
@@ -1147,7 +1147,7 @@ m.init[pRESET] = function()
   os.execute("sudo systemctl restart norns-crone.service")
   u.time = 1
   u.count = -1
-  u.callback = function()
+  u.event = function()
     m.reset.countdown = m.reset.countdown - 1
     if m.reset.countdown == 0 then
       menu.set_page(pSYSTEM)
@@ -1376,7 +1376,7 @@ m.key[pTAPE] = function(n,z)
             m.tape.play.length_text = util.s_to_hms(m.tape.play.length)
             m.tape.play.pos_tick = 0
             tape_play_counter.time = 0.25
-            tape_play_counter.callback = function()
+            tape_play_counter.event = function()
               m.tape.play.pos_tick = m.tape.play.pos_tick + 0.25
               if m.tape.play.pos_tick > m.tape.play.length 
                   and m.tape.play.status == TAPE_PLAY_PLAY then
@@ -1419,7 +1419,7 @@ m.key[pTAPE] = function(n,z)
         m.tape.rec.sel = TAPE_REC_START
         m.tape.rec.pos_tick = 0
         tape_rec_counter.time = 0.25
-        tape_rec_counter.callback = function()
+        tape_rec_counter.event = function()
           m.tape.rec.pos_tick = m.tape.rec.pos_tick + 0.25
           if m.tape.rec.pos_tick > m.tape.diskfree then
             print("out of space!")

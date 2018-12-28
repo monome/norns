@@ -19,7 +19,7 @@ function BeatClock.new(name)
   
   i.metro = metro.init()
   i.metro.count = -1
-  i.metro.callback = function() i:tick() end
+  i.metro.event = function() i:tick() end
   i:bpm_change(110)
 
   i.on_step = function(e) print("BeatClock executing step") end

@@ -5,9 +5,9 @@
 local Screen = {}
 
 local metro = require 'core/metro'
-local screensaver = metro[33]
+local screensaver = metro[36]
 
-screensaver.callback = function()
+screensaver.event = function()
   s_clear()
   s_update()
 end

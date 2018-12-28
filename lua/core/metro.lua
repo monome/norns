@@ -5,7 +5,7 @@
 local Metro = {}
 Metro.__index = Metro
 
-Metro.num_metros = 35
+Metro.num_metros = 36
 Metro.num_script_metros = 30 -- 31-35 are reserved
 
 Metro.metros = {}
