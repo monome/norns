@@ -968,10 +968,13 @@ m.key[pWIFI] = function(n,z)
     elseif m.wifi.pos == 1 then
       wifi.hotspot()
     elseif m.wifi.pos == 2 then
+      wifi.update()
       listselect.enter(wifi.conn_list, m.wifi.connect)
     elseif m.wifi.pos == 3 then
+      wifi.update()
       listselect.enter(m.wifi.ssid_list, m.wifi.add) 
     elseif m.wifi.pos == 4 then
+      wifi.update()
       listselect.enter(wifi.conn_list, m.wifi.del) 
     end
   end
