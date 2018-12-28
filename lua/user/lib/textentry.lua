@@ -2,8 +2,9 @@
 
 local te = {}
 
-te.enter = function(callback, default)
+te.enter = function(callback, default, heading)
   te.txt = default or ""
+  te.heading = heading or ""
   te.pos = 28
   if default then te.row=1 else te.row = 0 end
   te.delok = 1
@@ -80,6 +81,8 @@ end
 te.redraw = function()
   screen.clear()
   screen.level(15)
+  screen.move(0,16)
+  screen.text(te.heading)
   screen.move(0,32)
   screen.text(te.txt)
   for x=0,15 do

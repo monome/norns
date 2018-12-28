@@ -7,6 +7,7 @@ require 'math'
 math.randomseed(os.time()) -- more random
 
 -- globals
+audio = require 'core/audio'
 screen = require 'core/screen'
 monome = require 'core/monome'
 grid = require 'core/grid'
@@ -22,6 +23,8 @@ wifi = require 'core/wifi'
 controlspec = require 'core/controlspec'
 paramset = require 'core/paramset'
 params = paramset.new()
+
+wifi.init()
 
 
 -- load menu

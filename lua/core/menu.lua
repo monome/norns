@@ -5,6 +5,7 @@ local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'core/paramset'
 local fileselect = require 'fileselect'
+local listselect = require 'listselect'
 local textentry = require 'textentry'
 local menu = {}
 
@@ -302,9 +303,11 @@ m.redraw[pHOME] = function()
     screen.text("CPU " .. norns.cpu .. "%")
     screen.move(36,20)
     screen.text(norns.temp .. "c")
+    screen.move(127,20)
     if wifi.state > 0 then
-      screen.move(127,20)
       screen.text_right("IP "..wifi.ip)
+    else
+      screen.text_right("IP -")
     end
     screen.move(127,45)
     screen.text_right(norns.version.update)
@@ -919,37 +922,62 @@ m.deinit[pDEVICES] = function() end
 -- WIFI
 m.wifi = {}
 m.wifi.pos = 0
-m.wifi.list = {"off","hotspot","network >"}
-m.wifi.len = 3
+m.wifi.list = {"off","hotspot","connect", "add", "del"}
+m.wifi.len = #m.wifi.list
 m.wifi.selected = 1
 m.wifi.try = ""
 m.wifi.countdown = -1
+
+m.wifi.connect = function(x)
+  if x ~= "cancel" then
+    wifi.on(x)
+  end
+  menu.redraw()
+end
+
+m.wifi.add = function(x)
+  if x ~= "cancel" then
+    textentry.enter(m.wifi.passdone, "", "enter password:")
+  end
+  menu.redraw()
+end
+
+m.wifi.del = function(x)
+  if x ~= "cancel" then
+    wifi.delete(x)
+  end
+  menu.redraw()
+end
+
+m.wifi.passdone = function(ssid)
+  return function(txt)
+    if txt ~= nil then
+      wifi.add(ssid, txt)
+    end
+    menu.redraw()
+  end
+end
+
 
 m.key[pWIFI] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 then
     if m.wifi.pos == 0 then
-      print "wifi off"
       wifi.off()
     elseif m.wifi.pos == 1 then
-      print "wifi hotspot"
       wifi.hotspot()
     elseif m.wifi.pos == 2 then
-      m.wifi.try = wifi.scan_list[m.wifi.selected]
-      textentry.enter(m.wifi.passdone, wifi.psk)
+      wifi.update()
+      listselect.enter(wifi.conn_list, m.wifi.connect)
+    elseif m.wifi.pos == 3 then
+      wifi.update()
+      listselect.enter(m.wifi.ssid_list, m.wifi.add) 
+    elseif m.wifi.pos == 4 then
+      wifi.update()
+      listselect.enter(wifi.conn_list, m.wifi.del) 
     end
   end
-end
-
-m.wifi.passdone = function(txt)
-  if txt ~= nil then
-    os.execute("~/norns/wifi.sh select \""..m.wifi.try.."\" \""..txt.."\" &")
-    os.execute("sudo systemctl stop norns-crone.service")
-    wifi.on()
-    m.wifi.countdown = 4
-  end
-  menu.redraw()
 end
 
 m.enc[pWIFI] = function(n,delta)
@@ -959,35 +987,30 @@ m.enc[pWIFI] = function(n,delta)
     elseif m.wifi.pos < 0 then m.wifi.pos = 0 end
     menu.redraw()
   elseif n==3 and m.wifi.pos == 2 then
-    m.wifi.selected = util.clamp(1,m.wifi.selected+delta,wifi.scan_count)
+    m.wifi.selected = util.clamp(1,m.wifi.selected+delta,wifi.conn_count)
     menu.redraw()
   end
 end
 
 m.redraw[pWIFI] = function()
   screen.clear()
-  screen.level(15)
+  screen.level(4)
 
   if m.wifi.countdown == -1 then
     screen.move(0,10)
-    if wifi.state == 2 then
-      screen.text("status: router "..wifi.ssid)
-    else screen.text("status: "..wifi.status) end
-    if wifi.state > 0 then
-      screen.level(4)
-      screen.move(0,20)
-      screen.text(wifi.ip)
-      if wifi.state == 2 then
-        screen.move(127,20)
-        screen.text_right(wifi.signal .. "dBm")
-      end
+    screen.text("STATUS: " .. wifi.status)
+    screen.move(0,20)
+    screen.text("NETWORK: " .. wifi.connection_name)
+    screen.move(0,30)
+    screen.text("IP: " .. wifi.ip)
+    if wifi.connection and wifi.connection:is_wireless() then
+      screen.move(0,40)
+      screen.text("SIGNAL: " .. wifi.signal .. "dBm")
     end
 
-    screen.move(0,40+wifi.state*10)
-    screen.text("-")
-
+    local xp = {0,20,58,94,114}
     for i=1,m.wifi.len do
-      screen.move(8,30+10*i)
+      screen.move(xp[i],60)
       line = m.wifi.list[i]
       if(i==m.wifi.pos+1) then
         screen.level(15)
@@ -996,12 +1019,6 @@ m.redraw[pWIFI] = function()
       end
       screen.text(string.upper(line))
     end
-
-    screen.move(127,60)
-    if m.wifi.pos==2 then screen.level(15) else screen.level(4) end
-    if wifi.scan_count > 0 then
-      screen.text_right(wifi.scan_list[m.wifi.selected])
-    else screen.text_right("NONE") end
 
   else -- countdown
     screen.move(64,40)
@@ -1013,10 +1030,10 @@ m.redraw[pWIFI] = function()
 end
 
 m.init[pWIFI] = function()
+  wifi.ensure_radio_is_on()
+  m.wifi.ssid_list = wifi.ssids() or {}
   m.wifi.countdown = -1
-  wifi.scan()
   wifi.update()
-  --m.wifi.selected = wifi.scan_active
   m.wifi.selected = 1
   u.time = 1
   u.count = -1
@@ -1038,7 +1055,6 @@ end
 m.deinit[pWIFI] = function()
   u:stop()
 end
-
 
 -----------------------------------------
 -- AUDIO
