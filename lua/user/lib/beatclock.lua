@@ -17,7 +17,7 @@ function BeatClock.new(name)
   i.send = false
   i.midi = false
   
-  i.metro = metro.alloc()
+  i.metro = metro.init()
   i.metro.count = -1
   i.metro.callback = function() i:tick() end
   i:bpm_change(110)
