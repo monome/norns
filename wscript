@@ -63,3 +63,4 @@ def build(bld):
     bld.recurse('matron')
     bld.recurse('ws-wrapper')
     bld.recurse('sc')
+    bld.recurse('crone')
