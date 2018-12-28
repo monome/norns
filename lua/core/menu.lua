@@ -5,6 +5,7 @@ local tab = require 'tabutil'
 local util = require 'util'
 local paramset = require 'core/paramset'
 local fileselect = require 'fileselect'
+local listselect = require 'listselect'
 local textentry = require 'textentry'
 local menu = {}
 
@@ -931,18 +932,21 @@ m.wifi.connect = function(x)
   if x ~= "cancel" then
     wifi.on(x)
   end
+  menu.redraw()
 end
 
 m.wifi.add = function(x)
   if x ~= "cancel" then
     textentry.enter(m.wifi.passdone, "", "enter password:")
   end
+  menu.redraw()
 end
 
 m.wifi.del = function(x)
   if x ~= "cancel" then
     wifi.delete(x)
   end
+  menu.redraw()
 end
 
 m.wifi.passdone = function(ssid)
@@ -950,6 +954,7 @@ m.wifi.passdone = function(ssid)
     if txt ~= nil then
       wifi.add(ssid, txt)
     end
+    menu.redraw()
   end
 end
 
