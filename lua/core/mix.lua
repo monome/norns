@@ -54,6 +54,10 @@ mix:add_control("aux_monitor_level", "aux monitor level", cs_DB_LEVEL_MUTE)
 mix:set_action("aux_monitor_level",
   function(x) audio.level_monitor_rev(util.dbamp(x)) end)
 
+mix:add_control("aux_cut_level", "aux cut level", cs_DB_LEVEL_MUTE)
+mix:set_action("aux_cut_level",
+  function(x) audio.level_cut_rev(util.dbamp(x)) end)
+
 mix:add_control("aux_return_level", "aux return level", cs_DB_LEVEL)
 mix:set_action("aux_return_level",
   function(x) audio.level_rev_dac(util.dbamp(x)) end)
