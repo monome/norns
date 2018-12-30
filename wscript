@@ -11,10 +11,10 @@ def get_version_hash():
         return ''
 
 def options(opt):
-    opt.load('compiler_c compiler_cxx')
+    opt.load('compiler_c compiler_cxx boost')
 
 def configure(conf):
-    conf.load('compiler_c compiler_cxx')
+    conf.load('compiler_c compiler_cxx boost')
 
     conf.define('VERSION_MAJOR', 0)
     conf.define('VERSION_MINOR', 0)
@@ -55,9 +55,11 @@ def configure(conf):
             '/usr/local/include/SuperCollider/plugin_interface',
             '/usr/local/include/SuperCollider/common',
             '/sc/external_libraries/nova-simd'
-	],
+        ],
         header_name='SC_PlugIn.h',
         uselib_store='SUPERCOLLIDER')
+
+    conf.check_boost()
 
 def build(bld):
     bld.recurse('matron')
