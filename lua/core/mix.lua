@@ -20,6 +20,9 @@ mix:set_action("monitor_mode",
     if x == 1 then audio.monitor_stereo()
     else audio.monitor_mono() end
   end)
+mix:add_control("ext", "ext", cs_MAIN_LEVEL)
+mix:set_action("ext",
+  function(x) audio.level_ext(util.dbamp(x)) end)
 mix:add_control("tape", "tape", cs_MUTE_LEVEL)
 mix:set_action("tape",
   function(x) audio.level_tape(util.dbamp(x)) end)
