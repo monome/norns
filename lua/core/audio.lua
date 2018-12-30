@@ -162,8 +162,8 @@ Audio.pan_cut = function(voice, value)
   _norns.pan_cut(voice, value)
 end
 
-Audio.level_input_cut = function(ch, value)
-  _norns.level_input_cut(ch, value)
+Audio.level_input_cut = function(ch, voice, value)
+  _norns.level_input_cut(ch, voice, value)
 end
 
 Audio.level_cut_cut = function(src, dst, value)
