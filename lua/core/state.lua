@@ -16,10 +16,10 @@ state.resume = function()
   mix:bang()
 
   -- restore state object
-  local f = io.open(data_dir..'system.lua')
+  local f = io.open(data_dir..'system.state')
   if f ~= nil then
     io.close(f)
-    dofile(data_dir..'system.lua')
+    dofile(data_dir..'system.state')
   end
 
   -- update vports
@@ -62,9 +62,9 @@ state.save_mix = function()
 end
 
 state.save_state = function()
-  local fd=io.open(data_dir .. "system.lua","w+")
+  local fd=io.open(data_dir .. "system.state","w+")
   io.output(fd)
-  io.write("-- system state\n")
+  io.write("-- norns system state\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
   io.write("norns.state.tape = " .. norns.state.tape .. "\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
