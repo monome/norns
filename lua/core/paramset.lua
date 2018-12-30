@@ -222,8 +222,8 @@ end
 --- read from disk
 -- @param filename relative to data_dir
 function ParamSet:read(filename)
-  local data_dir = norns.state.path .. 'data'
-  local file = data_dir .. '/' .. filename
+  local dir = norns.state.path .. 'data'
+  local file = dir .. '/' .. filename
   print("pset/read > " .. file)
   local fd = io.open(file, "r")
   if fd then
