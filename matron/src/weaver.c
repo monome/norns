@@ -1752,7 +1752,7 @@ void w_handle_poll_io_levels(uint8_t *levels) {
 
 void w_handle_poll_softcut_phase(int idx, float val) {
   //fprintf(stderr, "_handle_poll_softcut_phase: %d, %f\n", idx, val);
-  lua_getglobal(lvm, "_norns");
+  lua_getglobal(lvm, "norns");
   lua_getfield(lvm, -1, "softcut_phase");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx);
