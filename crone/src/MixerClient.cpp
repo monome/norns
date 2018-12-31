@@ -96,7 +96,7 @@ void MixerClient::processFx(size_t numFrames) {
 
     // mix to insert bus
     bus.ins_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor);
-    bus.ins_in.addFrom(bus.cut_source, numFrames);
+    bus.ins_in.mixFrom(bus.cut_source, numFrames, smoothLevels.cut);
     bus.ins_in.addFrom(bus.ext_source, numFrames);
 
     bus.dac_sink.clear(numFrames);
@@ -127,6 +127,9 @@ void MixerClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_LEVEL_EXT_AUX:
             smoothLevels.ext_aux.setTarget(p->value);
             break;
+	case Commands::Id::SET_LEVEL_CUT_MASTER:
+            smoothLevels.cut.setTarget(p->value);
+            break;	
         case Commands::Id::SET_LEVEL_AUX_DAC:
             smoothLevels.aux.setTarget(p->value);
             break;

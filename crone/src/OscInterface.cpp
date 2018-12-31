@@ -167,6 +167,12 @@ void OscInterface::addServerMethods() {
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_EXT, argv[0]->f);
     });
 
+    addServerMethod("/set/level/cut_master", "f", [](lo_arg **argv, int argc) {
+        if(argc<1) { return; }
+        Commands::mixerCommands.post(Commands::Id::SET_LEVEL_CUT_MASTER, argv[0]->f);
+    });
+
+
     addServerMethod("/set/level/ext_rev", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_EXT_AUX, argv[0]->f);
