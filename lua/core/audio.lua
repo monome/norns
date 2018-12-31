@@ -154,6 +154,11 @@ Audio.level_cut_rev = function(value)
   _norns.level_cut_rev(value)
 end
 
+
+--- moved to softcut.lua
+--[[
+
+
 Audio.level_cut = function(voice, value)
   _norns.level_cut(voice, value)
 end
@@ -214,7 +219,7 @@ Audio.cut_rate_slew_time = function(i,v) _norns.cut_param("rate_slew_time",i,v) 
 Audio.cut_phase_quant = function(i,v) _norns.cut_param("phase_quant",i,v) end
 Audio.poll_start_cut_phase = function() _norns.poll_start_cut_phase() end
 Audio.poll_stop_cut_phase = function() _norns.poll_stop_cut_phase() end
-
+--]]
 
 --- global functions
 -- @section globals
