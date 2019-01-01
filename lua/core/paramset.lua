@@ -222,9 +222,9 @@ end
 --- read from disk
 -- @param filename relative to data_dir
 function ParamSet:read(filename)
-  print("pset/read > " .. filename)
-  local data_dir = norns.state.path .. 'data/'
-  local file = data_dir .. '/' .. filename
+  local dir = norns.state.path .. 'data'
+  local file = dir .. '/' .. filename
+  print("pset/read > " .. file)
   local fd = io.open(file, "r")
   if fd then
     io.close(fd)
@@ -251,6 +251,12 @@ function ParamSet:read(filename)
   else
     print("paramset: "..filename.." not read.")
   end
+end
+
+--- read deafult pset if present
+function ParamSet:default()
+  self:read(state.name .. '.pset')
+  self:bang()
 end
 
 --- bang all params

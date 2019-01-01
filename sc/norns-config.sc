@@ -10,9 +10,9 @@ Norns {
   }
 
   *initClass {
-    Norns.addIncludePath("/home/we/norns/sc/core");
-    Norns.addIncludePath("/home/we/norns/sc/engines");
-    Norns.addIncludePath("/home/we/norns/sc/ugens");
-    Norns.addIncludePath("/home/we/dust");
+    Norns.addIncludePath(Platform.userHomeDir ++ "/norns/sc/core");
+    Norns.addIncludePath(Platform.userHomeDir ++ "/norns/sc/engines");
+    Norns.addIncludePath(Platform.userHomeDir ++ "/norns/sc/ugens");
+    Norns.addIncludePath(Platform.userHomeDir ++ "/dust");
   }
 }

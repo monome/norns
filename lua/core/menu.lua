@@ -936,6 +936,7 @@ m.wifi.connect = function(x)
 end
 
 m.wifi.add = function(x)
+  m.wifi.try = x
   if x ~= "cancel" then
     textentry.enter(m.wifi.passdone, "", "enter password:")
   end
@@ -949,13 +950,12 @@ m.wifi.del = function(x)
   menu.redraw()
 end
 
-m.wifi.passdone = function(ssid)
-  return function(txt)
-    if txt ~= nil then
-      wifi.add(ssid, txt)
-    end
-    menu.redraw()
+m.wifi.passdone = function(txt)
+  if txt ~= nil then
+    print("adding " .. m.wifi.try .. txt)
+    wifi.add(m.wifi.try, txt)
   end
+  menu.redraw()
 end
 
 
@@ -1415,7 +1415,7 @@ m.key[pTAPE] = function(n,z)
       if m.tape.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
         m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".aiff"
-        tape_new(m.tape.rec.file)
+        audio.tape_record_open(audio_dir.."/tape/"..m.tape.rec.file)
         m.tape.rec.sel = TAPE_REC_START
         m.tape.rec.pos_tick = 0
         tape_rec_counter.time = 0.25
