@@ -120,6 +120,10 @@ static int handle_poll_io_levels(const char *path, const char *types,
                                  lo_arg **argv, int argc,
                                  void *data, void *user_data);
 
+static int handle_poll_softcut_phase(const char *path, const char *types,
+                                 lo_arg **argv, int argc,
+                                 void *data, void *user_data);
+
 static int handle_tape_play_state(const char *path, const char *types,
                                  lo_arg **argv, int argc,
                                  void *data, void *user_data);
@@ -196,6 +200,9 @@ void o_init(void) {
     // dedicated path for audio I/O levels
     lo_server_thread_add_method(st, "/poll/vu", "b",
                                 handle_poll_io_levels, NULL);
+    // softcut polls
+    lo_server_thread_add_method(st, "/poll/softcut/phase", "if",
+                                handle_poll_softcut_phase, NULL);
     // tape reports
     lo_server_thread_add_method(st, "/tape/play/state", "s",
                                 handle_tape_play_state, NULL);
@@ -443,11 +450,11 @@ void o_poll_stop_vu() {
 }
 
 void o_poll_start_cut_phase() {
-    lo_send(crone_addr, "/poll/start/cut_phase", NULL);
+    lo_send(crone_addr, "/poll/start/cut/phase", NULL);
 }
 
 void o_poll_stop_cut_phase() {
-    lo_send(crone_addr, "/poll/stop/cut_phase", NULL);
+    lo_send(crone_addr, "/poll/stop/cut/phase", NULL);
 }
 
 
@@ -806,7 +813,18 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
     ev->poll_io_levels.value.uint = *( (uint32_t *)blobdata );
     fflush(stdout);
     event_post(ev);
+    return 0;
+}
 
+int handle_poll_softcut_phase(const char *path, const char *types, lo_arg **argv,
+                          int argc, void *data, void *user_data) {
+
+    assert(argc > 1);
+    union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
+    ev->softcut_phase.idx = argv[0]->i;
+    ev->softcut_phase.value = argv[1]->f;
+    fflush(stdout);
+    event_post(ev);
     return 0;
 }
 

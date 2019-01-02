@@ -57,6 +57,8 @@ typedef enum {
     EVENT_POLL_WAVE,
     // polled i/o VU levels from crone
     EVENT_POLL_IO_LEVELS,
+    // polled softcut phase
+    EVENT_POLL_SOFTCUT_PHASE,
     // crone startup ack event
     EVENT_STARTUP_READY_OK,
     // crone startup timeout event
@@ -211,6 +213,12 @@ struct event_poll_io_levels {
     quad_levels_t value;
 }; // + 8
 
+struct event_poll_softcut_phase {
+    struct event_common common;
+    uint32_t idx;
+    float value;
+}; // + 8
+
 struct event_poll_data {
     struct event_common common;
     uint32_t idx;
@@ -257,6 +265,7 @@ union event_data {
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;
     struct event_poll_io_levels poll_io_levels;
+    struct event_poll_softcut_phase softcut_phase;
     struct event_poll_wave poll_wave;
     struct event_startup_ready_ok startup_ready_ok;
     struct event_startup_ready_timeout startup_ready_timeout;
