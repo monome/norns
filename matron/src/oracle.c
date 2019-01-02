@@ -549,6 +549,10 @@ void o_set_level_cut_rev(float value) {
     lo_send(crone_addr, "/set/level/cut_rev", "f", value);
 }
 
+void o_set_level_cut_master(float value) {
+    lo_send(crone_addr, "/set/level/cut_master", "f", value);
+}
+
 void o_set_level_cut(int index, float value) {
 	lo_send(crone_addr, "/set/level/cut", "if", index, value);
 }
