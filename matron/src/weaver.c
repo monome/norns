@@ -152,6 +152,7 @@ static int _tape_play_stop(lua_State *l);
 static int _set_level_adc_cut(lua_State *l);
 static int _set_level_ext_cut(lua_State *l);
 static int _set_level_cut_rev(lua_State *l);
+static int _set_level_cut_master(lua_State *l);
 static int _set_level_cut(lua_State *l);
 static int _set_level_cut_cut(lua_State *l);
 static int _set_pan_cut(lua_State *l);
@@ -257,6 +258,7 @@ void w_init(void) {
   lua_register_norns("level_adc_cut", &_set_level_adc_cut);
   lua_register_norns("level_ext_cut", &_set_level_ext_cut);
   lua_register_norns("level_cut_rev", &_set_level_cut_rev);
+  lua_register_norns("level_cut_master", &_set_level_cut_master);
   lua_register_norns("level_cut", &_set_level_cut);
   lua_register_norns("level_cut_cut", &_set_level_cut_cut);
   lua_register_norns("pan_cut", &_set_pan_cut);
@@ -1976,6 +1978,15 @@ int _set_level_cut_rev(lua_State *l) {
   }
   float val = (float) luaL_checknumber(l, 1);
   o_set_level_cut_rev(val);
+  return 0;
+}
+
+int _set_level_cut_master(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_cut_master(val);
   return 0;
 }
 
