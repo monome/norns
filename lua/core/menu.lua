@@ -121,7 +121,7 @@ norns.init_done = function(status)
     end
   end
   m.params.init_map()
-  m.params.read(norns.state.shortname..".pmap")
+  m.params.read_pmap(norns.state.shortname..".pmap")
 end
 
 
@@ -494,6 +494,8 @@ m.key[pPARAMS] = function(n,z)
         m.params.action = 15
         m.params.action_text = "saved"
         m.params.loadable = true
+				-- save mapping
+    		m.params.write_pmap(norns.state.shortname..".pmap")
       end
       menu.redraw()
     end
@@ -680,9 +682,6 @@ m.init[pPARAMS] = function()
 end
 
 m.deinit[pPARAMS] = function()
-  if state.script ~= '' then
-    m.params.write(norns.state.shortname..".pmap")
-  end
   m.params.midilearn = false
   u:stop()
 end
@@ -705,23 +704,22 @@ norns.menu_midi_event = function(data)
   end
 end
 
-function m.params.write(filename)
+function m.params.write_pmap(filename)
   local function quote(s)
     return '"'..s:gsub('"', '\\"')..'"'
   end
-  -- check for subfolder in filename, create subfolder if it doesn't exist
-  local subfolder, found = string.gsub(filename,"/(.*)","")
-  if found==1 then
-    local fd = io.open(data_dir..subfolder,"r")
-    if fd then
-      io.close(fd)
-    else
-      print("creating subfolder")
-      os.execute("mkdir "..data_dir..subfolder)
-    end
+  local dir = norns.state.path .. 'data'
+  local fd = io.open(dir,"r")
+  if fd then
+    io.close(fd)
+  else
+    print(">> creating subfolder")
+    os.execute("mkdir " .. dir)
   end
+
   -- write file
-  local fd = io.open(data_dir..filename, "w+")
+  print(">> saving PMAP")
+  local fd = io.open(dir..filename, "w+")
   io.output(fd)
   for k,v in pairs(m.params.map) do
     io.write(string.format("%s: %d\n", quote(tostring(k)), v))
@@ -729,11 +727,13 @@ function m.params.write(filename)
   io.close(fd)
 end
 
-function m.params.read(filename)
+function m.params.read_pmap(filename)
   local function unquote(s)
     return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
   end
-  print("READING PMAP")
+  local dir = norns.state.path .. 'data'
+  local file = dir .. '/' .. filename
+  print(">> reading PMAP")
   local fd = io.open(data_dir..filename, "r")
   if fd then
     io.close(fd)
