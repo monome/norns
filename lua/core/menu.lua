@@ -511,9 +511,9 @@ m.key[pPARAMS] = function(n,z)
           params:set(m.params.pos+1)
           m.params.triggered[m.params.pos+1] = 2
         end
-      else
-        m.params.midilearn = not m.params.midilearn
       end
+    else
+      m.params.midilearn = not m.params.midilearn
     end
   end
 end
@@ -718,8 +718,8 @@ function m.params.write_pmap(filename)
   end
 
   -- write file
-  print(">> saving PMAP")
-  local fd = io.open(dir..filename, "w+")
+  print(">> saving PMAP "..dir..'/'..filename)
+  local fd = io.open(dir..'/'..filename, "w+")
   io.output(fd)
   for k,v in pairs(m.params.map) do
     io.write(string.format("%s: %d\n", quote(tostring(k)), v))
@@ -733,11 +733,11 @@ function m.params.read_pmap(filename)
   end
   local dir = norns.state.path .. 'data'
   local file = dir .. '/' .. filename
-  print(">> reading PMAP")
-  local fd = io.open(data_dir..filename, "r")
+  print(">> reading PMAP"..file)
+  local fd = io.open(file, "r")
   if fd then
     io.close(fd)
-    for line in io.lines(data_dir..filename) do
+    for line in io.lines(file) do
       --local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
       local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
 

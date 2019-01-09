@@ -199,6 +199,8 @@ end
 function ParamSet:write(filename)
   print("pset/write > " .. filename)
   local dir = norns.state.path .. 'data'
+  if filename == "system.pset" then dir = data_dir end -- hack for system.pset
+  -- check for subfolder
   local fd = io.open(dir,"r")
   if fd then
     io.close(fd)
