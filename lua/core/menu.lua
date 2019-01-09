@@ -493,29 +493,29 @@ m.key[pPARAMS] = function(n,z)
         end
         m.params.action = 15
         m.params.action_text = "saved"
-				m.params.loadable = true
-				-- save mapping
-				m.params.write_pmap(norns.state.shortname..".pmap")
-			end
-			menu.redraw()
-		end
-	elseif n==2 and z==1 then
-		--NOT USED
-		--menu.set_page(pHOME)
-	elseif n==3 and z==1 then
-		if not m.params.midimap then
-			if params.count > 0 then
-				if params:t(m.params.pos+1) == params.tFILE then
-					fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
-				elseif params:t(m.params.pos+1) == params.tTRIGGER then
-					params:set(m.params.pos+1)
-					m.params.triggered[m.params.pos+1] = 2
-				end
-			else
-				m.params.midilearn = not m.params.midilearn
-			end
-		end
-	end
+        m.params.loadable = true
+        -- save mapping
+        m.params.write_pmap(norns.state.shortname..".pmap")
+      end
+      menu.redraw()
+    end
+  elseif n==2 and z==1 then
+    --NOT USED
+    --menu.set_page(pHOME)
+  elseif n==3 and z==1 then
+    if not m.params.midimap then
+      if params.count > 0 then
+        if params:t(m.params.pos+1) == params.tFILE then
+          fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+        elseif params:t(m.params.pos+1) == params.tTRIGGER then
+          params:set(m.params.pos+1)
+          m.params.triggered[m.params.pos+1] = 2
+        end
+      else
+        m.params.midilearn = not m.params.midilearn
+      end
+    end
+  end
 end
 
 m.params.newfile = function(file)
