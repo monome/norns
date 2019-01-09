@@ -15,7 +15,7 @@ package.path = sys..user..engines..package.path
 
 -- full path to directory containing user scripts
 dust_dir = home..'/dust/'
-data_dir = home..'/dust/system/data/'
-audio_dir = home..'/dust/system/audio/'
+data_dir = home..'/dust/data/'
+audio_dir = home..'/dust/audio/'
 home_dir = home
 
