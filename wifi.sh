@@ -106,11 +106,11 @@ elif [ $1 = "on" ]; then
     done
     
     if [ -d $gw ]; then
-	    echo failed > $HOME/status.wifi
+	    echo failed to get a gateway > $HOME/status.wifi
     else
 	    ping -c 1 $gw
 	    if [ $? -ne 0 ]; then
-		    echo failed > $HOME/status.wifi
+		    echo no gateway ping > $HOME/status.wifi
 	    else
 		    echo router > $HOME/status.wifi
 	    fi
