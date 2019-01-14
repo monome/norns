@@ -18,7 +18,7 @@ Crone {
 	// boot completion flag
 	classvar complete = 0;
 
-	classvar useRemoteServer = true;
+	classvar useRemoteServer = false;
 
 	classvar <croneAddr;
 
@@ -61,7 +61,7 @@ Crone {
 				Crone.finishBoot;
 			};
 		}, {
-			Server.supernova;
+			Server.scsynth;
 			server = Server.local;
 			// doesn't work on supernova - "invallid argument" - too big?
 			// server.options.memSize = 2**16;
