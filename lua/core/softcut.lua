@@ -94,7 +94,7 @@ function SC.params()
 		-- voice enable
 		enable = { type="number", min=0, max=1, default=0, formatter="" },
 		-- levels
-		-- @fixme: these should probably use dB?
+		-- @fixme: use dB / taper?
 		level = { type="control", controlspec=controlspec.new(0, 0, 'lin', 0, 0.25, "") },	 
 		pan = { type="control", controlspec=controlspec.new(-1, 1, 'lin', 0, 0, "") },
 		level_input_cut = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0.5, "") },
@@ -116,6 +116,7 @@ function SC.params()
 		filter_fc = { type="control", controlspec=controlspec.new(10, 12000, 'exp', 1, 12000, "Hz") },
 		filter_fc_mod = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
 		filter_rq = { type="control", controlspec=controlspec.new(0.0005, 8.0, 'exp', 0, 2.0, "") },
+		-- @fixme use dB / taper?
 		filter_lp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
 		filter_hp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
 		filter_bp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
@@ -166,3 +167,5 @@ function SC.controls
    end
 end
 --]]
+
+return SC
