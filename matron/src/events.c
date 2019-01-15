@@ -260,6 +260,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_POLL_IO_LEVELS:
         w_handle_poll_io_levels(ev->poll_io_levels.value.bytes);
         break;
+    case EVENT_POLL_SOFTCUT_PHASE:
+        w_handle_poll_softcut_phase(ev->softcut_phase.idx, ev->softcut_phase.value);
+        break;
     case EVENT_STARTUP_READY_OK:
         w_handle_startup_ready_ok();
         break;

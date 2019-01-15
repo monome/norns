@@ -21,6 +21,7 @@ namespace crone {
             SET_LEVEL_DAC,
             SET_LEVEL_EXT,
             SET_LEVEL_EXT_AUX,
+	    SET_LEVEL_CUT_MASTER,
             SET_LEVEL_AUX_DAC,
             SET_LEVEL_MONITOR,
             SET_LEVEL_MONITOR_MIX,

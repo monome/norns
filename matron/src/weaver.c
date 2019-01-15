@@ -152,6 +152,7 @@ static int _tape_play_stop(lua_State *l);
 static int _set_level_adc_cut(lua_State *l);
 static int _set_level_ext_cut(lua_State *l);
 static int _set_level_cut_rev(lua_State *l);
+static int _set_level_cut_master(lua_State *l);
 static int _set_level_cut(lua_State *l);
 static int _set_level_cut_cut(lua_State *l);
 static int _set_pan_cut(lua_State *l);
@@ -257,6 +258,7 @@ void w_init(void) {
   lua_register_norns("level_adc_cut", &_set_level_adc_cut);
   lua_register_norns("level_ext_cut", &_set_level_ext_cut);
   lua_register_norns("level_cut_rev", &_set_level_cut_rev);
+  lua_register_norns("level_cut_master", &_set_level_cut_master);
   lua_register_norns("level_cut", &_set_level_cut);
   lua_register_norns("level_cut_cut", &_set_level_cut_cut);
   lua_register_norns("pan_cut", &_set_pan_cut);
@@ -1750,6 +1752,17 @@ void w_handle_poll_io_levels(uint8_t *levels) {
   l_report(lvm, l_docall(lvm, 4, 0));
 }
 
+void w_handle_poll_softcut_phase(int idx, float val) {
+  //fprintf(stderr, "_handle_poll_softcut_phase: %d, %f\n", idx, val);
+  lua_getglobal(lvm, "norns");
+  lua_getfield(lvm, -1, "softcut_phase");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, idx);
+  lua_pushnumber(lvm, val);
+  l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+
 // helper: set poll given by lua to given state
 static int poll_set_state(lua_State *l, bool val) {
   if (lua_gettop(l) != 1) {
@@ -1965,6 +1978,15 @@ int _set_level_cut_rev(lua_State *l) {
   }
   float val = (float) luaL_checknumber(l, 1);
   o_set_level_cut_rev(val);
+  return 0;
+}
+
+int _set_level_cut_master(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_cut_master(val);
   return 0;
 }
 

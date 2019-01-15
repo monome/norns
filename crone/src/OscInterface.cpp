@@ -105,7 +105,7 @@ void OscInterface::addServerMethod(const char* path, const char* format, Handler
                                     (void) types;
                                     (void) msg;
                                     auto pm = static_cast<OscMethod*>(data);
-                                    // std::cerr << "osc rx: " << path << std::endl;
+                                    std::cerr << "osc rx: " << path << std::endl;
                                     pm->handler(argv, argc);
                                     return 0;
                                 }, &(methods[numMethods]));
@@ -166,6 +166,12 @@ void OscInterface::addServerMethods() {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_EXT, argv[0]->f);
     });
+
+    addServerMethod("/set/level/cut_master", "f", [](lo_arg **argv, int argc) {
+        if(argc<1) { return; }
+        Commands::mixerCommands.post(Commands::Id::SET_LEVEL_CUT_MASTER, argv[0]->f);
+    });
+
 
     addServerMethod("/set/level/ext_rev", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }

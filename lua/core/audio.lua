@@ -50,6 +50,12 @@ Audio.level_tape = function(level)
   _norns.level_tape(level)
 end
 
+--- set cut master level
+-- @param level [0,1]
+Audio.level_cut_master = function(level)
+  _norns.level_cut_master(level)
+end
+
 --- enable input pitch analysis
 Audio.pitch_on = function()
   audio_pitch_on()
