@@ -128,6 +128,7 @@ extern void o_tape_play_stop();
 extern void o_set_level_adc_cut(float value);
 extern void o_set_level_ext_cut(float value);
 extern void o_set_level_cut_rev(float value);
+extern void o_set_level_cut_master(float value);
 extern void o_set_level_cut(int index, float value);
 extern void o_set_level_cut_cut(int src, int dest, float value);
 extern void o_set_level_input_cut(int src, int dst, float level);
