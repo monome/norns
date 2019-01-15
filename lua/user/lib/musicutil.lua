@@ -258,7 +258,6 @@ function MusicUtil.intervals_to_ratios(intervals_array)
   return out_array
 end
 
-
 --- Return the interval of a ratio.
 -- @param ratio Ratio number.
 -- @return Interval in semitones.
