@@ -144,7 +144,7 @@ function SC.params()
    return specs
 end
 
---[[
+--[[ FIXME:
 -- control factory
 -- @return array of controls, using .specs() and connected to setters
 function SC.controls
