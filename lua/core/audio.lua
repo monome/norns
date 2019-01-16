@@ -163,6 +163,21 @@ end
 
 
 
+-- CUT
+
+-- levels
+Audio.level_adc_cut = function(value)
+  _norns.level_adc_cut(value)
+end
+
+Audio.level_ext_cut = function(value)
+  _norns.level_ext_cut(value)
+end
+
+Audio.level_cut_rev = function(value)
+  _norns.level_cut_rev(value)
+end
+
 
 --- global functions
 -- @section globals
