@@ -8,7 +8,7 @@
 
 local SC = {}
 
-local controlspec = require 'controlspec'
+local controlspec = require 'core/controlspec'
 
 -------------------------------
 -- @section constants
