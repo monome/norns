@@ -1209,9 +1209,6 @@ m.deinit[pSLEEP] = norns.none
 
 m.mix = {}
 m.mix.sel = 1
-m.mix.ch1 = {"output", "monitor", "tape"}
-m.mix.ch2 = {"input", "softcut", "rev_return_level"}
-
 
 m.key[pMIX] = function(n,z)
   if n==2 and z==1 and m.mix.sel > 1 then
@@ -1222,10 +1219,13 @@ m.key[pMIX] = function(n,z)
 end
 
 m.enc[pMIX] = function(n,d)
+  local ch1 = {"output", "monitor", "tape"}
+  local ch2 = {"input", "softcut", "rev_return_level"}
+
   if n==2 then
-    mix:delta(m.mix.ch1[m.mix.sel],d)
+    mix:delta(ch1[m.mix.sel],d)
   elseif n==3 then
-    mix:delta(m.mix.ch2[m.mix.sel],d)
+    mix:delta(ch2[m.mix.sel],d)
   end
 end
 
