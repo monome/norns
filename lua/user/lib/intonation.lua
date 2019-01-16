@@ -111,7 +111,7 @@ end
 
 function JI.gamut()
    return {
-      3  1/1 ,
+      1/1 ,
       256/255,
       96/95,
       81/80,
