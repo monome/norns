@@ -1219,8 +1219,8 @@ m.key[pMIX] = function(n,z)
 end
 
 m.enc[pMIX] = function(n,d)
-  local ch1 = {"output", "monitor", "tape"}
-  local ch2 = {"input", "softcut", "rev_return_level"}
+  local ch1 = {"output", "monitor", "softcut"}
+  local ch2 = {"input", "ext", "tape"}
 
   if n==2 then
     mix:delta(ch1[m.mix.sel],d)
@@ -1271,17 +1271,17 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("softcut")*48
+  n = mix:get_raw("ext")*48
   screen.rect(x+108.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("tape")*48
+  n = mix:get_raw("softcut")*48
   screen.rect(x+130.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("rev_return_level")*48
+  n = mix:get_raw("tape")*48
   screen.rect(x+152.5,55.5,2,-n)
   screen.stroke()
 
@@ -1294,12 +1294,12 @@ m.redraw[pMIX] = function()
   screen.move(46,63)
   screen.text("mon")
   screen.move(68,63)
-  screen.text("cut")
+  screen.text("ext")
   screen.level(m.mix.sel==3 and 15 or 1)
   screen.move(90,63)
-  screen.text("tape")
+  screen.text("cut")
   screen.move(112,63)
-  screen.text("rev")
+  screen.text("tp")
 
   screen.update()
 end
