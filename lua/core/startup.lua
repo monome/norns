@@ -18,6 +18,7 @@ midi = require 'core/midi'
 osc = require 'core/osc'
 poll = require 'core/poll'
 engine = tab.readonly{table = require 'core/engine', except = {'name'}}
+softcut = require 'core/softcut'
 wifi = require 'core/wifi'
 
 controlspec = require 'core/controlspec'

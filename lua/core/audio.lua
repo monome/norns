@@ -52,7 +52,7 @@ end
 
 --- set cut master level
 -- @param level [0,1]
-Audio.level_cut_master = function(level)
+Audio.level_cut = function(level)
   _norns.level_cut_master(level)
 end
 
@@ -70,6 +70,23 @@ end
 Audio.restart = function()
    restart_audio()
 end
+
+
+-- CUT
+
+Audio.level_adc_cut = function(value)
+  _norns.level_adc_cut(value)
+end
+
+Audio.level_ext_cut = function(value)
+  _norns.level_ext_cut(value)
+end
+
+Audio.level_cut_rev = function(value)
+  _norns.level_cut_rev(value)
+end
+
+
 
 
 
@@ -160,8 +177,6 @@ end
 Audio.level_cut_rev = function(value)
   _norns.level_cut_rev(value)
 end
-
--- NB: softcut params moved to softcut.lua
 
 
 --- global functions
