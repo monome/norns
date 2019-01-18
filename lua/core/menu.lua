@@ -1211,25 +1211,21 @@ m.mix = {}
 m.mix.sel = 1
 
 m.key[pMIX] = function(n,z)
-  if n==2 and z==1 then
-    m.mix.sel = (m.mix.sel==1) and 2 or 1
+  if n==2 and z==1 and m.mix.sel > 1 then
+    m.mix.sel = m.mix.sel - 1
+  elseif n==3 and z==1 and m.mix.sel < 3 then
+    m.mix.sel = m.mix.sel + 1
   end
-  -- KEY3 not used
 end
 
 m.enc[pMIX] = function(n,d)
+  local ch1 = {"output", "monitor", "softcut"}
+  local ch2 = {"input", "ext", "tape"}
+
   if n==2 then
-    if m.mix.sel==1 then
-      mix:delta("output",d)
-    else
-      mix:delta("monitor",d)
-    end
+    mix:delta(ch1[m.mix.sel],d)
   elseif n==3 then
-    if m.mix.sel==1 then
-      mix:delta("input",d)
-    else
-      mix:delta("tape",d)
-    end
+    mix:delta(ch2[m.mix.sel],d)
   end
 end
 
@@ -1275,8 +1271,18 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("tape")*48
+  n = mix:get_raw("ext")*48
   screen.rect(x+108.5,55.5,2,-n)
+  screen.stroke()
+
+  screen.level(2)
+  n = mix:get_raw("softcut")*48
+  screen.rect(x+130.5,55.5,2,-n)
+  screen.stroke()
+
+  screen.level(2)
+  n = mix:get_raw("tape")*48
+  screen.rect(x+152.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(m.mix.sel==1 and 15 or 1)
@@ -1288,7 +1294,12 @@ m.redraw[pMIX] = function()
   screen.move(46,63)
   screen.text("mon")
   screen.move(68,63)
-  screen.text("tape")
+  screen.text("ext")
+  screen.level(m.mix.sel==3 and 15 or 1)
+  screen.move(90,63)
+  screen.text("cut")
+  screen.move(112,63)
+  screen.text("tp")
 
   screen.update()
 end
