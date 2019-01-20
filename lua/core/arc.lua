@@ -15,8 +15,8 @@ for i=1,4 do
   Arc.vports[i] = {
     name = "none",
 
-    delta = function() end,
-    key = function() end,
+    delta = nil,
+    key = nil,
 
     led = function() end,
     all = function() end,
@@ -143,8 +143,8 @@ end
 --- clear handlers
 function Arc.cleanup()
   for i=1,4 do
-    Arc.vports[i].delta = function() end
-    Arc.vports[i].key = function() end
+    Arc.vports[i].delta = nil
+    Arc.vports[i].key = nil
   end
 end
 
