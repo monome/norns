@@ -47,7 +47,7 @@ function Arc.new(id, serial, name, dev)
   for i=1,4 do
     table.insert(connected, Arc.vports[i].name)
   end
-  if not tab.contains(connected, name) then
+  if not tab.contains(connected, device.name) then
     for i=1,4 do
       if Arc.vports[i].name == "none" then
         Arc.vports[i].name = device.name
