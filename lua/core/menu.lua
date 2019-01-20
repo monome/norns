@@ -816,8 +816,8 @@ function m.devices.refresh()
   for _,i in pairs(grid.list) do
     table.insert(m.devices.options.grid,i)
   end
-  for _,i in pairs(arc.list) do
-    table.insert(m.devices.options.arc,i)
+  for _, device in pairs(arc.devices) do
+    table.insert(m.devices.options.arc, device.name)
   end
 end
 
