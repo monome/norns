@@ -9,12 +9,12 @@ local Arc = {}
 Arc.__index = Arc
 
 Arc.devices = {}
-Arc.list = {}
 Arc.vports = {}
 
 for i=1,4 do
   Arc.vports[i] = {
     name = "none",
+
     delta = function() end,
     key = function() end,
 
@@ -33,11 +33,7 @@ function Arc.new(id, serial, name, dev)
   local device = setmetatable({}, Arc)
   device.id = id
   device.serial = serial
-  name = name .. " " .. serial
-  --while tab.contains(Arc.list, name) do
-  --  name = name .. "+"
-  --end
-  device.name = name
+  device.name = name.." "..serial
   device.dev = dev -- opaque pointer
   device.delta = nil -- delta event callback
   device.key = nil -- key event callback
@@ -52,7 +48,7 @@ function Arc.new(id, serial, name, dev)
   if not tab.contains(connected, name) then
     for i=1,4 do
       if Arc.vports[i].name == "none" then
-        Arc.vports[i].name = name
+        Arc.vports[i].name = device.name
         break
       end
     end
@@ -111,12 +107,10 @@ function Arc.cleanup()
 end
 
 function Arc.update_devices()
-  -- build list of available devices
-  Arc.list = {}
   for _, device in pairs(Arc.devices) do
-    table.insert(Arc.list, device.name)
     device.port = nil
   end
+
   -- connect available devices to vports
   for i=1,4 do
     Arc.vports[i].led = function(ring, x, val) end
