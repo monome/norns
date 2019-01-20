@@ -6,22 +6,23 @@
 -- Arc device class
 
 local Arc = {}
+Arc.__index = Arc
+
 Arc.devices = {}
 Arc.list = {}
-Arc.vport = {}
+Arc.vports = {}
+
 for i=1,4 do
-  Arc.vport[i] = {
+  Arc.vports[i] = {
     name = "none",
-    delta_callbacks = {},
-    key_callbacks = {},
-    index = 0,
+    delta = function() end,
+    key = function() end,
+
     led = function() end,
     all = function() end,
     refresh = function() end,
-    attached = false
   }
 end
-Arc.__index = Arc
 
 --- constructor
 -- @tparam integer id : arbitrary numeric identifier
@@ -41,17 +42,17 @@ function Arc.new(id, serial, name, dev)
   device.delta = nil -- delta event callback
   device.key = nil -- key event callback
   device.remove = nil -- device unplug callback
-  device.ports = {} -- list of virtual ports this device is attached to
+  device.port = nil
 
   -- autofill next postiion
   local connected = {}
   for i=1,4 do
-    table.insert(connected, Arc.vport[i].name)
+    table.insert(connected, Arc.vports[i].name)
   end
   if not tab.contains(connected, name) then
     for i=1,4 do
-      if Arc.vport[i].name == "none" then
-        Arc.vport[i].name = name
+      if Arc.vports[i].name == "none" then
+        Arc.vports[i].name = name
         break
       end
     end
@@ -94,72 +95,18 @@ function Arc:refresh()
   monome_refresh(self.dev)
 end
 
---- print a description of this arc device
-function Arc:print()
-  for k, v in pairs(self) do
-    print('>> ', k, v)
-  end
-end
-
 --- create device, returns object with handler and send
 function Arc.connect(n)
   local n = n or 1
-  if n > 4 then n = 4 end
 
-  Arc.vport[n].index = Arc.vport[n].index + 1
-
-  local d = {
-    index = Arc.vport[n].index,
-    port = n,
-    delta = function(n, delta)
-      print("arc input")
-    end,
-    key = function(n, s)
-      print("arc input")
-    end,
-    attached = function() return Arc.vport[n].attached end,
-    led = function(ring, x, val) Arc.vport[n].led(ring, x, val) end,
-    all = function(val) Arc.vport[n].all(val) end,
-    refresh = function() Arc.vport[n].refresh() end,
-    disconnect = function(self)
-      self.led = function() end
-      self.all = function() end
-      self.refresh = function() print("refresh: arc not connected") end
-      Arc.vport[self.port].delta_callbacks[self.index] = nil
-      Arc.vport[self.port].key_callbacks[self.index] = nil
-      self.index = nil
-      self.port = nil
-    end,
-    reconnect = function(self, p)
-      p = p or 1
-      if self.index then
-        Arc.vport[self.port].delta_callbacks[self.index] = nil
-        Arc.vport[self.port].key_callbacks[self.index] = nil
-      end
-      self.attached = function() return Arc.vport[p].attached end
-      self.led = function(ring, x, val) Arc.vport[p].led(ring, x, val) end
-      self.all = function(val) Arc.vport[p].all(val) end
-      self.refresh = function() Arc.vport[p].refresh() end
-      Arc.vport[p].index = Arc.vport[p].index + 1
-      self.index = Arc.vport[p].index
-      self.port = p
-      Arc.vport[p].delta_callbacks[self.index] = function(n, delta) self.delta(n, delta) end
-      Arc.vport[p].key_callbacks[self.index] = function(n, s) self.key(n, s) end
-    end
-  }
-
-  Arc.vport[n].delta_callbacks[d.index] = function(n, delta) d.delta(n, delta) end
-  Arc.vport[n].key_callbacks[d.index] = function(n, s) d.key(n, s) end
-
-  return d
+  return Arc.vports[n]
 end
 
 --- clear handlers
 function Arc.cleanup()
   for i=1,4 do
-    Arc.vport[i].delta_callbacks = {}
-    Arc.vport[i].key_callbacks = {}
-    Arc.vport[i].index = 0
+    Arc.vports[i].delta = function() end
+    Arc.vports[i].key = function() end
   end
 end
 
@@ -168,21 +115,19 @@ function Arc.update_devices()
   Arc.list = {}
   for _, device in pairs(Arc.devices) do
     table.insert(Arc.list, device.name)
-    device.ports = {}
+    device.port = nil
   end
   -- connect available devices to vports
   for i=1,4 do
-    Arc.vport[i].attached = false
-    Arc.vport[i].led = function(ring, x, val) end
-    Arc.vport[i].all = function(val) end
-    Arc.vport[i].refresh = function() end
+    Arc.vports[i].led = function(ring, x, val) end
+    Arc.vports[i].all = function(val) end
+    Arc.vports[i].refresh = function() end
     for _, device in pairs(Arc.devices) do
-      if device.name == Arc.vport[i].name then
-        Arc.vport[i].led = function(ring, x, val) device:led(ring, x, val) end
-        Arc.vport[i].all = function(val) device:all(val) end
-        Arc.vport[i].refresh = function() device:refresh() end
-        Arc.vport[i].attached = true
-        table.insert(device.ports, i)
+      if device.name == Arc.vports[i].name then
+        Arc.vports[i].led = function(ring, x, val) device:led(ring, x, val) end
+        Arc.vports[i].all = function(val) device:all(val) end
+        Arc.vports[i].refresh = function() device:refresh() end
+        device.port = i
       end
     end
   end
@@ -215,13 +160,11 @@ norns.arc.delta = function(id, n, delta)
   local device = Arc.devices[id]
 
   if device ~= nil then
-    for _, i in pairs(device.ports) do
-      for _, callback in pairs(Arc.vport[i].delta_callbacks) do
-        callback(n, delta)
-      end
+    if (device.port) then
+      Arc.vports[device.port].delta(n, delta)
     end
   else
-    print('>> error: no entry for arc ' .. id)
+    error('no entry for arc '..id)
   end
 end
 
@@ -229,13 +172,11 @@ norns.arc.key = function(id, n, s)
   local device = Arc.devices[id]
 
   if device ~= nil then
-    for _, i in pairs(device.ports) do
-      for _, callback in pairs(Arc.vport[i].key_callbacks) do
-        callback(n, s)
-      end
+    if (device.port) then
+      Arc.vports[device.port].key(n, s)
     end
   else
-    print('>> error: no entry for arc ' .. id)
+    error('no entry for arc '..id)
   end
 end
 
