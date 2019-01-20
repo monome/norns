@@ -31,6 +31,7 @@ end
 -- @tparam userdata dev : opaque pointer to device
 function Arc.new(id, serial, name, dev)
   local device = setmetatable({}, Arc)
+
   device.id = id
   device.serial = serial
   device.name = name.." "..serial
@@ -154,7 +155,11 @@ norns.arc.delta = function(id, n, delta)
   local device = Arc.devices[id]
 
   if device ~= nil then
-    if (device.port) then
+    if device.delta then
+      device.delta(n, delta)
+    end
+
+    if device.port then
       Arc.vports[device.port].delta(n, delta)
     end
   else
@@ -166,7 +171,11 @@ norns.arc.key = function(id, n, s)
   local device = Arc.devices[id]
 
   if device ~= nil then
-    if (device.port) then
+    if device.key then
+      device.key(n, s)
+    end
+
+    if device.port then
       Arc.vports[device.port].key(n, s)
     end
   else
