@@ -14,14 +14,15 @@ Arc.vports = {}
 for i=1,4 do
   Arc.vports[i] = {
     name = "none",
+    device = nil,
 
     delta = nil,
     key = nil,
 
-    led = function() end,
-    all = function() end,
-    refresh = function() end,
-    segment = function() end,
+    led = function(self, ...) if self.device then self.device:led(...) end end,
+    all = function(self, ...) if self.device then self.device:all(...) end end,
+    refresh = function(self, ...) if self.device then self.device:refresh(...) end end,
+    segment = function(self, ...) if self.device then self.device:segment(...) end end,
   }
 end
 
@@ -149,24 +150,18 @@ function Arc.cleanup()
 end
 
 function Arc.update_devices()
+  -- reset vports for existing devices
   for _, device in pairs(Arc.devices) do
     device.port = nil
   end
 
   -- connect available devices to vports
   for i=1,4 do
-    Arc.vports[i].led = function() end
-    Arc.vports[i].all = function() end
-    Arc.vports[i].refresh = function() end
-    Arc.vports[i].segment = function() end
+    Arc.vports[i].device = nil
 
     for _, device in pairs(Arc.devices) do
       if device.name == Arc.vports[i].name then
-        Arc.vports[i].led = function(ring, x, val) device:led(ring, x, val) end
-        Arc.vports[i].all = function(val) device:all(val) end
-        Arc.vports[i].refresh = function() device:refresh() end
-        Arc.vports[i].segment = function(ring, from, to, val) device:segment(ring, from, to, val) end
-
+        Arc.vports[i].device = device
         device.port = i
       end
     end
