@@ -114,7 +114,6 @@ end
 --- create device, returns object with handler and send
 function Grid.connect(n)
   local n = n or 1
-  if n>4 then n=4 end
 
   Grid.vport[n].index = Grid.vport[n].index + 1
 

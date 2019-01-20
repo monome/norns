@@ -863,7 +863,7 @@ m.key[pDEVICES] = function(n,z)
         grid.vport[m.devices.setpos].name = s
         grid.update_devices()
       elseif m.devices.section == "arc" then
-        arc.vport[m.devices.setpos].name = s
+        arc.vports[m.devices.setpos].name = s
         arc.update_devices()
       end
       m.devices.mode = "list"
@@ -898,7 +898,7 @@ m.redraw[pDEVICES] = function()
       elseif m.devices.section == "grid" then
         screen.text(i .. ". " .. grid.vport[i].name)
       elseif m.devices.section == "arc" then
-        screen.text(i .. ". " .. arc.vport[i].name)
+        screen.text(i .. ". " .. arc.vports[i].name)
       end
     elseif m.devices.mode == "select" then
       screen.text(m.devices.options[m.devices.section][i])
