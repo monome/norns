@@ -21,6 +21,7 @@ for i=1,4 do
     led = function() end,
     all = function() end,
     refresh = function() end,
+    segment = function() end,
   }
 end
 
@@ -92,6 +93,46 @@ function Arc:refresh()
   monome_refresh(self.dev)
 end
 
+--- draw anti-aliased point to point arc
+-- @tparam integer ring : ring index (1-based)
+-- @tparam number from : from angle in radians
+-- @tparam number to : to angle in radians
+-- @tparam integer level: LED brightness in [0, 15]
+function Arc:segment(ring, from, to, level)
+  local tau = math.pi * 2
+
+  local function overlap(a, b, c, d)
+    if a > b then
+      return overlap(a, tau, c, d) + overlap(0, b, c, d)
+    elseif c > d then
+      return overlap(a, b, c, tau) + overlap(a, b, 0, d)
+    else
+      return math.max(0, math.min(b, d) - math.max(a, c))
+    end
+  end
+
+  local function overlap_segments(a, b, c, d)
+    a = a % tau
+    b = b % tau
+    c = c % tau
+    d = d % tau
+
+    return overlap(a, b, c, d)
+  end
+
+  local m = {}
+  local sl = tau / 64
+
+  for i=1, 64 do
+    local sa = tau / 64 * (i - 1)
+    local sb = tau / 64 * i
+
+    local o = overlap_segments(from, to, sa, sb)
+    m[i] = util.round(o / sl * level)
+    self:led(ring, i, m[i])
+  end
+end
+
 --- create device, returns object with handler and send
 function Arc.connect(n)
   local n = n or 1
@@ -114,14 +155,18 @@ function Arc.update_devices()
 
   -- connect available devices to vports
   for i=1,4 do
-    Arc.vports[i].led = function(ring, x, val) end
-    Arc.vports[i].all = function(val) end
+    Arc.vports[i].led = function() end
+    Arc.vports[i].all = function() end
     Arc.vports[i].refresh = function() end
+    Arc.vports[i].segment = function() end
+
     for _, device in pairs(Arc.devices) do
       if device.name == Arc.vports[i].name then
         Arc.vports[i].led = function(ring, x, val) device:led(ring, x, val) end
         Arc.vports[i].all = function(val) device:all(val) end
         Arc.vports[i].refresh = function() device:refresh() end
+        Arc.vports[i].segment = function(ring, from, to, val) device:segment(ring, from, to, val) end
+
         device.port = i
       end
     end
