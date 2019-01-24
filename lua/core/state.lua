@@ -5,6 +5,7 @@ state = {}
 state.tape = 0
 state.script = ''
 state.path = dust_dir
+state.data = data_dir
 state.name = ''
 state.shortname = ''
 state.clean_shutdown = false
@@ -16,10 +17,10 @@ state.resume = function()
   mix:bang()
 
   -- restore state object
-  local f = io.open(dust_dir..'system.state')
+  local f = io.open(data_dir..'system.state')
   if f ~= nil then
     io.close(f)
-    dofile(dust_dir..'system.state')
+    dofile(data_dir..'system.state')
   end
 
   -- update vports
@@ -47,6 +48,7 @@ state.resume = function()
     state.name = 'none'
     state.shortname = 'none'
     state.path = dust_dir
+    state.data = data_dir
     norns.scripterror("NO SCRIPT")
   end
 end
@@ -62,7 +64,7 @@ state.save_mix = function()
 end
 
 state.save_state = function()
-  local fd=io.open(dust_dir .. "system.state","w+")
+  local fd=io.open(data_dir .. "system.state","w+")
   io.output(fd)
   io.write("-- norns system state\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
@@ -71,6 +73,7 @@ state.save_state = function()
   io.write("norns.state.name = '" .. state.name .. "'\n")
   io.write("norns.state.shortname = '" .. state.shortname .. "'\n")
   io.write("norns.state.path = '" .. state.path .. "'\n")
+  io.write("norns.state.data = '" .. state.data .. "'\n")
   for i=1,4 do
     io.write("midi.vport[" .. i .. "].name = '" .. midi.vport[i].name .. "'\n")
   end
