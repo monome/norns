@@ -81,6 +81,7 @@ namespace crone {
                 }
 
                 /// libsndfile requires interleaved data. we do that here before pushing to ringbuf
+                /// TODO: this is where we would apply an amplitude envelope
                 float* dst = pushOutBuf;
                 for (size_t fr = 0; fr < numFrames; ++fr) {
                     for (int ch = 0; ch < NumChannels; ++ch) {
@@ -88,7 +89,6 @@ namespace crone {
                     }
                 }
                 jack_ringbuffer_write(rb, (const char*)pushOutBuf, bytesToPush);
-
 #if 0
                 // dummy check
                 size_t framesInRingBuf = jack_ringbuffer_read_space(this->ringBuf.get()) / frameSize;
@@ -107,17 +107,26 @@ namespace crone {
                 numFramesCaptured = 0;
                 shouldStop = false;
                 while (!shouldStop) {
+
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
                         this->cv.wait(lock, [this] {
                             return this->dataReady;
                         });
                         // check for spurious wakeup
-                        if (!dataReady) { continue; }
+                        if (!dataReady) {
+                            continue;
+                        }
                     }
 
                     int framesToWrite = static_cast<int>(jack_ringbuffer_read_space(this->ringBuf.get()) / frameSize);
-                    if (framesToWrite < 1) { continue; }
+                    if (framesToWrite < 1) {
+                        {
+                            std::unique_lock<std::mutex> lock(this->mut);
+                            dataReady = false;
+                        }
+                        continue;
+                    }
 #if 0
                     // dummy check
                     std::cerr << "frames in ringbuf on disk thread: " << framesToWrite << std::endl;
@@ -226,7 +235,8 @@ namespace crone {
             std::atomic<bool> shouldStop;
             bool needsData;
             size_t frames;
-            Sample frameBuf[frameSize];
+            static constexpr size_t maxFramesToRead= 1024;
+            Sample frameBuf[frameSize * maxFramesToRead];
 
         private:
             // prime the ringbuffer
@@ -257,10 +267,13 @@ namespace crone {
                 for (size_t fr = 0; fr < numFrames; ++fr) {
                     // data is interleaved in ringbuffer
                     for (int ch = 0; ch < NumChannels; ++ch) {
+                        // FIXME: not sure what jack ringbuf overhead is,
+                        // but probably faster to read `numFrames` into an intermediate buffer, then de-interleave
                         if (jack_ringbuffer_read_space(this->ringBuf.get()) < sampleSize) {
                             // underrun! TODO: say something about underruns (but not here on audio thread)
                         }
                         // FIXME: why is C cast needed here?
+                        // TODO: add amp envelope
                         jack_ringbuffer_read(this->ringBuf.get(), (char*)(dst[ch]+fr), sampleSize);
                     }
                 }
@@ -290,8 +303,8 @@ namespace crone {
                 }
 
                 this->frames = static_cast<size_t>(sfInfo.frames);
-                if(!prime()) { return false; }
-                return true;
+                if (prime()) return true;
+                return false;
             }
 
             // from any thread
@@ -331,19 +344,26 @@ namespace crone {
                         if (!needsData) { continue; }
                     }
 
-                    // FIXME: again, this loop doesn't need to be per-sample.
-                    /// seems like jack_ringbuffer API allows us to do a direct write to the buffer,
-                    /// followed by `jack_ringbuffer_write_advance()`
-                    while (jack_ringbuffer_write_space(this->ringBuf.get()) >= frameSize) {
-                        sf_count_t nf = sf_readf_float(this->file, frameBuf, 1);
-                        if (nf != 1) {
-                            // FIXME? assuming this means we're out of stuff in the file
-                            std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
-                            shouldStop = true;
-                            break;
+                    jack_ringbuffer_t* rb = this->ringBuf.get();
+
+                    size_t framesToRead = jack_ringbuffer_write_space(rb) / frameSize;
+                    if (framesToRead < 1) {
+                        {
+                            std::unique_lock<std::mutex> lock(this->mut);
+                            needsData  = false;
                         }
-                        jack_ringbuffer_write(this->ringBuf.get(), (char*)frameBuf, frameSize);
+                        continue;
                     }
+
+                    if (framesToRead > maxFramesToRead) { framesToRead = maxFramesToRead; };
+                    auto framesRead = (size_t) sf_readf_float(this->file, frameBuf, framesToRead);
+                    if (framesRead != framesToRead) {
+                        std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
+                        shouldStop = true;
+                    }
+
+                    jack_ringbuffer_write(rb, (char*)frameBuf, frameSize * framesRead);
+
                 }
                 sf_close(this->file);
                 isRunning = false;
