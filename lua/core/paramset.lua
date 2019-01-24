@@ -194,23 +194,33 @@ function ParamSet:lookup_param(index)
   end
 end
 
+--- init local psets
+-- make data dir if needed
+-- if psets are contained in project folder, copy them to local folder
+function ParamSet:init()
+  if norns.state.data ~= data_dir then
+    if util.file_exists(norns.state.data) == false then
+      print("pset >> initializing data folder")
+      util.make_dir(norns.state.data)
+      -- copy project contents
+      local project_data = norns.state.path .. 'data/'
+      if util.file_exists(project_data) then
+        print("pset >> copying default project data")
+        os.execute("cp " .. project_data .. "*.pset " .. norns.state.data)
+      end
+    end
+  end
+end
+
 --- write to disk
 -- @param filename relative to data_dir
 function ParamSet:write(filename)
-  print("pset/write > " .. filename)
-  local dir = norns.state.path .. 'data'
+  self.init()
+  local dir = norns.state.data
   if filename == "system.pset" then dir = data_dir end -- hack for system.pset
-  -- check for subfolder
-  local fd = io.open(dir,"r")
-  if fd then
-    io.close(fd)
-  else
-    print(">> creating subfolder")
-    os.execute("mkdir " .. dir)
-  end
   -- write file
-  local file = dir..'/'..filename
-  print(">>>> "..file)
+  local file = dir .. filename
+  print("pset >> write: "..file)
   local fd = io.open(file, "w+")
   io.output(fd)
   for k,param in pairs(self.params) do
@@ -224,9 +234,11 @@ end
 --- read from disk
 -- @param filename relative to data_dir
 function ParamSet:read(filename)
-  local dir = norns.state.path .. 'data'
-  local file = dir .. '/' .. filename
-  print("pset/read > " .. file)
+  self.init()
+  local dir = norns.state.data
+  if filename == "system.pset" then dir = data_dir end -- hack for system.pset
+  local file = dir .. filename
+  print("pset >> read: " .. file)
   local fd = io.open(file, "r")
   if fd then
     io.close(fd)
@@ -251,7 +263,7 @@ function ParamSet:read(filename)
       end
     end
   else
-    print("paramset: "..filename.." not read.")
+    print("pset :: "..filename.." not read.")
   end
 end
 

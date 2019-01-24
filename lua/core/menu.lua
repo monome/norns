@@ -337,7 +337,7 @@ local function build_select_tree(root,dir)
 
   for _,v in pairs(c) do
     --print("---- " .. v)
-    if v == "data/" or v == "lib/" or v == "audio/" or v == 'lib/' then
+    if v == "data/" or v == "audio/" or v == 'lib/' then
       --print(".")
     elseif string.find(v,'/') then
       build_select_tree(p,v)
@@ -506,7 +506,7 @@ m.key[pPARAMS] = function(n,z)
     if not m.params.midimap then
       if params.count > 0 then
         if params:t(m.params.pos+1) == params.tFILE then
-          fileselect.enter(os.getenv("HOME").."/dust", m.params.newfile)
+          fileselect.enter(dust_dir, m.params.newfile)
         elseif params:t(m.params.pos+1) == params.tTRIGGER then
           params:set(m.params.pos+1)
           m.params.triggered[m.params.pos+1] = 2
@@ -536,10 +536,10 @@ m.enc[pPARAMS] = function(n,d)
         local path
         local f
         if m.params.n == 0 then
-          path = norns.state.path..'/data/'..norns.state.shortname..".pset"
+          path = norns.state.data .. norns.state.shortname..".pset"
           f=io.open(path,"r")
         else
-          path = norns.state.path..'/data/'..norns.state.shortname.."-"..string.format("%02d",m.params.n)..".pset"
+          path = norns.state.data .. norns.state.shortname.."-"..string.format("%02d",m.params.n)..".pset"
           f=io.open(path ,"r")
         end
         --print("pset: "..path)
@@ -714,7 +714,7 @@ function m.params.write_pmap(filename)
     io.close(fd)
   else
     print(">> creating subfolder")
-    os.execute("mkdir " .. dir)
+    util.make_dir(dir)
   end
 
   -- write file
