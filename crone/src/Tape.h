@@ -31,7 +31,7 @@ namespace crone {
         //-----------------------------------------------------------------------------------------------
         //-- base class for sound file access
 
-        class SfAccess {
+        class TapeStreamer {
         protected:
             SNDFILE *file;
             std::unique_ptr<std::thread> th;
@@ -42,25 +42,105 @@ namespace crone {
             size_t ringBufFrames;
             size_t ringBufBytes;
 
+            typedef enum {
+                Starting, Playing, Stopping, Stopped
+            } EnvState;
+
+            std::atomic<EnvState> envState;
+            double envPhase;
+            double envInc;
+
         public:
-            SfAccess(size_t rbf = 2048) : file(nullptr), status(0), ringBufFrames(rbf) {
+            std::atomic<bool> isRunning;
+            std::atomic<bool> shouldStop;
+
+        public:
+            TapeStreamer(size_t rbf = 2048):
+            file(nullptr),
+            status(0),
+            ringBufFrames(rbf),
+            isRunning(false),
+            shouldStop(false)
+            {
                 ringBufBytes = sampleSize * NumChannels * ringBufFrames;
                 ringBuf = std::unique_ptr<jack_ringbuffer_t>(jack_ringbuffer_create(ringBufBytes));
+
+                envPhase = 0.f;
+                envInc = 1.0 / 5000;
+                envState = Stopped;
             }
+
+            // from any thread
+            void start() {
+                if (isRunning) {
+                    return;
+                } else {
+                    envState = Starting;
+                    this->th = std::make_unique<std::thread>(
+                            [this]() {
+                                this->diskLoop();
+                            });
+                    this->th->detach();
+                }
+            }
+
+            // from any thread
+            void stop() {
+                envState = Stopping;
+            }
+
+
+
+        protected:
+
+            virtual void diskLoop() = 0;
+
+            float getEnvSample() {
+                switch (envState) {
+                    case Starting:
+                        incEnv();
+                        return cosf(static_cast<float>(envInc * 2 * M_PI)) * -0.5f + 0.5f;
+                    case Stopping:
+                        decEnv();
+                        return cosf(static_cast<float>(envInc * 2 * M_PI))* -0.5f + 0.5f;
+                    case Playing:
+                        return 1.0;
+                    case Stopped:
+                    default:
+                        return 0;
+                }
+            }
+
+        private:
+            void incEnv() {
+                envPhase += envInc;
+                if (envPhase > 1.0) {
+                    envPhase = 1.0;
+                    envState = Playing;
+                }
+            }
+
+            void decEnv() {
+                envPhase -= envInc;
+                if (envPhase < 0) {
+                    envPhase = 0;
+                    envState = Stopped;
+                    shouldStop = true;
+                }
+            }
+
         };
 
 
         //--------------------------------------------------------------------------------------------------------------
         //---- Writer class
 
-        class Writer : SfAccess {
+        class Writer: public TapeStreamer {
             friend class Tape;
-        protected:
-            std::atomic<bool> isRunning;
+
         private:
             static constexpr size_t maxFramesToWrite = 1024;
             bool dataReady;
-            std::atomic<bool> shouldStop;
             // additional buffer for writing to soundfile
             Sample diskOutBuf[maxFramesToWrite * NumChannels];
             // additional buffer for interleaving before pushing to ring buffer
@@ -71,24 +151,24 @@ namespace crone {
         public:
             // call from audio thread
             void process(const float *src[NumChannels], size_t numFrames) {
-                if (!isRunning) { return; }
+                if (!TapeStreamer::isRunning) { return; }
                 // push to ringbuffer
-                jack_ringbuffer_t* rb = this->ringBuf.get();
+                jack_ringbuffer_t *rb = this->ringBuf.get();
                 const size_t bytesToPush = numFrames * frameSize;
                 const size_t bytesAvailable = jack_ringbuffer_write_space(rb);
-                if(bytesToPush > bytesAvailable) {
+                if (bytesToPush > bytesAvailable) {
                     std::cerr << "Tape: writer overrun" << std::endl;
                 }
 
                 /// libsndfile requires interleaved data. we do that here before pushing to ringbuf
-                /// TODO: this is where we would apply an amplitude envelope
-                float* dst = pushOutBuf;
+                float *dst = pushOutBuf;
                 for (size_t fr = 0; fr < numFrames; ++fr) {
+                    float amp = TapeStreamer::getEnvSample();
                     for (int ch = 0; ch < NumChannels; ++ch) {
-                        *dst++ = src[ch][fr];
+                        *dst++ = src[ch][fr] * amp;
                     }
                 }
-                jack_ringbuffer_write(rb, (const char*)pushOutBuf, bytesToPush);
+                jack_ringbuffer_write(rb, (const char *) pushOutBuf, bytesToPush);
 #if 0
                 // dummy check
                 size_t framesInRingBuf = jack_ringbuffer_read_space(this->ringBuf.get()) / frameSize;
@@ -102,11 +182,11 @@ namespace crone {
             }
 
             // call from disk thread
-            void diskLoop() {
-                isRunning = true;
+            void diskLoop() override {
+                TapeStreamer::isRunning = true;
+                TapeStreamer::shouldStop = false;
                 numFramesCaptured = 0;
-                shouldStop = false;
-                while (!shouldStop) {
+                while (!TapeStreamer::shouldStop) {
 
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
@@ -131,9 +211,9 @@ namespace crone {
                     // dummy check
                     std::cerr << "frames in ringbuf on disk thread: " << framesToWrite << std::endl;
 #endif
-                    if (framesToWrite > (int)maxFramesToWrite) { framesToWrite = (int)maxFramesToWrite; }
+                    if (framesToWrite > (int) maxFramesToWrite) { framesToWrite = (int) maxFramesToWrite; }
 
-                    jack_ringbuffer_read(this->ringBuf.get(), (char*)diskOutBuf, framesToWrite * frameSize);
+                    jack_ringbuffer_read(this->ringBuf.get(), (char *) diskOutBuf, framesToWrite * frameSize);
                     if (sf_writef_float(this->file, diskOutBuf, framesToWrite) != framesToWrite) {
                         char errstr[256];
                         sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
@@ -149,14 +229,14 @@ namespace crone {
 
                 }
                 sf_close(this->file);
-                isRunning = false;
+                TapeStreamer::isRunning = false;
             }
 
             // from any thread
             bool open(const std::string &path,
-                    size_t maxFrames = JACK_MAX_FRAMES,
-                    int sampleRate = 48000,
-                    int bitDepth = 24) {
+                      size_t maxFrames = JACK_MAX_FRAMES,
+                      int sampleRate = 48000,
+                      int bitDepth = 24) {
                 SF_INFO sf_info;
                 int short_mask;
 
@@ -193,49 +273,21 @@ namespace crone {
                 return true;
             }
 
-            // from any thread
-            void start() {
-                if (isRunning) {
-                    // TODO: tape capture is already running; what to do...
-                    /// - could forcibly terminate old thread and start a new one,
-                    ///   but then need to handle file cleanup (class wrapper with d-tor?)
-                    /// - probably better to issue stop and wait/join on disk thread.
-                    ///   but that means stalling the caller (which in this application is likely fine?)
-                    /// - for now, just ignoring start is probably ok i think
-                } else {
-                    this->th = std::make_unique<std::thread>(
-                            [this]() {
-                                this->diskLoop();
-                            });
-                    this->th->detach();
-                }
-            }
-
-            // from any thread
-            void stop() {
-                shouldStop = true;
-            }
-
-            Writer() : SfAccess(),
-                       isRunning(false),
+            Writer() : TapeStreamer(),
                        dataReady(false),
-                       shouldStop(false),
                        numFramesCaptured(0),
                        maxFrames(JACK_MAX_FRAMES) {}
-        };
+        }; // Writer class
 
-    //-----------------------------------------------------------------------------------------------------------------
-    //---- Reader class
+        //-----------------------------------------------------------------------------------------------------------------
+        //---- Reader class
 
-        class Reader : SfAccess {
+        class Reader : public TapeStreamer {
             friend class Tape;
-        protected:
-            std::atomic<bool> isRunning;
         private:
-            std::atomic<bool> shouldStop;
             bool needsData;
             size_t frames;
-            static constexpr size_t maxFramesToRead= 1024;
+            static constexpr size_t maxFramesToRead = 1024;
             Sample frameBuf[frameSize * maxFramesToRead];
 
         private:
@@ -259,22 +311,22 @@ namespace crone {
                 }
                 return true;
             }
+
         public:
             // from audio thread
             void process(float *dst[NumChannels], size_t numFrames) {
-                if (!isRunning) { return; }
+                if (!TapeStreamer::isRunning) { return; }
                 // pull from ringbuffer
                 for (size_t fr = 0; fr < numFrames; ++fr) {
-                    // data is interleaved in ringbuffer
+                    float amp = TapeStreamer::getEnvSample();
                     for (int ch = 0; ch < NumChannels; ++ch) {
                         // FIXME: not sure what jack ringbuf overhead is,
                         // but probably faster to read `numFrames` into an intermediate buffer, then de-interleave
                         if (jack_ringbuffer_read_space(this->ringBuf.get()) < sampleSize) {
                             // underrun! TODO: say something about underruns (but not here on audio thread)
                         }
-                        // FIXME: why is C cast needed here?
-                        // TODO: add amp envelope
-                        jack_ringbuffer_read(this->ringBuf.get(), (char*)(dst[ch]+fr), sampleSize);
+                        jack_ringbuffer_read(this->ringBuf.get(), (char*)(dst[ch] + fr), sampleSize);
+                        dst[ch][fr] *= amp;
                     }
                 }
 
@@ -285,6 +337,7 @@ namespace crone {
                 }
 
             }
+
             // from any thread
             bool open(const std::string &path) {
                 SF_INFO sfInfo;
@@ -296,7 +349,7 @@ namespace crone {
                     return false;
                 }
 
-                if(sfInfo.frames < 1) {
+                if (sfInfo.frames < 1) {
 
                     std::cerr << "error reading file " << path << " (no frames available)" << std::endl;
                     return false;
@@ -307,34 +360,15 @@ namespace crone {
                 return false;
             }
 
-            // from any thread
-            void start() {
-
-                if (isRunning) {
-                    return;
-                } else {
-                    this->th = std::make_unique<std::thread>(
-                            [this]() {
-                                this->diskLoop();
-                            });
-                    this->th->detach();
-                }
-            }
-
-            // from any thread
-            void stop() {
-                shouldStop = true;
-            }
-
 
 
         private:
             // from disk thread
-            void diskLoop() {
+            void diskLoop() override {
                 prime();
-                isRunning = true;
-                shouldStop = false;
-                while (!shouldStop) {
+                TapeStreamer::isRunning = true;
+                TapeStreamer::shouldStop = false;
+                while (!TapeStreamer::shouldStop) {
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
                         this->cv.wait(lock, [this] {
@@ -344,13 +378,13 @@ namespace crone {
                         if (!needsData) { continue; }
                     }
 
-                    jack_ringbuffer_t* rb = this->ringBuf.get();
+                    jack_ringbuffer_t *rb = this->ringBuf.get();
 
                     size_t framesToRead = jack_ringbuffer_write_space(rb) / frameSize;
                     if (framesToRead < 1) {
                         {
                             std::unique_lock<std::mutex> lock(this->mut);
-                            needsData  = false;
+                            needsData = false;
                         }
                         continue;
                     }
@@ -359,17 +393,17 @@ namespace crone {
                     auto framesRead = (size_t) sf_readf_float(this->file, frameBuf, framesToRead);
                     if (framesRead != framesToRead) {
                         std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
-                        shouldStop = true;
+                        TapeStreamer::shouldStop = true;
                     }
 
-                    jack_ringbuffer_write(rb, (char*)frameBuf, frameSize * framesRead);
+                    jack_ringbuffer_write(rb, (char *) frameBuf, frameSize * framesRead);
 
                 }
                 sf_close(this->file);
-                isRunning = false;
+                TapeStreamer::isRunning = false;
             }
 
-        };
+        }; // Reader class
 
         Writer writer;
         Reader reader;
