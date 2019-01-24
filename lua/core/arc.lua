@@ -200,7 +200,9 @@ norns.arc.delta = function(id, n, delta)
     end
 
     if device.port then
-      Arc.vports[device.port].delta(n, delta)
+      if Arc.vports[device.port].delta then
+        Arc.vports[device.port].delta(n, delta)
+      end
     end
   else
     error('no entry for arc '..id)
@@ -216,7 +218,9 @@ norns.arc.key = function(id, n, s)
     end
 
     if device.port then
-      Arc.vports[device.port].key(n, s)
+      if Arc.vports[device.port].key then
+        Arc.vports[device.port].key(n, s)
+      end
     end
   else
     error('no entry for arc '..id)
