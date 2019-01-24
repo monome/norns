@@ -40,11 +40,12 @@ namespace crone {
             std::unique_ptr<jack_ringbuffer_t> ringBuf;
             volatile int status;
             size_t ringBufFrames;
+            size_t ringBufBytes;
 
         public:
             SfAccess(size_t rbf = 2048) : file(nullptr), status(0), ringBufFrames(rbf) {
-                ringBuf = std::unique_ptr<jack_ringbuffer_t>
-                        (jack_ringbuffer_create(sampleSize * NumChannels * ringBufFrames));
+                ringBufBytes = sampleSize * NumChannels * ringBufFrames;
+                ringBuf = std::unique_ptr<jack_ringbuffer_t>(jack_ringbuffer_create(ringBufBytes));
             }
         };
 
@@ -57,9 +58,13 @@ namespace crone {
         protected:
             std::atomic<bool> isRunning;
         private:
+            static constexpr size_t maxFramesToWrite = 1024;
             bool dataReady;
             std::atomic<bool> shouldStop;
-            Sample frameBuf[frameSize];
+            // additional buffer for writing to soundfile
+            Sample diskOutBuf[maxFramesToWrite * NumChannels];
+            // additional buffer for interleaving before pushing to ring buffer
+            Sample pushOutBuf[maxFramesToWrite * NumChannels];
             size_t numFramesCaptured;
             size_t maxFrames;
 
@@ -68,18 +73,27 @@ namespace crone {
             void process(const float *src[NumChannels], size_t numFrames) {
                 if (!isRunning) { return; }
                 // push to ringbuffer
-                for (size_t fr = 0; fr < numFrames; ++fr) {
-                    // libsndfile needs interleaved data, so we do that here
-                    for (int ch = 0; ch < NumChannels; ++ch) {
-                        if (jack_ringbuffer_write(this->ringBuf.get(),
-                                // FIXME: why does this need a C cast?
-                                (const char*)(src[ch]+fr), sampleSize) < sampleSize)
-                        {
-                            // overrun! TODO: say something about overruns (but not here on audio thread)
-                        }
-                    }
+                jack_ringbuffer_t* rb = this->ringBuf.get();
+                const size_t bytesToPush = numFrames * frameSize;
+                const size_t bytesAvailable = jack_ringbuffer_write_space(rb);
+                if(bytesToPush > bytesAvailable) {
+                    std::cerr << "Tape: writer overrun" << std::endl;
                 }
 
+                /// libsndfile requires interleaved data. we do that here before pushing to ringbuf
+                float* dst = pushOutBuf;
+                for (size_t fr = 0; fr < numFrames; ++fr) {
+                    for (int ch = 0; ch < NumChannels; ++ch) {
+                        *dst++ = src[ch][fr];
+                    }
+                }
+                jack_ringbuffer_write(rb, (const char*)pushOutBuf, bytesToPush);
+
+#if 0
+                // dummy check
+                size_t framesInRingBuf = jack_ringbuffer_read_space(this->ringBuf.get()) / frameSize;
+                std::cerr << "frames in ringbuf on audio thread: " << framesInRingBuf << std::endl;
+#endif
                 if (this->mut.try_lock()) {
                     this->dataReady = true;
                     this->cv.notify_one();
@@ -101,22 +115,29 @@ namespace crone {
                         // check for spurious wakeup
                         if (!dataReady) { continue; }
                     }
-                    /// FIXME: writing tape one frame at a time! not efficient at all...
-                    /// for this application we can probably assume that writes happen in [blocksize] chunks
-                    while (jack_ringbuffer_read_space(this->ringBuf.get()) >= frameSize) {
-                        // FIXME: why does this need a c cast?
-                        jack_ringbuffer_read(this->ringBuf.get(), (char*)frameBuf, frameSize);
-                        if (sf_writef_float(this->file, frameBuf, 1) != 1) {
-                            char errstr[256];
-                            sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
-                            std::cerr << "cannot write sndfile (" << errstr << ")" << std::endl;
-                            this->status = EIO;
-                            break;
-                        }
-                        if (++numFramesCaptured >= maxFrames) {
-                            break;
-                        }
+
+                    int framesToWrite = static_cast<int>(jack_ringbuffer_read_space(this->ringBuf.get()) / frameSize);
+                    if (framesToWrite < 1) { continue; }
+#if 0
+                    // dummy check
+                    std::cerr << "frames in ringbuf on disk thread: " << framesToWrite << std::endl;
+#endif
+                    if (framesToWrite > (int)maxFramesToWrite) { framesToWrite = (int)maxFramesToWrite; }
+
+                    jack_ringbuffer_read(this->ringBuf.get(), (char*)diskOutBuf, framesToWrite * frameSize);
+                    if (sf_writef_float(this->file, diskOutBuf, framesToWrite) != framesToWrite) {
+                        char errstr[256];
+                        sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
+                        std::cerr << "cannot write sndfile (" << errstr << ")" << std::endl;
+                        this->status = EIO;
+                        break;
                     }
+                    numFramesCaptured += framesToWrite;
+                    if (numFramesCaptured >= maxFrames) {
+                        std::cerr << "Tape: writer exceeded max frame count; aborting.";
+                        break;
+                    }
+
                 }
                 sf_close(this->file);
                 isRunning = false;
@@ -154,7 +175,7 @@ namespace crone {
 
                 if ((this->file = sf_open(path.c_str(), SFM_WRITE, &sf_info)) == NULL) {
                     char errstr[256];
-                    sf_error_str(0, errstr, sizeof(errstr) - 1);
+                    sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
                     std::cerr << "cannot open sndfile" << path << " for output (" << errstr << ")" << std::endl;
                     return false;
                 }
@@ -171,6 +192,7 @@ namespace crone {
                     ///   but then need to handle file cleanup (class wrapper with d-tor?)
                     /// - probably better to issue stop and wait/join on disk thread.
                     ///   but that means stalling the caller (which in this application is likely fine?)
+                    /// - for now, just ignoring start is probably ok i think
                 } else {
                     this->th = std::make_unique<std::thread>(
                             [this]() {
