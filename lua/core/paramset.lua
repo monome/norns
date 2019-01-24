@@ -203,6 +203,11 @@ function ParamSet:init()
       print("pset >> initializing data folder")
       util.make_dir(norns.state.data)
       -- copy project contents
+      local project_data = norns.state.path .. 'data/'
+      if util.file_exists(project_data) then
+        print("pset >> copying default project data")
+        os.execute("cp " .. project_data .. "*.pset " .. norns.state.data)
+      end
     end
   end
 end
