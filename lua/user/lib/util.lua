@@ -31,6 +31,26 @@ util.scandir = function(directory)
   return t
 end
 
+--- check if file exists
+-- @param filepath
+-- @return true/false
+util.file_exists = function(name)
+  local f=io.open(name,"r")
+  if f~=nil then
+    io.close(f)
+    return true
+  else
+    return false
+  end
+end
+
+--- make directory (with parents as needed)
+-- @param path
+util.make_dir = function(path)
+  os.execute("mkdir -p " .. path)
+end
+
+
 --- execute os command, capture output
 -- @param cmd command
 -- @param raw raw output (omit for scrubbed)

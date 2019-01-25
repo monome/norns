@@ -84,6 +84,7 @@ Script.load = function(filename,name,path)
     name = norns.state.name
     shortname = norns.state.name:match("([^/]+)$")
     path = norns.state.path
+    data = norns.state.data
   end
 
   print("# script load: " .. filename)
@@ -114,6 +115,7 @@ Script.load = function(filename,name,path)
     if status == true then
       norns.state.script = filename
       norns.state.path = path
+      norns.state.data = data_dir .. name .. '/'
       norns.state.name = name
       norns.state.shortname = norns.state.name:match( "([^/]+)$" )
       norns.state.save() -- remember this script for next launch
