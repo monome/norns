@@ -349,29 +349,29 @@ namespace crone {
                         }
                         fr++;
                     }
-
+                    SfStream::isRunning = false;
                 } else {
 
                     // pull from ringbuffer
                     jack_ringbuffer_read(rb, (char *) pullBuf, numFrames * frameSize);
                     float *src = pullBuf;
 
-                    // de-interleave, apply amp, copy to output
-                    for (size_t fr = 0; fr < numFrames; ++fr) {
-                        // FIXME: this seems slightly inefficient somehow?
-                        if (++framesProcessed > framesBeforeFadeout
-                            && SfStream::envState != SfStream::EnvState::Stopping) {
+
+                    if (framesProcessed > (framesBeforeFadeout-numFrames)) {
+                        if (SfStream::envState != SfStream::EnvState::Stopping) {
                             SfStream::envState = SfStream::EnvState::Stopping;
                         }
+                    }
+
+                    // de-interleave, apply amp, copy to output
+                    for (size_t fr = 0; fr < numFrames; ++fr) {
                         float amp = SfStream::getEnvSample();
                         for (int ch = 0; ch < NumChannels; ++ch) {
                             dst[ch][fr] = *src++ * amp;
                         }
                     }
-                }
 
-                if(SfStream::shouldStop) {
-                    SfStream::isRunning = false;
+                    framesProcessed += numFrames;
                 }
 
                 if (this->mut.try_lock()) {
@@ -406,11 +406,7 @@ namespace crone {
                 jack_ringbuffer_reset(this->ringBuf.get());
                 isPrimed = false;
 
-                if (this->frames > 0) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return this->frames > 0;
             }
 
 
