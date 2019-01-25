@@ -286,6 +286,8 @@ namespace crone {
         private:
             bool needsData;
             size_t frames;
+            size_t framesBeforeFadeout;
+            size_t framesProcessed = 0;
             static constexpr size_t maxFramesToRead = 1024;
             // interleaved buffer from soundfile (disk thread)
             Sample diskInBuf[frameSize * maxFramesToRead];
@@ -356,6 +358,11 @@ namespace crone {
 
                     // de-interleave, apply amp, copy to output
                     for (size_t fr = 0; fr < numFrames; ++fr) {
+                        // FIXME: this seems slightly inefficient somehow?
+                        if (++framesProcessed > framesBeforeFadeout
+                            && SfStream::envState != SfStream::EnvState::Stopping) {
+                            SfStream::envState = SfStream::EnvState::Stopping;
+                        }
                         float amp = SfStream::getEnvSample();
                         for (int ch = 0; ch < NumChannels; ++ch) {
                             dst[ch][fr] = *src++ * amp;
@@ -393,6 +400,9 @@ namespace crone {
                 }
 
                 this->frames = static_cast<size_t>(sfInfo.frames);
+                framesBeforeFadeout = this->frames - Window::raisedCosShortLen - 1;
+                framesProcessed = 0;
+
                 jack_ringbuffer_reset(this->ringBuf.get());
                 isPrimed = false;
 
