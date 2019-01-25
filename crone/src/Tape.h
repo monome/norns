@@ -16,15 +16,38 @@
 #include <jack/ringbuffer.h>
 #include <sndfile.h>
 
+#include "Window.h"
+
+//////////////
+/// test: envelope buffer
+//static constexpr size_t ampBufFrames = 48000 * 20;
+//static size_t ampBufIdx = 0;
+//static float ampBuf[ampBufFrames];
+//static void printAmpBuf() {
+//    std::cout << "a = [ ";
+//    for (size_t i=0; i<ampBufIdx; ++i) {
+//        std::cout << ampBuf[i] << ",";
+//    }
+//    std::cout << " ]; ";
+//}
+//////////////
+
+
 namespace crone {
 
+    // templates, blrg
+    class Windowed {
+
+    };
+
     template<int NumChannels>
-    class Tape {
+    class Tape : Windowed{
     private:
 
         typedef jack_default_audio_sample_t Sample;
         static constexpr size_t sampleSize = sizeof(Sample);
         static constexpr size_t frameSize = sampleSize * NumChannels;
+
 
     public:
 
@@ -47,8 +70,7 @@ namespace crone {
             } EnvState;
 
             std::atomic<EnvState> envState;
-            double envPhase;
-            double envInc;
+            std::atomic<int> envIdx;
 
         public:
             std::atomic<bool> isRunning;
@@ -65,8 +87,7 @@ namespace crone {
                 ringBufBytes = sampleSize * NumChannels * ringBufFrames;
                 ringBuf = std::unique_ptr<jack_ringbuffer_t>(jack_ringbuffer_create(ringBufBytes));
 
-                envPhase = 0.f;
-                envInc = 1.0 / 5000;
+                envIdx = 0;
                 envState = Stopped;
             }
 
@@ -75,6 +96,7 @@ namespace crone {
                 if (isRunning) {
                     return;
                 } else {
+                    envIdx = 0;
                     envState = Starting;
                     this->th = std::make_unique<std::thread>(
                             [this]() {
@@ -96,34 +118,37 @@ namespace crone {
             virtual void diskLoop() = 0;
 
             float getEnvSample() {
+                float y=0.f;
                 switch (envState) {
                     case Starting:
+                        y = Window::raisedCosShort[envIdx];
                         incEnv();
-                        return cosf(static_cast<float>(envInc * 2 * M_PI)) * -0.5f + 0.5f;
+                        break;;
                     case Stopping:
+                        y = Window::raisedCosShort[envIdx];
                         decEnv();
-                        return cosf(static_cast<float>(envInc * 2 * M_PI))* -0.5f + 0.5f;
+                        break;
                     case Playing:
-                        return 1.0;
+                        y = 1.0;
+                        break;
                     case Stopped:
                     default:
-                        return 0;
+                        y = 0.f;
                 }
+                return y;
             }
 
         private:
             void incEnv() {
-                envPhase += envInc;
-                if (envPhase > 1.0) {
-                    envPhase = 1.0;
+                envIdx++;
+                if (envIdx >= static_cast<int>(Window::raisedCosShortLen)) {
                     envState = Playing;
                 }
             }
 
             void decEnv() {
-                envPhase -= envInc;
-                if (envPhase < 0) {
-                    envPhase = 0;
+                envIdx--;
+                if (envIdx < 0) {
                     envState = Stopped;
                     shouldStop = true;
                 }
@@ -164,6 +189,13 @@ namespace crone {
                 float *dst = pushOutBuf;
                 for (size_t fr = 0; fr < numFrames; ++fr) {
                     float amp = TapeStreamer::getEnvSample();
+                    /// TEST
+//                    ampBuf[ampBufIdx] = amp;
+//                    ampBufIdx++;
+//                    if(ampBufIdx >= ampBufFrames) {
+//                        ampBufIdx = ampBufFrames-1;
+//                    }
+                    ///
                     for (int ch = 0; ch < NumChannels; ++ch) {
                         *dst++ = src[ch][fr] * amp;
                     }
