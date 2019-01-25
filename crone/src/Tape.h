@@ -21,7 +21,7 @@
 namespace crone {
 
     template<int NumChannels>
-    class Tape : Windowed{
+    class Tape {
     private:
 
         typedef jack_default_audio_sample_t Sample;
@@ -432,7 +432,6 @@ namespace crone {
     public:
         bool isWriting() { return writer.isRunning; }
         bool isReading() { return reader.isRunning; }
-
     };
 
 }
