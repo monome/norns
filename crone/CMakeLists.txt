@@ -4,6 +4,12 @@ project(crone VERSION 1.0.0)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
+# debug..
+# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+
+# release
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+
 set (SRC src/main.cpp
         src/Client.h
         src/Utilities.h
@@ -21,7 +27,9 @@ set (SRC src/main.cpp
         src/MixerClient.cpp
         src/SoftCutClient.cpp
         src/SoftCutClient.h
-        src/Poll.h)
+        src/Poll.h
+        src/Window.cpp
+        )
 
 add_executable(crone ${SRC})
 
