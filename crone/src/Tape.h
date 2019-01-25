@@ -190,7 +190,6 @@ namespace crone {
                 SfStream::shouldStop = false;
                 numFramesCaptured = 0;
                 while (!SfStream::shouldStop) {
-
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
                         this->cv.wait(lock, [this] {
@@ -327,22 +326,45 @@ namespace crone {
                 jack_ringbuffer_t* rb = this->ringBuf.get();
                 auto framesInBuf = jack_ringbuffer_read_space(rb) / frameSize;
 
-                //  bail if ringbuf isn't full enough
+                //  if ringbuf isn't full enough, it's probably cause we're at EOF
                 if(framesInBuf < numFrames) {
-                    std::cerr << "Tape::Reader: underrun!";
-                    return;
+
+                    // pull from ringbuffer
+                    jack_ringbuffer_read(rb, (char*)pullBuf, framesInBuf * frameSize);
+                    float* src = pullBuf;
+                    size_t fr = 0;
+                    // de-interleave, apply amp, copy to output
+                    while (fr < framesInBuf) {
+                        float amp = SfStream::getEnvSample();
+                        for (int ch = 0; ch < NumChannels; ++ch) {
+                            dst[ch][fr] = *src++ * amp;
+                        }
+                        fr++;
+                    }
+                    while(fr < numFrames) {
+                        for (int ch = 0; ch < NumChannels; ++ch) {
+                            dst[ch][fr] = 0.f;
+                        }
+                        fr++;
+                    }
+
+                } else {
+
+                    // pull from ringbuffer
+                    jack_ringbuffer_read(rb, (char *) pullBuf, numFrames * frameSize);
+                    float *src = pullBuf;
+
+                    // de-interleave, apply amp, copy to output
+                    for (size_t fr = 0; fr < numFrames; ++fr) {
+                        float amp = SfStream::getEnvSample();
+                        for (int ch = 0; ch < NumChannels; ++ch) {
+                            dst[ch][fr] = *src++ * amp;
+                        }
+                    }
                 }
 
-                // pull from ringbuffer
-                jack_ringbuffer_read(rb, (char*)pullBuf, numFrames * frameSize);
-                float* src = pullBuf;
-
-                // de-interleave, apply amp, copy to output
-                for (size_t fr = 0; fr < numFrames; ++fr) {
-                    float amp = SfStream::getEnvSample();
-                    for (int ch = 0; ch < NumChannels; ++ch) {
-                        dst[ch][fr] = *src++ * amp;
-                    }
+                if(SfStream::shouldStop) {
+                    SfStream::isRunning = false;
                 }
 
                 if (this->mut.try_lock()) {
@@ -412,7 +434,7 @@ namespace crone {
 
                     if (framesToRead > maxFramesToRead) { framesToRead = maxFramesToRead; };
                     auto framesRead = (size_t) sf_readf_float(this->file, diskInBuf, framesToRead);
-                    if (framesRead != framesToRead) {
+                    if (framesRead < framesToRead) {
                         std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
                         SfStream::shouldStop = true;
                     }
@@ -421,7 +443,6 @@ namespace crone {
 
                 }
                 sf_close(this->file);
-                SfStream::isRunning = false;
             }
 
         }; // Reader class
