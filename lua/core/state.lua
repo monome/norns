@@ -75,7 +75,7 @@ state.save_state = function()
   io.write("norns.state.path = '" .. state.path .. "'\n")
   io.write("norns.state.data = '" .. state.data .. "'\n")
   for i=1,4 do
-    io.write("midi.vport[" .. i .. "].name = '" .. midi.vport[i].name .. "'\n")
+    io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
   end
   for i=1,4 do
     io.write("grid.vports[" .. i .. "].name = '" .. grid.vports[i].name .. "'\n")

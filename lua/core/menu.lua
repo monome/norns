@@ -857,7 +857,7 @@ m.key[pDEVICES] = function(n,z)
     elseif n==3 and z==1 then
       local s = m.devices.options[m.devices.section][m.devices.pos]
       if m.devices.section == "midi" then
-        midi.vport[m.devices.setpos].name = s
+        midi.vports[m.devices.setpos].name = s
         midi.update_devices()
       elseif m.devices.section == "grid" then
         grid.vports[m.devices.setpos].name = s
@@ -894,7 +894,7 @@ m.redraw[pDEVICES] = function()
       screen.text(string.upper(m.devices.list[i]) .. " >")
     elseif m.devices.mode == "list" then
       if m.devices.section == "midi" then
-        screen.text(i .. ". " .. midi.vport[i].name)
+        screen.text(i .. ". " .. midi.vports[i].name)
       elseif m.devices.section == "grid" then
         screen.text(i .. ". " .. grid.vports[i].name)
       elseif m.devices.section == "arc" then
