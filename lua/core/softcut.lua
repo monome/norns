@@ -78,6 +78,7 @@ SC.buffer_read = function(filesleep, start_src, start_dst, dur, ch)
   _norns.cut_buffer_read(file, start_src, start_dst, dur, ch)
 end
 
+
 ------------------------------
 -- @section utilities
 
@@ -87,9 +88,9 @@ end
 -- each entry is a parameter argument list configured for that voice+param
 function SC.params()
   -- @fixme should memoize
-  local ret = {}
-  local v=0
-  while v < CS.VOICE_COUNT do
+  local specs = {}
+  local voice=0
+  while voice < SC.VOICE_COUNT do
     local spec = {
       -- voice enable
       enable = { type="number", min=0, max=1, default=0, formatter="" },
@@ -101,8 +102,8 @@ function SC.params()
       level_cut_cut = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- timing
       rate = { type="control", controlspec=controlspec.new(-8, 8, 'lin', 0, 0, "") },
-      loop_start = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, v*2.5, "sec") },
-      loop_end = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, v*2.5 + 2, "sec") },
+      loop_start = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
+      loop_end = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5 + 2, "sec") },
       loop_flag = { type="number", min=1, max=1, default=1, formatter=""},
       fade_time = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- recording parameters
@@ -111,7 +112,7 @@ function SC.params()
       rec_flag = { type="number", min=1, max=1, default=1, formatter=""},
       rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
       -- jump to position
-      position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, v*2.5, "sec") },
+      position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       -- filter
       filter_fc = { type="control", controlspec=controlspec.new(10, 12000, 'exp', 1, 12000, "Hz") },
       filter_fc_mod = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
@@ -130,16 +131,17 @@ function SC.params()
     }
     -- assign name, id and action 
     for k,v in pairs(spec) do 
+      local z = voice
       spec[k].id = k
-      spec[k].name = k
+      spec[k].name = "cut"..(z+1)..k
       local act = SC[k]
       if act == nil then
         print("warning: didn't find SoftCut voice method: "..k)
       end
-      spec[k].action = function(x) act(v, x) end
+      spec[k].action = function(x) act(z, x) end
     end
-    specs[v+1] = spec
-    v = v + 1
+    specs[voice+1] = spec
+    voice = voice + 1
   end
 
   return specs
