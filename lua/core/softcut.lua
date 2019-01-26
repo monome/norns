@@ -89,8 +89,8 @@ end
 function SC.params()
   -- @fixme should memoize
   local specs = {}
-  local voice=0
-  while voice < SC.VOICE_COUNT do
+  local voice=1
+  while voice <= SC.VOICE_COUNT do
     local spec = {
       -- voice enable
       enable = { type="number", min=0, max=1, default=0, formatter="" },
@@ -133,14 +133,14 @@ function SC.params()
     for k,v in pairs(spec) do 
       local z = voice
       spec[k].id = k
-      spec[k].name = "cut"..(z+1)..k
+      spec[k].name = "cut"..z..k
       local act = SC[k]
       if act == nil then
         print("warning: didn't find SoftCut voice method: "..k)
       end
       spec[k].action = function(x) act(z, x) end
     end
-    specs[voice+1] = spec
+    specs[voice] = spec
     voice = voice + 1
   end
 
