@@ -1757,7 +1757,7 @@ void w_handle_poll_softcut_phase(int idx, float val) {
   lua_getglobal(lvm, "norns");
   lua_getfield(lvm, -1, "softcut_phase");
   lua_remove(lvm, -2);
-  lua_pushinteger(lvm, idx);
+  lua_pushinteger(lvm, idx + 1);
   lua_pushnumber(lvm, val);
   l_report(lvm, l_docall(lvm, 2, 0));
 }
@@ -1948,7 +1948,7 @@ int _cut_enable(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
-  int idx = (int) luaL_checkinteger(l, 1);
+  int idx = (int) luaL_checkinteger(l, 1) - 1;
   float val = (float) luaL_checknumber(l, 2);
   o_cut_enable(idx, val);
   return 0;
@@ -1994,7 +1994,7 @@ int _set_level_cut(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
-  int idx = (int) luaL_checkinteger(l, 1);
+  int idx = (int) luaL_checkinteger(l, 1) - 1;
   float val = (float) luaL_checknumber(l, 2);
   o_set_level_cut(idx, val);
   return 0;
@@ -2004,8 +2004,8 @@ int _set_level_cut_cut(lua_State *l) {
   if (lua_gettop(l) != 3) {
     return luaL_error(l, "wrong number of arguments");
   }
-  int src = (int) luaL_checkinteger(l, 1);
-  int dest = (int) luaL_checkinteger(l, 2);
+  int src = (int) luaL_checkinteger(l, 1) - 1;
+  int dest = (int) luaL_checkinteger(l, 2) - 1;
   float val = (float) luaL_checknumber(l, 3);
   o_set_level_cut_cut(src, dest, val);
   return 0;
@@ -2015,7 +2015,7 @@ int _set_pan_cut(lua_State *l) {
   if (lua_gettop(l) != 2) {
     return luaL_error(l, "wrong number of arguments");
   }
-  int idx = (int) luaL_checkinteger(l, 1);
+  int idx = (int) luaL_checkinteger(l, 1) - 1;
   float val = (float) luaL_checknumber(l, 2);
   o_set_pan_cut(idx, val);
   return 0;
@@ -2045,7 +2045,7 @@ int _cut_buffer_read(lua_State *l) {
   float start_src = (float) luaL_checknumber(l, 2);
   float start_dst = (float) luaL_checknumber(l, 3);
   float dur = (float) luaL_checknumber(l, 4);
-  int ch = (int) luaL_checkinteger(l, 5);
+  int ch = (int) luaL_checkinteger(l, 5) - 1;
   o_cut_buffer_read((char *)s, start_src, start_dst, dur, ch);
   return 0;
 }
@@ -2055,7 +2055,7 @@ int _set_cut_param(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
   const char *s = luaL_checkstring(l, 1);
-  int voice = (int) luaL_checkinteger(l, 2);
+  int voice = (int) luaL_checkinteger(l, 2) - 1;
   float val = (float) luaL_checknumber(l, 3);
   o_set_cut_param((char *)s, voice, val);
   return 0;
@@ -2065,8 +2065,8 @@ int _set_level_input_cut(lua_State *l) {
   if (lua_gettop(l) != 3) {
     return luaL_error(l, "wrong number of arguments");
   }
-  int ch = (int) luaL_checkinteger(l, 1);
-  int voice = (int) luaL_checkinteger(l, 2);
+  int ch = (int) luaL_checkinteger(l, 1) - 1;
+  int voice = (int) luaL_checkinteger(l, 2) - 1;
   float val = (float) luaL_checknumber(l, 3);
   o_set_level_input_cut(ch, voice, val);
   return 0;
