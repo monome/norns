@@ -130,12 +130,12 @@ norns.hid.event = function(id, type, code, value)
 
   if device ~= nil then
     if device.event then
-      device.event(id, type, code, value)
+      device.event(type, code, value)
     end
 
     if device.port then
       if Hid.vports[device.port].event then
-        Hid.vports[device.port].event(id, type, code, value)
+        Hid.vports[device.port].event(type, code, value)
       end
     end
   else
