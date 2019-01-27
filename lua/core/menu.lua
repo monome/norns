@@ -801,23 +801,27 @@ m.deinit[pSYSTEM] = norns.none
 -- DEVICES
 m.devices = {}
 m.devices.pos = 1
-m.devices.list = {"midi", "grid", "arc"}
+m.devices.list = {"midi", "grid", "arc", "hid"}
 m.devices.len = #m.devices.list
 function m.devices.refresh()
   m.devices.options = {
     midi = {"none"},
     grid = {"none"},
     arc = {"none"},
+    hid = {"none"},
   }
   -- create midi list
-  for _,i in pairs(midi.list) do
-    table.insert(m.devices.options.midi,i)
+  for _, device in pairs(midi.devices) do
+    table.insert(m.devices.options.midi, device.name)
   end
-  for _,i in pairs(grid.list) do
-    table.insert(m.devices.options.grid,i)
+  for _, device in pairs(grid.devices) do
+    table.insert(m.devices.options.grid, device.name)
   end
   for _, device in pairs(arc.devices) do
     table.insert(m.devices.options.arc, device.name)
+  end
+  for _, device in pairs(hid.devices) do
+    table.insert(m.devices.options.hid, device.name)
   end
 end
 
@@ -865,6 +869,9 @@ m.key[pDEVICES] = function(n,z)
       elseif m.devices.section == "arc" then
         arc.vports[m.devices.setpos].name = s
         arc.update_devices()
+      elseif m.devices.section == "hid" then
+        hid.vports[m.devices.setpos].name = s
+        hid.update_devices()
       end
       m.devices.mode = "list"
       m.devices.len = 4
@@ -899,6 +906,8 @@ m.redraw[pDEVICES] = function()
         screen.text(i .. ". " .. grid.vports[i].name)
       elseif m.devices.section == "arc" then
         screen.text(i .. ". " .. arc.vports[i].name)
+      elseif m.devices.section == "hid" then
+        screen.text(i .. ". " .. hid.vports[i].name)
       end
     elseif m.devices.mode == "select" then
       screen.text(m.devices.options[m.devices.section][i])

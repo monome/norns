@@ -27,6 +27,7 @@ state.resume = function()
   midi.update_devices()
   grid.update_devices()
   arc.update_devices()
+  hid.update_devices()
 
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then
@@ -82,6 +83,9 @@ state.save_state = function()
   end
   for i=1,4 do
     io.write("arc.vports[" .. i .. "].name = '" .. arc.vports[i].name .. "'\n")
+  end
+  for i=1,4 do
+    io.write("hid.vports[" .. i .. "].name = '" .. hid.vports[i].name .. "'\n")
   end
   io.close(fd)
 end
