@@ -28,41 +28,22 @@ static void add_types(struct dev_hid *d) {
 
 static void add_codes(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
-    d->num_codes = calloc( d->num_types, sizeof(int) );
-    d->codes = calloc( d->num_types, sizeof(dev_code_t *) );
-    for(int i = 0; i < d->num_types; i++) {
+    d->num_codes = calloc(d->num_types, sizeof(int));
+    d->codes = calloc(d->num_types, sizeof(dev_code_t *));
+    for (int i = 0; i < d->num_types; i++) {
         int max_codes, num_codes = 0;
         uint16_t *codes;
         int type = d->types[i];
         max_codes = libevdev_event_type_get_max(type);
-        // printf("%s: %d\n", libevdev_event_type_get_name(type), libevdev_event_type_get_max(type));
-        /*
-        switch(type) {
-        case EV_KEY:
-            max_codes = KEY_MAX;
-            break;
-        case EV_REL:
-            max_codes = REL_MAX;
-            break;
-        case EV_ABS:
-            max_codes = ABS_MAX;
-            break;
-        case EV_LED:
-            max_codes = LED_MAX;
-            break;
-        default:
-            max_codes = 0;
-        }*/
-        
-        codes = calloc( max_codes, sizeof(dev_code_t) );
-		if (max_codes > 0 ){
-        for(int code = 0; code < max_codes; code++) {
-            if( libevdev_has_event_code(dev, type, code) ) {
+        codes = calloc(max_codes, sizeof(dev_code_t));
+
+        for (int code = 0; code < max_codes; code++) {
+            if (libevdev_has_event_code(dev, type, code)) {
                 codes[num_codes++] = code;
             }
         }
-        }
-        codes = realloc( codes, num_codes * sizeof(dev_code_t) );
+
+        codes = realloc(codes, num_codes * sizeof(dev_code_t));
         d->num_codes[i] = num_codes;
         d->codes[i] = codes;
     }
@@ -155,9 +136,8 @@ void *dev_hid_start(void *self) {
 
 void dev_hid_deinit(void *self) {
     struct dev_hid *di = (struct dev_hid *)self;
-    //libevdev_free(di->dev);
     for(int i = 0; i < di->num_types; i++) {
-        TEST_NULL_AND_FREE(di->codes[i]); 
+        TEST_NULL_AND_FREE(di->codes[i]);
     }
     TEST_NULL_AND_FREE(di->codes);
     TEST_NULL_AND_FREE(di->num_codes);
