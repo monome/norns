@@ -25,7 +25,8 @@ end
 -- @tparam string name : name
 -- @tparam string types : array of supported event types. keys are type codes, values are strings
 -- @tparam userdata codes : array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
-function Hid.new(id, name, types, codes)
+-- @tparam userdata dev : opaque pointer to device
+function Hid.new(id, name, types, codes, dev)
   local device = setmetatable({}, Hid)
 
   device.id = id
@@ -56,7 +57,7 @@ end
 -- user scripts can redefine
 -- @param dev : a Hid table
 function Hid.add(dev)
-  print("hid added:", dev.id, dev.name, dev.serial)
+  print("hid added:", dev.id, dev.name)
 end
 
 --- scan device list and grab one, redefined later
@@ -104,8 +105,8 @@ end
 norns.hid = {}
 
 -- hid devices
-norns.hid.add = function(id, serial, name, dev)
-  local g = Hid.new(id, serial, name, dev)
+norns.hid.add = function(id, name, types, codes, dev)
+  local g = Hid.new(id, name, types, codes, dev)
   Hid.devices[id] = g
   Hid.update_devices()
   if Hid.add ~= nil then Hid.add(g) end
