@@ -49,22 +49,7 @@ static void add_codes(struct dev_hid *d) {
     }
 }
 
-static void dev_hid_print(struct dev_hid *d) {
-    printf("%s\n", d->base.name);
-    for(int i = 0; i < d->num_types; i++) {
-        printf( "  %d : %d (%s) : \n",
-                i,
-                d->types[i],
-                libevdev_event_type_get_name(d->types[i]) );
-        for(int j = 0; j < d->num_codes[i]; j++) {
-            printf( "      %d : %d (%s)\n",
-                    j, d->codes[i][j],
-                    libevdev_event_code_get_name(d->types[i], d->codes[i][j]) );
-        }
-    }
-}
-
-int dev_hid_init(void *self, bool print) {
+int dev_hid_init(void *self) {
     struct dev_hid *d = (struct dev_hid *)self;
     struct dev_common *base = (struct dev_common *)self;
     struct libevdev *dev = NULL;
@@ -90,10 +75,9 @@ int dev_hid_init(void *self, bool print) {
     d->vid = libevdev_get_id_vendor(dev);
     d->pid = libevdev_get_id_product(dev);
 
-    if(print ) { dev_hid_print(d); }
-
-    base->start =  &dev_hid_start;
+    base->start = &dev_hid_start;
     base->deinit = &dev_hid_deinit;
+
     return 0;
 }
 

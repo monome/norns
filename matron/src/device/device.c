@@ -33,7 +33,7 @@ union dev *dev_new(device_t type, const char *path, const char *name) {
         };
         break;
     case DEV_TYPE_HID:
-        if (dev_hid_init(d, false) < 0) {
+        if (dev_hid_init(d) < 0) {
             goto err_init;
         }
         break;
