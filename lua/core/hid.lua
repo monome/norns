@@ -5,8 +5,13 @@
 ---------------------------------
 -- Hid device class
 
+local hid_events = require 'hid_events'
+
 local Hid = {}
 Hid.__index = Hid
+
+Hid.types = hid_events.types
+Hid.codes = hid_events.codes
 
 Hid.devices = {}
 Hid.vports = {}
