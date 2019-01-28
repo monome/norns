@@ -1428,7 +1428,9 @@ void w_handle_hid_add(void *p) {
     }
     lua_rawseti(lvm, -2, i + 1);
   }
-  l_report(lvm, l_docall(lvm, 4, 0));
+
+  lua_pushlightuserdata(lvm, dev);
+  l_report(lvm, l_docall(lvm, 5, 0));
 }
 
 void w_handle_hid_remove(int id) {

@@ -74,6 +74,7 @@ Script.init = function()
   grid.reconnect()
   midi.reconnect()
   arc.reconnect()
+  hid.reconnect()
 end
 
 --- load a script from the /scripts folder
