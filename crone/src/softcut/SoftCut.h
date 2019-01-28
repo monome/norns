@@ -81,6 +81,10 @@ namespace softcut {
             scv[voice].setRecFlag( val);
         }
 
+        void setPlayFlag(int voice, bool val) {
+            scv[voice].setPlayFlag( val);
+        }
+
         void cutToPos(int voice, float sec) {
             scv[voice].cutToPos(sec);
         }
@@ -167,10 +171,13 @@ namespace softcut {
             scv[i].setPhaseQuant(q);
         }
 
-        void printTestBuffers() {
-            scv[0].printTestBuffers();
+        bool getRecFlag(int i) {
+            return scv[i].getRecFlag();
         }
 
+        bool getPlayFlag(int i) {
+            return scv[i].getPlayFlag();
+        }
     };
 }
 

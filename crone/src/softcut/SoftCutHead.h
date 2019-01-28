@@ -18,8 +18,11 @@ namespace  softcut{
         SoftCutHead();
         void init();
 
-        // per-sample update function
-        void processSample(sample_t in, float *outPhase, float *outTrig, sample_t *outAudio);
+        // per-sample update functions
+        void processSample(sample_t in, sample_t *out);
+
+        void processSampleNoRead(sample_t in, sample_t *out);
+        void processSampleNoWrite(sample_t in, sample_t *out);
 
         void setSampleRate(float sr);
         void setBuffer(sample_t *buf, uint32_t size);
@@ -30,7 +33,8 @@ namespace  softcut{
         void setLoopFlag(bool val);
         void setRec(float x);
         void setPre(float x);
-        void setRecRun(bool val);
+        void setRecFlag(bool val);
+        void setPlayFlag(bool val);
         void cutToPos(float seconds);
 
         phase_t getActivePhase();
@@ -42,7 +46,6 @@ namespace  softcut{
         void printTestBuffers();
 
         void setRecOffset(float d);
-
     private:
         // fade in to new position (given in samples)
         // assumption: phase is in range!
@@ -65,7 +68,8 @@ namespace  softcut{
         bool loopFlag;      // set to loop, unset for 1-shot
         float pre;      // pre-record level
         float rec;      // record level
-        bool recFlag;   // record processing flag
+        // record processing flag
+        // play processing flag
 
         rate_t rate;    // current rate
         TestBuffers testBuf;

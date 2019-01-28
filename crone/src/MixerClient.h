@@ -116,6 +116,7 @@ namespace  crone {
             void clear();
             void update(StereoBus &in, StereoBus &out, size_t numFrames);
         };
+
         VuLevels vuLevels;
         VuLevels* getVuLevels() { return &vuLevels; }
 

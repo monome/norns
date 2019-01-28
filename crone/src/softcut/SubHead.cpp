@@ -100,7 +100,7 @@ void SubHead::poke(float in, float pre, float rec, int numFades) {
 void SubHead::poke(float in, float pre, float rec, int numFades) {
     (void)numFades;
     // FIXME: since there's never really a reason to not push input, or to reset input ringbuf,
-    // it follows that all resamplers can share an input ringbuf
+    // it follows that all resamplers could share an input ringbuf
     int nframes = resamp_.processFrame(in);
 
     if(state_ == Inactive) {

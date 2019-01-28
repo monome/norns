@@ -20,26 +20,44 @@ recRamp(48000, 0.1)
     svf.setRq(20.0);
     svf.setFc(fcBase);
     svfDryLevel = 1.0;
+    recFlag = false;
+    playFlag = true;
 }
 
 void SoftCutVoice:: processBlockMono(const float *in, float *out, int numFrames) {
-    float trigDummy;
-    float phaseDummy;
+    std::function<void(sample_t, sample_t*)> sampleFunc;
+    if(playFlag) {
+        if(recFlag) {
+            sampleFunc = [this](float in, float* out) {
+                this->sch.processSample(in, out);
+            };
+        } else {
+            sampleFunc = [this](float in, float* out) {
+                this->sch.processSampleNoWrite(in, out);
+            };
+        }
+    } else {
+        if(recFlag) {
+            sampleFunc = [this](float in, float* out) {
+                this->sch.processSampleNoRead(in, out);
+            };
+        } else {
+            // FIXME? do nothing, i guess?
+            sampleFunc = [this](float in, float* out) {
+                (void)in;
+                (void)out;
+            };
+        }
+    }
 
     float x;
     for(int i=0; i<numFrames; ++i) {
-#if 1
         x = svf.getNextSample(in[i]) + in[i]*svfDryLevel;
-#else
-        x = in[i];
-#endif
         sch.setRate(rateRamp.update());
         sch.setPre(preRamp.update());
         sch.setRec(recRamp.update());
-        sch.processSample(x, &phaseDummy, &trigDummy, &(out[i]));
-
+        sampleFunc(x, &(out[i]));
         updateQuantPhase();
-
     }
 }
 
@@ -82,7 +100,12 @@ void SoftCutVoice::setPreLevel(float amp) {
 }
 
 void SoftCutVoice::setRecFlag(bool val) {
-    sch.setRecRun(val);
+    recFlag = val;
+}
+
+
+void SoftCutVoice::setPlayFlag(bool val) {
+    playFlag = val;
 }
 
 void SoftCutVoice::setLoopFlag(bool val) {
@@ -134,10 +157,6 @@ void SoftCutVoice::setBuffer(float *b, unsigned int nf) {
     sch.setBuffer(buf, bufFrames);
 }
 
-void SoftCutVoice::printTestBuffers() {
-    sch.printTestBuffers();
-}
-
 void SoftCutVoice::setRecOffset(float d) {
     sch.setRecOffset(d);
 }
@@ -168,3 +187,10 @@ void SoftCutVoice::updateQuantPhase() {
     }
 }
 
+bool SoftCutVoice::getPlayFlag() {
+    return playFlag;
+}
+
+bool SoftCutVoice::getRecFlag() {
+    return recFlag;
+}

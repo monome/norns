@@ -43,9 +43,13 @@ void crone::SoftCutClient::clearBusses(size_t numFrames) {
 void crone::SoftCutClient::mixInput(size_t numFrames) {
     for(int ch=0; ch<2; ++ch) {
         for(int v=0; v<NumVoices; ++v) {
-            input[v].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][v]);
-            for(int w=0; w<NumVoices; ++w) {
-                input[v].mixFrom(output[w], numFrames, fbLevel[v][w]);
+            if(cut.getRecFlag(v)) {
+                input[v].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][v]);
+                for (int w = 0; w < NumVoices; ++w) {
+                    if(cut.getPlayFlag(w)) {
+                        input[v].mixFrom(output[w], numFrames, fbLevel[v][w]);
+                    }
+                }
             }
         }
     }
@@ -53,7 +57,9 @@ void crone::SoftCutClient::mixInput(size_t numFrames) {
 
 void crone::SoftCutClient::mixOutput(size_t numFrames) {
     for(int v=0; v<NumVoices; ++v) {
-        mix.panMixFrom(output[v], numFrames, outLevel[v], outPan[v]);
+        if(cut.getPlayFlag(v)) {
+            mix.panMixFrom(output[v], numFrames, outLevel[v], outPan[v]);
+        }
     }
 }
 
@@ -105,6 +111,9 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
             break;
         case Commands::Id::SET_CUT_REC_FLAG:
             cut.setRecFlag(p->idx_0, p->value > 0.f);
+            break;
+        case Commands::Id::SET_CUT_PLAY_FLAG:
+            cut.setPlayFlag(p->idx_0, p->value > 0.f);
             break;
         case Commands::Id::SET_CUT_REC_OFFSET:
             cut.setRecOffset(p->idx_0, p->value);
