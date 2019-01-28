@@ -78,10 +78,8 @@ namespace softcut {
         bool active_;
         int recOffset_;
 
-        // test...
-    public:
-        float preFade;
-        float recFade;
+        float preFade_;
+        float recFade_;
 
         void setRecOffset(float d);
     };

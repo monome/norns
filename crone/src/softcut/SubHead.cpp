@@ -109,13 +109,9 @@ void SubHead::poke(float in, float pre, float rec, int numFades) {
 
     BOOST_ASSERT_MSG(fade_ >= 0.f && fade_ <= 1.f, "bad fade coefficient in poke()");
 
-#if 0 // test
-    preFade = pre;
-    recFade = rec * fade_;
-#else
-    preFade = pre + (1.f-pre) * FadeCurves::getPreFadeValue(fade_);
-    recFade = rec * FadeCurves::getRecFadeValue(fade_);
-#endif
+
+    preFade_ = pre + (1.f-pre) * FadeCurves::getPreFadeValue(fade_);
+    recFade_ = rec * FadeCurves::getRecFadeValue(fade_);
     sample_t y; // write value
     const sample_t* src = resamp_.output();
 
@@ -125,11 +121,11 @@ void SubHead::poke(float in, float pre, float rec, int numFades) {
 #if 1 // soft clipper
         y = clip_.processSample(y);
 #endif
-#if 1 // lowpass filter
+#if 0 // lowpass filter
         lpf_.processSample(&y);
 #endif
-        buf_[wrIdx_] *= preFade;
-        buf_[wrIdx_] += y * recFade;
+        buf_[wrIdx_] *= preFade_;
+        buf_[wrIdx_] += y * recFade_;
 
         wrIdx_ = wrapBufIndex(wrIdx_ + inc_dir_);
     }
