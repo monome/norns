@@ -5,6 +5,8 @@
 ---------------------------------
 -- Arc device class
 
+local vport = require 'vport'
+
 local Arc = {}
 Arc.__index = Arc
 
@@ -19,10 +21,10 @@ for i=1,4 do
     delta = nil,
     key = nil,
 
-    led = function(self, ...) if self.device then self.device:led(...) end end,
-    all = function(self, ...) if self.device then self.device:all(...) end end,
-    refresh = function(self, ...) if self.device then self.device:refresh(...) end end,
-    segment = function(self, ...) if self.device then self.device:segment(...) end end,
+    let = vport.wrap_method('led'),
+    all = vport.wrap_method('all'),
+    refresh = vport.wrap_method('refresh'),
+    segment = vport.wrap_method('segment'),
   }
 end
 

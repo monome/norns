@@ -5,6 +5,8 @@
 ---------------------------------
 -- Grid device class
 
+local vport = require 'vport'
+
 local Grid = {}
 Grid.__index = Grid
 
@@ -18,10 +20,10 @@ for i=1,4 do
 
     key = nil,
 
-    led = function(self, ...) if self.device then self.device:led(...) end end,
-    all = function(self, ...) if self.device then self.device:all(...) end end,
-    refresh = function(self, ...) if self.device then self.device:refresh(...) end end,
-    rotation = function(self, ...) if self.device then self.device:rotation(...) end end,
+    led = vport.wrap_method('led'),
+    all = vport.wrap_method('all'),
+    refresh = vport.wrap_method('refresh'),
+    rotation = vport.wrap_method('rotation'),
 
     cols = 0,
     rows = 0,

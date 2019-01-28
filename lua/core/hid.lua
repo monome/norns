@@ -5,6 +5,7 @@
 ---------------------------------
 -- Hid device class
 
+local vport = require 'vport'
 local hid_events = require 'hid_events'
 
 local Hid = {}
@@ -35,7 +36,7 @@ function Hid.new(id, name, types, codes, dev)
   local device = setmetatable({}, Hid)
 
   device.id = id
-  device.name = name
+  device.name = vport.get_unique_device_name(name, Hid.devices)
   device.dev = dev -- opaque pointer
   device.event = nil -- event callback
   device.remove = nil -- device unplug callback

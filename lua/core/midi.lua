@@ -2,17 +2,13 @@
 -- @module midi
 -- @alias Midi
 
+local vport = require 'vport'
+
 local Midi = {}
 Midi.__index = Midi
 
 Midi.devices = {}
 Midi.vports = {}
-
-local function wrap_midi_method(method)
-  return function(self, ...)
-    if self.device then self.device[method](self.device, ...) end
-  end
-end
 
 for i=1,4 do
   Midi.vports[i] = {
@@ -22,18 +18,18 @@ for i=1,4 do
 
     send = function(self, ...) if self.device then self.device:send(...) end end,
 
-    note_on = wrap_midi_method('note_on'),
-    note_off = wrap_midi_method('note_off'),
-    cc = wrap_midi_method('cc'),
-    pitchbend = wrap_midi_method('pitchbend'),
-    key_pressure = wrap_midi_method('key_pressure'),
-    channel_pressure = wrap_midi_method('channel_pressure'),
-    start = wrap_midi_method('start'),
-    stop = wrap_midi_method('stop'),
-    continue = wrap_midi_method('continue'),
-    clock = wrap_midi_method('clock'),
-    song_position = wrap_midi_method('song_position'),
-    song_select = wrap_midi_method('song_select'),
+    note_on = vport.wrap_method('note_on'),
+    note_off = vport.wrap_method('note_off'),
+    cc = vport.wrap_method('cc'),
+    pitchbend = vport.wrap_method('pitchbend'),
+    key_pressure = vport.wrap_method('key_pressure'),
+    channel_pressure = vport.wrap_method('channel_pressure'),
+    start = vport.wrap_method('start'),
+    stop = vport.wrap_method('stop'),
+    continue = vport.wrap_method('continue'),
+    clock = vport.wrap_method('clock'),
+    song_position = vport.wrap_method('song_position'),
+    song_select = vport.wrap_method('song_select'),
   }
 end
 
@@ -45,7 +41,7 @@ function Midi.new(id, name, dev)
   local d = setmetatable({}, Midi)
 
   d.id = id
-  d.name = name
+  d.name = vport.get_unique_device_name(name, Midi.devices)
   d.dev = dev -- opaque pointer
   d.event = nil -- event callback
   d.remove = nil -- device unplug callback
