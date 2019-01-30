@@ -71,10 +71,6 @@ Script.init = function()
   params.name = norns.state.shortname
   init()
   s_save()
-  grid.reconnect()
-  midi.reconnect()
-  arc.reconnect()
-  hid.reconnect()
 end
 
 --- load a script from the /scripts folder

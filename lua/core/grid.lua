@@ -72,9 +72,6 @@ function Grid.add(dev)
   print("grid added:", dev.id, dev.name, dev.serial)
 end
 
---- scan device list and grab one, redefined later
-function Grid.reconnect() end
-
 --- static callback when any grid device is removed;
 -- user scripts can redefine
 -- @param dev : a Grid table

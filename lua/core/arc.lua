@@ -69,9 +69,6 @@ function Arc.add(dev)
   print("arc added:", dev.id, dev.name, dev.serial)
 end
 
---- scan device list and grab one, redefined later
-function Arc.reconnect() end
-
 --- static callback when any arc device is removed;
 -- user scripts can redefine
 -- @param dev : a Arc table

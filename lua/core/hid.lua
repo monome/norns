@@ -66,9 +66,6 @@ function Hid.add(dev)
   print("hid added:", dev.id, dev.name)
 end
 
---- scan device list and grab one, redefined later
-function Hid.reconnect() end
-
 --- static callback when any hid device is removed;
 -- user scripts can redefine
 -- @param dev : a Hid table
