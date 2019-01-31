@@ -66,9 +66,6 @@ function Hid.add(dev)
   print("hid added:", dev.id, dev.name)
 end
 
---- scan device list and grab one, redefined later
-function Hid.reconnect() end
-
 --- static callback when any hid device is removed;
 -- user scripts can redefine
 -- @param dev : a Hid table
@@ -86,6 +83,10 @@ end
 function Hid.cleanup()
   for i=1,4 do
     Hid.vports[i].event = nil
+  end
+
+  for _, dev in pairs(Hid.devices) do
+    dev.event = nil
   end
 end
 

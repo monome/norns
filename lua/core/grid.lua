@@ -72,9 +72,6 @@ function Grid.add(dev)
   print("grid added:", dev.id, dev.name, dev.serial)
 end
 
---- scan device list and grab one, redefined later
-function Grid.reconnect() end
-
 --- static callback when any grid device is removed;
 -- user scripts can redefine
 -- @param dev : a Grid table
@@ -116,6 +113,12 @@ end
 function Grid.cleanup()
   for i=1,4 do
     Grid.vports[i].key = nil
+  end
+
+  for _, dev in pairs(Grid.devices) do
+    dev:all(0)
+    dev:refresh()
+    dev.key = nil
   end
 end
 
