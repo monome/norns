@@ -84,6 +84,10 @@ function Hid.cleanup()
   for i=1,4 do
     Hid.vports[i].event = nil
   end
+
+  for _, dev in pairs(Hid.devices) do
+    dev.event = nil
+  end
 end
 
 function Hid.update_devices()

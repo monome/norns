@@ -146,6 +146,13 @@ function Arc.cleanup()
     Arc.vports[i].delta = nil
     Arc.vports[i].key = nil
   end
+
+  for _, dev in pairs(Arc.devices) do
+    dev:all(0)
+    dev:refresh()
+    dev.delta = nil
+    dev.key = nil
+  end
 end
 
 function Arc.update_devices()

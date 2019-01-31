@@ -144,6 +144,10 @@ function Midi.cleanup()
   for i=1,4 do
     Midi.vports[i].event = nil
   end
+
+  for _, dev in pairs(Midi.devices) do
+    dev.event = nil
+  end
 end
 
 -- utility

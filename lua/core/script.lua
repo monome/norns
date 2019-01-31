@@ -18,25 +18,10 @@ Script.clear = function()
   key = norns.none
   enc = norns.none
 
-  -- clear, redirect, and reset grids
-  for _,dev in pairs(grid.devices) do
-    dev:all(0)
-    dev:refresh()
-    dev.key = norns.none
-  end
+  -- clear, redirect, and reset devices
   grid.cleanup()
-
-   -- clear, redirect, and reset arcs
-  for _, dev in pairs(arc.devices) do
-    dev:all(0)
-    dev:refresh()
-  end
   arc.cleanup()
-
-  -- clear, redirect, and reset midi
   midi.cleanup()
-
-  -- clear, redirect, and reset hid
   hid.cleanup()
 
   -- stop all timers

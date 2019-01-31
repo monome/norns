@@ -114,6 +114,12 @@ function Grid.cleanup()
   for i=1,4 do
     Grid.vports[i].key = nil
   end
+
+  for _, dev in pairs(Grid.devices) do
+    dev:all(0)
+    dev:refresh()
+    dev.key = nil
+  end
 end
 
 function Grid.update_devices()
