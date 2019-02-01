@@ -26,6 +26,11 @@ void Commands::post(Commands::Id id, int i, float f) {
     q.push(p);
 }
 
+void Commands::post(Commands::Id id, int i, int j) {
+    CommandPacket p(id, i, j);
+    q.push(p);
+}
+
 void Commands::post(Commands::Id id, int i, int j, float f) {
     CommandPacket p(id, i, j, f);
     q.push(p);

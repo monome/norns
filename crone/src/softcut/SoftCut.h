@@ -18,11 +18,7 @@ namespace softcut {
 
     private:
         SoftCutVoice scv[numVoices];
-        void init(float* buf, size_t bufFrames) {
-
-            for (auto &v : scv) {
-                v.setBuffer(buf, bufFrames);
-            }
+        void init() {
             FadeCurves::setPreShape(FadeCurves::Shape::Linear);
             FadeCurves::setRecShape(FadeCurves::Shape::Raised);
             FadeCurves::setMinPreWindowFrames(0);
@@ -32,8 +28,8 @@ namespace softcut {
         }
 
     public:
-        SoftCut(float *buf, size_t bufFrames){
-            this->init(buf, bufFrames);
+        SoftCut() {
+            this->init();
         }
 
         // assumption: channel count is equal to voice count!
@@ -180,6 +176,11 @@ namespace softcut {
         void syncVoice(int follow, int lead, float offset) {
             scv[follow].cutToPos(scv[lead].getPos() + offset);
         }
+
+        void setVoiceBuffer(int id, float* buf, size_t bufFrames) {
+                scv[id].setBuffer(buf, bufFrames);
+            }
+
     };
 }
 
