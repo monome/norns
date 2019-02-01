@@ -430,6 +430,11 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_FILTER_DRY, argv[0]->i, argv[1]->f);
     });
 
+    addServerMethod("/set/param/cut/voice_sync", "iif", [](lo_arg **argv, int argc) {
+        if(argc<3) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_SYNC, argv[0]->i, argv[1]->i, argv[2]->f);
+    });
+
 
     //////////////////////////////////////////////////////////
     /// FIXME: these fade calculation methods create worker threads,

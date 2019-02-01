@@ -151,7 +151,7 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_RATE_SLEW_TIME:
             cut.setRateSlewTime(p->idx_0, p->value);
             break;
-        case Commands::Id::CUT_SYNC_VOICE:
+        case Commands::Id::SET_CUT_VOICE_SYNC:
             cut.syncVoice(p->idx_0, p->idx_1, p->value);
             break;
         default:

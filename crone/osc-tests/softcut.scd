@@ -33,9 +33,11 @@ n.sendMsg("/set/param/cut/filter_lp", 0, 0);
 n.sendMsg("/set/param/cut/filter_bp", 0, 1.0);
 n.sendMsg("/set/param/cut/filter_rq", 0, 2.0);
 
-n.sendMsg("/set/param/cut/rate", 0, 0.165);
 n.sendMsg("/set/param/cut/rate", 0, 1.0);
+/*
+n.sendMsg("/set/param/cut/rate", 0, 0.165);
 n.sendMsg("/set/param/cut/rate", 0, 1.75);
+*/
 
 /// voice 2
 // args: channel index, voice index, level
@@ -63,10 +65,12 @@ n.sendMsg("/set/param/cut/filter_lp", 1, 0);
 n.sendMsg("/set/param/cut/filter_bp", 1, 1.0);
 n.sendMsg("/set/param/cut/filter_rq", 1, 2.0);
 
-n.sendMsg("/set/param/cut/rate", 1, 0.1175);
 n.sendMsg("/set/param/cut/rate", 1, 1.0);
-n.sendMsg("/set/param/cut/rate", 1, 1.75);
 
+/*
+n.sendMsg("/set/param/cut/rate", 1, 0.1175);
+n.sendMsg("/set/param/cut/rate", 1, 1.75);
+*/
 
 
 
