@@ -533,12 +533,12 @@ void OscInterface::addServerMethods() {
     });
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
-    addServerMethod("/softcut/buffer/read_stere", "sfff", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/read_stereo", "sfff", [](lo_arg **argv, int argc) {
         float startSrc = 0.f;
         float startDst = 0.f;
         float dur = -1.f;
         if (argc < 1) {
-            std::cerr << "/softcut/buffer/read_mono requires at least one argument (file path)" << std::endl;
+            std::cerr << "/softcut/buffer/read_stereo requires at least one argument (file path)" << std::endl;
             return;
         }
         if (argc > 1) {
@@ -556,19 +556,36 @@ void OscInterface::addServerMethods() {
 
 
 
-    addServerMethod("/softcut/buffer/clear_region", "iff", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/clear", "", [](lo_arg **argv, int argc) {
+        (void)argc;
+        (void)argv;
+        softCutClient->clearBuffer(0);
+        softCutClient->clearBuffer(1);
+    });
+
+
+    addServerMethod("/softcut/buffer/clear_channel", "i", [](lo_arg **argv, int argc) {
+        if (argc < 1) {
+            return;
+        }
+        softCutClient->clearBuffer(argv[0]->i);
+    });
+
+    addServerMethod("/softcut/buffer/clear_region", "ff", [](lo_arg **argv, int argc) {
+        if (argc < 2) {
+            return;
+        }
+        softCutClient->clearBuffer(0, argv[0]->f, argv[1]->f);
+        softCutClient->clearBuffer(1, argv[0]->f, argv[1]->f);
+    });
+
+    addServerMethod("/softcut/buffer/clear_region_channel", "iff", [](lo_arg **argv, int argc) {
         if (argc < 3) {
             return;
         }
         softCutClient->clearBuffer(argv[0]->i, argv[1]->f, argv[2]->f);
     });
 
-    addServerMethod("/softcut/buffer/clear", "i", [](lo_arg **argv, int argc) {
-        if (argc < 1) {
-            return;
-        }
-        softCutClient->clearBuffer(argv[0]->i);
-    });
 
     //---------------------
     //--- softcut polls
