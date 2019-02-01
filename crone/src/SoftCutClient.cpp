@@ -13,7 +13,12 @@ static inline void clamp(size_t &x, const size_t a) {
     if (x > a) { x = a; }
 }
 
-crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut"), cut(buf, BufFrames) {}
+crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut") {
+
+    for(int i=0; i<NumVoices; ++i) {
+        cut.setVoiceBuffer(i, buf[i&1], BufFrames);
+    }
+}
 
 void crone::SoftCutClient::process(jack_nframes_t numFrames) {
     Commands::softcutCommands.handlePending(this);
@@ -154,21 +159,26 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_VOICE_SYNC:
             cut.syncVoice(p->idx_0, p->idx_1, p->value);
             break;
+        case Commands::Id::SET_CUT_BUFFER:
+            cut.setVoiceBuffer(p->idx_0, buf[p->idx_1], BufFrames);
+            break;
         default:
             ;;
     }
 }
 
-void crone::SoftCutClient::clearBuffer(float start, float dur) {
+void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
     size_t frA =secToFrame(start);
     clamp(frA, BufFrames-1);
     size_t frB = frA + secToFrame(dur);
     clamp(frB, BufFrames);
-    for(size_t i=frA; i<frB; ++i) { buf[i] = 0.f; }
+    for(size_t i=frA; i<frB; ++i) { buf[bufIdx][i] = 0.f; }
 }
 
-void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc, float startTimeDst, float dur, int channel) {
 
+/// FIXME: DRY this up
+void crone::SoftCutClient::loadFileMono(const std::string &path, float startTimeSrc, float startTimeDst, float dur,
+        int chanSrc, int chanDst) {
 
     SndfileHandle file(path);
     // FIXME: bail here if fail to open
@@ -190,16 +200,60 @@ void crone::SoftCutClient::loadFile(const std::string &path, float startTimeSrc,
 
     auto numSrcChan = file.channels();
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
+    chanSrc = std::min(numSrcChan-1, std::max(0, chanSrc));
+    chanDst = std::min(1, std::max(0, chanDst));
 
     for (size_t fr=0; fr<frDur; ++fr) {
         // FIXME: don't seek every frame with libsndfile?
         file.seek(frSrc, SEEK_SET);
         file.read(frBuf.get(), numSrcChan);
-        buf[frDst] = frBuf[channel];
+        buf[chanDst][frDst] = frBuf[chanSrc];
         ++frDst;
         ++frSrc;
         if (frDst >= BufFrames) {
-            std::cerr << "SoftCutClient::loadFile() exceeded buffer size; aborting" << std::endl;
+            std::cerr << "SoftCutClient::loadFileMono(): exceeded buffer size; aborting" << std::endl;
+            return;
+        }
+    }
+}
+
+/// FIXME: DRY this up
+void crone::SoftCutClient::loadFileStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
+    SndfileHandle file(path);
+    // FIXME: bail here if fail to open
+
+    size_t frSrc = secToFrame(startTimeSrc);
+    clamp(frSrc, BufFrames-1);
+
+    size_t frDst = secToFrame(startTimeDst);
+    clamp(frDst, BufFrames-1);
+
+    size_t frDur;
+    if (dur < 0.f) {
+        auto maxDurSrc = file.frames() - frSrc;
+        auto maxDurDst = file.frames() - frDst;
+        frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
+    } else {
+        frDur = secToFrame(dur);
+    }
+
+    auto numSrcChan = file.channels();
+    if(numSrcChan<2) {
+        std::cerr << "SoftCutClient::loadFileStereo(): not enough channels in source; aborting" << std::endl;
+        return;
+    }
+    std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
+
+    for (size_t fr=0; fr<frDur; ++fr) {
+        // FIXME: don't seek every frame with libsndfile?
+        file.seek(frSrc, SEEK_SET);
+        file.read(frBuf.get(), numSrcChan);
+        buf[0][frDst] = frBuf[0];
+        buf[1][frDst] = frBuf[1];
+        ++frDst;
+        ++frSrc;
+        if (frDst >= BufFrames) {
+            std::cerr << "SoftCutClient::loadFileStereo(): exceeded buffer size; aborting" << std::endl;
             return;
         }
     }

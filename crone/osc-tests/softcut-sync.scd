@@ -1,3 +1,7 @@
+
+// run after "softcut.scd"
+// voices 0 and 1 are both running
+
 n.sendMsg("/set/param/cut/rec_flag", 1, 0);
 n.sendMsg("/set/param/cut/loop_start", 1, 1);
 n.sendMsg("/set/param/cut/loop_end", 1, 2);
