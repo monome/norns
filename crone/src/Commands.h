@@ -79,6 +79,7 @@ namespace crone {
             SET_CUT_LEVEL_SLEW_TIME,
             SET_CUT_RATE_SLEW_TIME,
             NUM_COMMANDS,
+            CUT_SYNC_VOICE,
         } Id;
 
     public:

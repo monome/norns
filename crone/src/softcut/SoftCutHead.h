@@ -33,19 +33,13 @@ namespace  softcut{
         void setLoopFlag(bool val);
         void setRec(float x);
         void setPre(float x);
-        void setRecFlag(bool val);
-        void setPlayFlag(bool val);
         void cutToPos(float seconds);
 
         phase_t getActivePhase();
-        float getTrig();
-        void resetTrig();
-
         rate_t getRate();
 
-        void printTestBuffers();
 
-        void setRecOffset(float d);
+        void setRecOffsetSamples(int d);
     private:
         // fade in to new position (given in samples)
         // assumption: phase is in range!

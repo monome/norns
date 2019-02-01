@@ -158,7 +158,7 @@ void SoftCutVoice::setBuffer(float *b, unsigned int nf) {
 }
 
 void SoftCutVoice::setRecOffset(float d) {
-    sch.setRecOffset(d);
+    sch.setRecOffsetSamples(static_cast<int>(d * sampleRate));
 }
 
 void SoftCutVoice::setLevelSlewTime(float d) {
@@ -193,4 +193,8 @@ bool SoftCutVoice::getPlayFlag() {
 
 bool SoftCutVoice::getRecFlag() {
     return recFlag;
+}
+
+float SoftCutVoice::getPos() {
+    return static_cast<float>(sch.getActivePhase() / sampleRate);
 }

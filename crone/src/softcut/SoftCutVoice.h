@@ -55,6 +55,8 @@ namespace softcut {
         bool getPlayFlag();
         bool getRecFlag();
 
+        float getPos();
+
     private:
         void updateFilterFc();
         void updateQuantPhase();

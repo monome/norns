@@ -164,20 +164,10 @@ void SubHead::setSampleRate(float sr) {
 void SubHead::setPhase(phase_t phase) {
     phase_ = phase;
     wrIdx_ = wrapBufIndex(static_cast<int>(phase_) + (inc_dir_ * recOffset_));
-    // std::cerr << "new phase="<<phase_ << "; wrIdx="<<wrIdx_ << std::endl;
-    
-    // FIXME: we are hitting this sometimes. fade is always quite small...
-    // rounding error? wrong order of calculations?
-#if 0
-    if(fade_ > std::numeric_limits<float>::epsilon()) {
-        std::cerr << "fade=" << fade_ << std::endl;
-        BOOST_ASSERT_MSG(false, "changing phase with fade>0");
-    }
-#endif
 
     // NB: not resetting the resampler here:
     // - it's ok to keep history of input when changing positions.
-    // - resmp output doesn't need clearing b/c we write/read from beginning on each sample anyway
+    // - resamp output doesn't need clearing b/c we write/read from beginning on each sample anyway
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -199,8 +189,7 @@ void SubHead::setRate(rate_t rate) {
 
 
 void SubHead::setState(State state) { state_ = state; }
-void SubHead::setTrig(float trig) { trig_ = trig; }
 
-void SubHead::setRecOffset(float d) {
-    recOffset_  = static_cast<int>(d);
+void SubHead::setRecOffsetSamples(int d) {
+    recOffset_  = d;
 }

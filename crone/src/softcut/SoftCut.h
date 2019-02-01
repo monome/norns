@@ -23,8 +23,6 @@ namespace softcut {
             for (auto &v : scv) {
                 v.setBuffer(buf, bufFrames);
             }
-
-            // FIXME? wrong place for this probly
             FadeCurves::setPreShape(FadeCurves::Shape::Linear);
             FadeCurves::setRecShape(FadeCurves::Shape::Raised);
             FadeCurves::setMinPreWindowFrames(0);
@@ -122,7 +120,7 @@ namespace softcut {
             scv[voice].setFilterFcMod( x);
         }
 
-
+#if 0 // not allowing realtime manipulation of fade logic params
         void setPreFadeWindow(float x) {
             auto t = std::thread([x] {
                 FadeCurves::setPreWindowRatio(x);
@@ -150,7 +148,7 @@ namespace softcut {
             });
             t.detach();
         }
-	
+#endif
         void setRecOffset(int i, float d) {
             scv[i].setRecOffset(d);
         }
@@ -177,6 +175,10 @@ namespace softcut {
 
         bool getPlayFlag(int i) {
             return scv[i].getPlayFlag();
+        }
+
+        void syncVoice(int follow, int lead, float offset) {
+            scv[follow].cutToPos(scv[lead].getPos() + offset);
         }
     };
 }

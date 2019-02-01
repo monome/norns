@@ -175,15 +175,6 @@ phase_t SoftCutHead::getActivePhase() {
   return head[active].phase();
 }
 
-float SoftCutHead::getTrig() {
-  return head[0].trig()+ head[1].trig();
-}
-
-void SoftCutHead::resetTrig() {
-  head[0].setTrig(0);
-  head[1].setTrig(0);
-}
-
 void SoftCutHead::cutToPos(float seconds) {
     cutToPhase(seconds * sr);
 }
@@ -192,11 +183,7 @@ rate_t SoftCutHead::getRate() {
     return rate;
 }
 
-void SoftCutHead::printTestBuffers() {
-    testBuf.print();
-}
-
-void SoftCutHead::setRecOffset(float d) {
-    head[0].setRecOffset(d);
-    head[1].setRecOffset(d);
+void SoftCutHead::setRecOffsetSamples(int d) {
+    head[0].setRecOffsetSamples(d);
+    head[1].setRecOffsetSamples(d);
 }

@@ -81,7 +81,7 @@ namespace softcut {
         float preFade_;
         float recFade_;
 
-        void setRecOffset(float d);
+        void setRecOffsetSamples(int d);
     };
 
 }
