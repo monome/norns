@@ -44,6 +44,8 @@ namespace  softcut{
         // fade in to new position (given in samples)
         // assumption: phase is in range!
         void cutToPhase(phase_t newPhase);
+        void enqueueCrossfade(phase_t newPhase);
+        void dequeueCrossfade();
         void takeAction(Action act);
         sample_t mixFade(sample_t x, sample_t y, float a, float b); // mix two inputs with phases
         void calcFadeInc();
@@ -55,6 +57,8 @@ namespace  softcut{
         float sr;           // sample rate
         phase_t start;      // start/end points
         phase_t end;
+        phase_t queuedCrossfade;
+        bool queuedCrossfadeFlag;
         float fadeTime;     // fade time in seconds
         float fadeInc;      // linear fade increment per sample
 

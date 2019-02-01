@@ -25,6 +25,8 @@ void SoftCutHead::init() {
     rate = 1.f;
     setFadeTime(0.1f);
     testBuf.init();
+    queuedCrossfade = 0;
+    queuedCrossfadeFlag = false;
 }
 
 void SoftCutHead::processSample(sample_t in, sample_t *out) {
@@ -100,24 +102,39 @@ void SoftCutHead::takeAction(Action act)
 {
     switch (act) {
         case Action::LoopPos:
-            cutToPhase(start);
+            SoftCutHead::cutToPhase(start);
             break;
         case Action::LoopNeg:
-            cutToPhase(end);
+            SoftCutHead::cutToPhase(end);
             break;
         case Action::Stop:
+            SoftCutHead::dequeueCrossfade();
+            break;
         case Action::None:
         default: ;;
     }
 }
 
+void SoftCutHead::enqueueCrossfade(phase_t pos) {
+    queuedCrossfade = pos;
+    queuedCrossfadeFlag = true;
+}
+
+void SoftCutHead::dequeueCrossfade() {
+    if(queuedCrossfadeFlag) {
+	SoftCutHead::cutToPhase(queuedCrossfade);
+    }
+    queuedCrossfadeFlag = false;
+}
+
+
 void SoftCutHead::cutToPhase(phase_t pos) {
     State s = head[active].state();
 
-    // ignore if we are already in a crossfade
-    // FIXME: should queue the fade?
+    // enqueue crossfade if we are already in a crossfade
     if(s == State::FadeIn || s == State::FadeOut) {
-        return;
+      enqueueCrossfade(pos);
+      return;
     }
 
     // activate the inactive head
