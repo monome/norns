@@ -95,8 +95,8 @@ end
 -- hid callbacks
 norns.hid = {}
 --- HID or other input device added
-norns.hid.add = function(id, serial, name, types, codes)
-   -- print("norns.input.add ", id, serial, name, types, codes)
+norns.hid.add = function(id, name, types, codes, dev)
+   -- print("norns.input.add ", id, name, types, codes, dev)
 end
 norns.hid.event = function(id, ev_type, ev_code, value)
    -- print("norns.input.event ", id, ev_type, ev_code, value)

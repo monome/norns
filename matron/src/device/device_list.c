@@ -115,7 +115,7 @@ void dev_list_remove(device_t type, const char *node) {
     }
     event_post(ev);
 
-    if(dq.head == dn) { dq.head = NULL; }
+    if(dq.head == dn) { dq.head = dn->next; }
     if(dq.tail == dn) { dq.tail = dn->prev; }
     remque(dn);
     dq.size--;

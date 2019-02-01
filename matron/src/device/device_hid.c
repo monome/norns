@@ -28,57 +28,28 @@ static void add_types(struct dev_hid *d) {
 
 static void add_codes(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
-    d->num_codes = calloc( d->num_types, sizeof(int) );
-    d->codes = calloc( d->num_types, sizeof(dev_code_t *) );
-    for(int i = 0; i < d->num_types; i++) {
+    d->num_codes = calloc(d->num_types, sizeof(int));
+    d->codes = calloc(d->num_types, sizeof(dev_code_t *));
+    for (int i = 0; i < d->num_types; i++) {
         int max_codes, num_codes = 0;
         uint16_t *codes;
         int type = d->types[i];
-        switch(type) {
-        case EV_KEY:
-            max_codes = KEY_MAX;
-            break;
-        case EV_REL:
-            max_codes = REL_MAX;
-            break;
-        case EV_ABS:
-            max_codes = ABS_MAX;
-            break;
-        case EV_LED:
-            max_codes = LED_MAX;
-            break;
-        default:
-            max_codes = 0;
-        }
-        codes = calloc( max_codes, sizeof(dev_code_t) );
+        max_codes = libevdev_event_type_get_max(type);
+        codes = calloc(max_codes, sizeof(dev_code_t));
 
-        for(int code = 0; code < max_codes; code++) {
-            if( libevdev_has_event_code(dev, type, code) ) {
+        for (int code = 0; code < max_codes; code++) {
+            if (libevdev_has_event_code(dev, type, code)) {
                 codes[num_codes++] = code;
             }
         }
-        codes = realloc( codes, num_codes * sizeof(dev_code_t) );
+
+        codes = realloc(codes, num_codes * sizeof(dev_code_t));
         d->num_codes[i] = num_codes;
         d->codes[i] = codes;
     }
 }
 
-static void dev_hid_print(struct dev_hid *d) {
-    printf("%s\n", d->base.name);
-    for(int i = 0; i < d->num_types; i++) {
-        printf( "  %d : %d (%s) : \n",
-                i,
-                d->types[i],
-                libevdev_event_type_get_name(d->types[i]) );
-        for(int j = 0; j < d->num_codes[i]; j++) {
-            printf( "      %d : %d (%s)\n",
-                    j, d->codes[i][j],
-                    libevdev_event_code_get_name(d->types[i], d->codes[i][j]) );
-        }
-    }
-}
-
-int dev_hid_init(void *self, bool print) {
+int dev_hid_init(void *self) {
     struct dev_hid *d = (struct dev_hid *)self;
     struct dev_common *base = (struct dev_common *)self;
     struct libevdev *dev = NULL;
@@ -104,10 +75,9 @@ int dev_hid_init(void *self, bool print) {
     d->vid = libevdev_get_id_vendor(dev);
     d->pid = libevdev_get_id_product(dev);
 
-    if(print ) { dev_hid_print(d); }
-
-    base->start =  &dev_hid_start;
+    base->start = &dev_hid_start;
     base->deinit = &dev_hid_deinit;
+
     return 0;
 }
 

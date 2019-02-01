@@ -571,6 +571,12 @@ void o_set_cut_param(const char* name, int voice, float value) {
     lo_send(crone_addr, buf, "if", voice, value);
 }
 
+void o_set_cut_param_iif(const char* name, int a, int b, float v) {
+    static char buf[128];
+    sprintf(buf, "/set/param/cut/%s", name);    
+    lo_send(crone_addr, buf, "iif", a, b, v);
+}
+
 void o_set_level_input_cut(int src, int dst, float level) {
     lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
 }

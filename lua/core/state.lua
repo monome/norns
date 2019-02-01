@@ -27,6 +27,7 @@ state.resume = function()
   midi.update_devices()
   grid.update_devices()
   arc.update_devices()
+  hid.update_devices()
 
   -- only resume the script if we shut down cleanly
   if state.clean_shutdown and state.script ~= '' then
@@ -75,13 +76,16 @@ state.save_state = function()
   io.write("norns.state.path = '" .. state.path .. "'\n")
   io.write("norns.state.data = '" .. state.data .. "'\n")
   for i=1,4 do
-    io.write("midi.vport[" .. i .. "].name = '" .. midi.vport[i].name .. "'\n")
+    io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
   end
   for i=1,4 do
-    io.write("grid.vport[" .. i .. "].name = '" .. grid.vport[i].name .. "'\n")
+    io.write("grid.vports[" .. i .. "].name = '" .. grid.vports[i].name .. "'\n")
   end
   for i=1,4 do
-    io.write("arc.vport[" .. i .. "].name = '" .. arc.vport[i].name .. "'\n")
+    io.write("arc.vports[" .. i .. "].name = '" .. arc.vports[i].name .. "'\n")
+  end
+  for i=1,4 do
+    io.write("hid.vports[" .. i .. "].name = '" .. hid.vports[i].name .. "'\n")
   end
   io.close(fd)
 end
