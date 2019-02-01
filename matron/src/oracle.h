@@ -137,7 +137,7 @@ extern void o_cut_enable(int i, float value);
 extern void o_cut_buffer_clear();
 extern void o_cut_buffer_clear_channel(int ch);
 extern void o_cut_buffer_clear_region(float start, float end);
-extern void o_cut_buffer_clear_region_channel(float start, float end, int ch);
+extern void o_cut_buffer_clear_region_channel(int ch, float start, float end);
 extern void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
     float dur, int ch_src, int ch_dst);
 extern void o_cut_buffer_read_stereo(char *file, float start_src,

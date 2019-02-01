@@ -2065,7 +2065,7 @@ int _cut_buffer_clear_region_channel(lua_State *l) {
   float start = (float) luaL_checknumber(l, 1);
   float end = (float) luaL_checknumber(l, 2);
   int ch = (int) luaL_checkinteger(l, 3) - 1;
-  o_cut_buffer_clear_region(start, end, ch);
+  o_cut_buffer_clear_region_channel(start, end, ch);
   return 0;
 }
 
@@ -2091,8 +2091,7 @@ int _cut_buffer_read_stereo(lua_State *l) {
   float start_src = (float) luaL_checknumber(l, 2);
   float start_dst = (float) luaL_checknumber(l, 3);
   float dur = (float) luaL_checknumber(l, 4);
-  int ch = (int) luaL_checkinteger(l, 5) - 1;
-  o_cut_buffer_read((char *)s, start_src, start_dst, dur, ch);
+  o_cut_buffer_read_stereo((char *)s, start_src, start_dst, dur);
   return 0;
 }
 
@@ -2112,7 +2111,7 @@ int _set_cut_param_ii(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
   const char *s = luaL_checkstring(l, 1);
-  int voice = (int) luaL_checkinteger(l, 2) - 1
+  int voice = (int) luaL_checkinteger(l, 2) - 1;
   float val = (int) luaL_checkinteger(l, 3) - 1;
   o_set_cut_param_ii((char *)s, voice, val);
   return 0;
@@ -2126,7 +2125,7 @@ int _set_cut_param_iif(lua_State *l) {
   int a = (int) luaL_checkinteger(l, 2);
   int b = (int) luaL_checkinteger(l, 3);
   float val = (float) luaL_checknumber(l, 4);
-  o_set_cut_param_iif((char *)s, voice, val);
+  o_set_cut_param_iif((char *)s, a, b, val);
   return 0;
 }
 

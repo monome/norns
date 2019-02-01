@@ -587,16 +587,30 @@ void o_set_level_input_cut(int src, int dst, float level) {
     lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
 }
 
-void o_cut_buffer_clear_region(float start, float end) {
-    lo_send(crone_addr, "/softcut/buffer/clear_region", "ff", start, end);
-}
-
 void o_cut_buffer_clear() {
     lo_send(crone_addr, "/softcut/buffer/clear", "");
 }
 
-void o_cut_buffer_read(char *file, float start_src, float start_dst, float dur, int ch) {
-	lo_send(crone_addr, "/softcut/buffer/read", "sfffi", file, start_src, start_dst, dur, ch);
+void o_cut_buffer_clear_channel(int ch) {
+    lo_send(crone_addr, "/softcut/buffer/clear_channel", "i", ch);
+}
+
+void o_cut_buffer_clear_region(float start, float end) {
+    lo_send(crone_addr, "/softcut/buffer/clear_region", "ff", start, end);
+}
+
+void o_cut_buffer_clear_region_channel(int ch, float start, float end) {
+    lo_send(crone_addr, "/softcut/buffer/clear_region", "iff", ch, start, end);
+}
+
+void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
+    float dur, int ch_src, int ch_dst) {
+	lo_send(crone_addr, "/softcut/buffer/read", "sfffii", file, start_src,
+      start_dst, dur, ch_src, ch_dst);
+} 
+
+void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur) {
+	lo_send(crone_addr, "/softcut/buffer/read", "sfffii", file, start_src, start_dst, dur);
 } 
 
 
