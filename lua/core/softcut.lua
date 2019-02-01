@@ -38,6 +38,7 @@ SC.level_cut_cut = function(src, dst, value)
   _norns.level_cut_cut(src, dst, value)
 end
 
+SC.play = function(i,v) _norns.cut_param("play_flag",i,v) end
 SC.rate = function(i,v) _norns.cut_param("rate",i,v) end
 SC.loop_start = function(i,v) _norns.cut_param("loop_start",i,v) end
 SC.loop_end = function(i,v) _norns.cut_param("loop_end",i,v) end
@@ -45,9 +46,14 @@ SC.loop_flag = function(i,v) _norns.cut_param("loop_flag",i,v) end
 SC.fade_time = function(i,v) _norns.cut_param("fade_time",i,v) end
 SC.rec_level = function(i,v) _norns.cut_param("rec_level",i,v) end
 SC.pre_level = function(i,v) _norns.cut_param("pre_level",i,v) end
-SC.rec_flag = function(i,v) _norns.cut_param("rec_flag",i,v) end
+SC.rec = function(i,v) _norns.cut_param("rec_flag",i,v) end
 SC.rec_offset = function(i,v) _norns.cut_param("rec_offset",i,v) end
 SC.position = function(i,v) _norns.cut_param("position",i,v) end
+
+SC.buffer = function(i,v) _norns.cut_param("buffer",i,v) end
+-- TODO cut_param needs a ii version
+SC.voice_sync = function(src, dest, v) _norns.cut_param("voice_sync",src,dst,v) end
+-- TODO cut_param needs a 3 arg version (weaver)
 
 SC.filter_fc = function(i,v) _norns.cut_param("filter_fc",i,v) end
 SC.filter_fc_mod = function(i,v) _norns.cut_param("filter_fc_mod",i,v) end
@@ -65,17 +71,26 @@ SC.phase_quant = function(i,v) _norns.cut_param("phase_quant",i,v) end
 SC.poll_start_phase = function() _norns.poll_start_cut_phase() end
 SC.poll_stop_phase = function() _norns.poll_stop_cut_phase() end
 
-
 SC.enable = function(voice, value) _norns.cut_enable(voice, value) end
 
+
+SC.buffer_clear = function() _norns.cut_buffer_clear() end
+SC.buffer_clear_channel = function(i) _norns.cut_buffer_clear_channel(i) end
 SC.buffer_clear_region = function(start, stop)
   _norns.cut_buffer_clear_region(start, stop)
 end
+SC.buffer_clear_region_channel = function(ch, start, stop)
+  _norns.cut_buffer_clear_region_channel(ch, start, stop)
+end
 
-SC.buffer_clear = function() _norns.cut_buffer_clear() end
 
-SC.buffer_read = function(filesleep, start_src, start_dst, dur, ch)
-  _norns.cut_buffer_read(file, start_src, start_dst, dur, ch)
+
+SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst)
+  _norns.cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst)
+end
+
+SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
+  _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
 end
 
 ------------------------------
