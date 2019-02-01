@@ -567,7 +567,13 @@ void o_set_pan_cut(int index, float value) {
 
 void o_set_cut_param(const char* name, int voice, float value) {
     static char buf[128];
-    sprintf(buf, "/set/param/cut/%s", name);    
+    sprintf(buf, "/set/param/cut/%s", name);
+    lo_send(crone_addr, buf, "if", voice, value);
+}
+
+void o_set_cut_param_ii(const char* name, int voice, int value) {
+    static char buf[128];
+    sprintf(buf, "/set/param/cut/%s", name);
     lo_send(crone_addr, buf, "if", voice, value);
 }
 

@@ -164,6 +164,8 @@ static int _cut_buffer_clear_region_channel(lua_State *l);
 static int _cut_buffer_read_mono(lua_State *l);
 static int _cut_buffer_read_stereo(lua_State *l);
 static int _set_cut_param(lua_State *l);
+static int _set_cut_param_ii(lua_State *l);
+static int _set_cut_param_iif(lua_State *l);
 static int _set_level_input_cut(lua_State *l);
 
 // rev effects controls
@@ -273,6 +275,8 @@ void w_init(void) {
   lua_register_norns("cut_buffer_read_mono", &_cut_buffer_read_mono);
   lua_register_norns("cut_buffer_read_stereo", &_cut_buffer_read_stereo);
   lua_register_norns("cut_param", &_set_cut_param);
+  lua_register_norns("cut_param_ii", &_set_cut_param_ii);
+  lua_register_norns("cut_param_iif", &_set_cut_param_iif);
   lua_register_norns("level_input_cut", &_set_level_input_cut);
 
 
@@ -2100,6 +2104,29 @@ int _set_cut_param(lua_State *l) {
   int voice = (int) luaL_checkinteger(l, 2) - 1;
   float val = (float) luaL_checknumber(l, 3);
   o_set_cut_param((char *)s, voice, val);
+  return 0;
+}
+
+int _set_cut_param_ii(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  int voice = (int) luaL_checkinteger(l, 2) - 1
+  float val = (int) luaL_checkinteger(l, 3) - 1;
+  o_set_cut_param_ii((char *)s, voice, val);
+  return 0;
+}
+
+int _set_cut_param_iif(lua_State *l) {
+  if (lua_gettop(l) != 4) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  int a = (int) luaL_checkinteger(l, 2);
+  int b = (int) luaL_checkinteger(l, 3);
+  float val = (float) luaL_checknumber(l, 4);
+  o_set_cut_param_iif((char *)s, voice, val);
   return 0;
 }
 

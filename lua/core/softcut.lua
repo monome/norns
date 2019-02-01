@@ -50,10 +50,8 @@ SC.rec = function(i,v) _norns.cut_param("rec_flag",i,v) end
 SC.rec_offset = function(i,v) _norns.cut_param("rec_offset",i,v) end
 SC.position = function(i,v) _norns.cut_param("position",i,v) end
 
-SC.buffer = function(i,v) _norns.cut_param("buffer",i,v) end
--- TODO cut_param needs a ii version
-SC.voice_sync = function(src, dest, v) _norns.cut_param("voice_sync",src,dst,v) end
--- TODO cut_param needs a 3 arg version (weaver)
+SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
+SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dst,v) end
 
 SC.filter_fc = function(i,v) _norns.cut_param("filter_fc",i,v) end
 SC.filter_fc_mod = function(i,v) _norns.cut_param("filter_fc_mod",i,v) end
