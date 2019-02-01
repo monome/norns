@@ -101,9 +101,9 @@ void *enc_check(void *x) {
           if(event[i].type) { // make sure it's not EV_SYN == 0
             now[i] = clock();
             diff = now[i] - prev[i];
-            fprintf(stderr, "%d\t%d\t%lu\n", n, event[i].value, diff);
+            //fprintf(stderr, "%d\t%d\t%lu\n", n, event[i].value, diff);
             prev[i] = now[i];
-            if(diff > 150) { // filter out glitches
+            if(diff > 100) { // filter out glitches
               if(dir[i] != event[i].value && diff > 500) { // only reverse direction if there is reasonable settling time
                 dir[i] = event[i].value;
               }
