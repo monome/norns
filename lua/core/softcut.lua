@@ -42,7 +42,7 @@ SC.play = function(i,v) _norns.cut_param("play_flag",i,v) end
 SC.rate = function(i,v) _norns.cut_param("rate",i,v) end
 SC.loop_start = function(i,v) _norns.cut_param("loop_start",i,v) end
 SC.loop_end = function(i,v) _norns.cut_param("loop_end",i,v) end
-SC.loop_flag = function(i,v) _norns.cut_param("loop_flag",i,v) end
+SC.loop = function(i,v) _norns.cut_param("loop_flag",i,v) end
 SC.fade_time = function(i,v) _norns.cut_param("fade_time",i,v) end
 SC.rec_level = function(i,v) _norns.cut_param("rec_level",i,v) end
 SC.pre_level = function(i,v) _norns.cut_param("pre_level",i,v) end
@@ -117,12 +117,13 @@ function SC.params()
       rate = { type="control", controlspec=controlspec.new(-8, 8, 'lin', 0, 0, "") },
       loop_start = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       loop_end = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5 + 2, "sec") },
-      loop_flag = { type="number", min=1, max=1, default=1, formatter=""},
+      loop = { type="number", min=0, max=1, default=1, formatter=""},
       fade_time = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- recording parameters
       rec_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       pre_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      rec_flag = { type="number", min=1, max=1, default=1, formatter=""},
+      play = { type="number", min=0, max=1, default=1, formatter=""},
+      rec = { type="number", min=0, max=1, default=1, formatter=""},
       rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
       -- jump to position
       position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
