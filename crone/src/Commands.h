@@ -78,14 +78,16 @@ namespace crone {
 
             SET_CUT_LEVEL_SLEW_TIME,
             SET_CUT_RATE_SLEW_TIME,
-            NUM_COMMANDS,
             SET_CUT_VOICE_SYNC,
+            SET_CUT_BUFFER,
+            NUM_COMMANDS,
         } Id;
 
     public:
         Commands();
         void post(Commands::Id id, float f);
         void post(Commands::Id id, int i, float f);
+        void post(Commands::Id id, int i, int j);
         void post(Commands::Id id, int i, int j, float f);
 
         // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
@@ -95,6 +97,7 @@ namespace crone {
         struct CommandPacket {
             CommandPacket() = default;
             CommandPacket(Commands::Id i, int i0,  float f) : id(i), idx_0(i0), idx_1(-1), value(f) {}
+            CommandPacket(Commands::Id i, int i0, int i1) : id(i), idx_0(i0), idx_1(i1) {}
             CommandPacket(Commands::Id i, int i0, int i1, float f) : id(i), idx_0(i0), idx_1(i1), value(f) {}
             Id id;
             int idx_0;
