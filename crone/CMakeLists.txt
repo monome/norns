@@ -4,10 +4,6 @@ project(crone VERSION 1.0.0)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
-# debug..
-# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
-
-# release
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
 set (SRC src/main.cpp
@@ -35,11 +31,24 @@ add_executable(crone ${SRC})
 
 include_directories(./faust)
 
-target_link_libraries(crone lo)
-target_link_libraries(crone jack)
-target_link_libraries(crone pthread)
-target_link_libraries(crone asound)
-target_link_libraries(crone sndfile)
+if(UNIX)
+    if(APPLE)
+        find_library(lo_lib liblo.dylib REQUIRED)
+        find_library(sndfile_lib libsndfile.a REQUIRED)
+        find_library(jack_lib libjack.dylib REQUIRED)
+        target_link_libraries(crone ${lo_lib} ${sndfile_lib} ${jack_lib})
+        include_directories(/usr/local/include)
+    else()
+        target_link_libraries(crone lo)
+        target_link_libraries(crone jack)
+        target_link_libraries(crone pthread)
+        target_link_libraries(crone asound)
+        target_link_libraries(crone sndfile)
+    endif()
+else()
+    # nope
+endif()
+
 
 set_target_properties(crone PROPERTIES
 CXX_STANDARD 14
