@@ -757,7 +757,7 @@ end
 -- SYSTEM
 m.sys = {}
 m.sys.pos = 1
-m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "RESET AUDIO"}
+m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "RESET"}
 m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pRESET}
 m.sys.input = 0
 
@@ -1138,9 +1138,23 @@ end
 -----------------------------------------
 -- RESET
 m.reset = {}
-m.reset.countdown = 0
 
-m.key[pRESET] = function(n,z) end
+m.key[pRESET] = function(n,z)
+  if n==2 and z==1 then
+    menu.set_page(pSYSTEM)
+elseif n==3 and z==1 then
+    if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
+    norns.state.clean_shutdown = true
+    norns.state.save()
+    cleanup()
+
+    os.execute("sudo systemctl restart norns-jack.service")
+    os.execute("sudo systemctl restart norns-crone.service")
+    os.execute("sudo systemctl restart norns-sclang.service")
+    os.execute("sudo systemctl restart norns-matron.service")
+  end
+end
+
 
 m.enc[pRESET] = function(n,delta) end
 
@@ -1148,29 +1162,12 @@ m.redraw[pRESET] = function()
   screen.clear()
   screen.level(10)
   screen.move(64,40)
-  screen.text_center("resetting audio")
+  screen.text_center("reset?")
   screen.update()
 end
 
-m.init[pRESET] = function()
-  m.reset.countdown = 9
-  norns.script.clear()
-  os.execute("sudo systemctl restart norns-crone.service")
-  u.time = 1
-  u.count = -1
-  u.event = function()
-    m.reset.countdown = m.reset.countdown - 1
-    if m.reset.countdown == 0 then
-      menu.set_page(pSYSTEM)
-      norns.startup_status.ok()
-    end
-  end
-  u:start()
-end
-
-m.deinit[pRESET] = function()
-  u:stop()
-end
+m.init[pRESET] = function() end
+m.deinit[pRESET] = function() end
 
 
 -----------------------------------------
