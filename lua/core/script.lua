@@ -7,61 +7,57 @@ local Script = {}
 -- ie redirect draw, key, enc functions, stop timers, clear engine, etc
 Script.clear = function()
   print("# script clear")
+
   -- reset cleanup script
   cleanup = norns.none
+
   -- reset oled redraw
   redraw = norns.blank
+
   -- redirect inputs to nowhere
   key = norns.none
   enc = norns.none
-  -- clear, redirect, and reset grids
-  for _,dev in pairs(grid.devices) do
-    dev:all(0)
-    dev:refresh()
-    dev.key = norns.none
-  end
+
+  -- clear, redirect, and reset devices
   grid.cleanup()
-   -- clear, redirect, and reset arcs
-  for _, dev in pairs(arc.devices) do
-    dev:all(0)
-    dev:refresh()
-  end
   arc.cleanup()
-  --g = nil
-  -- reset gridkey callback
-  --gridkey = norns.none
-  -- reset midi callbacks
-  midi.add = norns.none
-  midi.remove = norns.none
-  for _,dev in pairs(midi.devices) do
-    dev.event = norns.none
-  end
   midi.cleanup()
+  hid.cleanup()
+
   -- stop all timers
   metro.free_all()
+
   -- stop all polls and clear callbacks
   poll.clear_all()
+
   -- clear engine
   engine.name = nil
   free_engine()
+
   -- clear init
   init = norns.none
+
   -- clear last run
   norns.state.script = ''
   norns.state.name = 'none'
   norns.state.shortname = 'none'
   norns.state.path = dust_dir
+
   -- clear params
   params:clear()
+
   -- reset PLAY mode screen settings
   local status = norns.menu.status()
   if status == true then s_restore() end
+
   screen.aa(0)
   screen.level(15)
   screen.line_width(1)
   screen.font_face(0)
   screen.font_size(8)
+
   if status == true then s_save() end
+
   -- ensure finalizers run before next script
   collectgarbage()
 end
@@ -71,9 +67,6 @@ Script.init = function()
   params.name = norns.state.shortname
   init()
   s_save()
-  grid.reconnect()
-  midi.reconnect()
-  arc.reconnect()
 end
 
 --- load a script from the /scripts folder
@@ -155,7 +148,7 @@ Script.metadata = function(filename)
         table.insert(meta, string.sub(line,4,-1))
       else return meta end
     end
-    if #meta == 0 then 
+    if #meta == 0 then
       table.insert(meta, "no script information")
     end
   end

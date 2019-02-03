@@ -2,20 +2,36 @@
 -- @module midi
 -- @alias Midi
 
+local vport = require 'vport'
+
 local Midi = {}
+Midi.__index = Midi
+
 Midi.devices = {}
-Midi.list = {}
-Midi.vport = {}
+Midi.vports = {}
+
 for i=1,4 do
-  Midi.vport[i] = {
+  Midi.vports[i] = {
     name = "none",
-    callbacks = {},
-    index = 0,
-    send = function() end,
-    attached = false
+    device = nil,
+    event = nil,
+
+    send = function(self, ...) if self.device then self.device:send(...) end end,
+
+    note_on = vport.wrap_method('note_on'),
+    note_off = vport.wrap_method('note_off'),
+    cc = vport.wrap_method('cc'),
+    pitchbend = vport.wrap_method('pitchbend'),
+    key_pressure = vport.wrap_method('key_pressure'),
+    channel_pressure = vport.wrap_method('channel_pressure'),
+    start = vport.wrap_method('start'),
+    stop = vport.wrap_method('stop'),
+    continue = vport.wrap_method('continue'),
+    clock = vport.wrap_method('clock'),
+    song_position = vport.wrap_method('song_position'),
+    song_select = vport.wrap_method('song_select'),
   }
 end
-Midi.__index = Midi
 
 --- constructor
 -- @tparam integer id : arbitrary numeric identifier
@@ -23,24 +39,23 @@ Midi.__index = Midi
 -- @tparam userdata dev : opaque pointer to device
 function Midi.new(id, name, dev)
   local d = setmetatable({}, Midi)
+
   d.id = id
-  -- append duplicate device names
-  --while tab.contains(Midi.list,name) do
-    --name = name .. "+"
-  --end
-  d.name = name
+  d.name = vport.get_unique_device_name(name, Midi.devices)
   d.dev = dev -- opaque pointer
   d.event = nil -- event callback
   d.remove = nil -- device unplug callback
-  d.ports = {} -- list of virtual ports this device is attached to
+  d.port = nil
 
   -- autofill next postiion
   local connected = {}
-  for i=1,4 do table.insert(connected, Midi.vport[i].name) end
+  for i=1,4 do
+    table.insert(connected, Midi.vports[i].name)
+  end
   if not tab.contains(connected, name) then
     for i=1,4 do
-      if Midi.vport[i].name == "none" then
-        Midi.vport[i].name = name
+      if Midi.vports[i].name == "none" then
+        Midi.vports[i].name = d.name
         break
       end
     end
@@ -59,112 +74,79 @@ function Midi.add(dev) end
 -- @param dev : a Midi table
 function Midi.remove(dev) end
 
---- call add() for currently available devices
--- when scripts are restarted
-function Midi.reconnect()
-  for id,dev in pairs(Midi.devices) do
-    if Midi.add ~= nil then Midi.add(dev) end
-  end
-end
-
 --- send midi event to device
 -- @param array
 function Midi:send(data)
   if data.type then
-    --print("msg")
     local d = Midi.to_data(data)
-    if d then midi_send(self.dev, d) end
+    midi_send(self.dev, d)
   else
-    --print("data")
     midi_send(self.dev, data)
   end
 end
 
+function Midi:note_on(note, vel, ch)
+  self:send{type="note_on", note=note, vel=vel, ch=ch or 1}
+end
+
+function Midi:note_off(note, vel, ch)
+  self:send{type="note_off", note=note, vel=vel or 100, ch=ch or 1}
+end
+
+function Midi:cc(cc, val, ch)
+  self:send{type="cc", cc=cc, val=val, ch=ch or 1}
+end
+
+function Midi:pitchbend(val, ch)
+  self:send{type="pitchbend", val=val, ch=ch or 1}
+end
+
+function Midi:key_pressure(note, val, ch)
+  self:send{type="key_pressure", note=note, val=val, ch=ch or 1}
+end
+
+function Midi:channel_pressure(val, ch)
+  self:send{type="channel_pressure", val=val, ch=ch or 1}
+end
+
+function Midi:start()
+  self:send{type="start"}
+end
+
+function Midi:stop()
+  self:send{type="stop"}
+end
+
+function Midi:continue()
+  self:send{type="continue"}
+end
+
+function Midi:clock()
+  self:send{type="clock"}
+end
+
+function Midi:song_position(lsb, msb)
+  self:send{type="song_position", lsb=lsb, msb=msb}
+end
+
+function Midi:song_select(val)
+  self:send{type="song_select", val=val}
+end
 
 --- create device, returns object with handler and send
 function Midi.connect(n)
   local n = n or 1
-  if n>4 then n=4 end
-
-  Midi.vport[n].index = Midi.vport[n].index + 1
-
-  local d = {
-    index = Midi.vport[n].index,
-    port = n,
-    event = function(data)
-        print("midi input")
-      end,
-    attached = function() return Midi.vport[n].attached end,
-    send = function(data) Midi.vport[n].send(data) end,
-    disconnect = function(self)
-        self.send = function() print("not connected") end
-        Midi.vport[self.port].callbacks[self.index] = nil
-        self.index = nil
-        self.port = nil
-      end,
-    reconnect = function(self, p)
-        p = p or 1
-        if self.index then
-          Midi.vport[self.port].callbacks[self.index] = nil
-        end
-        self.send = function(data) Midi.vport[p].send(data) end
-        self.attached = function() return Midi.vport[p].attached end
-        Midi.vport[p].index = Midi.vport[p].index + 1
-        self.index = Midi.vport[p].index
-        self.port = p
-        Midi.vport[p].callbacks[self.index] = function(data) self.event(data) end
-      end
-  }
-
-  Midi.vport[n].callbacks[d.index] = function(data) d.event(data) end
-
-  -- midi send helper functions
-  d.note_on = function(note, vel, ch)
-      d.send{type="note_on", note=note, vel=vel, ch=ch or 1}
-    end
-  d.note_off = function(note, vel, ch)
-      d.send{type="note_off", note=note, vel=vel or 100, ch=ch or 1}
-    end
-  d.cc = function(cc, val, ch)
-      d.send{type="cc", cc=cc, val=val, ch=ch or 1}
-    end
-  d.pitchbend = function(val, ch)
-      d.send{type="pitchbend", val=val, ch=ch or 1}
-    end
-  d.key_pressure = function(note, val, ch)
-      d.send{type="key_pressure", note=note, val=val, ch=ch or 1}
-    end
-  d.channel_pressure = function(val, ch)
-      d.send{type="channel_pressure", val=val, ch=ch or 1}
-    end
-  d.start = function()
-      d.send{type="start"}
-    end
-  d.stop = function()
-      d.send{type="stop"}
-    end
-  d.continue = function()
-     d.send{type="continue"}
-      --d.send{0xfb}
-    end
-  d.clock = function()
-      d.send{type="clock"}
-    end
-  d.song_position = function(lsb, msb)
-      d.send{type="song_position", lsb=lsb, msb=msb}
-    end
-  d.song_select = function(val)
-      d.send{type="song_select", val=val}
-    end
-
-  return d
+  return Midi.vports[n]
 end
 
 --- clear handlers
 function Midi.cleanup()
   for i=1,4 do
-    Midi.vport[i].callbacks = {}
-    Midi.vport[i].index = 0
+    Midi.vports[i].event = nil
+  end
+
+  for _, dev in pairs(Midi.devices) do
+    dev.event = nil
   end
 end
 
@@ -215,7 +197,9 @@ local to_data = {
 function Midi.to_data(msg)
   if msg.type then
     return to_data[msg.type](msg)
-  else return nil end
+  else
+    error('failed to serialize midi message')
+  end
 end
 
 --- convert data (midi bytes) to msg
@@ -228,7 +212,7 @@ function Midi.to_msg(data)
       vel = data[3],
       ch = data[1] - 0x90 + 1
     }
-    if data[3] > 0 then 
+    if data[3] > 0 then
       msg.type = "note_on"
     elseif data[3] == 0 then -- if velocity is zero then send note off
       msg.type = "note_off"
@@ -289,13 +273,13 @@ function Midi.to_msg(data)
         type = "song_position",
         lsb = data[2],
         msb = data[3]
-    }    
+    }
   -- song select
   elseif data[1] == 0xf3 then
     msg = {
         type = "song_select",
         val = data[2]
-    }    
+    }
   -- active sensing (should probably ignore)
   elseif data[1] == 0xfe then
       -- do nothing
@@ -310,31 +294,26 @@ end
 
 
 function Midi.update_devices()
-  -- build list of available devices
-  Midi.list = {}
+  -- reset vports for existing devices
   for _,device in pairs(Midi.devices) do
-    table.insert(Midi.list, device.name)
-    device.ports = {}
+    device.port = nil
   end
+
   -- connect available devices to vports
   for i=1,4 do
-    Midi.vport[i].attached = false
-    Midi.vport[i].send = function(data) end
-    for _,device in pairs(Midi.devices) do
-      if device.name == Midi.vport[i].name then
-        Midi.vport[i].send = function(data) device:send(data) end
-        Midi.vport[i].attached = true
-        table.insert(device.ports, i)
+    Midi.vports[i].device = nil
+
+    for _, device in pairs(Midi.devices) do
+      if device.name == Midi.vports[i].name then
+        Midi.vports[i].device = device
+        device.port = i
       end
     end
   end
 end
 
---- norns functions
-
 --- add a device
 norns.midi.add = function(id, name, dev)
-  print("midi added:", name)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
   Midi.update_devices()
@@ -344,7 +323,6 @@ end
 --- remove a device
 norns.midi.remove = function(id)
   if Midi.devices[id] then
-  print("midi removed:", Midi.devices[id].name)
     if Midi.devices[id].remove then
       Midi.devices[id].remove()
     end
@@ -355,21 +333,20 @@ end
 
 --- handle a midi event
 norns.midi.event = function(id, data)
-  -- iterate through port table
-
   local d = Midi.devices[id]
+
   if d ~= nil then
     if d.event ~= nil then
       d.event(data)
     end
 
-    for _,n in pairs(d.ports) do
-      for _,event in pairs(Midi.vport[n].callbacks) do
-        --print("vport " .. n)
-        event(data)
-      end
+    if d.port and Midi.vports[d.port].event then
+      Midi.vports[d.port].event(data)
     end
+  else
+    error('no entry for midi '..id)
   end
+
   -- hack = send all midi to menu for param-cc-map
   norns.menu_midi_event(data)
 end

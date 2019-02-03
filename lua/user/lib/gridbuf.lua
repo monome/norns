@@ -78,7 +78,7 @@ function Buffer:render(grid)
   -- TODO: use map when it's available
   for row = 1, self.height do
     for col = 1, self.width do
-      grid.led(col, row, self.grid[row][col])
+      grid:led(col, row, self.grid[row][col])
     end
   end
 end

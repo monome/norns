@@ -26,6 +26,6 @@ struct dev_hid {
     dev_code_t **codes;
 };
 
-extern int dev_hid_init(void *self, bool print);
+extern int dev_hid_init(void *self);
 extern void *dev_hid_start(void *self);
 extern void dev_hid_deinit(void *self);
