@@ -5,7 +5,7 @@ local util = require "util"
 -- constants
 --
 
-local HOTSPOT = "HOTSPOT"
+local HOTSPOT = "Hotspot"
 
 --
 -- common functions

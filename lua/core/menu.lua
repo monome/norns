@@ -1012,9 +1012,11 @@ m.redraw[pWIFI] = function()
     screen.text("NETWORK: " .. wifi.connection_name)
     screen.move(0,30)
     screen.text("IP: " .. wifi.ip)
-    if wifi.connection and wifi.connection:is_wireless() then
-      screen.move(0,40)
-      screen.text("SIGNAL: " .. wifi.signal .. "dBm")
+    if wifi.ip and wifi.connection then
+      if wifi.connection:is_wireless() then
+        screen.move(0,40)
+        screen.text("SIGNAL: " .. wifi.signal .. "dBm")
+      end
     end
 
     local xp = {0,20,58,94,114}
