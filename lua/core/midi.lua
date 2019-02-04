@@ -74,10 +74,6 @@ function Midi.add(dev) end
 -- @param dev : a Midi table
 function Midi.remove(dev) end
 
---- call add() for currently available devices
--- when scripts are restarted
-function Midi.reconnect() end
-
 --- send midi event to device
 -- @param array
 function Midi:send(data)
@@ -147,6 +143,10 @@ end
 function Midi.cleanup()
   for i=1,4 do
     Midi.vports[i].event = nil
+  end
+
+  for _, dev in pairs(Midi.devices) do
+    dev.event = nil
   end
 end
 

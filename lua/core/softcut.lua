@@ -91,6 +91,8 @@ SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
   _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
 end
 
+SC.event_phase = function(f) norns.softcut_phase = f end
+
 
 ------------------------------
 -- @section utilities

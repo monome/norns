@@ -69,9 +69,6 @@ function Arc.add(dev)
   print("arc added:", dev.id, dev.name, dev.serial)
 end
 
---- scan device list and grab one, redefined later
-function Arc.reconnect() end
-
 --- static callback when any arc device is removed;
 -- user scripts can redefine
 -- @param dev : a Arc table
@@ -148,6 +145,13 @@ function Arc.cleanup()
   for i=1,4 do
     Arc.vports[i].delta = nil
     Arc.vports[i].key = nil
+  end
+
+  for _, dev in pairs(Arc.devices) do
+    dev:all(0)
+    dev:refresh()
+    dev.delta = nil
+    dev.key = nil
   end
 end
 

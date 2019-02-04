@@ -6,7 +6,7 @@
 -- @author Mark Eats
 
 local ControlSpec = require "controlspec"
-local Formatters = require "jah/formatters"
+local Formatters = require "formatters"
 
 local Passersby = {}
 
