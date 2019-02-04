@@ -78,6 +78,8 @@ SC.buffer_read = function(filesleep, start_src, start_dst, dur, ch)
   _norns.cut_buffer_read(file, start_src, start_dst, dur, ch)
 end
 
+SC.event_phase = function(f) norns.softcut_phase = f end
+
 
 ------------------------------
 -- @section utilities

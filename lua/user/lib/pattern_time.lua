@@ -12,7 +12,7 @@ function pattern.new()
   i.count = 0
   i.step = 0
 
-  i.metro = metro.alloc(function() i:next_event() end,1,1)
+  i.metro = metro.init(function() i:next_event() end,1,1)
 
   i.process = function(e) print("event") end
 
