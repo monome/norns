@@ -1138,15 +1138,18 @@ end
 -----------------------------------------
 -- RESET
 m.reset = {}
+m.reset.confirmed = false
 
 m.key[pRESET] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
 elseif n==3 and z==1 then
+    m.reset.confirmed = true
+    menu.redraw()
     if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     norns.state.clean_shutdown = true
     norns.state.save()
-    cleanup()
+    pcall(cleanup)
 
     os.execute("sudo systemctl restart norns-jack.service")
     os.execute("sudo systemctl restart norns-crone.service")
@@ -1160,9 +1163,9 @@ m.enc[pRESET] = function(n,delta) end
 
 m.redraw[pRESET] = function()
   screen.clear()
-  screen.level(10)
+  screen.level(m.reset.confirmed==false and 10 or 2)
   screen.move(64,40)
-  screen.text_center("reset?")
+  screen.text_center(m.reset.confirmed==false and "reset?" or "reset")
   screen.update()
 end
 
