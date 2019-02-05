@@ -43,7 +43,7 @@ void SoftCutVoice:: processBlockMono(const float *in, float *out, int numFrames)
             };
         } else {
             // FIXME? do nothing, i guess?
-            sampleFunc = [this](float in, float* out) {
+            sampleFunc = [](float in, float* out) {
                 (void)in;
                 (void)out;
             };
