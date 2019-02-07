@@ -21,10 +21,10 @@ int args_parse(int argc, char **argv)
     while( ( opt = getopt(argc, argv, "r:l:m:") ) != -1 ) {
         switch(opt) {
         case 'l':
-            strncpy(a.loc_port, optarg, ARG_BUF_SIZE);
+            strncpy(a.loc_port, optarg, ARG_BUF_SIZE-1);
             break;
         case 'r':
-            strncpy(a.rem_port, optarg, ARG_BUF_SIZE);
+            strncpy(a.rem_port, optarg, ARG_BUF_SIZE-1);
             break;
         default:
             ;;
