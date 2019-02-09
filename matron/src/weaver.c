@@ -35,6 +35,7 @@
 #include "osc.h"
 #include "oracle.h"
 #include "weaver.h"
+#include "clock.h"
 
 //------
 //---- global lua state!
@@ -196,6 +197,7 @@ static int _sound_file_inspect(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
+static int _clock_run(lua_State *L);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -381,6 +383,7 @@ void w_init(void) {
 
   // reset LVM
   lua_register(lvm, "_reset_lvm", &_reset_lvm);
+  lua_register(lvm, "_clock_run", &_clock_run);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1413,6 +1416,20 @@ _call_grid_handler(int id, int x, int y, int state) {
   lua_pushinteger(lvm, y + 1);  // convert to 1-base
   lua_pushinteger(lvm, state);
   l_report(lvm, l_docall(lvm, 4, 0));
+}
+
+int _clock_run(lua_State *L) {
+  if (lua_gettop(L) != 1) {
+    return luaL_error(L, "wrong number of arguments");
+  }
+
+  luaL_checktype(L, 1, LUA_TTHREAD);
+
+  lua_State *thread_state = lua_tothread(L, 1);
+
+  clock_start(thread_state);
+
+  return 0;
 }
 
 void w_handle_monome_add(void *mdev) {
