@@ -81,12 +81,9 @@ SC.buffer_clear_region_channel = function(ch, start, stop)
   _norns.cut_buffer_clear_region_channel(ch, start, stop)
 end
 
-
-
 SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst)
   _norns.cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst)
 end
-
 SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
   _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
 end
