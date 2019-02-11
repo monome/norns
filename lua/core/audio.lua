@@ -216,5 +216,11 @@ function Audio.adjust_output_level(delta)
   end
 end
 
+function Audio.file_info(path)
+  -- dur, ch, rate
+  print("file_info: " .. audio_dir .. path)
+  return sound_file_inspect(audio_dir .. path)
+end
+
 
 return Audio

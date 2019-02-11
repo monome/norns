@@ -574,7 +574,7 @@ void o_set_cut_param(const char* name, int voice, float value) {
 void o_set_cut_param_ii(const char* name, int voice, int value) {
     static char buf[128];
     sprintf(buf, "/set/param/cut/%s", name);
-    lo_send(crone_addr, buf, "if", voice, value);
+    lo_send(crone_addr, buf, "ii", voice, value);
 }
 
 void o_set_cut_param_iif(const char* name, int a, int b, float v) {
@@ -605,12 +605,12 @@ void o_cut_buffer_clear_region_channel(int ch, float start, float end) {
 
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
     float dur, int ch_src, int ch_dst) {
-	lo_send(crone_addr, "/softcut/buffer/read", "sfffii", file, start_src,
+	lo_send(crone_addr, "/softcut/buffer/read_mono", "sfffii", file, start_src,
       start_dst, dur, ch_src, ch_dst);
 } 
 
 void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur) {
-	lo_send(crone_addr, "/softcut/buffer/read", "sfffii", file, start_src, start_dst, dur);
+	lo_send(crone_addr, "/softcut/buffer/read_stereo", "sfffii", file, start_src, start_dst, dur);
 } 
 
 
