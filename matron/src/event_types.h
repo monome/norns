@@ -11,6 +11,8 @@ typedef enum {
     EVENT_EXEC_CODE_LINE,
     // metro has fired
     EVENT_METRO,
+    // clock resume requested
+    EVENT_CLOCK_RESUME,
     // gpio event
     EVENT_KEY,
     // gpio event
@@ -171,6 +173,11 @@ struct event_metro {
     uint32_t stage;
 }; // +8
 
+struct event_clock_resume {
+    struct event_common common;
+    uint32_t thread_id;
+};
+
 struct event_key {
     struct event_common common;
     uint8_t n;
@@ -262,6 +269,7 @@ union event_data {
     struct event_power power;
     struct event_stat stat;
     struct event_metro metro;
+    struct event_clock_resume clock_resume;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;
     struct event_poll_io_levels poll_io_levels;

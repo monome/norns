@@ -197,7 +197,7 @@ static int _sound_file_inspect(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
-static int _clock_run(lua_State *L);
+static int _clock_schedule(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -383,7 +383,7 @@ void w_init(void) {
 
   // reset LVM
   lua_register(lvm, "_reset_lvm", &_reset_lvm);
-  lua_register(lvm, "_clock_run", &_clock_run);
+  lua_register(lvm, "_clock_schedule", &_clock_schedule);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1418,16 +1418,19 @@ _call_grid_handler(int id, int x, int y, int state) {
   l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-int _clock_run(lua_State *L) {
-  if (lua_gettop(L) != 1) {
-    return luaL_error(L, "wrong number of arguments");
+int _clock_schedule(lua_State *l) {
+  if (lua_gettop(l) < 2) {
+    return luaL_error(l, "wrong number of arguments");
   }
 
-  luaL_checktype(L, 1, LUA_TTHREAD);
+  int thread_id = (int) luaL_checkinteger(l, 1);
+  float time = (float) luaL_checknumber(l, 2);
 
-  lua_State *thread_state = lua_tothread(L, 1);
-
-  clock_start(thread_state);
+  if (time == 0) {
+    w_handle_clock_resume(thread_id);
+  } else {
+    clock_schedule(thread_id, time);
+  }
 
   return 0;
 }
@@ -1733,6 +1736,15 @@ void w_handle_metro(const int idx, const int stage) {
   lua_pushinteger(lvm, idx + 1);   // convert to 1-based
   lua_pushinteger(lvm, stage + 1); // convert to 1-based
   l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+// metro handler
+void w_handle_clock_resume(const int thread_id) {
+  lua_getglobal(lvm, "clock");
+  lua_getfield(lvm, -1, "resume");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, thread_id);
+  l_report(lvm, l_docall(lvm, 1, 0));
 }
 
 // gpio handler

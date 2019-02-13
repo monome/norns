@@ -11,55 +11,62 @@
 #include <lauxlib.h>
 
 #define NUM_THREADS 10
-
-static void *clock_loop(void *p);
-
 static pthread_t clock_threads[NUM_THREADS];
-static int thread_count = 0;
+static bool clock_threads_running[NUM_THREADS];
 
 struct thread_arg {
-    lua_State *thread_state;
-    int thread_ref;
+    int thread_index;
+    int thread_id;
+    float seconds;
 };
 
-static void *clock_loop(void *p) {
-    struct lua_State *thread_state = p;
+void clock_init() {
+    for (int i = 0; i < NUM_THREADS; i++) {
+        clock_threads_running[i] = false;
+    }
+}
+
+static void *clock_schedule_sleeper(void *p) {
+    struct thread_arg *arg = p;
+    int thread_id = arg->thread_id;
+    float seconds = arg->seconds;
+
     struct timespec req;
 
-    while (true) {
-        int resume_result = lua_resume(thread_state, NULL, 0);
+    uint64_t nsec = (uint64_t) (seconds * 1000000000.0);
 
-        if (resume_result == LUA_YIELD) {
-            float seconds = luaL_checknumber(thread_state, 1);
+    req.tv_sec = nsec / 1000000000;
+    req.tv_nsec = nsec % 1000000000;
 
-            uint64_t nsec = (uint64_t) (seconds * 1000000000.0);
+    nanosleep(&req, NULL);
 
-            req.tv_sec = nsec / 1000000000;
-            req.tv_nsec = nsec % 1000000000;
+    union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
+    ev->clock_resume.thread_id = thread_id;
+    event_post(ev);
 
-            nanosleep(&req, NULL);
-        } else {
-            break;
-        }
-
-        // union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
-        // ev->clock.id = 0;
-        // ev->clock.stage = 0;
-        // event_post(ev);
-    }
+    clock_threads_running[arg->thread_index] = false;
+    free(p);
 
     return NULL;
 }
 
-void clock_start(lua_State *thread_state) {
+void clock_schedule(int thread_id, float seconds) {
+    (void)thread_id;
+    (void)seconds;
+
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
-    if (thread_count == NUM_THREADS) {
-        fprintf(stderr, "sorry, no more threads currently possible\n");
-        return;
-    }
+    for (int i = 0; i < NUM_THREADS; i++) {
+        if (!clock_threads_running[i]) {
+            struct thread_arg *arg = malloc(sizeof(struct thread_arg));
+            arg->thread_index = i;
+            arg->thread_id = thread_id;
+            arg->seconds = seconds;
 
-    pthread_create(&clock_threads[0], &attr, &clock_loop, thread_state);
-    thread_count++;
+            clock_threads_running[i] = true;
+            pthread_create(&clock_threads[i], &attr, &clock_schedule_sleeper, arg);
+            break;
+        }
+    }
 }
