@@ -327,7 +327,6 @@ m.sel = {}
 m.sel.pos = 0
 m.sel.list = {}
 m.sel.len = 0
-m.sel.path = ""
 m.sel.file = ""
 
 local function build_select_tree(root,dir)
@@ -374,9 +373,7 @@ m.key[pSELECT] = function(n,z)
     menu.set_page(pHOME)
   -- select
   elseif n==3 and z==1 then
-    m.sel.name = m.sel.list[m.sel.pos+1].name
     m.sel.file = m.sel.list[m.sel.pos+1].file
-    m.sel.path = m.sel.list[m.sel.pos+1].path
     menu.set_page(pPREVIEW)
   end
 end
