@@ -66,6 +66,21 @@ tab.lines = function(str)
 end
 
 
+--- split string into table with delimiter
+-- @param str string to split
+-- @param sep delimiter
+tab.split = function(inputstr, sep)
+	if sep == nil then
+		sep = "%s"
+	end
+	local t={}
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+		table.insert(t, str)
+	end
+	return t
+end
+
+
 --- Save a table to disk.
 -- Saves tables, numbers, booleans and strings.
 -- Inside table references are saved.

@@ -419,9 +419,6 @@ m.pre.meta = {}
 m.init[pPREVIEW] = function()
   m.pre.meta = norns.script.metadata(m.sel.file)
   m.pre.len = tab.count(m.pre.meta)
-  if m.pre.len == 0 then
-    table.insert(m.pre.meta, string.gsub(m.sel.file,'.lua','') .. " (no metadata)")
-  end
   m.pre.state = 0
   m.pre.pos = 0
   m.pre.posmax = m.pre.len - 8
@@ -432,7 +429,7 @@ m.deinit[pPREVIEW] = norns.none
 
 m.key[pPREVIEW] = function(n,z)
   if n==3 and m.pre.state == 1 then
-    norns.script.load(m.sel.file,m.sel.name,m.sel.path)
+    norns.script.load(m.sel.file)
   elseif n ==3 and z == 1 then
     m.pre.state = 1
   elseif n == 2 and z == 1 then

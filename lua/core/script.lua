@@ -71,14 +71,25 @@ end
 
 --- load a script from the /scripts folder
 -- @param filename (string) - file to load. leave blank to reload current file.
-Script.load = function(filename,name,path)
+Script.load = function(filename)
   if filename == nil then
     filename = norns.state.script
     name = norns.state.name
     shortname = norns.state.name:match("([^/]+)$")
     path = norns.state.path
     data = norns.state.data
-  end
+  else
+		local t = tab.split(string.sub(filename,string.len(dust_dir),-5),"/")
+		if t[#t] == t[#t-1] then
+			name = t[#t]
+		else
+			name = t[#t-1].."/"..t[#t]
+		end
+		path = string.sub(dust_dir,0,-2)
+		for i = 1,#t-1 do path = path .. "/" .. t[i] end
+		--print("name "..name)
+		--print("path "..path)
+	end
 
   print("# script load: " .. filename)
 
