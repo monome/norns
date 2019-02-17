@@ -94,6 +94,7 @@ static int _screen_text(lua_State *l);
 static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
 static int _screen_extents(lua_State *l);
+static int _screen_export_png(lua_State *l);
 //i2c
 static int _gain_hp(lua_State *l);
 //osc
@@ -312,6 +313,7 @@ void w_init(void) {
   lua_register(lvm, "s_clear", &_screen_clear);
   lua_register(lvm, "s_close", &_screen_close);
   lua_register(lvm, "s_extents", &_screen_extents);
+  lua_register(lvm, "s_export_png", &_screen_export_png);
 
   // analog output control
   lua_register(lvm, "gain_hp", &_gain_hp);
@@ -828,6 +830,23 @@ int _screen_extents(lua_State *l) {
   lua_pushinteger(l, xy[1]);
   return 2;
 }
+
+/***
+ * screen: export_png
+ * @function s_export_png
+ * @tparam string filename
+ */
+int _screen_export_png(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  const char *s = luaL_checkstring(l, 1);
+  screen_export_png(s);
+  lua_settop(l, 0);
+  return 0;
+}
+
 
 /***
  * headphone: set level

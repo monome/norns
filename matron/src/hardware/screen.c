@@ -364,5 +364,10 @@ double *screen_extents(const char *s) {
     text_xy[1] = extents.height;
     return text_xy;
 }
+
+extern void screen_png_export(const char *s) {
+    CHECK_CR
+    cairo_surface_write_to_png(surface, s);
+}
 #undef CHECK_CR
 #undef CHECK_CRR
