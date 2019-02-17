@@ -276,7 +276,9 @@ end
 --- bang all params
 function ParamSet:bang()
   for k,v in pairs(self.params) do
-    v:bang()
+    if v.t ~= self.tTRIGGER then
+      v:bang()
+    end
   end
 end
 

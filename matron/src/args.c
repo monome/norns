@@ -26,10 +26,7 @@ int args_parse(int argc, char **argv)
             strncpy(a.loc_port, optarg, ARG_BUF_SIZE-1);
             break;
         case 'r':
-            strncpy(a.ext_port, optarg, ARG_BUF_SIZE-1);
-            break;
-	case 'c':
-            strncpy(a.crone_port, optarg, ARG_BUF_SIZE-1);
+            strncpy(a.rem_port, optarg, ARG_BUF_SIZE-1);
             break;
         default:
             ;;
