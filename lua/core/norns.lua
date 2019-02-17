@@ -30,6 +30,9 @@ local tab = require 'tabutil'
 -- we "declare" these here with placeholders;
 -- individual modules will redefine them as needed.
 
+norns.battery_percent = 0
+norns.battery_current = 0
+
 --- battery percent handler
 -- @param percent battery full percentage
 norns.battery = function(percent, current)
