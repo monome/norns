@@ -1192,7 +1192,7 @@ RDbMixerModule : RModule {
 				param_Out
 			|
 
-			var sig_In1 = In.ar(in_In1);
+			var sig_In1 = In.ar(in_In1); // TODO: Add lag here instead
 			var sig_In2 = In.ar(in_In2);
 			var sig_In3 = In.ar(in_In3);
 			var sig_In4 = In.ar(in_In4);
@@ -1210,7 +1210,7 @@ RDbMixerModule : RModule {
 	}
 }
 
-// Status: partly tested, exp mode needs more testing, to be renamed to something better? Amp2?
+// Status: partly tested, exp mode needs more testing
 // Inspiration from A-130/A-131
 RDAmplifierModule : RModule {
 	*shortName { ^'Amp2' }
@@ -1498,6 +1498,216 @@ RSVFLowpassFilterModule : RModule {
 }
 
 // Status: tested
+RSVFHighpassFilterModule : RModule {
+	*shortName { ^'HPFilter' }
+
+	*params {
+		^[
+			'AudioLevel' -> (
+				Spec: \amp.asSpec,
+				LagTime: 0.1
+			),
+			'Frequency' -> (
+				Spec: \widefreq.asSpec,
+				LagTime: 0.1
+			),
+			'Resonance' -> (
+				Spec: \unipolar.asSpec,
+				LagTime: 0.1
+			),
+			'FM' -> (
+				Spec: \bipolar.asSpec,
+				LagTime: 0.1
+			),
+			'ResonanceModulation' -> (
+				Spec: \bipolar.asSpec,
+				LagTime: 0.1
+			),
+		]
+	}
+
+	*ugenGraphFunc {
+		^{
+			|
+				in_In,
+				in_FM,
+				in_ResonanceModulation,
+				out_Out,
+				param_AudioLevel,
+				param_Frequency,
+				param_Resonance,
+				param_FM,
+				param_ResonanceModulation
+			|
+
+			var sig_In = In.ar(in_In);
+			var sig_FM = In.ar(in_FM);
+			var sig_ResonanceModulation = In.ar(in_ResonanceModulation);
+
+			var frequencySpec = \widefreq.asSpec;
+			var resonanceSpec = \unipolar.asSpec;
+
+			var frequency = frequencySpec.map(frequencySpec.unmap(param_Frequency) + (sig_FM * param_FM));
+			var resonance = resonanceSpec.map(resonanceSpec.unmap(param_Resonance) + (sig_ResonanceModulation * param_ResonanceModulation));
+
+			Out.ar(
+				out_Out,
+				SVF.ar(
+					sig_In * param_AudioLevel,
+					frequency,
+					resonance,
+					lowpass: 0,
+					bandpass: 0,
+					highpass: 1,
+					notch: 0,
+					peak: 0
+				)
+			);
+		}
+	}
+}
+
+// Status: tested
+RSVFBandpassFilterModule : RModule {
+	*shortName { ^'BPFilter' }
+
+	*params {
+		^[
+			'AudioLevel' -> (
+				Spec: \amp.asSpec,
+				LagTime: 0.1
+			),
+			'Frequency' -> (
+				Spec: \widefreq.asSpec,
+				LagTime: 0.1
+			),
+			'Resonance' -> (
+				Spec: \unipolar.asSpec,
+				LagTime: 0.1
+			),
+			'FM' -> (
+				Spec: \bipolar.asSpec,
+				LagTime: 0.1
+			),
+			'ResonanceModulation' -> (
+				Spec: \bipolar.asSpec,
+				LagTime: 0.1
+			),
+		]
+	}
+
+	*ugenGraphFunc {
+		^{
+			|
+				in_In,
+				in_FM,
+				in_ResonanceModulation,
+				out_Out,
+				param_AudioLevel,
+				param_Frequency,
+				param_Resonance,
+				param_FM,
+				param_ResonanceModulation
+			|
+
+			var sig_In = In.ar(in_In);
+			var sig_FM = In.ar(in_FM);
+			var sig_ResonanceModulation = In.ar(in_ResonanceModulation);
+
+			var frequencySpec = \widefreq.asSpec;
+			var resonanceSpec = \unipolar.asSpec;
+
+			var frequency = frequencySpec.map(frequencySpec.unmap(param_Frequency) + (sig_FM * param_FM));
+			var resonance = resonanceSpec.map(resonanceSpec.unmap(param_Resonance) + (sig_ResonanceModulation * param_ResonanceModulation));
+
+			Out.ar(
+				out_Out,
+				SVF.ar(
+					sig_In * param_AudioLevel,
+					frequency,
+					resonance,
+					lowpass: 0,
+					bandpass: 1,
+					highpass: 0,
+					notch: 0,
+					peak: 0
+				)
+			);
+		}
+	}
+}
+
+// Status: tested
+RSVFBandrejectFilterModule : RModule {
+	*shortName { ^'BRFilter' }
+
+	*params {
+		^[
+			'AudioLevel' -> (
+				Spec: \amp.asSpec,
+				LagTime: 0.1
+			),
+			'Frequency' -> (
+				Spec: \widefreq.asSpec,
+				LagTime: 0.1
+			),
+			'Resonance' -> (
+				Spec: \unipolar.asSpec,
+				LagTime: 0.1
+			),
+			'FM' -> (
+				Spec: \bipolar.asSpec,
+				LagTime: 0.1
+			),
+			'ResonanceModulation' -> (
+				Spec: \bipolar.asSpec,
+				LagTime: 0.1
+			),
+		]
+	}
+
+	*ugenGraphFunc {
+		^{
+			|
+				in_In,
+				in_FM,
+				in_ResonanceModulation,
+				out_Out,
+				param_AudioLevel,
+				param_Frequency,
+				param_Resonance,
+				param_FM,
+				param_ResonanceModulation
+			|
+
+			var sig_In = In.ar(in_In);
+			var sig_FM = In.ar(in_FM);
+			var sig_ResonanceModulation = In.ar(in_ResonanceModulation);
+
+			var frequencySpec = \widefreq.asSpec;
+			var resonanceSpec = \unipolar.asSpec;
+
+			var frequency = frequencySpec.map(frequencySpec.unmap(param_Frequency) + (sig_FM * param_FM));
+			var resonance = resonanceSpec.map(resonanceSpec.unmap(param_Resonance) + (sig_ResonanceModulation * param_ResonanceModulation));
+
+			Out.ar(
+				out_Out,
+				SVF.ar(
+					sig_In * param_AudioLevel,
+					frequency,
+					resonance,
+					lowpass: 0,
+					bandpass: 0,
+					highpass: 0,
+					notch: 1,
+					peak: 0
+				)
+			);
+		}
+	}
+}
+
+// Status: tested
 RLadderLowpassFilterModule : RModule {
 	*shortName { ^'LPLadder' }
 
@@ -1668,7 +1878,7 @@ RNoiseModule : RModule {
 	}
 }
 
-// Status: partly tested - but what modulation input range should be used?
+// Status: partly tested. TODO: what modulation input range should be used?
 RDelayModule : RModule {
 	*shortName { ^'Delay' }
 
@@ -1741,7 +1951,7 @@ RFreqGateModule : RModule {
 	}
 }
 
-// Status: partly tested - review modulation input mapping
+// Status: partly tested. TODO: review modulation input mapping
 RPitchShiftModule : RModule {
 	*shortName { ^'PShift' }
 
@@ -1816,7 +2026,7 @@ RPitchShiftModule : RModule {
 	}
 }
 
-// Status: partly tested - review modulation input mapping
+// Status: partly tested. TODO: review modulation input mapping
 RFreqShiftModule : RModule {
 	*shortName { ^'FShift' }
 
@@ -2105,7 +2315,7 @@ RCrossFaderModule : RModule {
 	}
 }
 
-// Status: not tested
+// Status: tested
 R4x4MatrixModule : RModule {
 	*shortName { ^'44Matrix' }
 
@@ -2134,14 +2344,14 @@ R4x4MatrixModule : RModule {
 	*ugenGraphFunc {
 		^{
 			|
-				in_1,
-				in_2,
-				in_3,
-				in_4,
-				out_1,
-				out_2,
-				out_3,
-				out_4,
+				in_In1,
+				in_In2,
+				in_In3,
+				in_In4,
+				out_Out1,
+				out_Out2,
+				out_Out3,
+				out_Out4,
 				param_FadeTime,
 				param_Gate_1_1,
 				param_Gate_1_2,
@@ -2161,44 +2371,44 @@ R4x4MatrixModule : RModule {
 				param_Gate_4_4
 			|
 
-			var sigs = [In.ar(in_1), In.ar(in_2), In.ar(in_3), In.ar(in_4)];
+			var sigs = [In.ar(in_In1), In.ar(in_In2), In.ar(in_In3), In.ar(in_In4)];
 
 			Out.ar(
-				out_1,
-				(sigs[0] * Lag.kr(param_Gate_1_1, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_1, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_1, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_1, param_FadeTime))
+				out_Out1,
+				(sigs[0] * Lag.kr(param_Gate_1_1, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_1, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_1, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_1, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_2,
-				(sigs[0] * Lag.kr(param_Gate_1_2, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_2, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_2, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_2, param_FadeTime))
+				out_Out2,
+				(sigs[0] * Lag.kr(param_Gate_1_2, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_2, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_2, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_2, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_3,
-				(sigs[0] * Lag.kr(param_Gate_1_3, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_3, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_3, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_3, param_FadeTime))
+				out_Out3,
+				(sigs[0] * Lag.kr(param_Gate_1_3, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_3, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_3, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_3, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_4,
-				(sigs[0] * Lag.kr(param_Gate_1_4, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_4, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_4, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_4, param_FadeTime))
+				out_Out4,
+				(sigs[0] * Lag.kr(param_Gate_1_4, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_4, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_4, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_4, param_FadeTime/1000))
 			);
 		}
 	}
 }
 
-// Status: not tested
+// Status: tested
 R8x8MatrixModule : RModule {
 	*shortName { ^'88Matrix' }
 
@@ -2275,22 +2485,22 @@ R8x8MatrixModule : RModule {
 	*ugenGraphFunc {
 		^{
 			|
-				in_1,
-				in_2,
-				in_3,
-				in_4,
-				in_5,
-				in_6,
-				in_7,
-				in_8,
-				out_1,
-				out_2,
-				out_3,
-				out_4,
-				out_5,
-				out_6,
-				out_7,
-				out_8,
+				in_In1,
+				in_In2,
+				in_In3,
+				in_In4,
+				in_In5,
+				in_In6,
+				in_In7,
+				in_In8,
+				out_Out1,
+				out_Out2,
+				out_Out3,
+				out_Out4,
+				out_Out5,
+				out_Out6,
+				out_Out7,
+				out_Out8,
 				param_FadeTime,
 				param_Gate_1_1,
 				param_Gate_1_2,
@@ -2358,102 +2568,102 @@ R8x8MatrixModule : RModule {
 				param_Gate_8_8
 			|
 
-			var sigs = [In.ar(in_1), In.ar(in_2), In.ar(in_3), In.ar(in_4), In.ar(in_5), In.ar(in_6), In.ar(in_7), In.ar(in_8)];
+			var sigs = [In.ar(in_In1), In.ar(in_In2), In.ar(in_In3), In.ar(in_In4), In.ar(in_In5), In.ar(in_In6), In.ar(in_In7), In.ar(in_In8)];
 
 			Out.ar(
-				out_1,
-				(sigs[0] * Lag.kr(param_Gate_1_1, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_1, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_1, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_1, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_1, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_1, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_1, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_1, param_FadeTime))
+				out_Out1,
+				(sigs[0] * Lag.kr(param_Gate_1_1, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_1, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_1, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_1, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_1, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_1, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_1, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_1, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_2,
-				(sigs[0] * Lag.kr(param_Gate_1_2, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_2, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_2, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_2, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_2, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_2, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_2, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_2, param_FadeTime))
+				out_Out2,
+				(sigs[0] * Lag.kr(param_Gate_1_2, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_2, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_2, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_2, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_2, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_2, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_2, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_2, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_3,
-				(sigs[0] * Lag.kr(param_Gate_1_3, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_3, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_3, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_3, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_3, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_3, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_3, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_3, param_FadeTime))
+				out_Out3,
+				(sigs[0] * Lag.kr(param_Gate_1_3, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_3, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_3, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_3, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_3, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_3, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_3, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_3, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_4,
-				(sigs[0] * Lag.kr(param_Gate_1_4, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_4, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_4, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_4, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_4, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_4, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_4, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_4, param_FadeTime))
+				out_Out4,
+				(sigs[0] * Lag.kr(param_Gate_1_4, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_4, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_4, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_4, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_4, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_4, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_4, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_4, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_5,
-				(sigs[0] * Lag.kr(param_Gate_1_5, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_5, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_5, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_5, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_5, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_5, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_5, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_5, param_FadeTime))
+				out_Out5,
+				(sigs[0] * Lag.kr(param_Gate_1_5, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_5, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_5, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_5, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_5, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_5, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_5, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_5, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_6,
-				(sigs[0] * Lag.kr(param_Gate_1_6, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_6, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_6, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_6, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_6, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_6, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_6, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_6, param_FadeTime))
+				out_Out6,
+				(sigs[0] * Lag.kr(param_Gate_1_6, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_6, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_6, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_6, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_6, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_6, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_6, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_6, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_7,
-				(sigs[0] * Lag.kr(param_Gate_1_7, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_7, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_7, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_7, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_7, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_7, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_7, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_7, param_FadeTime))
+				out_Out7,
+				(sigs[0] * Lag.kr(param_Gate_1_7, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_7, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_7, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_7, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_7, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_7, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_7, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_7, param_FadeTime/1000))
 			);
 
 			Out.ar(
-				out_8,
-				(sigs[0] * Lag.kr(param_Gate_1_8, param_FadeTime)) +
-				(sigs[1] * Lag.kr(param_Gate_2_8, param_FadeTime)) +
-				(sigs[2] * Lag.kr(param_Gate_3_8, param_FadeTime)) +
-				(sigs[3] * Lag.kr(param_Gate_4_8, param_FadeTime)) +
-				(sigs[4] * Lag.kr(param_Gate_5_8, param_FadeTime)) +
-				(sigs[5] * Lag.kr(param_Gate_6_8, param_FadeTime)) +
-				(sigs[6] * Lag.kr(param_Gate_7_8, param_FadeTime)) +
-				(sigs[7] * Lag.kr(param_Gate_8_8, param_FadeTime))
+				out_Out8,
+				(sigs[0] * Lag.kr(param_Gate_1_8, param_FadeTime/1000)) +
+				(sigs[1] * Lag.kr(param_Gate_2_8, param_FadeTime/1000)) +
+				(sigs[2] * Lag.kr(param_Gate_3_8, param_FadeTime/1000)) +
+				(sigs[3] * Lag.kr(param_Gate_4_8, param_FadeTime/1000)) +
+				(sigs[4] * Lag.kr(param_Gate_5_8, param_FadeTime/1000)) +
+				(sigs[5] * Lag.kr(param_Gate_6_8, param_FadeTime/1000)) +
+				(sigs[6] * Lag.kr(param_Gate_7_8, param_FadeTime/1000)) +
+				(sigs[7] * Lag.kr(param_Gate_8_8, param_FadeTime/1000))
 			);
 
 		}
@@ -2546,7 +2756,7 @@ RFMVoiceModule : RModule {
 			var osc1freq, osc2freq, osc3freq;
 			var osc1freqbasemod, osc2freqbasemod, osc3freqbasemod;
 			var oscfeedback = LocalIn.ar(3);
-			var modulation = In.ar(in_Modulation);
+			var sig_Modulation = In.ar(in_Modulation);
 
 			osc1freq = Select.kr(param_Osc1Fixed, [param_Freq*param_Osc1Partial, param_Osc1Fixedfreq]);
 			osc2freq = Select.kr(param_Osc2Fixed, [param_Freq*param_Osc2Partial, param_Osc2Fixedfreq]);
@@ -2561,24 +2771,24 @@ RFMVoiceModule : RModule {
 					+ (osc1freqbasemod * oscfeedback[0] * param_Osc1_To_Osc1Freq)
 					+ (osc1freqbasemod * oscfeedback[1] * param_Osc2_To_Osc1Freq)
 					+ (osc1freqbasemod * oscfeedback[2] * param_Osc3_To_Osc1Freq)
-					+ (osc1freqbasemod * modulation * param_Mod_To_Osc1Freq)
-			) * (param_Osc1Gain + (param_Mod_To_Osc1Gain * modulation));
+					+ (osc1freqbasemod * sig_Modulation * param_Mod_To_Osc1Freq)
+			) * (param_Osc1Gain + (param_Mod_To_Osc1Gain * sig_Modulation));
 
 			osc2 = SinOsc.ar(
 				osc2freq
 					+ (osc2freqbasemod * osc1 * param_Osc1_To_Osc2Freq)
 					+ (osc2freqbasemod * oscfeedback[1] * param_Osc2_To_Osc2Freq)
 					+ (osc2freqbasemod * oscfeedback[2] * param_Osc3_To_Osc2Freq)
-					+ (osc2freqbasemod * modulation * param_Mod_To_Osc2Freq)
-			) * (param_Osc2Gain + (param_Mod_To_Osc2Gain * modulation));
+					+ (osc2freqbasemod * sig_Modulation * param_Mod_To_Osc2Freq)
+			) * (param_Osc2Gain + (param_Mod_To_Osc2Gain * sig_Modulation));
 
 			osc3 = SinOsc.ar(
 				osc3freq
 					+ (osc3freqbasemod * osc1 * param_Osc1_To_Osc3Freq)
 					+ (osc3freqbasemod * osc2 * param_Osc2_To_Osc3Freq)
 					+ (osc3freqbasemod * oscfeedback[2] * param_Osc3_To_Osc3Freq)
-					+ (osc3freqbasemod * modulation * param_Mod_To_Osc3Freq)
-			) * (param_Osc3Gain + (param_Mod_To_Osc3Gain * modulation));
+					+ (osc3freqbasemod * sig_Modulation * param_Mod_To_Osc3Freq)
+			) * (param_Osc3Gain + (param_Mod_To_Osc3Gain * sig_Modulation));
 
 			sig = (osc1 * param_Osc1Outlevel) + (osc2 * param_Osc2Outlevel) + (osc3 * param_Osc3Outlevel);
 
