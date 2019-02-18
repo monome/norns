@@ -199,6 +199,11 @@ s_circle = function(x, y, r)
   s_arc(x, y, r, 0, math.pi*2)
 end
 
+--- display png
+-- @param filename
+-- @param x x position
+-- @param y y position
+Screen.display_png = function(filename,x,y) s_display_png(filename,x,y) end
 
 
 return Screen

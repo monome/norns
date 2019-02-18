@@ -95,6 +95,7 @@ static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
 static int _screen_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
+static int _screen_display_png(lua_State *l);
 //i2c
 static int _gain_hp(lua_State *l);
 //osc
@@ -314,6 +315,7 @@ void w_init(void) {
   lua_register(lvm, "s_close", &_screen_close);
   lua_register(lvm, "s_extents", &_screen_extents);
   lua_register(lvm, "s_export_png", &_screen_export_png);
+  lua_register(lvm, "s_display_png", &_screen_display_png);
 
   // analog output control
   lua_register(lvm, "gain_hp", &_gain_hp);
@@ -843,6 +845,24 @@ int _screen_export_png(lua_State *l) {
 
   const char *s = luaL_checkstring(l, 1);
   screen_export_png(s);
+  lua_settop(l, 0);
+  return 0;
+}
+
+/***
+ * screen: display_png
+ * @function s_display_png
+ * @tparam string filename
+ */
+int _screen_display_png(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  const char *s = luaL_checkstring(l, 1);
+  double x = luaL_checknumber(l, 2);
+  double y = luaL_checknumber(l, 3);
+  screen_display_png(s, x, y);
   lua_settop(l, 0);
   return 0;
 }
