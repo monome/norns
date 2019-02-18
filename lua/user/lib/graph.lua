@@ -2,7 +2,7 @@
 -- Flexible graph drawing for waves, points, bars, etc.
 --
 -- @module Graph
--- @release v1.0.1
+-- @release v1.1.0
 -- @author Mark Eats
 
 local Graph = {}
@@ -12,7 +12,7 @@ Graph.__index = Graph
 
 -------- Private utility methods --------
 
-local function graph_to_screen(self, x, y)
+local function graph_to_screen(self, x, y, round)
   if self._x_warp == "exp" then
     x = util.explin(self._x_min, self._x_max, self._x, self._x + self._w - 1, x)
   else
@@ -23,21 +23,25 @@ local function graph_to_screen(self, x, y)
   else
     y = util.linlin(self._y_min, self._y_max, self._y + self._h - 1, self._y, y)
   end
-  return util.round(x), util.round(y)
+  if round then
+    x, y = util.round(x), util.round(y)
+  end
+  return x, y
 end
 
 local function recalculate_screen_coords(self)
   self.origin_sx = util.round(util.linlin(self._x_min, self._x_max, self._x, self._x + self._w - 1, 0))
   self.origin_sy = util.round(util.linlin(self._y_min, self._y_max, self._y + self._h - 1, self._y, 0))
   for i = 1, #self._points do
-    self._points[i].sx, self._points[i].sy = graph_to_screen(self, self._points[i].x, self._points[i].y)
+    self._points[i].sx, self._points[i].sy = graph_to_screen(self, self._points[i].x, self._points[i].y, true)
   end
   self._lines_dirty = true
+  self._spline_dirty = true
 end
 
 local function generate_line_from_points(self)
   
-  if #self._points < 2 or self._style ~= "line" then return end
+  if #self._points < 2 or (self._style ~= "line" and self._style ~= "line_and_point") then return end
   
   local line_path = {}
   local px, py, prev_px, prev_py, sx, sy, prev_sx, prev_sy
@@ -150,6 +154,66 @@ local function generate_lines_from_functions(self)
   end
 end
 
+local function interpolate_points(p1, p2, ratio, exp_x, exp_y)
+  ratio = ratio or 0.5
+  local point = {}
+  if exp_x then
+    point.x = util.linexp(0, 1, p1.x, p2.x, ratio)
+  else
+    point.x = util.linlin(0, 1, p1.x, p2.x, ratio)
+  end
+  if exp_y then
+    point.y = util.linexp(0, 1, p1.y, p2.y, ratio)
+  else
+    point.y = util.linlin(0, 1, p1.y, p2.y, ratio)
+  end
+  return point
+end
+
+local function generate_spline_from_points(self)
+  -- Draws a b-spline using beziers.
+  -- Based on https://stackoverflow.com/questions/2534786/drawing-a-clamped-uniform-cubic-b-spline-using-cairo
+  self._spline = {}
+  local points = {table.unpack(self._points)}
+  local num_points = #points
+  
+  if num_points < 2 then return end
+  
+  local exp_x = self._x_warp == "exp"
+  local exp_y = self._y_warp == "exp"
+  
+  -- Pad ends to clamp
+  local last = points[num_points]
+  for i = 1, 3 do
+    table.insert(points, 1, points[1])
+    table.insert(points, last)
+    num_points = num_points + 2
+  end
+  
+  -- Interpolate
+  local one_thirds = {}
+  local two_thirds = {}
+  for i = 1, num_points - 1 do
+    table.insert(one_thirds, interpolate_points(points[i], points[i + 1], 0.333333, exp_x, exp_y))
+    table.insert(two_thirds, interpolate_points(points[i], points[i + 1], 0.666666, exp_x, exp_y))
+  end
+  
+  -- Create bezier coords
+  for i = 1, num_points - 3 do
+    table.insert(self._spline, interpolate_points(two_thirds[i], one_thirds[i+1], 0.5, exp_x, exp_y)) -- Start
+    table.insert(self._spline, one_thirds[i + 1])
+    table.insert(self._spline, two_thirds[i + 1])
+    table.insert(self._spline, interpolate_points(two_thirds[i + 1], one_thirds[i + 2], 0.5, exp_x, exp_y))
+  end
+  
+  -- Scale to screen space and shift 0.5 for line drawing
+  for k, v in pairs(self._spline) do
+    v.x, v.y = graph_to_screen(self, v.x, v.y, false)
+    v.x = v.x + 0.5
+    v.y = v.y + 0.5
+  end
+end
+
 
 
 -------- Setup methods --------
@@ -162,7 +226,7 @@ end
 -- @param y_min Minimum value for y axis, defaults to 0.
 -- @param y_max Maximum value for y axis, defaults to 1.
 -- @param y_warp String defines warping for y axis, accepts "lin" or "exp", defaults to "lin".
--- @param style String defines visual style, accepts "line", "point" or "bar", defaults to "line".
+-- @param style String defines visual style, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar", defaults to "line".
 -- @param show_x_axis Display the x axis if set to true, defaults to false.
 -- @param show_y_axis Display the y axis if set to true, defaults to false.
 -- @return Instance of Graph.
@@ -181,6 +245,7 @@ function Graph.new(x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axi
   graph._points = {}
   graph._lines = {}
   graph._lines_dirty = false
+  graph._spline_dirty = false
   graph._active = true
   setmetatable(graph, Graph)
   graph:set_position_and_size(10, 10, 108, 44)
@@ -317,10 +382,11 @@ end
 function Graph:get_style() return self._style end
 
 --- Set style.
--- @param style Style string, accepts "line", "point" or "bar".
+-- @param style Style string, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar".
 function Graph:set_style(style)
   self._style = style or "line"
   self._lines_dirty = true
+  self._spline_dirty = true
 end
 
 --- Get show x axis.
@@ -371,11 +437,12 @@ end
 -- @param[opt] highlight Highlights the point if set to true, defaults to false.
 -- @param[opt] index Index to add point at, defaults to the end of the list.
 function Graph:add_point(px, py, curve, highlight, index)
-  local point = {x = util.clamp(px or 0, self._x_min, self._x_max), y = util.clamp(py or 0, self._y_min, self._y_max), curve = curve or "lin", highlight = highlight or false}
-  point.sx, point.sy = graph_to_screen(self, point.x, point.y)
+  local point = {x = px or 0, y = py or 0, curve = curve or "lin", highlight = highlight or false}
+  point.sx, point.sy = graph_to_screen(self, point.x, point.y, true)
   if index then table.insert(self._points, index, point)
   else table.insert(self._points, point) end
   self._lines_dirty = true
+  self._spline_dirty = true
 end
 
 --- Edit point at index.
@@ -386,12 +453,16 @@ end
 -- @param[opt] highlight Highlights the point if set to true.
 function Graph:edit_point(index, px, py, curve, highlight)
   if not self._points[index] then return end
-  if px then self._points[index].x = util.clamp(px, self._x_min, self._x_max) end
-  if py then self._points[index].y = util.clamp(py, self._y_min, self._y_max) end
-  if px or py then self._points[index].sx, self._points[index].sy = graph_to_screen(self, self._points[index].x, self._points[index].y) end
+  if px then self._points[index].x = px end
+  if py then self._points[index].y = py end
+  if px or py then self._points[index].sx, self._points[index].sy = graph_to_screen(self, self._points[index].x, self._points[index].y, true) end
   if curve then self._points[index].curve = curve end
   if highlight ~= nil then self._points[index].highlight = highlight end
-  if px or py or curve then self._lines_dirty = true end
+  if px or py then
+    self._lines_dirty = true
+    self._spline_dirty = true
+  end
+  if curve then self._lines_dirty = true end
 end
 
 --- Remove point at index.
@@ -400,12 +471,14 @@ end
 function Graph:remove_point(index)
   table.remove(self._points, index)
   self._lines_dirty = true
+  self._spline_dirty = true
 end
 
 --- Remove all points.
 function Graph:remove_all_points()
   self._points = {}
   self._lines_dirty = true
+  self._spline_dirty = true
 end
 
 --- Highlight point at index.
@@ -518,7 +591,7 @@ end
 
 local function draw_points(self)
   
-  if self._style == "bar" then return end
+  if (self._style ~= "point" and self._style ~= "line_and_point" and self._style ~= "spline_and_point") then return end
   
   for i = 1, #self._points do
     local sx, sy = self._points[i].sx, self._points[i].sy
@@ -569,7 +642,7 @@ end
 
 local function draw_lines(self)
   
-  if self._style ~= "line" and #self._functions == 0 then return end
+  if (self._style ~= "line" and self._style ~= "line_and_point") and #self._functions == 0 then return end
   
   if self._lines_dirty then
     self._lines = {}
@@ -590,6 +663,22 @@ local function draw_lines(self)
   screen.line_join("miter")
 end
 
+local function draw_spline(self)
+  if (self._style ~= "spline" and self._style ~= "spline_and_point") then return end
+  
+  if self._spline_dirty then
+    generate_spline_from_points(self)
+    self._spline_dirty = false
+  end
+  
+  if self._active then screen.level(15) else screen.level(5) end
+  for i = 1, #self._spline - 4, 4 do
+    screen.move(self._spline[i].x, self._spline[i].y)
+    screen.curve(self._spline[i + 1].x, self._spline[i + 1].y, self._spline[i + 2].x, self._spline[i + 2].y, self._spline[i + 3].x, self._spline[i + 3].y)
+  end
+  screen.stroke()
+end
+
 
 
 -------- Redraw --------
@@ -602,6 +691,7 @@ function Graph:redraw()
   
   draw_axes(self)
   draw_lines(self)
+  draw_spline(self)
   draw_points(self)
   draw_bars(self)
 end

@@ -2,7 +2,7 @@
 -- Subclass of Graph for drawing common envelope graphs. Includes DADSR, ADSR, ASR and AR (Perc).
 --
 -- @module EnvGraph
--- @release v1.0.0
+-- @release v1.0.1
 -- @author Mark Eats
 
 local EnvGraph = {}
@@ -15,7 +15,7 @@ local Graph = require "mark_eats/graph"
 -------- Private utility methods --------
 
 local function new_env_graph(x_min, x_max, y_min, y_max)
-  local graph = Graph.new(x_min, x_max, "lin", y_min, y_max, "lin", "line", false, false)
+  local graph = Graph.new(x_min, x_max, "lin", y_min, y_max, "lin", "line_and_point", false, false)
   setmetatable(EnvGraph, {__index = Graph})
   setmetatable(graph, EnvGraph)
   return graph
