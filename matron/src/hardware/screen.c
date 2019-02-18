@@ -155,7 +155,7 @@ void screen_display_png(const char *filename, double x, double y){
 
 
 void screen_init(void) {
-    surfacefb = cairo_linuxfb_surface_create("/dev/fb1");
+    surfacefb = cairo_linuxfb_surface_create("/dev/fb0");
     if(surfacefb == NULL) { return; }
     crfb = cairo_create(surfacefb);
 
