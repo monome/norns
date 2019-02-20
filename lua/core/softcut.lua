@@ -38,16 +38,20 @@ SC.level_cut_cut = function(src, dst, value)
   _norns.level_cut_cut(src, dst, value)
 end
 
+SC.play = function(i,v) _norns.cut_param("play_flag",i,v) end
 SC.rate = function(i,v) _norns.cut_param("rate",i,v) end
 SC.loop_start = function(i,v) _norns.cut_param("loop_start",i,v) end
 SC.loop_end = function(i,v) _norns.cut_param("loop_end",i,v) end
-SC.loop_flag = function(i,v) _norns.cut_param("loop_flag",i,v) end
+SC.loop = function(i,v) _norns.cut_param("loop_flag",i,v) end
 SC.fade_time = function(i,v) _norns.cut_param("fade_time",i,v) end
 SC.rec_level = function(i,v) _norns.cut_param("rec_level",i,v) end
 SC.pre_level = function(i,v) _norns.cut_param("pre_level",i,v) end
-SC.rec_flag = function(i,v) _norns.cut_param("rec_flag",i,v) end
+SC.rec = function(i,v) _norns.cut_param("rec_flag",i,v) end
 SC.rec_offset = function(i,v) _norns.cut_param("rec_offset",i,v) end
 SC.position = function(i,v) _norns.cut_param("position",i,v) end
+
+SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
+SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dst,v) end
 
 SC.filter_fc = function(i,v) _norns.cut_param("filter_fc",i,v) end
 SC.filter_fc_mod = function(i,v) _norns.cut_param("filter_fc_mod",i,v) end
@@ -65,17 +69,23 @@ SC.phase_quant = function(i,v) _norns.cut_param("phase_quant",i,v) end
 SC.poll_start_phase = function() _norns.poll_start_cut_phase() end
 SC.poll_stop_phase = function() _norns.poll_stop_cut_phase() end
 
-
 SC.enable = function(voice, value) _norns.cut_enable(voice, value) end
 
+
+SC.buffer_clear = function() _norns.cut_buffer_clear() end
+SC.buffer_clear_channel = function(i) _norns.cut_buffer_clear_channel(i) end
 SC.buffer_clear_region = function(start, stop)
   _norns.cut_buffer_clear_region(start, stop)
 end
+SC.buffer_clear_region_channel = function(ch, start, stop)
+  _norns.cut_buffer_clear_region_channel(ch, start, stop)
+end
 
-SC.buffer_clear = function() _norns.cut_buffer_clear() end
-
-SC.buffer_read = function(filesleep, start_src, start_dst, dur, ch)
-  _norns.cut_buffer_read(file, start_src, start_dst, dur, ch)
+SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst)
+  _norns.cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst)
+end
+SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
+  _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
 end
 
 SC.event_phase = function(f) norns.softcut_phase = f end
@@ -106,12 +116,13 @@ function SC.params()
       rate = { type="control", controlspec=controlspec.new(-8, 8, 'lin', 0, 0, "") },
       loop_start = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       loop_end = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5 + 2, "sec") },
-      loop_flag = { type="number", min=1, max=1, default=1, formatter=""},
+      loop = { type="number", min=0, max=1, default=1, formatter=""},
       fade_time = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- recording parameters
       rec_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       pre_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      rec_flag = { type="number", min=1, max=1, default=1, formatter=""},
+      play = { type="number", min=0, max=1, default=1, formatter=""},
+      rec = { type="number", min=0, max=1, default=1, formatter=""},
       rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
       -- jump to position
       position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },

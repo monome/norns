@@ -18,13 +18,7 @@ namespace softcut {
 
     private:
         SoftCutVoice scv[numVoices];
-        void init(float* buf, size_t bufFrames) {
-
-            for (auto &v : scv) {
-                v.setBuffer(buf, bufFrames);
-            }
-
-            // FIXME? wrong place for this probly
+        void init() {
             FadeCurves::setPreShape(FadeCurves::Shape::Linear);
             FadeCurves::setRecShape(FadeCurves::Shape::Raised);
             FadeCurves::setMinPreWindowFrames(0);
@@ -34,8 +28,8 @@ namespace softcut {
         }
 
     public:
-        SoftCut(float *buf, size_t bufFrames){
-            this->init(buf, bufFrames);
+        SoftCut() {
+            this->init();
         }
 
         // assumption: channel count is equal to voice count!
@@ -81,6 +75,10 @@ namespace softcut {
             scv[voice].setRecFlag( val);
         }
 
+        void setPlayFlag(int voice, bool val) {
+            scv[voice].setPlayFlag( val);
+        }
+
         void cutToPos(int voice, float sec) {
             scv[voice].cutToPos(sec);
         }
@@ -118,7 +116,7 @@ namespace softcut {
             scv[voice].setFilterFcMod( x);
         }
 
-
+#if 0 // not allowing realtime manipulation of fade logic params
         void setPreFadeWindow(float x) {
             auto t = std::thread([x] {
                 FadeCurves::setPreWindowRatio(x);
@@ -146,7 +144,7 @@ namespace softcut {
             });
             t.detach();
         }
-	
+#endif
         void setRecOffset(int i, float d) {
             scv[i].setRecOffset(d);
         }
@@ -167,9 +165,21 @@ namespace softcut {
             scv[i].setPhaseQuant(q);
         }
 
-        void printTestBuffers() {
-            scv[0].printTestBuffers();
+        bool getRecFlag(int i) {
+            return scv[i].getRecFlag();
         }
+
+        bool getPlayFlag(int i) {
+            return scv[i].getPlayFlag();
+        }
+
+        void syncVoice(int follow, int lead, float offset) {
+            scv[follow].cutToPos(scv[lead].getPos() + offset);
+        }
+
+        void setVoiceBuffer(int id, float* buf, size_t bufFrames) {
+                scv[id].setBuffer(buf, bufFrames);
+            }
 
     };
 }

@@ -29,6 +29,7 @@ namespace softcut {
         void setRecLevel(float amp);
         void setPreLevel(float amp);
         void setRecFlag(bool val);
+        void setPlayFlag(bool val);
 
         void setFilterFc(float);
         void setFilterRq(float);
@@ -40,16 +41,25 @@ namespace softcut {
         void setFilterFcMod(float x);
 
         void cutToPos(float sec);
+
         // process a single channel
         void processBlockMono(const float* in, float* out, int numFrames);
-
-        void printTestBuffers();
 
         void setRecOffset(float d);
         void setLevelSlewTime(float d);
         void setRateSlewTime(float d);
         void setPhaseQuant(float x);
+
         phase_t getQuantPhase();
+
+        bool getPlayFlag();
+        bool getRecFlag();
+
+        float getPos();
+
+    private:
+        void updateFilterFc();
+        void updateQuantPhase();
 
     private:
         float* buf;
@@ -78,8 +88,12 @@ namespace softcut {
         // quantized phase
         std::atomic<phase_t> quantPhase;
 
-        void updateFilterFc();
-        void updateQuantPhase();
+
+    private:
+
+        bool playFlag;
+        bool recFlag;
+
     };
 }
 

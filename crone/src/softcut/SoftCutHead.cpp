@@ -24,41 +24,64 @@ void SoftCutHead::init() {
     active = 0;
     rate = 1.f;
     setFadeTime(0.1f);
-    recFlag = false;
     testBuf.init();
+    queuedCrossfade = 0;
+    queuedCrossfadeFlag = false;
 }
 
-void SoftCutHead::processSample(sample_t in, float *outPhase, float *outTrig, sample_t *outAudio) {
+void SoftCutHead::processSample(sample_t in, sample_t *out) {
 
-#if 0 // testing...
-    testBuf.update(static_cast<float>(head[0].phase_), head[0].wrIdx_, head[0].fade_, head[0].state_, head[0].preFade, head[0].recFade);
-#endif
-
-    *outAudio = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
-    *outTrig = head[0].trig() + head[1].trig();
-
-    if(outPhase != nullptr) {
-        *outPhase = static_cast<float>(head[active].phase());
-    }
+    *out = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
 
     int numFades = (head[0].state_ == FadeIn || head[0].state_ == FadeOut)
             + (head[1].state_ == FadeIn || head[1].state_ == FadeOut);
 
     BOOST_ASSERT_MSG(!(head[0].state_ == Active && head[1].state_ == Active), "multiple active heads");
 
+    head[0].poke(in, pre, rec, numFades);
+    head[1].poke(in, pre, rec, numFades);
 
-    // FIXME: should probably continue to push input to resampler when not recording
-    if(recFlag) {
-        head[0].poke(in, pre, rec, numFades);
-        head[1].poke(in, pre, rec, numFades);
-    }
     takeAction(head[0].updatePhase(start, end, loopFlag));
     takeAction(head[1].updatePhase(start, end, loopFlag));
 
     head[0].updateFade(fadeInc);
     head[1].updateFade(fadeInc);
-
+    dequeueCrossfade();
 }
+
+
+void SoftCutHead::processSampleNoRead(sample_t in, sample_t *out) {
+    (void)out;
+    int numFades = (head[0].state_ == FadeIn || head[0].state_ == FadeOut)
+                   + (head[1].state_ == FadeIn || head[1].state_ == FadeOut);
+
+    BOOST_ASSERT_MSG(!(head[0].state_ == Active && head[1].state_ == Active), "multiple active heads");
+
+    head[0].poke(in, pre, rec, numFades);
+    head[1].poke(in, pre, rec, numFades);
+
+    takeAction(head[0].updatePhase(start, end, loopFlag));
+    takeAction(head[1].updatePhase(start, end, loopFlag));
+
+    head[0].updateFade(fadeInc);
+    head[1].updateFade(fadeInc);
+    dequeueCrossfade();
+}
+
+void SoftCutHead::processSampleNoWrite(sample_t in, sample_t *out) {
+    (void)in;
+    *out = mixFade(head[0].peek(), head[1].peek(), head[0].fade(), head[1].fade());
+
+    BOOST_ASSERT_MSG(!(head[0].state_ == Active && head[1].state_ == Active), "multiple active heads");
+
+    takeAction(head[0].updatePhase(start, end, loopFlag));
+    takeAction(head[1].updatePhase(start, end, loopFlag));
+
+    head[0].updateFade(fadeInc);
+    head[1].updateFade(fadeInc);
+    dequeueCrossfade();
+}
+
 
 void SoftCutHead::setRate(rate_t x)
 {
@@ -82,26 +105,43 @@ void SoftCutHead::takeAction(Action act)
 {
     switch (act) {
         case Action::LoopPos:
-            // std::cerr << "looping: go to start" << std::endl;
-            cutToPhase(start);
+            enqueueCrossfade(start);
             break;
         case Action::LoopNeg:
-            // std::cerr << "looping: go to end" << std::endl;
-            cutToPhase(end);
+            enqueueCrossfade(end);
             break;
         case Action::Stop:
+            break;
         case Action::None:
         default: ;;
     }
 }
 
+void SoftCutHead::enqueueCrossfade(phase_t pos) {
+    // std::cout <<"enqueuing crossfade\n";
+    queuedCrossfade = pos;
+    queuedCrossfadeFlag = true;
+}
+
+void SoftCutHead::dequeueCrossfade() {
+    State s = head[active].state();
+    if(! (s == State::FadeIn || s == State::FadeOut)) {
+	if(queuedCrossfadeFlag ) {
+	    // std::cout <<"dequeuing crossfade\n";
+	    cutToPhase(queuedCrossfade);
+	}
+	queuedCrossfadeFlag = false;
+    }
+}
+
+
 void SoftCutHead::cutToPhase(phase_t pos) {
     State s = head[active].state();
 
-    // ignore if we are already in a crossfade
     if(s == State::FadeIn || s == State::FadeOut) {
-        // std::cout << "skipping phase change due to ongoing xfade" << std::endl;
-        return;
+	// should never enter this condition
+	// cout << "bleeeeaaaaaaaaaaaaargh!!!!\n";
+	return;
     }
 
     // activate the inactive head
@@ -116,7 +156,6 @@ void SoftCutHead::cutToPhase(phase_t pos) {
     head[active].active_ = false;
     head[newActive].active_ = true;
     active = newActive;
-    // std::cerr << "active: " << active << std::endl;
 }
 
 void SoftCutHead::setFadeTime(float secs) {
@@ -126,7 +165,6 @@ void SoftCutHead::setFadeTime(float secs) {
 void SoftCutHead::calcFadeInc() {
     fadeInc = (float) fabs(rate) / std::max(1.f, (fadeTime * sr));
     fadeInc = std::max(0.f, std::min(fadeInc, 1.f));
-    // printf("fade time = %f; rate = %f; inc = %f\n", fadeTime, rate, fadeInc);
 }
 
 void SoftCutHead::setBuffer(float *b, uint32_t bf) {
@@ -146,11 +184,7 @@ void SoftCutHead::setSampleRate(float sr_) {
 }
 
 sample_t SoftCutHead::mixFade(sample_t x, sample_t y, float a, float b) {
-#if 1
         return x * sinf(a * (float)M_PI_2) + y * sinf(b * (float) M_PI_2);
-#else
-        return (x * a) + (y * b);
-#endif
 }
 
 void SoftCutHead::setRec(float x) {
@@ -161,36 +195,19 @@ void SoftCutHead::setPre(float x) {
     pre= x;
 }
 
-void SoftCutHead::setRecRun(bool val) {
-    recFlag = val;
-}
-
 phase_t SoftCutHead::getActivePhase() {
   return head[active].phase();
 }
 
-float SoftCutHead::getTrig() {
-  return head[0].trig()+ head[1].trig();
-}
-
-void SoftCutHead::resetTrig() {
-  head[0].setTrig(0);
-  head[1].setTrig(0);
-}
-
 void SoftCutHead::cutToPos(float seconds) {
-    cutToPhase(seconds * sr);
+    enqueueCrossfade(seconds * sr);
 }
 
 rate_t SoftCutHead::getRate() {
     return rate;
 }
 
-void SoftCutHead::printTestBuffers() {
-    testBuf.print();
-}
-
-void SoftCutHead::setRecOffset(float d) {
-    head[0].setRecOffset(d);
-    head[1].setRecOffset(d);
+void SoftCutHead::setRecOffsetSamples(int d) {
+    head[0].setRecOffsetSamples(d);
+    head[1].setRecOffsetSamples(d);
 }

@@ -100,7 +100,7 @@ void SubHead::poke(float in, float pre, float rec, int numFades) {
 void SubHead::poke(float in, float pre, float rec, int numFades) {
     (void)numFades;
     // FIXME: since there's never really a reason to not push input, or to reset input ringbuf,
-    // it follows that all resamplers can share an input ringbuf
+    // it follows that all resamplers could share an input ringbuf
     int nframes = resamp_.processFrame(in);
 
     if(state_ == Inactive) {
@@ -109,13 +109,9 @@ void SubHead::poke(float in, float pre, float rec, int numFades) {
 
     BOOST_ASSERT_MSG(fade_ >= 0.f && fade_ <= 1.f, "bad fade coefficient in poke()");
 
-#if 0 // test
-    preFade = pre;
-    recFade = rec * fade_;
-#else
-    preFade = pre + (1.f-pre) * FadeCurves::getPreFadeValue(fade_);
-    recFade = rec * FadeCurves::getRecFadeValue(fade_);
-#endif
+
+    preFade_ = pre + (1.f-pre) * FadeCurves::getPreFadeValue(fade_);
+    recFade_ = rec * FadeCurves::getRecFadeValue(fade_);
     sample_t y; // write value
     const sample_t* src = resamp_.output();
 
@@ -125,11 +121,11 @@ void SubHead::poke(float in, float pre, float rec, int numFades) {
 #if 1 // soft clipper
         y = clip_.processSample(y);
 #endif
-#if 1 // lowpass filter
+#if 0 // lowpass filter
         lpf_.processSample(&y);
 #endif
-        buf_[wrIdx_] *= preFade;
-        buf_[wrIdx_] += y * recFade;
+        buf_[wrIdx_] *= preFade_;
+        buf_[wrIdx_] += y * recFade_;
 
         wrIdx_ = wrapBufIndex(wrIdx_ + inc_dir_);
     }
@@ -168,20 +164,10 @@ void SubHead::setSampleRate(float sr) {
 void SubHead::setPhase(phase_t phase) {
     phase_ = phase;
     wrIdx_ = wrapBufIndex(static_cast<int>(phase_) + (inc_dir_ * recOffset_));
-    // std::cerr << "new phase="<<phase_ << "; wrIdx="<<wrIdx_ << std::endl;
-    
-    // FIXME: we are hitting this sometimes. fade is always quite small...
-    // rounding error? wrong order of calculations?
-#if 0
-    if(fade_ > std::numeric_limits<float>::epsilon()) {
-        std::cerr << "fade=" << fade_ << std::endl;
-        BOOST_ASSERT_MSG(false, "changing phase with fade>0");
-    }
-#endif
 
     // NB: not resetting the resampler here:
     // - it's ok to keep history of input when changing positions.
-    // - resmp output doesn't need clearing b/c we write/read from beginning on each sample anyway
+    // - resamp output doesn't need clearing b/c we write/read from beginning on each sample anyway
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -203,8 +189,7 @@ void SubHead::setRate(rate_t rate) {
 
 
 void SubHead::setState(State state) { state_ = state; }
-void SubHead::setTrig(float trig) { trig_ = trig; }
 
-void SubHead::setRecOffset(float d) {
-    recOffset_  = static_cast<int>(d);
+void SubHead::setRecOffsetSamples(int d) {
+    recOffset_  = d;
 }

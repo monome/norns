@@ -18,8 +18,11 @@ namespace  softcut{
         SoftCutHead();
         void init();
 
-        // per-sample update function
-        void processSample(sample_t in, float *outPhase, float *outTrig, sample_t *outAudio);
+        // per-sample update functions
+        void processSample(sample_t in, sample_t *out);
+
+        void processSampleNoRead(sample_t in, sample_t *out);
+        void processSampleNoWrite(sample_t in, sample_t *out);
 
         void setSampleRate(float sr);
         void setBuffer(sample_t *buf, uint32_t size);
@@ -30,23 +33,19 @@ namespace  softcut{
         void setLoopFlag(bool val);
         void setRec(float x);
         void setPre(float x);
-        void setRecRun(bool val);
         void cutToPos(float seconds);
 
         phase_t getActivePhase();
-        float getTrig();
-        void resetTrig();
-
         rate_t getRate();
 
-        void printTestBuffers();
 
-        void setRecOffset(float d);
-
+        void setRecOffsetSamples(int d);
     private:
         // fade in to new position (given in samples)
         // assumption: phase is in range!
         void cutToPhase(phase_t newPhase);
+        void enqueueCrossfade(phase_t newPhase);
+        void dequeueCrossfade();
         void takeAction(Action act);
         sample_t mixFade(sample_t x, sample_t y, float a, float b); // mix two inputs with phases
         void calcFadeInc();
@@ -58,6 +57,8 @@ namespace  softcut{
         float sr;           // sample rate
         phase_t start;      // start/end points
         phase_t end;
+        phase_t queuedCrossfade;
+        bool queuedCrossfadeFlag;
         float fadeTime;     // fade time in seconds
         float fadeInc;      // linear fade increment per sample
 
@@ -65,7 +66,8 @@ namespace  softcut{
         bool loopFlag;      // set to loop, unset for 1-shot
         float pre;      // pre-record level
         float rec;      // record level
-        bool recFlag;   // record processing flag
+        // record processing flag
+        // play processing flag
 
         rate_t rate;    // current rate
         TestBuffers testBuf;
