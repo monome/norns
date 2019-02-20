@@ -136,7 +136,6 @@ end
 -- @param filename file to load
 -- @return meta table with metadata
 Script.metadata = function(filename)
-  print("# script meta: " .. filename)
   local meta = {}
   local f=io.open(filename,"r")
   if f==nil then
@@ -146,10 +145,12 @@ Script.metadata = function(filename)
     for line in io.lines(filename) do
       if util.string_starts(line,"--") then
         table.insert(meta, string.sub(line,4,-1))
-      else return meta end
-    end
-    if #meta == 0 then
-      table.insert(meta, "no script information")
+      else
+        if #meta == 0 then
+          table.insert(meta, "no script information")
+        end
+        return meta
+      end
     end
   end
   return meta
