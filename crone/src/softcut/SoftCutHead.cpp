@@ -25,6 +25,8 @@ void SoftCutHead::init() {
     rate = 1.f;
     setFadeTime(0.1f);
     testBuf.init();
+    queuedCrossfade = 0;
+    queuedCrossfadeFlag = false;
 }
 
 void SoftCutHead::processSample(sample_t in, sample_t *out) {
@@ -44,6 +46,7 @@ void SoftCutHead::processSample(sample_t in, sample_t *out) {
 
     head[0].updateFade(fadeInc);
     head[1].updateFade(fadeInc);
+    dequeueCrossfade();
 }
 
 
@@ -62,6 +65,7 @@ void SoftCutHead::processSampleNoRead(sample_t in, sample_t *out) {
 
     head[0].updateFade(fadeInc);
     head[1].updateFade(fadeInc);
+    dequeueCrossfade();
 }
 
 void SoftCutHead::processSampleNoWrite(sample_t in, sample_t *out) {
@@ -75,6 +79,7 @@ void SoftCutHead::processSampleNoWrite(sample_t in, sample_t *out) {
 
     head[0].updateFade(fadeInc);
     head[1].updateFade(fadeInc);
+    dequeueCrossfade();
 }
 
 
@@ -100,24 +105,43 @@ void SoftCutHead::takeAction(Action act)
 {
     switch (act) {
         case Action::LoopPos:
-            cutToPhase(start);
+            enqueueCrossfade(start);
             break;
         case Action::LoopNeg:
-            cutToPhase(end);
+            enqueueCrossfade(end);
             break;
         case Action::Stop:
+            break;
         case Action::None:
         default: ;;
     }
 }
 
+void SoftCutHead::enqueueCrossfade(phase_t pos) {
+    // std::cout <<"enqueuing crossfade\n";
+    queuedCrossfade = pos;
+    queuedCrossfadeFlag = true;
+}
+
+void SoftCutHead::dequeueCrossfade() {
+    State s = head[active].state();
+    if(! (s == State::FadeIn || s == State::FadeOut)) {
+	if(queuedCrossfadeFlag ) {
+	    // std::cout <<"dequeuing crossfade\n";
+	    cutToPhase(queuedCrossfade);
+	}
+	queuedCrossfadeFlag = false;
+    }
+}
+
+
 void SoftCutHead::cutToPhase(phase_t pos) {
     State s = head[active].state();
 
-    // ignore if we are already in a crossfade
-    // FIXME: should queue the fade?
     if(s == State::FadeIn || s == State::FadeOut) {
-        return;
+	// should never enter this condition
+	// cout << "bleeeeaaaaaaaaaaaaargh!!!!\n";
+	return;
     }
 
     // activate the inactive head
@@ -176,7 +200,7 @@ phase_t SoftCutHead::getActivePhase() {
 }
 
 void SoftCutHead::cutToPos(float seconds) {
-    cutToPhase(seconds * sr);
+    enqueueCrossfade(seconds * sr);
 }
 
 rate_t SoftCutHead::getRate() {

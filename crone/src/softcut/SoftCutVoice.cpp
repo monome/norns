@@ -3,6 +3,7 @@
 //
 
 #include "SoftCutVoice.h"
+#include <functional>
 
 using namespace softcut;
 
