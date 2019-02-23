@@ -21,7 +21,7 @@ for i=1,4 do
     delta = nil,
     key = nil,
 
-    let = vport.wrap_method('led'),
+    led = vport.wrap_method('led'),
     all = vport.wrap_method('all'),
     refresh = vport.wrap_method('refresh'),
     segment = vport.wrap_method('segment'),
