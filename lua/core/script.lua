@@ -79,17 +79,24 @@ Script.load = function(filename)
     path = norns.state.path
     data = norns.state.data
   else
-		local t = tab.split(string.sub(filename,string.len(dust_dir),-5),"/")
-		if t[#t] == t[#t-1] then
-			name = t[#t]
-		else
-			name = t[#t-1].."/"..t[#t]
-		end
-		path = string.sub(dust_dir,0,-2)
-		for i = 1,#t-1 do path = path .. "/" .. t[i] end
-		--print("name "..name)
-		--print("path "..path)
+	if string.sub(filename,1,1) == "/" then
+	  relative = string.sub(filename,string.len(dust_dir))
+	else
+	  relative = filename
+	  filename = dust_dir .. filename
 	end
+
+	local t = tab.split(string.sub(relative,0,-5),"/")
+	if t[#t] == t[#t-1] then
+	  name = t[#t]
+	else
+	  name = t[#t-1].."/"..t[#t]
+	end
+	path = string.sub(dust_dir,0,-2)
+	for i = 1,#t-1 do path = path .. "/" .. t[i] end
+	--print("name "..name)
+	--print("final path "..path)
+  end
 
   print("# script load: " .. filename)
 
@@ -118,7 +125,7 @@ Script.load = function(filename)
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
     if status == true then
       norns.state.script = filename
-      norns.state.path = path
+      norns.state.path = path .. '/'
       norns.state.data = data_dir .. name .. '/'
       norns.state.name = name
       norns.state.shortname = norns.state.name:match( "([^/]+)$" )
