@@ -46,7 +46,7 @@ function JI.lamonte()
 end
 
 ----------------------------------------------
---- higher-tone scales / gamuts
+-- higher-tone scales / gamuts
 
 -- gioseffo zarlino's 16-tone (5-limit)
 function JI.zarlino() 

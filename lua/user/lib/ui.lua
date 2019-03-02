@@ -316,7 +316,7 @@ function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers
 end
 
 --- Set value.
--- @param value Value number.
+-- @param number Value number.
 function UI.Slider:set_value(number)
   self.value = util.clamp(number, self.min_value, self.max_value)
 end
@@ -384,7 +384,7 @@ function UI.Dial.new(x, y, size, value, min_value, max_value, rounding)
 end
 
 --- Set value.
--- @param value Value number.
+-- @param number Value number.
 function UI.Dial:set_value(number)
   self.value = util.clamp(number, self.min_value, self.max_value)
 end

@@ -11,18 +11,18 @@ OSC.__index = OSC
 
 --- static callback when an osc event is received
 -- user scripts can redefine
--- @param from : a {host, port} table with the source address
--- @param path : osc message path
--- @param args : osc message args
+-- @tparam string path : osc message path
+-- @tparam string args : osc message args
+-- @tparam table from : a {host, port} table with the source address
 function OSC.event(path, args, from)
   print("incoming osc message from", from, path)
   tab.print(args)
 end
 
 --- static method to send osc event
--- @param to : a {host, port} table with the destination address
--- @param path : osc message path
--- @param args : osc message args
+-- @tparam table to : a {host, port} table with the destination address
+-- @tparam string path : osc message path
+-- @tparam string args : osc message args
 function OSC.send(to, path, args)
   if (args ~= nil) then
     osc_send(to, path, args)
@@ -32,8 +32,8 @@ function OSC.send(to, path, args)
 end
 
 --- static method to send osc event directly to sclang
--- @param path : osc message path
--- @param args : osc message args
+-- @tparam string path : osc message path
+-- @tparam string args : osc message args
 function OSC.send_crone(path, args)
   if (args ~= nil) then
     osc_send_crone(path, args)

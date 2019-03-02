@@ -14,67 +14,67 @@ end
 screensaver.time = 900
 screensaver.count = 1
 
---- copy buffer to screen
+--- copy buffer to screen.
 Screen.update = function()
   s_update()
   -- TODO: this should be called by key/encoder activity
   screensaver:start()
 end
 
---- enable/disable anti-aliasing
+--- enable/disable anti-aliasing.
 -- @param state on(1) or off(0)
 Screen.aa = function(state) s_aa(state) end
 
 --- clear
 Screen.clear = function() s_clear() end
 
---- set level (color/brightness)
+--- set level (color/brightness).
 -- @param value 0-15 (0=off, 15=white)
 Screen.level = function(value) s_level(value) end
 
---- set line width
+--- set line width.
 -- @param w line width (in pixels, floats permitted)
 Screen.line_width = function(w) s_line_width(w) end
 
---- set line cap style
+--- set line cap style.
 -- @param style line cap style string ("butt", "round" or "square"). default is "butt".
 Screen.line_cap = function(style)
   s_line_cap(style)
 end
 
---- set line join style
+--- set line join style.
 -- @param style line join style string ("miter", "round" or "bevel"). default is "miter"
 Screen.line_join = function(style)
   s_line_join(style)
 end
 
---- set miter limit
+--- set miter limit.
 -- @param limit if the current line join style is set to "miter", the miter limit is used to determine whether the lines should be joined with a bevel instead of a miter. if the length of the miter divided by the line width is greater than the miter limit, the style is converted to a bevel. default value 10.
 Screen.miter_limit = function(limit)
   s_miter_limit(limit)
 end
 
---- move drawing position
+--- move drawing position.
 -- @param x position x
 -- @param y position y
 Screen.move = function(x, y) s_move(x, y) end
 
---- move drawing position relative to current position
+--- move drawing position relative to current position.
 -- @param x relative position x
 -- @param y relative position y
 Screen.move_rel = function(x, y) s_move_rel(x, y) end
 
---- draw line to specified point
+--- draw line to specified point.
 -- @param x destination x
 -- @param y destination y
 Screen.line = function(x,y) s_line(x,y) end
 
---- draw line to specified point relative to current position
+--- draw line to specified point relative to current position.
 -- @param x relative destination x
 -- @param y relative destination y
 Screen.line_rel = function(x, y) s_line_rel(x, y) end
 
---- draw arc
+--- draw arc.
 -- @param x circle center x
 -- @param y circle center y
 -- @param r radius
@@ -82,20 +82,20 @@ Screen.line_rel = function(x, y) s_line_rel(x, y) end
 -- @param angle2 end angle
 Screen.arc = function(x, y, r, angle1, angle2) s_arc(x, y, r, angle1, angle2) end
 
---- draw circle
+--- draw circle.
 -- @param x origin x
 -- @param y origin y
 -- @param r radius
 Screen.circle = function(x, y, r) s_circle(x, y, r) end
 
---- draw rectangle
+--- draw rectangle.
 -- @param x x position
 -- @param y y position
 -- @param w width
 -- @param h height
 Screen.rect = function(x, y, w, h) s_rect(x, y, w, h) end
 
---- draw curve (cubic Bézier spline)
+--- draw curve (cubic Bézier spline).
 -- @param x1 destination x
 -- @param y1 destination y
 -- @param x2 handle 1 x
@@ -104,7 +104,7 @@ Screen.rect = function(x, y, w, h) s_rect(x, y, w, h) end
 -- @param y3 handle 2 y
 Screen.curve = function(x1, y1, x2, y2, x3, y3) s_curve(x1, y1, x2, y2, x3, y3) end
 
---- draw curve (cubic Bézier spline) relative coordinates
+--- draw curve (cubic Bézier spline) relative coordinates.
 -- @param x1 relative destination x
 -- @param y1 relative destination y
 -- @param x2 handle 1 x
@@ -113,33 +113,33 @@ Screen.curve = function(x1, y1, x2, y2, x3, y3) s_curve(x1, y1, x2, y2, x3, y3) 
 -- @param y3 handle 2 y
 Screen.curve_rel = function(x1, y1, x2, y2, x3, y3) s_curve_rel(x1, y1, x2, y2, x3, y3) end
 
---- close current path
+--- close current path.
 Screen.close = function() s_close() end
 
---- stroke current path
+--- stroke current path.
 -- uses currently selected color
 Screen.stroke = function() s_stroke() end
 
---- fill current path
+--- fill current path.
 -- uses currently selected color
 Screen.fill = function() s_fill() end
 
---- draw text (left aligned)
+--- draw text (left aligned).
 -- uses currently selected font
--- @param string text to write
+-- @tparam string str : text to write
 Screen.text = function(str) s_text(str) end
 
---- draw text, right aligned
+--- draw text, right aligned.
 -- uses currently selected font
--- @param string text to write
+-- @tparam string str : text to write
 Screen.text_right = function(str) s_text_right(str) end
 
---- draw text, center aligned
+--- draw text, center aligned.
 -- uses currently selected font
--- @param string text to write
+-- @tparam string str : text to write
 Screen.text_center = function(str) s_text_center(str) end
 
---- select font face
+--- select font face.
 -- @param index font face (see list)
 --
 -- 1 04B_03 (norns default)

@@ -140,7 +140,7 @@ setmetatable(Metro, Metro)
 ---------------------
 ---- static initialization
 
---- initialize module data
+-- initialize module data
 for i=1,Metro.num_metros do
   Metro.metros[i] = Metro.new(i)
 end

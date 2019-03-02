@@ -67,8 +67,8 @@ end
 
 
 --- split string into table with delimiter
--- @param str string to split
--- @param sep delimiter
+-- @tparam string inputstr : string to split
+-- @tparam string sep : delimiter
 tab.split = function(inputstr, sep)
 	if sep == nil then
 		sep = "%s"
@@ -194,9 +194,7 @@ function tab.load(sfile)
 end
 
 --- Create a read-only proxy for a given table.
--- @params params
--- @params params.table the table to proxy
--- @params params.except a list of writable keys
+-- @param params params.table is the table to proxy, params.except a list of writable keys
 -- @return the proxied read-only table
 function tab.readonly(params)
   local t = params.table
