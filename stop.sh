@@ -1,4 +1,4 @@
 killall matron
 killall sclang
-killall supernova
+killall scsynth
 killall crone
