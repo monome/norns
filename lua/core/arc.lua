@@ -97,7 +97,7 @@ end
 -- @tparam integer ring : ring index (1-based)
 -- @tparam number from : from angle in radians
 -- @tparam number to : to angle in radians
--- @tparam integer level: LED brightness in [0, 15]
+-- @tparam integer level : LED brightness in [0, 15]
 function Arc:segment(ring, from, to, level)
   local tau = math.pi * 2
 
