@@ -20,8 +20,8 @@ SC.BUFFER_SIZE = 16777216 / 48000
 
 -------------------------------
 -- @section setters
--- NB: voice indices are zero-based!
 
+-- NB: voice indices are zero-based
 SC.level = function(voice, value)
   _norns.level_cut(voice, value)
 end

@@ -8,8 +8,9 @@ Control.__index = Control
 
 local tCONTROL = 3
 
---- constructor
--- @param name of param
+--- constructor.
+-- @param id
+-- @param name
 -- @param controlspec
 -- @param formatter
 function Control.new(id, name, controlspec, formatter)
