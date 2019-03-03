@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <linux/input.h>
+#include <time.h>
 
 #include "events.h"
 
@@ -84,6 +85,11 @@ void *enc_check(void *x) {
     int rd;
     unsigned int i;
     struct input_event event[64];
+    int dir[3] = {1,1,1};
+    clock_t now[3];
+    clock_t prev[3];
+    clock_t diff;
+    prev[0] = prev[1] = prev[2] = clock();
 
     while(1) {
         rd = read(enc_fd[n], event, sizeof(struct input_event) * 64);
@@ -92,13 +98,21 @@ void *enc_check(void *x) {
         }
 
         for(i=0;i<rd/sizeof(struct input_event);i++) {
-            if(event[i].type) { // make sure it's not EV_SYN == 0
-                //fprintf(stderr, "enc%d = %d\n", n, event[i].value);
-                union event_data *ev = event_data_new(EVENT_ENC);
-                ev->enc.n = n + 1;
-                ev->enc.delta = event[i].value;
-                event_post(ev);
+          if(event[i].type) { // make sure it's not EV_SYN == 0
+            now[i] = clock();
+            diff = now[i] - prev[i];
+            //fprintf(stderr, "%d\t%d\t%lu\n", n, event[i].value, diff);
+            prev[i] = now[i];
+            if(diff > 100) { // filter out glitches
+              if(dir[i] != event[i].value && diff > 500) { // only reverse direction if there is reasonable settling time
+                dir[i] = event[i].value;
+              }
+              union event_data *ev = event_data_new(EVENT_ENC);
+              ev->enc.n = n + 1;
+              ev->enc.delta = event[i].value;
+              event_post(ev);
             }
+          }
         }
     } 
 }
