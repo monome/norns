@@ -90,7 +90,6 @@ Script.load = function(filename)
 	end
 
 	local t = tab.split(string.sub(relative,0,-5),"/")
-  tab.print(t)
 	if t[#t] == t[#t-1] then
 	  name = t[#t]
 	else
