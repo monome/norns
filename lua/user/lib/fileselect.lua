@@ -114,7 +114,7 @@ fs.redraw = function()
   screen.clear()
   screen.move(0,10)
   screen.level(15)
-  screen.font_face(0)
+  screen.font_face(1)
   screen.font_size(8)
   for i=1,6 do
     if (i > 2 - fs.pos) and (i < fs.len - fs.pos + 3) then

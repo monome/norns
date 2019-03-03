@@ -480,7 +480,8 @@ int _screen_font_face(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int x = (int) luaL_checkinteger(l, 1);
+  int x = (int) luaL_checkinteger(l, 1) - 1;
+  if(x<0) x = 0;
   screen_font_face(x);
   lua_settop(l, 0);
   return 0;

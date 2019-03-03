@@ -187,7 +187,7 @@ menu.set_mode = function(mode)
     menu.mode = true
     menu.alt = false
     redraw = norns.none
-    screen.font_face(0)
+    screen.font_face(1)
     screen.font_size(8)
     screen.line_width(1)
     norns.encoders.callback = menu.enc
