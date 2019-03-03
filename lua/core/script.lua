@@ -56,7 +56,7 @@ Script.clear = function()
   screen.aa(0)
   screen.level(15)
   screen.line_width(1)
-  screen.font_face(0)
+  screen.font_face(1)
   screen.font_size(8)
 
   if status == true then s_save() end

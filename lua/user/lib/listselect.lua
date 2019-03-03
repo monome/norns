@@ -69,7 +69,7 @@ ls.redraw = function()
   screen.clear()
   screen.move(0,10)
   screen.level(15)
-  screen.font_face(0)
+  screen.font_face(1)
   screen.font_size(8)
   for i=1,6 do
     if (i > 2 - ls.pos) and (i < ls.len - ls.pos + 3) then
