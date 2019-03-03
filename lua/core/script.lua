@@ -95,6 +95,7 @@ Script.load = function(filename)
 	else
 	  name = t[#t-1].."/"..t[#t]
 	end
+  if #t==4 then name = t[2].."/"..name end -- dumb hack for 3-deep subfolers
 	path = string.sub(dust_dir,0,-2)
 	for i = 1,#t-1 do path = path .. "/" .. t[i] end
 	--print("name "..name)

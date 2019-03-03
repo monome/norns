@@ -349,7 +349,7 @@ local function build_select_tree(root,dir)
       else
         n = p
       end
-      n = string.gsub(n,dust_dir,'')
+      n = string.gsub(n,script_dir,'')
       n = string.sub(n,0,-2)
       table.insert(m.sel.list,{name=n,file=file,path=p})
     end
@@ -358,7 +358,7 @@ end
 
 m.init[pSELECT] = function()
   m.sel.list = {}
-  build_select_tree(dust_dir,"")
+  build_select_tree(script_dir,"")
   --for k,v in pairs(m.sel.list) do
     --print(k, v.name, v.file, v.path)
   --end
@@ -702,7 +702,7 @@ function m.params.write_pmap(filename)
   local function quote(s)
     return '"'..s:gsub('"', '\\"')..'"'
   end
-  local dir = norns.state.path .. 'data'
+  local dir = norns.state.data
   local fd = io.open(dir,"r")
   if fd then
     io.close(fd)
@@ -712,8 +712,8 @@ function m.params.write_pmap(filename)
   end
 
   -- write file
-  print(">> saving PMAP "..dir..'/'..filename)
-  local fd = io.open(dir..'/'..filename, "w+")
+  print(">> saving PMAP "..dir..filename)
+  local fd = io.open(dir..filename, "w+")
   io.output(fd)
   for k,v in pairs(m.params.map) do
     io.write(string.format("%s: %d\n", quote(tostring(k)), v))
@@ -725,9 +725,9 @@ function m.params.read_pmap(filename)
   local function unquote(s)
     return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
   end
-  local dir = norns.state.path .. 'data'
-  local file = dir .. '/' .. filename
-  print(">> reading PMAP"..file)
+  local dir = norns.state.data
+  local file = dir .. filename
+  print(">> reading PMAP "..file)
   local fd = io.open(file, "r")
   if fd then
     io.close(fd)
