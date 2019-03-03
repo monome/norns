@@ -33,7 +33,6 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Global_Functions">Global Functions </a></li>
 </ul>
 
 
@@ -47,7 +46,7 @@
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/core.menu.html">core.menu</a></li>
-  <li><strong>metro</strong></li>
+  <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
@@ -69,7 +68,7 @@
   <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
   <li><a href="../modules/elca.html">elca</a></li>
   <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><strong>FilterGraph</strong></li>
   <li><a href="../modules/Graph.html">Graph</a></li>
   <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
@@ -83,41 +82,43 @@
 
 <div id="content">
 
-<h1>Module <code>metro</code></h1>
-<p>high-resolution metro API</p>
-<p></p>
+<h1>Module <code>FilterGraph</code></h1>
+<p>Filter graph drawing module.</p>
+<p>
+ Subclass of Graph for drawing common filter graphs. Can draw approximations of low-pass, band-pass, notch and high-pass filters.
+</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Release</strong>: v1.0.0</li>
+        <li><strong>Author</strong>: Mark Eats</li>
+    </ul>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Metro.init">Metro.init (arg, arg_time, arg_count)</a></td>
-	<td class="summary">init/assign
- initialize a metro (assigns unused id)</td>
+	<td class="name" nowrap><a href="#new">new (x_min, x_max, y_min, y_max, filter_type, slope, freq, resonance)</a></td>
+	<td class="summary">Create a new FilterGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro.new">Metro.new (id)</a></td>
-	<td class="summary">constructor;</td>
+	<td class="name" nowrap><a href="#edit">edit (filter_type, slope, freq, resonance)</a></td>
+	<td class="summary">Edit a FilterGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:start">Metro:start (time, count, stage)</a></td>
-	<td class="summary">start a metro</td>
+	<td class="name" nowrap><a href="#filter_type">filter_type ()</a></td>
+	<td class="summary">Get filter type string.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:stop">Metro:stop ()</a></td>
-	<td class="summary">stop a metro</td>
+	<td class="name" nowrap><a href="#get_slope">get_slope ()</a></td>
+	<td class="summary">Get slope value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro.__index">Metro.__index (self, idx)</a></td>
-	<td class="summary">class custom .__index;
- [] accessor returns one of the static metro objects</td>
+	<td class="name" nowrap><a href="#get_freq">get_freq ()</a></td>
+	<td class="summary">Get frequency value.</td>
 	</tr>
-</table>
-<h2><a href="#Global_Functions">Global Functions </a></h2>
-<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#norns.metro">norns.metro (idx, stage)</a></td>
-	<td class="summary">callback on metro tick from C;</td>
+	<td class="name" nowrap><a href="#get_resonance">get_resonance ()</a></td>
+	<td class="summary">Get resonance value.</td>
 	</tr>
 </table>
 
@@ -129,24 +130,74 @@
 
     <dl class="function">
     <dt>
-    <a name = "Metro.init"></a>
-    <strong>Metro.init (arg, arg_time, arg_count)</strong>
+    <a name = "new"></a>
+    <strong>new (x_min, x_max, y_min, y_max, filter_type, slope, freq, resonance)</strong>
     </dt>
     <dd>
-    init/assign
- initialize a metro (assigns unused id)
+    Create a new FilterGraph object.
+ All arguments optional.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">arg</span>
-
+        <li><span class="parameter">x_min</span>
+         Minimum frequency value in Hz for x axis, defaults to 20.
         </li>
-        <li><span class="parameter">arg_time</span>
-
+        <li><span class="parameter">x_max</span>
+         Maximum frequency value in Hz for x axis, defaults to 24000.
         </li>
-        <li><span class="parameter">arg_count</span>
+        <li><span class="parameter">y_min</span>
+         Minimum amplitude value in dB for y axis, defaults to -60.
+        </li>
+        <li><span class="parameter">y_max</span>
+         Maximum amplitude value in dB for y axis, defaults to 30.
+        </li>
+        <li><span class="parameter">filter_type</span>
+         Type of filter, accepts "lowpass", "bandpass", "notch" or "highpass", defaults to "lowpass".
+        </li>
+        <li><span class="parameter">slope</span>
+         Slope value in decibels per octave, defaults to 12.
+        </li>
+        <li><span class="parameter">freq</span>
+         Frequency value in Hz, defaults to 2000.
+        </li>
+        <li><span class="parameter">resonance</span>
+         Resonance value 0-1, defaults to 0.
+        </li>
+    </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        Instance of FilterGraph.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "edit"></a>
+    <strong>edit (filter_type, slope, freq, resonance)</strong>
+    </dt>
+    <dd>
+    Edit a FilterGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filter_type</span>
+         Type of filter, accepts "lowpass", "bandpass", "notch" or "highpass", defaults to "lowpass".
+        </li>
+        <li><span class="parameter">slope</span>
+         Slope value in decibels per octave, defaults to 12.
+        </li>
+        <li><span class="parameter">freq</span>
+         Frequency value in Hz, defaults to 2000.
+        </li>
+        <li><span class="parameter">resonance</span>
+         Resonance value 0-1, defaults to 0.
         </li>
     </ul>
 
@@ -156,111 +207,76 @@
 
 </dd>
     <dt>
-    <a name = "Metro.new"></a>
-    <strong>Metro.new (id)</strong>
+    <a name = "filter_type"></a>
+    <strong>filter_type ()</strong>
     </dt>
     <dd>
-    constructor;
+    Get filter type string.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">id</span>
-         : identifier (integer)
-        </li>
-    </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        Filter type string.
+    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "Metro:start"></a>
-    <strong>Metro:start (time, count, stage)</strong>
+    <a name = "get_slope"></a>
+    <strong>get_slope ()</strong>
     </dt>
     <dd>
-    start a metro
+    Get slope value.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">time</span>
-         - (optional) time period between ticks (seconds.) by default, re-use the last period
-        </li>
-        <li><span class="parameter">count</span>
-         - (optional) number of ticks. infinite by default
-        </li>
-        <li><span class="parameter">stage</span>
-         - (optional) initial stage number (1-based.) 1 by default
-        </li>
-    </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        Slope value.
+    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "Metro:stop"></a>
-    <strong>Metro:stop ()</strong>
+    <a name = "get_freq"></a>
+    <strong>get_freq ()</strong>
     </dt>
     <dd>
-    stop a metro
+    Get frequency value.
 
 
 
+    <h3>Returns:</h3>
+    <ol>
+
+        Frequency value.
+    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "Metro.__index"></a>
-    <strong>Metro.__index (self, idx)</strong>
+    <a name = "get_resonance"></a>
+    <strong>get_resonance ()</strong>
     </dt>
     <dd>
-    class custom .__index;
- [] accessor returns one of the static metro objects
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-        </li>
-        <li><span class="parameter">idx</span>
-
-        </li>
-    </ul>
+    Get resonance value.
 
 
 
+    <h3>Returns:</h3>
+    <ol>
 
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="Global_Functions"></a>Global Functions </h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "norns.metro"></a>
-    <strong>norns.metro (idx, stage)</strong>
-    </dt>
-    <dd>
-    callback on metro tick from C;
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">idx</span>
-
-        </li>
-        <li><span class="parameter">stage</span>
-
-        </li>
-    </ul>
-
+        Resonance value.
+    </ol>
 
 
 

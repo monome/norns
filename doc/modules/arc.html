@@ -38,12 +38,12 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><a href="../modules/arc.html">arc</a></li>
+  <li><strong>arc</strong></li>
   <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
-  <li><strong>grid</strong></li>
+  <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/core.menu.html">core.menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
@@ -82,8 +82,8 @@
 
 <div id="content">
 
-<h1>Module <code>grid</code></h1>
-<p>Grid class</p>
+<h1>Module <code>arc</code></h1>
+<p>Arc class</p>
 <p></p>
 
 
@@ -95,41 +95,37 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#add">add (dev)</a></td>
-	<td class="summary">static callback when any grid device is added;
+	<td class="summary">static callback when any arc device is added;
  user scripts can redefine</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#remove">remove (dev)</a></td>
-	<td class="summary">static callback when any grid device is removed;
+	<td class="summary">static callback when any arc device is removed;
  user scripts can redefine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#led">led (x, y, val)</a></td>
-	<td class="summary">set state of single LED on this grid device.</td>
+	<td class="name" nowrap><a href="#led">led (ring, x, val)</a></td>
+	<td class="summary">set state of single LED on this arc device</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#all">all (val)</a></td>
-	<td class="summary">set state of all LEDs on this grid device.</td>
+	<td class="summary">set state of all LEDs on this arc device</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#refresh">refresh ()</a></td>
-	<td class="summary">update any dirty quads on this grid device.</td>
+	<td class="summary">update any dirty quads on this arc device</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#segment">segment (ring, from, to, level)</a></td>
+	<td class="summary">draw anti-aliased point to point arc</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#connect">connect (n)</a></td>
-	<td class="summary">create device, returns object with handler and send.</td>
+	<td class="summary">create device, returns object with handler and send</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#cleanup">cleanup ()</a></td>
-	<td class="summary">clear handlers.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#update_devices">update_devices ()</a></td>
-	<td class="summary">update devices.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#norns.grid.key">norns.grid.key (id, x, y, s)</a></td>
-	<td class="summary">redefine global grid key input handler</td>
+	<td class="summary">clear handlers</td>
 	</tr>
 </table>
 
@@ -178,14 +174,14 @@
     <strong>add (dev)</strong>
     </dt>
     <dd>
-    static callback when any grid device is added;
+    static callback when any arc device is added;
  user scripts can redefine
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">dev</span>
-         : a Grid table
+         : a Arc table
         </li>
     </ul>
 
@@ -199,14 +195,14 @@
     <strong>remove (dev)</strong>
     </dt>
     <dd>
-    static callback when any grid device is removed;
+    static callback when any arc device is removed;
  user scripts can redefine
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">dev</span>
-         : a Grid table
+         : a Arc table
         </li>
     </ul>
 
@@ -217,21 +213,21 @@
 </dd>
     <dt>
     <a name = "led"></a>
-    <strong>led (x, y, val)</strong>
+    <strong>led (ring, x, val)</strong>
     </dt>
     <dd>
-    set state of single LED on this grid device.
+    set state of single LED on this arc device
 
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">ring</span>
+            <span class="types"><span class="type">integer</span></span>
+         : ring index (1-based!)
+        </li>
         <li><span class="parameter">x</span>
             <span class="types"><span class="type">integer</span></span>
-         : column index (1-based!)
-        </li>
-        <li><span class="parameter">y</span>
-            <span class="types"><span class="type">integer</span></span>
-         : row index (1-based!)
+         : led index (1-based!)
         </li>
         <li><span class="parameter">val</span>
             <span class="types"><span class="type">integer</span></span>
@@ -249,7 +245,7 @@
     <strong>all (val)</strong>
     </dt>
     <dd>
-    set state of all LEDs on this grid device.
+    set state of all LEDs on this arc device
 
 
     <h3>Parameters:</h3>
@@ -270,9 +266,42 @@
     <strong>refresh ()</strong>
     </dt>
     <dd>
-    update any dirty quads on this grid device.
+    update any dirty quads on this arc device
 
 
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "segment"></a>
+    <strong>segment (ring, from, to, level)</strong>
+    </dt>
+    <dd>
+    draw anti-aliased point to point arc
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ring</span>
+            <span class="types"><span class="type">integer</span></span>
+         : ring index (1-based)
+        </li>
+        <li><span class="parameter">from</span>
+            <span class="types"><span class="type">number</span></span>
+         : from angle in radians
+        </li>
+        <li><span class="parameter">to</span>
+            <span class="types"><span class="type">number</span></span>
+         : to angle in radians
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [0, 15]
+        </li>
+    </ul>
 
 
 
@@ -284,14 +313,13 @@
     <strong>connect (n)</strong>
     </dt>
     <dd>
-    create device, returns object with handler and send.
+    create device, returns object with handler and send
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">integer</span></span>
-         : vport index
+
         </li>
     </ul>
 
@@ -305,52 +333,9 @@
     <strong>cleanup ()</strong>
     </dt>
     <dd>
-    clear handlers.
+    clear handlers
 
 
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "update_devices"></a>
-    <strong>update_devices ()</strong>
-    </dt>
-    <dd>
-    update devices.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "norns.grid.key"></a>
-    <strong>norns.grid.key (id, x, y, s)</strong>
-    </dt>
-    <dd>
-    redefine global grid key input handler
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">id</span>
-
-        </li>
-        <li><span class="parameter">x</span>
-
-        </li>
-        <li><span class="parameter">y</span>
-
-        </li>
-        <li><span class="parameter">s</span>
-
-        </li>
-    </ul>
 
 
 

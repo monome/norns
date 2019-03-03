@@ -6,9 +6,9 @@ local d = 1
 
 local m = require 'musicutil'
 
-voices = {4,4,4,4}
+local voices = {4,4,4,4}
 
-function new_voice()
+local function new_voice()
   local x = 0
   local n = 1
   for i=1,4 do
@@ -45,6 +45,8 @@ function sc.init(file)
     softcut.rate(i, 0)
     softcut.rate_slew_time(i,0)
     softcut.loop(i, 0)
+    softcut.loop_start(i,1)
+    softcut.loop_end(i,dur)
     softcut.fade_time(i, 0.01)
     softcut.position(i, 1)
     softcut.enable(i, 1)

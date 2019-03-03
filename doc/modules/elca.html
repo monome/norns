@@ -62,11 +62,11 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><strong>state</strong></li>
+  <li><a href="../modules/state.html">state</a></li>
   <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
   <li><a href="../modules/Passersby.html">Passersby</a></li>
   <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
-  <li><a href="../modules/elca.html">elca</a></li>
+  <li><strong>elca</strong></li>
   <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
   <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
   <li><a href="../modules/Graph.html">Graph</a></li>
@@ -82,16 +82,24 @@
 
 <div id="content">
 
-<h1>Module <code>state</code></h1>
-<p>State</p>
+<h1>Module <code>elca</code></h1>
+<p>elementary cellular automata</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#save">save ()</a></td>
-	<td class="summary">save current norns state to system.pset and system.lua in data_dir</td>
+	<td class="name" nowrap><a href="#neighbors">neighbors (i)</a></td>
+	<td class="summary">helper: return three values to use for neighbor code</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#code">code (l, c, r)</a></td>
+	<td class="summary">get binary code for value given cell and neighbors</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#window">window (n)</a></td>
+	<td class="summary">return 8 cells at current offset</td>
 	</tr>
 </table>
 
@@ -103,14 +111,76 @@
 
     <dl class="function">
     <dt>
-    <a name = "save"></a>
-    <strong>save ()</strong>
+    <a name = "neighbors"></a>
+    <strong>neighbors (i)</strong>
     </dt>
     <dd>
-    save current norns state to system.pset and system.lua in data_dir
+    helper: return three values to use for neighbor code
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        tuple of left, right, center
+    </ol>
 
 
 
+
+</dd>
+    <dt>
+    <a name = "code"></a>
+    <strong>code (l, c, r)</strong>
+    </dt>
+    <dd>
+    get binary code for value given cell and neighbors
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+
+        </li>
+        <li><span class="parameter">c</span>
+
+        </li>
+        <li><span class="parameter">r</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "window"></a>
+    <strong>window (n)</strong>
+    </dt>
+    <dd>
+    return 8 cells at current offset
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table with 8 binary values
+    </ol>
 
 
 
