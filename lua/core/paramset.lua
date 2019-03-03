@@ -218,7 +218,7 @@ end
 function ParamSet:write(filename)
   self.init()
   local dir = norns.state.data
-  if filename == "system.pset" then dir = data_dir end -- hack for system.pset
+  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
   -- write file
   local file = dir .. filename
   print("pset >> write: "..file)
@@ -237,7 +237,7 @@ end
 function ParamSet:read(filename)
   self.init()
   local dir = norns.state.data
-  if filename == "system.pset" then dir = data_dir end -- hack for system.pset
+  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
   local file = dir .. filename
   print("pset >> read: " .. file)
   local fd = io.open(file, "r")
