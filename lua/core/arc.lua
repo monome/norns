@@ -28,7 +28,7 @@ for i=1,4 do
   }
 end
 
---- constructor
+--- constructor.
 -- @tparam integer id : arbitrary numeric identifier
 -- @tparam string serial : serial
 -- @tparam string name : name
@@ -62,19 +62,19 @@ function Arc.new(id, serial, name, dev)
   return device
 end
 
---- static callback when any arc device is added;
--- user scripts can redefine
+--- static callback when any arc device is added.
+-- user scripts can redefine.
 -- @param dev : a Arc table
 function Arc.add(dev)
   print("arc added:", dev.id, dev.name, dev.serial)
 end
 
---- static callback when any arc device is removed;
--- user scripts can redefine
+--- static callback when any arc device is removed.
+-- user scripts can redefine.
 -- @param dev : a Arc table
 function Arc.remove(dev) end
 
---- set state of single LED on this arc device
+--- set state of single LED on this arc device.
 -- @tparam integer ring : ring index (1-based!)
 -- @tparam integer x : led index (1-based!)
 -- @tparam integer val : LED brightness in [0, 15]
@@ -82,18 +82,20 @@ function Arc:led(ring, x, val)
   arc_set_led(self.dev, ring, x, val)
 end
 
---- set state of all LEDs on this arc device
+--- set state of all LEDs on this arc device.
 -- @tparam integer val : LED brightness in [0, 15]
 function Arc:all(val)
   arc_all_led(self.dev, val)
 end
 
---- update any dirty quads on this arc device
+--- update any dirty quads on this arc device.
 function Arc:refresh()
   monome_refresh(self.dev)
 end
 
---- draw anti-aliased point to point arc
+--- create an anti-aliased point to point arc 
+-- segment/range on a sepcific LED ring.
+-- each point can be a decimal, LEDs will fade for in between values. 
 -- @tparam integer ring : ring index (1-based)
 -- @tparam number from : from angle in radians
 -- @tparam number to : to angle in radians

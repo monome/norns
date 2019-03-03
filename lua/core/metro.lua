@@ -13,8 +13,11 @@ Metro.available = {}
 Metro.assigned = {}
 
 
---- init/assign
--- initialize a metro (assigns unused id)
+--- initialize a metro.
+-- assigns unused id.
+-- @param arg callback function
+-- @param arg_time time period between ticks (seconds).
+-- @param arg_count number of ticks. infinite by default.
 function Metro.init(arg, arg_time, arg_count)
   local event = 0
   local time = arg_time or 1
@@ -61,8 +64,8 @@ function Metro.free_all()
 end
 
 
---- constructor;
--- @param id : identifier (integer)
+--- constructor.
+-- @tparam integer id : identifier
 function Metro.new(id)
   local m = {}
   m.props = {
@@ -76,7 +79,7 @@ function Metro.new(id)
   return m
 end
 
---- start a metro
+--- start a metro.
 -- @param time - (optional) time period between ticks (seconds.) by default, re-use the last period
 -- @param count - (optional) number of ticks. infinite by default
 -- @param stage - (optional) initial stage number (1-based.) 1 by default
@@ -95,7 +98,7 @@ function Metro:start(time, count, stage)
   metro_start(self.props.id, self.props.time, self.props.count, self.props.init_stage) -- C function
 end
 
---- stop a metro
+--- stop a metro.
 function Metro:stop()
   metro_stop(self.props.id) -- C function
   self.is_running = false
@@ -117,8 +120,8 @@ Metro.__newindex = function(self, idx, val)
   end
 end
 
---- class custom .__index;
--- [] accessor returns one of the static metro objects
+--- class custom .__index.
+-- [] accessor returns one of the static metro objects.
 Metro.__index = function(self, idx)
   if type(idx) == "number" then
     return Metro.metros[idx]
@@ -137,8 +140,8 @@ end
 
 setmetatable(Metro, Metro)
 
----------------------
----- static initialization
+--
+-- static initialization
 
 -- initialize module data
 for i=1,Metro.num_metros do
@@ -155,7 +158,7 @@ end
 --- Global Functions
 -- @section globals
 
---- callback on metro tick from C;
+--- callback on metro tick from C.
 norns.metro = function(idx, stage)
   if Metro.metros[idx] then
     if Metro.metros[idx].event then
