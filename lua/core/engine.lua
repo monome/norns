@@ -17,8 +17,8 @@ Engine.commands = {}
 -- ----------------------------
 -- static methods
 
---- register all available engines;
--- called from OSC handler
+--- register all available engines.
+-- called from OSC handler.
 -- @param data - an array of strings
 -- @param count - number of names
 Engine.register = function(data, count)
@@ -29,8 +29,8 @@ Engine.register = function(data, count)
   Engine.names = data
 end
 
---- populate the current engine object with available commands;
--- called from OSC handler
+--- populate the current engine object with available commands.
+-- called from OSC handler.
 -- NB: we *can* count on the order of entries to be meaningful
 -- @param data - array of [name, format]
 -- @param count - number of commands
@@ -46,7 +46,7 @@ Engine.register_commands = function(data, count)
   end
 end
 
---- add a command to the current engine
+--- add a command to the current engine.
 -- @param id - integer index
 -- @param name - command name (string)
 -- @param fmt - OSC format string (e.g. 'isf' for "int string float")
@@ -74,7 +74,7 @@ Engine.list_commands = function()
   end
 end
 
---- load a named engine, with a callback
+--- load a named engine, with a callback.
 -- @param name - name of engine
 -- @param callback - function to call on engine load. will receive command list
 Engine.load = function(name, callback)
@@ -88,7 +88,7 @@ Engine.load = function(name, callback)
   load_engine(name)
 end
 
---- custom getters;
+--- custom getters.
 -- [] accessor returns a command function;
 -- this allows e.g. engine.hz(100)
 function Engine.__index(self, idx)
