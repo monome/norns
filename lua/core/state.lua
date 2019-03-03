@@ -10,7 +10,7 @@ state.name = ''
 state.shortname = ''
 state.clean_shutdown = false
 
--- read state.lua and set parameters back to stored vals
+--- read state.lua and set parameters back to stored vals.
 state.resume = function()
   -- restore mix state
   mix:read("system.pset")
@@ -54,7 +54,7 @@ state.resume = function()
   end
 end
 
---- save current norns state to system.pset and system.lua in data_dir
+--- save current norns state to system.pset and system.lua in data_dir.
 state.save = function()
   state.save_mix()
   state.save_state()

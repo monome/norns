@@ -64,13 +64,13 @@ function Midi.new(id, name, dev)
   return d
 end
 
---- static callback when any midi device is added;
--- user scripts can redefine
+--- static callback when any midi device is added.
+-- user scripts can redefine.
 -- @param dev : a Midi table
 function Midi.add(dev) end
 
---- static callback when any midi device is removed;
--- user scripts can redefine
+--- static callback when any midi device is removed.
+-- user scripts can redefine.
 -- @param dev : a Midi table
 function Midi.remove(dev) end
 

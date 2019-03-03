@@ -3,8 +3,8 @@
 
 local Script = {}
 
---- reset script environment;
--- ie redirect draw, key, enc functions, stop timers, clear engine, etc
+--- reset script environment.
+-- ie redirect draw, key, enc functions, stop timers, clear engine, etc.
 Script.clear = function()
   print("# script clear")
 
@@ -72,7 +72,7 @@ Script.init = function()
   s_save()
 end
 
---- load a script from the /scripts folder
+--- load a script from the /scripts folder.
 -- @param filename (string) - file to load. leave blank to reload current file.
 Script.load = function(filename)
   if filename == nil then
@@ -141,7 +141,7 @@ Script.load = function(filename)
   end
 end
 
---- load engine, execute script-specified init (if present)
+--- load engine, execute script-specified init (if present).
 Script.run = function()
   print("# script run")
   if engine.name ~= nil then
@@ -153,7 +153,7 @@ Script.run = function()
   end
 end
 
---- load script metadata
+--- load script metadata.
 -- @param filename file to load
 -- @return meta table with metadata
 Script.metadata = function(filename)

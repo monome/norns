@@ -25,7 +25,7 @@ end
 -- @param state on(1) or off(0)
 Screen.aa = function(state) s_aa(state) end
 
---- clear
+--- clear.
 Screen.clear = function() s_clear() end
 
 --- set level (color/brightness).
@@ -117,25 +117,25 @@ Screen.curve_rel = function(x1, y1, x2, y2, x3, y3) s_curve_rel(x1, y1, x2, y2, 
 Screen.close = function() s_close() end
 
 --- stroke current path.
--- uses currently selected color
+-- uses currently selected color.
 Screen.stroke = function() s_stroke() end
 
 --- fill current path.
--- uses currently selected color
+-- uses currently selected color.
 Screen.fill = function() s_fill() end
 
 --- draw text (left aligned).
--- uses currently selected font
+-- uses currently selected font.
 -- @tparam string str : text to write
 Screen.text = function(str) s_text(str) end
 
 --- draw text, right aligned.
 -- uses currently selected font
--- @tparam string str : text to write
+-- @tparam string str : text to write.
 Screen.text_right = function(str) s_text_right(str) end
 
 --- draw text, center aligned.
--- uses currently selected font
+-- uses currently selected font.
 -- @tparam string str : text to write
 Screen.text_center = function(str) s_text_center(str) end
 
@@ -171,11 +171,11 @@ Screen.text_center = function(str) s_text_center(str) end
 -- 14 Roboto Black Italic
 Screen.font_face = function(index) s_font_face(index) end
 
---- set font size
--- @param size in pixel height
+--- set font size.
+-- @param size in pixel height.
 Screen.font_size = function(size) s_font_size(size) end
 
---- draw single pixel (requires integer x/y, fill afterwards)
+--- draw single pixel (requires integer x/y, fill afterwards).
 -- @param x position
 -- @param y position
 Screen.pixel = function(x, y)
@@ -199,7 +199,7 @@ s_circle = function(x, y, r)
   s_arc(x, y, r, 0, math.pi*2)
 end
 
---- display png
+--- display png.
 -- @param filename
 -- @param x x position
 -- @param y y position
