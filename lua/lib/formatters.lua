@@ -21,7 +21,9 @@ function Formatters.format_freq_raw(freq)
 end
 
 function Formatters.format_secs_raw(secs)
-  if util.round(secs, 0.01) >= 1 then
+  if secs >= 100 then
+    secs = util.round(secs)
+  elseif util.round(secs, 0.01) >= 1 then
     secs = util.round(secs, 0.1)
   else
     secs = util.round(secs, 0.01)
