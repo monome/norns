@@ -2,7 +2,7 @@
 -- Widgets for paging, tabs, lists, dials, sliders, etc.
 --
 -- @module UI
--- @release v1.0.0
+-- @release v1.0.1
 -- @author Mark Eats
 
 local UI = {}
@@ -39,11 +39,10 @@ end
 -- @param delta Number to move from selected page.
 -- @param wrap Boolean, true to wrap pages.
 function UI.Pages:set_index_delta(delta, wrap)
-  local index
+  local index = self.index + delta
   if wrap then
-    index = self.index % self.num_pages + delta
-  else
-    index = self.index + delta
+    while index > self.num_pages do index = index - self.num_pages end
+    while index < 1 do index = index + self.num_pages end
   end
   self:set_index(index)
 end
@@ -91,11 +90,11 @@ end
 -- @param delta Number to move from selected tab.
 -- @param wrap Boolean, true to wrap tabs.
 function UI.Tabs:set_index_delta(delta, wrap)
-  local index
+  local index = self.index + delta
+  local count = #self.titles
   if wrap then
-    index = self.index % #self.titles + delta
-  else
-    index = self.index + delta
+    while index > count do index = index - count end
+    while index < 1 do index = index + count end
   end
   self:set_index(index)
 end
@@ -150,11 +149,11 @@ end
 -- @param delta Number to move from selected entry.
 -- @param wrap Boolean, true to wrap list.
 function UI.List:set_index_delta(delta, wrap)
-  local index
+  local index = self.index + delta
+  local count = #self.entries
   if wrap then
-    index = self.index % #self.entries + delta
-  else
-    index = self.index + delta
+    while index > count do index = index - count end
+    while index < 1 do index = index + count end
   end
   self:set_index(index)
 end
@@ -215,11 +214,11 @@ end
 -- @param delta Number to move from selected entry.
 -- @param wrap Boolean, true to wrap list.
 function UI.ScrollingList:set_index_delta(delta, wrap)
-  local index
+  local index = self.index + delta
+  local count = #self.entries
   if wrap then
-    index = self.index % #self.entries + delta
-  else
-    index = self.index + delta
+    while index > count do index = index - count end
+    while index < 1 do index = index + count end
   end
   self:set_index(index)
 end
@@ -366,20 +365,36 @@ UI.Dial.__index = UI.Dial
 -- @param min_value Minimum value, defaults to 0.
 -- @param max_value Maximum value, defaults to 1.
 -- @param rounding Sets precision to round value to, defaults to 0.01.
+-- @param start_value Sets where fill line is drawn from, defaults to 0.
+-- @param markers Array of marker positions.
+-- @param units String to display after value text.
+-- @param title String to be displayed instead of value text.
 -- @return Instance of Dial.
-function UI.Dial.new(x, y, size, value, min_value, max_value, rounding)
+function UI.Dial.new(x, y, size, value, min_value, max_value, rounding, start_value, markers, units, title)
+  local markers_table = markers or {}
+  min_value = min_value or 0
   local dial = {
     x = x or 0,
     y = y or 0,
     size = size or 22,
     value = value or 0,
-    min_value = min_value or 0,
+    min_value = min_value,
     max_value = max_value or 1,
     rounding = rounding or 0.01,
-    active = true
+    start_value = start_value or min_value,
+    units = units,
+    title = title or nil,
+    active = true,
+    _start_angle = math.pi * 0.7,
+    _end_angle = math.pi * 2.3,
+    _markers = {},
+    _marker_points = {}
   }
   setmetatable(UI.Dial, {__index = UI})
   setmetatable(dial, UI.Dial)
+  for k, v in pairs(markers_table) do
+    dial:set_marker_position(k, v)
+  end
   return dial
 end
 
@@ -395,27 +410,69 @@ function UI.Dial:set_value_delta(delta)
   self:set_value(self.value + delta)
 end
 
+--- Set marker position.
+-- @param id Marker number.
+-- @param position Marker position number.
+function UI.Dial:set_marker_position(id, position)
+  self._markers[id] = util.clamp(position, self.min_value, self.max_value)
+  
+  local radius = self.size * 0.5
+  local marker_length = 3
+  
+  local marker_in = radius - marker_length
+  local marker_out = radius + marker_length
+  local marker_angle = util.linlin(self.min_value, self.max_value, self._start_angle, self._end_angle, self._markers[id])
+  local x_center = self.x + self.size / 2
+  local y_center = self.y + self.size / 2
+  self._marker_points[id] = {}
+  self._marker_points[id].x1 = x_center + math.cos(marker_angle) * marker_in
+  self._marker_points[id].y1 = y_center + math.sin(marker_angle) * marker_in
+  self._marker_points[id].x2 = x_center + math.cos(marker_angle) * marker_out
+  self._marker_points[id].y2 = y_center + math.sin(marker_angle) * marker_out
+end
+
 --- Redraw Dial.
 -- Call when changed.
 function UI.Dial:redraw()
   local radius = self.size * 0.5
-  local start_angle = math.pi * 0.7
-  local end_angle = math.pi * 2.3
-  local arc_amount = util.linlin(self.min_value, self.max_value, start_angle, end_angle, self.value)
+  
+  local fill_start_angle = util.linlin(self.min_value, self.max_value, self._start_angle, self._end_angle, self.start_value)
+  local fill_end_angle = util.linlin(self.min_value, self.max_value, self._start_angle, self._end_angle, self.value)
+  
+  if fill_end_angle < fill_start_angle then
+    local temp_angle = fill_start_angle
+    fill_start_angle = fill_end_angle
+    fill_end_angle = temp_angle
+  end
   
   screen.level(5)
-  screen.arc(self.x + radius, self.y + radius, radius - 0.5, arc_amount, end_angle)
+  screen.arc(self.x + radius, self.y + radius, radius - 0.5, self._start_angle, self._end_angle)
   screen.stroke()
+  
+  for _, v in pairs(self._marker_points) do
+    screen.move(v.x1, v.y1)
+    screen.line(v.x2, v.y2)
+    screen.stroke()
+  end
   
   screen.level(15)
   screen.line_width(2.5)
-  screen.arc(self.x + radius, self.y + radius, radius - 0.5, start_angle, arc_amount)
+  screen.arc(self.x + radius, self.y + radius, radius - 0.5, fill_start_angle, fill_end_angle)
   screen.stroke()
   screen.line_width(1)
   
+  local title
+  if self.title then
+    title = self.title
+  else
+    title = util.round(self.value, self.rounding)
+    if self.units then
+      title = title .. " " .. self.units
+    end
+  end
   if self.active then screen.level(15) else screen.level(3) end
   screen.move(self.x + radius, self.y + self.size + 6)
-  screen.text_center(util.round(self.value, self.rounding))
+  screen.text_center(title)
   screen.fill()
 end
 
