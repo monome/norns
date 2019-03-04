@@ -1413,7 +1413,7 @@ m.key[pTAPE] = function(n,z)
           end
           menu.redraw()
         end
-        fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
+        fileselect.enter(dust_dir, playfile_callback)
       elseif m.tape.play.sel == TAPE_PLAY_PLAY then
         tape_play_counter:start()
         audio.tape_play_start()
