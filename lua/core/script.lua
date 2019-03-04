@@ -126,18 +126,21 @@ Script.load = function(filename)
 
     Script.clear() -- clear script variables and functions
 
+    norns.state.script = filename
+    norns.state.path = path .. '/'
+    norns.state.data = data_dir .. name .. '/'
+    norns.state.name = name
+    norns.state.shortname = norns.state.name:match( "([^/]+)$" )
+
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
     if status == true then
-      norns.state.script = filename
-      norns.state.path = path .. '/'
-      norns.state.data = data_dir .. name .. '/'
-      norns.state.name = name
-      norns.state.shortname = norns.state.name:match( "([^/]+)$" )
       norns.state.save() -- remember this script for next launch
       norns.script.nointerface = redraw == norns.blank -- check if redraw is present
       norns.script.redraw = redraw -- store redraw function for context switching
       redraw = norns.none -- block redraw until Script.init
       Script.run() -- load engine then run script-specified init function
+    else
+      Script.clear()
     end
   end
 end
