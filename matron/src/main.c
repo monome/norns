@@ -23,6 +23,7 @@
 #include "screen.h"
 #include "stat.h"
 #include "clock.h"
+#include "clocks/clock_tempo.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -65,6 +66,7 @@ int main(int argc, char **argv) {
     i2c_init();
     osc_init();
     clock_init();
+    clock_tempo_start();
 
     o_init(); // oracle (audio)
 

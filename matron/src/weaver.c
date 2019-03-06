@@ -1429,7 +1429,7 @@ int _clock_schedule(lua_State *l) {
   if (time == 0) {
     w_handle_clock_resume(thread_id);
   } else {
-    clock_schedule(thread_id, time);
+    clock_schedule_resume(thread_id, time);
   }
 
   return 0;
