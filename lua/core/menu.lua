@@ -1181,7 +1181,7 @@ m.key[pSLEEP] = function(n,z)
     menu.redraw()
     norns.state.clean_shutdown = true
     norns.state.save()
-    cleanup()
+    pcall(cleanup)
     if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     audio.level_dac(0)
     audio.headphone_gain(0)
