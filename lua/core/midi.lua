@@ -24,6 +24,7 @@ for i=1,4 do
     pitchbend = vport.wrap_method('pitchbend'),
     key_pressure = vport.wrap_method('key_pressure'),
     channel_pressure = vport.wrap_method('channel_pressure'),
+    program_change = vport.wrap_method('program_change'),
     start = vport.wrap_method('start'),
     stop = vport.wrap_method('stop'),
     continue = vport.wrap_method('continue'),
@@ -131,6 +132,13 @@ function Midi:channel_pressure(val, ch)
   self:send{type="channel_pressure", val=val, ch=ch or 1}
 end
 
+--- send midi program change event.
+-- @tparam integer val : value 
+-- @tparam integer ch : midi channel
+function Midi:program_change(val, ch)
+  self:send{type="program_change", val=val, ch=ch or 1}
+end
+
 --- send midi start event.
 function Midi:start()
   self:send{type="start"}
@@ -204,6 +212,9 @@ local to_data = {
     end,
   channel_pressure = function(msg)
       return {0xd0 + (msg.ch or 1) - 1, msg.val}
+    end,
+  program_change = function(msg)
+      return {0xc0 + (msg.ch or 1) - 1, msg.val}
     end,
   start = function(msg)
       return {0xfa}
@@ -290,6 +301,13 @@ function Midi.to_msg(data)
       type = "channel_pressure",
       val = data[2],
       ch = data[1] - 0xd0 + 1
+    }
+  -- program change
+  elseif data[1] & 0xf0 == 0xc0 then
+    msg = {
+      type = "program_change",
+      val = data[2],
+      ch = data[1] - 0xc0 + 1
     }
   -- start
   elseif data[1] == 0xfa then
