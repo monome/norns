@@ -134,6 +134,7 @@ end
 
 --- send midi program change event.
 -- @tparam integer val : value 
+-- @tparam integer ch : midi channel
 function Midi:program_change(val, ch)
   self:send{type="program_change", val=val, ch=ch or 1}
 end
