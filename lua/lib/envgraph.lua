@@ -8,7 +8,7 @@
 local EnvGraph = {}
 EnvGraph.__index = EnvGraph
 
-local Graph = require "mark_eats/graph"
+local Graph = require "graph"
 
 
 

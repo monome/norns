@@ -8,7 +8,7 @@
 local FilterGraph = {}
 FilterGraph.__index = FilterGraph
 
-local Graph = require "mark_eats/graph"
+local Graph = require "graph"
 
 
 
