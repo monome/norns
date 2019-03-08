@@ -250,7 +250,7 @@ function ParamSet:read(filename)
         id = unquote(id)
         local index = self.lookup[id]
 
-        if index then
+        if index and self.params[index] then
           if tonumber(value) ~= nil then
             self.params[index]:set(tonumber(value))
           elseif value == "-inf" then
