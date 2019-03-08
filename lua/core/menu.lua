@@ -1143,7 +1143,7 @@ elseif n==3 and z==1 then
     if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     norns.state.clean_shutdown = true
     norns.state.save()
-    pcall(cleanup)
+    if pcall(cleanup) == false then print("cleanup failed") end
 
     os.execute("sudo systemctl restart norns-jack.service")
     os.execute("sudo systemctl restart norns-crone.service")
