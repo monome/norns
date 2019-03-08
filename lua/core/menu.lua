@@ -1146,8 +1146,6 @@ elseif n==3 and z==1 then
     if pcall(cleanup) == false then print("cleanup failed") end
 
     os.execute("sudo systemctl restart norns-jack.service")
-    os.execute("sudo systemctl restart norns-crone.service")
-    os.execute("sudo systemctl restart norns-sclang.service")
     os.execute("sudo systemctl restart norns-matron.service")
   end
 end
