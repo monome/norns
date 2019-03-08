@@ -975,10 +975,10 @@ m.key[pWIFI] = function(n,z)
       listselect.enter(wifi.conn_list, m.wifi.connect)
     elseif m.wifi.pos == 3 then
       wifi.update()
-      listselect.enter(m.wifi.ssid_list, m.wifi.add) 
+      listselect.enter(m.wifi.ssid_list, m.wifi.add)
     elseif m.wifi.pos == 4 then
       wifi.update()
-      listselect.enter(wifi.conn_list, m.wifi.del) 
+      listselect.enter(wifi.conn_list, m.wifi.del)
     end
   end
 end
@@ -1146,8 +1146,6 @@ elseif n==3 and z==1 then
     if pcall(cleanup) == false then print("cleanup failed") end
 
     os.execute("sudo systemctl restart norns-jack.service")
-    os.execute("sudo systemctl restart norns-crone.service")
-    os.execute("sudo systemctl restart norns-sclang.service")
     os.execute("sudo systemctl restart norns-matron.service")
   end
 end
@@ -1395,7 +1393,7 @@ m.key[pTAPE] = function(n,z)
             tape_play_counter.time = 0.25
             tape_play_counter.event = function()
               m.tape.play.pos_tick = m.tape.play.pos_tick + 0.25
-              if m.tape.play.pos_tick > m.tape.play.length 
+              if m.tape.play.pos_tick > m.tape.play.length
                   and m.tape.play.status == TAPE_PLAY_PLAY then
                 print("tape is over!")
                 audio.tape_play_stop()
@@ -1534,5 +1532,3 @@ m.init[pTAPE] = function()
   tape_diskfree()
 end
 m.deinit[pTAPE] = norns.none
-
-
