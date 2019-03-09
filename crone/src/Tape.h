@@ -210,7 +210,10 @@ namespace crone {
                         continue;
                     }
 
-                    if (framesToWrite > (int) maxFramesToWrite) { framesToWrite = (int) maxFramesToWrite; }
+                    if (framesToWrite > (int) maxFramesToWrite) {
+			std::cerr << "warning: Tape::Writer has too many frames to write" << std::endl;
+			framesToWrite = (int) maxFramesToWrite;
+		    }
 
                     jack_ringbuffer_read(this->ringBuf.get(), (char *) diskOutBuf, framesToWrite * frameSize);
                     if (sf_writef_float(this->file, diskOutBuf, framesToWrite) != framesToWrite) {
