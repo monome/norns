@@ -13,7 +13,7 @@ Poll.polls = {}
 --- poll names (indexed by int) - for reverse lookup
 Poll.poll_names = {}
 
--- constructor
+-- constructor.
 function Poll.new(props)
   local p = {}
   if props then
@@ -31,17 +31,17 @@ end
 --- Instance Methods
 -- @section instance
 
---- start a poll
+--- start a poll.
 function Poll:start()
   start_poll(self.props.id)
 end
 
---- stop a poll
+--- stop a poll.
 function Poll:stop()
   stop_poll(self.props.id)
 end
 
---- request a single update immediately
+--- request a single update immediately.
 function Poll:update(callback)
    if callback then
       if type(callback) == "function" then
@@ -51,7 +51,7 @@ function Poll:update(callback)
    request_poll_value(self.props.id)
 end
 
---- custom setters;
+--- custom setters.
 -- `.time` and `.callback` set the corresponding private properties and perform approriate actions.
 function Poll:__newindex(idx, val)
   if idx == 'time' then
@@ -63,8 +63,8 @@ function Poll:__newindex(idx, val)
   -- oher properties are not settable!
 end
 
---- custom getters;
--- available properties: name, callback, start, stop
+--- custom getters.
+-- available properties: name, callback, start, stop.
 function Poll:__index(idx)
   if idx == 'id' then return self.props.id
   elseif idx == 'name' then return self.props.name
@@ -78,7 +78,7 @@ function Poll:__index(idx)
   end
 end
 
--- perform the poll's assigned callback function, if it exists
+-- perform the poll's assigned callback function, if it exists.
 -- (fixme: this all seems a little over-complicated)
 function Poll:perform(value)
   if self.props then
@@ -97,7 +97,7 @@ end
 --- Static Methods
 -- @section static
 
---- called with OSC data from norns callback to register all available polls
+--- called with OSC data from norns callback to register all available polls.
 -- @param data - table from OSC; each entry is { id (int), name (string) }
 -- @tparam integer count - size of table
 Poll.register = function(data, count)
@@ -121,7 +121,7 @@ Poll.list_names = function()
   for _,n in ipairs(names) do print(n) end
 end
 
---- set callback function for registered Poll object by name
+--- set callback function for registered Poll object by name.
 -- @tparam string name
 -- @param callback function to call with value on each poll
 Poll.set = function(name, callback)
@@ -132,7 +132,7 @@ Poll.set = function(name, callback)
   return p
 end
 
---- stop all polls
+--- stop all polls.
 Poll.clear_all = function()
    for _,p in pairs(Poll.polls) do
       p:stop()

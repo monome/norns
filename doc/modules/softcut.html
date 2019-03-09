@@ -1,0 +1,1164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#"> </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/core.menu.html">core.menu</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/norns.html">norns</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/control.html">control</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/number.html">number</a></li>
+  <li><a href="../modules/option.html">option</a></li>
+  <li><a href="../modules/separator.html">separator</a></li>
+  <li><a href="../modules/taper.html">taper</a></li>
+  <li><a href="../modules/trigger.html">trigger</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><strong>softcut</strong></li>
+  <li><a href="../modules/state.html">state</a></li>
+  <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
+  <li><a href="../modules/Passersby.html">Passersby</a></li>
+  <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
+  <li><a href="../modules/elca.html">elca</a></li>
+  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/user.lib.textentry.html">user.lib.textentry</a></li>
+  <li><a href="../modules/UI.html">UI</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>softcut</code></h1>
+<p>Softcut module</p>
+<p> API for controlling the "softcut" buffer processor
+ includes low-level setters and mid-level utilities
+</p>
+
+
+<h2><a href="#"> </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SC.level">SC.level (voice, value)</a></td>
+	<td class="summary">set level of each voice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.pan">SC.pan (voice, value)</a></td>
+	<td class="summary">set pan of each voice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.level_input_cut">SC.level_input_cut (ch, voice, value)</a></td>
+	<td class="summary">set input level to each voice/channel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.level_cut_cut">SC.level_cut_cut (src, dst, value)</a></td>
+	<td class="summary">set mix matrix, voice output to voice input</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.play">SC.play (voice, state)</a></td>
+	<td class="summary">set play status</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.loop_start">SC.loop_start (voice, value)</a></td>
+	<td class="summary">set loop start</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.loop_end">SC.loop_end (voice, value)</a></td>
+	<td class="summary">set loop end</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.loop">SC.loop (voice, state)</a></td>
+	<td class="summary">set loop mode</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.fade_time">SC.fade_time (voice, value)</a></td>
+	<td class="summary">set fade time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.rec_level">SC.rec_level (voice, value)</a></td>
+	<td class="summary">set record level</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.pre_level">SC.pre_level (voice, value)</a></td>
+	<td class="summary">set pre level (overdub preserve)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.rec">SC.rec (voice, state)</a></td>
+	<td class="summary">set record status</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.rec_offset">SC.rec_offset (voice, value)</a></td>
+	<td class="summary">set record head offset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.position">SC.position (voice, value)</a></td>
+	<td class="summary">set play position</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.buffer">SC.buffer (i, b)</a></td>
+	<td class="summary">specify buffer used by voice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.voice_sync">SC.voice_sync (src, dest, v)</a></td>
+	<td class="summary">sync two voices</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_fc">SC.filter_fc (voice, value)</a></td>
+	<td class="summary">set filter cutoff</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_fc_mod">SC.filter_fc_mod (voice, value)</a></td>
+	<td class="summary">set filter mod</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_rq">SC.filter_rq (voice, value)</a></td>
+	<td class="summary">set filter q</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_lp">SC.filter_lp (voice, value)</a></td>
+	<td class="summary">set filter lp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_hp">SC.filter_hp (voice, value)</a></td>
+	<td class="summary">set filter hp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_bp">SC.filter_bp (voice, value)</a></td>
+	<td class="summary">set filter bp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_br">SC.filter_br (voice, value)</a></td>
+	<td class="summary">set filter br</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.filter_dry">SC.filter_dry (voice, value)</a></td>
+	<td class="summary">set filter dry</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.level_slew_time">SC.level_slew_time (voice, value)</a></td>
+	<td class="summary">set level slew time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.rate_slew_time">SC.rate_slew_time (voice, value)</a></td>
+	<td class="summary">set rate slew time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.phase_quant">SC.phase_quant (voice, value)</a></td>
+	<td class="summary">set phase poll quantization</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.poll_start_phase">SC.poll_start_phase ()</a></td>
+	<td class="summary">start phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.poll_stop_phase">SC.poll_stop_phase ()</a></td>
+	<td class="summary">stop phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.enable">SC.enable (voice, state)</a></td>
+	<td class="summary">set voice enable</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.buffer_clear">SC.buffer_clear ()</a></td>
+	<td class="summary">clear all buffers</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.buffer_clear_channel">SC.buffer_clear_channel (i)</a></td>
+	<td class="summary">clear one channel of buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.buffer_clear_region">SC.buffer_clear_region (start, stop)</a></td>
+	<td class="summary">clear region (both channels)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.buffer_clear_region_channel">SC.buffer_clear_region_channel (ch, start, stop)</a></td>
+	<td class="summary">clear region of single channel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.buffer_read_mono">SC.buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</a></td>
+	<td class="summary">read file to one channel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.buffer_read_stereo">SC.buffer_read_stereo (file, start_src, start_dst, dur)</a></td>
+	<td class="summary">read file, stereo</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.event_phase">SC.event_phase (f)</a></td>
+	<td class="summary">set function for phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.reset">SC.reset ()</a></td>
+	<td class="summary">reset softcut params</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SC.params">SC.params ()</a></td>
+	<td class="summary">controlspec factory
+ each table contains an entry for each softcut parameter.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name=""></a> </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SC.level"></a>
+    <strong>SC.level (voice, value)</strong>
+    </dt>
+    <dd>
+    set level of each voice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.pan"></a>
+    <strong>SC.pan (voice, value)</strong>
+    </dt>
+    <dd>
+    set pan of each voice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.level_input_cut"></a>
+    <strong>SC.level_input_cut (ch, voice, value)</strong>
+    </dt>
+    <dd>
+    set input level to each voice/channel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ch</span>
+
+        </li>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.level_cut_cut"></a>
+    <strong>SC.level_cut_cut (src, dst, value)</strong>
+    </dt>
+    <dd>
+    set mix matrix, voice output to voice input
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">src</span>
+
+        </li>
+        <li><span class="parameter">dst</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.play"></a>
+    <strong>SC.play (voice, state)</strong>
+    </dt>
+    <dd>
+    set play status
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.loop_start"></a>
+    <strong>SC.loop_start (voice, value)</strong>
+    </dt>
+    <dd>
+    set loop start
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.loop_end"></a>
+    <strong>SC.loop_end (voice, value)</strong>
+    </dt>
+    <dd>
+    set loop end
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.loop"></a>
+    <strong>SC.loop (voice, state)</strong>
+    </dt>
+    <dd>
+    set loop mode
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.fade_time"></a>
+    <strong>SC.fade_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set fade time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.rec_level"></a>
+    <strong>SC.rec_level (voice, value)</strong>
+    </dt>
+    <dd>
+    set record level
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.pre_level"></a>
+    <strong>SC.pre_level (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre level (overdub preserve)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.rec"></a>
+    <strong>SC.rec (voice, state)</strong>
+    </dt>
+    <dd>
+    set record status
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.rec_offset"></a>
+    <strong>SC.rec_offset (voice, value)</strong>
+    </dt>
+    <dd>
+    set record head offset
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.position"></a>
+    <strong>SC.position (voice, value)</strong>
+    </dt>
+    <dd>
+    set play position
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.buffer"></a>
+    <strong>SC.buffer (i, b)</strong>
+    </dt>
+    <dd>
+    specify buffer used by voice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number
+        </li>
+        <li><span class="parameter">b</span>
+            <span class="types"><span class="type">integer</span></span>
+         : buffer number (1,2)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.voice_sync"></a>
+    <strong>SC.voice_sync (src, dest, v)</strong>
+    </dt>
+    <dd>
+    sync two voices
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">src</span>
+
+        </li>
+        <li><span class="parameter">dest</span>
+
+        </li>
+        <li><span class="parameter">v</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_fc"></a>
+    <strong>SC.filter_fc (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter cutoff
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_fc_mod"></a>
+    <strong>SC.filter_fc_mod (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter mod
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_rq"></a>
+    <strong>SC.filter_rq (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter q
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_lp"></a>
+    <strong>SC.filter_lp (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter lp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_hp"></a>
+    <strong>SC.filter_hp (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter hp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_bp"></a>
+    <strong>SC.filter_bp (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter bp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_br"></a>
+    <strong>SC.filter_br (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter br
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.filter_dry"></a>
+    <strong>SC.filter_dry (voice, value)</strong>
+    </dt>
+    <dd>
+    set filter dry
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.level_slew_time"></a>
+    <strong>SC.level_slew_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set level slew time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.rate_slew_time"></a>
+    <strong>SC.rate_slew_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set rate slew time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.phase_quant"></a>
+    <strong>SC.phase_quant (voice, value)</strong>
+    </dt>
+    <dd>
+    set phase poll quantization
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.poll_start_phase"></a>
+    <strong>SC.poll_start_phase ()</strong>
+    </dt>
+    <dd>
+    start phase poll
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.poll_stop_phase"></a>
+    <strong>SC.poll_stop_phase ()</strong>
+    </dt>
+    <dd>
+    stop phase poll
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.enable"></a>
+    <strong>SC.enable (voice, state)</strong>
+    </dt>
+    <dd>
+    set voice enable
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.buffer_clear"></a>
+    <strong>SC.buffer_clear ()</strong>
+    </dt>
+    <dd>
+    clear all buffers
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.buffer_clear_channel"></a>
+    <strong>SC.buffer_clear_channel (i)</strong>
+    </dt>
+    <dd>
+    clear one channel of buffer
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.buffer_clear_region"></a>
+    <strong>SC.buffer_clear_region (start, stop)</strong>
+    </dt>
+    <dd>
+    clear region (both channels)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">start</span>
+
+        </li>
+        <li><span class="parameter">stop</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.buffer_clear_region_channel"></a>
+    <strong>SC.buffer_clear_region_channel (ch, start, stop)</strong>
+    </dt>
+    <dd>
+    clear region of single channel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ch</span>
+
+        </li>
+        <li><span class="parameter">start</span>
+
+        </li>
+        <li><span class="parameter">stop</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.buffer_read_mono"></a>
+    <strong>SC.buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</strong>
+    </dt>
+    <dd>
+    read file to one channel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+        <li><span class="parameter">start_src</span>
+
+        </li>
+        <li><span class="parameter">start_dst</span>
+
+        </li>
+        <li><span class="parameter">dur</span>
+
+        </li>
+        <li><span class="parameter">ch_src</span>
+
+        </li>
+        <li><span class="parameter">ch_dst</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.buffer_read_stereo"></a>
+    <strong>SC.buffer_read_stereo (file, start_src, start_dst, dur)</strong>
+    </dt>
+    <dd>
+    read file, stereo
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+        <li><span class="parameter">start_src</span>
+
+        </li>
+        <li><span class="parameter">start_dst</span>
+
+        </li>
+        <li><span class="parameter">dur</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.event_phase"></a>
+    <strong>SC.event_phase (f)</strong>
+    </dt>
+    <dd>
+    set function for phase poll
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.reset"></a>
+    <strong>SC.reset ()</strong>
+    </dt>
+    <dd>
+    reset softcut params
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SC.params"></a>
+    <strong>SC.params ()</strong>
+    </dt>
+    <dd>
+    controlspec factory
+ each table contains an entry for each softcut parameter.
+ each entry is a parameter argument list configured for that voice+param
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an array of tables, one per voice.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-03-04 05:06:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

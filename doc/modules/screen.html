@@ -38,14 +38,14 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
   <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/log.html">log</a></li>
-  <li><a href="../modules/menu.html">menu</a></li>
+  <li><a href="../modules/core.menu.html">core.menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
@@ -61,10 +61,20 @@
   <li><a href="../modules/poll.html">poll</a></li>
   <li><strong>screen</strong></li>
   <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
   <li><a href="../modules/state.html">state</a></li>
+  <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
+  <li><a href="../modules/Passersby.html">Passersby</a></li>
+  <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
+  <li><a href="../modules/elca.html">elca</a></li>
+  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/textentry.html">textentry</a></li>
-  <li><a href="../modules/update.html">update</a></li>
+  <li><a href="../modules/user.lib.textentry.html">user.lib.textentry</a></li>
+  <li><a href="../modules/UI.html">UI</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 
@@ -82,112 +92,111 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#update">update ()</a></td>
-	<td class="summary">copy buffer to screen</td>
+	<td class="summary">copy buffer to screen.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#aa">aa (state)</a></td>
-	<td class="summary">enable/disable anti-aliasing</td>
+	<td class="summary">enable/disable anti-aliasing.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#clear">clear ()</a></td>
-	<td class="summary">clear</td>
+	<td class="summary">clear.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#level">level (value)</a></td>
-	<td class="summary">set level (color/brightness)</td>
+	<td class="summary">set level (color/brightness).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#line_width">line_width (w)</a></td>
-	<td class="summary">set line width</td>
+	<td class="summary">set line width.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#line_cap">line_cap (style)</a></td>
-	<td class="summary">set line cap style</td>
+	<td class="summary">set line cap style.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#line_join">line_join (style)</a></td>
-	<td class="summary">set line join style</td>
+	<td class="summary">set line join style.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#miter_limit">miter_limit (limit)</a></td>
-	<td class="summary">set miter limit</td>
+	<td class="summary">set miter limit.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#move">move (x, y)</a></td>
-	<td class="summary">move drawing position</td>
+	<td class="summary">move drawing position.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#move_rel">move_rel (x, y)</a></td>
-	<td class="summary">move drawing position relative to current position</td>
+	<td class="summary">move drawing position relative to current position.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#line">line (x, y)</a></td>
-	<td class="summary">draw line to specified point</td>
+	<td class="summary">draw line to specified point.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#line_rel">line_rel (x, y)</a></td>
-	<td class="summary">draw line to specified point relative to current position</td>
+	<td class="summary">draw line to specified point relative to current position.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#arc">arc (x, y, r, angle1, angle2)</a></td>
-	<td class="summary">draw arc</td>
+	<td class="summary">draw arc.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#circle">circle (x, y, r)</a></td>
-	<td class="summary">draw circle</td>
+	<td class="summary">draw circle.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#rect">rect (x, y, w, h)</a></td>
-	<td class="summary">draw rectangle</td>
+	<td class="summary">draw rectangle.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#curve">curve (x1, y1, x2, y2, x3, y3)</a></td>
-	<td class="summary">draw curve (cubic Bézier spline)</td>
+	<td class="summary">draw curve (cubic Bézier spline).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#curve_rel">curve_rel (x1, y1, x2, y2, x3, y3)</a></td>
-	<td class="summary">draw curve (cubic Bézier spline) relative coordinates</td>
+	<td class="summary">draw curve (cubic Bézier spline) relative coordinates.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#close">close ()</a></td>
-	<td class="summary">close current path</td>
+	<td class="summary">close current path.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#stroke">stroke ()</a></td>
-	<td class="summary">stroke current path
- uses currently selected color</td>
+	<td class="summary">stroke current path.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#fill">fill ()</a></td>
-	<td class="summary">fill current path
- uses currently selected color</td>
+	<td class="summary">fill current path.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#text">text (string)</a></td>
-	<td class="summary">draw text (left aligned)
- uses currently selected font</td>
+	<td class="name" nowrap><a href="#text">text (str)</a></td>
+	<td class="summary">draw text (left aligned).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#text_right">text_right (string)</a></td>
-	<td class="summary">draw text, right aligned
- uses currently selected font</td>
+	<td class="name" nowrap><a href="#text_right">text_right (str)</a></td>
+	<td class="summary">draw text, right aligned.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#text_center">text_center (string)</a></td>
-	<td class="summary">draw text, center aligned
- uses currently selected font</td>
+	<td class="name" nowrap><a href="#text_center">text_center (str)</a></td>
+	<td class="summary">draw text, center aligned.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#font_face">font_face (index)</a></td>
-	<td class="summary">select font face</td>
+	<td class="summary">select font face.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#font_size">font_size (size)</a></td>
-	<td class="summary">set font size</td>
+	<td class="summary">set font size.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pixel">pixel (x, y)</a></td>
-	<td class="summary">draw single pixel (requires integer x/y, fill afterwards)</td>
+	<td class="summary">draw single pixel (requires integer x/y, fill afterwards).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#display_png">display_png (filename, x, y)</a></td>
+	<td class="summary">display png.</td>
 	</tr>
 </table>
 
@@ -203,7 +212,7 @@
     <strong>update ()</strong>
     </dt>
     <dd>
-    copy buffer to screen
+    copy buffer to screen.
 
 
 
@@ -217,7 +226,7 @@
     <strong>aa (state)</strong>
     </dt>
     <dd>
-    enable/disable anti-aliasing
+    enable/disable anti-aliasing.
 
 
     <h3>Parameters:</h3>
@@ -237,7 +246,7 @@
     <strong>clear ()</strong>
     </dt>
     <dd>
-    clear
+    clear.
 
 
 
@@ -251,7 +260,7 @@
     <strong>level (value)</strong>
     </dt>
     <dd>
-    set level (color/brightness)
+    set level (color/brightness).
 
 
     <h3>Parameters:</h3>
@@ -271,7 +280,7 @@
     <strong>line_width (w)</strong>
     </dt>
     <dd>
-    set line width
+    set line width.
 
 
     <h3>Parameters:</h3>
@@ -291,7 +300,7 @@
     <strong>line_cap (style)</strong>
     </dt>
     <dd>
-    set line cap style
+    set line cap style.
 
 
     <h3>Parameters:</h3>
@@ -311,7 +320,7 @@
     <strong>line_join (style)</strong>
     </dt>
     <dd>
-    set line join style
+    set line join style.
 
 
     <h3>Parameters:</h3>
@@ -331,7 +340,7 @@
     <strong>miter_limit (limit)</strong>
     </dt>
     <dd>
-    set miter limit
+    set miter limit.
 
 
     <h3>Parameters:</h3>
@@ -351,7 +360,7 @@
     <strong>move (x, y)</strong>
     </dt>
     <dd>
-    move drawing position
+    move drawing position.
 
 
     <h3>Parameters:</h3>
@@ -374,7 +383,7 @@
     <strong>move_rel (x, y)</strong>
     </dt>
     <dd>
-    move drawing position relative to current position
+    move drawing position relative to current position.
 
 
     <h3>Parameters:</h3>
@@ -397,7 +406,7 @@
     <strong>line (x, y)</strong>
     </dt>
     <dd>
-    draw line to specified point
+    draw line to specified point.
 
 
     <h3>Parameters:</h3>
@@ -420,7 +429,7 @@
     <strong>line_rel (x, y)</strong>
     </dt>
     <dd>
-    draw line to specified point relative to current position
+    draw line to specified point relative to current position.
 
 
     <h3>Parameters:</h3>
@@ -443,7 +452,7 @@
     <strong>arc (x, y, r, angle1, angle2)</strong>
     </dt>
     <dd>
-    draw arc
+    draw arc.
 
 
     <h3>Parameters:</h3>
@@ -475,7 +484,7 @@
     <strong>circle (x, y, r)</strong>
     </dt>
     <dd>
-    draw circle
+    draw circle.
 
 
     <h3>Parameters:</h3>
@@ -501,7 +510,7 @@
     <strong>rect (x, y, w, h)</strong>
     </dt>
     <dd>
-    draw rectangle
+    draw rectangle.
 
 
     <h3>Parameters:</h3>
@@ -530,7 +539,7 @@
     <strong>curve (x1, y1, x2, y2, x3, y3)</strong>
     </dt>
     <dd>
-    draw curve (cubic Bézier spline)
+    draw curve (cubic Bézier spline).
 
 
     <h3>Parameters:</h3>
@@ -565,7 +574,7 @@
     <strong>curve_rel (x1, y1, x2, y2, x3, y3)</strong>
     </dt>
     <dd>
-    draw curve (cubic Bézier spline) relative coordinates
+    draw curve (cubic Bézier spline) relative coordinates.
 
 
     <h3>Parameters:</h3>
@@ -600,7 +609,7 @@
     <strong>close ()</strong>
     </dt>
     <dd>
-    close current path
+    close current path.
 
 
 
@@ -614,8 +623,8 @@
     <strong>stroke ()</strong>
     </dt>
     <dd>
-    stroke current path
- uses currently selected color
+    stroke current path.
+ uses currently selected color.
 
 
 
@@ -629,8 +638,8 @@
     <strong>fill ()</strong>
     </dt>
     <dd>
-    fill current path
- uses currently selected color
+    fill current path.
+ uses currently selected color.
 
 
 
@@ -641,17 +650,18 @@
 </dd>
     <dt>
     <a name = "text"></a>
-    <strong>text (string)</strong>
+    <strong>text (str)</strong>
     </dt>
     <dd>
-    draw text (left aligned)
- uses currently selected font
+    draw text (left aligned).
+ uses currently selected font.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">string</span>
-         text to write
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : text to write
         </li>
     </ul>
 
@@ -662,17 +672,18 @@
 </dd>
     <dt>
     <a name = "text_right"></a>
-    <strong>text_right (string)</strong>
+    <strong>text_right (str)</strong>
     </dt>
     <dd>
-    draw text, right aligned
+    draw text, right aligned.
  uses currently selected font
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">string</span>
-         text to write
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : text to write.
         </li>
     </ul>
 
@@ -683,17 +694,18 @@
 </dd>
     <dt>
     <a name = "text_center"></a>
-    <strong>text_center (string)</strong>
+    <strong>text_center (str)</strong>
     </dt>
     <dd>
-    draw text, center aligned
- uses currently selected font
+    draw text, center aligned.
+ uses currently selected font.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">string</span>
-         text to write
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : text to write
         </li>
     </ul>
 
@@ -707,7 +719,7 @@
     <strong>font_face (index)</strong>
     </dt>
     <dd>
-    select font face
+    select font face.
 
 
     <h3>Parameters:</h3>
@@ -741,13 +753,13 @@
     <strong>font_size (size)</strong>
     </dt>
     <dd>
-    set font size
+    set font size.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">size</span>
-         in pixel height
+         in pixel height.
         </li>
     </ul>
 
@@ -761,7 +773,7 @@
     <strong>pixel (x, y)</strong>
     </dt>
     <dd>
-    draw single pixel (requires integer x/y, fill afterwards)
+    draw single pixel (requires integer x/y, fill afterwards).
 
 
     <h3>Parameters:</h3>
@@ -779,6 +791,32 @@
 
 
 </dd>
+    <dt>
+    <a name = "display_png"></a>
+    <strong>display_png (filename, x, y)</strong>
+    </dt>
+    <dd>
+    display png.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+
+        </li>
+        <li><span class="parameter">x</span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+         y position
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
 </dl>
 
 
@@ -786,7 +824,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-10-08 09:41:02 </i>
+<i style="float:right;">Last updated 2019-03-04 05:06:36 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

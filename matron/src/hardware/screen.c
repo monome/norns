@@ -32,6 +32,8 @@ static float c[16] =
 
 static cairo_surface_t *surface;
 static cairo_surface_t *surfacefb;
+static cairo_surface_t *image;
+
 static cairo_t *cr;
 static cairo_t *crfb;
 static cairo_font_face_t *ct[NUM_FONTS];
@@ -133,6 +135,24 @@ handle_allocate_error:
     free(device);
     return NULL;
 }
+
+void screen_display_png(const char *filename, double x, double y){
+	int img_w, img_h;
+	//fprintf(stderr, "loading: %s\n", filename);
+	
+	image = cairo_image_surface_create_from_png (filename);
+	if(image == NULL) { return; }
+	
+	img_w = cairo_image_surface_get_width (image);
+	img_h = cairo_image_surface_get_height (image);
+
+	cairo_set_source_surface (cr, image, x, y);
+	//cairo_paint (cr);
+	cairo_rectangle (cr, x, y, img_w, img_h);
+	cairo_fill (cr);
+	cairo_surface_destroy (image);
+}
+
 
 void screen_init(void) {
     surfacefb = cairo_linuxfb_surface_create("/dev/fb0");
@@ -364,5 +384,13 @@ double *screen_extents(const char *s) {
     text_xy[1] = extents.height;
     return text_xy;
 }
+
+
+extern void screen_export_png(const char *s) {
+    CHECK_CR
+    cairo_surface_write_to_png(surface, s);
+}
+
+
 #undef CHECK_CR
 #undef CHECK_CRR

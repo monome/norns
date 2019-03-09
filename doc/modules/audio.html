@@ -40,14 +40,14 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
   <li><strong>audio</strong></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/log.html">log</a></li>
-  <li><a href="../modules/menu.html">menu</a></li>
+  <li><a href="../modules/core.menu.html">core.menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
@@ -63,10 +63,20 @@
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
   <li><a href="../modules/state.html">state</a></li>
+  <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
+  <li><a href="../modules/Passersby.html">Passersby</a></li>
+  <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
+  <li><a href="../modules/elca.html">elca</a></li>
+  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/textentry.html">textentry</a></li>
-  <li><a href="../modules/update.html">update</a></li>
+  <li><a href="../modules/user.lib.textentry.html">user.lib.textentry</a></li>
+  <li><a href="../modules/UI.html">UI</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 
@@ -82,61 +92,62 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#input_level">input_level (channel, level)</a></td>
-	<td class="summary">set level for one input channel</td>
+	<td class="name" nowrap><a href="#headphone_gain">headphone_gain (gain)</a></td>
+	<td class="summary">set headphone gain.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#output_level">output_level (level)</a></td>
-	<td class="summary">set level for *both* output channels</td>
+	<td class="name" nowrap><a href="#level_adc">level_adc (level)</a></td>
+	<td class="summary">set level for ADC input.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_dac">level_dac (level)</a></td>
+	<td class="summary">set level for *both* output channels.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monitor_mono">monitor_mono ()</a></td>
-	<td class="summary">set monitor mode to mono
- both inputs will be mixed to both outputs</td>
+	<td class="summary">set monitor mode to mono.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monitor_stereo">monitor_stereo ()</a></td>
-	<td class="summary">set monitor mode to stereo
- each input will be monitored on the respective output</td>
+	<td class="summary">set monitor mode to stereo.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#monitor_on">monitor_on ()</a></td>
-	<td class="summary">enable monitoring (may cause clicks)</td>
+	<td class="name" nowrap><a href="#level_tape">level_tape (level)</a></td>
+	<td class="summary">set tape level.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#monitor_off">monitor_off ()</a></td>
-	<td class="summary">disable monitoring (may cause clicks)</td>
+	<td class="name" nowrap><a href="#level_cut">level_cut (level)</a></td>
+	<td class="summary">set cut master level.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pitch_on">pitch_on ()</a></td>
-	<td class="summary">enable input pitch analysis</td>
+	<td class="summary">enable input pitch analysis.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pitch_off">pitch_off ()</a></td>
-	<td class="summary">disable input pitch analysis (saves CPU)</td>
+	<td class="summary">disable input pitch analysis (saves CPU).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#restart">restart ()</a></td>
-	<td class="summary">restart the audio engine (recompile sclang)</td>
+	<td class="summary">restart the audio engine (recompile sclang).</td>
 	</tr>
 </table>
 <h2><a href="#global_functions">global functions </a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#vu">vu (in1, in2, out1, out2)</a></td>
-	<td class="summary">callback for VU meters
- scripts should redefine this</td>
+	<td class="summary">callback for VU meters.</td>
 	</tr>
 </table>
 <h2><a href="#helpers">helpers </a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#set_audio_level">set_audio_level (value)</a></td>
-	<td class="summary">set output level, clamped, save state</td>
+	<td class="summary">set output level, clamped, save state.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#adjust_output_level">adjust_output_level (delta)</a></td>
-	<td class="summary">adjust output level, clamped, save state</td>
+	<td class="summary">adjust output level, clamped, save state.</td>
 	</tr>
 </table>
 
@@ -148,18 +159,35 @@
 
     <dl class="function">
     <dt>
-    <a name = "input_level"></a>
-    <strong>input_level (channel, level)</strong>
+    <a name = "headphone_gain"></a>
+    <strong>headphone_gain (gain)</strong>
     </dt>
     <dd>
-    set level for one input channel
+    set headphone gain.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">channel</span>
-         (1 or 2)
+        <li><span class="parameter">gain</span>
+         (0-64)
         </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_adc"></a>
+    <strong>level_adc (level)</strong>
+    </dt>
+    <dd>
+    set level for ADC input.
+
+
+    <h3>Parameters:</h3>
+    <ul>
         <li><span class="parameter">level</span>
          in [0, 1]
         </li>
@@ -171,11 +199,11 @@
 
 </dd>
     <dt>
-    <a name = "output_level"></a>
-    <strong>output_level (level)</strong>
+    <a name = "level_dac"></a>
+    <strong>level_dac (level)</strong>
     </dt>
     <dd>
-    set level for *both* output channels
+    set level for *both* output channels.
 
 
     <h3>Parameters:</h3>
@@ -195,8 +223,8 @@
     <strong>monitor_mono ()</strong>
     </dt>
     <dd>
-    set monitor mode to mono
- both inputs will be mixed to both outputs
+    set monitor mode to mono.
+ both inputs will be mixed to both outputs.
 
 
 
@@ -210,8 +238,8 @@
     <strong>monitor_stereo ()</strong>
     </dt>
     <dd>
-    set monitor mode to stereo
- each input will be monitored on the respective output
+    set monitor mode to stereo.
+ each input will be monitored on the respective output.
 
 
 
@@ -221,13 +249,19 @@
 
 </dd>
     <dt>
-    <a name = "monitor_on"></a>
-    <strong>monitor_on ()</strong>
+    <a name = "level_tape"></a>
+    <strong>level_tape (level)</strong>
     </dt>
     <dd>
-    enable monitoring (may cause clicks)
+    set tape level.
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">level</span>
+         [0,1]
+        </li>
+    </ul>
 
 
 
@@ -235,13 +269,19 @@
 
 </dd>
     <dt>
-    <a name = "monitor_off"></a>
-    <strong>monitor_off ()</strong>
+    <a name = "level_cut"></a>
+    <strong>level_cut (level)</strong>
     </dt>
     <dd>
-    disable monitoring (may cause clicks)
+    set cut master level.
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">level</span>
+         [0,1]
+        </li>
+    </ul>
 
 
 
@@ -253,7 +293,7 @@
     <strong>pitch_on ()</strong>
     </dt>
     <dd>
-    enable input pitch analysis
+    enable input pitch analysis.
 
 
 
@@ -267,7 +307,7 @@
     <strong>pitch_off ()</strong>
     </dt>
     <dd>
-    disable input pitch analysis (saves CPU)
+    disable input pitch analysis (saves CPU).
 
 
 
@@ -281,7 +321,7 @@
     <strong>restart ()</strong>
     </dt>
     <dd>
-    restart the audio engine (recompile sclang)
+    restart the audio engine (recompile sclang).
 
 
 
@@ -299,8 +339,8 @@
     <strong>vu (in1, in2, out1, out2)</strong>
     </dt>
     <dd>
-    callback for VU meters
- scripts should redefine this
+    callback for VU meters.
+ scripts should redefine this.
 
 
     <h3>Parameters:</h3>
@@ -333,7 +373,7 @@
     <strong>set_audio_level (value)</strong>
     </dt>
     <dd>
-    set output level, clamped, save state
+    set output level, clamped, save state.
 
 
     <h3>Parameters:</h3>
@@ -353,7 +393,7 @@
     <strong>adjust_output_level (delta)</strong>
     </dt>
     <dd>
-    adjust output level, clamped, save state
+    adjust output level, clamped, save state.
 
 
     <h3>Parameters:</h3>
@@ -375,7 +415,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-10-08 09:41:02 </i>
+<i style="float:right;">Last updated 2019-03-04 05:06:36 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

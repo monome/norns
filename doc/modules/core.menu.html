@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><strong>core.menu</strong></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/norns.html">norns</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/control.html">control</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/number.html">number</a></li>
+  <li><a href="../modules/option.html">option</a></li>
+  <li><a href="../modules/separator.html">separator</a></li>
+  <li><a href="../modules/taper.html">taper</a></li>
+  <li><a href="../modules/trigger.html">trigger</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/state.html">state</a></li>
+  <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
+  <li><a href="../modules/Passersby.html">Passersby</a></li>
+  <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
+  <li><a href="../modules/elca.html">elca</a></li>
+  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/user.lib.textentry.html">user.lib.textentry</a></li>
+  <li><a href="../modules/UI.html">UI</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>core.menu</code></h1>
+<p>METROS</p>
+<p></p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#m.home">m.home</a></td>
+	<td class="summary">HOME</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.sel">m.sel</a></td>
+	<td class="summary">SELECT</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.pre">m.pre</a></td>
+	<td class="summary">PREVIEW</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.params">m.params</a></td>
+	<td class="summary">PARAMS</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.sys">m.sys</a></td>
+	<td class="summary">SYSTEM</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.devices">m.devices</a></td>
+	<td class="summary">DEVICES</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.wifi">m.wifi</a></td>
+	<td class="summary">WIFI</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.audio">m.audio</a></td>
+	<td class="summary">AUDIO</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.reset">m.reset</a></td>
+	<td class="summary">RESET</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#m.mix">m.mix</a></td>
+	<td class="summary">MIX</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "m.home"></a>
+    <strong>m.home</strong>
+    </dt>
+    <dd>
+    HOME
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.sel"></a>
+    <strong>m.sel</strong>
+    </dt>
+    <dd>
+    SELECT
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.pre"></a>
+    <strong>m.pre</strong>
+    </dt>
+    <dd>
+    PREVIEW
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.params"></a>
+    <strong>m.params</strong>
+    </dt>
+    <dd>
+    PARAMS
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.sys"></a>
+    <strong>m.sys</strong>
+    </dt>
+    <dd>
+    SYSTEM
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.devices"></a>
+    <strong>m.devices</strong>
+    </dt>
+    <dd>
+    DEVICES
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.wifi"></a>
+    <strong>m.wifi</strong>
+    </dt>
+    <dd>
+    WIFI
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.audio"></a>
+    <strong>m.audio</strong>
+    </dt>
+    <dd>
+    AUDIO
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.reset"></a>
+    <strong>m.reset</strong>
+    </dt>
+    <dd>
+    RESET
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "m.mix"></a>
+    <strong>m.mix</strong>
+    </dt>
+    <dd>
+    MIX
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-03-04 05:06:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

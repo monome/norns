@@ -38,14 +38,14 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
   <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><strong>hid</strong></li>
-  <li><a href="../modules/log.html">log</a></li>
-  <li><a href="../modules/menu.html">menu</a></li>
+  <li><a href="../modules/core.menu.html">core.menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
@@ -61,10 +61,20 @@
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
   <li><a href="../modules/state.html">state</a></li>
+  <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
+  <li><a href="../modules/Passersby.html">Passersby</a></li>
+  <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
+  <li><a href="../modules/elca.html">elca</a></li>
+  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/textentry.html">textentry</a></li>
-  <li><a href="../modules/update.html">update</a></li>
+  <li><a href="../modules/user.lib.textentry.html">user.lib.textentry</a></li>
+  <li><a href="../modules/UI.html">UI</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 
@@ -73,49 +83,33 @@
 <div id="content">
 
 <h1>Module <code>hid</code></h1>
-<p>hid devices</p>
+<p>Hid class</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#add">add (device)</a></td>
-	<td class="summary">device-added callback;
- script should redefine to handle device hotplug events</td>
+	<td class="name" nowrap><a href="#new">new (id, name, types, codes, dev)</a></td>
+	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#remove">remove (device)</a></td>
-	<td class="summary">device-removed callbacks;
- script should redefine to handle device hotplug events</td>
+	<td class="name" nowrap><a href="#add">add (dev)</a></td>
+	<td class="summary">static callback when any hid device is added;
+ user scripts can redefine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#find_device_supporting">find_device_supporting (ev_type, ev_code)</a></td>
-	<td class="summary">return the first available device that supports the given event</td>
+	<td class="name" nowrap><a href="#remove">remove (dev)</a></td>
+	<td class="summary">static callback when any hid device is removed;
+ user scripts can redefine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#clearCallbacks">clearCallbacks ()</a></td>
-	<td class="summary">unset all callbacks</td>
+	<td class="name" nowrap><a href="#connect">connect (n)</a></td>
+	<td class="summary">create device, returns object with handler and send</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#supports">supports (ev_type, ev_code)</a></td>
-	<td class="summary">test if device supports given event type and code</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#print">print ()</a></td>
-	<td class="summary">print some information about a device</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#norns.hid.add">norns.hid.add (id, name, types, codes)</a></td>
-	<td class="summary">add a device</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#norns.hid.remove">norns.hid.remove (id)</a></td>
-	<td class="summary">remove a device</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#norns.hid.event">norns.hid.event (id, ev_type, ev_code, value)</a></td>
-	<td class="summary">handle a hid event</td>
+	<td class="name" nowrap><a href="#cleanup">cleanup ()</a></td>
+	<td class="summary">clear handlers</td>
 	</tr>
 </table>
 
@@ -127,18 +121,55 @@
 
     <dl class="function">
     <dt>
-    <a name = "add"></a>
-    <strong>add (device)</strong>
+    <a name = "new"></a>
+    <strong>new (id, name, types, codes, dev)</strong>
     </dt>
     <dd>
-    device-added callback;
- script should redefine to handle device hotplug events
+    constructor
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">device</span>
-         - a Hid
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : arbitrary numeric identifier
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : name
+        </li>
+        <li><span class="parameter">types</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : array of supported event types. keys are type codes, values are strings
+        </li>
+        <li><span class="parameter">codes</span>
+            <span class="types"><span class="type">userdata</span></span>
+         : array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
+        </li>
+        <li><span class="parameter">dev</span>
+            <span class="types"><span class="type">userdata</span></span>
+         : opaque pointer to device
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "add"></a>
+    <strong>add (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any hid device is added;
+ user scripts can redefine
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Hid table
         </li>
     </ul>
 
@@ -149,17 +180,17 @@
 </dd>
     <dt>
     <a name = "remove"></a>
-    <strong>remove (device)</strong>
+    <strong>remove (dev)</strong>
     </dt>
     <dd>
-    device-removed callbacks;
- script should redefine to handle device hotplug events
+    static callback when any hid device is removed;
+ user scripts can redefine
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">device</span>
-         - a Hid
+        <li><span class="parameter">dev</span>
+         : a Hid table
         </li>
     </ul>
 
@@ -169,115 +200,17 @@
 
 </dd>
     <dt>
-    <a name = "find_device_supporting"></a>
-    <strong>find_device_supporting (ev_type, ev_code)</strong>
+    <a name = "connect"></a>
+    <strong>connect (n)</strong>
     </dt>
     <dd>
-    return the first available device that supports the given event
+    create device, returns object with handler and send
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">ev_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         - event type name, e.g. 'EV_KEY'
-        </li>
-        <li><span class="parameter">ev_code</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         - event code name, e.g. 'BTN_START'
-        </li>
-    </ul>
+        <li><span class="parameter">n</span>
 
-    <h3>Returns:</h3>
-    <ol>
-
-        - a Hid or nil
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "clearCallbacks"></a>
-    <strong>clearCallbacks ()</strong>
-    </dt>
-    <dd>
-    unset all callbacks
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "supports"></a>
-    <strong>supports (ev_type, ev_code)</strong>
-    </dt>
-    <dd>
-    test if device supports given event type and code
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">ev_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         - event type name, e.g. 'EV_REL'
-        </li>
-        <li><span class="parameter">ev_code</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         - event code name, e.g. 'REL_X',
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">boolean</span></span>
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "print"></a>
-    <strong>print ()</strong>
-    </dt>
-    <dd>
-    print some information about a device
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "norns.hid.add"></a>
-    <strong>norns.hid.add (id, name, types, codes)</strong>
-    </dt>
-    <dd>
-    add a device
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">id</span>
-         - arbitrary id number (int)
-        </li>
-        <li><span class="parameter">name</span>
-         (string)
-        </li>
-        <li><span class="parameter">types</span>
-         - table of event types  (int)
-        </li>
-        <li><span class="parameter">codes</span>
-         - table of table of event codes (int), indexed by type (int)
         </li>
     </ul>
 
@@ -287,52 +220,13 @@
 
 </dd>
     <dt>
-    <a name = "norns.hid.remove"></a>
-    <strong>norns.hid.remove (id)</strong>
+    <a name = "cleanup"></a>
+    <strong>cleanup ()</strong>
     </dt>
     <dd>
-    remove a device
+    clear handlers
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">id</span>
-         - arbitrary id numer (int)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "norns.hid.event"></a>
-    <strong>norns.hid.event (id, ev_type, ev_code, value)</strong>
-    </dt>
-    <dd>
-    handle a hid event
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">id</span>
-            <span class="types"><span class="type">integer</span></span>
-        - arbitrary device id number
-        </li>
-        <li><span class="parameter">ev_type</span>
-            <span class="types"><span class="type">integer</span></span>
-         - event type id
-        </li>
-        <li><span class="parameter">ev_code</span>
-            <span class="types"><span class="type">integer</span></span>
-         - event code id
-        </li>
-        <li><span class="parameter">value</span>
-            <span class="types"><span class="type">integer</span></span>
-
-        </li>
-    </ul>
 
 
 
@@ -346,7 +240,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-10-08 09:41:02 </i>
+<i style="float:right;">Last updated 2019-03-04 05:06:36 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

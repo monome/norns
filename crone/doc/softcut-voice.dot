@@ -1,0 +1,35 @@
+digraph G {
+
+
+rankdir=LR;
+
+node [shape="invhouse"]
+in;
+
+node [shape="house"]
+out;
+
+node [shape="rect"];
+SVF;
+
+resample;
+softclip;
+brickwall;
+rec_pre_fade;
+
+interpolate;
+play_fade;
+
+
+node [shape=parallelogram]
+buffer;
+
+in -> SVF -> resample -> softclip -> brickwall -> rec_pre_fade;
+rec_pre_fade -> buffer [label="write"];
+buffer -> interpolate [label = "read"];
+
+interpolate -> play_fade -> out;
+
+
+
+}

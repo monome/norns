@@ -187,7 +187,7 @@ menu.set_mode = function(mode)
     menu.mode = true
     menu.alt = false
     redraw = norns.none
-    screen.font_face(0)
+    screen.font_face(1)
     screen.font_size(8)
     screen.line_width(1)
     norns.encoders.callback = menu.enc
@@ -327,7 +327,6 @@ m.sel = {}
 m.sel.pos = 0
 m.sel.list = {}
 m.sel.len = 0
-m.sel.path = ""
 m.sel.file = ""
 
 local function build_select_tree(root,dir)
@@ -350,7 +349,7 @@ local function build_select_tree(root,dir)
       else
         n = p
       end
-      n = string.gsub(n,dust_dir,'')
+      n = string.gsub(n,script_dir,'')
       n = string.sub(n,0,-2)
       table.insert(m.sel.list,{name=n,file=file,path=p})
     end
@@ -359,7 +358,7 @@ end
 
 m.init[pSELECT] = function()
   m.sel.list = {}
-  build_select_tree(dust_dir,"")
+  build_select_tree(script_dir,"")
   --for k,v in pairs(m.sel.list) do
     --print(k, v.name, v.file, v.path)
   --end
@@ -374,9 +373,7 @@ m.key[pSELECT] = function(n,z)
     menu.set_page(pHOME)
   -- select
   elseif n==3 and z==1 then
-    m.sel.name = m.sel.list[m.sel.pos+1].name
     m.sel.file = m.sel.list[m.sel.pos+1].file
-    m.sel.path = m.sel.list[m.sel.pos+1].path
     menu.set_page(pPREVIEW)
   end
 end
@@ -419,9 +416,6 @@ m.pre.meta = {}
 m.init[pPREVIEW] = function()
   m.pre.meta = norns.script.metadata(m.sel.file)
   m.pre.len = tab.count(m.pre.meta)
-  if m.pre.len == 0 then
-    table.insert(m.pre.meta, string.gsub(m.sel.file,'.lua','') .. " (no metadata)")
-  end
   m.pre.state = 0
   m.pre.pos = 0
   m.pre.posmax = m.pre.len - 8
@@ -432,7 +426,7 @@ m.deinit[pPREVIEW] = norns.none
 
 m.key[pPREVIEW] = function(n,z)
   if n==3 and m.pre.state == 1 then
-    norns.script.load(m.sel.file,m.sel.name,m.sel.path)
+    norns.script.load(m.sel.file)
   elseif n ==3 and z == 1 then
     m.pre.state = 1
   elseif n == 2 and z == 1 then
@@ -708,7 +702,7 @@ function m.params.write_pmap(filename)
   local function quote(s)
     return '"'..s:gsub('"', '\\"')..'"'
   end
-  local dir = norns.state.path .. 'data'
+  local dir = norns.state.data
   local fd = io.open(dir,"r")
   if fd then
     io.close(fd)
@@ -718,8 +712,8 @@ function m.params.write_pmap(filename)
   end
 
   -- write file
-  print(">> saving PMAP "..dir..'/'..filename)
-  local fd = io.open(dir..'/'..filename, "w+")
+  print(">> saving PMAP "..dir..filename)
+  local fd = io.open(dir..filename, "w+")
   io.output(fd)
   for k,v in pairs(m.params.map) do
     io.write(string.format("%s: %d\n", quote(tostring(k)), v))
@@ -731,9 +725,9 @@ function m.params.read_pmap(filename)
   local function unquote(s)
     return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
   end
-  local dir = norns.state.path .. 'data'
-  local file = dir .. '/' .. filename
-  print(">> reading PMAP"..file)
+  local dir = norns.state.data
+  local file = dir .. filename
+  print(">> reading PMAP "..file)
   local fd = io.open(file, "r")
   if fd then
     io.close(fd)
@@ -981,10 +975,10 @@ m.key[pWIFI] = function(n,z)
       listselect.enter(wifi.conn_list, m.wifi.connect)
     elseif m.wifi.pos == 3 then
       wifi.update()
-      listselect.enter(m.wifi.ssid_list, m.wifi.add) 
+      listselect.enter(m.wifi.ssid_list, m.wifi.add)
     elseif m.wifi.pos == 4 then
       wifi.update()
-      listselect.enter(wifi.conn_list, m.wifi.del) 
+      listselect.enter(wifi.conn_list, m.wifi.del)
     end
   end
 end
@@ -1138,19 +1132,20 @@ end
 -----------------------------------------
 -- RESET
 m.reset = {}
+m.reset.confirmed = false
 
 m.key[pRESET] = function(n,z)
   if n==2 and z==1 then
     menu.set_page(pSYSTEM)
 elseif n==3 and z==1 then
+    m.reset.confirmed = true
+    menu.redraw()
     if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     norns.state.clean_shutdown = true
     norns.state.save()
-    cleanup()
+    if pcall(cleanup) == false then print("cleanup failed") end
 
     os.execute("sudo systemctl restart norns-jack.service")
-    os.execute("sudo systemctl restart norns-crone.service")
-    os.execute("sudo systemctl restart norns-sclang.service")
     os.execute("sudo systemctl restart norns-matron.service")
   end
 end
@@ -1160,9 +1155,9 @@ m.enc[pRESET] = function(n,delta) end
 
 m.redraw[pRESET] = function()
   screen.clear()
-  screen.level(10)
+  screen.level(m.reset.confirmed==false and 10 or 2)
   screen.move(64,40)
-  screen.text_center("reset?")
+  screen.text_center(m.reset.confirmed==false and "reset?" or "reset")
   screen.update()
 end
 
@@ -1171,6 +1166,7 @@ m.deinit[pRESET] = function() end
 
 
 -----------------------------------------
+
 -- SLEEP
 
 m.key[pSLEEP] = function(n,z)
@@ -1183,7 +1179,7 @@ m.key[pSLEEP] = function(n,z)
     menu.redraw()
     norns.state.clean_shutdown = true
     norns.state.save()
-    cleanup()
+    pcall(cleanup)
     if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     audio.level_dac(0)
     audio.headphone_gain(0)
@@ -1397,7 +1393,7 @@ m.key[pTAPE] = function(n,z)
             tape_play_counter.time = 0.25
             tape_play_counter.event = function()
               m.tape.play.pos_tick = m.tape.play.pos_tick + 0.25
-              if m.tape.play.pos_tick > m.tape.play.length 
+              if m.tape.play.pos_tick > m.tape.play.length
                   and m.tape.play.status == TAPE_PLAY_PLAY then
                 print("tape is over!")
                 audio.tape_play_stop()
@@ -1415,7 +1411,7 @@ m.key[pTAPE] = function(n,z)
           end
           menu.redraw()
         end
-        fileselect.enter(os.getenv("HOME").."/dust/audio/tape", playfile_callback)
+        fileselect.enter(dust_dir, playfile_callback)
       elseif m.tape.play.sel == TAPE_PLAY_PLAY then
         tape_play_counter:start()
         audio.tape_play_start()
@@ -1433,7 +1429,7 @@ m.key[pTAPE] = function(n,z)
     else -- REC CONTROLS
       if m.tape.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
-        m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".aiff"
+        m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".wav"
         audio.tape_record_open(audio_dir.."/tape/"..m.tape.rec.file)
         m.tape.rec.sel = TAPE_REC_START
         m.tape.rec.pos_tick = 0
@@ -1536,5 +1532,3 @@ m.init[pTAPE] = function()
   tape_diskfree()
 end
 m.deinit[pTAPE] = norns.none
-
-

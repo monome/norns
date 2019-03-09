@@ -20,16 +20,13 @@ static struct args a = {
 int args_parse(int argc, char **argv)
 {
     int opt;
-    while( ( opt = getopt(argc, argv, "r:l:c:") ) != -1 ) {
+    while( ( opt = getopt(argc, argv, "e:l:c:") ) != -1 ) {
         switch(opt) {
         case 'l':
-            strncpy(a.loc_port, optarg, ARG_BUF_SIZE);
+            strncpy(a.loc_port, optarg, ARG_BUF_SIZE-1);
             break;
-        case 'r':
-            strncpy(a.ext_port, optarg, ARG_BUF_SIZE);
-            break;
-	case 'c':
-            strncpy(a.crone_port, optarg, ARG_BUF_SIZE);
+        case 'e':
+            strncpy(a.ext_port, optarg, ARG_BUF_SIZE-1);
             break;
         default:
             ;;

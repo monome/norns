@@ -8,8 +8,9 @@ Control.__index = Control
 
 local tCONTROL = 3
 
---- constructor
--- @param name of param
+--- constructor.
+-- @param id
+-- @param name
 -- @param controlspec
 -- @param formatter
 function Control.new(id, name, controlspec, formatter)
@@ -30,26 +31,26 @@ function Control.new(id, name, controlspec, formatter)
   return p
 end
 
---- get
--- returns mapped value
+--- get.
+-- returns mapped value.
 function Control:get()
   return self.controlspec:map(self.raw)
 end
 
---- get_raw
--- get 0-1
+--- get_raw.
+-- get 0-1.
 function Control:get_raw()
   return self.raw
 end
 
---- set
+--- set.
 -- accepts a mapped value
 function Control:set(value)
   self:set_raw(self.controlspec:unmap(util.round(value,self.controlspec.step)))
 end
 
---- set_raw
--- set 0-1
+--- set_raw.
+-- set 0-1.
 function Control:set_raw(value)
   local clamped_value = util.clamp(value, 0, 1)
   if self.raw ~= clamped_value then
@@ -58,24 +59,24 @@ function Control:set_raw(value)
   end
 end
 
---- delta
--- add delta to current value. checks controlspec for mapped vs not
--- default division of delta for 100 steps range
+--- delta.
+-- add delta to current value. checks controlspec for mapped vs not.
+-- default division of delta for 100 steps range.
 function Control:delta(d)
   self:set_raw(self.raw + d/100)
 end
 
---- set_default
+--- set_default.
 function Control:set_default()
   self:set(self.controlspec.default)
 end
 
---- bang
+--- bang.
 function Control:bang()
   self.action(self:get())
 end
 
---- string
+--- string.
 -- @return formatted string
 function Control:string()
   if self.formatter then

@@ -20,72 +20,143 @@ SC.BUFFER_SIZE = 16777216 / 48000
 
 -------------------------------
 -- @section setters
--- NB: voice indices are zero-based!
 
+--- set level of each voice
 SC.level = function(voice, value)
   _norns.level_cut(voice, value)
 end
 
+--- set pan of each voice
 SC.pan = function(voice, value)
   _norns.pan_cut(voice, value)
 end
 
+--- set input level to each voice/channel
 SC.level_input_cut = function(ch, voice, value)
   _norns.level_input_cut(ch, voice, value)
 end
 
+--- set mix matrix, voice output to voice input
 SC.level_cut_cut = function(src, dst, value)
   _norns.level_cut_cut(src, dst, value)
 end
 
-SC.rate = function(i,v) _norns.cut_param("rate",i,v) end
-SC.loop_start = function(i,v) _norns.cut_param("loop_start",i,v) end
-SC.loop_end = function(i,v) _norns.cut_param("loop_end",i,v) end
-SC.loop_flag = function(i,v) _norns.cut_param("loop_flag",i,v) end
-SC.fade_time = function(i,v) _norns.cut_param("fade_time",i,v) end
-SC.rec_level = function(i,v) _norns.cut_param("rec_level",i,v) end
-SC.pre_level = function(i,v) _norns.cut_param("pre_level",i,v) end
-SC.rec_flag = function(i,v) _norns.cut_param("rec_flag",i,v) end
-SC.rec_offset = function(i,v) _norns.cut_param("rec_offset",i,v) end
-SC.position = function(i,v) _norns.cut_param("position",i,v) end
+--- set play status
+-- @tparam integer voice : voice number (1-?)
+-- @tparam integer state : off/on (0,1)
+SC.play = function(voice,state) _norns.cut_param("play_flag",voice,state) end
+-- set playback rate
+SC.rate = function(voice,value) _norns.cut_param("rate",voice,value) end
+--- set loop start
+SC.loop_start = function(voice,value) _norns.cut_param("loop_start",voice,value) end
+--- set loop end
+SC.loop_end = function(voice,value) _norns.cut_param("loop_end",voice,value) end
+--- set loop mode
+-- @tparam integer voice : voice number (1-?)
+-- @tparam integer state : off/on (0,1)
+SC.loop = function(voice,state) _norns.cut_param("loop_flag",voice,state) end
+--- set fade time
+SC.fade_time = function(voice,value) _norns.cut_param("fade_time",voice,value) end
+--- set record level
+SC.rec_level = function(voice,value) _norns.cut_param("rec_level",voice,value) end
+--- set pre level (overdub preserve)
+SC.pre_level = function(voice,value) _norns.cut_param("pre_level",voice,value) end
+--- set record status
+-- @tparam integer voice : voice number (1-?)
+-- @tparam integer state : off/on (0,1)
+SC.rec = function(voice,state) _norns.cut_param("rec_flag",voice,state) end
+--- set record head offset
+SC.rec_offset = function(voice,value) _norns.cut_param("rec_offset",voice,value) end
+--- set play position
+SC.position = function(voice,value) _norns.cut_param("position",voice,value) end
 
-SC.filter_fc = function(i,v) _norns.cut_param("filter_fc",i,v) end
-SC.filter_fc_mod = function(i,v) _norns.cut_param("filter_fc_mod",i,v) end
-SC.filter_rq = function(i,v) _norns.cut_param("filter_rq",i,v) end
-SC.filter_lp = function(i,v) _norns.cut_param("filter_lp",i,v) end
-SC.filter_hp = function(i,v) _norns.cut_param("filter_hp",i,v) end
-SC.filter_bp = function(i,v) _norns.cut_param("filter_bp",i,v) end
-SC.filter_br = function(i,v) _norns.cut_param("filter_br",i,v) end
-SC.filter_dry = function(i,v) _norns.cut_param("filter_dry",i,v) end
+--- specify buffer used by voice
+-- @tparam integer i : voice number
+-- @tparam integer b : buffer number (1,2)
+SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
+--- sync two voices
+SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dst,v) end
 
-SC.level_slew_time = function(i,v) _norns.cut_param("level_slew_time",i,v) end
-SC.rate_slew_time = function(i,v) _norns.cut_param("rate_slew_time",i,v) end
+--- set filter cutoff
+SC.filter_fc = function(voice,value) _norns.cut_param("filter_fc",voice,value) end
+--- set filter mod
+SC.filter_fc_mod = function(voice,value) _norns.cut_param("filter_fc_mod",voice,value) end
+--- set filter q
+SC.filter_rq = function(voice,value) _norns.cut_param("filter_rq",voice,value) end
+--- set filter lp
+SC.filter_lp = function(voice,value) _norns.cut_param("filter_lp",voice,value) end
+--- set filter hp
+SC.filter_hp = function(voice,value) _norns.cut_param("filter_hp",voice,value) end
+--- set filter bp
+SC.filter_bp = function(voice,value) _norns.cut_param("filter_bp",voice,value) end
+--- set filter br
+SC.filter_br = function(voice,value) _norns.cut_param("filter_br",voice,value) end
+--- set filter dry
+SC.filter_dry = function(voice,value) _norns.cut_param("filter_dry",voice,value) end
 
-SC.phase_quant = function(i,v) _norns.cut_param("phase_quant",i,v) end
+--- set level slew time
+SC.level_slew_time = function(voice,value) _norns.cut_param("level_slew_time",voice,value) end
+--- set rate slew time
+SC.rate_slew_time = function(voice,value) _norns.cut_param("rate_slew_time",voice,value) end
+
+--- set phase poll quantization
+SC.phase_quant = function(voice,value) _norns.cut_param("phase_quant",voice,value) end
+--- start phase poll
 SC.poll_start_phase = function() _norns.poll_start_cut_phase() end
+--- stop phase poll
 SC.poll_stop_phase = function() _norns.poll_stop_cut_phase() end
 
+--- set voice enable
+-- @tparam integer voice : voice number (1-?)
+-- @tparam integer state : off/on (0,1)
+SC.enable = function(voice, state) _norns.cut_enable(voice, state) end
 
-SC.enable = function(voice, value) _norns.cut_enable(voice, value) end
-
+--- clear all buffers
+SC.buffer_clear = function() _norns.cut_buffer_clear() end
+--- clear one channel of buffer
+SC.buffer_clear_channel = function(i) _norns.cut_buffer_clear_channel(i) end
+--- clear region (both channels)
 SC.buffer_clear_region = function(start, stop)
   _norns.cut_buffer_clear_region(start, stop)
 end
+--- clear region of single channel
+SC.buffer_clear_region_channel = function(ch, start, stop)
+  _norns.cut_buffer_clear_region_channel(ch, start, stop)
+end
 
-SC.buffer_clear = function() _norns.cut_buffer_clear() end
+--- read file to one channel
+SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst)
+  _norns.cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst)
+end
+--- read file, stereo
+SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
+  _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
+end
 
-SC.buffer_read = function(filesleep, start_src, start_dst, dur, ch)
-  _norns.cut_buffer_read(file, start_src, start_dst, dur, ch)
+--- set function for phase poll
+SC.event_phase = function(f) norns.softcut_phase = f end
+
+
+-------------------------------
+-- @section utilities
+
+--- reset softcut params
+function SC.reset()
+  SC.poll_stop_phase()
+  SC.event_phase(norns.none)
+  for i=1,SC.VOICE_COUNT do
+    SC.level(i,0)
+    SC.enable(i,0)
+    -- TODO: sensible defaults!
+  end
+  SC.buffer_clear()
 end
 
 
-------------------------------
--- @section utilities
-
--- controlspec factory
--- @return an array of tables, one per voice.
+--- controlspec factory
 -- each table contains an entry for each softcut parameter.
 -- each entry is a parameter argument list configured for that voice+param
+-- @return an array of tables, one per voice.
 function SC.params()
   -- @fixme should memoize
   local specs = {}
@@ -104,12 +175,13 @@ function SC.params()
       rate = { type="control", controlspec=controlspec.new(-8, 8, 'lin', 0, 0, "") },
       loop_start = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       loop_end = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5 + 2, "sec") },
-      loop_flag = { type="number", min=1, max=1, default=1, formatter=""},
+      loop = { type="number", min=0, max=1, default=1, formatter=""},
       fade_time = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- recording parameters
       rec_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       pre_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      rec_flag = { type="number", min=1, max=1, default=1, formatter=""},
+      play = { type="number", min=0, max=1, default=1, formatter=""},
+      rec = { type="number", min=0, max=1, default=1, formatter=""},
       rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
       -- jump to position
       position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },

@@ -23,29 +23,33 @@ local engine = require 'core/engine'
 local poll = require 'core/poll'
 local tab = require 'tabutil'
 
---- Global Functions
+--- Global Functions.
 -- @section global_functions
 
 -- global functions required by the C interface;
 -- we "declare" these here with placeholders;
 -- individual modules will redefine them as needed.
 
---- battery percent handler
+norns.battery_percent = 0
+norns.battery_current = 0
+
+--- battery percent handler.
 -- @param percent battery full percentage
+-- @param current
 norns.battery = function(percent, current)
   norns.battery_percent = tonumber(percent)
   norns.battery_current = tonumber(current)
   --print("battery: "..norns.battery_percent.."% "..norns.battery_current.."mA")
 end
 
---- power present handler
+--- power present handler.
 -- @param present power plug present (0=no,1=yes)
 norns.power = function(present)
   norns.powerpresent = present
   --print("power: "..present)
 end
 
---- stat handler
+--- stat handler.
 norns.stat = function(disk, temp, cpu)
   --print("stat",disk,temp,cpu)
   norns.disk = disk
@@ -54,47 +58,47 @@ norns.stat = function(disk, temp, cpu)
 end
 
 
---- key callback (redefined in menu)
+-- key callback (redefined in menu).
 norns.key = function(n,z)
    --print ("norns.key "..n.." "..z)
 end
---- enc callback (redefined in menu)
+-- enc callback (redefined in menu).
 norns.enc = function(n,delta)
    --print ("norns.enc "..n.." "..delta)
 end
 
--- monome device callbacks
+-- monome device callbacks.
 norns.monome = {}
---- monome device added
+-- monome device added.
 norns.monome.add = function(id, serial, name, dev)
    -- print("norns.monome.add "..id, serial, name, dev)
 end
---- monome device removed
+-- monome device removed.
 norns.monome.remove = function(id)
    -- print("norns.monome.remove "..id)
 end
 
--- grid device callbacks
+-- grid device callbacks.
 norns.grid = {}
---- grid key event
+-- grid key event.
 norns.grid.key = function(id, x, y, val)
    -- print("norns.grid.key ", id,x,y,val)
 end
 
--- arc device callbacks
+-- arc device callbacks.
 norns.arc = {}
---- arc key event
+-- arc key event.
 norns.arc.event = function(id, n, delta)
-   -- print("norns.arc.delta ", id, n, delta)
+   print("norns.arc.delta ", id, n, delta)
 end
 norns.arc.key = function(id, n, s)
-   -- print("norns.arc.delta ", id, n, s)
+   print("norns.arc.delta ", id, n, s)
 end
 
 
--- hid callbacks
+-- hid callbacks.
 norns.hid = {}
---- HID or other input device added
+-- HID or other input device added.
 norns.hid.add = function(id, name, types, codes, dev)
    -- print("norns.input.add ", id, name, types, codes, dev)
 end
@@ -102,7 +106,7 @@ norns.hid.event = function(id, ev_type, ev_code, value)
    -- print("norns.input.event ", id, ev_type, ev_code, value)
 end
 
--- midi callbacks (defined in midi.lua)
+-- midi callbacks (defined in midi.lua).
 norns.midi = {}
 
 -- osc callbacks (defined in osc.lua)
@@ -127,21 +131,21 @@ norns.report.polls = function(names, count)
 end
 
 
---- called when all reports are complete after engine load
+--- called when all reports are complete after engine load.
 norns.report.did_engine_load = function()
    print("norns.report.did_engine_load (default)")
    -- engine module should assign callback
 end
 
---- startup callbacks
+--- startup callbacks.
 -- @section startup
 
---- startup handlers
+--- startup handlers.
 norns.startup_status = {}
 norns.startup_status.ok = function() print("startup ok") end
 norns.startup_status.timeout = function() print("startup timeout") end
 
---- poll callback; used by C interface
+--- poll callback; used by C interface.
 -- @param id identfier
 -- @param value value (float OR sequence of bytes)
 norns.poll = function(id, value)
@@ -154,7 +158,7 @@ norns.poll = function(id, value)
    end
 end
 
---- I/O level callback
+--- I/O level callback.
 norns.vu = function(in1, in2, out1, out2)
    --print(in1 .. "\t" .. in2 .. "\t" .. out1 .. "\t" .. out2)
 end
@@ -162,20 +166,21 @@ end
 norns.softcut_phase = function(id, value)
   -- print(id,value)
 end
---- Audio
+--- Audio.
 norns.audio = require 'core/audio'
 
 
---- Management
+--- Management.
 -- @section management
----- ... whaaat?? why are all of these made global here?
+
+-- why are all of these made global here?
 norns.script = require 'core/script'
 norns.state = require 'core/state'
 norns.encoders = require 'core/encoders'
 
 norns.enc = norns.encoders.process
 
---- Error handling
+--- Error handling.
 norns.try = function(f,msg)
   local handler = function (err) return err .. "\n" .. debug.traceback() end
   local status, err = xpcall(f, handler)
@@ -186,13 +191,13 @@ norns.try = function(f,msg)
   return status
 end
 
---- Null functions
+--- Null functions.
 -- @section null
 
---- do nothing
+--- do nothing.
 norns.none = function() end
 
---- blank screen
+--- blank screen.
 norns.blank = function()
   s_clear()
   s_update()

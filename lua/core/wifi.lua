@@ -179,6 +179,7 @@ function Wifi.init()
   print("network connections:")
   print("--------------------")
   tabutil.print(conns)
+  Wifi.update()
 end
 
 function Wifi.off()

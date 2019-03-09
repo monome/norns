@@ -22,7 +22,8 @@ local ParamSet = {
 
 ParamSet.__index = ParamSet
 
---- constructor
+--- constructor.
+-- @param id
 -- @param name
 function ParamSet.new(id, name)
   local ps = setmetatable({}, ParamSet)
@@ -35,13 +36,13 @@ function ParamSet.new(id, name)
   return ps
 end
 
---- add separator
+--- add separator.
 function ParamSet:add_separator()
   table.insert(self.params, separator.new())
   self.count = self.count + 1
 end
 
---- add generic parameter
+--- add generic parameter.
 -- helper function to add param to paramset
 -- two uses:
 -- - pass "param" table with optional "action" function
@@ -86,37 +87,37 @@ function ParamSet:add(args)
   end
 end
 
---- add number
+--- add number.
 function ParamSet:add_number(id, name, min, max, default, formatter)
   self:add { param=number.new(id, name, min, max, default, formatter) }
 end
 
---- add option
+--- add option.
 function ParamSet:add_option(id, name, options, default)
   self:add { param=option.new(id, name, options, default) }
 end
 
---- add control
+--- add control.
 function ParamSet:add_control(id, name, controlspec, formatter)
   self:add { param=control.new(id, name, controlspec, formatter) }
 end
 
---- add file
+--- add file.
 function ParamSet:add_file(id, name, path)
   self:add { param=file.new(id, name, path) }
 end
 
---- add taper
+--- add taper.
 function ParamSet:add_taper(id, name, min, max, default, k, units)
   self:add { param=taper.new(id, name, min, max, default, k, units) }
 end
 
---- add trigger
+--- add trigger.
 function ParamSet:add_trigger(id, name)
   self:add { param=trigger.new(id, name) }
 end
 
---- print
+--- print.
 function ParamSet:print()
   print("paramset ["..self.name.."]")
   for k,v in pairs(self.params) do
@@ -124,54 +125,54 @@ function ParamSet:print()
   end
 end
 
---- name
+--- name.
 function ParamSet:get_name(index)
   return self.params[index].name
 end
 
---- string
+--- string.
 function ParamSet:string(index)
   local param = self:lookup_param(index)
   return param:string()
 end
 
---- set
+--- set.
 function ParamSet:set(index, v)
   local param = self:lookup_param(index)
   return param:set(v)
 end
 
---- set_raw (for control types only)
+--- set_raw (for control types only).
 function ParamSet:set_raw(index, v)
   local param = self:lookup_param(index)
   param:set_raw(v)
 end
 
---- get
+--- get.
 function ParamSet:get(index)
   local param = self:lookup_param(index)
   return param:get()
 end
 
---- get_raw (for control types only)
+--- get_raw (for control types only).
 function ParamSet:get_raw(index)
   local param = self:lookup_param(index)
   return param:get_raw()
 end
 
---- delta
+--- delta.
 function ParamSet:delta(index, d)
   local param = self:lookup_param(index)
   param:delta(d)
 end
 
---- set action
+--- set action.
 function ParamSet:set_action(index, func)
   local param = self:lookup_param(index)
   param.action = func
 end
 
---- get type
+--- get type.
 function ParamSet:t(index)
   return self.params[index].t
 end
@@ -194,9 +195,9 @@ function ParamSet:lookup_param(index)
   end
 end
 
---- init local psets
--- make data dir if needed
--- if psets are contained in project folder, copy them to local folder
+--- init local psets.
+-- make data dir if needed.
+-- if psets are contained in project folder, copy them to local folder.
 function ParamSet:init()
   if norns.state.data ~= data_dir then
     if util.file_exists(norns.state.data) == false then
@@ -212,12 +213,12 @@ function ParamSet:init()
   end
 end
 
---- write to disk
+--- write to disk.
 -- @param filename relative to data_dir
 function ParamSet:write(filename)
   self.init()
   local dir = norns.state.data
-  if filename == "system.pset" then dir = data_dir end -- hack for system.pset
+  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
   -- write file
   local file = dir .. filename
   print("pset >> write: "..file)
@@ -231,12 +232,12 @@ function ParamSet:write(filename)
   io.close(fd)
 end
 
---- read from disk
+--- read from disk.
 -- @param filename relative to data_dir
 function ParamSet:read(filename)
   self.init()
   local dir = norns.state.data
-  if filename == "system.pset" then dir = data_dir end -- hack for system.pset
+  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
   local file = dir .. filename
   print("pset >> read: " .. file)
   local fd = io.open(file, "r")
@@ -249,7 +250,7 @@ function ParamSet:read(filename)
         id = unquote(id)
         local index = self.lookup[id]
 
-        if index then
+        if index and self.params[index] then
           if tonumber(value) ~= nil then
             self.params[index]:set(tonumber(value))
           elseif value == "-inf" then
@@ -267,20 +268,22 @@ function ParamSet:read(filename)
   end
 end
 
---- read deafult pset if present
+--- read deafult pset if present.
 function ParamSet:default()
   self:read(state.name .. '.pset')
   self:bang()
 end
 
---- bang all params
+--- bang all params.
 function ParamSet:bang()
   for k,v in pairs(self.params) do
-    v:bang()
+    if v.t ~= self.tTRIGGER then
+      v:bang()
+    end
   end
 end
 
---- clear
+--- clear.
 function ParamSet:clear()
   self.name = ""
   self.params = {}

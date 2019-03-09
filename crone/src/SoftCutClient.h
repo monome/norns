@@ -27,7 +27,7 @@ namespace crone {
         // processors
         softcut::SoftCut<NumVoices> cut;
         // main buffer
-        float buf[BufFrames];
+        float buf[2][BufFrames];
         // busses
         StereoBus mix;
         MonoBus input[NumVoices];
@@ -57,8 +57,11 @@ namespace crone {
         //-- buffer manipulation
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears as much as possible.
-        void loadFile(const std::string &path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f, int channel=0);
-        void clearBuffer(float startTime=0.f, float dur=-1);
+        void loadFileMono(const std::string &path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f,
+                                                int chanSrc=0, int chanDst=0);
+
+        void loadFileStereo(const std::string &path, float startTimeSrc=0.f, float startTimeDst=0.f, float dur=-1.f);
+        void clearBuffer(int bufIdx, float startTime=0.f, float dur=-1);
         // check if quantized phase has changed for a given voice
         // returns true
         bool checkVoiceQuantPhase(int i) {

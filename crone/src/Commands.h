@@ -21,7 +21,7 @@ namespace crone {
             SET_LEVEL_DAC,
             SET_LEVEL_EXT,
             SET_LEVEL_EXT_AUX,
-	    SET_LEVEL_CUT_MASTER,
+	        SET_LEVEL_CUT_MASTER,
             SET_LEVEL_AUX_DAC,
             SET_LEVEL_MONITOR,
             SET_LEVEL_MONITOR_MIX,
@@ -53,16 +53,20 @@ namespace crone {
             SET_LEVEL_TAPE,
 
             // params
+            SET_CUT_REC_FLAG,
+            SET_CUT_PLAY_FLAG,
+
             SET_CUT_RATE,
             SET_CUT_LOOP_START,
             SET_CUT_LOOP_END,
             SET_CUT_LOOP_FLAG,
+            SET_CUT_POSITION,
+
             SET_CUT_FADE_TIME,
             SET_CUT_REC_LEVEL,
             SET_CUT_PRE_LEVEL,
-            SET_CUT_REC_FLAG,
             SET_CUT_REC_OFFSET,
-            SET_CUT_POSITION,
+
             SET_CUT_FILTER_FC,
             SET_CUT_FILTER_FC_MOD,
             SET_CUT_FILTER_RQ,
@@ -71,16 +75,19 @@ namespace crone {
             SET_CUT_FILTER_BP,
             SET_CUT_FILTER_BR,
             SET_CUT_FILTER_DRY,
+
             SET_CUT_LEVEL_SLEW_TIME,
             SET_CUT_RATE_SLEW_TIME,
-
-            NUM_COMMANDS
+            SET_CUT_VOICE_SYNC,
+            SET_CUT_BUFFER,
+            NUM_COMMANDS,
         } Id;
 
     public:
         Commands();
         void post(Commands::Id id, float f);
         void post(Commands::Id id, int i, float f);
+        void post(Commands::Id id, int i, int j);
         void post(Commands::Id id, int i, int j, float f);
 
         // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
@@ -90,6 +97,7 @@ namespace crone {
         struct CommandPacket {
             CommandPacket() = default;
             CommandPacket(Commands::Id i, int i0,  float f) : id(i), idx_0(i0), idx_1(-1), value(f) {}
+            CommandPacket(Commands::Id i, int i0, int i1) : id(i), idx_0(i0), idx_1(i1) {}
             CommandPacket(Commands::Id i, int i0, int i1, float f) : id(i), idx_0(i0), idx_1(i1), value(f) {}
             Id id;
             int idx_0;

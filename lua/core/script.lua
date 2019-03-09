@@ -3,8 +3,8 @@
 
 local Script = {}
 
---- reset script environment;
--- ie redirect draw, key, enc functions, stop timers, clear engine, etc
+--- reset script environment.
+-- ie redirect draw, key, enc functions, stop timers, clear engine, etc.
 Script.clear = function()
   print("# script clear")
 
@@ -34,6 +34,9 @@ Script.clear = function()
   engine.name = nil
   free_engine()
 
+  -- clear softcut
+  softcut.reset()
+
   -- clear init
   init = norns.none
 
@@ -53,7 +56,7 @@ Script.clear = function()
   screen.aa(0)
   screen.level(15)
   screen.line_width(1)
-  screen.font_face(0)
+  screen.font_face(1)
   screen.font_size(8)
 
   if status == true then s_save() end
@@ -69,15 +72,34 @@ Script.init = function()
   s_save()
 end
 
---- load a script from the /scripts folder
+--- load a script from the /scripts folder.
 -- @param filename (string) - file to load. leave blank to reload current file.
-Script.load = function(filename,name,path)
+Script.load = function(filename)
   if filename == nil then
     filename = norns.state.script
     name = norns.state.name
     shortname = norns.state.name:match("([^/]+)$")
     path = norns.state.path
     data = norns.state.data
+  else
+	if string.sub(filename,1,1) == "/" then
+	  relative = string.sub(filename,string.len(dust_dir))
+	else
+	  relative = filename
+	  filename = dust_dir .. filename
+	end
+
+	local t = tab.split(string.sub(relative,0,-5),"/")
+	if t[#t] == t[#t-1] then
+	  name = t[#t]
+	else
+	  name = t[#t-1].."/"..t[#t]
+	end
+  if #t==4 then name = t[2].."/"..name end -- dumb hack for 3-deep subfolers
+	path = string.sub(dust_dir,0,-2)
+	for i = 1,#t-1 do path = path .. "/" .. t[i] end
+	--print("name "..name)
+	--print("final path "..path)
   end
 
   print("# script load: " .. filename)
@@ -104,23 +126,26 @@ Script.load = function(filename,name,path)
 
     Script.clear() -- clear script variables and functions
 
+    norns.state.script = filename
+    norns.state.path = path .. '/'
+    norns.state.data = data_dir .. name .. '/'
+    norns.state.name = name
+    norns.state.shortname = norns.state.name:match( "([^/]+)$" )
+
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
     if status == true then
-      norns.state.script = filename
-      norns.state.path = path
-      norns.state.data = data_dir .. name .. '/'
-      norns.state.name = name
-      norns.state.shortname = norns.state.name:match( "([^/]+)$" )
       norns.state.save() -- remember this script for next launch
       norns.script.nointerface = redraw == norns.blank -- check if redraw is present
       norns.script.redraw = redraw -- store redraw function for context switching
       redraw = norns.none -- block redraw until Script.init
       Script.run() -- load engine then run script-specified init function
+    else
+      Script.clear()
     end
   end
 end
 
---- load engine, execute script-specified init (if present)
+--- load engine, execute script-specified init (if present).
 Script.run = function()
   print("# script run")
   if engine.name ~= nil then
@@ -132,11 +157,10 @@ Script.run = function()
   end
 end
 
---- load script metadata
+--- load script metadata.
 -- @param filename file to load
 -- @return meta table with metadata
 Script.metadata = function(filename)
-  print("# script meta: " .. filename)
   local meta = {}
   local f=io.open(filename,"r")
   if f==nil then
@@ -146,10 +170,12 @@ Script.metadata = function(filename)
     for line in io.lines(filename) do
       if util.string_starts(line,"--") then
         table.insert(meta, string.sub(line,4,-1))
-      else return meta end
-    end
-    if #meta == 0 then
-      table.insert(meta, "no script information")
+      else
+        if #meta == 0 then
+          table.insert(meta, "no script information")
+        end
+        return meta
+      end
     end
   end
   return meta

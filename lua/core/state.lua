@@ -10,17 +10,17 @@ state.name = ''
 state.shortname = ''
 state.clean_shutdown = false
 
--- read state.lua and set parameters back to stored vals
+--- read state.lua and set parameters back to stored vals.
 state.resume = function()
   -- restore mix state
   mix:read("system.pset")
   mix:bang()
 
   -- restore state object
-  local f = io.open(data_dir..'system.state')
+  local f = io.open(dust_dir..'system.state')
   if f ~= nil then
     io.close(f)
-    dofile(data_dir..'system.state')
+    dofile(dust_dir..'system.state')
   end
 
   -- update vports
@@ -54,7 +54,7 @@ state.resume = function()
   end
 end
 
---- save current norns state to system.pset and system.lua in data_dir
+--- save current norns state to system.pset and system.lua in data_dir.
 state.save = function()
   state.save_mix()
   state.save_state()
@@ -65,7 +65,7 @@ state.save_mix = function()
 end
 
 state.save_state = function()
-  local fd=io.open(data_dir .. "system.state","w+")
+  local fd=io.open(dust_dir .. "system.state","w+")
   io.output(fd)
   io.write("-- norns system state\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")

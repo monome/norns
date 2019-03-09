@@ -375,6 +375,11 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_REC_FLAG, argv[0]->i, argv[1]->f);
     });
 
+    addServerMethod("/set/param/cut/play_flag", "if", [](lo_arg **argv, int argc) {
+        if(argc<2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_PLAY_FLAG, argv[0]->i, argv[1]->f);
+    });
+
     addServerMethod("/set/param/cut/rec_offset", "if", [](lo_arg **argv, int argc) {
         if(argc<2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_REC_OFFSET, argv[0]->i, argv[1]->f);
@@ -423,6 +428,11 @@ void OscInterface::addServerMethods() {
     addServerMethod("/set/param/cut/filter_dry", "if", [](lo_arg **argv, int argc) {
         if(argc<2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_FILTER_DRY, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/voice_sync", "iif", [](lo_arg **argv, int argc) {
+        if(argc<3) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_SYNC, argv[0]->i, argv[1]->i, argv[2]->f);
     });
 
 
@@ -482,17 +492,25 @@ void OscInterface::addServerMethods() {
     });
 
 
+    addServerMethod("/set/param/cut/buffer", "ii", [](lo_arg **argv, int argc) {
+        if (argc<2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_BUFFER, argv[0]->i, argv[1]->i);
+    });
+
+
     //-------------------------------
     //--- softcut buffer manipulation
 
+
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
-    addServerMethod("/softcut/buffer/read", "sfffi", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/read_mono", "sfffii", [](lo_arg **argv, int argc) {
         float startSrc = 0.f;
         float startDst = 0.f;
         float dur = -1.f;
-        int channel=0;
+        int chanSrc=0;
+        int chanDst=0;
         if (argc < 1) {
-            std::cerr << "/softcut/buffer/read requires at least one argument (file path)" << std::endl;
+            std::cerr << "/softcut/buffer/read_mono requires at least one argument (file path)" << std::endl;
             return;
         }
         if (argc > 1) {
@@ -505,23 +523,67 @@ void OscInterface::addServerMethods() {
             dur = argv[3]->f;
         }
         if (argc > 4) {
-            channel = argv[4]->i;
+            chanSrc= argv[4]->i;
+        }
+        if (argc > 5) {
+            chanDst= argv[5]->i;
         }
         const char *str = &argv[0]->s;
-        softCutClient->loadFile(str, startSrc, startDst, dur, channel);
+        softCutClient->loadFileMono(str, startSrc, startDst, dur, chanSrc, chanDst);
+    });
+
+    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
+    addServerMethod("/softcut/buffer/read_stereo", "sfff", [](lo_arg **argv, int argc) {
+        float startSrc = 0.f;
+        float startDst = 0.f;
+        float dur = -1.f;
+        if (argc < 1) {
+            std::cerr << "/softcut/buffer/read_stereo requires at least one argument (file path)" << std::endl;
+            return;
+        }
+        if (argc > 1) {
+            startSrc = argv[1]->f;
+        }
+        if (argc > 2) {
+            startDst = argv[2]->f;
+        }
+        if (argc > 3) {
+            dur = argv[3]->f;
+        }
+        const char *str = &argv[0]->s;
+        softCutClient->loadFileStereo(str, startSrc, startDst, dur);
+    });
+
+
+
+    addServerMethod("/softcut/buffer/clear", "", [](lo_arg **argv, int argc) {
+        (void)argc;
+        (void)argv;
+        softCutClient->clearBuffer(0);
+        softCutClient->clearBuffer(1);
+    });
+
+
+    addServerMethod("/softcut/buffer/clear_channel", "i", [](lo_arg **argv, int argc) {
+        if (argc < 1) {
+            return;
+        }
+        softCutClient->clearBuffer(argv[0]->i);
     });
 
     addServerMethod("/softcut/buffer/clear_region", "ff", [](lo_arg **argv, int argc) {
         if (argc < 2) {
             return;
         }
-        softCutClient->clearBuffer(argv[0]->f, argv[1]->f);
+        softCutClient->clearBuffer(0, argv[0]->f, argv[1]->f);
+        softCutClient->clearBuffer(1, argv[0]->f, argv[1]->f);
     });
 
-    // FIXME: does it even work to have different "method signatures" like this?
-    addServerMethod("/softcut/buffer/clear", "", [](lo_arg **argv, int argc) {
-        (void)argc; (void)argv;
-        softCutClient->clearBuffer();
+    addServerMethod("/softcut/buffer/clear_region_channel", "iff", [](lo_arg **argv, int argc) {
+        if (argc < 3) {
+            return;
+        }
+        softCutClient->clearBuffer(argv[0]->i, argv[1]->f, argv[2]->f);
     });
 
 
