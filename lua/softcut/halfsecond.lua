@@ -9,7 +9,7 @@ function sc.init()
 	audio.level_ext_cut(1)
   softcut.level(1,1.0)
 	softcut.level_input_cut(1, 1, 1.0)
-	softcut.level_input_cut(1, 2, 1.0)
+	softcut.level_input_cut(2, 1, 1.0)
 	softcut.pan(1, 0.5)
 
   softcut.play(1, 1)
