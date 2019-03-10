@@ -164,7 +164,11 @@ namespace crone {
                 const size_t bytesToPush = numFrames * frameSize;
                 const size_t bytesAvailable = jack_ringbuffer_write_space(rb);
                 if (bytesToPush > bytesAvailable) {
-                    std::cerr << "Tape: writer overrun" << std::endl;
+                    std::cerr << "Tape: writer overrun: " 
+                    << bytesAvailable << " bytes available; " 
+                    << bytesToPush << " bytes to push; "
+                    << numFramesCaptured << " frames captured" 
+                    << std::endl;
                 }
 
                 /// libsndfile requires interleaved data. we do that here before pushing to ringbuf
