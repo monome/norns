@@ -144,7 +144,7 @@ namespace crone {
             friend class Tape;
 
         private:
-            static constexpr size_t maxFramesToWrite = 1024;
+            static constexpr size_t maxFramesToWrite = 16384;  // FIXME, make this == ringbuf frames
             bool dataReady;
             //  buffer for writing to soundfile (disk thread)
             Sample diskOutBuf[maxFramesToWrite * NumChannels];
@@ -159,7 +159,7 @@ namespace crone {
                 if (!SfStream::isRunning) { return; }
                 // push to ringbuffer
                 jack_ringbuffer_t *rb = this->ringBuf.get();
-                const size_t bytesToPush = numFrames * frameSize;
+                size_t bytesToPush = numFrames * frameSize;
                 const size_t bytesAvailable = jack_ringbuffer_write_space(rb);
                 if (bytesToPush > bytesAvailable) {
                     std::cerr << "Tape: writer overrun: " 
@@ -167,6 +167,7 @@ namespace crone {
                     << bytesToPush << " bytes to push; "
                     << numFramesCaptured << " frames captured" 
                     << std::endl;
+                    bytesToPush = bytesAvailable;
                 }
 
                 /// libsndfile requires interleaved data. we do that here before pushing to ringbuf
@@ -205,17 +206,17 @@ namespace crone {
 
                     int framesToWrite = static_cast<int>(jack_ringbuffer_read_space(this->ringBuf.get()) / frameSize);
                     if (framesToWrite < 1) {
-                        {
-                            std::unique_lock<std::mutex> lock(this->mut);
-                            // ???
-                            // dataReady = false;
-                        }
+                        // this shouldn't really happen... ???
+                        // {
+                        //     std::unique_lock<std::mutex> lock(this->mut);
+                        //     dataReady = false;
+                        // }
                         continue;
                     }
 
                     if (framesToWrite > (int) maxFramesToWrite) { framesToWrite = (int) maxFramesToWrite; }
 
-                    jack_ringbuffer_read(this->ringBuf.get(), (char *) diskOutBuf, framesToWrite * frameSize);
+                    jack_ringbuffer_read(this->ringBuf.get(), (char *)diskOutBuf, framesToWrite * frameSize);
                     if (sf_writef_float(this->file, diskOutBuf, framesToWrite) != framesToWrite) {
                         char errstr[256];
                         sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
@@ -236,7 +237,7 @@ namespace crone {
 
             // from any thread
             bool open(const std::string &path,
-                      size_t maxFrames = JACK_MAX_FRAMES,
+                      size_t maxFrames = JACK_MAX_FRAMES, // <-- ridiculous big number
                       int sampleRate = 48000,
                       int bitDepth = 24) {
                 SF_INFO sf_info;
@@ -291,7 +292,7 @@ namespace crone {
             size_t frames;
             size_t framesBeforeFadeout;
             size_t framesProcessed = 0;
-            static constexpr size_t maxFramesToRead = 1024;
+            static constexpr size_t maxFramesToRead = 16384; // FIXME, make this == ringbuf frames
             // interleaved buffer from soundfile (disk thread)
             Sample diskInBuf[frameSize * maxFramesToRead];
             // buffer for deinterleaving after ringbuf (audio thread)
