@@ -57,7 +57,7 @@ namespace crone {
             std::atomic<bool> shouldStop;
 
         public:
-            SfStream(size_t rbf = 2048):
+            SfStream(size_t rbf = 16384):
             file(nullptr),
             status(0),
             ringBufFrames(rbf),
@@ -90,8 +90,6 @@ namespace crone {
             void stop() {
                 envState = Stopping;
             }
-
-
 
         protected:
 
@@ -209,7 +207,8 @@ namespace crone {
                     if (framesToWrite < 1) {
                         {
                             std::unique_lock<std::mutex> lock(this->mut);
-                            dataReady = false;
+                            // ???
+                            // dataReady = false;
                         }
                         continue;
                     }
