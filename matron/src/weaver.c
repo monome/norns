@@ -197,7 +197,8 @@ static int _sound_file_inspect(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
-static int _clock_schedule(lua_State *l);
+static int _clock_schedule_sleep(lua_State *l);
+static int _clock_schedule_sync(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -383,7 +384,8 @@ void w_init(void) {
 
   // reset LVM
   lua_register(lvm, "_reset_lvm", &_reset_lvm);
-  lua_register(lvm, "_clock_schedule", &_clock_schedule);
+  lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
+  lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1418,7 +1420,7 @@ _call_grid_handler(int id, int x, int y, int state) {
   l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-int _clock_schedule(lua_State *l) {
+int _clock_schedule_sleep(lua_State *l) {
   if (lua_gettop(l) < 2) {
     return luaL_error(l, "wrong number of arguments");
   }
@@ -1430,6 +1432,23 @@ int _clock_schedule(lua_State *l) {
     w_handle_clock_resume(thread_id);
   } else {
     clock_schedule_resume(thread_id, time);
+  }
+
+  return 0;
+}
+
+int _clock_schedule_sync(lua_State *l) {
+  if (lua_gettop(l) < 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  int thread_id = (int) luaL_checkinteger(l, 1);
+  float beats = (float) luaL_checknumber(l, 2);
+
+  if (beats == 0) {
+    w_handle_clock_resume(thread_id);
+  } else {
+    clock_schedule_resume_sync(thread_id, beats);
   }
 
   return 0;
