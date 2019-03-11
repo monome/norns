@@ -27,10 +27,10 @@ namespace crone {
         typedef jack_default_audio_sample_t Sample;
         static constexpr size_t sampleSize = sizeof(Sample);
         static constexpr size_t frameSize = sampleSize * NumChannels;
-
-
+	static constexpr size_t ringBufFrames = 16384;
+	static constexpr size_t ringBufBytes = sampleSize * NumChannels * ringBufFrames;
+	
     public:
-
         //-----------------------------------------------------------------------------------------------
         //-- base class for sound file access
 
@@ -42,9 +42,7 @@ namespace crone {
             std::condition_variable cv;
             std::unique_ptr<jack_ringbuffer_t> ringBuf;
             volatile int status;
-            size_t ringBufFrames;
-            size_t ringBufBytes;
-
+	    
             typedef enum {
                 Starting, Playing, Stopping, Stopped
             } EnvState;
@@ -57,14 +55,12 @@ namespace crone {
             std::atomic<bool> shouldStop;
 
         public:
-            SfStream(size_t rbf = 16384):
+            SfStream():
             file(nullptr),
             status(0),
-            ringBufFrames(rbf),
             isRunning(false),
             shouldStop(false)
             {
-                ringBufBytes = sampleSize * NumChannels * ringBufFrames;
                 ringBuf = std::unique_ptr<jack_ringbuffer_t>(jack_ringbuffer_create(ringBufBytes));
 
                 envIdx = 0;
@@ -144,7 +140,7 @@ namespace crone {
             friend class Tape;
 
         private:
-            static constexpr size_t maxFramesToWrite = 16384;  // FIXME, make this == ringbuf frames
+            static constexpr size_t maxFramesToWrite = ringBufFrames;
             bool dataReady;
             //  buffer for writing to soundfile (disk thread)
             Sample diskOutBuf[maxFramesToWrite * NumChannels];
@@ -206,11 +202,7 @@ namespace crone {
 
                     int framesToWrite = static_cast<int>(jack_ringbuffer_read_space(this->ringBuf.get()) / frameSize);
                     if (framesToWrite < 1) {
-                        // this shouldn't really happen... ???
-                        // {
-                        //     std::unique_lock<std::mutex> lock(this->mut);
-                        //     dataReady = false;
-                        // }
+			// shouldn't really happen...
                         continue;
                     }
 
@@ -295,7 +287,7 @@ namespace crone {
             size_t frames;
             size_t framesBeforeFadeout;
             size_t framesProcessed = 0;
-            static constexpr size_t maxFramesToRead = 16384; // FIXME, make this == ringbuf frames
+            static constexpr size_t maxFramesToRead = ringBufFrames;
             // interleaved buffer from soundfile (disk thread)
             Sample diskInBuf[frameSize * maxFramesToRead];
             // buffer for deinterleaving after ringbuf (audio thread)
