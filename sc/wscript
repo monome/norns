@@ -27,19 +27,10 @@ def build_ugen_supernova(bld, target, source):
     else:
         ugen.env.cxxshlib_PATTERN = '%s_supernova.so'
 
-def build(bld):     
+def build(bld):
     ugens = [
-        {'target':'BufWrPre', 'source':'ugens/BufWrPre/BufWrPre.cpp' },
-        {'target':'SoftCutHead', 'source':[
-            'ugens/SoftCutHead/SoftCutHead.cpp',
-            'ugens/SoftCutHead/SoftCutHeadLogic.cpp',
-        ]},
-        {'target':'FaustZitaRev', 'source':'ugens/FaustZitaRev/FaustZitaRev.cpp' },
-        {'target':'FaustZitaRevLight', 'source':'ugens/FaustZitaRevLight/FaustZitaRevLight.cpp' },
-        {'target':'FaustCompressor', 'source':'ugens/FaustCompressor/FaustCompressor.cpp' },
         {'target':'TrigPhasor', 'source':'ugens/TrigPhasor/TrigPhasor.cpp' }
     ]
     for u in ugens:
         build_ugen(bld, u['target'], u['source'])
         build_ugen_supernova(bld, u['target'], u['source'])
-        
