@@ -161,8 +161,8 @@ namespace crone {
                 size_t bytesToPush = numFrames * frameSize;
                 const size_t bytesAvailable = jack_ringbuffer_write_space(rb);
                 
-#if 0
                 if (bytesToPush > bytesAvailable) {
+#if 0
                     std::cerr << "Tape: writer overrun: " 
                               << bytesAvailable << " bytes available; " 
                               << bytesToPush << " bytes to push; "
