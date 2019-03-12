@@ -145,7 +145,7 @@ namespace crone {
         float x0;
         float y0;
     public:
-        explicit LogRamp(float sr=48000, float t=0.001) : sampleRate(sr), b(1.f), x0(0.f), y0(0.f) {
+        explicit LogRamp(float sr=48000, float t=0.05) : sampleRate(sr), b(1.f), x0(0.f), y0(0.f) {
             sampleRate = sr;
             time = t;
             setTime(t);
