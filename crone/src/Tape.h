@@ -21,15 +21,15 @@
 namespace crone {
 
     template<int NumChannels>
-    class Tape {
+        class Tape {
     private:
 
         typedef jack_default_audio_sample_t Sample;
         static constexpr size_t sampleSize = sizeof(Sample);
         static constexpr size_t frameSize = sampleSize * NumChannels;
-	    static constexpr size_t ringBufFrames = 16384;
-	    static constexpr size_t ringBufBytes = sampleSize * NumChannels * ringBufFrames;
-	
+        static constexpr size_t ringBufFrames = 16384;
+        static constexpr size_t ringBufBytes = sampleSize * NumChannels * ringBufFrames;
+        
     public:
         //-----------------------------------------------------------------------------------------------
         //-- base class for sound file access
@@ -42,7 +42,7 @@ namespace crone {
             std::condition_variable cv;
             std::unique_ptr<jack_ringbuffer_t> ringBuf;
             volatile int status;
-	    
+            
             typedef enum {
                 Starting, Playing, Stopping, Stopped
             } EnvState;
@@ -55,28 +55,28 @@ namespace crone {
             std::atomic<bool> shouldStop;
 
         public:
-            SfStream():
-		file(nullptr),
-		status(0),
-		isRunning(false),
-		shouldStop(false)
-            {
-                ringBuf = std::unique_ptr<jack_ringbuffer_t>(jack_ringbuffer_create(ringBufBytes));
-                envIdx = 0;
-                envState = Stopped;
-            }
+        SfStream():
+            file(nullptr),
+                status(0),
+                isRunning(false),
+                shouldStop(false)
+                    {
+                        ringBuf = std::unique_ptr<jack_ringbuffer_t>(jack_ringbuffer_create(ringBufBytes));
+                        envIdx = 0;
+                        envState = Stopped;
+                    }
 
             virtual // from any thread
-            void start() {
+                void start() {
                 if (isRunning) {
                     return;
                 } else {
                     envIdx = 0;
                     envState = Starting;
                     this->th = std::make_unique<std::thread>(
-							     [this]() {
-								 this->diskLoop();
-							     });
+                                                             [this]() {
+                                                                 this->diskLoop();
+                                                             });
                     this->th->detach();
                 }
             }
@@ -93,20 +93,20 @@ namespace crone {
             float getEnvSample() {
                 float y=0.f;
                 switch (envState) {
-		case Starting:
-		    y = Window::raisedCosShort[envIdx];
-		    incEnv();
-		    break;;
-		case Stopping:
-		    y = Window::raisedCosShort[envIdx];
-		    decEnv();
-		    break;
-		case Playing:
-		    y = 1.0;
-		    break;
-		case Stopped:
-		default:
-		    y = 0.f;
+                case Starting:
+                    y = Window::raisedCosShort[envIdx];
+                    incEnv();
+                    break;;
+                case Stopping:
+                    y = Window::raisedCosShort[envIdx];
+                    decEnv();
+                    break;
+                case Playing:
+                    y = 1.0;
+                    break;
+                case Stopped:
+                default:
+                    y = 0.f;
                 }
                 return y;
             }
@@ -126,7 +126,7 @@ namespace crone {
                     envIdx = 0;
                     envState = Stopped;
                     shouldStop = true;
-		            std::cerr << "Tape: fade-out finished; stopping" << std::endl;
+                    std::cerr << "Tape: fade-out finished; stopping" << std::endl;
                 }
             }
 
@@ -160,17 +160,17 @@ namespace crone {
                 jack_ringbuffer_t *rb = this->ringBuf.get();
                 size_t bytesToPush = numFrames * frameSize;
                 const size_t bytesAvailable = jack_ringbuffer_write_space(rb);
-		
+                
 #if 0
                 if (bytesToPush > bytesAvailable) {
                     std::cerr << "Tape: writer overrun: " 
-			      << bytesAvailable << " bytes available; " 
-			      << bytesToPush << " bytes to push; "
-			      << numFramesCaptured << " frames captured" 
-			      << std::endl;
+                              << bytesAvailable << " bytes available; " 
+                              << bytesToPush << " bytes to push; "
+                              << numFramesCaptured << " frames captured" 
+                              << std::endl;
 #endif
-    		    // discard input if the ringbuffer is full;
-	    	    // this causes a dropout but hopefully nothing Really Bad
+                    // discard input if the ringbuffer is full;
+                    // this causes a dropout but hopefully nothing Really Bad
                     numFrames = bytesAvailable / frameSize;
                     bytesToPush = numFrames * frameSize;
                 }
@@ -178,7 +178,7 @@ namespace crone {
                 /// libsndfile requires interleaved data. we do that here before pushing to ringbuf
                 float *dst = pushBuf;
                 for (size_t fr = 0; fr < numFrames; ++fr) {
-        		    // while we're interleaving, also apply envelope
+                    // while we're interleaving, also apply envelope
                     float amp = SfStream::getEnvSample();
                     for (int ch = 0; ch < NumChannels; ++ch) {
                         *dst++ = src[ch][fr] * amp;
@@ -188,11 +188,11 @@ namespace crone {
                 this->dataPending = true;
                 this->cv.notify_one();
 
-                    if (this->mut.try_lock()) {
-                        this->dataPending = true;
-                        this->cv.notify_one();
-                        this->mut.unlock();
-                    }
+                if (this->mut.try_lock()) {
+                    this->dataPending = true;
+                    this->cv.notify_one();
+                    this->mut.unlock();
+                }
             }
 
             // call from disk thread
@@ -205,8 +205,8 @@ namespace crone {
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
                         this->cv.wait(lock, [this] {
-				            return this->dataPending;
-			            });
+                                return this->dataPending;
+                            });
 
                         // check for spurious wakeup
                         if (!dataPending) {
@@ -214,22 +214,22 @@ namespace crone {
                         }
                     }
                      
-                        bytesAvailable = jack_ringbuffer_read_space(this->ringBuf.get());
-                        if (bytesAvailable < minBytesToWrite) { 
-                            {
-                                std::unique_lock<std::mutex> lock(this->mut);
-                                dataPending = false;
-                            }
-                            continue;
+                    bytesAvailable = jack_ringbuffer_read_space(this->ringBuf.get());
+                    if (bytesAvailable < minBytesToWrite) { 
+                        {
+                            std::unique_lock<std::mutex> lock(this->mut);
+                            dataPending = false;
                         }
+                        continue;
+                    }
 
                     int framesToWrite = bytesAvailable / frameSize;
                     
                     if (framesToWrite > (int) maxFramesToWrite) {
                         // _really_ shouldn't happen
-			            std::cerr << "warning: Tape::Writer has too many frames to write" << std::endl;
-			            framesToWrite = (int) maxFramesToWrite;
-		            }
+                        std::cerr << "warning: Tape::Writer has too many frames to write" << std::endl;
+                        framesToWrite = (int) maxFramesToWrite;
+                    }
 
                     jack_ringbuffer_read(this->ringBuf.get(), (char *)diskOutBuf, framesToWrite * frameSize);
                     // immediately signal audio thread that we're done with pending data
@@ -272,21 +272,21 @@ namespace crone {
                 sf_info.channels = NumChannels;
 
                 switch (bitDepth) {
-		case 8:
-		    short_mask = SF_FORMAT_PCM_U8;
-		    break;
-		case 16:
-		    short_mask = SF_FORMAT_PCM_16;
-		    break;
-		case 24:
-		    short_mask = SF_FORMAT_PCM_24;
-		    break;
-		case 32:
-		    short_mask = SF_FORMAT_PCM_32;
-		    break;
-		default:
-		    short_mask = SF_FORMAT_PCM_24;
-		    break;
+                case 8:
+                    short_mask = SF_FORMAT_PCM_U8;
+                    break;
+                case 16:
+                    short_mask = SF_FORMAT_PCM_16;
+                    break;
+                case 24:
+                    short_mask = SF_FORMAT_PCM_24;
+                    break;
+                case 32:
+                    short_mask = SF_FORMAT_PCM_32;
+                    break;
+                default:
+                    short_mask = SF_FORMAT_PCM_24;
+                    break;
                 }
                 sf_info.format = SF_FORMAT_WAV | short_mask;
 
@@ -303,10 +303,10 @@ namespace crone {
                 return true;
             }
 
-            Writer() : SfStream(),
-                       dataPending(false),
-                       numFramesCaptured(0),
-                       maxFrames(JACK_MAX_FRAMES) {}
+        Writer() : SfStream(),
+                dataPending(false),
+                numFramesCaptured(0),
+                maxFrames(JACK_MAX_FRAMES) {}
         }; // Writer class
 
         //-----------------------------------------------------------------------------------------------------------------
@@ -451,8 +451,8 @@ namespace crone {
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
                         this->cv.wait(lock, [this] {
-				            return this->needsData;
-			            });
+                                return this->needsData;
+                            });
                         // check for spurious wakeup
                         if (!needsData) { continue; }
                     }
@@ -462,7 +462,7 @@ namespace crone {
                     size_t framesToRead = jack_ringbuffer_write_space(rb) / frameSize;
                     if (framesToRead < 1) {
                         {
-                           std::unique_lock<std::mutex> lock(this->mut);
+                            std::unique_lock<std::mutex> lock(this->mut);
                             needsData = false;
                         }
                         continue;
