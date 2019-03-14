@@ -12,6 +12,7 @@ Norns {
   *initClass {
     Norns.addIncludePath(Platform.userHomeDir ++ "/norns/sc/core");
     Norns.addIncludePath(Platform.userHomeDir ++ "/norns/sc/abstractions");
+    Norns.addIncludePath(Platform.userHomeDir ++ "/norns/sc/engines");
     Norns.addIncludePath(Platform.userHomeDir ++ "/norns/sc/ugens");
     Norns.addIncludePath(Platform.userHomeDir ++ "/dust");
   }
