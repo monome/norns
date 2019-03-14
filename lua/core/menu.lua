@@ -873,6 +873,11 @@ end
 
 m.redraw[pDEVICES] = function()
   screen.clear()
+  if m.devices.mode == "list" then
+    screen.move(0,10)
+    screen.level(4)
+    screen.text(string.upper(m.devices.section))
+  end
   for i=1,m.devices.len do
     screen.move(0,10*i+20)
     if(i==m.devices.pos) then
@@ -883,14 +888,16 @@ m.redraw[pDEVICES] = function()
     if m.devices.mode == "type" then
       screen.text(string.upper(m.devices.list[i]) .. " >")
     elseif m.devices.mode == "list" then
+      screen.text(i..".")
+      screen.move(8,10*i+20)
       if m.devices.section == "midi" then
-        screen.text(i .. ". " .. midi.vports[i].name)
+        screen.text(midi.vports[i].name)
       elseif m.devices.section == "grid" then
-        screen.text(i .. ". " .. grid.vports[i].name)
+        screen.text(grid.vports[i].name)
       elseif m.devices.section == "arc" then
-        screen.text(i .. ". " .. arc.vports[i].name)
+        screen.text(arc.vports[i].name)
       elseif m.devices.section == "hid" then
-        screen.text(i .. ". " .. hid.vports[i].name)
+        screen.text(hid.vports[i].name)
       end
     elseif m.devices.mode == "select" then
       screen.text(m.devices.options[m.devices.section][i])
