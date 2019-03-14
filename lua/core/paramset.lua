@@ -205,7 +205,7 @@ function ParamSet:init()
 end
 
 --- write to disk.
--- @param filename
+-- @param filename absolute path or use number instead to write to local data folder
 function ParamSet:write(filename)
   if type(filename) == "number" then
     self.init()
@@ -228,7 +228,7 @@ function ParamSet:write(filename)
 end
 
 --- read from disk.
--- @param filename
+-- @param filename absolute path or use number instead to read from local data folder
 function ParamSet:read(filename)
   filename = filename or 0
   if type(filename) == "number" then
