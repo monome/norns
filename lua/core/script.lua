@@ -44,7 +44,7 @@ Script.clear = function()
   norns.state.script = ''
   norns.state.name = 'none'
   norns.state.shortname = 'none'
-  norns.state.path = dust_dir
+  norns.state.path = _path["dust"]
 
   -- clear params
   params:clear()
@@ -83,10 +83,10 @@ Script.load = function(filename)
     data = norns.state.data
   else
 	if string.sub(filename,1,1) == "/" then
-	  relative = string.sub(filename,string.len(dust_dir))
+	  relative = string.sub(filename,string.len(_path["dust"]))
 	else
 	  relative = filename
-	  filename = dust_dir .. filename
+	  filename = _path["dust"] .. filename
 	end
 
 	local t = tab.split(string.sub(relative,0,-5),"/")
@@ -96,7 +96,7 @@ Script.load = function(filename)
 	  name = t[#t-1].."/"..t[#t]
 	end
   if #t==4 then name = t[2].."/"..name end -- dumb hack for 3-deep subfolers
-	path = string.sub(dust_dir,0,-2)
+	path = string.sub(_path["dust"],0,-2)
 	for i = 1,#t-1 do path = path .. "/" .. t[i] end
 	--print("name "..name)
 	--print("final path "..path)
@@ -128,7 +128,7 @@ Script.load = function(filename)
 
     norns.state.script = filename
     norns.state.path = path .. '/'
-    norns.state.data = data_dir .. name .. '/'
+    norns.state.data = path .. '/data/'
     norns.state.name = name
     norns.state.shortname = norns.state.name:match( "([^/]+)$" )
 

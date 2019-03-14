@@ -197,32 +197,28 @@ end
 
 --- init local psets.
 -- make data dir if needed.
--- if psets are contained in project folder, copy them to local folder.
 function ParamSet:init()
-  if norns.state.data ~= data_dir then
-    if util.file_exists(norns.state.data) == false then
-      print("pset >> initializing data folder")
-      util.make_dir(norns.state.data)
-      -- copy project contents
-      local project_data = norns.state.path .. 'data/'
-      if util.file_exists(project_data) then
-        print("pset >> copying default project data")
-        os.execute("cp " .. project_data .. "*.pset " .. norns.state.data)
-      end
-    end
+  if util.file_exists(norns.state.data) == false then
+    print("pset >> initializing data folder")
+    util.make_dir(norns.state.data)
   end
 end
 
 --- write to disk.
--- @param filename relative to data_dir
+-- @param filename absolute path or use number instead to write to local data folder
 function ParamSet:write(filename)
-  self.init()
-  local dir = norns.state.data
-  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
-  -- write file
-  local file = dir .. filename
-  print("pset >> write: "..file)
-  local fd = io.open(file, "w+")
+  filename = filename or 0
+  if type(filename) == "number" then
+    self.init()
+    local n = filename
+    filename = norns.state.data .. norns.state.shortname
+    if n > 0 then
+      filename = filename .. "-" .. string.format("%02d",n)
+    end
+    filename = filename .. ".pset"
+  end
+  print("pset >> write: "..filename)
+  local fd = io.open(filename, "w+")
   io.output(fd)
   for k,param in pairs(self.params) do
     if param.id and param.t ~= self.tTRIGGER then
@@ -233,17 +229,22 @@ function ParamSet:write(filename)
 end
 
 --- read from disk.
--- @param filename relative to data_dir
+-- @param filename absolute path or use number instead to read from local data folder
 function ParamSet:read(filename)
-  self.init()
-  local dir = norns.state.data
-  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
-  local file = dir .. filename
-  print("pset >> read: " .. file)
-  local fd = io.open(file, "r")
+  filename = filename or 0
+  if type(filename) == "number" then
+    local n = filename
+    filename = norns.state.data .. norns.state.shortname
+    if n > 0 then
+      filename = filename .. "-" .. string.format("%02d",n)
+    end
+    filename = filename .. ".pset"
+  end
+  print("pset >> read: " .. filename)
+  local fd = io.open(filename, "r")
   if fd then
     io.close(fd)
-    for line in io.lines(file) do
+    for line in io.lines(filename) do
       local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
 
       if id and value then
@@ -270,7 +271,7 @@ end
 
 --- read deafult pset if present.
 function ParamSet:default()
-  self:read(state.name .. '.pset')
+  self:read()
   self:bang()
 end
 

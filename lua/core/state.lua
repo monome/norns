@@ -4,8 +4,8 @@
 state = {}
 state.tape = 0
 state.script = ''
-state.path = dust_dir
-state.data = data_dir
+state.path = _path["dust"]
+state.data = _path["dust"]
 state.name = ''
 state.shortname = ''
 state.clean_shutdown = false
@@ -13,14 +13,14 @@ state.clean_shutdown = false
 --- read state.lua and set parameters back to stored vals.
 state.resume = function()
   -- restore mix state
-  mix:read("system.pset")
+  mix:read(_path["dust"].."system.pset")
   mix:bang()
 
   -- restore state object
-  local f = io.open(dust_dir..'system.state')
+  local f = io.open(_path["dust"]..'system.state')
   if f ~= nil then
     io.close(f)
-    dofile(dust_dir..'system.state')
+    dofile(_path["dust"]..'system.state')
   end
 
   -- update vports
@@ -48,24 +48,24 @@ state.resume = function()
     state.script=''
     state.name = 'none'
     state.shortname = 'none'
-    state.path = dust_dir
-    state.data = data_dir
+    state.path = _path["dust"]
+    state.data = _path["dust"]
     norns.scripterror("NO SCRIPT")
   end
 end
 
---- save current norns state to system.pset and system.lua in data_dir.
+--- save current norns state to system.pset and system.state
 state.save = function()
   state.save_mix()
   state.save_state()
 end
 
 state.save_mix = function()
-  mix:write("system.pset")
+  mix:write(_path["dust"].."system.pset")
 end
 
 state.save_state = function()
-  local fd=io.open(dust_dir .. "system.state","w+")
+  local fd=io.open(_path["dust"] .. "system.state","w+")
   io.output(fd)
   io.write("-- norns system state\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
