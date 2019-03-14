@@ -199,7 +199,7 @@ end
 -- make data dir if needed.
 -- if psets are contained in project folder, copy them to local folder.
 function ParamSet:init()
-  if norns.state.data ~= data_dir then
+--[[  if norns.state.data ~= data_dir then
     if util.file_exists(norns.state.data) == false then
       print("pset >> initializing data folder")
       util.make_dir(norns.state.data)
@@ -211,18 +211,15 @@ function ParamSet:init()
       end
     end
   end
+]]--
 end
 
 --- write to disk.
--- @param filename relative to data_dir
+-- @param filename
 function ParamSet:write(filename)
   self.init()
-  local dir = norns.state.data
-  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
-  -- write file
-  local file = dir .. filename
-  print("pset >> write: "..file)
-  local fd = io.open(file, "w+")
+  print("pset >> write: "..filename)
+  local fd = io.open(filename, "w+")
   io.output(fd)
   for k,param in pairs(self.params) do
     if param.id and param.t ~= self.tTRIGGER then
@@ -233,17 +230,14 @@ function ParamSet:write(filename)
 end
 
 --- read from disk.
--- @param filename relative to data_dir
+-- @param filename
 function ParamSet:read(filename)
   self.init()
-  local dir = norns.state.data
-  if filename == "system.pset" then dir = dust_dir end -- hack for system.pset
-  local file = dir .. filename
-  print("pset >> read: " .. file)
-  local fd = io.open(file, "r")
+  print("pset >> read: " .. filename)
+  local fd = io.open(filename, "r")
   if fd then
     io.close(fd)
-    for line in io.lines(file) do
+    for line in io.lines(filename) do
       local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
 
       if id and value then
