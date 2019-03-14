@@ -207,6 +207,7 @@ end
 --- write to disk.
 -- @param filename absolute path or use number instead to write to local data folder
 function ParamSet:write(filename)
+  filename = filename or 0
   if type(filename) == "number" then
     self.init()
     local n = filename
