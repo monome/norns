@@ -127,8 +127,8 @@ Script.load = function(filename)
     Script.clear() -- clear script variables and functions
 
     norns.state.script = filename
-    norns.state.path = path .. '/'
-    norns.state.data = path .. '/data/'
+    norns.state.path = path
+    norns.state.data = path .. 'data/'
     norns.state.name = name
     norns.state.shortname = norns.state.name:match( "([^/]+)$" )
 
