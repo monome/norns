@@ -121,7 +121,7 @@ norns.init_done = function(status)
     end
   end
   m.params.init_map()
-  m.params.read_pmap(norns.state.data..norns.state.shortname..".pmap")
+  m.params.read_pmap()
 end
 
 
@@ -472,25 +472,16 @@ m.key[pPARAMS] = function(n,z)
   if menu.alt then
     if n==3 and z==1 then
       if m.params.altpos == 1 and m.params.loadable==true then
-        if m.params.n == 0 then
-          params:read(norns.state.data..norns.state.shortname..".pset")
-        else
-          params:read(norns.state.data..norns.state.shortname.."-"..string.format("%02d",m.params.n)..".pset")
-        end
+        params:read(m.params.n)
         m.params.action = 15
         m.params.action_text = "loaded"
       elseif m.params.altpos == 2 then
-        util.make_dir(norns.state.data)
-        if m.params.n == 0 then
-          params:write(norns.state.data..norns.state.shortname..".pset")
-        else
-          params:write(norns.state.data..norns.state.shortname.."-"..string.format("%02d",m.params.n)..".pset")
-        end
+        params:write(m.params.n)
         m.params.action = 15
         m.params.action_text = "saved"
         m.params.loadable = true
         -- save mapping
-        m.params.write_pmap(norns.state.data..norns.state.shortname..".pmap")
+        m.params.write_pmap()
       end
       menu.redraw()
     end
@@ -699,10 +690,11 @@ norns.menu_midi_event = function(data)
   end
 end
 
-function m.params.write_pmap(filename)
+function m.params.write_pmap()
   local function quote(s)
     return '"'..s:gsub('"', '\\"')..'"'
   end
+  local filename = norns.state.data..norns.state.shortname..".pmap"
   print(">> saving PMAP "..filename)
   local fd = io.open(filename, "w+")
   io.output(fd)
@@ -712,10 +704,11 @@ function m.params.write_pmap(filename)
   io.close(fd)
 end
 
-function m.params.read_pmap(filename)
+function m.params.read_pmap()
   local function unquote(s)
     return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
   end
+  local filename = norns.state.data..norns.state.shortname..".pmap"
   print(">> reading PMAP "..filename)
   local fd = io.open(filename, "r")
   if fd then

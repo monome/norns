@@ -197,27 +197,25 @@ end
 
 --- init local psets.
 -- make data dir if needed.
--- if psets are contained in project folder, copy them to local folder.
 function ParamSet:init()
---[[  if norns.state.data ~= data_dir then
-    if util.file_exists(norns.state.data) == false then
-      print("pset >> initializing data folder")
-      util.make_dir(norns.state.data)
-      -- copy project contents
-      local project_data = norns.state.path .. 'data/'
-      if util.file_exists(project_data) then
-        print("pset >> copying default project data")
-        os.execute("cp " .. project_data .. "*.pset " .. norns.state.data)
-      end
-    end
+  if util.file_exists(norns.state.data) == false then
+    print("pset >> initializing data folder")
+    util.make_dir(norns.state.data)
   end
-]]--
 end
 
 --- write to disk.
 -- @param filename
 function ParamSet:write(filename)
-  self.init()
+  if type(filename) == "number" then
+    self.init()
+    local n = filename
+    filename = norns.state.data .. norns.state.shortname
+    if n > 0 then
+      filename = filename .. "-" .. string.format("%02d",n)
+    end
+    filename = filename .. ".pset"
+  end
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
   io.output(fd)
@@ -232,7 +230,15 @@ end
 --- read from disk.
 -- @param filename
 function ParamSet:read(filename)
-  self.init()
+  filename = filename or 0
+  if type(filename) == "number" then
+    local n = filename
+    filename = norns.state.data .. norns.state.shortname
+    if n > 0 then
+      filename = filename .. "-" .. string.format("%02d",n)
+    end
+    filename = filename .. ".pset"
+  end
   print("pset >> read: " .. filename)
   local fd = io.open(filename, "r")
   if fd then
@@ -264,7 +270,7 @@ end
 
 --- read deafult pset if present.
 function ParamSet:default()
-  self:read(state.name .. '.pset')
+  self:read()
   self:bang()
 end
 
