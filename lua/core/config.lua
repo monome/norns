@@ -16,6 +16,6 @@ package.path = sys..core..params..lib..softcut..dust..package.path
 -- print('package.path: ' .. package.path)
 
 _path = {}
-_path["home"] = home
-_path["dust"] = home..'/dust/'
-_path["audio"] = home..'/audio/'
+_path.home = home
+_path.dust = home..'/dust/'
+_path.audio = home..'/audio/'
