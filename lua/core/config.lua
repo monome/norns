@@ -10,7 +10,7 @@ local core = norns..'/core/?.lua;'
 local params = norns..'/core/params/?.lua;'
 local lib = norns..'/lib/?.lua;'
 local softcut = norns..'/softcut/?.lua;'
-local dust = home..'/dust/?.lua;'
+local dust = home..'/dust/scripts/?.lua;'
 
 package.path = sys..core..params..lib..softcut..dust..package.path
 -- print('package.path: ' .. package.path)
