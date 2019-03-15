@@ -1,7 +1,7 @@
 // the Crone, a singleton class
 // it receives OSC from *matron* and manages the current CroneEngine
 Crone {
-	classvar <>autostart = true;
+	classvar <>bootOnInit = true;
 	// the audio server
 	classvar <>server;
 	// current CroneEngine subclass instance
@@ -25,23 +25,23 @@ Crone {
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
-			if (Crone.autostart) {
-				croneAddr = NetAddr("127.0.0.1", 9999);
+			croneAddr = NetAddr("127.0.0.1", 9999);
 
-				postln("\n-------------------------------------------------");
-				postln(" Crone startup");
-				postln("");
-				postln(" OSC rx port: " ++ NetAddr.langPort);
-				postln(" OSC tx port: " ++ txPort);
-				postln(" server port: " ++ serverPort);
-				postln(" server port: " ++ croneAddr.port);
-				postln("--------------------------------------------------\n");
+			postln("\n-------------------------------------------------");
+			postln(" Crone startup");
+			postln("");
+			postln(" OSC rx port: " ++ NetAddr.langPort);
+			postln(" OSC tx port: " ++ txPort);
+			postln(" server port: " ++ serverPort);
+			postln(" server port: " ++ croneAddr.port);
+			postln("--------------------------------------------------\n");
 
-				remoteAddr = NetAddr("127.0.0.1", txPort);
+			remoteAddr = NetAddr("127.0.0.1", txPort);
 
-				"SC_JACK_DEFAULT_INPUTS".setenv("");
-				"SC_JACK_DEFAULT_OUTPUTS".setenv("");
+			"SC_JACK_DEFAULT_INPUTS".setenv("");
+			"SC_JACK_DEFAULT_OUTPUTS".setenv("");
 
+			if (Crone.bootOnInit) {
 				Crone.startBoot;
 			}
 		}
