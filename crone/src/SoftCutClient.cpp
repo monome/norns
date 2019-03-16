@@ -168,9 +168,14 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
 }
 
 void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
-    size_t frA =secToFrame(start);
+    size_t frA = secToFrame(start);
     clamp(frA, BufFrames-1);
-    size_t frB = frA + secToFrame(dur);
+    size_t frB;
+    if (dur < 0) {
+	frB = BufFrames;
+    } else {
+	frB = frA + secToFrame(dur);
+    }
     clamp(frB, BufFrames);
     for(size_t i=frA; i<frB; ++i) { buf[bufIdx][i] = 0.f; }
 }
