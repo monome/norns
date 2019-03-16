@@ -201,6 +201,11 @@ function ParamSet:init()
   if util.file_exists(norns.state.data) == false then
     print("pset >> initializing data folder")
     util.make_dir(norns.state.data)
+    local project_data = norns.state.path .. 'data/'
+    if util.file_exists(project_data) then
+      print("pset >> copying default project data")
+      os.execute("cp " .. project_data .. norns.state.shortname .. "*.* " .. norns.state.data)
+    end
   end
 end
 
@@ -233,6 +238,7 @@ end
 function ParamSet:read(filename)
   filename = filename or 0
   if type(filename) == "number" then
+    self.init()
     local n = filename
     filename = norns.state.data .. norns.state.shortname
     if n > 0 then
