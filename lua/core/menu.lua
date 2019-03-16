@@ -349,7 +349,7 @@ local function build_select_tree(root,dir)
       else
         n = p
       end
-      n = string.gsub(n,_path.scripts,'')
+      n = string.gsub(n,_path.code,'')
       n = string.sub(n,0,-2)
       table.insert(m.sel.list,{name=n,file=file,path=p})
     end
@@ -358,7 +358,7 @@ end
 
 m.init[pSELECT] = function()
   m.sel.list = {}
-  build_select_tree(_path.scripts,"")
+  build_select_tree(_path.code,"")
   --for k,v in pairs(m.sel.list) do
     --print(k, v.name, v.file, v.path)
   --end
