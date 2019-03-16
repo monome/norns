@@ -183,14 +183,15 @@ void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
 }
 
 
-/// FIXME: DRY this up
-void crone::SoftCutClient::loadFileMono(const std::string &path, float startTimeSrc, float startTimeDst, float dur,
-        int chanSrc, int chanDst) {
+///////////////////
+/// FIXME: DRY these all up
 
+void crone::SoftCutClient::readBufferMono(const std::string &path, float startTimeSrc, float startTimeDst, float dur,
+                                          int chanSrc, int chanDst) {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
-        std::cerr << "SoftCutClient::loadFileMono(): empty / missing file: " << path << std::endl;
+        std::cerr << "SoftCutClient::readBufferMono(): empty / missing file: " << path << std::endl;
         return;
     }
 
@@ -199,11 +200,6 @@ void crone::SoftCutClient::loadFileMono(const std::string &path, float startTime
 
     size_t frDst = secToFrame(startTimeDst);
     clamp(frDst, BufFrames-1);
-
-
-#if 0 // debug
-    std::cerr << "SoftCutClient::loadFileMono(): src frame (start) = " << frSrc << "; dst frame (start) = " << frDst << std::endl;
-#endif
 
     size_t frDur;
     if (dur < 0.f) {
@@ -226,23 +222,17 @@ void crone::SoftCutClient::loadFileMono(const std::string &path, float startTime
         buf[chanDst][frDst] = frBuf[chanSrc];
         ++frSrc;
         if (++frDst >= BufFrames) {
-            std::cerr << "SoftCutClient::loadFileMono(): exceeded buffer size; aborting" << std::endl;
+            std::cerr << "SoftCutClient::readBufferMono(): exceeded buffer size; aborting" << std::endl;
             return;
         }
     }
-
-#if 0 // debug
-    std::cerr << "SoftCutClient::loadFileMono(): src frame (end) = " << frSrc << "; dst frame (end ) = " << frDst << std::endl;
-#endif
 }
 
-/// FIXME: DRY this up
-void crone::SoftCutClient::loadFileStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
+void crone::SoftCutClient::readBufferStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
     SndfileHandle file(path);
-    // FIXME: bail here if fail to open
 
     if (file.frames() < 1) {
-        std::cerr << "SoftCutClient::loadFileStereo(): empty / missing file: " << path << std::endl;
+        std::cerr << "SoftCutClient::readBufferStereo(): empty / missing file: " << path << std::endl;
         return;
     }
 
@@ -251,11 +241,6 @@ void crone::SoftCutClient::loadFileStereo(const std::string &path, float startTi
 
     size_t frDst = secToFrame(startTimeDst);
     clamp(frDst, BufFrames-1);
-
-
-#if 0 // debug
-    std::cerr << "SoftCutClient::loadFileStereo(): src frame (start) = " << frSrc << "; dst frame (start) = " << frDst << std::endl;
-#endif
 
     size_t frDur;
     if (dur < 0.f) {
@@ -268,7 +253,7 @@ void crone::SoftCutClient::loadFileStereo(const std::string &path, float startTi
 
     auto numSrcChan = file.channels();
     if(numSrcChan<2) {
-        std::cerr << "SoftCutClient::loadFileStereo(): not enough channels in source; aborting" << std::endl;
+        std::cerr << "SoftCutClient::readBufferStereo(): not enough channels in source; aborting" << std::endl;
         return;
     }
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
@@ -281,12 +266,40 @@ void crone::SoftCutClient::loadFileStereo(const std::string &path, float startTi
         buf[1][frDst] = frBuf[1];
         frSrc++;
         if (++frDst >= BufFrames) {
-            std::cerr << "SoftCutClient::loadFileStereo(): exceeded buffer size; aborting" << std::endl;
+            std::cerr << "SoftCutClient::readBufferStereo(): exceeded buffer size; aborting" << std::endl;
             return;
         }
     }
-
-#if 0 // debug
-    std::cerr << "SoftCutClient::loadFileStereo(): src frame (end) = " << frSrc << "; dst frame (end ) = " << frDst << std::endl;
-#endif
 }
+
+
+void crone::SoftCutClient::writeBufferMono(const std::string &path, float start = 0, float dur = -1, int chan = 0) {
+    SF_INFO sf_info;
+    SNDFILE *file;
+
+    if ((file = sf_open(path.c_str(), SFM_WRITE, &sf_info)) == NULL) {
+        char errstr[256];
+        sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
+        std::cerr << "cannot open sndfile" << path << " for writing (" << errstr << ")" << std::endl;
+        return;
+    }
+
+    // TODO
+}
+
+
+void crone::SoftCutClient::writeBufferStereo(const std::string &path, float start = 0, float dur = -1) {
+    SF_INFO sf_info;
+    SNDFILE *file;
+
+    if ((file = sf_open(path.c_str(), SFM_WRITE, &sf_info)) == NULL) {
+        char errstr[256];
+        sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
+        std::cerr << "cannot open sndfile" << path << " for writing (" << errstr << ")" << std::endl;
+        return;
+    }
+
+    // TODO
+}
+
+

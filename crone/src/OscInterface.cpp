@@ -529,7 +529,7 @@ void OscInterface::addServerMethods() {
             chanDst= argv[5]->i;
         }
         const char *str = &argv[0]->s;
-        softCutClient->loadFileMono(str, startSrc, startDst, dur, chanSrc, chanDst);
+        softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst);
     });
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
@@ -551,7 +551,7 @@ void OscInterface::addServerMethods() {
             dur = argv[3]->f;
         }
         const char *str = &argv[0]->s;
-        softCutClient->loadFileStereo(str, startSrc, startDst, dur);
+        softCutClient->readBufferStereo(str, startSrc, startDst, dur);
     });
 
 
