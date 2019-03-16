@@ -2102,9 +2102,10 @@ int _cut_buffer_clear_region_channel(lua_State *l) {
   if (lua_gettop(l) != 3) {
     return luaL_error(l, "wrong number of arguments");
   }
-  float start = (float) luaL_checknumber(l, 1);
-  float end = (float) luaL_checknumber(l, 2);
-  int ch = (int) luaL_checkinteger(l, 3) - 1;
+  
+  int ch = (int) luaL_checkinteger(l, 1) - 1;
+  float start = (float) luaL_checknumber(l, 2);
+  float end = (float) luaL_checknumber(l, 3);
   o_cut_buffer_clear_region_channel(start, end, ch);
   return 0;
 }
