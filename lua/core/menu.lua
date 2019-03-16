@@ -349,7 +349,7 @@ local function build_select_tree(root,dir)
       else
         n = p
       end
-      n = string.gsub(n,_path.dust,'')
+      n = string.gsub(n,_path.scripts,'')
       n = string.sub(n,0,-2)
       table.insert(m.sel.list,{name=n,file=file,path=p})
     end
@@ -358,7 +358,7 @@ end
 
 m.init[pSELECT] = function()
   m.sel.list = {}
-  build_select_tree(_path.dust,"")
+  build_select_tree(_path.scripts,"")
   --for k,v in pairs(m.sel.list) do
     --print(k, v.name, v.file, v.path)
   --end
@@ -492,7 +492,7 @@ m.key[pPARAMS] = function(n,z)
     if not m.params.midimap then
       if params.count > 0 then
         if params:t(m.params.pos+1) == params.tFILE then
-          fileselect.enter(_path.home, m.params.newfile)
+          fileselect.enter(_path.dust, m.params.newfile)
         elseif params:t(m.params.pos+1) == params.tTRIGGER then
           params:set(m.params.pos+1)
           m.params.triggered[m.params.pos+1] = 2
@@ -1045,7 +1045,7 @@ m.key[pAUDIO] = function(n,z)
     menu.set_page(pSYSTEM)
   elseif n==3 and z==1 then
     if mix:t(m.audio.pos+1) == mix.tFILE then
-      fileselect.enter(_path.home, m.audio.newfile)
+      fileselect.enter(_path.dust, m.audio.newfile)
     end
   end
 end
@@ -1402,7 +1402,7 @@ m.key[pTAPE] = function(n,z)
       if m.tape.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
         m.tape.rec.file = string.format("%04d",norns.state.tape) .. ".wav"
-        audio.tape_record_open(_path.audio.."/tape/"..m.tape.rec.file)
+        audio.tape_record_open(_path.audio.."tape/"..m.tape.rec.file)
         m.tape.rec.sel = TAPE_REC_START
         m.tape.rec.pos_tick = 0
         tape_rec_counter.time = 0.25

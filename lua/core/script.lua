@@ -127,10 +127,10 @@ Script.load = function(filename)
     Script.clear() -- clear script variables and functions
 
     norns.state.script = filename
-    norns.state.path = path .. '/'
-    norns.state.data = path .. '/data/'
     norns.state.name = name
     norns.state.shortname = norns.state.name:match( "([^/]+)$" )
+    norns.state.path = path .. '/'
+    norns.state.data = _path.data .. name .. '/'
 
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
     if status == true then
