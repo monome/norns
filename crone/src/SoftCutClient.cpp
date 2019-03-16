@@ -274,8 +274,13 @@ void crone::SoftCutClient::readBufferStereo(const std::string &path, float start
 
 
 void crone::SoftCutClient::writeBufferMono(const std::string &path, float start = 0, float dur = -1, int chan = 0) {
+    // FIXME: use the cpp sndfile interface for tidiness..
     SF_INFO sf_info;
     SNDFILE *file;
+
+    sf_info.samplerate = 48000;
+    sf_info.channels = 1;
+    sf_info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
 
     if ((file = sf_open(path.c_str(), SFM_WRITE, &sf_info)) == NULL) {
         char errstr[256];
@@ -284,7 +289,33 @@ void crone::SoftCutClient::writeBufferMono(const std::string &path, float start 
         return;
     }
 
-    // TODO
+    std::cerr << "SoftCutClient::writeBufferMono(): opened file for writing: " << path << std::endl;
+
+    size_t frSrc = secToFrame(start);
+    clamp(frSrc, BufFrames-1);
+
+    size_t frDur;
+    if (dur < 0.f) {
+        // FIXME: should check available disk space?
+        frDur = BufFrames - frSrc;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    /// FIXME: write frames in blocks
+    /// for now, write one frame at a time... :/
+
+    size_t nf=0;
+    while (nf<frDur) {
+        if (sf_writef_float(file, buf[chan] + frSrc, 1) != 1) {
+            std::cerr << "SoftCutClient::writeBufferMono(): write failed (disk space?) after " << nf << " frames" << std::endl;
+            break;
+        }
+        ++frSrc;
+        ++nf;
+    }
+
+    sf_close(file);
+    std::cerr << "SoftCutClient::writeBufferMono(): done; wrote " << nf << " frames" << std::endl;
 }
 
 
@@ -292,6 +323,10 @@ void crone::SoftCutClient::writeBufferStereo(const std::string &path, float star
     SF_INFO sf_info;
     SNDFILE *file;
 
+    sf_info.samplerate = 48000;
+    sf_info.channels = 2;
+    sf_info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+
     if ((file = sf_open(path.c_str(), SFM_WRITE, &sf_info)) == NULL) {
         char errstr[256];
         sf_error_str(nullptr, errstr, sizeof(errstr) - 1);
@@ -299,7 +334,36 @@ void crone::SoftCutClient::writeBufferStereo(const std::string &path, float star
         return;
     }
 
-    // TODO
+    std::cerr << "SoftCutClient::writeBufferStereo(): opened file for writing: " << path << std::endl;
+
+    float frameBuf[2];
+
+    size_t frSrc = secToFrame(start);
+    clamp(frSrc, BufFrames-1);
+
+    size_t frDur;
+    if (dur < 0.f) {
+        // FIXME: should check available disk space?
+        frDur = BufFrames - frSrc;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    /// FIXME: write frames in blocks
+    /// for now, write one frame at a time... :/
+    size_t nf=0;
+    while (nf<frDur) {
+        frameBuf[0] = buf[0][frSrc];
+        frameBuf[1] = buf[1][frSrc];
+        if (sf_writef_float(file, frameBuf, 1) != 1) {
+            std::cerr << "SoftCutClient::writeBufferStereo(): write failed (disk space?) after " << nf << " frames" << std::endl;
+            break;
+        }
+        ++frSrc;
+        ++nf;
+    }
+
+    sf_close(file);
+    std::cerr << "SoftCutClient::writeBufferStereo(): done; wrote " << nf << " frames" << std::endl;
 }
 
 
