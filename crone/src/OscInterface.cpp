@@ -529,7 +529,7 @@ void OscInterface::addServerMethods() {
             chanDst= argv[5]->i;
         }
         const char *str = &argv[0]->s;
-        softCutClient->loadFileMono(str, startSrc, startDst, dur, chanSrc, chanDst);
+        softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst);
     });
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
@@ -551,7 +551,48 @@ void OscInterface::addServerMethods() {
             dur = argv[3]->f;
         }
         const char *str = &argv[0]->s;
-        softCutClient->loadFileStereo(str, startSrc, startDst, dur);
+        softCutClient->readBufferStereo(str, startSrc, startDst, dur);
+    });
+
+
+    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
+    addServerMethod("/softcut/buffer/write_mono", "sffi", [](lo_arg **argv, int argc) {
+        float start = 0.f;
+        float dur = -1.f;
+        int chan=0;
+        if (argc < 1) {
+            std::cerr << "/softcut/buffer/write_mono requires at least one argument (file path)" << std::endl;
+            return;
+        }
+        if (argc > 1) {
+            start = argv[1]->f;
+        }
+        if (argc > 2) {
+            dur = argv[2]->f;
+        }
+        if (argc > 3) {
+            chan = argv[3]->i;
+        }
+        const char *str = &argv[0]->s;
+        softCutClient->writeBufferMono(str, start, dur, chan);
+    });
+
+    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
+    addServerMethod("/softcut/buffer/write_stereo", "sff", [](lo_arg **argv, int argc) {
+        float start = 0.f;
+        float dur = -1.f;
+        if (argc < 1) {
+            std::cerr << "/softcut/buffer/write_stereo requires at least one argument (file path)" << std::endl;
+            return;
+        }
+        if (argc > 1) {
+            start = argv[1]->f;
+        }
+        if (argc > 2) {
+            dur = argv[2]->f;
+        }
+        const char *str = &argv[0]->s;
+        softCutClient->writeBufferStereo(str, start, dur);
     });
 
 
