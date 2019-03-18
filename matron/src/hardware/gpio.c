@@ -18,8 +18,8 @@
 #include "events.h"
 
 
-int fd;
-pthread_t p;
+int key_fd;
+pthread_t key_p;
 
 int enc_fd[3];
 pthread_t enc_p[3];
@@ -29,51 +29,54 @@ void *enc_check(void *);
 
 // extern def
 
+static int open_and_grab (const char *pathname, int flags) {
+    int fd;
+    int open_attempts=0, ioctl_attempts=0;
+    while (open_attempts < 200) {
+        fd = open(pathname, flags);
+        if(fd > 0) {
+            if(ioctl(fd, EVIOCGRAB, 1) == 0) {
+                ioctl(fd, EVIOCGRAB, (void*)0);
+                goto done;
+            }
+            ioctl_attempts++;
+            close(fd);
+        }
+        open_attempts++;
+        usleep(50000); // 50ms sleep * 200 = 10s fail after 10s
+    };
+ done:
+    if(open_attempts > 0) {
+        fprintf(stderr, "WARN open_and_grab GPIO '%s' required %d open attempts & %d ioctl attempts\n", pathname, open_attempts, ioctl_attempts);
+    }
+    return fd;
+}
+
 void gpio_init() {
-    fd = open("/dev/input/by-path/platform-keys-event", O_RDONLY); // Keys
-    if(fd > 0) {
-        if(ioctl(fd, EVIOCGRAB, 1) == 0) {
-            ioctl(fd, EVIOCGRAB, (void*)0);
-        }
-        else {
-            fprintf(stderr, "ERROR (keys) grab fail\n");
-        }
-
-        if(pthread_create(&p, NULL, key_check, 0) ) {
+    key_fd = open_and_grab("/dev/input/by-path/platform-keys-event", O_RDONLY); // Keys
+    if(key_fd > 0) {
+        if(pthread_create(&key_p, NULL, key_check, 0) ) {
             fprintf(stderr, "ERROR (keys) pthread error\n");
-        } 
-    }
-    else {
-        fprintf(stderr, "ERROR (keys) fail!!\n");
-    }
-
-    enc_fd[0] = open("/dev/input/by-path/platform-soc:knob1-event", O_RDONLY);
-    enc_fd[1] = open("/dev/input/by-path/platform-soc:knob2-event", O_RDONLY);
-    enc_fd[2] = open("/dev/input/by-path/platform-soc:knob3-event", O_RDONLY);
-    if(enc_fd[0] > 0) {
-        for(int i = 0; i< 3; i++) {
-
-            if(ioctl(enc_fd[i], EVIOCGRAB, 1) == 0) {
-                ioctl(enc_fd[i], EVIOCGRAB, (void*)0);
-            }
-            else {
-                fprintf(stderr, "ERROR (enc) grab fail\n");
-            }
-    
-            int *arg = malloc(sizeof(int));
-            *arg = i; 
-            if(pthread_create(&enc_p[i], NULL, enc_check, arg) ) {
-                fprintf(stderr, "ERROR (enc) pthread error\n");
-            } 
         }
     }
-    else {
-        fprintf(stderr, "ERROR (enc) didn't work\n");
-    } 
+
+    char *enc_filenames[3] = {"/dev/input/by-path/platform-soc:knob1-event",
+                              "/dev/input/by-path/platform-soc:knob2-event",
+                              "/dev/input/by-path/platform-soc:knob3-event"};
+    for(int i=0; i < 3; i++) {
+        enc_fd[i] = open_and_grab(enc_filenames[i], O_RDONLY);
+        if(enc_fd[i] > 0) {
+            int *arg = malloc(sizeof(int));
+            *arg = i;
+            if(pthread_create(&enc_p[i], NULL, enc_check, arg) ) {
+                fprintf(stderr, "ERROR (enc%d) pthread error\n",i);
+            }
+	}
+    }
 }
 
 void gpio_deinit() {
-    pthread_cancel(p);
+    pthread_cancel(key_p);
     pthread_cancel(enc_p[0]);
     pthread_cancel(enc_p[1]);
     pthread_cancel(enc_p[2]);
@@ -124,7 +127,7 @@ void *key_check(void *x) {
     struct input_event event[64];
 
     while(1) {
-        rd = read(fd, event, sizeof(struct input_event) * 64);
+        rd = read(key_fd, event, sizeof(struct input_event) * 64);
         if(rd < (int) sizeof(struct input_event)) {
             fprintf(stderr, "ERROR (key) read error\n");
         }
