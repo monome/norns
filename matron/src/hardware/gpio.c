@@ -30,26 +30,25 @@ void *enc_check(void *);
 // extern def
 
 static int open_and_grab (const char *pathname, int flags) {
-    int i=0;
     int fd;
-    while (i < 200) {
+    int open_attempts=0, ioctl_attempts=0;
+    while (open_attempts < 200) {
         fd = open(pathname, flags);
         if(fd > 0) {
             if(ioctl(fd, EVIOCGRAB, 1) == 0) {
                 ioctl(fd, EVIOCGRAB, (void*)0);
-                return fd;
+                goto done;
             }
-            else {
-                fprintf(stderr, "WARN GPIO ioctl fail (%s, attempt %d)\n", pathname, i);
-                close(fd);
-            }
+            ioctl_attempts++;
+            close(fd);
         }
-        else {
-            fprintf(stderr, "WARN GPIO open fail (%s, attempt %d)\n", pathname, i);
-        }
-        i++;
+        open_attempts++;
         usleep(50000); // 50ms sleep * 200 = 10s fail after 10s
     };
+ done:
+    if(open_attempts > 0) {
+        fprintf(stderr, "WARN open_and_grab GPIO '%s' required %d open attempts & %d ioctl attempts\n", pathname, open_attempts, ioctl_attempts);
+    }
     return fd;
 }
 
