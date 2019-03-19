@@ -4,7 +4,7 @@
 state = {}
 state.tape = 0
 state.script = ''
-state.path = _path.scripts
+state.path = _path.code
 state.data = _path.data
 state.name = ''
 state.shortname = ''
@@ -48,7 +48,7 @@ state.resume = function()
     state.script=''
     state.name = 'none'
     state.shortname = 'none'
-    state.path = _path.scripts
+    state.path = _path.code
     state.data = _path.data
     norns.scripterror("NO SCRIPT")
   end
