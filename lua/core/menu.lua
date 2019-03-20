@@ -414,6 +414,7 @@ m.pre = {}
 m.pre.meta = {}
 
 m.init[pPREVIEW] = function()
+  m.pre.wait = 0
   m.pre.meta = norns.script.metadata(m.sel.file)
   m.pre.len = tab.count(m.pre.meta)
   m.pre.state = 0
@@ -426,6 +427,8 @@ m.deinit[pPREVIEW] = norns.none
 
 m.key[pPREVIEW] = function(n,z)
   if n==3 and m.pre.state == 1 then
+    m.pre.wait = 1
+    menu.redraw()
     norns.script.load(m.sel.file)
   elseif n ==3 and z == 1 then
     m.pre.state = 1
@@ -444,12 +447,17 @@ end
 m.redraw[pPREVIEW] = function()
   screen.clear()
   screen.level(15)
-  local i
-  for i=1,8 do
-    if i <= m.pre.len then
-      screen.move(0,i*8-2)
-      screen.text(m.pre.meta[i+m.pre.pos])
+  if m.pre.wait == 0 then
+    local i
+    for i=1,8 do
+      if i <= m.pre.len then
+        screen.move(0,i*8-2)
+        screen.text(m.pre.meta[i+m.pre.pos])
+      end
     end
+  else
+    screen.move(64,32)
+    screen.text_center("loading "..m.sel.file.."...")
   end
   screen.update()
 end
