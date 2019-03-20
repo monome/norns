@@ -132,6 +132,11 @@ Script.load = function(filename)
     norns.state.path = path .. '/'
     norns.state.data = _path.data .. name .. '/'
 
+    if util.file_exists(norns.state.data) == false then
+      print("### initializing data folder")
+      util.make_dir(norns.state.data)
+    end
+
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
     if status == true then
       norns.state.save() -- remember this script for next launch

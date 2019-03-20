@@ -195,21 +195,11 @@ function ParamSet:lookup_param(index)
   end
 end
 
---- init local psets.
--- make data dir if needed.
-function ParamSet:init()
-  if util.file_exists(norns.state.data) == false then
-    print("pset >> initializing data folder")
-    util.make_dir(norns.state.data)
-  end
-end
-
 --- write to disk.
 -- @param filename absolute path or use number instead to write to local data folder
 function ParamSet:write(filename)
   filename = filename or 0
   if type(filename) == "number" then
-    self.init()
     local n = filename
     filename = norns.state.data .. norns.state.shortname
     if n > 0 then
@@ -233,7 +223,6 @@ end
 function ParamSet:read(filename)
   filename = filename or 0
   if type(filename) == "number" then
-    self.init()
     local n = filename
     filename = norns.state.data .. norns.state.shortname
     if n > 0 then
