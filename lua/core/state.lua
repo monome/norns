@@ -1,7 +1,7 @@
 --- State
 -- @module state
 
-state = {}
+local state = {}
 state.tape = 0
 state.script = ''
 state.path = _path.code
