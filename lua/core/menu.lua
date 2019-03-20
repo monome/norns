@@ -1155,7 +1155,6 @@ m.key[pSLEEP] = function(n,z)
     if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     audio.level_dac(0)
     audio.headphone_gain(0)
-    wifi.off()
     os.execute("sleep 0.5; sudo shutdown now")
   end
 end
