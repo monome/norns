@@ -613,6 +613,14 @@ void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, floa
 	lo_send(crone_addr, "/softcut/buffer/read_stereo", "sfffii", file, start_src, start_dst, dur);
 } 
 
+void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {
+	lo_send(crone_addr, "/softcut/buffer/write_mono", "sffi", file, start, dur, ch);
+}
+
+void o_cut_buffer_write_stereo(char *file, float start, float dur) {
+	lo_send(crone_addr, "/softcut/buffer/write_stereo", "sff", file, start, dur);
+}
+
 
 
 

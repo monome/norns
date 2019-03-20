@@ -133,6 +133,15 @@ SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
   _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
 end
 
+--- write file, mono
+SC.buffer_write_mono = function(file, start, dur, ch)
+  _norns.cut_buffer_write_mono(file, start, dur, ch)
+end
+--- write file, stereo
+SC.buffer_write_stereo = function(file, start, dur)
+  _norns.cut_buffer_write_stereo(file, start, dur)
+end
+
 --- set function for phase poll
 SC.event_phase = function(f) norns.softcut_phase = f end
 
