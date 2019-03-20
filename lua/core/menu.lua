@@ -457,7 +457,7 @@ m.redraw[pPREVIEW] = function()
     end
   else
     screen.move(64,32)
-    screen.text_center("loading "..m.sel.file.."...")
+    screen.text_center("loading...")
   end
   screen.update()
 end
