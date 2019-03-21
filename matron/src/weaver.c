@@ -165,6 +165,8 @@ static int _cut_buffer_clear_region(lua_State *l);
 static int _cut_buffer_clear_region_channel(lua_State *l);
 static int _cut_buffer_read_mono(lua_State *l);
 static int _cut_buffer_read_stereo(lua_State *l);
+static int _cut_buffer_write_mono(lua_State *l);
+static int _cut_buffer_write_stereo(lua_State *l);
 static int _set_cut_param(lua_State *l);
 static int _set_cut_param_ii(lua_State *l);
 static int _set_cut_param_iif(lua_State *l);
@@ -276,6 +278,8 @@ void w_init(void) {
   lua_register_norns("cut_buffer_clear_region_channel", &_cut_buffer_clear_region_channel);
   lua_register_norns("cut_buffer_read_mono", &_cut_buffer_read_mono);
   lua_register_norns("cut_buffer_read_stereo", &_cut_buffer_read_stereo);
+  lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
+  lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
   lua_register_norns("cut_param", &_set_cut_param);
   lua_register_norns("cut_param_ii", &_set_cut_param_ii);
   lua_register_norns("cut_param_iif", &_set_cut_param_iif);
@@ -2133,6 +2137,29 @@ int _cut_buffer_read_stereo(lua_State *l) {
   float start_dst = (float) luaL_checknumber(l, 3);
   float dur = (float) luaL_checknumber(l, 4);
   o_cut_buffer_read_stereo((char *)s, start_src, start_dst, dur);
+  return 0;
+}
+
+int _cut_buffer_write_mono(lua_State *l) {
+  if (lua_gettop(l) != 4) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  float start = (float) luaL_checknumber(l, 2);
+  float dur = (float) luaL_checknumber(l, 3);
+  int ch = (int) luaL_checkinteger(l, 4) - 1;
+  o_cut_buffer_write_mono((char *)s, start, dur, ch);
+  return 0;
+}
+
+int _cut_buffer_write_stereo(lua_State *l) {
+  if (lua_gettop(l) != 3) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *s = luaL_checkstring(l, 1);
+  float start = (float) luaL_checknumber(l, 2);
+  float dur = (float) luaL_checknumber(l, 3);
+  o_cut_buffer_write_stereo((char *)s, start, dur);
   return 0;
 }
 

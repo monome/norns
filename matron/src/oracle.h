@@ -142,6 +142,8 @@ extern void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
     float dur, int ch_src, int ch_dst);
 extern void o_cut_buffer_read_stereo(char *file, float start_src,
     float start_dst, float dur);
+void o_cut_buffer_write_mono(char *file, float start, float dur, int ch);
+void o_cut_buffer_write_stereo(char *file, float start, float dur);
 // most softcut parameter changs take single voice index...
 extern void o_set_cut_param(const char* name, int voice, float value);
 extern void o_set_cut_param_ii(const char* name, int voice, int value);
