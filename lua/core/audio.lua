@@ -72,52 +72,33 @@ Audio.restart = function()
 end
 
 
--- CUT
-
-Audio.level_adc_cut = function(value)
-  _norns.level_adc_cut(value)
-end
-
-Audio.level_ext_cut = function(value)
-  _norns.level_ext_cut(value)
-end
-
-Audio.level_cut_rev = function(value)
-  _norns.level_cut_rev(value)
-end
-
-
-
-
-
 
 --- Effects functions
--- @section EFFECTS
+-- @section Effects
 
-
---- reverb on
+--- reverb on.
 function Audio.rev_on()
    _norns.rev_on()
 end
 
---- reverb off
+--- reverb off.
 function Audio.rev_off()
    _norns.rev_off()
 end
 
---- reverb Monitor level 
+--- reverb Monitor level.
 -- @param val
 function Audio.level_monitor_rev(val)
    _norns.level_monitor_rev(val)
 end
 
---- reverb EXT level 
+--- reverb EXT level.
 -- @param val
 function Audio.level_ext_rev(val)
    _norns.level_ext_rev(val)
 end
 
---- reverb DAC level 
+--- reverb DAC level.
 -- @param val
 function Audio.level_rev_dac(val)
    _norns.level_rev_dac(val)
@@ -156,7 +137,7 @@ end
 
 
 --- Tape Functions
--- @section TAPE
+-- @section Tape
 
 --- open a tape file.
 -- @param file
@@ -191,23 +172,22 @@ Audio.tape_record_stop = function()
 end
 
 
-
---- SOFTCUT levels
+--- Softcut levels
 -- @section softcut
 
--- softcut adc level
+--- softcut adc level.
 -- @param value
 Audio.level_adc_cut = function(value)
   _norns.level_adc_cut(value)
 end
 
--- softcut ext level
+--- softcut ext level.
 -- @param value
 Audio.level_ext_cut = function(value)
   _norns.level_ext_cut(value)
 end
 
--- softcut cut reverb level
+--- softcut cut reverb level.
 -- @param value
 Audio.level_cut_rev = function(value)
   _norns.level_cut_rev(value)
@@ -251,10 +231,12 @@ function Audio.adjust_output_level(delta)
   end
 end
 
+--- print audio file info 
+-- @param path (from dust directory)
 function Audio.file_info(path)
   -- dur, ch, rate
-  print("file_info: " .. dust_dir .. path)
-  return sound_file_inspect(dust_dir .. path)
+  print("file_info: " .. _path.dust .. path)
+  return sound_file_inspect(_path.dust .. path)
 end
 
 
