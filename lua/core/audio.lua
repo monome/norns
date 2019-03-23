@@ -155,7 +155,7 @@ Audio.tape_play_stop = function()
   _norns.tape_play_stop()
 end
 
---- open a tape recording file
+--- open a tape recording file.
 -- @param file
 Audio.tape_record_open = function(file)
   _norns.tape_record_open(file)
