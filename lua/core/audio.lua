@@ -218,8 +218,8 @@ end
 
 function Audio.file_info(path)
   -- dur, ch, rate
-  print("file_info: " .. dust_dir .. path)
-  return sound_file_inspect(dust_dir .. path)
+  print("file_info: " .. path)
+  return sound_file_inspect(path)
 end
 
 
