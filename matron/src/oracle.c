@@ -282,6 +282,7 @@ void o_send_command(const char *name, lo_message msg) {
     path = malloc(len);
     sprintf(path, "/command/%s", name);
     lo_send_message(ext_addr, path, msg);
+    free(path);
 }
 
 void o_send(const char *name, lo_message msg) {
