@@ -216,10 +216,12 @@ function Audio.adjust_output_level(delta)
   end
 end
 
+--- get file info
+---- @param file path relative to ~/dust/
 function Audio.file_info(path)
   -- dur, ch, rate
-  print("file_info: " .. dust_dir .. path)
-  return sound_file_inspect(dust_dir .. path)
+  print("file_info: " .. _path.dust .. path)
+  return sound_file_inspect(_path.dust .. path)
 end
 
 
