@@ -1280,7 +1280,7 @@ int _send_command(lua_State *l) {
     case 'f':
       if (lua_isnumber(l, i)) {
 	f = lua_tonumber(l, i);
-	lo_message_add_double(msg, f);
+	lo_message_add_float(msg, (float)f);
       } else {
 	lo_message_free(msg);
 	return luaL_error(l, "failed double type check");
@@ -1297,7 +1297,7 @@ int _send_command(lua_State *l) {
   }
 
   o_send_command(cmd, msg);
-  free(msg);
+  lo_message_free(msg);
   lua_settop(l, 0);
   return 0;
 }
