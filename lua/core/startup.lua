@@ -33,7 +33,7 @@ require 'core/menu'
 
 -- global include function
 function include(file)
-  return dofile(norns.state.path .. "lib/" .. file)
+  return dofile(norns.state.path .. file .. '.lua')
 end
 
 
