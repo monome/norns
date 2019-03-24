@@ -122,6 +122,7 @@ void event_data_free(union event_data *ev) {
         free(ev->poll_wave.data);
         break;
     }
+    free(ev);
 }
 
 // add an event to the q and signal if necessary
