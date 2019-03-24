@@ -31,7 +31,7 @@ function sc.init(file)
   d = dur/sr
 
   print("fourwaves: loading "..file)
-  softcut.buffer_read_mono(dust_dir..file,0,1,d,0,0)
+  softcut.buffer_read_mono(_path.dust..file,0,1,d,0,0)
   print("fourwaves: dur "..d)
 
   audio.level_cut(1.0)

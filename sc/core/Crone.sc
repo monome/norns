@@ -126,6 +126,10 @@ Crone {
 					this.reportPolls;
 				});
 			}
+		}, {
+		   postln("warning: didn't find engine: " ++ name.asString);
+		   this.reportCommands;
+		   this.reportPolls;
 		});
 	}
 
