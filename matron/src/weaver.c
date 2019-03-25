@@ -125,6 +125,7 @@ static int _metro_set_time(lua_State *l);
 static int _get_time(lua_State *l);
 // usleep!
 static int _micro_sleep(lua_State *l);
+static int _get_time_beats(lua_State *l);
 
 // audio context control
 static int _set_level_dac(lua_State *l);
@@ -363,6 +364,7 @@ void w_init(void) {
   lua_register(lvm, "get_time", &_get_time);
   // usleep!
   lua_register(lvm, "usleep", &_micro_sleep);
+  lua_register(lvm, "get_time_beats", &_get_time_beats);
 
   // start / stop a poll
   lua_register(lvm, "start_poll", &_start_poll);
@@ -415,12 +417,12 @@ void w_deinit(void) {
   lua_close(lvm);
 }
 
-void w_reset_lvm() {     
+void w_reset_lvm() {
   w_deinit();
   w_init();
   w_startup();
 }
- 
+
 
 //----------------------------------
 //---- static definitions
@@ -1403,6 +1405,11 @@ int _micro_sleep(lua_State *l) {
   usleep(usec);
   lua_settop(l, 0);
   return 0;
+}
+
+int _get_time_beats(lua_State *l) {
+  lua_pushnumber(l, clock_gettime_beats());
+  return 1;
 }
 
 //---- c -> lua glue

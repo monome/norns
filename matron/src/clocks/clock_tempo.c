@@ -12,16 +12,19 @@ static pthread_t clock_tempo_thread;
 static void *clock_tempo_run(void *p) {
     (void) p;
     struct timespec req;
-    float seconds = 1;
+    float interval_seconds = 1;
+    uint64_t interval_nsec = (uint64_t) interval_seconds * 1000000000;
 
     while (true) {
-        uint64_t nsec = (uint64_t) (seconds * 1000000000.0);
+        clock_gettime(CLOCK_MONOTONIC, &req);
+        uint64_t current_time = (uint64_t) (1000000000 * req.tv_sec + req.tv_nsec);
+        uint64_t new_time = current_time + interval_nsec;
 
-        req.tv_sec = nsec / 1000000000;
-        req.tv_nsec = nsec % 1000000000;
+        req.tv_sec = new_time / 1000000000;
+        req.tv_nsec = new_time % 1000000000;
 
-        nanosleep(&req, NULL);
-        clock_counter_increment();
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &req, NULL);
+        clock_counter_increment(interval_seconds);
     }
 
     return NULL;
