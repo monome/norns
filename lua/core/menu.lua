@@ -107,18 +107,12 @@ end
 
 norns.init_done = function(status)
   menu.set_page(pHOME)
+  menu.panel = 3
   if status == true then
     menu.scripterror = false
     m.params.pos = 0
-    if norns.script.nointerface == true then
-      --menu.locked = true
-      --menu.set_page(pPARAMS)
-      menu.locked = false
-      menu.set_mode(false)
-    else
-      menu.locked = false
-      menu.set_mode(false)
-    end
+    menu.locked = false
+    menu.set_mode(false)
   end
   m.params.init_map()
   m.params.read_pmap()
