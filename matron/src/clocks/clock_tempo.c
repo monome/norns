@@ -12,6 +12,7 @@ static pthread_t clock_tempo_thread;
 static void *clock_tempo_run(void *p) {
     (void) p;
     struct timespec req;
+    int beat = 0;
     float interval_seconds = 1;
     uint64_t interval_nsec = (uint64_t) interval_seconds * 1000000000;
 
@@ -24,7 +25,9 @@ static void *clock_tempo_run(void *p) {
         req.tv_nsec = new_time % 1000000000;
 
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &req, NULL);
-        clock_counter_increment(interval_seconds);
+
+        beat += 1;
+        clock_update_counter(beat, interval_seconds);
     }
 
     return NULL;

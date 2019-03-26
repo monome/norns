@@ -125,13 +125,13 @@ void clock_schedule_resume_sync(int coro_id, float q) {
     clock_schedule_resume(coro_id, next_beat_time - current_time);
 }
 
-void clock_counter_increment(float beat_duration) {
+void clock_update_counter(int beats, float beat_duration) {
     pthread_mutex_lock(&counter.lock);
 
     float current_time = clock_gettime_secondsf();
     counter.beat_duration = beat_duration;
     counter.last_beat_time = current_time;
-    counter.beats += 1;
+    counter.beats = beats;
 
     pthread_mutex_unlock(&counter.lock);
 }
