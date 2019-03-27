@@ -66,7 +66,7 @@ static void *clock_schedule_resume_run(void *p) {
     return NULL;
 }
 
-void clock_schedule_resume(int coro_id, float seconds) {
+void clock_schedule_resume_sleep(int coro_id, float seconds) {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
@@ -122,7 +122,7 @@ void clock_schedule_resume_sync(int coro_id, float q) {
 
     pthread_mutex_unlock(&counter.lock);
 
-    clock_schedule_resume(coro_id, next_beat_time - current_time);
+    clock_schedule_resume_sleep(coro_id, next_beat_time - current_time);
 }
 
 void clock_update_counter(int beats, float beat_duration) {

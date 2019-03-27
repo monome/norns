@@ -1432,13 +1432,13 @@ int _clock_schedule_sleep(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int thread_id = (int) luaL_checkinteger(l, 1);
+  int coro_id = (int) luaL_checkinteger(l, 1);
   float time = (float) luaL_checknumber(l, 2);
 
   if (time == 0) {
-    w_handle_clock_resume(thread_id);
+    w_handle_clock_resume(coro_id);
   } else {
-    clock_schedule_resume(thread_id, time);
+    clock_schedule_resume_sleep(coro_id, time);
   }
 
   return 0;
@@ -1449,13 +1449,13 @@ int _clock_schedule_sync(lua_State *l) {
     return luaL_error(l, "wrong number of arguments");
   }
 
-  int thread_id = (int) luaL_checkinteger(l, 1);
+  int coro_id = (int) luaL_checkinteger(l, 1);
   float beats = (float) luaL_checknumber(l, 2);
 
   if (beats == 0) {
-    w_handle_clock_resume(thread_id);
+    w_handle_clock_resume(coro_id);
   } else {
-    clock_schedule_resume_sync(thread_id, beats);
+    clock_schedule_resume_sync(coro_id, beats);
   }
 
   return 0;
@@ -1765,11 +1765,11 @@ void w_handle_metro(const int idx, const int stage) {
 }
 
 // metro handler
-void w_handle_clock_resume(const int thread_id) {
+void w_handle_clock_resume(const int coro_id) {
   lua_getglobal(lvm, "clock");
   lua_getfield(lvm, -1, "resume");
   lua_remove(lvm, -2);
-  lua_pushinteger(lvm, thread_id);
+  lua_pushinteger(lvm, coro_id);
   l_report(lvm, l_docall(lvm, 1, 0));
 }
 
