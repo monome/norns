@@ -196,7 +196,7 @@ function ParamSet:lookup_param(index)
 end
 
 --- write to disk.
--- @param filename absolute path or use number instead to write to local data folder
+-- @param filename either an absolute path, a number (to write [scriptname]-[number].pset to local data folder) or nil (to write default [scriptname].pset to local data folder)
 function ParamSet:write(filename)
   filename = filename or 0
   if type(filename) == "number" then
@@ -219,7 +219,7 @@ function ParamSet:write(filename)
 end
 
 --- read from disk.
--- @param filename absolute path or use number instead to read from local data folder
+-- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname].pset from local data folder)
 function ParamSet:read(filename)
   filename = filename or 0
   if type(filename) == "number" then
