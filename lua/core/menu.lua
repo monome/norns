@@ -469,6 +469,7 @@ m.params.map = {}
 m.params.init_map = function()
   for i = 1,params.count do m.params.map[i] = -1 end
 end
+m.params.fine = false
 
 m.key[pPARAMS] = function(n,z)
   if menu.alt then
@@ -492,6 +493,7 @@ m.key[pPARAMS] = function(n,z)
     --menu.set_page(pHOME)
   elseif n==3 and z==1 then
     if not m.params.midimap then
+      m.params.fine = true
       if params.count > 0 then
         if params:t(m.params.pos+1) == params.tFILE then
           fileselect.enter(_path.dust, m.params.newfile)
@@ -503,6 +505,8 @@ m.key[pPARAMS] = function(n,z)
     else
       m.params.midilearn = not m.params.midilearn
     end
+  elseif n==3 and z==0 then
+    m.params.fine = false
   end
 end
 
@@ -549,7 +553,8 @@ m.enc[pPARAMS] = function(n,d)
     if m.params.pos ~= prev then menu.redraw() end
   elseif n==3 and params.count > 0 then
     if not m.params.midimap then
-      params:delta(m.params.pos+1,d)
+      local dx = m.params.fine and (d/20) or d
+      params:delta(m.params.pos+1,dx)
       menu.redraw()
     else
       m.params.map[m.params.pos+1] = util.clamp(m.params.map[m.params.pos+1]+d,-1,127)
