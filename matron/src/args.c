@@ -9,24 +9,32 @@ struct args {
     char loc_port[ARG_BUF_SIZE];
     char ext_port[ARG_BUF_SIZE];
     char crone_port[ARG_BUF_SIZE];
+    char framebuffer[ARG_BUF_SIZE];
 };
 
 static struct args a = {
     .loc_port = "8888",
-    .crone_port = "9999",
     .ext_port = "57120",
+    .crone_port = "9999",
+    .framebuffer = "/dev/fb0",
 };
 
 int args_parse(int argc, char **argv)
 {
     int opt;
-    while( ( opt = getopt(argc, argv, "e:l:c:") ) != -1 ) {
+    while( ( opt = getopt(argc, argv, "e:l:c:f:") ) != -1 ) {
         switch(opt) {
         case 'l':
             strncpy(a.loc_port, optarg, ARG_BUF_SIZE-1);
             break;
         case 'e':
             strncpy(a.ext_port, optarg, ARG_BUF_SIZE-1);
+            break;
+	case 'c':
+            strncpy(a.crone_port, optarg, ARG_BUF_SIZE-1);
+            break;
+	case 'f':
+            strncpy(a.framebuffer, optarg, ARG_BUF_SIZE-1);
             break;
         default:
             ;;
@@ -46,3 +54,8 @@ const char *args_ext_port(void) {
 const char *args_crone_port(void) {
     return a.crone_port;
 }
+
+const char *args_framebuffer(void) {
+    return a.framebuffer;
+}
+

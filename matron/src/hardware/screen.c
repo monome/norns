@@ -15,6 +15,8 @@
 #include <cairo.h>
 #include <cairo-ft.h>
 
+#include "args.h"
+
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
 #define CHECK_CR if (cr == NULL) {return; }
@@ -65,15 +67,12 @@ void cairo_linuxfb_surface_destroy(void *device)
 }
 
 /* Create a cairo surface using the specified framebuffer */
-cairo_surface_t *cairo_linuxfb_surface_create(const char *fb_name)
+cairo_surface_t *cairo_linuxfb_surface_create()
 {
     cairo_linuxfb_device_t *device;
     cairo_surface_t *surface;
 
-    /* Use fb0 if no fram buffer is specified */
-    if (fb_name == NULL) {
-        fb_name = "/dev/fb0";
-    }
+    const char* fb_name = args_framebuffer();
 
     device = malloc( sizeof(*device) );
     if (!device) {
@@ -155,7 +154,7 @@ void screen_display_png(const char *filename, double x, double y){
 
 
 void screen_init(void) {
-    surfacefb = cairo_linuxfb_surface_create("/dev/fb0");
+    surfacefb = cairo_linuxfb_surface_create();
     if(surfacefb == NULL) { return; }
     crfb = cairo_create(surfacefb);
 
