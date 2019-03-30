@@ -25,7 +25,7 @@ end
 clock.resume = function(coro_id)
   coro = clock.threads[coro_id]
 
-  if coro == nil or coroutine.status(coro) == "dead"
+  if coro == nil or coroutine.status(coro) == "dead" then
     return -- todo: report error
   end
 
