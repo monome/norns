@@ -23,6 +23,12 @@ end
 
 -- todo: use c api instead
 clock.resume = function(coro_id)
+  coro = clock.threads[coro_id]
+
+  if coro == nil or coroutine.status(coro) == "dead"
+    return -- todo: report error
+  end
+
   result, mode, time = coroutine.resume(clock.threads[coro_id])
   if result then
     if mode == SLEEP then
