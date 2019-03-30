@@ -2,7 +2,7 @@
 -- Utility methods for working with notes and scales.
 --
 -- @module MusicUtil
--- @release v1.0.2
+-- @release v1.1.0
 -- @author Mark Eats
 
 local MusicUtil = {}
@@ -57,22 +57,50 @@ MusicUtil.SCALES = {
   {name = "Okinawa", intervals = {0, 4, 5, 7, 11, 12}},
   {name = "Chromatic", intervals = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}}
 }
--- Scale data from https://github.com/fredericcormier/WesternMusicElements
+MusicUtil.CHORDS = {
+  {name = "Major", intervals = {0, 4, 7}},
+  {name = "Major 6", intervals = {0, 4, 7, 9}},
+  {name = "Major 7", intervals = {0, 4, 7, 11}},
+  {name = "Major 69", intervals = {0, 4, 7, 9, 14}},
+  {name = "Major 9", intervals = {0, 4, 7, 11, 14}},
+  {name = "Major 11", intervals = {0, 4, 7, 11, 14, 17}},
+  {name = "Major 13", intervals = {0, 4, 7, 11, 14, 17, 21}},
+  {name = "Dominant 7", intervals = {0, 4, 7, 10}},
+  {name = "Ninth", intervals = {0, 4, 7, 10, 14}},
+  {name = "Eleventh", intervals = {0, 4, 7, 10, 14, 17}},
+  {name = "Thirteenth", intervals = {0, 4, 7, 10, 14, 17, 21}},
+  {name = "Augmented", intervals = {0, 4, 8}},
+  {name = "Augmented 7", intervals = {0, 4, 8, 10}},
+  {name = "Sus4", intervals = {0, 5, 7}},
+  {name = "Seventh sus4", intervals = {0, 5, 7, 10}},
+  {name = "Minor major", intervals = {0, 3, 7, 11}},
+  {name = "Minor", intervals = {0, 3, 7}},
+  {name = "Minor 6", intervals = {0, 3, 7, 9}},
+  {name = "Minor 7", intervals = {0, 3, 7, 10}},
+  {name = "Minor 69", intervals = {0, 3, 7, 9, 14}},
+  {name = "Minor 9", intervals = {0, 3, 7, 10, 14}},
+  {name = "Minor 11", intervals = {0, 3, 7, 10, 14, 17}},
+  {name = "Minor 13", intervals = {0, 3, 7, 10, 14, 17, 21}},
+  {name = "Diminished", intervals = {0, 3, 6}},
+  {name = "Diminished 7", intervals = {0, 3, 6, 9}},
+  {name = "Half Diminished 7", intervals = {0, 3, 6, 10}}
+}
+-- Data from https://github.com/fredericcormier/WesternMusicElements
 
 
-local function lookup_scale(scale_type)
+local function lookup_data(lookup_table, search)
   
-  if type(scale_type) == "string" then 
-    scale_type = string.lower(scale_type)
-    for i = 1, #MusicUtil.SCALES do
-      if string.lower(MusicUtil.SCALES[i].name) == scale_type then
-        scale_type = i
+  if type(search) == "string" then 
+    search = string.lower(search)
+    for i = 1, #lookup_table do
+      if string.lower(lookup_table[i].search) == search then
+        search = i
         break
-      elseif MusicUtil.SCALES[i].alt_names then
+      elseif lookup_table[i].alt_names then
         local found = false
-        for j = 1, #MusicUtil.SCALES[i].alt_names do
-          if string.lower(MusicUtil.SCALES[i].alt_names[j]) == scale_type then
-            scale_type = i
+        for j = 1, #lookup_table[i].alt_names do
+          if string.lower(lookup_table[i].alt_names[j]) == search then
+            search = i
             found = true
             break
           end
@@ -82,7 +110,7 @@ local function lookup_scale(scale_type)
     end
   end
   
-  return MusicUtil.SCALES[scale_type]
+  return lookup_table[search]
 end
 
 local function generate_scale_array(root_num, scale_data, length)
@@ -103,17 +131,18 @@ local function generate_scale_array(root_num, scale_data, length)
   return out_array
 end
 
+
 --- Generate scale from a root note.
--- @param root_num MIDI note number (0-127) where scale will begin.
--- @param scale_type String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
--- @param[opt] octaves Number of octaves to return, defaults to 1.
--- @return Array of MIDI note numbers.
+-- @tparam integer root_num MIDI note number (0-127) where scale will begin.
+-- @tparam string scale_type String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
+-- @tparam[opt] integer octaves Number of octaves to return, defaults to 1.
+-- @treturn {integer...} Array of MIDI note numbers.
 function MusicUtil.generate_scale(root_num, scale_type, octaves)
   if type(root_num) ~= "number" or root_num < 0 or root_num > 127 then return nil end
   scale_type = scale_type or 1
   octaves = octaves or 1
   
-  local scale_data = lookup_scale(scale_type)
+  local scale_data = lookup_data(MusicUtil.SCALES, scale_type)
   if not scale_data then return nil end
   local length = octaves * #scale_data.intervals - (util.round(octaves) - 1)
   
@@ -121,24 +150,53 @@ function MusicUtil.generate_scale(root_num, scale_type, octaves)
 end
 
 --- Generate given number of notes of a scale from a root note.
--- @param root_num MIDI note number (0-127) where scale will begin.
--- @param scale_type String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
--- @param length Number of notes to return, defaults to 8.
--- @return Array of MIDI note numbers.
+-- @tparam integer root_num MIDI note number (0-127) where scale will begin.
+-- @tparam integer scale_type String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
+-- @tparam integer length Number of notes to return, defaults to 8.
+-- @treturn {integer...} Array of MIDI note numbers.
 function MusicUtil.generate_scale_of_length(root_num, scale_type, length)
   length = length or 8
   
-  local scale_data = lookup_scale(scale_type)
+  local scale_data = lookup_data(MusicUtil.SCALES, scale_type)
   if not scale_data then return nil end
   
   return generate_scale_array(root_num, scale_data, length)
 end
 
 
+--- Generate chord from a root note.
+-- @tparam integer root_num MIDI note number (0-127) for chord.
+-- @tparam string chord_type String defining chord type (eg, "major", "minor 7" or "sus4"), see class for full list.
+-- @tparam[opt] integer inversion Number of chord inversion.
+-- @treturn {integer...} Array of MIDI note numbers.
+function MusicUtil.generate_chord(root_num, chord_type, inversion)
+  if type(root_num) ~= "number" or root_num < 0 or root_num > 127 then return nil end
+  chord_type = chord_type or 1
+  inversion = inversion or 0
+  
+  local chord_data = lookup_data(MusicUtil.CHORDS, chord_type)
+  if not chord_data then return nil end
+
+  local out_array = {}
+  for i = 1, #chord_data.intervals do
+    local note_num = root_num + chord_data.intervals[i]
+    if note_num > 127 then break end
+    table.insert(out_array, note_num)
+  end
+
+  for i = 1, util.clamp(inversion, 0, #out_array - 1) do
+    local head = table.remove(out_array, 1)
+    table.insert(out_array, head + 12)
+  end
+
+  return out_array
+end
+
+
 --- Snap a MIDI note number to the nearest note number in an array.
--- @param note_num MIDI note number input (0-127).
--- @param snap_array Array of MIDI note numbers to snap to, must be in low to high order.
--- @return Adjusted note number.
+-- @tparam integer note_num MIDI note number input (0-127).
+-- @tparam {integer...} snap_array Array of MIDI note numbers to snap to, must be in low to high order.
+-- @treturn integer Adjusted note number.
 function MusicUtil.snap_note_to_array(note_num, snap_array)
   local snap_array_len = #snap_array
   if snap_array_len == 1 then
@@ -168,9 +226,9 @@ function MusicUtil.snap_note_to_array(note_num, snap_array)
 end
 
 --- Snap an array of MIDI note numbers to an array of note numbers.
--- @param note_nums_array Array of input MIDI note numbers.
--- @param snap_array Array of MIDI note numbers to snap to, must be in low to high order.
--- @return Array of adjusted note numbers.
+-- @tparam {integer...} note_nums_array Array of input MIDI note numbers.
+-- @tparam {integer...} snap_array Array of MIDI note numbers to snap to, must be in low to high order.
+-- @treturn {integer...} Array of adjusted note numbers.
 function MusicUtil.snap_notes_to_array(note_nums_array, snap_array)
   for i = 1, #note_nums_array do
     note_nums_array[i] = MusicUtil.snap_note_to_array(note_nums_array[i], snap_array)
@@ -180,9 +238,9 @@ end
 
 
 --- Return a MIDI note number's note name.
--- @param note_num MIDI note number (0-127).
--- @param[opt] include_octave Include octave number in return string if set to true.
--- @return Name string (eg, "C#3").
+-- @tparam integer note_num MIDI note number (0-127).
+-- @tparam[opt] boolean include_octave Include octave number in return string if set to true.
+-- @treturn string Name string (eg, "C#3").
 function MusicUtil.note_num_to_name(note_num, include_octave)
   local name = MusicUtil.NOTE_NAMES[note_num % 12 + 1]
   if include_octave then name = name .. math.floor(note_num / 12 - 2) end
@@ -190,9 +248,9 @@ function MusicUtil.note_num_to_name(note_num, include_octave)
 end
 
 --- Return an array of MIDI note numbers' names.
--- @param note_nums_array Array of MIDI note numbers.
--- @param[opt] include_octave Include octave number in return strings if set to true.
--- @return Array of name strings.
+-- @tparam {integer...} note_nums_array Array of MIDI note numbers.
+-- @tparam[opt] boolean include_octave Include octave number in return strings if set to true.
+-- @treturn {string...} Array of name strings.
 function MusicUtil.note_nums_to_names(note_nums_array, include_octave)
   local out_array = {}
   for i = 1, #note_nums_array do
@@ -203,15 +261,15 @@ end
 
 
 --- Return a MIDI note number's frequency.
--- @param note_num MIDI note number (0-127).
--- @return Frequency number in Hz.
+-- @tparam integer note_num MIDI note number (0-127).
+-- @treturn float Frequency number in Hz.
 function MusicUtil.note_num_to_freq(note_num)
   return 13.75 * (2 ^ ((note_num - 9) / 12))
 end
 
 --- Return an array of MIDI note numbers' frequencies.
--- @param note_nums_array Array of MIDI note numbers.
--- @return Array of frequency numbers in Hz.
+-- @tparam {integer...} note_nums_array Array of MIDI note numbers.
+-- @treturn {float...} Array of frequency numbers in Hz.
 function MusicUtil.note_nums_to_freqs(note_nums_array)
   local out_array = {}
   for i = 1, #note_nums_array do
@@ -222,15 +280,15 @@ end
 
 
 --- Return a frequency's nearest MIDI note number.
--- @param freq Frequency number in Hz.
--- @return MIDI note number (0-127).
+-- @tparam float freq Frequency number in Hz.
+-- @treturn integer MIDI note number (0-127).
 function MusicUtil.freq_to_note_num(freq)
   return util.clamp(math.floor(12 * math.log(freq / 440.0) / math.log(2) + 69.5), 0, 127)
 end
 
 --- Return an array of frequencies' nearest MIDI note numbers.
--- @param freqs_array Array of frequency numbers in Hz.
--- @return Array of MIDI note numbers.
+-- @tparam {float...} freqs_array Array of frequency numbers in Hz.
+-- @treturn {integer...} Array of MIDI note numbers.
 function MusicUtil.freqs_to_note_nums(freqs_array)
   local out_array = {}
   for i = 1, #freqs_array do
@@ -241,15 +299,15 @@ end
 
 
 --- Return the ratio of an interval.
--- @param interval Interval in semitones.
--- @return Ratio number.
+-- @tparam float interval Interval in semitones.
+-- @treturn float Ratio number.
 function MusicUtil.interval_to_ratio(interval)
   return math.pow(2, interval / 12)
 end
 
 --- Return an array of ratios of intervals.
--- @param intervals_array Array of intervals in semitones.
--- @return Array of ratio numbers.
+-- @tparam {float...} intervals_array Array of intervals in semitones.
+-- @treturn {float...} Array of ratio numbers.
 function MusicUtil.intervals_to_ratios(intervals_array)
   local out_array = {}
   for i = 1, #intervals_array do
@@ -259,15 +317,15 @@ function MusicUtil.intervals_to_ratios(intervals_array)
 end
 
 --- Return the interval of a ratio.
--- @param ratio Ratio number.
--- @return Interval in semitones.
+-- @tparam float ratio Ratio number.
+-- @treturn float Interval in semitones.
 function MusicUtil.ratio_to_interval(ratio)
   return 12 * math.log(ratio) / math.log(2)
 end
 
 --- Return an array of intervals of ratios.
--- @param ratios_array Array of ratio numbers.
--- @return Array of intervals in semitones.
+-- @tparam {float...} ratios_array Array of ratio numbers.
+-- @treturn {float...} Array of intervals in semitones.
 function MusicUtil.ratios_to_intervals(ratios_array)
   local out_array = {}
   for i = 1, #ratios_array do
