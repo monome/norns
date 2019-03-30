@@ -200,6 +200,7 @@ static int _sound_file_inspect(lua_State *l);
 static int _reset_lvm(lua_State *l);
 static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
+static int _clock_cancel(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -388,6 +389,7 @@ void w_init(void) {
   lua_register(lvm, "_reset_lvm", &_reset_lvm);
   lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
   lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
+  lua_register(lvm, "_clock_cancel", &_clock_cancel);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1457,6 +1459,17 @@ int _clock_schedule_sync(lua_State *l) {
   } else {
     clock_schedule_resume_sync(coro_id, beats);
   }
+
+  return 0;
+}
+
+int _clock_cancel(lua_State *l) {
+  if (lua_gettop(l) < 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  int coro_id = (int) luaL_checkinteger(l, 1);
+  clock_cancel_coro(coro_id);
 
   return 0;
 }
