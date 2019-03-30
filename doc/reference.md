@@ -18,7 +18,7 @@ function key(n,z)
 end
 
 function enc(n,d)
-  -- encoder actions: n= number, z = state
+  -- encoder actions: n = number, d = delta
 end
 
 function redraw()
