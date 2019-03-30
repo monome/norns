@@ -18,13 +18,18 @@ struct clock_counter_t {
     pthread_mutex_t lock;
 };
 
+struct clock_thread_t {
+    pthread_t thread;
+    bool running;
+    int coro_id;
+};
+
 static struct clock_counter_t counter;
 
 static float clock_gettime_secondsf();
 
 #define NUM_THREADS 20
-static pthread_t clock_thread_pool[NUM_THREADS];
-static bool clock_thread_running[NUM_THREADS];
+static struct clock_thread_t clock_thread_pool[NUM_THREADS];
 
 struct thread_arg {
     int thread_index; // thread pool index
@@ -38,7 +43,7 @@ void clock_init() {
     counter.last_beat_time = clock_gettime_secondsf();
 
     for (int i = 0; i < NUM_THREADS; i++) {
-        clock_thread_running[i] = false;
+        clock_thread_pool[i].running = false;
     }
 
     pthread_mutex_init(&counter.lock, NULL);
@@ -60,7 +65,8 @@ static void *clock_schedule_resume_run(void *p) {
     ev->clock_resume.thread_id = coro_id;
     event_post(ev);
 
-    clock_thread_running[arg->thread_index] = false;
+    clock_thread_pool[arg->thread_index].running = false;
+    clock_thread_pool[arg->thread_index].coro_id = -1;
     free(p);
 
     return NULL;
@@ -71,14 +77,15 @@ void clock_schedule_resume_sleep(int coro_id, float seconds) {
     pthread_attr_init(&attr);
 
     for (int i = 0; i < NUM_THREADS; i++) {
-        if (!clock_thread_running[i]) {
+        if (!clock_thread_pool[i].running) {
             struct thread_arg *arg = malloc(sizeof(struct thread_arg));
             arg->thread_index = i;
             arg->coro_id = coro_id;
             arg->seconds = seconds;
 
-            clock_thread_running[i] = true;
-            pthread_create(&clock_thread_pool[i], &attr, &clock_schedule_resume_run, arg);
+            clock_thread_pool[i].running = true;
+            clock_thread_pool[i].coro_id = coro_id;
+            pthread_create(&clock_thread_pool[i].thread, &attr, &clock_schedule_resume_run, arg);
             break;
         }
     }
@@ -144,9 +151,22 @@ void clock_counter_reset() {
     counter.beats = 0;
 }
 
+void clock_cancel_coro(int coro_id) {
+    for (int i = 0; i < NUM_THREADS; i++) {
+        if (clock_thread_pool[i].coro_id == coro_id) {
+            clock_cancel(i);
+        }
+    }
+}
+
+void clock_cancel(int index) {
+    pthread_cancel(clock_thread_pool[index].thread);
+    clock_thread_pool[index].running = false;
+    clock_thread_pool[index].coro_id = -1;
+}
+
 void clock_cancel_all() {
     for (int i = 0; i < NUM_THREADS; i++) {
-        pthread_cancel(clock_thread_pool[i]);
-        clock_thread_running[i] = false;
+        clock_cancel(i);
     }
 }

@@ -10,3 +10,5 @@ int clock_counter_get();
 void clock_sync(float quant);
 void clock_cancel_all();
 float clock_gettime_beats();
+void clock_cancel(int);
+void clock_cancel_coro(int);
