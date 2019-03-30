@@ -27,6 +27,9 @@ Script.clear = function()
   -- stop all timers
   metro.free_all()
 
+  -- stop clock
+  clock.cleanup()
+
   -- stop all polls and clear callbacks
   poll.clear_all()
 

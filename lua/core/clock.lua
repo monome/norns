@@ -44,4 +44,13 @@ clock.stop = function(coro_id)
   clock.threads[coro_id] = nil
 end
 
+clock.cleanup = function()
+  for i = 1, #clock.threads do
+    coro = clock.threads[i]
+    if coro then
+      clock.stop(coro)
+    end
+  end
+end
+
 return clock
