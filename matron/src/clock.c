@@ -75,6 +75,8 @@ static void *clock_schedule_resume_run(void *p) {
 void clock_schedule_resume_sleep(int coro_id, float seconds) {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
+    pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
     for (int i = 0; i < NUM_THREADS; i++) {
         if (!clock_thread_pool[i].running) {
