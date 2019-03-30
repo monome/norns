@@ -65,8 +65,8 @@ static void *clock_schedule_resume_run(void *p) {
     ev->clock_resume.thread_id = coro_id;
     event_post(ev);
 
-    clock_thread_pool[arg->thread_index].running = false;
     clock_thread_pool[arg->thread_index].coro_id = -1;
+    clock_thread_pool[arg->thread_index].running = false;
     free(p);
 
     return NULL;
@@ -86,9 +86,10 @@ void clock_schedule_resume_sleep(int coro_id, float seconds) {
             clock_thread_pool[i].running = true;
             clock_thread_pool[i].coro_id = coro_id;
             pthread_create(&clock_thread_pool[i].thread, &attr, &clock_schedule_resume_run, arg);
-            break;
+            return;
         }
     }
+    fprintf(stderr, "out of threads\n");
 }
 
 float clock_gettime_secondsf() {
