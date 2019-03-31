@@ -49,7 +49,7 @@ clock.cleanup = function()
   for i = 1, #clock.threads do
     coro = clock.threads[i]
     if coro then
-      clock.stop(coro)
+      clock.stop(i)
     end
   end
 end
