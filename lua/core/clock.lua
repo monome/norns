@@ -25,12 +25,13 @@ end
 clock.resume = function(coro_id)
   coro = clock.threads[coro_id]
 
-  if coro == nil or coroutine.status(coro) == "dead" then
+  if coro == nil then
     return -- todo: report error
   end
 
   result, mode, time = coroutine.resume(clock.threads[coro_id])
-  if result then
+
+  if coroutine.status(coro) ~= "dead" and result and mode ~= nil then
     if mode == SLEEP then
       _clock_schedule_sleep(coro_id, time)
     else
