@@ -1148,11 +1148,20 @@ m.deinit[pRESET] = function() end
 -----------------------------------------
 -- UPDATE
 m.update = {}
-m.update.confirmed = false
-m.update.status = {}
 m.update.url = ''
 m.update.version = ''
 
+local function check_newest()
+  print("checking for update")
+  m.update.url = util.os_capture( [[curl -s \
+      https://api.github.com/repos/monome/norns/releases/latest \
+      | grep "browser_download_url.*" \
+      | cut -d : -f 2,3 \
+      | tr -d \"]])
+  print(m.update.url)
+  m.update.version = m.update.url:match("(%d%d%d%d%d%d)")
+  print("available version "..m.update.version)
+end
 
 local function get_update()
   m.update.message = "preparing..."
@@ -1160,7 +1169,6 @@ local function get_update()
   pcall(cleanup) -- shut down script
   norns.script.clear()
   os.execute("sudo systemctl stop norns-jack.service") -- disable audio
-  os.execute("sudo systemctl stop norns-matron.service")
   os.execute("sudo rm -rf /home/we/update/*") -- clear old updates
   m.update.message = "downloading..."
   menu.redraw()
@@ -1175,18 +1183,6 @@ local function get_update()
   menu.redraw()
 end
 
-local function check_newest()
-  print("checking for update")
-  m.update.url = util.os_capture( [[curl -s \
-      https://api.github.com/repos/monome/norns/releases/latest \
-      | grep "browser_download_url.*" \
-      | cut -d : -f 2,3 \
-      | tr -d \"]])
-  print(m.update.url)
-  m.update.version = m.update.url:match("(%d%d%d%d%d%d)")
-  print("available version "..m.update.version)
-end
-
 m.key[pUPDATE] = function(n,z)
   if m.update.stage==1 and z==1 then
     menu.set_page(pSYSTEM)
@@ -1197,7 +1193,6 @@ m.key[pUPDATE] = function(n,z)
       menu.redraw()
     elseif n==3 and z==1 then
       m.update.stage=3
-      m.update.status = {}
       get_update()
       m.update.stage=4
     end
