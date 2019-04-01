@@ -8,6 +8,7 @@
 
 \begin{document}
 
+
 \begin{tikzpicture}
 
 \tikzstyle{input}=[draw=black, circle, double, minimum size=1]
@@ -17,6 +18,8 @@
 \tikzstyle{or}=[draw=black, circle, minimum size=1, label=center:$|$]
 \tikzstyle{param}=[draw=black, rectangle, dotted, thick]
 \tikzstyle{bus}=[draw=black, rectangle, double]
+
+\node [draw] at (0, -2) {CRONE mixer client, block diagram};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % input nodes
@@ -218,22 +221,30 @@
 \draw [->] (cut-aux-junc-l.center) -- (cut-aux-mul-l);
 \draw [->] (cut-aux-junc-r.center) -- (cut-aux-mul-r);
 
-\node [add] (aux-in-1-l) at ($(monitor-aux-mul-l) + (2, 0)$) {};
-\node [add] (aux-in-1-r) at ($(monitor-aux-mul-r) + (2, 0)$) {};
-\draw [->] (monitor-aux-mul-l) -- (aux-in-1-l);
-\draw [->] (monitor-aux-mul-r) -- (aux-in-1-r);
-\draw [->] (cut-aux-mul-l) -| (aux-in-1-l);
-\draw [->] (cut-aux-mul-r) -| (aux-in-1-r);
 
 \node (ext-aux-junc-l) at (in-ext-l -| ins-in-l) {\textbullet};
 \node (ext-aux-junc-r) at (in-ext-r -| ins-in-r) {\textbullet};
-\node [mul] (ext-aux-mul-l) at (ext-aux-junc-l -| aux-in-1-l) {};
-\node [mul] (ext-aux-mul-r) at (ext-aux-junc-r -| aux-in-1-r) {};
+%\node [mul] (ext-aux-mul-l) at (ext-aux-junc-l -| aux-in-1-l) {};
+%\node [mul] (ext-aux-mul-r) at (ext-aux-junc-r -| aux-in-1-r) {};
+\node [mul] (ext-aux-mul-l) at ($(ext-aux-junc-l) + (6, 0)$) {};
+\node [mul] (ext-aux-mul-r) at ($(ext-aux-junc-r) + (6, 0)$) {};
 \draw [->] (ext-aux-junc-l.center) -- (ext-aux-mul-l);
 \draw [->] (ext-aux-junc-r.center) -- (ext-aux-mul-r);
 
 \node [add] (aux-in-2-l) at ($(ext-aux-mul-l) + (2, 0)$) {};
 \node [add] (aux-in-2-r) at ($(ext-aux-mul-r) + (2, 0)$) {};
+
+
+%\node [add] (aux-in-1-l) at ($(monitor-aux-mul-l) + (2, 0)$) {};
+%\node [add] (aux-in-1-r) at ($(monitor-aux-mul-r) + (2, 0)$) {};
+\node [add] (aux-in-1-l) at (monitor-aux-mul-l -| aux-in-2-l) {};
+\node [add] (aux-in-1-r) at (monitor-aux-mul-r -| aux-in-2-r) {};
+
+\draw [->] (monitor-aux-mul-l) -- (aux-in-1-l);
+\draw [->] (monitor-aux-mul-r) -- (aux-in-1-r);
+\draw [->] (cut-aux-mul-l) -| (aux-in-1-l);
+\draw [->] (cut-aux-mul-r) -| (aux-in-1-r);
+
 
 \node [mul] (aux-fx-mul-l) at ($(ins-in-3-l) + (0, -2)$) {};
 \node [mul] (aux-fx-mul-r) at ($(ins-in-3-r) + (0, -2)$) {};
@@ -246,8 +257,8 @@
 
 \draw [->] (ext-aux-mul-l) -- (aux-in-2-l);
 \draw [->] (ext-aux-mul-r) -- (aux-in-2-r);
-\draw [->] (aux-in-1-l) -| (aux-in-2-r);
-\draw [->] (aux-in-1-r) -| (aux-in-2-l);
+\draw [->] (aux-in-1-l) -| (aux-in-2-l);
+\draw [->] (aux-in-1-r) -| (aux-in-2-r);
 \draw [->] (aux-in-2-l) -- (aux-fx-l);
 \draw [->] (aux-in-2-r) -- (aux-fx-r);
 
@@ -267,6 +278,26 @@
 \node [param] (aux-level) at (ext-aux-level |- aux-fx-mul-l) {AUX-LEVEL};
 \draw [gray, dashed] (aux-level.east) -- (aux-fx-mul-l);
 \draw [gray, dashed] (aux-level.east) -- ++(0.5, 0) |- (aux-fx-mul-r);
+
+
+%%%%%%%%%%%%%
+%% legend
+
+\matrix (legend) at (26, 1) 
+[
+	matrix of nodes, draw, row sep=0.5, column sep=0.5, align=center
+	column 1/.style={anchor=base west},
+	column 2/.style={anchor=base west}
+] {
+	\node [input]{}; 		& input \\
+	\node [output]{}; 		& output \\
+	\node [mul]{}; 			& smoothed multiplier \\
+	\node [add]{}; 			& add / merge \\
+	\node {\textbullet};	& junction / split \\
+	\node [or]{}; 		& A/B switch \\
+	\node [bus]{BUS};		& bus / process \\
+	\node [param]{PARAM}; 	& parameter \\
+};
 
 \end{tikzpicture}
 
