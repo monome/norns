@@ -2,8 +2,6 @@
 \usepackage{tikz}
 \usetikzlibrary{matrix, positioning, shapes, arrows, calc}
 
-\usetikzlibrary{circuits.ee.IEC}
-
 \tikzset{>=latex}
 
 \begin{document}
@@ -38,7 +36,7 @@
 \node [mul] (adc-mul-r) at ($(in-adc-r)+(2,0)$) {};
 \draw [->] (in-adc-l) -- (adc-mul-l);
 \draw [->] (in-adc-r) -- (adc-mul-r);
-\node [param, above = 1 of adc-mul-l] (adc-level) {\small{ADC LEVEL}};
+\node [param, above = 1 of adc-mul-l] (adc-level) {\small{ADC-LEVEL}};
 \draw [gray, dashed] (adc-level.south) -- ++(0, -0.5) -| (adc-mul-l);
 \draw [gray, dashed] (adc-level.south) -| ++(0, -0.5) -| (adc-mul-r);
 
@@ -56,7 +54,7 @@
 \node (adc-cut-junc-r) at ($(adc-mul-r) + (2, 0)$) {\textbullet};
 \node [mul] (adc-cut-mul-l) at ($(adc-cut-junc-l) - (0, 2)$) {};
 \node [mul] (adc-cut-mul-r) at ($(adc-cut-junc-r) - (0, 2)$) {}; 
-\node [param, left = 1 of adc-cut-mul-l] (adc-cut) {\small{ADC-CUT}};
+\node [param, left = 1 of adc-cut-mul-l] (adc-cut) {\small{ADC-CUT-LEVEL}};
 \draw [->] (adc-cut-junc-l.center) -- (adc-cut-mul-l);
 \draw [->] (adc-cut-junc-r.center) -- (adc-cut-mul-r);
 \draw [gray, dashed] (adc-cut) -- ++(2, 0) -- (adc-cut-mul-l);
@@ -78,7 +76,7 @@
 \draw [->] (monitor-mix-in-r) -- (monitor-mix-out-l);
 \draw [->] (monitor-mix-in-r) -- (monitor-mix-out-r);
 
-\node [param, above = 0.5 of monitor-mix-in-l] (monitor-mode) {\small{MONITOR MODE}};
+\node [param, above = 0.5 of monitor-mix-in-l] (monitor-mode) {\small{MONITOR-MODE}};
 \draw [gray, dashed] (monitor-mode.south) -- ++(0,-0.25) -| (monitor-mix-in-l);
 \draw [gray, dashed] (monitor-mode.south) -- ++(0,-0.25) -| (monitor-mix-in-r);
 
@@ -87,7 +85,7 @@
 \node [mul, right=2 of monitor-mix-out-r] (monitor-mul-r) {};
 \draw [->] (monitor-mix-out-l) -- (monitor-mul-l);
 \draw [->] (monitor-mix-out-r) -- (monitor-mul-r);
-\node [param, above = 0.5 of monitor-mul-l] (monitor-level) {\small{MONITOR LEVEL}};
+\node [param, above = 0.5 of monitor-mul-l] (monitor-level) {\small{MONITOR-LEVEL}};
 \draw [gray, dashed] (monitor-level.south) -- ++(0, -0.25) -| (monitor-mul-l);
 \draw [gray, dashed] (monitor-level.south) -| ++(0, -0.25) -| (monitor-mul-r);
 
@@ -107,7 +105,7 @@
 \node [output, right=3 of dac-mul-l, label=right:OUT-DAC-L] (out-dac-l){}; 
 \node [output, right=2 of dac-mul-r, label=right:OUT-DAC-R] (out-dac-r){}; 
 
-\node [param, above = 1 of dac-mul-l] (dac-level) {\small{OUT LEVEL}};
+\node [param, above = 1 of dac-mul-l] (dac-level) {\small{OUT-LEVEL}};
 \draw [gray, dashed] (dac-level.south) -- ++(0, -0.5) -| (dac-mul-l);
 \draw [gray, dashed] (dac-level.south) -| ++(0, -0.5) -| (dac-mul-r);
 
@@ -130,7 +128,7 @@
 \node [mul] (ext-mul-r) at ($(in-ext-r)+(2,0)$) {};
 \draw [->] (in-ext-l) -- (ext-mul-l);
 \draw [->] (in-ext-r) -- (ext-mul-r);
-\node [param, above = 1 of ext-mul-l] (ext-level) {\small{EXT LEVEL}};
+\node [param, above = 1 of ext-mul-l] (ext-level) {\small{EXT-LEVEL}};
 \draw [gray, dashed] (ext-level.south) -- ++(0, -0.5) -| (ext-mul-l);
 \draw [gray, dashed] (ext-level.south) -| ++(0, -0.5) -| (ext-mul-r);
 
@@ -144,7 +142,7 @@
 \node [mul] (ext-cut-mul-r) at ($(ext-cut-junc-r) + (0, 3)$) {}; 
 \draw [->] (ext-cut-junc-l.center) -- (ext-cut-mul-l); 
 \draw [->] (ext-cut-junc-r.center) -- (ext-cut-mul-r);
-\node [param, left = 3 of ext-cut-mul-l] (ext-cut) {\small{EXT-CUT}};
+\node [param, left = 3 of ext-cut-mul-l] (ext-cut) {\small{EXT-CUT-LEVEL}};
 \draw [->] (ext-cut-junc-l.center) -- (ext-cut-mul-l);
 \draw [->] (ext-cut-junc-r.center) -- (ext-cut-mul-r);
 \draw [gray, dashed] (ext-cut) -- ++(2, 0) -- (ext-cut-mul-l);
@@ -172,7 +170,7 @@
 \draw [->] (cut-mul-l) -- (ins-in-2-l);
 \draw [->] (cut-mul-r) -- (ins-in-2-r);
 
-\node [param] (cut-level) at ($(cut-mul-l) + (3, 0)$) {CUT-LEVEL};
+\node [param] (cut-level) at ($(cut-mul-l) + (3, 0)$) {\small{CUT-LEVEL}};
 \draw [gray, dashed] (cut-level) -- ++(-1.5, 0) |- (cut-mul-l);
 \draw [gray, dashed] (cut-level) -- ++(-1.5, 0) |- (cut-mul-r);
 
@@ -191,7 +189,7 @@
 \draw [->] (tape-play-l) -- (tape-mul-l);
 \draw [->] (tape-play-r) -- (tape-mul-r);
 
-\node [param] (tape-level) at ($(tape-mul-l) + (4, 0)$) {TAPE-LEVEL};
+\node [param] (tape-level) at ($(tape-mul-l) + (4, 0)$) {\small{TAPE-LEVEL}};
 \draw [gray, dashed] (tape-level) -- ++(-2, 0) |- (tape-mul-l);
 \draw [gray, dashed] (tape-level) -- ++(-2, 0) |- (tape-mul-r);
 
@@ -224,8 +222,6 @@
 
 \node (ext-aux-junc-l) at (in-ext-l -| ins-in-l) {\textbullet};
 \node (ext-aux-junc-r) at (in-ext-r -| ins-in-r) {\textbullet};
-%\node [mul] (ext-aux-mul-l) at (ext-aux-junc-l -| aux-in-1-l) {};
-%\node [mul] (ext-aux-mul-r) at (ext-aux-junc-r -| aux-in-1-r) {};
 \node [mul] (ext-aux-mul-l) at ($(ext-aux-junc-l) + (6, 0)$) {};
 \node [mul] (ext-aux-mul-r) at ($(ext-aux-junc-r) + (6, 0)$) {};
 \draw [->] (ext-aux-junc-l.center) -- (ext-aux-mul-l);
@@ -233,10 +229,6 @@
 
 \node [add] (aux-in-2-l) at ($(ext-aux-mul-l) + (2, 0)$) {};
 \node [add] (aux-in-2-r) at ($(ext-aux-mul-r) + (2, 0)$) {};
-
-
-%\node [add] (aux-in-1-l) at ($(monitor-aux-mul-l) + (2, 0)$) {};
-%\node [add] (aux-in-1-r) at ($(monitor-aux-mul-r) + (2, 0)$) {};
 \node [add] (aux-in-1-l) at (monitor-aux-mul-l -| aux-in-2-l) {};
 \node [add] (aux-in-1-r) at (monitor-aux-mul-r -| aux-in-2-r) {};
 
@@ -263,19 +255,19 @@
 \draw [->] (aux-in-2-r) -- (aux-fx-r);
 
 % AUX level params
-\node [param] (monitor-aux-level) at ($(monitor-aux-mul-r) + (-6, 0)$) {MONITOR-AUX-LEVEL};
+\node [param] (monitor-aux-level) at ($(monitor-aux-mul-r) + (-6, 0)$) {\small{MONITOR-AUX-LEVEL}};
 \draw [gray, dashed] (monitor-aux-level.east) -- (monitor-aux-level -| monitor-aux-mul-l) -- (monitor-aux-mul-l);
 \draw [gray, dashed] (monitor-aux-level.east) -- (monitor-aux-mul-r);
 
-\node [param] (cut-aux-level) at ($(monitor-aux-level) + (0, -1)$) {CUT-AUX-LEVEL};
+\node [param] (cut-aux-level) at ($(monitor-aux-level) + (0, -1)$) {\small{CUT-AUX-LEVEL}};
 \draw [gray, dashed] (cut-aux-level.east) -- (cut-aux-level -| cut-aux-mul-l) -- (cut-aux-mul-l);
 \draw [gray, dashed] (cut-aux-level.east) -- (cut-aux-level -| cut-aux-mul-r) -- (cut-aux-mul-r);
 
-\node [param] (ext-aux-level) at ($(ext-aux-mul-r) + (0, 2)$) {EXT-AUX-LEVEL};
+\node [param] (ext-aux-level) at ($(ext-aux-mul-r) + (0, 2)$) {\small{EXT-AUX-LEVEL}};
 \draw [gray, dashed] (ext-aux-level) -- (ext-aux-mul-r);
 \draw [gray, dashed] (ext-aux-level) -- ++(0, -0.5) -| (ext-aux-mul-l);
 
-\node [param] (aux-level) at (ext-aux-level |- aux-fx-mul-l) {AUX-LEVEL};
+\node [param] (aux-level) at (ext-aux-level |- aux-fx-mul-l) {\small{AUX-LEVEL}};
 \draw [gray, dashed] (aux-level.east) -- (aux-fx-mul-l);
 \draw [gray, dashed] (aux-level.east) -- ++(0.5, 0) |- (aux-fx-mul-r);
 
@@ -296,7 +288,7 @@
 	\node {\textbullet};	& junction / split \\
 	\node [or]{}; 		& A/B switch \\
 	\node [bus]{BUS};		& bus / process \\
-	\node [param]{PARAM}; 	& parameter \\
+	\node [param]{\small{PARAM}}; 	& parameter \\
 };
 
 \end{tikzpicture}
