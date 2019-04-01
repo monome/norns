@@ -164,16 +164,13 @@
 
 %%%%%%%%%%%%%
 % CUT input
-
-\node [mul] (cut-mul-l) at (ins-in-2-l |- in-cut-l) {};
-\node [mul] (cut-mul-r) at (ins-in-2-r |- in-cut-r) {};
-\draw [->] (cut-mul-l) -- (ins-in-2-l);
-\draw [->] (cut-mul-r) -- (ins-in-2-r);
-
-\node [param] (cut-level) at ($(cut-mul-l) + (3, 0)$) {\small{CUT-LEVEL}};
-\draw [gray, dashed] (cut-level) -- ++(-1.5, 0) |- (cut-mul-l);
-\draw [gray, dashed] (cut-level) -- ++(-1.5, 0) |- (cut-mul-r);
-
+\node [mul] (cut-mul-l) at ($(in-cut-l) + (1, 0)$) {};
+\node [mul] (cut-mul-r) at ($(in-cut-r) + (2, 0)$) {};
+\draw [->] (cut-mul-l) -| (ins-in-2-l);
+\draw [->] (cut-mul-r) -| (ins-in-2-r);
+\node [param, above = 1 of cut-mul-l] (cut-level) {\small{CUT-LEVEL}};
+\draw [gray, dashed] (cut-level.south) -- ++(0, -0.5) -| (cut-mul-l);
+\draw [gray, dashed] (cut-level.south) -- ++(0, -0.5) -| (cut-mul-r);
 \draw [->] (in-cut-l) -- (cut-mul-l);
 \draw [->] (in-cut-r) -- (cut-mul-r);
 
@@ -212,8 +209,8 @@
 \draw [->] (monitor-aux-junc-l.center) -| (monitor-aux-mul-l);
 \draw [->] (monitor-aux-junc-r.center) -| (monitor-aux-mul-r);
 
-\node (cut-aux-junc-l) at ($(cut-mul-l) + (0, 2)$) {\textbullet};
-\node (cut-aux-junc-r) at ($(cut-mul-r) + (0, 2)$) {\textbullet};
+\node (cut-aux-junc-l) at ($(ins-in-2-l) + (0, -10)$) {\textbullet};
+\node (cut-aux-junc-r) at ($(ins-in-2-r) + (0, -10)$) {\textbullet};
 \node [mul] (cut-aux-mul-l) at($(cut-aux-junc-l) + (2, 0)$) {};
 \node [mul] (cut-aux-mul-r) at($(cut-aux-junc-r) + (2, 0)$) {};
 \draw [->] (cut-aux-junc-l.center) -- (cut-aux-mul-l);
