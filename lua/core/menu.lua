@@ -34,6 +34,7 @@ local pRESET = 9
 local pSLEEP = 10
 local pTAPE = 11
 local pMIX = 12
+local pUPDATE = 13
 
 -- page pointer
 local m = {}
@@ -740,8 +741,8 @@ end
 -- SYSTEM
 m.sys = {}
 m.sys.pos = 1
-m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "RESET"}
-m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pRESET}
+m.sys.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "RESET", "UPDATE"}
+m.sys.pages = {pAUDIO, pDEVICES, pWIFI, pRESET, pUPDATE}
 m.sys.input = 0
 
 m.key[pSYSTEM] = function(n,z)
@@ -1145,7 +1146,109 @@ m.deinit[pRESET] = function() end
 
 
 -----------------------------------------
+-- UPDATE
+m.update = {}
+m.update.confirmed = false
+m.update.status = {}
+m.update.url = ''
+m.update.version = ''
 
+
+local function get_update()
+  m.update.message = "preparing..."
+  menu.redraw()
+  pcall(cleanup) -- shut down script
+  norns.script.clear()
+  os.execute("sudo systemctl stop norns-jack.service") -- disable audio
+  os.execute("sudo systemctl stop norns-matron.service")
+  os.execute("sudo rm -rf /home/we/update/*") -- clear old updates
+  m.update.message = "downloading..."
+  menu.redraw()
+  os.execute("wget -q -P /home/we/update/ " .. m.update.url) --download
+  m.update.message = "unpacking update..."
+  menu.redraw()
+  os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
+  m.update.message = "running update..."
+  menu.redraw()
+  os.execute("/home/we/update/"..m.update.version.."/update.sh")
+  m.update.message = "complete."
+  menu.redraw()
+end
+
+local function check_newest()
+  print("checking for update")
+  m.update.url = util.os_capture( [[curl -s \
+      https://api.github.com/repos/monome/norns/releases/latest \
+      | grep "browser_download_url.*" \
+      | cut -d : -f 2,3 \
+      | tr -d \"]])
+  print(m.update.url)
+  m.update.version = m.update.url:match("(%d%d%d%d%d%d)")
+  print("available version "..m.update.version)
+end
+
+m.key[pUPDATE] = function(n,z)
+  if m.update.stage==1 and z==1 then
+    menu.set_page(pSYSTEM)
+    menu.redraw()
+  elseif m.update.stage==2 then
+    if n==2 and z==1 then
+      menu.set_page(pSYSTEM)
+      menu.redraw()
+    elseif n==3 and z==1 then
+      m.update.stage=3
+      m.update.status = {}
+      get_update()
+      m.update.stage=4
+    end
+  elseif m.update.stage==4 and z==1 then
+    print("shutting down.")
+    m.update.message = "shutting down."
+    menu.redraw()
+    os.execute("sleep 0.5; sudo shutdown now")
+  end
+end
+
+
+m.enc[pUPDATE] = function(n,delta) end
+
+m.redraw[pUPDATE] = function()
+  screen.clear()
+  screen.level(15)
+  screen.move(64,40)
+  if m.update.stage == 1 then
+    screen.text_center(m.update.message)
+  elseif m.update.stage == 2 then
+    screen.text_center("update found: "..m.update.version)
+    screen.move(64,50)
+    screen.text_center("install?")
+  elseif m.update.stage == 3 then
+    screen.text_center(m.update.message)
+  end
+  screen.update()
+end
+
+m.init[pUPDATE] = function()
+  m.update.stage = 1
+
+  local ping = util.os_capture("ping -c 1 github.com | grep failure")
+  if ping == '' then check_newest() end
+
+  if not ping == ''  then
+    m.update.message = "need internet."
+  elseif tonumber(norns.version.update) >= tonumber(m.update.version) then
+    m.update.message = "up to date."
+  elseif norns.disk < 400 then
+    m.update.message = "disk full."
+  else
+    m.update.stage = 2
+  end
+end
+
+m.deinit[pUPDATE] = function() end
+
+
+-----------------------------------------
 -- SLEEP
 
 m.key[pSLEEP] = function(n,z)
