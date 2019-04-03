@@ -1184,19 +1184,19 @@ local function get_update()
 end
 
 m.key[pUPDATE] = function(n,z)
-  if m.update.stage==1 and z==1 then
+  if m.update.stage=="init" and z==1 then
     menu.set_page(pSYSTEM)
     menu.redraw()
-  elseif m.update.stage==2 then
+  elseif m.update.stage=="confirm" then
     if n==2 and z==1 then
       menu.set_page(pSYSTEM)
       menu.redraw()
     elseif n==3 and z==1 then
-      m.update.stage=3
+      m.update.stage="update"
       get_update()
-      m.update.stage=4
+      m.update.stage="done"
     end
-  elseif m.update.stage==4 and z==1 then
+  elseif m.update.stage=="done" and z==1 then
     print("shutting down.")
     m.update.message = "shutting down."
     menu.redraw()
@@ -1211,20 +1211,20 @@ m.redraw[pUPDATE] = function()
   screen.clear()
   screen.level(15)
   screen.move(64,40)
-  if m.update.stage == 1 then
+  if m.update.stage == "init" then
     screen.text_center(m.update.message)
-  elseif m.update.stage == 2 then
+  elseif m.update.stage == "confirm" then
     screen.text_center("update found: "..m.update.version)
     screen.move(64,50)
     screen.text_center("install?")
-  elseif m.update.stage == 3 then
+  elseif m.update.stage == "update" then
     screen.text_center(m.update.message)
   end
   screen.update()
 end
 
 m.init[pUPDATE] = function()
-  m.update.stage = 1
+  m.update.stage = "init"
 
   local ping = util.os_capture("ping -c 1 github.com | grep failure")
   if ping == '' then check_newest() end
@@ -1234,9 +1234,9 @@ m.init[pUPDATE] = function()
   elseif tonumber(norns.version.update) >= tonumber(m.update.version) then
     m.update.message = "up to date."
   elseif norns.disk < 400 then
-    m.update.message = "disk full."
+    m.update.message = "disk full. need 400M."
   else
-    m.update.stage = 2
+    m.update.stage = "confirm"
   end
 end
 
