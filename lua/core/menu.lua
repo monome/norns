@@ -1172,7 +1172,7 @@ local function get_update()
   os.execute("sudo rm -rf /home/we/update/*") -- clear old updates
   m.update.message = "downloading..."
   menu.redraw()
-  os.execute("wget -q -P /home/we/update/ " .. m.update.url) --download
+  os.execute("wget -T 180 -q -P /home/we/update/ " .. m.update.url) --download
   m.update.message = "unpacking update..."
   menu.redraw()
   os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
