@@ -24,7 +24,7 @@
 #define CHECK_CRR if (cr == NULL) {return 0; }
 #endif
 
-#define NUM_FONTS 70
+#define NUM_FONTS 67
 static char font_path[NUM_FONTS][32];
 
 static float c[16] =
@@ -194,8 +194,8 @@ void screen_init(void) {
     strcpy(font_path[23], "Vera.ttf");
     //------------------
     // bitmap fonts
-    // FIXME: this is totally silly...
     strcpy(font_path[24], "bmp/tom-thumb.bdf");
+    // FIXME: this is totally silly...
     int i = 25;
     strcpy(font_path[i++], "bmp/creep.bdf");
     strcpy(font_path[i++], "bmp/ctrld-fixed-10b.bdf");
@@ -208,9 +208,6 @@ void screen_init(void) {
     strcpy(font_path[i++], "bmp/ctrld-fixed-16b-i.bdf");
     strcpy(font_path[i++], "bmp/ctrld-fixed-16r.bdf");
     strcpy(font_path[i++], "bmp/ctrld-fixed-16r-i.bdf");
-    strcpy(font_path[i++], "bmp/ProggyCleanSZ.pcf");
-    strcpy(font_path[i++], "bmp/ProggySquareSZ.pcf");
-    strcpy(font_path[i++], "bmp/ProggyTinySZ.pcf");
     strcpy(font_path[i++], "bmp/scientifica-11.bdf");
     strcpy(font_path[i++], "bmp/scientificaBold-11.bdf");
     strcpy(font_path[i++], "bmp/scientificaItalic-11.bdf");
