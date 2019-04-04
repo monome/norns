@@ -45,7 +45,6 @@
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/core.menu.html">core.menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
@@ -63,17 +62,14 @@
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
   <li><a href="../modules/state.html">state</a></li>
-  <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
-  <li><a href="../modules/Passersby.html">Passersby</a></li>
-  <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
   <li><a href="../modules/elca.html">elca</a></li>
   <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
   <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
   <li><a href="../modules/Graph.html">Graph</a></li>
-  <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
   <li><strong>MusicUtil</strong></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/user.lib.textentry.html">user.lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/UI.html">UI</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
@@ -85,11 +81,11 @@
 <h1>Module <code>MusicUtil</code></h1>
 <p>Music utility module.</p>
 <p>
- Utility methods for working with notes and scales.
+ Utility methods for working with notes, scales and chords.
 </p>
     <h3>Info:</h3>
     <ul>
-        <li><strong>Release</strong>: v1.0.2</li>
+        <li><strong>Release</strong>: v1.1.0</li>
         <li><strong>Author</strong>: Mark Eats</li>
     </ul>
 
@@ -103,6 +99,14 @@
 	<tr>
 	<td class="name" nowrap><a href="#generate_scale_of_length">generate_scale_of_length (root_num, scale_type, length)</a></td>
 	<td class="summary">Generate given number of notes of a scale from a root note.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#generate_chord">generate_chord (root_num, chord_type[, inversion])</a></td>
+	<td class="summary">Generate chord from a root note.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chord_types_for_note">chord_types_for_note (note_num, key_root, key_type)</a></td>
+	<td class="summary">List chord types for a given root note and key.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#snap_note_to_array">snap_note_to_array (note_num, snap_array)</a></td>
@@ -172,12 +176,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">root_num</span>
+            <span class="types"><span class="type">integer</span></span>
          MIDI note number (0-127) where scale will begin.
         </li>
         <li><span class="parameter">scale_type</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
         </li>
         <li><span class="parameter">octaves</span>
+            <span class="types"><span class="type">integer</span></span>
          Number of octaves to return, defaults to 1.
          (<em>optional</em>)
         </li>
@@ -186,6 +193,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{integer...}</span></span>
         Array of MIDI note numbers.
     </ol>
 
@@ -204,12 +212,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">root_num</span>
+            <span class="types"><span class="type">integer</span></span>
          MIDI note number (0-127) where scale will begin.
         </li>
         <li><span class="parameter">scale_type</span>
+            <span class="types"><span class="type">integer</span></span>
          String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
         </li>
         <li><span class="parameter">length</span>
+            <span class="types"><span class="type">integer</span></span>
          Number of notes to return, defaults to 8.
         </li>
     </ul>
@@ -217,7 +228,79 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{integer...}</span></span>
         Array of MIDI note numbers.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "generate_chord"></a>
+    <strong>generate_chord (root_num, chord_type[, inversion])</strong>
+    </dt>
+    <dd>
+    Generate chord from a root note.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">root_num</span>
+            <span class="types"><span class="type">integer</span></span>
+         MIDI note number (0-127) for chord.
+        </li>
+        <li><span class="parameter">chord_type</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         String defining chord type (eg, "major", "minor 7" or "sus4"), see class for full list.
+        </li>
+        <li><span class="parameter">inversion</span>
+            <span class="types"><span class="type">integer</span></span>
+         Number of chord inversion.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">{integer...}</span></span>
+        Array of MIDI note numbers.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chord_types_for_note"></a>
+    <strong>chord_types_for_note (note_num, key_root, key_type)</strong>
+    </dt>
+    <dd>
+    List chord types for a given root note and key.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">note_num</span>
+            <span class="types"><span class="type">integer</span></span>
+         MIDI note number (0-127) for root of chord.
+        </li>
+        <li><span class="parameter">key_root</span>
+            <span class="types"><span class="type">integer</span></span>
+         MIDI note number (0-127) for root of key.
+        </li>
+        <li><span class="parameter">key_type</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         String defining key type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">{string...}</span></span>
+        Array of chord type strings that fit the criteria.
     </ol>
 
 
@@ -235,9 +318,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">note_num</span>
+            <span class="types"><span class="type">integer</span></span>
          MIDI note number input (0-127).
         </li>
         <li><span class="parameter">snap_array</span>
+            <span class="types"><span class="type">{integer...}</span></span>
          Array of MIDI note numbers to snap to, must be in low to high order.
         </li>
     </ul>
@@ -245,6 +330,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">integer</span></span>
         Adjusted note number.
     </ol>
 
@@ -263,9 +349,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">note_nums_array</span>
+            <span class="types"><span class="type">{integer...}</span></span>
          Array of input MIDI note numbers.
         </li>
         <li><span class="parameter">snap_array</span>
+            <span class="types"><span class="type">{integer...}</span></span>
          Array of MIDI note numbers to snap to, must be in low to high order.
         </li>
     </ul>
@@ -273,6 +361,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{integer...}</span></span>
         Array of adjusted note numbers.
     </ol>
 
@@ -291,9 +380,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">note_num</span>
+            <span class="types"><span class="type">integer</span></span>
          MIDI note number (0-127).
         </li>
         <li><span class="parameter">include_octave</span>
+            <span class="types"><span class="type">boolean</span></span>
          Include octave number in return string if set to true.
          (<em>optional</em>)
         </li>
@@ -302,6 +393,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         Name string (eg, "C#3").
     </ol>
 
@@ -320,9 +412,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">note_nums_array</span>
+            <span class="types"><span class="type">{integer...}</span></span>
          Array of MIDI note numbers.
         </li>
         <li><span class="parameter">include_octave</span>
+            <span class="types"><span class="type">boolean</span></span>
          Include octave number in return strings if set to true.
          (<em>optional</em>)
         </li>
@@ -331,6 +425,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{string...}</span></span>
         Array of name strings.
     </ol>
 
@@ -349,6 +444,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">note_num</span>
+            <span class="types"><span class="type">integer</span></span>
          MIDI note number (0-127).
         </li>
     </ul>
@@ -356,6 +452,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">float</span></span>
         Frequency number in Hz.
     </ol>
 
@@ -374,6 +471,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">note_nums_array</span>
+            <span class="types"><span class="type">{integer...}</span></span>
          Array of MIDI note numbers.
         </li>
     </ul>
@@ -381,6 +479,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{float...}</span></span>
         Array of frequency numbers in Hz.
     </ol>
 
@@ -399,6 +498,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">freq</span>
+            <span class="types"><span class="type">float</span></span>
          Frequency number in Hz.
         </li>
     </ul>
@@ -406,6 +506,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">integer</span></span>
         MIDI note number (0-127).
     </ol>
 
@@ -424,6 +525,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">freqs_array</span>
+            <span class="types"><span class="type">{float...}</span></span>
          Array of frequency numbers in Hz.
         </li>
     </ul>
@@ -431,6 +533,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{integer...}</span></span>
         Array of MIDI note numbers.
     </ol>
 
@@ -449,6 +552,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">interval</span>
+            <span class="types"><span class="type">float</span></span>
          Interval in semitones.
         </li>
     </ul>
@@ -456,6 +560,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">float</span></span>
         Ratio number.
     </ol>
 
@@ -474,6 +579,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">intervals_array</span>
+            <span class="types"><span class="type">{float...}</span></span>
          Array of intervals in semitones.
         </li>
     </ul>
@@ -481,6 +587,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{float...}</span></span>
         Array of ratio numbers.
     </ol>
 
@@ -499,6 +606,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">ratio</span>
+            <span class="types"><span class="type">float</span></span>
          Ratio number.
         </li>
     </ul>
@@ -506,6 +614,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">float</span></span>
         Interval in semitones.
     </ol>
 
@@ -524,6 +633,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">ratios_array</span>
+            <span class="types"><span class="type">{float...}</span></span>
          Array of ratio numbers.
         </li>
     </ul>
@@ -531,6 +641,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">{float...}</span></span>
         Array of intervals in semitones.
     </ol>
 
@@ -545,7 +656,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-03-04 05:06:36 </i>
+<i style="float:right;">Last updated 2019-04-04 09:33:04 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
