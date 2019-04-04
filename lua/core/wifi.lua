@@ -188,7 +188,10 @@ function Wifi.off()
 end
 
 function Wifi.hotspot()
-  Wifi.on(HOTSPOT)
+  print("activating hotspot")
+  Wifi.ensure_radio_is_on()
+  os.execute("nmcli c delete Hotspot")
+  os.execute("nmcli dev wifi hotspot ifname wlan0 ssid norns password 22222222")
 end
 
 function Wifi.on(connection)
