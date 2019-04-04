@@ -465,7 +465,6 @@ m.params.map = {}
 m.params.init_map = function()
   for i = 1,params.count do m.params.map[i] = -1 end
 end
-m.params.fine = false
 
 m.key[pPARAMS] = function(n,z)
   if menu.alt then
@@ -653,6 +652,7 @@ m.redraw[pPARAMS] = function()
 end
 
 m.init[pPARAMS] = function()
+  m.params.fine = false
   m.params.midimap = false
   m.params.midilearn = false
   m.params.action_text = ""
