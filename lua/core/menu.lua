@@ -55,7 +55,7 @@ menu.shownav = false
 menu.showstats = false
 
 
----- METROS
+-- METROS
 local pending = false
 -- metro for key hold detection
 local metro = require 'core/metro'
@@ -223,10 +223,8 @@ end
 
 
 
--- --------------------------------------------------
 -- interfaces
 
------------------------------------------
 -- HOME
 
 m.home = {}
@@ -314,7 +312,6 @@ m.redraw[pHOME] = function()
 end
 
 
-----------------------------------------
 -- SELECT
 
 m.sel = {}
@@ -401,7 +398,6 @@ end
 
 
 
------------------------------------------
 -- PREVIEW
 
 m.pre = {}
@@ -457,7 +453,6 @@ m.redraw[pPREVIEW] = function()
 end
 
 
------------------------------------------
 -- PARAMS
 
 m.params = {}
@@ -736,7 +731,6 @@ end
 
 
 
------------------------------------------
 -- SYSTEM
 m.sys = {}
 m.sys.pos = 1
@@ -780,7 +774,6 @@ m.init[pSYSTEM] = norns.none
 m.deinit[pSYSTEM] = norns.none
 
 
------------------------------------------
 -- DEVICES
 m.devices = {}
 m.devices.pos = 1
@@ -917,7 +910,6 @@ m.deinit[pDEVICES] = function() end
 
 
 
------------------------------------------
 -- WIFI
 m.wifi = {}
 m.wifi.pos = 0
@@ -1041,7 +1033,6 @@ m.deinit[pWIFI] = function()
   u:stop()
 end
 
------------------------------------------
 -- AUDIO
 
 m.audio = {}
@@ -1109,7 +1100,6 @@ m.deinit[pAUDIO] = function()
 end
 
 
------------------------------------------
 -- RESET
 m.reset = {}
 m.reset.confirmed = false
@@ -1144,7 +1134,6 @@ m.init[pRESET] = function() end
 m.deinit[pRESET] = function() end
 
 
------------------------------------------
 
 -- SLEEP
 
@@ -1186,7 +1175,6 @@ m.init[pSLEEP] = norns.none
 m.deinit[pSLEEP] = norns.none
 
 
------------------------------------------
 -- MIX
 
 m.mix = {}
@@ -1313,7 +1301,6 @@ m.mix.vu = function(in1,in2,out1,out2)
 end
 
 
------------------------------------------
 -- TAPE
 
 local TAPE_MODE_PLAY = 1

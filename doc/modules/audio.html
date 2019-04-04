@@ -33,6 +33,9 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Effects_functions">Effects functions </a></li>
+<li><a href="#Tape_Functions">Tape Functions </a></li>
+<li><a href="#Softcut_levels">Softcut levels </a></li>
 <li><a href="#global_functions">global functions </a></li>
 <li><a href="#helpers">helpers </a></li>
 </ul>
@@ -47,7 +50,6 @@
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/core.menu.html">core.menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
@@ -65,17 +67,14 @@
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
   <li><a href="../modules/state.html">state</a></li>
-  <li><a href="../modules/MollyThePoly.html">MollyThePoly</a></li>
-  <li><a href="../modules/Passersby.html">Passersby</a></li>
-  <li><a href="../modules/user.lib.ansible.kria.html">user.lib.ansible.kria</a></li>
   <li><a href="../modules/elca.html">elca</a></li>
   <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
   <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
   <li><a href="../modules/Graph.html">Graph</a></li>
-  <li><a href="../modules/user.lib.intonation.html">user.lib.intonation</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/user.lib.textentry.html">user.lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/UI.html">UI</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
@@ -132,6 +131,91 @@
 	<td class="summary">restart the audio engine (recompile sclang).</td>
 	</tr>
 </table>
+<h2><a href="#Effects_functions">Effects functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#rev_on">rev_on ()</a></td>
+	<td class="summary">reverb on.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rev_off">rev_off ()</a></td>
+	<td class="summary">reverb off.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_monitor_rev">level_monitor_rev (val)</a></td>
+	<td class="summary">reverb Monitor level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_ext_rev">level_ext_rev (val)</a></td>
+	<td class="summary">reverb EXT level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_rev_dac">level_rev_dac (val)</a></td>
+	<td class="summary">reverb DAC level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rev_param">rev_param (name, val)</a></td>
+	<td class="summary">set reverb parameter.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_on">comp_on ()</a></td>
+	<td class="summary">turn on compressor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_off">comp_off ()</a></td>
+	<td class="summary">turn off compressor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_mix">comp_mix (val)</a></td>
+	<td class="summary">compressor mix amount.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_param">comp_param (name, val)</a></td>
+	<td class="summary">set compressor parameter.</td>
+	</tr>
+</table>
+<h2><a href="#Tape_Functions">Tape Functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#tape_play_open">tape_play_open (file)</a></td>
+	<td class="summary">open a tape file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_play_start">tape_play_start ()</a></td>
+	<td class="summary">start tape playing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_play_stop">tape_play_stop ()</a></td>
+	<td class="summary">stop tape playing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_record_open">tape_record_open (file)</a></td>
+	<td class="summary">open a tape recording file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_record_start">tape_record_start ()</a></td>
+	<td class="summary">start tape recording.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_record_stop">tape_record_stop ()</a></td>
+	<td class="summary">stop tape recording.</td>
+	</tr>
+</table>
+<h2><a href="#Softcut_levels">Softcut levels </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#level_adc_cut">level_adc_cut (value)</a></td>
+	<td class="summary">softcut adc level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_ext_cut">level_ext_cut (value)</a></td>
+	<td class="summary">softcut ext level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_cut_rev">level_cut_rev (value)</a></td>
+	<td class="summary">softcut cut reverb level.</td>
+	</tr>
+</table>
 <h2><a href="#global_functions">global functions </a></h2>
 <table class="function_list">
 	<tr>
@@ -148,6 +232,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#adjust_output_level">adjust_output_level (delta)</a></td>
 	<td class="summary">adjust output level, clamped, save state.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_info">file_info (path)</a></td>
+	<td class="summary">print audio file info</td>
 	</tr>
 </table>
 
@@ -331,6 +419,356 @@
 
 </dd>
 </dl>
+    <h2 class="section-header "><a name="Effects_functions"></a>Effects functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "rev_on"></a>
+    <strong>rev_on ()</strong>
+    </dt>
+    <dd>
+    reverb on.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rev_off"></a>
+    <strong>rev_off ()</strong>
+    </dt>
+    <dd>
+    reverb off.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_monitor_rev"></a>
+    <strong>level_monitor_rev (val)</strong>
+    </dt>
+    <dd>
+    reverb Monitor level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_ext_rev"></a>
+    <strong>level_ext_rev (val)</strong>
+    </dt>
+    <dd>
+    reverb EXT level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_rev_dac"></a>
+    <strong>level_rev_dac (val)</strong>
+    </dt>
+    <dd>
+    reverb DAC level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rev_param"></a>
+    <strong>rev_param (name, val)</strong>
+    </dt>
+    <dd>
+    set reverb parameter.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+
+        </li>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_on"></a>
+    <strong>comp_on ()</strong>
+    </dt>
+    <dd>
+    turn on compressor.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_off"></a>
+    <strong>comp_off ()</strong>
+    </dt>
+    <dd>
+    turn off compressor.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_mix"></a>
+    <strong>comp_mix (val)</strong>
+    </dt>
+    <dd>
+    compressor mix amount.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_param"></a>
+    <strong>comp_param (name, val)</strong>
+    </dt>
+    <dd>
+    set compressor parameter.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+
+        </li>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tape_Functions"></a>Tape Functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "tape_play_open"></a>
+    <strong>tape_play_open (file)</strong>
+    </dt>
+    <dd>
+    open a tape file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_play_start"></a>
+    <strong>tape_play_start ()</strong>
+    </dt>
+    <dd>
+    start tape playing.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_play_stop"></a>
+    <strong>tape_play_stop ()</strong>
+    </dt>
+    <dd>
+    stop tape playing.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_record_open"></a>
+    <strong>tape_record_open (file)</strong>
+    </dt>
+    <dd>
+    open a tape recording file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_record_start"></a>
+    <strong>tape_record_start ()</strong>
+    </dt>
+    <dd>
+    start tape recording.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_record_stop"></a>
+    <strong>tape_record_stop ()</strong>
+    </dt>
+    <dd>
+    stop tape recording.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Softcut_levels"></a>Softcut levels </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "level_adc_cut"></a>
+    <strong>level_adc_cut (value)</strong>
+    </dt>
+    <dd>
+    softcut adc level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_ext_cut"></a>
+    <strong>level_ext_cut (value)</strong>
+    </dt>
+    <dd>
+    softcut ext level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_cut_rev"></a>
+    <strong>level_cut_rev (value)</strong>
+    </dt>
+    <dd>
+    softcut cut reverb level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
     <h2 class="section-header "><a name="global_functions"></a>global functions </h2>
 
     <dl class="function">
@@ -408,6 +846,26 @@
 
 
 </dd>
+    <dt>
+    <a name = "file_info"></a>
+    <strong>file_info (path)</strong>
+    </dt>
+    <dd>
+    print audio file info
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         (from dust directory)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
 </dl>
 
 
@@ -415,7 +873,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-03-04 05:06:36 </i>
+<i style="float:right;">Last updated 2019-04-04 09:33:04 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
