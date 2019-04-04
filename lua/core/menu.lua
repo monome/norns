@@ -1168,19 +1168,34 @@ local function get_update()
   menu.redraw()
   pcall(cleanup) -- shut down script
   norns.script.clear()
+  print("shutting down audio...")
   os.execute("sudo systemctl stop norns-jack.service") -- disable audio
+  print("clearing old updates...")
   os.execute("sudo rm -rf /home/we/update/*") -- clear old updates
   m.update.message = "downloading..."
   menu.redraw()
+  print("starting download...")
   os.execute("wget -T 180 -q -P /home/we/update/ " .. m.update.url) --download
   m.update.message = "unpacking update..."
   menu.redraw()
-  os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
-  m.update.message = "running update..."
-  menu.redraw()
-  os.execute("/home/we/update/"..m.update.version.."/update.sh")
-  m.update.message = "complete."
-  menu.redraw()
+  print("checksum validation...")
+  m.update.message = "checksum validation..."
+  local checksum = util.os_capture("cd /home/we/update; sha256sum -c /home/we/update/*.sha256 | grep OK")
+  if checksum:match("OK") then
+    print("unpacking...")
+    os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
+    m.update.message = "running update..."
+    menu.redraw()
+    print("running update...")
+    os.execute("/home/we/update/"..m.update.version.."/update.sh")
+    m.update.message = "complete."
+    menu.redraw()
+    print("update complete.")
+  else
+    print("update failed.")
+    m.update.message = "update failed."
+    menu.redraw()
+  end
 end
 
 m.key[pUPDATE] = function(n,z)
