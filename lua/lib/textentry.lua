@@ -1,4 +1,4 @@
---- te class
+-- te class
 
 local te = {}
 

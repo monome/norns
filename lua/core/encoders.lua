@@ -1,4 +1,4 @@
---- Encoders class
+-- Encoders class
 -- @module encoders
 
 local encoders = {}

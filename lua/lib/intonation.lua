@@ -2,8 +2,7 @@
 
 local JI = {}
 
------------------------------------------
---- 12-tone scales
+-- 12-tone scales
 
 -- small variation of ptolemaic 5-limit with closer minor 7th.
 -- taking cue from jeff snyder and calling this "normal" since it is most commonly used.
@@ -45,7 +44,8 @@ function JI.lamonte()
    }
 end
 
-----------------------------------------------
+
+
 -- higher-tone scales / gamuts
 
 -- gioseffo zarlino's 16-tone (5-limit)

@@ -1,4 +1,4 @@
---- Trigger class
+-- Trigger class
 -- @module trigger
 
 local Trigger = {}

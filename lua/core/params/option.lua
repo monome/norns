@@ -1,4 +1,4 @@
---- Option class
+-- Option class
 -- @module option
 
 local tab = require 'tabutil'

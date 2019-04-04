@@ -1,4 +1,4 @@
---- Separator class
+-- Separator class
 -- @module separator
 
 local Separator = {}

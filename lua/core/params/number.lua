@@ -1,4 +1,4 @@
---- Number class
+-- Number class
 -- @module number
 
 local Number = {}

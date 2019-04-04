@@ -1,4 +1,4 @@
---- norns.lua
+-- norns.lua
 -- main norns script.
 -- defines top-level global tables and functions needed by other modules
 -- @module norns
@@ -23,7 +23,7 @@ local engine = require 'core/engine'
 local poll = require 'core/poll'
 local tab = require 'tabutil'
 
---- Global Functions.
+-- Global Functions.
 -- @section global_functions
 
 -- global functions required by the C interface;
@@ -33,7 +33,7 @@ local tab = require 'tabutil'
 norns.battery_percent = 0
 norns.battery_current = 0
 
---- battery percent handler.
+-- battery percent handler.
 -- @param percent battery full percentage
 -- @param current
 norns.battery = function(percent, current)
@@ -42,14 +42,14 @@ norns.battery = function(percent, current)
   --print("battery: "..norns.battery_percent.."% "..norns.battery_current.."mA")
 end
 
---- power present handler.
+-- power present handler.
 -- @param present power plug present (0=no,1=yes)
 norns.power = function(present)
   norns.powerpresent = present
   --print("power: "..present)
 end
 
---- stat handler.
+-- stat handler.
 norns.stat = function(disk, temp, cpu)
   --print("stat",disk,temp,cpu)
   norns.disk = disk
@@ -112,7 +112,7 @@ norns.midi = {}
 -- osc callbacks (defined in osc.lua)
 norns.osc = {}
 
---- report callbacks
+-- report callbacks
 -- @section report
 
 norns.report = {}
@@ -131,21 +131,21 @@ norns.report.polls = function(names, count)
 end
 
 
---- called when all reports are complete after engine load.
+-- called when all reports are complete after engine load.
 norns.report.did_engine_load = function()
    print("norns.report.did_engine_load (default)")
    -- engine module should assign callback
 end
 
---- startup callbacks.
+-- startup callbacks.
 -- @section startup
 
---- startup handlers.
+-- startup handlers.
 norns.startup_status = {}
 norns.startup_status.ok = function() print("startup ok") end
 norns.startup_status.timeout = function() print("startup timeout") end
 
---- poll callback; used by C interface.
+-- poll callback; used by C interface.
 -- @param id identfier
 -- @param value value (float OR sequence of bytes)
 norns.poll = function(id, value)
@@ -158,7 +158,7 @@ norns.poll = function(id, value)
    end
 end
 
---- I/O level callback.
+-- I/O level callback.
 norns.vu = function(in1, in2, out1, out2)
    --print(in1 .. "\t" .. in2 .. "\t" .. out1 .. "\t" .. out2)
 end
@@ -166,11 +166,11 @@ end
 norns.softcut_phase = function(id, value)
   -- print(id,value)
 end
---- Audio.
+-- Audio.
 norns.audio = require 'core/audio'
 
 
---- Management.
+-- Management.
 -- @section management
 
 -- why are all of these made global here?
@@ -180,7 +180,7 @@ norns.encoders = require 'core/encoders'
 
 norns.enc = norns.encoders.process
 
---- Error handling.
+-- Error handling.
 norns.try = function(f,msg)
   local handler = function (err) return err .. "\n" .. debug.traceback() end
   local status, err = xpcall(f, handler)
@@ -191,20 +191,20 @@ norns.try = function(f,msg)
   return status
 end
 
---- Null functions.
+-- Null functions.
 -- @section null
 
---- do nothing.
+-- do nothing.
 norns.none = function() end
 
---- blank screen.
+-- blank screen.
 norns.blank = function()
   s_clear()
   s_update()
 end
 
 
---- startup function will be run after I/O subsystems are initialized,
+-- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 _startup = function()
   print("norns.lua:startup()")

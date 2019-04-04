@@ -1,4 +1,4 @@
---- File class
+-- File class
 -- @module file
 
 local File = {}
