@@ -33,7 +33,15 @@ require 'core/menu'
 
 -- global include function
 function include(file)
-  return dofile(_path.code .. file .. '.lua')
+  local here = norns.state.path .. file .. '.lua'
+  local there = _path.code .. file .. '.lua'
+  if util.file_exists(here) then 
+    print("including "..here)
+    return dofile(here)
+  else
+    print("including "..there)
+    return dofile(there)
+  end
 end
 
 
