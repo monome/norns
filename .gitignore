@@ -29,3 +29,6 @@ crone/dsp/
 crone/build-debinfo/
 
 crone/build-release/
+
+# Jekyll
+_site
