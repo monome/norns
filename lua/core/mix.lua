@@ -14,9 +14,9 @@ local cs_MUTE_LEVEL = cs.new(-math.huge,0,'db',0,-math.huge,"dB")
 mix:add_control("monitor", "monitor", cs_MUTE_LEVEL)
 mix:set_action("monitor",
   function(x) audio.level_monitor(util.dbamp(x)) end)
-mix:add_control("ext", "ext", cs_MAIN_LEVEL)
-mix:set_action("ext",
-  function(x) audio.level_ext(util.dbamp(x)) end)
+mix:add_control("engine", "engine", cs_MAIN_LEVEL)
+mix:set_action("engine",
+  function(x) audio.level_eng(util.dbamp(x)) end)
 mix:add_control("softcut", "softcut", cs_MAIN_LEVEL)
 mix:set_action("softcut",
   function(x) audio.level_cut(util.dbamp(x)) end)
@@ -53,11 +53,11 @@ local cs_DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
 local cs_DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
 local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 
-mix:add_control("rev_ext_input", "rev ext input", cs_DB_LEVEL_9DB)
-mix:set_action("rev_ext_input",
-  function(x) audio.level_ext_rev(util.dbamp(x)) end)
+mix:add_control("rev_eng_input", "rev eng input", cs_DB_LEVEL_9DB)
+mix:set_action("rev_eng_input",
+  function(x) audio.level_eng_rev(util.dbamp(x)) end)
 
-mix:add_control("rev_cut_input", "rev cut input", cs_DB_LEVEL_MUTE)
+mix:add_control("rev_cut_input", "rev cut input", cs_DB_LEVEL_9DB)
 mix:set_action("rev_cut_input",
   function(x) audio.level_cut_rev(util.dbamp(x)) end)
 

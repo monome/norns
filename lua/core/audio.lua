@@ -22,7 +22,7 @@ Audio.level_dac = function(level)
   _norns.level_dac(level)
 end
 
-Audio.level_ext = function(level)
+Audio.level_eng = function(level)
   _norns.level_ext(level)
 end
 
@@ -92,9 +92,9 @@ function Audio.level_monitor_rev(val)
    _norns.level_monitor_rev(val)
 end
 
---- reverb EXT level.
+--- reverb ENGINE level.
 -- @param val
-function Audio.level_ext_rev(val)
+function Audio.level_eng_rev(val)
    _norns.level_ext_rev(val)
 end
 
@@ -181,9 +181,9 @@ Audio.level_adc_cut = function(value)
   _norns.level_adc_cut(value)
 end
 
---- softcut ext level.
+--- softcut eng level.
 -- @param value
-Audio.level_ext_cut = function(value)
+Audio.level_eng_cut = function(value)
   _norns.level_ext_cut(value)
 end
 
