@@ -1,0 +1,50 @@
+top = '../..'
+
+
+def options(opt):
+    opt.load('compiler_c compiler_cxx')
+
+def configure(conf):
+    conf.load('compiler_c compiler_cxx')
+
+def build(bld):
+    crone_sources = [
+        'src/main.cpp',
+        'src/OscInterface.cpp',
+        'src/Commands.cpp',
+        'src/MixerClient.cpp',
+        'src/SoftCutClient.cpp',
+        'src/Window.cpp',
+        'src/softcut/FadeCurves.cpp',
+        'src/softcut/SoftCutHead.cpp', 
+        'src/softcut/SoftCutVoice.cpp',
+        'src/softcut/SubHead.cpp',
+        'src/softcut/Svf.cpp',
+        'src/softcut/TestBuffers.cpp'
+    ]
+
+    bld.program( features='c cxx cxxprogram',
+                 source=crone_sources,
+                 target='crone',
+
+                 includes=[
+                     'src',
+                     './'
+                 ],
+
+                 use=[
+                     'ALSA',
+                     'LIBLO',
+                     'BOOST',
+                 ],
+                 lib=[
+                     'jack',
+                     'pthread',
+                     'm',
+                     'sndfile'
+                 ],
+                 cxxflags=[
+                     '-std=c++14',
+                     '-O2',
+                     '-Wall'
+                 ])

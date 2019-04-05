@@ -11,10 +11,11 @@ def get_version_hash():
         return ''
 
 def options(opt):
-    opt.load('compiler_c compiler_cxx')
+    opt.load('compiler_c compiler_cxx boost')
+    opt.add_option('--desktop', action='store_true', default=False)
 
 def configure(conf):
-    conf.load('compiler_c compiler_cxx')
+    conf.load('compiler_c compiler_cxx boost')
 
     conf.define('VERSION_MAJOR', 0)
     conf.define('VERSION_MINOR', 0)
@@ -55,11 +56,17 @@ def configure(conf):
             '/usr/local/include/SuperCollider/plugin_interface',
             '/usr/local/include/SuperCollider/common',
             '/sc/external_libraries/nova-simd'
-	],
+        ],
         header_name='SC_PlugIn.h',
         uselib_store='SUPERCOLLIDER')
+
+    conf.check_boost()
+    if conf.options.desktop:
+        conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
+        conf.define('NORNS_DESKTOP', True)
 
 def build(bld):
     bld.recurse('matron')
     bld.recurse('ws-wrapper')
     bld.recurse('sc')
+    bld.recurse('crone')

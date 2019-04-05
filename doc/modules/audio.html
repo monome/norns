@@ -33,6 +33,9 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Effects_functions">Effects functions </a></li>
+<li><a href="#Tape_Functions">Tape Functions </a></li>
+<li><a href="#Softcut_levels">Softcut levels </a></li>
 <li><a href="#global_functions">global functions </a></li>
 <li><a href="#helpers">helpers </a></li>
 </ul>
@@ -40,33 +43,29 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
   <li><strong>audio</strong></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/log.html">log</a></li>
-  <li><a href="../modules/menu.html">menu</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
-  <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
   <li><a href="../modules/control.html">control</a></li>
-  <li><a href="../modules/file.html">file</a></li>
-  <li><a href="../modules/number.html">number</a></li>
-  <li><a href="../modules/option.html">option</a></li>
-  <li><a href="../modules/separator.html">separator</a></li>
-  <li><a href="../modules/taper.html">taper</a></li>
-  <li><a href="../modules/trigger.html">trigger</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
-  <li><a href="../modules/state.html">state</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/elca.html">elca</a></li>
+  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/textentry.html">textentry</a></li>
-  <li><a href="../modules/update.html">update</a></li>
+  <li><a href="../modules/UI.html">UI</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 
@@ -82,61 +81,151 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#input_level">input_level (channel, level)</a></td>
-	<td class="summary">set level for one input channel</td>
+	<td class="name" nowrap><a href="#headphone_gain">headphone_gain (gain)</a></td>
+	<td class="summary">set headphone gain.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#output_level">output_level (level)</a></td>
-	<td class="summary">set level for *both* output channels</td>
+	<td class="name" nowrap><a href="#level_adc">level_adc (level)</a></td>
+	<td class="summary">set level for ADC input.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_dac">level_dac (level)</a></td>
+	<td class="summary">set level for *both* output channels.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monitor_mono">monitor_mono ()</a></td>
-	<td class="summary">set monitor mode to mono
- both inputs will be mixed to both outputs</td>
+	<td class="summary">set monitor mode to mono.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monitor_stereo">monitor_stereo ()</a></td>
-	<td class="summary">set monitor mode to stereo
- each input will be monitored on the respective output</td>
+	<td class="summary">set monitor mode to stereo.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#monitor_on">monitor_on ()</a></td>
-	<td class="summary">enable monitoring (may cause clicks)</td>
+	<td class="name" nowrap><a href="#level_tape">level_tape (level)</a></td>
+	<td class="summary">set tape level.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#monitor_off">monitor_off ()</a></td>
-	<td class="summary">disable monitoring (may cause clicks)</td>
+	<td class="name" nowrap><a href="#level_cut">level_cut (level)</a></td>
+	<td class="summary">set cut master level.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pitch_on">pitch_on ()</a></td>
-	<td class="summary">enable input pitch analysis</td>
+	<td class="summary">enable input pitch analysis.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pitch_off">pitch_off ()</a></td>
-	<td class="summary">disable input pitch analysis (saves CPU)</td>
+	<td class="summary">disable input pitch analysis (saves CPU).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#restart">restart ()</a></td>
-	<td class="summary">restart the audio engine (recompile sclang)</td>
+	<td class="summary">restart the audio engine (recompile sclang).</td>
+	</tr>
+</table>
+<h2><a href="#Effects_functions">Effects functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#rev_on">rev_on ()</a></td>
+	<td class="summary">reverb on.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rev_off">rev_off ()</a></td>
+	<td class="summary">reverb off.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_monitor_rev">level_monitor_rev (val)</a></td>
+	<td class="summary">reverb Monitor level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_ext_rev">level_ext_rev (val)</a></td>
+	<td class="summary">reverb EXT level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_rev_dac">level_rev_dac (val)</a></td>
+	<td class="summary">reverb DAC level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rev_param">rev_param (name, val)</a></td>
+	<td class="summary">set reverb parameter.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_on">comp_on ()</a></td>
+	<td class="summary">turn on compressor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_off">comp_off ()</a></td>
+	<td class="summary">turn off compressor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_mix">comp_mix (val)</a></td>
+	<td class="summary">compressor mix amount.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#comp_param">comp_param (name, val)</a></td>
+	<td class="summary">set compressor parameter.</td>
+	</tr>
+</table>
+<h2><a href="#Tape_Functions">Tape Functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#tape_play_open">tape_play_open (file)</a></td>
+	<td class="summary">open a tape file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_play_start">tape_play_start ()</a></td>
+	<td class="summary">start tape playing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_play_stop">tape_play_stop ()</a></td>
+	<td class="summary">stop tape playing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_record_open">tape_record_open (file)</a></td>
+	<td class="summary">open a tape recording file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_record_start">tape_record_start ()</a></td>
+	<td class="summary">start tape recording.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_record_stop">tape_record_stop ()</a></td>
+	<td class="summary">stop tape recording.</td>
+	</tr>
+</table>
+<h2><a href="#Softcut_levels">Softcut levels </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#level_adc_cut">level_adc_cut (value)</a></td>
+	<td class="summary">softcut adc level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_ext_cut">level_ext_cut (value)</a></td>
+	<td class="summary">softcut ext level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_cut_rev">level_cut_rev (value)</a></td>
+	<td class="summary">softcut cut reverb level.</td>
 	</tr>
 </table>
 <h2><a href="#global_functions">global functions </a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#vu">vu (in1, in2, out1, out2)</a></td>
-	<td class="summary">callback for VU meters
- scripts should redefine this</td>
+	<td class="summary">callback for VU meters.</td>
 	</tr>
 </table>
 <h2><a href="#helpers">helpers </a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#set_audio_level">set_audio_level (value)</a></td>
-	<td class="summary">set output level, clamped, save state</td>
+	<td class="summary">set output level, clamped, save state.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#adjust_output_level">adjust_output_level (delta)</a></td>
-	<td class="summary">adjust output level, clamped, save state</td>
+	<td class="summary">adjust output level, clamped, save state.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_info">file_info (path)</a></td>
+	<td class="summary">print audio file info</td>
 	</tr>
 </table>
 
@@ -148,18 +237,35 @@
 
     <dl class="function">
     <dt>
-    <a name = "input_level"></a>
-    <strong>input_level (channel, level)</strong>
+    <a name = "headphone_gain"></a>
+    <strong>headphone_gain (gain)</strong>
     </dt>
     <dd>
-    set level for one input channel
+    set headphone gain.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">channel</span>
-         (1 or 2)
+        <li><span class="parameter">gain</span>
+         (0-64)
         </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_adc"></a>
+    <strong>level_adc (level)</strong>
+    </dt>
+    <dd>
+    set level for ADC input.
+
+
+    <h3>Parameters:</h3>
+    <ul>
         <li><span class="parameter">level</span>
          in [0, 1]
         </li>
@@ -171,11 +277,11 @@
 
 </dd>
     <dt>
-    <a name = "output_level"></a>
-    <strong>output_level (level)</strong>
+    <a name = "level_dac"></a>
+    <strong>level_dac (level)</strong>
     </dt>
     <dd>
-    set level for *both* output channels
+    set level for *both* output channels.
 
 
     <h3>Parameters:</h3>
@@ -195,8 +301,8 @@
     <strong>monitor_mono ()</strong>
     </dt>
     <dd>
-    set monitor mode to mono
- both inputs will be mixed to both outputs
+    set monitor mode to mono.
+ both inputs will be mixed to both outputs.
 
 
 
@@ -210,8 +316,8 @@
     <strong>monitor_stereo ()</strong>
     </dt>
     <dd>
-    set monitor mode to stereo
- each input will be monitored on the respective output
+    set monitor mode to stereo.
+ each input will be monitored on the respective output.
 
 
 
@@ -221,13 +327,19 @@
 
 </dd>
     <dt>
-    <a name = "monitor_on"></a>
-    <strong>monitor_on ()</strong>
+    <a name = "level_tape"></a>
+    <strong>level_tape (level)</strong>
     </dt>
     <dd>
-    enable monitoring (may cause clicks)
+    set tape level.
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">level</span>
+         [0,1]
+        </li>
+    </ul>
 
 
 
@@ -235,13 +347,19 @@
 
 </dd>
     <dt>
-    <a name = "monitor_off"></a>
-    <strong>monitor_off ()</strong>
+    <a name = "level_cut"></a>
+    <strong>level_cut (level)</strong>
     </dt>
     <dd>
-    disable monitoring (may cause clicks)
+    set cut master level.
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">level</span>
+         [0,1]
+        </li>
+    </ul>
 
 
 
@@ -253,7 +371,7 @@
     <strong>pitch_on ()</strong>
     </dt>
     <dd>
-    enable input pitch analysis
+    enable input pitch analysis.
 
 
 
@@ -267,7 +385,7 @@
     <strong>pitch_off ()</strong>
     </dt>
     <dd>
-    disable input pitch analysis (saves CPU)
+    disable input pitch analysis (saves CPU).
 
 
 
@@ -281,9 +399,359 @@
     <strong>restart ()</strong>
     </dt>
     <dd>
-    restart the audio engine (recompile sclang)
+    restart the audio engine (recompile sclang).
 
 
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Effects_functions"></a>Effects functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "rev_on"></a>
+    <strong>rev_on ()</strong>
+    </dt>
+    <dd>
+    reverb on.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rev_off"></a>
+    <strong>rev_off ()</strong>
+    </dt>
+    <dd>
+    reverb off.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_monitor_rev"></a>
+    <strong>level_monitor_rev (val)</strong>
+    </dt>
+    <dd>
+    reverb Monitor level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_ext_rev"></a>
+    <strong>level_ext_rev (val)</strong>
+    </dt>
+    <dd>
+    reverb EXT level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_rev_dac"></a>
+    <strong>level_rev_dac (val)</strong>
+    </dt>
+    <dd>
+    reverb DAC level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rev_param"></a>
+    <strong>rev_param (name, val)</strong>
+    </dt>
+    <dd>
+    set reverb parameter.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+
+        </li>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_on"></a>
+    <strong>comp_on ()</strong>
+    </dt>
+    <dd>
+    turn on compressor.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_off"></a>
+    <strong>comp_off ()</strong>
+    </dt>
+    <dd>
+    turn off compressor.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_mix"></a>
+    <strong>comp_mix (val)</strong>
+    </dt>
+    <dd>
+    compressor mix amount.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "comp_param"></a>
+    <strong>comp_param (name, val)</strong>
+    </dt>
+    <dd>
+    set compressor parameter.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+
+        </li>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tape_Functions"></a>Tape Functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "tape_play_open"></a>
+    <strong>tape_play_open (file)</strong>
+    </dt>
+    <dd>
+    open a tape file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_play_start"></a>
+    <strong>tape_play_start ()</strong>
+    </dt>
+    <dd>
+    start tape playing.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_play_stop"></a>
+    <strong>tape_play_stop ()</strong>
+    </dt>
+    <dd>
+    stop tape playing.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_record_open"></a>
+    <strong>tape_record_open (file)</strong>
+    </dt>
+    <dd>
+    open a tape recording file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_record_start"></a>
+    <strong>tape_record_start ()</strong>
+    </dt>
+    <dd>
+    start tape recording.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_record_stop"></a>
+    <strong>tape_record_stop ()</strong>
+    </dt>
+    <dd>
+    stop tape recording.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Softcut_levels"></a>Softcut levels </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "level_adc_cut"></a>
+    <strong>level_adc_cut (value)</strong>
+    </dt>
+    <dd>
+    softcut adc level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_ext_cut"></a>
+    <strong>level_ext_cut (value)</strong>
+    </dt>
+    <dd>
+    softcut ext level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_cut_rev"></a>
+    <strong>level_cut_rev (value)</strong>
+    </dt>
+    <dd>
+    softcut cut reverb level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
 
 
 
@@ -299,8 +767,8 @@
     <strong>vu (in1, in2, out1, out2)</strong>
     </dt>
     <dd>
-    callback for VU meters
- scripts should redefine this
+    callback for VU meters.
+ scripts should redefine this.
 
 
     <h3>Parameters:</h3>
@@ -333,7 +801,7 @@
     <strong>set_audio_level (value)</strong>
     </dt>
     <dd>
-    set output level, clamped, save state
+    set output level, clamped, save state.
 
 
     <h3>Parameters:</h3>
@@ -353,13 +821,33 @@
     <strong>adjust_output_level (delta)</strong>
     </dt>
     <dd>
-    adjust output level, clamped, save state
+    adjust output level, clamped, save state.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">delta</span>
          amount to change output level
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_info"></a>
+    <strong>file_info (path)</strong>
+    </dt>
+    <dd>
+    print audio file info
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         (from dust directory)
         </li>
     </ul>
 
@@ -375,7 +863,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-10-08 09:41:02 </i>
+<i style="float:right;">Last updated 2019-04-04 20:07:57 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

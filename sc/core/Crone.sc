@@ -1,71 +1,103 @@
 // the Crone, a singleton class
 // it receives OSC from *matron* and manages the current CroneEngine
 Crone {
+	classvar <>bootOnInit = true;
 	// the audio server
 	classvar <>server;
-	// audio to disk recorder / player
-	classvar <>recorder;
-	classvar <>recorderState = 'init';
-	classvar <>recordingsDir;
-	classvar <>player;
-	classvar <>playerClock;
-  classvar <>play_position;
-	classvar <>playerState = 'init';
-	classvar <>playerFile;
 	// current CroneEngine subclass instance
 	classvar <>engine;
 	// available OSC functions
 	classvar <>oscfunc;
 	// address of remote client
 	classvar <>remoteAddr;
-	// port to send OSC on
+	// port for sending OSC to matron
 	classvar <>txPort = 8888;
+	// server port
+	classvar <>serverPort = 57122;
 	// a CroneAudioContext
 	classvar <>context;
 	// boot completion flag
 	classvar complete = 0;
 
-	// VU report thread
-	classvar vuThread;
-	// VU report interval
-	classvar vuInterval;
+	classvar useRemoteServer = false;
+
+	classvar <croneAddr;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
+			croneAddr = NetAddr("127.0.0.1", 9999);
+
 			postln("\n-------------------------------------------------");
 			postln(" Crone startup");
 			postln("");
-			postln(" \OSC rx port: " ++ NetAddr.langPort);
-			postln(" \OSC tx port: " ++ txPort);
+			postln(" OSC rx port: " ++ NetAddr.langPort);
+			postln(" OSC tx port: " ++ txPort);
+			postln(" server port: " ++ serverPort);
+			postln(" server port: " ++ croneAddr.port);
 			postln("--------------------------------------------------\n");
 
-			recordingsDir = Platform.userHomeDir ++ "/dust/audio/tape";
+			remoteAddr = NetAddr("127.0.0.1", txPort);
 
-			// FIXME? matron address is hardcoded here
-			remoteAddr =NetAddr("127.0.0.1", txPort);
+			"SC_JACK_DEFAULT_INPUTS".setenv("");
+			"SC_JACK_DEFAULT_OUTPUTS".setenv("");
 
-			Server.supernova;
+			if (Crone.bootOnInit) {
+				Crone.startBoot;
+			}
+		}
+	}
+
+	*runShellCommand { arg str;
+		var p,l;
+		p = Pipe.new(str, "r");
+		l = p.getLine;
+		while({l.notNil}, {l.postln; l = p.getLine; });
+		p.close;
+	}
+
+	*startBoot {
+		if(useRemoteServer, {
+			Server.default = Server.remote(\crone, NetAddr("127.0.0.1", serverPort));
+			server = Server.default;
+			server.doWhenBooted {
+				Crone.finishBoot;
+			};
+		}, {
+			Server.scsynth;
 			server = Server.local;
-			// don't use with supernova
+			// doesn't work on supernova - "invallid argument" - too big?
 			// server.options.memSize = 2**16;
 			server.latency = 0.05;
-
 			server.waitForBoot {
-				CroneDefs.sendDefs(server);
-				server.sync;
-				// create the audio context (boilerplate routing and analysis)
-				context = CroneAudioContext.new(server);
-
-				Crone.initOscRx;
-				Crone.initVu;
-				Crone.initTape;
-				CroneEffects.init;
-
-				complete = 1;
+				Crone.finishBoot;
 			};
+		});
+	}
 
-		}
+	*finishBoot {
+		// FIXME: connect to `crone` client instead
+		//Crone.runShellCommand("jack_connect \"crone:output_5\" \"supernova:input_1\"");
+		//Crone.runShellCommand("jack_connect \"crone:output_6\" \"supernova:input_2\"");
+		Crone.runShellCommand("jack_connect \"crone:output_5\" \"SuperCollider:in_1\"");
+		Crone.runShellCommand("jack_connect \"crone:output_6\" \"SuperCollider:in_2\"");
+
+		//Crone.runShellCommand("jack_connect \"supernova:output_1\" \"crone:input_5\"");
+		//Crone.runShellCommand("jack_connect \"supernova:output_2\" \"crone:input_6\"");
+		Crone.runShellCommand("jack_connect \"SuperCollider:out_1\" \"crone:input_5\"");
+		Crone.runShellCommand("jack_connect \"SuperCollider:out_2\" \"crone:input_6\"");
+
+		CroneDefs.sendDefs(server);
+		server.sync;
+		// create the audio context (boilerplate routing and analysis)
+		context = CroneAudioContext.new(server);
+
+		Crone.initOscRx;
+
+		complete = 1;
+
+		/// test..
+		{ SinOsc.ar([218,223]) * 0.125 * EnvGen.ar(Env.linen(2, 4, 6), doneAction:2) }.play(server);
 
 	}
 
@@ -94,6 +126,10 @@ Crone {
 					this.reportPolls;
 				});
 			}
+		}, {
+		   postln("warning: didn't find engine: " ++ name.asString);
+		   this.reportCommands;
+		   this.reportPolls;
 		});
 	}
 
@@ -169,158 +205,6 @@ Crone {
 		});
 
 		remoteAddr.sendMsg('/report/polls/end');
-	}
-
-	*tapeNewfile { |filename|
-		var prepareFunc = {
-			recorder.prepareForRecord(recordingsDir +/+ filename, 2);
-			server.sync;
-			recorderState = 'prepared';
-			postln("tape recorder state:" + recorderState);
-			remoteAddr.sendMsg('/tape/rec/state', recorderState);
-			remoteAddr.sendMsg('/tape/rec/filename', filename);
-			postln("tape recorder filename:" + filename);
-		};
-		if (#[stopped, prepared, init].includes(recorderState).not) {
-			fork {
-				recorder.stopRecording;
-				server.sync;
-				recorderState = 'stopped';
-				remoteAddr.sendMsg('/tape/rec/state', recorderState);
-				postln("tape recorder state:" + recorderState);
-				prepareFunc.fork;
-			};
-		} {
-			prepareFunc.fork;
-		};
-	}
-
-	*tapeStartRec {
-		fork {
-			switch (recorderState)
-				{ 'prepared' } {
-					recorder.record(bus: 0, node: context.server.defaultGroup); // TODO: this records *everything* - what to record really?
-				}
-				{ 'paused' } {
-					recorder.record;
-				} !? {
-					server.sync;
-					recorderState = 'recording';
-					postln("tape recorder state:" + recorderState);
-					remoteAddr.sendMsg('/tape/rec/state', recorderState);
-				}
-		};
-	}
-
-	*tapePauseRec {
-		if (recorderState == \recording) {
-			fork {
-				recorder.pauseRecording;
-				server.sync;
-				recorderState = 'paused';
-				postln("tape recorder state:" + recorderState);
-				remoteAddr.sendMsg('/tape/rec/state', recorderState);
-			};
-		};
-	}
-
-	*tapeStopRec {
-		if (#[recording, paused].includes(recorderState)) {
-			fork {
-				recorder.stopRecording;
-				server.sync;
-				recorderState = 'stopped';
-				postln("tape recorder state:" + recorderState);
-				remoteAddr.sendMsg('/tape/rec/state', recorderState);
-			};
-		};
-	}
-
-	*tapeOpenfile { |filename|
-		filename = filename.asString;
-		postln("tape, load:" + filename.quote);
-		if (PathName(filename).isFile) {
-			if (#[playing, paused, fileopened].includes(playerState)) {
-				player.stop;
-			};
-			fork {
-				SynthDef('cronetape', { | out, amp = 1, bufnum, gate = 1|
-					Out.ar(out, DiskIn.ar(2, bufnum, loop:1 )
-					* EnvGen.kr(Env.asr(0.01, 1.0, 0.1), gate:gate, doneAction:2) * Lag.kr(amp))
-				}).add;
-
-				playerFile = filename;
-				player = SoundFile(playerFile).cue(
-					(
-						out: context.out_b,
-						instrument: \cronetape
-					)
-				);
-				server.sync;
-        play_position = 0;
-				playerClock.beats = 0;
-				playerState = 'fileopened';
-				postln("tape player state:" + playerState);
-				remoteAddr.sendMsg('/tape/play/state', playerState);
-				remoteAddr.sendMsg('/tape/play/filename', filename);
-				postln("tape player filename:" + filename.quote);
-			};
-		} {
-			postln("tape error, file" + filename.quote + "does not exist");
-		};
-	}
-
-	*tapePlay { |filename|
-		if (#[paused, fileopened].includes(playerState)) {
-			fork {
-				player.play;
-        if (play_position == 0, { playerClock.beats = 0 },
-          { playerClock.beats = play_position });
-				server.sync;
-				playerState = 'playing';
-				postln("tape player state:" + playerState);
-				remoteAddr.sendMsg('/tape/play/state', playerState);
-			};
-		};
-	}
-
-	*tapePause { |filename|
-		if (playerState == 'playing') {
-			fork {
-        play_position = playerClock.beats;
-				player.pause;
-				server.sync;
-				playerState = 'paused';
-				postln("tape player state:" + playerState);
-				remoteAddr.sendMsg('/tape/play/state', playerState);
-			};
-		};
-	}
-
-	*tapeReset { |filename| // this is a hack to get this going: file is closed, reopened and played from the beginning
-		if (#[playing, paused].includes(playerState)) {
-			fork {
-				var stateWas = playerState;
-        play_position = 0;
-				player.close;
-				this.tapeOpenfile(playerFile);
-				if (stateWas == 'playing') {
-					0.1.wait;
-					this.tapePlay;
-				} {
-					playerState == 'paused';
-				}
-			};
-		};
-	}
-
-	*initVu {
-		// VU levels are reported to a dedicated OSC address.
-		vuInterval = 0.05;
-		vuThread = Routine { inf.do {
-			remoteAddr.sendMsg('/poll/vu', context.buildVuBlob);
-			vuInterval.wait;
-		}}.play;
 	}
 
 	*initOscRx {
@@ -411,11 +295,10 @@ Crone {
 			// @section AudioContext control
 
 			// @function /audio/input/level
-			// @param input channel (integer: 0 or 1)
 			// @param level in db (float: -inf..)
 			'/audio/input/level':OSCFunc.new({
 				arg msg, time, addr, recvPort;
-				context.inputLevel(msg[1], msg[2]);
+				context.inputLevel(msg[1]);
 			}, '/audio/input/level'),
 
 			// @function /audio/output/level
@@ -475,170 +358,8 @@ Crone {
 				postln("recompile...");
 				thisProcess.recompile;
 			}, '/recompile'),
-
-			// @section tape
-
-			/// determines file to record
-			// @function /tape/newfile
-			// @param filename (string)
-			'/tape/newfile':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapeNewfile(msg[1]);
-			}, '/tape/newfile'),
-
-			/// start / resume recording
-			// @function /tape/start_rec
-			'/tape/start_rec':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapeStartRec;
-			}, '/tape/start_rec'),
-
-			/// pause recording
-			// @function /tape/pause_rec
-			'/tape/pause_rec':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapePauseRec;
-			}, '/tape/pause_rec'),
-
-			/// set tape level
-			// @function /tape/level
-			'/tape/level':OSCFunc.new({
-			  arg msg, time, addr, recvPort;
-			  Node.basicNew(server, player.id.first).set(\amp, msg[1].dbamp);
-			}, '/tape/level'),
-
-			/// stop recording and close file
-			// @function /tape/stop_rec
-			'/tape/stop_rec':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapeStopRec;
-			}, '/tape/stop_rec'),
-
-			/// determines file to play
-			// @function /tape/openfile
-			// @param path (string)
-			'/tape/openfile':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapeOpenfile(msg[1]);
-			}, '/tape/openfile'),
-
-			/// starts playing file
-			// @function /tape/play
-			'/tape/play':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapePlay;
-			}, '/tape/play'),
-
-			/// pauses playing file
-			// @function /tape/pause
-			'/tape/pause':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapePause;
-			}, '/tape/pause'),
-
-			/// reset playpos to 0
-			// @function /tape/stop
-			'/tape/reset':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.tapeReset;
-			}, '/tape/reset'),
-
-
-			'/auxfx/on':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.aux_enable;
-			}, '/auxfx/on'),
-
-			'/auxfx/off':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.aux_disable;
-			}, '/auxfx/off'),
-
-			'/auxfx/input/level':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.set_in_aux_db(msg[1], msg[2]);
-			}, '/auxfx/input/level'),
-
-			'/auxfx/input/pan':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.set_in_aux_pan(msg[1], msg[2]);
-			}, '/auxfx/input/pan'),
-
-			'/auxfx/output/level':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.set_out_aux_db(msg[1]);
-			}, '/auxfx/output/level'),
-
-			'/auxfx/return/level':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.set_aux_return_db(msg[1]);
-			}, '/auxfx/return/level'),
-
-			'/auxfx/param':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.set_aux_param(msg[1], msg[2]);
-			}, '/auxfx/param'),
-
-			'/insertfx/on':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.ins_enable;
-			}, '/insertfx/on'),
-
-			'/insertfx/off':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.ins_disable;
-			}, '/insertfx/off'),
-
-			'/insertfx/mix':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.set_ins_wet_mix(msg[1]);
-			}, '/insertfx/mix'),
-
-			'/insertfx/param':OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				postln(msg);
-				CroneEffects.set_ins_param(msg[1], msg[2]);
-			}, '/insertfx/param'),
 		);
 
-	}
-
-	*initTape {
-		recorder = Recorder.new(server);
-		recorder.recSampleFormat = "int16";
-		playerClock = TempoClock.new;
-    play_position = 0;
-
-		CronePollRegistry.register(
-			name: \tape_rec_dur,
-			func: {
-				recorder.duration // TODO: appears to only send duration as an integer(?)
-			},
-			dt: 0.1,
-			type: \value
-		);
-		CronePollRegistry.register(
-			name: \tape_play_pos,
-			func: {
-				if (#[playing].includes(playerState)) {
-					playerClock.beats // TODO: this doesn't work with tapePause
-				} {
-				  play_position
-				};
-			},
-			dt: 0.1,
-			type: \value
-		);
 	}
 }
 
