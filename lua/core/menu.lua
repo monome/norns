@@ -1303,7 +1303,7 @@ end
 
 m.enc[pMIX] = function(n,d)
   local ch1 = {"output", "monitor", "softcut"}
-  local ch2 = {"input", "ext", "tape"}
+  local ch2 = {"input", "engine", "tape"}
 
   if n==2 then
     mix:delta(ch1[m.mix.sel],d)
@@ -1354,7 +1354,7 @@ m.redraw[pMIX] = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("ext")*48
+  n = mix:get_raw("engine")*48
   screen.rect(x+108.5,55.5,2,-n)
   screen.stroke()
 
@@ -1377,7 +1377,7 @@ m.redraw[pMIX] = function()
   screen.move(46,63)
   screen.text("mon")
   screen.move(68,63)
-  screen.text("ext")
+  screen.text("eng")
   screen.level(m.mix.sel==3 and 15 or 1)
   screen.move(90,63)
   screen.text("cut")
