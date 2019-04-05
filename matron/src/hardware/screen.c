@@ -4,6 +4,7 @@
  * oled
  */
 
+#include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +24,7 @@
 #define CHECK_CRR if (cr == NULL) {return 0; }
 #endif
 
-#define NUM_FONTS 14
+#define NUM_FONTS 67
 static char font_path[NUM_FONTS][32];
 
 static float c[16] =
@@ -167,21 +168,85 @@ void screen_init(void) {
         return;
     }
 
-    strcpy(font_path[0],"04B_03__.TTF");
-    strcpy(font_path[1],"liquid.ttf");
-    strcpy(font_path[2],"Roboto-Thin.ttf");
-    strcpy(font_path[3],"Roboto-Light.ttf");
-    strcpy(font_path[4],"Roboto-Regular.ttf");
-    strcpy(font_path[5],"Roboto-Medium.ttf");
-    strcpy(font_path[6],"Roboto-Bold.ttf");
-    strcpy(font_path[7],"Roboto-Black.ttf");
-    strcpy(font_path[8],"Roboto-ThinItalic.ttf");
-    strcpy(font_path[9],"Roboto-LightItalic.ttf");
-    strcpy(font_path[10],"Roboto-Italic.ttf");
-    strcpy(font_path[11],"Roboto-MediumItalic.ttf");
-    strcpy(font_path[12],"Roboto-BoldItalic.ttf");
-    strcpy(font_path[13],"Roboto-BlackItalic.ttf");
+    strcpy(font_path[0], "04B_03__.TTF");
+    strcpy(font_path[1], "liquid.ttf");
+    strcpy(font_path[2], "Roboto-Thin.ttf");
+    strcpy(font_path[3], "Roboto-Light.ttf");
+    strcpy(font_path[4], "Roboto-Regular.ttf");
+    strcpy(font_path[5], "Roboto-Medium.ttf");
+    strcpy(font_path[6], "Roboto-Bold.ttf");
+    strcpy(font_path[7], "Roboto-Black.ttf");
+    strcpy(font_path[8], "Roboto-ThinItalic.ttf");
+    strcpy(font_path[9], "Roboto-LightItalic.ttf");
+    strcpy(font_path[10], "Roboto-Italic.ttf");
+    strcpy(font_path[11], "Roboto-MediumItalic.ttf");
+    strcpy(font_path[12], "Roboto-BoldItalic.ttf");
+    strcpy(font_path[13], "Roboto-BlackItalic.ttf");
+    strcpy(font_path[14], "VeraBd.ttf");
+    strcpy(font_path[15], "VeraBI.ttf");
+    strcpy(font_path[16], "VeraIt.ttf");
+    strcpy(font_path[17], "VeraMoBd.ttf");
+    strcpy(font_path[18], "VeraMoBI.ttf");
+    strcpy(font_path[19], "VeraMoIt.ttf");
+    strcpy(font_path[20], "VeraMono.ttf");
+    strcpy(font_path[21], "VeraSeBd.ttf");
+    strcpy(font_path[22], "VeraSe.ttf");
+    strcpy(font_path[23], "Vera.ttf");
+    //------------------
+    // bitmap fonts
+    strcpy(font_path[24], "bmp/tom-thumb.bdf");
+    // FIXME: this is totally silly...
+    int i = 25;
+    strcpy(font_path[i++], "bmp/creep.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-10b.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-10r.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-13b.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-13b-i.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-13r.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-13r-i.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-16b.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-16b-i.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-16r.bdf");
+    strcpy(font_path[i++], "bmp/ctrld-fixed-16r-i.bdf");
+    strcpy(font_path[i++], "bmp/scientifica-11.bdf");
+    strcpy(font_path[i++], "bmp/scientificaBold-11.bdf");
+    strcpy(font_path[i++], "bmp/scientificaItalic-11.bdf");
+    strcpy(font_path[i++], "bmp/ter-u12b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u12n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u14b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u14n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u14v.bdf");
+    strcpy(font_path[i++], "bmp/ter-u16b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u16n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u16v.bdf");
+    strcpy(font_path[i++], "bmp/ter-u18b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u18n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u20b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u20n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u22b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u22n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u24b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u24n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u28b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u28n.bdf");
+    strcpy(font_path[i++], "bmp/ter-u32b.bdf");
+    strcpy(font_path[i++], "bmp/ter-u32n.bdf");
+    strcpy(font_path[i++], "bmp/unscii-16-full.pcf");
+    strcpy(font_path[i++], "bmp/unscii-16.pcf");
+    strcpy(font_path[i++], "bmp/unscii-8-alt.pcf");
+    strcpy(font_path[i++], "bmp/unscii-8-fantasy.pcf");
+    strcpy(font_path[i++], "bmp/unscii-8-mcr.pcf");
+    strcpy(font_path[i++], "bmp/unscii-8.pcf");
+    strcpy(font_path[i++], "bmp/unscii-8-tall.pcf");
+    strcpy(font_path[i++], "bmp/unscii-8-thin.pcf");
 
+    assert(i == NUM_FONTS);
+
+    fprintf(stderr, "fonts: \n");
+    for (int i=0; i<NUM_FONTS; ++i) {
+      fprintf(stderr, "  %d: %s\n", i, font_path[i]);
+    }
+    
     char filename[256];
 
     for(int i = 0; i < NUM_FONTS; i++) {
@@ -203,13 +268,13 @@ void screen_init(void) {
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
-    cairo_font_options_t *font_options;
-    font_options = cairo_font_options_create();
+    cairo_font_options_t *font_options = cairo_font_options_create();
     cairo_font_options_set_antialias(font_options,CAIRO_ANTIALIAS_SUBPIXEL);
+    cairo_set_font_options(cr, font_options);
+    cairo_font_options_destroy(font_options);
 
     // default font
     cairo_set_font_face (cr, ct[0]);
-    cairo_set_font_options(cr, font_options);
     cairo_set_font_size(cr, 8.0);
 
     // config buffer
@@ -254,11 +319,17 @@ void screen_font_size(double z) {
 
 void screen_aa(int s) {
     CHECK_CR
+
+    cairo_font_options_t *font_options = cairo_font_options_create();
     if(s == 0) {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE);
+        cairo_font_options_set_antialias(font_options,CAIRO_ANTIALIAS_NONE);
     } else {
         cairo_set_antialias(cr,CAIRO_ANTIALIAS_DEFAULT);
+        cairo_font_options_set_antialias(font_options,CAIRO_ANTIALIAS_SUBPIXEL);
     }
+    cairo_set_font_options(cr, font_options);
+    cairo_font_options_destroy(font_options);
 }
 
 void screen_level(int z) {
