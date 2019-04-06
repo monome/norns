@@ -23,8 +23,8 @@
 % input nodes
 \node [input, label=left:IN-ADC-L] (in-adc-l) at (0, 17) {};
 \node [input, label=left:IN-ADC-R] (in-adc-r) at (0, 16){};
-\node [input, label=left:IN-EXT-L] (in-ext-l) at (0, 8) {};
-\node [input, label=left:IN-EXT-R] (in-ext-r) at (0, 7) {};
+\node [input, label=left:IN-ENG-L] (in-eng-l) at (0, 8) {};
+\node [input, label=left:IN-ENG-R] (in-eng-r) at (0, 7) {};
 \node [input, label=left:IN-CUT-L] (in-cut-l) at (0, 1) {};
 \node [input, label=left:IN-CUT-R] (in-cut-r) at (0, 0) {};
 
@@ -40,13 +40,13 @@
 \draw [gray, dashed] (adc-level.south) -- ++(0, -0.5) -| (adc-mul-l);
 \draw [gray, dashed] (adc-level.south) -| ++(0, -0.5) -| (adc-mul-r);
 
-% ADC to EXT
-\node (adc-l-ext-junc) at ($(adc-mul-l) + (3, 0)$) {\textbullet};
-\node (adc-r-ext-junc) at ($(adc-mul-r) + (3, 0)$) {\textbullet};
-\node [output, label=right:OUT-EXT-L, above=2.5 of adc-l-ext-junc] (out-ext-l) {}; 
-\node [output, label=right:OUT-EXT-R, above=2.5 of adc-r-ext-junc] (out-ext-r) {}; 
-\draw [->] (adc-l-ext-junc.center) -- (out-ext-l);
-\draw [->] (adc-r-ext-junc.center) -- (out-ext-r);
+% ADC to ENG
+\node (adc-l-eng-junc) at ($(adc-mul-l) + (3, 0)$) {\textbullet};
+\node (adc-r-eng-junc) at ($(adc-mul-r) + (3, 0)$) {\textbullet};
+\node [output, label=right:OUT-ENG-L, above=2.5 of adc-l-eng-junc] (out-eng-l) {}; 
+\node [output, label=right:OUT-ENG-R, above=2.5 of adc-r-eng-junc] (out-eng-r) {}; 
+\draw [->] (adc-l-eng-junc.center) -- (out-eng-l);
+\draw [->] (adc-r-eng-junc.center) -- (out-eng-r);
 
 
 % ADC to CUT
@@ -121,32 +121,32 @@
 \draw [->] (monitor-mul-r) -- (ins-in-r);
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-%% EXT section
+%% ENG section
 
-% EXT level
-\node [mul] (ext-mul-l) at ($(in-ext-l)+(1,0)$) {};
-\node [mul] (ext-mul-r) at ($(in-ext-r)+(2,0)$) {};
-\draw [->] (in-ext-l) -- (ext-mul-l);
-\draw [->] (in-ext-r) -- (ext-mul-r);
-\node [param, above = 1 of ext-mul-l] (ext-level) {\small{EXT-LEVEL}};
-\draw [gray, dashed] (ext-level.south) -- ++(0, -0.5) -| (ext-mul-l);
-\draw [gray, dashed] (ext-level.south) -| ++(0, -0.5) -| (ext-mul-r);
+% ENG level
+\node [mul] (eng-mul-l) at ($(in-eng-l)+(1,0)$) {};
+\node [mul] (eng-mul-r) at ($(in-eng-r)+(2,0)$) {};
+\draw [->] (in-eng-l) -- (eng-mul-l);
+\draw [->] (in-eng-r) -- (eng-mul-r);
+\node [param, above = 1 of eng-mul-l] (eng-level) {\small{ENG-LEVEL}};
+\draw [gray, dashed] (eng-level.south) -- ++(0, -0.5) -| (eng-mul-l);
+\draw [gray, dashed] (eng-level.south) -| ++(0, -0.5) -| (eng-mul-r);
 
-\draw [->] (ext-mul-l) -| (ins-in-l);
-\draw [->] (ext-mul-r) -| (ins-in-r);
+\draw [->] (eng-mul-l) -| (ins-in-l);
+\draw [->] (eng-mul-r) -| (ins-in-r);
 
-% EXT to CUT
-\node (ext-cut-junc-l) at ($(ext-mul-l) + (4, 0)$) {\textbullet};
-\node (ext-cut-junc-r) at ($(ext-mul-r) + (4, 0)$) {\textbullet};
-\node [mul] (ext-cut-mul-l) at ($(ext-cut-junc-l) + (0, 3)$) {};
-\node [mul] (ext-cut-mul-r) at ($(ext-cut-junc-r) + (0, 3)$) {}; 
-\draw [->] (ext-cut-junc-l.center) -- (ext-cut-mul-l); 
-\draw [->] (ext-cut-junc-r.center) -- (ext-cut-mul-r);
-\node [param, left = 3 of ext-cut-mul-l] (ext-cut) {\small{EXT-CUT-LEVEL}};
-\draw [->] (ext-cut-junc-l.center) -- (ext-cut-mul-l);
-\draw [->] (ext-cut-junc-r.center) -- (ext-cut-mul-r);
-\draw [gray, dashed] (ext-cut) -- ++(2, 0) -- (ext-cut-mul-l);
-\draw [gray, dashed] (ext-cut) -- ++(2, 0) |- (ext-cut-mul-r);
+% ENG to CUT
+\node (eng-cut-junc-l) at ($(eng-mul-l) + (4, 0)$) {\textbullet};
+\node (eng-cut-junc-r) at ($(eng-mul-r) + (4, 0)$) {\textbullet};
+\node [mul] (eng-cut-mul-l) at ($(eng-cut-junc-l) + (0, 3)$) {};
+\node [mul] (eng-cut-mul-r) at ($(eng-cut-junc-r) + (0, 3)$) {}; 
+\draw [->] (eng-cut-junc-l.center) -- (eng-cut-mul-l); 
+\draw [->] (eng-cut-junc-r.center) -- (eng-cut-mul-r);
+\node [param, left = 3 of eng-cut-mul-l] (eng-cut) {\small{ENG-CUT-LEVEL}};
+\draw [->] (eng-cut-junc-l.center) -- (eng-cut-mul-l);
+\draw [->] (eng-cut-junc-r.center) -- (eng-cut-mul-r);
+\draw [gray, dashed] (eng-cut) -- ++(2, 0) -- (eng-cut-mul-l);
+\draw [gray, dashed] (eng-cut) -- ++(2, 0) |- (eng-cut-mul-r);
 
 %%%%%%%%%%%%
 % CUT output
@@ -154,8 +154,8 @@
 \node [add] (cut-sink-r) at ($(adc-cut-mul-r) + (2, 0)$) {};
 \draw [->] (adc-cut-mul-l) -- (cut-sink-l);
 \draw [->] (adc-cut-mul-r) -- (cut-sink-r);
-\draw [->] (ext-cut-mul-l) -| (cut-sink-l);
-\draw [->] (ext-cut-mul-r) -| (cut-sink-r);
+\draw [->] (eng-cut-mul-l) -| (cut-sink-l);
+\draw [->] (eng-cut-mul-r) -| (cut-sink-r);
 
 \node [output, label=right:OUT-CUT-L, right = 2 of cut-sink-l] (out-cut-l) {}; 
 \node [output, label=right:OUT-CUT-R, right = 1 of cut-sink-r] (out-cut-r) {}; 
@@ -217,15 +217,15 @@
 \draw [->] (cut-aux-junc-r.center) -- (cut-aux-mul-r);
 
 
-\node (ext-aux-junc-l) at (in-ext-l -| ins-in-l) {\textbullet};
-\node (ext-aux-junc-r) at (in-ext-r -| ins-in-r) {\textbullet};
-\node [mul] (ext-aux-mul-l) at ($(ext-aux-junc-l) + (6, 0)$) {};
-\node [mul] (ext-aux-mul-r) at ($(ext-aux-junc-r) + (6, 0)$) {};
-\draw [->] (ext-aux-junc-l.center) -- (ext-aux-mul-l);
-\draw [->] (ext-aux-junc-r.center) -- (ext-aux-mul-r);
+\node (eng-aux-junc-l) at (in-eng-l -| ins-in-l) {\textbullet};
+\node (eng-aux-junc-r) at (in-eng-r -| ins-in-r) {\textbullet};
+\node [mul] (eng-aux-mul-l) at ($(eng-aux-junc-l) + (6, 0)$) {};
+\node [mul] (eng-aux-mul-r) at ($(eng-aux-junc-r) + (6, 0)$) {};
+\draw [->] (eng-aux-junc-l.center) -- (eng-aux-mul-l);
+\draw [->] (eng-aux-junc-r.center) -- (eng-aux-mul-r);
 
-\node [add] (aux-in-2-l) at ($(ext-aux-mul-l) + (2, 0)$) {};
-\node [add] (aux-in-2-r) at ($(ext-aux-mul-r) + (2, 0)$) {};
+\node [add] (aux-in-2-l) at ($(eng-aux-mul-l) + (2, 0)$) {};
+\node [add] (aux-in-2-r) at ($(eng-aux-mul-r) + (2, 0)$) {};
 \node [add] (aux-in-1-l) at (monitor-aux-mul-l -| aux-in-2-l) {};
 \node [add] (aux-in-1-r) at (monitor-aux-mul-r -| aux-in-2-r) {};
 
@@ -244,8 +244,8 @@
 \draw [->] (aux-fx-l) -- (aux-fx-mul-l);
 \draw [->] (aux-fx-r) -- (aux-fx-mul-r);
 
-\draw [->] (ext-aux-mul-l) -- (aux-in-2-l);
-\draw [->] (ext-aux-mul-r) -- (aux-in-2-r);
+\draw [->] (eng-aux-mul-l) -- (aux-in-2-l);
+\draw [->] (eng-aux-mul-r) -- (aux-in-2-r);
 \draw [->] (aux-in-1-l) -| (aux-in-2-l);
 \draw [->] (aux-in-1-r) -| (aux-in-2-r);
 \draw [->] (aux-in-2-l) -- (aux-fx-l);
@@ -260,11 +260,11 @@
 \draw [gray, dashed] (cut-aux-level.east) -- (cut-aux-level -| cut-aux-mul-l) -- (cut-aux-mul-l);
 \draw [gray, dashed] (cut-aux-level.east) -- (cut-aux-level -| cut-aux-mul-r) -- (cut-aux-mul-r);
 
-\node [param] (ext-aux-level) at ($(ext-aux-mul-r) + (0, 2)$) {\small{EXT-AUX-LEVEL}};
-\draw [gray, dashed] (ext-aux-level) -- (ext-aux-mul-r);
-\draw [gray, dashed] (ext-aux-level) -- ++(0, -0.5) -| (ext-aux-mul-l);
+\node [param] (eng-aux-level) at ($(eng-aux-mul-r) + (0, 2)$) {\small{ENG-AUX-LEVEL}};
+\draw [gray, dashed] (eng-aux-level) -- (eng-aux-mul-r);
+\draw [gray, dashed] (eng-aux-level) -- ++(0, -0.5) -| (eng-aux-mul-l);
 
-\node [param] (aux-level) at (ext-aux-level |- aux-fx-mul-l) {\small{AUX-LEVEL}};
+\node [param] (aux-level) at (eng-aux-level |- aux-fx-mul-l) {\small{AUX-LEVEL}};
 \draw [gray, dashed] (aux-level.east) -- (aux-fx-mul-l);
 \draw [gray, dashed] (aux-level.east) -- ++(0.5, 0) |- (aux-fx-mul-r);
 
