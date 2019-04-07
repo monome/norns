@@ -72,7 +72,7 @@ static void *clock_schedule_resume_run(void *p) {
     return NULL;
 }
 
-void clock_schedule_resume_sleep(int coro_id, float seconds) {
+bool clock_schedule_resume_sleep(int coro_id, float seconds) {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
@@ -88,10 +88,12 @@ void clock_schedule_resume_sleep(int coro_id, float seconds) {
             clock_thread_pool[i].running = true;
             clock_thread_pool[i].coro_id = coro_id;
             pthread_create(&clock_thread_pool[i].thread, &attr, &clock_schedule_resume_run, arg);
-            return;
+
+            return true;
         }
     }
-    fprintf(stderr, "out of threads\n");
+
+    return false;
 }
 
 float clock_gettime_secondsf() {
@@ -111,7 +113,7 @@ float clock_gettime_beats() {
     return this_beat;
 }
 
-void clock_schedule_resume_sync(int coro_id, float q) {
+bool clock_schedule_resume_sync(int coro_id, float q) {
     float current_time = clock_gettime_secondsf();
 
     float zero_beat_time;
@@ -132,7 +134,7 @@ void clock_schedule_resume_sync(int coro_id, float q) {
 
     pthread_mutex_unlock(&counter.lock);
 
-    clock_schedule_resume_sleep(coro_id, next_beat_time - current_time);
+    return clock_schedule_resume_sleep(coro_id, next_beat_time - current_time);
 }
 
 void clock_update_counter(int beats, float beat_duration) {
