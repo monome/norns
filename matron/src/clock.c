@@ -103,29 +103,33 @@ float clock_gettime_secondsf() {
 
 float clock_gettime_beats() {
     pthread_mutex_lock(&counter.lock);
+
     float current_time = clock_gettime_secondsf();
     float zero_beat_time = counter.last_beat_time - (counter.beat_duration * counter.beats);
     float this_beat = (current_time - zero_beat_time) / counter.beat_duration;
+
     pthread_mutex_unlock(&counter.lock);
 
     return this_beat;
 }
 
 bool clock_schedule_resume_sync(int coro_id, float beats) {
-    float current_time = clock_gettime_secondsf();
-
     float zero_beat_time;
     float this_beat;
     float next_beat;
     float next_beat_time;
     int next_beat_quant = 0;
 
+    float current_time = clock_gettime_secondsf();
+
     pthread_mutex_lock(&counter.lock);
 
     do {
         next_beat_quant += 1;
+
         zero_beat_time = counter.last_beat_time - (counter.beat_duration * counter.beats);
         this_beat = (current_time - zero_beat_time) / counter.beat_duration;
+
         next_beat = (floor(this_beat / beats) + next_beat_quant) * beats;
         next_beat_time = zero_beat_time + (next_beat * counter.beat_duration);
     } while (next_beat_time - current_time < counter.beat_duration * beats / 2);
