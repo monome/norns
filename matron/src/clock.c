@@ -150,10 +150,6 @@ void clock_update_counter(int beats, float beat_duration) {
     pthread_mutex_unlock(&counter.lock);
 }
 
-void clock_counter_reset() {
-    counter.beats = 0;
-}
-
 void clock_cancel_coro(int coro_id) {
     for (int i = 0; i < NUM_THREADS; i++) {
         if (clock_thread_pool[i].coro_id == coro_id) {
