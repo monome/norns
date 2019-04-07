@@ -26,8 +26,6 @@ struct clock_thread_t {
 
 static struct clock_counter_t counter;
 
-static float clock_gettime_secondsf();
-
 #define NUM_THREADS 20
 static struct clock_thread_t clock_thread_pool[NUM_THREADS];
 
@@ -113,7 +111,7 @@ float clock_gettime_beats() {
     return this_beat;
 }
 
-bool clock_schedule_resume_sync(int coro_id, float q) {
+bool clock_schedule_resume_sync(int coro_id, float beats) {
     float current_time = clock_gettime_secondsf();
 
     float zero_beat_time;
@@ -128,9 +126,9 @@ bool clock_schedule_resume_sync(int coro_id, float q) {
         next_beat_quant += 1;
         zero_beat_time = counter.last_beat_time - (counter.beat_duration * counter.beats);
         this_beat = (current_time - zero_beat_time) / counter.beat_duration;
-        next_beat = (floor(this_beat / q) + next_beat_quant) * q;
+        next_beat = (floor(this_beat / beats) + next_beat_quant) * beats;
         next_beat_time = zero_beat_time + (next_beat * counter.beat_duration);
-    } while (next_beat_time - current_time < counter.beat_duration * q / 2);
+    } while (next_beat_time - current_time < counter.beat_duration * beats / 2);
 
     pthread_mutex_unlock(&counter.lock);
 
@@ -146,10 +144,6 @@ void clock_update_counter(int beats, float beat_duration) {
     counter.beats = beats;
 
     pthread_mutex_unlock(&counter.lock);
-}
-
-int clock_counter_get() {
-    return counter.beats;
 }
 
 void clock_counter_reset() {
