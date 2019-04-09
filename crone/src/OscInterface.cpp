@@ -529,7 +529,10 @@ void OscInterface::addServerMethods() {
             chanDst= argv[5]->i;
         }
         const char *str = &argv[0]->s;
-        softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst);
+	
+        auto t = std::thread([str, startSrc, startDst, dur, chanSrc, chanDst] {
+            softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst);
+	});
     });
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
@@ -551,7 +554,10 @@ void OscInterface::addServerMethods() {
             dur = argv[3]->f;
         }
         const char *str = &argv[0]->s;
-        softCutClient->readBufferStereo(str, startSrc, startDst, dur);
+	
+        auto t = std::thread([str, startSrc, startDst, dur] {
+            softCutClient->readBufferStereo(str, startSrc, startDst, dur);
+	});
     });
 
 
@@ -574,7 +580,10 @@ void OscInterface::addServerMethods() {
             chan = argv[3]->i;
         }
         const char *str = &argv[0]->s;
-        softCutClient->writeBufferMono(str, start, dur, chan);
+	
+        auto t = std::thread([str, start, dur, chan] {
+            softCutClient->writeBufferMono(str, start, dur, chan);
+	});
     });
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
@@ -592,7 +601,10 @@ void OscInterface::addServerMethods() {
             dur = argv[2]->f;
         }
         const char *str = &argv[0]->s;
-        softCutClient->writeBufferStereo(str, start, dur);
+	
+        auto t = std::thread([str, start, dur] {
+            softCutClient->writeBufferStereo(str, start, dur);
+	});
     });
 
 
@@ -600,8 +612,11 @@ void OscInterface::addServerMethods() {
     addServerMethod("/softcut/buffer/clear", "", [](lo_arg **argv, int argc) {
         (void)argc;
         (void)argv;
-        softCutClient->clearBuffer(0);
-        softCutClient->clearBuffer(1);
+	
+        auto t = std::thread([]{
+	    softCutClient->clearBuffer(0);
+	    softCutClient->clearBuffer(1);
+	});
     });
 
 
@@ -609,22 +624,34 @@ void OscInterface::addServerMethods() {
         if (argc < 1) {
             return;
         }
-        softCutClient->clearBuffer(argv[0]->i);
+	int ch = argv[0]->i;
+        auto t = std::thread([ch] {
+	    softCutClient->clearBuffer(ch);
+	});
     });
 
     addServerMethod("/softcut/buffer/clear_region", "ff", [](lo_arg **argv, int argc) {
         if (argc < 2) {
             return;
         }
-        softCutClient->clearBuffer(0, argv[0]->f, argv[1]->f);
-        softCutClient->clearBuffer(1, argv[0]->f, argv[1]->f);
+	float start = argv[0]->f;
+	float dur = argv[1]->f;
+        auto t = std::thread([start, dur] {
+	    softCutClient->clearBuffer(0, start, dur);
+	    softCutClient->clearBuffer(1, start, dur);
+	});
     });
 
     addServerMethod("/softcut/buffer/clear_region_channel", "iff", [](lo_arg **argv, int argc) {
         if (argc < 3) {
             return;
         }
-        softCutClient->clearBuffer(argv[0]->i, argv[1]->f, argv[2]->f);
+	int ch = argv[0]->i;
+	float start = argv[1]->f;
+	float dur = argv[1]->f;
+        auto t = std::thread([ch, start, dur]{
+	    softCutClient->clearBuffer(ch, start, dur);
+	});
     });
 
 
@@ -650,6 +677,7 @@ void OscInterface::addServerMethods() {
     //------------------------
     //--- tape control
 
+    // FIXME: do these methods need worker threads?
     addServerMethod("/tape/record/open", "s", [](lo_arg **argv, int argc) {
         if (argc<1) { return; }
         mixerClient->openTapeRecord(&argv[0]->s);
