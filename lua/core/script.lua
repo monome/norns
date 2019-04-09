@@ -157,8 +157,7 @@ Script.run = function()
     print("loading engine: " .. engine.name)
     engine.load(engine.name, Script.init)
   else
-    local status = norns.try(Script.init,"init")
-    norns.init_done(status)
+    engine.load("None", Script.init)
   end
 end
 
