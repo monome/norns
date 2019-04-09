@@ -53,6 +53,9 @@ norns.startup_status.ok = function()
   norns.state.resume()
   -- turn on VU
   _norns.poll_start_vu()
+  -- report engines
+  report_engines()
+  
 end
 
 norns.startup_status.timeout = function()

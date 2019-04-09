@@ -362,7 +362,7 @@ void o_set_engine_name(int idx, const char *name) {
                 "refusing to allocate engine name %d; already exists",
                 idx);
     } else {
-        len = strlen(name);
+        len = strlen(name) + 1; // include null terminator
         engine_names[idx] = malloc(len);
         if ( engine_names[idx] == NULL ) {
             fprintf(stderr,
@@ -370,7 +370,7 @@ void o_set_engine_name(int idx, const char *name) {
                     idx,
                     name);
         } else {
-            strncpy(engine_names[idx], name, len + 1);
+            strncpy(engine_names[idx], name, len);
         }
     }
     o_unlock_descriptors();
@@ -709,7 +709,7 @@ int handle_engine_report_start(const char *path,
                                void *user_data)
 {
     assert(argc > 0);
-    // arg 1: count of engines
+    // arg 1: count of engines    
     o_clear_engine_names();
     o_set_num_desc(&num_engines, argv[0]->i);
     return 0;
