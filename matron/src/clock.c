@@ -13,8 +13,8 @@
 
 struct clock_reference_t {
     uint32_t beat;
-    float beat_duration;
-    float last_beat_time;
+    double beat_duration;
+    double last_beat_time;
     pthread_mutex_t lock;
 };
 
@@ -32,7 +32,7 @@ static struct clock_thread_t clock_thread_pool[NUM_THREADS];
 struct thread_arg {
     int thread_index; // thread pool index
     int coro_id;
-    float seconds;
+    double seconds;
 };
 
 void clock_init() {
@@ -50,7 +50,7 @@ void clock_init() {
 static void *clock_schedule_resume_run(void *p) {
     struct thread_arg *arg = p;
     int coro_id = arg->coro_id;
-    float seconds = arg->seconds;
+    double seconds = arg->seconds;
 
     struct timespec req = {
         .tv_sec = (time_t) seconds,
@@ -70,7 +70,7 @@ static void *clock_schedule_resume_run(void *p) {
     return NULL;
 }
 
-bool clock_schedule_resume_sleep(int coro_id, float seconds) {
+bool clock_schedule_resume_sleep(int coro_id, double seconds) {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
@@ -94,33 +94,33 @@ bool clock_schedule_resume_sleep(int coro_id, float seconds) {
     return false;
 }
 
-float clock_gettime_secondsf() {
+double clock_gettime_secondsf() {
     struct timespec spec;
     clock_gettime(CLOCK_MONOTONIC, &spec);
 
     return spec.tv_sec + (spec.tv_nsec / 1.0e9);
 }
 
-float clock_gettime_beats() {
+double clock_gettime_beats() {
     pthread_mutex_lock(&reference.lock);
 
-    float current_time = clock_gettime_secondsf();
-    float zero_beat_time = reference.last_beat_time - (reference.beat_duration * reference.beat);
-    float this_beat = (current_time - zero_beat_time) / reference.beat_duration;
+    double current_time = clock_gettime_secondsf();
+    double zero_beat_time = reference.last_beat_time - (reference.beat_duration * reference.beat);
+    double this_beat = (current_time - zero_beat_time) / reference.beat_duration;
 
     pthread_mutex_unlock(&reference.lock);
 
     return this_beat;
 }
 
-bool clock_schedule_resume_sync(int coro_id, float beats) {
-    float zero_beat_time;
-    float this_beat;
-    float next_beat;
-    float next_beat_time;
+bool clock_schedule_resume_sync(int coro_id, double beats) {
+    double zero_beat_time;
+    double this_beat;
+    double next_beat;
+    double next_beat_time;
     int next_beat_quant = 0;
 
-    float current_time = clock_gettime_secondsf();
+    double current_time = clock_gettime_secondsf();
 
     pthread_mutex_lock(&reference.lock);
 
@@ -139,10 +139,10 @@ bool clock_schedule_resume_sync(int coro_id, float beats) {
     return clock_schedule_resume_sleep(coro_id, next_beat_time - current_time);
 }
 
-void clock_update_counter(int beat, float beat_duration) {
+void clock_update_counter(int beat, double beat_duration) {
     pthread_mutex_lock(&reference.lock);
 
-    float current_time = clock_gettime_secondsf();
+    double current_time = clock_gettime_secondsf();
     reference.beat_duration = beat_duration;
     reference.last_beat_time = current_time;
     reference.beat = beat;
