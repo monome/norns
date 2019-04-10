@@ -36,15 +36,13 @@ struct thread_arg {
 };
 
 void clock_init() {
-    reference.beat = 0;
-    reference.beat_duration = 0.5;
-    reference.last_beat_time = clock_gettime_secondsf();
-
     for (int i = 0; i < NUM_THREADS; i++) {
         clock_thread_pool[i].running = false;
     }
 
     pthread_mutex_init(&reference.lock, NULL);
+
+    clock_update_reference(0, 0.5);
 }
 
 static void *clock_schedule_resume_run(void *p) {
@@ -118,19 +116,18 @@ bool clock_schedule_resume_sync(int coro_id, double beats) {
     double this_beat;
     double next_beat;
     double next_beat_time;
-    int next_beat_quant = 0;
-
-    double current_time = clock_gettime_secondsf();
+    int next_beat_multiplier = 0;
 
     pthread_mutex_lock(&reference.lock);
 
+    double current_time = clock_gettime_secondsf();
+    zero_beat_time = reference.last_beat_time - (reference.beat_duration * reference.beat);
+    this_beat = (current_time - zero_beat_time) / reference.beat_duration;
+
     do {
-        next_beat_quant += 1;
+        next_beat_multiplier += 1;
 
-        zero_beat_time = reference.last_beat_time - (reference.beat_duration * reference.beat);
-        this_beat = (current_time - zero_beat_time) / reference.beat_duration;
-
-        next_beat = (floor(this_beat / beats) + next_beat_quant) * beats;
+        next_beat = (floor(this_beat / beats) + next_beat_multiplier) * beats;
         next_beat_time = zero_beat_time + (next_beat * reference.beat_duration);
     } while (next_beat_time - current_time < reference.beat_duration * beats / 2);
 
