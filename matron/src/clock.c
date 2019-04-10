@@ -11,8 +11,8 @@
 #include <lua.h>
 #include <lauxlib.h>
 
-struct clock_counter_t {
-    uint32_t beats;
+struct clock_reference_t {
+    uint32_t beat;
     float beat_duration;
     float last_beat_time;
     pthread_mutex_t lock;
@@ -24,7 +24,7 @@ struct clock_thread_t {
     int coro_id;
 };
 
-static struct clock_counter_t counter;
+static struct clock_reference_t reference;
 
 #define NUM_THREADS 20
 static struct clock_thread_t clock_thread_pool[NUM_THREADS];
@@ -36,15 +36,15 @@ struct thread_arg {
 };
 
 void clock_init() {
-    counter.beats = 0;
-    counter.beat_duration = 0.5;
-    counter.last_beat_time = clock_gettime_secondsf();
+    reference.beat = 0;
+    reference.beat_duration = 0.5;
+    reference.last_beat_time = clock_gettime_secondsf();
 
     for (int i = 0; i < NUM_THREADS; i++) {
         clock_thread_pool[i].running = false;
     }
 
-    pthread_mutex_init(&counter.lock, NULL);
+    pthread_mutex_init(&reference.lock, NULL);
 }
 
 static void *clock_schedule_resume_run(void *p) {
@@ -102,13 +102,13 @@ float clock_gettime_secondsf() {
 }
 
 float clock_gettime_beats() {
-    pthread_mutex_lock(&counter.lock);
+    pthread_mutex_lock(&reference.lock);
 
     float current_time = clock_gettime_secondsf();
-    float zero_beat_time = counter.last_beat_time - (counter.beat_duration * counter.beats);
-    float this_beat = (current_time - zero_beat_time) / counter.beat_duration;
+    float zero_beat_time = reference.last_beat_time - (reference.beat_duration * reference.beat);
+    float this_beat = (current_time - zero_beat_time) / reference.beat_duration;
 
-    pthread_mutex_unlock(&counter.lock);
+    pthread_mutex_unlock(&reference.lock);
 
     return this_beat;
 }
@@ -122,32 +122,32 @@ bool clock_schedule_resume_sync(int coro_id, float beats) {
 
     float current_time = clock_gettime_secondsf();
 
-    pthread_mutex_lock(&counter.lock);
+    pthread_mutex_lock(&reference.lock);
 
     do {
         next_beat_quant += 1;
 
-        zero_beat_time = counter.last_beat_time - (counter.beat_duration * counter.beats);
-        this_beat = (current_time - zero_beat_time) / counter.beat_duration;
+        zero_beat_time = reference.last_beat_time - (reference.beat_duration * reference.beat);
+        this_beat = (current_time - zero_beat_time) / reference.beat_duration;
 
         next_beat = (floor(this_beat / beats) + next_beat_quant) * beats;
-        next_beat_time = zero_beat_time + (next_beat * counter.beat_duration);
-    } while (next_beat_time - current_time < counter.beat_duration * beats / 2);
+        next_beat_time = zero_beat_time + (next_beat * reference.beat_duration);
+    } while (next_beat_time - current_time < reference.beat_duration * beats / 2);
 
-    pthread_mutex_unlock(&counter.lock);
+    pthread_mutex_unlock(&reference.lock);
 
     return clock_schedule_resume_sleep(coro_id, next_beat_time - current_time);
 }
 
-void clock_update_counter(int beats, float beat_duration) {
-    pthread_mutex_lock(&counter.lock);
+void clock_update_counter(int beat, float beat_duration) {
+    pthread_mutex_lock(&reference.lock);
 
     float current_time = clock_gettime_secondsf();
-    counter.beat_duration = beat_duration;
-    counter.last_beat_time = current_time;
-    counter.beats = beats;
+    reference.beat_duration = beat_duration;
+    reference.last_beat_time = current_time;
+    reference.beat = beat;
 
-    pthread_mutex_unlock(&counter.lock);
+    pthread_mutex_unlock(&reference.lock);
 }
 
 void clock_cancel_coro(int coro_id) {
