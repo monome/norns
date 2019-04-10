@@ -139,7 +139,7 @@ bool clock_schedule_resume_sync(int coro_id, double beats) {
     return clock_schedule_resume_sleep(coro_id, next_beat_time - current_time);
 }
 
-void clock_update_counter(int beat, double beat_duration) {
+void clock_update_reference(int beat, double beat_duration) {
     pthread_mutex_lock(&reference.lock);
 
     double current_time = clock_gettime_secondsf();

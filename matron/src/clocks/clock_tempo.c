@@ -27,7 +27,7 @@ static void *clock_tempo_run(void *p) {
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &req, NULL);
 
         beat += 1;
-        clock_update_counter(beat, interval_seconds);
+        clock_update_reference(beat, interval_seconds);
     }
 
     return NULL;
