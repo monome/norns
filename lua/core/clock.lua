@@ -6,7 +6,7 @@ clock.run = function(f)
   local coro = coroutine.create(f)
   local coro_id = #clock.threads + 1
   clock.threads[coro_id] = coro
-  _clock_schedule_sleep(coro_id, 0)
+  clock.resume(coro_id)
   return coro_id
 end
 

@@ -36,6 +36,7 @@
 #include "oracle.h"
 #include "weaver.h"
 #include "clock.h"
+#include "clocks/clock_tempo.h"
 
 //------
 //---- global lua state!
@@ -201,6 +202,7 @@ static int _reset_lvm(lua_State *l);
 static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
+static int _clock_tempo_set_tempo(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -390,6 +392,7 @@ void w_init(void) {
   lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
   lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
   lua_register(lvm, "_clock_cancel", &_clock_cancel);
+  lua_register(lvm, "_clock_tempo_set_tempo", &_clock_tempo_set_tempo);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1435,12 +1438,12 @@ int _clock_schedule_sleep(lua_State *l) {
   }
 
   int coro_id = (int) luaL_checkinteger(l, 1);
-  float time = (float) luaL_checknumber(l, 2);
+  double seconds = luaL_checknumber(l, 2);
 
-  if (time == 0) {
+  if (seconds == 0) {
     w_handle_clock_resume(coro_id);
   } else {
-    clock_schedule_resume_sleep(coro_id, time);
+    clock_schedule_resume_sleep(coro_id, seconds);
   }
 
   return 0;
@@ -1452,7 +1455,7 @@ int _clock_schedule_sync(lua_State *l) {
   }
 
   int coro_id = (int) luaL_checkinteger(l, 1);
-  float beats = (float) luaL_checknumber(l, 2);
+  double beats = luaL_checknumber(l, 2);
 
   if (beats == 0) {
     w_handle_clock_resume(coro_id);
@@ -1470,6 +1473,17 @@ int _clock_cancel(lua_State *l) {
 
   int coro_id = (int) luaL_checkinteger(l, 1);
   clock_cancel_coro(coro_id);
+
+  return 0;
+}
+
+int _clock_tempo_set_tempo(lua_State *l) {
+  if (lua_gettop(l) < 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  double bpm = luaL_checknumber(l, 1);
+  clock_tempo_set_tempo(bpm);
 
   return 0;
 }
