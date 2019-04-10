@@ -29,7 +29,7 @@ static struct clock_reference_t reference;
 #define NUM_THREADS 20
 static struct clock_thread_t clock_thread_pool[NUM_THREADS];
 
-struct thread_arg {
+struct clock_thread_arg {
     int thread_index; // thread pool index
     int coro_id;
     double seconds;
@@ -46,7 +46,7 @@ void clock_init() {
 }
 
 static void *clock_schedule_resume_run(void *p) {
-    struct thread_arg *arg = p;
+    struct clock_thread_arg *arg = p;
     int coro_id = arg->coro_id;
     double seconds = arg->seconds;
 
@@ -76,7 +76,7 @@ bool clock_schedule_resume_sleep(int coro_id, double seconds) {
 
     for (int i = 0; i < NUM_THREADS; i++) {
         if (!clock_thread_pool[i].running) {
-            struct thread_arg *arg = malloc(sizeof(struct thread_arg));
+            struct clock_thread_arg *arg = malloc(sizeof(struct clock_thread_arg));
             arg->thread_index = i;
             arg->coro_id = coro_id;
             arg->seconds = seconds;
