@@ -25,6 +25,7 @@ struct clock_thread_t {
 };
 
 static struct clock_reference_t reference;
+static clock_source_t clock_source;
 
 #define NUM_THREADS 20
 static struct clock_thread_t clock_thread_pool[NUM_THREADS];
@@ -42,6 +43,7 @@ void clock_init() {
 
     pthread_mutex_init(&reference.lock, NULL);
 
+    clock_set_source(CLOCK_SOURCE_TEMPO);
     clock_update_reference(0, 0.5);
 }
 
@@ -145,6 +147,16 @@ void clock_update_reference(int beat, double beat_duration) {
     reference.beat = beat;
 
     pthread_mutex_unlock(&reference.lock);
+}
+
+void clock_update_reference_from(int beat, double beat_duration, clock_source_t source) {
+    if (clock_source == source) {
+        clock_update_reference(beat, beat_duration);
+    }
+}
+
+void clock_set_source(clock_source_t source) {
+    clock_source = source;
 }
 
 void clock_cancel_coro(int coro_id) {
