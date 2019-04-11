@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lua.h>
+#include <stdbool.h>
 
 typedef enum {
     CLOCK_SOURCE_TEMPO	= 0,
