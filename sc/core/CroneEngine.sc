@@ -81,3 +81,14 @@ CroneEngine {
 
 }
 
+
+// dummy engine
+Engine_None : CroneEngine {
+	*new { arg context, doneCallback;
+		^super.new(context, doneCallback);
+	}
+
+	alloc {}
+
+	free {}
+}
