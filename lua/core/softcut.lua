@@ -151,7 +151,6 @@ SC.event_phase = function(f) norns.softcut_phase = f end
 
 --- reset softcut params
 function SC.reset()
-  print("reset softcut")
   SC.poll_stop_phase()
   SC.event_phase(norns.none)
   for i=1,SC.VOICE_COUNT do
