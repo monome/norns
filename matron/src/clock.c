@@ -12,7 +12,7 @@
 #include <lauxlib.h>
 
 struct clock_reference_t {
-    uint32_t beat;
+    double beat;
     double beat_duration;
     double last_beat_time;
     pthread_mutex_t lock;
@@ -138,20 +138,20 @@ bool clock_schedule_resume_sync(int coro_id, double beats) {
     return clock_schedule_resume_sleep(coro_id, next_beat_time - current_time);
 }
 
-void clock_update_reference(int beat, double beat_duration) {
+void clock_update_reference(double beats, double beat_duration) {
     pthread_mutex_lock(&reference.lock);
 
     double current_time = clock_gettime_secondsf();
     reference.beat_duration = beat_duration;
     reference.last_beat_time = current_time;
-    reference.beat = beat;
+    reference.beat = beats;
 
     pthread_mutex_unlock(&reference.lock);
 }
 
-void clock_update_reference_from(int beat, double beat_duration, clock_source_t source) {
+void clock_update_reference_from(double beats, double beat_duration, clock_source_t source) {
     if (clock_source == source) {
-        clock_update_reference(beat, beat_duration);
+        clock_update_reference(beats, beat_duration);
     }
 }
 

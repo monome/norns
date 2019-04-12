@@ -29,10 +29,8 @@ static void clock_midi_handle_clock() {
         clock_midi_last_tick_time_set = true;
     }
 
-    if (clock_midi_counter % 96 == 0) {
-        int beat = clock_midi_counter / 96;
-        clock_update_reference_from(beat, beat_duration, CLOCK_SOURCE_MIDI);
-    }
+    double beat = clock_midi_counter / 96.0;
+    clock_update_reference_from(beat, beat_duration, CLOCK_SOURCE_MIDI);
 }
 
 static void clock_midi_handle_start() {
