@@ -6,6 +6,7 @@
 
 #include "device.h"
 #include "device_midi.h"
+#include "../clocks/clock_midi.h"
 
 int dev_midi_init(void *self) {
     struct dev_midi *midi = (struct dev_midi *) self;
@@ -53,6 +54,8 @@ void* dev_midi_start(void *self) {
         read = snd_rawmidi_read(midi->handle_in, &byte, 1);
 
         if (byte >= 0xf8) {
+            clock_midi_handle_message(byte);
+
             ev = event_data_new(EVENT_MIDI_EVENT);
             ev->midi_event.id = midi->dev.id;
             ev->midi_event.data[0] = byte;

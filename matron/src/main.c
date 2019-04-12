@@ -24,6 +24,7 @@
 #include "stat.h"
 #include "clock.h"
 #include "clocks/clock_tempo.h"
+#include "clocks/clock_midi.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -67,6 +68,7 @@ int main(int argc, char **argv) {
     osc_init();
     clock_init();
     clock_tempo_start();
+    clock_midi_init();
 
     o_init(); // oracle (audio)
 

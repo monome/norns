@@ -26,6 +26,7 @@ def build(bld):
         'src/snd_file.c',
         'src/clock.c',
         'src/clocks/clock_tempo.c',
+        'src/clocks/clock_midi.c',
     ]
 
     bld.program(features='c cprogram',
