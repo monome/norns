@@ -151,12 +151,36 @@ SC.event_phase = function(f) norns.softcut_phase = f end
 
 --- reset softcut params
 function SC.reset()
+  print("reset softcut")
   SC.poll_stop_phase()
   SC.event_phase(norns.none)
   for i=1,SC.VOICE_COUNT do
-    SC.level(i,0)
     SC.enable(i,0)
-    -- TODO: sensible defaults!
+    SC.play(i,0)
+    SC.buffer(i,1)
+    SC.level(i,0)
+    SC.pan(i,0.5)
+    SC.level_input_cut(1,i,0)
+    SC.level_input_cut(2,i,0)
+    SC.level_cut_cut(1,i,0)
+    SC.level_cut_cut(2,i,0)
+    SC.rate(i,1)
+    SC.loop_start(i,0)
+    SC.loop_end(i,1)
+    SC.loop(i,1)
+    SC.fade_time(i,0)
+    SC.rec_level(i,0)
+    SC.pre_level(i,0)
+    SC.rec(i,0)
+    --SC.rec_offset(i,8)
+    SC.position(i,0)
+    SC.filter_dry(i,1)
+    SC.filter_lp(i,0)
+    SC.filter_hp(i,0)
+    SC.filter_bp(i,0)
+    SC.filter_br(i,0)
+    SC.level_slew_time(i,0)
+    SC.rate_slew_time(i,0)
   end
   SC.buffer_clear()
 end
