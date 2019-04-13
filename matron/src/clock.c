@@ -57,7 +57,7 @@ static void *clock_schedule_resume_run(void *p) {
         .tv_nsec = (long) ((seconds - req.tv_sec) * 1e+9),
     };
 
-    nanosleep(&req, NULL);
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &req, NULL);
 
     union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
     ev->clock_resume.thread_id = coro_id;
