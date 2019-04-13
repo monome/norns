@@ -54,4 +54,11 @@ clock.cleanup = function()
   end
 end
 
+clock.TEMPO = 0
+clock.MIDI = 1
+
+clock.set_source = function(source)
+  _clock_set_source(source)
+end
+
 return clock

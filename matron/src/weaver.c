@@ -203,6 +203,7 @@ static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_tempo_set_tempo(lua_State *l);
+static int _clock_set_source(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -389,10 +390,13 @@ void w_init(void) {
 
   // reset LVM
   lua_register(lvm, "_reset_lvm", &_reset_lvm);
+
+  // clock
   lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
   lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
   lua_register(lvm, "_clock_cancel", &_clock_cancel);
   lua_register(lvm, "_clock_tempo_set_tempo", &_clock_tempo_set_tempo);
+  lua_register(lvm, "_clock_set_source", &_clock_set_source);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1484,6 +1488,17 @@ int _clock_tempo_set_tempo(lua_State *l) {
 
   double bpm = luaL_checknumber(l, 1);
   clock_tempo_set_tempo(bpm);
+
+  return 0;
+}
+
+int _clock_set_source(lua_State *l) {
+  if (lua_gettop(l) < 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  int source = (int) luaL_checkinteger(l, 1);
+  clock_set_source(source);
 
   return 0;
 }
