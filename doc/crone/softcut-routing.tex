@@ -58,8 +58,8 @@
 	\draw [->] (in-r-mul-\i) -- (cut-in-\i);
 	\draw [->] (cut-in-\i) -- (cut-in-fb-\i);
 	\draw [->] (cut-in-fb-\i) -- (cut-\i);
-	\node (cut-out-split-\i) at ($(cut-\i) + (5, 0)$) {\textbullet};
-	\draw (cut-\i) -- (cut-out-split-\i.center);
+	\node [mul] (cut-out-mul-\i) at ($(cut-\i) + (5, 0)$) {};
+	\draw [->] (cut-\i) -> (cut-out-mul-\i);
 	\node (cut-out-fb-split-\i) at ($(cut-\i) + (2 + \i*0.5, 0)$) {\textbullet};
 }
 
@@ -90,14 +90,13 @@
 	}
 }
 
-
 % outputs
 \foreach \i in {1,...,4}
 {
-	\node [mul] (cut-out-l-mul-\i) at ($(cut-out-split-\i) + (1, 0.5)$) {};
-	\node [mul] (cut-out-r-mul-\i) at ($(cut-out-split-\i) + (1, -0.5)$) {};
-	\draw [->] (cut-out-split-\i.center) -- (cut-out-l-mul-\i);
-	\draw [->] (cut-out-split-\i.center) -- (cut-out-r-mul-\i);
+	\node [mul] (cut-out-l-mul-\i) at ($(cut-out-mul-\i) + (1, 0.5)$) {};
+	\node [mul] (cut-out-r-mul-\i) at ($(cut-out-mul-\i) + (1, -0.5)$) {};
+	\draw [->] (cut-out-mul-\i) -- (cut-out-l-mul-\i);
+	\draw [->] (cut-out-mul-\i) -- (cut-out-r-mul-\i);
 }
 \node [output, label=right:CUT-OUT-L] (cut-out-l) at ($(cut-out-l-mul-1) + (2, -1.5)$) {};
 \node [output, label=right:CUT-OUT-R] (cut-out-r) at ($(cut-out-l) + (0, -4)$) {};
@@ -106,5 +105,37 @@
 	\draw [->] (cut-out-l-mul-\i) -- (cut-out-l);
 	\draw [->] (cut-out-r-mul-\i) -- (cut-out-r);
 }
+
+% labels 
+\draw [dotted] ($(in-l-mul-1.north west)+(-0.25,0.25)$)  rectangle ($(in-r-mul-4.south east)+(0.25,-0.25)$);
+\node [param] (level-input-cut) at ($(in-r) + (-0.5, -4)$) {$\tt{level\_input\_cut(in,cut)}$};
+\draw [dotted] (level-input-cut) -| ($(in-r-mul-4) + (0, -0.3)$);
+
+\draw [dotted] ($(cut-out-mul-1.north west)+(-0.25,0.25)$)  rectangle ($(cut-out-mul-4.south east)+(0.25,-0.25)$);
+\node [param] (level) at ($(cut-out-r) + (0.5, -4)$) {$\tt{level(cut)}$};
+\draw [dotted] (level) -| ($(cut-out-mul-4) + (0, -0.3)$);
+
+\draw [dotted] ($(cut-out-l-mul-1.north west)+(-0.25,0.25)$)  rectangle ($(cut-out-r-mul-4.south east)+(0.25,-0.25)$);
+\node [param] (pan) at ($(cut-out-r) + (0.5, -5)$) {$\tt{pan(cut)}$};
+\draw [dotted] (pan) -| ($(cut-out-r-mul-4) + (0, -0.3)$);
+
+\draw [dotted] ($(fb-1-1.north west)+(-0.25,0.25)$)  rectangle ($(fb-4-4.south east)+(0.25,-0.25)$);
+\node [param] (cut-cut) at ($(fb-4-4) + (0, -1)$) {$\tt{cut\_cut(x,y)}$};
+\draw [dotted] (cut-cut) -- ($(fb-4-4) + (0, -0.3)$);
+
+
 \end{tikzpicture}
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
