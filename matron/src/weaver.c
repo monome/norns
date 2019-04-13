@@ -126,7 +126,6 @@ static int _metro_set_time(lua_State *l);
 static int _get_time(lua_State *l);
 // usleep!
 static int _micro_sleep(lua_State *l);
-static int _get_time_beats(lua_State *l);
 
 // audio context control
 static int _set_level_dac(lua_State *l);
@@ -204,6 +203,7 @@ static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_tempo_set_tempo(lua_State *l);
 static int _clock_set_source(lua_State *l);
+static int _clock_get_time_beats(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -368,7 +368,6 @@ void w_init(void) {
   lua_register(lvm, "get_time", &_get_time);
   // usleep!
   lua_register(lvm, "usleep", &_micro_sleep);
-  lua_register(lvm, "get_time_beats", &_get_time_beats);
 
   // start / stop a poll
   lua_register(lvm, "start_poll", &_start_poll);
@@ -384,7 +383,7 @@ void w_init(void) {
   lua_register(lvm, "start_audio", &_start_audio);
   // restart the audio process (recompile sclang)
   lua_register(lvm, "restart_audio", &_restart_audio);
- 
+
   // returns channels, frames, samplerate
   lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
 
@@ -397,6 +396,7 @@ void w_init(void) {
   lua_register(lvm, "_clock_cancel", &_clock_cancel);
   lua_register(lvm, "_clock_tempo_set_tempo", &_clock_tempo_set_tempo);
   lua_register(lvm, "_clock_set_source", &_clock_set_source);
+  lua_register(lvm, "_clock_get_time_beats", &_clock_get_time_beats);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1416,11 +1416,6 @@ int _micro_sleep(lua_State *l) {
   return 0;
 }
 
-int _get_time_beats(lua_State *l) {
-  lua_pushnumber(l, clock_gettime_beats());
-  return 1;
-}
-
 //---- c -> lua glue
 
 //--- hardware input:
@@ -1501,6 +1496,12 @@ int _clock_set_source(lua_State *l) {
   clock_set_source(source);
 
   return 0;
+}
+
+int _clock_get_time_beats(lua_State *l) {
+  lua_pushnumber(l, clock_gettime_beats());
+
+  return 1;
 }
 
 void w_handle_monome_add(void *mdev) {

@@ -61,4 +61,8 @@ clock.set_source = function(source)
   _clock_set_source(source)
 end
 
+clock.get_time_beats = function()
+  return _clock_get_time_beats()
+end
+
 return clock
