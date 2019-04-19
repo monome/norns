@@ -188,7 +188,7 @@ void SoftCutVoice::updateQuantPhase() {
     if (phaseQuant == 0) {
         quantPhase = sch.getActivePhase() / sampleRate;
     } else {
-        quantPhase = std::floor( (sch.getActivePhase() + phaseOffset) /
+        quantPhase = std::floor( (sch.getActivePhase() + (phaseOffset * sampleRate)) /
             (sampleRate *phaseQuant)) * phaseQuant;
     }
 }
