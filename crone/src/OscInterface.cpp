@@ -636,6 +636,11 @@ void OscInterface::addServerMethods() {
         softCutClient->setPhaseQuant(argv[0]->i, argv[1]->f);
     });
 
+    addServerMethod("/set/param/cut/phase_offset", "if", [](lo_arg **argv, int argc) {
+        if (argc<2) { return; }
+        softCutClient->setPhaseOffset(argv[0]->i, argv[1]->f);
+    });
+
     addServerMethod("/poll/start/cut/phase", "", [](lo_arg **argv, int argc) {
         (void)argv; (void)argc;
         phasePoll->start();

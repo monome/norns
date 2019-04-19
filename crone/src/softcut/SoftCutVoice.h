@@ -49,6 +49,7 @@ namespace softcut {
         void setLevelSlewTime(float d);
         void setRateSlewTime(float d);
         void setPhaseQuant(float x);
+        void setPhaseOffset(float x);
 
         phase_t getQuantPhase();
 
@@ -85,6 +86,8 @@ namespace softcut {
         float svfDryLevel = 1.0;
         // phase quantization unit, should be in [0,1]
         phase_t phaseQuant;
+        // phase offset in sec
+        float phaseOffset = 0;
         // quantized phase
         std::atomic<phase_t> quantPhase;
 
