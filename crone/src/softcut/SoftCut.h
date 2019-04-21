@@ -165,6 +165,10 @@ namespace softcut {
             scv[i].setPhaseQuant(q);
         }
 
+        void setPhaseOffset(int i, float sec) {
+            scv[i].setPhaseOffset(sec);
+        }
+
         bool getRecFlag(int i) {
             return scv[i].getRecFlag();
         }

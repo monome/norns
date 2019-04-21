@@ -1,5 +1,5 @@
 
-osc methods: 
+osc methods:
  /hello []
  /goodbye []
  /quit []
@@ -70,6 +70,7 @@ osc methods:
  /softcut/buffer/clear_region [ff]
  /softcut/buffer/clear_region_channel [iff]
  /set/param/cut/phase_quant [if]
+ /set/param/cut/phase_offset [if]
  /poll/start/cut/phase []
  /poll/stop/cut/phase []
  /tape/record/open [s]
@@ -79,4 +80,4 @@ osc methods:
  /tape/play/start []
  /tape/play/stop []
  /set/level/tape [f]
- 
+

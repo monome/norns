@@ -105,7 +105,7 @@ void OscInterface::addServerMethod(const char* path, const char* format, Handler
                                     (void) types;
                                     (void) msg;
                                     auto pm = static_cast<OscMethod*>(data);
-                                    std::cerr << "osc rx: " << path << std::endl;
+                                    //std::cerr << "osc rx: " << path << std::endl;
                                     pm->handler(argv, argc);
                                     return 0;
                                 }, &(methods[numMethods]));
@@ -634,6 +634,11 @@ void OscInterface::addServerMethods() {
     addServerMethod("/set/param/cut/phase_quant", "if", [](lo_arg **argv, int argc) {
         if (argc<2) { return; }
         softCutClient->setPhaseQuant(argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/phase_offset", "if", [](lo_arg **argv, int argc) {
+        if (argc<2) { return; }
+        softCutClient->setPhaseOffset(argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/poll/start/cut/phase", "", [](lo_arg **argv, int argc) {

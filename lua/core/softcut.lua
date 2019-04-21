@@ -101,6 +101,8 @@ SC.rate_slew_time = function(voice,value) _norns.cut_param("rate_slew_time",voic
 
 --- set phase poll quantization
 SC.phase_quant = function(voice,value) _norns.cut_param("phase_quant",voice,value) end
+--- set phase poll offset
+SC.phase_offset = function(voice,value) _norns.cut_param("phase_offset",voice,value) end
 --- start phase poll
 SC.poll_start_phase = function() _norns.poll_start_cut_phase() end
 --- stop phase poll
@@ -180,6 +182,8 @@ function SC.reset()
     SC.filter_br(i,0)
     SC.level_slew_time(i,0.001)
     SC.rate_slew_time(i,0.001)
+    SC.phase_quant(i,1)
+    SC.phase_offset(i,0)
   end
   SC.buffer_clear()
 end

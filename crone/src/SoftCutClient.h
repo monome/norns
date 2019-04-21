@@ -81,6 +81,9 @@ namespace crone {
         void setPhaseQuant(int i, softcut::phase_t q) {
             cut.setPhaseQuant(i, q);
         }
+        void setPhaseOffset(int i, float sec) {
+            cut.setPhaseOffset(i, sec);
+        }
 
         int getNumVoices() const { return NumVoices; }
 
