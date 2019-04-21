@@ -182,6 +182,8 @@ function SC.reset()
     SC.filter_br(i,0)
     SC.level_slew_time(i,0.001)
     SC.rate_slew_time(i,0.001)
+    SC.phase_quant(i,1)
+    SC.phase_offset(i,0)
   end
   SC.buffer_clear()
 end
