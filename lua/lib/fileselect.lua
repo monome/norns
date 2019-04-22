@@ -80,22 +80,24 @@ fs.key = function(n,z)
     end
     -- select
   elseif n==3 and z==1 then
-    fs.file = fs.list[fs.pos+1]
-    if string.find(fs.file,'/') then
-      --print("folder")
-      fs.depth = fs.depth + 1
-      fs.folders[fs.depth] = fs.file
-      fs.list = util.scandir(fs.getdir())
-      fs.len = tab.count(fs.list)
-      fs.pos = 0
-      fs.redraw()
-    else
-      local path = fs.folder
-      for k,v in pairs(fs.folders) do
-        path = path .. v
+    if #fs.list > 0 then
+      fs.file = fs.list[fs.pos+1]
+      if string.find(fs.file,'/') then
+        --print("folder")
+        fs.depth = fs.depth + 1
+        fs.folders[fs.depth] = fs.file
+        fs.list = util.scandir(fs.getdir())
+        fs.len = tab.count(fs.list)
+        fs.pos = 0
+        fs.redraw()
+      else
+        local path = fs.folder
+        for k,v in pairs(fs.folders) do
+          path = path .. v
+        end
+        fs.path = path .. fs.file
+        fs.done = true
       end
-      fs.path = path .. fs.file
-      fs.done = true
     end
   elseif z == 0 and fs.done == true then
     fs.exit()
@@ -117,7 +119,7 @@ fs.redraw = function()
   if #fs.list == 0 then
     screen.level(4)
     screen.move(0,20)
-    screen.text("(no files)")
+    screen.text("..")
   else
     for i=1,6 do
       if (i > 2 - fs.pos) and (i < fs.len - fs.pos + 3) then
