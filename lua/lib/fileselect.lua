@@ -119,7 +119,7 @@ fs.redraw = function()
   if #fs.list == 0 then
     screen.level(4)
     screen.move(0,20)
-    screen.text("..")
+    screen.text("(no files)")
   else
     for i=1,6 do
       if (i > 2 - fs.pos) and (i < fs.len - fs.pos + 3) then
