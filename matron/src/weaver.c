@@ -36,7 +36,7 @@
 #include "oracle.h"
 #include "weaver.h"
 #include "clock.h"
-#include "clocks/clock_tempo.h"
+#include "clocks/clock_internal.h"
 
 //------
 //---- global lua state!
@@ -201,7 +201,7 @@ static int _reset_lvm(lua_State *l);
 static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
-static int _clock_tempo_set_tempo(lua_State *l);
+static int _clock_internal_set_tempo(lua_State *l);
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
 
@@ -394,7 +394,7 @@ void w_init(void) {
   lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
   lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
   lua_register(lvm, "_clock_cancel", &_clock_cancel);
-  lua_register(lvm, "_clock_tempo_set_tempo", &_clock_tempo_set_tempo);
+  lua_register(lvm, "_clock_internal_set_tempo", &_clock_internal_set_tempo);
   lua_register(lvm, "_clock_set_source", &_clock_set_source);
   lua_register(lvm, "_clock_get_time_beats", &_clock_get_time_beats);
 
@@ -1476,13 +1476,13 @@ int _clock_cancel(lua_State *l) {
   return 0;
 }
 
-int _clock_tempo_set_tempo(lua_State *l) {
+int _clock_internal_set_tempo(lua_State *l) {
   if (lua_gettop(l) < 1) {
     return luaL_error(l, "wrong number of arguments");
   }
 
   double bpm = luaL_checknumber(l, 1);
-  clock_tempo_set_tempo(bpm);
+  clock_internal_set_tempo(bpm);
 
   return 0;
 }

@@ -43,7 +43,7 @@ void clock_init() {
 
     pthread_mutex_init(&reference.lock, NULL);
 
-    clock_set_source(CLOCK_SOURCE_TEMPO);
+    clock_set_source(CLOCK_SOURCE_INTERNAL);
     clock_update_reference(0, 0.5);
 }
 

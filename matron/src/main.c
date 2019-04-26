@@ -23,7 +23,7 @@
 #include "screen.h"
 #include "stat.h"
 #include "clock.h"
-#include "clocks/clock_tempo.h"
+#include "clocks/clock_internal.h"
 #include "clocks/clock_midi.h"
 
 #include "oracle.h"
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     i2c_init();
     osc_init();
     clock_init();
-    clock_tempo_start();
+    clock_internal_start();
     clock_midi_init();
 
     o_init(); // oracle (audio)

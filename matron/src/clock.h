@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 typedef enum {
-    CLOCK_SOURCE_TEMPO	= 0,
+    CLOCK_SOURCE_INTERNAL = 0,
     CLOCK_SOURCE_MIDI = 1,
 } clock_source_t;
 
