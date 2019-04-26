@@ -23,7 +23,10 @@ def build(bld):
         'src/metro.c',
         'src/oracle.c',
         'src/weaver.c',
-        'src/snd_file.c'
+        'src/snd_file.c',
+        'src/clock.c',
+        'src/clocks/clock_internal.c',
+        'src/clocks/clock_midi.c',
     ]
 
     bld.program(features='c cprogram',

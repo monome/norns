@@ -70,6 +70,9 @@ extern void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16
 //--- metro bang handler
 extern void w_handle_metro(const int idx, const int stage);
 
+//--- clock
+extern void w_handle_clock_resume(const int thread_id);
+
 //--- crone poll handlers
 extern void w_handle_poll_value(int idx, float val);
 extern void w_handle_poll_data(int idx, int size, uint8_t *data);

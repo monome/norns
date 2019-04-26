@@ -14,6 +14,7 @@ grid = require 'core/grid'
 arc = require 'core/arc'
 hid = require 'core/hid'
 metro = require 'core/metro'
+clock = require "core/clock"
 midi = require 'core/midi'
 osc = require 'core/osc'
 poll = require 'core/poll'

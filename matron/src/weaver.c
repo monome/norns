@@ -35,6 +35,8 @@
 #include "osc.h"
 #include "oracle.h"
 #include "weaver.h"
+#include "clock.h"
+#include "clocks/clock_internal.h"
 
 //------
 //---- global lua state!
@@ -196,6 +198,12 @@ static int _sound_file_inspect(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
+static int _clock_schedule_sleep(lua_State *l);
+static int _clock_schedule_sync(lua_State *l);
+static int _clock_cancel(lua_State *l);
+static int _clock_internal_set_tempo(lua_State *l);
+static int _clock_set_source(lua_State *l);
+static int _clock_get_time_beats(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -375,12 +383,20 @@ void w_init(void) {
   lua_register(lvm, "start_audio", &_start_audio);
   // restart the audio process (recompile sclang)
   lua_register(lvm, "restart_audio", &_restart_audio);
- 
+
   // returns channels, frames, samplerate
   lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
 
   // reset LVM
   lua_register(lvm, "_reset_lvm", &_reset_lvm);
+
+  // clock
+  lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
+  lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
+  lua_register(lvm, "_clock_cancel", &_clock_cancel);
+  lua_register(lvm, "_clock_internal_set_tempo", &_clock_internal_set_tempo);
+  lua_register(lvm, "_clock_set_source", &_clock_set_source);
+  lua_register(lvm, "_clock_get_time_beats", &_clock_get_time_beats);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -410,12 +426,12 @@ void w_deinit(void) {
   lua_close(lvm);
 }
 
-void w_reset_lvm() {     
+void w_reset_lvm() {
   w_deinit();
   w_init();
   w_startup();
 }
- 
+
 
 //----------------------------------
 //---- static definitions
@@ -1415,6 +1431,79 @@ _call_grid_handler(int id, int x, int y, int state) {
   l_report(lvm, l_docall(lvm, 4, 0));
 }
 
+int _clock_schedule_sleep(lua_State *l) {
+  if (lua_gettop(l) < 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  int coro_id = (int) luaL_checkinteger(l, 1);
+  double seconds = luaL_checknumber(l, 2);
+
+  if (seconds == 0) {
+    w_handle_clock_resume(coro_id);
+  } else {
+    clock_schedule_resume_sleep(coro_id, seconds);
+  }
+
+  return 0;
+}
+
+int _clock_schedule_sync(lua_State *l) {
+  if (lua_gettop(l) < 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  int coro_id = (int) luaL_checkinteger(l, 1);
+  double beats = luaL_checknumber(l, 2);
+
+  if (beats == 0) {
+    w_handle_clock_resume(coro_id);
+  } else {
+    clock_schedule_resume_sync(coro_id, beats);
+  }
+
+  return 0;
+}
+
+int _clock_cancel(lua_State *l) {
+  if (lua_gettop(l) < 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  int coro_id = (int) luaL_checkinteger(l, 1);
+  clock_cancel_coro(coro_id);
+
+  return 0;
+}
+
+int _clock_internal_set_tempo(lua_State *l) {
+  if (lua_gettop(l) < 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  double bpm = luaL_checknumber(l, 1);
+  clock_internal_set_tempo(bpm);
+
+  return 0;
+}
+
+int _clock_set_source(lua_State *l) {
+  if (lua_gettop(l) < 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  int source = (int) luaL_checkinteger(l, 1);
+  clock_set_source(source);
+
+  return 0;
+}
+
+int _clock_get_time_beats(lua_State *l) {
+  lua_pushnumber(l, clock_gettime_beats());
+
+  return 1;
+}
+
 void w_handle_monome_add(void *mdev) {
   struct dev_monome *md = (struct dev_monome *)mdev;
   int id = md->dev.id;
@@ -1716,6 +1805,15 @@ void w_handle_metro(const int idx, const int stage) {
   lua_pushinteger(lvm, idx + 1);   // convert to 1-based
   lua_pushinteger(lvm, stage + 1); // convert to 1-based
   l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+// metro handler
+void w_handle_clock_resume(const int coro_id) {
+  lua_getglobal(lvm, "clock");
+  lua_getfield(lvm, -1, "resume");
+  lua_remove(lvm, -2);
+  lua_pushinteger(lvm, coro_id);
+  l_report(lvm, l_docall(lvm, 1, 0));
 }
 
 // gpio handler
