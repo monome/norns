@@ -72,7 +72,9 @@ typedef enum {
     // crow add
     EVENT_CROW_ADD,
     // crow remove
-    EVENT_CROW_REMOVE
+    EVENT_CROW_REMOVE,
+    // crow event
+    EVENT_CROW_EVENT
 } event_t;
 
 // a packed data structure for four volume levels
@@ -262,6 +264,11 @@ struct event_crow_remove {
     uint32_t id;
 }; // +4
 
+struct event_crow_event {
+    struct event_common common;
+    uint8_t id;
+}; // +4
+
 
 union event_data {
     uint32_t type;
@@ -294,4 +301,5 @@ union event_data {
     struct event_startup_ready_timeout startup_ready_timeout;
     struct event_crow_add crow_add;
     struct event_crow_remove crow_remove;
+    struct event_crow_event crow_event;
 };
