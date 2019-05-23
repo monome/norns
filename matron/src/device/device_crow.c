@@ -39,31 +39,31 @@ int dev_crow_init(void *self) {
     base->start = &dev_crow_start;
     base->deinit = &dev_crow_deinit;
 
-    fprintf(stderr, "attached crow?\n");
-
     return 0;
 }
 
-static void handle_event(uint8_t id) {
+static void handle_event(void *dev, uint8_t id) {
     union event_data *ev = event_data_new(EVENT_CROW_EVENT);
+    ev->crow_event.dev = dev;
     ev->crow_event.id = id;
     event_post(ev);
 }
 
 void *dev_crow_start(void *self) {
 	struct dev_crow *di = (struct dev_crow *)self;
+  struct dev_common *base = (struct dev_common *)self;
 
 	uint8_t len;
-	char buf[255];
 
 	while(1) {
-		len = read(di->fd, buf, 255);
+		len = read(di->fd, di->line, 255);
 		if(len > 0) {
-			buf[len] = 0; // add null to end of string
-			//fprintf(stderr,"%d\t > %s", len, buf);
-			if(len>1) fprintf(stderr,"crow> %s", buf);
+			di->line[len] = 0; // add null to end of string
+			if(len>1) {
+				//fprintf(stderr,"crow> %s", di->line);
+				handle_event(self, base->id);
+			}
 			len = 0;
-			handle_event(len);
 		}
 		usleep(100);
 	}
@@ -75,11 +75,15 @@ void dev_crow_deinit(void *self) {
   	tcsetattr(di->fd,TCSANOW,&di->oldtio);
 }
 
-void dev_crow_send(struct dev_crow *d, char *line) {
+void dev_crow_send(struct dev_crow *d, const char *line) {
 	uint8_t i = 0;
   uint8_t wlen;
-  while(i !=strlen(line)) {
-    wlen = write(d->fd, line+i, 1);
+	char s[256];
+	strcpy(s,line);
+	strcat(s,"\n\0");
+	//fprintf(stderr,"crow_send: %s",line);
+  while(i !=strlen(s)) {
+    wlen = write(d->fd, s+i, 1);
     if(wlen==1) i++;
   }
 }

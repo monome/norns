@@ -266,6 +266,7 @@ struct event_crow_remove {
 
 struct event_crow_event {
     struct event_common common;
+		void *dev;
     uint8_t id;
 }; // +4
 

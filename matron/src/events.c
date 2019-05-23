@@ -286,7 +286,7 @@ static void handle_event(union event_data *ev) {
         w_handle_crow_remove(ev->crow_remove.id);
         break;
     case EVENT_CROW_EVENT:
-        w_handle_crow_event(ev->crow_event.id);
+        w_handle_crow_event(ev->crow_event.dev, ev->crow_event.id);
         break;
     } /* switch */
 
