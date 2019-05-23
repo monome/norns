@@ -20,6 +20,7 @@
 #include "device_list.h"
 #include "device_hid.h"
 #include "device_monome.h"
+#include "device_crow.h"
 #include "events.h"
 
 #define SUB_NAME_SIZE 32
@@ -52,6 +53,10 @@ static struct watch w[DEV_TYPE_COUNT] = {
     {
         .sub_name = "sound",
         .node_pattern = "/dev/snd/midiC*D*"
+    },
+    {
+        .sub_name = "crow",
+        .node_pattern = "/dev/ttyACM*"
     }
 };
 
