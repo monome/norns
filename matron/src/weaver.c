@@ -1591,6 +1591,30 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
   l_report(lvm, l_docall(lvm, 4, 0));
 }
 
+void w_handle_crow_add(void *p) {
+  struct dev_crow *dev = (struct dev_crow *)p;
+  struct dev_common *base = (struct dev_common *)p;
+  int id = base->id;
+
+  _push_norns_func("crow", "add");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  lua_pushstring(lvm, base->name);
+  lua_pushlightuserdata(lvm, dev);
+  l_report(lvm, l_docall(lvm, 3, 0));
+}
+
+void w_handle_crow_remove(int id) {
+  _push_norns_func("crow", "remove");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+void w_handle_crow_event(int id) {
+  _push_norns_func("crow", "event");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  l_report(lvm, l_docall(lvm, 1, 0));
+}
+
 void w_handle_midi_add(void *p) {
   struct dev_midi *dev = (struct dev_midi *)p;
   struct dev_common *base = (struct dev_common *)p;

@@ -10,6 +10,7 @@ math.randomseed(os.time()) -- more random
 audio = require 'core/audio'
 screen = require 'core/screen'
 monome = require 'core/monome'
+crow = require 'core/crow'
 grid = require 'core/grid'
 arc = require 'core/arc'
 hid = require 'core/hid'

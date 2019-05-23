@@ -47,7 +47,7 @@ int dev_crow_init(void *self) {
 static void handle_event(uint8_t id) {
     union event_data *ev = event_data_new(EVENT_CROW_EVENT);
     ev->crow_event.id = id;
-    //event_post(ev);
+    event_post(ev);
 }
 
 void *dev_crow_start(void *self) {
@@ -73,4 +73,13 @@ void *dev_crow_start(void *self) {
 void dev_crow_deinit(void *self) {
     struct dev_crow *di = (struct dev_crow *)self;
   	tcsetattr(di->fd,TCSANOW,&di->oldtio);
+}
+
+void dev_crow_send(struct dev_crow *d, char *line) {
+	uint8_t i = 0;
+  uint8_t wlen;
+  while(i !=strlen(line)) {
+    wlen = write(d->fd, line+i, 1);
+    if(wlen==1) i++;
+  }
 }
