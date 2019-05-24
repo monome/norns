@@ -30,7 +30,7 @@ norns.crow.event = function(id, line)
     assert(load(line))()
     --print(line)
   else
-    crow.receive(line)
+    print("crow receive: "..line)
   end
 end
 
@@ -48,9 +48,6 @@ function crow.send(cmd)
   _norns.crow_send(norns.crow.dev,cmd)  
 end
 
-function crow.receive(msg)
-  print("crow receive: "..msg)
-end
 
 
 crow.input = {}
