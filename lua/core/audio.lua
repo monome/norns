@@ -26,7 +26,7 @@ Audio.level_eng = function(level)
   _norns.level_ext(level)
 end
 
--- set monitor level for *both* input channels.
+--- set monitor level for *both* input channels.
 -- @param level in [0, 1]
 Audio.level_monitor = function(level)
   _norns.level_monitor(level)
