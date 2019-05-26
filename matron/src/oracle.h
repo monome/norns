@@ -127,6 +127,7 @@ extern void o_tape_play_stop();
 //--- cut
 extern void o_set_level_adc_cut(float value);
 extern void o_set_level_ext_cut(float value);
+extern void o_set_level_tape_cut(float value);
 extern void o_set_level_cut_rev(float value);
 extern void o_set_level_cut_master(float value);
 extern void o_set_level_cut(int index, float value);
@@ -154,6 +155,7 @@ extern void o_set_rev_on();
 extern void o_set_rev_off();
 extern void o_set_level_monitor_rev(float value);
 extern void o_set_level_ext_rev(float value);
+extern void o_set_level_tape_rev(float value);
 extern void o_set_level_rev_dac(float value);
 extern void o_set_rev_param(const char* name, float value);
 

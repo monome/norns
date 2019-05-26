@@ -155,6 +155,7 @@ static int _tape_play_stop(lua_State *l);
 // cut
 static int _set_level_adc_cut(lua_State *l);
 static int _set_level_ext_cut(lua_State *l);
+static int _set_level_tape_cut(lua_State *l);
 static int _set_level_cut_rev(lua_State *l);
 static int _set_level_cut_master(lua_State *l);
 static int _set_level_cut(lua_State *l);
@@ -179,6 +180,7 @@ static int _set_rev_on(lua_State *l);
 static int _set_rev_off(lua_State *l);
 static int _set_level_monitor_rev(lua_State *l);
 static int _set_level_ext_rev(lua_State *l);
+static int _set_level_tape_rev(lua_State *l);
 static int _set_level_rev_dac(lua_State *l);
 static int _set_rev_param(lua_State *l);
 
@@ -252,6 +254,7 @@ void w_init(void) {
   lua_register_norns("level_ext_rev", &_set_level_ext_rev);
   lua_register_norns("level_rev_dac", &_set_level_rev_dac);
   lua_register_norns("level_monitor_rev", &_set_level_monitor_rev);
+  lua_register_norns("level_tape_rev", &_set_level_tape_rev);
   lua_register_norns("comp_on", &_set_comp_on);
   lua_register_norns("comp_off", &_set_comp_off);
   lua_register_norns("comp_param", &_set_comp_param);
@@ -274,6 +277,7 @@ void w_init(void) {
   // cut
   lua_register_norns("level_adc_cut", &_set_level_adc_cut);
   lua_register_norns("level_ext_cut", &_set_level_ext_cut);
+  lua_register_norns("level_tape_cut", &_set_level_tape_cut);
   lua_register_norns("level_cut_rev", &_set_level_cut_rev);
   lua_register_norns("level_cut_master", &_set_level_cut_master);
   lua_register_norns("level_cut", &_set_level_cut);
@@ -2126,6 +2130,15 @@ int _set_level_ext_cut(lua_State *l) {
   return 0;
 }
 
+int _set_level_tape_cut(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_tape_cut(val);
+  return 0;
+}
+
 int _set_level_cut_rev(lua_State *l) {
   if (lua_gettop(l) != 1) {
     return luaL_error(l, "wrong number of arguments");
@@ -2337,6 +2350,15 @@ int _set_level_ext_rev(lua_State *l) {
   }
   float val = (float) luaL_checknumber(l, 1);
   o_set_level_ext_rev(val);
+  return 0;
+}
+
+int _set_level_tape_rev(lua_State *l) {
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  float val = (float) luaL_checknumber(l, 1);
+  o_set_level_tape_rev(val);
   return 0;
 }
 

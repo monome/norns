@@ -51,6 +51,8 @@ namespace crone {
             SET_LEVEL_IN_CUT,
             SET_LEVEL_CUT_CUT,
             SET_LEVEL_TAPE,
+            SET_LEVEL_TAPE_AUX,
+            SET_LEVEL_TAPE_CUT,
 
             // params
             SET_CUT_REC_FLAG,
