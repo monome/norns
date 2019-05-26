@@ -209,12 +209,14 @@ MixerClient::SmoothLevelList::SmoothLevelList() {
     ext.setTarget(1.f);
     cut.setTarget(1.f);
     monitor.setTarget(0.f);
-    cut_aux.setTarget(0.f);
-    ext_aux.setTarget(0.f);
-    tape_aux.setTarget(0.f);
+    tape.setTarget(1.f);
+    adc_cut.setTarget(1.f);
     ext_cut.setTarget(0.f);
     tape_cut.setTarget(0.f);
     monitor_aux.setTarget(0.f);
+    cut_aux.setTarget(0.f);
+    ext_aux.setTarget(0.f);
+    tape_aux.setTarget(0.f);
     aux.setTarget(0.f);
     ins_mix.setTarget(0.f);
 }
@@ -225,13 +227,16 @@ void MixerClient::SmoothLevelList::setSampleRate(float sr) {
     ext.setSampleRate(sr);
     cut.setSampleRate(sr);
     monitor.setSampleRate(sr);
+    tape.setSampleRate(sr);
+    adc_cut.setSampleRate(sr);
+    ext_cut.setSampleRate(sr);
+    tape_cut.setSampleRate(sr);
+    monitor_aux.setSampleRate(sr);
     cut_aux.setSampleRate(sr);
     ext_aux.setSampleRate(sr);
     tape_aux.setSampleRate(sr);
-    monitor_aux.setSampleRate(sr);
     aux.setSampleRate(sr);
-    ins_mix.setSampleRate(sr);    tape.setSampleRate(sr);
-
+    ins_mix.setSampleRate(sr);
 }
 
 MixerClient::StaticLevelList::StaticLevelList() {
