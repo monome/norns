@@ -65,6 +65,10 @@ mix:add_control("rev_monitor_input", "rev monitor input", cs_DB_LEVEL_MUTE)
 mix:set_action("rev_monitor_input",
   function(x) audio.level_monitor_rev(util.dbamp(x)) end)
 
+mix:add_control("rev_tape_input", "rev tape input", cs_DB_LEVEL_MUTE)
+mix:set_action("rev_tape_input",
+  function(x) audio.level_tape_rev(util.dbamp(x)) end)
+
 mix:add_control("rev_return_level", "rev return level", cs_DB_LEVEL)
 mix:set_action("rev_return_level",
   function(x) audio.level_rev_dac(util.dbamp(x)) end)

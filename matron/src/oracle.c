@@ -508,6 +508,10 @@ void o_set_level_tape(float level) {
     lo_send(crone_addr, "/set/level/tape", "f", level);
 }
 
+void o_set_level_tape_rev(float level) {
+    lo_send(crone_addr, "/set/level/tape_rev", "f", level);
+}
+
 void o_tape_rec_open(char *file) {
     lo_send(crone_addr, "/tape/record/open", "s", file);
 }
@@ -544,6 +548,10 @@ void o_set_level_adc_cut(float value) {
 
 void o_set_level_ext_cut(float value) {
     lo_send(crone_addr, "/set/level/ext_cut", "f", value);
+}
+
+void o_set_level_tape_cut(float value) {
+    lo_send(crone_addr, "/set/level/tape_cut", "f", value);
 }
 
 void o_set_level_cut_rev(float value) {

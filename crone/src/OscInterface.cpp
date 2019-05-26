@@ -305,7 +305,11 @@ void OscInterface::addServerMethods() {
     addServerMethod("/set/level/ext_cut", "f", [](lo_arg **argv, int argc) {
         if(argc<1) { return; }
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_EXT_CUT, argv[0]->f);
+    });
 
+    addServerMethod("/set/level/tape_cut", "f", [](lo_arg **argv, int argc) {
+        if(argc<1) { return; }
+        Commands::mixerCommands.post(Commands::Id::SET_LEVEL_TAPE_CUT, argv[0]->f);
     });
 
     addServerMethod("/set/level/cut_rev", "f", [](lo_arg **argv, int argc) {
@@ -690,6 +694,10 @@ void OscInterface::addServerMethods() {
         Commands::mixerCommands.post(Commands::Id::SET_LEVEL_TAPE, argv[0]->f);
     });
 
+    addServerMethod("/set/level/tape_rev", "f", [](lo_arg **argv, int argc) {
+        if (argc<1) { return; }
+        Commands::mixerCommands.post(Commands::Id::SET_LEVEL_TAPE_AUX, argv[0]->f);
+    });
 }
 
 void OscInterface::printServerMethods() {
