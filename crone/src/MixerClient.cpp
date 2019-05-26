@@ -44,8 +44,6 @@ void MixerClient::process(jack_nframes_t numFrames) {
         float *dst[2] = {static_cast<float*>(bus.tape.buf[0]), static_cast<float*>(bus.tape.buf[1])};
         tape.reader.process(dst, numFrames);
         bus.tape.applyGain(numFrames, smoothLevels.tape);
-        // FIXME: probably want other options for tape playback routing.
-        /// for now, just sum tape to insert bus
         bus.ins_in.addFrom(bus.tape, numFrames);
     }
 
