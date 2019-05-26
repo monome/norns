@@ -208,7 +208,7 @@ MixerClient::SmoothLevelList::SmoothLevelList() {
     cut.setTarget(1.f);
     monitor.setTarget(0.f);
     tape.setTarget(1.f);
-    adc_cut.setTarget(1.f);
+    adc_cut.setTarget(0.f);
     ext_cut.setTarget(0.f);
     tape_cut.setTarget(0.f);
     monitor_aux.setTarget(0.f);
