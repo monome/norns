@@ -147,11 +147,11 @@ mix:set_action("comp_threshold",
 local cs_ATTACK = cs.new(1,1000,'exp',0,5,'ms')
 mix:add_control("comp_attack", "comp attack", cs_ATTACK)
 mix:set_action("comp_attack",
-  function(x) audio.comp_param("attack",x) end)
+  function(x) audio.comp_param("attack", x*0.001) end)
 local cs_RELEASE = cs.new(1,1000,'exp',0,50,'ms')
 mix:add_control("comp_release", "comp release", cs_RELEASE)
 mix:set_action("comp_release",
-  function(x) audio.comp_param("release",x) end)
+  function(x) audio.comp_param("release",x * 0.001) end)
 
 local cs_PREGAIN = cs.new(-20,60,'db',0,0,'dB')
 mix:add_control("comp_pre_gain", "comp pre gain", cs_PREGAIN)
