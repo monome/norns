@@ -12,6 +12,11 @@ function change(...)
   crow.input.receive(...)
 end
 
+function crow_id(...)
+  print("crow" .. ...)
+end
+
+
 norns.crow = {}
 
 norns.crow.add = function(id, name, dev)
@@ -21,6 +26,7 @@ end
 
 norns.crow.remove = function(id)
   print(">>>>>> norns.crow.remove " .. id)
+  norns.crow.dev = nil
 end
 
 norns.crow.event = function(id, line)
@@ -35,17 +41,15 @@ norns.crow.event = function(id, line)
 end
 
 
-norns.crow.send = function(cmd)
-  _norns.crow_send(norns.crow.dev,cmd)  
-end
-
 -- ----
 
 local crow = {}
 
 function crow.send(cmd)
-  print("crow send: "..cmd)
-  _norns.crow_send(norns.crow.dev,cmd)  
+  if norns.crow.dev then
+    --print("crow send: "..cmd)
+    _norns.crow_send(norns.crow.dev,cmd)
+  end
 end
 
 
