@@ -27,12 +27,15 @@ int dev_crow_init(void *self) {
     }
 
     tcgetattr(d->fd,&d->oldtio);
-    d->newtio.c_cflag = CROW_BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
-    d->newtio.c_iflag = IGNPAR | ICRNL;
+    //d->newtio.c_cflag = CROW_BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
+    d->newtio.c_cflag = CROW_BAUDRATE | CS8 | CLOCAL | CREAD;
+    //d->newtio.c_iflag = IGNPAR | ICRNL;
+    d->newtio.c_iflag &= ~(IXON | IXOFF | IXANY);
     d->newtio.c_oflag = 0;
-    d->newtio.c_lflag = ICANON;
-    d->newtio.c_cc[VMIN]=1;
-    d->newtio.c_cc[VTIME]=0;
+    //d->newtio.c_lflag = ICANON;
+    d->newtio.c_lflag = 0;
+    d->newtio.c_cc[VMIN]=0;
+    d->newtio.c_cc[VTIME]=5;
     tcflush(d->fd, TCIFLUSH);
     tcsetattr(d->fd,TCSANOW,&d->newtio);
 
