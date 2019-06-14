@@ -68,7 +68,7 @@ void *dev_crow_start(void *self) {
 			}
 			len = 0;
 		}
-		usleep(100);
+		usleep(1000); // 1ms
 	}
 	return NULL;
 }
