@@ -79,14 +79,9 @@ void dev_crow_deinit(void *self) {
 }
 
 void dev_crow_send(struct dev_crow *d, const char *line) {
-	uint8_t i = 0;
-  uint8_t wlen;
 	char s[256];
 	strcpy(s,line);
-	strcat(s,"\n");
+	strcat(s,"\n\0");
 	//fprintf(stderr,"crow_send: %s",line);
-  while(i !=strlen(s)) {
-    wlen = write(d->fd, s+i, 1);
-    if(wlen==1) i++;
-  }
+  write(d->fd, s, strlen(s));
 }
