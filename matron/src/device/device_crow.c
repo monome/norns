@@ -19,7 +19,7 @@ int dev_crow_init(void *self) {
     struct dev_crow *d = (struct dev_crow *)self;
     struct dev_common *base = (struct dev_common *)self;
 
-    d->fd = open(d->base.path, O_RDWR | O_NOCTTY);
+    d->fd = open(d->base.path, O_RDWR | O_NOCTTY | O_SYNC);
 
     if (d->fd < 0) {
         fprintf(stderr, "failed to open crow device: %s\n", d->base.path);
@@ -83,7 +83,7 @@ void dev_crow_send(struct dev_crow *d, const char *line) {
   uint8_t wlen;
 	char s[256];
 	strcpy(s,line);
-	strcat(s,"\n\0");
+	strcat(s,"\n");
 	//fprintf(stderr,"crow_send: %s",line);
   while(i !=strlen(s)) {
     wlen = write(d->fd, s+i, 1);
