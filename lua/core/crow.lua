@@ -4,16 +4,24 @@ local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
 
-function ret_cv(...)
-  crow.input.receive(...)
+function _norns.crow_input(n,v)
+  crow.input[n].receive(v)
 end
 
-function change(...)
-  crow.input.receive(...)
+function _norns.crow_change(n,v)
+  crow.input[n].receive(v)
 end
 
-function crow_id(...)
-  print("crow" .. ...)
+function _norns.crow_output(i,v)
+  crow.output[i].receive(v)
+end
+
+function _norns.crow_identity(...)
+  print("crow identity: " .. ...)
+end
+
+function _norns.crow_version(...)
+  print("crow version: " .. ...)
 end
 
 
@@ -32,7 +40,7 @@ end
 norns.crow.event = function(id, line)
   line = string.sub(line,1,-2) -- strip newline
   if util.string_starts(line,"^^") == true then
-    line = string.sub(line,3)
+    line = line:gsub("%^^","_norns.crow_") 
     assert(load(line))()
     --print(line)
   else
@@ -43,7 +51,52 @@ end
 
 -- ----
 
+local input = {}
+
+function input.new(x)
+  local i = { n = x }
+  i.query = function() crow.send("get_cv("..i.n..")") end
+  i.receive = function(v) print("crow input receive: "..i.n.." "..v) end
+  i.mode = function(m) crow.send("input["..i.n.."].mode("..tostringwithquotes(m)..")") end
+  setmetatable(i,input)
+  return i
+end
+
+setmetatable(input, input)
+
+
+local output = {}
+
+function output.new(x)
+  local o = { n = x }
+  o.query = function() crow.send("get_out("..o.n..")") end
+  o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
+  setmetatable(o,output)
+  return o
+end
+
+output.__newindex = function(self, i, v)
+  if i == 'volts' then
+    crow.send("output["..self.n.."].volts="..v)
+  end
+end
+
+setmetatable(output, output)
+
+-- ----
+
 local crow = {}
+
+crow.output = { output.new(1), output.new(2) }
+crow.input = { input.new(1), input.new(2), input.new(3), input.new(4)  }
+
+function crow.version()
+  crow.send("^^v")
+end
+
+function crow.identity()
+  crow.send("^^i")
+end
 
 function crow.send(cmd)
   if norns.crow.dev then
@@ -53,13 +106,7 @@ function crow.send(cmd)
 end
 
 
-
-crow.input = {}
-
-function crow.input.query(n)
-  crow.send("get_cv("..n..")")
-end
-
+--[[
 function crow.input.mode(...)
   local arg = {...}
   local n = arg[1]
@@ -73,17 +120,6 @@ function crow.input.mode(...)
   end
   args = string.sub(args,0,-2)
   crow.send("input["..n.."].mode("..args..")")
-end
-
-function crow.input.receive(n, v)
-  print("crow input receive: "..n.." "..v)
-end
-
-
-function crow.output(n,v)
-  crow.send("output["..n.."].volts="..v)
-end
-
+end]]
 
 return crow
-
