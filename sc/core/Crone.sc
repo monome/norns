@@ -81,6 +81,8 @@ Crone {
 		//Crone.runShellCommand("jack_connect \"crone:output_6\" \"supernova:input_2\"");
 		Crone.runShellCommand("jack_connect \"crone:output_5\" \"SuperCollider:in_1\"");
 		Crone.runShellCommand("jack_connect \"crone:output_6\" \"SuperCollider:in_2\"");
+		Crone.runShellCommand("jack_connect softcut:output_1 SuperCollider:in_1");
+		Crone.runShellCommand("jack_connect softcut:output_2 SuperCollider:in_2");
 
 		//Crone.runShellCommand("jack_connect \"supernova:output_1\" \"crone:input_5\"");
 		//Crone.runShellCommand("jack_connect \"supernova:output_2\" \"crone:input_6\"");
