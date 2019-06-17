@@ -4,12 +4,12 @@ local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
 
-function _norns.crow_input(n,v)
-  crow.input[n].receive(v)
+function _norns.crow_stream(n,v)
+  crow.input[n].stream(v)
 end
 
 function _norns.crow_change(n,v)
-  crow.input[n].receive(v)
+  crow.input[n].change(v)
 end
 
 function _norns.crow_output(i,v)
@@ -56,7 +56,8 @@ local input = {}
 function input.new(x)
   local i = { n = x }
   i.query = function() crow.send("get_cv("..i.n..")") end
-  i.receive = function(v) print("crow input receive: "..i.n.." "..v) end
+  i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
+  i.change = function(v) print("crow input change: "..i.n.." "..v) end
   i.mode = function(m) crow.send("input["..i.n.."].mode("..tostringwithquotes(m)..")") end
   setmetatable(i,input)
   return i
@@ -105,21 +106,5 @@ function crow.send(cmd)
   end
 end
 
-
---[[
-function crow.input.mode(...)
-  local arg = {...}
-  local n = arg[1]
-  local args = ''
-  for i=2,#arg do
-    if type(arg[i]) == "string" then
-      args = args .. tostringwithquotes(arg[i]) .. ","
-    else
-      args = args .. arg[i] .. ","
-    end
-  end
-  args = string.sub(args,0,-2)
-  crow.send("input["..n.."].mode("..args..")")
-end]]
 
 return crow
