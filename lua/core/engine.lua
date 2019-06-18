@@ -85,6 +85,7 @@ Engine.load = function(name, callback)
     end
   else norns.init_done(true)
   end
+  Engine.name = name
   load_engine(name)
 end
 
