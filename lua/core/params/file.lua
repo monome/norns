@@ -20,10 +20,11 @@ function File:get()
   return self.path
 end
 
-function File:set(v)
+function File:set(v, silent)
+  local silent = silent or false
   if self.path ~= v then
     self.path = v
-    self:bang()
+    if silent==false then self:bang() end
   end
 end
 

@@ -44,7 +44,7 @@ function Taper:get_raw()
   return self.value
 end
 
-function Taper:set(v)
+function Taper:set(v, silent)
   local raw
   raw = map(v, self.min, self.max, 0, 1)
 
@@ -52,13 +52,14 @@ function Taper:set(v)
     raw = math.log(raw * (math.pow(math.exp(1), self.k) - 1) + 1) / self.k
   end
 
-  self:set_raw(raw)
+  self:set_raw(raw, silent)
 end
 
-function Taper:set_raw(v)
+function Taper:set_raw(v, silent)
+  local silent = silent or false
   if self.value ~= v then
     self.value = util.clamp(v, 0, 1)
-    self:bang()
+    if silent==false then self:bang() end
   end
 end
 
