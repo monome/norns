@@ -106,5 +106,12 @@ function crow.send(cmd)
   end
 end
 
+crow.II = {}
+crow.II.pullup = function(x) crow.send("II.pullup("..x..")") end
+crow.II.jf = {}
+crow.II.jf.trigger = function(x,y) crow.send("II.jf.trigger("..x..","..y..")") end
+
+
+
 
 return crow
