@@ -72,6 +72,8 @@ function output.new(x)
   local o = { n = x }
   o.query = function() crow.send("get_out("..o.n..")") end
   o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
+  o.action = function(s) crow.send("output["..o.n.."].action = "..s) end
+  o.execute = function() crow.send("output["..o.n.."]()") end
   setmetatable(o,output)
   return o
 end
@@ -88,9 +90,6 @@ setmetatable(output, output)
 
 local crow = {}
 
-crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
-crow.input = { input.new(1), input.new(2) }
-
 function crow.version()
   crow.send("^^v")
 end
@@ -105,6 +104,17 @@ function crow.send(cmd)
     _norns.crow_send(norns.crow.dev,cmd)
   end
 end
+
+crow.input = { input.new(1), input.new(2) }
+crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
+
+crow.init = function()
+  crow.input = { input.new(1), input.new(2) }
+  crow.input[1].mode("none")
+  crow.input[2].mode("none")
+  crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
+end
+
 
 crow.II = {}
 crow.II.pullup = function(x) crow.send("II.pullup("..x..")") end
