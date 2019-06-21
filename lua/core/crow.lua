@@ -117,7 +117,8 @@ end
 
 
 crow.II = {}
-crow.II.pullup = function(x) crow.send("II.pullup("..x..")") end
+crow.II.pullup = function(x) if x == true then crow.send("II.pullup(true)")
+  else crow.send("II.pullup(false)") end end
 crow.II.jf = {}
 crow.II.jf.trigger = function(ch,state) crow.send("II.jf.trigger("..ch..","..state..")") end
 crow.II.jf.run_mode = function(mode) crow.send("II.jf.run_mode("..mode..")") end
@@ -125,10 +126,10 @@ crow.II.jf.run = function(volts) crow.send("II.jf.run("..volts..")") end
 crow.II.jf.transpose = function(pitch) crow.send("II.jf.transpose("..pitch..")") end
 crow.II.jf.vtrigger = function(ch,level) crow.send("II.jf.vtrigger("..ch..","..level..")") end
 crow.II.jf.retune = function(ch,numerator,denominator) crow.send("II.jf.retune("..ch..","..numerator..","..denominator..")") end
-crow.II.jf.mode = function(mode) crow.send("II.jf.mode("..state..")") end
+crow.II.jf.mode = function(mode) crow.send("II.jf.mode("..mode..")") end
 crow.II.jf.play_voice = function(channel,pitch,level) crow.send("II.jf.play_voice("..channel..","..pitch..","..level..")") end
-crow.II.jf.play_note = function(pitch,level) crow.send("II.jf.play_note("..pitch..","..level..")") end
-crow.II.jf.god_mode = function(mode) crow.send("II.jf.god_mode("..state..")") end
+crow.II.jf.play_note = function(pitch,level) crow.send("II.jf.play_note("..(pitch*1638)..","..(level*1638)..")") end
+crow.II.jf.god_mode = function(state) crow.send("II.jf.god_mode("..state..")") end
 crow.II.jf.tick = function(clock) crow.send("II.jf.tick("..clock..")") end
 crow.II.jf.quantize = function(divisions) crow.send("II.jf.quantize("..divisions..")") end
 
