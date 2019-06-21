@@ -88,8 +88,8 @@ setmetatable(output, output)
 
 local crow = {}
 
-crow.output = { output.new(1), output.new(2) }
-crow.input = { input.new(1), input.new(2), input.new(3), input.new(4)  }
+crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
+crow.input = { input.new(1), input.new(2) }
 
 function crow.version()
   crow.send("^^v")
