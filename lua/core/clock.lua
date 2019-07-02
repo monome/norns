@@ -5,7 +5,8 @@ local clock = {}
 
 clock.threads = {}
 
---- create a coroutine from the given function and immediately run it. 
+--- create a coroutine from the given function and immediately run it;
+-- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
 -- @tparam function f
 -- @treturn integer : coroutine ID that can be used to stop it later
 clock.run = function(f)
@@ -19,15 +20,16 @@ end
 local SLEEP = 0
 local SYNC = 1
 
---- pause coroutine execution for s seconds.
--- @tparam integer s : seconds
+--- suspend execution of a coroutine for s seconds;
+-- requires being called from within a coroutine launched with clock.run.
+-- @tparam float s : seconds
 clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
 
---- pause execution until the given fraction of a beat is reached in time;
--- must be called from within a coroutine launched with clock.run.
--- @tparam integer beats
+--- suspend execution until the given fraction of a beat is reached in time;
+-- requires being called from within a coroutine launched with clock.run.
+-- @tparam float beats
 clock.sync = function(...)
   return coroutine.yield(SYNC, ...)
 end
