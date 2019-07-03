@@ -21,7 +21,7 @@ local SLEEP = 0
 local SYNC = 1
 
 --- suspend execution of a coroutine for s seconds;
--- requires being called from within a coroutine launched with clock.run.
+-- must be called from within a coroutine started with clock.run.
 -- @tparam float s : seconds
 clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
