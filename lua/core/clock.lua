@@ -53,7 +53,7 @@ clock.resume = function(coro_id)
   end
 end
 
---- stop execution of a coroutine started using clock.run
+--- stop execution of a coroutine started using clock.run.
 -- @tparam integer coro_id
 clock.stop = function(coro_id)
   _clock_cancel(coro_id)
@@ -73,7 +73,7 @@ end
 clock.INTERNAL = 0
 clock.MIDI = 1
 
---- select the sync source, currently clock.INTERNAL and clock.MIDI
+--- select the sync source, currently clock.INTERNAL and clock.MIDI.
 -- @tparam integer source
 clock.set_source = function(source)
   _clock_set_source(source)
