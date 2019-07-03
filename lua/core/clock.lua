@@ -28,7 +28,7 @@ clock.sleep = function(...)
 end
 
 --- suspend execution until the given fraction of a beat is reached in time;
--- requires being called from within a coroutine launched with clock.run.
+-- must be called from within a coroutine started with clock.run.
 -- @tparam float beats : 
 clock.sync = function(...)
   return coroutine.yield(SYNC, ...)
