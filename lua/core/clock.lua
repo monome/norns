@@ -8,7 +8,7 @@ clock.threads = {}
 --- create a coroutine from the given function and immediately run it;
 -- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
 -- @tparam function f
--- @treturn integer : coroutine ID that can be used to stop it later
+-- @treturn integer : coroutine ID that can be used to stop or sync it later
 clock.run = function(f)
   local coro = coroutine.create(f)
   local coro_id = #clock.threads + 1
@@ -29,7 +29,7 @@ end
 
 --- suspend execution until the given fraction of a beat is reached in time;
 -- requires being called from within a coroutine launched with clock.run.
--- @tparam float beats
+-- @tparam float beats : 
 clock.sync = function(...)
   return coroutine.yield(SYNC, ...)
 end
