@@ -27,9 +27,9 @@ clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
 
---- suspend execution until the given fraction of a beat is reached in time;
+--- suspend execution until the next fraction of a beat is reached in time;
 -- must be called from within a coroutine started with clock.run.
--- @tparam float beats : 
+-- @tparam float beats : Next fraction of a beat at which the coroutine will be resumed. May be a value larger than 1.
 clock.sync = function(...)
   return coroutine.yield(SYNC, ...)
 end
