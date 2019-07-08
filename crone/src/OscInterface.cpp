@@ -53,6 +53,7 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     mixerClient = m;
     softCutClient = sc;
 
+    // FIXME: polls should really live somewhere else (client classes?)
     //--- VU poll
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([](const char* path){
@@ -670,6 +671,14 @@ void OscInterface::addServerMethods() {
         softCutClient->clearBuffer(argv[0]->i, argv[1]->f, argv[2]->f);
     });
 
+    addServerMethod("/softcut/reset", "", [](lo_arg **argv, int argc) {
+        (void)argv;
+        (void)argc;
+        softCutClient->reset();
+        for (int i=0; i<SoftCutClient::NumVoices; ++i) {
+            phasePoll->stop();
+        }
+    });
 
     //---------------------
     //--- softcut polls

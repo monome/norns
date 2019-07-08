@@ -78,6 +78,7 @@ osc methods:
  /softcut/buffer/clear_channel [i]
  /softcut/buffer/clear_region [ff]
  /softcut/buffer/clear_region_channel [iff]
+ /softcut/reset []
  /set/param/cut/phase_quant [if]
  /set/param/cut/phase_offset [if]
  /poll/start/cut/phase []

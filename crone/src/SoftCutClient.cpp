@@ -15,8 +15,8 @@ static inline void clamp(size_t &x, const size_t a) {
 
 crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut") {
 
-    for(int i=0; i<NumVoices; ++i) {
-        cut.setVoiceBuffer(i, buf[i&1], BufFrames);
+    for (int i = 0; i < NumVoices; ++i) {
+        cut.setVoiceBuffer(i, buf[i & 1], BufFrames);
     }
 }
 
@@ -25,7 +25,7 @@ void crone::SoftCutClient::process(jack_nframes_t numFrames) {
     clearBusses(numFrames);
     mixInput(numFrames);
     // process softcuts (overwrites output bus)
-    for(int v=0; v<NumVoices; ++v) {
+    for (int v = 0; v < NumVoices; ++v) {
         if (!enabled[v]) {
             continue;
         }
@@ -46,12 +46,12 @@ void crone::SoftCutClient::clearBusses(size_t numFrames) {
 }
 
 void crone::SoftCutClient::mixInput(size_t numFrames) {
-    for(int ch=0; ch<2; ++ch) {
-        for(int v=0; v<NumVoices; ++v) {
-            if(cut.getRecFlag(v)) {
+    for (int ch = 0; ch < 2; ++ch) {
+        for (int v = 0; v < NumVoices; ++v) {
+            if (cut.getRecFlag(v)) {
                 input[v].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][v]);
                 for (int w = 0; w < NumVoices; ++w) {
-                    if(cut.getPlayFlag(w)) {
+                    if (cut.getPlayFlag(w)) {
                         input[v].mixFrom(output[w], numFrames, fbLevel[v][w]);
                     }
                 }
@@ -61,23 +61,23 @@ void crone::SoftCutClient::mixInput(size_t numFrames) {
 }
 
 void crone::SoftCutClient::mixOutput(size_t numFrames) {
-    for(int v=0; v<NumVoices; ++v) {
-        if(cut.getPlayFlag(v)) {
+    for (int v = 0; v < NumVoices; ++v) {
+        if (cut.getPlayFlag(v)) {
             mix.panMixFrom(output[v], numFrames, outLevel[v], outPan[v]);
         }
     }
 }
 
 void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
-    switch(p->id) {
-            //-- softcut routing
+    switch (p->id) {
+        //-- softcut routing
         case Commands::Id::SET_ENABLED_CUT:
             std::cout << "softcut: setting enabled: voice "
                       << p->idx_0 << ": " << (p->value > 0) << std::endl;
             enabled[p->idx_0] = p->value > 0.f;
             break;
         case Commands::Id::SET_LEVEL_CUT:
-                    std::cout << "softcut: setting voice output level "
+            std::cout << "softcut: setting voice output level "
                       << p->idx_0 << ": " << p->value << std::endl;
             outLevel[p->idx_0].setTarget(p->value);
             break;;
@@ -126,7 +126,7 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_POSITION:
             cut.cutToPos(p->idx_0, p->value);
             break;
-	    // input filter
+            // input filter
         case Commands::Id::SET_CUT_PRE_FILTER_FC:
             cut.setPreFilterFc(p->idx_0, p->value);
             break;
@@ -151,7 +151,7 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_PRE_FILTER_DRY:
             cut.setPreFilterDry(p->idx_0, p->value);
             break;
-	    // output filter
+            // output filter
         case Commands::Id::SET_CUT_POST_FILTER_FC:
             cut.setPostFilterFc(p->idx_0, p->value);
             break;
@@ -173,7 +173,7 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_POST_FILTER_DRY:
             cut.setPostFilterDry(p->idx_0, p->value);
             break;
-	    
+
         case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
             cut.setLevelSlewTime(p->idx_0, p->value);
             break;
@@ -186,14 +186,13 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_BUFFER:
             cut.setVoiceBuffer(p->idx_0, buf[p->idx_1], BufFrames);
             break;
-        default:
-            ;;
+        default:;;
     }
 }
 
 void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
     size_t frA = secToFrame(start);
-    clamp(frA, BufFrames-1);
+    clamp(frA, BufFrames - 1);
     size_t frB;
     if (dur < 0) {
         frB = BufFrames;
@@ -201,9 +200,26 @@ void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
         frB = frA + secToFrame(dur);
     }
     clamp(frB, BufFrames);
-    for(size_t i=frA; i<frB; ++i) {
+    for (size_t i = frA; i < frB; ++i) {
         buf[bufIdx][i] = 0.f;
     }
+}
+
+
+void crone::SoftCutClient::reset() {
+    clearBuffer(0, 0, -1);
+    clearBuffer(1, 0, -1);
+    for (int v = 0; v < NumVoices; ++v) {
+        cut.setVoiceBuffer(v, buf[v%2], BufFrames);
+        outLevel[v].setTarget(0.f);
+        outLevel->setTime(0.001);
+        outPan[v].setTarget(0.5f);
+        outPan->setTime(0.001);
+        enabled[v] = false;
+        setPhaseQuant(v, 1.f);
+        setPhaseOffset(v, 0.f);
+    }
+    cut.reset();
 }
 
 
@@ -220,10 +236,10 @@ void crone::SoftCutClient::readBufferMono(const std::string &path, float startTi
     }
 
     size_t frSrc = secToFrame(startTimeSrc);
-    clamp(frSrc, BufFrames-1);
+    clamp(frSrc, BufFrames - 1);
 
     size_t frDst = secToFrame(startTimeDst);
-    clamp(frDst, BufFrames-1);
+    clamp(frDst, BufFrames - 1);
 
     size_t frDur;
     if (dur < 0.f) {
@@ -236,10 +252,10 @@ void crone::SoftCutClient::readBufferMono(const std::string &path, float startTi
 
     auto numSrcChan = file.channels();
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
-    chanSrc = std::min(numSrcChan-1, std::max(0, chanSrc));
+    chanSrc = std::min(numSrcChan - 1, std::max(0, chanSrc));
     chanDst = std::min(1, std::max(0, chanDst));
 
-    for (size_t fr=0; fr<frDur; ++fr) {
+    for (size_t fr = 0; fr < frDur; ++fr) {
         // FIXME: don't seek every frame with libsndfile! it is slow
         file.seek(frSrc, SEEK_SET);
         file.read(frBuf.get(), numSrcChan);
@@ -252,7 +268,8 @@ void crone::SoftCutClient::readBufferMono(const std::string &path, float startTi
     }
 }
 
-void crone::SoftCutClient::readBufferStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
+void
+crone::SoftCutClient::readBufferStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -261,10 +278,10 @@ void crone::SoftCutClient::readBufferStereo(const std::string &path, float start
     }
 
     size_t frSrc = secToFrame(startTimeSrc);
-    clamp(frSrc, BufFrames-1);
+    clamp(frSrc, BufFrames - 1);
 
     size_t frDst = secToFrame(startTimeDst);
-    clamp(frDst, BufFrames-1);
+    clamp(frDst, BufFrames - 1);
 
     size_t frDur;
     if (dur < 0.f) {
@@ -276,13 +293,13 @@ void crone::SoftCutClient::readBufferStereo(const std::string &path, float start
     }
 
     auto numSrcChan = file.channels();
-    if(numSrcChan<2) {
+    if (numSrcChan < 2) {
         std::cerr << "SoftCutClient::readBufferStereo(): not enough channels in source; aborting" << std::endl;
         return;
     }
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
 
-    for (size_t fr=0; fr<frDur; ++fr) {
+    for (size_t fr = 0; fr < frDur; ++fr) {
         // FIXME: don't seek every frame with libsndfile! it is slow
         file.seek(frSrc, SEEK_SET);
         file.read(frBuf.get(), numSrcChan);
@@ -316,7 +333,7 @@ void crone::SoftCutClient::writeBufferMono(const std::string &path, float start 
     std::cerr << "SoftCutClient::writeBufferMono(): opened file for writing: " << path << std::endl;
 
     size_t frSrc = secToFrame(start);
-    clamp(frSrc, BufFrames-1);
+    clamp(frSrc, BufFrames - 1);
 
     size_t frDur;
     if (dur < 0.f) {
@@ -328,10 +345,11 @@ void crone::SoftCutClient::writeBufferMono(const std::string &path, float start 
     /// FIXME: write frames in blocks
     /// for now, write one frame at a time... :/
 
-    size_t nf=0;
-    while (nf<frDur) {
+    size_t nf = 0;
+    while (nf < frDur) {
         if (sf_writef_float(file, buf[chan] + frSrc, 1) != 1) {
-            std::cerr << "SoftCutClient::writeBufferMono(): write failed (disk space?) after " << nf << " frames" << std::endl;
+            std::cerr << "SoftCutClient::writeBufferMono(): write failed (disk space?) after " << nf << " frames"
+                      << std::endl;
             break;
         }
         ++frSrc;
@@ -363,7 +381,7 @@ void crone::SoftCutClient::writeBufferStereo(const std::string &path, float star
     float frameBuf[2];
 
     size_t frSrc = secToFrame(start);
-    clamp(frSrc, BufFrames-1);
+    clamp(frSrc, BufFrames - 1);
 
     size_t frDur;
     if (dur < 0.f) {
@@ -374,12 +392,13 @@ void crone::SoftCutClient::writeBufferStereo(const std::string &path, float star
     }
     /// FIXME: write frames in blocks
     /// for now, write one frame at a time... :/
-    size_t nf=0;
-    while (nf<frDur) {
+    size_t nf = 0;
+    while (nf < frDur) {
         frameBuf[0] = buf[0][frSrc];
         frameBuf[1] = buf[1][frSrc];
         if (sf_writef_float(file, frameBuf, 1) != 1) {
-            std::cerr << "SoftCutClient::writeBufferStereo(): write failed (disk space?) after " << nf << " frames" << std::endl;
+            std::cerr << "SoftCutClient::writeBufferStereo(): write failed (disk space?) after " << nf << " frames"
+                      << std::endl;
             break;
         }
         ++frSrc;

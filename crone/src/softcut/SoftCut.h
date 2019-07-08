@@ -18,18 +18,28 @@ namespace softcut {
 
     private:
         SoftCutVoice scv[numVoices];
+
         void init() {
             FadeCurves::setPreShape(FadeCurves::Shape::Linear);
             FadeCurves::setRecShape(FadeCurves::Shape::Raised);
             FadeCurves::setMinPreWindowFrames(0);
             FadeCurves::setMinRecDelayFrames(0);
-            FadeCurves::setPreWindowRatio(1.f/8);
-            FadeCurves::setRecDelayRatio(1.f/(8*16));
+            FadeCurves::setPreWindowRatio(1.f / 8);
+            FadeCurves::setRecDelayRatio(1.f / (8 * 16));
         }
 
     public:
         SoftCut() {
             this->init();
+            this->reset();
+        }
+
+        void reset() {
+            for (int v = 0; v < numVoices; ++v) {
+		        scv[v].reset();
+                /* scv[v].phase_quant(i, 1); */
+                /* scv[v].phase_offset(i, 0); */
+            };
         }
 
         // assumption: channel count is equal to voice count!
@@ -44,45 +54,44 @@ namespace softcut {
         }
 
         void setRate(int voice, float rate) {
-            scv[voice].setRate( rate);
+            scv[voice].setRate(rate);
         }
 
         void setLoopStart(int voice, float sec) {
-            scv[voice].setLoopStart( sec);
+            scv[voice].setLoopStart(sec);
         }
 
         void setLoopEnd(int voice, float sec) {
-            scv[voice].setLoopEnd( sec);
+            scv[voice].setLoopEnd(sec);
         }
 
         void setLoopFlag(int voice, bool val) {
-            scv[voice].setLoopFlag( val);
+            scv[voice].setLoopFlag(val);
         }
 
         void setFadeTime(int voice, float sec) {
-            scv[voice].setFadeTime( sec);
+            scv[voice].setFadeTime(sec);
         }
 
         void setRecLevel(int voice, float amp) {
-            scv[voice].setRecLevel( amp);
+            scv[voice].setRecLevel(amp);
         }
 
         void setPreLevel(int voice, float amp) {
-            scv[voice].setPreLevel( amp);
+            scv[voice].setPreLevel(amp);
         }
 
         void setRecFlag(int voice, bool val) {
-            scv[voice].setRecFlag( val);
+            scv[voice].setRecFlag(val);
         }
 
         void setPlayFlag(int voice, bool val) {
-            scv[voice].setPlayFlag( val);
+            scv[voice].setPlayFlag(val);
         }
 
         void cutToPos(int voice, float sec) {
             scv[voice].cutToPos(sec);
         }
-
 
         void setPreFilterFc(int voice, float x) {
             scv[voice].setPreFilterFc(x);
@@ -113,7 +122,7 @@ namespace softcut {
         }
 
         void setPreFilterFcMod(int voice, float x) {
-            scv[voice].setPreFilterFcMod( x);
+            scv[voice].setPreFilterFcMod(x);
         }
 
         void setPostFilterFc(int voice, float x) {
@@ -173,6 +182,7 @@ namespace softcut {
             t.detach();
         }
 #endif
+
         void setRecOffset(int i, float d) {
             scv[i].setRecOffset(d);
         }
@@ -209,12 +219,12 @@ namespace softcut {
             scv[follow].cutToPos(scv[lead].getPos() + offset);
         }
 
-        void setVoiceBuffer(int id, float* buf, size_t bufFrames) {
-                scv[id].setBuffer(buf, bufFrames);
-            }
+        void setVoiceBuffer(int id, float *buf, size_t bufFrames) {
+            scv[id].setBuffer(buf, bufFrames);
+        }
 
     };
 }
 
 
-#endif //SOFTCUT_SOFTCUT_H
+#endif //SOFTCUT_SOFTCUT_H2

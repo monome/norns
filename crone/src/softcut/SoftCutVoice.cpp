@@ -13,14 +13,19 @@ preRamp(48000, 0.1),
 recRamp(48000, 0.1)
 {
     svfPreFcBase = 16000;
-    sch.init();
+    reset();
+}
+
+void SoftCutVoice::reset() {
     svfPre.setLpMix(1.0);
     svfPre.setHpMix(0.0);
     svfPre.setBpMix(0.0);
     svfPre.setBrMix(0.0);
     svfPre.setRq(20.0);
     svfPre.setFc(svfPreFcBase);
+    svfPreFcMod = 1.0;
     svfPreDryLevel = 1.0;
+
     svfPost.setLpMix(0.0);
     svfPost.setHpMix(0.0);
     svfPost.setBpMix(0.0);
@@ -28,8 +33,12 @@ recRamp(48000, 0.1)
     svfPost.setRq(20.0);
     svfPost.setFc(12000);
     svfPostDryLevel = 1.0;
+
     recFlag = false;
-    playFlag = true;
+    playFlag = false;
+
+    sch.init();
+
 }
 
 void SoftCutVoice:: processBlockMono(const float *in, float *out, int numFrames) {

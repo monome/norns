@@ -66,6 +66,8 @@ namespace softcut {
 
         float getPos();
 
+	void reset();
+	
     private:
         void updatePreSvfFc();
         void updateQuantPhase();
