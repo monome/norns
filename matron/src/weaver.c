@@ -170,6 +170,7 @@ static int _cut_buffer_read_mono(lua_State *l);
 static int _cut_buffer_read_stereo(lua_State *l);
 static int _cut_buffer_write_mono(lua_State *l);
 static int _cut_buffer_write_stereo(lua_State *l);
+static int _cut_reset(lua_State *l);
 static int _set_cut_param(lua_State *l);
 static int _set_cut_param_ii(lua_State *l);
 static int _set_cut_param_iif(lua_State *l);
@@ -292,6 +293,7 @@ void w_init(void) {
   lua_register_norns("cut_buffer_read_stereo", &_cut_buffer_read_stereo);
   lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
   lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
+  lua_register_norns("cut_buffer_reset", &_cut_reset);
   lua_register_norns("cut_param", &_set_cut_param);
   lua_register_norns("cut_param_ii", &_set_cut_param_ii);
   lua_register_norns("cut_param_iif", &_set_cut_param_iif);
@@ -2271,6 +2273,12 @@ int _cut_buffer_write_stereo(lua_State *l) {
   float start = (float) luaL_checknumber(l, 2);
   float dur = (float) luaL_checknumber(l, 3);
   o_cut_buffer_write_stereo((char *)s, start, dur);
+  return 0;
+}
+
+int _cut_reset(lua_State *l) {
+  (void)l;
+  o_cut_reset();
   return 0;
 }
 

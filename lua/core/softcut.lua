@@ -171,45 +171,48 @@ SC.event_phase = function(f) norns.softcut_phase = f end
 -- @section utilities
 
 --- reset softcut params
+--- @return table of parameter states for each voice
 function SC.reset()
-  SC.poll_stop_phase()
+   _norns.cut_reset()
   SC.event_phase(norns.none)
+  local voice_state = {}
   for i=1,SC.VOICE_COUNT do
-    SC.enable(i,0)
-    SC.play(i,0)
-    SC.buffer(i, (i%2)+1)
-    SC.level(i,0)
-    SC.pan(i,0.5)
-    SC.level_input_cut(1,i,0)
-    SC.level_input_cut(2,i,0)
-    SC.level_cut_cut(1,i,0)
-    SC.level_cut_cut(2,i,0)
-    SC.rate(i,1)
-    SC.loop_start(i,(i-1)*2)
-    SC.loop_end(i,(i-1)*2+1)
-    SC.loop(i,1)
-    SC.fade_time(i, 0.0005)
-    SC.rec_level(i,0)
-    SC.pre_level(i,0)
-    SC.rec(i,0)
-    SC.rec_offset(i,-0.00015)
-    SC.position(i,0)
-    SC.pre_filter_dry(i,1)
-    SC.pre_filter_lp(i,0)
-    SC.pre_filter_hp(i,0)
-    SC.pre_filter_bp(i,0)
-    SC.pre_filter_br(i,0)
-    SC.post_filter_dry(i,1)
-    SC.post_filter_lp(i,0)
-    SC.post_filter_hp(i,0)
-    SC.post_filter_bp(i,0)
-    SC.post_filter_br(i,0)
-    SC.level_slew_time(i,0.001)
-    SC.rate_slew_time(i,0.001)
-    SC.phase_quant(i,1)
-    SC.phase_offset(i,0)
+     voice_state[i] = 0;
+     voice_state[i].enable =0
+     voice_state[i].play =0
+     voice_state[i].buffer = (i%2 + 1)
+     voice_state[i].level =0
+     voice_state[i].pan =0.5
+     voice_state[i].level_input_cut =i,0
+     voice_state[i].level_input_cut =i,0
+     voice_state[i].level_cut_cut =i,0
+     voice_state[i].level_cut_cut =i,0
+     voice_state[i].rate =1
+     voice_state[i].loop_start = (i-1)*2
+     voice_state[i].loop_end = (i-1)*2+1
+     voice_state[i].loop = 1
+     voice_state[i].fade_time =  0.0005
+     voice_state[i].rec_level = 0
+     voice_state[i].pre_level = 0
+     voice_state[i].rec = 0
+     voice_state[i].rec_offset = -0.00015
+     voice_state[i].position = 0
+     voice_state[i].pre_filter_dry = 1
+     voice_state[i].pre_filter_lp = 0
+     voice_state[i].pre_filter_hp = 0
+     voice_state[i].pre_filter_bp = 0
+     voice_state[i].pre_filter_br = 0
+     voice_state[i].post_filter_dry = 1
+     voice_state[i].post_filter_lp = 0
+     voice_state[i].post_filter_hp = 0
+     voice_state[i].post_filter_bp = 0
+     voice_state[i].post_filter_br = 0
+     voice_state[i].level_slew_time = 0.001
+     voice_state[i].rate_slew_time = 0.001
+     voice_state[i].phase_quant = 1
+     voice_state[i].phase_offset = 0
   end
-  SC.buffer_clear()
+  return voice_state
 end
 
 
