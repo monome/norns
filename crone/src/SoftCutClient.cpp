@@ -126,30 +126,54 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_POSITION:
             cut.cutToPos(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_FC:
-            cut.setFilterFc(p->idx_0, p->value);
+	    // input filter
+        case Commands::Id::SET_CUT_PRE_FILTER_FC:
+            cut.setPreFilterFc(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_FC_MOD:
-            cut.setFilterFcMod(p->idx_0, p->value);
+        case Commands::Id::SET_CUT_PRE_FILTER_FC_MOD:
+            cut.setPreFilterFcMod(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_RQ:
-            cut.setFilterRq(p->idx_0, p->value);
+        case Commands::Id::SET_CUT_PRE_FILTER_RQ:
+            cut.setPreFilterRq(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_LP:
-            cut.setFilterLp(p->idx_0, p->value);
+        case Commands::Id::SET_CUT_PRE_FILTER_LP:
+            cut.setPreFilterLp(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_HP:
-            cut.setFilterHp(p->idx_0, p->value);
+        case Commands::Id::SET_CUT_PRE_FILTER_HP:
+            cut.setPreFilterHp(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_BP:
-            cut.setFilterBp(p->idx_0, p->value);
+        case Commands::Id::SET_CUT_PRE_FILTER_BP:
+            cut.setPreFilterBp(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_BR:
-            cut.setFilterBr(p->idx_0, p->value);
+        case Commands::Id::SET_CUT_PRE_FILTER_BR:
+            cut.setPreFilterBr(p->idx_0, p->value);
             break;
-        case Commands::Id::SET_CUT_FILTER_DRY:
-            cut.setFilterDry(p->idx_0, p->value);
+        case Commands::Id::SET_CUT_PRE_FILTER_DRY:
+            cut.setPreFilterDry(p->idx_0, p->value);
             break;
+	    // output filter
+        case Commands::Id::SET_CUT_POST_FILTER_FC:
+            cut.setPostFilterFc(p->idx_0, p->value);
+            break;
+        case Commands::Id::SET_CUT_POST_FILTER_RQ:
+            cut.setPostFilterRq(p->idx_0, p->value);
+            break;
+        case Commands::Id::SET_CUT_POST_FILTER_LP:
+            cut.setPostFilterLp(p->idx_0, p->value);
+            break;
+        case Commands::Id::SET_CUT_POST_FILTER_HP:
+            cut.setPostFilterHp(p->idx_0, p->value);
+            break;
+        case Commands::Id::SET_CUT_POST_FILTER_BP:
+            cut.setPostFilterBp(p->idx_0, p->value);
+            break;
+        case Commands::Id::SET_CUT_POST_FILTER_BR:
+            cut.setPostFilterBr(p->idx_0, p->value);
+            break;
+        case Commands::Id::SET_CUT_POST_FILTER_DRY:
+            cut.setPostFilterDry(p->idx_0, p->value);
+            break;
+	    
         case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
             cut.setLevelSlewTime(p->idx_0, p->value);
             break;

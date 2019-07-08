@@ -12,15 +12,22 @@ rateRamp(48000, 0.1),
 preRamp(48000, 0.1),
 recRamp(48000, 0.1)
 {
-    fcBase = 16000;
+    svfPreFcBase = 16000;
     sch.init();
-    svf.setLpMix(1.0);
-    svf.setHpMix(0.0);
-    svf.setBpMix(0.0);
-    svf.setBrMix(0.0);
-    svf.setRq(20.0);
-    svf.setFc(fcBase);
-    svfDryLevel = 1.0;
+    svfPre.setLpMix(1.0);
+    svfPre.setHpMix(0.0);
+    svfPre.setBpMix(0.0);
+    svfPre.setBrMix(0.0);
+    svfPre.setRq(20.0);
+    svfPre.setFc(svfPreFcBase);
+    svfPreDryLevel = 1.0;
+    svfPost.setLpMix(0.0);
+    svfPost.setHpMix(0.0);
+    svfPost.setBpMix(0.0);
+    svfPost.setBrMix(0.0);
+    svfPost.setRq(20.0);
+    svfPost.setFc(12000);
+    svfPostDryLevel = 1.0;
     recFlag = false;
     playFlag = true;
 }
@@ -51,13 +58,14 @@ void SoftCutVoice:: processBlockMono(const float *in, float *out, int numFrames)
         }
     }
 
-    float x;
+    float x, y;
     for(int i=0; i<numFrames; ++i) {
-        x = svf.getNextSample(in[i]) + in[i]*svfDryLevel;
+        x = svfPre.getNextSample(in[i]) + in[i]*svfPreDryLevel;
         sch.setRate(rateRamp.update());
         sch.setPre(preRamp.update());
         sch.setRec(recRamp.update());
-        sampleFunc(x, &(out[i]));
+        sampleFunc(x, &y);
+	out[i] = svfPost.getNextSample(y) + y*svfPostDryLevel;
         updateQuantPhase();
     }
 }
@@ -68,12 +76,12 @@ void SoftCutVoice::setSampleRate(float hz) {
     preRamp.setSampleRate(hz);
     recRamp.setSampleRate(hz);
     sch.setSampleRate(sampleRate);
-    svf.setSampleRate(hz);
+    svfPre.setSampleRate(hz);
 }
 
 void SoftCutVoice::setRate(float rate) {
     rateRamp.setTarget(rate);
-    updateFilterFc();
+    updatePreSvfFc();
 }
 
 void SoftCutVoice::setLoopStart(float sec) {
@@ -113,43 +121,74 @@ void SoftCutVoice::setLoopFlag(bool val) {
     sch.setLoopFlag(val);
 }
 
-void SoftCutVoice::setFilterFc(float x) {
-    fcBase = x;
-    updateFilterFc();
+// input filter
+void SoftCutVoice::setPreFilterFc(float x) {
+    svfPreFcBase = x;
+    updatePreSvfFc();
 }
 
-void SoftCutVoice::setFilterRq(float x) {
-    svf.setRq(x);
+void SoftCutVoice::setPreFilterRq(float x) {
+    svfPre.setRq(x);
 }
 
-void SoftCutVoice::setFilterLp(float x) {
-    svf.setLpMix(x);
+void SoftCutVoice::setPreFilterLp(float x) {
+    svfPre.setLpMix(x);
 }
 
-void SoftCutVoice::setFilterHp(float x) {
-    svf.setHpMix(x);
+void SoftCutVoice::setPreFilterHp(float x) {
+    svfPre.setHpMix(x);
 }
 
-void SoftCutVoice::setFilterBp(float x) {
-    svf.setBpMix(x);
+void SoftCutVoice::setPreFilterBp(float x) {
+    svfPre.setBpMix(x);
 }
 
-void SoftCutVoice::setFilterBr(float x) {
-    svf.setBrMix(x);
+void SoftCutVoice::setPreFilterBr(float x) {
+    svfPre.setBrMix(x);
 }
 
-void SoftCutVoice::setFilterDry(float x) {
-    svfDryLevel = x;
+void SoftCutVoice::setPreFilterDry(float x) {
+    svfPreDryLevel = x;
 }
 
-void SoftCutVoice::setFilterFcMod(float x) {
-    fcMod = x;
+void SoftCutVoice::setPreFilterFcMod(float x) {
+    svfPreFcMod = x;
 }
 
-void SoftCutVoice::updateFilterFc() {
-    float fc = std::min(fcBase, fcBase * std::fabs(static_cast<float>(sch.getRate())));
+void SoftCutVoice::updatePreSvfFc() {
+    float fc = std::min(svfPreFcBase, svfPreFcBase * std::fabs(static_cast<float>(sch.getRate())));
     // std::cout << fc << std::endl;
-    svf.setFc(fc*fcMod + (1.f-fcMod )*svf.getFc());
+    svfPre.setFc(fc*svfPreFcMod + (1.f-svfPreFcMod )*svfPre.getFc());
+}
+
+// output filter
+void SoftCutVoice::setPostFilterFc(float x) {
+    svfPost.setFc(x);
+}
+
+void SoftCutVoice::setPostFilterRq(float x) {
+    svfPost.setRq(x);
+}
+
+void SoftCutVoice::setPostFilterLp(float x) {
+    svfPost.setLpMix(x);
+}
+
+void SoftCutVoice::setPostFilterHp(float x) {
+    svfPost.setHpMix(x);
+}
+
+void SoftCutVoice::setPostFilterBp(float x) {
+    svfPost.setBpMix(x);
+}
+
+void SoftCutVoice::setPostFilterBr(float x) {
+    svfPost.setBrMix(x);
+}
+
+void SoftCutVoice::setPostFilterDry(float x) {
+    // FIXME
+    svfPostDryLevel = x;
 }
 
 void SoftCutVoice::setBuffer(float *b, unsigned int nf) {

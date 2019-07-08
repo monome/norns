@@ -84,36 +84,64 @@ namespace softcut {
         }
 
 
-        void setFilterFc(int voice, float x) {
-            scv[voice].setFilterFc(x);
+        void setPreFilterFc(int voice, float x) {
+            scv[voice].setPreFilterFc(x);
         }
 
-        void setFilterRq(int voice, float x) {
-            scv[voice].setFilterRq(x);
+        void setPreFilterRq(int voice, float x) {
+            scv[voice].setPreFilterRq(x);
         }
 
-        void setFilterLp(int voice, float x) {
-            scv[voice].setFilterLp(x);
+        void setPreFilterLp(int voice, float x) {
+            scv[voice].setPreFilterLp(x);
         }
 
-        void setFilterHp(int voice, float x) {
-            scv[voice].setFilterHp(x);
+        void setPreFilterHp(int voice, float x) {
+            scv[voice].setPreFilterHp(x);
         }
 
-        void setFilterBp(int voice, float x) {
-            scv[voice].setFilterBp(x);
+        void setPreFilterBp(int voice, float x) {
+            scv[voice].setPreFilterBp(x);
         }
 
-        void setFilterBr(int voice, float x) {
-            scv[voice].setFilterBr(x);
+        void setPreFilterBr(int voice, float x) {
+            scv[voice].setPreFilterBr(x);
         }
 
-        void setFilterDry(int voice, float x) {
-            scv[voice].setFilterDry(x);
+        void setPreFilterDry(int voice, float x) {
+            scv[voice].setPreFilterDry(x);
         }
 
-        void setFilterFcMod(int voice, float x) {
-            scv[voice].setFilterFcMod( x);
+        void setPreFilterFcMod(int voice, float x) {
+            scv[voice].setPreFilterFcMod( x);
+        }
+
+        void setPostFilterFc(int voice, float x) {
+            scv[voice].setPostFilterFc(x);
+        }
+
+        void setPostFilterRq(int voice, float x) {
+            scv[voice].setPostFilterRq(x);
+        }
+
+        void setPostFilterLp(int voice, float x) {
+            scv[voice].setPostFilterLp(x);
+        }
+
+        void setPostFilterHp(int voice, float x) {
+            scv[voice].setPostFilterHp(x);
+        }
+
+        void setPostFilterBp(int voice, float x) {
+            scv[voice].setPostFilterBp(x);
+        }
+
+        void setPostFilterBr(int voice, float x) {
+            scv[voice].setPostFilterBr(x);
+        }
+
+        void setPostFilterDry(int voice, float x) {
+            scv[voice].setPostFilterDry(x);
         }
 
 #if 0 // not allowing realtime manipulation of fade logic params
