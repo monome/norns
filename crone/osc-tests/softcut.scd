@@ -125,6 +125,9 @@ n.sendMsg("/set/param/cut/phase_quant", 1, 0.5);
 	});
 }, '/poll/softcut/phase');
 
+// does this work? seems to.
+n.sendMsg("/softcut/reset");
+
 /*
 n.sendMsg("/poll/start/cut/phase");
 n.sendMsg("/poll/stop/cut/phase");
