@@ -21,7 +21,7 @@ local SLEEP = 0
 local SYNC = 1
 
 
---- schedule a coroutine to sleep and then wake up in s seconds;
+--- yield and schedule waking up the coroutine in s seconds;
 -- must be called from within a coroutine started with clock.run.
 -- @tparam float s : seconds
 clock.sleep = function(...)
