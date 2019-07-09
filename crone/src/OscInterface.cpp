@@ -674,6 +674,10 @@ void OscInterface::addServerMethods() {
     addServerMethod("/softcut/reset", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
+
+        softCutClient->clearBuffer(0, 0, -1);
+        softCutClient->clearBuffer(1, 0, -1);
+
         softCutClient->reset();
         for (int i=0; i<SoftCutClient::NumVoices; ++i) {
             phasePoll->stop();

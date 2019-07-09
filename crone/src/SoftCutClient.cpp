@@ -206,11 +206,6 @@ void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
 
 
 void crone::SoftCutClient::reset() {
-    //////////////
-    /// FIXME: shouldn't call this from audio thread!
-    clearBuffer(0, 0, -1);
-    clearBuffer(1, 0, -1);
-    //////////////
 
     for (int v = 0; v < NumVoices; ++v) {
         cut.setVoiceBuffer(v, buf[v%2], BufFrames);
@@ -238,6 +233,7 @@ void crone::SoftCutClient::reset() {
         cut.setLoopEnd(v, v*2 + 1);
 
         output[v].clear();
+        input[v].clear();
     }
     cut.reset();
 }
