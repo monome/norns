@@ -34,6 +34,9 @@ void SoftCutVoice::reset() {
     svfPost.setFc(12000);
     svfPostDryLevel = 1.0;
 
+    setLevelSlewTime(0.001);
+    setRateSlewTime(0.001);
+
     recFlag = false;
     playFlag = false;
 
