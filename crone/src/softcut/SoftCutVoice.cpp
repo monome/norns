@@ -77,7 +77,7 @@ void SoftCutVoice:: processBlockMono(const float *in, float *out, int numFrames)
         sch.setPre(preRamp.update());
         sch.setRec(recRamp.update());
         sampleFunc(x, &y);
-	out[i] = svfPost.getNextSample(y) + y*svfPostDryLevel;
+	    out[i] = svfPost.getNextSample(y) + y*svfPostDryLevel;
         updateQuantPhase();
     }
 }
@@ -87,8 +87,9 @@ void SoftCutVoice::setSampleRate(float hz) {
     rateRamp.setSampleRate(hz);
     preRamp.setSampleRate(hz);
     recRamp.setSampleRate(hz);
-    sch.setSampleRate(sampleRate);
+    sch.setSampleRate(hz);
     svfPre.setSampleRate(hz);
+    svfPost.setSampleRate(hz);
 }
 
 void SoftCutVoice::setRate(float rate) {
