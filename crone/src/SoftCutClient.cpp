@@ -26,10 +26,9 @@ void crone::SoftCutClient::process(jack_nframes_t numFrames) {
     mixInput(numFrames);
     // process softcuts (overwrites output bus)
     for (int v = 0; v < NumVoices; ++v) {
-        if (!enabled[v]) {
-            continue;
+        if (enabled[v]) {
+            cut.processBlock(v, input[v].buf[0], output[v].buf[0], static_cast<int>(numFrames));
         }
-        cut.processBlock(v, input[v].buf[0], output[v].buf[0], static_cast<int>(numFrames));
     }
     mixOutput(numFrames);
     mix.copyTo(sink[0], numFrames);
@@ -207,15 +206,21 @@ void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
 
 
 void crone::SoftCutClient::reset() {
+    //////////////
+    /// FIXME: shouldn't call this from audio thread!
     clearBuffer(0, 0, -1);
     clearBuffer(1, 0, -1);
+    //////////////
+
     for (int v = 0; v < NumVoices; ++v) {
         cut.setVoiceBuffer(v, buf[v%2], BufFrames);
         outLevel[v].setTarget(0.f);
         outLevel->setTime(0.001);
         outPan[v].setTarget(0.5f);
         outPan->setTime(0.001);
+
         enabled[v] = false;
+
         setPhaseQuant(v, 1.f);
         setPhaseOffset(v, 0.f);
 
@@ -229,8 +234,10 @@ void crone::SoftCutClient::reset() {
             fbLevel[v][w].setTarget(0.0);
         }
 
-        cut.setLoopStart(0, v*2);
-        cut.setLoopEnd(0, v*2 + 1);
+        cut.setLoopStart(v, v*2);
+        cut.setLoopEnd(v, v*2 + 1);
+
+        output[v].clear();
     }
     cut.reset();
 }
