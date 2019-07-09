@@ -218,6 +218,19 @@ void crone::SoftCutClient::reset() {
         enabled[v] = false;
         setPhaseQuant(v, 1.f);
         setPhaseOffset(v, 0.f);
+
+	for (int i=0; i<2; ++i) {
+	    inLevel[i][v].setTime(0.001);
+	    inLevel[i][v].setTarget(0.0);
+	}
+		 
+	for (int w=0; w<NumVoices; ++w) {
+	    fbLevel[v][w].setTime(0.001);
+	    fbLevel[v][w].setTarget(0.0);	    
+	}
+
+	cut.setLoopStart(0, v*2);
+	cut.setLoopEnd(0, v*2 + 1);
     }
     cut.reset();
 }
