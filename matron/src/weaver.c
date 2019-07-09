@@ -293,7 +293,7 @@ void w_init(void) {
   lua_register_norns("cut_buffer_read_stereo", &_cut_buffer_read_stereo);
   lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
   lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
-  lua_register_norns("cut_buffer_reset", &_cut_reset);
+  lua_register_norns("cut_reset", &_cut_reset);
   lua_register_norns("cut_param", &_set_cut_param);
   lua_register_norns("cut_param_ii", &_set_cut_param_ii);
   lua_register_norns("cut_param_iif", &_set_cut_param_iif);
