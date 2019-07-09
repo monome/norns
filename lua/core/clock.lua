@@ -30,7 +30,7 @@ end
 
  
 --- yield and schedule waking up the coroutine at beats beat;
--- the coroutine will pause for the time required to reach a given fraction of a beat;
+-- the coroutine will suspend for the time required to reach the given fraction of a beat;
 -- must be called from within a coroutine started with clock.run.
 -- @tparam float beats : Next fraction of a beat at which the coroutine will be resumed. May be a value larger than 1.
 clock.sync = function(...)
