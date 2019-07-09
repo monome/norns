@@ -20,14 +20,17 @@ end
 local SLEEP = 0
 local SYNC = 1
 
---- suspend execution of a coroutine for s seconds;
+
+--- schedule a coroutine to sleep and then wake up in s seconds;
 -- must be called from within a coroutine started with clock.run.
 -- @tparam float s : seconds
 clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
 
---- suspend execution until the next fraction of a beat is reached in time;
+ 
+--- schedule a coroutine to sync up with the next fraction of a beat (beats);
+-- the coroutine will pause for the time required to reach a given fraction of a beat;
 -- must be called from within a coroutine started with clock.run.
 -- @tparam float beats : Next fraction of a beat at which the coroutine will be resumed. May be a value larger than 1.
 clock.sync = function(...)
