@@ -216,7 +216,7 @@ function SC.defaults()
      state[i].phase_quant = 1
      state[i].phase_offset = 0
   end
-  return voice_state
+  return state
 end
 
 
