@@ -14,9 +14,9 @@
 namespace crone {
     class SoftCutClient: public Client<2, 2> {
     public:
-        enum { MaxBlockFrames = 2048, NumVoices = 6 };
-
+        enum { MaxBlockFrames = 2048};
         enum { BufFrames = 16777216 };
+        enum { NumVoices = 6 };
         typedef enum { SourceAdc=0 } SourceId;
         typedef Bus<2, MaxBlockFrames> StereoBus;
         typedef Bus<1, MaxBlockFrames> MonoBus;
@@ -86,6 +86,8 @@ namespace crone {
         }
 
         int getNumVoices() const { return NumVoices; }
+
+	void reset();
 
     private:
         void clearBusses(size_t numFrames);

@@ -164,6 +164,7 @@ norns.key = function(n, z)
   else
     menu.key(n,z)
   end
+  screen.ping()
 end
 
 -- menu set mode

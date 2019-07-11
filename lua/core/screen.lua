@@ -7,9 +7,13 @@ local Screen = {}
 local metro = require 'core/metro'
 local screensaver = metro[36]
 
+local sleeping = false
+
 screensaver.event = function()
   s_clear()
   s_update()
+  sleeping = true
+  Screen.update = function() end
 end
 screensaver.time = 900
 screensaver.count = 1
@@ -17,8 +21,14 @@ screensaver.count = 1
 --- copy buffer to screen.
 Screen.update = function()
   s_update()
-  -- TODO: this should be called by key/encoder activity
+end
+
+--- restart screen saver timer
+Screen.ping = function()
   screensaver:start()
+  if sleeping == true then
+    Screen.update = function() s_update() end
+  end
 end
 
 --- low battery screen update
