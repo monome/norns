@@ -21,6 +21,22 @@ Screen.update = function()
   screensaver:start()
 end
 
+--- low battery screen update
+Screen.update_low_battery = function()
+	s_rect(32,34,64,16)
+  s_level(0)
+  s_fill()
+	--s_rect(32,16,64,32)
+  --s_level(2)
+  --s_stroke()
+  s_move(64,45)
+  s_level(15)
+  s_text_center("LOW BATTERY")
+  s_update()  
+end
+
+Screen.update = Screen.update_default
+
 --- enable/disable anti-aliasing.
 -- @param state on(1) or off(0)
 Screen.aa = function(state) s_aa(state) end
