@@ -169,9 +169,11 @@ void SoftCutVoice::setPreFilterFcMod(float x) {
 }
 
 void SoftCutVoice::updatePreSvfFc() {
-    float fc = std::min(svfPreFcBase, svfPreFcBase * std::fabs(static_cast<float>(sch.getRate())));
+    float fcMod = std::min(svfPreFcBase, svfPreFcBase * std::fabs(static_cast<float>(sch.getRate())));
     // std::cout << fc << std::endl;
-    svfPre.setFc(fc*svfPreFcMod + (1.f-svfPreFcMod )*svfPre.getFc());
+    // svfPre.setFc(fcMod * svfPreFcMod + (1.f - svfPreFcMod) * fcBase);
+    // refactored
+    svfPre.setFc(svfPreFcBase + svfPreFcMod * (fcMod - svfPreFcBase));
 }
 
 // output filter
