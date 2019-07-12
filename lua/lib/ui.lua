@@ -2,7 +2,7 @@
 -- Widgets for paging, tabs, lists, dials, sliders, etc.
 --
 -- @module UI
--- @release v1.0.1
+-- @release v1.0.2
 -- @author Mark Eats
 
 local UI = {}
@@ -50,13 +50,15 @@ end
 --- Redraw Pages.
 -- Call when changed.
 function UI.Pages:redraw()
-  local dots_y = util.round((64 - self.num_pages * 4 - (self.num_pages - 1) * 2) * 0.5)
+  local dot_height = util.clamp(util.round(64 / self.num_pages - 2), 1, 4)
+  local dot_gap = util.round(util.linlin(1, 4, 1, 2, dot_height))
+  local dots_y = util.round((64 - self.num_pages * dot_height - (self.num_pages - 1) * dot_gap) * 0.5)
   for i = 1, self.num_pages do
     if i == self.index then screen.level(5)
     else screen.level(1) end
-    screen.rect(127, dots_y, 1, 4)
+    screen.rect(127, dots_y, 1, dot_height)
     screen.fill()
-    dots_y = dots_y + 6
+    dots_y = dots_y + dot_height + dot_gap
   end
 end
 

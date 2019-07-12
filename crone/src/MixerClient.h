@@ -75,18 +75,20 @@ namespace  crone {
             LogRamp ext;
             LogRamp cut;
             LogRamp monitor;
+            LogRamp tape;
             // softcut input levels
             LogRamp adc_cut;
             LogRamp ext_cut;
+            LogRamp tape_cut;
             // aux send levels
             LogRamp monitor_aux;
             LogRamp cut_aux;
             LogRamp ext_aux;
+            LogRamp tape_aux;
             // FX return / mix levels
             LogRamp aux;
             LogRamp ins_mix;
-            // tape playback level
-            LogRamp tape;
+
             SmoothLevelList();
             void setSampleRate(float sr);
         };

@@ -127,6 +127,7 @@ extern void o_tape_play_stop();
 //--- cut
 extern void o_set_level_adc_cut(float value);
 extern void o_set_level_ext_cut(float value);
+extern void o_set_level_tape_cut(float value);
 extern void o_set_level_cut_rev(float value);
 extern void o_set_level_cut_master(float value);
 extern void o_set_level_cut(int index, float value);
@@ -142,8 +143,9 @@ extern void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
     float dur, int ch_src, int ch_dst);
 extern void o_cut_buffer_read_stereo(char *file, float start_src,
     float start_dst, float dur);
-void o_cut_buffer_write_mono(char *file, float start, float dur, int ch);
-void o_cut_buffer_write_stereo(char *file, float start, float dur);
+extern void o_cut_buffer_write_mono(char *file, float start, float dur, int ch);
+extern void o_cut_buffer_write_stereo(char *file, float start, float dur);
+extern void o_cut_reset();
 // most softcut parameter changs take single voice index...
 extern void o_set_cut_param(const char* name, int voice, float value);
 extern void o_set_cut_param_ii(const char* name, int voice, int value);
@@ -154,6 +156,7 @@ extern void o_set_rev_on();
 extern void o_set_rev_off();
 extern void o_set_level_monitor_rev(float value);
 extern void o_set_level_ext_rev(float value);
+extern void o_set_level_tape_rev(float value);
 extern void o_set_level_rev_dac(float value);
 extern void o_set_rev_param(const char* name, float value);
 

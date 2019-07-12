@@ -94,6 +94,7 @@ end
 norns.menu.get_enc = function() return menu.penc end
 norns.menu.get_key = function() return menu.key end
 norns.menu.get_redraw = function() return menu.redraw end
+norns.menu.toggle = function(status) menu.set_mode(status) end
 
 norns.scripterror = function(msg)
   local msg = msg;
@@ -163,6 +164,7 @@ norns.key = function(n, z)
   else
     menu.key(n,z)
   end
+  screen.ping()
 end
 
 -- menu set mode

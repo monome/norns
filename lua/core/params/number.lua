@@ -24,11 +24,12 @@ function Number:get()
   return self.value
 end
 
-function Number:set(v)
+function Number:set(v, silent)
+  local silent = silent or false
   local c = util.clamp(v,self.min,self.max)
   if self.value ~= c then
     self.value = c
-    self:bang()
+    if silent==false then self:bang() end
   end
 end
 

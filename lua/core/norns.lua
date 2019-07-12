@@ -37,6 +37,11 @@ norns.battery_current = 0
 -- @param percent battery full percentage
 -- @param current
 norns.battery = function(percent, current)
+  if current < 0 and percent < 5 then
+    screen.update = screen.update_low_battery
+  elseif current > 0 and norns.battery_current < 0 then
+    screen.update = screen.update_default
+  end
   norns.battery_percent = tonumber(percent)
   norns.battery_current = tonumber(current)
   --print("battery: "..norns.battery_percent.."% "..norns.battery_current.."mA")

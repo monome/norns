@@ -137,15 +137,15 @@ function ParamSet:string(index)
 end
 
 --- set.
-function ParamSet:set(index, v)
+function ParamSet:set(index, v, silent)
   local param = self:lookup_param(index)
-  return param:set(v)
+  return param:set(v, silent)
 end
 
 --- set_raw (for control types only).
-function ParamSet:set_raw(index, v)
+function ParamSet:set_raw(index, v, silent)
   local param = self:lookup_param(index)
-  param:set_raw(v)
+  param:set_raw(v, silent)
 end
 
 --- get.

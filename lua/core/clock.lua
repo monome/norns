@@ -1,7 +1,14 @@
+--- clock coroutines
+-- @module clock
+
 local clock = {}
 
 clock.threads = {}
 
+--- create a coroutine from the given function and immediately run it;
+-- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
+-- @tparam function f
+-- @treturn integer : coroutine ID that can be used to stop it later
 clock.run = function(f)
   local coro = coroutine.create(f)
   local coro_id = #clock.threads + 1
@@ -13,10 +20,19 @@ end
 local SLEEP = 0
 local SYNC = 1
 
+
+--- yield and schedule waking up the coroutine in s seconds;
+-- must be called from within a coroutine started with clock.run.
+-- @tparam float s : seconds
 clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
 
+ 
+--- yield and schedule waking up the coroutine at beats beat;
+-- the coroutine will suspend for the time required to reach the given fraction of a beat;
+-- must be called from within a coroutine started with clock.run.
+-- @tparam float beats : next fraction of a beat at which the coroutine will be resumed. may be larger than 1.
 clock.sync = function(...)
   return coroutine.yield(SYNC, ...)
 end
@@ -40,10 +56,13 @@ clock.resume = function(coro_id)
   end
 end
 
+--- stop execution of a coroutine started using clock.run.
+-- @tparam integer coro_id : coroutine ID
 clock.stop = function(coro_id)
   _clock_cancel(coro_id)
   clock.threads[coro_id] = nil
 end
+
 
 clock.cleanup = function()
   for i = 1, #clock.threads do
@@ -57,6 +76,8 @@ end
 clock.INTERNAL = 0
 clock.MIDI = 1
 
+--- select the sync source, currently clock.INTERNAL and clock.MIDI.
+-- @tparam integer source : clock.INTERNAL (0) or clock.MIDI (1)
 clock.set_source = function(source)
   _clock_set_source(source)
 end

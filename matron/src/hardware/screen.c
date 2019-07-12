@@ -141,8 +141,11 @@ void screen_display_png(const char *filename, double x, double y){
 	//fprintf(stderr, "loading: %s\n", filename);
 	
 	image = cairo_image_surface_create_from_png (filename);
-	if(image == NULL) { return; }
-	
+	if(cairo_surface_status (image)) { 
+		fprintf(stderr, "display_png: %s\n", cairo_status_to_string (cairo_surface_status(image))); 
+		return; 
+	} 
+		
 	img_w = cairo_image_surface_get_width (image);
 	img_h = cairo_image_surface_get_height (image);
 

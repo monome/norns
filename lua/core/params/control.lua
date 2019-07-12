@@ -45,17 +45,18 @@ end
 
 --- set.
 -- accepts a mapped value
-function Control:set(value)
-  self:set_raw(self.controlspec:unmap(util.round(value,self.controlspec.step)))
+function Control:set(value, silent)
+  self:set_raw(self.controlspec:unmap(util.round(value,self.controlspec.step)), silent)
 end
 
 --- set_raw.
 -- set 0-1.
-function Control:set_raw(value)
+function Control:set_raw(value, silent)
+  local silent = silent or false
   local clamped_value = util.clamp(value, 0, 1)
   if self.raw ~= clamped_value then
     self.raw = clamped_value
-    self:bang()
+    if silent==false then self:bang() end
   end
 end
 

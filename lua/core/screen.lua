@@ -7,19 +7,42 @@ local Screen = {}
 local metro = require 'core/metro'
 local screensaver = metro[36]
 
+local sleeping = false
+
 screensaver.event = function()
   s_clear()
   s_update()
+  sleeping = true
+  Screen.update = function() end
 end
 screensaver.time = 900
 screensaver.count = 1
 
 --- copy buffer to screen.
-Screen.update = function()
+Screen.update_default = function()
   s_update()
-  -- TODO: this should be called by key/encoder activity
-  screensaver:start()
 end
+
+--- restart screen saver timer
+Screen.ping = function()
+  screensaver:start()
+  if sleeping == true then
+    Screen.update = Screen.update_default
+  end
+end
+
+--- low battery screen update
+Screen.update_low_battery = function()
+	s_rect(32,34,64,16)
+  s_level(0)
+  s_fill()
+  s_move(64,45)
+  s_level(15)
+  s_text_center("LOW BATTERY")
+  s_update()  
+end
+
+Screen.update = Screen.update_default
 
 --- enable/disable anti-aliasing.
 -- @param state on(1) or off(0)

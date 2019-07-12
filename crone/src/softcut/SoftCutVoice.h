@@ -31,14 +31,22 @@ namespace softcut {
         void setRecFlag(bool val);
         void setPlayFlag(bool val);
 
-        void setFilterFc(float);
-        void setFilterRq(float);
-        void setFilterLp(float);
-        void setFilterHp(float);
-        void setFilterBp(float);
-        void setFilterBr(float);
-        void setFilterDry(float);
-        void setFilterFcMod(float x);
+        void setPreFilterFc(float);
+        void setPreFilterRq(float);
+        void setPreFilterLp(float);
+        void setPreFilterHp(float);
+        void setPreFilterBp(float);
+        void setPreFilterBr(float);
+        void setPreFilterDry(float);
+        void setPreFilterFcMod(float x);
+
+	void setPostFilterFc(float);
+        void setPostFilterRq(float);
+        void setPostFilterLp(float);
+        void setPostFilterHp(float);
+        void setPostFilterBp(float);
+        void setPostFilterBr(float);
+        void setPostFilterDry(float);
 
         void cutToPos(float sec);
 
@@ -58,8 +66,10 @@ namespace softcut {
 
         float getPos();
 
+	void reset();
+	
     private:
-        void updateFilterFc();
+        void updatePreSvfFc();
         void updateQuantPhase();
 
     private:
@@ -70,7 +80,9 @@ namespace softcut {
         // xfaded read/write head
         SoftCutHead sch;
         // input filter
-        Svf svf;
+        Svf svfPre;
+        // output filter
+        Svf svfPost;
         // rate ramp
         crone::LogRamp rateRamp;
         // pre-level ramp
@@ -80,10 +92,11 @@ namespace softcut {
 
         // default frequency for SVF
         // reduced automatically when setting rate
-        float fcBase;
+        float svfPreFcBase;
         // the amount by which SVF frequency is modulated by rate
-        float fcMod = 1.0;
-        float svfDryLevel = 1.0;
+        float svfPreFcMod = 1.0;
+        float svfPreDryLevel = 1.0;
+        float svfPostDryLevel = 1.0;
         // phase quantization unit, should be in [0,1]
         phase_t phaseQuant;
         // phase offset in sec
