@@ -58,7 +58,12 @@ function input.new(x)
   i.query = function() crow.send("get_cv("..i.n..")") end
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
-  i.mode = function(m) crow.send("input["..i.n.."].mode("..tostringwithquotes(m)..")") end
+  i.mode = function(m,v)
+    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m) 
+    if v ~= nil then cmd = cmd .. "," .. v .. ")"
+    else cmd = cmd .. ")" end
+    crow.send(cmd)
+  end
   setmetatable(i,input)
   return i
 end
