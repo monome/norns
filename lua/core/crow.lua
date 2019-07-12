@@ -72,7 +72,6 @@ function output.new(x)
   local o = { n = x }
   o.query = function() crow.send("get_out("..o.n..")") end
   o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
-  o.action = function(s) crow.send("output["..o.n.."].action = "..s) end
   o.execute = function() crow.send("output["..o.n.."]()") end
   setmetatable(o,output)
   return o
@@ -80,9 +79,24 @@ end
 
 output.__newindex = function(self, i, v)
   if i == 'volts' then
+    self._volts = v
     crow.send("output["..self.n.."].volts="..v)
+  elseif i == 'slew' then
+    self._slew = v
+    crow.send("output["..self.n.."].slew="..v)
+  elseif i == 'action' then
+    crow.send("output["..self.n.."].action = "..v)
   end
 end
+
+output.__index = function(self, i)
+  if i == 'volts' then
+    return self._volts
+  elseif i == 'slew' then
+    return self._slew
+  end
+end
+
 
 setmetatable(output, output)
 
