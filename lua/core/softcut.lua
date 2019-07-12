@@ -95,6 +95,17 @@ SC.pre_filter_br = function(voice,value) _norns.cut_param("pre_filter_br",voice,
 SC.pre_filter_dry = function(voice,value) _norns.cut_param("pre_filter_dry",voice,value) end
 
 
+---------------------
+-- wrappers around pre_filter, for backwards compatibility
+SC.filter_fc = function(voice,value) SC.pre_filter_fc(voice, value) end 
+SC.filter_fc_mod = function(voice,value) SC.pre_filter_fc_mod(voice, value) end 
+SC.filter_rq = function(voice,value) SC.pre_filter_rq(voice, value) end 
+SC.filter_lp = function(voice,value) SC.pre_filter_lp(voice, value) end 
+SC.filter_hp = function(voice,value) SC.pre_filter_hp(voice, value) end 
+SC.filter_bp = function(voice,value) SC.pre_filter_bp(voice, value) end 
+SC.filter_br = function(voice,value) SC.pre_filter_br(voice, value) end 
+SC.filter_dry = function(voice,value) SC.pre_filter_dry(voice, value) end 
+
 --- set post_filter cutoff
 SC.post_filter_fc = function(voice,value) _norns.cut_param("post_filter_fc",voice,value) end
 --- set post_filter mod
