@@ -26,8 +26,6 @@ controlspec = require 'core/controlspec'
 paramset = require 'core/paramset'
 params = paramset.new()
 
-wifi.init()
-
 
 -- load menu
 require 'core/menu'
@@ -55,7 +53,8 @@ norns.startup_status.ok = function()
   _norns.poll_start_vu()
   -- report engines
   report_engines()
-  
+  wifi.init()
+ 
 end
 
 norns.startup_status.timeout = function()
@@ -70,3 +69,5 @@ s_save()
 print("start_audio(): ")
 -- start the process of syncing with crone boot
 start_audio()
+
+
