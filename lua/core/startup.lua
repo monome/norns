@@ -37,9 +37,12 @@ function include(file)
   if util.file_exists(here) then 
     print("including "..here)
     return dofile(here)
-  else
+  elseif util.file_exists(there) then
     print("including "..there)
     return dofile(there)
+  else
+    print("### MISSING INCLUDE: "..file)
+    error("MISSING INCLUDE: "..file,2)
   end
 end
 
