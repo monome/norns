@@ -58,9 +58,16 @@ norns.startup_status.ok = function()
 end
 
 norns.startup_status.timeout = function()
-  print("norns.startup_status.timeout")
   norns.script.clear()
-  norns.scripterror("AUDIO ENGINE")
+  print("norns.startup_status.timeout")
+  local cmd="find ~/dust -name *.sc -type f -printf '%p %f\n' | sort -k2 | uniq -f1 --all-repeated=separate"
+  local results = util.os_capture(cmd,true)
+  if results ~= "" then
+    print("DUPLICATE ENGINES:\n" .. results)
+    norns.scripterror("DUPLICATE ENGINES")
+  else
+    norns.scripterror("AUDIO ERROR")
+  end
 end
 
 -- initial screen state
