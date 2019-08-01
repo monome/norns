@@ -69,7 +69,7 @@ norns.startup_status.timeout = function()
     print("DUPLICATE ENGINES:\n" .. results)
     norns.scripterror("DUPLICATE ENGINES")
   else
-    norns.scripterror("AUDIO ERROR")
+    norns.scripterror("SUPERCOLLODER FAIL")
   end
 end
 
