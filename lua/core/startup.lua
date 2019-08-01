@@ -69,7 +69,7 @@ norns.startup_status.timeout = function()
     print("DUPLICATE ENGINES:\n" .. results)
     norns.scripterror("DUPLICATE ENGINES")
   else
-    norns.scripterror("SUPERCOLLODER FAIL")
+    norns.scripterror("SUPERCOLLIDER FAIL")
   end
 end
 
