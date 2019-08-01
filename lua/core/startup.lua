@@ -37,9 +37,12 @@ function include(file)
   if util.file_exists(here) then 
     print("including "..here)
     return dofile(here)
-  else
+  elseif util.file_exists(there) then
     print("including "..there)
     return dofile(there)
+  else
+    print("### MISSING INCLUDE: "..file)
+    error("MISSING INCLUDE: "..file,2)
   end
 end
 
@@ -58,9 +61,16 @@ norns.startup_status.ok = function()
 end
 
 norns.startup_status.timeout = function()
-  print("norns.startup_status.timeout")
   norns.script.clear()
-  norns.scripterror("AUDIO ENGINE")
+  print("norns.startup_status.timeout")
+  local cmd="find ~/dust -name *.sc -type f -printf '%p %f\n' | sort -k2 | uniq -f1 --all-repeated=separate"
+  local results = util.os_capture(cmd,true)
+  if results ~= "" then
+    print("DUPLICATE ENGINES:\n" .. results)
+    norns.scripterror("DUPLICATE ENGINES")
+  else
+    norns.scripterror("SUPERCOLLIDER FAIL")
+  end
 end
 
 -- initial screen state
