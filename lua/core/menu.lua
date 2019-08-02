@@ -281,9 +281,8 @@ m.redraw[pHOME] = function()
     screen.move(0,15)
     screen.level(15)
     local line = string.upper(norns.state.name)
-    --if(menu.scripterror and state.script ~= '') then
     if(menu.scripterror and menu.errormsg ~= 'NO SCRIPT') then
-      line = line .. " (error: " .. menu.errormsg .. ")"
+      line = "error: " .. menu.errormsg
     end
     screen.text(line)
   else
