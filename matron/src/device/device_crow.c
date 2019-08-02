@@ -38,6 +38,19 @@ int dev_crow_init(void *self) {
     d->newtio.c_cc[VTIME]=5;
     tcflush(d->fd, TCIFLUSH);
     tcsetattr(d->fd,TCSANOW,&d->newtio);
+    
+    // check if modem is a crow
+    char s[256];
+    read(d->fd, s, 255); // clear buffer
+    write(d->fd,"^^i\n\0",5);
+    usleep(1000);
+    read(d->fd, s, 255);
+    //fprintf(stderr,"crow init> %i %s",len,s);
+
+    if(strstr(s,"^^identity")==NULL) {
+      fprintf(stderr,">> ttyACM found, but not a crow\n");
+      return -1;
+    }
 
     base->start = &dev_crow_start;
     base->deinit = &dev_crow_deinit;
