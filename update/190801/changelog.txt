@@ -7,6 +7,7 @@
 - NEW softcut post-filters @catfact
 - NEW softcut reset command @catfact
 - NEW low battery screen alert
+- NEW param.set silent parameter
 - FIX crone compressor timing @catfact
 - FIX engine loading logic fix @catfact
 - FIX display_png crash @okyeron
