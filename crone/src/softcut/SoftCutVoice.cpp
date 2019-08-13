@@ -40,6 +40,9 @@ void SoftCutVoice::reset() {
     recFlag = false;
     playFlag = false;
 
+
+    setPhaseQuant(1);
+    setPhaseOffset(0);
     sch.init();
 
 }

@@ -36,9 +36,7 @@ namespace softcut {
 
         void reset() {
             for (int v = 0; v < numVoices; ++v) {
-		        scv[v].reset();
-                /* scv[v].phase_quant(i, 1); */
-                /* scv[v].phase_offset(i, 0); */
+		scv[v].reset();
             };
         }
 
