@@ -18,7 +18,6 @@ SoftCutHead::SoftCutHead() {
 }
 
 void SoftCutHead::init() {
-    sr = 48000.f;
     start = 0.f;
     end = 0.f;
     active = 0;
