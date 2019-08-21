@@ -1,4 +1,4 @@
-killall matron
-killall sclang
-killall scsynth
-killall crone
+sudo systemctl stop norns-jack.service
+sudo systemctl stop norns-matron.service
+sudo systemctl stop norns-crone.service
+

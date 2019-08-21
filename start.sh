@@ -1,3 +1,4 @@
-cd "$(dirname "$0")"
-./crone.sh > /dev/null &
-./matron.sh > /dev/null &
+sudo systemctl start norns-jack.service
+sudo systemctl start norns-matron.service
+sudo systemctl start norns-crone.service
+
