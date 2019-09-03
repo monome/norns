@@ -13,6 +13,7 @@ def get_version_hash():
 def options(opt):
     opt.load('compiler_c compiler_cxx boost')
     opt.add_option('--desktop', action='store_true', default=False)
+    opt.add_option('--supercollider-prefix', action='store', default='/usr')
 
 def configure(conf):
     conf.load('compiler_c compiler_cxx boost')
@@ -45,17 +46,15 @@ def configure(conf):
         header_name='monome.h',
         uselib_store='LIBMONOME')
 
+    conf.env.SC_PREFIX = conf.options.supercollider_prefix
+
     conf.check_cxx(msg='Checking for supercollider',
         define_name='HAVE_SUPERCOLLIDER',
         mandatory=True,
         includes=[
-            '{}/include/SuperCollider/plugin_interface'.format(conf.env.PREFIX),
-            '{}/include/SuperCollider/common'.format(conf.env.PREFIX),
-            '/usr/include/SuperCollider/plugin_interface',
-            '/usr/include/SuperCollider/common',
-            '/usr/local/include/SuperCollider/plugin_interface',
-            '/usr/local/include/SuperCollider/common',
-            '/sc/external_libraries/nova-simd'
+            '{}/include/SuperCollider/plugin_interface'.format(conf.env.SC_PREFIX),
+            '{}/include/SuperCollider/common'.format(conf.env.SC_PREFIX),
+	    '{}/sc/external_libraries/nova-simd'.format(top)
         ],
         header_name='SC_PlugIn.h',
         uselib_store='SUPERCOLLIDER')
