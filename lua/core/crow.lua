@@ -12,6 +12,10 @@ function _norns.crow_change(n,v)
   crow.input[n].change(v)
 end
 
+function _norns.crow_midi(...)
+  crow.input[n].midi(...)
+end
+
 function _norns.crow_output(i,v)
   crow.output[i].receive(v)
 end
@@ -58,6 +62,7 @@ function input.new(x)
   i.query = function() crow.send("get_cv("..i.n..")") end
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
+  i.midi = function(...) print("crow midi: "..i.n.." ".. ...) end
   i.mode = function(m,v)
     local cmd = "input["..i.n.."].mode("..tostringwithquotes(m) 
     if v ~= nil then cmd = cmd .. "," .. v .. ")"
