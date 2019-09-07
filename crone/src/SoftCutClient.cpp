@@ -89,7 +89,7 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
             inLevel[p->idx_0][p->idx_1].setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_CUT_CUT:
-            fbLevel[p->idx_0][p->idx_1].setTarget(p->value);
+            fbLevel[p->idx_1][p->idx_0].setTarget(p->value);
             break;
             //-- softcut commands
         case Commands::Id::SET_CUT_RATE:
