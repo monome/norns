@@ -34,7 +34,7 @@ void SoftCutVoice::reset() {
     svfPost.setFc(12000);
     svfPostDryLevel = 1.0;
 
-    setLevelSlewTime(0.001);
+    setRecPreSlewTime(0.001);
     setRateSlewTime(0.001);
 
     recFlag = false;
@@ -214,7 +214,7 @@ void SoftCutVoice::setRecOffset(float d) {
     sch.setRecOffsetSamples(static_cast<int>(d * sampleRate));
 }
 
-void SoftCutVoice::setLevelSlewTime(float d) {
+void SoftCutVoice::setRecPreSlewTime(float d) {
     recRamp.setTime(d);
     preRamp.setTime(d);
 }
