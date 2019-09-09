@@ -54,7 +54,7 @@ namespace softcut {
         void processBlockMono(const float* in, float* out, int numFrames);
 
         void setRecOffset(float d);
-        void setLevelSlewTime(float d);
+        void setRecPreSlewTime(float d);
         void setRateSlewTime(float d);
         void setPhaseQuant(float x);
         void setPhaseOffset(float x);

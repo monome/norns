@@ -191,6 +191,10 @@ namespace softcut {
             scv[i].setLevelSlewTime(d);
         }
 
+        void setRecPreSlewTime(int i, float d) {
+            scv[i].setRecPreSlewTime(d);
+        }
+
         void setRateSlewTime(int i, float d) {
             scv[i].setRateSlewTime(d);
         }

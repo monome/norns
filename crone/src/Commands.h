@@ -87,6 +87,8 @@ namespace crone {
             SET_CUT_POST_FILTER_DRY,
 
             SET_CUT_LEVEL_SLEW_TIME,
+            SET_CUT_PAN_SLEW_TIME,
+            SET_CUT_RECPRE_SLEW_TIME,
             SET_CUT_RATE_SLEW_TIME,
             SET_CUT_VOICE_SYNC,
             SET_CUT_BUFFER,

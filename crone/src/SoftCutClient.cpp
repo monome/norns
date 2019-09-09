@@ -71,21 +71,21 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
     switch (p->id) {
         //-- softcut routing
         case Commands::Id::SET_ENABLED_CUT:
-            std::cout << "softcut: setting enabled: voice "
-                      << p->idx_0 << ": " << (p->value > 0) << std::endl;
+            //std::cout << "softcut: setting enabled: voice "
+                      //<< p->idx_0 << ": " << (p->value > 0) << std::endl;
             enabled[p->idx_0] = p->value > 0.f;
             break;
         case Commands::Id::SET_LEVEL_CUT:
-            std::cout << "softcut: setting voice output level "
-                      << p->idx_0 << ": " << p->value << std::endl;
+            //std::cout << "softcut: setting voice output level "
+                      //<< p->idx_0 << ": " << p->value << std::endl;
             outLevel[p->idx_0].setTarget(p->value);
             break;;
         case Commands::Id::SET_PAN_CUT:
             outPan[p->idx_0].setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_IN_CUT:
-            std::cout << "softcut: setting voice input level "
-                      << p->idx_0 << ": " << p->idx_1 << ": " << p->value << std::endl;
+            //std::cout << "softcut: setting voice input level "
+                      //<< p->idx_0 << ": " << p->idx_1 << ": " << p->value << std::endl;
             inLevel[p->idx_0][p->idx_1].setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_CUT_CUT:
@@ -174,7 +174,13 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
             break;
 
         case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
-            cut.setLevelSlewTime(p->idx_0, p->value);
+            outLevel[p->idx_0].setTime(p->value);
+            break;
+        case Commands::Id::SET_CUT_PAN_SLEW_TIME:
+            outPan[p->idx_0].setTime(p->value);
+            break;
+        case Commands::Id::SET_CUT_RECPRE_SLEW_TIME:
+            cut.setRecPreSlewTime(p->idx_0, p->value);
             break;
         case Commands::Id::SET_CUT_RATE_SLEW_TIME:
             cut.setRateSlewTime(p->idx_0, p->value);
