@@ -45,14 +45,14 @@ void crone::SoftCutClient::clearBusses(size_t numFrames) {
 }
 
 void crone::SoftCutClient::mixInput(size_t numFrames) {
-    for (int ch = 0; ch < 2; ++ch) {
-        for (int v = 0; v < NumVoices; ++v) {
-            if (cut.getRecFlag(v)) {
-                input[v].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][v]);
-                for (int w = 0; w < NumVoices; ++w) {
-                    if (cut.getPlayFlag(w)) {
-                        input[v].mixFrom(output[w], numFrames, fbLevel[v][w]);
-                    }
+    for (int dst = 0; dst < NumVoices; ++dst) {
+        if (cut.getRecFlag(dst)) {
+            for (int ch = 0; ch < 2; ++ch) {
+                input[dst].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][dst]);
+            }
+            for (int src = 0; src < NumVoices; ++src) {
+                if (cut.getPlayFlag(src)) {
+                    input[dst].mixFrom(output[src], numFrames, fbLevel[src][dst]);
                 }
             }
         }
@@ -89,7 +89,7 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
             inLevel[p->idx_0][p->idx_1].setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_CUT_CUT:
-            fbLevel[p->idx_1][p->idx_0].setTarget(p->value);
+            fbLevel[p->idx_0][p->idx_1].setTarget(p->value);
             break;
             //-- softcut commands
         case Commands::Id::SET_CUT_RATE:
