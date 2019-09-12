@@ -157,5 +157,26 @@ crow.II.jf.god_mode = function(state) crow.send("II.jf.god_mode("..state..")") e
 crow.II.jf.tick = function(clock) crow.send("II.jf.tick("..clock..")") end
 crow.II.jf.quantize = function(divisions) crow.send("II.jf.quantize("..divisions..")") end
 
+crow.II.ansible_kria = {}
+crow.II.ansible_kria.preset = function(number) crow.send("II.ansible_kria.preset("..number..")") end
+crow.II.ansible_kria.pattern = function(number) crow.send("II.ansible_kria.pattern("..number..")") end
+crow.II.ansible_kria.scale = function(number) crow.send("II.ansible_kria.scale("..number..")") end
+crow.II.ansible_kria.period = function(time) crow.send("II.ansible_kria.period("..time..")") end
+crow.II.ansible_kria.position = function(track, param, pos) crow.send("II.ansible_kria.position("..track..","..param..","..pos..")") end
+crow.II.ansible_kria.loop_start = function(track, param, pos) crow.send("II.ansible_kria.loop_start("..track..","..param..","..pos..")") end
+crow.II.ansible_kria.loop_length = function(track, param, pos) crow.send("II.ansible_kria.loop_length("..track..","..param..","..pos..")") end
+crow.II.ansible_kria.reset = function(track, param) crow.send("II.ansible_kria.reset("..track..","..param..")") end
+crow.II.ansible_kria.mute = function(track, state) crow.send("II.ansible_kria.mute("..track..","..state..")") end
+crow.II.ansible_kria.toggle_mute = function(track) crow.send("II.ansible_kria.toggle_mute("..track..")") end
+crow.II.ansible_kria.clock = function(track) crow.send("II.ansible_kria.clock("..track..")") end
+
+crow.II.ansible_mp = {}
+crow.II.ansible_mp.preset = function(number) crow.send("II.ansible_mp.preset("..number..")") end
+crow.II.ansible_mp.reset = function(track) crow.send("II.ansible_mp.reset("..track..")") end
+crow.II.ansible_mp.stop = function(track) crow.send("II.ansible_mp.stop("..track..")") end
+crow.II.ansible_mp.scale = function(number) crow.send("II.ansible_mp.scale("..number..")") end
+crow.II.ansible_mp.period = function(time) crow.send("II.ansible_mp.period("..time..")") end
+
+
 
 return crow
