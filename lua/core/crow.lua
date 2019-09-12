@@ -140,53 +140,53 @@ crow.init = function()
 end
 
 
-crow.II = {}
-crow.II.pullup = function(x) if x == true then crow.send("II.pullup(true)")
-  else crow.send("II.pullup(false)") end end
-crow.II.jf = {}
-crow.II.jf.trigger = function(ch,state) crow.send("II.jf.trigger("..ch..","..state..")") end
-crow.II.jf.run_mode = function(mode) crow.send("II.jf.run_mode("..mode..")") end
-crow.II.jf.run = function(volts) crow.send("II.jf.run("..volts..")") end
-crow.II.jf.transpose = function(pitch) crow.send("II.jf.transpose("..pitch..")") end
-crow.II.jf.vtrigger = function(ch,level) crow.send("II.jf.vtrigger("..ch..","..level..")") end
-crow.II.jf.retune = function(ch,numerator,denominator) crow.send("II.jf.retune("..ch..","..numerator..","..denominator..")") end
-crow.II.jf.mode = function(mode) crow.send("II.jf.mode("..mode..")") end
-crow.II.jf.play_voice = function(channel,pitch,level) crow.send("II.jf.play_voice("..channel..","..pitch..","..level..")") end
-crow.II.jf.play_note = function(pitch,level) crow.send("II.jf.play_note("..(pitch)..","..(level)..")") end
-crow.II.jf.god_mode = function(state) crow.send("II.jf.god_mode("..state..")") end
-crow.II.jf.tick = function(clock) crow.send("II.jf.tick("..clock..")") end
-crow.II.jf.quantize = function(divisions) crow.send("II.jf.quantize("..divisions..")") end
+crow.ii = {}
+crow.ii.pullup = function(x) if x == true then crow.send("ii.pullup(true)")
+  else crow.send("ii.pullup(false)") end end
+crow.ii.jf = {}
+crow.ii.jf.trigger = function(ch,state) crow.send("ii.jf.trigger("..ch..","..state..")") end
+crow.ii.jf.run_mode = function(mode) crow.send("ii.jf.run_mode("..mode..")") end
+crow.ii.jf.run = function(volts) crow.send("ii.jf.run("..volts..")") end
+crow.ii.jf.transpose = function(pitch) crow.send("ii.jf.transpose("..pitch..")") end
+crow.ii.jf.vtrigger = function(ch,level) crow.send("ii.jf.vtrigger("..ch..","..level..")") end
+crow.ii.jf.retune = function(ch,numerator,denominator) crow.send("ii.jf.retune("..ch..","..numerator..","..denominator..")") end
+crow.ii.jf.mode = function(mode) crow.send("ii.jf.mode("..mode..")") end
+crow.ii.jf.play_voice = function(channel,pitch,level) crow.send("ii.jf.play_voice("..channel..","..pitch..","..level..")") end
+crow.ii.jf.play_note = function(pitch,level) crow.send("ii.jf.play_note("..(pitch)..","..(level)..")") end
+crow.ii.jf.god_mode = function(state) crow.send("ii.jf.god_mode("..state..")") end
+crow.ii.jf.tick = function(clock) crow.send("ii.jf.tick("..clock..")") end
+crow.ii.jf.quantize = function(divisions) crow.send("ii.jf.quantize("..divisions..")") end
 
-crow.II.ansible = {}
-crow.II.ansible.trigger = function(channel, state) crow.send("II.ansible.trigger("..channel..","..state..")") end
-crow.II.ansible.trigger_toggle = function(channel) crow.send("II.ansible.trigger_toggle("..channel..")") end
-crow.II.ansible.trigger_pulse = function(channel) crow.send("II.ansible.trigger_toggle("..channel..")") end
-crow.II.ansible.trigger_time = function(channel, time) crow.send("II.ansible.trigger_time("..channel..","..time..")") end
-crow.II.ansible.trigger_polarity = function(channel, polarity) crow.send("II.ansible.trigger_polarity("..channel..","..polarity..")") end
-crow.II.ansible.cv = function(channel, volts) crow.send("II.ansible.cv("..channel..","..volts..")") end
-crow.II.ansible.cv_slew = function(channel, time) crow.send("II.ansible.cv_slew("..channel..","..time..")") end
-crow.II.ansible.cv_offset = function(channel, volts) crow.send("II.ansible.cv_offset("..channel..","..volts..")") end
-crow.II.ansible.cv_set = function(channel, volts) crow.send("II.ansible.cv_set("..channel..","..volts..")") end
+crow.ii.ansible = {}
+crow.ii.ansible.trigger = function(channel, state) crow.send("ii.ansible.trigger("..channel..","..state..")") end
+crow.ii.ansible.trigger_toggle = function(channel) crow.send("ii.ansible.trigger_toggle("..channel..")") end
+crow.ii.ansible.trigger_pulse = function(channel) crow.send("ii.ansible.trigger_toggle("..channel..")") end
+crow.ii.ansible.trigger_time = function(channel, time) crow.send("ii.ansible.trigger_time("..channel..","..time..")") end
+crow.ii.ansible.trigger_polarity = function(channel, polarity) crow.send("ii.ansible.trigger_polarity("..channel..","..polarity..")") end
+crow.ii.ansible.cv = function(channel, volts) crow.send("ii.ansible.cv("..channel..","..volts..")") end
+crow.ii.ansible.cv_slew = function(channel, time) crow.send("ii.ansible.cv_slew("..channel..","..time..")") end
+crow.ii.ansible.cv_offset = function(channel, volts) crow.send("ii.ansible.cv_offset("..channel..","..volts..")") end
+crow.ii.ansible.cv_set = function(channel, volts) crow.send("ii.ansible.cv_set("..channel..","..volts..")") end
 
-crow.II.ansible_kria = {}
-crow.II.ansible_kria.preset = function(number) crow.send("II.ansible_kria.preset("..number..")") end
-crow.II.ansible_kria.pattern = function(number) crow.send("II.ansible_kria.pattern("..number..")") end
-crow.II.ansible_kria.scale = function(number) crow.send("II.ansible_kria.scale("..number..")") end
-crow.II.ansible_kria.period = function(time) crow.send("II.ansible_kria.period("..time..")") end
-crow.II.ansible_kria.position = function(track, param, pos) crow.send("II.ansible_kria.position("..track..","..param..","..pos..")") end
-crow.II.ansible_kria.loop_start = function(track, param, pos) crow.send("II.ansible_kria.loop_start("..track..","..param..","..pos..")") end
-crow.II.ansible_kria.loop_length = function(track, param, pos) crow.send("II.ansible_kria.loop_length("..track..","..param..","..pos..")") end
-crow.II.ansible_kria.reset = function(track, param) crow.send("II.ansible_kria.reset("..track..","..param..")") end
-crow.II.ansible_kria.mute = function(track, state) crow.send("II.ansible_kria.mute("..track..","..state..")") end
-crow.II.ansible_kria.toggle_mute = function(track) crow.send("II.ansible_kria.toggle_mute("..track..")") end
-crow.II.ansible_kria.clock = function(track) crow.send("II.ansible_kria.clock("..track..")") end
+crow.ii.ansible_kria = {}
+crow.ii.ansible_kria.preset = function(number) crow.send("ii.ansible_kria.preset("..number..")") end
+crow.ii.ansible_kria.pattern = function(number) crow.send("ii.ansible_kria.pattern("..number..")") end
+crow.ii.ansible_kria.scale = function(number) crow.send("ii.ansible_kria.scale("..number..")") end
+crow.ii.ansible_kria.period = function(time) crow.send("ii.ansible_kria.period("..time..")") end
+crow.ii.ansible_kria.position = function(track, param, pos) crow.send("ii.ansible_kria.position("..track..","..param..","..pos..")") end
+crow.ii.ansible_kria.loop_start = function(track, param, pos) crow.send("ii.ansible_kria.loop_start("..track..","..param..","..pos..")") end
+crow.ii.ansible_kria.loop_length = function(track, param, pos) crow.send("ii.ansible_kria.loop_length("..track..","..param..","..pos..")") end
+crow.ii.ansible_kria.reset = function(track, param) crow.send("ii.ansible_kria.reset("..track..","..param..")") end
+crow.ii.ansible_kria.mute = function(track, state) crow.send("ii.ansible_kria.mute("..track..","..state..")") end
+crow.ii.ansible_kria.toggle_mute = function(track) crow.send("ii.ansible_kria.toggle_mute("..track..")") end
+crow.ii.ansible_kria.clock = function(track) crow.send("ii.ansible_kria.clock("..track..")") end
 
-crow.II.ansible_mp = {}
-crow.II.ansible_mp.preset = function(number) crow.send("II.ansible_mp.preset("..number..")") end
-crow.II.ansible_mp.reset = function(track) crow.send("II.ansible_mp.reset("..track..")") end
-crow.II.ansible_mp.stop = function(track) crow.send("II.ansible_mp.stop("..track..")") end
-crow.II.ansible_mp.scale = function(number) crow.send("II.ansible_mp.scale("..number..")") end
-crow.II.ansible_mp.period = function(time) crow.send("II.ansible_mp.period("..time..")") end
+crow.ii.ansible_mp = {}
+crow.ii.ansible_mp.preset = function(number) crow.send("ii.ansible_mp.preset("..number..")") end
+crow.ii.ansible_mp.reset = function(track) crow.send("ii.ansible_mp.reset("..track..")") end
+crow.ii.ansible_mp.stop = function(track) crow.send("ii.ansible_mp.stop("..track..")") end
+crow.ii.ansible_mp.scale = function(number) crow.send("ii.ansible_mp.scale("..number..")") end
+crow.ii.ansible_mp.period = function(time) crow.send("ii.ansible_mp.period("..time..")") end
 
 
 
