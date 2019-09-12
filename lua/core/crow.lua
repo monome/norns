@@ -157,6 +157,17 @@ crow.II.jf.god_mode = function(state) crow.send("II.jf.god_mode("..state..")") e
 crow.II.jf.tick = function(clock) crow.send("II.jf.tick("..clock..")") end
 crow.II.jf.quantize = function(divisions) crow.send("II.jf.quantize("..divisions..")") end
 
+crow.II.ansible = {}
+crow.II.ansible.trigger = function(channel, state) crow.send("II.ansible.trigger("..channel..","..state..")") end
+crow.II.ansible.trigger_toggle = function(channel) crow.send("II.ansible.trigger_toggle("..channel..")") end
+crow.II.ansible.trigger_pulse = function(channel) crow.send("II.ansible.trigger_toggle("..channel..")") end
+crow.II.ansible.trigger_time = function(channel, time) crow.send("II.ansible.trigger_time("..channel..","..time..")") end
+crow.II.ansible.trigger_polarity = function(channel, polarity) crow.send("II.ansible.trigger_polarity("..channel..","..polarity..")") end
+crow.II.ansible.cv = function(channel, volts) crow.send("II.ansible.cv("..channel..","..volts..")") end
+crow.II.ansible.cv_slew = function(channel, time) crow.send("II.ansible.cv_slew("..channel..","..time..")") end
+crow.II.ansible.cv_offset = function(channel, volts) crow.send("II.ansible.cv_offset("..channel..","..volts..")") end
+crow.II.ansible.cv_set = function(channel, volts) crow.send("II.ansible.cv_set("..channel..","..volts..")") end
+
 crow.II.ansible_kria = {}
 crow.II.ansible_kria.preset = function(number) crow.send("II.ansible_kria.preset("..number..")") end
 crow.II.ansible_kria.pattern = function(number) crow.send("II.ansible_kria.pattern("..number..")") end
