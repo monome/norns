@@ -35,6 +35,7 @@
 #include "osc.h"
 #include "oracle.h"
 #include "weaver.h"
+#include "util.h"
 
 //------
 //---- global lua state!
@@ -194,6 +195,9 @@ static int _restart_audio(lua_State *l);
 // soundfile inspection
 static int _sound_file_inspect(lua_State *l);
 
+// util
+static int _system_cmd(lua_State *l);
+
 // reset LVM
 static int _reset_lvm(lua_State *l);
 
@@ -285,6 +289,8 @@ void w_init(void) {
   lua_register_norns("cut_param_iif", &_set_cut_param_iif);
   lua_register_norns("level_input_cut", &_set_level_input_cut);
 
+  // util
+  lua_register_norns("system_cmd", &_system_cmd);
 
   // name global extern table
   lua_setglobal(lvm, "_norns");
@@ -2319,4 +2325,15 @@ int _sound_file_inspect(lua_State *l) {
   lua_pushinteger(l, desc.samplerate);
   return 3;
 }
+
+int _system_cmd(lua_State *l)
+{
+  if (lua_gettop(l) != 1) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+  const char *cmd = luaL_checkstring(l, 1);
+  system_cmd(cmd);
+  return 0;
+}
+
 
