@@ -26,7 +26,7 @@ Audio.level_eng = function(level)
   _norns.level_ext(level)
 end
 
--- set monitor level for *both* input channels.
+--- set monitor level for *both* input channels.
 -- @param level in [0, 1]
 Audio.level_monitor = function(level)
   _norns.level_monitor(level)
@@ -96,6 +96,12 @@ end
 -- @param val
 function Audio.level_eng_rev(val)
    _norns.level_ext_rev(val)
+end
+
+--- reverb TAPE level.
+-- @param val
+function Audio.level_tape_rev(val)
+   _norns.level_tape_rev(val)
 end
 
 --- reverb DAC level.
@@ -185,6 +191,12 @@ end
 -- @param value
 Audio.level_eng_cut = function(value)
   _norns.level_ext_cut(value)
+end
+
+--- softcut tape level.
+-- @param value
+Audio.level_tape_cut = function(value)
+  _norns.level_tape_cut(value)
 end
 
 --- softcut cut reverb level.

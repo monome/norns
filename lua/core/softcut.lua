@@ -77,30 +77,66 @@ SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 --- sync two voices
 SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dst,v) end
 
---- set filter cutoff
-SC.filter_fc = function(voice,value) _norns.cut_param("filter_fc",voice,value) end
---- set filter mod
-SC.filter_fc_mod = function(voice,value) _norns.cut_param("filter_fc_mod",voice,value) end
---- set filter q
-SC.filter_rq = function(voice,value) _norns.cut_param("filter_rq",voice,value) end
---- set filter lp
-SC.filter_lp = function(voice,value) _norns.cut_param("filter_lp",voice,value) end
---- set filter hp
-SC.filter_hp = function(voice,value) _norns.cut_param("filter_hp",voice,value) end
---- set filter bp
-SC.filter_bp = function(voice,value) _norns.cut_param("filter_bp",voice,value) end
---- set filter br
-SC.filter_br = function(voice,value) _norns.cut_param("filter_br",voice,value) end
---- set filter dry
-SC.filter_dry = function(voice,value) _norns.cut_param("filter_dry",voice,value) end
+--- set pre_filter cutoff
+SC.pre_filter_fc = function(voice,value) _norns.cut_param("pre_filter_fc",voice,value) end
+--- set pre_filter mod
+SC.pre_filter_fc_mod = function(voice,value) _norns.cut_param("pre_filter_fc_mod",voice,value) end
+--- set pre_filter q
+SC.pre_filter_rq = function(voice,value) _norns.cut_param("pre_filter_rq",voice,value) end
+--- set pre_filter lp
+SC.pre_filter_lp = function(voice,value) _norns.cut_param("pre_filter_lp",voice,value) end
+--- set pre_filter hp
+SC.pre_filter_hp = function(voice,value) _norns.cut_param("pre_filter_hp",voice,value) end
+--- set pre_filter bp
+SC.pre_filter_bp = function(voice,value) _norns.cut_param("pre_filter_bp",voice,value) end
+--- set pre_filter br
+SC.pre_filter_br = function(voice,value) _norns.cut_param("pre_filter_br",voice,value) end
+--- set pre_filter dry
+SC.pre_filter_dry = function(voice,value) _norns.cut_param("pre_filter_dry",voice,value) end
+
+
+---------------------
+-- wrappers around pre_filter, for backwards compatibility
+SC.filter_fc = function(voice,value) SC.pre_filter_fc(voice, value) end 
+SC.filter_fc_mod = function(voice,value) SC.pre_filter_fc_mod(voice, value) end 
+SC.filter_rq = function(voice,value) SC.pre_filter_rq(voice, value) end 
+SC.filter_lp = function(voice,value) SC.pre_filter_lp(voice, value) end 
+SC.filter_hp = function(voice,value) SC.pre_filter_hp(voice, value) end 
+SC.filter_bp = function(voice,value) SC.pre_filter_bp(voice, value) end 
+SC.filter_br = function(voice,value) SC.pre_filter_br(voice, value) end 
+SC.filter_dry = function(voice,value) SC.pre_filter_dry(voice, value) end 
+
+--- set post_filter cutoff
+SC.post_filter_fc = function(voice,value) _norns.cut_param("post_filter_fc",voice,value) end
+--- set post_filter mod
+SC.post_filter_fc_mod = function(voice,value) _norns.cut_param("post_filter_fc_mod",voice,value) end
+--- set post_filter q
+SC.post_filter_rq = function(voice,value) _norns.cut_param("post_filter_rq",voice,value) end
+--- set post_filter lp
+SC.post_filter_lp = function(voice,value) _norns.cut_param("post_filter_lp",voice,value) end
+--- set post_filter hp
+SC.post_filter_hp = function(voice,value) _norns.cut_param("post_filter_hp",voice,value) end
+--- set post_filter bp
+SC.post_filter_bp = function(voice,value) _norns.cut_param("post_filter_bp",voice,value) end
+--- set post_filter br
+SC.post_filter_br = function(voice,value) _norns.cut_param("post_filter_br",voice,value) end
+--- set post_filter dry
+SC.post_filter_dry = function(voice,value) _norns.cut_param("post_filter_dry",voice,value) end
+
 
 --- set level slew time
 SC.level_slew_time = function(voice,value) _norns.cut_param("level_slew_time",voice,value) end
+--- set pan slew time
+SC.pan_slew_time = function(voice,value) _norns.cut_param("pan_slew_time",voice,value) end
+--- set recpre slew time
+SC.recpre_slew_time = function(voice,value) _norns.cut_param("recpre_slew_time",voice,value) end
 --- set rate slew time
 SC.rate_slew_time = function(voice,value) _norns.cut_param("rate_slew_time",voice,value) end
 
 --- set phase poll quantization
 SC.phase_quant = function(voice,value) _norns.cut_param("phase_quant",voice,value) end
+--- set phase poll offset
+SC.phase_offset = function(voice,value) _norns.cut_param("phase_offset",voice,value) end
 --- start phase poll
 SC.poll_start_phase = function() _norns.poll_start_cut_phase() end
 --- stop phase poll
@@ -151,14 +187,51 @@ SC.event_phase = function(f) norns.softcut_phase = f end
 
 --- reset softcut params
 function SC.reset()
-  SC.poll_stop_phase()
+   _norns.cut_reset()
   SC.event_phase(norns.none)
-  for i=1,SC.VOICE_COUNT do
-    SC.level(i,0)
-    SC.enable(i,0)
-    -- TODO: sensible defaults!
+end
+
+--- get the default state of the softcut system
+--- @return table of parameter states for each voice
+function SC.defaults()
+  local state = {}
+  for i=1,SC.COUNT do
+     state[i] = 0;
+     state[i].enable =0
+     state[i].play =0
+     state[i].buffer = (i%2 + 1)
+     state[i].level =0
+     state[i].pan =0.5
+     state[i].level_input_cut =i,0
+     state[i].level_input_cut =i,0
+     state[i].level_cut_cut =i,0
+     state[i].level_cut_cut =i,0
+     state[i].rate =1
+     state[i].loop_start = (i-1)*2
+     state[i].loop_end = (i-1)*2+1
+     state[i].loop = 1
+     state[i].fade_time =  0.0005
+     state[i].rec_level = 0
+     state[i].pre_level = 0
+     state[i].rec = 0
+     state[i].rec_offset = -0.00015
+     state[i].position = 0
+     state[i].pre_filter_dry = 1
+     state[i].pre_filter_lp = 0
+     state[i].pre_filter_hp = 0
+     state[i].pre_filter_bp = 0
+     state[i].pre_filter_br = 0
+     state[i].post_filter_dry = 1
+     state[i].post_filter_lp = 0
+     state[i].post_filter_hp = 0
+     state[i].post_filter_bp = 0
+     state[i].post_filter_br = 0
+     state[i].level_slew_time = 0.001
+     state[i].rate_slew_time = 0.001
+     state[i].phase_quant = 1
+     state[i].phase_offset = 0
   end
-  SC.buffer_clear()
+  return state
 end
 
 
@@ -194,16 +267,27 @@ function SC.params()
       rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
       -- jump to position
       position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
-      -- filter
-      filter_fc = { type="control", controlspec=controlspec.new(10, 12000, 'exp', 1, 12000, "Hz") },
-      filter_fc_mod = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
-      filter_rq = { type="control", controlspec=controlspec.new(0.0005, 8.0, 'exp', 0, 2.0, "") },
+      -- pre filter
+      pre_filter_fc = { type="control", controlspec=controlspec.new(10, 12000, 'exp', 1, 12000, "Hz") },
+      pre_filter_fc_mod = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
+      pre_filter_rq = { type="control", controlspec=controlspec.new(0.0005, 8.0, 'exp', 0, 2.0, "") },
       -- @fixme use dB / taper?
-      filter_lp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
-      filter_hp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      filter_bp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      filter_br = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      filter_dry = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      pre_filter_lp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
+      pre_filter_hp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      pre_filter_bp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      pre_filter_br = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      pre_filter_dry = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      -- post filter
+      post_filter_fc = { type="control", controlspec=controlspec.new(10, 12000, 'exp', 1, 12000, "Hz") },
+      post_filter_fc_mod = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
+      post_filter_rq = { type="control", controlspec=controlspec.new(0.0005, 8.0, 'exp', 0, 2.0, "") },
+      -- @fixme use dB / taper?
+      post_filter_lp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
+      post_filter_hp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      post_filter_bp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      post_filter_br = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+      post_filter_dry = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
+
       -- slew times
       level_slew_time = { type="control", controlspec=controlspec.new(0, 8, 'lin', 0, 0, "") },
       rate_slew_time = { type="control", controlspec=controlspec.new(0, 8, 'lin', 0, 0, "") },

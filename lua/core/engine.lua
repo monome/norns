@@ -13,6 +13,8 @@ Engine.names = {}
 Engine.name = nil
 -- current command table
 Engine.commands = {}
+-- flag if there is a load request pending
+Engine.is_loading = false
 
 -- ----------------------------
 -- static methods
@@ -77,15 +79,28 @@ end
 --- load a named engine, with a callback.
 -- @param name - name of engine
 -- @param callback - function to call on engine load. will receive command list
+-- @return - false if an engine load is already pending (nothing happens), true otherwise
 Engine.load = function(name, callback)
-  if type(callback) == 'function' then
-    norns.report.did_engine_load = function()
-      local status = norns.try(callback,"init")
-      norns.init_done(status)
-    end
-  else norns.init_done(true)
-  end
-  load_engine(name)
+   if engine.is_loading then
+      return false
+   else
+      if type(callback) == 'function' then
+	 norns.report.did_engine_load = function()	    
+	    local status = norns.try(callback,"init")
+	    norns.init_done(status)
+	    Engine.is_loading = false
+	 end
+      else
+	 norns.report.did_engine_load = function()
+	    norns.init_done(true)
+	    Engine.is_loading = false
+	 end
+      end
+      Engine.name = name
+      Engine.is_loading = true
+      load_engine(name)
+      return true
+   end
 end
 
 --- custom getters.

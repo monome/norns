@@ -18,7 +18,6 @@ SoftCutHead::SoftCutHead() {
 }
 
 void SoftCutHead::init() {
-    sr = 44100.f;
     start = 0.f;
     end = 0.f;
     active = 0;
@@ -27,6 +26,8 @@ void SoftCutHead::init() {
     testBuf.init();
     queuedCrossfade = 0;
     queuedCrossfadeFlag = false;
+    head[0].init();
+    head[1].init();
 }
 
 void SoftCutHead::processSample(sample_t in, sample_t *out) {

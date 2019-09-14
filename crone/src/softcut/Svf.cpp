@@ -67,7 +67,7 @@ void Svf::svf_set_sr(t_svf* svf, float sr) {
 }
 
 void Svf::svf_set_fc(t_svf* svf, float fc) {
-    svf->fc = fc;
+    svf->fc = (fc > svf->sr / 2) ? svf->sr / 2 : fc;
     svf_calc_coeffs(svf);
 }
 

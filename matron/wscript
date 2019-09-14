@@ -25,6 +25,9 @@ def build(bld):
         'src/weaver.c',
         'src/snd_file.c',
         'src/util.c'
+        'src/clock.c',
+        'src/clocks/clock_internal.c',
+        'src/clocks/clock_midi.c',
     ]
 
     bld.program(features='c cprogram',

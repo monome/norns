@@ -22,6 +22,9 @@
 #include "metro.h"
 #include "screen.h"
 #include "stat.h"
+#include "clock.h"
+#include "clocks/clock_internal.h"
+#include "clocks/clock_midi.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -63,6 +66,9 @@ int main(int argc, char **argv) {
     stat_init();
     i2c_init();
     osc_init();
+    clock_init();
+    clock_internal_start();
+    clock_midi_init();
 
     o_init(); // oracle (audio)
 

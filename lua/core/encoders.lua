@@ -56,6 +56,7 @@ encoders.process = function(n,d)
     local val = math.floor(encoders.tick[n] / encoders.sens[n])
     encoders.callback(n,val)
     encoders.tick[n] = 0
+    screen.ping()
   end
 end
 

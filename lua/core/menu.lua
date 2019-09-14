@@ -94,6 +94,7 @@ end
 norns.menu.get_enc = function() return menu.penc end
 norns.menu.get_key = function() return menu.key end
 norns.menu.get_redraw = function() return menu.redraw end
+norns.menu.toggle = function(status) menu.set_mode(status) end
 
 norns.scripterror = function(msg)
   local msg = msg;
@@ -163,6 +164,7 @@ norns.key = function(n, z)
   else
     menu.key(n,z)
   end
+  screen.ping()
 end
 
 -- menu set mode
@@ -279,9 +281,8 @@ m.redraw[pHOME] = function()
     screen.move(0,15)
     screen.level(15)
     local line = string.upper(norns.state.name)
-    --if(menu.scripterror and state.script ~= '') then
     if(menu.scripterror and menu.errormsg ~= 'NO SCRIPT') then
-      line = line .. " (error: " .. menu.errormsg .. ")"
+      line = "error: " .. menu.errormsg
     end
     screen.text(line)
   else

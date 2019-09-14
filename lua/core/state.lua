@@ -39,12 +39,19 @@ state.resume = function()
       norns.script.load()
     else
       norns.script.clear()
+      state.script=''
+      state.name = 'none'
+      state.shortname = 'none'
+      state.path = _path.code
+      state.data = _path.data
+      norns.scripterror("NO SCRIPT")
     end
     -- reset clean_shutdown flag and save state so that
     -- if the script causes a crash we don't restart into it
     state.clean_shutdown = false
     state.save_state()
   else
+    norns.script.clear()
     state.script=''
     state.name = 'none'
     state.shortname = 'none'

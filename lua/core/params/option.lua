@@ -28,11 +28,12 @@ function Option:get()
   return self.selected
 end
 
-function Option:set(v)
+function Option:set(v, silent)
+  local silent = silent or false
   local c = util.clamp(v,1,self.count)
   if self.selected ~= c then
     self.selected = c
-    self:bang()
+    if silent==false then self:bang() end
   end
 end
 

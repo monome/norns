@@ -80,22 +80,24 @@ fs.key = function(n,z)
     end
     -- select
   elseif n==3 and z==1 then
-    fs.file = fs.list[fs.pos+1]
-    if string.find(fs.file,'/') then
-      --print("folder")
-      fs.depth = fs.depth + 1
-      fs.folders[fs.depth] = fs.file
-      fs.list = util.scandir(fs.getdir())
-      fs.len = tab.count(fs.list)
-      fs.pos = 0
-      fs.redraw()
-    else
-      local path = fs.folder
-      for k,v in pairs(fs.folders) do
-        path = path .. v
+    if #fs.list > 0 then
+      fs.file = fs.list[fs.pos+1]
+      if string.find(fs.file,'/') then
+        --print("folder")
+        fs.depth = fs.depth + 1
+        fs.folders[fs.depth] = fs.file
+        fs.list = util.scandir(fs.getdir())
+        fs.len = tab.count(fs.list)
+        fs.pos = 0
+        fs.redraw()
+      else
+        local path = fs.folder
+        for k,v in pairs(fs.folders) do
+          path = path .. v
+        end
+        fs.path = path .. fs.file
+        fs.done = true
       end
-      fs.path = path .. fs.file
-      fs.done = true
     end
   elseif z == 0 and fs.done == true then
     fs.exit()
@@ -112,21 +114,25 @@ end
 
 fs.redraw = function()
   screen.clear()
-  screen.move(0,10)
-  screen.level(15)
   screen.font_face(1)
   screen.font_size(8)
-  for i=1,6 do
-    if (i > 2 - fs.pos) and (i < fs.len - fs.pos + 3) then
-      screen.move(0,10*i)
-      local line = fs.list[i+fs.pos-2]
-      if(i==3) then
-        screen.level(15)
-      else
-        screen.level(4)
+  if #fs.list == 0 then
+    screen.level(4)
+    screen.move(0,20)
+    screen.text("(no files)")
+  else
+    for i=1,6 do
+      if (i > 2 - fs.pos) and (i < fs.len - fs.pos + 3) then
+        screen.move(0,10*i)
+        local line = fs.list[i+fs.pos-2]
+        if(i==3) then
+          screen.level(15)
+        else
+          screen.level(4)
+        end
+        --screen.text(string.upper(line))
+        screen.text(line)
       end
-      --screen.text(string.upper(line))
-      screen.text(line)
     end
   end
   screen.update()
