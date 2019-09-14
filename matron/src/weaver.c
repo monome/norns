@@ -1999,7 +1999,7 @@ int _set_level_cut(lua_State *l) {
 }
 
 int _set_level_cut_cut(lua_State *l) {
-  lua_check_num_args(2);
+  lua_check_num_args(3);
   int src = (int) luaL_checkinteger(l, 1) - 1;
   int dest = (int) luaL_checkinteger(l, 2) - 1;
   float val = (float) luaL_checknumber(l, 3);
