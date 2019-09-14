@@ -1824,6 +1824,17 @@ void w_handle_poll_softcut_phase(int idx, float val) {
   l_report(lvm, l_docall(lvm, 2, 0));
 }
 
+// handle system command capture
+void w_handle_system_cmd(char *capture) {
+  lua_getglobal(lvm, "norns");
+  lua_getfield(lvm, -1, "system_cmd_capture");
+  lua_remove(lvm, -2);
+  lua_pushstring(lvm, capture);
+  l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+
+
 
 // helper: set poll given by lua to given state
 static int poll_set_state(lua_State *l, bool val) {
@@ -1867,6 +1878,9 @@ int _request_poll_value(lua_State *l) {
   lua_settop(l, 0);
   return 0;
 }
+
+
+
 
 // audio context control
 int _set_level_adc(lua_State *l) {
@@ -2332,7 +2346,7 @@ int _system_cmd(lua_State *l)
     return luaL_error(l, "wrong number of arguments");
   }
   const char *cmd = luaL_checkstring(l, 1);
-  system_cmd(cmd);
+  system_cmd((char *)cmd);
   return 0;
 }
 

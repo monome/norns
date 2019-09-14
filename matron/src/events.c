@@ -121,6 +121,9 @@ void event_data_free(union event_data *ev) {
     case EVENT_POLL_WAVE:
         free(ev->poll_wave.data);
         break;
+    case EVENT_SYSTEM_CMD:
+        free(ev->system_cmd.capture);
+        break;
     }
     free(ev);
 }
@@ -269,6 +272,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_STARTUP_READY_TIMEOUT:
         w_handle_startup_ready_timeout();
+        break;
+    case EVENT_SYSTEM_CMD:
+        w_handle_system_cmd(ev->system_cmd.capture);
         break;
     case EVENT_RESET_LVM:
         w_reset_lvm();

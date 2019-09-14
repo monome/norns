@@ -23,7 +23,7 @@ def build(bld):
         'src/metro.c',
         'src/oracle.c',
         'src/weaver.c',
-        'src/snd_file.c'
+        'src/snd_file.c',
         'src/util.c'
     ]
 

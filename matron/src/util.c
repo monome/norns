@@ -14,8 +14,13 @@
 
 #include "events.h"
 
-static int fd;
+#define CMD_BUFFER 8192
+
+static FILE *f;
 static pthread_t p;
+static char capture[CMD_BUFFER];
+static char line[255];
+static int len;
 
 void *run_cmd(void *);
 
@@ -28,12 +33,24 @@ void system_cmd(char *cmd) {
 }
 
 void *run_cmd(void *cmd) {
-  fd = popen((char *)cmd, "r");
-  if(fd) {
+  f = popen((char *)cmd, "r");
+  if(f == NULL) {
     fprintf(stderr, "system_cmd: command failed\n");
   } else {
-    fprintf(stderr, "%s", fd);
-    pclose(fd);
+    capture[0]=0;
+    while (fgets(line, 254, f) != NULL) {
+      strcat(capture,line);
+    }
+    len = strlen(capture);
+    char *cap = malloc( (len + 1) * sizeof(char) );
+    strncpy(cap, capture, len);
+    cap[len] = '\0';
+    union event_data *ev = event_data_new(EVENT_SYSTEM_CMD);
+    ev->system_cmd.capture = cap;
+    event_post(ev);
+    //fprintf(stderr, "%s", capture);
+    pclose(f);
   }
   pthread_cancel(p);
+  return 0;
 }
