@@ -217,7 +217,7 @@ void crone::SoftCutClient::reset() {
         cut.setVoiceBuffer(v, buf[v%2], BufFrames);
         outLevel[v].setTarget(0.f);
         outLevel->setTime(0.001);
-        outPan[v].setTarget(0.f);
+        outPan[v].setTarget(0.5f);
         outPan->setTime(0.001);
 
         enabled[v] = false;

@@ -195,9 +195,9 @@ namespace  crone {
             for(size_t fr=0; fr<numFrames; ++fr) {
                 x = a.buf[0][fr];
                 l = level.update();
-                c = pan.update()/2+0.5f; // scale -1 (L) to 1 (R)
-                buf[0][fr] += x*l*(1.f-c);
-                buf[1][fr] += x*l*c;
+                c = pan.update();
+                buf[0][fr] += x*l*c;
+                buf[1][fr] += x*l*(1.f-c);
             }
         }
 
@@ -210,10 +210,10 @@ namespace  crone {
             for(size_t fr=0; fr<numFrames; ++fr) {
                 x = a.buf[0][fr];
                 l = level.update();
-                c = pan.update()/2+0.5f; // scale -1 (L) to 1 (R)
+                c = pan.update();
                 c *= (float)M_PI_2;
-                buf[0][fr] += x*l * cosf(c);
-                buf[1][fr] += x*l * sinf(c);
+                buf[0][fr] += x*l * sinf(c);
+                buf[1][fr] += x*l * cosf(c);
             }
         }
 
