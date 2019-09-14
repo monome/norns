@@ -184,7 +184,6 @@ end
 
 -- callback management from c
 norns.system_cmd_capture = function(cap)
-  tab.print(system_cmd_q[1])
   if system_cmd_q[1].callback == nil then print(cap)
   else system_cmd_q[1].callback(cap) end
   table.remove(system_cmd_q,1)
