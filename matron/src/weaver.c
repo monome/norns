@@ -35,7 +35,7 @@
 #include "osc.h"
 #include "oracle.h"
 #include "weaver.h"
-#include "util.h"
+#include "system_cmd.h"
 #include "clock.h"
 #include "clocks/clock_internal.h"
 
@@ -2255,9 +2255,7 @@ int _sound_file_inspect(lua_State *l) {
 
 int _system_cmd(lua_State *l)
 {
-  if (lua_gettop(l) != 1) {
-    return luaL_error(l, "wrong number of arguments");
-  }
+  lua_check_num_args(1);
   const char *cmd = luaL_checkstring(l, 1);
   system_cmd((char *)cmd);
   return 0;
