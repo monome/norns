@@ -4,6 +4,14 @@ local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
 
+function _norns.crow_identity(...)
+  print("crow identity: " .. ...)
+end
+
+function _norns.crow_version(...)
+  print("crow version: " .. ...)
+end
+
 function _norns.crow_stream(n,v)
   crow.input[n].stream(v)
 end
@@ -20,13 +28,24 @@ function _norns.crow_output(i,v)
   crow.output[i].receive(v)
 end
 
-function _norns.crow_identity(...)
-  print("crow identity: " .. ...)
+function _norns.crow_jf(i,v)
+  crow.output[i].receive(v)
 end
 
-function _norns.crow_version(...)
-  print("crow version: " .. ...)
+_norns.crow_ii = {}
+
+function _norns.crow_ii.ansible(i,v)
+  crow.ii.ansible.event(i,v)
 end
+
+function _norns.crow_ii.ansible_kria(i,v)
+  crow.ii.ansible_kria.event(i,v)
+end
+
+function _norns.crow_ii.ansible_mp(i,v)
+  crow.ii.ansible_mp.event(i,v)
+end
+
 
 
 norns.crow = {}
@@ -43,10 +62,10 @@ end
 
 norns.crow.event = function(id, line)
   line = string.sub(line,1,-2) -- strip newline
+  --print(line)
   if util.string_starts(line,"^^") == true then
     line = line:gsub("%^^","_norns.crow_") 
     assert(load(line))()
-    --print(line)
   else
     print("crow receive: "..line)
   end
@@ -137,12 +156,17 @@ crow.init = function()
   crow.input[1].mode("none")
   crow.input[2].mode("none")
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
+
+  crow.ii.ansible.event = function(i,v) print("ansible ii: "..i.." "..v) end
+  crow.ii.ansible_kria.event = function(i,v) print("kria ii: "..i.." "..v) end
+  crow.ii.ansible_mp.event = function(i,v) print("mp ii: "..i.." "..v) end
 end
 
 
 crow.ii = {}
 crow.ii.pullup = function(x) if x == true then crow.send("ii.pullup(true)")
   else crow.send("ii.pullup(false)") end end
+
 crow.ii.jf = {}
 crow.ii.jf.trigger = function(ch,state) crow.send("ii.jf.trigger("..ch..","..state..")") end
 crow.ii.jf.run_mode = function(mode) crow.send("ii.jf.run_mode("..mode..")") end
@@ -156,6 +180,12 @@ crow.ii.jf.play_note = function(pitch,level) crow.send("ii.jf.play_note("..(pitc
 crow.ii.jf.god_mode = function(state) crow.send("ii.jf.god_mode("..state..")") end
 crow.ii.jf.tick = function(clock) crow.send("ii.jf.tick("..clock..")") end
 crow.ii.jf.quantize = function(divisions) crow.send("ii.jf.quantize("..divisions..")") end
+
+crow.ii.wslash = {}
+crow.ii.wslash.record = function(active) crow.send("ii.wslash.record("..active..")") end
+crow.ii.wslash.play = function(direction) crow.send("ii.wslash.play("..direction..")") end
+crow.ii.wslash.loop = function(state) crow.send("ii.wslash.loop("..state..")") end
+crow.ii.wslash.cue = function(destination) crow.send("ii.wslash.cue("..destination..")") end
 
 crow.ii.ansible = {}
 crow.ii.ansible.trigger = function(channel, state) crow.send("ii.ansible.trigger("..channel..","..state..")") end
@@ -187,7 +217,7 @@ crow.ii.ansible_mp.reset = function(track) crow.send("ii.ansible_mp.reset("..tra
 crow.ii.ansible_mp.stop = function(track) crow.send("ii.ansible_mp.stop("..track..")") end
 crow.ii.ansible_mp.scale = function(number) crow.send("ii.ansible_mp.scale("..number..")") end
 crow.ii.ansible_mp.period = function(time) crow.send("ii.ansible_mp.period("..time..")") end
-
+crow.ii.ansible_mp.get = function(param) crow.send("ii.ansible_mp.get('"..param.."')") end
 
 
 return crow

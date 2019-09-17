@@ -43,6 +43,9 @@ Script.clear = function()
   -- clear init
   init = norns.none
 
+  -- clear crow functions
+  crow.init()
+
   -- clear last run
   norns.state.script = ''
   norns.state.name = 'none'
