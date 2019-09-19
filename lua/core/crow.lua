@@ -32,6 +32,10 @@ function _norns.crow_jf(i,v)
   crow.output[i].receive(v)
 end
 
+function _norns.crow_midi(...)
+  crow.midi(...)
+end
+
 _norns.crow_ii = {}
 
 function _norns.crow_ii.ansible(i,v)
@@ -156,6 +160,7 @@ crow.init = function()
   crow.input[1].mode("none")
   crow.input[2].mode("none")
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
+  crow.midi = function(...) print("crow midi:",...) end
 
   crow.ii.ansible.event = function(i,v) print("ansible ii: "..i.." "..v) end
   crow.ii.kria.event = function(i,v) print("kria ii: "..i.." "..v) end
