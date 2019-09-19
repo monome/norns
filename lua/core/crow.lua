@@ -38,12 +38,12 @@ function _norns.crow_ii.ansible(i,v)
   crow.ii.ansible.event(i,v)
 end
 
-function _norns.crow_ii.ansible_kria(i,v)
-  crow.ii.ansible_kria.event(i,v)
+function _norns.crow_ii.kria(i,v)
+  crow.ii.kria.event(i,v)
 end
 
-function _norns.crow_ii.ansible_mp(i,v)
-  crow.ii.ansible_mp.event(i,v)
+function _norns.crow_ii.meadowphysics(i,v)
+  crow.ii.meadowphysics.event(i,v)
 end
 
 
@@ -158,14 +158,16 @@ crow.init = function()
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
   crow.ii.ansible.event = function(i,v) print("ansible ii: "..i.." "..v) end
-  crow.ii.ansible_kria.event = function(i,v) print("kria ii: "..i.." "..v) end
-  crow.ii.ansible_mp.event = function(i,v) print("mp ii: "..i.." "..v) end
+  crow.ii.kria.event = function(i,v) print("kria ii: "..i.." "..v) end
+  crow.ii.meadowphysics.event = function(i,v) print("mp ii: "..i.." "..v) end
 end
 
 
 crow.ii = {}
-crow.ii.pullup = function(x) if x == true then crow.send("ii.pullup(true)")
-  else crow.send("ii.pullup(false)") end end
+crow.ii.pullup = function(x)
+  if x == true then crow.send("ii.pullup(true)")
+  else crow.send("ii.pullup(false)") end 
+end
 
 crow.ii.jf = {}
 crow.ii.jf.trigger = function(ch,state) crow.send("ii.jf.trigger("..ch..","..state..")") end
@@ -198,26 +200,26 @@ crow.ii.ansible.cv_slew = function(channel, time) crow.send("ii.ansible.cv_slew(
 crow.ii.ansible.cv_offset = function(channel, volts) crow.send("ii.ansible.cv_offset("..channel..","..volts..")") end
 crow.ii.ansible.cv_set = function(channel, volts) crow.send("ii.ansible.cv_set("..channel..","..volts..")") end
 
-crow.ii.ansible_kria = {}
-crow.ii.ansible_kria.preset = function(number) crow.send("ii.ansible_kria.preset("..number..")") end
-crow.ii.ansible_kria.pattern = function(number) crow.send("ii.ansible_kria.pattern("..number..")") end
-crow.ii.ansible_kria.scale = function(number) crow.send("ii.ansible_kria.scale("..number..")") end
-crow.ii.ansible_kria.period = function(time) crow.send("ii.ansible_kria.period("..time..")") end
-crow.ii.ansible_kria.position = function(track, param, pos) crow.send("ii.ansible_kria.position("..track..","..param..","..pos..")") end
-crow.ii.ansible_kria.loop_start = function(track, param, pos) crow.send("ii.ansible_kria.loop_start("..track..","..param..","..pos..")") end
-crow.ii.ansible_kria.loop_length = function(track, param, pos) crow.send("ii.ansible_kria.loop_length("..track..","..param..","..pos..")") end
-crow.ii.ansible_kria.reset = function(track, param) crow.send("ii.ansible_kria.reset("..track..","..param..")") end
-crow.ii.ansible_kria.mute = function(track, state) crow.send("ii.ansible_kria.mute("..track..","..state..")") end
-crow.ii.ansible_kria.toggle_mute = function(track) crow.send("ii.ansible_kria.toggle_mute("..track..")") end
-crow.ii.ansible_kria.clock = function(track) crow.send("ii.ansible_kria.clock("..track..")") end
+crow.ii.kria = {}
+crow.ii.kria.preset = function(number) crow.send("ii.kria.preset("..number..")") end
+crow.ii.kria.pattern = function(number) crow.send("ii.kria.pattern("..number..")") end
+crow.ii.kria.scale = function(number) crow.send("ii.kria.scale("..number..")") end
+crow.ii.kria.period = function(time) crow.send("ii.kria.period("..time..")") end
+crow.ii.kria.position = function(track, param, pos) crow.send("ii.kria.position("..track..","..param..","..pos..")") end
+crow.ii.kria.loop_start = function(track, param, pos) crow.send("ii.kria.loop_start("..track..","..param..","..pos..")") end
+crow.ii.kria.loop_length = function(track, param, pos) crow.send("ii.kria.loop_length("..track..","..param..","..pos..")") end
+crow.ii.kria.reset = function(track, param) crow.send("ii.kria.reset("..track..","..param..")") end
+crow.ii.kria.mute = function(track, state) crow.send("ii.kria.mute("..track..","..state..")") end
+crow.ii.kria.toggle_mute = function(track) crow.send("ii.kria.toggle_mute("..track..")") end
+crow.ii.kria.clock = function(track) crow.send("ii.kria.clock("..track..")") end
 
-crow.ii.ansible_mp = {}
-crow.ii.ansible_mp.preset = function(number) crow.send("ii.ansible_mp.preset("..number..")") end
-crow.ii.ansible_mp.reset = function(track) crow.send("ii.ansible_mp.reset("..track..")") end
-crow.ii.ansible_mp.stop = function(track) crow.send("ii.ansible_mp.stop("..track..")") end
-crow.ii.ansible_mp.scale = function(number) crow.send("ii.ansible_mp.scale("..number..")") end
-crow.ii.ansible_mp.period = function(time) crow.send("ii.ansible_mp.period("..time..")") end
-crow.ii.ansible_mp.get = function(param) crow.send("ii.ansible_mp.get('"..param.."')") end
+crow.ii.meadowphysics = {}
+crow.ii.meadowphysics.preset = function(number) crow.send("ii.meadowphysics.preset("..number..")") end
+crow.ii.meadowphysics.reset = function(track) crow.send("ii.meadowphysics.reset("..track..")") end
+crow.ii.meadowphysics.stop = function(track) crow.send("ii.meadowphysics.stop("..track..")") end
+crow.ii.meadowphysics.scale = function(number) crow.send("ii.meadowphysics.scale("..number..")") end
+crow.ii.meadowphysics.period = function(time) crow.send("ii.meadowphysics.period("..time..")") end
+crow.ii.meadowphysics.get = function(param) crow.send("ii.meadowphysics.get('"..param.."')") end
 
 
 return crow
