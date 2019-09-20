@@ -156,6 +156,10 @@ function crow.send(cmd)
   end
 end
 
+function crow.reset()
+  crow.send("^^r")
+end
+
 crow.input = { input.new(1), input.new(2) }
 crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
