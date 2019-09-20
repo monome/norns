@@ -157,7 +157,7 @@ function crow.send(cmd)
 end
 
 function crow.reset()
-  crow.send("^^r")
+  crow.send("^^k")
 end
 
 crow.input = { input.new(1), input.new(2) }
