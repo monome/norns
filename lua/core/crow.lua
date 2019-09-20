@@ -86,10 +86,12 @@ function input.new(x)
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
   i.midi = function(...) print("crow midi: "..i.n.." ".. ...) end
-  i.mode = function(m,v)
+  i.mode = function(m,a,b,c)
     local cmd = "input["..i.n.."].mode("..tostringwithquotes(m) 
-    if v ~= nil then cmd = cmd .. "," .. v .. ")"
-    else cmd = cmd .. ")" end
+    if a ~= nil then cmd = cmd .. "," .. a end
+    if b ~= nil then cmd = cmd .. "," .. b end
+    if c ~= nil then cmd = cmd .. "," .. tostringwithquotes(c) end
+    cmd = cmd .. ")"
     crow.send(cmd)
   end
   setmetatable(i,input)
@@ -103,6 +105,8 @@ local output = {}
 
 function output.new(x)
   local o = { n = x }
+  o._volts = 0
+  o._slew = 0
   o.query = function() crow.send("get_out("..o.n..")") end
   o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
   o.execute = function() crow.send("output["..o.n.."]()") end
