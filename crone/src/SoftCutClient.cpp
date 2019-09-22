@@ -81,7 +81,7 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
             outLevel[p->idx_0].setTarget(p->value);
             break;;
         case Commands::Id::SET_PAN_CUT:
-            outPan[p->idx_0].setTarget(p->value);
+            outPan[p->idx_0].setTarget((p->value/2)+0.5); // map -1,1 to 0,1
             break;
         case Commands::Id::SET_LEVEL_IN_CUT:
             //std::cout << "softcut: setting voice input level "
@@ -217,7 +217,7 @@ void crone::SoftCutClient::reset() {
         cut.setVoiceBuffer(v, buf[v%2], BufFrames);
         outLevel[v].setTarget(0.f);
         outLevel->setTime(0.001);
-        outPan[v].setTarget(0.f);
+        outPan[v].setTarget(0.5f);
         outPan->setTime(0.001);
 
         enabled[v] = false;
