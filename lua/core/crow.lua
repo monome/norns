@@ -4,51 +4,20 @@ local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
 
-function _norns.crow_identity(...)
-  print("crow identity: " .. ...)
-end
-
-function _norns.crow_version(...)
-  print("crow version: " .. ...)
-end
-
-function _norns.crow_stream(n,v)
-  crow.input[n].stream(v)
-end
-
-function _norns.crow_change(n,v)
-  crow.input[n].change(v)
-end
-
-function _norns.crow_midi(...)
-  crow.input[n].midi(...)
-end
-
-function _norns.crow_output(i,v)
-  crow.output[i].receive(v)
-end
-
-function _norns.crow_jf(i,v)
-  crow.output[i].receive(v)
-end
-
-function _norns.crow_midi(...)
-  crow.midi(...)
-end
+function _norns.crow_identity(...) print("crow identity: " .. ...) end
+function _norns.crow_version(...) print("crow version: " .. ...) end
+function _norns.crow_stream(n,v) crow.input[n].stream(v) end
+function _norns.crow_change(n,v) crow.input[n].change(v) end
+function _norns.crow_midi(...) crow.input[n].midi(...) end
+function _norns.crow_output(i,v) crow.output[i].receive(v) end
+function _norns.crow_jf(i,v) crow.output[i].receive(v) end
+function _norns.crow_midi(...) crow.midi(...) end
 
 _norns.crow_ii = {}
-
-function _norns.crow_ii.ansible(i,v)
-  crow.ii.ansible.event(i,v)
-end
-
-function _norns.crow_ii.kria(i,v)
-  crow.ii.kria.event(i,v)
-end
-
-function _norns.crow_ii.meadowphysics(i,v)
-  crow.ii.meadowphysics.event(i,v)
-end
+function _norns.crow_ii.ansible(i,v) crow.ii.ansible.event(i,v) end
+function _norns.crow_ii.kria(i,v) crow.ii.kria.event(i,v) end
+function _norns.crow_ii.meadowphysics(i,v) crow.ii.meadowphysics.event(i,v) end
+function _norns.crow_ii.wslash(i,v) crow.ii.wslash.event(i,v) end
 
 
 
@@ -141,23 +110,15 @@ setmetatable(output, output)
 
 local crow = {}
 
-function crow.version()
-  crow.send("^^v")
-end
-
-function crow.identity()
-  crow.send("^^i")
-end
+function crow.version() crow.send("^^v") end
+function crow.identity() crow.send("^^i") end
+function crow.reset() crow.send("^^k") end
 
 function crow.send(cmd)
   if norns.crow.dev then
     --print("crow send: "..cmd)
     _norns.crow_send(norns.crow.dev,cmd)
   end
-end
-
-function crow.reset()
-  crow.send("^^k")
 end
 
 crow.input = { input.new(1), input.new(2) }
@@ -173,6 +134,7 @@ crow.init = function()
   crow.ii.ansible.event = function(i,v) print("ansible ii: "..i.." "..v) end
   crow.ii.kria.event = function(i,v) print("kria ii: "..i.." "..v) end
   crow.ii.meadowphysics.event = function(i,v) print("mp ii: "..i.." "..v) end
+  crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
 end
 
 
