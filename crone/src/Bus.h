@@ -196,8 +196,8 @@ namespace  crone {
                 x = a.buf[0][fr];
                 l = level.update();
                 c = pan.update();
-                buf[0][fr] += x*l*c;
-                buf[1][fr] += x*l*(1.f-c);
+                buf[0][fr] += x*l*(1.f-c);
+                buf[1][fr] += x*l*c;
             }
         }
 
@@ -212,8 +212,8 @@ namespace  crone {
                 l = level.update();
                 c = pan.update();
                 c *= (float)M_PI_2;
-                buf[0][fr] += x*l * sinf(c);
-                buf[1][fr] += x*l * cosf(c);
+                buf[0][fr] += x*l * cosf(c);
+                buf[1][fr] += x*l * sinf(c);
             }
         }
 
