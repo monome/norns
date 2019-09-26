@@ -8,9 +8,7 @@ function _norns.crow_identity(...) print("crow identity: " .. ...) end
 function _norns.crow_version(...) print("crow version: " .. ...) end
 function _norns.crow_stream(n,v) crow.input[n].stream(v) end
 function _norns.crow_change(n,v) crow.input[n].change(v) end
-function _norns.crow_midi(...) crow.input[n].midi(...) end
 function _norns.crow_output(i,v) crow.output[i].receive(v) end
-function _norns.crow_jf(i,v) crow.output[i].receive(v) end
 function _norns.crow_midi(...) crow.midi(...) end
 
 _norns.crow_ii = {}
@@ -54,7 +52,6 @@ function input.new(x)
   i.query = function() crow.send("get_cv("..i.n..")") end
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
-  i.midi = function(...) print("crow midi: "..i.n.." ".. ...) end
   i.mode = function(m,a,b,c)
     local cmd = "input["..i.n.."].mode("..tostringwithquotes(m) 
     if a ~= nil then cmd = cmd .. "," .. a end
