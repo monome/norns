@@ -247,8 +247,8 @@ end
 -- @param path (from dust directory)
 function Audio.file_info(path)
   -- dur, ch, rate
-  print("file_info: " .. _path.dust .. path)
-  return sound_file_inspect(_path.dust .. path)
+  --print("file_info: " .. path)
+  return sound_file_inspect(path)
 end
 
 

@@ -89,3 +89,6 @@ extern void w_handle_engine_loaded();
 // callbacks for ACK and timeout of sclang startup
 extern void w_handle_startup_ready_ok();
 extern void w_handle_startup_ready_timeout();
+
+// util callbacks
+extern void w_handle_system_cmd();
