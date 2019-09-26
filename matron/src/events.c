@@ -285,6 +285,15 @@ static void handle_event(union event_data *ev) {
     case EVENT_QUIT:
         quit = true;
         break;
+    case EVENT_CROW_ADD:
+        w_handle_crow_add(ev->crow_add.dev);
+        break;
+    case EVENT_CROW_REMOVE:
+        w_handle_crow_remove(ev->crow_remove.id);
+        break;
+    case EVENT_CROW_EVENT:
+        w_handle_crow_event(ev->crow_event.dev, ev->crow_event.id);
+        break;
     } /* switch */
 
     event_data_free(ev);

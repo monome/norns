@@ -25,6 +25,7 @@
 #include "device_hid.h"
 #include "device_monome.h"
 #include "device_midi.h"
+#include "device_crow.h"
 #include "events.h"
 #include "hello.h"
 #include "lua_eval.h"
@@ -105,8 +106,10 @@ static int _gain_hp(lua_State *l);
 static int _osc_send(lua_State *l);
 static int _osc_send_crone(lua_State *l);
 // midi
-// midi
 static int _midi_send(lua_State *l);
+
+// crow
+static int _crow_send(lua_State *l);
 
 // crone
 /// engines
@@ -303,6 +306,9 @@ void w_init(void) {
   lua_register_norns("cut_param_iif", &_set_cut_param_iif);
   lua_register_norns("level_input_cut", &_set_level_input_cut);
 
+  // crow
+  lua_register_norns("crow_send", &_crow_send);
+
   // util
   lua_register_norns("system_cmd", &_system_cmd);
 
@@ -361,7 +367,7 @@ void w_init(void) {
   // midi
   lua_register(lvm, "midi_send", &_midi_send);
 
-  // get list of available crone engines
+    // get list of available crone engines
   lua_register(lvm, "report_engines", &_request_engine_report);
   // load a named engine
   lua_register(lvm, "load_engine", &_load_engine);
@@ -995,6 +1001,28 @@ int _osc_send_crone(lua_State *l) {
 
 
 /***
+ * crow: send
+ * @function _crow_send
+ */
+int _crow_send(lua_State *l) {
+  struct dev_crow *d;
+  const char *s;
+
+  if (lua_gettop(l) != 2) {
+    return luaL_error(l, "wrong number of arguments");
+  }
+
+  luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+  d = lua_touserdata(l, 1);
+  s = luaL_checkstring(l, 2);
+  lua_settop(l, 0);
+
+  dev_crow_send(d, s);
+
+  return 0;
+}
+
+/***
  * midi: send
  * @function midi_send
  */
@@ -1461,6 +1489,32 @@ void w_handle_hid_event(int id, uint8_t type, dev_code_t code, int value) {
   lua_pushinteger(lvm, code);
   lua_pushinteger(lvm, value);
   l_report(lvm, l_docall(lvm, 4, 0));
+}
+
+void w_handle_crow_add(void *p) {
+  struct dev_crow *dev = (struct dev_crow *)p;
+  struct dev_common *base = (struct dev_common *)p;
+  int id = base->id;
+
+  _push_norns_func("crow", "add");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  lua_pushstring(lvm, base->name);
+  lua_pushlightuserdata(lvm, dev);
+  l_report(lvm, l_docall(lvm, 3, 0));
+}
+
+void w_handle_crow_remove(int id) {
+  _push_norns_func("crow", "remove");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+void w_handle_crow_event(void *dev, int id) {
+  struct dev_crow *d = (struct dev_crow *)dev;
+  _push_norns_func("crow", "event");
+  lua_pushinteger(lvm, id + 1); // convert to 1-base
+  lua_pushstring(lvm, d->line);
+  l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 void w_handle_midi_add(void *p) {
