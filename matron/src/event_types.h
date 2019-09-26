@@ -65,6 +65,8 @@ typedef enum {
     EVENT_STARTUP_READY_OK,
     // crone startup timeout event
     EVENT_STARTUP_READY_TIMEOUT,
+    // system command finished
+    EVENT_SYSTEM_CMD,
     // reset the lua state
     EVENT_RESET_LVM,
     // quit the event loop
@@ -248,6 +250,12 @@ struct event_startup_ready_timeout {
     struct event_common common;
 }; // + 0
 
+struct event_system_cmd {
+    struct event_common common;
+    char *capture;
+};
+
+
 union event_data {
     uint32_t type;
     struct event_exec_code_line exec_code_line;
@@ -277,4 +285,5 @@ union event_data {
     struct event_poll_wave poll_wave;
     struct event_startup_ready_ok startup_ready_ok;
     struct event_startup_ready_timeout startup_ready_timeout;
+    struct event_system_cmd system_cmd;
 };

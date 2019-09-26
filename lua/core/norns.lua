@@ -174,6 +174,31 @@ end
 -- Audio.
 norns.audio = require 'core/audio'
 
+-- Util (system_cmd)
+local system_cmd_q = {}
+local system_cmd_busy = false
+
+-- add cmd to queue
+norns.system_cmd = function(cmd, callback)
+  table.insert(system_cmd_q, {cmd=cmd, callback=callback})
+  if system_cmd_busy == false then
+    system_cmd_busy = true
+    _norns.system_cmd(cmd)
+  end
+end
+
+-- callback management from c
+norns.system_cmd_capture = function(cap)
+  if system_cmd_q[1].callback == nil then print(cap)
+  else system_cmd_q[1].callback(cap) end
+  table.remove(system_cmd_q,1)
+  if #system_cmd_q > 0 then
+    _norns.system_cmd(system_cmd_q[1].cmd)
+  else
+    system_cmd_busy = false
+  end
+end
+
 
 -- Management.
 -- @section management
