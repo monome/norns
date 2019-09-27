@@ -109,7 +109,9 @@ local crow = {}
 
 function crow.version() crow.send("^^v") end
 function crow.identity() crow.send("^^i") end
-function crow.reset() crow.send("^^k") end
+function crow.reset() crow.send("^^r") end
+function crow.kill() crow.send("^^k") end
+function crow.clear() crow.send("^^c") end
 
 function crow.send(cmd)
   if norns.crow.dev then
