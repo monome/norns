@@ -21,16 +21,16 @@ void SoftCutVoice::reset() {
     svfPre.setHpMix(0.0);
     svfPre.setBpMix(0.0);
     svfPre.setBrMix(0.0);
-    svfPre.setRq(20.0);
+    svfPre.setRq(4.0);
     svfPre.setFc(svfPreFcBase);
     svfPreFcMod = 1.0;
-    svfPreDryLevel = 1.0;
+    svfPreDryLevel = 0.0;
 
     svfPost.setLpMix(0.0);
     svfPost.setHpMix(0.0);
     svfPost.setBpMix(0.0);
     svfPost.setBrMix(0.0);
-    svfPost.setRq(20.0);
+    svfPost.setRq(4.0);
     svfPost.setFc(12000);
     svfPostDryLevel = 1.0;
 
