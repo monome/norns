@@ -62,7 +62,7 @@ void crone::SoftCutClient::mixInput(size_t numFrames) {
 void crone::SoftCutClient::mixOutput(size_t numFrames) {
     for (int v = 0; v < NumVoices; ++v) {
         if (cut.getPlayFlag(v)) {
-            mix.panMixFrom(output[v], numFrames, outLevel[v], outPan[v]);
+            mix.panMixEpFrom(output[v], numFrames, outLevel[v], outPan[v]);
         }
     }
 }

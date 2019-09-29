@@ -187,7 +187,7 @@ namespace  crone {
             }
         }
 
-        // mix from mono->stereo bus, with level and pan (equal power)
+        // mix from mono->stereo bus, with level and pan (linear)
         void panMixFrom(Bus<1, BlockSize> a, size_t numFrames, LogRamp &level, LogRamp& pan) {
             BOOST_ASSERT(numFrames < BlockSize);
             static_assert(NumChannels > 1, "using panMixFrom() on mono bus");
