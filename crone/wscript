@@ -14,6 +14,7 @@ def build(bld):
         'src/Commands.cpp',
         'src/MixerClient.cpp',
         'src/SoftCutClient.cpp',
+        'src/Taper.cpp',
         'src/Window.cpp',
         'src/softcut/FadeCurves.cpp',
         'src/softcut/SoftCutHead.cpp', 

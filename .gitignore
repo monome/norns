@@ -24,8 +24,6 @@ crone/\.idea/
 
 crone/cmake-build-debug/
 
-crone/dsp/
-
 crone/build-debinfo/
 
 crone/build-release/

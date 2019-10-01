@@ -230,3 +230,23 @@ namespace crone {
     };
 
 }
+
+// simple lookup table class
+template<typename T>
+class LUT {
+    // look up a value from a table with normalized position
+    // warning: no bounds checking on posision!
+    // must be in [0, 1] or you get garbage.
+    static T lookupLinear(float x, const T* tab, int size) {
+	const int size_1 = size-1;
+	fidx = x * size_1;
+	idx = static_cast<unsigned int>(fidx);
+	if (idx >= size_1) {
+	    return tab[size_1];
+	}
+	const float a = tab[idx];
+	const float b = tab[idx+1];
+	const float f = fidx - static_cast<float>(idx);
+	return a + (b-1)*f;
+    }
+};
