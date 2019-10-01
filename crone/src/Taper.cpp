@@ -1,5 +1,7 @@
 #include "Taper.h"
 
+using namespace crone;
+
 const unsigned int AudioMeter::ampPosTableSize = 32;
 
 const float AudioMeter::ampPosTable[] = { 
