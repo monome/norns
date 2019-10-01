@@ -14,6 +14,7 @@
 
 #include "Commands.h"
 #include "OscInterface.h"
+#include "Taper.h"
 
 using namespace crone;
 using softcut::FadeCurves;
@@ -58,12 +59,11 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([](const char* path){
         auto vl = mixerClient->getVuLevels();
-        // FIXME: perform exponential scaling here?
         char l[4];
-        l[0] = (uint8_t)(64*vl->absPeakIn[0].load());
-        l[1] = (uint8_t)(64*vl->absPeakIn[1].load());
-        l[2] = (uint8_t)(64*vl->absPeakIn[2].load());
-        l[3] = (uint8_t)(64*vl->absPeakIn[3].load());
+        l[0] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[0].load()));
+        l[1] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[1].load()));
+        l[2] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[2].load()));
+        l[3] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[3].load()));
         lo_blob bl = lo_blob_new(sizeof(l), l);
         lo_send(matronAddress, path, "b", bl);
         vl->clear();
