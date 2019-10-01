@@ -40,6 +40,14 @@
 #include "clock.h"
 #include "clocks/clock_internal.h"
 
+
+// registered lua functions require the LVM state as a parameter.
+// but often we don't need it.
+// use pragma instead of casting to void as a workaround.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+
 //------
 //---- global lua state!
 lua_State *lvm;
@@ -1247,7 +1255,6 @@ int _send_command(lua_State *l) {
 }
 
 int _request_engine_report(lua_State *l) {
-  (void)l;
   o_request_engine_report();
   return 0;
 }
@@ -1925,25 +1932,21 @@ int _set_level_monitor(lua_State *l) {
 }
 
 int _set_monitor_mix_mono(lua_State *l) {
-  (void)l;
   o_set_monitor_mix_mono();
   return 0;
 }
 
 int _set_monitor_mix_stereo(lua_State *l) {
-  (void)l;
   o_set_monitor_mix_stereo();
   return 0;
 }
 
 int _set_audio_pitch_on(lua_State *l) {
-  (void)l;
   o_set_audio_pitch_on();
   return 0;
 }
 
 int _set_audio_pitch_off(lua_State *l) {
-  (void)l;
   o_set_audio_pitch_off();
   return 0;
 }
@@ -1965,13 +1968,11 @@ int _tape_rec_open(lua_State *l) {
 }
 
 int _tape_rec_start(lua_State *l) {
-  (void)l;
   o_tape_rec_start();
   return 0;
 }
 
 int _tape_rec_stop(lua_State *l) {
-  (void)l;
   o_tape_rec_stop();
   return 0;
 }
@@ -1985,37 +1986,31 @@ int _tape_play_open(lua_State *l) {
 }
 
 int _tape_play_start(lua_State *l) {
-  (void)l;
   o_tape_play_start();
   return 0;
 }
 
 int _tape_play_stop(lua_State *l) {
-  (void)l;
   o_tape_play_stop();
   return 0;
 }
 
 int _poll_start_vu(lua_State *l) {
-  (void)l;
   o_poll_start_vu();
   return 0;
 }
 
 int _poll_stop_vu(lua_State *l) {
-  (void)l;
   o_poll_stop_vu();
   return 0;
 }
 
 int _poll_start_cut_phase(lua_State *l) {
-  (void)l;
   o_poll_start_cut_phase();
   return 0;
 }
 
 int _poll_stop_cut_phase(lua_State *l) {
-  (void)l;
   o_poll_stop_cut_phase();
   return 0;
 }
@@ -2090,7 +2085,6 @@ int _set_pan_cut(lua_State *l) {
 }
 
 int _cut_buffer_clear(lua_State *l) {
-  (void)l;
   o_cut_buffer_clear();
   return 0;
 }
@@ -2161,7 +2155,6 @@ int _cut_buffer_write_stereo(lua_State *l) {
 }
 
 int _cut_reset(lua_State *l) {
-  (void)l;
   o_cut_reset();
   return 0;
 }
@@ -2208,13 +2201,11 @@ int _set_level_input_cut(lua_State *l) {
 
 // rev effects controls
 int _set_rev_on(lua_State *l) {
-  (void)l;
   o_set_rev_on();
   return 0;
 }
 
 int _set_rev_off(lua_State *l) {
-  (void)l;
   o_set_rev_off();
   return 0;
 }
@@ -2258,13 +2249,11 @@ int _set_rev_param(lua_State *l) {
 
 // comp effects controls
 int _set_comp_on(lua_State *l) {
-  (void)l;
   o_set_comp_on();
   return 0;
 }
 
 int _set_comp_off(lua_State *l) {
-  (void)l;
   o_set_comp_off();
   return 0;
 }
@@ -2285,13 +2274,11 @@ int _set_comp_param(lua_State *l) {
 }
 
 int _start_audio(lua_State *l) {
-  (void)l;  
   norns_hello_start();
   return 0;
 }
 
 int _restart_audio(lua_State *l) {
-  (void)l;
   o_restart_audio();
   norns_hello_start();
   return 0;
@@ -2315,4 +2302,4 @@ int _system_cmd(lua_State *l)
   return 0;
 }
 
-
+#pragma GCC diagnostic pop
