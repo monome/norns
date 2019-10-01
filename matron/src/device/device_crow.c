@@ -12,6 +12,9 @@
 #include "device_crow.h"
 #include "events.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+
 #define TEST_NULL_AND_FREE(p) if( (p) != NULL ) { free(p); } \
     else { fprintf(stderr, "error: double free in device_crow.c\n"); }
 
@@ -42,7 +45,7 @@ int dev_crow_init(void *self) {
     // check if modem is a crow
     char s[256];
     read(d->fd, s, 255); // clear buffer
-    write(d->fd,"^^i\n\0",5);
+    write(d->fd,"^^i\n\0",5);    
     usleep(1000);
     read(d->fd, s, 255);
     //fprintf(stderr,"crow init> %i %s",len,s);
@@ -98,3 +101,6 @@ void dev_crow_send(struct dev_crow *d, const char *line) {
     //fprintf(stderr,"crow_send: %s",line);
     write(d->fd, s, strlen(s));
 }
+
+
+#pragma GCC diagnostic pop
