@@ -38,7 +38,7 @@ int dev_crow_init(void *self) {
     d->newtio.c_cc[VTIME]=5;
     tcflush(d->fd, TCIFLUSH);
     tcsetattr(d->fd,TCSANOW,&d->newtio);
-    
+
     // check if modem is a crow
     char s[256];
     read(d->fd, s, 255); // clear buffer
@@ -48,8 +48,8 @@ int dev_crow_init(void *self) {
     //fprintf(stderr,"crow init> %i %s",len,s);
 
     if(strstr(s,"^^identity")==NULL) {
-      fprintf(stderr,">> ttyACM found, but not a crow\n");
-      return -1;
+        fprintf(stderr,">> ttyACM found, but not a crow\n");
+        return -1;
     }
 
     base->start = &dev_crow_start;
@@ -66,35 +66,35 @@ static void handle_event(void *dev, uint8_t id) {
 }
 
 void *dev_crow_start(void *self) {
-	struct dev_crow *di = (struct dev_crow *)self;
-  struct dev_common *base = (struct dev_common *)self;
+    struct dev_crow *di = (struct dev_crow *)self;
+    struct dev_common *base = (struct dev_common *)self;
 
-	uint8_t len;
+    uint8_t len;
 
-	while(1) {
-		len = read(di->fd, di->line, 255);
-		if(len > 0) {
-			di->line[len] = 0; // add null to end of string
-			if(len>1) {
-				//fprintf(stderr,"crow> %s", di->line);
-				handle_event(self, base->id);
-			}
-			len = 0;
-		}
-		usleep(1000); // 1ms
-	}
-	return NULL;
+    while(1) {
+        len = read(di->fd, di->line, 255);
+        if(len > 0) {
+            di->line[len] = 0; // add null to end of string
+            if(len>1) {
+                //fprintf(stderr,"crow> %s", di->line);
+                handle_event(self, base->id);
+            }
+            len = 0;
+        }
+        usleep(1000); // 1ms
+    }
+    return NULL;
 }
 
 void dev_crow_deinit(void *self) {
     struct dev_crow *di = (struct dev_crow *)self;
-  	tcsetattr(di->fd,TCSANOW,&di->oldtio);
+    tcsetattr(di->fd,TCSANOW,&di->oldtio);
 }
 
 void dev_crow_send(struct dev_crow *d, const char *line) {
-	char s[256];
-	strcpy(s,line);
-	strcat(s,"\n\0");
-	//fprintf(stderr,"crow_send: %s",line);
-  write(d->fd, s, strlen(s));
+    char s[256];
+    strcpy(s,line);
+    strcat(s,"\n\0");
+    //fprintf(stderr,"crow_send: %s",line);
+    write(d->fd, s, strlen(s));
 }
