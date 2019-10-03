@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "device_midi.h"
 #include "events.h"
 #include "device.h"
 #include "device_list.h"
@@ -42,23 +43,18 @@ void dev_list_init(void) {
     dq.tail = NULL;
 }
 
-void dev_list_add(device_t type, const char *path, const char *name) {
-    if (type < 0) {
-        return;
+union event_data *post_add_event(union dev *d, event_t event_type) {
+    if (d == NULL) {
+        fprintf(stderr, "dev_list_add: error allocating device data\n");
+        return NULL;
     }
 
     struct dev_node *dn = calloc(1, sizeof(struct dev_node));
 
     if (dn == NULL) {
         fprintf(stderr, "dev_list_add: error allocating device queue node\n");
-        return;
-    }
-
-    union dev *d = dev_new(type, path, name);
-
-    if (d == NULL) {
-        fprintf(stderr, "dev_list_add: error allocating device data\n");
-        return;
+        free(d);
+        return NULL;
     }
 
     d->base.id = id++;
@@ -72,28 +68,59 @@ void dev_list_add(device_t type, const char *path, const char *name) {
     dq.size++;
 
     union event_data *ev;
+    ev = event_data_new(event_type);
+    return ev;
+}
+
+void dev_list_add(device_t type, const char *path, const char *name) {
+    if (type < 0) {
+        return;
+    }
+
+    union event_data *ev;
+    union dev *d;
+    unsigned int midi_port_count = 0;
+
     switch (type) {
     case DEV_TYPE_MONOME:
-        ev = event_data_new(EVENT_MONOME_ADD);
-        ev->monome_add.dev = d;
+        d = dev_new(type, path, name, 0);
+        ev = post_add_event(d, EVENT_MONOME_ADD);
+        if (ev != NULL) {
+            ev->monome_add.dev = d;
+            event_post(ev);
+        }
         break;
     case DEV_TYPE_HID:
-        ev = event_data_new(EVENT_HID_ADD);
-        ev->hid_add.dev = d;
+        d = dev_new(type, path, name, 0);
+        ev = post_add_event(d, EVENT_HID_ADD);
+        if (ev != NULL) {
+            ev->hid_add.dev = d;
+            event_post(ev);
+        }
         break;
     case DEV_TYPE_MIDI:
-        ev = event_data_new(EVENT_MIDI_ADD);
-        ev->midi_add.dev = d;
+        midi_port_count = dev_port_count(path);
+        for (unsigned int pidx = 0; pidx < midi_port_count; pidx++) {
+            d = dev_new(type, path, name, pidx);
+            ev = post_add_event(d, EVENT_MIDI_ADD);
+            if (ev != NULL) {
+                ev->midi_add.dev = d;
+                event_post(ev);
+            }
+        }
         break;
     case DEV_TYPE_CROW:
-        ev = event_data_new(EVENT_CROW_ADD);
-        ev->crow_add.dev = d;
+        d = dev_new(type, path, name, 0);
+        ev = post_add_event(d, EVENT_CROW_ADD);
+        if (ev != NULL) {
+            ev->crow_add.dev = d;
+            event_post(ev);
+        }
         break;
     default:
         fprintf(stderr, "dev_list_add(): error posting event (unknown type)\n");
         return;
     }
-    event_post(ev);
 }
 
 void dev_list_remove(device_t type, const char *node) {
