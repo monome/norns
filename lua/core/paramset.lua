@@ -121,7 +121,28 @@ end
 function ParamSet:print()
   print("paramset ["..self.name.."]")
   for k,v in pairs(self.params) do
-    print(k.." "..v.name.." = "..v:string())
+    local name = v.name or 'unnamed' -- e.g., separators
+    print(k.." "..name.." = "..v:string())
+  end
+end
+
+local function get_index(t, val)
+  for index, v in ipairs (t) do
+      if (v == val) then
+        return index
+      end
+  end
+  return nil
+end
+
+-- remove.
+function ParamSet:remove(id)
+  local param = self:lookup_param(id)
+  local index = get_index(self.params, param)
+  if (index) then
+    self.count = self.count - 1
+    self.lookup[id] = nil
+    table.remove(self.params, index)
   end
 end
 
@@ -210,7 +231,7 @@ function ParamSet:write(filename)
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
   io.output(fd)
-  for k,param in pairs(self.params) do
+  for _,param in pairs(self.params) do
     if param.id and param.t ~= self.tTRIGGER then
       io.write(string.format("%s: %s\n", quote(param.id), param:get()))
     end
@@ -267,7 +288,7 @@ end
 
 --- bang all params.
 function ParamSet:bang()
-  for k,v in pairs(self.params) do
+  for _,v in pairs(self.params) do
     if v.t ~= self.tTRIGGER then
       v:bang()
     end
