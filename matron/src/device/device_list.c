@@ -88,22 +88,6 @@ void dev_list_add(device_t type, const char *path, const char *name) {
     unsigned int midi_port_count = 0;
 
     switch (type) {
-    case DEV_TYPE_MONOME:
-        d = dev_new(type, path, name, 0);
-        ev = post_add_event(d, EVENT_MONOME_ADD);
-        if (ev != NULL) {
-            ev->monome_add.dev = d;
-            event_post(ev);
-        }
-        break;
-    case DEV_TYPE_HID:
-        d = dev_new(type, path, name, 0);
-        ev = post_add_event(d, EVENT_HID_ADD);
-        if (ev != NULL) {
-            ev->hid_add.dev = d;
-            event_post(ev);
-        }
-        break;
     case DEV_TYPE_MIDI:
         midi_port_count = dev_port_count(path);
         for (unsigned int pidx = 0; pidx < midi_port_count; pidx++) {
@@ -114,18 +98,26 @@ void dev_list_add(device_t type, const char *path, const char *name) {
                 event_post(ev);
             }
         }
+        return;
+    case DEV_TYPE_MONOME:
+        d = dev_new(type, path, name, 0);
+        ev = post_add_event(d, EVENT_MONOME_ADD);
+        break;
+    case DEV_TYPE_HID:
+        d = dev_new(type, path, name, 0);
+        ev = post_add_event(d, EVENT_HID_ADD);
         break;
     case DEV_TYPE_CROW:
         d = dev_new(type, path, name, 0);
         ev = post_add_event(d, EVENT_CROW_ADD);
-        if (ev != NULL) {
-            ev->crow_add.dev = d;
-            event_post(ev);
-        }
         break;
     default:
         fprintf(stderr, "dev_list_add(): error posting event (unknown type)\n");
         return;
+    }
+    if (ev != NULL) {
+        ev->monome_add.dev = d;
+        event_post(ev);
     }
 }
 
@@ -155,30 +147,28 @@ void dev_list_remove(device_t type, const char *node) {
     union event_data *ev;
 
     switch(type) {
-    case DEV_TYPE_MONOME:
-        ev = event_data_new(EVENT_MONOME_REMOVE);
-        ev->monome_remove.id = dn->d->base.id;
-        dev_remove_node(dn, ev, node);
-        break;
-    case DEV_TYPE_HID:
-        ev = event_data_new(EVENT_HID_REMOVE);
-        ev->hid_remove.id = dn->d->base.id;
-        dev_remove_node(dn, ev, node);
-        break;
     case DEV_TYPE_MIDI:
         while (dn != NULL) {
             ev = event_data_new(EVENT_MIDI_REMOVE);
             ev->midi_remove.id = dn->d->base.id;
             dn = dev_remove_node(dn, ev, node);
         }
+        return;
+    case DEV_TYPE_MONOME:
+        ev = event_data_new(EVENT_MONOME_REMOVE);
+        ev->monome_remove.id = dn->d->base.id;
+        break;
+    case DEV_TYPE_HID:
+        ev = event_data_new(EVENT_HID_REMOVE);
+        ev->hid_remove.id = dn->d->base.id;
         break;
     case DEV_TYPE_CROW:
         ev = event_data_new(EVENT_CROW_REMOVE);
         ev->crow_remove.id = dn->d->base.id;
-        dev_remove_node(dn, ev, node);
         break;
     default:
         fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");
         return;
     }
+    dev_remove_node(dn, ev, node);
 }
