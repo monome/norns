@@ -24,15 +24,21 @@ struct dev_q {
 
 struct dev_q dq;
 
-static struct dev_node *dev_lookup_path(const char *path) {
-    struct dev_node *n = dq.head;
+static struct dev_node *dev_lookup_path(
+    const char *path,
+    struct dev_node *node_head
+) {
     const char *npath;
-    while (n != NULL) {
-        npath = n->d->base.path;
+    if (node_head == NULL) {
+        node_head = dq.head;
+    }
+
+    while (node_head != NULL) {
+        npath = node_head->d->base.path;
         if (strcmp(path, npath) == 0) {
-            return n;
+            return node_head;
         }
-        n = n->next;
+        node_head = node_head->next;
     }
     return NULL;
 }
@@ -123,32 +129,8 @@ void dev_list_add(device_t type, const char *path, const char *name) {
     }
 }
 
-void dev_list_remove(device_t type, const char *node) {
-    struct dev_node *dn = dev_lookup_path(node);
-    if(dn == NULL) { return; }
-    union event_data *ev;
-    switch(type) {
-    case DEV_TYPE_MONOME:
-        ev = event_data_new(EVENT_MONOME_REMOVE);
-        ev->monome_remove.id = dn->d->base.id;
-        break;
-    case DEV_TYPE_HID:
-        ev = event_data_new(EVENT_HID_REMOVE);
-        ev->hid_remove.id = dn->d->base.id;
-        break;
-    case DEV_TYPE_MIDI:
-        ev = event_data_new(EVENT_MIDI_REMOVE);
-        ev->midi_remove.id = dn->d->base.id;
-        break;
-    case DEV_TYPE_CROW:
-        ev = event_data_new(EVENT_CROW_REMOVE);
-        ev->crow_remove.id = dn->d->base.id;
-        break;
-    default:
-        fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");
-        return;
-    }
-    event_post(ev);
+void dev_remove_node(struct dev_node *dn, union event_data *event_remove) {
+    event_post(event_remove);
 
     if(dq.head == dn) { dq.head = dn->next; }
     if(dq.tail == dn) { dq.tail = dn->prev; }
@@ -157,4 +139,39 @@ void dev_list_remove(device_t type, const char *node) {
 
     dev_delete(dn->d);
     free(dn);
+}
+
+void dev_list_remove(device_t type, const char *node) {
+    struct dev_node *dn = dev_lookup_path(node, NULL);
+    if(dn == NULL) { return; }
+    union event_data *ev;
+
+    switch(type) {
+    case DEV_TYPE_MONOME:
+        ev = event_data_new(EVENT_MONOME_REMOVE);
+        ev->monome_remove.id = dn->d->base.id;
+        dev_remove_node(dn, ev);
+        break;
+    case DEV_TYPE_HID:
+        ev = event_data_new(EVENT_HID_REMOVE);
+        ev->hid_remove.id = dn->d->base.id;
+        dev_remove_node(dn, ev);
+        break;
+    case DEV_TYPE_MIDI:
+        while (dn != NULL) {
+            ev = event_data_new(EVENT_MIDI_REMOVE);
+            ev->midi_remove.id = dn->d->base.id;
+            dev_remove_node(dn, ev);
+            dn = dev_lookup_path(node, dn);
+        }
+        break;
+    case DEV_TYPE_CROW:
+        ev = event_data_new(EVENT_CROW_REMOVE);
+        ev->crow_remove.id = dn->d->base.id;
+        dev_remove_node(dn, ev);
+        break;
+    default:
+        fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");
+        return;
+    }
 }
