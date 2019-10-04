@@ -18,19 +18,19 @@ unsigned int dev_port_count(const char *path) {
     }
 
     // mostly from amidi.c
-	snd_ctl_t *ctl;
-	char name[32];
+    snd_ctl_t *ctl;
+    char name[32];
 
     snd_rawmidi_info_t *info;
     int subs = 0;
     int subs_in = 0;
     int subs_out = 0;
 
-	sprintf(name, "hw:%d", card);
-	if (snd_ctl_open(&ctl, name, 0) < 0) {
+    sprintf(name, "hw:%d", card);
+    if (snd_ctl_open(&ctl, name, 0) < 0) {
         // TODO: Insert error message here
-		return 0;
-	}
+        return 0;
+    }
 
     snd_rawmidi_info_alloca(&info);
     snd_rawmidi_info_set_device(info, alsa_dev);
@@ -44,7 +44,7 @@ unsigned int dev_port_count(const char *path) {
     if (snd_ctl_rawmidi_info(ctl, info) >= 0) {
         subs_out = snd_rawmidi_info_get_subdevices_count(info);
     }
-	snd_ctl_close(ctl);
+    snd_ctl_close(ctl);
 
     subs = subs_in > subs_out ? subs_in : subs_out;
     return subs;
