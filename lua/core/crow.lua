@@ -38,7 +38,7 @@ norns.crow.event = function(id, line)
     line = line:gsub("%^^","_norns.crow_") 
     assert(load(line))()
   else
-    print("crow receive: "..line)
+    crow.receive(line)
   end
 end
 
@@ -120,10 +120,13 @@ function crow.send(cmd)
   end
 end
 
+function crow.receive(...) print("crow:",...) end
+
 crow.input = { input.new(1), input.new(2) }
 crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
 crow.init = function()
+  crow.receive = function(...) print("crow:",...) end
   crow.input = { input.new(1), input.new(2) }
   crow.input[1].mode("none")
   crow.input[2].mode("none")
