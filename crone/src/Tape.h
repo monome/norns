@@ -181,13 +181,7 @@ namespace crone {
                     // while we're interleaving, also apply envelope
                     float amp = SfStream::getEnvSample();
                     for (int ch = 0; ch < NumChannels; ++ch) {
-                        float x = src[ch][fr] * amp;
-// FIXME: some form of clipping is necessary before fixed-point encoding.
-// this hardclipper is neither optimally implemented, nor sonically ideal,
-// but it is better than nothing.
-                        x = x > 1.f ? 1.f : x;
-                        x = x < -1.f ? -1.f : x;
-                        *dst++ = x;
+                        *dst++ = src[ch][fr] * amp;
                    }
                 }
                 jack_ringbuffer_write(rb, (const char *) pushBuf, bytesToPush);
@@ -302,6 +296,9 @@ namespace crone {
                     std::cerr << "cannot open sndfile" << path << " for output (" << errstr << ")" << std::endl;
                     return false;
                 }
+
+                // enable clipping during float->int conversion
+                sf_command(this->file, SFC_SET_CLIPPING, NULL, SF_TRUE);
 
                 this->maxFrames = maxFrames;
                 jack_ringbuffer_reset(this->ringBuf.get());
