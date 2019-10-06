@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "device_midi.h"
 #include "events.h"
@@ -91,7 +92,7 @@ void dev_list_add(device_t type, const char *path, const char *name) {
     case DEV_TYPE_MIDI:
         midi_port_count = dev_port_count(path);
         for (unsigned int pidx = 0; pidx < midi_port_count; pidx++) {
-            d = dev_new(type, path, name, pidx);
+            d = dev_new(type, path, name, pidx, midi_port_count == 1);
             ev = post_add_event(d, EVENT_MIDI_ADD);
             if (ev != NULL) {
                 ev->midi_add.dev = d;
@@ -100,15 +101,15 @@ void dev_list_add(device_t type, const char *path, const char *name) {
         }
         return;
     case DEV_TYPE_MONOME:
-        d = dev_new(type, path, name, 0);
+        d = dev_new(type, path, name, 0, true);
         ev = post_add_event(d, EVENT_MONOME_ADD);
         break;
     case DEV_TYPE_HID:
-        d = dev_new(type, path, name, 0);
+        d = dev_new(type, path, name, 0, true);
         ev = post_add_event(d, EVENT_HID_ADD);
         break;
     case DEV_TYPE_CROW:
-        d = dev_new(type, path, name, 0);
+        d = dev_new(type, path, name, 0, true);
         ev = post_add_event(d, EVENT_CROW_ADD);
         break;
     default:

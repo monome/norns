@@ -25,7 +25,8 @@ extern union dev *dev_new(
     device_t type,
     const char *path,
     const char *name,
-    unsigned int midi_port_index
+    unsigned int midi_port_index,
+    bool is_sole_port
 );
 // destroy given device
 extern void dev_delete(union dev *d);

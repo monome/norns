@@ -50,7 +50,7 @@ unsigned int dev_port_count(const char *path) {
     return subs;
 }
 
-int dev_midi_init(void *self, unsigned int port_index) {
+int dev_midi_init(void *self, unsigned int port_index, bool is_sole_port) {
     struct dev_midi *midi = (struct dev_midi *) self;
     struct dev_common *base = (struct dev_common *) self;
 
@@ -71,18 +71,20 @@ int dev_midi_init(void *self, unsigned int port_index) {
     }
 
     char *name_with_port_index;
-    if (asprintf(&name_with_port_index, "%s %u", base->name, port_index + 1) < 0) {
-        fprintf(
-            stderr,
-            "failed to create human-readable device name for card %d,%d,%d\n",
-            alsa_card,
-            alsa_dev,
-            port_index
-        );
-        return -1;
+    if (!is_sole_port) {
+        if (asprintf(&name_with_port_index, "%s %u", base->name, port_index + 1) < 0) {
+            fprintf(
+                stderr,
+                "failed to create human-readable device name for card %d,%d,%d\n",
+                alsa_card,
+                alsa_dev,
+                port_index
+            );
+            return -1;
+        }
+        base->name = name_with_port_index;
     }
 
-    base->name = name_with_port_index;
     base->start = &dev_midi_start;
     base->deinit = &dev_midi_deinit;
 
