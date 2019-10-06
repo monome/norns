@@ -68,7 +68,7 @@ setmetatable(input, input)
 
 
 local output = {}
-
+ 
 function output.new(x)
   local o = { n = x }
   o._volts = 0
@@ -128,8 +128,7 @@ crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 crow.init = function()
   crow.receive = function(...) print("crow:",...) end
   crow.input = { input.new(1), input.new(2) }
-  crow.input[1].mode("none")
-  crow.input[2].mode("none")
+  crow.reset()
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
   crow.midi = function(...) print("crow midi:",...) end
 
@@ -139,11 +138,19 @@ crow.init = function()
   crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
 end
 
+crow.reset = function()
+  crow.input[1].mode("none")
+  crow.input[2].mode("none")
+  for i=1,4 do
+    crow.output[i].slew = 0
+    crow.output[i].volts = 0
+  end
+end
 
 crow.ii = {}
 crow.ii.pullup = function(x)
   if x == true then crow.send("ii.pullup(true)")
-  else crow.send("ii.pullup(false)") end 
+  else crow.send("ii.pullup(false)") end
 end
 
 crow.ii.jf = {}
