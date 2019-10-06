@@ -182,7 +182,7 @@ namespace crone {
                     float amp = SfStream::getEnvSample();
                     for (int ch = 0; ch < NumChannels; ++ch) {
                         *dst++ = src[ch][fr] * amp;
-                    }
+                   }
                 }
                 jack_ringbuffer_write(rb, (const char *) pushBuf, bytesToPush);
                 this->dataPending = true;
@@ -297,6 +297,9 @@ namespace crone {
                     return false;
                 }
 
+                // enable clipping during float->int conversion
+                sf_command(this->file, SFC_SET_CLIPPING, NULL, SF_TRUE);
+
                 this->maxFrames = maxFrames;
                 jack_ringbuffer_reset(this->ringBuf.get());
                 dataPending = false;
@@ -315,16 +318,16 @@ namespace crone {
         class Reader : public SfStream {
             friend class Tape;
         private:
-            size_t frames;
-            size_t framesBeforeFadeout;
+            size_t frames{};
+            size_t framesBeforeFadeout{};
             size_t framesProcessed = 0;
             static constexpr size_t maxFramesToRead = ringBufFrames;
             // interleaved buffer from soundfile (disk thread)
-            Sample diskInBuf[frameSize * maxFramesToRead];
+            Sample diskInBuf[frameSize * maxFramesToRead]{};
             // buffer for deinterleaving after ringbuf (audio thread)
-            Sample pullBuf[frameSize * maxFramesToRead];
-            std::atomic<bool> isPrimed;
-            bool needsData;
+            Sample pullBuf[frameSize * maxFramesToRead]{};
+            std::atomic<bool> isPrimed{};
+            bool needsData{};
 
         private:
             // prime the ringbuffer
