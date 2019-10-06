@@ -35,7 +35,7 @@ norns.crow.event = function(id, line)
   line = string.sub(line,1,-2) -- strip newline
   --print(line)
   if util.string_starts(line,"^^") == true then
-    line = line:gsub("%^^","_norns.crow_") 
+    line = line:gsub("%^^","_norns.crow_")
     assert(load(line))()
   else
     crow.receive(line)
@@ -53,7 +53,7 @@ function input.new(x)
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
   i.mode = function(m,a,b,c)
-    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m) 
+    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m)
     if a ~= nil then cmd = cmd .. "," .. a end
     if b ~= nil then cmd = cmd .. "," .. b end
     if c ~= nil then cmd = cmd .. "," .. tostringwithquotes(c) end
@@ -68,7 +68,7 @@ setmetatable(input, input)
 
 
 local output = {}
- 
+
 function output.new(x)
   local o = { n = x }
   o._volts = 0
@@ -126,9 +126,9 @@ crow.input = { input.new(1), input.new(2) }
 crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
 crow.init = function()
+  crow.reset()
   crow.receive = function(...) print("crow:",...) end
   crow.input = { input.new(1), input.new(2) }
-  crow.reset()
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
   crow.midi = function(...) print("crow midi:",...) end
 
