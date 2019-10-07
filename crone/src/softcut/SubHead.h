@@ -76,12 +76,9 @@ namespace softcut {
         float fade_;
         float trig_; // output trigger value
         bool active_;
-        int recOffset_;
 
         float preFade_;
         float recFade_;
-
-        void setRecOffsetSamples(int d);
     };
 
 }

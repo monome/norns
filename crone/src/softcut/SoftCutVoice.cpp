@@ -210,10 +210,6 @@ void SoftCutVoice::setBuffer(float *b, unsigned int nf) {
     sch.setBuffer(buf, bufFrames);
 }
 
-void SoftCutVoice::setRecOffset(float d) {
-    sch.setRecOffsetSamples(static_cast<int>(d * sampleRate));
-}
-
 void SoftCutVoice::setRecPreSlewTime(float d) {
     recRamp.setTime(d);
     preRamp.setTime(d);

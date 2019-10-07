@@ -183,10 +183,6 @@ namespace softcut {
         }
 #endif
 
-        void setRecOffset(int i, float d) {
-            scv[i].setRecOffset(d);
-        }
-
         void setLevelSlewTime(int i, float d) {
             scv[i].setLevelSlewTime(d);
         }

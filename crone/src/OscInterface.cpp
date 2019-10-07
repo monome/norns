@@ -385,11 +385,6 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_PLAY_FLAG, argv[0]->i, argv[1]->f);
     });
 
-    addServerMethod("/set/param/cut/rec_offset", "if", [](lo_arg **argv, int argc) {
-        if(argc<2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_REC_OFFSET, argv[0]->i, argv[1]->f);
-    });
-
     addServerMethod("/set/param/cut/position", "if", [](lo_arg **argv, int argc) {
         if(argc<2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_POSITION, argv[0]->i, argv[1]->f);

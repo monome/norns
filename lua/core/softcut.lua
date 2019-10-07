@@ -65,8 +65,6 @@ SC.pre_level = function(voice,value) _norns.cut_param("pre_level",voice,value) e
 -- @tparam integer voice : voice number (1-?)
 -- @tparam integer state : off/on (0,1)
 SC.rec = function(voice,state) _norns.cut_param("rec_flag",voice,state) end
---- set record head offset
-SC.rec_offset = function(voice,value) _norns.cut_param("rec_offset",voice,value) end
 --- set play position
 SC.position = function(voice,value) _norns.cut_param("position",voice,value) end
 
@@ -214,7 +212,6 @@ function SC.defaults()
      state[i].rec_level = 0
      state[i].pre_level = 0
      state[i].rec = 0
-     state[i].rec_offset = -0.00015
      state[i].position = 0
      state[i].pre_filter_dry = 1
      state[i].pre_filter_lp = 0
@@ -264,7 +261,6 @@ function SC.params()
       pre_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       play = { type="number", min=0, max=1, default=1, formatter=""},
       rec = { type="number", min=0, max=1, default=1, formatter=""},
-      rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
       -- jump to position
       position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       -- pre filter

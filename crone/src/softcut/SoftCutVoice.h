@@ -53,7 +53,6 @@ namespace softcut {
         // process a single channel
         void processBlockMono(const float* in, float* out, int numFrames);
 
-        void setRecOffset(float d);
         void setRecPreSlewTime(float d);
         void setRateSlewTime(float d);
         void setPhaseQuant(float x);

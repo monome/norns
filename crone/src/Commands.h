@@ -67,7 +67,6 @@ namespace crone {
             SET_CUT_FADE_TIME,
             SET_CUT_REC_LEVEL,
             SET_CUT_PRE_LEVEL,
-            SET_CUT_REC_OFFSET,
 
             SET_CUT_PRE_FILTER_FC,
             SET_CUT_PRE_FILTER_FC_MOD,

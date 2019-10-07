@@ -18,7 +18,6 @@ n.sendMsg("/command/fade_time", 0, 0.1 );
 n.sendMsg("/command/rec_level", 0, 1.0 );
 n.sendMsg("/command/pre_level", 0, 0.6 );
 n.sendMsg("/command/rec_flag", 0, 1);
-// n.sendMsg("/command/rec_offset", 0, -20);
 n.sendMsg("/command/position", 0, 1 );
 n.sendMsg("/command/filter_fc", 0, 10000 );
 n.sendMsg("/command/filter_fc_mod", 0, 1.0 );

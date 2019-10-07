@@ -38,8 +38,6 @@ namespace  softcut{
         phase_t getActivePhase();
         rate_t getRate();
 
-
-        void setRecOffsetSamples(int d);
     private:
         // fade in to new position (given in samples)
         // assumption: phase is in range!

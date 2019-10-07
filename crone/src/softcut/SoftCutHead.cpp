@@ -207,8 +207,3 @@ void SoftCutHead::cutToPos(float seconds) {
 rate_t SoftCutHead::getRate() {
     return rate;
 }
-
-void SoftCutHead::setRecOffsetSamples(int d) {
-    head[0].setRecOffsetSamples(d);
-    head[1].setRecOffsetSamples(d);
-}

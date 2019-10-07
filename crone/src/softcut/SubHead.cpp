@@ -11,6 +11,8 @@
 
 using namespace softcut;
 
+static constexpr int recOffset = -8;
+
 SubHead::SubHead() {
     this->init();
 }
@@ -22,7 +24,6 @@ void SubHead::init() {
     state_ = Inactive;
     resamp_.setPhase(0);
     inc_dir_ = 1;
-    recOffset_ = -8;
 }
 
 Action SubHead::updatePhase(phase_t start, phase_t end, bool loop) {
@@ -163,7 +164,7 @@ void SubHead::setSampleRate(float sr) {
 
 void SubHead::setPhase(phase_t phase) {
     phase_ = phase;
-    wrIdx_ = wrapBufIndex(static_cast<int>(phase_) + (inc_dir_ * recOffset_));
+    wrIdx_ = wrapBufIndex(static_cast<int>(phase_) + (inc_dir_ * recOffset));
 
     // NB: not resetting the resampler here:
     // - it's ok to keep history of input when changing positions.
@@ -189,7 +190,3 @@ void SubHead::setRate(rate_t rate) {
 
 
 void SubHead::setState(State state) { state_ = state; }
-
-void SubHead::setRecOffsetSamples(int d) {
-    recOffset_  = d;
-}
