@@ -109,7 +109,7 @@ local crow = {}
 
 function crow.version() crow.send("^^v") end
 function crow.identity() crow.send("^^i") end
-function crow.reset() crow.send("^^r") end
+function crow.reset() crow.send("crow.reset()") end
 function crow.kill() crow.send("^^k") end
 function crow.clear() crow.send("^^c") end
 
@@ -136,15 +136,6 @@ crow.init = function()
   crow.ii.kria.event = function(i,v) print("kria ii: "..i.." "..v) end
   crow.ii.meadowphysics.event = function(i,v) print("mp ii: "..i.." "..v) end
   crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
-end
-
-crow.reset = function()
-  crow.input[1].mode("none")
-  crow.input[2].mode("none")
-  for i=1,4 do
-    crow.output[i].slew = 0
-    crow.output[i].volts = 0
-  end
 end
 
 crow.ii = {}
