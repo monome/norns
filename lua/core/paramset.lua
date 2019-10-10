@@ -121,7 +121,8 @@ end
 function ParamSet:print()
   print("paramset ["..self.name.."]")
   for k,v in pairs(self.params) do
-    print(k.." "..v.name.." = "..v:string())
+    local name = v.name or 'unnamed' -- e.g., separators
+    print(k.." "..name.." = "..v:string())
   end
 end
 
@@ -210,7 +211,7 @@ function ParamSet:write(filename)
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
   io.output(fd)
-  for k,param in pairs(self.params) do
+  for _,param in pairs(self.params) do
     if param.id and param.t ~= self.tTRIGGER then
       io.write(string.format("%s: %s\n", quote(param.id), param:get()))
     end
@@ -259,7 +260,7 @@ function ParamSet:read(filename)
   end
 end
 
---- read deafult pset if present.
+--- read default pset if present.
 function ParamSet:default()
   self:read()
   self:bang()
@@ -267,7 +268,7 @@ end
 
 --- bang all params.
 function ParamSet:bang()
-  for k,v in pairs(self.params) do
+  for _,v in pairs(self.params) do
     if v.t ~= self.tTRIGGER then
       v:bang()
     end

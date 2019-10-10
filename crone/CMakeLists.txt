@@ -24,6 +24,7 @@ set (SRC src/main.cpp
         src/SoftCutClient.cpp
         src/SoftCutClient.h
         src/Poll.h
+        src/Taper.cpp
         src/Window.cpp
         )
 

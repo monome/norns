@@ -35,10 +35,10 @@ norns.crow.event = function(id, line)
   line = string.sub(line,1,-2) -- strip newline
   --print(line)
   if util.string_starts(line,"^^") == true then
-    line = line:gsub("%^^","_norns.crow_") 
+    line = line:gsub("%^^","_norns.crow_")
     assert(load(line))()
   else
-    print("crow receive: "..line)
+    crow.receive(line)
   end
 end
 
@@ -53,7 +53,7 @@ function input.new(x)
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
   i.mode = function(m,a,b,c)
-    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m) 
+    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m)
     if a ~= nil then cmd = cmd .. "," .. a end
     if b ~= nil then cmd = cmd .. "," .. b end
     if c ~= nil then cmd = cmd .. "," .. tostringwithquotes(c) end
@@ -109,7 +109,7 @@ local crow = {}
 
 function crow.version() crow.send("^^v") end
 function crow.identity() crow.send("^^i") end
-function crow.reset() crow.send("^^r") end
+function crow.reset() crow.send("crow.reset()") end
 function crow.kill() crow.send("^^k") end
 function crow.clear() crow.send("^^c") end
 
@@ -120,13 +120,15 @@ function crow.send(cmd)
   end
 end
 
+function crow.receive(...) print("crow:",...) end
+
 crow.input = { input.new(1), input.new(2) }
 crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
 crow.init = function()
+  crow.reset()
+  crow.receive = function(...) print("crow:",...) end
   crow.input = { input.new(1), input.new(2) }
-  crow.input[1].mode("none")
-  crow.input[2].mode("none")
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
   crow.midi = function(...) print("crow midi:",...) end
 
@@ -136,11 +138,10 @@ crow.init = function()
   crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
 end
 
-
 crow.ii = {}
 crow.ii.pullup = function(x)
   if x == true then crow.send("ii.pullup(true)")
-  else crow.send("ii.pullup(false)") end 
+  else crow.send("ii.pullup(false)") end
 end
 
 crow.ii.jf = {}
