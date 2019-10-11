@@ -181,6 +181,7 @@ namespace crone {
                     // while we're interleaving, also apply envelope
                     float amp = SfStream::getEnvSample();
                     for (int ch = 0; ch < NumChannels; ++ch) {
+
                         *dst++ = src[ch][fr] * amp;
                    }
                 }
