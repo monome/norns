@@ -97,7 +97,6 @@ norns.menu.get_redraw = function() return menu.redraw end
 norns.menu.toggle = function(status) menu.set_mode(status) end
 
 norns.scripterror = function(msg)
-  local msg = msg;
   if msg == nil then msg = "" end
   print("### SCRIPT ERROR: "..msg)
   menu.errormsg = msg
@@ -268,7 +267,7 @@ m.redraw[pHOME] = function()
   -- draw file list and selector
   for i=1,3 do
     screen.move(0,25+10*i)
-    line = string.gsub(m.home.list[i],'.lua','')
+    local line = string.gsub(m.home.list[i],'.lua','')
     if(i==m.home.pos) then
       screen.level(15)
     else
@@ -386,7 +385,7 @@ m.redraw[pSELECT] = function()
   for i=1,6 do
     if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
       screen.move(0,10*i)
-      line = m.sel.list[i+m.sel.pos-2].name
+      local line = m.sel.list[i+m.sel.pos-2].name
       if(i==3) then
         screen.level(15)
       else
@@ -1005,7 +1004,7 @@ m.redraw[pWIFI] = function()
   local xp = {0,20,58,94,114}
   for i=1,m.wifi.len do
     screen.move(xp[i],60)
-    line = m.wifi.list[i]
+    local line = m.wifi.list[i]
     if(i==m.wifi.pos+1) then
       screen.level(15)
     else
@@ -1279,7 +1278,7 @@ m.redraw[pSLEEP] = function()
 	screen.text("sleep.")
   else
 	screen.level(15)
-  	screen.text("sleep?")
+  screen.text("sleep?")
   end
   --TODO do an animation here! fade the volume down
   screen.update()
