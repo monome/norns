@@ -46,7 +46,7 @@ local function get_status(info)
 end
 
 local function get_ip4(info)
-  value = info["IP4.ADDRESS[1]"]
+  local value = info["IP4.ADDRESS[1]"]
   if value ~= nil then
     local p = value:find("/")
     if p ~= nil then p = p - 1 end
