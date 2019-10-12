@@ -28,7 +28,7 @@ clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
 
- 
+
 --- yield and schedule waking up the coroutine at beats beat;
 -- the coroutine will suspend for the time required to reach the given fraction of a beat;
 -- must be called from within a coroutine started with clock.run.
@@ -46,6 +46,10 @@ clock.resume = function(coro_id)
   end
 
   result, mode, time = coroutine.resume(clock.threads[coro_id])
+
+  if coroutine.status(coro) == "dead" and result == false then
+    error(mode)
+  end
 
   if coroutine.status(coro) ~= "dead" and result and mode ~= nil then
     if mode == SLEEP then
