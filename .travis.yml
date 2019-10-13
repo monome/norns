@@ -17,7 +17,7 @@ install:
   
 script:
   - echo "generating api docs.."
-  - (cd lua; ldoc -c ../config.ld .)
+  - (cd lua; ldoc -d doc/docs/norns/api -c ../config.ld .)
 
 deploy:
   provider: pages

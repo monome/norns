@@ -1,0 +1,319 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usetikzlibrary{matrix, positioning, shapes, arrows, calc}
+
+\tikzset{>=latex}
+
+\begin{document}
+
+
+\begin{tikzpicture}
+
+\tikzstyle{input}=[draw=black, circle, double, minimum size=1]
+\tikzstyle{output}=[draw=black, circle, double, minimum size=1, fill=gray!40]
+\tikzstyle{mul}=[draw=black, circle, minimum size=1, label=center:$\ast$]
+\tikzstyle{add}=[draw=black, circle, minimum size=1, label=center:$+$]
+\tikzstyle{or}=[draw=black, circle, minimum size=1, label=center:$|$]
+\tikzstyle{param}=[draw=black, rectangle, dotted, thick]
+\tikzstyle{bus}=[draw=black, rectangle, double]
+
+\node [draw] at (0, -2) {CRONE mixer client, block diagram};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% input nodes
+\node [input, label=left:IN-ADC-L] (in-adc-l) at (0, 19) {};
+\node [input, label=left:IN-ADC-R] (in-adc-r) at (0, 18){};
+\node [input, label=left:IN-ENG-L] (in-eng-l) at (0, 8) {};
+\node [input, label=left:IN-ENG-R] (in-eng-r) at (0, 7) {};
+\node [input, label=left:IN-CUT-L] (in-cut-l) at (0, 1) {};
+\node [input, label=left:IN-CUT-R] (in-cut-r) at (0, 0) {};
+
+%%%%%%%%%%%%%%%%%%
+%% ADC section
+
+% ADC levels
+\node [mul] (adc-mul-l) at ($(in-adc-l)+(1,0)$) {};
+\node [mul] (adc-mul-r) at ($(in-adc-r)+(2,0)$) {};
+\draw [->] (in-adc-l) -- (adc-mul-l);
+\draw [->] (in-adc-r) -- (adc-mul-r);
+\node [param, above = 1 of adc-mul-l] (adc-level) {\small{ADC-LEVEL}};
+\draw [gray, dashed] (adc-level.south) -- ++(0, -0.5) -| (adc-mul-l);
+\draw [gray, dashed] (adc-level.south) -| ++(0, -0.5) -| (adc-mul-r);
+
+% ADC to ENG
+\node (adc-l-eng-junc) at ($(adc-mul-l) + (3, 0)$) {\textbullet};
+\node (adc-r-eng-junc) at ($(adc-mul-r) + (3, 0)$) {\textbullet};
+\node [output, label=right:OUT-ENG-L, above=2.5 of adc-l-eng-junc] (out-eng-l) {}; 
+\node [output, label=right:OUT-ENG-R, above=2.5 of adc-r-eng-junc] (out-eng-r) {}; 
+\draw [->] (adc-l-eng-junc.center) -- (out-eng-l);
+\draw [->] (adc-r-eng-junc.center) -- (out-eng-r);
+
+
+% ADC to CUT
+\node (adc-cut-junc-l) at ($(adc-mul-l) + (2, 0)$) {\textbullet};
+\node (adc-cut-junc-r) at ($(adc-mul-r) + (2, 0)$) {\textbullet};
+\node [mul] (adc-cut-mul-l) at ($(adc-cut-junc-l) - (0, 4)$) {};
+\node [mul] (adc-cut-mul-r) at ($(adc-cut-junc-r) - (0, 4)$) {}; 
+\node [param, left = 1 of adc-cut-mul-l] (adc-cut) {\small{ADC-CUT-LEVEL}};
+\draw [->] (adc-cut-junc-l.center) -- (adc-cut-mul-l);
+\draw [->] (adc-cut-junc-r.center) -- (adc-cut-mul-r);
+\draw [gray, dashed] (adc-cut) -- ++(2, 0) -- (adc-cut-mul-l);
+\draw [gray, dashed] (adc-cut) -- ++(2, 0) |- (adc-cut-mul-r);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% monitor section
+
+% monitor mix
+\node [or, right=6 of adc-mul-l, minimum size=0] (monitor-mix-in-l) {};
+\node [or, right=6 of adc-mul-r, minimum size=0] (monitor-mix-in-r) {};
+\node [add, right=1.2 of monitor-mix-in-l] (monitor-mix-out-l) {};
+\node [add, right=1.2 of monitor-mix-in-r] (monitor-mix-out-r) {};	
+
+\draw [->] (adc-mul-l) -- (monitor-mix-in-l);
+\draw [->] (adc-mul-r) -- (monitor-mix-in-r);
+\draw [->] (monitor-mix-in-l) -- (monitor-mix-out-l);
+\draw [->] (monitor-mix-in-l) -- (monitor-mix-out-r);
+\draw [->] (monitor-mix-in-r) -- (monitor-mix-out-l);
+\draw [->] (monitor-mix-in-r) -- (monitor-mix-out-r);
+
+\node [param, above = 0.5 of monitor-mix-in-l] (monitor-mode) {\small{MONITOR-MODE}};
+\draw [gray, dashed] (monitor-mode.south) -- ++(0,-0.25) -| (monitor-mix-in-l);
+\draw [gray, dashed] (monitor-mode.south) -- ++(0,-0.25) -| (monitor-mix-in-r);
+
+% monitor level
+\node [mul, right=2 of monitor-mix-out-l] (monitor-mul-l) {};
+\node [mul, right=2 of monitor-mix-out-r] (monitor-mul-r) {};
+\draw [->] (monitor-mix-out-l) -- (monitor-mul-l);
+\draw [->] (monitor-mix-out-r) -- (monitor-mul-r);
+\node [param, above = 0.5 of monitor-mul-l] (monitor-level) {\small{MONITOR-LEVEL}};
+\draw [gray, dashed] (monitor-level.south) -- ++(0, -0.25) -| (monitor-mul-l);
+\draw [gray, dashed] (monitor-level.south) -| ++(0, -0.25) -| (monitor-mul-r);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% insert FX, DAC
+\node [add, below=6 of monitor-mul-l] (ins-in-l) {};
+\node [add, below=6 of monitor-mul-r] (ins-in-r) {};
+\node [add, right=2 of ins-in-l] (ins-in-2-l) {};
+\node [add, right=2 of ins-in-r] (ins-in-2-r) {};
+\node [add, right=10 of ins-in-2-l] (ins-in-3-l) {};
+\node [add, right=10 of ins-in-2-r] (ins-in-3-r) {};
+
+\node [bus, right =1 of ins-in-3-l] (ins-fx-l) {INSERT-FX-L};
+\node [bus, right =1 of ins-in-3-r] (ins-fx-r) {INSERT-FX-R}; 
+\node [mul, right =1 of ins-fx-l] (dac-mul-l) {};
+\node [mul, right =1 of ins-fx-r] (dac-mul-r) {}; 
+\node [output, right=3 of dac-mul-l, label=right:OUT-DAC-L] (out-dac-l){}; 
+\node [output, right=2 of dac-mul-r, label=right:OUT-DAC-R] (out-dac-r){}; 
+
+\node [param, above = 1 of dac-mul-l] (dac-level) {\small{OUT-LEVEL}};
+\draw [gray, dashed] (dac-level.south) -- ++(0, -0.5) -| (dac-mul-l);
+\draw [gray, dashed] (dac-level.south) -| ++(0, -0.5) -| (dac-mul-r);
+
+\draw [->] (ins-in-l) -- (ins-in-2-l);
+\draw [->] (ins-in-r) -- (ins-in-2-r);
+\draw [->] (ins-in-2-l) -- (ins-in-3-l);
+\draw [->] (ins-in-2-r) -- (ins-in-3-r);
+\draw [->] (ins-in-3-l) -- (ins-fx-l);
+\draw [->] (ins-in-3-r) -- (ins-fx-r);
+\draw [->] (ins-fx-l) -- (dac-mul-l) -- (out-dac-l);
+\draw [->] (ins-fx-r) -- (dac-mul-r) -- (out-dac-r);
+\draw [->] (monitor-mul-l) -- (ins-in-l);
+\draw [->] (monitor-mul-r) -- (ins-in-r);
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% ENG section
+
+% ENG level
+\node [mul] (eng-mul-l) at ($(in-eng-l)+(1,0)$) {};
+\node [mul] (eng-mul-r) at ($(in-eng-r)+(2,0)$) {};
+\draw [->] (in-eng-l) -- (eng-mul-l);
+\draw [->] (in-eng-r) -- (eng-mul-r);
+\node [param, above = 1 of eng-mul-l] (eng-level) {\small{ENG-LEVEL}};
+\draw [gray, dashed] (eng-level.south) -- ++(0, -0.5) -| (eng-mul-l);
+\draw [gray, dashed] (eng-level.south) -| ++(0, -0.5) -| (eng-mul-r);
+
+\draw [->] (eng-mul-l) -| (ins-in-l);
+\draw [->] (eng-mul-r) -| (ins-in-r);
+
+% ENG to CUT
+\node (eng-cut-junc-l) at ($(eng-mul-l) + (4, 0)$) {\textbullet};
+\node (eng-cut-junc-r) at ($(eng-mul-r) + (4, 0)$) {\textbullet};
+\node [mul] (eng-cut-mul-l) at ($(eng-cut-junc-l) + (0, 3)$) {};
+\node [mul] (eng-cut-mul-r) at ($(eng-cut-junc-r) + (0, 3)$) {}; 
+\draw [->] (eng-cut-junc-l.center) -- (eng-cut-mul-l); 
+\draw [->] (eng-cut-junc-r.center) -- (eng-cut-mul-r);
+\node [param, left = 3 of eng-cut-mul-l] (eng-cut) {\small{ENG-CUT-LEVEL}};
+\draw [->] (eng-cut-junc-l.center) -- (eng-cut-mul-l);
+\draw [->] (eng-cut-junc-r.center) -- (eng-cut-mul-r);
+\draw [gray, dashed] (eng-cut) -- ++(2, 0) -- (eng-cut-mul-l);
+\draw [gray, dashed] (eng-cut) -- ++(2, 0) |- (eng-cut-mul-r);
+
+%%%%%%%%%%%%
+% CUT output
+\node [add] (cut-sink-l) at ($(adc-cut-mul-l) + (2, 0)$) {};
+\node [add] (cut-sink-r) at ($(adc-cut-mul-r) + (2, 0)$) {};
+\draw [->] (adc-cut-mul-l) -- (cut-sink-l);
+\draw [->] (adc-cut-mul-r) -- (cut-sink-r);
+\draw [->] (eng-cut-mul-l) -| (cut-sink-l);
+\draw [->] (eng-cut-mul-r) -| (cut-sink-r);
+
+\node [output, label=right:OUT-CUT-L, right = 2 of cut-sink-l] (out-cut-l) {}; 
+\node [output, label=right:OUT-CUT-R, right = 1 of cut-sink-r] (out-cut-r) {}; 
+\draw [->] (cut-sink-l) -- (out-cut-l);
+\draw [->] (cut-sink-r) -- (out-cut-r);
+
+%%%%%%%%%%%%%
+% CUT input
+\node [mul] (cut-mul-l) at ($(in-cut-l) + (1, 0)$) {};
+\node [mul] (cut-mul-r) at ($(in-cut-r) + (2, 0)$) {};
+\draw [->] (cut-mul-l) -| (ins-in-2-l);
+\draw [->] (cut-mul-r) -| (ins-in-2-r);
+\node [param, above = 1 of cut-mul-l] (cut-level) {\small{CUT-LEVEL}};
+\draw [gray, dashed] (cut-level.south) -- ++(0, -0.5) -| (cut-mul-l);
+\draw [gray, dashed] (cut-level.south) -- ++(0, -0.5) -| (cut-mul-r);
+\draw [->] (in-cut-l) -- (cut-mul-l);
+\draw [->] (in-cut-r) -- (cut-mul-r);
+
+%%%%%%%%%%%%%%%%
+%% TAPE section
+\node [mul] (tape-mul-l) at ($(ins-in-2-l) + (0, 6.5)$) {};
+\node [mul] (tape-mul-r) at ($(ins-in-2-r) + (0, 6.5)$) {};
+\draw [->] (tape-mul-l) -- (ins-in-2-l);
+\draw [->] (tape-mul-r) -- (ins-in-2-r);
+
+\node [bus] (tape-play-l) at ($(tape-mul-l) + (0, 2)$) {TAPE-PLAY-L};
+\node [bus] (tape-play-r) at ($(tape-mul-r) + (0, 2)$) {TAPE-PLAY-R};
+\draw [->] (tape-play-l) -- (tape-mul-l);
+\draw [->] (tape-play-r) -- (tape-mul-r);
+
+\node [param] (tape-level) at ($(tape-mul-l) + (4, 0)$) {\small{TAPE-LEVEL}};
+\draw [gray, dashed] (tape-level) -- ++(-2, 0) |- (tape-mul-l);
+\draw [gray, dashed] (tape-level) -- ++(-2, 0) |- (tape-mul-r);
+
+\node (tape-rec-junc-l) at ($(dac-mul-l) + (1.5, 0)$) {\textbullet};
+\node (tape-rec-junc-r) at ($(dac-mul-r) + (1.5, 0)$) {\textbullet};
+\node [bus] (tape-rec-l) at ($(tape-rec-junc-l) + (0, -2)$) {TAPE-REC-L};
+\node [bus] (tape-rec-r) at ($(tape-rec-junc-r) + (0, -2)$) {TAPE-REC-R};
+\draw [->] (tape-rec-junc-l.center) -- (tape-rec-l);
+\draw [->] (tape-rec-junc-r.center) -- (tape-rec-r);
+
+% TAPE to CUT
+\node (tape-cut-junc-l) at ($(tape-mul-l) + (0, -2)$) {\textbullet};
+\node (tape-cut-junc-r) at ($(tape-mul-r) + (0, -2)$) {\textbullet};
+\node [mul] (tape-cut-mul-l) at ($(tape-cut-junc-l) + (-8.6, 0)$) {};
+\node [mul] (tape-cut-mul-r) at ($(tape-cut-junc-r) + (-8.6, 0)$) {}; 
+\draw [->] (tape-cut-junc-l.center) -- (tape-cut-mul-l); 
+\draw [->] (tape-cut-junc-r.center) -- (tape-cut-mul-r);
+\node [param, left = 3 of tape-cut-mul-l] (tape-cut) {\small{TAPE-CUT-LEVEL}};
+\draw [->] (tape-cut-mul-l) -- (cut-sink-l);
+\draw [->] (tape-cut-mul-r) -- (cut-sink-r);
+\draw [gray, dashed] (tape-cut) -- ++(2, 0) -- (tape-cut-mul-l);
+\draw [gray, dashed] (tape-cut) -- ++(2, 0) |- (tape-cut-mul-r);
+
+% TAPE to AUX
+\node (tape-aux-junc-l) at ($(tape-mul-l) + (0, -2)$) {\textbullet};
+\node (tape-aux-junc-r) at ($(tape-mul-r) + (0, -2)$) {\textbullet};
+\node [mul] (tape-aux-mul-l) at ($(tape-aux-junc-l) + (6.6, 0)$) {};
+\node [mul] (tape-aux-mul-r) at ($(tape-aux-junc-r) + (6.6, 0)$) {}; 
+\draw [->] (tape-aux-junc-l.center) -- (tape-aux-mul-l); 
+\draw [->] (tape-aux-junc-r.center) -- (tape-aux-mul-r);
+\node [param, right = 1 of tape-aux-mul-l] (tape-aux) {\small{TAPE-AUX-LEVEL}};
+\draw [gray, dashed] (tape-aux-mul-l) -- +(1, 0) -- (tape-aux);
+\draw [gray, dashed] (tape-aux-mul-r) -- +(1, 0) -| (tape-aux);
+
+%%%%%%%%%%%%%%%%%
+%% AUX section
+
+
+% bus -> AUX connections
+\node (monitor-aux-junc-l) at ($(monitor-mul-l) + (0,-4)$) {\textbullet};
+\node (monitor-aux-junc-r) at ($(monitor-mul-r) + (0,-4)$) {\textbullet}; 
+\node [mul] (monitor-aux-mul-l) at ($(ins-in-2-l) + (2, -7)$) {};
+\node [mul] (monitor-aux-mul-r) at ($(ins-in-2-r) + (2, -7)$) {};
+\draw [->] (monitor-aux-junc-l.center) -| (monitor-aux-mul-l);
+\draw [->] (monitor-aux-junc-r.center) -| (monitor-aux-mul-r);
+
+\node (cut-aux-junc-l) at ($(ins-in-2-l) + (0, -10)$) {\textbullet};
+\node (cut-aux-junc-r) at ($(ins-in-2-r) + (0, -10)$) {\textbullet};
+\node [mul] (cut-aux-mul-l) at($(cut-aux-junc-l) + (2, 0)$) {};
+\node [mul] (cut-aux-mul-r) at($(cut-aux-junc-r) + (2, 0)$) {};
+\draw [->] (cut-aux-junc-l.center) -- (cut-aux-mul-l);
+\draw [->] (cut-aux-junc-r.center) -- (cut-aux-mul-r);
+
+
+\node (eng-aux-junc-l) at (in-eng-l -| ins-in-l) {\textbullet};
+\node (eng-aux-junc-r) at (in-eng-r -| ins-in-r) {\textbullet};
+\node [mul] (eng-aux-mul-l) at ($(eng-aux-junc-l) + (6, 0)$) {};
+\node [mul] (eng-aux-mul-r) at ($(eng-aux-junc-r) + (6, 0)$) {};
+\draw [->] (eng-aux-junc-l.center) -- (eng-aux-mul-l);
+\draw [->] (eng-aux-junc-r.center) -- (eng-aux-mul-r);
+
+\node [add] (aux-in-2-l) at ($(eng-aux-mul-l) + (3, 0)$) {};
+\node [add] (aux-in-2-r) at ($(eng-aux-mul-r) + (3, 0)$) {};
+\node [add] (aux-in-1-l) at (monitor-aux-mul-l -| aux-in-2-l) {};
+\node [add] (aux-in-1-r) at (monitor-aux-mul-r -| aux-in-2-r) {};
+
+\draw [->] (monitor-aux-mul-l) -- (aux-in-1-l);
+\draw [->] (monitor-aux-mul-r) -- (aux-in-1-r);
+\draw [->] (cut-aux-mul-l) -| (aux-in-1-l);
+\draw [->] (cut-aux-mul-r) -| (aux-in-1-r);
+\draw [->] (tape-aux-mul-l) -- (aux-in-2-l);
+\draw [->] (tape-aux-mul-r) -- (aux-in-2-r);
+
+
+\node [mul] (aux-fx-mul-l) at ($(ins-in-3-l) + (0, -2)$) {};
+\node [mul] (aux-fx-mul-r) at ($(ins-in-3-r) + (0, -2)$) {};
+\node [bus] (aux-fx-l) at (aux-in-2-l -| aux-fx-mul-l) {AUX-FX-L};
+\node [bus] (aux-fx-r) at (aux-in-2-r -| aux-fx-mul-r) {AUX-FX-R};
+\draw [->] (aux-fx-mul-l) -- (ins-in-3-l);
+\draw [->] (aux-fx-mul-r) -- (ins-in-3-r);
+\draw [->] (aux-fx-l) -- (aux-fx-mul-l);
+\draw [->] (aux-fx-r) -- (aux-fx-mul-r);
+
+\draw [->] (eng-aux-mul-l) -- (aux-in-2-l);
+\draw [->] (eng-aux-mul-r) -- (aux-in-2-r);
+\draw [->] (aux-in-1-l) -| (aux-in-2-l);
+\draw [->] (aux-in-1-r) -| (aux-in-2-r);
+\draw [->] (aux-in-2-l) -- (aux-fx-l);
+\draw [->] (aux-in-2-r) -- (aux-fx-r);
+
+% AUX level params
+\node [param] (monitor-aux-level) at ($(monitor-aux-mul-r) + (-6, 0)$) {\small{MONITOR-AUX-LEVEL}};
+\draw [gray, dashed] (monitor-aux-level.east) -- (monitor-aux-level -| monitor-aux-mul-l) -- (monitor-aux-mul-l);
+\draw [gray, dashed] (monitor-aux-level.east) -- (monitor-aux-mul-r);
+
+\node [param] (cut-aux-level) at ($(monitor-aux-level) + (0, -1)$) {\small{CUT-AUX-LEVEL}};
+\draw [gray, dashed] (cut-aux-level.east) -- (cut-aux-level -| cut-aux-mul-l) -- (cut-aux-mul-l);
+\draw [gray, dashed] (cut-aux-level.east) -- (cut-aux-level -| cut-aux-mul-r) -- (cut-aux-mul-r);
+
+\node [param] (eng-aux-level) at ($(eng-aux-mul-r) + (0, 2)$) {\small{ENG-AUX-LEVEL}};
+\draw [gray, dashed] (eng-aux-level) -- (eng-aux-mul-r);
+\draw [gray, dashed] (eng-aux-level) -- ++(0, -0.5) -| (eng-aux-mul-l);
+
+\node [param] (aux-level) at (eng-aux-level |- aux-fx-mul-l) {\small{AUX-LEVEL}};
+\draw [gray, dashed] (aux-level.east) -- (aux-fx-mul-l);
+\draw [gray, dashed] (aux-level.east) -- ++(0.5, 0) |- (aux-fx-mul-r);
+
+
+%%%%%%%%%%%%%
+%% legend
+
+\matrix (legend) at (26, 1) 
+[
+	matrix of nodes, draw, row sep=0.5, column sep=0.5, align=center
+	column 1/.style={anchor=base west},
+	column 2/.style={anchor=base west}
+] {
+	\node [input]{}; 		& input \\
+	\node [output]{}; 		& output \\
+	\node [mul]{}; 			& smoothed multiplier \\
+	\node [add]{}; 			& add / merge \\
+	\node {\textbullet};	& junction / split \\
+	\node [or]{}; 		& A/B switch \\
+	\node [bus]{BUS};		& bus / process \\
+	\node [param]{\small{PARAM}}; 	& parameter \\
+};
+
+\end{tikzpicture}
+
+\end{document}

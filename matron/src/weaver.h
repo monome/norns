@@ -43,6 +43,10 @@ extern void w_handle_midi_add(void *dev);
 extern void w_handle_midi_remove(int id);
 extern void w_handle_midi_event(int id, uint8_t *data, size_t nbytes);
 
+extern void w_handle_crow_add(void *dev);
+extern void w_handle_crow_remove(int id);
+extern void w_handle_crow_event(void *dev, int id);
+
 extern void w_handle_osc_event(char *from_host,
                                char *from_port,
                                char *path,
@@ -70,14 +74,21 @@ extern void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16
 //--- metro bang handler
 extern void w_handle_metro(const int idx, const int stage);
 
+//--- clock
+extern void w_handle_clock_resume(const int thread_id);
+
 //--- crone poll handlers
 extern void w_handle_poll_value(int idx, float val);
 extern void w_handle_poll_data(int idx, int size, uint8_t *data);
 extern void w_handle_poll_wave(int idx, uint8_t *data);
 extern void w_handle_poll_io_levels(uint8_t *levels);
+extern void w_handle_poll_softcut_phase(int idx, float val);
 
 extern void w_handle_engine_loaded();
 
 // callbacks for ACK and timeout of sclang startup
 extern void w_handle_startup_ready_ok();
 extern void w_handle_startup_ready_timeout();
+
+// util callbacks
+extern void w_handle_system_cmd();

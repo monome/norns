@@ -121,7 +121,11 @@ void event_data_free(union event_data *ev) {
     case EVENT_POLL_WAVE:
         free(ev->poll_wave.data);
         break;
+    case EVENT_SYSTEM_CMD:
+        free(ev->system_cmd.capture);
+        break;
     }
+    free(ev);
 }
 
 // add an event to the q and signal if necessary
@@ -171,6 +175,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_METRO:
         w_handle_metro(ev->metro.id, ev->metro.stage);
+        break;
+    case EVENT_CLOCK_RESUME:
+        w_handle_clock_resume(ev->clock_resume.thread_id);
         break;
     case EVENT_KEY:
         w_handle_key(ev->key.n, ev->key.val);
@@ -260,17 +267,32 @@ static void handle_event(union event_data *ev) {
     case EVENT_POLL_IO_LEVELS:
         w_handle_poll_io_levels(ev->poll_io_levels.value.bytes);
         break;
+    case EVENT_POLL_SOFTCUT_PHASE:
+        w_handle_poll_softcut_phase(ev->softcut_phase.idx, ev->softcut_phase.value);
+        break;
     case EVENT_STARTUP_READY_OK:
         w_handle_startup_ready_ok();
         break;
     case EVENT_STARTUP_READY_TIMEOUT:
         w_handle_startup_ready_timeout();
         break;
+    case EVENT_SYSTEM_CMD:
+        w_handle_system_cmd(ev->system_cmd.capture);
+        break;
     case EVENT_RESET_LVM:
         w_reset_lvm();
         break;
     case EVENT_QUIT:
         quit = true;
+        break;
+    case EVENT_CROW_ADD:
+        w_handle_crow_add(ev->crow_add.dev);
+        break;
+    case EVENT_CROW_REMOVE:
+        w_handle_crow_remove(ev->crow_remove.id);
+        break;
+    case EVENT_CROW_EVENT:
+        w_handle_crow_event(ev->crow_event.dev, ev->crow_event.id);
         break;
     } /* switch */
 

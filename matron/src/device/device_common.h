@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef enum {
     // libmonome devices
     DEV_TYPE_MONOME = 0,
@@ -7,6 +9,8 @@ typedef enum {
     DEV_TYPE_HID = 1,
     // raw midi devices
     DEV_TYPE_MIDI = 2,
+    // usbmodem (crow)
+    DEV_TYPE_CROW = 3,
     // counter - unused, don't remove
     DEV_TYPE_COUNT,
     DEV_TYPE_INVALID

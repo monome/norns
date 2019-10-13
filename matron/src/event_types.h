@@ -11,6 +11,8 @@ typedef enum {
     EVENT_EXEC_CODE_LINE,
     // metro has fired
     EVENT_METRO,
+    // clock resume requested
+    EVENT_CLOCK_RESUME,
     // gpio event
     EVENT_KEY,
     // gpio event
@@ -57,14 +59,24 @@ typedef enum {
     EVENT_POLL_WAVE,
     // polled i/o VU levels from crone
     EVENT_POLL_IO_LEVELS,
+    // polled softcut phase
+    EVENT_POLL_SOFTCUT_PHASE,
     // crone startup ack event
     EVENT_STARTUP_READY_OK,
     // crone startup timeout event
     EVENT_STARTUP_READY_TIMEOUT,
+    // system command finished
+    EVENT_SYSTEM_CMD,
     // reset the lua state
     EVENT_RESET_LVM,
     // quit the event loop
     EVENT_QUIT,
+    // crow add
+    EVENT_CROW_ADD,
+    // crow remove
+    EVENT_CROW_REMOVE,
+    // crow event
+    EVENT_CROW_EVENT
 } event_t;
 
 // a packed data structure for four volume levels
@@ -169,6 +181,11 @@ struct event_metro {
     uint32_t stage;
 }; // +8
 
+struct event_clock_resume {
+    struct event_common common;
+    uint32_t thread_id;
+};
+
 struct event_key {
     struct event_common common;
     uint8_t n;
@@ -211,6 +228,12 @@ struct event_poll_io_levels {
     quad_levels_t value;
 }; // + 8
 
+struct event_poll_softcut_phase {
+    struct event_common common;
+    uint32_t idx;
+    float value;
+}; // + 8
+
 struct event_poll_data {
     struct event_common common;
     uint32_t idx;
@@ -233,6 +256,28 @@ struct event_startup_ready_timeout {
     struct event_common common;
 }; // + 0
 
+struct event_crow_add {
+    struct event_common common;
+    void *dev;
+}; // +4
+
+struct event_crow_remove {
+    struct event_common common;
+    uint32_t id;
+}; // +4
+
+struct event_crow_event {
+    struct event_common common;
+		void *dev;
+    uint8_t id;
+}; // +4
+
+struct event_system_cmd {
+    struct event_common common;
+    char *capture;
+};
+
+
 union event_data {
     uint32_t type;
     struct event_exec_code_line exec_code_line;
@@ -254,10 +299,16 @@ union event_data {
     struct event_power power;
     struct event_stat stat;
     struct event_metro metro;
+    struct event_clock_resume clock_resume;
     struct event_poll_value poll_value;
     struct event_poll_data poll_data;
     struct event_poll_io_levels poll_io_levels;
+    struct event_poll_softcut_phase softcut_phase;
     struct event_poll_wave poll_wave;
     struct event_startup_ready_ok startup_ready_ok;
     struct event_startup_ready_timeout startup_ready_timeout;
+    struct event_crow_add crow_add;
+    struct event_crow_remove crow_remove;
+    struct event_crow_event crow_event;
+    struct event_system_cmd system_cmd;
 };
