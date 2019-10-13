@@ -50,7 +50,7 @@ unsigned int dev_port_count(const char *path) {
     return subs;
 }
 
-int dev_midi_init(void *self, unsigned int port_index, bool is_sole_port) {
+int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     struct dev_midi *midi = (struct dev_midi *) self;
     struct dev_common *base = (struct dev_common *) self;
 
@@ -71,7 +71,7 @@ int dev_midi_init(void *self, unsigned int port_index, bool is_sole_port) {
     }
 
     char *name_with_port_index;
-    if (!is_sole_port) {
+    if (multiport_device) {
         if (asprintf(&name_with_port_index, "%s %u", base->name, port_index + 1) < 0) {
             fprintf(
                 stderr,

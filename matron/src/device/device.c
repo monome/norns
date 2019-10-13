@@ -16,8 +16,8 @@ union dev *dev_new(
     device_t type,
     const char *path,
     const char *name,
-    unsigned int midi_port_index,
-    bool is_sole_port
+    bool multiport_device,
+    unsigned int midi_port_index
 ) {
     union dev *d = calloc(1, sizeof(union dev));
 
@@ -44,7 +44,7 @@ union dev *dev_new(
         }
         break;
     case DEV_TYPE_MIDI:
-        if (dev_midi_init(d, midi_port_index, is_sole_port) < 0) {
+        if (dev_midi_init(d, midi_port_index, multiport_device) < 0) {
             goto err_init;
         }
         break;
