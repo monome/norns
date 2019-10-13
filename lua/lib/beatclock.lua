@@ -136,9 +136,9 @@ end
 
 function BeatClock:process_midi(data)
   if self.midi then
-    status = data[1]
-    data1 = data[2]
-    data2 = data[3]
+    local status = data[1]
+    local data1 = data[2]
+    local data2 = data[3]
   
     if self.external then 
       if status == 248 then -- midi clock

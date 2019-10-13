@@ -12,7 +12,13 @@
 // start the rx thread for a device
 static int dev_start(union dev *d);
 
-union dev *dev_new(device_t type, const char *path, const char *name) {
+union dev *dev_new(
+    device_t type,
+    const char *path,
+    const char *name,
+    bool multiport_device,
+    unsigned int midi_port_index
+) {
     union dev *d = calloc(1, sizeof(union dev));
 
     if (d == NULL) {
@@ -38,7 +44,7 @@ union dev *dev_new(device_t type, const char *path, const char *name) {
         }
         break;
     case DEV_TYPE_MIDI:
-        if (dev_midi_init(d) < 0) {
+        if (dev_midi_init(d, midi_port_index, multiport_device) < 0) {
             goto err_init;
         }
         break;

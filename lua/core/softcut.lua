@@ -75,7 +75,7 @@ SC.position = function(voice,value) _norns.cut_param("position",voice,value) end
 -- @tparam integer b : buffer number (1,2)
 SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 --- sync two voices
-SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dst,v) end
+SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dest,v) end
 
 --- set pre_filter cutoff
 SC.pre_filter_fc = function(voice,value) _norns.cut_param("pre_filter_fc",voice,value) end
