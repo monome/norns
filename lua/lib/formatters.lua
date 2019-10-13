@@ -81,6 +81,8 @@ function Formatters.bipolar_as_pan_widget(param)
   local pan_side = math.abs(value)
   local pan_side_percentage = util.round(pan_side*100)
   local descr
+  local dots_left
+  local dots_right
 
   if value > 0 then
     dots_left = dots_per_side+util.round(pan_side*dots_per_side)
