@@ -866,14 +866,18 @@ m.enc[pDEVICES] = function(n,delta)
 end
 
 m.redraw[pDEVICES] = function()
+  y_offset = 0
+  if(4<m.devices.pos) then
+    y_offset = 10*(4-m.devices.pos)
+  end
   screen.clear()
   if m.devices.mode == "list" then
-    screen.move(0,10)
+    screen.move(0,10+y_offset)
     screen.level(4)
     screen.text(string.upper(m.devices.section))
   end
   for i=1,m.devices.len do
-    screen.move(0,10*i+20)
+    screen.move(0,10*i+20+y_offset)
     if(i==m.devices.pos) then
       screen.level(15)
     else
@@ -883,7 +887,7 @@ m.redraw[pDEVICES] = function()
       screen.text(string.upper(m.devices.list[i]) .. " >")
     elseif m.devices.mode == "list" then
       screen.text(i..".")
-      screen.move(8,10*i+20)
+      screen.move(8,10*i+20+y_offset)
       if m.devices.section == "midi" then
         screen.text(midi.vports[i].name)
       elseif m.devices.section == "grid" then
