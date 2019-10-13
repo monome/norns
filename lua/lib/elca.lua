@@ -20,8 +20,8 @@ function CA.new()
        ca.state[i] = 0
     end
     
-    ca.bound_mode_l = BOUND_LOW
-    ca.bound_mode_r = BOUND_LOW
+    ca.bound_mode_l = CA.BOUND_LOW
+    ca.bound_mode_r = CA.BOUND_LOW
     ca.bound_l = 1
     ca.bound_r = 128
     
