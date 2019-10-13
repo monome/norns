@@ -39,13 +39,13 @@ end
 
 -- todo: use c api instead
 clock.resume = function(coro_id)
-  coro = clock.threads[coro_id]
+  local coro = clock.threads[coro_id]
 
   if coro == nil then
     return -- todo: report error
   end
 
-  result, mode, time = coroutine.resume(clock.threads[coro_id])
+  local result, mode, time = coroutine.resume(clock.threads[coro_id])
 
   if coroutine.status(coro) == "dead" and result == false then
     error(mode)
@@ -70,7 +70,7 @@ end
 
 clock.cleanup = function()
   for i = 1, #clock.threads do
-    coro = clock.threads[i]
+    local coro = clock.threads[i]
     if coro then
       clock.stop(i)
     end
