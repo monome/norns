@@ -53,7 +53,7 @@ function input.new(x)
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
   i.mode = function(m,a,b,c)
-    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m)
+    local cmd = "input["..i.n.."].set_mode("..tostringwithquotes(m)
     if a ~= nil then cmd = cmd .. "," .. a end
     if b ~= nil then cmd = cmd .. "," .. b end
     if c ~= nil then cmd = cmd .. "," .. tostringwithquotes(c) end
