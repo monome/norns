@@ -3,7 +3,6 @@
 
 local tab = require 'tabutil'
 local util = require 'util'
-local paramset = require 'core/paramset'
 local fileselect = require 'fileselect'
 local listselect = require 'listselect'
 local textentry = require 'textentry'
@@ -36,6 +35,20 @@ local pTAPE = 11
 local pMIX = 12
 local pUPDATE = 13
 
+-- tape constants
+
+local TAPE_MODE_PLAY = 1
+local TAPE_MODE_REC = 2
+
+local TAPE_PLAY_LOAD = 1
+local TAPE_PLAY_PLAY = 2
+local TAPE_PLAY_STOP = 3
+local TAPE_PLAY_PAUSE = 4
+local TAPE_REC_ARM = 1
+local TAPE_REC_START = 2
+local TAPE_REC_STOP = 3
+
+
 -- page pointer
 local m = {}
 m.key = {}
@@ -63,7 +76,7 @@ local metro = require 'core/metro'
 local t = metro[31]
 t.time = KEY1_HOLD_TIME
 t.count = 1
-t.event = function(stage)
+t.event = function(_)
   menu.key(1,1)
   pending = false
 end
@@ -439,7 +452,6 @@ m.redraw[pPREVIEW] = function()
   screen.clear()
   screen.level(15)
   if m.pre.wait == 0 then
-    local i
     for i=1,8 do
       if i <= m.pre.len then
         screen.move(0,i*8-2)
@@ -565,7 +577,6 @@ m.redraw[pPARAMS] = function()
 
   if(params.count > 0) then
     if not menu.alt then
-      local i
       for i=1,6 do
         if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
           if i==3 then screen.level(15) else screen.level(4) end
@@ -866,7 +877,7 @@ m.enc[pDEVICES] = function(n,delta)
 end
 
 m.redraw[pDEVICES] = function()
-  y_offset = 0
+  local y_offset = 0
   if(4<m.devices.pos) then
     y_offset = 10*(4-m.devices.pos)
   end
@@ -1073,7 +1084,6 @@ end
 
 m.redraw[pAUDIO] = function()
   screen.clear()
-  local i
   for i=1,6 do
     if (i > 2 - m.audio.pos) and (i < mix.count - m.audio.pos + 3) then
       if i==3 then screen.level(15) else screen.level(4) end
@@ -1420,20 +1430,6 @@ end
 
 -- TAPE
 
-local TAPE_MODE_PLAY = 1
-local TAPE_MODE_REC = 2
-
-local TAPE_PLAY_LOAD = 1
-local TAPE_PLAY_PLAY = 2
-local TAPE_PLAY_STOP = 3
-local TAPE_PLAY_PAUSE = 4
-local TAPE_REC_ARM = 1
-local TAPE_REC_START = 2
-local TAPE_REC_STOP = 3
-
-local p_tape_play
-local p_tape_rec
-
 m.tape = {}
 m.tape.mode = TAPE_MODE_PLAY
 m.tape.play = {}
@@ -1468,7 +1464,7 @@ m.key[pTAPE] = function(n,z)
             m.tape.play.file = path:match("[^/]*$")
             m.tape.play.status = TAPE_PLAY_PAUSE
             m.tape.play.sel = TAPE_PLAY_PLAY
-            local ch, samples, rate = sound_file_inspect(path)
+            local _, samples, rate = sound_file_inspect(path)
             m.tape.play.length = math.floor(samples / rate)
             m.tape.play.length_text = util.s_to_hms(m.tape.play.length)
             m.tape.play.pos_tick = 0
