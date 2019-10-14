@@ -349,6 +349,8 @@ local function sort_select_tree(results)
     local n = string.gsub(v,'.lua','/')
     n = string.gsub(n,_path.code,'')
     n = string.sub(n,0,-2)
+    local a,b = string.match(n,"(.+)/(.+)$") -- strip similar dir/script
+    if a==b and a then n = a end
     --print(file,n,p)
     table.insert(m.sel.list,{name=n,file=file,path=p})
   end
@@ -391,10 +393,10 @@ m.redraw[pSELECT] = function()
   screen.level(15)
   if m.sel.len == "scan" then
     screen.move(64,40)
-    screen.text("scanning...")
+    screen.text_center("scanning...")
   elseif m.sel.len == 0 then
     screen.move(64,40)
-    screen.text("no files")
+    screen.text_center("no files")
   elseif m.sel.len == 0 then
   else
     for i=1,6 do
