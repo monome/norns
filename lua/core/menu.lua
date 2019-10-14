@@ -343,10 +343,9 @@ local function sort_select_tree(results)
     end
   end
 
-  for _,v in pairs(t) do
-    local file = v
-    local p = string.match(v,".*/")
-    local n = string.gsub(v,'.lua','/')
+  for _,file in pairs(t) do
+    local p = string.match(file,".*/")
+    local n = string.gsub(file,'.lua','/')
     n = string.gsub(n,_path.code,'')
     n = string.sub(n,0,-2)
     local a,b = string.match(n,"(.+)/(.+)$") -- strip similar dir/script
@@ -397,7 +396,6 @@ m.redraw[pSELECT] = function()
   elseif m.sel.len == 0 then
     screen.move(64,40)
     screen.text_center("no files")
-  elseif m.sel.len == 0 then
   else
     for i=1,6 do
       if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
