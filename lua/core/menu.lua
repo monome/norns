@@ -331,16 +331,11 @@ end
 m.sel = {}
 m.sel.pos = 0
 m.sel.list = {}
-m.sel.len = 0
+m.sel.len = "scan" 
 m.sel.file = ""
 
-local function build_select_tree(root,dir)
-  norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
-end
-
-function sort_select_tree(results)
+local function sort_select_tree(results)
   local t = {}
-  print("sorting!")
   for filename in results:gmatch("[^\r\n]+") do
     if string.match(filename,"/data/")==nil and 
       string.match(filename,"/lib/")==nil then
@@ -350,22 +345,23 @@ function sort_select_tree(results)
 
   for _,v in pairs(t) do
     local file = v
+    local p = string.match(v,".*/")
     local n = string.gsub(v,'.lua','/')
     n = string.gsub(n,_path.code,'')
     n = string.sub(n,0,-2)
-    print(file,n)
+    --print(file,n,p)
     table.insert(m.sel.list,{name=n,file=file,path=p})
   end
+
+  m.sel.len = tab.count(m.sel.list)
+  menu.redraw()
 end
 
 
 m.init[pSELECT] = function()
+  m.sel.len = "scan" 
   m.sel.list = {}
-  build_select_tree(_path.code,"")
-  --for k,v in pairs(m.sel.list) do
-    --print(k, v.name, v.file, v.path)
-  --end
-  m.sel.len = tab.count(m.sel.list)
+  norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
 end
 
 m.deinit[pSELECT] = norns.none
@@ -393,16 +389,25 @@ m.redraw[pSELECT] = function()
   -- draw file list and selector
   screen.clear()
   screen.level(15)
-  for i=1,6 do
-    if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
-      screen.move(0,10*i)
-      local line = m.sel.list[i+m.sel.pos-2].name
-      if(i==3) then
-        screen.level(15)
-      else
-        screen.level(4)
+  if m.sel.len == "scan" then
+    screen.move(64,40)
+    screen.text("scanning...")
+  elseif m.sel.len == 0 then
+    screen.move(64,40)
+    screen.text("no files")
+  elseif m.sel.len == 0 then
+  else
+    for i=1,6 do
+      if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
+        screen.move(0,10*i)
+        local line = m.sel.list[i+m.sel.pos-2].name
+        if(i==3) then
+          screen.level(15)
+        else
+          screen.level(4)
+        end
+        screen.text(string.upper(line))
       end
-      screen.text(string.upper(line))
     end
   end
   screen.update()
