@@ -335,31 +335,29 @@ m.sel.len = 0
 m.sel.file = ""
 
 local function build_select_tree(root,dir)
-  --print("-- " .. root .. dir)
-  local p = root .. dir
-  local c = util.scandir(p)
+  norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
+end
 
-  for _,v in pairs(c) do
-    --print("---- " .. v)
-    if v == "data/" or v == "audio/" or v == 'lib/' or v == "docs" then
-      --print(".")
-    elseif string.find(v,'/') then
-      build_select_tree(p,v)
-    elseif string.find(v,'.lua') then
-      local file = p .. v
-      local n = string.gsub(v,'.lua','/')
-      if n ~= dir then
-        --print("strip folder")
-        n = p .. n
-      else
-        n = p
-      end
-      n = string.gsub(n,_path.code,'')
-      n = string.sub(n,0,-2)
-      table.insert(m.sel.list,{name=n,file=file,path=p})
+function sort_select_tree(results)
+  local t = {}
+  print("sorting!")
+  for filename in results:gmatch("[^\r\n]+") do
+    if string.match(filename,"/data/")==nil and 
+      string.match(filename,"/lib/")==nil then
+      table.insert(t,filename)
     end
   end
+
+  for _,v in pairs(t) do
+    local file = v
+    local n = string.gsub(v,'.lua','/')
+    n = string.gsub(n,_path.code,'')
+    n = string.sub(n,0,-2)
+    print(file,n)
+    table.insert(m.sel.list,{name=n,file=file,path=p})
+  end
 end
+
 
 m.init[pSELECT] = function()
   m.sel.list = {}
