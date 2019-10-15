@@ -81,6 +81,22 @@ function output.new(x)
   return o
 end
 
+local function action_string(v)
+  if type(v) ~= 'table' then
+    return v
+  end  
+  local arg_string = ''
+  for _,arg in ipairs(v) do
+    if arg then
+      if string.len(arg_string) ~= 0 then
+        arg_string = arg_string..', '
+      end
+      arg_string = arg_string..arg
+    end
+  end
+  return '{'..arg_string..'}'
+end
+
 output.__newindex = function(self, i, v)
   if i == 'volts' then
     self._volts = v
@@ -89,7 +105,7 @@ output.__newindex = function(self, i, v)
     self._slew = v
     crow.send("output["..self.n.."].slew="..v)
   elseif i == 'action' then
-    crow.send("output["..self.n.."].action = "..v)
+    crow.send("output["..self.n.."].action = "..action_string(v))
   end
 end
 
