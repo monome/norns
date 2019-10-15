@@ -75,6 +75,7 @@ function output.new(x)
   o._slew = 0
   o.query = function() crow.send("get_out("..o.n..")") end
   o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
+  o.execute = function() crow.send("output["..o.n.."]()") end
   setmetatable(o,output)
   return o
 end
@@ -98,11 +99,6 @@ output.__index = function(self, i)
     return self._slew
   end
 end
-
-output.__call = function(self)
-  crow.send("output["..self.n.."]()")
-end
-
 
 
 setmetatable(output, output)
