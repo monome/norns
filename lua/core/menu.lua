@@ -331,43 +331,38 @@ end
 m.sel = {}
 m.sel.pos = 0
 m.sel.list = {}
-m.sel.len = 0
+m.sel.len = "scan" 
 m.sel.file = ""
 
-local function build_select_tree(root,dir)
-  --print("-- " .. root .. dir)
-  local p = root .. dir
-  local c = util.scandir(p)
-
-  for _,v in pairs(c) do
-    --print("---- " .. v)
-    if v == "data/" or v == "audio/" or v == 'lib/' or v == "docs" then
-      --print(".")
-    elseif string.find(v,'/') then
-      build_select_tree(p,v)
-    elseif string.find(v,'.lua') then
-      local file = p .. v
-      local n = string.gsub(v,'.lua','/')
-      if n ~= dir then
-        --print("strip folder")
-        n = p .. n
-      else
-        n = p
-      end
-      n = string.gsub(n,_path.code,'')
-      n = string.sub(n,0,-2)
-      table.insert(m.sel.list,{name=n,file=file,path=p})
+local function sort_select_tree(results)
+  local t = {}
+  for filename in results:gmatch("[^\r\n]+") do
+    if string.match(filename,"/data/")==nil and 
+      string.match(filename,"/lib/")==nil then
+      table.insert(t,filename)
     end
   end
+
+  for _,file in pairs(t) do
+    local p = string.match(file,".*/")
+    local n = string.gsub(file,'.lua','/')
+    n = string.gsub(n,_path.code,'')
+    n = string.sub(n,0,-2)
+    local a,b = string.match(n,"(.+)/(.+)$") -- strip similar dir/script
+    if a==b and a then n = a end
+    --print(file,n,p)
+    table.insert(m.sel.list,{name=n,file=file,path=p})
+  end
+
+  m.sel.len = tab.count(m.sel.list)
+  menu.redraw()
 end
 
+
 m.init[pSELECT] = function()
+  m.sel.len = "scan" 
   m.sel.list = {}
-  build_select_tree(_path.code,"")
-  --for k,v in pairs(m.sel.list) do
-    --print(k, v.name, v.file, v.path)
-  --end
-  m.sel.len = tab.count(m.sel.list)
+  norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
 end
 
 m.deinit[pSELECT] = norns.none
@@ -395,16 +390,24 @@ m.redraw[pSELECT] = function()
   -- draw file list and selector
   screen.clear()
   screen.level(15)
-  for i=1,6 do
-    if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
-      screen.move(0,10*i)
-      local line = m.sel.list[i+m.sel.pos-2].name
-      if(i==3) then
-        screen.level(15)
-      else
-        screen.level(4)
+  if m.sel.len == "scan" then
+    screen.move(64,40)
+    screen.text_center("scanning...")
+  elseif m.sel.len == 0 then
+    screen.move(64,40)
+    screen.text_center("no files")
+  else
+    for i=1,6 do
+      if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
+        screen.move(0,10*i)
+        local line = m.sel.list[i+m.sel.pos-2].name
+        if(i==3) then
+          screen.level(15)
+        else
+          screen.level(4)
+        end
+        screen.text(string.upper(line))
       end
-      screen.text(string.upper(line))
     end
   end
   screen.update()
