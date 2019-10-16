@@ -3,7 +3,6 @@
 
 local tab = require 'tabutil'
 local util = require 'util'
-local paramset = require 'core/paramset'
 local fileselect = require 'fileselect'
 local listselect = require 'listselect'
 local textentry = require 'textentry'
@@ -36,6 +35,20 @@ local pTAPE = 11
 local pMIX = 12
 local pUPDATE = 13
 
+-- tape constants
+
+local TAPE_MODE_PLAY = 1
+local TAPE_MODE_REC = 2
+
+local TAPE_PLAY_LOAD = 1
+local TAPE_PLAY_PLAY = 2
+local TAPE_PLAY_STOP = 3
+local TAPE_PLAY_PAUSE = 4
+local TAPE_REC_ARM = 1
+local TAPE_REC_START = 2
+local TAPE_REC_STOP = 3
+
+
 -- page pointer
 local m = {}
 m.key = {}
@@ -63,7 +76,7 @@ local metro = require 'core/metro'
 local t = metro[31]
 t.time = KEY1_HOLD_TIME
 t.count = 1
-t.event = function(stage)
+t.event = function(_)
   menu.key(1,1)
   pending = false
 end
@@ -318,43 +331,38 @@ end
 m.sel = {}
 m.sel.pos = 0
 m.sel.list = {}
-m.sel.len = 0
+m.sel.len = "scan" 
 m.sel.file = ""
 
-local function build_select_tree(root,dir)
-  --print("-- " .. root .. dir)
-  local p = root .. dir
-  local c = util.scandir(p)
-
-  for _,v in pairs(c) do
-    --print("---- " .. v)
-    if v == "data/" or v == "audio/" or v == 'lib/' or v == "docs" then
-      --print(".")
-    elseif string.find(v,'/') then
-      build_select_tree(p,v)
-    elseif string.find(v,'.lua') then
-      local file = p .. v
-      local n = string.gsub(v,'.lua','/')
-      if n ~= dir then
-        --print("strip folder")
-        n = p .. n
-      else
-        n = p
-      end
-      n = string.gsub(n,_path.code,'')
-      n = string.sub(n,0,-2)
-      table.insert(m.sel.list,{name=n,file=file,path=p})
+local function sort_select_tree(results)
+  local t = {}
+  for filename in results:gmatch("[^\r\n]+") do
+    if string.match(filename,"/data/")==nil and 
+      string.match(filename,"/lib/")==nil then
+      table.insert(t,filename)
     end
   end
+
+  for _,file in pairs(t) do
+    local p = string.match(file,".*/")
+    local n = string.gsub(file,'.lua','/')
+    n = string.gsub(n,_path.code,'')
+    n = string.sub(n,0,-2)
+    local a,b = string.match(n,"(.+)/(.+)$") -- strip similar dir/script
+    if a==b and a then n = a end
+    --print(file,n,p)
+    table.insert(m.sel.list,{name=n,file=file,path=p})
+  end
+
+  m.sel.len = tab.count(m.sel.list)
+  menu.redraw()
 end
 
+
 m.init[pSELECT] = function()
+  m.sel.len = "scan" 
   m.sel.list = {}
-  build_select_tree(_path.code,"")
-  --for k,v in pairs(m.sel.list) do
-    --print(k, v.name, v.file, v.path)
-  --end
-  m.sel.len = tab.count(m.sel.list)
+  norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
 end
 
 m.deinit[pSELECT] = norns.none
@@ -382,16 +390,24 @@ m.redraw[pSELECT] = function()
   -- draw file list and selector
   screen.clear()
   screen.level(15)
-  for i=1,6 do
-    if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
-      screen.move(0,10*i)
-      local line = m.sel.list[i+m.sel.pos-2].name
-      if(i==3) then
-        screen.level(15)
-      else
-        screen.level(4)
+  if m.sel.len == "scan" then
+    screen.move(64,40)
+    screen.text_center("scanning...")
+  elseif m.sel.len == 0 then
+    screen.move(64,40)
+    screen.text_center("no files")
+  else
+    for i=1,6 do
+      if (i > 2 - m.sel.pos) and (i < m.sel.len - m.sel.pos + 3) then
+        screen.move(0,10*i)
+        local line = m.sel.list[i+m.sel.pos-2].name
+        if(i==3) then
+          screen.level(15)
+        else
+          screen.level(4)
+        end
+        screen.text(string.upper(line))
       end
-      screen.text(string.upper(line))
     end
   end
   screen.update()
@@ -439,7 +455,6 @@ m.redraw[pPREVIEW] = function()
   screen.clear()
   screen.level(15)
   if m.pre.wait == 0 then
-    local i
     for i=1,8 do
       if i <= m.pre.len then
         screen.move(0,i*8-2)
@@ -565,7 +580,6 @@ m.redraw[pPARAMS] = function()
 
   if(params.count > 0) then
     if not menu.alt then
-      local i
       for i=1,6 do
         if (i > 2 - m.params.pos) and (i < params.count - m.params.pos + 3) then
           if i==3 then screen.level(15) else screen.level(4) end
@@ -866,14 +880,18 @@ m.enc[pDEVICES] = function(n,delta)
 end
 
 m.redraw[pDEVICES] = function()
+  local y_offset = 0
+  if(4<m.devices.pos) then
+    y_offset = 10*(4-m.devices.pos)
+  end
   screen.clear()
   if m.devices.mode == "list" then
-    screen.move(0,10)
+    screen.move(0,10+y_offset)
     screen.level(4)
     screen.text(string.upper(m.devices.section))
   end
   for i=1,m.devices.len do
-    screen.move(0,10*i+20)
+    screen.move(0,10*i+20+y_offset)
     if(i==m.devices.pos) then
       screen.level(15)
     else
@@ -883,7 +901,7 @@ m.redraw[pDEVICES] = function()
       screen.text(string.upper(m.devices.list[i]) .. " >")
     elseif m.devices.mode == "list" then
       screen.text(i..".")
-      screen.move(8,10*i+20)
+      screen.move(8,10*i+20+y_offset)
       if m.devices.section == "midi" then
         screen.text(midi.vports[i].name)
       elseif m.devices.section == "grid" then
@@ -1069,7 +1087,6 @@ end
 
 m.redraw[pAUDIO] = function()
   screen.clear()
-  local i
   for i=1,6 do
     if (i > 2 - m.audio.pos) and (i < mix.count - m.audio.pos + 3) then
       if i==3 then screen.level(15) else screen.level(4) end
@@ -1416,20 +1433,6 @@ end
 
 -- TAPE
 
-local TAPE_MODE_PLAY = 1
-local TAPE_MODE_REC = 2
-
-local TAPE_PLAY_LOAD = 1
-local TAPE_PLAY_PLAY = 2
-local TAPE_PLAY_STOP = 3
-local TAPE_PLAY_PAUSE = 4
-local TAPE_REC_ARM = 1
-local TAPE_REC_START = 2
-local TAPE_REC_STOP = 3
-
-local p_tape_play
-local p_tape_rec
-
 m.tape = {}
 m.tape.mode = TAPE_MODE_PLAY
 m.tape.play = {}
@@ -1464,7 +1467,7 @@ m.key[pTAPE] = function(n,z)
             m.tape.play.file = path:match("[^/]*$")
             m.tape.play.status = TAPE_PLAY_PAUSE
             m.tape.play.sel = TAPE_PLAY_PLAY
-            local ch, samples, rate = sound_file_inspect(path)
+            local _, samples, rate = sound_file_inspect(path)
             m.tape.play.length = math.floor(samples / rate)
             m.tape.play.length_text = util.s_to_hms(m.tape.play.length)
             m.tape.play.pos_tick = 0
