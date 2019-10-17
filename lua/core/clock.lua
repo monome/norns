@@ -5,13 +5,20 @@ local clock = {}
 
 clock.threads = {}
 
+local clock_id_counter = 1
+local function new_id()
+  local id = clock_id_counter
+  clock_id_counter = clock_id_counter + 1
+  return id
+end
+
 --- create a coroutine from the given function and immediately run it;
 -- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
 -- @tparam function f
 -- @treturn integer : coroutine ID that can be used to stop it later
 clock.run = function(f)
   local coro = coroutine.create(f)
-  local coro_id = #clock.threads + 1
+  local coro_id = new_id()
   clock.threads[coro_id] = coro
   clock.resume(coro_id)
   return coro_id
@@ -28,7 +35,7 @@ clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
 
- 
+
 --- yield and schedule waking up the coroutine at beats beat;
 -- the coroutine will suspend for the time required to reach the given fraction of a beat;
 -- must be called from within a coroutine started with clock.run.
@@ -39,13 +46,17 @@ end
 
 -- todo: use c api instead
 clock.resume = function(coro_id)
-  coro = clock.threads[coro_id]
+  local coro = clock.threads[coro_id]
 
   if coro == nil then
     return -- todo: report error
   end
 
-  result, mode, time = coroutine.resume(clock.threads[coro_id])
+  local result, mode, time = coroutine.resume(clock.threads[coro_id])
+
+  if coroutine.status(coro) == "dead" and result == false then
+    error(mode)
+  end
 
   if coroutine.status(coro) ~= "dead" and result and mode ~= nil then
     if mode == SLEEP then
@@ -65,10 +76,9 @@ end
 
 
 clock.cleanup = function()
-  for i = 1, #clock.threads do
-    coro = clock.threads[i]
+  for id, coro in pairs(clock.threads) do
     if coro then
-      clock.stop(i)
+      clock.stop(id)
     end
   end
 end

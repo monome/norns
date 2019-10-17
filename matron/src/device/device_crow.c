@@ -18,6 +18,8 @@
 #define TEST_NULL_AND_FREE(p) if( (p) != NULL ) { free(p); } \
     else { fprintf(stderr, "error: double free in device_crow.c\n"); }
 
+#define CROW_RETRIES 10
+
 int dev_crow_init(void *self) {
     struct dev_crow *d = (struct dev_crow *)self;
     struct dev_common *base = (struct dev_common *)self;
@@ -47,10 +49,15 @@ int dev_crow_init(void *self) {
     read(d->fd, s, 255); // clear buffer
     write(d->fd,"^^i\n\0",5);    
     usleep(1000);
-    read(d->fd, s, 255);
-    //fprintf(stderr,"crow init> %i %s",len,s);
-
-    if(strstr(s,"^^identity")==NULL) {
+    int retry = 0;
+    while(retry < CROW_RETRIES) {
+      retry++;
+      memset(s,0,sizeof(s));
+      read(d->fd, s, 255);
+      //fprintf(stderr,"crow init> %i %s",sizeof(s),s);
+      if(strstr(s,"^^identity")!=NULL) break;
+    }
+    if(retry >= CROW_RETRIES) {
         fprintf(stderr,">> ttyACM found, but not a crow\n");
         return -1;
     }
