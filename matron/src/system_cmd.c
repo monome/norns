@@ -27,9 +27,14 @@ void *run_cmd(void *);
 // extern def
 
 void system_cmd(char *cmd) {
-  if (pthread_create(&p, NULL, run_cmd, cmd) ) {
-    fprintf(stderr, "system_cmd: error creating thread\n");
-  }
+    if (pthread_create(&p, NULL, run_cmd, cmd) ) {
+	fprintf(stderr, "system_cmd: error in pthread_create() \n");
+    }
+    // by default, a pthread is created in "joinable" state,
+    // meaning it will retain its stack and other resources until joined.
+    // we need to detach the thread, either manually (as below)
+    // or by specificying the PTHREAD_CREATE_DETACHED attribute
+    pthread_detach(p);
 }
 
 void *run_cmd(void *cmd) {
@@ -39,7 +44,7 @@ void *run_cmd(void *cmd) {
   } else {
     capture[0]=0;
     while (fgets(line, 254, f) != NULL) {
-      strcat(capture,line);
+      strcat(capture, line);
     }
     len = strlen(capture);
     char *cap = malloc( (len + 1) * sizeof(char) );
@@ -51,6 +56,5 @@ void *run_cmd(void *cmd) {
     //fprintf(stderr, "%s", capture);
     pclose(f);
   }
-  pthread_cancel(p);
-  return 0;
+  return NULL;
 }
