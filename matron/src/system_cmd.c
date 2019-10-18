@@ -14,8 +14,15 @@
 
 #include "events.h"
 
+
+#if 1 // nice big buffers (allocated in worker thread)
 static const size_t CMD_CAPTURE_BYTES = 8192 * 8;
 static const size_t CMD_LINE_BYTES = 1024;
+
+#else // test with stupid tiny buffers
+static const size_t CMD_CAPTURE_BYTES = 128;
+static const size_t CMD_LINE_BYTES = 64;
+#endif
 
 void *run_cmd(void *);
 
@@ -35,7 +42,7 @@ void system_cmd(char *cmd) {
 
 void *run_cmd(void *cmd) {
     const size_t CMD_LINE_CHARS = CMD_LINE_BYTES / sizeof(char);
-    
+
     FILE *f = popen((char *)cmd, "r");
     if (f == NULL) {
         fprintf(stderr, "system_cmd: command failed\n");
@@ -43,22 +50,42 @@ void *run_cmd(void *cmd) {
     }
 	
     char *capture = (char*)malloc(CMD_CAPTURE_BYTES);
+    capture[0] = '\0';
+    
     char *line = (char*)malloc(CMD_LINE_BYTES);
-    size_t capacity = CMD_CAPTURE_BYTES - 1;
+    int capacity = CMD_CAPTURE_BYTES - 1;
     
     do {
 	// "fgets() reads in at most one less than _size_ characters"
 	// so `line` is always null-terminated after these next 2 calls:
 	memset(line, '\0', CMD_LINE_BYTES);
 	// stop on EOF....
-	if (fgets(line, CMD_LINE_CHARS, f)) { break; }
-	// "if _src_ contains _n_ or more bytes,
-	// strncat() writes _n+1_ bytes to _dest_"
-	// which is why we initialize capacity with -1
-	strncat(capture, line, capacity);
-	capacity -= strlen(line) * sizeof(char);
-    } while (capacity > 0); // ...or, stop if buffer is full
-
+	if (fgets(line, CMD_LINE_CHARS, f) == NULL) { break; }
+	
+	// we want to skip adding the line if it's incomplete,
+	// cause that would bork later
+	int len = strlen(line) * sizeof(char);
+	if (capacity >= len) {
+	    // "if _src_ contains _n_ or more bytes,
+	    // strncat() writes _n+1_ bytes to _dest_"
+	    // which is why we initialize capacity with -1
+	    strncat(capture, line, capacity);
+	}
+	capacity -= len;
+	
+#if 0 // test..
+	fprintf(stderr, "last line: \n\t%s\n", line);
+	fprintf(stderr, "current buffer: \n\t %s\n", line);
+	fprintf(stderr, "remaining capacity: %d bytes\n", capacity);
+#endif
+	
+    } while (capacity > 0); // ... or, stop if buffer is full
+    
+#if 0 // test...
+    fprintf(stderr, "finished line loop; full buffer: \n");    
+    fprintf(stderr, "%s\n", capture);
+#endif
+    
     size_t len = strlen(capture);
     char *cap = malloc((len + 1) * sizeof(char));
     strncpy(cap, capture, len);
