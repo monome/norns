@@ -144,6 +144,10 @@ crow.init = function()
   crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
 end
 
+crow.connected = function()
+  return norns.crow.dev ~= nil
+end
+
 crow.ii = {}
 crow.ii.pullup = function(x)
   if x == true then crow.send("ii.pullup(true)")
