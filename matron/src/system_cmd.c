@@ -85,11 +85,11 @@ void *run_cmd(void *cmd) {
     fprintf(stderr, "finished line loop; full buffer: \n");    
     fprintf(stderr, "%s\n", capture);
 #endif
-    
-    size_t len = strlen(capture);
-    char *cap = malloc((len + 1) * sizeof(char));
-    strncpy(cap, capture, len);
-    cap[len] = '\0';
+
+    // just use memcpy and include the null terminator
+    size_t len = strlen(capture) + 1;
+    char *cap = malloc(len);
+    memcpy(cap, capture, len);
     union event_data *ev = event_data_new(EVENT_SYSTEM_CMD);
 
     // this will get freed when the event is handled
