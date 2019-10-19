@@ -86,12 +86,10 @@ void *run_cmd(void *cmd) {
     fprintf(stderr, "%s\n", capture);
 #endif
 
-    // strncpy adds null terminator, *unless* src length >= nbytes.
-    // this is atually fine, but new gcc throws warning
-    // so, copy 1 less byte and let strncpy add the null instead of doing it ourselves/
-    size_t len = strlen(capture) - 1;
-    char *cap = malloc((len + 1) * sizeof(char));
-    strncpy(cap, capture, len);
+    // just use memcpy and include the null terminator
+    size_t len = strlen(capture) + 1;
+    char *cap = malloc(len);
+    memcpy(cap, capture, len);
     union event_data *ev = event_data_new(EVENT_SYSTEM_CMD);
 
     // this will get freed when the event is handled
