@@ -362,8 +362,7 @@ end
 m.init[pSELECT] = function()
   m.sel.len = "scan" 
   m.sel.list = {}
-  -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
-  norns.system_cmd('ls ~/dust/code/**/*.lua -1', sort_select_tree)
+  norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
 end
 
 m.deinit[pSELECT] = norns.none
