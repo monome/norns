@@ -101,8 +101,21 @@ output.__index = function(self, i)
   end
 end
 
-output.__call = function(self)
-  crow.send("output["..self.n.."]()")
+output.__call = function(self,arg)
+  local args = ""
+  if type(arg) == "string" then -- asl directive
+    if arg == "start"
+    or arg == "restart"
+    or arg == "attack"
+    or arg == "release"
+    or arg == "step"
+    or arg == "unlock" then
+      args = tostringwithquotes(arg)
+    else -- boolean or asl
+      args = arg
+    end
+  end
+  crow.send("output["..self.n.."]("..args..")")
 end
 
 
@@ -142,6 +155,10 @@ crow.init = function()
   crow.ii.kria.event = function(i,v) print("kria ii: "..i.." "..v) end
   crow.ii.meadowphysics.event = function(i,v) print("mp ii: "..i.." "..v) end
   crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
+end
+
+crow.connected = function()
+  return norns.crow.dev ~= nil
 end
 
 crow.ii = {}
