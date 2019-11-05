@@ -437,7 +437,7 @@ void o_set_poll_time(int idx, float dt) {
 
 // request current value of poll
 void o_request_poll_value(int idx) {
-    lo_send(ext_addr, "/poll/value", "i", idx);
+    lo_send(ext_addr, "/poll/request/value", "i", idx);
 }
 
 //---- audio context control
