@@ -22,13 +22,13 @@ function _norns.crow_ii.wslash(i,v) crow.ii.wslash.event(i,v) end
 norns.crow = {}
 
 norns.crow.add = function(id, name, dev)
-  print(">>>>>> norns.crow.add / " .. id .. " / " .. name)
   norns.crow.dev = dev
+  crow.add(id, name, dev)
 end
 
 norns.crow.remove = function(id)
-  print(">>>>>> norns.crow.remove " .. id)
   norns.crow.dev = nil
+  crow.remove(id)
 end
 
 norns.crow.event = function(id, line)
@@ -101,8 +101,21 @@ output.__index = function(self, i)
   end
 end
 
-output.__call = function(self)
-  crow.send("output["..self.n.."]()")
+output.__call = function(self,arg)
+  local args = ""
+  if type(arg) == "string" then -- asl directive
+    if arg == "start"
+    or arg == "restart"
+    or arg == "attack"
+    or arg == "release"
+    or arg == "step"
+    or arg == "unlock" then
+      args = tostringwithquotes(arg)
+    else -- boolean or asl
+      args = arg
+    end
+  end
+  crow.send("output["..self.n.."]("..args..")")
 end
 
 
@@ -126,6 +139,8 @@ function crow.send(cmd)
   end
 end
 
+function crow.add(id, name, dev) print(">>>>>> norns.crow.add / " .. id .. " / " .. name) end
+function crow.remove(id) print(">>>>>> norns.crow.remove " .. id) end
 function crow.receive(...) print("crow:",...) end
 
 crow.input = { input.new(1), input.new(2) }
@@ -133,6 +148,8 @@ crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
 crow.init = function()
   crow.reset()
+  crow.add = function(id, name, dev) print(">>>>>> norns.crow.add / " .. id .. " / " .. name) end
+  crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
   crow.receive = function(...) print("crow:",...) end
   crow.input = { input.new(1), input.new(2) }
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }

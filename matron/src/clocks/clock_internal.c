@@ -20,7 +20,7 @@ static void *clock_internal_run(void *p) {
     while (true) {
         clock_gettime(CLOCK_MONOTONIC, &req);
 
-        uint64_t current_time = (uint64_t) (1000000000 * req.tv_sec + req.tv_nsec);
+        uint64_t current_time = (1000000000 * (uint64_t)req.tv_sec) + (uint64_t)req.tv_nsec;
         uint64_t new_time = current_time + interval_nseconds;
 
         req.tv_sec = new_time / 1000000000;
