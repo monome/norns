@@ -11,6 +11,7 @@
 #include "Client.h"
 #include "Tape.h"
 #include "Utilities.h"
+#include "WindowedPeak.h"
 
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
@@ -111,16 +112,17 @@ namespace  crone {
         EnabledList enabled;
 
 
-    public:
-        struct VuLevels {
-            std::atomic<float> absPeakIn[2];
-            std::atomic<float> absPeakOut[2];
-            void clear();
-            void update(StereoBus &in, StereoBus &out, size_t numFrames);
-        };
+        WindowedPeak inPeak[2];
+        WindowedPeak outPeak[2];
 
-        VuLevels vuLevels;
-        VuLevels* getVuLevels() { return &vuLevels; }
+    public:
+        float getInputPeak(int ch) {
+            return inPeak[ch].get();
+        }
+
+        float getOutputPeak(int ch) {
+            return outPeak[ch].get();
+        }
 
         void openTapeRecord(const char* path) {
             tape.writer.open(path);

@@ -58,15 +58,13 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc)
     //--- VU poll
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([](const char* path){
-        auto vl = mixerClient->getVuLevels();
         char l[4];
-        l[0] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[0].load()));
-        l[1] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[1].load()));
-        l[2] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[2].load()));
-        l[3] = (uint8_t)(64*AudioMeter::getPos(vl->absPeakIn[3].load()));
+        l[0] = (uint8_t)(64*AudioMeter::getPos(mixerClient->getInputPeak(0)));
+        l[1] = (uint8_t)(64*AudioMeter::getPos(mixerClient->getInputPeak(1)));
+        l[2] = (uint8_t)(64*AudioMeter::getPos(mixerClient->getOutputPeak(0)));
+        l[3] = (uint8_t)(64*AudioMeter::getPos(mixerClient->getOutputPeak(1)));
         lo_blob bl = lo_blob_new(sizeof(l), l);
         lo_send(matronAddress, path, "b", bl);
-        vl->clear();
     });
     vuPoll->setPeriod(50);
 
