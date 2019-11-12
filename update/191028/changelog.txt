@@ -2,7 +2,16 @@
 
 ## maiden 1.0.0
 
-- NEW project manager @ngwese
+- NEW install, update, and remove projects based on a catalog of known scripts from with maiden (web) or maiden cli (ssh) @ngwese
+- NEW directly open existing files within the editor via URLs @ryanlaws
+- NEW refined, flatter file browser look @ngwese
+- NEW allow editing of json files @ngwese
+- FIX protect code, data, and audio folders from accidental deletion
+- FIX populate file rename dialog with current file name by default @synthetiv
+- FIX fix blank screen, scrollTo errors with using MS Edge @synthetiv
+- FIX ensure CTRL+P (CMD+P) plays the current script @ryanlaws
+- FIX maintain REPL size with resizing the browser window @synthetiv
+- FIX more distinct highlighting on REPL tabs @synthetiv
 
 ## norns 2.2.2
 
@@ -12,6 +21,7 @@
 - FIX global reset after cleanup @antonhornquist
 - FIX clock overflow prevention @Dewb
 - ADD new font glyphs @Dewb
+- ADD script defined crow.add and crow.remove @audionerd
 
 
 # 191016

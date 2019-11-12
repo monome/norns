@@ -4,8 +4,8 @@ cd "$(dirname "$0")"
 # basic repo updates
 sudo rm -rf /home/we/norns
 cp -a norns /home/we/
-#sudo rm -rf /home/we/maiden
-#cp -a maiden /home/we/
+sudo rm -rf /home/we/maiden
+cp -a maiden /home/we/
 #sudo rm -rf /home/we/norns-image
 #cp -a norns-image /home/we/
 
@@ -27,3 +27,7 @@ cp changelog.txt /home/we/
 #cd /home/we/norns/sc
 #rm -rf /home/we/.local/share/SuperCollider/Extensions/*
 #./install.sh
+
+# maiden project setup
+cd /home/we/maiden
+./project-setup.sh
