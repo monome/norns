@@ -3,7 +3,6 @@ local m = {}
 m.pos = 0
 m.list = {}
 m.len = "scan" 
-m.file = ""
 
 local function sort_select_tree(results)
   local t = {}
@@ -45,7 +44,7 @@ m.key = function(n,z)
     menu.set_page("HOME")
   -- select
   elseif n==3 and z==1 then
-    m.file = m.list[m.pos+1].file
+    menu.previewfile = m.list[m.pos+1].file
     menu.set_page("PREVIEW")
   end
 end

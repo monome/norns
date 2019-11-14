@@ -3,8 +3,7 @@ m.meta = {}
 
 m.init = function()
   m.wait = 0
-  -- TODO FIX:
-  m.meta = "--" --norns.script.metadata(m.sel.file)
+  m.meta = norns.script.metadata(menu.previewfile)
   m.len = tab.count(m.meta)
   m.state = 0
   m.pos = 0
@@ -18,8 +17,7 @@ m.key = function(n,z)
   if n==3 and m.state == 1 then
     m.wait = 1
     menu.redraw()
-    -- TODO FIX
-    --norns.script.load(m.sel.file)
+    norns.script.load(menu.previewfile)
   elseif n ==3 and z == 1 then
     m.state = 1
   elseif n == 2 and z == 1 then

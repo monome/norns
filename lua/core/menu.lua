@@ -30,6 +30,7 @@ menu.locked = true
 menu.errormsg = ""
 menu.shownav = false
 menu.showstats = false
+menu.previewfile = ""
 
 -- menu pages
 local m = {}
@@ -89,12 +90,12 @@ norns.init_done = function(status)
   menu.panel = 3
   if status == true then
     menu.scripterror = false
-    m.params.pos = 0
+    m["PARAMS"].pos = 0
     menu.locked = false
     menu.set_mode(false)
   end
-  m.params.init_map()
-  m.params.read_pmap()
+  m["PARAMS"].init_map()
+  m["PARAMS"].read_pmap()
 end
 
 
