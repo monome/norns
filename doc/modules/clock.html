@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><strong>clock</strong></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/control.html">control</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/elca.html">elca</a></li>
+  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/UI.html">UI</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>clock</code></h1>
+<p>clock coroutines</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#run">run (f)</a></td>
+	<td class="summary">create a coroutine from the given function and immediately run it;
+ the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sleep">sleep (s)</a></td>
+	<td class="summary">yield and schedule waking up the coroutine in s seconds;
+ must be called from within a coroutine started with clock.run.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sync">sync (beats)</a></td>
+	<td class="summary">yield and schedule waking up the coroutine at beats beat;
+ the coroutine will suspend for the time required to reach the given fraction of a beat;
+ must be called from within a coroutine started with clock.run.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#stop">stop (coro_id)</a></td>
+	<td class="summary">stop execution of a coroutine started using clock.run.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set_source">set_source (source)</a></td>
+	<td class="summary">select the sync source, currently clock.INTERNAL and clock.MIDI.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "run"></a>
+    <strong>run (f)</strong>
+    </dt>
+    <dd>
+    create a coroutine from the given function and immediately run it;
+ the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">function</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        : coroutine ID that can be used to stop it later
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sleep"></a>
+    <strong>sleep (s)</strong>
+    </dt>
+    <dd>
+    yield and schedule waking up the coroutine in s seconds;
+ must be called from within a coroutine started with clock.run.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">float</span></span>
+         : seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sync"></a>
+    <strong>sync (beats)</strong>
+    </dt>
+    <dd>
+    yield and schedule waking up the coroutine at beats beat;
+ the coroutine will suspend for the time required to reach the given fraction of a beat;
+ must be called from within a coroutine started with clock.run.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">beats</span>
+            <span class="types"><span class="type">float</span></span>
+         : next fraction of a beat at which the coroutine will be resumed. may be larger than 1.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "stop"></a>
+    <strong>stop (coro_id)</strong>
+    </dt>
+    <dd>
+    stop execution of a coroutine started using clock.run.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">coro_id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : coroutine ID
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_source"></a>
+    <strong>set_source (source)</strong>
+    </dt>
+    <dd>
+    select the sync source, currently clock.INTERNAL and clock.MIDI.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">source</span>
+            <span class="types"><span class="type">integer</span></span>
+         : clock.INTERNAL (0) or clock.MIDI (1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-11-14 23:40:48 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
