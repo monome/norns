@@ -2,12 +2,12 @@
 -- Utility methods for working with notes, scales and chords.
 --
 -- @module MusicUtil
--- @release v1.1.0
+-- @release v1.1.1
 -- @author Mark Eats
 
 local MusicUtil = {}
 
-MusicUtil.NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"}
+MusicUtil.NOTE_NAMES = {"C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"}
 MusicUtil.SCALES = {
   {name = "Major", alt_names = {"Ionian"}, intervals = {0, 2, 4, 5, 7, 9, 11, 12}, chords = {{1, 2, 3, 4, 5, 6, 7, 14}, {14, 15, 17, 18, 19, 20, 21, 22, 23}, {14, 15, 17, 19}, {1, 2, 3, 4, 5}, {1, 2, 4, 8, 9, 10, 11, 14, 15}, {14, 15, 17, 19, 21, 22}, {24, 26}, {1, 2, 3, 4, 5, 6, 7, 14}}},
   {name = "Natural Minor", alt_names = {"Minor", "Aeolian"}, intervals = {0, 2, 3, 5, 7, 8, 10, 12}, chords = {{14, 15, 17, 19, 21, 22}, {24, 26}, {1, 2, 3, 4, 5, 6, 7, 14}, {14, 15, 17, 18, 19, 20, 21, 22, 23}, {14, 15, 17, 19}, {1, 2, 3, 4, 5}, {1, 2, 4, 8, 9, 10, 11, 14, 15}, {14, 15, 17, 19, 21, 22}}},
@@ -346,7 +346,7 @@ end
 --- Return a MIDI note number's note name.
 -- @tparam integer note_num MIDI note number (0-127).
 -- @tparam[opt] boolean include_octave Include octave number in return string if set to true.
--- @treturn string Name string (eg, "C#3").
+-- @treturn string Name string (eg, "C♯3").
 function MusicUtil.note_num_to_name(note_num, include_octave)
   local name = MusicUtil.NOTE_NAMES[note_num % 12 + 1]
   if include_octave then name = name .. math.floor(note_num / 12 - 2) end
