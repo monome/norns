@@ -48,9 +48,6 @@ t.event = function(_)
 end
 -- metro for page status updates
 menu.timer = metro[32]
--- metro for tape
-local tape_play_counter = metro[33]
-local tape_rec_counter = metro[34]
 -- metro for nav vanish
 local nav_vanish = metro[35]
 nav_vanish.time = 1

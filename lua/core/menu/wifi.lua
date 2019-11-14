@@ -1,3 +1,5 @@
+local listselect = require 'listselect'
+
 local m = {}
 m.pos = 0
 m.list = {"off","hotspot","connect", "add", "del"}

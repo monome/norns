@@ -1,3 +1,5 @@
+local fileselect = require 'fileselect'
+
 local TAPE_MODE_PLAY = 1
 local TAPE_MODE_REC = 2
 
@@ -8,7 +10,6 @@ local TAPE_PLAY_PAUSE = 4
 local TAPE_REC_ARM = 1
 local TAPE_REC_START = 2
 local TAPE_REC_STOP = 3
-
 
 local m = {}
 m.mode = TAPE_MODE_PLAY
@@ -22,6 +23,10 @@ m.rec.file = nil
 m.rec.sel = TAPE_REC_ARM
 m.rec.pos_tick = 0
 m.diskfree = 0
+
+-- metro for tape
+local tape_play_counter = metro[33]
+local tape_rec_counter = metro[34]
 
 local DISK_RESERVE = 250
 local function tape_diskfree()
@@ -60,7 +65,7 @@ m.key = function(n,z)
                 m.play.stats = TAPE_PLAY_STOP
                 m.play.sel = TAPE_PLAY_LOAD
               end
-              if menu.mode == true and menu.page == pTAPE then
+              if menu.mode == true and menu.page == "TAPE" then
                 menu.redraw()
               end
             end
@@ -101,7 +106,7 @@ m.key = function(n,z)
             tape_rec_counter:stop()
             m.rec.sel = TAPE_REC_ARM
           end
-          if menu.mode == true and menu.page == pTAPE then
+          if menu.mode == true and menu.page == "TAPE" then
             menu.redraw()
           end
         end
