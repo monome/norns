@@ -145,7 +145,7 @@ end
 -- menu set mode
 menu.set_mode = function(mode)
   if mode == false then -- PLAY MODE
-    if menu.mode == true then s_restore() end
+    if menu.mode == true then _norns.screen_restore() end
     menu.mode = false
     m[menu.page].deinit()
     redraw = norns.script.redraw
@@ -155,7 +155,7 @@ menu.set_mode = function(mode)
     norns.encoders.set_sens(0,1)
     redraw()
   else -- MENU MODE
-    if menu.mode == false then s_save() end
+    if menu.mode == false then _norns.screen_save() end
     menu.mode = true
     menu.alt = false
     redraw = norns.none

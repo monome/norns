@@ -320,50 +320,50 @@ void w_init(void) {
   // util
   lua_register_norns("system_cmd", &_system_cmd);
 
+  // low-level monome grid control
+  lua_register_norns("grid_set_led", &_grid_set_led);
+  lua_register_norns("grid_all_led", &_grid_all_led);
+  lua_register_norns("grid_rows", &_grid_rows);
+  lua_register_norns("grid_cols", &_grid_cols);
+  lua_register_norns("grid_set_rotation", &_grid_set_rotation);
+  lua_register_norns("arc_set_led", &_arc_set_led);
+  lua_register_norns("arc_all_led", &_arc_all_led);
+  lua_register_norns("monome_refresh", &_monome_refresh);
+
+  // register screen funcs
+  lua_register_norns("screen_update", &_screen_update);
+  lua_register_norns("screen_save", &_screen_save);
+  lua_register_norns("screen_restore", &_screen_restore);
+  lua_register_norns("screen_font_face", &_screen_font_face);
+  lua_register_norns("screen_font_size", &_screen_font_size);
+  lua_register_norns("screen_aa", &_screen_aa);
+  lua_register_norns("screen_level", &_screen_level);
+  lua_register_norns("screen_line_width", &_screen_line_width);
+  lua_register_norns("screen_line_cap", &_screen_line_cap);
+  lua_register_norns("screen_line_join", &_screen_line_join);
+  lua_register_norns("screen_miter_limit", &_screen_miter_limit);
+  lua_register_norns("screen_move", &_screen_move);
+  lua_register_norns("screen_line", &_screen_line);
+  lua_register_norns("screen_move_rel", &_screen_move_rel);
+  lua_register_norns("screen_line_rel", &_screen_line_rel);
+  lua_register_norns("screen_curve", &_screen_curve);
+  lua_register_norns("screen_curve_rel", &_screen_curve_rel);
+  lua_register_norns("screen_arc", &_screen_arc);
+  lua_register_norns("screen_rect", &_screen_rect);
+  lua_register_norns("screen_stroke", &_screen_stroke);
+  lua_register_norns("screen_fill", &_screen_fill);
+  lua_register_norns("screen_text", &_screen_text);
+  lua_register_norns("screen_clear", &_screen_clear);
+  lua_register_norns("screen_close", &_screen_close);
+  lua_register_norns("screen_extents", &_screen_extents);
+  lua_register_norns("screen_export_png", &_screen_export_png);
+  lua_register_norns("screen_display_png", &_screen_display_png);
+
   // name global extern table
   lua_setglobal(lvm, "_norns");
 
 
   // TODO: GET THESE INTO _norns TABLE
-
-  // low-level monome grid control
-  lua_register(lvm, "grid_set_led", &_grid_set_led);
-  lua_register(lvm, "grid_all_led", &_grid_all_led);
-  lua_register(lvm, "grid_rows", &_grid_rows);
-  lua_register(lvm, "grid_cols", &_grid_cols);
-  lua_register(lvm, "grid_set_rotation", &_grid_set_rotation);
-  lua_register(lvm, "arc_set_led", &_arc_set_led);
-  lua_register(lvm, "arc_all_led", &_arc_all_led);
-  lua_register(lvm, "monome_refresh", &_monome_refresh);
-
-  // register screen funcs
-  lua_register(lvm, "s_update", &_screen_update);
-  lua_register(lvm, "s_save", &_screen_save);
-  lua_register(lvm, "s_restore", &_screen_restore);
-  lua_register(lvm, "s_font_face", &_screen_font_face);
-  lua_register(lvm, "s_font_size", &_screen_font_size);
-  lua_register(lvm, "s_aa", &_screen_aa);
-  lua_register(lvm, "s_level", &_screen_level);
-  lua_register(lvm, "s_line_width", &_screen_line_width);
-  lua_register(lvm, "s_line_cap", &_screen_line_cap);
-  lua_register(lvm, "s_line_join", &_screen_line_join);
-  lua_register(lvm, "s_miter_limit", &_screen_miter_limit);
-  lua_register(lvm, "s_move", &_screen_move);
-  lua_register(lvm, "s_line", &_screen_line);
-  lua_register(lvm, "s_move_rel", &_screen_move_rel);
-  lua_register(lvm, "s_line_rel", &_screen_line_rel);
-  lua_register(lvm, "s_curve", &_screen_curve);
-  lua_register(lvm, "s_curve_rel", &_screen_curve_rel);
-  lua_register(lvm, "s_arc", &_screen_arc);
-  lua_register(lvm, "s_rect", &_screen_rect);
-  lua_register(lvm, "s_stroke", &_screen_stroke);
-  lua_register(lvm, "s_fill", &_screen_fill);
-  lua_register(lvm, "s_text", &_screen_text);
-  lua_register(lvm, "s_clear", &_screen_clear);
-  lua_register(lvm, "s_close", &_screen_close);
-  lua_register(lvm, "s_extents", &_screen_extents);
-  lua_register(lvm, "s_export_png", &_screen_export_png);
-  lua_register(lvm, "s_display_png", &_screen_display_png);
 
   // analog output control
   lua_register(lvm, "gain_hp", &_gain_hp);

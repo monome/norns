@@ -79,18 +79,18 @@ function Arc.remove(dev) end
 -- @tparam integer x : led index (1-based!)
 -- @tparam integer val : LED brightness in [0, 15]
 function Arc:led(ring, x, val)
-  arc_set_led(self.dev, ring, x, val)
+  _norns.arc_set_led(self.dev, ring, x, val)
 end
 
 --- set state of all LEDs on this arc device.
 -- @tparam integer val : LED brightness in [0, 15]
 function Arc:all(val)
-  arc_all_led(self.dev, val)
+  _norns.arc_all_led(self.dev, val)
 end
 
 --- update any dirty quads on this arc device.
 function Arc:refresh()
-  monome_refresh(self.dev)
+  _norns.monome_refresh(self.dev)
 end
 
 --- create an anti-aliased point to point arc 

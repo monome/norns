@@ -75,7 +75,7 @@ norns.startup_status.timeout = function()
 end
 
 -- initial screen state
-s_save()
+_norns.screen_save()
 
 print("start_audio(): ")
 -- start the process of syncing with crone boot
