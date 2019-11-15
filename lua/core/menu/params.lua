@@ -3,11 +3,13 @@ local m = {
   n = 0,
   loadable = true,
   altpos = 1,
-  map = {},
-  init_map = function()
-    for i = 1,params.count do m.map[i] = -1 end
-  end
+  map = {}
 }
+
+m.init_map = function()
+  for i = 1,params.count do m.map[i] = -1 end
+end
+
 
 m.key = function(n,z)
   if menu.alt then
