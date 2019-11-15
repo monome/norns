@@ -56,7 +56,7 @@ norns.startup_status.ok = function()
   -- turn on VU
   _norns.poll_start_vu()
   -- report engines
-  report_engines()
+  _norns.report_engines()
   wifi.init()
  
 end
@@ -79,6 +79,6 @@ _norns.screen_save()
 
 print("start_audio(): ")
 -- start the process of syncing with crone boot
-start_audio()
+_norns.start_audio()
 
 

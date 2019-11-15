@@ -35,7 +35,7 @@ Script.clear = function()
 
   -- clear engine
   engine.name = nil
-  free_engine()
+  _norns.free_engine()
 
   -- clear softcut
   softcut.reset()

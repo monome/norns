@@ -359,70 +359,68 @@ void w_init(void) {
   lua_register_norns("screen_export_png", &_screen_export_png);
   lua_register_norns("screen_display_png", &_screen_display_png);
 
+  // analog output control
+  lua_register_norns("gain_hp", &_gain_hp);
+
+  // osc
+  lua_register_norns("osc_send", &_osc_send);
+  lua_register_norns("osc_send_crone", &_osc_send_crone);
+
+  // midi
+  lua_register_norns("midi_send", &_midi_send);
+
+    // get list of available crone engines
+  lua_register_norns("report_engines", &_request_engine_report);
+  // load a named engine
+  lua_register_norns("load_engine", &_load_engine);
+  // free engine
+  lua_register_norns("free_engine", &_free_engine);
+
+  // send an indexed command
+  lua_register_norns("send_command", &_send_command);
+
+  // start/stop an indexed metro with callback
+  lua_register_norns("metro_start", &_metro_start);
+  lua_register_norns("metro_stop", &_metro_stop);
+  lua_register_norns("metro_set_time", &_metro_set_time);
+
+  // get the current high-resolution CPU time
+  lua_register_norns("get_time", &_get_time);
+  // usleep!
+  lua_register_norns("usleep", &_micro_sleep);
+
+  // start / stop a poll
+  lua_register_norns("start_poll", &_start_poll);
+  lua_register_norns("stop_poll", &_stop_poll);
+  lua_register_norns("set_poll_time", &_set_poll_time);
+  lua_register_norns("request_poll_value", &_request_poll_value);
+
+  // audio context controls
+  lua_register_norns("audio_pitch_on", &_set_audio_pitch_on);
+  lua_register_norns("audio_pitch_off", &_set_audio_pitch_off);
+
+  // start audio (query for sclang readiness)
+  lua_register_norns("start_audio", &_start_audio);
+  // restart the audio process (recompile sclang)
+  lua_register_norns("restart_audio", &_restart_audio);
+
+  // returns channels, frames, samplerate
+  lua_register_norns("sound_file_inspect", &_sound_file_inspect);
+
+  // reset LVM
+  lua_register_norns("reset_lvm", &_reset_lvm);
+
+  // clock
+  lua_register_norns("clock_schedule_sleep", &_clock_schedule_sleep);
+  lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
+  lua_register_norns("clock_cancel", &_clock_cancel);
+  lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
+  lua_register_norns("clock_set_source", &_clock_set_source);
+  lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
+
   // name global extern table
   lua_setglobal(lvm, "_norns");
 
-
-  // TODO: GET THESE INTO _norns TABLE
-
-  // analog output control
-  lua_register(lvm, "gain_hp", &_gain_hp);
-
-  // osc
-  lua_register(lvm, "osc_send", &_osc_send);
-  lua_register(lvm, "osc_send_crone", &_osc_send_crone);
-
-  // midi
-  lua_register(lvm, "midi_send", &_midi_send);
-
-    // get list of available crone engines
-  lua_register(lvm, "report_engines", &_request_engine_report);
-  // load a named engine
-  lua_register(lvm, "load_engine", &_load_engine);
-  // free engine
-  lua_register(lvm, "free_engine", &_free_engine);
-
-  // send an indexed command
-  lua_register(lvm, "send_command", &_send_command);
-
-  // start/stop an indexed metro with callback
-  lua_register(lvm, "metro_start", &_metro_start);
-  lua_register(lvm, "metro_stop", &_metro_stop);
-  lua_register(lvm, "metro_set_time", &_metro_set_time);
-
-  // get the current high-resolution CPU time
-  lua_register(lvm, "get_time", &_get_time);
-  // usleep!
-  lua_register(lvm, "usleep", &_micro_sleep);
-
-  // start / stop a poll
-  lua_register(lvm, "start_poll", &_start_poll);
-  lua_register(lvm, "stop_poll", &_stop_poll);
-  lua_register(lvm, "set_poll_time", &_set_poll_time);
-  lua_register(lvm, "request_poll_value", &_request_poll_value);
-
-  // audio context controls
-  lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
-  lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
-
-  // start audio (query for sclang readiness)
-  lua_register(lvm, "start_audio", &_start_audio);
-  // restart the audio process (recompile sclang)
-  lua_register(lvm, "restart_audio", &_restart_audio);
-
-  // returns channels, frames, samplerate
-  lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
-
-  // reset LVM
-  lua_register(lvm, "_reset_lvm", &_reset_lvm);
-
-  // clock
-  lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
-  lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
-  lua_register(lvm, "_clock_cancel", &_clock_cancel);
-  lua_register(lvm, "_clock_internal_set_tempo", &_clock_internal_set_tempo);
-  lua_register(lvm, "_clock_set_source", &_clock_set_source);
-  lua_register(lvm, "_clock_get_time_beats", &_clock_get_time_beats);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");

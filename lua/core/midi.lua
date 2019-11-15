@@ -80,9 +80,9 @@ function Midi.remove(dev) end
 function Midi:send(data)
   if data.type then
     local d = Midi.to_data(data)
-    midi_send(self.dev, d)
+    _norns.midi_send(self.dev, d)
   else
-    midi_send(self.dev, data)
+    _norns.midi_send(self.dev, data)
   end
 end
 

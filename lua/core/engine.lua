@@ -58,7 +58,7 @@ Engine.add_command = function(id, name, fmt)
     if select("#",...) ~= #fmt then
    print("warning: wrong count of arguments for command '"..name.."'")
     end
-    send_command(id, table.unpack(arg))
+    _norns.send_command(id, table.unpack(arg))
   end
   Engine.commands[name] = {
     id = id,
@@ -98,7 +98,7 @@ Engine.load = function(name, callback)
       end
       Engine.name = name
       Engine.is_loading = true
-      load_engine(name)
+      _norns.load_engine(name)
       return true
    end
 end

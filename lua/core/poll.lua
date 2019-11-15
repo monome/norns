@@ -33,12 +33,12 @@ end
 
 --- start a poll.
 function Poll:start()
-  start_poll(self.props.id)
+  _norns.start_poll(self.props.id)
 end
 
 --- stop a poll.
 function Poll:stop()
-  stop_poll(self.props.id)
+  _norns.stop_poll(self.props.id)
 end
 
 --- request a single update immediately.
@@ -48,7 +48,7 @@ function Poll:update(callback)
 	 self.props.callback = callback
 	 end
    end
-   request_poll_value(self.props.id)
+   _norns.request_poll_value(self.props.id)
 end
 
 --- custom setters.
@@ -56,7 +56,7 @@ end
 function Poll:__newindex(idx, val)
   if idx == 'time' then
     self.props.time = val
-    set_poll_time(self.props.id, val)
+    _norns.set_poll_time(self.props.id, val)
   elseif idx == 'callback' then
     self.props.callback = val
   end
