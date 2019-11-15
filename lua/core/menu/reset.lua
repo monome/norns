@@ -1,5 +1,6 @@
-local m = {}
-m.confirmed = false
+local m = {
+  confirmed = false
+}
 
 m.key = function(n,z)
   if n==2 and z==1 then

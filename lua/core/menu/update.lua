@@ -1,6 +1,7 @@
-local m = {}
-m.url = ''
-m.version = ''
+local m = {
+  url = '',
+  version = ''
+}
 
 local function check_newest()
   print("checking for update")

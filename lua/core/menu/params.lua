@@ -1,12 +1,13 @@
-local m = {}
-m.pos = 0
-m.n = 0
-m.loadable = true
-m.altpos = 1
-m.map = {}
-m.init_map = function()
-  for i = 1,params.count do m.map[i] = -1 end
-end
+local m = {
+  pos = 0,
+  n = 0,
+  loadable = true,
+  altpos = 1,
+  map = {},
+  init_map = function()
+    for i = 1,params.count do m.map[i] = -1 end
+  end
+}
 
 m.key = function(n,z)
   if menu.alt then

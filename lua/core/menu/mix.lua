@@ -1,5 +1,6 @@
-local m = {}
-m.sel = 1
+local m = {
+  sel = 1
+}
 
 m.key = function(n,z)
   if n==2 and z==1 and m.sel > 1 then

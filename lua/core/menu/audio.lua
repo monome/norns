@@ -1,5 +1,6 @@
-local m = {}
-m.pos = 0
+local m = {
+  pos = 0
+}
 
 m.key = function(n,z)
   if n==2 and z==1 then

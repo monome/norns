@@ -1,5 +1,6 @@
-local m = {}
-m.meta = {}
+local m = {
+  meta = {}
+}
 
 m.init = function()
   m.wait = 0

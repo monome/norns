@@ -1,7 +1,8 @@
-local m = {}
-m.pos = 1
-m.list = {"AUDIO > ", "DEVICES > ", "WIFI >", "RESET", "UPDATE"}
-m.pages = {"AUDIO", "DEVICES", "WIFI", "RESET", "UPDATE"}
+local m = {
+  pos = 1,
+  list = {"AUDIO > ", "DEVICES > ", "WIFI >", "RESET", "UPDATE"},
+  pages = {"AUDIO", "DEVICES", "WIFI", "RESET", "UPDATE"}
+}
 
 m.key = function(n,z)
   if n==2 and z==1 then

@@ -1,12 +1,14 @@
 local listselect = require 'listselect'
 
-local m = {}
-m.pos = 0
-m.list = {"off","hotspot","connect", "add", "del"}
+local m = {
+  pos = 0,
+  list = {"off","hotspot","connect", "add", "del"},
+  selected = 1,
+  try = "",
+  countdown = -1
+}
+
 m.len = #m.list
-m.selected = 1
-m.try = ""
-m.countdown = -1
 
 m.connect = function(x)
   if x ~= "cancel" then

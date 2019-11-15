@@ -1,7 +1,7 @@
-local m = {}
-
-m.pos = 1
-m.list = {"SELECT", "SYSTEM", "SLEEP"}
+local m = {
+  pos = 1,
+  list = {"SELECT", "SYSTEM", "SLEEP"}
+}
 
 m.init = function()
   menu.timer.time = 1

@@ -1,8 +1,8 @@
-local m = {}
-
-m.pos = 0
-m.list = {}
-m.len = "scan" 
+local m = {
+  pos = 0,
+  list = {},
+  len = "scan" 
+}
 
 local function sort_select_tree(results)
   local t = {}

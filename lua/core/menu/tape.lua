@@ -11,18 +11,21 @@ local TAPE_REC_ARM = 1
 local TAPE_REC_START = 2
 local TAPE_REC_STOP = 3
 
-local m = {}
-m.mode = TAPE_MODE_PLAY
-m.play = {}
-m.play.sel = TAPE_PLAY_LOAD
-m.play.status = TAPE_PLAY_STOP
-m.play.file = nil
-m.play.pos_tick = 0
-m.rec = {}
-m.rec.file = nil
-m.rec.sel = TAPE_REC_ARM
-m.rec.pos_tick = 0
-m.diskfree = 0
+local m = {
+  mode = TAPE_MODE_PLAY,
+  play = {
+    sel = TAPE_PLAY_LOAD,
+    status = TAPE_PLAY_STOP,
+    file = nil,
+    pos_tick = 0
+  },
+  rec = {
+    file = nil,
+    sel = TAPE_REC_ARM,
+    pos_tick = 0
+  },
+  diskfree = 0
+}
 
 -- metro for tape
 local tape_play_counter = metro[33]

@@ -1,7 +1,10 @@
-local m = {}
-m.pos = 1
-m.list = {"midi", "grid", "arc", "hid"}
+local m = {
+  pos = 1,
+  list = {"midi", "grid", "arc", "hid"},
+}
+
 m.len = #m.list
+
 function m.refresh()
   m.options = {
     midi = {"none"},
