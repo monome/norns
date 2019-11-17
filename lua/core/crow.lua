@@ -4,18 +4,18 @@ local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
 
-function _norns.crow_identity(...) print("crow identity: " .. ...) end
-function _norns.crow_version(...) print("crow version: " .. ...) end
-function _norns.crow_stream(n,v) crow.input[n].stream(v) end
-function _norns.crow_change(n,v) crow.input[n].change(v) end
-function _norns.crow_output(i,v) crow.output[i].receive(v) end
-function _norns.crow_midi(...) crow.midi(...) end
+function norns.crow_identity(...) print("crow identity: " .. ...) end
+function norns.crow_version(...) print("crow version: " .. ...) end
+function norns.crow_stream(n,v) crow.input[n].stream(v) end
+function norns.crow_change(n,v) crow.input[n].change(v) end
+function norns.crow_output(i,v) crow.output[i].receive(v) end
+function norns.crow_midi(...) crow.midi(...) end
 
-_norns.crow_ii = {}
-function _norns.crow_ii.ansible(i,v) crow.ii.ansible.event(i,v) end
-function _norns.crow_ii.kria(i,v) crow.ii.kria.event(i,v) end
-function _norns.crow_ii.meadowphysics(i,v) crow.ii.meadowphysics.event(i,v) end
-function _norns.crow_ii.wslash(i,v) crow.ii.wslash.event(i,v) end
+norns.crow_ii = {}
+function norns.crow_ii.ansible(i,v) crow.ii.ansible.event(i,v) end
+function norns.crow_ii.kria(i,v) crow.ii.kria.event(i,v) end
+function norns.crow_ii.meadowphysics(i,v) crow.ii.meadowphysics.event(i,v) end
+function norns.crow_ii.wslash(i,v) crow.ii.wslash.event(i,v) end
 
 
 
@@ -35,7 +35,7 @@ norns.crow.event = function(id, line)
   line = string.sub(line,1,-2) -- strip newline
   --print(line)
   if util.string_starts(line,"^^") == true then
-    line = line:gsub("%^^","_norns.crow_")
+    line = line:gsub("%^^","norns.crow_")
     assert(load(line))()
   else
     crow.receive(line)
