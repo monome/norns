@@ -4,38 +4,39 @@ local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
 
-function norns.crow_identity(...) print("crow identity: " .. ...) end
-function norns.crow_version(...) print("crow version: " .. ...) end
-function norns.crow_stream(n,v) crow.input[n].stream(v) end
-function norns.crow_change(n,v) crow.input[n].change(v) end
-function norns.crow_output(i,v) crow.output[i].receive(v) end
-function norns.crow_midi(...) crow.midi(...) end
-
-norns.crow_ii = {}
-function norns.crow_ii.ansible(i,v) crow.ii.ansible.event(i,v) end
-function norns.crow_ii.kria(i,v) crow.ii.kria.event(i,v) end
-function norns.crow_ii.meadowphysics(i,v) crow.ii.meadowphysics.event(i,v) end
-function norns.crow_ii.wslash(i,v) crow.ii.wslash.event(i,v) end
-
-
-
 norns.crow = {}
+function norns.crow.identity(...) print("crow identity: " .. ...) end
+function norns.crow.version(...) print("crow version: " .. ...) end
+function norns.crow.stream(n,v) crow.input[n].stream(v) end
+function norns.crow.change(n,v) crow.input[n].change(v) end
+function norns.crow.output(i,v) crow.output[i].receive(v) end
+function norns.crow.midi(...) crow.midi(...) end
 
-norns.crow.add = function(id, name, dev)
+norns.crow.ii = {}
+function norns.crow.ii.ansible(i,v) crow.ii.ansible.event(i,v) end
+function norns.crow.ii.kria(i,v) crow.ii.kria.event(i,v) end
+function norns.crow.ii.meadowphysics(i,v) crow.ii.meadowphysics.event(i,v) end
+function norns.crow.ii.wslash(i,v) crow.ii.wslash.event(i,v) end
+
+
+
+_norns.crow = {}
+
+_norns.crow.add = function(id, name, dev)
   norns.crow.dev = dev
   crow.add(id, name, dev)
 end
 
-norns.crow.remove = function(id)
-  norns.crow.dev = nil
+_norns.crow.remove = function(id)
+  _norns.crow.dev = nil
   crow.remove(id)
 end
 
-norns.crow.event = function(id, line)
+_norns.crow.event = function(id, line)
   line = string.sub(line,1,-2) -- strip newline
   --print(line)
   if util.string_starts(line,"^^") == true then
-    line = line:gsub("%^^","norns.crow_")
+    line = line:gsub("%^^","norns.crow.")
     assert(load(line))()
   else
     crow.receive(line)
@@ -133,7 +134,7 @@ function crow.kill() crow.send("^^k") end
 function crow.clear() crow.send("^^c") end
 
 function crow.send(cmd)
-  if norns.crow.dev then
+  if _norns.crow.dev then
     --print("crow send: "..cmd)
     _norns.crow_send(norns.crow.dev,cmd)
   end
@@ -162,7 +163,7 @@ crow.init = function()
 end
 
 crow.connected = function()
-  return norns.crow.dev ~= nil
+  return _norns.crow.dev ~= nil
 end
 
 crow.ii = {}

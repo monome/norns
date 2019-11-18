@@ -79,7 +79,7 @@ local function param_handler(path, args)
 end
 
 --- handle an osc event.
-norns.osc.event = function(path, args, from)
+_norns.osc.event = function(path, args, from)
   if util.string_starts(path, "/param") then
     param_handler(path, args)
   end

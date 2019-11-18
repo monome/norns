@@ -4,35 +4,35 @@ local m = {
 }
 
 m.init = function()
-  menu.timer.time = 1
-  menu.timer.count = -1
-  menu.timer.event = function() menu.redraw() end
-  menu.timer:start()
+  _menu.timer.time = 1
+  _menu.timer.count = -1
+  _menu.timer.event = function() _menu.redraw() end
+  _menu.timer:start()
 end
 
 m.deinit = function()
-  menu.timer:stop()
+  _menu.timer:stop()
 end
 
 m.key = function(n,z)
   if n == 2 and z == 1 then
-    menu.showstats = not menu.showstats
-    menu.redraw()
+    _menu.showstats = not _menu.showstats
+    _menu.redraw()
   elseif n == 3 and z == 1 then
-    menu.set_page(m.list[m.pos])
+    _menu.set_page(m.list[m.pos])
   end
 end
 
 m.enc = function(n,delta)
   if n == 2 then
     m.pos = util.clamp(m.pos + delta, 1, #m.list)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 
 m.redraw = function()
   screen.clear()
-  menu.draw_panel()
+  _menu.draw_panel()
   for i=1,3 do
     screen.move(0,25+10*i)
     if(i==m.pos) then
@@ -43,12 +43,12 @@ m.redraw = function()
     screen.text(m.list[i].." >")
   end
 
-  if not menu.showstats then
+  if not _menu.showstats then
     screen.move(0,15)
     screen.level(15)
     local line = string.upper(norns.state.name)
-    if(menu.scripterror and menu.errormsg ~= 'NO SCRIPT') then
-      line = "error: " .. menu.errormsg
+    if(_menu.scripterror and _menu.errormsg ~= 'NO SCRIPT') then
+      line = "error: " .. _menu.errormsg
     end
     screen.text(line)
   else

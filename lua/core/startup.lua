@@ -21,10 +21,10 @@ poll = require 'core/poll'
 engine = tab.readonly{table = require 'core/engine', except = {'name'}}
 softcut = require 'core/softcut'
 wifi = require 'core/wifi'
-
 controlspec = require 'core/controlspec'
 paramset = require 'core/paramset'
 params = paramset.new()
+mix = require 'core/mix'
 
 
 -- load menu
@@ -48,7 +48,7 @@ end
 
 
 -- sc init callbacks
-norns.startup_status.ok = function()
+_norns.startup_status.ok = function()
   print("norns.startup_status.ok")
   -- resume last loaded script
   norns.state.resume()
@@ -57,10 +57,9 @@ norns.startup_status.ok = function()
   -- report engines
   _norns.report_engines()
   wifi.init()
- 
 end
 
-norns.startup_status.timeout = function()
+_norns.startup_status.timeout = function()
   norns.script.clear()
   print("norns.startup_status.timeout")
   local cmd="find ~/dust -name *.sc -type f -printf '%p %f\n' | sort -k2 | uniq -f1 --all-repeated=separate"

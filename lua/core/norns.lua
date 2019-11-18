@@ -19,68 +19,68 @@ local arc = require 'core/arc'
 -- individual modules will redefine them as needed.
 
 -- key callback
-norns.key = function(n,z) end
+_norns.key = function(n,z) end
 -- enc callback
-norns.enc = function(n,delta) end
+_norns.enc = function(n,delta) end
 
 -- monome device management
-norns.monome = {}
-norns.monome.add = function(id, serial, name, dev)
+_norns.monome = {}
+_norns.monome.add = function(id, serial, name, dev)
   if util.string_starts(name, "monome arc") then
-    norns.arc.add(id, serial, name, dev)
-  else norns.grid.add(id, serial, name, dev) end
+    _norns.arc.add(id, serial, name, dev)
+  else _norns.grid.add(id, serial, name, dev) end
 end
-norns.monome.remove = function(id)
+_norns.monome.remove = function(id)
   if arc.devices[id] then norns.arc.remove(id)
-  else norns.grid.remove(id) end
+  else _norns.grid.remove(id) end
 end
 
 -- grid device callbacks.
-norns.grid = {}
-norns.grid.key = function(id, x, y, val) end
+_norns.grid = {}
+_norns.grid.key = function(id, x, y, val) end
 
 -- arc device callbacks.
-norns.arc = {}
-norns.arc.delta = function(id, n, delta) end
-norns.arc.key = function(id, n, s) end
+_norns.arc = {}
+_norns.arc.delta = function(id, n, delta) end
+_norns.arc.key = function(id, n, s) end
 
 -- hid callbacks.
-norns.hid = {}
-norns.hid.add = function(id, name, types, codes, dev) end
-norns.hid.event = function(id, ev_type, ev_code, value) end
+_norns.hid = {}
+_norns.hid.add = function(id, name, types, codes, dev) end
+_norns.hid.event = function(id, ev_type, ev_code, value) end
 
 -- midi callbacks (defined in midi.lua).
-norns.midi = {}
+_norns.midi = {}
 
 -- osc callbacks (defined in osc.lua)
-norns.osc = {}
+_norns.osc = {}
 
 
 -- report callbacks
-norns.report = {}
-norns.report.engines = function(names, count)
+_norns.report = {}
+_norns.report.engines = function(names, count)
    engine.register(names, count)
 end
-norns.report.commands = function(commands, count)
+_norns.report.commands = function(commands, count)
    engine.register_commands(commands, count)
    engine.list_commands()
 end
-norns.report.polls = function(names, count)
+_norns.report.polls = function(names, count)
    poll.register(names, count)
    poll.list_names()
 end
 
 
 -- called when all reports are complete after engine load.
-norns.report.did_engine_load = function() end
+_norns.report.did_engine_load = function() end
 
 -- startup handlers.
-norns.startup_status = {}
-norns.startup_status.ok = function() print(">>> startup ok") end
-norns.startup_status.timeout = function() print(">>> startup timeout") end
+_norns.startup_status = {}
+_norns.startup_status.ok = function() print(">>> startup ok") end
+_norns.startup_status.timeout = function() print(">>> startup timeout") end
 
 -- poll callback; used by C interface.
-norns.poll = function(id, value)
+_norns.poll = function(id, value)
    local name = poll.poll_names[id]
    local p = poll.polls[name]
    if p then
@@ -91,16 +91,16 @@ norns.poll = function(id, value)
 end
 
 -- i/o level callback.
-norns.vu = function(in1, in2, out1, out2) end
+_norns.vu = function(in1, in2, out1, out2) end
 -- softcut phase
-norns.softcut_phase = function(id, value) end
+_norns.softcut_phase = function(id, value) end
 
 -- default readings for battery
 norns.battery_percent = 0
 norns.battery_current = 0
 
 -- battery percent handler
-norns.battery = function(percent, current)
+_norns.battery = function(percent, current)
   if current < 0 and percent < 5 then
     screen.update = screen.update_low_battery
   elseif current > 0 and norns.battery_current < 0 then
@@ -112,13 +112,13 @@ norns.battery = function(percent, current)
 end
 
 -- power present handler
-norns.power = function(present)
+_norns.power = function(present)
   norns.powerpresent = present
   --print("power: "..present)
 end
 
 -- stat handler
-norns.stat = function(disk, temp, cpu)
+_norns.stat = function(disk, temp, cpu)
   --print("stat",disk,temp,cpu)
   norns.disk = disk
   norns.temp = temp
@@ -131,7 +131,7 @@ norns.script = require 'core/script'
 norns.state = require 'core/state'
 norns.encoders = require 'core/encoders'
 
-norns.enc = norns.encoders.process
+_norns.enc = norns.encoders.process
 
 -- Error handling.
 norns.scripterror = function(msg) print(msg) end
@@ -185,7 +185,7 @@ norns.system_cmd = function(cmd, callback)
 end
 
 -- callback management from c
-norns.system_cmd_capture = function(cap)
+_norns.system_cmd_capture = function(cap)
   if system_cmd_q[1].callback == nil then print(cap)
   else system_cmd_q[1].callback(cap) end
   table.remove(system_cmd_q,1)

@@ -17,7 +17,7 @@ end
 
 local function get_update()
   m.message = "preparing..."
-  menu.redraw()
+  _menu.redraw()
   pcall(cleanup) -- shut down script
   norns.script.clear()
   print("shutting down audio...")
@@ -25,11 +25,11 @@ local function get_update()
   print("clearing old updates...")
   os.execute("sudo rm -rf /home/we/update/*") -- clear old updates
   m.message = "downloading..."
-  menu.redraw()
+  _menu.redraw()
   print("starting download...")
   os.execute("wget -T 180 -q -P /home/we/update/ " .. m.url) --download
   m.message = "unpacking update..."
-  menu.redraw()
+  _menu.redraw()
   print("checksum validation...")
   m.message = "checksum validation..."
   local checksum = util.os_capture("cd /home/we/update; sha256sum -c /home/we/update/*.sha256 | grep OK")
@@ -37,27 +37,27 @@ local function get_update()
     print("unpacking...")
     os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
     m.message = "running update..."
-    menu.redraw()
+    _menu.redraw()
     print("running update...")
     os.execute("/home/we/update/"..m.version.."/update.sh")
     m.message = "complete. any key to shut down."
-    menu.redraw()
+    _menu.redraw()
     print("update complete.")
   else
     print("update failed.")
     m.message = "update failed."
-    menu.redraw()
+    _menu.redraw()
   end
 end
 
 m.key = function(n,z)
   if m.stage=="init" and z==1 then
-    menu.set_page("SYSTEM")
-    menu.redraw()
+    _menu.set_page("SYSTEM")
+    _menu.redraw()
   elseif m.stage=="confirm" then
     if n==2 and z==1 then
-      menu.set_page("SYSTEM")
-      menu.redraw()
+      _menu.set_page("SYSTEM")
+      _menu.redraw()
     elseif n==3 and z==1 then
       m.stage="update"
       get_update()
@@ -66,7 +66,7 @@ m.key = function(n,z)
   elseif m.stage=="done" and z==1 then
     print("shutting down.")
     m.message = "shutting down."
-    menu.redraw()
+    _menu.redraw()
     os.execute("sleep 0.5; sudo shutdown now")
   end
 end

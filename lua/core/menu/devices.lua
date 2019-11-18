@@ -31,20 +31,20 @@ m.key = function(n,z)
   if m.mode == "type" then
     if n==2 and z==1 then
       norns.state.save()
-      menu.set_page("SYSTEM")
+      _menu.set_page("SYSTEM")
     elseif n==3 and z==1 then
       m.section = m.list[m.pos]
       m.mode = "list"
       m.len = 4
       m.pos = 1
-      menu.redraw()
+      _menu.redraw()
     end
   elseif m.mode == "list" then
     if n==2 and z==1 then
       m.mode = "type"
       m.len = #m.list
       m.pos = 1
-      menu.redraw()
+      _menu.redraw()
     elseif n==3 and z==1 then
       m.refresh()
       m.mode = "select"
@@ -52,14 +52,14 @@ m.key = function(n,z)
       m.len = #m.options[m.section]
       --tab.print(m.options[m.section])
       m.pos = 1
-      menu.redraw()
+      _menu.redraw()
     end
   elseif m.mode == "select" then
     if n==2 and z==1 then
       m.mode = "list"
       m.len = 4
       m.pos = 1
-      menu.redraw()
+      _menu.redraw()
     elseif n==3 and z==1 then
       local s = m.options[m.section][m.pos]
       if m.section == "midi" then
@@ -78,7 +78,7 @@ m.key = function(n,z)
       m.mode = "list"
       m.len = 4
       m.pos = 1
-      menu.redraw()
+      _menu.redraw()
     end
   end
 end
@@ -86,7 +86,7 @@ end
 m.enc = function(n,delta)
   if n==2 then
     m.pos = util.clamp(m.pos + delta, 1, m.len)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 

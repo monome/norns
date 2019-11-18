@@ -4,7 +4,7 @@ local m = {
 
 m.key = function(n,z)
   if n==2 and z==1 then
-    menu.set_page("SYSTEM")
+    _menu.set_page("SYSTEM")
   elseif n==3 and z==1 then
     if mix:t(m.pos+1) == mix.tFILE then
       fileselect.enter(_path.dust, m.newfile)
@@ -15,7 +15,7 @@ end
 m.newfile = function(file)
   if file ~= "cancel" then
     mix:set(m.pos+1,file)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 
@@ -23,10 +23,10 @@ m.enc = function(n,d)
   if n==2 then
     local prev = m.pos
     m.pos = util.clamp(m.pos + d, 0, mix.count - 1)
-    if m.pos ~= prev then menu.redraw() end
+    if m.pos ~= prev then _menu.redraw() end
   elseif n==3 then
     mix:delta(m.pos+1,d)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 
@@ -52,14 +52,14 @@ m.redraw = function()
 end
 
 m.init = function()
-  menu.timer.event = function() menu.redraw() end
-  menu.timer.time = 1
-  menu.timer.count = -1
-  menu.timer:start()
+  _menu.timer.event = function() _menu.redraw() end
+  _menu.timer.time = 1
+  _menu.timer.count = -1
+  _menu.timer:start()
 end
 
 m.deinit = function()
-  menu.timer:stop()
+  _menu.timer:stop()
 end
 
 return m

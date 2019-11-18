@@ -12,7 +12,7 @@ end
 
 
 m.key = function(n,z)
-  if menu.alt then
+  if _menu.alt then
     if n==3 and z==1 then
       if m.altpos == 1 and m.loadable==true then
         params:read(m.n)
@@ -26,11 +26,11 @@ m.key = function(n,z)
         -- save mapping
         m.write_pmap()
       end
-      menu.redraw()
+      _menu.redraw()
     end
   elseif n==2 and z==1 then
     --NOT USED
-    --menu.set_page(pHOME)
+    --_menu.set_page(pHOME)
   elseif n==3 and z==1 then
     if not m.midimap then
       m.fine = true
@@ -53,15 +53,15 @@ end
 m.newfile = function(file)
   if file ~= "cancel" then
     params:set(m.pos+1,file)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 
 m.enc = function(n,d)
-  if menu.alt then
+  if _menu.alt then
     if n == 2 then
       m.altpos = util.clamp(m.altpos+d, 1, 3)
-      menu.redraw()
+      _menu.redraw()
     elseif n==3 then
       if m.altpos < 3 then
         m.n = util.clamp(m.n + d,0,100)
@@ -81,24 +81,24 @@ m.enc = function(n,d)
         else
           m.loadable = false
         end
-        menu.redraw()
+        _menu.redraw()
       else
         m.midimap = d > 0
-        menu.redraw()
+        _menu.redraw()
       end
     end
   elseif n==2 then
     local prev = m.pos
     m.pos = util.clamp(m.pos + d, 0, params.count - 1)
-    if m.pos ~= prev then menu.redraw() end
+    if m.pos ~= prev then _menu.redraw() end
   elseif n==3 and params.count > 0 then
     if not m.midimap then
       local dx = m.fine and (d/20) or d
       params:delta(m.pos+1,dx)
-      menu.redraw()
+      _menu.redraw()
     else
       m.map[m.pos+1] = util.clamp(m.map[m.pos+1]+d,-1,127)
-      menu.redraw()
+      _menu.redraw()
     end
   end
 end
@@ -106,10 +106,10 @@ end
 m.redraw = function()
   screen.clear()
 
-  menu.draw_panel()
+  _menu.draw_panel()
 
   if(params.count > 0) then
-    if not menu.alt then
+    if not _menu.alt then
       for i=1,6 do
         if (i > 2 - m.pos) and (i < params.count - m.pos + 3) then
           if i==3 then screen.level(15) else screen.level(4) end
@@ -149,7 +149,7 @@ m.redraw = function()
         screen.move(80,30)
         screen.text("(learn)")
       end
-    else -- menu.alt == true -- param save/load
+    else -- _menu.alt == true -- param save/load
 
       screen.level((m.altpos == 1) and 15 or 4)
       screen.move(0,30)
@@ -202,29 +202,29 @@ m.init = function()
   m.action_text = ""
   m.action = 0
   m.triggered = {}
-  menu.timer.event = function()
+  _menu.timer.event = function()
     if m.action > 0 then m.action = m.action - 1 end
     for k, v in pairs(m.triggered) do
       if v > 0 then m.triggered[k] = v - 1 end
     end
-    menu.redraw()
+    _menu.redraw()
   end
-  menu.timer.time = 0.2
-  menu.timer.count = -1
-  menu.timer:start()
+  _menu.timer.time = 0.2
+  _menu.timer.count = -1
+  _menu.timer:start()
 end
 
 m.deinit = function()
   m.midilearn = false
-  menu.timer:stop()
+  _menu.timer:stop()
 end
 
-norns.menu_midi_event = function(data)
+norns.menu.midi_event = function(data)
   if data[1] == 176 then -- cc
     if m.midilearn then
       if params:t(m.pos+1) == params.tCONTROL or params:t(m.pos+1) == params.tTAPER then
         m.map[m.pos+1] = data[2]
-        menu.redraw()
+        _menu.redraw()
       end
       m.midilearn = false
     else

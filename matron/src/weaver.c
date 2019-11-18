@@ -227,7 +227,7 @@ static int _clock_get_time_beats(lua_State *l);
 static inline void
 _push_norns_func(const char *field, const char *func) {
   // fprintf(stderr, "calling norns.%s.%s\n", field, func);
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, field);
   lua_remove(lvm, -2);
   lua_getfield(lvm, -1, func);
@@ -1730,7 +1730,7 @@ void w_handle_engine_loaded() {
 
 // metro handler
 void w_handle_metro(const int idx, const int stage) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "metro");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1);   // convert to 1-based
@@ -1749,7 +1749,7 @@ void w_handle_clock_resume(const int coro_id) {
 
 // gpio handler
 void w_handle_key(const int n, const int val) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "key");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, n);
@@ -1759,7 +1759,7 @@ void w_handle_key(const int n, const int val) {
 
 // gpio handler
 void w_handle_enc(const int n, const int delta) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "enc");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, n);
@@ -1769,7 +1769,7 @@ void w_handle_enc(const int n, const int delta) {
 
 // system/battery
 void w_handle_battery(const int percent, const int current) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "battery");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, percent);
@@ -1779,7 +1779,7 @@ void w_handle_battery(const int percent, const int current) {
 
 // system/power
 void w_handle_power(const int present) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "power");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, present);
@@ -1788,7 +1788,7 @@ void w_handle_power(const int present) {
 
 // stat
 void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "stat");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, disk);
@@ -1799,7 +1799,7 @@ void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu)
 
 void w_handle_poll_value(int idx, float val) {
   // fprintf(stderr, "_handle_poll_value: %d, %f\n", idx, val);
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1); // convert to 1-base
@@ -1808,7 +1808,7 @@ void w_handle_poll_value(int idx, float val) {
 }
 
 void w_handle_poll_data(int idx, int size, uint8_t *data) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1); // convert index to 1-based
@@ -1828,7 +1828,7 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
 
 // argument is an array of 4 bytes
 void w_handle_poll_io_levels(uint8_t *levels) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "vu");
   lua_remove(lvm, -2);
   for(int i = 0; i < 4; ++i) {
@@ -1839,7 +1839,7 @@ void w_handle_poll_io_levels(uint8_t *levels) {
 
 void w_handle_poll_softcut_phase(int idx, float val) {
   //fprintf(stderr, "_handle_poll_softcut_phase: %d, %f\n", idx, val);
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "softcut_phase");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1);
@@ -1849,7 +1849,7 @@ void w_handle_poll_softcut_phase(int idx, float val) {
 
 // handle system command capture
 void w_handle_system_cmd(char *capture) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "system_cmd_capture");
   lua_remove(lvm, -2);
   lua_pushstring(lvm, capture);

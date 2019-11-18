@@ -146,10 +146,10 @@ function Grid.update_devices()
   end
 end
 
-norns.grid = {}
+_norns.grid = {}
 
 -- grid add
-norns.grid.add = function(id, serial, name, dev)
+_norns.grid.add = function(id, serial, name, dev)
   local g = Grid.new(id,serial,name,dev)
   Grid.devices[id] = g
   Grid.update_devices()
@@ -157,7 +157,7 @@ norns.grid.add = function(id, serial, name, dev)
 end
 
 -- grid remove
-norns.grid.remove = function(id)
+_norns.grid.remove = function(id)
   if Grid.devices[id] then
     if Grid.remove ~= nil then
       Grid.remove(Grid.devices[id])
@@ -171,7 +171,7 @@ norns.grid.remove = function(id)
 end
 
 --- redefine global grid key input handler
-norns.grid.key = function(id, x, y, s)
+_norns.grid.key = function(id, x, y, s)
   local g = Grid.devices[id]
   if g ~= nil then
     if g.key ~= nil then

@@ -14,7 +14,7 @@ m.connect = function(x)
   if x ~= "cancel" then
     wifi.on(x)
   end
-  menu.redraw()
+  _menu.redraw()
 end
 
 m.add = function(x)
@@ -22,14 +22,14 @@ m.add = function(x)
   if x ~= "cancel" then
     textentry.enter(m.passdone, "", "enter password:")
   end
-  menu.redraw()
+  _menu.redraw()
 end
 
 m.del = function(x)
   if x ~= "cancel" then
     wifi.delete(x)
   end
-  menu.redraw()
+  _menu.redraw()
 end
 
 m.passdone = function(txt)
@@ -37,13 +37,13 @@ m.passdone = function(txt)
     print("adding " .. m.try .. txt)
     wifi.add(m.try, txt)
   end
-  menu.redraw()
+  _menu.redraw()
 end
 
 
 m.key = function(n,z)
   if n==2 and z==1 then
-    menu.set_page("SYSTEM")
+    _menu.set_page("SYSTEM")
   elseif n==3 and z==1 then
     if m.pos == 0 then
       wifi.off()
@@ -67,10 +67,10 @@ m.enc = function(n,delta)
     m.pos = m.pos + delta
     if m.pos > m.len - 1 then m.pos = m.len - 1
     elseif m.pos < 0 then m.pos = 0 end
-    menu.redraw()
+    _menu.redraw()
   elseif n==3 and m.pos == 2 then
     m.selected = util.clamp(1,m.selected+delta,wifi.conn_count)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 
@@ -111,17 +111,17 @@ m.init = function()
   m.ssid_list = wifi.ssids() or {}
   wifi.update()
   m.selected = 1
-  menu.timer.time = 3
-  menu.timer.count = -1
-  menu.timer.event = function()
+  _menu.timer.time = 3
+  _menu.timer.count = -1
+  _menu.timer.event = function()
     wifi.update()
-    menu.redraw()
+    _menu.redraw()
   end
-  menu.timer:start()
+  _menu.timer:start()
 end
 
 m.deinit = function()
-  menu.timer:stop()
+  _menu.timer:stop()
 end
 
 return m
