@@ -97,7 +97,7 @@ m.redraw = function()
 end
 
 m.init = function()
-  norns.vu = m.vu
+  _norns.vu = m.vu
   m.in1 = 0
   m.in2 = 0
   m.out1 = 0
@@ -111,7 +111,7 @@ m.deinit = function()
   norns.encoders.set_accel(2,false)
   norns.encoders.set_sens(2,2)
   norns.encoders.set_sens(3,2)
-  norns.vu = norns.none
+  _norns.vu = norns.none
 end
 
 m.vu = function(in1,in2,out1,out2)
