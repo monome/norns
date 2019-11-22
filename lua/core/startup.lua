@@ -46,6 +46,17 @@ function include(file)
   end
 end
 
+-- monome device management
+_norns.monome = {}
+_norns.monome.add = function(id, serial, name, dev)
+  if util.string_starts(name, "monome arc") then
+    _norns.arc.add(id, serial, name, dev)
+  else _norns.grid.add(id, serial, name, dev) end
+end
+_norns.monome.remove = function(id)
+  if arc.devices[id] then _norns.arc.remove(id)
+  else _norns.grid.remove(id) end
+end
 
 -- sc init callbacks
 _norns.startup_status.ok = function()

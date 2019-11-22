@@ -28,7 +28,7 @@ _norns.crow.add = function(id, name, dev)
 end
 
 _norns.crow.remove = function(id)
-  _norns.crow.dev = nil
+  norns.crow.dev = nil
   crow.remove(id)
 end
 
@@ -134,7 +134,7 @@ function crow.kill() crow.send("^^k") end
 function crow.clear() crow.send("^^c") end
 
 function crow.send(cmd)
-  if _norns.crow.dev then
+  if norns.crow.dev then
     --print("crow send: "..cmd)
     _norns.crow_send(norns.crow.dev,cmd)
   end

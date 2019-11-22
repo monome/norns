@@ -10,7 +10,6 @@ local engine = require 'core/engine'
 local poll = require 'core/poll'
 local tab = require 'tabutil'
 local util = require 'util'
-local arc = require 'core/arc'
 
 -- Global Functions.
 
@@ -22,18 +21,6 @@ local arc = require 'core/arc'
 _norns.key = function(n,z) end
 -- enc callback
 _norns.enc = function(n,delta) end
-
--- monome device management
-_norns.monome = {}
-_norns.monome.add = function(id, serial, name, dev)
-  if util.string_starts(name, "monome arc") then
-    _norns.arc.add(id, serial, name, dev)
-  else _norns.grid.add(id, serial, name, dev) end
-end
-_norns.monome.remove = function(id)
-  if arc.devices[id] then norns.arc.remove(id)
-  else _norns.grid.remove(id) end
-end
 
 -- grid device callbacks.
 _norns.grid = {}
