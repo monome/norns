@@ -109,17 +109,17 @@ function Hid.update_devices()
   end
 end
 
-norns.hid = {}
+_norns.hid = {}
 
 -- hid devices
-norns.hid.add = function(id, name, types, codes, dev)
+_norns.hid.add = function(id, name, types, codes, dev)
   local g = Hid.new(id, name, types, codes, dev)
   Hid.devices[id] = g
   Hid.update_devices()
   if Hid.add ~= nil then Hid.add(g) end
 end
 
-norns.hid.remove = function(id)
+_norns.hid.remove = function(id)
   if Hid.devices[id] then
     if Hid.remove ~= nil then
       Hid.remove(Hid.devices[id])
@@ -132,7 +132,7 @@ norns.hid.remove = function(id)
   Hid.update_devices()
 end
 
-norns.hid.event = function(id, type, code, value)
+_norns.hid.event = function(id, type, code, value)
   local device = Hid.devices[id]
 
   if device ~= nil then

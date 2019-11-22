@@ -25,9 +25,9 @@ end
 -- @tparam string args : osc message args
 function OSC.send(to, path, args)
   if (args ~= nil) then
-    osc_send(to, path, args)
+    _norns.osc_send(to, path, args)
   else
-    osc_send(to, path)
+    _norns.osc_send(to, path)
   end
 end
 
@@ -36,9 +36,9 @@ end
 -- @tparam string args : osc message args
 function OSC.send_crone(path, args)
   if (args ~= nil) then
-    osc_send_crone(path, args)
+    _norns.osc_send_crone(path, args)
   else
-    osc_send_crone(path)
+    _norns.osc_send_crone(path)
   end
 end
 
@@ -79,7 +79,7 @@ local function param_handler(path, args)
 end
 
 --- handle an osc event.
-norns.osc.event = function(path, args, from)
+_norns.osc.event = function(path, args, from)
   if util.string_starts(path, "/param") then
     param_handler(path, args)
   end

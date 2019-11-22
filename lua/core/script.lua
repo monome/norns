@@ -35,7 +35,7 @@ Script.clear = function()
 
   -- clear engine
   engine.name = nil
-  free_engine()
+  _norns.free_engine()
 
   -- clear softcut
   softcut.reset()
@@ -57,7 +57,7 @@ Script.clear = function()
 
   -- reset PLAY mode screen settings
   local status = norns.menu.status()
-  if status == true then s_restore() end
+  if status == true then _norns.screen_restore() end
 
   screen.aa(0)
   screen.level(15)
@@ -65,7 +65,7 @@ Script.clear = function()
   screen.font_face(1)
   screen.font_size(8)
 
-  if status == true then s_save() end
+  if status == true then _norns.screen_save() end
 
   -- ensure finalizers run before next script
   collectgarbage()
@@ -75,7 +75,7 @@ Script.init = function()
   print("# script init")
   params.name = norns.state.shortname
   init()
-  s_save()
+  _norns.screen_save()
 end
 
 --- load a script from the /scripts folder.

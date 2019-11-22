@@ -7,16 +7,16 @@ local m = {
 m.key = function(n,z)
   if n==2 and z==1 then
     norns.state.save()
-    menu.set_page("HOME")
+    _menu.set_page("HOME")
   elseif n==3 and z==1 then
-    menu.set_page(m.pages[m.pos])
+    _menu.set_page(m.pages[m.pos])
   end
 end
 
 m.enc = function(n,delta)
   if n==2 then
     m.pos = util.clamp(m.pos + delta, 1, #m.list)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 

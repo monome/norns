@@ -42,7 +42,7 @@ end
 m.key = function(n,z)
   if n==2 and z==1 then
     m.mode = (m.mode==1) and 2 or 1
-    menu.redraw()
+    _menu.redraw()
   elseif n==3 and z==1 then
     if m.mode == TAPE_MODE_PLAY then
       if m.play.sel == TAPE_PLAY_LOAD then
@@ -52,7 +52,7 @@ m.key = function(n,z)
             m.play.file = path:match("[^/]*$")
             m.play.status = TAPE_PLAY_PAUSE
             m.play.sel = TAPE_PLAY_PLAY
-            local _, samples, rate = sound_file_inspect(path)
+            local _, samples, rate = _norns.sound_file_inspect(path)
             m.play.length = math.floor(samples / rate)
             m.play.length_text = util.s_to_hms(m.play.length)
             m.play.pos_tick = 0
@@ -68,14 +68,14 @@ m.key = function(n,z)
                 m.play.stats = TAPE_PLAY_STOP
                 m.play.sel = TAPE_PLAY_LOAD
               end
-              if menu.mode == true and menu.page == "TAPE" then
-                menu.redraw()
+              if _menu.mode == true and _menu.page == "TAPE" then
+                _menu.redraw()
               end
             end
           else
             m.play.file = nil
           end
-          menu.redraw()
+          _menu.redraw()
         end
         fileselect.enter(_path.audio, playfile_callback)
       elseif m.play.sel == TAPE_PLAY_PLAY then
@@ -83,14 +83,14 @@ m.key = function(n,z)
         audio.tape_play_start()
         m.play.status = m.play.sel
         m.play.sel = TAPE_PLAY_STOP
-        menu.redraw()
+        _menu.redraw()
       elseif m.play.sel == TAPE_PLAY_STOP then
         audio.tape_play_stop()
         tape_play_counter:stop()
         m.play.file = nil
         m.play.status = m.play.sel
         m.play.sel = TAPE_PLAY_LOAD
-        menu.redraw()
+        _menu.redraw()
       end
     else -- REC CONTROLS
       if m.rec.sel == TAPE_REC_ARM then
@@ -109,8 +109,8 @@ m.key = function(n,z)
             tape_rec_counter:stop()
             m.rec.sel = TAPE_REC_ARM
           end
-          if menu.mode == true and menu.page == "TAPE" then
-            menu.redraw()
+          if _menu.mode == true and _menu.page == "TAPE" then
+            _menu.redraw()
           end
         end
       elseif m.rec.sel == TAPE_REC_START then
@@ -124,7 +124,7 @@ m.key = function(n,z)
         m.rec.sel = TAPE_REC_ARM
         tape_diskfree()
       end
-      menu.redraw()
+      _menu.redraw()
     end
   end
 end
@@ -134,7 +134,7 @@ m.enc = norns.none
 m.redraw = function()
   screen.clear()
 
-  menu.draw_panel()
+  _menu.draw_panel()
 
   screen.move(128,10)
 	screen.level(m.mode==TAPE_MODE_PLAY and 15 or 1)

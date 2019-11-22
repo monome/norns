@@ -58,7 +58,7 @@ Engine.add_command = function(id, name, fmt)
     if select("#",...) ~= #fmt then
    print("warning: wrong count of arguments for command '"..name.."'")
     end
-    send_command(id, table.unpack(arg))
+    _norns.send_command(id, table.unpack(arg))
   end
   Engine.commands[name] = {
     id = id,
@@ -81,26 +81,26 @@ end
 -- @param callback - function to call on engine load. will receive command list
 -- @return - false if an engine load is already pending (nothing happens), true otherwise
 Engine.load = function(name, callback)
-   if engine.is_loading then
-      return false
-   else
-      if type(callback) == 'function' then
-	 norns.report.did_engine_load = function()	    
-	    local status = norns.try(callback,"init")
-	    norns.init_done(status)
-	    Engine.is_loading = false
-	 end
-      else
-	 norns.report.did_engine_load = function()
-	    norns.init_done(true)
-	    Engine.is_loading = false
-	 end
+  if engine.is_loading then
+    return false
+  else
+    if type(callback) == 'function' then
+      _norns.report.did_engine_load = function()	    
+        local status = norns.try(callback,"init")
+        norns.init_done(status)
+        Engine.is_loading = false
       end
-      Engine.name = name
-      Engine.is_loading = true
-      load_engine(name)
-      return true
-   end
+    else
+      _norns.report.did_engine_load = function()
+        norns.init_done(true)
+        Engine.is_loading = false
+      end
+    end
+    Engine.name = name
+    Engine.is_loading = true
+    _norns.load_engine(name)
+    return true
+  end
 end
 
 --- custom getters.

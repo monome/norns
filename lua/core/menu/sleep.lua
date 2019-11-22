@@ -2,12 +2,12 @@ local m = {}
 
 m.key = function(n,z)
   if n==2 and z==1 then
-    menu.set_page("HOME")
+    _menu.set_page("HOME")
   elseif n==3 and z==1 then
     print("SLEEP")
     --TODO fade out screen then run the shutdown script
     m.sleep = true
-    menu.redraw()
+    _menu.redraw()
     norns.state.clean_shutdown = true
     norns.state.save()
     pcall(cleanup)

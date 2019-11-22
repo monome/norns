@@ -27,7 +27,7 @@ m.redraw = function()
   screen.aa(1)
   screen.line_width(1)
 
-  menu.draw_panel()
+  _menu.draw_panel()
 
   local x = -40
   screen.level(2)
@@ -119,7 +119,7 @@ m.vu = function(in1,in2,out1,out2)
   m.in2 = in2
   m.out1 = out1
   m.out2 = out2
-  menu.redraw()
+  _menu.redraw()
 end
 
 return m

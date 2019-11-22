@@ -4,10 +4,10 @@ local m = {
 
 m.key = function(n,z)
   if n==2 and z==1 then
-    menu.set_page("SYSTEM")
+    _menu.set_page("SYSTEM")
 elseif n==3 and z==1 then
     m.confirmed = true
-    menu.redraw()
+    _menu.redraw()
     -- TODO
     --if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     norns.state.clean_shutdown = true

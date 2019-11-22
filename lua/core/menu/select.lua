@@ -25,7 +25,7 @@ local function sort_select_tree(results)
   end
 
   m.len = tab.count(m.list)
-  menu.redraw()
+  _menu.redraw()
 end
 
 
@@ -41,18 +41,18 @@ m.deinit = norns.none
 m.key = function(n,z)
   -- back
   if n==2 and z==1 then
-    menu.set_page("HOME")
+    _menu.set_page("HOME")
   -- select
   elseif n==3 and z==1 then
-    menu.previewfile = m.list[m.pos+1].file
-    menu.set_page("PREVIEW")
+    _menu.previewfile = m.list[m.pos+1].file
+    _menu.set_page("PREVIEW")
   end
 end
 
 m.enc = function(n,delta)
   if n==2 then
     m.pos = util.clamp(m.pos + delta, 0, m.len - 1)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 

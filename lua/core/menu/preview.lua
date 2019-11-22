@@ -4,7 +4,7 @@ local m = {
 
 m.init = function()
   m.wait = 0
-  m.meta = norns.script.metadata(menu.previewfile)
+  m.meta = norns.script.metadata(_menu.previewfile)
   m.len = tab.count(m.meta)
   m.state = 0
   m.pos = 0
@@ -17,19 +17,19 @@ m.deinit = norns.none
 m.key = function(n,z)
   if n==3 and m.state == 1 then
     m.wait = 1
-    menu.redraw()
-    norns.script.load(menu.previewfile)
+    _menu.redraw()
+    norns.script.load(_menu.previewfile)
   elseif n ==3 and z == 1 then
     m.state = 1
   elseif n == 2 and z == 1 then
-    menu.set_page("SELECT")
+    _menu.set_page("SELECT")
   end
 end
 
 m.enc = function(n,d)
   if n==2 then
     m.pos = util.clamp(m.pos + d, 0, m.posmax)
-    menu.redraw()
+    _menu.redraw()
   end
 end
 
