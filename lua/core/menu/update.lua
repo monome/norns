@@ -65,11 +65,11 @@ get_update_2 = function()
   local checksum = util.os_capture("cd /home/we/update; sha256sum -c /home/we/update/*.sha256 | grep OK")
   if checksum:match("OK") then
     print("unpacking...")
-    --os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
+    os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
     m.message = "running update..."
     _menu.redraw()
     print("running update...")
-    --os.execute("/home/we/update/"..m.version.."/update.sh")
+    os.execute("/home/we/update/"..m.version.."/update.sh")
     m.message = "done. any key to shut down."
     _menu.redraw()
     print("update complete.")
