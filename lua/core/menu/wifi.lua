@@ -1,4 +1,5 @@
 local listselect = require 'listselect'
+local textentry= require 'textentry'
 
 local m = {
   pos = 0,
