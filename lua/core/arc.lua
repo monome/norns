@@ -24,7 +24,6 @@ for i=1,4 do
     led = vport.wrap_method('led'),
     all = vport.wrap_method('all'),
     refresh = vport.wrap_method('refresh'),
-    intensity = vport.wrap_method('intensity'),
     segment = vport.wrap_method('segment'),
   }
 end
@@ -92,11 +91,6 @@ end
 --- update any dirty quads on this arc device.
 function Arc:refresh()
   _norns.monome_refresh(self.dev)
-end
-
---- intensity
-function Arc:intensity(i)
-  _norns.monome_intensity(self.dev, i)
 end
 
 --- create an anti-aliased point to point arc 
