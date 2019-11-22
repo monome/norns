@@ -150,8 +150,9 @@ _menu.set_mode = function(mode)
     redraw = norns.script.redraw
     _menu.key = key
     norns.encoders.callback = enc
-    norns.encoders.set_accel(0,false)
-    norns.encoders.set_sens(0,1)
+    norns.enc.resume()
+    --norns.encoders.set_accel(0,false)
+    --norns.encoders.set_sens(0,1)
     redraw()
   else -- _menu.MODE
     if _menu.mode == false then _norns.screen_save() end

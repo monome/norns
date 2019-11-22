@@ -60,4 +60,41 @@ encoders.process = function(n,d)
   end
 end
 
+
+-- script state
+
+local accel = {true,true,true}
+local sens = {1,1,1}
+
+norns.enc = {}
+norns.enc.accel = function(n,z)
+  if n == 0 then
+    for k=1,3 do
+      accel[k] = z
+    end
+  else
+    accel[n] = z
+  end
+  if(_menu.mode == false) then norns.encoders.set_accel(n,z) end
+end
+
+norns.enc.sens = function(n,s)
+  if n == 0 then
+    for k=1,3 do
+      sens[k] = util.clamp(s,1,16)
+    end
+  else
+    sens[n] = util.clamp(s,1,16)
+  end
+  if(_menu.mode == false) then norns.encoders.set_sens(n,s) end
+end
+
+norns.enc.resume = function()
+  for n=1,3 do
+    norns.encoders.set_accel(n,accel[n])
+    norns.encoders.set_sens(n,sens[n])
+  end
+end
+
+
 return encoders
