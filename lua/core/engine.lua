@@ -96,10 +96,16 @@ Engine.load = function(name, callback)
         Engine.is_loading = false
       end
     end
-    Engine.name = name
-    Engine.is_loading = true
-    _norns.load_engine(name)
-    return true
+
+    if tab.contains(Engine.names, name)==true then
+      Engine.name = name
+      Engine.is_loading = true
+      _norns.load_engine(name)
+      return true
+    else
+      norns.scripterror("missing "..name)
+      return false
+    end
   end
 end
 
