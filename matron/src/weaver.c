@@ -79,6 +79,7 @@ static int _grid_set_rotation(lua_State *l);
 static int _arc_set_led(lua_State *l);
 static int _arc_all_led(lua_State *l);
 static int _monome_refresh(lua_State *l);
+static int _monome_intensity(lua_State *l);
 
 //screen
 static int _screen_update(lua_State *l);
@@ -329,6 +330,7 @@ void w_init(void) {
   lua_register_norns("arc_set_led", &_arc_set_led);
   lua_register_norns("arc_all_led", &_arc_all_led);
   lua_register_norns("monome_refresh", &_monome_refresh);
+  lua_register_norns("monome_intensity", &_monome_intensity);
 
   // register screen funcs
   lua_register_norns("screen_update", &_screen_update);
@@ -1138,6 +1140,21 @@ int _monome_refresh(lua_State *l) {
   luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
   struct dev_monome *md = lua_touserdata(l, 1);
   dev_monome_refresh(md);
+  lua_settop(l, 0);
+  return 0;
+}
+
+/***
+ * monome: intensity
+ * @function monome_intensity
+ * @param dev device
+ */
+int _monome_intensity(lua_State *l) {
+  lua_check_num_args(2);
+  luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+  struct dev_monome *md = lua_touserdata(l, 1);
+  int i = (int) luaL_checkinteger(l, 2); // don't convert value!
+  dev_monome_intensity(md, i);
   lua_settop(l, 0);
   return 0;
 }

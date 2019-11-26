@@ -24,6 +24,7 @@ for i=1,4 do
     all = vport.wrap_method('all'),
     refresh = vport.wrap_method('refresh'),
     rotation = vport.wrap_method('rotation'),
+    intensity = vport.wrap_method('intensity'),
 
     cols = 0,
     rows = 0,
@@ -100,6 +101,11 @@ end
 --- update any dirty quads on this grid device.
 function Grid:refresh()
   _norns.monome_refresh(self.dev)
+end
+
+--- intensity
+function Grid:intensity(i)
+  _norns.monome_intensity(self.dev, i)
 end
 
 --- create device, returns object with handler and send.
