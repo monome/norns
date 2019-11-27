@@ -2,13 +2,17 @@
 
 ## norns 2.2.3
 
--
+- NEW scripts can set encoder sensititivty and accel
+- NEW monome grid device intensity
+- ADD crow.add and crow.remove user callbacks @audionerd
+- FIX missing engine error message reporting
+- FIX wif menu indication
+- FIX system update indication improvements
+- FIX system globals, menu code organization
 
 ## image
 
 - NEW webdav file server
-
-
 
 
 # 191028
