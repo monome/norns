@@ -108,6 +108,12 @@ m.redraw = function()
 end
 
 m.init = function()
+  -- screen enter notification
+  screen.clear()
+  screen.level(4)
+  screen.move(64,40)
+  screen.text_center("scanning...")
+  screen.update()
   wifi.ensure_radio_is_on()
   m.ssid_list = wifi.ssids() or {}
   wifi.update()
