@@ -221,7 +221,7 @@ m.deinit = function()
   _menu.timer:stop()
 end
 
-norns.menu.midi_event = function(data)
+norns.menu_midi_event = function(data)
   if data[1] == 176 then -- cc
     if m.midilearn then
       if params:t(m.pos+1) == params.tCONTROL or params:t(m.pos+1) == params.tTAPER then
