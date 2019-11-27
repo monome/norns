@@ -1,3 +1,5 @@
+local fileselect = require 'fileselect'
+
 local m = {
   pos = 0,
   n = 0,

@@ -30,7 +30,7 @@ cp changelog.txt /home/we/
 
 # webdav
 cp -a webdav /home/we/
-sudo cp webdav.service /etc/systemd/system/
+sudo cp webdav/webdav.service /etc/systemd/system/
 sudo systemctl enable webdav.service
 # maiden project setup
 
