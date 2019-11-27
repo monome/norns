@@ -97,7 +97,7 @@ Engine.load = function(name, callback)
       end
     end
 
-    if tab.contains(Engine.names, name)==true then
+    if #Engine.names==0 or tab.contains(Engine.names, name)==true then
       Engine.name = name
       Engine.is_loading = true
       _norns.load_engine(name)
