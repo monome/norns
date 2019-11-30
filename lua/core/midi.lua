@@ -80,9 +80,9 @@ function Midi.remove(dev) end
 function Midi:send(data)
   if data.type then
     local d = Midi.to_data(data)
-    midi_send(self.dev, d)
+    _norns.midi_send(self.dev, d)
   else
-    midi_send(self.dev, data)
+    _norns.midi_send(self.dev, data)
   end
 end
 
@@ -367,7 +367,7 @@ function Midi.update_devices()
 end
 
 --- add a device.
-norns.midi.add = function(id, name, dev)
+_norns.midi.add = function(id, name, dev)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
   Midi.update_devices()
@@ -375,7 +375,7 @@ norns.midi.add = function(id, name, dev)
 end
 
 --- remove a device.
-norns.midi.remove = function(id)
+_norns.midi.remove = function(id)
   if Midi.devices[id] then
     if Midi.devices[id].remove then
       Midi.devices[id].remove()
@@ -386,7 +386,7 @@ norns.midi.remove = function(id)
 end
 
 --- handle a midi event.
-norns.midi.event = function(id, data)
+_norns.midi.event = function(id, data)
   local d = Midi.devices[id]
 
   if d ~= nil then

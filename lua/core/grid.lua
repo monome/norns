@@ -24,6 +24,7 @@ for i=1,4 do
     all = vport.wrap_method('all'),
     refresh = vport.wrap_method('refresh'),
     rotation = vport.wrap_method('rotation'),
+    intensity = vport.wrap_method('intensity'),
 
     cols = 0,
     rows = 0,
@@ -44,8 +45,8 @@ function Grid.new(id, serial, name, dev)
   g.dev = dev -- opaque pointer
   g.key = nil -- key event callback
   g.remove = nil -- device unplug callback
-  g.rows = grid_rows(dev)
-  g.cols = grid_cols(dev)
+  g.rows = _norns.grid_rows(dev)
+  g.cols = _norns.grid_cols(dev)
   g.port = nil
 
   -- autofill next postiion
@@ -80,7 +81,7 @@ function Grid.remove(dev) end
 -- set grid rotation.
 -- @tparam integer val : rotation 0,90,180,270 as [0, 3]
 function Grid:rotation(val)
-  grid_set_rotation(self.dev, val)
+  _norns.grid_set_rotation(self.dev, val)
 end
 
 --- set state of single LED on this grid device.
@@ -88,18 +89,23 @@ end
 -- @tparam integer y : row index (1-based!)
 -- @tparam integer val : LED brightness in [0, 15]
 function Grid:led(x, y, val)
-  grid_set_led(self.dev, x, y, val)
+  _norns.grid_set_led(self.dev, x, y, val)
 end
 
 --- set state of all LEDs on this grid device.
 -- @tparam integer val : LED brightness in [0, 15]
 function Grid:all(val)
-  grid_all_led(self.dev, val)
+  _norns.grid_all_led(self.dev, val)
 end
 
 --- update any dirty quads on this grid device.
 function Grid:refresh()
-  monome_refresh(self.dev)
+  _norns.monome_refresh(self.dev)
+end
+
+--- intensity
+function Grid:intensity(i)
+  _norns.monome_intensity(self.dev, i)
 end
 
 --- create device, returns object with handler and send.
@@ -146,10 +152,10 @@ function Grid.update_devices()
   end
 end
 
-norns.grid = {}
+_norns.grid = {}
 
 -- grid add
-norns.grid.add = function(id, serial, name, dev)
+_norns.grid.add = function(id, serial, name, dev)
   local g = Grid.new(id,serial,name,dev)
   Grid.devices[id] = g
   Grid.update_devices()
@@ -157,7 +163,7 @@ norns.grid.add = function(id, serial, name, dev)
 end
 
 -- grid remove
-norns.grid.remove = function(id)
+_norns.grid.remove = function(id)
   if Grid.devices[id] then
     if Grid.remove ~= nil then
       Grid.remove(Grid.devices[id])
@@ -171,7 +177,7 @@ norns.grid.remove = function(id)
 end
 
 --- redefine global grid key input handler
-norns.grid.key = function(id, x, y, s)
+_norns.grid.key = function(id, x, y, s)
   local g = Grid.devices[id]
   if g ~= nil then
     if g.key ~= nil then
