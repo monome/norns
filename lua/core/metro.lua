@@ -95,12 +95,12 @@ function Metro:start(time, count, stage)
     if stage then self.init_stage = stage end
   end
   self.is_running = true
-  metro_start(self.props.id, self.props.time, self.props.count, self.props.init_stage) -- C function
+  _norns.metro_start(self.props.id, self.props.time, self.props.count, self.props.init_stage) -- C function
 end
 
 --- stop a metro.
 function Metro:stop()
-  metro_stop(self.props.id) -- C function
+  _norns.metro_stop(self.props.id) -- C function
   self.is_running = false
 end
 
@@ -112,7 +112,7 @@ Metro.__newindex = function(self, idx, val)
     -- this is true even if you are setting time from the metro callback;
     -- metro has already gone to sleep when lua main thread gets
     -- if you need a fully dynamic metro, re-schedule on the wakeup
-    metro_set_time(self.props.id, self.props.time)
+    _norns.metro_set_time(self.props.id, self.props.time)
   elseif idx == 'count' then self.props.count = val
   elseif idx == 'init_stage' then self.props.init_stage = val
   else -- FIXME: dunno if this is even necessary / a good idea to allow
@@ -159,7 +159,7 @@ end
 -- @section globals
 
 --- callback on metro tick from C.
-norns.metro = function(idx, stage)
+_norns.metro = function(idx, stage)
   if Metro.metros[idx] then
     if Metro.metros[idx].event then
       Metro.metros[idx].event(stage)

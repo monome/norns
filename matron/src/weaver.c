@@ -79,6 +79,7 @@ static int _grid_set_rotation(lua_State *l);
 static int _arc_set_led(lua_State *l);
 static int _arc_all_led(lua_State *l);
 static int _monome_refresh(lua_State *l);
+static int _monome_intensity(lua_State *l);
 
 //screen
 static int _screen_update(lua_State *l);
@@ -227,7 +228,7 @@ static int _clock_get_time_beats(lua_State *l);
 static inline void
 _push_norns_func(const char *field, const char *func) {
   // fprintf(stderr, "calling norns.%s.%s\n", field, func);
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, field);
   lua_remove(lvm, -2);
   lua_getfield(lvm, -1, func);
@@ -320,109 +321,108 @@ void w_init(void) {
   // util
   lua_register_norns("system_cmd", &_system_cmd);
 
+  // low-level monome grid control
+  lua_register_norns("grid_set_led", &_grid_set_led);
+  lua_register_norns("grid_all_led", &_grid_all_led);
+  lua_register_norns("grid_rows", &_grid_rows);
+  lua_register_norns("grid_cols", &_grid_cols);
+  lua_register_norns("grid_set_rotation", &_grid_set_rotation);
+  lua_register_norns("arc_set_led", &_arc_set_led);
+  lua_register_norns("arc_all_led", &_arc_all_led);
+  lua_register_norns("monome_refresh", &_monome_refresh);
+  lua_register_norns("monome_intensity", &_monome_intensity);
+
+  // register screen funcs
+  lua_register_norns("screen_update", &_screen_update);
+  lua_register_norns("screen_save", &_screen_save);
+  lua_register_norns("screen_restore", &_screen_restore);
+  lua_register_norns("screen_font_face", &_screen_font_face);
+  lua_register_norns("screen_font_size", &_screen_font_size);
+  lua_register_norns("screen_aa", &_screen_aa);
+  lua_register_norns("screen_level", &_screen_level);
+  lua_register_norns("screen_line_width", &_screen_line_width);
+  lua_register_norns("screen_line_cap", &_screen_line_cap);
+  lua_register_norns("screen_line_join", &_screen_line_join);
+  lua_register_norns("screen_miter_limit", &_screen_miter_limit);
+  lua_register_norns("screen_move", &_screen_move);
+  lua_register_norns("screen_line", &_screen_line);
+  lua_register_norns("screen_move_rel", &_screen_move_rel);
+  lua_register_norns("screen_line_rel", &_screen_line_rel);
+  lua_register_norns("screen_curve", &_screen_curve);
+  lua_register_norns("screen_curve_rel", &_screen_curve_rel);
+  lua_register_norns("screen_arc", &_screen_arc);
+  lua_register_norns("screen_rect", &_screen_rect);
+  lua_register_norns("screen_stroke", &_screen_stroke);
+  lua_register_norns("screen_fill", &_screen_fill);
+  lua_register_norns("screen_text", &_screen_text);
+  lua_register_norns("screen_clear", &_screen_clear);
+  lua_register_norns("screen_close", &_screen_close);
+  lua_register_norns("screen_extents", &_screen_extents);
+  lua_register_norns("screen_export_png", &_screen_export_png);
+  lua_register_norns("screen_display_png", &_screen_display_png);
+
+  // analog output control
+  lua_register_norns("gain_hp", &_gain_hp);
+
+  // osc
+  lua_register_norns("osc_send", &_osc_send);
+  lua_register_norns("osc_send_crone", &_osc_send_crone);
+
+  // midi
+  lua_register_norns("midi_send", &_midi_send);
+
+    // get list of available crone engines
+  lua_register_norns("report_engines", &_request_engine_report);
+  // load a named engine
+  lua_register_norns("load_engine", &_load_engine);
+  // free engine
+  lua_register_norns("free_engine", &_free_engine);
+
+  // send an indexed command
+  lua_register_norns("send_command", &_send_command);
+
+  // start/stop an indexed metro with callback
+  lua_register_norns("metro_start", &_metro_start);
+  lua_register_norns("metro_stop", &_metro_stop);
+  lua_register_norns("metro_set_time", &_metro_set_time);
+
+  // get the current high-resolution CPU time
+  lua_register_norns("get_time", &_get_time);
+  // usleep!
+  lua_register_norns("usleep", &_micro_sleep);
+
+  // start / stop a poll
+  lua_register_norns("start_poll", &_start_poll);
+  lua_register_norns("stop_poll", &_stop_poll);
+  lua_register_norns("set_poll_time", &_set_poll_time);
+  lua_register_norns("request_poll_value", &_request_poll_value);
+
+  // audio context controls
+  lua_register_norns("audio_pitch_on", &_set_audio_pitch_on);
+  lua_register_norns("audio_pitch_off", &_set_audio_pitch_off);
+
+  // start audio (query for sclang readiness)
+  lua_register_norns("start_audio", &_start_audio);
+  // restart the audio process (recompile sclang)
+  lua_register_norns("restart_audio", &_restart_audio);
+
+  // returns channels, frames, samplerate
+  lua_register_norns("sound_file_inspect", &_sound_file_inspect);
+
+  // reset LVM
+  lua_register_norns("reset_lvm", &_reset_lvm);
+
+  // clock
+  lua_register_norns("clock_schedule_sleep", &_clock_schedule_sleep);
+  lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
+  lua_register_norns("clock_cancel", &_clock_cancel);
+  lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
+  lua_register_norns("clock_set_source", &_clock_set_source);
+  lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
+
   // name global extern table
   lua_setglobal(lvm, "_norns");
 
-
-  // TODO: GET THESE INTO _norns TABLE
-
-  // low-level monome grid control
-  lua_register(lvm, "grid_set_led", &_grid_set_led);
-  lua_register(lvm, "grid_all_led", &_grid_all_led);
-  lua_register(lvm, "grid_rows", &_grid_rows);
-  lua_register(lvm, "grid_cols", &_grid_cols);
-  lua_register(lvm, "grid_set_rotation", &_grid_set_rotation);
-  lua_register(lvm, "arc_set_led", &_arc_set_led);
-  lua_register(lvm, "arc_all_led", &_arc_all_led);
-  lua_register(lvm, "monome_refresh", &_monome_refresh);
-
-  // register screen funcs
-  lua_register(lvm, "s_update", &_screen_update);
-  lua_register(lvm, "s_save", &_screen_save);
-  lua_register(lvm, "s_restore", &_screen_restore);
-  lua_register(lvm, "s_font_face", &_screen_font_face);
-  lua_register(lvm, "s_font_size", &_screen_font_size);
-  lua_register(lvm, "s_aa", &_screen_aa);
-  lua_register(lvm, "s_level", &_screen_level);
-  lua_register(lvm, "s_line_width", &_screen_line_width);
-  lua_register(lvm, "s_line_cap", &_screen_line_cap);
-  lua_register(lvm, "s_line_join", &_screen_line_join);
-  lua_register(lvm, "s_miter_limit", &_screen_miter_limit);
-  lua_register(lvm, "s_move", &_screen_move);
-  lua_register(lvm, "s_line", &_screen_line);
-  lua_register(lvm, "s_move_rel", &_screen_move_rel);
-  lua_register(lvm, "s_line_rel", &_screen_line_rel);
-  lua_register(lvm, "s_curve", &_screen_curve);
-  lua_register(lvm, "s_curve_rel", &_screen_curve_rel);
-  lua_register(lvm, "s_arc", &_screen_arc);
-  lua_register(lvm, "s_rect", &_screen_rect);
-  lua_register(lvm, "s_stroke", &_screen_stroke);
-  lua_register(lvm, "s_fill", &_screen_fill);
-  lua_register(lvm, "s_text", &_screen_text);
-  lua_register(lvm, "s_clear", &_screen_clear);
-  lua_register(lvm, "s_close", &_screen_close);
-  lua_register(lvm, "s_extents", &_screen_extents);
-  lua_register(lvm, "s_export_png", &_screen_export_png);
-  lua_register(lvm, "s_display_png", &_screen_display_png);
-
-  // analog output control
-  lua_register(lvm, "gain_hp", &_gain_hp);
-
-  // osc
-  lua_register(lvm, "osc_send", &_osc_send);
-  lua_register(lvm, "osc_send_crone", &_osc_send_crone);
-
-  // midi
-  lua_register(lvm, "midi_send", &_midi_send);
-
-    // get list of available crone engines
-  lua_register(lvm, "report_engines", &_request_engine_report);
-  // load a named engine
-  lua_register(lvm, "load_engine", &_load_engine);
-  // free engine
-  lua_register(lvm, "free_engine", &_free_engine);
-
-  // send an indexed command
-  lua_register(lvm, "send_command", &_send_command);
-
-  // start/stop an indexed metro with callback
-  lua_register(lvm, "metro_start", &_metro_start);
-  lua_register(lvm, "metro_stop", &_metro_stop);
-  lua_register(lvm, "metro_set_time", &_metro_set_time);
-
-  // get the current high-resolution CPU time
-  lua_register(lvm, "get_time", &_get_time);
-  // usleep!
-  lua_register(lvm, "usleep", &_micro_sleep);
-
-  // start / stop a poll
-  lua_register(lvm, "start_poll", &_start_poll);
-  lua_register(lvm, "stop_poll", &_stop_poll);
-  lua_register(lvm, "set_poll_time", &_set_poll_time);
-  lua_register(lvm, "request_poll_value", &_request_poll_value);
-
-  // audio context controls
-  lua_register(lvm, "audio_pitch_on", &_set_audio_pitch_on);
-  lua_register(lvm, "audio_pitch_off", &_set_audio_pitch_off);
-
-  // start audio (query for sclang readiness)
-  lua_register(lvm, "start_audio", &_start_audio);
-  // restart the audio process (recompile sclang)
-  lua_register(lvm, "restart_audio", &_restart_audio);
-
-  // returns channels, frames, samplerate
-  lua_register(lvm, "sound_file_inspect", &_sound_file_inspect);
-
-  // reset LVM
-  lua_register(lvm, "_reset_lvm", &_reset_lvm);
-
-  // clock
-  lua_register(lvm, "_clock_schedule_sleep", &_clock_schedule_sleep);
-  lua_register(lvm, "_clock_schedule_sync", &_clock_schedule_sync);
-  lua_register(lvm, "_clock_cancel", &_clock_cancel);
-  lua_register(lvm, "_clock_internal_set_tempo", &_clock_internal_set_tempo);
-  lua_register(lvm, "_clock_set_source", &_clock_set_source);
-  lua_register(lvm, "_clock_get_time_beats", &_clock_get_time_beats);
 
   // run system init code
   char *config = getenv("NORNS_CONFIG");
@@ -1145,6 +1145,21 @@ int _monome_refresh(lua_State *l) {
 }
 
 /***
+ * monome: intensity
+ * @function monome_intensity
+ * @param dev device
+ */
+int _monome_intensity(lua_State *l) {
+  lua_check_num_args(2);
+  luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+  struct dev_monome *md = lua_touserdata(l, 1);
+  int i = (int) luaL_checkinteger(l, 2); // don't convert value!
+  dev_monome_intensity(md, i);
+  lua_settop(l, 0);
+  return 0;
+}
+
+/***
  * grid: rows
  * @function grid_rows
  * @param dev grid device
@@ -1732,7 +1747,7 @@ void w_handle_engine_loaded() {
 
 // metro handler
 void w_handle_metro(const int idx, const int stage) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "metro");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1);   // convert to 1-based
@@ -1751,7 +1766,7 @@ void w_handle_clock_resume(const int coro_id) {
 
 // gpio handler
 void w_handle_key(const int n, const int val) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "key");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, n);
@@ -1761,7 +1776,7 @@ void w_handle_key(const int n, const int val) {
 
 // gpio handler
 void w_handle_enc(const int n, const int delta) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "enc");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, n);
@@ -1771,7 +1786,7 @@ void w_handle_enc(const int n, const int delta) {
 
 // system/battery
 void w_handle_battery(const int percent, const int current) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "battery");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, percent);
@@ -1781,7 +1796,7 @@ void w_handle_battery(const int percent, const int current) {
 
 // system/power
 void w_handle_power(const int present) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "power");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, present);
@@ -1790,7 +1805,7 @@ void w_handle_power(const int present) {
 
 // stat
 void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "stat");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, disk);
@@ -1801,7 +1816,7 @@ void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu)
 
 void w_handle_poll_value(int idx, float val) {
   // fprintf(stderr, "_handle_poll_value: %d, %f\n", idx, val);
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1); // convert to 1-base
@@ -1810,7 +1825,7 @@ void w_handle_poll_value(int idx, float val) {
 }
 
 void w_handle_poll_data(int idx, int size, uint8_t *data) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "poll");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1); // convert index to 1-based
@@ -1830,7 +1845,7 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
 
 // argument is an array of 4 bytes
 void w_handle_poll_io_levels(uint8_t *levels) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "vu");
   lua_remove(lvm, -2);
   for(int i = 0; i < 4; ++i) {
@@ -1841,7 +1856,7 @@ void w_handle_poll_io_levels(uint8_t *levels) {
 
 void w_handle_poll_softcut_phase(int idx, float val) {
   //fprintf(stderr, "_handle_poll_softcut_phase: %d, %f\n", idx, val);
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "softcut_phase");
   lua_remove(lvm, -2);
   lua_pushinteger(lvm, idx + 1);
@@ -1851,7 +1866,7 @@ void w_handle_poll_softcut_phase(int idx, float val) {
 
 // handle system command capture
 void w_handle_system_cmd(char *capture) {
-  lua_getglobal(lvm, "norns");
+  lua_getglobal(lvm, "_norns");
   lua_getfield(lvm, -1, "system_cmd_capture");
   lua_remove(lvm, -2);
   lua_pushstring(lvm, capture);
