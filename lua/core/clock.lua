@@ -60,9 +60,9 @@ clock.resume = function(coro_id)
 
   if coroutine.status(coro) ~= "dead" and result and mode ~= nil then
     if mode == SLEEP then
-      _clock_schedule_sleep(coro_id, time)
+      _norns.clock_schedule_sleep(coro_id, time)
     else
-      _clock_schedule_sync(coro_id, time)
+      _norns.clock_schedule_sync(coro_id, time)
     end
   end
 end
@@ -70,7 +70,7 @@ end
 --- stop execution of a coroutine started using clock.run.
 -- @tparam integer coro_id : coroutine ID
 clock.stop = function(coro_id)
-  _clock_cancel(coro_id)
+  _norns.clock_cancel(coro_id)
   clock.threads[coro_id] = nil
 end
 
@@ -89,11 +89,11 @@ clock.MIDI = 1
 --- select the sync source, currently clock.INTERNAL and clock.MIDI.
 -- @tparam integer source : clock.INTERNAL (0) or clock.MIDI (1)
 clock.set_source = function(source)
-  _clock_set_source(source)
+  _norns.clock_set_source(source)
 end
 
 clock.get_time_beats = function()
-  return _clock_get_time_beats()
+  return _norns.clock_get_time_beats()
 end
 
 return clock

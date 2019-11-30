@@ -7,7 +7,7 @@ local Audio = {}
 --- set headphone gain.
 -- @param gain (0-64)
 Audio.headphone_gain = function(gain)
-  gain_hp(gain)
+  _norns.gain_hp(gain)
 end
 
 --- set level for ADC input.
@@ -58,17 +58,17 @@ end
 
 --- enable input pitch analysis.
 Audio.pitch_on = function()
-  audio_pitch_on()
+  _norns.audio_pitch_on()
 end
 
 --- disable input pitch analysis (saves CPU).
 Audio.pitch_off = function()
-  audio_pitch_off()
+  _norns.audio_pitch_off()
 end
 
 --- restart the audio engine (recompile sclang).
 Audio.restart = function()
-   restart_audio()
+   _norns.restart_audio()
 end
 
 
@@ -248,7 +248,7 @@ end
 function Audio.file_info(path)
   -- dur, ch, rate
   --print("file_info: " .. path)
-  return sound_file_inspect(path)
+  return _norns.sound_file_inspect(path)
 end
 
 

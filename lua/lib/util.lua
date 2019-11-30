@@ -13,7 +13,7 @@ end
 --- get system time in s+us.
 -- @return time
 util.time = function()
-  local us,s = get_time()
+  local us,s = _norns.get_time()
   return us + s/1000000
 end
 

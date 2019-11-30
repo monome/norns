@@ -28,6 +28,12 @@ cp changelog.txt /home/we/
 #rm -rf /home/we/.local/share/SuperCollider/Extensions/*
 #./install.sh
 
+# webdav
+cp -a webdav /home/we/
+sudo cp webdav/webdav.service /etc/systemd/system/
+sudo systemctl enable webdav.service
 # maiden project setup
+
 cd /home/we/maiden
 ./project-setup.sh
+

@@ -179,7 +179,7 @@ SC.buffer_write_stereo = function(file, start, dur)
 end
 
 --- set function for phase poll
-SC.event_phase = function(f) norns.softcut_phase = f end
+SC.event_phase = function(f) _norns.softcut_phase = f end
 
 
 -------------------------------
