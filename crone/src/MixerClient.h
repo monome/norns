@@ -11,7 +11,7 @@
 #include "Client.h"
 #include "Tape.h"
 #include "Utilities.h"
-#include "WindowedPeak.h"
+#include "PeakMeter.h"
 
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
@@ -112,8 +112,8 @@ namespace  crone {
         EnabledList enabled;
 
 
-        WindowedPeak inPeak[2];
-        WindowedPeak outPeak[2];
+        PeakMeter inPeak[2];
+        PeakMeter outPeak[2];
 
     public:
         float getInputPeak(int ch) {
