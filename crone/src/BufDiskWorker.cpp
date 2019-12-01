@@ -60,20 +60,22 @@ void BufDiskWorker::workLoop() {
                 case JobType::Clear:
                     break;
                 case JobType::ReadMono:
-                    readBufferMono(job.path, bufs[job.bufIdx[0]],
-                            job.startSrc, job.startDst, job.dur, job.chan);
+		    std::cerr << "BufDiskWorker handling ReadMono event; path = " << job.path
+			      << "; startSrc = " << job.startSrc
+			      << "; startDst = " << job.startDst
+			      << "; dur = " << job.dur
+			      << "; chanSrc = " << job.chan
+			      << std::endl;
+                    readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
                     break;
                 case JobType::ReadStereo:
-                    readBufferStereo(job.path, bufs[job.bufIdx[0]],  bufs[job.bufIdx[0]],
-                            job.startSrc, job.startDst, job.dur);
+                    readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur);
                     break;
                 case JobType::WriteMono:
-                    writeBufferMono(job.path, bufs[job.bufIdx[0]],
-                                   job.startSrc, job.dur);
+                    writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
                     break;
                 case JobType::WriteStereo:
-                    writeBufferStereo(job.path, bufs[job.bufIdx[0]],  bufs[job.bufIdx[0]],
-                                     job.startSrc, job.dur);
+                    writeBufferStereo(job.path, bufs[job.bufIdx[0]],  bufs[job.bufIdx[1]], job.startSrc, job.dur);
                     break;
             }
         } else {
@@ -86,6 +88,7 @@ void BufDiskWorker::init(int sr) {
     sampleRate = sr;
     if (worker == nullptr) {
         worker = std::make_unique<std::thread>(std::thread(BufDiskWorker::workLoop));
+        worker->detach();
     }
 }
 
@@ -145,6 +148,7 @@ void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
     auto numSrcChan = file.channels();
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
     chanSrc = std::min(numSrcChan - 1, std::max(0, chanSrc));
+    std::cerr << "reading soundfile channel " << chanSrc << std::endl;
 
     for (size_t fr = 0; fr < frDur; ++fr) {
         file.seek(frSrc, SEEK_SET);

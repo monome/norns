@@ -5,12 +5,15 @@
 #ifndef CRONE_CUTCLIENT_H
 #define CRONE_CUTCLIENT_H
 
+#include <iostream>
+
 #include "BufDiskWorker.h"
 #include "Bus.h"
 #include "Client.h"
 #include "Utilities.h"
 #include "softcut/SoftCut.h"
 #include "softcut/Types.h"
+
 
 namespace crone {
     class SoftCutClient: public Client<2, 2> {

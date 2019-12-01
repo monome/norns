@@ -586,7 +586,7 @@ void OscInterface::addServerMethods() {
             chanDst = argv[5]->i;
         }
         const char *str = &argv[0]->s;
-        //softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst);
+        softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst);
 
     });
 
