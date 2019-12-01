@@ -4,6 +4,7 @@
 
 #include <sndfile.hh>
 #include <iostream>
+#include <utility>
 #include "BufWorker.h"
 
 // clamp unsigned int to upper bound, inclusive
@@ -26,23 +27,23 @@ int BufWorker::registerBuffer(float *data, size_t frames) {
     return n;
 }
 
-void BufWorker::requestReadMono(int idx, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::ReadMono, {idx, idx}, path, start, dur};
+void BufWorker::requestReadMono(size_t idx, std::string path, float start, float dur) {
+    BufWorker::Work work{BufWorker::WorkType::ReadMono, {idx, idx}, std::move(path), start, dur};
     workQ.push(work);
 }
 
-void BufWorker::requestReadStereo(int idx0, int idx1, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::ReadStereo, {idx0, idx1}, path, start, dur};
+void BufWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
+    BufWorker::Work work{BufWorker::WorkType::ReadStereo, {idx0, idx1}, std::move(path), start, dur};
     workQ.push(work);
 }
 
-void BufWorker::requestWriteMono(int idx, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::WriteMono, {idx, idx}, path, start, dur};
+void BufWorker::requestWriteMono(size_t idx, std::string path, float start, float dur) {
+    BufWorker::Work work{BufWorker::WorkType::WriteMono, {idx, idx}, std::move(path), start, dur};
     workQ.push(work);
 }
 
-void BufWorker::requestWriteStereo(int idx0, int idx1, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::WriteStereo, {idx0, idx1}, path, start, dur};
+void BufWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
+    BufWorker::Work work{BufWorker::WorkType::WriteStereo, {idx0, idx1}, std::move(path), start, dur};
     workQ.push(work);
 }
 
@@ -53,9 +54,10 @@ void BufWorker::workLoop() {
             Work work;
             workQ.pop(&work);
             switch (work.type) {
+                case WorkType::Clear:
+                    break;
                 case WorkType::ReadMono:
-                    data = bufs[work.bufIdx].data;
-                    frames =
+                    readBufferMono(bufs[work.bufIdx], work.path, work.start, work.dur);
                     break;
                 case WorkType::ReadStereo:
                     break;
@@ -82,6 +84,23 @@ int BufWorker::secToFrame(float seconds) {
 
 //////////////////
 
+
+
+void BufWorker::clearBuffer(int idx, float start, float dur) {
+    BufDesc& buf = bufs[idx];
+    size_t frA = secToFrame(start);
+    clamp(frA, buf.frames - 1);
+    size_t frB;
+    if (dur < 0) {
+        frB = buf.frames;
+    } else {
+        frB = frA + secToFrame(dur);
+    }
+    clamp(frB, buf.frames);
+    for (size_t i = frA; i < frB; ++i) {
+        buf.data[i] = 0.f;
+    }
+}
 
 void BufWorker::readBufferMono(std::string path, BufDesc &buf,
                                float startSrc, float startDst, float dur, int chanSrc) {
@@ -110,7 +129,6 @@ void BufWorker::readBufferMono(std::string path, BufDesc &buf,
         frDur = secToFrame(dur);
     }
 
-
     // FIXME: perform the seek in blocks!
     auto numSrcChan = file.channels();
     std::unique_ptr<float[]> frBuf(new float[numSrcChan]);
@@ -127,6 +145,7 @@ void BufWorker::readBufferMono(std::string path, BufDesc &buf,
         }
     }
 }
+
 
 //void BufWorker::readBufferStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
 //    SndfileHandle file(path);

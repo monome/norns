@@ -23,7 +23,7 @@ namespace crone {
         };
         struct Work {
             WorkType type;
-            int bufIdx[2];
+            size_t bufIdx[2];
             std::string path;
             float start;
             float dur;
@@ -51,17 +51,20 @@ namespace crone {
         // returns index to be used in work requests
         static int registerBuffer(float *data, size_t frames);
 
+        // clear a portion of a mono buffer
+        static void clearBuffer(int idx, float start=0, float dur=-1);
+
         // read mono soundfile to mono buffer
-        static void requestReadMono(int idx, std::string path, float start = 0, float dur = -1);
+        static void requestReadMono(size_t idx, std::string path, float start = 0, float dur = -1);
 
         // read and de-interleave stereo soundfile to 2x mono buffers
-        static void requestReadStereo(int idx0, int idx1, std::string path, float start = 0, float dur = -1);
+        static void requestReadStereo(size_t idx0, size_t idx1, std::string path, float start = 0, float dur = -1);
 
         // write mono buf to mono soundfile
-        static void requestWriteMono(int idx, std::string path, float start = 0, float dur = -1);
+        static void requestWriteMono(size_t idx, std::string path, float start = 0, float dur = -1);
 
         // write and interleave two mono buffers to one stereo file
-        static void requestWriteStereo(int idx0, int idx1, std::string path, float start = 0, float dur = -1);
+        static void requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start = 0, float dur = -1);
 
     private:
         static void workLoop();

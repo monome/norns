@@ -28,6 +28,8 @@ namespace crone {
         softcut::SoftCut<NumVoices> cut;
         // main buffer
         float buf[2][BufFrames];
+        // buffer index for use with BufWorker
+        int bufIdx[2];
         // busses
         StereoBus mix;
         MonoBus input[NumVoices];
@@ -53,18 +55,20 @@ namespace crone {
         /// should be able to refactor most/all parameters for atomic access.
         // called from audio thread
         void handleCommand(Commands::CommandPacket *p) override;
+
         // these accessors can be called from other threads, so don't need to go through the commands queue
         //-- buffer manipulation
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears/writes as much as possible.
-        void readBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-                            float dur = -1.f,
-                            int chanSrc = 0, int chanDst = 0);
-        void readBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-                              float dur = -1.f);
-        void clearBuffer(int bufIdx, float startTime=0.f, float dur=-1);
-        void writeBufferMono(const std::string &path, float start, float dur, int chan);
-        void writeBufferStereo(const std::string &path, float start, float dur);
+//        void readBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
+//                            float dur = -1.f,
+//                            int chanSrc = 0, int chanDst = 0);
+//        void readBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
+//                              float dur = -1.f);
+//        void clearBuffer(int bufIdx, float startTime=0.f, float dur=-1);
+//        void writeBufferMono(const std::string &path, float start, float dur, int chan);
+//        void writeBufferStereo(const std::string &path, float start, float dur);
+
         // check if quantized phase has changed for a given voice
         // returns true
         bool checkVoiceQuantPhase(int i) {
