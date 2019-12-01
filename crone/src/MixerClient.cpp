@@ -61,8 +61,11 @@ void MixerClient::process(jack_nframes_t numFrames) {
         tape.writer.process(src, numFrames);
     }
 
-    // update VU
-    vuLevels.update(bus.adc_source, bus.dac_sink, numFrames);
+    // update peak meters
+    inPeak[0].update(bus.adc_source.buf[0], numFrames);
+    inPeak[1].update(bus.adc_source.buf[1], numFrames);
+    outPeak[0].update(bus.dac_sink.buf[0], numFrames);
+    outPeak[1].update(bus.dac_sink.buf[1], numFrames);
 }
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
@@ -71,7 +74,6 @@ void MixerClient::setSampleRate(jack_nframes_t sr) {
     reverb.init(sr);
     setFxDefaults();
 }
-
 
 void MixerClient::processFx(size_t numFrames) {
     // FIXME: current faust architecture needs stupid pointer arrays.
@@ -261,23 +263,4 @@ void MixerClient::setFxDefaults() {
   reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
   reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
   reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
-}
-
-void MixerClient::VuLevels::clear() {
-    for(int i=0; i<2; ++i) {
-        absPeakIn[i] = 0.f;
-        absPeakOut[i] = 0.f;
-    }
-}
-
-void MixerClient::VuLevels::update(MixerClient::StereoBus &in, MixerClient::StereoBus &out, size_t numFrames) {
-    float f;
-    for (size_t fr=0; fr<numFrames; ++fr) {
-        for(int ch=0; ch<2; ++ch) {
-            f = fabsf(in.buf[ch][fr]);
-            if (f > absPeakIn[ch]) { absPeakIn[ch] = f; }
-            f = fabsf(out.buf[ch][fr]);
-            if (f > absPeakOut[ch]) { absPeakOut[ch] = f; }
-        }
-    }
 }

@@ -20,17 +20,17 @@ namespace crone {
     }
 #endif
 
-// convert a time-to-convergence to a pole coefficient
-// "ref" argument defines the amount of convergence
-// target ratio is e^ref.
-// -6.9 corresponds to standard -60db convergence
+    // convert a time-to-convergence to a pole coefficient
+    // "ref" argument defines the amount of convergence
+    // target ratio is e^ref.
+    // -6.9 corresponds to standard -60db convergence
     static float tau2pole(float t, float sr, float ref = -6.9) {
         return exp(ref / (t * sr));
     }
 
-// one-pole lowpass smoother
-// define this here for a consistent interpretation of pole coefficient
-// we use faust's definition where b=0 is instant, b in [0, 1)
+    // one-pole lowpass smoother
+    // define this here for a consistent interpretation of pole coefficient
+    // we use faust's definition where b=0 is instant, b in [0, 1)
     static float smooth1pole(float x, float x0, float b) {
         // return x * (1.f - b) + b * x0;f
         // refactored
@@ -48,7 +48,7 @@ namespace crone {
 #endif
 
     template<typename T, size_t size>
-    class RunningAverage {
+	class RunningAverage {
     private:
         // history
         std::array<T, size> values;
@@ -116,8 +116,8 @@ namespace crone {
             calcInc();
         }
 
-        LinearRamp(float sr, float t = 0.0001) :
-                sampleRate(sr), target(0.f), val(0.f), rising(false) {
+    LinearRamp(float sr, float t = 0.0001) :
+	sampleRate(sr), target(0.f), val(0.f), rising(false) {
             setTime(t);
         }
 
@@ -137,7 +137,7 @@ namespace crone {
         }
     };
 
-// logarithmic interpolator (aka 1-pole LPF)
+    // logarithmic interpolator (aka 1-pole LPF)
     class LogRamp {
         float sampleRate;
         float time;
@@ -187,8 +187,8 @@ namespace crone {
 
     };
 
-// a smoother with separate rise and fall times
-// "ye olde AFG"
+    // a smoother with separate rise and fall times
+    // "ye olde AFG"
     class Slew {
     private:
         float sampleRate;
@@ -198,8 +198,8 @@ namespace crone {
         float tR;
         float tF;
     public:
-        Slew(float sr, float rise = 0.2, float fall = 0.2) :
-            sampleRate(sr), x0(0.f) {
+    Slew(float sr, float rise = 0.2, float fall = 0.2) :
+	sampleRate(sr), x0(0.f) {
             setRiseTime(rise);
             setFallTime(fall);
         }
@@ -229,25 +229,28 @@ namespace crone {
         }
     };
 
-}
+    
 
-// simple lookup table class
-template<typename T>
-class LUT {
-public:
-    // look up a value from a table with normalized position
-    // warning: no bounds checking on position!
-    // must be in [0, 1] or you get garbage.
-    static T lookupLinear(float x, const T* tab, unsigned int size) {
-	const unsigned int size_1 = size-1;
-	const float fidx = x * size_1;
-	const unsigned int idx = static_cast<unsigned int>(fidx);
-	if (idx >= size_1) {
-	    return tab[size_1];
+    // simple lookup table class
+    template<typename T>
+	class LUT {
+    public:
+	// look up a value from a table with normalized position
+	// warning: no bounds checking on position!
+	// must be in [0, 1] or you get garbage.
+	static T lookupLinear(float x, const T* tab, unsigned int size) {
+	    const unsigned int size_1 = size-1;
+	    const float fidx = x * size_1;
+	    const unsigned int idx = static_cast<unsigned int>(fidx);
+	    if (idx >= size_1) {
+		return tab[size_1];
+	    }
+	    const float a = tab[idx];
+	    const float b = tab[idx+1];
+	    const float f = fidx - static_cast<float>(idx);
+	    return a + (b-a)*f;
 	}
-	const float a = tab[idx];
-	const float b = tab[idx+1];
-	const float f = fidx - static_cast<float>(idx);
-	return a + (b-1)*f;
-    }
-};
+    };
+
+ 
+}

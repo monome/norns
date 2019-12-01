@@ -26,6 +26,7 @@ set (SRC src/main.cpp
         src/Poll.h
         src/Taper.cpp
         src/Window.cpp
+        src/WindowedPeak.h
         )
 
 add_executable(crone ${SRC})
