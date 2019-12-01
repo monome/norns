@@ -147,6 +147,8 @@ _menu.set_mode = function(mode)
     if _menu.mode == true then _norns.screen_restore() end
     _menu.mode = false
     m[_menu.page].deinit()
+    screen.clear()
+    screen.update()
     redraw = norns.script.redraw
     _menu.key = key
     norns.encoders.callback = enc
