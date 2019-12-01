@@ -62,8 +62,9 @@ namespace crone {
         // returns index to be used in work requests
         static int registerBuffer(float *data, size_t frames);
 
+
         // clear a portion of a mono buffer
-        static void clearBuffer(int idx, float start=0, float dur=-1);
+        static void requestClear(size_t idx, float start=0, float dur=-1);
 
         // read mono soundfile to mono buffer
         static void requestReadMono(size_t idx, std::string path, float startSrc = 0, float startDst=0, float dur = -1, int chanSrc=0);
@@ -79,6 +80,9 @@ namespace crone {
 
     private:
         static void workLoop();
+
+        static void clearBuffer(BufDesc &buf, float start=0, float dur=-1);
+
         static void readBufferMono(const std::string &path, BufDesc &buf,
                 float startSrc=0, float startDst=0, float dur=-1, int chanSrc=0);
 

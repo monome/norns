@@ -65,22 +65,27 @@ namespace crone {
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears/writes as much as possible.
         void readBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-                            float dur = -1.f,
-                            int chanSrc = 0, int chanDst = 0) {
+                            float dur = -1.f, int chanSrc = 0, int chanDst = 0) {
             BufDiskWorker::requestReadMono(bufIdx[chanDst], path, startTimeSrc, startTimeDst, dur, chanSrc);
         }
+
         void readBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
                               float dur = -1.f) {
+            BufDiskWorker::requestReadStereo(bufIdx[0], bufIdx[1], path, startTimeSrc, startTimeDst, dur);
+        }
 
-        }
-        void clearBuffer(int bufIdx, float startTime=0.f, float dur=-1) {
-// TODO
-        }
         void writeBufferMono(const std::string &path, float start, float dur, int chan) {
+            BufDiskWorker::requestWriteMono(bufIdx[chan], path, start, dur);
 
         }
-        void writeBufferStereo(const std::string &path, float start, float dur) {
 
+        void writeBufferStereo(const std::string &path, float start, float dur) {
+            BufDiskWorker::requestWriteStereo(bufIdx[0], bufIdx[1], path, start, dur);
+        }
+
+        void clearBuffer(int chan, float start=0.f, float dur=-1) {
+            if (chan < 0 || chan > 1) { return; }
+            BufDiskWorker::requestClear(bufIdx[chan], start, dur);
         }
 
         // check if quantized phase has changed for a given voice
