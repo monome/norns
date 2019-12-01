@@ -5,8 +5,9 @@
 #ifndef CRONE_CUTCLIENT_H
 #define CRONE_CUTCLIENT_H
 
-#include "Client.h"
+#include "BufDiskWorker.h"
 #include "Bus.h"
+#include "Client.h"
 #include "Utilities.h"
 #include "softcut/SoftCut.h"
 #include "softcut/Types.h"
@@ -28,7 +29,7 @@ namespace crone {
         softcut::SoftCut<NumVoices> cut;
         // main buffer
         float buf[2][BufFrames];
-        // buffer index for use with BufWorker
+        // buffer index for use with BufDiskWorker
         int bufIdx[2];
         // busses
         StereoBus mix;
@@ -60,14 +61,24 @@ namespace crone {
         //-- buffer manipulation
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears/writes as much as possible.
-//        void readBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-//                            float dur = -1.f,
-//                            int chanSrc = 0, int chanDst = 0);
-//        void readBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-//                              float dur = -1.f);
-//        void clearBuffer(int bufIdx, float startTime=0.f, float dur=-1);
-//        void writeBufferMono(const std::string &path, float start, float dur, int chan);
-//        void writeBufferStereo(const std::string &path, float start, float dur);
+        void readBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
+                            float dur = -1.f,
+                            int chanSrc = 0, int chanDst = 0) {
+            BufDiskWorker::requestReadMono(bufIdx[chanDst], path, startTimeSrc, startTimeDst, dur, chanSrc);
+        }
+        void readBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
+                              float dur = -1.f) {
+
+        }
+        void clearBuffer(int bufIdx, float startTime=0.f, float dur=-1) {
+// TODO
+        }
+        void writeBufferMono(const std::string &path, float start, float dur, int chan) {
+
+        }
+        void writeBufferStereo(const std::string &path, float start, float dur) {
+
+        }
 
         // check if quantized phase has changed for a given voice
         // returns true

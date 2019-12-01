@@ -5,65 +5,75 @@
 #include <sndfile.hh>
 #include <iostream>
 #include <utility>
-#include "BufWorker.h"
+#include "BufDiskWorker.h"
+
+using namespace crone;
+
+std::unique_ptr<std::thread> BufDiskWorker::worker = nullptr;
+boost::lockfree::spsc_queue<BufDiskWorker::Job> BufDiskWorker::jobQ(BufDiskWorker::maxJobs);
+std::array<BufDiskWorker::BufDesc, BufDiskWorker::maxBufs> BufDiskWorker::bufs;
+int BufDiskWorker::numBufs = 0;
+bool BufDiskWorker::shouldQuit = false;
+int BufDiskWorker::sampleRate = 48000;
+
 
 // clamp unsigned int to upper bound, inclusive
 static inline void clamp(size_t &x, const size_t a) {
     if (x > a) { x = a; }
 }
 
-using namespace crone;
 
-std::thread worker;
-boost::lockfree::spsc_queue<BufWorker::Work> BufWorker::workQ;
-std::array<BufWorker::BufDesc, BufWorker::maxBufs> BufWorker::bufs;
-int BufWorker::numBufs = 0;
-bool BufWorker::shouldQuit = false;
-
-int BufWorker::registerBuffer(float *data, size_t frames) {
+int BufDiskWorker::registerBuffer(float *data, size_t frames) {
     int n = numBufs++;
     bufs[n].data = data;
     bufs[n].frames = frames;
     return n;
 }
 
-void BufWorker::requestReadMono(size_t idx, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::ReadMono, {idx, idx}, std::move(path), start, dur};
-    workQ.push(work);
+void BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur, chanSrc};
+    jobQ.push(job);
 }
 
-void BufWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::ReadStereo, {idx0, idx1}, std::move(path), start, dur};
-    workQ.push(work);
+void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc, float startDst, float dur) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::ReadStereo, {idx0, idx1}, std::move(path), startSrc, startDst, dur, 0};
+    jobQ.push(job);
 }
 
-void BufWorker::requestWriteMono(size_t idx, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::WriteMono, {idx, idx}, std::move(path), start, dur};
-    workQ.push(work);
+void BufDiskWorker::requestWriteMono(size_t idx, std::string path, float start, float dur) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::WriteMono, {idx, 0}, std::move(path), start, start, dur, 0};
+    jobQ.push(job);
 }
 
-void BufWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
-    BufWorker::Work work{BufWorker::WorkType::WriteStereo, {idx0, idx1}, std::move(path), start, dur};
-    workQ.push(work);
+void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::WriteStereo, {idx0, idx1}, std::move(path), start, start, dur, 0};
+    jobQ.push(job);
 }
 
 
-void BufWorker::workLoop() {
+void BufDiskWorker::workLoop() {
     while (!shouldQuit) {
-        if (workQ.read_available() > 0) {
-            Work work;
-            workQ.pop(&work);
-            switch (work.type) {
-                case WorkType::Clear:
+        if (jobQ.read_available() > 0) {
+            Job job;
+            jobQ.pop(&job);
+            switch (job.type) {
+                case JobType::Clear:
                     break;
-                case WorkType::ReadMono:
-                    readBufferMono(bufs[work.bufIdx], work.path, work.start, work.dur);
+                case JobType::ReadMono:
+                    readBufferMono(job.path, bufs[job.bufIdx[0]],
+                            job.startSrc, job.startDst, job.dur, job.chan);
                     break;
-                case WorkType::ReadStereo:
+                case JobType::ReadStereo:
+                    readBufferStereo(job.path, bufs[job.bufIdx[0]],  bufs[job.bufIdx[0]],
+                            job.startSrc, job.startDst, job.dur);
                     break;
-                case WorkType::WriteMono:
+                case JobType::WriteMono:
+                    writeBufferMono(job.path, bufs[job.bufIdx[0]],
+                                   job.startSrc, job.dur);
                     break;
-                case WorkType::WriteStereo:
+                case JobType::WriteStereo:
+                    writeBufferStereo(job.path, bufs[job.bufIdx[0]],  bufs[job.bufIdx[0]],
+                                     job.startSrc, job.dur);
                     break;
             }
         } else {
@@ -72,12 +82,14 @@ void BufWorker::workLoop() {
     }
 }
 
-void BufWorker::init(int sr) {
+void BufDiskWorker::init(int sr) {
     sampleRate = sr;
-    worker = std::thread(BufWorker::workLoop);
+    if (worker == nullptr) {
+        worker = std::make_unique<std::thread>(std::thread(BufDiskWorker::workLoop));
+    }
 }
 
-int BufWorker::secToFrame(float seconds) {
+int BufDiskWorker::secToFrame(float seconds) {
     return static_cast<int>(seconds * (float) sampleRate);
 }
 
@@ -86,7 +98,7 @@ int BufWorker::secToFrame(float seconds) {
 
 
 
-void BufWorker::clearBuffer(int idx, float start, float dur) {
+void BufDiskWorker::clearBuffer(int idx, float start, float dur) {
     BufDesc& buf = bufs[idx];
     size_t frA = secToFrame(start);
     clamp(frA, buf.frames - 1);
@@ -102,8 +114,8 @@ void BufWorker::clearBuffer(int idx, float start, float dur) {
     }
 }
 
-void BufWorker::readBufferMono(std::string path, BufDesc &buf,
-                               float startSrc, float startDst, float dur, int chanSrc) {
+void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
+                                   float startSrc, float startDst, float dur, int chanSrc) {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -146,8 +158,9 @@ void BufWorker::readBufferMono(std::string path, BufDesc &buf,
     }
 }
 
-
-//void BufWorker::readBufferStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
+void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
+                                     float startTimeSrc, float startTimeDst, float dur) {}
+//void BufDiskWorker::readBufferStereo(const std::string &path, float startTimeSrc, float startTimeDst, float dur) {
 //    SndfileHandle file(path);
 //
 //    if (file.frames() < 1) {
@@ -192,7 +205,8 @@ void BufWorker::readBufferMono(std::string path, BufDesc &buf,
 //}
 //
 //
-//void BufWorker::writeBufferMono(const std::string &path, float start = 0, float dur = -1, int chan = 0) {
+void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float start, float dur) {}
+//void BufDiskWorker::writeBufferMono(const std::string &path, float start = 0, float dur = -1, int chan = 0) {
 //    // FIXME: use the cpp sndfile interface for tidiness..
 //    SF_INFO sf_info;
 //    SNDFILE *file;
@@ -239,7 +253,8 @@ void BufWorker::readBufferMono(std::string path, BufDesc &buf,
 //}
 //
 //
-//void BufWorker::writeBufferStereo(const std::string &path, float start = 0, float dur = -1) {
+void BufDiskWorker::writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1, float start, float dur) {}
+//void BufDiskWorker::writeBufferStereo(const std::string &path, float start = 0, float dur = -1) {
 //    SF_INFO sf_info;
 //    SNDFILE *file;
 //

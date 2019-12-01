@@ -4,7 +4,7 @@
 
 #include <sndfile.hh>
 
-#include "BufWorker.h"
+#include "BufDiskWorker.h"
 #include "Commands.h"
 #include "SoftCutClient.h"
 
@@ -19,8 +19,9 @@ crone::SoftCutClient::SoftCutClient() : Client<2, 2>("softcut") {
     for (unsigned int i = 0; i < NumVoices; ++i) {
         cut.setVoiceBuffer(i, buf[i & 1], BufFrames);
     }
-    bufIdx[0] = BufWorker::registerBuffer(buf[0], BufFrames);
-    bufIdx[1] = BufWorker::registerBuffer(buf[1], BufFrames);
+    bufIdx[0] = BufDiskWorker::registerBuffer(buf[0], BufFrames);
+    bufIdx[1] = BufDiskWorker::registerBuffer(buf[1], BufFrames);
+
 }
 
 void crone::SoftCutClient::process(jack_nframes_t numFrames) {
@@ -191,21 +192,21 @@ void crone::SoftCutClient::handleCommand(Commands::CommandPacket *p) {
         default:;;
     }
 }
-
-    //void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
-    //    size_t frA = secToFrame(start);
-    //    clamp(frA, BufFrames - 1);
-    //    size_t frB;
-    //    if (dur < 0) {
-    //        frB = BufFrames;
-    //    } else {
-    //        frB = frA + secToFrame(dur);
-    //    }
-    //    clamp(frB, BufFrames);
-    //    for (size_t i = frA; i < frB; ++i) {
-    //        buf[bufIdx][i] = 0.f;
-    //    }
-    //}
+//
+//    void crone::SoftCutClient::clearBuffer(int bufIdx, float start, float dur) {
+//        size_t frA = secToFrame(start);
+//        clamp(frA, BufFrames - 1);
+//        size_t frB;
+//        if (dur < 0) {
+//            frB = BufFrames;
+//        } else {
+//            frB = frA + secToFrame(dur);
+//        }
+//        clamp(frB, BufFrames);
+//        for (size_t i = frA; i < frB; ++i) {
+//            buf[bufIdx][i] = 0.f;
+//        }
+//    }
 
 
 void crone::SoftCutClient::reset() {
