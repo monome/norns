@@ -8,6 +8,7 @@ local control = require 'core/params/control'
 local file = require 'core/params/file'
 local taper = require 'core/params/taper'
 local trigger = require 'core/params/trigger'
+local group = require 'core/params/group'
 
 local ParamSet = {
   tSEPARATOR = 0,
@@ -17,6 +18,7 @@ local ParamSet = {
   tFILE = 4,
   tTAPER = 5,
   tTRIGGER = 6,
+  tGROUP = 7,
   sets = {}
 }
 
@@ -37,8 +39,16 @@ function ParamSet.new(id, name)
 end
 
 --- add separator.
-function ParamSet:add_separator()
-  table.insert(self.params, separator.new())
+function ParamSet:add_separator(name)
+  local param = separator.new(name)
+  table.insert(self.params, param)
+  self.count = self.count + 1
+end
+
+--- add group.
+function ParamSet:add_group(name,n)
+  local param = group.new(name,n)
+  table.insert(self.params, param)
   self.count = self.count + 1
 end
 
@@ -128,7 +138,7 @@ end
 
 --- name.
 function ParamSet:get_name(index)
-  return self.params[index].name
+  return self.params[index].name or ""
 end
 
 --- string.
@@ -210,13 +220,15 @@ function ParamSet:write(filename)
   end
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
-  io.output(fd)
-  for _,param in pairs(self.params) do
-    if param.id and param.t ~= self.tTRIGGER then
-      io.write(string.format("%s: %s\n", quote(param.id), param:get()))
+  if fd then
+    io.output(fd)
+    for _,param in pairs(self.params) do
+      if param.id and param.t ~= self.tTRIGGER then
+        io.write(string.format("%s: %s\n", quote(param.id), param:get()))
+      end
     end
-  end
-  io.close(fd)
+    io.close(fd)
+  else print("pset: BAD FILENAME") end
 end
 
 --- read from disk.
