@@ -84,8 +84,7 @@ void BufDiskWorker::workLoop() {
                     readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
                     break;
                 case JobType::ReadStereo:
-                    readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
-                                     job.dur);
+                    readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur);
                     break;
                 case JobType::WriteMono:
                     writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
@@ -237,6 +236,7 @@ void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float
         return;
     }
 
+    sf_command(file, SFC_SET_CLIPPING, NULL, SF_TRUE);
     std::cerr << "BufDiskWorker::writeBufferMono(): opened file for writing: " << path << std::endl;
 
     size_t frSrc = secToFrame(start);
@@ -284,6 +284,7 @@ void BufDiskWorker::writeBufferStereo(const std::string &path, BufDesc &buf0, Bu
         return;
     }
 
+    sf_command(file, SFC_SET_CLIPPING, NULL, SF_TRUE);
     std::cerr << "SoftCutClient::writeBufferStereo(): opened file for writing: " << path << std::endl;
 
     float frameBuf[2];
