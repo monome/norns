@@ -1,26 +1,30 @@
 local fileselect = require 'fileselect'
 
 local m = {
-  pos = 1,
-  oldpos = 1,
-  index = 1,
+  pos = 0,
+  oldpos = 0,
   group = false
 }
 
 local page
 
-m.init_map = function()
-  print("clear param map")
+-- called from menu on script reset
+m.reset = function()
+  page = nil
+  m.pos = 0
+  m.group = false
+  m.read_pmap()
 end
 
 function build_page()
   page = {}
-  for i = 1,params.count do
+  local i = 1
+  repeat
     table.insert(page, i)
     if params:t(i) == params.tGROUP then
       i = i + params:get(i)
-    end
-  end
+    else i = i+1 end
+  until i > params.count
 end
 
 function build_sub(sub)
@@ -47,13 +51,13 @@ m.key = function(n,z)
         build_sub(i)
         m.group = true
         m.oldpos = m.pos
-        m.pos = 1
+        m.pos = 0
       elseif t == params.tSEPARATOR then
         local n = i
         repeat
           n = n+1
-          if n > params.count then n = 1 end
-        until params:t(n) == params.tSEPARATOR
+          if n > #page then n = 1 end
+        until params:t(page[n]) == params.tSEPARATOR
         m.pos = n-1
       elseif t == params.tFILE then
         fileselect.enter(_path.dust, m.newfile)
@@ -193,7 +197,7 @@ function m.read_pmap()
 
       if name and value then
         --print(unquote(name) .. " : " .. value)
-        m.map[tonumber(unquote(name),10)] = tonumber(value)
+        --m.map[tonumber(unquote(name),10)] = tonumber(value)
       end
     end
   else

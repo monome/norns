@@ -90,8 +90,7 @@ norns.init_done = function(status)
     _menu.locked = false
     _menu.set_mode(false)
   end
-  m["PARAMS"].init_map()
-  m["PARAMS"].read_pmap()
+  m["PARAMS"].reset()
 end
 
 

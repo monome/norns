@@ -34,6 +34,7 @@ function ParamSet.new(id, name)
   ps.params = {}
   ps.count = 0
   ps.lookup = {}
+  ps.group = 0
   ParamSet.sets[ps.id] = ps
   return ps
 end
@@ -43,13 +44,19 @@ function ParamSet:add_separator(name)
   local param = separator.new(name)
   table.insert(self.params, param)
   self.count = self.count + 1
+  self.group = self.group - 1
 end
 
 --- add group.
 function ParamSet:add_group(name,n)
-  local param = group.new(name,n)
-  table.insert(self.params, param)
-  self.count = self.count + 1
+  if self.group < 1 then
+    local param = group.new(name,n)
+    table.insert(self.params, param)
+    self.count = self.count + 1
+    self.group = n
+  else
+    print("ERROR: paramset cannot nest GROUPs")
+  end
 end
 
 --- add generic parameter.
@@ -91,6 +98,7 @@ function ParamSet:add(args)
 
   table.insert(self.params, param)
   self.count = self.count + 1
+  self.group = self.group - 1
   self.lookup[param.id] = self.count
   if args.action then
     param.action = args.action
