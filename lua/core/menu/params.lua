@@ -40,16 +40,24 @@ m.key = function(n,z)
     end
   elseif n==3 and z==1 then
     local i = page[m.pos+1]
+    local t = params:t(i)
     m.fine = true
     if params.count > 0 then
-      if params:t(i) == params.tGROUP then
+      if t == params.tGROUP then
         build_sub(i)
         m.group = true
         m.oldpos = m.pos
         m.pos = 1
-      elseif params:t(i) == params.tFILE then
+      elseif t == params.tSEPARATOR then
+        local n = i
+        repeat
+          n = n+1
+          if n > params.count then n = 1 end
+        until params:t(n) == params.tSEPARATOR
+        m.pos = n-1
+      elseif t == params.tFILE then
         fileselect.enter(_path.dust, m.newfile)
-      elseif params:t(i) == params.tTRIGGER then
+      elseif t == params.tTRIGGER then
         params:set(i)
         m.triggered[i] = 2
       end
