@@ -5,7 +5,9 @@
 #include <sndfile.hh>
 #include <iostream>
 #include <utility>
+
 #include "BufDiskWorker.h"
+#include "OscInterface.h"
 
 using namespace crone;
 
@@ -31,31 +33,31 @@ int BufDiskWorker::registerBuffer(float *data, size_t frames) {
 }
 
 void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::Clear, {idx, 0}, "", 0, start, dur, 0};
+    BufDiskWorker::Job job{std::time(nullptr), BufDiskWorker::JobType::Clear, {idx, 0}, "", 0, start, dur, 0};
     jobQ.push(job);
 }
 
 void
 BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur,
+    BufDiskWorker::Job job{std::time(nullptr), BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur,
                            chanSrc};
     jobQ.push(job);
 }
 
 void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc, float startDst,
                                       float dur) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::ReadStereo, {idx0, idx1}, std::move(path), startSrc, startDst, dur,
+    BufDiskWorker::Job job{std::time(nullptr), BufDiskWorker::JobType::ReadStereo, {idx0, idx1}, std::move(path), startSrc, startDst, dur,
                            0};
     jobQ.push(job);
 }
 
 void BufDiskWorker::requestWriteMono(size_t idx, std::string path, float start, float dur) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::WriteMono, {idx, 0}, std::move(path), start, start, dur, 0};
+    BufDiskWorker::Job job{std::time(nullptr), BufDiskWorker::JobType::WriteMono, {idx, 0}, std::move(path), start, start, dur, 0};
     jobQ.push(job);
 }
 
 void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::WriteStereo, {idx0, idx1}, std::move(path), start, start, dur, 0};
+    BufDiskWorker::Job job{std::time(nullptr), BufDiskWorker::JobType::WriteStereo, {idx0, idx1}, std::move(path), start, start, dur, 0};
     jobQ.push(job);
 }
 
@@ -93,6 +95,7 @@ void BufDiskWorker::workLoop() {
                     writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
                     break;
             }
+            OscInterface::notifyBufferJobComplete(job);
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepPeriodMs));
         }

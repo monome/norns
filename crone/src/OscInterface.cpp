@@ -787,3 +787,7 @@ void OscInterface::deinit() {
     lo_address_free(matronAddress);
 }
 
+void OscInterface::notifyBufferJobComplete(BufDiskWorker::Job job) {
+    // TODO
+}
+

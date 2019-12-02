@@ -70,6 +70,7 @@ namespace crone {
 
         static bool shouldQuit() { return quitFlag; }
         static std::string getPortNumber() { return port; }
+        static void notifyBufferJobComplete(BufDiskWorker::Job job);
     };
 }
 

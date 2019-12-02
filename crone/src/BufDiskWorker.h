@@ -14,9 +14,9 @@
 #define CRONE_BUFMANAGER_H
 
 #include <atomic>
+#include <ctime>
 #include <thread>
 #include <mutex>
-//#include <queue>
 #include <boost/lockfree/spsc_queue.hpp>
 #include <memory>
 
@@ -31,6 +31,7 @@ namespace crone {
             WriteMono, WriteStereo
         };
         struct Job {
+            std::time_t time;
             JobType type;
             size_t bufIdx[2];
             std::string path;
@@ -43,15 +44,23 @@ namespace crone {
             float *data;
             size_t frames;
         };
+        //--- constants ---//
+        // max count of jobs in queue
         static constexpr size_t maxJobs = 256;
+        // time for which to sleep the worker thread when no jobs pending
+        static constexpr int sleepPeriodMs = 100;
+        // max count of registered buffers
+        static constexpr size_t maxBufs = 16;
+
+        //--- state variables ---//
+        // lockfree queue of jobs
         static boost::lockfree::spsc_queue<Job> jobQ;
         static std::unique_ptr<std::thread> worker;
-        static constexpr size_t maxBufs = 16;
         static std::array<BufDesc, maxBufs> bufs;
         static int numBufs;
         static bool shouldQuit;
-        static constexpr int sleepPeriodMs = 100;
         static int sampleRate;
+
         static int secToFrame(float seconds);
 
 
@@ -64,13 +73,17 @@ namespace crone {
 
 
         // clear a portion of a mono buffer
-        static void requestClear(size_t idx, float start=0, float dur=-1);
+        static void requestClear(size_t idx, float start = 0, float dur = -1);
 
         // read mono soundfile to mono buffer
-        static void requestReadMono(size_t idx, std::string path, float startSrc = 0, float startDst=0, float dur = -1, int chanSrc=0);
+        static void
+        requestReadMono(size_t idx, std::string path, float startSrc = 0, float startDst = 0, float dur = -1,
+                        int chanSrc = 0);
 
         // read and de-interleave stereo soundfile to 2x mono buffers
-        static void requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc = 0, float startDst=0, float dur = -1);
+        static void
+        requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc = 0, float startDst = 0,
+                          float dur = -1);
 
         // write mono buf to mono soundfile
         static void requestWriteMono(size_t idx, std::string path, float start = 0, float dur = -1);
@@ -81,19 +94,19 @@ namespace crone {
     private:
         static void workLoop();
 
-        static void clearBuffer(BufDesc &buf, float start=0, float dur=-1);
+        static void clearBuffer(BufDesc &buf, float start = 0, float dur = -1);
 
         static void readBufferMono(const std::string &path, BufDesc &buf,
-                float startSrc=0, float startDst=0, float dur=-1, int chanSrc=0);
+                                   float startSrc = 0, float startDst = 0, float dur = -1, int chanSrc = 0);
 
         static void readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                   float startSrc=0, float startDst=0, float dur=-1);
+                                     float startSrc = 0, float startDst = 0, float dur = -1);
 
         static void writeBufferMono(const std::string &path, BufDesc &buf,
-                                   float start=0, float dur=-1);
+                                    float start = 0, float dur = -1);
 
         static void writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                     float start=0, float dur=-1);
+                                      float start = 0, float dur = -1);
 
     };
 
