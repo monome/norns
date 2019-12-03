@@ -3,7 +3,8 @@ local fileselect = require 'fileselect'
 local m = {
   pos = 0,
   oldpos = 0,
-  group = false
+  group = false,
+  alt = false
 }
 
 local page
@@ -36,7 +37,11 @@ end
 
 
 m.key = function(n,z)
-  if n==2 and z==1 then
+  if n==1 and z==1 then
+    m.alt = true
+  elseif n==1 and z==0 then
+    m.alt = false
+  elseif n==2 and z==1 then
     if m.group==true then
       m.group = false
       build_page()
@@ -69,6 +74,7 @@ m.key = function(n,z)
   elseif n==3 and z==0 then
     m.fine = false
   end
+  _menu.redraw()
 end
 
 m.newfile = function(file)
@@ -79,10 +85,22 @@ m.newfile = function(file)
 end
 
 m.enc = function(n,d)
-  if n==2 then
+  -- normal scroll
+  if n==2 and m.alt==false then
     local prev = m.pos
     m.pos = util.clamp(m.pos + d, 0, #page - 1)
     if m.pos ~= prev then _menu.redraw() end
+    -- jump section
+  elseif n==2 and m.alt==true then
+    d = d>0 and 1 or -1
+    local i = m.pos+1
+    repeat
+      i = i+d
+      if i > #page then i = 1 end
+      if i < 1 then i = #page end
+    until params:t(page[i]) == params.tSEPARATOR
+    m.pos = i-1
+  -- adjust value
   elseif n==3 and params.count > 0 then
     local dx = m.fine and (d/20) or d
     params:delta(page[m.pos+1],dx)
@@ -133,6 +151,7 @@ end
 
 m.init = function()
   if page == nil then build_page() end
+  m.alt = false
   m.fine = false
   m.triggered = {}
   _menu.timer.event = function()
