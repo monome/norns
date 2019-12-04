@@ -23,7 +23,7 @@ function build_page()
   repeat
     table.insert(page, i)
     if params:t(i) == params.tGROUP then
-      i = i + params:get(i)
+      i = i + params:get(i) + 1
     else i = i+1 end
   until i > params.count
 end

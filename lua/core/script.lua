@@ -54,6 +54,8 @@ Script.clear = function()
 
   -- clear params
   params:clear()
+  -- add audio
+  audio.add_params()
 
   -- reset PLAY mode screen settings
   local status = norns.menu.status()
