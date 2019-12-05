@@ -4,10 +4,14 @@ local m = {
   pos = 0,
   oldpos = 0,
   group = false,
-  alt = false
+  alt = false,
+  mode_menu = false,
+  mode_pos = 1,
+  map = false
 }
 
 local page
+local mode_item = { "EDIT >", "PSET >", "MAP >"}
 
 -- called from menu on script reset
 m.reset = function()
@@ -37,42 +41,57 @@ end
 
 
 m.key = function(n,z)
-  if n==1 and z==1 then
-    m.alt = true
-  elseif n==1 and z==0 then
-    m.alt = false
-  elseif n==2 and z==1 then
-    if m.group==true then
-      m.group = false
-      build_page()
-      m.pos = m.oldpos
-    end
-  elseif n==3 and z==1 then
-    local i = page[m.pos+1]
-    local t = params:t(i)
-    m.fine = true
-    if params.count > 0 then
-      if t == params.tGROUP then
-        build_sub(i)
-        m.group = true
-        m.oldpos = m.pos
-        m.pos = 0
-      elseif t == params.tSEPARATOR then
-        local n = i
-        repeat
-          n = n+1
-          if n > #page then n = 1 end
-        until params:t(page[n]) == params.tSEPARATOR
-        m.pos = n-1
-      elseif t == params.tFILE then
-        fileselect.enter(_path.dust, m.newfile)
-      elseif t == params.tTRIGGER then
-        params:set(i)
-        m.triggered[i] = 2
+  -- MODE MENU
+  if m.mode_menu == true then
+    if n==3 and z==1 then
+      if m.mode_pos == 1 then
+        m.mode_menu = false
+      elseif m.mode_pos == 3 then
+        m.map = true
+        m.mode_menu = false
       end
     end
-  elseif n==3 and z==0 then
-    m.fine = false
+    -- NORMAL
+  else
+    if n==1 and z==1 then
+      m.alt = true
+    elseif n==1 and z==0 then
+      m.alt = false
+    elseif n==2 and z==1 then
+      if m.group==true then
+        m.group = false
+        build_page()
+        m.pos = m.oldpos
+      else
+        m.mode_menu = true
+      end
+    elseif n==3 and z==1 then
+      local i = page[m.pos+1]
+      local t = params:t(i)
+      m.fine = true
+      if params.count > 0 then
+        if t == params.tGROUP then
+          build_sub(i)
+          m.group = true
+          m.oldpos = m.pos
+          m.pos = 0
+        elseif t == params.tSEPARATOR then
+          local n = i
+          repeat
+            n = n+1
+            if n > #page then n = 1 end
+          until params:t(page[n]) == params.tSEPARATOR
+          m.pos = n-1
+        elseif t == params.tFILE then
+          fileselect.enter(_path.dust, m.newfile)
+        elseif t == params.tTRIGGER then
+          params:set(i)
+          m.triggered[i] = 2
+        end
+      end
+    elseif n==3 and z==0 then
+      m.fine = false
+    end
   end
   _menu.redraw()
 end
@@ -85,26 +104,34 @@ m.newfile = function(file)
 end
 
 m.enc = function(n,d)
-  -- normal scroll
-  if n==2 and m.alt==false then
-    local prev = m.pos
-    m.pos = util.clamp(m.pos + d, 0, #page - 1)
-    if m.pos ~= prev then _menu.redraw() end
-    -- jump section
-  elseif n==2 and m.alt==true then
-    d = d>0 and 1 or -1
-    local i = m.pos+1
-    repeat
-      i = i+d
-      if i > #page then i = 1 end
-      if i < 1 then i = #page end
-    until params:t(page[i]) == params.tSEPARATOR
-    m.pos = i-1
-  -- adjust value
-  elseif n==3 and params.count > 0 then
-    local dx = m.fine and (d/20) or d
-    params:delta(page[m.pos+1],dx)
-    _menu.redraw()
+  -- MODE MENU
+  if m.mode_menu == true then
+    local prev = m.mode_pos
+    m.mode_pos = util.clamp(m.mode_pos + d, 1, 3)
+    if m.mode_pos ~= prev then _menu.redraw() end
+  -- NORMAL
+  else
+    -- normal scroll
+    if n==2 and m.alt==false then
+      local prev = m.pos
+      m.pos = util.clamp(m.pos + d, 0, #page - 1)
+      if m.pos ~= prev then _menu.redraw() end
+      -- jump section
+    elseif n==2 and m.alt==true then
+      d = d>0 and 1 or -1
+      local i = m.pos+1
+      repeat
+        i = i+d
+        if i > #page then i = 1 end
+        if i < 1 then i = #page end
+      until params:t(page[i]) == params.tSEPARATOR
+      m.pos = i-1
+      -- adjust value
+    elseif n==3 and params.count > 0 then
+      local dx = m.fine and (d/20) or d
+      params:delta(page[m.pos+1],dx)
+      _menu.redraw()
+    end
   end
 end
 
@@ -112,15 +139,24 @@ m.redraw = function()
   screen.clear()
   _menu.draw_panel()
 
-  if(#page < 1) then
-    screen.move(0,10)
-    screen.level(4)
-    screen.text("no parameters")
+  -- MODE MENU
+  if m.mode_menu == true then
+    for i=1,3 do
+      if i==m.mode_pos then screen.level(15) else screen.level(4) end
+      screen.move(0,10*i+20)
+      screen.text(mode_item[i])
+    end
+  -- NORMAL
   else
-    for i=1,6 do
-      if (i > 2 - m.pos) and (i < #page - m.pos + 3) then
-        if i==3 then screen.level(15) else screen.level(4) end
-        local p = page[i+m.pos-2]
+    if(#page < 1) then
+      screen.move(0,10)
+      screen.level(4)
+      screen.text("no parameters")
+    else
+      for i=1,6 do
+        if (i > 2 - m.pos) and (i < #page - m.pos + 3) then
+          if i==3 then screen.level(15) else screen.level(4) end
+          local p = page[i+m.pos-2]
           if params:t(p) == params.tSEPARATOR then
             screen.move(0,10*i+2.5)
             screen.line_rel(127,0)
@@ -143,6 +179,7 @@ m.redraw = function()
               screen.text_right(params:string(p))
             end
           end
+        end
       end
     end
   end
