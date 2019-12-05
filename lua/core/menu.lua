@@ -69,7 +69,7 @@ end
 norns.menu.get_enc = function() return _menu.penc end
 norns.menu.get_key = function() return _menu.key end
 norns.menu.get_redraw = function() return _menu.redraw end
-norns.menu.toggle = function(status) menu.set_mode(status) end
+norns.menu.toggle = function(status) _menu.set_mode(status) end
 
 norns.scripterror = function(msg)
   if msg == nil then msg = "" end
