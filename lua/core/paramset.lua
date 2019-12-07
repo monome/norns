@@ -9,6 +9,7 @@ local file = require 'core/params/file'
 local taper = require 'core/params/taper'
 local trigger = require 'core/params/trigger'
 local group = require 'core/params/group'
+local text = require 'core/params/text'
 
 local ParamSet = {
   tSEPARATOR = 0,
@@ -19,6 +20,7 @@ local ParamSet = {
   tTAPER = 5,
   tTRIGGER = 6,
   tGROUP = 7,
+  tTEXT = 8,
   sets = {}
 }
 
@@ -90,6 +92,8 @@ function ParamSet:add(args)
       param = taper.new(id, name, args.min, args.max, args.default, args.k, args.units)
     elseif args.type == "trigger" then
       param = trigger.new(id, name)
+    elseif args.type == "text" then
+      param = text.new(id, name, args.text)
     else
       print("paramset.add() error: unknown type")
       return nil
@@ -123,6 +127,11 @@ end
 --- add file.
 function ParamSet:add_file(id, name, path)
   self:add { param=file.new(id, name, path) }
+end
+
+--- add text.
+function ParamSet:add_text(id, name, txt)
+  self:add { param=text.new(id, name, txt) }
 end
 
 --- add taper.

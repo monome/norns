@@ -1,4 +1,5 @@
 local fileselect = require 'fileselect'
+local textentry = require 'textentry'
 
 local m = {
   pos = 0,
@@ -84,6 +85,8 @@ m.key = function(n,z)
           m.pos = n-1
         elseif t == params.tFILE then
           fileselect.enter(_path.dust, m.newfile)
+        elseif t == params.tTEXT then
+          textentry.enter(m.newtext, params:get(i), "PARAM: "..params:get_name(i))
         elseif t == params.tTRIGGER then
           params:set(i)
           m.triggered[i] = 2
@@ -98,7 +101,15 @@ end
 
 m.newfile = function(file)
   if file ~= "cancel" then
-    params:set(m.pos+1,file)
+    params:set(page[m.pos+1],file)
+    _menu.redraw()
+  end
+end
+
+m.newtext = function(txt)
+  print("SET TEXT: "..txt)
+  if txt ~= "cancel" then
+    params:set(page[m.pos+1],txt)
     _menu.redraw()
   end
 end
