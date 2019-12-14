@@ -55,8 +55,8 @@ local ControlSpec = {}
 ControlSpec.__index = ControlSpec
 
 --- constructor
--- @tparam number minval the minimum incoming value
--- @tparam number maxval the max incoming value
+-- @tparam number minval the minimum value of the range
+-- @tparam number maxval the max value of the range
 -- @tparam string warp ('exp', 'db', 'lin') a shaping option for incoming data (default is 'lin')
 -- @tparam number step quantization value. output will be rounded to a multiple of step
 -- @tparam number default a default value for when no value has been set
