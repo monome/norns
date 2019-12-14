@@ -1,4 +1,4 @@
---- Controlspec Class
+--- ControlSpec Class
 -- @classmod controlspec
 -- @alias ControlSpec
 
@@ -99,7 +99,7 @@ function ControlSpec:map(value)
   return util.round(self.warp.map(self, clamped), self.step)
 end
 
---- transform a transformed value into its original value
+--- untransform a transformed value into its original value
 -- @tparam number value a previously transformed value
 -- @treturn number the reverse-transformed value
 function ControlSpec:unmap(value)
@@ -140,7 +140,7 @@ function ControlSpec:print()
   end
 end
 
---- Predefined ControlSpecs
+--- Presets
 -- @section presets
 
 --- converts values to a unipolar rang
