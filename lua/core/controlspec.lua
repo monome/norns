@@ -91,7 +91,7 @@ function ControlSpec:cliplo()
   return math.min(self.minval, self.maxval)
 end
 
---- transform an incoming value through this ControlSpec
+--- transform an incoming value between 0 and 1 through this ControlSpec
 -- @tparam number value the incoming value
 -- @treturn number the transformed value
 function ControlSpec:map(value)
