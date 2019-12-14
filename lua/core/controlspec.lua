@@ -143,7 +143,7 @@ end
 --- Presets
 -- @section presets
 
---- converts values to a unipolar rang
+--- converts values to a unipolar range
 ControlSpec.UNIPOLAR = ControlSpec.new(0, 1, 'lin', 0, 0, "")
 --- converts values to bipolar range
 ControlSpec.BIPOLAR = ControlSpec.new(-1, 1, 'lin', 0, 0, "")
