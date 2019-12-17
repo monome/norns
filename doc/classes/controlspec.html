@@ -32,17 +32,20 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Functions">Functions</a></li>
+<li><a href="#Methods">Methods</a></li>
 <li><a href="#Presets">Presets </a></li>
 </ul>
 
 
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>controlspec</strong></li>
+</ul>
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/arc.html">arc</a></li>
   <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/clock.html">clock</a></li>
-  <li><strong>controlspec</strong></li>
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
@@ -69,106 +72,106 @@
 
 <div id="content">
 
-<h1>Module <code>controlspec</code></h1>
+<h1>Class <code>controlspec</code></h1>
 <p>ControlSpec Class</p>
 <p></p>
 
 
-<h2><a href="#Functions">Functions</a></h2>
+<h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#new">new (minval, maxval, warp, step, default, units)</a></td>
+	<td class="name" nowrap><a href="#controlspec:new">controlspec:new (minval, maxval, warp, step, default, units)</a></td>
 	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#map">map (value)</a></td>
+	<td class="name" nowrap><a href="#controlspec:map">controlspec:map (value)</a></td>
 	<td class="summary">transform an incoming value between 0 and 1 through this ControlSpec</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unmap">unmap (value)</a></td>
+	<td class="name" nowrap><a href="#controlspec:unmap">controlspec:unmap (value)</a></td>
 	<td class="summary">untransform a transformed value into its original value</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#copy">copy ()</a></td>
+	<td class="name" nowrap><a href="#controlspec:copy">controlspec:copy ()</a></td>
 	<td class="summary">copy this ControlSpec into a new one</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#print">print ()</a></td>
+	<td class="name" nowrap><a href="#controlspec:print">controlspec:print ()</a></td>
 	<td class="summary">print out the configuration of this ControlSpec</td>
 	</tr>
 </table>
 <h2><a href="#Presets">Presets </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#UNIPOLAR">UNIPOLAR</a></td>
+	<td class="name" nowrap><a href="#controlspec.UNIPOLAR">controlspec.UNIPOLAR</a></td>
 	<td class="summary">converts values to a unipolar range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#BIPOLAR">BIPOLAR</a></td>
+	<td class="name" nowrap><a href="#controlspec.BIPOLAR">controlspec.BIPOLAR</a></td>
 	<td class="summary">converts values to bipolar range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#FREQ">FREQ</a></td>
+	<td class="name" nowrap><a href="#controlspec.FREQ">controlspec.FREQ</a></td>
 	<td class="summary">converts to a frequency range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#LOFREQ">LOFREQ</a></td>
+	<td class="name" nowrap><a href="#controlspec.LOFREQ">controlspec.LOFREQ</a></td>
 	<td class="summary">converts to a low frequency range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#MIDFREQ">MIDFREQ</a></td>
+	<td class="name" nowrap><a href="#controlspec.MIDFREQ">controlspec.MIDFREQ</a></td>
 	<td class="summary">converts to a mid frequency range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#WIDEFREQ">WIDEFREQ</a></td>
+	<td class="name" nowrap><a href="#controlspec.WIDEFREQ">controlspec.WIDEFREQ</a></td>
 	<td class="summary">converts to an exponential frequency range from 0.1 to 20khz</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#PHASE">PHASE</a></td>
+	<td class="name" nowrap><a href="#controlspec.PHASE">controlspec.PHASE</a></td>
 	<td class="summary">maps into pi for controlling phase values</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#RQ">RQ</a></td>
+	<td class="name" nowrap><a href="#controlspec.RQ">controlspec.RQ</a></td>
 	<td class="summary">converts to an exponential RQ range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#MIDI">MIDI</a></td>
+	<td class="name" nowrap><a href="#controlspec.MIDI">controlspec.MIDI</a></td>
 	<td class="summary">converts to a MIDI range (default 64)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#MIDINOTE">MIDINOTE</a></td>
+	<td class="name" nowrap><a href="#controlspec.MIDINOTE">controlspec.MIDINOTE</a></td>
 	<td class="summary">converts to a range for MIDI notes (default 60)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#MIDIVELOCITY">MIDIVELOCITY</a></td>
+	<td class="name" nowrap><a href="#controlspec.MIDIVELOCITY">controlspec.MIDIVELOCITY</a></td>
 	<td class="summary">converts to a range for MIDI velocity (default 64)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#DB">DB</a></td>
+	<td class="name" nowrap><a href="#controlspec.DB">controlspec.DB</a></td>
 	<td class="summary">converts to a dB range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#AMP">AMP</a></td>
+	<td class="name" nowrap><a href="#controlspec.AMP">controlspec.AMP</a></td>
 	<td class="summary">converts to a linear amplitude range (0-1)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#PAN">PAN</a></td>
+	<td class="name" nowrap><a href="#controlspec.PAN">controlspec.PAN</a></td>
 	<td class="summary">converts to a panning range (-1 - 1)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#DETUNE">DETUNE</a></td>
+	<td class="name" nowrap><a href="#controlspec.DETUNE">controlspec.DETUNE</a></td>
 	<td class="summary">converts to a detune range</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#RATE">RATE</a></td>
+	<td class="name" nowrap><a href="#controlspec.RATE">controlspec.RATE</a></td>
 	<td class="summary">converts to a sensible range for playback rate</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#BEATS">BEATS</a></td>
+	<td class="name" nowrap><a href="#controlspec.BEATS">controlspec.BEATS</a></td>
 	<td class="summary">convert to a good range for beats</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#DELAY">DELAY</a></td>
+	<td class="name" nowrap><a href="#controlspec.DELAY">controlspec.DELAY</a></td>
 	<td class="summary">converts to a good range for delay</td>
 	</tr>
 </table>
@@ -177,12 +180,12 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
 
     <dl class="function">
     <dt>
-    <a name = "new"></a>
-    <strong>new (minval, maxval, warp, step, default, units)</strong>
+    <a name = "controlspec:new"></a>
+    <strong>controlspec:new (minval, maxval, warp, step, default, units)</strong>
     </dt>
     <dd>
     constructor
@@ -228,8 +231,8 @@
 
 </dd>
     <dt>
-    <a name = "map"></a>
-    <strong>map (value)</strong>
+    <a name = "controlspec:map"></a>
+    <strong>controlspec:map (value)</strong>
     </dt>
     <dd>
     transform an incoming value between 0 and 1 through this ControlSpec
@@ -255,8 +258,8 @@
 
 </dd>
     <dt>
-    <a name = "unmap"></a>
-    <strong>unmap (value)</strong>
+    <a name = "controlspec:unmap"></a>
+    <strong>controlspec:unmap (value)</strong>
     </dt>
     <dd>
     untransform a transformed value into its original value
@@ -282,8 +285,8 @@
 
 </dd>
     <dt>
-    <a name = "copy"></a>
-    <strong>copy ()</strong>
+    <a name = "controlspec:copy"></a>
+    <strong>controlspec:copy ()</strong>
     </dt>
     <dd>
     copy this ControlSpec into a new one
@@ -302,8 +305,8 @@
 
 </dd>
     <dt>
-    <a name = "print"></a>
-    <strong>print ()</strong>
+    <a name = "controlspec:print"></a>
+    <strong>controlspec:print ()</strong>
     </dt>
     <dd>
     print out the configuration of this ControlSpec
@@ -320,8 +323,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "UNIPOLAR"></a>
-    <strong>UNIPOLAR</strong>
+    <a name = "controlspec.UNIPOLAR"></a>
+    <strong>controlspec.UNIPOLAR</strong>
     </dt>
     <dd>
     converts values to a unipolar range
@@ -334,8 +337,8 @@
 
 </dd>
     <dt>
-    <a name = "BIPOLAR"></a>
-    <strong>BIPOLAR</strong>
+    <a name = "controlspec.BIPOLAR"></a>
+    <strong>controlspec.BIPOLAR</strong>
     </dt>
     <dd>
     converts values to bipolar range
@@ -348,8 +351,8 @@
 
 </dd>
     <dt>
-    <a name = "FREQ"></a>
-    <strong>FREQ</strong>
+    <a name = "controlspec.FREQ"></a>
+    <strong>controlspec.FREQ</strong>
     </dt>
     <dd>
     converts to a frequency range
@@ -362,8 +365,8 @@
 
 </dd>
     <dt>
-    <a name = "LOFREQ"></a>
-    <strong>LOFREQ</strong>
+    <a name = "controlspec.LOFREQ"></a>
+    <strong>controlspec.LOFREQ</strong>
     </dt>
     <dd>
     converts to a low frequency range
@@ -376,8 +379,8 @@
 
 </dd>
     <dt>
-    <a name = "MIDFREQ"></a>
-    <strong>MIDFREQ</strong>
+    <a name = "controlspec.MIDFREQ"></a>
+    <strong>controlspec.MIDFREQ</strong>
     </dt>
     <dd>
     converts to a mid frequency range
@@ -390,8 +393,8 @@
 
 </dd>
     <dt>
-    <a name = "WIDEFREQ"></a>
-    <strong>WIDEFREQ</strong>
+    <a name = "controlspec.WIDEFREQ"></a>
+    <strong>controlspec.WIDEFREQ</strong>
     </dt>
     <dd>
     converts to an exponential frequency range from 0.1 to 20khz
@@ -404,8 +407,8 @@
 
 </dd>
     <dt>
-    <a name = "PHASE"></a>
-    <strong>PHASE</strong>
+    <a name = "controlspec.PHASE"></a>
+    <strong>controlspec.PHASE</strong>
     </dt>
     <dd>
     maps into pi for controlling phase values
@@ -418,8 +421,8 @@
 
 </dd>
     <dt>
-    <a name = "RQ"></a>
-    <strong>RQ</strong>
+    <a name = "controlspec.RQ"></a>
+    <strong>controlspec.RQ</strong>
     </dt>
     <dd>
     converts to an exponential RQ range
@@ -432,8 +435,8 @@
 
 </dd>
     <dt>
-    <a name = "MIDI"></a>
-    <strong>MIDI</strong>
+    <a name = "controlspec.MIDI"></a>
+    <strong>controlspec.MIDI</strong>
     </dt>
     <dd>
     converts to a MIDI range (default 64)
@@ -446,8 +449,8 @@
 
 </dd>
     <dt>
-    <a name = "MIDINOTE"></a>
-    <strong>MIDINOTE</strong>
+    <a name = "controlspec.MIDINOTE"></a>
+    <strong>controlspec.MIDINOTE</strong>
     </dt>
     <dd>
     converts to a range for MIDI notes (default 60)
@@ -460,8 +463,8 @@
 
 </dd>
     <dt>
-    <a name = "MIDIVELOCITY"></a>
-    <strong>MIDIVELOCITY</strong>
+    <a name = "controlspec.MIDIVELOCITY"></a>
+    <strong>controlspec.MIDIVELOCITY</strong>
     </dt>
     <dd>
     converts to a range for MIDI velocity (default 64)
@@ -474,8 +477,8 @@
 
 </dd>
     <dt>
-    <a name = "DB"></a>
-    <strong>DB</strong>
+    <a name = "controlspec.DB"></a>
+    <strong>controlspec.DB</strong>
     </dt>
     <dd>
     converts to a dB range
@@ -488,8 +491,8 @@
 
 </dd>
     <dt>
-    <a name = "AMP"></a>
-    <strong>AMP</strong>
+    <a name = "controlspec.AMP"></a>
+    <strong>controlspec.AMP</strong>
     </dt>
     <dd>
     converts to a linear amplitude range (0-1)
@@ -502,8 +505,8 @@
 
 </dd>
     <dt>
-    <a name = "PAN"></a>
-    <strong>PAN</strong>
+    <a name = "controlspec.PAN"></a>
+    <strong>controlspec.PAN</strong>
     </dt>
     <dd>
     converts to a panning range (-1 - 1)
@@ -516,8 +519,8 @@
 
 </dd>
     <dt>
-    <a name = "DETUNE"></a>
-    <strong>DETUNE</strong>
+    <a name = "controlspec.DETUNE"></a>
+    <strong>controlspec.DETUNE</strong>
     </dt>
     <dd>
     converts to a detune range
@@ -530,8 +533,8 @@
 
 </dd>
     <dt>
-    <a name = "RATE"></a>
-    <strong>RATE</strong>
+    <a name = "controlspec.RATE"></a>
+    <strong>controlspec.RATE</strong>
     </dt>
     <dd>
     converts to a sensible range for playback rate
@@ -544,8 +547,8 @@
 
 </dd>
     <dt>
-    <a name = "BEATS"></a>
-    <strong>BEATS</strong>
+    <a name = "controlspec.BEATS"></a>
+    <strong>controlspec.BEATS</strong>
     </dt>
     <dd>
     convert to a good range for beats
@@ -558,8 +561,8 @@
 
 </dd>
     <dt>
-    <a name = "DELAY"></a>
-    <strong>DELAY</strong>
+    <a name = "controlspec.DELAY"></a>
+    <strong>controlspec.DELAY</strong>
     </dt>
     <dd>
     converts to a good range for delay
@@ -578,7 +581,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-17 15:14:18 </i>
+<i style="float:right;">Last updated 2019-12-14 21:54:44 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
