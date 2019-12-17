@@ -1,5 +1,5 @@
 --- osc device
--- @module osc
+-- @classmod osc
 -- @alias OSC
 
 local tab = require 'tabutil'

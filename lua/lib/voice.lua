@@ -1,5 +1,5 @@
 -- experimental voice allocation module
--- @module voice
+-- @classmod voice
 -- @alias Voice
 
 

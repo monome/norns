@@ -1,5 +1,5 @@
 --- Arc class
--- @module arc
+-- @classmod arc
 -- @alias Arc
 
 ---------------------------------

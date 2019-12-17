@@ -1,5 +1,5 @@
 --- Grid class
--- @module grid
+-- @classmod grid
 -- @alias Grid
 
 ---------------------------------

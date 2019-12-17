@@ -1,5 +1,5 @@
 --- Hid class
--- @module hid
+-- @classmod hid
 -- @alias Hid
 
 ---------------------------------

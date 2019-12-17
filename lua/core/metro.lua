@@ -1,5 +1,5 @@
 --- high-resolution metro API
--- @module metro
+-- @classmod metro
 -- @alias Metro_mt
 
 local Metro = {}

@@ -1,5 +1,5 @@
 --- Audio class
--- @module audio
+-- @classmod audio
 -- @alias Audio
 
 local Audio = {}

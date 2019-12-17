@@ -1,5 +1,5 @@
 --- ParamSet class
--- @module paramset
+-- @classmod paramset
 
 local separator = require 'core/params/separator'
 local number = require 'core/params/number'

@@ -1,5 +1,5 @@
 --- elementary cellular automata
--- @module elca
+-- @classmod elca
 -- @alias CA
 
 local CA = {}
@@ -70,6 +70,9 @@ function CA:neighbors(i)
 end
 
 --- get binary code for value given cell and neighbors
+-- @tparam number left cell
+-- @tparam number center cell
+-- @tparam number right cell
 function CA.code(l, c, r)
    local n = 0
    if l > 0 then n = n | 4 end

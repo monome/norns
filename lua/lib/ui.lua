@@ -1,7 +1,7 @@
 --- UI widgets module.
 -- Widgets for paging, tabs, lists, dials, sliders, etc.
 --
--- @module UI
+-- @classmod UI
 -- @release v1.0.2
 -- @author Mark Eats
 

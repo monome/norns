@@ -3,7 +3,7 @@
 -- API for controlling the "softcut" buffer processor
 -- includes low-level setters and mid-level utilities
 --
--- @module softcut
+-- @classmod softcut
 -- @alias softcut
 
 local SC = {}
