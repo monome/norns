@@ -1,5 +1,5 @@
 --- ControlSpec Class
--- @classmod controlspec
+-- @module controlspec
 -- @alias ControlSpec
 
 local LinearWarp = {}
