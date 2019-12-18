@@ -32,46 +32,46 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Functions">Functions</a></li>
+<li><a href="#Methods">Methods</a></li>
 </ul>
 
 
-<h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/arc.html">arc</a></li>
-  <li><a href="../modules/audio.html">audio</a></li>
-  <li><a href="../modules/clock.html">clock</a></li>
-  <li><a href="../modules/engine.html">engine</a></li>
-  <li><a href="../modules/grid.html">grid</a></li>
-  <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/metro.html">metro</a></li>
-  <li><a href="../modules/midi.html">midi</a></li>
-  <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/control.html">control</a></li>
-  <li><a href="../modules/paramset.html">paramset</a></li>
-  <li><a href="../modules/poll.html">poll</a></li>
-  <li><a href="../modules/screen.html">screen</a></li>
-  <li><a href="../modules/script.html">script</a></li>
-  <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><strong>EnvGraph</strong></li>
-  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
-  <li><a href="../modules/Graph.html">Graph</a></li>
-  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/UI.html">UI</a></li>
-  <li><a href="../modules/util.html">util</a></li>
-</ul>
 <h2>Classes</h2>
 <ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/clock.html">clock</a></li>
   <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
   <li><a href="../classes/elca.html">elca</a></li>
+  <li><strong>EnvGraph</strong></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../classes/tabutil.html">tabutil</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/util.html">util</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/control.html">control</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>EnvGraph</code></h1>
+<h1>Class <code>EnvGraph</code></h1>
 <p>Envelope graph drawing module.</p>
 <p>
  Subclass of Graph for drawing common envelope graphs. Includes DADSR, ADSR, ASR and AR (Perc).
@@ -83,66 +83,66 @@
     </ul>
 
 
-<h2><a href="#Functions">Functions</a></h2>
+<h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#new_dadsr">new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:new_dadsr">EnvGraph:new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)</a></td>
 	<td class="summary">Create a new DADSR EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#edit_dadsr">edit_dadsr (delay, attack, decay, sustain, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:edit_dadsr">EnvGraph:edit_dadsr (delay, attack, decay, sustain, release, level, curve)</a></td>
 	<td class="summary">Edit a DADSR EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#new_adsr">new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:new_adsr">EnvGraph:new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)</a></td>
 	<td class="summary">Create a new ADSR EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#edit_adsr">edit_adsr (attack, decay, sustain, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:edit_adsr">EnvGraph:edit_adsr (attack, decay, sustain, release, level, curve)</a></td>
 	<td class="summary">Edit an ADSR EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#new_asr">new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:new_asr">EnvGraph:new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)</a></td>
 	<td class="summary">Create a new ASR EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#edit_asr">edit_asr (attack, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:edit_asr">EnvGraph:edit_asr (attack, release, level, curve)</a></td>
 	<td class="summary">Edit an ASR EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#new_ar">new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:new_ar">EnvGraph:new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)</a></td>
 	<td class="summary">Create a new AR (Perc) EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#edit_ar">edit_ar (attack, release, level, curve)</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:edit_ar">EnvGraph:edit_ar (attack, release, level, curve)</a></td>
 	<td class="summary">Edit an AR (Perc) EnvGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_delay">get_delay ()</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:get_delay">EnvGraph:get_delay ()</a></td>
 	<td class="summary">Get delay value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_attack">get_attack ()</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:get_attack">EnvGraph:get_attack ()</a></td>
 	<td class="summary">Get attack value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_decay">get_decay ()</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:get_decay">EnvGraph:get_decay ()</a></td>
 	<td class="summary">Get decay value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_sustain">get_sustain ()</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:get_sustain">EnvGraph:get_sustain ()</a></td>
 	<td class="summary">Get sustain value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_release">get_release ()</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:get_release">EnvGraph:get_release ()</a></td>
 	<td class="summary">Get release value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_level">get_level ()</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:get_level">EnvGraph:get_level ()</a></td>
 	<td class="summary">Get level value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_curve">get_curve ()</a></td>
+	<td class="name" nowrap><a href="#EnvGraph:get_curve">EnvGraph:get_curve ()</a></td>
 	<td class="summary">Get curve value.</td>
 	</tr>
 </table>
@@ -151,12 +151,12 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
 
     <dl class="function">
     <dt>
-    <a name = "new_dadsr"></a>
-    <strong>new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)</strong>
+    <a name = "EnvGraph:new_dadsr"></a>
+    <strong>EnvGraph:new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)</strong>
     </dt>
     <dd>
     Create a new DADSR EnvGraph object.
@@ -211,8 +211,8 @@
 
 </dd>
     <dt>
-    <a name = "edit_dadsr"></a>
-    <strong>edit_dadsr (delay, attack, decay, sustain, release, level, curve)</strong>
+    <a name = "EnvGraph:edit_dadsr"></a>
+    <strong>EnvGraph:edit_dadsr (delay, attack, decay, sustain, release, level, curve)</strong>
     </dt>
     <dd>
     Edit a DADSR EnvGraph object.
@@ -250,8 +250,8 @@
 
 </dd>
     <dt>
-    <a name = "new_adsr"></a>
-    <strong>new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)</strong>
+    <a name = "EnvGraph:new_adsr"></a>
+    <strong>EnvGraph:new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)</strong>
     </dt>
     <dd>
     Create a new ADSR EnvGraph object.
@@ -303,8 +303,8 @@
 
 </dd>
     <dt>
-    <a name = "edit_adsr"></a>
-    <strong>edit_adsr (attack, decay, sustain, release, level, curve)</strong>
+    <a name = "EnvGraph:edit_adsr"></a>
+    <strong>EnvGraph:edit_adsr (attack, decay, sustain, release, level, curve)</strong>
     </dt>
     <dd>
     Edit an ADSR EnvGraph object.
@@ -339,8 +339,8 @@
 
 </dd>
     <dt>
-    <a name = "new_asr"></a>
-    <strong>new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)</strong>
+    <a name = "EnvGraph:new_asr"></a>
+    <strong>EnvGraph:new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)</strong>
     </dt>
     <dd>
     Create a new ASR EnvGraph object.
@@ -386,8 +386,8 @@
 
 </dd>
     <dt>
-    <a name = "edit_asr"></a>
-    <strong>edit_asr (attack, release, level, curve)</strong>
+    <a name = "EnvGraph:edit_asr"></a>
+    <strong>EnvGraph:edit_asr (attack, release, level, curve)</strong>
     </dt>
     <dd>
     Edit an ASR EnvGraph object.
@@ -416,8 +416,8 @@
 
 </dd>
     <dt>
-    <a name = "new_ar"></a>
-    <strong>new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)</strong>
+    <a name = "EnvGraph:new_ar"></a>
+    <strong>EnvGraph:new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)</strong>
     </dt>
     <dd>
     Create a new AR (Perc) EnvGraph object.
@@ -463,8 +463,8 @@
 
 </dd>
     <dt>
-    <a name = "edit_ar"></a>
-    <strong>edit_ar (attack, release, level, curve)</strong>
+    <a name = "EnvGraph:edit_ar"></a>
+    <strong>EnvGraph:edit_ar (attack, release, level, curve)</strong>
     </dt>
     <dd>
     Edit an AR (Perc) EnvGraph object.
@@ -493,8 +493,8 @@
 
 </dd>
     <dt>
-    <a name = "get_delay"></a>
-    <strong>get_delay ()</strong>
+    <a name = "EnvGraph:get_delay"></a>
+    <strong>EnvGraph:get_delay ()</strong>
     </dt>
     <dd>
     Get delay value.
@@ -512,8 +512,8 @@
 
 </dd>
     <dt>
-    <a name = "get_attack"></a>
-    <strong>get_attack ()</strong>
+    <a name = "EnvGraph:get_attack"></a>
+    <strong>EnvGraph:get_attack ()</strong>
     </dt>
     <dd>
     Get attack value.
@@ -531,8 +531,8 @@
 
 </dd>
     <dt>
-    <a name = "get_decay"></a>
-    <strong>get_decay ()</strong>
+    <a name = "EnvGraph:get_decay"></a>
+    <strong>EnvGraph:get_decay ()</strong>
     </dt>
     <dd>
     Get decay value.
@@ -550,8 +550,8 @@
 
 </dd>
     <dt>
-    <a name = "get_sustain"></a>
-    <strong>get_sustain ()</strong>
+    <a name = "EnvGraph:get_sustain"></a>
+    <strong>EnvGraph:get_sustain ()</strong>
     </dt>
     <dd>
     Get sustain value.
@@ -569,8 +569,8 @@
 
 </dd>
     <dt>
-    <a name = "get_release"></a>
-    <strong>get_release ()</strong>
+    <a name = "EnvGraph:get_release"></a>
+    <strong>EnvGraph:get_release ()</strong>
     </dt>
     <dd>
     Get release value.
@@ -588,8 +588,8 @@
 
 </dd>
     <dt>
-    <a name = "get_level"></a>
-    <strong>get_level ()</strong>
+    <a name = "EnvGraph:get_level"></a>
+    <strong>EnvGraph:get_level ()</strong>
     </dt>
     <dd>
     Get level value.
@@ -607,8 +607,8 @@
 
 </dd>
     <dt>
-    <a name = "get_curve"></a>
-    <strong>get_curve ()</strong>
+    <a name = "EnvGraph:get_curve"></a>
+    <strong>EnvGraph:get_curve ()</strong>
     </dt>
     <dd>
     Get curve value.
@@ -632,7 +632,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-17 15:04:13 </i>
+<i style="float:right;">Last updated 2019-12-18 19:31:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
