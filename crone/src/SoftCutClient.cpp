@@ -260,7 +260,7 @@ void crone::SoftCutClient::readBufferMono(const std::string &path, float startTi
     size_t frDur;
     if (dur < 0.f) {
         auto maxDurSrc = file.frames() - frSrc;
-        auto maxDurDst = file.frames() - frDst;
+        auto maxDurDst = BufFrames - frDst;
         frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
     } else {
         frDur = secToFrame(dur);
@@ -302,7 +302,7 @@ crone::SoftCutClient::readBufferStereo(const std::string &path, float startTimeS
     size_t frDur;
     if (dur < 0.f) {
         auto maxDurSrc = file.frames() - frSrc;
-        auto maxDurDst = file.frames() - frDst;
+        auto maxDurDst = BufFrames - frDst;
         frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
     } else {
         frDur = secToFrame(dur);
