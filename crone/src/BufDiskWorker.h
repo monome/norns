@@ -39,6 +39,13 @@ namespace crone {
             float startDst;
             float dur;
             int chan;
+
+        private:
+            static constexpr char* jobTypeName[] = {
+                    "Clear", "ReadMono", "ReadStereo", "WriteMono", "WriteStereo"
+            };
+        public:
+            const char* typeName() { return jobTypeName[static_cast<int>(this->type)]}
         };
         struct BufDesc {
             float *data;

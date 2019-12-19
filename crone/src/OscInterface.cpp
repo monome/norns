@@ -788,6 +788,6 @@ void OscInterface::deinit() {
 }
 
 void OscInterface::notifyBufferJobComplete(BufDiskWorker::Job job) {
-    // TODO
+    lo_send(matronAddress, "buffer_job_complete", "ss", job.typeString(), job.path);
 }
 
