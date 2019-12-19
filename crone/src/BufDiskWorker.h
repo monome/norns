@@ -24,7 +24,7 @@ namespace crone {
 
     // class for asynchronous management of mono audio buffers
     class BufDiskWorker {
-
+    public:
         enum class JobType {
             Clear,
             ReadMono, ReadStereo,
@@ -41,16 +41,17 @@ namespace crone {
             int chan;
 
         private:
-            static constexpr char* jobTypeName[] = {
-                    "Clear", "ReadMono", "ReadStereo", "WriteMono", "WriteStereo"
-            };
+            static const char* jobTypeName[];
         public:
-            const char* typeName() { return jobTypeName[static_cast<int>(this->type)]}
+            const char* typeName() { return jobTypeName[static_cast<int>(this->type)]; }
         };
+
+    private:
         struct BufDesc {
             float *data;
             size_t frames;
         };
+	
         //--- constants ---//
         // max count of jobs in queue
         static constexpr size_t maxJobs = 256;

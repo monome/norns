@@ -18,6 +18,10 @@ int BufDiskWorker::numBufs = 0;
 bool BufDiskWorker::shouldQuit = false;
 int BufDiskWorker::sampleRate = 48000;
 
+const char* BufDiskWorker::Job::jobTypeName[] = {
+"Clear", "ReadMono", "ReadStereo", "WriteMono", "WriteStereo"
+};
+
 
 // clamp unsigned int to upper bound, inclusive
 static inline void clamp(size_t &x, const size_t a) {
@@ -80,7 +84,7 @@ void BufDiskWorker::workLoop() {
 
             switch (job.type) {
                 case JobType::Clear:
-                    clearBuffer(bufs[job.bufIdx[0], job.startDst, job.dur]);
+                    clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
                     break;
                 case JobType::ReadMono:
                     readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
