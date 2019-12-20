@@ -156,7 +156,7 @@ void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
     size_t frDur;
     if (dur < 0.f) {
         auto maxDurSrc = file.frames() - frSrc;
-        auto maxDurDst = file.frames() - frDst;
+        auto maxDurDst = bufFrames - frDst;
         frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
     } else {
         frDur = secToFrame(dur);
@@ -200,7 +200,7 @@ void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, Buf
     size_t frDur;
     if (dur < 0.f) {
         auto maxDurSrc = file.frames() - frSrc;
-        auto maxDurDst = file.frames() - frDst;
+        auto maxDurDst = bufFrames - frDst;
         frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
     } else {
         frDur = secToFrame(dur);
