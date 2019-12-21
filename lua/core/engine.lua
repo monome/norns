@@ -86,14 +86,14 @@ Engine.load = function(name, callback)
   else
     if type(callback) == 'function' then
       _norns.report.did_engine_load = function()	    
+        Engine.is_loading = false
         local status = norns.try(callback,"init")
         norns.init_done(status)
-        Engine.is_loading = false
       end
     else
       _norns.report.did_engine_load = function()
-        norns.init_done(true)
         Engine.is_loading = false
+        norns.init_done(true)
       end
     end
 

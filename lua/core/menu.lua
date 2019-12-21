@@ -69,7 +69,7 @@ end
 norns.menu.get_enc = function() return _menu.penc end
 norns.menu.get_key = function() return _menu.key end
 norns.menu.get_redraw = function() return _menu.redraw end
-norns.menu.toggle = function(status) menu.set_mode(status) end
+norns.menu.toggle = function(status) _menu.set_mode(status) end
 
 norns.scripterror = function(msg)
   if msg == nil then msg = "" end
@@ -147,6 +147,8 @@ _menu.set_mode = function(mode)
     if _menu.mode == true then _norns.screen_restore() end
     _menu.mode = false
     m[_menu.page].deinit()
+    screen.clear()
+    screen.update()
     redraw = norns.script.redraw
     _menu.key = key
     norns.encoders.callback = enc
