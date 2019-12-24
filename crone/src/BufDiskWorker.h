@@ -7,7 +7,9 @@
  * it requires users to _register_ buffers (returns numerical index for registered buf)
  * disk read/write work can be requested for registered buffers, executed in background thread
  *
- * TODO: callback for request completion
+ * TODO: 
+ *  - callback for request completion?
+ *  - use condvar for signaling, instead of sleep+poll
  */
 
 #ifndef CRONE_BUFMANAGER_H
@@ -17,7 +19,6 @@
 #include <thread>
 #include <mutex>
 #include <queue>
-//#include <boost/lockfree/spsc_queue.hpp>
 #include <memory>
 
 namespace crone {
