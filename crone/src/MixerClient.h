@@ -117,11 +117,11 @@ namespace  crone {
 
     public:
         float getInputPeakPos(int ch) {
-            return inPeak[ch].get();
+            return inPeak[ch].getPos();
         }
 
         float getOutputPeakPos(int ch) {
-            return outPeak[ch].get();
+            return outPeak[ch].getPos();
         }
 
         void openTapeRecord(const char* path) {
@@ -135,7 +135,6 @@ namespace  crone {
         void stopTapeRecord() {
             tape.writer.stop();
         }
-
 
         void openTapePlayback(const char* path) {
             tape.reader.open(path);
