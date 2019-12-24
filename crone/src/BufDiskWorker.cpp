@@ -17,7 +17,7 @@
 
 using namespace crone;
 
-std::unique_ptr<std::> BufDiskWorker::worker = nullptr;
+std::unique_ptr<std::thread> BufDiskWorker::worker = nullptr;
 std::queue<BufDiskWorker::Job> BufDiskWorker::jobQ;
 std::mutex BufDiskWorker::qMut;
 
@@ -270,7 +270,7 @@ void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, Buf
 	int res = file.seek(frSrc, SF_SEEK_SET);
 	if (res == -1) {	    
 	    std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
-	    goto done;
+	    return;
 	}
         file.readf(ioBuf, ioBufFrames);
 	// FIXME? SEEK_CUR gives weird results, i must be using it wrong
@@ -287,16 +287,14 @@ void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, Buf
 
 	if (res == -1) {
 	    std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
-	    goto done;
+	    return;
 	}
         file.read(ioBuf, numSrcChan);
         buf0.data[frDst] = ioBuf[0];
         buf1.data[frDst] = ioBuf[1];
 	frDst++;
 	frSrc++;
-    }
-    
- done:
+    }    
     // std::cout << "SoftCutClient::readBufferStereo(): done; read " << frDur << " frames" << std::endl;
 }
 
