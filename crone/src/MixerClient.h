@@ -136,7 +136,6 @@ namespace  crone {
             tape.writer.stop();
         }
 
-
         void openTapePlayback(const char* path) {
             tape.reader.open(path);
         }
