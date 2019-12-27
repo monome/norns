@@ -1,5 +1,5 @@
 --- Audio class
--- @classmod audio
+-- @module audio
 -- @alias Audio
 
 local Audio = {}
@@ -22,6 +22,7 @@ Audio.level_dac = function(level)
   _norns.level_dac(level)
 end
 
+-- @static
 Audio.level_eng = function(level)
   _norns.level_ext(level)
 end

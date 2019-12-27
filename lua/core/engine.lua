@@ -68,6 +68,7 @@ Engine.add_command = function(id, name, fmt)
   }
 end
 
+--- print all commands reported from the engine
 Engine.list_commands = function()
   print("___ engine commands ___")
   local sorted = tab.sort(Engine.commands)

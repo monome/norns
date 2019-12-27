@@ -79,7 +79,7 @@ Script.init = function()
 end
 
 --- load a script from the /scripts folder.
--- @param filename (string) - file to load. leave blank to reload current file.
+-- @tparam string filename file to load. leave blank to reload current file.
 Script.load = function(filename)
   local name, path, relative
   if filename == nil then

@@ -1,5 +1,5 @@
 --- clock coroutines
--- @classmod clock
+-- @module clock
 
 local clock = {}
 

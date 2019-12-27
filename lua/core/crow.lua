@@ -1,3 +1,6 @@
+--- Crow Module
+-- @module crow
+
 local util = require 'util'
 
 local function tostringwithquotes(s)
@@ -127,19 +130,24 @@ setmetatable(output, output)
 
 local crow = {}
 
+--- send version
 function crow.version() crow.send("^^v") end
+--- send identity
 function crow.identity() crow.send("^^i") end
+--- reset crow
 function crow.reset() crow.send("crow.reset()") end
+--- send kill
 function crow.kill() crow.send("^^k") end
+--- send clear
 function crow.clear() crow.send("^^c") end
 
+--- send a command
 function crow.send(cmd)
   if norns.crow.dev then
     --print("crow send: "..cmd)
     _norns.crow_send(norns.crow.dev,cmd)
   end
 end
-
 function crow.add(id, name, dev) print(">>>>>> norns.crow.add / " .. id .. " / " .. name) end
 function crow.remove(id) print(">>>>>> norns.crow.remove " .. id) end
 function crow.receive(...) print("crow:",...) end
@@ -147,6 +155,7 @@ function crow.receive(...) print("crow:",...) end
 crow.input = { input.new(1), input.new(2) }
 crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
+--- initialize
 crow.init = function()
   crow.reset()
   crow.add = function(id, name, dev) print(">>>>>> norns.crow.add / " .. id .. " / " .. name) end
@@ -162,6 +171,7 @@ crow.init = function()
   crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
 end
 
+--- check if crow is connected
 crow.connected = function()
   return _norns.crow.dev ~= nil
 end

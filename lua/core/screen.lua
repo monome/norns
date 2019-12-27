@@ -93,22 +93,22 @@ Screen.move_rel = function(x, y) _norns.screen_move_rel(x, y) end
 Screen.line = function(x,y) _norns.screen_line(x,y) end
 
 --- draw line to specified point relative to current position.
--- @param x relative destination x
--- @param y relative destination y
+-- @tparam number x relative destination x
+-- @tparam number y relative destination y
 Screen.line_rel = function(x, y) _norns.screen_line_rel(x, y) end
 
 --- draw arc.
--- @param x circle center x
--- @param y circle center y
--- @param r radius
--- @param angle1 start angle
--- @param angle2 end angle
+-- @tparam number x circle center x
+-- @tparam number y circle center y
+-- @tparam number r radius
+-- @tparam number angle1 start angle
+-- @tparam number angle2 end angle
 Screen.arc = function(x, y, r, angle1, angle2) _norns.screen_arc(x, y, r, angle1, angle2) end
 
 --- draw circle.
--- @param x origin x
--- @param y origin y
--- @param r radius
+-- @tparam number x origin x
+-- @tparam number y origin y
+-- @tparam number r radius
 Screen.circle = function(x, y, r) _norns.screen_circle(x, y, r) end
 
 --- draw rectangle.
@@ -195,12 +195,12 @@ Screen.text_center = function(str) _norns.screen_text_center(str) end
 Screen.font_face = function(index) _norns.screen_font_face(index) end
 
 --- set font size.
--- @param size in pixel height.
+-- @tparam number size in pixel height.
 Screen.font_size = function(size) _norns.screen_font_size(size) end
 
 --- draw single pixel (requires integer x/y, fill afterwards).
--- @param x position
--- @param y position
+-- @tparam number x position
+-- @tparam number y position
 Screen.pixel = function(x, y)
   _norns.screen_rect(x, y, 1, 1)
 end
@@ -224,8 +224,8 @@ end
 
 --- display png.
 -- @param filename
--- @param x x position
--- @param y y position
+-- @tparam number x x position
+-- @tparam number y y position
 Screen.display_png = function(filename,x,y) _norns.screen_display_png(filename,x,y) end
 
 
