@@ -52,7 +52,7 @@ function Metro.init(arg, arg_time, arg_count)
 end
 
 --- free
--- @tparam numbder id
+-- @tparam number id
 function Metro.free(id)
   Metro.metros[id]:stop()
   Metro.available[id] = true
