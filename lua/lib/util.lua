@@ -1,5 +1,5 @@
 --- Utility module
--- @classmod util
+-- @module util
 
 util = {}
 

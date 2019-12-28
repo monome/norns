@@ -128,12 +128,12 @@ Screen.rect = function(x, y, w, h) _norns.screen_rect(x, y, w, h) end
 Screen.curve = function(x1, y1, x2, y2, x3, y3) _norns.screen_curve(x1, y1, x2, y2, x3, y3) end
 
 --- draw curve (cubic Bézier spline) relative coordinates.
--- @tparam number relative destination x
--- @tparam number relative destination y
--- @tparam number handle 1 x
--- @tparam number handle 1 y
--- @tparam number handle 2 x
--- @tparam number handle 2 y
+-- @tparam number x1 relative destination x
+-- @tparam number y1 relative destination y
+-- @tparam number x2 handle 1 x
+-- @tparam number y2 handle 1 y
+-- @tparam number x3 handle 2 x
+-- @tparam number y3 handle 2 y
 Screen.curve_rel = function(x1, y1, x2, y2, x3, y3) _norns.screen_curve_rel(x1, y1, x2, y2, x3, y3) end
 
 --- close current path.

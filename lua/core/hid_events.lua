@@ -1,4 +1,4 @@
---- hid event listing
+-- hid event listing
 local hid_events = {}
 
 -- Event types

@@ -37,9 +37,9 @@ SC.level_input_cut = function(ch, voice, value)
 end
 
 --- set mix matrix, voice output to voice input
--- @tparam number src
--- @tparam number dest
--- @tparam number value
+-- @tparam number src source
+-- @tparam number dst destination
+-- @tparam number value value
 SC.level_cut_cut = function(src, dst, value)
   _norns.level_cut_cut(src, dst, value)
 end

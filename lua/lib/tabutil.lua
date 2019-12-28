@@ -1,5 +1,5 @@
 --- table utility
--- @classmod tabutil
+-- @module tabutil
 -- @alias tab
 
 local tab = {}

@@ -1,7 +1,7 @@
 --- Music utility module.
 -- Utility methods for working with notes, scales and chords.
 --
--- @classmod MusicUtil
+-- @module MusicUtil
 -- @release v1.1.1
 -- @author Mark Eats
 
