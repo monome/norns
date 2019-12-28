@@ -22,7 +22,6 @@ namespace crone {
 	}
 
 	float get() const { return val; }
-	float getPos() const { return Taper::Vu::getPos(val); }
 	
     private:    
 	// get max value in audio block
