@@ -1,5 +1,6 @@
 --- Script class
 -- @classmod script
+-- @alias Script
 
 local Script = {}
 
@@ -171,8 +172,8 @@ Script.run = function()
 end
 
 --- load script metadata.
--- @param filename file to load
--- @return meta table with metadata
+-- @tparam string filename file to load
+-- @treturn table meta table with metadata
 Script.metadata = function(filename)
   local meta = {}
   local f=io.open(filename,"r")

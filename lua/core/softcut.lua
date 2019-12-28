@@ -4,7 +4,7 @@
 -- includes low-level setters and mid-level utilities
 --
 -- @classmod softcut
--- @alias softcut
+-- @alias SC
 
 local SC = {}
 
@@ -37,6 +37,9 @@ SC.level_input_cut = function(ch, voice, value)
 end
 
 --- set mix matrix, voice output to voice input
+-- @tparam number src
+-- @tparam number dest
+-- @tparam number value
 SC.level_cut_cut = function(src, dst, value)
   _norns.level_cut_cut(src, dst, value)
 end
@@ -192,7 +195,7 @@ function SC.reset()
 end
 
 --- get the default state of the softcut system
---- @return table of parameter states for each voice
+--- @treturn table table of parameter states for each voice
 function SC.defaults()
   local state = {}
   for i=1,SC.COUNT do
