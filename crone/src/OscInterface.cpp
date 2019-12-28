@@ -59,10 +59,10 @@ void OscInterface::init(MixerClient *m, SoftCutClient *sc) {
     vuPoll->setCallback([](const char *path) {
         char l[4];
 
-        l[0] = (uint8_t) (64 * mixerClient->getInputPeak(0));
-        l[1] = (uint8_t) (64 * mixerClient->getInputPeak(1));
-        l[2] = (uint8_t) (64 * mixerClient->getOutputPeak(0));
-        l[3] = (uint8_t) (64 * mixerClient->getOutputPeak(1));
+        l[0] = (uint8_t) (64 * mixerClient->getInputPeakPos(0));
+        l[1] = (uint8_t) (64 * mixerClient->getInputPeakPos(1));
+        l[2] = (uint8_t) (64 * mixerClient->getOutputPeakPos(0));
+        l[3] = (uint8_t) (64 * mixerClient->getOutputPeakPos(1));
 
         lo_blob bl = lo_blob_new(sizeof(l), l);
         lo_send(matronAddress, path, "b", bl);

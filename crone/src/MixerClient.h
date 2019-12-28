@@ -116,11 +116,11 @@ namespace  crone {
         PeakMeter outPeak[2];
 
     public:
-        float getInputPeak(int ch) {
+        float getInputPeakPos(int ch) {
             return inPeak[ch].get();
         }
 
-        float getOutputPeak(int ch) {
+        float getOutputPeakPos(int ch) {
             return outPeak[ch].get();
         }
 
