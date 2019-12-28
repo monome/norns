@@ -1,6 +1,10 @@
+--- pattern
+-- @classmod pattern
+
 local pattern = {}
 pattern.__index = pattern
 
+--- constructor
 function pattern.new()
   local i = {}
   setmetatable(i, pattern)
@@ -20,6 +24,7 @@ function pattern.new()
   return i
 end
 
+--- clear this pattern
 function pattern:clear()
   self.metro:stop()
   self.rec = 0
@@ -33,16 +38,18 @@ function pattern:clear()
 end
 
 --- adjust the time factor of this pattern.
--- @param f time factor
+-- @tparam number f time factor
 function pattern:set_time_factor(f)
   self.time_factor = f or 1
 end
 
+--- start recording
 function pattern:rec_start()
   print("pattern rec start")
   self.rec = 1
 end
 
+--- stop recording
 function pattern:rec_stop()
   if self.rec == 1 then
     self.rec = 0
@@ -59,12 +66,14 @@ function pattern:rec_stop()
   end
 end
 
+--- watch
 function pattern:watch(e)
   if self.rec == 1 then
     self:rec_event(e)
   end
 end
 
+--- record event
 function pattern:rec_event(e)
   local c = self.count + 1
   if c == 1 then
@@ -80,6 +89,7 @@ function pattern:rec_event(e)
   self.event[c] = e
 end
 
+--- start this pattern
 function pattern:start()
   if self.count > 0 then
     print("start pattern ")
@@ -91,6 +101,7 @@ function pattern:start()
   end
 end
 
+--- process next event
 function pattern:next_event()
   if self.step == self.count then self.step = 1
   else self.step = self.step + 1 end
@@ -102,6 +113,7 @@ function pattern:next_event()
   self.metro:start()
 end
 
+--- stop this pattern
 function pattern:stop()
   if self.play == 1 then
     print("stop pattern ")
