@@ -41,7 +41,6 @@ int BufDiskWorker::registerBuffer(float *data, size_t frames) {
 }
 
 void BufDiskWorker::requestJob(BufDiskWorker::Job &job) {
-    std::cout << "BufDiskWorker: job requested; type: " << (int) job.type << std::endl;
     qMut.lock();
     jobQ.push(job);
     qMut.unlock();
@@ -55,28 +54,25 @@ void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
 
 void
 BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc) {
-    std::cout << "BufDiskWorker: read_mono requested" << std::endl;
     BufDiskWorker::Job job{BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur,
                            chanSrc};
     requestJob(job);
 }
 
-void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc, float startDst,
-                                      float dur) {
-    std::cout << "BufDiskWorker: read_stereo requested" << std::endl;
+void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path,
+				      float startSrc, float startDst, float dur) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::ReadStereo, {idx0, idx1}, std::move(path), startSrc, startDst, dur,
                            0};
     requestJob(job);
 }
 
 void BufDiskWorker::requestWriteMono(size_t idx, std::string path, float start, float dur) {
-    std::cout << "BufDiskWorker: write_mono requested" << std::endl;
     BufDiskWorker::Job job{BufDiskWorker::JobType::WriteMono, {idx, 0}, std::move(path), start, start, dur, 0};
     requestJob(job);
 }
 
-void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
-    std::cout << "BufDiskWorker: write_stereo requested" << std::endl;
+void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path,
+				       float start, float dur) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::WriteStereo, {idx0, idx1}, std::move(path), start, start, dur, 0};
     requestJob(job);
 }
