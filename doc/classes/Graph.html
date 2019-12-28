@@ -40,8 +40,8 @@
 <ul class="nowrap">
   <li><a href="../classes/arc.html">arc</a></li>
   <li><a href="../classes/audio.html">audio</a></li>
-  <li><a href="../classes/clock.html">clock</a></li>
   <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
   <li><a href="../classes/engine.html">engine</a></li>
   <li><a href="../classes/grid.html">grid</a></li>
   <li><a href="../classes/hid.html">hid</a></li>
@@ -54,14 +54,25 @@
   <li><a href="../classes/screen.html">screen</a></li>
   <li><a href="../classes/script.html">script</a></li>
   <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
   <li><a href="../classes/elca.html">elca</a></li>
   <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
   <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
   <li><strong>Graph</strong></li>
-  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../classes/tabutil.html">tabutil</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
   <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/util.html">util</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
 </ul>
 
 </div>
@@ -287,30 +298,39 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
          Minimum value for x axis, defaults to 0.
         </li>
         <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
          Maximum value for x axis, defaults to 1.
         </li>
         <li><span class="parameter">x_warp</span>
-         String defines warping for x axis, accepts "lin" or "exp", defaults to "lin".
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         defines warping for x axis, accepts "lin" or "exp", defaults to "lin".
         </li>
         <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
          Minimum value for y axis, defaults to 0.
         </li>
         <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
          Maximum value for y axis, defaults to 1.
         </li>
         <li><span class="parameter">y_warp</span>
-         String defines warping for y axis, accepts "lin" or "exp", defaults to "lin".
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         defines warping for y axis, accepts "lin" or "exp", defaults to "lin".
         </li>
         <li><span class="parameter">style</span>
-         String defines visual style, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar", defaults to "line".
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         defines visual style, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar", defaults to "line".
         </li>
         <li><span class="parameter">show_x_axis</span>
+            <span class="types"><span class="type">boolean</span></span>
          Display the x axis if set to true, defaults to false.
         </li>
         <li><span class="parameter">show_y_axis</span>
+            <span class="types"><span class="type">boolean</span></span>
          Display the y axis if set to true, defaults to false.
         </li>
     </ul>
@@ -318,6 +338,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="../classes/Graph.html#">Graph</a></span>
         Instance of Graph.
     </ol>
 
@@ -337,15 +358,19 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          x position in pixels.
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          y position in pixels.
         </li>
         <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
          Width in pixels.
         </li>
         <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
          Height in pixels.
         </li>
     </ul>
@@ -367,6 +392,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         y position.
     </ol>
 
@@ -385,7 +411,8 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
-         y position in pixels.
+            <span class="types"><span class="type">number</span></span>
+         x position in pixels.
         </li>
     </ul>
 
@@ -406,6 +433,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         y position.
     </ol>
 
@@ -424,6 +452,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          y position in pixels.
         </li>
     </ul>
@@ -445,6 +474,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         Width.
     </ol>
 
@@ -463,6 +493,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
          Width in pixels.
         </li>
     </ul>
@@ -484,6 +515,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         Height.
     </ol>
 
@@ -502,6 +534,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
          Height in pixels.
         </li>
     </ul>
@@ -523,6 +556,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         Minimum value of x axis.
     </ol>
 
@@ -541,6 +575,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
          Minimum value of x axis.
         </li>
     </ul>
@@ -562,6 +597,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         Maximum value of x axis.
     </ol>
 
@@ -580,6 +616,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
          Maximum value of x axis.
         </li>
     </ul>
@@ -601,6 +638,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         x warp string.
     </ol>
 
@@ -619,6 +657,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">warp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Warp string, accepts "lin" or "exp".
         </li>
     </ul>
@@ -640,6 +679,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         Minimum value of y axis.
     </ol>
 
@@ -658,6 +698,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
          Minimum value of y axis.
         </li>
     </ul>
@@ -679,6 +720,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         Maximum value of y axis.
     </ol>
 
@@ -697,6 +739,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
          Maximum value of y axis.
         </li>
     </ul>
@@ -718,6 +761,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         y warp string.
     </ol>
 
@@ -736,6 +780,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">warp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Warp string, accepts "lin" or "exp".
         </li>
     </ul>
@@ -757,6 +802,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         Style string.
     </ol>
 
@@ -775,6 +821,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">style</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Style string, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar".
         </li>
     </ul>
@@ -796,6 +843,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">boolean</span></span>
         Show x axis boolean.
     </ol>
 
@@ -814,7 +862,8 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">bool</span>
-         Boolean, display the x axis if set to true.
+            <span class="types"><span class="type">boolean</span></span>
+         display the x axis if set to true.
         </li>
     </ul>
 
@@ -853,7 +902,8 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">bool</span>
-         Boolean, display the y axis if set to true.
+            <span class="types"><span class="type">boolean</span></span>
+         display the y axis if set to true.
         </li>
     </ul>
 
@@ -874,6 +924,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">boolean</span></span>
         Active boolean.
     </ol>
 
@@ -892,7 +943,8 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">bool</span>
-         Boolean, darkens the graph appearance when set to false.
+            <span class="types"><span class="type">boolean</span></span>
+         darkens the graph appearance when set to false.
         </li>
     </ul>
 
@@ -919,6 +971,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         Point table.
     </ol>
 
@@ -937,20 +990,25 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">px</span>
+            <span class="types"><span class="type">number</span></span>
          Point's x position.
         </li>
         <li><span class="parameter">py</span>
+            <span class="types"><span class="type">number</span></span>
          Point's y position.
         </li>
         <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
          Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to "lin".
          (<em>optional</em>)
         </li>
         <li><span class="parameter">highlight</span>
+            <span class="types"><span class="type">boolean</span></span>
          Highlights the point if set to true, defaults to false.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
          Index to add point at, defaults to the end of the list.
          (<em>optional</em>)
         </li>
@@ -972,21 +1030,26 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
          Index of point to edit.
         </li>
         <li><span class="parameter">px</span>
+            <span class="types"><span class="type">number</span></span>
          Point's x position.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">py</span>
+            <span class="types"><span class="type">number</span></span>
          Point's y position.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
          Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">highlight</span>
+            <span class="types"><span class="type">boolean</span></span>
          Highlights the point if set to true.
          (<em>optional</em>)
         </li>
@@ -1125,6 +1188,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">function</span></span>
         Function.
     </ol>
 
@@ -1144,9 +1208,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
          A function that should return the value of y for any given value of x. For example, 'function(x) return math.sin(x) end'
         </li>
         <li><span class="parameter">sample_quality</span>
+            <span class="types"><span class="type">number</span></span>
          Quality to sample the graph function at. Values less than 1 will sample less than once per pixel, values higher than 1 can help reduce jitter of graphs with high frequency changes at the cost of performance. Recommended range 0.25 to 4, defaults to 1.
          (<em>optional</em>)
         </li>
@@ -1175,9 +1241,11 @@
          Index of function to edit.
         </li>
         <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
          A function that should return the value of y for any given value of x.
         </li>
         <li><span class="parameter">sample_quality</span>
+            <span class="types"><span class="type">number</span></span>
          Quality to sample the graph function at, defaults to 1.
          (<em>optional</em>)
         </li>
@@ -1260,7 +1328,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-18 20:53:52 </i>
+<i style="float:right;">Last updated 2019-12-28 15:39:53 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

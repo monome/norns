@@ -5,6 +5,9 @@
 <head>
     <title>norns/docs</title>
     <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+  <script>
+    window.location.href = window.location.pathname.split('/modules/').join('/classes/');
+  </script>
 </head>
 <body>
 
@@ -32,18 +35,23 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Methods">Methods</a></li>
-<li><a href="#Metamethods">Metamethods</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
 
 
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><strong>engine</strong></li>
+  <li><a href="../modules/hid_events.html">hid_events</a></li>
+</ul>
 <h2>Classes</h2>
 <ul class="nowrap">
   <li><a href="../classes/arc.html">arc</a></li>
-  <li><a href="../classes/audio.html">audio</a></li>
   <li><a href="../classes/controlspec.html">controlspec</a></li>
-  <li><a href="../classes/encoders.html">encoders</a></li>
-  <li><strong>engine</strong></li>
   <li><a href="../classes/grid.html">grid</a></li>
   <li><a href="../classes/hid.html">hid</a></li>
   <li><a href="../classes/metro.html">metro</a></li>
@@ -55,63 +63,49 @@
   <li><a href="../classes/screen.html">screen</a></li>
   <li><a href="../classes/script.html">script</a></li>
   <li><a href="../classes/softcut.html">softcut</a></li>
-  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
   <li><a href="../classes/elca.html">elca</a></li>
   <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
   <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
   <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../classes/tabutil.html">tabutil</a></li>
   <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/voice.html">voice</a></li>
-</ul>
-<h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/clock.html">clock</a></li>
-  <li><a href="../modules/crow.html">crow</a></li>
-  <li><a href="../modules/er.html">er</a></li>
-  <li><a href="../modules/formatters.html">formatters</a></li>
-  <li><a href="../modules/intonation.html">intonation</a></li>
-  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../classes/util.html">util</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Class <code>engine</code></h1>
+<h1>Module <code>engine</code></h1>
 <p>Engine class</p>
 <p></p>
 
 
-<h2><a href="#Methods">Methods</a></h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#engine:register">engine:register (data, count)</a></td>
+	<td class="name" nowrap><a href="#register">register (data, count)</a></td>
 	<td class="summary">register all available engines.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#engine:register_commands">engine:register_commands (data, count)</a></td>
+	<td class="name" nowrap><a href="#register_commands">register_commands (data, count)</a></td>
 	<td class="summary">populate the current engine object with available commands.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#engine:add_command">engine:add_command (id, name, fmt)</a></td>
+	<td class="name" nowrap><a href="#add_command">add_command (id, name, fmt)</a></td>
 	<td class="summary">add a command to the current engine.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#engine:list_commands">engine:list_commands ()</a></td>
+	<td class="name" nowrap><a href="#list_commands">list_commands ()</a></td>
 	<td class="summary">print all commands reported from the engine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#engine:load">engine:load (name, callback)</a></td>
+	<td class="name" nowrap><a href="#load">load (name, callback)</a></td>
 	<td class="summary">load a named engine, with a callback.</td>
 	</tr>
-</table>
-<h2><a href="#Metamethods">Metamethods</a></h2>
-<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#engine:__index">engine:__index (self, idx)</a></td>
+	<td class="name" nowrap><a href="#__index">__index (self, idx)</a></td>
 	<td class="summary">custom getters.</td>
 	</tr>
 </table>
@@ -120,12 +114,12 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
-
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
     <dl class="function">
     <dt>
-    <a name = "engine:register"></a>
-    <strong>engine:register (data, count)</strong>
+    <a name = "register"></a>
+    <strong>register (data, count)</strong>
     </dt>
     <dd>
     register all available engines.
@@ -148,8 +142,8 @@
 
 </dd>
     <dt>
-    <a name = "engine:register_commands"></a>
-    <strong>engine:register_commands (data, count)</strong>
+    <a name = "register_commands"></a>
+    <strong>register_commands (data, count)</strong>
     </dt>
     <dd>
     populate the current engine object with available commands.
@@ -173,8 +167,8 @@
 
 </dd>
     <dt>
-    <a name = "engine:add_command"></a>
-    <strong>engine:add_command (id, name, fmt)</strong>
+    <a name = "add_command"></a>
+    <strong>add_command (id, name, fmt)</strong>
     </dt>
     <dd>
     add a command to the current engine.
@@ -199,8 +193,8 @@
 
 </dd>
     <dt>
-    <a name = "engine:list_commands"></a>
-    <strong>engine:list_commands ()</strong>
+    <a name = "list_commands"></a>
+    <strong>list_commands ()</strong>
     </dt>
     <dd>
     print all commands reported from the engine
@@ -213,8 +207,8 @@
 
 </dd>
     <dt>
-    <a name = "engine:load"></a>
-    <strong>engine:load (name, callback)</strong>
+    <a name = "load"></a>
+    <strong>load (name, callback)</strong>
     </dt>
     <dd>
     load a named engine, with a callback.
@@ -240,13 +234,9 @@
 
 
 </dd>
-</dl>
-    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
-
-    <dl class="function">
     <dt>
-    <a name = "engine:__index"></a>
-    <strong>engine:__index (self, idx)</strong>
+    <a name = "__index"></a>
+    <strong>__index (self, idx)</strong>
     </dt>
     <dd>
     custom getters.
@@ -276,7 +266,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-28 15:39:53 </i>
+<i style="float:right;">Last updated 2019-12-27 12:33:06 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

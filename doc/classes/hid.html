@@ -32,6 +32,7 @@
 
 <h2>Contents</h2>
 <ul>
+<li><a href="#Functions">Functions</a></li>
 <li><a href="#Methods">Methods</a></li>
 </ul>
 
@@ -40,8 +41,8 @@
 <ul class="nowrap">
   <li><a href="../classes/arc.html">arc</a></li>
   <li><a href="../classes/audio.html">audio</a></li>
-  <li><a href="../classes/clock.html">clock</a></li>
   <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
   <li><a href="../classes/engine.html">engine</a></li>
   <li><a href="../classes/grid.html">grid</a></li>
   <li><strong>hid</strong></li>
@@ -54,14 +55,25 @@
   <li><a href="../classes/screen.html">screen</a></li>
   <li><a href="../classes/script.html">script</a></li>
   <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
   <li><a href="../classes/elca.html">elca</a></li>
   <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
   <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
   <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../classes/tabutil.html">tabutil</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
   <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/util.html">util</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
 </ul>
 
 </div>
@@ -73,29 +85,32 @@
 <p></p>
 
 
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#hid.add">hid.add (dev)</a></td>
+	<td class="summary">static callback when any hid device is added;
+ user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#hid.remove">hid.remove (dev)</a></td>
+	<td class="summary">static callback when any hid device is removed;
+ user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#hid.connect">hid.connect (n)</a></td>
+	<td class="summary">create device, returns object with handler and send</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#hid.cleanup">hid.cleanup ()</a></td>
+	<td class="summary">clear handlers</td>
+	</tr>
+</table>
 <h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#hid:new">hid:new (id, name, types, codes, dev)</a></td>
 	<td class="summary">constructor</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#hid:add">hid:add (dev)</a></td>
-	<td class="summary">static callback when any hid device is added;
- user scripts can redefine</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#hid:remove">hid:remove (dev)</a></td>
-	<td class="summary">static callback when any hid device is removed;
- user scripts can redefine</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#hid:connect">hid:connect (n)</a></td>
-	<td class="summary">create device, returns object with handler and send</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#hid:cleanup">hid:cleanup ()</a></td>
-	<td class="summary">clear handlers</td>
 	</tr>
 </table>
 
@@ -103,6 +118,86 @@
 <br/>
 
 
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "hid.add"></a>
+    <strong>hid.add (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any hid device is added;
+ user scripts can redefine
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Hid table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "hid.remove"></a>
+    <strong>hid.remove (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any hid device is removed;
+ user scripts can redefine
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Hid table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "hid.connect"></a>
+    <strong>hid.connect (n)</strong>
+    </dt>
+    <dd>
+    create device, returns object with handler and send
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "hid.cleanup"></a>
+    <strong>hid.cleanup ()</strong>
+    </dt>
+    <dd>
+    clear handlers
+
+
+
+
+
+
+
+</dd>
+</dl>
     <h2 class="section-header "><a name="Methods"></a>Methods</h2>
 
     <dl class="function">
@@ -143,82 +238,6 @@
 
 
 </dd>
-    <dt>
-    <a name = "hid:add"></a>
-    <strong>hid:add (dev)</strong>
-    </dt>
-    <dd>
-    static callback when any hid device is added;
- user scripts can redefine
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev</span>
-         : a Hid table
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "hid:remove"></a>
-    <strong>hid:remove (dev)</strong>
-    </dt>
-    <dd>
-    static callback when any hid device is removed;
- user scripts can redefine
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev</span>
-         : a Hid table
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "hid:connect"></a>
-    <strong>hid:connect (n)</strong>
-    </dt>
-    <dd>
-    create device, returns object with handler and send
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">n</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "hid:cleanup"></a>
-    <strong>hid:cleanup ()</strong>
-    </dt>
-    <dd>
-    clear handlers
-
-
-
-
-
-
-
-</dd>
 </dl>
 
 
@@ -226,7 +245,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-18 20:53:52 </i>
+<i style="float:right;">Last updated 2019-12-28 15:39:53 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

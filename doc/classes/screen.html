@@ -40,8 +40,8 @@
 <ul class="nowrap">
   <li><a href="../classes/arc.html">arc</a></li>
   <li><a href="../classes/audio.html">audio</a></li>
-  <li><a href="../classes/clock.html">clock</a></li>
   <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
   <li><a href="../classes/engine.html">engine</a></li>
   <li><a href="../classes/grid.html">grid</a></li>
   <li><a href="../classes/hid.html">hid</a></li>
@@ -54,14 +54,25 @@
   <li><strong>screen</strong></li>
   <li><a href="../classes/script.html">script</a></li>
   <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
   <li><a href="../classes/elca.html">elca</a></li>
   <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
   <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
   <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../classes/tabutil.html">tabutil</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
   <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/util.html">util</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
 </ul>
 
 </div>
@@ -288,6 +299,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
          0-15 (0=off, 15=white)
         </li>
     </ul>
@@ -308,6 +320,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
          line width (in pixels, floats permitted)
         </li>
     </ul>
@@ -388,9 +401,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          position x
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          position y
         </li>
     </ul>
@@ -411,9 +426,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          relative position x
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          relative position y
         </li>
     </ul>
@@ -434,9 +451,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          destination x
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          destination y
         </li>
     </ul>
@@ -457,9 +476,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          relative destination x
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          relative destination y
         </li>
     </ul>
@@ -480,18 +501,23 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          circle center x
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          circle center y
         </li>
         <li><span class="parameter">r</span>
+            <span class="types"><span class="type">number</span></span>
          radius
         </li>
         <li><span class="parameter">angle1</span>
+            <span class="types"><span class="type">number</span></span>
          start angle
         </li>
         <li><span class="parameter">angle2</span>
+            <span class="types"><span class="type">number</span></span>
          end angle
         </li>
     </ul>
@@ -512,12 +538,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          origin x
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          origin y
         </li>
         <li><span class="parameter">r</span>
+            <span class="types"><span class="type">number</span></span>
          radius
         </li>
     </ul>
@@ -538,15 +567,19 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          x position
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          y position
         </li>
         <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
          width
         </li>
         <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
          height
         </li>
     </ul>
@@ -567,21 +600,27 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">number</span></span>
          destination x
         </li>
         <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">number</span></span>
          destination y
         </li>
         <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">number</span></span>
          handle 1 x
         </li>
         <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">number</span></span>
          handle 1 y
         </li>
         <li><span class="parameter">x3</span>
+            <span class="types"><span class="type">number</span></span>
          handle 2 x
         </li>
         <li><span class="parameter">y3</span>
+            <span class="types"><span class="type">number</span></span>
          handle 2 y
         </li>
     </ul>
@@ -602,21 +641,27 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">number</span></span>
          relative destination x
         </li>
         <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">number</span></span>
          relative destination y
         </li>
         <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">number</span></span>
          handle 1 x
         </li>
         <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">number</span></span>
          handle 1 y
         </li>
         <li><span class="parameter">x3</span>
+            <span class="types"><span class="type">number</span></span>
          handle 2 x
         </li>
         <li><span class="parameter">y3</span>
+            <span class="types"><span class="type">number</span></span>
          handle 2 y
         </li>
     </ul>
@@ -781,6 +826,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">size</span>
+            <span class="types"><span class="type">number</span></span>
          in pixel height.
         </li>
     </ul>
@@ -801,9 +847,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          position
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          position
         </li>
     </ul>
@@ -827,9 +875,11 @@
 
         </li>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          x position
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          y position
         </li>
     </ul>
@@ -846,7 +896,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-18 20:53:52 </i>
+<i style="float:right;">Last updated 2019-12-28 15:39:53 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

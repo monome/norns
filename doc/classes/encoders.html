@@ -41,7 +41,7 @@
   <li><a href="../classes/arc.html">arc</a></li>
   <li><a href="../classes/audio.html">audio</a></li>
   <li><a href="../classes/controlspec.html">controlspec</a></li>
-  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><strong>encoders</strong></li>
   <li><a href="../classes/engine.html">engine</a></li>
   <li><a href="../classes/grid.html">grid</a></li>
   <li><a href="../classes/hid.html">hid</a></li>
@@ -52,7 +52,7 @@
   <li><a href="../classes/paramset.html">paramset</a></li>
   <li><a href="../classes/poll.html">poll</a></li>
   <li><a href="../classes/screen.html">screen</a></li>
-  <li><strong>script</strong></li>
+  <li><a href="../classes/script.html">script</a></li>
   <li><a href="../classes/softcut.html">softcut</a></li>
   <li><a href="../classes/BeatClock.html">BeatClock</a></li>
   <li><a href="../classes/elca.html">elca</a></li>
@@ -79,28 +79,24 @@
 
 <div id="content">
 
-<h1>Class <code>script</code></h1>
-<p>Script class</p>
+<h1>Class <code>encoders</code></h1>
+<p>Encoders class</p>
 <p></p>
 
 
 <h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#script:clear">script:clear ()</a></td>
-	<td class="summary">reset script environment.</td>
+	<td class="name" nowrap><a href="#encoders:set_accel">encoders:set_accel (n, z)</a></td>
+	<td class="summary">set acceleration</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#script:load">script:load (filename)</a></td>
-	<td class="summary">load a script from the /scripts folder.</td>
+	<td class="name" nowrap><a href="#encoders:set_sens">encoders:set_sens (n, s)</a></td>
+	<td class="summary">set sensitivity</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#script:run">script:run ()</a></td>
-	<td class="summary">load engine, execute script-specified init (if present).</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#script:metadata">script:metadata (filename)</a></td>
-	<td class="summary">load script metadata.</td>
+	<td class="name" nowrap><a href="#encoders:process">encoders:process (n, d)</a></td>
+	<td class="summary">process delta</td>
 	</tr>
 </table>
 
@@ -112,33 +108,20 @@
 
     <dl class="function">
     <dt>
-    <a name = "script:clear"></a>
-    <strong>script:clear ()</strong>
+    <a name = "encoders:set_accel"></a>
+    <strong>encoders:set_accel (n, z)</strong>
     </dt>
     <dd>
-    reset script environment.
- ie redirect draw, key, enc functions, stop timers, clear engine, etc.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "script:load"></a>
-    <strong>script:load (filename)</strong>
-    </dt>
-    <dd>
-    load a script from the /scripts folder.
+    set acceleration
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">filename</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         file to load. leave blank to reload current file.
+        <li><span class="parameter">n</span>
+
+        </li>
+        <li><span class="parameter">z</span>
+
         </li>
     </ul>
 
@@ -148,13 +131,22 @@
 
 </dd>
     <dt>
-    <a name = "script:run"></a>
-    <strong>script:run ()</strong>
+    <a name = "encoders:set_sens"></a>
+    <strong>encoders:set_sens (n, s)</strong>
     </dt>
     <dd>
-    load engine, execute script-specified init (if present).
+    set sensitivity
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+
+        </li>
+        <li><span class="parameter">s</span>
+
+        </li>
+    </ul>
 
 
 
@@ -162,27 +154,23 @@
 
 </dd>
     <dt>
-    <a name = "script:metadata"></a>
-    <strong>script:metadata (filename)</strong>
+    <a name = "encoders:process"></a>
+    <strong>encoders:process (n, d)</strong>
     </dt>
     <dd>
-    load script metadata.
+    process delta
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">filename</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         file to load
+        <li><span class="parameter">n</span>
+
+        </li>
+        <li><span class="parameter">d</span>
+
         </li>
     </ul>
 
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        meta table with metadata
-    </ol>
 
 
 
