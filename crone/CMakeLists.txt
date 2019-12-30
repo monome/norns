@@ -7,6 +7,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 set (SRC src/main.cpp
+        src/BufDiskWorker.h
         src/Client.h
         src/Utilities.h
         src/OscInterface.cpp
@@ -26,8 +27,7 @@ set (SRC src/main.cpp
         src/Poll.h
         src/Taper.cpp
         src/Window.cpp
-        src/WindowedPeak.h
-        )
+        src/BufDiskWorker.cpp)
 
 add_executable(crone ${SRC})
 
