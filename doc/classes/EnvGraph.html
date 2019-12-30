@@ -1,0 +1,716 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><strong>EnvGraph</strong></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>EnvGraph</code></h1>
+<p>Envelope graph drawing module.</p>
+<p>
+ Subclass of Graph for drawing common envelope graphs. Includes DADSR, ADSR, ASR and AR (Perc).
+</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Release</strong>: v1.0.1</li>
+        <li><strong>Author</strong>: Mark Eats</li>
+    </ul>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:new_dadsr">EnvGraph:new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)</a></td>
+	<td class="summary">Create a new DADSR EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:edit_dadsr">EnvGraph:edit_dadsr (delay, attack, decay, sustain, release, level, curve)</a></td>
+	<td class="summary">Edit a DADSR EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:new_adsr">EnvGraph:new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)</a></td>
+	<td class="summary">Create a new ADSR EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:edit_adsr">EnvGraph:edit_adsr (attack, decay, sustain, release, level, curve)</a></td>
+	<td class="summary">Edit an ADSR EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:new_asr">EnvGraph:new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)</a></td>
+	<td class="summary">Create a new ASR EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:edit_asr">EnvGraph:edit_asr (attack, release, level, curve)</a></td>
+	<td class="summary">Edit an ASR EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:new_ar">EnvGraph:new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)</a></td>
+	<td class="summary">Create a new AR (Perc) EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:edit_ar">EnvGraph:edit_ar (attack, release, level, curve)</a></td>
+	<td class="summary">Edit an AR (Perc) EnvGraph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:get_delay">EnvGraph:get_delay ()</a></td>
+	<td class="summary">Get delay value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:get_attack">EnvGraph:get_attack ()</a></td>
+	<td class="summary">Get attack value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:get_decay">EnvGraph:get_decay ()</a></td>
+	<td class="summary">Get decay value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:get_sustain">EnvGraph:get_sustain ()</a></td>
+	<td class="summary">Get sustain value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:get_release">EnvGraph:get_release ()</a></td>
+	<td class="summary">Get release value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:get_level">EnvGraph:get_level ()</a></td>
+	<td class="summary">Get level value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EnvGraph:get_curve">EnvGraph:get_curve ()</a></td>
+	<td class="summary">Get curve value.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "EnvGraph:new_dadsr"></a>
+    <strong>EnvGraph:new_dadsr (x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Create a new DADSR EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for x axis, defaults to 0.
+        </li>
+        <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for x axis, defaults to 1.
+        </li>
+        <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for y axis, defaults to 0.
+        </li>
+        <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for y axis, defaults to 1.
+        </li>
+        <li><span class="parameter">delay</span>
+            <span class="types"><span class="type">number</span></span>
+         Delay value, defaults to 0.1
+        </li>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value, defaults to 0.05.
+        </li>
+        <li><span class="parameter">decay</span>
+            <span class="types"><span class="type">number</span></span>
+         Decay value, defaults to 0.2.
+        </li>
+        <li><span class="parameter">sustain</span>
+            <span class="types"><span class="type">number</span></span>
+         Sustain value, accepts 0-1, defaults to 0.5.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value, defaults to 0.3.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max, defaults to 1.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/EnvGraph.html#">EnvGraph</a></span>
+        Instance of EnvGraph.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:edit_dadsr"></a>
+    <strong>EnvGraph:edit_dadsr (delay, attack, decay, sustain, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Edit a DADSR EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">delay</span>
+            <span class="types"><span class="type">number</span></span>
+         Delay value.
+        </li>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value.
+        </li>
+        <li><span class="parameter">decay</span>
+            <span class="types"><span class="type">number</span></span>
+         Decay value.
+        </li>
+        <li><span class="parameter">sustain</span>
+            <span class="types"><span class="type">number</span></span>
+         Sustain value, accepts 0-1.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:new_adsr"></a>
+    <strong>EnvGraph:new_adsr (x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Create a new ADSR EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for x axis, defaults to 0.
+        </li>
+        <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for x axis, defaults to 1.
+        </li>
+        <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for y axis, defaults to 0.
+        </li>
+        <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for y axis, defaults to 1.
+        </li>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value, defaults to 0.05.
+        </li>
+        <li><span class="parameter">decay</span>
+            <span class="types"><span class="type">number</span></span>
+         Decay value, defaults to 0.2.
+        </li>
+        <li><span class="parameter">sustain</span>
+            <span class="types"><span class="type">number</span></span>
+         Sustain value, accepts 0-1, defaults to 0.5.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value, defaults to 0.3.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max, defaults to 1.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/EnvGraph.html#">EnvGraph</a></span>
+        Instance of EnvGraph.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:edit_adsr"></a>
+    <strong>EnvGraph:edit_adsr (attack, decay, sustain, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Edit an ADSR EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value.
+        </li>
+        <li><span class="parameter">decay</span>
+            <span class="types"><span class="type">number</span></span>
+         Decay value.
+        </li>
+        <li><span class="parameter">sustain</span>
+            <span class="types"><span class="type">number</span></span>
+         Sustain value, accepts 0-1.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:new_asr"></a>
+    <strong>EnvGraph:new_asr (x_min, x_max, y_min, y_max, attack, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Create a new ASR EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for x axis, defaults to 0.
+        </li>
+        <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for x axis, defaults to 1.
+        </li>
+        <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for y axis, defaults to 0.
+        </li>
+        <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for y axis, defaults to 1.
+        </li>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value, defaults to 0.05.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value, defaults to 0.3.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max, defaults to 1.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/EnvGraph.html#">EnvGraph</a></span>
+        Instance of EnvGraph.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:edit_asr"></a>
+    <strong>EnvGraph:edit_asr (attack, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Edit an ASR EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:new_ar"></a>
+    <strong>EnvGraph:new_ar (x_min, x_max, y_min, y_max, attack, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Create a new AR (Perc) EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for x axis, defaults to 0.
+        </li>
+        <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for x axis, defaults to 1.
+        </li>
+        <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for y axis, defaults to 0.
+        </li>
+        <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for y axis, defaults to 1.
+        </li>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value, defaults to 0.05.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value, defaults to 0.3.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max, defaults to 1.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/EnvGraph.html#">EnvGraph</a></span>
+        Instance of EnvGraph.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:edit_ar"></a>
+    <strong>EnvGraph:edit_ar (attack, release, level, curve)</strong>
+    </dt>
+    <dd>
+    Edit an AR (Perc) EnvGraph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">attack</span>
+            <span class="types"><span class="type">number</span></span>
+         Attack value.
+        </li>
+        <li><span class="parameter">release</span>
+            <span class="types"><span class="type">number</span></span>
+         Release value.
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         Level value, accepts y_min to y_max.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:get_delay"></a>
+    <strong>EnvGraph:get_delay ()</strong>
+    </dt>
+    <dd>
+    Get delay value.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Delay value.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:get_attack"></a>
+    <strong>EnvGraph:get_attack ()</strong>
+    </dt>
+    <dd>
+    Get attack value.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Attack value.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:get_decay"></a>
+    <strong>EnvGraph:get_decay ()</strong>
+    </dt>
+    <dd>
+    Get decay value.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Decay value.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:get_sustain"></a>
+    <strong>EnvGraph:get_sustain ()</strong>
+    </dt>
+    <dd>
+    Get sustain value.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Sustain value.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:get_release"></a>
+    <strong>EnvGraph:get_release ()</strong>
+    </dt>
+    <dd>
+    Get release value.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Release value.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:get_level"></a>
+    <strong>EnvGraph:get_level ()</strong>
+    </dt>
+    <dd>
+    Get level value.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Level value.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EnvGraph:get_curve"></a>
+    <strong>EnvGraph:get_curve ()</strong>
+    </dt>
+    <dd>
+    Get curve value.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+        Curve value.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

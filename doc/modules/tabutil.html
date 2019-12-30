@@ -38,30 +38,41 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><a href="../modules/arc.html">arc</a></li>
-  <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/clock.html">clock</a></li>
-  <li><a href="../modules/controlspec.html">controlspec</a></li>
-  <li><a href="../modules/engine.html">engine</a></li>
-  <li><a href="../modules/grid.html">grid</a></li>
-  <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/metro.html">metro</a></li>
-  <li><a href="../modules/midi.html">midi</a></li>
-  <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/control.html">control</a></li>
-  <li><a href="../modules/paramset.html">paramset</a></li>
-  <li><a href="../modules/poll.html">poll</a></li>
-  <li><a href="../modules/screen.html">screen</a></li>
-  <li><a href="../modules/script.html">script</a></li>
-  <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/elca.html">elca</a></li>
-  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
-  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><strong>tabutil</strong></li>
-  <li><a href="../modules/UI.html">UI</a></li>
   <li><a href="../modules/util.html">util</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
 </ul>
 
 </div>
@@ -76,44 +87,44 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#tab.print">tab.print (t)</a></td>
+	<td class="name" nowrap><a href="#print">print (t)</a></td>
 	<td class="summary">print the contents of a table</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.sort">tab.sort (t)</a></td>
+	<td class="name" nowrap><a href="#sort">sort (t)</a></td>
 	<td class="summary">return a lexigraphically sorted array of keys for a table</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.count">tab.count (t)</a></td>
+	<td class="name" nowrap><a href="#count">count (t)</a></td>
 	<td class="summary">count the number of entries in a table;
  unlike table.getn() or #table, nil entries won't break the loop</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.contains">tab.contains (t, e)</a></td>
+	<td class="name" nowrap><a href="#contains">contains (t, e)</a></td>
 	<td class="summary">search table for element</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.key">tab.key (t, e)</a></td>
+	<td class="name" nowrap><a href="#key">key (t, e)</a></td>
 	<td class="summary">search table for element, return key</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.lines">tab.lines (str)</a></td>
+	<td class="name" nowrap><a href="#lines">lines (str)</a></td>
 	<td class="summary">split multi-line string into table of strings</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.split">tab.split (inputstr, sep)</a></td>
+	<td class="name" nowrap><a href="#split">split (inputstr, sep)</a></td>
 	<td class="summary">split string into table with delimiter</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.save">tab.save (tbl, filename)</a></td>
+	<td class="name" nowrap><a href="#save">save (tbl, filename)</a></td>
 	<td class="summary">Save a table to disk.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.load">tab.load (sfile)</a></td>
+	<td class="name" nowrap><a href="#load">load (sfile)</a></td>
 	<td class="summary">Load a table that has been saved via the tab.save() function.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tab.readonly">tab.readonly (params)</a></td>
+	<td class="name" nowrap><a href="#readonly">readonly (params)</a></td>
 	<td class="summary">Create a read-only proxy for a given table.</td>
 	</tr>
 </table>
@@ -126,8 +137,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "tab.print"></a>
-    <strong>tab.print (t)</strong>
+    <a name = "print"></a>
+    <strong>print (t)</strong>
     </dt>
     <dd>
     print the contents of a table
@@ -136,6 +147,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to print
         </li>
     </ul>
@@ -146,8 +158,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.sort"></a>
-    <strong>tab.sort (t)</strong>
+    <a name = "sort"></a>
+    <strong>sort (t)</strong>
     </dt>
     <dd>
     return a lexigraphically sorted array of keys for a table
@@ -156,6 +168,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to sort
         </li>
     </ul>
@@ -163,6 +176,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         sorted table
     </ol>
 
@@ -171,8 +185,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.count"></a>
-    <strong>tab.count (t)</strong>
+    <a name = "count"></a>
+    <strong>count (t)</strong>
     </dt>
     <dd>
     count the number of entries in a table;
@@ -182,6 +196,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to count
         </li>
     </ul>
@@ -189,6 +204,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         count
     </ol>
 
@@ -197,8 +213,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.contains"></a>
-    <strong>tab.contains (t, e)</strong>
+    <a name = "contains"></a>
+    <strong>contains (t, e)</strong>
     </dt>
     <dd>
     search table for element
@@ -207,6 +223,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to check
         </li>
         <li><span class="parameter">e</span>
@@ -217,6 +234,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">boolean</span></span>
         t/f is element is present
     </ol>
 
@@ -225,8 +243,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.key"></a>
-    <strong>tab.key (t, e)</strong>
+    <a name = "key"></a>
+    <strong>key (t, e)</strong>
     </dt>
     <dd>
     search table for element, return key
@@ -235,6 +253,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to check
         </li>
         <li><span class="parameter">e</span>
@@ -253,8 +272,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.lines"></a>
-    <strong>tab.lines (str)</strong>
+    <a name = "lines"></a>
+    <strong>lines (str)</strong>
     </dt>
     <dd>
     split multi-line string into table of strings
@@ -263,6 +282,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          string with line breaks
         </li>
     </ul>
@@ -270,6 +290,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         table with entries for each line
     </ol>
 
@@ -278,8 +299,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.split"></a>
-    <strong>tab.split (inputstr, sep)</strong>
+    <a name = "split"></a>
+    <strong>split (inputstr, sep)</strong>
     </dt>
     <dd>
     split string into table with delimiter
@@ -303,8 +324,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.save"></a>
-    <strong>tab.save (tbl, filename)</strong>
+    <a name = "save"></a>
+    <strong>save (tbl, filename)</strong>
     </dt>
     <dd>
     Save a table to disk.
@@ -317,9 +338,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          Table to save.
         </li>
         <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Location to save to.
         </li>
     </ul>
@@ -335,8 +358,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.load"></a>
-    <strong>tab.load (sfile)</strong>
+    <a name = "load"></a>
+    <strong>load (sfile)</strong>
     </dt>
     <dd>
     Load a table that has been saved via the tab.save() function.
@@ -345,6 +368,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">sfile</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Filename or stringtable to load.
         </li>
     </ul>
@@ -360,8 +384,8 @@
 
 </dd>
     <dt>
-    <a name = "tab.readonly"></a>
-    <strong>tab.readonly (params)</strong>
+    <a name = "readonly"></a>
+    <strong>readonly (params)</strong>
     </dt>
     <dd>
     Create a read-only proxy for a given table.
@@ -377,6 +401,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         the proxied read-only table
     </ol>
 
@@ -391,7 +416,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-17 15:14:18 </i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

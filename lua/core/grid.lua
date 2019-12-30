@@ -1,5 +1,5 @@
 --- Grid class
--- @module grid
+-- @classmod grid
 -- @alias Grid
 
 ---------------------------------
@@ -68,6 +68,7 @@ end
 
 --- static callback when any grid device is added;
 -- user scripts can redefine
+-- @static
 -- @param dev : a Grid table
 function Grid.add(dev)
   print("grid added:", dev.id, dev.name, dev.serial)
@@ -75,6 +76,7 @@ end
 
 --- static callback when any grid device is removed;
 -- user scripts can redefine
+-- @static
 -- @param dev : a Grid table
 function Grid.remove(dev) end
 
@@ -109,6 +111,7 @@ function Grid:intensity(i)
 end
 
 --- create device, returns object with handler and send.
+-- @static
 -- @tparam integer n : vport index
 function Grid.connect(n)
   local n = n or 1
@@ -117,6 +120,7 @@ function Grid.connect(n)
 end
 
 --- clear handlers.
+-- @static
 function Grid.cleanup()
   for i=1,4 do
     Grid.vports[i].key = nil
@@ -130,6 +134,7 @@ function Grid.cleanup()
 end
 
 --- update devices.
+-- @static
 function Grid.update_devices()
   -- build list of available devices
   Grid.list = {}

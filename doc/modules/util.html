@@ -38,30 +38,41 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><a href="../modules/arc.html">arc</a></li>
-  <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/clock.html">clock</a></li>
-  <li><a href="../modules/controlspec.html">controlspec</a></li>
-  <li><a href="../modules/engine.html">engine</a></li>
-  <li><a href="../modules/grid.html">grid</a></li>
-  <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/metro.html">metro</a></li>
-  <li><a href="../modules/midi.html">midi</a></li>
-  <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/control.html">control</a></li>
-  <li><a href="../modules/paramset.html">paramset</a></li>
-  <li><a href="../modules/poll.html">poll</a></li>
-  <li><a href="../modules/screen.html">screen</a></li>
-  <li><a href="../modules/script.html">script</a></li>
-  <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/elca.html">elca</a></li>
-  <li><a href="../modules/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../modules/FilterGraph.html">FilterGraph</a></li>
-  <li><a href="../modules/Graph.html">Graph</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/UI.html">UI</a></li>
   <li><strong>util</strong></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
 </ul>
 
 </div>
@@ -155,6 +166,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">db</span>
+            <span class="types"><span class="type">number</span></span>
 
         </li>
     </ul>
@@ -162,6 +174,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         amp
     </ol>
 
@@ -199,10 +212,17 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">directory</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          path to directory
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+
+    </ol>
 
 
 
@@ -219,6 +239,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          filepath
         </li>
     </ul>
@@ -226,6 +247,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">boolean</span></span>
         true/false
     </ol>
 
@@ -244,6 +266,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
         </li>
     </ul>
@@ -264,6 +287,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">cmd</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          command
         </li>
         <li><span class="parameter">raw</span>
@@ -274,7 +298,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        ouput
+        output
     </ol>
 
 
@@ -292,9 +316,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          string to examine
         </li>
         <li><span class="parameter">start</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          string to search for
         </li>
     </ul>
@@ -302,6 +328,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">boolean</span></span>
         true or false
     </ol>
 
@@ -320,12 +347,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
+            <span class="types"><span class="type">number</span></span>
          value
         </li>
         <li><span class="parameter">min</span>
+            <span class="types"><span class="type">number</span></span>
          minimum
         </li>
         <li><span class="parameter">max</span>
+            <span class="types"><span class="type">number</span></span>
          maximum
         </li>
     </ul>
@@ -333,6 +363,7 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         clamped value
     </ol>
 
@@ -351,22 +382,33 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of input range
         </li>
         <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of input range
         </li>
         <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of output range (must be non-zero and of the same sign as dhi)
         </li>
         <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of output range (must be non-zero and of the same sign as dlo)
         </li>
         <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
          input to convert
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
 
 
 
@@ -383,22 +425,33 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of input range
         </li>
         <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of input range
         </li>
         <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of output range
         </li>
         <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of output range
         </li>
         <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
          input to convert
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
 
 
 
@@ -415,22 +468,33 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of input range (must be non-zero and of the same sign as shi)
         </li>
         <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of input range (must be non-zero and of the same sign as slo)
         </li>
         <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of output range
         </li>
         <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of output range
         </li>
         <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
          input to convert
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
 
 
 
@@ -447,22 +511,33 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of input range (must be non-zero and of the same sign as shi)
         </li>
         <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of input range (must be non-zero and of the same sign as slo)
         </li>
         <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
          lower limit of output range (must be non-zero and of the same sign as dhi)
         </li>
         <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
          upper limit of output range (must be non-zero and of the same sign as dlo)
         </li>
         <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
          input to convert
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
 
 
 
@@ -479,9 +554,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">number</span>
-         number to round
+            <span class="types"><span class="type">number</span></span>
+         to round
         </li>
         <li><span class="parameter">quant</span>
+            <span class="types"><span class="type">number</span></span>
          precision to round to
         </li>
     </ul>
@@ -502,9 +579,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">number</span>
-         number to round
+            <span class="types"><span class="type">number</span></span>
+         to round
         </li>
         <li><span class="parameter">quant</span>
+            <span class="types"><span class="type">number</span></span>
          precision to round to
         </li>
     </ul>
@@ -525,6 +604,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
+            <span class="types"><span class="type">number</span></span>
          seconds
         </li>
     </ul>
@@ -547,7 +627,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-17 15:14:18 </i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

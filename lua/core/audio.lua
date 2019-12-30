@@ -1,11 +1,11 @@
 --- Audio class
--- @module audio
+-- @classmod audio
 -- @alias Audio
 
 local Audio = {}
 
 --- set headphone gain.
--- @param gain (0-64)
+-- @tparam number gain (0-64)
 Audio.headphone_gain = function(gain)
   _norns.gain_hp(gain)
 end
@@ -22,6 +22,7 @@ Audio.level_dac = function(level)
   _norns.level_dac(level)
 end
 
+-- @static
 Audio.level_eng = function(level)
   _norns.level_ext(level)
 end
@@ -87,32 +88,32 @@ function Audio.rev_off()
 end
 
 --- reverb Monitor level.
--- @param val
+-- @tparam number val
 function Audio.level_monitor_rev(val)
    _norns.level_monitor_rev(val)
 end
 
 --- reverb ENGINE level.
--- @param val
+-- @tparam number val
 function Audio.level_eng_rev(val)
    _norns.level_ext_rev(val)
 end
 
 --- reverb TAPE level.
--- @param val
+-- @tparam number val
 function Audio.level_tape_rev(val)
    _norns.level_tape_rev(val)
 end
 
 --- reverb DAC level.
--- @param val
+-- @tparam number val
 function Audio.level_rev_dac(val)
    _norns.level_rev_dac(val)
 end
 
 --- set reverb parameter.
--- @param name
--- @param val
+-- @tparam string name
+-- @tparam number val
 function Audio.rev_param(name, val)
    _norns.rev_param(name, val)
 end
@@ -128,14 +129,14 @@ function Audio.comp_off()
 end
 
 --- compressor mix amount.
--- @param val
+-- @tparam number val
 function Audio.comp_mix(val)
    _norns.comp_mix(val)
 end
 
 --- set compressor parameter.
--- @param name
--- @param val
+-- @tparam string name
+-- @tparam number val
 function Audio.comp_param(name, val)
    _norns.comp_param(name, val)
 end
@@ -182,25 +183,25 @@ end
 -- @section softcut
 
 --- softcut adc level.
--- @param value
+-- @tparam number value
 Audio.level_adc_cut = function(value)
   _norns.level_adc_cut(value)
 end
 
 --- softcut eng level.
--- @param value
+-- @tparam number value
 Audio.level_eng_cut = function(value)
   _norns.level_ext_cut(value)
 end
 
 --- softcut tape level.
--- @param value
+-- @tparam number value
 Audio.level_tape_cut = function(value)
   _norns.level_tape_cut(value)
 end
 
 --- softcut cut reverb level.
--- @param value
+-- @tparam number value
 Audio.level_cut_rev = function(value)
   _norns.level_cut_rev(value)
 end
@@ -224,7 +225,7 @@ end
 -- @section helpers
 
 --- set output level, clamped, save state.
--- @param value audio level (0-64)
+-- @tparam number value audio level (0-64)
 function Audio.set_audio_level(value)
   local l = util.clamp(value,0,64)
   if l ~= norns.state.out then
@@ -234,7 +235,7 @@ function Audio.set_audio_level(value)
 end
 
 --- adjust output level, clamped, save state.
--- @param delta amount to change output level
+-- @tparam number delta amount to change output level
 function Audio.adjust_output_level(delta)
   local l = util.clamp(norns.state.out + delta,0,64)
   if l ~= norns.state.out then
@@ -244,7 +245,7 @@ function Audio.adjust_output_level(delta)
 end
 
 --- print audio file info 
--- @param path (from dust directory)
+-- @tparam string path (from dust directory)
 function Audio.file_info(path)
   -- dur, ch, rate
   --print("file_info: " .. path)

@@ -1,5 +1,5 @@
 --- Hid class
--- @module hid
+-- @classmod hid
 -- @alias Hid
 
 ---------------------------------
@@ -61,6 +61,7 @@ end
 
 --- static callback when any hid device is added;
 -- user scripts can redefine
+-- @static
 -- @param dev : a Hid table
 function Hid.add(dev)
   print("hid added:", dev.id, dev.name)
@@ -68,11 +69,13 @@ end
 
 --- static callback when any hid device is removed;
 -- user scripts can redefine
+-- @static
 -- @param dev : a Hid table
 function Hid.remove(dev) end
 
 
 --- create device, returns object with handler and send
+-- @static
 function Hid.connect(n)
   local n = n or 1
 
@@ -80,6 +83,7 @@ function Hid.connect(n)
 end
 
 --- clear handlers
+-- @static
 function Hid.cleanup()
   for i=1,4 do
     Hid.vports[i].event = nil

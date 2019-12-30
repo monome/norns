@@ -1,12 +1,16 @@
--- "just" some intonation tables
+--- "just" some intonation tables
+-- @module intonation
+-- @alias JI
 
 local JI = {}
 
--- 12-tone scales
+--- 12-tone scales
+-- @section
 
--- small variation of ptolemaic 5-limit with closer minor 7th.
+--- small variation of ptolemaic 5-limit with closer minor 7th.
 -- taking cue from jeff snyder and calling this "normal" since it is most commonly used.
 -- also known as "Duodene" by Alexander Ellis (19th c.)
+-- @treturn table
 function JI.normal() 
    return { 
       1/1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 15/9, 15/8
@@ -14,30 +18,34 @@ function JI.normal()
 end
 
 
--- ptolemaic 12-tone (5-limit) - very similar except for kinda weird m7
+--- ptolemaic 12-tone (5-limit) - very similar except for kinda weird m7
+-- @treturn table
 function JI.ptolemy() 
    return { 
       1/1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 9/5, 15/8
    }
 end
 
--- ben johnston's overtone scale
+--- ben johnston's overtone scale
 -- identical to jeff snyder's "otonal" scale
+-- @treturn table
 function JI.overtone() 
    return {
       1/1, 17/16, 9/8, 19/16, 5/4, 21/16, 11/8, 3/2, 13/8, 27/16, 7/4, 15/8
    }
 end
 
--- subharmonic mirror of the overtone scale
+--- subharmonic mirror of the overtone scale
 -- jeff calls this "utonal" after partch
+-- @treturn table
 function JI.undertone()
    return { 
       1/1, 16/15, 8/7, 32/27, 16/13, 4/3, 16/11, 32/21, 8/5, 32/19, 16/9, 32/17,
    }
 end
 
--- lamonte young's 'well-tuned piano' (very eccentric)
+--- lamonte young's 'well-tuned piano' (very eccentric)
+-- @treturn table
 function JI.lamonte() 
    return {
       1/1, 567/512, 9/8, 147/128, 21/16, 1323/1024, 189/128, 3/2, 49/32, 7/4, 441/256, 63/32
@@ -46,9 +54,11 @@ end
 
 
 
--- higher-tone scales / gamuts
+--- higher-tone scales / gamuts
+-- @section
 
--- gioseffo zarlino's 16-tone (5-limit)
+--- gioseffo zarlino's 16-tone (5-limit)
+-- @treturn table
 function JI.zarlino() 
    return {
       1/1, 25/24, 10/9, 9/8, 32/27, 6/5, 5/4, 4/3, 25/18, 45/32, 3/2, 25/16, 5/3, 16/9, 9/5, 15/8
@@ -56,7 +66,8 @@ function JI.zarlino()
 end
 
 
--- harry partch 43-tone (11-limit, plus some)
+--- harry partch 43-tone (11-limit, plus some)
+-- @treturn table
 function JI.partch() 
    return {
       1/1, 
@@ -105,9 +116,10 @@ function JI.partch()
    }
 end
 
--- finally, jeff snyder's full 168-tone gamut
+--- finally, jeff snyder's full 168-tone gamut
 -- see his disseration for reference:
 -- http://scatter.server295.com/full-dissertation.pdf
+-- @treturn table
 
 function JI.gamut()
    return {

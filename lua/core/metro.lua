@@ -1,5 +1,5 @@
 --- high-resolution metro API
--- @module metro
+-- @classmod metro
 -- @alias Metro_mt
 
 local Metro = {}
@@ -15,9 +15,9 @@ Metro.assigned = {}
 
 --- initialize a metro.
 -- assigns unused id.
--- @param arg callback function
--- @param arg_time time period between ticks (seconds).
--- @param arg_count number of ticks. infinite by default.
+-- @tparam function arg callback function
+-- @tparam number arg_time time period between ticks (seconds).
+-- @tparam number arg_count number of ticks. infinite by default.
 function Metro.init(arg, arg_time, arg_count)
   local event = 0
   local time = arg_time or 1
@@ -51,12 +51,15 @@ function Metro.init(arg, arg_time, arg_count)
   return nil
 end
 
+--- free
+-- @tparam number id
 function Metro.free(id)
   Metro.metros[id]:stop()
   Metro.available[id] = true
   Metro.assigned[id] = false
 end
 
+--- free all
 function Metro.free_all()
   for i=1,Metro.num_script_metros do
     Metro.free(i)
@@ -66,6 +69,7 @@ end
 
 --- constructor.
 -- @tparam integer id : identifier
+-- @treturn Metro
 function Metro.new(id)
   local m = {}
   m.props = {
@@ -80,9 +84,9 @@ function Metro.new(id)
 end
 
 --- start a metro.
--- @param time - (optional) time period between ticks (seconds.) by default, re-use the last period
--- @param count - (optional) number of ticks. infinite by default
--- @param stage - (optional) initial stage number (1-based.) 1 by default
+-- @tparam[opt] number time - time period between ticks (seconds.) by default, re-use the last period
+-- @tparam[opt] number count - number of ticks. infinite by default
+-- @tparam[opt] number stage - initial stage number (1-based.) 1 by default
 function Metro:start(time, count, stage)
   if type(time) == "table" then
     if time.time then self.props.time = time.time end
@@ -120,7 +124,7 @@ Metro.__newindex = function(self, idx, val)
   end
 end
 
---- class custom .__index.
+-- class custom .__index.
 -- [] accessor returns one of the static metro objects.
 Metro.__index = function(self, idx)
   if type(idx) == "number" then

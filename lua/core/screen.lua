@@ -1,6 +1,6 @@
 --- Screen class
 -- subset of cairo drawing functions. see https://www.cairographics.org/tutorial/
--- @module screen
+-- @classmod screen
 -- @alias Screen
 local Screen = {}
 
@@ -52,11 +52,11 @@ Screen.aa = function(state) _norns.screen_aa(state) end
 Screen.clear = function() _norns.screen_clear() end
 
 --- set level (color/brightness).
--- @param value 0-15 (0=off, 15=white)
+-- @tparam number value 0-15 (0=off, 15=white)
 Screen.level = function(value) _norns.screen_level(value) end
 
 --- set line width.
--- @param w line width (in pixels, floats permitted)
+-- @tparam number w line width (in pixels, floats permitted)
 Screen.line_width = function(w) _norns.screen_line_width(w) end
 
 --- set line cap style.
@@ -78,62 +78,62 @@ Screen.miter_limit = function(limit)
 end
 
 --- move drawing position.
--- @param x position x
--- @param y position y
+-- @tparam number x position x
+-- @tparam number y position y
 Screen.move = function(x, y) _norns.screen_move(x, y) end
 
 --- move drawing position relative to current position.
--- @param x relative position x
--- @param y relative position y
+-- @tparam number x relative position x
+-- @tparam number y relative position y
 Screen.move_rel = function(x, y) _norns.screen_move_rel(x, y) end
 
 --- draw line to specified point.
--- @param x destination x
--- @param y destination y
+-- @tparam number x destination x
+-- @tparam number y destination y
 Screen.line = function(x,y) _norns.screen_line(x,y) end
 
 --- draw line to specified point relative to current position.
--- @param x relative destination x
--- @param y relative destination y
+-- @tparam number x relative destination x
+-- @tparam number y relative destination y
 Screen.line_rel = function(x, y) _norns.screen_line_rel(x, y) end
 
 --- draw arc.
--- @param x circle center x
--- @param y circle center y
--- @param r radius
--- @param angle1 start angle
--- @param angle2 end angle
+-- @tparam number x circle center x
+-- @tparam number y circle center y
+-- @tparam number r radius
+-- @tparam number angle1 start angle
+-- @tparam number angle2 end angle
 Screen.arc = function(x, y, r, angle1, angle2) _norns.screen_arc(x, y, r, angle1, angle2) end
 
 --- draw circle.
--- @param x origin x
--- @param y origin y
--- @param r radius
+-- @tparam number x origin x
+-- @tparam number y origin y
+-- @tparam number r radius
 Screen.circle = function(x, y, r) _norns.screen_circle(x, y, r) end
 
 --- draw rectangle.
--- @param x x position
--- @param y y position
--- @param w width
--- @param h height
+-- @tparam number x x position
+-- @tparam number y y position
+-- @tparam number w width
+-- @tparam number h height
 Screen.rect = function(x, y, w, h) _norns.screen_rect(x, y, w, h) end
 
 --- draw curve (cubic Bézier spline).
--- @param x1 destination x
--- @param y1 destination y
--- @param x2 handle 1 x
--- @param y2 handle 1 y
--- @param x3 handle 2 x
--- @param y3 handle 2 y
+-- @tparam number x1 destination x
+-- @tparam number y1 destination y
+-- @tparam number x2 handle 1 x
+-- @tparam number y2 handle 1 y
+-- @tparam number x3 handle 2 x
+-- @tparam number y3 handle 2 y
 Screen.curve = function(x1, y1, x2, y2, x3, y3) _norns.screen_curve(x1, y1, x2, y2, x3, y3) end
 
 --- draw curve (cubic Bézier spline) relative coordinates.
--- @param x1 relative destination x
--- @param y1 relative destination y
--- @param x2 handle 1 x
--- @param y2 handle 1 y
--- @param x3 handle 2 x
--- @param y3 handle 2 y
+-- @tparam number x1 relative destination x
+-- @tparam number y1 relative destination y
+-- @tparam number x2 handle 1 x
+-- @tparam number y2 handle 1 y
+-- @tparam number x3 handle 2 x
+-- @tparam number y3 handle 2 y
 Screen.curve_rel = function(x1, y1, x2, y2, x3, y3) _norns.screen_curve_rel(x1, y1, x2, y2, x3, y3) end
 
 --- close current path.
@@ -195,12 +195,12 @@ Screen.text_center = function(str) _norns.screen_text_center(str) end
 Screen.font_face = function(index) _norns.screen_font_face(index) end
 
 --- set font size.
--- @param size in pixel height.
+-- @tparam number size in pixel height.
 Screen.font_size = function(size) _norns.screen_font_size(size) end
 
 --- draw single pixel (requires integer x/y, fill afterwards).
--- @param x position
--- @param y position
+-- @tparam number x position
+-- @tparam number y position
 Screen.pixel = function(x, y)
   _norns.screen_rect(x, y, 1, 1)
 end
@@ -224,8 +224,8 @@ end
 
 --- display png.
 -- @param filename
--- @param x x position
--- @param y y position
+-- @tparam number x x position
+-- @tparam number y y position
 Screen.display_png = function(filename,x,y) _norns.screen_display_png(filename,x,y) end
 
 

@@ -1,0 +1,1575 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#"> </a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><strong>softcut</strong></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>softcut</code></h1>
+<p>Softcut module</p>
+<p> API for controlling the "softcut" buffer processor
+ includes low-level setters and mid-level utilities
+</p>
+
+
+<h2><a href="#"> </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#softcut:level">softcut:level (voice, value)</a></td>
+	<td class="summary">set level of each voice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pan">softcut:pan (voice, value)</a></td>
+	<td class="summary">set pan of each voice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:level_input_cut">softcut:level_input_cut (ch, voice, value)</a></td>
+	<td class="summary">set input level to each voice/channel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:level_cut_cut">softcut:level_cut_cut (src, dst, value)</a></td>
+	<td class="summary">set mix matrix, voice output to voice input</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:play">softcut:play (voice, state)</a></td>
+	<td class="summary">set play status</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:loop_start">softcut:loop_start (voice, value)</a></td>
+	<td class="summary">set loop start</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:loop_end">softcut:loop_end (voice, value)</a></td>
+	<td class="summary">set loop end</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:loop">softcut:loop (voice, state)</a></td>
+	<td class="summary">set loop mode</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:fade_time">softcut:fade_time (voice, value)</a></td>
+	<td class="summary">set fade time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:rec_level">softcut:rec_level (voice, value)</a></td>
+	<td class="summary">set record level</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_level">softcut:pre_level (voice, value)</a></td>
+	<td class="summary">set pre level (overdub preserve)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:rec">softcut:rec (voice, state)</a></td>
+	<td class="summary">set record status</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:rec_offset">softcut:rec_offset (voice, value)</a></td>
+	<td class="summary">set record head offset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:position">softcut:position (voice, value)</a></td>
+	<td class="summary">set play position</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer">softcut:buffer (i, b)</a></td>
+	<td class="summary">specify buffer used by voice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:voice_sync">softcut:voice_sync (src, dest, v)</a></td>
+	<td class="summary">sync two voices</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_fc">softcut:pre_filter_fc (voice, value)</a></td>
+	<td class="summary">set pre_filter cutoff</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_fc_mod">softcut:pre_filter_fc_mod (voice, value)</a></td>
+	<td class="summary">set pre_filter mod</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_rq">softcut:pre_filter_rq (voice, value)</a></td>
+	<td class="summary">set pre_filter q</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_lp">softcut:pre_filter_lp (voice, value)</a></td>
+	<td class="summary">set pre_filter lp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_hp">softcut:pre_filter_hp (voice, value)</a></td>
+	<td class="summary">set pre_filter hp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_bp">softcut:pre_filter_bp (voice, value)</a></td>
+	<td class="summary">set pre_filter bp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_br">softcut:pre_filter_br (voice, value)</a></td>
+	<td class="summary">set pre_filter br</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pre_filter_dry">softcut:pre_filter_dry (voice, value)</a></td>
+	<td class="summary">set pre_filter dry</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:filter_fc">softcut:filter_fc (voice, value)</a></td>
+	<td class="summary">wrappers around pre_filter, for backwards compatibility</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_fc">softcut:post_filter_fc (voice, value)</a></td>
+	<td class="summary">set post_filter cutoff</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_fc_mod">softcut:post_filter_fc_mod (voice, value)</a></td>
+	<td class="summary">set post_filter mod</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_rq">softcut:post_filter_rq (voice, value)</a></td>
+	<td class="summary">set post_filter q</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_lp">softcut:post_filter_lp (voice, value)</a></td>
+	<td class="summary">set post_filter lp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_hp">softcut:post_filter_hp (voice, value)</a></td>
+	<td class="summary">set post_filter hp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_bp">softcut:post_filter_bp (voice, value)</a></td>
+	<td class="summary">set post_filter bp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_br">softcut:post_filter_br (voice, value)</a></td>
+	<td class="summary">set post_filter br</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:post_filter_dry">softcut:post_filter_dry (voice, value)</a></td>
+	<td class="summary">set post_filter dry</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:level_slew_time">softcut:level_slew_time (voice, value)</a></td>
+	<td class="summary">set level slew time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:pan_slew_time">softcut:pan_slew_time (voice, value)</a></td>
+	<td class="summary">set pan slew time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:recpre_slew_time">softcut:recpre_slew_time (voice, value)</a></td>
+	<td class="summary">set recpre slew time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:rate_slew_time">softcut:rate_slew_time (voice, value)</a></td>
+	<td class="summary">set rate slew time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:phase_quant">softcut:phase_quant (voice, value)</a></td>
+	<td class="summary">set phase poll quantization</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:phase_offset">softcut:phase_offset (voice, value)</a></td>
+	<td class="summary">set phase poll offset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:poll_start_phase">softcut:poll_start_phase ()</a></td>
+	<td class="summary">start phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:poll_stop_phase">softcut:poll_stop_phase ()</a></td>
+	<td class="summary">stop phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:enable">softcut:enable (voice, state)</a></td>
+	<td class="summary">set voice enable</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_clear">softcut:buffer_clear ()</a></td>
+	<td class="summary">clear all buffers</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_clear_channel">softcut:buffer_clear_channel (i)</a></td>
+	<td class="summary">clear one channel of buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_clear_region">softcut:buffer_clear_region (start, stop)</a></td>
+	<td class="summary">clear region (both channels)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_clear_region_channel">softcut:buffer_clear_region_channel (ch, start, stop)</a></td>
+	<td class="summary">clear region of single channel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_read_mono">softcut:buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</a></td>
+	<td class="summary">read file to one channel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_read_stereo">softcut:buffer_read_stereo (file, start_src, start_dst, dur)</a></td>
+	<td class="summary">read file, stereo</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_write_mono">softcut:buffer_write_mono (file, start, dur, ch)</a></td>
+	<td class="summary">write file, mono</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:buffer_write_stereo">softcut:buffer_write_stereo (file, start, dur)</a></td>
+	<td class="summary">write file, stereo</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:event_phase">softcut:event_phase (f)</a></td>
+	<td class="summary">set function for phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:reset">softcut:reset ()</a></td>
+	<td class="summary">reset softcut params</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:defaults">softcut:defaults ()</a></td>
+	<td class="summary">get the default state of the softcut system</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut:params">softcut:params ()</a></td>
+	<td class="summary">controlspec factory
+ each table contains an entry for each softcut parameter.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name=""></a> </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "softcut:level"></a>
+    <strong>softcut:level (voice, value)</strong>
+    </dt>
+    <dd>
+    set level of each voice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pan"></a>
+    <strong>softcut:pan (voice, value)</strong>
+    </dt>
+    <dd>
+    set pan of each voice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:level_input_cut"></a>
+    <strong>softcut:level_input_cut (ch, voice, value)</strong>
+    </dt>
+    <dd>
+    set input level to each voice/channel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ch</span>
+
+        </li>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:level_cut_cut"></a>
+    <strong>softcut:level_cut_cut (src, dst, value)</strong>
+    </dt>
+    <dd>
+    set mix matrix, voice output to voice input
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">src</span>
+            <span class="types"><span class="type">number</span></span>
+         source
+        </li>
+        <li><span class="parameter">dst</span>
+            <span class="types"><span class="type">number</span></span>
+         destination
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
+         value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:play"></a>
+    <strong>softcut:play (voice, state)</strong>
+    </dt>
+    <dd>
+    set play status
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:loop_start"></a>
+    <strong>softcut:loop_start (voice, value)</strong>
+    </dt>
+    <dd>
+    set loop start
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:loop_end"></a>
+    <strong>softcut:loop_end (voice, value)</strong>
+    </dt>
+    <dd>
+    set loop end
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:loop"></a>
+    <strong>softcut:loop (voice, state)</strong>
+    </dt>
+    <dd>
+    set loop mode
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:fade_time"></a>
+    <strong>softcut:fade_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set fade time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:rec_level"></a>
+    <strong>softcut:rec_level (voice, value)</strong>
+    </dt>
+    <dd>
+    set record level
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_level"></a>
+    <strong>softcut:pre_level (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre level (overdub preserve)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:rec"></a>
+    <strong>softcut:rec (voice, state)</strong>
+    </dt>
+    <dd>
+    set record status
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:rec_offset"></a>
+    <strong>softcut:rec_offset (voice, value)</strong>
+    </dt>
+    <dd>
+    set record head offset
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:position"></a>
+    <strong>softcut:position (voice, value)</strong>
+    </dt>
+    <dd>
+    set play position
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer"></a>
+    <strong>softcut:buffer (i, b)</strong>
+    </dt>
+    <dd>
+    specify buffer used by voice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number
+        </li>
+        <li><span class="parameter">b</span>
+            <span class="types"><span class="type">integer</span></span>
+         : buffer number (1,2)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:voice_sync"></a>
+    <strong>softcut:voice_sync (src, dest, v)</strong>
+    </dt>
+    <dd>
+    sync two voices
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">src</span>
+
+        </li>
+        <li><span class="parameter">dest</span>
+
+        </li>
+        <li><span class="parameter">v</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_fc"></a>
+    <strong>softcut:pre_filter_fc (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter cutoff
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_fc_mod"></a>
+    <strong>softcut:pre_filter_fc_mod (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter mod
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_rq"></a>
+    <strong>softcut:pre_filter_rq (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter q
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_lp"></a>
+    <strong>softcut:pre_filter_lp (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter lp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_hp"></a>
+    <strong>softcut:pre_filter_hp (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter hp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_bp"></a>
+    <strong>softcut:pre_filter_bp (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter bp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_br"></a>
+    <strong>softcut:pre_filter_br (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter br
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pre_filter_dry"></a>
+    <strong>softcut:pre_filter_dry (voice, value)</strong>
+    </dt>
+    <dd>
+    set pre_filter dry
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:filter_fc"></a>
+    <strong>softcut:filter_fc (voice, value)</strong>
+    </dt>
+    <dd>
+    wrappers around pre_filter, for backwards compatibility
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_fc"></a>
+    <strong>softcut:post_filter_fc (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter cutoff
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_fc_mod"></a>
+    <strong>softcut:post_filter_fc_mod (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter mod
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_rq"></a>
+    <strong>softcut:post_filter_rq (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter q
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_lp"></a>
+    <strong>softcut:post_filter_lp (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter lp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_hp"></a>
+    <strong>softcut:post_filter_hp (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter hp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_bp"></a>
+    <strong>softcut:post_filter_bp (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter bp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_br"></a>
+    <strong>softcut:post_filter_br (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter br
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:post_filter_dry"></a>
+    <strong>softcut:post_filter_dry (voice, value)</strong>
+    </dt>
+    <dd>
+    set post_filter dry
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:level_slew_time"></a>
+    <strong>softcut:level_slew_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set level slew time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:pan_slew_time"></a>
+    <strong>softcut:pan_slew_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set pan slew time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:recpre_slew_time"></a>
+    <strong>softcut:recpre_slew_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set recpre slew time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:rate_slew_time"></a>
+    <strong>softcut:rate_slew_time (voice, value)</strong>
+    </dt>
+    <dd>
+    set rate slew time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:phase_quant"></a>
+    <strong>softcut:phase_quant (voice, value)</strong>
+    </dt>
+    <dd>
+    set phase poll quantization
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:phase_offset"></a>
+    <strong>softcut:phase_offset (voice, value)</strong>
+    </dt>
+    <dd>
+    set phase poll offset
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:poll_start_phase"></a>
+    <strong>softcut:poll_start_phase ()</strong>
+    </dt>
+    <dd>
+    start phase poll
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:poll_stop_phase"></a>
+    <strong>softcut:poll_stop_phase ()</strong>
+    </dt>
+    <dd>
+    stop phase poll
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:enable"></a>
+    <strong>softcut:enable (voice, state)</strong>
+    </dt>
+    <dd>
+    set voice enable
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">integer</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">integer</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_clear"></a>
+    <strong>softcut:buffer_clear ()</strong>
+    </dt>
+    <dd>
+    clear all buffers
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_clear_channel"></a>
+    <strong>softcut:buffer_clear_channel (i)</strong>
+    </dt>
+    <dd>
+    clear one channel of buffer
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_clear_region"></a>
+    <strong>softcut:buffer_clear_region (start, stop)</strong>
+    </dt>
+    <dd>
+    clear region (both channels)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">start</span>
+
+        </li>
+        <li><span class="parameter">stop</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_clear_region_channel"></a>
+    <strong>softcut:buffer_clear_region_channel (ch, start, stop)</strong>
+    </dt>
+    <dd>
+    clear region of single channel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ch</span>
+
+        </li>
+        <li><span class="parameter">start</span>
+
+        </li>
+        <li><span class="parameter">stop</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_read_mono"></a>
+    <strong>softcut:buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</strong>
+    </dt>
+    <dd>
+    read file to one channel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+        <li><span class="parameter">start_src</span>
+
+        </li>
+        <li><span class="parameter">start_dst</span>
+
+        </li>
+        <li><span class="parameter">dur</span>
+
+        </li>
+        <li><span class="parameter">ch_src</span>
+
+        </li>
+        <li><span class="parameter">ch_dst</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_read_stereo"></a>
+    <strong>softcut:buffer_read_stereo (file, start_src, start_dst, dur)</strong>
+    </dt>
+    <dd>
+    read file, stereo
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+        <li><span class="parameter">start_src</span>
+
+        </li>
+        <li><span class="parameter">start_dst</span>
+
+        </li>
+        <li><span class="parameter">dur</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_write_mono"></a>
+    <strong>softcut:buffer_write_mono (file, start, dur, ch)</strong>
+    </dt>
+    <dd>
+    write file, mono
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+        <li><span class="parameter">start</span>
+
+        </li>
+        <li><span class="parameter">dur</span>
+
+        </li>
+        <li><span class="parameter">ch</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:buffer_write_stereo"></a>
+    <strong>softcut:buffer_write_stereo (file, start, dur)</strong>
+    </dt>
+    <dd>
+    write file, stereo
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+
+        </li>
+        <li><span class="parameter">start</span>
+
+        </li>
+        <li><span class="parameter">dur</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:event_phase"></a>
+    <strong>softcut:event_phase (f)</strong>
+    </dt>
+    <dd>
+    set function for phase poll
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:reset"></a>
+    <strong>softcut:reset ()</strong>
+    </dt>
+    <dd>
+    reset softcut params
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:defaults"></a>
+    <strong>softcut:defaults ()</strong>
+    </dt>
+    <dd>
+    get the default state of the softcut system
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        table of parameter states for each voice
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut:params"></a>
+    <strong>softcut:params ()</strong>
+    </dt>
+    <dd>
+    controlspec factory
+ each table contains an entry for each softcut parameter.
+ each entry is a parameter argument list configured for that voice+param
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an array of tables, one per voice.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Instance_Methods">Instance Methods </a></li>
+<li><a href="#Static_Methods">Static Methods </a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><strong>poll</strong></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>poll</code></h1>
+<p>Poll class;
+ API for receiving values from audio system.</p>
+<p></p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#poll.polls">poll.polls</a></td>
+	<td class="summary">poll objects (index by name)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll.poll_names">poll.poll_names</a></td>
+	<td class="summary">poll names (indexed by int) - for reverse lookup</td>
+	</tr>
+</table>
+<h2><a href="#Instance_Methods">Instance Methods </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#poll:start">poll:start ()</a></td>
+	<td class="summary">start a poll.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll:stop">poll:stop ()</a></td>
+	<td class="summary">stop a poll.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll:update">poll:update (callback)</a></td>
+	<td class="summary">request a single update immediately.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll:__newindex">poll:__newindex (idx, val)</a></td>
+	<td class="summary">custom setters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll:__index">poll:__index (idx)</a></td>
+	<td class="summary">custom getters.</td>
+	</tr>
+</table>
+<h2><a href="#Static_Methods">Static Methods </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#poll:register">poll:register (data, count)</a></td>
+	<td class="summary">called with OSC data from norns callback to register all available polls.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll:set">poll:set (name, callback)</a></td>
+	<td class="summary">set callback function for registered Poll object by name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll:clear_all">poll:clear_all ()</a></td>
+	<td class="summary">stop all polls.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "poll.polls"></a>
+    <strong>poll.polls</strong>
+    </dt>
+    <dd>
+    poll objects (index by name)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll.poll_names"></a>
+    <strong>poll.poll_names</strong>
+    </dt>
+    <dd>
+    poll names (indexed by int) - for reverse lookup
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Instance_Methods"></a>Instance Methods </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "poll:start"></a>
+    <strong>poll:start ()</strong>
+    </dt>
+    <dd>
+    start a poll.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll:stop"></a>
+    <strong>poll:stop ()</strong>
+    </dt>
+    <dd>
+    stop a poll.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll:update"></a>
+    <strong>poll:update (callback)</strong>
+    </dt>
+    <dd>
+    request a single update immediately.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">callback</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll:__newindex"></a>
+    <strong>poll:__newindex (idx, val)</strong>
+    </dt>
+    <dd>
+    custom setters.
+ `.time` and `.callback` set the corresponding private properties and perform approriate actions.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">idx</span>
+
+        </li>
+        <li><span class="parameter">val</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll:__index"></a>
+    <strong>poll:__index (idx)</strong>
+    </dt>
+    <dd>
+    custom getters.
+ available properties: name, callback, start, stop.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">idx</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Static_Methods"></a>Static Methods </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "poll:register"></a>
+    <strong>poll:register (data, count)</strong>
+    </dt>
+    <dd>
+    called with OSC data from norns callback to register all available polls.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+         - table from OSC; each entry is { id (int), name (string) }
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">integer</span></span>
+         - size of table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll:set"></a>
+    <strong>poll:set (name, callback)</strong>
+    </dt>
+    <dd>
+    set callback function for registered Poll object by name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+
+        </li>
+        <li><span class="parameter">callback</span>
+         function to call with value on each poll
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll:clear_all"></a>
+    <strong>poll:clear_all ()</strong>
+    </dt>
+    <dd>
+    stop all polls.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

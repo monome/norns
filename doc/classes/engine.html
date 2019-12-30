@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+<li><a href="#Metamethods">Metamethods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><strong>engine</strong></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>engine</code></h1>
+<p>Engine class</p>
+<p></p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#engine:register">engine:register (data, count)</a></td>
+	<td class="summary">register all available engines.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#engine:register_commands">engine:register_commands (data, count)</a></td>
+	<td class="summary">populate the current engine object with available commands.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#engine:add_command">engine:add_command (id, name, fmt)</a></td>
+	<td class="summary">add a command to the current engine.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#engine:list_commands">engine:list_commands ()</a></td>
+	<td class="summary">print all commands reported from the engine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#engine:load">engine:load (name, callback)</a></td>
+	<td class="summary">load a named engine, with a callback.</td>
+	</tr>
+</table>
+<h2><a href="#Metamethods">Metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#engine:__index">engine:__index (self, idx)</a></td>
+	<td class="summary">custom getters.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "engine:register"></a>
+    <strong>engine:register (data, count)</strong>
+    </dt>
+    <dd>
+    register all available engines.
+ called from OSC handler.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+         - an array of strings
+        </li>
+        <li><span class="parameter">count</span>
+         - number of names
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "engine:register_commands"></a>
+    <strong>engine:register_commands (data, count)</strong>
+    </dt>
+    <dd>
+    populate the current engine object with available commands.
+ called from OSC handler.
+ NB: we *can* count on the order of entries to be meaningful
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+         - array of [name, format]
+        </li>
+        <li><span class="parameter">count</span>
+         - number of commands
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "engine:add_command"></a>
+    <strong>engine:add_command (id, name, fmt)</strong>
+    </dt>
+    <dd>
+    add a command to the current engine.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+         - integer index
+        </li>
+        <li><span class="parameter">name</span>
+         - command name (string)
+        </li>
+        <li><span class="parameter">fmt</span>
+         - OSC format string (e.g. 'isf' for "int string float")
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "engine:list_commands"></a>
+    <strong>engine:list_commands ()</strong>
+    </dt>
+    <dd>
+    print all commands reported from the engine
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "engine:load"></a>
+    <strong>engine:load (name, callback)</strong>
+    </dt>
+    <dd>
+    load a named engine, with a callback.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         - name of engine
+        </li>
+        <li><span class="parameter">callback</span>
+         - function to call on engine load. will receive command list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        - false if an engine load is already pending (nothing happens), true otherwise
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "engine:__index"></a>
+    <strong>engine:__index (self, idx)</strong>
+    </dt>
+    <dd>
+    custom getters.
+ [] accessor returns a command function;
+ this allows e.g. engine.hz(100)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+
+        </li>
+        <li><span class="parameter">idx</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
