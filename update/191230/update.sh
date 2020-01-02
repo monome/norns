@@ -37,7 +37,7 @@ fi
 
 # ignore kernel and samba update for Fates devices
 FATES=$(sudo cat /boot/config.txt | grep fates)
-if [[ "$FATES" == *""* ]]; then
+if [[ "$FATES" == "" ]]; then
   # samba
   SAMBA=$(dpkg -s samba | grep "install ok")
   if [ "$SAMBA" == "" ]; then
