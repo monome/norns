@@ -87,7 +87,8 @@ util.trim_string_to_width = function(s, width)
       s = s .. "..."
       first_iter = false
     end
-    s = string.sub(s, 1, string.len(s) - 4) .. "..."
+    s = string.sub(s, 1, string.len(s) - 4)
+    s = string.gsub(s, "[%p%s]+$", "") .. "..."
   end
   return s
 end
