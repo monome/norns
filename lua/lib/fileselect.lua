@@ -81,18 +81,10 @@ fs.getlist = function()
         fs.lengths[k] = length
       end
     end
-
-    -- Trim to fit screen
+    
     local max_line_length = 128
     if length then max_line_length = 97 end
-    local first_iter = true
-    while _norns.screen_extents(line) > max_line_length do
-      if first_iter then
-        line = line .. "..."
-        first_iter = false
-      end
-      line = string.sub(line, 1, string.len(line) - 4) .. "..."
-    end
+    line = util.trim_string_to_width(line, max_line_length)
 
     fs.display_list[k] = line
   end

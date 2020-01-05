@@ -76,6 +76,22 @@ util.string_starts = function(s,start)
   return string.sub(s,1,string.len(start))==start
 end
 
+--- trim string to a display width
+-- @tparam string s string to trim
+-- @tparam number width maximum width
+-- @treturn string trimmed string
+util.trim_string_to_width = function(s, width)
+  local first_iter = true
+  while _norns.screen_extents(s) > width do
+    if first_iter then
+      s = s .. "..."
+      first_iter = false
+    end
+    s = string.sub(s, 1, string.len(s) - 4) .. "..."
+  end
+  return s
+end
+
 --- clamp values to min max.
 -- @tparam number n value
 -- @tparam number min minimum
