@@ -72,20 +72,17 @@ fs.getlist = function()
   -- Generate display list and lengths
   for k, v in ipairs(fs.list) do
     local line = v
-    local length
+    local max_line_length = 128
 
     if string.sub(line, -1) ~= "/" then
       local _, samples, rate = audio.file_info(dir .. line)
       if samples > 0 and rate > 0 then
-        length = util.s_to_hms(math.floor(samples / rate))
-        fs.lengths[k] = length
+        fs.lengths[k] = util.s_to_hms(math.floor(samples / rate))
+        max_line_length = 97
       end
     end
-    
-    local max_line_length = 128
-    if length then max_line_length = 97 end
-    line = util.trim_string_to_width(line, max_line_length)
 
+    line = util.trim_string_to_width(line, max_line_length)
     fs.display_list[k] = line
   end
 end
