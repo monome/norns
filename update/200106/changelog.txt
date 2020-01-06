@@ -1,5 +1,9 @@
 # 200106
 
+## norns 2.2.6
+
+- NEW fileselect shows audio file lengths @markeats
+
 # image
 
 - FIX samba config
