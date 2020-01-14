@@ -198,9 +198,10 @@ crow.Cal.default = function() crow.send("Cal.default()") end
 crow.Cal.print = function() crow.send("Cal.print()") end
 
 crow.ii = {}
+crow.ii.help = function() crow.send("ii.help()") end
 crow.ii.pullup = function(x)
-  if x == true then crow.send("ii.pullup(true)")
-  else crow.send("ii.pullup(false)") end
+  local truth = (x == true or x == 1) and 'true' or 'false'
+  crow.send("ii.pullup("..truth..")")
 end
 
 crow.ii.jf = {}
