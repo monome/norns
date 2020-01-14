@@ -12,7 +12,9 @@ function norns.crow.identity(...) print("crow identity: " .. ...) end
 function norns.crow.version(...) print("crow version: " .. ...) end
 function norns.crow.stream(n,v) crow.input[n].stream(v) end
 function norns.crow.change(n,v) crow.input[n].change(v) end
-function norns.crow.output(i,v) crow.output[i].receive(v) end
+function norns.crow.output(n,v) crow.output[n].receive(v) end
+function norns.crow.done(n) crow.output[n].done() end
+function norns.crow.running(n,v) crow.output[n].running(v) end
 function norns.crow.midi(...) crow.midi(...) end
 
 norns.crow.ii = {}
@@ -76,9 +78,12 @@ local output = {}
 function output.new(x)
   local o = { n = x }
   o._volts = 0
+  o._shape = 'linear'
   o._slew = 0
   o.query = function() crow.send("get_out("..o.n..")") end
   o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
+  o.done = function() print("crow output action done: "..o.n) end
+  o.running = function(v) print("crow output is running?: "..o.n.." "..v) end
   -- WILL BE DEPRECATED in 2.3.0
   o.execute = function() crow.send("output["..o.n.."]()") end
   setmetatable(o,output)
@@ -86,22 +91,33 @@ function output.new(x)
 end
 
 output.__newindex = function(self, i, v)
+  local me = "output["..self.n.."]"
   if i == 'volts' then
     self._volts = v
-    crow.send("output["..self.n.."].volts="..v)
+    crow.send(me..".volts="..v)
+  elseif i == 'shape' then
+    self._shape = v
+    crow.send(me..".shape="..tostringwithquotes(v))
   elseif i == 'slew' then
     self._slew = v
-    crow.send("output["..self.n.."].slew="..v)
+    crow.send(me..".slew="..v)
   elseif i == 'action' then
-    crow.send("output["..self.n.."].action = "..v)
+    crow.send(me..".action = "..v)
+  elseif i == 'done' then
+    crow.send(me..".done=_c.tell('done',"..me..".channel)")
   end
 end
 
 output.__index = function(self, i)
   if i == 'volts' then
     return self._volts
+  elseif i == 'shape' then
+    return self._shape
   elseif i == 'slew' then
     return self._slew
+  elseif i == 'running' then
+    local me = "output["..self.n.."]"
+    crow.send("_c.tell('running',"..me..".channel,"..me..".running)")
   end
 end
 
