@@ -1,5 +1,5 @@
 --- high-resolution metro API
--- @module metro
+-- @classmod metro
 -- @alias Metro_mt
 
 local Metro = {}
@@ -15,9 +15,9 @@ Metro.assigned = {}
 
 --- initialize a metro.
 -- assigns unused id.
--- @param arg callback function
--- @param arg_time time period between ticks (seconds).
--- @param arg_count number of ticks. infinite by default.
+-- @tparam function arg callback function
+-- @tparam number arg_time time period between ticks (seconds).
+-- @tparam number arg_count number of ticks. infinite by default.
 function Metro.init(arg, arg_time, arg_count)
   local event = 0
   local time = arg_time or 1
@@ -51,12 +51,15 @@ function Metro.init(arg, arg_time, arg_count)
   return nil
 end
 
+--- free
+-- @tparam number id
 function Metro.free(id)
   Metro.metros[id]:stop()
   Metro.available[id] = true
   Metro.assigned[id] = false
 end
 
+--- free all
 function Metro.free_all()
   for i=1,Metro.num_script_metros do
     Metro.free(i)
@@ -66,6 +69,7 @@ end
 
 --- constructor.
 -- @tparam integer id : identifier
+-- @treturn Metro
 function Metro.new(id)
   local m = {}
   m.props = {
@@ -80,9 +84,9 @@ function Metro.new(id)
 end
 
 --- start a metro.
--- @param time - (optional) time period between ticks (seconds.) by default, re-use the last period
--- @param count - (optional) number of ticks. infinite by default
--- @param stage - (optional) initial stage number (1-based.) 1 by default
+-- @tparam[opt] number time - time period between ticks (seconds.) by default, re-use the last period
+-- @tparam[opt] number count - number of ticks. infinite by default
+-- @tparam[opt] number stage - initial stage number (1-based.) 1 by default
 function Metro:start(time, count, stage)
   if type(time) == "table" then
     if time.time then self.props.time = time.time end
@@ -95,12 +99,12 @@ function Metro:start(time, count, stage)
     if stage then self.init_stage = stage end
   end
   self.is_running = true
-  metro_start(self.props.id, self.props.time, self.props.count, self.props.init_stage) -- C function
+  _norns.metro_start(self.props.id, self.props.time, self.props.count, self.props.init_stage) -- C function
 end
 
 --- stop a metro.
 function Metro:stop()
-  metro_stop(self.props.id) -- C function
+  _norns.metro_stop(self.props.id) -- C function
   self.is_running = false
 end
 
@@ -112,7 +116,7 @@ Metro.__newindex = function(self, idx, val)
     -- this is true even if you are setting time from the metro callback;
     -- metro has already gone to sleep when lua main thread gets
     -- if you need a fully dynamic metro, re-schedule on the wakeup
-    metro_set_time(self.props.id, self.props.time)
+    _norns.metro_set_time(self.props.id, self.props.time)
   elseif idx == 'count' then self.props.count = val
   elseif idx == 'init_stage' then self.props.init_stage = val
   else -- FIXME: dunno if this is even necessary / a good idea to allow
@@ -120,7 +124,7 @@ Metro.__newindex = function(self, idx, val)
   end
 end
 
---- class custom .__index.
+-- class custom .__index.
 -- [] accessor returns one of the static metro objects.
 Metro.__index = function(self, idx)
   if type(idx) == "number" then
@@ -159,7 +163,7 @@ end
 -- @section globals
 
 --- callback on metro tick from C.
-norns.metro = function(idx, stage)
+_norns.metro = function(idx, stage)
   if Metro.metros[idx] then
     if Metro.metros[idx].event then
       Metro.metros[idx].event(stage)

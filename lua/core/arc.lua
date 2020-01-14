@@ -1,5 +1,5 @@
 --- Arc class
--- @module arc
+-- @classmod arc
 -- @alias Arc
 
 ---------------------------------
@@ -64,6 +64,7 @@ end
 
 --- static callback when any arc device is added.
 -- user scripts can redefine.
+-- @static
 -- @param dev : a Arc table
 function Arc.add(dev)
   print("arc added:", dev.id, dev.name, dev.serial)
@@ -71,6 +72,7 @@ end
 
 --- static callback when any arc device is removed.
 -- user scripts can redefine.
+-- @static
 -- @param dev : a Arc table
 function Arc.remove(dev) end
 
@@ -79,18 +81,18 @@ function Arc.remove(dev) end
 -- @tparam integer x : led index (1-based!)
 -- @tparam integer val : LED brightness in [0, 15]
 function Arc:led(ring, x, val)
-  arc_set_led(self.dev, ring, x, val)
+  _norns.arc_set_led(self.dev, ring, x, val)
 end
 
 --- set state of all LEDs on this arc device.
 -- @tparam integer val : LED brightness in [0, 15]
 function Arc:all(val)
-  arc_all_led(self.dev, val)
+  _norns.arc_all_led(self.dev, val)
 end
 
 --- update any dirty quads on this arc device.
 function Arc:refresh()
-  monome_refresh(self.dev)
+  _norns.monome_refresh(self.dev)
 end
 
 --- create an anti-aliased point to point arc 
@@ -136,6 +138,7 @@ function Arc:segment(ring, from, to, level)
 end
 
 --- create device, returns object with handler and send
+-- @static
 function Arc.connect(n)
   local n = n or 1
 
@@ -143,6 +146,7 @@ function Arc.connect(n)
 end
 
 --- clear handlers
+-- @static
 function Arc.cleanup()
   for i=1,4 do
     Arc.vports[i].delta = nil
@@ -157,6 +161,7 @@ function Arc.cleanup()
   end
 end
 
+-- @static
 function Arc.update_devices()
   -- reset vports for existing devices
   for _, device in pairs(Arc.devices) do
@@ -176,17 +181,17 @@ function Arc.update_devices()
   end
 end
 
-norns.arc = {}
+_norns.arc = {}
 
 -- arc devices
-norns.arc.add = function(id, serial, name, dev)
+_norns.arc.add = function(id, serial, name, dev)
   local g = Arc.new(id, serial, name, dev)
   Arc.devices[id] = g
   Arc.update_devices()
   if Arc.add ~= nil then Arc.add(g) end
 end
 
-norns.arc.remove = function(id)
+_norns.arc.remove = function(id)
   if Arc.devices[id] then
     if Arc.remove ~= nil then
       Arc.remove(Arc.devices[id])
@@ -199,7 +204,7 @@ norns.arc.remove = function(id)
   Arc.update_devices()
 end
 
-norns.arc.delta = function(id, n, delta)
+_norns.arc.delta = function(id, n, delta)
   local device = Arc.devices[id]
 
   if device ~= nil then
@@ -217,7 +222,7 @@ norns.arc.delta = function(id, n, delta)
   end
 end
 
-norns.arc.key = function(id, n, s)
+_norns.arc.key = function(id, n, s)
   local device = Arc.devices[id]
 
   if device ~= nil then

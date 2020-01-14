@@ -1,5 +1,5 @@
--- Encoders class
--- @module encoders
+--- Encoders class
+-- @classmod encoders
 
 local encoders = {}
 
@@ -13,6 +13,7 @@ encoders.sens = {1,1,1}
 encoders.time = {now,now,now}
 encoders.callback = norns.none
 
+--- set acceleration
 encoders.set_accel = function(n,z)
   if n == 0 then
     for k=1,3 do
@@ -25,6 +26,7 @@ encoders.set_accel = function(n,z)
   end
 end
 
+--- set sensitivity
 encoders.set_sens = function(n,s)
   if n == 0 then
     for k=1,3 do
@@ -37,6 +39,7 @@ encoders.set_sens = function(n,s)
   end
 end
 
+--- process delta
 encoders.process = function(n,d)
   now = util.time()
   local diff = now - encoders.time[n]
@@ -59,5 +62,42 @@ encoders.process = function(n,d)
     screen.ping()
   end
 end
+
+
+-- script state
+
+local accel = {true,true,true}
+local sens = {1,1,1}
+
+norns.enc = {}
+norns.enc.accel = function(n,z)
+  if n == 0 then
+    for k=1,3 do
+      accel[k] = z
+    end
+  else
+    accel[n] = z
+  end
+  if(_menu.mode == false) then norns.encoders.set_accel(n,z) end
+end
+
+norns.enc.sens = function(n,s)
+  if n == 0 then
+    for k=1,3 do
+      sens[k] = util.clamp(s,1,16)
+    end
+  else
+    sens[n] = util.clamp(s,1,16)
+  end
+  if(_menu.mode == false) then norns.encoders.set_sens(n,s) end
+end
+
+norns.enc.resume = function()
+  for n=1,3 do
+    norns.encoders.set_accel(n,accel[n])
+    norns.encoders.set_sens(n,sens[n])
+  end
+end
+
 
 return encoders

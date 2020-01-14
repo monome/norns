@@ -1,41 +1,45 @@
+--- Crow Module
+-- @module crow
+
 local util = require 'util'
 
 local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
 
-function _norns.crow_identity(...) print("crow identity: " .. ...) end
-function _norns.crow_version(...) print("crow version: " .. ...) end
-function _norns.crow_stream(n,v) crow.input[n].stream(v) end
-function _norns.crow_change(n,v) crow.input[n].change(v) end
-function _norns.crow_output(i,v) crow.output[i].receive(v) end
-function _norns.crow_midi(...) crow.midi(...) end
-
-_norns.crow_ii = {}
-function _norns.crow_ii.ansible(i,v) crow.ii.ansible.event(i,v) end
-function _norns.crow_ii.kria(i,v) crow.ii.kria.event(i,v) end
-function _norns.crow_ii.meadowphysics(i,v) crow.ii.meadowphysics.event(i,v) end
-function _norns.crow_ii.wslash(i,v) crow.ii.wslash.event(i,v) end
-
-
-
 norns.crow = {}
+function norns.crow.identity(...) print("crow identity: " .. ...) end
+function norns.crow.version(...) print("crow version: " .. ...) end
+function norns.crow.stream(n,v) crow.input[n].stream(v) end
+function norns.crow.change(n,v) crow.input[n].change(v) end
+function norns.crow.output(i,v) crow.output[i].receive(v) end
+function norns.crow.midi(...) crow.midi(...) end
 
-norns.crow.add = function(id, name, dev)
-  print(">>>>>> norns.crow.add / " .. id .. " / " .. name)
+norns.crow.ii = {}
+function norns.crow.ii.ansible(i,v) crow.ii.ansible.event(i,v) end
+function norns.crow.ii.kria(i,v) crow.ii.kria.event(i,v) end
+function norns.crow.ii.meadowphysics(i,v) crow.ii.meadowphysics.event(i,v) end
+function norns.crow.ii.wslash(i,v) crow.ii.wslash.event(i,v) end
+
+
+
+_norns.crow = {}
+
+_norns.crow.add = function(id, name, dev)
   norns.crow.dev = dev
+  crow.add(id, name, dev)
 end
 
-norns.crow.remove = function(id)
-  print(">>>>>> norns.crow.remove " .. id)
+_norns.crow.remove = function(id)
   norns.crow.dev = nil
+  crow.remove(id)
 end
 
-norns.crow.event = function(id, line)
+_norns.crow.event = function(id, line)
   line = string.sub(line,1,-2) -- strip newline
   --print(line)
   if util.string_starts(line,"^^") == true then
-    line = line:gsub("%^^","_norns.crow_")
+    line = line:gsub("%^^","norns.crow.")
     assert(load(line))()
   else
     crow.receive(line)
@@ -117,8 +121,21 @@ output.__index = function(self, i)
   end
 end
 
-output.__call = function(self)
-  crow.send("output["..self.n.."]()")
+output.__call = function(self,arg)
+  local args = ""
+  if type(arg) == "string" then -- asl directive
+    if arg == "start"
+    or arg == "restart"
+    or arg == "attack"
+    or arg == "release"
+    or arg == "step"
+    or arg == "unlock" then
+      args = tostringwithquotes(arg)
+    else -- boolean or asl
+      args = arg
+    end
+  end
+  crow.send("output["..self.n.."]("..args..")")
 end
 
 
@@ -129,26 +146,36 @@ setmetatable(output, output)
 
 local crow = {}
 
+--- send version
 function crow.version() crow.send("^^v") end
+--- send identity
 function crow.identity() crow.send("^^i") end
+--- reset crow
 function crow.reset() crow.send("crow.reset()") end
+--- send kill
 function crow.kill() crow.send("^^k") end
+--- send clear
 function crow.clear() crow.send("^^c") end
 
+--- send a command
 function crow.send(cmd)
   if norns.crow.dev then
     --print("crow send: "..cmd)
     _norns.crow_send(norns.crow.dev,cmd)
   end
 end
-
+function crow.add(id, name, dev) print(">>>>>> norns.crow.add / " .. id .. " / " .. name) end
+function crow.remove(id) print(">>>>>> norns.crow.remove " .. id) end
 function crow.receive(...) print("crow:",...) end
 
 crow.input = { input.new(1), input.new(2) }
 crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
 
+--- initialize
 crow.init = function()
   crow.reset()
+  crow.add = function(id, name, dev) print(">>>>>> norns.crow.add / " .. id .. " / " .. name) end
+  crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
   crow.receive = function(...) print("crow:",...) end
   crow.input = { input.new(1), input.new(2) }
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
@@ -158,6 +185,11 @@ crow.init = function()
   crow.ii.kria.event = function(i,v) print("kria ii: "..i.." "..v) end
   crow.ii.meadowphysics.event = function(i,v) print("mp ii: "..i.." "..v) end
   crow.ii.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
+end
+
+--- check if crow is connected
+crow.connected = function()
+  return _norns.crow.dev ~= nil
 end
 
 crow.ii = {}
@@ -189,7 +221,7 @@ crow.ii.wslash.cue = function(destination) crow.send("ii.wslash.cue("..destinati
 crow.ii.ansible = {}
 crow.ii.ansible.trigger = function(channel, state) crow.send("ii.ansible.trigger("..channel..","..state..")") end
 crow.ii.ansible.trigger_toggle = function(channel) crow.send("ii.ansible.trigger_toggle("..channel..")") end
-crow.ii.ansible.trigger_pulse = function(channel) crow.send("ii.ansible.trigger_toggle("..channel..")") end
+crow.ii.ansible.trigger_pulse = function(channel) crow.send("ii.ansible.trigger_pulse("..channel..")") end
 crow.ii.ansible.trigger_time = function(channel, time) crow.send("ii.ansible.trigger_time("..channel..","..time..")") end
 crow.ii.ansible.trigger_polarity = function(channel, polarity) crow.send("ii.ansible.trigger_polarity("..channel..","..polarity..")") end
 crow.ii.ansible.cv = function(channel, volts) crow.send("ii.ansible.cv("..channel..","..volts..")") end

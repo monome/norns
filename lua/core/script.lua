@@ -1,5 +1,6 @@
 --- Script class
--- @module script
+-- @classmod script
+-- @alias Script
 
 local Script = {}
 
@@ -18,6 +19,10 @@ Script.clear = function()
   key = norns.none
   enc = norns.none
 
+  -- reset encoders
+  norns.enc.accel(0,true)
+  norns.enc.sens(0,1)
+
   -- clear, redirect, and reset devices
   grid.cleanup()
   arc.cleanup()
@@ -35,7 +40,7 @@ Script.clear = function()
 
   -- clear engine
   engine.name = nil
-  free_engine()
+  _norns.free_engine()
 
   -- clear softcut
   softcut.reset()
@@ -57,7 +62,7 @@ Script.clear = function()
 
   -- reset PLAY mode screen settings
   local status = norns.menu.status()
-  if status == true then s_restore() end
+  if status == true then _norns.screen_restore() end
 
   screen.aa(0)
   screen.level(15)
@@ -65,7 +70,7 @@ Script.clear = function()
   screen.font_face(1)
   screen.font_size(8)
 
-  if status == true then s_save() end
+  if status == true then _norns.screen_save() end
 
   -- ensure finalizers run before next script
   collectgarbage()
@@ -75,11 +80,11 @@ Script.init = function()
   print("# script init")
   params.name = norns.state.shortname
   init()
-  s_save()
+  _norns.screen_save()
 end
 
 --- load a script from the /scripts folder.
--- @param filename (string) - file to load. leave blank to reload current file.
+-- @tparam string filename file to load. leave blank to reload current file.
 Script.load = function(filename)
   local name, path, relative
   if filename == nil then
@@ -109,31 +114,35 @@ Script.load = function(filename)
 
   print("# script load: " .. filename)
 
-  -- unload asl package entry so `require 'asl'` works
-  -- todo(pq): why is this not needed generally (e.g., for 'ui', 'util', etc.)?
-  if package.loaded['asl'] ~= nil then
-    package.loaded['asl'] = nil
-  end  
-
-  -- script local state
-  local state = { }
-
-  setmetatable(_G, {
-    __index = function (_,k)
-      return state[k]
-    end,
-    __newindex = function(_,k,v)
-      state[k] = v
-    end,
-  })
-
   local f=io.open(filename,"r")
   if f==nil then
     print("file not found: "..filename)
   else
     io.close(f)
-    if pcall(cleanup) then print("# cleanup")
-    else print("### cleanup failed") end
+    local ok, err
+    ok, err = pcall(cleanup)
+    if ok then print("# cleanup")
+    else
+      print("### cleanup failed with error: "..err)
+    end
+    
+    -- unload asl package entry so `require 'asl'` works
+    -- todo(pq): why is this not needed generally (e.g., for 'ui', 'util', etc.)?
+    if package.loaded['asl'] ~= nil then
+      package.loaded['asl'] = nil
+    end 
+
+    -- script local state
+    local state = { }
+
+    setmetatable(_G, {
+      __index = function (_,k)
+        return state[k]
+      end,
+      __newindex = function(_,k,v)
+        state[k] = v
+      end,
+    })
 
     Script.clear() -- clear script variables and functions
 
@@ -173,8 +182,8 @@ Script.run = function()
 end
 
 --- load script metadata.
--- @param filename file to load
--- @return meta table with metadata
+-- @tparam string filename file to load
+-- @treturn table meta table with metadata
 Script.metadata = function(filename)
   local meta = {}
   local f=io.open(filename,"r")

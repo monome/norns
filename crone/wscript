@@ -10,9 +10,10 @@ def configure(conf):
 def build(bld):
     crone_sources = [
         'src/main.cpp',
-        'src/OscInterface.cpp',
+        'src/BufDiskWorker.cpp',
         'src/Commands.cpp',
         'src/MixerClient.cpp',
+        'src/OscInterface.cpp',
         'src/SoftCutClient.cpp',
         'src/Taper.cpp',
         'src/Window.cpp',

@@ -1,5 +1,5 @@
 --- ParamSet class
--- @module paramset
+-- @classmod paramset
 
 local separator = require 'core/params/separator'
 local number = require 'core/params/number'
@@ -23,8 +23,8 @@ local ParamSet = {
 ParamSet.__index = ParamSet
 
 --- constructor.
--- @param id
--- @param name
+-- @tparam string id
+-- @tparam string name
 function ParamSet.new(id, name)
   local ps = setmetatable({}, ParamSet)
   ps.id = id or ""
@@ -88,31 +88,57 @@ function ParamSet:add(args)
 end
 
 --- add number.
+-- @tparam string id
+-- @tparam string name
+-- @tparam number min
+-- @tparam number max
+-- @param default
+-- @param formatter
 function ParamSet:add_number(id, name, min, max, default, formatter)
   self:add { param=number.new(id, name, min, max, default, formatter) }
 end
 
 --- add option.
+-- @tparam string id
+-- @tparam string name
+-- @param options
+-- @param default
 function ParamSet:add_option(id, name, options, default)
   self:add { param=option.new(id, name, options, default) }
 end
 
 --- add control.
+-- @tparam string id
+-- @tparam string name
+-- @tparam controlspec controlspec
+-- @param formatter
 function ParamSet:add_control(id, name, controlspec, formatter)
   self:add { param=control.new(id, name, controlspec, formatter) }
 end
 
 --- add file.
+-- @tparam string id
+-- @tparam string name
+-- @tparam string path
 function ParamSet:add_file(id, name, path)
   self:add { param=file.new(id, name, path) }
 end
 
 --- add taper.
+-- @tparam string id
+-- @tparam string name
+-- @tparam number min
+-- @tparam number max
+-- @param default
+-- @tparam number k
+-- @tparam string units
 function ParamSet:add_taper(id, name, min, max, default, k, units)
   self:add { param=taper.new(id, name, min, max, default, k, units) }
 end
 
 --- add trigger.
+-- @tparam string id
+-- @tparam string name
 function ParamSet:add_trigger(id, name)
   self:add { param=trigger.new(id, name) }
 end
@@ -126,54 +152,70 @@ function ParamSet:print()
   end
 end
 
+-- TODO: @scazan CHECK type here!
 --- name.
+-- @tparam number index
 function ParamSet:get_name(index)
   return self.params[index].name
 end
 
 --- string.
+-- @param index
 function ParamSet:string(index)
   local param = self:lookup_param(index)
   return param:string()
 end
 
 --- set.
+-- @param index
+-- @param v value
+-- @tparam boolean silent
 function ParamSet:set(index, v, silent)
   local param = self:lookup_param(index)
   return param:set(v, silent)
 end
 
 --- set_raw (for control types only).
+-- @param index
+-- @param v value
+-- @tparam boolean silent
 function ParamSet:set_raw(index, v, silent)
   local param = self:lookup_param(index)
   param:set_raw(v, silent)
 end
 
 --- get.
+-- @param index
 function ParamSet:get(index)
   local param = self:lookup_param(index)
   return param:get()
 end
 
 --- get_raw (for control types only).
+-- @param index
 function ParamSet:get_raw(index)
   local param = self:lookup_param(index)
   return param:get_raw()
 end
 
 --- delta.
+-- @param index
+-- @tparam number d delta
 function ParamSet:delta(index, d)
   local param = self:lookup_param(index)
   param:delta(d)
 end
 
 --- set action.
+-- @param index
+-- @tparam function func set the action for this index
 function ParamSet:set_action(index, func)
   local param = self:lookup_param(index)
   param.action = func
 end
 
 --- get type.
+-- @param index
 function ParamSet:t(index)
   return self.params[index].t
 end

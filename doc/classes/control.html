@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><strong>control</strong></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>control</code></h1>
+<p>Control class</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Control.new">Control.new (id, name, controlspec, formatter)</a></td>
+	<td class="summary">constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:get">Control:get ()</a></td>
+	<td class="summary">get.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:get_raw">Control:get_raw ()</a></td>
+	<td class="summary">get_raw.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set">Control:set (value, silent)</a></td>
+	<td class="summary">set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set_raw">Control:set_raw (value, silent)</a></td>
+	<td class="summary">set_raw.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:delta">Control:delta (d)</a></td>
+	<td class="summary">delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set_default">Control:set_default ()</a></td>
+	<td class="summary">set_default.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:bang">Control:bang ()</a></td>
+	<td class="summary">bang.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:string">Control:string ()</a></td>
+	<td class="summary">string.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Control.new"></a>
+    <strong>Control.new (id, name, controlspec, formatter)</strong>
+    </dt>
+    <dd>
+    constructor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
+        <li><span class="parameter">name</span>
+
+        </li>
+        <li><span class="parameter">controlspec</span>
+
+        </li>
+        <li><span class="parameter">formatter</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:get"></a>
+    <strong>Control:get ()</strong>
+    </dt>
+    <dd>
+    get.
+ returns mapped value.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:get_raw"></a>
+    <strong>Control:get_raw ()</strong>
+    </dt>
+    <dd>
+    get_raw.
+ get 0-1.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set"></a>
+    <strong>Control:set (value, silent)</strong>
+    </dt>
+    <dd>
+    set.
+ accepts a mapped value
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">silent</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set_raw"></a>
+    <strong>Control:set_raw (value, silent)</strong>
+    </dt>
+    <dd>
+    set_raw.
+ set 0-1.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">silent</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:delta"></a>
+    <strong>Control:delta (d)</strong>
+    </dt>
+    <dd>
+    delta.
+ add delta to current value. checks controlspec for mapped vs not.
+ default division of delta for 100 steps range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">d</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set_default"></a>
+    <strong>Control:set_default ()</strong>
+    </dt>
+    <dd>
+    set_default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:bang"></a>
+    <strong>Control:bang ()</strong>
+    </dt>
+    <dd>
+    bang.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:string"></a>
+    <strong>Control:string ()</strong>
+    </dt>
+    <dd>
+    string.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        formatted string
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
