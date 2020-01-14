@@ -192,6 +192,11 @@ crow.connected = function()
   return _norns.crow.dev ~= nil
 end
 
+crow.Cal = {}
+crow.Cal.test = function() crow.send("Cal.test()") end
+crow.Cal.default = function() crow.send("Cal.default()") end
+crow.Cal.print = function() crow.send("Cal.print()") end
+
 crow.ii = {}
 crow.ii.pullup = function(x)
   if x == true then crow.send("ii.pullup(true)")
