@@ -125,15 +125,21 @@ Script.load = function(filename)
     else
       print("### cleanup failed with error: "..err)
     end
+    
+    -- unload asl package entry so `require 'asl'` works
+    -- todo(pq): why is this not needed generally (e.g., for 'ui', 'util', etc.)?
+    if package.loaded['asl'] ~= nil then
+      package.loaded['asl'] = nil
+    end 
 
     -- script local state
     local state = { }
 
     setmetatable(_G, {
-      __index = function (t,k)
+      __index = function (_,k)
         return state[k]
       end,
-      __newindex = function(t,k,v)
+      __newindex = function(_,k,v)
         state[k] = v
       end,
     })
