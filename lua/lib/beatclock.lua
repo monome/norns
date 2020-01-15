@@ -1,6 +1,12 @@
+--- BeatClock
+-- @classmod BeatClock
+
 local BeatClock = {}
 BeatClock.__index = BeatClock
 
+--- constructor
+-- @tparam string name
+-- @treturn BeatClock
 function BeatClock.new(name)
   local i = {}
   setmetatable(i, BeatClock)
@@ -33,6 +39,7 @@ function BeatClock.new(name)
   return i
 end
 
+--- start
 function BeatClock:start(dev_id)
   self.playing = true
   if not self.external then
@@ -49,6 +56,7 @@ function BeatClock:start(dev_id)
   self.on_start()
 end
 
+--- stop
 function BeatClock:stop(dev_id)
   self.playing = false
   self.metro:stop()
@@ -62,6 +70,7 @@ function BeatClock:stop(dev_id)
   self.on_stop()
 end
 
+--- advance step
 function BeatClock:advance_step()
   self.step = (self.step + 1) % self.steps_per_beat
   if self.step == 0 then
@@ -70,6 +79,7 @@ function BeatClock:advance_step()
   self.on_step()
 end
 
+--- tick
 function BeatClock:tick(dev_id)
   self.current_ticks = (self.current_ticks + 1) % self.ticks_per_step
   if self.playing and self.current_ticks == 0 then
@@ -85,6 +95,7 @@ function BeatClock:tick(dev_id)
   end
 end
 
+--- reset
 function BeatClock:reset(dev_id)
   self.step = self.steps_per_beat - 1
   self.beat = self.beats_per_bar - 1
@@ -101,6 +112,7 @@ function BeatClock:reset(dev_id)
   end
 end
 
+--- clock source change
 function BeatClock:clock_source_change(source)
   self.current_ticks = self.ticks_per_step - 1
   if source == 1 then
@@ -116,11 +128,13 @@ function BeatClock:clock_source_change(source)
   end
 end
 
+--- bpm change
 function BeatClock:bpm_change(bpm)
   self.bpm = bpm
   self.metro.time = 60/(self.ticks_per_step * self.steps_per_beat * self.bpm)
 end
 
+--- add clock params
 function BeatClock:add_clock_params()
   params:add_option("clock", "clock", {"internal", "external"}, self.external or 2 and 1)
   params:set_action("clock", function(x) self:clock_source_change(x) end)
@@ -130,10 +144,12 @@ function BeatClock:add_clock_params()
   params:set_action("clock_out", function(x) if x == 1 then self.send = false else self.send = true end end)
 end
 
+--- enable midi
 function BeatClock:enable_midi()
   self.midi = true  
 end
 
+--- process midi
 function BeatClock:process_midi(data)
   if self.midi then
     local status = data[1]

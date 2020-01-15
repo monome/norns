@@ -1,5 +1,5 @@
 --- Arc class
--- @module arc
+-- @classmod arc
 -- @alias Arc
 
 ---------------------------------
@@ -64,6 +64,7 @@ end
 
 --- static callback when any arc device is added.
 -- user scripts can redefine.
+-- @static
 -- @param dev : a Arc table
 function Arc.add(dev)
   print("arc added:", dev.id, dev.name, dev.serial)
@@ -71,6 +72,7 @@ end
 
 --- static callback when any arc device is removed.
 -- user scripts can redefine.
+-- @static
 -- @param dev : a Arc table
 function Arc.remove(dev) end
 
@@ -136,6 +138,7 @@ function Arc:segment(ring, from, to, level)
 end
 
 --- create device, returns object with handler and send
+-- @static
 function Arc.connect(n)
   local n = n or 1
 
@@ -143,6 +146,7 @@ function Arc.connect(n)
 end
 
 --- clear handlers
+-- @static
 function Arc.cleanup()
   for i=1,4 do
     Arc.vports[i].delta = nil
@@ -157,6 +161,7 @@ function Arc.cleanup()
   end
 end
 
+-- @static
 function Arc.update_devices()
   -- reset vports for existing devices
   for _, device in pairs(Arc.devices) do

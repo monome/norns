@@ -116,12 +116,12 @@ namespace  crone {
         PeakMeter outPeak[2];
 
     public:
-        float getInputPeak(int ch) {
-            return inPeak[ch].get();
+        float getInputPeakPos(int ch) {
+            return inPeak[ch].getPos();
         }
 
-        float getOutputPeak(int ch) {
-            return outPeak[ch].get();
+        float getOutputPeakPos(int ch) {
+            return outPeak[ch].getPos();
         }
 
         void openTapeRecord(const char* path) {
@@ -135,7 +135,6 @@ namespace  crone {
         void stopTapeRecord() {
             tape.writer.stop();
         }
-
 
         void openTapePlayback(const char* path) {
             tape.reader.open(path);

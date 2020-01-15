@@ -1,5 +1,5 @@
--- Encoders class
--- @module encoders
+--- Encoders class
+-- @classmod encoders
 
 local encoders = {}
 
@@ -13,6 +13,7 @@ encoders.sens = {1,1,1}
 encoders.time = {now,now,now}
 encoders.callback = norns.none
 
+--- set acceleration
 encoders.set_accel = function(n,z)
   if n == 0 then
     for k=1,3 do
@@ -25,6 +26,7 @@ encoders.set_accel = function(n,z)
   end
 end
 
+--- set sensitivity
 encoders.set_sens = function(n,s)
   if n == 0 then
     for k=1,3 do
@@ -37,6 +39,7 @@ encoders.set_sens = function(n,s)
   end
 end
 
+--- process delta
 encoders.process = function(n,d)
   now = util.time()
   local diff = now - encoders.time[n]

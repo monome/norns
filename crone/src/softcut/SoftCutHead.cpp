@@ -193,7 +193,7 @@ void SoftCutHead::setRec(float x) {
 }
 
 void SoftCutHead::setPre(float x) {
-    pre= x;
+    pre = x;
 }
 
 phase_t SoftCutHead::getActivePhase() {

@@ -1,17 +1,18 @@
 --- table utility
 -- @module tabutil
+-- @alias tab
 
 local tab = {}
 
 --- print the contents of a table
--- @param t table to print
+-- @tparam table t table to print
 tab.print = function(t)
   for k,v in pairs(t) do print(k .. '\t' .. tostring(v)) end
 end
 
 --- return a lexigraphically sorted array of keys for a table
--- @param t table to sort
--- @return sorted table
+-- @tparam table t table to sort
+-- @treturn table sorted table
 tab.sort = function(t)
   local keys = {}
   for k in pairs(t) do table.insert(keys, k) end
@@ -21,8 +22,8 @@ end
 
 --- count the number of entries in a table;
 -- unlike table.getn() or #table, nil entries won't break the loop
--- @param t table to count
--- @return count
+-- @tparam table t table to count
+-- @treturn number count
 tab.count = function(t)
   local c = 0
   for _ in pairs(t) do c = c + 1 end
@@ -30,9 +31,9 @@ tab.count = function(t)
 end
 
 --- search table for element
--- @param t table to check
+-- @tparam table t table to check
 -- @param e element to look for
--- @return t/f is element is present
+-- @treturn boolean t/f is element is present
 tab.contains = function(t,e)
   for index, value in ipairs(t) do
     if value == e then return true end
@@ -41,7 +42,7 @@ tab.contains = function(t,e)
 end
 
 --- search table for element, return key
--- @param t table to check
+-- @tparam table t table to check
 -- @param e element to look for
 -- @return key, nil if not found
 tab.key = function(t,e)
@@ -53,8 +54,8 @@ end
 
 
 --- split multi-line string into table of strings
--- @param str string with line breaks
--- @return table with entries for each line
+-- @tparam string str string with line breaks
+-- @treturn table table with entries for each line
 tab.lines = function(str)
   local t = {}
   local function helper(line)
@@ -86,8 +87,8 @@ end
 -- Inside table references are saved.
 -- Does not save userdata, metatables, functions and indices of these.
 -- Based on http://lua-users.org/wiki/SaveTableToFile by ChillCode.
--- @param tbl Table to save.
--- @param filename Location to save to.
+-- @tparam table tbl Table to save.
+-- @tparam string filename Location to save to.
 -- @return On failure, returns an error msg.
 function tab.save(tbl, filename)
   local charS, charE = "   ", "\n"
@@ -169,7 +170,7 @@ function tab.save(tbl, filename)
 end
 
 --- Load a table that has been saved via the tab.save() function.
--- @param sfile Filename or stringtable to load.
+-- @tparam string sfile Filename or stringtable to load.
 -- @return On success, returns a previously saved table. On failure, returns as second argument an error msg.
 function tab.load(sfile)
   local ftables,err = loadfile(sfile)
@@ -195,7 +196,7 @@ end
 
 --- Create a read-only proxy for a given table.
 -- @param params params.table is the table to proxy, params.except a list of writable keys
--- @return the proxied read-only table
+-- @treturn table the proxied read-only table
 function tab.readonly(params)
   local t = params.table
   local exceptions = params.except or {}
