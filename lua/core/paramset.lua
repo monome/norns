@@ -35,6 +35,7 @@ function ParamSet.new(id, name)
   ps.name = name or ""
   ps.params = {}
   ps.count = 0
+  ps.hidden = {}
   ps.lookup = {}
   ps.group = 0
   ParamSet.sets[ps.id] = ps
@@ -47,6 +48,7 @@ function ParamSet:add_separator(name)
   table.insert(self.params, param)
   self.count = self.count + 1
   self.group = self.group - 1
+  self.hidden[self.count] = false
 end
 
 --- add group.
@@ -56,6 +58,7 @@ function ParamSet:add_group(name,n)
     table.insert(self.params, param)
     self.count = self.count + 1
     self.group = n
+    self.hidden[self.count] = false
   else
     print("ERROR: paramset cannot nest GROUPs")
   end
@@ -104,6 +107,7 @@ function ParamSet:add(args)
   self.count = self.count + 1
   self.group = self.group - 1
   self.lookup[param.id] = self.count
+  self.hidden[self.count] = false
   if args.action then
     param.action = args.action
   end
@@ -246,6 +250,25 @@ end
 function ParamSet:t(index)
   return self.params[index].t
 end
+
+--- set visibility to hidden.
+-- @param index
+function ParamSet:hide(index)
+  self.hidden[index] = true
+end
+
+--- set visiblility to show.
+-- @param index
+function ParamSet:show(index)
+  self.hidden[index] = false
+end
+
+--- get visibility.
+-- @param index
+function ParamSet:visible(index)
+  return self.hidden[index]
+end
+
 
 local function quote(s)
   return '"'..s:gsub('"', '\\"')..'"'

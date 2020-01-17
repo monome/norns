@@ -26,10 +26,10 @@ function build_page()
   page = {}
   local i = 1
   repeat
-    table.insert(page, i)
+    if params:visible(i) == false then table.insert(page, i) end
     if params:t(i) == params.tGROUP then
       i = i + params:get(i) + 1
-    else i = i+1 end
+    else i = i + 1 end
   until i > params.count
 end
 
