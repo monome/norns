@@ -74,6 +74,7 @@ m.key = function(n,z)
         if t == params.tGROUP then
           build_sub(i)
           m.group = true
+          m.groupname = params:string(i)
           m.oldpos = m.pos
           m.pos = 0
         elseif t == params.tSEPARATOR then
@@ -152,43 +153,47 @@ m.redraw = function()
 
   -- MODE MENU
   if m.mode_menu == true then
+    screen.level(4)
+    screen.move(0,10)
+    screen.text("PARAMETERS")
     for i=1,3 do
       if i==m.mode_pos then screen.level(15) else screen.level(4) end
       screen.move(0,10*i+20)
       screen.text(mode_item[i])
     end
-  -- NORMAL
+    -- NORMAL
   else
-    if(#page < 1) then
-      screen.move(0,10)
+    if m.pos == 0 then
+      local n = "PARAMETERS"
+      if m.group then n = n .. " / " .. m.groupname end
       screen.level(4)
-      screen.text("no parameters")
-    else
-      for i=1,6 do
-        if (i > 2 - m.pos) and (i < #page - m.pos + 3) then
-          if i==3 then screen.level(15) else screen.level(4) end
-          local p = page[i+m.pos-2]
-          if params:t(p) == params.tSEPARATOR then
-            screen.move(0,10*i+2.5)
-            screen.line_rel(127,0)
-            screen.stroke()
-            screen.move(63,10*i)
-            screen.text_center(params:get_name(p))
-          elseif params:t(p) == params.tGROUP then
-            screen.move(0,10*i)
-            screen.text(params:get_name(p) .. " >")
-          else
-            screen.move(0,10*i)
-            screen.text(params:get_name(p))
-            screen.move(127,10*i)
-            if params:t(p) ==  params.tTRIGGER then
-              if m.triggered[p] and m.triggered[p] > 0 then
-                screen.rect(124, 10 * i - 4, 3, 3)
-                screen.fill()
-              end
-            else
-              screen.text_right(params:string(p))
+      screen.move(0,10)
+      screen.text(n)
+    end
+    for i=1,6 do
+      if (i > 2 - m.pos) and (i < #page - m.pos + 3) then
+        if i==3 then screen.level(15) else screen.level(4) end
+        local p = page[i+m.pos-2]
+        if params:t(p) == params.tSEPARATOR then
+          screen.move(0,10*i+2.5)
+          screen.line_rel(127,0)
+          screen.stroke()
+          screen.move(63,10*i)
+          screen.text_center(params:get_name(p))
+        elseif params:t(p) == params.tGROUP then
+          screen.move(0,10*i)
+          screen.text(params:get_name(p) .. " >")
+        else
+          screen.move(0,10*i)
+          screen.text(params:get_name(p))
+          screen.move(127,10*i)
+          if params:t(p) ==  params.tTRIGGER then
+            if m.triggered[p] and m.triggered[p] > 0 then
+              screen.rect(124, 10 * i - 4, 3, 3)
+              screen.fill()
             end
+          else
+            screen.text_right(params:string(p))
           end
         end
       end
