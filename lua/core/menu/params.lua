@@ -1,12 +1,18 @@
 local fileselect = require 'fileselect'
 local textentry = require 'textentry'
 
+local mSELECT = 0
+local mEDIT = 1
+local mPSET = 2
+local mMAP = 3
+local mMAPEDIT = 4
+
 local m = {
   pos = 0,
   oldpos = 0,
   group = false,
   alt = false,
-  mode_menu = false,
+  mode = mEDIT,
   mode_pos = 1,
   map = false
 }
@@ -43,17 +49,16 @@ end
 
 m.key = function(n,z)
   -- MODE MENU
-  if m.mode_menu == true then
+  if m.mode == mSELECT then
     if n==3 and z==1 then
       if m.mode_pos == 1 then
-        m.mode_menu = false
+        m.mode = mEDIT
       elseif m.mode_pos == 3 then
-        m.map = true
-        m.mode_menu = false
+        m.mode = mMAP
       end
     end
-    -- NORMAL
-  else
+    -- EDIT
+  elseif m.mode == mEDIT then
     if n==1 and z==1 then
       m.alt = true
     elseif n==1 and z==0 then
@@ -64,35 +69,39 @@ m.key = function(n,z)
         build_page()
         m.pos = m.oldpos
       else
-        m.mode_menu = true
+        m.mode = mSELECT
       end
     elseif n==3 and z==1 then
       local i = page[m.pos+1]
       local t = params:t(i)
-      m.fine = true
-      if params.count > 0 then
-        if t == params.tGROUP then
-          build_sub(i)
-          m.group = true
-          m.groupname = params:string(i)
-          m.oldpos = m.pos
-          m.pos = 0
-        elseif t == params.tSEPARATOR then
-          local n = i
-          repeat
-            n = n+1
-            if n > #page then n = 1 end
-          until params:t(page[n]) == params.tSEPARATOR
-          m.pos = n-1
-        elseif t == params.tFILE then
-          fileselect.enter(_path.dust, m.newfile)
-        elseif t == params.tTEXT then
+      if t == params.tGROUP then
+        build_sub(i)
+        m.group = true
+        m.groupname = params:string(i)
+        m.oldpos = m.pos
+        m.pos = 0
+      elseif t == params.tSEPARATOR then
+        local n = i
+        repeat
+          n = n+1
+          if n > #page then n = 1 end
+        until params:t(page[n]) == params.tSEPARATOR
+        m.pos = n-1
+      elseif t == params.tFILE then
+        if m.mode == mEDIT then fileselect.enter(_path.dust, m.newfile) end
+      elseif t == params.tTEXT then
+        if m.mode == mEDIT then 
           textentry.enter(m.newtext, params:get(i), "PARAM: "..params:get_name(i))
-        elseif t == params.tTRIGGER then
+        end
+      elseif t == params.tTRIGGER then
+        if m.mode == mEDIT then
           params:set(i)
           m.triggered[i] = 2
         end
+      elseif m.mode == mMAP then
+        m.mode == mMAPEDIT
       end
+      m.fine = true
     elseif n==3 and z==0 then
       m.fine = false
     end
@@ -117,12 +126,12 @@ end
 
 m.enc = function(n,d)
   -- MODE MENU
-  if m.mode_menu == true then
+  if m.mode == mSELECT then
     local prev = m.mode_pos
     m.mode_pos = util.clamp(m.mode_pos + d, 1, 3)
     if m.mode_pos ~= prev then _menu.redraw() end
   -- NORMAL
-  else
+  elseif m.mode == mEDIT then
     -- normal scroll
     if n==2 and m.alt==false then
       local prev = m.pos
@@ -152,7 +161,7 @@ m.redraw = function()
   _menu.draw_panel()
 
   -- MODE MENU
-  if m.mode_menu == true then
+  if m.mode == mSELECT then
     screen.level(4)
     screen.move(0,10)
     screen.text("PARAMETERS")
@@ -161,8 +170,8 @@ m.redraw = function()
       screen.move(0,10*i+20)
       screen.text(mode_item[i])
     end
-    -- NORMAL
-  else
+  -- NORMAL
+  elseif m.mode == mEDIT then
     if m.pos == 0 then
       local n = "PARAMETERS"
       if m.group then n = n .. " / " .. m.groupname end
