@@ -277,7 +277,7 @@ function Audio.add_params()
   params:add_control("tape_level", "tape", cs_MUTE_LEVEL)
   params:set_action("tape_level",
     function(x) audio.level_tape(util.dbamp(x)) end)
-  params:add_separator("HEADPHONE")
+  params:add_separator()
   params:add_option("monitor_mode", "monitor mode", {"STEREO", "MONO"})
   params:set_action("monitor_mode",
     function(x)

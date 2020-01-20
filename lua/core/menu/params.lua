@@ -90,7 +90,7 @@ m.key = function(n,z)
       elseif t == params.tFILE then
         if m.mode == mEDIT then fileselect.enter(_path.dust, m.newfile) end
       elseif t == params.tTEXT then
-        if m.mode == mEDIT then 
+        if m.mode == mEDIT then
           textentry.enter(m.newtext, params:get(i), "PARAM: "..params:get_name(i))
         end
       elseif t == params.tTRIGGER then
@@ -99,7 +99,7 @@ m.key = function(n,z)
           m.triggered[i] = 2
         end
       elseif m.mode == mMAP then
-        m.mode == mMAPEDIT
+        m.mode = mMAPEDIT
       end
       m.fine = true
     elseif n==3 and z==0 then
