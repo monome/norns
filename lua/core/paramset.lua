@@ -190,6 +190,12 @@ function ParamSet:get_name(index)
   return self.params[index].name or ""
 end
 
+--- id.
+-- @tparam number index
+function ParamSet:get_id(index)
+  return self.params[index].id
+end
+
 --- string.
 -- @param index
 function ParamSet:string(index)

@@ -48,8 +48,12 @@ end
 
 
 m.key = function(n,z)
+  if n==1 and z==1 then
+    m.alt = true
+  elseif n==1 and z==0 then
+    m.alt = false
   -- MODE MENU
-  if m.mode == mSELECT then
+  elseif m.mode == mSELECT then
     if n==3 and z==1 then
       if m.mode_pos == 1 then
         m.mode = mEDIT
@@ -57,13 +61,9 @@ m.key = function(n,z)
         m.mode = mMAP
       end
     end
-    -- EDIT
-  elseif m.mode == mEDIT then
-    if n==1 and z==1 then
-      m.alt = true
-    elseif n==1 and z==0 then
-      m.alt = false
-    elseif n==2 and z==1 then
+  -- EDIT
+  elseif m.mode == mEDIT or m.mode == mMAP then
+    if n==2 and z==1 then
       if m.group==true then
         m.group = false
         build_page()
@@ -105,6 +105,10 @@ m.key = function(n,z)
     elseif n==3 and z==0 then
       m.fine = false
     end
+  elseif m.mode == mMAPEDIT then
+    if n==2 and z==1 then
+      m.mode = mMAP
+    end
   end
   _menu.redraw()
 end
@@ -130,14 +134,14 @@ m.enc = function(n,d)
     local prev = m.mode_pos
     m.mode_pos = util.clamp(m.mode_pos + d, 1, 3)
     if m.mode_pos ~= prev then _menu.redraw() end
-  -- NORMAL
-  elseif m.mode == mEDIT then
+  -- EDIT
+  elseif m.mode == mEDIT or m.mode == mMAP then
     -- normal scroll
     if n==2 and m.alt==false then
       local prev = m.pos
       m.pos = util.clamp(m.pos + d, 0, #page - 1)
       if m.pos ~= prev then _menu.redraw() end
-      -- jump section
+    -- jump section
     elseif n==2 and m.alt==true then
       d = d>0 and 1 or -1
       local i = m.pos+1
@@ -147,7 +151,7 @@ m.enc = function(n,d)
         if i < 1 then i = #page end
       until params:t(page[i]) == params.tSEPARATOR
       m.pos = i-1
-      -- adjust value
+    -- adjust value
     elseif n==3 and params.count > 0 then
       local dx = m.fine and (d/20) or d
       params:delta(page[m.pos+1],dx)
@@ -160,7 +164,7 @@ m.redraw = function()
   screen.clear()
   _menu.draw_panel()
 
-  -- MODE MENU
+  -- SELECT
   if m.mode == mSELECT then
     screen.level(4)
     screen.move(0,10)
@@ -170,7 +174,7 @@ m.redraw = function()
       screen.move(0,10*i+20)
       screen.text(mode_item[i])
     end
-  -- NORMAL
+  -- EDIT
   elseif m.mode == mEDIT then
     if m.pos == 0 then
       local n = "PARAMETERS"
@@ -183,20 +187,21 @@ m.redraw = function()
       if (i > 2 - m.pos) and (i < #page - m.pos + 3) then
         if i==3 then screen.level(15) else screen.level(4) end
         local p = page[i+m.pos-2]
-        if params:t(p) == params.tSEPARATOR then
+        local t = params:t(p)
+        if t == params.tSEPARATOR then
           screen.move(0,10*i+2.5)
           screen.line_rel(127,0)
           screen.stroke()
           screen.move(63,10*i)
           screen.text_center(params:get_name(p))
-        elseif params:t(p) == params.tGROUP then
+        elseif t == params.tGROUP then
           screen.move(0,10*i)
           screen.text(params:get_name(p) .. " >")
         else
           screen.move(0,10*i)
           screen.text(params:get_name(p))
           screen.move(127,10*i)
-          if params:t(p) ==  params.tTRIGGER then
+          if t ==  params.tTRIGGER then
             if m.triggered[p] and m.triggered[p] > 0 then
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
@@ -207,6 +212,47 @@ m.redraw = function()
         end
       end
     end
+  -- MAP
+  elseif m.mode == mMAP then
+    if m.pos == 0 then
+      local n = "PARAMETER MAP"
+      if m.group then n = n .. " / " .. m.groupname end
+      screen.level(4)
+      screen.move(0,10)
+      screen.text(n)
+    end
+    for i=1,6 do
+      if (i > 2 - m.pos) and (i < #page - m.pos + 3) then
+        if i==3 then screen.level(15) else screen.level(4) end
+        local p = page[i+m.pos-2]
+        local t = params:t(p)
+        if t == params.tSEPARATOR then
+          screen.move(0,10*i+2.5)
+          screen.line_rel(127,0)
+          screen.stroke()
+          screen.move(63,10*i)
+          screen.text_center(params:get_name(p))
+        elseif t == params.tGROUP then
+          screen.move(0,10*i)
+          screen.text(params:get_name(p) .. " >")
+        else
+          screen.move(0,10*i)
+          screen.text(params:get_id(p))
+          screen.move(127,10*i)
+          if t ==  params.tNUMBER or
+              t == params.tCONTROL or
+              t == params.tOPTION then
+            screen.text_right("-")
+          end
+        end
+      end
+    end
+  -- MAP EDIT
+  elseif m.mode == mMAPEDIT then
+    local p = page[m.pos+1]
+    local t = params:t(p)
+    screen.move(0,10)
+    screen.text(params:get_name(p))
   end
   screen.update()
 end
