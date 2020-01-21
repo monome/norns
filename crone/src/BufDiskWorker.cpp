@@ -86,18 +86,6 @@ void BufDiskWorker::workLoop() {
             Job job = jobQ.front();
             jobQ.pop();
             qMut.unlock();
-#if 0 // debug, timing
-	    using namespace std::chrono;	    
-	    auto ms_start = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-	    
-            std::cout << "BufDiskWorker handling job; " << std::endl << "  type = " << (int) job.type
-                      << "; path = " << job.path
-                      << "; startSrc = " << job.startSrc
-                      << "; startDst = " << job.startDst
-                      << "; dur = " << job.dur
-                      << "; chanSrc = " << job.chan
-                      << std::endl;
-#endif
 
             switch (job.type) {
                 case JobType::Clear:
@@ -161,7 +149,8 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
 }
 
 void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
-                                   float startSrc, float startDst, float dur, int chanSrc) {
+                                   float startSrc, float startDst, float dur, int chanSrc)
+                                   noexcept {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -190,7 +179,7 @@ void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
     chanSrc = std::min(numSrcChan - 1, std::max(0, chanSrc));
     // std::cout << "reading soundfile channel " << chanSrc << std::endl;
     
-    float ioBuf[numSrcChan * ioBufFrames];    
+    auto *ioBuf = new float[numSrcChan * ioBufFrames];
     size_t numBlocks = frDur / ioBufFrames;
     size_t rem = frDur - (numBlocks * ioBufFrames);
     // std::cout << "file contains " << file.frames() << " frames" << std::endl;
@@ -222,11 +211,13 @@ void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
 	frDst++;
 	frSrc++;
     }
+    delete[] ioBuf;
     // std::cout << "SoftCutClient::readBufferMono(): done; read " << frDur << " frames" << std::endl;
 }
 
 void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                     float startTimeSrc, float startTimeDst, float dur) {
+                                     float startTimeSrc, float startTimeDst, float dur)
+                                     noexcept {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -256,12 +247,14 @@ void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, Buf
         std::cerr << "SoftCutClient::readBufferStereo(): not enough channels in source; aborting" << std::endl;
         return;
     }
-    float ioBuf[numSrcChan * ioBufFrames];
+    auto *ioBuf = new float[numSrcChan * ioBufFrames];
     
     size_t numBlocks = frDur / ioBufFrames;
     size_t rem = frDur - (numBlocks * ioBufFrames);
+
     std::cout << "file contains " << file.frames() << " frames" << std::endl;
     std::cout << "reading " << numBlocks << " blocks and " << rem << " remainder frames..." << std::endl;
+    
     for (size_t block = 0; block < numBlocks; ++block) {
 	int res = file.seek(frSrc, SF_SEEK_SET);
 	if (res == -1) {	    
@@ -292,9 +285,10 @@ void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, Buf
 	frSrc++;
     }    
     // std::cout << "SoftCutClient::readBufferStereo(): done; read " << frDur << " frames" << std::endl;
+    delete[] ioBuf;
 }
 
-void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float start, float dur) {    
+void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float start, float dur) noexcept {
     const int sr = 48000;
     const int channels = 1;
     const int format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
@@ -348,7 +342,8 @@ void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float
     // std::cout << std::dec << "BufDiskWorker::writeBufferMono(): done; wrote " << nf << " frames" << std::endl;
 }
 
-void BufDiskWorker::writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1, float start, float dur) {    
+void BufDiskWorker::writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1, float start, float dur)
+noexcept {
     const int sr = 48000;
     const int channels = 2;
     const int format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
