@@ -50,6 +50,7 @@ find ~/dust -name ._.DS_Store -delete
 
 # kernel
 sudo rm /boot/kernel-*
+sudo find /lib/modules/* -maxdepth 0 -path "/lib/modules/$(uname -r)" -prune -o -type d -delete
 sudo cp -r kernel/boot /
 sudo cp -r kernel/lib /
 HW=$(sudo cat /sys/firmware/devicetree/base/model)
