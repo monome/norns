@@ -50,7 +50,7 @@ find ~/dust -name ._.DS_Store -delete
 
 # kernel
 sudo rm /boot/kernel-*
-sudo find /lib/modules/* -maxdepth 0 -path "/lib/modules/$(uname -r)" -prune -o -type d -delete
+sudo find /lib/modules/* -path "/lib/modules/$(uname -r)" -o -type d -exec rm -rf {} +
 sudo cp -r kernel/boot /
 sudo cp -r kernel/lib /
 HW=$(sudo cat /sys/firmware/devicetree/base/model)
@@ -69,4 +69,5 @@ sudo apt-get remove -y rsyslog
 cd /home/we/maiden
 ./project-setup.sh
 
-
+# cleanup
+rm -rf ~/update/*

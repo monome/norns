@@ -5,6 +5,7 @@
 - NEW crow 1.0.3 syntax update @trentgill
 - NEW crow asl markup @pq
 - NEW CLI maiden revived @ngwese
+- NEW force update by holding K1 when selecting SYSTEM > UPDATE
 
 ## maiden 1.0.1
 
