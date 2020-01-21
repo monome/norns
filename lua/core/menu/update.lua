@@ -139,6 +139,8 @@ m.redraw = function()
 end
 
 m.init = function()
+  if _menu.alt == true then norns.version.update = 0 end
+
   m.stage = "init"
   m.message = "checking for update..."
   _menu.redraw()
