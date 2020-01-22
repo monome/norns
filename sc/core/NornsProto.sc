@@ -1,4 +1,3 @@
-
 NornsProto {
 	// address of remote client
 	classvar remoteAddr;
@@ -8,12 +7,15 @@ NornsProto {
 	var <>traceCommands=false;
 	var name;
 	var >onFree;
+	// TODO var <cmdPeriodFreeFunc;
 
 	var oscfuncs;
 	var <commands;
 	var <polls;
 	var complete = 0;
 	var <server;
+
+	var <context;
 
 	*initClass {
 		remoteAddr = NetAddr("127.0.0.1", txPort);
@@ -40,12 +42,33 @@ NornsProto {
 		polls = Array.new;
 
 		this.bootServer {
+			var ig, xg, og;
+			ig = Group.new(server);
+			xg = Group.after(ig);
+			og = Group.after(xg);
+			context = (
+				server: server,
+				// input, process, output groups
+				// FIXME: not good naming, use an Event to match engine style
+				ig: ig,
+				xg: xg,
+				og: og,
+				// input, output busses
+				in_b: Server.default.options.numOutputBusChannels,
+				out_b: 0
+			);
+
 			func.value(this);
 			this.initOscRx;
 			complete = 1;
-			CmdPeriod.doOnce {
+
+/*
+	TODO
+			cmdPeriodFreeFunc = {
 				this.free;
 			};
+			CmdPeriod.doOnce(cmdPeriodFreeFunc);
+*/
 		};
 	}
 
@@ -57,11 +80,10 @@ NornsProto {
 		commands.do { arg command;
 			command[\oscfunc].free;
 		};
-		/*
-		polls.do { arg name; // TODO: ??
-			CronePollRegistry.remove(name);
+		polls.do { arg poll;
+			this.stopPoll(poll);
 		};
-		*/
+		// TODO CmdPeriod.remove(cmdPeriodFreeFunc);
 		fork {
 			onFree.value;
 			"engine %: freed".format(name).inform;
@@ -140,9 +162,10 @@ NornsProto {
 							if (traceCommands) {
 								postln(["rx command", msg, time, addr, rxport]);
 							};
-							func.value(*msg[1..]);
+							func.value(msg); // TODO: consider changing to method call with "exploded" arguments...
+							// func.value(*msg[1..]); // ... like so
 						},
-						("/command/"++commandName).asSymbol, // TODO: rename to cmd to optimize UDP transmission size 
+						("/command/"++commandName).asSymbol, // TODO: rename to cmd to optimize UDP transmission size
 						recvPort: NetAddr.langPort
 					)
 				)
@@ -239,6 +262,7 @@ NornsProto {
 			};
 
 			polls = polls.add(poll);
+			^poll
 		} {
 			"in engine % poll % not added, already exists".format(name, pollName).error;
 		};
