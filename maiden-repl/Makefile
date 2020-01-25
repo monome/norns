@@ -1,4 +1,4 @@
-TARGET = maiden
+TARGET = maiden-repl
 
 .PHONY = clean
 
