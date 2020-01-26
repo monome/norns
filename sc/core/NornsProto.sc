@@ -4,10 +4,10 @@ NornsProto {
 	// port for sending OSC to matron
 	classvar txPort = 8888;
 
+	var commandPrefix = "/command";
 	var <>traceCommands=false;
 	var name;
 	var >onFree;
-	// TODO var <cmdPeriodFreeFunc;
 
 	var oscfuncs;
 	var <commands;
@@ -21,18 +21,12 @@ NornsProto {
 		remoteAddr = NetAddr("127.0.0.1", txPort);
 	}
 
-	*new { arg name, func;
-		^super.new.init(name, func);
+	*spawn { arg name, func;
+		^this.new(name, func);
 	}
 
-	bootServer { |completeFunc|
-		Server.scsynth;
-		server = Server.local;
-		server.options.memSize = 2**16;
-		server.latency = 0.05;
-		server.waitForBoot {
-			completeFunc.value;
-		};
+	*new { arg name, func;
+		^super.new.init(name, func);
 	}
 
 	init { arg argName, func;
@@ -41,34 +35,16 @@ NornsProto {
 		commands = Array.new;
 		polls = Array.new;
 
-		this.bootServer {
-			var ig, xg, og;
-			ig = Group.new(server);
-			xg = Group.after(ig);
-			og = Group.after(xg);
-			context = (
-				server: server,
-				// input, process, output groups
-				// FIXME: not good naming, use an Event to match engine style
-				ig: ig,
-				xg: xg,
-				og: og,
-				// input, output busses
-				in_b: Server.default.options.numOutputBusChannels,
-				out_b: 0
-			);
+		this.prBootServer {
+			context = this.prSpawnContext;
 
 			func.value(this);
-			this.initOscRx;
+			this.prInitOscRx;
 			complete = 1;
 
-/*
-	TODO
-			cmdPeriodFreeFunc = {
+			CmdPeriod.doOnce {
 				this.free;
 			};
-			CmdPeriod.doOnce(cmdPeriodFreeFunc);
-*/
 		};
 	}
 
@@ -81,78 +57,22 @@ NornsProto {
 			command[\oscfunc].free;
 		};
 		polls.do { arg poll;
-			this.stopPoll(poll);
+			this.prStopPoll(poll);
 		};
-		// TODO CmdPeriod.remove(cmdPeriodFreeFunc);
 		fork {
 			onFree.value;
 			"engine %: freed".format(name).inform;
 		};
 	}
 
-	*spawn { arg name, func;
-		^this.new(name, func);
-	}
-
-	initOscRx {
-		oscfuncs = [
-			/// send a `/engine/ready` response if engine is done starting up,
-			/// otherwise send nothing
-			// @function /ready
-			OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				if (complete==1) {
-					remoteAddr.sendMsg('/engine/ready');
-				}
-			}, '/ready', recvPort: NetAddr.langPort),
-
-			// @function /poll/start
-			// @param poll index (integer)
-			OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.startPoll(polls[msg[1]]);
-			}, '/poll/start', recvPort: NetAddr.langPort),
-
-			// @function /poll/stop
-			// @param poll index (integer)
-			OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.stopPoll(polls[msg[1]]);
-			}, '/poll/stop', recvPort: NetAddr.langPort),
-
-			/// set the period of a poll
-			// @function /poll/time
-			// @param poll index (integer)
-			// @param poll period(float)
-			OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.setPollTime(polls[msg[1]], msg[2]);
-			}, '/poll/time', recvPort: NetAddr.langPort),
-
-			/// request a poll's value
-			// @function /poll/value
-			// @param poll index (integer)
-			OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				this.requestPollValue(polls[msg[1]]);
-			}, '/poll/value', recvPort: NetAddr.langPort),
-
-			/// shutdown engine gracefully disposing all resources
-			// @function /quit
-			OSCFunc.new({
-				arg msg, time, addr, recvPort;
-				// TODO: wait for engine.free, then:
-				0.exit;
-			}, '/quit', recvPort: NetAddr.langPort),
-		];
-	}
+	/* engine API */
 
 	addCommand { arg commandName, format, func;
 		commandName = commandName.asSymbol;
 
 		postln([ "engine % adding command".format(name), commandName, format, func ]);
 
-		if (this.commandExists(commandName).not) {
+		if (this.prCommandExists(commandName).not) {
 			commands = commands.add(
 				(
 					name: commandName,
@@ -165,7 +85,7 @@ NornsProto {
 							func.value(msg); // TODO: consider changing to method call with "exploded" arguments...
 							// func.value(*msg[1..]); // ... like so
 						},
-						("/command/"++commandName).asSymbol, // TODO: rename to cmd to optimize UDP transmission size
+						(commandPrefix++"/"++commandName).asSymbol, // TODO: rename to cmd to optimize UDP transmission size
 						recvPort: NetAddr.langPort
 					)
 				)
@@ -175,9 +95,68 @@ NornsProto {
 		};
 	}
 
+	// create and define a new poll.
+	// function argument should return value or data
+	// type should be \value or \data
+	addPoll { arg pollName, func, periodic=true, type=\value, period=0.25;
+		pollName = pollName.asSymbol;
+
+		postln([ "engine % adding poll".format(name), pollName, if (periodic, "periodic", "aperiodic"), func ]);
+
+		if (this.prPollExists(pollName).not) {
+			var index = polls.size;
+			var poll = (
+				name: pollName, // Symbol; label for outside world
+				index: index, // Integer; another label, for ordering/efficiency
+				period: period, // Number; callback interval
+				type: type, // Symbol; either \value or \data
+				function: func, // Function; what produces the value/data
+// TODO				callback: callback, // Function; full (private) callback function
+				periodic: periodic, // Boolean; is this a scheduled/repeating poll or not
+				isRunning: false, // Boolean; running state
+				oscPath: if( type == \value, '/poll/value', '/poll/data'), // Symbol, full destination path
+				trace: false // Boolean; whether to dump values to sclang Post Window
+			);
+
+			if (periodic) {
+				poll[\task] = Task { // Task; timing thread
+					inf.do {
+						var val;
+
+						poll[\val] = poll[\function].value;
+						this.prPollSendValue(poll);
+
+						poll[\period].wait;
+					}
+				};
+			};
+
+			polls = polls.add(poll);
+			^poll
+		} {
+			"in engine % poll % not added, already exists".format(name, pollName).error;
+		};
+	}
+
+	// update and send the poll's value
+	// non-periodic polls should call this
+	pollUpdate { arg pollName, val;
+		if (this.prPollExists(pollName)) {
+			var poll = this.prLookupPollByName(pollName);
+			poll[\val] = val;
+			if (poll[\isRunning]) {
+				this.prPollSendValue(poll);
+			};
+		} {
+			"in % engine, no poll named: %".format(name, pollName).error;
+		};
+	}
+
+	/* engine debugging facilities */
+
 	cmd { |commandName ... args|
-		if (this.commandExists(commandName)) {
-			var msg = ["/command/"++commandName] ++ args;
+		if (this.prCommandExists(commandName)) {
+			var msg = [commandPrefix++"/"++commandName] ++ args;
 			NetAddr.localAddr.sendMsg(*msg);
 			// TODO: lookup command and invoke function instead
 		} {
@@ -185,14 +164,12 @@ NornsProto {
 		}
 	}
 
-/*
 	polli { |selector, index ... args|
-		this.poll(selector, polls[index][\name], *args); // TODO: works or not ???
+		this.poll(selector, polls[index][\name], *args);
 	}
-*/
 
 	poll { |selector, pollName ... args|
-		if (this.pollExists(pollName)) {
+		if (this.prPollExists(pollName)) {
 			var pollIndex = polls.detectIndex { |poll| poll[\name] == pollName };
 			var msg = case
 			{ selector == 'start' } {
@@ -215,68 +192,115 @@ NornsProto {
 		}
 	}
 
-	commandExists { arg commandName;
-		^commands.any { |command| command[\name] == commandName }
-	}
-
-	lookupCommandByName { arg commandName;
-		^commands.detect { |command| command[\name] == commandName }
-	}
-
-	/* polls as events */
-
-	// create and define a new poll.
-	// function argument should return value or data
-	// type should be \value or \data
-	addPoll { arg pollName, func, periodic=true, type=\value, period=0.25;
-		pollName = pollName.asSymbol;
-
-		postln([ "engine % adding poll".format(name), pollName, if (periodic, "periodic", "aperiodic"), func ]);
-
-		if (this.pollExists(pollName).not) {
-			var index = polls.size;
-			var poll = (
-				name: pollName, // Symbol; label for outside world
-				index: index, // Integer; another label, for ordering/efficiency
-				period: period, // Number; callback interval
-				type: type, // Symbol; either \value or \data
-				function: func, // Function; what produces the value/data
-// TODO				callback: callback, // Function; full (private) callback function
-				periodic: periodic, // Boolean; is this a scheduled/repeating poll or not
-				isRunning: false, // Boolean; running state
-				oscPath: if( type == \value, '/poll/value', '/poll/data'), // Symbol, full destination path
-				trace: false // Boolean; whether to dump values to sclang Post Window
-			);
-
-			if (periodic) {
-				poll[\task] = Task { // Task; timing thread
-					inf.do {
-						var val;
-
-						poll[\val] = poll[\function].value;
-						this.pollSendValue(poll);
-
-						poll[\period].wait;
-					}
-				};
-			};
-
-			polls = polls.add(poll);
-			^poll
+	tracePoll { arg pollName, toggle=true;
+		if (this.prPollExists(pollName)) {
+			var poll = this.prLookupPollByName(pollName);
+			poll[\trace] = toggle;
 		} {
-			"in engine % poll % not added, already exists".format(name, pollName).error;
+			"in % engine, no poll named: %".format(name, pollName).error;
 		};
 	}
 
-	lookupPollByName { arg pollName;
-		^polls.detect { |poll| poll[\name] == pollName }
+	/* private helper methods */
+
+	prBootServer { |completeFunc|
+		Server.scsynth;
+		server = Server.local;
+		server.options.memSize = 2**16;
+		server.latency = 0.05;
+		server.waitForBoot {
+			completeFunc.value;
+		};
 	}
 
-	pollExists { arg pollName;
+	prSpawnContext {
+		var ig, xg, og;
+		ig = Group.new(server);
+		xg = Group.after(ig);
+		og = Group.after(xg);
+		^(
+			server: server,
+			// input, process, output groups
+			// FIXME: not good naming, use an Event to match engine style
+			ig: ig,
+			xg: xg,
+			og: og,
+			// input, output busses
+			in_b: Server.default.options.numOutputBusChannels,
+			out_b: 0
+		);
+	}
+
+	prInitOscRx {
+		oscfuncs = [
+			/// send a `/engine/ready` response if engine is done starting up,
+			/// otherwise send nothing
+			// @function /ready
+			OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				if (complete==1) {
+					remoteAddr.sendMsg('/engine/ready');
+				}
+			}, '/ready', recvPort: NetAddr.langPort),
+
+			// @function /poll/start
+			// @param poll index (integer)
+			OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.prStartPoll(polls[msg[1]]);
+			}, '/poll/start', recvPort: NetAddr.langPort),
+
+			// @function /poll/stop
+			// @param poll index (integer)
+			OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.prStopPoll(polls[msg[1]]);
+			}, '/poll/stop', recvPort: NetAddr.langPort),
+
+			/// set the period of a poll
+			// @function /poll/time
+			// @param poll index (integer)
+			// @param poll period(float)
+			OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.prSetPollTime(polls[msg[1]], msg[2]);
+			}, '/poll/time', recvPort: NetAddr.langPort),
+
+			/// request a poll's value
+			// @function /poll/value
+			// @param poll index (integer)
+			OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				this.prRequestPollValue(polls[msg[1]]);
+			}, '/poll/value', recvPort: NetAddr.langPort),
+
+			/// shutdown engine gracefully disposing all resources
+			// @function /quit
+			OSCFunc.new({
+				arg msg, time, addr, recvPort;
+				// TODO: wait for engine.free, then:
+				0.exit;
+			}, '/quit', recvPort: NetAddr.langPort),
+		];
+	}
+
+	prCommandExists { arg commandName;
+		^commands.any { |command| command[\name] == commandName }
+	}
+
+	prLookupCommandByName { arg commandName;
+		^commands.detect { |command| command[\name] == commandName }
+	}
+
+	prPollExists { arg pollName;
 		^polls.any { |poll| poll[\name] == pollName }
 	}
 
-	startPoll { arg poll;
+	prLookupPollByName { arg pollName;
+		^polls.detect { |poll| poll[\name] == pollName }
+	}
+
+	prStartPoll { arg poll;
 		postln("in % engine, starting poll # % (%)".format(name, poll[\index], poll[\name]));
 		if(poll[\isRunning].not) {
 			poll[\isRunning] = true;
@@ -286,7 +310,7 @@ NornsProto {
 		};
 	}
 
-	stopPoll { arg poll;
+	prStopPoll { arg poll;
 		if(poll[\isRunning]) {
 			poll[\isRunning] = false;
 			if(poll[\periodic]) {
@@ -295,50 +319,27 @@ NornsProto {
 		};
 	}
 
-	setPollTime { arg poll, time;
+	prSetPollTime { arg poll, time;
 		if (poll[\periodic].not) {
 			"in % engine, setPollTime: poll # % (%) is aperiodic".format(name, poll[\index], poll[\name]).warn;
 		};
 		poll[\period] = time;
 	}
 
-	// update and send the poll's value
-	// non-periodic polls should call this
-	pollUpdate { arg pollName, val;
-		if (this.pollExists(pollName)) {
-			var poll = this.lookupPollByName(pollName);
-			poll[\val] = val;
-			if (poll[\isRunning]) {
-				this.pollSendValue(poll);
-			};
-		} {
-			"in % engine, no poll named: %".format(name, pollName).error;
-		};
-	}
-
 	// triggered by remote client.
 	// sends the last value, and refresh it using the value-function if there is one
-	requestPollValue { arg poll;
+	prRequestPollValue { arg poll;
 		if(poll[\function].notNil) {
 			poll[\val] = poll[\function].value
 		};
-		this.pollSendValue(poll);
+		this.prPollSendValue(poll);
 	}
 
 	// send the most recent value
-	pollSendValue { arg poll;
+	prPollSendValue { arg poll;
 		remoteAddr.sendMsg(poll[\oscPath], poll[\index], poll[\val]);
 		if (poll[\trace]) {
 			"in % engine, poll # % (%) sent value %".format(name, poll[\index], poll[\name], poll[\val]).inform;
-		};
-	}
-
-	tracePoll { arg pollName, toggle=true;
-		if (this.pollExists(pollName)) {
-			var poll = this.lookupPollByName(pollName);
-			poll[\trace] = toggle;
-		} {
-			"in % engine, no poll named: %".format(name, pollName).error;
 		};
 	}
 }
