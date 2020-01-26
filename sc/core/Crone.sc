@@ -133,6 +133,68 @@ Crone {
 		});
 	}
 
+	*loadEngine { arg path;
+		if (File.exists(path)) {
+			fork {
+				if(engine.notNil, {
+					var cond = Condition.new(false);
+					postln("free engine: " ++ engine);
+					engine.deinit({ cond.test = true; cond.signal; });
+					cond.wait;
+
+				});
+				postln("-----------------------");
+				postln("-- crone: done loading engine, starting reports");
+				postln("--------");
+
+/*
+				(
+					commands: [] or nil
+					polls: [] or nil
+					free: { } or nil
+				);
+*/
+				this.engine = this.interpretFile(context);
+
+				postln("engine: " ++ this.engine);
+				this.sendLoadedOk;
+			}
+		} {
+			postln("error: couldn't find engine: " ++ path);
+		};
+	}
+
+	*loadEngineProto { arg path;
+		if (File.exists(path)) {
+			fork {
+				if(engine.notNil, {
+					var cond = Condition.new(false);
+					postln("free engine: " ++ engine);
+					engine.deinit({ cond.test = true; cond.signal; });
+					cond.wait;
+
+				});
+				postln("-----------------------");
+				postln("-- crone: done loading engine, starting reports");
+				postln("--------");
+
+/*
+				(
+					commands: [] or nil
+					polls: [] or nil
+					free: { } or nil
+				);
+*/
+				engine = this.executeFile(path);
+
+				postln("engine: " ++ this.engine);
+				this.sendLoadedOk;
+			}
+		} {
+			postln("error: couldn't find engine: " ++ path);
+		};
+	}
+
 	// start a thread to continuously send a named report with a given interval
 	*startPoll { arg idx;
 		var poll = CronePollRegistry.getPollFromIndex(idx);
