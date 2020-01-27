@@ -43,6 +43,7 @@ t.count = 1
 t.event = function(_)
   _menu.key(1,1)
   pending = false
+  if _menu.mode == true then _menu.redraw() end
 end
 -- metro for page status updates
 _menu.timer = metro[32]
