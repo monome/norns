@@ -19,7 +19,11 @@ m.key = function(n,z)
     _menu.showstats = not _menu.showstats
     _menu.redraw()
   elseif n == 3 and z == 1 then
-    _menu.set_page(m.list[m.pos])
+    if _menu.alt == false then
+      _menu.set_page(m.list[m.pos])
+    else
+      norns.script.clear()
+    end
   end
 end
 
@@ -76,6 +80,14 @@ m.redraw = function()
     screen.move(127,35)
     screen.text_right(string.upper(norns.state.name))
   end
+
+  if _menu.alt==true and m.pos==1 then
+    screen.clear()
+    screen.move(64,40)
+    screen.level(15)
+    screen.text_center("CLEAR")
+  end
+
   screen.update()
 end
 

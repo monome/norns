@@ -86,6 +86,15 @@ end
 -- initial screen state
 _norns.screen_save()
 
+-- reverse stereo for norns shield
+if util.file_exists(_path.home .. "/reverse.txt") then
+  print("NORNS SHIELD: REVERSING STEREO")
+  os.execute("jack_disconnect 'crone:output_1' 'system:playback_1'")
+  os.execute("jack_disconnect 'crone:output_2' 'system:playback_2'")
+  os.execute("jack_connect 'crone:output_1' 'system:playback_2'")
+  os.execute("jack_connect 'crone:output_2' 'system:playback_1'")
+end
+
 print("start_audio(): ")
 -- start the process of syncing with crone boot
 _norns.start_audio()

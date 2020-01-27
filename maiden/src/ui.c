@@ -194,10 +194,10 @@ void handle_cmd(char *line)
     }
     switch( page_id() ) {
     case PAGE_MATRON:
-      io_send_line(IO_MATRON_TX, line);
+      io_send_line(IO_MATRON, line);
       break;
     case PAGE_CRONE:
-      io_send_line(IO_CRONE_TX, line);
+      io_send_line(IO_CRONE, line);
       break;
     }
     free(line);

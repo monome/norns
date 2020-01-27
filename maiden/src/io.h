@@ -7,10 +7,9 @@
  */
 
 enum {
-  IO_MATRON_RX,
-  IO_MATRON_TX,
-  IO_CRONE_RX,
-  IO_CRONE_TX,
+  IO_MATRON,
+  IO_CRONE,
+  IO_UI,
   IO_COUNT
 };
 

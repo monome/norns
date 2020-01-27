@@ -9,6 +9,18 @@ local Script = {}
 Script.clear = function()
   print("# script clear")
 
+  -- script local state
+  local state = { }
+
+  setmetatable(_G, {
+    __index = function (_,k)
+      return state[k]
+    end,
+    __newindex = function(_,k,v)
+      state[k] = v
+    end,
+  })
+
   -- reset cleanup script
   cleanup = norns.none
 
@@ -40,7 +52,6 @@ Script.clear = function()
 
   -- clear engine
   engine.name = nil
-  _norns.free_engine()
 
   -- clear softcut
   softcut.reset()
@@ -133,18 +144,6 @@ Script.load = function(filename)
     if package.loaded['asl'] ~= nil then
       package.loaded['asl'] = nil
     end 
-
-    -- script local state
-    local state = { }
-
-    setmetatable(_G, {
-      __index = function (_,k)
-        return state[k]
-      end,
-      __newindex = function(_,k,v)
-        state[k] = v
-      end,
-    })
 
     Script.clear() -- clear script variables and functions
 
