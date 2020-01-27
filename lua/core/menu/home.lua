@@ -80,6 +80,14 @@ m.redraw = function()
     screen.move(127,35)
     screen.text_right(string.upper(norns.state.name))
   end
+
+  if _menu.alt==true and m.pos==1 then
+    screen.clear()
+    screen.move(64,40)
+    screen.level(15)
+    screen.text_center("CLEAR")
+  end
+
   screen.update()
 end
 
