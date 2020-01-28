@@ -1,0 +1,903 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><strong>screen</strong></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>screen</code></h1>
+<p>Screen class
+ subset of cairo drawing functions.</p>
+<p> see https://www.cairographics.org/tutorial/</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#screen:update_default">screen:update_default ()</a></td>
+	<td class="summary">copy buffer to screen.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:ping">screen:ping ()</a></td>
+	<td class="summary">restart screen saver timer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:update_low_battery">screen:update_low_battery ()</a></td>
+	<td class="summary">low battery screen update</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:aa">screen:aa (state)</a></td>
+	<td class="summary">enable/disable anti-aliasing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:clear">screen:clear ()</a></td>
+	<td class="summary">clear.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:level">screen:level (value)</a></td>
+	<td class="summary">set level (color/brightness).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:line_width">screen:line_width (w)</a></td>
+	<td class="summary">set line width.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:line_cap">screen:line_cap (style)</a></td>
+	<td class="summary">set line cap style.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:line_join">screen:line_join (style)</a></td>
+	<td class="summary">set line join style.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:miter_limit">screen:miter_limit (limit)</a></td>
+	<td class="summary">set miter limit.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:move">screen:move (x, y)</a></td>
+	<td class="summary">move drawing position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:move_rel">screen:move_rel (x, y)</a></td>
+	<td class="summary">move drawing position relative to current position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:line">screen:line (x, y)</a></td>
+	<td class="summary">draw line to specified point.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:line_rel">screen:line_rel (x, y)</a></td>
+	<td class="summary">draw line to specified point relative to current position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:arc">screen:arc (x, y, r, angle1, angle2)</a></td>
+	<td class="summary">draw arc.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:circle">screen:circle (x, y, r)</a></td>
+	<td class="summary">draw circle.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:rect">screen:rect (x, y, w, h)</a></td>
+	<td class="summary">draw rectangle.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:curve">screen:curve (x1, y1, x2, y2, x3, y3)</a></td>
+	<td class="summary">draw curve (cubic Bézier spline).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:curve_rel">screen:curve_rel (x1, y1, x2, y2, x3, y3)</a></td>
+	<td class="summary">draw curve (cubic Bézier spline) relative coordinates.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:close">screen:close ()</a></td>
+	<td class="summary">close current path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:stroke">screen:stroke ()</a></td>
+	<td class="summary">stroke current path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:fill">screen:fill ()</a></td>
+	<td class="summary">fill current path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:text">screen:text (str)</a></td>
+	<td class="summary">draw text (left aligned).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:text_right">screen:text_right (str)</a></td>
+	<td class="summary">draw text, right aligned.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:text_center">screen:text_center (str)</a></td>
+	<td class="summary">draw text, center aligned.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:font_face">screen:font_face (index)</a></td>
+	<td class="summary">select font face.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:font_size">screen:font_size (size)</a></td>
+	<td class="summary">set font size.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:pixel">screen:pixel (x, y)</a></td>
+	<td class="summary">draw single pixel (requires integer x/y, fill afterwards).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:display_png">screen:display_png (filename, x, y)</a></td>
+	<td class="summary">display png.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "screen:update_default"></a>
+    <strong>screen:update_default ()</strong>
+    </dt>
+    <dd>
+    copy buffer to screen.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:ping"></a>
+    <strong>screen:ping ()</strong>
+    </dt>
+    <dd>
+    restart screen saver timer
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:update_low_battery"></a>
+    <strong>screen:update_low_battery ()</strong>
+    </dt>
+    <dd>
+    low battery screen update
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:aa"></a>
+    <strong>screen:aa (state)</strong>
+    </dt>
+    <dd>
+    enable/disable anti-aliasing.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">state</span>
+         on(1) or off(0)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:clear"></a>
+    <strong>screen:clear ()</strong>
+    </dt>
+    <dd>
+    clear.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:level"></a>
+    <strong>screen:level (value)</strong>
+    </dt>
+    <dd>
+    set level (color/brightness).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
+         0-15 (0=off, 15=white)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:line_width"></a>
+    <strong>screen:line_width (w)</strong>
+    </dt>
+    <dd>
+    set line width.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         line width (in pixels, floats permitted)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:line_cap"></a>
+    <strong>screen:line_cap (style)</strong>
+    </dt>
+    <dd>
+    set line cap style.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">style</span>
+         line cap style string ("butt", "round" or "square"). default is "butt".
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:line_join"></a>
+    <strong>screen:line_join (style)</strong>
+    </dt>
+    <dd>
+    set line join style.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">style</span>
+         line join style string ("miter", "round" or "bevel"). default is "miter"
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:miter_limit"></a>
+    <strong>screen:miter_limit (limit)</strong>
+    </dt>
+    <dd>
+    set miter limit.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">limit</span>
+         if the current line join style is set to "miter", the miter limit is used to determine whether the lines should be joined with a bevel instead of a miter. if the length of the miter divided by the line width is greater than the miter limit, the style is converted to a bevel. default value 10.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:move"></a>
+    <strong>screen:move (x, y)</strong>
+    </dt>
+    <dd>
+    move drawing position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         position x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         position y
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:move_rel"></a>
+    <strong>screen:move_rel (x, y)</strong>
+    </dt>
+    <dd>
+    move drawing position relative to current position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         relative position x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         relative position y
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:line"></a>
+    <strong>screen:line (x, y)</strong>
+    </dt>
+    <dd>
+    draw line to specified point.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         destination x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         destination y
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:line_rel"></a>
+    <strong>screen:line_rel (x, y)</strong>
+    </dt>
+    <dd>
+    draw line to specified point relative to current position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         relative destination x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         relative destination y
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:arc"></a>
+    <strong>screen:arc (x, y, r, angle1, angle2)</strong>
+    </dt>
+    <dd>
+    draw arc.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         circle center x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         circle center y
+        </li>
+        <li><span class="parameter">r</span>
+            <span class="types"><span class="type">number</span></span>
+         radius
+        </li>
+        <li><span class="parameter">angle1</span>
+            <span class="types"><span class="type">number</span></span>
+         start angle
+        </li>
+        <li><span class="parameter">angle2</span>
+            <span class="types"><span class="type">number</span></span>
+         end angle
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:circle"></a>
+    <strong>screen:circle (x, y, r)</strong>
+    </dt>
+    <dd>
+    draw circle.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         origin x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         origin y
+        </li>
+        <li><span class="parameter">r</span>
+            <span class="types"><span class="type">number</span></span>
+         radius
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:rect"></a>
+    <strong>screen:rect (x, y, w, h)</strong>
+    </dt>
+    <dd>
+    draw rectangle.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         width
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         height
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:curve"></a>
+    <strong>screen:curve (x1, y1, x2, y2, x3, y3)</strong>
+    </dt>
+    <dd>
+    draw curve (cubic Bézier spline).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">number</span></span>
+         destination x
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">number</span></span>
+         destination y
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 1 x
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 1 y
+        </li>
+        <li><span class="parameter">x3</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 2 x
+        </li>
+        <li><span class="parameter">y3</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 2 y
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:curve_rel"></a>
+    <strong>screen:curve_rel (x1, y1, x2, y2, x3, y3)</strong>
+    </dt>
+    <dd>
+    draw curve (cubic Bézier spline) relative coordinates.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">number</span></span>
+         relative destination x
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">number</span></span>
+         relative destination y
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 1 x
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 1 y
+        </li>
+        <li><span class="parameter">x3</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 2 x
+        </li>
+        <li><span class="parameter">y3</span>
+            <span class="types"><span class="type">number</span></span>
+         handle 2 y
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:close"></a>
+    <strong>screen:close ()</strong>
+    </dt>
+    <dd>
+    close current path.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:stroke"></a>
+    <strong>screen:stroke ()</strong>
+    </dt>
+    <dd>
+    stroke current path.
+ uses currently selected color.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:fill"></a>
+    <strong>screen:fill ()</strong>
+    </dt>
+    <dd>
+    fill current path.
+ uses currently selected color.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:text"></a>
+    <strong>screen:text (str)</strong>
+    </dt>
+    <dd>
+    draw text (left aligned).
+ uses currently selected font.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : text to write
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:text_right"></a>
+    <strong>screen:text_right (str)</strong>
+    </dt>
+    <dd>
+    draw text, right aligned.
+ uses currently selected font
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : text to write.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:text_center"></a>
+    <strong>screen:text_center (str)</strong>
+    </dt>
+    <dd>
+    draw text, center aligned.
+ uses currently selected font.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : text to write
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:font_face"></a>
+    <strong>screen:font_face (index)</strong>
+    </dt>
+    <dd>
+    select font face.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         font face (see list)
+<p> 1 04B_03 (norns default)
+<p> 2 ALEPH
+<p> 3 Roboto Thin
+<p> 4 Roboto Light
+<p> 5 Roboto Regular
+<p> 6 Roboto Medium
+<p> 7 Roboto Bold
+<p> 8 Roboto Black
+<p> 9 Roboto Thin Italic
+<p> 10 Roboto Light Italic
+<p> 11 Roboto Italic
+<p> 12 Roboto Medium Italic
+<p> 13 Roboto Bold Italic
+<p> 14 Roboto Black Italic
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:font_size"></a>
+    <strong>screen:font_size (size)</strong>
+    </dt>
+    <dd>
+    set font size.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">number</span></span>
+         in pixel height.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:pixel"></a>
+    <strong>screen:pixel (x, y)</strong>
+    </dt>
+    <dd>
+    draw single pixel (requires integer x/y, fill afterwards).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         position
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:display_png"></a>
+    <strong>screen:display_png (filename, x, y)</strong>
+    </dt>
+    <dd>
+    display png.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

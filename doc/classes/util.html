@@ -1,0 +1,554 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/clock.html">clock</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../classes/tabutil.html">tabutil</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><strong>util</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>util</code></h1>
+<p>Utility module</p>
+<p></p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#util:dbamp">util:dbamp (db)</a></td>
+	<td class="summary">db to amp.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:time">util:time ()</a></td>
+	<td class="summary">get system time in s+us.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:scandir">util:scandir (directory)</a></td>
+	<td class="summary">scan directory, return file list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:file_exists">util:file_exists (name)</a></td>
+	<td class="summary">check if file exists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:make_dir">util:make_dir (path)</a></td>
+	<td class="summary">make directory (with parents as needed).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:os_capture">util:os_capture (cmd, raw)</a></td>
+	<td class="summary">execute os command, capture output.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:string_starts">util:string_starts (s, start)</a></td>
+	<td class="summary">string begins with.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:clamp">util:clamp (n, min, max)</a></td>
+	<td class="summary">clamp values to min max.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:linexp">util:linexp (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">convert a linear range to an exponential range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:linlin">util:linlin (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">map a linear range to another linear range.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:explin">util:explin (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">convert an exponential range to a linear range.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:expexp">util:expexp (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">map an exponential range to another exponential range.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:round">util:round (number, quant)</a></td>
+	<td class="summary">round to a multiple of a number</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:round_up">util:round_up (number, quant)</a></td>
+	<td class="summary">round up to a multiple of a number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#util:s_to_hms">util:s_to_hms (s)</a></td>
+	<td class="summary">format string, seconds to h:m:s.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "util:dbamp"></a>
+    <strong>util:dbamp (db)</strong>
+    </dt>
+    <dd>
+    db to amp.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">db</span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        amp
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:time"></a>
+    <strong>util:time ()</strong>
+    </dt>
+    <dd>
+    get system time in s+us.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        time
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:scandir"></a>
+    <strong>util:scandir (directory)</strong>
+    </dt>
+    <dd>
+    scan directory, return file list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">directory</span>
+         path to directory
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:file_exists"></a>
+    <strong>util:file_exists (name)</strong>
+    </dt>
+    <dd>
+    check if file exists.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         filepath
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true/false
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:make_dir"></a>
+    <strong>util:make_dir (path)</strong>
+    </dt>
+    <dd>
+    make directory (with parents as needed).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:os_capture"></a>
+    <strong>util:os_capture (cmd, raw)</strong>
+    </dt>
+    <dd>
+    execute os command, capture output.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmd</span>
+         command
+        </li>
+        <li><span class="parameter">raw</span>
+         raw output (omit for scrubbed)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        ouput
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:string_starts"></a>
+    <strong>util:string_starts (s, start)</strong>
+    </dt>
+    <dd>
+    string begins with.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to examine
+        </li>
+        <li><span class="parameter">start</span>
+         string to search for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true or false
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:clamp"></a>
+    <strong>util:clamp (n, min, max)</strong>
+    </dt>
+    <dd>
+    clamp values to min max.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+         value
+        </li>
+        <li><span class="parameter">min</span>
+         minimum
+        </li>
+        <li><span class="parameter">max</span>
+         maximum
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        clamped value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:linexp"></a>
+    <strong>util:linexp (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    convert a linear range to an exponential range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range (must be non-zero and of the same sign as dhi)
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range (must be non-zero and of the same sign as dlo)
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:linlin"></a>
+    <strong>util:linlin (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    map a linear range to another linear range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:explin"></a>
+    <strong>util:explin (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    convert an exponential range to a linear range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range (must be non-zero and of the same sign as shi)
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range (must be non-zero and of the same sign as slo)
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:expexp"></a>
+    <strong>util:expexp (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    map an exponential range to another exponential range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+         lower limit of input range (must be non-zero and of the same sign as shi)
+        </li>
+        <li><span class="parameter">shi</span>
+         upper limit of input range (must be non-zero and of the same sign as slo)
+        </li>
+        <li><span class="parameter">dlo</span>
+         lower limit of output range (must be non-zero and of the same sign as dhi)
+        </li>
+        <li><span class="parameter">dhi</span>
+         upper limit of output range (must be non-zero and of the same sign as dlo)
+        </li>
+        <li><span class="parameter">f</span>
+         input to convert
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:round"></a>
+    <strong>util:round (number, quant)</strong>
+    </dt>
+    <dd>
+    round to a multiple of a number
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+         number to round
+        </li>
+        <li><span class="parameter">quant</span>
+         precision to round to
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:round_up"></a>
+    <strong>util:round_up (number, quant)</strong>
+    </dt>
+    <dd>
+    round up to a multiple of a number.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+         number to round
+        </li>
+        <li><span class="parameter">quant</span>
+         precision to round to
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "util:s_to_hms"></a>
+    <strong>util:s_to_hms (s)</strong>
+    </dt>
+    <dd>
+    format string, seconds to h:m:s.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         seconds
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        seconds : seconds in h:m:s
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-18 20:53:52 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

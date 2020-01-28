@@ -1,5 +1,5 @@
--- experimental voice allocation module
--- @module voice
+--- experimental voice allocation module
+-- @classmod voice
 -- @alias Voice
 
 
@@ -108,7 +108,10 @@ Voice.MODE_ROTATE = 1
 Voice.MODE_LRU = 2
 Voice.MODE_RANDOM = 3
 
--- create a new 
+--- create a new Voice
+-- @tparam number polyphony
+-- @tparam number mode
+-- @treturn Voice
 function Voice.new(polyphony, mode)
 	local o = setmetatable({}, Voice)
 	o.polyphony = polyphony
@@ -130,7 +133,7 @@ function Voice.new(polyphony, mode)
 	return o
 end
 
--- get next available voice Slot from pool, stealing an active slot if needed
+--- get next available voice Slot from pool, stealing an active slot if needed
 function Voice:get()
 	local slot = self.style:next()
 	if slot.active then
@@ -155,18 +158,19 @@ function Voice:get()
 end
 
 
--- 
+--- push
 function Voice:push(key, slot)
 	self.pairings[key] = slot
 end
 
+--- pop
 function Voice:pop(key)
 	local slot = self.pairings[key]
 	self.pairings[key] = nil
 	return slot
 end
 
--- return voice slot to pool
+--- return voice slot to pool
 -- @param slot : a Slot obtained from get()
 function Voice:release(slot)
 	if slot.pool == self then

@@ -1,5 +1,5 @@
 --- Control class
--- @module control
+-- @classmod control
 
 local ControlSpec = require 'core/controlspec'
 

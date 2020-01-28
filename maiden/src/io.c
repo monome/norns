@@ -39,17 +39,15 @@ void *crone_rx_loop(void *x);
 struct sock_io sock_io[IO_COUNT];
 
 char *url_default[IO_COUNT] = {
-  "ipc:///tmp/matron_out.ipc",
-  "ipc:///tmp/matron_in.ipc",
-  "ipc:///tmp/crone_out.ipc",
-  "ipc:///tmp/crone_in.ipc"
+  "ws://localhost:5555/",
+  "ws://localhost:5556/",
+  NULL,
 };
 
 void * (*loop_func[IO_COUNT])(void *) = {
   &matron_rx_loop,
-  &tx_loop, // tx for both children
   &crone_rx_loop,
-  NULL,
+  &tx_loop
 };
 
 //-----------
@@ -57,9 +55,11 @@ void * (*loop_func[IO_COUNT])(void *) = {
 
 void sock_io_init( struct sock_io *io, char *url, void * (*loop)(void *) ) {
   // connect socket
-  io->sock = nn_socket(AF_SP, NN_BUS);
-  if(nn_connect(io->sock, url) < 0) {
-    perror("error connecting socket");
+  if(url) {
+    io->sock = nn_socket(AF_SP, NN_BUS);
+    if(nn_connect(io->sock, url) < 0) {
+      perror("error connecting socket");
+    }
   }
   // launch thread if loop function defined
   io->has_thread = false;
@@ -128,13 +128,6 @@ void *matron_rx_loop(void *p) {
       ui_matron_line(msg);
     }
   }
-  return NULL;
-}
-
-void *matron_tx_loop(void *x) {
-  (void)x;
-  ui_loop(); // <-- quit when this exits
-  io_deinit();
   return NULL;
 }
 

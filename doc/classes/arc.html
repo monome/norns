@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>arc</strong></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>arc</code></h1>
+<p>Arc class</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#arc.add">arc.add (dev)</a></td>
+	<td class="summary">static callback when any arc device is added.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arc.remove">arc.remove (dev)</a></td>
+	<td class="summary">static callback when any arc device is removed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arc.connect">arc.connect (n)</a></td>
+	<td class="summary">create device, returns object with handler and send</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arc.cleanup">arc.cleanup ()</a></td>
+	<td class="summary">clear handlers</td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#arc:new">arc:new (id, serial, name, dev)</a></td>
+	<td class="summary">constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arc:led">arc:led (ring, x, val)</a></td>
+	<td class="summary">set state of single LED on this arc device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arc:all">arc:all (val)</a></td>
+	<td class="summary">set state of all LEDs on this arc device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arc:refresh">arc:refresh ()</a></td>
+	<td class="summary">update any dirty quads on this arc device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arc:segment">arc:segment (ring, from, to, level)</a></td>
+	<td class="summary">create an anti-aliased point to point arc
+ segment/range on a sepcific LED ring.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "arc.add"></a>
+    <strong>arc.add (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any arc device is added.
+ user scripts can redefine.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Arc table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arc.remove"></a>
+    <strong>arc.remove (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any arc device is removed.
+ user scripts can redefine.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Arc table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arc.connect"></a>
+    <strong>arc.connect (n)</strong>
+    </dt>
+    <dd>
+    create device, returns object with handler and send
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arc.cleanup"></a>
+    <strong>arc.cleanup ()</strong>
+    </dt>
+    <dd>
+    clear handlers
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "arc:new"></a>
+    <strong>arc:new (id, serial, name, dev)</strong>
+    </dt>
+    <dd>
+    constructor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : arbitrary numeric identifier
+        </li>
+        <li><span class="parameter">serial</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : serial
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : name
+        </li>
+        <li><span class="parameter">dev</span>
+            <span class="types"><span class="type">userdata</span></span>
+         : opaque pointer to device
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arc:led"></a>
+    <strong>arc:led (ring, x, val)</strong>
+    </dt>
+    <dd>
+    set state of single LED on this arc device.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ring</span>
+            <span class="types"><span class="type">integer</span></span>
+         : ring index (1-based!)
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+         : led index (1-based!)
+        </li>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [0, 15]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arc:all"></a>
+    <strong>arc:all (val)</strong>
+    </dt>
+    <dd>
+    set state of all LEDs on this arc device.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [0, 15]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arc:refresh"></a>
+    <strong>arc:refresh ()</strong>
+    </dt>
+    <dd>
+    update any dirty quads on this arc device.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arc:segment"></a>
+    <strong>arc:segment (ring, from, to, level)</strong>
+    </dt>
+    <dd>
+    create an anti-aliased point to point arc
+ segment/range on a sepcific LED ring.
+ each point can be a decimal, LEDs will fade for in between values.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ring</span>
+            <span class="types"><span class="type">integer</span></span>
+         : ring index (1-based)
+        </li>
+        <li><span class="parameter">from</span>
+            <span class="types"><span class="type">number</span></span>
+         : from angle in radians
+        </li>
+        <li><span class="parameter">to</span>
+            <span class="types"><span class="type">number</span></span>
+         : to angle in radians
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [0, 15]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

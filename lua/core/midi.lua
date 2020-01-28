@@ -1,5 +1,5 @@
 --- midi devices
--- @module midi
+-- @classmod midi
 -- @alias Midi
 
 local vport = require 'vport'
@@ -67,11 +67,13 @@ end
 
 --- static callback when any midi device is added.
 -- user scripts can redefine.
+-- @static
 -- @param dev : a Midi table
 function Midi.add(dev) end
 
 --- static callback when any midi device is removed.
 -- user scripts can redefine.
+-- @static
 -- @param dev : a Midi table
 function Midi.remove(dev) end
 
@@ -80,15 +82,15 @@ function Midi.remove(dev) end
 function Midi:send(data)
   if data.type then
     local d = Midi.to_data(data)
-    midi_send(self.dev, d)
+    _norns.midi_send(self.dev, d)
   else
-    midi_send(self.dev, data)
+    _norns.midi_send(self.dev, data)
   end
 end
 
 --- send midi note on event.
 -- @tparam integer note : note number
--- @tparam integer vel : velocity 
+-- @tparam integer vel : velocity
 -- @tparam integer ch : midi channel
 function Midi:note_on(note, vel, ch)
   self:send{type="note_on", note=note, vel=vel, ch=ch or 1}
@@ -96,7 +98,7 @@ end
 
 --- send midi note off event.
 -- @tparam integer note : note number
--- @tparam integer vel : velocity 
+-- @tparam integer vel : velocity
 -- @tparam integer ch : midi channel
 function Midi:note_off(note, vel, ch)
   self:send{type="note_off", note=note, vel=vel or 100, ch=ch or 1}
@@ -104,14 +106,14 @@ end
 
 --- send midi continuous controller event.
 -- @tparam integer cc : cc number
--- @tparam integer val : value 
+-- @tparam integer val : value
 -- @tparam integer ch : midi channel
 function Midi:cc(cc, val, ch)
   self:send{type="cc", cc=cc, val=val, ch=ch or 1}
 end
 
 --- send midi pitchbend event.
--- @tparam integer val : value 
+-- @tparam integer val : value
 -- @tparam integer ch : midi channel
 function Midi:pitchbend(val, ch)
   self:send{type="pitchbend", val=val, ch=ch or 1}
@@ -119,21 +121,21 @@ end
 
 --- send midi key pressure event.
 -- @tparam integer note : note number
--- @tparam integer val : value 
+-- @tparam integer val : value
 -- @tparam integer ch : midi channel
 function Midi:key_pressure(note, val, ch)
   self:send{type="key_pressure", note=note, val=val, ch=ch or 1}
 end
 
 --- send midi channel pressure event.
--- @tparam integer val : value 
+-- @tparam integer val : value
 -- @tparam integer ch : midi channel
 function Midi:channel_pressure(val, ch)
   self:send{type="channel_pressure", val=val, ch=ch or 1}
 end
 
 --- send midi program change event.
--- @tparam integer val : value 
+-- @tparam integer val : value
 -- @tparam integer ch : midi channel
 function Midi:program_change(val, ch)
   self:send{type="program_change", val=val, ch=ch or 1}
@@ -367,7 +369,7 @@ function Midi.update_devices()
 end
 
 --- add a device.
-norns.midi.add = function(id, name, dev)
+_norns.midi.add = function(id, name, dev)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
   Midi.update_devices()
@@ -375,7 +377,7 @@ norns.midi.add = function(id, name, dev)
 end
 
 --- remove a device.
-norns.midi.remove = function(id)
+_norns.midi.remove = function(id)
   if Midi.devices[id] then
     if Midi.devices[id].remove then
       Midi.devices[id].remove()
@@ -386,7 +388,7 @@ norns.midi.remove = function(id)
 end
 
 --- handle a midi event.
-norns.midi.event = function(id, data)
+_norns.midi.event = function(id, data)
   local d = Midi.devices[id]
 
   if d ~= nil then

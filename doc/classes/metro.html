@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Global_Functions">Global Functions </a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><strong>metro</strong></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>metro</code></h1>
+<p>high-resolution metro API</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Metro.init">Metro.init (arg, arg_time, arg_count)</a></td>
+	<td class="summary">initialize a metro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro.free">Metro.free (id)</a></td>
+	<td class="summary">free</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro.free_all">Metro.free_all ()</a></td>
+	<td class="summary">free all</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro.new">Metro.new (id)</a></td>
+	<td class="summary">constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro:start">Metro:start ([time[, count[, stage]]])</a></td>
+	<td class="summary">start a metro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro:stop">Metro:stop ()</a></td>
+	<td class="summary">stop a metro.</td>
+	</tr>
+</table>
+<h2><a href="#Global_Functions">Global Functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#_norns.metro">_norns.metro (idx, stage)</a></td>
+	<td class="summary">callback on metro tick from C.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Metro.init"></a>
+    <strong>Metro.init (arg, arg_time, arg_count)</strong>
+    </dt>
+    <dd>
+    initialize a metro.
+ assigns unused id.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">arg</span>
+            <span class="types"><span class="type">function</span></span>
+         callback function
+        </li>
+        <li><span class="parameter">arg_time</span>
+            <span class="types"><span class="type">number</span></span>
+         time period between ticks (seconds).
+        </li>
+        <li><span class="parameter">arg_count</span>
+            <span class="types"><span class="type">number</span></span>
+         number of ticks. infinite by default.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro.free"></a>
+    <strong>Metro.free (id)</strong>
+    </dt>
+    <dd>
+    free
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">numbder</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro.free_all"></a>
+    <strong>Metro.free_all ()</strong>
+    </dt>
+    <dd>
+    free all
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro.new"></a>
+    <strong>Metro.new (id)</strong>
+    </dt>
+    <dd>
+    constructor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : identifier
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Metro</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro:start"></a>
+    <strong>Metro:start ([time[, count[, stage]]])</strong>
+    </dt>
+    <dd>
+    start a metro.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
+         - time period between ticks (seconds.) by default, re-use the last period
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">number</span></span>
+         - number of ticks. infinite by default
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">stage</span>
+            <span class="types"><span class="type">number</span></span>
+         - initial stage number (1-based.) 1 by default
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro:stop"></a>
+    <strong>Metro:stop ()</strong>
+    </dt>
+    <dd>
+    stop a metro.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Global_Functions"></a>Global Functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "_norns.metro"></a>
+    <strong>_norns.metro (idx, stage)</strong>
+    </dt>
+    <dd>
+    callback on metro tick from C.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">idx</span>
+
+        </li>
+        <li><span class="parameter">stage</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

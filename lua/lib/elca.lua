@@ -1,5 +1,5 @@
 --- elementary cellular automata
--- @module elca
+-- @classmod elca
 -- @alias CA
 
 local CA = {}
@@ -11,7 +11,8 @@ CA.BOUND_LOW = 0
 CA.BOUND_HIGH = 1
 CA.BOUND_WRAP = 2
 
--- constructor
+--- constructor
+-- @treturn elca
 function CA.new()
    local ca = setmetatable({}, CA)
    
@@ -30,7 +31,7 @@ function CA.new()
     return ca
 end 
 
--- update all state
+--- update all state
 function CA:update() 
    local newState = {}
    for i=1,CA.NUM_STATES do
@@ -43,7 +44,8 @@ function CA:update()
 end
 
 --- helper: return three values to use for neighbor code
---- @return tuple of left, right, center
+-- @tparam number i
+-- @return tuple of left, right, center
 function CA:neighbors(i)
    local l
    local r
@@ -70,6 +72,9 @@ function CA:neighbors(i)
 end
 
 --- get binary code for value given cell and neighbors
+-- @tparam number l left cell
+-- @tparam number c center cell
+-- @tparam number r right cell
 function CA.code(l, c, r)
    local n = 0
    if l > 0 then n = n | 4 end
@@ -79,7 +84,8 @@ function CA.code(l, c, r)
 end
 
 --- return 8 cells at current offset
---- @return table with 8 binary values
+-- @tparam number n
+-- @treturn table table with 8 binary values
 function CA:window(n)
    if n == nil then n = CA.NUM_STATES end
    local w = {}
@@ -89,7 +95,7 @@ function CA:window(n)
    return w
 end 
 
--- change current state at index,
+--- change current state at index,
 --- and update the rule to that which would have produced the new state
 function CA:set_rule_by_state(val, l, c, r)
    local code = CA.code(l, c, r)
@@ -98,6 +104,7 @@ function CA:set_rule_by_state(val, l, c, r)
    else self.rule = self.rule & (~(1<<code)) end
 end
 
+--- clear all states
 function CA:clear()
    for i=1,CA.NUM_STATES do self.state[i] = 0 end
 end

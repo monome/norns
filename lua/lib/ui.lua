@@ -1,7 +1,7 @@
 --- UI widgets module.
 -- Widgets for paging, tabs, lists, dials, sliders, etc.
 --
--- @module UI
+-- @classmod UI
 -- @release v1.0.2
 -- @author Mark Eats
 
@@ -12,13 +12,16 @@ UI.__index = UI
 
 -------- Pages --------
 
+--- Pages
+-- @section
+
 UI.Pages = {}
 UI.Pages.__index = UI.Pages
 
 --- Create a new Pages object.
--- @param index Selected page, defaults to 1.
--- @param num_pages Total number of pages, defaults to 3.
--- @return Instance of Pages.
+-- @tparam number index Selected page, defaults to 1.
+-- @tparam number num_pages Total number of pages, defaults to 3.
+-- @treturn Pages Instance of Pages.
 function UI.Pages.new(index, num_pages)
   local pages = {
     index = index or 1,
@@ -30,14 +33,14 @@ function UI.Pages.new(index, num_pages)
 end
 
 --- Set selected page.
--- @param index Page number.
+-- @tparam number index Page number.
 function UI.Pages:set_index(index)
   self.index = util.clamp(index, 1, self.num_pages)
 end
 
 --- Set selected page using delta.
--- @param delta Number to move from selected page.
--- @param wrap Boolean, true to wrap pages.
+-- @tparam number delta Number to move from selected page.
+-- @tparam boolean wrap Boolean, true to wrap pages.
 function UI.Pages:set_index_delta(delta, wrap)
   local index = self.index + delta
   if wrap then
@@ -65,13 +68,16 @@ end
 
 -------- Tabs --------
 
+--- Tabs
+-- @section
+
 UI.Tabs = {}
 UI.Tabs.__index = UI.Tabs
 
 --- Create a new Tabs object.
--- @param index Selected tab, defaults to 1.
--- @param titles Table of strings for tab titles.
--- @return Instance of Tabs.
+-- @tparam number index Selected tab, defaults to 1.
+-- @tparam {string,...} titles Table of strings for tab titles.
+-- @treturn Tabs Instance of Tabs.
 function UI.Tabs.new(index, titles)
   local tabs = {
     index = index or 1,
@@ -83,14 +89,14 @@ function UI.Tabs.new(index, titles)
 end
 
 --- Set selected tab.
--- @param index Tab number.
+-- @tparam number index Tab number.
 function UI.Tabs:set_index(index)
   self.index = util.clamp(index, 1, #self.titles)
 end
 
 --- Set selected tab using delta.
--- @param delta Number to move from selected tab.
--- @param wrap Boolean, true to wrap tabs.
+-- @tparam number delta Number to move from selected tab.
+-- @tparam boolean wrap Boolean, true to wrap tabs.
 function UI.Tabs:set_index_delta(delta, wrap)
   local index = self.index + delta
   local count = #self.titles
@@ -119,15 +125,17 @@ end
 
 -------- List --------
 
+--- List
+-- @section
 UI.List = {}
 UI.List.__index = UI.List
 
 --- Create a new List object.
--- @param x X position, defaults to 0.
--- @param y Y position, defaults to 0.
--- @param index Selected entry, defaults to 1.
--- @param entries Table of strings for list entries.
--- @return Instance of List.
+-- @tparam number x X position, defaults to 0.
+-- @tparam number y Y position, defaults to 0.
+-- @tparam number index Selected entry, defaults to 1.
+-- @tparam {string,...} entries Table of strings for list entries.
+-- @treturn List Instance of List.
 function UI.List.new(x, y, index, entries)
   local list = {
     x = x or 0,
@@ -143,13 +151,14 @@ function UI.List.new(x, y, index, entries)
 end
 
 --- Set selected entry.
--- @param index Entry number.
+-- @tparam number index Entry number.
 function UI.List:set_index(index)
   self.index = util.clamp(index, 1, #self.entries)
 end
 
--- @param delta Number to move from selected entry.
--- @param wrap Boolean, true to wrap list.
+--- Set selected list using delta.
+-- @tparam number delta Number to move from selected entry.
+-- @tparam boolean wrap Boolean, true to wrap list.
 function UI.List:set_index_delta(delta, wrap)
   local index = self.index + delta
   local count = #self.entries
@@ -182,15 +191,17 @@ end
 
 -------- ScrollingList --------
 
+--- ScrollingList
+-- @section
 UI.ScrollingList = {}
 UI.ScrollingList.__index = UI.ScrollingList
 
 --- Create a new ScrollingList object.
--- @param x X position, defaults to 0.
--- @param y Y position, defaults to 0.
--- @param index Selected entry, defaults to 1.
--- @param entries Table of strings for list entries.
--- @return Instance of ScrollingList.
+-- @tparam number x X position, defaults to 0.
+-- @tparam number y Y position, defaults to 0.
+-- @tparam number index Selected entry, defaults to 1.
+-- @tparam {string,...} entries Table of strings for list entries.
+-- @treturn ScrollingList Instance of ScrollingList.
 function UI.ScrollingList.new(x, y, index, entries)
   local list = {
     x = x or 0,
@@ -208,13 +219,14 @@ function UI.ScrollingList.new(x, y, index, entries)
 end
 
 --- Set selected entry.
--- @param index Entry number.
+-- @tparam number index Entry number.
 function UI.ScrollingList:set_index(index)
   self.index = util.clamp(index, 1, #self.entries)
 end
 
--- @param delta Number to move from selected entry.
--- @param wrap Boolean, true to wrap list.
+--- Set selected scrolling list using delta.
+-- @tparam number delta Number to move from selected entry.
+-- @tparam boolean wrap Boolean, true to wrap list.
 function UI.ScrollingList:set_index_delta(delta, wrap)
   local index = self.index + delta
   local count = #self.entries
@@ -252,12 +264,14 @@ end
 
 -------- Message --------
 
+--- Message
+-- @section
 UI.Message = {}
 UI.Message.__index = UI.Message
 
 --- Create a new Message object.
--- @param text_array Array of lines of text.
--- @return Instance of Message.
+-- @tparam [string,...] text_array Array of lines of text.
+-- @treturn Message Instance of Message.
 function UI.Message.new(text_array)
   local message = {
     text = text_array or {},
@@ -286,19 +300,21 @@ end
 
 -------- Slider --------
 
+--- Slider
+-- @section
 UI.Slider = {}
 UI.Slider.__index = UI.Slider
 
 --- Create a new Slider object.
--- @param x X position, defaults to 0.
--- @param y Y position, defaults to 0.
--- @param width Width of slider, defaults to 3.
--- @param height Height of slider, defaults to 36.
--- @param value Current value, defaults to 0.
--- @param min_value Minimum value, defaults to 0.
--- @param max_value Maximum value, defaults to 1.
--- @param markers Array of marker positions.
--- @return Instance of Slider.
+-- @tparam number x X position, defaults to 0.
+-- @tparam number y Y position, defaults to 0.
+-- @tparam number width Width of slider, defaults to 3.
+-- @tparam number height Height of slider, defaults to 36.
+-- @tparam number value Current value, defaults to 0.
+-- @tparam number min_value Minimum value, defaults to 0.
+-- @tparam number max_value Maximum value, defaults to 1.
+-- @tparam table markers Array of marker positions.
+-- @treturn Slider Instance of Slider.
 function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers)
   local slider = {
     x = x or 0,
@@ -317,20 +333,20 @@ function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers
 end
 
 --- Set value.
--- @param number Value number.
+-- @tparam number number Value number.
 function UI.Slider:set_value(number)
   self.value = util.clamp(number, self.min_value, self.max_value)
 end
 
 --- Set value using delta.
--- @param delta Number.
+-- @tparam number delta Number.
 function UI.Slider:set_value_delta(delta)
   self:set_value(self.value + delta)
 end
 
 --- Set marker position.
--- @param id Marker number.
--- @param position Marker position number.
+-- @tparam number id Marker number.
+-- @tparam number position Marker position number.
 function UI.Slider:set_marker_position(id, position)
   self.markers[id] = util.clamp(position, self.min_value, self.max_value)
 end
@@ -356,22 +372,24 @@ end
 
 -------- Dial --------
 
+--- Dial
+-- @section
 UI.Dial = {}
 UI.Dial.__index = UI.Dial
 
 --- Create a new Dial object.
--- @param x X position, defaults to 0.
--- @param y Y position, defaults to 0.
--- @param size Diameter of dial, defaults to 22.
--- @param value Current value, defaults to 0.
--- @param min_value Minimum value, defaults to 0.
--- @param max_value Maximum value, defaults to 1.
--- @param rounding Sets precision to round value to, defaults to 0.01.
--- @param start_value Sets where fill line is drawn from, defaults to 0.
--- @param markers Array of marker positions.
--- @param units String to display after value text.
--- @param title String to be displayed instead of value text.
--- @return Instance of Dial.
+-- @tparam number x X position, defaults to 0.
+-- @tparam number y Y position, defaults to 0.
+-- @tparam number size Diameter of dial, defaults to 22.
+-- @tparam number value Current value, defaults to 0.
+-- @tparam number min_value Minimum value, defaults to 0.
+-- @tparam number max_value Maximum value, defaults to 1.
+-- @tparam number rounding Sets precision to round value to, defaults to 0.01.
+-- @tparam number start_value Sets where fill line is drawn from, defaults to 0.
+-- @tparam table markers Array of marker positions.
+-- @tparam string units String to display after value text.
+-- @tparam string title String to be displayed instead of value text.
+-- @treturn Dial Instance of Dial.
 function UI.Dial.new(x, y, size, value, min_value, max_value, rounding, start_value, markers, units, title)
   local markers_table = markers or {}
   min_value = min_value or 0
@@ -401,20 +419,20 @@ function UI.Dial.new(x, y, size, value, min_value, max_value, rounding, start_va
 end
 
 --- Set value.
--- @param number Value number.
+-- @tparam number number Value number.
 function UI.Dial:set_value(number)
   self.value = util.clamp(number, self.min_value, self.max_value)
 end
 
 --- Set value using delta.
--- @param delta Number.
+-- @tparam number delta Number.
 function UI.Dial:set_value_delta(delta)
   self:set_value(self.value + delta)
 end
 
 --- Set marker position.
--- @param id Marker number.
--- @param position Marker position number.
+-- @tparam number id Marker number.
+-- @tparam number position Marker position number.
 function UI.Dial:set_marker_position(id, position)
   self._markers[id] = util.clamp(position, self.min_value, self.max_value)
   
@@ -481,15 +499,17 @@ end
 
 -------- PlaybackIcon --------
 
+--- PlaybackIcon
+-- @section
 UI.PlaybackIcon = {}
 UI.PlaybackIcon.__index = UI.PlaybackIcon
 
 --- Create a new PlaybackIcon object.
--- @param x X position, defaults to 0.
--- @param y Y position, defaults to 0.
--- @param size Icon size, defaults to 6.
--- @param status Status number. 1 = Play, 2 = Reverse Play, 3 = Pause, 4 = Stop. Defaults to 1.
--- @return Instance of PlaybackIcon.
+-- @tparam number x X position, defaults to 0.
+-- @tparam number y Y position, defaults to 0.
+-- @tparam number size Icon size, defaults to 6.
+-- @tparam number status Status number. 1 = Play, 2 = Reverse Play, 3 = Pause, 4 = Stop. Defaults to 1.
+-- @treturn PlaybackIcon Instance of PlaybackIcon.
 function UI.PlaybackIcon.new(x, y, size, status)
   local playback_icon = {
     x = x or 0,

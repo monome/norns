@@ -1,7 +1,7 @@
 --- Envelope graph drawing module.
 -- Subclass of Graph for drawing common envelope graphs. Includes DADSR, ADSR, ASR and AR (Perc).
 --
--- @module EnvGraph
+-- @classmod EnvGraph
 -- @release v1.0.1
 -- @author Mark Eats
 
@@ -37,18 +37,18 @@ end
 
 --- Create a new DADSR EnvGraph object.
 -- All arguments optional.
--- @param x_min Minimum value for x axis, defaults to 0.
--- @param x_max Maximum value for x axis, defaults to 1.
--- @param y_min Minimum value for y axis, defaults to 0.
--- @param y_max Maximum value for y axis, defaults to 1.
--- @param delay Delay value, defaults to 0.1
--- @param attack Attack value, defaults to 0.05.
--- @param decay Decay value, defaults to 0.2.
--- @param sustain Sustain value, accepts 0-1, defaults to 0.5.
--- @param release Release value, defaults to 0.3.
--- @param level Level value, accepts y_min to y_max, defaults to 1.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
--- @return Instance of EnvGraph.
+-- @tparam number x_min Minimum value for x axis, defaults to 0.
+-- @tparam number x_max Maximum value for x axis, defaults to 1.
+-- @tparam number y_min Minimum value for y axis, defaults to 0.
+-- @tparam number y_max Maximum value for y axis, defaults to 1.
+-- @tparam number delay Delay value, defaults to 0.1
+-- @tparam number attack Attack value, defaults to 0.05.
+-- @tparam number decay Decay value, defaults to 0.2.
+-- @tparam number sustain Sustain value, accepts 0-1, defaults to 0.5.
+-- @tparam number release Release value, defaults to 0.3.
+-- @tparam number level Level value, accepts y_min to y_max, defaults to 1.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @treturn EnvGraph Instance of EnvGraph.
 function EnvGraph.new_dadsr(x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
   set_env_values(graph, delay or 0.1, attack or 0.05, decay or 0.2, sustain or 0.5, release or 0.3, level or 1, curve or -4)
@@ -64,13 +64,13 @@ end
 
 --- Edit a DADSR EnvGraph object.
 -- All arguments optional.
--- @param delay Delay value.
--- @param attack Attack value.
--- @param decay Decay value.
--- @param sustain Sustain value, accepts 0-1.
--- @param release Release value.
--- @param level Level value, accepts y_min to y_max.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @tparam number delay Delay value.
+-- @tparam number attack Attack value.
+-- @tparam number decay Decay value.
+-- @tparam number sustain Sustain value, accepts 0-1.
+-- @tparam number release Release value.
+-- @tparam number level Level value, accepts y_min to y_max.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
 function EnvGraph:edit_dadsr(delay, attack, decay, sustain, release, level, curve)
   if #self._points ~= 6 then return end
   set_env_values(self, delay, attack, decay, sustain, release, level, curve)
@@ -84,17 +84,17 @@ end
 
 --- Create a new ADSR EnvGraph object.
 -- All arguments optional.
--- @param x_min Minimum value for x axis, defaults to 0.
--- @param x_max Maximum value for x axis, defaults to 1.
--- @param y_min Minimum value for y axis, defaults to 0.
--- @param y_max Maximum value for y axis, defaults to 1.
--- @param attack Attack value, defaults to 0.05.
--- @param decay Decay value, defaults to 0.2.
--- @param sustain Sustain value, accepts 0-1, defaults to 0.5.
--- @param release Release value, defaults to 0.3.
--- @param level Level value, accepts y_min to y_max, defaults to 1.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
--- @return Instance of EnvGraph.
+-- @tparam number x_min Minimum value for x axis, defaults to 0.
+-- @tparam number x_max Maximum value for x axis, defaults to 1.
+-- @tparam number y_min Minimum value for y axis, defaults to 0.
+-- @tparam number y_max Maximum value for y axis, defaults to 1.
+-- @tparam number attack Attack value, defaults to 0.05.
+-- @tparam number decay Decay value, defaults to 0.2.
+-- @tparam number sustain Sustain value, accepts 0-1, defaults to 0.5.
+-- @tparam number release Release value, defaults to 0.3.
+-- @tparam number level Level value, accepts y_min to y_max, defaults to 1.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @treturn EnvGraph Instance of EnvGraph.
 function EnvGraph.new_adsr(x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
   set_env_values(graph, nil, attack or 0.05, decay or 0.2, sustain or 0.5, release or 0.3, level or 1, curve or -4)
@@ -109,12 +109,12 @@ end
 
 --- Edit an ADSR EnvGraph object.
 -- All arguments optional.
--- @param attack Attack value.
--- @param decay Decay value.
--- @param sustain Sustain value, accepts 0-1.
--- @param release Release value.
--- @param level Level value, accepts y_min to y_max.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @tparam number attack Attack value.
+-- @tparam number decay Decay value.
+-- @tparam number sustain Sustain value, accepts 0-1.
+-- @tparam number release Release value.
+-- @tparam number level Level value, accepts y_min to y_max.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
 function EnvGraph:edit_adsr(attack, decay, sustain, release, level, curve)
   if #self._points ~= 5 then return end
   set_env_values(self, nil, attack, decay, sustain, release, level, curve)
@@ -128,15 +128,15 @@ end
 
 --- Create a new ASR EnvGraph object.
 -- All arguments optional.
--- @param x_min Minimum value for x axis, defaults to 0.
--- @param x_max Maximum value for x axis, defaults to 1.
--- @param y_min Minimum value for y axis, defaults to 0.
--- @param y_max Maximum value for y axis, defaults to 1.
--- @param attack Attack value, defaults to 0.05.
--- @param release Release value, defaults to 0.3.
--- @param level Level value, accepts y_min to y_max, defaults to 1.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
--- @return Instance of EnvGraph.
+-- @tparam number x_min Minimum value for x axis, defaults to 0.
+-- @tparam number x_max Maximum value for x axis, defaults to 1.
+-- @tparam number y_min Minimum value for y axis, defaults to 0.
+-- @tparam number y_max Maximum value for y axis, defaults to 1.
+-- @tparam number attack Attack value, defaults to 0.05.
+-- @tparam number release Release value, defaults to 0.3.
+-- @tparam number level Level value, accepts y_min to y_max, defaults to 1.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @treturn EnvGraph Instance of EnvGraph.
 function EnvGraph.new_asr(x_min, x_max, y_min, y_max, attack, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
   set_env_values(graph, nil, attack or 0.05, nil, nil, release or 0.3, level or 1, curve or -4)
@@ -150,10 +150,10 @@ end
 
 --- Edit an ASR EnvGraph object.
 -- All arguments optional.
--- @param attack Attack value.
--- @param release Release value.
--- @param level Level value, accepts y_min to y_max.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @tparam number attack Attack value.
+-- @tparam number release Release value.
+-- @tparam number level Level value, accepts y_min to y_max.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
 function EnvGraph:edit_asr(attack, release, level, curve)
   if #self._points ~= 4 then return end
   set_env_values(self, nil, attack, nil, nil, release, level, curve)
@@ -165,15 +165,15 @@ end
 
 --- Create a new AR (Perc) EnvGraph object.
 -- All arguments optional.
--- @param x_min Minimum value for x axis, defaults to 0.
--- @param x_max Maximum value for x axis, defaults to 1.
--- @param y_min Minimum value for y axis, defaults to 0.
--- @param y_max Maximum value for y axis, defaults to 1.
--- @param attack Attack value, defaults to 0.05.
--- @param release Release value, defaults to 0.3.
--- @param level Level value, accepts y_min to y_max, defaults to 1.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
--- @return Instance of EnvGraph.
+-- @tparam number x_min Minimum value for x axis, defaults to 0.
+-- @tparam number x_max Maximum value for x axis, defaults to 1.
+-- @tparam number y_min Minimum value for y axis, defaults to 0.
+-- @tparam number y_max Maximum value for y axis, defaults to 1.
+-- @tparam number attack Attack value, defaults to 0.05.
+-- @tparam number release Release value, defaults to 0.3.
+-- @tparam number level Level value, accepts y_min to y_max, defaults to 1.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @treturn EnvGraph Instance of EnvGraph.
 function EnvGraph.new_ar(x_min, x_max, y_min, y_max, attack, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
   set_env_values(graph, nil, attack or 0.1, nil, nil, release or 0.9, level or 1, curve or -4)
@@ -186,10 +186,10 @@ end
 
 --- Edit an AR (Perc) EnvGraph object.
 -- All arguments optional.
--- @param attack Attack value.
--- @param release Release value.
--- @param level Level value, accepts y_min to y_max.
--- @param curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
+-- @tparam number attack Attack value.
+-- @tparam number release Release value.
+-- @tparam number level Level value, accepts y_min to y_max.
+-- @tparam string|number curve Curve of envelope, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to -4.
 function EnvGraph:edit_ar(attack, release, level, curve)
   if #self._points ~= 3 then return end
   set_env_values(self, nil, attack, nil, nil, release, level, curve)
@@ -202,31 +202,31 @@ end
 -- Getters
 
 --- Get delay value.
--- @return Delay value.
+-- @treturn number Delay value.
 function EnvGraph:get_delay() return self._env.delay end
 
 --- Get attack value.
--- @return Attack value.
+-- @treturn number Attack value.
 function EnvGraph:get_attack() return self._env.attack end
 
 --- Get decay value.
--- @return Decay value.
+-- @treturn number Decay value.
 function EnvGraph:get_decay() return self._env.decay end
 
 --- Get sustain value.
--- @return Sustain value.
+-- @treturn number Sustain value.
 function EnvGraph:get_sustain() return self._env.sustain end
 
 --- Get release value.
--- @return Release value.
+-- @treturn number Release value.
 function EnvGraph:get_release() return self._env.release end
 
 --- Get level value.
--- @return Level value.
+-- @treturn number Level value.
 function EnvGraph:get_level() return self._env.level end
 
 --- Get curve value.
--- @return Curve value.
+-- @treturn string|number Curve value.
 function EnvGraph:get_curve() return self._env.curve end
 
 

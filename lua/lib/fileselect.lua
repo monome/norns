@@ -6,6 +6,8 @@ local fs = {}
 function fs.enter(folder, callback)
   fs.folders = {}
   fs.list = {}
+  fs.display_list = {}
+  fs.lengths = {}
   fs.pos = 0
   fs.depth = 0
   fs.folder = folder
@@ -17,8 +19,7 @@ function fs.enter(folder, callback)
     fs.folder = fs.folder .. "/"
   end
 
-  fs.list = fs.getlist()
-  fs.len = tab.count(fs.list)
+  fs.getlist()
 
   if norns.menu.status() == false then
     fs.key_restore = key
@@ -61,7 +62,29 @@ fs.getdir = function()
 end
 
 fs.getlist = function()
-  return util.scandir(fs.getdir())
+  local dir = fs.getdir()
+  fs.list = util.scandir(dir)
+  fs.display_list = {}
+  fs.lengths = {}
+  fs.len = #fs.list
+  fs.pos = 0
+
+  -- Generate display list and lengths
+  for k, v in ipairs(fs.list) do
+    local line = v
+    local max_line_length = 128
+
+    if string.sub(line, -1) ~= "/" then
+      local _, samples, rate = audio.file_info(dir .. line)
+      if samples > 0 and rate > 0 then
+        fs.lengths[k] = util.s_to_hms(math.floor(samples / rate))
+        max_line_length = 97
+      end
+    end
+
+    line = util.trim_string_to_width(line, max_line_length)
+    fs.display_list[k] = line
+  end
 end
 
 fs.key = function(n,z)
@@ -71,9 +94,7 @@ fs.key = function(n,z)
       --print('back')
       fs.folders[fs.depth] = nil
       fs.depth = fs.depth - 1
-      fs.list = util.scandir(fs.getdir())
-      fs.len = tab.count(fs.list)
-      fs.pos = 0
+      fs.getlist()
       fs.redraw()
     else
       fs.done = true
@@ -86,9 +107,7 @@ fs.key = function(n,z)
         --print("folder")
         fs.depth = fs.depth + 1
         fs.folders[fs.depth] = fs.file
-        fs.list = util.scandir(fs.getdir())
-        fs.len = tab.count(fs.list)
-        fs.pos = 0
+        fs.getlist()
         fs.redraw()
       else
         local path = fs.folder
@@ -123,15 +142,18 @@ fs.redraw = function()
   else
     for i=1,6 do
       if (i > 2 - fs.pos) and (i < fs.len - fs.pos + 3) then
+        local list_index = i+fs.pos-2
         screen.move(0,10*i)
-        local line = fs.list[i+fs.pos-2]
         if(i==3) then
           screen.level(15)
         else
           screen.level(4)
         end
-        --screen.text(string.upper(line))
-        screen.text(line)
+        screen.text(fs.display_list[list_index])
+        if fs.lengths[list_index] then
+          screen.move(128,10*i)
+          screen.text_right(fs.lengths[list_index])
+        end
       end
     end
   end
