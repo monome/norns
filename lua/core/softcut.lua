@@ -198,7 +198,7 @@ end
 --- @treturn table table of parameter states for each voice
 function SC.defaults()
   local state = {}
-  for i=1,SC.COUNT do
+  for i=1,SC.VOICE_COUNT do
      state[i] = 0;
      state[i].enable =0
      state[i].play =0
