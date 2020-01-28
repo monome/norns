@@ -26,12 +26,10 @@ int BufDiskWorker::numBufs = 0;
 bool BufDiskWorker::shouldQuit = false;
 int BufDiskWorker::sampleRate = 48000;
 
-
 // clamp unsigned int to upper bound, inclusive
 static inline void clamp(size_t &x, const size_t a) {
     if (x > a) { x = a; }
 }
-
 
 int BufDiskWorker::registerBuffer(float *data, size_t frames) {
     int n = numBufs++;
@@ -60,7 +58,7 @@ BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, flo
 }
 
 void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path,
-				      float startSrc, float startDst, float dur) {
+                                      float startSrc, float startDst, float dur) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::ReadStereo, {idx0, idx1}, std::move(path), startSrc, startDst, dur,
                            0};
     requestJob(job);
@@ -72,11 +70,10 @@ void BufDiskWorker::requestWriteMono(size_t idx, std::string path, float start, 
 }
 
 void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path,
-				       float start, float dur) {
+                                       float start, float dur) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::WriteStereo, {idx0, idx1}, std::move(path), start, start, dur, 0};
     requestJob(job);
 }
-
 
 void BufDiskWorker::workLoop() {
     while (!shouldQuit) {
@@ -106,9 +103,9 @@ void BufDiskWorker::workLoop() {
                     break;
             }
 #if 0 // debug, timing
-	    auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-	    auto ms_dur = ms_now - ms_start;
-	    std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
+            auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+            auto ms_dur = ms_now - ms_start;
+            std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
 #endif
 
         } else {
@@ -150,7 +147,7 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
 
 void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
                                    float startSrc, float startDst, float dur, int chanSrc)
-                                   noexcept {
+noexcept {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -177,47 +174,44 @@ void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
 
     auto numSrcChan = file.channels();
     chanSrc = std::min(numSrcChan - 1, std::max(0, chanSrc));
-    // std::cout << "reading soundfile channel " << chanSrc << std::endl;
-    
+
     auto *ioBuf = new float[numSrcChan * ioBufFrames];
     size_t numBlocks = frDur / ioBufFrames;
     size_t rem = frDur - (numBlocks * ioBufFrames);
-    // std::cout << "file contains " << file.frames() << " frames" << std::endl;
-    // std::cout << "reading " << numBlocks << " blocks and " << rem << " remainder frames..." << std::endl;
+    std::cout << "file contains " << file.frames() << " frames" << std::endl;
+    std::cout << "reading " << numBlocks << " blocks and " << rem << " remainder frames..." << std::endl;
     for (size_t block = 0; block < numBlocks; ++block) {
-	int res = file.seek(frSrc, SF_SEEK_SET);
-	if (res == -1) {	    
-	    std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
-	    return;
-	}
+        int res = file.seek(frSrc, SF_SEEK_SET);
+        if (res == -1) {
+            std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
+            goto cleanup;
+        }
         file.readf(ioBuf, ioBufFrames);
-	// FIXME? SEEK_CUR gives weird results, i must be using it wrong
-	//int res = file.seek(ioBufFrames, SF_SEEK_CUR);
-        for (int fr=0; fr<ioBufFrames; ++fr) {
+        for (int fr = 0; fr < ioBufFrames; ++fr) {
             buf.data[frDst] = ioBuf[fr * numSrcChan + chanSrc];
             frDst++;
         }
-	frSrc += ioBufFrames;
+        frSrc += ioBufFrames;
     }
-    for (size_t i=0; i<rem; ++i) {
-	int res = file.seek(frSrc, SF_SEEK_CUR);
+    for (size_t i = 0; i < rem; ++i) {
+        int res = file.seek(frSrc, SF_SEEK_CUR);
 
-	if (res == -1) {
-	    std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
-	    return;
-	}
+        if (res == -1) {
+            std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
+            goto cleanup;
+        }
         file.read(ioBuf, numSrcChan);
         buf.data[frDst] = ioBuf[chanSrc];
-	frDst++;
-	frSrc++;
+        frDst++;
+        frSrc++;
     }
+    cleanup:
     delete[] ioBuf;
-    // std::cout << "SoftCutClient::readBufferMono(): done; read " << frDur << " frames" << std::endl;
 }
 
 void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
                                      float startTimeSrc, float startTimeDst, float dur)
-                                     noexcept {
+noexcept {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -247,44 +241,40 @@ void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, Buf
         std::cerr << "SoftCutClient::readBufferStereo(): not enough channels in source; aborting" << std::endl;
         return;
     }
+
     auto *ioBuf = new float[numSrcChan * ioBufFrames];
-    
+
     size_t numBlocks = frDur / ioBufFrames;
     size_t rem = frDur - (numBlocks * ioBufFrames);
 
-    std::cout << "file contains " << file.frames() << " frames" << std::endl;
-    std::cout << "reading " << numBlocks << " blocks and " << rem << " remainder frames..." << std::endl;
-    
     for (size_t block = 0; block < numBlocks; ++block) {
-	int res = file.seek(frSrc, SF_SEEK_SET);
-	if (res == -1) {	    
-	    std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
-	    return;
-	}
+        int res = file.seek(frSrc, SF_SEEK_SET);
+        if (res == -1) {
+            std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
+            goto cleanup;
+        }
         file.readf(ioBuf, ioBufFrames);
-	// FIXME? SEEK_CUR gives weird results, i must be using it wrong
-	//int res = file.seek(ioBufFrames, SF_SEEK_CUR);
-        for (int fr=0; fr<ioBufFrames; ++fr) {
+        for (int fr = 0; fr < ioBufFrames; ++fr) {
             buf0.data[frDst] = ioBuf[fr * numSrcChan];
             buf1.data[frDst] = ioBuf[fr * numSrcChan + 1];
             frDst++;
         }
-	frSrc += ioBufFrames;
+        frSrc += ioBufFrames;
     }
-    for (size_t i=0; i<rem; ++i) {
-	int res = file.seek(frSrc, SF_SEEK_CUR);
+    for (size_t i = 0; i < rem; ++i) {
+        int res = file.seek(frSrc, SF_SEEK_CUR);
 
-	if (res == -1) {
-	    std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
-	    return;
-	}
+        if (res == -1) {
+            std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
+            goto cleanup;
+        }
         file.read(ioBuf, numSrcChan);
         buf0.data[frDst] = ioBuf[0];
         buf1.data[frDst] = ioBuf[1];
-	frDst++;
-	frSrc++;
-    }    
-    // std::cout << "SoftCutClient::readBufferStereo(): done; read " << frDur << " frames" << std::endl;
+        frDst++;
+        frSrc++;
+    }
+    cleanup:
     delete[] ioBuf;
 }
 
@@ -292,16 +282,15 @@ void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float
     const int sr = 48000;
     const int channels = 1;
     const int format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
-    
+
     SndfileHandle file(path, SFM_WRITE, format, channels, sr);
-    
+
     if (not file) {
         std::cerr << "BufDiskWorker::writeBufferMono(): cannot open sndfile" << path << " for writing" << std::endl;
-	return;
+        return;
     }
-    
+
     file.command(SFC_SET_CLIPPING, NULL, SF_TRUE);
-    // std::cout << "BufDiskWorker::writeBufferMono(): opened file for writing: " << path << std::endl;
 
     size_t frSrc = secToFrame(start);
     size_t bufFrames = buf.frames;
@@ -309,7 +298,7 @@ void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float
 
     size_t frDur;
     if (dur < 0.f) {
-        // FIXME: should check available disk space
+        // FIXME: should check available disk space?
         frDur = bufFrames - frSrc;
     } else {
         frDur = secToFrame(dur);
@@ -318,28 +307,26 @@ void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float
     size_t numBlocks = frDur / ioBufFrames;
     size_t rem = frDur - (numBlocks * ioBufFrames);
     size_t nf = 0;
-    // std::cout << "writing " << numBlocks << " blocks and " << rem << " remainder frames..." << std::endl;
     float *pbuf = buf.data + frSrc;
     for (size_t block = 0; block < numBlocks; ++block) {
-	size_t n = file.writef(pbuf, ioBufFrames);
-	pbuf += ioBufFrames;
-	nf += n;
-	if (n != ioBufFrames) {	    
-	    std::cerr << "BufDiskWorker::writeBufferMono(): write aborted (disk space?) after " << nf << " frames"
-                      << std::endl;
-	    return;
-	}
-    }
-    
-    for (size_t i=0; i<rem; ++i) {	
-	if (file.writef(pbuf++, 1) != 1) {
+        size_t n = file.writef(pbuf, ioBufFrames);
+        pbuf += ioBufFrames;
+        nf += n;
+        if (n != ioBufFrames) {
             std::cerr << "BufDiskWorker::writeBufferMono(): write aborted (disk space?) after " << nf << " frames"
                       << std::endl;
-	    return;
+            return;
+        }
+    }
+
+    for (size_t i = 0; i < rem; ++i) {
+        if (file.writef(pbuf++, 1) != 1) {
+            std::cerr << "BufDiskWorker::writeBufferMono(): write aborted (disk space?) after " << nf << " frames"
+                      << std::endl;
+            return;
         }
         ++nf;
-    }    
-    // std::cout << std::dec << "BufDiskWorker::writeBufferMono(): done; wrote " << nf << " frames" << std::endl;
+    }
 }
 
 void BufDiskWorker::writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1, float start, float dur)
@@ -348,14 +335,13 @@ noexcept {
     const int channels = 2;
     const int format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
     SndfileHandle file(path, SFM_WRITE, format, channels, sr);
-    
+
     if (not file) {
         std::cerr << "ERROR: cannot open sndfile" << path << " for writing" << std::endl;
-	return;
+        return;
     }
-    
+
     file.command(SFC_SET_CLIPPING, NULL, SF_TRUE);
-    // std::cout << "BufDiskWorker::writeBufferStereo(): opened file for writing: " << path << std::endl;
 
     size_t frSrc = secToFrame(start);
     size_t bufFrames = buf0.frames < buf1.frames ? buf0.frames : buf1.frames;
@@ -363,7 +349,7 @@ noexcept {
 
     size_t frDur;
     if (dur < 0.f) {
-        // FIXME: should check available disk space
+        // FIXME: should check available disk space?
         frDur = bufFrames - frSrc;
     } else {
         frDur = secToFrame(dur);
@@ -372,37 +358,37 @@ noexcept {
     size_t numBlocks = frDur / ioBufFrames;
     size_t rem = frDur - (numBlocks * ioBufFrames);
     size_t nf = 0;
-    // std::cout << "writing " << numBlocks << " blocks and " << rem << " remainder frames..." << std::endl;
-    
-    float ioBuf[ioBufFrames*2];
+
+    auto *ioBuf = new float[ioBufFrames * 2];
     float *pbuf0 = buf0.data;
     float *pbuf1 = buf1.data;
     for (size_t block = 0; block < numBlocks; ++block) {
-	float *pio = ioBuf;
-	for (size_t fr=0; fr<ioBufFrames; ++fr) {
-	    *pio++ = *pbuf0++;
-	    *pio++ = *pbuf1++;
-	}
-	size_t n = file.writef(ioBuf, ioBufFrames);	
-	nf += n;
-	if (n != ioBufFrames) {	    
-	    std::cerr << "BufDiskWorker::writeBufferStereo(): write aborted (disk space?) after " << nf << " frames"
-                      << std::endl;
-	    return;
-	}
-	frSrc += ioBufFrames;
-    }
-    
-    for (size_t i=0; i<rem; ++i) {
-	ioBuf[0] = *(buf0.data + frSrc);
-	ioBuf[1] = *(buf1.data + frSrc);
-	if (file.writef(ioBuf, 1) != 1) {
+        float *pio = ioBuf;
+        for (size_t fr = 0; fr < ioBufFrames; ++fr) {
+            *pio++ = *pbuf0++;
+            *pio++ = *pbuf1++;
+        }
+        size_t n = file.writef(ioBuf, ioBufFrames);
+        nf += n;
+        if (n != ioBufFrames) {
             std::cerr << "BufDiskWorker::writeBufferStereo(): write aborted (disk space?) after " << nf << " frames"
                       << std::endl;
-	    return;
+            goto cleanup;
+        }
+        frSrc += ioBufFrames;
+    }
+
+    for (size_t i = 0; i < rem; ++i) {
+        ioBuf[0] = *(buf0.data + frSrc);
+        ioBuf[1] = *(buf1.data + frSrc);
+        if (file.writef(ioBuf, 1) != 1) {
+            std::cerr << "BufDiskWorker::writeBufferStereo(): write aborted (disk space?) after " << nf << " frames"
+                      << std::endl;
+            goto cleanup;
         }
         ++frSrc;
         ++nf;
     }
-    // std::cout << std::dec << "BufDiskWorker::writeBufferStereo(): done; wrote " << nf << " frames" << std::endl;
+    cleanup:
+    delete[] ioBuf;
 }
