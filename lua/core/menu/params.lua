@@ -99,6 +99,8 @@ m.key = function(n,z)
           m.triggered[i] = 2
         end
       elseif m.mode == mMAP then
+        local n = params:get_id(i)
+        if norns.pmap[n] == nil then norns.pmap.new(n) end
         m.mode = mMAPEDIT
       end
       m.fine = true
@@ -250,9 +252,12 @@ m.redraw = function()
   -- MAP EDIT
   elseif m.mode == mMAPEDIT then
     local p = page[m.pos+1]
+    local n = params:get_id(p)
     local t = params:t(p)
+    local pm = norns.pmap.data[n]
+
     screen.move(0,10)
-    screen.text(params:get_name(p))
+    screen.text(n)
     screen.move(127,10)
     screen.text_right(params:string(p))
     screen.move(0,25)
@@ -263,33 +268,32 @@ m.redraw = function()
     screen.move(0,40)
     screen.text("cc")
     screen.move(40,40)
-    screen.text_right("10")
+    screen.text_right(pm.cc)
     screen.move(0,50)
     screen.text("ch")
     screen.move(40,50)
-    screen.text_right("1")
+    screen.text_right(pm.ch)
     screen.move(0,60)
     screen.text("dev")
     screen.move(40,60)
-    screen.text_right("1")
+    screen.text_right(pm.dev)
 
     screen.move(63,40)
     screen.text("in")
     screen.move(103,40)
-    screen.text_right("0")
+    screen.text_right(pm.in_lo)
     screen.move(127,40)
-    screen.text_right("127")
+    screen.text_right(pm.in_hi)
     screen.move(63,50)
     screen.text("out")
     screen.move(103,50)
-    screen.text_right("0")
+    screen.text_right(pm.out_lo)
     screen.move(127,50)
-    screen.text_right("1.0")
+    screen.text_right(pm.out_hi)
     screen.move(63,60)
     screen.text("accum")
     screen.move(127,60)
-    screen.text_right("no")
-    
+    screen.text_right(pm.accum and "yes" or "no")
   end
   screen.update()
 end
