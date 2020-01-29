@@ -93,16 +93,16 @@ namespace crone {
         static void clearBuffer(BufDesc &buf, float start = 0, float dur = -1);
 
         static void readBufferMono(const std::string &path, BufDesc &buf,
-                                   float startSrc = 0, float startDst = 0, float dur = -1, int chanSrc = 0);
+                                   float startSrc = 0, float startDst = 0, float dur = -1, int chanSrc = 0) noexcept;
 
         static void readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                     float startSrc = 0, float startDst = 0, float dur = -1);
+                                     float startSrc = 0, float startDst = 0, float dur = -1) noexcept;
 
         static void writeBufferMono(const std::string &path, BufDesc &buf,
-                                    float start = 0, float dur = -1);
+                                    float start = 0, float dur = -1) noexcept;
 
         static void writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                      float start = 0, float dur = -1);
+                                      float start = 0, float dur = -1) noexcept;
 
     };
 
