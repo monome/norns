@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 project(crone VERSION 1.0.0)
 
-
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -O2")
