@@ -18,7 +18,8 @@ local m = {
   mpos = 1,
   dev = 1,
   ch = 1,
-  cc = 100
+  cc = 100,
+  pm
 }
 
 local page
@@ -65,7 +66,7 @@ m.key = function(n,z)
         m.mode = mMAP
       end
     end
-  -- EDIT
+  -- EDIT + MAP
   elseif m.mode == mEDIT or m.mode == mMAP then
     if n==2 and z==1 then
       if m.group==true then
@@ -112,17 +113,26 @@ m.key = function(n,z)
         m.cc = pm.cc
         m.mpos = 1
         m.mode = mMAPEDIT
+        m.pm = pm
       end
       m.fine = true
     elseif n==3 and z==0 then
       m.fine = false
     end
+  -- MAPEDIT
   elseif m.mode == mMAPEDIT then
+    local p = page[m.pos+1]
+    local name = params:get_id(p)
     if n==2 and z==1 then
       m.mode = mMAP
-      local p = page[m.pos+1]
-      local n = params:get_id(p)
-      norns.pmap.assign(n,m.dev,m.ch,m.cc)
+      norns.pmap.assign(name,m.dev,m.ch,m.cc)
+    elseif n==3 and z==1 then
+      if m.mpos == 1 then
+        m.midilearn = not m.midilearn
+      elseif m.mpos ==2 then
+        norns.pmap.remove(name)
+        m.mode = mMAP
+      end
     end
   end
   _menu.redraw()
@@ -315,7 +325,7 @@ m.redraw = function()
     screen.text_right(params:string(p))
     screen.move(0,25)
     hl(1)
-    screen.text("LEARN")
+    if m.midilearn then screen.text("LEARNING") else screen.text("LEARN") end
     screen.move(127,25)
     hl(2)
     screen.text_right("CLEAR")
@@ -388,23 +398,35 @@ m.deinit = function()
   _menu.timer:stop()
 end
 
-norns.menu_midi_event = function(data)
-  if data[1] == 176 then -- cc
+
+norns.menu_midi_event = function(data, dev)
+  local ch = data[1] - 175
+  local cc = data[2]
+  local v = data[3]
+  if ch > 0 and ch < 17 then
     if m.midilearn then
-      if params:t(m.pos+1) == params.tCONTROL or params:t(m.pos+1) == params.tTAPER then
-        --m.map[m.pos+1] = data[2]
+      m.midilearn = false
+      m.dev = dev
+      m.ch = ch
+      m.cc = cc
+      local p = page[m.pos+1]
+      local name = params:get_id(p)
+      norns.pmap.assign(name,m.dev,m.ch,m.cc)
+      _menu.redraw()
+    else
+      --print(cc.." : "..v)
+      local r = norns.pmap.rev[dev][ch][cc] 
+      if r then
+        --print(r)  
+        local s = util.clamp(v, m.pm.in_lo, m.pm.in_hi)
+        s = util.linlin(m.pm.in_lo, m.pm.in_hi, m.pm.out_lo, m.pm.out_hi, s)
+        params:set_raw(r,s)
         _menu.redraw()
       end
-      m.midilearn = false
-    else
-      --local p = tab.key(m.map,data[2])
-      --if p then
-        --params:set_raw(p,data[3]/127)
-      --end
-      --print(data[2] .. " " .. data[3])
     end
   end
 end
+
 
 function m.write_pmap()
   local function quote(s)
