@@ -15,7 +15,10 @@ local m = {
   mode = mEDIT,
   mode_pos = 1,
   map = false,
-  mpos = 1
+  mpos = 1,
+  dev = 1,
+  ch = 1,
+  cc = 100
 }
 
 local page
@@ -101,9 +104,14 @@ m.key = function(n,z)
         end
       elseif m.mode == mMAP then
         local n = params:get_id(i)
-        if norns.pmap.data[n] == nil then norns.pmap.new(n) end
-        m.mode = mMAPEDIT
+        local pm = norns.pmap.data[n]
+        if pm == nil then norns.pmap.new(n) end
+        pm = norns.pmap.data[n]
+        m.dev = pm.dev
+        m.ch = pm.ch
+        m.cc = pm.cc
         m.mpos = 1
+        m.mode = mMAPEDIT
       end
       m.fine = true
     elseif n==3 and z==0 then
@@ -112,6 +120,9 @@ m.key = function(n,z)
   elseif m.mode == mMAPEDIT then
     if n==2 and z==1 then
       m.mode = mMAP
+      local p = page[m.pos+1]
+      local n = params:get_id(p)
+      norns.pmap.assign(n,m.dev,m.ch,m.cc)
     end
   end
   _menu.redraw()
@@ -173,17 +184,11 @@ m.enc = function(n,d)
       if m.mpos==0 then
         params:delta(page[m.pos+1],d)
       elseif m.mpos==3 then
-        local prev = pm.cc
-        local cc = util.clamp(pm.cc+d,0,127)
-        if prev ~= cc then norns.pmap.assign(n,pm.dev,pm.ch,cc) end
+        m.cc = util.clamp(m.cc+d,0,127)
       elseif m.mpos==4 then
-        local prev = pm.ch
-        local ch = util.clamp(pm.ch+d,1,16)
-        if prev ~= ch then norns.pmap.assign(n,pm.dev,ch,pm.cc) end
+        m.ch = util.clamp(m.ch+d,1,16)
       elseif m.mpos==5 then
-        local prev = pm.dev
-        local dev = util.clamp(pm.dev+d,1,16)
-        if prev ~= dev then norns.pmap.assign(n,dev,pm.ch,pm.cc) end
+        m.dev = util.clamp(m.dev+d,1,16)
       elseif m.mpos==6 then
         pm.in_lo = util.clamp(pm.in_lo+d, 0, pm.in_hi)
       elseif m.mpos==7 then
@@ -266,23 +271,30 @@ m.redraw = function()
         if i==3 then screen.level(15) else screen.level(4) end
         local p = page[i+m.pos-2]
         local t = params:t(p)
+        local n = params:get_name(p)
+        local id = params:get_id(p)
         if t == params.tSEPARATOR then
           screen.move(0,10*i+2.5)
           screen.line_rel(127,0)
           screen.stroke()
           screen.move(63,10*i)
-          screen.text_center(params:get_name(p))
+          screen.text_center(n)
         elseif t == params.tGROUP then
           screen.move(0,10*i)
-          screen.text(params:get_name(p) .. " >")
+          screen.text(n .. " >")
         else
           screen.move(0,10*i)
-          screen.text(params:get_id(p))
+          screen.text(id)
           screen.move(127,10*i)
           if t ==  params.tNUMBER or
               t == params.tCONTROL or
               t == params.tOPTION then
-            screen.text_right("-")
+            local pm=norns.pmap.data[id]
+            if pm then
+              screen.text_right(pm.cc..":"..pm.ch..":"..pm.dev)
+            else
+              screen.text_right("-")
+            end
           end
         end
       end
@@ -313,19 +325,19 @@ m.redraw = function()
     screen.text("cc")
     screen.move(40,40)
     hl(3)
-    screen.text_right(pm.cc)
+    screen.text_right(m.cc)
     screen.level(4)
     screen.move(0,50)
     screen.text("ch")
     screen.move(40,50)
     hl(4)
-    screen.text_right(pm.ch)
+    screen.text_right(m.ch)
     screen.level(4)
     screen.move(0,60)
     screen.text("dev")
     screen.move(40,60)
     hl(5)
-    screen.text_right(pm.dev)
+    screen.text_right(m.dev)
 
     screen.level(4)
     screen.move(63,40)
