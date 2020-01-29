@@ -8,7 +8,7 @@
 #include "device_midi.h"
 #include "../clocks/clock_midi.h"
 
-unsigned int dev_port_count(const char *path) {
+unsigned int dev_midi_port_count(const char *path) {
     int card;
     int alsa_dev;
 

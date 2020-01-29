@@ -90,7 +90,7 @@ void dev_list_add(device_t type, const char *path, const char *name) {
 
     switch (type) {
     case DEV_TYPE_MIDI:
-        midi_port_count = dev_port_count(path);
+        midi_port_count = dev_midi_port_count(path);
         for (unsigned int pidx = 0; pidx < midi_port_count; pidx++) {
             d = dev_new(type, path, name, midi_port_count > 1, pidx);
             ev = post_add_event(d, EVENT_MIDI_ADD);
@@ -122,12 +122,7 @@ void dev_list_add(device_t type, const char *path, const char *name) {
     }
 }
 
-struct dev_node *dev_remove_node(
-    struct dev_node *dn, 
-    union event_data *event_remove,
-    const char *node
-) {
-    struct dev_node *next_node; 
+static void dev_list_remove_node(struct dev_node *dn, union event_data *event_remove) {
     event_post(event_remove);
 
     if(dq.head == dn) { dq.head = dn->next; }
@@ -136,10 +131,7 @@ struct dev_node *dev_remove_node(
     dq.size--;
 
     dev_delete(dn->d);
-    next_node = dev_lookup_path(node, dn);
     free(dn);
-
-    return next_node;
 }
 
 void dev_list_remove(device_t type, const char *node) {
@@ -152,7 +144,8 @@ void dev_list_remove(device_t type, const char *node) {
         while (dn != NULL) {
             ev = event_data_new(EVENT_MIDI_REMOVE);
             ev->midi_remove.id = dn->d->base.id;
-            dn = dev_remove_node(dn, ev, node);
+            dev_list_remove_node(dn, ev);
+            dn = dev_lookup_path(node, NULL);
         }
         return;
     case DEV_TYPE_MONOME:
@@ -171,5 +164,5 @@ void dev_list_remove(device_t type, const char *node) {
         fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");
         return;
     }
-    dev_remove_node(dn, ev, node);
+    dev_list_remove_node(dn, ev);
 }
