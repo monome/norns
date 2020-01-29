@@ -90,7 +90,7 @@ void dev_list_add(device_t type, const char *path, const char *name) {
 
     switch (type) {
     case DEV_TYPE_MIDI:
-        midi_port_count = dev_port_count(path);
+        midi_port_count = dev_midi_port_count(path);
         for (unsigned int pidx = 0; pidx < midi_port_count; pidx++) {
             d = dev_new(type, path, name, midi_port_count > 1, pidx);
             ev = post_add_event(d, EVENT_MIDI_ADD);
