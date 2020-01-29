@@ -1,0 +1,1335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><strong>Graph</strong></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Graph</code></h1>
+<p>Graph drawing module.</p>
+<p>
+ Flexible graph drawing for waves, points, bars, etc.
+</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Release</strong>: v1.1.0</li>
+        <li><strong>Author</strong>: Mark Eats</li>
+    </ul>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Graph:new">Graph:new (x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axis, show_y_axis)</a></td>
+	<td class="summary">Create a new Graph object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_position_and_size">Graph:set_position_and_size (x, y, w, h)</a></td>
+	<td class="summary">Set graph's position and size.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_x">Graph:get_x ()</a></td>
+	<td class="summary">Get graph's x position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_x">Graph:set_x (x)</a></td>
+	<td class="summary">Set graph's x position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_y">Graph:get_y ()</a></td>
+	<td class="summary">Get graph's y position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_y">Graph:set_y (y)</a></td>
+	<td class="summary">Set graph's y position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_width">Graph:get_width ()</a></td>
+	<td class="summary">Get graph's width.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_width">Graph:set_width (w)</a></td>
+	<td class="summary">Set graph's width.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_height">Graph:get_height ()</a></td>
+	<td class="summary">Get graph's height.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_height">Graph:set_height (h)</a></td>
+	<td class="summary">Set graph's height.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_x_min">Graph:get_x_min ()</a></td>
+	<td class="summary">Get minimum value of x axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_x_min">Graph:set_x_min (x_min)</a></td>
+	<td class="summary">Set minimum value of x axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_x_max">Graph:get_x_max ()</a></td>
+	<td class="summary">Get maximum value of x axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_x_max">Graph:set_x_max (x_max)</a></td>
+	<td class="summary">Set maximum value of x axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_x_warp">Graph:get_x_warp ()</a></td>
+	<td class="summary">Get x warp.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_x_warp">Graph:set_x_warp (warp)</a></td>
+	<td class="summary">Set x warp.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_y_min">Graph:get_y_min ()</a></td>
+	<td class="summary">Get minimum value of y axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_y_min">Graph:set_y_min (y_min)</a></td>
+	<td class="summary">Set minimum value of y axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_y_max">Graph:get_y_max ()</a></td>
+	<td class="summary">Get maximum value of y axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_y_max">Graph:set_y_max (y_max)</a></td>
+	<td class="summary">Set maximum value of y axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_y_warp">Graph:get_y_warp ()</a></td>
+	<td class="summary">Get y warp.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_y_warp">Graph:set_y_warp (warp)</a></td>
+	<td class="summary">Set y warp.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_style">Graph:get_style ()</a></td>
+	<td class="summary">Get style.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_style">Graph:set_style (style)</a></td>
+	<td class="summary">Set style.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_show_x_axis">Graph:get_show_x_axis ()</a></td>
+	<td class="summary">Get show x axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_show_x_axis">Graph:set_show_x_axis (bool)</a></td>
+	<td class="summary">Set show x axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_show_y_axis">Graph:get_show_y_axis ()</a></td>
+	<td class="summary">Get show y axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_show_y_axis">Graph:set_show_y_axis (bool)</a></td>
+	<td class="summary">Set show y axis.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_active">Graph:get_active ()</a></td>
+	<td class="summary">Get active.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:set_active">Graph:set_active (bool)</a></td>
+	<td class="summary">Set active.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_point">Graph:get_point (index)</a></td>
+	<td class="summary">Get point at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:add_point">Graph:add_point (px, py[, curve[, highlight[, index]]])</a></td>
+	<td class="summary">Add a point to the graph.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:edit_point">Graph:edit_point (index[, px[, py[, curve[, highlight]]]])</a></td>
+	<td class="summary">Edit point at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:remove_point">Graph:remove_point (index)</a></td>
+	<td class="summary">Remove point at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:remove_all_points">Graph:remove_all_points ()</a></td>
+	<td class="summary">Remove all points.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:highlight_point">Graph:highlight_point (index)</a></td>
+	<td class="summary">Highlight point at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:highlight_exclusive_point">Graph:highlight_exclusive_point (index)</a></td>
+	<td class="summary">Highlight point at index exclusively.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:clear_highlight">Graph:clear_highlight (index)</a></td>
+	<td class="summary">Clear highlight from point at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:clear_all_highlights">Graph:clear_all_highlights ()</a></td>
+	<td class="summary">Clear highlights from all points.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:get_function">Graph:get_function (index)</a></td>
+	<td class="summary">Get function at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:add_function">Graph:add_function (func[, sample_quality[, index]])</a></td>
+	<td class="summary">Add a new y function to the graph.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:edit_function">Graph:edit_function (index, func[, sample_quality])</a></td>
+	<td class="summary">Edit function at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:update_functions">Graph:update_functions ()</a></td>
+	<td class="summary">Update all functions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:remove_function">Graph:remove_function (index)</a></td>
+	<td class="summary">Remove function at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:remove_all_functions">Graph:remove_all_functions ()</a></td>
+	<td class="summary">Remove all functions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Graph:redraw">Graph:redraw ()</a></td>
+	<td class="summary">Redraw the graph.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Graph:new"></a>
+    <strong>Graph:new (x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axis, show_y_axis)</strong>
+    </dt>
+    <dd>
+    Create a new Graph object.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for x axis, defaults to 0.
+        </li>
+        <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for x axis, defaults to 1.
+        </li>
+        <li><span class="parameter">x_warp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         defines warping for x axis, accepts "lin" or "exp", defaults to "lin".
+        </li>
+        <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value for y axis, defaults to 0.
+        </li>
+        <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value for y axis, defaults to 1.
+        </li>
+        <li><span class="parameter">y_warp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         defines warping for y axis, accepts "lin" or "exp", defaults to "lin".
+        </li>
+        <li><span class="parameter">style</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         defines visual style, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar", defaults to "line".
+        </li>
+        <li><span class="parameter">show_x_axis</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Display the x axis if set to true, defaults to false.
+        </li>
+        <li><span class="parameter">show_y_axis</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Display the y axis if set to true, defaults to false.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Graph.html#">Graph</a></span>
+        Instance of Graph.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_position_and_size"></a>
+    <strong>Graph:set_position_and_size (x, y, w, h)</strong>
+    </dt>
+    <dd>
+    Set graph's position and size.
+ All arguments optional.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position in pixels.
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position in pixels.
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         Width in pixels.
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         Height in pixels.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_x"></a>
+    <strong>Graph:get_x ()</strong>
+    </dt>
+    <dd>
+    Get graph's x position.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        y position.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_x"></a>
+    <strong>Graph:set_x (x)</strong>
+    </dt>
+    <dd>
+    Set graph's x position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position in pixels.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_y"></a>
+    <strong>Graph:get_y ()</strong>
+    </dt>
+    <dd>
+    Get graph's y position.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        y position.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_y"></a>
+    <strong>Graph:set_y (y)</strong>
+    </dt>
+    <dd>
+    Set graph's y position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position in pixels.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_width"></a>
+    <strong>Graph:get_width ()</strong>
+    </dt>
+    <dd>
+    Get graph's width.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Width.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_width"></a>
+    <strong>Graph:set_width (w)</strong>
+    </dt>
+    <dd>
+    Set graph's width.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         Width in pixels.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_height"></a>
+    <strong>Graph:get_height ()</strong>
+    </dt>
+    <dd>
+    Get graph's height.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Height.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_height"></a>
+    <strong>Graph:set_height (h)</strong>
+    </dt>
+    <dd>
+    Set graph's height.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         Height in pixels.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_x_min"></a>
+    <strong>Graph:get_x_min ()</strong>
+    </dt>
+    <dd>
+    Get minimum value of x axis.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Minimum value of x axis.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_x_min"></a>
+    <strong>Graph:set_x_min (x_min)</strong>
+    </dt>
+    <dd>
+    Set minimum value of x axis.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value of x axis.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_x_max"></a>
+    <strong>Graph:get_x_max ()</strong>
+    </dt>
+    <dd>
+    Get maximum value of x axis.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Maximum value of x axis.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_x_max"></a>
+    <strong>Graph:set_x_max (x_max)</strong>
+    </dt>
+    <dd>
+    Set maximum value of x axis.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value of x axis.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_x_warp"></a>
+    <strong>Graph:get_x_warp ()</strong>
+    </dt>
+    <dd>
+    Get x warp.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        x warp string.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_x_warp"></a>
+    <strong>Graph:set_x_warp (warp)</strong>
+    </dt>
+    <dd>
+    Set x warp.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">warp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Warp string, accepts "lin" or "exp".
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_y_min"></a>
+    <strong>Graph:get_y_min ()</strong>
+    </dt>
+    <dd>
+    Get minimum value of y axis.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Minimum value of y axis.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_y_min"></a>
+    <strong>Graph:set_y_min (y_min)</strong>
+    </dt>
+    <dd>
+    Set minimum value of y axis.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">y_min</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value of y axis.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_y_max"></a>
+    <strong>Graph:get_y_max ()</strong>
+    </dt>
+    <dd>
+    Get maximum value of y axis.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Maximum value of y axis.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_y_max"></a>
+    <strong>Graph:set_y_max (y_max)</strong>
+    </dt>
+    <dd>
+    Set maximum value of y axis.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">y_max</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value of y axis.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_y_warp"></a>
+    <strong>Graph:get_y_warp ()</strong>
+    </dt>
+    <dd>
+    Get y warp.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        y warp string.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_y_warp"></a>
+    <strong>Graph:set_y_warp (warp)</strong>
+    </dt>
+    <dd>
+    Set y warp.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">warp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Warp string, accepts "lin" or "exp".
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_style"></a>
+    <strong>Graph:get_style ()</strong>
+    </dt>
+    <dd>
+    Get style.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        Style string.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_style"></a>
+    <strong>Graph:set_style (style)</strong>
+    </dt>
+    <dd>
+    Set style.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">style</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Style string, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar".
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_show_x_axis"></a>
+    <strong>Graph:get_show_x_axis ()</strong>
+    </dt>
+    <dd>
+    Get show x axis.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        Show x axis boolean.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_show_x_axis"></a>
+    <strong>Graph:set_show_x_axis (bool)</strong>
+    </dt>
+    <dd>
+    Set show x axis.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">bool</span>
+            <span class="types"><span class="type">boolean</span></span>
+         display the x axis if set to true.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_show_y_axis"></a>
+    <strong>Graph:get_show_y_axis ()</strong>
+    </dt>
+    <dd>
+    Get show y axis.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Show y axis boolean.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_show_y_axis"></a>
+    <strong>Graph:set_show_y_axis (bool)</strong>
+    </dt>
+    <dd>
+    Set show y axis.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">bool</span>
+            <span class="types"><span class="type">boolean</span></span>
+         display the y axis if set to true.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_active"></a>
+    <strong>Graph:get_active ()</strong>
+    </dt>
+    <dd>
+    Get active.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        Active boolean.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:set_active"></a>
+    <strong>Graph:set_active (bool)</strong>
+    </dt>
+    <dd>
+    Set active.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">bool</span>
+            <span class="types"><span class="type">boolean</span></span>
+         darkens the graph appearance when set to false.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_point"></a>
+    <strong>Graph:get_point (index)</strong>
+    </dt>
+    <dd>
+    Get point at index.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of point.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        Point table.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:add_point"></a>
+    <strong>Graph:add_point (px, py[, curve[, highlight[, index]]])</strong>
+    </dt>
+    <dd>
+    Add a point to the graph.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">px</span>
+            <span class="types"><span class="type">number</span></span>
+         Point's x position.
+        </li>
+        <li><span class="parameter">py</span>
+            <span class="types"><span class="type">number</span></span>
+         Point's y position.
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to "lin".
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">highlight</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Highlights the point if set to true, defaults to false.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Index to add point at, defaults to the end of the list.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:edit_point"></a>
+    <strong>Graph:edit_point (index[, px[, py[, curve[, highlight]]]])</strong>
+    </dt>
+    <dd>
+    Edit point at index.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Index of point to edit.
+        </li>
+        <li><span class="parameter">px</span>
+            <span class="types"><span class="type">number</span></span>
+         Point's x position.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">py</span>
+            <span class="types"><span class="type">number</span></span>
+         Point's y position.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">curve</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+         Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">highlight</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Highlights the point if set to true.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:remove_point"></a>
+    <strong>Graph:remove_point (index)</strong>
+    </dt>
+    <dd>
+    Remove point at index.
+ Following indexes will change after removing a point.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of point to remove.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:remove_all_points"></a>
+    <strong>Graph:remove_all_points ()</strong>
+    </dt>
+    <dd>
+    Remove all points.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:highlight_point"></a>
+    <strong>Graph:highlight_point (index)</strong>
+    </dt>
+    <dd>
+    Highlight point at index.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of point to highlight.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:highlight_exclusive_point"></a>
+    <strong>Graph:highlight_exclusive_point (index)</strong>
+    </dt>
+    <dd>
+    Highlight point at index exclusively.
+ Other points will have highlight set to false.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of point to highlight.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:clear_highlight"></a>
+    <strong>Graph:clear_highlight (index)</strong>
+    </dt>
+    <dd>
+    Clear highlight from point at index.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of point to clear highlight from.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:clear_all_highlights"></a>
+    <strong>Graph:clear_all_highlights ()</strong>
+    </dt>
+    <dd>
+    Clear highlights from all points.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:get_function"></a>
+    <strong>Graph:get_function (index)</strong>
+    </dt>
+    <dd>
+    Get function at index.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of function.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">function</span></span>
+        Function.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:add_function"></a>
+    <strong>Graph:add_function (func[, sample_quality[, index]])</strong>
+    </dt>
+    <dd>
+    Add a new y function to the graph.
+ Add a function that will be used to generate a line.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
+         A function that should return the value of y for any given value of x. For example, 'function(x) return math.sin(x) end'
+        </li>
+        <li><span class="parameter">sample_quality</span>
+            <span class="types"><span class="type">number</span></span>
+         Quality to sample the graph function at. Values less than 1 will sample less than once per pixel, values higher than 1 can help reduce jitter of graphs with high frequency changes at the cost of performance. Recommended range 0.25 to 4, defaults to 1.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">index</span>
+         Index to add function at, defaults to the end of the list.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:edit_function"></a>
+    <strong>Graph:edit_function (index, func[, sample_quality])</strong>
+    </dt>
+    <dd>
+    Edit function at index.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of function to edit.
+        </li>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
+         A function that should return the value of y for any given value of x.
+        </li>
+        <li><span class="parameter">sample_quality</span>
+            <span class="types"><span class="type">number</span></span>
+         Quality to sample the graph function at, defaults to 1.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:update_functions"></a>
+    <strong>Graph:update_functions ()</strong>
+    </dt>
+    <dd>
+    Update all functions.
+ Call when a function's output has changed to redraw its line.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:remove_function"></a>
+    <strong>Graph:remove_function (index)</strong>
+    </dt>
+    <dd>
+    Remove function at index.
+ Following indexes will change after removing a function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+         Index of function to remove.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:remove_all_functions"></a>
+    <strong>Graph:remove_all_functions ()</strong>
+    </dt>
+    <dd>
+    Remove all functions.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Graph:redraw"></a>
+    <strong>Graph:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw the graph.
+ Call whenever graph data or settings have been changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

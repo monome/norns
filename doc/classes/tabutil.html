@@ -1,0 +1,398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/clock.html">clock</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
+  <li><strong>tabutil</strong></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>tabutil</code></h1>
+<p>table utility</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#tab.print">tab.print (t)</a></td>
+	<td class="summary">print the contents of a table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.sort">tab.sort (t)</a></td>
+	<td class="summary">return a lexigraphically sorted array of keys for a table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.count">tab.count (t)</a></td>
+	<td class="summary">count the number of entries in a table;
+ unlike table.getn() or #table, nil entries won't break the loop</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.contains">tab.contains (t, e)</a></td>
+	<td class="summary">search table for element</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.key">tab.key (t, e)</a></td>
+	<td class="summary">search table for element, return key</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.lines">tab.lines (str)</a></td>
+	<td class="summary">split multi-line string into table of strings</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.split">tab.split (inputstr, sep)</a></td>
+	<td class="summary">split string into table with delimiter</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.save">tab.save (tbl, filename)</a></td>
+	<td class="summary">Save a table to disk.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.load">tab.load (sfile)</a></td>
+	<td class="summary">Load a table that has been saved via the tab.save() function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tab.readonly">tab.readonly (params)</a></td>
+	<td class="summary">Create a read-only proxy for a given table.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "tab.print"></a>
+    <strong>tab.print (t)</strong>
+    </dt>
+    <dd>
+    print the contents of a table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table to print
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.sort"></a>
+    <strong>tab.sort (t)</strong>
+    </dt>
+    <dd>
+    return a lexigraphically sorted array of keys for a table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table to sort
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        sorted table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.count"></a>
+    <strong>tab.count (t)</strong>
+    </dt>
+    <dd>
+    count the number of entries in a table;
+ unlike table.getn() or #table, nil entries won't break the loop
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table to count
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        count
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.contains"></a>
+    <strong>tab.contains (t, e)</strong>
+    </dt>
+    <dd>
+    search table for element
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table to check
+        </li>
+        <li><span class="parameter">e</span>
+         element to look for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        t/f is element is present
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.key"></a>
+    <strong>tab.key (t, e)</strong>
+    </dt>
+    <dd>
+    search table for element, return key
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table to check
+        </li>
+        <li><span class="parameter">e</span>
+         element to look for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        key, nil if not found
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.lines"></a>
+    <strong>tab.lines (str)</strong>
+    </dt>
+    <dd>
+    split multi-line string into table of strings
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         string with line breaks
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table with entries for each line
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.split"></a>
+    <strong>tab.split (inputstr, sep)</strong>
+    </dt>
+    <dd>
+    split string into table with delimiter
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">inputstr</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : string to split
+        </li>
+        <li><span class="parameter">sep</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : delimiter
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.save"></a>
+    <strong>tab.save (tbl, filename)</strong>
+    </dt>
+    <dd>
+    Save a table to disk.
+ Saves tables, numbers, booleans and strings.
+ Inside table references are saved.
+ Does not save userdata, metatables, functions and indices of these.
+ Based on http://lua-users.org/wiki/SaveTableToFile by ChillCode.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         Table to save.
+        </li>
+        <li><span class="parameter">filename</span>
+         Location to save to.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        On failure, returns an error msg.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.load"></a>
+    <strong>tab.load (sfile)</strong>
+    </dt>
+    <dd>
+    Load a table that has been saved via the tab.save() function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sfile</span>
+         Filename or stringtable to load.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        On success, returns a previously saved table. On failure, returns as second argument an error msg.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tab.readonly"></a>
+    <strong>tab.readonly (params)</strong>
+    </dt>
+    <dd>
+    Create a read-only proxy for a given table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">params</span>
+         params.table is the table to proxy, params.except a list of writable keys
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the proxied read-only table
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-18 20:53:52 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

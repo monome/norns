@@ -1,5 +1,5 @@
 --- Hid class
--- @module hid
+-- @classmod hid
 -- @alias Hid
 
 ---------------------------------
@@ -61,6 +61,7 @@ end
 
 --- static callback when any hid device is added;
 -- user scripts can redefine
+-- @static
 -- @param dev : a Hid table
 function Hid.add(dev)
   print("hid added:", dev.id, dev.name)
@@ -68,11 +69,13 @@ end
 
 --- static callback when any hid device is removed;
 -- user scripts can redefine
+-- @static
 -- @param dev : a Hid table
 function Hid.remove(dev) end
 
 
 --- create device, returns object with handler and send
+-- @static
 function Hid.connect(n)
   local n = n or 1
 
@@ -80,6 +83,7 @@ function Hid.connect(n)
 end
 
 --- clear handlers
+-- @static
 function Hid.cleanup()
   for i=1,4 do
     Hid.vports[i].event = nil
@@ -109,17 +113,17 @@ function Hid.update_devices()
   end
 end
 
-norns.hid = {}
+_norns.hid = {}
 
 -- hid devices
-norns.hid.add = function(id, name, types, codes, dev)
+_norns.hid.add = function(id, name, types, codes, dev)
   local g = Hid.new(id, name, types, codes, dev)
   Hid.devices[id] = g
   Hid.update_devices()
   if Hid.add ~= nil then Hid.add(g) end
 end
 
-norns.hid.remove = function(id)
+_norns.hid.remove = function(id)
   if Hid.devices[id] then
     if Hid.remove ~= nil then
       Hid.remove(Hid.devices[id])
@@ -132,7 +136,7 @@ norns.hid.remove = function(id)
   Hid.update_devices()
 end
 
-norns.hid.event = function(id, type, code, value)
+_norns.hid.event = function(id, type, code, value)
   local device = Hid.devices[id]
 
   if device ~= nil then

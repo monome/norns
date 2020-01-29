@@ -1,5 +1,5 @@
 -- State
--- @module state
+-- @classmod state
 
 local state = {}
 state.tape = 0

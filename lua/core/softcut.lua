@@ -3,8 +3,8 @@
 -- API for controlling the "softcut" buffer processor
 -- includes low-level setters and mid-level utilities
 --
--- @module softcut
--- @alias softcut
+-- @classmod softcut
+-- @alias SC
 
 local SC = {}
 
@@ -37,6 +37,9 @@ SC.level_input_cut = function(ch, voice, value)
 end
 
 --- set mix matrix, voice output to voice input
+-- @tparam number src source
+-- @tparam number dst destination
+-- @tparam number value value
 SC.level_cut_cut = function(src, dst, value)
   _norns.level_cut_cut(src, dst, value)
 end
@@ -75,7 +78,7 @@ SC.position = function(voice,value) _norns.cut_param("position",voice,value) end
 -- @tparam integer b : buffer number (1,2)
 SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 --- sync two voices
-SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dst,v) end
+SC.voice_sync = function(src, dest, v) _norns.cut_param_iif("voice_sync",src,dest,v) end
 
 --- set pre_filter cutoff
 SC.pre_filter_fc = function(voice,value) _norns.cut_param("pre_filter_fc",voice,value) end
@@ -179,7 +182,7 @@ SC.buffer_write_stereo = function(file, start, dur)
 end
 
 --- set function for phase poll
-SC.event_phase = function(f) norns.softcut_phase = f end
+SC.event_phase = function(f) _norns.softcut_phase = f end
 
 
 -------------------------------
@@ -192,10 +195,10 @@ function SC.reset()
 end
 
 --- get the default state of the softcut system
---- @return table of parameter states for each voice
+--- @treturn table table of parameter states for each voice
 function SC.defaults()
   local state = {}
-  for i=1,SC.COUNT do
+  for i=1,SC.VOICE_COUNT do
      state[i] = 0;
      state[i].enable =0
      state[i].play =0

@@ -1,5 +1,5 @@
 --- osc device
--- @module osc
+-- @classmod osc
 -- @alias OSC
 
 local tab = require 'tabutil'
@@ -11,6 +11,7 @@ OSC.__index = OSC
 
 --- static callback when an osc event is received.
 -- user scripts can redefine.
+-- @static
 -- @tparam string path : osc message path
 -- @tparam string args : osc message args
 -- @tparam table from : a {host, port} table with the source address
@@ -25,9 +26,9 @@ end
 -- @tparam string args : osc message args
 function OSC.send(to, path, args)
   if (args ~= nil) then
-    osc_send(to, path, args)
+    _norns.osc_send(to, path, args)
   else
-    osc_send(to, path)
+    _norns.osc_send(to, path)
   end
 end
 
@@ -36,9 +37,9 @@ end
 -- @tparam string args : osc message args
 function OSC.send_crone(path, args)
   if (args ~= nil) then
-    osc_send_crone(path, args)
+    _norns.osc_send_crone(path, args)
   else
-    osc_send_crone(path)
+    _norns.osc_send_crone(path)
   end
 end
 
@@ -78,8 +79,8 @@ local function param_handler(path, args)
   end
 end
 
---- handle an osc event.
-norns.osc.event = function(path, args, from)
+-- handle an osc event.
+_norns.osc.event = function(path, args, from)
   if util.string_starts(path, "/param") then
     param_handler(path, args)
   end

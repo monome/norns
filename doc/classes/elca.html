@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><strong>elca</strong></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>elca</code></h1>
+<p>elementary cellular automata</p>
+<p></p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#elca:new">elca:new ()</a></td>
+	<td class="summary">constructor</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#elca:update">elca:update ()</a></td>
+	<td class="summary">update all state</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#elca:neighbors">elca:neighbors (i)</a></td>
+	<td class="summary">helper: return three values to use for neighbor code</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#elca:code">elca:code (l, c, r)</a></td>
+	<td class="summary">get binary code for value given cell and neighbors</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#elca:window">elca:window (n)</a></td>
+	<td class="summary">return 8 cells at current offset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#elca:set_rule_by_state">elca:set_rule_by_state (val, l, c, r)</a></td>
+	<td class="summary">change current state at index,
+ and update the rule to that which would have produced the new state</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#elca:clear">elca:clear ()</a></td>
+	<td class="summary">clear all states</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "elca:new"></a>
+    <strong>elca:new ()</strong>
+    </dt>
+    <dd>
+    constructor
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/elca.html#">elca</a></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "elca:update"></a>
+    <strong>elca:update ()</strong>
+    </dt>
+    <dd>
+    update all state
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "elca:neighbors"></a>
+    <strong>elca:neighbors (i)</strong>
+    </dt>
+    <dd>
+    helper: return three values to use for neighbor code
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        tuple of left, right, center
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "elca:code"></a>
+    <strong>elca:code (l, c, r)</strong>
+    </dt>
+    <dd>
+    get binary code for value given cell and neighbors
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><span class="type">number</span></span>
+         left cell
+        </li>
+        <li><span class="parameter">c</span>
+            <span class="types"><span class="type">number</span></span>
+         center cell
+        </li>
+        <li><span class="parameter">r</span>
+            <span class="types"><span class="type">number</span></span>
+         right cell
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "elca:window"></a>
+    <strong>elca:window (n)</strong>
+    </dt>
+    <dd>
+    return 8 cells at current offset
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        table with 8 binary values
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "elca:set_rule_by_state"></a>
+    <strong>elca:set_rule_by_state (val, l, c, r)</strong>
+    </dt>
+    <dd>
+    change current state at index,
+ and update the rule to that which would have produced the new state
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+
+        </li>
+        <li><span class="parameter">l</span>
+
+        </li>
+        <li><span class="parameter">c</span>
+
+        </li>
+        <li><span class="parameter">r</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "elca:clear"></a>
+    <strong>elca:clear ()</strong>
+    </dt>
+    <dd>
+    clear all states
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

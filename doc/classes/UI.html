@@ -1,0 +1,1058 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Pages">Pages </a></li>
+<li><a href="#Tabs">Tabs </a></li>
+<li><a href="#List">List </a></li>
+<li><a href="#ScrollingList">ScrollingList </a></li>
+<li><a href="#Message">Message </a></li>
+<li><a href="#Slider">Slider </a></li>
+<li><a href="#Dial">Dial </a></li>
+<li><a href="#PlaybackIcon">PlaybackIcon </a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><strong>UI</strong></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>UI</code></h1>
+<p>UI widgets module.</p>
+<p>
+ Widgets for paging, tabs, lists, dials, sliders, etc.
+</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Release</strong>: v1.0.2</li>
+        <li><strong>Author</strong>: Mark Eats</li>
+    </ul>
+
+
+<h2><a href="#Pages">Pages </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.Pages.new">UI.Pages.new (index, num_pages)</a></td>
+	<td class="summary">Create a new Pages object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Pages:set_index">UI.Pages:set_index (index)</a></td>
+	<td class="summary">Set selected page.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Pages:set_index_delta">UI.Pages:set_index_delta (delta, wrap)</a></td>
+	<td class="summary">Set selected page using delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Pages:redraw">UI.Pages:redraw ()</a></td>
+	<td class="summary">Redraw Pages.</td>
+	</tr>
+</table>
+<h2><a href="#Tabs">Tabs </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.Tabs.new">UI.Tabs.new (index, titles)</a></td>
+	<td class="summary">Create a new Tabs object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Tabs:set_index">UI.Tabs:set_index (index)</a></td>
+	<td class="summary">Set selected tab.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Tabs:set_index_delta">UI.Tabs:set_index_delta (delta, wrap)</a></td>
+	<td class="summary">Set selected tab using delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Tabs:redraw">UI.Tabs:redraw ()</a></td>
+	<td class="summary">Redraw Tabs.</td>
+	</tr>
+</table>
+<h2><a href="#List">List </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.List.new">UI.List.new (x, y, index, entries)</a></td>
+	<td class="summary">Create a new List object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.List:set_index">UI.List:set_index (index)</a></td>
+	<td class="summary">Set selected entry.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.List:set_index_delta">UI.List:set_index_delta (delta, wrap)</a></td>
+	<td class="summary">Set selected list using delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.List:redraw">UI.List:redraw ()</a></td>
+	<td class="summary">Redraw List.</td>
+	</tr>
+</table>
+<h2><a href="#ScrollingList">ScrollingList </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.ScrollingList.new">UI.ScrollingList.new (x, y, index, entries)</a></td>
+	<td class="summary">Create a new ScrollingList object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.ScrollingList:set_index">UI.ScrollingList:set_index (index)</a></td>
+	<td class="summary">Set selected entry.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.ScrollingList:set_index_delta">UI.ScrollingList:set_index_delta (delta, wrap)</a></td>
+	<td class="summary">Set selected scrolling list using delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.ScrollingList:redraw">UI.ScrollingList:redraw ()</a></td>
+	<td class="summary">Redraw ScrollingList.</td>
+	</tr>
+</table>
+<h2><a href="#Message">Message </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.Message.new">UI.Message.new (text_array)</a></td>
+	<td class="summary">Create a new Message object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Message:redraw">UI.Message:redraw ()</a></td>
+	<td class="summary">Redraw Message.</td>
+	</tr>
+</table>
+<h2><a href="#Slider">Slider </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.Slider.new">UI.Slider.new (x, y, width, height, value, min_value, max_value, markers)</a></td>
+	<td class="summary">Create a new Slider object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Slider:set_value">UI.Slider:set_value (number)</a></td>
+	<td class="summary">Set value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Slider:set_value_delta">UI.Slider:set_value_delta (delta)</a></td>
+	<td class="summary">Set value using delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Slider:set_marker_position">UI.Slider:set_marker_position (id, position)</a></td>
+	<td class="summary">Set marker position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Slider:redraw">UI.Slider:redraw ()</a></td>
+	<td class="summary">Redraw Slider.</td>
+	</tr>
+</table>
+<h2><a href="#Dial">Dial </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.Dial.new">UI.Dial.new (x, y, size, value, min_value, max_value, rounding, start_value, markers, units, title)</a></td>
+	<td class="summary">Create a new Dial object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Dial:set_value">UI.Dial:set_value (number)</a></td>
+	<td class="summary">Set value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Dial:set_value_delta">UI.Dial:set_value_delta (delta)</a></td>
+	<td class="summary">Set value using delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Dial:set_marker_position">UI.Dial:set_marker_position (id, position)</a></td>
+	<td class="summary">Set marker position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.Dial:redraw">UI.Dial:redraw ()</a></td>
+	<td class="summary">Redraw Dial.</td>
+	</tr>
+</table>
+<h2><a href="#PlaybackIcon">PlaybackIcon </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#UI.PlaybackIcon.new">UI.PlaybackIcon.new (x, y, size, status)</a></td>
+	<td class="summary">Create a new PlaybackIcon object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#UI.PlaybackIcon:redraw">UI.PlaybackIcon:redraw ()</a></td>
+	<td class="summary">Redraw PlaybackIcon.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Pages"></a>Pages </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.Pages.new"></a>
+    <strong>UI.Pages.new (index, num_pages)</strong>
+    </dt>
+    <dd>
+    Create a new Pages object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Selected page, defaults to 1.
+        </li>
+        <li><span class="parameter">num_pages</span>
+            <span class="types"><span class="type">number</span></span>
+         Total number of pages, defaults to 3.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Pages</span></span>
+        Instance of Pages.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Pages:set_index"></a>
+    <strong>UI.Pages:set_index (index)</strong>
+    </dt>
+    <dd>
+    Set selected page.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Page number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Pages:set_index_delta"></a>
+    <strong>UI.Pages:set_index_delta (delta, wrap)</strong>
+    </dt>
+    <dd>
+    Set selected page using delta.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">delta</span>
+            <span class="types"><span class="type">number</span></span>
+         Number to move from selected page.
+        </li>
+        <li><span class="parameter">wrap</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Boolean, true to wrap pages.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Pages:redraw"></a>
+    <strong>UI.Pages:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw Pages.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tabs"></a>Tabs </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.Tabs.new"></a>
+    <strong>UI.Tabs.new (index, titles)</strong>
+    </dt>
+    <dd>
+    Create a new Tabs object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Selected tab, defaults to 1.
+        </li>
+        <li><span class="parameter">titles</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string,...}</a></span>
+         Table of strings for tab titles.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Tabs</span></span>
+        Instance of Tabs.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Tabs:set_index"></a>
+    <strong>UI.Tabs:set_index (index)</strong>
+    </dt>
+    <dd>
+    Set selected tab.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Tab number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Tabs:set_index_delta"></a>
+    <strong>UI.Tabs:set_index_delta (delta, wrap)</strong>
+    </dt>
+    <dd>
+    Set selected tab using delta.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">delta</span>
+            <span class="types"><span class="type">number</span></span>
+         Number to move from selected tab.
+        </li>
+        <li><span class="parameter">wrap</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Boolean, true to wrap tabs.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Tabs:redraw"></a>
+    <strong>UI.Tabs:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw Tabs.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="List"></a>List </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.List.new"></a>
+    <strong>UI.List.new (x, y, index, entries)</strong>
+    </dt>
+    <dd>
+    Create a new List object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         X position, defaults to 0.
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y position, defaults to 0.
+        </li>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Selected entry, defaults to 1.
+        </li>
+        <li><span class="parameter">entries</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string,...}</a></span>
+         Table of strings for list entries.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List</span></span>
+        Instance of List.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.List:set_index"></a>
+    <strong>UI.List:set_index (index)</strong>
+    </dt>
+    <dd>
+    Set selected entry.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Entry number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.List:set_index_delta"></a>
+    <strong>UI.List:set_index_delta (delta, wrap)</strong>
+    </dt>
+    <dd>
+    Set selected list using delta.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">delta</span>
+            <span class="types"><span class="type">number</span></span>
+         Number to move from selected entry.
+        </li>
+        <li><span class="parameter">wrap</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Boolean, true to wrap list.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.List:redraw"></a>
+    <strong>UI.List:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw List.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="ScrollingList"></a>ScrollingList </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.ScrollingList.new"></a>
+    <strong>UI.ScrollingList.new (x, y, index, entries)</strong>
+    </dt>
+    <dd>
+    Create a new ScrollingList object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         X position, defaults to 0.
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y position, defaults to 0.
+        </li>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Selected entry, defaults to 1.
+        </li>
+        <li><span class="parameter">entries</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string,...}</a></span>
+         Table of strings for list entries.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ScrollingList</span></span>
+        Instance of ScrollingList.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.ScrollingList:set_index"></a>
+    <strong>UI.ScrollingList:set_index (index)</strong>
+    </dt>
+    <dd>
+    Set selected entry.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Entry number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.ScrollingList:set_index_delta"></a>
+    <strong>UI.ScrollingList:set_index_delta (delta, wrap)</strong>
+    </dt>
+    <dd>
+    Set selected scrolling list using delta.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">delta</span>
+            <span class="types"><span class="type">number</span></span>
+         Number to move from selected entry.
+        </li>
+        <li><span class="parameter">wrap</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Boolean, true to wrap list.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.ScrollingList:redraw"></a>
+    <strong>UI.ScrollingList:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw ScrollingList.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Message"></a>Message </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.Message.new"></a>
+    <strong>UI.Message.new (text_array)</strong>
+    </dt>
+    <dd>
+    Create a new Message object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">text_array</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">[string,...]</a></span>
+         Array of lines of text.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Message</span></span>
+        Instance of Message.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Message:redraw"></a>
+    <strong>UI.Message:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw Message.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Slider"></a>Slider </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.Slider.new"></a>
+    <strong>UI.Slider.new (x, y, width, height, value, min_value, max_value, markers)</strong>
+    </dt>
+    <dd>
+    Create a new Slider object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         X position, defaults to 0.
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y position, defaults to 0.
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">number</span></span>
+         Width of slider, defaults to 3.
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">number</span></span>
+         Height of slider, defaults to 36.
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
+         Current value, defaults to 0.
+        </li>
+        <li><span class="parameter">min_value</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value, defaults to 0.
+        </li>
+        <li><span class="parameter">max_value</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value, defaults to 1.
+        </li>
+        <li><span class="parameter">markers</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         Array of marker positions.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Slider</span></span>
+        Instance of Slider.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Slider:set_value"></a>
+    <strong>UI.Slider:set_value (number)</strong>
+    </dt>
+    <dd>
+    Set value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+            <span class="types"><span class="type">number</span></span>
+         Value number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Slider:set_value_delta"></a>
+    <strong>UI.Slider:set_value_delta (delta)</strong>
+    </dt>
+    <dd>
+    Set value using delta.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">delta</span>
+            <span class="types"><span class="type">number</span></span>
+         Number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Slider:set_marker_position"></a>
+    <strong>UI.Slider:set_marker_position (id, position)</strong>
+    </dt>
+    <dd>
+    Set marker position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">number</span></span>
+         Marker number.
+        </li>
+        <li><span class="parameter">position</span>
+            <span class="types"><span class="type">number</span></span>
+         Marker position number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Slider:redraw"></a>
+    <strong>UI.Slider:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw Slider.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Dial"></a>Dial </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.Dial.new"></a>
+    <strong>UI.Dial.new (x, y, size, value, min_value, max_value, rounding, start_value, markers, units, title)</strong>
+    </dt>
+    <dd>
+    Create a new Dial object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         X position, defaults to 0.
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y position, defaults to 0.
+        </li>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">number</span></span>
+         Diameter of dial, defaults to 22.
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
+         Current value, defaults to 0.
+        </li>
+        <li><span class="parameter">min_value</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum value, defaults to 0.
+        </li>
+        <li><span class="parameter">max_value</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum value, defaults to 1.
+        </li>
+        <li><span class="parameter">rounding</span>
+            <span class="types"><span class="type">number</span></span>
+         Sets precision to round value to, defaults to 0.01.
+        </li>
+        <li><span class="parameter">start_value</span>
+            <span class="types"><span class="type">number</span></span>
+         Sets where fill line is drawn from, defaults to 0.
+        </li>
+        <li><span class="parameter">markers</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         Array of marker positions.
+        </li>
+        <li><span class="parameter">units</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         String to display after value text.
+        </li>
+        <li><span class="parameter">title</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         String to be displayed instead of value text.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Dial</span></span>
+        Instance of Dial.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Dial:set_value"></a>
+    <strong>UI.Dial:set_value (number)</strong>
+    </dt>
+    <dd>
+    Set value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+            <span class="types"><span class="type">number</span></span>
+         Value number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Dial:set_value_delta"></a>
+    <strong>UI.Dial:set_value_delta (delta)</strong>
+    </dt>
+    <dd>
+    Set value using delta.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">delta</span>
+            <span class="types"><span class="type">number</span></span>
+         Number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Dial:set_marker_position"></a>
+    <strong>UI.Dial:set_marker_position (id, position)</strong>
+    </dt>
+    <dd>
+    Set marker position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">number</span></span>
+         Marker number.
+        </li>
+        <li><span class="parameter">position</span>
+            <span class="types"><span class="type">number</span></span>
+         Marker position number.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.Dial:redraw"></a>
+    <strong>UI.Dial:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw Dial.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="PlaybackIcon"></a>PlaybackIcon </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "UI.PlaybackIcon.new"></a>
+    <strong>UI.PlaybackIcon.new (x, y, size, status)</strong>
+    </dt>
+    <dd>
+    Create a new PlaybackIcon object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         X position, defaults to 0.
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y position, defaults to 0.
+        </li>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">number</span></span>
+         Icon size, defaults to 6.
+        </li>
+        <li><span class="parameter">status</span>
+            <span class="types"><span class="type">number</span></span>
+         Status number. 1 = Play, 2 = Reverse Play, 3 = Pause, 4 = Stop. Defaults to 1.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PlaybackIcon</span></span>
+        Instance of PlaybackIcon.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "UI.PlaybackIcon:redraw"></a>
+    <strong>UI.PlaybackIcon:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw PlaybackIcon.
+ Call when changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

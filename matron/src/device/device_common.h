@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef enum {
     // libmonome devices
     DEV_TYPE_MONOME = 0,

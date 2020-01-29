@@ -1,7 +1,7 @@
 --- Graph drawing module.
 -- Flexible graph drawing for waves, points, bars, etc.
 --
--- @module Graph
+-- @classmod Graph
 -- @release v1.1.0
 -- @author Mark Eats
 
@@ -220,16 +220,16 @@ end
 
 --- Create a new Graph object. 
 -- All arguments optional.
--- @param x_min Minimum value for x axis, defaults to 0.
--- @param x_max Maximum value for x axis, defaults to 1.
--- @param x_warp String defines warping for x axis, accepts "lin" or "exp", defaults to "lin".
--- @param y_min Minimum value for y axis, defaults to 0.
--- @param y_max Maximum value for y axis, defaults to 1.
--- @param y_warp String defines warping for y axis, accepts "lin" or "exp", defaults to "lin".
--- @param style String defines visual style, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar", defaults to "line".
--- @param show_x_axis Display the x axis if set to true, defaults to false.
--- @param show_y_axis Display the y axis if set to true, defaults to false.
--- @return Instance of Graph.
+-- @tparam number x_min Minimum value for x axis, defaults to 0.
+-- @tparam number x_max Maximum value for x axis, defaults to 1.
+-- @tparam string x_warp defines warping for x axis, accepts "lin" or "exp", defaults to "lin".
+-- @tparam number y_min Minimum value for y axis, defaults to 0.
+-- @tparam number y_max Maximum value for y axis, defaults to 1.
+-- @tparam string y_warp defines warping for y axis, accepts "lin" or "exp", defaults to "lin".
+-- @tparam string style defines visual style, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar", defaults to "line".
+-- @tparam boolean show_x_axis Display the x axis if set to true, defaults to false.
+-- @tparam boolean show_y_axis Display the y axis if set to true, defaults to false.
+-- @treturn Graph Instance of Graph.
 function Graph.new(x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axis, show_y_axis)
   local graph = {}
   graph._x_min = x_min or 0
@@ -254,10 +254,10 @@ end
 
 --- Set graph's position and size.
 -- All arguments optional.
--- @param x x position in pixels.
--- @param y y position in pixels.
--- @param w Width in pixels.
--- @param h Height in pixels.
+-- @tparam number x x position in pixels.
+-- @tparam number y y position in pixels.
+-- @tparam number w Width in pixels.
+-- @tparam number h Height in pixels.
 function Graph:set_position_and_size(x, y, w, h)
   if x then self._x = x end
   if y then self._y = y end
@@ -267,77 +267,77 @@ function Graph:set_position_and_size(x, y, w, h)
 end
 
 --- Get graph's x position.
--- @return y position.
+-- @treturn number y position.
 function Graph:get_x() return self._x end
 
 --- Set graph's x position.
--- @param x y position in pixels.
+-- @tparam number x x position in pixels.
 function Graph:set_x(x)
   if x then self._x = x end
   recalculate_screen_coords(self)
 end
 
 --- Get graph's y position.
--- @return y position.
+-- @treturn number y position.
 function Graph:get_y() return self._y end
 
 --- Set graph's y position.
--- @param y y position in pixels.
+-- @tparam number y y position in pixels.
 function Graph:set_y(y)
   if y then self._y = y end
   recalculate_screen_coords(self)
 end
 
 --- Get graph's width.
--- @return Width.
+-- @treturn number Width.
 function Graph:get_width() return self._w end
 
 --- Set graph's width.
--- @param w Width in pixels.
+-- @tparam number w Width in pixels.
 function Graph:set_width(w)
   if w then self._w = w end
   recalculate_screen_coords(self)
 end
 
 --- Get graph's height.
--- @return Height.
+-- @treturn number Height.
 function Graph:get_height() return self._h end
 
 --- Set graph's height.
--- @param h Height in pixels.
+-- @tparam number h Height in pixels.
 function Graph:set_height(h)
   if h then self._h = h end
   recalculate_screen_coords(self)
 end
 
 --- Get minimum value of x axis.
--- @return Minimum value of x axis.
+-- @treturn number Minimum value of x axis.
 function Graph:get_x_min() return self._x_min end
 
 --- Set minimum value of x axis.
--- @param x_min Minimum value of x axis.
+-- @tparam number x_min Minimum value of x axis.
 function Graph:set_x_min(x_min)
   if x_min then self._x_min = x_min end
   recalculate_screen_coords(self)
 end
 
 --- Get maximum value of x axis.
--- @return Maximum value of x axis.
+-- @treturn number Maximum value of x axis.
 function Graph:get_x_max() return self._x_max end
 
 --- Set maximum value of x axis.
--- @param x_max Maximum value of x axis.
+-- @tparam number x_max Maximum value of x axis.
 function Graph:set_x_max(x_max)
   if x_max then self._x_max = x_max end
   recalculate_screen_coords(self)
 end
 
 --- Get x warp.
--- @return x warp string.
+-- @treturn string x warp string.
 function Graph:get_x_warp() return self._x_warp end
 
 --- Set x warp.
--- @param warp Warp string, accepts "lin" or "exp".
+-- @tparam string warp Warp string, accepts "lin" or "exp".
 function Graph:set_x_warp(warp)
   if warp == "exp" then self._x_warp = warp
   else self._x_warp = "lin" end
@@ -345,32 +345,32 @@ function Graph:set_x_warp(warp)
 end
 
 --- Get minimum value of y axis.
--- @return Minimum value of y axis.
+-- @treturn number Minimum value of y axis.
 function Graph:get_y_min() return self._y_min end
 
 --- Set minimum value of y axis.
--- @param y_min Minimum value of y axis.
+-- @tparam number y_min Minimum value of y axis.
 function Graph:set_y_min(y_min)
   if y_min then self._y_min = y_min end
   recalculate_screen_coords(self)
 end
 
 --- Get maximum value of y axis.
--- @return Maximum value of y axis.
+-- @treturn number Maximum value of y axis.
 function Graph:get_y_max() return self._y_max end
 --- Set maximum value of y axis.
--- @param y_max Maximum value of y axis.
+-- @tparam number y_max Maximum value of y axis.
 function Graph:set_y_max(y_max)
   if y_max then self._y_max = y_max end
   recalculate_screen_coords(self)
 end
 
 --- Get y warp.
--- @return y warp string.
+-- @treturn string y warp string.
 function Graph:get_y_warp() return self._y_warp end
 
 --- Set y warp.
--- @param warp Warp string, accepts "lin" or "exp".
+-- @tparam string warp Warp string, accepts "lin" or "exp".
 function Graph:set_y_warp(warp)
   if warp == "exp" then self._y_warp = warp
   else self._y_warp = "lin" end
@@ -378,11 +378,11 @@ function Graph:set_y_warp(warp)
 end
 
 --- Get style.
--- @return Style string.
+-- @treturn string Style string.
 function Graph:get_style() return self._style end
 
 --- Set style.
--- @param style Style string, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar".
+-- @tparam string style Style string, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar".
 function Graph:set_style(style)
   self._style = style or "line"
   self._lines_dirty = true
@@ -390,11 +390,11 @@ function Graph:set_style(style)
 end
 
 --- Get show x axis.
--- @return Show x axis boolean.
+-- @treturn boolean Show x axis boolean.
 function Graph:get_show_x_axis() return self._show_x_axis end
 
 --- Set show x axis.
--- @param bool Boolean, display the x axis if set to true.
+-- @tparam boolean bool display the x axis if set to true.
 function Graph:set_show_x_axis(bool)
   self._show_x_axis = bool == nil and false or bool
 end
@@ -404,17 +404,17 @@ end
 function Graph:get_show_y_axis() return self._show_y_axis end
 
 --- Set show y axis.
--- @param bool Boolean, display the y axis if set to true.
+-- @tparam boolean bool display the y axis if set to true.
 function Graph:set_show_y_axis(bool)
   self._show_y_axis = bool == nil and false or bool
 end
 
 --- Get active.
--- @return Active boolean.
+-- @treturn boolean Active boolean.
 function Graph:get_active() return self._active end
 
 --- Set active.
--- @param bool Boolean, darkens the graph appearance when set to false.
+-- @tparam boolean bool darkens the graph appearance when set to false.
 function Graph:set_active(bool)
   self._active = bool == nil and false or bool
 end
@@ -425,17 +425,17 @@ end
 
 --- Get point at index.
 -- @param index Index of point.
--- @return Point table.
+-- @treturn table Point table.
 function Graph:get_point(index)
   return self._points[index]
 end
 
 --- Add a point to the graph.
--- @param px Point's x position.
--- @param py Point's y position.
--- @param[opt] curve Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to "lin".
--- @param[opt] highlight Highlights the point if set to true, defaults to false.
--- @param[opt] index Index to add point at, defaults to the end of the list.
+-- @tparam number px Point's x position.
+-- @tparam number py Point's y position.
+-- @tparam[opt] string|number curve Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down, defaults to "lin".
+-- @tparam[opt] boolean highlight Highlights the point if set to true, defaults to false.
+-- @tparam[opt] number index Index to add point at, defaults to the end of the list.
 function Graph:add_point(px, py, curve, highlight, index)
   local point = {x = px or 0, y = py or 0, curve = curve or "lin", highlight = highlight or false}
   point.sx, point.sy = graph_to_screen(self, point.x, point.y, true)
@@ -446,11 +446,11 @@ function Graph:add_point(px, py, curve, highlight, index)
 end
 
 --- Edit point at index.
--- @param index Index of point to edit.
--- @param[opt] px Point's x position.
--- @param[opt] py Point's y position.
--- @param[opt] curve Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down.
--- @param[opt] highlight Highlights the point if set to true.
+-- @tparam number index Index of point to edit.
+-- @tparam[opt] number px Point's x position.
+-- @tparam[opt] number py Point's y position.
+-- @tparam[opt] string|number curve Curve of previous line segment, accepts "lin", "exp" or a number where 0 is linear and positive and negative numbers curve the envelope up and down.
+-- @tparam[opt] boolean highlight Highlights the point if set to true.
 function Graph:edit_point(index, px, py, curve, highlight)
   if not self._points[index] then return end
   if px then self._points[index].x = px end
@@ -519,15 +519,15 @@ end
 
 --- Get function at index.
 -- @param index Index of function.
--- @return Function.
+-- @treturn function Function.
 function Graph:get_function(index)
   return self._functions[index].func
 end
 
 --- Add a new y function to the graph.
 -- Add a function that will be used to generate a line.
--- @param func A function that should return the value of y for any given value of x. For example, 'function(x) return math.sin(x) end'
--- @param[opt] sample_quality Quality to sample the graph function at. Values less than 1 will sample less than once per pixel, values higher than 1 can help reduce jitter of graphs with high frequency changes at the cost of performance. Recommended range 0.25 to 4, defaults to 1.
+-- @tparam function func A function that should return the value of y for any given value of x. For example, 'function(x) return math.sin(x) end'
+-- @tparam[opt] number sample_quality Quality to sample the graph function at. Values less than 1 will sample less than once per pixel, values higher than 1 can help reduce jitter of graphs with high frequency changes at the cost of performance. Recommended range 0.25 to 4, defaults to 1.
 -- @param[opt] index Index to add function at, defaults to the end of the list.
 function Graph:add_function(func, sample_quality, index)
   local quality = sample_quality or 1
@@ -541,8 +541,8 @@ end
 
 --- Edit function at index.
 -- @param index Index of function to edit.
--- @param func A function that should return the value of y for any given value of x.
--- @param[opt] sample_quality Quality to sample the graph function at, defaults to 1.
+-- @tparam function func A function that should return the value of y for any given value of x.
+-- @tparam[opt] number sample_quality Quality to sample the graph function at, defaults to 1.
 function Graph:edit_function(index, func, sample_quality)
   if not self._functions[index] then return end
   if func then self._functions[index].func = func end

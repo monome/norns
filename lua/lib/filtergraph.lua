@@ -1,7 +1,7 @@
 --- Filter graph drawing module.
 -- Subclass of Graph for drawing common filter graphs. Can draw approximations of low-pass, band-pass, notch and high-pass filters.
 --
--- @module FilterGraph
+-- @classmod FilterGraph
 -- @release v1.0.0
 -- @author Mark Eats
 
@@ -98,15 +98,15 @@ end
 
 --- Create a new FilterGraph object.
 -- All arguments optional.
--- @param x_min Minimum frequency value in Hz for x axis, defaults to 20.
--- @param x_max Maximum frequency value in Hz for x axis, defaults to 24000.
--- @param y_min Minimum amplitude value in dB for y axis, defaults to -60.
--- @param y_max Maximum amplitude value in dB for y axis, defaults to 30.
--- @param filter_type Type of filter, accepts "lowpass", "bandpass", "notch" or "highpass", defaults to "lowpass".
--- @param slope Slope value in decibels per octave, defaults to 12.
--- @param freq Frequency value in Hz, defaults to 2000.
--- @param resonance Resonance value 0-1, defaults to 0.
--- @return Instance of FilterGraph.
+-- @tparam number x_min Minimum frequency value in Hz for x axis, defaults to 20.
+-- @tparam number x_max Maximum frequency value in Hz for x axis, defaults to 24000.
+-- @tparam number y_min Minimum amplitude value in dB for y axis, defaults to -60.
+-- @tparam number y_max Maximum amplitude value in dB for y axis, defaults to 30.
+-- @tparam string filter_type Type of filter, accepts "lowpass", "bandpass", "notch" or "highpass", defaults to "lowpass".
+-- @tparam number slope Slope value in decibels per octave, defaults to 12.
+-- @tparam number freq Frequency value in Hz, defaults to 2000.
+-- @tparam number resonance Resonance value 0-1, defaults to 0.
+-- @treturn FilterGraph Instance of FilterGraph.
 function FilterGraph.new(x_min, x_max, y_min, y_max, filter_type, slope, freq, resonance)
   local graph = new_filter_graph(x_min, x_max, y_min, y_max)
   set_filter_values(graph, filter_type or "lowpass", slope or 12, freq or 2000, resonance or 0)
@@ -115,10 +115,10 @@ end
 
 --- Edit a FilterGraph object.
 -- All arguments optional.
--- @param filter_type Type of filter, accepts "lowpass", "bandpass", "notch" or "highpass", defaults to "lowpass".
--- @param slope Slope value in decibels per octave, defaults to 12.
--- @param freq Frequency value in Hz, defaults to 2000.
--- @param resonance Resonance value 0-1, defaults to 0.
+-- @tparam string filter_type Type of filter, accepts "lowpass", "bandpass", "notch" or "highpass", defaults to "lowpass".
+-- @tparam number slope Slope value in decibels per octave, defaults to 12.
+-- @tparam number freq Frequency value in Hz, defaults to 2000.
+-- @tparam number resonance Resonance value 0-1, defaults to 0.
 function FilterGraph:edit(filter_type, slope, freq, resonance)
   set_filter_values(self, filter_type, slope, freq, resonance)
 end
@@ -127,19 +127,19 @@ end
 -- Getters
 
 --- Get filter type string.
--- @return Filter type string.
+-- @treturn string Filter type string.
 function FilterGraph:filter_type() return self._filter.filter_type end
 
 --- Get slope value.
--- @return Slope value.
+-- @treturn number Slope value.
 function FilterGraph:get_slope() return self._filter.slope end
 
 --- Get frequency value.
--- @return Frequency value.
+-- @treturn number Frequency value.
 function FilterGraph:get_freq() return self._filter.freq end
 
 --- Get resonance value.
--- @return Resonance value.
+-- @treturn number Resonance value.
 function FilterGraph:get_resonance() return self._filter.resonance end
 
 

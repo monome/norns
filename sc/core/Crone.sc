@@ -286,10 +286,10 @@ Crone {
 			/// set the period of a poll
 			// @function /poll/request/value
 			// @param poll index (integer)
-			'/poll/value':OSCFunc.new({
+			'/poll/request/value':OSCFunc.new({
 				arg msg, time, addr, recvPort;
 				this.requestPollValue(msg[1]);
-			}, '/poll/value'),
+			}, '/poll/request/value'),
 
 
 			// @section AudioContext control

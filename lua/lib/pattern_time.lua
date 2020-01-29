@@ -1,6 +1,10 @@
+--- pattern
+-- @classmod pattern
+
 local pattern = {}
 pattern.__index = pattern
 
+--- constructor
 function pattern.new()
   local i = {}
   setmetatable(i, pattern)
@@ -11,16 +15,18 @@ function pattern.new()
   i.time = {}
   i.count = 0
   i.step = 0
+  i.time_factor = 1
 
   i.metro = metro.init(function() i:next_event() end,1,1)
 
-  i.process = function(e) print("event") end
+  i.process = function(_) print("event") end
 
   return i
 end
 
+--- clear this pattern
 function pattern:clear()
-  self.metro:stop() 
+  self.metro:stop()
   self.rec = 0
   self.play = 0
   self.prev_time = 0
@@ -28,13 +34,22 @@ function pattern:clear()
   self.time = {}
   self.count = 0
   self.step = 0
+  self.time_factor = 1
 end
 
+--- adjust the time factor of this pattern.
+-- @tparam number f time factor
+function pattern:set_time_factor(f)
+  self.time_factor = f or 1
+end
+
+--- start recording
 function pattern:rec_start()
   print("pattern rec start")
   self.rec = 1
 end
 
+--- stop recording
 function pattern:rec_stop()
   if self.rec == 1 then
     self.rec = 0
@@ -51,16 +66,18 @@ function pattern:rec_stop()
   end
 end
 
+--- watch
 function pattern:watch(e)
   if self.rec == 1 then
     self:rec_event(e)
   end
 end
 
+--- record event
 function pattern:rec_event(e)
   local c = self.count + 1
   if c == 1 then
-    self.prev_time = util.time() 
+    self.prev_time = util.time()
     --print("first event")
   else
     local t = self.prev_time
@@ -72,28 +89,31 @@ function pattern:rec_event(e)
   self.event[c] = e
 end
 
+--- start this pattern
 function pattern:start()
   if self.count > 0 then
     print("start pattern ")
     self.process(self.event[1])
     self.play = 1
     self.step = 1
-    self.metro.time = self.time[1]
-    self.metro:start() 
+    self.metro.time = self.time[1] * self.time_factor
+    self.metro:start()
   end
-end 
+end
 
+--- process next event
 function pattern:next_event()
   if self.step == self.count then self.step = 1
-  else self.step = self.step + 1 end 
+  else self.step = self.step + 1 end
   --print("next step "..self.step)
   --event_exec(self.event[self.step])
   self.process(self.event[self.step])
-  self.metro.time = self.time[self.step]
+  self.metro.time = self.time[self.step] * self.time_factor
   --print("next time "..self.metro.time)
-  self.metro:start() 
+  self.metro:start()
 end
 
+--- stop this pattern
 function pattern:stop()
   if self.play == 1 then
     print("stop pattern ")
@@ -101,6 +121,5 @@ function pattern:stop()
     self.metro:stop()
   else print("not playing") end
 end
-
 
 return pattern

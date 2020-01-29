@@ -38,6 +38,8 @@ function Option:set(v, silent)
 end
 
 function Option:delta(d)
+  if d<0 then d = math.floor(d)
+  else d = math.ceil(d) end
   self:set(self:get() + d)
 end
 

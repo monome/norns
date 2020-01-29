@@ -1,7 +1,11 @@
+--- Euclidean rhythm (http://en.wikipedia.org/wiki/Euclidean_Rhythm)
+-- @module er
+
 er = {}
--- Euclidean rhythm (http://en.wikipedia.org/wiki/Euclidean_Rhythm)
--- @param k : number of pulses
--- @param n : total number of steps
+--- gen
+-- @tparam number k : number of pulses
+-- @tparam number n : total number of steps
+-- @treturn table
 function er.gen(k, n)
    -- results array, intially all zero
    local r = {}

@@ -39,21 +39,19 @@ CroneEngine {
 		^CronePollRegistry.getPollFromName(name);
 	}
 
+	// deinit is called in a routine
 	deinit { arg doneCallback;
-		fork {
-			postln("CroneEngine.free");
-			commands.do({ arg com;
-				com.oscdef.free;
-			});
-			pollNames.do({ arg name;
-				CronePollRegistry.remove(name);
-			});
-			// subclass should implement free, and this method should also be called in a routine
-			this.free;
-			Crone.server.sync;
-			doneCallback.value(this);
-		}
-
+		postln("CroneEngine.free");
+		commands.do({ arg com;
+			com.oscdef.free;
+		});
+		pollNames.do({ arg name;
+			CronePollRegistry.remove(name);
+		});
+		// subclass responsibility to implement free
+		this.free;
+		Crone.server.sync;
+		doneCallback.value(this);
 	}
 
 

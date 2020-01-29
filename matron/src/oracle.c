@@ -437,7 +437,7 @@ void o_set_poll_time(int idx, float dt) {
 
 // request current value of poll
 void o_request_poll_value(int idx) {
-    lo_send(ext_addr, "/poll/value", "i", idx);
+    lo_send(ext_addr, "/poll/request/value", "i", idx);
 }
 
 //---- audio context control
@@ -619,7 +619,7 @@ void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
 } 
 
 void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur) {
-    lo_send(crone_addr, "/softcut/buffer/read_stereo", "sfffii", file, start_src, start_dst, dur);
+    lo_send(crone_addr, "/softcut/buffer/read_stereo", "sfff", file, start_src, start_dst, dur);
 } 
 
 void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {

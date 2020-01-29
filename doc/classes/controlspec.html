@@ -1,0 +1,596 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+<li><a href="#Presets">Presets </a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><strong>controlspec</strong></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/softcut.html">softcut</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>controlspec</code></h1>
+<p>ControlSpec Class</p>
+<p></p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#controlspec:new">controlspec:new (minval, maxval, warp, step, default, units)</a></td>
+	<td class="summary">constructor</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec:map">controlspec:map (value)</a></td>
+	<td class="summary">transform an incoming value between 0 and 1 through this ControlSpec</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec:unmap">controlspec:unmap (value)</a></td>
+	<td class="summary">untransform a transformed value into its original value</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec:copy">controlspec:copy ()</a></td>
+	<td class="summary">copy this ControlSpec into a new one</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec:print">controlspec:print ()</a></td>
+	<td class="summary">print out the configuration of this ControlSpec</td>
+	</tr>
+</table>
+<h2><a href="#Presets">Presets </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.UNIPOLAR">controlspec.UNIPOLAR</a></td>
+	<td class="summary">converts values to a unipolar range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.BIPOLAR">controlspec.BIPOLAR</a></td>
+	<td class="summary">converts values to bipolar range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.FREQ">controlspec.FREQ</a></td>
+	<td class="summary">converts to a frequency range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.LOFREQ">controlspec.LOFREQ</a></td>
+	<td class="summary">converts to a low frequency range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.MIDFREQ">controlspec.MIDFREQ</a></td>
+	<td class="summary">converts to a mid frequency range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.WIDEFREQ">controlspec.WIDEFREQ</a></td>
+	<td class="summary">converts to an exponential frequency range from 0.1 to 20khz</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.PHASE">controlspec.PHASE</a></td>
+	<td class="summary">maps into pi for controlling phase values</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.RQ">controlspec.RQ</a></td>
+	<td class="summary">converts to an exponential RQ range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.MIDI">controlspec.MIDI</a></td>
+	<td class="summary">converts to a MIDI range (default 64)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.MIDINOTE">controlspec.MIDINOTE</a></td>
+	<td class="summary">converts to a range for MIDI notes (default 60)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.MIDIVELOCITY">controlspec.MIDIVELOCITY</a></td>
+	<td class="summary">converts to a range for MIDI velocity (default 64)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.DB">controlspec.DB</a></td>
+	<td class="summary">converts to a dB range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.AMP">controlspec.AMP</a></td>
+	<td class="summary">converts to a linear amplitude range (0-1)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.PAN">controlspec.PAN</a></td>
+	<td class="summary">converts to a panning range (-1 - 1)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.DETUNE">controlspec.DETUNE</a></td>
+	<td class="summary">converts to a detune range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.RATE">controlspec.RATE</a></td>
+	<td class="summary">converts to a sensible range for playback rate</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.BEATS">controlspec.BEATS</a></td>
+	<td class="summary">convert to a good range for beats</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controlspec.DELAY">controlspec.DELAY</a></td>
+	<td class="summary">converts to a good range for delay</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "controlspec:new"></a>
+    <strong>controlspec:new (minval, maxval, warp, step, default, units)</strong>
+    </dt>
+    <dd>
+    constructor
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">minval</span>
+            <span class="types"><span class="type">number</span></span>
+         the minimum value of the output range
+        </li>
+        <li><span class="parameter">maxval</span>
+            <span class="types"><span class="type">number</span></span>
+         the max value of the output range
+        </li>
+        <li><span class="parameter">warp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         ('exp', 'db', 'lin') a shaping option for incoming data (default is 'lin')
+        </li>
+        <li><span class="parameter">step</span>
+            <span class="types"><span class="type">number</span></span>
+         quantization value. output will be rounded to a multiple of step
+        </li>
+        <li><span class="parameter">default</span>
+            <span class="types"><span class="type">number</span></span>
+         a default value for when no value has been set
+        </li>
+        <li><span class="parameter">units</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         an indicator for the unit of measure the data represents
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ControlSpec</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec:map"></a>
+    <strong>controlspec:map (value)</strong>
+    </dt>
+    <dd>
+    transform an incoming value between 0 and 1 through this ControlSpec
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
+         the incoming value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the transformed value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec:unmap"></a>
+    <strong>controlspec:unmap (value)</strong>
+    </dt>
+    <dd>
+    untransform a transformed value into its original value
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
+         a previously transformed value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the reverse-transformed value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec:copy"></a>
+    <strong>controlspec:copy ()</strong>
+    </dt>
+    <dd>
+    copy this ControlSpec into a new one
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ControlSpec</span></span>
+        a new ControlSpec
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec:print"></a>
+    <strong>controlspec:print ()</strong>
+    </dt>
+    <dd>
+    print out the configuration of this ControlSpec
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Presets"></a>Presets </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "controlspec.UNIPOLAR"></a>
+    <strong>controlspec.UNIPOLAR</strong>
+    </dt>
+    <dd>
+    converts values to a unipolar range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.BIPOLAR"></a>
+    <strong>controlspec.BIPOLAR</strong>
+    </dt>
+    <dd>
+    converts values to bipolar range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.FREQ"></a>
+    <strong>controlspec.FREQ</strong>
+    </dt>
+    <dd>
+    converts to a frequency range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.LOFREQ"></a>
+    <strong>controlspec.LOFREQ</strong>
+    </dt>
+    <dd>
+    converts to a low frequency range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.MIDFREQ"></a>
+    <strong>controlspec.MIDFREQ</strong>
+    </dt>
+    <dd>
+    converts to a mid frequency range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.WIDEFREQ"></a>
+    <strong>controlspec.WIDEFREQ</strong>
+    </dt>
+    <dd>
+    converts to an exponential frequency range from 0.1 to 20khz
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.PHASE"></a>
+    <strong>controlspec.PHASE</strong>
+    </dt>
+    <dd>
+    maps into pi for controlling phase values
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.RQ"></a>
+    <strong>controlspec.RQ</strong>
+    </dt>
+    <dd>
+    converts to an exponential RQ range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.MIDI"></a>
+    <strong>controlspec.MIDI</strong>
+    </dt>
+    <dd>
+    converts to a MIDI range (default 64)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.MIDINOTE"></a>
+    <strong>controlspec.MIDINOTE</strong>
+    </dt>
+    <dd>
+    converts to a range for MIDI notes (default 60)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.MIDIVELOCITY"></a>
+    <strong>controlspec.MIDIVELOCITY</strong>
+    </dt>
+    <dd>
+    converts to a range for MIDI velocity (default 64)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.DB"></a>
+    <strong>controlspec.DB</strong>
+    </dt>
+    <dd>
+    converts to a dB range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.AMP"></a>
+    <strong>controlspec.AMP</strong>
+    </dt>
+    <dd>
+    converts to a linear amplitude range (0-1)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.PAN"></a>
+    <strong>controlspec.PAN</strong>
+    </dt>
+    <dd>
+    converts to a panning range (-1 - 1)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.DETUNE"></a>
+    <strong>controlspec.DETUNE</strong>
+    </dt>
+    <dd>
+    converts to a detune range
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.RATE"></a>
+    <strong>controlspec.RATE</strong>
+    </dt>
+    <dd>
+    converts to a sensible range for playback rate
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.BEATS"></a>
+    <strong>controlspec.BEATS</strong>
+    </dt>
+    <dd>
+    convert to a good range for beats
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controlspec.DELAY"></a>
+    <strong>controlspec.DELAY</strong>
+    </dt>
+    <dd>
+    converts to a good range for delay
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-12-28 20:46:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
