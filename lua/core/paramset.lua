@@ -254,8 +254,17 @@ end
 --- get type.
 -- @param index
 function ParamSet:t(index)
-  return self.params[index].t
+  local param = self:lookup_param(index)
+  return param.t
 end
+
+--- get range
+-- @param index
+function ParamSet:get_range(index)
+  local param = self:lookup_param(index)
+  return param:get_range()
+end
+
 
 --- set visibility to hidden.
 -- @param index

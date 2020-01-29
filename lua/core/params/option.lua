@@ -55,5 +55,10 @@ function Option:string()
   return self.options[self.selected]
 end
 
+function Option:get_range()
+  local r = { 1, self.count }
+  return r
+end
+
 
 return Option

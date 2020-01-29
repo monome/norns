@@ -57,7 +57,7 @@ m.key = function(n,z)
     m.alt = true
   elseif n==1 and z==0 then
     m.alt = false
-  -- MODE MENU
+    -- MODE MENU
   elseif m.mode == mSELECT then
     if n==3 and z==1 then
       if m.mode_pos == 1 then
@@ -66,7 +66,7 @@ m.key = function(n,z)
         m.mode = mMAP
       end
     end
-  -- EDIT + MAP
+    -- EDIT + MAP
   elseif m.mode == mEDIT or m.mode == mMAP then
     if n==2 and z==1 then
       if m.group==true then
@@ -106,8 +106,16 @@ m.key = function(n,z)
       elseif m.mode == mMAP then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
-        if pm == nil then norns.pmap.new(n) end
-        pm = norns.pmap.data[n]
+        if pm == nil then
+          norns.pmap.new(n)
+          pm = norns.pmap.data[n]
+          local t = params:t(i)
+          if t == params.tNUMBER or t == params.tOPTION then
+            local r = params:get_range(i)
+            pm.out_lo = r[1]
+            pm.out_hi = r[2]
+          end
+        end
         m.dev = pm.dev
         m.ch = pm.ch
         m.cc = pm.cc
@@ -417,10 +425,16 @@ norns.menu_midi_event = function(data, dev)
       --print(cc.." : "..v)
       local r = norns.pmap.rev[dev][ch][cc] 
       if r then
-        --print(r)  
-        local s = util.clamp(v, m.pm.in_lo, m.pm.in_hi)
-        s = util.linlin(m.pm.in_lo, m.pm.in_hi, m.pm.out_lo, m.pm.out_hi, s)
-        params:set_raw(r,s)
+        local d = norns.pmap.data[r]
+        local t = params:t(r)
+        local s = util.clamp(v, d.in_lo, d.in_hi)
+        s = util.linlin(d.in_lo, d.in_hi, d.out_lo, d.out_hi, s)
+        if t == params.tCONTROL or t == params.tTAPER then
+          params:set_raw(r,s)
+        elseif t == params.tNUMBER or t == params.tOPTION then
+          s = util.round(s)
+          params:set(r,s)
+        end
         _menu.redraw()
       end
     end
