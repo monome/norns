@@ -14,7 +14,8 @@ local m = {
   alt = false,
   mode = mEDIT,
   mode_pos = 1,
-  map = false
+  map = false,
+  mpos = 1
 }
 
 local page
@@ -100,8 +101,9 @@ m.key = function(n,z)
         end
       elseif m.mode == mMAP then
         local n = params:get_id(i)
-        if norns.pmap[n] == nil then norns.pmap.new(n) end
+        if norns.pmap.data[n] == nil then norns.pmap.new(n) end
         m.mode = mMAPEDIT
+        m.mpos = 1
       end
       m.fine = true
     elseif n==3 and z==0 then
@@ -159,6 +161,42 @@ m.enc = function(n,d)
       params:delta(page[m.pos+1],dx)
       _menu.redraw()
     end
+  -- MAPEDIT
+  elseif m.mode == mMAPEDIT then
+    if n==2 then
+      m.mpos = (m.mpos+d) % 11
+    elseif n==3 then
+      local p = page[m.pos+1]
+      local n = params:get_id(p)
+      local t = params:t(p)
+      local pm = norns.pmap.data[n]
+      if m.mpos==0 then
+        params:delta(page[m.pos+1],d)
+      elseif m.mpos==3 then
+        local prev = pm.cc
+        local cc = util.clamp(pm.cc+d,0,127)
+        if prev ~= cc then norns.pmap.assign(n,pm.dev,pm.ch,cc) end
+      elseif m.mpos==4 then
+        local prev = pm.ch
+        local ch = util.clamp(pm.ch+d,1,16)
+        if prev ~= ch then norns.pmap.assign(n,pm.dev,ch,pm.cc) end
+      elseif m.mpos==5 then
+        local prev = pm.dev
+        local dev = util.clamp(pm.dev+d,1,16)
+        if prev ~= dev then norns.pmap.assign(n,dev,pm.ch,pm.cc) end
+      elseif m.mpos==6 then
+        pm.in_lo = util.clamp(pm.in_lo+d, 0, pm.in_hi)
+      elseif m.mpos==7 then
+        pm.in_hi = util.clamp(pm.in_hi+d, pm.in_lo, 127)
+      elseif m.mpos==8 then
+        pm.out_lo = pm.out_lo + d
+      elseif m.mpos==9 then
+        pm.out_hi = pm.out_hi + d
+      elseif m.mpos==10 then
+        if d>0 then pm.accum = true else pm.accum = false end
+      end
+    end
+    _menu.redraw()
   end
 end
 
@@ -256,43 +294,63 @@ m.redraw = function()
     local t = params:t(p)
     local pm = norns.pmap.data[n]
 
+    local function hl(x) if m.mpos==x then screen.level(15) else screen.level(4) end end
+
     screen.move(0,10)
+    hl(0)
     screen.text(n)
     screen.move(127,10)
     screen.text_right(params:string(p))
     screen.move(0,25)
+    hl(1)
     screen.text("LEARN")
     screen.move(127,25)
+    hl(2)
     screen.text_right("CLEAR")
 
+    screen.level(4)
     screen.move(0,40)
     screen.text("cc")
     screen.move(40,40)
+    hl(3)
     screen.text_right(pm.cc)
+    screen.level(4)
     screen.move(0,50)
     screen.text("ch")
     screen.move(40,50)
+    hl(4)
     screen.text_right(pm.ch)
+    screen.level(4)
     screen.move(0,60)
     screen.text("dev")
     screen.move(40,60)
+    hl(5)
     screen.text_right(pm.dev)
 
+    screen.level(4)
     screen.move(63,40)
     screen.text("in")
     screen.move(103,40)
+    hl(6)
     screen.text_right(pm.in_lo)
+    screen.level(4)
     screen.move(127,40)
+    hl(7)
     screen.text_right(pm.in_hi)
+    screen.level(4)
     screen.move(63,50)
     screen.text("out")
     screen.move(103,50)
+    hl(8)
     screen.text_right(pm.out_lo)
     screen.move(127,50)
+    hl(9)
     screen.text_right(pm.out_hi)
+    screen.level(4)
     screen.move(63,60)
     screen.text("accum")
     screen.move(127,60)
+    hl(10)
     screen.text_right(pm.accum and "yes" or "no")
   end
   screen.update()

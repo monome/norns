@@ -1,14 +1,14 @@
 -- parameter map
 
 local pmap = {
-  data = {}
+  data = {},
   rev = {}
 }
 
 -- build reverse lookup table: dev -> ch -> cc
-for i=1..4 do 
+for i=1,4 do 
   pmap.rev[i]={}
-  for n=1..16 do
+  for n=1,16 do
     pmap.rev[i][n]={}
   end
 end
@@ -33,15 +33,18 @@ end
 function pmap.remove(id)
   print("pmap remove: "..id)
   local p = pmap.data[id]
-  pmap.rev[p.dev][p.ch][p.cc] = nil
+  if p then pmap.rev[p.dev][p.ch][p.cc] = nil end
   pmap.data[id] = nil
 end
 
 function pmap.assign(id, dev, ch, cc)
-  local prev = rev[dev][ch][cc]
-  if prev then pmap.remove(prev)
+  local prev = pmap.rev[dev][ch][cc]
+  if prev then pmap.remove(prev) end
   local p = pmap.data[id]
   pmap.rev[p.dev][p.ch][p.cc] = nil
+  p.dev=dev
+  p.ch=ch
+  p.cc=cc
   pmap.rev[dev][ch][cc] = id
 end
 
