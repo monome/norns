@@ -1,0 +1,3 @@
+[submodule "crone/softcut-lib"]
+	path = crone/softcut-lib
+	url = https://github.com/catfact/softcut-lib
