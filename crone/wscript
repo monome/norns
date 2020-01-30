@@ -30,7 +30,8 @@ def build(bld):
 
                  includes=[
                      'src',
-                     './'
+                     './',
+                     'softcut-lib/softcut-lib/include',
                  ],
 
                  use=[
