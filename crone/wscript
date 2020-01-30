@@ -21,6 +21,7 @@ def build(bld):
         'softcut-lib/softcut-lib/src/ReadWriteHead.cpp',
         'softcut-lib/softcut-lib/src/SubHead.cpp',
         'softcut-lib/softcut-lib/src/Svf.cpp',
+        'softcut-lib/softcut-lib/src/Voice.cpp',
     ]
 
     bld.program( features='c cxx cxxprogram',
