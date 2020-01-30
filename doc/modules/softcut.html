@@ -5,10 +5,1709 @@
 <head>
     <title>norns/docs</title>
     <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
-
-  <script>
-    window.location.href = window.location.pathname.split('/modules/').join('/classes/');
-  </script>
 </head>
 <body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#"> </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><strong>softcut</strong></li>
+  <li><a href="../modules/er.html">er</a></li>
+  <li><a href="../modules/formatters.html">formatters</a></li>
+  <li><a href="../modules/intonation.html">intonation</a></li>
+  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
+  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/util.html">util</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/arc.html">arc</a></li>
+  <li><a href="../classes/audio.html">audio</a></li>
+  <li><a href="../classes/controlspec.html">controlspec</a></li>
+  <li><a href="../classes/encoders.html">encoders</a></li>
+  <li><a href="../classes/engine.html">engine</a></li>
+  <li><a href="../classes/grid.html">grid</a></li>
+  <li><a href="../classes/hid.html">hid</a></li>
+  <li><a href="../classes/metro.html">metro</a></li>
+  <li><a href="../classes/midi.html">midi</a></li>
+  <li><a href="../classes/osc.html">osc</a></li>
+  <li><a href="../classes/control.html">control</a></li>
+  <li><a href="../classes/paramset.html">paramset</a></li>
+  <li><a href="../classes/poll.html">poll</a></li>
+  <li><a href="../classes/screen.html">screen</a></li>
+  <li><a href="../classes/script.html">script</a></li>
+  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
+  <li><a href="../classes/elca.html">elca</a></li>
+  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
+  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
+  <li><a href="../classes/Graph.html">Graph</a></li>
+  <li><a href="../classes/pattern.html">pattern</a></li>
+  <li><a href="../classes/UI.html">UI</a></li>
+  <li><a href="../classes/voice.html">voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>softcut</code></h1>
+<p>Softcut module
+<p> API for controlling the "softcut" buffer processor
+ includes low-level setters and mid-level utilities
+<p> IMPORTANT: all indices are 1-based, per lua convention!
+ this applies to indices for selecting voice, ADC/DAC channel, buffer, &c.</p>
+<p>
+ however, _quantities_ (including units of time) can still start at zero.
+</p>
+
+
+<h2><a href="#"> </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#level">level (voice, amp)</a></td>
+	<td class="summary">set output level of each voice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pan">pan (voice, pos)</a></td>
+	<td class="summary">set pan position of each voice.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_input_cut">level_input_cut (ch, voice, pos)</a></td>
+	<td class="summary">set input level to each voice/channel.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_cut_cut">level_cut_cut (src, dst, amp)</a></td>
+	<td class="summary">set mix matrix, voice output to voice input.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#play">play (voice, state)</a></td>
+	<td class="summary">set play status.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rate">rate (voice, rate)</a></td>
+	<td class="summary">set playback rate.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#loop_start">loop_start (voice, pos)</a></td>
+	<td class="summary">set loop start.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#loop_end">loop_end (voice, pos)</a></td>
+	<td class="summary">set loop end.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#loop">loop (voice, state)</a></td>
+	<td class="summary">set loop mode.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fade_time">fade_time (voice, pos)</a></td>
+	<td class="summary">set fade time.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rec_level">rec_level (voice, amp)</a></td>
+	<td class="summary">set record level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_level">pre_level (voice, amp)</a></td>
+	<td class="summary">set pre level (overdub preserve.)
+ this sets the realtime-modulated "preserve" level,
+ by which existing material is scaled on each pass of the write head.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rec">rec (voice, state)</a></td>
+	<td class="summary">set record state.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rec_offset">rec_offset (voice, value)</a></td>
+	<td class="summary">set record head offset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#position">position (voice, value)</a></td>
+	<td class="summary">set play position</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer">buffer (i, b)</a></td>
+	<td class="summary">specify buffer used by voice.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#voice_sync">voice_sync (src, dst, offset)</a></td>
+	<td class="summary">synchronize two voices.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_fc">pre_filter_fc (voice, fc)</a></td>
+	<td class="summary">set pre_filter cutoff frequency.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_fc_mod">pre_filter_fc_mod (voice, amount)</a></td>
+	<td class="summary">set pre_filter amount of rate modulation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_rq">pre_filter_rq (voice, rq)</a></td>
+	<td class="summary">set pre_filter reciprocal of Q-factor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_lp">pre_filter_lp (voice, amp)</a></td>
+	<td class="summary">set pre_filter lowpass output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_hp">pre_filter_hp (voice, amp)</a></td>
+	<td class="summary">set pre-filter highpass output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_bp">pre_filter_bp (voice, amp)</a></td>
+	<td class="summary">set pre-filter bandpass output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_br">pre_filter_br (voice, amp)</a></td>
+	<td class="summary">set pre_filter band-reject output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pre_filter_dry">pre_filter_dry (voice, amp)</a></td>
+	<td class="summary">set pre_filter dry output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#filter_fc">filter_fc (voice, value)</a></td>
+	<td class="summary">wrappers around pre_filter, for backwards compatibility</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#post_filter_fc">post_filter_fc (voice, value)</a></td>
+	<td class="summary">set post-filter cutoff</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#post_filter_rq">post_filter_rq (voice, rq)</a></td>
+	<td class="summary">set post-filter reciprocal of Q
+ the reciprocal of the filter's Q factor is a measure of bandwidth,
+ that is independent of center frequency.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#post_filter_lp">post_filter_lp (voice, amp)</a></td>
+	<td class="summary">set post_filter lowpass output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#post_filter_hp">post_filter_hp (voice, amp)</a></td>
+	<td class="summary">set post-filter highpass output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#post_filter_bp">post_filter_bp (voice, amp)</a></td>
+	<td class="summary">set post-filter bandpass output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#post_filter_br">post_filter_br (voice, amp)</a></td>
+	<td class="summary">set post_filter band-reject output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#post_filter_dry">post_filter_dry (voice, amp)</a></td>
+	<td class="summary">set post_filter dry output level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#level_slew_time">level_slew_time (voice, time)</a></td>
+	<td class="summary">set level-slew time
+ this slew time applies to level at all mix points: ADC->voice, voice->voice, &c.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pan_slew_time">pan_slew_time (voice, time)</a></td>
+	<td class="summary">set pan slew time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#recpre_slew_time">recpre_slew_time (voice, time)</a></td>
+	<td class="summary">set recpre slew tiem
+ affects slew time for record and pre levels</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rate_slew_time">rate_slew_time (voice, time)</a></td>
+	<td class="summary">set rate slew time
+ affects slew time for rate</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#phase_quant">phase_quant (voice, quantum)</a></td>
+	<td class="summary">set phase poll quantum
+ e.g.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#phase_offset">phase_offset (voice, offset)</a></td>
+	<td class="summary">set phase poll offset in frames</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll_start_phase">poll_start_phase ()</a></td>
+	<td class="summary">start phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll_stop_phase">poll_stop_phase ()</a></td>
+	<td class="summary">stop phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#enable">enable (voice, state)</a></td>
+	<td class="summary">set voice enable
+ disabled voices have no effect and consume basically zero CPU</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_clear">buffer_clear ()</a></td>
+	<td class="summary">clear all buffers completely</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_clear_channel">buffer_clear_channel (channel)</a></td>
+	<td class="summary">clear one buffer completely</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_clear_region">buffer_clear_region (start, stop)</a></td>
+	<td class="summary">clear region (both channels)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_clear_region_channel">buffer_clear_region_channel (ch, start, stop)</a></td>
+	<td class="summary">clear region of single channel</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_read_mono">buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</a></td>
+	<td class="summary">read mono soundfile to arbitrary region of single buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_read_stereo">buffer_read_stereo (file, start_src, start_dst, dur)</a></td>
+	<td class="summary">read stereo soundfile to an arbitrary region in both buffers</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_write_mono">buffer_write_mono (file, start, dur, ch)</a></td>
+	<td class="summary">write an arbitrary buffer region to soundfile (mono)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_write_stereo">buffer_write_stereo (file, start, dur)</a></td>
+	<td class="summary">write an arbitrary region from both buffers to stereo soundfile</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#event_phase">event_phase (func)</a></td>
+	<td class="summary">set function for phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#reset">reset ()</a></td>
+	<td class="summary">reset state of softcut process on backend.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#defaults">defaults ()</a></td>
+	<td class="summary">get the default state of the softcut system
+ this returns a table for each voice,
+ in which each key corresponds to the name of one of the setter functions defined above.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#params">params ()</a></td>
+	<td class="summary">controlspec factory
+ each table contains an entry for each softcut parameter.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name=""></a> </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "level"></a>
+    <strong>level (voice, amp)</strong>
+    </dt>
+    <dd>
+    set output level of each voice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">int</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pan"></a>
+    <strong>pan (voice, pos)</strong>
+    </dt>
+    <dd>
+    set pan position of each voice.
+ -1 == full left, +1 == full right, 0 == centered
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">number</span></span>
+         : position in [-1, 1]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_input_cut"></a>
+    <strong>level_input_cut (ch, voice, pos)</strong>
+    </dt>
+    <dd>
+    set input level to each voice/channel.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">int</span></span>
+         : ADC channel index
+        </li>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">number</span></span>
+         : position in [-1, 1]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_cut_cut"></a>
+    <strong>level_cut_cut (src, dst, amp)</strong>
+    </dt>
+    <dd>
+    set mix matrix, voice output to voice input.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">src</span>
+            <span class="types"><span class="type">number</span></span>
+         : source voice index
+        </li>
+        <li><span class="parameter">dst</span>
+            <span class="types"><span class="type">number</span></span>
+         : destination voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "play"></a>
+    <strong>play (voice, state)</strong>
+    </dt>
+    <dd>
+    set play status.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">int</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rate"></a>
+    <strong>rate (voice, rate)</strong>
+    </dt>
+    <dd>
+    set playback rate.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">rate</span>
+            <span class="types"><span class="type">number</span></span>
+         : speed of read/write head (unitless; 1 == normal)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "loop_start"></a>
+    <strong>loop_start (voice, pos)</strong>
+    </dt>
+    <dd>
+    set loop start.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">number</span></span>
+         : loop start position in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "loop_end"></a>
+    <strong>loop_end (voice, pos)</strong>
+    </dt>
+    <dd>
+    set loop end.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">number</span></span>
+         : loop end position in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "loop"></a>
+    <strong>loop (voice, state)</strong>
+    </dt>
+    <dd>
+    set loop mode.
+ "0" indicates one-shot mode: voice will play to the loop endpoint, fadeout and stop.
+ "1" indicates crossfaded looping mode.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">int</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "fade_time"></a>
+    <strong>fade_time (voice, pos)</strong>
+    </dt>
+    <dd>
+    set fade time.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">number</span></span>
+         : loop start position in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rec_level"></a>
+    <strong>rec_level (voice, amp)</strong>
+    </dt>
+    <dd>
+    set record level.
+ this sets the realtime-modulated record level,
+ by which incoming signal is scaled before writing to the buffer
+ `recpre` slew level applies
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude of new signal
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_level"></a>
+    <strong>pre_level (voice, amp)</strong>
+    </dt>
+    <dd>
+    set pre level (overdub preserve.)
+ this sets the realtime-modulated "preserve" level,
+ by which existing material is scaled on each pass of the write head.
+ `recpre` slew level applies
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude of preserved signal
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rec"></a>
+    <strong>rec (voice, state)</strong>
+    </dt>
+    <dd>
+    set record state.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">int</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rec_offset"></a>
+    <strong>rec_offset (voice, value)</strong>
+    </dt>
+    <dd>
+    set record head offset
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "position"></a>
+    <strong>position (voice, value)</strong>
+    </dt>
+    <dd>
+    set play position
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer"></a>
+    <strong>buffer (i, b)</strong>
+    </dt>
+    <dd>
+    specify buffer used by voice.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice number
+        </li>
+        <li><span class="parameter">b</span>
+            <span class="types"><span class="type">int</span></span>
+         : buffer number (1,2)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "voice_sync"></a>
+    <strong>voice_sync (src, dst, offset)</strong>
+    </dt>
+    <dd>
+    synchronize two voices.
+ position of "dst" will be immediately set to that of "source"
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">src</span>
+            <span class="types"><span class="type">int</span></span>
+         : source voice index
+        </li>
+        <li><span class="parameter">dst</span>
+            <span class="types"><span class="type">int</span></span>
+         : destination voice index
+        </li>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">number</span></span>
+         : additional offset in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_fc"></a>
+    <strong>pre_filter_fc (voice, fc)</strong>
+    </dt>
+    <dd>
+    set pre_filter cutoff frequency.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">fc</span>
+            <span class="types"><span class="type">number</span></span>
+         : cutoff frequency in Hz
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_fc_mod"></a>
+    <strong>pre_filter_fc_mod (voice, amount)</strong>
+    </dt>
+    <dd>
+    set pre_filter amount of rate modulation.
+ this parameter controls the amount by which the current rate affects filter cutoff frequency
+ (always in a negative direction, towards zero.)
+ with mod == 1, setting rate = 0 will also fully close the filter.
+ this can be useful as a crude anti-aliasing method...
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amount</span>
+            <span class="types"><span class="type">number</span></span>
+         : modulation amount in [0, 1]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_rq"></a>
+    <strong>pre_filter_rq (voice, rq)</strong>
+    </dt>
+    <dd>
+    set pre_filter reciprocal of Q-factor.
+ the reciprocal of the filter's Q-factor is a measure of bandwidth,
+ that is independent of center frequency.
+ RQ ~= 0 will result in self-oscillation;
+ RQ == 4 gives a bandwidth of 2 octaves.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">rq</span>
+            <span class="types"><span class="type">number</span></span>
+         : reciprocal of filter Q-factor for voice
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_lp"></a>
+    <strong>pre_filter_lp (voice, amp)</strong>
+    </dt>
+    <dd>
+    set pre_filter lowpass output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_hp"></a>
+    <strong>pre_filter_hp (voice, amp)</strong>
+    </dt>
+    <dd>
+    set pre-filter highpass output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_bp"></a>
+    <strong>pre_filter_bp (voice, amp)</strong>
+    </dt>
+    <dd>
+    set pre-filter bandpass output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_br"></a>
+    <strong>pre_filter_br (voice, amp)</strong>
+    </dt>
+    <dd>
+    set pre_filter band-reject output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pre_filter_dry"></a>
+    <strong>pre_filter_dry (voice, amp)</strong>
+    </dt>
+    <dd>
+    set pre_filter dry output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "filter_fc"></a>
+    <strong>filter_fc (voice, value)</strong>
+    </dt>
+    <dd>
+    wrappers around pre_filter, for backwards compatibility
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "post_filter_fc"></a>
+    <strong>post_filter_fc (voice, value)</strong>
+    </dt>
+    <dd>
+    set post-filter cutoff
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">number</span></span>
+         : cutoff frequency in Hz
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "post_filter_rq"></a>
+    <strong>post_filter_rq (voice, rq)</strong>
+    </dt>
+    <dd>
+    set post-filter reciprocal of Q
+ the reciprocal of the filter's Q factor is a measure of bandwidth,
+ that is independent of center frequency.
+ RQ ~= 0 will result in self oscillation;
+ RQ == 4 gives a bandwidth of 2 octaves.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">rq</span>
+            <span class="types"><span class="type">number</span></span>
+         : reciprocal of filter Q-factor for voice
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "post_filter_lp"></a>
+    <strong>post_filter_lp (voice, amp)</strong>
+    </dt>
+    <dd>
+    set post_filter lowpass output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "post_filter_hp"></a>
+    <strong>post_filter_hp (voice, amp)</strong>
+    </dt>
+    <dd>
+    set post-filter highpass output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "post_filter_bp"></a>
+    <strong>post_filter_bp (voice, amp)</strong>
+    </dt>
+    <dd>
+    set post-filter bandpass output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "post_filter_br"></a>
+    <strong>post_filter_br (voice, amp)</strong>
+    </dt>
+    <dd>
+    set post_filter band-reject output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "post_filter_dry"></a>
+    <strong>post_filter_dry (voice, amp)</strong>
+    </dt>
+    <dd>
+    set post_filter dry output level.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">amp</span>
+            <span class="types"><span class="type">number</span></span>
+         : linear amplitude
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "level_slew_time"></a>
+    <strong>level_slew_time (voice, time)</strong>
+    </dt>
+    <dd>
+    set level-slew time
+ this slew time applies to level at all mix points: ADC->voice, voice->voice, &c.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
+         : exponential slew time in seconds (-60db convergence)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pan_slew_time"></a>
+    <strong>pan_slew_time (voice, time)</strong>
+    </dt>
+    <dd>
+    set pan slew time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
+         : exponential slew time in seconds (-60db convergence)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "recpre_slew_time"></a>
+    <strong>recpre_slew_time (voice, time)</strong>
+    </dt>
+    <dd>
+    set recpre slew tiem
+ affects slew time for record and pre levels
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
+         : exponential slew time in seconds (-60db convergence)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rate_slew_time"></a>
+    <strong>rate_slew_time (voice, time)</strong>
+    </dt>
+    <dd>
+    set rate slew time
+ affects slew time for rate
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
+         : exponential slew time in seconds (-60db convergence)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "phase_quant"></a>
+    <strong>phase_quant (voice, quantum)</strong>
+    </dt>
+    <dd>
+    set phase poll quantum
+ e.g.  0.25 will produce 4 updates per second with rate=1
+ judicious use of this parameter is preferable to using a very fast poll (for performance,)
+ or polling at arbitrary rate (for accuracy when rate is slewed.)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">quantum</span>
+            <span class="types"><span class="type">number</span></span>
+         : phase reporting interval, in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "phase_offset"></a>
+    <strong>phase_offset (voice, offset)</strong>
+    </dt>
+    <dd>
+    set phase poll offset in frames
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice index
+        </li>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">number</span></span>
+         : phase poll offset in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll_start_phase"></a>
+    <strong>poll_start_phase ()</strong>
+    </dt>
+    <dd>
+    start phase poll
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll_stop_phase"></a>
+    <strong>poll_stop_phase ()</strong>
+    </dt>
+    <dd>
+    stop phase poll
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "enable"></a>
+    <strong>enable (voice, state)</strong>
+    </dt>
+    <dd>
+    set voice enable
+ disabled voices have no effect and consume basically zero CPU
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">voice</span>
+            <span class="types"><span class="type">int</span></span>
+         : voice number (1-?)
+        </li>
+        <li><span class="parameter">state</span>
+            <span class="types"><span class="type">int</span></span>
+         : off/on (0,1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_clear"></a>
+    <strong>buffer_clear ()</strong>
+    </dt>
+    <dd>
+    clear all buffers completely
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_clear_channel"></a>
+    <strong>buffer_clear_channel (channel)</strong>
+    </dt>
+    <dd>
+    clear one buffer completely
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">channel</span>
+            <span class="types"><span class="type">int</span></span>
+         : buffer channel index (1-based)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_clear_region"></a>
+    <strong>buffer_clear_region (start, stop)</strong>
+    </dt>
+    <dd>
+    clear region (both channels)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">start</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in seconds
+        </li>
+        <li><span class="parameter">stop</span>
+            <span class="types"><span class="type">number</span></span>
+         : end point in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_clear_region_channel"></a>
+    <strong>buffer_clear_region_channel (ch, start, stop)</strong>
+    </dt>
+    <dd>
+    clear region of single channel
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">int</span></span>
+         : buffer channel index (1-based)
+        </li>
+        <li><span class="parameter">start</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in seconds
+        </li>
+        <li><span class="parameter">stop</span>
+            <span class="types"><span class="type">number</span></span>
+         : end point in seconds
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_read_mono"></a>
+    <strong>buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</strong>
+    </dt>
+    <dd>
+    read mono soundfile to arbitrary region of single buffer
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : input file path
+        </li>
+        <li><span class="parameter">start_src</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in source, in seconds
+        </li>
+        <li><span class="parameter">start_dst</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in destination, in seconds
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         : duration in seconds. if -1, read as much as possible.
+        </li>
+        <li><span class="parameter">ch_src</span>
+            <span class="types"><span class="type">int</span></span>
+         : soundfie channel to read
+        </li>
+        <li><span class="parameter">ch_dst</span>
+            <span class="types"><span class="type">int</span></span>
+         : buffer channel to write
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_read_stereo"></a>
+    <strong>buffer_read_stereo (file, start_src, start_dst, dur)</strong>
+    </dt>
+    <dd>
+    read stereo soundfile to an arbitrary region in both buffers
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : input file path
+        </li>
+        <li><span class="parameter">start_src</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in source, in seconds
+        </li>
+        <li><span class="parameter">start_dst</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in destination, in seconds
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         : duration in seconds. if -1, read as much as possible
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_write_mono"></a>
+    <strong>buffer_write_mono (file, start, dur, ch)</strong>
+    </dt>
+    <dd>
+    write an arbitrary buffer region to soundfile (mono)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : output file path
+        </li>
+        <li><span class="parameter">start</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in seconds
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         : duration in seconds. if -1, read as much as possible
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">int</span></span>
+         : buffer channel index (1-based)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_write_stereo"></a>
+    <strong>buffer_write_stereo (file, start, dur)</strong>
+    </dt>
+    <dd>
+    write an arbitrary region from both buffers to stereo soundfile
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         : output file path
+        </li>
+        <li><span class="parameter">start</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in seconds
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         : duration in seconds. if -1, read as much as possible
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "event_phase"></a>
+    <strong>event_phase (func)</strong>
+    </dt>
+    <dd>
+    set function for phase poll
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
+         : callback function. this function should take two parameters  (voice, phase)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "reset"></a>
+    <strong>reset ()</strong>
+    </dt>
+    <dd>
+    reset state of softcut process on backend.
+ this should correspond to the values returned by the `defaults()` function above.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "defaults"></a>
+    <strong>defaults ()</strong>
+    </dt>
+    <dd>
+    get the default state of the softcut system
+ this returns a table for each voice,
+ in which each key corresponds to the name of one of the setter functions defined above.
+ for parameters with one value per voice, the corresponding entry is also a single value.
+ for parameters with multiple values (e.g. matrix indices), the entry is a table.
+ NB: these values are synchronized by hand with those specified in the softcut cpp sources
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        table of parameter states for each voice
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "params"></a>
+    <strong>params ()</strong>
+    </dt>
+    <dd>
+    controlspec factory
+ each table contains an entry for each softcut parameter.
+ each entry is a parameter argument list configured for that voice+param
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an array of tables, one per voice.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-01-29 16:34:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
 </body>
+</html>
