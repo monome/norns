@@ -15,7 +15,8 @@ def build(bld):
     #bld.read_stlib('softcut', paths=['../../build/crone/softcut/softcut-lib'])
 
 
-    # this works, but need to manually `cd softcut/softcut-lib && ./waf`
+    # this seems to, "almost" work? if lib is built manually
+    # but still ultimately fails with "could not find libary"
     bld.read_stlib('softcut', paths=['crone/softcut/softcut-lib/build'])
     
     crone_sources = [
