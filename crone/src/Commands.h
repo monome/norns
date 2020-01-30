@@ -11,7 +11,7 @@
 namespace crone {
 
     class MixerClient;
-    class SoftCutClient;
+    class SoftcutClient;
 
     class Commands {
     public:
@@ -104,7 +104,7 @@ namespace crone {
 
         // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
         void handlePending(MixerClient *client);
-        void handlePending(SoftCutClient *client);
+        void handlePending(SoftcutClient *client);
 
         struct CommandPacket {
             CommandPacket() = default;

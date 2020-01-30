@@ -8,22 +8,27 @@ def configure(conf):
     conf.load('compiler_c compiler_cxx')
 
 def build(bld):
+
+    # FIXME: can't seem to get this to work...
+    #bld.recurse('softcut/softcut-lib')
+    #bld.read_stlib('softcut', paths=['build/crone/softcut/softcut-lib'])
+    #bld.read_stlib('softcut', paths=['../../build/crone/softcut/softcut-lib'])
+
+
+    # this works, but need to manually `cd softcut/softcut-lib && ./waf`
+    bld.read_stlib('softcut', paths=['crone/softcut/softcut-lib/build'])
+    
     crone_sources = [
         'src/main.cpp',
         'src/BufDiskWorker.cpp',
         'src/Commands.cpp',
         'src/MixerClient.cpp',
         'src/OscInterface.cpp',
-        'src/SoftCutClient.cpp',
+        'src/SoftcutClient.cpp',
         'src/Taper.cpp',
         'src/Window.cpp',
-        'src/softcut/FadeCurves.cpp',
-        'src/softcut/SoftCutHead.cpp', 
-        'src/softcut/SoftCutVoice.cpp',
-        'src/softcut/SubHead.cpp',
-        'src/softcut/Svf.cpp',
-        'src/softcut/TestBuffers.cpp'
     ]
+
 
     bld.program( features='c cxx cxxprogram',
                  source=crone_sources,
@@ -31,7 +36,8 @@ def build(bld):
 
                  includes=[
                      'src',
-                     './'
+                     './',
+                     'softcut/softcut-lib/include'
                  ],
 
                  use=[
@@ -43,7 +49,8 @@ def build(bld):
                      'jack',
                      'pthread',
                      'm',
-                     'sndfile'
+                     'sndfile',
+                     'softcut'
                  ],
                  cxxflags=[
                      '-std=c++14',
