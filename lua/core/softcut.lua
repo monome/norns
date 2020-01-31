@@ -190,6 +190,16 @@ SC.filter_dry = function(voice,value) SC.pre_filter_dry(voice, value) end
 -- @tparam number value : cutoff frequency in Hz
 SC.post_filter_fc = function(voice,value) _norns.cut_param("post_filter_fc",voice,value) end
 
+--- set post_filter amount of rate modulation. 
+-- this parameter controls the amount by which the current rate affects filter cutoff frequency 
+-- (always in a negative direction, towards zero.) 
+-- with mod == 1, setting rate = 0 will also fully close the filter. 
+-- this can be useful as a crude anti-aliasing method...
+--- @tparam int voice : voice index
+--- @tparam number amount : modulation amount in [0, 1]
+SC.post_filter_fc_mod = function(voice,amount) _norns.cut_param("post_filter_fc_mod",voice,amount) end
+
+
 --- set post-filter reciprocal of Q
 -- the reciprocal of the filter's Q factor is a measure of bandwidth,
 -- that is independent of center frequency. 
