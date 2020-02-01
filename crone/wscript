@@ -8,17 +8,6 @@ def configure(conf):
     conf.load('compiler_c compiler_cxx')
 
 def build(bld):
-
-    # FIXME: can't seem to get this to work...
-    #bld.recurse('softcut/softcut-lib')
-    #bld.read_stlib('softcut', paths=['build/crone/softcut/softcut-lib'])
-    #bld.read_stlib('softcut', paths=['../../build/crone/softcut/softcut-lib'])
-
-
-    # this seems to, "almost" work? if lib is built manually
-    # but still ultimately fails with "could not find libary"
-    bld.read_stlib('softcut', paths=['crone/softcut/softcut-lib/build'])
-    
     crone_sources = [
         'src/main.cpp',
         'src/BufDiskWorker.cpp',
@@ -28,6 +17,11 @@ def build(bld):
         'src/SoftcutClient.cpp',
         'src/Taper.cpp',
         'src/Window.cpp',
+        'softcut/softcut-lib/src/FadeCurves.cpp',
+        'softcut/softcut-lib/src/ReadWriteHead.cpp',
+        'softcut/softcut-lib/src/SubHead.cpp',
+        'softcut/softcut-lib/src/Svf.cpp',
+        'softcut/softcut-lib/src/Voice.cpp'
     ]
 
 
@@ -50,8 +44,7 @@ def build(bld):
                      'jack',
                      'pthread',
                      'm',
-                     'sndfile',
-                     'softcut'
+                     'sndfile'
                  ],
                  cxxflags=[
                      '-std=c++14',
