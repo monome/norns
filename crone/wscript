@@ -14,16 +14,16 @@ def build(bld):
         'src/Commands.cpp',
         'src/MixerClient.cpp',
         'src/OscInterface.cpp',
-        'src/SoftCutClient.cpp',
+        'src/SoftcutClient.cpp',
         'src/Taper.cpp',
         'src/Window.cpp',
-        'src/softcut/FadeCurves.cpp',
-        'src/softcut/SoftCutHead.cpp', 
-        'src/softcut/SoftCutVoice.cpp',
-        'src/softcut/SubHead.cpp',
-        'src/softcut/Svf.cpp',
-        'src/softcut/TestBuffers.cpp'
+        'softcut/softcut-lib/src/FadeCurves.cpp',
+        'softcut/softcut-lib/src/ReadWriteHead.cpp',
+        'softcut/softcut-lib/src/SubHead.cpp',
+        'softcut/softcut-lib/src/Svf.cpp',
+        'softcut/softcut-lib/src/Voice.cpp'
     ]
+
 
     bld.program( features='c cxx cxxprogram',
                  source=crone_sources,
@@ -31,7 +31,8 @@ def build(bld):
 
                  includes=[
                      'src',
-                     './'
+                     './',
+                     'softcut/softcut-lib/include'
                  ],
 
                  use=[

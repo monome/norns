@@ -7,7 +7,7 @@
 
 #include "Commands.h"
 #include "MixerClient.h"
-#include "SoftCutClient.h"
+#include "SoftcutClient.h"
 
 using namespace crone;
 
@@ -44,7 +44,7 @@ void Commands::handlePending(MixerClient *client) {
     }
 }
 
-void Commands::handlePending(SoftCutClient *client) {
+void Commands::handlePending(SoftcutClient *client) {
     CommandPacket p;
     while (q.pop(p)) {
         client->handleCommand(&p);
