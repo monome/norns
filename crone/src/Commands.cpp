@@ -38,14 +38,22 @@ void Commands::post(Commands::Id id, int i, int j, float f) {
 
 
 void Commands::handlePending(MixerClient *client) {
-    CommandPacket p;
+    CommandPacket p{};
+    memset(wasHandled, 0, NUM_COMMANDS * sizeof(bool));
     while (q.pop(p)) {
-        client->handleCommand(&p);
+        if (wasHandled[p.id]) {
+            // we don't want to handle the same type of command more than once per block.
+            // so if we already did one of these, push it back on the queue for next block.
+            q.push(p);
+        } else {
+            wasHandled[p.id] = true;
+            client->handleCommand(&p);
+        }
     }
 }
 
 void Commands::handlePending(SoftcutClient *client) {
-    CommandPacket p;
+    CommandPacket p{};
     while (q.pop(p)) {
         client->handleCommand(&p);
     }

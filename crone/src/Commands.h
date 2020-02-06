@@ -123,6 +123,9 @@ namespace crone {
     private:
         boost::lockfree::spsc_queue <CommandPacket,
                 boost::lockfree::capacity<200> > q;
+
+        // array of flags indicating which commands were handled in current block
+        bool wasHandled[Commands::NUM_COMMANDS];
     };
 
 }
