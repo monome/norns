@@ -121,8 +121,14 @@ namespace crone {
         static Commands softcutCommands;
 
     private:
+        static constexpr size_t MAX_COMMANDS = 200;
         boost::lockfree::spsc_queue <CommandPacket,
-                boost::lockfree::capacity<200> > q;
+                boost::lockfree::capacity<MAX_COMMANDS> > q;
+
+        boost::lockfree::spsc_queue <CommandPacket,
+                boost::lockfree::capacity<MAX_COMMANDS> > qtmp;
+
+
 
         // array of flags indicating which commands were handled in current block
         bool wasHandled[Commands::NUM_COMMANDS];
