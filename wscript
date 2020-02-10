@@ -66,6 +66,7 @@ def configure(conf):
 
 def build(bld):
     bld.recurse('matron')
+    bld.recurse('maiden-repl')
     bld.recurse('ws-wrapper')
     bld.recurse('sc')
     bld.recurse('crone')

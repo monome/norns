@@ -35,10 +35,16 @@ pthread_mutex_t exit_lock;
      _a > _b ? _a : _b; })
 
 // call (most) ncurses functions with hard error checking
-#define CHECK(fn, ...)              \
-  do {                              \
-    if (fn(__VA_ARGS__) == ERR) {   \
-      fail_exit(#fn "() failed");}} \
+#define CHECK(fn)                               \
+  do {                                          \
+    if (fn() == ERR) {	                        \
+      fail_exit(#fn "() failed");}}             \
+  while (false)
+
+#define CHECKV(fn, ...)                         \
+  do {                                          \
+    if (fn(__VA_ARGS__) == ERR) {	        \
+      fail_exit(#fn "() failed");}}             \
   while (false)
 
 //---------------------
@@ -80,7 +86,7 @@ static noreturn void fail_exit(const char *msg);
 //---- extern function definitions
 
 void ui_loop(void) {
-  CHECK(clearok, curscr, TRUE);
+  CHECKV(clearok, curscr, TRUE);
   resize();
 
   while (1) {
@@ -96,7 +102,7 @@ void ui_loop(void) {
       resize();
       break;
     case '\f': // ctl-L : manual refresh
-      CHECK(clearok, curscr, TRUE);
+      CHECKV(clearok, curscr, TRUE);
       resize();
       break;
     case '\t':
@@ -208,7 +214,7 @@ void cmd_win_redisplay(bool for_resize)
 {
   size_t cursor_col = rl_point;
 
-  CHECK(werase, cmd_win);
+  CHECKV(werase, cmd_win);
 
   // FIXME: error check would fail when command string is wider than window
   mvwprintw(cmd_win, 0, 0, "%s%s", rl_display_prompt, rl_line_buffer);
@@ -216,13 +222,13 @@ void cmd_win_redisplay(bool for_resize)
     // hide the cursor if it is outside the window
     curs_set(0);
   } else {
-    CHECK(wmove, cmd_win, 0, cursor_col);
+    CHECKV(wmove, cmd_win, 0, cursor_col);
     curs_set(2);
   }
   if (for_resize) {
-    CHECK(wnoutrefresh, cmd_win);
+    CHECKV(wnoutrefresh, cmd_win);
   } else {
-    CHECK(wrefresh, cmd_win);
+    CHECKV(wrefresh, cmd_win);
   }
 }
 
@@ -234,16 +240,16 @@ void readline_redisplay(void)
 void resize(void)
 {
   if (LINES >= 3) {
-    CHECK(wresize, sep_win, 1, COLS);
-    CHECK(wresize, cmd_win, 1, COLS);
+    CHECKV(wresize, sep_win, 1, COLS);
+    CHECKV(wresize, cmd_win, 1, COLS);
 
-    CHECK(mvwin, sep_win, LINES - 2, 0);
-    CHECK(mvwin, cmd_win, LINES - 1, 0);
+    CHECKV(mvwin, sep_win, LINES - 2, 0);
+    CHECKV(mvwin, cmd_win, LINES - 1, 0);
   }
 
   // batch refreshes and commit them with doupdate()
   // FIXME: resize the page pads
-  CHECK(wnoutrefresh, sep_win);
+  CHECKV(wnoutrefresh, sep_win);
   cmd_win_redisplay(true);
   CHECK(doupdate);
 }
@@ -258,7 +264,7 @@ void init_ncurses(void)
   CHECK(cbreak);
   CHECK(noecho);
   CHECK(nonl);
-  CHECK(intrflush, NULL, FALSE);
+  CHECKV(intrflush, NULL, FALSE);
 
   curs_set(1);
 
@@ -272,16 +278,16 @@ void init_ncurses(void)
 
   pages_init(nrows, ncols);
 
-  CHECK(wbkgd, sep_win, A_STANDOUT);
-  CHECK(wrefresh, sep_win);
+  CHECKV(wbkgd, sep_win, A_STANDOUT);
+  CHECKV(wrefresh, sep_win);
 
   pages_print_greeting();
 }
 
 void deinit_ncurses(void)
 {
-  CHECK(delwin, sep_win);
-  CHECK(delwin, cmd_win);
+  CHECKV(delwin, sep_win);
+  CHECKV(delwin, cmd_win);
   CHECK(endwin);
   visual_mode = false;
 }
@@ -312,7 +318,7 @@ void init_readline(void)
 
 void deinit_readline(void)
 {
-  rl_callback_handler_remove();
+ rl_callback_handler_remove();
 }
 
 noreturn void fail_exit(const char *msg)
