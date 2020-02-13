@@ -13,9 +13,7 @@ elseif n==3 and z==1 then
     norns.state.clean_shutdown = true
     norns.state.save()
     if pcall(cleanup) == false then print("cleanup failed") end
-    os.execute("sudo systemctl restart norns-jack.service")
-    os.execute("sudo systemctl restart norns-sclang.service")
-    os.execute("sudo systemctl restart norns-matron.service")
+    _norns.reset()
   end
 end
 

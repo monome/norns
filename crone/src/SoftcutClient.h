@@ -11,12 +11,12 @@
 #include "Bus.h"
 #include "Client.h"
 #include "Utilities.h"
-#include "softcut/SoftCut.h"
+#include "softcut/Softcut.h"
 #include "softcut/Types.h"
 
 
 namespace crone {
-    class SoftCutClient: public Client<2, 2> {
+    class SoftcutClient: public Client<2, 2> {
     public:
         enum { MaxBlockFrames = 2048};
         enum { BufFrames = 16777216 };
@@ -25,11 +25,11 @@ namespace crone {
         typedef Bus<2, MaxBlockFrames> StereoBus;
         typedef Bus<1, MaxBlockFrames> MonoBus;
     public:
-        SoftCutClient();
+        SoftcutClient();
 
     private:
         // processors
-        softcut::SoftCut<NumVoices> cut;
+        softcut::Softcut<NumVoices> cut;
         // main buffer
         float buf[2][BufFrames];
         // buffer index for use with BufDiskWorker

@@ -1,0 +1,53 @@
+top = '../..'
+
+
+def options(opt):
+    opt.load('compiler_c compiler_cxx')
+
+def configure(conf):
+    conf.load('compiler_c compiler_cxx')
+
+    conf.check_cfg(package='pthread', args=['--cflags', '--libs'])
+    conf.check_cfg(package='readline', args=['--cflags', '--libs'])
+    conf.check_cfg(package='ncursesw', args=['--cflags', '--libs'])
+    conf.check_cfg(package='panel', args=['--cflags', '--libs'])
+    conf.check_cfg(package='nanomsg', args=['--cflags', '--libs'])
+
+def build(bld):
+    maiden_repl_sources = [
+        'src/io.c',
+        'src/ui.c',
+        'src/page.c',
+        'src/pages.c',
+        'src/main.c',
+    ]
+
+    bld.program(features='c cxx cxxprogram',
+                source=maiden_repl_sources,
+                target='maiden-repl',
+
+                includes=[
+                    'src',
+                ],
+
+                use=[
+                    'PTHREAD',
+                    'READLINE',
+                    'NCURSESW',
+                    'PANEL',
+                    'NANOMSG'
+                ],
+                lib=[
+                    'pthread',
+                    'readline',
+                    'ncursesw',
+                    'panel',
+                    'nanomsg'
+                ],
+                cxxflags=[
+                    '-O2',
+                    '-Wall',
+                    '-Wextra',
+                    '-Werror',
+                    '-predantic'
+                ])

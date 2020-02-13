@@ -33,3 +33,6 @@ crone/build-release/
 
 # Jekyll
 _site
+
+# maiden-repl bin
+maiden-repl/maiden-repl

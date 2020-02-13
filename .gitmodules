@@ -1,0 +1,3 @@
+[submodule "crone/softcut"]
+	path = crone/softcut
+	url = https://github.com/monome/softcut-lib.git

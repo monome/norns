@@ -63,7 +63,7 @@ SC.play = function(voice,state) _norns.cut_param("play_flag",voice,state) end
 
 --- set playback rate. 
 -- @tparam int voice : voice index
--- @tparam number rate: speed of read/write head (unitless; 1 == normal)
+-- @tparam number rate : speed of read/write head (unitless; 1 == normal)
 SC.rate = function(voice,rate) _norns.cut_param("rate",voice,rate) end
 
 --- set loop start.
@@ -137,7 +137,7 @@ SC.pre_filter_fc = function(voice,fc) _norns.cut_param("pre_filter_fc",voice,fc)
 -- this can be useful as a crude anti-aliasing method...
 --- @tparam int voice : voice index
 --- @tparam number amount : modulation amount in [0, 1]
-SC.pre_filter_fc_mod = function(voice,aount) _norns.cut_param("pre_filter_fc_mod",voice,value) end
+SC.pre_filter_fc_mod = function(voice,amount) _norns.cut_param("pre_filter_fc_mod",voice,amount) end
 
 --- set pre_filter reciprocal of Q-factor. 
 -- the reciprocal of the filter's Q-factor is a measure of bandwidth,
@@ -145,7 +145,7 @@ SC.pre_filter_fc_mod = function(voice,aount) _norns.cut_param("pre_filter_fc_mod
 -- RQ ~= 0 will result in self-oscillation;
 -- RQ == 4 gives a bandwidth of 2 octaves.
 -- @tparam int voice : voice index
--- @tparam number : reciprocal of filter Q-factor for voice
+-- @tparam number rq : reciprocal of filter Q-factor for voice
 SC.pre_filter_rq = function(voice,rq) _norns.cut_param("pre_filter_rq",voice,rq) end
 
 --- set pre_filter lowpass output level. 
@@ -196,8 +196,8 @@ SC.post_filter_fc = function(voice,value) _norns.cut_param("post_filter_fc",voic
 -- RQ ~= 0 will result in self oscillation;
 -- RQ == 4 gives a bandwidth of 2 octaves. 
 -- @tparam int voice : voice index
--- @tparam number : reciprocal of filter Q-factor for voice
-SC.post_filter_rq = function(voice,value) _norns.cut_param("post_filter_rq",voice,value) end
+-- @tparam number rq : reciprocal of filter Q-factor for voice
+SC.post_filter_rq = function(voice,rq) _norns.cut_param("post_filter_rq",voice,rq) end
 
 
 --- set post_filter lowpass output level. 
@@ -273,49 +273,78 @@ SC.poll_stop_phase = function() _norns.poll_stop_cut_phase() end
 -- @tparam int state : off/on (0,1)
 SC.enable = function(voice, state) _norns.cut_enable(voice, state) end
 
-
 ----------------
 --- TODO: complete function doc comments below here!
 
---- clear all buffers
+--- clear all buffers completely
 SC.buffer_clear = function() _norns.cut_buffer_clear() end
---- clear one channel of buffer
-SC.buffer_clear_channel = function(i) _norns.cut_buffer_clear_channel(i) end
+
+--- clear one buffer completely
+-- @tparam int channel : buffer channel index (1-based)
+SC.buffer_clear_channel = function(channel) _norns.cut_buffer_clear_channel(channel) end
+
 --- clear region (both channels)
+-- @tparam number start : start point in seconds
+-- @tparam number stop : end point in seconds
 SC.buffer_clear_region = function(start, stop)
   _norns.cut_buffer_clear_region(start, stop)
 end
+
 --- clear region of single channel
+-- @tparam int ch : buffer channel index (1-based)
+-- @tparam number start : start point in seconds
+-- @tparam number stop : end point in seconds
 SC.buffer_clear_region_channel = function(ch, start, stop)
   _norns.cut_buffer_clear_region_channel(ch, start, stop)
 end
 
---- read file to one channel
+--- read mono soundfile to arbitrary region of single buffer
+-- @tparam string file : input file path
+-- @tparam number start_src : start point in source, in seconds
+-- @tparam number start_dst : start point in destination, in seconds
+-- @tparam number dur : duration in seconds. if -1, read as much as possible.
+-- @tparam int ch_src : soundfie channel to read
+-- @tparam int ch_dst : buffer channel to write
 SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst)
   _norns.cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst)
 end
---- read file, stereo
+
+--- read stereo soundfile to an arbitrary region in both buffers
+-- @tparam string file : input file path
+-- @tparam number start_src : start point in source, in seconds
+-- @tparam number start_dst : start point in destination, in seconds
+-- @tparam number dur : duration in seconds. if -1, read as much as possible
 SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
   _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
 end
 
---- write file, mono
+--- write an arbitrary buffer region to soundfile (mono)
+-- @tparam string file : output file path
+-- @tparam number start : start point in seconds
+-- @tparam number dur : duration in seconds. if -1, read as much as possible
+-- @tparam int ch : buffer channel index (1-based)
 SC.buffer_write_mono = function(file, start, dur, ch)
   _norns.cut_buffer_write_mono(file, start, dur, ch)
 end
---- write file, stereo
+
+--- write an arbitrary region from both buffers to stereo soundfile
+-- @tparam string file : output file path
+-- @tparam number start : start point in seconds
+-- @tparam number dur : duration in seconds. if -1, read as much as possible
 SC.buffer_write_stereo = function(file, start, dur)
   _norns.cut_buffer_write_stereo(file, start, dur)
 end
 
 --- set function for phase poll
-SC.event_phase = function(f) _norns.softcut_phase = f end
+-- @tparam function func : callback function. this function should take two parameters  (voice, phase)
+SC.event_phase = function(func) _norns.softcut_phase = func end
 
 
 -------------------------------
 -- @section utilities
 
---- reset state of softcut process
+--- reset state of softcut process on backend.
+-- this should correspond to the values returned by the `defaults()` function above.
 function SC.reset()
    _norns.cut_reset()
   SC.event_phase(norns.none)
@@ -330,10 +359,15 @@ end
 -- @treturn table table of parameter states for each voice
 function SC.defaults()
    zeros = {}
-   for i in 1,SC.VOICE_COUNT do zeros[i] = 0 end
+   
+   for i=1,SC.VOICE_COUNT do
+      zeros[i] = 0
+   end
    
    local state = {}
    for i=1,SC.VOICE_COUNT do
+      state[i] = {}
+      
      state[i].enable = 0
      state[i].play = 0
      state[i].record = 0
