@@ -306,14 +306,11 @@ end
 --- write to disk.
 -- @param filename either an absolute path, a number (to write [scriptname]-[number].pset to local data folder) or nil (to write default [scriptname].pset to local data folder)
 function ParamSet:write(filename)
-  filename = filename or 0
+  filename = filename or 1
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    if n > 0 then
-      filename = filename .. "-" .. string.format("%02d",n)
-    end
-    filename = filename .. ".pset"
+    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
   end
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
@@ -331,14 +328,11 @@ end
 --- read from disk.
 -- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname].pset from local data folder)
 function ParamSet:read(filename)
-  filename = filename or 0
+  filename = filename or 1
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    if n > 0 then
-      filename = filename .. "-" .. string.format("%02d",n)
-    end
-    filename = filename .. ".pset"
+    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
   end
   print("pset >> read: " .. filename)
   local fd = io.open(filename, "r")

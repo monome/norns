@@ -19,21 +19,28 @@ local m = {
   dev = 1,
   ch = 1,
   cc = 100,
-  pm
+  pm,
+  ps_pos = 0,
+  ps_n = 0,
+  ps_action = 1
 }
 
 local page
 local mode_item = { "EDIT >", "PSET >", "MAP >"}
+local pset = {}
 
 -- called from menu on script reset
 m.reset = function()
   page = nil
   m.pos = 0
   m.group = false
+  m.ps_pos = 0
+  m.ps_n = 0
+  m.ps_action = 1
   m.read_pmap()
 end
 
-function build_page()
+local function build_page()
   page = {}
   local i = 1
   repeat
@@ -44,12 +51,44 @@ function build_page()
   until i > params.count
 end
 
-function build_sub(sub)
+local function build_sub(sub)
   page = {}
   for i = 1,params:get(sub) do
     table.insert(page, i + sub)
   end
 end
+
+local function pset_list(results)
+  print("pset:")
+  pset = {}
+  m.ps_n = 0
+
+  local t = {}
+  for filename in results:gmatch("[^\r\n]+") do
+    table.insert(t,filename)
+  end
+
+  for _,file in pairs(t) do
+    local n = string.gsub(file,'.pset','')
+    n = tonumber(string.sub(n,-2,-1))
+    if not n then n=1 end
+    print(file,n)
+    pset[n] = {file=file,name="here"}
+    m.ps_n = math.max(n, m.ps_n)
+  end
+
+  if m.ps_n == 0 then
+    pset[1] = {name="-"}
+    m.ps_n = 1
+  end
+  _menu.redraw()
+end
+  
+local function init_pset()
+  print("scanning psets...")
+  norns.system_cmd('ls -1 '..norns.state.data..norns.state.shortname..'*.pset | sort', pset_list)
+end
+
 
 
 m.key = function(n,z)
@@ -62,6 +101,9 @@ m.key = function(n,z)
     if n==3 and z==1 then
       if m.mode_pos == 1 then
         m.mode = mEDIT
+      elseif m.mode_pos == 2 then
+        init_pset()
+        m.mode = mPSET
       elseif m.mode_pos == 3 then
         m.mode = mMAP
       end
@@ -142,6 +184,11 @@ m.key = function(n,z)
         m.mode = mMAP
       end
     end
+  -- PSET
+  elseif m.mode == mPSET then
+    if n==2 and z==1 then
+      m.mode = mSELECT
+    end
   end
   _menu.redraw()
 end
@@ -218,6 +265,14 @@ m.enc = function(n,d)
       elseif m.mpos==10 then
         if d>0 then pm.accum = true else pm.accum = false end
       end
+    end
+    _menu.redraw()
+  -- PSET
+  elseif m.mode == mPSET then
+    if n==2 then
+      m.ps_action = util.clamp(m.ps_action + d, 1, 3)
+    elseif n==3 then
+      m.ps_pos = util.clamp(m.ps_pos + d, 0, m.ps_n-1)
     end
     _menu.redraw()
   end
@@ -382,6 +437,38 @@ m.redraw = function()
     screen.move(127,60)
     hl(10)
     screen.text_right(pm.accum and "yes" or "no")
+  elseif m.mode == mPSET then
+    screen.level(4)
+    screen.move(0,10)
+    screen.text("PSET")
+    screen.move(0,30)
+    local v = (m.ps_action == 1) and 15 or 4
+    screen.level(v)
+    screen.text("SAVE")
+    screen.move(0,40)
+    v = (m.ps_action == 2) and 15 or 4
+    screen.level(v)
+    screen.text("LOAD")
+    screen.move(0,50)
+    v = (m.ps_action == 3) and 15 or 4
+    screen.level(v)
+    screen.text("DELETE")
+    for i=1,6 do
+      local n = i+m.ps_pos-2
+      if (i > 2 - m.ps_pos) and (i < m.ps_n - m.ps_pos + 3) then
+        local line = "-"
+        if pset[n] then line = pset[n].name end
+        if(i==3) then
+          screen.level(15)
+        else
+          screen.level(4)
+        end
+        screen.move(50,10*i)
+        screen.text_right(n)
+        screen.move(56,10*i)
+        screen.text(string.upper(line))
+      end
+    end
   end
   screen.update()
 end
