@@ -305,7 +305,7 @@ end
 
 --- write to disk.
 -- @param filename either an absolute path, a number (to write [scriptname]-[number].pset to local data folder) or nil (to write default [scriptname].pset to local data folder)
-function ParamSet:write(filename)
+function ParamSet:write(filename, name)
   filename = filename or 1
   if type(filename) == "number" then
     local n = filename
@@ -316,6 +316,7 @@ function ParamSet:write(filename)
   local fd = io.open(filename, "w+")
   if fd then
     io.output(fd)
+    if name then io.write("-- "..name.."\n") end
     for _,param in pairs(self.params) do
       if param.id and param.t ~= self.tTRIGGER then
         io.write(string.format("%s: %s\n", quote(param.id), param:get()))
@@ -339,21 +340,25 @@ function ParamSet:read(filename)
   if fd then
     io.close(fd)
     for line in io.lines(filename) do
-      local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+      if util.string_starts(line, "--") then
+        params.name = string.sub(line, 4, -1)
+      else
+        local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
 
-      if id and value then
-        id = unquote(id)
-        local index = self.lookup[id]
+        if id and value then
+          id = unquote(id)
+          local index = self.lookup[id]
 
-        if index and self.params[index] then
-          if tonumber(value) ~= nil then
-            self.params[index]:set(tonumber(value))
-          elseif value == "-inf" then
-            self.params[index]:set(-math.huge)
-          elseif value == "inf" then
-            self.params[index]:set(math.huge)
-          elseif value then
-            self.params[index]:set(value)
+          if index and self.params[index] then
+            if tonumber(value) ~= nil then
+              self.params[index]:set(tonumber(value))
+            elseif value == "-inf" then
+              self.params[index]:set(-math.huge)
+            elseif value == "inf" then
+              self.params[index]:set(math.huge)
+            elseif value then
+              self.params[index]:set(value)
+            end
           end
         end
       end

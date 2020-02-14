@@ -22,7 +22,8 @@ local m = {
   pm,
   ps_pos = 0,
   ps_n = 0,
-  ps_action = 1
+  ps_action = 1,
+  ps_last = 0
 }
 
 local page
@@ -37,6 +38,7 @@ m.reset = function()
   m.ps_pos = 0
   m.ps_n = 0
   m.ps_action = 1
+  m.ps_last = 0
   m.read_pmap()
 end
 
@@ -59,7 +61,6 @@ local function build_sub(sub)
 end
 
 local function pset_list(results)
-  print("pset:")
   pset = {}
   m.ps_n = 0
 
@@ -72,15 +73,20 @@ local function pset_list(results)
     local n = string.gsub(file,'.pset','')
     n = tonumber(string.sub(n,-2,-1))
     if not n then n=1 end
-    print(file,n)
-    pset[n] = {file=file,name="here"}
+    --print(file,n)
+    local name = norns.state.shortname
+    local f = io.open(file,"r")
+    io.input(file)
+    local line = io.read("*line")
+    if util.string_starts(line, "-- ") then
+      name = string.sub(line,4,-1)
+    end
+    io.close(f)
+    pset[n] = {file=file,name=name}
     m.ps_n = math.max(n, m.ps_n)
   end
 
-  if m.ps_n == 0 then
-    pset[1] = {name="-"}
-    m.ps_n = 1
-  end
+  m.ps_n = m.ps_n + 1
   _menu.redraw()
 end
   
@@ -89,6 +95,13 @@ local function init_pset()
   norns.system_cmd('ls -1 '..norns.state.data..norns.state.shortname..'*.pset | sort', pset_list)
 end
 
+local function write_pset(name)
+  if name ~= "cancel" then
+    params:write(m.ps_pos+1,name)
+    m.ps_last = m.ps_pos+1
+    init_pset()
+  end
+end
 
 
 m.key = function(n,z)
@@ -188,6 +201,23 @@ m.key = function(n,z)
   elseif m.mode == mPSET then
     if n==2 and z==1 then
       m.mode = mSELECT
+    elseif n==3 and z==1 then
+      -- save
+      if m.ps_action == 1 then
+        textentry.enter(write_pset, params.name, "PSET NAME: "..m.ps_pos+1)
+      -- load
+      elseif m.ps_action == 2 then
+        if pset[m.ps_pos+1] then
+          params:read(m.ps_pos+1)
+          m.ps_last = m.ps_pos+1
+        end
+      -- delete
+      elseif m.ps_action == 3 then
+        if pset[m.ps_pos+1] then
+          os.execute("rm "..pset[m.ps_pos+1].file)
+          init_pset()
+        end
+      end
     end
   end
   _menu.redraw()
@@ -437,6 +467,7 @@ m.redraw = function()
     screen.move(127,60)
     hl(10)
     screen.text_right(pm.accum and "yes" or "no")
+  -- PSET
   elseif m.mode == mPSET then
     screen.level(4)
     screen.move(0,10)
@@ -464,7 +495,8 @@ m.redraw = function()
           screen.level(4)
         end
         screen.move(50,10*i)
-        screen.text_right(n)
+        local num = (n == m.ps_last) and "*"..n or n
+        screen.text_right(num)
         screen.move(56,10*i)
         screen.text(string.upper(line))
       end
