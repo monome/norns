@@ -2124,7 +2124,7 @@ int _cut_buffer_clear_region_channel(lua_State *l) {
   int ch = (int) luaL_checkinteger(l, 1) - 1;
   float start = (float) luaL_checknumber(l, 2);
   float end = (float) luaL_checknumber(l, 3);
-  o_cut_buffer_clear_region_channel(start, end, ch);
+  o_cut_buffer_clear_region_channel(ch, start, end);
   return 0;
 }
 
