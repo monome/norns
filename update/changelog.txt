@@ -1,3 +1,15 @@
+# 200218
+
+# norns 2.2.9
+
+- FIX system reset is more thoroguh (resets levels and vports)
+- NEW softcut as submodule @catfact
+- FIX integrate maiden-repl @ngwese
+- FIX softcut buffer read skipped remainder frames @catfact
+- FIX expose screen.text_extents @antonhornquist
+- FIX extract _norns.reset @pq
+
+
 # 200129
 
 # norns 2.2.8
@@ -8,6 +20,7 @@
 - FIX engine deinint @antonhornquist
 - NEW audio i/o reverse mechanism for shield
 - NEW clear script hotkey (K1+SELECT)
+
 
 # 200121
 
