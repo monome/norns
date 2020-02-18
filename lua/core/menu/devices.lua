@@ -30,7 +30,6 @@ end
 m.key = function(n,z)
   if m.mode == "type" then
     if n==2 and z==1 then
-      norns.state.save()
       _menu.set_page("SYSTEM")
     elseif n==3 and z==1 then
       m.section = m.list[m.pos]

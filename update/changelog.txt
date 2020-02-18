@@ -1,3 +1,53 @@
+# 200218
+
+# norns 2.2.9
+
+- FIX system reset is more thoroguh (resets levels and vports)
+- NEW softcut as submodule @catfact
+- FIX integrate maiden-repl @ngwese
+- FIX softcut buffer read skipped remainder frames @catfact
+- FIX expose screen.text_extents @antonhornquist
+- FIX extract _norns.reset @pq
+
+
+# 200129
+
+# norns 2.2.8
+
+- FIX USB device managment crashes (!) @ngwese
+- FIX softcut buffer management @catfact
+- FIX softcut defaults and docs @catfact
+- FIX engine deinint @antonhornquist
+- NEW audio i/o reverse mechanism for shield
+- NEW clear script hotkey (K1+SELECT)
+
+
+# 200121
+
+## norns 2.2.7
+
+- NEW crow 1.0.3 syntax update @trentgill
+- NEW crow asl markup @pq
+- NEW CLI maiden revived @ngwese
+- NEW force update by holding K1 when selecting SYSTEM > UPDATE
+
+## maiden 1.0.1
+
+- NEW update all @jlmitch5 @ngwese
+- NEW project listing indicates installed or not @jlmitch5 @ngwese
+
+
+# 200106
+
+## norns 2.2.6
+
+- NEW fileselect shows audio file lengths @markeats
+
+# image
+
+- FIX samba config
+
+
 # 191230
 
 ## norns 2.2.5

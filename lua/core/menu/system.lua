@@ -6,7 +6,6 @@ local m = {
 
 m.key = function(n,z)
   if n==2 and z==1 then
-    norns.state.save()
     _menu.set_page("HOME")
   elseif n==3 and z==1 then
     _menu.set_page(m.pages[m.pos])
