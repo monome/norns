@@ -145,7 +145,7 @@ m.key = function(n,z)
         m.oldpos = m.pos
         m.pos = 0
       elseif t == params.tSEPARATOR then
-        local n = i
+        local n = m.pos+1
         repeat
           n = n+1
           if n > #page then n = 1 end
@@ -265,7 +265,7 @@ m.enc = function(n,d)
         i = i+d
         if i > #page then i = 1 end
         if i < 1 then i = #page end
-      until params:t(page[i]) == params.tSEPARATOR
+      until params:t(page[i]) == params.tSEPARATOR or i==1
       m.pos = i-1
     -- adjust value
     elseif n==3 and params.count > 0 then
