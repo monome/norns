@@ -109,7 +109,7 @@ m.key = function(n,z)
     m.alt = true
   elseif n==1 and z==0 then
     m.alt = false
-    -- MODE MENU
+  -- MODE MENU
   elseif m.mode == mSELECT then
     if n==3 and z==1 then
       if m.mode_pos == 1 then
@@ -121,16 +121,20 @@ m.key = function(n,z)
         m.mode = mMAP
       end
     end
-    -- EDIT + MAP
+  -- EDIT + MAP
   elseif m.mode == mEDIT or m.mode == mMAP then
     if n==2 and z==1 then
-      if m.group==true then
+      if m.alt then
+        m.mode = (m.mode==mEDIT) and mMAP or mEDIT
+      elseif m.group==true then
         m.group = false
         build_page()
         m.pos = m.oldpos
       else
         m.mode = mSELECT
       end
+    elseif n==3 and z==1 and m.alt then
+      m.mode = mPSET
     elseif n==3 and z==1 then
       local i = page[m.pos+1]
       local t = params:t(i)
@@ -200,7 +204,9 @@ m.key = function(n,z)
   -- PSET
   elseif m.mode == mPSET then
     if n==2 and z==1 then
-      m.mode = mSELECT
+      m.mode = m.alt and mMAP or mSELECT
+    elseif n==3 and z==1 and m.alt then
+      m.mode = mEDIT
     elseif n==3 and z==1 then
       -- save
       if m.ps_action == 1 then
