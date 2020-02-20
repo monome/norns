@@ -39,7 +39,6 @@ m.reset = function()
   m.ps_n = 0
   m.ps_action = 1
   m.ps_last = 0
-  m.read_pmap()
 end
 
 local function build_page()
@@ -100,6 +99,7 @@ local function write_pset(name)
     params:write(m.ps_pos+1,name)
     m.ps_last = m.ps_pos+1
     init_pset()
+    norns.pmap.write() -- write parameter map too
   end
 end
 
@@ -134,6 +134,7 @@ m.key = function(n,z)
         m.mode = mSELECT
       end
     elseif n==3 and z==1 and m.alt then
+      init_pset()
       m.mode = mPSET
     elseif n==3 and z==1 then
       local i = page[m.pos+1]
@@ -268,7 +269,7 @@ m.enc = function(n,d)
       until params:t(page[i]) == params.tSEPARATOR or i==1
       m.pos = i-1
     -- adjust value
-    elseif n==3 and params.count > 0 then
+    elseif m.mode == mEDIT and n==3 and params.count > 0 then
       local dx = m.fine and (d/20) or d
       params:delta(page[m.pos+1],dx)
       _menu.redraw()
@@ -566,42 +567,5 @@ norns.menu_midi_event = function(data, dev)
   end
 end
 
-
-function m.write_pmap()
-  local function quote(s)
-    return '"'..s:gsub('"', '\\"')..'"'
-  end
-  local filename = norns.state.data..norns.state.shortname..".pmap"
-  print(">> saving PMAP "..filename)
-  local fd = io.open(filename, "w+")
-  io.output(fd)
-  for k,v in pairs(m.map) do
-    io.write(string.format("%s: %d\n", quote(tostring(k)), v))
-  end
-  io.close(fd)
-end
-
-function m.read_pmap()
-  local function unquote(s)
-    return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
-  end
-  local filename = norns.state.data..norns.state.shortname..".pmap"
-  print(">> reading PMAP "..filename)
-  local fd = io.open(filename, "r")
-  if fd then
-    io.close(fd)
-    for line in io.lines(filename) do
-      --local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
-      local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
-
-      if name and value then
-        --print(unquote(name) .. " : " .. value)
-        --m.map[tonumber(unquote(name),10)] = tonumber(value)
-      end
-    end
-  else
-    --print("m.read: "..filename.." not read.")
-  end
-end
 
 return m

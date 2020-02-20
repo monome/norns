@@ -70,6 +70,7 @@ Script.clear = function()
 
   -- clear params
   params:clear()
+  norns.pmap.clear()
   -- add audio
   audio.add_params()
 
@@ -180,6 +181,7 @@ Script.run = function()
   else
     engine.load("None", Script.init)
   end
+  norns.pmap.read() -- load parameter map
 end
 
 --- load script metadata.
