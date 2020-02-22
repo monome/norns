@@ -17,6 +17,7 @@ function pmap.new(id)
   p.out_lo = 0
   p.out_hi = 1
   p.accum = false
+  p.value = 0
   pmap.data[id] = p
 end
 

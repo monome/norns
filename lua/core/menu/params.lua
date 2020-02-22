@@ -125,7 +125,8 @@ m.key = function(n,z)
   elseif m.mode == mEDIT or m.mode == mMAP then
     if n==2 and z==1 then
       if m.alt then
-        m.mode = (m.mode==mEDIT) and mMAP or mEDIT
+        init_pset()
+        m.mode = mPSET
       elseif m.group==true then
         m.group = false
         build_page()
@@ -134,8 +135,7 @@ m.key = function(n,z)
         m.mode = mSELECT
       end
     elseif n==3 and z==1 and m.alt then
-      init_pset()
-      m.mode = mPSET
+      m.mode = (m.mode==mEDIT) and mMAP or mEDIT
     elseif n==3 and z==1 then
       local i = page[m.pos+1]
       local t = params:t(i)
@@ -187,7 +187,7 @@ m.key = function(n,z)
     elseif n==3 and z==0 then
       m.fine = false
     end
-  -- MAPEDIT
+    -- MAPEDIT
   elseif m.mode == mMAPEDIT then
     local p = page[m.pos+1]
     local name = params:get_id(p)
@@ -202,23 +202,23 @@ m.key = function(n,z)
         m.mode = mMAP
       end
     end
-  -- PSET
+    -- PSET
   elseif m.mode == mPSET then
     if n==2 and z==1 then
-      m.mode = m.alt and mMAP or mSELECT
+      m.mode = m.alt and mEDIT or mSELECT
     elseif n==3 and z==1 and m.alt then
-      m.mode = mEDIT
+      m.mode = mMAP
     elseif n==3 and z==1 then
       -- save
       if m.ps_action == 1 then
         textentry.enter(write_pset, params.name, "PSET NAME: "..m.ps_pos+1)
-      -- load
+        -- load
       elseif m.ps_action == 2 then
         if pset[m.ps_pos+1] then
           params:read(m.ps_pos+1)
           m.ps_last = m.ps_pos+1
         end
-      -- delete
+        -- delete
       elseif m.ps_action == 3 then
         if pset[m.ps_pos+1] then
           os.execute("rm "..pset[m.ps_pos+1].file)
@@ -293,8 +293,10 @@ m.enc = function(n,d)
         m.dev = util.clamp(m.dev+d,1,16)
       elseif m.mpos==6 then
         pm.in_lo = util.clamp(pm.in_lo+d, 0, pm.in_hi)
+        pm.value = util.clamp(pm.value, pm.in_lo, pm.in_hi)
       elseif m.mpos==7 then
         pm.in_hi = util.clamp(pm.in_hi+d, pm.in_lo, 127)
+        pm.value = util.clamp(pm.value, pm.in_lo, pm.in_hi)
       elseif m.mpos==8 then
         pm.out_lo = pm.out_lo + d
       elseif m.mpos==9 then
@@ -553,6 +555,11 @@ norns.menu_midi_event = function(data, dev)
       if r then
         local d = norns.pmap.data[r]
         local t = params:t(r)
+        if d.accum then
+          v = v - 64
+          d.value = util.clamp(d.value + v, d.in_lo, d.in_hi)
+          v = d.value
+        end
         local s = util.clamp(v, d.in_lo, d.in_hi)
         s = util.linlin(d.in_lo, d.in_hi, d.out_lo, d.out_hi, s)
         if t == params.tCONTROL or t == params.tTAPER then
