@@ -548,7 +548,7 @@ norns.menu_midi_event = function(data, dev)
       local p = page[m.pos+1]
       local name = params:get_id(p)
       norns.pmap.assign(name,m.dev,m.ch,m.cc)
-      _menu.redraw()
+      if _menu.mode then _menu.redraw() end
     else
       --print(cc.." : "..v)
       local r = norns.pmap.rev[dev][ch][cc] 
@@ -568,7 +568,7 @@ norns.menu_midi_event = function(data, dev)
           s = util.round(s)
           params:set(r,s)
         end
-        _menu.redraw()
+        if _menu.mode then _menu.redraw() end
       end
     end
   end
