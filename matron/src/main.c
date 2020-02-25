@@ -22,6 +22,7 @@
 #include "metro.h"
 #include "screen.h"
 #include "stat.h"
+#include "watch.h"
 #include "clock.h"
 #include "clocks/clock_internal.h"
 #include "clocks/clock_midi.h"
@@ -41,6 +42,7 @@ void cleanup(void) {
     screen_deinit();
     battery_deinit();
     stat_deinit();
+    watch_deinit();
 
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
@@ -69,6 +71,7 @@ int main(int argc, char **argv) {
     clock_init();
     clock_internal_start();
     clock_midi_init();
+    watch_init();
 
     o_init(); // oracle (audio)
 
