@@ -12,7 +12,8 @@ local m = {
   oldpos = 0,
   group = false,
   alt = false,
-  mode = mEDIT,
+  mode = mSELECT,
+  mode_prev = mSELECT,
   mode_pos = 1,
   map = false,
   mpos = 1,
@@ -126,6 +127,7 @@ m.key = function(n,z)
     if n==2 and z==1 then
       if m.alt then
         init_pset()
+        m.mode_prev = m.mode
         m.mode = mPSET
       elseif m.group==true then
         m.group = false
@@ -205,9 +207,7 @@ m.key = function(n,z)
     -- PSET
   elseif m.mode == mPSET then
     if n==2 and z==1 then
-      m.mode = m.alt and mEDIT or mSELECT
-    elseif n==3 and z==1 and m.alt then
-      m.mode = mMAP
+      m.mode = m.alt and m.mode_prev or mSELECT
     elseif n==3 and z==1 then
       -- save
       if m.ps_action == 1 then
