@@ -43,7 +43,7 @@ void *watch_time(void *x) {
     if(stage==3) count++;
     if(count==10) {
       fprintf(stderr, "RESTARTING...\n");
-      system("systemctl restart norns-*");
+      system("nohup systemctl restart norns-* > /dev/null");
     }
     sleep(WATCH_TIME);
   }
