@@ -4,7 +4,7 @@
 
 ### packages
 ```
-sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev libasound2-dev
+sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev libasound2-dev libncurses5-dev libncursesw5-dev
 ```
 
 ### sources
@@ -30,6 +30,7 @@ sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollid
 ```
 git clone https://github.com/monome/norns.git
 cd norns
+git submodule update --init
 ./waf configure
 ./waf
 ```
