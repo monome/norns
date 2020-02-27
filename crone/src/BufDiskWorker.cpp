@@ -359,8 +359,8 @@ noexcept {
     size_t nf = 0;
 
     auto *ioBuf = new float[ioBufFrames * 2];
-    float *pbuf0 = buf0.data;
-    float *pbuf1 = buf1.data;
+    float *pbuf0 = buf0.data + frSrc;
+    float *pbuf1 = buf1.data + frSrc;
     for (size_t block = 0; block < numBlocks; ++block) {
         float *pio = ioBuf;
         for (size_t fr = 0; fr < ioBufFrames; ++fr) {
