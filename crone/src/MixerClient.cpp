@@ -56,7 +56,6 @@ void MixerClient::process(jack_nframes_t numFrames) {
 
     // process tape record
     if (tape.isWriting()) {
-        // FIXME: another stupid pointer array.
         const float *src[2] = {(const float *) bus.dac_sink.buf[0], (const float *) bus.dac_sink.buf[1]};
         tape.writer.process(src, numFrames);
     }
@@ -64,8 +63,8 @@ void MixerClient::process(jack_nframes_t numFrames) {
     // update peak meters
     inPeak[0].update(bus.adc_source.buf[0], numFrames);
     inPeak[1].update(bus.adc_source.buf[1], numFrames);
-    outPeak[0].update(bus.dac_sink.buf[0], numFrames);
-    outPeak[1].update(bus.dac_sink.buf[1], numFrames);
+    outPeak[0].update(sink[SinkId::SinkDac][0], numFrames);
+    outPeak[1].update(sink[SinkId::SinkDac][1] , numFrames);
 }
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
