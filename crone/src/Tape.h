@@ -320,7 +320,6 @@ namespace crone {
             friend class Tape;
         private:
             size_t frames{};
-            size_t framesBeforeFadeout{};
             size_t framesProcessed = 0;
             static constexpr size_t maxFramesToRead = ringBufFrames;
             // interleaved buffer from soundfile (disk thread)
@@ -339,10 +338,19 @@ namespace crone {
                 auto framesRead = (size_t) sf_readf_float(this->file, diskInBuf, framesToRead);
                 jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * framesRead);
 
-                if (framesRead != framesToRead) {
-                    std::cerr << "Tape::Reader: warning! priming not complete" << std::endl;
-                    SfStream::shouldStop = true;
-                    return false;
+                // Couldn't read enough, file is shorter the buffer.  Seek to start of file and keep reading
+                while (framesRead < framesToRead) {
+                    sf_seek(this->file,0, SEEK_SET);
+                    auto nextRead = (size_t) sf_readf_float(this->file, diskInBuf, framesToRead-framesRead);
+                    if (nextRead < 1)
+                    {
+                        //shouldn't happen
+                        std::cerr << "Tape::Reader: warning! priming failed" << std::endl;
+                        SfStream::shouldStop = true;
+                        return false;
+                    }
+                    jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * nextRead);
+                    framesRead += nextRead;
                 }
 
                 return true;
@@ -363,7 +371,7 @@ namespace crone {
                 jack_ringbuffer_t* rb = this->ringBuf.get();
                 auto framesInBuf = jack_ringbuffer_read_space(rb) / frameSize;
 
-                //  if ringbuf isn't full enough, it's probably cause we're at EOF
+                //  if ringbuf isn't full enough, something has gone wrong
                 if(framesInBuf < numFrames) {
 
                     // pull from ringbuffer
@@ -399,12 +407,6 @@ namespace crone {
 
                     float *src = pullBuf;
 
-                    if (framesProcessed > (framesBeforeFadeout-numFrames)) {
-                        if (SfStream::envState != SfStream::EnvState::Stopping) {
-                            SfStream::envState = SfStream::EnvState::Stopping;
-                        }
-                    }
-
                     // de-interleave, apply amp, copy to output
                     for (size_t fr = 0; fr < numFrames; ++fr) {
                         float amp = SfStream::getEnvSample();
@@ -435,7 +437,6 @@ namespace crone {
                 }
 
                 this->frames = static_cast<size_t>(sfInfo.frames);
-                framesBeforeFadeout = this->frames - Window::raisedCosShortLen - 1;
                 framesProcessed = 0;
 
                 jack_ringbuffer_reset(this->ringBuf.get());
@@ -477,12 +478,24 @@ namespace crone {
                         framesToRead = maxFramesToRead;
                     };
                     auto framesRead = (size_t) sf_readf_float(this->file, diskInBuf, framesToRead);
-                    if (framesRead < framesToRead) {
-                        std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
-                        SfStream::shouldStop = true;
+                    jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * framesRead);
+                    // couldn't perform full read so must be end of file. Seek to start of file and keep reading
+                    while (framesRead < framesToRead) {
+                        /*std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
+                        SfStream::shouldStop = true;*/
+                        sf_seek(this->file,0, SEEK_SET);
+                        auto nextRead = (size_t) sf_readf_float(this->file, diskInBuf, framesToRead-framesRead);
+                        if (nextRead < 1)
+                        {
+                              //Shouldn't happen
+                              std::cerr << "Tape::Reader: unable to read file" << std::endl;
+                              SfStream::shouldStop = true;
+                              break;
+                        }
+                        jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * nextRead);
+                        framesRead += nextRead;
                     }
 
-                    jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * framesRead);
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
                         needsData = false;
