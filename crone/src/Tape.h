@@ -15,6 +15,7 @@
 #include <jack/types.h>
 #include <jack/ringbuffer.h>
 #include <sndfile.h>
+#include <string.h>
 
 #include "Window.h"
 
@@ -162,7 +163,7 @@ namespace crone {
                 const size_t bytesAvailable = jack_ringbuffer_write_space(rb);
                 
                 if (bytesToPush > bytesAvailable) {
-#if 0
+#if 0 
                     std::cerr << "Tape: writer overrun: " 
                               << bytesAvailable << " bytes available; " 
                               << bytesToPush << " bytes to push; "
@@ -320,34 +321,47 @@ namespace crone {
             friend class Tape;
         private:
             size_t frames{};
-            size_t framesBeforeFadeout{};
             size_t framesProcessed = 0;
+            uint8_t inChannels = 2;
             static constexpr size_t maxFramesToRead = ringBufFrames;
             // interleaved buffer from soundfile (disk thread)
             Sample diskInBuf[frameSize * maxFramesToRead]{};
+            //additional buffer for padding mono to stereo
+	    Sample conversionBuf[frameSize * maxFramesToRead]{};
+            Sample * diskBufPtr{};
             // buffer for deinterleaving after ringbuf (audio thread)
             Sample pullBuf[frameSize * maxFramesToRead]{};
             std::atomic<bool> isPrimed{};
             bool needsData{};
-
+            std::atomic<bool> loopFile{};
         private:
             // prime the ringbuffer
-            bool prime() {
+            void prime() {
                 jack_ringbuffer_t *rb = this->ringBuf.get();
                 size_t framesToRead = jack_ringbuffer_write_space(rb) / frameSize;
                 if (framesToRead > maxFramesToRead) { framesToRead = maxFramesToRead; };
-                auto framesRead = (size_t) sf_readf_float(this->file, diskInBuf, framesToRead);
+                auto framesRead = (size_t) sf_readf_float(this->file, diskBufPtr, framesToRead);
+                if (inChannels == 1)
+                    convertToStereo(framesRead);
                 jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * framesRead);
 
-                if (framesRead != framesToRead) {
-                    std::cerr << "Tape::Reader: warning! priming not complete" << std::endl;
-                    SfStream::shouldStop = true;
-                    return false;
-                }
-
-                return true;
+                // couldn't read enough, file is shorter than the buffer
+                if (framesRead < framesToRead) {
+                    std::cerr << "Tape::Reader: short file, disable loop" << std::endl;
+                    SfStream::shouldStop = false;
+               }
             }
-
+            void convertToStereo(size_t frameCount)
+            {
+                    size_t fr = 0;
+                    while (fr < frameCount) {
+                        Sample sample = conversionBuf[fr];
+                        diskInBuf[2*fr]=sample;
+                        diskInBuf[2*fr+1]=sample;
+                        fr++;
+                    }
+            }
+ 
         public:
             // from audio thread
             void process(float *dst[NumChannels], size_t numFrames) {
@@ -363,9 +377,8 @@ namespace crone {
                 jack_ringbuffer_t* rb = this->ringBuf.get();
                 auto framesInBuf = jack_ringbuffer_read_space(rb) / frameSize;
 
-                //  if ringbuf isn't full enough, it's probably cause we're at EOF
+                //  if ringbuf isn't full enough, probably EOF on a non-looped file
                 if(framesInBuf < numFrames) {
-
                     // pull from ringbuffer
                     jack_ringbuffer_read(rb, (char*)pullBuf, framesInBuf * frameSize);
                     float* src = pullBuf;
@@ -384,12 +397,12 @@ namespace crone {
                         }
                         fr++;
                     }
+                    jack_ringbuffer_reset(rb);
                     SfStream::isRunning = false;
                 } else {
 
                     // pull from ringbuffer
                     jack_ringbuffer_read(rb, (char *) pullBuf, numFrames * frameSize);
-
 
                     if (this->mut.try_lock()) {
                         this->needsData = true;
@@ -399,12 +412,6 @@ namespace crone {
 
                     float *src = pullBuf;
 
-                    if (framesProcessed > (framesBeforeFadeout-numFrames)) {
-                        if (SfStream::envState != SfStream::EnvState::Stopping) {
-                            SfStream::envState = SfStream::EnvState::Stopping;
-                        }
-                    }
-
                     // de-interleave, apply amp, copy to output
                     for (size_t fr = 0; fr < numFrames; ++fr) {
                         float amp = SfStream::getEnvSample();
@@ -412,7 +419,6 @@ namespace crone {
                             dst[ch][fr] = *src++ * amp;
                         }
                     }
-
                     framesProcessed += numFrames;
                 }
             }
@@ -424,23 +430,31 @@ namespace crone {
                 if ((this->file = sf_open(path.c_str(), SFM_READ, &sfInfo)) == NULL) {
                     char errstr[256];
                     sf_error_str(0, errstr, sizeof(errstr) - 1);
-                    std::cerr << "cannot open sndfile" << path << " for output (" << errstr << ")" << std::endl;
+                    std::cerr << "Tape Reader:: cannot open sndfile" << path << " for output (" << errstr << ")" << std::endl;
                     return false;
                 }
 
                 if (sfInfo.frames < 1) {
 
-                    std::cerr << "error reading file " << path << " (no frames available)" << std::endl;
+                    std::cerr << "Tape Reader:: error reading file " << path << " (no frames available)" << std::endl;
                     return false;
                 }
-
                 this->frames = static_cast<size_t>(sfInfo.frames);
-                framesBeforeFadeout = this->frames - Window::raisedCosShortLen - 1;
+                std::cerr << "Tape Reader:: file size " << this->frames << " samples" << std::endl;
+                inChannels = sfInfo.channels;
+                if (inChannels > NumChannels)
+                    return 0;//more than stereo is going to break things
+                if (inChannels == 1)
+                    diskBufPtr = conversionBuf;//conversion needed for mono
+                else
+                    diskBufPtr = diskInBuf;
                 framesProcessed = 0;
 
                 jack_ringbuffer_reset(this->ringBuf.get());
                 isPrimed = false;
-
+                loopFile = true;
+                if ( this->frames < 48000)
+                    loopFile = false;
                 return this->frames > 0;
             }
 
@@ -476,13 +490,34 @@ namespace crone {
                         // _really_ shouldn't happen
                         framesToRead = maxFramesToRead;
                     };
-                    auto framesRead = (size_t) sf_readf_float(this->file, diskInBuf, framesToRead);
-                    if (framesRead < framesToRead) {
-                        std::cerr << "Tape::Reader::diskloop() read EOF" << std::endl;
+                    auto framesRead = (size_t) sf_readf_float(this->file, diskBufPtr, framesToRead);
+                    if (inChannels == 1)
+                            convertToStereo(framesRead);
+                    jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * framesRead);
+
+                    if (loopFile) {
+                        // couldn't perform full read so must be end of file. Seek to start of file and keep reading
+                        while (framesRead < framesToRead) {
+                            sf_seek(this->file,0, SEEK_SET);
+                            auto nextRead = (size_t) sf_readf_float(this->file, diskBufPtr, framesToRead-framesRead);
+                            if (nextRead < 1)
+                            {
+                                  //Shouldn't happen
+                                  std::cerr << "Tape::Reader: unable to read file" << std::endl;
+                                  SfStream::shouldStop = true;
+                                  break;
+                            }
+                            if (inChannels == 1)
+                                convertToStereo(framesRead);
+                            jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * nextRead);
+                            framesRead += nextRead;
+                        }
+                    }
+                    else {
+                        std::cerr << "Tape::Reader::diskloop() reached EOF" << std::endl;
                         SfStream::shouldStop = true;
                     }
 
-                    jack_ringbuffer_write(rb, (char *) diskInBuf, frameSize * framesRead);
                     {
                         std::unique_lock<std::mutex> lock(this->mut);
                         needsData = false;
