@@ -145,6 +145,8 @@ function Grid.update_devices()
   -- connect available devices to vports
   for i=1,4 do
     Grid.vports[i].device = nil
+    Grid.vports[i].rows = 0
+    Grid.vports[i].cols = 0       
 
     for _,device in pairs(Grid.devices) do
       if device.name == Grid.vports[i].name then
