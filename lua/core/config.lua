@@ -20,4 +20,5 @@ _path.home = home
 _path.dust = home..'/dust/'
 _path.code = _path.dust..'code/'
 _path.audio = _path.dust..'audio/'
+_path.tape = _path.audio..'tape/'
 _path.data = _path.dust..'data/'
