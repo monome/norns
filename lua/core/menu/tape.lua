@@ -39,7 +39,7 @@ local function tape_diskfree()
   end
 end
 
-function update_tape_index()
+local function update_tape_index()
   local f = io.open(_path.tape..'index.txt','r')
   if f ~= nil then
     local a = tonumber(f:read("*line"))
@@ -53,7 +53,7 @@ function update_tape_index()
   f:close()
 end
 
-edit_filename = function(txt)
+local function edit_filename(txt)
   if txt then
     m.rec.file = txt .. ".wav"
   else
