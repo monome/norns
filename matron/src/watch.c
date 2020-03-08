@@ -43,7 +43,9 @@ void *watch_time(void *x) {
     if(stage==3) count++;
     if(count==10) {
       fprintf(stderr, "RESTARTING...\n");
-      system("nohup systemctl restart norns-* > /dev/null");
+      system("nohup systemctl restart norns-sclang > /dev/null");
+      system("nohup systemctl restart norns-crone > /dev/null");
+      system("nohup systemctl restart norns-matron > /dev/null");
     }
     sleep(WATCH_TIME);
   }
