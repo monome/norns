@@ -106,7 +106,7 @@ static int _screen_fill(lua_State *l);
 static int _screen_text(lua_State *l);
 static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
-static int _screen_extents(lua_State *l);
+static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
 static int _screen_display_png(lua_State *l);
 //i2c
@@ -357,7 +357,7 @@ void w_init(void) {
   lua_register_norns("screen_text", &_screen_text);
   lua_register_norns("screen_clear", &_screen_clear);
   lua_register_norns("screen_close", &_screen_close);
-  lua_register_norns("screen_extents", &_screen_extents);
+  lua_register_norns("screen_text_extents", &_screen_text_extents);
   lua_register_norns("screen_export_png", &_screen_export_png);
   lua_register_norns("screen_display_png", &_screen_display_png);
 
@@ -804,14 +804,14 @@ int _screen_close(lua_State *l) {
 }
 
 /***
- * screen: extents
- * @function s_extents
+ * screen: text_extents
+ * @function s_text_extents
  * @tparam gets x/y displacement of a string
  */
-int _screen_extents(lua_State *l) {
+int _screen_text_extents(lua_State *l) {
   lua_check_num_args(1);
   const char *s = luaL_checkstring(l, 1);
-  double *xy = screen_extents(s);
+  double *xy = screen_text_extents(s);
   lua_pushinteger(l, xy[0]);
   lua_pushinteger(l, xy[1]);
   return 2;

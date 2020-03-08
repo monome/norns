@@ -39,6 +39,6 @@ extern void screen_fill(void);
 extern void screen_text(const char *s);
 extern void screen_clear(void);
 extern void screen_close_path(void);
-extern double *screen_extents(const char *s);
+extern double *screen_text_extents(const char *s);
 extern void screen_export_png(const char *s);
 extern void screen_display_png(const char *filename, double x, double y);
