@@ -284,7 +284,7 @@ function Audio.add_params()
       if x == 1 then audio.monitor_stereo()
       else audio.monitor_mono() end
     end)
-  params:add_number("headphone_gain", "gain", 0, 63, 40)
+  params:add_number("headphone_gain", "headphone gain", 0, 63, 40)
   params:set_action("headphone_gain",
     function(x) audio.headphone_gain(x) end)
   
@@ -298,19 +298,19 @@ function Audio.add_params()
   local cs_DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
   local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 
-  params:add_control("rev_eng_input", "engine input", cs_DB_LEVEL_9DB)
+  params:add_control("rev_eng_input", "input engine", cs_DB_LEVEL_9DB)
   params:set_action("rev_eng_input",
   function(x) audio.level_eng_rev(util.dbamp(x)) end)
 
-  params:add_control("rev_cut_input", "softcut input", cs_DB_LEVEL_9DB)
+  params:add_control("rev_cut_input", "input softcut", cs_DB_LEVEL_9DB)
   params:set_action("rev_cut_input",
   function(x) audio.level_cut_rev(util.dbamp(x)) end)
 
-  params:add_control("rev_monitor_input", "monitor input", cs_DB_LEVEL_MUTE)
+  params:add_control("rev_monitor_input", "input monitor", cs_DB_LEVEL_MUTE)
   params:set_action("rev_monitor_input",
   function(x) audio.level_monitor_rev(util.dbamp(x)) end)
 
-  params:add_control("rev_tape_input", "tape input", cs_DB_LEVEL_MUTE)
+  params:add_control("rev_tape_input", "input tape", cs_DB_LEVEL_MUTE)
   params:set_action("rev_tape_input",
   function(x) audio.level_tape_rev(util.dbamp(x)) end)
 
@@ -407,6 +407,22 @@ function Audio.add_params()
   params:add_control("comp_post_gain", "post gain", cs_POSTGAIN)
   params:set_action("comp_post_gain",
   function(x) audio.comp_param("gain_post",x) end)
+
+
+  params:add_group("SOFTCUT",3)
+
+  params:add_control("cut_input_adc", "input adc", cs_MAIN_LEVEL)
+  params:set_action("cut_input_adc",
+    function(x) audio.level_adc_cut(util.dbamp(x)) end)
+
+  params:add_control("cut_input_eng", "input engine", cs_MAIN_LEVEL)
+  params:set_action("cut_input_eng",
+    function(x) audio.level_eng_cut(util.dbamp(x)) end)
+
+  params:add_control("cut_input_tape", "input tape", cs_MAIN_LEVEL)
+  params:set_action("cut_input_tape",
+    function(x) audio.level_tape_cut(util.dbamp(x)) end)
+
 end
 
 return Audio
