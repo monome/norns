@@ -1,4 +1,5 @@
 local fileselect = require 'fileselect'
+local textentry = require 'textentry'
 
 local TAPE_MODE_PLAY = 1
 local TAPE_MODE_REC = 2
@@ -36,6 +37,45 @@ local function tape_diskfree()
   if norns.disk then
     m.diskfree = math.floor((norns.disk - DISK_RESERVE) / .192) -- seconds of 48k/16bit stereo disk free with reserve
   end
+end
+
+local function update_tape_index()
+  local f = io.open(_path.tape..'index.txt','r')
+  if f ~= nil then
+    local a = tonumber(f:read("*line"))
+    m.fileindex = a or 0
+    f:close()
+  else
+    m.fileindex = 0
+  end
+  local f = io.open(_path.tape..'index.txt','w')
+  f:write(tostring(m.fileindex+1))
+  f:close()
+end
+
+local function edit_filename(txt)
+  if txt then
+    m.rec.file = txt .. ".wav"
+  else
+    m.rec.file = string.format("%04d",m.fileindex) .. ".wav"
+  end
+  audio.tape_record_open(_path.audio.."tape/"..m.rec.file)
+  m.rec.sel = TAPE_REC_START
+  m.rec.pos_tick = 0
+  tape_rec_counter.time = 0.25
+  tape_rec_counter.event = function()
+    m.rec.pos_tick = m.rec.pos_tick + 0.25
+    if m.rec.pos_tick > m.diskfree then
+      print("out of space!")
+      audio.tape_record_stop()
+      tape_rec_counter:stop()
+      m.rec.sel = TAPE_REC_ARM
+    end
+    if _menu.mode == true and _menu.page == "TAPE" then
+      _menu.redraw()
+    end
+  end
+  _menu.redraw()
 end
 
 
@@ -95,31 +135,14 @@ m.key = function(n,z)
     else -- REC CONTROLS
       if m.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
-        m.rec.file = string.format("%04d",norns.state.tape) .. ".wav"
-        audio.tape_record_open(_path.audio.."tape/"..m.rec.file)
-        m.rec.sel = TAPE_REC_START
-        m.rec.pos_tick = 0
-        tape_rec_counter.time = 0.25
-        tape_rec_counter.event = function()
-          m.rec.pos_tick = m.rec.pos_tick + 0.25
-          if m.rec.pos_tick > m.diskfree then
-            print("out of space!")
-            audio.tape_record_stop()
-            norns.state.tape = norns.state.tape + 1
-            tape_rec_counter:stop()
-            m.rec.sel = TAPE_REC_ARM
-          end
-          if _menu.mode == true and _menu.page == "TAPE" then
-            _menu.redraw()
-          end
-        end
+        update_tape_index()
+        textentry.enter(edit_filename, string.format("%04d",m.fileindex), "tape filename:")
       elseif m.rec.sel == TAPE_REC_START then
         tape_rec_counter:start()
         audio.tape_record_start()
         m.rec.sel = TAPE_REC_STOP
       elseif m.rec.sel == TAPE_REC_STOP then
         tape_rec_counter:stop()
-        norns.state.tape = norns.state.tape + 1
         audio.tape_record_stop()
         m.rec.sel = TAPE_REC_ARM
         tape_diskfree()
@@ -178,7 +201,7 @@ m.redraw = function()
   if m.rec.sel ~= TAPE_REC_ARM then
     screen.level(1)
     screen.move(0,48)
-    screen.text(string.format("%04d",norns.state.tape))
+    screen.text(m.rec.file)
     screen.level(2)
     screen.move(0,62)
     screen.text(util.s_to_hms(math.floor(m.rec.pos_tick)))
