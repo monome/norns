@@ -15,6 +15,7 @@
 #include <sys/ioctl.h>
 #include <cairo.h>
 #include <cairo-ft.h>
+#include <pthread.h>
 
 #include "args.h"
 
@@ -52,6 +53,39 @@ typedef struct _cairo_linuxfb_device {
     struct fb_var_screeninfo fb_vinfo;
     struct fb_fix_screeninfo fb_finfo;
 } cairo_linuxfb_device_t;
+
+typedef enum {
+  UPDATE = 0,
+  SAVE,
+  RESTORE,
+  FONT_FACE,
+  FONT_SIZE,
+  AA,
+  LEVEL,
+  LINE_WIDTH,
+  LINE_CAP,
+  LINE_JOIN,
+  MITER_LIMIT,
+  MOVE,
+  LINE,
+  MOVE_REL,
+  LINE_REL,
+  CURVE,
+  CURVE_REL,
+  ARC,
+  RECT,
+  STROKE,
+  FILL,
+  TEXT,
+  CLEAR,
+  CLOSE_PATH,
+  EXTENTS,
+  EXPORT_PNG,
+  DISPLAY_PNG
+} screen_event_t;
+
+static pthread_t p;
+void *screen_event_loop(void *);
 
 /* Destroy a cairo surface */
 void cairo_linuxfb_surface_destroy(void *device)
@@ -283,10 +317,23 @@ void screen_init(void) {
     // config buffer
     cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
     cairo_set_source_surface(crfb,surface,0,0);
+
+  //if (pthread_create(&p, NULL, screen_event_loop, 0) ) {
+    //fprintf(stderr, "SCREEN: error creating thread\n");
+  //}
 }
+
+void *screen_event_loop(void *x) {
+  (void)x; 
+  while(1) {
+
+  }
+}
+
 
 void screen_deinit(void) {
     CHECK_CR
+    pthread_cancel(p);
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
     cairo_destroy(crfb);
