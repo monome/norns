@@ -285,17 +285,17 @@ SC.buffer_clear_channel = function(channel) _norns.cut_buffer_clear_channel(chan
 
 --- clear region (both channels)
 -- @tparam number start : start point in seconds
--- @tparam number stop : end point in seconds
-SC.buffer_clear_region = function(start, stop)
-  _norns.cut_buffer_clear_region(start, stop)
+-- @tparam number dur : duration in seconds
+SC.buffer_clear_region = function(start, dur)
+  _norns.cut_buffer_clear_region(start, dur)
 end
 
 --- clear region of single channel
 -- @tparam int ch : buffer channel index (1-based)
 -- @tparam number start : start point in seconds
--- @tparam number stop : end point in seconds
-SC.buffer_clear_region_channel = function(ch, start, stop)
-  _norns.cut_buffer_clear_region_channel(ch, start, stop)
+-- @tparam number dur : duration in seconds
+SC.buffer_clear_region_channel = function(ch, start, dur)
+  _norns.cut_buffer_clear_region_channel(ch, start, dur)
 end
 
 --- read mono soundfile to arbitrary region of single buffer

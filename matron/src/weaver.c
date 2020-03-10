@@ -2114,8 +2114,8 @@ int _cut_buffer_clear_channel(lua_State *l) {
 int _cut_buffer_clear_region(lua_State *l) {
   lua_check_num_args(2);
   float start = (float) luaL_checknumber(l, 1);
-  float end = (float) luaL_checknumber(l, 2);
-  o_cut_buffer_clear_region(start, end);
+  float dur = (float) luaL_checknumber(l, 2);
+  o_cut_buffer_clear_region(start, dur);
   return 0;
 }
 
@@ -2123,8 +2123,8 @@ int _cut_buffer_clear_region_channel(lua_State *l) {
   lua_check_num_args(3);
   int ch = (int) luaL_checkinteger(l, 1) - 1;
   float start = (float) luaL_checknumber(l, 2);
-  float end = (float) luaL_checknumber(l, 3);
-  o_cut_buffer_clear_region_channel(ch, start, end);
+  float dur = (float) luaL_checknumber(l, 3);
+  o_cut_buffer_clear_region_channel(ch, start, dur);
   return 0;
 }
 
