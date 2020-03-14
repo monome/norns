@@ -85,6 +85,7 @@ end
 
 clock.INTERNAL = 0
 clock.MIDI = 1
+clock.LINK = 2
 
 --- select the sync source, currently clock.INTERNAL and clock.MIDI.
 -- @tparam integer source : clock.INTERNAL (0) or clock.MIDI (1)
