@@ -5,6 +5,7 @@
 typedef enum {
     CLOCK_SOURCE_INTERNAL = 0,
     CLOCK_SOURCE_MIDI = 1,
+    CLOCK_SOURCE_LINK = 2,
 } clock_source_t;
 
 void clock_init();

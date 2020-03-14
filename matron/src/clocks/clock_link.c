@@ -34,7 +34,7 @@ static void *clock_link_run(void *p) {
         double link_round_beat = (int) link_beat;
 
         if (link_round_beat != beat) {
-            clock_update_counter(beat, 60.0f / tempo);
+            clock_update_reference_from(beat, 60.0f / tempo, CLOCK_SOURCE_LINK);
         }
 
         ableton_link_session_state_destroy(state);
