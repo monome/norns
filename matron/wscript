@@ -28,8 +28,11 @@ def build(bld):
         'src/system_cmd.c',
         'src/clock.c',
         'src/clocks/clock_internal.c',
-        'src/clocks/clock_midi.c'
+        'src/clocks/clock_midi.c',
     ]
+
+    if bld.env.ENABLE_ABLETON_LINK:
+        matron_sources += ['src/clocks/clock_link.c']
 
     bld.program(features='c cprogram',
         source=matron_sources,
@@ -39,6 +42,7 @@ def build(bld):
             'src/device',
             'src/hardware',
             'lua',
+            '../third-party/link-c'
         ], use=[
             'ALSA',
             'LIBUDEV',
