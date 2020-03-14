@@ -61,6 +61,7 @@ def configure(conf):
         uselib_store='SUPERCOLLIDER')
 
     conf.check_boost()
+
     if conf.options.desktop:
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
         conf.define('NORNS_DESKTOP', True)
@@ -73,3 +74,4 @@ def build(bld):
     bld.recurse('ws-wrapper')
     bld.recurse('sc')
     bld.recurse('crone')
+    bld.recurse('third-party')
