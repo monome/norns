@@ -17,6 +17,7 @@
 #include <cairo-ft.h>
 #include <pthread.h>
 
+#include "screen.h"
 #include "args.h"
 
 // skip this if you don't want every screen module call to perform null checks
@@ -54,35 +55,13 @@ typedef struct _cairo_linuxfb_device {
     struct fb_fix_screeninfo fb_finfo;
 } cairo_linuxfb_device_t;
 
-typedef enum {
-  UPDATE = 0,
-  SAVE,
-  RESTORE,
-  FONT_FACE,
-  FONT_SIZE,
-  AA,
-  LEVEL,
-  LINE_WIDTH,
-  LINE_CAP,
-  LINE_JOIN,
-  MITER_LIMIT,
-  MOVE,
-  LINE,
-  MOVE_REL,
-  LINE_REL,
-  CURVE,
-  CURVE_REL,
-  ARC,
-  RECT,
-  STROKE,
-  FILL,
-  TEXT,
-  CLEAR,
-  CLOSE_PATH,
-  EXTENTS,
-  EXPORT_PNG,
-  DISPLAY_PNG
-} screen_event_t;
+
+#define SCREEN_EVENT_QUEUE_LENGTH 100
+struct {
+  int head;
+  int tail;
+  union screen_event_data data[100];
+} sevq;
 
 static pthread_t p;
 void *screen_event_loop(void *);
@@ -287,7 +266,6 @@ void screen_init(void) {
     char filename[256];
 
     for(int i = 0; i < NUM_FONTS; i++) {
-        // FIXME should be path relative to norns/
         snprintf(filename, 256, "%s/norns/resources/%s", getenv(
                      "HOME"), font_path[i]);
 
@@ -318,15 +296,16 @@ void screen_init(void) {
     cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
     cairo_set_source_surface(crfb,surface,0,0);
 
-  //if (pthread_create(&p, NULL, screen_event_loop, 0) ) {
-    //fprintf(stderr, "SCREEN: error creating thread\n");
-  //}
+    // set up screen event loop
+    if (pthread_create(&p, NULL, screen_event_loop, 0) ) {
+      fprintf(stderr, "SCREEN: error creating thread\n");
+    }
 }
 
 void *screen_event_loop(void *x) {
   (void)x; 
   while(1) {
-
+    sleep(1);
   }
 }
 

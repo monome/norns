@@ -42,3 +42,115 @@ extern void screen_close_path(void);
 extern double *screen_extents(const char *s);
 extern void screen_export_png(const char *s);
 extern void screen_display_png(const char *filename, double x, double y);
+
+typedef enum {
+  UPDATE = 0,
+  SAVE,
+  RESTORE,
+  FONT_FACE,
+  FONT_SIZE,
+  AA,
+  LEVEL,
+  LINE_WIDTH,
+  LINE_CAP,
+  LINE_JOIN,
+  MITER_LIMIT,
+  MOVE,
+  LINE,
+  MOVE_REL,
+  LINE_REL,
+  CURVE,
+  CURVE_REL,
+  ARC,
+  RECT,
+  STROKE,
+  FILL,
+  TEXT,
+  CLEAR,
+  CLOSE_PATH,
+  EXTENTS,
+  EXPORT_PNG,
+  DISPLAY_PNG
+} screen_event_t;
+
+
+struct se_v {
+  uint32_t type;
+};
+
+struct se_i {
+  uint32_t type;
+  int i1;
+};
+
+struct se_d {
+  uint32_t type;
+  double d1;
+};
+
+struct se_dd {
+  uint32_t type;
+  double d1;
+  double d2;
+};
+
+struct se_ddd {
+  uint32_t type;
+  double d1;
+  double d2;
+  double d3;
+};
+
+struct se_dddd {
+  uint32_t type;
+  double d1;
+  double d2;
+  double d3;
+  double d4;
+};
+
+struct se_ddddd {
+  uint32_t type;
+  double d1;
+  double d2;
+  double d3;
+  double d4;
+  double d5;
+};
+
+struct se_dddddd {
+  uint32_t type;
+  double d1;
+  double d2;
+  double d3;
+  double d4;
+  double d5;
+  double d6;
+};
+
+struct se_c {
+  uint32_t type;
+  char *c1;
+};
+
+struct se_cdd {
+  uint32_t type;
+  char *c1;
+  double d2;
+  double d3;
+};
+
+
+union screen_event_data {
+  uint32_t type;
+  struct se_v v;
+  struct se_i i;
+  struct se_d d;
+  struct se_dd dd;
+  struct se_ddd ddd;
+  struct se_dddd dddd;
+  struct se_ddddd ddddd;
+  struct se_dddddd dddddd;
+  struct se_c c;
+  struct se_cdd cdd;
+};
