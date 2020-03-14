@@ -2,7 +2,6 @@
 -- @classmod state
 
 local state = {}
-state.tape = 0
 state.script = ''
 state.path = _path.code
 state.data = _path.data
@@ -76,7 +75,6 @@ state.save_state = function()
   io.output(fd)
   io.write("-- norns system state\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
-  io.write("norns.state.tape = " .. norns.state.tape .. "\n")
   io.write("norns.state.script = '" .. state.script .. "'\n")
   io.write("norns.state.name = '" .. state.name .. "'\n")
   io.write("norns.state.shortname = '" .. state.shortname .. "'\n")

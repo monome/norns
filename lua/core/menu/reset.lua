@@ -5,17 +5,12 @@ local m = {
 m.key = function(n,z)
   if n==2 and z==1 then
     _menu.set_page("SYSTEM")
-elseif n==3 and z==1 then
+  elseif n==3 and z==1 then
     m.confirmed = true
     _menu.redraw()
-    -- TODO
-    --if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
-    norns.state.clean_shutdown = true
-    norns.state.save()
-    if pcall(cleanup) == false then print("cleanup failed") end
-    os.execute("sudo systemctl restart norns-jack.service")
-    os.execute("sudo systemctl restart norns-sclang.service")
-    os.execute("sudo systemctl restart norns-matron.service")
+    os.execute("rm ~/dust/data/system.pset")
+    os.execute("rm ~/dust/data/system.state")
+    _norns.reset()
   end
 end
 

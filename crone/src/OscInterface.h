@@ -15,7 +15,7 @@
 #include <array>
 
 #include "MixerClient.h"
-#include "SoftCutClient.h"
+#include "SoftcutClient.h"
 #include "Poll.h"
 
 // FIXME: didn't realize that liblo has a perfectly ok-looking cpp interface already. this could be cleaner.
@@ -50,7 +50,7 @@ namespace crone {
         static std::unique_ptr<Poll> vuPoll;
         static std::unique_ptr<Poll> phasePoll;
         static MixerClient *mixerClient;
-        static SoftCutClient *softCutClient;
+        static SoftcutClient *softCutClient;
 
     private:
         typedef void(*Handler)(lo_arg **argv, int argc);
@@ -64,7 +64,7 @@ namespace crone {
 
 
     public:
-        static void init(MixerClient *m, SoftCutClient *sc);
+        static void init(MixerClient *m, SoftcutClient *sc);
         static void deinit();
         static void printServerMethods();
 

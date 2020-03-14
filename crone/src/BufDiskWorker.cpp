@@ -194,7 +194,7 @@ noexcept {
         frSrc += ioBufFrames;
     }
     for (size_t i = 0; i < rem; ++i) {
-        int res = file.seek(frSrc, SF_SEEK_CUR);
+        int res = file.seek(frSrc, SF_SEEK_SET);
 
         if (res == -1) {
             std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
@@ -262,8 +262,7 @@ noexcept {
         frSrc += ioBufFrames;
     }
     for (size_t i = 0; i < rem; ++i) {
-        int res = file.seek(frSrc, SF_SEEK_CUR);
-
+        int res = file.seek(frSrc, SF_SEEK_SET);
         if (res == -1) {
             std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
             goto cleanup;
@@ -360,8 +359,8 @@ noexcept {
     size_t nf = 0;
 
     auto *ioBuf = new float[ioBufFrames * 2];
-    float *pbuf0 = buf0.data;
-    float *pbuf1 = buf1.data;
+    float *pbuf0 = buf0.data + frSrc;
+    float *pbuf1 = buf1.data + frSrc;
     for (size_t block = 0; block < numBlocks; ++block) {
         float *pio = ioBuf;
         for (size_t fr = 0; fr < ioBufFrames; ++fr) {

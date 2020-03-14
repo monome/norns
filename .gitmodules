@@ -4,3 +4,6 @@
 [submodule "third-party/link"]
 	path = third-party/link
 	url = https://github.com/Ableton/link.git
+[submodule "crone/softcut"]
+	path = crone/softcut
+	url = https://github.com/monome/softcut-lib.git

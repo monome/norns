@@ -66,7 +66,6 @@ void *loop_tx(void *p) {
         nb = read(pipe_tx[PIPE_READ], buf, PIPE_BUF_SIZE - 1);
         if(nb > 0) {
             buf[nb] = '\0';
-            printf("%s", buf);
             nn_send(sock_ws, buf, nb, 0);
         }
     }
@@ -142,7 +141,7 @@ int launch_exe(int argc,  char **argv) {
         // set up sockets and threads
         bind_sock(&sock_ws, &eid_ws, url_ws);
         launch_thread(&tid_tx, &loop_tx, NULL);
-        launch_thread(&tid_rx, &loop_rx, NULL); 
+        launch_thread(&tid_rx, &loop_rx, NULL);
     }
 
     // wait for the child process to exit

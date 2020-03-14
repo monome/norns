@@ -10,14 +10,12 @@
 
 #include "effects/CompressorParams.h"
 #include "effects/ReverbParams.h"
-#include "softcut/FadeCurves.h"
 
 #include "BufDiskWorker.h"
 #include "Commands.h"
 #include "OscInterface.h"
 
 using namespace crone;
-using softcut::FadeCurves;
 
 bool OscInterface::quitFlag;
 
@@ -31,13 +29,13 @@ unsigned int OscInterface::numMethods = 0;
 std::unique_ptr<Poll> OscInterface::vuPoll;
 std::unique_ptr<Poll> OscInterface::phasePoll;
 MixerClient *OscInterface::mixerClient;
-SoftCutClient *OscInterface::softCutClient;
+SoftcutClient *OscInterface::softCutClient;
 
 OscInterface::OscMethod::OscMethod(string p, string f, OscInterface::Handler h)
         : path(std::move(p)), format(std::move(f)), handler(h) {}
 
 
-void OscInterface::init(MixerClient *m, SoftCutClient *sc) {
+void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
     quitFlag = false;
     // FIXME: should get port configs from program args or elsewhere
     port = "9999";
@@ -483,13 +481,12 @@ void OscInterface::addServerMethods() {
     });
 
 
-    //////////////////////////////////////////////////////////
-    /// FIXME: these fade calculation methods create worker threads,
-    /// so as not to hold up either OSC server or audio processing.
-    /// this is probably not be the best place to do that;
-    /// it also doesn't entirely rule out glitches during fades.
-    /// perhaps these parameters should not be modulatable at all.
+    ///////////////////////////////////////////
+    /// FIXME: fade curve calculations are now per-voice,
+    /// so these methods won't work at all without modification.
+    //// in any case, they should use worker threads and this is the wrong place to manage that.
 
+#if 0
     addServerMethod("/set/param/cut/pre_fade_window", "if", [](lo_arg **argv, int argc) {
         if (argc < 1) { return; }
         float x = argv[0]->f;
@@ -525,8 +522,8 @@ void OscInterface::addServerMethods() {
         });
         t.detach();
     });
+#endif
     //////////////////
-    ///////////////////
 
     addServerMethod("/set/param/cut/level_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
@@ -692,7 +689,7 @@ void OscInterface::addServerMethods() {
         softCutClient->clearBuffer(1, 0, -1);
 
         softCutClient->reset();
-        for (int i = 0; i < SoftCutClient::NumVoices; ++i) {
+        for (int i = 0; i < SoftcutClient::NumVoices; ++i) {
             phasePoll->stop();
         }
     });
