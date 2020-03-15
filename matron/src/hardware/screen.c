@@ -60,11 +60,12 @@ typedef struct _cairo_linuxfb_device {
 struct {
   int head;
   int tail;
-  union screen_event_data data[100];
+  union screen_event_data data[SCREEN_EVENT_QUEUE_LENGTH];
 } sevq;
 
 static pthread_t p;
 void *screen_event_loop(void *);
+void screen_handle_event(union screen_event_data *e);
 
 /* Destroy a cairo surface */
 void cairo_linuxfb_surface_destroy(void *device)
@@ -303,12 +304,37 @@ void screen_init(void) {
 }
 
 void *screen_event_loop(void *x) {
-  (void)x; 
+  (void)x;
   while(1) {
-    sleep(1);
+    if(sevq.head != sevq.tail) {
+      sevq.tail = (sevq.tail + 1) % SCREEN_EVENT_QUEUE_LENGTH;
+      screen_handle_event(&sevq.data[sevq.tail]);
+    }
+    sleep(0.01);
   }
 }
 
+union screen_event_data *screen_new_event() {
+  return &sevq.data[sevq.head];
+}
+
+void screen_post_event() {
+  if((sevq.head+1)%SCREEN_EVENT_QUEUE_LENGTH != sevq.tail) {
+    sevq.head = (sevq.head+1)%SCREEN_EVENT_QUEUE_LENGTH;
+  }
+  else {
+    fprintf(stderr, "SCREEN EVENT BUFFER FULL\n");
+  }
+}
+
+void screen_handle_event(union screen_event_data *e) {
+  switch(e->type) {
+    case SCREEN_EVENT_UPDATE:
+      //fprintf(stderr, "SCREEN: %d %d\n",sevq.head,sevq.tail);
+      screen_update();
+      break;
+  }
+}
 
 void screen_deinit(void) {
     CHECK_CR

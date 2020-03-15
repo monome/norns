@@ -483,7 +483,12 @@ int _reset_lvm(lua_State *l) {
  */
 int _screen_update(lua_State *l) {
   lua_check_num_args(0);
-  screen_update();
+
+  union screen_event_data *e = screen_new_event();
+  e->type = SCREEN_EVENT_UPDATE;
+  screen_post_event();
+
+  //screen_update();
   lua_settop(l, 0);
   return 0;
 }
