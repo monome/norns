@@ -67,6 +67,7 @@ def configure(conf):
         conf.define('NORNS_DESKTOP', True)
 
     conf.env.ENABLE_ABLETON_LINK = conf.options.enable_ableton_link
+    conf.define('HAVE_ABLETON_LINK', conf.options.enable_ableton_link)
 
 def build(bld):
     bld.recurse('matron')
