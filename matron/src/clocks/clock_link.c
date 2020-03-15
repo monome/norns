@@ -23,19 +23,14 @@ static void *clock_link_run(void *p) {
     clock = ableton_link_clock(link);
     ableton_link_enable(link, true);
 
-    int beat = 0;
-
     while (true) {
         state = ableton_link_capture_app_session_state(link);
 
         double tempo = ableton_link_session_state_tempo(state);
         long micros = ableton_link_clock_micros(clock);
         double link_beat = ableton_link_session_state_beat_at_time(state, micros, 4);
-        double link_round_beat = (int) link_beat;
 
-        if (link_round_beat != beat) {
-            clock_update_reference_from(beat, 60.0f / tempo, CLOCK_SOURCE_LINK);
-        }
+        clock_update_reference_from(link_beat, 60.0f / tempo, CLOCK_SOURCE_LINK);
 
         ableton_link_session_state_destroy(state);
         usleep(1000000 / 100);
