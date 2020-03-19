@@ -185,8 +185,8 @@ end
 
 -- audio reset
 _norns.reset = function()
-  os.execute("sudo systemctl restart norns-jack.service")
   os.execute("sudo systemctl restart norns-sclang.service")
+  os.execute("sudo systemctl restart norns-crone.service")
   os.execute("sudo systemctl restart norns-matron.service")
 end
 
