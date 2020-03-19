@@ -9,6 +9,18 @@ local Script = {}
 Script.clear = function()
   print("# script clear")
 
+  -- stop all timers
+  metro.free_all()
+
+  -- stop clock
+  clock.cleanup()
+
+  -- stop all polls and clear callbacks
+  poll.clear_all()
+
+  -- clear crow functions
+  crow.init()
+
   -- script local state
   local state = { }
 
@@ -41,15 +53,6 @@ Script.clear = function()
   midi.cleanup()
   hid.cleanup()
 
-  -- stop all timers
-  metro.free_all()
-
-  -- stop clock
-  clock.cleanup()
-
-  -- stop all polls and clear callbacks
-  poll.clear_all()
-
   -- clear engine
   engine.name = nil
 
@@ -58,9 +61,6 @@ Script.clear = function()
 
   -- clear init
   init = norns.none
-
-  -- clear crow functions
-  crow.init()
 
   -- clear last run
   norns.state.script = ''
