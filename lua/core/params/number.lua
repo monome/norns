@@ -53,5 +53,10 @@ function Number:string()
   end
 end
 
+function Number:get_range()
+  local r = { self.min, self.max }
+  return r
+end
+
 
 return Number

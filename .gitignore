@@ -13,6 +13,9 @@
 .waf*
 build/
 
+# build
+maiden/maiden
+
 # xcode
 *.xcbkptlist
 *.xcuserstate
