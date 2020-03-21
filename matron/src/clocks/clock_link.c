@@ -11,10 +11,11 @@
 #include "clock.h"
 
 static pthread_t clock_link_thread;
-static struct clock_link_data_t {
-	double quantum;
+static struct clock_link_shared_data_t {
+    double quantum;
+    double requested_tempo;
     pthread_mutex_t lock;
-} clock_link_data;
+} clock_link_shared_data;
 
 static void *clock_link_run(void *p) {
     (void) p;
@@ -28,15 +29,19 @@ static void *clock_link_run(void *p) {
     ableton_link_enable(link, true);
 
     while (true) {
-        state = ableton_link_capture_audio_session_state(link);
+        if (pthread_mutex_trylock(&clock_link_shared_data.lock) == 0) {
+            state = ableton_link_capture_audio_session_state(link);
 
-        double tempo = ableton_link_session_state_tempo(state);
-        long micros = ableton_link_clock_micros(clock);
-        double link_beat = ableton_link_session_state_beat_at_time(state, micros, clock_link_data.quantum);
+            double link_tempo = ableton_link_session_state_tempo(state);
+            long micros = ableton_link_clock_micros(clock);
+            double link_beat = ableton_link_session_state_beat_at_time(state, micros, clock_link_shared_data.quantum);
 
-        clock_update_reference_from(link_beat, 60.0f / tempo, CLOCK_SOURCE_LINK);
+            clock_update_reference_from(link_beat, 60.0f / link_tempo, CLOCK_SOURCE_LINK);
 
-        ableton_link_session_state_destroy(state);
+            ableton_link_session_state_destroy(state);
+            pthread_mutex_unlock(&clock_link_shared_data.lock);
+        }
+
         usleep(1000000 / 100);
     }
 
@@ -47,13 +52,14 @@ void clock_link_start() {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
-    clock_link_data.quantum = 4;
+    clock_link_shared_data.quantum = 4;
+    clock_link_shared_data.requested_tempo = 0;
 
     pthread_create(&clock_link_thread, &attr, &clock_link_run, NULL);
 }
 
 void clock_link_set_quantum(double quantum) {
-    pthread_mutex_lock(&clock_link_data.lock);
-    clock_link_data.quantum = quantum;
-    pthread_mutex_unlock(&clock_link_data.lock);
+    pthread_mutex_lock(&clock_link_shared_data.lock);
+    clock_link_shared_data.quantum = quantum;
+    pthread_mutex_unlock(&clock_link_shared_data.lock);
 }
