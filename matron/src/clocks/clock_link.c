@@ -39,7 +39,7 @@ static void *clock_link_run(void *p) {
             clock_update_reference_from(link_beat, 60.0f / link_tempo, CLOCK_SOURCE_LINK);
 
             if (clock_link_shared_data.requested_tempo > 0) {
-                ableton_link_session_state_set_tempo(state, clock_link_shared_data.requested_tempo, 0);
+                ableton_link_session_state_set_tempo(state, clock_link_shared_data.requested_tempo, micros);
                 clock_link_shared_data.requested_tempo = 0;
                 ableton_link_commit_audio_session_state(link, state);
             }
