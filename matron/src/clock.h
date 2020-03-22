@@ -18,6 +18,7 @@ void clock_cancel_all();
 
 double clock_gettime_beats();
 double clock_gettime_secondsf();
+double clock_get_tempo();
 
 void clock_cancel(int);
 void clock_cancel_coro(int);

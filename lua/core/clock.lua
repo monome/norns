@@ -97,4 +97,9 @@ clock.get_time_beats = function()
   return _norns.clock_get_time_beats()
 end
 
+clock.get_tempo = function()
+  return _norns.clock_get_tempo()
+end
+
+
 return clock
