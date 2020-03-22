@@ -223,6 +223,7 @@ static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_internal_set_tempo(lua_State *l);
 static int _clock_link_set_tempo(lua_State *l);
+static int _clock_link_set_quantum(lua_State *l);
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
 static int _clock_get_tempo(lua_State *l);
@@ -421,6 +422,7 @@ void w_init(void) {
   lua_register_norns("clock_cancel", &_clock_cancel);
   lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
   lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
+  lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
   lua_register_norns("clock_set_source", &_clock_set_source);
   lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
   lua_register_norns("clock_get_tempo", &_clock_get_tempo);
@@ -1423,6 +1425,13 @@ int _clock_link_set_tempo(lua_State *l) {
   lua_check_num_args(1);
   double bpm = luaL_checknumber(l, 1);
   clock_link_set_tempo(bpm);
+  return 0;
+}
+
+int _clock_link_set_quantum(lua_State *l) {
+  lua_check_num_args(1);
+  double quantum = luaL_checknumber(l, 1);
+  clock_link_set_quantum(quantum);
   return 0;
 }
 
