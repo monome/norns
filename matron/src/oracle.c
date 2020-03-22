@@ -609,7 +609,7 @@ void o_cut_buffer_clear_region(float start, float end) {
 }
 
 void o_cut_buffer_clear_region_channel(int ch, float start, float end) {
-    lo_send(crone_addr, "/softcut/buffer/clear_region", "iff", ch, start, end);
+    lo_send(crone_addr, "/softcut/buffer/clear_region_channel", "iff", ch, start, end);
 }
 
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,

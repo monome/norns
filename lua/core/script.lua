@@ -70,6 +70,9 @@ Script.clear = function()
 
   -- clear params
   params:clear()
+  norns.pmap.clear()
+  -- add audio
+  audio.add_params()
 
   -- reset PLAY mode screen settings
   local status = norns.menu.status()
@@ -178,6 +181,7 @@ Script.run = function()
   else
     engine.load("None", Script.init)
   end
+  norns.pmap.read() -- load parameter map
 end
 
 --- load script metadata.

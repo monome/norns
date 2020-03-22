@@ -399,12 +399,13 @@ _norns.midi.event = function(id, data)
     if d.port and Midi.vports[d.port].event then
       Midi.vports[d.port].event(data)
     end
+
+    -- hack = send all midi to menu for param-cc-map
+    norns.menu_midi_event(data, d.port)
   else
     error('no entry for midi '..id)
   end
 
-  -- hack = send all midi to menu for param-cc-map
-  norns.menu_midi_event(data)
 end
 
 return Midi

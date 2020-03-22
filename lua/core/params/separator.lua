@@ -6,8 +6,9 @@ Separator.__index = Separator
 
 local tSEPARATOR = 0
 
-function Separator.new()
+function Separator.new(name)
   local s = setmetatable({}, Separator)
+  s.name = name or ""
   s.t = tSEPARATOR
   s.action = function() end
   return s
@@ -23,7 +24,7 @@ function Separator:set_default() end
 function Separator:bang() end
 
 function Separator:string()
-  return "---"
+  return self.name
 end
 
 return Separator
