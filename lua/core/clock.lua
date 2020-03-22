@@ -4,6 +4,7 @@
 local clock = {}
 
 clock.threads = {}
+clock.link = {}
 
 local clock_id_counter = 1
 local function new_id()
