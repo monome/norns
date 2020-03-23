@@ -103,6 +103,8 @@ function ParamSet:add(args)
     end
   end
 
+  param.save = true
+
   table.insert(self.params, param)
   self.count = self.count + 1
   self.group = self.group - 1
@@ -251,6 +253,14 @@ function ParamSet:set_action(index, func)
   param.action = func
 end
 
+--- set save state.
+-- @param index
+-- @tparam function func set the action for this index
+function ParamSet:set_save(index, state)
+  local param = self:lookup_param(index)
+  param.save = state
+end
+
 --- get type.
 -- @param index
 function ParamSet:t(index)
@@ -318,7 +328,7 @@ function ParamSet:write(filename, name)
     io.output(fd)
     if name then io.write("-- "..name.."\n") end
     for _,param in pairs(self.params) do
-      if param.id and param.t ~= self.tTRIGGER then
+      if param.id and param.save and param.t ~= self.tTRIGGER then
         io.write(string.format("%s: %s\n", quote(param.id), param:get()))
       end
     end
