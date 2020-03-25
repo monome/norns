@@ -140,11 +140,11 @@ namespace crone {
     // logarithmic interpolator (aka 1-pole LPF)
     class LogRamp {
         float sampleRate;
-        float time;
         float b;
         float x0;
         float y0;
     public:
+        float time;
         explicit LogRamp(float sr=48000, float t=0.05) : sampleRate(sr), b(1.f), x0(0.f), y0(0.f) {
             sampleRate = sr;
             time = t;

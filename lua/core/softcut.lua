@@ -273,8 +273,7 @@ SC.poll_stop_phase = function() _norns.poll_stop_cut_phase() end
 -- @tparam int state : off/on (0,1)
 SC.enable = function(voice, state) _norns.cut_enable(voice, state) end
 
-----------------
---- TODO: complete function doc comments below here!
+-- - TODO: complete function doc comments below here!
 
 --- clear all buffers completely
 SC.buffer_clear = function() _norns.cut_buffer_clear() end

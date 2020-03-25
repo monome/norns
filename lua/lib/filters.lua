@@ -35,7 +35,6 @@ local mean = {}
 mean.__index = mean
 setmetatable(mean, { __index=f })
 
-
 -------------------------------------------------------------
 --- constructor
 --- @param bufsize: window size, cannot change after creation
@@ -142,8 +141,6 @@ function median:next(x)
    return self.value
 end
 
-
-
 ----------------------
 --- @type filters.smoother
 -- simple one-pole lowpass smoothing filter
@@ -198,7 +195,9 @@ smoother.EPSILON = 1e-8
 function smoother:next(x)
    if x == nil then x = self.x
    else self.x = x end
+   
    local d = self.buf[1] - x
+
    if math.abs(d) < smoother.EPSILON then
       self.buf[1] = x
    else
@@ -219,8 +218,6 @@ end
 function smoother:set_value(x)   
    self.x = x
 end
-
-
 
 -----------------------------------
 -- TODO: what else would be useful?

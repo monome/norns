@@ -165,7 +165,7 @@ Screen.text_center = function(str) _norns.screen_text_center(str) end
 --- calculate width of text.
 -- uses currently selected font.
 -- @tparam string str : text to calculate width of
-Screen.text_extents = function(str) return _norns.screen_extents(str) end
+Screen.text_extents = function(str) return _norns.screen_text_extents(str) end
 
 --- select font face.
 -- @param index font face (see list)
@@ -212,13 +212,13 @@ end
 
 
 _norns.screen_text_right = function(str)
-  local x, y = _norns.screen_extents(str)
+  local x, y = _norns.screen_text_extents(str)
   _norns.screen_move_rel(-x, 0)
   _norns.screen_text(str)
 end
 
 _norns.screen_text_center = function(str)
-  local x, y = _norns.screen_extents(str)
+  local x, y = _norns.screen_text_extents(str)
   _norns.screen_move_rel(-x/2, 0)
   _norns.screen_text(str)
 end

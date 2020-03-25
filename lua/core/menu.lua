@@ -91,8 +91,7 @@ norns.init_done = function(status)
     _menu.locked = false
     _menu.set_mode(false)
   end
-  m["PARAMS"].init_map()
-  m["PARAMS"].read_pmap()
+  m["PARAMS"].reset()
 end
 
 
@@ -214,7 +213,6 @@ m["PARAMS"] = require 'core/menu/params'
 m["SYSTEM"] = require 'core/menu/system'
 m["DEVICES"] = require 'core/menu/devices'
 m["WIFI"] = require 'core/menu/wifi'
-m["AUDIO"] = require 'core/menu/audio'
 m["RESET"] = require 'core/menu/reset'
 m["UPDATE"] = require 'core/menu/update'
 m["SLEEP"] = require 'core/menu/sleep'
