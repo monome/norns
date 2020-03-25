@@ -13,7 +13,7 @@ UI.__index = UI
 -------- Pages --------
 
 --- Pages
--- @section
+-- @section Pages
 
 UI.Pages = {}
 UI.Pages.__index = UI.Pages
@@ -69,7 +69,7 @@ end
 -------- Tabs --------
 
 --- Tabs
--- @section
+-- @section Tabs
 
 UI.Tabs = {}
 UI.Tabs.__index = UI.Tabs
@@ -126,7 +126,7 @@ end
 -------- List --------
 
 --- List
--- @section
+-- @section List
 UI.List = {}
 UI.List.__index = UI.List
 
@@ -192,7 +192,7 @@ end
 -------- ScrollingList --------
 
 --- ScrollingList
--- @section
+-- @section Scrollinglist
 UI.ScrollingList = {}
 UI.ScrollingList.__index = UI.ScrollingList
 
@@ -265,7 +265,7 @@ end
 -------- Message --------
 
 --- Message
--- @section
+-- @section Message
 UI.Message = {}
 UI.Message.__index = UI.Message
 
@@ -301,7 +301,7 @@ end
 -------- Slider --------
 
 --- Slider
--- @section
+-- @section Slider
 UI.Slider = {}
 UI.Slider.__index = UI.Slider
 
@@ -373,7 +373,7 @@ end
 -------- Dial --------
 
 --- Dial
--- @section
+-- @section Dial
 UI.Dial = {}
 UI.Dial.__index = UI.Dial
 
@@ -500,7 +500,7 @@ end
 -------- PlaybackIcon --------
 
 --- PlaybackIcon
--- @section
+-- @section PlaybackIcon
 UI.PlaybackIcon = {}
 UI.PlaybackIcon.__index = UI.PlaybackIcon
 

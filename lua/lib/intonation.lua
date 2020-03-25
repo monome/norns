@@ -5,7 +5,7 @@
 local JI = {}
 
 --- 12-tone scales
--- @section
+-- @section 12-tone
 
 --- small variation of ptolemaic 5-limit with closer minor 7th.
 -- taking cue from jeff snyder and calling this "normal" since it is most commonly used.
@@ -55,7 +55,7 @@ end
 
 
 --- higher-tone scales / gamuts
--- @section
+-- @section higher-tone
 
 --- gioseffo zarlino's 16-tone (5-limit)
 -- @treturn table

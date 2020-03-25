@@ -43,6 +43,10 @@ function ParamSet.new(id, name)
 end
 
 --- add separator.
+-- name is optional.
+-- separators have their own parameter index and
+-- can be hidden or added to a paremeter group.
+-- @tparam string name
 function ParamSet:add_separator(name)
   local param = separator.new(name)
   table.insert(self.params, param)
@@ -51,7 +55,11 @@ function ParamSet:add_separator(name)
   self.hidden[self.count] = false
 end
 
---- add group.
+--- add parameter group.
+-- groups cannot be nested,
+-- i.e. a group cannot be made within a group.
+-- @tparam string name
+-- @tparam int n
 function ParamSet:add_group(name,n)
   if self.group < 1 then
     local param = group.new(name,n)
@@ -255,7 +263,7 @@ end
 
 --- set save state.
 -- @param index
--- @tparam function func set the action for this index
+-- @param state set the save state for this index
 function ParamSet:set_save(index, state)
   local param = self:lookup_param(index)
   param.save = state
@@ -289,6 +297,7 @@ function ParamSet:show(index)
 end
 
 --- get visibility.
+-- parameters are visible by default.
 -- @param index
 function ParamSet:visible(index)
   return self.hidden[index]
@@ -315,6 +324,7 @@ end
 
 --- write to disk.
 -- @param filename either an absolute path, a number (to write [scriptname]-[number].pset to local data folder) or nil (to write default [scriptname].pset to local data folder)
+-- @tparam string name
 function ParamSet:write(filename, name)
   filename = filename or 1
   if type(filename) == "number" then
