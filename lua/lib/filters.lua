@@ -19,9 +19,8 @@ function f:clear()
 end
 
 -- debug function to print the buffer
-function f:print_string(pre)
-   if pre == nil then pre = '' end
-   str = pre
+function f:__tostring()
+   str = ''
    for i=1,self.bufsize do
       str = str .. self.buf[i] .. ', '
    end
@@ -34,6 +33,8 @@ end
 
 local mean = {}
 mean.__index = mean
+setmetatable(mean, { __index=f })
+
 
 -------------------------------------------------------------
 --- constructor
@@ -67,24 +68,23 @@ function mean:next(x)
    return self.sum
 end
 
-setmetatable(mean, { __index=f })
-
 ----------------------
 --- @type filters.median
 --- moving, windowed median average filter
 
 local median = {}
 median.__index = median
+setmetatable(median, { __index=f })
 
 --- constructor
 --- @param bufsize: window size, cannot change after creation
 function median.new(bufsize)
-   local new = setmetatable({}, f.median)
+   local new = setmetatable({}, median)
    
    new.buf = {}
    if bufsize==nil then bufsize=17 end
    -- only odd buffer sizes are allowed!
-   if (bufsize52) == 0 then bufsize = bufsize + 1 end
+   if (bufsize) == 0 then bufsize = bufsize + 1 end
    new.bufsize = bufsize
    new.midpoint = (bufsize-1)/2
    new:clear()
@@ -142,17 +142,95 @@ function median:next(x)
    return self.value
 end
 
-setmetatable(median, { __index=f })
+
+
+----------------------
+--- @type filters.smoother
+-- simple one-pole lowpass smoothing filter
+
+smoother = {}
+smoother.__index = smoother
+setmetatable(smoother, {__index=f})
+
+--------
+-- constructor
+-- @param time: -60db convergence time
+-- @param sr: expected sample rate
+function smoother.new(time, sr)
+   local new = setmetatable({}, smoother)
+   new.buf = {}
+   new.bufsize = 1
+   new:clear()
+   new.x = 0
+   new.t = 10
+   new.sr = sr
+   new.t = time
+   new:calc_coeff()
+   new.pos = 1 -- NB: not really used
+   return new
+end
+
+
+function smoother:calc_coeff()
+   self.b = math.exp(-6.9 / (self.t * self.sr))
+   print(self.b)
+end
+
+-- set convergence time
+-- @param t: time to converge within -60db of target
+function smoother:set_time(t)
+   self.t = t
+   self:calc_coeff()
+end
+
+-- set samplerate
+-- @param sr: new sample rate
+function smoother:set_sr(sr)
+   self.sr = sr
+   self:calc_coeff()
+end
+
+smoother.EPSILON = 1e-8
+
+-- calculate the next sample based on new input
+-- @param x: new input (optional)
+-- @return smoothed output
+function smoother:next(x)
+   if x == nil then x = self.x
+   else self.x = x end
+   local d = self.buf[1] - x
+   if math.abs(d) < smoother.EPSILON then
+      self.buf[1] = x
+   else
+      self.buf[1] = x + (self.b * d)
+   end
+   return self.buf[1]
+end
+
+-- immediately jump to a new value
+-- @param new value
+function smoother:set_value(x)   
+   self.buf[1] = x
+   self.y = x
+end
+
+-- set target without updating
+-- @param new target
+function smoother:set_value(x)   
+   self.x = x
+end
+
+
 
 -----------------------------------
 -- TODO: what else would be useful?
 --
 --- quantile estimator?
---- 1-pole lowpass?
 --- constant time ramp?
 --- some kind of hysteresis / latching?
 
 f.mean = mean
 f.median = median
+f.smoother = smoother
 
 return f
