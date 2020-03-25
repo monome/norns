@@ -29,7 +29,8 @@ function f:print_string(pre)
 end
 
 ----------------------
---- @class mean: moving, windowed mean-average filter
+--- @type filters.mean
+-- moving, windowed mean-average filter
 
 local mean = {}
 mean.__index = mean
@@ -69,9 +70,8 @@ end
 setmetatable(mean, { __index=f })
 
 ----------------------
---- @class median: moving, windowed median average filter
---- NB: this algorithm is simple, but it is O(N);
---- shouldn't be used with large buffers.
+--- @type filters.median
+--- moving, windowed median average filter
 
 local median = {}
 median.__index = median
