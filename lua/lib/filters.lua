@@ -215,7 +215,7 @@ end
 
 -- set target without updating
 -- @param new target
-function smoother:set_value(x)   
+function smoother:set_target(x)   
    self.x = x
 end
 
