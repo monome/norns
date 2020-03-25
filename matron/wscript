@@ -29,28 +29,44 @@ def build(bld):
         'src/system_cmd.c',
         'src/clock.c',
         'src/clocks/clock_internal.c',
-        'src/clocks/clock_midi.c'
+        'src/clocks/clock_midi.c',
     ]
+
+    matron_includes = [
+        'src',
+        'src/device',
+        'src/hardware',
+        'lua',
+    ]
+
+    matron_libs = [
+        'pthread',
+        'm',
+    ]
+
+    matron_use = [
+        'ALSA',
+        'LIBUDEV',
+        'LIBEVDEV',
+        'CAIRO',
+        'CAIRO-FT',
+        'LUA53',
+        'LIBLO',
+        'LIBMONOME',
+        'SNDFILE',
+        'AVAHI-COMPAT-LIBDNS_SD',
+    ]
+
+    if bld.env.ENABLE_ABLETON_LINK:
+        matron_sources += ['src/clocks/clock_link.c']
+        matron_includes += ['../third-party/link-c']
+        matron_libs += ['stdc++']
+        matron_use += ['LIBLINK_C']
 
     bld.program(features='c cprogram',
         source=matron_sources,
         target='matron',
-        includes=[
-            'src',
-            'src/device',
-            'src/hardware',
-            'lua',
-        ], use=[
-            'ALSA',
-            'LIBUDEV',
-            'LIBEVDEV',
-            'CAIRO',
-            'CAIRO-FT',
-            'LUA53',
-            'LIBLO',
-            'LIBMONOME',
-            'SNDFILE',
-            'AVAHI-COMPAT-LIBDNS_SD',
-        ], lib=[
-            'pthread', 'm'
-        ], cflags=['-O3', '-Wall'])
+        includes=matron_includes,
+        use=matron_use,
+        lib=matron_libs,
+        cflags=['-O3', '-Wall'])

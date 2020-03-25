@@ -39,6 +39,7 @@
 #include "system_cmd.h"
 #include "clock.h"
 #include "clocks/clock_internal.h"
+#include "clocks/clock_link.h"
 
 
 // registered lua functions require the LVM state as a parameter.
@@ -221,8 +222,11 @@ static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_internal_set_tempo(lua_State *l);
+static int _clock_link_set_tempo(lua_State *l);
+static int _clock_link_set_quantum(lua_State *l);
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
+static int _clock_get_tempo(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -417,8 +421,11 @@ void w_init(void) {
   lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
   lua_register_norns("clock_cancel", &_clock_cancel);
   lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
+  lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
+  lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
   lua_register_norns("clock_set_source", &_clock_set_source);
   lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
+  lua_register_norns("clock_get_tempo", &_clock_get_tempo);
 
   // name global extern table
   lua_setglobal(lvm, "_norns");
@@ -1414,6 +1421,20 @@ int _clock_internal_set_tempo(lua_State *l) {
   return 0;
 }
 
+int _clock_link_set_tempo(lua_State *l) {
+  lua_check_num_args(1);
+  double bpm = luaL_checknumber(l, 1);
+  clock_link_set_tempo(bpm);
+  return 0;
+}
+
+int _clock_link_set_quantum(lua_State *l) {
+  lua_check_num_args(1);
+  double quantum = luaL_checknumber(l, 1);
+  clock_link_set_quantum(quantum);
+  return 0;
+}
+
 int _clock_set_source(lua_State *l) {
   lua_check_num_args(1);
   int source = (int) luaL_checkinteger(l, 1);
@@ -1423,6 +1444,11 @@ int _clock_set_source(lua_State *l) {
 
 int _clock_get_time_beats(lua_State *l) {
   lua_pushnumber(l, clock_gettime_beats());
+  return 1;
+}
+
+int _clock_get_tempo(lua_State *l) {
+  lua_pushnumber(l, clock_get_tempo());
   return 1;
 }
 
