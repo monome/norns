@@ -449,7 +449,7 @@ void screen_clear(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 }
 
-double *screen_extents(const char *s) {
+double *screen_text_extents(const char *s) {
     CHECK_CRR
     cairo_text_extents_t extents;
     cairo_text_extents(cr, s, &extents);

@@ -82,7 +82,7 @@ end
 -- @treturn string trimmed string
 util.trim_string_to_width = function(s, width)
   local first_iter = true
-  while _norns.screen_extents(s) > width do
+  while _norns.screen_text_extents(s) > width do
     if first_iter then
       s = s .. "..."
       first_iter = false

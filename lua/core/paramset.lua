@@ -8,6 +8,8 @@ local control = require 'core/params/control'
 local file = require 'core/params/file'
 local taper = require 'core/params/taper'
 local trigger = require 'core/params/trigger'
+local group = require 'core/params/group'
+local text = require 'core/params/text'
 
 local ParamSet = {
   tSEPARATOR = 0,
@@ -17,6 +19,8 @@ local ParamSet = {
   tFILE = 4,
   tTAPER = 5,
   tTRIGGER = 6,
+  tGROUP = 7,
+  tTEXT = 8,
   sets = {}
 }
 
@@ -31,15 +35,41 @@ function ParamSet.new(id, name)
   ps.name = name or ""
   ps.params = {}
   ps.count = 0
+  ps.hidden = {}
   ps.lookup = {}
+  ps.group = 0
   ParamSet.sets[ps.id] = ps
   return ps
 end
 
 --- add separator.
-function ParamSet:add_separator()
-  table.insert(self.params, separator.new())
+-- name is optional.
+-- separators have their own parameter index and
+-- can be hidden or added to a paremeter group.
+-- @tparam string name
+function ParamSet:add_separator(name)
+  local param = separator.new(name)
+  table.insert(self.params, param)
   self.count = self.count + 1
+  self.group = self.group - 1
+  self.hidden[self.count] = false
+end
+
+--- add parameter group.
+-- groups cannot be nested,
+-- i.e. a group cannot be made within a group.
+-- @tparam string name
+-- @tparam int n
+function ParamSet:add_group(name,n)
+  if self.group < 1 then
+    local param = group.new(name,n)
+    table.insert(self.params, param)
+    self.count = self.count + 1
+    self.group = n
+    self.hidden[self.count] = false
+  else
+    print("ERROR: paramset cannot nest GROUPs")
+  end
 end
 
 --- add generic parameter.
@@ -73,15 +103,21 @@ function ParamSet:add(args)
       param = taper.new(id, name, args.min, args.max, args.default, args.k, args.units)
     elseif args.type == "trigger" then
       param = trigger.new(id, name)
+    elseif args.type == "text" then
+      param = text.new(id, name, args.text)
     else
       print("paramset.add() error: unknown type")
       return nil
     end
   end
 
+  param.save = true
+
   table.insert(self.params, param)
   self.count = self.count + 1
+  self.group = self.group - 1
   self.lookup[param.id] = self.count
+  self.hidden[self.count] = false
   if args.action then
     param.action = args.action
   end
@@ -124,6 +160,11 @@ function ParamSet:add_file(id, name, path)
   self:add { param=file.new(id, name, path) }
 end
 
+--- add text.
+function ParamSet:add_text(id, name, txt)
+  self:add { param=text.new(id, name, txt) }
+end
+
 --- add taper.
 -- @tparam string id
 -- @tparam string name
@@ -156,7 +197,13 @@ end
 --- name.
 -- @tparam number index
 function ParamSet:get_name(index)
-  return self.params[index].name
+  return self.params[index].name or ""
+end
+
+--- id.
+-- @tparam number index
+function ParamSet:get_id(index)
+  return self.params[index].id
 end
 
 --- string.
@@ -214,11 +261,48 @@ function ParamSet:set_action(index, func)
   param.action = func
 end
 
+--- set save state.
+-- @param index
+-- @param state set the save state for this index
+function ParamSet:set_save(index, state)
+  local param = self:lookup_param(index)
+  param.save = state
+end
+
 --- get type.
 -- @param index
 function ParamSet:t(index)
-  return self.params[index].t
+  local param = self:lookup_param(index)
+  return param.t
 end
+
+--- get range
+-- @param index
+function ParamSet:get_range(index)
+  local param = self:lookup_param(index)
+  return param:get_range()
+end
+
+
+--- set visibility to hidden.
+-- @param index
+function ParamSet:hide(index)
+  self.hidden[index] = true
+end
+
+--- set visiblility to show.
+-- @param index
+function ParamSet:show(index)
+  self.hidden[index] = false
+end
+
+--- get visibility.
+-- parameters are visible by default.
+-- @param index
+function ParamSet:visible(index)
+  return self.hidden[index]
+end
+
 
 local function quote(s)
   return '"'..s:gsub('"', '\\"')..'"'
@@ -240,59 +324,61 @@ end
 
 --- write to disk.
 -- @param filename either an absolute path, a number (to write [scriptname]-[number].pset to local data folder) or nil (to write default [scriptname].pset to local data folder)
-function ParamSet:write(filename)
-  filename = filename or 0
+-- @tparam string name
+function ParamSet:write(filename, name)
+  filename = filename or 1
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    if n > 0 then
-      filename = filename .. "-" .. string.format("%02d",n)
-    end
-    filename = filename .. ".pset"
+    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
   end
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
-  io.output(fd)
-  for _,param in pairs(self.params) do
-    if param.id and param.t ~= self.tTRIGGER then
-      io.write(string.format("%s: %s\n", quote(param.id), param:get()))
+  if fd then
+    io.output(fd)
+    if name then io.write("-- "..name.."\n") end
+    for _,param in pairs(self.params) do
+      if param.id and param.save and param.t ~= self.tTRIGGER then
+        io.write(string.format("%s: %s\n", quote(param.id), param:get()))
+      end
     end
-  end
-  io.close(fd)
+    io.close(fd)
+  else print("pset: BAD FILENAME") end
 end
 
 --- read from disk.
 -- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname].pset from local data folder)
 function ParamSet:read(filename)
-  filename = filename or 0
+  filename = filename or 1
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    if n > 0 then
-      filename = filename .. "-" .. string.format("%02d",n)
-    end
-    filename = filename .. ".pset"
+    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
   end
   print("pset >> read: " .. filename)
   local fd = io.open(filename, "r")
   if fd then
     io.close(fd)
     for line in io.lines(filename) do
-      local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
+      if util.string_starts(line, "--") then
+        params.name = string.sub(line, 4, -1)
+      else
+        local id, value = string.match(line, "(\".-\")%s*:%s*(.*)")
 
-      if id and value then
-        id = unquote(id)
-        local index = self.lookup[id]
+        if id and value then
+          id = unquote(id)
+          local index = self.lookup[id]
 
-        if index and self.params[index] then
-          if tonumber(value) ~= nil then
-            self.params[index]:set(tonumber(value))
-          elseif value == "-inf" then
-            self.params[index]:set(-math.huge)
-          elseif value == "inf" then
-            self.params[index]:set(math.huge)
-          elseif value then
-            self.params[index]:set(value)
+          if index and self.params[index] then
+            if tonumber(value) ~= nil then
+              self.params[index]:set(tonumber(value))
+            elseif value == "-inf" then
+              self.params[index]:set(-math.huge)
+            elseif value == "inf" then
+              self.params[index]:set(math.huge)
+            elseif value then
+              self.params[index]:set(value)
+            end
           end
         end
       end
