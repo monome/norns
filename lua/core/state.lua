@@ -8,6 +8,15 @@ state.data = _path.data
 state.name = ''
 state.shortname = ''
 state.clean_shutdown = false
+state.mix = {}
+state.mix.output = 0
+state.mix.input = 0
+state.mix.monitor = 0
+state.mix.engine = 0
+state.mix.cut = 0
+state.mix.tape = 0
+state.mix.monitor_mode = "MONO"
+state.mix.headphone_gain = 40
 
 -- read state.lua and set parameters back to stored vals.
 state.resume = function()
@@ -80,6 +89,14 @@ state.save_state = function()
   io.write("norns.state.shortname = '" .. state.shortname .. "'\n")
   io.write("norns.state.path = '" .. state.path .. "'\n")
   io.write("norns.state.data = '" .. state.data .. "'\n")
+  io.write("norns.state.mix.output = " .. norns.state.mix.output .. "\n")
+  io.write("norns.state.mix.input = " .. norns.state.mix.input .. "\n")
+  io.write("norns.state.mix.monitor = " .. norns.state.mix.monitor .. "\n")
+  io.write("norns.state.mix.engine = " .. norns.state.mix.engine .. "\n")
+  io.write("norns.state.mix.cut = " .. norns.state.mix.cut .. "\n")
+  io.write("norns.state.mix.tape = " .. norns.state.mix.tape .. "\n")
+  io.write("norns.state.mix.monitor_mode = '" .. norns.state.mix.monitor_mode .. "'\n")
+  io.write("norns.state.mix.headphone_gain = " .. norns.state.mix.headphone_gain .. "\n")
   for i=1,4 do
     io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
   end
