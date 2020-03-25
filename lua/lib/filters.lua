@@ -6,19 +6,19 @@
 local f = {}
 f.__index = f
 
--- helper
-local function wrap_add(x, a, max)
-   local y = x + a
+-- helper to increment and wrap an index
+local function wrap_inc(x, max)
+   local y = x + 1
    while y > max do y = y - max end
    return y
 end
-
 
 --- clear a filter's history
 function f:clear() 
    for i=1,self.bufsize do self.buf[i]=0 end
 end
 
+-- debug function to print the buffer
 function f:print_string(pre)
    if pre == nil then pre = '' end
    str = pre
@@ -27,8 +27,6 @@ function f:print_string(pre)
    end
    return str
 end
-
-function f:get(i) return buf[i] end
 
 ----------------------
 --- @class mean: moving, windowed mean-average filter
@@ -64,7 +62,7 @@ function mean:next(x)
    self.sum = self.sum + a
    self.sum = self.sum - self.buf[self.pos]
    self.buf[self.pos] = a   
-   self.pos = wrap_add(self.pos, 1, self.bufsize)
+   self.pos = wrap_inc(self.pos, self.bufsize)
    return self.sum
 end
 
@@ -123,11 +121,12 @@ end
 
 --- process a new input value and update the average
 -- @param x: new input
+-- @return median of last N values
 function median:next(x)
    -- save the oldest value, overwrite with newest value
    local x0 = self.buf[self.pos]
    self.buf[self.pos] = x
-   self.pos = wrap_add(self.pos, 1, self.bufsize)   
+   self.pos = wrap_inc(self.pos, self.bufsize)   
    if x > self.value and x0 <= self.value then
       local count, min = self:count_above()
       if count > self.midpoint then
@@ -148,6 +147,7 @@ setmetatable(median, { __index=f })
 -----------------------------------
 -- TODO: what else would be useful?
 --
+--- quantile estimator?
 --- 1-pole lowpass?
 --- constant time ramp?
 --- some kind of hysteresis / latching?
