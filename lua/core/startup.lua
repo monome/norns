@@ -5,6 +5,7 @@ util = require 'util'
 
 require 'math'
 math.randomseed(os.time()) -- more random
+inf = math.huge
 
 -- globals
 audio = require 'core/audio'

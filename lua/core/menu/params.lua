@@ -46,7 +46,7 @@ local function build_page()
   page = {}
   local i = 1
   repeat
-    if params:visible(i) == false then table.insert(page, i) end
+    if params:visible(i) then table.insert(page, i) end
     if params:t(i) == params.tGROUP then
       i = i + params:get(i) + 1
     else i = i + 1 end
@@ -115,11 +115,13 @@ m.key = function(n,z)
     if n==3 and z==1 then
       if m.mode_pos == 1 then
         m.mode = mEDIT
+        build_page()
       elseif m.mode_pos == 2 then
         init_pset()
         m.mode = mPSET
       elseif m.mode_pos == 3 then
         m.mode = mMAP
+        build_page()
       end
     end
   -- EDIT + MAP

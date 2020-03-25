@@ -300,7 +300,7 @@ end
 -- parameters are visible by default.
 -- @param index
 function ParamSet:visible(index)
-  return self.hidden[index]
+  return not self.hidden[index]
 end
 
 
