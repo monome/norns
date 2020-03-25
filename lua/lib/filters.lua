@@ -71,7 +71,9 @@ end
 setmetatable(mean, { __index=f })
 
 ----------------------
----- @class median: moving, windowed median average filter
+--- @class median: moving, windowed median average filter
+--- NB: this algorithm is simple, but it is O(N);
+--- shouldn't be used with large buffers.
 
 local median = {}
 median.__index = median
@@ -82,32 +84,73 @@ function median.new(bufsize)
    local new = setmetatable({}, f.median)
    
    new.buf = {}
-   if bufsize==nil then bufsize=16 end
+   if bufsize==nil then bufsize=17 end
+   -- only odd buffer sizes are allowed!
+   if (bufsize52) == 0 then bufsize = bufsize + 1 end
    new.bufsize = bufsize
+   new.midpoint = (bufsize-1)/2
    new:clear()
    
+   new.value = 0
+   new.pos = 1
    return new   
 end
+
+-- count how many values in buffer are below current median
+function median:count_below()
+   local count = 0
+   local max = -math.huge
+   local x
+   for i=1,self.bufsize do
+      x = self.buf[i]
+      if x < self.value then count = count + 1 end
+      if x > max then max = x end
+   end
+   return count, max
+end
+function median:count_above()
+   local count = 0
+   local min = math.huge
+   local x
+   for i=1,self.bufsize do
+      x = self.buf[i]
+      if x > self.value then count = count + 1 end
+      if x < min then min = x end
+   end
+   return count, min
+end
+
 
 --- process a new input value and update the average
 -- @param x: new input
 function median:next(x)
-   -- TODO
+   -- save the oldest value, overwrite with newest value
+   local x0 = self.buf[self.pos]
+   self.buf[self.pos] = x
+   self.pos = wrap_add(self.pos, 1, self.bufsize)   
+   if x > self.value and x0 <= self.value then
+      local count, min = self:count_above()
+      if count > self.midpoint then
+	 self.value = min
+      end
+   end
+   if x < self.value and x0 >= self.value then
+      local count, max = self:count_below()
+      if count > self.midpoint then
+	 self.value = max
+      end
+   end
+   return self.value
 end
 
 setmetatable(median, { __index=f })
 
------------------
--- hysteresis
-
--- TODO
-
-
------------------
--- 1-pole lowpass
-
--- TODO
-
+-----------------------------------
+-- TODO: what else would be useful?
+--
+--- 1-pole lowpass?
+--- constant time ramp?
+--- some kind of hysteresis / latching?
 
 f.mean = mean
 f.median = median
