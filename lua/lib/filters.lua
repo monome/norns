@@ -159,7 +159,6 @@ function smoother.new(time, sr)
    new.bufsize = 1
    new:clear()
    new.x = 0
-   new.t = 10
    new.sr = sr
    new.t = time
    new:calc_coeff()
