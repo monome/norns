@@ -39,10 +39,7 @@
 #include "system_cmd.h"
 #include "clock.h"
 #include "clocks/clock_internal.h"
-
-#ifdef HAVE_ABLETON_LINK
 #include "clocks/clock_link.h"
-#endif
 
 
 // registered lua functions require the LVM state as a parameter.
@@ -226,7 +223,7 @@ static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_internal_set_tempo(lua_State *l);
 
-#ifdef HAVE_ABLETON_LINK
+#if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
 static int _clock_link_set_quantum(lua_State *l);
 #endif
@@ -428,7 +425,7 @@ void w_init(void) {
   lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
   lua_register_norns("clock_cancel", &_clock_cancel);
   lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
-#ifdef HAVE_ABLETON_LINK
+#if HAVE_ABLETON_LINK
   lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
   lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
 #endif
@@ -1430,7 +1427,7 @@ int _clock_internal_set_tempo(lua_State *l) {
   return 0;
 }
 
-#ifdef HAVE_ABLETON_LINK
+#if HAVE_ABLETON_LINK
 int _clock_link_set_tempo(lua_State *l) {
   lua_check_num_args(1);
   double bpm = luaL_checknumber(l, 1);
