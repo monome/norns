@@ -325,11 +325,15 @@ function Audio.add_params()
   params:set_save("headphone_gain", false)
   
   params:add_group("REVERB",11)
-  params:add_option("reverb", "reverb", {"OFF", "ON"}, 2)
+  params:add_option("reverb", "reverb", {"OFF", "ON"}, 
+    norns.state.mix.aux)
   params:set_action("reverb",
   function(x)
     if x == 1 then audio.rev_off() else audio.rev_on() end
+    norns.state.mix.aux = x
   end)
+  params:set_save("reverb", false)
+
   local cs_DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
   local cs_DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
   local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
@@ -401,7 +405,8 @@ function Audio.add_params()
   --]]
 
   params:add_group("COMPRESSOR",8)
-  params:add_option("compressor", "compressor", {"OFF", "ON"})
+  params:add_option("compressor", "compressor", {"OFF", "ON"},
+    norns.state.mix.ins)
   params:set_action("compressor",
   function(x)
     if x == 1 then
@@ -409,7 +414,10 @@ function Audio.add_params()
     else
       audio.comp_on()
     end
+    norns.state.mix.ins = x
   end)
+  params:set_save("compressor", false)
+
   local cs_params = cs.new(0,1,'lin',0,1,'')
   params:add_control("comp_mix", "mix", cs_MIX)
   params:set_action("comp_mix",

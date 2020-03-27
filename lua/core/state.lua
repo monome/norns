@@ -15,8 +15,10 @@ state.mix.monitor = 0
 state.mix.engine = 0
 state.mix.cut = 0
 state.mix.tape = 0
-state.mix.monitor_mode = "MONO"
+state.mix.monitor_mode = 1
 state.mix.headphone_gain = 40
+state.mix.aux = 2
+state.mix.ins = 1
 
 -- read state.lua and set parameters back to stored vals.
 state.resume = function()
@@ -95,7 +97,9 @@ state.save_state = function()
   io.write("norns.state.mix.engine = " .. norns.state.mix.engine .. "\n")
   io.write("norns.state.mix.cut = " .. norns.state.mix.cut .. "\n")
   io.write("norns.state.mix.tape = " .. norns.state.mix.tape .. "\n")
-  io.write("norns.state.mix.monitor_mode = '" .. norns.state.mix.monitor_mode .. "'\n")
+  io.write("norns.state.mix.aux = " .. norns.state.mix.aux .. "\n")
+  io.write("norns.state.mix.ins = " .. norns.state.mix.ins .. "\n")
+  io.write("norns.state.mix.monitor_mode = " .. norns.state.mix.monitor_mode .. "\n")
   io.write("norns.state.mix.headphone_gain = " .. norns.state.mix.headphone_gain .. "\n")
   for i=1,4 do
     io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
