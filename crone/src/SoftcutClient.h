@@ -14,7 +14,6 @@
 #include "softcut/Softcut.h"
 #include "softcut/Types.h"
 
-
 namespace crone {
     class SoftcutClient: public Client<2, 2> {
     public:
@@ -89,28 +88,31 @@ namespace crone {
         }
 
         // check if quantized phase has changed for a given voice
-        // returns true
+        // returns true if changed
         bool checkVoiceQuantPhase(int i) {
-            if (quantPhase[i] != cut.getQuantPhase(i)) {
-                quantPhase[i] = cut.getQuantPhase(i);
+            auto qp = cut.voice(i)->getQuantPhase();
+            if (quantPhase[i] != qp) {
+                quantPhase[i] = qp;
                 return true;
             } else {
                 return false;
             }
         }
         softcut::phase_t getQuantPhase(int i) {
-            return cut.getQuantPhase(i);
+            return cut.voice(i)->getQuantPhase();
         }
+
         void setPhaseQuant(int i, softcut::phase_t q) {
-            cut.setPhaseQuant(i, q);
+            cut.voice(i)->setPhaseQuant(q);
         }
+
         void setPhaseOffset(int i, float sec) {
-            cut.setPhaseOffset(i, sec);
+            cut.voice(i)->setPhaseOffset(sec);
         }
 
-        int getNumVoices() const { return NumVoices; }
+        [[nodiscard]] int getNumVoices() const { return NumVoices; }
 
-	void reset();
+        void reset();
 
     private:
         void clearBusses(size_t numFrames);
