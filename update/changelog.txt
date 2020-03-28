@@ -1,3 +1,14 @@
+# 200328
+
+## norns 2.3.1
+
+- NEW (BETA) link support @artfwo
+- NEW lua filters lib @catfact
+- FIX mix levels and rev/comp state don't save in psets, persist in system.state
+- FIX param hide/show
+- FIX update docs
+
+
 # 200323
 
 ## norns 2.3.0
