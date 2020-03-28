@@ -17,11 +17,10 @@ def build(bld):
         'src/SoftcutClient.cpp',
         'src/Taper.cpp',
         'src/Window.cpp',
-        'softcut/softcut-lib/src/FadeCurves.cpp',
         'softcut/softcut-lib/src/ReadWriteHead.cpp',
         'softcut/softcut-lib/src/SubHead.cpp',
-        'softcut/softcut-lib/src/Svf.cpp',
-        'softcut/softcut-lib/src/Voice.cpp'
+        'softcut/softcut-lib/src/Voice.cpp',
+        'softcut/softcut-lib/lib/dsp-kit/Svf.cpp',
     ]
 
 
@@ -32,7 +31,8 @@ def build(bld):
                  includes=[
                      'src',
                      './',
-                     'softcut/softcut-lib/include'
+                     'softcut/softcut-lib/include',
+                     'softcut/softcut-lib/lib',
                  ],
 
                  use=[

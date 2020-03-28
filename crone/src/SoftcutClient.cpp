@@ -83,7 +83,7 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
             break;
             //-- voice levels, pan
         case Commands::Id::SET_PAN_CUT:
-            outPan[p->idx_0].setTarget((p->value / 2) + 0.5); // map -1,1 to 0,1
+            outPan[p->idx_0].setTarget((p->value * 0.5f) + 0.5f); // map -1,1 to 0,1
             break;
         case Commands::Id::SET_LEVEL_CUT:
             outLevel[p->idx_0].setTarget(p->value);
