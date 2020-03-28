@@ -26,7 +26,7 @@ set (SRC src/main.cpp
 
 add_executable(crone ${SRC})
 
-include_directories(./faust ./softcut/softcut-lib/include)
+include_directories(./faust ./softcut/softcut-lib/include ./softcut/softcut-lib/lib)
 
 if(UNIX)
     if(APPLE)

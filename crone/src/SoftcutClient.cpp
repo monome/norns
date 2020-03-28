@@ -15,7 +15,7 @@ static inline void clamp(size_t &x, const size_t a) {
     if (x > a) { x = a; }
 }
 
-SoftcutClient::SoftcutClient() : JackClient<2, 2>("softcut") {
+SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     for (unsigned int i = 0; i < NumVoices; ++i) {
         cut.voice(i)->setBuffer(buf[i & 1], BufFrames);
     }

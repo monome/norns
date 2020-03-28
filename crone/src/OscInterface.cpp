@@ -339,140 +339,119 @@ void OscInterface::addServerMethods() {
 
     //--------------------------------
     //-- softcut params
-
+    //-- softcut params
 
     addServerMethod("/set/param/cut/rate", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_RATE, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_RATE, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/loop_start", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_LOOP_START, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_LOOP_START, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/loop_end", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_LOOP_END, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_LOOP_END, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/loop_flag", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_LOOP_FLAG, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_LOOP_ENABLED, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/fade_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_FADE_TIME, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FADE_TIME, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/rec_level", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_REC_LEVEL, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_REC_LEVEL, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/pre_level", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_LEVEL, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PRE_LEVEL, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/rec_flag", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_REC_FLAG, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_REC_ENABLED, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/play_flag", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PLAY_FLAG, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PLAY_ENABLED, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/rec_offset", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_REC_OFFSET, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_REC_OFFSET, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/position", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POSITION, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POSITION, argv[0]->i, argv[1]->f);
     });
 
     // --- input filter
     addServerMethod("/set/param/cut/pre_filter_fc", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_FC, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PRE_FILTER_FC, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/pre_filter_fc_mod", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_FC_MOD, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PRE_FILTER_FC_MOD, argv[0]->i, argv[1]->f);
     });
 
-    addServerMethod("/set/param/cut/pre_filter_rq", "if", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/param/cut/pre_filter_q", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_RQ, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PRE_FILTER_Q, argv[0]->i, argv[1]->f);
     });
 
-    addServerMethod("/set/param/cut/pre_filter_lp", "if", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/param/cut/pre_filter_enabled", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_LP, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PRE_FILTER_ENABLED, argv[0]->i, argv[1]->f);
     });
-
-    addServerMethod("/set/param/cut/pre_filter_hp", "if", [](lo_arg **argv, int argc) {
-        if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_HP, argv[0]->i, argv[1]->f);
-    });
-
-    addServerMethod("/set/param/cut/pre_filter_bp", "if", [](lo_arg **argv, int argc) {
-        if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_BP, argv[0]->i, argv[1]->f);
-    });
-
-    addServerMethod("/set/param/cut/pre_filter_br", "if", [](lo_arg **argv, int argc) {
-        if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_BR, argv[0]->i, argv[1]->f);
-    });
-
-    addServerMethod("/set/param/cut/pre_filter_dry", "if", [](lo_arg **argv, int argc) {
-        if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PRE_FILTER_DRY, argv[0]->i, argv[1]->f);
-    });
-
 
     // --- output filter
     addServerMethod("/set/param/cut/post_filter_fc", "if", [
     ](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POST_FILTER_FC, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_FC, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/post_filter_rq", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POST_FILTER_RQ, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_RQ, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/post_filter_lp", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POST_FILTER_LP, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_LP, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/post_filter_hp", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POST_FILTER_HP, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_HP, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/post_filter_bp", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POST_FILTER_BP, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_BP, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/post_filter_br", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POST_FILTER_BR, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_BR, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/post_filter_dry", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_POST_FILTER_DRY, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_DRY, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/voice_sync", "iif", [](lo_arg **argv, int argc) {
@@ -480,77 +459,35 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_SYNC, argv[0]->i, argv[1]->i, argv[2]->f);
     });
 
-
-    ///////////////////////////////////////////
-    /// FIXME: fade curve calculations are now per-voice,
-    /// so these methods won't work at all without modification.
-    //// in any case, they should use worker threads and this is the wrong place to manage that.
-
-#if 0
-    addServerMethod("/set/param/cut/pre_fade_window", "if", [](lo_arg **argv, int argc) {
-        if (argc < 1) { return; }
-        float x = argv[0]->f;
-        auto t = std::thread([x] {
-            FadeCurves::setPreWindowRatio(x);
-        });
-        t.detach();
-    });
-
-    addServerMethod("/set/param/cut/rec_fade_delay", "if", [](lo_arg **argv, int argc) {
-        if (argc < 1) { return; }
-        float x = argv[0]->f;
-        auto t = std::thread([x] {
-            FadeCurves::setRecDelayRatio(x);
-        });
-        t.detach();
-    });
-
-    addServerMethod("/set/param/cut/pre_fade_shape", "if", [](lo_arg **argv, int argc) {
-        if (argc < 1) { return; }
-        float x = argv[0]->f;
-        auto t = std::thread([x] {
-            FadeCurves::setPreShape(static_cast<FadeCurves::Shape>(x));
-        });
-        t.detach();
-    });
-
-    addServerMethod("/set/param/cut/rec_fade_shape", "if", [](lo_arg **argv, int argc) {
-        if (argc < 1) { return; }
-        float x = argv[0]->f;
-        auto t = std::thread([x] {
-            FadeCurves::setRecShape(static_cast<FadeCurves::Shape>(x));
-        });
-        t.detach();
-    });
-#endif
-    //////////////////
-
     addServerMethod("/set/param/cut/level_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_LEVEL_SLEW_TIME, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_LEVEL_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/pan_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_PAN_SLEW_TIME, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PAN_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/recpre_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_RECPRE_SLEW_TIME, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_RECPRE_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/param/cut/rate_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_RATE_SLEW_TIME, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_RATE_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
-
 
     addServerMethod("/set/param/cut/buffer", "ii", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_BUFFER, argv[0]->i, argv[1]->i);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_BUFFER, argv[0]->i, argv[1]->i);
     });
 
+    addServerMethod("/set/param/cut/duck", "ii", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_DUCK_TARGET,argv[0]->i, argv[1]->i);
+    });
 
     //-------------------------------
     //--- softcut buffer manipulation
