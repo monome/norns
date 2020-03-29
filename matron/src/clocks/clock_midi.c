@@ -20,7 +20,7 @@ static void clock_midi_handle_clock() {
     // are being sent with huge intervals between them
 
     if (clock_midi_last_tick_time_set) {
-        beat_duration = (current_time - clock_midi_last_tick_time) * 24 * 4;
+        beat_duration = (current_time - clock_midi_last_tick_time) * 24;
         clock_midi_last_tick_time = current_time;
         clock_midi_last_tick_time_set = true;
     } else {

@@ -45,6 +45,6 @@ void clock_internal_start() {
 }
 
 void clock_internal_set_tempo(double bpm) {
-    interval_seconds = 60.0 / bpm * 4;
+    interval_seconds = 60.0 / bpm;
     interval_nseconds = (uint64_t) (interval_seconds * 1000000000);
 }
