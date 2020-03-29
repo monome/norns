@@ -14,6 +14,7 @@ def build_link(bld):
             '-O3',
             '-Wall',
             '-Wno-multichar',
+            '-Wno-psabi',
         ],
         defines=[
             'LINK_PLATFORM_LINUX'
