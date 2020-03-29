@@ -29,7 +29,7 @@ static void clock_midi_handle_clock() {
         clock_midi_last_tick_time_set = true;
     }
 
-    double beat = clock_midi_counter / 96.0;
+    double beat = clock_midi_counter / 24.0;
     clock_update_reference_from(beat, beat_duration, CLOCK_SOURCE_MIDI);
 }
 
