@@ -39,6 +39,7 @@
 #include "system_cmd.h"
 #include "clock.h"
 #include "clocks/clock_internal.h"
+#include "clocks/clock_link.h"
 
 
 // registered lua functions require the LVM state as a parameter.
@@ -106,7 +107,7 @@ static int _screen_fill(lua_State *l);
 static int _screen_text(lua_State *l);
 static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
-static int _screen_extents(lua_State *l);
+static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
 static int _screen_display_png(lua_State *l);
 //i2c
@@ -221,8 +222,15 @@ static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_internal_set_tempo(lua_State *l);
+
+#if HAVE_ABLETON_LINK
+static int _clock_link_set_tempo(lua_State *l);
+static int _clock_link_set_quantum(lua_State *l);
+#endif
+
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
+static int _clock_get_tempo(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void
@@ -357,7 +365,7 @@ void w_init(void) {
   lua_register_norns("screen_text", &_screen_text);
   lua_register_norns("screen_clear", &_screen_clear);
   lua_register_norns("screen_close", &_screen_close);
-  lua_register_norns("screen_extents", &_screen_extents);
+  lua_register_norns("screen_text_extents", &_screen_text_extents);
   lua_register_norns("screen_export_png", &_screen_export_png);
   lua_register_norns("screen_display_png", &_screen_display_png);
 
@@ -417,8 +425,13 @@ void w_init(void) {
   lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
   lua_register_norns("clock_cancel", &_clock_cancel);
   lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
+#if HAVE_ABLETON_LINK
+  lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
+  lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
+#endif
   lua_register_norns("clock_set_source", &_clock_set_source);
   lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
+  lua_register_norns("clock_get_tempo", &_clock_get_tempo);
 
   // name global extern table
   lua_setglobal(lvm, "_norns");
@@ -809,14 +822,14 @@ int _screen_close(lua_State *l) {
 }
 
 /***
- * screen: extents
- * @function s_extents
+ * screen: text_extents
+ * @function s_text_extents
  * @tparam gets x/y displacement of a string
  */
-int _screen_extents(lua_State *l) {
+int _screen_text_extents(lua_State *l) {
   lua_check_num_args(1);
   const char *s = luaL_checkstring(l, 1);
-  double *xy = screen_extents(s);
+  double *xy = screen_text_extents(s);
   lua_pushinteger(l, xy[0]);
   lua_pushinteger(l, xy[1]);
   return 2;
@@ -1419,6 +1432,22 @@ int _clock_internal_set_tempo(lua_State *l) {
   return 0;
 }
 
+#if HAVE_ABLETON_LINK
+int _clock_link_set_tempo(lua_State *l) {
+  lua_check_num_args(1);
+  double bpm = luaL_checknumber(l, 1);
+  clock_link_set_tempo(bpm);
+  return 0;
+}
+
+int _clock_link_set_quantum(lua_State *l) {
+  lua_check_num_args(1);
+  double quantum = luaL_checknumber(l, 1);
+  clock_link_set_quantum(quantum);
+  return 0;
+}
+#endif
+
 int _clock_set_source(lua_State *l) {
   lua_check_num_args(1);
   int source = (int) luaL_checkinteger(l, 1);
@@ -1428,6 +1457,11 @@ int _clock_set_source(lua_State *l) {
 
 int _clock_get_time_beats(lua_State *l) {
   lua_pushnumber(l, clock_gettime_beats());
+  return 1;
+}
+
+int _clock_get_tempo(lua_State *l) {
+  lua_pushnumber(l, clock_get_tempo());
   return 1;
 }
 

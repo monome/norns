@@ -1,0 +1,26 @@
+top = '..'
+
+def build_link(bld):
+    bld.stlib(features='c cxx cxxstlib',
+        source=[
+            'link-c/ableton_link.cpp',
+        ],
+        target='link-c',
+        includes=[
+            'link/include',
+            'link/modules/asio-standalone/asio/include',
+        ],
+        cxxflags=[
+            '-O3',
+            '-Wall',
+            '-Wno-multichar',
+            '-Wno-psabi',
+        ],
+        defines=[
+            'LINK_PLATFORM_LINUX'
+        ],
+        name='LIBLINK_C')
+
+def build(bld):
+    if bld.env.ENABLE_ABLETON_LINK:
+        build_link(bld)

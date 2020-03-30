@@ -85,6 +85,7 @@ end
 
 clock.INTERNAL = 0
 clock.MIDI = 1
+clock.LINK = 2
 
 --- select the sync source, currently clock.INTERNAL and clock.MIDI.
 -- @tparam integer source : clock.INTERNAL (0) or clock.MIDI (1)
@@ -95,5 +96,10 @@ end
 clock.get_time_beats = function()
   return _norns.clock_get_time_beats()
 end
+
+clock.get_tempo = function()
+  return _norns.clock_get_tempo()
+end
+
 
 return clock

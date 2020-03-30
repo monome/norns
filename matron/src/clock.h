@@ -5,6 +5,7 @@
 typedef enum {
     CLOCK_SOURCE_INTERNAL = 0,
     CLOCK_SOURCE_MIDI = 1,
+    CLOCK_SOURCE_LINK = 2,
 } clock_source_t;
 
 void clock_init();
@@ -17,6 +18,7 @@ void clock_cancel_all();
 
 double clock_gettime_beats();
 double clock_gettime_secondsf();
+double clock_get_tempo();
 
 void clock_cancel(int);
 void clock_cancel_coro(int);

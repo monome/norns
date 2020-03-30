@@ -113,6 +113,16 @@ double clock_gettime_beats() {
     return this_beat;
 }
 
+double clock_get_tempo() {
+    pthread_mutex_lock(&reference.lock);
+
+    double tempo = 60.0 / reference.beat_duration;
+
+    pthread_mutex_unlock(&reference.lock);
+
+    return tempo;
+}
+
 bool clock_schedule_resume_sync(int coro_id, double beats) {
     double zero_beat_time;
     double this_beat;

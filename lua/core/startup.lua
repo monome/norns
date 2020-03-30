@@ -5,6 +5,7 @@ util = require 'util'
 
 require 'math'
 math.randomseed(os.time()) -- more random
+inf = math.huge
 
 -- globals
 audio = require 'core/audio'
@@ -25,6 +26,7 @@ controlspec = require 'core/controlspec'
 paramset = require 'core/paramset'
 params = paramset.new()
 mix = require 'core/mix'
+norns.pmap = require 'core/pmap'
 
 
 -- load menu

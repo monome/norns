@@ -1,6 +1,30 @@
+# 200328
+
+## norns 2.3.1
+
+- NEW (BETA) link support @artfwo
+- NEW lua filters lib @catfact
+- FIX mix levels and rev/comp state don't save in psets, persist in system.state
+- FIX param hide/show
+- FIX update docs
+
+
+# 200323
+
+## norns 2.3.0
+
+- NEW parameter menu system, many new features
+- NEW tape naming on record, indexing
+- NEW soft reset by 10sec hold K3-K2-K1 sequentially
+- NEW tape play now loops, supports mono files @widdly
+- FIX remove ws logging, rescue disk space @ngwese
+- FIX softcut buffer write and clear, meters @catfact
+- FIX more effective reset, remove configs
+
+
 # 200218
 
-# norns 2.2.9
+## norns 2.2.9
 
 - FIX system reset is more thoroguh (resets levels and vports)
 - NEW softcut as submodule @catfact
@@ -12,7 +36,7 @@
 
 # 200129
 
-# norns 2.2.8
+## norns 2.2.8
 
 - FIX USB device managment crashes (!) @ngwese
 - FIX softcut buffer management @catfact

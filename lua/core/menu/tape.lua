@@ -101,12 +101,17 @@ m.key = function(n,z)
               m.play.pos_tick = m.play.pos_tick + 0.25
               if m.play.pos_tick > m.play.length
                   and m.play.status == TAPE_PLAY_PLAY then
-                print("tape is over!")
-                audio.tape_play_stop()
-                tape_play_counter:stop()
-                m.play.file = nil
-                m.play.stats = TAPE_PLAY_STOP
-                m.play.sel = TAPE_PLAY_LOAD
+                if (samples / rate > 1 ) then
+                  --loop to start..displayed play time will drift
+                  m.play.pos_tick = m.play.pos_tick - m.play.length
+                else
+                  print("tape is over!")
+                  audio.tape_play_stop()
+                  tape_play_counter:stop()
+                  m.play.file = nil
+                  m.play.stats = TAPE_PLAY_STOP
+                  m.play.sel = TAPE_PLAY_LOAD
+                end
               end
               if _menu.mode == true and _menu.page == "TAPE" then
                 _menu.redraw()

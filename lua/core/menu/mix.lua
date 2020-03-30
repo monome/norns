@@ -11,13 +11,13 @@ m.key = function(n,z)
 end
 
 m.enc = function(n,d)
-  local ch1 = {"output", "monitor", "softcut"}
-  local ch2 = {"input", "engine", "tape"}
+  local ch1 = {"output_level", "monitor_level", "softcut_level"}
+  local ch2 = {"input_level", "engine_level", "tape_level"}
 
   if n==2 then
-    mix:delta(ch1[m.sel],d)
+    params:delta(ch1[m.sel],d)
   elseif n==3 then
-    mix:delta(ch2[m.sel],d)
+    params:delta(ch2[m.sel],d)
   end
 end
 
@@ -31,7 +31,7 @@ m.redraw = function()
 
   local x = -40
   screen.level(2)
-  n = mix:get_raw("output")*48
+  n = params:get_raw("output_level")*48
   screen.rect(x+42.5,55.5,2,-n)
   screen.stroke()
 
@@ -45,7 +45,7 @@ m.redraw = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("input")*48
+  n = params:get_raw("input_level")*48
   screen.rect(x+64.5,55.5,2,-n)
   screen.stroke()
 
@@ -58,22 +58,22 @@ m.redraw = function()
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("monitor")*48
+  n = params:get_raw("monitor_level")*48
   screen.rect(x+86.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("engine")*48
+  n = params:get_raw("engine_level")*48
   screen.rect(x+108.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("softcut")*48
+  n = params:get_raw("softcut_level")*48
   screen.rect(x+130.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
-  n = mix:get_raw("tape")*48
+  n = params:get_raw("tape_level")*48
   screen.rect(x+152.5,55.5,2,-n)
   screen.stroke()
 
