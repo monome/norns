@@ -67,6 +67,7 @@ function ParamSet:add_group(name,n)
     self.count = self.count + 1
     self.group = n
     self.hidden[self.count] = false
+    self.lookup[name] = self.count
   else
     print("ERROR: paramset cannot nest GROUPs")
   end
@@ -287,12 +288,14 @@ end
 --- set visibility to hidden.
 -- @param index
 function ParamSet:hide(index)
+  if type(index)=="string" then index = self.lookup[index] end
   self.hidden[index] = true
 end
 
 --- set visiblility to show.
 -- @param index
 function ParamSet:show(index)
+  if type(index)=="string" then index = self.lookup[index] end
   self.hidden[index] = false
 end
 
