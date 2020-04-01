@@ -98,7 +98,7 @@ clock.set_source = function(source)
 end
 
 
-clock.get_time_beats = function()
+clock.get_beats = function()
   return _norns.clock_get_time_beats()
 end
 
