@@ -83,15 +83,20 @@ clock.cleanup = function()
   end
 end
 
-clock.INTERNAL = 0
-clock.MIDI = 1
-clock.LINK = 2
-
---- select the sync source, currently clock.INTERNAL and clock.MIDI.
--- @tparam integer source : clock.INTERNAL (0) or clock.MIDI (1)
+--- select the sync source
+-- @tparam string source : "internal", "midi", or "link"
 clock.set_source = function(source)
-  _norns.clock_set_source(source)
+  if source == "internal" then
+    _norns.clock_set_source(0)
+  elseif source == "midi" then
+    _norns.clock_set_source(1)
+  elseif source == "link" then
+    _norns.clock_set_source(2)
+  else
+    error("unknown clock source: "..source)
+  end
 end
+
 
 clock.get_time_beats = function()
   return _norns.clock_get_time_beats()
