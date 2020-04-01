@@ -107,4 +107,25 @@ clock.get_tempo = function()
 end
 
 
+clock.internal = {}
+
+clock.internal.set_tempo = function(bpm)
+  return _norns.clock_internal_set_tempo(bpm)
+end
+
+
+clock.midi = {}
+
+
+clock.link = {}
+
+clock.link.set_tempo = function(bpm)
+  return _norns.clock_link_set_tempo(bpm)
+end
+
+clock.link.set_quantum = function(quantum)
+  return _norns.clock_link_set_quantum(quantum)
+end
+
+
 return clock
