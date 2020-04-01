@@ -128,4 +128,11 @@ clock.link.set_quantum = function(quantum)
 end
 
 
+_norns.clock.start = function()
+end
+
+_norns.clock.stop = function()
+end
+
+
 return clock

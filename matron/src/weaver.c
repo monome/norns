@@ -1789,7 +1789,7 @@ void w_handle_metro(const int idx, const int stage) {
   l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-// metro handler
+// clock handlers
 void w_handle_clock_resume(const int coro_id) {
   lua_getglobal(lvm, "clock");
   lua_getfield(lvm, -1, "resume");
@@ -1797,6 +1797,17 @@ void w_handle_clock_resume(const int coro_id) {
   lua_pushinteger(lvm, coro_id);
   l_report(lvm, l_docall(lvm, 1, 0));
 }
+
+void w_handle_clock_start() {
+   _push_norns_func("clock", "start");
+   l_report(lvm, l_docall(lvm, 0, 0));
+}
+
+void w_handle_clock_stop() {
+  _push_norns_func("clock", "stop");
+  l_report(lvm, l_docall(lvm, 0, 0));
+}
+
 
 // gpio handler
 void w_handle_key(const int n, const int val) {
