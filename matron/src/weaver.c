@@ -222,6 +222,8 @@ static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_internal_set_tempo(lua_State *l);
+static int _clock_internal_start(lua_State *l);
+static int _clock_internal_stop(lua_State *l);
 
 #if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
@@ -425,6 +427,8 @@ void w_init(void) {
   lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
   lua_register_norns("clock_cancel", &_clock_cancel);
   lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
+  lua_register_norns("clock_internal_start", &_clock_internal_start);
+  lua_register_norns("clock_internal_stop", &_clock_internal_stop);
 #if HAVE_ABLETON_LINK
   lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
   lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
@@ -1424,6 +1428,16 @@ int _clock_internal_set_tempo(lua_State *l) {
   lua_check_num_args(1);
   double bpm = luaL_checknumber(l, 1);
   clock_internal_set_tempo(bpm);
+  return 0;
+}
+
+int _clock_internal_start(lua_State *l) {
+  clock_internal_start();
+  return 0;
+}
+
+int _clock_internal_stop(lua_State *l) {
+  clock_internal_stop();
   return 0;
 }
 
