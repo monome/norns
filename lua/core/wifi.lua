@@ -6,6 +6,7 @@ local util = require "util"
 --
 
 local HOTSPOT = "Hotspot"
+local hotspot_password = "nnnnnnnn"
 
 --
 -- common functions
@@ -191,7 +192,7 @@ function Wifi.hotspot()
   print("activating hotspot")
   Wifi.ensure_radio_is_on()
   os.execute("nmcli c delete Hotspot")
-  os.execute("nmcli dev wifi hotspot ifname wlan0 ssid norns password nnnnnnnn")
+  os.execute("nmcli dev wifi hotspot ifname wlan0 ssid $(hostname) password " .. hotspot_password)
 end
 
 function Wifi.on(connection)
