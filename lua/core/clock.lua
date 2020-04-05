@@ -24,6 +24,13 @@ clock.run = function(f)
   return coro_id
 end
 
+--- stop execution of a coroutine started using clock.run.
+-- @tparam integer coro_id : coroutine ID
+clock.cancel = function(coro_id)
+  _norns.clock_cancel(coro_id)
+  clock.threads[coro_id] = nil
+end
+
 local SLEEP = 0
 local SYNC = 1
 
@@ -67,18 +74,11 @@ clock.resume = function(coro_id)
   end
 end
 
---- stop execution of a coroutine started using clock.run.
--- @tparam integer coro_id : coroutine ID
-clock.stop = function(coro_id)
-  _norns.clock_cancel(coro_id)
-  clock.threads[coro_id] = nil
-end
-
 
 clock.cleanup = function()
   for id, coro in pairs(clock.threads) do
     if coro then
-      clock.stop(id)
+      clock.cancel(id)
     end
   end
 end
