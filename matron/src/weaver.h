@@ -76,6 +76,8 @@ extern void w_handle_metro(const int idx, const int stage);
 
 //--- clock
 extern void w_handle_clock_resume(const int thread_id);
+extern void w_handle_clock_start();
+extern void w_handle_clock_stop();
 
 //--- crone poll handlers
 extern void w_handle_poll_value(int idx, float val);

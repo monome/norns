@@ -24,6 +24,13 @@ clock.run = function(f)
   return coro_id
 end
 
+--- stop execution of a coroutine started using clock.run.
+-- @tparam integer coro_id : coroutine ID
+clock.cancel = function(coro_id)
+  _norns.clock_cancel(coro_id)
+  clock.threads[coro_id] = nil
+end
+
 local SLEEP = 0
 local SYNC = 1
 
@@ -67,20 +74,16 @@ clock.resume = function(coro_id)
   end
 end
 
---- stop execution of a coroutine started using clock.run.
--- @tparam integer coro_id : coroutine ID
-clock.stop = function(coro_id)
-  _norns.clock_cancel(coro_id)
-  clock.threads[coro_id] = nil
-end
-
 
 clock.cleanup = function()
   for id, coro in pairs(clock.threads) do
     if coro then
-      clock.stop(id)
+      clock.cancel(id)
     end
   end
+
+  clock.events.start = nil
+  clock.events.stop = nil
 end
 
 --- select the sync source
@@ -107,10 +110,24 @@ clock.get_tempo = function()
 end
 
 
+clock.events = {}
+
+clock.events.start = nil
+clock.events.stop = nil
+
+
 clock.internal = {}
 
 clock.internal.set_tempo = function(bpm)
   return _norns.clock_internal_set_tempo(bpm)
+end
+
+clock.internal.start = function()
+  return _norns.clock_internal_start()
+end
+
+clock.internal.stop = function()
+  return _norns.clock_internal_stop()
 end
 
 
@@ -125,6 +142,19 @@ end
 
 clock.link.set_quantum = function(quantum)
   return _norns.clock_link_set_quantum(quantum)
+end
+
+
+_norns.clock.start = function()
+  if clock.events.start ~= nil then
+    clock.events.start()
+  end
+end
+
+_norns.clock.stop = function()
+  if clock.events.stop ~= nil then
+    clock.events.stop()
+  end
 end
 
 

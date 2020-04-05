@@ -42,6 +42,8 @@ _norns.midi = {}
 -- osc callbacks (defined in osc.lua)
 _norns.osc = {}
 
+-- clock callbacks (defined in clock.lua)
+_norns.clock = {}
 
 -- report callbacks
 _norns.report = {}

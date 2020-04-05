@@ -165,6 +165,20 @@ void clock_update_reference_from(double beats, double beat_duration, clock_sourc
     }
 }
 
+void clock_start_from(clock_source_t source) {
+    if (clock_source == source) {
+        union event_data *ev = event_data_new(EVENT_CLOCK_START);
+        event_post(ev);
+    }
+}
+
+void clock_stop_from(clock_source_t source) {
+    if (clock_source == source) {
+        union event_data *ev = event_data_new(EVENT_CLOCK_STOP);
+        event_post(ev);
+    }
+}
+
 void clock_set_source(clock_source_t source) {
     clock_source = source;
 }

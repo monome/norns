@@ -222,6 +222,8 @@ static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
 static int _clock_internal_set_tempo(lua_State *l);
+static int _clock_internal_start(lua_State *l);
+static int _clock_internal_stop(lua_State *l);
 
 #if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
@@ -425,6 +427,8 @@ void w_init(void) {
   lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
   lua_register_norns("clock_cancel", &_clock_cancel);
   lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
+  lua_register_norns("clock_internal_start", &_clock_internal_start);
+  lua_register_norns("clock_internal_stop", &_clock_internal_stop);
 #if HAVE_ABLETON_LINK
   lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
   lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
@@ -1427,6 +1431,16 @@ int _clock_internal_set_tempo(lua_State *l) {
   return 0;
 }
 
+int _clock_internal_start(lua_State *l) {
+  clock_internal_start();
+  return 0;
+}
+
+int _clock_internal_stop(lua_State *l) {
+  clock_internal_stop();
+  return 0;
+}
+
 #if HAVE_ABLETON_LINK
 int _clock_link_set_tempo(lua_State *l) {
   lua_check_num_args(1);
@@ -1789,7 +1803,7 @@ void w_handle_metro(const int idx, const int stage) {
   l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-// metro handler
+// clock handlers
 void w_handle_clock_resume(const int coro_id) {
   lua_getglobal(lvm, "clock");
   lua_getfield(lvm, -1, "resume");
@@ -1797,6 +1811,17 @@ void w_handle_clock_resume(const int coro_id) {
   lua_pushinteger(lvm, coro_id);
   l_report(lvm, l_docall(lvm, 1, 0));
 }
+
+void w_handle_clock_start() {
+   _push_norns_func("clock", "start");
+   l_report(lvm, l_docall(lvm, 0, 0));
+}
+
+void w_handle_clock_stop() {
+  _push_norns_func("clock", "stop");
+  l_report(lvm, l_docall(lvm, 0, 0));
+}
+
 
 // gpio handler
 void w_handle_key(const int n, const int val) {

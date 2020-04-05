@@ -13,6 +13,10 @@ typedef enum {
     EVENT_METRO,
     // clock resume requested
     EVENT_CLOCK_RESUME,
+    // external clock sent start event
+    EVENT_CLOCK_START,
+    // external clock sent stop event
+    EVENT_CLOCK_STOP,
     // gpio event
     EVENT_KEY,
     // gpio event
@@ -184,6 +188,14 @@ struct event_metro {
 struct event_clock_resume {
     struct event_common common;
     uint32_t thread_id;
+};
+
+struct event_clock_start {
+    struct event_common common;
+};
+
+struct event_clock_stop {
+    struct event_common common;
 };
 
 struct event_key {

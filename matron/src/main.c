@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     i2c_init();
     osc_init();
     clock_init();
-    clock_internal_start();
+    clock_internal_init();
     clock_midi_init();
 #if HAVE_ABLETON_LINK
     clock_link_start();
