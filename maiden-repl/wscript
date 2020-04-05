@@ -49,5 +49,5 @@ def build(bld):
                     '-Wall',
                     '-Wextra',
                     '-Werror',
-                    '-predantic'
+                    '-pedantic'
                 ])
