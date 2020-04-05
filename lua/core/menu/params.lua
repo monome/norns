@@ -40,6 +40,7 @@ m.reset = function()
   m.ps_n = 0
   m.ps_action = 1
   m.ps_last = 0
+  m.mode = mSELECT
 end
 
 local function build_page()
