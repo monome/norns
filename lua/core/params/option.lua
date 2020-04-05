@@ -30,7 +30,7 @@ end
 
 function Option:set(v, silent)
   local silent = silent or false
-  local c = util.clamp(v,1,self.count)
+  local c = util.clamp(math.floor(v),1,self.count)
   if self.selected ~= c then
     self.selected = c
     if silent==false then self:bang() end
