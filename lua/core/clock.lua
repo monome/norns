@@ -113,6 +113,14 @@ clock.internal.set_tempo = function(bpm)
   return _norns.clock_internal_set_tempo(bpm)
 end
 
+clock.internal.start = function()
+  return _norns.clock_internal_start()
+end
+
+clock.internal.stop = function()
+  return _norns.clock_internal_stop()
+end
+
 
 clock.midi = {}
 
