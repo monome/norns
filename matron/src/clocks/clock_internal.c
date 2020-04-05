@@ -9,6 +9,7 @@
 #include "clock_internal.h"
 
 static pthread_t clock_internal_thread;
+static bool clock_internal_thread_running;
 static double interval_seconds;
 static uint64_t interval_nseconds;
 static double beat;
@@ -36,13 +37,10 @@ static void *clock_internal_run(void *p) {
 }
 
 void clock_internal_init() {
-    pthread_attr_t attr;
-
     clock_internal_set_tempo(120);
-    beat = 0.0;
+    clock_internal_thread_running = false;
 
-    pthread_attr_init(&attr);
-    pthread_create(&clock_internal_thread, &attr, &clock_internal_run, NULL);
+    clock_internal_start();
 }
 
 void clock_internal_set_tempo(double bpm) {
@@ -51,8 +49,20 @@ void clock_internal_set_tempo(double bpm) {
 }
 
 void clock_internal_start() {
+    pthread_attr_t attr;
+
     beat = 0.0;
     clock_start_from(CLOCK_SOURCE_INTERNAL);
+
+    if (clock_internal_thread_running) {
+        pthread_cancel(clock_internal_thread);
+        pthread_join(clock_internal_thread, NULL);
+    }
+
+    pthread_attr_init(&attr);
+    pthread_create(&clock_internal_thread, &attr, &clock_internal_run, NULL);
+    clock_internal_thread_running = true;
+    pthread_attr_destroy(&attr);
 }
 
 void clock_internal_stop() {
