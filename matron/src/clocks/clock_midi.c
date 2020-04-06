@@ -17,14 +17,14 @@ static void clock_midi_handle_clock() {
     clock_midi_counter += 1;
 
     // TODO: handle the case when clock tick
-    // are being sent with huge intervals between them
+    // are being sent after a long delay
 
     if (clock_midi_last_tick_time_set) {
         beat_duration = (current_time - clock_midi_last_tick_time) * 24;
         clock_midi_last_tick_time = current_time;
         clock_midi_last_tick_time_set = true;
     } else {
-        beat_duration = 2.0;
+        beat_duration = 0.5;
         clock_midi_last_tick_time = current_time;
         clock_midi_last_tick_time_set = true;
     }
@@ -34,7 +34,12 @@ static void clock_midi_handle_clock() {
 }
 
 static void clock_midi_handle_start() {
-    clock_midi_counter = 0;
+    clock_midi_counter = -1;
+    clock_start_from(CLOCK_SOURCE_MIDI);
+}
+
+static void clock_midi_handle_stop() {
+    clock_stop_from(CLOCK_SOURCE_MIDI);
 }
 
 void clock_midi_handle_message(uint8_t message) {
@@ -44,6 +49,9 @@ void clock_midi_handle_message(uint8_t message) {
         break;
     case 0xf8:
         clock_midi_handle_clock();
+        break;
+    case 0xfc:
+        clock_midi_handle_stop();
         break;
     }
 }
