@@ -82,8 +82,8 @@ clock.cleanup = function()
     end
   end
 
-  clock.events.start = nil
-  clock.events.stop = nil
+  clock.transport.start = nil
+  clock.transport.stop = nil
 end
 
 --- select the sync source
@@ -110,10 +110,10 @@ clock.get_tempo = function()
 end
 
 
-clock.events = {}
+clock.transport = {}
 
-clock.events.start = nil
-clock.events.stop = nil
+clock.transport.start = nil
+clock.transport.stop = nil
 
 
 clock.internal = {}
@@ -146,14 +146,14 @@ end
 
 
 _norns.clock.start = function()
-  if clock.events.start ~= nil then
-    clock.events.start()
+  if clock.transport.start ~= nil then
+    clock.transport.start()
   end
 end
 
 _norns.clock.stop = function()
-  if clock.events.stop ~= nil then
-    clock.events.stop()
+  if clock.transport.stop ~= nil then
+    clock.transport.stop()
   end
 end
 
