@@ -24,6 +24,13 @@ clock.run = function(f)
   return coro_id
 end
 
+--- stop execution of a coroutine started using clock.run.
+-- @tparam integer coro_id : coroutine ID
+clock.cancel = function(coro_id)
+  _norns.clock_cancel(coro_id)
+  clock.threads[coro_id] = nil
+end
+
 local SLEEP = 0
 local SYNC = 1
 
@@ -67,38 +74,87 @@ clock.resume = function(coro_id)
   end
 end
 
---- stop execution of a coroutine started using clock.run.
--- @tparam integer coro_id : coroutine ID
-clock.stop = function(coro_id)
-  _norns.clock_cancel(coro_id)
-  clock.threads[coro_id] = nil
-end
-
 
 clock.cleanup = function()
   for id, coro in pairs(clock.threads) do
     if coro then
-      clock.stop(id)
+      clock.cancel(id)
     end
+  end
+
+  clock.events.start = nil
+  clock.events.stop = nil
+end
+
+--- select the sync source
+-- @tparam string source : "internal", "midi", or "link"
+clock.set_source = function(source)
+  if source == "internal" then
+    _norns.clock_set_source(0)
+  elseif source == "midi" then
+    _norns.clock_set_source(1)
+  elseif source == "link" then
+    _norns.clock_set_source(2)
+  else
+    error("unknown clock source: "..source)
   end
 end
 
-clock.INTERNAL = 0
-clock.MIDI = 1
-clock.LINK = 2
 
---- select the sync source, currently clock.INTERNAL and clock.MIDI.
--- @tparam integer source : clock.INTERNAL (0) or clock.MIDI (1)
-clock.set_source = function(source)
-  _norns.clock_set_source(source)
-end
-
-clock.get_time_beats = function()
+clock.get_beats = function()
   return _norns.clock_get_time_beats()
 end
 
 clock.get_tempo = function()
   return _norns.clock_get_tempo()
+end
+
+
+clock.events = {}
+
+clock.events.start = nil
+clock.events.stop = nil
+
+
+clock.internal = {}
+
+clock.internal.set_tempo = function(bpm)
+  return _norns.clock_internal_set_tempo(bpm)
+end
+
+clock.internal.start = function()
+  return _norns.clock_internal_start()
+end
+
+clock.internal.stop = function()
+  return _norns.clock_internal_stop()
+end
+
+
+clock.midi = {}
+
+
+clock.link = {}
+
+clock.link.set_tempo = function(bpm)
+  return _norns.clock_link_set_tempo(bpm)
+end
+
+clock.link.set_quantum = function(quantum)
+  return _norns.clock_link_set_quantum(quantum)
+end
+
+
+_norns.clock.start = function()
+  if clock.events.start ~= nil then
+    clock.events.start()
+  end
+end
+
+_norns.clock.stop = function()
+  if clock.events.stop ~= nil then
+    clock.events.stop()
+  end
 end
 
 

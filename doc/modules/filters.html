@@ -33,16 +33,19 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Class_filters_mean">Class filters.mean </a></li>
+<li><a href="#Class_filters_median">Class filters.median </a></li>
+<li><a href="#Class_filters_smoother">Class filters.smoother </a></li>
 </ul>
 
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><strong>clock</strong></li>
+  <li><a href="../modules/clock.html">clock</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
   <li><a href="../modules/er.html">er</a></li>
-  <li><a href="../modules/filters.html">filters</a></li>
+  <li><strong>filters</strong></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
@@ -80,36 +83,49 @@
 
 <div id="content">
 
-<h1>Module <code>clock</code></h1>
-<p>clock coroutines</p>
+<h1>Module <code>filters</code></h1>
+<p></p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#run">run (f)</a></td>
-	<td class="summary">create a coroutine from the given function and immediately run it;
- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.</td>
+	<td class="name" nowrap><a href="#f:clear">f:clear ()</a></td>
+	<td class="summary">clear a filter's history</td>
+	</tr>
+</table>
+<h2><a href="#Class_filters_mean">Class filters.mean </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#mean.new">mean.new (bufsize:)</a></td>
+	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sleep">sleep (s)</a></td>
-	<td class="summary">yield and schedule waking up the coroutine in s seconds;
- must be called from within a coroutine started with clock.run.</td>
+	<td class="name" nowrap><a href="#mean:next">mean:next (x:)</a></td>
+	<td class="summary">process a new input value and update the average</td>
+	</tr>
+</table>
+<h2><a href="#Class_filters_median">Class filters.median </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#median.new">median.new (bufsize:)</a></td>
+	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sync">sync (beats)</a></td>
-	<td class="summary">yield and schedule waking up the coroutine at beats beat;
- the coroutine will suspend for the time required to reach the given fraction of a beat;
- must be called from within a coroutine started with clock.run.</td>
+	<td class="name" nowrap><a href="#median:next">median:next (x:)</a></td>
+	<td class="summary">process a new input value and update the average</td>
+	</tr>
+</table>
+<h2><a href="#Class_filters_smoother">Class filters.smoother </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#smoother.new">smoother.new (time:, sr:)</a></td>
+	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#stop">stop (coro_id)</a></td>
-	<td class="summary">stop execution of a coroutine started using clock.run.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#set_source">set_source (source)</a></td>
-	<td class="summary">select the sync source, currently clock.INTERNAL and clock.MIDI.</td>
+	<td class="name" nowrap><a href="#f.mean">f.mean</a></td>
+	<td class="summary">TODO: what else would be useful?</td>
 	</tr>
 </table>
 
@@ -121,47 +137,84 @@
 
     <dl class="function">
     <dt>
-    <a name = "run"></a>
-    <strong>run (f)</strong>
+    <a name = "f:clear"></a>
+    <strong>f:clear ()</strong>
     </dt>
     <dd>
-    create a coroutine from the given function and immediately run it;
- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
+    clear a filter's history
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Class_filters_mean"></a>Class filters.mean </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "mean.new"></a>
+    <strong>mean.new (bufsize:)</strong>
+    </dt>
+    <dd>
+    constructor
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><span class="type">function</span></span>
+        <li><span class="parameter">bufsize:</span>
+         window size, cannot change after creation
+        </li>
+    </ul>
 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "mean:next"></a>
+    <strong>mean:next (x:)</strong>
+    </dt>
+    <dd>
+    process a new input value and update the average
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x:</span>
+         new input
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">integer</span></span>
-        : coroutine ID that can be used to stop it later
+        scaled sum of stored history
     </ol>
 
 
 
 
 </dd>
+</dl>
+    <h2 class="section-header "><a name="Class_filters_median"></a>Class filters.median </h2>
+
+    <dl class="function">
     <dt>
-    <a name = "sleep"></a>
-    <strong>sleep (s)</strong>
+    <a name = "median.new"></a>
+    <strong>median.new (bufsize:)</strong>
     </dt>
     <dd>
-    yield and schedule waking up the coroutine in s seconds;
- must be called from within a coroutine started with clock.run.
+    constructor
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">s</span>
-            <span class="types"><span class="type">float</span></span>
-         : seconds
+        <li><span class="parameter">bufsize:</span>
+         window size, cannot change after creation
         </li>
     </ul>
 
@@ -171,20 +224,49 @@
 
 </dd>
     <dt>
-    <a name = "sync"></a>
-    <strong>sync (beats)</strong>
+    <a name = "median:next"></a>
+    <strong>median:next (x:)</strong>
     </dt>
     <dd>
-    yield and schedule waking up the coroutine at beats beat;
- the coroutine will suspend for the time required to reach the given fraction of a beat;
- must be called from within a coroutine started with clock.run.
+    process a new input value and update the average
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">beats</span>
-            <span class="types"><span class="type">float</span></span>
-         : next fraction of a beat at which the coroutine will be resumed. may be larger than 1.
+        <li><span class="parameter">x:</span>
+         new input
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        median of last N values
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Class_filters_smoother"></a>Class filters.smoother </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "smoother.new"></a>
+    <strong>smoother.new (time:, sr:)</strong>
+    </dt>
+    <dd>
+    constructor
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time:</span>
+         -60db convergence time
+        </li>
+        <li><span class="parameter">sr:</span>
+         expected sample rate
         </li>
     </ul>
 
@@ -194,41 +276,16 @@
 
 </dd>
     <dt>
-    <a name = "stop"></a>
-    <strong>stop (coro_id)</strong>
+    <a name = "f.mean"></a>
+    <strong>f.mean</strong>
     </dt>
     <dd>
-    stop execution of a coroutine started using clock.run.
+    TODO: what else would be useful?
+<p> quantile estimator?
+ constant time ramp?
+ some kind of hysteresis / latching?
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">coro_id</span>
-            <span class="types"><span class="type">integer</span></span>
-         : coroutine ID
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "set_source"></a>
-    <strong>set_source (source)</strong>
-    </dt>
-    <dd>
-    select the sync source, currently clock.INTERNAL and clock.MIDI.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">source</span>
-            <span class="types"><span class="type">integer</span></span>
-         : clock.INTERNAL (0) or clock.MIDI (1)
-        </li>
-    </ul>
 
 
 

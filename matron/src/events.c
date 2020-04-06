@@ -179,6 +179,12 @@ static void handle_event(union event_data *ev) {
     case EVENT_CLOCK_RESUME:
         w_handle_clock_resume(ev->clock_resume.thread_id);
         break;
+    case EVENT_CLOCK_START:
+        w_handle_clock_start();
+        break;
+    case EVENT_CLOCK_STOP:
+        w_handle_clock_stop();
+        break;
     case EVENT_KEY:
         w_handle_key(ev->key.n, ev->key.val);
         break;
