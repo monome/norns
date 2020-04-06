@@ -3,7 +3,7 @@ maiden-repl
 
 the `maiden-repl` command is a terminal based alternative to the `matron`
 and `supercollider` (sc/crone) REPLs provided in the web based `maiden` editor. this
-command can be independently of, or concurrently with, the web based editor. any
+command can be used independently of, or concurrently with, the web based editor. any
 REPL output will appear in all connected sessions but REPL input commands and command
 history.
 
