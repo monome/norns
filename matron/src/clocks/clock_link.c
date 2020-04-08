@@ -28,6 +28,7 @@ static void *clock_link_run(void *p) {
     link = ableton_link_new(120);
     clock = ableton_link_clock(link);
     ableton_link_enable(link, true);
+    ableton_link_enable_start_stop_sync(link, true);
 
     while (true) {
         if (pthread_mutex_trylock(&clock_link_shared_data.lock) == 0) {
