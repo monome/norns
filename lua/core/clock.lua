@@ -161,7 +161,7 @@ end
 
 
 function clock.add_params()
-  params:add_group("CLOCK",6)
+  params:add_group("CLOCK",7)
   
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"})
   params:set_action("clock_source", 
@@ -197,11 +197,12 @@ function clock.add_params()
   params:set_action("clock_crow_out", function(x)
       if x>1 then crow.output[x-1].action = "pulse(0.05,8)" end
     end)
+  params:add_number("clock_crow_out_div", "crow out div", 1, 32, 4)
 
   -- executes crow sync
   clock.run(function()
     while true do
-      clock.sync(1/4)
+      clock.sync(1/params:get("clock_crow_div"))
       local crow_out = params:get("clock_crow_out")-1
       if crow_out > 0 then crow.output[crow_out]() end
     end
