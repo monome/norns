@@ -202,7 +202,7 @@ function clock.add_params()
   -- executes crow sync
   clock.run(function()
     while true do
-      clock.sync(1/params:get("clock_crow_div"))
+      clock.sync(1/params:get("clock_crow_out_div"))
       local crow_out = params:get("clock_crow_out")-1
       if crow_out > 0 then crow.output[crow_out]() end
     end
