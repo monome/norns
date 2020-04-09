@@ -27,7 +27,7 @@ struct clock_thread_t {
 static struct clock_reference_t reference;
 static clock_source_t clock_source;
 
-#define NUM_THREADS 20
+#define NUM_THREADS 100
 static struct clock_thread_t clock_thread_pool[NUM_THREADS];
 
 struct clock_thread_arg {
