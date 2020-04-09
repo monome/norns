@@ -168,8 +168,8 @@ function clock.add_params()
     function(x)
       clock.set_source(x)
       if x==4 then
-        crow.input[2].change = function() end
-        crow.input[2].mode("change",2,0.1,"rising")
+        crow.input[1].change = function() end
+        crow.input[1].mode("change",2,0.1,"rising")
       end
     end)
   params:add_number("clock_tempo", "tempo", 1, 300, 120)

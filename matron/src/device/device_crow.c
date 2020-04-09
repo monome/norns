@@ -76,7 +76,7 @@ static void handle_event(void *dev, uint8_t id) {
     event_post(ev);
 
     struct dev_crow *d = (struct dev_crow *)dev;
-    if(strstr(d->line,"^^change(2,1)")) {
+    if(strstr(d->line,"^^change(1,1)")) {
       clock_crow_handle_clock();
     }
 }
