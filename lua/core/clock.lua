@@ -90,7 +90,7 @@ end
 -- @tparam string source : "internal", "midi", or "link"
 clock.set_source = function(source)
   if type(source) == "number" then
-    _norns.clock_set_source(util.clamp(source-1,0,2)) -- lua list is 1-indexed
+    _norns.clock_set_source(util.clamp(source-1,0,3)) -- lua list is 1-indexed
   elseif source == "internal" then
     _norns.clock_set_source(0)
   elseif source == "midi" then
