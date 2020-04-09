@@ -5,7 +5,7 @@ static int clock_midi_counter;
 static bool clock_midi_last_tick_time_set;
 static double clock_midi_last_tick_time;
 
-#define DURATION_BUFFER_LENGTH 20
+#define DURATION_BUFFER_LENGTH 30
 
 static double duration_buf[DURATION_BUFFER_LENGTH] = {0};
 static uint8_t beat_duration_buf_pos = 0;
