@@ -205,10 +205,10 @@ crow.connected = function()
   return _norns.crow.dev ~= nil
 end
 
-crow.Cal = {}
-crow.Cal.test = function() crow.send("Cal.test()") end
-crow.Cal.default = function() crow.send("Cal.default()") end
-crow.Cal.print = function() crow.send("Cal.print()") end
+crow.cal = {}
+crow.cal.test = function() crow.send("cal.test()") end
+crow.cal.default = function() crow.send("cal.default()") end
+crow.cal.print = function() crow.send("cal.print()") end
 
 crow.ii = {}
 crow.ii.help = function() crow.send("ii.help()") end
