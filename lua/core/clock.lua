@@ -161,7 +161,7 @@ end
 
 
 function clock.add_params()
-  params:add_group("CLOCK",7)
+  params:add_group("CLOCK",8)
   
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
     norns.state.clock.source)
@@ -188,7 +188,7 @@ function clock.add_params()
   params:set_save("clock_tempo", false)
   params:add_trigger("clock_reset", "reset")
   params:set_action("clock_reset",
-    function(bpm) 
+    function()
       local source = params:string("clock_source")
       if source == "internal" then clock.internal.start(bpm)
       elseif source == "link" then print("link reset not supported") end
@@ -217,6 +217,9 @@ function clock.add_params()
   params:set_action("clock_crow_out_div",
     function(x) norns.state.clock.crow_out_div = x end)
   params:set_save("clock_crow_out_div", false)
+  params:add_trigger("crow_clear", "crow clear")
+  params:set_action("crow_clear",
+    function() crow.reset() crow.clear() end)
 
   params:bang("clock_tempo")
 
