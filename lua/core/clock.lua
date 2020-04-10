@@ -163,7 +163,8 @@ end
 function clock.add_params()
   params:add_group("CLOCK",7)
   
-  params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"})
+  params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
+    norns.state.clock.source)
   params:set_action("clock_source", 
     function(x)
       clock.set_source(x)
@@ -171,14 +172,20 @@ function clock.add_params()
         crow.input[1].change = function() end
         crow.input[1].mode("change",2,0.1,"rising")
       end
+      norns.state.clock.source = x
+      if x==1 then clock.internal.set_tempo(params:get("clock_tempo"))
+      elseif x==3 then clock.link.set_tempo(params:get("clock_tempo")) end
     end)
-  params:add_number("clock_tempo", "tempo", 1, 300, 120)
+  params:set_save("clock_source", false)
+  params:add_number("clock_tempo", "tempo", 1, 300, norns.state.clock.tempo)
   params:set_action("clock_tempo",
     function(bpm) 
       local source = params:string("clock_source")
       if source == "internal" then clock.internal.set_tempo(bpm)
       elseif source == "link" then clock.link.set_tempo(bpm) end
+      norns.state.clock.tempo = bpm
     end)
+  params:set_save("clock_tempo", false)
   params:add_trigger("clock_reset", "reset")
   params:set_action("clock_reset",
     function(bpm) 
@@ -186,18 +193,32 @@ function clock.add_params()
       if source == "internal" then clock.internal.start(bpm)
       elseif source == "link" then print("link reset not supported") end
     end)
-  params:add_number("link_quantum", "link quantum", 1, 20, 4)
+  params:add_number("link_quantum", "link quantum", 1, 32, norns.state.clock.link_quantum)
   params:set_action("link_quantum",
-    function(x) clock.link.set_quantum(x) end)
+    function(x)
+      clock.link.set_quantum(x)
+      norns.state.clock.link_quantum = x
+    end)
+  params:set_save("link_quantum", false)
 
   params:add_option("clock_midi_out", "midi out",
-      {"off", "port 1", "port 2", "port 3", "port 4"})
+      {"off", "port 1", "port 2", "port 3", "port 4"}, norns.state.clock.midi_out)
+  params:set_action("clock_midi_out", function(x) norns.state.clock.midi_out = x end)
+  params:set_save("clock_midi_out", false)
   params:add_option("clock_crow_out", "crow out",
-      {"off", "output 1", "output 2", "output 3", "output 4"})
+      {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
       if x>1 then crow.output[x-1].action = "pulse(0.05,8)" end
+      norns.state.clock.crow_out = x
     end)
-  params:add_number("clock_crow_out_div", "crow out div", 1, 32, 4)
+  params:set_save("clock_crow_out", false)
+  params:add_number("clock_crow_out_div", "crow out div", 1, 32,
+    norns.state.clock.crow_out_div)
+  params:set_action("clock_crow_out_div",
+    function(x) norns.state.clock.crow_out_div = x end)
+  params:set_save("clock_crow_out_div", false)
+
+  params:bang("clock_tempo")
 
   -- executes crow sync
   clock.run(function()

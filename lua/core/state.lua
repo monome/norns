@@ -19,6 +19,13 @@ state.mix.monitor_mode = 1
 state.mix.headphone_gain = 40
 state.mix.aux = 2
 state.mix.ins = 1
+state.clock = {}
+state.clock.source = 1
+state.clock.tempo = 90
+state.clock.link_quantum = 4
+state.clock.midi_out = 1
+state.clock.crow_out = 1
+state.clock.crow_out_div = 4
 
 -- read state.lua and set parameters back to stored vals.
 state.resume = function()
@@ -101,6 +108,12 @@ state.save_state = function()
   io.write("norns.state.mix.ins = " .. norns.state.mix.ins .. "\n")
   io.write("norns.state.mix.monitor_mode = " .. norns.state.mix.monitor_mode .. "\n")
   io.write("norns.state.mix.headphone_gain = " .. norns.state.mix.headphone_gain .. "\n")
+  io.write("norns.state.clock.source = " .. norns.state.clock.source .. "\n")
+  io.write("norns.state.clock.tempo = " .. norns.state.clock.tempo .. "\n")
+  io.write("norns.state.clock.link_quantum = " .. norns.state.clock.link_quantum .. "\n")
+  io.write("norns.state.clock.midi_out = " .. norns.state.clock.midi_out .. "\n")
+  io.write("norns.state.clock.crow_out = " .. norns.state.clock.crow_out .. "\n")
+  io.write("norns.state.clock.crow_out_div = " .. norns.state.clock.crow_out_div .. "\n")
   for i=1,4 do
     io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
   end
