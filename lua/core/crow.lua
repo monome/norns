@@ -1,6 +1,9 @@
 --- Crow Module
 -- @module crow
 
+local ii_events = require 'core/crow/ii_events'
+local ii_actions = require 'core/crow/ii_actions'
+
 local function tostringwithquotes(s)
   return "'"..tostring(s).."'"
 end
@@ -45,7 +48,7 @@ function norns.crow.done(n) crow.output[n].done() end
 function norns.crow.running(n,v) crow.output[n].running(v) end
 function norns.crow.midi(...) crow.midi(...) end
 
-norns.crow.ii = require 'crow/ii_events'
+norns.crow.ii = ii_events
 
 
 -- userspace functions
@@ -186,7 +189,7 @@ crow.cal.default = function() crow.send("cal.default()") end
 crow.cal.print = function() crow.send("cal.print()") end
 
 
-crow.ii = require 'crow/ii_actions'
+crow.ii = ii_actions
 crow.ii.help = function() crow.send("ii.help()") end
 crow.ii.pullup = function(x)
   local truth = (x == true or x == 1) and 'true' or 'false'
