@@ -22,7 +22,7 @@ or use the debian repository as follows:
 curl https://keybase.io/artfwo/pgp_keys.asc | sudo apt-key add -
 echo "deb https://package.monome.org/ stretch main" | sudo tee /etc/apt/sources.list.d/norns.list
 sudo apt update
-sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-supernova supercollider-dev
+sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollider-server supercollider-dev
 ```
 
 ## building norns
@@ -57,7 +57,7 @@ the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_
 
 run `crone.sh` from the norns directory. this creates a `sclang` process wrapped with `ws-wrapper`
 
-if the crone classes are installed correctly, you should see some lines like this in output from sclang initialization: 
+if the crone classes are installed correctly, you should see some lines like this in output from sclang initialization:
 
 ```
 -------------------------------------------------
@@ -68,7 +68,7 @@ if the crone classes are installed correctly, you should see some lines like thi
 --------------------------------------------------
 ```
 
-and immediately after sclang init, you should see the server being booted and some jack/alsa related messages. 
+and immediately after sclang init, you should see the server being booted and some jack/alsa related messages.
 
 ### 2. launch `matron` (lua interpreter)
 
