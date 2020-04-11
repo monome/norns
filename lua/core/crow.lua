@@ -12,6 +12,7 @@ _norns.crow = {}
 
 _norns.crow.add = function(id, name, dev)
   norns.crow.dev = dev
+  crow.init() -- reset crow environment
   crow.add(id, name, dev)
 end
 
