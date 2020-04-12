@@ -18,6 +18,9 @@ static inline void clamp(size_t &x, const size_t a) {
 SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     for (unsigned int i = 0; i < NumVoices; ++i) {
         cut.voice(i)->setBuffer(buf[i & 1], BufFrames);
+        cut.setInputBus((int)i, input[i].buf[0]);
+        cut.setOutputBus((int)i, output[i].buf[0]);
+
     }
     bufIdx[0] = BufDiskWorker::registerBuffer(buf[0], BufFrames);
     bufIdx[1] = BufDiskWorker::registerBuffer(buf[1], BufFrames);
@@ -27,12 +30,7 @@ void SoftcutClient::process(jack_nframes_t numFrames) {
     Commands::softcutCommands.handlePending(this);
     clearBusses(numFrames);
     mixInput(numFrames);
-    // process softcuts (overwrites output bus)
-    for (int v = 0; v < NumVoices; ++v) {
-        if (enabled[v]) {
-            cut.processBlock(v, input[v].buf[0], output[v].buf[0], static_cast<int>(numFrames));
-        }
-    }
+    cut.processBlock(numFrames); // overwrites output bus
     mixOutput(numFrames);
     mix.copyTo(sink[0], numFrames);
 }
@@ -73,7 +71,8 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
     switch (p->id) {
         //-- client routing and levels
         case Commands::Id::SET_ENABLED_CUT:
-            enabled[p->idx_0] = p->value > 0.f;
+            //enabled[p->idx_0] = p->value > 0.f;
+            cut.setVoiceEnabled(p->idx_0, p->value > 0.f);
             break;
         case Commands::Id::SET_LEVEL_IN_CUT:
             inLevel[p->idx_0][p->idx_1].setTarget(p->value);
@@ -81,13 +80,15 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_LEVEL_CUT_CUT:
             fbLevel[p->idx_0][p->idx_1].setTarget(p->value);
             break;
+
             //-- voice levels, pan
-        case Commands::Id::SET_PAN_CUT:
+        case Commands::Id::SET_CUT_VOICE_PAN:
             outPan[p->idx_0].setTarget((p->value * 0.5f) + 0.5f); // map -1,1 to 0,1
             break;
-        case Commands::Id::SET_LEVEL_CUT:
+        case Commands::Id::SET_CUT_VOICE_LEVEL:
             outLevel[p->idx_0].setTarget(p->value);
             break;
+
             //-- voice commands
         case Commands::Id::SET_CUT_VOICE_BUFFER:
             cut.voice(p->idx_0)->setBuffer(buf[p->idx_1], BufFrames);
@@ -181,8 +182,15 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_VOICE_SYNC:
             cut.syncVoice(p->idx_0, p->idx_1, p->value);
             break;
-        case Commands::Id::SET_CUT_VOICE_DUCK_TARGET:
-            cut.voice(p->idx_0)->setDuckTarget(cut.voice(p->idx_1));
+        case Commands::Id::SET_CUT_VOICE_READ_DUCK_TARGET:
+            cut.voice(p->idx_0)->setReadDuckTarget(cut.voice(p->idx_1));
+            break;
+        case Commands::Id::SET_CUT_VOICE_WRITE_DUCK_TARGET:
+            cut.voice(p->idx_0)->setWriteDuckTarget(cut.voice(p->idx_1));
+            break;
+        case Commands::Id::SET_CUT_VOICE_FOLLOW_TARGET:
+            cut.voice(p->idx_0)->setFollowTarget(cut.voice(p->idx_1));
+            break;
         default:;;
     }
 }

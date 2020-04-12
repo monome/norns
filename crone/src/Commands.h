@@ -48,10 +48,10 @@ namespace crone {
 
             // mix
             SET_ENABLED_CUT,
-            SET_LEVEL_CUT,
-            SET_PAN_CUT,
+            SET_CUT_VOICE_LEVEL,
+            SET_CUT_VOICE_PAN,
+
             // level of individual input channel -> cut voice
-            // (separate commands just to avoid a 3rd parameter)
             SET_LEVEL_IN_CUT,
             SET_LEVEL_CUT_CUT,
 
@@ -90,7 +90,8 @@ namespace crone {
             SET_CUT_VOICE_RATE_SLEW_TIME,
 
             SET_CUT_VOICE_SYNC,
-            SET_CUT_VOICE_DUCK_TARGET,
+            SET_CUT_VOICE_READ_DUCK_TARGET,
+            SET_CUT_VOICE_WRITE_DUCK_TARGET,
             SET_CUT_VOICE_FOLLOW_TARGET,
 
             NUM_COMMANDS,

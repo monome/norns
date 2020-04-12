@@ -290,12 +290,12 @@ void OscInterface::addServerMethods() {
 
     addServerMethod("/set/level/cut", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_LEVEL_CUT, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_LEVEL, argv[0]->i, argv[1]->f);
     });
 
     addServerMethod("/set/pan/cut", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_PAN_CUT, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_PAN, argv[0]->i, argv[1]->f);
     });
 
 
@@ -484,9 +484,13 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_BUFFER, argv[0]->i, argv[1]->i);
     });
 
-    addServerMethod("/set/param/cut/duck", "ii", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/param/cut/read_duck", "ii", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_DUCK_TARGET,argv[0]->i, argv[1]->i);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_READ_DUCK_TARGET,argv[0]->i, argv[1]->i);
+    });
+    addServerMethod("/set/param/cut/write_duck", "ii", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_WRITE_DUCK_TARGET,argv[0]->i, argv[1]->i);
     });
 
     //-------------------------------
