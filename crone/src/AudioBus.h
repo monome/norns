@@ -2,18 +2,19 @@
 // Created by emb on 11/19/18.
 //
 
-#ifndef CRONE_BUS_H
-#define CRONE_BUS_H
+#ifndef CRONE_AUDIOBUS_H
+#define CRONE_AUDIOBUS_H
 
 #include <boost/assert.hpp>
-#include "Utilities.h"
+//#include "Utilities.h"
+#include "dsp-kit/Smoother.hpp"
 
 namespace  crone {
 
     template<size_t NumChannels, size_t BlockSize>
-    class Bus {
+    class AudioBus {
     private:
-        typedef Bus<NumChannels, BlockSize> BusT;
+        typedef AudioBus<NumChannels, BlockSize> BusT;
     public:
         float buf[NumChannels][BlockSize];
 
@@ -37,7 +38,7 @@ namespace  crone {
         }
 
         // copy from bus, with no scaling (overwrites previous contents)
-        void copyFrom(Bus &b, size_t numFrames) {
+        void copyFrom(AudioBus &b, size_t numFrames) {
             BOOST_ASSERT(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
@@ -55,7 +56,6 @@ namespace  crone {
                 }
             }
         }
-
 
         // sum from bus, without amplitude scaling
          void addFrom(BusT &b, size_t numFrames) {
@@ -76,7 +76,6 @@ namespace  crone {
                 }
             }
         }
-
 
         // mix from bus, with smoothed amplitude
         void mixFrom(BusT &b, size_t numFrames, LogRamp &level) {
@@ -188,7 +187,7 @@ namespace  crone {
         }
 
         // mix from mono->stereo bus, with level and pan (linear)
-        void panMixFrom(Bus<1, BlockSize> a, size_t numFrames, LogRamp &level, LogRamp& pan) {
+        void panMixFrom(AudioBus<1, BlockSize> a, size_t numFrames, LogRamp &level, LogRamp& pan) {
             BOOST_ASSERT(numFrames < BlockSize);
             static_assert(NumChannels > 1, "using panMixFrom() on mono bus");
             float l, c, x;
@@ -203,7 +202,7 @@ namespace  crone {
 
 
         // mix from mono->stereo bus, with level and pan (equal power)
-        void panMixEpFrom(Bus<1, BlockSize> a, size_t numFrames, LogRamp &level, LogRamp& pan) {
+        void panMixEpFrom(AudioBus<1, BlockSize> a, size_t numFrames, LogRamp &level, LogRamp& pan) {
             BOOST_ASSERT(numFrames < BlockSize);
             static_assert(NumChannels > 1, "using panMixFrom() on mono bus");
             float l, c, x;
@@ -223,4 +222,4 @@ namespace  crone {
 
 }
 
-#endif //CRONE_BUS_H
+#endif //CRONE_AUDIOBUS_H

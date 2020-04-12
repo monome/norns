@@ -6,7 +6,6 @@
 
 #include <cassert>
 #include <array>
-#include <math.h>
 #include <cmath>
 
 namespace crone {

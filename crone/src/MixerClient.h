@@ -7,7 +7,7 @@
 
 #include <atomic>
 
-#include "Bus.h"
+#include "AudioBus.h"
 #include "Client.h"
 #include "Tape.h"
 #include "Utilities.h"
@@ -24,7 +24,7 @@ namespace  crone {
         enum { MaxBufFrames = 2048 };
         typedef enum { SourceAdc=0, SourceCut=1, SourceExt=2 } SourceId;
         typedef enum { SinkDac=0, SinkCut=1, SinkExt=2 } SinkId;
-        typedef Bus<2, MaxBufFrames> StereoBus;
+        typedef AudioBus<2, MaxBufFrames> StereoBus;
 
     public:
         MixerClient();

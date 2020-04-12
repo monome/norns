@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "BufDiskWorker.h"
-#include "Bus.h"
+#include "AudioBus.h"
 #include "Client.h"
 #include "Utilities.h"
 #include "softcut/Softcut.h"
@@ -21,8 +21,8 @@ namespace crone {
         enum { BufFrames = 16777216 };
         enum { NumVoices = 6 };
         typedef enum { SourceAdc=0 } SourceId;
-        typedef Bus<2, MaxBlockFrames> StereoBus;
-        typedef Bus<1, MaxBlockFrames> MonoBus;
+        typedef AudioBus<2, MaxBlockFrames> StereoBus;
+        typedef AudioBus<1, MaxBlockFrames> MonoBus;
     public:
         SoftcutClient();
 
