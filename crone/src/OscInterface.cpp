@@ -492,6 +492,10 @@ void OscInterface::addServerMethods() {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_WRITE_DUCK_TARGET,argv[0]->i, argv[1]->i);
     });
+    addServerMethod("/set/param/cut/follow", "ii", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FOLLOW_TARGET,argv[0]->i, argv[1]->i);
+    });
 
     //-------------------------------
     //--- softcut buffer manipulation

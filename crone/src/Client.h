@@ -110,7 +110,6 @@ namespace crone {
 
 
             auto sr = jack_get_sample_rate (client);
-            std::cout << "engine sample rate: " <<  sr << std::endl;
             this->setSampleRate( sr );
 
 

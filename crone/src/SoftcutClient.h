@@ -110,7 +110,7 @@ namespace crone {
             cut.voice(i)->setPhaseOffset(sec);
         }
 
-        [[nodiscard]] int getNumVoices() const { return NumVoices; }
+        int getNumVoices() const { return NumVoices; }
 
         void reset();
 
