@@ -63,13 +63,16 @@ void SoftcutClient::mixInput(size_t numFrames) {
 
 void SoftcutClient::mixOutput(size_t numFrames) {
     for (int v = 0; v < NumVoices; ++v) {
-        if (cut.voice(v)->getPlayFlag()) {
-            mix.panMixEpFrom(outputBus[v], numFrames, outLevel[v], outPan[v]);
+        if (cut.getVoiceEnabled(v)) {
+            if (cut.voice(v)->getPlayFlag()) {
+                mix.panMixEpFrom(outputBus[v], numFrames, outLevel[v], outPan[v]);
+            }
         }
     }
 }
 
 void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
+    softcut::Voice *v;
     switch (p->id) {
         //-- client routing and levels
         case Commands::Id::SET_ENABLED_CUT:
@@ -185,13 +188,19 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
             cut.syncVoice(p->idx_0, p->idx_1, p->value);
             break;
         case Commands::Id::SET_CUT_VOICE_READ_DUCK_TARGET:
-            cut.voice(p->idx_0)->setReadDuckTarget(cut.voice(p->idx_1));
+            v = (p->idx_1 < 0) ? nullptr : cut.voice(p->idx_1);
+            std::cout << "setting read duck target; voice " << p->idx_0 << "; target voice: " << v << std::endl;
+            cut.voice(p->idx_0)->setReadDuckTarget(v);
             break;
         case Commands::Id::SET_CUT_VOICE_WRITE_DUCK_TARGET:
-            cut.voice(p->idx_0)->setWriteDuckTarget(cut.voice(p->idx_1));
+            v = (p->idx_1) < 0 ? nullptr : cut.voice(p->idx_1);
+            std::cout << "setting write duck target; voice " << p->idx_0 << "; target voice: " << v << std::endl;
+            cut.voice(p->idx_0)->setWriteDuckTarget(v);
             break;
         case Commands::Id::SET_CUT_VOICE_FOLLOW_TARGET:
-            cut.voice(p->idx_0)->setFollowTarget(cut.voice(p->idx_1));
+            v = (p->idx_1) < 0 ? nullptr : cut.voice(p->idx_1);
+            std::cout << "setting follow target; voice " << p->idx_0 << "; target voice: " << v << std::endl;
+            cut.voice(p->idx_0)->setFollowTarget(v);
             break;
         default:;;
     }
