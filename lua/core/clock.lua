@@ -111,9 +111,9 @@ clock.get_tempo = function()
   return _norns.clock_get_tempo()
 end
 
-clock.get_beat_ms = function(x)
+clock.get_beat_sec = function(x)
   x = x or 1
-  return (60000.0 / _norns.clock_get_tempo() * x)
+  return (60.0 / _norns.clock_get_tempo() * x)
 end
 
 
