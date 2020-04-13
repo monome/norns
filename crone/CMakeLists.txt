@@ -20,7 +20,6 @@ set (SRC src/main.cpp
         src/SoftcutClient.cpp
         src/SoftcutClient.h
         src/Poll.h
-        src/Taper.cpp
         src/Window.cpp
         src/BufDiskWorker.cpp)
 

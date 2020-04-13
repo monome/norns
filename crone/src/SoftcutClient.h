@@ -24,8 +24,8 @@ namespace crone {
         enum { BufFrames = 16777216 };
         enum { NumVoices = 6 };
         typedef enum { SourceAdc=0 } SourceId;
-        typedef dspkit::StereoSmoothAudioBus<MaxBlockFrames> StereoBus;
-        typedef dspkit::SmoothAudioBus<1, MaxBlockFrames> MonoBus;
+        typedef dspkit::AudioBus<2, MaxBlockFrames> StereoBus;
+        typedef dspkit::AudioBus<1, MaxBlockFrames> MonoBus;
     public:
         SoftcutClient();
 
@@ -38,13 +38,13 @@ namespace crone {
         int bufIdx[2];
         // busses
         StereoBus mix;
-        MonoBus input[NumVoices];
-        MonoBus output[NumVoices];
+        MonoBus inputBus[NumVoices];
+        MonoBus outputBus[NumVoices];
         // levels
-        LogRamp inLevel[2][NumVoices];
-        LogRamp outLevel[NumVoices];
-        LogRamp outPan[NumVoices];
-        LogRamp fbLevel[NumVoices][NumVoices];
+        dspkit::AudioLevelSmoother inLevel[2][NumVoices];
+        dspkit::AudioLevelSmoother outLevel[NumVoices];
+        dspkit::EnvelopeSmoother outPan[NumVoices];
+        dspkit::AudioLevelSmoother fbLevel[NumVoices][NumVoices];
         // enabled flags
         bool enabled[NumVoices];
         softcut::phase_t quantPhase[NumVoices];

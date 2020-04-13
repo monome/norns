@@ -18,8 +18,8 @@ static inline void clamp(size_t &x, const size_t a) {
 SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     for (unsigned int i = 0; i < NumVoices; ++i) {
         cut.voice(i)->setBuffer(buf[i & 1], BufFrames);
-        cut.setInputBus((int)i, input[i].buf[0]);
-        cut.setOutputBus((int)i, output[i].buf[0]);
+        cut.setInputBus((int)i, inputBus[i].buf[0]);
+        cut.setOutputBus((int)i, outputBus[i].buf[0]);
 
     }
     bufIdx[0] = BufDiskWorker::registerBuffer(buf[0], BufFrames);
@@ -41,18 +41,20 @@ void SoftcutClient::setSampleRate(jack_nframes_t sr) {
 
 void SoftcutClient::clearBusses(size_t numFrames) {
     mix.clear(numFrames);
-    for (auto &b : input) { b.clear(numFrames); }
+    for (auto &b : inputBus) { b.clear(numFrames); }
 }
 
 void SoftcutClient::mixInput(size_t numFrames) {
     for (int dst = 0; dst < NumVoices; ++dst) {
         if (cut.voice(dst)->getRecFlag()) {
+            // mix from capture bus to voice input bus
             for (int ch = 0; ch < 2; ++ch) {
-                input[dst].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][dst]);
+                inputBus[dst].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][dst]);
             }
+            // mix from feedback matrix to voice input bus
             for (int src = 0; src < NumVoices; ++src) {
                 if (cut.voice(src)->getPlayFlag()) {
-                    input[dst].mixFrom(output[src], numFrames, fbLevel[src][dst]);
+                    inputBus[dst].mixFrom(outputBus[src], numFrames, fbLevel[src][dst]);
                 }
             }
         }
@@ -62,7 +64,7 @@ void SoftcutClient::mixInput(size_t numFrames) {
 void SoftcutClient::mixOutput(size_t numFrames) {
     for (int v = 0; v < NumVoices; ++v) {
         if (cut.voice(v)->getPlayFlag()) {
-            mix.panMixEpFrom(output[v], numFrames, outLevel[v], outPan[v]);
+            mix.panMixEpFrom(outputBus[v], numFrames, outLevel[v], outPan[v]);
         }
     }
 }
@@ -222,8 +224,8 @@ void SoftcutClient::reset() {
         cut.voice(v)->setLoopStart(v * 2);
         cut.voice(v)->setLoopEnd(v * 2 + 1);
 
-        output[v].clear();
-        input[v].clear();
+        outputBus[v].clear();
+        inputBus[v].clear();
     }
     cut.reset();
 }

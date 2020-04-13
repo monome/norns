@@ -18,22 +18,22 @@ void MixerClient::process(jack_nframes_t numFrames) {
     Commands::mixerCommands.handlePending(this);
 
     // copy inputs
-// FIXME:    bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
+    bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
     bus.cut_source.setFrom(source[SourceCut], numFrames);
-// FIXME:    bus.ext_source.setFrom(source[SourceExt], numFrames, smoothLevels.ext);
+    bus.ext_source.setFrom(source[SourceExt], numFrames, smoothLevels.ext);
 
     // mix ADC monitor
     bus.adc_monitor.clear(numFrames);
-//FIXME:    bus.adc_monitor.stereoMixFrom(bus.adc_source, numFrames, staticLevels.monitor_mix);
+    bus.adc_monitor.stereoMixFrom(bus.adc_source, numFrames, staticLevels.monitor_mix);
 
     // copy ADC->ext
     bus.ext_sink.copyFrom(bus.adc_source, numFrames);
 
     // mix ADC->cut, ext->cut, tape->cut
     bus.cut_sink.clear(numFrames);
-    // FIXME: bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
-    // FIXME: bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
-    // FIXME: bus.cut_sink.mixFrom(bus.tape, numFrames, smoothLevels.tape_cut);
+    bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
+    bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
+    bus.cut_sink.mixFrom(bus.tape, numFrames, smoothLevels.tape_cut);
 
 
     bus.ins_in.clear(numFrames);
@@ -128,9 +128,9 @@ void MixerClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_LEVEL_EXT_AUX:
             smoothLevels.ext_aux.setTarget(p->value);
             break;
-	case Commands::Id::SET_LEVEL_CUT_MASTER:
+        case Commands::Id::SET_LEVEL_CUT_MASTER:
             smoothLevels.cut.setTarget(p->value);
-            break;	
+            break;
         case Commands::Id::SET_LEVEL_AUX_DAC:
             smoothLevels.aux.setTarget(p->value);
             break;
@@ -251,15 +251,15 @@ MixerClient::EnabledList::EnabledList() {
 
 
 void MixerClient::setFxDefaults() {
-  comp.getUi().setParamValue(CompressorParam::RATIO, 4.0);
-  comp.getUi().setParamValue(CompressorParam::THRESHOLD, -12.f);
-  comp.getUi().setParamValue(CompressorParam::ATTACK, 0.005);
-  comp.getUi().setParamValue(CompressorParam::RELEASE, 0.08);
-  comp.getUi().setParamValue(CompressorParam::GAIN_PRE, 0.0);
-  comp.getUi().setParamValue(CompressorParam::GAIN_POST, 4.0);
-  reverb.getUi().setParamValue(ReverbParam::PRE_DEL, 20);
-  reverb.getUi().setParamValue(ReverbParam::LF_FC, 555);
-  reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
-  reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
-  reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
+    comp.getUi().setParamValue(CompressorParam::RATIO, 4.0);
+    comp.getUi().setParamValue(CompressorParam::THRESHOLD, -12.f);
+    comp.getUi().setParamValue(CompressorParam::ATTACK, 0.005);
+    comp.getUi().setParamValue(CompressorParam::RELEASE, 0.08);
+    comp.getUi().setParamValue(CompressorParam::GAIN_PRE, 0.0);
+    comp.getUi().setParamValue(CompressorParam::GAIN_POST, 4.0);
+    reverb.getUi().setParamValue(ReverbParam::PRE_DEL, 20);
+    reverb.getUi().setParamValue(ReverbParam::LF_FC, 555);
+    reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
+    reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
+    reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
 }

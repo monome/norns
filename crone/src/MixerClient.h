@@ -25,8 +25,7 @@ namespace  crone {
         enum { MaxBufFrames = 2048 };
         typedef enum { SourceAdc=0, SourceCut=1, SourceExt=2 } SourceId;
         typedef enum { SinkDac=0, SinkCut=1, SinkExt=2 } SinkId;
-        typedef dspkit::StereoSmoothAudioBus<MaxBufFrames> StereoBus;
-        typedef dspkit::SmoothAudioBus<1, MaxBufFrames> MonoBus;
+        typedef dspkit::AudioBus<2, MaxBufFrames> StereoBus;
 
     public:
         MixerClient();
@@ -73,24 +72,24 @@ namespace  crone {
         struct SmoothLevelList{
         public:
             // "master" I/O levels
-            LogRamp adc;
-            LogRamp dac;
-            LogRamp ext;
-            LogRamp cut;
-            LogRamp monitor;
-            LogRamp tape;
+            dspkit::AudioLevelSmoother adc;
+            dspkit::AudioLevelSmoother dac;
+            dspkit::AudioLevelSmoother ext;
+            dspkit::AudioLevelSmoother cut;
+            dspkit::AudioLevelSmoother monitor;
+            dspkit::AudioLevelSmoother tape;
             // softcut input levels
-            LogRamp adc_cut;
-            LogRamp ext_cut;
-            LogRamp tape_cut;
+            dspkit::AudioLevelSmoother adc_cut;
+            dspkit::AudioLevelSmoother ext_cut;
+            dspkit::AudioLevelSmoother tape_cut;
             // aux send levels
-            LogRamp monitor_aux;
-            LogRamp cut_aux;
-            LogRamp ext_aux;
-            LogRamp tape_aux;
+            dspkit::AudioLevelSmoother monitor_aux;
+            dspkit::AudioLevelSmoother cut_aux;
+            dspkit::AudioLevelSmoother ext_aux;
+            dspkit::AudioLevelSmoother tape_aux;
             // FX return / mix levels
-            LogRamp aux;
-            LogRamp ins_mix;
+            dspkit::AudioLevelSmoother aux;
+            dspkit::AudioLevelSmoother ins_mix;
 
             SmoothLevelList();
             void setSampleRate(float sr);
