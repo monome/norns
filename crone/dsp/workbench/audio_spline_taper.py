@@ -40,5 +40,5 @@ plt.show()
 print("const float audio_taper_table[] = { ")
 print("\t", end='')
 for p in y:
-    print('{}, '.format(p*0.01), end='')
+    print('{}, '.format(p), end='')
 print("\n}")
