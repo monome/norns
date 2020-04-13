@@ -7,7 +7,8 @@
 
 #include <atomic>
 
-#include "AudioBus.h"
+#include "dsp-kit/AudioBus.hpp"
+
 #include "Client.h"
 #include "Tape.h"
 #include "Utilities.h"
@@ -24,7 +25,8 @@ namespace  crone {
         enum { MaxBufFrames = 2048 };
         typedef enum { SourceAdc=0, SourceCut=1, SourceExt=2 } SourceId;
         typedef enum { SinkDac=0, SinkCut=1, SinkExt=2 } SinkId;
-        typedef AudioBus<2, MaxBufFrames> StereoBus;
+        typedef dspkit::StereoSmoothAudioBus<MaxBufFrames> StereoBus;
+        typedef dspkit::SmoothAudioBus<1, MaxBufFrames> MonoBus;
 
     public:
         MixerClient();
