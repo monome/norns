@@ -18,22 +18,22 @@ void MixerClient::process(jack_nframes_t numFrames) {
     Commands::mixerCommands.handlePending(this);
 
     // copy inputs
-    bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
+// FIXME:    bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
     bus.cut_source.setFrom(source[SourceCut], numFrames);
-    bus.ext_source.setFrom(source[SourceExt], numFrames, smoothLevels.ext);
+// FIXME:    bus.ext_source.setFrom(source[SourceExt], numFrames, smoothLevels.ext);
 
     // mix ADC monitor
     bus.adc_monitor.clear(numFrames);
-    bus.adc_monitor.stereoMixFrom(bus.adc_source, numFrames, staticLevels.monitor_mix);
+//FIXME:    bus.adc_monitor.stereoMixFrom(bus.adc_source, numFrames, staticLevels.monitor_mix);
 
     // copy ADC->ext
     bus.ext_sink.copyFrom(bus.adc_source, numFrames);
 
     // mix ADC->cut, ext->cut, tape->cut
     bus.cut_sink.clear(numFrames);
-    bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
-    bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
-    bus.cut_sink.mixFrom(bus.tape, numFrames, smoothLevels.tape_cut);
+    // FIXME: bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
+    // FIXME: bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
+    // FIXME: bus.cut_sink.mixFrom(bus.tape, numFrames, smoothLevels.tape_cut);
 
 
     bus.ins_in.clear(numFrames);

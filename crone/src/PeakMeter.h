@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utilities.h"
-#include "Taper.h"
+#include "dsp-kit/Lut.hpp"
+#include "dsp-kit/Taper.hpp"
 
 namespace crone { 
 
@@ -22,7 +22,7 @@ namespace crone {
 	}
 
 	float get() const { return val; }
-	float getPos() const { return Taper::Vu::getPos(val); }
+	float getPos() const { return dspkit::Taper::Vu::getPos(val); }
 	
     private:    
 	// get max value in audio block
@@ -35,7 +35,5 @@ namespace crone {
 	    }
 	    return fmax;
 	}
-
-
     };
 }

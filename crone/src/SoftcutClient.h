@@ -7,12 +7,15 @@
 
 #include <iostream>
 
+#include "dsp-kit/AudioBus.hpp"
+
 #include "BufDiskWorker.h"
-#include "AudioBus.h"
 #include "Client.h"
 #include "Utilities.h"
+
 #include "softcut/Softcut.h"
 #include "softcut/Types.h"
+
 
 namespace crone {
     class SoftcutClient: public Client<2, 2> {
@@ -21,8 +24,8 @@ namespace crone {
         enum { BufFrames = 16777216 };
         enum { NumVoices = 6 };
         typedef enum { SourceAdc=0 } SourceId;
-        typedef AudioBus<2, MaxBlockFrames> StereoBus;
-        typedef AudioBus<1, MaxBlockFrames> MonoBus;
+        typedef dspkit::StereoSmoothAudioBus<MaxBlockFrames> StereoBus;
+        typedef dspkit::SmoothAudioBus<1, MaxBlockFrames> MonoBus;
     public:
         SoftcutClient();
 
@@ -75,7 +78,6 @@ namespace crone {
 
         void writeBufferMono(const std::string &path, float start, float dur, int chan) {
             BufDiskWorker::requestWriteMono(bufIdx[chan], path, start, dur);
-
         }
 
         void writeBufferStereo(const std::string &path, float start, float dur) {
