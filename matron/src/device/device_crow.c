@@ -11,6 +11,7 @@
 
 #include "device_crow.h"
 #include "events.h"
+#include "clocks/clock_crow.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-result"
@@ -73,6 +74,11 @@ static void handle_event(void *dev, uint8_t id) {
     ev->crow_event.dev = dev;
     ev->crow_event.id = id;
     event_post(ev);
+
+    struct dev_crow *d = (struct dev_crow *)dev;
+    if(strstr(d->line,"^^change(1,1)")) {
+      clock_crow_handle_clock();
+    }
 }
 
 void *dev_crow_start(void *self) {

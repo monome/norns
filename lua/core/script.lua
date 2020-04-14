@@ -73,6 +73,7 @@ Script.clear = function()
   norns.pmap.clear()
   -- add audio
   audio.add_params()
+  clock.add_params()
 
   -- reset PLAY mode screen settings
   local status = norns.menu.status()
