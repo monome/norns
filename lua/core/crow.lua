@@ -16,6 +16,14 @@ _norns.crow = {}
 _norns.crow.add = function(id, name, dev)
   norns.crow.dev = dev
   crow.add(id, name, dev)
+
+  --- enable clock-in if needed
+  if params.lookup["clock_source"] then
+    if params:string("clock_source") == "crow" then
+      crow.input[1].change = function() end
+      crow.input[1].mode("change",2,0.1,"rising")
+    end
+  end
 end
 
 _norns.crow.remove = function(id)
