@@ -56,7 +56,7 @@ void clock_internal_start() {
         pthread_join(clock_internal_thread, NULL);
     }
 
-    beat = 0.0;
+    beat = -4.0;
     clock_update_reference_from(beat, interval_seconds, CLOCK_SOURCE_INTERNAL);
     clock_start_from(CLOCK_SOURCE_INTERNAL);
 
