@@ -129,8 +129,9 @@ clock.internal.set_tempo = function(bpm)
   return _norns.clock_internal_set_tempo(bpm)
 end
 
-clock.internal.start = function()
-  return _norns.clock_internal_start()
+clock.internal.start = function(beat)
+  beat = beat or 0
+  return _norns.clock_internal_start(beat)
 end
 
 clock.internal.stop = function()
