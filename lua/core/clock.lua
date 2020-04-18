@@ -52,14 +52,14 @@ clock.sync = function(...)
 end
 
 -- todo: use c api instead
-clock.resume = function(coro_id)
+clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
 
   if coro == nil then
     return -- todo: report error
   end
 
-  local result, mode, time = coroutine.resume(clock.threads[coro_id])
+  local result, mode, time = coroutine.resume(clock.threads[coro_id], ...)
 
   if coroutine.status(coro) == "dead" and result == false then
     error(mode)
@@ -167,10 +167,10 @@ end
 
 function clock.add_params()
   params:add_group("CLOCK",8)
-  
+
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
     norns.state.clock.source)
-  params:set_action("clock_source", 
+  params:set_action("clock_source",
     function(x)
       clock.set_source(x)
       if x==4 then
@@ -184,7 +184,7 @@ function clock.add_params()
   params:set_save("clock_source", false)
   params:add_number("clock_tempo", "tempo", 1, 300, norns.state.clock.tempo)
   params:set_action("clock_tempo",
-    function(bpm) 
+    function(bpm)
       local source = params:string("clock_source")
       if source == "internal" then clock.internal.set_tempo(bpm)
       elseif source == "link" then clock.link.set_tempo(bpm) end
@@ -243,10 +243,10 @@ function clock.add_params()
     while true do
       clock.sync(1/24)
       local midi_out = params:get("clock_midi_out")-1
-      if midi_out > 0 then 
+      if midi_out > 0 then
         if midi.vports[midi_out].name ~= "none" then
           midi.vports[midi_out]:clock()
-        end 
+        end
       end
     end
   end)
