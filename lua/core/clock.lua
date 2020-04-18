@@ -138,6 +138,12 @@ clock.internal.stop = function()
   return _norns.clock_internal_stop()
 end
 
+clock.crow = {}
+
+clock.crow.in_div = function(div)
+  _norns.clock_crow_in_div(div)
+end
+
 
 clock.midi = {}
 
@@ -223,9 +229,17 @@ function clock.add_params()
   params:set_action("clock_crow_out_div",
     function(x) norns.state.clock.crow_out_div = x end)
   params:set_save("clock_crow_out_div", false)
-  params:add_trigger("crow_clear", "crow clear")
-  params:set_action("crow_clear",
-    function() crow.reset() crow.clear() end)
+  params:add_number("clock_crow_in_div", "crow in div", 1, 32,
+    norns.state.clock.crow_in_div)
+  params:set_action("clock_crow_in_div",
+    function(x)
+      clock.crow.in_div(x)
+      norns.state.clock.crow_in_div = x
+    end)
+  params:set_save("clock_crow_in_div", false)
+  --params:add_trigger("crow_clear", "crow clear")
+  --params:set_action("crow_clear",
+    --function() crow.reset() crow.clear() end)
 
   params:bang("clock_tempo")
 

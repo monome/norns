@@ -26,6 +26,7 @@ state.clock.link_quantum = 4
 state.clock.midi_out = 1
 state.clock.crow_out = 1
 state.clock.crow_out_div = 4
+state.clock.crow_in_div = 4
 
 -- read state.lua and set parameters back to stored vals.
 state.resume = function()
@@ -114,6 +115,7 @@ state.save_state = function()
   io.write("norns.state.clock.midi_out = " .. norns.state.clock.midi_out .. "\n")
   io.write("norns.state.clock.crow_out = " .. norns.state.clock.crow_out .. "\n")
   io.write("norns.state.clock.crow_out_div = " .. norns.state.clock.crow_out_div .. "\n")
+  io.write("norns.state.clock.crow_in_div = " .. norns.state.clock.crow_in_div .. "\n")
   for i=1,4 do
     io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
   end
