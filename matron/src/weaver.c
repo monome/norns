@@ -40,6 +40,7 @@
 #include "clock.h"
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
+#include "clocks/clock_crow.h"
 
 
 // registered lua functions require the LVM state as a parameter.
@@ -224,6 +225,7 @@ static int _clock_cancel(lua_State *l);
 static int _clock_internal_set_tempo(lua_State *l);
 static int _clock_internal_start(lua_State *l);
 static int _clock_internal_stop(lua_State *l);
+static int _clock_crow_in_div(lua_State *l);
 
 #if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
@@ -429,6 +431,7 @@ void w_init(void) {
   lua_register_norns("clock_internal_set_tempo", &_clock_internal_set_tempo);
   lua_register_norns("clock_internal_start", &_clock_internal_start);
   lua_register_norns("clock_internal_stop", &_clock_internal_stop);
+  lua_register_norns("clock_crow_in_div", &_clock_crow_in_div);
 #if HAVE_ABLETON_LINK
   lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
   lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
@@ -1440,6 +1443,13 @@ int _clock_internal_start(lua_State *l) {
 
 int _clock_internal_stop(lua_State *l) {
   clock_internal_stop();
+  return 0;
+}
+
+int _clock_crow_in_div(lua_State *l) {
+  lua_check_num_args(1);
+  int div = (int) luaL_checkinteger(l, 1);
+  clock_crow_in_div(div);
   return 0;
 }
 
