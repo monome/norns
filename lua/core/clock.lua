@@ -12,14 +12,22 @@ local function new_id()
   return id
 end
 
+--- create a coroutine to run but do not immediately run it;
+-- @tparam function f
+-- @treturn integer : coroutine ID that can be used to resume/stop it later
+clock.create = function(f)
+  local coro = coroutine.create(f)
+  local coro_id = new_id()
+  clock.threads[coro_id] = coro
+  return coro_id
+end
+
 --- create a coroutine from the given function and immediately run it;
 -- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
 -- @tparam function f
 -- @treturn integer : coroutine ID that can be used to stop it later
 clock.run = function(f, ...)
-  local coro = coroutine.create(f)
-  local coro_id = new_id()
-  clock.threads[coro_id] = coro
+  local coro_id = clock.create(f)
   clock.resume(coro_id, ...)
   return coro_id
 end
@@ -33,7 +41,7 @@ end
 
 local SLEEP = 0
 local SYNC = 1
-
+local SUSPEND = 2
 
 --- yield and schedule waking up the coroutine in s seconds;
 -- must be called from within a coroutine started with clock.run.
@@ -41,7 +49,6 @@ local SYNC = 1
 clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
-
 
 --- yield and schedule waking up the coroutine at beats beat;
 -- the coroutine will suspend for the time required to reach the given fraction of a beat;
@@ -51,25 +58,39 @@ clock.sync = function(...)
   return coroutine.yield(SYNC, ...)
 end
 
+--- yield and do not schedule wake up, clock must be explicitly resumed
+-- must be called from within a coroutine started with clock.run.
+clock.suspend = function()
+  return coroutine.yield(SUSPEND)
+end
+
 -- todo: use c api instead
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
 
   if coro == nil then
-    return -- todo: report error
+    print('clock: ignoring resumption of canceled clock (no coroutine)')
+    return
   end
 
   local result, mode, time = coroutine.resume(clock.threads[coro_id], ...)
 
-  if coroutine.status(coro) == "dead" and result == false then
-    error(mode)
-  end
-
-  if coroutine.status(coro) ~= "dead" and result and mode ~= nil then
-    if mode == SLEEP then
-      _norns.clock_schedule_sleep(coro_id, time)
+  if coroutine.status(coro) == "dead" then
+    if result then
+      clock.cancel(coro_id)
     else
-      _norns.clock_schedule_sync(coro_id, time)
+      error(mode)
+    end
+  else
+    -- not dead
+    if result and mode ~= nil then
+      if mode == SLEEP then
+        _norns.clock_schedule_sleep(coro_id, time)
+      elseif mode == SYNC then
+        _norns.clock_schedule_sync(coro_id, time)
+      elseif mode == SUSPEND then
+        -- nothing needed for SUSPEND
+      end
     end
   end
 end
