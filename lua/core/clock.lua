@@ -175,10 +175,6 @@ end
 clock.refresh = function() end
 
 
-
-local function do_nothing() end
-
-
 function clock.add_params()
   params:add_group("CLOCK",8)
 
