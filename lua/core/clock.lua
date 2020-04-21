@@ -266,6 +266,18 @@ function clock.add_params()
     end
   end)
 
+  -- update tempo param value
+  clock.run(function()
+    while true do
+      if params:get("clock_source") ~= 1 then
+        local external_tempo = math.floor(clock.get_tempo() + 0.5)
+        params:set("clock_tempo", external_tempo, true)
+      end
+
+      clock.sleep(1)
+    end
+  end)
+
 end
 
 
