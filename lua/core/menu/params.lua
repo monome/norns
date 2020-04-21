@@ -97,7 +97,7 @@ local function init_pset()
 end
 
 local function write_pset(name)
-  if name ~= "cancel" then
+  if name then
     params:write(m.ps_pos+1,name)
     m.ps_last = m.ps_pos+1
     init_pset()
