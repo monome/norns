@@ -98,6 +98,7 @@ end
 
 local function write_pset(name)
   if name then
+    if name == "" then name = params.name end
     params:write(m.ps_pos+1,name)
     m.ps_last = m.ps_pos+1
     init_pset()
@@ -214,7 +215,9 @@ m.key = function(n,z)
     elseif n==3 and z==1 then
       -- save
       if m.ps_action == 1 then
-        textentry.enter(write_pset, params.name, "PSET NAME: "..m.ps_pos+1)
+        local txt = ""
+        if pset[m.ps_pos+1] then txt = pset[m.ps_pos+1].name end
+        textentry.enter(write_pset, txt, "PSET NAME: "..m.ps_pos+1)
         -- load
       elseif m.ps_action == 2 then
         if pset[m.ps_pos+1] then
@@ -510,7 +513,7 @@ m.redraw = function()
         local num = (n == m.ps_last) and "*"..n or n
         screen.text_right(num)
         screen.move(56,10*i)
-        screen.text(string.upper(line))
+        screen.text(line)
       end
     end
   end
