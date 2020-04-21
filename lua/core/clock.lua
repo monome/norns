@@ -172,6 +172,13 @@ _norns.clock.stop = function()
 end
 
 
+clock.refresh = function() end
+
+
+
+local function do_nothing() end
+
+
 function clock.add_params()
   params:add_group("CLOCK",8)
 
@@ -180,13 +187,22 @@ function clock.add_params()
   params:set_action("clock_source",
     function(x)
       clock.set_source(x)
-      if x==4 then
+      norns.state.clock.source = x
+      if x==1 then
+        clock.internal.set_tempo(params:get("clock_tempo"))
+        clock.refresh = function() end
+      elseif x==2 then
+        clock.refresh = function() params:set("clock_tempo",
+          math.floor(clock:get_tempo()*10)*0.1,true) end
+      elseif x==3 then
+        clock.link.set_tempo(params:get("clock_tempo"))
+        clock.refresh = function() end
+      elseif x==4 then
         crow.input[1].change = function() end
         crow.input[1].mode("change",2,0.1,"rising")
+        clock.refresh = function() params:set("clock_tempo",
+          math.floor(clock:get_tempo()*10)*0.1,true) end
       end
-      norns.state.clock.source = x
-      if x==1 then clock.internal.set_tempo(params:get("clock_tempo"))
-      elseif x==3 then clock.link.set_tempo(params:get("clock_tempo")) end
     end)
   params:set_save("clock_source", false)
   params:add_number("clock_tempo", "tempo", 1, 300, norns.state.clock.tempo)
@@ -266,6 +282,13 @@ function clock.add_params()
     end
   end)
 
+  -- clock refresh
+  clock.run(function()
+    while true do
+      clock.sleep(0.1)
+      clock.refresh()
+    end
+  end)
 end
 
 
