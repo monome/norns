@@ -350,7 +350,7 @@ function ParamSet:write(filename, name)
 end
 
 --- read from disk.
--- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname].pset from local data folder)
+-- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname]-01.pset from local data folder)
 function ParamSet:read(filename)
   filename = filename or 1
   if type(filename) == "number" then
