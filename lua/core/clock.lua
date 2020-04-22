@@ -102,18 +102,30 @@ clock.set_source = function(source)
   end
 end
 
-
+--- get beats
+-- @treturn float : current time in beats
 clock.get_beats = function()
   return _norns.clock_get_time_beats()
 end
 
+--- get tempo
+-- @tretrun float : current tempo
 clock.get_tempo = function()
   return _norns.clock_get_tempo()
 end
 
+--- get beat length
+-- @treturn float : current beat length in seconds
 clock.get_beat_sec = function(x)
   x = x or 1
   return 60.0 / clock.get_tempo() * x
+end
+
+--- reset clock
+clock.reset = function()
+  local source = params:string("clock_source")
+  if source == "internal" then clock.internal.start()
+  elseif source == "link" then print("link reset not supported") end
 end
 
 
@@ -199,12 +211,7 @@ function clock.add_params()
     end)
   params:set_save("clock_tempo", false)
   params:add_trigger("clock_reset", "reset")
-  params:set_action("clock_reset",
-    function()
-      local source = params:string("clock_source")
-      if source == "internal" then clock.internal.start(bpm)
-      elseif source == "link" then print("link reset not supported") end
-    end)
+  params:set_action("clock_reset", clock.reset)
   params:add_number("link_quantum", "link quantum", 1, 32, norns.state.clock.link_quantum)
   params:set_action("link_quantum",
     function(x)
