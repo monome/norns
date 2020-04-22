@@ -194,6 +194,17 @@ function ParamSet:print()
   end
 end
 
+--- list.
+-- lists param id's
+function ParamSet:list()
+  print("paramset ["..self.name.."]")
+  for k,v in pairs(self.params) do
+    if v.id then
+      print(v.id)
+    end
+  end
+end
+
 -- TODO: @scazan CHECK type here!
 --- name.
 -- @tparam number index
