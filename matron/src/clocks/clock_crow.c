@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <clock.h>
+#include <pthread.h>
 #include "clock_crow.h"
 
 static bool clock_crow_last_time_set;
@@ -15,9 +16,12 @@ static double mean_sum;
 static double mean_scale;
 
 static double crow_in_div = 4.0;
+static pthread_mutex_t crow_in_div_lock;
 
 void clock_crow_in_div(int div) {
-  crow_in_div = (double) div;
+    pthread_mutex_lock(&crow_in_div_lock);
+    crow_in_div = (double) div;
+    pthread_mutex_unlock(&crow_in_div_lock);
 }
 
 void clock_crow_init() {
@@ -33,7 +37,8 @@ void clock_crow_handle_clock() {
   if(clock_crow_last_time_set == false) {
     clock_crow_last_time_set = true;
     clock_crow_last_time = current_time;
-  } else { 
+  } else {
+    pthread_mutex_lock(&crow_in_div_lock);
     beat_duration = (current_time - clock_crow_last_time) * crow_in_div;
 
     if(beat_duration > 4) { // assume clock stopped
@@ -58,5 +63,7 @@ void clock_crow_handle_clock() {
       double beat = clock_crow_counter / crow_in_div;
       clock_update_reference_from(beat, mean_sum, CLOCK_SOURCE_CROW);
     }
+
+    pthread_mutex_unlock(&crow_in_div_lock);
   }
 }
