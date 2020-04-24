@@ -37,8 +37,8 @@ static void *clock_internal_run(void *p) {
 }
 
 void clock_internal_init() {
-    clock_internal_set_tempo(120);
     clock_internal_thread_running = false;
+    clock_internal_set_tempo(120);
 
     clock_internal_start(0.0, true);
 }
