@@ -1,3 +1,15 @@
+# 200424
+
+## norns 2.4.0
+
+- NEW clock system! @artfwo
+- NEW clock support for crow in/out
+- NEW OSC remote for key/enc
+- FIX pset naming and save cancel
+- FIX crow reset behavior @trentgill
+- FIX various minor issues, see github
+
+
 # 200328
 
 ## norns 2.3.1
