@@ -60,7 +60,8 @@ namespace crone {
 
         static void addServerMethod(const char* path, const char* format, Handler handler);
 
-        static void addServerMethods();
+        static void initServerMethods();
+	static void initPolls();
 
 
     public:

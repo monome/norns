@@ -145,7 +145,6 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_VOICE_PRE_FILTER_ENABLED:
             cut.voice(p->idx_0)->setPreFilterEnabled(p->value > 0);
             break;
-
             //-- output filter
         case Commands::Id::SET_CUT_VOICE_POST_FILTER_FC:
             cut.voice(p->idx_0)->setPostFilterFc(p->value);
@@ -172,6 +171,7 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
             //-- slew times
         case Commands::Id::SET_CUT_VOICE_LEVEL_SLEW_TIME:
             outLevel[p->idx_0].setTime(p->value);
+            cut.voice(p->idx_0)->setLevelSlewTime(p->value);
             break;
         case Commands::Id::SET_CUT_VOICE_PAN_SLEW_TIME:
             outPan[p->idx_0].setTime(p->value);
@@ -181,6 +181,10 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
             break;
         case Commands::Id::SET_CUT_VOICE_RATE_SLEW_TIME:
             cut.voice(p->idx_0)->setRateSlewTime(p->value);
+            break;
+
+        case Commands::Id::SET_CUT_VOICE_RATE_SLEW_SHAPE:
+            cut.voice(p->idx_0)->setRateSlewShape(p->value);
             break;
 
             //-- sync / inter-voice
@@ -202,6 +206,9 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
             std::cout << "setting follow target; voice " << p->idx_0 << "; target voice: " << v << std::endl;
             cut.voice(p->idx_0)->setFollowTarget(v);
             break;
+        case Commands::Id::CUT_RESET_ALL_VOICES:
+            this->reset();
+            break;
         default:;;
     }
 }
@@ -210,19 +217,19 @@ void SoftcutClient::reset() {
 
     for (int v = 0; v < NumVoices; ++v) {
         cut.voice(v)->setBuffer(buf[v % 2], BufFrames);
-        outLevel[v].setTarget(0.f);
         outLevel->setTime(0.001);
-        outPan[v].setTarget(0.5f);
+        outLevel[v].setTarget(0.f);
         outPan->setTime(0.001);
+        outPan[v].setTarget(0.5f);
 
         enabled[v] = false;
 
         setPhaseQuant(v, 1.f);
         setPhaseOffset(v, 0.f);
 
-        for (int i = 0; i < 2; ++i) {
-            inLevel[i][v].setTime(0.001);
-            inLevel[i][v].setTarget(0.0);
+        for (int ch = 0; ch < 2; ++ch) {
+            inLevel[ch][v].setTime(0.001);
+            inLevel[ch][v].setTarget(0.0);
         }
 
         for (int w = 0; w < NumVoices; ++w) {

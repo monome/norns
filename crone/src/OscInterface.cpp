@@ -36,6 +36,9 @@ OscInterface::OscMethod::OscMethod(string p, string f, OscInterface::Handler h)
 
 
 void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
+    mixerClient = m;
+    softCutClient = sc;
+    
     quitFlag = false;
     // FIXME: should get port configs from program args or elsewhere
     port = "9999";
@@ -46,12 +49,18 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
 #endif
 
     st = lo_server_thread_new(port.c_str(), handleLoError);
-    addServerMethods();
+    
+    initServerMethods();
+    initPolls();
+    
+    //--- TODO: softcut trigger poll?
 
-    mixerClient = m;
-    softCutClient = sc;
+    //--- TODO: tape poll?
 
-    // FIXME: polls should really live somewhere else (client classes?)
+    lo_server_thread_start(st);
+}
+
+void OscInterface::initPolls() {    
     //--- VU poll
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([](const char *path) {
@@ -77,15 +86,7 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
         }
     });
     phasePoll->setPeriod(1);
-
-
-    //--- TODO: softcut trigger poll?
-
-    //--- TODO: tape poll?
-
-    lo_server_thread_start(st);
 }
-
 
 void OscInterface::addServerMethod(const char *path, const char *format, Handler handler) {
     OscMethod m(path, format, handler);
@@ -110,7 +111,7 @@ void OscInterface::addServerMethod(const char *path, const char *format, Handler
 }
 
 
-void OscInterface::addServerMethods() {
+void OscInterface::initServerMethods() {
     addServerMethod("/hello", "", [](lo_arg **argv, int argc) {
         (void) argv;
         (void) argc;
@@ -339,7 +340,6 @@ void OscInterface::addServerMethods() {
 
     //--------------------------------
     //-- softcut params
-    //-- softcut params
 
     addServerMethod("/set/param/cut/rate", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
@@ -459,6 +459,9 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_SYNC, argv[0]->i, argv[1]->i, argv[2]->f);
     });
 
+    
+    //-- slew times and shapes
+    
     addServerMethod("/set/param/cut/level_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_LEVEL_SLEW_TIME, argv[0]->i, argv[1]->f);
@@ -479,6 +482,25 @@ void OscInterface::addServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_RATE_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
+    addServerMethod("/set/param/cut/rate_slew_shape", "if", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_RATE_SLEW_SHAPE, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_slew_time", "if", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_SLEW_TIME, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_slew_shape", "if", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_SLEW_SHAPE, argv[0]->i, argv[1]->f);
+    });
+
+
+
+    //---- other softcut voice parameters
+    
     addServerMethod("/set/param/cut/buffer", "ii", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_BUFFER, argv[0]->i, argv[1]->i);
@@ -500,8 +522,6 @@ void OscInterface::addServerMethods() {
     //-------------------------------
     //--- softcut buffer manipulation
 
-
-    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
     addServerMethod("/softcut/buffer/read_mono", "sfffii", [](lo_arg **argv, int argc) {
         float startSrc = 0.f;
         float startDst = 0.f;
@@ -532,7 +552,6 @@ void OscInterface::addServerMethods() {
 
     });
 
-    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
     addServerMethod("/softcut/buffer/read_stereo", "sfff", [](lo_arg **argv, int argc) {
         float startSrc = 0.f;
         float startDst = 0.f;
@@ -555,7 +574,6 @@ void OscInterface::addServerMethods() {
     });
 
 
-    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
     addServerMethod("/softcut/buffer/write_mono", "sffi", [](lo_arg **argv, int argc) {
         float start = 0.f;
         float dur = -1.f;
@@ -577,7 +595,6 @@ void OscInterface::addServerMethods() {
         softCutClient->writeBufferMono(str, start, dur, chan);
     });
 
-    // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
     addServerMethod("/softcut/buffer/write_stereo", "sff", [](lo_arg **argv, int argc) {
         float start = 0.f;
         float dur = -1.f;
@@ -632,11 +649,9 @@ void OscInterface::addServerMethods() {
 
         softCutClient->clearBuffer(0, 0, -1);
         softCutClient->clearBuffer(1, 0, -1);
+        phasePoll->stop();
 
-        softCutClient->reset();
-        for (int i = 0; i < SoftcutClient::NumVoices; ++i) {
-            phasePoll->stop();
-        }
+        Commands::softcutCommands.post(Commands::Id::CUT_RESET_ALL_VOICES, 0, 0);
     });
 
     //---------------------

@@ -13,7 +13,6 @@ set (SRC src/main.cpp
         src/Utilities.h
         src/OscInterface.cpp
         src/Commands.cpp
-        src/Evil.h
         src/Client.h
         src/MixerClient.h
         src/MixerClient.cpp

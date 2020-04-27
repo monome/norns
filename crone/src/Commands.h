@@ -11,6 +11,7 @@
 namespace crone {
 
     class MixerClient;
+
     class SoftcutClient;
 
     class Commands {
@@ -21,7 +22,7 @@ namespace crone {
             SET_LEVEL_DAC,
             SET_LEVEL_EXT,
             SET_LEVEL_EXT_AUX,
-	        SET_LEVEL_CUT_MASTER,
+            SET_LEVEL_CUT_MASTER,
             SET_LEVEL_AUX_DAC,
             SET_LEVEL_MONITOR,
             SET_LEVEL_MONITOR_MIX,
@@ -88,31 +89,45 @@ namespace crone {
             SET_CUT_VOICE_PAN_SLEW_TIME,
             SET_CUT_VOICE_RECPRE_SLEW_TIME,
             SET_CUT_VOICE_RATE_SLEW_TIME,
+            SET_CUT_VOICE_RATE_SLEW_SHAPE,
+
+            SET_CUT_VOICE_FILTER_SLEW_TIME,
+            SET_CUT_VOICE_FILTER_SLEW_SHAPE,
 
             SET_CUT_VOICE_SYNC,
             SET_CUT_VOICE_READ_DUCK_TARGET,
             SET_CUT_VOICE_WRITE_DUCK_TARGET,
             SET_CUT_VOICE_FOLLOW_TARGET,
+            CUT_RESET_ALL_VOICES,
 
             NUM_COMMANDS,
         } Id;
 
     public:
         Commands();
+
         void post(Commands::Id id, float f);
+
         void post(Commands::Id id, int i, float f);
+
         void post(Commands::Id id, int i, int j);
+
         void post(Commands::Id id, int i, int j, float f);
 
         // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
         void handlePending(MixerClient *client);
+
         void handlePending(SoftcutClient *client);
 
         struct CommandPacket {
             CommandPacket() = default;
-            CommandPacket(Commands::Id i, int i0,  float f) : id(i), idx_0(i0), idx_1(-1), value(f) {}
+
+            CommandPacket(Commands::Id i, int i0, float f) : id(i), idx_0(i0), idx_1(-1), value(f) {}
+
             CommandPacket(Commands::Id i, int i0, int i1) : id(i), idx_0(i0), idx_1(i1) {}
+
             CommandPacket(Commands::Id i, int i0, int i1, float f) : id(i), idx_0(i0), idx_1(i1), value(f) {}
+
             Id id;
             int idx_0;
             int idx_1;
@@ -123,7 +138,7 @@ namespace crone {
         static Commands softcutCommands;
 
     private:
-        boost::lockfree::spsc_queue <CommandPacket,
+        boost::lockfree::spsc_queue<CommandPacket,
                 boost::lockfree::capacity<200> > q;
     };
 

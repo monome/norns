@@ -57,8 +57,6 @@ namespace crone {
         }
 
     public:
-        /// FIXME: the "commands" structure shouldn't really be necessary.
-        /// should be able to refactor most/all parameters for atomic access.
         // called from audio thread
         void handleCommand(Commands::CommandPacket *p) override;
 
@@ -100,6 +98,7 @@ namespace crone {
                 return false;
             }
         }
+
         softcut::phase_t getQuantPhase(int i) {
             return cut.voice(i)->getQuantPhase();
         }
