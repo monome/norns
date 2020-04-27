@@ -12,15 +12,23 @@ local function new_id()
   return id
 end
 
+--- create a coroutine to run but do not immediately run it;
+-- @tparam function f
+-- @treturn integer : coroutine ID that can be used to resume/stop it later
+clock.create = function(f)
+  local coro = coroutine.create(f)
+  local coro_id = new_id()
+  clock.threads[coro_id] = coro
+  return coro_id
+end
+
 --- create a coroutine from the given function and immediately run it;
 -- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
 -- @tparam function f
 -- @treturn integer : coroutine ID that can be used to stop it later
-clock.run = function(f)
-  local coro = coroutine.create(f)
-  local coro_id = new_id()
-  clock.threads[coro_id] = coro
-  clock.resume(coro_id)
+clock.run = function(f, ...)
+  local coro_id = clock.create(f)
+  clock.resume(coro_id, ...)
   return coro_id
 end
 
@@ -33,7 +41,7 @@ end
 
 local SLEEP = 0
 local SYNC = 1
-
+local SUSPEND = 2
 
 --- yield and schedule waking up the coroutine in s seconds;
 -- must be called from within a coroutine started with clock.run.
@@ -41,7 +49,6 @@ local SYNC = 1
 clock.sleep = function(...)
   return coroutine.yield(SLEEP, ...)
 end
-
 
 --- yield and schedule waking up the coroutine at beats beat;
 -- the coroutine will suspend for the time required to reach the given fraction of a beat;
@@ -51,25 +58,39 @@ clock.sync = function(...)
   return coroutine.yield(SYNC, ...)
 end
 
+--- yield and do not schedule wake up, clock must be explicitly resumed
+-- must be called from within a coroutine started with clock.run.
+clock.suspend = function()
+  return coroutine.yield(SUSPEND)
+end
+
 -- todo: use c api instead
-clock.resume = function(coro_id)
+clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
 
   if coro == nil then
-    return -- todo: report error
+    print('clock: ignoring resumption of canceled clock (no coroutine)')
+    return
   end
 
-  local result, mode, time = coroutine.resume(clock.threads[coro_id])
+  local result, mode, time = coroutine.resume(clock.threads[coro_id], ...)
 
-  if coroutine.status(coro) == "dead" and result == false then
-    error(mode)
-  end
-
-  if coroutine.status(coro) ~= "dead" and result and mode ~= nil then
-    if mode == SLEEP then
-      _norns.clock_schedule_sleep(coro_id, time)
+  if coroutine.status(coro) == "dead" then
+    if result then
+      clock.cancel(coro_id)
     else
-      _norns.clock_schedule_sync(coro_id, time)
+      error(mode)
+    end
+  else
+    -- not dead
+    if result and mode ~= nil then
+      if mode == SLEEP then
+        _norns.clock_schedule_sleep(coro_id, time)
+      elseif mode == SYNC then
+        _norns.clock_schedule_sync(coro_id, time)
+      elseif mode == SUSPEND then
+        -- nothing needed for SUSPEND
+      end
     end
   end
 end
@@ -111,6 +132,11 @@ clock.get_tempo = function()
   return _norns.clock_get_tempo()
 end
 
+clock.get_beat_sec = function(x)
+  x = x or 1
+  return 60.0 / clock.get_tempo() * x
+end
+
 
 clock.transport = {}
 
@@ -124,12 +150,19 @@ clock.internal.set_tempo = function(bpm)
   return _norns.clock_internal_set_tempo(bpm)
 end
 
-clock.internal.start = function()
-  return _norns.clock_internal_start()
+clock.internal.start = function(beat)
+  beat = beat or 0
+  return _norns.clock_internal_start(beat)
 end
 
 clock.internal.stop = function()
   return _norns.clock_internal_stop()
+end
+
+clock.crow = {}
+
+clock.crow.in_div = function(div)
+  _norns.clock_crow_in_div(div)
 end
 
 
@@ -162,10 +195,10 @@ end
 
 function clock.add_params()
   params:add_group("CLOCK",8)
-  
+
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
     norns.state.clock.source)
-  params:set_action("clock_source", 
+  params:set_action("clock_source",
     function(x)
       clock.set_source(x)
       if x==4 then
@@ -179,7 +212,7 @@ function clock.add_params()
   params:set_save("clock_source", false)
   params:add_number("clock_tempo", "tempo", 1, 300, norns.state.clock.tempo)
   params:set_action("clock_tempo",
-    function(bpm) 
+    function(bpm)
       local source = params:string("clock_source")
       if source == "internal" then clock.internal.set_tempo(bpm)
       elseif source == "link" then clock.link.set_tempo(bpm) end
@@ -217,9 +250,17 @@ function clock.add_params()
   params:set_action("clock_crow_out_div",
     function(x) norns.state.clock.crow_out_div = x end)
   params:set_save("clock_crow_out_div", false)
-  params:add_trigger("crow_clear", "crow clear")
-  params:set_action("crow_clear",
-    function() crow.reset() crow.clear() end)
+  params:add_number("clock_crow_in_div", "crow in div", 1, 32,
+    norns.state.clock.crow_in_div)
+  params:set_action("clock_crow_in_div",
+    function(x)
+      clock.crow.in_div(x)
+      norns.state.clock.crow_in_div = x
+    end)
+  params:set_save("clock_crow_in_div", false)
+  --params:add_trigger("crow_clear", "crow clear")
+  --params:set_action("crow_clear",
+    --function() crow.reset() crow.clear() end)
 
   params:bang("clock_tempo")
 
@@ -238,11 +279,23 @@ function clock.add_params()
     while true do
       clock.sync(1/24)
       local midi_out = params:get("clock_midi_out")-1
-      if midi_out > 0 then 
+      if midi_out > 0 then
         if midi.vports[midi_out].name ~= "none" then
           midi.vports[midi_out]:clock()
-        end 
+        end
       end
+    end
+  end)
+
+  -- update tempo param value
+  clock.run(function()
+    while true do
+      if params:get("clock_source") ~= 1 then
+        local external_tempo = math.floor(clock.get_tempo() + 0.5)
+        params:set("clock_tempo", external_tempo, true)
+      end
+
+      clock.sleep(1)
     end
   end)
 

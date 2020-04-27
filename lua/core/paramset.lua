@@ -194,6 +194,17 @@ function ParamSet:print()
   end
 end
 
+--- list.
+-- lists param id's
+function ParamSet:list()
+  print("paramset ["..self.name.."]")
+  for k,v in pairs(self.params) do
+    if v.id then
+      print(v.id)
+    end
+  end
+end
+
 -- TODO: @scazan CHECK type here!
 --- name.
 -- @tparam number index
@@ -350,7 +361,7 @@ function ParamSet:write(filename, name)
 end
 
 --- read from disk.
--- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname].pset from local data folder)
+-- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname]-01.pset from local data folder)
 function ParamSet:read(filename)
   filename = filename or 1
   if type(filename) == "number" then

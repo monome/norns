@@ -71,9 +71,15 @@ Script.clear = function()
   -- clear params
   params:clear()
   norns.pmap.clear()
-  -- add audio
+  -- add audio menu
   audio.add_params()
+  -- add clock menu
   clock.add_params()
+  -- re-enable crow clock if needed
+  if params:string("clock_source") == "crow" then
+    crow.input[1].change = function() end
+    crow.input[1].mode("change",2,0.1,"rising")
+  end
 
   -- reset PLAY mode screen settings
   local status = norns.menu.status()

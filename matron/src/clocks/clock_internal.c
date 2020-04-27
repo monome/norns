@@ -37,29 +37,33 @@ static void *clock_internal_run(void *p) {
 }
 
 void clock_internal_init() {
-    clock_internal_set_tempo(120);
     clock_internal_thread_running = false;
+    clock_internal_set_tempo(120);
 
-    clock_internal_start();
+    clock_internal_start(0.0, true);
 }
 
 void clock_internal_set_tempo(double bpm) {
     interval_seconds = 60.0 / bpm;
     interval_nseconds = (uint64_t) (interval_seconds * 1000000000);
+
+    clock_internal_start(beat, false);
 }
 
-void clock_internal_start() {
+void clock_internal_start(double new_beat, bool transport_start) {
     pthread_attr_t attr;
-
-    beat = 0.0;
-    clock_start_from(CLOCK_SOURCE_INTERNAL);
 
     if (clock_internal_thread_running) {
         pthread_cancel(clock_internal_thread);
         pthread_join(clock_internal_thread, NULL);
     }
 
-    clock_update_reference_from(0, interval_seconds, CLOCK_SOURCE_INTERNAL);
+    beat = new_beat;
+    clock_update_reference_from(beat, interval_seconds, CLOCK_SOURCE_INTERNAL);
+
+    if (transport_start) {
+        clock_start_from(CLOCK_SOURCE_INTERNAL);
+    }
 
     pthread_attr_init(&attr);
     pthread_create(&clock_internal_thread, &attr, &clock_internal_run, NULL);
