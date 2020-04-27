@@ -85,14 +85,22 @@ namespace crone {
             SET_CUT_VOICE_POST_FILTER_BR,
             SET_CUT_VOICE_POST_FILTER_DRY,
 
+            // audio slews: these have fixed shape
             SET_CUT_VOICE_LEVEL_SLEW_TIME,
             SET_CUT_VOICE_PAN_SLEW_TIME,
             SET_CUT_VOICE_RECPRE_SLEW_TIME,
+
+            // rate slew: variable shape
             SET_CUT_VOICE_RATE_SLEW_TIME,
             SET_CUT_VOICE_RATE_SLEW_SHAPE,
 
-            SET_CUT_VOICE_FILTER_SLEW_TIME,
-            SET_CUT_VOICE_FILTER_SLEW_SHAPE,
+            // filter param slews: separate shape for rise/fall
+            SET_CUT_VOICE_FILTER_FC_SLEW_TIME,
+            SET_CUT_VOICE_FILTER_RQ_SLEW_TIME,
+            SET_CUT_VOICE_FILTER_FC_RISE_SHAPE,
+            SET_CUT_VOICE_FILTER_FC_FALL_SHAPE,
+            SET_CUT_VOICE_FILTER_RQ_RISE_SHAPE,
+            SET_CUT_VOICE_FILTER_RQ_FALL_SHAPE,
 
             SET_CUT_VOICE_SYNC,
             SET_CUT_VOICE_READ_DUCK_TARGET,

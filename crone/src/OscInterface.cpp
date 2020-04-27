@@ -459,7 +459,6 @@ void OscInterface::initServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_SYNC, argv[0]->i, argv[1]->i, argv[2]->f);
     });
 
-    
     //-- slew times and shapes
     
     addServerMethod("/set/param/cut/level_slew_time", "if", [](lo_arg **argv, int argc) {
@@ -487,20 +486,37 @@ void OscInterface::initServerMethods() {
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_RATE_SLEW_SHAPE, argv[0]->i, argv[1]->f);
     });
 
-    addServerMethod("/set/param/cut/filter_slew_time", "if", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/param/cut/filter_fc_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_SLEW_TIME, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_FC_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
-    addServerMethod("/set/param/cut/filter_slew_shape", "if", [](lo_arg **argv, int argc) {
+    addServerMethod("/set/param/cut/filter_rq_slew_time", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
-        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_SLEW_SHAPE, argv[0]->i, argv[1]->f);
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_RQ_SLEW_TIME, argv[0]->i, argv[1]->f);
     });
 
+    addServerMethod("/set/param/cut/filter_fc_rise_shape", "if", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_FC_RISE_SHAPE, argv[0]->i, argv[1]->f);
+    });
 
+    addServerMethod("/set/param/cut/filter_fc_fall_shape", "if", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_FC_FALL_SHAPE, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_rq_rise_shape", "if", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_RQ_RISE_SHAPE, argv[0]->i, argv[1]->f);
+    });
+
+    addServerMethod("/set/param/cut/filter_rq_fall_shape", "if", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_RQ_FALL_SHAPE, argv[0]->i, argv[1]->f);
+    });
 
     //---- other softcut voice parameters
-    
     addServerMethod("/set/param/cut/buffer", "ii", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_BUFFER, argv[0]->i, argv[1]->i);
@@ -510,10 +526,12 @@ void OscInterface::initServerMethods() {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_READ_DUCK_TARGET,argv[0]->i, argv[1]->i);
     });
+
     addServerMethod("/set/param/cut/write_duck", "ii", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_WRITE_DUCK_TARGET,argv[0]->i, argv[1]->i);
     });
+
     addServerMethod("/set/param/cut/follow", "ii", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FOLLOW_TARGET,argv[0]->i, argv[1]->i);
