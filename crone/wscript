@@ -16,10 +16,13 @@ def build(bld):
         'src/OscInterface.cpp',
         'src/SoftcutClient.cpp',
         'src/Window.cpp',
+        
         'softcut/softcut-lib/src/ReadWriteHead.cpp',
         'softcut/softcut-lib/src/SubHead.cpp',
-        'softcut/softcut-lib/src/Voice.cpp',
+        'softcut/softcut-lib/src/Voice.cpp',    
+        'softcut/softcut-lib/lib/dsp-kit/Envelope.cpp',
         'softcut/softcut-lib/lib/dsp-kit/Svf.cpp',
+        'softcut/softcut-lib/lib/dsp-kit/Taper.cpp'
     ]
 
 
