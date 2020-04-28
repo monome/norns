@@ -15,6 +15,9 @@
 #include "Commands.h"
 #include "OscInterface.h"
 
+// for testing
+# include "dsp-kit/easing.hpp"
+
 using namespace crone;
 
 bool OscInterface::quitFlag;
@@ -151,7 +154,6 @@ void OscInterface::initServerMethods() {
     ////////////////////////////////
     /// FIXME: many of these methods are trivial setters;
     // they could simply be structured around atomic fields instead of requiring the Command queue.
-    // would require some refactoring e.g. to expose level ramp targets as atomics
 
     //--------------------------
     //--- levels
@@ -484,6 +486,7 @@ void OscInterface::initServerMethods() {
     addServerMethod("/set/param/cut/rate_slew_shape", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_RATE_SLEW_SHAPE, argv[0]->i, argv[1]->f);
+        std::cout << "setting rate slew shape: " << easing::function_info[(int)argv[1]->f] << std::endl;
     });
 
     addServerMethod("/set/param/cut/filter_fc_slew_time", "if", [](lo_arg **argv, int argc) {
@@ -499,21 +502,25 @@ void OscInterface::initServerMethods() {
     addServerMethod("/set/param/cut/filter_fc_rise_shape", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_FC_RISE_SHAPE, argv[0]->i, argv[1]->f);
+        std::cout << "setting fc rise shape: " << easing::function_info[(int)argv[1]->f] << std::endl;
     });
 
     addServerMethod("/set/param/cut/filter_fc_fall_shape", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_FC_FALL_SHAPE, argv[0]->i, argv[1]->f);
+        std::cout << "setting fc fall shape: " << easing::function_info[(int)argv[1]->f] << std::endl;
     });
 
     addServerMethod("/set/param/cut/filter_rq_rise_shape", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_RQ_RISE_SHAPE, argv[0]->i, argv[1]->f);
+        std::cout << "setting rq rise shape: " << easing::function_info[(int)argv[1]->f] << std::endl;
     });
 
     addServerMethod("/set/param/cut/filter_rq_fall_shape", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_FILTER_RQ_FALL_SHAPE, argv[0]->i, argv[1]->f);
+        std::cout << "setting rq fall shape: " << easing::function_info[(int)argv[1]->f] << std::endl;
     });
 
     //---- other softcut voice parameters

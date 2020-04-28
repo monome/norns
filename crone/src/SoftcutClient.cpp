@@ -183,7 +183,7 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
             cut.voice(p->idx_0)->setRateSlewTime(p->value);
             break;
         case Commands::Id::SET_CUT_VOICE_RATE_SLEW_SHAPE:
-            cut.voice(p->idx_0)->setRateSlewTime(p->value);
+            cut.voice(p->idx_0)->setRateSlewShape(p->value);
             break;
         case Commands::Id::SET_CUT_VOICE_FILTER_FC_SLEW_TIME:
             cut.voice(p->idx_0)->setPostFilterFcSlewTime(p->value);
