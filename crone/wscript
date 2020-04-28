@@ -15,7 +15,6 @@ def build(bld):
         'src/MixerClient.cpp',
         'src/OscInterface.cpp',
         'src/SoftcutClient.cpp',
-        'src/Taper.cpp',
         'src/Window.cpp',
         'softcut/softcut-lib/src/ReadWriteHead.cpp',
         'softcut/softcut-lib/src/SubHead.cpp',
