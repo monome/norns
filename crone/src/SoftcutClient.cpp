@@ -37,6 +37,15 @@ void SoftcutClient::process(jack_nframes_t numFrames) {
 
 void SoftcutClient::setSampleRate(jack_nframes_t sr) {
     cut.setSampleRate(sr);
+    for (int i=0; i<NumVoices; ++i) {
+        inLevel[0][i].setSampleRate(sr);
+        inLevel[1][i].setSampleRate(sr);
+        outLevel[i].setSampleRate(sr);
+        outPan[i].setSampleRate(sr);
+        for (int j=0; j<NumVoices; ++j) {
+            fbLevel[j][i].setSampleRate(sr);
+        }
+    }
 }
 
 void SoftcutClient::clearBusses(size_t numFrames) {

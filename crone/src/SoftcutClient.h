@@ -8,6 +8,8 @@
 #include <iostream>
 
 #include "dsp-kit/AudioBus.hpp"
+#include "dsp-kit/FastFader.hpp"
+#include "dsp-kit/FastMover.hpp"
 
 #include "BufDiskWorker.h"
 #include "Client.h"
@@ -41,10 +43,10 @@ namespace crone {
         MonoBus inputBus[NumVoices];
         MonoBus outputBus[NumVoices];
         // levels
-        dspkit::AudioLevelSmoother inLevel[2][NumVoices];
-        dspkit::AudioLevelSmoother outLevel[NumVoices];
-        dspkit::EnvelopeSmoother outPan[NumVoices];
-        dspkit::AudioLevelSmoother fbLevel[NumVoices][NumVoices];
+        dspkit::FastFader inLevel[2][NumVoices];
+        dspkit::FastFader outLevel[NumVoices];
+        dspkit::FastMover outPan[NumVoices];
+        dspkit::FastFader fbLevel[NumVoices][NumVoices];
         // enabled flags
         bool enabled[NumVoices];
         softcut::phase_t quantPhase[NumVoices];

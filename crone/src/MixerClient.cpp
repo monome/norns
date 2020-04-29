@@ -204,20 +204,35 @@ MixerClient::BusList::BusList() {
 
 MixerClient::SmoothLevelList::SmoothLevelList() {
     adc.setTarget(1.f);
+    adc.setTime(0.1f);
     dac.setTarget(1.f);
+    dac.setTime(0.1f);
     ext.setTarget(1.f);
+    ext.setTime(0.1f);
     cut.setTarget(1.f);
+    cut.setTime(0.1f);
     monitor.setTarget(0.f);
+    monitor.setTime(0.1f);
     tape.setTarget(0.f);
+    tape.setTime(0.1f);
     adc_cut.setTarget(0.f);
+    adc_cut.setTime(0.1f);
     ext_cut.setTarget(0.f);
+    ext_cut.setTime(0.1f);
     tape_cut.setTarget(0.f);
+    tape_cut.setTime(0.1f);
     monitor_aux.setTarget(0.f);
+    monitor_aux.setTime(0.1f);
     cut_aux.setTarget(0.f);
+    cut_aux.setTime(0.1f);
     ext_aux.setTarget(0.f);
+    ext_aux.setTime(0.1f);
     tape_aux.setTarget(0.f);
+    tape_aux.setTime(0.1f);
     aux.setTarget(0.f);
+    aux.setTime(0.1f);
     ins_mix.setTarget(0.f);
+    ins_mix.setTime(0.1f);
 }
 
 void MixerClient::SmoothLevelList::setSampleRate(float sr) {

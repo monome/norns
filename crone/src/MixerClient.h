@@ -8,6 +8,7 @@
 #include <atomic>
 
 #include "dsp-kit/AudioBus.hpp"
+#include "dsp-kit/FastFader.hpp"
 
 #include "Client.h"
 #include "Tape.h"
@@ -16,7 +17,6 @@
 
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
-
 
 namespace  crone {
     class MixerClient: public Client<6, 6> {
@@ -40,6 +40,7 @@ namespace  crone {
         void processFx(size_t numFrames);
         void setFxDefaults();
     private:
+        typedef dspkit::FastFader LevelSmoother;
         // processors
         StereoCompressor comp;
         ZitaReverb reverb;
@@ -72,24 +73,24 @@ namespace  crone {
         struct SmoothLevelList{
         public:
             // "master" I/O levels
-            dspkit::AudioLevelSmoother adc;
-            dspkit::AudioLevelSmoother dac;
-            dspkit::AudioLevelSmoother ext;
-            dspkit::AudioLevelSmoother cut;
-            dspkit::AudioLevelSmoother monitor;
-            dspkit::AudioLevelSmoother tape;
+            LevelSmoother adc;
+            LevelSmoother dac;
+            LevelSmoother ext;
+            LevelSmoother cut;
+            LevelSmoother monitor;
+            LevelSmoother tape;
             // softcut input levels
-            dspkit::AudioLevelSmoother adc_cut;
-            dspkit::AudioLevelSmoother ext_cut;
-            dspkit::AudioLevelSmoother tape_cut;
+            LevelSmoother adc_cut;
+            LevelSmoother ext_cut;
+            LevelSmoother tape_cut;
             // aux send levels
-            dspkit::AudioLevelSmoother monitor_aux;
-            dspkit::AudioLevelSmoother cut_aux;
-            dspkit::AudioLevelSmoother ext_aux;
-            dspkit::AudioLevelSmoother tape_aux;
+            LevelSmoother monitor_aux;
+            LevelSmoother cut_aux;
+            LevelSmoother ext_aux;
+            LevelSmoother tape_aux;
             // FX return / mix levels
-            dspkit::AudioLevelSmoother aux;
-            dspkit::AudioLevelSmoother ins_mix;
+            LevelSmoother aux;
+            LevelSmoother ins_mix;
 
             SmoothLevelList();
             void setSampleRate(float sr);
