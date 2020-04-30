@@ -5,8 +5,8 @@
  */
 
 // std
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,10 +23,7 @@
 
 #define MAX_NUM_METROS_OK 36
 
-enum {
-    METRO_STATUS_RUNNING,
-    METRO_STATUS_STOPPED
-};
+enum { METRO_STATUS_RUNNING, METRO_STATUS_STOPPED };
 
 const int MAX_NUM_METROS = MAX_NUM_METROS_OK;
 struct metro {
@@ -48,8 +45,7 @@ struct metro metros[MAX_NUM_METROS_OK];
 //---- static declarations
 
 static void metro_handle_error(int code, const char *msg) {
-    fprintf(stderr, "error code: %d (%s) in \"%s\"\n", code, strerror(
-                code), msg);
+    fprintf(stderr, "error code: %d (%s) in \"%s\"\n", code, strerror(code), msg);
 }
 
 static void metro_init(struct metro *t, uint64_t nsec, int count);
@@ -64,7 +60,7 @@ static void metro_cancel(struct metro *t);
 //---- extern definitions
 
 void metros_init(void) {
-    for(int i = 0; i < MAX_NUM_METROS_OK; i++) {
+    for (int i = 0; i < MAX_NUM_METROS_OK; i++) {
         metros[i].status = METRO_STATUS_STOPPED;
         metros[i].seconds = 1.0;
     }
@@ -73,14 +69,14 @@ void metros_init(void) {
 void metro_start(int idx, double seconds, int count, int stage) {
     uint64_t nsec;
 
-    if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
+    if ((idx >= 0) && (idx < MAX_NUM_METROS_OK)) {
         struct metro *t = &metros[idx];
         pthread_mutex_lock(&t->status_lock);
-        if(t->status == METRO_STATUS_RUNNING) {
+        if (t->status == METRO_STATUS_RUNNING) {
             metro_cancel(t);
         }
         pthread_mutex_unlock(&t->status_lock);
-        if(seconds > 0.0) {
+        if (seconds > 0.0) {
             metros[idx].seconds = seconds;
         }
         nsec = (uint64_t)(metros[idx].seconds * 1000000000.0);
@@ -88,35 +84,31 @@ void metro_start(int idx, double seconds, int count, int stage) {
         metro_reset(&metros[idx], stage);
         metro_init(&metros[idx], nsec, count);
     } else {
-        fprintf(stderr,
-                "invalid metro index, not added. max count of metros is %d\n",
-                MAX_NUM_METROS_OK);
+        fprintf(stderr, "invalid metro index, not added. max count of metros is %d\n", MAX_NUM_METROS_OK);
     }
 }
 
 void metro_stop(int idx) {
-    if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
-        pthread_mutex_lock( &(metros[idx].status_lock) );
-        if( metros[idx].status == METRO_STATUS_STOPPED) {
-	  // fprintf(stderr, "metro_stop: already stopped\n");
-            ;; // nothing to do
+    if ((idx >= 0) && (idx < MAX_NUM_METROS_OK)) {
+        pthread_mutex_lock(&(metros[idx].status_lock));
+        if (metros[idx].status == METRO_STATUS_STOPPED) {
+            // fprintf(stderr, "metro_stop: already stopped\n");
+            ;
+            ; // nothing to do
         } else {
             metro_cancel(&metros[idx]);
         }
-        pthread_mutex_unlock( &(metros[idx].status_lock) );
+        pthread_mutex_unlock(&(metros[idx].status_lock));
     } else {
-        fprintf(
-            stderr,
-            "metro_stop(): invalid metro index, max count of metros is %d\n",
-            MAX_NUM_METROS_OK);
+        fprintf(stderr, "metro_stop(): invalid metro index, max count of metros is %d\n", MAX_NUM_METROS_OK);
     }
 }
 
 void metro_set_time(int idx, float sec) {
-    //fprintf(stderr, "metro_set_time(%d, %f)\n", idx, sec);
-    if( (idx >= 0) && (idx < MAX_NUM_METROS_OK) ) {
+    // fprintf(stderr, "metro_set_time(%d, %f)\n", idx, sec);
+    if ((idx >= 0) && (idx < MAX_NUM_METROS_OK)) {
         metros[idx].seconds = sec;
-        metros[idx].delta = (uint64_t) (sec * 1000000000.0);
+        metros[idx].delta = (uint64_t)(sec * 1000000000.0);
     }
 }
 
@@ -124,10 +116,13 @@ void metro_set_time(int idx, float sec) {
 //---- static definitions
 
 static void metro_reset(struct metro *t, int stage) {
-    pthread_mutex_lock( &(t->stage_lock) );
-    if(stage > 0) { t->stage = stage; }
-    else { t->stage = 0; }
-    pthread_mutex_unlock( &(t->stage_lock) );
+    pthread_mutex_lock(&(t->stage_lock));
+    if (stage > 0) {
+        t->stage = stage;
+    } else {
+        t->stage = 0;
+    }
+    pthread_mutex_unlock(&(t->stage_lock));
 }
 
 void metro_init(struct metro *t, uint64_t nsec, int count) {
@@ -135,36 +130,40 @@ void metro_init(struct metro *t, uint64_t nsec, int count) {
     pthread_attr_t attr;
 
     res = pthread_attr_init(&attr);
-    if(res != 0) {
+    if (res != 0) {
         metro_handle_error(res, "pthread_attr_init");
         return;
     }
 
     // set other thread attributes here...
-    res = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN );
-    if(res != 0) { metro_handle_error(res, "pthread_attr_init"); return; }
-    res |= pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED); 
-    if(res != 0) { metro_handle_error(res, "pthread_attr_init"); return; }
-    
+    res = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
+    if (res != 0) {
+        metro_handle_error(res, "pthread_attr_init");
+        return;
+    }
+    res |= pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    if (res != 0) {
+        metro_handle_error(res, "pthread_attr_init");
+        return;
+    }
+
     t->delta = nsec;
     t->count = count;
     res = pthread_create(&(t->tid), &attr, &metro_thread_loop, (void *)t);
-    if(res != 0) {
+    if (res != 0) {
         metro_handle_error(res, "pthread_create");
         return;
-    }
-    else {
+    } else {
         t->status = METRO_STATUS_RUNNING;
-        if(res != 0) {
+        if (res != 0) {
             metro_handle_error(res, "pthread_setschedparam");
-            switch(res) {
+            switch (res) {
             case ESRCH:
                 fprintf(stderr, "specified thread does not exist\n");
                 assert(false);
                 break;
             case EINVAL:
-                fprintf(stderr,
-                        "invalid thread policy value or associated parameter\n");
+                fprintf(stderr, "invalid thread policy value or associated parameter\n");
                 assert(false);
                 break;
             case EPERM:
@@ -183,42 +182,42 @@ void metro_init(struct metro *t, uint64_t nsec, int count) {
 }
 
 void *metro_thread_loop(void *metro) {
-    struct metro *t = (struct metro *) metro;
+    struct metro *t = (struct metro *)metro;
     int stop = 0;
 
-    pthread_mutex_lock( &(t->status_lock) );
+    pthread_mutex_lock(&(t->status_lock));
     t->status = METRO_STATUS_RUNNING;
-    pthread_mutex_unlock( &(t->status_lock) );
+    pthread_mutex_unlock(&(t->status_lock));
 
     metro_set_current_time(t);
-    while(!stop) {
+    while (!stop) {
         metro_sleep(t);
-        pthread_mutex_lock( &(t->stage_lock) );
-        if( ( t->stage >= t->count) && ( t->count > 0) ) {
+        pthread_mutex_lock(&(t->stage_lock));
+        if ((t->stage >= t->count) && (t->count > 0)) {
             stop = 1;
         }
-        pthread_mutex_unlock( &(t->stage_lock) );
+        pthread_mutex_unlock(&(t->stage_lock));
 
-        if(stop) { break; }
+        if (stop) {
+            break;
+        }
         pthread_testcancel();
 
-        pthread_mutex_lock( &(t->stage_lock) );
+        pthread_mutex_lock(&(t->stage_lock));
         metro_bang(t);
         t->stage += 1;
-        pthread_mutex_unlock( &(t->stage_lock) );
+        pthread_mutex_unlock(&(t->stage_lock));
     }
-    pthread_mutex_lock( &(t->status_lock) );
+    pthread_mutex_lock(&(t->status_lock));
     t->status = METRO_STATUS_STOPPED;
-    pthread_mutex_unlock( &(t->status_lock) );
+    pthread_mutex_unlock(&(t->status_lock));
     return NULL;
 }
 
 void metro_set_current_time(struct metro *t) {
     struct timespec time;
     clock_gettime(CLOCK_MONOTONIC, &time);
-    t->time =
-        (uint64_t) ( (1000000000 *
-                      (int64_t)time.tv_sec) + (int64_t)time.tv_nsec );
+    t->time = (uint64_t)((1000000000 * (int64_t)time.tv_sec) + (int64_t)time.tv_nsec);
 }
 
 void metro_bang(struct metro *t) {
@@ -233,7 +232,7 @@ void metro_sleep(struct metro *t) {
     t->time += t->delta;
     ts.tv_sec = t->time / 1000000000;
     ts.tv_nsec = t->time % 1000000000;
-    clock_nanosleep (CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
 }
 
 void metro_wait(int idx) {
@@ -241,16 +240,16 @@ void metro_wait(int idx) {
 }
 
 void metro_cancel(struct metro *t) {
-  // NB: no, we don't want to lock the state mutex here,
-  // b/c we're already locking in callers
+    // NB: no, we don't want to lock the state mutex here,
+    // b/c we're already locking in callers
     if (t->status == METRO_STATUS_STOPPED) {
-      fprintf(stderr, "metro_cancel(): already stopped. shouldn't get here\n");
-      return;
+        fprintf(stderr, "metro_cancel(): already stopped. shouldn't get here\n");
+        return;
     }
     int ret = pthread_cancel(t->tid);
-    if(ret) {
+    if (ret) {
         fprintf(stderr, "metro_stop(): pthread_cancel() failed; error: ");
-        switch(ret) {
+        switch (ret) {
         case ESRCH:
             fprintf(stderr, "specified thread does not exist\n");
             break;
@@ -258,7 +257,7 @@ void metro_cancel(struct metro *t) {
             fprintf(stderr, "unknown error code\n");
             assert(false);
         }
-    } else {      
+    } else {
         t->status = METRO_STATUS_STOPPED;
     }
 }
