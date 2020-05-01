@@ -193,6 +193,7 @@ void clock_cancel_coro(int coro_id) {
 
 void clock_cancel(int index) {
     pthread_cancel(clock_thread_pool[index].thread);
+    pthread_join(clock_thread_pool[index].thread, NULL);
     clock_thread_pool[index].running = false;
     clock_thread_pool[index].coro_id = -1;
 }
