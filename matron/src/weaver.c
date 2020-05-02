@@ -1389,7 +1389,7 @@ int _clock_schedule_sleep(lua_State *l) {
     int coro_id = (int)luaL_checkinteger(l, 1);
     double seconds = luaL_checknumber(l, 2);
 
-    if (seconds == 0) {
+    if (seconds <= 0) {
         w_handle_clock_resume(coro_id);
     } else {
         clock_schedule_resume_sleep(coro_id, seconds);
@@ -1403,13 +1403,13 @@ int _clock_schedule_sync(lua_State *l) {
     int coro_id = (int)luaL_checkinteger(l, 1);
     double beats = luaL_checknumber(l, 2);
 
-    if (beats == 0) {
+    if (beats <= 0) {
         w_handle_clock_resume(coro_id);
     } else {
         clock_schedule_resume_sync(coro_id, beats);
     }
 
-    return 0;
+  return 0;
 }
 
 int _clock_cancel(lua_State *l) {
