@@ -1,10 +1,10 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-#include <libevdev/libevdev.h>
 #include "device_common.h"
+#include <libevdev/libevdev.h>
 
 typedef uint8_t dev_vid_t;
 typedef uint8_t dev_pid_t;

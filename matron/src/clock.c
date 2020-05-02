@@ -1,15 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
 #include <math.h>
 #include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-#include "events.h"
 #include "clock.h"
+#include "events.h"
 
-#include <lua.h>
 #include <lauxlib.h>
+#include <lua.h>
 
 struct clock_reference_t {
     double beat;
@@ -53,8 +53,8 @@ static void *clock_schedule_resume_run(void *p) {
     double seconds = arg->seconds;
 
     struct timespec req = {
-        .tv_sec = (time_t) seconds,
-        .tv_nsec = (long) ((seconds - req.tv_sec) * 1e+9),
+        .tv_sec = (time_t)seconds,
+        .tv_nsec = (long)((seconds - req.tv_sec) * 1e+9),
     };
 
     clock_nanosleep(CLOCK_MONOTONIC, 0, &req, NULL);

@@ -1,12 +1,12 @@
-#include <stdio.h>
 #include <alsa/asoundlib.h>
 #include <pthread.h>
+#include <stdio.h>
 
 #include "../events.h"
 
+#include "../clocks/clock_midi.h"
 #include "device.h"
 #include "device_midi.h"
-#include "../clocks/clock_midi.h"
 
 unsigned int dev_midi_port_count(const char *path) {
     int card;
@@ -51,8 +51,8 @@ unsigned int dev_midi_port_count(const char *path) {
 }
 
 int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
-    struct dev_midi *midi = (struct dev_midi *) self;
-    struct dev_common *base = (struct dev_common *) self;
+    struct dev_midi *midi = (struct dev_midi *)self;
+    struct dev_common *base = (struct dev_common *)self;
 
     unsigned int alsa_card;
     unsigned int alsa_dev;
@@ -73,13 +73,8 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     char *name_with_port_index;
     if (multiport_device) {
         if (asprintf(&name_with_port_index, "%s %u", base->name, port_index + 1) < 0) {
-            fprintf(
-                stderr,
-                "failed to create human-readable device name for card %d,%d,%d\n",
-                alsa_card,
-                alsa_dev,
-                port_index
-            );
+            fprintf(stderr, "failed to create human-readable device name for card %d,%d,%d\n", alsa_card, alsa_dev,
+                    port_index);
             return -1;
         }
         base->name = name_with_port_index;
@@ -92,13 +87,13 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
 }
 
 void dev_midi_deinit(void *self) {
-    struct dev_midi *midi = (struct dev_midi *) self;
+    struct dev_midi *midi = (struct dev_midi *)self;
     snd_rawmidi_close(midi->handle_in);
     snd_rawmidi_close(midi->handle_out);
 }
 
 void *dev_midi_start(void *self) {
-    struct dev_midi *midi = (struct dev_midi *) self;
+    struct dev_midi *midi = (struct dev_midi *)self;
     union event_data *ev;
 
     ssize_t read = 0;
@@ -182,6 +177,6 @@ void *dev_midi_start(void *self) {
 }
 
 ssize_t dev_midi_send(void *self, uint8_t *data, size_t n) {
-    struct dev_midi *midi = (struct dev_midi *) self;
+    struct dev_midi *midi = (struct dev_midi *)self;
     return snd_rawmidi_write(midi->handle_out, data, n);
 }

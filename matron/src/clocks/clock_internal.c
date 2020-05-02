@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdbool.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "clock.h"
 #include "clock_internal.h"
@@ -15,7 +15,7 @@ static uint64_t interval_nseconds;
 static double beat;
 
 static void *clock_internal_run(void *p) {
-    (void) p;
+    (void)p;
     struct timespec req;
 
     while (true) {
@@ -45,7 +45,7 @@ void clock_internal_init() {
 
 void clock_internal_set_tempo(double bpm) {
     interval_seconds = 60.0 / bpm;
-    interval_nseconds = (uint64_t) (interval_seconds * 1000000000);
+    interval_nseconds = (uint64_t)(interval_seconds * 1000000000);
 
     clock_internal_start(beat, false);
 }
