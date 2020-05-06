@@ -90,10 +90,10 @@ function input.new(x)
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
   i.mode = function(m,a,b,c)
-    local cmd = "input["..i.n.."].mode("..string.format("%q",m)
+    local cmd = string.format("input[%i].mode(%q",i.n,m)
     if a ~= nil then cmd = cmd .. "," .. a end
     if b ~= nil then cmd = cmd .. "," .. b end
-    if c ~= nil then cmd = cmd .. "," .. string.format("%q",c) end
+    if c ~= nil then cmd = string.format("%s,%q",cmd,c) end
     cmd = cmd .. ")"
     crow.send(cmd)
   end
@@ -142,7 +142,7 @@ output.__newindex = function(self, i, v)
     crow.send(me..".volts="..v)
   elseif i == 'shape' then
     self._shape = v
-    crow.send(me..".shape="..string.format("%q",v))
+    crow.send(string.format("%s.shape=%q",me,v))
   elseif i == 'slew' then
     self._slew = v
     crow.send(me..".slew="..v)
