@@ -84,6 +84,7 @@ namespace crone {
             SET_CUT_VOICE_POST_FILTER_BP,
             SET_CUT_VOICE_POST_FILTER_BR,
             SET_CUT_VOICE_POST_FILTER_DRY,
+            SET_CUT_VOICE_POST_FILTER_ENABLED,
 
             // audio slews: these have fixed shape
             SET_CUT_VOICE_LEVEL_SLEW_TIME,

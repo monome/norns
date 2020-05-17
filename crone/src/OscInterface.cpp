@@ -420,6 +420,12 @@ void OscInterface::initServerMethods() {
     });
 
     // --- output filter
+    addServerMethod("/set/param/cut/post_filter_enabled", "if", [
+    ](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_POST_FILTER_ENABLED, argv[0]->i, argv[1]->f);
+    });
+
     addServerMethod("/set/param/cut/post_filter_fc", "if", [
     ](lo_arg **argv, int argc) {
         if (argc < 2) { return; }

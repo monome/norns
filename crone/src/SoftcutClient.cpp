@@ -176,6 +176,9 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
         case Commands::Id::SET_CUT_VOICE_POST_FILTER_DRY:
             cut.voice(p->idx_0)->setPostFilterDry(p->value);
             break;
+        case Commands::Id::SET_CUT_VOICE_POST_FILTER_ENABLED:
+            cut.voice(p->idx_0)->setPostFilterEnabled(p->value > 0);
+            break;
 
             //-- slew times, shaoes
         case Commands::Id::SET_CUT_VOICE_LEVEL_SLEW_TIME:
@@ -201,16 +204,16 @@ void SoftcutClient::handleCommand(Commands::CommandPacket *p) {
             cut.voice(p->idx_0)->setPostFilterRqSlewTime(p->value);
             break;
         case Commands::Id::SET_CUT_VOICE_FILTER_FC_RISE_SHAPE:
-            cut.voice(p->idx_0)->setPostFilterFcRiseShape(p->value);
+            cut.voice(p->idx_0)->setPostFilterFcRiseShape(static_cast<int>(p->value));
             break;
         case Commands::Id::SET_CUT_VOICE_FILTER_FC_FALL_SHAPE:
-            cut.voice(p->idx_0)->setPostFilterFcFallShape(p->value);
+            cut.voice(p->idx_0)->setPostFilterFcFallShape(static_cast<int>(p->value));
             break;
         case Commands::Id::SET_CUT_VOICE_FILTER_RQ_RISE_SHAPE:
-            cut.voice(p->idx_0)->setPostFilterRqRiseShape(p->value);
+            cut.voice(p->idx_0)->setPostFilterRqRiseShape(static_cast<int>(p->value));
             break;
         case Commands::Id::SET_CUT_VOICE_FILTER_RQ_FALL_SHAPE:
-            cut.voice(p->idx_0)->setPostFilterRqFallShape(p->value);
+            cut.voice(p->idx_0)->setPostFilterRqFallShape(static_cast<int>(p->value));
             break;
 
             //-- sync / inter-voice
@@ -263,8 +266,8 @@ void SoftcutClient::reset() {
             fbLevel[v][w].setTarget(0.0);
         }
 
-        cut.voice(v)->setLoopStart(v * 2);
-        cut.voice(v)->setLoopEnd(v * 2 + 1);
+        cut.voice(v)->setLoopStart((float)v * 2);
+        cut.voice(v)->setLoopEnd((float)v * 2 + 1);
 
         outputBus[v].clear();
         inputBus[v].clear();
