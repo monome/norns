@@ -127,7 +127,7 @@ paths = {
   shared = _path,
   this = tab.readonly{
     table = norns.state,
-    expose = {'script', 'data', 'path', 'name'}
+    expose = {'script', 'data', 'path', 'name', 'lib'}
   },
 }
 
