@@ -67,6 +67,8 @@ Script.clear = function()
   norns.state.name = 'none'
   norns.state.shortname = 'none'
   norns.state.path = _path["dust"]
+  norns.state.data = _path.data
+  norns.state.lib = norns.state.path
 
   -- clear params
   params:clear()
@@ -159,6 +161,7 @@ Script.load = function(filename)
     norns.state.name = name
     norns.state.shortname = norns.state.name:match( "([^/]+)$" )
     norns.state.path = path .. '/'
+    norns.state.lib = path .. '/lib/'
     norns.state.data = _path.data .. name .. '/'
 
     if util.file_exists(norns.state.data) == false then

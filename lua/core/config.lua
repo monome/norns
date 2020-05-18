@@ -18,12 +18,11 @@ package.path = sys..core..params..lib..softcut..dust..package.path
 -- must be done after package path is set
 local tu = require 'tabutil'
 
-local _p = {}
-_p.home = home
-_p.dust = home..'/dust/'
-_p.code = _p.dust..'code/'
-_p.audio = _p.dust..'audio/'
-_p.tape = _p.audio..'tape/'
-_p.data = _p.dust..'data/'
+_path = {}
+_path.home = home
+_path.dust = home..'/dust/'
+_path.code = _path.dust..'code/'
+_path.audio = _path.dust..'audio/'
+_path.tape = _path.audio..'tape/'
+_path.data = _path.dust..'data/'
 
-_path = tu.readonly{ table = _p }

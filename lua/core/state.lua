@@ -4,6 +4,7 @@
 local state = {}
 state.script = ''
 state.path = _path.code
+state.lib = _path.code
 state.data = _path.data
 state.name = ''
 state.shortname = ''
@@ -57,11 +58,6 @@ state.resume = function()
       norns.script.load()
     else
       norns.script.clear()
-      state.script=''
-      state.name = 'none'
-      state.shortname = 'none'
-      state.path = _path.code
-      state.data = _path.data
       norns.scripterror("NO SCRIPT")
     end
     -- reset clean_shutdown flag and save state so that
@@ -70,11 +66,6 @@ state.resume = function()
     state.save_state()
   else
     norns.script.clear()
-    state.script=''
-    state.name = 'none'
-    state.shortname = 'none'
-    state.path = _path.code
-    state.data = _path.data
     norns.scripterror("NO SCRIPT")
   end
 end
