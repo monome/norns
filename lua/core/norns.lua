@@ -122,6 +122,15 @@ norns.encoders = require 'core/encoders'
 
 _norns.enc = norns.encoders.process
 
+-- extend paths config table
+paths = {
+  shared = _path,
+  this = tab.readonly{
+    table = norns.state,
+    expose = {'script', 'data', 'path', 'name'}
+  },
+}
+
 -- Error handling.
 norns.scripterror = function(msg) print(msg) end
 norns.try = function(f,msg)
