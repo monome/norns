@@ -249,7 +249,7 @@ void screen_init(void) {
     for (int i = 0; i < NUM_FONTS; i++) {
         // FIXME should be path relative to norns/
         status = snprintf(filename, 256, "%s/norns/resources/%s", getenv("HOME"), font_path[i]);
-        if (status != 0) {
+        if (status > 256) {
             fprintf(stderr, "ERROR (screen) path too long: %s\n", filename);
             return;
         }
