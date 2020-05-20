@@ -86,13 +86,13 @@ cairo_surface_t *cairo_linuxfb_surface_create() {
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
     if (device->fb_fd == -1) {
-        fprintf(stderr, "ERROR (screen) cannot open framebuffer device");
+        fprintf(stderr, "ERROR (screen) cannot open framebuffer device\n");
         goto handle_allocate_error;
     }
 
     // Get variable screen information
     if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading variable information");
+        fprintf(stderr, "ERROR (screen) reading variable information\n");
         goto handle_ioctl_error;
     }
 
@@ -104,13 +104,13 @@ cairo_surface_t *cairo_linuxfb_surface_create() {
         (unsigned char *)mmap(0, device->fb_screensize, PROT_READ | PROT_WRITE, MAP_SHARED, device->fb_fd, 0);
 
     if (device->fb_data == (unsigned char *)-1) {
-        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory");
+        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory\n");
         goto handle_ioctl_error;
     }
 
     // Get fixed screen information
     if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading fixed information");
+        fprintf(stderr, "ERROR (screen) reading fixed information\n");
         goto handle_ioctl_error;
     }
 
@@ -248,7 +248,11 @@ void screen_init(void) {
 
     for (int i = 0; i < NUM_FONTS; i++) {
         // FIXME should be path relative to norns/
-        snprintf(filename, 256, "%s/norns/resources/%s", getenv("HOME"), font_path[i]);
+        status = snprintf(filename, 256, "%s/norns/resources/%s", getenv("HOME"), font_path[i]);
+        if (status > 256) {
+            fprintf(stderr, "ERROR (screen) path too long: %s\n", filename);
+            return;
+        }
 
         status = FT_New_Face(value, filename, 0, &face[i]);
         if (status != 0) {
