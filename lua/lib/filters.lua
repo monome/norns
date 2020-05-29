@@ -16,7 +16,6 @@ end
 --- clear a filter's history
 function f:clear() 
    for i=1,self.bufsize do 
-      print('clearing index: '..i)
       self.buf[i]=0
    end
 end
