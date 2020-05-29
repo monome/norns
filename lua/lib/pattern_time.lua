@@ -117,6 +117,7 @@ end
 
 --- process next event
 function pattern:next_event()
+  self.prev_time = util.time()
   if self.step == self.count then self.step = 1
   else self.step = self.step + 1 end
   --print("next step "..self.step)
