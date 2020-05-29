@@ -100,6 +100,7 @@ function pattern:overdub_event(e)
   self.time[c-1] = self.prev_time - t
   table.insert(self.time, c, a - self.time[c-1])
   table.insert(self.event, c, e)
+  self.step = self.step + 1
   self.count = self.count + 1
 end
 
