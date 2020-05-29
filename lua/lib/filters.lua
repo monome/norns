@@ -15,7 +15,10 @@ end
 
 --- clear a filter's history
 function f:clear() 
-   for i=1,self.bufsize do self.buf[i]=0 end
+   for i=1,self.bufsize do 
+      print('clearing index: '..i)
+      self.buf[i]=0
+   end
 end
 
 -- debug function to print the buffer
@@ -159,6 +162,7 @@ function smoother.new(time, sr)
    new.bufsize = 1
    new:clear()
    new.x = 0
+   new.a = 1
    new.sr = sr
    new.t = time
    new:calc_coeff()
@@ -168,8 +172,8 @@ end
 
 
 function smoother:calc_coeff()
-   self.b = math.exp(-6.9 / (self.t * self.sr))
-   print(self.b)
+   self.a = 1 - math.exp(-6.9 / (self.t * self.sr))
+   print(self.a)
 end
 
 -- set convergence time
@@ -195,12 +199,12 @@ function smoother:next(x)
    if x == nil then x = self.x
    else self.x = x end
    
-   local d = self.buf[1] - x
+   local d =  x - self.buf[1]
 
    if math.abs(d) < smoother.EPSILON then
       self.buf[1] = x
    else
-      self.buf[1] = x + (self.b * d)
+      self.buf[1] = self.buf[1] + (self.a * d)
    end
    return self.buf[1]
 end
@@ -209,7 +213,6 @@ end
 -- @param new value
 function smoother:set_value(x)   
    self.buf[1] = x
-   self.y = x
 end
 
 -- set target without updating
