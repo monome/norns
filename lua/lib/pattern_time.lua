@@ -10,6 +10,7 @@ function pattern.new()
   setmetatable(i, pattern)
   i.rec = 0
   i.play = 0
+  i.overdub = 0
   i.prev_time = 0
   i.event = {}
   i.time = {}
@@ -97,9 +98,10 @@ function pattern:overdub_event(e)
   self.prev_time = util.time()
   local a = self.time[c-1]
   self.time[c-1] = self.prev_time - t
+  table.insert(self.time, c, a - self.time[c-1])
+  table.insert(self.event, c, e)
+  self.step = self.step + 1
   self.count = self.count + 1
-  table.insert(self.time, c, e)
-  self.time[c] = a - self.time[c+1]
 end
 
 --- start this pattern
