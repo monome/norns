@@ -76,7 +76,7 @@ function crow.send(cmd)
 end
 --- check if crow is connected
 function crow.connected()
-  return _norns.crow.dev ~= nil
+  return norns.crow.dev ~= nil
 end
 
 
@@ -122,7 +122,7 @@ end
 local function action_string(v)
   if type(v) ~= 'table' then
     return v
-  end  
+  end
   local arg_string = ''
   for _,arg in ipairs(v) do
     if arg then
