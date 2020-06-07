@@ -10,17 +10,19 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set (SRC src/main.cpp
         src/BufDiskWorker.h
         src/Client.h
-        src/Utilities.h
-        src/OscInterface.cpp
         src/Commands.cpp
         src/Client.h
         src/MixerClient.h
         src/MixerClient.cpp
+        src/OscInterface.cpp
+        src/Poll.h
         src/SoftcutClient.cpp
         src/SoftcutClient.h
-        src/Poll.h
+        src/Utilities.h
         src/Window.cpp
-        src/BufDiskWorker.cpp)
+        src/BufDiskWorker.cpp
+        softcut/softcut-lib/lib/dsp-kit/FastFader.cpp
+        softcut/softcut-lib/lib/dsp-kit/FastMover.cpp)
 
 add_executable(crone ${SRC})
 
