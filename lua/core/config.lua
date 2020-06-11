@@ -15,6 +15,9 @@ local dust = home..'/dust/code/?.lua;'
 package.path = sys..core..params..lib..softcut..dust..package.path
 -- print('package.path: ' .. package.path)
 
+-- must be done after package path is set
+local tu = require 'tabutil'
+
 _path = {}
 _path.home = home
 _path.dust = home..'/dust/'
@@ -22,3 +25,4 @@ _path.code = _path.dust..'code/'
 _path.audio = _path.dust..'audio/'
 _path.tape = _path.audio..'tape/'
 _path.data = _path.dust..'data/'
+

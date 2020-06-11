@@ -1,3 +1,17 @@
+# 200604
+
+## norns 2.4.1
+
+- NEW paths table @ngwese @tehn
+- NEW patterntime lib overdub feature @dndrks @tehn
+- FIX softcut level is pre-aux send @catfact
+- FIX clock performance @artfwo
+- FIX crow lib cleanup @trentgill
+- FIX param hiding within groups @tlubke
+- FIX filter lib @catfact
+- FIX crow.connected status @csbolig
+
+
 # 200424
 
 ## norns 2.4.0

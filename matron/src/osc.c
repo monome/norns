@@ -6,13 +6,13 @@
  */
 
 #include <assert.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 
-#include <lo/lo.h>
 #include <dns_sd.h>
+#include <lo/lo.h>
 
 #include "args.h"
 #include "events.h"
@@ -25,8 +25,7 @@ static lo_address crone_addr;
 static lo_server_thread st;
 static DNSServiceRef dnssd_ref;
 
-static int osc_receive(const char *path, const char *types,
-			lo_arg **argv, int argc, lo_message msg, void *user_data);
+static int osc_receive(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data);
 static void lo_error_handler(int num, const char *m, const char *path);
 
 void osc_init(void) {
@@ -35,18 +34,8 @@ void osc_init(void) {
     lo_server_thread_add_method(st, NULL, NULL, osc_receive, NULL);
     lo_server_thread_start(st);
 
-    DNSServiceRegister(&dnssd_ref,
-        0,
-        0,
-        "norns",
-        "_osc._udp",
-        NULL,
-        NULL,
-        htons(lo_server_thread_get_port(st)),
-        0,
-        NULL,
-        NULL,
-        NULL);
+    DNSServiceRegister(&dnssd_ref, 0, 0, "norns", "_osc._udp", NULL, NULL, htons(lo_server_thread_get_port(st)), 0,
+                       NULL, NULL, NULL);
 
     crone_addr = lo_address_new(OSC_CRONE_HOST, OSC_CRONE_PORT);
 }
@@ -68,16 +57,10 @@ void osc_send(const char *host, const char *port, const char *path, lo_message m
 }
 
 void osc_send_crone(const char *path, lo_message msg) {
-  lo_send_message(crone_addr, path, msg);
+    lo_send_message(crone_addr, path, msg);
 }
 
-int osc_receive(const char *path,
-                       const char *types,
-                       lo_arg **argv,
-                       int argc,
-                       lo_message msg,
-                       void *user_data)
-{
+int osc_receive(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {
     (void)types;
     (void)argv;
     (void)argc;

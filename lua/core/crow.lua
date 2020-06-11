@@ -4,10 +4,6 @@
 local ii_events = require 'core/crow/ii_events'
 local ii_actions = require 'core/crow/ii_actions'
 
-local function tostringwithquotes(s)
-  return "'"..tostring(s).."'"
-end
-
 
 -- system setup
 
@@ -80,7 +76,7 @@ function crow.send(cmd)
 end
 --- check if crow is connected
 function crow.connected()
-  return _norns.crow.dev ~= nil
+  return norns.crow.dev ~= nil
 end
 
 
@@ -94,10 +90,10 @@ function input.new(x)
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
   i.mode = function(m,a,b,c)
-    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m)
+    local cmd = string.format("input[%i].mode(%q",i.n,m)
     if a ~= nil then cmd = cmd .. "," .. a end
     if b ~= nil then cmd = cmd .. "," .. b end
-    if c ~= nil then cmd = cmd .. "," .. tostringwithquotes(c) end
+    if c ~= nil then cmd = string.format("%s,%q",cmd,c) end
     cmd = cmd .. ")"
     crow.send(cmd)
   end
@@ -126,7 +122,7 @@ end
 local function action_string(v)
   if type(v) ~= 'table' then
     return v
-  end  
+  end
   local arg_string = ''
   for _,arg in ipairs(v) do
     if arg then
@@ -146,7 +142,7 @@ output.__newindex = function(self, i, v)
     crow.send(me..".volts="..v)
   elseif i == 'shape' then
     self._shape = v
-    crow.send(me..".shape="..tostringwithquotes(v))
+    crow.send(string.format("%s.shape=%q",me,v))
   elseif i == 'slew' then
     self._slew = v
     crow.send(me..".slew="..v)
@@ -179,7 +175,7 @@ output.__call = function(self,arg)
     or arg == "release"
     or arg == "step"
     or arg == "unlock" then
-      args = tostringwithquotes(arg)
+      args = string.format("%q",arg)
     else -- boolean or asl
       args = arg
     end

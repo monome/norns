@@ -4,14 +4,14 @@
  * tracks key state, resets after timer
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
 #include <errno.h>
-#include <stdlib.h>
+#include <fcntl.h>
 #include <pthread.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "events.h"
 
@@ -27,9 +27,9 @@ void *watch_time(void *);
 // extern def
 
 void watch_init() {
-  if (pthread_create(&p, NULL, watch_time, 0) ) {
-    fprintf(stderr, "WATCH: Error creating thread\n");
-  }
+    if (pthread_create(&p, NULL, watch_time, 0)) {
+        fprintf(stderr, "WATCH: Error creating thread\n");
+    }
 }
 
 void watch_deinit() {
@@ -37,23 +37,29 @@ void watch_deinit() {
 }
 
 void *watch_time(void *x) {
-  (void)x;
+    (void)x;
 
-  while(1) {
-    if(stage==3) count++;
-    if(count==10) {
-      fprintf(stderr, "RESTARTING...\n");
-      system("nohup systemctl restart norns-sclang > /dev/null");
-      system("nohup systemctl restart norns-crone > /dev/null");
-      system("nohup systemctl restart norns-matron > /dev/null");
+    while (1) {
+        if (stage == 3)
+            count++;
+        if (count == 10) {
+            fprintf(stderr, "RESTARTING...\n");
+            system("nohup systemctl restart norns-sclang > /dev/null");
+            system("nohup systemctl restart norns-crone > /dev/null");
+            system("nohup systemctl restart norns-matron > /dev/null");
+        }
+        sleep(WATCH_TIME);
     }
-    sleep(WATCH_TIME);
-  }
 }
 
 void watch_key(int n, int z) {
-  if(z==0) { stage = 0; }
-  else if(stage==0 && n==3) { stage = 1; }
-  else if(stage==1 && n==2) { stage = 2; }
-  else if(stage==2 && n==1) { stage = 3; }
+    if (z == 0) {
+        stage = 0;
+    } else if (stage == 0 && n == 3) {
+        stage = 1;
+    } else if (stage == 1 && n == 2) {
+        stage = 2;
+    } else if (stage == 2 && n == 1) {
+        stage = 3;
+    }
 }

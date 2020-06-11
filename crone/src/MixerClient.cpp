@@ -19,7 +19,7 @@ void MixerClient::process(jack_nframes_t numFrames) {
 
     // copy inputs
     bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
-    bus.cut_source.setFrom(source[SourceCut], numFrames);
+    bus.cut_source.setFrom(source[SourceCut], numFrames, smoothLevels.cut);
     bus.ext_source.setFrom(source[SourceExt], numFrames, smoothLevels.ext);
 
     // mix ADC monitor
@@ -97,7 +97,7 @@ void MixerClient::processFx(size_t numFrames) {
 
     // mix to insert bus
     bus.ins_in.mixFrom(bus.adc_monitor, numFrames, smoothLevels.monitor);
-    bus.ins_in.mixFrom(bus.cut_source, numFrames, smoothLevels.cut);
+    bus.ins_in.addFrom(bus.cut_source, numFrames);
     bus.ins_in.addFrom(bus.ext_source, numFrames);
 
     bus.dac_sink.clear(numFrames);

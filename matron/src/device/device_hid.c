@@ -1,29 +1,33 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/input.h>
-#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "device_hid.h"
 #include "events.h"
 
-#define TEST_NULL_AND_FREE(p) if( (p) != NULL ) { free(p); } \
-    else { fprintf(stderr, "error: double free in device_hid.c\n"); }
+#define TEST_NULL_AND_FREE(p)                                    \
+    if ((p) != NULL) {                                           \
+        free(p);                                                 \
+    } else {                                                     \
+        fprintf(stderr, "error: double free in device_hid.c\n"); \
+    }
 
 static void add_types(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
-    d->types = calloc( EV_MAX, sizeof(int) );
+    d->types = calloc(EV_MAX, sizeof(int));
     d->num_types = 0;
     for (int i = 0; i < EV_MAX; i++) {
-        if ( libevdev_has_event_type(dev, i) ) {
+        if (libevdev_has_event_type(dev, i)) {
             d->types[d->num_types++] = i;
         }
     }
-    d->types = realloc( d->types, d->num_types * sizeof(int) );
+    d->types = realloc(d->types, d->num_types * sizeof(int));
 }
 
 static void add_codes(struct dev_hid *d) {
@@ -95,10 +99,7 @@ void *dev_hid_start(void *self) {
     int rc = 1;
     do {
         struct input_event ev;
-        rc = libevdev_next_event(di->dev,
-                                 LIBEVDEV_READ_FLAG_NORMAL
-                                 | LIBEVDEV_READ_FLAG_BLOCKING,
-                                 &ev);
+        rc = libevdev_next_event(di->dev, LIBEVDEV_READ_FLAG_NORMAL | LIBEVDEV_READ_FLAG_BLOCKING, &ev);
 
         if (rc == LIBEVDEV_READ_STATUS_SYNC) {
             // dropped...
@@ -108,19 +109,17 @@ void *dev_hid_start(void *self) {
             // re-synced...
         } else if (rc == LIBEVDEV_READ_STATUS_SUCCESS) {
             // filter out sync and msc events
-            if( !( ( ev.type == EV_SYN) || ( ev.type == EV_MSC) ) ) {
+            if (!((ev.type == EV_SYN) || (ev.type == EV_MSC))) {
                 handle_event(di, &ev);
             }
         }
-    } while ( rc == LIBEVDEV_READ_STATUS_SYNC
-              || rc == LIBEVDEV_READ_STATUS_SUCCESS
-              || rc == -EAGAIN );
+    } while (rc == LIBEVDEV_READ_STATUS_SYNC || rc == LIBEVDEV_READ_STATUS_SUCCESS || rc == -EAGAIN);
     return NULL;
 }
 
 void dev_hid_deinit(void *self) {
     struct dev_hid *di = (struct dev_hid *)self;
-    for(int i = 0; i < di->num_types; i++) {
+    for (int i = 0; i < di->num_types; i++) {
         TEST_NULL_AND_FREE(di->codes[i]);
     }
     TEST_NULL_AND_FREE(di->codes);

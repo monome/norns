@@ -57,7 +57,9 @@ end
 local function build_sub(sub)
   page = {}
   for i = 1,params:get(sub) do
-    table.insert(page, i + sub)
+    if params:visible(i + sub) then
+      table.insert(page, i + sub)
+    end
   end
 end
 

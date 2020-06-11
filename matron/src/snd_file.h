@@ -2,9 +2,10 @@
 
 #pragma once
 
+struct snd_file_desc {
+    int channels;
+    int frames;
+    int samplerate;
+};
 
-struct snd_file_desc { int channels; int frames; int samplerate; };
-
-
-extern struct snd_file_desc snd_file_inspect(const char* path);
-
+extern struct snd_file_desc snd_file_inspect(const char *path);

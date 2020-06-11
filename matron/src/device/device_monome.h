@@ -4,12 +4,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <monome.h>
 #include "device_common.h"
+#include <monome.h>
 
 typedef enum {
-	DEVICE_MONOME_TYPE_GRID,
-	DEVICE_MONOME_TYPE_ARC,
+    DEVICE_MONOME_TYPE_GRID,
+    DEVICE_MONOME_TYPE_ARC,
 } device_monome_type_t;
 
 // monome device data structure.
@@ -28,8 +28,7 @@ extern void dev_monome_arc_set_led(struct dev_monome *md, uint8_t n, uint8_t x, 
 // set all led
 extern void dev_monome_all_led(struct dev_monome *md, uint8_t val);
 // set all data for a quad
-extern void dev_monome_set_quad(struct dev_monome *md,
-                                uint8_t quad, uint8_t *data);
+extern void dev_monome_set_quad(struct dev_monome *md, uint8_t quad, uint8_t *data);
 // transmit data for all dirty quads
 extern void dev_monome_refresh(struct dev_monome *md);
 extern int dev_monome_grid_rows(struct dev_monome *md);
