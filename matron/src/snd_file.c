@@ -13,5 +13,6 @@ struct snd_file_desc snd_file_inspect(const char *path) {
     res.channels = sfinfo.channels;
     res.frames = sfinfo.frames;
     res.samplerate = sfinfo.samplerate;
+    sf_close(sndfile);
     return res;
 }
