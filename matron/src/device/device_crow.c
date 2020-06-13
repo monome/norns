@@ -113,11 +113,9 @@ void dev_crow_deinit(void *self) {
 }
 
 void dev_crow_send(struct dev_crow *d, const char *line) {
-    char s[256];
-    strcpy(s, line);
-    strcat(s, "\n\0");
     // fprintf(stderr,"crow_send: %s",line);
-    write(d->fd, s, strlen(s));
+    write(d->fd, line, strlen(line));
+    write(d->fd, "\n", 1);
 }
 
 #pragma GCC diagnostic pop
