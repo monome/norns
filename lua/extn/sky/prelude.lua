@@ -1,0 +1,38 @@
+
+-- setup the global sky module for devices to use without having to redundently
+-- require/include the core
+
+local function import(target, module)
+  for k, v in pairs(module) do
+    target[k] = v
+  end
+end
+
+sky = {
+  __loaded = {},
+  __search = {norns.state.path, _path.code},
+}
+
+function sky.use(path, reload)
+  if reload or sky.__loaded[path] == nil then
+    -- look for path along search path
+    for i, dir in ipairs(sky.__search) do
+      local p = dir .. path .. '.lua'
+      if util.file_exists(p) then
+        print("using " .. p)
+        local module = dofile(p)
+        sky.__loaded[path] = module
+        import(sky, module)
+        return module
+      end
+    end
+    -- didn't find anything
+    error("sky.use, cannot find: " .. path)
+  end
+
+  -- return existing
+  return sky.__loaded[path]
+end
+
+return sky
+
