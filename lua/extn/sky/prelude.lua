@@ -13,11 +13,21 @@ sky = {
   __search = {norns.state.path, _path.code},
 }
 
+function sky.use_debug(bool)
+  sky.__use_debug = bool
+end
+
 function sky.use(path, reload)
   if reload or sky.__loaded[path] == nil then
+    if sky.__use_debug then
+      print("searching for: " .. path)
+    end
     -- look for path along search path
     for i, dir in ipairs(sky.__search) do
       local p = dir .. path .. '.lua'
+      if sky.__use_debug then
+        print("trying " .. p)
+      end
       if util.file_exists(p) then
         print("using " .. p)
         local module = dofile(p)
