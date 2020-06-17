@@ -10,6 +10,12 @@ local REMOVED = { 'deque removed value' }
 local Deque = {}
 Deque.__index = Deque
 
+--- Create a Deque value (object).
+--
+-- A double ended queue supporting O(1) insertion at the head or tail of the queue.
+--
+-- @tparam table elements Initial values to shallow copy into queue [optional]
+-- @treturn Deque instance
 function Deque.new(elements)
   local o = setmetatable({}, Deque)
   o.first = 0
@@ -24,24 +30,32 @@ function Deque.new(elements)
   return o
 end
 
+--- Push a value onto the front of the queue
+-- @tparam anything value The value to insert
 function Deque:push(value)
   local first = self.first - 1
   self.first = first
   self._e[first] = value
 end
 
+--- Push a value onto the back of the queue
+-- @tparam anything value The value to insert
 function Deque:push_back(value)
   local last = self.last + 1
   self.last = last
   self._e[last] = value
 end
 
+--- Push all values from another Deque onto theback of this one
+-- @tparam Deque other_deque The values to insert
 function Deque:extend_back(other_deque)
   for _, e in other_deque:ipairs() do
     self:push_back(e)
   end
 end
 
+--- Pop the value off the front of the queue and return it
+-- @treturn anything
 function Deque:pop()
   local first = self.first
   if first > self.last then
@@ -59,6 +73,8 @@ function Deque:pop()
   return self:pop()
 end
 
+--- Pop the value off the back of the queue and return it
+-- @treturn anything
 function Deque:pop_back()
   local last = self.last
   if self.first > last then
@@ -80,6 +96,14 @@ local function _eq(a, b)
   return a == b
 end
 
+--- Returns true if the given value is in the queue.
+--
+-- The optional predicate function should take two arguments and return true
+-- if the arguments are considered a match. The default predicate is ==.
+--
+-- @tparam anything value The value to search the queue for
+-- @tparam function predicate Comparison function [optional]
+-- @treturn boolean
 function Deque:contains(value, predicate)
   predicate = predicate or _eq
   for _, v in self:ipairs() do
@@ -90,6 +114,14 @@ function Deque:contains(value, predicate)
   return false
 end
 
+--- Removes the first instance over value in the queue
+--
+-- The optional predicate function should take two arguments and return true
+-- if the arguments are considered a match. The default predicate is ==.
+--
+-- @tparam anything value The value to remove from the queue
+-- @tparam function predicate Comparison function [optional]
+-- @treturn anything Removed value or nil
 function Deque:remove(value, predicate)
   predicate = predicate or _eq
 
@@ -115,6 +147,8 @@ function Deque:remove(value, predicate)
   return nil
 end
 
+--- Return the number of elements/values in the queue
+-- @treturn int
 function Deque:count()
   if self.last < self.first then
     return 0
@@ -122,6 +156,7 @@ function Deque:count()
   return self.last - self.first - self.tombstones + 1
 end
 
+--- Clear out all elements in the queue
 function Deque:clear()
   self._e = {}
   -- must match new()
@@ -130,6 +165,8 @@ function Deque:clear()
   self.tombstones = 0
 end
 
+--- Returns an iterator for the queue which behaves like ipairs
+-- @treturn function
 function Deque:ipairs()
   local first = self.first
   local last = self.last
@@ -154,6 +191,7 @@ function Deque:ipairs()
   return f
 end
 
+--- Return a list/array with the elements of the queue (here head is index 1)
 function Deque:to_array()
   local r = {}
   for i, e in self:ipairs() do
