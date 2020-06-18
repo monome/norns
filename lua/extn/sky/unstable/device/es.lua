@@ -1,5 +1,5 @@
-sky.use('sky/lib/io/grid')
-local Deque = include('sky/lib/container/deque')
+sky.use('io/grid')
+local Deque = require('container/deque')
 
 ES_DEFAULT_BOUNDS = {1,1,16,8}
 ES_DEFAULT_ROOT_NOTE = 48

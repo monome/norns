@@ -9,7 +9,7 @@
 --   \\\\////
 --
 --
-sky.use('sky/lib/io/grid')
+sky.use('io/grid')
 
 local keys = { 'C','C#','D','D#','E','F','F#','G','G#','A','A#','B' }
 
