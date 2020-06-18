@@ -2,9 +2,9 @@
 local sky = include('sky/prelude')
 
 -- use versioned components, then unversioned components
-table.insert(sky.__search, _path.extn .. 'sky/unstable/')
-table.insert(sky.__search, _path.extn .. 'sky/v1/')
-table.insert(sky.__search, _path.extn .. 'sky/')
+table.insert(sky.__search, paths.extn .. 'sky/unstable/')
+table.insert(sky.__search, paths.extn .. 'sky/v1/')
+table.insert(sky.__search, paths.extn .. 'sky/')
 
 -- require/include the core
 sky.use('core/object')

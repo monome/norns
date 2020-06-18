@@ -10,7 +10,7 @@ end
 
 sky = {
   __loaded = {},
-  __search = {norns.state.path, _path.code},
+  __search = {paths.this.path, paths.code},
 }
 
 function sky.use_debug(bool)
