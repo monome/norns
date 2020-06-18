@@ -20,6 +20,7 @@ local tu = require 'tabutil'
 
 _path = {}
 _path.home = home
+_path.extn = norns..'/extn/'
 _path.dust = home..'/dust/'
 _path.code = _path.dust..'code/'
 _path.audio = _path.dust..'audio/'
