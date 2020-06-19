@@ -163,11 +163,11 @@ m.key = function(n,z)
         m.pos = n-1
       elseif t == params.tFILE then
         if m.mode == mEDIT then
-	   fileselect.enter(_path.dust, m.newfile)
-	   if m.dir_prev ~= nil then
-	     fileselect.pushd(m.dir_prev)
-	   end
-	end
+          fileselect.enter(_path.dust, m.newfile)
+          if m.dir_prev ~= nil then
+            fileselect.pushd(m.dir_prev)
+          end
+        end
       elseif t == params.tTEXT then
         if m.mode == mEDIT then
           textentry.enter(m.newtext, params:get(i), "PARAM: "..params:get_name(i))
