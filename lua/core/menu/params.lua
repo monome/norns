@@ -24,7 +24,8 @@ local m = {
   ps_pos = 0,
   ps_n = 0,
   ps_action = 1,
-  ps_last = 0
+  ps_last = 0,
+  dir_prev = nil,
 }
 
 local page
@@ -92,7 +93,7 @@ local function pset_list(results)
   m.ps_n = m.ps_n + 1
   _menu.redraw()
 end
-  
+
 local function init_pset()
   print("scanning psets...")
   norns.system_cmd('ls -1 '..norns.state.data..norns.state.shortname..'*.pset | sort', pset_list)
@@ -161,7 +162,12 @@ m.key = function(n,z)
         until params:t(page[n]) == params.tSEPARATOR
         m.pos = n-1
       elseif t == params.tFILE then
-        if m.mode == mEDIT then fileselect.enter(_path.dust, m.newfile) end
+        if m.mode == mEDIT then
+          fileselect.enter(_path.dust, m.newfile)
+          if m.dir_prev ~= nil then
+            fileselect.pushd(m.dir_prev)
+          end
+        end
       elseif t == params.tTEXT then
         if m.mode == mEDIT then
           textentry.enter(m.newtext, params:get(i), "PARAM: "..params:get_name(i))
@@ -241,6 +247,7 @@ end
 m.newfile = function(file)
   if file ~= "cancel" then
     params:set(page[m.pos+1],file)
+    m.dir_prev = file:match(_path.dust .. "(.*/)")
     _menu.redraw()
   end
 end
@@ -559,7 +566,7 @@ norns.menu_midi_event = function(data, dev)
       if _menu.mode then _menu.redraw() end
     else
       --print(cc.." : "..v)
-      local r = norns.pmap.rev[dev][ch][cc] 
+      local r = norns.pmap.rev[dev][ch][cc]
       if r then
         local d = norns.pmap.data[r]
         local t = params:t(r)

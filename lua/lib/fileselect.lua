@@ -51,6 +51,15 @@ function fs.exit()
   else fs.callback("cancel") end
 end
 
+function fs.pushd(dir)
+  for match in dir:gmatch("([^/]*)/") do
+    fs.depth = fs.depth + 1
+    fs.folders[fs.depth] = match .. "/"
+  end
+  fs.getlist()
+  fs.redraw()
+end
+
 
 fs.getdir = function()
   local path = fs.folder
