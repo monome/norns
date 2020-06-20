@@ -46,6 +46,9 @@ function norns.crow.identity(...) print("crow identity: " .. ...) end
 function norns.crow.version(...) print("crow version: " .. ...) end
 function norns.crow.stream(n,v) crow.input[n].stream(v) end
 function norns.crow.change(n,v) crow.input[n].change(v) end
+function norns.crow.window(n,v,w) crow.input[n].window(v,w) end
+function norns.crow.scale(n,v) crow.input[n].scale(v) end
+function norns.crow.volume(n,v) crow.input[n].volume(v) end
 function norns.crow.output(n,v) crow.output[n].receive(v) end
 function norns.crow.done(n) crow.output[n].done() end
 function norns.crow.running(n,v) crow.output[n].running(v) end
@@ -82,16 +85,35 @@ end
 
 -- crowlib aliases & metatable syntax enhancements
 
+local function stringify_table(s)
+  local str = "{"
+  for i=1,#s do
+    str = str .. s[i]
+  end
+  return str .. "}"
+end
+
+
 local input = {}
 
 function input.new(x)
   local i = { n = x }
-  i.query = function() crow.send("get_cv("..i.n..")") end
+  i.query  = function() crow.send("get_cv("..i.n..")") end
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
+  i.window = function(v,w) print("crow input window: "..i.n.." "..v.." "..w) end
+  i.scale  = function(v) print("crow input scale: "..i.n.." "..v.note) end
+  i.volume = function(v) print("crow input volume: "..i.n.." "..v) end
   i.mode = function(m,a,b,c)
     local cmd = string.format("input[%i].mode(%q",i.n,m)
-    if a ~= nil then cmd = cmd .. "," .. a end
+    -- arg a can be a flat table for 'window' and 'scale' modes
+    if a ~= nil then
+      if type(a) == 'table' then
+        cmd = cmd .. "," .. stringify_table(a)
+      else
+        cmd = cmd .. "," .. a
+      end
+    end
     if b ~= nil then cmd = cmd .. "," .. b end
     if c ~= nil then cmd = string.format("%s,%q",cmd,c) end
     cmd = cmd .. ")"
