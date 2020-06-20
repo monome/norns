@@ -10,6 +10,7 @@ actions.init = function()
   actions.ansible.event = function(t,v) print("ansible ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
   actions.crow.event = function(t,v) print("crow ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
   actions.faders.event = function(t,v) print("faders ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.jf.event = function(t,v) print("jf ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
   actions.kria.event = function(t,v) print("kria ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
   actions.levels.event = function(t,v) print("levels ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
   actions.meadowphysics.event = function(t,v) print("meadowphysics ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
@@ -62,11 +63,13 @@ actions.jf.transpose = function(pitch) crow.send("ii.jf.transpose("..pitch..")")
 actions.jf.vtrigger = function(channel,level) crow.send("ii.jf.vtrigger("..channel..","..level..")") end
 actions.jf.mode = function(mode) crow.send("ii.jf.mode("..mode..")") end
 actions.jf.tick = function(clock_or_bpm) crow.send("ii.jf.tick("..clock_or_bpm..")") end
-actions.jf.play_voice = function(channel,pitch_divs,level_repeats) crow.send("ii.jf.play_voice("..channel..","..pitch_divs..","..level_repeats..")") end
-actions.jf.play_note = function(pitch_divs,level_repeats) crow.send("ii.jf.play_note("..pitch_divs..","..level_repeats..")") end
+actions.jf.play_voice = function(channel,pitch_or_divs,level_or_repeats) crow.send("ii.jf.play_voice("..channel..","..pitch_or_divs..","..level_or_repeats..")") end
+actions.jf.play_note = function(pitch_or_divs,level_or_repeats) crow.send("ii.jf.play_note("..pitch_or_divs..","..level_or_repeats..")") end
 actions.jf.god_mode = function(state) crow.send("ii.jf.god_mode("..state..")") end
 actions.jf.retune = function(channel,numerator,denominator) crow.send("ii.jf.retune("..channel..","..numerator..","..denominator..")") end
 actions.jf.quantize = function(divisions) crow.send("ii.jf.quantize("..divisions..")") end
+actions.jf.pitch = function(channel,pitch) crow.send("ii.jf.pitch("..channel..","..pitch..")") end
+actions.jf.address = function(index) crow.send("ii.jf.address("..index..")") end
 
 actions.kria = {}
 actions.kria.help = function() crow.send("ii.kria.help()") end
