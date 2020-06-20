@@ -187,6 +187,28 @@ output.__index = function(self, i)
   elseif i == 'running' then
     local me = "output["..self.n.."]"
     crow.send("_c.tell('running',"..me..".channel,"..me..".running)")
+  elseif i == 'scale' then
+    return function(notes,divs,scale)
+      local me = "output["..self.n.."].scale("
+      if notes then -- arguments are present
+        local ntype = type(notes)
+        if ntype == 'string' then -- assume 'none'
+          me = me .. "'none'"
+        elseif ntype == 'table' then
+          me = me .. stringify_table(notes)
+        else
+          print("output[n].scale() expects nil, a string, or a table as first arg")
+          return
+        end
+        if divs then
+          me = me .. "," .. divs
+          if scale then
+            me = me .. "," .. scale
+          end
+        end
+      end
+      crow.send(me..")")
+    end
   end
 end
 
