@@ -49,6 +49,7 @@ function norns.crow.change(n,v) crow.input[n].change(v) end
 function norns.crow.window(n,v,w) crow.input[n].window(v,w) end
 function norns.crow.scale(n,v) crow.input[n].scale(v) end
 function norns.crow.volume(n,v) crow.input[n].volume(v) end
+function norns.crow.peak(n) crow.input[n].peak() end
 function norns.crow.output(n,v) crow.output[n].receive(v) end
 function norns.crow.done(n) crow.output[n].done() end
 function norns.crow.running(n,v) crow.output[n].running(v) end
@@ -104,6 +105,7 @@ function input.new(x)
   i.window = function(v,w) print("crow input window: "..i.n.." "..v.." "..w) end
   i.scale  = function(v) print("crow input scale: "..i.n.." "..v.note) end
   i.volume = function(v) print("crow input volume: "..i.n.." "..v) end
+  i.peak   = function() print("crow input peak: "..i.n) end
   i.mode = function(m,a,b,c)
     local cmd = string.format("input[%i].mode(%q",i.n,m)
     -- arg a can be a flat table for 'window' and 'scale' modes
