@@ -110,10 +110,10 @@ fs.key = function(n,z)
     if #fs.list > 0 then
       fs.file = fs.list[fs.pos+1]
       if fs.file == "../" then
-	 fs.folders[fs.depth] = nil
-	 fs.depth = fs.depth - 1
-	 fs.getlist()
-	 fs.redraw()
+        fs.folders[fs.depth] = nil
+        fs.depth = fs.depth - 1
+        fs.getlist()
+        fs.redraw()
       elseif string.find(fs.file,'/') then
         --print("folder")
         fs.depth = fs.depth + 1
