@@ -67,17 +67,19 @@ function File:string()
 end
 
 function File:loaddir()
-  if self.path ~= "-" then
-    self.dir = self.path:match("(.*/)")
-    local name = self.path:match("[^/]*$")
-    local files = util.scandir(self.dir)
-    self.dirfiles = {}
-    for _, fname in ipairs(files) do
-      if not string.find(fname, '/') then
-        self.dirfiles[#self.dirfiles + 1] = fname
-        if fname == name then
-          self.dirpos = #self.dirfiles
-        end
+  self.dir = self.path:match("(.*/)")
+  if self.dir == nil then
+    return
+  end
+
+  local name = self.path:match("[^/]*$")
+  local files = util.scandir(self.dir)
+  self.dirfiles = {}
+  for _, fname in ipairs(files) do
+    if not string.find(fname, '/') then
+      self.dirfiles[#self.dirfiles + 1] = fname
+      if fname == name then
+        self.dirpos = #self.dirfiles
       end
     end
   end
