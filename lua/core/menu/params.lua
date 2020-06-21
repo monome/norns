@@ -164,8 +164,10 @@ m.key = function(n,z)
       elseif t == params.tFILE then
         if m.mode == mEDIT then
           fileselect.enter(_path.dust, m.newfile)
-          if m.dir_prev ~= nil then
-            fileselect.pushd(m.dir_prev)
+          local fparam = params:lookup_param(i)
+          local dir_prev = fparam.dir or m.dir_prev
+          if dir_prev ~= nil then
+            fileselect.pushd(dir_prev)
           end
         end
       elseif t == params.tTEXT then
@@ -247,7 +249,7 @@ end
 m.newfile = function(file)
   if file ~= "cancel" then
     params:set(page[m.pos+1],file)
-    m.dir_prev = file:match(_path.dust .. "(.*/)")
+    m.dir_prev = file:match("(.*/)")
     _menu.redraw()
   end
 end
