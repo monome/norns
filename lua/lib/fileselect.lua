@@ -52,7 +52,8 @@ function fs.exit()
 end
 
 function fs.pushd(dir)
-  for match in dir:gmatch("([^/]*)/") do
+  local subdir = dir:match(fs.folder .. '(.*)')
+  for match in subdir:gmatch("([^/]*)/") do
     fs.depth = fs.depth + 1
     fs.folders[fs.depth] = match .. "/"
   end
@@ -75,8 +76,12 @@ fs.getlist = function()
   fs.list = util.scandir(dir)
   fs.display_list = {}
   fs.lengths = {}
-  fs.len = #fs.list
   fs.pos = 0
+
+  if fs.depth > 0 then
+    table.insert(fs.list, 1, "../")
+  end
+  fs.len = #fs.list
 
   -- Generate display list and lengths
   for k, v in ipairs(fs.list) do
@@ -99,20 +104,17 @@ end
 fs.key = function(n,z)
   -- back
   if n==2 and z==1 then
-    if fs.depth > 0 then
-      --print('back')
-      fs.folders[fs.depth] = nil
-      fs.depth = fs.depth - 1
-      fs.getlist()
-      fs.redraw()
-    else
-      fs.done = true
-    end
-    -- select
+    fs.done = true
+  -- select
   elseif n==3 and z==1 then
     if #fs.list > 0 then
       fs.file = fs.list[fs.pos+1]
-      if string.find(fs.file,'/') then
+      if fs.file == "../" then
+        fs.folders[fs.depth] = nil
+        fs.depth = fs.depth - 1
+        fs.getlist()
+        fs.redraw()
+      elseif string.find(fs.file,'/') then
         --print("folder")
         fs.depth = fs.depth + 1
         fs.folders[fs.depth] = fs.file
