@@ -7,15 +7,15 @@
 local actions = {}
 
 actions.init = function()
-  actions.ansible.event = function(t,v) print("ansible ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.crow.event = function(t,v) print("crow ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.faders.event = function(t,v) print("faders ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.jf.event = function(t,v) print("jf ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.kria.event = function(t,v) print("kria ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.levels.event = function(t,v) print("levels ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.meadowphysics.event = function(t,v) print("meadowphysics ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.txi.event = function(t,v) print("txi ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.wslash.event = function(t,v) print("wslash ii: name="..t.name..", device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.ansible.event = function(t,v) print("ansible ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.crow.event = function(t,v) print("crow ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.faders.event = function(t,v) print("faders ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.jf.event = function(t,v) print("jf ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.kria.event = function(t,v) print("kria ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.levels.event = function(t,v) print("levels ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.meadowphysics.event = function(t,v) print("meadowphysics ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.txi.event = function(t,v) print("txi ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.wslash.event = function(t,v) print("wslash ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
 end
 
 actions.ansible = {}
