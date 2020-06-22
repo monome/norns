@@ -110,11 +110,8 @@ function input.new(x)
     local cmd = string.format("input[%i].mode(%q",i.n,m)
     -- arg a can be a flat table for 'window' and 'scale' modes
     if a ~= nil then
-      if type(a) == 'table' then
-        cmd = cmd .. "," .. stringify_table(a)
-      else
-        cmd = cmd .. "," .. a
-      end
+      local at = (type(a)=='table') and stringify_table(a) or a
+      cmd = cmd .. "," .. at
     end
     if b ~= nil then cmd = cmd .. "," .. b end
     if c ~= nil then cmd = string.format("%s,%q",cmd,c) end
