@@ -89,7 +89,7 @@ end
 local function stringify_table(s)
   local str = "{"
   for i=1,#s do
-    str = str .. s[i]
+    str = str .. s[i] .. ","
   end
   return str .. "}"
 end
