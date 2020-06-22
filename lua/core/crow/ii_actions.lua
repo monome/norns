@@ -7,14 +7,15 @@
 local actions = {}
 
 actions.init = function()
-  actions.ansible.event = function(i,v) print("ansible ii: "..i.." "..v) end
-  actions.crow.event = function(i,v) print("crow ii: "..i.." "..v) end
-  actions.faders.event = function(i,v) print("faders ii: "..i.." "..v) end
-  actions.kria.event = function(i,v) print("kria ii: "..i.." "..v) end
-  actions.levels.event = function(i,v) print("levels ii: "..i.." "..v) end
-  actions.meadowphysics.event = function(i,v) print("meadowphysics ii: "..i.." "..v) end
-  actions.txi.event = function(i,v) print("txi ii: "..i.." "..v) end
-  actions.wslash.event = function(i,v) print("wslash ii: "..i.." "..v) end
+  actions.ansible.event = function(t,v) print("ansible ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.crow.event = function(t,v) print("crow ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.faders.event = function(t,v) print("faders ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.jf.event = function(t,v) print("jf ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.kria.event = function(t,v) print("kria ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.levels.event = function(t,v) print("levels ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.meadowphysics.event = function(t,v) print("meadowphysics ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.txi.event = function(t,v) print("txi ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.wslash.event = function(t,v) print("wslash ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
 end
 
 actions.ansible = {}
@@ -28,6 +29,12 @@ actions.ansible.cv = function(channel,volts) crow.send("ii.ansible.cv("..channel
 actions.ansible.cv_slew = function(channel,time) crow.send("ii.ansible.cv_slew("..channel..","..time..")") end
 actions.ansible.cv_offset = function(channel,volts) crow.send("ii.ansible.cv_offset("..channel..","..volts..")") end
 actions.ansible.cv_set = function(channel,volts) crow.send("ii.ansible.cv_set("..channel..","..volts..")") end
+actions.ansible.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.ansible.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.crow = {}
 actions.crow.help = function() crow.send("ii.crow.help()") end
@@ -37,6 +44,12 @@ actions.crow.call1 = function(arg) crow.send("ii.crow.call1("..arg..")") end
 actions.crow.call2 = function(arg1,arg2) crow.send("ii.crow.call2("..arg1..","..arg2..")") end
 actions.crow.call3 = function(arg1,arg2,arg3) crow.send("ii.crow.call3("..arg1..","..arg2..","..arg3..")") end
 actions.crow.call4 = function(arg1,arg2,arg3,arg4) crow.send("ii.crow.call4("..arg1..","..arg2..","..arg3..","..arg4..")") end
+actions.crow.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.crow.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.er301 = {}
 actions.er301.help = function() crow.send("ii.er301.help()") end
@@ -52,6 +65,12 @@ actions.er301.cv_off = function(port,volts) crow.send("ii.er301.cv_off("..port..
 
 actions.faders = {}
 actions.faders.help = function() crow.send("ii.faders.help()") end
+actions.faders.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.faders.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.jf = {}
 actions.jf.help = function() crow.send("ii.jf.help()") end
@@ -62,11 +81,19 @@ actions.jf.transpose = function(pitch) crow.send("ii.jf.transpose("..pitch..")")
 actions.jf.vtrigger = function(channel,level) crow.send("ii.jf.vtrigger("..channel..","..level..")") end
 actions.jf.mode = function(mode) crow.send("ii.jf.mode("..mode..")") end
 actions.jf.tick = function(clock_or_bpm) crow.send("ii.jf.tick("..clock_or_bpm..")") end
-actions.jf.play_voice = function(channel,pitch_divs,level_repeats) crow.send("ii.jf.play_voice("..channel..","..pitch_divs..","..level_repeats..")") end
-actions.jf.play_note = function(pitch_divs,level_repeats) crow.send("ii.jf.play_note("..pitch_divs..","..level_repeats..")") end
+actions.jf.play_voice = function(channel,pitch_or_divs,level_or_repeats) crow.send("ii.jf.play_voice("..channel..","..pitch_or_divs..","..level_or_repeats..")") end
+actions.jf.play_note = function(pitch_or_divs,level_or_repeats) crow.send("ii.jf.play_note("..pitch_or_divs..","..level_or_repeats..")") end
 actions.jf.god_mode = function(state) crow.send("ii.jf.god_mode("..state..")") end
 actions.jf.retune = function(channel,numerator,denominator) crow.send("ii.jf.retune("..channel..","..numerator..","..denominator..")") end
 actions.jf.quantize = function(divisions) crow.send("ii.jf.quantize("..divisions..")") end
+actions.jf.pitch = function(channel,pitch) crow.send("ii.jf.pitch("..channel..","..pitch..")") end
+actions.jf.address = function(index) crow.send("ii.jf.address("..index..")") end
+actions.jf.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.jf.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.kria = {}
 actions.kria.help = function() crow.send("ii.kria.help()") end
@@ -84,6 +111,12 @@ actions.kria.clock = function(track) crow.send("ii.kria.clock("..track..")") end
 actions.kria.page = function(page) crow.send("ii.kria.page("..page..")") end
 actions.kria.cue = function(pattern) crow.send("ii.kria.cue("..pattern..")") end
 actions.kria.direction = function(track,direction) crow.send("ii.kria.direction("..track..","..direction..")") end
+actions.kria.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.kria.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.levels = {}
 actions.levels.help = function() crow.send("ii.levels.help()") end
@@ -93,6 +126,12 @@ actions.levels.position = function(pos) crow.send("ii.levels.position("..pos..")
 actions.levels.loop_start = function(pos) crow.send("ii.levels.loop_start("..pos..")") end
 actions.levels.loop_length = function(pos) crow.send("ii.levels.loop_length("..pos..")") end
 actions.levels.loop_direction = function(direction) crow.send("ii.levels.loop_direction("..direction..")") end
+actions.levels.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.levels.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.meadowphysics = {}
 actions.meadowphysics.help = function() crow.send("ii.meadowphysics.help()") end
@@ -101,9 +140,21 @@ actions.meadowphysics.reset = function(track) crow.send("ii.meadowphysics.reset(
 actions.meadowphysics.stop = function(track) crow.send("ii.meadowphysics.stop("..track..")") end
 actions.meadowphysics.scale = function(number) crow.send("ii.meadowphysics.scale("..number..")") end
 actions.meadowphysics.period = function(time) crow.send("ii.meadowphysics.period("..time..")") end
+actions.meadowphysics.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.meadowphysics.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.txi = {}
 actions.txi.help = function() crow.send("ii.txi.help()") end
+actions.txi.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.txi.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 actions.txo = {}
 actions.txo.help = function() crow.send("ii.txo.help()") end
@@ -188,5 +239,11 @@ actions.wslash.record = function(active) crow.send("ii.wslash.record("..active..
 actions.wslash.play = function(direction) crow.send("ii.wslash.play("..direction..")") end
 actions.wslash.loop = function(state) crow.send("ii.wslash.loop("..state..")") end
 actions.wslash.cue = function(destination) crow.send("ii.wslash.cue("..destination..")") end
+actions.wslash.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.wslash.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
 
 return actions
