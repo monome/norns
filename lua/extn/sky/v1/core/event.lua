@@ -34,12 +34,19 @@ local type_names = invert(types)
 -- event creation (compatible with midi:send(...))
 --
 
-local function mk_note_on(note, vel, ch, duration)
-  return { type = types.NOTE_ON, ch = ch or 1, note = note, vel = vel, duration = duration }
+local function mk_note_on(note, vel, ch, duration, correlation)
+  return {
+    type = types.NOTE_ON, ch = ch or 1, note = note, vel = vel,
+    duration = duration,
+    correlation = correlation or 0
+  }
 end
 
-local function mk_note_off(note, vel, ch)
-  return { type = types.NOTE_OFF, ch = ch or 1, note = note, vel = vel }
+local function mk_note_off(note, vel, ch, correlation)
+  return {
+    type = types.NOTE_OFF, ch = ch or 1, note = note, vel = vel,
+    correlation = correlation
+  }
 end
 
 local function mk_channel_pressure(val, ch)
@@ -121,16 +128,30 @@ local function to_bend_range(value)
   return (value - MIDI_BEND_ZERO) / range
 end
 
---- pack midi channel and note values into a numeric value useful as an id or key
+--- pack midi channel and note/cc value into a numeric value useful as an id or key
 -- @param ch : integer channel number
--- @param num : integer note number
+-- @param num : integer note/cc number
 local function to_id(ch, num)
   return ch << 8 | num
 end
 
+--- pack midi channel, note/cc, and instance num into a numeric value useful
+-- as correlation id to pair related events undergoing transformation.
+-- @param ch : integer channel number [1-16]
+-- @param num : integer note/cc number [0-127]
+-- @param instance : artibrary integer [0-127]
+local function to_cid(ch, num, instance)
+  return ch << 16 | num << 8 | instance
+end
+
+--- build and return the correlation id for the given note + instance
+local function note_cid(event, instance)
+  return to_cid(event.ch, event.note, instance or 0)
+end
+
+--- build and return the id for the given note
 local function note_id(event)
-  -- assumes event is a note
-  return sky.to_id(event.ch, event.num)
+  return to_id(event.ch, event.note)
 end
 
 --- convert midi event object to a readable string
@@ -290,6 +311,7 @@ return {
   -- helpers
   to_hz = to_hz,
   to_id = to_id,
+  to_cid = to_cid,
   to_bend_range = to_bend_range,
   to_string = to_string,
   clone = clone,
@@ -305,6 +327,7 @@ return {
   build_scalex = build_scalex,
 
   note_id = note_id,
+  note_cid = note_cid,
 
   -- data
   types = types,

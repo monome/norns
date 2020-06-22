@@ -17,19 +17,18 @@ function Channel:set_channel(ch)
     self._channel = nil
   else
     self._channel = util.clamp(ch, 1, 16)
-    print('Channel:', self._channel)
   end
 end
 
 function Channel:process(event, output)
   if not self.bypass then
-    if sky.is_type(event, sky.NOTE_ON) then
+    local id = event.correlation
+    if sky.is_type(event, sky.types.NOTE_ON) then
       if self._channel then
-        self._active[sky.note_id(event)] = self._channel
+        self._active[id] = self._channel
         event.ch = self._channel
       end
-    elseif sky.is_type(event, sky.NOTE_OFF) then
-      local id = sky.note_id(event)
+    elseif sky.is_type(event, sky.types.NOTE_OFF) then
       local prior = self._active[id]
       if prior then
         self._active[id] = nil
@@ -38,6 +37,7 @@ function Channel:process(event, output)
         event.ch = self._channel
       end
     elseif self._channel then
+      -- non-note event, just set channel
       event.ch = self._channel
     end
   end
@@ -94,15 +94,15 @@ end
 
 function Pitch:process(event, output)
   if not self.bypass then
-    if sky.is_type(event, sky.NOTE_ON) then
-      self._active[sky.note_id(event)] = self._semitones
+    local id = event.correlation
+    if sky.is_type(event, sky.types.NOTE_ON) then
+      self._active[id] = self._semitones
       event.note = util.clamp(event.note + self._semitones, 0, 127)
-    elseif sky.is_type(event, sky.NOTE_OFF) then
-      local id = sky.note_id(event)
+    elseif sky.is_type(event, sky.types.NOTE_OFF) then
       local prior = self._active[id]
       self._active[id] = nil
       local semitones = prior or self._semitones
-      event.note = util.clamp(event.note + self._semitones, 0, 127)
+      event.note = util.clamp(event.note + semitones, 0, 127)
     end
   end
   output(event)
