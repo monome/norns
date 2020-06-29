@@ -1,9 +1,12 @@
+local DefaultTable = require('container/defaulttable')
+
 local MakeNote = sky.Device:extend()
 
 function MakeNote:new(props)
   MakeNote.super.new(self, props)
   self.duration = props.duration or 1/16
   self._scheduler = nil
+  self._active = DefaultTable.new(0)
 end
 
 function MakeNote:device_inserted(chain)
@@ -20,6 +23,8 @@ end
 function MakeNote:process(event, output, state)
   -- just output it if we previously scheduled it
   if event.from == self then
+    local id = sky.note_id(event)
+    self._active[id] = self._active[id] - 1
     output(event)
     return
   end
@@ -31,6 +36,11 @@ function MakeNote:process(event, output, state)
 
   -- set duration if need be and schedule
   if sky.is_type(event, sky.types.NOTE_ON) then
+    local id = sky.note_id(event)
+    local instance = self._active[id] + 1
+    self._active[id] = instance
+    local cid = sky.note_cid(event, instance)
+    event.correlation = cid
     -- stamp duration if there isn't one
     if event.duration == nil then
       event.duration = clock.get_beat_sec(self.duration)
@@ -39,7 +49,7 @@ function MakeNote:process(event, output, state)
     output(event)
 
     if event.duration ~= nil then
-      local note_off = sky.mk_note_off(event.note, 0, event.ch)
+      local note_off = sky.mk_note_off(event.note, 0, event.ch, cid)
       note_off.from = self
       self._scheduler:sleep(event.duration, note_off)
     end

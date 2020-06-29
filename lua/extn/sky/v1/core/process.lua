@@ -2,7 +2,10 @@
 -- @module process
 -- @alias process
 
+local util = require('util')
 local Deque = require('container/deque')
+local DefaultTable = require('container/defaulttable')
+
 sky.use('core/object')
 
 --
@@ -54,6 +57,8 @@ local Input = InputBase:extend()
 function Input:new(props)
   Input.super.new(self, props)
 
+  self._notes = DefaultTable.new(0)
+
   -- determine which device to use
   local d = props.device
   if d == nil then
@@ -100,8 +105,34 @@ function Input:on_midi_event(data)
 
   local event = midi.to_msg(data)
   if event ~= nil then
+    if sky.is_type(event, sky.types.NOTE_ON) then
+      self:_add_note_correlation(event)
+    elseif sky.is_type(event, sky.types.NOTE_OFF) then
+      self:_pair_note_correlation(event)
+    end
     self.chain:process(event)
   end
+end
+
+function Input:_add_note_correlation(event)
+  local id = sky.note_id(event)
+  if event.vel == 0 then
+    self:_pair_note_correlation(event)
+  else
+    local instance = self._notes[id]
+    self._notes[id] = instance + 1
+    event.correlation = sky.note_cid(event, instance)
+  end
+end
+
+function Input:_pair_note_correlation(event)
+  local id = sky.note_id(event)
+  local instance = self._notes[id]
+  if instance > 0 then
+    instance = instance - 1
+    self._notes[id] = instance
+  end
+  event.correlation = sky.note_cid(event, instance)
 end
 
 
@@ -167,7 +198,7 @@ function Output:process(event, output)
   local t = event.type
   if self.enabled and self.device and (t ~= nil) then
     -- filter out non-midi events
-    if sky.type_names[t] ~= nil then
+    if sky.type_names[t] ~= nil then  -- FIXME: find a better test than this
       self.device:send(event)
     end
   end
