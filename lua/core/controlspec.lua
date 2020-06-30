@@ -61,8 +61,10 @@ ControlSpec.__index = ControlSpec
 -- @tparam number step quantization value. output will be rounded to a multiple of step
 -- @tparam number default a default value for when no value has been set
 -- @tparam string units an indicator for the unit of measure the data represents
+-- @tparam number quantum input quantization value. adjustments are made by this fraction of the range
+-- @tparam boolean wrap true to wrap around on overflow rather than clamping
 -- @treturn ControlSpec
-function ControlSpec.new(minval, maxval, warp, step, default, units)
+function ControlSpec.new(minval, maxval, warp, step, default, units, quantum, wrap)
   local s = setmetatable({}, ControlSpec)
   s.minval = minval
   s.maxval = maxval
@@ -80,7 +82,15 @@ function ControlSpec.new(minval, maxval, warp, step, default, units)
   s.step = step or 0
   s.default = default or minval
   s.units = units or ""
+  s.quantum = quantum or 0.01
+  s.wrap = wrap or false
   return s
+end
+
+--- create generic controlspec
+-- helper function to create controlspec using a table of parameters
+function ControlSpec.def(args)
+  return ControlSpec.new(args.min, args.max, args.warp, args.step, args.default, args.units, args.quantum, args.wrap)
 end
 
 function ControlSpec:cliphi()
@@ -103,7 +113,18 @@ end
 -- @tparam number value a previously transformed value
 -- @treturn number the reverse-transformed value
 function ControlSpec:unmap(value)
-  local clamped = util.clamp(util.round(value, self.step), self:cliplo(), self:cliphi())
+  local cliplo = self:cliplo()
+  local cliphi = self:cliphi()
+  local absrange = math.abs(self:range())
+  if self.wrap then
+    while value > cliphi do
+      value = value - absrange
+    end
+    while value < cliplo do
+      value = value + absrange
+    end
+  end
+  local clamped = util.clamp(util.round(value, self.step), cliplo, cliphi)
   return self.warp.unmap(self, clamped)
 end
 
