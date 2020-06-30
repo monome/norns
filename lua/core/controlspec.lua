@@ -64,10 +64,10 @@ ControlSpec.__index = ControlSpec
 -- @tparam number quantum input quantization value. adjustments are made by this fraction of the range
 -- @tparam boolean wrap true to wrap around on overflow rather than clamping
 -- @treturn ControlSpec
-function ControlSpec.new(minval, maxval, warp, step, default, units, quantum, wrap)
+function ControlSpec.new(min, max, warp, step, default, units, quantum, wrap)
   local s = setmetatable({}, ControlSpec)
-  s.minval = minval
-  s.maxval = maxval
+  s.minval = min or 0
+  s.maxval = max or 1
   if type(warp) == "string" then
     if warp == 'exp' then
       s.warp = ExponentialWarp
