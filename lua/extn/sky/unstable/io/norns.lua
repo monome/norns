@@ -42,16 +42,16 @@ function NornsInput:new(props)
   self._redraw_event = self.mk_redraw()
 end
 
-function NornsInput.mk_key(num, z)
-  return { type = NornsInput.KEY_EVENT, num = num, z = z }
+function NornsInput.mk_key(n, z)
+  return { type = NornsInput.KEY_EVENT, n = n, z = z }
 end
 
 function NornsInput.is_key(event)
   return event.type == NornsInput.KEY_EVENT
 end
 
-function NornsInput.mk_enc(num, delta)
-  return { type = NornsInput.ENC_EVENT, num = num, delta = delta }
+function NornsInput.mk_enc(n, delta)
+  return { type = NornsInput.ENC_EVENT, n = n, delta = delta }
 end
 
 function NornsInput.is_enc(event)
@@ -66,12 +66,12 @@ function NornsInput.is_redraw(event)
   return event.type == NornsInput.REDRAW_EVENT
 end
 
-function NornsInput:on_key_event(num, z)
-  if self.chain then self.chain:process(self.mk_key(num, z)) end
+function NornsInput:on_key_event(n, z)
+  if self.chain then self.chain:process(self.mk_key(n, z)) end
 end
 
-function NornsInput:on_enc_event(num, delta)
-  if self.chain then self.chain:process(self.mk_enc(num, delta)) end
+function NornsInput:on_enc_event(n, delta)
+  if self.chain then self.chain:process(self.mk_enc(n, delta)) end
 end
 
 function NornsInput:on_redraw()
