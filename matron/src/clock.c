@@ -1,15 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
 #include <math.h>
 #include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-#include "events.h"
 #include "clock.h"
+#include "events.h"
 
-#include <lua.h>
 #include <lauxlib.h>
+#include <lua.h>
 
 struct clock_reference_t {
     double beat;
@@ -53,8 +53,8 @@ static void *clock_schedule_resume_run(void *p) {
     double seconds = arg->seconds;
 
     struct timespec req = {
-        .tv_sec = (time_t) seconds,
-        .tv_nsec = (long) ((seconds - req.tv_sec) * 1e+9),
+        .tv_sec = (time_t)seconds,
+        .tv_nsec = (long)((seconds - req.tv_sec) * 1e+9),
     };
 
     clock_nanosleep(CLOCK_MONOTONIC, 0, &req, NULL);
@@ -141,7 +141,7 @@ bool clock_schedule_resume_sync(int coro_id, double beats) {
 
         next_beat = (floor(this_beat / beats) + next_beat_multiplier) * beats;
         next_beat_time = zero_beat_time + (next_beat * reference.beat_duration);
-    } while (next_beat_time - current_time < reference.beat_duration * beats / 2);
+    } while (next_beat_time - current_time < reference.beat_duration * beats / 2000);
 
     pthread_mutex_unlock(&reference.lock);
 
@@ -193,6 +193,7 @@ void clock_cancel_coro(int coro_id) {
 
 void clock_cancel(int index) {
     pthread_cancel(clock_thread_pool[index].thread);
+    pthread_join(clock_thread_pool[index].thread, NULL);
     clock_thread_pool[index].running = false;
     clock_thread_pool[index].coro_id = -1;
 }

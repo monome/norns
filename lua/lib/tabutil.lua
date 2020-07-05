@@ -195,14 +195,19 @@ function tab.load(sfile)
 end
 
 --- Create a read-only proxy for a given table.
--- @param params params.table is the table to proxy, params.except a list of writable keys
+-- @param params params.table is the table to proxy, params.except a list of writable keys, params.expose limits which keys from params.table are exposed (optional)
 -- @treturn table the proxied read-only table
 function tab.readonly(params)
   local t = params.table
   local exceptions = params.except or {}
   local proxy = {}
   local mt = {
-    __index = t,
+    __index = function(_, k)
+      if params.expose == nil or tab.contains(params.expose, k) then
+        return t[k]
+      end
+      return nil
+    end,
     __newindex = function (_,k,v)
       if (tab.contains(exceptions, k)) then
         t[k] = v

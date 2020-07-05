@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdbool.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <ableton_link.h>
@@ -19,7 +19,7 @@ static struct clock_link_shared_data_t {
 } clock_link_shared_data;
 
 static void *clock_link_run(void *p) {
-    (void) p;
+    (void)p;
 
     AbletonLink *link;
     AbletonLinkClock *clock;
