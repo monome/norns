@@ -85,7 +85,7 @@ function median.new(bufsize)
    new.buf = {}
    if bufsize==nil then bufsize=17 end
    -- only odd buffer sizes are allowed!
-   if (bufsize) == 0 then bufsize = bufsize + 1 end
+   if (bufsize%2) == 0 then bufsize = bufsize + 1 end
    new.bufsize = bufsize
    new.midpoint = (bufsize-1)/2
    new:clear()
