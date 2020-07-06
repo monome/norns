@@ -14,8 +14,8 @@ local function wrap_inc(x, max)
 end
 
 --- clear a filter's history
-function f:clear() 
-   for i=1,self.bufsize do 
+function f:clear()
+   for i=1,self.bufsize do
       self.buf[i]=0
    end
 end
@@ -42,8 +42,8 @@ setmetatable(mean, { __index=f })
 --- @param bufsize: window size, cannot change after creation
 function mean.new(bufsize)
    local new = setmetatable({}, mean)
-   
-   new.buf = {}   
+
+   new.buf = {}
    if bufsize==nil then bufsize=16 end
    new.bufsize = bufsize
    new.scale = 1/bufsize
@@ -52,7 +52,7 @@ function mean.new(bufsize)
    new.pos = 1
 --   new.tail = 2
    new.sum = 0
-   
+
    print('done allocating new mean filter')
    return new
 end
@@ -64,7 +64,7 @@ function mean:next(x)
    local a = x*self.scale
    self.sum = self.sum + a
    self.sum = self.sum - self.buf[self.pos]
-   self.buf[self.pos] = a   
+   self.buf[self.pos] = a
    self.pos = wrap_inc(self.pos, self.bufsize)
    return self.sum
 end
@@ -81,7 +81,7 @@ setmetatable(median, { __index=f })
 --- @param bufsize: window size, cannot change after creation
 function median.new(bufsize)
    local new = setmetatable({}, median)
-   
+
    new.buf = {}
    if bufsize==nil then bufsize=17 end
    -- only odd buffer sizes are allowed!
@@ -89,10 +89,10 @@ function median.new(bufsize)
    new.bufsize = bufsize
    new.midpoint = (bufsize-1)/2
    new:clear()
-   
+
    new.value = 0
    new.pos = 1
-   return new   
+   return new
 end
 
 -- count how many values in buffer are below current median
@@ -127,7 +127,7 @@ function median:next(x)
    -- save the oldest value, overwrite with newest value
    local x0 = self.buf[self.pos]
    self.buf[self.pos] = x
-   self.pos = wrap_inc(self.pos, self.bufsize)   
+   self.pos = wrap_inc(self.pos, self.bufsize)
    if x > self.value and x0 <= self.value then
       local count, min = self:count_above()
       if count > self.midpoint then
@@ -147,7 +147,7 @@ end
 --- @type filters.smoother
 -- simple one-pole lowpass smoothing filter
 
-smoother = {}
+local smoother = {}
 smoother.__index = smoother
 setmetatable(smoother, {__index=f})
 
@@ -172,7 +172,6 @@ end
 
 function smoother:calc_coeff()
    self.a = 1 - math.exp(-6.9 / (self.t * self.sr))
-   print(self.a)
 end
 
 -- set convergence time
@@ -197,7 +196,7 @@ smoother.EPSILON = 1e-8
 function smoother:next(x)
    if x == nil then x = self.x
    else self.x = x end
-   
+
    local d =  x - self.buf[1]
 
    if math.abs(d) < smoother.EPSILON then
@@ -210,13 +209,13 @@ end
 
 -- immediately jump to a new value
 -- @param new value
-function smoother:set_value(x)   
+function smoother:set_value(x)
    self.buf[1] = x
 end
 
 -- set target without updating
 -- @param new target
-function smoother:set_target(x)   
+function smoother:set_target(x)
    self.x = x
 end
 
