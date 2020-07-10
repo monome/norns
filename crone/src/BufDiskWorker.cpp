@@ -161,28 +161,41 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
                                float srcStart, float dstStart, float dur,
                                float fadeTime, bool reverse)
 {
-    (void)fadeTime;
-    (void)reverse;
-
+    size_t frFadeTime = secToFrame(fadeTime);
     size_t frSrcStart = secToFrame(srcStart);
     clamp(frSrcStart, buf0.frames - 1);
     size_t frDstStart = secToFrame(dstStart);
     clamp(frDstStart, buf1.frames - 1);
+
     size_t frDur;
     if (dur < 0) {
-        frDur = buf0.frames - frSrcStart;
+        frDur = buf0.frames - frSrcStart - frFadeTime;
     } else {
         frDur = secToFrame(dur);
     }
     clamp(frDur, buf1.frames - frDstStart);
 
+    float x;
+    float phi;
+    if (frFadeTime > 0) {
+        x = 0.f;
+        phi = 1.f / frFadeTime;
+    } else {
+        x = 1.f;
+        phi = 0.f;
+    }
+
     if (reverse) {
         for (size_t i = 0; i < frDur; i++) {
-            buf1.data[frDstStart + i] = buf0.data[frSrcStart + frDur - i];
+            buf1.data[frDstStart + i] = (1.f - x) * buf1.data[frDstStart + i]
+                                      + x * buf0.data[frSrcStart + frDur - i];
+            if (x < 1.f) { x += phi; }
         }
     } else {
         for (size_t i = 0; i < frDur; i++) {
-            buf1.data[frDstStart + i] = buf0.data[frSrcStart + i];
+            buf1.data[frDstStart + i] = (1.f - x) * buf1.data[frDstStart + i]
+                                      + x * buf0.data[frSrcStart + i];
+            if (x < 1.f) { x += phi; }
         }
     }
 }
