@@ -88,6 +88,15 @@ namespace crone {
             BufDiskWorker::requestClear(bufIdx[chan], start, dur);
         }
 
+        void copyBuffer(int srcChan, int dstChan,
+                        float srcStart=0.f, float dstStart=0.f, float dur=-1,
+                        float fadeTime=0.f, bool reverse=false) {
+            if (srcChan < 0 || srcChan > 1 || dstChan < 0 || dstChan > 1) { return; }
+            BufDiskWorker::requestCopy(bufIdx[srcChan], bufIdx[dstChan],
+                                       srcStart, dstStart, dur,
+                                       fadeTime, reverse);
+        }
+
         // check if quantized phase has changed for a given voice
         // returns true
         bool checkVoiceQuantPhase(int i) {

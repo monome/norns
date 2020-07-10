@@ -297,6 +297,18 @@ SC.buffer_clear_region_channel = function(ch, start, dur)
   _norns.cut_buffer_clear_region_channel(ch, start, dur)
 end
 
+--- copy region from one buffer to another
+-- @tparam int src_ch : source buffer index (1-based)
+-- @tparam int dst_ch : destination buffer index (1-based)
+-- @tparam number start_src : start point in source, in seconds
+-- @tparam number start_dst : start point in destination, in seconds
+-- @tparam number dur : duration in seconds. if -1, copy as much as possible.
+-- @tparam number fade_time : fade time in seconds.
+-- @tparam int reverse : nonzero to reverse while copying.
+SC.buffer_copy = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, reverse)
+  _norns.cut_buffer_copy_region(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, reverse or 0)
+end
+
 --- read mono soundfile to arbitrary region of single buffer
 -- @tparam string file : input file path
 -- @tparam number start_src : start point in source, in seconds

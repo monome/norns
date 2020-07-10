@@ -51,6 +51,14 @@ void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
     requestJob(job);
 }
 
+void BufDiskWorker::requestCopy(size_t srcIdx, size_t dstIdx,
+                                float srcStart, float dstStart, float dur,
+                                float fadeTime, bool reverse)
+{
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Copy, {srcIdx, dstIdx}, "", srcStart, dstStart, dur, 0, fadeTime, reverse};
+    requestJob(job);
+}
+
 void
 BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur,
@@ -88,6 +96,9 @@ void BufDiskWorker::workLoop() {
             switch (job.type) {
                 case JobType::Clear:
                     clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
+                    break;
+                case JobType::Copy:
+                    copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.reverse);
                     break;
                 case JobType::ReadMono:
                     readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
@@ -143,6 +154,36 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
     clamp(frB, buf.frames);
     for (size_t i = frA; i < frB; ++i) {
         buf.data[i] = 0.f;
+    }
+}
+
+void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
+                               float srcStart, float dstStart, float dur,
+                               float fadeTime, bool reverse)
+{
+    (void)fadeTime;
+    (void)reverse;
+
+    size_t frSrcStart = secToFrame(srcStart);
+    clamp(frSrcStart, buf0.frames - 1);
+    size_t frDstStart = secToFrame(dstStart);
+    clamp(frDstStart, buf1.frames - 1);
+    size_t frDur;
+    if (dur < 0) {
+        frDur = buf0.frames - frSrcStart;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    clamp(frDur, buf1.frames - frDstStart);
+
+    if (reverse) {
+        for (size_t i = 0; i < frDur; i++) {
+            buf1.data[frDstStart + i] = buf0.data[frSrcStart + frDur - i];
+        }
+    } else {
+        for (size_t i = 0; i < frDur; i++) {
+            buf1.data[frDstStart + i] = buf0.data[frSrcStart + i];
+        }
     }
 }
 

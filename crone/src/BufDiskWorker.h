@@ -7,7 +7,7 @@
  * it requires users to _register_ buffers (returns numerical index for registered buf)
  * disk read/write work can be requested for registered buffers, executed in background thread
  *
- * TODO: 
+ * TODO:
  *  - callback for request completion?
  *  - use condvar for signaling, instead of sleep+poll
  */
@@ -27,7 +27,7 @@ namespace crone {
     class BufDiskWorker {
 
         enum class JobType {
-            Clear,
+            Clear, Copy,
             ReadMono, ReadStereo,
             WriteMono, WriteStereo
         };
@@ -39,6 +39,8 @@ namespace crone {
             float startDst;
             float dur;
             int chan;
+            float fadeTime;
+            bool reverse;
         };
         struct BufDesc {
             float *data;
@@ -71,6 +73,10 @@ namespace crone {
         // clear a portion of a mono buffer
         static void requestClear(size_t idx, float start = 0, float dur = -1);
 
+        static void requestCopy(size_t srcIdx, size_t dstIdx,
+                                float srcStart = 0, float dstStart =0, float dur = -1,
+                                float fadeTime = 0, bool reverse = false);
+
         // read mono soundfile to mono buffer
         static void
         requestReadMono(size_t idx, std::string path, float startSrc = 0, float startDst = 0, float dur = -1,
@@ -91,6 +97,10 @@ namespace crone {
         static void workLoop();
 
         static void clearBuffer(BufDesc &buf, float start = 0, float dur = -1);
+
+        static void copyBuffer(BufDesc &buf0, BufDesc &buf1,
+                               float srcStart = 0, float dstStart = 0,
+                               float dur = -1, float fadeTime = -1, bool reverse = false);
 
         static void readBufferMono(const std::string &path, BufDesc &buf,
                                    float startSrc = 0, float startDst = 0, float dur = -1, int chanSrc = 0) noexcept;

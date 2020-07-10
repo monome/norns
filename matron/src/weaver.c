@@ -179,6 +179,7 @@ static int _cut_buffer_clear(lua_State *l);
 static int _cut_buffer_clear_channel(lua_State *l);
 static int _cut_buffer_clear_region(lua_State *l);
 static int _cut_buffer_clear_region_channel(lua_State *l);
+static int _cut_buffer_copy_region(lua_State *l);
 static int _cut_buffer_read_mono(lua_State *l);
 static int _cut_buffer_read_stereo(lua_State *l);
 static int _cut_buffer_write_mono(lua_State *l);
@@ -313,6 +314,7 @@ void w_init(void) {
     lua_register_norns("cut_buffer_clear_channel", &_cut_buffer_clear_channel);
     lua_register_norns("cut_buffer_clear_region", &_cut_buffer_clear_region);
     lua_register_norns("cut_buffer_clear_region_channel", &_cut_buffer_clear_region_channel);
+    lua_register_norns("cut_buffer_copy_region", &_cut_buffer_copy_region);
     lua_register_norns("cut_buffer_read_mono", &_cut_buffer_read_mono);
     lua_register_norns("cut_buffer_read_stereo", &_cut_buffer_read_stereo);
     lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
@@ -2174,6 +2176,19 @@ int _cut_buffer_clear_region_channel(lua_State *l) {
     float start = (float)luaL_checknumber(l, 2);
     float dur = (float)luaL_checknumber(l, 3);
     o_cut_buffer_clear_region_channel(ch, start, dur);
+    return 0;
+}
+
+int _cut_buffer_copy_region(lua_State *l) {
+    lua_check_num_args(7);
+    int srcCh = (int)luaL_checkinteger(l, 1) - 1;
+    int dstCh = (int)luaL_checkinteger(l, 2) - 1;
+    float srcStart = (float)luaL_checknumber(l, 3);
+    float dstStart = (float)luaL_checknumber(l, 4);
+    float dur = (float)luaL_checknumber(l, 5);
+    float fadeTime = (float)luaL_checknumber(l, 6);
+    int reverse = (int)luaL_checkinteger(l, 7);
+    o_cut_buffer_copy_region(srcCh, dstCh, srcStart, dstStart, dur, fadeTime, reverse);
     return 0;
 }
 
