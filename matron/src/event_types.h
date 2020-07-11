@@ -80,7 +80,9 @@ typedef enum {
     // crow remove
     EVENT_CROW_REMOVE,
     // crow event
-    EVENT_CROW_EVENT
+    EVENT_CROW_EVENT,
+    // softcut buffer content callback
+    EVENT_SOFTCUT_CONTENT,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -289,6 +291,14 @@ struct event_system_cmd {
     char *capture;
 };
 
+struct event_softcut_content {
+    struct event_common common;
+    int idx;
+    int stride;
+    size_t size;
+    float* data;
+};
+
 union event_data {
     uint32_t type;
     struct event_exec_code_line exec_code_line;
@@ -322,4 +332,5 @@ union event_data {
     struct event_crow_remove crow_remove;
     struct event_crow_event crow_event;
     struct event_system_cmd system_cmd;
+    struct event_softcut_content softcut_content;
 };

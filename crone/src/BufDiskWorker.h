@@ -29,7 +29,8 @@ namespace crone {
         enum class JobType {
             Clear, Copy,
             ReadMono, ReadStereo,
-            WriteMono, WriteStereo
+            WriteMono, WriteStereo,
+            GetSamples,
         };
         struct Job {
             JobType type;
@@ -41,6 +42,8 @@ namespace crone {
             int chan;
             float fadeTime;
             bool reverse;
+            int samples;
+            std::function<void(int, int, float*)> samplesCallback;
         };
         struct BufDesc {
             float *data;
@@ -93,6 +96,8 @@ namespace crone {
         // write and interleave two mono buffers to one stereo file
         static void requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start = 0, float dur = -1);
 
+        static void requestSamples(size_t idx, float start, float dur, int count, std::function<void(int, int, float*)> callback);
+
     private:
         static void workLoop();
 
@@ -114,6 +119,7 @@ namespace crone {
         static void writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
                                       float start = 0, float dur = -1) noexcept;
 
+        static void getSamples(BufDesc &buf, float start, float dur, size_t samples, std::function<void(int, int, float*)> callback);
     };
 
 }

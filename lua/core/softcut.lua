@@ -361,6 +361,12 @@ end
 SC.event_phase = function(func) _norns.softcut_phase = func end
 
 
+SC.content = function(ch, start, dur, samples, callback)
+  _norns.softcut_content = callback
+  _norns.cut_buffer_get_content(ch, start, dur, samples)
+end
+
+
 -------------------------------
 -- @section utilities
 

@@ -722,6 +722,24 @@ void OscInterface::addServerMethods() {
         softCutClient->copyBuffer(1, 1, argv[0]->f, argv[1]->f, dur, fadeTime, reverse);
     });
 
+    addServerMethod("/softcut/buffer/get_content", "iffi", [](lo_arg **argv, int argc) {
+        int sampleCt = 128;
+        if (argc < 3) {
+            return;
+        }
+
+        int ch = argv[0]->i;
+        if (argc > 3) {
+            sampleCt = argv[3]->i;
+        }
+
+        softCutClient->getSamples(ch, argv[1]->f, argv[2]->f, sampleCt,
+                                  [ch](int stride, int count, float* samples) {
+                                      lo_blob bl = lo_blob_new(count * sizeof(float), samples);
+                                      lo_send(matronAddress, "/softcut/content", "iib", ch, stride, bl);
+                                  });
+    });
+
     addServerMethod("/softcut/reset", "", [](lo_arg **argv, int argc) {
         (void) argv;
         (void) argc;

@@ -185,6 +185,7 @@ static int _cut_buffer_read_mono(lua_State *l);
 static int _cut_buffer_read_stereo(lua_State *l);
 static int _cut_buffer_write_mono(lua_State *l);
 static int _cut_buffer_write_stereo(lua_State *l);
+static int _cut_buffer_get_content(lua_State *l);
 static int _cut_reset(lua_State *l);
 static int _set_cut_param(lua_State *l);
 static int _set_cut_param_ii(lua_State *l);
@@ -321,6 +322,7 @@ void w_init(void) {
     lua_register_norns("cut_buffer_read_stereo", &_cut_buffer_read_stereo);
     lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
     lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
+    lua_register_norns("cut_buffer_get_content", &_cut_buffer_get_content);
     lua_register_norns("cut_reset", &_cut_reset);
     lua_register_norns("cut_param", &_set_cut_param);
     lua_register_norns("cut_param_ii", &_set_cut_param_ii);
@@ -1924,6 +1926,20 @@ void w_handle_poll_softcut_phase(int idx, float val) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
+void w_handle_softcut_content(int idx, int stride, size_t size, float* data) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "softcut_content");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, idx + 1);
+    lua_createtable(lvm, size, 0);
+    for (size_t i = 0; i < size; ++i) {
+        lua_pushnumber(lvm, data[i]);
+        lua_rawseti(lvm, -2, i + 1);
+    }
+    /* lua_pushinteger(lvm, stride); */
+    l_report(lvm, l_docall(lvm, 2, 0));
+}
+
 // handle system command capture
 void w_handle_system_cmd(char *capture) {
     lua_getglobal(lvm, "_norns");
@@ -2243,6 +2259,16 @@ int _cut_buffer_write_stereo(lua_State *l) {
     float start = (float)luaL_checknumber(l, 2);
     float dur = (float)luaL_checknumber(l, 3);
     o_cut_buffer_write_stereo((char *)s, start, dur);
+    return 0;
+}
+
+int _cut_buffer_get_content(lua_State *l) {
+    lua_check_num_args(4);
+    int ch = (int)luaL_checkinteger(l, 1) - 1;
+    float start = (float)luaL_checknumber(l, 2);
+    float dur = (float)luaL_checknumber(l, 3);
+    int samples = (int)luaL_checknumber(l, 4);
+    o_cut_buffer_get_content(ch, start, dur, samples);
     return 0;
 }
 

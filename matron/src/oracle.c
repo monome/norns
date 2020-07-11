@@ -108,6 +108,9 @@ static int handle_poll_io_levels(const char *path, const char *types, lo_arg **a
 static int handle_poll_softcut_phase(const char *path, const char *types, lo_arg **argv, int argc, void *data,
                                      void *user_data);
 
+static int handle_softcut_content(const char *path, const char *types, lo_arg **argv, int argc, void *data,
+                                  void *user_data);
+
 static int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, int argc, void *data,
                                   void *user_data);
 
@@ -173,6 +176,9 @@ void o_init(void) {
     lo_server_thread_add_method(st, "/poll/softcut/phase", "if", handle_poll_softcut_phase, NULL);
     // tape reports
     lo_server_thread_add_method(st, "/tape/play/state", "s", handle_tape_play_state, NULL);
+
+    // softcut buffer content
+    lo_server_thread_add_method(st, "/softcut/content", "iib", handle_softcut_content, NULL);
 
     lo_server_thread_start(st);
 }
@@ -589,6 +595,10 @@ void o_cut_buffer_write_stereo(char *file, float start, float dur) {
     lo_send(crone_addr, "/softcut/buffer/write_stereo", "sff", file, start, dur);
 }
 
+void o_cut_buffer_get_content(int ch, float start, float dur, int samples) {
+    lo_send(crone_addr, "/softcut/buffer/get_content", "iffi", ch, start, dur, samples);
+}
+
 void o_cut_reset() {
     lo_send(crone_addr, "/softcut/reset", "");
 }
@@ -791,6 +801,21 @@ int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, i
 
     // assert(argc > 0);
     // fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
+    return 0;
+}
+
+int handle_softcut_content(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data) {
+    assert(argc > 2);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_CONTENT);
+    ev->softcut_content.idx = argv[0]->i;
+    ev->softcut_content.stride = argv[1]->i;
+
+    int sz = lo_blob_datasize((lo_blob)argv[2]);
+    float *samples = (float*)lo_blob_dataptr((lo_blob)argv[2]);
+    ev->softcut_content.size = sz / sizeof(float);
+    ev->softcut_content.data = calloc(1, sz);
+    memcpy(ev->softcut_content.data, samples, sz);
+    event_post(ev);
     return 0;
 }
 
