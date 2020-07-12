@@ -69,5 +69,14 @@ sudo apt-get remove -y rsyslog
 cd /home/we/maiden
 ./project-setup.sh
 
+# create maiden links
+mkdir -p /home/we/bin
+ln -s /home/we/bin/maiden /home/we/maiden/maiden
+ln -s /home/we/bin/maiden-repl /home/we/norns/build/maiden-repl/maiden-repl
+
+# activate minimal logging
+sudo cp config/journald.conf /etc/systemd/
+
+
 # cleanup
 rm -rf ~/update/*
