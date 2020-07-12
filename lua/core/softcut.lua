@@ -360,10 +360,15 @@ end
 -- @tparam function func : callback function. this function should take two parameters  (voice, phase)
 SC.event_phase = function(func) _norns.softcut_phase = func end
 
-
-SC.content = function(ch, start, dur, samples, callback)
-  _norns.softcut_content = callback
-  _norns.cut_buffer_get_content(ch, start, dur, samples)
+--- request snapshot of buffer content for region. if there are more 
+-- @tparam integer ch : buffer channel index (1-based)
+-- @tparam number start : beginning of region in seconds 
+-- @tparam number dur : length of region in seconds
+-- @tparam integer samples : max number of samples to retrieve. if less than the number of frames in the region, content will be downsampled
+-- @tparam function callback : called when buffer content is ready. args: (ch, start, sec_per_frame, samples)
+SC.render_buffer = function(ch, start, dur, samples, callback)
+  _norns.softcut_render = callback
+  _norns.cut_buffer_render(ch, start, dur, samples)
 end
 
 

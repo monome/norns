@@ -85,8 +85,8 @@ void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string pat
     requestJob(job);
 }
 
-void BufDiskWorker::requestSamples(size_t idx, float start, float dur, int samples, std::function<void(int, int, float*)> callback) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::GetSamples, {idx, 0}, "", start, start, dur, 0, 0.f, false, samples, callback};
+void BufDiskWorker::requestRender(size_t idx, float start, float dur, int samples, RenderCallback callback) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Render, {idx, 0}, "", start, start, dur, 0, 0.f, false, samples, callback};
     requestJob(job);
 }
 
@@ -119,8 +119,8 @@ void BufDiskWorker::workLoop() {
                 case JobType::WriteStereo:
                     writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
                     break;
-                case JobType::GetSamples:
-                    getSamples(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.samplesCallback);
+                case JobType::Render:
+                    render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
                     break;
             }
 #if 0 // debug, timing
@@ -456,39 +456,48 @@ noexcept {
     delete[] ioBuf;
 }
 
-void BufDiskWorker::getSamples(BufDesc &buf, float start, float dur, size_t samples, std::function<void(int, int, float*)> callback) {
+void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples, RenderCallback callback) {
     size_t frStart = secToFrame(start);
 
     size_t frDur;
     if (dur < 0) {
         frDur = buf.frames - frStart;
+        dur = frDur / (float)sampleRate;
     } else {
         frDur = secToFrame(dur);
     }
     if (frDur < 1) { return; }
-    int stride = 1;
     clamp(samples, frDur);
     float window = dur / samples;
 
     auto *sampleBuf = new float[samples];
 
-    std::cout << "get content of " << frDur << " frames over " << secToFrame(window) << " sample window" << std::endl;
-
     size_t m;
-    size_t w, wStart, wEnd;
-    float peak;
-    for (m = 1; m <= samples; m++) {
-        wStart = secToFrame(start + (m - 1) * window);
-        wEnd = secToFrame(start + m * window);
-        peak = 0.f;
-        for (w = wStart; w <= wEnd; w += stride) {
-            if (std::fabs(buf.data[w]) > std::fabs(peak)) {
-                peak = buf.data[w];
-            }
+    if (frDur <= samples) {
+        // no peak finding
+        for (m = 0; m < samples; m++) {
+            sampleBuf[m] = buf.data[frStart + m];
         }
-        sampleBuf[m - 1] = peak;
+    } else {
+        size_t w, wStart, wEnd;
+        float peak;
+
+        // FIXME -- sloppy heuristic for how many frames to skip when peak finding
+        int stride = (int)std::log2f(dur / 4);
+        if (stride < 1) { stride = 1; }
+        for (m = 1; m <= samples; m++) {
+            wStart = secToFrame(start + (m - 1) * window);
+            wEnd = secToFrame(start + m * window);
+            peak = 0.f;
+            for (w = wStart; w <= wEnd; w += stride) {
+                if (std::fabs(buf.data[w]) > std::fabs(peak)) {
+                    peak = buf.data[w];
+                }
+            }
+            sampleBuf[m - 1] = peak;
+        }
     }
 
-    callback(secToFrame(window), samples, sampleBuf);
+    callback(window, start, samples, sampleBuf);
     delete[] sampleBuf;
 }

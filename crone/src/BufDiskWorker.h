@@ -22,15 +22,17 @@
 #include <memory>
 
 namespace crone {
-
     // class for asynchronous management of mono audio buffers
     class BufDiskWorker {
+    public:
+        typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
 
+    private:
         enum class JobType {
             Clear, Copy,
             ReadMono, ReadStereo,
             WriteMono, WriteStereo,
-            GetSamples,
+            Render,
         };
         struct Job {
             JobType type;
@@ -43,7 +45,7 @@ namespace crone {
             float fadeTime;
             bool reverse;
             int samples;
-            std::function<void(int, int, float*)> samplesCallback;
+            RenderCallback renderCallback;
         };
         struct BufDesc {
             float *data;
@@ -62,7 +64,6 @@ namespace crone {
 
         static int secToFrame(float seconds);
 
-    private:
         static void requestJob(Job &job);
 
     public:
@@ -96,7 +97,7 @@ namespace crone {
         // write and interleave two mono buffers to one stereo file
         static void requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start = 0, float dur = -1);
 
-        static void requestSamples(size_t idx, float start, float dur, int count, std::function<void(int, int, float*)> callback);
+        static void requestRender(size_t idx, float start, float dur, int count, RenderCallback callback);
 
     private:
         static void workLoop();
@@ -119,7 +120,7 @@ namespace crone {
         static void writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
                                       float start = 0, float dur = -1) noexcept;
 
-        static void getSamples(BufDesc &buf, float start, float dur, size_t samples, std::function<void(int, int, float*)> callback);
+        static void render(BufDesc &buf, float start, float dur, size_t samples, RenderCallback callback);
     };
 
 }

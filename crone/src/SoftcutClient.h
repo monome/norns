@@ -97,9 +97,9 @@ namespace crone {
                                        fadeTime, reverse);
         }
 
-        void getSamples(int chan, float start, float dur, int count, std::function<void(int, int, float*)> callback) {
+        void renderSamples(int chan, float start, float dur, int count, BufDiskWorker::RenderCallback callback) {
             if (chan < 0 || chan > 1 || count < 1) { return; }
-            BufDiskWorker::requestSamples(bufIdx[chan], start, dur, count, callback);
+            BufDiskWorker::requestRender(bufIdx[chan], start, dur, count, callback);
         }
 
         // check if quantized phase has changed for a given voice
