@@ -360,7 +360,7 @@ end
 -- @tparam function func : callback function. this function should take two parameters  (voice, phase)
 SC.event_phase = function(func) _norns.softcut_phase = func end
 
---- request snapshot of buffer content for region. if there are more 
+--- request snapshot of buffer content for region.
 -- @tparam integer ch : buffer channel index (1-based)
 -- @tparam number start : beginning of region in seconds 
 -- @tparam number dur : length of region in seconds
