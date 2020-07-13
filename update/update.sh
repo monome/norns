@@ -70,12 +70,9 @@ cd /home/we/maiden
 ./project-setup.sh
 
 # create maiden links
-mkdir -p /home/we/bin
-ln -s /home/we/bin/maiden /home/we/maiden/maiden
-ln -s /home/we/bin/maiden-repl /home/we/norns/build/maiden-repl/maiden-repl
-
-# activate minimal logging
-sudo cp config/journald.conf /etc/systemd/
+sudo mkdir -p /home/we/bin
+sudo ln -s /home/we/maiden/maiden /home/we/bin/maiden
+sudo ln -s /home/we/norns/build/maiden-repl/maiden-repl /home/we/bin/maiden-repl
 
 
 # cleanup

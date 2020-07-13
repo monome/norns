@@ -13,6 +13,10 @@
 - FIX sndfile memleak @catfact
 - FIX crow send overflow @csbolig
 
+## image
+
+- NEW 'maiden' alias
+
 
 # 200604
 
