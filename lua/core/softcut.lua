@@ -305,8 +305,8 @@ end
 -- @tparam number dur : duration in seconds. if -1, copy as much as possible.
 -- @tparam number fade_time : fade time in seconds.
 -- @tparam int reverse : nonzero to reverse while copying.
-SC.buffer_copy_mono = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, reverse)
-  _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, reverse or 0)
+SC.buffer_copy_mono = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)
+  _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
 end
 
 --- copy region of both buffers to another point
@@ -315,8 +315,8 @@ end
 -- @tparam number dur : duration in seconds. if -1, copy as much as possible.
 -- @tparam number fade_time : fade time in seconds.
 -- @tparam int reverse : nonzero to reverse while copying.
-SC.buffer_copy_stereo = function(start_src, start_dst, dur, fade_time, reverse)
-  _norns.cut_buffer_copy_stereo(start_src, start_dst, dur, fade_time or 0, reverse or 0)
+SC.buffer_copy_stereo = function(start_src, start_dst, dur, fade_time, preserve, reverse)
+  _norns.cut_buffer_copy_stereo(start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
 end
 
 --- read mono soundfile to arbitrary region of single buffer
@@ -362,7 +362,7 @@ SC.event_phase = function(func) _norns.softcut_phase = func end
 
 --- request snapshot of buffer content for region.
 -- @tparam integer ch : buffer channel index (1-based)
--- @tparam number start : beginning of region in seconds 
+-- @tparam number start : beginning of region in seconds
 -- @tparam number dur : length of region in seconds
 -- @tparam integer samples : max number of samples to retrieve. if less than the number of frames in the region, content will be downsampled
 -- @tparam function callback : called when buffer content is ready. args: (ch, start, sec_per_frame, samples)

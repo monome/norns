@@ -43,6 +43,7 @@ namespace crone {
             float dur;
             int chan;
             float fadeTime;
+            float preserve;
             bool reverse;
             int samples;
             RenderCallback renderCallback;
@@ -64,6 +65,7 @@ namespace crone {
 
         static int secToFrame(float seconds);
         static float raisedCosFade(float unitphase);
+        static float mixFade(float x, float y, float a, float b);
 
         static void requestJob(Job &job);
 
@@ -79,8 +81,8 @@ namespace crone {
         static void requestClear(size_t idx, float start = 0, float dur = -1);
 
         static void requestCopy(size_t srcIdx, size_t dstIdx,
-                                float srcStart = 0, float dstStart =0, float dur = -1,
-                                float fadeTime = 0, bool reverse = false);
+                                float srcStart = 0, float dstStart = 0, float dur = -1,
+                                float fadeTime = 0, float preserve = 0, bool reverse = false);
 
         // read mono soundfile to mono buffer
         static void
@@ -106,8 +108,8 @@ namespace crone {
         static void clearBuffer(BufDesc &buf, float start = 0, float dur = -1);
 
         static void copyBuffer(BufDesc &buf0, BufDesc &buf1,
-                               float srcStart = 0, float dstStart = 0,
-                               float dur = -1, float fadeTime = -1, bool reverse = false);
+                               float srcStart = 0, float dstStart = 0, float dur = -1,
+                               float fadeTime = 0, float preserve = 0, bool reverse = false);
 
         static void readBufferMono(const std::string &path, BufDesc &buf,
                                    float startSrc = 0, float startDst = 0, float dur = -1, int chanSrc = 0) noexcept;

@@ -90,11 +90,11 @@ namespace crone {
 
         void copyBuffer(int srcChan, int dstChan,
                         float srcStart=0.f, float dstStart=0.f, float dur=-1,
-                        float fadeTime=0.f, bool reverse=false) {
+                        float fadeTime=0.f, float preserve=0.f, bool reverse=false) {
             if (srcChan < 0 || srcChan > 1 || dstChan < 0 || dstChan > 1) { return; }
             BufDiskWorker::requestCopy(bufIdx[srcChan], bufIdx[dstChan],
                                        srcStart, dstStart, dur,
-                                       fadeTime, reverse);
+                                       fadeTime, preserve, reverse);
         }
 
         void renderSamples(int chan, float start, float dur, int count, BufDiskWorker::RenderCallback callback) {

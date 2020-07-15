@@ -54,9 +54,8 @@ void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
 
 void BufDiskWorker::requestCopy(size_t srcIdx, size_t dstIdx,
                                 float srcStart, float dstStart, float dur,
-                                float fadeTime, bool reverse)
-{
-    BufDiskWorker::Job job{BufDiskWorker::JobType::Copy, {srcIdx, dstIdx}, "", srcStart, dstStart, dur, 0, fadeTime, reverse};
+                                float fadeTime, float preserve, bool reverse) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Copy, {srcIdx, dstIdx}, "", srcStart, dstStart, dur, 0, fadeTime, preserve, reverse};
     requestJob(job);
 }
 
@@ -86,7 +85,7 @@ void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string pat
 }
 
 void BufDiskWorker::requestRender(size_t idx, float start, float dur, int samples, RenderCallback callback) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::Render, {idx, 0}, "", start, start, dur, 0, 0.f, false, samples, callback};
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Render, {idx, 0}, "", start, start, dur, 0, 0.f, 0.f, false, samples, callback};
     requestJob(job);
 }
 
@@ -104,7 +103,7 @@ void BufDiskWorker::workLoop() {
                     clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
                     break;
                 case JobType::Copy:
-                    copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.reverse);
+                    copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
                     break;
                 case JobType::ReadMono:
                     readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
@@ -152,6 +151,10 @@ float BufDiskWorker::raisedCosFade(float unitphase) {
     return 0.5f * (cosf(M_PI * (1.f + unitphase)) + 1.f);
 }
 
+float BufDiskWorker::mixFade(float x, float y, float a, float b) {
+    return a * x + b * y;
+}
+
 //------------------------
 //---- private buffer routines
 
@@ -172,7 +175,7 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
 
 void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
                                float srcStart, float dstStart, float dur,
-                               float fadeTime, bool reverse) {
+                               float fadeTime, float preserve, bool reverse) {
     size_t frSrcStart = secToFrame(srcStart);
     clamp(frSrcStart, buf0.frames - 1);
     size_t frDstStart = secToFrame(dstStart);
@@ -185,6 +188,9 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
         frDur = secToFrame(dur);
     }
     clamp(frDur, buf1.frames - frDstStart);
+
+    if (preserve > 1.f) { preserve = 1.f; }
+    if (preserve < 0.f) { preserve = 0.f; }
 
     float x;
     float phi;
@@ -204,33 +210,36 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
     if (reverse) {
         for (i = 0; i < frFadeTime; i++) {
             lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
-                                      + lambda * buf0.data[frSrcStart + frDur - i];
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i],
+                                                1.f - lambda * (1.f - preserve), lambda);
             x += phi;
         }
         for ( ; i < frDur - frFadeTime; i++) {
-            buf1.data[frDstStart + i] = buf0.data[frSrcStart + frDur - i];
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i],
+                                                preserve, 1.f);
         }
         for ( ; i < frDur; i++) {
             lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
-                                      + lambda * buf0.data[frSrcStart + frDur - i];
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], lambda * buf0.data[frSrcStart + frDur - i],
+                                                1.f - lambda * (1.f - preserve), lambda);
             x -= phi;
         }
     } else {
         for (i = 0; i < frFadeTime; i++) {
             lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
-                                      + lambda * buf0.data[frSrcStart + i];
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + i],
+                                                1.f - lambda * (1.f - preserve), lambda);
             x += phi;
         }
         for ( ; i < frDur - frFadeTime; i++) {
-            buf1.data[frDstStart + i] = buf0.data[frSrcStart + i];
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + i],
+                                                preserve, 1.f);
+
         }
         for ( ; i < frDur; i++) {
             lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
-                                      + lambda * buf0.data[frSrcStart + i];
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + i],
+                                                1.f - lambda * (1.f - preserve), lambda);
             x -= phi;
         }
     }

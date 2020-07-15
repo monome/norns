@@ -568,15 +568,15 @@ void o_cut_buffer_clear_region_channel(int ch, float start, float end) {
 
 void o_cut_buffer_copy_mono(int srcCh, int dstCh,
                             float srcStart, float dstStart, float dur,
-                            float fadeTime, int reverse) {
-    lo_send(crone_addr, "/softcut/buffer/copy_mono", "iiffffi",
-            srcCh, dstCh, srcStart, dstStart, dur, fadeTime, reverse);
+                            float fadeTime, float preserve, int reverse) {
+    lo_send(crone_addr, "/softcut/buffer/copy_mono", "iifffffi",
+            srcCh, dstCh, srcStart, dstStart, dur, fadeTime, preserve, reverse);
 }
 
 void o_cut_buffer_copy_stereo(float srcStart, float dstStart, float dur,
-                              float fadeTime, int reverse) {
-    lo_send(crone_addr, "/softcut/buffer/copy_stereo", "ffffi",
-            srcStart, dstStart, dur, fadeTime, reverse);
+                              float fadeTime, float preserve, int reverse) {
+    lo_send(crone_addr, "/softcut/buffer/copy_stereo", "fffffi",
+            srcStart, dstStart, dur, fadeTime, preserve, reverse);
 }
 
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst) {

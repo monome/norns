@@ -2199,26 +2199,28 @@ int _cut_buffer_clear_region_channel(lua_State *l) {
 }
 
 int _cut_buffer_copy_mono(lua_State *l) {
-    lua_check_num_args(7);
+    lua_check_num_args(8);
     int srcCh = (int)luaL_checkinteger(l, 1) - 1;
     int dstCh = (int)luaL_checkinteger(l, 2) - 1;
     float srcStart = (float)luaL_checknumber(l, 3);
     float dstStart = (float)luaL_checknumber(l, 4);
     float dur = (float)luaL_checknumber(l, 5);
     float fadeTime = (float)luaL_checknumber(l, 6);
-    int reverse = (int)luaL_checkinteger(l, 7);
-    o_cut_buffer_copy_mono(srcCh, dstCh, srcStart, dstStart, dur, fadeTime, reverse);
+    float preserve = (float)luaL_checknumber(l, 7);
+    int reverse = (int)luaL_checkinteger(l, 8);
+    o_cut_buffer_copy_mono(srcCh, dstCh, srcStart, dstStart, dur, fadeTime, preserve, reverse);
     return 0;
 }
 
 int _cut_buffer_copy_stereo(lua_State *l) {
-    lua_check_num_args(5);
+    lua_check_num_args(6);
     float srcStart = (float)luaL_checknumber(l, 1);
     float dstStart = (float)luaL_checknumber(l, 2);
     float dur = (float)luaL_checknumber(l, 3);
     float fadeTime = (float)luaL_checknumber(l, 4);
-    int reverse = (int)luaL_checkinteger(l, 5);
-    o_cut_buffer_copy_stereo(srcStart, dstStart, dur, fadeTime, reverse);
+    float preserve = (float)luaL_checknumber(l, 5);
+    int reverse = (int)luaL_checkinteger(l, 6);
+    o_cut_buffer_copy_stereo(srcStart, dstStart, dur, fadeTime, preserve, reverse);
     return 0;
 }
 
