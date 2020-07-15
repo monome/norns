@@ -63,6 +63,7 @@ namespace crone {
         static constexpr int ioBufFrames = 1024;
 
         static int secToFrame(float seconds);
+        static float raisedCosFade(float unitphase);
 
         static void requestJob(Job &job);
 

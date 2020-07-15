@@ -148,6 +148,10 @@ int BufDiskWorker::secToFrame(float seconds) {
     return static_cast<int>(seconds * (float) sampleRate);
 }
 
+float BufDiskWorker::raisedCosFade(float unitphase) {
+    return 0.5f * (cosf(M_PI * (1.f + unitphase)) + 1.f);
+}
+
 //------------------------
 //---- private buffer routines
 
@@ -168,9 +172,7 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
 
 void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
                                float srcStart, float dstStart, float dur,
-                               float fadeTime, bool reverse)
-{
-    size_t frFadeTime = secToFrame(fadeTime);
+                               float fadeTime, bool reverse) {
     size_t frSrcStart = secToFrame(srcStart);
     clamp(frSrcStart, buf0.frames - 1);
     size_t frDstStart = secToFrame(dstStart);
@@ -186,25 +188,50 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
 
     float x;
     float phi;
+    size_t frFadeTime = secToFrame(fadeTime);
     if (frFadeTime > 0) {
         x = 0.f;
         phi = 1.f / frFadeTime;
+        clamp(frFadeTime, frDur);
     } else {
+        frFadeTime = 0;
         x = 1.f;
         phi = 0.f;
     }
 
+    size_t i;
+    float lambda;
     if (reverse) {
-        for (size_t i = 0; i < frDur; i++) {
-            buf1.data[frDstStart + i] = (1.f - x) * buf1.data[frDstStart + i]
-                                      + x * buf0.data[frSrcStart + frDur - i];
-            if (x < 1.f) { x += phi; }
+        for (i = 0; i < frFadeTime; i++) {
+            lambda = raisedCosFade(x);
+            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
+                                      + lambda * buf0.data[frSrcStart + frDur - i];
+            x += phi;
+        }
+        for ( ; i < frDur - frFadeTime; i++) {
+            buf1.data[frDstStart + i] = buf0.data[frSrcStart + frDur - i];
+        }
+        for ( ; i < frDur; i++) {
+            lambda = raisedCosFade(x);
+            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
+                                      + lambda * buf0.data[frSrcStart + frDur - i];
+            x -= phi;
         }
     } else {
-        for (size_t i = 0; i < frDur; i++) {
-            buf1.data[frDstStart + i] = (1.f - x) * buf1.data[frDstStart + i]
-                                      + x * buf0.data[frSrcStart + i];
-            if (x < 1.f) { x += phi; }
+        for (i = 0; i < frFadeTime; i++) {
+            lambda = raisedCosFade(x);
+            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
+                                      + lambda * buf0.data[frSrcStart + i];
+            x += phi;
+        }
+        for ( ; i < frDur - frFadeTime; i++) {
+            buf1.data[frDstStart + i] = buf0.data[frSrcStart + i];
+        }
+        for ( ; i < frDur; i++) {
+            lambda = raisedCosFade(x);
+            buf1.data[frDstStart + i] = (1.f - lambda) * buf1.data[frDstStart + i]
+                                      + lambda * buf0.data[frSrcStart + i];
+            x -= phi;
         }
     }
 }
