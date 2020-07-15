@@ -252,6 +252,7 @@ m.newfile = function(file)
     m.dir_prev = file:match("(.*/)")
     _menu.redraw()
   end
+  m.fine = false  
 end
 
 m.newtext = function(txt)
