@@ -198,8 +198,9 @@ m.key = function(n,z)
         m.mpos = 1
         m.mode = mMAPEDIT
         m.pm = pm
+      else
+        m.fine = true
       end
-      m.fine = true
     elseif n==3 and z==0 then
       m.fine = false
     end
@@ -252,7 +253,6 @@ m.newfile = function(file)
     m.dir_prev = file:match("(.*/)")
     _menu.redraw()
   end
-  m.fine = false  
 end
 
 m.newtext = function(txt)
