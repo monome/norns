@@ -150,6 +150,7 @@ function ControlSpec:copy()
   s.step = self.step
   s.default = self.default
   s.units = self.units
+  s.quantum = self.quantum
   return s
 end
 
