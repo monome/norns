@@ -220,7 +220,7 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
         }
         for ( ; i < frDur; i++) {
             lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], lambda * buf0.data[frSrcStart + frDur - i],
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i],
                                                 1.f - lambda * (1.f - preserve), lambda);
             x -= phi;
         }
