@@ -6,16 +6,16 @@
  */
 
 #include <errno.h>
-#include <string.h>
+#include <fcntl.h>
+#include <linux/i2c-dev.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <linux/i2c-dev.h>
+#include <string.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "i2c.h"
 
@@ -30,8 +30,8 @@ void *i2c_write(void *);
 void i2c_init(void) {
     char filename[40];
 
-    sprintf(filename,"/dev/i2c-1");
-    if( ( file = open(filename,O_RDWR | O_NONBLOCK) ) < 0 ) {
+    sprintf(filename, "/dev/i2c-1");
+    if ((file = open(filename, O_RDWR | O_NONBLOCK)) < 0) {
         fprintf(stderr, "ERROR (i2c) failed to open bus\n");
         return;
     }
@@ -39,14 +39,13 @@ void i2c_init(void) {
     // setup peripherals
 
     // enable hp
-    if(ioctl(file,I2C_SLAVE,ADDR_HP) < 0) {
-        fprintf(stderr,
-            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+    if (ioctl(file, I2C_SLAVE, ADDR_HP) < 0) {
+        fprintf(stderr, "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = 1; // reg for settings p21
     buf[1] = 192;
-    if (write(file,buf,2) != 2) {
+    if (write(file, buf, 2) != 2) {
         fprintf(stderr, "ERROR (i2c/hp) failed to write\n");
         return;
     }
@@ -56,21 +55,19 @@ void i2c_deinit() {
 }
 
 void i2c_hp(int level) {
-    if(level < 0) {
+    if (level < 0) {
         level = 0;
-    }
-    else if(level > 63) {
+    } else if (level > 63) {
         level = 63;
     }
 
-    if(ioctl(file,I2C_SLAVE,ADDR_HP) < 0) {
-        fprintf(stderr,
-            "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
+    if (ioctl(file, I2C_SLAVE, ADDR_HP) < 0) {
+        fprintf(stderr, "ERROR (i2c) failed to acquire bus access and/or talk to slave\n");
         return;
     }
     buf[0] = 2; // reg for set level p17
     buf[1] = level;
-    if (write(file,buf,2) != 2) {
+    if (write(file, buf, 2) != 2) {
         fprintf(stderr, "ERROR (i2c/hp) failed to write\n");
         return;
     }

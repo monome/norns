@@ -84,6 +84,7 @@ namespace crone {
             SET_CUT_VOICE_POST_FILTER_BP,
             SET_CUT_VOICE_POST_FILTER_BR,
             SET_CUT_VOICE_POST_FILTER_DRY,
+            SET_CUT_VOICE_POST_FILTER_ENABLED,
 
             // audio slews: these have fixed shape
             SET_CUT_VOICE_LEVEL_SLEW_TIME,
@@ -144,10 +145,11 @@ namespace crone {
 
         static Commands mixerCommands;
         static Commands softcutCommands;
+        static constexpr int commandQueueSize = 200;
 
     private:
         boost::lockfree::spsc_queue<CommandPacket,
-                boost::lockfree::capacity<200> > q;
+                boost::lockfree::capacity<commandQueueSize> > q;
     };
 
 }

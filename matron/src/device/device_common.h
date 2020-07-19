@@ -30,7 +30,7 @@ struct dev_common {
     // human readable string
     char *name;
     // start function for pthread_create
-    void * (*start)(void *self);
+    void *(*start)(void *self);
     // stop function
     void (*deinit)(void *self);
 };

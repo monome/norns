@@ -4,15 +4,15 @@
  * bq27441 power supply
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <sys/epoll.h>
+#include <fcntl.h>
 #include <pthread.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/epoll.h>
+#include <unistd.h>
 
 #include "events.h"
 
@@ -27,18 +27,14 @@ void *battery_check(void *);
 // extern def
 
 void battery_init() {
-    fd[0] = open("/sys/class/power_supply/bq27441-0/capacity",
-                 O_RDONLY | O_NONBLOCK);
-    fd[1] = open("/sys/class/power_supply/bq27441-0/status",
-                 O_RDONLY | O_NONBLOCK);
-    fd[2] = open("/sys/class/power_supply/bq27441-0/current_now",
-                 O_RDONLY | O_NONBLOCK);
+    fd[0] = open("/sys/class/power_supply/bq27441-0/capacity", O_RDONLY | O_NONBLOCK);
+    fd[1] = open("/sys/class/power_supply/bq27441-0/status", O_RDONLY | O_NONBLOCK);
+    fd[2] = open("/sys/class/power_supply/bq27441-0/current_now", O_RDONLY | O_NONBLOCK);
     if (fd[0] > 0) {
-        if (pthread_create(&p, NULL, battery_check, 0) ) {
+        if (pthread_create(&p, NULL, battery_check, 0)) {
             fprintf(stderr, "BATTERY: Error creating thread\n");
         }
-    }
-    else {
+    } else {
         fprintf(stderr, "BATTERY: FAIL.\n");
     }
 }
@@ -59,7 +55,7 @@ void *battery_check(void *x) {
         if (read(fd[0], &buf, 4) > 0) {
             percent = atoi(buf);
         } else {
-            //fprintf(stderr, "failed to read battery percentage\n");
+            // fprintf(stderr, "failed to read battery percentage\n");
             percent = -1;
         }
 
@@ -67,7 +63,7 @@ void *battery_check(void *x) {
         if (read(fd[1], &buf, 1) > 0) {
             n = (buf[0] == 'C'); // Charging
         } else {
-            //fprintf(stderr, "failed to read battery charging status\n");
+            // fprintf(stderr, "failed to read battery charging status\n");
             n = 0;
         }
 
@@ -82,7 +78,7 @@ void *battery_check(void *x) {
         if (read(fd[2], &buf, 8) > 0) {
             n = atoi(buf) / 1000;
         } else {
-            //fprintf(stderr, "failed to read battery current\n");
+            // fprintf(stderr, "failed to read battery current\n");
             n = -1;
         }
 

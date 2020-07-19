@@ -93,7 +93,7 @@ function ParamSet:add(args)
     local name = args.name or id
 
     if args.type == "number"  then
-      param = number.new(id, name, args.min, args.max, args.default, args.formatter)
+      param = number.new(id, name, args.min, args.max, args.default, args.formatter, args.wrap)
     elseif args.type == "option" then
       param = option.new(id, name, args.options, args.default)
     elseif args.type == "control" then
@@ -129,10 +129,11 @@ end
 -- @tparam string name
 -- @tparam number min
 -- @tparam number max
+-- @tparam boolean wrap
 -- @param default
 -- @param formatter
-function ParamSet:add_number(id, name, min, max, default, formatter)
-  self:add { param=number.new(id, name, min, max, default, formatter) }
+function ParamSet:add_number(id, name, min, max, default, formatter, wrap)
+  self:add { param=number.new(id, name, min, max, default, formatter, wrap) }
 end
 
 --- add option.

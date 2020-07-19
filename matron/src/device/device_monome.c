@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <monome.h>
 #include <pthread.h>
 #include <search.h>
 #include <stdbool.h>
@@ -6,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <monome.h>
 
 #include "../args.h"
 #include "../events.h"
@@ -73,37 +73,35 @@ int dev_monome_init(void *self) {
 
 // calculate quadrant number given x/y
 static inline uint8_t dev_monome_quad_idx(uint8_t x, uint8_t y) {
-    return ( (y > 7) << 1 ) | (x > 7);
+    return ((y > 7) << 1) | (x > 7);
 }
 // calcalate offset into quad data given x/y
 static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
-    return ( (y & 7) * 8 ) + (x & 7);
+    return ((y & 7) * 8) + (x & 7);
 }
 
 // set grid rotation
 void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
-	monome_set_rotation(md->m, rotation);
+    monome_set_rotation(md->m, rotation);
 }
 
 // set a given LED value
-void dev_monome_grid_set_led(struct dev_monome *md,
-                             uint8_t x, uint8_t y, uint8_t val) {
+void dev_monome_grid_set_led(struct dev_monome *md, uint8_t x, uint8_t y, uint8_t val) {
     uint8_t q = dev_monome_quad_idx(x, y);
     md->data[q][dev_monome_quad_offset(x, y)] = val;
     md->dirty[q] = true;
 }
 
 // set a given LED value
-void dev_monome_arc_set_led(struct dev_monome *md,
-                            uint8_t n, uint8_t x, uint8_t val) {
+void dev_monome_arc_set_led(struct dev_monome *md, uint8_t n, uint8_t x, uint8_t val) {
     md->data[n & 3][x & 63] = val;
     md->dirty[n & 3] = true;
 }
 
 // set all LEDs to value
 void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
-    for(uint8_t q = 0; q < 4; q++) {
-        for(uint8_t i = 0; i < 64; i++) {
+    for (uint8_t q = 0; q < 4; q++) {
+        for (uint8_t i = 0; i < 64; i++) {
             md->data[q][i] = val;
         }
         md->dirty[q] = true;
@@ -124,10 +122,7 @@ void dev_monome_refresh(struct dev_monome *md) {
             if (md->type == DEVICE_MONOME_TYPE_ARC) {
                 monome_led_ring_map(md->m, quad, md->data[quad]);
             } else {
-                monome_led_level_map(md->m,
-                                     quad_xoff[quad],
-                                     quad_yoff[quad],
-                                     md->data[quad]);
+                monome_led_level_map(md->m, quad_xoff[quad], quad_yoff[quad], md->data[quad]);
             }
             md->dirty[quad] = false;
         }
@@ -136,15 +131,15 @@ void dev_monome_refresh(struct dev_monome *md) {
 
 // intensity
 void dev_monome_intensity(struct dev_monome *md, uint8_t i) {
-  if(i>15) i=15;
-  monome_led_intensity(md->m, i);
+    if (i > 15)
+        i = 15;
+    monome_led_intensity(md->m, i);
 }
 
 //--------------------
 //--- static functions
 
-static inline void
-grid_key_event(const monome_event_t *e, void *p, int state) {
+static inline void grid_key_event(const monome_event_t *e, void *p, int state) {
     struct dev_monome *md = (struct dev_monome *)p;
     union event_data *ev = event_data_new(EVENT_GRID_KEY);
     ev->grid_key.id = md->dev.id;

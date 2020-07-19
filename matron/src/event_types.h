@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdint.h>
 #include "oracle.h"
 #include "osc.h"
+#include <stdint.h>
 
 typedef enum {
     // unused (do not remove)
@@ -280,7 +280,7 @@ struct event_crow_remove {
 
 struct event_crow_event {
     struct event_common common;
-		void *dev;
+    void *dev;
     uint8_t id;
 }; // +4
 
@@ -288,7 +288,6 @@ struct event_system_cmd {
     struct event_common common;
     char *capture;
 };
-
 
 union event_data {
     uint32_t type;

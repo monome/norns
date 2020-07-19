@@ -27,12 +27,12 @@ SC.BUFFER_SIZE = 16777216 / 48000
 
 --- set output level of each voice
 -- @tparam int voice : voice index
--- @tparam int amp : linear amplitude
+-- @tparam number amp : linear amplitude
 SC.level = function(voice, amp)
   _norns.level_cut(voice, amp)
 end
 
---- set pan position of each voice. 
+--- set pan position of each voice.
 -- -1 == full left, +1 == full right, 0 == centered
 -- @tparam int voice : voice index
 -- @tparam number pos : position in [-1, 1]
@@ -40,28 +40,28 @@ SC.pan = function(voice, pos)
   _norns.pan_cut(voice, pos)
 end
 
---- set input level to each voice/channel. 
+--- set input level to each voice/channel.
 -- @tparam int ch : ADC channel index
--- @tparam int voice : voice index 
+-- @tparam int voice : voice index
 -- @tparam number pos : position in [-1, 1]
 SC.level_input_cut = function(ch, voice, pos)
   _norns.level_input_cut(ch, voice, pos)
 end
 
---- set mix matrix, voice output to voice input. 
+--- set mix matrix, voice output to voice input.
 -- @tparam number src : source voice index
 -- @tparam number dst : destination voice index
 -- @tparam number amp : linear amplitude
 SC.level_cut_cut = function(src, dst, amp)
-  _norns.level_cut_cut(src, dst, amp) 
+  _norns.level_cut_cut(src, dst, amp)
 end
 
---- set play status. 
+--- set play status.
 -- @tparam int voice : voice index
 -- @tparam int state : off/on (0,1)
 SC.play = function(voice,state) _norns.cut_param("play_flag",voice,state) end
 
---- set playback rate. 
+--- set playback rate.
 -- @tparam int voice : voice index
 -- @tparam number rate : speed of read/write head (unitless; 1 == normal)
 SC.rate = function(voice,rate) _norns.cut_param("rate",voice,rate) end
@@ -71,19 +71,19 @@ SC.rate = function(voice,rate) _norns.cut_param("rate",voice,rate) end
 -- @tparam number pos : loop start position in seconds
 SC.loop_start = function(voice,pos) _norns.cut_param("loop_start",voice,pos) end
 
---- set loop end. 
+--- set loop end.
 -- @tparam int voice : voice index
 -- @tparam number pos : loop end position in seconds
 SC.loop_end = function(voice,pos) _norns.cut_param("loop_end",voice,pos) end
 
---- set loop mode. 
+--- set loop mode.
 -- "0" indicates one-shot mode: voice will play to the loop endpoint, fadeout and stop.
 -- "1" indicates crossfaded looping mode.
 -- @tparam int voice : voice index
 -- @tparam int state : off/on (0,1)
 SC.loop = function(voice,state) _norns.cut_param("loop_flag",voice,state) end
 
---- set fade time. 
+--- set fade time.
 -- @tparam int voice : voice index
 -- @tparam number pos : loop start position in seconds
 SC.fade_time = function(voice,pos) _norns.cut_param("fade_time",voice,pos) end
@@ -101,10 +101,10 @@ SC.rec_level = function(voice,amp) _norns.cut_param("rec_level",voice,amp) end
 -- by which existing material is scaled on each pass of the write head.
 -- `recpre` slew level applies
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude of preserved signal 
+-- @tparam number amp : linear amplitude of preserved signal
 SC.pre_level = function(voice,amp) _norns.cut_param("pre_level",voice,amp) end
 
---- set record state. 
+--- set record state.
 -- @tparam int voice : voice number (1-?)
 -- @tparam int state : off/on (0,1)
 SC.rec = function(voice,state) _norns.cut_param("rec_flag",voice,state) end
@@ -113,33 +113,33 @@ SC.rec_offset = function(voice,value) _norns.cut_param("rec_offset",voice,value)
 --- set play position
 SC.position = function(voice,value) _norns.cut_param("position",voice,value) end
 
---- specify buffer used by voice. 
+--- specify buffer used by voice.
 -- @tparam int i : voice number
 -- @tparam int b : buffer number (1,2)
 SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 
---- synchronize two voices. 
+--- synchronize two voices.
 --- position of "dst" will be immediately set to that of "source"
 -- @tparam int src : source voice index
 -- @tparam int dst : destination voice index
 -- @tparam number offset : additional offset in seconds
 SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dest,offset) end
 
---- set pre_filter cutoff frequency. 
+--- set pre_filter cutoff frequency.
 --- @tparam int voice : voice index
 --- @tparam number fc : cutoff frequency in Hz
 SC.pre_filter_fc = function(voice,fc) _norns.cut_param("pre_filter_fc",voice,fc) end
 
---- set pre_filter amount of rate modulation. 
--- this parameter controls the amount by which the current rate affects filter cutoff frequency 
--- (always in a negative direction, towards zero.) 
--- with mod == 1, setting rate = 0 will also fully close the filter. 
+--- set pre_filter amount of rate modulation.
+-- this parameter controls the amount by which the current rate affects filter cutoff frequency
+-- (always in a negative direction, towards zero.)
+-- with mod == 1, setting rate = 0 will also fully close the filter.
 -- this can be useful as a crude anti-aliasing method...
 --- @tparam int voice : voice index
 --- @tparam number amount : modulation amount in [0, 1]
 SC.pre_filter_fc_mod = function(voice,amount) _norns.cut_param("pre_filter_fc_mod",voice,amount) end
 
---- set pre_filter reciprocal of Q-factor. 
+--- set pre_filter reciprocal of Q-factor.
 -- the reciprocal of the filter's Q-factor is a measure of bandwidth,
 -- that is independent of center frequency.
 -- RQ ~= 0 will result in self-oscillation;
@@ -148,42 +148,42 @@ SC.pre_filter_fc_mod = function(voice,amount) _norns.cut_param("pre_filter_fc_mo
 -- @tparam number rq : reciprocal of filter Q-factor for voice
 SC.pre_filter_rq = function(voice,rq) _norns.cut_param("pre_filter_rq",voice,rq) end
 
---- set pre_filter lowpass output level. 
+--- set pre_filter lowpass output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.pre_filter_lp = function(voice,amp) _norns.cut_param("pre_filter_lp",voice,amp) end
 
---- set pre-filter highpass output level. 
+--- set pre-filter highpass output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.pre_filter_hp = function(voice,amp) _norns.cut_param("pre_filter_hp",voice,amp) end
 
 --- set pre-filter bandpass output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.pre_filter_bp = function(voice,amp) _norns.cut_param("pre_filter_bp",voice,amp) end
 
 --- set pre_filter band-reject output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.pre_filter_br = function(voice,amp) _norns.cut_param("pre_filter_br",voice,amp) end
 
---- set pre_filter dry output level. 
+--- set pre_filter dry output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.pre_filter_dry = function(voice,amp) _norns.cut_param("pre_filter_dry",voice,amp) end
 
 
 ---------------------
 -- wrappers around pre_filter, for backwards compatibility
-SC.filter_fc = function(voice,value) SC.pre_filter_fc(voice, value) end 
-SC.filter_fc_mod = function(voice,value) SC.pre_filter_fc_mod(voice, value) end 
-SC.filter_rq = function(voice,value) SC.pre_filter_rq(voice, value) end 
-SC.filter_lp = function(voice,value) SC.pre_filter_lp(voice, value) end 
-SC.filter_hp = function(voice,value) SC.pre_filter_hp(voice, value) end 
-SC.filter_bp = function(voice,value) SC.pre_filter_bp(voice, value) end 
-SC.filter_br = function(voice,value) SC.pre_filter_br(voice, value) end 
-SC.filter_dry = function(voice,value) SC.pre_filter_dry(voice, value) end 
+SC.filter_fc = function(voice,value) SC.pre_filter_fc(voice, value) end
+SC.filter_fc_mod = function(voice,value) SC.pre_filter_fc_mod(voice, value) end
+SC.filter_rq = function(voice,value) SC.pre_filter_rq(voice, value) end
+SC.filter_lp = function(voice,value) SC.pre_filter_lp(voice, value) end
+SC.filter_hp = function(voice,value) SC.pre_filter_hp(voice, value) end
+SC.filter_bp = function(voice,value) SC.pre_filter_bp(voice, value) end
+SC.filter_br = function(voice,value) SC.pre_filter_br(voice, value) end
+SC.filter_dry = function(voice,value) SC.pre_filter_dry(voice, value) end
 
 --- set post-filter cutoff
 -- @tparam int voice : voice index
@@ -192,37 +192,37 @@ SC.post_filter_fc = function(voice,value) _norns.cut_param("post_filter_fc",voic
 
 --- set post-filter reciprocal of Q
 -- the reciprocal of the filter's Q factor is a measure of bandwidth,
--- that is independent of center frequency. 
+-- that is independent of center frequency.
 -- RQ ~= 0 will result in self oscillation;
--- RQ == 4 gives a bandwidth of 2 octaves. 
+-- RQ == 4 gives a bandwidth of 2 octaves.
 -- @tparam int voice : voice index
 -- @tparam number rq : reciprocal of filter Q-factor for voice
 SC.post_filter_rq = function(voice,rq) _norns.cut_param("post_filter_rq",voice,rq) end
 
 
---- set post_filter lowpass output level. 
+--- set post_filter lowpass output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.post_filter_lp = function(voice,amp) _norns.cut_param("post_filter_lp",voice,amp) end
 
---- set post-filter highpass output level. 
+--- set post-filter highpass output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.post_filter_hp = function(voice,amp) _norns.cut_param("post_filter_hp",voice,amp) end
 
 --- set post-filter bandpass output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.post_filter_bp = function(voice,amp) _norns.cut_param("post_filter_bp",voice,amp) end
 
 --- set post_filter band-reject output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.post_filter_br = function(voice,amp) _norns.cut_param("post_filter_br",voice,amp) end
 
---- set post_filter dry output level. 
+--- set post_filter dry output level.
 -- @tparam int voice : voice index
--- @tparam number amp : linear amplitude 
+-- @tparam number amp : linear amplitude
 SC.post_filter_dry = function(voice,amp) _norns.cut_param("post_filter_dry",voice,amp) end
 
 --- set level-slew time
@@ -354,42 +354,42 @@ end
 -- in which each key corresponds to the name of one of the setter functions defined above.
 -- for parameters with one value per voice, the corresponding entry is also a single value.
 -- for parameters with multiple values (e.g. matrix indices), the entry is a table.
--- NB: these values are synchronized by hand with those specified in the softcut cpp sources 
+-- NB: these values are synchronized by hand with those specified in the softcut cpp sources
 -- @treturn table table of parameter states for each voice
 function SC.defaults()
    zeros = {}
-   
+
    for i=1,SC.VOICE_COUNT do
       zeros[i] = 0
    end
-   
+
    local state = {}
    for i=1,SC.VOICE_COUNT do
       state[i] = {}
-      
+
      state[i].enable = 0
      state[i].play = 0
      state[i].record = 0
-     
+
      state[i].buffer = (i%2 + 1)
      state[i].level =0
      state[i].pan = 0
-     
+
      state[i].level_input_cut = {0,0}
      state[i].level_cut_cut = zeros
-     
+
      state[i].rate = 1
      state[i].loop_start = (i-1)*2
      state[i].loop_end = (i-1)*2+1
      state[i].loop = 1
-     
+
      state[i].fade_time =  0.0005
      state[i].rec_level = 0
      state[i].pre_level = 0
      state[i].rec = 0
      state[i].rec_offset = -0.00015
      state[i].position = 0
-     
+
      state[i].pre_filter_fc = 16000
      state[i].pre_filter_dry = 0
      state[i].pre_filter_lp = 1
@@ -404,7 +404,7 @@ function SC.defaults()
      state[i].post_filter_hp = 0
      state[i].post_filter_bp = 0
      state[i].post_filter_br = 0
-     
+
      state[i].level_slew_time = 0.001
      state[i].rate_slew_time = 0.001
      state[i].phase_quant = 1
@@ -428,7 +428,7 @@ function SC.params()
       enable = { type="number", min=0, max=1, default=0, formatter="" },
       -- levels
       -- @fixme: use dB / taper?
-      level = { type="control", controlspec=controlspec.new(0, 0, 'lin', 0, 0.25, "") },	 
+      level = { type="control", controlspec=controlspec.new(0, 0, 'lin', 0, 0.25, "") },
       pan = { type="control", controlspec=controlspec.new(-1, 1, 'lin', 0, 0, "") },
       level_input_cut = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0.5, "") },
       level_cut_cut = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
@@ -473,8 +473,8 @@ function SC.params()
       -- poll quantization unit
       phase_quant = { type="control", controlspec=controlspec.new(0, 8, 'lin', 0, 0.125, "") },
     }
-    -- assign name, id and action 
-    for k,v in pairs(spec) do 
+    -- assign name, id and action
+    for k,v in pairs(spec) do
       local z = voice
       spec[k].id = k
       spec[k].name = "cut"..z..k

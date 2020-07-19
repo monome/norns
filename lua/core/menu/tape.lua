@@ -18,6 +18,7 @@ local m = {
     sel = TAPE_PLAY_LOAD,
     status = TAPE_PLAY_STOP,
     file = nil,
+    dir_prev = nil,
     pos_tick = 0
   },
   rec = {
@@ -90,6 +91,7 @@ m.key = function(n,z)
           if path ~= "cancel" then
             audio.tape_play_open(path)
             m.play.file = path:match("[^/]*$")
+            m.play.dir_prev = path:match("(.*/)")
             m.play.status = TAPE_PLAY_PAUSE
             m.play.sel = TAPE_PLAY_PLAY
             local _, samples, rate = _norns.sound_file_inspect(path)
@@ -123,6 +125,9 @@ m.key = function(n,z)
           _menu.redraw()
         end
         fileselect.enter(_path.audio, playfile_callback)
+        if m.play.dir_prev ~= nil then
+          fileselect.pushd(m.play.dir_prev)
+        end
       elseif m.play.sel == TAPE_PLAY_PLAY then
         tape_play_counter:start()
         audio.tape_play_start()

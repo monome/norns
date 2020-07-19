@@ -21,6 +21,8 @@ def build(bld):
         'softcut/softcut-lib/src/SubHead.cpp',
         'softcut/softcut-lib/src/Voice.cpp',    
         'softcut/softcut-lib/lib/dsp-kit/Envelope.cpp',
+        'softcut/softcut-lib/lib/dsp-kit/FastFader.cpp',
+        'softcut/softcut-lib/lib/dsp-kit/FastMover.cpp',
         'softcut/softcut-lib/lib/dsp-kit/Svf.cpp',
         'softcut/softcut-lib/lib/dsp-kit/Taper.cpp'
     ]

@@ -1,6 +1,6 @@
+#include "clock_midi.h"
 #include <clock.h>
 #include <stdio.h>
-#include "clock_midi.h"
 
 static int clock_midi_counter;
 static bool clock_midi_last_tick_time_set;
@@ -23,38 +23,37 @@ void clock_midi_init() {
 }
 
 static void clock_midi_handle_clock() {
-  double beat_duration;
-  double current_time = clock_gettime_secondsf();
+    double beat_duration;
+    double current_time = clock_gettime_secondsf();
 
-  if(clock_midi_last_tick_time_set == false) {
-    clock_midi_last_tick_time_set = true;
-    clock_midi_last_tick_time = current_time;
-  } else { 
-    beat_duration = (current_time - clock_midi_last_tick_time) * 24.0;
+    if (clock_midi_last_tick_time_set == false) {
+        clock_midi_last_tick_time_set = true;
+        clock_midi_last_tick_time = current_time;
+    } else {
+        beat_duration = (current_time - clock_midi_last_tick_time) * 24.0;
 
-    if(beat_duration > 4) { // assume clock stopped
-      clock_midi_last_tick_time = current_time;
+        if (beat_duration > 4) { // assume clock stopped
+            clock_midi_last_tick_time = current_time;
+        } else {
+            if (beat_duration_buf_len < DURATION_BUFFER_LENGTH) {
+                beat_duration_buf_len++;
+                mean_scale = 1.0 / beat_duration_buf_len;
+            }
+
+            double a = beat_duration * mean_scale;
+            mean_sum = mean_sum + a;
+            mean_sum = mean_sum - duration_buf[beat_duration_buf_pos];
+            duration_buf[beat_duration_buf_pos] = a;
+
+            beat_duration_buf_pos = (beat_duration_buf_pos + 1) % DURATION_BUFFER_LENGTH;
+
+            clock_midi_counter++;
+            clock_midi_last_tick_time = current_time;
+
+            double beat = clock_midi_counter / 24.0;
+            clock_update_reference_from(beat, mean_sum, CLOCK_SOURCE_MIDI);
+        }
     }
-    else {
-      if (beat_duration_buf_len < DURATION_BUFFER_LENGTH) {
-        beat_duration_buf_len++;
-        mean_scale = 1.0/beat_duration_buf_len;
-      }
-
-      double a = beat_duration * mean_scale;
-      mean_sum = mean_sum + a;
-      mean_sum = mean_sum - duration_buf[beat_duration_buf_pos];
-      duration_buf[beat_duration_buf_pos] = a;
-
-      beat_duration_buf_pos = (beat_duration_buf_pos + 1) % DURATION_BUFFER_LENGTH;
-
-      clock_midi_counter++;
-      clock_midi_last_tick_time = current_time;
-
-      double beat = clock_midi_counter / 24.0;
-      clock_update_reference_from(beat, mean_sum, CLOCK_SOURCE_MIDI);
-    }
-  }
 }
 
 static void clock_midi_handle_start() {
