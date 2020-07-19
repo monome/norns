@@ -145,10 +145,11 @@ namespace crone {
 
         static Commands mixerCommands;
         static Commands softcutCommands;
+        static constexpr int commandQueueSize = 200;
 
     private:
         boost::lockfree::spsc_queue<CommandPacket,
-                boost::lockfree::capacity<200> > q;
+                boost::lockfree::capacity<commandQueueSize> > q;
     };
 
 }
