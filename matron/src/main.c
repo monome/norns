@@ -6,28 +6,28 @@
 #include <unistd.h>
 
 #include "args.h"
+#include "battery.h"
+#include "clock.h"
+#include "clocks/clock_crow.h"
+#include "clocks/clock_internal.h"
+#include "clocks/clock_link.h"
+#include "clocks/clock_midi.h"
 #include "device.h"
-#include "device_list.h"
 #include "device_hid.h"
+#include "device_list.h"
+#include "device_midi.h"
 #include "device_monitor.h"
 #include "device_monome.h"
-#include "device_midi.h"
 #include "events.h"
-#include "battery.h"
 #include "gpio.h"
 #include "hello.h"
 #include "i2c.h"
 #include "input.h"
-#include "osc.h"
 #include "metro.h"
+#include "osc.h"
 #include "screen.h"
 #include "stat.h"
 #include "watch.h"
-#include "clock.h"
-#include "clocks/clock_internal.h"
-#include "clocks/clock_midi.h"
-#include "clocks/clock_link.h"
-#include "clocks/clock_crow.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -101,7 +101,6 @@ int main(int argc, char **argv) {
 
 void print_version(void) {
     printf("MATRON\n");
-    printf("norns version: %d.%d.%d\n",
-           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+    printf("norns version: %d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
     printf("git hash: %s\n\n", VERSION_HASH);
 }

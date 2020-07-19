@@ -53,6 +53,14 @@ end
 -- set 0-1.
 function Control:set_raw(value, silent)
   local silent = silent or false
+  if self.controlspec.wrap then
+    while value > 1 do
+      value = value - 1
+    end
+    while value < 0 do
+      value = value + 1
+    end
+  end
   local clamped_value = util.clamp(value, 0, 1)
   if self.raw ~= clamped_value then
     self.raw = clamped_value
@@ -64,7 +72,7 @@ end
 -- add delta to current value. checks controlspec for mapped vs not.
 -- default division of delta for 100 steps range.
 function Control:delta(d)
-  self:set_raw(self.raw + d/100)
+  self:set_raw(self.raw + d*self.controlspec.quantum)
 end
 
 --- set_default.

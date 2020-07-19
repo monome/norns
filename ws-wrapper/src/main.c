@@ -16,8 +16,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <nanomsg/nn.h>
 #include <nanomsg/bus.h>
+#include <nanomsg/nn.h>
 #include <nanomsg/ws.h>
 
 #define PIPE_READ 0
@@ -40,9 +40,9 @@ void quit(void) {
 void bind_sock(int *sock, int *eid, char *url) {
     *sock = nn_socket(AF_SP, NN_BUS);
     printf("attempting to bind socket at url %s\n", url);
-    assert ( ( *eid = nn_bind(*sock, url) ) >= 0 );
+    assert((*eid = nn_bind(*sock, url)) >= 0);
     int to = NN_WS_MSG_TYPE_TEXT;
-    assert (nn_setsockopt (*sock, NN_WS, NN_WS_MSG_TYPE, &to, sizeof (to)) >= 0);
+    assert(nn_setsockopt(*sock, NN_WS, NN_WS_MSG_TYPE, &to, sizeof(to)) >= 0);
 }
 
 void *loop_rx(void *p) {
@@ -62,50 +62,53 @@ void *loop_tx(void *p) {
     (void)p;
     char buf[PIPE_BUF_SIZE];
     int nb;
-    while(1) {
+    while (1) {
         nb = read(pipe_tx[PIPE_READ], buf, PIPE_BUF_SIZE - 1);
-        if(nb > 0) {
+        if (nb > 0) {
             buf[nb] = '\0';
             nn_send(sock_ws, buf, nb, 0);
         }
     }
 }
 
-void launch_thread(pthread_t *tid, void *(*start_routine)(void *),
-                   void *data) {
+void launch_thread(pthread_t *tid, void *(*start_routine)(void *), void *data) {
     pthread_attr_t attr;
     int s;
     s = pthread_attr_init(&attr);
-    if(s) { printf("error initializing thread attributes \n"); }
+    if (s) {
+        printf("error initializing thread attributes \n");
+    }
     s = pthread_create(tid, &attr, start_routine, data);
-    if(s) { printf("error creating thread\n"); }
+    if (s) {
+        printf("error creating thread\n");
+    }
     pthread_attr_destroy(&attr);
 }
 
-int launch_exe(int argc,  char **argv) {
+int launch_exe(int argc, char **argv) {
     (void)argc;
     char *url_ws = argv[1];
     char *exe = argv[2];
 
     // create pipes
-    if(pipe(pipe_rx) < 0) {
+    if (pipe(pipe_rx) < 0) {
         perror("allocating pipe for input redirect");
         return -1;
     }
 
-    if(pipe(pipe_tx) < 0) {
+    if (pipe(pipe_tx) < 0) {
         perror("allocating pipe for output redirect");
         return -1;
     }
 
     // fork the child process
     child_pid = fork();
-    if(child_pid < 0) {
+    if (child_pid < 0) {
         printf("fork() returned an error\n");
         return 1;
     }
 
-    if(child_pid == 0) {
+    if (child_pid == 0) {
         // child continues...
 
         // copy i/o to pipes
@@ -147,31 +150,30 @@ int launch_exe(int argc,  char **argv) {
     // wait for the child process to exit
     int wpid, status;
     do {
-        wpid = waitpid(child_pid, &status, WUNTRACED | WCONTINUED );
+        wpid = waitpid(child_pid, &status, WUNTRACED | WCONTINUED);
         if (wpid == -1) {
             perror("waitpid");
             exit(EXIT_FAILURE);
         }
-        if ( WIFEXITED(status) ) {
-            printf( "child exited, status=%d\n", WEXITSTATUS(status) );
-        } else if ( WIFSIGNALED(status) ) {
-            printf( "child killed (signal %d)\n", WTERMSIG(status) );
-        } else if ( WIFSTOPPED(status) ) {
-            printf( "child stopped (signal %d)\n", WSTOPSIG(status) );
-        } else if ( WIFCONTINUED(status) ) {
+        if (WIFEXITED(status)) {
+            printf("child exited, status=%d\n", WEXITSTATUS(status));
+        } else if (WIFSIGNALED(status)) {
+            printf("child killed (signal %d)\n", WTERMSIG(status));
+        } else if (WIFSTOPPED(status)) {
+            printf("child stopped (signal %d)\n", WSTOPSIG(status));
+        } else if (WIFCONTINUED(status)) {
             printf("child continued\n");
         } else {
             printf("unexpected status (0x%x)\n", status);
         }
-    } while ( !WIFEXITED(status) && !WIFSIGNALED(status) );
+    } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 
     return 0;
 }
 
-int main(int argc,  char **argv) {
-    if(argc < 3) {
-        printf(
-            "usage: ws-wrapper WS_SOCKET BINARY <child args...>");
+int main(int argc, char **argv) {
+    if (argc < 3) {
+        printf("usage: ws-wrapper WS_SOCKET BINARY <child args...>");
     }
 
     launch_exe(argc, argv);

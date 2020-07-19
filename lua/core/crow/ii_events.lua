@@ -6,13 +6,14 @@
 
 local events = {}
 
-events.ansible = function(i,v) crow.ii.ansibleevent(i,v) end
-events.crow = function(i,v) crow.ii.crowevent(i,v) end
-events.faders = function(i,v) crow.ii.fadersevent(i,v) end
-events.kria = function(i,v) crow.ii.kriaevent(i,v) end
-events.levels = function(i,v) crow.ii.levelsevent(i,v) end
-events.meadowphysics = function(i,v) crow.ii.meadowphysicsevent(i,v) end
-events.txi = function(i,v) crow.ii.txievent(i,v) end
-events.wslash = function(i,v) crow.ii.wslashevent(i,v) end
+events.ansible = function(t,v) crow.ii.ansible.event(t,v) end
+events.crow = function(t,v) crow.ii.crow.event(t,v) end
+events.faders = function(t,v) crow.ii.faders.event(t,v) end
+events.jf = function(t,v) crow.ii.jf.event(t,v) end
+events.kria = function(t,v) crow.ii.kria.event(t,v) end
+events.levels = function(t,v) crow.ii.levels.event(t,v) end
+events.meadowphysics = function(t,v) crow.ii.meadowphysics.event(t,v) end
+events.txi = function(t,v) crow.ii.txi.event(t,v) end
+events.wslash = function(t,v) crow.ii.wslash.event(t,v) end
 
 return events

@@ -34,18 +34,18 @@ require 'core/menu'
 
 -- global include function
 function include(file)
-  local here = norns.state.path .. file .. '.lua'
-  local there = _path.code .. file .. '.lua'
-  if util.file_exists(here) then 
-    print("including "..here)
-    return dofile(here)
-  elseif util.file_exists(there) then
-    print("including "..there)
-    return dofile(there)
-  else
-    print("### MISSING INCLUDE: "..file)
-    error("MISSING INCLUDE: "..file,2)
+  local dirs = {norns.state.path, _path.code, _path.extn}
+  for _, dir in ipairs(dirs) do
+    local p = dir..file..'.lua'
+    if util.file_exists(p) then
+      print("including "..p)
+      return dofile(p)
+    end
   end
+
+  -- didn't find anything
+  print("### MISSING INCLUDE: "..file)
+  error("MISSING INCLUDE: "..file,2)
 end
 
 -- monome device management

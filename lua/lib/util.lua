@@ -11,11 +11,11 @@ util.dbamp = function(db)
   return math.pow(10,db*0.05)
 end
 
---- get system time in s+us.
+--- get system time in fractional seconds
 -- @return time
 util.time = function()
-  local us,s = _norns.get_time()
-  return us + s/1000000
+  local s,us = _norns.get_time()
+  return s + us/1000000
 end
 
 

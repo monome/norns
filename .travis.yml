@@ -2,7 +2,7 @@ language: python
 sudo: false
 
 branches:
-  only: [master]
+  only: [main]
 
 env:
   - LUA="lua=5.3"

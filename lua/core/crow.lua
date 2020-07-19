@@ -4,10 +4,6 @@
 local ii_events = require 'core/crow/ii_events'
 local ii_actions = require 'core/crow/ii_actions'
 
-local function tostringwithquotes(s)
-  return "'"..tostring(s).."'"
-end
-
 
 -- system setup
 
@@ -50,6 +46,10 @@ function norns.crow.identity(...) print("crow identity: " .. ...) end
 function norns.crow.version(...) print("crow version: " .. ...) end
 function norns.crow.stream(n,v) crow.input[n].stream(v) end
 function norns.crow.change(n,v) crow.input[n].change(v) end
+function norns.crow.window(n,v,w) crow.input[n].window(v,w) end
+function norns.crow.scale(n,v) crow.input[n].scale(v) end
+function norns.crow.volume(n,v) crow.input[n].volume(v) end
+function norns.crow.peak(n) crow.input[n].peak() end
 function norns.crow.output(n,v) crow.output[n].receive(v) end
 function norns.crow.done(n) crow.output[n].done() end
 function norns.crow.running(n,v) crow.output[n].running(v) end
@@ -80,24 +80,41 @@ function crow.send(cmd)
 end
 --- check if crow is connected
 function crow.connected()
-  return _norns.crow.dev ~= nil
+  return norns.crow.dev ~= nil
 end
 
 
 -- crowlib aliases & metatable syntax enhancements
 
+local function stringify_table(s)
+  local str = "{"
+  for i=1,#s do
+    str = str .. s[i] .. ","
+  end
+  return str .. "}"
+end
+
+
 local input = {}
 
 function input.new(x)
   local i = { n = x }
-  i.query = function() crow.send("get_cv("..i.n..")") end
+  i.query  = function() crow.send("get_cv("..i.n..")") end
   i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
   i.change = function(v) print("crow input change: "..i.n.." "..v) end
+  i.window = function(v,w) print("crow input window: "..i.n.." "..v.." "..w) end
+  i.scale  = function(v) print("crow input scale: "..i.n.." "..v.note) end
+  i.volume = function(v) print("crow input volume: "..i.n.." "..v) end
+  i.peak   = function() print("crow input peak: "..i.n) end
   i.mode = function(m,a,b,c)
-    local cmd = "input["..i.n.."].mode("..tostringwithquotes(m)
-    if a ~= nil then cmd = cmd .. "," .. a end
+    local cmd = string.format("input[%i].mode(%q",i.n,m)
+    -- arg a can be a flat table for 'window' and 'scale' modes
+    if a ~= nil then
+      local at = (type(a)=='table') and stringify_table(a) or a
+      cmd = cmd .. "," .. at
+    end
     if b ~= nil then cmd = cmd .. "," .. b end
-    if c ~= nil then cmd = cmd .. "," .. tostringwithquotes(c) end
+    if c ~= nil then cmd = string.format("%s,%q",cmd,c) end
     cmd = cmd .. ")"
     crow.send(cmd)
   end
@@ -126,7 +143,7 @@ end
 local function action_string(v)
   if type(v) ~= 'table' then
     return v
-  end  
+  end
   local arg_string = ''
   for _,arg in ipairs(v) do
     if arg then
@@ -146,7 +163,7 @@ output.__newindex = function(self, i, v)
     crow.send(me..".volts="..v)
   elseif i == 'shape' then
     self._shape = v
-    crow.send(me..".shape="..tostringwithquotes(v))
+    crow.send(string.format("%s.shape=%q",me,v))
   elseif i == 'slew' then
     self._slew = v
     crow.send(me..".slew="..v)
@@ -167,6 +184,28 @@ output.__index = function(self, i)
   elseif i == 'running' then
     local me = "output["..self.n.."]"
     crow.send("_c.tell('running',"..me..".channel,"..me..".running)")
+  elseif i == 'scale' then
+    return function(notes,divs,scale)
+      local me = "output["..self.n.."].scale("
+      if notes then -- arguments are present
+        local ntype = type(notes)
+        if ntype == 'string' then -- assume 'none'
+          me = me .. "'none'"
+        elseif ntype == 'table' then
+          me = me .. stringify_table(notes)
+        else
+          print("output[n].scale() expects nil, a string, or a table as first arg")
+          return
+        end
+        if divs then
+          me = me .. "," .. divs
+          if scale then
+            me = me .. "," .. scale
+          end
+        end
+      end
+      crow.send(me..")")
+    end
   end
 end
 
@@ -179,7 +218,7 @@ output.__call = function(self,arg)
     or arg == "release"
     or arg == "step"
     or arg == "unlock" then
-      args = tostringwithquotes(arg)
+      args = string.format("%q",arg)
     else -- boolean or asl
       args = arg
     end
