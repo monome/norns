@@ -210,17 +210,17 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
     if (reverse) {
         for (i = 0; i < frFadeTime; i++) {
             lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i],
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i - 1],
                                                 1.f - lambda * (1.f - preserve), lambda);
             x += phi;
         }
         for ( ; i < frDur - frFadeTime; i++) {
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i],
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i - 1],
                                                 preserve, 1.f);
         }
         for ( ; i < frDur; i++) {
             lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i],
+            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i - 1],
                                                 1.f - lambda * (1.f - preserve), lambda);
             x -= phi;
         }
@@ -493,18 +493,23 @@ noexcept {
 }
 
 void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples, RenderCallback callback) {
+    if (samples == 0) { return; }
+
     size_t frStart = secToFrame(start);
+    if (frStart < 0) { frStart = 0; }
+    clamp(frStart, buf.frames - 1);
 
     size_t frDur;
     if (dur < 0) {
         frDur = buf.frames - frStart;
-        dur = frDur / (float)sampleRate;
     } else {
         frDur = secToFrame(dur);
     }
     if (frDur < 1) { return; }
+    clamp(frDur, buf.frames - frStart);
     clamp(samples, frDur);
-    float window = dur / samples;
+    dur = frDur / (float)sampleRate;
+    float window = (float)dur / samples;
 
     auto *sampleBuf = new float[samples];
 
@@ -525,7 +530,7 @@ void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples,
             wStart = secToFrame(start + (m - 1) * window);
             wEnd = secToFrame(start + m * window);
             peak = 0.f;
-            for (w = wStart; w <= wEnd; w += stride) {
+            for (w = wStart; w < wEnd; w += stride) {
                 if (std::fabs(buf.data[w]) > std::fabs(peak)) {
                     peak = buf.data[w];
                 }

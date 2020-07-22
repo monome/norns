@@ -20,6 +20,7 @@
 #include <mutex>
 #include <queue>
 #include <memory>
+#include <functional>
 
 namespace crone {
     // class for asynchronous management of mono audio buffers
