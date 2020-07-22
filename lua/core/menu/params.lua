@@ -204,7 +204,6 @@ m.key = function(n,z)
         m.mode = mMAPEDIT
         m.pm = pm
       end
-      m.fine = true
     elseif n==3 and z==0 then
       m.fine = false
       if t == params.tMOMENTARY then
