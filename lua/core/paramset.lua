@@ -194,9 +194,8 @@ end
 -- @tparam string id
 -- @tparam string name
 -- @tparam boolean default
--- @tparam formatter
-function ParamSet:add_toggle(id, name, default, formatter)
-  self:add { param=toggle.new(id, name, default, formatter) }
+function ParamSet:add_toggle(id, name, default)
+  self:add { param=toggle.new(id, name, default) }
 end
 
 --- print.

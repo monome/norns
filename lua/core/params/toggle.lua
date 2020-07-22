@@ -6,14 +6,13 @@ Toggle.__index = Toggle
 
 local tTOGGLE = 9
 
-function Toggle.new(id, name, default, formatter)
+function Toggle.new(id, name, default)
   local o = setmetatable({}, Toggle)
   o.t = tTOGGLE
   o.id = id
   o.name = name
   o.default = default or false
   o.value = o.default
-  o.formatter = formatter
   o.action = function() end
   return o
 end
@@ -43,11 +42,7 @@ function Toggle:bang()
 end
 
 function Toggle:string()
-  if self.formatter then
-    return self.formatter(self)
-  else
-    return self.value
-  end
+   return self.value
 end
 
 
