@@ -179,6 +179,11 @@ m.key = function(n,z)
           params:set(i)
           m.triggered[i] = 2
         end
+      elseif t == params.tTOGGLE then
+        if m.mode == mEDIT then
+          params:delta(i, 1)
+          m.toggled[i] = params:get(i) and 1 or 0
+        end
       elseif m.mode == mMAP then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
@@ -381,6 +386,11 @@ m.redraw = function()
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
             end
+          elseif t ==  params.tTOGGLE then
+            if m.toggled[p] and m.toggled[p] > 0 then
+              screen.rect(124, 10 * i - 4, 3, 3)
+              screen.fill()
+            end
           else
             screen.text_right(params:string(p))
           end
@@ -542,6 +552,10 @@ m.init = function()
       if v > 0 then m.triggered[k] = v - 1 end
     end
     _menu.redraw()
+  end
+  m.toggled = {}
+  for i,param in ipairs(params.params) do
+    if param.t == params.tTOGGLE and param.value then m.toggled[i] = 1 end
   end
   _menu.timer.time = 0.2
   _menu.timer.count = -1
