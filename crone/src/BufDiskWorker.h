@@ -68,6 +68,12 @@ namespace crone {
         static float raisedCosFade(float unitphase);
         static float mixFade(float x, float y, float a, float b);
 
+        template <typename Step>
+        static void copyLoop(float* dst, const float* src,
+                             size_t frDur, size_t frFadeTime,
+                             float preserve, float x, float phi,
+                             Step&& step);
+
         static void requestJob(Job &job);
 
     public:

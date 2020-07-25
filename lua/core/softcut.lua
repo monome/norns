@@ -304,7 +304,7 @@ end
 -- @tparam number start_dst : start point in destination, in seconds
 -- @tparam number dur : duration in seconds. if -1, copy as much as possible.
 -- @tparam number fade_time : fade time in seconds.
--- @tparam int reverse : nonzero to reverse while copying.
+-- @tparam int reverse : nonzero to reverse while copying. when reversing, overlap between source and destination regions is not handled.
 SC.buffer_copy_mono = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)
   _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
 end

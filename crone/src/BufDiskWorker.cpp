@@ -152,7 +152,7 @@ float BufDiskWorker::raisedCosFade(float unitphase) {
 }
 
 float BufDiskWorker::mixFade(float x, float y, float a, float b) {
-    return a * x + b * y;
+    return x * sinf(a * (float)M_PI_2) + y * sinf(b * (float) M_PI_2);
 }
 
 //------------------------
@@ -205,43 +205,59 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
         phi = 0.f;
     }
 
+    if (reverse) {
+        // reversing contents while copying into an overlapping region
+        // is not possible without additional storage the size of the
+        // overlap, so we don't handle this
+        copyLoop(buf1.data + frDstStart,
+                 buf0.data + frSrcStart + frDur - 1,
+                 frDur, frFadeTime,
+                 preserve, x, phi,
+                 [](float*& d, const float*& s) { d++; s--; });
+    } else {
+        // source and destination regions might overlap, so we need to
+        // imitate std::memmove - when src < dst start from the end and
+        // move backwards
+        if (frDstStart < frSrcStart) {
+            copyLoop(buf1.data + frDstStart,
+                     buf0.data + frSrcStart,
+                     frDur, frFadeTime,
+                     preserve, x, phi,
+                     [](float*& d, const float*& s) { d++; s++; });
+        } else {
+            copyLoop(buf1.data + frDstStart + frDur - 1,
+                     buf0.data + frSrcStart + frDur - 1,
+                     frDur, frFadeTime,
+                     preserve, x, phi,
+                     [](float*& d, const float*& s) { d--; s--; });
+        }
+    }
+}
+
+template <typename Step>
+void BufDiskWorker::copyLoop(float* dst, const float* src,
+                             size_t frDur, size_t frFadeTime,
+                             float preserve, float x, float phi,
+                             Step&& update) {
     size_t i;
     float lambda;
-    if (reverse) {
-        for (i = 0; i < frFadeTime; i++) {
-            lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i - 1],
-                                                1.f - lambda * (1.f - preserve), lambda);
-            x += phi;
-        }
-        for ( ; i < frDur - frFadeTime; i++) {
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i - 1],
-                                                preserve, 1.f);
-        }
-        for ( ; i < frDur; i++) {
-            lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + frDur - i - 1],
-                                                1.f - lambda * (1.f - preserve), lambda);
-            x -= phi;
-        }
-    } else {
-        for (i = 0; i < frFadeTime; i++) {
-            lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + i],
-                                                1.f - lambda * (1.f - preserve), lambda);
-            x += phi;
-        }
-        for ( ; i < frDur - frFadeTime; i++) {
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + i],
-                                                preserve, 1.f);
-
-        }
-        for ( ; i < frDur; i++) {
-            lambda = raisedCosFade(x);
-            buf1.data[frDstStart + i] = mixFade(buf1.data[frDstStart + i], buf0.data[frSrcStart + i],
-                                                1.f - lambda * (1.f - preserve), lambda);
-            x -= phi;
-        }
+    for (i = 0; i < frFadeTime; i++) {
+        lambda = raisedCosFade(x);
+        *dst = mixFade(*dst, *src,
+                       1.f - lambda * (1.f - preserve), lambda);
+        x += phi;
+        update(dst, src);
+    }
+    for ( ; i < frDur - frFadeTime; i++) {
+        *dst = preserve * *dst + *src;
+        update(dst, src);
+    }
+    for ( ; i < frDur; i++) {
+        lambda = raisedCosFade(x);
+        *dst = mixFade(*dst, *src,
+                       1.f - lambda * (1.f - preserve), lambda);
+        x -= phi;
+        update(dst, src);
     }
 }
 
