@@ -69,5 +69,11 @@ sudo apt-get remove -y rsyslog
 cd /home/we/maiden
 ./project-setup.sh
 
+# create maiden links
+sudo mkdir -p /home/we/bin
+sudo ln -s /home/we/maiden/maiden /home/we/bin/maiden
+sudo ln -s /home/we/norns/build/maiden-repl/maiden-repl /home/we/bin/maiden-repl
+
+
 # cleanup
 rm -rf ~/update/*
