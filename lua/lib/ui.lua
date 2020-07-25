@@ -314,8 +314,9 @@ UI.Slider.__index = UI.Slider
 -- @tparam number min_value Minimum value, defaults to 0.
 -- @tparam number max_value Maximum value, defaults to 1.
 -- @tparam table markers Array of marker positions.
+-- @tparam string the direction of the slider "up" (defult), down, left, right
 -- @treturn Slider Instance of Slider.
-function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers)
+function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers, direction)
   local slider = {
     x = x or 0,
     y = y or 0,
@@ -325,8 +326,12 @@ function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers
     min_value = min_value or 0,
     max_value = max_value or 1,
     markers = markers or {},
-    active = true
+    active = true,
+    direction = direction or "up"
   }
+  local acceptableDirections = {"up","down","left","right"}
+  
+  if (acceptableDirections[direction] == nil) then direction = acceptableDirections[1] end
   setmetatable(UI.Slider, {__index = UI})
   setmetatable(slider, UI.Slider)
   return slider
@@ -355,16 +360,49 @@ end
 -- Call when changed.
 function UI.Slider:redraw()
   screen.level(3)
-  screen.rect(self.x + 0.5, self.y + 0.5, self.width - 1, self.height - 1)
+  
+  --draws the perimeter 
+  if (self.direction == "up" or self.direction == "down") then
+    screen.rect(self.x + 0.5, self.y + 0.5, self.width - 1, self.height - 1) 
+  elseif (self.direction == "left" or self.direction == "right") then
+    screen.rect(self.x + 0.5, self.y + 0.5, self.width - 1, self.height - 1)
+  end 
+    
   screen.stroke()
   
+  --draws the markers
   for _, v in pairs(self.markers) do
-    screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, self.height - 1, 0, v)), self.width + 4, 1)
+    if self.direction == "up" then
+      screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, self.height - 1, 0, v)), self.width + 4, 1) --original
+    elseif self.direction == "down" then
+      screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, 0,self.height - 1, v)), self.width + 4, 1)
+    elseif self.direction == "left" then
+      screen.rect(util.round(self.x + util.linlin(self.min_value, self.max_value, self.width - 1, 0, v)), self.y - 2, 1, self.height +4)
+    elseif self.direction == "right" then
+      screen.rect(util.round(self.x + util.linlin(self.min_value, self.max_value, 0, self.width - 1, v)), self.y - 2, 1, self.height +4)
+    end
   end
   screen.fill()
   
-  local filled_height = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))
-  screen.rect(self.x, self.y + self.height - filled_height, self.width, filled_height)
+  --draws the value
+  --local filled_height = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))
+  --screen.rect(self.x, self.y + self.height - filled_height, self.width, filled_height)
+  
+  local filled_amount --sometimes width now
+  if self.direction == "up" then
+      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))
+      screen.rect(self.x, self.y + self.height - filled_amount, self.width, filled_amount)
+    elseif self.direction == "down" then
+      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value)) --same as up
+      screen.rect(self.x, self.y, self.width, filled_amount)
+    elseif self.direction == "left" then
+      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.width, self.value))
+      screen.rect(self.x + self.width - filled_amount, self.y, filled_amount, self.height)
+    elseif self.direction == "right" then
+      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.width, self.value))
+      screen.rect(self.x, self.y, filled_amount, self.height)
+  end
+    
   if self.active then screen.level(15) else screen.level(5) end
   screen.fill()
 end
