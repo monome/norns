@@ -28,15 +28,21 @@ end
 --- format_secs_raw
 -- @param secs
 function Formatters.format_secs_raw(secs)
-  if secs >= 100 then
-    secs = util.round(secs)
+  local out_string
+  if secs > 3600 then
+    out_string = util.round(secs / 60 / 60, 0.1) .. " h"
+  elseif secs >= 120 then
+    out_string = util.round(secs / 60, 0.1) .. " min"
+  elseif secs >= 60 then
+    out_string = util.round(secs) .. " s"
   elseif util.round(secs, 0.01) >= 1 then
-    secs = util.round(secs, 0.1)
+    out_string = util.round(secs, 0.1) .. " s"
   else
-    secs = util.round(secs, 0.01)
-    if string.len(secs) < 4 then secs = secs .. "0" end
+    out_string = util.round(secs, 0.01)
+    if string.len(out_string) < 4 then out_string = out_string .. "0" end
+    out_string = out_string .. " s"
   end
-  return secs .. " s"
+  return out_string
 end
 
 

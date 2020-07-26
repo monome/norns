@@ -42,6 +42,8 @@ _norns.midi = {}
 -- osc callbacks (defined in osc.lua)
 _norns.osc = {}
 
+-- clock callbacks (defined in clock.lua)
+_norns.clock = {}
 
 -- report callbacks
 _norns.report = {}
@@ -119,6 +121,14 @@ norns.state = require 'core/state'
 norns.encoders = require 'core/encoders'
 
 _norns.enc = norns.encoders.process
+
+-- extend paths config table
+local p = _path
+p.this = tab.readonly{
+  table = norns.state,
+  expose = {'data', 'path', 'lib'}
+}
+paths = tab.readonly{ table = p }
 
 -- Error handling.
 norns.scripterror = function(msg) print(msg) end

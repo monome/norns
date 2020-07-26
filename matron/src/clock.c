@@ -1,15 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
 #include <math.h>
 #include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-#include "events.h"
 #include "clock.h"
+#include "events.h"
 
-#include <lua.h>
 #include <lauxlib.h>
+#include <lua.h>
 
 struct clock_reference_t {
     double beat;
@@ -27,7 +27,7 @@ struct clock_thread_t {
 static struct clock_reference_t reference;
 static clock_source_t clock_source;
 
-#define NUM_THREADS 20
+#define NUM_THREADS 100
 static struct clock_thread_t clock_thread_pool[NUM_THREADS];
 
 struct clock_thread_arg {
@@ -53,8 +53,8 @@ static void *clock_schedule_resume_run(void *p) {
     double seconds = arg->seconds;
 
     struct timespec req = {
-        .tv_sec = (time_t) seconds,
-        .tv_nsec = (long) ((seconds - req.tv_sec) * 1e+9),
+        .tv_sec = (time_t)seconds,
+        .tv_nsec = (long)((seconds - req.tv_sec) * 1e+9),
     };
 
     clock_nanosleep(CLOCK_MONOTONIC, 0, &req, NULL);
@@ -141,7 +141,7 @@ bool clock_schedule_resume_sync(int coro_id, double beats) {
 
         next_beat = (floor(this_beat / beats) + next_beat_multiplier) * beats;
         next_beat_time = zero_beat_time + (next_beat * reference.beat_duration);
-    } while (next_beat_time - current_time < reference.beat_duration * beats / 2);
+    } while (next_beat_time - current_time < reference.beat_duration * beats / 2000);
 
     pthread_mutex_unlock(&reference.lock);
 
@@ -165,6 +165,20 @@ void clock_update_reference_from(double beats, double beat_duration, clock_sourc
     }
 }
 
+void clock_start_from(clock_source_t source) {
+    if (clock_source == source) {
+        union event_data *ev = event_data_new(EVENT_CLOCK_START);
+        event_post(ev);
+    }
+}
+
+void clock_stop_from(clock_source_t source) {
+    if (clock_source == source) {
+        union event_data *ev = event_data_new(EVENT_CLOCK_STOP);
+        event_post(ev);
+    }
+}
+
 void clock_set_source(clock_source_t source) {
     clock_source = source;
 }
@@ -179,6 +193,7 @@ void clock_cancel_coro(int coro_id) {
 
 void clock_cancel(int index) {
     pthread_cancel(clock_thread_pool[index].thread);
+    pthread_join(clock_thread_pool[index].thread, NULL);
     clock_thread_pool[index].running = false;
     clock_thread_pool[index].coro_id = -1;
 }

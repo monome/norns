@@ -67,12 +67,21 @@ Script.clear = function()
   norns.state.name = 'none'
   norns.state.shortname = 'none'
   norns.state.path = _path["dust"]
+  norns.state.data = _path.data
+  norns.state.lib = norns.state.path
 
   -- clear params
   params:clear()
   norns.pmap.clear()
-  -- add audio
+  -- add audio menu
   audio.add_params()
+  -- add clock menu
+  clock.add_params()
+  -- re-enable crow clock if needed
+  if params:string("clock_source") == "crow" then
+    crow.input[1].change = function() end
+    crow.input[1].mode("change",2,0.1,"rising")
+  end
 
   -- reset PLAY mode screen settings
   local status = norns.menu.status()
@@ -152,6 +161,7 @@ Script.load = function(filename)
     norns.state.name = name
     norns.state.shortname = norns.state.name:match( "([^/]+)$" )
     norns.state.path = path .. '/'
+    norns.state.lib = path .. '/lib/'
     norns.state.data = _path.data .. name .. '/'
 
     if util.file_exists(norns.state.data) == false then

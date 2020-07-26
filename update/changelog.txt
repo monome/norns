@@ -1,3 +1,49 @@
+# 200712
+
+## norns 2.4.2
+
+- NEW crow 2.0 support @trentgill
+- NEW libs: deque, observable, weaktable, watchtable, defaulttable @ngwese
+- NEW fileselect up-folder entry @csbolig
+- NEW file param E3 now scrolls files in folder @csbolig
+- NEW fileselect resume folder location @csbolig
+- NEW controlspec quantum and wrap @csbolig
+- NEW number param wrap @csbolig
+- NEW luaunit @ngwese
+- FIX sndfile memleak @catfact
+- FIX crow send overflow @csbolig
+
+## image
+
+- NEW 'maiden' alias
+
+
+# 200604
+
+## norns 2.4.1
+
+- NEW paths table @ngwese @tehn
+- NEW patterntime lib overdub feature @dndrks @tehn
+- FIX softcut level is pre-aux send @catfact
+- FIX clock performance @artfwo
+- FIX crow lib cleanup @trentgill
+- FIX param hiding within groups @tlubke
+- FIX filter lib @catfact
+- FIX crow.connected status @csbolig
+
+
+# 200424
+
+## norns 2.4.0
+
+- NEW clock system! @artfwo
+- NEW clock support for crow in/out
+- NEW OSC remote for key/enc
+- FIX pset naming and save cancel
+- FIX crow reset behavior @trentgill
+- FIX various minor issues, see github
+
+
 # 200328
 
 ## norns 2.3.1

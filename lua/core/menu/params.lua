@@ -24,7 +24,8 @@ local m = {
   ps_pos = 0,
   ps_n = 0,
   ps_action = 1,
-  ps_last = 0
+  ps_last = 0,
+  dir_prev = nil,
 }
 
 local page
@@ -57,7 +58,9 @@ end
 local function build_sub(sub)
   page = {}
   for i = 1,params:get(sub) do
-    table.insert(page, i + sub)
+    if params:visible(i + sub) then
+      table.insert(page, i + sub)
+    end
   end
 end
 
@@ -90,14 +93,15 @@ local function pset_list(results)
   m.ps_n = m.ps_n + 1
   _menu.redraw()
 end
-  
+
 local function init_pset()
   print("scanning psets...")
   norns.system_cmd('ls -1 '..norns.state.data..norns.state.shortname..'*.pset | sort', pset_list)
 end
 
 local function write_pset(name)
-  if name ~= "cancel" then
+  if name then
+    if name == "" then name = params.name end
     params:write(m.ps_pos+1,name)
     m.ps_last = m.ps_pos+1
     init_pset()
@@ -158,7 +162,14 @@ m.key = function(n,z)
         until params:t(page[n]) == params.tSEPARATOR
         m.pos = n-1
       elseif t == params.tFILE then
-        if m.mode == mEDIT then fileselect.enter(_path.dust, m.newfile) end
+        if m.mode == mEDIT then
+          fileselect.enter(_path.dust, m.newfile)
+          local fparam = params:lookup_param(i)
+          local dir_prev = fparam.dir or m.dir_prev
+          if dir_prev ~= nil then
+            fileselect.pushd(dir_prev)
+          end
+        end
       elseif t == params.tTEXT then
         if m.mode == mEDIT then
           textentry.enter(m.newtext, params:get(i), "PARAM: "..params:get_name(i))
@@ -167,6 +178,11 @@ m.key = function(n,z)
         if m.mode == mEDIT then
           params:set(i)
           m.triggered[i] = 2
+        end
+      elseif t == params.tTOGGLE then
+        if m.mode == mEDIT then
+          params:delta(i, 1)
+          m.toggled[i] = params:get(i) and 1 or 0
         end
       elseif m.mode == mMAP then
         local n = params:get_id(i)
@@ -187,8 +203,9 @@ m.key = function(n,z)
         m.mpos = 1
         m.mode = mMAPEDIT
         m.pm = pm
+      else
+        m.fine = true
       end
-      m.fine = true
     elseif n==3 and z==0 then
       m.fine = false
     end
@@ -214,7 +231,9 @@ m.key = function(n,z)
     elseif n==3 and z==1 then
       -- save
       if m.ps_action == 1 then
-        textentry.enter(write_pset, params.name, "PSET NAME: "..m.ps_pos+1)
+        local txt = ""
+        if pset[m.ps_pos+1] then txt = pset[m.ps_pos+1].name end
+        textentry.enter(write_pset, txt, "PSET NAME: "..m.ps_pos+1)
         -- load
       elseif m.ps_action == 2 then
         if pset[m.ps_pos+1] then
@@ -236,6 +255,7 @@ end
 m.newfile = function(file)
   if file ~= "cancel" then
     params:set(page[m.pos+1],file)
+    m.dir_prev = file:match("(.*/)")
     _menu.redraw()
   end
 end
@@ -363,6 +383,11 @@ m.redraw = function()
           screen.move(127,10*i)
           if t ==  params.tTRIGGER then
             if m.triggered[p] and m.triggered[p] > 0 then
+              screen.rect(124, 10 * i - 4, 3, 3)
+              screen.fill()
+            end
+          elseif t ==  params.tTOGGLE then
+            if m.toggled[p] and m.toggled[p] > 0 then
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
             end
@@ -510,7 +535,7 @@ m.redraw = function()
         local num = (n == m.ps_last) and "*"..n or n
         screen.text_right(num)
         screen.move(56,10*i)
-        screen.text(string.upper(line))
+        screen.text(line)
       end
     end
   end
@@ -527,6 +552,10 @@ m.init = function()
       if v > 0 then m.triggered[k] = v - 1 end
     end
     _menu.redraw()
+  end
+  m.toggled = {}
+  for i,param in ipairs(params.params) do
+    if param.t == params.tTOGGLE and param.value then m.toggled[i] = 1 end
   end
   _menu.timer.time = 0.2
   _menu.timer.count = -1
@@ -554,7 +583,7 @@ norns.menu_midi_event = function(data, dev)
       if _menu.mode then _menu.redraw() end
     else
       --print(cc.." : "..v)
-      local r = norns.pmap.rev[dev][ch][cc] 
+      local r = norns.pmap.rev[dev][ch][cc]
       if r then
         local d = norns.pmap.data[r]
         local t = params:t(r)

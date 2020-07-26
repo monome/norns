@@ -14,7 +14,7 @@ def options(opt):
     opt.load('compiler_c compiler_cxx boost')
     opt.add_option('--desktop', action='store_true', default=False)
     opt.add_option('--supercollider-prefix', action='store', default='/usr')
-    opt.add_option('--enable-ableton-link', action='store_true', default=False)
+    opt.add_option('--enable-ableton-link', action='store_true', default=True)
 
 def configure(conf):
     conf.load('compiler_c compiler_cxx boost')

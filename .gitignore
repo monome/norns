@@ -7,6 +7,7 @@
 
 # vim
 *.swp
+*.swo
 
 # waf
 .lock-waf*

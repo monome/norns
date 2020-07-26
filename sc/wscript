@@ -13,24 +13,9 @@ def build_ugen(bld, target, source):
     else:
         ugen.env.cxxshlib_PATTERN = '%s.so'
 
-def build_ugen_supernova(bld, target, source):
-    ugen = bld.shlib(features='c cxx',
-        source=source,
-        target=target,
-        use=['SUPERCOLLIDER'],
-        install_path='${PREFIX}/lib/SuperCollider/plugins',
-        cflags=['-O3', '-Wall'],
-        cxxflags=['-DSUPERNOVA', '-DNOVA_SIMD'])
-
-    if bld.env.DEST_OS == 'darwin':
-        ugen.env.cxxshlib_PATTERN = '%s_supernova.scx'
-    else:
-        ugen.env.cxxshlib_PATTERN = '%s_supernova.so'
-
 def build(bld):
     ugens = [
         {'target':'TrigPhasor', 'source':'ugens/TrigPhasor/TrigPhasor.cpp' }
     ]
     for u in ugens:
         build_ugen(bld, u['target'], u['source'])
-        build_ugen_supernova(bld, u['target'], u['source'])

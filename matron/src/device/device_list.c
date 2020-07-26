@@ -1,13 +1,13 @@
 #include <search.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
-#include "device_midi.h"
-#include "events.h"
 #include "device.h"
 #include "device_list.h"
+#include "device_midi.h"
+#include "events.h"
 
 static int id = 0;
 
@@ -25,10 +25,7 @@ struct dev_q {
 
 struct dev_q dq;
 
-static struct dev_node *dev_lookup_path(
-    const char *path,
-    struct dev_node *node_head
-) {
+static struct dev_node *dev_lookup_path(const char *path, struct dev_node *node_head) {
     const char *npath;
     if (node_head == NULL) {
         node_head = dq.head;
@@ -69,7 +66,7 @@ union event_data *post_add_event(union dev *d, event_t event_type) {
 
     insque(dn, dq.tail);
     dq.tail = dn;
-    if(dq.size == 0) {
+    if (dq.size == 0) {
         dq.head = dn;
     }
     dq.size++;
@@ -125,8 +122,12 @@ void dev_list_add(device_t type, const char *path, const char *name) {
 static void dev_list_remove_node(struct dev_node *dn, union event_data *event_remove) {
     event_post(event_remove);
 
-    if(dq.head == dn) { dq.head = dn->next; }
-    if(dq.tail == dn) { dq.tail = dn->prev; }
+    if (dq.head == dn) {
+        dq.head = dn->next;
+    }
+    if (dq.tail == dn) {
+        dq.tail = dn->prev;
+    }
     remque(dn);
     dq.size--;
 
@@ -136,10 +137,12 @@ static void dev_list_remove_node(struct dev_node *dn, union event_data *event_re
 
 void dev_list_remove(device_t type, const char *node) {
     struct dev_node *dn = dev_lookup_path(node, NULL);
-    if(dn == NULL) { return; }
+    if (dn == NULL) {
+        return;
+    }
     union event_data *ev;
 
-    switch(type) {
+    switch (type) {
     case DEV_TYPE_MIDI:
         while (dn != NULL) {
             ev = event_data_new(EVENT_MIDI_REMOVE);
