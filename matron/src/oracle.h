@@ -137,10 +137,13 @@ extern void o_cut_buffer_clear();
 extern void o_cut_buffer_clear_channel(int ch);
 extern void o_cut_buffer_clear_region(float start, float end);
 extern void o_cut_buffer_clear_region_channel(int ch, float start, float end);
+extern void o_cut_buffer_copy_mono(int srcCh, int dstCh, float srcStart, float dstStart, float dur, float fadeTime, float preserve, int reverse);
+extern void o_cut_buffer_copy_stereo(float srcStart, float dstStart, float dur, float fadeTime, float preserve, int reverse);
 extern void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst);
 extern void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur);
 extern void o_cut_buffer_write_mono(char *file, float start, float dur, int ch);
 extern void o_cut_buffer_write_stereo(char *file, float start, float dur);
+extern void o_cut_buffer_render(int ch, float start, float dur, int samples);
 extern void o_cut_reset();
 // most softcut parameter changs take single voice index...
 extern void o_set_cut_param(const char *name, int voice, float value);

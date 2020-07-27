@@ -124,6 +124,9 @@ void event_data_free(union event_data *ev) {
     case EVENT_SYSTEM_CMD:
         free(ev->system_cmd.capture);
         break;
+    case EVENT_SOFTCUT_RENDER:
+        free(ev->softcut_render.data);
+        break;
     }
     free(ev);
 }
@@ -283,6 +286,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_CROW_EVENT:
         w_handle_crow_event(ev->crow_event.dev, ev->crow_event.id);
+        break;
+    case EVENT_SOFTCUT_RENDER:
+        w_handle_softcut_render(ev->softcut_render.idx, ev->softcut_render.sec_per_sample, ev->softcut_render.start, ev->softcut_render.size, ev->softcut_render.data);
         break;
     } /* switch */
 

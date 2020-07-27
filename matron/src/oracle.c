@@ -108,6 +108,9 @@ static int handle_poll_io_levels(const char *path, const char *types, lo_arg **a
 static int handle_poll_softcut_phase(const char *path, const char *types, lo_arg **argv, int argc, void *data,
                                      void *user_data);
 
+static int handle_softcut_render(const char *path, const char *types, lo_arg **argv, int argc, void *data,
+                                 void *user_data);
+
 static int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, int argc, void *data,
                                   void *user_data);
 
@@ -173,6 +176,9 @@ void o_init(void) {
     lo_server_thread_add_method(st, "/poll/softcut/phase", "if", handle_poll_softcut_phase, NULL);
     // tape reports
     lo_server_thread_add_method(st, "/tape/play/state", "s", handle_tape_play_state, NULL);
+
+    // softcut buffer content
+    lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
 
     lo_server_thread_start(st);
 }
@@ -560,6 +566,19 @@ void o_cut_buffer_clear_region_channel(int ch, float start, float end) {
     lo_send(crone_addr, "/softcut/buffer/clear_region_channel", "iff", ch, start, end);
 }
 
+void o_cut_buffer_copy_mono(int srcCh, int dstCh,
+                            float srcStart, float dstStart, float dur,
+                            float fadeTime, float preserve, int reverse) {
+    lo_send(crone_addr, "/softcut/buffer/copy_mono", "iifffffi",
+            srcCh, dstCh, srcStart, dstStart, dur, fadeTime, preserve, reverse);
+}
+
+void o_cut_buffer_copy_stereo(float srcStart, float dstStart, float dur,
+                              float fadeTime, float preserve, int reverse) {
+    lo_send(crone_addr, "/softcut/buffer/copy_stereo", "fffffi",
+            srcStart, dstStart, dur, fadeTime, preserve, reverse);
+}
+
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst) {
     lo_send(crone_addr, "/softcut/buffer/read_mono", "sfffii", file, start_src, start_dst, dur, ch_src, ch_dst);
 }
@@ -574,6 +593,10 @@ void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {
 
 void o_cut_buffer_write_stereo(char *file, float start, float dur) {
     lo_send(crone_addr, "/softcut/buffer/write_stereo", "sff", file, start, dur);
+}
+
+void o_cut_buffer_render(int ch, float start, float dur, int samples) {
+    lo_send(crone_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
 }
 
 void o_cut_reset() {
@@ -778,6 +801,22 @@ int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, i
 
     // assert(argc > 0);
     // fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
+    return 0;
+}
+
+int handle_softcut_render(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data) {
+    assert(argc > 2);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
+    ev->softcut_render.idx = argv[0]->i;
+    ev->softcut_render.sec_per_sample = argv[1]->f;
+    ev->softcut_render.start = argv[2]->f;
+
+    int sz = lo_blob_datasize((lo_blob)argv[3]);
+    float *samples = (float*)lo_blob_dataptr((lo_blob)argv[3]);
+    ev->softcut_render.size = sz / sizeof(float);
+    ev->softcut_render.data = calloc(1, sz);
+    memcpy(ev->softcut_render.data, samples, sz);
+    event_post(ev);
     return 0;
 }
 

@@ -297,6 +297,28 @@ SC.buffer_clear_region_channel = function(ch, start, dur)
   _norns.cut_buffer_clear_region_channel(ch, start, dur)
 end
 
+--- copy region from one point in a buffer to another
+-- @tparam int src_ch : source buffer index (1-based)
+-- @tparam int dst_ch : destination buffer index (1-based)
+-- @tparam number start_src : start point in source, in seconds
+-- @tparam number start_dst : start point in destination, in seconds
+-- @tparam number dur : duration in seconds. if -1, copy as much as possible.
+-- @tparam number fade_time : fade time in seconds.
+-- @tparam int reverse : nonzero to reverse while copying. when reversing, overlap between source and destination regions is not handled.
+SC.buffer_copy_mono = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)
+  _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
+end
+
+--- copy region of both buffers to another point
+-- @tparam number start_src : start point in source, in seconds
+-- @tparam number start_dst : start point in destination, in seconds
+-- @tparam number dur : duration in seconds. if -1, copy as much as possible.
+-- @tparam number fade_time : fade time in seconds.
+-- @tparam int reverse : nonzero to reverse while copying.
+SC.buffer_copy_stereo = function(start_src, start_dst, dur, fade_time, preserve, reverse)
+  _norns.cut_buffer_copy_stereo(start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
+end
+
 --- read mono soundfile to arbitrary region of single buffer
 -- @tparam string file : input file path
 -- @tparam number start_src : start point in source, in seconds
@@ -337,6 +359,17 @@ end
 --- set function for phase poll
 -- @tparam function func : callback function. this function should take two parameters  (voice, phase)
 SC.event_phase = function(func) _norns.softcut_phase = func end
+
+--- request snapshot of buffer content for region.
+-- @tparam integer ch : buffer channel index (1-based)
+-- @tparam number start : beginning of region in seconds
+-- @tparam number dur : length of region in seconds
+-- @tparam integer samples : max number of samples to retrieve. if less than the number of frames in the region, content will be downsampled
+-- @tparam function callback : called when buffer content is ready. args: (ch, start, sec_per_frame, samples)
+SC.render_buffer = function(ch, start, dur, samples, callback)
+  _norns.softcut_render = callback
+  _norns.cut_buffer_render(ch, start, dur, samples)
+end
 
 
 -------------------------------

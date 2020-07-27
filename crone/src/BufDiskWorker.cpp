@@ -12,6 +12,7 @@
 
 #include <sndfile.hh>
 #include <array>
+#include <cmath>
 #include <utility>
 
 #include "BufDiskWorker.h"
@@ -51,6 +52,13 @@ void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
     requestJob(job);
 }
 
+void BufDiskWorker::requestCopy(size_t srcIdx, size_t dstIdx,
+                                float srcStart, float dstStart, float dur,
+                                float fadeTime, float preserve, bool reverse) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Copy, {srcIdx, dstIdx}, "", srcStart, dstStart, dur, 0, fadeTime, preserve, reverse};
+    requestJob(job);
+}
+
 void
 BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur,
@@ -76,6 +84,11 @@ void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string pat
     requestJob(job);
 }
 
+void BufDiskWorker::requestRender(size_t idx, float start, float dur, int samples, RenderCallback callback) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Render, {idx, 0}, "", start, start, dur, 0, 0.f, 0.f, false, samples, callback};
+    requestJob(job);
+}
+
 void BufDiskWorker::workLoop() {
     while (!shouldQuit) {
         // FIXME: use condvar to wait here instead of sleeping...
@@ -89,6 +102,9 @@ void BufDiskWorker::workLoop() {
                 case JobType::Clear:
                     clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
                     break;
+                case JobType::Copy:
+                    copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
+                    break;
                 case JobType::ReadMono:
                     readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
                     break;
@@ -101,6 +117,9 @@ void BufDiskWorker::workLoop() {
                     break;
                 case JobType::WriteStereo:
                     writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
+                    break;
+                case JobType::Render:
+                    render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
                     break;
             }
 #if 0 // debug, timing
@@ -128,6 +147,14 @@ int BufDiskWorker::secToFrame(float seconds) {
     return static_cast<int>(seconds * (float) sampleRate);
 }
 
+float BufDiskWorker::raisedCosFade(float unitphase) {
+    return 0.5f * (cosf(M_PI * (1.f + unitphase)) + 1.f);
+}
+
+float BufDiskWorker::mixFade(float x, float y, float a, float b) {
+    return x * sinf(a * (float)M_PI_2) + y * sinf(b * (float) M_PI_2);
+}
+
 //------------------------
 //---- private buffer routines
 
@@ -143,6 +170,94 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
     clamp(frB, buf.frames);
     for (size_t i = frA; i < frB; ++i) {
         buf.data[i] = 0.f;
+    }
+}
+
+void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
+                               float srcStart, float dstStart, float dur,
+                               float fadeTime, float preserve, bool reverse) {
+    size_t frSrcStart = secToFrame(srcStart);
+    clamp(frSrcStart, buf0.frames - 1);
+    size_t frDstStart = secToFrame(dstStart);
+    clamp(frDstStart, buf1.frames - 1);
+
+    size_t frDur;
+    if (dur < 0) {
+        frDur = buf0.frames - frSrcStart;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    clamp(frDur, buf1.frames - frDstStart);
+
+    if (preserve > 1.f) { preserve = 1.f; }
+    if (preserve < 0.f) { preserve = 0.f; }
+
+    float x;
+    float phi;
+    size_t frFadeTime = secToFrame(fadeTime);
+    if (frFadeTime > 0) {
+        x = 0.f;
+        phi = 1.f / frFadeTime;
+        clamp(frFadeTime, frDur);
+    } else {
+        frFadeTime = 0;
+        x = 1.f;
+        phi = 0.f;
+    }
+
+    if (reverse) {
+        // reversing contents while copying into an overlapping region
+        // is not possible without additional storage the size of the
+        // overlap, so we don't handle this
+        copyLoop(buf1.data + frDstStart,
+                 buf0.data + frSrcStart + frDur - 1,
+                 frDur, frFadeTime,
+                 preserve, x, phi,
+                 [](float*& d, const float*& s) { d++; s--; });
+    } else {
+        // source and destination regions might overlap, so we need to
+        // imitate std::memmove - when src < dst start from the end and
+        // move backwards
+        if (frDstStart < frSrcStart) {
+            copyLoop(buf1.data + frDstStart,
+                     buf0.data + frSrcStart,
+                     frDur, frFadeTime,
+                     preserve, x, phi,
+                     [](float*& d, const float*& s) { d++; s++; });
+        } else {
+            copyLoop(buf1.data + frDstStart + frDur - 1,
+                     buf0.data + frSrcStart + frDur - 1,
+                     frDur, frFadeTime,
+                     preserve, x, phi,
+                     [](float*& d, const float*& s) { d--; s--; });
+        }
+    }
+}
+
+template <typename Step>
+void BufDiskWorker::copyLoop(float* dst, const float* src,
+                             size_t frDur, size_t frFadeTime,
+                             float preserve, float x, float phi,
+                             Step&& update) {
+    size_t i;
+    float lambda;
+    for (i = 0; i < frFadeTime; i++) {
+        lambda = raisedCosFade(x);
+        *dst = mixFade(*dst, *src,
+                       1.f - lambda * (1.f - preserve), lambda);
+        x += phi;
+        update(dst, src);
+    }
+    for ( ; i < frDur - frFadeTime; i++) {
+        *dst = preserve * *dst + *src;
+        update(dst, src);
+    }
+    for ( ; i < frDur; i++) {
+        lambda = raisedCosFade(x);
+        *dst = mixFade(*dst, *src,
+                       1.f - lambda * (1.f - preserve), lambda);
+        x -= phi;
+        update(dst, src);
     }
 }
 
@@ -391,4 +506,55 @@ noexcept {
     }
     cleanup:
     delete[] ioBuf;
+}
+
+void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples, RenderCallback callback) {
+    if (samples == 0) { return; }
+
+    size_t frStart = secToFrame(start);
+    if (frStart < 0) { frStart = 0; }
+    clamp(frStart, buf.frames - 1);
+
+    size_t frDur;
+    if (dur < 0) {
+        frDur = buf.frames - frStart;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    if (frDur < 1) { return; }
+    clamp(frDur, buf.frames - frStart);
+    clamp(samples, frDur);
+    dur = frDur / (float)sampleRate;
+    float window = (float)dur / samples;
+
+    auto *sampleBuf = new float[samples];
+
+    size_t m;
+    if (frDur <= samples) {
+        // no peak finding
+        for (m = 0; m < samples; m++) {
+            sampleBuf[m] = buf.data[frStart + m];
+        }
+    } else {
+        size_t w, wStart, wEnd;
+        float peak;
+
+        // FIXME -- sloppy heuristic for how many frames to skip when peak finding
+        int stride = (int)std::log2f(dur / 4);
+        if (stride < 1) { stride = 1; }
+        for (m = 1; m <= samples; m++) {
+            wStart = secToFrame(start + (m - 1) * window);
+            wEnd = secToFrame(start + m * window);
+            peak = 0.f;
+            for (w = wStart; w < wEnd; w += stride) {
+                if (std::fabs(buf.data[w]) > std::fabs(peak)) {
+                    peak = buf.data[w];
+                }
+            }
+            sampleBuf[m - 1] = peak;
+        }
+    }
+
+    callback(window, start, samples, sampleBuf);
+    delete[] sampleBuf;
 }
