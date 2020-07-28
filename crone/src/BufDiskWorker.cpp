@@ -22,6 +22,7 @@ using namespace crone;
 std::unique_ptr<std::thread> BufDiskWorker::worker = nullptr;
 std::queue<BufDiskWorker::Job> BufDiskWorker::jobQ;
 std::mutex BufDiskWorker::qMut;
+std::condition_variable BufDiskWorker::qCv;
 
 std::array<BufDiskWorker::BufDesc, BufDiskWorker::maxBufs> BufDiskWorker::bufs;
 int BufDiskWorker::numBufs = 0;
@@ -44,7 +45,7 @@ void BufDiskWorker::requestJob(BufDiskWorker::Job &job) {
     qMut.lock();
     jobQ.push(job);
     qMut.unlock();
-    // FIXME: use condvar to signal worker
+    qCv.notify_one();
 }
 
 void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
@@ -91,47 +92,45 @@ void BufDiskWorker::requestRender(size_t idx, float start, float dur, int sample
 
 void BufDiskWorker::workLoop() {
     while (!shouldQuit) {
-        // FIXME: use condvar to wait here instead of sleeping...
-        qMut.lock();
-        if (!jobQ.empty()) {
-            Job job = jobQ.front();
+        Job job;
+        {
+            std::unique_lock<std::mutex> lock(qMut);
+            qCv.wait(lock, [] { return !jobQ.empty(); });
+            job = jobQ.front();
             jobQ.pop();
-            qMut.unlock();
-
-            switch (job.type) {
-                case JobType::Clear:
-                    clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
-                    break;
-                case JobType::Copy:
-                    copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
-                    break;
-                case JobType::ReadMono:
-                    readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
-                    break;
-                case JobType::ReadStereo:
-                    readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
-                                     job.dur);
-                    break;
-                case JobType::WriteMono:
-                    writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
-                    break;
-                case JobType::WriteStereo:
-                    writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
-                    break;
-                case JobType::Render:
-                    render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
-                    break;
-            }
-#if 0 // debug, timing
-            auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-            auto ms_dur = ms_now - ms_start;
-            std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
-#endif
-
-        } else {
-            qMut.unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepPeriodMs));
+            lock.unlock();
+            qCv.notify_one();
         }
+
+        switch (job.type) {
+            case JobType::Clear:
+                clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
+                break;
+            case JobType::Copy:
+                copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
+                break;
+            case JobType::ReadMono:
+                readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
+                break;
+            case JobType::ReadStereo:
+                readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
+                                 job.dur);
+                break;
+            case JobType::WriteMono:
+                writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
+                break;
+            case JobType::WriteStereo:
+                writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
+                break;
+            case JobType::Render:
+                render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
+                break;
+        }
+#if 0 // debug, timing
+        auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        auto ms_dur = ms_now - ms_start;
+        std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
+#endif
     }
 }
 
