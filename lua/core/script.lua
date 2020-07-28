@@ -148,12 +148,12 @@ Script.load = function(filename)
     else
       print("### cleanup failed with error: "..err)
     end
-    
+
     -- unload asl package entry so `require 'asl'` works
     -- todo(pq): why is this not needed generally (e.g., for 'ui', 'util', etc.)?
     if package.loaded['asl'] ~= nil then
       package.loaded['asl'] = nil
-    end 
+    end
 
     Script.clear() -- clear script variables and functions
 
@@ -206,7 +206,9 @@ Script.metadata = function(filename)
     io.close(f)
     for line in io.lines(filename) do
       if util.string_starts(line,"--") then
-        table.insert(meta, string.sub(line,4,-1))
+        local skip_hyphens = string.sub(line,4,-1)
+        local fix_newlines = string.gsub(skip_hyphens,"\r$","")
+        table.insert(meta, fix_newlines)
       else
         if #meta == 0 then
           table.insert(meta, "no script information")
