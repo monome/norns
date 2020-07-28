@@ -558,25 +558,25 @@ void o_cut_buffer_clear_channel(int ch) {
     lo_send(crone_addr, "/softcut/buffer/clear_channel", "i", ch);
 }
 
-void o_cut_buffer_clear_region(float start, float end) {
-    lo_send(crone_addr, "/softcut/buffer/clear_region", "ff", start, end);
+void o_cut_buffer_clear_region(float start, float dur, float fade_time, float preserve) {
+    lo_send(crone_addr, "/softcut/buffer/clear_fade_region", "ffff", start, dur, fade_time, preserve);
 }
 
-void o_cut_buffer_clear_region_channel(int ch, float start, float end) {
-    lo_send(crone_addr, "/softcut/buffer/clear_region_channel", "iff", ch, start, end);
+void o_cut_buffer_clear_region_channel(int ch, float start, float dur, float fade_time, float preserve) {
+    lo_send(crone_addr, "/softcut/buffer/clear_fade_region_channel", "iffff", ch, start, dur, fade_time, preserve);
 }
 
-void o_cut_buffer_copy_mono(int srcCh, int dstCh,
-                            float srcStart, float dstStart, float dur,
-                            float fadeTime, float preserve, int reverse) {
+void o_cut_buffer_copy_mono(int src_ch, int dst_ch,
+                            float src_start, float dst_start, float dur,
+                            float fade_time, float preserve, int reverse) {
     lo_send(crone_addr, "/softcut/buffer/copy_mono", "iifffffi",
-            srcCh, dstCh, srcStart, dstStart, dur, fadeTime, preserve, reverse);
+            src_ch, dst_ch, src_start, dst_start, dur, fade_time, preserve, reverse);
 }
 
-void o_cut_buffer_copy_stereo(float srcStart, float dstStart, float dur,
-                              float fadeTime, float preserve, int reverse) {
+void o_cut_buffer_copy_stereo(float src_start, float dst_start, float dur,
+                              float fade_time, float preserve, int reverse) {
     lo_send(crone_addr, "/softcut/buffer/copy_stereo", "fffffi",
-            srcStart, dstStart, dur, fadeTime, preserve, reverse);
+            src_start, dst_start, dur, fade_time, preserve, reverse);
 }
 
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst) {
