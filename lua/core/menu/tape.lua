@@ -167,7 +167,7 @@ m.key = function(n,z)
             if tape_exists(txt) then
               return "FILE EXISTS"
             end
-	  end)
+          end)
       elseif m.rec.sel == TAPE_REC_START then
         tape_rec_counter:start()
         audio.tape_record_start()
