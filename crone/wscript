@@ -41,6 +41,7 @@ def build(bld):
                      'BOOST',
                  ],
                  lib=[
+                     'atomic',
                      'jack',
                      'pthread',
                      'm',
