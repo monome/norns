@@ -1,5 +1,6 @@
 local fileselect = require 'fileselect'
 local textentry = require 'textentry'
+local util = require 'util'
 
 local TAPE_MODE_PLAY = 1
 local TAPE_MODE_REC = 2
@@ -40,6 +41,14 @@ local function tape_diskfree()
   end
 end
 
+local function tape_exists(index)
+  if type(index) == "number" then
+    index = string.format("%04d",index)
+  end
+  local filename = _path.audio.."tape/"..index..".wav"
+  return util.file_exists(filename)
+end
+
 local function update_tape_index()
   local f = io.open(_path.tape..'index.txt','r')
   if f ~= nil then
@@ -49,6 +58,10 @@ local function update_tape_index()
   else
     m.fileindex = 0
   end
+  while tape_exists(m.fileindex) do
+    m.fileindex = m.fileindex+1
+  end
+
   local f = io.open(_path.tape..'index.txt','w')
   f:write(tostring(m.fileindex+1))
   f:close()
@@ -146,7 +159,15 @@ m.key = function(n,z)
       if m.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
         update_tape_index()
-        textentry.enter(edit_filename, string.format("%04d",m.fileindex), "tape filename:")
+        textentry.enter(
+          edit_filename,
+          string.format("%04d",m.fileindex),
+          "tape filename:",
+          function(txt)
+            if tape_exists(txt) then
+              return "FILE EXISTS"
+            end
+          end)
       elseif m.rec.sel == TAPE_REC_START then
         tape_rec_counter:start()
         audio.tape_record_start()

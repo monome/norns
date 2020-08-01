@@ -2,13 +2,15 @@
 
 local te = {}
 
-te.enter = function(callback, default, heading)
+te.enter = function(callback, default, heading, check)
   te.txt = default or ""
   te.heading = heading or ""
   te.pos = 28
   if default then te.row=1 else te.row = 0 end
   te.delok = 1
   te.callback = callback
+  te.check = check
+  te.warn = nil
   te.pending = false
 
   if norns.menu.status() == false then
@@ -50,10 +52,16 @@ te.key = function(n,z)
     if te.row == 0 then
       local ch = ((5+te.pos)%95)+32
       te.txt = te.txt .. string.char(ch)
+      if te.check then
+        te.warn = te.check(te.txt)
+      end
       te.redraw()
     else
       if te.delok==0 then
         te.txt = string.sub(te.txt,0,-2)
+        if te.check then
+          te.warn = te.check(te.txt)
+	end
         te.redraw()
       elseif te.delok == 1 then
         te.pending = true
@@ -85,6 +93,10 @@ te.redraw = function()
   screen.text(te.heading)
   screen.move(0,32)
   screen.text(te.txt)
+  if te.warn ~= nil then
+    screen.move(128,32)
+    screen.text_right(te.warn)
+  end
   for x=0,15 do
     if x==5 and te.row==0 then screen.level(15) else screen.level(2) end
     screen.move(x*8,46)

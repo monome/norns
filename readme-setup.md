@@ -30,7 +30,7 @@ sudo apt install libmonome-dev libnanomsg-dev supercollider-language supercollid
 ```
 git clone https://github.com/monome/norns.git
 cd norns
-git submodule update --init
+git submodule update --init --recursive
 ./waf configure
 ./waf
 ```
