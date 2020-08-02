@@ -6,7 +6,6 @@
 
 #include <utility>
 #include <thread>
-#include <boost/format.hpp>
 
 #include "effects/CompressorParams.h"
 #include "effects/ReverbParams.h"
@@ -39,11 +38,7 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
     quitFlag = false;
     // FIXME: should get port configs from program args or elsewhere
     port = "9999";
-#if 1
     matronAddress = lo_address_new("127.0.0.1", "8888");
-#else  // testing with SC
-    matronAddress = lo_address_new("127.0.0.1", "57120");
-#endif
 
     st = lo_server_thread_new(port.c_str(), handleLoError);
     addServerMethods();
@@ -836,13 +831,9 @@ void OscInterface::addServerMethods() {
 }
 
 void OscInterface::printServerMethods() {
-    using std::cout;
-    using std::endl;
-    using std::string;
-    using boost::format;
-    cout << "osc methods: " << endl;
+    std::cout << "osc methods: " << std::endl;
     for (unsigned int i = 0; i < numMethods; ++i) {
-        cout << format(" %1% [%2%]") % methods[i].path % methods[i].format << endl;
+	std::cout << methods[i].path << " [" << methods[i].format << "]" << std::endl;
     }
 }
 

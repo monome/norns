@@ -5,7 +5,7 @@
 #ifndef CRONE_COMMANDS_H
 #define CRONE_COMMANDS_H
 
-#include <boost/lockfree/spsc_queue.hpp>
+#include "boost/lockfree/spsc_queue.hpp"
 
 
 namespace crone {
@@ -13,15 +13,16 @@ namespace crone {
     class MixerClient;
     class SoftcutClient;
 
-    class Commands {
+    class Commands {	
     public:
+	static constexpr int COMMAND_Q_CAPACITY = 256;
         typedef enum {
             //-- level commands
             SET_LEVEL_ADC,
             SET_LEVEL_DAC,
             SET_LEVEL_EXT,
             SET_LEVEL_EXT_AUX,
-	        SET_LEVEL_CUT_MASTER,
+	    SET_LEVEL_CUT_MASTER,
             SET_LEVEL_AUX_DAC,
             SET_LEVEL_MONITOR,
             SET_LEVEL_MONITOR_MIX,
@@ -78,8 +79,8 @@ namespace crone {
             SET_CUT_PRE_FILTER_BR,
             SET_CUT_PRE_FILTER_DRY,
 
-	        SET_CUT_POST_FILTER_FC,
-	        SET_CUT_POST_FILTER_RQ,
+	    SET_CUT_POST_FILTER_FC,
+	    SET_CUT_POST_FILTER_RQ,
             SET_CUT_POST_FILTER_LP,
             SET_CUT_POST_FILTER_HP,
             SET_CUT_POST_FILTER_BP,
@@ -122,7 +123,7 @@ namespace crone {
 
     private:
         boost::lockfree::spsc_queue <CommandPacket,
-                boost::lockfree::capacity<200> > q;
+                boost::lockfree::capacity<COMMAND_Q_CAPACITY> > q;
     };
 
 }
