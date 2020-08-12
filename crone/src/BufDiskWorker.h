@@ -18,6 +18,7 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <queue>
 #include <memory>
 #include <functional>
@@ -55,6 +56,7 @@ namespace crone {
         };
         static std::queue<Job> jobQ;
         static std::mutex qMut;
+        static std::condition_variable qCv;
         static std::unique_ptr<std::thread> worker;
         static constexpr size_t maxBufs = 16;
         static std::array<BufDesc, maxBufs> bufs;
