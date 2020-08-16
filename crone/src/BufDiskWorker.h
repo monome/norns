@@ -31,7 +31,7 @@ namespace crone {
 
     private:
         enum class JobType {
-            Clear, Copy,
+            Clear, ClearWithFade, Copy,
             ReadMono, ReadStereo,
             WriteMono, WriteStereo,
             Render,
@@ -89,6 +89,9 @@ namespace crone {
         // clear a portion of a mono buffer
         static void requestClear(size_t idx, float start = 0, float dur = -1);
 
+        static void requestClearWithFade(size_t idx, float start = 0, float dur = -1,
+                                         float fadeTime = 0, float preserve = 0);
+
         static void requestCopy(size_t srcIdx, size_t dstIdx,
                                 float srcStart = 0, float dstStart = 0, float dur = -1,
                                 float fadeTime = 0, float preserve = 0, bool reverse = false);
@@ -115,6 +118,8 @@ namespace crone {
         static void workLoop();
 
         static void clearBuffer(BufDesc &buf, float start = 0, float dur = -1);
+
+        static void clearBufferWithFade(BufDesc &buf, float start = 0, float dur = -1, float fadeTime = 0, float preserve = 0);
 
         static void copyBuffer(BufDesc &buf0, BufDesc &buf1,
                                float srcStart = 0, float dstStart = 0, float dur = -1,

@@ -88,6 +88,11 @@ namespace crone {
             BufDiskWorker::requestClear(bufIdx[chan], start, dur);
         }
 
+        void clearBufferWithFade(int chan, float start=0.f, float dur=-1, float fadeTime=0.f, float preserve=0.f) {
+            if (chan < 0 || chan > 1) { return; }
+            BufDiskWorker::requestClearWithFade(bufIdx[chan], start, dur, fadeTime, preserve);
+        }
+
         void copyBuffer(int srcChan, int dstChan,
                         float srcStart=0.f, float dstStart=0.f, float dur=-1,
                         float fadeTime=0.f, float preserve=0.f, bool reverse=false) {

@@ -53,6 +53,12 @@ void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
     requestJob(job);
 }
 
+void BufDiskWorker::requestClearWithFade(size_t idx, float start, float dur,
+                                         float fadeTime, float preserve) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::ClearWithFade, {idx, 0}, "", 0, start, dur, 0, fadeTime, preserve};
+    requestJob(job);
+}
+
 void BufDiskWorker::requestCopy(size_t srcIdx, size_t dstIdx,
                                 float srcStart, float dstStart, float dur,
                                 float fadeTime, float preserve, bool reverse) {
@@ -105,6 +111,9 @@ void BufDiskWorker::workLoop() {
         switch (job.type) {
             case JobType::Clear:
                 clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
+                break;
+            case JobType::ClearWithFade:
+                clearBufferWithFade(bufs[job.bufIdx[0]], job.startDst, job.dur, job.fadeTime, job.preserve);
                 break;
             case JobType::Copy:
                 copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
@@ -170,6 +179,42 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
     for (size_t i = frA; i < frB; ++i) {
         buf.data[i] = 0.f;
     }
+}
+
+void BufDiskWorker::clearBufferWithFade(BufDesc &buf, float start, float dur,
+                                        float fadeTime, float preserve) {
+    size_t frStart = secToFrame(start);
+    clamp(frStart, buf.frames - 1);
+    size_t frDur;
+    if (dur < 0) {
+        frDur = buf.frames - frStart;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    clamp(frDur, buf.frames - frStart);
+
+    float x;
+    float phi;
+    size_t frFadeTime = secToFrame(fadeTime);
+    if (frFadeTime > 0) {
+        x = 0.f;
+        phi = 1.f / frFadeTime;
+        clamp(frFadeTime, frDur);
+    } else {
+        frFadeTime = 0;
+        x = 1.f;
+        phi = 0.f;
+    }
+
+    if (preserve > 1.f) { preserve = 1.f; }
+    if (preserve < 0.f) { preserve = 0.f; }
+
+    float zero = 0.f;
+    copyLoop(buf.data + frStart,
+             &zero,
+             frDur, frFadeTime,
+             preserve, x, phi,
+             [](float*& d, const float*& s) { d++; });
 }
 
 void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,

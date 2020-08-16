@@ -285,16 +285,16 @@ SC.buffer_clear_channel = function(channel) _norns.cut_buffer_clear_channel(chan
 --- clear region (both channels)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
-SC.buffer_clear_region = function(start, dur)
-  _norns.cut_buffer_clear_region(start, dur)
+SC.buffer_clear_region = function(start, dur, fade_time, preserve)
+  _norns.cut_buffer_clear_region(start, dur or -1, fade_time or 0, preserve or 0)
 end
 
 --- clear region of single channel
 -- @tparam int ch : buffer channel index (1-based)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
-SC.buffer_clear_region_channel = function(ch, start, dur)
-  _norns.cut_buffer_clear_region_channel(ch, start, dur)
+SC.buffer_clear_region_channel = function(ch, start, dur, fade_time, preserve)
+  _norns.cut_buffer_clear_region_channel(ch, start, dur or -1, fade_time or 0, preserve or 0)
 end
 
 --- copy region from one point in a buffer to another
