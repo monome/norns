@@ -81,14 +81,11 @@ end
 -- @tparam number width maximum width
 -- @treturn string trimmed string
 util.trim_string_to_width = function(s, width)
-  local first_iter = true
-  while _norns.screen_text_extents(s) > width do
-    if first_iter then
-      s = s .. "..."
-      first_iter = false
+  if _norns.screen_text_extents(s) > width then
+    while _norns.screen_text_extents(s .. "...") > width do
+      s = string.gsub(s, "[^\128-\191][\128-\191]*$", "")
     end
-    s = string.sub(s, 1, string.len(s) - 4)
-    s = string.gsub(s, "[%p%s]+$", "") .. "..."
+    s = s .. "..."
   end
   return s
 end
