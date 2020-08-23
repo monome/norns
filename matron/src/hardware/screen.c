@@ -5,18 +5,15 @@
  */
 
 #include <assert.h>
-#include <cairo-ft.h>
 #include <cairo.h>
-#include <fcntl.h>
-#include <linux/fb.h>
+#include <cairo-ft.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <unistd.h>
 
 #include "args.h"
+#include "hardware/fb/matron_fb.h"
+#include "hardware/fb/linuxfb.h"
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
@@ -38,96 +35,17 @@ static float c[16] = {0,   0.066666666666667, 0.13333333333333, 0.2, 0.266666666
                       0.8, 0.86666666666667,  0.93333333333333, 1};
 
 static cairo_surface_t *surface;
-static cairo_surface_t *surfacefb;
 static cairo_surface_t *image;
-
 static cairo_t *cr;
-static cairo_t *crfb;
+
+static matron_fb_t *framebufs;
+static size_t framebuf_ct;
+
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
 static FT_Error status;
 static FT_Face face[NUM_FONTS];
 static double text_xy[2];
-
-typedef struct _cairo_linuxfb_device {
-    int fb_fd;
-    unsigned char *fb_data;
-    long fb_screensize;
-    struct fb_var_screeninfo fb_vinfo;
-    struct fb_fix_screeninfo fb_finfo;
-} cairo_linuxfb_device_t;
-
-/* Destroy a cairo surface */
-void cairo_linuxfb_surface_destroy(void *device) {
-    cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
-
-    if (dev == NULL) {
-        return;
-    }
-
-    munmap(dev->fb_data, dev->fb_screensize);
-    close(dev->fb_fd);
-    free(dev);
-}
-
-/* Create a cairo surface using the specified framebuffer */
-cairo_surface_t *cairo_linuxfb_surface_create() {
-    cairo_linuxfb_device_t *device;
-    cairo_surface_t *surface;
-
-    const char *fb_name = args_framebuffer();
-
-    device = malloc(sizeof(*device));
-    if (!device) {
-        fprintf(stderr, "ERROR (screen) cannot allocate memory\n");
-        return NULL;
-    }
-
-    // Open the file for reading and writing
-    device->fb_fd = open(fb_name, O_RDWR);
-    if (device->fb_fd == -1) {
-        fprintf(stderr, "ERROR (screen) cannot open framebuffer device\n");
-        goto handle_allocate_error;
-    }
-
-    // Get variable screen information
-    if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading variable information\n");
-        goto handle_ioctl_error;
-    }
-
-    // Figure out the size of the screen in bytes
-    device->fb_screensize = device->fb_vinfo.xres * device->fb_vinfo.yres * device->fb_vinfo.bits_per_pixel / 8;
-
-    // Map the device to memory
-    device->fb_data =
-        (unsigned char *)mmap(0, device->fb_screensize, PROT_READ | PROT_WRITE, MAP_SHARED, device->fb_fd, 0);
-
-    if (device->fb_data == (unsigned char *)-1) {
-        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory\n");
-        goto handle_ioctl_error;
-    }
-
-    // Get fixed screen information
-    if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading fixed information\n");
-        goto handle_ioctl_error;
-    }
-
-    /* Create the cairo surface which will be used to draw to */
-    surface = cairo_image_surface_create_for_data(
-        device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
-        cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
-    cairo_surface_set_user_data(surface, NULL, device, &cairo_linuxfb_surface_destroy);
-
-    return surface;
-
-handle_ioctl_error:
-    close(device->fb_fd);
-handle_allocate_error:
-    free(device);
-    return NULL;
-}
 
 void screen_display_png(const char *filename, double x, double y) {
     int img_w, img_h;
@@ -150,11 +68,16 @@ void screen_display_png(const char *filename, double x, double y) {
 }
 
 void screen_init(void) {
-    surfacefb = cairo_linuxfb_surface_create();
-    if (surfacefb == NULL) {
+    framebuf_ct = 1;
+    framebufs = malloc(sizeof(matron_fb_t) * framebuf_ct);
+    if (framebufs == NULL) {
         return;
     }
-    crfb = cairo_create(surfacefb);
+    if (linuxfb_init(&framebufs[0]) != 0) {
+        fprintf(stderr, "ERROR (screen) could not initialize framebuf");
+        free(framebufs);
+        return;
+    }
 
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
     cr = cairo_create(surface);
@@ -277,21 +200,27 @@ void screen_init(void) {
     cairo_set_font_size(cr, 8.0);
 
     // config buffer
-    cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_surface(crfb, surface, 0, 0);
+    for (size_t i = 0; i < framebuf_ct; i++) {
+        framebufs[i].bind(&framebufs[i], surface);
+    }
 }
 
 void screen_deinit(void) {
     CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
-    cairo_destroy(crfb);
-    cairo_surface_destroy(surfacefb);
+
+    for (size_t i = 0; i < framebuf_ct; i++) {
+        framebufs[i].destroy(&framebufs[i]);
+    }
+    free(framebufs);
 }
 
 void screen_update(void) {
     CHECK_CR
-    cairo_paint(crfb);
+    for (size_t i = 0; i < framebuf_ct; i++) {
+        framebufs[i].paint(&framebufs[i]);
+    }
 }
 
 void screen_save(void) {

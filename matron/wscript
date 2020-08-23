@@ -15,6 +15,7 @@ def build(bld):
         'src/hardware/i2c.c',
         'src/hardware/screen.c',
         'src/hardware/stat.c',
+	'src/hardware/fb/linuxfb.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',
