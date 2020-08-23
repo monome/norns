@@ -365,10 +365,14 @@ SC.event_phase = function(func) _norns.softcut_phase = func end
 -- @tparam number start : beginning of region in seconds
 -- @tparam number dur : length of region in seconds
 -- @tparam integer samples : max number of samples to retrieve. if less than the number of frames in the region, content will be downsampled
--- @tparam function callback : called when buffer content is ready. args: (ch, start, sec_per_frame, samples)
-SC.render_buffer = function(ch, start, dur, samples, callback)
-  _norns.softcut_render = callback
+SC.render_buffer = function(ch, start, dur, samples)
   _norns.cut_buffer_render(ch, start, dur, samples)
+end
+
+--- set function for render callback. use render_buffer to request contents.
+-- @tparam function func : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)
+SC.event_render = function(func)
+  _norns.softcut_render = func
 end
 
 
