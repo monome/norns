@@ -13,7 +13,6 @@
 
 #include "args.h"
 #include "hardware/fb/matron_fb.h"
-#include "hardware/fb/linuxfb.h"
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
@@ -67,13 +66,27 @@ void screen_display_png(const char *filename, double x, double y) {
     cairo_surface_destroy(image);
 }
 
+
+static void stderr_write(const char *data, size_t length)
+{
+    fwrite(data, 1, length, stderr);
+}
+
+static void stderr_flush(void)
+{
+    fwrite("\n", 1, 1, stderr);
+    fflush(stderr);
+}
+
 void screen_init(void) {
     framebuf_ct = 1;
     framebufs = malloc(sizeof(matron_fb_t) * framebuf_ct);
     if (framebufs == NULL) {
         return;
     }
-    if (linuxfb_init(&framebufs[0]) != 0) {
+    if (json_fb_init(&framebufs[0], stderr_write, stderr_flush) != 0) {
+//    if (linux_fb_init(&framebufs[0]) != 0) {
+    /* if (x11_fb_init(&framebufs[0]) != 0) { */
         fprintf(stderr, "ERROR (screen) could not initialize framebuf");
         free(framebufs);
         return;

@@ -9,62 +9,64 @@
 #include "args.h"
 #include "hardware/fb/matron_fb.h"
 
-typedef struct _cairo_linuxfb_device {
+typedef struct _cairo_linux_fb_device {
     int fb_fd;
     unsigned char *fb_data;
     long fb_screensize;
     struct fb_var_screeninfo fb_vinfo;
     struct fb_fix_screeninfo fb_finfo;
-} cairo_linuxfb_device_t;
+} cairo_linux_fb_device_t;
 
-static void linuxfb_destroy(matron_fb_t *f);
-static void linuxfb_paint(matron_fb_t *f);
-static void linuxfb_bind(matron_fb_t *f, cairo_surface_t *surface);
+static void linux_fb_destroy(matron_fb_t *f);
+static void linux_fb_paint(matron_fb_t *f);
+static void linux_fb_bind(matron_fb_t *f, cairo_surface_t *surface);
 
-static void cairo_linuxfb_surface_destroy(void *device);
-static cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device);
+static void cairo_linux_fb_surface_destroy(void *device);
+static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *device);
 
-int linuxfb_init(matron_fb_t *fb) {
-    fb->data = malloc(sizeof(cairo_linuxfb_device_t));
+int linux_fb_init(matron_fb_t *fb) {
+    fb->data = malloc(sizeof(cairo_linux_fb_device_t));
     if (!fb->data) {
-        fprintf(stderr, "ERROR (screen - linuxfb) cannot allocate memory\n");
+        fprintf(stderr, "ERROR (screen - linux_fb) cannot allocate memory\n");
 	return -1;
     }
-    fb->surface = cairo_linuxfb_surface_create((cairo_linuxfb_device_t*)fb->data);
+    fb->surface = cairo_linux_fb_surface_create((cairo_linux_fb_device_t*)fb->data);
     if (!fb->surface) {
+        fprintf(stderr, "ERROR (screen - linux_fb) cannot create surface\n");
         free(fb->data);
         return -1;
     }
     fb->cairo = cairo_create(fb->surface);
     if (!fb->cairo) {
+        fprintf(stderr, "ERROR (screen - linux_fb) cannot create cairo context\n");
         cairo_surface_destroy(fb->surface);
 	free(fb->data);
 	return -1;
     }
 
-    fb->destroy = &linuxfb_destroy;
-    fb->paint = &linuxfb_paint;
-    fb->bind = &linuxfb_bind;
+    fb->destroy = &linux_fb_destroy;
+    fb->paint = &linux_fb_paint;
+    fb->bind = &linux_fb_bind;
     return 0;
 }
 
-static void linuxfb_destroy(matron_fb_t *fb) {
+static void linux_fb_destroy(matron_fb_t *fb) {
     cairo_destroy(fb->cairo);
     cairo_surface_destroy(fb->surface);
     free(fb->data);
 }
 
-static void linuxfb_paint(matron_fb_t *fb) {
+static void linux_fb_paint(matron_fb_t *fb) {
     cairo_paint(fb->cairo);
 }
 
-static void linuxfb_bind(matron_fb_t *f, cairo_surface_t *surface) {
-    cairo_set_operator(f->cairo, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_surface(f->cairo, surface, 0, 0);
+static void linux_fb_bind(matron_fb_t *fb, cairo_surface_t *surface) {
+    cairo_set_operator(fb->cairo, CAIRO_OPERATOR_SOURCE);
+    cairo_set_source_surface(fb->cairo, surface, 0, 0);
 }
 
-static void cairo_linuxfb_surface_destroy(void *device) {
-    cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
+static void cairo_linux_fb_surface_destroy(void *device) {
+    cairo_linux_fb_device_t *dev = (cairo_linux_fb_device_t *)device;
 
     if (dev == NULL) {
         return;
@@ -75,7 +77,7 @@ static void cairo_linuxfb_surface_destroy(void *device) {
     free(dev);
 }
 
-static cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device) {
+static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *device) {
     cairo_surface_t *surface;
 
     const char *fb_name = args_framebuffer();
@@ -115,9 +117,9 @@ static cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *dev
     surface = cairo_image_surface_create_for_data(
         device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
         cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
-    cairo_surface_set_user_data(surface, NULL, device, &cairo_linuxfb_surface_destroy);
+    cairo_surface_set_user_data(surface, NULL, device, &cairo_linux_fb_surface_destroy);
 
-    fprintf(stderr, "screen: created linuxfb surface %s\n", fb_name);
+    fprintf(stderr, "screen: created linux framebuffer surface %s\n", fb_name);
 
     return surface;
 
