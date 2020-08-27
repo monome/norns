@@ -27,8 +27,8 @@ static cairo_surface_t *cairo_json_fb_surface_create(cairo_json_fb_device_t *dev
 static void cairo_json_fb_surface_destroy(void *device);
 static cairo_status_t cairo_json_write(void* closure, const unsigned char *data, unsigned int length);
 
-static int stream_fb_write(cairo_json_fb_device_t *device, const char *data, size_t length);
-static void stream_fb_flush(cairo_json_fb_device_t *device);
+static int json_fb_write(cairo_json_fb_device_t *device, const char *data, size_t length);
+static void json_fb_flush(cairo_json_fb_device_t *device);
 
 fb_ops_t json_fb_ops = {
     .name = "web",
@@ -45,8 +45,8 @@ cairo_surface_t* json_fb_init(matron_fb_t *fb) {
     if (!device->buf) {
         return NULL;
     }
-    device->write = stream_fb_write;
-    device->flush = stream_fb_flush;
+    device->write = json_fb_write;
+    device->flush = json_fb_flush;
     return cairo_json_fb_surface_create(device);
 }
 
@@ -105,7 +105,7 @@ static cairo_status_t cairo_json_write(void* closure, const unsigned char *data,
     return CAIRO_STATUS_SUCCESS;
 }
 
-static int stream_fb_write(cairo_json_fb_device_t *device, const char *data, size_t length)
+static int json_fb_write(cairo_json_fb_device_t *device, const char *data, size_t length)
 {
     if (device->buf_pos + length > PNG_BUFFER_SIZE) {
         return -1;
@@ -115,7 +115,7 @@ static int stream_fb_write(cairo_json_fb_device_t *device, const char *data, siz
     return 0;
 }
 
-static void stream_fb_flush(cairo_json_fb_device_t *device)
+static void json_fb_flush(cairo_json_fb_device_t *device)
 {
     unsigned int b64_size = b64e_size(device->buf_pos);
     unsigned char *b64_buf = calloc(b64_size + 1, sizeof(char));
