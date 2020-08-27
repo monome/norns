@@ -1,55 +1,58 @@
 #include <cairo.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hardware/fb/matron_fb.h"
 #include "hardware/fb/base64/base64.h"
 
+#define PNG_BUFFER_SIZE 1024
+
+struct _cairo_json_fb_device;
+
 typedef struct _cairo_json_fb_device {
-    void (*write)(const char *data, size_t len);
-    void (*flush)(void);
+    unsigned char *buf;
+    size_t buf_pos;
+
+    int (*write)(struct _cairo_json_fb_device *device, const char *data, size_t len);
+    void (*flush)(struct _cairo_json_fb_device *device);
 } cairo_json_fb_device_t;
 
-static void json_fb_destroy(matron_fb_t *f);
-static void json_fb_paint(matron_fb_t *f);
-static void json_fb_bind(matron_fb_t *f, cairo_surface_t *surface);
+static cairo_surface_t* json_fb_init(matron_fb_t *fb);
+static void json_fb_destroy(matron_fb_t *fb);
+static void json_fb_paint(matron_fb_t *fb);
+static void json_fb_bind(matron_fb_t *fb, cairo_surface_t *surface);
 
 static void cairo_json_fb_surface_destroy(void *device);
 static cairo_surface_t *cairo_json_fb_surface_create(cairo_json_fb_device_t *device);
 static void cairo_json_fb_surface_destroy(void *device);
 static cairo_status_t cairo_json_write(void* closure, const unsigned char *data, unsigned int length);
 
-int json_fb_init(matron_fb_t *fb,
-                 void (*write)(const char *data, size_t len), void (*flush)(void)) {
-    cairo_json_fb_device_t *device;
-    fb->data = malloc(sizeof(cairo_json_fb_device_t));
-    device = (cairo_json_fb_device_t*)fb->data;
-    if (!fb->data) {
-        fprintf(stderr, "ERROR (screen - json_fb) cannot allocate memory\n");
-	return -1;
-    }
-    fb->surface = cairo_json_fb_surface_create(device);
-    if (!fb->surface) {
-        fprintf(stderr, "ERROR (screen - json_fb) cannot create surface\n");
-        free(fb->data);
-        return -1;
-    }
-    fb->cairo = cairo_create(fb->surface);
-    if (!fb->cairo) {
-        fprintf(stderr, "ERROR (screen - json_fb) cannot create cairo context\n");
-        cairo_surface_destroy(fb->surface);
-	free(fb->data);
-	return -1;
-    }
+static int stream_fb_write(cairo_json_fb_device_t *device, const char *data, size_t length);
+static void stream_fb_flush(cairo_json_fb_device_t *device);
 
-    fb->destroy = &json_fb_destroy;
-    fb->paint = &json_fb_paint;
-    fb->bind = &json_fb_bind;
-    device->write = write;
-    device->flush = flush;
-    return 0;
+fb_ops_t json_fb_ops = {
+    .name = "web",
+    .data_size = sizeof(cairo_json_fb_device_t),
+    .init = json_fb_init,
+    .destroy = json_fb_destroy,
+    .paint = json_fb_paint,
+    .bind = json_fb_bind,
+};
+
+cairo_surface_t* json_fb_init(matron_fb_t *fb) {
+    cairo_json_fb_device_t *device = fb->data;
+    device->buf = malloc(PNG_BUFFER_SIZE);
+    if (!device->buf) {
+        return NULL;
+    }
+    device->write = stream_fb_write;
+    device->flush = stream_fb_flush;
+    return cairo_json_fb_surface_create(device);
 }
 
 static void json_fb_destroy(matron_fb_t *fb) {
+    cairo_json_fb_device_t *device = fb->data;
+    free(device->buf);
     cairo_destroy(fb->cairo);
     cairo_surface_destroy(fb->surface);
     free(fb->data);
@@ -60,14 +63,12 @@ static const char json_frame_header[] =
 static const char json_frame_footer[] =
     "\"}";
 
-static void json_fb_paint(matron_fb_t *fb) {
+static void json_fb_paint(matron_fb_t *fb) {  
     cairo_json_fb_device_t *device = (cairo_json_fb_device_t *)fb->data;
     cairo_paint(fb->cairo);
-    
-    device->write(json_frame_header, sizeof(json_frame_header));
+    device->buf_pos = 0;
     cairo_surface_write_to_png_stream(fb->surface, cairo_json_write, fb);
-    device->write(json_frame_footer, sizeof(json_frame_footer));
-    device->flush();
+    device->flush(device);
 }
 
 static void json_fb_bind(matron_fb_t *fb, cairo_surface_t *surface) {
@@ -98,14 +99,30 @@ static cairo_status_t cairo_json_write(void* closure, const unsigned char *data,
 {
     matron_fb_t *fb = (matron_fb_t *)closure;
     cairo_json_fb_device_t *device = (cairo_json_fb_device_t *)fb->data;
-    unsigned int b64_size = b64e_size(length);
-    unsigned char *output = calloc(1, b64_size);
-    if (output == NULL) {
-        fprintf(stderr, "ERROR (screen - json_fb): failed to allocate %d for b64 encoding\n", b64_size);
+    if (device->write(device, (char*)data, length)) {
         return CAIRO_STATUS_WRITE_ERROR;
     }
-    b64_encode(data, length, output);
-    device->write((char*)output, b64_size);
-    free(output);
     return CAIRO_STATUS_SUCCESS;
+}
+
+static int stream_fb_write(cairo_json_fb_device_t *device, const char *data, size_t length)
+{
+    if (device->buf_pos + length > PNG_BUFFER_SIZE) {
+        return -1;
+    }
+    memcpy(device->buf + device->buf_pos, data, length);
+    device->buf_pos += length;
+    return 0;
+}
+
+static void stream_fb_flush(cairo_json_fb_device_t *device)
+{
+    unsigned int b64_size = b64e_size(device->buf_pos);
+    unsigned char *b64_buf = calloc(b64_size + 1, sizeof(char));
+    b64_encode(device->buf, device->buf_pos, b64_buf);
+    fwrite(json_frame_header, 1, sizeof(json_frame_header) - 1, stderr);
+    fwrite(b64_buf, 1, b64_size, stderr);
+    fwrite(json_frame_footer, 1, sizeof(json_frame_footer) - 1, stderr);
+    fwrite("\n", 1, 1, stderr);
+    fflush(stderr);
 }

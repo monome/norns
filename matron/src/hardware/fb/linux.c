@@ -17,37 +17,25 @@ typedef struct _cairo_linux_fb_device {
     struct fb_fix_screeninfo fb_finfo;
 } cairo_linux_fb_device_t;
 
-static void linux_fb_destroy(matron_fb_t *f);
-static void linux_fb_paint(matron_fb_t *f);
-static void linux_fb_bind(matron_fb_t *f, cairo_surface_t *surface);
+static cairo_surface_t* linux_fb_init(matron_fb_t *fb);
+static void linux_fb_destroy(matron_fb_t *fb);
+static void linux_fb_paint(matron_fb_t *fb);
+static void linux_fb_bind(matron_fb_t *fb, cairo_surface_t *surface);
 
 static void cairo_linux_fb_surface_destroy(void *device);
 static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *device);
 
-int linux_fb_init(matron_fb_t *fb) {
-    fb->data = malloc(sizeof(cairo_linux_fb_device_t));
-    if (!fb->data) {
-        fprintf(stderr, "ERROR (screen - linux_fb) cannot allocate memory\n");
-	return -1;
-    }
-    fb->surface = cairo_linux_fb_surface_create((cairo_linux_fb_device_t*)fb->data);
-    if (!fb->surface) {
-        fprintf(stderr, "ERROR (screen - linux_fb) cannot create surface\n");
-        free(fb->data);
-        return -1;
-    }
-    fb->cairo = cairo_create(fb->surface);
-    if (!fb->cairo) {
-        fprintf(stderr, "ERROR (screen - linux_fb) cannot create cairo context\n");
-        cairo_surface_destroy(fb->surface);
-	free(fb->data);
-	return -1;
-    }
+fb_ops_t linux_fb_ops = {
+    .name = "fbdev",
+    .data_size = sizeof(cairo_linux_fb_device_t),
+    .init = linux_fb_init,
+    .destroy = linux_fb_destroy,
+    .paint = linux_fb_paint,
+    .bind = linux_fb_bind,
+};
 
-    fb->destroy = &linux_fb_destroy;
-    fb->paint = &linux_fb_paint;
-    fb->bind = &linux_fb_bind;
-    return 0;
+cairo_surface_t* linux_fb_init(matron_fb_t *fb) {
+    return cairo_linux_fb_surface_create((cairo_linux_fb_device_t*)fb->data);
 }
 
 static void linux_fb_destroy(matron_fb_t *fb) {

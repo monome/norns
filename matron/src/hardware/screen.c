@@ -66,30 +66,57 @@ void screen_display_png(const char *filename, double x, double y) {
     cairo_surface_destroy(image);
 }
 
-
-static void stderr_write(const char *data, size_t length)
-{
-    fwrite(data, 1, length, stderr);
+int fb_init(matron_fb_t *fb, fb_ops_t *ops) {
+    fb->data = malloc(sizeof(ops->data_size));
+    if (!fb->data) {
+        fprintf(stderr, "ERROR (screen - %s fb) cannot allocate memory\n", ops->name);
+	return -1;
+    }
+    fb->ops = ops;
+    fb->surface = fb->ops->init(fb);
+        if (!fb->surface) {
+        fprintf(stderr, "ERROR (screen - %s fb) cannot create surface\n", ops->name);
+        free(fb->data);
+        return -1;
+    }
+    fb->cairo = cairo_create(fb->surface);
+    if (!fb->cairo) {
+        fprintf(stderr, "ERROR (screen - %s fb) cannot create cairo context\n", ops->name);
+        cairo_surface_destroy(fb->surface);
+	free(fb->data);
+	return -1;
+    }
+    return 0;
 }
 
-static void stderr_flush(void)
-{
-    fwrite("\n", 1, 1, stderr);
-    fflush(stderr);
-}
+fb_ops_t* framebuf_types[] = {
+    &linux_fb_ops,
+    &json_fb_ops,
+    &x11_fb_ops,
+};
+
+const char* args[] = {
+    "web",
+    "x11",
+};
 
 void screen_init(void) {
-    framebuf_ct = 1;
+    framebuf_ct = sizeof(args) / sizeof(char*);
     framebufs = malloc(sizeof(matron_fb_t) * framebuf_ct);
     if (framebufs == NULL) {
         return;
     }
-    if (json_fb_init(&framebufs[0], stderr_write, stderr_flush) != 0) {
-//    if (linux_fb_init(&framebufs[0]) != 0) {
-    /* if (x11_fb_init(&framebufs[0]) != 0) { */
-        fprintf(stderr, "ERROR (screen) could not initialize framebuf");
-        free(framebufs);
-        return;
+    for (size_t i = 0; i < framebuf_ct; i++) {
+        fprintf(stderr, "asked for framebuffer %s\n", args[i]);
+        for (size_t j = 0; j < sizeof(framebuf_types) / sizeof(fb_ops_t*); j++) {
+            if (strcmp(framebuf_types[j]->name, args[i]) == 0) {
+                if (fb_init(&framebufs[i], framebuf_types[j])) {
+                    fprintf(stderr, "ERROR (screen) could not initialize all framebufs\n");
+                    free(framebufs);
+                    return;
+                }
+            }
+        }
     }
 
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
@@ -214,7 +241,8 @@ void screen_init(void) {
 
     // config buffer
     for (size_t i = 0; i < framebuf_ct; i++) {
-        framebufs[i].bind(&framebufs[i], surface);
+        framebufs[i].ops->bind(&framebufs[i], surface);
+        fprintf(stderr, "bound fb %s\n", framebufs[i].ops->name);
     }
 }
 
@@ -224,7 +252,7 @@ void screen_deinit(void) {
     cairo_surface_destroy(surface);
 
     for (size_t i = 0; i < framebuf_ct; i++) {
-        framebufs[i].destroy(&framebufs[i]);
+        framebufs[i].ops->destroy(&framebufs[i]);
     }
     free(framebufs);
 }
@@ -232,7 +260,7 @@ void screen_deinit(void) {
 void screen_update(void) {
     CHECK_CR
     for (size_t i = 0; i < framebuf_ct; i++) {
-        framebufs[i].paint(&framebufs[i]);
+        framebufs[i].ops->paint(&framebufs[i]);
     }
 }
 
