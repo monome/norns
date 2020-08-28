@@ -5,8 +5,8 @@
 #ifndef CRONE_COMMANDS_H
 #define CRONE_COMMANDS_H
 
-#include "boost/lockfree/spsc_queue.hpp"
-
+//#include "boost/lockfree/spsc_queue.hpp"
+#include "readerwriterqueue.h"
 
 namespace crone {
 
@@ -98,15 +98,7 @@ namespace crone {
 
     public:
         Commands();
-        void post(Commands::Id id, float f);
-        void post(Commands::Id id, int i, float f);
-        void post(Commands::Id id, int i, int j);
-        void post(Commands::Id id, int i, int j, float f);
-
-        // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
-        void handlePending(MixerClient *client);
-        void handlePending(SoftcutClient *client);
-
+	
         struct CommandPacket {
             CommandPacket() = default;
             CommandPacket(Commands::Id i, int i0,  float f) : id(i), idx_0(i0), idx_1(-1), value(f) {}
@@ -117,13 +109,24 @@ namespace crone {
             int idx_1;
             float value;
         };
+	
+	void post(CommandPacket& p);
+        void post(Commands::Id id, float f);
+        void post(Commands::Id id, int i, float f);
+        void post(Commands::Id id, int i, int j);
+        void post(Commands::Id id, int i, int j, float f);
+
+        // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
+        void handlePending(MixerClient *client);
+        void handlePending(SoftcutClient *client);
 
         static Commands mixerCommands;
         static Commands softcutCommands;
 
     private:
-        boost::lockfree::spsc_queue <CommandPacket,
-                boost::lockfree::capacity<COMMAND_Q_CAPACITY> > q;
+	//        boost::lockfree::spsc_queue <CommandPacket,
+	//                boost::lockfree::capacity<COMMAND_Q_CAPACITY> > q;
+	moodycamel::ReaderWriterQueue<CommandPacket> q;
     };
 
 }
