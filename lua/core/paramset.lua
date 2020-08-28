@@ -8,7 +8,7 @@ local control = require 'core/params/control'
 local file = require 'core/params/file'
 local taper = require 'core/params/taper'
 local trigger = require 'core/params/trigger'
-local toggle = require 'core/params/toggle'
+local binary = require 'core/params/binary'
 local group = require 'core/params/group'
 local text = require 'core/params/text'
 
@@ -22,7 +22,7 @@ local ParamSet = {
   tTRIGGER = 6,
   tGROUP = 7,
   tTEXT = 8,
-  tTOGGLE = 9,
+  tBINARY = 9,
   sets = {}
 }
 
@@ -106,8 +106,8 @@ function ParamSet:add(args)
       param = taper.new(id, name, args.min, args.max, args.default, args.k, args.units)
     elseif args.type == "trigger" then
       param = trigger.new(id, name)
-    elseif args.type == "toggle" then
-      param = toggle.new(id, name, args.default)
+    elseif args.type == "binary" then
+      param = binary.new(id, name, args.behavior, args.default)
     elseif args.type == "text" then
       param = text.new(id, name, args.text)
     else
@@ -190,12 +190,13 @@ function ParamSet:add_trigger(id, name)
   self:add { param=trigger.new(id, name) }
 end
 
---- add toggle
+--- add binary
 -- @tparam string id
 -- @tparam string name
--- @tparam boolean default
-function ParamSet:add_toggle(id, name, default)
-  self:add { param=toggle.new(id, name, default) }
+-- @tparam string behavior
+-- @tparam number default
+function ParamSet:add_binary(id, name, behavior, default)
+  self:add { param=binary.new(id, name, behavior, default) }
 end
 
 --- print.
