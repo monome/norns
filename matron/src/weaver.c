@@ -2182,33 +2182,37 @@ int _cut_buffer_clear_channel(lua_State *l) {
 }
 
 int _cut_buffer_clear_region(lua_State *l) {
-    lua_check_num_args(2);
+    lua_check_num_args(4);
     float start = (float)luaL_checknumber(l, 1);
     float dur = (float)luaL_checknumber(l, 2);
-    o_cut_buffer_clear_region(start, dur);
+    float fade = (float)luaL_checknumber(l, 3);
+    float preserve = (float)luaL_checknumber(l, 4);
+    o_cut_buffer_clear_region(start, dur, fade, preserve);
     return 0;
 }
 
 int _cut_buffer_clear_region_channel(lua_State *l) {
-    lua_check_num_args(3);
+    lua_check_num_args(5);
     int ch = (int)luaL_checkinteger(l, 1) - 1;
     float start = (float)luaL_checknumber(l, 2);
     float dur = (float)luaL_checknumber(l, 3);
-    o_cut_buffer_clear_region_channel(ch, start, dur);
+    float fade_time = (float)luaL_checknumber(l, 4);
+    float preserve = (float)luaL_checknumber(l, 5);
+    o_cut_buffer_clear_region_channel(ch, start, dur, fade_time, preserve);
     return 0;
 }
 
 int _cut_buffer_copy_mono(lua_State *l) {
     lua_check_num_args(8);
-    int srcCh = (int)luaL_checkinteger(l, 1) - 1;
-    int dstCh = (int)luaL_checkinteger(l, 2) - 1;
-    float srcStart = (float)luaL_checknumber(l, 3);
-    float dstStart = (float)luaL_checknumber(l, 4);
+    int src_ch = (int)luaL_checkinteger(l, 1) - 1;
+    int dst_ch = (int)luaL_checkinteger(l, 2) - 1;
+    float src_start = (float)luaL_checknumber(l, 3);
+    float dst_start = (float)luaL_checknumber(l, 4);
     float dur = (float)luaL_checknumber(l, 5);
-    float fadeTime = (float)luaL_checknumber(l, 6);
+    float fade_time = (float)luaL_checknumber(l, 6);
     float preserve = (float)luaL_checknumber(l, 7);
     int reverse = (int)luaL_checkinteger(l, 8);
-    o_cut_buffer_copy_mono(srcCh, dstCh, srcStart, dstStart, dur, fadeTime, preserve, reverse);
+    o_cut_buffer_copy_mono(src_ch, dst_ch, src_start, dst_start, dur, fade_time, preserve, reverse);
     return 0;
 }
 

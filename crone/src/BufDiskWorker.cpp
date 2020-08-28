@@ -22,6 +22,7 @@ using namespace crone;
 std::unique_ptr<std::thread> BufDiskWorker::worker = nullptr;
 std::queue<BufDiskWorker::Job> BufDiskWorker::jobQ;
 std::mutex BufDiskWorker::qMut;
+std::condition_variable BufDiskWorker::qCv;
 
 std::array<BufDiskWorker::BufDesc, BufDiskWorker::maxBufs> BufDiskWorker::bufs;
 int BufDiskWorker::numBufs = 0;
@@ -44,11 +45,17 @@ void BufDiskWorker::requestJob(BufDiskWorker::Job &job) {
     qMut.lock();
     jobQ.push(job);
     qMut.unlock();
-    // FIXME: use condvar to signal worker
+    qCv.notify_one();
 }
 
 void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::Clear, {idx, 0}, "", 0, start, dur, 0};
+    requestJob(job);
+}
+
+void BufDiskWorker::requestClearWithFade(size_t idx, float start, float dur,
+                                         float fadeTime, float preserve) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::ClearWithFade, {idx, 0}, "", 0, start, dur, 0, fadeTime, preserve};
     requestJob(job);
 }
 
@@ -91,47 +98,48 @@ void BufDiskWorker::requestRender(size_t idx, float start, float dur, int sample
 
 void BufDiskWorker::workLoop() {
     while (!shouldQuit) {
-        // FIXME: use condvar to wait here instead of sleeping...
-        qMut.lock();
-        if (!jobQ.empty()) {
-            Job job = jobQ.front();
+        Job job;
+        {
+            std::unique_lock<std::mutex> lock(qMut);
+            qCv.wait(lock, [] { return !jobQ.empty(); });
+            job = jobQ.front();
             jobQ.pop();
-            qMut.unlock();
-
-            switch (job.type) {
-                case JobType::Clear:
-                    clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
-                    break;
-                case JobType::Copy:
-                    copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
-                    break;
-                case JobType::ReadMono:
-                    readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
-                    break;
-                case JobType::ReadStereo:
-                    readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
-                                     job.dur);
-                    break;
-                case JobType::WriteMono:
-                    writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
-                    break;
-                case JobType::WriteStereo:
-                    writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
-                    break;
-                case JobType::Render:
-                    render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
-                    break;
-            }
-#if 0 // debug, timing
-            auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-            auto ms_dur = ms_now - ms_start;
-            std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
-#endif
-
-        } else {
-            qMut.unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepPeriodMs));
+            lock.unlock();
+            qCv.notify_one();
         }
+
+        switch (job.type) {
+            case JobType::Clear:
+                clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
+                break;
+            case JobType::ClearWithFade:
+                clearBufferWithFade(bufs[job.bufIdx[0]], job.startDst, job.dur, job.fadeTime, job.preserve);
+                break;
+            case JobType::Copy:
+                copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
+                break;
+            case JobType::ReadMono:
+                readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
+                break;
+            case JobType::ReadStereo:
+                readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
+                                 job.dur);
+                break;
+            case JobType::WriteMono:
+                writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
+                break;
+            case JobType::WriteStereo:
+                writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
+                break;
+            case JobType::Render:
+                render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
+                break;
+        }
+#if 0 // debug, timing
+        auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        auto ms_dur = ms_now - ms_start;
+        std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
+#endif
     }
 }
 
@@ -171,6 +179,42 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
     for (size_t i = frA; i < frB; ++i) {
         buf.data[i] = 0.f;
     }
+}
+
+void BufDiskWorker::clearBufferWithFade(BufDesc &buf, float start, float dur,
+                                        float fadeTime, float preserve) {
+    size_t frStart = secToFrame(start);
+    clamp(frStart, buf.frames - 1);
+    size_t frDur;
+    if (dur < 0) {
+        frDur = buf.frames - frStart;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    clamp(frDur, buf.frames - frStart);
+
+    float x;
+    float phi;
+    size_t frFadeTime = secToFrame(fadeTime);
+    if (frFadeTime > 0) {
+        x = 0.f;
+        phi = 1.f / frFadeTime;
+        clamp(frFadeTime, frDur);
+    } else {
+        frFadeTime = 0;
+        x = 1.f;
+        phi = 0.f;
+    }
+
+    if (preserve > 1.f) { preserve = 1.f; }
+    if (preserve < 0.f) { preserve = 0.f; }
+
+    float zero = 0.f;
+    copyLoop(buf.data + frStart,
+             &zero,
+             frDur, frFadeTime,
+             preserve, x, phi,
+             [](float*& d, const float*& s) { d++; });
 }
 
 void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,

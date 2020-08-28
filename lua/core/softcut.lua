@@ -285,16 +285,16 @@ SC.buffer_clear_channel = function(channel) _norns.cut_buffer_clear_channel(chan
 --- clear region (both channels)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
-SC.buffer_clear_region = function(start, dur)
-  _norns.cut_buffer_clear_region(start, dur)
+SC.buffer_clear_region = function(start, dur, fade_time, preserve)
+  _norns.cut_buffer_clear_region(start, dur or -1, fade_time or 0, preserve or 0)
 end
 
 --- clear region of single channel
 -- @tparam int ch : buffer channel index (1-based)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
-SC.buffer_clear_region_channel = function(ch, start, dur)
-  _norns.cut_buffer_clear_region_channel(ch, start, dur)
+SC.buffer_clear_region_channel = function(ch, start, dur, fade_time, preserve)
+  _norns.cut_buffer_clear_region_channel(ch, start, dur or -1, fade_time or 0, preserve or 0)
 end
 
 --- copy region from one point in a buffer to another
@@ -365,10 +365,14 @@ SC.event_phase = function(func) _norns.softcut_phase = func end
 -- @tparam number start : beginning of region in seconds
 -- @tparam number dur : length of region in seconds
 -- @tparam integer samples : max number of samples to retrieve. if less than the number of frames in the region, content will be downsampled
--- @tparam function callback : called when buffer content is ready. args: (ch, start, sec_per_frame, samples)
-SC.render_buffer = function(ch, start, dur, samples, callback)
-  _norns.softcut_render = callback
+SC.render_buffer = function(ch, start, dur, samples)
   _norns.cut_buffer_render(ch, start, dur, samples)
+end
+
+--- set function for render callback. use render_buffer to request contents.
+-- @tparam function func : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)
+SC.event_render = function(func)
+  _norns.softcut_render = func
 end
 
 

@@ -676,6 +676,45 @@ void OscInterface::addServerMethods() {
         softCutClient->clearBuffer(argv[0]->i, argv[1]->f, argv[2]->f);
     });
 
+    addServerMethod("/softcut/buffer/clear_fade_region", "ffff", [](lo_arg **argv, int argc) {
+        float dur = -1;
+        float fadeTime = 0;
+        float preserve = 0;
+        if (argc < 1) {
+            return;
+        }
+        if (argc > 1) {
+            dur = argv[1]->f;
+        }
+        if (argc > 2) {
+            fadeTime = argv[2]->f;
+        }
+        if (argc > 3) {
+            preserve = argv[3]->f;
+        }
+        softCutClient->clearBufferWithFade(0, argv[0]->f, dur, fadeTime, preserve);
+        softCutClient->clearBufferWithFade(1, argv[0]->f, dur, fadeTime, preserve);
+    });
+
+    addServerMethod("/softcut/buffer/clear_fade_region_channel", "iffff", [](lo_arg **argv, int argc) {
+        float dur = -1;
+        float fadeTime = 0;
+        float preserve = 0;
+        if (argc < 2) {
+            return;
+        }
+        if (argc > 3) {
+            dur = argv[2]->f;
+        }
+        if (argc > 4) {
+            fadeTime = argv[3]->f;
+        }
+        if (argc > 5) {
+            preserve = argv[4]->f;
+        }
+        softCutClient->clearBufferWithFade(argv[0]->i, argv[1]->f, dur, fadeTime, preserve);
+    });
+
     addServerMethod("/softcut/buffer/copy_mono", "iifffffi", [](lo_arg **argv, int argc) {
         float dur = -1.f;
         float fadeTime = 0.f;
