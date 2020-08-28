@@ -210,7 +210,7 @@ m.key = function(n,z)
       m.fine = false
       if t == params.tMOMENTARY then
         if m.mode == mEDIT then
-          params:set(i, 0)
+          params:set(i, false)
           m.on[i] = 0
         end
       end

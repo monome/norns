@@ -8,7 +8,7 @@ local tMOMENTARY = 10
 
 function Momentary.new(id, name, default)
   local o = setmetatable({}, Momentary)
-  o.t = tTOGGLE
+  o.t = tMOMENTARY
   o.id = id
   o.name = name
   o.default = default or false
