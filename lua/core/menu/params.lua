@@ -131,6 +131,8 @@ m.key = function(n,z)
     end
   -- EDIT + MAP
   elseif m.mode == mEDIT or m.mode == mMAP then
+    local i = page[m.pos+1]
+    local t = params:t(i)
     if n==2 and z==1 then
       if m.alt then
         init_pset()
@@ -146,8 +148,6 @@ m.key = function(n,z)
     elseif n==3 and z==1 and m.alt then
       m.mode = (m.mode==mEDIT) and mMAP or mEDIT
     elseif n==3 and z==1 then
-      local i = page[m.pos+1]
-      local t = params:t(i)
       if t == params.tGROUP then
         build_sub(i)
         m.group = true
@@ -208,6 +208,12 @@ m.key = function(n,z)
       end
     elseif n==3 and z==0 then
       m.fine = false
+      if t == params.tMOMENTARY then
+        if m.mode == mEDIT then
+          params:set(i, 0)
+          m.on[i] = 0
+        end
+      end
     end
     -- MAPEDIT
   elseif m.mode == mMAPEDIT then
