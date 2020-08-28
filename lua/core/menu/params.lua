@@ -208,12 +208,6 @@ m.key = function(n,z)
       end
     elseif n==3 and z==0 then
       m.fine = false
-      if t == params.tMOMENTARY then
-        if m.mode == mEDIT then
-          params:set(i, false)
-          m.on[i] = 0
-        end
-      end
     end
     -- MAPEDIT
   elseif m.mode == mMAPEDIT then
