@@ -5,23 +5,24 @@
 #ifndef CRONE_COMMANDS_H
 #define CRONE_COMMANDS_H
 
-#include <boost/lockfree/spsc_queue.hpp>
-
+//#include "boost/lockfree/spsc_queue.hpp"
+#include "readerwriterqueue.h"
 
 namespace crone {
 
     class MixerClient;
     class SoftcutClient;
 
-    class Commands {
+    class Commands {	
     public:
+	static constexpr int COMMAND_Q_CAPACITY = 256;
         typedef enum {
             //-- level commands
             SET_LEVEL_ADC,
             SET_LEVEL_DAC,
             SET_LEVEL_EXT,
             SET_LEVEL_EXT_AUX,
-	        SET_LEVEL_CUT_MASTER,
+	    SET_LEVEL_CUT_MASTER,
             SET_LEVEL_AUX_DAC,
             SET_LEVEL_MONITOR,
             SET_LEVEL_MONITOR_MIX,
@@ -78,8 +79,8 @@ namespace crone {
             SET_CUT_PRE_FILTER_BR,
             SET_CUT_PRE_FILTER_DRY,
 
-	        SET_CUT_POST_FILTER_FC,
-	        SET_CUT_POST_FILTER_RQ,
+	    SET_CUT_POST_FILTER_FC,
+	    SET_CUT_POST_FILTER_RQ,
             SET_CUT_POST_FILTER_LP,
             SET_CUT_POST_FILTER_HP,
             SET_CUT_POST_FILTER_BP,
@@ -97,15 +98,7 @@ namespace crone {
 
     public:
         Commands();
-        void post(Commands::Id id, float f);
-        void post(Commands::Id id, int i, float f);
-        void post(Commands::Id id, int i, int j);
-        void post(Commands::Id id, int i, int j, float f);
-
-        // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
-        void handlePending(MixerClient *client);
-        void handlePending(SoftcutClient *client);
-
+	
         struct CommandPacket {
             CommandPacket() = default;
             CommandPacket(Commands::Id i, int i0,  float f) : id(i), idx_0(i0), idx_1(-1), value(f) {}
@@ -116,13 +109,24 @@ namespace crone {
             int idx_1;
             float value;
         };
+	
+	void post(CommandPacket& p);
+        void post(Commands::Id id, float f);
+        void post(Commands::Id id, int i, float f);
+        void post(Commands::Id id, int i, int j);
+        void post(Commands::Id id, int i, int j, float f);
+
+        // FIXME: i guess things would be cleaner with a non-templated Client base/interface class
+        void handlePending(MixerClient *client);
+        void handlePending(SoftcutClient *client);
 
         static Commands mixerCommands;
         static Commands softcutCommands;
 
     private:
-        boost::lockfree::spsc_queue <CommandPacket,
-                boost::lockfree::capacity<200> > q;
+	//        boost::lockfree::spsc_queue <CommandPacket,
+	//                boost::lockfree::capacity<COMMAND_Q_CAPACITY> > q;
+	moodycamel::ReaderWriterQueue<CommandPacket> q;
     };
 
 }
