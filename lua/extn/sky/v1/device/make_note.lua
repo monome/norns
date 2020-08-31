@@ -51,6 +51,7 @@ function MakeNote:process(event, output, state)
     if event.duration ~= nil then
       local note_off = sky.mk_note_off(event.note, 0, event.ch, cid)
       note_off.from = self
+      note_off.voice = event.voice
       self._scheduler:sleep(event.duration, note_off)
     end
     return
