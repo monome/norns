@@ -21,11 +21,11 @@ function er.gen(k, n, w)
    local b = n
    for i=1,n do
       if b >= n then
-    b = b - n
-    local j = i + w
-    while (j > n) do j = j - n end
-    while (j < 1) do j = j + n end
-	 r[j] = true
+         b = b - n
+         local j = i + w
+         while (j > n) do j = j - n end
+         while (j < 1) do j = j + n end
+         r[j] = true
       end
       b = b + k
    end
