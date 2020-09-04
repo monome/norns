@@ -11,6 +11,8 @@ function er.gen(k, n)
    local r = {}
    for i=1,n do r[i] = false end
 
+   if k < 1 then return r end
+
    -- using the "bucket method"
    -- for each step in the output, add K to the bucket.
    -- if the bucket overflows, this step contains a pulse.
