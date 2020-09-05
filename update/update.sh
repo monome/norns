@@ -63,7 +63,10 @@ fi
 
 # logs
 sudo rm -rf /var/log/*
-sudo apt-get remove -y rsyslog
+RSYSLOG_INSTALL=`dpkg -l | grep rsyslog | grep ^ii`
+if [ "$RSYSLOG_INSTALL" ]; then
+    sudo apt-get remove -y rsyslog
+fi
 
 # maiden project setup
 cd /home/we/maiden
