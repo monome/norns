@@ -53,7 +53,7 @@ sudo rm /boot/kernel-*
 sudo find /lib/modules/* -path "/lib/modules/$(uname -r)" -o -type d -exec rm -rf {} +
 sudo cp -r kernel/boot /
 sudo cp -r kernel/lib /
-HW=$(sudo cat /sys/firmware/devicetree/base/model)
+HW=$(sudo cat /sys/firmware/devicetree/base/model | tr '\0' '\n')
 if [[ "$HW" == *"Compute"* ]]; then
   echo "CM3"
 else
