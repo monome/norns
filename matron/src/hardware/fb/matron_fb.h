@@ -22,4 +22,4 @@ typedef struct _matron_fb {
 
 extern fb_ops_t linux_fb_ops;
 extern fb_ops_t json_fb_ops;
-extern fb_ops_t x11_fb_ops;
+extern fb_ops_t sdl_fb_ops;

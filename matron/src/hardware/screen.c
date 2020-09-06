@@ -91,13 +91,13 @@ int fb_init(matron_fb_t *fb, fb_ops_t *ops) {
 
 fb_ops_t* framebuf_types[] = {
     &linux_fb_ops,
-    &json_fb_ops,
-    &x11_fb_ops,
+    /* &json_fb_ops, */
+    &sdl_fb_ops,
 };
 
 const char* args[] = {
-    "web",
-    "x11",
+    /* "web", */
+    "sdl",
 };
 
 void screen_init(void) {

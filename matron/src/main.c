@@ -39,9 +39,9 @@ void cleanup(void) {
     osc_deinit();
     o_deinit();
     w_deinit();
-    gpio_deinit();
-    i2c_deinit();
+//    gpio_deinit();
     screen_deinit();
+    i2c_deinit();
     battery_deinit();
     stat_deinit();
     watch_deinit();
@@ -63,10 +63,10 @@ int main(int argc, char **argv) {
 #ifdef __arm__
     // gpio_init() hangs for too long when cross-compiling norns
     // desktop for dev - just disable on x86 for now
-    gpio_init();
+    // gpio_init();
 #endif
 
-    battery_init();
+//    battery_init();
     stat_init();
     i2c_init();
     osc_init();

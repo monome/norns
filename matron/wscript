@@ -17,7 +17,7 @@ def build(bld):
         'src/hardware/stat.c',
 	'src/hardware/fb/json.c',
 	'src/hardware/fb/linux.c',
-        'src/hardware/fb/x11.c',
+        'src/hardware/fb/sdl.c',
         'src/hardware/fb/base64/base64.c',
         'src/args.c',
         'src/events.c',
@@ -47,7 +47,7 @@ def build(bld):
     matron_libs = [
         'pthread',
         'm',
-        'X11',
+        'SDL2',
     ]
 
     matron_use = [
@@ -61,6 +61,7 @@ def build(bld):
         'LIBMONOME',
         'SNDFILE',
         'AVAHI-COMPAT-LIBDNS_SD',
+        'SDL2',
     ]
 
     if bld.env.ENABLE_ABLETON_LINK:

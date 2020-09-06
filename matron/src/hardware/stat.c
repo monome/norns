@@ -48,7 +48,7 @@ void *stat_check(void *x) {
 
     FILE *fd;
     char buf[64];
-    char bufsub[8];
+    /* char bufsub[8]; */
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
     uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
@@ -73,16 +73,18 @@ void *stat_check(void *x) {
         }
 
         // check temp
-        if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
-            fprintf(stderr, "Error opening pipe: temp read\n");
-        } else {
-            while (fgets(buf, 16, fd) != NULL) {
-                strncpy(bufsub, buf + 5, 2);
-                temp = atoi(bufsub);
-                // fprintf(stderr,"temp: %d\r\n", temp);
-            }
-        }
-        pclose(fd);
+        /* if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) { */
+        /*     fprintf(stderr, "Error opening pipe: temp read\n"); */
+        /* } else { */
+        /*     while (fgets(buf, 16, fd) != NULL) { */
+        /*         bufsub[0] = buf[5]; */
+        /*         bufsub[1] = buf[6]; */
+        /*         bufsub[2] = 0; */
+        /*         temp = atoi(bufsub); */
+        /*         // fprintf(stderr,"temp: %d\r\n", temp); */
+        /*     } */
+        /* } */
+        /* pclose(fd); */
 
         // check cpu
         if ((fd = popen("head -n1 /proc/stat", "r")) == NULL) {
