@@ -176,13 +176,15 @@ end
 
 --- create a shallow copy of the given event
 -- @param event : then event object to clone
-local function clone(event)
+local function copy(event)
   local new = {}
   for k,v in pairs(event) do
     new[k] = v
   end
   return new
 end
+
+local clone = copy
 
 --- return true if str starts with start (string)
 -- @param str : the string to test
@@ -327,6 +329,7 @@ return {
   to_bend_range = to_bend_range,
   to_string = to_string,
   clone = clone,
+  copy = copy,
   starts_with = starts_with,
   bpm_to_sec = bpm_to_sec,
   is_type = is_type,
