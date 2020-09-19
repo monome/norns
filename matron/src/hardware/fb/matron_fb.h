@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cairo.h>
+#include <sys/queue.h>
 
 struct _matron_fb;
 
@@ -18,6 +19,8 @@ typedef struct _matron_fb {
     cairo_surface_t *surface;
     void *data;
     fb_ops_t *ops;
+
+    TAILQ_ENTRY(_matron_fb) entries;
 } matron_fb_t;
 
 extern fb_ops_t linux_fb_ops;

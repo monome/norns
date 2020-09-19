@@ -13,6 +13,7 @@
 
 #include "args.h"
 #include "hardware/fb/matron_fb.h"
+#include "hardware/screen.h"
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
@@ -36,9 +37,6 @@ static float c[16] = {0,   0.066666666666667, 0.13333333333333, 0.2, 0.266666666
 static cairo_surface_t *surface;
 static cairo_surface_t *image;
 static cairo_t *cr;
-
-static matron_fb_t *framebufs;
-static size_t framebuf_ct;
 
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
@@ -89,36 +87,39 @@ int fb_init(matron_fb_t *fb, fb_ops_t *ops) {
     return 0;
 }
 
-fb_ops_t* framebuf_types[] = {
-    &linux_fb_ops,
-    /* &json_fb_ops, */
-    &sdl_fb_ops,
-};
+TAILQ_HEAD(tailhead, _matron_fb) screen_fbs = TAILQ_HEAD_INITIALIZER(screen_fbs);
 
-const char* args[] = {
-    /* "web", */
-    "sdl",
-};
+int screen_create(screen_type_t type, const char *name, screen_config_t *cfg) {
+    int err;
+    matron_fb_t* fb = malloc(sizeof(matron_fb_t));
+
+    (void)cfg;
+
+    switch (type) {
+        case SCREEN_TYPE_FBDEV:
+            if ((err = fb_init(fb, &linux_fb_ops))) goto fail;
+            break;
+        case SCREEN_TYPE_SDL:
+            if ((err = fb_init(fb, &sdl_fb_ops))) goto fail;
+            break;
+        case SCREEN_TYPE_JSON:
+            if ((err = fb_init(fb, &json_fb_ops))) goto fail;
+            break;
+        default:
+            goto fail;
+    }
+
+    TAILQ_INSERT_TAIL(&screen_fbs, fb, entries);
+    fprintf(stderr, "added screen %s\n", name);
+    return 0;
+
+fail:
+    fprintf(stderr, "couldn't set up screen %s\n", name);
+    free(fb);
+    return -1;
+}
 
 void screen_init(void) {
-    framebuf_ct = sizeof(args) / sizeof(char*);
-    framebufs = malloc(sizeof(matron_fb_t) * framebuf_ct);
-    if (framebufs == NULL) {
-        return;
-    }
-    for (size_t i = 0; i < framebuf_ct; i++) {
-        fprintf(stderr, "asked for framebuffer %s\n", args[i]);
-        for (size_t j = 0; j < sizeof(framebuf_types) / sizeof(fb_ops_t*); j++) {
-            if (strcmp(framebuf_types[j]->name, args[i]) == 0) {
-                if (fb_init(&framebufs[i], framebuf_types[j])) {
-                    fprintf(stderr, "ERROR (screen) could not initialize all framebufs\n");
-                    free(framebufs);
-                    return;
-                }
-            }
-        }
-    }
-
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
     cr = cairo_create(surface);
 
@@ -239,10 +240,10 @@ void screen_init(void) {
     cairo_set_font_face(cr, ct[0]);
     cairo_set_font_size(cr, 8.0);
 
-    // config buffer
-    for (size_t i = 0; i < framebuf_ct; i++) {
-        framebufs[i].ops->bind(&framebufs[i], surface);
-        fprintf(stderr, "bound fb %s\n", framebufs[i].ops->name);
+    matron_fb_t *fb;
+    TAILQ_FOREACH(fb, &screen_fbs, entries) {
+        fb->ops->bind(fb, surface);
+        fprintf(stderr, "bound fb %s\n", fb->ops->name);
     }
 }
 
@@ -251,16 +252,17 @@ void screen_deinit(void) {
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 
-    for (size_t i = 0; i < framebuf_ct; i++) {
-        framebufs[i].ops->destroy(&framebufs[i]);
+    matron_fb_t *fb;
+    TAILQ_FOREACH(fb, &screen_fbs, entries) {
+        fb->ops->destroy(fb);
     }
-    free(framebufs);
 }
 
 void screen_update(void) {
     CHECK_CR
-    for (size_t i = 0; i < framebuf_ct; i++) {
-        framebufs[i].ops->paint(&framebufs[i]);
+    matron_fb_t *fb;
+    TAILQ_FOREACH(fb, &screen_fbs, entries) {
+        fb->ops->paint(fb);
     }
 }
 

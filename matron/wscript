@@ -2,6 +2,7 @@ top = '..'
 
 def build(bld):
     matron_sources = [
+        'src/config.c',
         'src/device/device.c',
         'src/device/device_hid.c',
         'src/device/device_list.c',

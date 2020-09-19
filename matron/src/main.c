@@ -12,6 +12,7 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
+#include "config.h"
 #include "device.h"
 #include "device_hid.h"
 #include "device_list.h"
@@ -56,7 +57,10 @@ int main(int argc, char **argv) {
     print_version();
 
     events_init(); // <-- must come first!
-    screen_init();
+    if (config_init()) {
+        fprintf(stderr, "configuration failed\n");
+        return -1;
+    }
 
     metros_init();
 
