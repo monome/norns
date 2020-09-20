@@ -19,8 +19,13 @@ static int input_init(matron_input_t* input, input_config_t* cfg, input_ops_t* o
         fprintf(stderr, "ERROR (input - %s) cannot allocate memory\n", ops->name);
         return -1;
     }
+    input->config = malloc(sizeof(input_config_t));
+    if (!input->config) {
+        fprintf(stderr, "ERROR (input - %s) cannot allocate memory\n", ops->name);
+        return -1;
+    }
+    memcpy(input->config, cfg, sizeof(input_config_t));
     input->ops = ops;
-    input->config = cfg;
     return 0;
 }
 

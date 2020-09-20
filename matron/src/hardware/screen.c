@@ -72,7 +72,12 @@ int fb_init(matron_fb_t *fb, screen_config_t* cfg, fb_ops_t *ops) {
     }
 
     fb->ops = ops;
-    fb->config = cfg;
+    fb->config = malloc(sizeof(screen_config_t));
+    if (!fb->config) {
+        fprintf(stderr, "ERROR (screen - %s) cannot allocate memory\n", ops->name);
+	return -1;
+    }
+    memcpy(fb->config, cfg, sizeof(screen_config_t));
     fb->surface = fb->ops->init(fb);
     if (!fb->surface) {
         fprintf(stderr, "ERROR (screen - %s) cannot create surface\n", ops->name);

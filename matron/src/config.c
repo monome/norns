@@ -71,7 +71,6 @@ int _screen_add(lua_State *l) {
     lua_gettable(l, -2);
     if (lua_isstring(l, -1)) {
         const char *dev = lua_tostring(l, -1);
-        fprintf(stderr, "screen %s: dev %s\n", name, dev);
         cfg.dev = malloc(strlen(dev) + 1);
         if (!cfg.dev) {
             fprintf(stderr, "ERROR (input) no memory\n");
@@ -80,7 +79,6 @@ int _screen_add(lua_State *l) {
         }
         strcpy(cfg.dev, dev);
     } else if (lua_isnil(l, -1)) {
-        fprintf(stderr, "screen dev is nil\n");
         cfg.dev = "/dev/fb0";
     } else {
         fprintf(stderr, "ERROR (input) config option 'dev' should be a string\n");
@@ -94,8 +92,6 @@ int _screen_add(lua_State *l) {
         lua_settop(l, 0);
         return luaL_error(l, "failed to create screen");
     }
-
-    fprintf(stderr, "create screen %s - %s\n", name, type_str);
 
     lua_settop(l, 0);
     return 0;
@@ -161,7 +157,6 @@ int _input_add(lua_State *l) {
         fprintf(stderr, "failed to create input '%s'\n", name);
         return luaL_error(l, "failed to create input");
     }
-
     lua_settop(l, 0);
     return 0;
 }

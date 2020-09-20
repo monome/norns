@@ -17,7 +17,6 @@ typedef struct _gpio_input_dev {
 
 typedef struct _gpio_enc_dev {
     gpio_input_dev_t base;
-    int index;
 } gpio_enc_dev_t;
 
 static int gpio_input_setup(matron_input_t* input);
@@ -78,7 +77,7 @@ void* gpio_enc_poll(void* data) {
                         dir[i] = event[i].value;
                     }
                     union event_data *ev = event_data_new(EVENT_ENC);
-                    ev->enc.n = dev->index;
+                    ev->enc.n = input->config->index;
                     ev->enc.delta = event[i].value;
                     event_post(ev);
                 }
