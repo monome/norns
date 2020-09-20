@@ -23,7 +23,7 @@ static void linux_fb_paint(matron_fb_t *fb);
 static void linux_fb_bind(matron_fb_t *fb, cairo_surface_t *surface);
 
 static void cairo_linux_fb_surface_destroy(void *device);
-static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *device);
+static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *device, const char *fb_name);
 
 fb_ops_t linux_fb_ops = {
     .name = "fbdev",
@@ -35,7 +35,8 @@ fb_ops_t linux_fb_ops = {
 };
 
 cairo_surface_t* linux_fb_init(matron_fb_t *fb) {
-    return cairo_linux_fb_surface_create((cairo_linux_fb_device_t*)fb->data);
+    return cairo_linux_fb_surface_create((cairo_linux_fb_device_t*)fb->data,
+                                         fb->config->dev);
 }
 
 static void linux_fb_destroy(matron_fb_t *fb) {
@@ -65,14 +66,12 @@ static void cairo_linux_fb_surface_destroy(void *device) {
     free(dev);
 }
 
-static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *device) {
+static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *device, const char *fb_name) {
     cairo_surface_t *surface;
-
-    const char *fb_name = args_framebuffer();
 
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
-    if (device->fb_fd == -1) {
+    if (device->fb_fd <= 0) {
         fprintf(stderr, "ERROR (screen) cannot open framebuffer device\n");
         goto handle_allocate_error;
     }
@@ -101,7 +100,7 @@ static cairo_surface_t *cairo_linux_fb_surface_create(cairo_linux_fb_device_t *d
         goto handle_ioctl_error;
     }
 
-    /* Create the cairo surface which will be used to draw to */
+    // Create the cairo surface which will be used to draw to
     surface = cairo_image_surface_create_for_data(
         device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
         cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
@@ -117,3 +116,4 @@ handle_allocate_error:
     free(device);
     return NULL;
 }
+

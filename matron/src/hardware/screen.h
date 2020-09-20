@@ -9,6 +9,7 @@ typedef enum _screen_type {
 } screen_type_t;
 
 typedef struct _screen_config {
+    char* dev;
 } screen_config_t;
 
 extern int screen_create(screen_type_t type, const char *name, screen_config_t *config); 

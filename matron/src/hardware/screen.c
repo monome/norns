@@ -64,22 +64,24 @@ void screen_display_png(const char *filename, double x, double y) {
     cairo_surface_destroy(image);
 }
 
-int fb_init(matron_fb_t *fb, fb_ops_t *ops) {
-    fb->data = malloc(sizeof(ops->data_size));
+int fb_init(matron_fb_t *fb, screen_config_t* cfg, fb_ops_t *ops) {
+    fb->data = malloc(ops->data_size);
     if (!fb->data) {
-        fprintf(stderr, "ERROR (screen - %s fb) cannot allocate memory\n", ops->name);
+        fprintf(stderr, "ERROR (screen - %s) cannot allocate memory\n", ops->name);
 	return -1;
     }
+
     fb->ops = ops;
+    fb->config = cfg;
     fb->surface = fb->ops->init(fb);
-        if (!fb->surface) {
-        fprintf(stderr, "ERROR (screen - %s fb) cannot create surface\n", ops->name);
+    if (!fb->surface) {
+        fprintf(stderr, "ERROR (screen - %s) cannot create surface\n", ops->name);
         free(fb->data);
         return -1;
     }
     fb->cairo = cairo_create(fb->surface);
     if (!fb->cairo) {
-        fprintf(stderr, "ERROR (screen - %s fb) cannot create cairo context\n", ops->name);
+        fprintf(stderr, "ERROR (screen - %s) cannot create cairo context\n", ops->name);
         cairo_surface_destroy(fb->surface);
 	free(fb->data);
 	return -1;
@@ -92,18 +94,22 @@ TAILQ_HEAD(tailhead, _matron_fb) screen_fbs = TAILQ_HEAD_INITIALIZER(screen_fbs)
 int screen_create(screen_type_t type, const char *name, screen_config_t *cfg) {
     int err;
     matron_fb_t* fb = malloc(sizeof(matron_fb_t));
-
-    (void)cfg;
+    fb->name = malloc(strlen(name) + 1);
+    strcpy(fb->name, name);
+    if (!fb) {
+        fprintf(stderr, "ERROR (screen) couldn't allocate screen: %s\n", name);
+        return -1;
+    }
 
     switch (type) {
         case SCREEN_TYPE_FBDEV:
-            if ((err = fb_init(fb, &linux_fb_ops))) goto fail;
+            if ((err = fb_init(fb, cfg, &linux_fb_ops))) goto fail;
             break;
         case SCREEN_TYPE_SDL:
-            if ((err = fb_init(fb, &sdl_fb_ops))) goto fail;
+            if ((err = fb_init(fb, cfg, &sdl_fb_ops))) goto fail;
             break;
         case SCREEN_TYPE_JSON:
-            if ((err = fb_init(fb, &json_fb_ops))) goto fail;
+            if ((err = fb_init(fb, cfg, &json_fb_ops))) goto fail;
             break;
         default:
             goto fail;
@@ -253,8 +259,12 @@ void screen_deinit(void) {
     cairo_surface_destroy(surface);
 
     matron_fb_t *fb;
-    TAILQ_FOREACH(fb, &screen_fbs, entries) {
+    while (!TAILQ_EMPTY(&screen_fbs)) {
+        fb = TAILQ_FIRST(&screen_fbs);
         fb->ops->destroy(fb);
+        TAILQ_REMOVE(&screen_fbs, fb, entries);
+        free(fb->data);
+        free(fb);
     }
 }
 

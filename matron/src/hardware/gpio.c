@@ -4,146 +4,90 @@
  * keys and encoders
  */
 
-#include <errno.h>
-#include <fcntl.h>
-#include <linux/input.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <unistd.h>
 
-#include "events.h"
-#include "watch.h"
+#include "hardware/gpio.h"
+#include "hardware/input/matron_input.h"
 
-int key_fd;
-pthread_t key_p;
-
-int enc_fd[3];
-pthread_t enc_p[3];
-
-void *key_check(void *);
-void *enc_check(void *);
-
-// extern def
-
-static int open_and_grab(const char *pathname, int flags) {
-    int fd;
-    int open_attempts = 0, ioctl_attempts = 0;
-    while (open_attempts < 200) {
-        fd = open(pathname, flags);
-        if (fd > 0) {
-            if (ioctl(fd, EVIOCGRAB, 1) == 0) {
-                ioctl(fd, EVIOCGRAB, (void *)0);
-                goto done;
-            }
-            ioctl_attempts++;
-            close(fd);
-        }
-        open_attempts++;
-        usleep(50000); // 50ms sleep * 200 = 10s fail after 10s
-    };
-done:
-    if (open_attempts > 0) {
-        fprintf(stderr, "WARN open_and_grab GPIO '%s' required %d open attempts & %d ioctl attempts\n", pathname,
-                open_attempts, ioctl_attempts);
+static int input_init(matron_input_t* input, input_config_t* cfg, input_ops_t* ops) {
+    input->data = malloc(ops->data_size);
+    if (!input->data) {
+        fprintf(stderr, "ERROR (input - %s) cannot allocate memory\n", ops->name);
+        return -1;
     }
-    return fd;
+    input->ops = ops;
+    input->config = cfg;
+    return 0;
 }
 
-void gpio_init() {
-    key_fd = open_and_grab("/dev/input/by-path/platform-keys-event", O_RDONLY); // Keys
-    if (key_fd > 0) {
-        if (pthread_create(&key_p, NULL, key_check, 0)) {
-            fprintf(stderr, "ERROR (keys) pthread error\n");
-        }
+// extern def
+TAILQ_HEAD(tailhead, _matron_input) input_devs = TAILQ_HEAD_INITIALIZER(input_devs);
+
+int input_create(input_type_t type, const char* name, input_config_t* cfg) {
+    int err;
+    matron_input_t* input = malloc(sizeof(matron_input_t));
+    input->name = malloc(strlen(name) + 1);
+    strcpy(input->name, name);
+
+    (void)cfg;
+
+    switch (type) {
+        case INPUT_TYPE_GPIO_KEY:
+            if ((err = input_init(input, cfg, &gpio_key_ops))) goto fail;
+            break;
+        case INPUT_TYPE_GPIO_ENC:
+            if ((err = input_init(input, cfg, &gpio_enc_ops))) goto fail;
+            break;
+        /* case INPUT_TYPE_KBM: */
+        /*     if ((err = input_init(input, &kbm_input_ops))) goto fail; */
+        /*     break; */
+        /* case INPUT_TYPE_JSON: */
+        /*     if ((err = input_init(input, &json_input_ops))) goto fail; */
+        /*     break; */
+        default:
+            goto fail;
     }
 
-    char *enc_filenames[3] = {"/dev/input/by-path/platform-soc:knob1-event",
-                              "/dev/input/by-path/platform-soc:knob2-event",
-                              "/dev/input/by-path/platform-soc:knob3-event"};
-    for (int i = 0; i < 3; i++) {
-        enc_fd[i] = open_and_grab(enc_filenames[i], O_RDONLY);
-        if (enc_fd[i] > 0) {
-            int *arg = malloc(sizeof(int));
-            *arg = i;
-            if (pthread_create(&enc_p[i], NULL, enc_check, arg)) {
-                fprintf(stderr, "ERROR (enc%d) pthread error\n", i);
-            }
+    TAILQ_INSERT_TAIL(&input_devs, input, entries);
+    fprintf(stderr, "added input %s\n", name);
+    return 0;
+
+fail:
+    fprintf(stderr, "couldn't set up input %s\n", name);
+    free(input);
+    return -1;
+} 
+
+void gpio_init() {
+    matron_input_t *input;
+    TAILQ_FOREACH(input, &input_devs, entries) {
+        input->data = malloc(input->ops->data_size);
+        if (!input->data) {
+            fprintf(stderr, "ERROR (input %s) couldn't allocate %zu\n", input->name, input->ops->data_size);
+            return;
+        }
+        if (input->ops->setup(input)) {
+            fprintf(stderr, "ERROR (input %s) setup failed\n", input->name);
+            continue;
+        }
+        if (pthread_create(&input->poll_thread, NULL, input->ops->poll, input)) {
+            fprintf(stderr, "ERROR (input %s) pthread error\n", input->name);
+            continue;
         }
     }
 }
 
 void gpio_deinit() {
-    pthread_cancel(key_p);
-    pthread_cancel(enc_p[0]);
-    pthread_cancel(enc_p[1]);
-    pthread_cancel(enc_p[2]);
-}
-
-void *enc_check(void *x) {
-    int n = *((int *)x);
-    free(x);
-    int rd;
-    unsigned int i;
-    struct input_event event[64];
-    int dir[3] = {1, 1, 1};
-    clock_t now[3];
-    clock_t prev[3];
-    clock_t diff;
-    prev[0] = prev[1] = prev[2] = clock();
-
-    while (1) {
-        rd = read(enc_fd[n], event, sizeof(struct input_event) * 64);
-        if (rd < (int)sizeof(struct input_event)) {
-            fprintf(stderr, "ERROR (enc) read error\n");
-        }
-
-        for (i = 0; i < rd / sizeof(struct input_event); i++) {
-            if (event[i].type) { // make sure it's not EV_SYN == 0
-                now[i] = clock();
-                diff = now[i] - prev[i];
-                // fprintf(stderr, "%d\t%d\t%lu\n", n, event[i].value, diff);
-                prev[i] = now[i];
-                if (diff > 100) { // filter out glitches
-                    if (dir[i] != event[i].value &&
-                        diff > 500) { // only reverse direction if there is reasonable settling time
-                        dir[i] = event[i].value;
-                    }
-                    union event_data *ev = event_data_new(EVENT_ENC);
-                    ev->enc.n = n + 1;
-                    ev->enc.delta = event[i].value;
-                    event_post(ev);
-                }
-            }
-        }
-    }
-}
-
-void *key_check(void *x) {
-    (void)x;
-    int rd;
-    unsigned int i;
-    struct input_event event[64];
-
-    while (1) {
-        rd = read(key_fd, event, sizeof(struct input_event) * 64);
-        if (rd < (int)sizeof(struct input_event)) {
-            fprintf(stderr, "ERROR (key) read error\n");
-        }
-
-        for (i = 0; i < rd / sizeof(struct input_event); i++) {
-            if (event[i].type) { // make sure it's not EV_SYN == 0
-                // fprintf(stderr, "enc%d = %d\n", n, event[i].value);
-                union event_data *ev = event_data_new(EVENT_KEY);
-                ev->key.n = event[i].code;
-                ev->key.val = event[i].value;
-                event_post(ev);
-
-                watch_key(event[i].code, event[i].value);
-            }
-        }
+    matron_input_t* input;
+    while (!TAILQ_EMPTY(&input_devs)) {
+        input = TAILQ_FIRST(&input_devs);
+        pthread_cancel(input->poll_thread);
+        TAILQ_REMOVE(&input_devs, input, entries);
+        free(input->data);
+        free(input);
     }
 }

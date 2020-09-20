@@ -20,6 +20,7 @@ def build(bld):
 	'src/hardware/fb/linux.c',
         'src/hardware/fb/sdl.c',
         'src/hardware/fb/base64/base64.c',
+        'src/hardware/input/fd.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',

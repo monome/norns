@@ -3,11 +3,14 @@
 #include <cairo.h>
 #include <sys/queue.h>
 
+#include "hardware/screen.h"
+
 struct _matron_fb;
 
 typedef struct _fb_ops {
     size_t data_size;
     const char* name;
+
     cairo_surface_t* (*init)(struct _matron_fb *fb);
     void (*destroy)(struct _matron_fb *fb);
     void (*paint)(struct _matron_fb *fb);
@@ -15,10 +18,12 @@ typedef struct _fb_ops {
 } fb_ops_t;
 
 typedef struct _matron_fb {
+    char *name;
+    void *data;
     cairo_t *cairo;
     cairo_surface_t *surface;
-    void *data;
     fb_ops_t *ops;
+    screen_config_t *config;
 
     TAILQ_ENTRY(_matron_fb) entries;
 } matron_fb_t;
