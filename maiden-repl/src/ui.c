@@ -108,7 +108,7 @@ void ui_loop(void) {
     case '\t':
       page_cycle();
       break;
-    case 0x5b: // shift+tab
+    case 0x5a: // shift+tab
       page_switch();
       break;
     default:
