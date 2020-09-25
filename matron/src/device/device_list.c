@@ -207,7 +207,7 @@ void list_device(snd_ctl_t *ctl, int card, int device) {
         snd_rawmidi_info_set_subdevice(info, sub);
         err = snd_ctl_rawmidi_info(ctl, info);
         if (err < 0) {
-            error("cannot get rawmidi information %d:%d:%d: %s\n",
+            printf("cannot get rawmidi information %d:%d:%d: %s\n",
                 card, device, sub, snd_strerror(err));
             return;
         }
@@ -246,13 +246,13 @@ void list_card_devices(int card) {
 
     sprintf(name, "hw:%d", card);
     if ((err = snd_ctl_open(&ctl, name, 0)) < 0) {
-        error("cannot open control for card %d: %s", card, snd_strerror(err));
+        printf("cannot open control for card %d: %s", card, snd_strerror(err));
         return;
     }
     device = -1;
     for (;;) {
         if ((err = snd_ctl_rawmidi_next_device(ctl, &device)) < 0) {
-            error("cannot determine device number: %s", snd_strerror(err));
+            printf("cannot determine device number: %s", snd_strerror(err));
             break;
         }
         if (device < 0)
@@ -267,18 +267,18 @@ void dev_list_init_virtual_midi(void) {
 
     card = -1;
     if ((err = snd_card_next(&card)) < 0) {
-        error("cannot determine card number: %s", snd_strerror(err));
+        printf("cannot determine card number: %s", snd_strerror(err));
         return;
     }
     if (card < 0) {
-        error("no sound card found");
+        printf("no sound card found");
         return;
     }
 
     do {
         list_card_devices(card);
         if ((err = snd_card_next(&card)) < 0) {
-            error("cannot determine card number: %s", snd_strerror(err));
+            printf("cannot determine card number: %s", snd_strerror(err));
             break;
         }
     } while (card >= 0);
