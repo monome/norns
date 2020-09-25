@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+// #include <alloca.h>
 
 #include "device.h"
 #include "device_list.h"
@@ -168,4 +169,117 @@ void dev_list_remove(device_t type, const char *node) {
         return;
     }
     dev_list_remove_node(dn, ev);
+}
+
+void list_device(snd_ctl_t *ctl, int card, int device) {
+    snd_rawmidi_info_t *info;
+    const char *name;
+    const char *sub_name;
+    int subs, subs_in, subs_out;
+    int sub;
+    int err;
+
+    snd_rawmidi_info_alloca(&info);
+    snd_rawmidi_info_set_device(info, device);
+
+    snd_rawmidi_info_set_stream(info, SND_RAWMIDI_STREAM_INPUT);
+    err = snd_ctl_rawmidi_info(ctl, info);
+    if (err >= 0)
+        subs_in = snd_rawmidi_info_get_subdevices_count(info);
+    else
+        subs_in = 0;
+
+    snd_rawmidi_info_set_stream(info, SND_RAWMIDI_STREAM_OUTPUT);
+    err = snd_ctl_rawmidi_info(ctl, info);
+    if (err >= 0)
+        subs_out = snd_rawmidi_info_get_subdevices_count(info);
+    else
+        subs_out = 0;
+
+    subs = subs_in > subs_out ? subs_in : subs_out;
+    if (!subs)
+        return;
+
+    for (sub = 0; sub < subs; ++sub) {
+        snd_rawmidi_info_set_stream(info, sub < subs_in ?
+                        SND_RAWMIDI_STREAM_INPUT :
+                        SND_RAWMIDI_STREAM_OUTPUT);
+        snd_rawmidi_info_set_subdevice(info, sub);
+        err = snd_ctl_rawmidi_info(ctl, info);
+        if (err < 0) {
+            error("cannot get rawmidi information %d:%d:%d: %s\n",
+                card, device, sub, snd_strerror(err));
+            return;
+        }
+        name = snd_rawmidi_info_get_name(info);
+
+        sub_name = snd_rawmidi_info_get_subdevice_name(info);
+        if (sub == 0 && sub_name[0] == '\0') {
+            // printf("%c%c  hw:%d,%d    %s",
+            //     sub < subs_in ? 'I' : ' ',
+            //     sub < subs_out ? 'O' : ' ',
+            //     card, device, name);
+            // if (subs > 1)
+            //     printf(" (%d subdevices)", subs);
+            // putchar('\n');
+            if ( strcmp(name,"Virtual Raw MIDI") == 0) {
+                char path[32];
+                sprintf(path, "/dev/snd/midiC%dD%d", card, device); 
+                printf(" VIRTUAL DEVICE FOUND AT %s\n", path);
+                dev_list_add(DEV_TYPE_MIDI, path, name);
+            }
+            break;
+        } else {
+            printf("%c%c  hw:%d,%d,%d  %s\n",
+                sub < subs_in ? 'I' : ' ',
+                sub < subs_out ? 'O' : ' ',
+                card, device, sub, sub_name);
+        }
+    }
+}
+
+void list_card_devices(int card) {
+    snd_ctl_t *ctl;
+    char name[32];
+    int device;
+    int err;
+
+    sprintf(name, "hw:%d", card);
+    if ((err = snd_ctl_open(&ctl, name, 0)) < 0) {
+        error("cannot open control for card %d: %s", card, snd_strerror(err));
+        return;
+    }
+    device = -1;
+    for (;;) {
+        if ((err = snd_ctl_rawmidi_next_device(ctl, &device)) < 0) {
+            error("cannot determine device number: %s", snd_strerror(err));
+            break;
+        }
+        if (device < 0)
+            break;
+        list_device(ctl, card, device);
+    }
+    snd_ctl_close(ctl);
+}
+
+void dev_list_init_virtual_midi(void) {
+    int card, err;
+
+    card = -1;
+    if ((err = snd_card_next(&card)) < 0) {
+        error("cannot determine card number: %s", snd_strerror(err));
+        return;
+    }
+    if (card < 0) {
+        error("no sound card found");
+        return;
+    }
+
+    do {
+        list_card_devices(card);
+        if ((err = snd_card_next(&card)) < 0) {
+            error("cannot determine card number: %s", snd_strerror(err));
+            break;
+        }
+    } while (card >= 0);
 }
