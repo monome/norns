@@ -84,7 +84,8 @@ int main(int argc, char **argv) {
 
     w_init(); // weaver (scripting)
     dev_list_init();
-    dev_list_init_virtual_midi();
+    // dev_list_init_virtual_midi();
+    dev_virtual_init();
     dev_monitor_init();
 
     // now is a good time to set our cleanup
