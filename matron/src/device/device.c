@@ -16,7 +16,7 @@
 static int dev_start(union dev *d);
 
 union dev *dev_new(device_t type, const char *path, const char *name, bool multiport_device,
-                   unsigned int midi_port_index) {
+                   unsigned int midi_port_index, bool virtual) {
     union dev *d = calloc(1, sizeof(union dev));
 
     if (d == NULL) {
@@ -26,7 +26,6 @@ union dev *dev_new(device_t type, const char *path, const char *name, bool multi
     // initialize the base class
     d->base.type = type;
     d->base.path = strdup(path);
-
     d->base.name = (char *)name;
 
     // initialize the subclass
@@ -42,8 +41,15 @@ union dev *dev_new(device_t type, const char *path, const char *name, bool multi
         }
         break;
     case DEV_TYPE_MIDI:
-        if (dev_midi_init(d, midi_port_index, multiport_device) < 0) {
-            goto err_init;
+        if (virtual) {
+            if (dev_midi_virtual_init(d) < 0) {
+                goto err_init;
+            }
+        }
+        else {
+            if (dev_midi_init(d, midi_port_index, multiport_device) < 0) {
+                goto err_init;
+            }
         }
         break;
     case DEV_TYPE_CROW:

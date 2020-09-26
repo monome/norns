@@ -86,6 +86,24 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     return 0;
 }
 
+int dev_midi_virtual_init(void *self) {
+    struct dev_midi *midi = (struct dev_midi *)self;
+    struct dev_common *base = (struct dev_common *)self;
+
+    if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
+        fprintf(stderr, "failed to open alsa virtual device.\n");
+        return -1;
+    }
+
+    base->name = "virtual";
+    base->path = "/dev/null";
+
+    base->start = &dev_midi_start;
+    base->deinit = &dev_midi_deinit;
+
+    return 0;
+}
+
 void dev_midi_deinit(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
     snd_rawmidi_close(midi->handle_in);

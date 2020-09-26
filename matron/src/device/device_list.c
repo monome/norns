@@ -284,40 +284,20 @@ void dev_list_init_virtual_midi(void) {
     } while (card >= 0);
 }
 
-
 void dev_virtual_init(void) {
-    union dev *d = calloc(1, sizeof(union dev));
-
-    if (d == NULL) {
-        return;
-    }
-
-    // initialize the base class
-    struct dev_midi *midi = (struct dev_midi *)d;
-    struct dev_common *base = (struct dev_common *)d;
-
-    base->type = DEV_TYPE_MIDI;
-    base->path = "virtual";
-    base->name = "virtual";
-
-    if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
-        fprintf(stderr, "failed to open virtual alsa device\n");
-        goto err_init;
-    }
-
-    base->start = &dev_midi_start;
-    base->deinit = &dev_midi_deinit;
-
-    // start the thread
-    dev_start(d);
-
     union event_data *ev;
+    union dev *d;
+
+    d->base.type = DEV_TYPE_MIDI;
+    d = dev_new(type, path, name, false, 0, true);
     ev = post_add_event(d, EVENT_MIDI_ADD);
     if (ev != NULL) {
         ev->midi_add.dev = d;
         event_post(ev);
     }
 
-err_init:
-    free(d);
+    if (ev != NULL) {
+        ev->monome_add.dev = d;
+        event_post(ev);
+    }
 }
