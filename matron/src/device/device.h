@@ -23,6 +23,10 @@ extern void devices_init(void);
 // create a device from a file path
 extern union dev *dev_new(device_t type, const char *path, const char *name, bool multiport_device,
                           unsigned int midi_port_index);
+
+// start given device
+extern int dev_start(union dev *d) 
+
 // destroy given device
 extern void dev_delete(union dev *d);
 
@@ -32,6 +36,3 @@ extern int dev_id(union dev *d);
 extern const char *dev_serial(union dev *d);
 // get friendly name string from device pointer
 extern const char *dev_name(union dev *d);
-
-// Create a virtual device
-extern void dev_virtual_init(void);
