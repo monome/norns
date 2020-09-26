@@ -87,6 +87,8 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
 }
 
 int dev_midi_virtual_init(void *self) {
+    printf("dev_midi_virtual_init()\n");
+    
     struct dev_midi *midi = (struct dev_midi *)self;
     struct dev_common *base = (struct dev_common *)self;
 
