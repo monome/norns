@@ -95,8 +95,8 @@ int dev_midi_virtual_init(void *self) {
         return -1;
     }
 
-    base->name = "virtual";
-    base->path = "/dev/null";
+    // base->name = "virtual";
+    // base->path = "/dev/null";
 
     base->start = &dev_midi_start;
     base->deinit = &dev_midi_deinit;

@@ -289,7 +289,7 @@ void dev_virtual_init(void) {
     union dev *d;
 
     d->base.type = DEV_TYPE_MIDI;
-    d = dev_new(type, path, name, false, 0, true);
+    d = dev_new(DEV_TYPE_MIDI, "/dev/null", "virtual", false, 0, true);
     ev = post_add_event(d, EVENT_MIDI_ADD);
     if (ev != NULL) {
         ev->midi_add.dev = d;
