@@ -288,7 +288,7 @@ void dev_virtual_init(void) {
     union event_data *ev;
     union dev *d;
 
-    d = dev_new(DEV_TYPE_MIDI, "/dev/null", "virtual", false, 0, true);
+    d = dev_new(DEV_TYPE_MIDI, "/dev/null", "Virtual RawMIDI", false, 0, true);
     ev = post_add_event(d, EVENT_MIDI_ADD);
     if (ev != NULL) {
         ev->midi_add.dev = d;
