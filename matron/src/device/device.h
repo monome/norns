@@ -24,9 +24,6 @@ extern void devices_init(void);
 extern union dev *dev_new(device_t type, const char *path, const char *name, bool multiport_device,
                           unsigned int midi_port_index, bool virtual);
 
-// start given device
-extern int dev_start(union dev *d) 
-
 // destroy given device
 extern void dev_delete(union dev *d);
 
