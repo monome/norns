@@ -294,9 +294,4 @@ void dev_virtual_init(void) {
         ev->midi_add.dev = d;
         event_post(ev);
     }
-
-    if (ev != NULL) {
-        ev->monome_add.dev = d;
-        event_post(ev);
-    }
 }
