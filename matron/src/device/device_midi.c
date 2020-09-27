@@ -113,109 +113,8 @@ void dev_midi_deinit(void *self) {
 }
 
 /*
- * prints MIDI commands, formatting them nicely
- */
-/*
-static void print_byte(unsigned char byte)
-{
-    static enum {
-        STATE_UNKNOWN,
-        STATE_1PARAM,
-        STATE_1PARAM_CONTINUE,
-        STATE_2PARAM_1,
-        STATE_2PARAM_2,
-        STATE_2PARAM_1_CONTINUE,
-        STATE_SYSEX
-    } state = STATE_UNKNOWN;
-    int newline = 0;
-
-    if (byte >= 0xf8){
-        newline = 1;
-    }
-    else if (byte >= 0xf0) {
-        newline = 1;
-        switch (byte) {
-        case 0xf0:
-            state = STATE_SYSEX;
-            break;
-        case 0xf1:
-        case 0xf3:
-            state = STATE_1PARAM;
-            break;
-        case 0xf2:
-            state = STATE_2PARAM_1;
-            break;
-        case 0xf4:
-        case 0xf5:
-        case 0xf6:
-            state = STATE_UNKNOWN;
-            break;
-        case 0xf7:
-            newline = state != STATE_SYSEX;
-            state = STATE_UNKNOWN;
-            break;
-        }
-    } else if (byte >= 0x80) {
-        newline = 1;
-        if (byte >= 0xc0 && byte <= 0xdf)
-            state = STATE_1PARAM;
-        else
-            state = STATE_2PARAM_1;
-    } else // b < 0x80 
-    {
-        int running_status = 0;
-        newline = state == STATE_UNKNOWN;
-        switch (state) {
-        case STATE_1PARAM:
-            state = STATE_1PARAM_CONTINUE;
-            break;
-        case STATE_1PARAM_CONTINUE:
-            running_status = 1;
-            break;
-        case STATE_2PARAM_1:
-            state = STATE_2PARAM_2;
-            break;
-        case STATE_2PARAM_2:
-            state = STATE_2PARAM_1_CONTINUE;
-            break;
-        case STATE_2PARAM_1_CONTINUE:
-            running_status = 1;
-            state = STATE_2PARAM_2;
-            break;
-        default:
-            break;
-        }
-        if (running_status)
-            fputs("\n  ", stdout);
-    }
-    printf("%c%02X", newline ? '\n' : ' ', byte);
-}
-*/
-
-/**< Maximum size of MIDI parameters/data (largest is SYSEX data) */
-#define MIDI_PARSER_MAX_DATA_SIZE 1024
-
-/*
  *  MIDI PARSER mostly from https://github.com/FluidSynth/fluidsynth/
  */
-
-struct midi_event_t {
-    void *paramptr;           /* Pointer parameter (for SYSEX data), size is stored to param1, param2 indicates if pointer should be freed (dynamic if TRUE) */
-    unsigned int dtime;       /* Delay (ticks) between this and previous event. midi tracks. */
-    unsigned int param1;      /* First parameter */
-    unsigned int param2;      /* Second parameter */
-    unsigned char type;       /* MIDI event type */
-    unsigned char channel;    /* MIDI channel */
-};
-
-struct midi_parser_t {
-    unsigned char status;           /* Identifies the type of event, that is currently received ('Noteon', 'Pitch Bend' etc). */
-    unsigned char channel;          /* The channel of the event that is received (in case of a channel event) */
-    unsigned int nr_bytes;          /* How many bytes have been read for the current event? */
-    unsigned int nr_bytes_total;    /* How many bytes does the current event type include? */
-    unsigned char data[MIDI_PARSER_MAX_DATA_SIZE]; /* The parameters or SYSEX data */
-    midi_event_t event;             /* The event, that is returned to the MIDI driver. */
-};
 
 enum midi_event_type {
     /* channel messages */
@@ -244,6 +143,30 @@ enum midi_event_type {
     MIDI_SYSTEM_RESET = 0xff,
     /* meta event - for midi files only */
     MIDI_META_EVENT = 0xff
+};
+
+/**< Maximum size of MIDI parameters/data (largest is SYSEX data) */
+#define MIDI_PARSER_MAX_DATA_SIZE 1024
+
+typedef struct _midi_event_t midi_event_t;
+typedef struct _midi_parser_t midi_parser_t;
+
+struct _midi_event_t {
+    void *paramptr;           /* Pointer parameter (for SYSEX data), size is stored to param1, param2 indicates if pointer should be freed (dynamic if TRUE) */
+    unsigned int dtime;       /* Delay (ticks) between this and previous event. midi tracks. */
+    unsigned int param1;      /* First parameter */
+    unsigned int param2;      /* Second parameter */
+    unsigned char type;       /* MIDI event type */
+    unsigned char channel;    /* MIDI channel */
+};
+
+struct _midi_parser_t {
+    unsigned char status;           /* Identifies the type of event, that is currently received ('Noteon', 'Pitch Bend' etc). */
+    unsigned char channel;          /* The channel of the event that is received (in case of a channel event) */
+    unsigned int nr_bytes;          /* How many bytes have been read for the current event? */
+    unsigned int nr_bytes_total;    /* How many bytes does the current event type include? */
+    unsigned char data[MIDI_PARSER_MAX_DATA_SIZE]; /* The parameters or SYSEX data */
+    midi_event_t event;             /* The event, that is returned to the MIDI driver. */
 };
 
 /* Purpose:
