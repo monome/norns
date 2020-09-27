@@ -211,11 +211,6 @@ midi_parser_t * midi_parser_new(void) {
     return parser;
 }
 
-void midi_parser_del(midi_parser_t *parser){
-    if (parser != NULL);
-        free(parser);
-}
-
 /**
  * Parse a MIDI stream one character at a time.
  * @param parser Parser instance
@@ -248,8 +243,7 @@ midi_event_t* midi_parser_parse(midi_parser_t *parser, unsigned char c) {
         /* Any status byte terminates SYSEX messages (not just 0xF7) */
         if(parser->status == MIDI_SYSEX && parser->nr_bytes > 0) {
             event = &parser->event;
-            fluid_midi_event_set_sysex(event, parser->data, parser->nr_bytes,
-                                       FALSE);
+            //midi_event_set_sysex(event, parser->data, parser->nr_bytes, FALSE);
         }
         else {
             event = NULL;
@@ -364,14 +358,13 @@ void *dev_midi_start(void *self) {
             continue;
 
         read = length;
-        printf("\n\n ----- %d \n", length);
+
         for (i = 0; i < length; ++i) {
             evt = midi_parser_parse(parser, buf[i]);
 
             if (evt != NULL) {
-                printf("ch: %c t: %c data: %d %d", evt->channel, evt->type, evt->param1, evt->param2 );
+                printf("ch: %02X t: %02X data: %d %d\n", evt->channel, evt->type, evt->param1, evt->param2 );
             }
-            // print_byte(buf[i]);
         }
         /*
          *
