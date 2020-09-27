@@ -128,8 +128,9 @@ static void print_byte(unsigned char byte)
 	} state = STATE_UNKNOWN;
 	int newline = 0;
 
-	if (byte >= 0xf8)
+	if (byte >= 0xf8){
 		newline = 1;
+    }
 	else if (byte >= 0xf0) {
 		newline = 1;
 		switch (byte) {
@@ -182,25 +183,54 @@ static void print_byte(unsigned char byte)
 		default:
 			break;
 		}
-		if (running_status)
-			fputs("\n  ", stdout);
+		if (running_status) {
+			fputs("-\n  ", stdout);
+			state = STATE_UNKNOWN;
+        }
 	}
 	printf("%c%02X", newline ? '\n' : ' ', byte);
 }
 
 void *dev_midi_start(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
-    union event_data *ev;
+    //union event_data *ev;
 
     ssize_t read = 0;
-    uint8_t byte = 0;
-    uint8_t msg_buf[256];
-    uint8_t msg_pos = 0;
-    uint8_t msg_len = 0;
+    //uint8_t byte = 0;
+    //uint8_t msg_buf[256];
+    //uint8_t msg_pos = 0;
+    //uint8_t msg_len = 0;
+
+    int npfds;
+    struct pollfd *pfds;
+    npfds = 1 + snd_rawmidi_poll_descriptors_count(midi->handle_in);
+    pfds = alloca(npfds * sizeof(struct pollfd));
+    snd_rawmidi_poll_descriptors(midi->handle_in, &pfds[1], npfds - 1);
 
     do {
+        unsigned char buf[256];
+        int i, err, length;
+
+        err = snd_rawmidi_read(midi->handle_in, buf, sizeof(buf));
+        length = 0;
+        
+        for (i = 0; i < err; ++i)
+            if ((buf[i] != MIDI_CMD_COMMON_CLOCK &&
+                 buf[i] != MIDI_CMD_COMMON_SENSING) ||
+                (buf[i] == MIDI_CMD_COMMON_CLOCK) ||
+                (buf[i] == MIDI_CMD_COMMON_SENSING))
+                buf[length++] = buf[i];
+        
+        if (length == 0)
+            continue;
+
+        read = length;
+        printf("\n\n ----- %d \n", length);
+        for (i = 0; i < length; ++i)
+            print_byte(buf[i]);
+        /*
+         *
         read = snd_rawmidi_read(midi->handle_in, &byte, 1);
-        print_byte(byte);
 
         if (byte >= 0xf8) {
             clock_midi_handle_message(byte);
@@ -277,6 +307,7 @@ void *dev_midi_start(void *self) {
                 msg_len = 0;
             }
         }
+        */
     } while (read > 0);
 
     return NULL;
