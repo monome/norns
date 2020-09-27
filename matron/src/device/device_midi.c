@@ -97,6 +97,9 @@ int dev_midi_virtual_init(void *self) {
         return -1;
     }
 
+    // trigger reading
+    snd_rawmidi_read(midi->handle_in, NULL, 0);
+
     base->start = &dev_midi_start;
     base->deinit = &dev_midi_deinit;
 
