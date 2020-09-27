@@ -112,6 +112,81 @@ void dev_midi_deinit(void *self) {
     snd_rawmidi_close(midi->handle_out);
 }
 
+/*
+ * prints MIDI commands, formatting them nicely
+ */
+static void print_byte(unsigned char byte)
+{
+	static enum {
+		STATE_UNKNOWN,
+		STATE_1PARAM,
+		STATE_1PARAM_CONTINUE,
+		STATE_2PARAM_1,
+		STATE_2PARAM_2,
+		STATE_2PARAM_1_CONTINUE,
+		STATE_SYSEX
+	} state = STATE_UNKNOWN;
+	int newline = 0;
+
+	if (byte >= 0xf8)
+		newline = 1;
+	else if (byte >= 0xf0) {
+		newline = 1;
+		switch (byte) {
+		case 0xf0:
+			state = STATE_SYSEX;
+			break;
+		case 0xf1:
+		case 0xf3:
+			state = STATE_1PARAM;
+			break;
+		case 0xf2:
+			state = STATE_2PARAM_1;
+			break;
+		case 0xf4:
+		case 0xf5:
+		case 0xf6:
+			state = STATE_UNKNOWN;
+			break;
+		case 0xf7:
+			newline = state != STATE_SYSEX;
+			state = STATE_UNKNOWN;
+			break;
+		}
+	} else if (byte >= 0x80) {
+		newline = 1;
+		if (byte >= 0xc0 && byte <= 0xdf)
+			state = STATE_1PARAM;
+		else
+			state = STATE_2PARAM_1;
+	} else /* b < 0x80 */ {
+		int running_status = 0;
+		newline = state == STATE_UNKNOWN;
+		switch (state) {
+		case STATE_1PARAM:
+			state = STATE_1PARAM_CONTINUE;
+			break;
+		case STATE_1PARAM_CONTINUE:
+			running_status = 1;
+			break;
+		case STATE_2PARAM_1:
+			state = STATE_2PARAM_2;
+			break;
+		case STATE_2PARAM_2:
+			state = STATE_2PARAM_1_CONTINUE;
+			break;
+		case STATE_2PARAM_1_CONTINUE:
+			running_status = 1;
+			state = STATE_2PARAM_2;
+			break;
+		default:
+			break;
+		}
+		if (running_status)
+			fputs("\n  ", stdout);
+	}
+	printf("%c%02X", newline ? '\n' : ' ', byte);
+}
 
 void *dev_midi_start(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
@@ -125,6 +200,7 @@ void *dev_midi_start(void *self) {
 
     do {
         read = snd_rawmidi_read(midi->handle_in, &byte, 1);
+        print_byte(byte);
 
         if (byte >= 0xf8) {
             clock_midi_handle_message(byte);
@@ -134,13 +210,13 @@ void *dev_midi_start(void *self) {
             ev->midi_event.data[0] = byte;
             ev->midi_event.nbytes = 1;
             event_post(ev);
-            printf("\n");
+            // printf("\n");
         } else {
             if (byte >= 0xf0) {
                 printf("\n");
             }
             else if (byte >= 0x80) {
-                printf("0x%x ", (unsigned char)byte);
+                // printf("0x%x ", (unsigned char)byte);
 
                 msg_buf[0] = byte;
                 msg_pos = 1;
@@ -180,13 +256,13 @@ void *dev_midi_start(void *self) {
                     msg_len = 2;
                     break;
                 }
-                printf("(msg_len %d) ", msg_len);
+                // printf("(msg_len %d) ", msg_len);
             } else {
-                printf("%d ", (unsigned char)byte);
+                // printf("%d ", (unsigned char)byte);
                 msg_buf[msg_pos] = byte;
                 msg_pos += 1;
             }
-            printf("[%d] ", msg_pos);
+            // printf("[%d] ", msg_pos);
 
             if (msg_pos == msg_len) {
                 ev = event_data_new(EVENT_MIDI_EVENT);
