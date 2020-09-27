@@ -323,16 +323,12 @@ midi_event_t* midi_parser_parse(midi_parser_t *parser, unsigned char c) {
 
 void *dev_midi_start(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
-    //union event_data *ev;
+    union event_data *ev;
 
     midi_parser_t *parser = midi_parser_new();
     midi_event_t *evt;
 
     ssize_t read = 0;
-    //uint8_t byte = 0;
-    //uint8_t msg_buf[256];
-    //uint8_t msg_pos = 0;
-    //uint8_t msg_len = 0;
 
     int npfds;
     struct pollfd *pfds;
@@ -364,88 +360,17 @@ void *dev_midi_start(void *self) {
 
             if (evt != NULL) {
                 printf("ch: %02X t: %02X data: %d %d\n", evt->channel, evt->type, evt->param1, evt->param2 );
-            }
-        }
-        /*
-         *
-        read = snd_rawmidi_read(midi->handle_in, &byte, 1);
 
-        if (byte >= 0xf8) {
-            clock_midi_handle_message(byte);
-
-            ev = event_data_new(EVENT_MIDI_EVENT);
-            ev->midi_event.id = midi->dev.id;
-            ev->midi_event.data[0] = byte;
-            ev->midi_event.nbytes = 1;
-            event_post(ev);
-            // printf("\n");
-        } else {
-            if (byte >= 0xf0) {
-                printf("\n");
-            }
-            else if (byte >= 0x80) {
-                // printf("0x%x ", (unsigned char)byte);
-
-                msg_buf[0] = byte;
-                msg_pos = 1;
-
-                switch (byte & 0xf0) {
-                case 0x80:
-                case 0x90:
-                case 0xa0:
-                case 0xb0:
-                case 0xe0:
-                case 0xf2:
-                    msg_len = 3;
-                    break;
-                case 0xc0:
-                case 0xd0:
-                    msg_len = 2;
-                    break;
-                case 0xf0:
-                    switch (byte & 0x0f) {
-                    case 0x01:
-                    case 0x03:
-                        msg_len = 2;
-                        break;
-                    case 0x07:
-                        // TODO: properly handle sysex length
-                        msg_len = msg_pos; // sysex end
-                        break;
-                    case 0x00:
-                        msg_len = 0; // sysex start
-                        break;
-                    default:
-                        msg_len = 2;
-                        break;
-                    }
-                    break;
-                default:
-                    msg_len = 2;
-                    break;
-                }
-                // printf("(msg_len %d) ", msg_len);
-            } else {
-                // printf("%d ", (unsigned char)byte);
-                msg_buf[msg_pos] = byte;
-                msg_pos += 1;
-            }
-            // printf("[%d] ", msg_pos);
-
-            if (msg_pos == msg_len) {
                 ev = event_data_new(EVENT_MIDI_EVENT);
                 ev->midi_event.id = midi->dev.id;
-                ev->midi_event.data[0] = msg_buf[0];
-                ev->midi_event.data[1] = msg_len > 1 ? msg_buf[1] : 0;
-                ev->midi_event.data[2] = msg_len > 2 ? msg_buf[2] : 0;
-                ev->midi_event.nbytes = msg_len;
+                ev->midi_event.data[0] = evt->type;
+                ev->midi_event.data[1] = evt->param1;
+                ev->midi_event.data[2] = evt->param2;
+                ev->midi_event.nbytes = parser->nr_bytes_total;
                 event_post(ev);
-
-                msg_pos = 0;
-                msg_len = 0;
             }
         }
-        */
+
     } while (read > 0);
 
     return NULL;
