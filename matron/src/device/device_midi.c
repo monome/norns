@@ -211,6 +211,13 @@ midi_parser_t * midi_parser_new(void) {
     return parser;
 }
 
+static void midi_event_set_sysex(midi_event_t *evt, void *data, int size, int dynamic) {
+    evt->type = MIDI_SYSEX;
+    evt->paramptr = data;
+    evt->param1 = size;
+    evt->param2 = dynamic;
+}
+
 /**
  * Parse a MIDI stream one character at a time.
  * @param parser Parser instance
@@ -243,7 +250,7 @@ midi_event_t* midi_parser_parse(midi_parser_t *parser, unsigned char c) {
         /* Any status byte terminates SYSEX messages (not just 0xF7) */
         if(parser->status == MIDI_SYSEX && parser->nr_bytes > 0) {
             event = &parser->event;
-            //midi_event_set_sysex(event, parser->data, parser->nr_bytes, FALSE);
+            midi_event_set_sysex(event, parser->data, parser->nr_bytes, 0);
         }
         else {
             event = NULL;
@@ -359,14 +366,14 @@ void *dev_midi_start(void *self) {
             evt = midi_parser_parse(parser, buf[i]);
 
             if (evt != NULL) {
-                printf("ch: %02X t: %02X l: %d data: %d %d \n", evt->channel, evt->type, parser->nr_bytes_total, evt->param1, evt->param2 );
+                //printf("ch: %02X t: %02X l: %d data: %d %d \n", evt->channel, evt->type, parser->nr_bytes_total, evt->param1, evt->param2 );
 
                 ev = event_data_new(EVENT_MIDI_EVENT);
                 ev->midi_event.id = midi->dev.id;
                 ev->midi_event.data[0] = evt->type;
                 ev->midi_event.data[1] = evt->param1;
                 ev->midi_event.data[2] = evt->param2;
-                ev->midi_event.nbytes = parser->nr_bytes_total;
+                ev->midi_event.nbytes = parser->nr_bytes_total + 1;
                 event_post(ev);
             }
         }
