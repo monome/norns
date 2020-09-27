@@ -171,7 +171,7 @@ void dev_list_remove(device_t type, const char *node) {
     dev_list_remove_node(dn, ev);
 }
 
-void dev_virtual_init(void, const char *name) {
+void dev_virtual_init(const char *name) {
     union event_data *ev;
     union dev *d;
 
