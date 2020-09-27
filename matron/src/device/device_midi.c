@@ -359,7 +359,7 @@ void *dev_midi_start(void *self) {
             evt = midi_parser_parse(parser, buf[i]);
 
             if (evt != NULL) {
-                printf("ch: %02X t: %02X data: %d %d\n", evt->channel, evt->type, evt->param1, evt->param2 );
+                printf("ch: %02X t: %02X l: %d data: %d %d \n", evt->channel, evt->type, parser->nr_bytes_total, evt->param1, evt->param2 );
 
                 ev = event_data_new(EVENT_MIDI_EVENT);
                 ev->midi_event.id = midi->dev.id;
