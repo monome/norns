@@ -112,6 +112,7 @@ void dev_midi_deinit(void *self) {
     snd_rawmidi_close(midi->handle_out);
 }
 
+
 void *dev_midi_start(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
     union event_data *ev;
@@ -133,8 +134,14 @@ void *dev_midi_start(void *self) {
             ev->midi_event.data[0] = byte;
             ev->midi_event.nbytes = 1;
             event_post(ev);
+            printf("\n");
         } else {
-            if (byte >= 0x80) {
+            if (byte >= 0xf0) {
+                printf("\n");
+            }
+            else if (byte >= 0x80) {
+                printf("0x%x ", (unsigned char)byte);
+
                 msg_buf[0] = byte;
                 msg_pos = 1;
 
@@ -173,10 +180,13 @@ void *dev_midi_start(void *self) {
                     msg_len = 2;
                     break;
                 }
+                printf("(msg_len %d) ", msg_len);
             } else {
+                printf("%d ", (unsigned char)byte);
                 msg_buf[msg_pos] = byte;
                 msg_pos += 1;
             }
+            printf("[%d] ", msg_pos);
 
             if (msg_pos == msg_len) {
                 ev = event_data_new(EVENT_MIDI_EVENT);
