@@ -115,6 +115,7 @@ void dev_midi_deinit(void *self) {
 /*
  * prints MIDI commands, formatting them nicely
  */
+/*
 static void print_byte(unsigned char byte)
 {
     static enum {
@@ -160,7 +161,8 @@ static void print_byte(unsigned char byte)
             state = STATE_1PARAM;
         else
             state = STATE_2PARAM_1;
-    } else /* b < 0x80 */ {
+    } else // b < 0x80 
+    {
         int running_status = 0;
         newline = state == STATE_UNKNOWN;
         switch (state) {
@@ -188,6 +190,7 @@ static void print_byte(unsigned char byte)
     }
     printf("%c%02X", newline ? '\n' : ' ', byte);
 }
+*/
 
 /**< Maximum size of MIDI parameters/data (largest is SYSEX data) */
 #define MIDI_PARSER_MAX_DATA_SIZE 1024
@@ -197,7 +200,6 @@ static void print_byte(unsigned char byte)
  */
 
 struct midi_event_t {
-    midi_event_t *next;       /* Link to next event */
     void *paramptr;           /* Pointer parameter (for SYSEX data), size is stored to param1, param2 indicates if pointer should be freed (dynamic if TRUE) */
     unsigned int dtime;       /* Delay (ticks) between this and previous event. midi tracks. */
     unsigned int param1;      /* First parameter */
@@ -279,9 +281,9 @@ static int midi_event_length(unsigned char event) {
     return 1;
 }
 
-midi_parser_t * midi_parser_new() {
+midi_parser_t * midi_parser_new(void) {
     midi_parser_t *parser;
-    parser = calloc(1, sizeof(fluid_midi_parser_t));
+    parser = calloc(1, sizeof(midi_parser_t));
     parser->status = 0;
     return parser;
 }
