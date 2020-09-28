@@ -233,10 +233,17 @@ static void midi_event_set_sysex(midi_event_t *evt, void *data, int size, int dy
 midi_event_t* midi_parser_parse(midi_parser_t *parser, unsigned char c) {
     midi_event_t *event;
 
+
     /* Real-time messages (0xF8-0xFF) can occur anywhere, even in the middle
      * of another message. */
     if(c >= 0xF8) {
-        if(c == MIDI_SYSTEM_RESET) {
+        
+        if (c == MIDI_SYNC ||
+            c == MIDI_START ||
+            c == MIDI_STOP)
+            clock_midi_handle_message(c);
+
+        else if (c == MIDI_SYSTEM_RESET) {
             parser->event.type = c;
             parser->status = 0; /* clear the status */
             return &parser->event;
@@ -337,11 +344,11 @@ void *dev_midi_start(void *self) {
 
     ssize_t read = 0;
 
-    int npfds;
-    struct pollfd *pfds;
-    npfds = 1 + snd_rawmidi_poll_descriptors_count(midi->handle_in);
-    pfds = alloca(npfds * sizeof(struct pollfd));
-    snd_rawmidi_poll_descriptors(midi->handle_in, &pfds[1], npfds - 1);
+    // int npfds;
+    // struct pollfd *pfds;
+    // npfds = 1 + snd_rawmidi_poll_descriptors_count(midi->handle_in);
+    // pfds = alloca(npfds * sizeof(struct pollfd));
+    // snd_rawmidi_poll_descriptors(midi->handle_in, &pfds[1], npfds - 1);
 
     do {
         unsigned char buf[256];
