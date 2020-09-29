@@ -27,13 +27,18 @@ struct dev_q dq;
 
 static struct dev_node *dev_lookup_path(const char *path, struct dev_node *node_head) {
     const char *npath;
+
+    if (path == NULL) {
+        return NULL;
+    }
+
     if (node_head == NULL) {
         node_head = dq.head;
     }
 
     while (node_head != NULL) {
         npath = node_head->d->base.path;
-        if (strcmp(path, npath) == 0) {
+        if (npath != NULL && strcmp(path, npath) == 0) {
             return node_head;
         }
         node_head = node_head->next;
@@ -95,6 +100,14 @@ void dev_list_add(device_t type, const char *path, const char *name) {
                 ev->midi_add.dev = d;
                 event_post(ev);
             }
+        }
+        return;
+    case DEV_TYPE_MIDI_VIRTUAL:
+        d = dev_new(DEV_TYPE_MIDI_VIRTUAL, NULL, name, false, 0);
+        ev = post_add_event(d, EVENT_MIDI_ADD);
+        if (ev != NULL) {
+            ev->midi_add.dev = d;
+            event_post(ev);
         }
         return;
     case DEV_TYPE_MONOME:
@@ -169,3 +182,4 @@ void dev_list_remove(device_t type, const char *node) {
     }
     dev_list_remove_node(dn, ev);
 }
+
