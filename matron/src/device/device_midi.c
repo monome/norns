@@ -5,6 +5,7 @@
 #include "../events.h"
 
 #include "../clocks/clock_midi.h"
+
 #include "device.h"
 #include "device_midi.h"
 
@@ -81,6 +82,24 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
         }
         base->name = name_with_port_index;
     }
+
+    base->start = &dev_midi_start;
+    base->deinit = &dev_midi_deinit;
+
+    return 0;
+}
+
+int dev_midi_virtual_init(void *self) {
+    struct dev_midi *midi = (struct dev_midi *)self;
+    struct dev_common *base = (struct dev_common *)self;
+
+    if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
+        fprintf(stderr, "failed to open alsa virtual device.\n");
+        return -1;
+    }
+
+    // trigger reading
+    snd_rawmidi_read(midi->handle_in, NULL, 0);
 
     base->start = &dev_midi_start;
     base->deinit = &dev_midi_deinit;
