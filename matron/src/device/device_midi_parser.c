@@ -1,5 +1,7 @@
 #include "device_midi_parser.h"
 
+#include <stdio.h>
+
 #include "../clocks/clock_midi.h"
 
 /* Purpose:
