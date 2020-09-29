@@ -5,6 +5,7 @@ def build(bld):
         'src/device/device.c',
         'src/device/device_hid.c',
         'src/device/device_list.c',
+        'src/device/device_midi_parser.c',
         'src/device/device_midi.c',
         'src/device/device_monitor.c',
         'src/device/device_monome.c',
