@@ -22,7 +22,8 @@ union dev {
 extern void devices_init(void);
 // create a device from a file path
 extern union dev *dev_new(device_t type, const char *path, const char *name, bool multiport_device,
-                          unsigned int midi_port_index);
+                          unsigned int midi_port_index, bool virtual);
+
 // destroy given device
 extern void dev_delete(union dev *d);
 
