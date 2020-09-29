@@ -5,8 +5,10 @@
 #include "../events.h"
 
 #include "../clocks/clock_midi.h"
+
 #include "device.h"
 #include "device_midi.h"
+#include "device_midi_parser.h"
 
 unsigned int dev_midi_port_count(const char *path) {
     int card;
@@ -86,6 +88,25 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     return 0;
 }
 
+int dev_midi_virtual_init(void *self) {
+    
+    struct dev_midi *midi = (struct dev_midi *)self;
+    struct dev_common *base = (struct dev_common *)self;
+
+    if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
+        fprintf(stderr, "failed to open alsa virtual device.\n");
+        return -1;
+    }
+
+    // trigger reading
+    snd_rawmidi_read(midi->handle_in, NULL, 0);
+
+    base->start = &dev_midi_start;
+    base->deinit = &dev_midi_deinit;
+
+    return 0;
+}
+
 void dev_midi_deinit(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
     snd_rawmidi_close(midi->handle_in);
@@ -96,82 +117,49 @@ void *dev_midi_start(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
     union event_data *ev;
 
+    midi_parser_t *parser;
+    parser = calloc(1, sizeof(midi_parser_t));
+    parser->status = 0;
+    midi_event_t *evt;
+
     ssize_t read = 0;
-    uint8_t byte = 0;
-    uint8_t msg_buf[256];
-    uint8_t msg_pos = 0;
-    uint8_t msg_len = 0;
 
     do {
-        read = snd_rawmidi_read(midi->handle_in, &byte, 1);
+        unsigned char buf[256];
+        int i, err, length;
 
-        if (byte >= 0xf8) {
-            clock_midi_handle_message(byte);
+        err = snd_rawmidi_read(midi->handle_in, buf, sizeof(buf));
+        length = 0;
+        
+        for (i = 0; i < err; ++i)
+            if ((buf[i] != MIDI_CMD_COMMON_CLOCK &&
+                 buf[i] != MIDI_CMD_COMMON_SENSING) ||
+                (buf[i] == MIDI_CMD_COMMON_CLOCK) ||
+                (buf[i] == MIDI_CMD_COMMON_SENSING))
+                buf[length++] = buf[i];
+        
+        if (length == 0)
+            continue;
 
-            ev = event_data_new(EVENT_MIDI_EVENT);
-            ev->midi_event.id = midi->dev.id;
-            ev->midi_event.data[0] = byte;
-            ev->midi_event.nbytes = 1;
-            event_post(ev);
-        } else {
-            if (byte >= 0x80) {
-                msg_buf[0] = byte;
-                msg_pos = 1;
+        read = length;
 
-                switch (byte & 0xf0) {
-                case 0x80:
-                case 0x90:
-                case 0xa0:
-                case 0xb0:
-                case 0xe0:
-                case 0xf2:
-                    msg_len = 3;
-                    break;
-                case 0xc0:
-                case 0xd0:
-                    msg_len = 2;
-                    break;
-                case 0xf0:
-                    switch (byte & 0x0f) {
-                    case 0x01:
-                    case 0x03:
-                        msg_len = 2;
-                        break;
-                    case 0x07:
-                        // TODO: properly handle sysex length
-                        msg_len = msg_pos; // sysex end
-                        break;
-                    case 0x00:
-                        msg_len = 0; // sysex start
-                        break;
-                    default:
-                        msg_len = 2;
-                        break;
-                    }
-                    break;
-                default:
-                    msg_len = 2;
-                    break;
-                }
-            } else {
-                msg_buf[msg_pos] = byte;
-                msg_pos += 1;
-            }
+        for (i = 0; i < length; ++i) {
+            evt = midi_parser_parse(parser, buf[i]);
 
-            if (msg_pos == msg_len) {
+            if (evt != NULL) {
                 ev = event_data_new(EVENT_MIDI_EVENT);
                 ev->midi_event.id = midi->dev.id;
-                ev->midi_event.data[0] = msg_buf[0];
-                ev->midi_event.data[1] = msg_len > 1 ? msg_buf[1] : 0;
-                ev->midi_event.data[2] = msg_len > 2 ? msg_buf[2] : 0;
-                ev->midi_event.nbytes = msg_len;
+                ev->midi_event.data[0] = evt->type;
+                ev->midi_event.data[1] = evt->param1;
+                ev->midi_event.data[2] = evt->param2;
+                ev->midi_event.nbytes = parser->nr_bytes_total + 1;
                 event_post(ev);
-
-                msg_pos = 0;
-                msg_len = 0;
             }
         }
+
     } while (read > 0);
+
+    free(parser);
 
     return NULL;
 }
