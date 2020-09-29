@@ -17,7 +17,7 @@ static int dev_start(union dev *d);
 
 union dev *dev_new(device_t type, const char *path, const char *name, bool multiport_device,
                    unsigned int midi_port_index, bool virtual) {
-    printf("dev_new( %s )\n", name);
+
     union dev *d = calloc(1, sizeof(union dev));
 
     if (d == NULL) {

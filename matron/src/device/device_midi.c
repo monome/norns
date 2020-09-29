@@ -87,7 +87,6 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
 }
 
 int dev_midi_virtual_init(void *self) {
-    printf("dev_midi_virtual_init()\n");
     
     struct dev_midi *midi = (struct dev_midi *)self;
     struct dev_common *base = (struct dev_common *)self;
@@ -113,7 +112,18 @@ void dev_midi_deinit(void *self) {
 }
 
 /*
- *  MIDI PARSER mostly from https://github.com/FluidSynth/fluidsynth/
+ *  MIDI PARSER based from https://github.com/FluidSynth/fluidsynth/
+ * 
+ *  midi_event_type was based from fluid_midi_event_type
+ *  midi_event_t was based from fluid_midi_event_t
+ *  midi_parser_t was based from fluid_midi_parser_t 
+ *  All the above originals can be found at: https://github.com/FluidSynth/fluidsynth/blob/master/src/midi/fluid_midi.h
+ * 
+ * 
+ *  midi_parser_parse was based on fluid_midi_parser_parse 
+ *  midi_event_length was based on fluid_midi_event_length
+ *  All the above originals can be found at: https://github.com/FluidSynth/fluidsynth/blob/master/src/midi/fluid_midi.c
+ *   
  */
 
 enum midi_event_type {
@@ -153,7 +163,6 @@ typedef struct _midi_parser_t midi_parser_t;
 
 struct _midi_event_t {
     void *paramptr;           /* Pointer parameter (for SYSEX data), size is stored to param1, param2 indicates if pointer should be freed (dynamic if TRUE) */
-    unsigned int dtime;       /* Delay (ticks) between this and previous event. midi tracks. */
     unsigned int param1;      /* First parameter */
     unsigned int param2;      /* Second parameter */
     unsigned char type;       /* MIDI event type */
@@ -202,13 +211,6 @@ static int midi_event_length(unsigned char event) {
     }
 
     return 1;
-}
-
-midi_parser_t * midi_parser_new(void) {
-    midi_parser_t *parser;
-    parser = calloc(1, sizeof(midi_parser_t));
-    parser->status = 0;
-    return parser;
 }
 
 /**
@@ -335,7 +337,9 @@ void *dev_midi_start(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
     union event_data *ev;
 
-    midi_parser_t *parser = midi_parser_new();
+    midi_parser_t *parser;
+    parser = calloc(1, sizeof(midi_parser_t));
+    parser->status = 0;
     midi_event_t *evt;
 
     ssize_t read = 0;
@@ -374,6 +378,8 @@ void *dev_midi_start(void *self) {
         }
 
     } while (read > 0);
+
+    free(parser);
 
     return NULL;
 }
