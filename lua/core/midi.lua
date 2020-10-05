@@ -339,10 +339,17 @@ function Midi.to_msg(data)
   -- active sensing (should probably ignore)
   elseif data[1] == 0xfe then
       -- do nothing
+  -- system exclusive
+  elseif data[1] == 0xf0 then
+    msg = {
+      type = "sysex",
+      raw = data,
+    }
   -- everything else
   else
     msg = {
       type = "other",
+      raw = data,
     }
   end
   return msg
