@@ -64,6 +64,11 @@ def build(bld):
         matron_libs += ['stdc++']
         matron_use += ['LIBLINK_C']
 
+    if bld.env.PROFILE_MATRON:
+      bld.env.append_unique('CFLAGS', ['-pg'])
+      bld.env.append_unique('CXXFLAGS', ['-pg'])
+      bld.env.append_unique('LDFLAGS', ['-pg'])
+
     bld.program(features='c cprogram',
         source=matron_sources,
         target='matron',
