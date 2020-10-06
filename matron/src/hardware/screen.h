@@ -2,17 +2,6 @@
 
 #include <stdint.h>
 
-typedef enum _screen_type {
-    SCREEN_TYPE_FBDEV,
-    SCREEN_TYPE_SDL,
-    SCREEN_TYPE_JSON,
-} screen_type_t;
-
-typedef struct _screen_config {
-    char* dev;
-} screen_config_t;
-
-extern int screen_create(screen_type_t type, const char *name, screen_config_t *config); 
 extern void screen_init(void);
 extern void screen_deinit(void);
 

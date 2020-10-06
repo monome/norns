@@ -20,7 +20,6 @@
 #include "device_monitor.h"
 #include "device_monome.h"
 #include "events.h"
-#include "gpio.h"
 #include "hello.h"
 #include "i2c.h"
 #include "input.h"
@@ -41,8 +40,7 @@ void cleanup(void) {
     o_deinit();
     w_deinit();
 
-    gpio_deinit();
-    screen_deinit();
+    config_deinit();
     i2c_deinit();
     battery_deinit();
     stat_deinit();

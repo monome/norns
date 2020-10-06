@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "args.h"
-#include "hardware/fb/matron_fb.h"
+#include "hardware/io.h"
 #include "hardware/screen.h"
 
 // skip this if you don't want every screen module call to perform null checks
@@ -62,67 +62,6 @@ void screen_display_png(const char *filename, double x, double y) {
     cairo_rectangle(cr, x, y, img_w, img_h);
     cairo_fill(cr);
     cairo_surface_destroy(image);
-}
-
-int fb_init(matron_fb_t *fb, screen_config_t* cfg, fb_ops_t *ops) {
-    fb->data = malloc(ops->data_size);
-    if (!fb->data) {
-        fprintf(stderr, "ERROR (screen - %s) cannot allocate memory\n", ops->name);
-	return -1;
-    }
-
-    fb->ops = ops;
-    fb->config = cfg;
-    fb->surface = fb->ops->init(fb);
-    if (!fb->surface) {
-        fprintf(stderr, "ERROR (screen - %s) cannot create surface\n", ops->name);
-        free(fb->data);
-        return -1;
-    }
-    fb->cairo = cairo_create(fb->surface);
-    if (!fb->cairo) {
-        fprintf(stderr, "ERROR (screen - %s) cannot create cairo context\n", ops->name);
-        cairo_surface_destroy(fb->surface);
-	free(fb->data);
-	return -1;
-    }
-    return 0;
-}
-
-TAILQ_HEAD(tailhead, _matron_fb) screen_fbs = TAILQ_HEAD_INITIALIZER(screen_fbs);
-
-int screen_create(screen_type_t type, const char *name, screen_config_t *cfg) {
-    int err;
-    matron_fb_t* fb = malloc(sizeof(matron_fb_t));
-    fb->name = malloc(strlen(name) + 1);
-    strcpy(fb->name, name);
-    if (!fb) {
-        fprintf(stderr, "ERROR (screen) couldn't allocate screen: %s\n", name);
-        return -1;
-    }
-
-    switch (type) {
-        case SCREEN_TYPE_FBDEV:
-            if ((err = fb_init(fb, cfg, &linux_fb_ops))) goto fail;
-            break;
-        case SCREEN_TYPE_SDL:
-            if ((err = fb_init(fb, cfg, &sdl_fb_ops))) goto fail;
-            break;
-        case SCREEN_TYPE_JSON:
-            if ((err = fb_init(fb, cfg, &json_fb_ops))) goto fail;
-            break;
-        default:
-            goto fail;
-    }
-
-    TAILQ_INSERT_TAIL(&screen_fbs, fb, entries);
-    fprintf(stderr, "added screen %s\n", name);
-    return 0;
-
-fail:
-    fprintf(stderr, "couldn't set up screen %s\n", name);
-    free(fb);
-    return -1;
 }
 
 void screen_init(void) {
@@ -246,10 +185,13 @@ void screen_init(void) {
     cairo_set_font_face(cr, ct[0]);
     cairo_set_font_size(cr, 8.0);
 
-    matron_fb_t *fb;
-    TAILQ_FOREACH(fb, &screen_fbs, entries) {
-        fb->ops->bind(fb, surface);
-        fprintf(stderr, "bound fb %s\n", fb->ops->name);
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        matron_fb_t *fb = (matron_fb_t *)io;
+        screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
+        fb_ops->bind(fb, surface);
+        fprintf(stderr, "bound fb %s\n", io->ops->name);
     }
 }
 
@@ -258,21 +200,21 @@ void screen_deinit(void) {
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 
-    matron_fb_t *fb;
-    while (!TAILQ_EMPTY(&screen_fbs)) {
-        fb = TAILQ_FIRST(&screen_fbs);
-        fb->ops->destroy(fb);
-        TAILQ_REMOVE(&screen_fbs, fb, entries);
-        free(fb->data);
-        free(fb);
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        io->ops->destroy(io);
     }
 }
 
 void screen_update(void) {
     CHECK_CR
-    matron_fb_t *fb;
-    TAILQ_FOREACH(fb, &screen_fbs, entries) {
-        fb->ops->paint(fb);
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        matron_fb_t *fb = (matron_fb_t *)io;
+        screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
+        fb_ops->paint(fb);
     }
 }
 

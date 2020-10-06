@@ -63,7 +63,7 @@ static const char json_frame_header[] =
 static const char json_frame_footer[] =
     "\"}";
 
-static void json_fb_paint(matron_fb_t *fb) {  
+static void json_fb_paint(matron_fb_t *fb) {
     cairo_json_fb_device_t *device = (cairo_json_fb_device_t *)fb->data;
     cairo_paint(fb->cairo);
     device->buf_pos = 0;

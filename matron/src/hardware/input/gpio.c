@@ -3,53 +3,118 @@
 #include <linux/input.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
 #include "events.h"
 #include "watch.h"
-#include "hardware/input/matron_input.h"
+#include "hardware/input.h"
+#include "hardware/io.h"
 
-typedef struct _gpio_input_dev {
+typedef struct _gpio_input_priv {
     int fd;
-    const char* fname;
-} gpio_input_dev_t;
+    char* dev;
+} gpio_input_priv_t;
 
-typedef struct _gpio_enc_dev {
-    gpio_input_dev_t base;
+typedef struct _gpio_enc_priv {
+    gpio_input_priv_t base;
     int index;
-} gpio_enc_dev_t;
+} gpio_enc_priv_t;
 
-static int gpio_input_setup(matron_input_t* input);
+static int gpio_input_config(matron_io_t* input, lua_State *l);
+static int gpio_enc_config(matron_io_t* input, lua_State *l);
+static int gpio_input_setup(matron_io_t* input);
+static void gpio_input_destroy(matron_io_t* input);
 static void* gpio_enc_poll(void* data);
 static void* gpio_key_poll(void* data);
 static int open_and_grab(const char *pathname, int flags);
 
-input_ops_t gpio_key_ops = {
-    .data_size = sizeof(gpio_input_dev_t),
-    .setup = gpio_input_setup,
+input_ops_t key_gpio_ops = {
+    .io_ops.name      = "keys:gpio",
+    .io_ops.type      = IO_INPUT,
+    .io_ops.data_size = sizeof(gpio_input_priv_t),
+    .io_ops.config    = gpio_input_config,
+    .io_ops.setup     = gpio_input_setup,
+    .io_ops.destroy   = gpio_input_destroy,
+ 
     .poll = gpio_key_poll,
 };
 
-input_ops_t gpio_enc_ops = {
-    .data_size = sizeof(gpio_enc_dev_t),
-    .setup = gpio_input_setup,
+input_ops_t enc_gpio_ops = {
+    .io_ops.name      = "enc:gpio",
+    .io_ops.type      = IO_INPUT,
+    .io_ops.data_size = sizeof(gpio_enc_priv_t),
+    .io_ops.config    = gpio_enc_config,
+    .io_ops.setup     = gpio_input_setup,
+    .io_ops.destroy   = gpio_input_destroy,
+    
     .poll = gpio_enc_poll,
 };
 
-int gpio_input_setup(matron_input_t* input) {
-    gpio_input_dev_t* dev = input->data;
-    dev->fd = open_and_grab(input->config->dev, O_RDONLY);
-    if (dev->fd <= 0) {
-        fprintf(stderr, "ERROR (input %s) device not available: %s\n", input->name, dev->fname);
-        return dev->fd;
+int gpio_input_config(matron_io_t* io, lua_State *l) {
+    gpio_input_priv_t* priv = io->data;
+
+    lua_pushstring(l, "dev");
+    lua_gettable(l, -2);
+    if (lua_isstring(l, -1)) {
+        const char *dev = lua_tostring(l, -1);
+        fprintf(stderr, "%s: dev %s\n", io->ops->name, dev);
+        if (!(priv->dev = malloc(strlen(dev) + 1))) {
+            fprintf(stderr, "ERROR (%s) no memory\n", io->ops->name);
+            lua_settop(l, 0);
+            return -1;
+        }
+        strcpy(priv->dev, dev);
+    } else {
+        fprintf(stderr, "ERROR (%s) config option 'dev' should be a string\n", io->ops->name);
+        lua_settop(l, 0);
+        return -1;
     }
+    lua_pop(l, 1);
     return 0;
+}
+
+int gpio_enc_config(matron_io_t* io, lua_State *l) {
+    int err = gpio_input_config(io, l);
+    if (err) {
+        return err;
+    }
+
+    gpio_enc_priv_t *priv = io->data;
+    lua_pushstring(l, "index");
+    lua_gettable(l, -2);
+    if (lua_isinteger(l, -1)) {
+        priv->index = lua_tointeger(l, -1);
+    } else {
+        fprintf(stderr, "ERROR (%s) config option 'index' should be an integer\n", io->ops->name);
+        free(priv->base.dev);
+        lua_settop(l, 0);
+        return -1;
+    }
+    lua_pop(l, 1);
+    return 0;
+}
+
+int gpio_input_setup(matron_io_t* io) {
+    gpio_input_priv_t *priv = io->data;
+    priv->fd = open_and_grab(priv->dev, O_RDONLY);
+    if (priv->fd <= 0) {
+        fprintf(stderr, "ERROR (%s) device not available: %s\n", io->ops->name, priv->dev);
+        return priv->fd;
+    }
+    return input_setup(io);
+}
+
+void gpio_input_destroy(matron_io_t *io) {
+    gpio_input_priv_t *priv = io->data;
+    free(priv->dev);
+    input_destroy(io);
 }
 
 void* gpio_enc_poll(void* data) {
     matron_input_t* input = data;
-    gpio_enc_dev_t* dev = input->data;
+    gpio_enc_priv_t* priv = input->io.data;
 
     int rd;
     unsigned int i;
@@ -61,7 +126,7 @@ void* gpio_enc_poll(void* data) {
     prev[0] = prev[1] = prev[2] = clock();
 
     while (1) {
-        rd = read(dev->base.fd, event, sizeof(struct input_event) * 64);
+        rd = read(priv->base.fd, event, sizeof(struct input_event) * 64);
         if (rd < (int)sizeof(struct input_event)) {
             fprintf(stderr, "ERROR (enc) read error\n");
         }
@@ -78,7 +143,7 @@ void* gpio_enc_poll(void* data) {
                         dir[i] = event[i].value;
                     }
                     union event_data *ev = event_data_new(EVENT_ENC);
-                    ev->enc.n = dev->index;
+                    ev->enc.n = priv->index;
                     ev->enc.delta = event[i].value;
                     event_post(ev);
                 }
@@ -91,14 +156,14 @@ void* gpio_enc_poll(void* data) {
 
 void* gpio_key_poll(void* data) {
     matron_input_t* input = data;
-    gpio_input_dev_t* dev = input->data;
+    gpio_input_priv_t* priv = input->io.data;
 
     int rd;
     unsigned int i;
     struct input_event event[64];
 
     while (1) {
-        rd = read(dev->fd, event, sizeof(struct input_event) * 64);
+        rd = read(priv->fd, event, sizeof(struct input_event) * 64);
         if (rd < (int)sizeof(struct input_event)) {
             fprintf(stderr, "ERROR (key) read error\n");
         }
