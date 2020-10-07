@@ -64,5 +64,6 @@ int _add_io(lua_State *l) {
     }
 
     fprintf(stderr, "ERROR (config) unknown io type: %s\n", type);
+    lua_settop(l, 0);
     return luaL_error(l, "unknown input type");
 }
