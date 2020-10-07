@@ -46,7 +46,7 @@ int screen_sdl_setup(matron_io_t *io) {
     matron_fb_t *fb = (matron_fb_t *)io;
     fb->surface = screen_sdl_surface_create((screen_sdl_priv_t *)io->data);
     if (!fb->surface) {
-        fprintf(stderr, "ERROR (screen:sdl) failed to create surface\n");
+        fprintf(stderr, "ERROR (%s) failed to create surface\n", io->ops->name);
         return -1;
     }
     fb->cairo = cairo_create(fb->surface);
