@@ -13,6 +13,7 @@ io_ops_t* io_types[] = {
     (io_ops_t*)&screen_json_ops,
     (io_ops_t*)&enc_gpio_ops,
     (io_ops_t*)&key_gpio_ops,
+    (io_ops_t*)&input_sdl_ops,
     (io_ops_t*)NULL,
 };
 

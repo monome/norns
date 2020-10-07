@@ -22,6 +22,7 @@ def build(bld):
         'src/hardware/screen/sdl.c',
         'src/hardware/screen/base64/base64.c',
         'src/hardware/input/gpio.c',
+        'src/hardware/input/sdl.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',

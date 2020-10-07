@@ -9,9 +9,10 @@ end
 function init_desktop()
   -- desktop window
   _boot.add_io('screen:sdl', {})
+  -- _boot.add_io('input:sdl', {})
 
   -- i/o via maiden
-  _boot.add_io('screen:json', {})
+  -- _boot.add_io('screen:json', {})
   -- _boot.input_add('web_input', 'json', {})
 end
 
