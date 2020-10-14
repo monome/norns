@@ -4,7 +4,6 @@ local m = {
   pos = 0,
   list = {},
   favorites = {},
-  selected_script = "",
   len = "scan"
 }
 
@@ -109,7 +108,6 @@ m.redraw = function()
         local line = m.list[i+m.pos-2].name
         if(i==3) then
           screen.level(15)
-          m.selected_script = m.list[i+m.pos-2]
         else
           screen.level(4)
         end
@@ -123,15 +121,15 @@ m.redraw = function()
 end
 
 m.add_favorite = function()
-  if not contains(m.favorites, m.selected_script) then
-    table.insert(m.favorites, m.selected_script)
+  if not contains(m.favorites, m.list[m.pos+1]) then
+    table.insert(m.favorites, m.list[m.pos+1])
     tabutil.save(m.favorites, "/home/we/dust/.favorites")
   end
 end
 
 m.remove_favorite = function()
   for i, v in pairs(m.favorites) do
-    if v.file == m.selected_script.file then
+    if v.file == m.list[m.pos+1].file then
       table.remove(m.favorites, i)
       tabutil.save(m.favorites, "/home/we/dust/.favorites")
       return
