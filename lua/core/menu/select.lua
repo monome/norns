@@ -121,6 +121,10 @@ m.redraw = function()
 end
 
 m.add_favorite = function()
+  -- don't add the '-' split as a favorite.
+  if m.list[m.pos+1].name == '-' then
+    return
+  end
   if not contains(m.favorites, m.list[m.pos+1]) then
     table.insert(m.favorites, m.list[m.pos+1])
     tabutil.save(m.favorites, "/home/we/dust/.favorites")
