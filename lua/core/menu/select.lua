@@ -17,6 +17,13 @@ local function menu_table_entry(file)
 end
 
 local function sort_select_tree(results)
+  if tab.count(m.favorites) > 0 then
+    for _, entry in pairs(m.favorites) do
+      table.insert(m.list,entry)
+    end
+    table.insert(m.list, {name="-", file=nil, path=nil})
+  end
+
   local t = {}
   for filename in results:gmatch("[^\r\n]+") do
     if string.match(filename,"/data/")==nil and
@@ -37,7 +44,6 @@ end
 local function load_favorites(results)
   local t = {}
   m.favorites = {}
-  print(results)
   for filename in results:gmatch("[^\r\n]+") do
     if string.match(filename,"/data/")==nil and
       string.match(filename,"/lib/")==nil then
@@ -53,7 +59,6 @@ end
 local function contains(list, menu_item)
   for _, v in pairs(list) do
     if v.file == menu_item.file then
-      print(v.name)
       return true
     end
   end
@@ -65,8 +70,8 @@ m.init = function()
   m.len = "scan"
   m.list = {}
   m.favorites = {}
-  -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
   norns.system_cmd("cat ~/dust/.favorites", load_favorites)
+  -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
   norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
 end
 
@@ -78,6 +83,8 @@ m.key = function(n,z)
     _menu.set_page("HOME")
   -- select
   elseif n==3 and z==1 then
+    -- return if the current "file" is the split between favorites and all scripts
+    if m.list[m.pos+1].file == nil then return end
     _menu.previewfile = m.list[m.pos+1].file
     _menu.set_page("PREVIEW")
   end
