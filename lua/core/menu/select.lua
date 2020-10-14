@@ -1,3 +1,5 @@
+tabutil = require "tabutil"
+
 local m = {
   pos = 0,
   list = {},
@@ -40,22 +42,6 @@ local function sort_select_tree(results)
   _menu.redraw()
 end
 
-
-local function load_favorites(results)
-  local t = {}
-  m.favorites = {}
-  for filename in results:gmatch("[^\r\n]+") do
-    if string.match(filename,"/data/")==nil and
-      string.match(filename,"/lib/")==nil then
-      table.insert(t,filename)
-    end
-  end
-  for _, file in pairs(t) do
-    table.insert(m.favorites, menu_table_entry(file))
-  end
-  _menu.redraw()
-end
-
 local function contains(list, menu_item)
   for _, v in pairs(list) do
     if v.file == menu_item.file then
@@ -65,12 +51,15 @@ local function contains(list, menu_item)
   return false
 end
 
-
 m.init = function()
   m.len = "scan"
   m.list = {}
   m.favorites = {}
-  norns.system_cmd("cat ~/dust/.favorites", load_favorites)
+  m.favorites = tabutil.load("/home/we/dust/.favorites")
+  if m.favorites == nil then
+    m.favorites = {}
+    tabutil.save(m.favorites, "/home/we/dust/.favorites")
+  end
   -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
   norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
 end
@@ -100,7 +89,7 @@ m.enc = function(n,delta)
     else
       m.remove_favorite()
     end
-    norns.system_cmd("cat ~/dust/.favorites", load_favorites)
+    _menu.redraw()
   end
 end
 
@@ -118,13 +107,13 @@ m.redraw = function()
       if (i > 2 - m.pos) and (i < m.len - m.pos + 3) then
         screen.move(0,10*i)
         local line = m.list[i+m.pos-2].name
-        local is_fave = "   "
         if(i==3) then
           screen.level(15)
           m.selected_script = m.list[i+m.pos-2]
         else
           screen.level(4)
         end
+        local is_fave = "  "
         if contains(m.favorites, m.list[i+m.pos-2]) then is_fave = "* " else is_fave = "  " end
         screen.text(is_fave .. string.upper(line))
       end
@@ -133,16 +122,21 @@ m.redraw = function()
   screen.update()
 end
 
-local function noop(_)
-end
-
 m.add_favorite = function()
-  norns.system_cmd("echo " .. m.selected_script.file .. " >> ~/dust/.favorites && sort -u -o ~/dust/.favorites ~/dust/.favorites", noop)
+  if not contains(m.favorites, m.selected_script) then
+    table.insert(m.favorites, m.selected_script)
+    tabutil.save(m.favorites, "/home/we/dust/.favorites")
+  end
 end
 
 m.remove_favorite = function()
-  local file = string.gsub(m.selected_script.file,'/','\\/')
-  norns.system_cmd("sed -i '/"..file.."/d' ~/dust/.favorites", noop)
+  for i, v in pairs(m.favorites) do
+    if v.file == m.selected_script.file then
+      table.remove(m.favorites, i)
+      tabutil.save(m.favorites, "/home/we/dust/.favorites")
+      return
+    end
+  end
 end
 
 return m
