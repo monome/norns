@@ -55,7 +55,8 @@ function Midi.new(id, name, dev)
   end
   if not tab.contains(connected, name) then
     for i=1,4 do
-      if Midi.vports[i].name == "none" then
+      -- assign device unless device is specialized virtual interface
+      if Midi.vports[i].name == "none" and d.name ~= "virtual" then
         Midi.vports[i].name = d.name
         break
       end
@@ -162,8 +163,8 @@ function Midi:clock()
 end
 
 --- send midi song position event.
--- @tparam integer lsb :  
--- @tparam integer msb : 
+-- @tparam integer lsb :
+-- @tparam integer msb :
 function Midi:song_position(lsb, msb)
   self:send{type="song_position", lsb=lsb, msb=msb}
 end
@@ -239,7 +240,7 @@ local to_data = {
 }
 
 --- convert msg to data (midi bytes).
--- @tparam table msg : 
+-- @tparam table msg :
 -- @treturn table data : table of midi status and data bytes
 function Midi.to_data(msg)
   if msg.type then
