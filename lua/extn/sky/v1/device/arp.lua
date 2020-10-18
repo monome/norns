@@ -89,6 +89,7 @@ function Held:process(event, output)
     if event.vel == 0 then
       changed = self:track_note_off(event)
     else
+      event.beat = clock.get_beats()
       changed = self:track_note_on(event)
     end
   elseif t == sky.types.NOTE_OFF then
