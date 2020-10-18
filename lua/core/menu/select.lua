@@ -10,7 +10,7 @@ local m = {
 local function menu_table_entry(file)
   local p = string.match(file,".*/")
   local n = string.gsub(file,'.lua','/')
-  n = string.gsub(n,_path.code,'')
+  n = string.gsub(n,paths.code,'')
   n = string.sub(n,0,-2)
   local a,b = string.match(n,"(.+)/(.+)$") -- strip similar dir/script
   if a==b and a then n = a end
@@ -54,10 +54,10 @@ m.init = function()
   m.len = "scan"
   m.list = {}
   m.favorites = {}
-  m.favorites = tabutil.load("/home/we/dust/.favorites")
+  m.favorites = tabutil.load(paths.favorites)
   if m.favorites == nil then
     m.favorites = {}
-    tabutil.save(m.favorites, "/home/we/dust/.favorites")
+    tabutil.save(m.favorites, paths.favorites)
   end
   -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
   norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
@@ -127,7 +127,7 @@ m.add_favorite = function()
   end
   if not contains(m.favorites, m.list[m.pos+1]) then
     table.insert(m.favorites, m.list[m.pos+1])
-    tabutil.save(m.favorites, "/home/we/dust/.favorites")
+    tabutil.save(m.favorites, paths.favorites)
   end
 end
 
@@ -135,7 +135,7 @@ m.remove_favorite = function()
   for i, v in pairs(m.favorites) do
     if v.file == m.list[m.pos+1].file then
       table.remove(m.favorites, i)
-      tabutil.save(m.favorites, "/home/we/dust/.favorites")
+      tabutil.save(m.favorites, paths.favorites)
       return
     end
   end
