@@ -302,4 +302,30 @@ function clock.add_params()
 end
 
 
+clock.help = [[
+--------------------------------------------------------------------------------
+id = clock.run( func ) — start a new coroutine with function func. returns id
+clock.cancel( id ) — cancel coroutine id
+clock.sleep( time ) — resume in time seconds
+clock.sync( beats ) — resume at beats count according to global tempo
+beats = clock.get_beats() — returns current time in beats
+tempo = clock.get_tempo() — returns current tempo
+beat_sec = clock.get_beat_sec() — returns length of a single beat at current
+		tempo in seconds
+
+example:
+
+function init()
+  clock.run(loop)
+end
+
+function loop()
+  while true do:
+    print("so true")
+    clock.sleep(1)
+  end
+end
+--------------------------------------------------------------------------------
+]]
+
 return clock

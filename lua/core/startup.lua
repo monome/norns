@@ -3,6 +3,7 @@
 tab = require 'tabutil'
 util = require 'util'
 
+require 'help'
 require 'math'
 math.randomseed(os.time()) -- more random
 inf = math.huge

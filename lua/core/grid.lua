@@ -201,4 +201,19 @@ _norns.grid.key = function(id, x, y, s)
   end
 end
 
+Grid.help = [[
+--------------------------------------------------------------------------------
+-- connect grid
+g = grid.connect()
+-- key function
+g.key = function(x,y,z) print(x,y,z) end
+-- example draw function
+draw_grid()
+  g.all(0)
+  g.led(x,y,z)
+  g.refresh()
+end
+--------------------------------------------------------------------------------
+]]      
+
 return Grid
