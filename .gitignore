@@ -37,3 +37,7 @@ _site
 
 # maiden-repl bin
 maiden-repl/maiden-repl
+
+# macos finder droppings
+.DS_Store
+._.DS_Store
