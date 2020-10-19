@@ -184,7 +184,7 @@ m.key = function(n,z)
           params:delta(i, 1)
           m.toggled[i] = params:get(i) and 1 or 0
         end
-      elseif m.mode == mMAP then
+      elseif m.mode == mMAP and params:get_allow_pmap(i) then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
         if pm == nil then
@@ -430,10 +430,12 @@ m.redraw = function()
               t == params.tCONTROL or
               t == params.tOPTION then
             local pm=norns.pmap.data[id]
-            if pm then
-              screen.text_right(pm.cc..":"..pm.ch..":"..pm.dev)
-            else
-              screen.text_right("-")
+            if params:get_allow_pmap(p) then
+              if pm then
+                screen.text_right(pm.cc..":"..pm.ch..":"..pm.dev)
+              else
+                screen.text_right("-")
+              end
             end
           end
         end
