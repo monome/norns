@@ -6,7 +6,7 @@ Number.__index = Number
 
 local tNUMBER = 1
 
-function Number.new(id, name, min, max, default, formatter, wrap)
+function Number.new(id, name, min, max, default, formatter, wrap, allow_pmap)
   local o = setmetatable({}, Number)
   o.t = tNUMBER
   o.id = id
@@ -19,6 +19,7 @@ function Number.new(id, name, min, max, default, formatter, wrap)
   o.formatter = formatter
   o.action = function() end
   o.wrap = wrap and o.range ~= 0 or false
+  if allow_pmap == nil then o.allow_pmap = true else o.allow_pmap = allow_pmap end
   return o
 end
 
