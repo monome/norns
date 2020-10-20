@@ -1,37 +1,64 @@
+tabutil = require "tabutil"
+
 local m = {
   pos = 0,
   list = {},
-  len = "scan" 
+  favorites = {},
+  len = "scan"
 }
 
+local function menu_table_entry(file)
+  local p = string.match(file,".*/")
+  local n = string.gsub(file,'.lua','/')
+  n = string.gsub(n,paths.code,'')
+  n = string.sub(n,0,-2)
+  local a,b = string.match(n,"(.+)/(.+)$") -- strip similar dir/script
+  if a==b and a then n = a end
+  return {name=n,file=file,path=p}
+end
+
 local function sort_select_tree(results)
+  if tab.count(m.favorites) > 0 then
+    for _, entry in pairs(m.favorites) do
+      table.insert(m.list,entry)
+    end
+    table.insert(m.list, {name="-", file=nil, path=nil})
+  end
+
   local t = {}
   for filename in results:gmatch("[^\r\n]+") do
-    if string.match(filename,"/data/")==nil and 
+    if string.match(filename,"/data/")==nil and
       string.match(filename,"/lib/")==nil then
       table.insert(t,filename)
     end
   end
 
   for _,file in pairs(t) do
-    local p = string.match(file,".*/")
-    local n = string.gsub(file,'.lua','/')
-    n = string.gsub(n,_path.code,'')
-    n = string.sub(n,0,-2)
-    local a,b = string.match(n,"(.+)/(.+)$") -- strip similar dir/script
-    if a==b and a then n = a end
-    --print(file,n,p)
-    table.insert(m.list,{name=n,file=file,path=p})
+    table.insert(m.list,menu_table_entry(file))
   end
 
   m.len = tab.count(m.list)
   _menu.redraw()
 end
 
+local function contains(list, menu_item)
+  for _, v in pairs(list) do
+    if v.file == menu_item.file then
+      return true
+    end
+  end
+  return false
+end
 
 m.init = function()
-  m.len = "scan" 
+  m.len = "scan"
   m.list = {}
+  m.favorites = {}
+  m.favorites = tabutil.load(paths.favorites)
+  if m.favorites == nil then
+    m.favorites = {}
+    tabutil.save(m.favorites, paths.favorites)
+  end
   -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
   norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
 end
@@ -44,6 +71,8 @@ m.key = function(n,z)
     _menu.set_page("HOME")
   -- select
   elseif n==3 and z==1 then
+    -- return if the current "file" is the split between favorites and all scripts
+    if m.list[m.pos+1].file == nil then return end
     _menu.previewfile = m.list[m.pos+1].file
     _menu.set_page("PREVIEW")
   end
@@ -52,6 +81,13 @@ end
 m.enc = function(n,delta)
   if n==2 then
     m.pos = util.clamp(m.pos + delta, 0, m.len - 1)
+    _menu.redraw()
+  elseif n==3 then
+    if delta > 0 then
+      m.add_favorite()
+    else
+      m.remove_favorite()
+    end
     _menu.redraw()
   end
 end
@@ -75,11 +111,34 @@ m.redraw = function()
         else
           screen.level(4)
         end
-        screen.text(string.upper(line))
+        local is_fave = "  "
+        if contains(m.favorites, m.list[i+m.pos-2]) then is_fave = "* " else is_fave = "  " end
+        screen.text(is_fave .. string.upper(line))
       end
     end
   end
   screen.update()
+end
+
+m.add_favorite = function()
+  -- don't add the '-' split as a favorite.
+  if m.list[m.pos+1].name == '-' then
+    return
+  end
+  if not contains(m.favorites, m.list[m.pos+1]) then
+    table.insert(m.favorites, m.list[m.pos+1])
+    tabutil.save(m.favorites, paths.favorites)
+  end
+end
+
+m.remove_favorite = function()
+  for i, v in pairs(m.favorites) do
+    if v.file == m.list[m.pos+1].file then
+      table.remove(m.favorites, i)
+      tabutil.save(m.favorites, paths.favorites)
+      return
+    end
+  end
 end
 
 return m
