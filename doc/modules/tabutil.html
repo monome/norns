@@ -40,13 +40,21 @@
 <ul class="nowrap">
   <li><a href="../modules/clock.html">clock</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.ii_actions.html">core.crow.ii_actions</a></li>
+  <li><a href="../modules/core.crow.ii_events.html">core.crow.ii_events</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/er.html">er</a></li>
   <li><a href="../modules/filters.html">filters</a></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><strong>tabutil</strong></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 <h2>Classes</h2>
@@ -148,7 +156,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          table to print
         </li>
     </ul>
@@ -169,7 +177,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          table to sort
         </li>
     </ul>
@@ -177,7 +185,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
         sorted table
     </ol>
 
@@ -197,7 +205,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          table to count
         </li>
     </ul>
@@ -224,7 +232,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          table to check
         </li>
         <li><span class="parameter">e</span>
@@ -254,7 +262,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          table to check
         </li>
         <li><span class="parameter">e</span>
@@ -283,7 +291,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          string with line breaks
         </li>
     </ul>
@@ -291,7 +299,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
         table with entries for each line
     </ol>
 
@@ -310,11 +318,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">inputstr</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          : string to split
         </li>
         <li><span class="parameter">sep</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          : delimiter
         </li>
     </ul>
@@ -339,11 +347,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tbl</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          Table to save.
         </li>
         <li><span class="parameter">filename</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          Location to save to.
         </li>
     </ul>
@@ -369,7 +377,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">sfile</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          Filename or stringtable to load.
         </li>
     </ul>
@@ -395,14 +403,14 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">params</span>
-         params.table is the table to proxy, params.except a list of writable keys
+         params.table is the table to proxy, params.except a list of writable keys, params.expose limits which keys from params.table are exposed (optional)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
         the proxied read-only table
     </ol>
 
@@ -417,7 +425,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-03-28 23:45:19 </i>
+<i style="float:right;">Last updated 2020-10-20 12:49:33 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
