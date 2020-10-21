@@ -38,6 +38,7 @@ void crone::SoftcutClient::process(jack_nframes_t numFrames) {
 }
 
 void crone::SoftcutClient::setSampleRate(jack_nframes_t sr) {
+    bufDur = (float)BufFrames / sr;
     cut.setSampleRate(sr);
 }
 
@@ -71,122 +72,135 @@ void crone::SoftcutClient::mixOutput(size_t numFrames) {
 }
 
 void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
+    float value = p->value;
     switch (p->id) {
         //-- softcut routing
     case Commands::Id::SET_ENABLED_CUT:
-	enabled[p->idx_0] = p->value > 0.f;
+	enabled[p->idx_0] = value > 0.f;
 	break;
     case Commands::Id::SET_LEVEL_CUT:
-	outLevel[p->idx_0].setTarget(p->value);
+	outLevel[p->idx_0].setTarget(value);
 	break;;
     case Commands::Id::SET_PAN_CUT:
-	outPan[p->idx_0].setTarget((p->value/2)+0.5); // map -1,1 to 0,1
+	outPan[p->idx_0].setTarget((value/2)+0.5); // map -1,1 to 0,1
 	break;
     case Commands::Id::SET_LEVEL_IN_CUT:
-	inLevel[p->idx_0][p->idx_1].setTarget(p->value);
+	inLevel[p->idx_0][p->idx_1].setTarget(value);
 	break;
     case Commands::Id::SET_LEVEL_CUT_CUT:
-	fbLevel[p->idx_0][p->idx_1].setTarget(p->value);
+	fbLevel[p->idx_0][p->idx_1].setTarget(value);
 	break;
 	//-- softcut commands
     case Commands::Id::SET_CUT_RATE:
-	cut.setRate(p->idx_0, p->value);
+	cut.setRate(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_LOOP_START:
-	cut.setLoopStart(p->idx_0, p->value);
+	value = std::min(bufDur, std::max(0.f, value));
+	cut.setLoopStart(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_LOOP_END:
-	cut.setLoopEnd(p->idx_0, p->value);
+	value = std::min(bufDur, std::max(0.f, value));
+	cut.setLoopEnd(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_LOOP_FLAG:
-	cut.setLoopFlag(p->idx_0, p->value > 0.f);
+	cut.setLoopFlag(p->idx_0, value > 0.f);
 	break;
     case Commands::Id::SET_CUT_FADE_TIME:
-	cut.setFadeTime(p->idx_0, p->value);
+	cut.setFadeTime(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_REC_LEVEL:
-	cut.setRecLevel(p->idx_0, p->value);
+	cut.setRecLevel(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_LEVEL:
-	cut.setPreLevel(p->idx_0, p->value);
+	cut.setPreLevel(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_REC_FLAG:
-	cut.setRecFlag(p->idx_0, p->value > 0.f);
+	cut.setRecFlag(p->idx_0, value > 0.f);
 	break;
     case Commands::Id::SET_CUT_PLAY_FLAG:
-	cut.setPlayFlag(p->idx_0, p->value > 0.f);
+	cut.setPlayFlag(p->idx_0, value > 0.f);
 	break;
     case Commands::Id::SET_CUT_REC_OFFSET:
-	cut.setRecOffset(p->idx_0, p->value);
+	value = std::min(bufDur, std::max(0.f, value));
+	cut.setRecOffset(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POSITION:
-	cut.cutToPos(p->idx_0, p->value);
+	value = std::min(bufDur, std::max(0.f, value));
+	cut.cutToPos(p->idx_0, value);
 	break;
 	// input filter
     case Commands::Id::SET_CUT_PRE_FILTER_FC:
-	cut.setPreFilterFc(p->idx_0, p->value);
+	cut.setPreFilterFc(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_FC_MOD:
-	cut.setPreFilterFcMod(p->idx_0, p->value);
+	value = std::min(1.f, std::max(0.f, value));
+	cut.setPreFilterFcMod(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_RQ:
-	cut.setPreFilterRq(p->idx_0, p->value);
+	value = std::min(20.f, std::max(0.0001f, value));
+	cut.setPreFilterRq(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_LP:
-	cut.setPreFilterLp(p->idx_0, p->value);
+	cut.setPreFilterLp(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_HP:
-	cut.setPreFilterHp(p->idx_0, p->value);
+	cut.setPreFilterHp(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_BP:
-	cut.setPreFilterBp(p->idx_0, p->value);
+	cut.setPreFilterBp(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_BR:
-	cut.setPreFilterBr(p->idx_0, p->value);
+	cut.setPreFilterBr(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_DRY:
-	cut.setPreFilterDry(p->idx_0, p->value);
+	cut.setPreFilterDry(p->idx_0, value);
 	break;
 	// -- output filter
     case Commands::Id::SET_CUT_POST_FILTER_FC:
-	cut.setPostFilterFc(p->idx_0, p->value);
+	value = std::min(12000.f, std::max(10.f, value));
+	cut.setPostFilterFc(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_RQ:
-	cut.setPostFilterRq(p->idx_0, p->value);
+	value = std::min(20.f, std::max(0.0001f, value));		
+	cut.setPostFilterRq(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_LP:
-	cut.setPostFilterLp(p->idx_0, p->value);
+	cut.setPostFilterLp(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_HP:
-	cut.setPostFilterHp(p->idx_0, p->value);
+	cut.setPostFilterHp(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_BP:
-	cut.setPostFilterBp(p->idx_0, p->value);
+	cut.setPostFilterBp(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_BR:
-	cut.setPostFilterBr(p->idx_0, p->value);
+	cut.setPostFilterBr(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_DRY:
-	cut.setPostFilterDry(p->idx_0, p->value);
+	cut.setPostFilterDry(p->idx_0, value);
 	break;
 
     case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
-	outLevel[p->idx_0].setTime(p->value);
+	value = std::max(0.f, value);
+	outLevel[p->idx_0].setTime(value);
 	break;
     case Commands::Id::SET_CUT_PAN_SLEW_TIME:
-	outPan[p->idx_0].setTime(p->value);
+	value = std::max(0.f, value);
+	outPan[p->idx_0].setTime(value);
 	break;
     case Commands::Id::SET_CUT_RECPRE_SLEW_TIME:
-	cut.setRecPreSlewTime(p->idx_0, p->value);
+	value = std::max(0.f, value);
+	cut.setRecPreSlewTime(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_RATE_SLEW_TIME:
-	cut.setRateSlewTime(p->idx_0, p->value);
+	value = std::max(0.f, value);
+	cut.setRateSlewTime(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_VOICE_SYNC:
-	cut.syncVoice(p->idx_0, p->idx_1, p->value);
+	cut.syncVoice(p->idx_0, p->idx_1, value);
 	break;
     case Commands::Id::SET_CUT_BUFFER:
-	cut.setVoiceBuffer(p->idx_0, buf[p->idx_1], BufFrames);
+	cut.setVoiceBuffer(p->idx_0, buf[std::max(0, std::min(p->idx_1, NumVoices-1))], BufFrames);
 	break;
     default:;;
     }

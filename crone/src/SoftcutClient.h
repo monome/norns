@@ -46,6 +46,7 @@ namespace crone {
         // enabled flags
         bool enabled[NumVoices];
         softcut::phase_t quantPhase[NumVoices];
+	float bufDur;
 
     private:
         void process(jack_nframes_t numFrames) override;
