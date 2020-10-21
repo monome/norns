@@ -38,6 +38,7 @@ void crone::SoftcutClient::process(jack_nframes_t numFrames) {
 }
 
 void crone::SoftcutClient::setSampleRate(jack_nframes_t sr) {
+    bufDur = (float)BufFrames / sr;
     cut.setSampleRate(sr);
 }
 
@@ -94,9 +95,11 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	cut.setRate(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_LOOP_START:
+	value = std::min(bufDur, std::max(0.f, value));
 	cut.setLoopStart(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_LOOP_END:
+	value = std::min(bufDur, std::max(0.f, value));
 	cut.setLoopEnd(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_LOOP_FLAG:
@@ -118,9 +121,11 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	cut.setPlayFlag(p->idx_0, value > 0.f);
 	break;
     case Commands::Id::SET_CUT_REC_OFFSET:
+	value = std::min(bufDur, std::max(0.f, value));
 	cut.setRecOffset(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POSITION:
+	value = std::min(bufDur, std::max(0.f, value));
 	cut.cutToPos(p->idx_0, value);
 	break;
 	// input filter
@@ -128,9 +133,11 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	cut.setPreFilterFc(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_FC_MOD:
+	value = std::min(1.f, std::max(0.f, value));
 	cut.setPreFilterFcMod(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_RQ:
+	value = std::min(20.f, std::max(0.0001f, value));
 	cut.setPreFilterRq(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_PRE_FILTER_LP:
@@ -150,9 +157,11 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	break;
 	// -- output filter
     case Commands::Id::SET_CUT_POST_FILTER_FC:
+	value = std::min(12000.f, std::max(10.f, value));
 	cut.setPostFilterFc(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_RQ:
+	value = std::min(20.f, std::max(0.0001f, value));		
 	cut.setPostFilterRq(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POST_FILTER_LP:
@@ -172,22 +181,26 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	break;
 
     case Commands::Id::SET_CUT_LEVEL_SLEW_TIME:
+	value = std::max(0.f, value);
 	outLevel[p->idx_0].setTime(value);
 	break;
     case Commands::Id::SET_CUT_PAN_SLEW_TIME:
+	value = std::max(0.f, value);
 	outPan[p->idx_0].setTime(value);
 	break;
     case Commands::Id::SET_CUT_RECPRE_SLEW_TIME:
+	value = std::max(0.f, value);
 	cut.setRecPreSlewTime(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_RATE_SLEW_TIME:
+	value = std::max(0.f, value);
 	cut.setRateSlewTime(p->idx_0, value);
 	break;
     case Commands::Id::SET_CUT_VOICE_SYNC:
 	cut.syncVoice(p->idx_0, p->idx_1, value);
 	break;
     case Commands::Id::SET_CUT_BUFFER:
-	cut.setVoiceBuffer(p->idx_0, buf[p->idx_1], BufFrames);
+	cut.setVoiceBuffer(p->idx_0, buf[std::max(0, std::min(p->idx_1, NumVoices-1))], BufFrames);
 	break;
     default:;;
     }
