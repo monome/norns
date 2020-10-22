@@ -1,6 +1,6 @@
 # 201021
 
-## norns 2.4.2
+## norns 2.4.3
 
 - NEW softcut: copy buffers with reverse and crossfade @csboling
 - NEW softcut: grab buffer data (for visualization) @csboling
