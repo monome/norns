@@ -1,17 +1,48 @@
-# 200712
+# 201021
+
+## norns 2.4.2
+
+- NEW softcut: copy buffers with reverse and crossfade @csboling
+- NEW softcut: grab buffer data (for visualization) @csboling
+- NEW softcut: crossfade and preserve buffer options for buffer_clear @csboling
+- NEW script favorites @zzsnzmn
+- NEW virtual raw midi port support @ngwese @patriciogonzalezvivo
+- NEW midi sysex support improved @ngwese
+- NEW params: type binary for trig, toggle, momentary @andr-ew
+- NEW params: option to disable mapping @ngwese
+- NEW deque: add peek, peek_back, find @ngwese
+- NEW sky: additions and refinements @ngwese
+- NEW ui slider direction option @ericmoderbacher
+- FIX midi: handle running status @ngwese
+- FIX musicutil: scale refinement @markwheeler
+- FIX softcut: clamp params @catfact
+- FIX update system: clean up @tridae
+- FIX er: handle empty table, add shift @catfact
+- FIX build: remove boost, use moodycamel @catfact
+- FIX prevent crash when trimming unicode strings @markwheeler
+- FIX tape: protect from overwriting files @csboling
+- FIX script preview: remove trailing whitespace @csboling
+- FIX git housekeeping @ngwese
+- FIX param menu: restore fine control after fileselect @tomwaters
+- FIX controlspec: quantum not set when copying @tomwaters
+
+## image
+
+- NEW kernel 4.19.127-16 @ngwese
+
 
 ## norns 2.4.2
 
 - NEW crow 2.0 support @trentgill
 - NEW libs: deque, observable, weaktable, watchtable, defaulttable @ngwese
-- NEW fileselect up-folder entry @csbolig
-- NEW file param E3 now scrolls files in folder @csbolig
-- NEW fileselect resume folder location @csbolig
-- NEW controlspec quantum and wrap @csbolig
-- NEW number param wrap @csbolig
+- NEW fileselect up-folder entry @csboling
+- NEW file param E3 now scrolls files in folder @csboling
+- NEW fileselect resume folder location @csboling
+- NEW controlspec quantum and wrap @csboling
+- NEW number param wrap @csboling
 - NEW luaunit @ngwese
 - FIX sndfile memleak @catfact
-- FIX crow send overflow @csbolig
+- FIX crow send overflow @csboling
 
 ## image
 
@@ -29,7 +60,7 @@
 - FIX crow lib cleanup @trentgill
 - FIX param hiding within groups @tlubke
 - FIX filter lib @catfact
-- FIX crow.connected status @csbolig
+- FIX crow.connected status @csboling
 
 
 # 200424
