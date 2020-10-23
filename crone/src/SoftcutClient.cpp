@@ -9,19 +9,19 @@
 #include "SoftcutClient.h"
 
 // clamp to upper bound (unsigned int)
-static inline void clamp(size_t &x, const size_t a) {
-    if (x > a) { x = a; }
+static inline void clamp(size_t &x, const size_t max) {
+    if (x > a) { x = max; }
 }
 
 // clamp to upper bound (float)
-static inline void clamp(float &x, const float a) {
-    x = std::min(a, x);
+static inline void clamp(float &x, const float max) {
+    x = std::min(max, x);
 }
 
 
 // clamp to lower and upper bounds (float)
-static inline void clamp(float &x, const float a, const float b) {
-    x = std::min(a, std::max(b, x));
+static inline void clamp(float &x, const float min, const float max) {
+    x = std::max(min, std::min(max, x));
 }
 
 crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
