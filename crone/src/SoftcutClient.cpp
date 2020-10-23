@@ -10,7 +10,7 @@
 
 // clamp to upper bound (unsigned int)
 static inline void clamp(size_t &x, const size_t max) {
-    if (x > a) { x = max; }
+    if (x > max) { x = max; }
 }
 
 // clamp to upper bound (float)
