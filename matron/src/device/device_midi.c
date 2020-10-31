@@ -292,7 +292,7 @@ void *dev_midi_start(void *self) {
         if (snd_rawmidi_status(midi->handle_in, status) == 0) {
             xruns = snd_rawmidi_status_get_xruns(status);
             if (xruns > 0) {
-                fprintf(stderr, "xruns (%d) for midi device: %s\n", xruns, base->name);
+                fprintf(stderr, "xruns (%zu) for midi device: %s\n", xruns, base->name);
                 snd_rawmidi_drop(midi->handle_in);
             }
         }

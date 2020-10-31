@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
     metros_init();
 
-//    battery_init();
+    battery_init();
     stat_init();
     i2c_init();
     osc_init();
