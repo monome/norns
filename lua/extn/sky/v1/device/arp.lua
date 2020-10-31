@@ -6,6 +6,7 @@ local Deque = require('container/deque')
 --
 local Held = sky.Device:extend()
 Held.EVENT = 'HELD'
+Held.HOLD_STATE_EVENT = 'HOLD_STATE'
 
 function Held:new(props)
   Held.super.new(self, props)
@@ -27,8 +28,12 @@ function Held.__newindex(o, k, v)
   end
 end
 
-function Held:mk_event(notes)
+function Held.mk_event(notes)
   return { type = Held.EVENT, notes = notes }
+end
+
+function Held.mk_hold_state(state)
+  return { type = Held.HOLD_STATE_EVENT, state = state, }
 end
 
 function Held.is_match(a, b)
@@ -84,10 +89,14 @@ function Held:process(event, output)
     if event.vel == 0 then
       changed = self:track_note_off(event)
     else
+      event.beat = clock.get_beats()
       changed = self:track_note_on(event)
     end
   elseif t == sky.types.NOTE_OFF then
     changed = self:track_note_off(event)
+  elseif t == Held.HOLD_STATE_EVENT then
+    self.hold = event.state
+    changed = self._hold_has_changed
   else
     -- pass unprocessed events
     output(event)
@@ -112,7 +121,7 @@ function Held:process(event, output)
       print("<<")
     end
 
-    output(self:mk_event(held))
+    output(self.mk_event(held))
   end
 end
 
@@ -130,7 +139,7 @@ function Pattern:new(props)
   self.debug = props.debug or false
 end
 
-function Pattern:mk_event(value)
+function Pattern.mk_event(value)
   return { type = Pattern.EVENT, value = value }
 end
 
@@ -139,7 +148,7 @@ function Pattern:process(event, output, state)
     local builder = self.builder[self.style]
     if builder ~= nil then
       local pattern = builder(event.notes)
-      output(self:mk_event(pattern))
+      output(self.mk_event(pattern))
       if self.debug then
         print("PAT >>>")
         for i, e in ipairs(pattern) do

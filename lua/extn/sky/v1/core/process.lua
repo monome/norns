@@ -296,7 +296,7 @@ function Chain:cleanup()
   self:process(sky.mk_script_cleanup())
 end
 
-function Chain:process(event, from_device)
+function Chain:process(event, from_device, parent_output)
   -- print('chain:process', sky.to_string(event), from_device)
   if self.bypass then
     return
@@ -308,7 +308,7 @@ function Chain:process(event, from_device)
   local source = self._buffers[1]
   local sink = self._buffers[2]
 
-  return self._process(event, state, self.devices, source, sink, from_device)
+  return self._process(event, state, self.devices, source, sink, from_device, parent_output)
 end
 
 local function ipairs_from(tbl, start)
@@ -322,7 +322,7 @@ local function ipairs_from(tbl, start)
   return iter, tbl, initial
 end
 
-function Chain._process(event, state, devices, source, sink, from_device)
+function Chain._process(event, state, devices, source, sink, from_device, parent_output)
   source:clear()
   sink:clear()
 
@@ -353,6 +353,15 @@ function Chain._process(event, state, devices, source, sink, from_device)
       -- no more events to process, end chain processing early
       -- print("breaking out of process loop")
       break
+    end
+
+    -- output to parent chain if an output was provided
+    if parent_output ~= nil then
+      event = source:pop()
+      while event do
+        parent_output(event)
+        event = source:pop()
+      end
     end
   end
 

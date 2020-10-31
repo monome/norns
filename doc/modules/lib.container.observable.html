@@ -33,9 +33,6 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Class_filters_mean">Class filters.mean </a></li>
-<li><a href="#Class_filters_median">Class filters.median </a></li>
-<li><a href="#Class_filters_smoother">Class filters.smoother </a></li>
 </ul>
 
 
@@ -48,11 +45,11 @@
   <li><a href="../modules/softcut.html">softcut</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
-  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><strong>lib.container.observable</strong></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/er.html">er</a></li>
-  <li><strong>filters</strong></li>
+  <li><a href="../modules/filters.html">filters</a></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
@@ -91,49 +88,40 @@
 
 <div id="content">
 
-<h1>Module <code>filters</code></h1>
-<p></p>
-<p></p>
+<h1>Module <code>lib.container.observable</code></h1>
+<p>Create an Observable value (object).</p>
+<p>
+<p> An observable value notifies registered observers each time the value is set.
+</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#f:clear">f:clear ()</a></td>
-	<td class="summary">clear a filter's history</td>
-	</tr>
-</table>
-<h2><a href="#Class_filters_mean">Class filters.mean </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#mean.new">mean.new (bufsize:)</a></td>
-	<td class="summary">constructor</td>
+	<td class="name" nowrap><a href="#Observable:set">Observable:set (value, quiet)</a></td>
+	<td class="summary">Set the value</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#mean:next">mean:next (x:)</a></td>
-	<td class="summary">process a new input value and update the average</td>
-	</tr>
-</table>
-<h2><a href="#Class_filters_median">Class filters.median </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#median.new">median.new (bufsize:)</a></td>
-	<td class="summary">constructor</td>
+	<td class="name" nowrap><a href="#Observable:__call">Observable:__call ()</a></td>
+	<td class="summary">Return the current value (short hand for the 'value' method)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#median:next">median:next (x:)</a></td>
-	<td class="summary">process a new input value and update the average</td>
-	</tr>
-</table>
-<h2><a href="#Class_filters_smoother">Class filters.smoother </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#smoother.new">smoother.new (time:, sr:)</a></td>
-	<td class="summary">constructor</td>
+	<td class="name" nowrap><a href="#Observable:value">Observable:value ()</a></td>
+	<td class="summary">Return the current value</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#f.mean">f.mean</a></td>
-	<td class="summary">TODO: what else would be useful?</td>
+	<td class="name" nowrap><a href="#Observable:register">Observable:register (observer, handler)</a></td>
+	<td class="summary">Register an observer of value changes
+<p> An observer is identified by a key which can be any type (number, string,
+ table, etc).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Observable:unregister">Observable:unregister (observer)</a></td>
+	<td class="summary">Unregister an observer of value changes</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Observable:notify_observers">Observable:notify_observers ()</a></td>
+	<td class="summary">Notify registered observers of current value (normally called by `set`).</td>
 	</tr>
 </table>
 
@@ -145,35 +133,22 @@
 
     <dl class="function">
     <dt>
-    <a name = "f:clear"></a>
-    <strong>f:clear ()</strong>
+    <a name = "Observable:set"></a>
+    <strong>Observable:set (value, quiet)</strong>
     </dt>
     <dd>
-    clear a filter's history
-
-
-
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="Class_filters_mean"></a>Class filters.mean </h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "mean.new"></a>
-    <strong>mean.new (bufsize:)</strong>
-    </dt>
-    <dd>
-    constructor
+    Set the value
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">bufsize:</span>
-         window size, cannot change after creation
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">anything</span></span>
+         New value for observable.
+        </li>
+        <li><span class="parameter">quiet</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If true, do not notify observers.
         </li>
     </ul>
 
@@ -183,98 +158,69 @@
 
 </dd>
     <dt>
-    <a name = "mean:next"></a>
-    <strong>mean:next (x:)</strong>
+    <a name = "Observable:__call"></a>
+    <strong>Observable:__call ()</strong>
     </dt>
     <dd>
-    process a new input value and update the average
+    Return the current value (short hand for the 'value' method)
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x:</span>
-         new input
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        scaled sum of stored history
+           <span class="types"><span class="type">anything</span></span>
+
     </ol>
 
 
 
 
 </dd>
-</dl>
-    <h2 class="section-header "><a name="Class_filters_median"></a>Class filters.median </h2>
-
-    <dl class="function">
     <dt>
-    <a name = "median.new"></a>
-    <strong>median.new (bufsize:)</strong>
+    <a name = "Observable:value"></a>
+    <strong>Observable:value ()</strong>
     </dt>
     <dd>
-    constructor
+    Return the current value
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">bufsize:</span>
-         window size, cannot change after creation
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "median:next"></a>
-    <strong>median:next (x:)</strong>
-    </dt>
-    <dd>
-    process a new input value and update the average
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x:</span>
-         new input
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        median of last N values
+           <span class="types"><span class="type">anything</span></span>
+
     </ol>
 
 
 
 
 </dd>
-</dl>
-    <h2 class="section-header "><a name="Class_filters_smoother"></a>Class filters.smoother </h2>
-
-    <dl class="function">
     <dt>
-    <a name = "smoother.new"></a>
-    <strong>smoother.new (time:, sr:)</strong>
+    <a name = "Observable:register"></a>
+    <strong>Observable:register (observer, handler)</strong>
     </dt>
     <dd>
-    constructor
+    Register an observer of value changes
+<p> An observer is identified by a key which can be any type (number, string,
+ table, etc).  Registering an observer replaces any previous registration
+ associated with that key.
+<p> The handler is a function which is passed one argument, the new value. If
+ `handler` is not provided it is assumed that the `observer` is an object with
+ a `notify` method and the `notify` method is called with the new value.
+
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">time:</span>
-         -60db convergence time
+        <li><span class="parameter">observer</span>
+            <span class="types"><span class="type">anything</span></span>
+         Identity of observer.
         </li>
-        <li><span class="parameter">sr:</span>
-         expected sample rate
+        <li><span class="parameter">handler</span>
+            <span class="types"><span class="type">function</span></span>
+         New value callback, optional.
         </li>
     </ul>
 
@@ -284,14 +230,38 @@
 
 </dd>
     <dt>
-    <a name = "f.mean"></a>
-    <strong>f.mean</strong>
+    <a name = "Observable:unregister"></a>
+    <strong>Observable:unregister (observer)</strong>
     </dt>
     <dd>
-    TODO: what else would be useful?
-<p> quantile estimator?
- constant time ramp?
- some kind of hysteresis / latching?
+    Unregister an observer of value changes
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">observer</span>
+            <span class="types"><span class="type">anything</span></span>
+         Identity of observer.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true if the observer was known and unregistered.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Observable:notify_observers"></a>
+    <strong>Observable:notify_observers ()</strong>
+    </dt>
+    <dd>
+    Notify registered observers of current value (normally called by `set`).
 
 
 

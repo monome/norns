@@ -52,19 +52,37 @@ function ArcDialGesture:new(props)
 end
 
 function ArcDialGesture:process(event, output, state)
-  if ArcInput.is_enc(event) and event.n == self.which then
-    local range = self.max - self.min
-    local inc = range / self.steps
-    local change = inc * event.delta * self.scale
-    local next = util.clamp(self._value + change, self.min, self.max)
+  if sky.is_type(event, ArcInput.ARC_ENC_EVENT) and event.n == self.which then
+    local next, normalized = self:value(event.delta)
     if next ~= self._value then
       self._value = next
-      output(self.mk_dial(event.n, self._value, self._value / range, event.arc))
+      output(self.mk_dial(self.which, next, normalized, event.arc))
     end
+  elseif sky.is_init(event) then
+    output(event) -- allow other devices to get the init event
+    local value, normalized = self:value()
+    output(self.mk_dial(self.which, value, normalized))
   else
     -- if not an arc enc event pass on through
     output(event)
   end
+end
+
+function ArcDialGesture:value(delta)
+  local range = self:range()
+
+  if delta == nil then
+    return self._value, self._value / range
+  end
+
+  local inc = range / self.steps
+  local change = inc * delta * self.scale
+  local v = util.clamp(self._value + change, self.min, self.max)
+  return v, v / range
+end
+
+function ArcDialGesture:range()
+  return math.abs(self.max - self.min)
 end
 
 function ArcDialGesture.mk_dial(n, value, normalized, arc)

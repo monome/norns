@@ -55,7 +55,8 @@ function Midi.new(id, name, dev)
   end
   if not tab.contains(connected, name) then
     for i=1,4 do
-      if Midi.vports[i].name == "none" then
+      -- assign device unless device is specialized virtual interface
+      if Midi.vports[i].name == "none" and d.name ~= "virtual" then
         Midi.vports[i].name = d.name
         break
       end
@@ -162,8 +163,8 @@ function Midi:clock()
 end
 
 --- send midi song position event.
--- @tparam integer lsb :  
--- @tparam integer msb : 
+-- @tparam integer lsb :
+-- @tparam integer msb :
 function Midi:song_position(lsb, msb)
   self:send{type="song_position", lsb=lsb, msb=msb}
 end
@@ -239,7 +240,7 @@ local to_data = {
 }
 
 --- convert msg to data (midi bytes).
--- @tparam table msg : 
+-- @tparam table msg :
 -- @treturn table data : table of midi status and data bytes
 function Midi.to_data(msg)
   if msg.type then
@@ -339,10 +340,17 @@ function Midi.to_msg(data)
   -- active sensing (should probably ignore)
   elseif data[1] == 0xfe then
       -- do nothing
+  -- system exclusive
+  elseif data[1] == 0xf0 then
+    msg = {
+      type = "sysex",
+      raw = data,
+    }
   -- everything else
   else
     msg = {
       type = "other",
+      raw = data,
     }
   end
   return msg
@@ -396,12 +404,13 @@ _norns.midi.event = function(id, data)
       d.event(data)
     end
 
-    if d.port and Midi.vports[d.port].event then
-      Midi.vports[d.port].event(data)
+    if d.port then
+      if Midi.vports[d.port].event then
+        Midi.vports[d.port].event(data)
+      end
+      -- hack = send all midi to menu for param-cc-map
+      norns.menu_midi_event(data, d.port)
     end
-
-    -- hack = send all midi to menu for param-cc-map
-    norns.menu_midi_event(data, d.port)
   else
     error('no entry for midi '..id)
   end

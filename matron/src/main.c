@@ -80,7 +80,9 @@ int main(int argc, char **argv) {
     o_init(); // oracle (audio)
 
     w_init(); // weaver (scripting)
+
     dev_list_init();
+    dev_list_add(DEV_TYPE_MIDI_VIRTUAL, NULL, "virtual");
     dev_monitor_init();
 
     // now is a good time to set our cleanup

@@ -176,13 +176,15 @@ end
 
 --- create a shallow copy of the given event
 -- @param event : then event object to clone
-local function clone(event)
+local function copy(event)
   local new = {}
   for k,v in pairs(event) do
     new[k] = v
   end
   return new
 end
+
+local clone = copy
 
 --- return true if str starts with start (string)
 -- @param str : the string to test
@@ -201,6 +203,18 @@ end
 
 local function is_type(event, event_type)
   return event.type == event_type
+end
+
+local function is_init(event)
+  return event.type == SCRIPT_INIT_EVENT
+end
+
+local function is_redraw(event)
+  return event.type == SCRIPT_REDRAW_EVENT
+end
+
+local function is_cleanup(event)
+  return event.type == SCRIPT_CLEANUP_EVENT
 end
 
 local function is_note(event)
@@ -315,9 +329,13 @@ return {
   to_bend_range = to_bend_range,
   to_string = to_string,
   clone = clone,
+  copy = copy,
   starts_with = starts_with,
   bpm_to_sec = bpm_to_sec,
   is_type = is_type,
+  is_init = is_init,
+  is_redraw = is_redraw,
+  is_cleanup = is_cleanup,
   is_note = is_note,
   is_clock = is_clock,
   is_transport = is_transport,

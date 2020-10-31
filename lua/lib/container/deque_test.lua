@@ -22,6 +22,28 @@ function test_pop()
   T.assertEquals(d:count(), 0)
 end
 
+function test_peek()
+  local d = Deque.new()
+  -- empty case
+  T.assertEquals(d:peek(), nil)
+  T.assertEquals(d:peek(1), nil)
+  T.assertEquals(d:peek(3), nil)
+
+  -- head
+  d:push_back('a')
+  T.assertEquals(d:peek(), 'a')
+  T.assertEquals(d:count(), 1)
+  T.assertEquals(d:peek(2), nil)
+
+  -- tombstone in middle
+  d:push_back('b')
+  d:push_back('c')
+  d:remove('b')
+  T.assertEquals(d:count(), 2)
+  T.assertEquals(d:peek(1), 'a')
+  T.assertEquals(d:peek(2), 'c')
+end
+
 function test_push_back()
   local d = Deque.new()
   d:push_back('a')
@@ -41,6 +63,28 @@ function test_pop_back()
   T.assertEquals(d:count(), 1)
   T.assertEquals(d:pop_back(), 'b')
   T.assertEquals(d:count(), 0)
+end
+
+function test_peek_back()
+  local d = Deque.new()
+  -- empty case
+  T.assertEquals(d:peek_back(), nil)
+  T.assertEquals(d:peek_back(1), nil)
+  T.assertEquals(d:peek_back(3), nil)
+
+  -- head
+  d:push_back('a')
+  T.assertEquals(d:peek_back(), 'a')
+  T.assertEquals(d:count(), 1)
+  T.assertEquals(d:peek_back(2), nil)
+
+  -- tombstone in middle
+  d:push_back('b')
+  d:push_back('c')
+  d:remove('b')
+  T.assertEquals(d:count(), 2)
+  T.assertEquals(d:peek_back(1), 'c')
+  T.assertEquals(d:peek_back(2), 'a')
 end
 
 function test_deque_new_with_elements()

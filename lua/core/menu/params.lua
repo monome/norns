@@ -131,6 +131,8 @@ m.key = function(n,z)
     end
   -- EDIT + MAP
   elseif m.mode == mEDIT or m.mode == mMAP then
+    local i = page[m.pos+1]
+    local t = params:t(i)
     if n==2 and z==1 then
       if m.alt then
         init_pset()
@@ -146,8 +148,6 @@ m.key = function(n,z)
     elseif n==3 and z==1 and m.alt then
       m.mode = (m.mode==mEDIT) and mMAP or mEDIT
     elseif n==3 and z==1 then
-      local i = page[m.pos+1]
-      local t = params:t(i)
       if t == params.tGROUP then
         build_sub(i)
         m.group = true
@@ -179,12 +179,14 @@ m.key = function(n,z)
           params:set(i)
           m.triggered[i] = 2
         end
-      elseif t == params.tTOGGLE then
+      elseif t == params.tBINARY then
         if m.mode == mEDIT then
           params:delta(i, 1)
-          m.toggled[i] = params:get(i) and 1 or 0
+          if params:lookup_param(i).behavior == 'trigger' then
+            m.triggered[i] = 2
+          else m.on[i] = params:get(i) end
         end
-      elseif m.mode == mMAP then
+      elseif m.mode == mMAP and params:get_allow_pmap(i) then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
         if pm == nil then
@@ -208,6 +210,14 @@ m.key = function(n,z)
       end
     elseif n==3 and z==0 then
       m.fine = false
+      if t == params.tBINARY then
+        if m.mode == mEDIT then
+          params:delta(i, 0)
+          if params:lookup_param(i).behavior ~= 'trigger' then
+            m.on[i] = params:get(i) 
+          end
+        end
+      end
     end
     -- MAPEDIT
   elseif m.mode == mMAPEDIT then
@@ -386,8 +396,9 @@ m.redraw = function()
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
             end
-          elseif t ==  params.tTOGGLE then
-            if m.toggled[p] and m.toggled[p] > 0 then
+          elseif t == params.tBINARY then
+            fill = m.on[p] or m.triggered[p]
+            if fill and fill > 0 then
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
             end
@@ -430,10 +441,12 @@ m.redraw = function()
               t == params.tCONTROL or
               t == params.tOPTION then
             local pm=norns.pmap.data[id]
-            if pm then
-              screen.text_right(pm.cc..":"..pm.ch..":"..pm.dev)
-            else
-              screen.text_right("-")
+            if params:get_allow_pmap(p) then
+              if pm then
+                screen.text_right(pm.cc..":"..pm.ch..":"..pm.dev)
+              else
+                screen.text_right("-")
+              end
             end
           end
         end
@@ -553,9 +566,9 @@ m.init = function()
     end
     _menu.redraw()
   end
-  m.toggled = {}
+  m.on = {}
   for i,param in ipairs(params.params) do
-    if param.t == params.tTOGGLE and param.value then m.toggled[i] = 1 end
+    if param.t == params.tBINARY and (param.value == 1) then m.on[i] = 1 end
   end
   _menu.timer.time = 0.2
   _menu.timer.count = -1

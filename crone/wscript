@@ -24,7 +24,6 @@ def build(bld):
         'softcut/softcut-lib/src/Voice.cpp'
     ]
 
-
     bld.program( features='c cxx cxxprogram',
                  source=crone_sources,
                  target='crone',
@@ -32,13 +31,13 @@ def build(bld):
                  includes=[
                      'src',
                      './',
-                     'softcut/softcut-lib/include'
+                     'softcut/softcut-lib/include',
+                     'lib/readerwriterqueue'
                  ],
 
                  use=[
                      'ALSA',
                      'LIBLO',
-                     'BOOST',
                  ],
                  lib=[
                      'atomic',

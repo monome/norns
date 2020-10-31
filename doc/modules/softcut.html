@@ -40,13 +40,21 @@
 <ul class="nowrap">
   <li><a href="../modules/clock.html">clock</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.ii_actions.html">core.crow.ii_actions</a></li>
+  <li><a href="../modules/core.crow.ii_events.html">core.crow.ii_events</a></li>
   <li><strong>softcut</strong></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/er.html">er</a></li>
   <li><a href="../modules/filters.html">filters</a></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 <h2>Classes</h2>
@@ -287,6 +295,14 @@
 	<td class="summary">clear region of single channel</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#buffer_copy_mono">buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, reverse)</a></td>
+	<td class="summary">copy region from one point in a buffer to another</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer_copy_stereo">buffer_copy_stereo (start_src, start_dst, dur, fade_time, reverse)</a></td>
+	<td class="summary">copy region of both buffers to another point</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#buffer_read_mono">buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</a></td>
 	<td class="summary">read mono soundfile to arbitrary region of single buffer</td>
 	</tr>
@@ -305,6 +321,14 @@
 	<tr>
 	<td class="name" nowrap><a href="#event_phase">event_phase (func)</a></td>
 	<td class="summary">set function for phase poll</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_buffer">render_buffer (ch, start, dur, samples)</a></td>
+	<td class="summary">request snapshot of buffer content for region.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#event_render">event_render (func)</a></td>
+	<td class="summary">set function for render callback.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#reset">reset ()</a></td>
@@ -345,7 +369,7 @@
          : voice index
         </li>
         <li><span class="parameter">amp</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">number</span></span>
          : linear amplitude
         </li>
     </ul>
@@ -1483,6 +1507,88 @@
 
 </dd>
     <dt>
+    <a name = "buffer_copy_mono"></a>
+    <strong>buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, reverse)</strong>
+    </dt>
+    <dd>
+    copy region from one point in a buffer to another
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">src_ch</span>
+            <span class="types"><span class="type">int</span></span>
+         : source buffer index (1-based)
+        </li>
+        <li><span class="parameter">dst_ch</span>
+            <span class="types"><span class="type">int</span></span>
+         : destination buffer index (1-based)
+        </li>
+        <li><span class="parameter">start_src</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in source, in seconds
+        </li>
+        <li><span class="parameter">start_dst</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in destination, in seconds
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         : duration in seconds. if -1, copy as much as possible.
+        </li>
+        <li><span class="parameter">fade_time</span>
+            <span class="types"><span class="type">number</span></span>
+         : fade time in seconds.
+        </li>
+        <li><span class="parameter">reverse</span>
+            <span class="types"><span class="type">int</span></span>
+         : nonzero to reverse while copying. when reversing, overlap between source and destination regions is not handled.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer_copy_stereo"></a>
+    <strong>buffer_copy_stereo (start_src, start_dst, dur, fade_time, reverse)</strong>
+    </dt>
+    <dd>
+    copy region of both buffers to another point
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">start_src</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in source, in seconds
+        </li>
+        <li><span class="parameter">start_dst</span>
+            <span class="types"><span class="type">number</span></span>
+         : start point in destination, in seconds
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         : duration in seconds. if -1, copy as much as possible.
+        </li>
+        <li><span class="parameter">fade_time</span>
+            <span class="types"><span class="type">number</span></span>
+         : fade time in seconds.
+        </li>
+        <li><span class="parameter">reverse</span>
+            <span class="types"><span class="type">int</span></span>
+         : nonzero to reverse while copying.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "buffer_read_mono"></a>
     <strong>buffer_read_mono (file, start_src, start_dst, dur, ch_src, ch_dst)</strong>
     </dt>
@@ -1493,7 +1599,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          : input file path
         </li>
         <li><span class="parameter">start_src</span>
@@ -1534,7 +1640,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          : input file path
         </li>
         <li><span class="parameter">start_src</span>
@@ -1567,7 +1673,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          : output file path
         </li>
         <li><span class="parameter">start</span>
@@ -1600,7 +1706,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          : output file path
         </li>
         <li><span class="parameter">start</span>
@@ -1631,6 +1737,60 @@
         <li><span class="parameter">func</span>
             <span class="types"><span class="type">function</span></span>
          : callback function. this function should take two parameters  (voice, phase)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_buffer"></a>
+    <strong>render_buffer (ch, start, dur, samples)</strong>
+    </dt>
+    <dd>
+    request snapshot of buffer content for region.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : buffer channel index (1-based)
+        </li>
+        <li><span class="parameter">start</span>
+            <span class="types"><span class="type">number</span></span>
+         : beginning of region in seconds
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         : length of region in seconds
+        </li>
+        <li><span class="parameter">samples</span>
+            <span class="types"><span class="type">integer</span></span>
+         : max number of samples to retrieve. if less than the number of frames in the region, content will be downsampled
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "event_render"></a>
+    <strong>event_render (func)</strong>
+    </dt>
+    <dd>
+    set function for render callback.  use render_buffer to request contents.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
+         : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)
         </li>
     </ul>
 
@@ -1671,7 +1831,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
         table of parameter states for each voice
     </ol>
 
@@ -1707,7 +1867,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-03-28 23:45:19 </i>
+<i style="float:right;">Last updated 2020-10-20 12:49:33 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

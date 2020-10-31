@@ -73,6 +73,21 @@ function Deque:pop()
   return self:pop()
 end
 
+-- Peek at the value n elements from the front
+-- @treturn anything
+function Deque:peek(n)
+  local pos = self.first + (n or 1) - 1
+  if pos > self.last then
+    return nil -- empty
+  end
+  while pos <= self.last do
+    local value = self._e[pos]
+    if value ~= REMOVED then return value end
+    pos = pos + 1
+  end
+  return nil
+end
+
 --- Pop the value off the back of the queue and return it
 -- @treturn anything
 function Deque:pop_back()
@@ -92,8 +107,41 @@ function Deque:pop_back()
   return self:pop_back()
 end
 
+-- Peek at the value n elements from the back
+-- @treturn anything
+function Deque:peek_back(n)
+  local pos = self.last - ((n or 1) - 1)
+  if pos < self.first then
+    return nil -- empty
+  end
+  while pos >= self.first do
+    local value = self._e[pos]
+    if value ~= REMOVED then return value end
+    pos = pos - 1
+  end
+  return nil
+end
+
 local function _eq(a, b)
   return a == b
+end
+
+--- Returns the queued value if the a match is found.
+--
+-- The optional predicate function should take two arguments and return true
+-- if the arguments are considered a match. The default predicate is ==.
+--
+-- @tparam anything value The value to search the queue for
+-- @tparam function predicate Comparison function [optional]
+-- @treturn anything
+function Deque:find(value, predicate)
+  predicate = predicate or _eq
+  for _, v in self:ipairs() do
+    if predicate(v, value) then
+      return v
+    end
+  end
+  return nil
 end
 
 --- Returns true if the given value is in the queue.
@@ -105,13 +153,7 @@ end
 -- @tparam function predicate Comparison function [optional]
 -- @treturn boolean
 function Deque:contains(value, predicate)
-  predicate = predicate or _eq
-  for _, v in self:ipairs() do
-    if predicate(v, value) then
-      return true
-    end
-  end
-  return false
+  return self:find(value, predicate) ~= nil
 end
 
 --- Removes the first instance over value in the queue

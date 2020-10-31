@@ -33,9 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Class_filters_mean">Class filters.mean </a></li>
-<li><a href="#Class_filters_median">Class filters.median </a></li>
-<li><a href="#Class_filters_smoother">Class filters.smoother </a></li>
+<li><a href="#Tables">Tables</a></li>
 </ul>
 
 
@@ -52,12 +50,12 @@
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/er.html">er</a></li>
-  <li><strong>filters</strong></li>
+  <li><a href="../modules/filters.html">filters</a></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><strong>lib.test.luaunit</strong></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 <h2>Classes</h2>
@@ -91,49 +89,35 @@
 
 <div id="content">
 
-<h1>Module <code>filters</code></h1>
-<p></p>
+<h1>Module <code>lib.test.luaunit</code></h1>
+<p>general utility functions</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#f:clear">f:clear ()</a></td>
-	<td class="summary">clear a filter's history</td>
+	<td class="name" nowrap><a href="#assertEquals">assertEquals (actual, expected, extra_msg_or_nil, doDeepAnalysis)</a></td>
+	<td class="summary">Equality assertions</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#assertStrContains">assertStrContains (str, sub, isPattern, extra_msg_or_nil)</a></td>
+	<td class="summary">String assertion</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#assertEvalToTrue">assertEvalToTrue (value, extra_msg_or_nil)</a></td>
+	<td class="summary">Type assertions</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#assertIsNaN">assertIsNaN (value, extra_msg_or_nil)</a></td>
+	<td class="summary">Scientific assertions</td>
 	</tr>
 </table>
-<h2><a href="#Class_filters_mean">Class filters.mean </a></h2>
+<h2><a href="#Tables">Tables</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#mean.new">mean.new (bufsize:)</a></td>
-	<td class="summary">constructor</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#mean:next">mean:next (x:)</a></td>
-	<td class="summary">process a new input value and update the average</td>
-	</tr>
-</table>
-<h2><a href="#Class_filters_median">Class filters.median </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#median.new">median.new (bufsize:)</a></td>
-	<td class="summary">constructor</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#median:next">median:next (x:)</a></td>
-	<td class="summary">process a new input value and update the average</td>
-	</tr>
-</table>
-<h2><a href="#Class_filters_smoother">Class filters.smoother </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#smoother.new">smoother.new (time:, sr:)</a></td>
-	<td class="summary">constructor</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#f.mean">f.mean</a></td>
-	<td class="summary">TODO: what else would be useful?</td>
+	<td class="name" nowrap><a href="#LuaUnit">LuaUnit</a></td>
+	<td class="summary">class LuaUnit</td>
 	</tr>
 </table>
 
@@ -145,13 +129,103 @@
 
     <dl class="function">
     <dt>
-    <a name = "f:clear"></a>
-    <strong>f:clear ()</strong>
+    <a name = "assertEquals"></a>
+    <strong>assertEquals (actual, expected, extra_msg_or_nil, doDeepAnalysis)</strong>
     </dt>
     <dd>
-    clear a filter's history
+    Equality assertions
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">actual</span>
+
+        </li>
+        <li><span class="parameter">expected</span>
+
+        </li>
+        <li><span class="parameter">extra_msg_or_nil</span>
+
+        </li>
+        <li><span class="parameter">doDeepAnalysis</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "assertStrContains"></a>
+    <strong>assertStrContains (str, sub, isPattern, extra_msg_or_nil)</strong>
+    </dt>
+    <dd>
+    String assertion
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+
+        </li>
+        <li><span class="parameter">sub</span>
+
+        </li>
+        <li><span class="parameter">isPattern</span>
+
+        </li>
+        <li><span class="parameter">extra_msg_or_nil</span>
+        this relies on lua string.find function a string always contains the empty string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "assertEvalToTrue"></a>
+    <strong>assertEvalToTrue (value, extra_msg_or_nil)</strong>
+    </dt>
+    <dd>
+    Type assertions
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">extra_msg_or_nil</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "assertIsNaN"></a>
+    <strong>assertIsNaN (value, extra_msg_or_nil)</strong>
+    </dt>
+    <dd>
+    Scientific assertions
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">extra_msg_or_nil</span>
+
+        </li>
+    </ul>
 
 
 
@@ -159,141 +233,29 @@
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="Class_filters_mean"></a>Class filters.mean </h2>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
     <dt>
-    <a name = "mean.new"></a>
-    <strong>mean.new (bufsize:)</strong>
+    <a name = "LuaUnit"></a>
+    <strong>LuaUnit</strong>
     </dt>
     <dd>
-    constructor
+    class LuaUnit
 
 
-    <h3>Parameters:</h3>
+    <h3>Fields:</h3>
     <ul>
-        <li><span class="parameter">bufsize:</span>
-         window size, cannot change after creation
+        <li><span class="parameter">outputType</span>
+
+        </li>
+        <li><span class="parameter">verbosity</span>
+
+        </li>
+        <li><span class="parameter">__class__</span>
+
         </li>
     </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "mean:next"></a>
-    <strong>mean:next (x:)</strong>
-    </dt>
-    <dd>
-    process a new input value and update the average
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x:</span>
-         new input
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        scaled sum of stored history
-    </ol>
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="Class_filters_median"></a>Class filters.median </h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "median.new"></a>
-    <strong>median.new (bufsize:)</strong>
-    </dt>
-    <dd>
-    constructor
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">bufsize:</span>
-         window size, cannot change after creation
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "median:next"></a>
-    <strong>median:next (x:)</strong>
-    </dt>
-    <dd>
-    process a new input value and update the average
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x:</span>
-         new input
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        median of last N values
-    </ol>
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="Class_filters_smoother"></a>Class filters.smoother </h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "smoother.new"></a>
-    <strong>smoother.new (time:, sr:)</strong>
-    </dt>
-    <dd>
-    constructor
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">time:</span>
-         -60db convergence time
-        </li>
-        <li><span class="parameter">sr:</span>
-         expected sample rate
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "f.mean"></a>
-    <strong>f.mean</strong>
-    </dt>
-    <dd>
-    TODO: what else would be useful?
-<p> quantile estimator?
- constant time ramp?
- some kind of hysteresis / latching?
-
-
 
 
 

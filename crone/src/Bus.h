@@ -5,7 +5,7 @@
 #ifndef CRONE_BUS_H
 #define CRONE_BUS_H
 
-#include <boost/assert.hpp>
+#include <cassert>
 #include "Utilities.h"
 
 namespace  crone {
@@ -28,7 +28,7 @@ namespace  crone {
 
         // clear the first N frames in the bus
          void clear(size_t numFrames) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     buf[ch][fr] = 0.f;
@@ -38,7 +38,7 @@ namespace  crone {
 
         // copy from bus, with no scaling (overwrites previous contents)
         void copyFrom(Bus &b, size_t numFrames) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     buf[ch][fr] = b.buf[ch][fr];
@@ -48,7 +48,7 @@ namespace  crone {
 
         // copy from bus to pointer array, with no scaling (overwrites previous contents)
         void copyTo(float *dst[NumChannels], size_t numFrames) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     dst[ch][fr] = buf[ch][fr];
@@ -59,7 +59,7 @@ namespace  crone {
 
         // sum from bus, without amplitude scaling
          void addFrom(BusT &b, size_t numFrames) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     buf[ch][fr] += b.buf[ch][fr];
@@ -69,7 +69,7 @@ namespace  crone {
 
         // mix from bus, with fixed amplitude
          void mixFrom(BusT &b, size_t numFrames, float level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             for(size_t ch=0; ch<NumChannels; ++ch) {
                 for(size_t fr=0; fr<numFrames; ++fr) {
                     buf[ch][fr] += b.buf[ch][fr] * level;
@@ -80,7 +80,7 @@ namespace  crone {
 
         // mix from bus, with smoothed amplitude
         void mixFrom(BusT &b, size_t numFrames, LogRamp &level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -92,7 +92,7 @@ namespace  crone {
 
         // apply smoothed amplitude
         void applyGain(size_t numFrames, LogRamp &level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -104,7 +104,7 @@ namespace  crone {
 
         // mix from pointer array, with smoothed amplitude
         void mixFrom(const float *src[NumChannels], size_t numFrames, LogRamp &level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -116,7 +116,7 @@ namespace  crone {
 
         // set from pointer array, with smoothed amplitude
         void setFrom(const float *src[NumChannels], size_t numFrames, LogRamp &level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -128,7 +128,7 @@ namespace  crone {
 
         // set from pointer array, without scaling
         void setFrom(const float *src[NumChannels], size_t numFrames) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             for(size_t fr=0; fr<numFrames; ++fr) {
                 for(size_t ch=0; ch<NumChannels; ++ch) {
                     buf[ch][fr] = src[ch][fr];
@@ -138,7 +138,7 @@ namespace  crone {
 
         // mix to pointer array, with smoothed amplitude
         void mixTo(float *dst[NumChannels], size_t numFrames, LogRamp &level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             float l;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update();
@@ -150,7 +150,7 @@ namespace  crone {
 
         // mix from stereo bus with 2x2 level matrix
         void stereoMixFrom(BusT &b, size_t numFrames, const float level[4]) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             for (size_t fr = 0; fr < numFrames; ++fr) {
                 buf[0][fr] += b.buf[0][fr] * level[0] + b.buf[1][fr] * level[2];
                 buf[1][fr] += b.buf[0][fr] * level[1] + b.buf[1][fr] * level[3];
@@ -159,7 +159,7 @@ namespace  crone {
 
         // mix from two busses with balance coefficient (linear)
         void xfade(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             float x, y, c;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 c = level.update();
@@ -173,7 +173,7 @@ namespace  crone {
 
         // mix from two busses with balance coefficient (equal power)
         void xfadeEp(BusT &a, BusT &b, size_t numFrames, LogRamp &level) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             float x, y, l, c, d;
             for(size_t fr=0; fr<numFrames; ++fr) {
                 l = level.update() * (float)M_PI_2;
@@ -189,7 +189,7 @@ namespace  crone {
 
         // mix from mono->stereo bus, with level and pan (linear)
         void panMixFrom(Bus<1, BlockSize> a, size_t numFrames, LogRamp &level, LogRamp& pan) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             static_assert(NumChannels > 1, "using panMixFrom() on mono bus");
             float l, c, x;
             for(size_t fr=0; fr<numFrames; ++fr) {
@@ -204,7 +204,7 @@ namespace  crone {
 
         // mix from mono->stereo bus, with level and pan (equal power)
         void panMixEpFrom(Bus<1, BlockSize> a, size_t numFrames, LogRamp &level, LogRamp& pan) {
-            BOOST_ASSERT(numFrames < BlockSize);
+            assert(numFrames < BlockSize);
             static_assert(NumChannels > 1, "using panMixFrom() on mono bus");
             float l, c, x;
             for(size_t fr=0; fr<numFrames; ++fr) {

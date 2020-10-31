@@ -8,7 +8,7 @@ local control = require 'core/params/control'
 local file = require 'core/params/file'
 local taper = require 'core/params/taper'
 local trigger = require 'core/params/trigger'
-local toggle = require 'core/params/toggle'
+local binary = require 'core/params/binary'
 local group = require 'core/params/group'
 local text = require 'core/params/text'
 
@@ -22,7 +22,7 @@ local ParamSet = {
   tTRIGGER = 6,
   tGROUP = 7,
   tTEXT = 8,
-  tTOGGLE = 9,
+  tBINARY = 9,
   sets = {}
 }
 
@@ -95,19 +95,19 @@ function ParamSet:add(args)
     local name = args.name or id
 
     if args.type == "number"  then
-      param = number.new(id, name, args.min, args.max, args.default, args.formatter, args.wrap)
+      param = number.new(id, name, args.min, args.max, args.default, args.formatter, args.wrap, args.allow_pmap)
     elseif args.type == "option" then
-      param = option.new(id, name, args.options, args.default)
+      param = option.new(id, name, args.options, args.default, args.allow_pmap)
     elseif args.type == "control" then
-      param = control.new(id, name, args.controlspec, args.formatter)
+      param = control.new(id, name, args.controlspec, args.formatter, args.allow_pmap)
     elseif args.type == "file" then
       param = file.new(id, name, args.path)
     elseif args.type == "taper" then
       param = taper.new(id, name, args.min, args.max, args.default, args.k, args.units)
     elseif args.type == "trigger" then
       param = trigger.new(id, name)
-    elseif args.type == "toggle" then
-      param = toggle.new(id, name, args.default)
+    elseif args.type == "binary" then
+      param = binary.new(id, name, args.behavior, args.default)
     elseif args.type == "text" then
       param = text.new(id, name, args.text)
     else
@@ -190,12 +190,13 @@ function ParamSet:add_trigger(id, name)
   self:add { param=trigger.new(id, name) }
 end
 
---- add toggle
+--- add binary
 -- @tparam string id
 -- @tparam string name
--- @tparam boolean default
-function ParamSet:add_toggle(id, name, default)
-  self:add { param=toggle.new(id, name, default) }
+-- @tparam string behavior
+-- @tparam number default
+function ParamSet:add_binary(id, name, behavior, default)
+  self:add { param=binary.new(id, name, behavior, default) }
 end
 
 --- print.
@@ -308,6 +309,14 @@ function ParamSet:get_range(index)
   return param:get_range()
 end
 
+--- get whether or not parameter should be pmap'able
+-- @param index
+function ParamSet:get_allow_pmap(index)
+  local param = self:lookup_param(index)
+  local allow = param.allow_pmap
+  if param == nil then return true end
+  return allow
+end
 
 --- set visibility to hidden.
 -- @param index
