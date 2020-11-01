@@ -12,7 +12,6 @@ io_ops_t* io_types[] = {
     (io_ops_t*)&enc_gpio_ops,
     (io_ops_t*)&key_gpio_ops,
 
-    (io_ops_t*)&screen_json_ops,
 #ifdef NORNS_DESKTOP
     (io_ops_t*)&screen_sdl_ops,
     (io_ops_t*)&input_sdl_ops,
@@ -53,7 +52,6 @@ int io_create(lua_State *l, io_ops_t *ops) {
     }
 
     TAILQ_INSERT_TAIL(&io_queue, io, entries);
-    fprintf(stderr, "configured IO %s\n", io->ops->name);
     return 0;
 }
 

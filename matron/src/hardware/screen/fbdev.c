@@ -49,7 +49,6 @@ int screen_fbdev_config(matron_io_t *io, lua_State *l) {
     lua_gettable(l, -2);
     if (lua_isstring(l, -1)) {
         const char *dev = lua_tostring(l, -1);
-        fprintf(stderr, "screen:fbdev: dev %s\n", dev);
         if (!(priv->dev = malloc(strlen(dev) + 1))) {
             fprintf(stderr, "ERROR (screen:fbdev) no memory\n");
             lua_settop(l, 0);
@@ -155,8 +154,6 @@ static cairo_surface_t *screen_fbdev_surface_create(screen_fbdev_priv_t *priv, c
         priv->fb_data, CAIRO_FORMAT_RGB16_565, priv->fb_vinfo.xres, priv->fb_vinfo.yres,
         cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, priv->fb_vinfo.xres));
     cairo_surface_set_user_data(surface, NULL, priv, &screen_fbdev_surface_destroy);
-
-    fprintf(stderr, "screen: created linux framebuffer surface %s\n", dev);
 
     return surface;
 

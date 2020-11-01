@@ -59,7 +59,6 @@ int input_gpio_config(matron_io_t* io, lua_State *l) {
     lua_gettable(l, -2);
     if (lua_isstring(l, -1)) {
         const char *dev = lua_tostring(l, -1);
-        fprintf(stderr, "%s: dev %s\n", io->ops->name, dev);
         if (!(priv->dev = malloc(strlen(dev) + 1))) {
             fprintf(stderr, "ERROR (%s) no memory\n", io->ops->name);
             lua_settop(l, 0);

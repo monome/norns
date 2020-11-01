@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <lauxlib.h>
 #include <lualib.h>
@@ -20,7 +21,6 @@ static inline void lua_register_func(lua_State *l, const char* name, lua_CFuncti
 static int _add_io(lua_State *l);
 
 int config_init(void) {
-    fprintf(stderr, "starting configuration lua vm\n");
     lua_State *l = config_lvm = luaL_newstate();
     luaL_openlibs(l);
     lua_pcall(l, 0, 0, 0);
@@ -32,9 +32,15 @@ int config_init(void) {
     lua_setglobal(l, "_boot");
 
     char *home = getenv("HOME");
-    char cmd[256];
-    snprintf(cmd, 256, "%s/norns/matronrc.lua", home);
-    if (l_dofile(l, cmd)) {
+    char fname[256];
+    snprintf(fname, 256, "%s/matronrc.lua", home);
+    if (access(fname, R_OK)) {
+        fprintf(stderr, "no user matronrc file (%s) found, using default\n", fname);
+    }
+    snprintf(fname, 256, "%s/norns/matronrc.lua", home);
+    fprintf(stderr, "loading matronrc file: %s\n", fname);
+    if (l_dofile(l, fname)) {
+        fprintf(stderr, "error evaluating matronrc.lua, stop.\n");
         return -1;
     }
 

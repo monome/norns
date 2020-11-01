@@ -193,7 +193,6 @@ void screen_init(void) {
         matron_fb_t *fb = (matron_fb_t *)io;
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->bind(fb, surface);
-        fprintf(stderr, "bound screen '%s'\n", io->ops->name);
     }
 }
 
