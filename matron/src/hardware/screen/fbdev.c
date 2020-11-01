@@ -83,6 +83,7 @@ int screen_fbdev_setup(matron_io_t *io) {
         free(priv->dev);
         return -1;
     }
+    fb->cairo = cairo_create(fb->surface);
     return 0;
 }
 

@@ -19,10 +19,8 @@ def build(bld):
         'src/hardware/stat.c',
 	'src/hardware/screen/json.c',
 	'src/hardware/screen/fbdev.c',
-        'src/hardware/screen/sdl.c',
         'src/hardware/screen/base64/base64.c',
         'src/hardware/input/gpio.c',
-        'src/hardware/input/sdl.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',
@@ -41,6 +39,12 @@ def build(bld):
         'src/clocks/clock_crow.c',
     ]
 
+    if bld.options.desktop:
+        matron_sources += [
+            'src/hardware/screen/sdl.c',
+            'src/hardware/input/sdl.c',
+        ]
+
     matron_includes = [
         'src',
         'src/device',
@@ -51,7 +55,6 @@ def build(bld):
     matron_libs = [
         'pthread',
         'm',
-        'SDL2',
     ]
 
     matron_use = [
@@ -65,8 +68,11 @@ def build(bld):
         'LIBMONOME',
         'SNDFILE',
         'AVAHI-COMPAT-LIBDNS_SD',
-        'SDL2',
     ]
+
+    if bld.options.desktop:
+        matron_libs.append('SDL2')
+        matron_use.append('SDL2')
 
     if bld.env.ENABLE_ABLETON_LINK:
         matron_sources += ['src/clocks/clock_link.c']

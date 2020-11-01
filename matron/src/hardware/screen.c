@@ -185,13 +185,15 @@ void screen_init(void) {
     cairo_set_font_face(cr, ct[0]);
     cairo_set_font_size(cr, 8.0);
 
+    fprintf(stderr, "font setup OK.\n");
+
     matron_io_t *io;
     TAILQ_FOREACH(io, &io_queue, entries) {
         if (io->ops->type != IO_SCREEN) continue;
         matron_fb_t *fb = (matron_fb_t *)io;
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->bind(fb, surface);
-        fprintf(stderr, "bound fb %s\n", io->ops->name);
+        fprintf(stderr, "bound screen '%s'\n", io->ops->name);
     }
 }
 
