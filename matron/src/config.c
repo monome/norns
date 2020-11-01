@@ -36,8 +36,8 @@ int config_init(void) {
     snprintf(fname, 256, "%s/matronrc.lua", home);
     if (access(fname, R_OK)) {
         fprintf(stderr, "no user matronrc file (%s) found, using default\n", fname);
+        snprintf(fname, 256, "%s/norns/matronrc.lua", home);
     }
-    snprintf(fname, 256, "%s/norns/matronrc.lua", home);
     fprintf(stderr, "loading matronrc file: %s\n", fname);
     if (l_dofile(l, fname)) {
         fprintf(stderr, "error evaluating matronrc.lua, stop.\n");
