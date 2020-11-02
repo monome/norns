@@ -139,7 +139,6 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	cut.setPlayFlag(idx_0, value > 0.f);
 	break;
     case Commands::Id::SET_CUT_REC_OFFSET:
-	value = std::min(bufDur, std::max(0.f, value));
 	cut.setRecOffset(idx_0, value);
 	break;
     case Commands::Id::SET_CUT_POSITION:
