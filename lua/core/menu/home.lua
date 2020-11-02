@@ -24,7 +24,7 @@ m.key = function(n,z)
     else
       norns.script.clear()
       _norns.free_engine()
-
+      _menu.locked = true
     end
   end
 end
