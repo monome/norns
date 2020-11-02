@@ -1,4 +1,4 @@
-- Music utility module.
+--- Music utility module.
 -- Utility methods for working with notes, scales and chords.
 --
 -- @module MusicUtil
