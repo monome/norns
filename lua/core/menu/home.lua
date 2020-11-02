@@ -23,6 +23,7 @@ m.key = function(n,z)
       _menu.set_page(m.list[m.pos])
     else
       norns.script.clear()
+      _menu.locked = true
     end
   end
 end
