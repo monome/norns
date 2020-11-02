@@ -24,6 +24,7 @@ m.key = function(n,z)
     else
       norns.script.clear()
       _norns.free_engine()
+
     end
   end
 end
