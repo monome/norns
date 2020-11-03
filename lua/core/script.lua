@@ -106,6 +106,8 @@ Script.init = function()
   _norns.screen_save()
 end
 
+
+
 --- load a script from the /scripts folder.
 -- @tparam string filename file to load. leave blank to reload current file.
 Script.load = function(filename)
@@ -167,6 +169,22 @@ Script.load = function(filename)
     if util.file_exists(norns.state.data) == false then
       print("### initializing data folder")
       util.make_dir(norns.state.data)
+      if util.file_exists(norns.state.path.."/data") then
+        os.execute("cp "..norns.state.path.."/data/*.pset "..norns.state.data)
+        print("### copied default psets")
+      end
+    end
+
+    local file = norns.state.data.."pset-last.txt"
+    if util.file_exists(file) then
+      local f = io.open(file,"r")
+      io.input(f)
+      local i = io.read("*line")
+      io.close(f)
+      print("pset last used: "..i)
+      norns.state.pset_last = tonumber(i)
+    else
+      norns.state.pset_last = 1
     end
 
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
@@ -219,6 +237,7 @@ Script.metadata = function(filename)
   end
   return meta
 end
+
 
 
 return Script
