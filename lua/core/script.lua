@@ -165,6 +165,7 @@ Script.load = function(filename)
     norns.state.path = path .. '/'
     norns.state.lib = path .. '/lib/'
     norns.state.data = _path.data .. name .. '/'
+    norns.state.pset_last = 1
 
     if util.file_exists(norns.state.data) == false then
       print("### initializing data folder")
@@ -181,10 +182,10 @@ Script.load = function(filename)
       io.input(f)
       local i = io.read("*line")
       io.close(f)
-      print("pset last used: "..i)
-      norns.state.pset_last = tonumber(i)
-    else
-      norns.state.pset_last = 1
+      if i then
+        print("pset last used: "..i)
+        norns.state.pset_last = tonumber(i)
+      end
     end
 
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script

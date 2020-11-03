@@ -105,6 +105,7 @@ local function write_pset_last(x)
   io.output(f)
   io.write(x)
   io.close(f)
+  norns.state.pset_last = x
 end
 
 local function write_pset(name)
@@ -256,9 +257,11 @@ m.key = function(n,z)
         textentry.enter(write_pset, txt, "PSET NAME: "..m.ps_pos+1)
         -- load
       elseif m.ps_action == 2 then
-        if pset[m.ps_pos+1] then
-          params:read(m.ps_pos+1)
-          m.ps_last = m.ps_pos+1
+        local i = m.ps_pos+1
+        if pset[i] then
+          params:read(i)
+          m.ps_last = i
+          write_pset_last(i) -- save last pset loaded
         end
         -- delete
       elseif m.ps_action == 3 then
