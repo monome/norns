@@ -20,18 +20,8 @@ extern void screen_move(double x, double y);
 extern void screen_line(double x, double y);
 extern void screen_move_rel(double x, double y);
 extern void screen_line_rel(double x, double y);
-extern void screen_curve(double x1,
-                         double y1,
-                         double x2,
-                         double y2,
-                         double x3,
-                         double y3);
-extern void screen_curve_rel(double dx1,
-                             double dy1,
-                             double dx2,
-                             double dy2,
-                             double dx3,
-                             double dy3);
+extern void screen_curve(double x1, double y1, double x2, double y2, double x3, double y3);
+extern void screen_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3);
 extern void screen_arc(double x, double y, double r, double a1, double a2);
 extern void screen_rect(double x, double y, double w, double h);
 extern void screen_stroke(void);
