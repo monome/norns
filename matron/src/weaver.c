@@ -111,10 +111,10 @@ static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
 static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
-static int _screen_read_png(lua_State *l);
-static int _screen_show_png(lua_State *l);
+//static int _screen_read_png(lua_State *l);
+//static int _screen_show_png(lua_State *l);
+//static int _screen_destroy_png(lua_State *l);
 static int _screen_display_png(lua_State *l);
-static int _screen_destroy_png(lua_State *l);
 //i2c
 static int _gain_hp(lua_State *l);
 // osc
@@ -874,47 +874,47 @@ int _screen_display_png(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 }
+/******** NOT YET WORKING *****/
 /***
  * screen: read_png
  * @function s_read_png
  * @tparam string filename
- */
+
 int _screen_read_png(lua_State *l) {
     lua_check_num_args(1);
-    const char *path = luaL_checkstring(l, 1);
-    static cairo_surface_t *s = lua_touserdata(l, 1);
-    s = screen_read_png(path);
+// do stuff
+
     return 1;
 }
+*/
 /***
  * screen: show_png
  * @function s_show_png
- * @tparam cairo_surface
+ * @tparam cairo_surface ???
  * @param x
  * @param y
- */
+
 int _screen_show_png(lua_State *l) {
     lua_check_num_args(3);
-    static cairo_surface_t *s = lua_touserdata(l, 1);
-    double x = luaL_checknumber(l, 2);
-    double y = luaL_checknumber(l, 3);
-    screen_show_png(s, x, y);
+// do stuff
+
     lua_settop(l, 0);
     return 0;
 }
+*/
 /***
  * screen: destroy_png
  * @function s_destroy_png
- * @tparam cairo_surface
- */
+ * @tparam cairo_surface ???
+
 int _screen_destroy_png(lua_State *l) {
     lua_check_num_args(1);
-    static cairo_surface_t *s = lua_touserdata(l, 1);
-    screen_destroy_png(s);
+// do stuff
+
     lua_settop(l, 0);
     return 0;
 }
-
+*/
 
 /***
  * headphone: set level
