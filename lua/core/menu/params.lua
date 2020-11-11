@@ -179,13 +179,6 @@ m.key = function(n,z)
           params:set(i)
           m.triggered[i] = 2
         end
-      elseif t == params.tBINARY then
-        if m.mode == mEDIT then
-          params:delta(i, 1)
-          if params:lookup_param(i).behavior == 'trigger' then
-            m.triggered[i] = 2
-          else m.on[i] = params:get(i) end
-        end
       elseif m.mode == mMAP and params:get_allow_pmap(i) then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
@@ -193,7 +186,7 @@ m.key = function(n,z)
           norns.pmap.new(n)
           pm = norns.pmap.data[n]
           local t = params:t(i)
-          if t == params.tNUMBER or t == params.tOPTION then
+          if t == params.tNUMBER or t == params.tOPTION or t== params.tBINARY then
             local r = params:get_range(i)
             pm.out_lo = r[1]
             pm.out_hi = r[2]
@@ -439,6 +432,7 @@ m.redraw = function()
           screen.move(127,10*i)
           if t ==  params.tNUMBER or
               t == params.tCONTROL or
+              t == params.tBINARY or
               t == params.tOPTION then
             local pm=norns.pmap.data[id]
             if params:get_allow_pmap(p) then
@@ -612,6 +606,8 @@ norns.menu_midi_event = function(data, dev)
         elseif t == params.tNUMBER or t == params.tOPTION then
           s = util.round(s)
           params:set(r,s)
+        elseif t == params.tBINARY then 
+            params:delta(r,s)
         end
         if _menu.mode then _menu.redraw() end
       end
