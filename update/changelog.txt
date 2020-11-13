@@ -2,6 +2,7 @@
 
 ## norns 2.4.5
 
+- NEW levels: allow +6db, show unity on mix menu @tehn
 - NEW params: remember last used pset @tehn
 - NEW params: enable mapping of binary types @schollz
 - FIX softcut: don't clamp record offset @catfact
