@@ -24,7 +24,7 @@ _menu.panel = 3
 _menu.panels = {"MIX", "TAPE", "HOME", "PARAMS"}
 _menu.alt = false
 _menu.scripterror = false
-_menu.locked = true
+_menu.locked = false
 _menu.errormsg = ""
 _menu.shownav = false
 _menu.showstats = false
@@ -218,4 +218,6 @@ m["UPDATE"] = require 'core/menu/update'
 m["SLEEP"] = require 'core/menu/sleep'
 m["MIX"] = require 'core/menu/mix'
 m["TAPE"] = require 'core/menu/tape'
+
+_menu.set_mode(true)
 

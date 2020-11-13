@@ -40,7 +40,7 @@ m.reset = function()
   m.ps_pos = 0
   m.ps_n = 0
   m.ps_action = 1
-  m.ps_last = 0
+  m.ps_last = norns.state.pset_last
   m.mode = mSELECT
 end
 
@@ -99,11 +99,22 @@ local function init_pset()
   norns.system_cmd('ls -1 '..norns.state.data..norns.state.shortname..'*.pset | sort', pset_list)
 end
 
+local function write_pset_last(x)
+  local file = norns.state.data.."pset-last.txt"
+  local f = io.open(file,"w")
+  io.output(f)
+  io.write(x)
+  io.close(f)
+  norns.state.pset_last = x
+end
+
 local function write_pset(name)
   if name then
+    local i = m.ps_pos+1
     if name == "" then name = params.name end
-    params:write(m.ps_pos+1,name)
-    m.ps_last = m.ps_pos+1
+    params:write(i,name)
+    m.ps_last = i
+    write_pset_last(i) -- save last pset loaded
     init_pset()
     norns.pmap.write() -- write parameter map too
   end
@@ -246,9 +257,11 @@ m.key = function(n,z)
         textentry.enter(write_pset, txt, "PSET NAME: "..m.ps_pos+1)
         -- load
       elseif m.ps_action == 2 then
-        if pset[m.ps_pos+1] then
-          params:read(m.ps_pos+1)
-          m.ps_last = m.ps_pos+1
+        local i = m.ps_pos+1
+        if pset[i] then
+          params:read(i)
+          m.ps_last = i
+          write_pset_last(i) -- save last pset loaded
         end
         -- delete
       elseif m.ps_action == 3 then
