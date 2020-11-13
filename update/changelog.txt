@@ -1,3 +1,16 @@
+# 201113
+
+## norns 2.4.5
+
+- NEW params: remember last used pset @tehn
+- NEW params: enable mapping of binary types @schollz
+- FIX softcut: don't clamp record offset @catfact
+- FIX menu: playmode lock bug @tehn
+- FIX engine: deinit cleanup @tehn @catfact
+- FIX musicutil: revert rendering of sharps @tehn
+- FIX tape: create dir if user deleted it @catfact
+
+
 # 201029
 
 ## norns 2.4.4
