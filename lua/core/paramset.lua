@@ -107,7 +107,7 @@ function ParamSet:add(args)
     elseif args.type == "trigger" then
       param = trigger.new(id, name)
     elseif args.type == "binary" then
-      param = binary.new(id, name, args.behavior, args.default)
+      param = binary.new(id, name, args.behavior, args.default, args.allow_pmap)
     elseif args.type == "text" then
       param = text.new(id, name, args.text)
     else
