@@ -40,7 +40,7 @@ m.reset = function()
   m.ps_pos = 0
   m.ps_n = 0
   m.ps_action = 1
-  m.ps_last = 0
+  m.ps_last = norns.state.pset_last
   m.mode = mSELECT
 end
 
@@ -99,11 +99,22 @@ local function init_pset()
   norns.system_cmd('ls -1 '..norns.state.data..norns.state.shortname..'*.pset | sort', pset_list)
 end
 
+local function write_pset_last(x)
+  local file = norns.state.data.."pset-last.txt"
+  local f = io.open(file,"w")
+  io.output(f)
+  io.write(x)
+  io.close(f)
+  norns.state.pset_last = x
+end
+
 local function write_pset(name)
   if name then
+    local i = m.ps_pos+1
     if name == "" then name = params.name end
-    params:write(m.ps_pos+1,name)
-    m.ps_last = m.ps_pos+1
+    params:write(i,name)
+    m.ps_last = i
+    write_pset_last(i) -- save last pset loaded
     init_pset()
     norns.pmap.write() -- write parameter map too
   end
@@ -179,13 +190,11 @@ m.key = function(n,z)
           params:set(i)
           m.triggered[i] = 2
         end
-      elseif t == params.tBINARY then
-        if m.mode == mEDIT then
-          params:delta(i, 1)
-          if params:lookup_param(i).behavior == 'trigger' then
-            m.triggered[i] = 2
-          else m.on[i] = params:get(i) end
-        end
+      elseif t == params.tBINARY and m.mode == mEDIT then 
+        params:delta(i,1)
+        if params:lookup_param(i).behavior == 'trigger' then 
+          m.triggered[i] = 2
+        else m.on[i] = params:get(i) end
       elseif m.mode == mMAP and params:get_allow_pmap(i) then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
@@ -193,7 +202,7 @@ m.key = function(n,z)
           norns.pmap.new(n)
           pm = norns.pmap.data[n]
           local t = params:t(i)
-          if t == params.tNUMBER or t == params.tOPTION then
+          if t == params.tNUMBER or t == params.tOPTION or t== params.tBINARY then
             local r = params:get_range(i)
             pm.out_lo = r[1]
             pm.out_hi = r[2]
@@ -246,9 +255,11 @@ m.key = function(n,z)
         textentry.enter(write_pset, txt, "PSET NAME: "..m.ps_pos+1)
         -- load
       elseif m.ps_action == 2 then
-        if pset[m.ps_pos+1] then
-          params:read(m.ps_pos+1)
-          m.ps_last = m.ps_pos+1
+        local i = m.ps_pos+1
+        if pset[i] then
+          params:read(i)
+          m.ps_last = i
+          write_pset_last(i) -- save last pset loaded
         end
         -- delete
       elseif m.ps_action == 3 then
@@ -439,6 +450,7 @@ m.redraw = function()
           screen.move(127,10*i)
           if t ==  params.tNUMBER or
               t == params.tCONTROL or
+              t == params.tBINARY or
               t == params.tOPTION then
             local pm=norns.pmap.data[id]
             if params:get_allow_pmap(p) then
@@ -568,7 +580,11 @@ m.init = function()
   end
   m.on = {}
   for i,param in ipairs(params.params) do
-    if param.t == params.tBINARY and (param.value == 1) then m.on[i] = 1 end
+    if param.t == params.tBINARY then
+        if params:lookup_param(i).behavior == 'trigger' then 
+          m.triggered[i] = 2
+        else m.on[i] = params:get(i) end
+    end
   end
   _menu.timer.time = 0.2
   _menu.timer.count = -1
@@ -612,6 +628,17 @@ norns.menu_midi_event = function(data, dev)
         elseif t == params.tNUMBER or t == params.tOPTION then
           s = util.round(s)
           params:set(r,s)
+        elseif t == params.tBINARY then 
+          params:delta(r,s)
+          if _menu.mode then 
+            for i,param in ipairs(params.params) do
+              if params:lookup_param(i).behavior == params:lookup_param(r).behavior then 
+                if params:lookup_param(i).behavior == 'trigger' then 
+                  m.triggered[i] = 2
+                else m.on[i] = params:get(i) end
+              end
+            end
+          end
         end
         if _menu.mode then _menu.redraw() end
       end

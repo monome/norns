@@ -258,7 +258,7 @@ end
 function Audio.add_params()
   params:add_group("LEVELS",9)
   params:add_control("output_level", "output", 
-    cs.new(-math.huge,0,'db',0,norns.state.mix.output,"dB"))
+    cs.new(-math.huge,6,'db',0,norns.state.mix.output,"dB"))
   params:set_action("output_level",
     function(x) 
       audio.level_dac(util.dbamp(x))
@@ -266,7 +266,7 @@ function Audio.add_params()
     end)
   params:set_save("output_level", false)
   params:add_control("input_level", "input",
-    cs.new(-math.huge,0,'db',0,norns.state.mix.input,"dB"))
+    cs.new(-math.huge,6,'db',0,norns.state.mix.input,"dB"))
   params:set_action("input_level",
     function(x)
       audio.level_adc(util.dbamp(x))
@@ -274,7 +274,7 @@ function Audio.add_params()
     end)
   params:set_save("input_level", false)
   params:add_control("monitor_level", "monitor",
-    cs.new(-math.huge,0,'db',0,norns.state.mix.monitor,"dB"))
+    cs.new(-math.huge,6,'db',0,norns.state.mix.monitor,"dB"))
   params:set_action("monitor_level",
     function(x)
       audio.level_monitor(util.dbamp(x))
@@ -282,7 +282,7 @@ function Audio.add_params()
     end)
   params:set_save("monitor_level", false)
   params:add_control("engine_level", "engine",
-    cs.new(-math.huge,0,'db',0,norns.state.mix.engine,"dB"))
+    cs.new(-math.huge,6,'db',0,norns.state.mix.engine,"dB"))
   params:set_action("engine_level",
     function(x)
       audio.level_eng(util.dbamp(x))
@@ -290,7 +290,7 @@ function Audio.add_params()
     end)
   params:set_save("engine_level", false)
   params:add_control("softcut_level", "softcut",
-    cs.new(-math.huge,0,'db',0,norns.state.mix.cut,"dB"))
+    cs.new(-math.huge,6,'db',0,norns.state.mix.cut,"dB"))
   params:set_action("softcut_level",
     function(x)
       audio.level_cut(util.dbamp(x))
@@ -298,7 +298,7 @@ function Audio.add_params()
     end)
   params:set_save("softcut_level", false)
   params:add_control("tape_level", "tape",
-    cs.new(-math.huge,0,'db',0,norns.state.mix.tape,"dB"))
+    cs.new(-math.huge,6,'db',0,norns.state.mix.tape,"dB"))
   params:set_action("tape_level",
     function(x)
       audio.level_tape(util.dbamp(x))

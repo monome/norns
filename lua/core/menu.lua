@@ -24,7 +24,7 @@ _menu.panel = 3
 _menu.panels = {"MIX", "TAPE", "HOME", "PARAMS"}
 _menu.alt = false
 _menu.scripterror = false
-_menu.locked = true
+_menu.locked = false
 _menu.errormsg = ""
 _menu.shownav = false
 _menu.showstats = false
@@ -143,8 +143,8 @@ end
 
 -- _menu.set mode
 _menu.set_mode = function(mode)
-  if mode == false then -- PLAY MODE
-    if _menu.mode == true then _norns.screen_restore() end
+  if mode == false and _menu.mode == true then -- ACTIVATE PLAY MODE
+    _norns.screen_restore()
     _menu.mode = false
     m[_menu.page].deinit()
     screen.clear()
@@ -156,8 +156,8 @@ _menu.set_mode = function(mode)
     --norns.encoders.set_accel(0,false)
     --norns.encoders.set_sens(0,1)
     redraw()
-  else -- _menu.MODE
-    if _menu.mode == false then _norns.screen_save() end
+  elseif mode == true and _menu.mode == false then -- ACTIVATE MENu MODE
+    _norns.screen_save()
     _menu.mode = true
     _menu.alt = false
     redraw = norns.none
@@ -218,4 +218,6 @@ m["UPDATE"] = require 'core/menu/update'
 m["SLEEP"] = require 'core/menu/sleep'
 m["MIX"] = require 'core/menu/mix'
 m["TAPE"] = require 'core/menu/tape'
+
+_menu.set_mode(true)
 
