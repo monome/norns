@@ -67,7 +67,7 @@ end
 -- script state
 
 local accel = {true,true,true}
-local sens = {1,1,1}
+local sens = {2,2,2}
 
 norns.enc = {}
 norns.enc.accel = function(n,z)
