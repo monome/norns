@@ -33,7 +33,7 @@ Script.clear = function()
 
   -- reset encoders
   norns.enc.accel(0,true)
-  norns.enc.sens(0,1)
+  norns.enc.sens(0,2)
 
   -- clear, redirect, and reset devices
   grid.cleanup()
