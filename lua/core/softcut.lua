@@ -43,9 +43,9 @@ end
 --- set input level to each voice/channel.
 -- @tparam int ch : ADC channel index
 -- @tparam int voice : voice index
--- @tparam number pos : position in [-1, 1]
-SC.level_input_cut = function(ch, voice, pos)
-  _norns.level_input_cut(ch, voice, pos)
+-- @tparam number amp : linear amplitude
+SC.level_input_cut = function(ch, voice, amp)
+  _norns.level_input_cut(ch, voice, amp)
 end
 
 --- set mix matrix, voice output to voice input.
