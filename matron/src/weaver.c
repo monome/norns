@@ -217,6 +217,7 @@ static int _sound_file_inspect(lua_State *l);
 
 // util
 static int _system_cmd(lua_State *l);
+static int _system_cmd_lua(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
@@ -334,6 +335,7 @@ void w_init(void) {
 
     // util
     lua_register_norns("system_cmd", &_system_cmd);
+    lua_register_norns("system_cmd_lua", &_system_cmd_lua);
 
     // low-level monome grid control
     lua_register_norns("grid_set_led", &_grid_set_led);
@@ -2419,6 +2421,13 @@ int _system_cmd(lua_State *l) {
     lua_check_num_args(1);
     const char *cmd = luaL_checkstring(l, 1);
     system_cmd((char *)cmd);
+    return 0;
+}
+
+int _system_cmd_lua(lua_State *l) {
+    lua_check_num_args(1);
+    const char *cmd = luaL_checkstring(l, 1);
+    w_run_code((char *)cmd);
     return 0;
 }
 
