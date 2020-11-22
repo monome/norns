@@ -13,7 +13,7 @@ local function map(x, from_min, from_max, to_min, to_max)
   return (x - from_min) * (to_max - to_min) / (from_max - from_min) + to_min
 end
 
-function Taper.new(id, name, min, max, default, k, units)
+function Taper.new(id, name, min, max, default, k, units, allow_pmap)
   local p = setmetatable({}, Taper)
   p.t = tTAPER
   p.id = id
@@ -22,6 +22,7 @@ function Taper.new(id, name, min, max, default, k, units)
   p.max = max or 1
   p.k = k or 0
   p.action = function() end
+  if allow_pmap == nil then p.allow_pmap = true else p.allow_pmap = allow_pmap end
   p.default = default or min
   p.units = units or ""
   p:set(p.default)

@@ -451,7 +451,8 @@ m.redraw = function()
           if t ==  params.tNUMBER or
               t == params.tCONTROL or
               t == params.tBINARY or
-              t == params.tOPTION then
+              t == params.tOPTION or
+              t == params.tTAPER then
             local pm=norns.pmap.data[id]
             if params:get_allow_pmap(p) then
               if pm then
