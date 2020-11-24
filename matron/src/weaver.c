@@ -893,6 +893,7 @@ int _screen_peek(lua_State *l) {
         char* buf = screen_peek(x, y, &w, &h);
         if (buf) {
             lua_pushlstring(l, buf, w * h);
+            free(buf);
             return 1;
         }
     } 

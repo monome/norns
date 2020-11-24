@@ -452,8 +452,8 @@ extern void screen_export_png(const char *s) {
 
 char *screen_peek(int x, int y, int *w, int *h) {
     CHECK_CRR
-    *w = (*w < 128 - x) ? (*w) : (128 - x);
-    *h = (*h < 64 - y)  ? (*h) : (64 - y);
+    *w = (*w <= (128 - x)) ? (*w) : (128 - x);
+    *h = (*h <= (64 - y))  ? (*h) : (64 - y);
     char *buf = malloc(*w * *h);
     if (!buf) {
         return NULL;
@@ -463,34 +463,35 @@ char *screen_peek(int x, int y, int *w, int *h) {
     if (!data) {
         return NULL;
     }
+    char *p = buf;
     for (int j = y; j < y + *h; j++) {
         for (int i = x; i < x + *w; i++) {
-            fprintf(stderr, "%d -> (%d, %d)\n",
-                    j * 128 + i,
-                    i, j);
-            buf[j * *w + i] = data[j * 128 + i] & 0xF;
+            *p = data[j * 128 + i] & 0xF;
+            p++;
         }
     }
-    fprintf(stderr, "peek OK! (%d * %d = %d)\n", *w, *h, *w * *h);
     return buf;
 }
 
 void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
     CHECK_CR
-    w = (w < 128 - x) ? w : (128 - x);
-    h = (h < 64 - x)  ? h : (64 - y);
+    w = (w <= (128 - x)) ? w : (128 - x);
+    h = (h <= (64 - y))  ? h : (64 - y);
+
+    (void)buf;
+
     uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
         return;
     }
+    uint8_t *p = buf;
     uint32_t pixel;
     for (int j = y; j < y + h; j++) {
         for (int i = x; i < x + w; i++) {
-            pixel = buf[j * w + i];
+            pixel = *p;
+            pixel = pixel | (pixel << 4);
             data[j * 128 + i] = pixel | (pixel << 8) | (pixel << 16) | (pixel << 24);
-            fprintf(stderr, "%x @ (%d, %d) -> %x @ %d\n",
-                    buf[j * w + i], i, j,
-                    data[j * 128 + i], j * 128 + i);
+            p++;
         }
     }
     cairo_surface_mark_dirty(surface);
