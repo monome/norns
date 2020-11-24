@@ -64,24 +64,40 @@
 </ul>
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/crone.faust.dsp.dsp.html">crone.faust.dsp.dsp</a></li>
+  <li><a href="../modules/crone.faust.gui.APIUI.html">crone.faust.gui.APIUI</a></li>
+  <li><a href="../modules/crone.faust.gui.PathBuilder.html">crone.faust.gui.PathBuilder</a></li>
+  <li><a href="../modules/crone.faust.gui.UI.html">crone.faust.gui.UI</a></li>
+  <li><a href="../modules/crone.faust.gui.ValueConverter.html">crone.faust.gui.ValueConverter</a></li>
+  <li><a href="../modules/crone.faust.gui.meta.html">crone.faust.gui.meta</a></li>
+  <li><a href="../modules/crone.src.MixerClient.html">crone.src.MixerClient</a></li>
+  <li><a href="../modules/crone.src.OscInterface.html">crone.src.OscInterface</a></li>
+  <li><a href="../modules/crone.src.SoftcutClient.html">crone.src.SoftcutClient</a></li>
+  <li><a href="../modules/crone.src.Tape.html">crone.src.Tape</a></li>
   <li><a href="../modules/clock.html">clock</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
-  <li><a href="../modules/core.crow.ii_actions.html">core.crow.ii_actions</a></li>
-  <li><a href="../modules/core.crow.ii_events.html">core.crow.ii_events</a></li>
+  <li><a href="../modules/lua.core.crow.ii_actions.html">lua.core.crow.ii_actions</a></li>
+  <li><a href="../modules/lua.core.crow.ii_events.html">lua.core.crow.ii_events</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
-  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
-  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
-  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
-  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lua.lib.container.defaulttable.html">lua.lib.container.defaulttable</a></li>
+  <li><a href="../modules/lua.lib.container.deque.html">lua.lib.container.deque</a></li>
+  <li><a href="../modules/lua.lib.container.observable.html">lua.lib.container.observable</a></li>
+  <li><a href="../modules/lua.lib.container.watchtable.html">lua.lib.container.watchtable</a></li>
+  <li><a href="../modules/lua.lib.container.weaktable.html">lua.lib.container.weaktable</a></li>
   <li><a href="../modules/er.html">er</a></li>
   <li><a href="../modules/filters.html">filters</a></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
-  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lua.lib.test.luaunit.html">lua.lib.test.luaunit</a></li>
   <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../modules/matron.src.event_types.html">matron.src.event_types</a></li>
+  <li><a href="../modules/matron.src.events.html">matron.src.events</a></li>
+  <li><a href="../modules/matron.src.oracle.html">matron.src.oracle</a></li>
+  <li><a href="../modules/system.html">system</a></li>
+  <li><a href="../modules/sc.core.Crone.html">sc.core.Crone</a></li>
+  <li><a href="../modules/sc.engines.AudioTaper.html">sc.engines.AudioTaper</a></li>
 </ul>
 
 </div>
@@ -189,12 +205,20 @@
 	<td class="summary">draw text (left aligned).</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#screen:text_rotate">screen:text_rotate (x, y, str, degrees)</a></td>
+	<td class="summary">draw text (left aligned) and rotated.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#screen:text_right">screen:text_right (str)</a></td>
 	<td class="summary">draw text, right aligned.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#screen:text_center">screen:text_center (str)</a></td>
 	<td class="summary">draw text, center aligned.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:text_center_rotate">screen:text_center_rotate (x, y, str, degrees)</a></td>
+	<td class="summary">draw text, center aligned, and rotated.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#screen:text_extents">screen:text_extents (str)</a></td>
@@ -215,6 +239,30 @@
 	<tr>
 	<td class="name" nowrap><a href="#screen:display_png">screen:display_png (filename, x, y)</a></td>
 	<td class="summary">display png.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:peek">screen:peek (x, y, w, h)</a></td>
+	<td class="summary">get a rectangle of screen content.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:poke">screen:poke (x, y, w, h, s)</a></td>
+	<td class="summary">set a rectangle of screen content.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:rotate">screen:rotate (number)</a></td>
+	<td class="summary">rotate</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:translate">screen:translate (x, y)</a></td>
+	<td class="summary">move origin position</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:save">screen:save ()</a></td>
+	<td class="summary">save</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen:blend_mode">screen:blend_mode (index)</a></td>
+	<td class="summary">change screen blending mode.</td>
 	</tr>
 </table>
 
@@ -740,8 +788,42 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          : text to write
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:text_rotate"></a>
+    <strong>screen:text_rotate (x, y, str, degrees)</strong>
+    </dt>
+    <dd>
+    draw text (left aligned) and rotated.
+ uses currently selected font.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         : text to write
+        </li>
+        <li><span class="parameter">degrees</span>
+            <span class="types"><span class="type">number</span></span>
+         : degrees to rotate
         </li>
     </ul>
 
@@ -762,7 +844,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          : text to write.
         </li>
     </ul>
@@ -784,8 +866,42 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          : text to write
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:text_center_rotate"></a>
+    <strong>screen:text_center_rotate (x, y, str, degrees)</strong>
+    </dt>
+    <dd>
+    draw text, center aligned, and rotated.
+ uses currently selected font.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         : text to write
+        </li>
+        <li><span class="parameter">degrees</span>
+            <span class="types"><span class="type">number</span></span>
+         : degress to rotate
         </li>
     </ul>
 
@@ -806,7 +922,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          : text to calculate width of
         </li>
     </ul>
@@ -924,6 +1040,182 @@
 
 
 </dd>
+    <dt>
+    <a name = "screen:peek"></a>
+    <strong>screen:peek (x, y, w, h)</strong>
+    </dt>
+    <dd>
+    get a rectangle of screen content.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         width, default 1
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         height, default 1
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:poke"></a>
+    <strong>screen:poke (x, y, w, h, s)</strong>
+    </dt>
+    <dd>
+    set a rectangle of screen content.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         width
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         height
+        </li>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         screen content to set
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:rotate"></a>
+    <strong>screen:rotate (number)</strong>
+    </dt>
+    <dd>
+    rotate
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+         radians
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:translate"></a>
+    <strong>screen:translate (x, y)</strong>
+    </dt>
+    <dd>
+    move origin position
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         position x
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         position y
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:save"></a>
+    <strong>screen:save ()</strong>
+    </dt>
+    <dd>
+    save
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen:blend_mode"></a>
+    <strong>screen:blend_mode (index)</strong>
+    </dt>
+    <dd>
+    change screen blending mode.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number/string</span></span>
+         blending mode (see list), strings are case-insensitive, include '_' between words
+<p> more info at https://www.cairographics.org/operators/
+<p> there are other operators available, see the above link or use tab.print(screen.BLEND_MODES) in the REPL for the full list.
+<p> 0 Over (default)
+<p> 1 XOR: clears any overlapping pixels.
+<p> 2 Add: adds together the alpha (brightness) of overlapping pixels.
+<p> 3 Multiply: multiplies the colors of overlapping pixels, the result is always darker than the two inputs.
+<p> 4 Screen: the colors of overlapping pixels are complemented, multiplied, then their product is complimented. the result is always lighter than the two inputs.
+<p> 5 Overlay: multiplies colors if destination pixel level is >= 8, screens colors if destination pixel level is < 8.
+<p> 6 Darken: keeps the darker value of overlapping pixels.
+<p> 7 Lighten: keeps the lighter value of overlapping pixels.
+<p> 8 Color_Dodge: brightens pixels being drawn over.
+<p> 9 Color_Burn: darkens pixels being drawn over.
+<p> 10 Hard_Light: multiplies colors if source pixel level is >= 8, screens colors if source pixel level is < 8.
+<p> 11 Soft_Light: uses Darken or Lighten depending on the color of the source pixel.
+<p> 12 Difference: the result is the absolute value of the difference of the destination and source pixels.
+<p> 13 Exclusion: similar to Difference, but has lower contrast.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example"><span class="comment">-- number vs. string input
+</span>screen.blend_mode(<span class="number">0</span>)
+screen.blend_mode(<span class="string">'over'</span>)</pre></li>
+        <li><pre class="example"><span class="comment">-- case-insensitivity
+</span>screen.blend_mode(<span class="string">'hard_light'</span>)
+screen.blend_mode(<span class="string">'hArD_lIgHt'</span>)
+screen.blend_mode(<span class="string">'HARD_LIGHT'</span>)</pre></li>
+    </ul>
+
+</dd>
 </dl>
 
 
@@ -931,7 +1223,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-10-20 12:49:33 </i>
+<i style="float:right;">Last updated 2020-11-28 19:23:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

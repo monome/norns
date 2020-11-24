@@ -114,6 +114,7 @@ static int _screen_peek(lua_State *l);
 static int _screen_poke(lua_State *l);
 static int _screen_rotate(lua_State *l);
 static int _screen_translate(lua_State *l);
+static int _screen_set_operator(lua_State *l);
 // i2c
 static int _gain_hp(lua_State *l);
 // osc
@@ -386,6 +387,7 @@ void w_init(void) {
     lua_register_norns("screen_poke", &_screen_poke);
     lua_register_norns("screen_rotate", &_screen_rotate);
     lua_register_norns("screen_translate", &_screen_translate);
+    lua_register_norns("screen_set_operator", &_screen_set_operator);
 
     // analog output control
     lua_register_norns("gain_hp", &_gain_hp);
@@ -970,6 +972,21 @@ int _screen_translate(lua_State *l) {
     return 0;
 }
 
+
+/***
+ * screen: set_operator
+ * @function s_set_operator
+ * @tparam int operator_type (0 < 23)
+ */
+int _screen_set_operator(lua_State *l) {
+    lua_check_num_args(1);
+    int i = luaL_checknumber(l, 1);
+    if (i < 0) { i = 0; }
+    if (i > 28){ i = 28;}
+    screen_set_operator(i);
+    lua_settop(l, 0);
+    return 0;
+}
 
 /***
  * headphone: set level
