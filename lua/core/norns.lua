@@ -172,7 +172,7 @@ end
 
 -- fetch (git clone)
 norns.fetch = function(url)
-  local status = os.execute("cd "..os.getenv("HOME").."/dust/code; git clone "..url)
+  local status = os.execute("cd "..paths.code.."; git clone "..url)
   if status then print("fetch: success. you may need to SYSTEM > RESET if the new project contains an engine")
   else print("fetch: FAIL") end
 end
