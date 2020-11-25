@@ -26,12 +26,15 @@ m.redraw = function()
   screen.move(48,40)
   if m.sleep then
     screen.level(1)
-    screen.text("sleep.")
     if norns.is_shield then
-      screen.move(10,50)
-      screen.text("wait for the green light to stop blinking")
-      screen.move(10,60)
-      screen.text("then disconnect power")
+      screen.move(10,40)
+      screen.text("when the green light")
+      screen.move(10,48)
+      screen.text("stops blinking")
+      screen.move(10,56)
+      screen.text("disconnect power")
+    else
+      screen.text("sleep.")
     end
   else
     screen.level(15)
