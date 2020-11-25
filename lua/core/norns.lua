@@ -177,6 +177,14 @@ norns.fetch = function(url)
   else print("fetch: FAIL") end
 end
 
+-- platform detection
+-- 0 = UNKNOWN
+-- 1 = OTHER
+-- 2 = CM3 (norns)
+-- 3 = PI3 (norns shield)
+norns.platform = _norns.platform()
+norns.is_norns = norns.platform == 2
+norns.is_shield = norns.platform == 3
 
 -- Util (system_cmd)
 local system_cmd_q = {}

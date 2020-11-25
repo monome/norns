@@ -3,12 +3,10 @@
 
 #include "platform.h"
 
-#define PLATFORM_PATH "/sys/firmware/devicetree/base/model"
-
 platform_t p;
 
 void init_platform() {
-  if(access(PLATFORM_PATH, F_OK ) != -1) {
+  if(access("/sys/firmware/devicetree/base/model", F_OK ) != -1) {
     if(system("sudo cat /sys/firmware/devicetree/base/model | grep 'Compute'")) {
       p = PLATFORM_PI3;
     } else {

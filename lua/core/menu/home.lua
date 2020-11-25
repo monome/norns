@@ -59,10 +59,12 @@ m.redraw = function()
     screen.text(line)
   else
     screen.level(1)
-    screen.move(0,10)
-    screen.text("BAT " .. norns.battery_percent)
-    screen.move(36,10)
-    screen.text(norns.battery_current .. "mA")
+    if norns.is_norns then
+      screen.move(0,10)
+      screen.text("BAT " .. norns.battery_percent)
+      screen.move(36,10)
+      screen.text(norns.battery_current .. "mA")
+    end
     screen.move(127,10)
     screen.text_right("DISK " .. norns.disk .. "M")
     screen.move(0,20)
