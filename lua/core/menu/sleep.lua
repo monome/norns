@@ -28,7 +28,7 @@ m.redraw = function()
     screen.level(1)
     if norns.is_shield then
       screen.move(10,40)
-      screen.text("when the green light")
+      screen.text("when the light")
       screen.move(10,48)
       screen.text("stops blinking")
       screen.move(10,56)
