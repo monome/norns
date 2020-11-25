@@ -1,0 +1,24 @@
+#include <unistd.h>
+#include <stdlib.h>
+
+#include "platform.h"
+
+#define PLATFORM_PATH "/sys/firmware/devicetree/base/model"
+
+platform_t p;
+
+void init_platform() {
+  if(access(PLATFORM_PATH, F_OK ) != -1) {
+    if(system("sudo cat /sys/firmware/devicetree/base/model | grep 'Compute'")) {
+      p = PLATFORM_PI3;
+    } else {
+      p = PLATFORM_CM3;
+    }
+  } else {
+    p = PLATFORM_OTHER;
+  }
+}
+
+platform_t platform() {
+  return p;
+}
