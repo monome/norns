@@ -63,8 +63,16 @@ local function update_tape_index()
   end
 
   local f = io.open(_path.tape..'index.txt','w')
-  f:write(tostring(m.fileindex+1))
-  f:close()
+  if f == nil then
+    os.execute("mkdir -p ".._path.tape)
+    f = io.open(_path.tape..'index.txt','w')
+  end
+  if f == nil then
+    print("WARNING: couldn't write index file, even after creating `tape/`")
+  else
+    f:write(tostring(m.fileindex+1))
+    f:close()
+  end
 end
 
 local function edit_filename(txt)

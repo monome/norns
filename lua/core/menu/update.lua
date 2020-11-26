@@ -37,6 +37,7 @@ local function get_update()
   _menu.redraw()
   pcall(cleanup) -- shut down script
   norns.script.clear()
+  _menu.locked = true
   print("shutting down audio...")
   os.execute("sudo systemctl stop norns-jack.service") -- disable audio
   print("clearing old updates...")

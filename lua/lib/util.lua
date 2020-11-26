@@ -188,7 +188,7 @@ function util.round_up(number, quant)
   if quant == 0 then
     return number
   else
-    return math.ceil(number/(quant or 1) + 0.5) * (quant or 1)
+    return math.ceil(number/(quant or 1)) * (quant or 1)
   end
 end
 
