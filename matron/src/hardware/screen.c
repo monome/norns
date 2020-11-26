@@ -478,8 +478,6 @@ void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
     w = (w <= (128 - x)) ? w : (128 - x);
     h = (h <= (64 - y))  ? h : (64 - y);
 
-    (void)buf;
-
     uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
         return;
