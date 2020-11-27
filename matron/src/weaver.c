@@ -37,6 +37,7 @@
 #include "metro.h"
 #include "oracle.h"
 #include "osc.h"
+#include "platform.h"
 #include "screen.h"
 #include "snd_file.h"
 #include "system_cmd.h"
@@ -109,6 +110,8 @@ static int _screen_close(lua_State *l);
 static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
 static int _screen_display_png(lua_State *l);
+static int _screen_peek(lua_State *l);
+static int _screen_poke(lua_State *l);
 static int _screen_rotate(lua_State *l);
 static int _screen_translate(lua_State *l);
 // i2c
@@ -222,6 +225,8 @@ static int _system_cmd(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
+
+// clock
 static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
@@ -229,15 +234,16 @@ static int _clock_internal_set_tempo(lua_State *l);
 static int _clock_internal_start(lua_State *l);
 static int _clock_internal_stop(lua_State *l);
 static int _clock_crow_in_div(lua_State *l);
-
 #if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
 static int _clock_link_set_quantum(lua_State *l);
 #endif
-
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
 static int _clock_get_tempo(lua_State *l);
+
+// platform detection (CM3 vs PI3 vs OTHER)
+static int _platform(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
@@ -376,6 +382,8 @@ void w_init(void) {
     lua_register_norns("screen_text_extents", &_screen_text_extents);
     lua_register_norns("screen_export_png", &_screen_export_png);
     lua_register_norns("screen_display_png", &_screen_display_png);
+    lua_register_norns("screen_peek", &_screen_peek);
+    lua_register_norns("screen_poke", &_screen_poke);
     lua_register_norns("screen_rotate", &_screen_rotate);
     lua_register_norns("screen_translate", &_screen_translate);
 
@@ -445,6 +453,9 @@ void w_init(void) {
     lua_register_norns("clock_set_source", &_clock_set_source);
     lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
     lua_register_norns("clock_get_tempo", &_clock_get_tempo);
+
+    // platform
+    lua_register_norns("platform", &_platform);
 
     // name global extern table
     lua_setglobal(lvm, "_norns");
@@ -872,6 +883,66 @@ int _screen_display_png(lua_State *l) {
 }
 
 /***
+ * screen: peek
+ * @function s_peek
+ * @tparam integer x screen x position (0-127) 
+ * @tparam integer y screen y position (0-63)
+ * @tparam integer w rectangle width to grab
+ * @tparam integer h rectangle height to grab
+ */
+int _screen_peek(lua_State *l) {
+    lua_check_num_args(4);
+    int x = luaL_checkinteger(l, 1);
+    int y = luaL_checkinteger(l, 2);
+    int w = luaL_checkinteger(l, 3);
+    int h = luaL_checkinteger(l, 4);
+    lua_settop(l, 0);
+    if ((x >= 0) && (x <= 127)
+     && (y >= 0) && (y <= 63)
+     && (w > 0)
+     && (h > 0)) {
+        char* buf = screen_peek(x, y, &w, &h);
+        if (buf) {
+            lua_pushlstring(l, buf, w * h);
+            free(buf);
+            return 1;
+        }
+    } 
+    return 0;
+}
+
+/***
+ * screen: poke
+ * @function s_poke
+ * @tparam integer x screen x position (0-127) 
+ * @tparam integer y screen y position (0-63)
+ * @tparam integer w rectangle width to replace
+ * @tparam integer h rectangle height to replace
+ * @tparam string buf pixel contents to set
+ */
+int _screen_poke(lua_State *l) {
+    lua_check_num_args(5);
+    int x = luaL_checkinteger(l, 1);
+    int y = luaL_checkinteger(l, 2);
+    size_t w = luaL_checkinteger(l, 3);
+    size_t h = luaL_checkinteger(l, 4);
+    size_t len;
+    uint8_t *buf = (uint8_t *)luaL_checklstring(l, 5, &len);
+    lua_settop(l, 1);
+    if (buf && len >= w * h) {
+        if ((x >= 0) && (x <= 127)
+         && (y >= 0) && (y <= 63)
+         && (w > 0)
+         && (h > 0)) {
+            screen_poke(x, y, w, h, buf);
+        }
+    }
+    lua_pop(l, 1);
+    return 0;
+}
+
+
+/***
  * screen: rotate
  * @function s_rotate
  * @tparam float radians
@@ -898,6 +969,7 @@ int _screen_translate(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 }
+
 
 /***
  * headphone: set level
@@ -2453,5 +2525,12 @@ int _system_cmd(lua_State *l) {
     system_cmd((char *)cmd);
     return 0;
 }
+
+int _platform(lua_State *l) {
+    lua_check_num_args(0);
+    lua_pushinteger(l, platform());
+    return 1;
+}
+
 
 #pragma GCC diagnostic pop

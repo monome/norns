@@ -25,11 +25,20 @@ m.redraw = function()
   screen.clear()
   screen.move(48,40)
   if m.sleep then
-	screen.level(1)
-	screen.text("sleep.")
+    screen.level(1)
+    if norns.is_shield then
+      screen.move(10,40)
+      screen.text("when the light")
+      screen.move(10,48)
+      screen.text("stops blinking")
+      screen.move(10,56)
+      screen.text("disconnect power")
+    else
+      screen.text("sleep.")
+    end
   else
-	screen.level(15)
-  screen.text("sleep?")
+    screen.level(15)
+    screen.text("sleep?")
   end
   --TODO do an animation here! fade the volume down
   screen.update()

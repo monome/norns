@@ -233,6 +233,23 @@ end
 -- @tparam number y y position
 Screen.display_png = function(filename,x,y) _norns.screen_display_png(filename,x,y) end
 
+--- get a rectangle of screen content.
+-- @tparam number x x position
+-- @tparam number y y position
+-- @tparam number w width, default 1
+-- @tparam number h height, default 1
+Screen.peek = function(x, y, w, h)
+  return _norns.screen_peek(x, y, w or 1, h or 1)
+end
+
+--- set a rectangle of screen content.
+-- @tparam number x x position
+-- @tparam number y y position
+-- @tparam number w width
+-- @tparam number h height
+-- @tparam string s screen content to set
+Screen.poke = function(x, y, w, h, s) _norns.screen_poke(x, y, w, h, s) end
+
 --- rotate
 -- @param number radians
 Screen.rotate = function(r) _norns.screen_rotate(r) end
