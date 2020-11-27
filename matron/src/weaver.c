@@ -109,6 +109,8 @@ static int _screen_close(lua_State *l);
 static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
 static int _screen_display_png(lua_State *l);
+static int _screen_rotate(lua_State *l);
+static int _screen_translate(lua_State *l);
 // i2c
 static int _gain_hp(lua_State *l);
 // osc
@@ -374,6 +376,8 @@ void w_init(void) {
     lua_register_norns("screen_text_extents", &_screen_text_extents);
     lua_register_norns("screen_export_png", &_screen_export_png);
     lua_register_norns("screen_display_png", &_screen_display_png);
+    lua_register_norns("screen_rotate", &_screen_rotate);
+    lua_register_norns("screen_translate", &_screen_translate);
 
     // analog output control
     lua_register_norns("gain_hp", &_gain_hp);
@@ -863,6 +867,34 @@ int _screen_display_png(lua_State *l) {
     double x = luaL_checknumber(l, 2);
     double y = luaL_checknumber(l, 3);
     screen_display_png(s, x, y);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: rotate
+ * @function s_rotate
+ * @tparam float radians
+ */
+int _screen_rotate(lua_State *l) {
+    lua_check_num_args(1);
+    double r = luaL_checknumber(l, 1);
+    screen_rotate(r);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: translate origin to new position
+ * @function s_translate
+ * @param x
+ * @param y
+ */
+int _screen_translate(lua_State *l) {
+    lua_check_num_args(2);
+    double x = luaL_checknumber(l, 1);
+    double y = luaL_checknumber(l, 2);
+    screen_translate(x, y);
     lua_settop(l, 0);
     return 0;
 }

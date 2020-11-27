@@ -233,5 +233,19 @@ end
 -- @tparam number y y position
 Screen.display_png = function(filename,x,y) _norns.screen_display_png(filename,x,y) end
 
+--- rotate
+-- @param number radians
+Screen.rotate = function(r) _norns.screen_rotate(r) end
+
+--- move origin position
+-- @tparam number x position x
+-- @tparam number y position y
+Screen.translate = function(x, y) _norns.screen_translate(x, y) end
+
+--- save
+Screen.save = function() _norns.screen_save() end
+
+-- restore
+Screen.restore = function() _norns.screen_restore() end
 
 return Screen

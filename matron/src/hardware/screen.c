@@ -449,5 +449,15 @@ extern void screen_export_png(const char *s) {
     cairo_surface_write_to_png(surface, s);
 }
 
+void screen_rotate(double r) {
+    CHECK_CR
+    cairo_rotate(cr, r);
+}
+
+void screen_translate(double x, double y) {
+    CHECK_CR
+    cairo_translate(cr, x, y);
+}
+
 #undef CHECK_CR
 #undef CHECK_CRR
