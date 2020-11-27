@@ -203,4 +203,18 @@ function util.s_to_hms(s)
   return h ..":".. string.format("%02d",m) ..":".. string.format("%02d",s)
 end
 
+--- convert degrees to radians
+-- @tparam number degrees
+-- @treturn number radians
+function util.degs_to_rads(degrees)
+  return degrees * (math.pi / 180)
+end
+
+--- convert radians to degrees
+-- @tparam number radians
+-- @treturn number degrees
+function util.rads_to_degs(radians)
+  return radians * (180 / math.pi)
+end
+
 return util
