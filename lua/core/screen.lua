@@ -250,4 +250,19 @@ end
 -- @tparam string s screen content to set
 Screen.poke = function(x, y, w, h, s) _norns.screen_poke(x, y, w, h, s) end
 
+--- rotate
+-- @param number radians
+Screen.rotate = function(r) _norns.screen_rotate(r) end
+
+--- move origin position
+-- @tparam number x position x
+-- @tparam number y position y
+Screen.translate = function(x, y) _norns.screen_translate(x, y) end
+
+--- save
+Screen.save = function() _norns.screen_save() end
+
+-- restore
+Screen.restore = function() _norns.screen_restore() end
+
 return Screen
