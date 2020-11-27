@@ -37,6 +37,7 @@
 #include "metro.h"
 #include "oracle.h"
 #include "osc.h"
+#include "platform.h"
 #include "screen.h"
 #include "snd_file.h"
 #include "system_cmd.h"
@@ -220,6 +221,8 @@ static int _system_cmd(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
+
+// clock
 static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
 static int _clock_cancel(lua_State *l);
@@ -227,15 +230,16 @@ static int _clock_internal_set_tempo(lua_State *l);
 static int _clock_internal_start(lua_State *l);
 static int _clock_internal_stop(lua_State *l);
 static int _clock_crow_in_div(lua_State *l);
-
 #if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
 static int _clock_link_set_quantum(lua_State *l);
 #endif
-
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
 static int _clock_get_tempo(lua_State *l);
+
+// platform detection (CM3 vs PI3 vs OTHER)
+static int _platform(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
@@ -441,6 +445,9 @@ void w_init(void) {
     lua_register_norns("clock_set_source", &_clock_set_source);
     lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
     lua_register_norns("clock_get_tempo", &_clock_get_tempo);
+
+    // platform
+    lua_register_norns("platform", &_platform);
 
     // name global extern table
     lua_setglobal(lvm, "_norns");
@@ -2421,5 +2428,12 @@ int _system_cmd(lua_State *l) {
     system_cmd((char *)cmd);
     return 0;
 }
+
+int _platform(lua_State *l) {
+    lua_check_num_args(0);
+    lua_pushinteger(l, platform());
+    return 1;
+}
+
 
 #pragma GCC diagnostic pop

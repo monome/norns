@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "events.h"
+#include "platform.h"
 
 #define BATTERY_POLL_INTERVAL 5
 
@@ -27,6 +28,8 @@ void *battery_check(void *);
 // extern def
 
 void battery_init() {
+    if (platform() != PLATFORM_CM3) return;
+
     fd[0] = open("/sys/class/power_supply/bq27441-0/capacity", O_RDONLY | O_NONBLOCK);
     fd[1] = open("/sys/class/power_supply/bq27441-0/status", O_RDONLY | O_NONBLOCK);
     fd[2] = open("/sys/class/power_supply/bq27441-0/current_now", O_RDONLY | O_NONBLOCK);
