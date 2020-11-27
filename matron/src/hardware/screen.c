@@ -9,6 +9,7 @@
 #include <cairo.h>
 #include <fcntl.h>
 #include <linux/fb.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -447,6 +448,51 @@ double *screen_text_extents(const char *s) {
 extern void screen_export_png(const char *s) {
     CHECK_CR
     cairo_surface_write_to_png(surface, s);
+}
+
+char *screen_peek(int x, int y, int *w, int *h) {
+    CHECK_CRR
+    *w = (*w <= (128 - x)) ? (*w) : (128 - x);
+    *h = (*h <= (64 - y))  ? (*h) : (64 - y);
+    char *buf = malloc(*w * *h);
+    if (!buf) {
+        return NULL;
+    }
+    cairo_surface_flush(surface);
+    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
+    if (!data) {
+        return NULL;
+    }
+    char *p = buf;
+    for (int j = y; j < y + *h; j++) {
+        for (int i = x; i < x + *w; i++) {
+            *p = data[j * 128 + i] & 0xF;
+            p++;
+        }
+    }
+    return buf;
+}
+
+void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
+    CHECK_CR
+    w = (w <= (128 - x)) ? w : (128 - x);
+    h = (h <= (64 - y))  ? h : (64 - y);
+
+    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
+    if (!data) {
+        return;
+    }
+    uint8_t *p = buf;
+    uint32_t pixel;
+    for (int j = y; j < y + h; j++) {
+        for (int i = x; i < x + w; i++) {
+            pixel = *p;
+            pixel = pixel | (pixel << 4);
+            data[j * 128 + i] = pixel | (pixel << 8) | (pixel << 16) | (pixel << 24);
+            p++;
+        }
+    }
+    cairo_surface_mark_dirty(surface);
 }
 
 #undef CHECK_CR
