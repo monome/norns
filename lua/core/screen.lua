@@ -245,7 +245,6 @@ _norns.screen_text_rotate = function(x, y, str, degrees)
   _norns.screen_translate(x, y)
   _norns.screen_rotate(util.degs_to_rads(degrees))
   _norns.screen_text(str)
-  _norns.screen_translate(-x, -y)
   _norns.screen_restore()
 end
 
@@ -257,7 +256,6 @@ _norns.screen_text_center_rotate = function(x, y, str, degrees)
   local x2, y2 = _norns.screen_text_extents(str)
   _norns.screen_move_rel(-x2/2, 0)
   _norns.screen_text(str)
-  _norns.screen_translate(-x, -y)
   _norns.screen_restore()
 end
 
