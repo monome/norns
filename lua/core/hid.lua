@@ -59,18 +59,8 @@ function Hid.new(id, name, types, codes, dev)
     end
   end
 
-  -- print("\nHID device constructor!")
-  -- print("event types supported:")
-  -- tab.print(types)
-  -- print("event codes supported, per type:")
-  -- for k,v in pairs(codes) do
-  --   print("type: " .. types[k] .. " (index: " .. k .. "):")
-  --   tab.print(v)
-  -- end
-
   device.isAsciiKeyboard = hid_device_class.isAsciiKeyboard(device)
   device.isMouse = hid_device_class.isMouse(device)
-
 
 
   -- autofill next postiion
