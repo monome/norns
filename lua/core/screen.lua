@@ -152,6 +152,14 @@ Screen.fill = function() _norns.screen_fill() end
 -- @tparam string str : text to write
 Screen.text = function(str) _norns.screen_text(str) end
 
+--- draw text (left aligned) and rotated.
+-- uses currently selected font.
+-- @tparam number x x position
+-- @tparam number y y position
+-- @tparam string str : text to write
+-- @tparam number degrees : degrees to rotate
+Screen.text_rotate = function(x, y, str, degrees) _norns.screen_text_rotate(x, y, str, degrees) end
+
 --- draw text, right aligned.
 -- uses currently selected font
 -- @tparam string str : text to write.
@@ -161,6 +169,14 @@ Screen.text_right = function(str) _norns.screen_text_right(str) end
 -- uses currently selected font.
 -- @tparam string str : text to write
 Screen.text_center = function(str) _norns.screen_text_center(str) end
+
+--- draw text, center aligned, and rotated.
+-- uses currently selected font.
+-- @tparam number x x position
+-- @tparam number y y position
+-- @tparam string str : text to write
+-- @tparam number degrees : degress to rotate
+Screen.text_center_rotate = function(x, y, str, degrees) _norns.screen_text_center_rotate(x, y, str, degrees) end
 
 --- calculate width of text.
 -- uses currently selected font.
@@ -221,6 +237,26 @@ _norns.screen_text_center = function(str)
   local x, y = _norns.screen_text_extents(str)
   _norns.screen_move_rel(-x/2, 0)
   _norns.screen_text(str)
+end
+
+_norns.screen_text_rotate = function(x, y, str, degrees)
+  _norns.screen_save()
+  _norns.screen_move(x, y)
+  _norns.screen_translate(x, y)
+  _norns.screen_rotate(util.degs_to_rads(degrees))
+  _norns.screen_text(str)
+  _norns.screen_restore()
+end
+
+_norns.screen_text_center_rotate = function(x, y, str, degrees)
+  _norns.screen_save()
+  _norns.screen_move(x, y)
+  _norns.screen_translate(x, y)
+  _norns.screen_rotate(util.degs_to_rads(degrees))
+  local x2, y2 = _norns.screen_text_extents(str)
+  _norns.screen_move_rel(-x2/2, 0)
+  _norns.screen_text(str)
+  _norns.screen_restore()
 end
 
 _norns.screen_circle = function(x, y, r)
