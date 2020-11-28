@@ -222,4 +222,16 @@ function tab.readonly(params)
   return proxy
 end
 
+
+--- Given a simple table of primitives, 
+--- "invert" it so that values become keys and vice versa.
+-- @param t: a simple table
+function tab.invert(t)
+  local inv = {}
+  for k,v in pairs(t) do
+    inv[v] = k
+  end
+  return inv
+end
+
 return tab
