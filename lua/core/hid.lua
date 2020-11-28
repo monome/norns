@@ -7,6 +7,8 @@
 
 local vport = require 'vport'
 local hid_events = require 'hid_events'
+local hid_device_class = require 'hid_device_class'
+local tab  = require 'tabutil'
 
 local Hid = {}
 Hid.__index = Hid
@@ -29,8 +31,8 @@ end
 --- constructor
 -- @tparam integer id : arbitrary numeric identifier
 -- @tparam string name : name
--- @tparam string types : array of supported event types. keys are type codes, values are strings
--- @tparam userdata codes : array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
+-- @tparam table types : array of supported event types. keys are type codes, values are strings
+-- @tparam table codes : array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
 -- @tparam userdata dev : opaque pointer to device
 function Hid.new(id, name, types, codes, dev)
   local device = setmetatable({}, Hid)
@@ -41,6 +43,35 @@ function Hid.new(id, name, types, codes, dev)
   device.event = nil -- event callback
   device.remove = nil -- device unplug callback
   device.port = nil
+
+  -- copy the types and codes tables
+  device.types = {}
+  device.codes = {}
+  -- types table shall be a simple array with default indexing
+  for k,v in pairs(types) do 
+    device.types[k] = v 
+  end
+  -- codes table shall be an associate array indexed by type
+  for k,v in pairs(codes) do
+    device.codes[types[k]] = {}
+    for kk,vv in pairs(v) do
+      device.codes[types[k]][kk] = vv
+    end
+  end
+
+  -- print("\nHID device constructor!")
+  -- print("event types supported:")
+  -- tab.print(types)
+  -- print("event codes supported, per type:")
+  -- for k,v in pairs(codes) do
+  --   print("type: " .. types[k] .. " (index: " .. k .. "):")
+  --   tab.print(v)
+  -- end
+
+  device.isAsciiKeyboard = hid_device_class.isAsciiKeyboard(device)
+  device.isMouse = hid_device_class.isMouse(device)
+
+
 
   -- autofill next postiion
   local connected = {}
@@ -64,7 +95,11 @@ end
 -- @static
 -- @param dev : a Hid table
 function Hid.add(dev)
-  print("hid added:", dev.id, dev.name)
+  print("HID device was added:", dev.id, dev.name)
+
+  if dev.isAsciiKeyboard then print("this appears to be an ASCII keyboard!") end
+  if dev.isMouse then print("this appears to be a mouse!") end
+
 end
 
 --- static callback when any hid device is removed;
