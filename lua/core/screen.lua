@@ -301,4 +301,93 @@ Screen.save = function() _norns.screen_save() end
 -- restore
 Screen.restore = function() _norns.screen_restore() end
 
+Screen.BLEND_MODES = {
+  ['NONE'] = 0,
+  ['DEFAULT'] = 0,
+  ['OVER'] = 0,
+  ['XOR'] = 1,
+  ['ADD'] = 2,
+  ['MULTIPLY'] = 3,
+  ['SCREEN'] = 4,
+  ['OVERLAY'] = 5,
+  ['DARKEN'] = 6,
+  ['LIGHTEN'] = 7,
+  ['COLOR_DODGE'] = 8,
+  ['COLOR_BURN'] = 9,
+  ['HARD_LIGHT'] = 10,
+  ['SOFT_LIGHT'] = 11,
+  ['DIFFERENCE'] = 12,
+  ['EXCLUSION'] = 13,
+  ['CLEAR'] = 14,
+  ['SOURCE'] = 15,
+  ['IN'] = 16,
+  ['OUT'] = 17,
+  ['ATOP'] = 18,
+  ['DEST'] = 19,
+  ['DEST_OVER'] = 20,
+  ['DEST_IN'] = 21,
+  ['DEST_OUT'] = 22,
+  ['DEST_ATOP'] = 23,
+  ['SATURATE'] = 24,
+  ['HSL_HUE'] = 25,
+  ['HSL_SATURATION'] = 26,
+  ['HSL_COLOR'] = 27,
+  ['HSL_LUMINOSITY'] = 28,
+}
+
+--- change screen blending mode.
+-- @tparam number/string index blending mode (see list), strings are case-insensitive, include '_' between words
+--
+-- more info at https://www.cairographics.org/operators/
+--
+-- there are other operators available, see the above link or use tab.print(screen.BLEND_MODES) in the REPL for the full list.
+--
+-- 0 Over (default)
+--
+-- 1 XOR: clears any overlapping pixels.
+--
+-- 2 Add: adds together the alpha (brightness) of overlapping pixels.
+--
+-- 3 Multiply: multiplies the colors of overlapping pixels, the result is always darker than the two inputs.
+--
+-- 4 Screen: the colors of overlapping pixels are complemented, multiplied, then their product is complimented. the result is always lighter than the two inputs.
+--
+-- 5 Overlay: multiplies colors if destination pixel level is >= 8, screens colors if destination pixel level is < 8.
+--
+-- 6 Darken: keeps the darker value of overlapping pixels.
+--
+-- 7 Lighten: keeps the lighter value of overlapping pixels.
+--
+-- 8 Color_Dodge: brightens pixels being drawn over.
+--
+-- 9 Color_Burn: darkens pixels being drawn over.
+--
+-- 10 Hard_Light: multiplies colors if source pixel level is >= 8, screens colors if source pixel level is < 8.
+--
+-- 11 Soft_Light: uses Darken or Lighten depending on the color of the source pixel.
+--
+-- 12 Difference: the result is the absolute value of the difference of the destination and source pixels.
+--
+-- 13 Exclusion: similar to Difference, but has lower contrast.
+-- @usage -- number vs. string input
+-- screen.blend_mode(0)
+-- screen.blend_mode('over')
+-- @usage -- case-insensitivity
+-- screen.blend_mode('hard_light')
+-- screen.blend_mode('hArD_lIgHt')
+-- screen.blend_mode('HARD_LIGHT')
+
+Screen.blend_mode = function(index)
+  if type(index) == "string" then
+    local i = Screen.BLEND_MODES[string.upper(index)]
+    if i ~= nil then
+      _norns.screen_set_operator(i)
+    else
+      print(index..' is not a valid blending mode, use tab.print(screen.BLEND_MODES) to see available modes and their indexes.')
+    end
+  elseif type(index) == "number" then
+    _norns.screen_set_operator(index)
+  end
+end
+
 return Screen

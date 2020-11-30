@@ -36,3 +36,4 @@ extern char *screen_peek(int x, int y, int *w, int *h);
 extern void screen_poke(int x, int y, int w, int h, unsigned char *buf);
 extern void screen_rotate(double r);
 extern void screen_translate(double x, double y);
+extern void screen_set_operator(int i);

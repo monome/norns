@@ -32,11 +32,45 @@
 #endif
 
 #define NUM_FONTS 67
+#define NUM_OPS 29
+
 static char font_path[NUM_FONTS][32];
 
 static float c[16] = {0,   0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333,
                       0.4, 0.46666666666667,  0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333,
                       0.8, 0.86666666666667,  0.93333333333333, 1};
+
+static cairo_operator_t ops[NUM_OPS] = {
+    CAIRO_OPERATOR_OVER,
+    CAIRO_OPERATOR_XOR,
+    CAIRO_OPERATOR_ADD,
+    CAIRO_OPERATOR_SATURATE,
+    CAIRO_OPERATOR_MULTIPLY,
+    CAIRO_OPERATOR_SCREEN,
+    CAIRO_OPERATOR_OVERLAY,
+    CAIRO_OPERATOR_DARKEN,
+    CAIRO_OPERATOR_LIGHTEN,
+    CAIRO_OPERATOR_COLOR_DODGE,
+    CAIRO_OPERATOR_COLOR_BURN,
+    CAIRO_OPERATOR_HARD_LIGHT,
+    CAIRO_OPERATOR_SOFT_LIGHT,
+    CAIRO_OPERATOR_DIFFERENCE,
+    CAIRO_OPERATOR_EXCLUSION,
+    CAIRO_OPERATOR_CLEAR,
+    CAIRO_OPERATOR_SOURCE,
+    CAIRO_OPERATOR_IN,
+    CAIRO_OPERATOR_OUT,
+    CAIRO_OPERATOR_ATOP,
+    CAIRO_OPERATOR_DEST,
+    CAIRO_OPERATOR_DEST_OVER,
+    CAIRO_OPERATOR_DEST_IN,
+    CAIRO_OPERATOR_DEST_OUT,
+    CAIRO_OPERATOR_DEST_ATOP,
+    CAIRO_OPERATOR_HSL_HUE,
+    CAIRO_OPERATOR_HSL_SATURATION,
+    CAIRO_OPERATOR_HSL_COLOR,
+    CAIRO_OPERATOR_HSL_LUMINOSITY
+};
 
 static cairo_surface_t *surface;
 static cairo_surface_t *surfacefb;
@@ -503,6 +537,13 @@ void screen_rotate(double r) {
 void screen_translate(double x, double y) {
     CHECK_CR
     cairo_translate(cr, x, y);
+}
+
+void screen_set_operator(int i) {
+    CHECK_CR
+    if (0 <= i && i <= 28) {
+        cairo_set_operator(cr, ops[i]);
+    }
 }
 
 #undef CHECK_CR
