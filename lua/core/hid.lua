@@ -59,8 +59,8 @@ function Hid.new(id, name, types, codes, dev)
     end
   end
 
-  device.isAsciiKeyboard = hid_device_class.isAsciiKeyboard(device)
-  device.isMouse = hid_device_class.isMouse(device)
+  device.is_ascii_keyboard = hid_device_class.is_ascii_keyboard(device)
+  device.is_mouse = hid_device_class.is_mouse(device)
 
 
   -- autofill next postiion
@@ -86,9 +86,8 @@ end
 -- @param dev : a Hid table
 function Hid.add(dev)
   print("HID device was added:", dev.id, dev.name)
-
-  if dev.isAsciiKeyboard then print("this appears to be an ASCII keyboard!") end
-  if dev.isMouse then print("this appears to be a mouse!") end
+  if dev.is_ascii_keyboard then print("this appears to be an ASCII keyboard!") end
+  if dev.is_mouse then print("this appears to be a mouse!") end
 
 end
 
