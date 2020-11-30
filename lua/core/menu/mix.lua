@@ -26,8 +26,14 @@ m.redraw = function()
   screen.clear()
   screen.aa(1)
   screen.line_width(1)
-
   _menu.draw_panel()
+
+  screen.level(1)
+  for i=1,6 do
+    screen.move((i-1)*22,21.5)
+    screen.line_rel(7,0)
+    screen.stroke()
+  end
 
   local x = -40
   screen.level(2)

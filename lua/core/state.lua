@@ -31,10 +31,6 @@ state.clock.crow_in_div = 4
 
 -- read state.lua and set parameters back to stored vals.
 state.resume = function()
-  -- restore mix state
-  mix:read(_path.data.."system.pset")
-  mix:bang()
-
   -- restore state object
   local f = io.open(_path.data..'system.state')
   if f ~= nil then
@@ -72,12 +68,7 @@ end
 
 -- save current norns state to system.pset and system.state
 state.save = function()
-  state.save_mix()
   state.save_state()
-end
-
-state.save_mix = function()
-  mix:write(_path.data.."system.pset")
 end
 
 state.save_state = function()

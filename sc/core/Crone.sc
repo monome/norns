@@ -107,7 +107,7 @@ Crone {
 					postln("free engine: " ++ engine);
 					engine.deinit({ cond.test = true; cond.signal; });
 					cond.wait;
-
+					engine = nil;
 				});
 				class.new(context, {
 					arg theEngine;
@@ -245,7 +245,15 @@ Crone {
 
 			// @function /engine/free
 			'/engine/free':OSCFunc.new({
-				if(engine.notNil, { engine.deinit; });
+				fork {
+					if(engine.notNil, {
+						var cond = Condition.new(false);
+						postln("free engine: " ++ engine);
+						engine.deinit({ cond.test = true; cond.signal; });
+						cond.wait;
+						engine = nil;
+					});
+				}
 			}, '/engine/free'),
 
 			// @function /engine/load/name

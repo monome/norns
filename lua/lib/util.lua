@@ -188,7 +188,7 @@ function util.round_up(number, quant)
   if quant == 0 then
     return number
   else
-    return math.ceil(number/(quant or 1) + 0.5) * (quant or 1)
+    return math.ceil(number/(quant or 1)) * (quant or 1)
   end
 end
 
@@ -201,6 +201,20 @@ function util.s_to_hms(s)
   m = m%60
   s = s%60
   return h ..":".. string.format("%02d",m) ..":".. string.format("%02d",s)
+end
+
+--- convert degrees to radians
+-- @tparam number degrees
+-- @treturn number radians
+function util.degs_to_rads(degrees)
+  return degrees * (math.pi / 180)
+end
+
+--- convert radians to degrees
+-- @tparam number radians
+-- @treturn number degrees
+function util.rads_to_degs(radians)
+  return radians * (180 / math.pi)
 end
 
 return util

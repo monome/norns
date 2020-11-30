@@ -7,6 +7,9 @@
 #include <assert.h>
 #include <cairo.h>
 #include <cairo-ft.h>
+#include <fcntl.h>
+#include <linux/fb.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,11 +31,45 @@
 #endif
 
 #define NUM_FONTS 67
+#define NUM_OPS 29
+
 static char font_path[NUM_FONTS][32];
 
 static float c[16] = {0,   0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333,
                       0.4, 0.46666666666667,  0.53333333333333, 0.6, 0.66666666666667, 0.73333333333333,
                       0.8, 0.86666666666667,  0.93333333333333, 1};
+
+static cairo_operator_t ops[NUM_OPS] = {
+    CAIRO_OPERATOR_OVER,
+    CAIRO_OPERATOR_XOR,
+    CAIRO_OPERATOR_ADD,
+    CAIRO_OPERATOR_SATURATE,
+    CAIRO_OPERATOR_MULTIPLY,
+    CAIRO_OPERATOR_SCREEN,
+    CAIRO_OPERATOR_OVERLAY,
+    CAIRO_OPERATOR_DARKEN,
+    CAIRO_OPERATOR_LIGHTEN,
+    CAIRO_OPERATOR_COLOR_DODGE,
+    CAIRO_OPERATOR_COLOR_BURN,
+    CAIRO_OPERATOR_HARD_LIGHT,
+    CAIRO_OPERATOR_SOFT_LIGHT,
+    CAIRO_OPERATOR_DIFFERENCE,
+    CAIRO_OPERATOR_EXCLUSION,
+    CAIRO_OPERATOR_CLEAR,
+    CAIRO_OPERATOR_SOURCE,
+    CAIRO_OPERATOR_IN,
+    CAIRO_OPERATOR_OUT,
+    CAIRO_OPERATOR_ATOP,
+    CAIRO_OPERATOR_DEST,
+    CAIRO_OPERATOR_DEST_OVER,
+    CAIRO_OPERATOR_DEST_IN,
+    CAIRO_OPERATOR_DEST_OUT,
+    CAIRO_OPERATOR_DEST_ATOP,
+    CAIRO_OPERATOR_HSL_HUE,
+    CAIRO_OPERATOR_HSL_SATURATION,
+    CAIRO_OPERATOR_HSL_COLOR,
+    CAIRO_OPERATOR_HSL_LUMINOSITY
+};
 
 static cairo_surface_t *surface;
 static cairo_surface_t *image;
@@ -372,6 +409,68 @@ double *screen_text_extents(const char *s) {
 extern void screen_export_png(const char *s) {
     CHECK_CR
     cairo_surface_write_to_png(surface, s);
+}
+
+char *screen_peek(int x, int y, int *w, int *h) {
+    CHECK_CRR
+    *w = (*w <= (128 - x)) ? (*w) : (128 - x);
+    *h = (*h <= (64 - y))  ? (*h) : (64 - y);
+    char *buf = malloc(*w * *h);
+    if (!buf) {
+        return NULL;
+    }
+    cairo_surface_flush(surface);
+    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
+    if (!data) {
+        return NULL;
+    }
+    char *p = buf;
+    for (int j = y; j < y + *h; j++) {
+        for (int i = x; i < x + *w; i++) {
+            *p = data[j * 128 + i] & 0xF;
+            p++;
+        }
+    }
+    return buf;
+}
+
+void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
+    CHECK_CR
+    w = (w <= (128 - x)) ? w : (128 - x);
+    h = (h <= (64 - y))  ? h : (64 - y);
+
+    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
+    if (!data) {
+        return;
+    }
+    uint8_t *p = buf;
+    uint32_t pixel;
+    for (int j = y; j < y + h; j++) {
+        for (int i = x; i < x + w; i++) {
+            pixel = *p;
+            pixel = pixel | (pixel << 4);
+            data[j * 128 + i] = pixel | (pixel << 8) | (pixel << 16) | (pixel << 24);
+            p++;
+        }
+    }
+    cairo_surface_mark_dirty(surface);
+}
+
+void screen_rotate(double r) {
+    CHECK_CR
+    cairo_rotate(cr, r);
+}
+
+void screen_translate(double x, double y) {
+    CHECK_CR
+    cairo_translate(cr, x, y);
+}
+
+void screen_set_operator(int i) {
+    CHECK_CR
+    if (0 <= i && i <= 28) {
+        cairo_set_operator(cr, ops[i]);
+    }
 }
 
 #undef CHECK_CR

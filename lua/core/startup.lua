@@ -25,7 +25,6 @@ wifi = require 'core/wifi'
 controlspec = require 'core/controlspec'
 paramset = require 'core/paramset'
 params = paramset.new()
-mix = require 'core/mix'
 norns.pmap = require 'core/pmap'
 
 

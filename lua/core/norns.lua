@@ -170,6 +170,22 @@ else
 end
 
 
+-- fetch (git clone)
+norns.fetch = function(url)
+  local status = os.execute("cd "..paths.code.."; git clone "..url)
+  if status then print("fetch: success. you may need to SYSTEM > RESET if the new project contains an engine")
+  else print("fetch: FAIL") end
+end
+
+-- platform detection
+-- 0 = UNKNOWN
+-- 1 = OTHER
+-- 2 = CM3 (norns)
+-- 3 = PI3 (norns shield)
+norns.platform = _norns.platform()
+norns.is_norns = norns.platform == 2
+norns.is_shield = norns.platform == 3
+
 -- Util (system_cmd)
 local system_cmd_q = {}
 local system_cmd_busy = false

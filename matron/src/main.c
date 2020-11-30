@@ -25,6 +25,7 @@
 #include "input.h"
 #include "metro.h"
 #include "osc.h"
+#include "platform.h"
 #include "screen.h"
 #include "stat.h"
 #include "watch.h"
@@ -54,6 +55,8 @@ int main(int argc, char **argv) {
     args_parse(argc, argv);
 
     print_version();
+    init_platform();
+    printf("platform: %d\n",platform());
 
     events_init(); // <-- must come first!
     if (config_init()) {

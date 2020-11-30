@@ -107,7 +107,7 @@ function ParamSet:add(args)
     elseif args.type == "trigger" then
       param = trigger.new(id, name)
     elseif args.type == "binary" then
-      param = binary.new(id, name, args.behavior, args.default)
+      param = binary.new(id, name, args.behavior, args.default, args.allow_pmap)
     elseif args.type == "text" then
       param = text.new(id, name, args.text)
     else
@@ -383,9 +383,9 @@ function ParamSet:write(filename, name)
 end
 
 --- read from disk.
--- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname]-01.pset from local data folder)
+-- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
 function ParamSet:read(filename)
-  filename = filename or 1
+  filename = filename or norns.state.pset_last
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
