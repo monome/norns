@@ -29,23 +29,27 @@ function Taper.new(id, name, min, max, default, k, units, allow_pmap)
   return p
 end
 
-function Taper:get()
+function Taper:map_value(v)
   local result
 
   if self.k == 0 then
-    result = self.value
+    result = v
   else
-    result = (math.exp(self.value * self.k) - 1) / (math.pow(math.exp(1), self.k) - 1)
+    result = (math.exp(v * self.k) - 1) / (math.pow(math.exp(1), self.k) - 1)
   end
 
   return map(result, 0, 1, self.min, self.max)
+end
+
+function Taper:get()
+  return self:map_value(self.value)
 end
 
 function Taper:get_raw()
   return self.value
 end
 
-function Taper:set(v, silent)
+function Taper:unmap_value(v)
   local raw
   raw = map(v, self.min, self.max, 0, 1)
 
@@ -53,7 +57,11 @@ function Taper:set(v, silent)
     raw = math.log(raw * (math.pow(math.exp(1), self.k) - 1) + 1) / self.k
   end
 
-  self:set_raw(raw, silent)
+  return raw
+end
+
+function Taper:set(v, silent)
+  self:set_raw(self:unmap_value(v), silent)
 end
 
 function Taper:set_raw(v, silent)
@@ -64,9 +72,13 @@ function Taper:set_raw(v, silent)
   end
 end
 
-function Taper:delta(d)
+function Taper:get_delta()
   local range = math.abs(self.max - self.min)
-  self:set_raw(self.value + d / math.min(math.max(range, 200), 800))
+  return 1 / math.min(math.max(range, 200), 800)
+end
+
+function Taper:delta(d)
+  self:set_raw(self.value + d * self:get_delta())
 end
 
 function Taper:set_default()
