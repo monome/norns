@@ -135,9 +135,9 @@ m.redraw = function()
     screen.text_center("shutting down.")
     if norns.is_shield then
       screen.move(64,50)
-      screen.text("remove power when")
+      screen.text_center("remove power when")
       screen.move(64,60)
-      screen.text("light stops blinking.")
+      screen.text_center("light stops blinking.")
     end
   else
     screen.text_center(m.message)
