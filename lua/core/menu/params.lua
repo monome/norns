@@ -241,7 +241,11 @@ m.key = function(n,z)
       elseif m.mpos ==2 then
         norns.pmap.remove(name)
         m.mode = mMAP
+      elseif m.pos==8 or m.pos==9 then
+        m.fine = true
       end
+    elseif n==3 then
+      m.fine = false
     end
     -- PSET
   elseif m.mode == mPSET then
@@ -347,6 +351,9 @@ m.enc = function(n,d)
         local max = 1
         if t == params.tCONTROL then
           d = d * param.controlspec.quantum
+          if m.fine then
+            d = d / 20
+          end
         elseif t == params.tNUMBER or t == params.tOPTION or t == params.tBINARY then
           local r = param:get_range()
           min = r[1]
