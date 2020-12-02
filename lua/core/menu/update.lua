@@ -108,8 +108,8 @@ m.key = function(n,z)
       _norns.reset()
     end
   elseif m.stage=="done" and z==1 then
+    m.stage = "shutdown"
     print("shutting down.")
-    m.message = "shutting down."
     _menu.redraw()
     os.execute("sleep 0.5; sudo shutdown now")
   end
@@ -131,6 +131,14 @@ m.redraw = function()
     screen.text_center(m.message)
   elseif m.stage == "cancel" then
     screen.text_center("cancel?")
+  elseif m.stage == "shutdown" then
+    screen.text_center("shutting down.")
+    if norns.is_shield then
+      screen.move(64,50)
+      screen.text("remove power when")
+      screen.move(64,60)
+      screen.text("light stops blinking.")
+    end
   else
     screen.text_center(m.message)
   end
