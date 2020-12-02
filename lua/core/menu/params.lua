@@ -241,7 +241,7 @@ m.key = function(n,z)
       elseif m.mpos ==2 then
         norns.pmap.remove(name)
         m.mode = mMAP
-      elseif m.pos==8 or m.pos==9 then
+      elseif m.mpos==8 or m.mpos==9 then
         m.fine = true
       end
     elseif n==3 then
