@@ -1,3 +1,17 @@
+# 201202
+
+## norns 2.4.7
+
+- NEW norns.fetch() for downloading git urls to dust @tehn
+- NEW screen: peek/poke @csboling
+- NEW screen: rotate/translate/save/restore/text_rotate @tyleretters
+- NEW screen: blend modes @tlubke
+- NEW util: radian-degree convresions @tyleretters
+- NEW hid: keyboard detection @catfact
+- NEW platform: detect norns/shield/other hardware, improve messages @tehn
+- FIX params: mapping control full ranges @synthetiv
+
+
 # 201115
 
 ## norns 2.4.6
