@@ -241,7 +241,7 @@ m.key = function(n,z)
       elseif m.mpos ==2 then
         norns.pmap.remove(name)
         m.mode = mMAP
-      elseif m.pos==8 or m.pos==9 then
+      elseif m.mpos==8 or m.mpos==9 then
         m.fine = true
       end
     elseif n==3 then
@@ -349,8 +349,8 @@ m.enc = function(n,d)
         local param = params:lookup_param(n)
         local min = 0
         local max = 1
-        if t == params.tCONTROL then
-          d = d * param.controlspec.quantum
+        if t == params.tCONTROL or t == params.tTAPER then
+          d = d * param:get_delta()
           if m.fine then
             d = d / 20
           end
@@ -494,10 +494,10 @@ m.redraw = function()
     local out_lo = pm.out_lo
     local out_hi = pm.out_hi
 
-    if t == params.tCONTROL then
+    if t == params.tCONTROL or t == params.tTAPER then
       local param = params:lookup_param(n)
-      out_lo = util.round(param.controlspec:map(pm.out_lo), 0.01)
-      out_hi = util.round(param.controlspec:map(pm.out_hi), 0.01)
+      out_lo = util.round(param:map_value(pm.out_lo), 0.01)
+      out_hi = util.round(param:map_value(pm.out_hi), 0.01)
     end
 
     local function hl(x) if m.mpos==x then screen.level(15) else screen.level(4) end end
