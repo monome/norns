@@ -9,3 +9,14 @@ see [readme-setup.md](readme-setup.md) for build, install, configuration, and ex
 see [readme-script.md](readme-script.md) for scripting.
 
 check [known bugs](https://github.com/monome/norns/wiki/known-bugs) for any current strange behavior.
+
+---
+
+quick reference:
+```
+git clone https://github.com/monome/norns.git
+cd norns
+git submodule update --init --recursive
+./waf configure
+./waf
+```
