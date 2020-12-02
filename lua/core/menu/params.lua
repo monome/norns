@@ -241,7 +241,11 @@ m.key = function(n,z)
       elseif m.mpos ==2 then
         norns.pmap.remove(name)
         m.mode = mMAP
+      elseif m.pos==8 or m.pos==9 then
+        m.fine = true
       end
+    elseif n==3 then
+      m.fine = false
     end
     -- PSET
   elseif m.mode == mPSET then
@@ -341,10 +345,25 @@ m.enc = function(n,d)
       elseif m.mpos==7 then
         pm.in_hi = util.clamp(pm.in_hi+d, pm.in_lo, 127)
         pm.value = util.clamp(pm.value, pm.in_lo, pm.in_hi)
-      elseif m.mpos==8 then
-        pm.out_lo = pm.out_lo + d
-      elseif m.mpos==9 then
-        pm.out_hi = pm.out_hi + d
+      elseif m.mpos==8 or m.mpos==9 then
+        local param = params:lookup_param(n)
+        local min = 0
+        local max = 1
+        if t == params.tCONTROL then
+          d = d * param.controlspec.quantum
+          if m.fine then
+            d = d / 20
+          end
+        elseif t == params.tNUMBER or t == params.tOPTION or t == params.tBINARY then
+          local r = param:get_range()
+          min = r[1]
+          max = r[2]
+        end
+        if m.mpos == 8 then
+          pm.out_lo = util.clamp(pm.out_lo + d, min, max)
+        elseif m.mpos == 9 then
+          pm.out_hi = util.clamp(pm.out_hi + d, min, max)
+        end
       elseif m.mpos==10 then
         if d>0 then pm.accum = true else pm.accum = false end
       end
@@ -472,6 +491,15 @@ m.redraw = function()
     local t = params:t(p)
     local pm = norns.pmap.data[n]
 
+    local out_lo = pm.out_lo
+    local out_hi = pm.out_hi
+
+    if t == params.tCONTROL then
+      local param = params:lookup_param(n)
+      out_lo = util.round(param.controlspec:map(pm.out_lo), 0.01)
+      out_hi = util.round(param.controlspec:map(pm.out_hi), 0.01)
+    end
+
     local function hl(x) if m.mpos==x then screen.level(15) else screen.level(4) end end
 
     screen.move(0,10)
@@ -520,10 +548,10 @@ m.redraw = function()
     screen.text("out")
     screen.move(103,50)
     hl(8)
-    screen.text_right(pm.out_lo)
+    screen.text_right(out_lo)
     screen.move(127,50)
     hl(9)
-    screen.text_right(pm.out_hi)
+    screen.text_right(out_hi)
     screen.level(4)
     screen.move(63,60)
     screen.text("accum")
