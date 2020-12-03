@@ -384,7 +384,7 @@ end
 
 --- read from disk.
 -- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
-function ParamSet:read(filename)
+function ParamSet:read(filename, silent)
   filename = filename or norns.state.pset_last
   if type(filename) == "number" then
     local n = filename
@@ -407,13 +407,13 @@ function ParamSet:read(filename)
 
           if index and self.params[index] then
             if tonumber(value) ~= nil then
-              self.params[index]:set(tonumber(value))
+              self.params[index]:set(tonumber(value), silent)
             elseif value == "-inf" then
-              self.params[index]:set(-math.huge)
+              self.params[index]:set(-math.huge, silent)
             elseif value == "inf" then
-              self.params[index]:set(math.huge)
+              self.params[index]:set(math.huge, silent)
             elseif value then
-              self.params[index]:set(value)
+              self.params[index]:set(value, silent)
             end
           end
         end
