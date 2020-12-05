@@ -407,13 +407,13 @@ function ParamSet:read(filename, silent)
 
           if index and self.params[index] then
             if tonumber(value) ~= nil then
-              self.params[index]:set(tonumber(value), silent)
+              pcall(function() self.params[index]:set(tonumber(value), silent) end)
             elseif value == "-inf" then
-              self.params[index]:set(-math.huge, silent)
+              pcall(function() self.params[index]:set(-math.huge, silent) end)
             elseif value == "inf" then
-              self.params[index]:set(math.huge, silent)
+              pcall(function() self.params[index]:set(math.huge, silent) end)
             elseif value then
-              self.params[index]:set(value, silent)
+              pcall(function() self.params[index]:set(value, silent) end)
             end
           end
         end
