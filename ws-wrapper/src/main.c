@@ -66,6 +66,7 @@ void *loop_tx(void *p) {
         nb = read(pipe_tx[PIPE_READ], buf, PIPE_BUF_SIZE - 1);
         if (nb > 0) {
             buf[nb] = '\0';
+            printf("%s", buf);
             nn_send(sock_ws, buf, nb, 0);
         }
     }
