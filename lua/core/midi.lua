@@ -10,7 +10,7 @@ Midi.__index = Midi
 Midi.devices = {}
 Midi.vports = {}
 
-for i=1,4 do
+for i=1,16 do
   Midi.vports[i] = {
     name = "none",
     device = nil,
@@ -50,11 +50,11 @@ function Midi.new(id, name, dev)
 
   -- autofill next postiion
   local connected = {}
-  for i=1,4 do
+  for i=1,16 do
     table.insert(connected, Midi.vports[i].name)
   end
   if not tab.contains(connected, name) then
-    for i=1,4 do
+    for i=1,16 do
       -- assign device unless device is specialized virtual interface
       if Midi.vports[i].name == "none" and d.name ~= "virtual" then
         Midi.vports[i].name = d.name
@@ -184,7 +184,7 @@ end
 
 --- clear handlers.
 function Midi.cleanup()
-  for i=1,4 do
+  for i=1,16 do
     Midi.vports[i].event = nil
   end
 
@@ -364,7 +364,7 @@ function Midi.update_devices()
   end
 
   -- connect available devices to vports
-  for i=1,4 do
+  for i=1,16 do
     Midi.vports[i].device = nil
 
     for _, device in pairs(Midi.devices) do

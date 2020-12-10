@@ -9,8 +9,6 @@ local Script = {}
 Script.clear = function()
   print("# script clear")
 
-  norns.pmap.write() -- write parameter map before we go
-
   -- script local state
   local state = { }
 

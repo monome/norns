@@ -235,11 +235,13 @@ m.key = function(n,z)
     if n==2 and z==1 then
       m.mode = mMAP
       norns.pmap.assign(name,m.dev,m.ch,m.cc)
+      norns.pmap.write()
     elseif n==3 and z==1 then
       if m.mpos == 1 then
         m.midilearn = not m.midilearn
       elseif m.mpos ==2 then
         norns.pmap.remove(name)
+        norns.pmap.write()
         m.mode = mMAP
       elseif m.mpos==8 or m.mpos==9 then
         m.fine = true
