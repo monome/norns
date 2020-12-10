@@ -235,7 +235,7 @@ function clock.add_params()
   params:set_save("link_quantum", false)
   local clock_table = {"off"}
   for i = 2,17 do
-    local short_name = string.len(midi.vports[i-1].name) < 12 and midi.vports[i-1].name or util.abbreviate(midi.vports[i-1].name)
+    local short_name = string.len(midi.vports[i-1].name) < 12 and midi.vports[i-1].name or util.acronym(midi.vports[i-1].name)
     clock_table[i] = "port "..(i-1)..""..(midi.vports[i-1].name ~= "none" and (": "..short_name) or "")
   end
   params:add_option("clock_midi_out", "midi out",

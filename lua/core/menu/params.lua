@@ -535,7 +535,7 @@ m.redraw = function()
     hl(5)
 
     local long_name = midi.vports[m.dev].name
-    local short_name = string.len(long_name) > 6 and util.abbreviate(long_name) or long_name
+    local short_name = string.len(long_name) > 6 and util.acronym(long_name) or long_name
 
     screen.text_right(tostring(m.dev)..": "..short_name)
 
