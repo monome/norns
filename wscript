@@ -79,3 +79,4 @@ def build(bld):
     bld.recurse('sc')
     bld.recurse('crone')
     bld.recurse('third-party')
+    bld.recurse('watcher')

@@ -1,0 +1,27 @@
+top = '..'
+
+def build(bld):
+    watcher_sources = [
+        'src/main.c',
+    ]
+
+    watcher_includes = [
+        'src',
+    ]
+
+    watcher_libs = [
+        'pthread',
+    ]
+
+    watcher_use = [
+        'LIBUDEV',
+        'LIBEVDEV',
+    ]
+
+    bld.program(features='c cprogram',
+        source=watcher_sources,
+        target='watcher',
+        includes=watcher_includes,
+        use=watcher_use,
+        lib=watcher_libs,
+        cflags=['-O3', '-Wall'])

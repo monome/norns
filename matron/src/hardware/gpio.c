@@ -16,7 +16,6 @@
 #include <unistd.h>
 
 #include "events.h"
-#include "watch.h"
 
 int key_fd;
 pthread_t key_p;
@@ -141,8 +140,6 @@ void *key_check(void *x) {
                 ev->key.n = event[i].code;
                 ev->key.val = event[i].value;
                 event_post(ev);
-
-                watch_key(event[i].code, event[i].value);
             }
         }
     }
