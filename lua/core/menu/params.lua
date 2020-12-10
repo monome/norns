@@ -533,20 +533,9 @@ m.redraw = function()
     screen.text("dev")
     screen.move(55,60)
     hl(5)
-    local raw_name = midi.vports[m.dev].name
-    local function abbreviate (name)
-      -- first replace each word (incl. "'") by its abbreviation...
-      -- (will leave spaces etc. in the string)
-      name = name:gsub( "[%w']+", function( word )
-        if not word:find "%U" then  return word  end -- OPTIONAL keep abbrevs
-        return word:sub( 1, 1 )            -- others: to first letter
-      end )
-      -- ...then remove all non-word characters
-      return (name:gsub("%s+", ""))
-    end
 
     local long_name = midi.vports[m.dev].name
-    local short_name = string.len(long_name) > 6 and abbreviate(long_name) or long_name
+    local short_name = string.len(long_name) > 6 and util.abbreviate(long_name) or long_name
 
     screen.text_right(tostring(m.dev)..": "..short_name)
 

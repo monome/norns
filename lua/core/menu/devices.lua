@@ -145,7 +145,8 @@ m.redraw = function()
       if m.section == "midi" then
         screen.move(0,20)
         screen.level(4)
-        screen.text("[ "..util.round_up(m.pos/4).."/"..util.round_up(#m.options[m.section]/4).." ]")
+        local page_indicator = util.round_up(#m.options[m.section]/4)
+        screen.text(page_indicator > 1 and "[ "..util.round_up(m.pos/4).."/"..page_indicator.." ]" or "")
         local positions = {{1,4},{5,8},{9,12},{13,16}}
         for j = positions[util.round_up(m.pos/4)][1],positions[util.round_up(m.pos/4)][2] do
           if(j==m.pos) then
