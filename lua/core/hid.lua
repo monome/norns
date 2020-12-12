@@ -173,6 +173,10 @@ _norns.hid.event = function(id, type, code, value)
         Hid.vports[device.port].event(type, code, value)
       end
     end
+
+    if device.is_ascii_keyboard then
+      keyboard.process(type,code,value)
+    end
   else
     error('no entry for hid '..id)
   end
