@@ -3,8 +3,6 @@ local m = {
   list = {"SELECT", "SYSTEM", "SLEEP"}
 }
 
-local p = require 'core/menu/params'
-
 m.init = function()
   _menu.timer.time = 1
   _menu.timer.count = -1
@@ -26,7 +24,7 @@ m.key = function(n,z)
     else
       norns.script.clear()
       _norns.free_engine()
-      p.reset()
+      params.reset()
       _menu.locked = true
     end
   end

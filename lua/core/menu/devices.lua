@@ -76,7 +76,7 @@ m.key = function(n,z)
         hid.update_devices()
       end
       m.mode = "list"
-      m.len = m.section == "midi" and 16 or 4
+      m.len = m.section ~= "midi" and 4 or 16
       m.pos = m.last_pos
       _menu.redraw()
     end
@@ -85,8 +85,11 @@ end
 
 m.enc = function(n,delta)
   if n==2 then
+    prev_pos = m.pos
     m.pos = util.clamp(m.pos + delta, 1, m.len)
-    _menu.redraw()
+    if prev_pos ~= m.pos then
+      _menu.redraw()
+    end
   end
 end
 
@@ -112,21 +115,17 @@ m.redraw = function()
       screen.text(string.upper(m.list[i]) .. " >")
     elseif m.mode == "list" then
       if m.section == "midi" then
-        screen.move(0,20)
-        screen.level(4)
-        screen.text("[ "..util.round_up(m.pos/4).."/4 ]")
-        local positions = {{1,4},{5,8},{9,12},{13,16}}
-        for j = positions[util.round_up(m.pos/4)][1],positions[util.round_up(m.pos/4)][2] do
-          if(j==m.pos) then
-            screen.level(15)
-          else
-            screen.level(4)
+        for j = 1,4 do
+          screen.move(0,10*j+20)
+          if m.pos+(j-1) <= m.len then
+            local line = m.pos+(j-1)..". "..midi.vports[m.pos+(j-1)].name
+            if j == 1 then
+              screen.level(15)
+            else
+              screen.level(3)
+            end
+            screen.text(line)
           end
-          local num = j - (4*(util.round_up(m.pos/4)-1))
-          screen.move(0,10*num+20)
-          screen.text(j..".")
-          screen.move(12,10*num+20)
-          screen.text(midi.vports[j].name)
         end
       elseif m.section == "grid" then
         screen.text(i..".")
@@ -143,21 +142,16 @@ m.redraw = function()
       end
     elseif m.mode == "select" then
       if m.section == "midi" then
-        screen.move(0,20)
-        screen.level(4)
-        local page_indicator = util.round_up(#m.options[m.section]/4)
-        screen.text(page_indicator > 1 and "[ "..util.round_up(m.pos/4).."/"..page_indicator.." ]" or "")
-        local positions = {{1,4},{5,8},{9,12},{13,16}}
-        for j = positions[util.round_up(m.pos/4)][1],positions[util.round_up(m.pos/4)][2] do
-          if(j==m.pos) then
-            screen.level(15)
-          else
-            screen.level(4)
-          end
-          local num = j - (4*(util.round_up(m.pos/4)-1))
-          screen.move(8,10*num+20)
-          if m.options[m.section][j] ~= nil then
-            screen.text(m.options[m.section][j])
+        for j = 1,4 do
+          screen.move(0,10*j+20)
+          if m.options[m.section][m.pos+(j-1)] ~= nil then
+            local line = m.options[m.section][m.pos+(j-1)]
+            if j == 1 then
+              screen.level(15)
+            else
+              screen.level(3)
+            end
+            screen.text(line)
           end
         end
       else

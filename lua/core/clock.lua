@@ -234,9 +234,9 @@ function clock.add_params()
     end)
   params:set_save("link_quantum", false)
   local clock_table = {"off"}
-  for i = 2,17 do
-    local short_name = string.len(midi.vports[i-1].name) < 12 and midi.vports[i-1].name or util.acronym(midi.vports[i-1].name)
-    clock_table[i] = "port "..(i-1)..""..(midi.vports[i-1].name ~= "none" and (": "..short_name) or "")
+  for i = 1,16 do
+    local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
+    clock_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
   end
   params:add_option("clock_midi_out", "midi out",
       clock_table, norns.state.clock.midi_out)
