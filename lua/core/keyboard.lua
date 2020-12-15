@@ -1,7 +1,11 @@
 keyboard = {}
 
 keyboard.keymap = {}
+keyboard.keymap.us = require 'core/keymap/us' 
 keyboard.selected_map = "us"
+
+local km = keyboard.keymap[keyboard.selected_map]
+
 
 keyboard.state = {
   Lshift = false,
@@ -15,9 +19,8 @@ keyboard.state = {
 }
 
 function keyboard.clear()
-  keyboard.raw = nil      -- callback for raw keyboard codes
+  keyboard.code = nil      -- callback for code keyboard codes
   keyboard.ascii = nil    -- callback for ascii keycodes, by map
-  keyboard.mod = nil      -- callback for mod keys only
 end
 
 function keyboard.set_map(m)
@@ -37,8 +40,8 @@ function keyboard.meta()
 
 
 function keyboard.process(type,code,value)
-  if keyboard.raw then
-    keyboard.raw(code,value)
+  if keyboard.code then
+    keyboard.code(keyboard.codes[code],value)
   end
 
   local c = keyboard.codes[code] 
@@ -46,6 +49,15 @@ function keyboard.process(type,code,value)
     keyboard.process_mods[c](value)
   end
 
+  if value>0 then
+    local a = km[keyboard.shift()][c]
+    if a then 
+      if keyboard.ascii then
+        keyboard.ascii(a)
+      end
+      --print("ASCII: "..a)
+    end
+  end
 
   --print("kb",code,value,keyboard.codes[code])
 end
@@ -53,6 +65,12 @@ end
 keyboard.process_mods = {}
 keyboard.process_mods.LEFTSHIFT = function(value) keyboard.state.Lshift = (value>0) end
 keyboard.process_mods.RIGHTSHIFT = function(value) keyboard.state.Rshift = (value>0) end
+keyboard.process_mods.LEFTALT = function(value) keyboard.state.Lalt = (value>0) end
+keyboard.process_mods.RIGHTALT = function(value) keyboard.state.Ralt = (value>0) end
+keyboard.process_mods.LEFTCTRL = function(value) keyboard.state.Lctrl = (value>0) end
+keyboard.process_mods.RIGHTSHIFT = function(value) keyboard.state.Rctrl = (value>0) end
+keyboard.process_mods.LEFTMETA = function(value) keyboard.state.Lmeta = (value>0) end
+keyboard.process_mods.RIGHTMETA= function(value) keyboard.state.Rmeta = (value>0) end
 
 keyboard.codes = {}
 
