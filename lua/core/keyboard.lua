@@ -38,14 +38,21 @@ function keyboard.meta()
 
 function keyboard.process(type,code,value)
   if keyboard.raw then
-    keyboard.raw(type,code,value)
+    keyboard.raw(code,value)
+  end
+
+  local c = keyboard.codes[code] 
+  if keyboard.process_mods[c] then
+    keyboard.process_mods[c](value)
   end
 
 
-
-  print("kb",type,code,value,keyboard.codes[code])
+  --print("kb",code,value,keyboard.codes[code])
 end
 
+keyboard.process_mods = {}
+keyboard.process_mods.LEFTSHIFT = function(value) keyboard.state.Lshift = (value>0) end
+keyboard.process_mods.RIGHTSHIFT = function(value) keyboard.state.Rshift = (value>0) end
 
 keyboard.codes = {}
 
