@@ -49,7 +49,7 @@ function pmap.clear()
   pmap.data = {}
   pmap.rev = {}
   -- build reverse lookup table: dev -> ch -> cc
-  for i=1,4 do
+  for i=1,16 do
     pmap.rev[i]={}
     for n=1,16 do
       pmap.rev[i][n]={}

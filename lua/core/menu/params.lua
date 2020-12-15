@@ -235,11 +235,13 @@ m.key = function(n,z)
     if n==2 and z==1 then
       m.mode = mMAP
       norns.pmap.assign(name,m.dev,m.ch,m.cc)
+      norns.pmap.write()
     elseif n==3 and z==1 then
       if m.mpos == 1 then
         m.midilearn = not m.midilearn
       elseif m.mpos ==2 then
         norns.pmap.remove(name)
+        norns.pmap.write()
         m.mode = mMAP
       elseif m.mpos==8 or m.mpos==9 then
         m.fine = true
@@ -338,7 +340,7 @@ m.enc = function(n,d)
       elseif m.mpos==4 then
         m.ch = util.clamp(m.ch+d,1,16)
       elseif m.mpos==5 then
-        m.dev = util.clamp(m.dev+d,1,16)
+        m.dev = util.clamp(m.dev+d,1,#midi.vports)
       elseif m.mpos==6 then
         pm.in_lo = util.clamp(pm.in_lo+d, 0, pm.in_hi)
         pm.value = util.clamp(pm.value, pm.in_lo, pm.in_hi)
@@ -517,21 +519,25 @@ m.redraw = function()
     screen.level(4)
     screen.move(0,40)
     screen.text("cc")
-    screen.move(40,40)
+    screen.move(55,40)
     hl(3)
     screen.text_right(m.cc)
     screen.level(4)
     screen.move(0,50)
     screen.text("ch")
-    screen.move(40,50)
+    screen.move(55,50)
     hl(4)
     screen.text_right(m.ch)
     screen.level(4)
     screen.move(0,60)
     screen.text("dev")
-    screen.move(40,60)
+    screen.move(55,60)
     hl(5)
-    screen.text_right(m.dev)
+
+    local long_name = midi.vports[m.dev].name
+    local short_name = string.len(long_name) > 6 and util.acronym(long_name) or long_name
+
+    screen.text_right(tostring(m.dev)..": "..short_name)
 
     screen.level(4)
     screen.move(63,40)

@@ -368,6 +368,10 @@ void screen_aa(int s) {
 
 void screen_level(int z) {
     CHECK_CR
+    if(z<0)
+        z=0;
+    else if(z>15)
+        z=15;
     cairo_set_source_rgb(cr, c[z], c[z], c[z]);
 }
 
