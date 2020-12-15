@@ -217,4 +217,15 @@ function util.rads_to_degs(radians)
   return radians * (180 / math.pi)
 end
 
+--- convert string to acronym
+-- @tparam string name
+-- @treturn string acronym
+function util.acronym(name)
+  name = name:gsub( "[%w']+", function( word )
+    if not word:find "%U" then  return word  end
+    return word:sub( 1, 1 )
+  end )
+  return (name:gsub("%s+", ""))
+end
+
 return util

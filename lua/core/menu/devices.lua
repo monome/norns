@@ -1,5 +1,6 @@
 local m = {
   pos = 1,
+  last_pos = 1,
   list = {"midi", "grid", "arc", "hid"},
 }
 
@@ -34,7 +35,7 @@ m.key = function(n,z)
     elseif n==3 and z==1 then
       m.section = m.list[m.pos]
       m.mode = "list"
-      m.len = 4
+      m.len = m.section ~= "midi" and 4 or 16
       m.pos = 1
       _menu.redraw()
     end
@@ -45,19 +46,19 @@ m.key = function(n,z)
       m.pos = 1
       _menu.redraw()
     elseif n==3 and z==1 then
+      m.last_pos = m.pos
       m.refresh()
       m.mode = "select"
       m.setpos = m.pos
       m.len = #m.options[m.section]
-      --tab.print(m.options[m.section])
       m.pos = 1
       _menu.redraw()
     end
   elseif m.mode == "select" then
     if n==2 and z==1 then
       m.mode = "list"
-      m.len = 4
-      m.pos = 1
+      m.len = m.section ~= "midi" and 4 or 16
+      m.pos = m.last_pos
       _menu.redraw()
     elseif n==3 and z==1 then
       local s = m.options[m.section][m.pos]
@@ -75,8 +76,8 @@ m.key = function(n,z)
         hid.update_devices()
       end
       m.mode = "list"
-      m.len = 4
-      m.pos = 1
+      m.len = m.section ~= "midi" and 4 or 16
+      m.pos = m.last_pos
       _menu.redraw()
     end
   end
@@ -84,14 +85,17 @@ end
 
 m.enc = function(n,delta)
   if n==2 then
+    prev_pos = m.pos
     m.pos = util.clamp(m.pos + delta, 1, m.len)
-    _menu.redraw()
+    if prev_pos ~= m.pos then
+      _menu.redraw()
+    end
   end
 end
 
 m.redraw = function()
   local y_offset = 0
-  if(4<m.pos) then
+  if(4<m.pos) and m.section ~= "midi" then
     y_offset = 10*(4-m.pos)
   end
   screen.clear()
@@ -110,19 +114,50 @@ m.redraw = function()
     if m.mode == "type" then
       screen.text(string.upper(m.list[i]) .. " >")
     elseif m.mode == "list" then
-      screen.text(i..".")
-      screen.move(8,10*i+20+y_offset)
       if m.section == "midi" then
-        screen.text(midi.vports[i].name)
+        for j = 1,4 do
+          screen.move(0,10*j+20)
+          if m.pos+(j-1) <= m.len then
+            local line = m.pos+(j-1)..". "..midi.vports[m.pos+(j-1)].name
+            if j == 1 then
+              screen.level(15)
+            else
+              screen.level(3)
+            end
+            screen.text(line)
+          end
+        end
       elseif m.section == "grid" then
+        screen.text(i..".")
+        screen.move(8,10*i+20+y_offset)
         screen.text(grid.vports[i].name)
       elseif m.section == "arc" then
+        screen.text(i..".")
+        screen.move(8,10*i+20+y_offset)
         screen.text(arc.vports[i].name)
       elseif m.section == "hid" then
+        screen.text(i..".")
+        screen.move(8,10*i+20+y_offset)
         screen.text(hid.vports[i].name)
       end
     elseif m.mode == "select" then
-      screen.text(m.options[m.section][i])
+      if m.section == "midi" then
+        for j = 1,4 do
+          screen.move(0,10*j+20)
+          if m.options[m.section][m.pos+(j-1)] ~= nil then
+            local line = m.options[m.section][m.pos+(j-1)]
+            if j == 1 then
+              screen.level(15)
+            else
+              screen.level(3)
+            end
+            screen.text(line)
+          end
+        end
+      else
+        screen.move(8,10*i+20+y_offset)
+        screen.text(m.options[m.section][i])
+      end
     end
   end
   screen.update()
