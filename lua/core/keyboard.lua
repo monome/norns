@@ -10,7 +10,7 @@ keyboard.state = {}
 
 function keyboard.clear()
   keyboard.code = nil      -- callback for code keyboard codes
-  keyboard.ascii = nil    -- callback for ascii keycodes, by map
+  keyboard.char = nil    -- callback for characters, by map
 end
 
 function keyboard.set_map(m)
@@ -41,10 +41,10 @@ function keyboard.process(type,code,value)
   if value>0 then
     local a = km[keyboard.shift()][c]
     if a then 
-      if keyboard.ascii then
-        keyboard.ascii(a)
+      if keyboard.char then
+        keyboard.char(a)
       end
-      --print("ASCII: "..a)
+      --print("char: "..a)
     end
   end
 
