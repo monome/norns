@@ -6,17 +6,7 @@ keyboard.selected_map = "us"
 
 local km = keyboard.keymap[keyboard.selected_map]
 
-
-keyboard.state = {
-  Lshift = false,
-  Rshift = false,
-  Lalt = false,
-  Ralt = false,
-  Lctrl = false,
-  Rctrl = false,
-  Lmeta = false,
-  Rmeta = false
-}
+keyboard.state = {}
 
 function keyboard.clear()
   keyboard.code = nil      -- callback for code keyboard codes
@@ -26,17 +16,18 @@ end
 function keyboard.set_map(m)
   if keyboard.keymap[m] then
     keyboard.selected_map = m
+    km = keyboard.keymap[keyboard.selected_map]
   end
 end
 
 function keyboard.shift()
-  return keyboard.state.Lshift or keyboard.state.Rshift end
+  return keyboard.state.LEFTSHIFT or keyboard.state.RIGHTSHIFT end
 function keyboard.alt()
-  return keyboard.state.Lalt or keyboard.state.Ralt end
+  return keyboard.state.LEFTALT or keyboard.state.RIGHTALT end
 function keyboard.ctrl()
-  return keyboard.state.Lctrl or keyboard.state.Rctrl end
+  return keyboard.state.LEFTCTRL or keyboard.state.RIGHTCTRL end
 function keyboard.meta()
-  return keyboard.state.Lmeta or keyboard.state.Rmeta end
+  return keyboard.state.LEFTMETA or keyboard.state.RIGHTMETA end
 
 
 function keyboard.process(type,code,value)
@@ -45,9 +36,7 @@ function keyboard.process(type,code,value)
   end
 
   local c = keyboard.codes[code] 
-  if keyboard.process_mods[c] then
-    keyboard.process_mods[c](value)
-  end
+  keyboard.state[c] = value>0
 
   if value>0 then
     local a = km[keyboard.shift()][c]
@@ -61,16 +50,6 @@ function keyboard.process(type,code,value)
 
   --print("kb",code,value,keyboard.codes[code])
 end
-
-keyboard.process_mods = {}
-keyboard.process_mods.LEFTSHIFT = function(value) keyboard.state.Lshift = (value>0) end
-keyboard.process_mods.RIGHTSHIFT = function(value) keyboard.state.Rshift = (value>0) end
-keyboard.process_mods.LEFTALT = function(value) keyboard.state.Lalt = (value>0) end
-keyboard.process_mods.RIGHTALT = function(value) keyboard.state.Ralt = (value>0) end
-keyboard.process_mods.LEFTCTRL = function(value) keyboard.state.Lctrl = (value>0) end
-keyboard.process_mods.RIGHTSHIFT = function(value) keyboard.state.Rctrl = (value>0) end
-keyboard.process_mods.LEFTMETA = function(value) keyboard.state.Lmeta = (value>0) end
-keyboard.process_mods.RIGHTMETA= function(value) keyboard.state.Rmeta = (value>0) end
 
 keyboard.codes = {}
 
@@ -202,6 +181,8 @@ keyboard.codes[125] = 'LEFTMETA'
 keyboard.codes[126] = 'RIGHTMETA'
 keyboard.codes[127] = 'COMPOSE'
 
+keyboard.state = tab.invert(keyboard.codes)
+for k,_ in pairs(keyboard.state) do keyboard.state[k] = false end
 
 return keyboard
 

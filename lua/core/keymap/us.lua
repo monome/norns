@@ -2,6 +2,9 @@ local k = {}
 k[false] = {}
 k[true] = {}
 
+k[false].SPACE = ' '
+k[true].SPACE = ' '
+
 k[false].A = 'a'
 k[false].B = 'b'
 k[false].C = 'c'
