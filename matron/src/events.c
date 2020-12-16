@@ -11,7 +11,6 @@
 #include "battery.h"
 #include "device_monome.h"
 #include "events.h"
-#include "gpio.h"
 #include "oracle.h"
 #include "stat.h"
 #include "weaver.h"

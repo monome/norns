@@ -77,7 +77,9 @@ void *stat_check(void *x) {
             fprintf(stderr, "Error opening pipe: temp read\n");
         } else {
             while (fgets(buf, 16, fd) != NULL) {
-                strncpy(bufsub, buf + 5, 2);
+                bufsub[0] = buf[5];
+                bufsub[1] = buf[6];
+                bufsub[2] = 0;
                 temp = atoi(bufsub);
                 // fprintf(stderr,"temp: %d\r\n", temp);
             }
