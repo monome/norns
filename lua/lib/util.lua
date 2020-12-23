@@ -234,13 +234,15 @@ end
 -- @tparam number max
 -- @treturn number cycled value
 function util.cycle(value, min, max)
-  if value > max then
-    return util.cycle(value - max, min, max)
-  elseif value < min then
-    return util.cycle(max - value, min, max)
-  else
-    return value
+  local y = value
+  local d = max - min + 1
+  while y > max do
+    y = y - d
   end
+  while value < min do
+    y = y + d
+  end
+  return y
 end
 
 return util
