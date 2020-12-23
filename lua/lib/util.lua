@@ -228,4 +228,19 @@ function util.acronym(name)
   return (name:gsub("%s+", ""))
 end
 
+--- constrain a positive number to a positive min/max range
+-- @tparam number value
+-- @tparam number min
+-- @tparam number max
+-- @treturn number cycled value
+function util.cycle(value, min, max)
+  if value > max then
+    return util.cycle(value - max, min, max)
+  elseif value < min then
+    return util.cycle(max - value, min, max)
+  else
+    return value
+  end
+end
+
 return util
