@@ -239,7 +239,7 @@ function util.cycle(value, min, max)
   while y > max do
     y = y - d
   end
-  while value < min do
+  while y < min do
     y = y + d
   end
   return y
