@@ -179,10 +179,10 @@ norns.fetch = function(url)
   local script = parts[#parts]
   local checkout = paths.code.."/"..script
 
-  -- fetch if already downloaded.
+  -- pull if already downloaded.
   if (util.file_exists(checkout)) then
-    print(script.." already cloned; fetching instead...")
-    command = "cd "..checkout.."; git fetch"
+    print(script.." already cloned; pulling instead...")
+    command = "cd "..checkout.."; git pull"
   end
 
   local status = os.execute(command)
