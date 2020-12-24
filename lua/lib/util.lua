@@ -228,12 +228,12 @@ function util.acronym(name)
   return (name:gsub("%s+", ""))
 end
 
---- constrain a positive number to a positive min/max range
+--- wrap a positive number to a positive min/max range
 -- @tparam number value
 -- @tparam number min
 -- @tparam number max
 -- @treturn number cycled value
-function util.cycle(value, min, max)
+function util.wrap(value, min, max)
   local y = value
   local d = max - min + 1
   while y > max do
