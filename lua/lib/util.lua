@@ -234,7 +234,7 @@ end
 -- @tparam number max
 -- @treturn number cycled value
 function util.wrap(n, min, max)
-  local y = value
+  local y = n
   local d = max - min + 1
   while y > max do
     y = y - d
@@ -251,7 +251,15 @@ end
 -- @tparam number max
 -- @treturn number cycled value
 function util.wrap_max(n, min, max)
-  return util.wrap(util.clamp(n, min, max), min, max)
+  local y = n
+  local d = max - min + 1
+  while y > max do
+    y = y - d
+  end
+  if y < min then
+    y = min
+  end
+  return y
 end
 
 return util
