@@ -117,8 +117,8 @@ Script.load = function(filename)
     name = norns.state.name
     path = norns.state.path
   else
-    filename = string.sub(filename,1,1) == "/" and filename or _path["dust"].."/"..filename
-    name = filename:match("^.*/(.+)$")
+    filename = string.sub(filename,1,1) == "/" and filename or _path["dust"]..filename
+    name = filename:match("^.*/(.+)$"):match("^([^.]+).*$")
     path = filename:match("^(.*/).+$")
   end
 
