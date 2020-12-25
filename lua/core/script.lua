@@ -118,8 +118,16 @@ Script.load = function(filename)
     path = norns.state.path
   else
     filename = string.sub(filename,1,1) == "/" and filename or _path["dust"]..filename
-    name = filename:match("^.*/(.+)$"):match("^([^.]+).*$")
-    path = filename:match("^(.*/).+$")
+    path, scriptname = filename:match("^(.*)/([^.]*).*$")
+    name = string.sub(path, string.len(_path["code"]) + 1)
+    
+    -- append scriptname to the name if it doesn't match directory name in case multiple scripts reside in the same directory
+    -- ex: we/study/study1, we/study/study2, ...
+    if string.sub(name, -#scriptname) ~= scriptname then
+      name_parts = tab.split(name, "/")
+      table.insert(name_parts, scriptname)
+      name = table.concat(name_parts, "/")
+    end
   end
 
   print("# script load: " .. filename)
