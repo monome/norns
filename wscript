@@ -17,6 +17,8 @@ def options(opt):
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
     opt.add_option('--profile-matron', action='store_true', default=False)
 
+    opt.recurse('maiden-repl')
+
 def configure(conf):
     conf.load('compiler_c compiler_cxx boost')
 
@@ -71,6 +73,8 @@ def configure(conf):
 
     conf.env.ENABLE_ABLETON_LINK = conf.options.enable_ableton_link
     conf.define('HAVE_ABLETON_LINK', conf.options.enable_ableton_link)
+
+    conf.recurse('maiden-repl')
 
 def build(bld):
     bld.recurse('matron')
