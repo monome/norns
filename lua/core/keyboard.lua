@@ -31,23 +31,25 @@ function keyboard.meta()
 
 
 function keyboard.process(type,code,value)
-  if keyboard.code then
-    keyboard.code(keyboard.codes[code],value)
-  end
+  local c = keyboard.codes[code]
 
-  local c = keyboard.codes[code] 
+  -- menu keycode
+  if _menu.mode then _menu.keycode(c,value)
+  -- script keycode
+  elseif keyboard.code then keyboard.code(c,value) end
+
   keyboard.state[c] = value>0
 
   if value>0 then
     local a = km[keyboard.shift()][c]
     if a then 
-      if keyboard.char then
-        keyboard.char(a)
-      end
       --print("char: "..a)
+      -- menu keychar
+      if _menu.mode then _menu.keychar(a)
+      -- script keychar
+      elseif keyboard.char then keyboard.char(a) end
     end
   end
-
   --print("kb",code,value,keyboard.codes[code])
 end
 
