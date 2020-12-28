@@ -172,7 +172,20 @@ end
 
 -- fetch (git clone)
 norns.fetch = function(url)
-  local status = os.execute("cd "..paths.code.."; git clone "..url)
+  -- default to clone.
+  local command = "cd "..paths.code.."; git clone "..url
+
+  local parts = tab.split(url, "/")
+  local script = parts[#parts]
+  local checkout = paths.code.."/"..script
+
+  -- pull if already downloaded.
+  if (util.file_exists(checkout)) then
+    print(script.." already cloned; pulling instead...")
+    command = "cd "..checkout.."; git pull"
+  end
+
+  local status = os.execute(command)
   if status then print("fetch: success. you may need to SYSTEM > RESET if the new project contains an engine")
   else print("fetch: FAIL") end
 end
