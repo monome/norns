@@ -228,4 +228,38 @@ function util.acronym(name)
   return (name:gsub("%s+", ""))
 end
 
+--- wrap a number to a positive min/max range
+-- @tparam number n
+-- @tparam number min
+-- @tparam number max
+-- @treturn number cycled value
+function util.wrap(n, min, max)
+  local y = n
+  local d = max - min + 1
+  while y > max do
+    y = y - d
+  end
+  while y < min do
+    y = y + d
+  end
+  return y
+end
+
+--- wrap a number to a positive min/max range but clamp the min
+-- @tparam number n
+-- @tparam number min
+-- @tparam number max
+-- @treturn number cycled value
+function util.wrap_max(n, min, max)
+  local y = n
+  local d = max - min + 1
+  while y > max do
+    y = y - d
+  end
+  if y < min then
+    y = min
+  end
+  return y
+end
+
 return util
