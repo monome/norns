@@ -4,7 +4,7 @@
 -- @release v1.0.0
 -- @author tyleretters & ezra
 
-local Lattice = {}
+local Lattice, Track = {}, {}
 
 --- instantiate a new lattice
 -- @tparam[opt] number meter number of quarter notes per measure, defaults to 4
@@ -47,6 +47,12 @@ function Lattice:destroy()
   self.tracks = {}
 end
 
+--- destroy a track lattice
+-- @tparam table a track from this lattice
+function Lattice:destroy_track(track)
+  self.tracks[track.id] = nil
+end
+
 --- set the meter of the lattice
 -- @tparam number meter the meter the lattice counts
 function Lattice:set_meter(meter)
@@ -82,25 +88,53 @@ function Lattice.pulse(s)
   end
 end 
 
---- add a new track to this lattice
+--- factory method to add a new track to this lattice
 -- @tparam number division the division of the track
 -- @tparam function event callback event
 -- @tparam[opt] boolean is the track playing?
 -- @treturn table a new track
 function Lattice:new_track(division, event, playing)
-  local t = {} -- new track table
+  local id = #self.tracks + 1
+  local track = Track:new(id, division, event, playing)
+  self.tracks[id] = track
+  return track
+end
+
+--- instantiate a new track
+-- @tparam number id numeric id for this track
+-- @tparam number division the division of the track
+-- @tparam function event callback event
+-- @tparam[opt] boolean is the track playing?
+-- @treturn table a new track
+function Track:new(id, division, event, playing)
+  local t = setmetatable({}, { __index = Track })
+  t.id = id
   t.division = division
   t.event = event
   t.is_playing = (playing == nil) and true or playing
   t.phase = 0
-  t.id = #self.tracks + 1
-  t.start = function() self.tracks[t.id].is_playing = true end
-  t.stop = function() self.tracks[t.id].is_playing = false end
-  t.toggle = function() self.tracks[t.id].is_playing = not self.tracks[t.id].is_playing end
-  t.destroy = function() self.tracks[t.id] = nil end
-  t.set_division = function(n) t.division = n end
-  self.tracks[t.id] = t
   return t
+end
+
+--- start the track
+function Track:start()
+  self.is_playing = true
+end
+
+--- stop the track
+function Track:stop()
+  self.is_playing = false
+end
+
+--- toggle the track
+function Track:toggle()
+  self.is_playing = not self.is_playing
+end
+
+--- set the division of the track
+-- @tparam number n the division of the track
+function Track:set_division(n)
+   self.division = n
 end
 
 return Lattice
