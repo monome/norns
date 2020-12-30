@@ -1,56 +1,64 @@
---- module for creating a multitrack sequencer based on a single fast "superclock"
+--- module for creating a lattice of patterns based on a single fast "superclock"
 --
 -- @module Lattice
 -- @release v1.0.0
 -- @author tyleretters & ezra
 
-local Lattice, Track = {}, {}
+local Lattice, Pattern = {}, {}
 
 --- instantiate a new lattice
--- @tparam[opt] number meter number of quarter notes per measure, defaults to 4
--- @tparam[opt] number ppqn the number of pulses per quarter note of this superclock, defaults to 96
+-- @tparam[opt] table args optional named attributes are:
+-- - "meter" (number) of quarter notes per measure, defaults to 4
+-- - "ppqn" (number) the number of pulses per quarter note of this superclock, defaults to 96
+-- - "callback" (function) callback to be called on the downbeat
 -- @treturn table a new lattice
-function Lattice:new(meter, ppqn)
-  local s = setmetatable({}, { __index = Lattice })
-  s.meter = meter ~= nil and meter or 4
-  s.ppqn = ppqn ~= nil and ppqn or 96
-  s.downbeat = nil -- downbeat callback
-  s.transport = 0
-  s.is_playing = false
-  s.superclock_id = nil
-  s.tracks = {}
-  return s
+function Lattice:new(args)
+  local l = setmetatable({}, { __index = Lattice })
+  local args = args == nil and {} or args
+  local defaults = {
+    meter = 4,
+    ppqn = 96,
+    callback = false
+  }
+  for k, v in pairs(defaults) do
+    l[k] = args[k] == nil and v or args[k]
+  end
+  l.enabled = false
+  l.transport = 0
+  l.superclock_id = nil
+  l.patterns = {}
+  return l
 end
 
---- start running the sequencer
+--- start running the lattice
 function Lattice:start()
-  if not self.superclock_id then
+  if self.superclock_id == nil then
     self.superclock_id = clock.run(self.pulse, self)
   end
-  self.is_playing = true
+  self.enabled = true
 end
 
---- stop the sequencer
+--- stop the lattice
 function Lattice:stop()
-  self.is_playing = false
+  self.enabled = false
 end
 
 --- toggle the lattice
 function Lattice:toggle()
-  self.is_playing = not self.is_playing
+  self.enabled = not self.enabled
 end
 
 --- destroy the lattice
 function Lattice:destroy()
   self:stop()
   clock.cancel(self.superclock_id)
-  self.tracks = {}
+  self.patterns = {}
 end
 
---- destroy a track lattice
--- @tparam table a track from this lattice
-function Lattice:destroy_track(track)
-  self.tracks[track.id] = nil
+--- destroy a pattern
+-- @tparam table a pattern from this lattice
+function Lattice:destroy_pattern(pattern)
+  self.patterns[pattern.id] = nil
 end
 
 --- set the meter of the lattice
@@ -65,22 +73,30 @@ function Lattice:set_ppqn(ppqn)
   self.ppqn = ppqn
 end
 
---- advance all tracks in this lattice a single by pulse
+--- set the callback of the downbeat
+-- @tparam function the callback
+function Lattice:set_callback(fn)
+  self.callback = fn
+end
+
+--- advance all patterns in this lattice a single by pulse
 -- @tparam table s this lattice
 function Lattice.pulse(s)
   while true do
     clock.sync(1/s.ppqn)
-    if s.is_playing then
+    if s.enabled then
       s.transport = s.transport + 1
-      if s.downbeat ~= nil and s.transport % (s.ppqn * s.meter) == 1 then
-        s.downbeat(s.transport)
+      if type(s.callback) == "function" and s.transport % (s.ppqn * s.meter) == 1 then
+        s.callback(s.transport)
       end
-      for id, track in pairs(s.tracks) do
-        if track.is_playing then
-          track.phase = track.phase + 1
-          if track.phase > (track.division * s.ppqn * s.meter) then
-            track.phase = track.phase - (track.division * s.ppqn * s.meter)
-            track.event(track.phase)
+      for id, pattern in pairs(s.patterns) do
+        if pattern.enabled then
+          pattern.phase = pattern.phase + 1
+          if pattern.phase > (pattern.division * s.ppqn * s.meter) then
+            pattern.phase = pattern.phase - (pattern.division * s.ppqn * s.meter)
+            if type(pattern.callback) == "function" then
+              pattern.callback()
+            end
           end
         end
       end
@@ -88,53 +104,66 @@ function Lattice.pulse(s)
   end
 end 
 
---- factory method to add a new track to this lattice
--- @tparam number division the division of the track
--- @tparam function event callback event
--- @tparam[opt] boolean is the track playing?
--- @treturn table a new track
-function Lattice:new_track(division, event, playing)
-  local id = #self.tracks + 1
-  local track = Track:new(id, division, event, playing)
-  self.tracks[id] = track
-  return track
+--- factory method to add a new pattern to this lattice
+-- @tparam[opt] table args optional named attributes are:
+-- - "division" (number) the division of the pattern
+-- - "callback" (function) function called on each step of this division
+-- - "enabled" (boolean) is this pattern enabled
+-- @treturn table a new pattern
+function Lattice:new_pattern(args)
+  local args = args == nil and {} or args
+  local defaults = {
+    division = 1/4,
+    callback = false,
+    enabled = true
+  }
+  for k, v in pairs(defaults) do
+    args[k] = args[k] == nil and v or args[k]
+  end
+  local id = #self.patterns + 1
+  args.id = id
+  local pattern = Pattern:new(args)
+  self.patterns[id] = pattern
+  return pattern
 end
 
---- instantiate a new track
--- @tparam number id numeric id for this track
--- @tparam number division the division of the track
--- @tparam function event callback event
--- @tparam[opt] boolean is the track playing?
--- @treturn table a new track
-function Track:new(id, division, event, playing)
-  local t = setmetatable({}, { __index = Track })
-  t.id = id
-  t.division = division
-  t.event = event
-  t.is_playing = (playing == nil) and true or playing
-  t.phase = 0
-  return t
+--- "private" method to instantiate a new pattern, only called by Lattice:new_pattern()
+-- @treturn table a new pattern
+function Pattern:new(args)
+  local p = setmetatable({}, { __index = Pattern })
+  p.id = args.id
+  p.division = args.division
+  p.callback = args.callback
+  p.enabled = args.enabled
+  p.phase = 0
+  return p
 end
 
---- start the track
-function Track:start()
-  self.is_playing = true
+--- start the pattern
+function Pattern:start()
+  self.enabled = true
 end
 
---- stop the track
-function Track:stop()
-  self.is_playing = false
+--- stop the pattern
+function Pattern:stop()
+  self.enabled = false
 end
 
---- toggle the track
-function Track:toggle()
-  self.is_playing = not self.is_playing
+--- toggle the pattern
+function Pattern:toggle()
+  self.enabled = not self.enabled
 end
 
---- set the division of the track
--- @tparam number n the division of the track
-function Track:set_division(n)
+--- set the division of the pattern
+-- @tparam number n the division of the pattern
+function Pattern:set_division(n)
    self.division = n
+end
+
+--- set the callback for this pattern
+-- @tparam function the callback
+function Pattern:set_callback(fn)
+  self.callback = fn
 end
 
 return Lattice
