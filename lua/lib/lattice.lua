@@ -8,32 +8,28 @@ local Lattice, Pattern = {}, {}
 
 --- instantiate a new lattice
 -- @tparam[opt] table args optional named attributes are:
+-- - "auto" (boolean) turn off "auto" pulses from the norns clock, defaults to true
 -- - "meter" (number) of quarter notes per measure, defaults to 4
 -- - "ppqn" (number) the number of pulses per quarter note of this superclock, defaults to 96
--- - "callback" (function) callback to be called on the downbeat
 -- @treturn table a new lattice
 function Lattice:new(args)
   local l = setmetatable({}, { __index = Lattice })
   local args = args == nil and {} or args
-  local defaults = {
-    meter = 4,
-    ppqn = 96,
-    callback = false
-  }
-  for k, v in pairs(defaults) do
-    l[k] = args[k] == nil and v or args[k]
-  end
+  l.auto = args.auto == nil and true or args.auto
+  l.meter = args.meter == nil and 4 or args.meter
+  l.ppqn = args.ppqn == nil and 96 or args.ppqn
   l.enabled = false
   l.transport = 0
   l.superclock_id = nil
+  l.pattern_id_counter = 100
   l.patterns = {}
   return l
 end
 
 --- start running the lattice
 function Lattice:start()
-  if self.superclock_id == nil then
-    self.superclock_id = clock.run(self.pulse, self)
+  if self.auto and self.superclock_id == nil then
+    self.superclock_id = clock.run(self.auto_pulse, self)
   end
   self.enabled = true
 end
@@ -51,14 +47,10 @@ end
 --- destroy the lattice
 function Lattice:destroy()
   self:stop()
-  clock.cancel(self.superclock_id)
+  if self.superclock_id ~= nil then
+    clock.cancel(self.superclock_id)
+  end
   self.patterns = {}
-end
-
---- destroy a pattern
--- @tparam table a pattern from this lattice
-function Lattice:destroy_pattern(pattern)
-  self.patterns[pattern.id] = nil
 end
 
 --- set the meter of the lattice
@@ -67,63 +59,50 @@ function Lattice:set_meter(meter)
   self.meter = meter
 end
 
---- set the ppqn of the lattice
--- @tparam number ppqn the pulses per quarter note
-function Lattice:set_ppqn(ppqn)
-  self.ppqn = ppqn
-end
-
---- set the callback of the downbeat
--- @tparam function the callback
-function Lattice:set_callback(fn)
-  self.callback = fn
-end
-
---- advance all patterns in this lattice a single by pulse
+--- use the norns clock to pulse
 -- @tparam table s this lattice
-function Lattice.pulse(s)
+function Lattice.auto_pulse(s)
   while true do
+    s:pulse()
     clock.sync(1/s.ppqn)
-    if s.enabled then
-      s.transport = s.transport + 1
-      if type(s.callback) == "function" and s.transport % (s.ppqn * s.meter) == 1 then
-        s.callback(s.transport)
-      end
-      for id, pattern in pairs(s.patterns) do
-        if pattern.enabled then
-          pattern.phase = pattern.phase + 1
-          if pattern.phase > (pattern.division * s.ppqn * s.meter) then
-            pattern.phase = pattern.phase - (pattern.division * s.ppqn * s.meter)
-            if type(pattern.callback) == "function" then
-              pattern.callback()
-            end
-          end
-        end
-      end
-    end
   end
 end 
 
+--- advance all patterns in this lattice a single by pulse, call this manually if lattice.auto = false
+function Lattice:pulse()
+  if self.enabled then
+    local ppm = self.ppqn * self.meter
+    for id, pattern in pairs(self.patterns) do
+      if pattern.enabled then
+        pattern.phase = pattern.phase + 1
+        if pattern.phase > (pattern.division * ppm) then
+          pattern.phase = pattern.phase - (pattern.division * ppm)
+          pattern.callback(self.transport)
+        end
+      elseif pattern.flag then
+        self.patterns[pattern.id] = nil
+      end
+    end
+    self.transport = self.transport + 1
+  end
+end
+
 --- factory method to add a new pattern to this lattice
 -- @tparam[opt] table args optional named attributes are:
--- - "division" (number) the division of the pattern
 -- - "callback" (function) function called on each step of this division
--- - "enabled" (boolean) is this pattern enabled
+-- - "division" (number) the division of the pattern, defaults to 1/4
+-- - "enabled" (boolean) is this pattern enabled, defaults to true
 -- @treturn table a new pattern
 function Lattice:new_pattern(args)
+  self.pattern_id_counter = self.pattern_id_counter + 1
   local args = args == nil and {} or args
-  local defaults = {
-    division = 1/4,
-    callback = false,
-    enabled = true
-  }
-  for k, v in pairs(defaults) do
-    args[k] = args[k] == nil and v or args[k]
-  end
-  local id = #self.patterns + 1
-  args.id = id
+  args.id = self.pattern_id_counter
+  args.callback = args.callback == nil and function(t) return end or args.callback
+  args.division = args.division == nil and 1/4 or args.division
+  args.enabled = args.enabled == nil and true or args.enabled
+  args.phase_end = args.division * self.ppqn * self.meter
   local pattern = Pattern:new(args)
-  self.patterns[id] = pattern
+  self.patterns[self.pattern_id_counter] = pattern
   return pattern
 end
 
@@ -135,7 +114,8 @@ function Pattern:new(args)
   p.division = args.division
   p.callback = args.callback
   p.enabled = args.enabled
-  p.phase = 0
+  p.phase = args.phase_end
+  p.flag = false
   return p
 end
 
@@ -152,6 +132,12 @@ end
 --- toggle the pattern
 function Pattern:toggle()
   self.enabled = not self.enabled
+end
+
+--- flag the pattern to be destroyed
+function Pattern:destroy()
+  self.enabled = false
+  self.flag = true
 end
 
 --- set the division of the pattern
