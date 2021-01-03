@@ -184,10 +184,13 @@ Screen.text_center = function(str) _norns.screen_text_center(str) end
 -- @tparam number degrees : degress to rotate
 Screen.text_center_rotate = function(x, y, str, degrees) _norns.screen_text_center_rotate(x, y, str, degrees) end
 
---- calculate width of text.
--- uses currently selected font.
+--- calculate width of text given current font and draw state.
+-- completes asynchronousely via system callback
+-- (FIXME: see screen.handle_text_extents() or whatever)
 -- @tparam string str : text to calculate width of
-Screen.text_extents = function(str) return _norns.screen_text_extents(str) end
+Screen.text_extents = function(str)
+   _norns.screen_text_extents(str)
+end
 
 --- select font face.
 -- @param index font face (see list)
@@ -271,20 +274,6 @@ Screen.font_size = function(size) _norns.screen_font_size(size) end
 Screen.pixel = function(x, y)
   _norns.screen_rect(x, y, 1, 1)
 end
-
-
-_norns.screen_text_right = function(str)
-  local x, y = _norns.screen_text_extents(str)
-  _norns.screen_move_rel(-x, 0)
-  _norns.screen_text(str)
-end
-
-_norns.screen_text_center = function(str)
-  local x, y = _norns.screen_text_extents(str)
-  _norns.screen_move_rel(-x/2, 0)
-  _norns.screen_text(str)
-end
-
 _norns.screen_text_rotate = function(x, y, str, degrees)
   _norns.screen_save()
   _norns.screen_move(x, y)
@@ -299,9 +288,7 @@ _norns.screen_text_center_rotate = function(x, y, str, degrees)
   _norns.screen_move(x, y)
   _norns.screen_translate(x, y)
   _norns.screen_rotate(util.degs_to_rads(degrees))
-  local x2, y2 = _norns.screen_text_extents(str)
-  _norns.screen_move_rel(-x2/2, 0)
-  _norns.screen_text(str)
+  _norns.screen_text_center(str)
   _norns.screen_restore()
 end
 

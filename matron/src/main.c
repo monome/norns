@@ -29,6 +29,7 @@
 #include "osc.h"
 #include "platform.h"
 #include "screen.h"
+#include "screen_events.h"
 #include "stat.h"
 
 #include "oracle.h"
@@ -92,6 +93,9 @@ int main(int argc, char **argv) {
 
     fprintf(stderr, "init dev_monitor...\n");
     dev_monitor_init();
+
+    // start listening for screen events
+    screen_events_init();
 
     // now is a good time to set our cleanup
     fprintf(stderr, "setting cleanup...\n");

@@ -141,6 +141,10 @@ MATRON_API void event_data_free(union event_data *ev) {
             ev->custom.ops->free(ev->custom.value, ev->custom.context);
         }
         break;
+    /* case EVENT_SCREEN_RESULTS:	 */
+    /* 	if (ev->screen_results.data != NULL) { */
+    /* 	    free(ev->screen_results.data); */
+    /* 	} */
     }
     free(ev);
 }
@@ -260,12 +264,6 @@ static void handle_event(union event_data *ev) {
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
         break;
-    /* case EVENT_COMMAND_REPORT: */
-    /*     handle_command_report(); */
-    /*     break; */
-    /* case EVENT_POLL_REPORT: */
-    /*     handle_poll_report(); */
-    /*     break; */
     case EVENT_ENGINE_LOADED:
         w_handle_engine_loaded();
         break;
@@ -290,9 +288,6 @@ static void handle_event(union event_data *ev) {
     case EVENT_SYSTEM_CMD:
         w_handle_system_cmd(ev->system_cmd.capture);
         break;
-    case EVENT_RESET_LVM:
-        w_reset_lvm();
-        break;
     case EVENT_QUIT:
         quit = true;
         break;
@@ -314,6 +309,18 @@ static void handle_event(union event_data *ev) {
     case EVENT_CUSTOM:
         w_handle_custom_weave(&(ev->custom));
         break;
+    case EVENT_SCREEN_RESULT_TEXT_EXTENTS:
+	    w_handle_screen_result_text_extents(&ev->screen_result_text_extents);
+	    break;
+    case EVENT_SCREEN_RESULT_CURRENT_POINT:
+	    w_handle_screen_result_current_point(&ev->screen_result_current_point);
+	    break;
+    case EVENT_SCREEN_RESULT_PEEK:
+	    w_handle_screen_result_peek(&ev->screen_result_peek);
+	    break;
+    /* case EVENT_SCREEN_RESULTS: */
+    /* 	w_handle_screen_results(&ev->screen_results); */
+    /* 	break; */
     } /* switch */
 
     event_data_free(ev);

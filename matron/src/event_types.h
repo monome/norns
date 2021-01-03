@@ -1,8 +1,10 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "oracle.h"
 #include "osc.h"
-#include <stdint.h>
+#include "screen.h"
 
 // NOTE: new event types *must* be added to the end of the enum in the order
 // maintain ABI compatibility with compiled modules which interact with the
@@ -74,8 +76,6 @@ typedef enum {
     EVENT_STARTUP_READY_TIMEOUT,
     // system command finished
     EVENT_SYSTEM_CMD,
-    // reset the lua state
-    EVENT_RESET_LVM,
     // quit the event loop
     EVENT_QUIT,
     // crow add
@@ -92,6 +92,10 @@ typedef enum {
     EVENT_CUSTOM,
     // monome grid tilt
     EVENT_GRID_TILT,
+    // screen asynchronous results callbacks
+    EVENT_SCREEN_RESULT_TEXT_EXTENTS,
+    EVENT_SCREEN_RESULT_CURRENT_POINT,
+    EVENT_SCREEN_RESULT_PEEK,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -339,6 +343,34 @@ struct event_custom {
     void *context;
 }; // +12
 
+struct event_screen_result_text_extents {    
+    struct event_common common;
+    // NB: cairo returns doubles;
+    // seems like overkill,
+    // but we do want to respect fractional positions (?)
+    float x_bearing;
+    float y_bearing;
+    float width;
+    float height;
+    float x_advance;
+    float y_advance;
+};
+    
+struct event_screen_result_current_point {    
+    struct event_common common;
+    float x;
+    float y;
+};
+
+    
+struct event_screen_result_peek {    
+    struct event_common common;
+    int w;
+    int h;
+    char* buf;
+};
+
+
 union event_data {
     uint32_t type;
     struct event_exec_code_line exec_code_line;
@@ -376,4 +408,7 @@ union event_data {
     struct event_softcut_render softcut_render;
     struct event_softcut_position softcut_position;
     struct event_custom custom;
+    struct event_screen_result_text_extents screen_result_text_extents;
+    struct event_screen_result_current_point screen_result_current_point;
+    struct event_screen_result_peek screen_result_peek;
 };
