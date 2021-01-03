@@ -242,12 +242,6 @@ static void handle_event(union event_data *ev) {
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
         break;
-    /* case EVENT_COMMAND_REPORT: */
-    /*     handle_command_report(); */
-    /*     break; */
-    /* case EVENT_POLL_REPORT: */
-    /*     handle_poll_report(); */
-    /*     break; */
     case EVENT_ENGINE_LOADED:
         w_handle_engine_loaded();
         break;
