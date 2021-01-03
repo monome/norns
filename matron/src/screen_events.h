@@ -7,6 +7,7 @@ typedef struct {
     int type;
     int data_count;
     double data[6];
+    char* text;
 } screen_event_data_t;
 
 typedef enum {
@@ -39,9 +40,9 @@ typedef enum {
   SCREEN_EVENT_DISPLAY_PNG
 } screen_event_id_t;
 
-extern void screen_event_push(screen_event_id_t id, int arg_count, ...);
+extern void screen_events_init();
 
-// extern void screen_event_pop(screen_event_data_t *data);
+extern void screen_event_push(screen_event_id_t id, const char* text, int arg_count, ...);
 
 
 #endif
