@@ -39,6 +39,7 @@
 #include "osc.h"
 #include "platform.h"
 #include "screen.h"
+#include "screen_events.h"
 #include "snd_file.h"
 #include "system_cmd.h"
 #include "weaver.h"
@@ -521,7 +522,8 @@ int _reset_lvm(lua_State *l) {
  */
 int _screen_update(lua_State *l) {
     lua_check_num_args(0);
-    screen_update();
+    //screen_update();
+    screen_event_push(SCREEN_EVENT_UPDATE, NULL, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -532,7 +534,8 @@ int _screen_update(lua_State *l) {
  */
 int _screen_save(lua_State *l) {
     lua_check_num_args(0);
-    screen_save();
+    //screen_save();
+    screen_event_push(SCREEN_EVENT_SAVE, NULL, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -543,7 +546,8 @@ int _screen_save(lua_State *l) {
  */
 int _screen_restore(lua_State *l) {
     lua_check_num_args(0);
-    screen_restore();
+    //screen_restore();
+    screen_event_push(SCREEN_EVENT_RESTORE, NULL, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -558,6 +562,7 @@ int _screen_font_face(lua_State *l) {
     if (x < 0)
         x = 0;
     screen_font_face(x);
+    screen_event_push((double)x, NULL, 1);
     lua_settop(l, 0);
     return 0;
 }

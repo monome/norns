@@ -58,7 +58,6 @@ void screen_event_pop(screen_event_data_t *dst) {
         dst->text = NULL;
     }
     //-----------------------------------
-
     screen_event_data_t *src = &screen_q[screen_q_rd];
     dst->type = src->type;
     dst->data_count = src->data_count;
@@ -79,6 +78,7 @@ void screen_event_loop() {
     screen_event_data_t event_data;
     event_data.text = NULL;
     event_data.data_count = 0;
+    for (int i=0; i<6; ++i) { event_data.data[i] = 0.0; }
     while(1) {
         pthread_mutex_lock(&screen_q_lock);
         while (screen_q_rd == screen_q_wr) { 
@@ -90,63 +90,94 @@ void screen_event_loop() {
         handle_screen_event(&event_data);
     }
 }
-
-
 void handle_screen_event(const screen_event_data_t *event) {
     switch(event->type) {
         case SCREEN_EVENT_SAVE:
-        break;
+            screen_save();
+            break;
         case SCREEN_EVENT_RESTORE:
-        break;
+            screen_restore();
+            break;
         case SCREEN_EVENT_FONT_FACE:
-        break;
+            screen_font_face((int)event->data[0]);
+            break;
         case SCREEN_EVENT_FONT_SIZE:
-        break;
+            screen_font_size(event->data[0]);
+            break;
         case SCREEN_EVENT_AA:
-        break;
+	        screen_aa((int)event->data[0]);
+            break;
         case SCREEN_EVENT_LEVEL:
-        break;
+	        screen_level((int)event->data[0]);
+            break;
         case SCREEN_EVENT_LINE_WIDTH:
-        break;
+	        screen_line_width(event->data[0]);
+            break;
         case SCREEN_EVENT_LINE_CAP:
-        break;
+	        screen_line_cap(event->text);
+            break;
         case SCREEN_EVENT_LINE_JOIN:
-        break;
+	        screen_line_join(event->text);
+            break;
         case SCREEN_EVENT_MITER_LIMIT:
-        break;
+	        screen_miter_limit(event->data[0]);
+            break;
         case SCREEN_EVENT_MOVE:
-        break;
+	        screen_move(event->data[0], event->data[1]);
+            break;
         case SCREEN_EVENT_LINE:
-        break;
+	        screen_line(event->data[0], event->data[1]);
+            break;
         case SCREEN_EVENT_MOVE_REL:
-        break;
+	        screen_move_rel(event->data[0], event->data[1]);
+            break;
         case SCREEN_EVENT_LINE_REL:
-        break;
+	        screen_line_rel(event->data[0], event->data[1]);
+            break;
         case SCREEN_EVENT_CURVE:
-        break;
+	        screen_curve(event->data[0], event->data[1], event->data[2], event->data[3], event->data[4], event->data[5]);
+            break;
         case SCREEN_EVENT_CURVE_REL:
-        break;
+	        screen_curve_rel(event->data[0], event->data[1], event->data[2], event->data[3], event->data[4], event->data[5]);
+            break;
         case SCREEN_EVENT_ARC:
-        break;
+	        screen_arc(event->data[0], event->data[1], event->data[2], event->data[3], event->data[4]);
+            break;
         case SCREEN_EVENT_RECT:
-        break;
+	        screen_rect(event->data[0], event->data[1], event->data[2], event->data[3]);
+            break;
         case SCREEN_EVENT_STROKE:
-        break;
+	        screen_stroke();
+            break;
         case SCREEN_EVENT_FILL:
-        break;
+	        screen_fill();
+            break;
         case SCREEN_EVENT_TEXT:
-        break;
+	        screen_text(event->text);
+            break;
         case SCREEN_EVENT_CLEAR:
-        break;
+	        screen_clear();
+            break;
         case SCREEN_EVENT_CLOSE_PATH:
-        break;
-        case SCREEN_EVENT_EXTENTS:
-        break;
+	        screen_close_path();
+            break;
         case SCREEN_EVENT_EXPORT_PNG:
-        break;
+	        screen_export_png(event->text);
+            break;
         case SCREEN_EVENT_DISPLAY_PNG:
-        break;
+	        screen_display_png(event->text, event->data[0], event->data[1]);
+            break;
+        case SCREEN_ROTATE:
+            screen_rotate(event->data[0]);
+            break;
+        case SCREEN_TRANSLATE:
+            screen_translate(event->data[0], event->data[1]);
+            break;
+        case SCREEN_SET_OPERATOR:
+            screen_set_operator((int)event->data[0]);
+            break;
         default:
             ;;
     }
+
 }
