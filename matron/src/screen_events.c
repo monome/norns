@@ -16,6 +16,7 @@ static int screen_q_rd = 0;
 
 static void* screen_event_loop(void*);
 static void screen_event_pop(screen_event_data_t *dst);
+static void screen_event_free(screen_event_data_t *dst);
 static void handle_screen_event(const screen_event_data_t *data);
 
 static pthread_t screen_event_thread;
@@ -57,15 +58,7 @@ void screen_event_push(screen_event_id_t type, const char *text, int data_count,
 }
 
 // call with q locked
-//__attribute__((unused)) 
 void screen_event_pop(screen_event_data_t *dst) {
-    //------------------------------------------------
-    // FIXME?: this bit doesn't really need to be in the lock
-    if (dst->text != NULL) {
-        free(dst->text);
-        dst->text = NULL;
-    }
-    //-----------------------------------
     screen_event_data_t *src = &screen_q[screen_q_rd];
     dst->type = src->type;
     dst->data_count = src->data_count;
@@ -73,15 +66,12 @@ void screen_event_pop(screen_event_data_t *dst) {
         dst->data[i] = src->data[i];
     }
     if (src->text != NULL) {
-        int nbytes = strlen(src->text) + 1;
-        dst->text = malloc(nbytes);
-        memcpy(dst->text, src->text, nbytes);
-        free(src->text);
+        dst->text = src->text;
+        src->text = NULL;
     }
     screen_q_rd = (screen_q_rd + 1) & SCREEN_Q_MASK;
 }
 
-//__attribute__((unused)) 
 void* screen_event_loop(void* x) { 
     (void)x;
     screen_event_data_t event_data;
@@ -97,12 +87,17 @@ void* screen_event_loop(void* x) {
         screen_event_pop(&event_data);
         pthread_mutex_unlock(&screen_q_lock);
         handle_screen_event(&event_data);
-        if (event_data.text != NULL) { 
-            free(event_data.text);
-            event_data.text = NULL;
-        }
     }
 }
+
+
+void screen_event_free(screen_event_data_t *ev) {
+    if (ev->text != NULL) { 
+        free(ev->text);
+        ev->text = NULL;
+    }
+}
+
 void handle_screen_event(const screen_event_data_t *event) {
     switch(event->type) {
         case SCREEN_EVENT_UPDATE:
