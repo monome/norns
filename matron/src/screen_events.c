@@ -1,26 +1,34 @@
 #include <assert.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "screen_events.h"
 #include "screen.h"
 
-#define SCREEN_Q_SIZE 128
+#define SCREEN_Q_SIZE 1024
 #define SCREEN_Q_MASK (SCREEN_Q_SIZE -1)
 
 static screen_event_data_t screen_q[SCREEN_Q_SIZE];
 static int screen_q_wr = 0;
 static int screen_q_rd = 0;
 
+static void* screen_event_loop(void*);
 static void screen_event_pop(screen_event_data_t *dst);
 static void handle_screen_event(const screen_event_data_t *data);
 
+static pthread_t screen_event_thread;
 static pthread_mutex_t screen_q_lock;
 static pthread_cond_t screen_q_nonempty;
 
 void screen_events_init() { 
     pthread_cond_init(&screen_q_nonempty, NULL);
+    
+    // set up screen event loop
+    if (pthread_create(&screen_event_thread, NULL, screen_event_loop, 0) ) {
+      fprintf(stderr, "SCREEN: error creating thread\n");
+    }
 }
 
 void screen_event_push(screen_event_id_t type, const char *text, int data_count, ...) {
@@ -49,7 +57,7 @@ void screen_event_push(screen_event_id_t type, const char *text, int data_count,
 }
 
 // call with q locked
-__attribute__((unused)) 
+//__attribute__((unused)) 
 void screen_event_pop(screen_event_data_t *dst) {
     //------------------------------------------------
     // FIXME?: this bit doesn't really need to be in the lock
@@ -73,8 +81,9 @@ void screen_event_pop(screen_event_data_t *dst) {
     screen_q_rd = (screen_q_rd + 1) & SCREEN_Q_MASK;
 }
 
-__attribute__((unused)) 
-void screen_event_loop() { 
+//__attribute__((unused)) 
+void* screen_event_loop(void* x) { 
+    (void)x;
     screen_event_data_t event_data;
     event_data.text = NULL;
     event_data.data_count = 0;
@@ -88,10 +97,17 @@ void screen_event_loop() {
         screen_event_pop(&event_data);
         pthread_mutex_unlock(&screen_q_lock);
         handle_screen_event(&event_data);
+        if (event_data.text != NULL) { 
+            free(event_data.text);
+            event_data.text = NULL;
+        }
     }
 }
 void handle_screen_event(const screen_event_data_t *event) {
     switch(event->type) {
+        case SCREEN_EVENT_UPDATE:
+            screen_update();
+            break;
         case SCREEN_EVENT_SAVE:
             screen_save();
             break;

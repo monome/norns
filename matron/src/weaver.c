@@ -522,7 +522,6 @@ int _reset_lvm(lua_State *l) {
  */
 int _screen_update(lua_State *l) {
     lua_check_num_args(0);
-    //screen_update();
     screen_event_push(SCREEN_EVENT_UPDATE, NULL, 0);
     lua_settop(l, 0);
     return 0;
@@ -534,7 +533,6 @@ int _screen_update(lua_State *l) {
  */
 int _screen_save(lua_State *l) {
     lua_check_num_args(0);
-    //screen_save();
     screen_event_push(SCREEN_EVENT_SAVE, NULL, 0);
     lua_settop(l, 0);
     return 0;
@@ -546,7 +544,6 @@ int _screen_save(lua_State *l) {
  */
 int _screen_restore(lua_State *l) {
     lua_check_num_args(0);
-    //screen_restore();
     screen_event_push(SCREEN_EVENT_RESTORE, NULL, 0);
     lua_settop(l, 0);
     return 0;
@@ -561,8 +558,7 @@ int _screen_font_face(lua_State *l) {
     int x = (int)luaL_checkinteger(l, 1) - 1;
     if (x < 0)
         x = 0;
-    screen_font_face(x);
-    screen_event_push((double)x, NULL, 1);
+    screen_event_push(SCREEN_EVENT_FONT_FACE, NULL, 1, (double)x);
     lua_settop(l, 0);
     return 0;
 }
@@ -574,7 +570,7 @@ int _screen_font_face(lua_State *l) {
 int _screen_font_size(lua_State *l) {
     lua_check_num_args(1);
     int x = (int)luaL_checknumber(l, 1);
-    screen_font_size(x);
+    screen_event_push(SCREEN_EVENT_FONT_SIZE, NULL, 1, (double)x);
     lua_settop(l, 0);
     return 0;
 }
@@ -588,6 +584,7 @@ int _screen_aa(lua_State *l) {
     lua_check_num_args(1);
     int x = (int)luaL_checkinteger(l, 1);
     screen_aa(x);
+    screen_event_push(SCREEN_EVENT_AA, NULL, 1, (double)x);
     lua_settop(l, 0);
     return 0;
 }
@@ -600,7 +597,7 @@ int _screen_aa(lua_State *l) {
 int _screen_level(lua_State *l) {
     lua_check_num_args(1);
     int x = (int)luaL_checkinteger(l, 1);
-    screen_level(x);
+    screen_event_push(SCREEN_EVENT_LEVEL, NULL, 1, (double)x);
     lua_settop(l, 0);
     return 0;
 }
@@ -613,7 +610,7 @@ int _screen_level(lua_State *l) {
 int _screen_line_width(lua_State *l) {
     lua_check_num_args(1);
     double x = luaL_checknumber(l, 1);
-    screen_line_width(x);
+    screen_event_push(SCREEN_EVENT_LINE_WIDTH, NULL, 1, x);
     lua_settop(l, 0);
     return 0;
 }
@@ -626,7 +623,7 @@ int _screen_line_width(lua_State *l) {
 int _screen_line_cap(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_line_cap(s);
+    screen_event_push(SCREEN_EVENT_LINE_CAP, s, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -639,7 +636,7 @@ int _screen_line_cap(lua_State *l) {
 int _screen_line_join(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_line_join(s);
+    screen_event_push(SCREEN_EVENT_LINE_JOIN, s, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -652,7 +649,7 @@ int _screen_line_join(lua_State *l) {
 int _screen_miter_limit(lua_State *l) {
     lua_check_num_args(1);
     double limit = luaL_checknumber(l, 1);
-    screen_miter_limit(limit);
+    screen_event_push(SCREEN_EVENT_MITER_LIMIT, NULL, 1, limit);
     lua_settop(l, 0);
     return 0;
 }
@@ -667,7 +664,7 @@ int _screen_move(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_move(x, y);
+    screen_event_push(SCREEN_EVENT_MOVE, NULL, 2, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -682,7 +679,7 @@ int _screen_line(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_line(x, y);
+    screen_event_push(SCREEN_EVENT_LINE, NULL, 2, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -697,7 +694,7 @@ int _screen_move_rel(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_move_rel(x, y);
+    screen_event_push(SCREEN_EVENT_MOVE_REL, NULL, 2, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -712,7 +709,7 @@ int _screen_line_rel(lua_State *l) {
     lua_check_num_args(2);
     double x = (int)luaL_checknumber(l, 1);
     double y = (int)luaL_checknumber(l, 2);
-    screen_line_rel(x, y);
+    screen_event_push(SCREEN_EVENT_LINE_REL, NULL, 2, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -731,7 +728,7 @@ int _screen_curve(lua_State *l) {
     double y2 = luaL_checknumber(l, 4);
     double x3 = luaL_checknumber(l, 5);
     double y3 = luaL_checknumber(l, 6);
-    screen_curve(x1, y1, x2, y2, x3, y3);
+    screen_event_push(SCREEN_EVENT_CURVE, NULL, 6, x1, y1, x2, y2, x3, y3);
     lua_settop(l, 0);
     return 0;
 }
@@ -750,7 +747,7 @@ int _screen_curve_rel(lua_State *l) {
     double y2 = luaL_checknumber(l, 4);
     double x3 = luaL_checknumber(l, 5);
     double y3 = luaL_checknumber(l, 6);
-    screen_curve_rel(x1, y1, x2, y2, x3, y3);
+    screen_event_push(SCREEN_EVENT_CURVE_REL, NULL, 6, x1, y1, x2, y2, x3, y3);
     lua_settop(l, 0);
     return 0;
 }
@@ -768,7 +765,7 @@ int _screen_arc(lua_State *l) {
     double r = luaL_checknumber(l, 3);
     double a1 = luaL_checknumber(l, 4);
     double a2 = luaL_checknumber(l, 5);
-    screen_arc(x, y, r, a1, a2);
+    screen_event_push(SCREEN_EVENT_ARC, NULL, 5, x, y, r, a1, a2);
     lua_settop(l, 0);
     return 0;
 }
@@ -785,7 +782,7 @@ int _screen_rect(lua_State *l) {
     double y = luaL_checknumber(l, 2);
     double w = luaL_checknumber(l, 3);
     double h = luaL_checknumber(l, 4);
-    screen_rect(x, y, w, h);
+    screen_event_push(SCREEN_EVENT_RECT, NULL, 4,x, y, w, h );
     lua_settop(l, 0);
     return 0;
 }
@@ -796,7 +793,7 @@ int _screen_rect(lua_State *l) {
  */
 int _screen_stroke(lua_State *l) {
     lua_check_num_args(0);
-    screen_stroke();
+    screen_event_push(SCREEN_EVENT_STROKE, NULL, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -807,7 +804,7 @@ int _screen_stroke(lua_State *l) {
  */
 int _screen_fill(lua_State *l) {
     lua_check_num_args(0);
-    screen_fill();
+    screen_event_push(SCREEN_EVENT_FILL, NULL, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -820,7 +817,7 @@ int _screen_fill(lua_State *l) {
 int _screen_text(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_text(s);
+    screen_event_push(SCREEN_EVENT_TEXT, s, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -831,7 +828,7 @@ int _screen_text(lua_State *l) {
  */
 int _screen_clear(lua_State *l) {
     lua_check_num_args(0);
-    screen_clear();
+    screen_event_push(SCREEN_EVENT_CLEAR, NULL, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -842,7 +839,7 @@ int _screen_clear(lua_State *l) {
  */
 int _screen_close(lua_State *l) {
     lua_check_num_args(0);
-    screen_close_path();
+    screen_event_push(SCREEN_EVENT_CLOSE_PATH, NULL, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -869,7 +866,7 @@ int _screen_text_extents(lua_State *l) {
 int _screen_export_png(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_export_png(s);
+    screen_event_push(SCREEN_EVENT_EXPORT_PNG, s, 0);
     lua_settop(l, 0);
     return 0;
 }
@@ -885,6 +882,7 @@ int _screen_display_png(lua_State *l) {
     double x = luaL_checknumber(l, 2);
     double y = luaL_checknumber(l, 3);
     screen_display_png(s, x, y);
+    screen_event_push(SCREEN_EVENT_DISPLAY_PNG, s, 2, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -957,7 +955,7 @@ int _screen_poke(lua_State *l) {
 int _screen_rotate(lua_State *l) {
     lua_check_num_args(1);
     double r = luaL_checknumber(l, 1);
-    screen_rotate(r);
+    screen_event_push(SCREEN_ROTATE, NULL, 1, r);
     lua_settop(l, 0);
     return 0;
 }
@@ -972,7 +970,7 @@ int _screen_translate(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_translate(x, y);
+    screen_event_push(SCREEN_TRANSLATE, NULL, 2, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -988,7 +986,7 @@ int _screen_set_operator(lua_State *l) {
     int i = luaL_checknumber(l, 1);
     if (i < 0) { i = 0; }
     if (i > 28){ i = 28;}
-    screen_set_operator(i);
+    screen_event_push(SCREEN_SET_OPERATOR, NULL, 1, (double)i);
     lua_settop(l, 0);
     return 0;
 }

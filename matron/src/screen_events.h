@@ -35,12 +35,12 @@ typedef enum {
   SCREEN_EVENT_TEXT,
   SCREEN_EVENT_CLEAR,
   SCREEN_EVENT_CLOSE_PATH,
-  SCREEN_EVENT_EXTENTS,
   SCREEN_EVENT_EXPORT_PNG,
   SCREEN_EVENT_DISPLAY_PNG,
   SCREEN_ROTATE,
   SCREEN_TRANSLATE,
   SCREEN_SET_OPERATOR
+  // FIXME: poke requires a buffer...
 } screen_event_id_t;
 
 extern void screen_events_init();
