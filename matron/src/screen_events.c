@@ -25,7 +25,6 @@ static pthread_cond_t screen_q_nonempty;
 
 void screen_events_init() { 
     pthread_cond_init(&screen_q_nonempty, NULL);
-    
     // set up screen event loop
     if (pthread_create(&screen_event_thread, NULL, screen_event_loop, 0) ) {
       fprintf(stderr, "SCREEN: error creating thread\n");
@@ -33,8 +32,8 @@ void screen_events_init() {
 }
 
 void screen_event_push(screen_event_id_t type, const char *text, int data_count, ...) {
+    assert(data_count <= SCREEN_EVENT_DATA_COUNT);
     va_list args;
-    
     pthread_mutex_lock(&screen_q_lock);
     screen_event_data_t* data = &(screen_q[screen_q_wr]); 
     data->type = type;
@@ -52,7 +51,17 @@ void screen_event_push(screen_event_id_t type, const char *text, int data_count,
     }
     va_end(args);
     screen_q_wr = (screen_q_wr + 1) & SCREEN_Q_MASK;
+    // if these indices become equal, we've filled the queue
+    if(screen_q_wr == screen_q_rd) {
+        fprintf(stderr, "ERROR: screen event queue is full!\n");
 
+#if 1 // should we continue, overwriting the oldest message?
+        screen_event_free(&screen_q[screen_q_wr]);
+        screen_q_rd = (screen_q_rd + 1) & SCREEN_Q_MASK;
+#else // .. or, just crash?
+        assert(0);
+#endif
+    }
     pthread_cond_signal(&screen_q_nonempty);
     pthread_mutex_unlock(&screen_q_lock);
 }
@@ -87,15 +96,16 @@ void* screen_event_loop(void* x) {
         screen_event_pop(&event_data);
         pthread_mutex_unlock(&screen_q_lock);
         handle_screen_event(&event_data);
+        screen_event_free(&event_data);
     }
 }
-
 
 void screen_event_free(screen_event_data_t *ev) {
     if (ev->text != NULL) { 
         free(ev->text);
         ev->text = NULL;
     }
+    ev->data_count = 0;
 }
 
 void handle_screen_event(const screen_event_data_t *event) {

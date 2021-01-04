@@ -3,10 +3,12 @@
 
 #include <stdarg.h>
 
+#define SCREEN_EVENT_DATA_COUNT 6
+
 typedef struct { 
     int type;
     int data_count;
-    double data[6];
+    double data[SCREEN_EVENT_DATA_COUNT];
     char* text;
 } screen_event_data_t;
 
