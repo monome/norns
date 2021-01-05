@@ -194,12 +194,9 @@ end
 norns.shutdown = function()
   print("SLEEP")
   --TODO fade out screen then run the shutdown script
-  _menu.redraw()
   norns.state.clean_shutdown = true
   norns.state.save()
   pcall(cleanup)
-  -- TODO
-  --if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
   audio.level_dac(0)
   audio.headphone_gain(0)
   os.execute("sleep 0.5; sudo shutdown now")
