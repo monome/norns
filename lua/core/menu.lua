@@ -32,6 +32,7 @@ _menu.previewfile = ""
 
 -- menu pages
 local m = {}
+_menu.m = m
 
 -- METROS
 local pending = false
