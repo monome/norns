@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "i2c.h"
+#include "platform.h"
 
 #define ADDR_HP 0x60
 #define ADDR_IN 0x29
@@ -28,6 +29,8 @@ static char buf[10];
 void *i2c_write(void *);
 
 void i2c_init(void) {
+    if (platform() != PLATFORM_CM3) return;
+
     char filename[40];
 
     sprintf(filename, "/dev/i2c-1");
@@ -55,6 +58,8 @@ void i2c_deinit() {
 }
 
 void i2c_hp(int level) {
+    if (platform() != PLATFORM_CM3) return;
+
     if (level < 0) {
         level = 0;
     } else if (level > 63) {

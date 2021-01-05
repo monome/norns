@@ -40,7 +40,7 @@ m.reset = function()
   m.ps_pos = 0
   m.ps_n = 0
   m.ps_action = 1
-  m.ps_last = 0
+  m.ps_last = norns.state.pset_last
   m.mode = mSELECT
 end
 
@@ -99,11 +99,22 @@ local function init_pset()
   norns.system_cmd('ls -1 '..norns.state.data..norns.state.shortname..'*.pset | sort', pset_list)
 end
 
+local function write_pset_last(x)
+  local file = norns.state.data.."pset-last.txt"
+  local f = io.open(file,"w")
+  io.output(f)
+  io.write(x)
+  io.close(f)
+  norns.state.pset_last = x
+end
+
 local function write_pset(name)
   if name then
+    local i = m.ps_pos+1
     if name == "" then name = params.name end
-    params:write(m.ps_pos+1,name)
-    m.ps_last = m.ps_pos+1
+    params:write(i,name)
+    m.ps_last = i
+    write_pset_last(i) -- save last pset loaded
     init_pset()
     norns.pmap.write() -- write parameter map too
   end
@@ -131,6 +142,8 @@ m.key = function(n,z)
     end
   -- EDIT + MAP
   elseif m.mode == mEDIT or m.mode == mMAP then
+    local i = page[m.pos+1]
+    local t = params:t(i)
     if n==2 and z==1 then
       if m.alt then
         init_pset()
@@ -146,8 +159,6 @@ m.key = function(n,z)
     elseif n==3 and z==1 and m.alt then
       m.mode = (m.mode==mEDIT) and mMAP or mEDIT
     elseif n==3 and z==1 then
-      local i = page[m.pos+1]
-      local t = params:t(i)
       if t == params.tGROUP then
         build_sub(i)
         m.group = true
@@ -179,19 +190,19 @@ m.key = function(n,z)
           params:set(i)
           m.triggered[i] = 2
         end
-      elseif t == params.tTOGGLE then
-        if m.mode == mEDIT then
-          params:delta(i, 1)
-          m.toggled[i] = params:get(i) and 1 or 0
-        end
-      elseif m.mode == mMAP then
+      elseif t == params.tBINARY and m.mode == mEDIT then 
+        params:delta(i,1)
+        if params:lookup_param(i).behavior == 'trigger' then 
+          m.triggered[i] = 2
+        else m.on[i] = params:get(i) end
+      elseif m.mode == mMAP and params:get_allow_pmap(i) then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
         if pm == nil then
           norns.pmap.new(n)
           pm = norns.pmap.data[n]
           local t = params:t(i)
-          if t == params.tNUMBER or t == params.tOPTION then
+          if t == params.tNUMBER or t == params.tOPTION or t== params.tBINARY then
             local r = params:get_range(i)
             pm.out_lo = r[1]
             pm.out_hi = r[2]
@@ -208,6 +219,14 @@ m.key = function(n,z)
       end
     elseif n==3 and z==0 then
       m.fine = false
+      if t == params.tBINARY then
+        if m.mode == mEDIT then
+          params:delta(i, 0)
+          if params:lookup_param(i).behavior ~= 'trigger' then
+            m.on[i] = params:get(i) 
+          end
+        end
+      end
     end
     -- MAPEDIT
   elseif m.mode == mMAPEDIT then
@@ -216,13 +235,19 @@ m.key = function(n,z)
     if n==2 and z==1 then
       m.mode = mMAP
       norns.pmap.assign(name,m.dev,m.ch,m.cc)
+      norns.pmap.write()
     elseif n==3 and z==1 then
       if m.mpos == 1 then
         m.midilearn = not m.midilearn
       elseif m.mpos ==2 then
         norns.pmap.remove(name)
+        norns.pmap.write()
         m.mode = mMAP
+      elseif m.mpos==8 or m.mpos==9 then
+        m.fine = true
       end
+    elseif n==3 then
+      m.fine = false
     end
     -- PSET
   elseif m.mode == mPSET then
@@ -236,9 +261,11 @@ m.key = function(n,z)
         textentry.enter(write_pset, txt, "PSET NAME: "..m.ps_pos+1)
         -- load
       elseif m.ps_action == 2 then
-        if pset[m.ps_pos+1] then
-          params:read(m.ps_pos+1)
-          m.ps_last = m.ps_pos+1
+        local i = m.ps_pos+1
+        if pset[i] then
+          params:read(i)
+          m.ps_last = i
+          write_pset_last(i) -- save last pset loaded
         end
         -- delete
       elseif m.ps_action == 3 then
@@ -313,17 +340,32 @@ m.enc = function(n,d)
       elseif m.mpos==4 then
         m.ch = util.clamp(m.ch+d,1,16)
       elseif m.mpos==5 then
-        m.dev = util.clamp(m.dev+d,1,16)
+        m.dev = util.clamp(m.dev+d,1,#midi.vports)
       elseif m.mpos==6 then
         pm.in_lo = util.clamp(pm.in_lo+d, 0, pm.in_hi)
         pm.value = util.clamp(pm.value, pm.in_lo, pm.in_hi)
       elseif m.mpos==7 then
         pm.in_hi = util.clamp(pm.in_hi+d, pm.in_lo, 127)
         pm.value = util.clamp(pm.value, pm.in_lo, pm.in_hi)
-      elseif m.mpos==8 then
-        pm.out_lo = pm.out_lo + d
-      elseif m.mpos==9 then
-        pm.out_hi = pm.out_hi + d
+      elseif m.mpos==8 or m.mpos==9 then
+        local param = params:lookup_param(n)
+        local min = 0
+        local max = 1
+        if t == params.tCONTROL or t == params.tTAPER then
+          d = d * param:get_delta()
+          if m.fine then
+            d = d / 20
+          end
+        elseif t == params.tNUMBER or t == params.tOPTION or t == params.tBINARY then
+          local r = param:get_range()
+          min = r[1]
+          max = r[2]
+        end
+        if m.mpos == 8 then
+          pm.out_lo = util.clamp(pm.out_lo + d, min, max)
+        elseif m.mpos == 9 then
+          pm.out_hi = util.clamp(pm.out_hi + d, min, max)
+        end
       elseif m.mpos==10 then
         if d>0 then pm.accum = true else pm.accum = false end
       end
@@ -386,8 +428,9 @@ m.redraw = function()
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
             end
-          elseif t ==  params.tTOGGLE then
-            if m.toggled[p] and m.toggled[p] > 0 then
+          elseif t == params.tBINARY then
+            fill = m.on[p] or m.triggered[p]
+            if fill and fill > 0 then
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
             end
@@ -428,12 +471,16 @@ m.redraw = function()
           screen.move(127,10*i)
           if t ==  params.tNUMBER or
               t == params.tCONTROL or
-              t == params.tOPTION then
+              t == params.tBINARY or
+              t == params.tOPTION or
+              t == params.tTAPER then
             local pm=norns.pmap.data[id]
-            if pm then
-              screen.text_right(pm.cc..":"..pm.ch..":"..pm.dev)
-            else
-              screen.text_right("-")
+            if params:get_allow_pmap(p) then
+              if pm then
+                screen.text_right(pm.cc..":"..pm.ch..":"..pm.dev)
+              else
+                screen.text_right("-")
+              end
             end
           end
         end
@@ -445,6 +492,15 @@ m.redraw = function()
     local n = params:get_id(p)
     local t = params:t(p)
     local pm = norns.pmap.data[n]
+
+    local out_lo = pm.out_lo
+    local out_hi = pm.out_hi
+
+    if t == params.tCONTROL or t == params.tTAPER then
+      local param = params:lookup_param(n)
+      out_lo = util.round(param:map_value(pm.out_lo), 0.01)
+      out_hi = util.round(param:map_value(pm.out_hi), 0.01)
+    end
 
     local function hl(x) if m.mpos==x then screen.level(15) else screen.level(4) end end
 
@@ -463,21 +519,25 @@ m.redraw = function()
     screen.level(4)
     screen.move(0,40)
     screen.text("cc")
-    screen.move(40,40)
+    screen.move(55,40)
     hl(3)
     screen.text_right(m.cc)
     screen.level(4)
     screen.move(0,50)
     screen.text("ch")
-    screen.move(40,50)
+    screen.move(55,50)
     hl(4)
     screen.text_right(m.ch)
     screen.level(4)
     screen.move(0,60)
     screen.text("dev")
-    screen.move(40,60)
+    screen.move(55,60)
     hl(5)
-    screen.text_right(m.dev)
+
+    local long_name = midi.vports[m.dev].name
+    local short_name = string.len(long_name) > 6 and util.acronym(long_name) or long_name
+
+    screen.text_right(tostring(m.dev)..": "..short_name)
 
     screen.level(4)
     screen.move(63,40)
@@ -494,10 +554,10 @@ m.redraw = function()
     screen.text("out")
     screen.move(103,50)
     hl(8)
-    screen.text_right(pm.out_lo)
+    screen.text_right(out_lo)
     screen.move(127,50)
     hl(9)
-    screen.text_right(pm.out_hi)
+    screen.text_right(out_hi)
     screen.level(4)
     screen.move(63,60)
     screen.text("accum")
@@ -553,9 +613,13 @@ m.init = function()
     end
     _menu.redraw()
   end
-  m.toggled = {}
+  m.on = {}
   for i,param in ipairs(params.params) do
-    if param.t == params.tTOGGLE and param.value then m.toggled[i] = 1 end
+    if param.t == params.tBINARY then
+        if params:lookup_param(i).behavior == 'trigger' then 
+          m.triggered[i] = 2
+        else m.on[i] = params:get(i) end
+    end
   end
   _menu.timer.time = 0.2
   _menu.timer.count = -1
@@ -599,6 +663,17 @@ norns.menu_midi_event = function(data, dev)
         elseif t == params.tNUMBER or t == params.tOPTION then
           s = util.round(s)
           params:set(r,s)
+        elseif t == params.tBINARY then 
+          params:delta(r,s)
+          if _menu.mode then 
+            for i,param in ipairs(params.params) do
+              if params:lookup_param(i).behavior == params:lookup_param(r).behavior then 
+                if params:lookup_param(i).behavior == 'trigger' then 
+                  m.triggered[i] = 2
+                else m.on[i] = params:get(i) end
+              end
+            end
+          end
         end
         if _menu.mode then _menu.redraw() end
       end

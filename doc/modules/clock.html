@@ -40,13 +40,21 @@
 <ul class="nowrap">
   <li><strong>clock</strong></li>
   <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.ii_actions.html">core.crow.ii_actions</a></li>
+  <li><a href="../modules/core.crow.ii_events.html">core.crow.ii_events</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/er.html">er</a></li>
   <li><a href="../modules/filters.html">filters</a></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 <h2>Classes</h2>
@@ -88,9 +96,17 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#create">create (f)</a></td>
+	<td class="summary">create a coroutine to run but do not immediately run it;</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#run">run (f)</a></td>
 	<td class="summary">create a coroutine from the given function and immediately run it;
  the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cancel">cancel (coro_id)</a></td>
+	<td class="summary">stop execution of a coroutine started using clock.run.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sleep">sleep (s)</a></td>
@@ -104,12 +120,13 @@
  must be called from within a coroutine started with clock.run.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#stop">stop (coro_id)</a></td>
-	<td class="summary">stop execution of a coroutine started using clock.run.</td>
+	<td class="name" nowrap><a href="#suspend">suspend ()</a></td>
+	<td class="summary">yield and do not schedule wake up, clock must be explicitly resumed
+ must be called from within a coroutine started with clock.run.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#set_source">set_source (source)</a></td>
-	<td class="summary">select the sync source, currently clock.INTERNAL and clock.MIDI.</td>
+	<td class="summary">select the sync source</td>
 	</tr>
 </table>
 
@@ -120,6 +137,33 @@
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "create"></a>
+    <strong>create (f)</strong>
+    </dt>
+    <dd>
+    create a coroutine to run but do not immediately run it;
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">function</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">integer</span></span>
+        : coroutine ID that can be used to resume/stop it later
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "run"></a>
     <strong>run (f)</strong>
@@ -143,6 +187,27 @@
            <span class="types"><span class="type">integer</span></span>
         : coroutine ID that can be used to stop it later
     </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cancel"></a>
+    <strong>cancel (coro_id)</strong>
+    </dt>
+    <dd>
+    stop execution of a coroutine started using clock.run.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">coro_id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : coroutine ID
+        </li>
+    </ul>
+
 
 
 
@@ -194,20 +259,14 @@
 
 </dd>
     <dt>
-    <a name = "stop"></a>
-    <strong>stop (coro_id)</strong>
+    <a name = "suspend"></a>
+    <strong>suspend ()</strong>
     </dt>
     <dd>
-    stop execution of a coroutine started using clock.run.
+    yield and do not schedule wake up, clock must be explicitly resumed
+ must be called from within a coroutine started with clock.run.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">coro_id</span>
-            <span class="types"><span class="type">integer</span></span>
-         : coroutine ID
-        </li>
-    </ul>
 
 
 
@@ -219,14 +278,14 @@
     <strong>set_source (source)</strong>
     </dt>
     <dd>
-    select the sync source, currently clock.INTERNAL and clock.MIDI.
+    select the sync source
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">source</span>
-            <span class="types"><span class="type">integer</span></span>
-         : clock.INTERNAL (0) or clock.MIDI (1)
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         : "internal", "midi", or "link"
         </li>
     </ul>
 
@@ -242,7 +301,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-03-28 23:45:19 </i>
+<i style="float:right;">Last updated 2020-10-20 12:49:33 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

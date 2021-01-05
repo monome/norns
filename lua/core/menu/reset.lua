@@ -10,6 +10,7 @@ m.key = function(n,z)
     _menu.redraw()
     os.execute("rm ~/dust/data/system.pset")
     os.execute("rm ~/dust/data/system.state")
+    os.execute("rm "..paths.favorites)
     _norns.reset()
   end
 end

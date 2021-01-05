@@ -66,13 +66,21 @@
 <ul class="nowrap">
   <li><a href="../modules/clock.html">clock</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.ii_actions.html">core.crow.ii_actions</a></li>
+  <li><a href="../modules/core.crow.ii_events.html">core.crow.ii_events</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/er.html">er</a></li>
   <li><a href="../modules/filters.html">filters</a></li>
   <li><a href="../modules/formatters.html">formatters</a></li>
   <li><a href="../modules/intonation.html">intonation</a></li>
   <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
   <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/util.html">util</a></li>
 </ul>
 
@@ -104,7 +112,7 @@
 	<td class="summary">add generic parameter.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ParamSet:add_number">ParamSet:add_number (id, name, min, max, default, formatter)</a></td>
+	<td class="name" nowrap><a href="#ParamSet:add_number">ParamSet:add_number (id, name, min, max, wrap, default, formatter)</a></td>
 	<td class="summary">add number.</td>
 	</tr>
 	<tr>
@@ -132,8 +140,16 @@
 	<td class="summary">add trigger.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_toggle">ParamSet:add_toggle (id, name, default)</a></td>
+	<td class="summary">add toggle</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#ParamSet:print">ParamSet:print ()</a></td>
 	<td class="summary">print.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:list">ParamSet:list ()</a></td>
+	<td class="summary">list.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ParamSet:get_id">ParamSet:get_id (index)</a></td>
@@ -178,6 +194,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#ParamSet:get_range">ParamSet:get_range (index)</a></td>
 	<td class="summary">get range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:get_allow_pmap">ParamSet:get_allow_pmap (index)</a></td>
+	<td class="summary">get whether or not parameter should be pmap'able</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ParamSet:hide">ParamSet:hide (index)</a></td>
@@ -322,7 +342,7 @@
 </dd>
     <dt>
     <a name = "ParamSet:add_number"></a>
-    <strong>ParamSet:add_number (id, name, min, max, default, formatter)</strong>
+    <strong>ParamSet:add_number (id, name, min, max, wrap, default, formatter)</strong>
     </dt>
     <dd>
     add number.
@@ -344,6 +364,10 @@
         </li>
         <li><span class="parameter">max</span>
             <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">wrap</span>
+            <span class="types"><span class="type">boolean</span></span>
 
         </li>
         <li><span class="parameter">default</span>
@@ -547,11 +571,55 @@
 
 </dd>
     <dt>
+    <a name = "ParamSet:add_toggle"></a>
+    <strong>ParamSet:add_toggle (id, name, default)</strong>
+    </dt>
+    <dd>
+    add toggle
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../classes/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../classes/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">default</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "ParamSet:print"></a>
     <strong>ParamSet:print ()</strong>
     </dt>
     <dd>
     print.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:list"></a>
+    <strong>ParamSet:list ()</strong>
+    </dt>
+    <dd>
+    list.
+ lists param id's
 
 
 
@@ -807,6 +875,26 @@
 
 </dd>
     <dt>
+    <a name = "ParamSet:get_allow_pmap"></a>
+    <strong>ParamSet:get_allow_pmap (index)</strong>
+    </dt>
+    <dd>
+    get whether or not parameter should be pmap'able
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "ParamSet:hide"></a>
     <strong>ParamSet:hide (index)</strong>
     </dt>
@@ -902,7 +990,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">filename</span>
-         either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname].pset from local data folder)
+         either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read default [scriptname]-01.pset from local data folder)
         </li>
     </ul>
 
@@ -960,7 +1048,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-03-28 23:45:19 </i>
+<i style="float:right;">Last updated 2020-10-20 12:49:33 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

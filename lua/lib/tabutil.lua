@@ -41,6 +41,20 @@ tab.contains = function(t,e)
   return false
 end
 
+
+--- given a simple table of primitives, 
+--- "invert" it so that values become keys and vice versa.
+--- this allows more efficient checks on multiple values
+-- @param t: a simple table
+function tab.invert(t)
+  local inv = {}
+  for k,v in pairs(t) do
+    inv[v] = k
+  end
+  return inv
+end
+
+
 --- search table for element, return key
 -- @tparam table t table to check
 -- @param e element to look for
@@ -51,7 +65,6 @@ tab.key = function(t,e)
   end
   return nil
 end
-
 
 --- split multi-line string into table of strings
 -- @tparam string str string with line breaks
@@ -221,5 +234,6 @@ function tab.readonly(params)
   setmetatable(proxy, mt)
   return proxy
 end
+
 
 return tab

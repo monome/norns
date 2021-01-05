@@ -33,7 +33,7 @@ Script.clear = function()
 
   -- reset encoders
   norns.enc.accel(0,true)
-  norns.enc.sens(0,1)
+  norns.enc.sens(0,2)
 
   -- clear, redirect, and reset devices
   grid.cleanup()
@@ -106,33 +106,28 @@ Script.init = function()
   _norns.screen_save()
 end
 
+
+
 --- load a script from the /scripts folder.
 -- @tparam string filename file to load. leave blank to reload current file.
 Script.load = function(filename)
-  local name, path, relative
+  local name, path
   if filename == nil then
     filename = norns.state.script
     name = norns.state.name
     path = norns.state.path
   else
-	if string.sub(filename,1,1) == "/" then
-	  relative = string.sub(filename,string.len(_path["dust"]))
-	else
-	  relative = filename
-	  filename = _path["dust"] .. filename
-	end
-
-	local t = tab.split(string.sub(relative,0,-5),"/")
-	if t[#t] == t[#t-1] then
-	  name = t[#t]
-	else
-	  name = t[#t-1].."/"..t[#t]
-	end
-  if #t==4 then name = t[2].."/"..name end -- dumb hack for 3-deep subfolers
-	path = string.sub(_path["dust"],0,-2)
-	for i = 1,#t-1 do path = path .. "/" .. t[i] end
-	--print("name "..name)
-	--print("final path "..path)
+    filename = string.sub(filename,1,1) == "/" and filename or _path["dust"]..filename
+    path, scriptname = filename:match("^(.*)/([^.]*).*$")
+    name = string.sub(path, string.len(_path["code"]) + 1)
+    
+    -- append scriptname to the name if it doesn't match directory name in case multiple scripts reside in the same directory
+    -- ex: we/study/study1, we/study/study2, ...
+    if string.sub(name, -#scriptname) ~= scriptname then
+      name_parts = tab.split(name, "/")
+      table.insert(name_parts, scriptname)
+      name = table.concat(name_parts, "/")
+    end
   end
 
   print("# script load: " .. filename)
@@ -163,10 +158,27 @@ Script.load = function(filename)
     norns.state.path = path .. '/'
     norns.state.lib = path .. '/lib/'
     norns.state.data = _path.data .. name .. '/'
+    norns.state.pset_last = 1
 
     if util.file_exists(norns.state.data) == false then
       print("### initializing data folder")
       util.make_dir(norns.state.data)
+      if util.file_exists(norns.state.path.."/data") then
+        os.execute("cp "..norns.state.path.."/data/*.pset "..norns.state.data)
+        print("### copied default psets")
+      end
+    end
+
+    local file = norns.state.data.."pset-last.txt"
+    if util.file_exists(file) then
+      local f = io.open(file,"r")
+      io.input(f)
+      local i = io.read("*line")
+      io.close(f)
+      if i then
+        print("pset last used: "..i)
+        norns.state.pset_last = tonumber(i)
+      end
     end
 
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
@@ -219,6 +231,7 @@ Script.metadata = function(filename)
   end
   return meta
 end
+
 
 
 return Script

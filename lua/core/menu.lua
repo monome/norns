@@ -24,7 +24,7 @@ _menu.panel = 3
 _menu.panels = {"MIX", "TAPE", "HOME", "PARAMS"}
 _menu.alt = false
 _menu.scripterror = false
-_menu.locked = true
+_menu.locked = false
 _menu.errormsg = ""
 _menu.shownav = false
 _menu.showstats = false
@@ -32,6 +32,7 @@ _menu.previewfile = ""
 
 -- menu pages
 local m = {}
+_menu.m = m
 
 -- METROS
 local pending = false
@@ -143,7 +144,7 @@ end
 
 -- _menu.set mode
 _menu.set_mode = function(mode)
-  if mode == false then -- PLAY MODE
+  if mode == false then -- ACTIVATE PLAY MODE
     if _menu.mode == true then _norns.screen_restore() end
     _menu.mode = false
     m[_menu.page].deinit()
@@ -153,10 +154,8 @@ _menu.set_mode = function(mode)
     _menu.key = key
     norns.encoders.callback = enc
     norns.enc.resume()
-    --norns.encoders.set_accel(0,false)
-    --norns.encoders.set_sens(0,1)
     redraw()
-  else -- _menu.MODE
+  elseif mode == true then -- ACTIVATE MENu MODE
     if _menu.mode == false then _norns.screen_save() end
     _menu.mode = true
     _menu.alt = false

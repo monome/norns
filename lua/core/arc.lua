@@ -192,12 +192,13 @@ _norns.arc.add = function(id, serial, name, dev)
 end
 
 _norns.arc.remove = function(id)
-  if Arc.devices[id] then
-    if Arc.remove ~= nil then
-      Arc.remove(Arc.devices[id])
+  local g = Arc.devices[id]
+  if g then
+    if Arc.vports[g.port].remove then
+      Arc.vports[g.port].remove()
     end
-    if Arc.devices[id].remove then
-      Arc.devices[id].remove()
+    if Arc.remove then
+      Arc.remove(Arc.devices[id])
     end
   end
   Arc.devices[id] = nil

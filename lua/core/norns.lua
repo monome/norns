@@ -169,6 +169,26 @@ else
   norns.version.update = "000000"
 end
 
+-- shutdown
+norns.shutdown = function()
+  print("SLEEP")
+  --TODO fade out screen then run the shutdown script
+  norns.state.clean_shutdown = true
+  norns.state.save()
+  pcall(cleanup)
+  audio.level_dac(0)
+  audio.headphone_gain(0)
+  os.execute("sleep 0.5; sudo shutdown now")
+end
+
+-- platform detection
+-- 0 = UNKNOWN
+-- 1 = OTHER
+-- 2 = CM3 (norns)
+-- 3 = PI3 (norns shield)
+norns.platform = _norns.platform()
+norns.is_norns = norns.platform == 2
+norns.is_shield = norns.platform == 3
 
 -- Util (system_cmd)
 local system_cmd_q = {}

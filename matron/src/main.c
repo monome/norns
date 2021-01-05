@@ -25,9 +25,9 @@
 #include "input.h"
 #include "metro.h"
 #include "osc.h"
+#include "platform.h"
 #include "screen.h"
 #include "stat.h"
-#include "watch.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -44,7 +44,6 @@ void cleanup(void) {
     screen_deinit();
     battery_deinit();
     stat_deinit();
-    watch_deinit();
 
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
@@ -54,6 +53,8 @@ int main(int argc, char **argv) {
     args_parse(argc, argv);
 
     print_version();
+    init_platform();
+    printf("platform: %d\n",platform());
 
     events_init(); // <-- must come first!
     screen_init();
@@ -77,8 +78,6 @@ int main(int argc, char **argv) {
 #if HAVE_ABLETON_LINK
     clock_link_start();
 #endif
-
-    watch_init();
 
     o_init(); // oracle (audio)
 

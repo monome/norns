@@ -171,12 +171,13 @@ end
 
 -- grid remove
 _norns.grid.remove = function(id)
-  if Grid.devices[id] then
-    if Grid.remove ~= nil then
-      Grid.remove(Grid.devices[id])
+  local g = Grid.devices[id]
+  if g then
+    if Grid.vports[g.port].remove then
+      Grid.vports[g.port].remove()
     end
-    if Grid.devices[id].remove then
-      Grid.devices[id].remove()
+    if Grid.remove then
+      Grid.remove(Grid.devices[id])
     end
   end
   Grid.devices[id] = nil
