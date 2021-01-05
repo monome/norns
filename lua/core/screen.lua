@@ -33,13 +33,13 @@ end
 
 --- low battery screen update
 Screen.update_low_battery = function()
-	_norns.screen_rect(32,34,64,16)
+  _norns.screen_rect(32,34,64,16)
   _norns.screen_level(0)
   _norns.screen_fill()
   _norns.screen_move(64,45)
   _norns.screen_level(15)
   _norns.screen_text_center("LOW BATTERY")
-  _norns.screen_update()  
+  _norns.screen_update()
 end
 
 Screen.update = Screen.update_default
@@ -269,7 +269,7 @@ end
 -- @tparam number y y position
 Screen.display_png = function(filename,x,y) _norns.screen_display_png(filename,x,y) end
 
---- get a rectangle of screen content.
+--- get a rectangle of screen content. returned buffer contains one byte (valued 0 - 15) per pixel, i.e. w * h bytes
 -- @tparam number x x position
 -- @tparam number y y position
 -- @tparam number w width, default 1
@@ -278,7 +278,7 @@ Screen.peek = function(x, y, w, h)
   return _norns.screen_peek(x, y, w or 1, h or 1)
 end
 
---- set a rectangle of screen content.
+--- set a rectangle of screen content. expected buffer contains one byte (valued 0 - 15) per pixel, i.e. w * h bytes
 -- @tparam number x x position
 -- @tparam number y y position
 -- @tparam number w width
