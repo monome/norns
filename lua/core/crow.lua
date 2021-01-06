@@ -246,10 +246,10 @@ end
 -- initialize
 
 crow.init = function()
-  --- return crow to blank slate when loading a new norns script
+  -- return crow to blank slate when loading a new norns script
   crow.reset()
 
-  --- customizable system events
+  -- customizable system events
   crow.add = function(id, name, dev)
     crow.reset() -- reset crow env on (re)connection
     print(">>>>>> norns.crow.add / " .. id .. " / " .. name)
@@ -257,7 +257,7 @@ crow.init = function()
   crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
   crow.receive = function(...) print("crow:",...) end
 
-  --- data structures & default callbacks
+  -- data structures & default callbacks
   crow.input = { input.new(1), input.new(2) }
   crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
   crow.midi = function(...) print("crow midi:",...) end

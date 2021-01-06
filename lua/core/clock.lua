@@ -123,15 +123,17 @@ clock.set_source = function(source)
   end
 end
 
-
+--- get current time in beats
 clock.get_beats = function()
   return _norns.clock_get_time_beats()
 end
 
+--- get current tempo
 clock.get_tempo = function()
   return _norns.clock_get_tempo()
 end
 
+--- get current beat time in seconds
 clock.get_beat_sec = function(x)
   x = x or 1
   return 60.0 / clock.get_tempo() * x
