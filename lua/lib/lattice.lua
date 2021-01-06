@@ -77,7 +77,7 @@ function Lattice:pulse()
         pattern.phase = pattern.phase + 1
         if pattern.phase > (pattern.division * ppm) then
           pattern.phase = pattern.phase - (pattern.division * ppm)
-          pattern.callback(self.transport)
+          pattern.action(self.transport)
         end
       elseif pattern.flag then
         self.patterns[pattern.id] = nil
@@ -89,7 +89,7 @@ end
 
 --- factory method to add a new pattern to this lattice
 -- @tparam[opt] table args optional named attributes are:
--- - "callback" (function) function called on each step of this division
+-- - "action" (function) called on each step of this division (lattice.transport is passed as the argument), defaults to a no-op
 -- - "division" (number) the division of the pattern, defaults to 1/4
 -- - "enabled" (boolean) is this pattern enabled, defaults to true
 -- @treturn table a new pattern
@@ -97,7 +97,7 @@ function Lattice:new_pattern(args)
   self.pattern_id_counter = self.pattern_id_counter + 1
   local args = args == nil and {} or args
   args.id = self.pattern_id_counter
-  args.callback = args.callback == nil and function(t) return end or args.callback
+  args.action = args.action == nil and function(t) return end or args.action
   args.division = args.division == nil and 1/4 or args.division
   args.enabled = args.enabled == nil and true or args.enabled
   args.phase_end = args.division * self.ppqn * self.meter
@@ -112,7 +112,7 @@ function Pattern:new(args)
   local p = setmetatable({}, { __index = Pattern })
   p.id = args.id
   p.division = args.division
-  p.callback = args.callback
+  p.action = args.action
   p.enabled = args.enabled
   p.phase = args.phase_end
   p.flag = false
@@ -146,10 +146,10 @@ function Pattern:set_division(n)
    self.division = n
 end
 
---- set the callback for this pattern
--- @tparam function the callback
-function Pattern:set_callback(fn)
-  self.callback = fn
+--- set the action for this pattern
+-- @tparam function the action
+function Pattern:set_action(fn)
+  self.action = fn
 end
 
 return Lattice
