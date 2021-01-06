@@ -28,7 +28,7 @@ for i=1,4 do
   }
 end
 
---- constructor
+-- constructor
 -- @tparam integer id : arbitrary numeric identifier
 -- @tparam string name : name
 -- @tparam table types : array of supported event types. keys are type codes, values are strings
@@ -106,7 +106,7 @@ function Hid.connect(n)
   return Hid.vports[n]
 end
 
---- clear handlers
+-- clear handlers
 -- @static
 function Hid.cleanup()
   for i=1,4 do

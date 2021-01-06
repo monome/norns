@@ -356,7 +356,7 @@ function Midi.to_msg(data)
   return msg
 end
 
---- update devices.
+-- update devices.
 function Midi.update_devices()
   -- reset vports for existing devices
   for _,device in pairs(Midi.devices) do
@@ -376,7 +376,7 @@ function Midi.update_devices()
   end
 end
 
---- add a device.
+-- add a device.
 _norns.midi.add = function(id, name, dev)
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
@@ -384,7 +384,7 @@ _norns.midi.add = function(id, name, dev)
   if Midi.add ~= nil then Midi.add(d) end
 end
 
---- remove a device.
+-- remove a device.
 _norns.midi.remove = function(id)
   if Midi.devices[id] then
     if Midi.devices[id].remove then
@@ -395,7 +395,7 @@ _norns.midi.remove = function(id)
   Midi.update_devices()
 end
 
---- handle a midi event.
+-- handle a midi event.
 _norns.midi.event = function(id, data)
   local d = Midi.devices[id]
 
