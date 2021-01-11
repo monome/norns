@@ -310,21 +310,25 @@ end
 
 clock.help = [[
 --------------------------------------------------------------------------------
-id = clock.run( func ) — start a new coroutine with function func. returns id
-clock.cancel( id ) — cancel coroutine id
-clock.sleep( time ) — resume in time seconds
-clock.sync( beats ) — resume at beats count according to global tempo
-beats = clock.get_beats() — returns current time in beats
-tempo = clock.get_tempo() — returns current tempo
-beat_sec = clock.get_beat_sec() — returns length of a single beat at current
-		tempo in seconds
+clock.run( func )             start a new coroutine with function [func]
+                              (returns) created id
+clock.cancel( id )            cancel coroutine [id]
+clock.sleep( time )           resume in [time] seconds
+clock.sync( beats )           resume at next sync quantum of value [beats]
+                                following to global tempo
+clock.get_beats()             (returns) current time in beats
+clock.get_tempo()             (returns) current tempo
+clock.get_beat_sec()          (returns) length of a single beat at current
+		                            tempo in seconds
 
-example:
+-- example
 
+-- start a clock which calling function [loop]
 function init()
   clock.run(loop)
 end
 
+-- this function loops forever, printing at 1 second intervals 
 function loop()
   while true do:
     print("so true")
