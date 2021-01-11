@@ -236,6 +236,8 @@ function _menu.keycode(c,value)
   if _menu.keyboardcode then _menu.keyboardcode(c,value) end
 end
 
+function _menu.keychar(c) end
+
 
 -- interfaces
 

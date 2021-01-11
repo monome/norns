@@ -12,9 +12,10 @@ local km = keyboard.keymap[keyboard.selected_map]
 --- key states
 keyboard.state = {}
 
+-- clear callbacks
 function keyboard.clear()
-  keyboard.code = nil      -- callback for code keyboard codes
-  keyboard.char = nil    -- callback for characters, by map
+  keyboard.code = function() end
+  keyboard.char = function() end
 end
 
 function keyboard.set_map(m)

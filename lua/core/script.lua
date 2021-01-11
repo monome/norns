@@ -61,6 +61,9 @@ Script.clear = function()
   -- clear crow functions
   crow.init()
 
+  -- clear keyboard handlers
+  keyboard.clear()
+
   -- clear last run
   norns.state.script = ''
   norns.state.name = 'none'
