@@ -1,3 +1,6 @@
+--- keyboard (typing, not piano)
+-- @module keyboard
+
 keyboard = {}
 
 keyboard.keymap = {}
@@ -6,6 +9,7 @@ keyboard.selected_map = "us"
 
 local km = keyboard.keymap[keyboard.selected_map]
 
+--- key states
 keyboard.state = {}
 
 function keyboard.clear()
@@ -20,12 +24,22 @@ function keyboard.set_map(m)
   end
 end
 
+--- key code callback, script should redefine
+function keyboard.code(key, value) end
+--- key character callback, script should redefine
+function keyboard.char(ch) end
+
+
+--- return SHIFT state
 function keyboard.shift()
   return keyboard.state.LEFTSHIFT or keyboard.state.RIGHTSHIFT end
+--- return ALT state
 function keyboard.alt()
   return keyboard.state.LEFTALT or keyboard.state.RIGHTALT end
+--- return CTRL state
 function keyboard.ctrl()
   return keyboard.state.LEFTCTRL or keyboard.state.RIGHTCTRL end
+--- return META state
 function keyboard.meta()
   return keyboard.state.LEFTMETA or keyboard.state.RIGHTMETA end
 

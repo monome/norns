@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 </ul>
 
 
@@ -47,7 +48,7 @@
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
-  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><strong>keyboard</strong></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
@@ -57,7 +58,7 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><strong>lib.BeatClock</strong></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
@@ -88,56 +89,43 @@
 
 <div id="content">
 
-<h1>Module <code>lib.BeatClock</code></h1>
-<p>BeatClock</p>
+<h1>Module <code>keyboard</code></h1>
+<p>keyboard (typing, not piano)</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#new">new (name)</a></td>
-	<td class="summary">constructor</td>
+	<td class="name" nowrap><a href="#code">code (key, value)</a></td>
+	<td class="summary">key code callback, script should redefine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#start">start (dev_id)</a></td>
-	<td class="summary">start</td>
+	<td class="name" nowrap><a href="#char">char (ch)</a></td>
+	<td class="summary">key character callback, script should redefine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#stop">stop (dev_id)</a></td>
-	<td class="summary">stop</td>
+	<td class="name" nowrap><a href="#shift">shift ()</a></td>
+	<td class="summary">return SHIFT state</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#advance_step">advance_step ()</a></td>
-	<td class="summary">advance step</td>
+	<td class="name" nowrap><a href="#alt">alt ()</a></td>
+	<td class="summary">return ALT state</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tick">tick (dev_id)</a></td>
-	<td class="summary">tick</td>
+	<td class="name" nowrap><a href="#ctrl">ctrl ()</a></td>
+	<td class="summary">return CTRL state</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#reset">reset (dev_id)</a></td>
-	<td class="summary">reset</td>
+	<td class="name" nowrap><a href="#meta">meta ()</a></td>
+	<td class="summary">return META state</td>
 	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#clock_source_change">clock_source_change (source)</a></td>
-	<td class="summary">clock source change</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#bpm_change">bpm_change (bpm)</a></td>
-	<td class="summary">bpm change</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#add_clock_params">add_clock_params ()</a></td>
-	<td class="summary">add clock params</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#enable_midi">enable_midi ()</a></td>
-	<td class="summary">enable midi</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#process_midi">process_midi (data)</a></td>
-	<td class="summary">process midi</td>
+	<td class="name" nowrap><a href="#state">state</a></td>
+	<td class="summary">key states</td>
 	</tr>
 </table>
 
@@ -149,43 +137,19 @@
 
     <dl class="function">
     <dt>
-    <a name = "new"></a>
-    <strong>new (name)</strong>
+    <a name = "code"></a>
+    <strong>code (key, value)</strong>
     </dt>
     <dd>
-    constructor
+    key code callback, script should redefine
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        <li><span class="parameter">key</span>
 
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">BeatClock</span></span>
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "start"></a>
-    <strong>start (dev_id)</strong>
-    </dt>
-    <dd>
-    start
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev_id</span>
+        <li><span class="parameter">value</span>
 
         </li>
     </ul>
@@ -196,16 +160,16 @@
 
 </dd>
     <dt>
-    <a name = "stop"></a>
-    <strong>stop (dev_id)</strong>
+    <a name = "char"></a>
+    <strong>char (ch)</strong>
     </dt>
     <dd>
-    stop
+    key character callback, script should redefine
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">dev_id</span>
+        <li><span class="parameter">ch</span>
 
         </li>
     </ul>
@@ -216,11 +180,11 @@
 
 </dd>
     <dt>
-    <a name = "advance_step"></a>
-    <strong>advance_step ()</strong>
+    <a name = "shift"></a>
+    <strong>shift ()</strong>
     </dt>
     <dd>
-    advance step
+    return SHIFT state
 
 
 
@@ -230,91 +194,11 @@
 
 </dd>
     <dt>
-    <a name = "tick"></a>
-    <strong>tick (dev_id)</strong>
+    <a name = "alt"></a>
+    <strong>alt ()</strong>
     </dt>
     <dd>
-    tick
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev_id</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "reset"></a>
-    <strong>reset (dev_id)</strong>
-    </dt>
-    <dd>
-    reset
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dev_id</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "clock_source_change"></a>
-    <strong>clock_source_change (source)</strong>
-    </dt>
-    <dd>
-    clock source change
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">source</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "bpm_change"></a>
-    <strong>bpm_change (bpm)</strong>
-    </dt>
-    <dd>
-    bpm change
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">bpm</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "add_clock_params"></a>
-    <strong>add_clock_params ()</strong>
-    </dt>
-    <dd>
-    add clock params
+    return ALT state
 
 
 
@@ -324,11 +208,11 @@
 
 </dd>
     <dt>
-    <a name = "enable_midi"></a>
-    <strong>enable_midi ()</strong>
+    <a name = "ctrl"></a>
+    <strong>ctrl ()</strong>
     </dt>
     <dd>
-    enable midi
+    return CTRL state
 
 
 
@@ -338,19 +222,31 @@
 
 </dd>
     <dt>
-    <a name = "process_midi"></a>
-    <strong>process_midi (data)</strong>
+    <a name = "meta"></a>
+    <strong>meta ()</strong>
     </dt>
     <dd>
-    process midi
+    return META state
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">data</span>
 
-        </li>
-    </ul>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "state"></a>
+    <strong>state</strong>
+    </dt>
+    <dd>
+    key states
+
+
 
 
 
