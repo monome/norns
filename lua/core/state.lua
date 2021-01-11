@@ -1,5 +1,4 @@
 -- State
--- @classmod state
 
 local state = {}
 state.script = ''

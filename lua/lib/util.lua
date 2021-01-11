@@ -1,5 +1,5 @@
 --- Utility module
--- @module util
+-- @module lib.util
 
 util = {}
 

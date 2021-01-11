@@ -5,9 +5,6 @@
 <head>
     <title>norns/docs</title>
     <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
-  <script>
-    window.location.href = window.location.pathname.split('/modules/').join('/classes/');
-  </script>
 </head>
 <body>
 
@@ -41,36 +38,48 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
   <li><a href="../modules/audio.html">audio</a></li>
   <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><strong>engine</strong></li>
-  <li><a href="../modules/hid_events.html">hid_events</a></li>
-</ul>
-<h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/arc.html">arc</a></li>
-  <li><a href="../classes/controlspec.html">controlspec</a></li>
-  <li><a href="../classes/grid.html">grid</a></li>
-  <li><a href="../classes/hid.html">hid</a></li>
-  <li><a href="../classes/metro.html">metro</a></li>
-  <li><a href="../classes/midi.html">midi</a></li>
-  <li><a href="../classes/osc.html">osc</a></li>
-  <li><a href="../classes/control.html">control</a></li>
-  <li><a href="../classes/paramset.html">paramset</a></li>
-  <li><a href="../classes/poll.html">poll</a></li>
-  <li><a href="../classes/screen.html">screen</a></li>
-  <li><a href="../classes/script.html">script</a></li>
-  <li><a href="../classes/softcut.html">softcut</a></li>
-  <li><a href="../classes/elca.html">elca</a></li>
-  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
-  <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../classes/tabutil.html">tabutil</a></li>
-  <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/util.html">util</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
 
 </div>
@@ -85,27 +94,27 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#register">register (data, count)</a></td>
+	<td class="name" nowrap><a href="#Engine.register">Engine.register (data, count)</a></td>
 	<td class="summary">register all available engines.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#register_commands">register_commands (data, count)</a></td>
+	<td class="name" nowrap><a href="#Engine.register_commands">Engine.register_commands (data, count)</a></td>
 	<td class="summary">populate the current engine object with available commands.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#add_command">add_command (id, name, fmt)</a></td>
+	<td class="name" nowrap><a href="#Engine.add_command">Engine.add_command (id, name, fmt)</a></td>
 	<td class="summary">add a command to the current engine.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#list_commands">list_commands ()</a></td>
+	<td class="name" nowrap><a href="#Engine.list_commands">Engine.list_commands ()</a></td>
 	<td class="summary">print all commands reported from the engine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#load">load (name, callback)</a></td>
+	<td class="name" nowrap><a href="#Engine.load">Engine.load (name, callback)</a></td>
 	<td class="summary">load a named engine, with a callback.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#__index">__index (self, idx)</a></td>
+	<td class="name" nowrap><a href="#Engine.__index">Engine.__index (self, idx)</a></td>
 	<td class="summary">custom getters.</td>
 	</tr>
 </table>
@@ -115,11 +124,11 @@
 
 
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-    Methods
+
     <dl class="function">
     <dt>
-    <a name = "register"></a>
-    <strong>register (data, count)</strong>
+    <a name = "Engine.register"></a>
+    <strong>Engine.register (data, count)</strong>
     </dt>
     <dd>
     register all available engines.
@@ -142,8 +151,8 @@
 
 </dd>
     <dt>
-    <a name = "register_commands"></a>
-    <strong>register_commands (data, count)</strong>
+    <a name = "Engine.register_commands"></a>
+    <strong>Engine.register_commands (data, count)</strong>
     </dt>
     <dd>
     populate the current engine object with available commands.
@@ -167,8 +176,8 @@
 
 </dd>
     <dt>
-    <a name = "add_command"></a>
-    <strong>add_command (id, name, fmt)</strong>
+    <a name = "Engine.add_command"></a>
+    <strong>Engine.add_command (id, name, fmt)</strong>
     </dt>
     <dd>
     add a command to the current engine.
@@ -193,8 +202,8 @@
 
 </dd>
     <dt>
-    <a name = "list_commands"></a>
-    <strong>list_commands ()</strong>
+    <a name = "Engine.list_commands"></a>
+    <strong>Engine.list_commands ()</strong>
     </dt>
     <dd>
     print all commands reported from the engine
@@ -207,8 +216,8 @@
 
 </dd>
     <dt>
-    <a name = "load"></a>
-    <strong>load (name, callback)</strong>
+    <a name = "Engine.load"></a>
+    <strong>Engine.load (name, callback)</strong>
     </dt>
     <dd>
     load a named engine, with a callback.
@@ -235,8 +244,8 @@
 
 </dd>
     <dt>
-    <a name = "__index"></a>
-    <strong>__index (self, idx)</strong>
+    <a name = "Engine.__index"></a>
+    <strong>Engine.__index (self, idx)</strong>
     </dt>
     <dd>
     custom getters.
@@ -266,7 +275,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-12-27 12:33:06 </i>
+<i style="float:right;">Last updated 2021-01-11 12:10:11 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -1,5 +1,5 @@
 --- BeatClock
--- @classmod BeatClock
+-- @module lib.BeatClock
 
 local BeatClock = {}
 BeatClock.__index = BeatClock

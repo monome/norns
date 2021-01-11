@@ -1,5 +1,5 @@
---- pattern
--- @classmod pattern
+--- timed pattern event recorder/player
+-- @module lib.pattern
 
 local pattern = {}
 pattern.__index = pattern

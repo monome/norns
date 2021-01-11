@@ -1,6 +1,5 @@
 --- high-resolution metro API
--- @classmod metro
--- @alias Metro_mt
+-- @module metro
 
 local Metro = {}
 Metro.__index = Metro

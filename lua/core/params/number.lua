@@ -1,5 +1,5 @@
 -- Number class
--- @module number
+-- @module params.number
 
 local Number = {}
 Number.__index = Number
