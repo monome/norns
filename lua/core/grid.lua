@@ -211,7 +211,7 @@ grid.connect( port )          create a grid table using device [port]
                                 [level] range is 0..15
 .refresh()                    update the grid LED state
 
-
+--------------------------------------------------------------------------------
 -- example
 
 lx,ly,lz = 0,0,0
