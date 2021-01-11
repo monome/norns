@@ -32,21 +32,10 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Methods">Methods</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
 
 
-<h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
-  <li><a href="../classes/elca.html">elca</a></li>
-  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
-  <li><strong>FilterGraph</strong></li>
-  <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/pattern.html">pattern</a></li>
-  <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/voice.html">voice</a></li>
-</ul>
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/arc.html">arc</a></li>
@@ -61,42 +50,44 @@
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/params.toggle.html">params.toggle</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
-  <li><a href="../modules/params.file.html">params.file</a></li>
-  <li><a href="../modules/params.group.html">params.group</a></li>
-  <li><a href="../modules/params.number.html">params.number</a></li>
-  <li><a href="../modules/params.option.html">params.option</a></li>
-  <li><a href="../modules/params.separator.html">params.separator</a></li>
-  <li><a href="../modules/params.taper.html">params.taper</a></li>
-  <li><a href="../modules/params.text.html">params.text</a></li>
-  <li><a href="../modules/params.trigger.html">params.trigger</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/crow.asl.html">crow.asl</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
-  <li><a href="../modules/er.html">er</a></li>
-  <li><a href="../modules/filters.html">filters</a></li>
-  <li><a href="../modules/formatters.html">formatters</a></li>
-  <li><a href="../modules/intonation.html">intonation</a></li>
-  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><strong>lib.FilterGraph</strong></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
-  <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Class <code>FilterGraph</code></h1>
+<h1>Module <code>lib.FilterGraph</code></h1>
 <p>Filter graph drawing module.</p>
 <p>
  Subclass of Graph for drawing common filter graphs. Can draw approximations of low-pass, band-pass, notch and high-pass filters.
@@ -108,30 +99,30 @@
     </ul>
 
 
-<h2><a href="#Methods">Methods</a></h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#FilterGraph:new">FilterGraph:new (x_min, x_max, y_min, y_max, filter_type, slope, freq, resonance)</a></td>
+	<td class="name" nowrap><a href="#new">new (x_min, x_max, y_min, y_max, filter_type, slope, freq, resonance)</a></td>
 	<td class="summary">Create a new FilterGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#FilterGraph:edit">FilterGraph:edit (filter_type, slope, freq, resonance)</a></td>
+	<td class="name" nowrap><a href="#edit">edit (filter_type, slope, freq, resonance)</a></td>
 	<td class="summary">Edit a FilterGraph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#FilterGraph:filter_type">FilterGraph:filter_type ()</a></td>
+	<td class="name" nowrap><a href="#filter_type">filter_type ()</a></td>
 	<td class="summary">Get filter type string.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#FilterGraph:get_slope">FilterGraph:get_slope ()</a></td>
+	<td class="name" nowrap><a href="#get_slope">get_slope ()</a></td>
 	<td class="summary">Get slope value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#FilterGraph:get_freq">FilterGraph:get_freq ()</a></td>
+	<td class="name" nowrap><a href="#get_freq">get_freq ()</a></td>
 	<td class="summary">Get frequency value.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#FilterGraph:get_resonance">FilterGraph:get_resonance ()</a></td>
+	<td class="name" nowrap><a href="#get_resonance">get_resonance ()</a></td>
 	<td class="summary">Get resonance value.</td>
 	</tr>
 </table>
@@ -140,12 +131,12 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
-    <a name = "FilterGraph:new"></a>
-    <strong>FilterGraph:new (x_min, x_max, y_min, y_max, filter_type, slope, freq, resonance)</strong>
+    <a name = "new"></a>
+    <strong>new (x_min, x_max, y_min, y_max, filter_type, slope, freq, resonance)</strong>
     </dt>
     <dd>
     Create a new FilterGraph object.
@@ -191,7 +182,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/FilterGraph.html#">FilterGraph</a></span>
+           <span class="types"><span class="type">FilterGraph</span></span>
         Instance of FilterGraph.
     </ol>
 
@@ -200,8 +191,8 @@
 
 </dd>
     <dt>
-    <a name = "FilterGraph:edit"></a>
-    <strong>FilterGraph:edit (filter_type, slope, freq, resonance)</strong>
+    <a name = "edit"></a>
+    <strong>edit (filter_type, slope, freq, resonance)</strong>
     </dt>
     <dd>
     Edit a FilterGraph object.
@@ -234,8 +225,8 @@
 
 </dd>
     <dt>
-    <a name = "FilterGraph:filter_type"></a>
-    <strong>FilterGraph:filter_type ()</strong>
+    <a name = "filter_type"></a>
+    <strong>filter_type ()</strong>
     </dt>
     <dd>
     Get filter type string.
@@ -254,8 +245,8 @@
 
 </dd>
     <dt>
-    <a name = "FilterGraph:get_slope"></a>
-    <strong>FilterGraph:get_slope ()</strong>
+    <a name = "get_slope"></a>
+    <strong>get_slope ()</strong>
     </dt>
     <dd>
     Get slope value.
@@ -274,8 +265,8 @@
 
 </dd>
     <dt>
-    <a name = "FilterGraph:get_freq"></a>
-    <strong>FilterGraph:get_freq ()</strong>
+    <a name = "get_freq"></a>
+    <strong>get_freq ()</strong>
     </dt>
     <dd>
     Get frequency value.
@@ -294,8 +285,8 @@
 
 </dd>
     <dt>
-    <a name = "FilterGraph:get_resonance"></a>
-    <strong>FilterGraph:get_resonance ()</strong>
+    <a name = "get_resonance"></a>
+    <strong>get_resonance ()</strong>
     </dt>
     <dd>
     Get resonance value.
@@ -320,7 +311,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-01-11 12:00:15 </i>
+<i style="float:right;">Last updated 2021-01-11 14:37:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

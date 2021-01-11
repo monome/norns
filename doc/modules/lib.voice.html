@@ -32,21 +32,10 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Methods">Methods</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
 
 
-<h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
-  <li><a href="../classes/elca.html">elca</a></li>
-  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
-  <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/pattern.html">pattern</a></li>
-  <li><a href="../classes/UI.html">UI</a></li>
-  <li><strong>voice</strong></li>
-</ul>
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/arc.html">arc</a></li>
@@ -61,66 +50,68 @@
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/params.toggle.html">params.toggle</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
-  <li><a href="../modules/params.file.html">params.file</a></li>
-  <li><a href="../modules/params.group.html">params.group</a></li>
-  <li><a href="../modules/params.number.html">params.number</a></li>
-  <li><a href="../modules/params.option.html">params.option</a></li>
-  <li><a href="../modules/params.separator.html">params.separator</a></li>
-  <li><a href="../modules/params.taper.html">params.taper</a></li>
-  <li><a href="../modules/params.text.html">params.text</a></li>
-  <li><a href="../modules/params.trigger.html">params.trigger</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/crow.asl.html">crow.asl</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
-  <li><a href="../modules/er.html">er</a></li>
-  <li><a href="../modules/filters.html">filters</a></li>
-  <li><a href="../modules/formatters.html">formatters</a></li>
-  <li><a href="../modules/intonation.html">intonation</a></li>
-  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
-  <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><strong>lib.voice</strong></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Class <code>voice</code></h1>
+<h1>Module <code>lib.voice</code></h1>
 <p>experimental voice allocation module</p>
 <p></p>
 
 
-<h2><a href="#Methods">Methods</a></h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#voice:new">voice:new (polyphony, mode)</a></td>
+	<td class="name" nowrap><a href="#Voice.new">Voice.new (polyphony, mode)</a></td>
 	<td class="summary">create a new Voice</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#voice:get">voice:get ()</a></td>
+	<td class="name" nowrap><a href="#Voice:get">Voice:get ()</a></td>
 	<td class="summary">get next available voice Slot from pool, stealing an active slot if needed</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#voice:push">voice:push (key, slot)</a></td>
+	<td class="name" nowrap><a href="#Voice:push">Voice:push (key, slot)</a></td>
 	<td class="summary">push</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#voice:pop">voice:pop (key)</a></td>
+	<td class="name" nowrap><a href="#Voice:pop">Voice:pop (key)</a></td>
 	<td class="summary">pop</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#voice:release">voice:release (slot)</a></td>
+	<td class="name" nowrap><a href="#Voice:release">Voice:release (slot)</a></td>
 	<td class="summary">return voice slot to pool</td>
 	</tr>
 </table>
@@ -129,12 +120,12 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
-    <a name = "voice:new"></a>
-    <strong>voice:new (polyphony, mode)</strong>
+    <a name = "Voice.new"></a>
+    <strong>Voice.new (polyphony, mode)</strong>
     </dt>
     <dd>
     create a new Voice
@@ -164,8 +155,8 @@
 
 </dd>
     <dt>
-    <a name = "voice:get"></a>
-    <strong>voice:get ()</strong>
+    <a name = "Voice:get"></a>
+    <strong>Voice:get ()</strong>
     </dt>
     <dd>
     get next available voice Slot from pool, stealing an active slot if needed
@@ -178,8 +169,8 @@
 
 </dd>
     <dt>
-    <a name = "voice:push"></a>
-    <strong>voice:push (key, slot)</strong>
+    <a name = "Voice:push"></a>
+    <strong>Voice:push (key, slot)</strong>
     </dt>
     <dd>
     push
@@ -201,8 +192,8 @@
 
 </dd>
     <dt>
-    <a name = "voice:pop"></a>
-    <strong>voice:pop (key)</strong>
+    <a name = "Voice:pop"></a>
+    <strong>Voice:pop (key)</strong>
     </dt>
     <dd>
     pop
@@ -221,8 +212,8 @@
 
 </dd>
     <dt>
-    <a name = "voice:release"></a>
-    <strong>voice:release (slot)</strong>
+    <a name = "Voice:release"></a>
+    <strong>Voice:release (slot)</strong>
     </dt>
     <dd>
     return voice slot to pool
@@ -247,7 +238,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-01-11 12:00:15 </i>
+<i style="float:right;">Last updated 2021-01-11 14:37:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

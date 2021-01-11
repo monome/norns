@@ -32,21 +32,10 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Methods">Methods</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
 
 
-<h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
-  <li><a href="../classes/elca.html">elca</a></li>
-  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
-  <li><strong>Graph</strong></li>
-  <li><a href="../classes/pattern.html">pattern</a></li>
-  <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/voice.html">voice</a></li>
-</ul>
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/arc.html">arc</a></li>
@@ -61,42 +50,44 @@
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/params.toggle.html">params.toggle</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
-  <li><a href="../modules/params.file.html">params.file</a></li>
-  <li><a href="../modules/params.group.html">params.group</a></li>
-  <li><a href="../modules/params.number.html">params.number</a></li>
-  <li><a href="../modules/params.option.html">params.option</a></li>
-  <li><a href="../modules/params.separator.html">params.separator</a></li>
-  <li><a href="../modules/params.taper.html">params.taper</a></li>
-  <li><a href="../modules/params.text.html">params.text</a></li>
-  <li><a href="../modules/params.trigger.html">params.trigger</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/crow.asl.html">crow.asl</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
-  <li><a href="../modules/er.html">er</a></li>
-  <li><a href="../modules/filters.html">filters</a></li>
-  <li><a href="../modules/formatters.html">formatters</a></li>
-  <li><a href="../modules/intonation.html">intonation</a></li>
-  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><strong>lib.Graph</strong></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
-  <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Class <code>Graph</code></h1>
+<h1>Module <code>lib.Graph</code></h1>
 <p>Graph drawing module.</p>
 <p>
  Flexible graph drawing for waves, points, bars, etc.
@@ -108,190 +99,190 @@
     </ul>
 
 
-<h2><a href="#Methods">Methods</a></h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Graph:new">Graph:new (x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axis, show_y_axis)</a></td>
+	<td class="name" nowrap><a href="#new">new (x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axis, show_y_axis)</a></td>
 	<td class="summary">Create a new Graph object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_position_and_size">Graph:set_position_and_size (x, y, w, h)</a></td>
+	<td class="name" nowrap><a href="#set_position_and_size">set_position_and_size (x, y, w, h)</a></td>
 	<td class="summary">Set graph's position and size.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_x">Graph:get_x ()</a></td>
+	<td class="name" nowrap><a href="#get_x">get_x ()</a></td>
 	<td class="summary">Get graph's x position.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_x">Graph:set_x (x)</a></td>
+	<td class="name" nowrap><a href="#set_x">set_x (x)</a></td>
 	<td class="summary">Set graph's x position.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_y">Graph:get_y ()</a></td>
+	<td class="name" nowrap><a href="#get_y">get_y ()</a></td>
 	<td class="summary">Get graph's y position.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_y">Graph:set_y (y)</a></td>
+	<td class="name" nowrap><a href="#set_y">set_y (y)</a></td>
 	<td class="summary">Set graph's y position.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_width">Graph:get_width ()</a></td>
+	<td class="name" nowrap><a href="#get_width">get_width ()</a></td>
 	<td class="summary">Get graph's width.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_width">Graph:set_width (w)</a></td>
+	<td class="name" nowrap><a href="#set_width">set_width (w)</a></td>
 	<td class="summary">Set graph's width.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_height">Graph:get_height ()</a></td>
+	<td class="name" nowrap><a href="#get_height">get_height ()</a></td>
 	<td class="summary">Get graph's height.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_height">Graph:set_height (h)</a></td>
+	<td class="name" nowrap><a href="#set_height">set_height (h)</a></td>
 	<td class="summary">Set graph's height.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_x_min">Graph:get_x_min ()</a></td>
+	<td class="name" nowrap><a href="#get_x_min">get_x_min ()</a></td>
 	<td class="summary">Get minimum value of x axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_x_min">Graph:set_x_min (x_min)</a></td>
+	<td class="name" nowrap><a href="#set_x_min">set_x_min (x_min)</a></td>
 	<td class="summary">Set minimum value of x axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_x_max">Graph:get_x_max ()</a></td>
+	<td class="name" nowrap><a href="#get_x_max">get_x_max ()</a></td>
 	<td class="summary">Get maximum value of x axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_x_max">Graph:set_x_max (x_max)</a></td>
+	<td class="name" nowrap><a href="#set_x_max">set_x_max (x_max)</a></td>
 	<td class="summary">Set maximum value of x axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_x_warp">Graph:get_x_warp ()</a></td>
+	<td class="name" nowrap><a href="#get_x_warp">get_x_warp ()</a></td>
 	<td class="summary">Get x warp.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_x_warp">Graph:set_x_warp (warp)</a></td>
+	<td class="name" nowrap><a href="#set_x_warp">set_x_warp (warp)</a></td>
 	<td class="summary">Set x warp.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_y_min">Graph:get_y_min ()</a></td>
+	<td class="name" nowrap><a href="#get_y_min">get_y_min ()</a></td>
 	<td class="summary">Get minimum value of y axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_y_min">Graph:set_y_min (y_min)</a></td>
+	<td class="name" nowrap><a href="#set_y_min">set_y_min (y_min)</a></td>
 	<td class="summary">Set minimum value of y axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_y_max">Graph:get_y_max ()</a></td>
+	<td class="name" nowrap><a href="#get_y_max">get_y_max ()</a></td>
 	<td class="summary">Get maximum value of y axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_y_max">Graph:set_y_max (y_max)</a></td>
+	<td class="name" nowrap><a href="#set_y_max">set_y_max (y_max)</a></td>
 	<td class="summary">Set maximum value of y axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_y_warp">Graph:get_y_warp ()</a></td>
+	<td class="name" nowrap><a href="#get_y_warp">get_y_warp ()</a></td>
 	<td class="summary">Get y warp.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_y_warp">Graph:set_y_warp (warp)</a></td>
+	<td class="name" nowrap><a href="#set_y_warp">set_y_warp (warp)</a></td>
 	<td class="summary">Set y warp.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_style">Graph:get_style ()</a></td>
+	<td class="name" nowrap><a href="#get_style">get_style ()</a></td>
 	<td class="summary">Get style.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_style">Graph:set_style (style)</a></td>
+	<td class="name" nowrap><a href="#set_style">set_style (style)</a></td>
 	<td class="summary">Set style.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_show_x_axis">Graph:get_show_x_axis ()</a></td>
+	<td class="name" nowrap><a href="#get_show_x_axis">get_show_x_axis ()</a></td>
 	<td class="summary">Get show x axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_show_x_axis">Graph:set_show_x_axis (bool)</a></td>
+	<td class="name" nowrap><a href="#set_show_x_axis">set_show_x_axis (bool)</a></td>
 	<td class="summary">Set show x axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_show_y_axis">Graph:get_show_y_axis ()</a></td>
+	<td class="name" nowrap><a href="#get_show_y_axis">get_show_y_axis ()</a></td>
 	<td class="summary">Get show y axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_show_y_axis">Graph:set_show_y_axis (bool)</a></td>
+	<td class="name" nowrap><a href="#set_show_y_axis">set_show_y_axis (bool)</a></td>
 	<td class="summary">Set show y axis.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_active">Graph:get_active ()</a></td>
+	<td class="name" nowrap><a href="#get_active">get_active ()</a></td>
 	<td class="summary">Get active.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:set_active">Graph:set_active (bool)</a></td>
+	<td class="name" nowrap><a href="#set_active">set_active (bool)</a></td>
 	<td class="summary">Set active.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_point">Graph:get_point (index)</a></td>
+	<td class="name" nowrap><a href="#get_point">get_point (index)</a></td>
 	<td class="summary">Get point at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:add_point">Graph:add_point (px, py[, curve[, highlight[, index]]])</a></td>
+	<td class="name" nowrap><a href="#add_point">add_point (px, py[, curve[, highlight[, index]]])</a></td>
 	<td class="summary">Add a point to the graph.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:edit_point">Graph:edit_point (index[, px[, py[, curve[, highlight]]]])</a></td>
+	<td class="name" nowrap><a href="#edit_point">edit_point (index[, px[, py[, curve[, highlight]]]])</a></td>
 	<td class="summary">Edit point at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:remove_point">Graph:remove_point (index)</a></td>
+	<td class="name" nowrap><a href="#remove_point">remove_point (index)</a></td>
 	<td class="summary">Remove point at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:remove_all_points">Graph:remove_all_points ()</a></td>
+	<td class="name" nowrap><a href="#remove_all_points">remove_all_points ()</a></td>
 	<td class="summary">Remove all points.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:highlight_point">Graph:highlight_point (index)</a></td>
+	<td class="name" nowrap><a href="#highlight_point">highlight_point (index)</a></td>
 	<td class="summary">Highlight point at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:highlight_exclusive_point">Graph:highlight_exclusive_point (index)</a></td>
+	<td class="name" nowrap><a href="#highlight_exclusive_point">highlight_exclusive_point (index)</a></td>
 	<td class="summary">Highlight point at index exclusively.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:clear_highlight">Graph:clear_highlight (index)</a></td>
+	<td class="name" nowrap><a href="#clear_highlight">clear_highlight (index)</a></td>
 	<td class="summary">Clear highlight from point at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:clear_all_highlights">Graph:clear_all_highlights ()</a></td>
+	<td class="name" nowrap><a href="#clear_all_highlights">clear_all_highlights ()</a></td>
 	<td class="summary">Clear highlights from all points.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:get_function">Graph:get_function (index)</a></td>
+	<td class="name" nowrap><a href="#get_function">get_function (index)</a></td>
 	<td class="summary">Get function at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:add_function">Graph:add_function (func[, sample_quality[, index]])</a></td>
+	<td class="name" nowrap><a href="#add_function">add_function (func[, sample_quality[, index]])</a></td>
 	<td class="summary">Add a new y function to the graph.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:edit_function">Graph:edit_function (index, func[, sample_quality])</a></td>
+	<td class="name" nowrap><a href="#edit_function">edit_function (index, func[, sample_quality])</a></td>
 	<td class="summary">Edit function at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:update_functions">Graph:update_functions ()</a></td>
+	<td class="name" nowrap><a href="#update_functions">update_functions ()</a></td>
 	<td class="summary">Update all functions.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:remove_function">Graph:remove_function (index)</a></td>
+	<td class="name" nowrap><a href="#remove_function">remove_function (index)</a></td>
 	<td class="summary">Remove function at index.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:remove_all_functions">Graph:remove_all_functions ()</a></td>
+	<td class="name" nowrap><a href="#remove_all_functions">remove_all_functions ()</a></td>
 	<td class="summary">Remove all functions.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Graph:redraw">Graph:redraw ()</a></td>
+	<td class="name" nowrap><a href="#redraw">redraw ()</a></td>
 	<td class="summary">Redraw the graph.</td>
 	</tr>
 </table>
@@ -300,12 +291,12 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
-    <a name = "Graph:new"></a>
-    <strong>Graph:new (x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axis, show_y_axis)</strong>
+    <a name = "new"></a>
+    <strong>new (x_min, x_max, x_warp, y_min, y_max, y_warp, style, show_x_axis, show_y_axis)</strong>
     </dt>
     <dd>
     Create a new Graph object.
@@ -355,7 +346,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/Graph.html#">Graph</a></span>
+           <span class="types"><span class="type">Graph</span></span>
         Instance of Graph.
     </ol>
 
@@ -364,8 +355,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_position_and_size"></a>
-    <strong>Graph:set_position_and_size (x, y, w, h)</strong>
+    <a name = "set_position_and_size"></a>
+    <strong>set_position_and_size (x, y, w, h)</strong>
     </dt>
     <dd>
     Set graph's position and size.
@@ -398,8 +389,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_x"></a>
-    <strong>Graph:get_x ()</strong>
+    <a name = "get_x"></a>
+    <strong>get_x ()</strong>
     </dt>
     <dd>
     Get graph's x position.
@@ -418,8 +409,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_x"></a>
-    <strong>Graph:set_x (x)</strong>
+    <a name = "set_x"></a>
+    <strong>set_x (x)</strong>
     </dt>
     <dd>
     Set graph's x position.
@@ -439,8 +430,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_y"></a>
-    <strong>Graph:get_y ()</strong>
+    <a name = "get_y"></a>
+    <strong>get_y ()</strong>
     </dt>
     <dd>
     Get graph's y position.
@@ -459,8 +450,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_y"></a>
-    <strong>Graph:set_y (y)</strong>
+    <a name = "set_y"></a>
+    <strong>set_y (y)</strong>
     </dt>
     <dd>
     Set graph's y position.
@@ -480,8 +471,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_width"></a>
-    <strong>Graph:get_width ()</strong>
+    <a name = "get_width"></a>
+    <strong>get_width ()</strong>
     </dt>
     <dd>
     Get graph's width.
@@ -500,8 +491,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_width"></a>
-    <strong>Graph:set_width (w)</strong>
+    <a name = "set_width"></a>
+    <strong>set_width (w)</strong>
     </dt>
     <dd>
     Set graph's width.
@@ -521,8 +512,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_height"></a>
-    <strong>Graph:get_height ()</strong>
+    <a name = "get_height"></a>
+    <strong>get_height ()</strong>
     </dt>
     <dd>
     Get graph's height.
@@ -541,8 +532,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_height"></a>
-    <strong>Graph:set_height (h)</strong>
+    <a name = "set_height"></a>
+    <strong>set_height (h)</strong>
     </dt>
     <dd>
     Set graph's height.
@@ -562,8 +553,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_x_min"></a>
-    <strong>Graph:get_x_min ()</strong>
+    <a name = "get_x_min"></a>
+    <strong>get_x_min ()</strong>
     </dt>
     <dd>
     Get minimum value of x axis.
@@ -582,8 +573,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_x_min"></a>
-    <strong>Graph:set_x_min (x_min)</strong>
+    <a name = "set_x_min"></a>
+    <strong>set_x_min (x_min)</strong>
     </dt>
     <dd>
     Set minimum value of x axis.
@@ -603,8 +594,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_x_max"></a>
-    <strong>Graph:get_x_max ()</strong>
+    <a name = "get_x_max"></a>
+    <strong>get_x_max ()</strong>
     </dt>
     <dd>
     Get maximum value of x axis.
@@ -623,8 +614,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_x_max"></a>
-    <strong>Graph:set_x_max (x_max)</strong>
+    <a name = "set_x_max"></a>
+    <strong>set_x_max (x_max)</strong>
     </dt>
     <dd>
     Set maximum value of x axis.
@@ -644,8 +635,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_x_warp"></a>
-    <strong>Graph:get_x_warp ()</strong>
+    <a name = "get_x_warp"></a>
+    <strong>get_x_warp ()</strong>
     </dt>
     <dd>
     Get x warp.
@@ -664,8 +655,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_x_warp"></a>
-    <strong>Graph:set_x_warp (warp)</strong>
+    <a name = "set_x_warp"></a>
+    <strong>set_x_warp (warp)</strong>
     </dt>
     <dd>
     Set x warp.
@@ -685,8 +676,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_y_min"></a>
-    <strong>Graph:get_y_min ()</strong>
+    <a name = "get_y_min"></a>
+    <strong>get_y_min ()</strong>
     </dt>
     <dd>
     Get minimum value of y axis.
@@ -705,8 +696,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_y_min"></a>
-    <strong>Graph:set_y_min (y_min)</strong>
+    <a name = "set_y_min"></a>
+    <strong>set_y_min (y_min)</strong>
     </dt>
     <dd>
     Set minimum value of y axis.
@@ -726,8 +717,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_y_max"></a>
-    <strong>Graph:get_y_max ()</strong>
+    <a name = "get_y_max"></a>
+    <strong>get_y_max ()</strong>
     </dt>
     <dd>
     Get maximum value of y axis.
@@ -746,8 +737,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_y_max"></a>
-    <strong>Graph:set_y_max (y_max)</strong>
+    <a name = "set_y_max"></a>
+    <strong>set_y_max (y_max)</strong>
     </dt>
     <dd>
     Set maximum value of y axis.
@@ -767,8 +758,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_y_warp"></a>
-    <strong>Graph:get_y_warp ()</strong>
+    <a name = "get_y_warp"></a>
+    <strong>get_y_warp ()</strong>
     </dt>
     <dd>
     Get y warp.
@@ -787,8 +778,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_y_warp"></a>
-    <strong>Graph:set_y_warp (warp)</strong>
+    <a name = "set_y_warp"></a>
+    <strong>set_y_warp (warp)</strong>
     </dt>
     <dd>
     Set y warp.
@@ -808,8 +799,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_style"></a>
-    <strong>Graph:get_style ()</strong>
+    <a name = "get_style"></a>
+    <strong>get_style ()</strong>
     </dt>
     <dd>
     Get style.
@@ -828,8 +819,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_style"></a>
-    <strong>Graph:set_style (style)</strong>
+    <a name = "set_style"></a>
+    <strong>set_style (style)</strong>
     </dt>
     <dd>
     Set style.
@@ -849,8 +840,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_show_x_axis"></a>
-    <strong>Graph:get_show_x_axis ()</strong>
+    <a name = "get_show_x_axis"></a>
+    <strong>get_show_x_axis ()</strong>
     </dt>
     <dd>
     Get show x axis.
@@ -869,8 +860,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_show_x_axis"></a>
-    <strong>Graph:set_show_x_axis (bool)</strong>
+    <a name = "set_show_x_axis"></a>
+    <strong>set_show_x_axis (bool)</strong>
     </dt>
     <dd>
     Set show x axis.
@@ -890,8 +881,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_show_y_axis"></a>
-    <strong>Graph:get_show_y_axis ()</strong>
+    <a name = "get_show_y_axis"></a>
+    <strong>get_show_y_axis ()</strong>
     </dt>
     <dd>
     Get show y axis.
@@ -909,8 +900,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_show_y_axis"></a>
-    <strong>Graph:set_show_y_axis (bool)</strong>
+    <a name = "set_show_y_axis"></a>
+    <strong>set_show_y_axis (bool)</strong>
     </dt>
     <dd>
     Set show y axis.
@@ -930,8 +921,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_active"></a>
-    <strong>Graph:get_active ()</strong>
+    <a name = "get_active"></a>
+    <strong>get_active ()</strong>
     </dt>
     <dd>
     Get active.
@@ -950,8 +941,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:set_active"></a>
-    <strong>Graph:set_active (bool)</strong>
+    <a name = "set_active"></a>
+    <strong>set_active (bool)</strong>
     </dt>
     <dd>
     Set active.
@@ -971,8 +962,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_point"></a>
-    <strong>Graph:get_point (index)</strong>
+    <a name = "get_point"></a>
+    <strong>get_point (index)</strong>
     </dt>
     <dd>
     Get point at index.
@@ -997,8 +988,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:add_point"></a>
-    <strong>Graph:add_point (px, py[, curve[, highlight[, index]]])</strong>
+    <a name = "add_point"></a>
+    <strong>add_point (px, py[, curve[, highlight[, index]]])</strong>
     </dt>
     <dd>
     Add a point to the graph.
@@ -1037,8 +1028,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:edit_point"></a>
-    <strong>Graph:edit_point (index[, px[, py[, curve[, highlight]]]])</strong>
+    <a name = "edit_point"></a>
+    <strong>edit_point (index[, px[, py[, curve[, highlight]]]])</strong>
     </dt>
     <dd>
     Edit point at index.
@@ -1078,8 +1069,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:remove_point"></a>
-    <strong>Graph:remove_point (index)</strong>
+    <a name = "remove_point"></a>
+    <strong>remove_point (index)</strong>
     </dt>
     <dd>
     Remove point at index.
@@ -1099,8 +1090,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:remove_all_points"></a>
-    <strong>Graph:remove_all_points ()</strong>
+    <a name = "remove_all_points"></a>
+    <strong>remove_all_points ()</strong>
     </dt>
     <dd>
     Remove all points.
@@ -1113,8 +1104,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:highlight_point"></a>
-    <strong>Graph:highlight_point (index)</strong>
+    <a name = "highlight_point"></a>
+    <strong>highlight_point (index)</strong>
     </dt>
     <dd>
     Highlight point at index.
@@ -1133,8 +1124,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:highlight_exclusive_point"></a>
-    <strong>Graph:highlight_exclusive_point (index)</strong>
+    <a name = "highlight_exclusive_point"></a>
+    <strong>highlight_exclusive_point (index)</strong>
     </dt>
     <dd>
     Highlight point at index exclusively.
@@ -1154,8 +1145,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:clear_highlight"></a>
-    <strong>Graph:clear_highlight (index)</strong>
+    <a name = "clear_highlight"></a>
+    <strong>clear_highlight (index)</strong>
     </dt>
     <dd>
     Clear highlight from point at index.
@@ -1174,8 +1165,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:clear_all_highlights"></a>
-    <strong>Graph:clear_all_highlights ()</strong>
+    <a name = "clear_all_highlights"></a>
+    <strong>clear_all_highlights ()</strong>
     </dt>
     <dd>
     Clear highlights from all points.
@@ -1188,8 +1179,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:get_function"></a>
-    <strong>Graph:get_function (index)</strong>
+    <a name = "get_function"></a>
+    <strong>get_function (index)</strong>
     </dt>
     <dd>
     Get function at index.
@@ -1214,8 +1205,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:add_function"></a>
-    <strong>Graph:add_function (func[, sample_quality[, index]])</strong>
+    <a name = "add_function"></a>
+    <strong>add_function (func[, sample_quality[, index]])</strong>
     </dt>
     <dd>
     Add a new y function to the graph.
@@ -1245,8 +1236,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:edit_function"></a>
-    <strong>Graph:edit_function (index, func[, sample_quality])</strong>
+    <a name = "edit_function"></a>
+    <strong>edit_function (index, func[, sample_quality])</strong>
     </dt>
     <dd>
     Edit function at index.
@@ -1274,8 +1265,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:update_functions"></a>
-    <strong>Graph:update_functions ()</strong>
+    <a name = "update_functions"></a>
+    <strong>update_functions ()</strong>
     </dt>
     <dd>
     Update all functions.
@@ -1289,8 +1280,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:remove_function"></a>
-    <strong>Graph:remove_function (index)</strong>
+    <a name = "remove_function"></a>
+    <strong>remove_function (index)</strong>
     </dt>
     <dd>
     Remove function at index.
@@ -1310,8 +1301,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:remove_all_functions"></a>
-    <strong>Graph:remove_all_functions ()</strong>
+    <a name = "remove_all_functions"></a>
+    <strong>remove_all_functions ()</strong>
     </dt>
     <dd>
     Remove all functions.
@@ -1324,8 +1315,8 @@
 
 </dd>
     <dt>
-    <a name = "Graph:redraw"></a>
-    <strong>Graph:redraw ()</strong>
+    <a name = "redraw"></a>
+    <strong>redraw ()</strong>
     </dt>
     <dd>
     Redraw the graph.
@@ -1345,7 +1336,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-01-11 12:00:15 </i>
+<i style="float:right;">Last updated 2021-01-11 14:37:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

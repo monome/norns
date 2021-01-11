@@ -32,21 +32,10 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Methods">Methods</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
 
 
-<h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
-  <li><strong>elca</strong></li>
-  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
-  <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/pattern.html">pattern</a></li>
-  <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/voice.html">voice</a></li>
-</ul>
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/arc.html">arc</a></li>
@@ -61,75 +50,77 @@
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/params.toggle.html">params.toggle</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
-  <li><a href="../modules/params.file.html">params.file</a></li>
-  <li><a href="../modules/params.group.html">params.group</a></li>
-  <li><a href="../modules/params.number.html">params.number</a></li>
-  <li><a href="../modules/params.option.html">params.option</a></li>
-  <li><a href="../modules/params.separator.html">params.separator</a></li>
-  <li><a href="../modules/params.taper.html">params.taper</a></li>
-  <li><a href="../modules/params.text.html">params.text</a></li>
-  <li><a href="../modules/params.trigger.html">params.trigger</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/crow.asl.html">crow.asl</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
-  <li><a href="../modules/er.html">er</a></li>
-  <li><a href="../modules/filters.html">filters</a></li>
-  <li><a href="../modules/formatters.html">formatters</a></li>
-  <li><a href="../modules/intonation.html">intonation</a></li>
-  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><strong>lib.elca</strong></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
-  <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Class <code>elca</code></h1>
+<h1>Module <code>lib.elca</code></h1>
 <p>elementary cellular automata</p>
 <p></p>
 
 
-<h2><a href="#Methods">Methods</a></h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#elca:new">elca:new ()</a></td>
+	<td class="name" nowrap><a href="#CA.new">CA.new ()</a></td>
 	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#elca:update">elca:update ()</a></td>
+	<td class="name" nowrap><a href="#CA:update">CA:update ()</a></td>
 	<td class="summary">update all state</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#elca:neighbors">elca:neighbors (i)</a></td>
+	<td class="name" nowrap><a href="#CA:neighbors">CA:neighbors (i)</a></td>
 	<td class="summary">helper: return three values to use for neighbor code</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#elca:code">elca:code (l, c, r)</a></td>
+	<td class="name" nowrap><a href="#CA.code">CA.code (l, c, r)</a></td>
 	<td class="summary">get binary code for value given cell and neighbors</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#elca:window">elca:window (n)</a></td>
+	<td class="name" nowrap><a href="#CA:window">CA:window (n)</a></td>
 	<td class="summary">return 8 cells at current offset</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#elca:set_rule_by_state">elca:set_rule_by_state (val, l, c, r)</a></td>
+	<td class="name" nowrap><a href="#CA:set_rule_by_state">CA:set_rule_by_state (val, l, c, r)</a></td>
 	<td class="summary">change current state at index,
  and update the rule to that which would have produced the new state</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#elca:clear">elca:clear ()</a></td>
+	<td class="name" nowrap><a href="#CA:clear">CA:clear ()</a></td>
 	<td class="summary">clear all states</td>
 	</tr>
 </table>
@@ -138,12 +129,12 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
-    <a name = "elca:new"></a>
-    <strong>elca:new ()</strong>
+    <a name = "CA.new"></a>
+    <strong>CA.new ()</strong>
     </dt>
     <dd>
     constructor
@@ -153,7 +144,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/elca.html#">elca</a></span>
+           <span class="types"><span class="type">elca</span></span>
 
     </ol>
 
@@ -162,8 +153,8 @@
 
 </dd>
     <dt>
-    <a name = "elca:update"></a>
-    <strong>elca:update ()</strong>
+    <a name = "CA:update"></a>
+    <strong>CA:update ()</strong>
     </dt>
     <dd>
     update all state
@@ -176,8 +167,8 @@
 
 </dd>
     <dt>
-    <a name = "elca:neighbors"></a>
-    <strong>elca:neighbors (i)</strong>
+    <a name = "CA:neighbors"></a>
+    <strong>CA:neighbors (i)</strong>
     </dt>
     <dd>
     helper: return three values to use for neighbor code
@@ -202,8 +193,8 @@
 
 </dd>
     <dt>
-    <a name = "elca:code"></a>
-    <strong>elca:code (l, c, r)</strong>
+    <a name = "CA.code"></a>
+    <strong>CA.code (l, c, r)</strong>
     </dt>
     <dd>
     get binary code for value given cell and neighbors
@@ -231,8 +222,8 @@
 
 </dd>
     <dt>
-    <a name = "elca:window"></a>
-    <strong>elca:window (n)</strong>
+    <a name = "CA:window"></a>
+    <strong>CA:window (n)</strong>
     </dt>
     <dd>
     return 8 cells at current offset
@@ -258,8 +249,8 @@
 
 </dd>
     <dt>
-    <a name = "elca:set_rule_by_state"></a>
-    <strong>elca:set_rule_by_state (val, l, c, r)</strong>
+    <a name = "CA:set_rule_by_state"></a>
+    <strong>CA:set_rule_by_state (val, l, c, r)</strong>
     </dt>
     <dd>
     change current state at index,
@@ -288,8 +279,8 @@
 
 </dd>
     <dt>
-    <a name = "elca:clear"></a>
-    <strong>elca:clear ()</strong>
+    <a name = "CA:clear"></a>
+    <strong>CA:clear ()</strong>
     </dt>
     <dd>
     clear all states
@@ -308,7 +299,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-01-11 12:00:15 </i>
+<i style="float:right;">Last updated 2021-01-11 14:37:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

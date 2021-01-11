@@ -50,53 +50,44 @@
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
-  <li><a href="../modules/params.toggle.html">params.toggle</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
-  <li><a href="../modules/params.file.html">params.file</a></li>
-  <li><a href="../modules/params.group.html">params.group</a></li>
-  <li><a href="../modules/params.number.html">params.number</a></li>
-  <li><a href="../modules/params.option.html">params.option</a></li>
-  <li><a href="../modules/params.separator.html">params.separator</a></li>
-  <li><a href="../modules/params.taper.html">params.taper</a></li>
-  <li><a href="../modules/params.text.html">params.text</a></li>
-  <li><a href="../modules/params.trigger.html">params.trigger</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/crow.asl.html">crow.asl</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
-  <li><a href="../modules/er.html">er</a></li>
-  <li><a href="../modules/filters.html">filters</a></li>
-  <li><strong>formatters</strong></li>
-  <li><a href="../modules/intonation.html">intonation</a></li>
-  <li><a href="../modules/MusicUtil.html">MusicUtil</a></li>
-  <li><a href="../modules/tabutil.html">tabutil</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><strong>lib.formatters</strong></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
-  <li><a href="../modules/util.html">util</a></li>
-</ul>
-<h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/BeatClock.html">BeatClock</a></li>
-  <li><a href="../classes/elca.html">elca</a></li>
-  <li><a href="../classes/EnvGraph.html">EnvGraph</a></li>
-  <li><a href="../classes/FilterGraph.html">FilterGraph</a></li>
-  <li><a href="../classes/Graph.html">Graph</a></li>
-  <li><a href="../classes/pattern.html">pattern</a></li>
-  <li><a href="../classes/UI.html">UI</a></li>
-  <li><a href="../classes/voice.html">voice</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>formatters</code></h1>
+<h1>Module <code>lib.formatters</code></h1>
 <p>Formatters</p>
 <p></p>
 
@@ -104,59 +95,59 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#format_freq_raw">format_freq_raw (freq)</a></td>
+	<td class="name" nowrap><a href="#Formatters.format_freq_raw">Formatters.format_freq_raw (freq)</a></td>
 	<td class="summary">format_freq_raw</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#format_secs_raw">format_secs_raw (secs)</a></td>
+	<td class="name" nowrap><a href="#Formatters.format_secs_raw">Formatters.format_secs_raw (secs)</a></td>
 	<td class="summary">format_secs_raw</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#default">default (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.default">Formatters.default (param)</a></td>
 	<td class="summary">default</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#percentage">percentage (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.percentage">Formatters.percentage (param)</a></td>
 	<td class="summary">percentage</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unipolar_as_percentage">unipolar_as_percentage (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.unipolar_as_percentage">Formatters.unipolar_as_percentage (param)</a></td>
 	<td class="summary">unipolar_as_percentage</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#bipolar_as_percentage">bipolar_as_percentage (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.bipolar_as_percentage">Formatters.bipolar_as_percentage (param)</a></td>
 	<td class="summary">bipolar_as_percentage</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#secs_as_ms">secs_as_ms (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.secs_as_ms">Formatters.secs_as_ms (param)</a></td>
 	<td class="summary">secs_as_ms</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unipolar_as_true_false">unipolar_as_true_false (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.unipolar_as_true_false">Formatters.unipolar_as_true_false (param)</a></td>
 	<td class="summary">unipolar_as_true_false</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unipolar_as_enabled_disabled">unipolar_as_enabled_disabled (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.unipolar_as_enabled_disabled">Formatters.unipolar_as_enabled_disabled (param)</a></td>
 	<td class="summary">unipolar_as_enabled_disabled</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#bipolar_as_pan_widget">bipolar_as_pan_widget (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.bipolar_as_pan_widget">Formatters.bipolar_as_pan_widget (param)</a></td>
 	<td class="summary">bipolar_as_pan_widget</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unipolar_as_multimode_filter_freq">unipolar_as_multimode_filter_freq (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.unipolar_as_multimode_filter_freq">Formatters.unipolar_as_multimode_filter_freq (param)</a></td>
 	<td class="summary">unipolar_as_multimode_filter_freq</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#round">round (precision)</a></td>
+	<td class="name" nowrap><a href="#Formatters.round">Formatters.round (precision)</a></td>
 	<td class="summary">round</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#format_freq">format_freq (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.format_freq">Formatters.format_freq (param)</a></td>
 	<td class="summary">format_freq</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#format_secs">format_secs (param)</a></td>
+	<td class="name" nowrap><a href="#Formatters.format_secs">Formatters.format_secs (param)</a></td>
 	<td class="summary">format_secs</td>
 	</tr>
 </table>
@@ -169,8 +160,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "format_freq_raw"></a>
-    <strong>format_freq_raw (freq)</strong>
+    <a name = "Formatters.format_freq_raw"></a>
+    <strong>Formatters.format_freq_raw (freq)</strong>
     </dt>
     <dd>
     format_freq_raw
@@ -189,8 +180,8 @@
 
 </dd>
     <dt>
-    <a name = "format_secs_raw"></a>
-    <strong>format_secs_raw (secs)</strong>
+    <a name = "Formatters.format_secs_raw"></a>
+    <strong>Formatters.format_secs_raw (secs)</strong>
     </dt>
     <dd>
     format_secs_raw
@@ -209,8 +200,8 @@
 
 </dd>
     <dt>
-    <a name = "default"></a>
-    <strong>default (param)</strong>
+    <a name = "Formatters.default"></a>
+    <strong>Formatters.default (param)</strong>
     </dt>
     <dd>
     default
@@ -229,8 +220,8 @@
 
 </dd>
     <dt>
-    <a name = "percentage"></a>
-    <strong>percentage (param)</strong>
+    <a name = "Formatters.percentage"></a>
+    <strong>Formatters.percentage (param)</strong>
     </dt>
     <dd>
     percentage
@@ -249,8 +240,8 @@
 
 </dd>
     <dt>
-    <a name = "unipolar_as_percentage"></a>
-    <strong>unipolar_as_percentage (param)</strong>
+    <a name = "Formatters.unipolar_as_percentage"></a>
+    <strong>Formatters.unipolar_as_percentage (param)</strong>
     </dt>
     <dd>
     unipolar_as_percentage
@@ -269,8 +260,8 @@
 
 </dd>
     <dt>
-    <a name = "bipolar_as_percentage"></a>
-    <strong>bipolar_as_percentage (param)</strong>
+    <a name = "Formatters.bipolar_as_percentage"></a>
+    <strong>Formatters.bipolar_as_percentage (param)</strong>
     </dt>
     <dd>
     bipolar_as_percentage
@@ -289,8 +280,8 @@
 
 </dd>
     <dt>
-    <a name = "secs_as_ms"></a>
-    <strong>secs_as_ms (param)</strong>
+    <a name = "Formatters.secs_as_ms"></a>
+    <strong>Formatters.secs_as_ms (param)</strong>
     </dt>
     <dd>
     secs_as_ms
@@ -309,8 +300,8 @@
 
 </dd>
     <dt>
-    <a name = "unipolar_as_true_false"></a>
-    <strong>unipolar_as_true_false (param)</strong>
+    <a name = "Formatters.unipolar_as_true_false"></a>
+    <strong>Formatters.unipolar_as_true_false (param)</strong>
     </dt>
     <dd>
     unipolar_as_true_false
@@ -329,8 +320,8 @@
 
 </dd>
     <dt>
-    <a name = "unipolar_as_enabled_disabled"></a>
-    <strong>unipolar_as_enabled_disabled (param)</strong>
+    <a name = "Formatters.unipolar_as_enabled_disabled"></a>
+    <strong>Formatters.unipolar_as_enabled_disabled (param)</strong>
     </dt>
     <dd>
     unipolar_as_enabled_disabled
@@ -349,8 +340,8 @@
 
 </dd>
     <dt>
-    <a name = "bipolar_as_pan_widget"></a>
-    <strong>bipolar_as_pan_widget (param)</strong>
+    <a name = "Formatters.bipolar_as_pan_widget"></a>
+    <strong>Formatters.bipolar_as_pan_widget (param)</strong>
     </dt>
     <dd>
     bipolar_as_pan_widget
@@ -369,8 +360,8 @@
 
 </dd>
     <dt>
-    <a name = "unipolar_as_multimode_filter_freq"></a>
-    <strong>unipolar_as_multimode_filter_freq (param)</strong>
+    <a name = "Formatters.unipolar_as_multimode_filter_freq"></a>
+    <strong>Formatters.unipolar_as_multimode_filter_freq (param)</strong>
     </dt>
     <dd>
     unipolar_as_multimode_filter_freq
@@ -389,8 +380,8 @@
 
 </dd>
     <dt>
-    <a name = "round"></a>
-    <strong>round (precision)</strong>
+    <a name = "Formatters.round"></a>
+    <strong>Formatters.round (precision)</strong>
     </dt>
     <dd>
     round
@@ -409,8 +400,8 @@
 
 </dd>
     <dt>
-    <a name = "format_freq"></a>
-    <strong>format_freq (param)</strong>
+    <a name = "Formatters.format_freq"></a>
+    <strong>Formatters.format_freq (param)</strong>
     </dt>
     <dd>
     format_freq
@@ -429,8 +420,8 @@
 
 </dd>
     <dt>
-    <a name = "format_secs"></a>
-    <strong>format_secs (param)</strong>
+    <a name = "Formatters.format_secs"></a>
+    <strong>Formatters.format_secs (param)</strong>
     </dt>
     <dd>
     format_secs
@@ -455,7 +446,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-01-11 12:00:15 </i>
+<i style="float:right;">Last updated 2021-01-11 14:37:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
