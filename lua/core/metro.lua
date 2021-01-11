@@ -1,6 +1,5 @@
 --- high-resolution metro API
--- @classmod metro
--- @alias Metro_mt
+-- @module metro
 
 local Metro = {}
 Metro.__index = Metro
@@ -159,10 +158,7 @@ end
 
 
 
---- Global Functions
--- @section globals
-
---- callback on metro tick from C.
+-- callback on metro tick from C.
 _norns.metro = function(idx, stage)
   if Metro.metros[idx] then
     if Metro.metros[idx].event then

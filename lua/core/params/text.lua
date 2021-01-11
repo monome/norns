@@ -1,5 +1,5 @@
 -- Text class
--- @module Text
+-- @module params.text
 
 local Text = {}
 Text.__index = Text

@@ -1,5 +1,5 @@
---- Encoders class
--- @classmod encoders
+--- encoders
+-- @module encoders
 
 local encoders = {}
 

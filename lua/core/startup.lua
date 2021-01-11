@@ -19,6 +19,7 @@ metro = require 'core/metro'
 clock = require "core/clock"
 midi = require 'core/midi'
 osc = require 'core/osc'
+keyboard = require 'core/keyboard'
 poll = require 'core/poll'
 engine = tab.readonly{table = require 'core/engine', except = {'name'}}
 softcut = require 'core/softcut'

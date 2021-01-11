@@ -1,6 +1,5 @@
 --- osc device
--- @classmod osc
--- @alias OSC
+-- @module osc
 
 local tab = require 'tabutil'
 local paramset = require 'core/paramset'
@@ -32,7 +31,8 @@ function OSC.send(to, path, args)
   end
 end
 
---- static method to send osc event directly to sclang.
+-- FIXME: does this go to crone or sclang?
+-- static method to send osc event directly to sclang.
 -- @tparam string path : osc message path
 -- @tparam string args : osc message args
 function OSC.send_crone(path, args)

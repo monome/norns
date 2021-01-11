@@ -1,6 +1,6 @@
 -- Taper class
 -- non-linear parameter using @catfact's taper function
--- @classmod taper
+-- @module params.taper
 
 local util = require 'util'
 

@@ -1,16 +1,15 @@
 --- Poll class;
 -- API for receiving values from audio system.
--- @classmod poll
--- @alias Poll
+-- @module poll
 
 local tab = require 'tabutil'
 
 local Poll = {}
 Poll.__index = Poll
 
---- poll objects (index by name)
+-- poll objects (index by name)
 Poll.polls = {}
---- poll names (indexed by int) - for reverse lookup
+-- poll names (indexed by int) - for reverse lookup
 Poll.poll_names = {}
 
 -- constructor.
@@ -97,7 +96,7 @@ end
 --- Static Methods
 -- @section static
 
---- called with OSC data from norns callback to register all available polls.
+-- called with OSC data from norns callback to register all available polls.
 -- @param data - table from OSC; each entry is { id (int), name (string) }
 -- @tparam integer count - size of table
 Poll.register = function(data, count)
@@ -121,7 +120,7 @@ Poll.list_names = function()
   for _,n in ipairs(names) do print(n) end
 end
 
---- set callback function for registered Poll object by name.
+-- set callback function for registered Poll object by name.
 -- @tparam string name
 -- @param callback function to call with value on each poll
 Poll.set = function(name, callback)
@@ -132,7 +131,7 @@ Poll.set = function(name, callback)
   return p
 end
 
---- stop all polls.
+-- stop all polls.
 Poll.clear_all = function()
    for _,p in pairs(Poll.polls) do
       p:stop()

@@ -1,6 +1,5 @@
 --- Script class
--- @classmod script
--- @alias Script
+-- @module script
 
 local Script = {}
 
@@ -61,6 +60,9 @@ Script.clear = function()
 
   -- clear crow functions
   crow.init()
+
+  -- clear keyboard handlers
+  keyboard.clear()
 
   -- clear last run
   norns.state.script = ''

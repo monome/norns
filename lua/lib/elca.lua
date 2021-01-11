@@ -1,6 +1,5 @@
 --- elementary cellular automata
--- @classmod elca
--- @alias CA
+-- @module lib.elca
 
 local CA = {}
 

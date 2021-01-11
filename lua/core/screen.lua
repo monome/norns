@@ -1,7 +1,7 @@
 --- Screen class
 -- subset of cairo drawing functions. see https://www.cairographics.org/tutorial/
--- @classmod screen
--- @alias Screen
+-- @module screen
+
 local Screen = {}
 
 local metro = require 'core/metro'

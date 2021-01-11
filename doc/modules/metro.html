@@ -5,10 +5,276 @@
 <head>
     <title>norns/docs</title>
     <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
-
-  <script>
-    window.location.href = window.location.pathname.split('/modules/').join('/classes/');
-  </script>
 </head>
 <body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><strong>metro</strong></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>metro</code></h1>
+<p>high-resolution metro API</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Metro.init">Metro.init (arg, arg_time, arg_count)</a></td>
+	<td class="summary">initialize a metro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro.free">Metro.free (id)</a></td>
+	<td class="summary">free</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro.free_all">Metro.free_all ()</a></td>
+	<td class="summary">free all</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro.new">Metro.new (id)</a></td>
+	<td class="summary">constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro:start">Metro:start ([time[, count[, stage]]])</a></td>
+	<td class="summary">start a metro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Metro:stop">Metro:stop ()</a></td>
+	<td class="summary">stop a metro.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Metro.init"></a>
+    <strong>Metro.init (arg, arg_time, arg_count)</strong>
+    </dt>
+    <dd>
+    initialize a metro.
+ assigns unused id.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">arg</span>
+            <span class="types"><span class="type">function</span></span>
+         callback function
+        </li>
+        <li><span class="parameter">arg_time</span>
+            <span class="types"><span class="type">number</span></span>
+         time period between ticks (seconds).
+        </li>
+        <li><span class="parameter">arg_count</span>
+            <span class="types"><span class="type">number</span></span>
+         number of ticks. infinite by default.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro.free"></a>
+    <strong>Metro.free (id)</strong>
+    </dt>
+    <dd>
+    free
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro.free_all"></a>
+    <strong>Metro.free_all ()</strong>
+    </dt>
+    <dd>
+    free all
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro.new"></a>
+    <strong>Metro.new (id)</strong>
+    </dt>
+    <dd>
+    constructor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : identifier
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Metro</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro:start"></a>
+    <strong>Metro:start ([time[, count[, stage]]])</strong>
+    </dt>
+    <dd>
+    start a metro.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
+         - time period between ticks (seconds.) by default, re-use the last period
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">number</span></span>
+         - number of ticks. infinite by default
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">stage</span>
+            <span class="types"><span class="type">number</span></span>
+         - initial stage number (1-based.) 1 by default
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Metro:stop"></a>
+    <strong>Metro:stop ()</strong>
+    </dt>
+    <dd>
+    stop a metro.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-01-11 14:46:20 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
 </body>
+</html>

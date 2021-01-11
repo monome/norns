@@ -1,5 +1,5 @@
 -- Option class
--- @module option
+-- @module params.option
 
 local tab = require 'tabutil'
 

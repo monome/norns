@@ -1,5 +1,5 @@
 --- table utility
--- @module tabutil
+-- @module lib.tabutil
 -- @alias tab
 
 local tab = {}
@@ -46,7 +46,7 @@ end
 --- "invert" it so that values become keys and vice versa.
 --- this allows more efficient checks on multiple values
 -- @param t: a simple table
-function tab.invert(t)
+tab.invert = function(t)
   local inv = {}
   for k,v in pairs(t) do
     inv[v] = k

@@ -5,10 +5,309 @@
 <head>
     <title>norns/docs</title>
     <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
-
-  <script>
-    window.location.href = window.location.pathname.split('/modules/').join('/classes/');
-  </script>
 </head>
 <body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><strong>grid</strong></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>grid</code></h1>
+<p>Grid class</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Grid.add">Grid.add (dev)</a></td>
+	<td class="summary">static callback when any grid device is added;
+ user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Grid.remove">Grid.remove (dev)</a></td>
+	<td class="summary">static callback when any grid device is removed;
+ user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Grid:led">Grid:led (x, y, val)</a></td>
+	<td class="summary">set state of single LED on this grid device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Grid:all">Grid:all (val)</a></td>
+	<td class="summary">set state of all LEDs on this grid device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Grid:refresh">Grid:refresh ()</a></td>
+	<td class="summary">update any dirty quads on this grid device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Grid:intensity">Grid:intensity (i)</a></td>
+	<td class="summary">intensity</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Grid.connect">Grid.connect (n)</a></td>
+	<td class="summary">create device, returns object with handler and send.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Grid.cleanup">Grid.cleanup ()</a></td>
+	<td class="summary">clear handlers.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Grid.add"></a>
+    <strong>Grid.add (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any grid device is added;
+ user scripts can redefine
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Grid table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Grid.remove"></a>
+    <strong>Grid.remove (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any grid device is removed;
+ user scripts can redefine
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Grid table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Grid:led"></a>
+    <strong>Grid:led (x, y, val)</strong>
+    </dt>
+    <dd>
+    set state of single LED on this grid device.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">integer</span></span>
+         : column index (1-based!)
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">integer</span></span>
+         : row index (1-based!)
+        </li>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [0, 15]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Grid:all"></a>
+    <strong>Grid:all (val)</strong>
+    </dt>
+    <dd>
+    set state of all LEDs on this grid device.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : LED brightness in [0, 15]
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Grid:refresh"></a>
+    <strong>Grid:refresh ()</strong>
+    </dt>
+    <dd>
+    update any dirty quads on this grid device.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Grid:intensity"></a>
+    <strong>Grid:intensity (i)</strong>
+    </dt>
+    <dd>
+    intensity
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Grid.connect"></a>
+    <strong>Grid.connect (n)</strong>
+    </dt>
+    <dd>
+    create device, returns object with handler and send.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">integer</span></span>
+         : vport index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Grid.cleanup"></a>
+    <strong>Grid.cleanup ()</strong>
+    </dt>
+    <dd>
+    clear handlers.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-01-11 14:46:20 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
 </body>
+</html>

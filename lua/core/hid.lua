@@ -1,9 +1,5 @@
 --- Hid class
--- @classmod hid
--- @alias Hid
-
----------------------------------
--- Hid device class
+-- @module hid
 
 local vport = require 'vport'
 local hid_events = require 'hid_events'
@@ -28,7 +24,7 @@ for i=1,4 do
   }
 end
 
---- constructor
+-- constructor
 -- @tparam integer id : arbitrary numeric identifier
 -- @tparam string name : name
 -- @tparam table types : array of supported event types. keys are type codes, values are strings
@@ -106,7 +102,7 @@ function Hid.connect(n)
   return Hid.vports[n]
 end
 
---- clear handlers
+-- clear handlers
 -- @static
 function Hid.cleanup()
   for i=1,4 do
@@ -172,6 +168,10 @@ _norns.hid.event = function(id, type, code, value)
       if Hid.vports[device.port].event then
         Hid.vports[device.port].event(type, code, value)
       end
+    end
+
+    if device.is_ascii_keyboard then
+      keyboard.process(type,code,value)
     end
   else
     error('no entry for hid '..id)

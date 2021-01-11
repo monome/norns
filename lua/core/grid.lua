@@ -1,9 +1,5 @@
 --- Grid class
--- @classmod grid
--- @alias Grid
-
----------------------------------
--- Grid device class
+-- @module grid
 
 local vport = require 'vport'
 
@@ -31,7 +27,7 @@ for i=1,4 do
   }
 end
 
---- constructor
+-- constructor
 -- @tparam integer id : arbitrary numeric identifier
 -- @tparam string serial : serial
 -- @tparam string name : name
@@ -133,7 +129,7 @@ function Grid.cleanup()
   end
 end
 
---- update devices.
+-- update devices.
 -- @static
 function Grid.update_devices()
   -- build list of available devices
@@ -184,7 +180,7 @@ _norns.grid.remove = function(id)
   Grid.update_devices()
 end
 
---- redefine global grid key input handler
+-- redefine global grid key input handler
 _norns.grid.key = function(id, x, y, s)
   local g = Grid.devices[id]
   if g ~= nil then

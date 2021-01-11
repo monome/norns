@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><strong>lib.pattern</strong></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>lib.pattern</code></h1>
+<p>timed pattern event recorder/player</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#new">new ()</a></td>
+	<td class="summary">constructor</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#clear">clear ()</a></td>
+	<td class="summary">clear this pattern</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set_time_factor">set_time_factor (f)</a></td>
+	<td class="summary">adjust the time factor of this pattern.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rec_start">rec_start ()</a></td>
+	<td class="summary">start recording</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rec_stop">rec_stop ()</a></td>
+	<td class="summary">stop recording</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#watch">watch (e)</a></td>
+	<td class="summary">watch</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rec_event">rec_event (e)</a></td>
+	<td class="summary">record event</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#overdub_event">overdub_event (e)</a></td>
+	<td class="summary">add overdub event</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#start">start ()</a></td>
+	<td class="summary">start this pattern</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#next_event">next_event ()</a></td>
+	<td class="summary">process next event</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#stop">stop ()</a></td>
+	<td class="summary">stop this pattern</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set_overdub">set_overdub (s)</a></td>
+	<td class="summary">set overdub</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "new"></a>
+    <strong>new ()</strong>
+    </dt>
+    <dd>
+    constructor
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "clear"></a>
+    <strong>clear ()</strong>
+    </dt>
+    <dd>
+    clear this pattern
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_time_factor"></a>
+    <strong>set_time_factor (f)</strong>
+    </dt>
+    <dd>
+    adjust the time factor of this pattern.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
+         time factor
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rec_start"></a>
+    <strong>rec_start ()</strong>
+    </dt>
+    <dd>
+    start recording
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rec_stop"></a>
+    <strong>rec_stop ()</strong>
+    </dt>
+    <dd>
+    stop recording
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "watch"></a>
+    <strong>watch (e)</strong>
+    </dt>
+    <dd>
+    watch
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">e</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rec_event"></a>
+    <strong>rec_event (e)</strong>
+    </dt>
+    <dd>
+    record event
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">e</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "overdub_event"></a>
+    <strong>overdub_event (e)</strong>
+    </dt>
+    <dd>
+    add overdub event
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">e</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "start"></a>
+    <strong>start ()</strong>
+    </dt>
+    <dd>
+    start this pattern
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "next_event"></a>
+    <strong>next_event ()</strong>
+    </dt>
+    <dd>
+    process next event
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "stop"></a>
+    <strong>stop ()</strong>
+    </dt>
+    <dd>
+    stop this pattern
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_overdub"></a>
+    <strong>set_overdub (s)</strong>
+    </dt>
+    <dd>
+    set overdub
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-01-11 14:46:20 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

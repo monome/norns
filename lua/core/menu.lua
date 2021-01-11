@@ -181,6 +181,8 @@ _menu.set_page = function(page)
   _menu.key = m[page].key
   _menu.penc = m[page].enc
   _menu.redraw = m[page].redraw
+  _menu.keyboardcode = m[page].keycode
+  _menu.keyboardchar = m[page].keychar
   m[page].init()
   _menu.redraw()
 end
@@ -199,11 +201,45 @@ function _menu.draw_panel()
   end
 end
 
+-- global menu keys
+function _menu.keycode(c,value)
+  if value==1 then
+    if c=="F1" then _menu.set_page("MIX")
+    elseif c=="F2" then _menu.set_page("TAPE")
+    elseif c=="F3" then _menu.set_page("HOME")
+    elseif c=="F4" then _menu.set_page("PARAMS")
+    end
+  end
 
+  -- E2 emu (scolling)
+  if value==1 then
+    if c=="DOWN" then
+      _menu.penc(2,1)
+    elseif c=="UP" then
+      _menu.penc(2,-1)
+    elseif c=="PAGEDOWN" then
+      _menu.penc(2,6)
+    elseif c=="PAGEUP" then
+      _menu.penc(2,-6)
+    end
+  end
+
+  -- key emu
+  if value==1 or value==0 then
+    if c=="LEFT" then
+      _menu.key(2,value)
+    elseif c=="RIGHT" then
+      _menu.key(3,value)
+    end
+  end
+
+  if _menu.keyboardcode then _menu.keyboardcode(c,value) end
+end
+
+function _menu.keychar(c) end
 
 
 -- interfaces
-
 
 m["HOME"] = require 'core/menu/home'
 m["SELECT"] = require 'core/menu/select'

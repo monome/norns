@@ -1,5 +1,5 @@
 -- Separator class
--- @classmod separator
+-- @module params.separator
 
 local Separator = {}
 Separator.__index = Separator

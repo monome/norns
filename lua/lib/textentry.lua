@@ -1,4 +1,5 @@
--- te class
+--- textentry UI
+-- @module lib.textentry
 
 local te = {}
 

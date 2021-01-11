@@ -1,9 +1,5 @@
---- Arc class
--- @classmod arc
--- @alias Arc
-
----------------------------------
--- Arc device class
+--- Arc
+-- @module arc
 
 local vport = require 'vport'
 
