@@ -1,6 +1,5 @@
 --- Audio class
--- @classmod audio
--- @alias Audio
+-- @module audio
 
 local cs = require 'controlspec'
 

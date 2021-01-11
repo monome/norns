@@ -1,6 +1,5 @@
 --- ControlSpec Class
--- @classmod controlspec
--- @alias ControlSpec
+-- @module controlspec
 
 local LinearWarp = {}
 function LinearWarp.map(spec, value)

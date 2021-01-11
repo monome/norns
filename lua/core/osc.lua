@@ -1,6 +1,5 @@
 --- osc device
--- @classmod osc
--- @alias OSC
+-- @module osc
 
 local tab = require 'tabutil'
 local paramset = require 'core/paramset'

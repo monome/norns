@@ -1,4 +1,5 @@
--- listselect utility
+--- listselect utility
+-- @module lib.listselect
 -- reroutes redraw/enc/key
 
 local ls = {}

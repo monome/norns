@@ -1,6 +1,5 @@
 --- Script class
--- @classmod script
--- @alias Script
+-- @module script
 
 local Script = {}
 

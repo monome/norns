@@ -1,5 +1,5 @@
 --- Euclidean rhythm (http://en.wikipedia.org/wiki/Euclidean_Rhythm)
--- @module er
+-- @module lib.er
 
 er = {}
 --- gen

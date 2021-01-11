@@ -1,9 +1,5 @@
 --- Hid class
--- @classmod hid
--- @alias Hid
-
----------------------------------
--- Hid device class
+-- @module hid
 
 local vport = require 'vport'
 local hid_events = require 'hid_events'

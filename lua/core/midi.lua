@@ -1,6 +1,5 @@
 --- midi devices
--- @classmod midi
--- @alias Midi
+-- @module midi
 
 local vport = require 'vport'
 

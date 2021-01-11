@@ -1,9 +1,5 @@
 --- Grid class
--- @classmod grid
--- @alias Grid
-
----------------------------------
--- Grid device class
+-- @module grid
 
 local vport = require 'vport'
 

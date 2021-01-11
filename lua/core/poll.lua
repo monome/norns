@@ -1,7 +1,6 @@
 --- Poll class;
 -- API for receiving values from audio system.
--- @classmod poll
--- @alias Poll
+-- @module poll
 
 local tab = require 'tabutil'
 

@@ -1,5 +1,5 @@
 --- table utility
--- @module tabutil
+-- @module lib.tabutil
 -- @alias tab
 
 local tab = {}

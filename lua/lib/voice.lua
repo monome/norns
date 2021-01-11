@@ -1,6 +1,5 @@
 --- experimental voice allocation module
--- @classmod voice
--- @alias Voice
+-- @module lib.voice
 
 
 -- (voice) Slot class

@@ -1,5 +1,5 @@
-------------
---- @module filters
+--- Filters
+--- @module lib.filters
 --
 -- some filters that could be useful for musical event processing
 
