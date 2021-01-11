@@ -266,9 +266,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_SYSTEM_CMD:
         w_handle_system_cmd(ev->system_cmd.capture);
         break;
-    case EVENT_RESET_LVM:
-        w_reset_lvm();
-        break;
+    /* case EVENT_RESET_LVM: */
+    /*     w_reset_lvm(); */
+    /*     break; */
     case EVENT_QUIT:
         quit = true;
         break;

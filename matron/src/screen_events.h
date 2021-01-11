@@ -1,53 +1,42 @@
 #ifndef _SCREEN_EVENTS_H_
 #define _SCREEN_EVENTS_H_
 
-#include <stdarg.h>
-
-#define SCREEN_EVENT_DATA_COUNT 6
-
-typedef struct { 
-    int type;
-    int data_count;
-    double data[SCREEN_EVENT_DATA_COUNT];
-    char* text;
-} screen_event_data_t;
-
-typedef enum {
-  SCREEN_EVENT_UPDATE = 0,
-  SCREEN_EVENT_SAVE,
-  SCREEN_EVENT_RESTORE,
-  SCREEN_EVENT_FONT_FACE,
-  SCREEN_EVENT_FONT_SIZE,
-  SCREEN_EVENT_AA,
-  SCREEN_EVENT_LEVEL,
-  SCREEN_EVENT_LINE_WIDTH,
-  SCREEN_EVENT_LINE_CAP,
-  SCREEN_EVENT_LINE_JOIN,
-  SCREEN_EVENT_MITER_LIMIT,
-  SCREEN_EVENT_MOVE,
-  SCREEN_EVENT_LINE,
-  SCREEN_EVENT_MOVE_REL,
-  SCREEN_EVENT_LINE_REL,
-  SCREEN_EVENT_CURVE,
-  SCREEN_EVENT_CURVE_REL,
-  SCREEN_EVENT_ARC,
-  SCREEN_EVENT_RECT,
-  SCREEN_EVENT_STROKE,
-  SCREEN_EVENT_FILL,
-  SCREEN_EVENT_TEXT,
-  SCREEN_EVENT_CLEAR,
-  SCREEN_EVENT_CLOSE_PATH,
-  SCREEN_EVENT_EXPORT_PNG,
-  SCREEN_EVENT_DISPLAY_PNG,
-  SCREEN_ROTATE,
-  SCREEN_TRANSLATE,
-  SCREEN_SET_OPERATOR
-  // FIXME: poke requires a buffer...
-} screen_event_id_t;
-
 extern void screen_events_init();
 
-extern void screen_event_push(screen_event_id_t id, const char* text, int arg_count, ...);
+extern void screen_event_update(void);
+extern void screen_event_save(void);
+extern void screen_event_restore(void);
+extern void screen_event_font_face(int i);
+extern void screen_event_font_size(double z);
+extern void screen_event_aa(int s);
+extern void screen_event_level(int z);
+extern void screen_event_line_width(double w);
+extern void screen_event_line_cap(const char *style);
+extern void screen_event_line_join(const char *style);
+extern void screen_event_miter_limit(double limit);
+extern void screen_event_move(double x, double y);
+extern void screen_event_line(double x, double y);
+extern void screen_event_move_rel(double x, double y);
+extern void screen_event_line_rel(double x, double y);
+extern void screen_event_curve(double x1, double y1, double x2, double y2, double x3, double y3);
+extern void screen_event_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3);
+extern void screen_event_arc(double x, double y, double r, double a1, double a2);
+extern void screen_event_rect(double x, double y, double w, double h);
+extern void screen_event_stroke(void);
+extern void screen_event_fill(void);
+extern void screen_event_text(const char *s);
+extern void screen_event_clear(void);
+extern void screen_event_close_path(void);
+// FIXME: needs callback
+//extern double *screen_text_extents(const char *s);
+extern void screen_event_export_png(const char *s);
+extern void screen_event_display_png(const char *filename, double x, double y);
+// FIXME: needs callback
+//extern char *screen_peek(int x, int y, int *w, int *h);
+extern void screen_event_poke(int x, int y, int w, int h, unsigned char *buf);
+extern void screen_event_rotate(double r);
+extern void screen_event_translate(double x, double y);
+extern void screen_event_set_operator(int i);
 
 
 #endif

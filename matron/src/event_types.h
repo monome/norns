@@ -71,8 +71,8 @@ typedef enum {
     EVENT_STARTUP_READY_TIMEOUT,
     // system command finished
     EVENT_SYSTEM_CMD,
-    // reset the lua state
-    EVENT_RESET_LVM,
+    // // reset the lua state
+    // EVENT_RESET_LVM,
     // quit the event loop
     EVENT_QUIT,
     // crow add

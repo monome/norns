@@ -166,7 +166,7 @@ handle_allocate_error:
 
 void screen_display_png(const char *filename, double x, double y) {
     int img_w, img_h;
-    // fprintf(stderr, "loading: %s\n", filename);
+    fprintf(stderr, "screen_display_png: %s\n", filename);
 
     image = cairo_image_surface_create_from_png(filename);
     if (cairo_surface_status(image)) {
