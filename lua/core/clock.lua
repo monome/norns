@@ -319,7 +319,7 @@ clock.sync( beats )           resume at next sync quantum of value [beats]
 clock.get_beats()             (returns) current time in beats
 clock.get_tempo()             (returns) current tempo
 clock.get_beat_sec()          (returns) length of a single beat at current
-		                            tempo in seconds
+                                tempo in seconds
 
 -- example
 
