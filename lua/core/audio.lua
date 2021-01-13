@@ -337,9 +337,13 @@ function Audio.add_params()
   local cs_DB_LEVEL_MUTE = cs.new(-math.huge,18,'db',0,-math.huge,"dB")
   local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 
-  params:add_control("rev_eng_input", "input engine", cs_DB_LEVEL_9DB)
+  params:add_control("rev_eng_input", "input engine",
+    cs.new(-math.huge,18,'db',0,norns.state.mix.rev_eng_input,"dB"))
   params:set_action("rev_eng_input",
-  function(x) audio.level_eng_rev(util.dbamp(x)) end)
+  function(x)
+    audio.level_eng_rev(util.dbamp(x))
+    norns.state.mix.rev_eng_input = x
+  end)
 
   params:add_control("rev_cut_input", "input softcut", cs_DB_LEVEL_9DB)
   params:set_action("rev_cut_input",
