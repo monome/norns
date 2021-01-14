@@ -1,6 +1,8 @@
 --- Arc
 -- @module arc
 
+local tab = require 'tabutil'
+
 local vport = require 'vport'
 
 local Arc = {}

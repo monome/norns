@@ -1,6 +1,8 @@
 --- keyboard (typing, not piano)
 -- @module keyboard
 
+local tab = require 'tabutil'
+
 keyboard = {}
 
 keyboard.keymap = {}

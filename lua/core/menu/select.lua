@@ -1,4 +1,4 @@
-tabutil = require "tabutil"
+local tabutil = require "tabutil"
 
 local m = {
   pos = 0,
