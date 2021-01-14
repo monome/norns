@@ -1,3 +1,35 @@
+# 210114
+
+## norns 2.4.8
+
+- NEW keyboard: easier keyboard management in scripts @tehn
+- NEW keyboard: basic menu control via keyboard @tehn
+- FIX params: reverb/comp settings persist between script loads
+- NEW help system: quick script reference via REPL @tehn
+- NEW lib: lattice is a clock patterning framework @tyleretters
+- NEW api: norns.shutdown() can be called by script @tyleretters
+- FIX clock: tune sync multiplier thresholds @artfwo
+- FIX screen: clamp level input, prevent crash @tehn
+- NEW lib: util.wrap() util.wrap_max() @tyleretters
+- NEW params: read() accepts and passes "silent" arg @schollz
+- NEW menu: now 16 vports for midi @dndrks
+- NEW params: pmap now autosaves @dndrks
+- GONE norns.fetch: use ;install in maiden instead @tehn
+
+## maiden
+
+- NEW ;install command for fetching remote repositories
+- NEW refresh all button @ngwese
+- NEW script stop/clear button @ngwese
+- FIX improve implicit untitled.lua creation @ngwese
+- FIX upgrade versions @ngwese
+- CHANGE rename sc -> supercollider for clarity @ngwese
+
+## norns-image
+
+- NEW watcher: separate application for key-trigger restart @tehn
+
+
 # 201202
 
 ## norns 2.4.7
