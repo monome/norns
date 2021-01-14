@@ -1,3 +1,5 @@
+local tab = require 'tabutil'
+
 local m = {
   meta = {}
 }
