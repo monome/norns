@@ -15,6 +15,7 @@ cp changelog.txt /home/we/
 
 # add watcher
 sudo cp --remove-destination config/norns-watcher.service /etc/systemd/system/norns-watcher.service
+sudo systemctl enable norns-watcher
 
 # packages
 #sudo dpkg -i package/*.deb
