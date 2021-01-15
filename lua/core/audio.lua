@@ -350,7 +350,7 @@ function Audio.add_params()
   params:set_action("rev_cut_input",
   function(x)
     audio.level_cut_rev(util.dbamp(x))
-    norns.state.mix.rev_eng_input = x
+    norns.state.mix.rev_cut_input = x
   end)
 
   params:add_control("rev_monitor_input", "input monitor",
@@ -366,7 +366,7 @@ function Audio.add_params()
   params:set_action("rev_tape_input",
   function(x)
     audio.level_tape_rev(util.dbamp(x))
-    norns.state.mix.rev_monitor_input = x
+    norns.state.mix.rev_tape_input = x
   end)
 
   params:add_control("rev_return_level", "return level",
@@ -382,7 +382,7 @@ function Audio.add_params()
   params:set_action("rev_pre_delay",
   function(x)
     audio.rev_param("pre_del",x)
-    norns.state.mix.rev_pre_del = x
+    norns.state.mix.rev_pre_delay = x
   end)
 
   params:add_control("rev_lf_fc", "lf fc",
@@ -508,7 +508,7 @@ function Audio.add_params()
   params:set_action("comp_post_gain",
   function(x)
     audio.comp_param("gain_post",x)
-    norns.state.mix.comp_gain_post = x
+    norns.state.mix.comp_post_gain = x
   end)
 
 
