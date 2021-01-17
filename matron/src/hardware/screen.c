@@ -320,7 +320,6 @@ char *screen_peek(int x, int y, int *w, int *h) {
     *h = (*h <= (64 - y))  ? (*h) : (64 - y);
     char *buf = malloc(*w * *h);
     if (!buf) {
-        UNLOCK_CR
         return NULL;
     }
     // NB: peek/poke do not actually access the CR,
