@@ -9,10 +9,11 @@ Control.__index = Control
 local tCONTROL = 3
 
 --- constructor.
--- @param id
--- @param name
--- @param controlspec
--- @param formatter
+-- @tparam string id
+-- @tparam string name
+-- @tparam ControlSpec controlspec
+-- @tparam function formatter
+-- @tparam boolean allow_pmap
 function Control.new(id, name, controlspec, formatter, allow_pmap)
   local p = setmetatable({}, Control)
   p.t = tCONTROL

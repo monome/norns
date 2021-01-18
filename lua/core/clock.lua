@@ -323,7 +323,7 @@ clock.get_beat_sec()          (returns) length of a single beat at current
 --------------------------------------------------------------------------------
 -- example
 
--- start a clock which calling function [loop]
+-- start a clock with calling function [loop]
 function init()
   clock.run(loop)
 end
