@@ -287,7 +287,7 @@ end
 Screen.poke = function(x, y, w, h, s) _norns.screen_poke(x, y, w, h, s) end
 
 --- rotate
--- @param number radians
+-- @tparam number radians
 Screen.rotate = function(r) _norns.screen_rotate(r) end
 
 --- move origin position

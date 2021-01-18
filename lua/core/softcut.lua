@@ -285,6 +285,8 @@ SC.buffer_clear_channel = function(channel) _norns.cut_buffer_clear_channel(chan
 --- clear region (both channels)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 SC.buffer_clear_region = function(start, dur, fade_time, preserve)
   _norns.cut_buffer_clear_region(start, dur or -1, fade_time or 0, preserve or 0)
 end
@@ -293,6 +295,8 @@ end
 -- @tparam int ch : buffer channel index (1-based)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 SC.buffer_clear_region_channel = function(ch, start, dur, fade_time, preserve)
   _norns.cut_buffer_clear_region_channel(ch, start, dur or -1, fade_time or 0, preserve or 0)
 end
@@ -303,7 +307,8 @@ end
 -- @tparam number start_src : start point in source, in seconds
 -- @tparam number start_dst : start point in destination, in seconds
 -- @tparam number dur : duration in seconds. if -1, copy as much as possible.
--- @tparam number fade_time : fade time in seconds.
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 -- @tparam int reverse : nonzero to reverse while copying. when reversing, overlap between source and destination regions is not handled.
 SC.buffer_copy_mono = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)
   _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
@@ -313,7 +318,8 @@ end
 -- @tparam number start_src : start point in source, in seconds
 -- @tparam number start_dst : start point in destination, in seconds
 -- @tparam number dur : duration in seconds. if -1, copy as much as possible.
--- @tparam number fade_time : fade time in seconds.
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 -- @tparam int reverse : nonzero to reverse while copying.
 SC.buffer_copy_stereo = function(start_src, start_dst, dur, fade_time, preserve, reverse)
   _norns.cut_buffer_copy_stereo(start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
@@ -462,7 +468,7 @@ function SC.params()
   while voice <= SC.VOICE_COUNT do
     local spec = {
       -- voice enable
-      enable = { type="number", min=0, max=1, default=0, formatter="" },
+      enable = { type="number", min=0, max=1, default=0 },
       -- levels
       -- @fixme: use dB / taper?
       level = { type="control", controlspec=controlspec.new(0, 0, 'lin', 0, 0.25, "") },
@@ -473,14 +479,14 @@ function SC.params()
       rate = { type="control", controlspec=controlspec.new(-8, 8, 'lin', 0, 0, "") },
       loop_start = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       loop_end = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5 + 2, "sec") },
-      loop = { type="number", min=0, max=1, default=1, formatter=""},
+      loop = { type="number", min=0, max=1, default=1},
       fade_time = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- recording parameters
       rec_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       pre_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      play = { type="number", min=0, max=1, default=1, formatter=""},
-      rec = { type="number", min=0, max=1, default=1, formatter=""},
-      rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
+      play = { type="number", min=0, max=1, default=1},
+      rec = { type="number", min=0, max=1, default=1},
+      rec_offset = { type="number", min=-100, max=100, default=-8},
       -- jump to position
       position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       -- pre filter

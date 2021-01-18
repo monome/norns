@@ -129,13 +129,13 @@ function ParamSet:add(args)
 end
 
 --- add number.
--- @tparam string id
--- @tparam string name
--- @tparam number min
--- @tparam number max
--- @tparam boolean wrap
--- @param default
--- @param formatter
+-- @tparam string id identifier slug (no spaces)
+-- @tparam string name user-facing name (can contain spaces)
+-- @tparam number min minimum value
+-- @tparam number max maximum value
+-- @tparam number default default / initial value
+-- @tparam function formatter function accepting a value and returning a string
+-- @tparam boolean wrap if true, value wraps on delta; otherwise saturates
 function ParamSet:add_number(id, name, min, max, default, formatter, wrap)
   self:add { param=number.new(id, name, min, max, default, formatter, wrap) }
 end
@@ -383,7 +383,8 @@ function ParamSet:write(filename, name)
 end
 
 --- read from disk.
--- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
+-- @tparam string filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
+-- @tparam boolean silent if true, do not trigger parameter actions
 function ParamSet:read(filename, silent)
   filename = filename or norns.state.pset_last
   if type(filename) == "number" then

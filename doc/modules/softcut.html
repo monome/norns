@@ -287,19 +287,19 @@
 	<td class="summary">clear one buffer completely</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#buffer_clear_region">buffer_clear_region (start, dur)</a></td>
+	<td class="name" nowrap><a href="#buffer_clear_region">buffer_clear_region (start, dur, fade_time, preserve)</a></td>
 	<td class="summary">clear region (both channels)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#buffer_clear_region_channel">buffer_clear_region_channel (ch, start, dur)</a></td>
+	<td class="name" nowrap><a href="#buffer_clear_region_channel">buffer_clear_region_channel (ch, start, dur, fade_time, preserve)</a></td>
 	<td class="summary">clear region of single channel</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#buffer_copy_mono">buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, reverse)</a></td>
+	<td class="name" nowrap><a href="#buffer_copy_mono">buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)</a></td>
 	<td class="summary">copy region from one point in a buffer to another</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#buffer_copy_stereo">buffer_copy_stereo (start_src, start_dst, dur, fade_time, reverse)</a></td>
+	<td class="name" nowrap><a href="#buffer_copy_stereo">buffer_copy_stereo (start_src, start_dst, dur, fade_time, preserve, reverse)</a></td>
 	<td class="summary">copy region of both buffers to another point</td>
 	</tr>
 	<tr>
@@ -1454,7 +1454,7 @@
 </dd>
     <dt>
     <a name = "buffer_clear_region"></a>
-    <strong>buffer_clear_region (start, dur)</strong>
+    <strong>buffer_clear_region (start, dur, fade_time, preserve)</strong>
     </dt>
     <dd>
     clear region (both channels)
@@ -1470,6 +1470,14 @@
             <span class="types"><span class="type">number</span></span>
          : duration in seconds
         </li>
+        <li><span class="parameter">fade_time</span>
+            <span class="types"><span class="type">number</span></span>
+         : crossfade time in seconds
+        </li>
+        <li><span class="parameter">preserve</span>
+            <span class="types"><span class="type">number</span></span>
+         : level of existing material
+        </li>
     </ul>
 
 
@@ -1479,7 +1487,7 @@
 </dd>
     <dt>
     <a name = "buffer_clear_region_channel"></a>
-    <strong>buffer_clear_region_channel (ch, start, dur)</strong>
+    <strong>buffer_clear_region_channel (ch, start, dur, fade_time, preserve)</strong>
     </dt>
     <dd>
     clear region of single channel
@@ -1499,6 +1507,14 @@
             <span class="types"><span class="type">number</span></span>
          : duration in seconds
         </li>
+        <li><span class="parameter">fade_time</span>
+            <span class="types"><span class="type">number</span></span>
+         : crossfade time in seconds
+        </li>
+        <li><span class="parameter">preserve</span>
+            <span class="types"><span class="type">number</span></span>
+         : level of existing material
+        </li>
     </ul>
 
 
@@ -1508,7 +1524,7 @@
 </dd>
     <dt>
     <a name = "buffer_copy_mono"></a>
-    <strong>buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, reverse)</strong>
+    <strong>buffer_copy_mono (src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)</strong>
     </dt>
     <dd>
     copy region from one point in a buffer to another
@@ -1538,7 +1554,11 @@
         </li>
         <li><span class="parameter">fade_time</span>
             <span class="types"><span class="type">number</span></span>
-         : fade time in seconds.
+         : crossfade time in seconds
+        </li>
+        <li><span class="parameter">preserve</span>
+            <span class="types"><span class="type">number</span></span>
+         : level of existing material
         </li>
         <li><span class="parameter">reverse</span>
             <span class="types"><span class="type">int</span></span>
@@ -1553,7 +1573,7 @@
 </dd>
     <dt>
     <a name = "buffer_copy_stereo"></a>
-    <strong>buffer_copy_stereo (start_src, start_dst, dur, fade_time, reverse)</strong>
+    <strong>buffer_copy_stereo (start_src, start_dst, dur, fade_time, preserve, reverse)</strong>
     </dt>
     <dd>
     copy region of both buffers to another point
@@ -1575,7 +1595,11 @@
         </li>
         <li><span class="parameter">fade_time</span>
             <span class="types"><span class="type">number</span></span>
-         : fade time in seconds.
+         : crossfade time in seconds
+        </li>
+        <li><span class="parameter">preserve</span>
+            <span class="types"><span class="type">number</span></span>
+         : level of existing material
         </li>
         <li><span class="parameter">reverse</span>
             <span class="types"><span class="type">int</span></span>
@@ -1599,7 +1623,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : input file path
         </li>
         <li><span class="parameter">start_src</span>
@@ -1640,7 +1664,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : input file path
         </li>
         <li><span class="parameter">start_src</span>
@@ -1673,7 +1697,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : output file path
         </li>
         <li><span class="parameter">start</span>
@@ -1706,7 +1730,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : output file path
         </li>
         <li><span class="parameter">start</span>
@@ -1831,7 +1855,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         table of parameter states for each voice
     </ol>
 
@@ -1867,7 +1891,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-01-11 14:46:20 </i>
+<i style="float:right;">Last updated 2021-01-17 20:52:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
