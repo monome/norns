@@ -21,7 +21,7 @@ state.mix.aux = 2
 state.mix.ins = 1
 
 state.mix.rev_eng_input = -9
-state.mix.rev_cut_input = -math.huge
+state.mix.rev_cut_input = -9
 state.mix.rev_monitor_input = -math.huge
 state.mix.rev_tape_input = -math.huge
 state.mix.rev_return_level = 0
@@ -39,8 +39,8 @@ state.mix.comp_release = 50
 state.mix.comp_pre_gain = 0
 state.mix.comp_post_gain = 9
 
-state.mix.cut_input_adc = -math.huge
-state.mix.cut_input_eng = -math.huge
+state.mix.cut_input_adc = 0
+state.mix.cut_input_eng = 0
 state.mix.cut_input_tape = -math.huge
 
 state.clock = {}
