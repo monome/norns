@@ -40,16 +40,6 @@
 #define NUM_FONTS 67
 #define NUM_OPS 29
 
-#define USE_LOCK 0
-
-#if USE_LOCK
-#define LOCK_CR pthread_mutex_lock(&cr_lock);
-#define UNLOCK_CR pthread_mutex_unlock(&cr_lock);
-#else
-#define LOCK_CR ;;
-#define UNLOCK_CR ;;
-#endif
-
 static char font_path[NUM_FONTS][32];
 
 static float c[16] = {0,   0.066666666666667, 0.13333333333333, 0.2, 0.26666666666667, 0.33333333333333,
@@ -93,10 +83,6 @@ static cairo_surface_t *image;
 static cairo_t *cr;
 static cairo_t *cr_primary;
 
-
-#if USE_LOCK
-static pthread_mutex_t cr_lock;
-#endif
 
 static cairo_t *crfb;
 static cairo_font_face_t *ct[NUM_FONTS];
@@ -161,39 +147,28 @@ void screen_deinit(void) {
 //-- screen commands
 
 void screen_update(void) {
-    LOCK_CR
     cairo_paint(crfb);
-    UNLOCK_CR
 }
 
 void screen_save(void) {
-    LOCK_CR
     cairo_save(cr);
-    UNLOCK_CR
 }
 
 void screen_restore(void) {
-    LOCK_CR
     cairo_restore(cr);
-    UNLOCK_CR
 }
 
 void screen_font_face(int i) {
-    LOCK_CR
     if ((i >= 0) && (i < NUM_FONTS)) {
         cairo_set_font_face(cr, ct[i]);
     }
-    UNLOCK_CR
 }
 
 void screen_font_size(double z) {
-    LOCK_CR
     cairo_set_font_size(cr, z);
-    UNLOCK_CR
 }
 
 void screen_aa(int s) {
-    LOCK_CR
     cairo_font_options_t *font_options = cairo_font_options_create();
     if (s == 0) {
         cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
@@ -204,24 +179,18 @@ void screen_aa(int s) {
     }
     cairo_set_font_options(cr, font_options);
     cairo_font_options_destroy(font_options);
-    UNLOCK_CR
 }
 
 void screen_level(int z) {
     z = z < 0 ? 0 : (z > 15 ? 15 : z);
-    LOCK_CR
     cairo_set_source_rgb(cr, c[z], c[z], c[z]);
-    UNLOCK_CR
 }
 
 void screen_line_width(double w) {
-    LOCK_CR
     cairo_set_line_width(cr, w);
-    UNLOCK_CR
 }
 
 void screen_line_cap(const char *style) {
-    LOCK_CR
     if (strcmp(style, "round") == 0) {
         cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
     } else if (strcmp(style, "square") == 0) {
@@ -229,11 +198,9 @@ void screen_line_cap(const char *style) {
     } else {
         cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
     }
-    UNLOCK_CR
 }
 
 void screen_line_join(const char *style) {
-    LOCK_CR
     if (strcmp(style, "round") == 0) {
         cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
     } else if (strcmp(style, "bevel") == 0) {
@@ -241,119 +208,84 @@ void screen_line_join(const char *style) {
     } else {
         cairo_set_line_join(cr, CAIRO_LINE_JOIN_MITER);
     }
-    UNLOCK_CR
 }
 
 void screen_miter_limit(double limit) {
-    LOCK_CR
     cairo_set_miter_limit(cr, limit);
-    UNLOCK_CR
 }
 
 void screen_move(double x, double y) {
-    LOCK_CR
     cairo_move_to(cr, x, y);
-    UNLOCK_CR
 }
 
 void screen_line(double x, double y) {
-    LOCK_CR
     cairo_line_to(cr, x, y);
-    UNLOCK_CR
 }
 
 void screen_line_rel(double x, double y) {
-    LOCK_CR
     cairo_rel_line_to(cr, x, y);
-    UNLOCK_CR
 }
 
 void screen_move_rel(double x, double y) {
-    LOCK_CR
     cairo_rel_move_to(cr, x, y);
-    UNLOCK_CR
 }
 
 void screen_curve(double x1, double y1, double x2, double y2, double x3, double y3) {
-    LOCK_CR
     cairo_curve_to(cr, x1, y1, x2, y2, x3, y3);
-    UNLOCK_CR
 }
 
 void screen_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
-    LOCK_CR
     cairo_rel_curve_to(cr, dx1, dy1, dx2, dy2, dx3, dy3);
-    UNLOCK_CR
 }
 
 void screen_arc(double x, double y, double r, double a1, double a2) {
-    LOCK_CR
     cairo_arc(cr, x, y, r, a1, a2);
-    UNLOCK_CR
 }
 
 void screen_rect(double x, double y, double w, double h) {
-    LOCK_CR
     cairo_rectangle(cr, x, y, w, h);
-    UNLOCK_CR
 }
 
 void screen_close_path(void) {
-    LOCK_CR
     cairo_close_path(cr);
-    UNLOCK_CR
 }
 
 void screen_stroke(void) {
-    LOCK_CR
     cairo_stroke(cr);
-    UNLOCK_CR
 }
 
 void screen_fill(void) {
-    LOCK_CR
     cairo_fill(cr);
-    UNLOCK_CR
 }
 
 void screen_text(const char *s) {
-    LOCK_CR
     cairo_show_text(cr, s);
-    UNLOCK_CR
 }
 
 
 void screen_text_right(const char *s) {    
     cairo_text_extents_t extents;    
-    LOCK_CR
     cairo_text_extents(cr, s, &extents);
     cairo_rel_move_to(cr, -extents.width, 0);
     cairo_show_text(cr, s);
-    UNLOCK_CR
 }
 
 void screen_text_center(const char *s) {
     cairo_text_extents_t extents;    
-    LOCK_CR
     cairo_text_extents(cr, s, &extents);
     cairo_rel_move_to(cr, -extents.width * 0.5, 0);
     cairo_show_text(cr, s);
-    UNLOCK_CR
 }
 
 void screen_clear(void) {
-    LOCK_CR
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    UNLOCK_CR
 }
 
 void screen_text_extents(const char *s) {
     cairo_text_extents_t extents;
-    LOCK_CR
     cairo_text_extents(cr, s, &extents);    
-    UNLOCK_CR
     union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_TEXT_EXTENTS);    
     ev->screen_result_text_extents.x_bearing = extents.x_bearing;
     ev->screen_result_text_extents.y_bearing = extents.y_bearing;
@@ -373,11 +305,9 @@ void screen_peek(int x, int y, int w, int h) {
     }
     // NB: peek/poke do not actually access the CR,
     // but we do want to avoid torn values
-    LOCK_CR
     cairo_surface_flush(surface);
     uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
-        UNLOCK_CR
 	return;
     }
     char *p = buf;
@@ -387,7 +317,6 @@ void screen_peek(int x, int y, int w, int h) {
             p++;
         }
     }
-    UNLOCK_CR
     union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_PEEK);
     ev->screen_result_peek.w = w;
     ev->screen_result_peek.h = h;    
@@ -400,10 +329,8 @@ void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
     h = (h <= (64 - y))  ? h : (64 - y);
     // NB: peek/poke do not actually access the CR,
     // but we do want to avoid torn values
-    LOCK_CR
     uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
-        UNLOCK_CR
         return;
     }
     uint8_t *p = buf;
@@ -417,27 +344,20 @@ void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
         }
     }
     cairo_surface_mark_dirty(surface);
-    UNLOCK_CR
 }
 
 void screen_rotate(double r) {
-    LOCK_CR
     cairo_rotate(cr, r);
-    UNLOCK_CR
 }
 
 void screen_translate(double x, double y) {
-    LOCK_CR
     cairo_translate(cr, x, y);
-    UNLOCK_CR
 }
 
 void screen_set_operator(int i) {
-    LOCK_CR
     if (0 <= i && i <= 28) {
         cairo_set_operator(cr, ops[i]);
     }
-    UNLOCK_CR
 }
 
 void screen_display_png(const char *filename, double x, double y) {
@@ -452,12 +372,10 @@ void screen_display_png(const char *filename, double x, double y) {
     img_w = cairo_image_surface_get_width(image);
     img_h = cairo_image_surface_get_height(image);
 
-    LOCK_CR
     cairo_set_source_surface(cr, image, x, y);
     // cairo_paint (cr);
     cairo_rectangle(cr, x, y, img_w, img_h);
     cairo_fill(cr);
-    UNLOCK_CR
     cairo_surface_destroy(image);
 }
 
@@ -467,9 +385,7 @@ void screen_export_png(const char *s) {
 
 void screen_current_point() {
     double x, y;
-    LOCK_CR;
     cairo_get_current_point (cr, &x, &y);
-    UNLOCK_CR;    
     union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_CURRENT_POINT);
     ev->screen_result_current_point.x = x;
     ev->screen_result_current_point.y = y;
