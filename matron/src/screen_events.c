@@ -8,8 +8,6 @@
 #include "screen_events_pr.h"
 #include "screen.h"
 
-#define DEBUG_SCREEN_EVENTS 0
-
 #define SCREEN_Q_SIZE 1024
 #define SCREEN_Q_MASK (SCREEN_Q_SIZE -1)
 
@@ -62,9 +60,6 @@ static void screen_event_data_move(struct screen_event_data *dst,
 
 // call from any thread; locks Q (blocking)
 void screen_event_data_push(struct screen_event_data *src) {
-#if DEBUG_SCREEN_EVENTS
-    fprintf(stderr, "screen_event_q push; wr=%d; rd=%d\n", screen_q_wr, screen_q_rd);
-#endif
     pthread_mutex_lock(&screen_q_lock);
     struct screen_event_data* dst = &(screen_q[screen_q_wr]);
     screen_event_data_move(dst, src);
@@ -81,9 +76,6 @@ void screen_event_data_push(struct screen_event_data *src) {
 
 // call with Q locked from screen handler thread
 void screen_event_data_pop(struct screen_event_data *dst) {
-#if DEBUG_SCREEN_EVENTS
-    fprintf(stderr, "screen_event_q pop; rd=%d; wr=%d\n", screen_q_rd, screen_q_wr);
-#endif
     struct screen_event_data *src = &screen_q[screen_q_rd];
     screen_event_data_move(dst, src);
     screen_q_rd = (screen_q_rd + 1) & SCREEN_Q_MASK;
@@ -105,116 +97,7 @@ void* screen_event_loop(void* x) {
     }
 }
 
-#if DEBUG_SCREEN_EVENTS
-static void print_event_type(struct screen_event_data *ev) {
-    switch(ev->type) {
-    case SCREEN_EVENT_UPDATE:
-	fprintf(stderr, "SCREEN_EVENT_UPDATE\n");
-	break;
-    case SCREEN_EVENT_SAVE:
-	fprintf(stderr, "SCREEN_EVENT_SAVE\n");
-	break;
-    case SCREEN_EVENT_RESTORE:
-	fprintf(stderr, "SCREEN_EVENT_RESTORE\n");
-	break;
-    case SCREEN_EVENT_FONT_FACE:
-	fprintf(stderr, "SCREEN_EVENT_FONT_FACE\n");
-	break;
-    case SCREEN_EVENT_FONT_SIZE:
-	fprintf(stderr, "SCREEN_EVENT_FONT_SIZE\n");
-	break;
-    case SCREEN_EVENT_AA:
-	fprintf(stderr, "SCREEN_EVENT_AA\n");
-	break;
-    case SCREEN_EVENT_LEVEL:
-	fprintf(stderr, "SCREEN_EVENT_LEVEL\n");
-	break;
-    case SCREEN_EVENT_LINE_WIDTH:
-	fprintf(stderr, "SCREEN_EVENT_LINE_WIDTH\n");
-	break;
-    case SCREEN_EVENT_LINE_CAP:
-	fprintf(stderr, "SCREEN_EVENT_LINE_CAP\n");
-	break;
-    case SCREEN_EVENT_LINE_JOIN:
-	fprintf(stderr, "SCREEN_EVENT_LINE_JOIN\n");
-	break;
-    case SCREEN_EVENT_MITER_LIMIT:
-	fprintf(stderr, "SCREEN_EVENT_MITER_LIMIT\n");
-	break;
-    case SCREEN_EVENT_MOVE:
-	fprintf(stderr, "SCREEN_EVENT_MOVE\n");
-	break;
-    case SCREEN_EVENT_LINE:
-	fprintf(stderr, "SCREEN_EVENT_LINE\n");
-	break;
-    case SCREEN_EVENT_MOVE_REL:
-	fprintf(stderr, "SCREEN_EVENT_MOVE_REL\n");
-	break;
-    case SCREEN_EVENT_LINE_REL:
-	fprintf(stderr, "SCREEN_EVENT_LINE_REL\n");
-	break;
-    case SCREEN_EVENT_CURVE:
-	fprintf(stderr, "SCREEN_EVENT_CURVE\n");
-	break;
-    case SCREEN_EVENT_CURVE_REL:
-	fprintf(stderr, "SCREEN_EVENT_CURVE_REL\n");
-	break;
-    case SCREEN_EVENT_ARC:
-	fprintf(stderr, "SCREEN_EVENT_ARC\n");
-	break;
-    case SCREEN_EVENT_RECT:
-	fprintf(stderr, "SCREEN_EVENT_RECT\n");
-	break;
-    case SCREEN_EVENT_STROKE:
-	fprintf(stderr, "SCREEN_EVENT_STROKE\n");
-	break;
-    case SCREEN_EVENT_FILL:
-	fprintf(stderr, "SCREEN_EVENT_FILL\n");
-	break;
-    case SCREEN_EVENT_TEXT:
-	fprintf(stderr, "SCREEN_EVENT_TEXT\n");
-	break;
-    case SCREEN_EVENT_TEXT_EXTENTS:
-	fprintf(stderr, "SCREEN_EVENT_TEXT_EXTENTS\n");
-	break;
-    case SCREEN_EVENT_CLEAR:
-	fprintf(stderr, "SCREEN_EVENT_CLEAR\n");
-	break;
-    case SCREEN_EVENT_CLOSE_PATH:
-	fprintf(stderr, "SCREEN_EVENT_CLOSE_PATH\n");
-	break;
-    case SCREEN_EVENT_EXPORT_PNG:
-	fprintf(stderr, "SCREEN_EVENT_EXPORT_PNG\n");
-	break;
-    case SCREEN_EVENT_DISPLAY_PNG:
-	fprintf(stderr, "SCREEN_EVENT_DISPLAY_PNG\n");
-	break;
-    case SCREEN_EVENT_ROTATE:
-	fprintf(stderr, "SCREEN_EVENT_ROTATE\n");
-	break;
-    case SCREEN_EVENT_TRANSLATE:
-	fprintf(stderr, "SCREEN_EVENT_TRANSLATE\n");
-	break;
-    case SCREEN_EVENT_SET_OPERATOR:
-	fprintf(stderr, "SCREEN_EVENT_SET_OPERATOR\n");
-	break;
-    case SCREEN_EVENT_PEEK:
-	fprintf(stderr, "SCREEN_EVENT_PEEK\n");
-	break;
-    case SCREEN_EVENT_POKE:
-	fprintf(stderr, "SCREEN_EVENT_POKE\n");
-	break;
-    case SCREEN_EVENT_CURRENT_POINT:
-	fprintf(stderr, "SCREEN_EVENT_CURRENT_POINT\n");
-	break;
-    }
-}
-#endif
-
 void handle_screen_event(struct screen_event_data *ev) {
-#if DEBUG_SCREEN_EVENTS
-    print_event_type(ev);
-#endif
     assert(ev->type != SCREEN_EVENT_NONE);
     switch(ev->type) {
     case SCREEN_EVENT_UPDATE:
@@ -288,9 +171,6 @@ void handle_screen_event(struct screen_event_data *ev) {
 	screen_fill();
 	break;
     case SCREEN_EVENT_TEXT:
-#if DEBUG_SCREEN_EVENTS
-	assert(ev->payload.b.nb == strlen(ev->buf)+1);
-#endif
 	screen_text(ev->buf);
 	break;
     case SCREEN_EVENT_TEXT_EXTENTS:
@@ -303,15 +183,9 @@ void handle_screen_event(struct screen_event_data *ev) {
 	screen_close_path();
 	break;
     case SCREEN_EVENT_EXPORT_PNG:
-#if DEBUG_SCREEN_EVENTS
-	assert(ev->payload.b.nb == strlen(ev->buf)+1);
-#endif
 	screen_export_png(ev->buf);
 	break;
     case SCREEN_EVENT_DISPLAY_PNG:
-#if DEBUG_SCREEN_EVENTS
-	assert(ev->payload.bd.nb == strlen(ev->buf)+1);
-#endif
 	screen_display_png(ev->buf, ev->payload.bd.d1, ev->payload.bd.d2);
 	break;
     case SCREEN_EVENT_ROTATE:
@@ -324,9 +198,6 @@ void handle_screen_event(struct screen_event_data *ev) {
 	screen_set_operator(ev->payload.i.i1);
 	break;
     case SCREEN_EVENT_POKE:
-#if DEBUG_SCREEN_EVENTS
-	assert(ev->payload.bi.nb == ev->payload.bi.i3 * ev->payload.bi.i4);
-#endif
 	screen_poke(ev->payload.bi.i1, ev->payload.bi.i2,
 		    ev->payload.bi.i3, ev->payload.bi.i4,
 		    ev->buf);
@@ -350,9 +221,6 @@ static inline void screen_event_copy_string(struct screen_event_data *ev, const 
     ev->buf = malloc(nb);
     memcpy(ev->buf, s, nb);
     ev->payload.b.nb = nb;
-#if DEBUG_SCREEN_EVENTS
-    fprintf(stderr, "screen_event_copy_string: string = \"%s\"; nb = %d\n", s, nb);
-#endif
 }
 
 void screen_event_update(void) {
