@@ -187,36 +187,78 @@ Screen.text_extents = function(str)
 end
 
 --- select font face.
--- @param index font face (see list)
---
--- 1 04B_03 (norns default)
---
--- 2 ALEPH
---
--- 3 Roboto Thin
---
--- 4 Roboto Light
---
--- 5 Roboto Regular
---
--- 6 Roboto Medium
---
--- 7 Roboto Bold
---
--- 8 Roboto Black
---
--- 9 Roboto Thin Italic
---
--- 10 Roboto Light Italic
---
--- 11 Roboto Italic
---
--- 12 Roboto Medium Italic
---
--- 13 Roboto Bold Italic
---
--- 14 Roboto Black Italic
+-- @param index font face index (see Screen.font_face_names)
 Screen.font_face = function(index) _norns.screen_font_face(index) end
+Screen.font_face_count = 67
+Screen.font_face_names = {
+   "04B_03__",
+   "liquid",
+   "Roboto-Thin",
+   "Roboto-Light",
+   "Roboto-Regular",
+   "Roboto-Medium",
+   "Roboto-Bold",
+   "Roboto-Black",
+   "Roboto-ThinItalic",
+   "Roboto-LightItalic",
+   "Roboto-Italic",
+   "Roboto-MediumItalic",
+   "Roboto-BoldItalic",
+   "Roboto-BlackItalic",
+   "VeraBd",
+   "VeraBI",
+   "VeraIt",
+   "VeraMoBd",
+   "VeraMoBI",
+   "VeraMoIt",
+   "VeraMono",
+   "VeraSeBd",
+   "VeraSe",
+   "Vera",
+   "bmp/tom-thumb",
+   "bmp/creep",
+   "bmp/ctrld-fixed-10b",
+   "bmp/ctrld-fixed-10r",
+   "bmp/ctrld-fixed-13b",
+   "bmp/ctrld-fixed-13b-i",
+   "bmp/ctrld-fixed-13r",
+   "bmp/ctrld-fixed-13r-i",
+   "bmp/ctrld-fixed-16b",
+   "bmp/ctrld-fixed-16b-i",
+   "bmp/ctrld-fixed-16r",
+   "bmp/ctrld-fixed-16r-i",
+   "bmp/scientifica-11",
+   "bmp/scientificaBold-11",
+   "bmp/scientificaItalic-11",
+   "bmp/ter-u12b",
+   "bmp/ter-u12n",
+   "bmp/ter-u14b",
+   "bmp/ter-u14n",
+   "bmp/ter-u14v",
+   "bmp/ter-u16b",
+   "bmp/ter-u16n",
+   "bmp/ter-u16v",
+   "bmp/ter-u18b",
+   "bmp/ter-u18n",
+   "bmp/ter-u20b",
+   "bmp/ter-u20n",
+   "bmp/ter-u22b",
+   "bmp/ter-u22n",
+   "bmp/ter-u24b",
+   "bmp/ter-u24n",
+   "bmp/ter-u28b",
+   "bmp/ter-u28n",
+   "bmp/ter-u32b",
+   "bmp/ter-u32n",
+   "bmp/unscii-16-full",
+   "bmp/unscii-16",
+   "bmp/unscii-8-alt",
+   "bmp/unscii-8-fantasy",
+   "bmp/unscii-8-mcr",
+   "bmp/unscii-8",
+   "bmp/unscii-8-tall",
+   "bmp/unscii-8-thin"
+}
 
 --- set font size.
 -- @tparam number size in pixel height.
