@@ -266,9 +266,6 @@ static int _sound_file_inspect(lua_State *l);
 static int _system_cmd(lua_State *l);
 static int _system_glob(lua_State *l);
 
-/* // reset LVM */
-/* static int _reset_lvm(lua_State *l); */
-
 // clock
 static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
@@ -532,9 +529,6 @@ void w_init(void) {
     // returns channels, frames, samplerate
     lua_register_norns("sound_file_inspect", &_sound_file_inspect);
 
-    /* // reset LVM */
-    /* lua_register_norns("reset_lvm", &_reset_lvm); */
-
     // clock
     lua_register_norns("clock_schedule_sleep", &_clock_schedule_sleep);
     lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
@@ -595,12 +589,6 @@ void w_deinit(void) {
     lua_close(lvm);
 }
 
-/* void w_reset_lvm() { */
-/*     w_deinit(); */
-/*     w_init(); */
-/*     w_startup(); */
-/* } */
-
 //----------------------------------
 //---- static definitions
 //
@@ -611,14 +599,6 @@ void w_deinit(void) {
     if (lua_gettop(l) != n) {                   \
         return luaL_error(l, LUA_ARG_ERROR(n)); \
     }
-
-/* int _reset_lvm(lua_State *l) { */
-/*     lua_check_num_args(0); */
-/*     lua_settop(l, 0); */
-/*     // do this through the event loop, not from inside a lua pcall */
-/*     event_post(event_data_new(EVENT_RESET_LVM)); */
-/*     return 0; */
-/* } */
 
 //--------------------------------
 //--- screen
