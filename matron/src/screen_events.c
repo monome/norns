@@ -173,6 +173,12 @@ void handle_screen_event(struct screen_event_data *ev) {
     case SCREEN_EVENT_TEXT:
 	screen_text(ev->buf);
 	break;
+    case SCREEN_EVENT_TEXT_RIGHT:
+	screen_text_right(ev->buf);
+	break;
+    case SCREEN_EVENT_TEXT_CENTER:
+	screen_text_center(ev->buf);
+	break;
     case SCREEN_EVENT_TEXT_EXTENTS:
 	screen_text_extents(ev->buf);
 	break;
@@ -411,6 +417,22 @@ void screen_event_text(const char *s) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_TEXT;
+    screen_event_copy_string(&ev, s);
+    screen_event_data_push(&ev);
+}
+
+void screen_event_text_right(const char *s) {
+    struct screen_event_data ev;
+    screen_event_data_init(&ev);
+    ev.type = SCREEN_EVENT_TEXT_RIGHT;
+    screen_event_copy_string(&ev, s);
+    screen_event_data_push(&ev);
+}
+
+void screen_event_text_center(const char *s) {
+    struct screen_event_data ev;
+    screen_event_data_init(&ev);
+    ev.type = SCREEN_EVENT_TEXT_CENTER;
     screen_event_copy_string(&ev, s);
     screen_event_data_push(&ev);
 }

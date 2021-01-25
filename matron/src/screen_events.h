@@ -25,6 +25,8 @@ extern void screen_event_rect(double x, double y, double w, double h);
 extern void screen_event_stroke(void);
 extern void screen_event_fill(void);
 extern void screen_event_text(const char *s);
+extern void screen_event_text_right(const char *s);
+extern void screen_event_text_center(const char *s);
 extern void screen_event_clear(void);
 extern void screen_event_close_path(void);
 extern void screen_event_text_extents(const char *s);
