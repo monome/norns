@@ -78,24 +78,23 @@ local function param_handler(path, args)
   end
 end
 
+
 local function remote_handler(path, args)
   local cmd = string.sub(path, 1,11)
-  if cmd=="/remote/key" then    
-    if #args > 1 then
-      _norns.key(args[1],args[2])
-    else
-      local n = tonumber(string.sub(path, 13))
-      _norns.key(n, args[1])
-    end
+  local n, val
+  if #args > 1 then
+    n, val = args[1], args[2]
+  else
+    n = tonumber(string.sub(path, 13))
+    val = args[1]
+  end
+  if cmd=="/remote/key" then
+    _norns.key(n, val)
   elseif cmd=="/remote/enc" then
-    if #args > 1 then
-      _norns.enc(args[1],args[2])
-    else
-      local n = tonumber(string.sub(path, 13))
-      _norns.enc(n, args[1])
-    end
+    _norns.enc(n, val)
   end
 end
+				    
 
 -- handle an osc event.
 _norns.osc.event = function(path, args, from)
