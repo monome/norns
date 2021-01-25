@@ -46,8 +46,6 @@ static void handle_event(union event_data *ev);
 
 /// helpers
 static void handle_engine_report(void);
-// static void handle_command_report(void);
-// static void handle_poll_report(void);
 
 // add an event data struct to the end of the event queue
 // *does* allocate queue node memory!
@@ -145,6 +143,9 @@ MATRON_API void event_data_free(union event_data *ev) {
     /* 	if (ev->screen_results.data != NULL) { */
     /* 	    free(ev->screen_results.data); */
     /* 	} */
+    case EVENT_SCREEN_RESULT_PEEK:
+        free(ev->screen_result_peek.buf);
+        break;
     }
     free(ev);
 }
@@ -321,6 +322,8 @@ static void handle_event(union event_data *ev) {
     /* case EVENT_SCREEN_RESULTS: */
     /* 	w_handle_screen_results(&ev->screen_results); */
     /* 	break; */
+	    w_handle_screen_result_peek(&ev->screen_result_peek);
+	    break;
     } /* switch */
 
     event_data_free(ev);
