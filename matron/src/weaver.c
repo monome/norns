@@ -910,6 +910,28 @@ int _screen_text(lua_State *l) {
 }
 
 /***
+ * screen: right-justified text
+ */
+int _screen_text_right(lua_State *l) {
+    lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    screen_event_text_right(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: center-justified text
+ */
+int _screen_text_center(lua_State *l) {
+      lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    screen_event_text_center(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
  * screen: clear to black
  * @function s_clear
  */
@@ -928,19 +950,6 @@ int _screen_close(lua_State *l) {
     lua_check_num_args(0);
     screen_event_close_path();
     lua_settop(l, 0);
-    return 0;
-}
-
-/***
- * screen: right-justified text
- */
-int _screen_text_right(lua_State *l) {
-    // TODO
-    return 0;
-}
-
-int _screen_text_center(lua_State *l) {
-    // TODO
     return 0;
 }
 
