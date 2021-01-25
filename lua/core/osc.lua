@@ -31,7 +31,6 @@ function OSC.send(to, path, args)
   end
 end
 
--- FIXME: does this go to crone or sclang?
 -- static method to send osc event directly to sclang.
 -- @tparam string path : osc message path
 -- @tparam string args : osc message args
@@ -80,22 +79,36 @@ local function param_handler(path, args)
 end
 
 local function remote_handler(path, args)
-  if path=="/remote/key" then
-    if args[1] and args[2] then _norns.key(args[1],args[2]) end
-  elseif path=="/remote/enc" then
-    if args[1] and args[2] then _norns.enc(args[1],args[2]) end
+  local cmd = string.sub(path, 1,11)
+  if cmd=="/remote/key" then    
+    if #args > 1 then
+      _norns.key(args[1],args[2])
+    else
+      local n = tonumber(string.sub(path, 13))
+      _norns.key(n, args[1])
+    end
+  elseif cmd=="/remote/enc" then
+    if #args > 1 then
+      _norns.enc(args[1],args[2])
+    else
+      local n = tonumber(string.sub(path, 13))
+      _norns.enc(n, args[1])
+    end
   end
 end
 
 -- handle an osc event.
 _norns.osc.event = function(path, args, from)
+
+  if OSC.event ~= nil then OSC.event(path, args, from) end
+  
   if util.string_starts(path, "/param") then
     param_handler(path, args)
   elseif util.string_starts(path, "/remote") then
     remote_handler(path, args)
   end
 
-  if OSC.event ~= nil then OSC.event(path, args, from) end
+
 end
 
 return OSC
