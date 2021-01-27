@@ -158,6 +158,13 @@ Screen.fill = function() _norns.screen_fill() end
 -- @tparam string str : text to write
 Screen.text = function(str) _norns.screen_text(str) end
 
+--- draw left-aligned text, trimmed to specified width.
+-- (characters are removed from end of string until it fits.)
+-- uses currently selected font.
+-- @tparam string str : text to write
+-- @tparam number w: width 
+Screen.text_trim = function(str, w) _norns.screen_text_trim(str, w) end
+
 --- draw text (left aligned) and rotated.
 -- uses currently selected font.
 -- @tparam number x x position

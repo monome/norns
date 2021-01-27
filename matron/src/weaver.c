@@ -925,7 +925,7 @@ int _screen_text_right(lua_State *l) {
  * screen: center-justified text
  */
 int _screen_text_center(lua_State *l) {
-      lua_check_num_args(1);
+    lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
     screen_event_text_center(s);
     lua_settop(l, 0);
@@ -936,7 +936,7 @@ int _screen_text_center(lua_State *l) {
  * screen: text trimmed to width
  */
 int _screen_text_trim(lua_State *l) {
-      lua_check_num_args(1);
+    lua_check_num_args(2);
     const char *s = luaL_checkstring(l, 1);
     double w = luaL_checknumber(l, 2);
     screen_event_text_trim(s, w);
