@@ -115,6 +115,7 @@ static int _screen_text(lua_State *l);
 static int _screen_text_right(lua_State *l);
 static int _screen_text_center(lua_State *l);
 static int _screen_text_extents(lua_State *l);
+static int _screen_text_trim(lua_State *l);
 static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
 static int _screen_export_png(lua_State *l);
@@ -463,7 +464,7 @@ void w_init(void) {
     lua_register_norns("screen_text_right", &_screen_text_right);
     lua_register_norns("screen_text_center", &_screen_text_center);
     lua_register_norns("screen_text_extents", &_screen_text_extents);
-    
+    lua_register_norns("screen_text_trim", &_screen_text_trim);    
     
     lua_register_norns("screen_clear", &_screen_clear);
     lua_register_norns("screen_close", &_screen_close);
@@ -932,6 +933,18 @@ int _screen_text_center(lua_State *l) {
 }
 
 /***
+ * screen: text trimmed to width
+ */
+int _screen_text_trim(lua_State *l) {
+      lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    double w = luaL_checknumber(l, 2);
+    screen_event_text_trim(s, w);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
  * screen: clear to black
  * @function s_clear
  */
@@ -962,6 +975,7 @@ int _screen_text_extents(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
     screen_event_text_extents(s);
+    lua_settop(l, 0);
     return 0;
 }
 

@@ -262,7 +262,6 @@ void screen_text(const char *s) {
     cairo_show_text(cr, s);
 }
 
-
 void screen_text_right(const char *s) {    
     cairo_text_extents_t extents;    
     cairo_text_extents(cr, s, &extents);
@@ -275,6 +274,19 @@ void screen_text_center(const char *s) {
     cairo_text_extents(cr, s, &extents);
     cairo_rel_move_to(cr, -extents.width * 0.5, 0);
     cairo_show_text(cr, s);
+}
+
+void screen_text_trim(char *s, double w) {
+    cairo_text_extents_t extents;
+    int n = strlen(s);
+    do {
+	s[n--] = '\0';
+	cairo_text_extents(cr, s, &extents);
+	if (n <= 0) {
+	    return;
+	}
+    } while (extents.width > w);
+    cairo_show_text(cr, s);    
 }
 
 void screen_clear(void) {
