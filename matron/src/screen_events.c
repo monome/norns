@@ -182,6 +182,9 @@ void handle_screen_event(struct screen_event_data *ev) {
     case SCREEN_EVENT_TEXT_EXTENTS:
 	screen_text_extents(ev->buf);
 	break;
+    case SCREEN_EVENT_TEXT_TRIM:
+	screen_text_trim(ev->buf, ev->payload.d.d1);
+	break;
     case SCREEN_EVENT_CLEAR:
 	screen_clear();
 	break;
@@ -445,6 +448,15 @@ void screen_event_text_extents(const char *s) {
     screen_event_data_push(&ev);
 }
 
+
+void screen_event_text_trim(const char *s, double w) {
+    struct screen_event_data ev;
+    screen_event_data_init(&ev);
+    ev.type = SCREEN_EVENT_TEXT_TRIM;
+    screen_event_copy_string(&ev, s);
+    ev.payload.d.d1 = w;
+    screen_event_data_push(&ev);    
+}
 
 void screen_event_clear(void) {
     struct screen_event_data ev;
