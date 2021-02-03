@@ -84,6 +84,30 @@ function crow.connected()
   return norns.crow.dev ~= nil
 end
 
+--- run / upload userscript
+function crow.loadscript(file, is_persistent)
+  local f = util.file_exists(file)
+  if not f then
+    print("crow.loadscript: can't find file "..file)
+  else
+
+    local function upload(file, is_persistent)
+      -- TODO refine these clock.sleep(). can likely be reduced.
+      crow.send("^^s")
+      clock.sleep(0.2)
+      for line in io.lines(file) do
+        crow.send(line)
+        clock.sleep(0.01)
+      end
+      clock.sleep(0.2)
+      crow.send(is_persistent and "^^w" or "^^e")
+    end
+
+    print("crow loading: ".. file)
+    clock.run(upload, file, is_persistent)
+  end
+end
+
 
 -- crowlib aliases & metatable syntax enhancements
 
