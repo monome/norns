@@ -16,6 +16,7 @@ _norns.crow.add = function(id, name, dev)
   --- enable clock-in if needed
   if params.lookup["clock_source"] then
     if params:string("clock_source") == "crow" then
+      crow.send("input[1]:reset_events()") -- ensure crow's callback has not been redefined
       crow.input[1].change = function() end
       crow.input[1].mode("change",2,0.1,"rising")
     end
