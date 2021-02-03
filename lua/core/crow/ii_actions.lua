@@ -10,13 +10,16 @@ local actions = {}
 actions.init = function()
   actions.ansible.event = function(t,v) print("ansible ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
   actions.crow.event = function(t,v) print("crow ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.disting.event = function(t,v) print("disting ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
   actions.faders.event = function(t,v) print("faders ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
   actions.jf.event = function(t,v) print("jf ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
   actions.kria.event = function(t,v) print("kria ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
   actions.levels.event = function(t,v) print("levels ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
   actions.meadowphysics.event = function(t,v) print("meadowphysics ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
   actions.txi.event = function(t,v) print("txi ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
-  actions.wslash.event = function(t,v) print("wslash ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.wdel.event = function(t,v) print("wdel ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.wsyn.event = function(t,v) print("wsyn ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
+  actions.wtape.event = function(t,v) print("wtape ii: name='"..t.name.."', device="..t.device..", arg="..t.arg..", value="..v) end
 end
 
 actions.ansible = {}
@@ -39,15 +42,48 @@ end
 
 actions.crow = {}
 actions.crow.help = function() crow.send("ii.crow.help()") end
-actions.crow.output = function(channel,level) crow.send("ii.crow.output("..channel..","..level..")") end
+actions.crow.volts = function(channel,level) crow.send("ii.crow.volts("..channel..","..level..")") end
 actions.crow.slew = function(channel,time) crow.send("ii.crow.slew("..channel..","..time..")") end
 actions.crow.call1 = function(arg) crow.send("ii.crow.call1("..arg..")") end
 actions.crow.call2 = function(arg1,arg2) crow.send("ii.crow.call2("..arg1..","..arg2..")") end
 actions.crow.call3 = function(arg1,arg2,arg3) crow.send("ii.crow.call3("..arg1..","..arg2..","..arg3..")") end
 actions.crow.call4 = function(arg1,arg2,arg3,arg4) crow.send("ii.crow.call4("..arg1..","..arg2..","..arg3..","..arg4..")") end
+actions.crow.reset = function() crow.send("ii.crow.reset()") end
+actions.crow.pulse = function(chan,time,level,polarity) crow.send("ii.crow.pulse("..chan..","..time..","..level..","..polarity..")") end
+actions.crow.ar = function(chan,attack,release,level) crow.send("ii.crow.ar("..chan..","..attack..","..release..","..level..")") end
+actions.crow.lfo = function(chan,freq,level,skew) crow.send("ii.crow.lfo("..chan..","..freq..","..level..","..skew..")") end
 actions.crow.get = function(cmd,...)
 	local t = {...}
 	local s = string.format("ii.crow.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
+
+actions.disting = {}
+actions.disting.help = function() crow.send("ii.disting.help()") end
+actions.disting.load_preset = function(number) crow.send("ii.disting.load_preset("..number..")") end
+actions.disting.save_preset = function(value) crow.send("ii.disting.save_preset("..value..")") end
+actions.disting.reset_preset = function() crow.send("ii.disting.reset_preset()") end
+actions.disting.load_algorithm = function(algorithm) crow.send("ii.disting.load_algorithm("..algorithm..")") end
+actions.disting.set_controller = function(controller,value) crow.send("ii.disting.set_controller("..controller..","..value..")") end
+actions.disting.set_parameter = function(parameter,value) crow.send("ii.disting.set_parameter("..parameter..","..value..")") end
+actions.disting.set_scale_parameter = function(parameter,value) crow.send("ii.disting.set_scale_parameter("..parameter..","..value..")") end
+actions.disting.wav_record = function(action) crow.send("ii.disting.wav_record("..action..")") end
+actions.disting.wav_playback = function(action) crow.send("ii.disting.wav_playback("..action..")") end
+actions.disting.al_pitch = function(pitch) crow.send("ii.disting.al_pitch("..pitch..")") end
+actions.disting.al_clock = function() crow.send("ii.disting.al_clock()") end
+actions.disting.midi = function(status,b0,b1) crow.send("ii.disting.midi("..status..","..b0..","..b1..")") end
+actions.disting.select_bus = function(status,b0,b1) crow.send("ii.disting.select_bus("..status..","..b0..","..b1..")") end
+actions.disting.voice_pitch = function(voice,pitch) crow.send("ii.disting.voice_pitch("..voice..","..pitch..")") end
+actions.disting.voice_on = function(voice,velocity) crow.send("ii.disting.voice_on("..voice..","..velocity..")") end
+actions.disting.voice_off = function(voice) crow.send("ii.disting.voice_off("..voice..")") end
+actions.disting.note_pitch = function(note_id,pitch) crow.send("ii.disting.note_pitch("..note_id..","..pitch..")") end
+actions.disting.note_velocity = function(note_id,velocity) crow.send("ii.disting.note_velocity("..note_id..","..velocity..")") end
+actions.disting.note_off = function(note_id) crow.send("ii.disting.note_off("..note_id..")") end
+actions.disting.all_notes_off = function() crow.send("ii.disting.all_notes_off()") end
+actions.disting.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.disting.get(%q",cmd)
 	for i=1,#t do s = s .. "," .. t[i] end
 	crow.send(s .. ")")
 end
@@ -234,15 +270,75 @@ actions.txo.cv_calib = function(port) crow.send("ii.txo.cv_calib("..port..")") e
 actions.txo.cv_reset = function(port) crow.send("ii.txo.cv_reset("..port..")") end
 actions.txo.init = function(unit) crow.send("ii.txo.init("..unit..")") end
 
-actions.wslash = {}
-actions.wslash.help = function() crow.send("ii.wslash.help()") end
-actions.wslash.record = function(active) crow.send("ii.wslash.record("..active..")") end
-actions.wslash.play = function(direction) crow.send("ii.wslash.play("..direction..")") end
-actions.wslash.loop = function(state) crow.send("ii.wslash.loop("..state..")") end
-actions.wslash.cue = function(destination) crow.send("ii.wslash.cue("..destination..")") end
-actions.wslash.get = function(cmd,...)
+actions.wdel = {}
+actions.wdel.help = function() crow.send("ii.wdel.help()") end
+actions.wdel.feedback = function(level) crow.send("ii.wdel.feedback("..level..")") end
+actions.wdel.mix = function(fade) crow.send("ii.wdel.mix("..fade..")") end
+actions.wdel.filter = function(cutoff) crow.send("ii.wdel.filter("..cutoff..")") end
+actions.wdel.freeze = function(is_active) crow.send("ii.wdel.freeze("..is_active..")") end
+actions.wdel.time = function(seconds) crow.send("ii.wdel.time("..seconds..")") end
+actions.wdel.length = function(count,divisions) crow.send("ii.wdel.length("..count..","..divisions..")") end
+actions.wdel.position = function(count,divisions) crow.send("ii.wdel.position("..count..","..divisions..")") end
+actions.wdel.cut = function(count,divisions) crow.send("ii.wdel.cut("..count..","..divisions..")") end
+actions.wdel.rate = function(multiplier) crow.send("ii.wdel.rate("..multiplier..")") end
+actions.wdel.freq = function(volts) crow.send("ii.wdel.freq("..volts..")") end
+actions.wdel.clock = function() crow.send("ii.wdel.clock()") end
+actions.wdel.clock_ratio = function(mul,div) crow.send("ii.wdel.clock_ratio("..mul..","..div..")") end
+actions.wdel.pluck = function(volume) crow.send("ii.wdel.pluck("..volume..")") end
+actions.wdel.mod_rate = function(rate) crow.send("ii.wdel.mod_rate("..rate..")") end
+actions.wdel.mod_amount = function(amount) crow.send("ii.wdel.mod_amount("..amount..")") end
+actions.wdel.get = function(cmd,...)
 	local t = {...}
-	local s = string.format("ii.wslash.get(%q",cmd)
+	local s = string.format("ii.wdel.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
+
+actions.wsyn = {}
+actions.wsyn.help = function() crow.send("ii.wsyn.help()") end
+actions.wsyn.velocity = function(voice,velocity) crow.send("ii.wsyn.velocity("..voice..","..velocity..")") end
+actions.wsyn.pitch = function(voice,pitch) crow.send("ii.wsyn.pitch("..voice..","..pitch..")") end
+actions.wsyn.play_voice = function(voice,pitch,velocity) crow.send("ii.wsyn.play_voice("..voice..","..pitch..","..velocity..")") end
+actions.wsyn.play_note = function(pitch,level) crow.send("ii.wsyn.play_note("..pitch..","..level..")") end
+actions.wsyn.ar_mode = function(is_ar) crow.send("ii.wsyn.ar_mode("..is_ar..")") end
+actions.wsyn.curve = function(curve) crow.send("ii.wsyn.curve("..curve..")") end
+actions.wsyn.ramp = function(ramp) crow.send("ii.wsyn.ramp("..ramp..")") end
+actions.wsyn.fm_index = function(index) crow.send("ii.wsyn.fm_index("..index..")") end
+actions.wsyn.fm_env = function(amount) crow.send("ii.wsyn.fm_env("..amount..")") end
+actions.wsyn.fm_ratio = function(numerator,denomenator) crow.send("ii.wsyn.fm_ratio("..numerator..","..denomenator..")") end
+actions.wsyn.lpg_time = function(time) crow.send("ii.wsyn.lpg_time("..time..")") end
+actions.wsyn.lpg_symmetry = function(symmetry) crow.send("ii.wsyn.lpg_symmetry("..symmetry..")") end
+actions.wsyn.patch = function(jack,param) crow.send("ii.wsyn.patch("..jack..","..param..")") end
+actions.wsyn.voices = function(count) crow.send("ii.wsyn.voices("..count..")") end
+actions.wsyn.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.wsyn.get(%q",cmd)
+	for i=1,#t do s = s .. "," .. t[i] end
+	crow.send(s .. ")")
+end
+
+actions.wtape = {}
+actions.wtape.help = function() crow.send("ii.wtape.help()") end
+actions.wtape.record = function(active) crow.send("ii.wtape.record("..active..")") end
+actions.wtape.play = function(playback) crow.send("ii.wtape.play("..playback..")") end
+actions.wtape.reverse = function() crow.send("ii.wtape.reverse()") end
+actions.wtape.speed = function(speed_or_num,deno) crow.send("ii.wtape.speed("..speed_or_num..","..deno..")") end
+actions.wtape.freq = function(frequency) crow.send("ii.wtape.freq("..frequency..")") end
+actions.wtape.erase_strength = function(level) crow.send("ii.wtape.erase_strength("..level..")") end
+actions.wtape.monitor_level = function(gain) crow.send("ii.wtape.monitor_level("..gain..")") end
+actions.wtape.rec_level = function(gain) crow.send("ii.wtape.rec_level("..gain..")") end
+actions.wtape.echo_mode = function(is_echo) crow.send("ii.wtape.echo_mode("..is_echo..")") end
+actions.wtape.loop_start = function() crow.send("ii.wtape.loop_start()") end
+actions.wtape.loop_end = function() crow.send("ii.wtape.loop_end()") end
+actions.wtape.loop_active = function(state) crow.send("ii.wtape.loop_active("..state..")") end
+actions.wtape.loop_scale = function(scale) crow.send("ii.wtape.loop_scale("..scale..")") end
+actions.wtape.loop_next = function(direction) crow.send("ii.wtape.loop_next("..direction..")") end
+actions.wtape.timestamp = function(seconds) crow.send("ii.wtape.timestamp("..seconds..")") end
+actions.wtape.seek = function(seconds) crow.send("ii.wtape.seek("..seconds..")") end
+actions.wtape.WARNING_clear_tape = function() crow.send("ii.wtape.WARNING_clear_tape()") end
+actions.wtape.get = function(cmd,...)
+	local t = {...}
+	local s = string.format("ii.wtape.get(%q",cmd)
 	for i=1,#t do s = s .. "," .. t[i] end
 	crow.send(s .. ")")
 end
