@@ -1,11 +1,10 @@
 local m = {
   alt = false,
-  install = 1,
-  version = ''
+  install = "stable"
 }
 
-local releases = {}
-local VER = { 1="stable", 2="beta" }
+releases = {}
+local VER = { "stable", "beta" }
 
 local function checked() print("what??") end
 local function get_update_2() end
@@ -44,7 +43,7 @@ local function get_update()
   m.message = "downloading..."
   _menu.redraw()
   print("starting download...")
-  local cmd = "wget -T 180 -q -P /home/we/update/ " .. releases[m.install].url
+  local cmd = "wget -T 180 -q -P /home/we/update/ " .. releases[m.install].url .. " " .. releases[m.install].sha
   print("> "..cmd)
   norns.system_cmd(cmd, get_update_2) --download
   _menu.timer.time = 0.5
@@ -159,6 +158,7 @@ m.redraw = function()
 end
 
 m.init = function()
+  m.install = "stable"
   m.alt = _menu.alt
 
   m.stage = "init"
