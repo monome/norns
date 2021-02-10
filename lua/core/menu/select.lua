@@ -28,7 +28,8 @@ local function sort_select_tree(results)
   local t = {}
   for filename in results:gmatch("[^\r\n]+") do
     if string.match(filename,"/data/")==nil and
-      string.match(filename,"/lib/")==nil then
+      string.match(filename,"/lib/")==nil and
+      string.match(filename,"/crow/")==nil then
       table.insert(t,filename)
     end
   end
