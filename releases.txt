@@ -1,0 +1,2 @@
+stable 210114 https://github.com/monome/norns/releases/download/v2.4.8/norns210114.tgz https://github.com/monome/norns/releases/download/v2.4.8/norns210114.sha256
+beta 210114 https://github.com/monome/norns/releases/download/v2.4.8/norns210114.tgz https://github.com/monome/norns/releases/download/v2.4.8/norns210114.sha256
