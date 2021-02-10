@@ -16,6 +16,7 @@ _norns.crow.add = function(id, name, dev)
   --- enable clock-in if needed
   if params.lookup["clock_source"] then
     if params:string("clock_source") == "crow" then
+      crow.send("input[1]:reset_events()") -- ensure crow's callback has not been redefined
       crow.input[1].change = function() end
       crow.input[1].mode("change",2,0.1,"rising")
     end
@@ -81,6 +82,34 @@ end
 --- check if crow is connected
 function crow.connected()
   return norns.crow.dev ~= nil
+end
+
+--- run / upload userscript
+function crow.loadscript(file, is_persistent)
+
+  local abspath = norns.state.path .. 'crow/' .. file
+  if not util.file_exists(abspath) then
+    abspath = _path.code .. file
+    if not util.file_exists(abspath) then
+      print("crow.loadscript: can't find file "..file)
+      return
+    end
+  end
+
+  local function upload(file, is_persistent)
+    -- TODO refine these clock.sleep(). can likely be reduced.
+    crow.send("^^s")
+    clock.sleep(0.2)
+    for line in io.lines(file) do
+      crow.send(line)
+      clock.sleep(0.01)
+    end
+    clock.sleep(0.2)
+    crow.send(is_persistent and "^^w" or "^^e")
+  end
+
+  print("crow loading: ".. file)
+  clock.run(upload, abspath, is_persistent)
 end
 
 
