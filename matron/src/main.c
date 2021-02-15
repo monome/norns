@@ -27,6 +27,7 @@
 #include "osc.h"
 #include "platform.h"
 #include "screen.h"
+#include "screen_events.h"
 #include "stat.h"
 
 #include "oracle.h"
@@ -87,6 +88,9 @@ int main(int argc, char **argv) {
     dev_list_add(DEV_TYPE_MIDI_VIRTUAL, NULL, "virtual");
     dev_monitor_init();
 
+    // start listening for screen events
+    screen_events_init();
+
     // now is a good time to set our cleanup
     atexit(cleanup);
     // start reading input to interpreter
@@ -95,6 +99,7 @@ int main(int argc, char **argv) {
     w_startup();
     // scan for connected input devices
     dev_monitor_scan();
+
 
     // blocks until quit
     event_loop();

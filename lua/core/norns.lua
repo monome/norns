@@ -116,6 +116,34 @@ _norns.stat = function(disk, temp, cpu)
   norns.cpu = cpu
 end
 
+-- screen query handling
+_norns.screen = {}
+_norns.screen.text_extents = function(x_bear, y_bear, w, h, x_adv, y_adv)
+   print("handling screen.text_extents results: ")
+   print("x bearing: "..x_bear)
+   print("y bearing: "..y_bear)
+   print("width: "..w)
+   print("height: "..h)
+   print("x advance: "..x_adv)
+   print("y advance: "..y_adv)
+end
+
+_norns.screen.current_point = function(x, y)
+   print("handling screen.current_point results: ")
+   print("x: "..x)
+   print("y: "..y)
+end
+
+_norns.screen.peek = function(w, h, buffer)
+   print("handling screen.peek results: ")
+   print("width: "..w)
+   print("height: "..h)
+   print("buffer: ")
+   for i in w*h do
+      print("  "..string.byte(buffer, i))
+   end
+end
+
 
 -- management
 norns.script = require 'core/script'
@@ -143,6 +171,7 @@ norns.try = function(f,msg)
   end
   return status
 end
+
 
 -- Null functions.
 -- @section null
