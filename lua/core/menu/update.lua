@@ -19,6 +19,7 @@ local function check_newest()
 end
 
 checked = function(result)
+  print(result)
   load(result)()
 
   if m.alt==false and tonumber(norns.version.update) >= tonumber(releases.stable.version) then
