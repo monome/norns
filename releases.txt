@@ -9,3 +9,4 @@ releases = {
     url="https://github.com/monome/norns/releases/download/v2.4.8/norns210114.tgz",
     sha="https://github.com/monome/norns/releases/download/v2.4.8/norns210114.sha256"
   }
+}
