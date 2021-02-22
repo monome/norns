@@ -112,4 +112,9 @@ function Taper:string()
   return string.format(format, v)
 end
 
+function Taper:get_range()
+  local r = { self.min, self.max }
+  return r
+end
+
 return Taper
