@@ -29,12 +29,23 @@ _norns.crow.remove = function(id)
 end
 
 _norns.crow.event = function(id, line)
-  line = string.sub(line,1,-2) -- strip newline
-  if string.find(line,"^%^%^") then
-    line = line:gsub("%^%^","norns.crow.")
-    assert(load(line))()
-  else
-    crow.receive(line)
+  local n, m = string.find(line,"%c+")
+  if not n then -- no control chars found
+    if #line > 0 then
+      line, reps = line:gsub("%^%^","norns.crow.")
+      if reps > 0 then
+        assert(load(line))()
+      else
+        crow.receive(line)
+      end
+    end
+  else -- handle control chars (n..m)
+    if m < #line then -- split & recur
+      _norns.crow.event(id, string.sub(line, 1, n-1)) -- before
+      _norns.crow.event(id, string.sub(line, m+1, -1)) -- after
+    else -- string ends with control
+      _norns.crow.event(id, string.sub(line, 1, n-1))
+    end
   end
 end
 
@@ -109,7 +120,7 @@ function crow.loadscript(file, is_persistent)
   end
 
   print("crow loading: ".. file)
-  clock.run(upload, abspath, is_persistent)
+  return clock.run(upload, abspath, is_persistent)
 end
 
 
