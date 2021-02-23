@@ -49,17 +49,28 @@ function Public.add(name, val, typ)
     print("adding: " .. name .. "=" .. val)
     if typ then
       local p = Public._params[ix]
-      if #typ == 1 then
-        p.type = typ[1]
-      elseif #typ == 2 then
-        p.min = typ[1]
-        p.max = typ[2]
-        p.range = typ[2]-typ[1]
-      elseif #typ == 3 then
-        p.min = typ[1]
-        p.max = typ[2]
-        p.range = typ[2]-typ[1]
-        p.type = typ[3]
+      local len = #typ
+      if len > 0 then
+        if type(typ[1]) == 'string' then
+          if len == 1 then
+            p.type = typ[1]
+          else -- capture enum
+            p.type = 'enum'
+            p.enum = {}
+            for i=2,len do
+              p.enum[i-1] = typ[i]
+            end
+          end
+        elseif len == 2 then
+          p.min = typ[1]
+          p.max = typ[2]
+          p.range = typ[2]-typ[1]
+        elseif len == 3 then
+          p.min = typ[1]
+          p.max = typ[2]
+          p.range = typ[2]-typ[1]
+          p.type = typ[3]
+        end
       end
     end
   end
@@ -77,14 +88,25 @@ end
 -- delta expects integer steps (eg from enc())
 function Public.delta(ix, z)
   local p = Public._params[ix]
-  if p.type == 'integer' then
-    -- do nothing
-  else -- assume number
-    -- scale z to 100 increments, or 0.01 steps if no range
-    if p.range then z = z * (p.range / 100)
-    else z = z / 100 end
+  local tmp = 0
+  if p.type == 'enum' then
+    tmp = p.enum[1] -- default to first elem
+    for k,v in ipairs(p.enum) do
+      if v == p.val then
+        tmp = p.enum[util.wrap(k+z, 1, #p.enum)] -- increment index, return name
+        break
+      end
+    end
+  else -- numeric
+    if p.type == 'integer' then
+      -- do nothing
+    else -- assume number
+      -- scale z to 100 increments, or 0.01 steps if no range
+      if p.range then z = z * (p.range / 100)
+      else z = z / 100 end
+    end
+    tmp = p.val + z
   end
-  local tmp = p.val + z
   Public[p.name] = tmp -- use metamethod to cause remote update & clamp
 end
 
