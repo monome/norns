@@ -3,6 +3,7 @@
 
 local ii_events = require 'core/crow/ii_events'
 local ii_actions = require 'core/crow/ii_actions'
+local public = require 'core/crow/public'
 
 
 -- system setup
@@ -66,6 +67,8 @@ function norns.crow.output(n,v) crow.output[n].receive(v) end
 function norns.crow.done(n) crow.output[n].done() end
 function norns.crow.running(n,v) crow.output[n].running(v) end
 function norns.crow.midi(...) crow.midi(...) end
+function norns.crow.pub(...) crow.public.add(...) end
+function norns.crow.pupdate(...) crow.public.update(...) end
 
 norns.crow.ii = ii_events
 
@@ -73,6 +76,8 @@ norns.crow.ii = ii_events
 -- userspace functions
 
 local crow = {}
+
+crow.public = public
 
 --- send version
 function crow.version() crow.send("^^v") end
