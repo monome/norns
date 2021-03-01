@@ -1,3 +1,18 @@
+# 210301
+
+## norns 2.4.9
+
+- NEW update: use releases.txt and provide beta option @tehn
+- NEW osc key/enc: add single arg version ie /remote/enc/n d @catfact
+- NEW crow update 2.1.2 @trent
+- NEW hide crow subfolder inside scripts @tehn
+- ADD param: taper get_range @justmat
+- ADD menu: _menu.params_rebuild() for dynamic menus @schollz
+- FIX softcut init values @catfact
+- FIX font list in docs @hiqualityh2o
+- FIX sane param defaults @tehn
+
+
 # 210114
 
 ## norns 2.4.8
