@@ -109,11 +109,16 @@ _norns.power = function(present)
 end
 
 -- stat handler
-_norns.stat = function(disk, temp, cpu)
+_norns.stat = function(disk, temp, cpu, cpu1, cpu2, cpu3, cpu4)
   --print("stat",disk,temp,cpu)
   norns.disk = disk
   norns.temp = temp
-  norns.cpu = cpu
+  norns.cpu_avg = cpu
+  norns.cpu = {}
+  norns.cpu[1] = cpu1
+  norns.cpu[2] = cpu2
+  norns.cpu[3] = cpu3
+  norns.cpu[4] = cpu4
 end
 
 
