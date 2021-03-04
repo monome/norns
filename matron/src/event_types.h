@@ -222,6 +222,10 @@ struct event_stat {
     uint16_t disk;
     uint8_t temp;
     uint8_t cpu;
+    uint8_t cpu1;
+    uint8_t cpu2;
+    uint8_t cpu3;
+    uint8_t cpu4;
 };
 
 struct event_enc {

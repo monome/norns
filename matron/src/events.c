@@ -201,7 +201,8 @@ static void handle_event(union event_data *ev) {
         w_handle_power(ev->power.present);
         break;
     case EVENT_STAT:
-        w_handle_stat(ev->stat.disk, ev->stat.temp, ev->stat.cpu);
+        w_handle_stat(ev->stat.disk, ev->stat.temp, ev->stat.cpu, ev->stat.cpu1, ev->stat.cpu2,
+            ev->stat.cpu3, ev->stat.cpu4);
         break;
     case EVENT_MONOME_ADD:
         w_handle_monome_add(ev->monome_add.dev);
