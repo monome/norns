@@ -453,6 +453,8 @@ function ParamSet:clear()
   self.name = ""
   self.params = {}
   self.count = 0
+  self.action_read = nil 
+  self.action_write = nil
 end
 
 return ParamSet
