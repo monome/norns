@@ -40,8 +40,8 @@ function ParamSet.new(id, name)
   ps.hidden = {}
   ps.lookup = {}
   ps.group = 0
-  ps.callback_write = nil
-  ps.callback_read = nil
+  ps.action_write = nil
+  ps.action_read = nil
   ParamSet.sets[ps.id] = ps
   return ps
 end
@@ -381,8 +381,8 @@ function ParamSet:write(filename, name)
       end
     end
     io.close(fd)
-    if self.callback_write ~= nil then 
-      self.callback_write(filename,name)
+    if self.action_write ~= nil then 
+      self.action_write(filename,name)
     end
   else print("pset: BAD FILENAME") end
 end
@@ -425,22 +425,12 @@ function ParamSet:read(filename, silent)
         end
       end
     end
-    if self.callback_read ~= nil then 
-      self.callback_read(filename,silent)
+    if self.action_read ~= nil then 
+      self.action_read(filename,silent)
     end
   else
     print("pset :: "..filename.." not read.")
   end
-end
-
--- set callback for after reading parameters
-function ParamSet:set_callback_read(func)
-  self.callback_read=func
-end
-
--- set callback for after writing parameters
-function ParamSet:set_callback_write(func)
-  self.callback_write=func
 end
 
 --- read default pset if present.
