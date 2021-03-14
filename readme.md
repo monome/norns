@@ -2,7 +2,7 @@
 
 general documentation is in [github.com/monome/docs](https://github.com/monome/docs).
 
-Lua api docs are hosted on [monome.github.io/norns/doc](https://monome.github.io/norns/doc/).
+Lua api docs are hosted on [monome.org/docs/norns/api](https://monome.org/docs/norns/api).
 
 see [readme-setup.md](readme-setup.md) for build, install, configuration, and execution.
 
