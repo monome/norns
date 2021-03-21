@@ -1,7 +1,7 @@
 contributing
 ==================================
 
-[![Build Status](https://travis-ci.org/monome/norns.svg?branch=master)](https://travis-ci.org/monome/norns)
+[![Build Status](https://travis-ci.org/monome/norns.svg?branch=main)](https://travis-ci.org/monome/norns)
 
 welcome
 -------
@@ -27,7 +27,7 @@ getting the code and configuring your environment
  * `git clone https://github.com/<your_name_here>/norns.git`
  * `cd norns`
  * `git remote add upstream https://github.com/monome/norns.git` (so that you
-   fetch from the master repository, not your clone, when running `git fetch`
+   fetch from the main repository, not your clone, when running `git fetch`
    et al.)
 
 contributing code
@@ -36,7 +36,7 @@ contributing code
 to start working on a patch:
 
  * `git fetch upstream`
- * `git checkout upstream/master -b name_of_your_branch`
+ * `git checkout upstream/main -b name_of_your_branch`
  * hack away
  * `git commit -a -m "<your brief but informative commit message>"`
  * `git push origin name_of_your_branch`
@@ -53,14 +53,14 @@ to send us a pull request (pr):
 
 once everyone is happy, a maintainer will merge your pr for you.
 
-api docs for master
+api docs for main
 -------------------
 
-to view the api docs for the `master` branch,
-visit https://monome.github.io/norns/doc/.
+to view the api docs for the `main` branch,
+visit https://monome.org/docs/norns/api.
 
 those docs should be updated after a successful travis build
-of the norns `master` branch.
+of the norns `main` branch.
 
 
 build infrastructure

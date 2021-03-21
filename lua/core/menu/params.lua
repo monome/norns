@@ -11,6 +11,7 @@ local m = {
   pos = 0,
   oldpos = 0,
   group = false,
+  groupid = 0,
   alt = false,
   mode = mSELECT,
   mode_prev = mSELECT,
@@ -162,6 +163,7 @@ m.key = function(n,z)
       if t == params.tGROUP then
         build_sub(i)
         m.group = true
+        m.groupid = i
         m.groupname = params:string(i)
         m.oldpos = m.pos
         m.pos = 0
@@ -630,6 +632,17 @@ m.deinit = function()
   _menu.timer:stop()
 end
 
+_menu.rebuild_params = function()
+  if m.mode == mEDIT or m.mode == mMAP then 
+    if m.group then
+      build_sub(m.groupid)
+      _menu.redraw()
+    else
+      build_page()
+      _menu.redraw()
+    end
+  end
+end
 
 norns.menu_midi_event = function(data, dev)
   local ch = data[1] - 175

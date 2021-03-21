@@ -61,22 +61,24 @@ m.redraw = function()
   else
     screen.level(1)
     if norns.is_norns then
-      screen.move(0,10)
-      screen.text("BAT " .. norns.battery_percent)
-      screen.move(36,10)
-      screen.text(norns.battery_current .. "mA")
+      screen.move(127,55)
+      screen.text_right(norns.battery_current.."mA @ ".. norns.battery_percent.."%")
+      --screen.move(36,10)
+      --screen.text(norns.battery_current .. "mA")
     end
+    screen.move(0,10) screen.text("cpu")
+    screen.move(30,10) screen.text_right(norns.cpu[1]..".")
+    screen.move(45,10) screen.text_right(norns.cpu[2]..".")
+    screen.move(60,10) screen.text_right(norns.cpu[3]..".")
+    screen.move(75,10) screen.text_right(norns.cpu[4]..".")
     screen.move(127,10)
-    screen.text_right("DISK " .. norns.disk .. "M")
+    screen.text_right(norns.temp .. "c")
+
     screen.move(0,20)
-    screen.text("CPU " .. norns.cpu .. "%")
-    screen.move(36,20)
-    screen.text(norns.temp .. "c")
+    screen.text("disk " .. norns.disk .. "M")
     screen.move(127,20)
     if wifi.state > 0 then
-      screen.text_right("IP "..wifi.ip)
-    else
-      screen.text_right("IP -")
+      screen.text_right(wifi.ip)
     end
     screen.move(127,45)
     screen.text_right(norns.version.update)

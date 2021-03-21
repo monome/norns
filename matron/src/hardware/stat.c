@@ -41,17 +41,17 @@ void *stat_check(void *x) {
     int number = -1;
     int disk = 0;
     int temp = 0;
-    int cpu = 0;
-    int _disk = -1;
-    int _temp = -1;
-    int _cpu = -1;
+    int cpu[5] = {0,0,0,0,0};
 
     FILE *fd;
     char buf[64];
     char bufsub[8];
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
-    uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
+    //uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
+    uint32_t sumidle = 0, sumnonidle = 0, total = 0;
+    uint32_t prevsumidle[5] = {0,0,0,0,0};
+    uint32_t prevtotal[5] = {0,0,0,0,0};
     int32_t totald, idled;
 
     while (1) {
@@ -85,11 +85,12 @@ void *stat_check(void *x) {
         pclose(fd);
 
         // check cpu
-        if ((fd = popen("head -n1 /proc/stat", "r")) == NULL) {
+        if ((fd = popen("head -n5 /proc/stat", "r")) == NULL) {
             fprintf(stderr, "Error opening pipe: cpu read\n");
         } else {
+            int i = 0;
             while (fgets(buf, 64, fd) != NULL) {
-                // fprintf(stderr,"%s\n", buf);
+                //fprintf(stderr,"%s", buf);
                 strtok(buf, " ");
                 user = atoi(strtok(NULL, " "));
                 nice = atoi(strtok(NULL, " "));
@@ -100,31 +101,31 @@ void *stat_check(void *x) {
                 softirq = atoi(strtok(NULL, " "));
                 steal = atoi(strtok(NULL, " "));
 
-                prevsumidle = sumidle;
                 sumidle = idle + iowait;
                 sumnonidle = user + nice + system + irq + softirq + steal;
-                prevtotal = total;
                 total = sumnonidle + sumidle;
-                totald = total - prevtotal;
-                idled = sumidle - prevsumidle;
-                cpu = 100 * (totald - idled) / totald;
+                totald = total - prevtotal[i];
+                idled = sumidle - prevsumidle[i];
+                cpu[i] = 100 * (totald - idled) / totald;
+                prevsumidle[i] = sumidle;
+                prevtotal[i] = total;
 
-                // fprintf(stderr,"%d\n", cpu);
+                //fprintf(stderr,"%d --> %d\n", i, cpu);
+                i++;
             }
         }
         pclose(fd);
 
-        if (_disk != disk || _temp != temp || _cpu != cpu) {
-            _disk = disk;
-            _temp = temp;
-            _cpu = cpu;
-
+        // just send every tick
             union event_data *ev = event_data_new(EVENT_STAT);
             ev->stat.disk = disk;
             ev->stat.temp = temp;
-            ev->stat.cpu = cpu;
+            ev->stat.cpu = cpu[0];
+            ev->stat.cpu1 = cpu[1];
+            ev->stat.cpu2 = cpu[2];
+            ev->stat.cpu3 = cpu[3];
+            ev->stat.cpu4 = cpu[4];
             event_post(ev);
-        }
 
         sleep(STAT_INTERVAL);
     }

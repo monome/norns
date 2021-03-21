@@ -29,23 +29,27 @@ _norns.crow.remove = function(id)
   crow.remove(id)
 end
 
+local ebuffer = ""
 _norns.crow.event = function(id, line)
+  local function evalcrow(line)
+    line, reps = (ebuffer..line):gsub("%^%^","norns.crow.") -- ebuffer contains the earlier message
+    ebuffer = "" -- cleared so ready to process
+    if reps > 0 then
+      assert(load(line))()
+    else
+      crow.receive(line)
+    end
+  end
+
   local n, m = string.find(line,"%c+")
   if not n then -- no control chars found
-    if #line > 0 then
-      line, reps = line:gsub("%^%^","norns.crow.")
-      if reps > 0 then
-        assert(load(line))()
-      else
-        crow.receive(line)
-      end
-    end
-  else -- handle control chars (n..m)
+    ebuffer = ebuffer .. line -- line incomplete so add it to the buffer
+  else
     if m < #line then -- split & recur
-      _norns.crow.event(id, string.sub(line, 1, n-1)) -- before
-      _norns.crow.event(id, string.sub(line, m+1, -1)) -- after
+      evalcrow(string.sub(line, 1, n-1)) -- complete
+      _norns.crow.event(id, string.sub(line, m+1, -1))
     else -- string ends with control
-      _norns.crow.event(id, string.sub(line, 1, n-1))
+      evalcrow(string.sub(line, 1, n-1))
     end
   end
 end

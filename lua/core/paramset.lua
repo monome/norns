@@ -40,6 +40,8 @@ function ParamSet.new(id, name)
   ps.hidden = {}
   ps.lookup = {}
   ps.group = 0
+  ps.action_write = nil
+  ps.action_read = nil
   ParamSet.sets[ps.id] = ps
   return ps
 end
@@ -379,6 +381,9 @@ function ParamSet:write(filename, name)
       end
     end
     io.close(fd)
+    if self.action_write ~= nil then 
+      self.action_write(filename,name)
+    end
   else print("pset: BAD FILENAME") end
 end
 
@@ -420,6 +425,9 @@ function ParamSet:read(filename, silent)
         end
       end
     end
+    if self.action_read ~= nil then 
+      self.action_read(filename,silent)
+    end
   else
     print("pset :: "..filename.." not read.")
   end
@@ -434,7 +442,7 @@ end
 --- bang all params.
 function ParamSet:bang()
   for _,v in pairs(self.params) do
-    if v.t ~= self.tTRIGGER then
+    if v.t ~= self.tTRIGGER and not (v.t == self.tBINARY and v.behavior == 'trigger') then
       v:bang()
     end
   end
@@ -445,6 +453,8 @@ function ParamSet:clear()
   self.name = ""
   self.params = {}
   self.count = 0
+  self.action_read = nil 
+  self.action_write = nil
 end
 
 return ParamSet

@@ -1987,14 +1987,19 @@ void w_handle_power(const int present) {
 }
 
 // stat
-void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu) {
+void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu,
+    const uint16_t cpu1, const uint16_t cpu2, const uint16_t cpu3, const uint16_t cpu4) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "stat");
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, disk);
     lua_pushinteger(lvm, temp);
     lua_pushinteger(lvm, cpu);
-    l_report(lvm, l_docall(lvm, 3, 0));
+    lua_pushinteger(lvm, cpu1);
+    lua_pushinteger(lvm, cpu2);
+    lua_pushinteger(lvm, cpu3);
+    lua_pushinteger(lvm, cpu4);
+    l_report(lvm, l_docall(lvm, 7, 0));
 }
 
 void w_handle_poll_value(int idx, float val) {
