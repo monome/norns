@@ -17,6 +17,7 @@ function Public.ready() print 'crow.public synchronized.' end
 function Public.change(k,v) end
 
 
+-- FIXME crow should broadcast a message after it has loaded a script & executed init()
 function Public.loadscript(file, is_persistent)
   -- start upload
   co = crow.loadscript(file, is_persistent)
@@ -46,9 +47,14 @@ function Public.add(name, val, typ)
       Public._names[name] = ix
     end
     Public._params[ix] = { name = name, val = val }
-    print("adding: " .. name .. "=" .. val)
+    local p = Public._params[ix]
+    print("adding: " .. name .. "=" .. tostring(val))
+    if type(val) == 'table' then
+      p.list = true
+      p.listix = 1
+      p.listlen = #val
+    else p.list = false end
     if typ then
-      local p = Public._params[ix]
       local len = #typ
       if len > 0 then
         if type(typ[1]) == 'string' then
@@ -86,10 +92,20 @@ function Public.get_index(ix)
 end
 
 -- delta expects integer steps (eg from enc())
-function Public.delta(ix, z)
+-- alt is for secondary param (eg element selection for lists)
+-- FIXME needs refactor to avoid early return on lists
+function Public.delta(ix, z, alt)
   local p = Public._params[ix]
   local tmp = 0
-  if p.type == 'enum' then
+  if p.list then
+    if alt then
+      p.listix = util.wrap(p.listix + z, 1, p.listlen)
+      return -- FIXME refactor to avoid this
+    else -- TODO add type support for min/max, floats & scaling
+      p.val[p.listix] = p.val[p.listix] + z
+      tmp = p.val -- re-write the table to cause underlying metamethod to transmit change
+    end
+  elseif p.type == 'enum' then
     tmp = p.enum[1] -- default to first elem
     for k,v in ipairs(p.enum) do
       if v == p.val then
@@ -110,11 +126,16 @@ function Public.delta(ix, z)
   Public[p.name] = tmp -- use metamethod to cause remote update & clamp
 end
 
-function Public.update(name, val)
+function Public.update(name, val, sub)
   local kix = Public._names[name]
   if kix then
-    Public._params[kix].val = val
-    Public.change(name,val) -- user callback (for redrawing display)
+    local p = Public._params[kix]
+    if sub then
+      p.val[sub] = val
+    else
+      p.val = val
+    end
+    Public.change(name,p.val) -- user callback (for redrawing display)
   end
 end
 
@@ -125,11 +146,22 @@ Public.__newindex = function(self, ix, val)
   if kix then
     -- TODO apply type limits (but not scaling)
     local p = Public._params[kix]
-    if p.range then
-      val = util.clamp(val, p.min, p.max)
+    local vstring = ""
+    if p.list then
+      p.val = val -- update internal table
+      vstring = "{"
+      for k,v in ipairs(p.val) do
+        vstring = vstring .. tostring(v) .. ","
+      end
+      vstring = vstring .. "}"
+    else -- not a list
+      if p.range then
+        val = util.clamp(val, p.min, p.max)
+      end
+      p.val = val -- update internal representation
+      vstring = tostring(p.val) -- stringify for sending to crow
     end
-    p.val = val
-    crow.send("public.update('"..p.name.."',"..p.val..")")
+    crow.send("public.update('"..p.name.."',"..vstring..")")
   end
 end
 
