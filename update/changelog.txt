@@ -1,3 +1,14 @@
+# 210323
+
+## norns 2.4.10
+
+- NEW cpu monitoring shows all four cores, UI adjustment @tehn
+- NEW lattice: add hard reset @schollz
+- FIX crow: multiline packet parsing @trentgill
+- FIX params: exclude trigger type from params.bang @andr-ew
+- FIX compilation: osc handler signatures @catfact
+
+
 # 210301
 
 ## norns 2.4.9
