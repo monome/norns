@@ -8,9 +8,6 @@ m.key = function(n,z)
   elseif n==3 and z==1 then
     m.confirmed = true
     _menu.redraw()
-    os.execute("rm ~/dust/data/system.pset")
-    os.execute("rm ~/dust/data/system.state")
-    os.execute("rm "..paths.favorites)
     _norns.reset()
   end
 end
@@ -22,7 +19,7 @@ m.redraw = function()
   screen.clear()
   screen.level(m.confirmed==false and 10 or 2)
   screen.move(64,40)
-  screen.text_center(m.confirmed==false and "clear settings and restart?" or "restarting.")
+  screen.text_center(m.confirmed==false and "restart?" or "restarting.")
   screen.update()
 end
 
