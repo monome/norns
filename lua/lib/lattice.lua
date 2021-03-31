@@ -34,8 +34,8 @@ function Lattice:start()
   end
 end
 
---- reset the norns clock and restart lattice
-function Lattice:hard_restart()
+--- reset the norns clock without restarting lattice
+function Lattice:reset()
   -- destroy clock, but not the patterns
   self:stop()
   if self.superclock_id ~= nil then 
@@ -48,6 +48,10 @@ function Lattice:hard_restart()
   self.transport = 0
   params:set("clock_reset",1)
 end
+
+--- reset the norns clock and restart lattice
+function Lattice:hard_restart()
+  self:reset()
   self:start()
 end
 
