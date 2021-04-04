@@ -26,6 +26,7 @@
 #include "clocks/clock_crow.h"
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
+#include "clocks/clock_scheduler.h"
 #include "device_crow.h"
 #include "device_hid.h"
 #include "device_midi.h"
@@ -1519,7 +1520,7 @@ int _clock_schedule_sleep(lua_State *l) {
     if (seconds <= 0) {
         w_handle_clock_resume(coro_id);
     } else {
-        clock_schedule_resume_sleep(coro_id, seconds);
+        clock_scheduler_schedule_sleep(coro_id, seconds);
     }
 
     return 0;
@@ -1528,12 +1529,12 @@ int _clock_schedule_sleep(lua_State *l) {
 int _clock_schedule_sync(lua_State *l) {
     lua_check_num_args(2);
     int coro_id = (int)luaL_checkinteger(l, 1);
-    double beats = luaL_checknumber(l, 2);
+    double beat = luaL_checknumber(l, 2);
 
-    if (beats <= 0) {
+    if (beat <= 0) {
         w_handle_clock_resume(coro_id);
     } else {
-        clock_schedule_resume_sync(coro_id, beats);
+        clock_scheduler_schedule_sync(coro_id, beat);
     }
 
   return 0;
