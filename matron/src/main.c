@@ -12,6 +12,7 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
+#include "clocks/clock_scheduler.h"
 #include "device.h"
 #include "device_hid.h"
 #include "device_list.h"
@@ -72,6 +73,7 @@ int main(int argc, char **argv) {
     i2c_init();
     osc_init();
     clock_init();
+    clock_scheduler_init();
     clock_internal_init();
     clock_midi_init();
     clock_crow_init();
