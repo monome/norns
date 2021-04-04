@@ -140,8 +140,8 @@ void clock_scheduler_reschedule_sync_events() {
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         scheduler_event = &clock_scheduler_events[i];
 
-        if (scheduler_event.thread_id > -1 && scheduler_event.type == CLOCK_SCHEDULER_EVENT_SYNC) {
-            scheduler_event.sync_beat_clock = ceil(clock_beats / scheduler_event.beat) * scheduler_event.beat;
+        if (scheduler_event->thread_id > -1 && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
+            scheduler_event->sync_beat_clock = ceil(clock_beats / scheduler_event->sync_beat) * scheduler_event->sync_beat;
         }
     }
 
