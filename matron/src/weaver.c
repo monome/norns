@@ -1543,7 +1543,7 @@ int _clock_schedule_sync(lua_State *l) {
 int _clock_cancel(lua_State *l) {
     lua_check_num_args(1);
     int coro_id = (int)luaL_checkinteger(l, 1);
-    clock_cancel_coro(coro_id);
+    clock_scheduler_cancel(coro_id);
     return 0;
 }
 
