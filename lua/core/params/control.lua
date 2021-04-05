@@ -105,6 +105,12 @@ function Control:bang()
   self.action(self:get())
 end
 
+--- get_range.
+function Control:get_range()
+  r = {self.controlspec.minval, self.controlspec.maxval}
+  return r
+end
+
 --- string.
 -- @return formatted string
 function Control:string()
