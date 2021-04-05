@@ -303,7 +303,7 @@ void screen_init(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     cairo_font_options_t *font_options = cairo_font_options_create();
-    cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_SUBPIXEL);
+    cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_GRAY);
     cairo_set_font_options(cr, font_options);
     cairo_font_options_destroy(font_options);
 
@@ -360,7 +360,7 @@ void screen_aa(int s) {
         cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_NONE);
     } else {
         cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
-        cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_SUBPIXEL);
+        cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_GRAY);
     }
     cairo_set_font_options(cr, font_options);
     cairo_font_options_destroy(font_options);
