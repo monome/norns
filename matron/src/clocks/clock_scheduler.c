@@ -74,6 +74,8 @@ static void *clock_scheduler_tick_thread_run(void *p) {
 }
 
 void clock_scheduler_init() {
+    pthread_mutex_init(&clock_scheduler_events_lock, NULL);
+
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         clock_scheduler_events[i].thread_id = -1;
     }
