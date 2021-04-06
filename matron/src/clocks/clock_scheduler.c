@@ -165,7 +165,8 @@ void clock_scheduler_reschedule_sync_events() {
         scheduler_event = &clock_scheduler_events[i];
 
         if (scheduler_event->thread_id > -1 && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
-            scheduler_event->sync_beat_clock = ceil(clock_beats / scheduler_event->sync_beat) * scheduler_event->sync_beat;
+            scheduler_event->sync_beat_clock =
+                ceil(clock_beats / scheduler_event->sync_beat) * scheduler_event->sync_beat;
         }
     }
 
