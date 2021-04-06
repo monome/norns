@@ -40,12 +40,34 @@ double clock_gettime_beats() {
     return this_beat;
 }
 
+double clock_get_beats_with_reference(clock_reference_t *reference) {
+    pthread_mutex_lock(&(reference->lock));
+
+    double current_time = clock_gettime_secondsf();
+    double zero_beat_time = reference->last_beat_time - (reference->beat_duration * reference->beat);
+    double this_beat = (current_time - zero_beat_time) / reference->beat_duration;
+
+    pthread_mutex_unlock(&(reference->lock));
+
+    return this_beat;
+}
+
 double clock_get_tempo() {
     pthread_mutex_lock(&reference.lock);
 
     double tempo = 60.0 / reference.beat_duration;
 
     pthread_mutex_unlock(&reference.lock);
+
+    return tempo;
+}
+
+double clock_get_tempo_with_reference(clock_reference_t *reference) {
+    pthread_mutex_lock(&(reference->lock));
+
+    double tempo = 60.0 / reference->beat_duration;
+
+    pthread_mutex_unlock(&(reference->lock));
 
     return tempo;
 }
@@ -60,6 +82,18 @@ void clock_update_reference(double beats, double beat_duration) {
 
     pthread_mutex_unlock(&reference.lock);
 }
+
+void clock_update_source_reference(clock_reference_t *reference, double beats, double beat_duration) {
+    pthread_mutex_lock(&(reference->lock));
+
+    double current_time = clock_gettime_secondsf();
+    reference->beat_duration = beat_duration;
+    reference->last_beat_time = current_time;
+    reference->beat = beats;
+
+    pthread_mutex_unlock(&(reference->lock));
+}
+
 
 void clock_update_reference_from(double beats, double beat_duration, clock_source_t source) {
     if (clock_source == source) {
