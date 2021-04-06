@@ -11,14 +11,7 @@
 #include <lauxlib.h>
 #include <lua.h>
 
-struct clock_reference_t {
-    double beat;
-    double beat_duration;
-    double last_beat_time;
-    pthread_mutex_t lock;
-};
-
-static struct clock_reference_t reference;
+static clock_reference_t reference;
 static clock_source_t clock_source;
 
 void clock_init() {

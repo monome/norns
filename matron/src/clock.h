@@ -1,5 +1,6 @@
 #pragma once
 
+#include <pthread.h>
 #include <stdbool.h>
 
 typedef enum {
@@ -8,6 +9,13 @@ typedef enum {
     CLOCK_SOURCE_LINK = 2,
     CLOCK_SOURCE_CROW = 3,
 } clock_source_t;
+
+typedef struct {
+    double beat;
+    double beat_duration;
+    double last_beat_time;
+    pthread_mutex_t lock;
+} clock_reference_t;
 
 void clock_init();
 void clock_update_reference(double beats, double beat_duration);
