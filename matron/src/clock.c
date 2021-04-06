@@ -6,19 +6,21 @@
 #include <time.h>
 
 #include "clock.h"
+#include "clocks/clock_crow.h"
+#include "clocks/clock_internal.h"
+#include "clocks/clock_link.h"
+#include "clocks/clock_midi.h"
 #include "events.h"
 
-#include <lauxlib.h>
-#include <lua.h>
-
-static clock_reference_t reference;
 static clock_source_t clock_source;
 
 void clock_init() {
-    pthread_mutex_init(&reference.lock, NULL);
-
     clock_set_source(CLOCK_SOURCE_INTERNAL);
-    clock_update_reference(0, 0.5);
+}
+
+void clock_reference_init(clock_reference_t *reference) {
+    pthread_mutex_init(&(reference->lock), NULL);
+    clock_update_source_reference(reference, 0, 0.5);
 }
 
 double clock_gettime_secondsf() {
@@ -29,15 +31,27 @@ double clock_gettime_secondsf() {
 }
 
 double clock_gettime_beats() {
-    pthread_mutex_lock(&reference.lock);
+    double beats;
 
-    double current_time = clock_gettime_secondsf();
-    double zero_beat_time = reference.last_beat_time - (reference.beat_duration * reference.beat);
-    double this_beat = (current_time - zero_beat_time) / reference.beat_duration;
+    switch (clock_source) {
+    case CLOCK_SOURCE_INTERNAL:
+        beats = clock_internal_get_beats();
+        break;
+    case CLOCK_SOURCE_MIDI:
+        beats = clock_midi_get_beats();
+        break;
+    case CLOCK_SOURCE_LINK:
+        beats = clock_link_get_beats();
+        break;
+    case CLOCK_SOURCE_CROW:
+        beats = clock_crow_get_beats();
+        break;
+    default:
+        beats = 0;
+        break;
+    }
 
-    pthread_mutex_unlock(&reference.lock);
-
-    return this_beat;
+    return beats;
 }
 
 double clock_get_beats_with_reference(clock_reference_t *reference) {
@@ -45,19 +59,33 @@ double clock_get_beats_with_reference(clock_reference_t *reference) {
 
     double current_time = clock_gettime_secondsf();
     double zero_beat_time = reference->last_beat_time - (reference->beat_duration * reference->beat);
-    double this_beat = (current_time - zero_beat_time) / reference->beat_duration;
+    double beats = (current_time - zero_beat_time) / reference->beat_duration;
 
     pthread_mutex_unlock(&(reference->lock));
 
-    return this_beat;
+    return beats;
 }
 
 double clock_get_tempo() {
-    pthread_mutex_lock(&reference.lock);
+    double tempo;
 
-    double tempo = 60.0 / reference.beat_duration;
-
-    pthread_mutex_unlock(&reference.lock);
+    switch (clock_source) {
+    case CLOCK_SOURCE_INTERNAL:
+        tempo = clock_internal_get_tempo();
+        break;
+    case CLOCK_SOURCE_MIDI:
+        tempo = clock_midi_get_tempo();
+        break;
+    case CLOCK_SOURCE_LINK:
+        tempo = clock_link_get_tempo();
+        break;
+    case CLOCK_SOURCE_CROW:
+        tempo = clock_crow_get_tempo();
+        break;
+    default:
+        tempo = 0;
+        break;
+    }
 
     return tempo;
 }
@@ -72,17 +100,6 @@ double clock_get_tempo_with_reference(clock_reference_t *reference) {
     return tempo;
 }
 
-void clock_update_reference(double beats, double beat_duration) {
-    pthread_mutex_lock(&reference.lock);
-
-    double current_time = clock_gettime_secondsf();
-    reference.beat_duration = beat_duration;
-    reference.last_beat_time = current_time;
-    reference.beat = beats;
-
-    pthread_mutex_unlock(&reference.lock);
-}
-
 void clock_update_source_reference(clock_reference_t *reference, double beats, double beat_duration) {
     pthread_mutex_lock(&(reference->lock));
 
@@ -92,13 +109,6 @@ void clock_update_source_reference(clock_reference_t *reference, double beats, d
     reference->beat = beats;
 
     pthread_mutex_unlock(&(reference->lock));
-}
-
-
-void clock_update_reference_from(double beats, double beat_duration, clock_source_t source) {
-    if (clock_source == source) {
-        clock_update_reference(beats, beat_duration);
-    }
 }
 
 void clock_start_from(clock_source_t source) {

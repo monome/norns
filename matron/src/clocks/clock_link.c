@@ -17,6 +17,7 @@ static struct clock_link_shared_data_t {
     bool playing;
     pthread_mutex_t lock;
 } clock_link_shared_data;
+static clock_reference_t clock_link_reference;
 
 static void *clock_link_run(void *p) {
     (void)p;
@@ -39,7 +40,7 @@ static void *clock_link_run(void *p) {
             double link_beat = ableton_link_session_state_beat_at_time(state, micros, clock_link_shared_data.quantum);
             bool link_playing = ableton_link_session_state_is_playing(state);
 
-            clock_update_reference_from(link_beat, 60.0f / link_tempo, CLOCK_SOURCE_LINK);
+            clock_update_source_reference(&clock_link_reference, link_beat, 60.0f / link_tempo);
 
             if (!clock_link_shared_data.playing && link_playing) {
                 clock_link_shared_data.playing = true;
@@ -65,6 +66,10 @@ static void *clock_link_run(void *p) {
     return NULL;
 }
 
+void clock_link_init() {
+    clock_reference_init(&clock_link_reference);
+}
+
 void clock_link_start() {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -85,4 +90,12 @@ void clock_link_set_tempo(double tempo) {
     pthread_mutex_lock(&clock_link_shared_data.lock);
     clock_link_shared_data.requested_tempo = tempo;
     pthread_mutex_unlock(&clock_link_shared_data.lock);
+}
+
+double clock_link_get_beats() {
+    return clock_get_beats_with_reference(&clock_link_reference);
+}
+
+double clock_link_get_tempo() {
+    return clock_get_tempo_with_reference(&clock_link_reference);
 }
