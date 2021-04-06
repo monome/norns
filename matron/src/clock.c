@@ -10,6 +10,7 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
+#include "clocks/clock_scheduler.h"
 #include "events.h"
 
 static clock_source_t clock_source;
@@ -127,4 +128,5 @@ void clock_stop_from(clock_source_t source) {
 
 void clock_set_source(clock_source_t source) {
     clock_source = source;
+    clock_scheduler_reschedule_sync_events();
 }
