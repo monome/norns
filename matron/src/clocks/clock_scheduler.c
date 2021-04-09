@@ -30,6 +30,12 @@ typedef struct {
 
 static clock_scheduler_event_t clock_scheduler_events[NUM_CLOCK_SCHEDULER_EVENTS];
 
+static void clock_scheduler_post_clock_resume_event(int thread_id) {
+    union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
+    ev->clock_resume.thread_id = thread_id;
+    event_post(ev);
+}
+
 static void *clock_scheduler_tick_thread_run(void *p) {
     (void)p;
     clock_scheduler_event_t *scheduler_event;
@@ -48,18 +54,12 @@ static void *clock_scheduler_tick_thread_run(void *p) {
             if (scheduler_event->thread_id > -1) {
                 if (scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
                     if (clock_beats >= scheduler_event->sync_beat_clock) {
-                        union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
-                        ev->clock_resume.thread_id = scheduler_event->thread_id;
-                        event_post(ev);
-
+                        clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
                         scheduler_event->thread_id = -1;
                     }
                 } else {
                     if (clock_seconds >= scheduler_event->sleep_seconds_clock) {
-                        union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
-                        ev->clock_resume.thread_id = scheduler_event->thread_id;
-                        event_post(ev);
-
+                        clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
                         scheduler_event->thread_id = -1;
                     }
                 }
