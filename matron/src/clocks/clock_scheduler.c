@@ -36,6 +36,10 @@ static void clock_scheduler_post_clock_resume_event(int thread_id) {
     event_post(ev);
 }
 
+static inline double clock_scheduler_next_clock_beat(double clock_beat, double sync_beat) {
+    return ceil(clock_beat / sync_beat) * sync_beat;
+}
+
 static void *clock_scheduler_tick_thread_run(void *p) {
     (void)p;
     clock_scheduler_event_t *scheduler_event;
@@ -56,6 +60,10 @@ static void *clock_scheduler_tick_thread_run(void *p) {
                     if (clock_beats >= scheduler_event->sync_beat_clock) {
                         clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
                         scheduler_event->thread_id = -1;
+                    } else {
+                        if (clock_beats - scheduler_event->sync_beat_clock > scheduler_event->sync_beat) {
+                            scheduler_event->sync_beat_clock = clock_scheduler_next_clock_beat(clock_beats, scheduler_event->sync_beat);
+                        }
                     }
                 } else {
                     if (clock_seconds >= scheduler_event->sleep_seconds_clock) {
@@ -101,7 +109,7 @@ bool clock_scheduler_schedule_sync(int thread_id, double beat) {
             clock_scheduler_events[i].thread_id = thread_id;
             clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SYNC;
             clock_scheduler_events[i].sync_beat = beat;
-            clock_scheduler_events[i].sync_beat_clock = ceil(clock_beats / beat) * beat;
+            clock_scheduler_events[i].sync_beat_clock = clock_scheduler_next_clock_beat(clock_beats, beat);
 
             pthread_mutex_unlock(&clock_scheduler_events_lock);
             return true;
