@@ -61,7 +61,7 @@ static void *clock_scheduler_tick_thread_run(void *p) {
                         clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
                         scheduler_event->thread_id = -1;
                     } else {
-                        if (clock_beats - scheduler_event->sync_beat_clock > scheduler_event->sync_beat) {
+                        if (scheduler_event->sync_beat_clock - clock_beats > scheduler_event->sync_beat) {
                             scheduler_event->sync_beat_clock = clock_scheduler_next_clock_beat(clock_beats, scheduler_event->sync_beat);
                         }
                     }
