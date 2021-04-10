@@ -22,10 +22,10 @@ typedef struct {
     int thread_id;
 
     double sync_beat;
-    double sync_beat_clock;
+    double sync_clock_beat;
 
-    double sleep_seconds;
-    double sleep_seconds_clock;
+    double sleep_time;
+    double sleep_clock_time;
 } clock_scheduler_event_t;
 
 static clock_scheduler_event_t clock_scheduler_events[NUM_CLOCK_SCHEDULER_EVENTS];
@@ -43,12 +43,12 @@ static inline double clock_scheduler_next_clock_beat(double clock_beat, double s
 static void *clock_scheduler_tick_thread_run(void *p) {
     (void)p;
     clock_scheduler_event_t *scheduler_event;
-    double clock_beats;
-    double clock_seconds;
+    double clock_beat;
+    double clock_time;
 
     while (true) {
-        clock_beats = clock_gettime_beats();
-        clock_seconds = clock_gettime_secondsf();
+        clock_beat = clock_gettime_beats();
+        clock_time = clock_gettime_secondsf();
 
         pthread_mutex_lock(&clock_scheduler_events_lock);
 
@@ -57,16 +57,17 @@ static void *clock_scheduler_tick_thread_run(void *p) {
 
             if (scheduler_event->thread_id > -1) {
                 if (scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
-                    if (clock_beats >= scheduler_event->sync_beat_clock) {
+                    if (clock_beat >= scheduler_event->sync_clock_beat) {
                         clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
                         scheduler_event->thread_id = -1;
                     } else {
-                        if (scheduler_event->sync_beat_clock - clock_beats > scheduler_event->sync_beat) {
-                            scheduler_event->sync_beat_clock = clock_scheduler_next_clock_beat(clock_beats, scheduler_event->sync_beat);
+                        if (scheduler_event->sync_clock_beat - clock_beat > scheduler_event->sync_beat) {
+                            scheduler_event->sync_clock_beat =
+                                clock_scheduler_next_clock_beat(clock_beat, scheduler_event->sync_beat);
                         }
                     }
                 } else {
-                    if (clock_seconds >= scheduler_event->sleep_seconds_clock) {
+                    if (clock_time >= scheduler_event->sleep_clock_time) {
                         clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
                         scheduler_event->thread_id = -1;
                     }
@@ -99,8 +100,8 @@ void clock_scheduler_start() {
     pthread_attr_destroy(&attr);
 }
 
-bool clock_scheduler_schedule_sync(int thread_id, double beat) {
-    double clock_beats = clock_gettime_beats();
+bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
+    double clock_beat = clock_gettime_beats();
 
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
@@ -108,8 +109,8 @@ bool clock_scheduler_schedule_sync(int thread_id, double beat) {
         if (clock_scheduler_events[i].thread_id == -1) {
             clock_scheduler_events[i].thread_id = thread_id;
             clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SYNC;
-            clock_scheduler_events[i].sync_beat = beat;
-            clock_scheduler_events[i].sync_beat_clock = clock_scheduler_next_clock_beat(clock_beats, beat);
+            clock_scheduler_events[i].sync_beat = sync_beat;
+            clock_scheduler_events[i].sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, sync_beat);
 
             pthread_mutex_unlock(&clock_scheduler_events_lock);
             return true;
@@ -121,7 +122,7 @@ bool clock_scheduler_schedule_sync(int thread_id, double beat) {
 }
 
 bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
-    double clock_seconds = clock_gettime_secondsf();
+    double clock_time = clock_gettime_secondsf();
 
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
@@ -129,8 +130,8 @@ bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
         if (clock_scheduler_events[i].thread_id == -1) {
             clock_scheduler_events[i].thread_id = thread_id;
             clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SLEEP;
-            clock_scheduler_events[i].sleep_seconds = seconds;
-            clock_scheduler_events[i].sleep_seconds_clock = clock_seconds + seconds;
+            clock_scheduler_events[i].sleep_time = seconds;
+            clock_scheduler_events[i].sleep_clock_time = clock_time + seconds;
 
             pthread_mutex_unlock(&clock_scheduler_events_lock);
             return true;
@@ -165,7 +166,7 @@ void clock_scheduler_cancel_all() {
 
 void clock_scheduler_reschedule_sync_events() {
     clock_scheduler_event_t *scheduler_event;
-    double clock_beats = clock_gettime_beats();
+    double clock_beat = clock_gettime_beats();
 
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
@@ -173,8 +174,7 @@ void clock_scheduler_reschedule_sync_events() {
         scheduler_event = &clock_scheduler_events[i];
 
         if (scheduler_event->thread_id > -1 && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
-            scheduler_event->sync_beat_clock =
-                ceil(clock_beats / scheduler_event->sync_beat) * scheduler_event->sync_beat;
+            scheduler_event->sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, scheduler_event->sync_beat);
         }
     }
 
