@@ -1529,12 +1529,12 @@ int _clock_schedule_sleep(lua_State *l) {
 int _clock_schedule_sync(lua_State *l) {
     lua_check_num_args(2);
     int coro_id = (int)luaL_checkinteger(l, 1);
-    double beat = luaL_checknumber(l, 2);
+    double sync_beat = luaL_checknumber(l, 2);
 
-    if (beat <= 0) {
+    if (sync_beat <= 0) {
         w_handle_clock_resume(coro_id);
     } else {
-        clock_scheduler_schedule_sync(coro_id, beat);
+        clock_scheduler_schedule_sync(coro_id, sync_beat);
     }
 
   return 0;
