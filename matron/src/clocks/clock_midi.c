@@ -52,8 +52,8 @@ static void clock_midi_handle_clock() {
             clock_midi_counter++;
             clock_midi_last_tick_time = current_time;
 
-            double beat = clock_midi_counter / 24.0;
-            clock_update_source_reference(&clock_midi_reference, beat, mean_sum);
+            double reference_beat = clock_midi_counter / 24.0;
+            clock_update_source_reference(&clock_midi_reference, reference_beat, mean_sum);
         }
     }
 }

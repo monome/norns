@@ -61,8 +61,8 @@ void clock_crow_handle_clock() {
             clock_crow_counter++;
             clock_crow_last_time = current_time;
 
-            double beat = clock_crow_counter / crow_in_div;
-            clock_update_source_reference(&clock_crow_reference, beat, mean_sum);
+            double reference_beat = clock_crow_counter / crow_in_div;
+            clock_update_source_reference(&clock_crow_reference, reference_beat, mean_sum);
         }
 
         pthread_mutex_unlock(&crow_in_div_lock);

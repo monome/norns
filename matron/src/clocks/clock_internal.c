@@ -13,7 +13,7 @@ static clock_reference_t clock_internal_reference;
 static bool clock_internal_thread_running;
 static double interval_seconds;
 static uint64_t interval_nseconds;
-static double beat;
+static double reference_beat;
 
 static void *clock_internal_run(void *p) {
     (void)p;
@@ -30,8 +30,8 @@ static void *clock_internal_run(void *p) {
 
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &req, NULL);
 
-        beat += 1.0;
-        clock_update_source_reference(&clock_internal_reference, beat, interval_seconds);
+        reference_beat += 1.0;
+        clock_update_source_reference(&clock_internal_reference, reference_beat, interval_seconds);
     }
 
     return NULL;
@@ -48,7 +48,7 @@ void clock_internal_set_tempo(double bpm) {
     interval_seconds = 60.0 / bpm;
     interval_nseconds = (uint64_t)(interval_seconds * 1000000000);
 
-    clock_internal_start(beat, false);
+    clock_internal_start(reference_beat, false);
 }
 
 void clock_internal_start(double new_beat, bool transport_start) {
@@ -59,8 +59,8 @@ void clock_internal_start(double new_beat, bool transport_start) {
         pthread_join(clock_internal_thread, NULL);
     }
 
-    beat = new_beat;
-    clock_update_source_reference(&clock_internal_reference, beat, interval_seconds);
+    reference_beat = new_beat;
+    clock_update_source_reference(&clock_internal_reference, reference_beat, interval_seconds);
 
     if (transport_start) {
         clock_start_from(CLOCK_SOURCE_INTERNAL);
