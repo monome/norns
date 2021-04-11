@@ -31,39 +31,39 @@ double clock_gettime_secondsf() {
 }
 
 double clock_gettime_beats() {
-    double beats;
+    double beat;
 
     switch (clock_source) {
     case CLOCK_SOURCE_INTERNAL:
-        beats = clock_internal_get_beats();
+        beat = clock_internal_get_beat();
         break;
     case CLOCK_SOURCE_MIDI:
-        beats = clock_midi_get_beats();
+        beat = clock_midi_get_beat();
         break;
     case CLOCK_SOURCE_LINK:
-        beats = clock_link_get_beats();
+        beat = clock_link_get_beat();
         break;
     case CLOCK_SOURCE_CROW:
-        beats = clock_crow_get_beats();
+        beat = clock_crow_get_beat();
         break;
     default:
-        beats = 0;
+        beat = 0;
         break;
     }
 
-    return beats;
+    return beat;
 }
 
-double clock_get_beats_with_reference(clock_reference_t *reference) {
+double clock_get_reference_beat(clock_reference_t *reference) {
     pthread_mutex_lock(&(reference->lock));
 
     double current_time = clock_gettime_secondsf();
     double zero_beat_time = reference->last_beat_time - (reference->beat_duration * reference->beat);
-    double beats = (current_time - zero_beat_time) / reference->beat_duration;
+    double beat = (current_time - zero_beat_time) / reference->beat_duration;
 
     pthread_mutex_unlock(&(reference->lock));
 
-    return beats;
+    return beat;
 }
 
 double clock_get_tempo() {
@@ -90,7 +90,7 @@ double clock_get_tempo() {
     return tempo;
 }
 
-double clock_get_tempo_with_reference(clock_reference_t *reference) {
+double clock_get_reference_tempo(clock_reference_t *reference) {
     pthread_mutex_lock(&(reference->lock));
 
     double tempo = 60.0 / reference->beat_duration;
@@ -100,13 +100,13 @@ double clock_get_tempo_with_reference(clock_reference_t *reference) {
     return tempo;
 }
 
-void clock_update_source_reference(clock_reference_t *reference, double beats, double beat_duration) {
+void clock_update_source_reference(clock_reference_t *reference, double beat, double beat_duration) {
     pthread_mutex_lock(&(reference->lock));
 
     double current_time = clock_gettime_secondsf();
     reference->beat_duration = beat_duration;
     reference->last_beat_time = current_time;
-    reference->beat = beats;
+    reference->beat = beat;
 
     pthread_mutex_unlock(&(reference->lock));
 }

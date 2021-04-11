@@ -81,10 +81,10 @@ void clock_midi_handle_message(uint8_t message) {
     }
 }
 
-double clock_midi_get_beats() {
-    return clock_get_beats_with_reference(&clock_midi_reference);
+double clock_midi_get_beat() {
+    return clock_get_reference_beat(&clock_midi_reference);
 }
 
 double clock_midi_get_tempo() {
-    return clock_get_tempo_with_reference(&clock_midi_reference);
+    return clock_get_reference_tempo(&clock_midi_reference);
 }

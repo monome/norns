@@ -69,10 +69,10 @@ void clock_crow_handle_clock() {
     }
 }
 
-double clock_crow_get_beats() {
-    return clock_get_beats_with_reference(&clock_crow_reference);
+double clock_crow_get_beat() {
+    return clock_get_reference_beat(&clock_crow_reference);
 }
 
 double clock_crow_get_tempo() {
-    return clock_get_tempo_with_reference(&clock_crow_reference);
+    return clock_get_reference_tempo(&clock_crow_reference);
 }

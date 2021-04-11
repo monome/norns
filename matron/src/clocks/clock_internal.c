@@ -76,10 +76,10 @@ void clock_internal_stop() {
     clock_stop_from(CLOCK_SOURCE_INTERNAL);
 }
 
-double clock_internal_get_beats() {
-    return clock_get_beats_with_reference(&clock_internal_reference);
+double clock_internal_get_beat() {
+    return clock_get_reference_beat(&clock_internal_reference);
 }
 
 double clock_internal_get_tempo() {
-    return clock_get_tempo_with_reference(&clock_internal_reference);
+    return clock_get_reference_tempo(&clock_internal_reference);
 }

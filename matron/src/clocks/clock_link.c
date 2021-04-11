@@ -92,10 +92,10 @@ void clock_link_set_tempo(double tempo) {
     pthread_mutex_unlock(&clock_link_shared_data.lock);
 }
 
-double clock_link_get_beats() {
-    return clock_get_beats_with_reference(&clock_link_reference);
+double clock_link_get_beat() {
+    return clock_get_reference_beat(&clock_link_reference);
 }
 
 double clock_link_get_tempo() {
-    return clock_get_tempo_with_reference(&clock_link_reference);
+    return clock_get_reference_tempo(&clock_link_reference);
 }
