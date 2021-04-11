@@ -44,10 +44,10 @@ static void *clock_link_run(void *p) {
 
             if (!clock_link_shared_data.playing && link_playing) {
                 clock_link_shared_data.playing = true;
-                clock_start_from(CLOCK_SOURCE_LINK);
+                clock_start_from_source(CLOCK_SOURCE_LINK);
             } else if (clock_link_shared_data.playing && !link_playing) {
                 clock_link_shared_data.playing = false;
-                clock_stop_from(CLOCK_SOURCE_LINK);
+                clock_stop_from_source(CLOCK_SOURCE_LINK);
             }
 
             if (clock_link_shared_data.requested_tempo > 0) {

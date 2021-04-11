@@ -22,8 +22,8 @@ void clock_reference_init(clock_reference_t *reference);
 void clock_update_source_reference(clock_reference_t *reference, double beats, double beat_duration);
 double clock_get_reference_beat(clock_reference_t *reference);
 double clock_get_reference_tempo(clock_reference_t *reference);
-void clock_start_from(clock_source_t source);
-void clock_stop_from(clock_source_t source);
+void clock_start_from_source(clock_source_t source);
+void clock_stop_from_source(clock_source_t source);
 void clock_set_source(clock_source_t source);
 
 double clock_gettime_beats();

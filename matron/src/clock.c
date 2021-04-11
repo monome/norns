@@ -111,14 +111,14 @@ void clock_update_source_reference(clock_reference_t *reference, double beat, do
     pthread_mutex_unlock(&(reference->lock));
 }
 
-void clock_start_from(clock_source_t source) {
+void clock_start_from_source(clock_source_t source) {
     if (clock_source == source) {
         union event_data *ev = event_data_new(EVENT_CLOCK_START);
         event_post(ev);
     }
 }
 
-void clock_stop_from(clock_source_t source) {
+void clock_stop_from_source(clock_source_t source) {
     if (clock_source == source) {
         union event_data *ev = event_data_new(EVENT_CLOCK_STOP);
         event_post(ev);

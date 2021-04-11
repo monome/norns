@@ -60,11 +60,11 @@ static void clock_midi_handle_clock() {
 
 static void clock_midi_handle_start() {
     clock_midi_counter = -1;
-    clock_start_from(CLOCK_SOURCE_MIDI);
+    clock_start_from_source(CLOCK_SOURCE_MIDI);
 }
 
 static void clock_midi_handle_stop() {
-    clock_stop_from(CLOCK_SOURCE_MIDI);
+    clock_stop_from_source(CLOCK_SOURCE_MIDI);
 }
 
 void clock_midi_handle_message(uint8_t message) {

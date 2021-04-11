@@ -63,7 +63,7 @@ void clock_internal_start(double new_beat, bool transport_start) {
     clock_update_source_reference(&clock_internal_reference, reference_beat, interval_seconds);
 
     if (transport_start) {
-        clock_start_from(CLOCK_SOURCE_INTERNAL);
+        clock_start_from_source(CLOCK_SOURCE_INTERNAL);
     }
 
     pthread_attr_init(&attr);
@@ -73,7 +73,7 @@ void clock_internal_start(double new_beat, bool transport_start) {
 }
 
 void clock_internal_stop() {
-    clock_stop_from(CLOCK_SOURCE_INTERNAL);
+    clock_stop_from_source(CLOCK_SOURCE_INTERNAL);
 }
 
 double clock_internal_get_beat() {
