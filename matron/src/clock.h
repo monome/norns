@@ -27,5 +27,5 @@ void clock_stop_from(clock_source_t source);
 void clock_set_source(clock_source_t source);
 
 double clock_gettime_beats();
-double clock_gettime_secondsf();
+double clock_gettime_seconds();
 double clock_get_tempo();

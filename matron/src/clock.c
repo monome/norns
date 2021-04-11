@@ -23,7 +23,7 @@ void clock_reference_init(clock_reference_t *reference) {
     clock_update_source_reference(reference, 0, 0.5);
 }
 
-double clock_gettime_secondsf() {
+double clock_gettime_seconds() {
     struct timespec spec;
     clock_gettime(CLOCK_MONOTONIC, &spec);
 
@@ -57,7 +57,7 @@ double clock_gettime_beats() {
 double clock_get_reference_beat(clock_reference_t *reference) {
     pthread_mutex_lock(&(reference->lock));
 
-    double current_time = clock_gettime_secondsf();
+    double current_time = clock_gettime_seconds();
     double zero_beat_time = reference->last_beat_time - (reference->beat_duration * reference->beat);
     double beat = (current_time - zero_beat_time) / reference->beat_duration;
 
@@ -103,7 +103,7 @@ double clock_get_reference_tempo(clock_reference_t *reference) {
 void clock_update_source_reference(clock_reference_t *reference, double beat, double beat_duration) {
     pthread_mutex_lock(&(reference->lock));
 
-    double current_time = clock_gettime_secondsf();
+    double current_time = clock_gettime_seconds();
     reference->beat_duration = beat_duration;
     reference->last_beat_time = current_time;
     reference->beat = beat;

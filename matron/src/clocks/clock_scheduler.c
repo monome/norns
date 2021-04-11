@@ -48,7 +48,7 @@ static void *clock_scheduler_tick_thread_run(void *p) {
 
     while (true) {
         clock_beat = clock_gettime_beats();
-        clock_time = clock_gettime_secondsf();
+        clock_time = clock_gettime_seconds();
 
         pthread_mutex_lock(&clock_scheduler_events_lock);
 
@@ -122,7 +122,7 @@ bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
 }
 
 bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
-    double clock_time = clock_gettime_secondsf();
+    double clock_time = clock_gettime_seconds();
 
     pthread_mutex_lock(&clock_scheduler_events_lock);
 

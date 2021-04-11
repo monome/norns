@@ -34,7 +34,7 @@ void clock_crow_init() {
 
 void clock_crow_handle_clock() {
     double beat_duration;
-    double current_time = clock_gettime_secondsf();
+    double current_time = clock_gettime_seconds();
 
     if (clock_crow_last_time_set == false) {
         clock_crow_last_time_set = true;
