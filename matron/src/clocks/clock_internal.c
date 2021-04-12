@@ -9,11 +9,10 @@
 #include "clock_internal.h"
 
 static pthread_t clock_internal_thread;
-static clock_reference_t clock_internal_reference;
 static bool clock_internal_thread_running;
 static double interval_seconds;
 static uint64_t interval_nseconds;
-static double reference_beat;
+static double beat;
 
 static void *clock_internal_run(void *p) {
     (void)p;
@@ -30,8 +29,8 @@ static void *clock_internal_run(void *p) {
 
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &req, NULL);
 
-        reference_beat += 1.0;
-        clock_update_source_reference(&clock_internal_reference, reference_beat, interval_seconds);
+        beat += 1.0;
+        clock_update_reference_from(beat, interval_seconds, CLOCK_SOURCE_INTERNAL);
     }
 
     return NULL;
@@ -40,7 +39,7 @@ static void *clock_internal_run(void *p) {
 void clock_internal_init() {
     clock_internal_thread_running = false;
     clock_internal_set_tempo(120);
-    clock_reference_init(&clock_internal_reference);
+
     clock_internal_start(0.0, true);
 }
 
@@ -48,7 +47,7 @@ void clock_internal_set_tempo(double bpm) {
     interval_seconds = 60.0 / bpm;
     interval_nseconds = (uint64_t)(interval_seconds * 1000000000);
 
-    clock_internal_start(reference_beat, false);
+    clock_internal_start(beat, false);
 }
 
 void clock_internal_start(double new_beat, bool transport_start) {
@@ -59,11 +58,11 @@ void clock_internal_start(double new_beat, bool transport_start) {
         pthread_join(clock_internal_thread, NULL);
     }
 
-    reference_beat = new_beat;
-    clock_update_source_reference(&clock_internal_reference, reference_beat, interval_seconds);
+    beat = new_beat;
+    clock_update_reference_from(beat, interval_seconds, CLOCK_SOURCE_INTERNAL);
 
     if (transport_start) {
-        clock_start_from_source(CLOCK_SOURCE_INTERNAL);
+        clock_start_from(CLOCK_SOURCE_INTERNAL);
     }
 
     pthread_attr_init(&attr);
@@ -73,13 +72,5 @@ void clock_internal_start(double new_beat, bool transport_start) {
 }
 
 void clock_internal_stop() {
-    clock_stop_from_source(CLOCK_SOURCE_INTERNAL);
-}
-
-double clock_internal_get_beat() {
-    return clock_get_reference_beat(&clock_internal_reference);
-}
-
-double clock_internal_get_tempo() {
-    return clock_get_reference_tempo(&clock_internal_reference);
+    clock_stop_from(CLOCK_SOURCE_INTERNAL);
 }

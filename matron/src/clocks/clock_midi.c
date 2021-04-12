@@ -5,7 +5,6 @@
 static int clock_midi_counter;
 static bool clock_midi_last_tick_time_set;
 static double clock_midi_last_tick_time;
-static clock_reference_t clock_midi_reference;
 
 #define DURATION_BUFFER_LENGTH 24
 
@@ -21,12 +20,11 @@ void clock_midi_init() {
     clock_midi_last_tick_time_set = false;
     mean_sum = 0;
     mean_scale = 1;
-    clock_reference_init(&clock_midi_reference);
 }
 
 static void clock_midi_handle_clock() {
     double beat_duration;
-    double current_time = clock_gettime_seconds();
+    double current_time = clock_gettime_secondsf();
 
     if (clock_midi_last_tick_time_set == false) {
         clock_midi_last_tick_time_set = true;
@@ -52,19 +50,19 @@ static void clock_midi_handle_clock() {
             clock_midi_counter++;
             clock_midi_last_tick_time = current_time;
 
-            double reference_beat = clock_midi_counter / 24.0;
-            clock_update_source_reference(&clock_midi_reference, reference_beat, mean_sum);
+            double beat = clock_midi_counter / 24.0;
+            clock_update_reference_from(beat, mean_sum, CLOCK_SOURCE_MIDI);
         }
     }
 }
 
 static void clock_midi_handle_start() {
     clock_midi_counter = -1;
-    clock_start_from_source(CLOCK_SOURCE_MIDI);
+    clock_start_from(CLOCK_SOURCE_MIDI);
 }
 
 static void clock_midi_handle_stop() {
-    clock_stop_from_source(CLOCK_SOURCE_MIDI);
+    clock_stop_from(CLOCK_SOURCE_MIDI);
 }
 
 void clock_midi_handle_message(uint8_t message) {
@@ -79,12 +77,4 @@ void clock_midi_handle_message(uint8_t message) {
         clock_midi_handle_stop();
         break;
     }
-}
-
-double clock_midi_get_beat() {
-    return clock_get_reference_beat(&clock_midi_reference);
-}
-
-double clock_midi_get_tempo() {
-    return clock_get_reference_tempo(&clock_midi_reference);
 }

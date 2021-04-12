@@ -31,7 +31,6 @@ def build(bld):
         'src/clocks/clock_internal.c',
         'src/clocks/clock_midi.c',
         'src/clocks/clock_crow.c',
-        'src/clocks/clock_scheduler.c',
     ]
 
     matron_includes = [
