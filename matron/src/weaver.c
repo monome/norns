@@ -1555,9 +1555,7 @@ int _clock_internal_set_tempo(lua_State *l) {
 }
 
 int _clock_internal_start(lua_State *l) {
-    lua_check_num_args(1);
-    double new_beat = luaL_checknumber(l, 1);
-    clock_internal_start(new_beat, true);
+    clock_internal_restart();
     return 0;
 }
 

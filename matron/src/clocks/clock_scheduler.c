@@ -180,3 +180,19 @@ void clock_scheduler_reschedule_sync_events() {
 
     pthread_mutex_unlock(&clock_scheduler_events_lock);
 }
+
+void clock_scheduler_reset_sync_events() {
+    clock_scheduler_event_t *scheduler_event;
+
+    pthread_mutex_lock(&clock_scheduler_events_lock);
+
+    for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
+        scheduler_event = &clock_scheduler_events[i];
+
+        if (scheduler_event->thread_id > -1 && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
+            scheduler_event->sync_clock_beat = 0;
+        }
+    }
+
+    pthread_mutex_unlock(&clock_scheduler_events_lock);
+}
