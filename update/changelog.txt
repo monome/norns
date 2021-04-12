@@ -1,3 +1,21 @@
+# 210411
+
+## norns 2.4.11
+
+- ADD menu: SYSTEM > RESTART (like reset, but don't erase state) @tehn
+- FIX softcut: set loop points and position at same time @catfact
+- FIX fileselect: allow symlinks (ie, to support usb disks) @csboling
+- FIX screenshot: antialias mode to GRAY to prevent color distortion @csboling
+- ADD params: get_range() to control type @justmat
+- ADD lattice: hard reset with modified divisions @kasperbauer
+
+## maiden 1.1.1
+
+- ADD documentation link for catalog entries @ngwese
+- ADD improved UX with installing/updating scripts @ngwese
+- FIX supercollider repl eval @ngwese
+
+
 # 210323
 
 ## norns 2.4.10
