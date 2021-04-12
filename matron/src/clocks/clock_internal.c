@@ -82,9 +82,9 @@ void clock_internal_set_tempo(double bpm) {
 void clock_internal_restart() {
     pthread_mutex_lock(&clock_internal_tempo_lock);
 
+    clock_start_from_source(CLOCK_SOURCE_INTERNAL);
     clock_internal_counter = -1;
     clock_scheduler_reset_sync_events();
-    clock_start_from_source(CLOCK_SOURCE_INTERNAL);
 
     pthread_mutex_unlock(&clock_internal_tempo_lock);
 }
