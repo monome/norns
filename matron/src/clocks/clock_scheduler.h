@@ -11,3 +11,4 @@ bool clock_scheduler_schedule_sleep(int thread_id, double seconds);
 void clock_scheduler_cancel(int thread_id);
 void clock_scheduler_cancel_all();
 void clock_scheduler_reschedule_sync_events();
+void clock_scheduler_reset_sync_events();

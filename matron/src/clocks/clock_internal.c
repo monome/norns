@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "clock.h"
+#include "clock_scheduler.h"
 #include "clock_internal.h"
 
 #define CLOCK_INTERNAL_TICKS_PER_BEAT 24
@@ -79,8 +80,13 @@ void clock_internal_set_tempo(double bpm) {
 }
 
 void clock_internal_restart() {
+    pthread_mutex_lock(&clock_internal_tempo_lock);
+
     clock_internal_counter = -1;
+    clock_scheduler_reset_sync_events();
     clock_start_from_source(CLOCK_SOURCE_INTERNAL);
+
+    pthread_mutex_unlock(&clock_internal_tempo_lock);
 }
 
 void clock_internal_stop() {
