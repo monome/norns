@@ -6,6 +6,7 @@
 static bool clock_crow_last_time_set;
 static int clock_crow_counter;
 static double clock_crow_last_time;
+static clock_reference_t clock_crow_reference;
 
 #define DURATION_BUFFER_LENGTH 4
 
@@ -28,11 +29,12 @@ void clock_crow_init() {
     clock_crow_counter = 0;
     clock_crow_last_time_set = false;
     mean_sum = 0;
+    clock_reference_init(&clock_crow_reference);
 }
 
 void clock_crow_handle_clock() {
     double beat_duration;
-    double current_time = clock_gettime_secondsf();
+    double current_time = clock_gettime_seconds();
 
     if (clock_crow_last_time_set == false) {
         clock_crow_last_time_set = true;
@@ -59,10 +61,18 @@ void clock_crow_handle_clock() {
             clock_crow_counter++;
             clock_crow_last_time = current_time;
 
-            double beat = clock_crow_counter / crow_in_div;
-            clock_update_reference_from(beat, mean_sum, CLOCK_SOURCE_CROW);
+            double reference_beat = clock_crow_counter / crow_in_div;
+            clock_update_source_reference(&clock_crow_reference, reference_beat, mean_sum);
         }
 
         pthread_mutex_unlock(&crow_in_div_lock);
     }
+}
+
+double clock_crow_get_beat() {
+    return clock_get_reference_beat(&clock_crow_reference);
+}
+
+double clock_crow_get_tempo() {
+    return clock_get_reference_tempo(&clock_crow_reference);
 }
