@@ -148,7 +148,7 @@ bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
     return false;
 }
 
-void clock_scheduler_cancel(int thread_id) {
+void clock_scheduler_clear(int thread_id) {
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
@@ -161,7 +161,7 @@ void clock_scheduler_cancel(int thread_id) {
     pthread_mutex_unlock(&clock_scheduler_events_lock);
 }
 
-void clock_scheduler_cancel_all() {
+void clock_scheduler_clear_all() {
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
