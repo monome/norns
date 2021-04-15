@@ -738,7 +738,6 @@ int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
 			     lo_message data, void *user_data) {
 
     assert(argc > 2);
-    fflush(stdout);
     o_set_poll(argv[0]->i, &argv[1]->s, argv[2]->i);
     return 0;
 }
@@ -787,7 +786,6 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv, in
     int sz = lo_blob_datasize((lo_blob)argv[0]);
     assert(sz == sizeof(quad_levels_t));
     ev->poll_io_levels.value.uint = *((uint32_t *)blobdata);
-    fflush(stdout);
     event_post(ev);
     return 0;
 }
@@ -799,7 +797,6 @@ int handle_poll_softcut_phase(const char *path, const char *types, lo_arg **argv
     union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
     ev->softcut_phase.idx = argv[0]->i;
     ev->softcut_phase.value = argv[1]->f;
-    fflush(stdout);
     event_post(ev);
     return 0;
 }

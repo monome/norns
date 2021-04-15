@@ -84,6 +84,5 @@ int osc_receive(const char *path, const char *types, lo_arg **argv, int argc, lo
 }
 
 void lo_error_handler(int num, const char *m, const char *path) {
-    printf("liblo error %d in path %s: %s\n", num, path, m);
-    fflush(stdout);
+    fprintf(stderr, "liblo error %d in path %s: %s\n", num, path, m);
 }
