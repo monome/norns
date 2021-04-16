@@ -115,7 +115,7 @@ bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
             clock_scheduler_events[i].sync_beat = sync_beat;
 
             if (clock_scheduler_events[i].type == CLOCK_SCHEDULER_EVENT_SYNC) {
-                clock_scheduler_events[i].sync_clock_beat += sync_beat;
+                clock_scheduler_events[i].sync_clock_beat = clock_scheduler_next_clock_beat(clock_scheduler_events[i].sync_clock_beat + (sync_beat / 2), sync_beat);
             } else {
                 clock_scheduler_events[i].sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, sync_beat);;
             }
