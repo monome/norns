@@ -301,7 +301,9 @@ end
 -- @param index
 function ParamSet:t(index)
   local param = self:lookup_param(index)
-  return param.t
+  if param ~= nil then
+    return param.t
+  end
 end
 
 --- get range
