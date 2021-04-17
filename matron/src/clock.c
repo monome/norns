@@ -55,11 +55,11 @@ double clock_gettime_beats() {
 }
 
 double clock_get_reference_beat(clock_reference_t *reference) {
+    double current_time = clock_gettime_seconds();
+
     pthread_mutex_lock(&(reference->lock));
 
-    double current_time = clock_gettime_seconds();
-    double zero_beat_time = reference->last_beat_time - (reference->beat_duration * reference->beat);
-    double beat = (current_time - zero_beat_time) / reference->beat_duration;
+    double beat = reference->beat + ((current_time - reference->last_beat_time) / reference->beat_duration);
 
     pthread_mutex_unlock(&(reference->lock));
 
