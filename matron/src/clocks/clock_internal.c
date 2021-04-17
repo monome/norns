@@ -21,6 +21,7 @@ typedef struct {
 static pthread_t clock_internal_thread;
 static clock_reference_t clock_internal_reference;
 static int clock_internal_counter;
+static bool clock_internal_restarted;
 
 static clock_internal_tempo_t clock_internal_tempo;
 static pthread_mutex_t clock_internal_tempo_lock;
@@ -42,9 +43,20 @@ static void *clock_internal_thread_run(void *p) {
 
         clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
 
-        clock_internal_counter++;
-        reference_beat = (double) clock_internal_counter / CLOCK_INTERNAL_TICKS_PER_BEAT;
-        clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
+        if (clock_internal_restarted) {
+            clock_internal_counter = 0;
+            reference_beat = (double) clock_internal_counter / CLOCK_INTERNAL_TICKS_PER_BEAT;
+            clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
+
+            clock_scheduler_reset_sync_events();
+            clock_start_from_source(CLOCK_SOURCE_INTERNAL);
+
+            clock_internal_restarted = false;
+        } else {
+            clock_internal_counter++;
+            reference_beat = (double) clock_internal_counter / CLOCK_INTERNAL_TICKS_PER_BEAT;
+            clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
+        }
     }
 
     return NULL;
@@ -80,13 +92,7 @@ void clock_internal_set_tempo(double bpm) {
 }
 
 void clock_internal_restart() {
-    pthread_mutex_lock(&clock_internal_tempo_lock);
-
-    clock_start_from_source(CLOCK_SOURCE_INTERNAL);
-    clock_internal_counter = -1;
-    clock_scheduler_reset_sync_events();
-
-    pthread_mutex_unlock(&clock_internal_tempo_lock);
+    clock_internal_restarted = true;
 }
 
 void clock_internal_stop() {
