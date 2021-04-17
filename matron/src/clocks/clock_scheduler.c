@@ -119,7 +119,6 @@ bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
             } else {
                 clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SYNC;
                 clock_scheduler_events[i].sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, sync_beat);
-                ;
             }
 
             pthread_mutex_unlock(&clock_scheduler_events_lock);
