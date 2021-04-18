@@ -20,7 +20,6 @@ typedef struct {
 
 static pthread_t clock_internal_thread;
 static clock_reference_t clock_internal_reference;
-static int clock_internal_counter;
 static bool clock_internal_restarted;
 
 static clock_internal_tempo_t clock_internal_tempo;
@@ -31,6 +30,7 @@ static void *clock_internal_thread_run(void *p) {
     struct timespec ts;
     double beat_duration;
     double reference_beat;
+    int ticks = -1;
 
     while (true) {
         pthread_mutex_lock(&clock_internal_tempo_lock);
@@ -44,7 +44,7 @@ static void *clock_internal_thread_run(void *p) {
         clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
 
         if (clock_internal_restarted) {
-            clock_internal_counter = 0;
+            ticks = 0;
             reference_beat = 0;
 
             clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
@@ -52,8 +52,8 @@ static void *clock_internal_thread_run(void *p) {
 
             clock_internal_restarted = false;
         } else {
-            clock_internal_counter++;
-            reference_beat = (double) clock_internal_counter / CLOCK_INTERNAL_TICKS_PER_BEAT;
+            ticks++;
+            reference_beat = (double) ticks / CLOCK_INTERNAL_TICKS_PER_BEAT;
             clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
         }
     }
@@ -72,7 +72,6 @@ static void clock_internal_start() {
 void clock_internal_init() {
     pthread_mutex_init(&clock_internal_tempo_lock, NULL);
     clock_reference_init(&clock_internal_reference);
-    clock_internal_counter = -1;
     clock_internal_start();
 }
 
