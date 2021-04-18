@@ -45,10 +45,9 @@ static void *clock_internal_thread_run(void *p) {
 
         if (clock_internal_restarted) {
             clock_internal_counter = 0;
-            reference_beat = (double) clock_internal_counter / CLOCK_INTERNAL_TICKS_PER_BEAT;
-            clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
+            reference_beat = 0;
 
-            clock_scheduler_reset_sync_events();
+            clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
             clock_start_from_source(CLOCK_SOURCE_INTERNAL);
 
             clock_internal_restarted = false;

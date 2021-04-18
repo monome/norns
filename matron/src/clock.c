@@ -10,6 +10,7 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
+#include "clocks/clock_scheduler.h"
 #include "events.h"
 
 static clock_source_t clock_source;
@@ -113,6 +114,7 @@ void clock_update_source_reference(clock_reference_t *reference, double beat, do
 
 void clock_start_from_source(clock_source_t source) {
     if (clock_source == source) {
+        clock_scheduler_reset_sync_events();
         union event_data *ev = event_data_new(EVENT_CLOCK_START);
         event_post(ev);
     }
