@@ -68,12 +68,7 @@ end
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
 
-  if coro == nil then
-    print('clock: ignoring resumption of canceled clock (no coroutine)')
-    return
-  end
-
-  local result, mode, time = coroutine.resume(clock.threads[coro_id], ...)
+  local result, mode, time = coroutine.resume(coro, ...)
 
   if coroutine.status(coro) == "dead" then
     if result then
