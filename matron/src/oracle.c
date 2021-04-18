@@ -113,6 +113,9 @@ static int handle_poll_softcut_phase(const char *path, const char *types, lo_arg
 static int handle_softcut_render(const char *path, const char *types, lo_arg **argv, int argc,
 				 lo_message data, void *user_data);
 
+static int handle_softcut_positions(const char *path, const char *types, lo_arg **argv, int argc,
+				 lo_message data, void *user_data);
+
 static int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, int argc,
 				  lo_message data, void *user_data);
 
@@ -181,6 +184,7 @@ void o_init(void) {
 
     // softcut buffer content
     lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
+    lo_server_thread_add_method(st, "/softcut/buffer/positions_callback", "fb", handle_softcut_positions, NULL);
 
     lo_server_thread_start(st);
 }
@@ -601,6 +605,10 @@ void o_cut_buffer_render(int ch, float start, float dur, int samples) {
     lo_send(crone_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
 }
 
+void o_cut_query_positions() {
+    lo_send(crone_addr, "/softcut/query/positions", "");
+}
+
 void o_cut_reset() {
     lo_send(crone_addr, "/softcut/reset", "");
 }
@@ -822,6 +830,19 @@ int handle_softcut_render(const char *path, const char *types, lo_arg **argv, in
     ev->softcut_render.size = sz / sizeof(float);
     ev->softcut_render.data = calloc(1, sz);
     memcpy(ev->softcut_render.data, samples, sz);
+    event_post(ev);
+    return 0;
+}
+
+int handle_softcut_positions(const char *path, const char *types, lo_arg **argv, int argc,
+			  lo_message data, void *user_data) {
+    //assert(argc > 2);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
+    int sz = lo_blob_datasize((lo_blob)argv[0]);
+    float *samples = (float*)lo_blob_dataptr((lo_blob)argv[1]);
+    ev->softcut_positions.size = sz / sizeof(float);
+    ev->softcut_positions.data = calloc(1, sz);
+    memcpy(ev->softcut_positions.data, samples, sz);
     event_post(ev);
     return 0;
 }

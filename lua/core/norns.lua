@@ -85,6 +85,7 @@ _norns.vu = function(in1, in2, out1, out2) end
 _norns.softcut_phase = function(id, value) end
 
 _norns.softcut_render = function(ch, start, sec_per_sample, samples) end
+_norns.softcut_positions = function(positions) end
 
 -- default readings for battery
 norns.battery_percent = 0
