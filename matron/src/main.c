@@ -73,7 +73,6 @@ int main(int argc, char **argv) {
     i2c_init();
     osc_init();
     clock_init();
-    clock_scheduler_init();
     clock_internal_init();
     clock_midi_init();
     clock_crow_init();
@@ -81,6 +80,7 @@ int main(int argc, char **argv) {
     clock_link_init();
     clock_link_start();
 #endif
+    clock_scheduler_init();
 
     o_init(); // oracle (audio)
 
