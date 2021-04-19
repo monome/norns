@@ -83,8 +83,8 @@ typedef enum {
     EVENT_CROW_EVENT,
     // softcut buffer content callback
     EVENT_SOFTCUT_RENDER,
-    // softcut positions callback
-    EVENT_SOFTCUT_POSITIONS,
+    // softcut position callback
+    EVENT_SOFTCUT_POSITION,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -306,10 +306,10 @@ struct event_softcut_render {
     float* data;
 };
 
-struct event_softcut_positions {
+struct event_softcut_position {
     struct event_common common;
-    size_t size;
-    float* data;
+    int idx;
+    float pos;
 };
 
 union event_data {
@@ -346,5 +346,5 @@ union event_data {
     struct event_crow_event crow_event;
     struct event_system_cmd system_cmd;
     struct event_softcut_render softcut_render;
-    struct event_softcut_positions softcut_positions;
+    struct event_softcut_position softcut_position;
 };

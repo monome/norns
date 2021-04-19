@@ -382,13 +382,14 @@ SC.event_render = function(func)
   _norns.softcut_render = func
 end
 
---- query playback positions
-SC.query_positions = function() _norns.query_cut_positions() end
+--- query playback position
+-- @tparam integer i : which softcut voice
+SC.query_position = function(i) _norns.cut_query_position(i) end
 
---- set function for query callback. use query_positions to request contents.
--- @tparam function func : called when positions are returned
-SC.event_positions = function(func)
-  _norns.softcut_positions = func
+--- set function for query callback. use query_position to request contents.
+-- @tparam function func : called when index and position is returned
+SC.event_position = function(func)
+  _norns.softcut_position = func
 end
 
 

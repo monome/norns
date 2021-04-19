@@ -291,6 +291,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_SOFTCUT_RENDER:
         w_handle_softcut_render(ev->softcut_render.idx, ev->softcut_render.sec_per_sample, ev->softcut_render.start, ev->softcut_render.size, ev->softcut_render.data);
         break;
+    case EVENT_SOFTCUT_POSITION:
+        w_handle_softcut_position(ev->softcut_position.idx, ev->softcut_position.pos);
+        break;
     } /* switch */
 
     event_data_free(ev);

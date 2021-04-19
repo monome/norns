@@ -193,7 +193,7 @@ static int _cut_buffer_read_stereo(lua_State *l);
 static int _cut_buffer_write_mono(lua_State *l);
 static int _cut_buffer_write_stereo(lua_State *l);
 static int _cut_buffer_render(lua_State *l);
-static int _cut_query_positions(lua_State *l);
+static int _cut_query_position(lua_State *l);
 static int _cut_reset(lua_State *l);
 static int _set_cut_param(lua_State *l);
 static int _set_cut_param_ii(lua_State *l);
@@ -334,7 +334,7 @@ void w_init(void) {
     lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
     lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
     lua_register_norns("cut_buffer_render", &_cut_buffer_render);
-    lua_register_norns("cut_query_positions", &_cut_query_positions);
+    lua_register_norns("cut_query_position", &_cut_query_position);
     lua_register_norns("cut_reset", &_cut_reset);
     lua_register_norns("cut_param", &_set_cut_param);
     lua_register_norns("cut_param_ii", &_set_cut_param_ii);
@@ -2068,15 +2068,12 @@ void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t 
     l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-void w_handle_softcut_positions(size_t size, float* data) {
+void w_handle_softcut_position(int idx, float pos) {
     lua_getglobal(lvm, "_norns");
-    lua_getfield(lvm, -1, "softcut_positions");
+    lua_getfield(lvm, -1, "softcut_position");
     lua_remove(lvm, -2);
-    lua_createtable(lvm, size, 0);
-    for (size_t i = 0; i < size; ++i) {
-        lua_pushnumber(lvm, data[i]);
-        lua_rawseti(lvm, -2, i + 1);
-    }
+    lua_pushinteger(lvm, idx + 1);
+    lua_pushnumber(lvm, pos);
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
@@ -2418,8 +2415,10 @@ int _cut_buffer_render(lua_State *l) {
     return 0;
 }
 
-int _cut_query_positions(lua_State *l) {
-    o_cut_query_positions();
+int _cut_query_position(lua_State *l) {
+    lua_check_num_args(1);
+    int i = (int)luaL_checkinteger(l, 1) - 1;
+    o_cut_query_position(i);
     return 0;
 }
 

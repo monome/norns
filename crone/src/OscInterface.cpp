@@ -782,11 +782,11 @@ void OscInterface::addServerMethods() {
                                      });
     });
 
-    addServerMethod("/softcut/request/positions", "fi", [](lo_arg **argv, int argc) {
-      int size = softCutClient->getNumVoices(); 
-      float* positions = softCutClient->getPositions();
-      lo_blob bl = lo_blob_new(size * sizeof(float), positions);
-      lo_send(matronAddress, "/softcut/query/positions_callback", "fb", size, bl);
+    addServerMethod("/softcut/query/position", "i", [](lo_arg **argv, int argc) {
+      if(argc < 1) return;
+      int idx = argv[0]->i;
+      float pos = softCutClient->getPosition(idx);
+      lo_send(matronAddress, "/poll/softcut/position", "if", idx, pos);
     });
 
     addServerMethod("/softcut/reset", "", [](lo_arg **argv, int argc) {
