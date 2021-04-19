@@ -837,7 +837,7 @@ int handle_softcut_render(const char *path, const char *types, lo_arg **argv, in
 int handle_softcut_positions(const char *path, const char *types, lo_arg **argv, int argc,
 			  lo_message data, void *user_data) {
     //assert(argc > 2);
-    union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_POSITIONS);
     int sz = lo_blob_datasize((lo_blob)argv[0]);
     float *samples = (float*)lo_blob_dataptr((lo_blob)argv[1]);
     ev->softcut_positions.size = sz / sizeof(float);
