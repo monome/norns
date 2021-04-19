@@ -133,10 +133,10 @@ namespace crone {
 
         int getNumVoices() const { return NumVoices; }
 
-        float * getPositions() {
+        float *getPositions() {
           float p[NumVoices];
           for(int i=0;i<NumVoices;i++) {
-            p[i] = cut.getPos(i);
+            p[i] = cut.getPosition(i);
           }
           return *p;
         }
