@@ -71,6 +71,7 @@ static void clock_internal_start() {
 
 void clock_internal_init() {
     pthread_mutex_init(&clock_internal_tempo_lock, NULL);
+    clock_internal_set_tempo(120);
     clock_reference_init(&clock_internal_reference);
     clock_internal_start();
 }
