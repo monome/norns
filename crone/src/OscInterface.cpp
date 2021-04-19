@@ -782,6 +782,10 @@ void OscInterface::addServerMethods() {
                                      });
     });
 
+    addServerMethod("/softcut/request/positions", "fi", [](lo_arg **argv, int argc) {
+
+    });
+
     addServerMethod("/softcut/reset", "", [](lo_arg **argv, int argc) {
         (void) argv;
         (void) argc;
