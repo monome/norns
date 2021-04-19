@@ -1,3 +1,4 @@
+#include <float.h>
 #include <math.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -19,6 +20,7 @@ typedef enum {
 
 typedef struct {
     clock_scheduler_event_type_t type;
+    bool ready;
     int thread_id;
 
     double sync_beat;
@@ -37,7 +39,7 @@ static void clock_scheduler_post_clock_resume_event(int thread_id) {
 }
 
 static inline double clock_scheduler_next_clock_beat(double clock_beat, double sync_beat) {
-    return ceil(clock_beat / sync_beat) * sync_beat;
+    return ceil((clock_beat + FLT_EPSILON) / sync_beat) * sync_beat;
 }
 
 static void *clock_scheduler_tick_thread_run(void *p) {
@@ -47,28 +49,28 @@ static void *clock_scheduler_tick_thread_run(void *p) {
     double clock_time;
 
     while (true) {
-        clock_beat = clock_gettime_beats();
         clock_time = clock_gettime_seconds();
+        clock_beat = clock_gettime_beats();
 
         pthread_mutex_lock(&clock_scheduler_events_lock);
 
         for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
             scheduler_event = &clock_scheduler_events[i];
 
-            if (scheduler_event->thread_id > -1) {
+            if (scheduler_event->ready) {
                 if (scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
-                    if (clock_beat >= scheduler_event->sync_clock_beat) {
+                    if (clock_beat > scheduler_event->sync_clock_beat) {
                         clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
-                        scheduler_event->thread_id = -1;
+                        scheduler_event->ready = false;
                     } else {
                         if (scheduler_event->sync_clock_beat - clock_beat > scheduler_event->sync_beat) {
-                            scheduler_event->sync_clock_beat =
-                                clock_scheduler_next_clock_beat(clock_beat, scheduler_event->sync_beat);
+                            scheduler_event->sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, scheduler_event->sync_beat);
                         }
                     }
                 } else {
                     if (clock_time >= scheduler_event->sleep_clock_time) {
                         clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
+                        scheduler_event->ready = false;
                         scheduler_event->thread_id = -1;
                     }
                 }
@@ -86,6 +88,7 @@ void clock_scheduler_init() {
     pthread_mutex_init(&clock_scheduler_events_lock, NULL);
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
+        clock_scheduler_events[i].ready = false;
         clock_scheduler_events[i].thread_id = -1;
     }
 
@@ -106,11 +109,30 @@ bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
-        if (clock_scheduler_events[i].thread_id == -1) {
+        if (clock_scheduler_events[i].thread_id == thread_id) {
+            clock_scheduler_events[i].ready = true;
             clock_scheduler_events[i].thread_id = thread_id;
-            clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SYNC;
+            clock_scheduler_events[i].sync_beat = sync_beat;
+
+            if (clock_scheduler_events[i].type == CLOCK_SCHEDULER_EVENT_SYNC) {
+                clock_scheduler_events[i].sync_clock_beat = clock_scheduler_next_clock_beat(clock_scheduler_events[i].sync_clock_beat, sync_beat);
+            } else {
+                clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SYNC;
+                clock_scheduler_events[i].sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, sync_beat);
+            }
+
+            pthread_mutex_unlock(&clock_scheduler_events_lock);
+            return true;
+        }
+    }
+
+    for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
+        if (clock_scheduler_events[i].thread_id == -1) {
+            clock_scheduler_events[i].ready = true;
+            clock_scheduler_events[i].thread_id = thread_id;
             clock_scheduler_events[i].sync_beat = sync_beat;
             clock_scheduler_events[i].sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, sync_beat);
+            clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SYNC;
 
             pthread_mutex_unlock(&clock_scheduler_events_lock);
             return true;
@@ -128,6 +150,7 @@ bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         if (clock_scheduler_events[i].thread_id == -1) {
+            clock_scheduler_events[i].ready = true;
             clock_scheduler_events[i].thread_id = thread_id;
             clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SLEEP;
             clock_scheduler_events[i].sleep_time = seconds;
@@ -142,11 +165,12 @@ bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
     return false;
 }
 
-void clock_scheduler_cancel(int thread_id) {
+void clock_scheduler_clear(int thread_id) {
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         if (clock_scheduler_events[i].thread_id == thread_id) {
+            clock_scheduler_events[i].ready = false;
             clock_scheduler_events[i].thread_id = -1;
         }
     }
@@ -154,10 +178,11 @@ void clock_scheduler_cancel(int thread_id) {
     pthread_mutex_unlock(&clock_scheduler_events_lock);
 }
 
-void clock_scheduler_cancel_all() {
+void clock_scheduler_clear_all() {
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
+        clock_scheduler_events[i].ready = false;
         clock_scheduler_events[i].thread_id = -1;
     }
 
@@ -173,7 +198,7 @@ void clock_scheduler_reschedule_sync_events() {
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         scheduler_event = &clock_scheduler_events[i];
 
-        if (scheduler_event->thread_id > -1 && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
+        if (scheduler_event->ready && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
             scheduler_event->sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, scheduler_event->sync_beat);
         }
     }
@@ -189,7 +214,7 @@ void clock_scheduler_reset_sync_events() {
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         scheduler_event = &clock_scheduler_events[i];
 
-        if (scheduler_event->thread_id > -1 && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
+        if (scheduler_event->ready && scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
             scheduler_event->sync_clock_beat = 0;
         }
     }
