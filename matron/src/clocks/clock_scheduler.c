@@ -62,10 +62,6 @@ static void *clock_scheduler_tick_thread_run(void *p) {
                     if (clock_beat > scheduler_event->sync_clock_beat) {
                         clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
                         scheduler_event->ready = false;
-                    } else {
-                        if (scheduler_event->sync_clock_beat - clock_beat > scheduler_event->sync_beat) {
-                            scheduler_event->sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, scheduler_event->sync_beat);
-                        }
                     }
                 } else {
                     if (clock_time >= scheduler_event->sleep_clock_time) {
