@@ -160,9 +160,13 @@ end
 
 -- callback on metro tick from C.
 _norns.metro = function(idx, stage)
-  if Metro.metros[idx] then
+  local m = Metro.metros[idx]
+  if m then
     if Metro.metros[idx].event then
       Metro.metros[idx].event(stage)
+    end
+    if m.count > -1 then
+      
     end
   end
 end
