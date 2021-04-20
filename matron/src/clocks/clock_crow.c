@@ -17,11 +17,13 @@ static double mean_sum;
 static double mean_scale;
 
 static double crow_in_div = 4.0;
+static bool crow_in_div_changed = false;
 static pthread_mutex_t crow_in_div_lock;
 
 void clock_crow_in_div(int div) {
     pthread_mutex_lock(&crow_in_div_lock);
     crow_in_div = (double)div;
+    crow_in_div_changed = true;
     pthread_mutex_unlock(&crow_in_div_lock);
 }
 
@@ -63,6 +65,11 @@ void clock_crow_handle_clock() {
 
             double reference_beat = clock_crow_counter / crow_in_div;
             clock_update_source_reference(&clock_crow_reference, reference_beat, mean_sum);
+
+            if (crow_in_div_changed) {
+                clock_reschedule_sync_events_from_source(CLOCK_SOURCE_CROW);
+                crow_in_div_changed = false;
+            }
         }
 
         pthread_mutex_unlock(&crow_in_div_lock);
