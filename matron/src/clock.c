@@ -136,4 +136,5 @@ void clock_reschedule_sync_events_from_source(clock_source_t source) {
 
 void clock_set_source(clock_source_t source) {
     clock_source = source;
+    clock_scheduler_reschedule_sync_events();
 }
