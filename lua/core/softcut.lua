@@ -267,6 +267,7 @@ SC.poll_start_phase = function() _norns.poll_start_cut_phase() end
 --- stop phase poll
 SC.poll_stop_phase = function() _norns.poll_stop_cut_phase() end
 
+
 --- set voice enable
 -- disabled voices have no effect and consume basically zero CPU
 -- @tparam int voice : voice number (1-?)
@@ -379,6 +380,16 @@ end
 -- @tparam function func : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)
 SC.event_render = function(func)
   _norns.softcut_render = func
+end
+
+--- query playback position
+-- @tparam integer i : which softcut voice
+SC.query_position = function(i) _norns.cut_query_position(i) end
+
+--- set function for query callback. use query_position to request contents.
+-- @tparam function func : called when index and position is returned
+SC.event_position = function(func)
+  _norns.softcut_position = func
 end
 
 
