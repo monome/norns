@@ -10,9 +10,6 @@
 
 #include "clock_scheduler.h"
 
-static pthread_t clock_scheduler_tick_thread;
-static pthread_mutex_t clock_scheduler_events_lock;
-
 typedef enum {
     CLOCK_SCHEDULER_EVENT_SYNC,
     CLOCK_SCHEDULER_EVENT_SLEEP,
@@ -30,7 +27,10 @@ typedef struct {
     double sleep_clock_time;
 } clock_scheduler_event_t;
 
+static pthread_t clock_scheduler_tick_thread;
+
 static clock_scheduler_event_t clock_scheduler_events[NUM_CLOCK_SCHEDULER_EVENTS];
+static pthread_mutex_t clock_scheduler_events_lock;
 
 static void clock_scheduler_post_clock_resume_event(int thread_id) {
     union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
@@ -49,10 +49,10 @@ static void *clock_scheduler_tick_thread_run(void *p) {
     double clock_time;
 
     while (true) {
+        pthread_mutex_lock(&clock_scheduler_events_lock);
+
         clock_time = clock_gettime_seconds();
         clock_beat = clock_gettime_beats();
-
-        pthread_mutex_lock(&clock_scheduler_events_lock);
 
         for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
             scheduler_event = &clock_scheduler_events[i];
@@ -104,9 +104,9 @@ void clock_scheduler_start() {
 }
 
 bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
-    double clock_beat = clock_gettime_beats();
-
     pthread_mutex_lock(&clock_scheduler_events_lock);
+
+    double clock_beat = clock_gettime_beats();
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         if (clock_scheduler_events[i].thread_id == thread_id) {
@@ -144,9 +144,9 @@ bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
 }
 
 bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
-    double clock_time = clock_gettime_seconds();
-
     pthread_mutex_lock(&clock_scheduler_events_lock);
+
+    double clock_time = clock_gettime_seconds();
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         if (clock_scheduler_events[i].thread_id == -1) {
@@ -191,9 +191,10 @@ void clock_scheduler_clear_all() {
 
 void clock_scheduler_reschedule_sync_events() {
     clock_scheduler_event_t *scheduler_event;
-    double clock_beat = clock_gettime_beats();
 
     pthread_mutex_lock(&clock_scheduler_events_lock);
+
+    double clock_beat = clock_gettime_beats();
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         scheduler_event = &clock_scheduler_events[i];
