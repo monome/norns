@@ -156,17 +156,17 @@ for i=1,Metro.num_script_metros do
   Metro.assigned[i] = false
 end
 
-
-
 -- callback on metro tick from C.
 _norns.metro = function(idx, stage)
   local m = Metro.metros[idx]
   if m then
-    if Metro.metros[idx].event then
-      Metro.metros[idx].event(stage)
+    if m.event then
+      m.event(stage)
     end
     if m.count > -1 then
-      
+      if (stage > m.count) then
+        m.is_running = false
+      end
     end
   end
 end
