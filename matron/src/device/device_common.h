@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+
+
 typedef enum {
     // libmonome devices
     DEV_TYPE_MONOME = 0,
@@ -17,9 +19,6 @@ typedef enum {
     DEV_TYPE_COUNT,
     DEV_TYPE_INVALID
 } device_t;
-
-// maximum device_t value for devices which have corresponding device files
-#define DEV_TYPE_COUNT_PHYSICAL 4
 
 struct dev_common {
     // device type

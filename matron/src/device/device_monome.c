@@ -46,8 +46,11 @@ int dev_monome_init(void *self) {
     memset(md->dirty, 0, sizeof(md->dirty));
 
     if (monome_get_rows(md->m) == 0 && monome_get_cols(md->m) == 0) {
+	fprintf(stderr, "monome device reporing zero rows/cols; assuming arc\n");
         md->type = DEVICE_MONOME_TYPE_ARC;
+	
     } else {
+	fprintf(stderr, "monome device appears to be a grid\n");
         md->type = DEVICE_MONOME_TYPE_GRID;
     }
 
