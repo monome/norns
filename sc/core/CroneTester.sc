@@ -25,12 +25,11 @@ CroneTester {
 
 	// send engine command
 	*cmd { arg name, args;
-		// FIXME: why isn't this working?
 		var l = List.new;
 		l.add(("/command/" ++ name).asSymbol);
 		l = l ++ args;
 		l.postln;
-		addr.sendMsg(l);
+		addr.sendMsg(*l);
 	}
 
 	// send poll request
