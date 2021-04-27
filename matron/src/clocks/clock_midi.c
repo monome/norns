@@ -54,13 +54,16 @@ static void clock_midi_handle_clock() {
 
             double reference_beat = clock_midi_counter / 24.0;
             clock_update_source_reference(&clock_midi_reference, reference_beat, mean_sum);
+
+            if (clock_midi_counter == 0) {
+                clock_start_from_source(CLOCK_SOURCE_MIDI);
+            }
         }
     }
 }
 
 static void clock_midi_handle_start() {
     clock_midi_counter = -1;
-    clock_start_from_source(CLOCK_SOURCE_MIDI);
 }
 
 static void clock_midi_handle_stop() {
