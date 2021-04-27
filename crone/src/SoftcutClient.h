@@ -59,8 +59,6 @@ namespace crone {
         }
 
     public:
-        /// FIXME: the "commands" structure shouldn't really be necessary.
-        /// should be able to refactor most/all parameters for atomic access.
         // called from audio thread
         void handleCommand(Commands::CommandPacket *p) override;
 
@@ -112,7 +110,6 @@ namespace crone {
         }
 
         // check if quantized phase has changed for a given voice
-        // returns true
         bool checkVoiceQuantPhase(int i) {
             if (quantPhase[i] != cut.getQuantPhase(i)) {
                 quantPhase[i] = cut.getQuantPhase(i);
@@ -121,17 +118,24 @@ namespace crone {
                 return false;
             }
         }
+	
         softcut::phase_t getQuantPhase(int i) {
             return cut.getQuantPhase(i);
         }
-        void setPhaseQuant(int i, softcut::phase_t q) {
+
+	void setPhaseQuant(int i, softcut::phase_t q) {
             cut.setPhaseQuant(i, q);
         }
-        void setPhaseOffset(int i, float sec) {
+
+	void setPhaseOffset(int i, float sec) {
             cut.setPhaseOffset(i, sec);
         }
 
         int getNumVoices() const { return NumVoices; }
+
+        float getPosition(int i) {
+           return cut.getSavedPosition(i);
+        }
 
 	void reset();
 

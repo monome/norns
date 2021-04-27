@@ -40,6 +40,8 @@ function ParamSet.new(id, name)
   ps.hidden = {}
   ps.lookup = {}
   ps.group = 0
+  ps.action_write = nil
+  ps.action_read = nil
   ParamSet.sets[ps.id] = ps
   return ps
 end
@@ -299,7 +301,9 @@ end
 -- @param index
 function ParamSet:t(index)
   local param = self:lookup_param(index)
-  return param.t
+  if param ~= nil then
+    return param.t
+  end
 end
 
 --- get range
@@ -379,6 +383,9 @@ function ParamSet:write(filename, name)
       end
     end
     io.close(fd)
+    if self.action_write ~= nil then 
+      self.action_write(filename,name)
+    end
   else print("pset: BAD FILENAME") end
 end
 
@@ -420,6 +427,9 @@ function ParamSet:read(filename, silent)
         end
       end
     end
+    if self.action_read ~= nil then 
+      self.action_read(filename,silent)
+    end
   else
     print("pset :: "..filename.." not read.")
   end
@@ -445,6 +455,8 @@ function ParamSet:clear()
   self.name = ""
   self.params = {}
   self.count = 0
+  self.action_read = nil 
+  self.action_write = nil
 end
 
 return ParamSet
