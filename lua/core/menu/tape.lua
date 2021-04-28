@@ -13,6 +13,10 @@ local TAPE_REC_ARM = 1
 local TAPE_REC_START = 2
 local TAPE_REC_STOP = 3
 
+local TAPE_KEY1_HELD = false
+local TAPE_QUEUED_FILE;
+local TAPE_QUEUED_INDEX;
+
 local m = {
   mode = TAPE_MODE_PLAY,
   play = {
@@ -45,7 +49,9 @@ local function tape_exists(index)
   if type(index) == "number" then
     index = string.format("%04d",index)
   end
-  local filename = _path.audio.."tape/"..index..".wav"
+  local current_tempo = string.format("%04f",clock.get_tempo()):gsub("%.?0+$", "")
+  local script_name = norns.state.shortname ~= "none" and norns.state.shortname or "no_script"
+  local filename = _path.audio.."tape/"..script_name.."/"..index.. "_" ..string.gsub(current_tempo,"%.","-") .. "bpm.wav"
   return util.file_exists(filename)
 end
 
@@ -62,6 +68,8 @@ local function update_tape_index()
     m.fileindex = m.fileindex+1
   end
 
+  TAPE_QUEUED_INDEX = m.fileindex
+
   local f = io.open(_path.tape..'index.txt','w')
   if f == nil then
     os.execute("mkdir -p ".._path.tape)
@@ -76,12 +84,18 @@ local function update_tape_index()
 end
 
 local function edit_filename(txt)
+  local current_tempo = string.format("%04f",clock.get_tempo()):gsub("%.?0+$", "")
   if txt then
     m.rec.file = txt .. ".wav"
   else
-    m.rec.file = string.format("%04d",m.fileindex) .. ".wav"
+    m.rec.file = string.format("%04d",m.fileindex) .. "_" ..string.gsub(current_tempo,"%.","-") .. "bpm.wav"
   end
-  audio.tape_record_open(_path.audio.."tape/"..m.rec.file)
+  local script_name = norns.state.shortname ~= "none" and norns.state.shortname or "no_script"
+  if not util.file_exists(_path.audio.."tape/"..script_name) then
+    util.make_dir(_path.audio.."tape/"..script_name)
+  end
+  TAPE_QUEUED_FILE = _path.audio.."tape/"..script_name.."/"..m.rec.file
+  audio.tape_record_open(TAPE_QUEUED_FILE)
   m.rec.sel = TAPE_REC_START
   m.rec.pos_tick = 0
   tape_rec_counter.time = 0.25
@@ -100,12 +114,38 @@ local function edit_filename(txt)
   _menu.redraw()
 end
 
+local function stop_recording()
+  tape_rec_counter:stop()
+  audio.tape_record_stop()
+  m.rec.sel = TAPE_REC_ARM
+  tape_diskfree()
+end
+
+local function purge_blank_file()
+  if util.round(util.file_size(TAPE_QUEUED_FILE),0.0001) == 0 then
+    os.execute("rm "..TAPE_QUEUED_FILE)
+    m.fileindex = TAPE_QUEUED_INDEX
+    local f = io.open(_path.tape..'index.txt','w')
+    if f == nil then
+      os.execute("mkdir -p ".._path.tape)
+      f = io.open(_path.tape..'index.txt','w')
+    end
+    if f == nil then
+      print("WARNING: couldn't write index file, even after creating `tape/`")
+    else
+      f:write(tostring(m.fileindex))
+      f:close()
+    end
+  end
+end
 
 m.key = function(n,z)
-  if n==2 and z==1 then
+  if n == 1 then
+    TAPE_KEY1_HELD = z == 1 and true or false
+  elseif n==2 and z==1 and not TAPE_KEY1_HELD then
     m.mode = (m.mode==1) and 2 or 1
     _menu.redraw()
-  elseif n==3 and z==1 then
+  elseif n==3 and z==1 and not TAPE_KEY1_HELD then
     if m.mode == TAPE_MODE_PLAY then
       if m.play.sel == TAPE_PLAY_LOAD then
         local playfile_callback = function(path)
@@ -167,10 +207,12 @@ m.key = function(n,z)
       if m.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
         update_tape_index()
+        local current_tempo = string.format("%04f",clock.get_tempo()):gsub("%.?0+$", "")
+        local script_name = norns.state.shortname ~= "none" and norns.state.shortname or "no_script"
         textentry.enter(
           edit_filename,
-          string.format("%04d",m.fileindex),
-          "tape filename:",
+          string.format("%04d",m.fileindex) .. "_" .. string.gsub(current_tempo,"%.","-").."bpm",
+          "tape/"..script_name.."/",
           function(txt)
             if tape_exists(txt) then
               return "FILE EXISTS"
@@ -181,11 +223,14 @@ m.key = function(n,z)
         audio.tape_record_start()
         m.rec.sel = TAPE_REC_STOP
       elseif m.rec.sel == TAPE_REC_STOP then
-        tape_rec_counter:stop()
-        audio.tape_record_stop()
-        m.rec.sel = TAPE_REC_ARM
-        tape_diskfree()
+        stop_recording()
       end
+      _menu.redraw()
+    end
+  elseif n == 3 and z == 1 and TAPE_KEY1_HELD then
+    if m.mode == TAPE_MODE_REC and m.rec.sel == TAPE_REC_START then
+      stop_recording()
+      purge_blank_file()
       _menu.redraw()
     end
   end
@@ -234,7 +279,7 @@ m.redraw = function()
   if m.mode==TAPE_MODE_REC then
     screen.level(15)
     screen.move(64,62)
-    if m.rec.sel == TAPE_REC_START then screen.text_center("START")
+    if m.rec.sel == TAPE_REC_START then screen.text_center(TAPE_KEY1_HELD and "CLEAR" or "START")
     elseif m.rec.sel == TAPE_REC_STOP then screen.text_center("STOP") end
   end
   if m.rec.sel ~= TAPE_REC_ARM then
