@@ -113,6 +113,9 @@ static int handle_poll_softcut_phase(const char *path, const char *types, lo_arg
 static int handle_softcut_render(const char *path, const char *types, lo_arg **argv, int argc,
 				 lo_message data, void *user_data);
 
+static int handle_softcut_position(const char *path, const char *types, lo_arg **argv, int argc,
+				 lo_message data, void *user_data);
+
 static int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, int argc,
 				  lo_message data, void *user_data);
 
@@ -181,6 +184,7 @@ void o_init(void) {
 
     // softcut buffer content
     lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
+    lo_server_thread_add_method(st, "/poll/softcut/position", "if", handle_softcut_position, NULL);
 
     lo_server_thread_start(st);
 }
@@ -601,6 +605,10 @@ void o_cut_buffer_render(int ch, float start, float dur, int samples) {
     lo_send(crone_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
 }
 
+void o_cut_query_position(int i) {
+    lo_send(crone_addr, "/softcut/query/position", "i", i);
+}
+
 void o_cut_reset() {
     lo_send(crone_addr, "/softcut/reset", "");
 }
@@ -738,7 +746,6 @@ int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
 			     lo_message data, void *user_data) {
 
     assert(argc > 2);
-    fflush(stdout);
     o_set_poll(argv[0]->i, &argv[1]->s, argv[2]->i);
     return 0;
 }
@@ -787,7 +794,6 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv, in
     int sz = lo_blob_datasize((lo_blob)argv[0]);
     assert(sz == sizeof(quad_levels_t));
     ev->poll_io_levels.value.uint = *((uint32_t *)blobdata);
-    fflush(stdout);
     event_post(ev);
     return 0;
 }
@@ -799,7 +805,6 @@ int handle_poll_softcut_phase(const char *path, const char *types, lo_arg **argv
     union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
     ev->softcut_phase.idx = argv[0]->i;
     ev->softcut_phase.value = argv[1]->f;
-    fflush(stdout);
     event_post(ev);
     return 0;
 }
@@ -825,6 +830,16 @@ int handle_softcut_render(const char *path, const char *types, lo_arg **argv, in
     ev->softcut_render.size = sz / sizeof(float);
     ev->softcut_render.data = calloc(1, sz);
     memcpy(ev->softcut_render.data, samples, sz);
+    event_post(ev);
+    return 0;
+}
+
+int handle_softcut_position(const char *path, const char *types, lo_arg **argv, int argc,
+			  lo_message data, void *user_data) {
+    assert(argc > 1);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_POSITION);
+    ev->softcut_position.idx = argv[0]->i;
+    ev->softcut_position.pos = argv[1]->f;
     event_post(ev);
     return 0;
 }

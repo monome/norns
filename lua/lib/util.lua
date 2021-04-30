@@ -24,7 +24,7 @@ end
 -- @treturn table
 util.scandir = function(directory)
   local i, t, popen = 0, {}, io.popen
-  local pfile = popen('ls -p --group-directories-first "'..directory..'"')
+  local pfile = popen('ls -pL --group-directories-first "'..directory..'"')
   for filename in pfile:lines() do
     i = i + 1
     t[i] = filename
