@@ -70,9 +70,10 @@ function norns.crow.peak(n) crow.input[n].peak() end
 function norns.crow.output(n,v) crow.output[n].receive(v) end
 function norns.crow.done(n) crow.output[n].done() end
 function norns.crow.running(n,v) crow.output[n].running(v) end
-function norns.crow.midi(...) crow.midi(...) end
 function norns.crow.pub(...) crow.public.add(...) end
 function norns.crow.pupdate(...) crow.public.update(...) end
+function norns.crow.ready() crow.public.ready() end
+function norns.crow.pubview(n,c,v) crow.public.viewing[n][c] = v end
 
 norns.crow.ii = ii_events
 

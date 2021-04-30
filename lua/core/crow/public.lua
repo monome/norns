@@ -7,38 +7,30 @@ local Public = {}
 function Public.clear()
   Public._names = {}
   Public._params = {}
-
+  Public.viewing = { -- clear viewed vals on load
+    input = {},
+    output = {},
+  }
 end
 
 Public.clear()
 
 -- user callbacks
-function Public.ready() print 'crow.public synchronized.' end
 function Public.change(k,v) end
+function Public.discovered() print'crow.public discovered' end
 
-
--- FIXME crow should broadcast a message after it has loaded a script & executed init()
-function Public.loadscript(file, is_persistent)
-  -- start upload
-  co = crow.loadscript(file, is_persistent)
-  clock.run( function(co, p)
-      -- wait for loadscript to complete
-      clock.sleep(0.5) -- minimum time for upload to complete
-      if coroutine.status(co) ~= 'dead' then clock.sleep(0.1) end -- sleep until completion
-      if p then clock.sleep(0.2) end -- extra time for flash write
-      clock.sleep(1.5) -- wait for lua env to be ready. TODO use a callback on end-of-init
-      -- reset the public storage
-      Public.clear()
-      -- request params from crow
-      crow.send "public.discover()"
-    end, clock.threads[co], p) -- we grab the coroutine itself, not clock index
+-- called upon crow.init() completion
+function Public.ready()
+  -- reset the public storage
+  Public.clear()
+  -- request params from crow
+  crow.send "public.discover()"
 end
-
 
 -- from crow: ^^pub(name,val,{type})
 function Public.add(name, val, typ)
   if name == '_end' then
-    Public.ready()
+    Public.discovered()
   else
     -- add name to dictionary with linked index
     local ix = Public._names[name] -- look for existing declaration
@@ -48,7 +40,7 @@ function Public.add(name, val, typ)
     end
     Public._params[ix] = { name = name, val = val }
     local p = Public._params[ix]
-    print("adding: " .. name .. "=" .. tostring(val))
+    -- print("adding: " .. name .. "=" .. tostring(val))
     if type(val) == 'table' then
       p.list = true
       p.listix = 1
@@ -138,6 +130,25 @@ function Public.update(name, val, sub)
     Public.change(name,p.val) -- user callback (for redrawing display)
   end
 end
+
+
+-- TODO deprecate with auto-namespace handling
+Public.view = {}
+function Public.view.all(s)
+  if s==nil then s = 1 end
+  crow.send("public.view.all(".. s ..")")
+end
+for n=1,2 do Public.view.input[n] = function(s)
+    if s==nil then s = 1 end
+    crow.send("public.view.input["..n.."](".. s ..")")
+  end
+end
+for n=1,4 do Public.view.output[n] = function(s)
+    if s==nil then s = 1 end
+    crow.send("public.view.output["..n.."](".. s ..")")
+  end
+end
+
 
 --- METAMETHODS
 -- setters
