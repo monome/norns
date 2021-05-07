@@ -1,5 +1,24 @@
 --- temporary lib file
 -- extends norns.crow table with public discovery system
+--
+local function quotekey(ix)
+  -- stringify table keys with [] style
+  local fstr = (type(ix)=='number') and '[%g]' or '[%q]'
+  return string.format(fstr, ix)
+end
+
+local function quote(value)
+  -- stringify anything so it can be read as lua code
+  if type(value) == 'string' then return string.format('%q',value)
+  elseif type(value) ~= 'table' then return tostring(value)
+  else -- recur per table element
+    local t = {}
+    for k,v in pairs(value) do
+      table.insert(t, quotekey(k) .. '=' .. quote(v))
+    end
+    return string.format('{%s}', table.concat(t, ','))
+  end
+end
 
 
 local Public = {}
@@ -139,6 +158,38 @@ function Public.update(name, val, sub)
     end
     Public.change(name,p.val) -- user callback (for redrawing display)
   end
+end
+
+function Public.quoteparams()
+  local t = {}
+  for k,v in pairs(Public._names) do
+    local val = quote(Public._params[v].val)
+    if val ~= nil then -- TEMP protect against tables
+      table.insert(t, 'public.'..k..'='..val)
+    end
+  end
+  return table.concat(t,'\n')
+end
+
+function Public.freezescript(path)
+  local abspath = crow.findscript(path)
+  if not abspath then
+    print("crow.freezescript: can't find file "..path)
+    return
+  end
+
+  local script = assert(io.open(abspath, "r"))
+  local tmp = assert(io.open(_path.code .. "_crowtmp.lua", "wb")) -- create file in code so it's found
+  
+  tmp:write( script:read("*all")) -- copy script into tmp
+  script:close()
+
+  tmp:write(Public.quoteparams())
+
+  tmp:close()
+
+  -- TODO should delete tmpfile after use. can add a continuation fn to loadscript
+  crow.loadscript("_crowtmp.lua", true)
 end
 
 
