@@ -133,7 +133,7 @@ end
 
 
 -- TODO deprecate with auto-namespace handling
-Public.view = {}
+Public.view = {input={}, output={}}
 function Public.view.all(s)
   if s==nil then s = 1 end
   crow.send("public.view.all(".. s ..")")
