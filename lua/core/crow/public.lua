@@ -7,9 +7,19 @@ local Public = {}
 function Public.clear()
   Public._names = {}
   Public._params = {}
-  Public.viewing = { -- clear viewed vals on load
-    input = {},
-    output = {},
+
+  local vmt = {
+    __newindex = function(self, ix, val)
+      rawset(self,'_'..ix,val)
+      Public.change() -- no args bc it doesn't fit the model
+    end,
+    __index = function(self, ix)
+      return rawget(self, '_'..ix)
+    end
+  }
+  Public.viewing = { -- clear viewed vals on load. metatable causes Public.change() trigger
+    input = setmetatable({},vmt),
+    output = setmetatable({},vmt),
   }
 end
 
