@@ -105,19 +105,29 @@ function crow.connected()
   return norns.crow.dev ~= nil
 end
 
---- run / upload userscript
-function crow.loadscript(file, is_persistent)
-
+-- find crow script
+function crow.findscript(file)
+  -- first search for a local crow/ dir in the script
   local abspath = norns.state.path .. 'crow/' .. file
   if not util.file_exists(abspath) then
+    -- then fallback to a search in code/
     abspath = _path.code .. file
     if not util.file_exists(abspath) then
-      print("crow.loadscript: can't find file "..file)
       return
     end
   end
+  return abspath
+end
 
-  local function upload(file, is_persistent)
+--- run / upload userscript
+function crow.loadscript(file, is_persistent, continuation)
+  local abspath = crow.findscript(file)
+  if not abspath then
+    print("crow.loadscript: can't find file "..file)
+    return
+  end
+
+  local function upload(file, is_persistent, continuation)
     -- TODO refine these clock.sleep(). can likely be reduced.
     crow.send("^^s")
     clock.sleep(0.2)
@@ -127,10 +137,11 @@ function crow.loadscript(file, is_persistent)
     end
     clock.sleep(0.2)
     crow.send(is_persistent and "^^w" or "^^e")
+    if continuation then continuation() end
   end
 
   print("crow loading: ".. file)
-  return clock.run(upload, abspath, is_persistent)
+  return clock.run(upload, abspath, is_persistent, continuation)
 end
 
 
