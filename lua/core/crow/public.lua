@@ -52,11 +52,11 @@ function Public.add(name, val, typ)
         if type(typ[1]) == 'string' then
           if len == 1 then
             p.type = typ[1]
-          else -- capture enum
-            p.type = 'enum'
-            p.enum = {}
+          else -- capture option
+            p.type = 'option'
+            p.option = {}
             for i=2,len do
-              p.enum[i-1] = typ[i]
+              p.option[i-1] = typ[i]
             end
           end
         elseif len == 2 then
@@ -97,11 +97,11 @@ function Public.delta(ix, z, alt)
       p.val[p.listix] = p.val[p.listix] + z
       tmp = p.val -- re-write the table to cause underlying metamethod to transmit change
     end
-  elseif p.type == 'enum' then
-    tmp = p.enum[1] -- default to first elem
-    for k,v in ipairs(p.enum) do
+  elseif p.type == 'option' then
+    tmp = p.option[1] -- default to first elem
+    for k,v in ipairs(p.option) do
       if v == p.val then
-        tmp = p.enum[util.wrap(k+z, 1, #p.enum)] -- increment index, return name
+        tmp = p.option[util.wrap(k+z, 1, #p.option)] -- increment index, return name
         break
       end
     end
