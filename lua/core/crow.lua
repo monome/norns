@@ -1,8 +1,38 @@
+
+-- _norns = {crow_send = function(...) end} -- REMOVE THIS. TESTING ONLY
+-- norns = {} -- REMOVE THIS. TESTING ONLY
+
 --- Crow Module
 -- @module crow
 
-local ii_events = require 'core/crow/ii_events'
-local ii_actions = require 'core/crow/ii_actions'
+
+--- helper fns for quoting (aka stringifying) lua constructs
+local function quotekey(ix)
+    -- stringify table keys with [] style
+    local fstr = (type(ix)=='number') and '[%g]' or '[%q]'
+    return string.format(fstr, ix)
+end
+
+local function quote(value)
+    -- stringify anything so it can be read as lua code
+    if type(value) == 'string' then return string.format('%q',value)
+    elseif type(value) ~= 'table' then return tostring(value)
+    else -- recur per table element
+        local t = {}
+        for k,v in pairs(value) do
+            table.insert(t, quotekey(k) .. '=' .. quote(v))
+        end
+        return string.format('{%s}', table.concat(t, ','))
+    end
+end
+
+local function quotevarargs(...)
+    local t = {}
+    for _,v in ipairs{...} do
+        table.insert(t, quote(v) )
+    end
+    return table.concat(t, ',')
+end
 
 
 -- system setup
@@ -60,48 +90,51 @@ norns.crow = {}
 
 function norns.crow.identity(...) print("crow identity: " .. ...) end
 function norns.crow.version(...) print("crow version: " .. ...) end
-function norns.crow.stream(n,v) crow.input[n].stream(v) end
-function norns.crow.change(n,v) crow.input[n].change(v) end
-function norns.crow.window(n,v,w) crow.input[n].window(v,w) end
-function norns.crow.scale(n,v) crow.input[n].scale(v) end
-function norns.crow.volume(n,v) crow.input[n].volume(v) end
-function norns.crow.peak(n) crow.input[n].peak() end
-function norns.crow.output(n,v) crow.output[n].receive(v) end
-function norns.crow.done(n) crow.output[n].done() end
-function norns.crow.running(n,v) crow.output[n].running(v) end
-function norns.crow.midi(...) crow.midi(...) end
-
-norns.crow.ii = ii_events
-
-
--- userspace functions
-
-local crow = {}
-
---- send version
-function crow.version() crow.send("^^v") end
---- send identity
-function crow.identity() crow.send("^^i") end
---- reset crow
-function crow.reset() crow.send("crow.reset()") end
---- send kill
-function crow.kill() crow.send("^^k") end
---- send clear
-function crow.clear() crow.send("^^c") end
---- send a command
-function crow.send(cmd)
-  if norns.crow.dev then
-    _norns.crow_send(norns.crow.dev,cmd)
-  end
+function norns.crow.new_event()
+    if not norns.crow.event then norns.crow.event = {} end -- create table if doesn't exist
+    local n = #norns.crow.events + 1
+    if     n <= 26 then return string.char(n + 64) -- uppercase alphas
+    elseif n <= 52 then return string.char(n + 70) -- lowercase alphas
+    else print('ERROR: norns.crow.events out of indices. only 52 handlers allowed.')
+    end
 end
---- check if crow is connected
+setmetatable(norns.crow,{
+    __index = function(self, ix)
+        if norns.crow.events[ix] then
+            return norns.crow.events[ix]
+        elseif ix ~= "dev" then
+	    -- FIXME are there other elements than 'dev' in norns.crow used by the system?
+            return function(...) print("unused event: ^^"..ix.."(".. quotevarargs(...) ..")") end
+        end
+    end
+})
+
+
+--- crow table
+-- defines fns that relate to crow but run on norns
+-- defines ^^response event handlers
+-- anything else is forwarded to crow via metamethods
+crow = {}
+
+-- explicit fns with custom handling
+function crow.version() crow.send "^^v" end
+function crow.identity() crow.send "^^i" end
+function crow.reset() print'RESET';crow.send "crow.reset()"; print'AFTER' end
+function crow.kill() crow.send "^^k" end
+function crow.clear() crow.send "^^c" end
+
 function crow.connected()
-  return norns.crow.dev ~= nil
+    return norns.crow.dev ~= nil
+end
+
+crow.send = function(cmd)
+    if norns.crow.dev then
+        _norns.crow_send(norns.crow.dev, cmd)
+    end
 end
 
 --- run / upload userscript
 function crow.loadscript(file, is_persistent)
-
   local abspath = norns.state.path .. 'crow/' .. file
   if not util.file_exists(abspath) then
     abspath = _path.code .. file
@@ -128,168 +161,11 @@ function crow.loadscript(file, is_persistent)
 end
 
 
--- crowlib aliases & metatable syntax enhancements
-
-local function stringify_table(s)
-  local str = "{"
-  for i=1,#s do
-    str = str .. s[i] .. ","
-  end
-  return str .. "}"
-end
-
-
-local input = {}
-
-function input.new(x)
-  local i = { n = x }
-  i.query  = function() crow.send("get_cv("..i.n..")") end
-  i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
-  i.change = function(v) print("crow input change: "..i.n.." "..v) end
-  i.window = function(v,w) print("crow input window: "..i.n.." "..v.." "..w) end
-  i.scale  = function(v) print("crow input scale: "..i.n.." "..v.note) end
-  i.volume = function(v) print("crow input volume: "..i.n.." "..v) end
-  i.peak   = function() print("crow input peak: "..i.n) end
-  i.mode = function(m,a,b,c)
-    local cmd = string.format("input[%i].mode(%q",i.n,m)
-    -- arg a can be a flat table for 'window' and 'scale' modes
-    if a ~= nil then
-      local at = (type(a)=='table') and stringify_table(a) or a
-      cmd = cmd .. "," .. at
-    end
-    if b ~= nil then cmd = cmd .. "," .. b end
-    if c ~= nil then cmd = string.format("%s,%q",cmd,c) end
-    cmd = cmd .. ")"
-    crow.send(cmd)
-  end
-  setmetatable(i,input)
-  return i
-end
-
-
-local output = {}
-
-function output.new(x)
-  local o = { n = x }
-  o._volts = 0
-  o._shape = 'linear'
-  o._slew = 0
-  o.query = function() crow.send("get_out("..o.n..")") end
-  o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
-  o.done = function() print("crow output action done: "..o.n) end
-  o.running = function(v) print("crow output is running?: "..o.n.." "..v) end
-  -- WILL BE DEPRECATED in 2.3.0
-  o.execute = function() crow.send("output["..o.n.."]()") end
-  setmetatable(o,output)
-  return o
-end
-
-local function action_string(v)
-  if type(v) ~= 'table' then
-    return v
-  end
-  local arg_string = ''
-  for _,arg in ipairs(v) do
-    if arg then
-      if string.len(arg_string) ~= 0 then
-        arg_string = arg_string..', '
-      end
-      arg_string = arg_string..arg
-    end
-  end
-  return '{'..arg_string..'}'
-end
-
-output.__newindex = function(self, i, v)
-  local me = "output["..self.n.."]"
-  if i == 'volts' then
-    self._volts = v
-    crow.send(me..".volts="..v)
-  elseif i == 'shape' then
-    self._shape = v
-    crow.send(string.format("%s.shape=%q",me,v))
-  elseif i == 'slew' then
-    self._slew = v
-    crow.send(me..".slew="..v)
-  elseif i == 'action' then
-    crow.send(me..".action = "..action_string(v))
-  elseif i == 'done' then
-    crow.send(me..".done=_c.tell('done',"..me..".channel)")
-  end
-end
-
-output.__index = function(self, i)
-  if i == 'volts' then
-    return self._volts
-  elseif i == 'shape' then
-    return self._shape
-  elseif i == 'slew' then
-    return self._slew
-  elseif i == 'running' then
-    local me = "output["..self.n.."]"
-    crow.send("_c.tell('running',"..me..".channel,"..me..".running)")
-  elseif i == 'scale' then
-    return function(notes,divs,scale)
-      local me = "output["..self.n.."].scale("
-      if notes then -- arguments are present
-        local ntype = type(notes)
-        if ntype == 'string' then -- assume 'none'
-          me = me .. "'none'"
-        elseif ntype == 'table' then
-          me = me .. stringify_table(notes)
-        else
-          print("output[n].scale() expects nil, a string, or a table as first arg")
-          return
-        end
-        if divs then
-          me = me .. "," .. divs
-          if scale then
-            me = me .. "," .. scale
-          end
-        end
-      end
-      crow.send(me..")")
-    end
-  end
-end
-
-output.__call = function(self,arg)
-  local args = ""
-  if type(arg) == "string" then -- asl directive
-    if arg == "start"
-    or arg == "restart"
-    or arg == "attack"
-    or arg == "release"
-    or arg == "step"
-    or arg == "unlock" then
-      args = string.format("%q",arg)
-    else -- boolean or asl
-      args = arg
-    end
-  end
-  crow.send("output["..self.n.."]("..args..")")
-end
-
-setmetatable(output, output)
-
-
-crow.cal = {}
-crow.cal.test = function() crow.send("cal.test()") end
-crow.cal.default = function() crow.send("cal.default()") end
-crow.cal.print = function() crow.send("cal.print()") end
-
-
-crow.ii = ii_actions
-crow.ii.help = function() crow.send("ii.help()") end
-crow.ii.pullup = function(x)
-  local truth = (x == true or x == 1) and 'true' or 'false'
-  crow.send("ii.pullup("..truth..")")
-end
-
-
--- initialize
-
 crow.init = function()
+	print'CROW INITTTTT'
+  -- reset dynamic event handler list
+  norns.crow.events = {}
+
   -- return crow to blank slate when loading a new norns script
   crow.reset()
 
@@ -300,15 +176,168 @@ crow.init = function()
   end
   crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
   crow.receive = function(...) print("crow:",...) end
-
-  -- data structures & default callbacks
-  crow.input = { input.new(1), input.new(2) }
-  crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
-  crow.midi = function(...) print("crow midi:",...) end
-  crow.ii.init()
 end
 
 crow.init() -- ensure data structures exist for metamethods
 
 
-return crow
+--- crow namespace support
+-- enables full syntax support for calling crow functions, and setting crow values
+-- does *not* support directly querying values or function responses from crow
+-- when setting crow namespace fns they create stubs on crow that forward to the norns events
+
+-- metamethods for building up strings of underlying call
+-- and calling / setting values on crow
+-- note: fn calls & value queries don't return anything
+-- ASL constructs are supported by wrapping ASL descriptions in a string
+crowSub = {
+    __index = function(self, ix)
+        -- build up the table access key chain
+        self.str = self.str .. quotekey(ix)
+        return self
+    end,
+
+    __newindex = function(self, ix, val)
+        -- set a table value on crow
+        if type(val) == 'function' then
+            -- functions will install an async function on crow, forwarding to a dynamic norns handler
+            local n = norns.crow.new_event()
+            norns.crow.events[n] = val -- store the event handler function privately
+            self.send(self.str .. quotekey(ix) .. '=function(...)_c.tell('..quote(n)..',...)end')
+        else
+            self.send(self.str .. quotekey(ix) .. '=' .. quote(val))
+        end
+    end,
+
+    __call = function(self, ...)
+        local qt = quotevarargs(...)
+        self.send(self.str .. '(' .. qt .. ')')
+    end,
+}
+
+-- set global var on crow
+crow.__newindex = function(self, ix, val) crow.send(ix .. '=' .. quote(val)) end
+
+-- create a table that will resolve to a crow.send call in crowSub
+crow.__index = function(self, ix) return setmetatable({send=self.send, str=ix}, crowSub) end
+
+setmetatable(crow, crow)
+
+return crow -- comment out to run tests
+
+--[[
+
+
+
+
+--- TEST code
+
+-- custom crow.send fn for testing locally
+tx = '' -- write the output val to tx for test assertion
+crow.send = function(...) tx = ... end
+
+
+function test(_, ...) -- first arg is just a nop placeholder for the fn under test
+    local strs = {...}
+    for k,v in pairs(strs) do
+        if tx == v then return end
+    end
+    print('test failed')
+    print('  expected: '..strs[1])
+    print('  sent:     '..tx)
+end
+
+-- call all the fns & setters of the crow global space
+test( crow.reset() --> this is a predefined fn, doesn't use the metamethods
+    ,'crow.reset()')
+
+test( crow.cal.test()
+    ,'cal["test"]()')
+
+test( crow.ii.pullup(true)
+    , 'ii["pullup"](true)')
+
+test( crow.input[1].mode('stream', 0.01)
+    , 'input[1]["mode"]("stream",0.01)')
+
+test( crow.input[1]{ mode = 'change', direction = 'rising' }
+    , 'input[1]({["mode"]="change",["direction"]="rising"})'
+    , 'input[1]({["direction"]="rising",["mode"]="change"})') -- table order is undefined
+
+test( crow.ii.jf.mode(1)
+    , 'ii["jf"]["mode"](1)')
+
+test( crow.ii.kria.get 'preset'
+    , 'ii["kria"]["get"]("preset")')
+
+test( crow.output[1]()
+    , 'output[1]()')
+
+test( crow.output[1].query()
+    , 'output[1]["query"]()')
+
+
+-- assignments can't be in fn calls, so we just chain the test fn
+crow.output[2].volts = 3.3
+test(_, 'output[2]["volts"]=3.3')
+
+crow.output[3].slew = 0.001
+test(_, 'output[3]["slew"]=0.001')
+
+crow.output[4].shape = 'expo'
+test(_, 'output[4]["shape"]="expo"')
+
+crow.output[1].scale = {0,2,7,5}
+test(_, 'output[1]["scale"]={[1]=0,[2]=2,[3]=7,[4]=5}')
+
+-- FIXME
+-- FAILING due to wrapping string value in quotes, but we want to unwrap
+-- this could just be handled on crow, to load() the string?
+-- crow.output[1].action = "{ to(0,0), to(5,0.1), to(1,2) }"
+-- test(_, 'output[1]["action"]={ to(0,0), to(5,0.1), to(1,2) }')
+
+
+-- event handlers
+crow.output[1].receive = function(v) print('o[1].rx: '..v) end
+test(_, 'output[1]["receive"]=function(...)_c.tell("A",...)end')
+
+-- receive: ^^A(3.23)
+-- _norns.crow.event captures & forwards to:function norns.crow.stream(n,v) crow.input[n].stream(v) end
+norns.crow.A(3.23)
+
+
+--[[
+-- set global crow var
+crow.myvar = 1
+
+-- set table var on crow with string index
+crow.tab.key = 2
+
+-- set nested table var on crow with numeric index
+crow.tab[3].key = 4
+
+-- call global crow fn no arguments
+crow.fn()
+
+-- call global crow fn with arguments
+crow.fn(6)
+
+-- call table fn
+crow.tab.fn(8,'string',9)
+
+-- call table fn with table argument
+crow.tab.fn{1,2,3,'string',3.2,-12389.00}
+
+-- call table fn with k,v pair args
+crow.tab.fn{a=1, b=2, c=3}
+]]
+
+
+
+--- norns syntax that needs added support on crow
+-- output[n].execute() --> old syntax for: output[n]()
+-- output[n].query() --> returns into: output[n].receive(v)
+
+
+-- input[n].query() --> triggers input[n].stream callback
+-- ]]
