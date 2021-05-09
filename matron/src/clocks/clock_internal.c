@@ -25,6 +25,16 @@ static bool clock_internal_restarted;
 static clock_internal_tempo_t clock_internal_tempo;
 static pthread_mutex_t clock_internal_tempo_lock;
 
+static void clock_internal_timespec_add(struct timespec *dest, const struct timespec *src) {
+    dest->tv_sec += src->tv_sec;
+    dest->tv_nsec += src->tv_nsec;
+
+    while (dest->tv_nsec > 1000000000) {
+        dest->tv_sec++;
+        dest->tv_nsec -= 1000000000;
+    }
+}
+
 static void *clock_internal_thread_run(void *p) {
     (void)p;
     struct timespec ts;
@@ -32,16 +42,17 @@ static void *clock_internal_thread_run(void *p) {
     double reference_beat;
     int ticks = -1;
 
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+
     while (true) {
         pthread_mutex_lock(&clock_internal_tempo_lock);
 
         beat_duration = clock_internal_tempo.beat_duration;
-        ts.tv_sec = clock_internal_tempo.tick_ts.tv_sec;
-        ts.tv_nsec = clock_internal_tempo.tick_ts.tv_nsec;
+        clock_internal_timespec_add(&ts, &clock_internal_tempo.tick_ts);
 
         pthread_mutex_unlock(&clock_internal_tempo_lock);
 
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
 
         if (clock_internal_restarted) {
             ticks = 0;
