@@ -13,25 +13,24 @@ local function quotekey(ix)
     return string.format(fstr, ix)
 end
 
-local function quote(value)
-    -- stringify anything so it can be read as lua code
-    if type(value) == 'string' then return string.format('%q',value)
-    elseif type(value) ~= 'table' then return tostring(value)
+local function quote(val, ...)
+    -- stringify any data so lua can load() it
+    if ... ~= nil then
+        local t = {quote(val)} -- capture 1st arg
+        for _,v in ipairs{...} do -- capture varargs
+            table.insert(t, quote(v))
+        end
+        return table.concat(t, ',')
+    end
+    if type(val) == 'string' then return string.format('%q',val)
+    elseif type(val) ~= 'table' then return tostring(val)
     else -- recur per table element
         local t = {}
-        for k,v in pairs(value) do
+        for k,v in pairs(val) do
             table.insert(t, quotekey(k) .. '=' .. quote(v))
         end
         return string.format('{%s}', table.concat(t, ','))
     end
-end
-
-local function quotevarargs(...)
-    local t = {}
-    for _,v in ipairs{...} do
-        table.insert(t, quote(v) )
-    end
-    return table.concat(t, ',')
 end
 
 
@@ -104,7 +103,7 @@ setmetatable(norns.crow,{
             return norns.crow.events[ix]
         elseif ix ~= "dev" then
 	    -- FIXME are there other elements than 'dev' in norns.crow used by the system?
-            return function(...) print("unused event: ^^"..ix.."(".. quotevarargs(...) ..")") end
+            return function(...) print("unused event: ^^"..ix.."(".. quote(...) ..")") end
         end
     end
 })
@@ -210,7 +209,7 @@ crowSub = {
     end,
 
     __call = function(self, ...)
-        local qt = quotevarargs(...)
+        local qt = quote(...)
         self.send(self.str .. '(' .. qt .. ')')
     end,
 }
