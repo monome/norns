@@ -26,8 +26,24 @@ local function quote(val, ...)
     elseif type(val) ~= 'table' then return tostring(val)
     else -- recur per table element
         local t = {}
-        for k,v in pairs(val) do
-            table.insert(t, quotekey(k) .. '=' .. quote(v))
+        if OPTIMIZE_LENGTH then
+            local max = 0
+            -- add array-style keys for reduced string length
+            for k,v in ipairs(val) do
+                table.insert(t, quote(v))
+                max = k -- save highest ipair key
+            end
+            for k,v in pairs(val) do
+                -- match on any key that wasn't caught by ipairs (without needing to copy the table)
+                    -- not a number, is a float, is a sparse int key, is a zero or less int key
+                if type(k) ~= 'number' or k ~= math.floor(k) or k > max or k < 1 then
+                    table.insert(t, quotekey(k) .. '=' .. quote(v))
+                end
+            end
+        else -- faster to build, but transmission is longer
+            for k,v in pairs(val) do
+                table.insert(t, quotekey(k) .. '=' .. quote(v))
+            end
         end
         return string.format('{%s}', table.concat(t, ','))
     end
