@@ -19,6 +19,7 @@ typedef struct {
 
 void clock_init();
 void clock_reference_init(clock_reference_t *reference);
+void clock_deinit();
 void clock_update_source_reference(clock_reference_t *reference, double beats, double beat_duration);
 double clock_get_reference_beat(clock_reference_t *reference);
 double clock_get_reference_tempo(clock_reference_t *reference);
