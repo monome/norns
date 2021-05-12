@@ -52,7 +52,7 @@ static void *clock_scheduler_tick_thread_run(void *p) {
         pthread_mutex_lock(&clock_scheduler_events_lock);
 
         clock_time = clock_get_system_time();
-        clock_beat = clock_gettime_beats();
+        clock_beat = clock_get_beats();
 
         for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
             scheduler_event = &clock_scheduler_events[i];
@@ -102,7 +102,7 @@ void clock_scheduler_start() {
 bool clock_scheduler_schedule_sync(int thread_id, double sync_beat) {
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
-    double clock_beat = clock_gettime_beats();
+    double clock_beat = clock_get_beats();
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         if (clock_scheduler_events[i].thread_id == thread_id) {
@@ -190,7 +190,7 @@ void clock_scheduler_reschedule_sync_events() {
 
     pthread_mutex_lock(&clock_scheduler_events_lock);
 
-    double clock_beat = clock_gettime_beats();
+    double clock_beat = clock_get_beats();
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         scheduler_event = &clock_scheduler_events[i];

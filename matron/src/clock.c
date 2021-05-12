@@ -37,7 +37,7 @@ double clock_get_system_time() {
     return jack_get_time() / 1.0e6;
 }
 
-double clock_gettime_beats() {
+double clock_get_beats() {
     double beat;
 
     switch (clock_source) {

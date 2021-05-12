@@ -28,6 +28,6 @@ void clock_stop_from_source(clock_source_t source);
 void clock_reschedule_sync_events_from_source(clock_source_t source);
 void clock_set_source(clock_source_t source);
 
-double clock_gettime_beats();
+double clock_get_beats();
 double clock_get_system_time();
 double clock_get_tempo();
