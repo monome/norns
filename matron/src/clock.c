@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <jack/jack.h>
-#include <jack/transport.h>
 
 #include "clock.h"
 #include "clocks/clock_crow.h"
