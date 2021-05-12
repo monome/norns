@@ -10,6 +10,7 @@ end
 local function quote(value)
   -- stringify anything so it can be read as lua code
   if type(value) == 'string' then return string.format('%q',value)
+  elseif type(value) == 'number' then return string.format('%.$g',value) -- limit to 6 sig figures
   elseif type(value) ~= 'table' then return tostring(value)
   else -- recur per table element
     local t = {}
@@ -127,7 +128,6 @@ function Public.add(name, val, typ)
     end
     Public._params[ix] = { name = name, val = val }
     local p = Public._params[ix]
-    -- print("adding: " .. name .. "=" .. tostring(val))
     if type(val) == 'table' then
       p.list = true
       p.listix = 1
@@ -150,7 +150,7 @@ end
 function Public.increment(val, z, p)
   if p.exp then
     z = z * math.abs(val)/100 -- step is proportional to value
-  elseif p.type == 'float' then
+  elseif p.type == 'float' or p.type == 'slider' then
     if p.range then z = z * (p.range / 100) -- 100 increments over range
     else z = z / 50 end -- 0.02 steps
   end
@@ -168,8 +168,8 @@ function Public.delta(ix, z, alt)
   elseif p.list then
     if alt then -- update table index
       p.listix = util.wrap(p.listix + z, 1, p.listlen)
-      return -- EARLY RETURN as we're not updating the table value
-    else -- TODO add type support for min/max, floats & scaling
+      return -- EARLY RETURN as we're updating the index not the value
+    else
       p.val[p.listix] = Public.increment(p.val[p.listix], z, p)
       tmp = p.val -- re-write the table to cause underlying metamethod to transmit change
     end
