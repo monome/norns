@@ -15,11 +15,14 @@
 
 static clock_source_t clock_source;
 static jack_client_t *jack_client;
+static jack_nframes_t jack_sample_rate;
 
 void clock_init() {
     if ((jack_client = jack_client_open("matron-clock", JackNoStartServer, NULL)) == 0) {
         fprintf(stderr, "failed to create JACK client\n");
     }
+
+    jack_sample_rate = jack_get_sample_rate(jack_client);
 
     clock_set_source(CLOCK_SOURCE_INTERNAL);
 }
@@ -34,7 +37,7 @@ void clock_reference_init(clock_reference_t *reference) {
 }
 
 double clock_get_system_time() {
-    return jack_get_time() / 1.0e6;
+    return (double) jack_frame_time(jack_client) / jack_sample_rate;
 }
 
 double clock_get_beats() {
