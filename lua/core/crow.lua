@@ -1,7 +1,6 @@
 --- Crow Module
 -- @module crow
 
-
 --- Quote sub-library
 -- fns for stringifying data-structures
 -- output is a string that can be read back as lua code with call()
@@ -24,6 +23,7 @@ local function quote(val, ...)
         return table.concat(t, ',')
     end
     if type(val) == 'string' then return string.format('%q',val)
+    if type(val) == 'number' then return string.format('%.6g',val) -- 6 sig figures
     elseif type(val) ~= 'table' then return tostring(val)
     else -- recur per table element
         local t = {}
@@ -99,7 +99,9 @@ end
 
 --- for talking *about* crow
 -- contain support / functions for ^^ events from crow
-norns.crow = {}
+norns.crow = {
+  public = require 'core/crow/public'
+}
 
 -- communication i/o
 norns.crow.send = function(cmd)
@@ -112,15 +114,24 @@ function norns.crow.connected()
     return norns.crow.dev ~= nil
 end
 
-function norns.crow.loadscript(file, is_persistent, cont)
-  -- run / upload userscript
+function norns.crow.findscript(file)
+  -- first search for a local crow/ dir in the script
   local abspath = norns.state.path .. 'crow/' .. file
   if not util.file_exists(abspath) then
+    -- then fallback to a search in code/
     abspath = _path.code .. file
     if not util.file_exists(abspath) then
-      print("norns.crow.loadscript: can't find file "..file)
       return
     end
+  end
+  return abspath
+end
+
+function norns.crow.loadscript(file, is_persistent, cont)
+  local abspath = crow.findscript(file)
+  if not abspath then
+    print("crow.loadscript: can't find file "..file)
+    return
   end
 
   local function upload(file, is_persistent, cont)
@@ -140,7 +151,7 @@ function norns.crow.loadscript(file, is_persistent, cont)
   end
 
   print("crow loading: ".. file)
-  clock.run(upload, abspath, is_persistent, cont)
+  return clock.run(upload, abspath, is_persistent, cont)
 end
 
 
@@ -161,6 +172,10 @@ function norns.crow.reset_events()
   norns.crow.events = setmetatable({
     identity = function(...) print("crow identity: " .. ...) end,
     version  = function(...) print("crow version: " .. ...) end,
+    ready    = norns.crow.public.ready,
+    pub      = norns.crow.public.add,
+    pupdate  = norns.crow.public.update,
+    pubview  = norns.crow.public.view,
   },{
     __index = function(self, ix)
       return function(...) print("unused event: ^^"..ix.."(".. quote(...) ..")") end
@@ -200,6 +215,9 @@ end
 --- crow namespace support
 -- for talking *to* crow
 crow = {}
+
+-- splice special norns handling into the public namespace
+crow.public = norns.crow.public.io
 
 -- fns with custom syntax
 function crow.version()  crow "^^v" end
