@@ -21,9 +21,8 @@ local function quote(val, ...)
             table.insert(t, quote(v))
         end
         return table.concat(t, ',')
-    end
-    if type(val) == 'string' then return string.format('%q',val)
-    if type(val) == 'number' then return string.format('%.6g',val) -- 6 sig figures
+    elseif type(val) == 'string' then return string.format('%q',val)
+    elseif type(val) == 'number' then return string.format('%.6g',val) -- 6 sig figures
     elseif type(val) ~= 'table' then return tostring(val)
     else -- recur per table element
         local t = {}
@@ -250,7 +249,7 @@ local crowSub = {
         if type(val) == 'function' then
             -- assigning a function to a crow variable, causes crow to forward that fn call to norns
             local n = norns.crow.register_event(val) -- register the event & get a dynamic key
-            sval = 'function(...)_c.tell('..quote(n)..',...)end')
+            sval = 'function(...)_c.tell('..quote(n)..',...)end'
         else
             sval = quote(val)
         end
