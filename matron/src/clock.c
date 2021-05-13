@@ -68,7 +68,6 @@ double clock_get_reference_beat(clock_reference_t *reference) {
     pthread_mutex_lock(&(reference->lock));
 
     double current_time = clock_get_system_time();
-
     double beat = reference->beat + ((current_time - reference->last_beat_time) / reference->beat_duration);
 
     pthread_mutex_unlock(&(reference->lock));
