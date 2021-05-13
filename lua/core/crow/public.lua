@@ -1,23 +1,30 @@
 --- public.lua
 
+quote = require 'core/crow/quote'
+
 local Public = {}
 
 function Public.clear()
   Public._names = {}
   Public._params = {}
 
-  -- customizable user events
-  Public.change = function(k,v) end
-  Public.discovered = function() print'crow.public discovered' end
-
   -- clear viewed vals on load
   Public.viewing = {
     input = {},
     output = {},
   }
-end
-Public.clear() -- ensure datastructures exist on load
 
+  Public.change() -- inform an active script that state has changed
+end
+
+
+function Public.reset()
+  -- customizable user events
+  Public.change = function(k,v) end
+  Public.discovered = function() print'crow.public discovered' end
+
+  Public.clear()
+end
 
 
 --- system events
@@ -37,6 +44,8 @@ end
 function Public.add(name, val, typ)
   if name == '_end' then
     Public.discovered()
+  elseif name == '_clear' then
+    Public.clear() -- clears state & informs an active script
   else
     -- add name to dictionary with linked index
     local ix = Public._names[name] -- look for existing declaration
@@ -51,7 +60,7 @@ function Public.add(name, val, typ)
       p.listix = 1
       p.listlen = #val
     else p.list = false end
-    capture_type(p, typ)
+    Public.capture_type(p, typ)
   end
 end
 
@@ -71,7 +80,7 @@ end
 
 
 --- helper fns for system events
-local function capture_type(p, typ)
+function Public.capture_type(p, typ)
   -- capture range/type-annotation into known form
   -- assumes typ is a table (can be empty)
   local len = #typ -- type is always sent, even if empty table
@@ -99,7 +108,7 @@ local function capture_type(p, typ)
     p.type = p.type:sub(2) -- drop '@' after marking readonly
   end
   if not p.type or p.type:len() == 0 then -- no string: infer numeric type
-    p.type = inferint(p) and 'int' or 'float'
+    p.type = Public.inferint(p) and 'int' or 'float'
   else -- there is a string type
     if p.type == 'exp' then
       p.exp = true
@@ -111,7 +120,7 @@ local function capture_type(p, typ)
   end
 end
 
-local function inferint(p)
+function Public.inferint(p)
   -- return true only if the public var appears to be an integer
   local function not_int(v)
     -- return true if the arg is not representable as an integer
@@ -180,7 +189,7 @@ function Public.delta(ix, z, alt)
       p.listix = util.wrap(p.listix + z, 1, p.listlen)
       return -- EARLY RETURN as we're updating the index not the value
     else
-      p.val[p.listix] = increment(p.val[p.listix], z, p)
+      p.val[p.listix] = Public.increment(p.val[p.listix], z, p)
       tmp = p.val -- re-write the table to cause underlying metamethod to transmit change
     end
   elseif p.type == 'option' then
@@ -193,14 +202,14 @@ function Public.delta(ix, z, alt)
       end
     end
   else -- numeric
-    tmp = increment(p.val, z, p)
+    tmp = Public.increment(p.val, z, p)
   end
-  Public[p.name] = tmp -- use metamethod to cause remote update & clamp
+  Public.io[p.name] = tmp -- use metamethod to cause remote update & clamp
 end
 
 
 --- helper fns
-local function increment(val, z, p)
+function Public.increment(val, z, p)
   if p.exp then
     z = z * math.abs(val)/100 -- step is proportional to value
   elseif p.type == 'float' or p.type == 'slider' then
@@ -245,5 +254,6 @@ end
 
 setmetatable(Public.io,Public.io)
 
+Public.reset() -- ensure all datastructres exist
 
 return Public

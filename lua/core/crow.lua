@@ -1,55 +1,7 @@
 --- Crow Module
 -- @module crow
 
---- Quote sub-library
--- fns for stringifying data-structures
--- output is a string that can be read back as lua code with call()
-
-local OPTIMIZE_LENGTH = false -- true reduces tx-length of strings, but takes longer to calc
-
-local function quotekey(ix)
-    -- stringify a table key with explicit [] style
-    local fstr = (type(ix)=='number') and '[%g]' or '[%q]'
-    return string.format(fstr, ix)
-end
-
-local function quote(val, ...)
-    -- stringify any data so lua can load() it
-    if ... ~= nil then
-        local t = {quote(val)} -- capture 1st arg
-        for _,v in ipairs{...} do -- capture varargs
-            table.insert(t, quote(v))
-        end
-        return table.concat(t, ',')
-    elseif type(val) == 'string' then return string.format('%q',val)
-    elseif type(val) == 'number' then return string.format('%.6g',val) -- 6 sig figures
-    elseif type(val) ~= 'table' then return tostring(val)
-    else -- recur per table element
-        local t = {}
-        if OPTIMIZE_LENGTH then
-            local max = 0
-            -- add array-style keys for reduced string length
-            for k,v in ipairs(val) do
-                table.insert(t, quote(v))
-                max = k -- save highest ipair key
-            end
-            for k,v in pairs(val) do
-                -- match on any key that wasn't caught by ipairs (without needing to copy the table)
-                    -- not a number, is a float, is a sparse int key, is a zero or less int key
-                if type(k) ~= 'number' or k ~= math.floor(k) or k > max or k < 1 then
-                    table.insert(t, quotekey(k) .. '=' .. quote(v))
-                end
-            end
-        else -- faster to build, but transmission is longer
-            for k,v in pairs(val) do
-                table.insert(t, quotekey(k) .. '=' .. quote(v))
-            end
-        end
-        return string.format('{%s}', table.concat(t, ','))
-    end
-end
-
-
+quote = require 'core/crow/quote'
 
 --- system level configuration
 _norns.crow = {}
@@ -79,7 +31,7 @@ _norns.crow.event = function(id, line)
     if reps > 0 then
       assert(load(line))()
     else
-      crow.receive(line)
+      norns.crow.receive(line)
     end
   end
 
@@ -127,7 +79,7 @@ function norns.crow.findscript(file)
 end
 
 function norns.crow.loadscript(file, is_persistent, cont)
-  local abspath = crow.findscript(file)
+  local abspath = norns.crow.findscript(file)
   if not abspath then
     print("crow.loadscript: can't find file "..file)
     return
@@ -198,6 +150,9 @@ function norns.crow.init()
   end
   norns.crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
   norns.crow.receive = function(...) print("crow:",...) end
+
+  -- reset user callbacks
+  norns.crow.public.reset()
 end
 
 
@@ -239,7 +194,7 @@ function crow.send(...)  crow(...) end -- alias for legacy scripts
 local crowSub = {
     __index = function(self, ix)
         -- build up the table access key chain
-        self.str = self.str .. quotekey(ix)
+        self.str = self.str .. quote.key(ix)
         return self
     end,
 
@@ -253,7 +208,7 @@ local crowSub = {
         else
             sval = quote(val)
         end
-        norns.crow.send(self.str .. quotekey(ix) .. '=' .. sval)
+        norns.crow.send(self.str .. quote.key(ix) .. '=' .. sval)
     end,
 
     __call = function(self, ...)
