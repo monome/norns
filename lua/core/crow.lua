@@ -177,7 +177,6 @@ end
 
 
 crow.init = function()
-	print'CROW INITTTTT'
   -- reset dynamic event handler list
   norns.crow.events = {}
 
@@ -235,6 +234,10 @@ crow.__newindex = function(self, ix, val) crow.send(ix .. '=' .. quote(val)) end
 
 -- create a table that will resolve to a crow.send call in crowSub
 crow.__index = function(self, ix) return setmetatable({send=self.send, str=ix}, crowSub) end
+
+-- call crow with a literal string to execute that string on crow:
+-- crow "output[1].volts = 3"
+crow.__call = function(self, ...) crow.send(...) end
 
 setmetatable(crow, crow)
 
