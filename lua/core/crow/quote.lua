@@ -16,9 +16,9 @@ end
 function Q.quote(val, ...)
     -- stringify any data so lua can load() it
     if ... ~= nil then
-        local t = {quote(val)} -- capture 1st arg
+        local t = {Q.quote(val)} -- capture 1st arg
         for _,v in ipairs{...} do -- capture varargs
-            table.insert(t, quote(v))
+            table.insert(t, Q.quote(v))
         end
         return table.concat(t, ',')
     elseif type(val) == 'string' then return string.format('%q',val)
@@ -30,19 +30,19 @@ function Q.quote(val, ...)
             local max = 0
             -- add array-style keys for reduced string length
             for k,v in ipairs(val) do
-                table.insert(t, quote(v))
+                table.insert(t, Q.quote(v))
                 max = k -- save highest ipair key
             end
             for k,v in pairs(val) do
                 -- match on any key that wasn't caught by ipairs (without needing to copy the table)
                     -- not a number, is a float, is a sparse int key, is a zero or less int key
                 if type(k) ~= 'number' or k ~= math.floor(k) or k > max or k < 1 then
-                    table.insert(t, quotekey(k) .. '=' .. quote(v))
+                    table.insert(t, Q.quotekey(k) .. '=' .. Q.quote(v))
                 end
             end
         else -- faster to build, but transmission is longer
             for k,v in pairs(val) do
-                table.insert(t, quotekey(k) .. '=' .. quote(v))
+                table.insert(t, Q.key(k) .. '=' .. Q.quote(v))
             end
         end
         return string.format('{%s}', table.concat(t, ','))
