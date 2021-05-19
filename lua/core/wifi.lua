@@ -266,6 +266,9 @@ function Wifi.add(ssid, psk)
   cmd = cmd .. " '" .. ssid .. "' password '" .. psk .. "'"
   cmd = cmd .. " ifname " .. Wifi.device.name
   os.execute(cmd)
+  -- dis-associate connection profile from hardware MAC address
+  cmd = "nmcli con mod '" .. ssid .. "' -802-11-wireless.mac-address ''"
+  os.execute(cmd)
   -- ensure connection list is up to date
   Wifi.conn_list = Wifi.connections()
 end
