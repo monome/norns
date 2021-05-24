@@ -2,7 +2,7 @@
 
 ## norns 2.5.0
 
-- NEW clock: overhauled clock system, uses jack time and impoved sync @artfwo
+- NEW clock: overhauled clock system, uses jack time and improved sync @artfwo
 - NEW softcut: query position feature @catfact @tehn
 
 
