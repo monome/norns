@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <jack/jack.h>
 
 #include "clock.h"
 #include "clocks/clock_crow.h"
@@ -14,9 +14,21 @@
 #include "events.h"
 
 static clock_source_t clock_source;
+static jack_client_t *jack_client;
+static jack_nframes_t jack_sample_rate;
 
 void clock_init() {
+    if ((jack_client = jack_client_open("matron-clock", JackNoStartServer, NULL)) == 0) {
+        fprintf(stderr, "failed to create JACK client\n");
+    }
+
+    jack_sample_rate = jack_get_sample_rate(jack_client);
+
     clock_set_source(CLOCK_SOURCE_INTERNAL);
+}
+
+void clock_deinit() {
+    jack_client_close(jack_client);
 }
 
 void clock_reference_init(clock_reference_t *reference) {
@@ -24,14 +36,11 @@ void clock_reference_init(clock_reference_t *reference) {
     clock_update_source_reference(reference, 0, 0.5);
 }
 
-double clock_gettime_seconds() {
-    struct timespec spec;
-    clock_gettime(CLOCK_MONOTONIC, &spec);
-
-    return spec.tv_sec + (spec.tv_nsec / 1.0e9);
+double clock_get_system_time() {
+    return (double) jack_frame_time(jack_client) / jack_sample_rate;
 }
 
-double clock_gettime_beats() {
+double clock_get_beats() {
     double beat;
 
     switch (clock_source) {
@@ -58,8 +67,7 @@ double clock_gettime_beats() {
 double clock_get_reference_beat(clock_reference_t *reference) {
     pthread_mutex_lock(&(reference->lock));
 
-    double current_time = clock_gettime_seconds();
-
+    double current_time = clock_get_system_time();
     double beat = reference->beat + ((current_time - reference->last_beat_time) / reference->beat_duration);
 
     pthread_mutex_unlock(&(reference->lock));
@@ -104,7 +112,7 @@ double clock_get_reference_tempo(clock_reference_t *reference) {
 void clock_update_source_reference(clock_reference_t *reference, double beat, double beat_duration) {
     pthread_mutex_lock(&(reference->lock));
 
-    double current_time = clock_gettime_seconds();
+    double current_time = clock_get_system_time();
 
     reference->beat_duration = beat_duration;
     reference->last_beat_time = current_time;

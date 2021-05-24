@@ -1597,7 +1597,7 @@ int _clock_set_source(lua_State *l) {
 }
 
 int _clock_get_time_beats(lua_State *l) {
-    lua_pushnumber(l, clock_gettime_beats());
+    lua_pushnumber(l, clock_get_beats());
     return 1;
 }
 

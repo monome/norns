@@ -45,6 +45,7 @@ void cleanup(void) {
     screen_deinit();
     battery_deinit();
     stat_deinit();
+    clock_deinit();
 
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);

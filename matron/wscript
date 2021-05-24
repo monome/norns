@@ -57,6 +57,7 @@ def build(bld):
         'LIBMONOME',
         'SNDFILE',
         'AVAHI-COMPAT-LIBDNS_SD',
+        'JACK',
     ]
 
     if bld.env.ENABLE_ABLETON_LINK:
