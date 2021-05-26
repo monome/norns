@@ -13,7 +13,7 @@ for i=1,16 do
   Midi.vports[i] = {
     name = "none",
     device = nil,
-    device_connected = false,
+    connected = false,
     event = nil,
 
     send = function(self, ...) if self.device then self.device:send(...) end end,
@@ -374,15 +374,15 @@ function Midi.update_devices()
       end
     end
   end
-  Midi.update_device_connected_state()
+  Midi.update_connected_state()
 end
 
-function Midi.update_device_connected_state()
+function Midi.update_connected_state()
   for i=1,16 do
     if Midi.vports[i].device ~= nil then
-      Midi.vports[i].device_connected = true
+      Midi.vports[i].connected = true
     else
-      Midi.vports[i].device_connected = false
+      Midi.vports[i].connected = false
     end
   end
 end
