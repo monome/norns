@@ -48,6 +48,11 @@ static void *clock_link_run(void *p) {
             if (!clock_link_shared_data.playing && link_playing) {
                 ableton_link_session_state_request_beat_at_start_playing_time(state, 0, clock_link_shared_data.quantum);
                 ableton_link_commit_app_session_state(link, state);
+
+                link_beat = ableton_link_session_state_beat_at_time(state, micros, clock_link_shared_data.quantum);
+                clock_update_source_reference(&clock_link_reference, link_beat, 60.0f / link_tempo);
+                clock_reschedule_sync_events_from_source(CLOCK_SOURCE_LINK);
+
                 clock_link_shared_data.playing = true;
                 clock_start_from_source(CLOCK_SOURCE_LINK);
             } else if (clock_link_shared_data.playing && !link_playing) {
