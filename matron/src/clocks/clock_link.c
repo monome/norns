@@ -36,7 +36,7 @@ static void *clock_link_run(void *p) {
 
     while (true) {
         if (pthread_mutex_trylock(&clock_link_shared_data.lock) == 0) {
-            state = ableton_link_capture_audio_session_state(link);
+            state = ableton_link_capture_app_session_state(link);
 
             double link_tempo = ableton_link_session_state_tempo(state);
             uint64_t micros = ableton_link_clock_micros(clock);
@@ -58,9 +58,9 @@ static void *clock_link_run(void *p) {
             if (clock_link_shared_data.requested_tempo > 0) {
                 ableton_link_session_state_set_tempo(state, clock_link_shared_data.requested_tempo, micros);
                 clock_link_shared_data.requested_tempo = 0;
-                ableton_link_commit_audio_session_state(link, state);
             }
 
+            ableton_link_commit_app_session_state(link, state);
             ableton_link_session_state_destroy(state);
             pthread_mutex_unlock(&clock_link_shared_data.lock);
         }
