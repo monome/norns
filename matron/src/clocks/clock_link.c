@@ -11,12 +11,14 @@
 #include "clock.h"
 
 static pthread_t clock_link_thread;
+
 static struct clock_link_shared_data_t {
     double quantum;
     double requested_tempo;
     bool playing;
     pthread_mutex_t lock;
 } clock_link_shared_data;
+
 static clock_reference_t clock_link_reference;
 
 static void *clock_link_run(void *p) {
@@ -28,6 +30,7 @@ static void *clock_link_run(void *p) {
 
     link = ableton_link_new(120);
     clock = ableton_link_clock(link);
+
     ableton_link_enable(link, true);
     ableton_link_enable_start_stop_sync(link, true);
 
@@ -38,11 +41,13 @@ static void *clock_link_run(void *p) {
             double link_tempo = ableton_link_session_state_tempo(state);
             uint64_t micros = ableton_link_clock_micros(clock);
             double link_beat = ableton_link_session_state_beat_at_time(state, micros, clock_link_shared_data.quantum);
+
             bool link_playing = ableton_link_session_state_is_playing(state);
 
             clock_update_source_reference(&clock_link_reference, link_beat, 60.0f / link_tempo);
 
             if (!clock_link_shared_data.playing && link_playing) {
+                ableton_link_session_state_request_beat_at_start_playing_time(state, 0, clock_link_shared_data.quantum);
                 clock_link_shared_data.playing = true;
                 clock_start_from_source(CLOCK_SOURCE_LINK);
             } else if (clock_link_shared_data.playing && !link_playing) {
