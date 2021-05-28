@@ -1519,11 +1519,11 @@ int _clock_schedule_sleep(lua_State *l) {
     int coro_id = (int)luaL_checkinteger(l, 1);
     double seconds = luaL_checknumber(l, 2);
 
-    if (seconds <= 0) {
-        w_handle_clock_resume(coro_id, 0); // TODO: event
-    } else {
-        clock_scheduler_schedule_sleep(coro_id, seconds);
+    if (seconds < 0) {
+        seconds = 0;
     }
+
+    clock_scheduler_schedule_sleep(coro_id, seconds);
 
     return 0;
 }
@@ -1534,7 +1534,7 @@ int _clock_schedule_sync(lua_State *l) {
     double sync_beat = luaL_checknumber(l, 2);
 
     if (sync_beat <= 0) {
-        w_handle_clock_resume(coro_id, 0); // TODO: event
+        luaL_error(l, "invalid sync beat: %f", sync_beat);
     } else {
         clock_scheduler_schedule_sync(coro_id, sync_beat);
     }
