@@ -32,9 +32,10 @@ static pthread_t clock_scheduler_tick_thread;
 static clock_scheduler_event_t clock_scheduler_events[NUM_CLOCK_SCHEDULER_EVENTS];
 static pthread_mutex_t clock_scheduler_events_lock;
 
-static void clock_scheduler_post_clock_resume_event(int thread_id) {
+static void clock_scheduler_post_clock_resume_event(int thread_id, double value) {
     union event_data *ev = event_data_new(EVENT_CLOCK_RESUME);
     ev->clock_resume.thread_id = thread_id;
+    ev->clock_resume.value = value;
     event_post(ev);
 }
 
@@ -60,12 +61,12 @@ static void *clock_scheduler_tick_thread_run(void *p) {
             if (scheduler_event->ready) {
                 if (scheduler_event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
                     if (clock_beat > scheduler_event->sync_clock_beat) {
-                        clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
+                        clock_scheduler_post_clock_resume_event(scheduler_event->thread_id, clock_beat);
                         scheduler_event->ready = false;
                     }
                 } else {
                     if (clock_time >= scheduler_event->sleep_clock_time) {
-                        clock_scheduler_post_clock_resume_event(scheduler_event->thread_id);
+                        clock_scheduler_post_clock_resume_event(scheduler_event->thread_id, clock_time);
                         scheduler_event->ready = false;
                         scheduler_event->thread_id = -1;
                     }
