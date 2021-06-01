@@ -71,8 +71,6 @@ err_init:
 
 void dev_delete(union dev *d) {
     int ret;
-    // fprintf(stderr, "dev_delete(): removing device %d\n", d->base.id);
-
     if (pthread_kill(d->base.tid, 0) == 0) {
         // device i/o thread still running
         ret = pthread_cancel(d->base.tid);
