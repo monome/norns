@@ -47,16 +47,16 @@ int dev_monome_init(void *self) {
 
     md->rows = monome_get_rows(md->m);
     md->cols = monome_get_cols(md->m);
-	
+
     if (md->rows == 0 && md->cols == 0) {
-	fprintf(stderr, "monome device reporing zero rows/cols; assuming arc\n");
+        fprintf(stderr, "monome device reporing zero rows/cols; assuming arc\n");
         md->type = DEVICE_MONOME_TYPE_ARC;
-	
+
     } else {
         md->type = DEVICE_MONOME_TYPE_GRID;
-	md->quads = (md->rows * md->cols) / 64;
-	fprintf(stderr, "monome device appears to be a grid; rows=%d; cols=%d; quads=%d\n",
-		md->rows, md->cols, md->quads);
+        md->quads = (md->rows * md->cols) / 64;
+        fprintf(stderr, "monome device appears to be a grid; rows=%d; cols=%d; quads=%d\n", md->rows, md->cols,
+                md->quads);
     }
 
     monome_register_handler(m, MONOME_BUTTON_DOWN, dev_monome_handle_press, md);
