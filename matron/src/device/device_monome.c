@@ -50,6 +50,7 @@ int dev_monome_init(void *self) {
 
   if (md->rows == 0 && md->cols == 0) {
     fprintf(stderr, "monome device reporing zero rows/cols; assuming arc\n");
+    md->quads = 4;
     md->type = DEVICE_MONOME_TYPE_ARC;
 
   } else {
