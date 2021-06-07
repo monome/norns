@@ -1,3 +1,13 @@
+# 210607
+
+## norns 2.5.1
+
+- NEW latest grid support (CDC) @catfact
+- FIX non-crow CDC devices not sent crow queries @tehn
+- FIX menu update bug due to jack change @tehn
+- FIX menu redraw bug @schollz
+
+
 # 210524
 
 ## norns 2.5.0
