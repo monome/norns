@@ -23,8 +23,6 @@
 
 #include "events.h"
 
-//#define DEVICE_MONITOR_DEBUG
-
 #define SUB_NAME_SIZE 32
 #define NODE_NAME_SIZE 128
 #define WATCH_TIMEOUT_MS 100
@@ -61,6 +59,7 @@ static void add_dev_input(struct udev_device *dev);
 static void add_dev_sound(struct udev_device *dev);
 
 static int is_dev_monome_grid(struct udev_device *dev);
+static int is_dev_crow(struct udev_device *dev);
 
 static void *watch_loop(void *data);
 
@@ -70,7 +69,7 @@ static const char *get_alsa_midi_node(struct udev_device *dev);
 
 // try to get product name from udev_device or its parents
 // returns a newly-allocated string (may be NULL)
-static const char *get_device_name(struct udev_device *dev);
+static char *get_device_name(struct udev_device *dev);
 
 static inline void print_watch_error(const char *msg, int file_idx) {
     fprintf(stderr, "error: %s on subsystem %s", msg, dev_file_name[file_idx]);
@@ -228,38 +227,35 @@ void rm_dev(struct udev_device *dev, int dev_file) {
 }
 
 void rm_dev_tty(struct udev_device *dev, const char *node) {
-#ifdef DEVICE_MONITOR_DEBUG
     fprintf(stderr, "rm_dev_tty: %s\n", node);
-#endif
 
     if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
-#ifdef DEVICE_MONITOR_DEBUG
         fprintf(stderr, "got ttyUSB, assuming grid\n");
-#endif
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
 
     if (is_dev_monome_grid(dev)) {
-#ifdef DEVICE_MONITOR_DEBUG
         fprintf(stderr, "tty appears to be ACM grid\n");
-#endif
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
 
-#ifdef DEVICE_MONITOR_DEBUG
-    fprintf(stderr, "assuming this tty is a crow\n");
-#endif
-    dev_list_remove(DEV_TYPE_CROW, node);
+    if (is_dev_crow(dev)) {         
+        dev_list_remove(DEV_TYPE_CROW, node);
+        return;
+    }
+    
+    fprintf(stderr, "dev_monitor: an unrecognized TTY device was removed.\n");
+
 }
 
 void add_dev(struct udev_device *dev, int fidx) {
-#ifdef DEVICE_MONITOR_DEBUG
     const char *node = udev_device_get_devnode(dev);
-    fprintf(stderr, "adding device: %s\n", node);
-#endif
-
+    if (node == NULL) {
+        return;
+    }
+    fprintf(stderr, "scanning device: %s\n", node);
     switch (fidx) {
     case DEV_FILE_TTY:
         add_dev_tty(dev);
@@ -278,33 +274,20 @@ void add_dev(struct udev_device *dev, int fidx) {
 
 void add_dev_tty(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
-    const char *device_product_string = udev_device_get_property_value(dev, "ID_MODEL");
-
-#ifdef DEVICE_MONITOR_DEBUG
-    fprintf(stderr, "add_dev_tty: %s\n", node);
-#endif
-
+    if (node == NULL) {
+        // not a physical device. for the moment we are not concerned with input from virtual inputs
+        return;
+    }
+    char *name = get_device_name(dev);
     if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
-#ifdef DEVICE_MONITOR_DEBUG
         fprintf(stderr, "got ttyUSB, assuming grid\n");
-#endif
-        dev_list_add(DEV_TYPE_MONOME, node, get_device_name(dev));
-        return;
-    }
-
-    if (is_dev_monome_grid(dev)) {
-#ifdef DEVICE_MONITOR_DEBUG
+        dev_list_add(DEV_TYPE_MONOME, node, name);
+    } else if (is_dev_monome_grid(dev)) {
         fprintf(stderr, "tty appears to be grid-st\n");
-#endif
-        dev_list_add(DEV_TYPE_MONOME, node, get_device_name(dev));
-        return;
-    }
-
-    if (!strcmp(device_product_string, "crow:_telephone_line")) {
-#ifdef DEVICE_MONITOR_DEBUG
+        dev_list_add(DEV_TYPE_MONOME, node, name);
+    } else if (is_dev_crow(dev)) {
         fprintf(stderr, "tty is a crow\n");
-#endif
-        dev_list_add(DEV_TYPE_CROW, node, get_device_name(dev));
+        dev_list_add(DEV_TYPE_CROW, node, name);
     } else {
         fprintf(stderr, "device monitor: unmatched tty device\n");
     }
@@ -312,7 +295,8 @@ void add_dev_tty(struct udev_device *dev) {
 
 void add_dev_input(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
-    dev_list_add(DEV_TYPE_HID, node, get_device_name(dev));
+    char *name = get_device_name(dev);
+    dev_list_add(DEV_TYPE_HID, node, name);
 }
 
 void add_dev_sound(struct udev_device *dev) {
@@ -320,7 +304,8 @@ void add_dev_sound(struct udev_device *dev) {
     // https://github.com/systemd/systemd/blob/master/rules/78-sound-card.rules
     const char *alsa_node = get_alsa_midi_node(dev);
     if (alsa_node != NULL) {
-        dev_list_add(DEV_TYPE_MIDI, alsa_node, get_device_name(dev));
+	char *name = get_device_name(dev);
+        dev_list_add(DEV_TYPE_MIDI, alsa_node, name);
     }
 }
 
@@ -352,7 +337,7 @@ const char *get_alsa_midi_node(struct udev_device *dev) {
     return result;
 }
 
-const char *get_device_name(struct udev_device *dev) {
+char *get_device_name(struct udev_device *dev) {
     char *current_name = NULL;
     struct udev_device *current_dev = dev;
 
@@ -392,4 +377,9 @@ int is_dev_monome_grid(struct udev_device *dev) {
     }
 
     return 0;
+}
+
+int is_dev_crow(struct udev_device *dev) { 
+    const char *device_product_string = udev_device_get_property_value(dev, "ID_MODEL");
+    return strcmp(device_product_string, "crow:_telephone_line") == 0;
 }
