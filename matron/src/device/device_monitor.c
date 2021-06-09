@@ -207,6 +207,9 @@ void *watch_loop(void *p) {
 
 void rm_dev(struct udev_device *dev, int dev_file) {
     const char *node = udev_device_get_devnode(dev);
+    if (node == NULL) {
+	return;
+    }
     switch (dev_file) {
     case DEV_FILE_TTY:
         rm_dev_tty(dev, node);
