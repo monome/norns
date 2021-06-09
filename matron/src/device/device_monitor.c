@@ -251,11 +251,6 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
 }
 
 void add_dev(struct udev_device *dev, int fidx) {
-    const char *node = udev_device_get_devnode(dev);
-    if (node == NULL) {
-        return;
-    }
-    fprintf(stderr, "scanning device: %s\n", node);
     switch (fidx) {
     case DEV_FILE_TTY:
         add_dev_tty(dev);
@@ -295,6 +290,9 @@ void add_dev_tty(struct udev_device *dev) {
 
 void add_dev_input(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
+    if (node == NULL) {
+	fprintf(stderr, "device_monitor: skipping node-less entry in /dev/input\n");
+    }
     char *name = get_device_name(dev);
     dev_list_add(DEV_TYPE_HID, node, name);
 }
@@ -305,6 +303,7 @@ void add_dev_sound(struct udev_device *dev) {
     const char *alsa_node = get_alsa_midi_node(dev);
     if (alsa_node != NULL) {
 	char *name = get_device_name(dev);
+	fprintf("device_monitor(): adding midi device %s\n", name);
         dev_list_add(DEV_TYPE_MIDI, alsa_node, name);
     }
 }
