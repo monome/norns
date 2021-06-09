@@ -208,7 +208,7 @@ void *watch_loop(void *p) {
 void rm_dev(struct udev_device *dev, int dev_file) {
     const char *node = udev_device_get_devnode(dev);
     if (node == NULL) {
-	return;
+        return;
     }
     switch (dev_file) {
     case DEV_FILE_TTY:
@@ -253,7 +253,7 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
 void add_dev(struct udev_device *dev, int fidx) {
     const char *node = udev_device_get_devnode(dev);
     if (node == NULL) {
-	return;
+        return;
     }
     fprintf(stderr, "scanning device: %s\n", node);
     switch (fidx) {
@@ -275,8 +275,8 @@ void add_dev(struct udev_device *dev, int fidx) {
 void add_dev_tty(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
     if (node == NULL) {
-	// not a physical device. for the moment we are not concerned with input from virtual inputs
-	return;
+        // not a physical device. for the moment we are not concerned with input from virtual inputs
+        return;
     }
     char *name = get_device_name(dev);
     if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
