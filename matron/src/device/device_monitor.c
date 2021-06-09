@@ -292,6 +292,7 @@ void add_dev_input(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
     if (node == NULL) {
 	fprintf(stderr, "device_monitor: skipping node-less entry in /dev/input\n");
+	return;
     }
     char *name = get_device_name(dev);
     dev_list_add(DEV_TYPE_HID, node, name);
