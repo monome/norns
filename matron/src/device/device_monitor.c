@@ -285,14 +285,12 @@ void add_dev_tty(struct udev_device *dev) {
     } else {
         fprintf(stderr, "device monitor: unmatched tty device\n");
     }
-    if (name != NULL) { free(name); }
 }
 
 void add_dev_input(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
     char *name = get_device_name(dev);
     dev_list_add(DEV_TYPE_HID, node, name);
-    if (name != NULL) { free(name); }
 }
 
 void add_dev_sound(struct udev_device *dev) {
@@ -302,7 +300,6 @@ void add_dev_sound(struct udev_device *dev) {
     if (alsa_node != NULL) {
 	char *name = get_device_name(dev);
         dev_list_add(DEV_TYPE_MIDI, alsa_node, name);
-	if (name != NULL) { free(name); }
     }
 }
 
