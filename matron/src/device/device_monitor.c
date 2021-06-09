@@ -282,7 +282,7 @@ void add_dev_tty(struct udev_device *dev) {
     } else if (is_dev_monome_grid(dev)) {
         fprintf(stderr, "tty appears to be grid-st\n");
         dev_list_add(DEV_TYPE_MONOME, node, name);
-    } else if (!is_dev_crow(dev)) {
+    } else if (is_dev_crow(dev)) {
         fprintf(stderr, "tty is a crow\n");
         dev_list_add(DEV_TYPE_CROW, node, name);
     } else {
@@ -378,5 +378,5 @@ int is_dev_monome_grid(struct udev_device *dev) {
 
 int is_dev_crow(struct udev_device *dev) { 
     const char *device_product_string = udev_device_get_property_value(dev, "ID_MODEL");
-    return !strcmp(device_product_string, "crow:_telephone_line");
+    return strcmp(device_product_string, "crow:_telephone_line") == 0;
 }
