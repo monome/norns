@@ -68,7 +68,7 @@ end
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
 
-  local result, mode, time = coroutine.resume(coro, ...)
+  local result, mode, time, offset = coroutine.resume(coro, ...)
 
   if coroutine.status(coro) == "dead" then
     if result then
@@ -82,7 +82,7 @@ clock.resume = function(coro_id, ...)
       if mode == SLEEP then
         _norns.clock_schedule_sleep(coro_id, time)
       elseif mode == SYNC then
-        _norns.clock_schedule_sync(coro_id, time)
+        _norns.clock_schedule_sync(coro_id, time, offset)
       elseif mode == SUSPEND then
         -- nothing needed for SUSPEND
       end

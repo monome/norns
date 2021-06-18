@@ -1529,7 +1529,6 @@ int _clock_schedule_sleep(lua_State *l) {
 }
 
 int _clock_schedule_sync(lua_State *l) {
-    lua_check_num_args(2);
     int coro_id = (int)luaL_checkinteger(l, 1);
     double sync_beat = luaL_checknumber(l, 2);
     double offset = luaL_optnumber(l, 3, 0);
