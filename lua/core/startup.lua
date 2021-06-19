@@ -29,6 +29,8 @@ paramset = require 'core/paramset'
 params = paramset.new()
 norns.pmap = require 'core/pmap'
 
+-- load, initialize hooks
+local hook = require 'core/hook'
 
 -- load menu
 require 'core/menu'
@@ -106,4 +108,4 @@ print("start_audio(): ")
 -- start the process of syncing with crone boot
 _norns.start_audio()
 
-
+hook.system_post_startup()
