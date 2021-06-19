@@ -40,8 +40,17 @@ static void clock_scheduler_post_clock_resume_event(int thread_id, double value)
     event_post(ev);
 }
 
-static inline double clock_scheduler_next_clock_beat(double clock_beat, double sync_beat, double sync_beat_offset) {
-    return fmax(ceil((clock_beat + FLT_EPSILON) / sync_beat) * sync_beat + sync_beat_offset, 0);
+static double clock_scheduler_next_clock_beat(double clock_beat, double sync_beat, double sync_beat_offset) {
+    double next_beat;
+
+    next_beat = ceil((clock_beat + FLT_EPSILON) / sync_beat) * sync_beat;
+    next_beat = next_beat + sync_beat_offset;
+
+    while (next_beat < (clock_beat + FLT_EPSILON)) {
+        next_beat += sync_beat;
+    }
+
+    return fmax(next_beat, 0);
 }
 
 static void *clock_scheduler_tick_thread_run(void *p) {
