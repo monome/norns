@@ -221,6 +221,8 @@ _norns.system_cmd_capture = function(cap)
   end
 end
 
+norns.system_glob = _norns.system_glob
+
 -- audio reset
 _norns.reset = function()
   os.execute("sudo systemctl restart norns-sclang.service")

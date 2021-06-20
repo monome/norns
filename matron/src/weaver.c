@@ -11,6 +11,7 @@
 #include <string.h>
 
 // linux / posix
+#include <glob.h>
 #include <pthread.h>
 #include <signal.h>
 #include <sys/time.h>
@@ -225,6 +226,7 @@ static int _sound_file_inspect(lua_State *l);
 
 // util
 static int _system_cmd(lua_State *l);
+static int _system_glob(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
@@ -346,6 +348,7 @@ void w_init(void) {
 
     // util
     lua_register_norns("system_cmd", &_system_cmd);
+    lua_register_norns("system_glob", &_system_glob);
 
     // low-level monome grid control
     lua_register_norns("grid_set_led", &_grid_set_led);
@@ -2564,6 +2567,33 @@ int _system_cmd(lua_State *l) {
     const char *cmd = luaL_checkstring(l, 1);
     system_cmd((char *)cmd);
     return 0;
+}
+
+int _system_glob(lua_State *l) {
+    lua_check_num_args(1);
+    const char *pattern = luaL_checkstring(l, 1);
+
+    int glob_status = 0;
+    int glob_flags = GLOB_MARK | GLOB_TILDE;
+    glob_t g;
+
+    unsigned int i;
+
+    glob_status = glob(pattern, glob_flags, NULL, &g);
+
+    if (glob_status != 0) {
+        lua_pushnil(l);
+        lua_pushinteger(l, glob_status);
+        return 2;
+    }
+
+    lua_newtable(l);
+    for(i=1; i<=g.gl_pathc; i++) {
+        lua_pushstring(l, g.gl_pathv[i-1]);
+        lua_rawseti(l, -2, i);
+    }
+    globfree(&g);
+    return 1;
 }
 
 int _platform(lua_State *l) {
