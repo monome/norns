@@ -109,10 +109,17 @@ print("start_audio(): ")
 _norns.start_audio()
 
 -- load matron mods and invoke system hooks
-local mods_path = paths.data .. "/mods.lua"
-if util.file_exists(mods_path) then
-  print("loading mods")
-  dofile(mods_path)
+-- local mods_path = paths.data .. "/mods.lua"
+-- if util.file_exists(mods_path) then
+--   print("loading mods")
+--   dofile(mods_path)
+-- end
+
+-- load matron mods and invoke system hooks
+local mods = require 'core/mods'
+local scan = mods.scan()
+if scan then
+  mods.load(scan)
 end
 
 hook.system_post_startup()

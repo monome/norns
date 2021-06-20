@@ -254,4 +254,5 @@ m["UPDATE"] = require 'core/menu/update'
 m["SLEEP"] = require 'core/menu/sleep'
 m["MIX"] = require 'core/menu/mix'
 m["TAPE"] = require 'core/menu/tape'
+m["MODS"] = require 'core/menu/mods'
 
