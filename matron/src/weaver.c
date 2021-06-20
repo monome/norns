@@ -2574,7 +2574,7 @@ int _system_glob(lua_State *l) {
     const char *pattern = luaL_checkstring(l, 1);
 
     int glob_status = 0;
-    int glob_flags = GLOB_MARK | GLOB_TILDE;
+    int glob_flags = GLOB_MARK | GLOB_TILDE | GLOB_BRACE;
     glob_t g;
 
     unsigned int i;
