@@ -1529,14 +1529,14 @@ int _clock_schedule_sleep(lua_State *l) {
 }
 
 int _clock_schedule_sync(lua_State *l) {
-    lua_check_num_args(2);
     int coro_id = (int)luaL_checkinteger(l, 1);
     double sync_beat = luaL_checknumber(l, 2);
+    double offset = luaL_optnumber(l, 3, 0);
 
     if (sync_beat <= 0) {
         luaL_error(l, "invalid sync beat: %f", sync_beat);
     } else {
-        clock_scheduler_schedule_sync(coro_id, sync_beat);
+        clock_scheduler_schedule_sync(coro_id, sync_beat, offset);
     }
 
   return 0;
