@@ -45,10 +45,19 @@ int dev_monome_init(void *self) {
     memset(md->data, 0, sizeof(md->data));
     memset(md->dirty, 0, sizeof(md->dirty));
 
-    if (monome_get_rows(md->m) == 0 && monome_get_cols(md->m) == 0) {
+    md->rows = monome_get_rows(md->m);
+    md->cols = monome_get_cols(md->m);
+
+    if (md->rows == 0 && md->cols == 0) {
+        fprintf(stderr, "monome device reporing zero rows/cols; assuming arc\n");
         md->type = DEVICE_MONOME_TYPE_ARC;
+        md->quads = 4;
+
     } else {
         md->type = DEVICE_MONOME_TYPE_GRID;
+        md->quads = (md->rows * md->cols) / 64;
+        fprintf(stderr, "monome device appears to be a grid; rows=%d; cols=%d; quads=%d\n", md->rows, md->cols,
+                md->quads);
     }
 
     monome_register_handler(m, MONOME_BUTTON_DOWN, dev_monome_handle_press, md);
@@ -100,7 +109,7 @@ void dev_monome_arc_set_led(struct dev_monome *md, uint8_t n, uint8_t x, uint8_t
 
 // set all LEDs to value
 void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
-    for (uint8_t q = 0; q < 4; q++) {
+    for (uint8_t q = 0; q < md->quads; q++) {
         for (uint8_t i = 0; i < 64; i++) {
             md->data[q][i] = val;
         }
@@ -117,7 +126,7 @@ void dev_monome_refresh(struct dev_monome *md) {
         return;
     }
 
-    for (int quad = 0; quad < 4; quad++) {
+    for (int quad = 0; quad < md->quads; quad++) {
         if (md->dirty[quad]) {
             if (md->type == DEVICE_MONOME_TYPE_ARC) {
                 monome_led_ring_map(md->m, quad, md->data[quad]);

@@ -180,7 +180,7 @@ static void handle_event(union event_data *ev) {
         w_handle_metro(ev->metro.id, ev->metro.stage);
         break;
     case EVENT_CLOCK_RESUME:
-        w_handle_clock_resume(ev->clock_resume.thread_id);
+        w_handle_clock_resume(ev->clock_resume.thread_id, ev->clock_resume.value);
         break;
     case EVENT_CLOCK_START:
         w_handle_clock_start();

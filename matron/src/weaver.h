@@ -72,7 +72,7 @@ extern void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16
 extern void w_handle_metro(const int idx, const int stage);
 
 //--- clock
-extern void w_handle_clock_resume(const int thread_id);
+extern void w_handle_clock_resume(const int thread_id, double value);
 extern void w_handle_clock_start();
 extern void w_handle_clock_stop();
 

@@ -15,7 +15,6 @@
 typedef struct {
     double beat_duration;
     double tick_duration;
-    struct timespec tick_ts;
 } clock_internal_tempo_t;
 
 static pthread_t clock_internal_thread;
@@ -25,23 +24,39 @@ static bool clock_internal_restarted;
 static clock_internal_tempo_t clock_internal_tempo;
 static pthread_mutex_t clock_internal_tempo_lock;
 
+static void clock_internal_sleep(double seconds) {
+    struct timespec ts;
+
+    ts.tv_sec = seconds;
+    ts.tv_nsec = (seconds - ts.tv_sec) * 1000000000;
+
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+}
+
 static void *clock_internal_thread_run(void *p) {
     (void)p;
-    struct timespec ts;
+
+    double current_time;
+    double next_tick_time;
+
     double beat_duration;
+    double tick_duration;
     double reference_beat;
+
     int ticks = -1;
 
+    current_time = clock_get_system_time();
+    next_tick_time = current_time;
+
     while (true) {
+        current_time = clock_get_system_time();
+
         pthread_mutex_lock(&clock_internal_tempo_lock);
-
         beat_duration = clock_internal_tempo.beat_duration;
-        ts.tv_sec = clock_internal_tempo.tick_ts.tv_sec;
-        ts.tv_nsec = clock_internal_tempo.tick_ts.tv_nsec;
-
+        tick_duration = clock_internal_tempo.tick_duration;
         pthread_mutex_unlock(&clock_internal_tempo_lock);
 
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+        clock_internal_sleep(tick_duration + (next_tick_time - current_time));
 
         if (clock_internal_restarted) {
             ticks = 0;
@@ -56,6 +71,8 @@ static void *clock_internal_thread_run(void *p) {
             reference_beat = (double) ticks / CLOCK_INTERNAL_TICKS_PER_BEAT;
             clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
         }
+
+        next_tick_time += tick_duration;
     }
 
     return NULL;
@@ -82,9 +99,6 @@ void clock_internal_set_tempo(double bpm) {
 
     clock_internal_tempo.beat_duration = 60.0 / bpm;
     clock_internal_tempo.tick_duration = clock_internal_tempo.beat_duration / CLOCK_INTERNAL_TICKS_PER_BEAT;
-
-    clock_internal_tempo.tick_ts.tv_sec = clock_internal_tempo.tick_duration;
-    clock_internal_tempo.tick_ts.tv_nsec = (clock_internal_tempo.tick_duration - floor(clock_internal_tempo.tick_duration)) * 1000000000;
 
     pthread_mutex_unlock(&clock_internal_tempo_lock);
 

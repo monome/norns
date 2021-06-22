@@ -1519,11 +1519,11 @@ int _clock_schedule_sleep(lua_State *l) {
     int coro_id = (int)luaL_checkinteger(l, 1);
     double seconds = luaL_checknumber(l, 2);
 
-    if (seconds <= 0) {
-        w_handle_clock_resume(coro_id);
-    } else {
-        clock_scheduler_schedule_sleep(coro_id, seconds);
+    if (seconds < 0) {
+        seconds = 0;
     }
+
+    clock_scheduler_schedule_sleep(coro_id, seconds);
 
     return 0;
 }
@@ -1534,7 +1534,7 @@ int _clock_schedule_sync(lua_State *l) {
     double sync_beat = luaL_checknumber(l, 2);
 
     if (sync_beat <= 0) {
-        w_handle_clock_resume(coro_id);
+        luaL_error(l, "invalid sync beat: %f", sync_beat);
     } else {
         clock_scheduler_schedule_sync(coro_id, sync_beat);
     }
@@ -1597,7 +1597,7 @@ int _clock_set_source(lua_State *l) {
 }
 
 int _clock_get_time_beats(lua_State *l) {
-    lua_pushnumber(l, clock_gettime_beats());
+    lua_pushnumber(l, clock_get_beats());
     return 1;
 }
 
@@ -1930,12 +1930,13 @@ void w_handle_metro(const int idx, const int stage) {
 }
 
 // clock handlers
-void w_handle_clock_resume(const int coro_id) {
+void w_handle_clock_resume(const int coro_id, double value) {
     lua_getglobal(lvm, "clock");
     lua_getfield(lvm, -1, "resume");
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, coro_id);
-    l_report(lvm, l_docall(lvm, 1, 0));
+    lua_pushnumber(lvm, value);
+    l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 void w_handle_clock_start() {
