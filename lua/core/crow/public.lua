@@ -237,8 +237,14 @@ Public.io = {
 Public.io.__newindex = function(self, ix, val)
   local p = Public.lookup(ix)
   if p then
-    if not p.list and p.range then -- don't try to clamp a whole table
-      val = util.clamp(val, p.min, p.max)
+    if p.range then
+      if p.list then -- clamp all values in a list
+        for k,v in ipairs(val) do
+          val[k] = util.clamp(v, p.min, p.max)
+        end
+      else -- clamp a single value
+        val = util.clamp(val, p.min, p.max)
+      end
     end
     p.val = val -- update internal representation
     norns.crow.send("public.update('"..p.name.."',"..quote(p.val)..")")
