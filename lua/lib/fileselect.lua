@@ -37,6 +37,8 @@ function fs.enter(folder, callback)
     norns.menu.set(fs.enc, fs.key, fs.redraw)
   end
   fs.redraw()
+  norns.focus_lib = true
+  norns.focus_change()
 end
 
 function fs.exit()
@@ -50,6 +52,8 @@ function fs.exit()
   end
   if fs.path then fs.callback(fs.path)
   else fs.callback("cancel") end
+  norns.focus_lib = false
+  norns.focus_change()
 end
 
 function fs.pushd(dir)

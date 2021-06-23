@@ -29,6 +29,8 @@ te.enter = function(callback, default, heading, check)
     norns.menu.set(te.enc, te.key, te.redraw)
   end
   te.redraw()
+  norns.focus_lib = true
+  norns.focus_change()
 end
 
 te.exit = function()
@@ -42,6 +44,8 @@ te.exit = function()
   end
   if te.txt then te.callback(te.txt)
   else te.callback(nil) end
+  norns.focus_lib = false
+  norns.focus_change()
 end
 
 

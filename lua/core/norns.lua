@@ -228,6 +228,26 @@ _norns.reset = function()
   os.execute("sudo systemctl restart norns-matron.service")
 end
 
+-- focus
+norns.focus_lib = false
+norns.focus_prev = false
+
+function norns.focus()
+  return not (_menu.mode or norns.focus_lib)
+end
+
+function norns.focus_change()
+  local f = norns.focus()
+  if f ~= norns.focus_prev then
+    if not (_menu.mode or norns.focus_lib) then
+      if focus then focus() end
+    else
+      if defocus then defocus() end
+    end
+  end
+  norns.focus_prev = f
+end
+
 -- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 _startup = function()

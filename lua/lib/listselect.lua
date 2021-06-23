@@ -28,6 +28,8 @@ function ls.enter(list, callback)
     norns.menu.set(ls.enc, ls.key, ls.redraw)
   end
   ls.redraw()
+  norns.focus_lib = true
+  norns.focus_change()
 end
 
 function ls.exit()
@@ -41,6 +43,8 @@ function ls.exit()
   end
   if ls.selection then ls.callback(ls.selection)
   else ls.callback("cancel") end
+  norns.focus_lib = false
+  norns.focus_change()
 end
 
 

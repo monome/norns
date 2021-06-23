@@ -147,6 +147,7 @@ _menu.set_mode = function(mode)
   if mode == false then -- ACTIVATE PLAY MODE
     if _menu.mode == true then _norns.screen_restore() end
     _menu.mode = false
+    norns.focus_lib = false
     m[_menu.page].deinit()
     screen.clear()
     screen.update()
@@ -155,7 +156,7 @@ _menu.set_mode = function(mode)
     norns.encoders.callback = enc
     norns.enc.resume()
     redraw()
-  elseif mode == true then -- ACTIVATE MENu MODE
+  elseif mode == true then -- ACTIVATE MENU MODE
     if _menu.mode == false then _norns.screen_save() end
     _menu.mode = true
     _menu.alt = false
@@ -172,6 +173,7 @@ _menu.set_mode = function(mode)
     norns.encoders.set_sens(3,2)
     _menu.set_page(_menu.page)
   end
+  norns.focus_change()
 end
 
 -- set page
@@ -254,4 +256,5 @@ m["UPDATE"] = require 'core/menu/update'
 m["SLEEP"] = require 'core/menu/sleep'
 m["MIX"] = require 'core/menu/mix'
 m["TAPE"] = require 'core/menu/tape'
+
 
