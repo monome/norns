@@ -636,9 +636,10 @@ _menu.rebuild_params = function()
   if m.mode == mEDIT or m.mode == mMAP then 
     if m.group then
       build_sub(m.groupid)
-      _menu.redraw()
     else
       build_page()
+    end
+    if _menu.mode then
       _menu.redraw()
     end
   end

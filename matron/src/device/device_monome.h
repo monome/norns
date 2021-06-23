@@ -19,6 +19,9 @@ struct dev_monome {
     monome_t *m;
     uint8_t data[4][64]; // led data by quad
     bool dirty[4];       // quad-dirty flags
+    int cols;
+    int rows;
+    int quads;
 };
 
 // set a single grid led

@@ -64,7 +64,7 @@ int dev_crow_init(void *self) {
             break;
     }
     if (retry >= CROW_RETRIES) {
-        fprintf(stderr, ">> ttyACM found, but not a crow\n");
+        fprintf(stderr, ">> crow failed ^^identity\n");
         return -1;
     }
 

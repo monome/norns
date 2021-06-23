@@ -192,6 +192,7 @@ struct event_metro {
 struct event_clock_resume {
     struct event_common common;
     uint32_t thread_id;
+    double value;
 };
 
 struct event_clock_start {

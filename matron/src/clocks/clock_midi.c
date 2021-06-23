@@ -26,7 +26,7 @@ void clock_midi_init() {
 
 static void clock_midi_handle_clock() {
     double beat_duration;
-    double current_time = clock_gettime_seconds();
+    double current_time = clock_get_system_time();
 
     if (clock_midi_last_tick_time_set == false) {
         clock_midi_last_tick_time_set = true;
