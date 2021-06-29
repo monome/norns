@@ -1,314 +1,236 @@
 --- Crow Module
 -- @module crow
 
-local ii_events = require 'core/crow/ii_events'
-local ii_actions = require 'core/crow/ii_actions'
+quote = require 'core/crow/quote'
 
-
--- system setup
-
+--- system level configuration
 _norns.crow = {}
 
 _norns.crow.add = function(id, name, dev)
   norns.crow.dev = dev
-  crow.add(id, name, dev)
+  norns.crow.add(id, name, dev)
 
   --- enable clock-in if needed
   if params.lookup["clock_source"] then
     if params:string("clock_source") == "crow" then
-      crow.send("input[1]:reset_events()") -- ensure crow's callback has not been redefined
-      crow.input[1].change = function() end
-      crow.input[1].mode("change",2,0.1,"rising")
+      norns.crow.clock_enable()
     end
   end
 end
 
 _norns.crow.remove = function(id)
   norns.crow.dev = nil
-  crow.remove(id)
+  norns.crow.remove(id)
 end
 
 local ebuffer = ""
 _norns.crow.event = function(id, line)
   local function evalcrow(line)
-    line, reps = (ebuffer..line):gsub("%^%^","norns.crow.") -- ebuffer contains the earlier message
-    ebuffer = "" -- cleared so ready to process
+    line, reps = (ebuffer..line):gsub("%^%^", "norns.crow.events.")
+    ebuffer = "" -- ebuffer has been processed, so reset it
     if reps > 0 then
       assert(load(line))()
     else
-      crow.receive(line)
+      norns.crow.receive(line)
     end
   end
 
-  local n, m = string.find(line,"%c+")
+  local n, m = line:find "%c+"
   if not n then -- no control chars found
     ebuffer = ebuffer .. line -- line incomplete so add it to the buffer
   else
-    if m < #line then -- split & recur
-      evalcrow(string.sub(line, 1, n-1)) -- complete
-      _norns.crow.event(id, string.sub(line, m+1, -1))
-    else -- string ends with control
-      evalcrow(string.sub(line, 1, n-1))
+    evalcrow(line:sub(1, n-1)) -- process complete segment
+    if m < #line then -- recur with post-whitespace remainder
+      _norns.crow.event(id, line:sub(m+1, -1))
     end
   end
 end
 
 
--- system event callbacks
 
-norns.crow = {}
+--- for talking *about* crow
+-- contain support / functions for ^^ events from crow
+norns.crow = {
+  public = require 'core/crow/public'
+}
 
-function norns.crow.identity(...) print("crow identity: " .. ...) end
-function norns.crow.version(...) print("crow version: " .. ...) end
-function norns.crow.stream(n,v) crow.input[n].stream(v) end
-function norns.crow.change(n,v) crow.input[n].change(v) end
-function norns.crow.window(n,v,w) crow.input[n].window(v,w) end
-function norns.crow.scale(n,v) crow.input[n].scale(v) end
-function norns.crow.volume(n,v) crow.input[n].volume(v) end
-function norns.crow.peak(n) crow.input[n].peak() end
-function norns.crow.output(n,v) crow.output[n].receive(v) end
-function norns.crow.done(n) crow.output[n].done() end
-function norns.crow.running(n,v) crow.output[n].running(v) end
-function norns.crow.midi(...) crow.midi(...) end
-
-norns.crow.ii = ii_events
-
-
--- userspace functions
-
-local crow = {}
-
---- send version
-function crow.version() crow.send("^^v") end
---- send identity
-function crow.identity() crow.send("^^i") end
---- reset crow
-function crow.reset() crow.send("crow.reset()") end
---- send kill
-function crow.kill() crow.send("^^k") end
---- send clear
-function crow.clear() crow.send("^^c") end
---- send a command
-function crow.send(cmd)
+-- communication i/o
+norns.crow.send = function(cmd)
   if norns.crow.dev then
-    _norns.crow_send(norns.crow.dev,cmd)
+    _norns.crow_send(norns.crow.dev, cmd)
   end
 end
---- check if crow is connected
-function crow.connected()
-  return norns.crow.dev ~= nil
+
+function norns.crow.connected()
+    return norns.crow.dev ~= nil
 end
 
---- run / upload userscript
-function crow.loadscript(file, is_persistent)
-
+function norns.crow.findscript(file)
+  -- first search for a local crow/ dir in the script
   local abspath = norns.state.path .. 'crow/' .. file
   if not util.file_exists(abspath) then
+    -- then fallback to a search in code/
     abspath = _path.code .. file
     if not util.file_exists(abspath) then
-      print("crow.loadscript: can't find file "..file)
       return
     end
   end
+  return abspath
+end
 
-  local function upload(file, is_persistent)
+function norns.crow.loadscript(file, is_persistent, cont)
+  local abspath = norns.crow.findscript(file)
+  if not abspath then
+    print("crow.loadscript: can't find file "..file)
+    return
+  end
+
+  local function upload(file, is_persistent, cont)
     -- TODO refine these clock.sleep(). can likely be reduced.
-    crow.send("^^s")
+    norns.crow.send("^^s")
     clock.sleep(0.2)
     for line in io.lines(file) do
-      crow.send(line)
+      norns.crow.send(line)
       clock.sleep(0.01)
     end
     clock.sleep(0.2)
-    crow.send(is_persistent and "^^w" or "^^e")
+    norns.crow.send(is_persistent and "^^w" or "^^e")
+    if cont then
+      clock.sleep(is_persistent and 0.5 or 0.2) -- ensure flash is complete
+      cont() -- call continuation function
+    end
   end
 
   print("crow loading: ".. file)
-  clock.run(upload, abspath, is_persistent)
+  return clock.run(upload, abspath, is_persistent, cont)
 end
 
 
--- crowlib aliases & metatable syntax enhancements
-
-local function stringify_table(s)
-  local str = "{"
-  for i=1,#s do
-    str = str .. s[i] .. ","
+-- event handling
+function norns.crow.register_event(fn)
+  local n = #norns.crow.events + 1
+  local c = ""
+  if     n <= 26 then c = string.char(n + 64) -- uppercase alphas
+  elseif n <= 52 then c = string.char(n + 70) -- lowercase alphas
+  else print("ERROR: can't register event. out of indices. only 52 handlers allowed.")
   end
-  return str .. "}"
+  norns.crow.events[c] = fn -- store the function in the event table
+  return c -- return the key reference for linking to crow event
+end
+
+function norns.crow.reset_events()
+  -- configure the list of static crow events
+  norns.crow.events = setmetatable({
+    identity = function(...) print("crow identity: " .. ...) end,
+    version  = function(...) print("crow version: " .. ...) end,
+    ready    = norns.crow.public.ready,
+    pub      = norns.crow.public.add,
+    pupdate  = norns.crow.public.update,
+    pubview  = norns.crow.public.view,
+  },{
+    __index = function(self, ix)
+      return function(...) print("unused event: ^^"..ix.."(".. quote(...) ..")") end
+    end,
+  })
 end
 
 
-local input = {}
-
-function input.new(x)
-  local i = { n = x }
-  i.query  = function() crow.send("get_cv("..i.n..")") end
-  i.stream = function(v) print("crow input stream: "..i.n.." "..v) end
-  i.change = function(v) print("crow input change: "..i.n.." "..v) end
-  i.window = function(v,w) print("crow input window: "..i.n.." "..v.." "..w) end
-  i.scale  = function(v) print("crow input scale: "..i.n.." "..v.note) end
-  i.volume = function(v) print("crow input volume: "..i.n.." "..v) end
-  i.peak   = function() print("crow input peak: "..i.n) end
-  i.mode = function(m,a,b,c)
-    local cmd = string.format("input[%i].mode(%q",i.n,m)
-    -- arg a can be a flat table for 'window' and 'scale' modes
-    if a ~= nil then
-      local at = (type(a)=='table') and stringify_table(a) or a
-      cmd = cmd .. "," .. at
-    end
-    if b ~= nil then cmd = cmd .. "," .. b end
-    if c ~= nil then cmd = string.format("%s,%q",cmd,c) end
-    cmd = cmd .. ")"
-    crow.send(cmd)
-  end
-  setmetatable(i,input)
-  return i
-end
-
-
-local output = {}
-
-function output.new(x)
-  local o = { n = x }
-  o._volts = 0
-  o._shape = 'linear'
-  o._slew = 0
-  o.query = function() crow.send("get_out("..o.n..")") end
-  o.receive = function(v) print("crow output receive: "..o.n.." "..v) end
-  o.done = function() print("crow output action done: "..o.n) end
-  o.running = function(v) print("crow output is running?: "..o.n.." "..v) end
-  -- WILL BE DEPRECATED in 2.3.0
-  o.execute = function() crow.send("output["..o.n.."]()") end
-  setmetatable(o,output)
-  return o
-end
-
-local function action_string(v)
-  if type(v) ~= 'table' then
-    return v
-  end
-  local arg_string = ''
-  for _,arg in ipairs(v) do
-    if arg then
-      if string.len(arg_string) ~= 0 then
-        arg_string = arg_string..', '
-      end
-      arg_string = arg_string..arg
-    end
-  end
-  return '{'..arg_string..'}'
-end
-
-output.__newindex = function(self, i, v)
-  local me = "output["..self.n.."]"
-  if i == 'volts' then
-    self._volts = v
-    crow.send(me..".volts="..v)
-  elseif i == 'shape' then
-    self._shape = v
-    crow.send(string.format("%s.shape=%q",me,v))
-  elseif i == 'slew' then
-    self._slew = v
-    crow.send(me..".slew="..v)
-  elseif i == 'action' then
-    crow.send(me..".action = "..action_string(v))
-  elseif i == 'done' then
-    crow.send(me..".done=_c.tell('done',"..me..".channel)")
-  end
-end
-
-output.__index = function(self, i)
-  if i == 'volts' then
-    return self._volts
-  elseif i == 'shape' then
-    return self._shape
-  elseif i == 'slew' then
-    return self._slew
-  elseif i == 'running' then
-    local me = "output["..self.n.."]"
-    crow.send("_c.tell('running',"..me..".channel,"..me..".running)")
-  elseif i == 'scale' then
-    return function(notes,divs,scale)
-      local me = "output["..self.n.."].scale("
-      if notes then -- arguments are present
-        local ntype = type(notes)
-        if ntype == 'string' then -- assume 'none'
-          me = me .. "'none'"
-        elseif ntype == 'table' then
-          me = me .. stringify_table(notes)
-        else
-          print("output[n].scale() expects nil, a string, or a table as first arg")
-          return
-        end
-        if divs then
-          me = me .. "," .. divs
-          if scale then
-            me = me .. "," .. scale
-          end
-        end
-      end
-      crow.send(me..")")
-    end
-  end
-end
-
-output.__call = function(self,arg)
-  local args = ""
-  if type(arg) == "string" then -- asl directive
-    if arg == "start"
-    or arg == "restart"
-    or arg == "attack"
-    or arg == "release"
-    or arg == "step"
-    or arg == "unlock" then
-      args = string.format("%q",arg)
-    else -- boolean or asl
-      args = arg
-    end
-  end
-  crow.send("output["..self.n.."]("..args..")")
-end
-
-setmetatable(output, output)
-
-
-crow.cal = {}
-crow.cal.test = function() crow.send("cal.test()") end
-crow.cal.default = function() crow.send("cal.default()") end
-crow.cal.print = function() crow.send("cal.print()") end
-
-
-crow.ii = ii_actions
-crow.ii.help = function() crow.send("ii.help()") end
-crow.ii.pullup = function(x)
-  local truth = (x == true or x == 1) and 'true' or 'false'
-  crow.send("ii.pullup("..truth..")")
-end
-
-
--- initialize
-
-crow.init = function()
-  -- return crow to blank slate when loading a new norns script
+-- reset state 
+function norns.crow.init()
+  -- clear crow's VM allowing for full customization by norns script
   crow.reset()
 
+  -- clear all but the static crow events
+  norns.crow.reset_events()
+
   -- customizable system events
-  crow.add = function(id, name, dev)
+  norns.crow.add = function(id, name, dev)
     crow.reset() -- reset crow env on (re)connection
     print(">>>>>> norns.crow.add / " .. id .. " / " .. name)
   end
-  crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
-  crow.receive = function(...) print("crow:",...) end
+  norns.crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
+  norns.crow.receive = function(...) print("crow:",...) end
 
-  -- data structures & default callbacks
-  crow.input = { input.new(1), input.new(2) }
-  crow.output = { output.new(1), output.new(2), output.new(3), output.new(4) }
-  crow.midi = function(...) print("crow midi:",...) end
-  crow.ii.init()
+  -- reset user callbacks
+  norns.crow.public.reset()
 end
 
-crow.init() -- ensure data structures exist for metamethods
 
+--- helper functions for common crow actions from norns
+norns.crow.clock_enable = function()
+-- TODO confirm that the new system denecessitates reset_events as we dynamically reassign the fn
+  norns.crow.send("input[1]:reset_events()") -- ensure crow's callback has not been redefined
+  crow.input[1].change = function() end
+  crow.input[1].mode("change",2,0.1,"rising")
+end
+
+
+
+--- crow namespace support
+-- for talking *to* crow
+crow = {}
+
+-- splice special norns handling into the public namespace
+crow.public = norns.crow.public.io
+
+-- fns with custom syntax
+function crow.version()  crow "^^v" end
+function crow.identity() crow "^^i" end
+function crow.reset()    crow "crow.reset()" end
+function crow.kill()     crow "^^k" end
+function crow.clear()    crow "^^c" end
+function crow.send(...)  crow(...) end -- alias for legacy scripts
+-- crow.connected -> norns.crow.connected
+-- crow.add       -> norns.crow.add
+-- crow.remove    -> norns.crow.remove
+-- crow.receive   -> norns.crow.receive
+-- crow.init      -> norns.crow.init
+
+
+--- dynamic namespace support
+-- enables full syntax support for calling crow functions, and setting crow values
+-- does *not* support directly querying values or function responses from crow
+-- when setting crow namespace fns they create stubs on crow that forward to the norns events
+local crowSub = {
+    __index = function(self, ix)
+        -- build up the table access key chain
+        self.str = self.str .. quote.key(ix)
+        return self
+    end,
+
+    __newindex = function(self, ix, val)
+        -- set a table value on crow
+        sval = ""
+        if type(val) == 'function' then
+            -- assigning a function to a crow variable, causes crow to forward that fn call to norns
+            local n = norns.crow.register_event(val) -- register the event & get a dynamic key
+            sval = 'function(...)_c.tell('..quote(n)..',...)end'
+        else
+            sval = quote(val)
+        end
+        norns.crow.send(self.str .. quote.key(ix) .. '=' .. sval)
+    end,
+
+    __call = function(self, ...)
+        local qt = quote(...)
+        norns.crow.send(self.str .. '(' .. qt .. ')')
+    end,
+}
+
+-- set global var on crow
+crow.__newindex = function(self, ix, val) norns.crow.send(ix .. '=' .. quote(val)) end
+
+-- create a table that will resolve to a crow.send call in crowSub
+crow.__index = function(self, ix) return setmetatable({str=ix}, crowSub) end
+
+-- call crow with a literal string to execute that string on crow:
+-- crow "output[1].volts = 3"
+crow.__call = function(self, ...) norns.crow.send(...) end
+
+setmetatable(crow, crow)
+
+
+
+norns.crow.init() -- ensure data structures exist for metamethods
 
 return crow

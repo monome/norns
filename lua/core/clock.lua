@@ -198,8 +198,7 @@ function clock.add_params()
     function(x)
       clock.set_source(x)
       if x==4 then
-        crow.input[1].change = function() end
-        crow.input[1].mode("change",2,0.1,"rising")
+        norns.crow.clock_enable()
       end
       norns.state.clock.source = x
       if x==1 then clock.internal.set_tempo(params:get("clock_tempo"))
