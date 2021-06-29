@@ -204,7 +204,7 @@ local crowSub = {
         if type(val) == 'function' then
             -- assigning a function to a crow variable, causes crow to forward that fn call to norns
             local n = norns.crow.register_event(val) -- register the event & get a dynamic key
-            sval = 'function(...)_c.tell('..quote(n)..',...)end'
+            sval = 'function(...)_c.tell('..quote(n)..',quote(...))end'
         else
             sval = quote(val)
         end

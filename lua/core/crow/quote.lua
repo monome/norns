@@ -37,7 +37,7 @@ function Q.quote(val, ...)
                 -- match on any key that wasn't caught by ipairs (without needing to copy the table)
                     -- not a number, is a float, is a sparse int key, is a zero or less int key
                 if type(k) ~= 'number' or k ~= math.floor(k) or k > max or k < 1 then
-                    table.insert(t, Q.quotekey(k) .. '=' .. Q.quote(v))
+                    table.insert(t, Q.key(k) .. '=' .. Q.quote(v))
                 end
             end
         else -- faster to build, but transmission is longer
