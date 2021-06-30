@@ -1,3 +1,14 @@
+# 210630
+
+## norns 2.5.2
+
+- NEW crow 3 support and simplified namespace @trentgill
+- NEW util.file_size @dndrks
+- FIX clock offsets @artfwo
+- FIX device monitor @catfact
+- FIX crow clock out @tehn
+
+
 # 210607
 
 ## norns 2.5.1
