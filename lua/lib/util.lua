@@ -46,6 +46,24 @@ util.file_exists = function(name)
   end
 end
 
+--- query file size.
+-- @tparam string name filepath
+-- @treturn number filesize in bytes
+util.file_size = function(path)
+  if path ~= nil then
+    local f = io.open(path,"r")
+    if f~=nil then
+      local s = f:seek("end") -- get file size
+      io.close(f)
+      return s
+    else
+      error("no file found at "..path)
+    end
+  else
+    error("util.file_size requires a path")
+  end
+end
+
 --- make directory (with parents as needed).
 -- @tparam string path
 util.make_dir = function(path)
