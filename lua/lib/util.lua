@@ -48,16 +48,14 @@ end
 
 --- query file size.
 -- @tparam string name filepath
--- @treturn number filesize in mb
+-- @treturn number filesize in bytes
 util.file_size = function(path)
   if path ~= nil then
     local f = io.open(path,"r")
     if f~=nil then
-      local c = f:seek()      -- get current position
       local s = f:seek("end") -- get file size
-      f:seek("set", c)        -- restore position
       io.close(f)
-      return s/1000000
+      return s
     else
       error("no file found at "..path)
     end
