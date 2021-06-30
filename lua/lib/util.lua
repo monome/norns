@@ -59,10 +59,10 @@ util.file_size = function(path)
       io.close(f)
       return s/1000000
     else
-      print("no file found at "..path)
+      error("no file found at "..path)
     end
   else
-    print("util.file_size requires a path")
+    error("util.file_size requires a path")
   end
 end
 
