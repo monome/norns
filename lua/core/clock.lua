@@ -240,7 +240,7 @@ function clock.add_params()
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
-      if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
+      --if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
       norns.state.clock.crow_out = x
     end)
   params:set_save("clock_crow_out", false)
@@ -265,10 +265,14 @@ function clock.add_params()
 
   -- executes crow sync
   clock.run(function()
+    local v = 0
     while true do
-      clock.sync(1/params:get("clock_crow_out_div"))
+      clock.sync(1/(2*params:get("clock_crow_out_div")))
       local crow_out = params:get("clock_crow_out")-1
-      if crow_out > 0 then crow.output[crow_out]() end
+      if crow_out > 0 then
+        crow.output[crow_out].volts=v
+        v = (v==0) and 10 or 0
+      end
     end
   end)
 
