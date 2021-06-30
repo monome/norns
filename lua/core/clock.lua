@@ -240,7 +240,7 @@ function clock.add_params()
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
-      if x>1 then crow.output[x-1].action = "pulse(0.05,8)" end
+      if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
       norns.state.clock.crow_out = x
     end)
   params:set_save("clock_crow_out", false)
