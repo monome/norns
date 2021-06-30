@@ -127,6 +127,7 @@ function norns.crow.reset_events()
     pub      = norns.crow.public.add,
     pupdate  = norns.crow.public.update,
     pubview  = norns.crow.public.view,
+    change   = function() end, -- ignore clock event
   },{
     __index = function(self, ix)
       return function(...) print("unused event: ^^"..ix.."(".. quote(...) ..")") end
@@ -158,10 +159,13 @@ end
 
 --- helper functions for common crow actions from norns
 norns.crow.clock_enable = function()
--- TODO confirm that the new system denecessitates reset_events as we dynamically reassign the fn
-  norns.crow.send("input[1]:reset_events()") -- ensure crow's callback has not been redefined
-  crow.input[1].change = function() end
-  crow.input[1].mode("change",2,0.1,"rising")
+  -- directly set the change event on crow so it conforms to old-style event names
+  norns.crow.send[[
+    input[1].change = function()
+      tell('change',1,1)
+    end
+    input[1].mode('change',2,0.1,'rising')
+  ]]
 end
 
 
