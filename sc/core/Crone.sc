@@ -27,16 +27,6 @@ Crone {
 		StartUp.add { // defer until after sclang init
 
 			croneAddr = NetAddr("127.0.0.1", 9999);
-
-			postln("\n-------------------------------------------------");
-			postln(" Crone startup");
-			postln("");
-			postln(" OSC rx port: " ++ NetAddr.langPort);
-			postln(" OSC tx port: " ++ txPort);
-			postln(" server port: " ++ serverPort);
-			postln(" server port: " ++ croneAddr.port);
-			postln("--------------------------------------------------\n");
-
 			remoteAddr = NetAddr("127.0.0.1", txPort);
 
 			"SC_JACK_DEFAULT_INPUTS".setenv("");
@@ -66,6 +56,7 @@ Crone {
 		}, {
 			Server.scsynth;
 			server = Server.local;
+			serverPort = server.addr.port;
 			// doesn't work on supernova - "invallid argument" - too big?
 			// server.options.memSize = 2**16;
 			server.latency = 0.05;
@@ -73,6 +64,15 @@ Crone {
 				Crone.finishBoot;
 			};
 		});
+
+		postln("\n-------------------------------------------------");
+		postln(" Norns startup");
+		postln("");
+		postln(" OSC rx port: " ++ NetAddr.langPort);
+		postln(" OSC tx port: " ++ txPort);
+		postln(" server port: " ++ serverPort);
+		postln(" crone port: " ++ croneAddr.port);
+		postln("--------------------------------------------------\n");
 	}
 
 	*finishBoot {
