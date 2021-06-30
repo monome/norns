@@ -1,8 +1,8 @@
 releases = {
   stable = {
-    version="210607",
-    url="https://github.com/monome/norns/releases/download/v2.5.1/norns210607.tgz",
-    sha="https://github.com/monome/norns/releases/download/v2.5.1/norns210607.sha256"
+    version="210630",
+    url="https://github.com/monome/norns/releases/download/v2.5.2/norns210630.tgz",
+    sha="https://github.com/monome/norns/releases/download/v2.5.2/norns210630.sha256"
   },
   beta = {
     version="210630",
