@@ -59,7 +59,7 @@ Script.clear = function()
   init = norns.none
 
   -- clear crow functions
-  crow.init()
+  norns.crow.init()
 
   -- clear keyboard handlers
   keyboard.clear()
