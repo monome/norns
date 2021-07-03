@@ -101,7 +101,6 @@ static void *clock_scheduler_tick_thread_run(void *p) {
                     if (clock_time >= event->sleep_clock_time) {
                         clock_scheduler_post_clock_resume_event(event->thread_id, clock_time);
                         event->ready = false;
-                        event->thread_id = -1;
                     }
                 }
             };
