@@ -118,7 +118,6 @@ bool clock_scheduler_schedule_sync(int thread_id, double sync_beat, double sync_
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         if (clock_scheduler_events[i].thread_id == thread_id) {
             clock_scheduler_events[i].ready = true;
-            clock_scheduler_events[i].thread_id = thread_id;
             clock_scheduler_events[i].sync_beat = sync_beat;
             clock_scheduler_events[i].sync_beat_offset = sync_beat_offset;
 
@@ -157,12 +156,25 @@ bool clock_scheduler_schedule_sleep(int thread_id, double seconds) {
     double clock_time = clock_get_system_time();
 
     for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
+        if (clock_scheduler_events[i].thread_id == thread_id) {
+            clock_scheduler_events[i].ready = true;
+            clock_scheduler_events[i].sleep_time = seconds;
+            clock_scheduler_events[i].sleep_clock_time = clock_time + seconds;
+            clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SLEEP;
+
+            pthread_mutex_unlock(&clock_scheduler_events_lock);
+
+            return true;
+        }
+    }
+
+    for (int i = 0; i < NUM_CLOCK_SCHEDULER_EVENTS; i++) {
         if (clock_scheduler_events[i].thread_id == -1) {
             clock_scheduler_events[i].ready = true;
             clock_scheduler_events[i].thread_id = thread_id;
-            clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SLEEP;
             clock_scheduler_events[i].sleep_time = seconds;
             clock_scheduler_events[i].sleep_clock_time = clock_time + seconds;
+            clock_scheduler_events[i].type = CLOCK_SCHEDULER_EVENT_SLEEP;
 
             pthread_mutex_unlock(&clock_scheduler_events_lock);
             return true;
