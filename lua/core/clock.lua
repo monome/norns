@@ -12,57 +12,45 @@ local function new_id()
   return id
 end
 
---- create a coroutine to run but do not immediately run it;
--- @tparam function f
--- @treturn integer : coroutine ID that can be used to resume/stop it later
-clock.create = function(f)
+--- create and start a coroutine using the norns clock scheduler.
+-- @tparam function f coroutine body function
+-- @param[opt] ... any extra arguments will be passed to the body function
+-- @treturn integer coroutine handle that can be used with clock.cancel
+-- @see clock.cancel
+clock.run = function(f, ...)
   local coro = coroutine.create(f)
   local coro_id = new_id()
   clock.threads[coro_id] = coro
-  return coro_id
-end
-
---- create a coroutine from the given function and immediately run it;
--- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
--- @tparam function f
--- @treturn integer : coroutine ID that can be used to stop it later
-clock.run = function(f, ...)
-  local coro_id = clock.create(f)
   clock.resume(coro_id, ...)
   return coro_id
 end
 
---- stop execution of a coroutine started using clock.run.
--- @tparam integer coro_id : coroutine ID
+--- stop execution of a coroutine previously started using clock.run.
+-- @tparam integer coro_id coroutine handle
+-- @see clock.run
 clock.cancel = function(coro_id)
   _norns.clock_cancel(coro_id)
   clock.threads[coro_id] = nil
 end
 
-local SLEEP = 0
-local SYNC = 1
-local SUSPEND = 2
+local SCHEDULE_SLEEP = 0
+local SCHEDULE_SYNC = 1
 
---- yield and schedule waking up the coroutine in s seconds;
--- must be called from within a coroutine started with clock.run.
--- @tparam float s : seconds
+--- suspend execution of the calling coroutine and schedule resuming in specified time.
+-- must be called from a coroutine previously started using clock.run.
+-- @tparam float s seconds to wait for
 clock.sleep = function(...)
-  return coroutine.yield(SLEEP, ...)
+  return coroutine.yield(SCHEDULE_SLEEP, ...)
 end
 
---- yield and schedule waking up the coroutine at beats beat;
--- the coroutine will suspend for the time required to reach the given fraction of a beat;
--- must be called from within a coroutine started with clock.run.
--- @tparam float beats : next fraction of a beat at which the coroutine will be resumed. may be larger than 1.
+--- suspend execution of the calling coroutine and schedule resuming at the next sync quantum of the specified value.
+-- must be called from a coroutine previously started using clock.run.
+-- @tparam float beat sync quantum. may be larger than 1
+-- @tparam[opt] float offset if set, this value will be added to the sync quantum
 clock.sync = function(...)
-  return coroutine.yield(SYNC, ...)
+  return coroutine.yield(SCHEDULE_SYNC, ...)
 end
 
---- yield and do not schedule wake up, clock must be explicitly resumed
--- must be called from within a coroutine started with clock.run.
-clock.suspend = function()
-  return coroutine.yield(SUSPEND)
-end
 
 -- todo: use c api instead
 clock.resume = function(coro_id, ...)
@@ -79,12 +67,12 @@ clock.resume = function(coro_id, ...)
   else
     -- not dead
     if result and mode ~= nil then
-      if mode == SLEEP then
+      if mode == SCHEDULE_SLEEP then
         _norns.clock_schedule_sleep(coro_id, time)
-      elseif mode == SYNC then
+      elseif mode == SCHEDULE_SYNC then
         _norns.clock_schedule_sync(coro_id, time, offset)
-      elseif mode == SUSPEND then
-        -- nothing needed for SUSPEND
+      else
+        error('invalid clock scheduler mode')
       end
     end
   end
@@ -102,8 +90,8 @@ clock.cleanup = function()
   clock.transport.stop = nil
 end
 
---- select the sync source
--- @tparam string source : "internal", "midi", or "link"
+--- select the sync source.
+-- @tparam string source "internal", "midi", or "link"
 clock.set_source = function(source)
   if type(source) == "number" then
     _norns.clock_set_source(util.clamp(source-1,0,3)) -- lua list is 1-indexed
@@ -118,20 +106,19 @@ clock.set_source = function(source)
   end
 end
 
---- get current time in beats
+--- get current time in beats.
 clock.get_beats = function()
   return _norns.clock_get_time_beats()
 end
 
---- get current tempo
+--- get current tempo.
 clock.get_tempo = function()
   return _norns.clock_get_tempo()
 end
 
---- get current beat time in seconds
-clock.get_beat_sec = function(x)
-  x = x or 1
-  return 60.0 / clock.get_tempo() * x
+--- get length of a single beat at current tempo in seconds.
+clock.get_beat_sec = function()
+  return 60.0 / clock.get_tempo()
 end
 
 
