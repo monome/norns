@@ -1,6 +1,6 @@
 # 210706
 
-# norns 2.5.3
+# norns 2.5.4
 
 - FIX clock sleep interlaced with sync @artfwo
 - FIX crow init @trentgill
