@@ -43,6 +43,8 @@
   <li><strong>clock</strong></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
+  <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
@@ -96,49 +98,36 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#create">create (f)</a></td>
-	<td class="summary">create a coroutine to run but do not immediately run it;</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#run">run (f)</a></td>
-	<td class="summary">create a coroutine from the given function and immediately run it;
- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.</td>
+	<td class="name" nowrap><a href="#run">run (f[, ...])</a></td>
+	<td class="summary">create and start a coroutine using the norns clock scheduler.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#cancel">cancel (coro_id)</a></td>
-	<td class="summary">stop execution of a coroutine started using clock.run.</td>
+	<td class="summary">stop execution of a coroutine previously started using clock.run.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sleep">sleep (s)</a></td>
-	<td class="summary">yield and schedule waking up the coroutine in s seconds;
- must be called from within a coroutine started with clock.run.</td>
+	<td class="summary">suspend execution of the calling coroutine and schedule resuming in specified time.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sync">sync (beats)</a></td>
-	<td class="summary">yield and schedule waking up the coroutine at beats beat;
- the coroutine will suspend for the time required to reach the given fraction of a beat;
- must be called from within a coroutine started with clock.run.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#suspend">suspend ()</a></td>
-	<td class="summary">yield and do not schedule wake up, clock must be explicitly resumed
- must be called from within a coroutine started with clock.run.</td>
+	<td class="name" nowrap><a href="#sync">sync (beat[, offset])</a></td>
+	<td class="summary">suspend execution of the calling coroutine and schedule resuming at the next sync quantum of the specified value.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#set_source">set_source (source)</a></td>
-	<td class="summary">select the sync source</td>
+	<td class="summary">select the sync source.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#get_beats">get_beats ()</a></td>
-	<td class="summary">get current time in beats</td>
+	<td class="summary">get current time in beats.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#get_tempo">get_tempo ()</a></td>
-	<td class="summary">get current tempo</td>
+	<td class="summary">get current tempo.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_beat_sec">get_beat_sec (x)</a></td>
-	<td class="summary">get current beat time in seconds</td>
+	<td class="name" nowrap><a href="#get_beat_sec">get_beat_sec ()</a></td>
+	<td class="summary">get length of a single beat at current tempo in seconds.</td>
 	</tr>
 </table>
 
@@ -150,46 +139,22 @@
 
     <dl class="function">
     <dt>
-    <a name = "create"></a>
-    <strong>create (f)</strong>
-    </dt>
-    <dd>
-    create a coroutine to run but do not immediately run it;
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><span class="type">function</span></span>
-
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">integer</span></span>
-        : coroutine ID that can be used to resume/stop it later
-    </ol>
-
-
-
-
-</dd>
-    <dt>
     <a name = "run"></a>
-    <strong>run (f)</strong>
+    <strong>run (f[, ...])</strong>
     </dt>
     <dd>
-    create a coroutine from the given function and immediately run it;
- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
+    create and start a coroutine using the norns clock scheduler.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><span class="type">function</span></span>
-
+         coroutine body function
+        </li>
+        <li><span class="parameter">...</span>
+         any extra arguments will be passed to the body function
+         (<em>optional</em>)
         </li>
     </ul>
 
@@ -197,10 +162,14 @@
     <ol>
 
            <span class="types"><span class="type">integer</span></span>
-        : coroutine ID that can be used to stop it later
+        coroutine handle that can be used with clock.cancel
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/clock.html#cancel">clock.cancel</a>
+    </ul>
 
 
 </dd>
@@ -209,19 +178,23 @@
     <strong>cancel (coro_id)</strong>
     </dt>
     <dd>
-    stop execution of a coroutine started using clock.run.
+    stop execution of a coroutine previously started using clock.run.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">coro_id</span>
             <span class="types"><span class="type">integer</span></span>
-         : coroutine ID
+         coroutine handle
         </li>
     </ul>
 
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/clock.html#run">clock.run</a>
+    </ul>
 
 
 </dd>
@@ -230,15 +203,15 @@
     <strong>sleep (s)</strong>
     </dt>
     <dd>
-    yield and schedule waking up the coroutine in s seconds;
- must be called from within a coroutine started with clock.run.
+    suspend execution of the calling coroutine and schedule resuming in specified time.
+ must be called from a coroutine previously started using clock.run.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
             <span class="types"><span class="type">float</span></span>
-         : seconds
+         seconds to wait for
         </li>
     </ul>
 
@@ -249,36 +222,25 @@
 </dd>
     <dt>
     <a name = "sync"></a>
-    <strong>sync (beats)</strong>
+    <strong>sync (beat[, offset])</strong>
     </dt>
     <dd>
-    yield and schedule waking up the coroutine at beats beat;
- the coroutine will suspend for the time required to reach the given fraction of a beat;
- must be called from within a coroutine started with clock.run.
+    suspend execution of the calling coroutine and schedule resuming at the next sync quantum of the specified value.
+ must be called from a coroutine previously started using clock.run.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">beats</span>
+        <li><span class="parameter">beat</span>
             <span class="types"><span class="type">float</span></span>
-         : next fraction of a beat at which the coroutine will be resumed. may be larger than 1.
+         sync quantum. may be larger than 1
+        </li>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">float</span></span>
+         if set, this value will be added to the sync quantum
+         (<em>optional</em>)
         </li>
     </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "suspend"></a>
-    <strong>suspend ()</strong>
-    </dt>
-    <dd>
-    yield and do not schedule wake up, clock must be explicitly resumed
- must be called from within a coroutine started with clock.run.
-
-
 
 
 
@@ -290,14 +252,14 @@
     <strong>set_source (source)</strong>
     </dt>
     <dd>
-    select the sync source
+    select the sync source.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">source</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         : "internal", "midi", or "link"
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         "internal", "midi", or "link"
         </li>
     </ul>
 
@@ -311,7 +273,7 @@
     <strong>get_beats ()</strong>
     </dt>
     <dd>
-    get current time in beats
+    get current time in beats.
 
 
 
@@ -325,7 +287,7 @@
     <strong>get_tempo ()</strong>
     </dt>
     <dd>
-    get current tempo
+    get current tempo.
 
 
 
@@ -336,18 +298,12 @@
 </dd>
     <dt>
     <a name = "get_beat_sec"></a>
-    <strong>get_beat_sec (x)</strong>
+    <strong>get_beat_sec ()</strong>
     </dt>
     <dd>
-    get current beat time in seconds
+    get length of a single beat at current tempo in seconds.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x</span>
-
-        </li>
-    </ul>
 
 
 
@@ -361,7 +317,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-03-01 14:09:41 </i>
+<i style="float:right;">Last updated 2021-07-07 01:21:58 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

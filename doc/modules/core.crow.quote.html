@@ -30,10 +30,6 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h2>Contents</h2>
-<ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
 
 
 <h2>Modules</h2>
@@ -44,7 +40,7 @@
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
   <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
-  <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
+  <li><strong>core.crow.quote</strong></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
@@ -52,7 +48,7 @@
   <li><a href="../modules/keyboard.html">keyboard</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
-  <li><strong>osc</strong></li>
+  <li><a href="../modules/osc.html">osc</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
@@ -90,90 +86,18 @@
 
 <div id="content">
 
-<h1>Module <code>osc</code></h1>
-<p>osc device</p>
+<h1>Module <code>core.crow.quote</code></h1>
+<p>Quote sub-library
+ fns for stringifying data-structures
+ output is a string that can be read back as lua code with call()</p>
 <p></p>
 
 
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#OSC.event">OSC.event (path, args, from)</a></td>
-	<td class="summary">static callback when an osc event is received.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#OSC.send">OSC.send (to, path, args)</a></td>
-	<td class="summary">static method to send osc event.</td>
-	</tr>
-</table>
 
 <br/>
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "OSC.event"></a>
-    <strong>OSC.event (path, args, from)</strong>
-    </dt>
-    <dd>
-    static callback when an osc event is received.
- user scripts can redefine.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         : osc message path
-        </li>
-        <li><span class="parameter">args</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         : osc message args
-        </li>
-        <li><span class="parameter">from</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         : a {host, port} table with the source address
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "OSC.send"></a>
-    <strong>OSC.send (to, path, args)</strong>
-    </dt>
-    <dd>
-    static method to send osc event.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">to</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         : a {host, port} table with the destination address
-        </li>
-        <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         : osc message path
-        </li>
-        <li><span class="parameter">args</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         : osc message args
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
 
 
 </div> <!-- id="content" -->

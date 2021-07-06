@@ -1,3 +1,11 @@
+# 210706
+
+# norns 2.5.3
+
+- FIX clock sleep interlaced with sync @artfwo
+- FIX crow init @trentgill
+
+
 # 210701
 
 ## maiden 1.1.2

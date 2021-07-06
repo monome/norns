@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 </ul>
 
 
@@ -43,10 +44,10 @@
   <li><a href="../modules/clock.html">clock</a></li>
   <li><a href="../modules/controlspec.html">controlspec</a></li>
   <li><a href="../modules/crow.html">crow</a></li>
-  <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
+  <li><strong>core.crow.public</strong></li>
   <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
-  <li><strong>engine</strong></li>
+  <li><a href="../modules/engine.html">engine</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/keyboard.html">keyboard</a></li>
@@ -90,36 +91,37 @@
 
 <div id="content">
 
-<h1>Module <code>engine</code></h1>
-<p>Engine class</p>
+<h1>Module <code>core.crow.public</code></h1>
+<p>public.lua</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Engine.register">Engine.register (data, count)</a></td>
-	<td class="summary">register all available engines.</td>
+	<td class="name" nowrap><a href="#Public.ready">Public.ready ()</a></td>
+	<td class="summary">system events
+ all triggered by received ^^ events from crow</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.register_commands">Engine.register_commands (data, count)</a></td>
-	<td class="summary">populate the current engine object with available commands.</td>
+	<td class="name" nowrap><a href="#Public.capture_type">Public.capture_type (p, typ)</a></td>
+	<td class="summary">helper fns for system events</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.add_command">Engine.add_command (id, name, fmt)</a></td>
-	<td class="summary">add a command to the current engine.</td>
+	<td class="name" nowrap><a href="#Public.get_count">Public.get_count ()</a></td>
+	<td class="summary">userspace fns</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.list_commands">Engine.list_commands ()</a></td>
-	<td class="summary">print all commands reported from the engine</td>
+	<td class="name" nowrap><a href="#Public.increment">Public.increment (val, z, p)</a></td>
+	<td class="summary">helper fns</td>
 	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Engine.load">Engine.load (name, callback)</a></td>
-	<td class="summary">load a named engine, with a callback.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Engine.__index">Engine.__index (self, idx)</a></td>
-	<td class="summary">custom getters.</td>
+	<td class="name" nowrap><a href="#Public.io">Public.io</a></td>
+	<td class="summary">crow namespace functions
+ anything here is written as if talking to crow directly</td>
 	</tr>
 </table>
 
@@ -131,21 +133,35 @@
 
     <dl class="function">
     <dt>
-    <a name = "Engine.register"></a>
-    <strong>Engine.register (data, count)</strong>
+    <a name = "Public.ready"></a>
+    <strong>Public.ready ()</strong>
     </dt>
     <dd>
-    register all available engines.
- called from OSC handler.
+    system events
+ all triggered by received ^^ events from crow
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Public.capture_type"></a>
+    <strong>Public.capture_type (p, typ)</strong>
+    </dt>
+    <dd>
+    helper fns for system events
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">data</span>
-         - an array of strings
+        <li><span class="parameter">p</span>
+
         </li>
-        <li><span class="parameter">count</span>
-         - number of names
+        <li><span class="parameter">typ</span>
+        capture range/type-annotation into known form assumes typ is a table (can be empty)
         </li>
     </ul>
 
@@ -155,22 +171,37 @@
 
 </dd>
     <dt>
-    <a name = "Engine.register_commands"></a>
-    <strong>Engine.register_commands (data, count)</strong>
+    <a name = "Public.get_count"></a>
+    <strong>Public.get_count ()</strong>
     </dt>
     <dd>
-    populate the current engine object with available commands.
- called from OSC handler.
- NB: we *can* count on the order of entries to be meaningful
+    userspace fns
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Public.increment"></a>
+    <strong>Public.increment (val, z, p)</strong>
+    </dt>
+    <dd>
+    helper fns
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">data</span>
-         - array of [name, format]
+        <li><span class="parameter">val</span>
+
         </li>
-        <li><span class="parameter">count</span>
-         - number of commands
+        <li><span class="parameter">z</span>
+
+        </li>
+        <li><span class="parameter">p</span>
+
         </li>
     </ul>
 
@@ -179,90 +210,25 @@
 
 
 </dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
     <dt>
-    <a name = "Engine.add_command"></a>
-    <strong>Engine.add_command (id, name, fmt)</strong>
+    <a name = "Public.io"></a>
+    <strong>Public.io</strong>
     </dt>
     <dd>
-    add a command to the current engine.
+    crow namespace functions
+ anything here is written as if talking to crow directly
 
 
-    <h3>Parameters:</h3>
+    <h3>Fields:</h3>
     <ul>
-        <li><span class="parameter">id</span>
-         - integer index
-        </li>
-        <li><span class="parameter">name</span>
-         - command name (string)
-        </li>
-        <li><span class="parameter">fmt</span>
-         - OSC format string (e.g. 'isf' for "int string float")
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Engine.list_commands"></a>
-    <strong>Engine.list_commands ()</strong>
-    </dt>
-    <dd>
-    print all commands reported from the engine
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Engine.load"></a>
-    <strong>Engine.load (name, callback)</strong>
-    </dt>
-    <dd>
-    load a named engine, with a callback.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">name</span>
-         - name of engine
-        </li>
-        <li><span class="parameter">callback</span>
-         - function to call on engine load. will receive command list
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        - false if an engine load is already pending (nothing happens), true otherwise
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Engine.__index"></a>
-    <strong>Engine.__index (self, idx)</strong>
-    </dt>
-    <dd>
-    custom getters.
- [] accessor returns a command function;
- this allows e.g. engine.hz(100)
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
+        <li><span class="parameter">view</span>
 
         </li>
-        <li><span class="parameter">idx</span>
+        <li><span class="parameter">discover</span>
 
         </li>
     </ul>
