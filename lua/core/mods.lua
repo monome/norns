@@ -19,11 +19,11 @@ function Mods.scan(root, pattern)
   if not matches then return nil end
 
   local mods = {}
-  local name_pattern = "^" .. r .. "(%w+)/"
+  local name_pattern = "^" .. r .. "([%w_-]+)/"
   for i, path in ipairs(matches) do
     -- strip off path root and trailing .lua
     local relative = string.gsub(string.gsub(path, r, ""), ".lua", "")
-    local _, _, mod_name = string.find(relative, "^(%w+)/")
+    local _, _, mod_name = string.find(relative, "^([%w_-]+)/")
     mods[mod_name] = {relative, path}
   end
 
