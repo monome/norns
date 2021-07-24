@@ -7,8 +7,12 @@ local m = {
   selected = ""
 }
 
+m.position_name = function(pos)
+  return m.list[pos+1]
+end
+
 m.select_position = function(pos)
-  m.selected = string.upper(m.list[pos+1])
+  m.selected = m.position_name(pos)
 end
 
 m.key = function(n,z)
@@ -48,10 +52,10 @@ m.redraw = function()
   else
     for i=1,6 do
       if (i > 2 - m.pos) and (i < m.len - m.pos + 3) then
-        local name = string.upper(m.list[i+m.pos-2])
+        local name = m.list[i+m.pos-2]
         local enabled = mods.is_enabled(name)
         local loaded = mods.is_loaded(name)
-        local line = name
+        local line = string.upper(name)
 
         local y = 10*i
         local line_level = 4
@@ -102,7 +106,8 @@ end
 m.deinit = function() end
 
 m.set_enabled = function(state)
-  if m.selected then mods.set_enabled(m.selected, state, true) end
+  local name = m.position_name(m.pos)
+  if name then mods.set_enabled(name, state, true) end
 end
 
 return m
