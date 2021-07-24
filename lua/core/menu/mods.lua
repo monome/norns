@@ -1,4 +1,5 @@
 local mods = require 'core/mods'
+local tabutil = require 'tabutil'
 
 local m = {
   pos = 0,
@@ -6,12 +7,15 @@ local m = {
   selected = ""
 }
 
+m.select_position = function(pos)
+  m.selected = string.upper(m.list[pos+1])
+end
+
 m.key = function(n,z)
   -- back
   if n==2 and z==1 then
     _menu.set_page("SYSTEM")
   elseif n==3 and z==1 and m.len > 0 then -- if there are mods
-    -- TODO: check if mod is enabled first!
     if _menu.m[m.selected] then -- does the mod have a menu page
       _menu.set_page(m.selected)
     end
@@ -21,15 +25,17 @@ end
 m.enc = function(n,delta)
   if n==2 then
     m.pos = util.clamp(m.pos + delta, 0, m.len - 1)
-    m.selected = string.upper(m.list[m.pos+1])
+    m.select_position(m.pos)
     _menu.redraw()
   elseif n==3 then
-    -- TODO
-    if d > 0 then
-      -- ENABLE MOD
+    if delta > 0 then
+      -- print("enable", m.selected)
+      m.set_enabled(true)
     else
-      -- DISABLE MOD
+      -- print("disable", m.selected)
+      m.set_enabled(false)
     end
+    _menu.redraw()
   end
 end
 
@@ -42,15 +48,38 @@ m.redraw = function()
   else
     for i=1,6 do
       if (i > 2 - m.pos) and (i < m.len - m.pos + 3) then
-        screen.move(0,10*i)
-        local line = string.upper(m.list[i+m.pos-2])
-        if(i==3) then
-          screen.level(15)
-        else
-          screen.level(4)
+        local name = string.upper(m.list[i+m.pos-2])
+        local enabled = mods.is_enabled(name)
+        local loaded = mods.is_loaded(name)
+        local line = name
+
+        local y = 10*i
+        local line_level = 4
+        if i==3 then
+          line_level = 15
         end
-        if _menu.m[line] then line = line .. " >" end
+        screen.level(line_level)
+
+        -- loaded indicator
+        if loaded then
+          screen.move(0,y-2)
+          screen.text(".")
+        end
+
+        -- selected item
+        if _menu.m[name] then line = line .. " >" end
+        screen.move(4,y)
         screen.text(line)
+
+        -- change enabled state indicator
+        if loaded ~= enabled then
+          screen.move(120,y)
+          if enabled then
+            screen.text("+")
+          else
+            screen.text("-")
+          end
+        end
       end
     end
   end
@@ -62,10 +91,19 @@ m.init = function()
   for k, _ in pairs(mods.scan() or {}) do
     table.insert(m.list, k)
   end
+  table.sort(m.list)
+
   m.len = tab.count(m.list)
+  if m.len > 0 then
+    m.select_position(m.pos)
+  end
 end
 
 m.deinit = function() end
+
+m.set_enabled = function(state)
+  if m.selected then mods.set_enabled(m.selected, state, true) end
+end
 
 return m
 

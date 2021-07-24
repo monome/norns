@@ -27,4 +27,5 @@ _path.audio = _path.dust..'audio/'
 _path.tape = _path.audio..'tape/'
 _path.data = _path.dust..'data/'
 _path.favorites = _path.data..'system.favorites'
+_path.enabled_mods = _path.data..'system.mods'
 

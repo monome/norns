@@ -11,10 +11,10 @@ m.key = function(n,z)
     os.execute("rm ~/dust/data/system.pset")
     os.execute("rm ~/dust/data/system.state")
     os.execute("rm "..paths.favorites)
+    os.execute("rm "..paths.enabled_mods)
     _norns.reset()
   end
 end
-
 
 m.enc = function(n,delta) end
 

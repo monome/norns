@@ -10,6 +10,7 @@ local engine = require 'core/engine'
 local poll = require 'core/poll'
 local tab = require 'tabutil'
 local util = require 'util'
+local hook = require 'core/hook'
 
 -- Global Functions.
 
@@ -177,6 +178,7 @@ end
 
 -- shutdown
 norns.shutdown = function()
+  hook.system_pre_shutdown()
   print("SLEEP")
   --TODO fade out screen then run the shutdown script
   norns.state.clean_shutdown = true
