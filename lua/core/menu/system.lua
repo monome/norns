@@ -1,7 +1,7 @@
 local m = {
   pos = 1,
-  list = {"DEVICES > ", "WIFI >", "RESTART", "RESET", "UPDATE"},
-  pages = {"DEVICES", "WIFI", "RESTART", "RESET", "UPDATE"}
+  list = {"DEVICES > ", "WIFI >", "MODS >", "RESTART", "RESET", "UPDATE"},
+  pages = {"DEVICES", "WIFI", "MODS", "RESTART", "RESET", "UPDATE"}
 }
 
 m.key = function(n,z)
@@ -23,7 +23,7 @@ m.redraw = function()
   screen.clear()
 
   for i=1,#m.list do
-    screen.move(0,10+10*i)
+    screen.move(0,10*i)
     if(i==m.pos) then
       screen.level(15)
     else

@@ -1,6 +1,8 @@
 --- Script class
 -- @module script
 
+local hook = require 'core/hook'
+
 local Script = {}
 
 --- reset script environment.
@@ -122,7 +124,6 @@ Script.load = function(filename)
     filename = string.sub(filename,1,1) == "/" and filename or _path["dust"]..filename
     path, scriptname = filename:match("^(.*)/([^.]*).*$")
     name = string.sub(path, string.len(_path["code"]) + 1)
-    
     -- append scriptname to the name if it doesn't match directory name in case multiple scripts reside in the same directory
     -- ex: we/study/study1, we/study/study2, ...
     if string.sub(name, -#scriptname) ~= scriptname then
@@ -145,6 +146,9 @@ Script.load = function(filename)
     else
       print("### cleanup failed with error: "..err)
     end
+
+    -- allow mods to do cleanup
+    hook.script_post_cleanup()
 
     -- unload asl package entry so `require 'asl'` works
     -- todo(pq): why is this not needed generally (e.g., for 'ui', 'util', etc.)?
@@ -198,6 +202,9 @@ end
 
 --- load engine, execute script-specified init (if present).
 Script.run = function()
+  -- allow mods to do initialization
+  hook.script_pre_init()
+
   print("# script run")
   if engine.name ~= nil then
     print("loading engine: " .. engine.name)
