@@ -4,7 +4,9 @@ local m = {
   pos = 0,
   list = {},
   favorites = {},
-  len = "scan"
+  nav_indices= {},
+  len = "scan",
+  alt = false
 }
 
 local function menu_table_entry(file)
@@ -38,6 +40,16 @@ local function sort_select_tree(results)
     table.insert(m.list,menu_table_entry(file))
   end
 
+  m.nav_indices = {}
+
+  local last_char;
+  for i = #m.favorites+1,#m.list do
+    if string.sub(string.lower(m.list[i].name),1,1) ~= last_char and string.sub(string.lower(m.list[i].name),1,1) ~= "-" then
+      table.insert(m.nav_indices,i-1)
+      last_char = string.sub(string.lower(m.list[i].name),1,1)
+    end
+  end
+
   m.len = tab.count(m.list)
   _menu.redraw()
 end
@@ -67,8 +79,11 @@ end
 m.deinit = norns.none
 
 m.key = function(n,z)
+  -- alt
+  if n == 1 then
+    m.alt = z == 1 and true or false
   -- back
-  if n==2 and z==1 then
+  elseif n==2 and z==1 then
     _menu.set_page("HOME")
   -- select
   elseif n==3 and z==1 then
@@ -81,7 +96,33 @@ end
 
 m.enc = function(n,delta)
   if n==2 then
-    m.pos = util.clamp(m.pos + delta, 0, m.len - 1)
+    if not m.alt then
+      m.pos = util.clamp(m.pos + delta, 0, m.len - 1)
+    else
+      if m.pos >= m.nav_indices[1] and m.pos <= m.nav_indices[#m.nav_indices] then
+        for k,v in pairs(m.nav_indices) do
+          if m.pos < v then
+            if delta > 0 then
+              m.pos = v
+            else
+              m.pos = m.nav_indices[k-1]
+            end
+            break
+          elseif m.pos == v then
+            if delta > 0 and m.nav_indices[k+1]~= nil then
+              m.pos = m.nav_indices[k+1]
+            elseif delta < 0 and m.nav_indices[k-1]~= nil then
+              m.pos = m.nav_indices[k-1]
+            end
+            break
+          end
+        end
+      elseif m.pos < m.nav_indices[1] and delta > 0 then
+        m.pos = m.nav_indices[1]
+      elseif m.pos > m.nav_indices[#m.nav_indices] and delta < 0 then
+        m.pos = m.nav_indices[#m.nav_indices]
+      end
+    end
     _menu.redraw()
   elseif n==3 then
     if delta > 0 then
