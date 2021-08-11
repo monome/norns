@@ -4,7 +4,8 @@ local m = {
   pos = 0,
   list = {},
   favorites = {},
-  len = "scan"
+  len = "scan",
+  alt = false
 }
 
 local function menu_table_entry(file)
@@ -68,7 +69,9 @@ m.deinit = norns.none
 
 m.key = function(n,z)
   -- back
-  if n==2 and z==1 then
+  if n == 1 then
+    alt = z == 1 and true or false
+  elseif n==2 and z==1 then
     _menu.set_page("HOME")
   -- select
   elseif n==3 and z==1 then
@@ -81,6 +84,7 @@ end
 
 m.enc = function(n,delta)
   if n==2 then
+    delta = not alt and delta or delta*6
     m.pos = util.clamp(m.pos + delta, 0, m.len - 1)
     _menu.redraw()
   elseif n==3 then
