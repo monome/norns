@@ -252,6 +252,11 @@ end
 -- @tparam number max
 -- @treturn number cycled value
 function util.wrap(n, min, max)
+  if max < min then
+    local temp = min
+    min = max
+    max = temp
+  end
   local y = n
   local d = max - min + 1
   while y > max do
@@ -269,6 +274,11 @@ end
 -- @tparam number max
 -- @treturn number cycled value
 function util.wrap_max(n, min, max)
+  if max < min then
+    local temp = min
+    min = max
+    max = temp
+  end
   local y = n
   local d = max - min + 1
   while y > max do
