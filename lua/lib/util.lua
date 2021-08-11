@@ -252,19 +252,20 @@ end
 -- @tparam number max
 -- @treturn number cycled value
 function util.wrap(n, min, max)
-  if max >= min then
-    local y = n
-    local d = max - min + 1
-    while y > max do
-      y = y - d
-    end
-    while y < min do
-      y = y + d
-    end
-    return y
-  else
-    error("max needs to be greater than min")
+  local given_vals = {min,max}
+  if max < min then
+    min = given_vals[2]
+    max = given_vals[1]
   end
+  local y = n
+  local d = max - min + 1
+  while y > max do
+    y = y - d
+  end
+  while y < min do
+    y = y + d
+  end
+  return y
 end
 
 --- wrap a number to a positive min/max range but clamp the min
@@ -273,19 +274,20 @@ end
 -- @tparam number max
 -- @treturn number cycled value
 function util.wrap_max(n, min, max)
-  if max >= min then
-    local y = n
-    local d = max - min + 1
-    while y > max do
-      y = y - d
-    end
-    if y < min then
-      y = min
-    end
-    return y
-  else
-    error("max needs to be greater than min")
+  local given_vals = {min,max}
+  if max < min then
+    min = given_vals[2]
+    max = given_vals[1]
   end
+  local y = n
+  local d = max - min + 1
+  while y > max do
+    y = y - d
+  end
+  if y < min then
+    y = min
+  end
+  return y
 end
 
 return util
