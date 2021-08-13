@@ -6,7 +6,7 @@ releases = {
   },
   beta = {
     version="210813",
-    url="https://github.com/monome/norns/releases/download/v2.6-beta.0/norns210813.tgz"
+    url="https://github.com/monome/norns/releases/download/v2.6-beta.0/norns210813.tgz",
     sha="https://github.com/monome/norns/releases/download/v2.6-beta.0/norns210813.sha256"
   }
 }
