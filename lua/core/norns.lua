@@ -237,3 +237,7 @@ end
 _startup = function()
   require('core/startup')
 end
+
+_post_startup = function()
+  require('core/post_startup')
+end

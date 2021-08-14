@@ -95,8 +95,10 @@ int main(int argc, char **argv) {
     atexit(cleanup);
     // start reading input to interpreter
     input_init();
+
     // i/o subsystems are ready; run user startup routine
     w_startup();
+
     // scan for connected input devices
     dev_monitor_scan();
 

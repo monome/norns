@@ -310,3 +310,18 @@ void handle_engine_report(void) {
     w_handle_engine_report(p, n);
     o_unlock_descriptors();
 }
+
+void event_handle_pending(void) {
+    union event_data *ev = NULL;
+    pthread_mutex_lock(&evq.lock);
+    while (evq.size > 0) {
+	ev = evq_pop();
+    }
+    // NB: yes, we're handling events in the lock.
+    // it's not ideal (handlers could conceivably block forever or something)
+    // but also, this will only run once at startup and before we start caring much about timing.
+    if (ev != NULL) {
+	handle_event(ev);
+    }
+    pthread_mutex_unlock(&evq.lock);
+}

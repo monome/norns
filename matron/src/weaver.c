@@ -491,6 +491,12 @@ void w_startup(void) {
     l_report(lvm, l_docall(lvm, 0, 0));
 }
 
+void w_post_startup(void) {
+    fprintf(stderr, "running post-startup\n");
+    lua_getglobal(lvm, "_post_startup");
+    l_report(lvm, l_docall(lvm, 0, 0));
+}
+
 void w_deinit(void) {
     fprintf(stderr, "shutting down lua vm\n");
     lua_close(lvm);
