@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 
     // handle all resulting events, then run "post-startup"
     fprintf(stderr, "handling pending events...\n");
-    //event_handle_pending();
+    event_handle_pending();
 
     fprintf(stderr, "running post-startup...\n");
     w_post_startup();

@@ -486,13 +486,11 @@ void w_init(void) {
 // run startup code
 // audio backend should be running
 void w_startup(void) {
-    fprintf(stderr, "running startup\n");
     lua_getglobal(lvm, "_startup");
     l_report(lvm, l_docall(lvm, 0, 0));
 }
 
 void w_post_startup(void) {
-    fprintf(stderr, "running post-startup\n");
     lua_getglobal(lvm, "_post_startup");
     l_report(lvm, l_docall(lvm, 0, 0));
 }
