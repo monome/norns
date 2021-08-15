@@ -321,19 +321,18 @@ void handle_engine_report(void) {
 
 void event_handle_pending(void) {
     union event_data *ev = NULL;
-    pthread_mutex_lock(&evq.lock);
-    while (evq.size > 0) {
-	ev = evq_pop();
-    }
-    // NB: yes, we're handling events in the lock.
-    // it's not ideal (handlers could conceivably block forever or something)
-    // but also, this will only run once at startup and before we start caring much about timing.
-    if (ev != NULL) {
-	fprintf(stderr, "handling an event...\n");
-	if(ev->type == EVENT_MIDI_ADD) {
-	    fprintf(stderr, "MIDI_ADD (event_handle_pending)\n");
+    char done = 0;
+    while(!done) {    
+	pthread_mutex_lock(&evq.lock);
+	if (evq.size > 0) {     
+	    ev = evq_pop();
+	} else {
+	    done = 1;
+	    ev = NULL;
 	}
-	handle_event(ev);
+	pthread_mutex_unlock(&evq.lock);
+	if (ev != NULL) {
+	    handle_event(ev);
+	}
     }
-    pthread_mutex_unlock(&evq.lock);
 }
