@@ -274,11 +274,13 @@ void screen_init(void) {
 
     assert(i == NUM_FONTS);
 
+#if 0 // is this really necessary?
     fprintf(stderr, "fonts: \n");
     for (int i = 0; i < NUM_FONTS; ++i) {
         fprintf(stderr, "  %d: %s\n", i, font_path[i]);
     }
-
+#endif
+    
     char filename[256];
 
     for (int i = 0; i < NUM_FONTS; i++) {

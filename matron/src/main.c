@@ -83,23 +83,44 @@ int main(int argc, char **argv) {
 #endif
     clock_scheduler_init();
 
+    fprintf(stderr, "init oracle...\n");
     o_init(); // oracle (audio)
 
+    fprintf(stderr, "init weaver...\n");
     w_init(); // weaver (scripting)
 
     dev_list_init();
     dev_list_add(DEV_TYPE_MIDI_VIRTUAL, NULL, "virtual");
+
+    fprintf(stderr, "init dev_monitor...\n");
     dev_monitor_init();
 
     // now is a good time to set our cleanup
+    fprintf(stderr, "setting cleanup...\n");
     atexit(cleanup);
+
+
+    fprintf(stderr, "init input...\n");
     // start reading input to interpreter
     input_init();
+
+    
+    fprintf(stderr, "running startup...\n");
     // i/o subsystems are ready; run user startup routine
     w_startup();
+
     // scan for connected input devices
+    fprintf(stderr, "scanning devices...\n");
     dev_monitor_scan();
 
+    // handle all resulting events, then run "post-startup"
+    fprintf(stderr, "handling pending events...\n");
+    event_handle_pending();
+
+    fprintf(stderr, "running post-startup...\n");
+    w_post_startup();
+    
+    
     // blocks until quit
     event_loop();
 }

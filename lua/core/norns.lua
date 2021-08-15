@@ -237,3 +237,8 @@ end
 _startup = function()
   require('core/startup')
 end
+
+_post_startup = function()
+   print('_norns._post_startup')
+   hook.system_post_startup()
+end
