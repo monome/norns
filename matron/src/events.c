@@ -163,14 +163,6 @@ void event_loop(void) {
         ev = evq_pop();
         pthread_mutex_unlock(&evq.lock);
         if (ev != NULL) {
-
-
-	    /////// debug
-	    if(ev->type == EVENT_MIDI_ADD) {
-		fprintf(stderr, "EVENT_MIDI_ADD (event_loop)\n");
-	    }
-	    //////
-
             handle_event(ev);
         }
     }
