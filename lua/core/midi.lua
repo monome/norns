@@ -382,13 +382,14 @@ function Midi.update_connected_state()
     if Midi.vports[i].device ~= nil then
       Midi.vports[i].connected = true
     else
-      Midi.vports[i].connected = false
+      Midi.vports[i].connected = false 
     end
   end
 end
 
 -- add a device.
 _norns.midi.add = function(id, name, dev)
+   print(string.format("_norns.midi.add: %d, %s, %s",id,name,dev))
   local d = Midi.new(id, name, dev)
   Midi.devices[id] = d
   Midi.update_devices()

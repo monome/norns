@@ -29,9 +29,6 @@ paramset = require 'core/paramset'
 params = paramset.new()
 norns.pmap = require 'core/pmap'
 
--- load, initialize hooks
-local hook = require 'core/hook'
-
 -- load menu
 require 'core/menu'
 
@@ -112,6 +109,3 @@ _norns.start_audio()
 local mods = require 'core/mods'
 mods.load_enabled()
 mods.load(mods.scan(), true) -- only load enabled mods
-
-
-hook.system_post_startup()

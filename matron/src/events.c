@@ -163,6 +163,14 @@ void event_loop(void) {
         ev = evq_pop();
         pthread_mutex_unlock(&evq.lock);
         if (ev != NULL) {
+
+
+	    /////// debug
+	    if(ev->type == EVENT_MIDI_ADD) {
+		fprintf(stderr, "EVENT_MIDI_ADD (event_loop)\n");
+	    }
+	    //////
+
             handle_event(ev);
         }
     }
@@ -321,6 +329,10 @@ void event_handle_pending(void) {
     // it's not ideal (handlers could conceivably block forever or something)
     // but also, this will only run once at startup and before we start caring much about timing.
     if (ev != NULL) {
+	fprintf(stderr, "handling an event...\n");
+	if(ev->type == EVENT_MIDI_ADD) {
+	    fprintf(stderr, "MIDI_ADD (event_handle_pending)\n");
+	}
 	handle_event(ev);
     }
     pthread_mutex_unlock(&evq.lock);

@@ -100,8 +100,17 @@ int main(int argc, char **argv) {
     w_startup();
 
     // scan for connected input devices
+        fprintf(stderr, "scanning devices...\n");
     dev_monitor_scan();
 
+    // handle all resulting events, then run "post-startup"
+    fprintf(stderr, "handling pending events...\n");
+    event_handle_pending();
+
+    fprintf(stderr, "running post-startup...\n");
+    w_post_startup();
+    
+    
     // blocks until quit
     event_loop();
 }
