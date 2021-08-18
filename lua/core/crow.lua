@@ -108,7 +108,7 @@ end
 
 -- event handling
 function norns.crow.register_event(fn)
-  local n = #norns.crow.events + 1
+  local n = tab.count(norns.crow.events) + 1
   local c = ""
   if     n <= 26 then c = string.char(n + 64) -- uppercase alphas
   elseif n <= 52 then c = string.char(n + 70) -- lowercase alphas
