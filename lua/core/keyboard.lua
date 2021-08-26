@@ -3,6 +3,8 @@
 
 local tab = require 'tabutil'
 
+local char_modifier = require 'core/keymap/char_modifier'
+
 keyboard = {}
 
 keyboard.keymap = {}
@@ -37,6 +39,11 @@ keyboard.selected_map = "us"
 
 local km = keyboard.keymap[keyboard.selected_map]
 
+local function km_uses_altgr()
+  return km[char_modifier.ALTGR] ~= nil
+    or km[char_modifier.SHIFT | char_modifier.ALTGR] ~= nil
+end
+
 --- key states
 keyboard.state = {}
 
@@ -64,7 +71,9 @@ function keyboard.shift()
   return keyboard.state.LEFTSHIFT or keyboard.state.RIGHTSHIFT end
 --- return ALT state
 function keyboard.alt()
-  return keyboard.state.LEFTALT or keyboard.state.RIGHTALT end
+  return keyboard.state.LEFTALT or (not km_uses_altgr() and keyboard.state.RIGHTALT) end
+function keyboard.altgr()
+  return km_uses_altgr() and keyboard.state.RIGHTALT end
 --- return CTRL state
 function keyboard.ctrl()
   return keyboard.state.LEFTCTRL or keyboard.state.RIGHTCTRL end
@@ -83,8 +92,12 @@ function keyboard.process(type,code,value)
 
   keyboard.state[c] = value>0
 
+  local c_mods = char_modifier.NONE
+  if keyboard.shift() then c_mods = c_mods | char_modifier.SHIFT end
+  if keyboard.altgr() then c_mods = c_mods | char_modifier.ALTGR end
+
   if value>0 then
-    local a = km[keyboard.shift()][c]
+    local a = km[c_mods][c]
     if a then
       --print("char: "..a)
       -- menu keychar
