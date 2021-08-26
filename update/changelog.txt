@@ -1,11 +1,13 @@
-# 210813
+# 210826
 
 # norns-beta
 
-- NEW hooks and mods system ngwese
+- NEW hooks and mods system @ngwese @catfact
 - NEW sequins library @tyleretters @trentgill
+- NEW keyboard layouts @p3r7
 - NEW hold K1 in SELECT to fast-scroll @dndrks
 - FIX util.wrap and util.wrap_max bounds @dndrks
+- FIX tab.count @discohead
 
 
 # 210706
