@@ -28,4 +28,4 @@ _path.tape = _path.audio..'tape/'
 _path.data = _path.dust..'data/'
 _path.favorites = _path.data..'system.favorites'
 _path.enabled_mods = _path.data..'system.mods'
-
+_path.keyboard_layout = _path.data..'system.kbd_layout'
