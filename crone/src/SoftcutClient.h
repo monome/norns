@@ -76,6 +76,16 @@ namespace crone {
             BufDiskWorker::requestReadStereo(bufIdx[0], bufIdx[1], path, startTimeSrc, startTimeDst, dur);
         }
 
+        void mixBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
+                           float dur = -1.f, float preserve = 0.f, float mix = 1.f, int chanSrc = 0, int chanDst = 0) {
+            BufDiskWorker::requestMixMono(bufIdx[chanDst], path, startTimeSrc, startTimeDst, dur, preserve, mix, chanSrc);
+        }
+
+        void mixBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
+                             float dur = -1.f, float preserve = 0.f, float mix = 1.f) {
+            BufDiskWorker::requestMixStereo(bufIdx[0], bufIdx[1], path, startTimeSrc, startTimeDst, dur, preserve, mix);
+        }
+
         void writeBufferMono(const std::string &path, float start, float dur, int chan) {
             BufDiskWorker::requestWriteMono(bufIdx[chan], path, start, dur);
 

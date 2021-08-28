@@ -191,6 +191,8 @@ static int _cut_buffer_copy_mono(lua_State *l);
 static int _cut_buffer_copy_stereo(lua_State *l);
 static int _cut_buffer_read_mono(lua_State *l);
 static int _cut_buffer_read_stereo(lua_State *l);
+static int _cut_buffer_mix_mono(lua_State *l);
+static int _cut_buffer_mix_stereo(lua_State *l);
 static int _cut_buffer_write_mono(lua_State *l);
 static int _cut_buffer_write_stereo(lua_State *l);
 static int _cut_buffer_render(lua_State *l);
@@ -333,6 +335,8 @@ void w_init(void) {
     lua_register_norns("cut_buffer_copy_stereo", &_cut_buffer_copy_stereo);
     lua_register_norns("cut_buffer_read_mono", &_cut_buffer_read_mono);
     lua_register_norns("cut_buffer_read_stereo", &_cut_buffer_read_stereo);
+    lua_register_norns("cut_buffer_mix_mono", &_cut_buffer_mix_mono);
+    lua_register_norns("_cut_buffer_mix_stereo", &_cut_buffer_mix_stereo);
     lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
     lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
     lua_register_norns("cut_buffer_render", &_cut_buffer_render);
@@ -2391,6 +2395,32 @@ int _cut_buffer_read_stereo(lua_State *l) {
     float start_dst = (float)luaL_checknumber(l, 3);
     float dur = (float)luaL_checknumber(l, 4);
     o_cut_buffer_read_stereo((char *)s, start_src, start_dst, dur);
+    return 0;
+}
+
+int _cut_buffer_mix_mono(lua_State *l) {
+    lua_check_num_args(8);
+    const char *s = luaL_checkstring(l, 1);
+    float start_src = (float)luaL_checknumber(l, 2);
+    float start_dst = (float)luaL_checknumber(l, 3);
+    float dur = (float)luaL_checknumber(l, 4);
+    float preserve = (float)luaL_checknumber(l, 5);
+    float mix = (float)luaL_checknumber(l, 6);
+    int ch_src = (int)luaL_checknumber(l, 7) - 1;
+    int ch_dst = (int)luaL_checknumber(l, 8) - 1;
+    o_cut_buffer_mix_mono((char *)s, start_src, start_dst, dur, preserve, mix, ch_src, ch_dst);
+    return 0;
+}
+
+int _cut_buffer_mix_stereo(lua_State *l) {
+    lua_check_num_args(6);
+    const char *s = luaL_checkstring(l, 1);
+    float start_src = (float)luaL_checknumber(l, 2);
+    float start_dst = (float)luaL_checknumber(l, 3);
+    float dur = (float)luaL_checknumber(l, 4);
+    float preserve = (float)luaL_checknumber(l, 5);
+    float mix = (float)luaL_checknumber(1, 6);
+    o_cut_buffer_mix_stereo((char *)s, start_src, start_dst, dur, preserve, mix);
     return 0;
 }
 

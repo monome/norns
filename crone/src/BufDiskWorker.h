@@ -33,6 +33,7 @@ namespace crone {
         enum class JobType {
             Clear, ClearWithFade, Copy,
             ReadMono, ReadStereo,
+            MixMono, MixStereo,
             WriteMono, WriteStereo,
             Render,
         };
@@ -46,6 +47,7 @@ namespace crone {
             int chan;
             float fadeTime;
             float preserve;
+            float mix;
             bool reverse;
             int samples;
             RenderCallback renderCallback;
@@ -106,6 +108,16 @@ namespace crone {
         requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc = 0, float startDst = 0,
                           float dur = -1);
 
+        // read mono soundfile into mono buffer with mix parameter
+        static void
+        requestMixMono(size_t idx, std::string path, float srcStart = 0, float dstStart = 0, float dur = -1,
+                       float preserve = 0, float mix = 1, int chanSrc = 0);
+
+        // read and de-interleave stereo soundfile to 2x mono buffers with mix parameter
+        static void
+        requestMixStereo(size_t idx0, size_t idx1, std::string path, float srcStart = 0, float dstStart = 0, float dur = -1,
+                         float preserve = 0, float mix = 1);
+
         // write mono buf to mono soundfile
         static void requestWriteMono(size_t idx, std::string path, float start = 0, float dur = -1);
 
@@ -130,6 +142,14 @@ namespace crone {
 
         static void readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
                                      float startSrc = 0, float startDst = 0, float dur = -1) noexcept;
+
+        static void mixBufferMono(const std::string &path, BufDesc &buf,
+                                  float srcStart = 0, float dstStart = 0, float dur = -1, 
+                                  float preserve = 0, float mix = 1, int chanSrc = 0) noexcept;
+
+        static void mixBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
+                                    float srcStart = 0, float dstStart = 0, float dur = -1,
+                                    float preserve = 0, float mix = 1) noexcept;
 
         static void writeBufferMono(const std::string &path, BufDesc &buf,
                                     float start = 0, float dur = -1) noexcept;

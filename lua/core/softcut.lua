@@ -346,6 +346,30 @@ SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
   _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
 end
 
+-- mix mono soundfile with arbitrary region of single buffer
+-- @tparam string file : input file path
+-- @tparam number start_src : start point in source, in seconds
+-- @tparam number start_dst : start point in destination, in seconds
+-- @tparam number dur : duration in seconds. if -1, read as much as possible.
+-- @tparam number preserve : level of existing material
+-- @tparam number mix : level of new material
+-- @tparam int ch_src : soundfile channel to read
+-- @tparam int ch_dst : buffer channel to write
+SC.buffer_mix_mono = function(file, start_src, start_dst, dur, preserve, mix, ch_src, ch_dst)
+    _norns.cut_buffer_mix_mono(file, start_src, start_dst, dur, preserve or 0, mix or 1, ch_src or 0, ch_dst or 0)
+end
+
+-- mix stereo soundfile with arbitrary region in both buffers
+-- @tparam string file : input file path
+-- @tparam number start_src : start point in source, in seconds
+-- @tparam number start_dst : start point in destination, in seconds
+-- @tparam number dur : duration in seconds. if -1, read as much as possible.
+-- @tparam number preserve : level of existing material
+-- @tparam number mix : level of new material
+SC.buffer_mix_stereo = function(file, start_src, start_dst, dur, preserve, mix)
+    _norns.cut_buffer_mix_stereo(file, start_src, start_dst, dur, preserve or 0, mix or 1)
+end
+
 --- write an arbitrary buffer region to soundfile (mono)
 -- @tparam string file : output file path
 -- @tparam number start : start point in seconds

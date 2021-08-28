@@ -593,6 +593,14 @@ void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, floa
     lo_send(crone_addr, "/softcut/buffer/read_stereo", "sfff", file, start_src, start_dst, dur);
 }
 
+void o_cut_buffer_mix_mono(char *file, float start_src, float start_dst, float dur, float preserve, float mix, int ch_src, int ch_dst) {
+    lo_send(crone_addr, "/softcut/buffer/mix_mono", "sfffffii", file, start_src, start_dst, dur, preserve, mix, ch_src, ch_dst);
+}
+
+void o_cut_buffer_mix_stereo(char *file, float start_src, float start_dst, float dur, float preserve, float mix) {
+    lo_send(crone_addr, "/softcut/buffer/mix_stereo", "sfffff", file, start_src, start_dst, dur, preserve, mix);
+}
+
 void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {
     lo_send(crone_addr, "/softcut/buffer/write_mono", "sffi", file, start, dur, ch);
 }
