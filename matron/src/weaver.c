@@ -2419,7 +2419,7 @@ int _cut_buffer_mix_stereo(lua_State *l) {
     float start_dst = (float)luaL_checknumber(l, 3);
     float dur = (float)luaL_checknumber(l, 4);
     float preserve = (float)luaL_checknumber(l, 5);
-    float mix = (float)luaL_checknumber(1, 6);
+    float mix = (float)luaL_checknumber(l, 6);
     o_cut_buffer_mix_stereo((char *)s, start_src, start_dst, dur, preserve, mix);
     return 0;
 }
