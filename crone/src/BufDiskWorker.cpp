@@ -502,7 +502,7 @@ noexcept {
             goto cleanup;
         }
         file.readf(ioBuf, ioBufFrames);
-        for (int fr = 0; fr = ioBufFrames; ++fr) {
+        for (int fr = 0; fr < ioBufFrames; ++fr) {
             buf.data[frDst] = buf.data[frDst] * preserve + ioBuf[fr * numSrcChan + chanSrc] * mix;
             frDst++;
         }
