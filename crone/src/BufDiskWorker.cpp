@@ -67,30 +67,17 @@ void BufDiskWorker::requestCopy(size_t srcIdx, size_t dstIdx,
 }
 
 void
-BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc) {
+BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc,
+                               float preserve, float mix) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur,
-                           chanSrc};
+                           chanSrc, 0.f, preserve, mix};
     requestJob(job);
 }
 
 void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path,
-                                      float startSrc, float startDst, float dur) {
+                                      float startSrc, float startDst, float dur, float preserve, float mix) {
     BufDiskWorker::Job job{BufDiskWorker::JobType::ReadStereo, {idx0, idx1}, std::move(path), startSrc, startDst, dur,
-                           0};
-    requestJob(job);
-}
-
-void BufDiskWorker::requestMixMono(size_t idx, std::string path, float srcStart, float dstStart,
-                                   float dur, float preserve, float mix, int chanSrc) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::MixMono, {idx, 0}, std::move(path), srcStart, dstStart, 
-                           dur, chanSrc, 0.f, preserve, mix};
-    requestJob(job);
-}
-
-void BufDiskWorker::requestMixStereo(size_t idx0, size_t idx1, std::string path, float srcStart, float dstStart,
-                                     float dur, float preserve, float mix) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::MixStereo, {idx0, idx1}, std::move(path), srcStart, dstStart, 
-                           dur, 0, 0.f, preserve, mix};
+                           0, 0.f, preserve, mix};
     requestJob(job);
 }
 
@@ -133,19 +120,11 @@ void BufDiskWorker::workLoop() {
                 copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
                 break;
             case JobType::ReadMono:
-                readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan);
+                readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan, job.preserve, job.mix);
                 break;
             case JobType::ReadStereo:
                 readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
-                                 job.dur);
-                break;
-            case JobType::MixMono:
-                mixBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, 
-                              job.preserve, job.mix, job.chan);
-                break;
-            case JobType::MixStereo:
-                mixBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
-                                job.dur, job.preserve, job.mix);
+                                 job.dur, job.preserve, job.mix);
                 break;
             case JobType::WriteMono:
                 writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
@@ -328,7 +307,7 @@ void BufDiskWorker::copyLoop(float* dst, const float* src,
 }
 
 void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
-                                   float startSrc, float startDst, float dur, int chanSrc)
+                                   float startSrc, float startDst, float dur, int chanSrc, float preserve, float mix)
 noexcept {
     SndfileHandle file(path);
 
@@ -340,7 +319,7 @@ noexcept {
     size_t bufFrames = buf.frames;
 
     size_t frSrc = secToFrame(startSrc);
-    clamp(frSrc, bufFrames - 1);
+    clamp(frSrc, file.frames() - 1);
 
     size_t frDst = secToFrame(startDst);
     clamp(frDst, bufFrames - 1);
@@ -370,7 +349,7 @@ noexcept {
         }
         file.readf(ioBuf, ioBufFrames);
         for (int fr = 0; fr < ioBufFrames; ++fr) {
-            buf.data[frDst] = ioBuf[fr * numSrcChan + chanSrc];
+            buf.data[frDst] = buf.data[frDst] * preserve + ioBuf[fr * numSrcChan + chanSrc] * mix;
             frDst++;
         }
         frSrc += ioBufFrames;
@@ -383,7 +362,7 @@ noexcept {
             goto cleanup;
         }
         file.read(ioBuf, numSrcChan);
-        buf.data[frDst] = ioBuf[chanSrc];
+        buf.data[frDst] = buf.data[frDst] * preserve + ioBuf[chanSrc] * mix;
         frDst++;
         frSrc++;
     }
@@ -392,7 +371,8 @@ noexcept {
 }
 
 void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                     float startTimeSrc, float startTimeDst, float dur)
+                                     float startTimeSrc, float startTimeDst, float dur,
+                                     float preserve, float mix)
 noexcept {
     SndfileHandle file(path);
 
@@ -404,7 +384,7 @@ noexcept {
     size_t bufFrames = buf0.frames < buf1.frames ? buf0.frames : buf1.frames;
 
     size_t frSrc = secToFrame(startTimeSrc);
-    clamp(frSrc, bufFrames - 1);
+    clamp(frSrc, file.frames() - 1);
 
     size_t frDst = secToFrame(startTimeDst);
     clamp(frDst, bufFrames - 1);
@@ -437,141 +417,8 @@ noexcept {
         }
         file.readf(ioBuf, ioBufFrames);
         for (int fr = 0; fr < ioBufFrames; ++fr) {
-            buf0.data[frDst] = ioBuf[fr * numSrcChan];
-            buf1.data[frDst] = ioBuf[fr * numSrcChan + 1];
-            frDst++;
-        }
-        frSrc += ioBufFrames;
-    }
-    for (size_t i = 0; i < rem; ++i) {
-        int res = file.seek(frSrc, SF_SEEK_SET);
-        if (res == -1) {
-            std::cerr << "error seeking to frame: " << frSrc << "; aborting read" << std::endl;
-            goto cleanup;
-        }
-        file.read(ioBuf, numSrcChan);
-        buf0.data[frDst] = ioBuf[0];
-        buf1.data[frDst] = ioBuf[1];
-        frDst++;
-        frSrc++;
-    }
-    cleanup:
-    delete[] ioBuf;
-}
-
-void BufDiskWorker::mixBufferMono(const std::string &path, BufDesc &buf,
-                                  float startSrc, float startDst, float dur, 
-                                  float preserve, float mix, int chanSrc)
-noexcept {
-    SndfileHandle file(path);
-    
-    if (file.frames() < 1) {
-        std::cerr << "mixBufferMono(): empty / missing file: " << path << std::endl;
-        return;
-    }
-
-    size_t bufFrames = buf.frames;
-
-    size_t frSrc = secToFrame(startSrc);
-    clamp(frSrc, bufFrames - 1);
-
-    size_t frDst = secToFrame(startDst);
-    clamp(frDst, bufFrames - 1);
-    
-    size_t frDur;
-    if (dur < 0.f) {
-        auto maxDurSrc = file.frames() - frSrc;
-        auto maxDurDst = bufFrames - frDst;
-        frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
-    } else {
-        frDur = secToFrame(dur);
-    }
-
-    auto numSrcChan = file.channels();
-    chanSrc = std::min(numSrcChan - 1, std::max(0,chanSrc));
-    
-    auto *ioBuf = new float[numSrcChan * ioBufFrames];
-    size_t numBlocks = frDur / ioBufFrames;
-    size_t rem = frDur - (numBlocks * ioBufFrames);
-    std::cout << "file contains " << file.frames() << " frames" << std::endl;
-    std::cout << "mixing " << numBlocks << " blocks and " << rem << " remainder frames ..." << std::endl;
-    for (size_t block = 0; block < numBlocks; ++block) {
-        int res = file.seek(frSrc, SF_SEEK_SET);
-        if (res == -1) {
-            std::cerr << "error seeking to frame: " << frSrc << "; aborting mix" << std::endl;
-            goto cleanup;
-        }
-        file.readf(ioBuf, ioBufFrames);
-        for (int fr = 0; fr < ioBufFrames; ++fr) {
-            buf.data[frDst] = buf.data[frDst] * preserve + ioBuf[fr * numSrcChan + chanSrc] * mix;
-            frDst++;
-        }
-        frSrc += ioBufFrames;
-    }
-    for (size_t i = 0; i < rem; i++) {
-        int res = file.seek(frSrc, SF_SEEK_SET);
-
-        if (res == -1) {
-            std::cerr << "error seeking to frame: " << frSrc << "; aborting mix" << std::endl;
-            goto cleanup;
-        }
-        file.read(ioBuf, numSrcChan);
-        buf.data[frDst] = buf.data[frDst] * preserve + ioBuf[chanSrc] * mix;
-        frDst++;
-        frSrc++;
-    }
-    cleanup:
-    delete[] ioBuf;
-}
-
-void BufDiskWorker::mixBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                    float startTimeSrc, float startTimeDst, float dur, float preserve, float mix)
-noexcept {
-    SndfileHandle file(path);
-
-    if (file.frames() < 1) {
-        std::cerr << "mixBufferStereo(): empty / missing file: " << path << std::endl;
-        return;
-    }
-
-    size_t bufFrames = buf0.frames < buf1.frames ? buf0.frames : buf1.frames;
-
-    size_t frSrc = secToFrame(startTimeSrc);
-    clamp(frSrc, bufFrames - 1);
-
-    size_t frDst = secToFrame(startTimeDst);
-    clamp(frDst, bufFrames - 1);
-
-    size_t frDur;
-    if (dur < 0.f) {
-        auto maxDurSrc = file.frames() - frSrc;
-        auto maxDurDst = bufFrames - frDst;
-        frDur = maxDurSrc > maxDurDst ? maxDurDst : maxDurSrc;
-    } else {
-        frDur = secToFrame(dur);
-    }
-
-    auto numSrcChan = file.channels();
-    if (numSrcChan < 2) { 
-        std::cerr << "mixBufferStereo(): not enough channels in source; aborting" << std::endl;
-        return;
-    }
-
-    auto *ioBuf = new float[numSrcChan * ioBufFrames];
-
-    size_t numBlocks = frDur / ioBufFrames;
-    size_t rem = frDur - (numBlocks * ioBufFrames);
-
-    for (size_t block = 0; block < numBlocks; ++block) {
-        int res = file.seek(frSrc, SF_SEEK_SET);
-        if (res == -1) {
-            std::cerr << "error seeking to frame: " << frSrc << "; aborting mix" << std::endl;
-            goto cleanup;
-        }
-        file.readf(ioBuf, ioBufFrames);
-        for (int fr = 0; fr < ioBufFrames; ++fr) {
             buf0.data[frDst] = buf0.data[frDst] * preserve + ioBuf[fr * numSrcChan] * mix;
-            buf1.data[frDst] = buf1.data[frDst] * preserve + ioBuf[fr * numSrcChan + 1];
+            buf1.data[frDst] = buf1.data[frDst] * preserve + ioBuf[fr * numSrcChan + 1] * mix;
             frDst++;
         }
         frSrc += ioBufFrames;
@@ -584,14 +431,13 @@ noexcept {
         }
         file.read(ioBuf, numSrcChan);
         buf0.data[frDst] = buf0.data[frDst] * preserve + ioBuf[0] * mix;
-        buf1.data[frDst] = buf0.data[frDst] * preserve + ioBuf[1] * mix;
+        buf1.data[frDst] = buf1.data[frDst] * preserve + ioBuf[1] * mix;
         frDst++;
         frSrc++;
     }
     cleanup:
     delete[] ioBuf;
 }
-
 
 void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float start, float dur) noexcept {
     const int sr = 48000;
