@@ -596,7 +596,7 @@ void OscInterface::addServerMethods() {
         float startDst = 0.f;
         float dur = -1.f;
         float preserve = 0.f;
-        float mix = 1.f
+        float mix = 1.f;
         if (argc < 1) {
             std::cerr << "/softcut/buffer/read_stereo requires at least one argument (file path)" << std::endl;
             return;
