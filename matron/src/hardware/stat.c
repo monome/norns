@@ -44,7 +44,7 @@ void *stat_check(void *x) {
     int cpu[5] = {0,0,0,0,0};
 
     FILE *fd;
-    char buf[64];
+    char buf[128];
     char bufsub[8];
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
@@ -88,7 +88,7 @@ void *stat_check(void *x) {
             fprintf(stderr, "Error opening pipe: cpu read\n");
         } else {
             int i = 0;
-            while (fgets(buf, 64, fd) != NULL) {
+            while (fgets(buf, 128, fd) != NULL) {
                 //fprintf(stderr,"%s", buf);
                 strtok(buf, " ");
                 user = atoi(strtok(NULL, " "));
