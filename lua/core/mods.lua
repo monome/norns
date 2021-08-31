@@ -57,6 +57,11 @@ function Mods.load(scan, only_enabled)
     loaded_mods[name] = true
   end
 
+  if scan == nil then
+    print('No mods found!')
+    return
+  end
+
   for name, details in pairs(scan) do
     if only_enabled then
       if Mods.is_enabled(name) then
