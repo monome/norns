@@ -1,7 +1,7 @@
 local m = {
   pos = 1,
-  list = {"DEVICES > ", "WIFI >", "MODS >", "KBD LAYOUT >", "RESTART", "RESET", "UPDATE"},
-  pages = {"DEVICES", "WIFI", "MODS", "KBD LAYOUT", "RESTART", "RESET", "UPDATE"}
+  list = {"DEVICES > ", "WIFI >", "MODS >", "RESTART", "RESET", "UPDATE"},
+  pages = {"DEVICES", "WIFI", "MODS", "RESTART", "RESET", "UPDATE"}
 }
 
 m.key = function(n,z)
@@ -22,22 +22,14 @@ end
 m.redraw = function()
   screen.clear()
 
-  for i=1,6 do
-    if (i > 2 - m.pos - 1) and (i < #m.list - m.pos + 4) then
-      local name = m.list[i+m.pos-1-2]
-
-      local y = 10*i
-      local line_level = 4
-      if i==3 then
-        line_level = 15
-      end
-      screen.level(line_level)
-
-      screen.move(2,y)
-      if name then
-        screen.text(name)
-      end
+  for i=1,#m.list do
+    screen.move(0,10*i)
+    if(i==m.pos) then
+      screen.level(15)
+    else
+      screen.level(4)
     end
+    screen.text(m.list[i])
   end
 
   screen.update()
