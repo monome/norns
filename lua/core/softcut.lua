@@ -312,7 +312,7 @@ end
 -- @tparam number preserve : level of existing material
 -- @tparam int reverse : nonzero to reverse while copying. when reversing, overlap between source and destination regions is not handled.
 SC.buffer_copy_mono = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)
-  _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
+  _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur or -1, fade_time or 0, preserve or 0, reverse or 0)
 end
 
 --- copy region of both buffers to another point
@@ -323,7 +323,7 @@ end
 -- @tparam number preserve : level of existing material
 -- @tparam int reverse : nonzero to reverse while copying.
 SC.buffer_copy_stereo = function(start_src, start_dst, dur, fade_time, preserve, reverse)
-  _norns.cut_buffer_copy_stereo(start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
+  _norns.cut_buffer_copy_stereo(start_src, start_dst, dur or -1, fade_time or 0, preserve or 0, reverse or 0)
 end
 
 --- read mono soundfile to arbitrary region of single buffer
@@ -336,7 +336,7 @@ end
 -- @tparam number preserve : level of existing material
 -- @tparam number mix : level of new material
 SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix)
-  _norns.cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst, preserve or 0, mix or 1)
+  _norns.cut_buffer_read_mono(file, start_src or 0, start_dst or 0, dur or -1, ch_src or 1, ch_dst or 1, preserve or 0, mix or 1)
 end
 
 --- read stereo soundfile to an arbitrary region in both buffers
@@ -347,7 +347,7 @@ end
 -- @tparam number preserve : level of existing material
 -- @tparam number mix : level of new material
 SC.buffer_read_stereo = function(file, start_src, start_dst, dur, preserve, mix)
-  _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur, preserve or 0, mix or 1)
+  _norns.cut_buffer_read_stereo(file, start_src or 0, start_dst or 0, dur or -1, preserve or 0, mix or 1)
 end
 
 --- write an arbitrary buffer region to soundfile (mono)
@@ -356,7 +356,7 @@ end
 -- @tparam number dur : duration in seconds. if -1, read as much as possible
 -- @tparam int ch : buffer channel index (1-based)
 SC.buffer_write_mono = function(file, start, dur, ch)
-  _norns.cut_buffer_write_mono(file, start, dur, ch)
+  _norns.cut_buffer_write_mono(file, start or 0, dur or -1, ch or 1)
 end
 
 --- write an arbitrary region from both buffers to stereo soundfile
@@ -364,7 +364,7 @@ end
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds. if -1, read as much as possible
 SC.buffer_write_stereo = function(file, start, dur)
-  _norns.cut_buffer_write_stereo(file, start, dur)
+  _norns.cut_buffer_write_stereo(file, start or 0, dur or -1)
 end
 
 --- set function for phase poll
