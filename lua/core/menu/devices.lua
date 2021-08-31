@@ -3,7 +3,7 @@ local keyboard = require 'core/keyboard'
 local m = {
   pos = 1,
   last_pos = 1,
-  list = {"midi", "grid", "arc", "hid", "kbd layout"},
+  list = {"midi", "grid", "arc", "hid", "keyboard layout"},
 }
 
 m.len = #m.list
@@ -15,7 +15,7 @@ function m.refresh()
     arc = {"none"},
     hid = {"none"},
   }
-  m.options["kbd layout"] = {}
+  m.options["keyboard layout"] = {}
 
   -- create midi list
   for _, device in pairs(midi.devices) do
@@ -28,15 +28,15 @@ function m.refresh()
     table.insert(m.options.arc, device.name)
   end
   for layout, _ in pairs(keyboard.keymap) do
-    table.insert(m.options["kbd layout"], layout)
+    table.insert(m.options["keyboard layout"], layout)
   end
-  table.sort(m.options["kbd layout"])
+  table.sort(m.options["keyboard layout"])
 end
 
 local function set_len_for_section()
   if m.section == "midi" then
     m.len = 16
-  elseif m.section == "kbd layout" then
+  elseif m.section == "keyboard layout" then
     m.len = 1
   else
     m.len = 4
@@ -89,7 +89,7 @@ m.key = function(n,z)
       elseif m.section == "hid" then
         hid.vports[m.setpos].name = s
         hid.update_devices()
-      elseif m.section == "kbd layout" then
+      elseif m.section == "keyboard layout" then
         keyboard.set_map(s, true)
       end
       m.mode = "list"
@@ -156,7 +156,7 @@ m.redraw = function()
         screen.text(i..".")
         screen.move(8,10*i+20+y_offset)
         screen.text(hid.vports[i].name)
-      elseif m.section == "kbd layout" then
+      elseif m.section == "keyboard layout" then
         screen.level(3)
         screen.move(8,10*i+20+y_offset)
         screen.text("current:")
