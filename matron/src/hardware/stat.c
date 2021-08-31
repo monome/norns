@@ -21,12 +21,17 @@
 // static int fd[3];
 // static char buf[8];
 static pthread_t p;
+static bool have_vcgencmd;
 
 void *stat_check(void *);
 
 // extern def
 
 void stat_init() {
+    if (!(have_vcgencmd = system("which vcgencmd > /dev/null 2>&1") == 0)) {
+        fprintf(stderr, "Unable to check temperature: vcgencmd not in path\n");
+    }
+
     if (pthread_create(&p, NULL, stat_check, 0)) {
         fprintf(stderr, "STAT: Error creating thread\n");
     }
@@ -44,7 +49,7 @@ void *stat_check(void *x) {
     int cpu[5] = {0,0,0,0,0};
 
     FILE *fd;
-    char buf[64];
+    char buf[128];
     char bufsub[8];
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
@@ -73,22 +78,24 @@ void *stat_check(void *x) {
         }
 
         // check temp
-        if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
-            fprintf(stderr, "Error opening pipe: temp read\n");
-        } else {
-            while (fgets(buf, 16, fd) != NULL) {
-                memcpy(bufsub, buf + 5, 2);
-                temp = atoi(bufsub);
+        if (have_vcgencmd) {
+            if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
+                fprintf(stderr, "Error opening pipe: temp read\n");
+            } else {
+                while (fgets(buf, 16, fd) != NULL) {
+                    memcpy(bufsub, buf + 5, 2);
+                    temp = atoi(bufsub);
+                }
             }
+            pclose(fd);
         }
-        pclose(fd);
 
         // check cpu
         if ((fd = popen("head -n5 /proc/stat", "r")) == NULL) {
             fprintf(stderr, "Error opening pipe: cpu read\n");
         } else {
             int i = 0;
-            while (fgets(buf, 64, fd) != NULL) {
+            while (fgets(buf, 128, fd) != NULL) {
                 //fprintf(stderr,"%s", buf);
                 strtok(buf, " ");
                 user = atoi(strtok(NULL, " "));
