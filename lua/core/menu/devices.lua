@@ -1,7 +1,9 @@
+local keyboard = require 'core/keyboard'
+
 local m = {
   pos = 1,
   last_pos = 1,
-  list = {"midi", "grid", "arc", "hid"},
+  list = {"midi", "grid", "arc", "hid", "kbd layout"},
 }
 
 m.len = #m.list
@@ -13,6 +15,8 @@ function m.refresh()
     arc = {"none"},
     hid = {"none"},
   }
+  m.options["kbd layout"] = {}
+
   -- create midi list
   for _, device in pairs(midi.devices) do
     table.insert(m.options.midi, device.name)
@@ -23,8 +27,19 @@ function m.refresh()
   for _, device in pairs(arc.devices) do
     table.insert(m.options.arc, device.name)
   end
-  for _, device in pairs(hid.devices) do
-    table.insert(m.options.hid, device.name)
+  for layout, _ in pairs(keyboard.keymap) do
+    table.insert(m.options["kbd layout"], layout)
+  end
+  table.sort(m.options["kbd layout"])
+end
+
+local function set_len_for_section()
+  if m.section == "midi" then
+    m.len = 16
+  elseif m.section == "kbd layout" then
+    m.len = 1
+  else
+    m.len = 4
   end
 end
 
@@ -35,7 +50,7 @@ m.key = function(n,z)
     elseif n==3 and z==1 then
       m.section = m.list[m.pos]
       m.mode = "list"
-      m.len = m.section ~= "midi" and 4 or 16
+      set_len_for_section()
       m.pos = 1
       _menu.redraw()
     end
@@ -57,7 +72,7 @@ m.key = function(n,z)
   elseif m.mode == "select" then
     if n==2 and z==1 then
       m.mode = "list"
-      m.len = m.section ~= "midi" and 4 or 16
+      set_len_for_section()
       m.pos = m.last_pos
       _menu.redraw()
     elseif n==3 and z==1 then
@@ -74,9 +89,11 @@ m.key = function(n,z)
       elseif m.section == "hid" then
         hid.vports[m.setpos].name = s
         hid.update_devices()
+      elseif m.section == "kbd layout" then
+        keyboard.set_map(s, true)
       end
       m.mode = "list"
-      m.len = m.section ~= "midi" and 4 or 16
+      set_len_for_section()
       m.pos = m.last_pos
       _menu.redraw()
     end
@@ -95,7 +112,7 @@ end
 
 m.redraw = function()
   local y_offset = 0
-  if(4<m.pos) and m.section ~= "midi" then
+  if(4<m.pos) and not (m.section == "midi" and m.mode == "list") then
     y_offset = 10*(4-m.pos)
   end
   screen.clear()
@@ -139,6 +156,13 @@ m.redraw = function()
         screen.text(i..".")
         screen.move(8,10*i+20+y_offset)
         screen.text(hid.vports[i].name)
+      elseif m.section == "kbd layout" then
+        screen.level(3)
+        screen.move(8,10*i+20+y_offset)
+        screen.text("current:")
+        screen.level(15)
+        screen.move(43,10*i+20+y_offset)
+        screen.text(keyboard.selected_map)
       end
     elseif m.mode == "select" then
       if m.section == "midi" then
