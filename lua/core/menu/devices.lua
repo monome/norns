@@ -1,4 +1,5 @@
 local keyboard = require 'core/keyboard'
+local tabutil = require 'tabutil'
 
 local m = {
   pos = 1,
@@ -33,11 +34,9 @@ function m.refresh()
   table.sort(m.options["keyboard layout"])
 end
 
-local function set_len_for_section()
+local function set_len_for_list()
   if m.section == "midi" then
     m.len = 16
-  elseif m.section == "keyboard layout" then
-    m.len = 1
   else
     m.len = 4
   end
@@ -49,9 +48,16 @@ m.key = function(n,z)
       _menu.set_page("SYSTEM")
     elseif n==3 and z==1 then
       m.section = m.list[m.pos]
-      m.mode = "list"
-      set_len_for_section()
-      m.pos = 1
+      if m.section == "keyboard layout" then
+        m.refresh()
+        m.mode = "select"
+        m.len = #m.options[m.section]
+        m.pos = tabutil.key(m.options["keyboard layout"], keyboard.selected_map)
+      else
+        m.mode = "list"
+        set_len_for_list()
+        m.pos = 1
+      end
       _menu.redraw()
     end
   elseif m.mode == "list" then
@@ -71,12 +77,19 @@ m.key = function(n,z)
     end
   elseif m.mode == "select" then
     if n==2 and z==1 then
-      m.mode = "list"
-      set_len_for_section()
-      m.pos = m.last_pos
+      if m.section == "keyboard layout" then
+        m.mode = "type"
+        m.len = #m.list
+        m.pos = 1
+      else
+        m.mode = "list"
+        set_len_for_list()
+        m.pos = m.last_pos
+      end
       _menu.redraw()
     elseif n==3 and z==1 then
       local s = m.options[m.section][m.pos]
+      local target_mode = "list"
       if m.section == "midi" then
         midi.vports[m.setpos].name = s
         midi.update_devices()
@@ -91,10 +104,17 @@ m.key = function(n,z)
         hid.update_devices()
       elseif m.section == "keyboard layout" then
         keyboard.set_map(s, true)
+        target_mode = "type"
       end
-      m.mode = "list"
-      set_len_for_section()
-      m.pos = m.last_pos
+      if target_mode == "type" then
+        m.mode = "type"
+        m.len = #m.list
+        m.pos = 1
+      else
+        m.mode = "list"
+        set_len_for_list()
+        m.pos = m.last_pos
+      end
       _menu.redraw()
     end
   end
@@ -110,19 +130,44 @@ m.enc = function(n,delta)
   end
 end
 
+local function redraw_keyboard_layout_select()
+  local len = tabutil.count(m.options["keyboard layout"])
+  screen.clear()
+  for i=1,6 do
+    if (i > 2 - m.pos + 1) and (i < m.len - m.pos + 3 + 1) then
+      local name = m.options["keyboard layout"][i+m.pos-2 - 1]
+      local line = string.upper(name)
+      screen.level(i==3 and 15 or 4)
+      screen.move(20,10*i)
+      screen.text(line)
+    end
+  end
+  screen.update()
+end
+
 m.redraw = function()
+
+  if (m.section == "keyboard layout" and m.mode == "select") then
+    redraw_keyboard_layout_select()
+    return
+  end
+
   local y_offset = 0
-  if(4<m.pos) and not (m.section == "midi" and m.mode == "list") then
+  if not (m.mode == "type")
+    and not (m.section == "midi" and m.mode == "list")
+    and (4<m.pos) then
     y_offset = 10*(4-m.pos)
+  elseif m.mode ~= "type" then
+    y_offset = 20
   end
   screen.clear()
   if m.mode == "list" then
-    screen.move(0,10+y_offset)
+    screen.move(0,10)
     screen.level(4)
     screen.text(string.upper(m.section))
   end
   for i=1,m.len do
-    screen.move(0,10*i+20+y_offset)
+    screen.move(0,10*i+y_offset)
     if(i==m.pos) then
       screen.level(15)
     else
@@ -130,6 +175,10 @@ m.redraw = function()
     end
     if m.mode == "type" then
       screen.text(string.upper(m.list[i]) .. " >")
+      if m.list[i] == "keyboard layout" then
+        screen.move(127,10*i+y_offset)
+        screen.text_right(string.upper(keyboard.selected_map))
+      end
     elseif m.mode == "list" then
       if m.section == "midi" then
         for j = 1,4 do
@@ -146,23 +195,16 @@ m.redraw = function()
         end
       elseif m.section == "grid" then
         screen.text(i..".")
-        screen.move(8,10*i+20+y_offset)
+        screen.move(8,10*i+y_offset)
         screen.text(grid.vports[i].name)
       elseif m.section == "arc" then
         screen.text(i..".")
-        screen.move(8,10*i+20+y_offset)
+        screen.move(8,10*i+y_offset)
         screen.text(arc.vports[i].name)
       elseif m.section == "hid" then
         screen.text(i..".")
-        screen.move(8,10*i+20+y_offset)
+        screen.move(8,10*i+y_offset)
         screen.text(hid.vports[i].name)
-      elseif m.section == "keyboard layout" then
-        screen.level(3)
-        screen.move(8,10*i+20+y_offset)
-        screen.text("current:")
-        screen.level(15)
-        screen.move(43,10*i+20+y_offset)
-        screen.text(keyboard.selected_map)
       end
     elseif m.mode == "select" then
       if m.section == "midi" then
