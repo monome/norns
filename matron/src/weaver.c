@@ -2586,6 +2586,7 @@ int _system_glob(lua_State *l) {
     glob_status = glob(pattern, glob_flags, NULL, &g);
 
     if (glob_status != 0) {
+        fprintf(stderr, "glob failed for pattern (%s): %s\n", pattern, strerror(errno));
         lua_pushnil(l);
         lua_pushinteger(l, glob_status);
         return 2;

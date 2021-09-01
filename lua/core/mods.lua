@@ -16,7 +16,7 @@ function Mods.scan(root, pattern)
   local p = pattern or Mods.search_pattern
 
   local matches, error = norns.system_glob(r .. p)
-  if not matches then return nil end
+  if not matches then return {} end
 
   local mods = {}
   local name_pattern = "^" .. r .. "([%w_-]+)/"
@@ -55,11 +55,6 @@ function Mods.load(scan, only_enabled)
     require(package_path)
     Mods.this_name = nil
     loaded_mods[name] = true
-  end
-
-  if scan == nil then
-    print('No mods found!')
-    return
   end
 
   for name, details in pairs(scan) do
