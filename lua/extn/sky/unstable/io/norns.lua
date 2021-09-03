@@ -58,8 +58,8 @@ function NornsInput.is_enc(event)
   return event.type == NornsInput.ENC_EVENT
 end
 
-function NornsInput.mk_redraw()
-  return { type = NornsInput.REDRAW_EVENT, beat = clock.get_beats() }
+function NornsInput.mk_redraw(beats)
+  return { type = NornsInput.REDRAW_EVENT, beat = beats or clock.get_beats() }
 end
 
 function NornsInput.is_redraw(event)
