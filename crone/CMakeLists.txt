@@ -8,25 +8,22 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 set (SRC src/main.cpp
-        src/BufDiskWorker.h
-        src/Client.h
-        src/Utilities.h
-        src/OscInterface.cpp
+        src/BufDiskWorker.cpp
         src/Commands.cpp
-        src/Evil.h
-        src/Client.h
-        src/MixerClient.h
         src/MixerClient.cpp
+        src/OscInterface.cpp
         src/SoftcutClient.cpp
-        src/SoftcutClient.h
-        src/Poll.h
         src/Taper.cpp
         src/Window.cpp
-        src/BufDiskWorker.cpp)
+        softcut/softcut-lib/src/FadeCurves.cpp
+        softcut/softcut-lib/src/ReadWriteHead.cpp
+        softcut/softcut-lib/src/SubHead.cpp
+        softcut/softcut-lib/src/Svf.cpp
+        softcut/softcut-lib/src/Voice.cpp )
 
 add_executable(crone ${SRC})
 
-include_directories(./faust ./softcut/softcut-lib/include)
+include_directories(./faust ./softcut/softcut-lib/include lib/readerwriterqueue)
 
 if(UNIX)
     if(APPLE)
