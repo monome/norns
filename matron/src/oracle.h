@@ -139,8 +139,8 @@ extern void o_cut_buffer_clear_region(float start, float dur, float fade_time, f
 extern void o_cut_buffer_clear_region_channel(int ch, float start, float dur, float fade_time, float preserve);
 extern void o_cut_buffer_copy_mono(int src_ch, int dst_ch, float src_start, float dst_start, float dur, float fade_time, float preserve, int reverse);
 extern void o_cut_buffer_copy_stereo(float src_start, float dst_start, float dur, float fade_time, float preserve, int reverse);
-extern void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst);
-extern void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur);
+extern void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst, float preserve, float mix);
+extern void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur, float preserve, float mix);
 extern void o_cut_buffer_write_mono(char *file, float start, float dur, int ch);
 extern void o_cut_buffer_write_stereo(char *file, float start, float dur);
 extern void o_cut_buffer_render(int ch, float start, float dur, int samples);

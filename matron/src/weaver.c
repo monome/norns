@@ -2373,24 +2373,28 @@ int _cut_buffer_copy_stereo(lua_State *l) {
 }
 
 int _cut_buffer_read_mono(lua_State *l) {
-    lua_check_num_args(6);
+    lua_check_num_args(8);
     const char *s = luaL_checkstring(l, 1);
     float start_src = (float)luaL_checknumber(l, 2);
     float start_dst = (float)luaL_checknumber(l, 3);
     float dur = (float)luaL_checknumber(l, 4);
     int ch_src = (int)luaL_checkinteger(l, 5) - 1;
     int ch_dst = (int)luaL_checkinteger(l, 6) - 1;
-    o_cut_buffer_read_mono((char *)s, start_src, start_dst, dur, ch_src, ch_dst);
+    float preserve = (float)luaL_checknumber(l, 7);
+    float mix = (float)luaL_checknumber(l, 8);
+    o_cut_buffer_read_mono((char *)s, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix);
     return 0;
 }
 
 int _cut_buffer_read_stereo(lua_State *l) {
-    lua_check_num_args(4);
+    lua_check_num_args(6);
     const char *s = luaL_checkstring(l, 1);
     float start_src = (float)luaL_checknumber(l, 2);
     float start_dst = (float)luaL_checknumber(l, 3);
     float dur = (float)luaL_checknumber(l, 4);
-    o_cut_buffer_read_stereo((char *)s, start_src, start_dst, dur);
+    float preserve = (float)luaL_checknumber(l, 5);
+    float mix = (float)luaL_checknumber(l, 6);
+    o_cut_buffer_read_stereo((char *)s, start_src, start_dst, dur, preserve, mix);
     return 0;
 }
 

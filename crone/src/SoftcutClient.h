@@ -67,13 +67,13 @@ namespace crone {
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears/writes as much as possible.
         void readBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-                            float dur = -1.f, int chanSrc = 0, int chanDst = 0) {
-            BufDiskWorker::requestReadMono(bufIdx[chanDst], path, startTimeSrc, startTimeDst, dur, chanSrc);
+                            float dur = -1.f, int chanSrc = 0, int chanDst = 0, float preserve = 0.f, float mix = 1.f) {
+            BufDiskWorker::requestReadMono(bufIdx[chanDst], path, startTimeSrc, startTimeDst, dur, chanSrc, preserve, mix);
         }
 
         void readBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-                              float dur = -1.f) {
-            BufDiskWorker::requestReadStereo(bufIdx[0], bufIdx[1], path, startTimeSrc, startTimeDst, dur);
+                              float dur = -1.f, float preserve = 0.f, float mix = 1.f) {
+            BufDiskWorker::requestReadStereo(bufIdx[0], bufIdx[1], path, startTimeSrc, startTimeDst, dur, preserve, mix);
         }
 
         void writeBufferMono(const std::string &path, float start, float dur, int chan) {

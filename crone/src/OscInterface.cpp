@@ -552,12 +552,14 @@ void OscInterface::addServerMethods() {
 
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
-    addServerMethod("/softcut/buffer/read_mono", "sfffii", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/read_mono", "sfffiiff", [](lo_arg **argv, int argc) {
         float startSrc = 0.f;
         float startDst = 0.f;
         float dur = -1.f;
         int chanSrc = 0;
         int chanDst = 0;
+        float preserve = 0.f;
+        float mix = 1.f;
         if (argc < 1) {
             std::cerr << "/softcut/buffer/read_mono requires at least one argument (file path)" << std::endl;
             return;
@@ -577,16 +579,24 @@ void OscInterface::addServerMethods() {
         if (argc > 5) {
             chanDst = argv[5]->i;
         }
+        if (argc > 6) {
+            preserve = argv[6]->f;
+        }
+        if (argc > 7) {
+            mix = argv[7]->f;
+        }
         const char *str = &argv[0]->s;
-        softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst);
+        softCutClient->readBufferMono(str, startSrc, startDst, dur, chanSrc, chanDst, preserve, mix);
 
     });
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
-    addServerMethod("/softcut/buffer/read_stereo", "sfff", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/read_stereo", "sfffff", [](lo_arg **argv, int argc) {
         float startSrc = 0.f;
         float startDst = 0.f;
         float dur = -1.f;
+        float preserve = 0.f;
+        float mix = 1.f;
         if (argc < 1) {
             std::cerr << "/softcut/buffer/read_stereo requires at least one argument (file path)" << std::endl;
             return;
@@ -600,10 +610,16 @@ void OscInterface::addServerMethods() {
         if (argc > 3) {
             dur = argv[3]->f;
         }
+        if (argc > 4) {
+            preserve = argv[4]->f;
+        }
+        if (argc > 5) {
+            mix = argv[5]->f;
+        }
         const char *str = &argv[0]->s;
-        softCutClient->readBufferStereo(str, startSrc, startDst, dur);
+        softCutClient->readBufferStereo(str, startSrc, startDst, dur, preserve, mix);
     });
-
+    
 
     // FIXME: hrm, our system doesn't allow variable argument count. maybe need to make multiple methods
     addServerMethod("/softcut/buffer/write_mono", "sffi", [](lo_arg **argv, int argc) {
