@@ -39,6 +39,40 @@ keyboard.selected_map = "us"
 
 local km = keyboard.keymap[keyboard.selected_map]
 
+function keyboard.load_enabled()
+  local m_fn, err = loadfile(_path.keyboard_layout)
+  if err or m_fn == nil or m_fn() == nil then
+    -- NB: curently keeping current value
+    print("error loading keyboard layout, using old value: "..keyboard.selected_map)
+    -- could also fall back to US w/:
+    -- keyboard.selected_map = "us"
+  else
+    keyboard.selected_map = m_fn()
+    print("loaded keyboard layout: "..keyboard.selected_map)
+  end
+  km = keyboard.keymap[keyboard.selected_map]
+end
+
+function keyboard.save_enabled()
+  local file, err = io.open(_path.keyboard_layout, "wb")
+  if err then return err end
+  file:write("return '"..keyboard.selected_map.."'")
+  file:close()
+end
+
+keyboard.load_enabled()
+
+function keyboard.set_map(m, autosave)
+  if keyboard.keymap[m] then
+    keyboard.selected_map = m
+    km = keyboard.keymap[keyboard.selected_map]
+    print("loaded keyboard layout: "..keyboard.selected_map)
+    if autosave then
+      keyboard.save_enabled()
+    end
+  end
+end
+
 local function km_uses_altgr()
   return km[char_modifier.ALTGR] ~= nil
     or km[char_modifier.SHIFT | char_modifier.ALTGR] ~= nil
@@ -51,13 +85,6 @@ keyboard.state = {}
 function keyboard.clear()
   keyboard.code = function() end
   keyboard.char = function() end
-end
-
-function keyboard.set_map(m)
-  if keyboard.keymap[m] then
-    keyboard.selected_map = m
-    km = keyboard.keymap[keyboard.selected_map]
-  end
 end
 
 --- key code callback, script should redefine
