@@ -2,6 +2,7 @@
 -- @module keyboard
 
 local tab = require 'tabutil'
+local te_kbd_cb = require 'lib/textentry_kbd'
 
 local char_modifier = require 'core/keymap/char_modifier'
 
@@ -112,9 +113,12 @@ function keyboard.meta()
 function keyboard.process(type,code,value)
   local c = keyboard.codes[code]
 
-  -- menu keycode
-  if _menu.mode then _menu.keycode(c,value)
-  -- script keycode
+  -- textentry keycode
+  if te_kbd_cb.code then
+    te_kbd_cb.code(c,value)
+    -- menu keycode
+  elseif _menu.mode then _menu.keycode(c,value)
+    -- script keycode
   elseif keyboard.code then keyboard.code(c,value) end
 
   keyboard.state[c] = value>0
@@ -128,8 +132,10 @@ function keyboard.process(type,code,value)
     if a then
       --print("char: "..a)
       -- menu keychar
-      if _menu.mode then _menu.keychar(a)
-      -- script keychar
+      if te_kbd_cb.char then te_kbd_cb.char(a)
+        -- script keychar
+      elseif _menu.mode then _menu.keychar(a)
+        -- textentry keycode
       elseif keyboard.char then keyboard.char(a) end
     end
   end
