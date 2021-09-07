@@ -1,7 +1,37 @@
 --- textentry UI
 -- @module lib.textentry
 
+local te_kbd_cb = require 'lib/textentry_kbd'
+local keyboard = require 'core/keyboard'
+
 local te = {}
+
+local function keycode(c,value)
+  if keyboard.state.ESC then
+    te.txt = nil
+    te.exit()
+  elseif keyboard.state.ENTER then
+    te.exit()
+  elseif keyboard.state.BACKSPACE then
+    te.row = 1
+    te.delok = 0
+    te.txt = string.sub(te.txt,0,-2)
+    if te.check then
+      te.warn = te.check(te.txt)
+    end
+    te.redraw()
+  end
+end
+
+local function keychar(a)
+  te.row = 0
+  te.pos = string.byte(a) - 5 - 32
+  te.txt = te.txt .. a
+  if te.check then
+    te.warn = te.check(te.txt)
+  end
+  te.redraw()
+end
 
 te.enter = function(callback, default, heading, check)
   te.txt = default or ""
@@ -13,6 +43,8 @@ te.enter = function(callback, default, heading, check)
   te.check = check
   te.warn = nil
   te.pending = false
+  te_kbd_cb.code = keycode
+  te_kbd_cb.char = keychar
 
   if norns.menu.status() == false then
     te.key_restore = key
@@ -32,6 +64,9 @@ te.enter = function(callback, default, heading, check)
 end
 
 te.exit = function()
+  te_kbd_cb.code = nil
+  te_kbd_cb.char = nil
+
   if norns.menu.status() == false then
     key = te.key_restore
     enc = te.enc_restore
