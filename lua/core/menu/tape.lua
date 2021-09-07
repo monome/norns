@@ -79,7 +79,7 @@ end
 
 local function update_tape_index()
   read_tape_index()
-  write_tape_index_v(m.fileindex+1)
+  write_tape_index_v(m.fileindex)
 end
 
 local function edit_filename(txt)
@@ -89,8 +89,8 @@ local function edit_filename(txt)
     _menu.redraw()
     return
   end
-  if txt == string.format("%04d",m.fileindex+1) then
-    update_tape_index(v)
+  if txt == string.format("%04d",m.fileindex) then
+    update_tape_index()
   end
   audio.tape_record_open(_path.audio.."tape/"..m.rec.file)
   m.rec.sel = TAPE_REC_START
@@ -180,7 +180,7 @@ m.key = function(n,z)
         read_tape_index()
         textentry.enter(
           edit_filename,
-          string.format("%04d",m.fileindex+1),
+          string.format("%04d",m.fileindex),
           "tape filename:",
           function(txt)
             if tape_exists(txt) then
