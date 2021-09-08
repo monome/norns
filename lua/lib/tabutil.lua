@@ -240,11 +240,11 @@ end
 -- @tparam table values override values
 -- @treturn table sorted table
 function tab.override(defaults, values)
-	local result = {}
+  local result = {}
   for k,v in pairs(defaults) do 
-		result[k] = (values[k] ~= nil) and values[k] or v
-	end
-	return result
+    result[k] = (values[k] ~= nil) and values[k] or v
+  end
+  return result
 end
 
 return tab
