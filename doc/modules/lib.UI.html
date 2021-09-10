@@ -85,9 +85,11 @@
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><strong>lib.UI</strong></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
@@ -100,7 +102,10 @@
 <h1>Module <code>lib.UI</code></h1>
 <p>UI widgets module.</p>
 <p>
+
  Widgets for paging, tabs, lists, dials, sliders, etc.
+
+
 </p>
     <h3>Info:</h3>
     <ul>
@@ -372,7 +377,9 @@
     </dt>
     <dd>
     Redraw Pages.
+
  Call when changed.
+
 
 
 
@@ -400,7 +407,7 @@
          Selected tab, defaults to 1.
         </li>
         <li><span class="parameter">titles</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string,...}</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">{string,...}</a></span>
          Table of strings for tab titles.
         </li>
     </ul>
@@ -468,7 +475,9 @@
     </dt>
     <dd>
     Redraw Tabs.
+
  Call when changed.
+
 
 
 
@@ -504,7 +513,7 @@
          Selected entry, defaults to 1.
         </li>
         <li><span class="parameter">entries</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string,...}</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">{string,...}</a></span>
          Table of strings for list entries.
         </li>
     </ul>
@@ -593,7 +602,9 @@
     </dt>
     <dd>
     Redraw List.
+
  Call when changed.
+
 
 
 
@@ -629,7 +640,7 @@
          Selected entry, defaults to 1.
         </li>
         <li><span class="parameter">entries</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string,...}</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">{string,...}</a></span>
          Table of strings for list entries.
         </li>
     </ul>
@@ -718,7 +729,9 @@
     </dt>
     <dd>
     Redraw ScrollingList.
+
  Call when changed.
+
 
 
 
@@ -742,7 +755,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">text_array</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">[string,...]</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">[string,...]</a></span>
          Array of lines of text.
         </li>
     </ul>
@@ -785,7 +798,9 @@
     </dt>
     <dd>
     Redraw Message.
+
  Call when changed.
+
 
 
 
@@ -837,11 +852,11 @@
          Maximum value, defaults to 1.
         </li>
         <li><span class="parameter">markers</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          Array of marker positions.
         </li>
         <li><span class="parameter">the</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          direction of the slider "up" (defult), down, left, right
         </li>
     </ul>
@@ -951,7 +966,9 @@
     </dt>
     <dd>
     Redraw Slider.
+
  Call when changed.
+
 
 
 
@@ -1007,15 +1024,15 @@
          Sets where fill line is drawn from, defaults to 0.
         </li>
         <li><span class="parameter">markers</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          Array of marker positions.
         </li>
         <li><span class="parameter">units</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          String to display after value text.
         </li>
         <li><span class="parameter">title</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          String to be displayed instead of value text.
         </li>
     </ul>
@@ -1125,7 +1142,9 @@
     </dt>
     <dd>
     Redraw Dial.
+
  Call when changed.
+
 
 
 
@@ -1225,7 +1244,9 @@
     </dt>
     <dd>
     Redraw PlaybackIcon.
+
  Call when changed.
+
 
 
 
@@ -1241,7 +1262,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-07-07 01:21:58 </i>
+<i style="float:right;">Last updated 2021-09-10 15:00:16 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
