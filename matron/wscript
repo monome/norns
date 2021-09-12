@@ -60,6 +60,9 @@ def build(bld):
         'JACK',
     ]
 
+    if bld.env.HAVE_SDL2:
+        matron_libs.append('SDL2')
+
     if bld.env.ENABLE_ABLETON_LINK:
         matron_sources += ['src/clocks/clock_link.c']
         matron_includes += ['../third-party/link-c']

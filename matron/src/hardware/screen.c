@@ -17,6 +17,10 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#ifdef NORNS_DESKTOP
+#include <SDL2/SDL.h>
+#endif
+
 #include "args.h"
 
 // skip this if you don't want every screen module call to perform null checks
@@ -92,6 +96,7 @@ typedef struct _cairo_linuxfb_device {
     struct fb_fix_screeninfo fb_finfo;
 } cairo_linuxfb_device_t;
 
+#ifndef NORNS_DESKTOP
 /* Destroy a cairo surface */
 void cairo_linuxfb_surface_destroy(void *device) {
     cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
@@ -121,13 +126,13 @@ cairo_surface_t *cairo_linuxfb_surface_create() {
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
     if (device->fb_fd == -1) {
-        fprintf(stderr, "ERROR (screen) cannot open framebuffer device: %s\n", fb_name);
+        fprintf(stderr, "ERROR (screen) cannot open framebuffer device (%s): %s\n", fb_name, strerror(errno));
         goto handle_allocate_error;
     }
 
     // Get variable screen information
     if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading variable information\n");
+        perror("ERROR (screen) reading variable information");
         goto handle_ioctl_error;
     }
 
@@ -139,13 +144,13 @@ cairo_surface_t *cairo_linuxfb_surface_create() {
         (unsigned char *)mmap(0, device->fb_screensize, PROT_READ | PROT_WRITE, MAP_SHARED, device->fb_fd, 0);
 
     if (device->fb_data == (unsigned char *)-1) {
-        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory\n");
+        perror("ERROR (screen) failed to map framebuffer device to memory");
         goto handle_ioctl_error;
     }
 
     // Get fixed screen information
     if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading fixed information\n");
+        perror("ERROR (screen) reading fixed information");
         goto handle_ioctl_error;
     }
 
@@ -163,6 +168,42 @@ handle_allocate_error:
     free(device);
     return NULL;
 }
+
+#else // NORNS_DESKTOP enabled
+SDL_Window *window;
+SDL_Surface *window_surface;
+SDL_Surface *draw_surface;
+
+static void screen_sdl_surface_destroy(void *data) {
+    (void)data;
+    SDL_FreeSurface(draw_surface);
+    SDL_DestroyWindow(window);
+}
+
+cairo_surface_t *cairo_sdl_surface_create() {
+    cairo_surface_t *surface;
+    int x = 128;
+    int y = 64;
+    int d = 16;
+
+    SDL_Init(SDL_INIT_VIDEO);
+    window = SDL_CreateWindow(
+        "matron", 0, 0, x, y,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+    window_surface = SDL_GetWindowSurface(window);
+
+    draw_surface = SDL_CreateRGBSurface(
+        0, x, y, d, 0xf800, 0x000007e0, 0x0000001f, 0);
+    surface = cairo_image_surface_create_for_data(
+        (unsigned char *)draw_surface->pixels,
+        CAIRO_FORMAT_RGB16_565, draw_surface->w, draw_surface->h,
+        cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, draw_surface->w));
+    cairo_surface_set_user_data(surface, NULL, NULL, &screen_sdl_surface_destroy);
+
+    return surface;
+}
+
+#endif // NORNS_DESKTOP
 
 void screen_display_png(const char *filename, double x, double y) {
     int img_w, img_h;
@@ -185,7 +226,11 @@ void screen_display_png(const char *filename, double x, double y) {
 }
 
 void screen_init(void) {
+#ifndef NORNS_DESKTOP
     surfacefb = cairo_linuxfb_surface_create();
+#else
+    surfacefb = cairo_sdl_surface_create();
+#endif
     if (surfacefb == NULL) {
         return;
     }
@@ -193,6 +238,9 @@ void screen_init(void) {
 
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
     cr = cairo_create(surface);
+    if (cr == NULL) {
+        fprintf(stderr, "ERROR (screen) could not create surface\n");
+    }
 
     status = FT_Init_FreeType(&value);
     if (status != 0) {
@@ -329,6 +377,10 @@ void screen_deinit(void) {
 void screen_update(void) {
     CHECK_CR
     cairo_paint(crfb);
+#ifdef NORNS_DESKTOP
+    SDL_BlitSurface(draw_surface, NULL, window_surface, NULL);
+    SDL_UpdateWindowSurface(window);
+#endif
 }
 
 void screen_save(void) {
