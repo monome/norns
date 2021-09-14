@@ -97,14 +97,14 @@ void events_init(void) {
     pthread_cond_init(&evq.nonempty, NULL);
 }
 
-union event_data *event_data_new(event_t type) {
+MATRON_API union event_data *event_data_new(event_t type) {
     // FIXME: better not to allocate here, use object pool
     union event_data *ev = calloc(1, sizeof(union event_data));
     ev->type = type;
     return ev;
 }
 
-union event_data *event_custom_new(struct event_custom_ops *ops, void *value) {
+MATRON_API union event_data *event_custom_new(struct event_custom_ops *ops, void *value) {
     assert(ops != NULL);
     union event_data *ev = event_data_new(EVENT_CUSTOM);
     ev->custom.ops = ops;
@@ -112,7 +112,7 @@ union event_data *event_custom_new(struct event_custom_ops *ops, void *value) {
     return ev;
 }
 
-void event_data_free(union event_data *ev) {
+MATRON_API void event_data_free(union event_data *ev) {
     switch (ev->type) {
     case EVENT_EXEC_CODE_LINE:
         free(ev->exec_code_line.line);
@@ -143,7 +143,7 @@ void event_data_free(union event_data *ev) {
 }
 
 // add an event to the q and signal if necessary
-void event_post(union event_data *ev) {
+MATRON_API void event_post(union event_data *ev) {
     assert(ev != NULL);
     pthread_mutex_lock(&evq.lock);
     if (evq.size == 0) {
