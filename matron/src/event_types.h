@@ -85,6 +85,8 @@ typedef enum {
     EVENT_SOFTCUT_RENDER,
     // softcut position callback
     EVENT_SOFTCUT_POSITION,
+    // custom events defined in lua extensions
+    EVENT_CUSTOM,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -313,6 +315,21 @@ struct event_softcut_position {
     float pos;
 };
 
+typedef void (*event_custom_weave_op_t)(void *value);
+typedef void (*event_custom_free_op_t)(void *value);
+
+struct event_custom_ops {
+    const char *type_name;
+    event_custom_weave_op_t weave;
+    event_custom_free_op_t free;
+};
+
+struct event_custom {
+    struct event_common common;
+    struct event_custom_ops *ops;
+    void *value;
+}; // +8
+
 union event_data {
     uint32_t type;
     struct event_exec_code_line exec_code_line;
@@ -348,4 +365,5 @@ union event_data {
     struct event_system_cmd system_cmd;
     struct event_softcut_render softcut_render;
     struct event_softcut_position softcut_position;
+    struct event_custom custom;
 };

@@ -104,6 +104,14 @@ union event_data *event_data_new(event_t type) {
     return ev;
 }
 
+union event_data *event_custom_new(struct event_custom_ops *ops, void *value) {
+    assert(ops != NULL);
+    union event_data *ev = event_data_new(EVENT_CUSTOM);
+    ev->custom.ops = ops;
+    ev->custom.value = value;
+    return ev;
+}
+
 void event_data_free(union event_data *ev) {
     switch (ev->type) {
     case EVENT_EXEC_CODE_LINE:
@@ -126,6 +134,9 @@ void event_data_free(union event_data *ev) {
         break;
     case EVENT_SOFTCUT_RENDER:
         free(ev->softcut_render.data);
+        break;
+    case EVENT_CUSTOM:
+        if (ev->custom.ops->free) ev->custom.ops->free(ev->custom.value);
         break;
     }
     free(ev);
@@ -293,6 +304,10 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_SOFTCUT_POSITION:
         w_handle_softcut_position(ev->softcut_position.idx, ev->softcut_position.pos);
+        break;
+    case EVENT_CUSTOM:
+        assert(ev->custom.ops->weave != NULL);
+        ev->custom.ops->weave(ev->custom.value);
         break;
     } /* switch */
 

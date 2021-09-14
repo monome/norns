@@ -8,6 +8,7 @@
 extern void events_init(void);
 extern void event_loop(void);
 extern union event_data *event_data_new(event_t evcode);
+extern union event_data *event_custom_new(struct event_custom_ops *ops, void *value);
 extern void event_data_free(union event_data *ev);
 extern void event_post(union event_data *ev);
 extern void event_handle_pending(void);
