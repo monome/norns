@@ -236,7 +236,7 @@ SC.level_slew_time = function(voice,time) _norns.cut_param("level_slew_time",voi
 -- @tparam number time : exponential slew time in seconds (-60db convergence)
 SC.pan_slew_time = function(voice,time) _norns.cut_param("pan_slew_time",voice,time) end
 
---- set recpre slew tiem
+--- set recpre slew time
 -- affects slew time for record and pre levels
 -- @tparam int voice : voice index
 -- @tparam number time : exponential slew time in seconds (-60db convergence)
