@@ -3,6 +3,7 @@
 #include "oracle.h"
 #include "osc.h"
 #include <stdint.h>
+#include <lua.h>
 
 typedef enum {
     // unused (do not remove)
@@ -315,7 +316,7 @@ struct event_softcut_position {
     float pos;
 };
 
-typedef void (*event_custom_weave_op_t)(void *value);
+typedef void (*event_custom_weave_op_t)(void *value, lua_State *lvm);
 typedef void (*event_custom_free_op_t)(void *value);
 
 struct event_custom_ops {

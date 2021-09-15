@@ -53,7 +53,7 @@
 
 //------
 //---- global lua state!
-lua_State *lvm;
+static lua_State *lvm;
 
 void w_run_code(const char *code) {
     l_dostring(lvm, code, "w_run_code");
@@ -2092,6 +2092,12 @@ void w_handle_system_cmd(char *capture) {
     lua_remove(lvm, -2);
     lua_pushstring(lvm, capture);
     l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+void w_handle_custom_weave(event_custom_weave_op_t op, void *value) {
+    // call the externally defined `op` function passing in the current lua
+    // state
+    op(value, lvm);
 }
 
 // helper: set poll given by lua to given state

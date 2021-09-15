@@ -306,8 +306,7 @@ static void handle_event(union event_data *ev) {
         w_handle_softcut_position(ev->softcut_position.idx, ev->softcut_position.pos);
         break;
     case EVENT_CUSTOM:
-        assert(ev->custom.ops->weave != NULL);
-        ev->custom.ops->weave(ev->custom.value);
+        w_handle_custom_weave(ev->custom.ops->weave, ev->custom.value);
         break;
     } /* switch */
 
