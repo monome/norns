@@ -75,8 +75,7 @@ local function pset_list(results)
   end
 
   for _,file in pairs(t) do
-    local n = string.gsub(file,'.pset','')
-    n = tonumber(string.sub(n,-2,-1))
+    local n = tonumber(file:match"(%d+).pset$")
     if not n then n=1 end
     --print(file,n)
     local name = norns.state.shortname
