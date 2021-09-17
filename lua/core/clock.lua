@@ -215,13 +215,18 @@ function clock.add_params()
       norns.state.clock.link_quantum = x
     end)
   params:set_save("link_quantum", false)
-  local clock_table = {"off"}
-  for i = 1,16 do
+  local clock_midi_out_table = {"off"}
+	local max_midi_clock_out_devices = 16
+  for i = 1,max_midi_clock_out_devices do
     local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-    clock_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+    clock_midi_out_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+		if i == max_midi_clock_out_devices then -- TODO: if clock in is set to midi, we do not allow broadcast. 
+																						-- If I find a cost efficient way, we will filter the incoming device to avoid feedback.
+			clock_midi_out_table[i+2] = "Broadcast"
+		end
   end
   params:add_option("clock_midi_out", "midi out",
-      clock_table, norns.state.clock.midi_out)
+      clock_midi_out_table, norns.state.clock.midi_out)
   params:set_action("clock_midi_out", function(x) norns.state.clock.midi_out = x end)
   params:set_save("clock_midi_out", false)
   params:add_option("clock_crow_out", "crow out",
@@ -265,15 +270,21 @@ function clock.add_params()
 
   -- executes midi out (needs a subtick)
   -- FIXME: lots of if's every tick blah
-  clock.run(function()
+ clock.run(function()
     while true do
       clock.sync(1/24)
       local midi_out = params:get("clock_midi_out")-1
-      if midi_out > 0 then
+      if midi_out > 0 and midi_out <= 16 then
         if midi.vports[midi_out].name ~= "none" then
           midi.vports[midi_out]:clock()
-        end
-      end
+				end
+			elseif midi_out == max_midi_clock_out_devices + 1 then
+				for i=1, max_midi_clock_out_devices do
+					if midi.vports[i].name ~= "none" then
+						midi.vports[i]:clock()	
+					end
+				end
+			end
     end
   end)
 
