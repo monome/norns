@@ -215,21 +215,41 @@ function clock.add_params()
       norns.state.clock.link_quantum = x
     end)
   params:set_save("link_quantum", false)
-  local clock_midi_out_table = {"off"}
+	
+  local clock_midi_out_parameter_table = {"off"}
 	local max_midi_clock_out_devices = 16
+	local clock_midi_sync_function_table = {(function() print("midi clock send is off") end)} -- !DAS ERGIBT NIL VALUE!!!! SCHEISSE!
+	local clock_midi_connected_device_numbers = {}
+
   for i = 1,max_midi_clock_out_devices do
     local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-    clock_midi_out_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+		print("adding "..short_name.." to clock out table at i: "..i)
+    clock_midi_out_parameter_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+		if midi.vports[i].name ~= "none" then
+			clock_midi_sync_function_table[i+1] = (function() print("midi clock send is set to CONNECTED vport: "..i) midi.vports[i]:clock() end)
+			clock_midi_connected_device_numbers[i] = i
+		else
+			clock_midi_sync_function_table[i+1] = (function() print("midi clock send is set to disconnected vport"..i ) end)
+		end
 		if i == max_midi_clock_out_devices then -- TODO: if clock in is set to midi, we do not allow broadcast. 
 																						-- If I find a cost efficient way, we will filter the incoming device to avoid feedback.
-			clock_midi_out_table[i+2] = "Broadcast"
+			clock_midi_out_parameter_table[i+2] = "Broadcast"
+			clock_midi_sync_function_table[i+2] = (function() 
+				for c=1, max_midi_clock_out_devices do
+					print("midi clock send is set to Broadcast!") 
+					midi.vports[c]:clock()
+				end
+			end)
 		end
+	
   end
   params:add_option("clock_midi_out", "midi out",
-      clock_midi_out_table, norns.state.clock.midi_out)
+      clock_midi_out_parameter_table, norns.state.clock.midi_out)
   params:set_action("clock_midi_out", function(x) norns.state.clock.midi_out = x end)
+
   params:set_save("clock_midi_out", false)
-  params:add_option("clock_crow_out", "crow out",
+	-- *********** Crow ***********
+	params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
       --if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
@@ -273,18 +293,9 @@ function clock.add_params()
  clock.run(function()
     while true do
       clock.sync(1/24)
-      local midi_out = params:get("clock_midi_out")-1
-      if midi_out > 0 and midi_out <= 16 then
-        if midi.vports[midi_out].name ~= "none" then
-          midi.vports[midi_out]:clock()
-				end
-			elseif midi_out == max_midi_clock_out_devices + 1 then
-				for i=1, max_midi_clock_out_devices do
-					if midi.vports[i].name ~= "none" then
-						midi.vports[i]:clock()	
-					end
-				end
-			end
+      local midi_out = params:get("clock_midi_out")
+			-- print("midi_out is: "..midi_out)
+      clock_midi_sync_function_table[midi_out]()
     end
   end)
 
