@@ -226,17 +226,17 @@ function clock.add_params()
 		print("adding "..short_name.." to clock out table at i: "..i)
     clock_midi_out_parameter_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
 		if midi.vports[i].name ~= "none" then
-			clock_midi_sync_function_table[i+1] = (function() print("midi clock send is set to CONNECTED vport: "..i) midi.vports[i]:clock() end)
+			clock_midi_sync_function_table[i+1] = (function() --[[print("midi clock send is set to CONNECTED vport: "..i)]] midi.vports[i]:clock() end)
 			clock_midi_connected_device_numbers[i] = i
 		else
-			clock_midi_sync_function_table[i+1] = (function() print("midi clock send is set to disconnected vport"..i ) end)
+			clock_midi_sync_function_table[i+1] = (function() --[[print("midi clock send is set to disconnected vport"..i )]] end)
 		end
 		if i == max_midi_clock_out_devices then -- TODO: if clock in is set to midi, we do not allow broadcast. 
 																						-- If I find a cost efficient way, we will filter the incoming device to avoid feedback.
 			clock_midi_out_parameter_table[i+2] = "Broadcast"
 			clock_midi_sync_function_table[i+2] = (function() 
-				for c=1, max_midi_clock_out_devices do
-					print("midi clock send is set to Broadcast!") 
+				for c=1	, max_midi_clock_out_devices do
+					-- print("midi clock send is set to Broadcast!") 
 					midi.vports[c]:clock()
 				end
 			end)
