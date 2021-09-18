@@ -28,6 +28,9 @@ function m.refresh()
   for _, device in pairs(arc.devices) do
     table.insert(m.options.arc, device.name)
   end
+  for _, device in pairs(hid.devices) do
+    table.insert(m.options.hid, device.name)
+  end
   for layout, _ in pairs(keyboard.keymap) do
     table.insert(m.options["keyboard layout"], layout)
   end
