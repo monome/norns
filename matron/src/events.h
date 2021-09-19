@@ -9,7 +9,7 @@
 extern void events_init(void);
 extern void event_loop(void);
 MATRON_API extern union event_data *event_data_new(event_t evcode);
-MATRON_API extern union event_data *event_custom_new(struct event_custom_ops *ops, void *value);
+MATRON_API extern union event_data *event_custom_new(struct event_custom_ops *ops, void *value, void *context);
 MATRON_API extern void event_data_free(union event_data *ev);
 MATRON_API extern void event_post(union event_data *ev);
 extern void event_handle_pending(void);

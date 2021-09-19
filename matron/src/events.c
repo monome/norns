@@ -104,11 +104,12 @@ MATRON_API union event_data *event_data_new(event_t type) {
     return ev;
 }
 
-MATRON_API union event_data *event_custom_new(struct event_custom_ops *ops, void *value) {
+MATRON_API union event_data *event_custom_new(struct event_custom_ops *ops, void *value, void *context) {
     assert(ops != NULL);
     union event_data *ev = event_data_new(EVENT_CUSTOM);
     ev->custom.ops = ops;
     ev->custom.value = value;
+    ev->custom.context = context;
     return ev;
 }
 
@@ -136,7 +137,9 @@ MATRON_API void event_data_free(union event_data *ev) {
         free(ev->softcut_render.data);
         break;
     case EVENT_CUSTOM:
-        if (ev->custom.ops->free) ev->custom.ops->free(ev->custom.value);
+        if (ev->custom.ops->free) {
+            ev->custom.ops->free(ev->custom.value, ev->custom.context);
+        }
         break;
     }
     free(ev);
@@ -306,7 +309,7 @@ static void handle_event(union event_data *ev) {
         w_handle_softcut_position(ev->softcut_position.idx, ev->softcut_position.pos);
         break;
     case EVENT_CUSTOM:
-        w_handle_custom_weave(ev->custom.ops->weave, ev->custom.value);
+        w_handle_custom_weave(ev->custom.ops->weave, ev->custom.value, ev->custom.context);
         break;
     } /* switch */
 

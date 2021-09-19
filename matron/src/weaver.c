@@ -2094,10 +2094,10 @@ void w_handle_system_cmd(char *capture) {
     l_report(lvm, l_docall(lvm, 1, 0));
 }
 
-void w_handle_custom_weave(event_custom_weave_op_t op, void *value) {
+void w_handle_custom_weave(event_custom_weave_op_t op, void *value, void *context) {
     // call the externally defined `op` function passing in the current lua
     // state
-    op(value, lvm);
+    op(lvm, value, context);
 }
 
 // helper: set poll given by lua to given state

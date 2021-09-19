@@ -316,8 +316,8 @@ struct event_softcut_position {
     float pos;
 };
 
-typedef void (*event_custom_weave_op_t)(void *value, lua_State *lvm);
-typedef void (*event_custom_free_op_t)(void *value);
+typedef void (*event_custom_weave_op_t)(lua_State *lvm, void *value, void *context);
+typedef void (*event_custom_free_op_t)(void *value, void *context);
 
 struct event_custom_ops {
     const char *type_name;
@@ -329,7 +329,8 @@ struct event_custom {
     struct event_common common;
     struct event_custom_ops *ops;
     void *value;
-}; // +8
+    void *context;
+}; // +12
 
 union event_data {
     uint32_t type;
