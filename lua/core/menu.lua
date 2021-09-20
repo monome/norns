@@ -6,6 +6,7 @@ local util = require 'util'
 local fileselect = require 'fileselect'
 local listselect = require 'listselect'
 local textentry = require 'textentry'
+local gamepad = require 'gamepad'
 
 _menu = {}
 
@@ -238,6 +239,36 @@ end
 
 function _menu.keychar(c) end
 
+function _menu.dpad(axis,value)
+  if gamepad.down() then
+    _menu.penc(2,1)
+  elseif gamepad.up() then
+    _menu.penc(2,-1)
+  elseif gamepad.left() then
+    _menu.key(2,1)
+  elseif gamepad.right() then
+    _menu.key(3,1)
+  end
+end
+
+function _menu.button(b,value)
+  if value==1 or value==0 then
+    if b == "B" then
+      _menu.key(2,value)
+    elseif b == "A" then
+      _menu.key(3,value)
+    elseif value == 1 and (b == "L1" or b == "R1") then
+      local delta = b == "R1" and 1 or -1
+      local c = util.clamp(_menu.panel+delta,1,4)
+      if c ~= _menu.panel then
+        _menu.shownav = true
+        _menu.panel = c
+        _menu.set_page(_menu.panels[_menu.panel])
+        nav_vanish:start()
+      end
+    end
+  end
+end
 
 -- interfaces
 
