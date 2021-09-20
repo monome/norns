@@ -6,6 +6,8 @@ local hid_events = require 'hid_events'
 local hid_device_class = require 'hid_device_class'
 local tab  = require 'tabutil'
 
+local gamepad  = require 'gamepad'
+
 local Hid = {}
 Hid.__index = Hid
 
@@ -44,8 +46,8 @@ function Hid.new(id, name, types, codes, dev)
   device.types = {}
   device.codes = {}
   -- types table shall be a simple array with default indexing
-  for k,v in pairs(types) do 
-    device.types[k] = v 
+  for k,v in pairs(types) do
+    device.types[k] = v
   end
   -- codes table shall be an associate array indexed by type
   for k,v in pairs(codes) do
@@ -57,7 +59,7 @@ function Hid.new(id, name, types, codes, dev)
 
   device.is_ascii_keyboard = hid_device_class.is_ascii_keyboard(device)
   device.is_mouse = hid_device_class.is_mouse(device)
-
+  device.is_gamepad = hid_device_class.is_gamepad(device)
 
   -- autofill next postiion
   local connected = {}
@@ -84,6 +86,7 @@ function Hid.add(dev)
   print("HID device was added:", dev.id, dev.name)
   if dev.is_ascii_keyboard then print("this appears to be an ASCII keyboard!") end
   if dev.is_mouse then print("this appears to be a mouse!") end
+  if dev.is_gamepad then print("this appears to be a gamepad!") end
 
 end
 
@@ -172,6 +175,8 @@ _norns.hid.event = function(id, type, code, value)
 
     if device.is_ascii_keyboard then
       keyboard.process(type,code,value)
+    elseif device.is_gamepad then
+      gamepad.process(device.name,type,code,value)
     end
   else
     error('no entry for hid '..id)
