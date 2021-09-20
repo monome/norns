@@ -97,4 +97,4 @@ extern void w_handle_startup_ready_timeout();
 extern void w_handle_system_cmd();
 
 // custom events
-extern void w_handle_custom_weave(event_custom_weave_op_t op, void *value, void *context);
+extern void w_handle_custom_weave(struct event_custom *ev);
