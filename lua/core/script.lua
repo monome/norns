@@ -10,6 +10,23 @@ local Script = {}
 Script.clear = function()
   print("# script clear")
 
+  if cleanup ~= nil then
+    local ok, err
+    ok, err = pcall(cleanup)
+    if not ok then
+      print("### cleanup failed with error: "..err)
+    end
+  end
+
+  -- allow mods to do cleanup
+  hook.script_post_cleanup()
+
+  -- unload asl package entry so `require 'asl'` works
+  -- todo(pq): why is this not needed generally (e.g., for 'ui', 'util', etc.)?
+  if package.loaded['asl'] ~= nil then
+    package.loaded['asl'] = nil
+  end
+
   -- script local state
   local state = { }
 
@@ -133,30 +150,15 @@ Script.load = function(filename)
     end
   end
 
-  print("# script load: " .. filename)
-
   local f=io.open(filename,"r")
   if f==nil then
-    print("file not found: "..filename)
+    print("# script load failed, file not found: " .. filename)
   else
     io.close(f)
-    local ok, err
-    ok, err = pcall(cleanup)
-    if ok then print("# cleanup")
-    else
-      print("### cleanup failed with error: "..err)
-    end
-
-    -- allow mods to do cleanup
-    hook.script_post_cleanup()
-
-    -- unload asl package entry so `require 'asl'` works
-    -- todo(pq): why is this not needed generally (e.g., for 'ui', 'util', etc.)?
-    if package.loaded['asl'] ~= nil then
-      package.loaded['asl'] = nil
-    end
 
     Script.clear() -- clear script variables and functions
+
+    print("# script load: " .. filename)
 
     norns.state.script = filename
     norns.state.name = name
