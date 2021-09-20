@@ -33,6 +33,7 @@
 #include "device_midi.h"
 #include "device_monome.h"
 #include "events.h"
+#include "event_custom.h"
 #include "hello.h"
 #include "i2c.h"
 #include "lua_eval.h"
@@ -53,7 +54,7 @@
 
 //------
 //---- global lua state!
-lua_State *lvm;
+static lua_State *lvm;
 
 void w_run_code(const char *code) {
     l_dostring(lvm, code, "w_run_code");
@@ -2092,6 +2093,12 @@ void w_handle_system_cmd(char *capture) {
     lua_remove(lvm, -2);
     lua_pushstring(lvm, capture);
     l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+void w_handle_custom_weave(struct event_custom *ev) {
+    // call the externally defined `op` function passing in the current lua
+    // state
+    ev->ops->weave(lvm, ev->value, ev->context);
 }
 
 // helper: set poll given by lua to given state

@@ -2,6 +2,7 @@
 
 #include "device_hid.h"
 #include "oracle.h"
+#include "event_types.h"
 
 // initialize the lua VM and run setup scripts
 extern void w_init(void);
@@ -94,3 +95,6 @@ extern void w_handle_startup_ready_timeout();
 
 // util callbacks
 extern void w_handle_system_cmd();
+
+// custom events
+extern void w_handle_custom_weave(struct event_custom *ev);
