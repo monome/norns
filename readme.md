@@ -7,12 +7,11 @@
 
 norns is primarily intended to run on a pi-based sound computer designed by [monome](https://monome.org/norns), which has some supporting repositories:
 
+- maiden, the editor: [github.com/monome/maiden](https://github.com/monome/maiden/)
+- softcut (part of `matron`): [github.com/monome/softcut-lib](https://github.com/monome/softcut-lib)
 - raspbian-based disk image: [github.com/monome/norns-image](https://github.com/monome/norns-image)
 - modified linux kernel: [github.com/monome/linux/](https://github.com/monome/linux/)
 - shield, the DIY open-source hardware variant: [github.com/monome/norns-shield](https://github.com/monome/norns-shield)
-
-`crone` features [softcut](https://github.com/monome/softcut-lib) for realtime audio buffer manipulation.
-
 
 ## quick reference
 
