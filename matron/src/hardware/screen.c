@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <cairo-ft.h>
 #include <cairo.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <stdint.h>
