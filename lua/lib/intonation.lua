@@ -1,5 +1,5 @@
 --- "just" some intonation tables
--- @module intonation
+-- @module lib.intonation
 -- @alias JI
 
 local JI = {}

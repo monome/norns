@@ -1,3 +1,151 @@
+# 210826
+
+# norns-beta
+
+- NEW hooks and mods system @ngwese @catfact
+- NEW sequins library @tyleretters @trentgill
+- NEW keyboard layouts @p3r7
+- NEW hold K1 in SELECT to fast-scroll @dndrks
+- FIX util.wrap and util.wrap_max bounds @dndrks
+- FIX tab.count @discohead
+
+
+# 210706
+
+# norns 2.5.4
+
+- FIX clock sleep interlaced with sync @artfwo
+- FIX crow init @trentgill
+
+
+# 210701
+
+## maiden 1.1.2
+
+- NEW add ctl+enter (or cmd+enter) key binding to trigger editor selection evaluation @schollz
+- NEW select current editor line for evaluation if no selection exists @schollz
+- FIX disable auto correction/completion/capitalization in the REPL  @xmacex
+
+
+# 210630
+
+## norns 2.5.2
+
+- NEW crow 3 support and simplified namespace @trentgill
+- NEW util.file_size @dndrks
+- FIX clock offsets @artfwo
+- FIX device monitor @catfact
+- FIX crow clock out @tehn
+
+
+# 210607
+
+## norns 2.5.1
+
+- NEW latest grid support (CDC) @catfact
+- FIX non-crow CDC devices not sent crow queries @tehn
+- FIX menu update bug due to jack change @tehn
+- FIX menu redraw bug @schollz
+
+
+# 210524
+
+## norns 2.5.0
+
+- NEW clock: overhauled clock system, uses jack time and improved sync @artfwo
+- NEW softcut: query position feature @catfact @tehn
+
+
+# 210411
+
+## norns 2.4.11
+
+- ADD menu: SYSTEM > RESTART (like reset, but don't erase state) @tehn
+- FIX softcut: set loop points and position at same time @catfact
+- FIX fileselect: allow symlinks (ie, to support usb disks) @csboling
+- FIX screenshot: antialias mode to GRAY to prevent color distortion @csboling
+- ADD params: get_range() to control type @justmat
+- ADD lattice: hard reset with modified divisions @kasperbauer
+
+## maiden 1.1.1
+
+- ADD documentation link for catalog entries @ngwese
+- ADD improved UX with installing/updating scripts @ngwese
+- FIX supercollider repl eval @ngwese
+
+
+# 210323
+
+## norns 2.4.10
+
+- NEW cpu monitoring shows all four cores, UI adjustment @tehn
+- NEW lattice: add hard reset @schollz
+- FIX crow: multiline packet parsing @trentgill
+- FIX params: exclude trigger type from params.bang @andr-ew
+- FIX compilation: osc handler signatures @catfact
+
+
+# 210301
+
+## norns 2.4.9
+
+- NEW update: use releases.txt and provide beta option @tehn
+- NEW osc key/enc: add single arg version ie /remote/enc/n d @catfact
+- NEW crow update 2.1.2 @trent
+- NEW hide crow subfolder inside scripts @tehn
+- ADD param: taper get_range @justmat
+- ADD menu: _menu.params_rebuild() for dynamic menus @schollz
+- FIX softcut init values @catfact
+- FIX font list in docs @hiqualityh2o
+- FIX sane param defaults @tehn
+
+
+# 210114
+
+## norns 2.4.8
+
+- NEW keyboard: easier keyboard management in scripts @tehn
+- NEW keyboard: basic menu control via keyboard @tehn
+- FIX params: reverb/comp settings persist between script loads
+- NEW help system: quick script reference via REPL @tehn
+- NEW lib: lattice is a clock patterning framework @tyleretters
+- NEW api: norns.shutdown() can be called by script @tyleretters
+- FIX clock: tune sync multiplier thresholds @artfwo
+- FIX screen: clamp level input, prevent crash @tehn
+- NEW lib: util.wrap() util.wrap_max() @tyleretters
+- NEW params: read() accepts and passes "silent" arg @schollz
+- NEW menu: now 16 vports for midi @dndrks
+- NEW params: pmap now autosaves @dndrks
+- GONE norns.fetch: use ;install in maiden instead @tehn
+
+## maiden
+
+- NEW ;install command for fetching remote repositories
+- NEW refresh all button @ngwese
+- NEW script stop/clear button @ngwese
+- FIX improve implicit untitled.lua creation @ngwese
+- FIX upgrade versions @ngwese
+- CHANGE rename sc -> supercollider for clarity @ngwese
+
+## norns-image
+
+- NEW watcher: separate application for key-trigger restart @tehn
+
+
+# 201202
+
+## norns 2.4.7
+
+- NEW norns.fetch() for downloading git urls to dust @tehn
+- NEW screen: peek/poke @csboling
+- NEW screen: rotate/translate/save/restore/text_rotate @tyleretters
+- NEW screen: blend modes @tlubke
+- NEW util: radian-degree convresions @tyleretters
+- NEW hid: keyboard detection @catfact
+- NEW platform: detect norns/shield/other hardware, improve messages @tehn
+- FIX params: mapping control full ranges @synthetiv
+
+
 # 201115
 
 ## norns 2.4.6

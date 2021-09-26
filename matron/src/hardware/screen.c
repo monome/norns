@@ -81,6 +81,92 @@ static FT_Error status;
 static FT_Face face[NUM_FONTS];
 static double text_xy[2];
 
+/*
+//<<<<<<< HEAD
+//=======
+typedef struct _cairo_linuxfb_device {
+    int fb_fd;
+    unsigned char *fb_data;
+    long fb_screensize;
+    struct fb_var_screeninfo fb_vinfo;
+    struct fb_fix_screeninfo fb_finfo;
+} cairo_linuxfb_device_t;
+
+// Destroy a cairo surface 
+void cairo_linuxfb_surface_destroy(void *device) {
+    cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
+
+    if (dev == NULL) {
+        return;
+    }
+
+    munmap(dev->fb_data, dev->fb_screensize);
+    close(dev->fb_fd);
+    free(dev);
+}
+
+// Create a cairo surface using the specified framebuffer
+cairo_surface_t *cairo_linuxfb_surface_create() {
+    cairo_linuxfb_device_t *device;
+    cairo_surface_t *surface;
+
+    const char *fb_name = args_framebuffer();
+
+    device = malloc(sizeof(*device));
+    if (!device) {
+        fprintf(stderr, "ERROR (screen) cannot allocate memory\n");
+        return NULL;
+    }
+
+    // Open the file for reading and writing
+    device->fb_fd = open(fb_name, O_RDWR);
+    if (device->fb_fd == -1) {
+        fprintf(stderr, "ERROR (screen) cannot open framebuffer device: %s\n", fb_name);
+        goto handle_allocate_error;
+    }
+
+    // Get variable screen information
+    if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
+        fprintf(stderr, "ERROR (screen) reading variable information\n");
+        goto handle_ioctl_error;
+    }
+
+    // Figure out the size of the screen in bytes
+    device->fb_screensize = device->fb_vinfo.xres * device->fb_vinfo.yres * device->fb_vinfo.bits_per_pixel / 8;
+
+    // Map the device to memory
+    device->fb_data =
+        (unsigned char *)mmap(0, device->fb_screensize, PROT_READ | PROT_WRITE, MAP_SHARED, device->fb_fd, 0);
+
+    if (device->fb_data == (unsigned char *)-1) {
+        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory\n");
+        goto handle_ioctl_error;
+    }
+
+    // Get fixed screen information
+    if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
+        fprintf(stderr, "ERROR (screen) reading fixed information\n");
+        goto handle_ioctl_error;
+    }
+
+    // Create the cairo surface which will be used to draw to 
+    surface = cairo_image_surface_create_for_data(
+        device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
+        cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
+    cairo_surface_set_user_data(surface, NULL, device, &cairo_linuxfb_surface_destroy);
+
+    return surface;
+
+handle_ioctl_error:
+    close(device->fb_fd);
+handle_allocate_error:
+    free(device);
+    return NULL;
+}
+
+//>>>>>>> main
+*/
+
 void screen_display_png(const char *filename, double x, double y) {
     int img_w, img_h;
     // fprintf(stderr, "loading: %s\n", filename);
@@ -185,11 +271,13 @@ void screen_init(void) {
 
     assert(i == NUM_FONTS);
 
+#if 0 // is this really necessary?
     fprintf(stderr, "fonts: \n");
     for (int i = 0; i < NUM_FONTS; ++i) {
         fprintf(stderr, "  %d: %s\n", i, font_path[i]);
     }
-
+#endif
+    
     char filename[256];
 
     for (int i = 0; i < NUM_FONTS; i++) {
@@ -214,7 +302,7 @@ void screen_init(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     cairo_font_options_t *font_options = cairo_font_options_create();
-    cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_SUBPIXEL);
+    cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_GRAY);
     cairo_set_font_options(cr, font_options);
     cairo_font_options_destroy(font_options);
 
@@ -287,7 +375,7 @@ void screen_aa(int s) {
         cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_NONE);
     } else {
         cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
-        cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_SUBPIXEL);
+        cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_GRAY);
     }
     cairo_set_font_options(cr, font_options);
     cairo_font_options_destroy(font_options);
@@ -295,6 +383,10 @@ void screen_aa(int s) {
 
 void screen_level(int z) {
     CHECK_CR
+    if(z<0)
+        z=0;
+    else if(z>15)
+        z=15;
     cairo_set_source_rgb(cr, c[z], c[z], c[z]);
 }
 

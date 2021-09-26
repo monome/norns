@@ -19,8 +19,18 @@ static struct args a = {
 
 int args_parse(int argc, char **argv) {
     int opt;
-    while ((opt = getopt(argc, argv, "e:l:c:f:")) != -1) {
+    while ((opt = getopt(argc, argv, "e:l:c:f:h")) != -1) {
         switch (opt) {
+        case '?':
+        case 'h':
+        default:
+            fprintf(stdout, "Start matron with optional overrides:");
+            fprintf(stdout, "-l   override OSC local port [default %s]\n", a.loc_port);
+            fprintf(stdout, "-e   override OSC ext port [default %s]\n", a.ext_port);
+            fprintf(stdout, "-c   override crone port [default %s]\n", a.crone_port);
+            fprintf(stdout, "-f   override framebuffer file [default '%s']\n", a.framebuffer);
+            exit(1);
+            ;
         case 'l':
             strncpy(a.loc_port, optarg, ARG_BUF_SIZE - 1);
             break;
@@ -30,6 +40,10 @@ int args_parse(int argc, char **argv) {
         case 'c':
             strncpy(a.crone_port, optarg, ARG_BUF_SIZE - 1);
             break;
+	case 'f':
+            strncpy(a.framebuffer, optarg, ARG_BUF_SIZE - 1);
+            break;
+
         default:;
             ;
         }

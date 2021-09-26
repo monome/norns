@@ -1,5 +1,5 @@
 -- Trigger class
--- @module trigger
+-- @module params.trigger
 
 local Trigger = {}
 Trigger.__index = Trigger

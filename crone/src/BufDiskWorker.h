@@ -46,6 +46,7 @@ namespace crone {
             int chan;
             float fadeTime;
             float preserve;
+            float mix;
             bool reverse;
             int samples;
             RenderCallback renderCallback;
@@ -99,12 +100,12 @@ namespace crone {
         // read mono soundfile to mono buffer
         static void
         requestReadMono(size_t idx, std::string path, float startSrc = 0, float startDst = 0, float dur = -1,
-                        int chanSrc = 0);
+                        int chanSrc = 0, float preserve = 0, float mix = 1);
 
         // read and de-interleave stereo soundfile to 2x mono buffers
         static void
         requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc = 0, float startDst = 0,
-                          float dur = -1);
+                          float dur = -1, float preserve = 0, float mix = 1);
 
         // write mono buf to mono soundfile
         static void requestWriteMono(size_t idx, std::string path, float start = 0, float dur = -1);
@@ -126,10 +127,12 @@ namespace crone {
                                float fadeTime = 0, float preserve = 0, bool reverse = false);
 
         static void readBufferMono(const std::string &path, BufDesc &buf,
-                                   float startSrc = 0, float startDst = 0, float dur = -1, int chanSrc = 0) noexcept;
+                                   float startSrc = 0, float startDst = 0, float dur = -1, int chanSrc = 0,
+                                   float preserve = 0, float mix = 1) noexcept;
 
         static void readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                     float startSrc = 0, float startDst = 0, float dur = -1) noexcept;
+                                     float startSrc = 0, float startDst = 0, float dur = -1,
+                                     float preserve = 0, float mix = 1) noexcept;
 
         static void writeBufferMono(const std::string &path, BufDesc &buf,
                                     float start = 0, float dur = -1) noexcept;

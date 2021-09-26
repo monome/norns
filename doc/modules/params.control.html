@@ -1,0 +1,429 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
+  <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><strong>params.control</strong></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>params.control</code></h1>
+<p>Control class</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Control.new">Control.new (id, name, controlspec, formatter, allow_pmap)</a></td>
+	<td class="summary">constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:map_value">Control:map_value (value)</a></td>
+	<td class="summary">map_value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:get">Control:get ()</a></td>
+	<td class="summary">get.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:get_raw">Control:get_raw ()</a></td>
+	<td class="summary">get_raw.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:unmap_value">Control:unmap_value (value)</a></td>
+	<td class="summary">unmap_value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set">Control:set (value, silent)</a></td>
+	<td class="summary">set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set_raw">Control:set_raw (value, silent)</a></td>
+	<td class="summary">set_raw.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:get_delta">Control:get_delta ()</a></td>
+	<td class="summary">get_delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:delta">Control:delta (d)</a></td>
+	<td class="summary">delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:set_default">Control:set_default ()</a></td>
+	<td class="summary">set_default.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:bang">Control:bang ()</a></td>
+	<td class="summary">bang.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:get_range">Control:get_range ()</a></td>
+	<td class="summary">get_range.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Control:string">Control:string ()</a></td>
+	<td class="summary">string.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Control.new"></a>
+    <strong>Control.new (id, name, controlspec, formatter, allow_pmap)</strong>
+    </dt>
+    <dd>
+    constructor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/params.control.html#Control:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/params.control.html#Control:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">controlspec</span>
+            <span class="types"><span class="type">ControlSpec</span></span>
+
+        </li>
+        <li><span class="parameter">formatter</span>
+            <span class="types"><span class="type">function</span></span>
+
+        </li>
+        <li><span class="parameter">allow_pmap</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:map_value"></a>
+    <strong>Control:map_value (value)</strong>
+    </dt>
+    <dd>
+    map_value.
+ takes 0-1 and returns value scaled by controlspec.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:get"></a>
+    <strong>Control:get ()</strong>
+    </dt>
+    <dd>
+    get.
+ returns mapped value.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:get_raw"></a>
+    <strong>Control:get_raw ()</strong>
+    </dt>
+    <dd>
+    get_raw.
+ get 0-1.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:unmap_value"></a>
+    <strong>Control:unmap_value (value)</strong>
+    </dt>
+    <dd>
+    unmap_value.
+ takes a scaled value and returns 0-1, quantized to step.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set"></a>
+    <strong>Control:set (value, silent)</strong>
+    </dt>
+    <dd>
+    set.
+ accepts a mapped value
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">silent</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set_raw"></a>
+    <strong>Control:set_raw (value, silent)</strong>
+    </dt>
+    <dd>
+    set_raw.
+ set 0-1.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">silent</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:get_delta"></a>
+    <strong>Control:get_delta ()</strong>
+    </dt>
+    <dd>
+    get_delta.
+ get increment used for delta()
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:delta"></a>
+    <strong>Control:delta (d)</strong>
+    </dt>
+    <dd>
+    delta.
+ add delta to current value. checks controlspec for mapped vs not.
+ default division of delta for 100 steps range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">d</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:set_default"></a>
+    <strong>Control:set_default ()</strong>
+    </dt>
+    <dd>
+    set_default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:bang"></a>
+    <strong>Control:bang ()</strong>
+    </dt>
+    <dd>
+    bang.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:get_range"></a>
+    <strong>Control:get_range ()</strong>
+    </dt>
+    <dd>
+    get_range.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Control:string"></a>
+    <strong>Control:string ()</strong>
+    </dt>
+    <dd>
+    string.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        formatted string
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-09-10 15:00:16 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

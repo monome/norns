@@ -12,7 +12,11 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
+<<<<<<< HEAD
 #include "config.h"
+=======
+#include "clocks/clock_scheduler.h"
+>>>>>>> main
 #include "device.h"
 #include "device_hid.h"
 #include "device_list.h"
@@ -28,7 +32,6 @@
 #include "platform.h"
 #include "screen.h"
 #include "stat.h"
-#include "watch.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -45,7 +48,7 @@ void cleanup(void) {
     i2c_deinit();
     battery_deinit();
     stat_deinit();
-    watch_deinit();
+    clock_deinit();
 
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
@@ -75,28 +78,49 @@ int main(int argc, char **argv) {
     clock_midi_init();
     clock_crow_init();
 #if HAVE_ABLETON_LINK
+    clock_link_init();
     clock_link_start();
 #endif
+    clock_scheduler_init();
 
-    watch_init();
-
+    fprintf(stderr, "init oracle...\n");
     o_init(); // oracle (audio)
 
+    fprintf(stderr, "init weaver...\n");
     w_init(); // weaver (scripting)
 
     dev_list_init();
     dev_list_add(DEV_TYPE_MIDI_VIRTUAL, NULL, "virtual");
+
+    fprintf(stderr, "init dev_monitor...\n");
     dev_monitor_init();
 
     // now is a good time to set our cleanup
+    fprintf(stderr, "setting cleanup...\n");
     atexit(cleanup);
+
+
+    fprintf(stderr, "init input...\n");
     // start reading input to interpreter
     input_init();
+
+    
+    fprintf(stderr, "running startup...\n");
     // i/o subsystems are ready; run user startup routine
     w_startup();
+
     // scan for connected input devices
+    fprintf(stderr, "scanning devices...\n");
     dev_monitor_scan();
 
+    // handle all resulting events, then run "post-startup"
+    fprintf(stderr, "handling pending events...\n");
+    event_handle_pending();
+
+    fprintf(stderr, "running post-startup...\n");
+    w_post_startup();
+    
+    
     // blocks until quit
     event_loop();
 }

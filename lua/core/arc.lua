@@ -1,9 +1,7 @@
---- Arc class
--- @classmod arc
--- @alias Arc
+--- Arc
+-- @module arc
 
----------------------------------
--- Arc device class
+local tab = require 'tabutil'
 
 local vport = require 'vport'
 

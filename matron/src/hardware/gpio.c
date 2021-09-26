@@ -10,8 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "hardware/gpio.h"
+#include "events.h"
 #include "hardware/input/matron_input.h"
+#include "hardware/gpio.h"
 
 static int input_init(matron_input_t* input, input_config_t* cfg, input_ops_t* ops) {
     input->data = malloc(ops->data_size);
@@ -94,5 +95,29 @@ void gpio_deinit() {
         TAILQ_REMOVE(&input_devs, input, entries);
         free(input->data);
         free(input);
+    }
+}
+
+void *key_check(void *x) {
+    (void)x;
+    int rd;
+    unsigned int i;
+    struct input_event event[64];
+
+    while (1) {
+        rd = read(key_fd, event, sizeof(struct input_event) * 64);
+        if (rd < (int)sizeof(struct input_event)) {
+            fprintf(stderr, "ERROR (key) read error\n");
+        }
+
+        for (i = 0; i < rd / sizeof(struct input_event); i++) {
+            if (event[i].type) { // make sure it's not EV_SYN == 0
+                // fprintf(stderr, "enc%d = %d\n", n, event[i].value);
+                union event_data *ev = event_data_new(EVENT_KEY);
+                ev->key.n = event[i].code;
+                ev->key.val = event[i].value;
+                event_post(ev);
+            }
+        }
     }
 }

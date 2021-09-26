@@ -3,6 +3,7 @@
 tab = require 'tabutil'
 util = require 'util'
 
+require 'help'
 require 'math'
 math.randomseed(os.time()) -- more random
 inf = math.huge
@@ -18,6 +19,7 @@ metro = require 'core/metro'
 clock = require "core/clock"
 midi = require 'core/midi'
 osc = require 'core/osc'
+keyboard = require 'core/keyboard'
 poll = require 'core/poll'
 engine = tab.readonly{table = require 'core/engine', except = {'name'}}
 softcut = require 'core/softcut'
@@ -26,7 +28,6 @@ controlspec = require 'core/controlspec'
 paramset = require 'core/paramset'
 params = paramset.new()
 norns.pmap = require 'core/pmap'
-
 
 -- load menu
 require 'core/menu'
@@ -104,4 +105,7 @@ print("start_audio(): ")
 -- start the process of syncing with crone boot
 _norns.start_audio()
 
-
+-- load matron mods and invoke system hooks
+local mods = require 'core/mods'
+mods.load_enabled()
+mods.load(mods.scan(), true) -- only load enabled mods

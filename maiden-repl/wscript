@@ -7,8 +7,7 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_c compiler_cxx')
 
-    conf.check_cfg(package='pthread', args=['--cflags', '--libs'])
-    conf.check_cfg(package='readline', args=['--cflags', '--libs'])
+    # libraries with full pkg-config data
     conf.check_cfg(package='ncursesw', args=['--cflags', '--libs'])
     conf.check_cfg(package='panel', args=['--cflags', '--libs'])
     conf.check_cfg(package='nanomsg', args=['--cflags', '--libs'])
@@ -31,8 +30,6 @@ def build(bld):
                 ],
 
                 use=[
-                    'PTHREAD',
-                    'READLINE',
                     'NCURSESW',
                     'PANEL',
                     'NANOMSG'

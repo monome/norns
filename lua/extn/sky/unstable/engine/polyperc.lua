@@ -11,7 +11,7 @@ local PolyPerc = sky.Device:extend()
 
 function PolyPerc:new(props)
   PolyPerc.super.new(self, props)
-  self:add_params()
+  -- self:add_params()
 end
 
 function PolyPerc:process(event, output, state)
@@ -22,8 +22,12 @@ function PolyPerc:process(event, output, state)
   output(event)
 end
 
-function PolyPerc:add_params()
-  params:add_separator('polyperc')
+function PolyPerc:add_params(group)
+  if group then
+    params:add_group('polyperc', 5)
+  else
+    params:add_separator('polyperc')
+  end
   params:add{ type = 'control', id = 'amp',
     controlspec = controlspec.new(0, 1, 'lin', 0, 0.5, ''),
     action = function(x) engine.amp(x) end

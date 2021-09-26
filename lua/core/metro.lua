@@ -1,6 +1,5 @@
 --- high-resolution metro API
--- @classmod metro
--- @alias Metro_mt
+-- @module metro
 
 local Metro = {}
 Metro.__index = Metro
@@ -157,16 +156,17 @@ for i=1,Metro.num_script_metros do
   Metro.assigned[i] = false
 end
 
-
-
---- Global Functions
--- @section globals
-
---- callback on metro tick from C.
+-- callback on metro tick from C.
 _norns.metro = function(idx, stage)
-  if Metro.metros[idx] then
-    if Metro.metros[idx].event then
-      Metro.metros[idx].event(stage)
+  local m = Metro.metros[idx]
+  if m then
+    if m.event then
+      m.event(stage)
+    end
+    if m.count > -1 then
+      if (stage > m.count) then
+        m.is_running = false
+      end
     end
   end
 end

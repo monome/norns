@@ -1,5 +1,5 @@
 --- ParamSet class
--- @classmod paramset
+-- @module paramset
 
 local separator = require 'core/params/separator'
 local number = require 'core/params/number'
@@ -40,6 +40,8 @@ function ParamSet.new(id, name)
   ps.hidden = {}
   ps.lookup = {}
   ps.group = 0
+  ps.action_write = nil
+  ps.action_read = nil
   ParamSet.sets[ps.id] = ps
   return ps
 end
@@ -129,13 +131,13 @@ function ParamSet:add(args)
 end
 
 --- add number.
--- @tparam string id
--- @tparam string name
--- @tparam number min
--- @tparam number max
--- @tparam boolean wrap
--- @param default
--- @param formatter
+-- @tparam string id identifier slug (no spaces)
+-- @tparam string name user-facing name (can contain spaces)
+-- @tparam number min minimum value
+-- @tparam number max maximum value
+-- @tparam number default default / initial value
+-- @tparam function formatter function accepting a value and returning a string
+-- @tparam boolean wrap if true, value wraps on delta; otherwise saturates
 function ParamSet:add_number(id, name, min, max, default, formatter, wrap)
   self:add { param=number.new(id, name, min, max, default, formatter, wrap) }
 end
@@ -299,7 +301,9 @@ end
 -- @param index
 function ParamSet:t(index)
   local param = self:lookup_param(index)
-  return param.t
+  if param ~= nil then
+    return param.t
+  end
 end
 
 --- get range
@@ -379,12 +383,16 @@ function ParamSet:write(filename, name)
       end
     end
     io.close(fd)
+    if self.action_write ~= nil then 
+      self.action_write(filename,name)
+    end
   else print("pset: BAD FILENAME") end
 end
 
 --- read from disk.
--- @param filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
-function ParamSet:read(filename)
+-- @tparam string filename either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
+-- @tparam boolean silent if true, do not trigger parameter actions
+function ParamSet:read(filename, silent)
   filename = filename or norns.state.pset_last
   if type(filename) == "number" then
     local n = filename
@@ -407,17 +415,20 @@ function ParamSet:read(filename)
 
           if index and self.params[index] then
             if tonumber(value) ~= nil then
-              self.params[index]:set(tonumber(value))
+              self.params[index]:set(tonumber(value), silent)
             elseif value == "-inf" then
-              self.params[index]:set(-math.huge)
+              self.params[index]:set(-math.huge, silent)
             elseif value == "inf" then
-              self.params[index]:set(math.huge)
+              self.params[index]:set(math.huge, silent)
             elseif value then
-              self.params[index]:set(value)
+              self.params[index]:set(value, silent)
             end
           end
         end
       end
+    end
+    if self.action_read ~= nil then 
+      self.action_read(filename,silent)
     end
   else
     print("pset :: "..filename.." not read.")
@@ -433,7 +444,7 @@ end
 --- bang all params.
 function ParamSet:bang()
   for _,v in pairs(self.params) do
-    if v.t ~= self.tTRIGGER then
+    if v.t ~= self.tTRIGGER and not (v.t == self.tBINARY and v.behavior == 'trigger') then
       v:bang()
     end
   end
@@ -444,6 +455,8 @@ function ParamSet:clear()
   self.name = ""
   self.params = {}
   self.count = 0
+  self.action_read = nil 
+  self.action_write = nil
 end
 
 return ParamSet

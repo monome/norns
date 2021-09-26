@@ -1,5 +1,5 @@
 -- Number class
--- @module number
+-- @module params.number
 
 local Number = {}
 Number.__index = Number
@@ -15,10 +15,10 @@ function Number.new(id, name, min, max, default, formatter, wrap, allow_pmap)
   o.value = o.default
   o.min = min or -2147483648
   o.max = max or 2147483647 -- 32 bit signed
-  o.range = math.abs(o.max - o.min) -- make extra sure it's nonnegative
+  o.range = math.abs(o.max - o.min) + 1
   o.formatter = formatter
   o.action = function() end
-  o.wrap = wrap and o.range ~= 0 or false
+  o.wrap = wrap and o.range ~= 1 or false
   if allow_pmap == nil then o.allow_pmap = true else o.allow_pmap = allow_pmap end
   return o
 end

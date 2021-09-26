@@ -83,6 +83,10 @@ typedef enum {
     EVENT_CROW_EVENT,
     // softcut buffer content callback
     EVENT_SOFTCUT_RENDER,
+    // softcut position callback
+    EVENT_SOFTCUT_POSITION,
+    // custom events defined in lua extensions
+    EVENT_CUSTOM,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -190,6 +194,7 @@ struct event_metro {
 struct event_clock_resume {
     struct event_common common;
     uint32_t thread_id;
+    double value;
 };
 
 struct event_clock_start {
@@ -222,6 +227,10 @@ struct event_stat {
     uint16_t disk;
     uint8_t temp;
     uint8_t cpu;
+    uint8_t cpu1;
+    uint8_t cpu2;
+    uint8_t cpu3;
+    uint8_t cpu4;
 };
 
 struct event_enc {
@@ -300,6 +309,22 @@ struct event_softcut_render {
     float* data;
 };
 
+struct event_softcut_position {
+    struct event_common common;
+    int idx;
+    float pos;
+};
+
+// forward declaration to hide scripting layer dependencies
+struct event_custom_ops;
+
+struct event_custom {
+    struct event_common common;
+    struct event_custom_ops *ops;
+    void *value;
+    void *context;
+}; // +12
+
 union event_data {
     uint32_t type;
     struct event_exec_code_line exec_code_line;
@@ -334,4 +359,6 @@ union event_data {
     struct event_crow_event crow_event;
     struct event_system_cmd system_cmd;
     struct event_softcut_render softcut_render;
+    struct event_softcut_position softcut_position;
+    struct event_custom custom;
 };

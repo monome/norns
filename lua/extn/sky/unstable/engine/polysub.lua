@@ -13,8 +13,6 @@ local PolySub = sky.Device:extend()
 
 function PolySub:new(props)
   PolySub.super.new(self, props)
-  -- MAINT: params aren't owned so it is hard to remove
-  glue.params()
   self.next_voice = 1
   self.voices = {}
 end
@@ -36,6 +34,16 @@ function PolySub:process(event, output, state)
     self.voices[event.note] = nil
   end
   output(event)
+end
+
+function PolySub:add_params(group)
+  if group then
+    -- MAINT: this must match the number of params defined by the polysub glue
+    params:add_group('polysub', 19)
+  else
+    params:add_separator('polysub')
+  end
+  glue.params()
 end
 
 local function shared_instance(props)

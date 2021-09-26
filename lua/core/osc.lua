@@ -1,6 +1,5 @@
 --- osc device
--- @classmod osc
--- @alias OSC
+-- @module osc
 
 local tab = require 'tabutil'
 local paramset = require 'core/paramset'
@@ -32,7 +31,7 @@ function OSC.send(to, path, args)
   end
 end
 
---- static method to send osc event directly to sclang.
+-- static method to send osc event directly to sclang.
 -- @tparam string path : osc message path
 -- @tparam string args : osc message args
 function OSC.send_crone(path, args)
@@ -79,23 +78,36 @@ local function param_handler(path, args)
   end
 end
 
+
 local function remote_handler(path, args)
-  if path=="/remote/key" then
-    if args[1] and args[2] then _norns.key(args[1],args[2]) end
-  elseif path=="/remote/enc" then
-    if args[1] and args[2] then _norns.enc(args[1],args[2]) end
+  local cmd = string.sub(path, 1,11)
+  local n, val
+  if #args > 1 then
+    n, val = args[1], args[2]
+  else
+    n = tonumber(string.sub(path, 13))
+    val = args[1]
+  end
+  if cmd=="/remote/key" then
+    _norns.key(n, val)
+  elseif cmd=="/remote/enc" then
+    _norns.enc(n, val)
   end
 end
+				    
 
 -- handle an osc event.
 _norns.osc.event = function(path, args, from)
+
+  if OSC.event ~= nil then OSC.event(path, args, from) end
+  
   if util.string_starts(path, "/param") then
     param_handler(path, args)
   elseif util.string_starts(path, "/remote") then
     remote_handler(path, args)
   end
 
-  if OSC.event ~= nil then OSC.event(path, args, from) end
+
 end
 
 return OSC

@@ -5,10 +5,679 @@
 <head>
     <title>norns/docs</title>
     <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
-
-  <script>
-    window.location.href = window.location.pathname.split('/modules/').join('/classes/');
-  </script>
 </head>
 <body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
+  <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><strong>midi</strong></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>midi</code></h1>
+<p>midi devices</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Midi.new">Midi.new (id, name, dev)</a></td>
+	<td class="summary">constructor</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi.add">Midi.add (dev)</a></td>
+	<td class="summary">static callback when any midi device is added.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi.remove">Midi.remove (dev)</a></td>
+	<td class="summary">static callback when any midi device is removed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:send">Midi:send (data)</a></td>
+	<td class="summary">send midi event to device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:note_on">Midi:note_on (note, vel, ch)</a></td>
+	<td class="summary">send midi note on event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:note_off">Midi:note_off (note, vel, ch)</a></td>
+	<td class="summary">send midi note off event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:cc">Midi:cc (cc, val, ch)</a></td>
+	<td class="summary">send midi continuous controller event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:pitchbend">Midi:pitchbend (val, ch)</a></td>
+	<td class="summary">send midi pitchbend event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:key_pressure">Midi:key_pressure (note, val, ch)</a></td>
+	<td class="summary">send midi key pressure event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:channel_pressure">Midi:channel_pressure (val, ch)</a></td>
+	<td class="summary">send midi channel pressure event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:program_change">Midi:program_change (val, ch)</a></td>
+	<td class="summary">send midi program change event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:start">Midi:start ()</a></td>
+	<td class="summary">send midi start event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:stop">Midi:stop ()</a></td>
+	<td class="summary">send midi stop event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:continue">Midi:continue ()</a></td>
+	<td class="summary">send midi continue event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:clock">Midi:clock ()</a></td>
+	<td class="summary">send midi clock event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:song_position">Midi:song_position (lsb, msb)</a></td>
+	<td class="summary">send midi song position event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi:song_select">Midi:song_select (val)</a></td>
+	<td class="summary">send midi song select event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi.connect">Midi.connect (n)</a></td>
+	<td class="summary">create device, returns object with handler and send.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi.cleanup">Midi.cleanup ()</a></td>
+	<td class="summary">clear handlers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi.to_data">Midi.to_data (msg)</a></td>
+	<td class="summary">convert msg to data (midi bytes).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Midi.to_msg">Midi.to_msg (data)</a></td>
+	<td class="summary">convert data (midi bytes) to msg.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Midi.new"></a>
+    <strong>Midi.new (id, name, dev)</strong>
+    </dt>
+    <dd>
+    constructor
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">integer</span></span>
+         : arbitrary numeric identifier
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         : name
+        </li>
+        <li><span class="parameter">dev</span>
+            <span class="types"><span class="type">userdata</span></span>
+         : opaque pointer to device
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi.add"></a>
+    <strong>Midi.add (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any midi device is added.
+
+ user scripts can redefine.
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Midi table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi.remove"></a>
+    <strong>Midi.remove (dev)</strong>
+    </dt>
+    <dd>
+    static callback when any midi device is removed.
+
+ user scripts can redefine.
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         : a Midi table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:send"></a>
+    <strong>Midi:send (data)</strong>
+    </dt>
+    <dd>
+    send midi event to device.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:note_on"></a>
+    <strong>Midi:note_on (note, vel, ch)</strong>
+    </dt>
+    <dd>
+    send midi note on event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">note</span>
+            <span class="types"><span class="type">integer</span></span>
+         : note number
+        </li>
+        <li><span class="parameter">vel</span>
+            <span class="types"><span class="type">integer</span></span>
+         : velocity
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : midi channel
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:note_off"></a>
+    <strong>Midi:note_off (note, vel, ch)</strong>
+    </dt>
+    <dd>
+    send midi note off event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">note</span>
+            <span class="types"><span class="type">integer</span></span>
+         : note number
+        </li>
+        <li><span class="parameter">vel</span>
+            <span class="types"><span class="type">integer</span></span>
+         : velocity
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : midi channel
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:cc"></a>
+    <strong>Midi:cc (cc, val, ch)</strong>
+    </dt>
+    <dd>
+    send midi continuous controller event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cc</span>
+            <span class="types"><span class="type">integer</span></span>
+         : cc number
+        </li>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : value
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : midi channel
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:pitchbend"></a>
+    <strong>Midi:pitchbend (val, ch)</strong>
+    </dt>
+    <dd>
+    send midi pitchbend event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : value
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : midi channel
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:key_pressure"></a>
+    <strong>Midi:key_pressure (note, val, ch)</strong>
+    </dt>
+    <dd>
+    send midi key pressure event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">note</span>
+            <span class="types"><span class="type">integer</span></span>
+         : note number
+        </li>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : value
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : midi channel
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:channel_pressure"></a>
+    <strong>Midi:channel_pressure (val, ch)</strong>
+    </dt>
+    <dd>
+    send midi channel pressure event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : value
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : midi channel
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:program_change"></a>
+    <strong>Midi:program_change (val, ch)</strong>
+    </dt>
+    <dd>
+    send midi program change event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : value
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">integer</span></span>
+         : midi channel
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:start"></a>
+    <strong>Midi:start ()</strong>
+    </dt>
+    <dd>
+    send midi start event.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:stop"></a>
+    <strong>Midi:stop ()</strong>
+    </dt>
+    <dd>
+    send midi stop event.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:continue"></a>
+    <strong>Midi:continue ()</strong>
+    </dt>
+    <dd>
+    send midi continue event.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:clock"></a>
+    <strong>Midi:clock ()</strong>
+    </dt>
+    <dd>
+    send midi clock event.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:song_position"></a>
+    <strong>Midi:song_position (lsb, msb)</strong>
+    </dt>
+    <dd>
+    send midi song position event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lsb</span>
+            <span class="types"><span class="type">integer</span></span>
+         :
+        </li>
+        <li><span class="parameter">msb</span>
+            <span class="types"><span class="type">integer</span></span>
+         :
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi:song_select"></a>
+    <strong>Midi:song_select (val)</strong>
+    </dt>
+    <dd>
+    send midi song select event.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">integer</span></span>
+         : value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi.connect"></a>
+    <strong>Midi.connect (n)</strong>
+    </dt>
+    <dd>
+    create device, returns object with handler and send.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">integer</span></span>
+         : vport index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi.cleanup"></a>
+    <strong>Midi.cleanup ()</strong>
+    </dt>
+    <dd>
+    clear handlers.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi.to_data"></a>
+    <strong>Midi.to_data (msg)</strong>
+    </dt>
+    <dd>
+    convert msg to data (midi bytes).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">msg</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         :
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        data : table of midi status and data bytes
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Midi.to_msg"></a>
+    <strong>Midi.to_msg (data)</strong>
+    </dt>
+    <dd>
+    convert data (midi bytes) to msg.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         :
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        msg : midi message table, contents vary depending on message
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-09-10 15:00:16 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
 </body>
+</html>

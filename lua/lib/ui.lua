@@ -1,7 +1,7 @@
 --- UI widgets module.
 -- Widgets for paging, tabs, lists, dials, sliders, etc.
 --
--- @classmod UI
+-- @module lib.UI
 -- @release v1.0.2
 -- @author Mark Eats
 
@@ -169,6 +169,12 @@ function UI.List:set_index_delta(delta, wrap)
   self:set_index(index)
 end
 
+--- Set selected list's active state.
+-- @tparam boolean state Boolean, true for active.
+function UI.List:set_active(state)
+  self.active = state
+end
+
 --- Redraw List.
 -- Call when changed.
 function UI.List:redraw()
@@ -237,6 +243,12 @@ function UI.ScrollingList:set_index_delta(delta, wrap)
   self:set_index(index)
 end
 
+--- Set selected scrolling list's active state.
+-- @tparam boolean state Boolean, true for active.
+function UI.ScrollingList:set_active(state)
+  self.active = state
+end
+
 --- Redraw ScrollingList.
 -- Call when changed.
 function UI.ScrollingList:redraw()
@@ -280,6 +292,12 @@ function UI.Message.new(text_array)
   setmetatable(UI.Message, {__index = UI})
   setmetatable(message, UI.Message)
   return message
+end
+
+--- Set message's active state.
+-- @tparam boolean state Boolean, true for active.
+function UI.Message:set_active(state)
+  self.active = state
 end
 
 --- Redraw Message.
@@ -354,6 +372,12 @@ end
 -- @tparam number position Marker position number.
 function UI.Slider:set_marker_position(id, position)
   self.markers[id] = util.clamp(position, self.min_value, self.max_value)
+end
+
+--- Set slider's active state.
+-- @tparam boolean state Boolean, true for active.
+function UI.Slider:set_active(state)
+  self.active = state
 end
 
 --- Redraw Slider.
@@ -489,6 +513,12 @@ function UI.Dial:set_marker_position(id, position)
   self._marker_points[id].y2 = y_center + math.sin(marker_angle) * marker_out
 end
 
+--- Set dial's active state.
+-- @tparam boolean state Boolean, true for active.
+function UI.Dial:set_active(state)
+  self.active = state
+end
+
 --- Redraw Dial.
 -- Call when changed.
 function UI.Dial:redraw()
@@ -559,6 +589,18 @@ function UI.PlaybackIcon.new(x, y, size, status)
   setmetatable(UI.PlaybackIcon, {__index = UI})
   setmetatable(playback_icon, UI.PlaybackIcon)
   return playback_icon
+end
+
+--- Set PlaybackIcon's status.
+-- @tparam number status Status number. 1 = Play, 2 = Reverse Play, 3 = Pause, 4 = Stop.
+function UI.PlaybackIcon:set_status(status)
+  self.status = status
+end
+
+--- Set PlaybackIcon's active state.
+-- @tparam boolean state Boolean, true for active.
+function UI.PlaybackIcon:set_active(state)
+  self.active = state
 end
 
 --- Redraw PlaybackIcon.

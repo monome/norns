@@ -1,5 +1,5 @@
 -- Binary class
--- @module toggle
+-- @module params.toggle
 
 local Binary = {}
 Binary.__index = Binary

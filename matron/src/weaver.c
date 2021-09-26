@@ -11,6 +11,7 @@
 #include <string.h>
 
 // linux / posix
+#include <glob.h>
 #include <pthread.h>
 #include <signal.h>
 #include <sys/time.h>
@@ -26,11 +27,13 @@
 #include "clocks/clock_crow.h"
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
+#include "clocks/clock_scheduler.h"
 #include "device_crow.h"
 #include "device_hid.h"
 #include "device_midi.h"
 #include "device_monome.h"
 #include "events.h"
+#include "event_custom.h"
 #include "hello.h"
 #include "i2c.h"
 #include "lua_eval.h"
@@ -51,7 +54,7 @@
 
 //------
 //---- global lua state!
-lua_State *lvm;
+static lua_State *lvm;
 
 void w_run_code(const char *code) {
     l_dostring(lvm, code, "w_run_code");
@@ -192,6 +195,7 @@ static int _cut_buffer_read_stereo(lua_State *l);
 static int _cut_buffer_write_mono(lua_State *l);
 static int _cut_buffer_write_stereo(lua_State *l);
 static int _cut_buffer_render(lua_State *l);
+static int _cut_query_position(lua_State *l);
 static int _cut_reset(lua_State *l);
 static int _set_cut_param(lua_State *l);
 static int _set_cut_param_ii(lua_State *l);
@@ -223,6 +227,7 @@ static int _sound_file_inspect(lua_State *l);
 
 // util
 static int _system_cmd(lua_State *l);
+static int _system_glob(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
@@ -332,6 +337,7 @@ void w_init(void) {
     lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
     lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
     lua_register_norns("cut_buffer_render", &_cut_buffer_render);
+    lua_register_norns("cut_query_position", &_cut_query_position);
     lua_register_norns("cut_reset", &_cut_reset);
     lua_register_norns("cut_param", &_set_cut_param);
     lua_register_norns("cut_param_ii", &_set_cut_param_ii);
@@ -343,6 +349,7 @@ void w_init(void) {
 
     // util
     lua_register_norns("system_cmd", &_system_cmd);
+    lua_register_norns("system_glob", &_system_glob);
 
     // low-level monome grid control
     lua_register_norns("grid_set_led", &_grid_set_led);
@@ -480,8 +487,12 @@ void w_init(void) {
 // run startup code
 // audio backend should be running
 void w_startup(void) {
-    fprintf(stderr, "running startup\n");
     lua_getglobal(lvm, "_startup");
+    l_report(lvm, l_docall(lvm, 0, 0));
+}
+
+void w_post_startup(void) {
+    lua_getglobal(lvm, "_post_startup");
     l_report(lvm, l_docall(lvm, 0, 0));
 }
 
@@ -1509,24 +1520,24 @@ int _clock_schedule_sleep(lua_State *l) {
     int coro_id = (int)luaL_checkinteger(l, 1);
     double seconds = luaL_checknumber(l, 2);
 
-    if (seconds <= 0) {
-        w_handle_clock_resume(coro_id);
-    } else {
-        clock_schedule_resume_sleep(coro_id, seconds);
+    if (seconds < 0) {
+        seconds = 0;
     }
+
+    clock_scheduler_schedule_sleep(coro_id, seconds);
 
     return 0;
 }
 
 int _clock_schedule_sync(lua_State *l) {
-    lua_check_num_args(2);
     int coro_id = (int)luaL_checkinteger(l, 1);
-    double beats = luaL_checknumber(l, 2);
+    double sync_beat = luaL_checknumber(l, 2);
+    double offset = luaL_optnumber(l, 3, 0);
 
-    if (beats <= 0) {
-        w_handle_clock_resume(coro_id);
+    if (sync_beat <= 0) {
+        luaL_error(l, "invalid sync beat: %f", sync_beat);
     } else {
-        clock_schedule_resume_sync(coro_id, beats);
+        clock_scheduler_schedule_sync(coro_id, sync_beat, offset);
     }
 
   return 0;
@@ -1535,7 +1546,7 @@ int _clock_schedule_sync(lua_State *l) {
 int _clock_cancel(lua_State *l) {
     lua_check_num_args(1);
     int coro_id = (int)luaL_checkinteger(l, 1);
-    clock_cancel_coro(coro_id);
+    clock_scheduler_clear(coro_id);
     return 0;
 }
 
@@ -1547,9 +1558,7 @@ int _clock_internal_set_tempo(lua_State *l) {
 }
 
 int _clock_internal_start(lua_State *l) {
-    lua_check_num_args(1);
-    double new_beat = luaL_checknumber(l, 1);
-    clock_internal_start(new_beat, true);
+    clock_internal_restart();
     return 0;
 }
 
@@ -1589,7 +1598,7 @@ int _clock_set_source(lua_State *l) {
 }
 
 int _clock_get_time_beats(lua_State *l) {
-    lua_pushnumber(l, clock_gettime_beats());
+    lua_pushnumber(l, clock_get_beats());
     return 1;
 }
 
@@ -1922,12 +1931,13 @@ void w_handle_metro(const int idx, const int stage) {
 }
 
 // clock handlers
-void w_handle_clock_resume(const int coro_id) {
+void w_handle_clock_resume(const int coro_id, double value) {
     lua_getglobal(lvm, "clock");
     lua_getfield(lvm, -1, "resume");
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, coro_id);
-    l_report(lvm, l_docall(lvm, 1, 0));
+    lua_pushnumber(lvm, value);
+    l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 void w_handle_clock_start() {
@@ -1980,14 +1990,19 @@ void w_handle_power(const int present) {
 }
 
 // stat
-void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu) {
+void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu,
+    const uint16_t cpu1, const uint16_t cpu2, const uint16_t cpu3, const uint16_t cpu4) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "stat");
     lua_remove(lvm, -2);
     lua_pushinteger(lvm, disk);
     lua_pushinteger(lvm, temp);
     lua_pushinteger(lvm, cpu);
-    l_report(lvm, l_docall(lvm, 3, 0));
+    lua_pushinteger(lvm, cpu1);
+    lua_pushinteger(lvm, cpu2);
+    lua_pushinteger(lvm, cpu3);
+    lua_pushinteger(lvm, cpu4);
+    l_report(lvm, l_docall(lvm, 7, 0));
 }
 
 void w_handle_poll_value(int idx, float val) {
@@ -2055,6 +2070,15 @@ void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t 
     l_report(lvm, l_docall(lvm, 4, 0));
 }
 
+void w_handle_softcut_position(int idx, float pos) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "softcut_position");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, idx + 1);
+    lua_pushnumber(lvm, pos);
+    l_report(lvm, l_docall(lvm, 2, 0));
+}
+
 // handle system command capture
 void w_handle_system_cmd(char *capture) {
     lua_getglobal(lvm, "_norns");
@@ -2062,6 +2086,12 @@ void w_handle_system_cmd(char *capture) {
     lua_remove(lvm, -2);
     lua_pushstring(lvm, capture);
     l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+void w_handle_custom_weave(struct event_custom *ev) {
+    // call the externally defined `op` function passing in the current lua
+    // state
+    ev->ops->weave(lvm, ev->value, ev->context);
 }
 
 // helper: set poll given by lua to given state
@@ -2343,24 +2373,28 @@ int _cut_buffer_copy_stereo(lua_State *l) {
 }
 
 int _cut_buffer_read_mono(lua_State *l) {
-    lua_check_num_args(6);
+    lua_check_num_args(8);
     const char *s = luaL_checkstring(l, 1);
     float start_src = (float)luaL_checknumber(l, 2);
     float start_dst = (float)luaL_checknumber(l, 3);
     float dur = (float)luaL_checknumber(l, 4);
     int ch_src = (int)luaL_checkinteger(l, 5) - 1;
     int ch_dst = (int)luaL_checkinteger(l, 6) - 1;
-    o_cut_buffer_read_mono((char *)s, start_src, start_dst, dur, ch_src, ch_dst);
+    float preserve = (float)luaL_checknumber(l, 7);
+    float mix = (float)luaL_checknumber(l, 8);
+    o_cut_buffer_read_mono((char *)s, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix);
     return 0;
 }
 
 int _cut_buffer_read_stereo(lua_State *l) {
-    lua_check_num_args(4);
+    lua_check_num_args(6);
     const char *s = luaL_checkstring(l, 1);
     float start_src = (float)luaL_checknumber(l, 2);
     float start_dst = (float)luaL_checknumber(l, 3);
     float dur = (float)luaL_checknumber(l, 4);
-    o_cut_buffer_read_stereo((char *)s, start_src, start_dst, dur);
+    float preserve = (float)luaL_checknumber(l, 5);
+    float mix = (float)luaL_checknumber(l, 6);
+    o_cut_buffer_read_stereo((char *)s, start_src, start_dst, dur, preserve, mix);
     return 0;
 }
 
@@ -2390,6 +2424,13 @@ int _cut_buffer_render(lua_State *l) {
     float dur = (float)luaL_checknumber(l, 3);
     int samples = (int)luaL_checknumber(l, 4);
     o_cut_buffer_render(ch, start, dur, samples);
+    return 0;
+}
+
+int _cut_query_position(lua_State *l) {
+    lua_check_num_args(1);
+    int i = (int)luaL_checkinteger(l, 1) - 1;
+    o_cut_query_position(i);
     return 0;
 }
 
@@ -2534,6 +2575,33 @@ int _system_cmd(lua_State *l) {
     const char *cmd = luaL_checkstring(l, 1);
     system_cmd((char *)cmd);
     return 0;
+}
+
+int _system_glob(lua_State *l) {
+    lua_check_num_args(1);
+    const char *pattern = luaL_checkstring(l, 1);
+
+    int glob_status = 0;
+    int glob_flags = GLOB_MARK | GLOB_TILDE | GLOB_BRACE;
+    glob_t g;
+
+    unsigned int i;
+
+    glob_status = glob(pattern, glob_flags, NULL, &g);
+
+    if (glob_status != 0) {
+        lua_pushnil(l);
+        lua_pushinteger(l, glob_status);
+        return 2;
+    }
+
+    lua_newtable(l);
+    for(i=1; i<=g.gl_pathc; i++) {
+        lua_pushstring(l, g.gl_pathv[i-1]);
+        lua_rawseti(l, -2, i);
+    }
+    globfree(&g);
+    return 1;
 }
 
 int _platform(lua_State *l) {

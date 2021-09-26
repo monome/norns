@@ -1,6 +1,5 @@
 --- Formatters
--- @module formatters
--- @alias Formatters
+-- @module lib.formatters
 local Formatters = {}
 
 local function format(param, value, units)

@@ -58,5 +58,6 @@ tar czvf nornsYYMMDD.tgz YYMMDD.*
 
 ## delivery
 
-presently update files are copied to `~/update` from USB disk by `SYSTEM > UPDATE`. in the future a drag-drop from
-maiden would be user-friendly.
+presently update files are copied to `~/update` via the `SYSTEM > UPDATE` menu, which checks the remote github release against the current version.
+
+it's possible to manually install an update by copying the update file to `~/update`, extracting it, and running `update.sh` directly.

@@ -1,9 +1,5 @@
 --- Grid class
--- @classmod grid
--- @alias Grid
-
----------------------------------
--- Grid device class
+-- @module grid
 
 local vport = require 'vport'
 
@@ -31,7 +27,7 @@ for i=1,4 do
   }
 end
 
---- constructor
+-- constructor
 -- @tparam integer id : arbitrary numeric identifier
 -- @tparam string serial : serial
 -- @tparam string name : name
@@ -133,7 +129,7 @@ function Grid.cleanup()
   end
 end
 
---- update devices.
+-- update devices.
 -- @static
 function Grid.update_devices()
   -- build list of available devices
@@ -184,7 +180,7 @@ _norns.grid.remove = function(id)
   Grid.update_devices()
 end
 
---- redefine global grid key input handler
+-- redefine global grid key input handler
 _norns.grid.key = function(id, x, y, s)
   local g = Grid.devices[id]
   if g ~= nil then
@@ -201,5 +197,44 @@ _norns.grid.key = function(id, x, y, s)
     error('no entry for grid '..id)
   end
 end
+
+Grid.help = [[
+--------------------------------------------------------------------------------
+grid.connect( port )          create a grid table using device [port]
+                                default [port] 1 if unspecified
+                              (returns) grid table
+.key( x, y, z )               function called with incoming grid key event
+                                this should be redefined by the script
+.led( x, y, level )           set LED at [x,y] to [level]
+                                [level] range is 0..15
+.all( level )                 set all grid LED to [level]
+                                [level] range is 0..15
+.refresh()                    update the grid LED state
+
+--------------------------------------------------------------------------------
+-- example
+
+lx,ly,lz = 0,0,0
+
+-- connect grid
+g = grid.connect()
+
+-- key function
+g.key = function(x,y,z)
+  print(x,y,z)
+  lx = x
+  ly = y
+  lz = z*15
+  draw_grid()
+end
+
+-- simple draw function
+draw_grid()
+  g.all(0)
+  g.led(lx,ly,lz)
+  g.refresh()
+end
+--------------------------------------------------------------------------------
+]]      
 
 return Grid

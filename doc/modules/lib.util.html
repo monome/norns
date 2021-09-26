@@ -1,0 +1,884 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
+  <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><strong>lib.util</strong></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>lib.util</code></h1>
+<p>Utility module</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#dbamp">dbamp (db)</a></td>
+	<td class="summary">db to amp.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#time">time ()</a></td>
+	<td class="summary">get system time in fractional seconds</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scandir">scandir (directory)</a></td>
+	<td class="summary">scan directory, return file list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_exists">file_exists (name)</a></td>
+	<td class="summary">check if file exists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_size">file_size (name)</a></td>
+	<td class="summary">query file size.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#make_dir">make_dir (path)</a></td>
+	<td class="summary">make directory (with parents as needed).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#os_capture">os_capture (cmd, raw)</a></td>
+	<td class="summary">execute os command, capture output.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#string_starts">string_starts (s, start)</a></td>
+	<td class="summary">string begins with.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#trim_string_to_width">trim_string_to_width (s, width)</a></td>
+	<td class="summary">trim string to a display width</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#clamp">clamp (n, min, max)</a></td>
+	<td class="summary">clamp values to min max.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#linexp">linexp (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">convert a linear range to an exponential range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#linlin">linlin (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">map a linear range to another linear range.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#explin">explin (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">convert an exponential range to a linear range.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expexp">expexp (slo, shi, dlo, dhi, f)</a></td>
+	<td class="summary">map an exponential range to another exponential range.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#round">round (number, quant)</a></td>
+	<td class="summary">round to a multiple of a number</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#round_up">round_up (number, quant)</a></td>
+	<td class="summary">round up to a multiple of a number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#s_to_hms">s_to_hms (s)</a></td>
+	<td class="summary">format string, seconds to h:m:s.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#degs_to_rads">degs_to_rads (degrees)</a></td>
+	<td class="summary">convert degrees to radians</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rads_to_degs">rads_to_degs (radians)</a></td>
+	<td class="summary">convert radians to degrees</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#acronym">acronym (name)</a></td>
+	<td class="summary">convert string to acronym</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#wrap">wrap (n, min, max)</a></td>
+	<td class="summary">wrap a number to a positive min/max range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#wrap_max">wrap_max (n, min, max)</a></td>
+	<td class="summary">wrap a number to a positive min/max range but clamp the min</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "dbamp"></a>
+    <strong>dbamp (db)</strong>
+    </dt>
+    <dd>
+    db to amp.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">db</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        amp
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "time"></a>
+    <strong>time ()</strong>
+    </dt>
+    <dd>
+    get system time in fractional seconds
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        time
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scandir"></a>
+    <strong>scandir (directory)</strong>
+    </dt>
+    <dd>
+    scan directory, return file list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">directory</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         path to directory
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_exists"></a>
+    <strong>file_exists (name)</strong>
+    </dt>
+    <dd>
+    check if file exists.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         filepath
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true/false
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_size"></a>
+    <strong>file_size (name)</strong>
+    </dt>
+    <dd>
+    query file size.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         filepath
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        filesize in bytes
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "make_dir"></a>
+    <strong>make_dir (path)</strong>
+    </dt>
+    <dd>
+    make directory (with parents as needed).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "os_capture"></a>
+    <strong>os_capture (cmd, raw)</strong>
+    </dt>
+    <dd>
+    execute os command, capture output.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmd</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         command
+        </li>
+        <li><span class="parameter">raw</span>
+         raw output (omit for scrubbed)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        output
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "string_starts"></a>
+    <strong>string_starts (s, start)</strong>
+    </dt>
+    <dd>
+    string begins with.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         string to examine
+        </li>
+        <li><span class="parameter">start</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         string to search for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true or false
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "trim_string_to_width"></a>
+    <strong>trim_string_to_width (s, width)</strong>
+    </dt>
+    <dd>
+    trim string to a display width
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         string to trim
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">number</span></span>
+         maximum width
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        trimmed string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "clamp"></a>
+    <strong>clamp (n, min, max)</strong>
+    </dt>
+    <dd>
+    clamp values to min max.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">number</span></span>
+         value
+        </li>
+        <li><span class="parameter">min</span>
+            <span class="types"><span class="type">number</span></span>
+         minimum
+        </li>
+        <li><span class="parameter">max</span>
+            <span class="types"><span class="type">number</span></span>
+         maximum
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        clamped value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "linexp"></a>
+    <strong>linexp (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    convert a linear range to an exponential range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of input range
+        </li>
+        <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of input range
+        </li>
+        <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of output range (must be non-zero and of the same sign as dhi)
+        </li>
+        <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of output range (must be non-zero and of the same sign as dlo)
+        </li>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
+         input to convert
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "linlin"></a>
+    <strong>linlin (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    map a linear range to another linear range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of input range
+        </li>
+        <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of input range
+        </li>
+        <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of output range
+        </li>
+        <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of output range
+        </li>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
+         input to convert
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "explin"></a>
+    <strong>explin (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    convert an exponential range to a linear range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of input range (must be non-zero and of the same sign as shi)
+        </li>
+        <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of input range (must be non-zero and of the same sign as slo)
+        </li>
+        <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of output range
+        </li>
+        <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of output range
+        </li>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
+         input to convert
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expexp"></a>
+    <strong>expexp (slo, shi, dlo, dhi, f)</strong>
+    </dt>
+    <dd>
+    map an exponential range to another exponential range.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">slo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of input range (must be non-zero and of the same sign as shi)
+        </li>
+        <li><span class="parameter">shi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of input range (must be non-zero and of the same sign as slo)
+        </li>
+        <li><span class="parameter">dlo</span>
+            <span class="types"><span class="type">number</span></span>
+         lower limit of output range (must be non-zero and of the same sign as dhi)
+        </li>
+        <li><span class="parameter">dhi</span>
+            <span class="types"><span class="type">number</span></span>
+         upper limit of output range (must be non-zero and of the same sign as dlo)
+        </li>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
+         input to convert
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "round"></a>
+    <strong>round (number, quant)</strong>
+    </dt>
+    <dd>
+    round to a multiple of a number
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+            <span class="types"><span class="type">number</span></span>
+         to round
+        </li>
+        <li><span class="parameter">quant</span>
+            <span class="types"><span class="type">number</span></span>
+         precision to round to
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "round_up"></a>
+    <strong>round_up (number, quant)</strong>
+    </dt>
+    <dd>
+    round up to a multiple of a number.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">number</span>
+            <span class="types"><span class="type">number</span></span>
+         to round
+        </li>
+        <li><span class="parameter">quant</span>
+            <span class="types"><span class="type">number</span></span>
+         precision to round to
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "s_to_hms"></a>
+    <strong>s_to_hms (s)</strong>
+    </dt>
+    <dd>
+    format string, seconds to h:m:s.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">number</span></span>
+         seconds
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        seconds : seconds in h:m:s
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "degs_to_rads"></a>
+    <strong>degs_to_rads (degrees)</strong>
+    </dt>
+    <dd>
+    convert degrees to radians
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">degrees</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        radians
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rads_to_degs"></a>
+    <strong>rads_to_degs (radians)</strong>
+    </dt>
+    <dd>
+    convert radians to degrees
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">radians</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        degrees
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "acronym"></a>
+    <strong>acronym (name)</strong>
+    </dt>
+    <dd>
+    convert string to acronym
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        acronym
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "wrap"></a>
+    <strong>wrap (n, min, max)</strong>
+    </dt>
+    <dd>
+    wrap a number to a positive min/max range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">min</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">max</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        cycled value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "wrap_max"></a>
+    <strong>wrap_max (n, min, max)</strong>
+    </dt>
+    <dd>
+    wrap a number to a positive min/max range but clamp the min
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">min</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">max</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        cycled value
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-09-10 15:00:16 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

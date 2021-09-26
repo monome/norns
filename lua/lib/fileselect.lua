@@ -1,4 +1,5 @@
--- fileselect utility
+--- fileselect utility
+-- @module lib.fileselect
 -- reroutes redraw/enc/key
 
 local fs = {}

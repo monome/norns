@@ -5,10 +5,1066 @@
 <head>
     <title>norns/docs</title>
     <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
-
-  <script>
-    window.location.href = window.location.pathname.split('/modules/').join('/classes/');
-  </script>
 </head>
 <body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
+  <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><strong>paramset</strong></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
+  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>paramset</code></h1>
+<p>ParamSet class</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet.new">ParamSet.new (id, name)</a></td>
+	<td class="summary">constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_separator">ParamSet:add_separator (name)</a></td>
+	<td class="summary">add separator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_group">ParamSet:add_group (name, n)</a></td>
+	<td class="summary">add parameter group.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add">ParamSet:add (args)</a></td>
+	<td class="summary">add generic parameter.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_number">ParamSet:add_number (id, name, min, max, default, formatter, wrap)</a></td>
+	<td class="summary">add number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_option">ParamSet:add_option (id, name, options, default)</a></td>
+	<td class="summary">add option.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_control">ParamSet:add_control (id, name, controlspec, formatter)</a></td>
+	<td class="summary">add control.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_file">ParamSet:add_file (id, name, path)</a></td>
+	<td class="summary">add file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_text">ParamSet:add_text (id, name, txt)</a></td>
+	<td class="summary">add text.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_taper">ParamSet:add_taper (id, name, min, max, default, k, units)</a></td>
+	<td class="summary">add taper.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_trigger">ParamSet:add_trigger (id, name)</a></td>
+	<td class="summary">add trigger.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:add_binary">ParamSet:add_binary (id, name, behavior, default)</a></td>
+	<td class="summary">add binary</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:print">ParamSet:print ()</a></td>
+	<td class="summary">print.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:list">ParamSet:list ()</a></td>
+	<td class="summary">list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:get_id">ParamSet:get_id (index)</a></td>
+	<td class="summary">id.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:string">ParamSet:string (index)</a></td>
+	<td class="summary">string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:set">ParamSet:set (index, v, silent)</a></td>
+	<td class="summary">set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:set_raw">ParamSet:set_raw (index, v, silent)</a></td>
+	<td class="summary">set_raw (for control types only).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:get">ParamSet:get (index)</a></td>
+	<td class="summary">get.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:get_raw">ParamSet:get_raw (index)</a></td>
+	<td class="summary">get_raw (for control types only).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:delta">ParamSet:delta (index, d)</a></td>
+	<td class="summary">delta.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:set_action">ParamSet:set_action (index, func)</a></td>
+	<td class="summary">set action.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:set_save">ParamSet:set_save (index, state)</a></td>
+	<td class="summary">set save state.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:t">ParamSet:t (index)</a></td>
+	<td class="summary">get type.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:get_range">ParamSet:get_range (index)</a></td>
+	<td class="summary">get range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:get_allow_pmap">ParamSet:get_allow_pmap (index)</a></td>
+	<td class="summary">get whether or not parameter should be pmap'able</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:hide">ParamSet:hide (index)</a></td>
+	<td class="summary">set visibility to hidden.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:show">ParamSet:show (index)</a></td>
+	<td class="summary">set visiblility to show.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:visible">ParamSet:visible (index)</a></td>
+	<td class="summary">get visibility.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:write">ParamSet:write (filename, name)</a></td>
+	<td class="summary">write to disk.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:read">ParamSet:read (filename, silent)</a></td>
+	<td class="summary">read from disk.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:default">ParamSet:default ()</a></td>
+	<td class="summary">read default pset if present.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:bang">ParamSet:bang ()</a></td>
+	<td class="summary">bang all params.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet:clear">ParamSet:clear ()</a></td>
+	<td class="summary">clear.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "ParamSet.new"></a>
+    <strong>ParamSet.new (id, name)</strong>
+    </dt>
+    <dd>
+    constructor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_separator"></a>
+    <strong>ParamSet:add_separator (name)</strong>
+    </dt>
+    <dd>
+    add separator.
+ name is optional.
+ separators have their own parameter index and
+ can be hidden or added to a paremeter group.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_group"></a>
+    <strong>ParamSet:add_group (name, n)</strong>
+    </dt>
+    <dd>
+    add parameter group.
+ groups cannot be nested,
+ i.e. a group cannot be made within a group.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add"></a>
+    <strong>ParamSet:add (args)</strong>
+    </dt>
+    <dd>
+    add generic parameter.
+ helper function to add param to paramset
+ two uses:
+ - pass "param" table with optional "action" function
+ - pass keyed table to generate "param" table. required keys are "type" and "id"
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">args</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_number"></a>
+    <strong>ParamSet:add_number (id, name, min, max, default, formatter, wrap)</strong>
+    </dt>
+    <dd>
+    add number.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+         identifier slug (no spaces)
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+         user-facing name (can contain spaces)
+        </li>
+        <li><span class="parameter">min</span>
+            <span class="types"><span class="type">number</span></span>
+         minimum value
+        </li>
+        <li><span class="parameter">max</span>
+            <span class="types"><span class="type">number</span></span>
+         maximum value
+        </li>
+        <li><span class="parameter">default</span>
+            <span class="types"><span class="type">number</span></span>
+         default / initial value
+        </li>
+        <li><span class="parameter">formatter</span>
+            <span class="types"><span class="type">function</span></span>
+         function accepting a value and returning a string
+        </li>
+        <li><span class="parameter">wrap</span>
+            <span class="types"><span class="type">boolean</span></span>
+         if true, value wraps on delta; otherwise saturates
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_option"></a>
+    <strong>ParamSet:add_option (id, name, options, default)</strong>
+    </dt>
+    <dd>
+    add option.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">options</span>
+
+        </li>
+        <li><span class="parameter">default</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_control"></a>
+    <strong>ParamSet:add_control (id, name, controlspec, formatter)</strong>
+    </dt>
+    <dd>
+    add control.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">controlspec</span>
+            <span class="types"><span class="type">controlspec</span></span>
+
+        </li>
+        <li><span class="parameter">formatter</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_file"></a>
+    <strong>ParamSet:add_file (id, name, path)</strong>
+    </dt>
+    <dd>
+    add file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_text"></a>
+    <strong>ParamSet:add_text (id, name, txt)</strong>
+    </dt>
+    <dd>
+    add text.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+
+        </li>
+        <li><span class="parameter">name</span>
+
+        </li>
+        <li><span class="parameter">txt</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_taper"></a>
+    <strong>ParamSet:add_taper (id, name, min, max, default, k, units)</strong>
+    </dt>
+    <dd>
+    add taper.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">min</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">max</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">default</span>
+
+        </li>
+        <li><span class="parameter">k</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+        <li><span class="parameter">units</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_trigger"></a>
+    <strong>ParamSet:add_trigger (id, name)</strong>
+    </dt>
+    <dd>
+    add trigger.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:add_binary"></a>
+    <strong>ParamSet:add_binary (id, name, behavior, default)</strong>
+    </dt>
+    <dd>
+    add binary
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">behavior</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+        <li><span class="parameter">default</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:print"></a>
+    <strong>ParamSet:print ()</strong>
+    </dt>
+    <dd>
+    print.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:list"></a>
+    <strong>ParamSet:list ()</strong>
+    </dt>
+    <dd>
+    list.
+ lists param id's
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:get_id"></a>
+    <strong>ParamSet:get_id (index)</strong>
+    </dt>
+    <dd>
+    id.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:string"></a>
+    <strong>ParamSet:string (index)</strong>
+    </dt>
+    <dd>
+    string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:set"></a>
+    <strong>ParamSet:set (index, v, silent)</strong>
+    </dt>
+    <dd>
+    set.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+        <li><span class="parameter">v</span>
+         value
+        </li>
+        <li><span class="parameter">silent</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:set_raw"></a>
+    <strong>ParamSet:set_raw (index, v, silent)</strong>
+    </dt>
+    <dd>
+    set_raw (for control types only).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+        <li><span class="parameter">v</span>
+         value
+        </li>
+        <li><span class="parameter">silent</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:get"></a>
+    <strong>ParamSet:get (index)</strong>
+    </dt>
+    <dd>
+    get.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:get_raw"></a>
+    <strong>ParamSet:get_raw (index)</strong>
+    </dt>
+    <dd>
+    get_raw (for control types only).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:delta"></a>
+    <strong>ParamSet:delta (index, d)</strong>
+    </dt>
+    <dd>
+    delta.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+        <li><span class="parameter">d</span>
+            <span class="types"><span class="type">number</span></span>
+         delta
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:set_action"></a>
+    <strong>ParamSet:set_action (index, func)</strong>
+    </dt>
+    <dd>
+    set action.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
+         set the action for this index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:set_save"></a>
+    <strong>ParamSet:set_save (index, state)</strong>
+    </dt>
+    <dd>
+    set save state.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+        <li><span class="parameter">state</span>
+         set the save state for this index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:t"></a>
+    <strong>ParamSet:t (index)</strong>
+    </dt>
+    <dd>
+    get type.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:get_range"></a>
+    <strong>ParamSet:get_range (index)</strong>
+    </dt>
+    <dd>
+    get range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:get_allow_pmap"></a>
+    <strong>ParamSet:get_allow_pmap (index)</strong>
+    </dt>
+    <dd>
+    get whether or not parameter should be pmap'able
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:hide"></a>
+    <strong>ParamSet:hide (index)</strong>
+    </dt>
+    <dd>
+    set visibility to hidden.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:show"></a>
+    <strong>ParamSet:show (index)</strong>
+    </dt>
+    <dd>
+    set visiblility to show.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:visible"></a>
+    <strong>ParamSet:visible (index)</strong>
+    </dt>
+    <dd>
+    get visibility.
+ parameters are visible by default.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:write"></a>
+    <strong>ParamSet:write (filename, name)</strong>
+    </dt>
+    <dd>
+    write to disk.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         either an absolute path, a number (to write [scriptname]-[number].pset to local data folder) or nil (to write default [scriptname].pset to local data folder)
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:read"></a>
+    <strong>ParamSet:read (filename, silent)</strong>
+    </dt>
+    <dd>
+    read from disk.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+         either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
+        </li>
+        <li><span class="parameter">silent</span>
+            <span class="types"><span class="type">boolean</span></span>
+         if true, do not trigger parameter actions
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:default"></a>
+    <strong>ParamSet:default ()</strong>
+    </dt>
+    <dd>
+    read default pset if present.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:bang"></a>
+    <strong>ParamSet:bang ()</strong>
+    </dt>
+    <dd>
+    bang all params.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:clear"></a>
+    <strong>ParamSet:clear ()</strong>
+    </dt>
+    <dd>
+    clear.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-09-10 15:00:16 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
 </body>
+</html>

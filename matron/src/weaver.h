@@ -2,14 +2,16 @@
 
 #include "device_hid.h"
 #include "oracle.h"
+#include "event_types.h"
 
 // initialize the lua VM and run setup scripts
 extern void w_init(void);
 // stop the VM
 extern void w_deinit(void);
 
-// run the startup routine
+// run the startup/post-startup routines
 extern void w_startup(void);
+extern void w_post_startup(void);
 
 // compile and execute a complete chunk of lua
 // this blocks execution and access the VM directly;
@@ -65,13 +67,14 @@ extern void w_handle_battery(const int percent, const int current);
 extern void w_handle_power(const int present);
 
 //--- system/stat
-extern void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu);
+extern void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu,
+    const uint16_t cpu1, const uint16_t cpu2, const uint16_t cpu3, const uint16_t cpu4);
 
 //--- metro bang handler
 extern void w_handle_metro(const int idx, const int stage);
 
 //--- clock
-extern void w_handle_clock_resume(const int thread_id);
+extern void w_handle_clock_resume(const int thread_id, double value);
 extern void w_handle_clock_start();
 extern void w_handle_clock_stop();
 
@@ -82,6 +85,7 @@ extern void w_handle_poll_wave(int idx, uint8_t *data);
 extern void w_handle_poll_io_levels(uint8_t *levels);
 extern void w_handle_poll_softcut_phase(int idx, float val);
 extern void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t size, float* data);
+extern void w_handle_softcut_position(int idx, float pos);
 
 extern void w_handle_engine_loaded();
 
@@ -91,3 +95,6 @@ extern void w_handle_startup_ready_timeout();
 
 // util callbacks
 extern void w_handle_system_cmd();
+
+// custom events
+extern void w_handle_custom_weave(struct event_custom *ev);

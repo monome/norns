@@ -1,5 +1,5 @@
 --- Control class
--- @classmod control
+-- @module params.control
 
 local ControlSpec = require 'core/controlspec'
 
@@ -9,10 +9,11 @@ Control.__index = Control
 local tCONTROL = 3
 
 --- constructor.
--- @param id
--- @param name
--- @param controlspec
--- @param formatter
+-- @tparam string id
+-- @tparam string name
+-- @tparam ControlSpec controlspec
+-- @tparam function formatter
+-- @tparam boolean allow_pmap
 function Control.new(id, name, controlspec, formatter, allow_pmap)
   local p = setmetatable({}, Control)
   p.t = tCONTROL
@@ -32,10 +33,16 @@ function Control.new(id, name, controlspec, formatter, allow_pmap)
   return p
 end
 
+--- map_value.
+-- takes 0-1 and returns value scaled by controlspec.
+function Control:map_value(value)
+  return self.controlspec:map(value)
+end
+
 --- get.
 -- returns mapped value.
 function Control:get()
-  return self.controlspec:map(self.raw)
+  return self:map_value(self.raw)
 end
 
 --- get_raw.
@@ -44,10 +51,16 @@ function Control:get_raw()
   return self.raw
 end
 
+--- unmap_value.
+-- takes a scaled value and returns 0-1, quantized to step.
+function Control:unmap_value(value)
+  return self.controlspec:unmap(util.round(value, self.controlspec.step))
+end
+
 --- set.
 -- accepts a mapped value
 function Control:set(value, silent)
-  self:set_raw(self.controlspec:unmap(util.round(value,self.controlspec.step)), silent)
+  self:set_raw(self:unmap_value(value), silent)
 end
 
 --- set_raw.
@@ -69,11 +82,17 @@ function Control:set_raw(value, silent)
   end
 end
 
+--- get_delta.
+-- get increment used for delta()
+function Control:get_delta()
+  return self.controlspec.quantum
+end
+
 --- delta.
 -- add delta to current value. checks controlspec for mapped vs not.
 -- default division of delta for 100 steps range.
 function Control:delta(d)
-  self:set_raw(self.raw + d*self.controlspec.quantum)
+  self:set_raw(self.raw + d * self:get_delta())
 end
 
 --- set_default.
@@ -84,6 +103,12 @@ end
 --- bang.
 function Control:bang()
   self.action(self:get())
+end
+
+--- get_range.
+function Control:get_range()
+  r = {self.controlspec.minval, self.controlspec.maxval}
+  return r
 end
 
 --- string.

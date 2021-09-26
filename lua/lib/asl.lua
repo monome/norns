@@ -1,4 +1,5 @@
 -- crow asl string building helper functions
+-- @module crow.asl
 --
 -- for the common case, these functions make interactions
 -- w/ crow look the same on norns as in druid.

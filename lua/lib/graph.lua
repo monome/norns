@@ -1,7 +1,7 @@
 --- Graph drawing module.
 -- Flexible graph drawing for waves, points, bars, etc.
 --
--- @classmod Graph
+-- @module lib.Graph
 -- @release v1.1.0
 -- @author Mark Eats
 

@@ -1,29 +1,28 @@
 local m = {
-  url = '',
-  version = ''
+  alt = false,
+  install = "stable"
 }
+
+releases = {}
+local VER = { "stable", "beta" }
 
 local function checked() print("what??") end
 local function get_update_2() end
 
 local function check_newest()
   print("checking for update")
+  if m.alt then print("stable and beta") end
   norns.system_cmd( [[curl -s \
-      https://api.github.com/repos/monome/norns/releases/latest \
-      | grep "browser_download_url.*" \
-      | cut -d : -f 2,3 \
-      | tr -d \"]],
+      https://raw.githubusercontent.com/monome/norns/main/releases.txt \
+      ]],
       checked)
 end
 
 checked = function(result)
-  m.url = result
-  print(m.url)
-  m.url = string.gsub(m.url,"\n","")
-  m.version = m.url:match("(%d%d%d%d%d%d)")
-  print("available version "..m.version)
+  print(result)
+  load(result)()
 
-  if tonumber(norns.version.update) >= tonumber(m.version) then
+  if m.alt==false and tonumber(norns.version.update) >= tonumber(releases.stable.version) then
     m.message = "up to date."
   else
     m.stage = "confirm"
@@ -39,13 +38,15 @@ local function get_update()
   norns.script.clear()
   _menu.locked = true
   print("shutting down audio...")
-  os.execute("sudo systemctl stop norns-jack.service") -- disable audio
+  --os.execute("sudo systemctl stop norns-jack.service") -- disable audio
+  os.execute("sudo systemctl stop norns-crone.service") -- disable audio
+  os.execute("sudo systemctl stop norns-sclang.service") -- disable audio
   print("clearing old updates...")
   os.execute("sudo rm -rf /home/we/update/*") -- clear old updates
   m.message = "downloading..."
   _menu.redraw()
   print("starting download...")
-  local cmd = "wget -T 180 -q -P /home/we/update/ " .. m.url
+  local cmd = "wget -T 180 -q -P /home/we/update/ " .. releases[m.install].url .. " " .. releases[m.install].sha
   print("> "..cmd)
   norns.system_cmd(cmd, get_update_2) --download
   _menu.timer.time = 0.5
@@ -70,7 +71,7 @@ get_update_2 = function()
     m.message = "running update..."
     _menu.redraw()
     print("running update...")
-    os.execute("/home/we/update/"..m.version.."/update.sh")
+    os.execute("/home/we/update/"..releases[m.install].version.."/update.sh")
     m.message = "done. any key to shut down."
     _menu.redraw()
     print("update complete.")
@@ -108,29 +109,51 @@ m.key = function(n,z)
       _norns.reset()
     end
   elseif m.stage=="done" and z==1 then
+    m.stage = "shutdown"
     print("shutting down.")
-    m.message = "shutting down."
     _menu.redraw()
     os.execute("sleep 0.5; sudo shutdown now")
   end
 end
 
 
-m.enc = function(n,delta) end
+m.enc = function(n,delta)
+  if n==2 and delta<0 then m.install = "stable" else m.install = "beta" end
+  if m.stage == "confirm" then
+    _menu.redraw()
+  end
+end
 
 m.redraw = function()
   screen.clear()
   screen.level(15)
   screen.move(64,40)
   if m.stage == "confirm" then
-    screen.text_center("update found: "..m.version)
-    screen.move(64,50)
-    screen.text_center("install?")
+    if m.alt==false then
+      screen.text_center("update found: "..releases.stable.version)
+      screen.move(64,50)
+      screen.text_center("install?")
+    else
+      screen.move(0,30)
+      screen.level(m.install=="stable" and 15 or 1)
+      screen.text("stable-"..releases.stable.version)
+      screen.move(0,40)
+      screen.level(m.install=="beta" and 15 or 1)
+      screen.text("beta-"..releases.beta.version)
+    end
   elseif m.stage == "update" then
     screen.level(m.blink == true and 15 or 3)
     screen.text_center(m.message)
   elseif m.stage == "cancel" then
     screen.text_center("cancel?")
+  elseif m.stage == "shutdown" then
+    screen.text_center("shutting down.")
+    if norns.is_shield then
+      screen.move(64,50)
+      screen.text_center("disconnect power when the")
+      screen.move(64,60)
+      screen.text_center("not-red light stops blinking.")
+    end
   else
     screen.text_center(m.message)
   end
@@ -138,7 +161,8 @@ m.redraw = function()
 end
 
 m.init = function()
-  if _menu.alt == true then norns.version.update = 0 end
+  m.install = "stable"
+  m.alt = _menu.alt
 
   m.stage = "init"
   m.message = "checking for update..."

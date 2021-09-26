@@ -1,6 +1,6 @@
 --- Engine class
--- @classmod engine
--- @alias Engine
+-- @module engine
+
 local tab = require 'tabutil'
 
 local Engine = {}

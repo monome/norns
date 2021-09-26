@@ -21,12 +21,17 @@
 // static int fd[3];
 // static char buf[8];
 static pthread_t p;
+static bool have_vcgencmd;
 
 void *stat_check(void *);
 
 // extern def
 
 void stat_init() {
+    if (!(have_vcgencmd = system("which vcgencmd > /dev/null 2>&1") == 0)) {
+        fprintf(stderr, "Unable to check temperature: vcgencmd not in path\n");
+    }
+
     if (pthread_create(&p, NULL, stat_check, 0)) {
         fprintf(stderr, "STAT: Error creating thread\n");
     }
@@ -41,17 +46,17 @@ void *stat_check(void *x) {
     int number = -1;
     int disk = 0;
     int temp = 0;
-    int cpu = 0;
-    int _disk = -1;
-    int _temp = -1;
-    int _cpu = -1;
+    int cpu[5] = {0,0,0,0,0};
 
     FILE *fd;
-    char buf[64];
+    char buf[128];
     char bufsub[8];
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
-    uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
+    //uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
+    uint32_t sumidle = 0, sumnonidle = 0, total = 0;
+    uint32_t prevsumidle[5] = {0,0,0,0,0};
+    uint32_t prevtotal[5] = {0,0,0,0,0};
     int32_t totald, idled;
 
     while (1) {
@@ -73,6 +78,8 @@ void *stat_check(void *x) {
         }
 
         // check temp
+	/*
+<<<<<<< HEAD
         if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
             fprintf(stderr, "Error opening pipe: temp read\n");
         } else {
@@ -82,16 +89,43 @@ void *stat_check(void *x) {
                 bufsub[2] = 0;
                 temp = atoi(bufsub);
                 // fprintf(stderr,"temp: %d\r\n", temp);
+=======
+        if (have_vcgencmd) {
+            if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
+                fprintf(stderr, "Error opening pipe: temp read\n");
+            } else {
+                while (fgets(buf, 16, fd) != NULL) {
+                    memcpy(bufsub, buf + 5, 2);
+                    temp = atoi(bufsub);
+                }
+>>>>>>> main
+	*/
+
+	if (have_vcgencmd) {
+            if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
+                fprintf(stderr, "Error opening pipe: temp read\n");
+            } else {
+                while (fgets(buf, 16, fd) != NULL) {
+		    bufsub[0] = buf[5];
+		    bufsub[1] = buf[6];
+		    bufsub[2] = 0;
+		    temp = atoi(bufsub);
+                }
             }
+            pclose(fd);
         }
-        pclose(fd);
 
         // check cpu
-        if ((fd = popen("head -n1 /proc/stat", "r")) == NULL) {
+        if ((fd = popen("cat /proc/stat", "r")) == NULL) {
             fprintf(stderr, "Error opening pipe: cpu read\n");
         } else {
-            while (fgets(buf, 64, fd) != NULL) {
-                // fprintf(stderr,"%s\n", buf);
+            int i = 0;
+            while (fgets(buf, 128, fd) != NULL) {
+                // stop reading when all cpus are checked
+                if (strncmp("cpu", buf, 3) != 0) {
+                  break;
+                }
+                //fprintf(stderr,"%s", buf);
                 strtok(buf, " ");
                 user = atoi(strtok(NULL, " "));
                 nice = atoi(strtok(NULL, " "));
@@ -102,31 +136,31 @@ void *stat_check(void *x) {
                 softirq = atoi(strtok(NULL, " "));
                 steal = atoi(strtok(NULL, " "));
 
-                prevsumidle = sumidle;
                 sumidle = idle + iowait;
                 sumnonidle = user + nice + system + irq + softirq + steal;
-                prevtotal = total;
                 total = sumnonidle + sumidle;
-                totald = total - prevtotal;
-                idled = sumidle - prevsumidle;
-                cpu = 100 * (totald - idled) / totald;
+                totald = total - prevtotal[i];
+                idled = sumidle - prevsumidle[i];
+                cpu[i] = 100 * (totald - idled) / totald;
+                prevsumidle[i] = sumidle;
+                prevtotal[i] = total;
 
-                // fprintf(stderr,"%d\n", cpu);
+                //fprintf(stderr,"%d --> %d\n", i, cpu);
+                i++;
             }
         }
         pclose(fd);
 
-        if (_disk != disk || _temp != temp || _cpu != cpu) {
-            _disk = disk;
-            _temp = temp;
-            _cpu = cpu;
-
+        // just send every tick
             union event_data *ev = event_data_new(EVENT_STAT);
             ev->stat.disk = disk;
             ev->stat.temp = temp;
-            ev->stat.cpu = cpu;
+            ev->stat.cpu = cpu[0];
+            ev->stat.cpu1 = cpu[1];
+            ev->stat.cpu2 = cpu[2];
+            ev->stat.cpu3 = cpu[3];
+            ev->stat.cpu4 = cpu[4];
             event_post(ev);
-        }
 
         sleep(STAT_INTERVAL);
     }

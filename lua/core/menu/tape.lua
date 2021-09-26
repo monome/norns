@@ -49,7 +49,7 @@ local function tape_exists(index)
   return util.file_exists(filename)
 end
 
-local function update_tape_index()
+local function read_tape_index()
   local f = io.open(_path.tape..'index.txt','r')
   if f ~= nil then
     local a = tonumber(f:read("*line"))
@@ -61,7 +61,9 @@ local function update_tape_index()
   while tape_exists(m.fileindex) do
     m.fileindex = m.fileindex+1
   end
+end
 
+local function write_tape_index_v(v)
   local f = io.open(_path.tape..'index.txt','w')
   if f == nil then
     os.execute("mkdir -p ".._path.tape)
@@ -70,16 +72,25 @@ local function update_tape_index()
   if f == nil then
     print("WARNING: couldn't write index file, even after creating `tape/`")
   else
-    f:write(tostring(m.fileindex+1))
+    f:write(tostring(v))
     f:close()
   end
+end
+
+local function update_tape_index()
+  read_tape_index()
+  write_tape_index_v(m.fileindex)
 end
 
 local function edit_filename(txt)
   if txt then
     m.rec.file = txt .. ".wav"
   else
-    m.rec.file = string.format("%04d",m.fileindex) .. ".wav"
+    _menu.redraw()
+    return
+  end
+  if txt == string.format("%04d",m.fileindex) then
+    update_tape_index()
   end
   audio.tape_record_open(_path.audio.."tape/"..m.rec.file)
   m.rec.sel = TAPE_REC_START
@@ -166,7 +177,7 @@ m.key = function(n,z)
     else -- REC CONTROLS
       if m.rec.sel == TAPE_REC_ARM then
         tape_diskfree()
-        update_tape_index()
+        read_tape_index()
         textentry.enter(
           edit_filename,
           string.format("%04d",m.fileindex),

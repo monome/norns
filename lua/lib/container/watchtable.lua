@@ -7,7 +7,7 @@ WatchTable.__index = WatchTable
 
 --- Create a table which invokes a callback each time a value is set.
 --
--- The callback fruction is passed the key, value after a given set operation
+-- The callback function is passed the key, value after a given set operation
 -- has been performed.
 --
 -- @tparam table t Initial table contents (can be nil).

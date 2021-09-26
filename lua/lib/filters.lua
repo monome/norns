@@ -1,5 +1,5 @@
-------------
---- @module filters
+--- Filters
+--- @module lib.filters
 --
 -- some filters that could be useful for musical event processing
 
@@ -39,7 +39,7 @@ setmetatable(mean, { __index=f })
 
 -------------------------------------------------------------
 --- constructor
---- @param bufsize: window size, cannot change after creation
+--- @param bufsize window size, cannot change after creation
 function mean.new(bufsize)
    local new = setmetatable({}, mean)
 
@@ -58,7 +58,7 @@ function mean.new(bufsize)
 end
 
 --- process a new input value and update the average
--- @param x: new input
+-- @param x new input
 -- @return scaled sum of stored history
 function mean:next(x)
    local a = x*self.scale
@@ -78,7 +78,7 @@ median.__index = median
 setmetatable(median, { __index=f })
 
 --- constructor
---- @param bufsize: window size, cannot change after creation
+--- @param bufsize window size, cannot change after creation
 function median.new(bufsize)
    local new = setmetatable({}, median)
 
@@ -121,7 +121,7 @@ end
 
 
 --- process a new input value and update the average
--- @param x: new input
+-- @param x new input
 -- @return median of last N values
 function median:next(x)
    -- save the oldest value, overwrite with newest value
@@ -153,8 +153,8 @@ setmetatable(smoother, {__index=f})
 
 --------
 -- constructor
--- @param time: -60db convergence time
--- @param sr: expected sample rate
+-- @param time -60db convergence time
+-- @param sr expected sample rate
 function smoother.new(time, sr)
    local new = setmetatable({}, smoother)
    new.buf = {}
@@ -175,14 +175,14 @@ function smoother:calc_coeff()
 end
 
 -- set convergence time
--- @param t: time to converge within -60db of target
+-- @param t time to converge within -60db of target
 function smoother:set_time(t)
    self.t = t
    self:calc_coeff()
 end
 
 -- set samplerate
--- @param sr: new sample rate
+-- @param sr new sample rate
 function smoother:set_sr(sr)
    self.sr = sr
    self:calc_coeff()
@@ -191,7 +191,7 @@ end
 smoother.EPSILON = 1e-8
 
 -- calculate the next sample based on new input
--- @param x: new input (optional)
+-- @param x new input (optional)
 -- @return smoothed output
 function smoother:next(x)
    if x == nil then x = self.x

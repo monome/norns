@@ -1,6 +1,5 @@
 --- ControlSpec Class
--- @classmod controlspec
--- @alias ControlSpec
+-- @module controlspec
 
 local LinearWarp = {}
 function LinearWarp.map(spec, value)
@@ -55,8 +54,8 @@ local ControlSpec = {}
 ControlSpec.__index = ControlSpec
 
 --- constructor
--- @tparam number minval the minimum value of the output range
--- @tparam number maxval the max value of the output range
+-- @tparam number min the minimum value of the output range
+-- @tparam number max the maximum value of the output range
 -- @tparam string warp ('exp', 'db', 'lin') a shaping option for incoming data (default is 'lin')
 -- @tparam number step quantization value. output will be rounded to a multiple of step
 -- @tparam number default a default value for when no value has been set

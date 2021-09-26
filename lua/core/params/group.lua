@@ -1,5 +1,5 @@
 -- Group class
--- @module group
+-- @module params.group
 
 local Group = {}
 Group.__index = Group

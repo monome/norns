@@ -10,6 +10,7 @@ local engine = require 'core/engine'
 local poll = require 'core/poll'
 local tab = require 'tabutil'
 local util = require 'util'
+local hook = require 'core/hook'
 
 -- Global Functions.
 
@@ -85,6 +86,7 @@ _norns.vu = function(in1, in2, out1, out2) end
 _norns.softcut_phase = function(id, value) end
 
 _norns.softcut_render = function(ch, start, sec_per_sample, samples) end
+_norns.softcut_position = function(i,pos) end
 
 -- default readings for battery
 norns.battery_percent = 0
@@ -109,11 +111,16 @@ _norns.power = function(present)
 end
 
 -- stat handler
-_norns.stat = function(disk, temp, cpu)
+_norns.stat = function(disk, temp, cpu, cpu1, cpu2, cpu3, cpu4)
   --print("stat",disk,temp,cpu)
   norns.disk = disk
   norns.temp = temp
-  norns.cpu = cpu
+  norns.cpu_avg = cpu
+  norns.cpu = {}
+  norns.cpu[1] = cpu1
+  norns.cpu[2] = cpu2
+  norns.cpu[3] = cpu3
+  norns.cpu[4] = cpu4
 end
 
 
@@ -169,12 +176,17 @@ else
   norns.version.update = "000000"
 end
 
-
--- fetch (git clone)
-norns.fetch = function(url)
-  local status = os.execute("cd "..paths.code.."; git clone "..url)
-  if status then print("fetch: success. you may need to SYSTEM > RESET if the new project contains an engine")
-  else print("fetch: FAIL") end
+-- shutdown
+norns.shutdown = function()
+  hook.system_pre_shutdown()
+  print("SLEEP")
+  --TODO fade out screen then run the shutdown script
+  norns.state.clean_shutdown = true
+  norns.state.save()
+  pcall(cleanup)
+  audio.level_dac(0)
+  audio.headphone_gain(0)
+  os.execute("sleep 0.5; sudo shutdown now")
 end
 
 -- platform detection
@@ -211,6 +223,8 @@ _norns.system_cmd_capture = function(cap)
   end
 end
 
+norns.system_glob = _norns.system_glob
+
 -- audio reset
 _norns.reset = function()
   os.execute("sudo systemctl restart norns-sclang.service")
@@ -222,4 +236,9 @@ end
 -- but before I/O event loop starts ticking (see readme-script.md)
 _startup = function()
   require('core/startup')
+end
+
+_post_startup = function()
+   print('_norns._post_startup')
+   hook.system_post_startup()
 end

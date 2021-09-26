@@ -59,8 +59,6 @@ namespace crone {
         }
 
     public:
-        /// FIXME: the "commands" structure shouldn't really be necessary.
-        /// should be able to refactor most/all parameters for atomic access.
         // called from audio thread
         void handleCommand(Commands::CommandPacket *p) override;
 
@@ -69,13 +67,13 @@ namespace crone {
         //-- time parameters are in seconds
         //-- negative 'dur' parameter reads/clears/writes as much as possible.
         void readBufferMono(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-                            float dur = -1.f, int chanSrc = 0, int chanDst = 0) {
-            BufDiskWorker::requestReadMono(bufIdx[chanDst], path, startTimeSrc, startTimeDst, dur, chanSrc);
+                            float dur = -1.f, int chanSrc = 0, int chanDst = 0, float preserve = 0.f, float mix = 1.f) {
+            BufDiskWorker::requestReadMono(bufIdx[chanDst], path, startTimeSrc, startTimeDst, dur, chanSrc, preserve, mix);
         }
 
         void readBufferStereo(const std::string &path, float startTimeSrc = 0.f, float startTimeDst = 0.f,
-                              float dur = -1.f) {
-            BufDiskWorker::requestReadStereo(bufIdx[0], bufIdx[1], path, startTimeSrc, startTimeDst, dur);
+                              float dur = -1.f, float preserve = 0.f, float mix = 1.f) {
+            BufDiskWorker::requestReadStereo(bufIdx[0], bufIdx[1], path, startTimeSrc, startTimeDst, dur, preserve, mix);
         }
 
         void writeBufferMono(const std::string &path, float start, float dur, int chan) {
@@ -112,7 +110,6 @@ namespace crone {
         }
 
         // check if quantized phase has changed for a given voice
-        // returns true
         bool checkVoiceQuantPhase(int i) {
             if (quantPhase[i] != cut.getQuantPhase(i)) {
                 quantPhase[i] = cut.getQuantPhase(i);
@@ -121,17 +118,24 @@ namespace crone {
                 return false;
             }
         }
+	
         softcut::phase_t getQuantPhase(int i) {
             return cut.getQuantPhase(i);
         }
-        void setPhaseQuant(int i, softcut::phase_t q) {
+
+	void setPhaseQuant(int i, softcut::phase_t q) {
             cut.setPhaseQuant(i, q);
         }
-        void setPhaseOffset(int i, float sec) {
+
+	void setPhaseOffset(int i, float sec) {
             cut.setPhaseOffset(i, sec);
         }
 
         int getNumVoices() const { return NumVoices; }
+
+        float getPosition(int i) {
+           return cut.getSavedPosition(i);
+        }
 
 	void reset();
 

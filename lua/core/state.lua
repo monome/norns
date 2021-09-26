@@ -1,5 +1,4 @@
 -- State
--- @classmod state
 
 local state = {}
 state.script = ''
@@ -20,6 +19,30 @@ state.mix.monitor_mode = 1
 state.mix.headphone_gain = 40
 state.mix.aux = 2
 state.mix.ins = 1
+
+state.mix.rev_eng_input = -9
+state.mix.rev_cut_input = -9
+state.mix.rev_monitor_input = -math.huge
+state.mix.rev_tape_input = -math.huge
+state.mix.rev_return_level = 0
+state.mix.rev_pre_delay = 60
+state.mix.rev_lf_fc = 200
+state.mix.rev_low_time = 6
+state.mix.rev_mid_time = 6
+state.mix.rev_hf_damping = 6000
+
+state.mix.comp_mix = 1
+state.mix.comp_ratio = 4
+state.mix.comp_threshold = -18
+state.mix.comp_attack = 5
+state.mix.comp_release = 50
+state.mix.comp_pre_gain = 0
+state.mix.comp_post_gain = 9
+
+state.mix.cut_input_adc = 0
+state.mix.cut_input_eng = 0
+state.mix.cut_input_tape = -math.huge
+
 state.clock = {}
 state.clock.source = 1
 state.clock.tempo = 90
@@ -91,6 +114,26 @@ state.save_state = function()
   io.write("norns.state.mix.ins = " .. norns.state.mix.ins .. "\n")
   io.write("norns.state.mix.monitor_mode = " .. norns.state.mix.monitor_mode .. "\n")
   io.write("norns.state.mix.headphone_gain = " .. norns.state.mix.headphone_gain .. "\n")
+  io.write("norns.state.mix.rev_eng_input = " .. norns.state.mix.rev_eng_input .. "\n")
+  io.write("norns.state.mix.rev_cut_input = " .. norns.state.mix.rev_cut_input .. "\n")
+  io.write("norns.state.mix.rev_monitor_input = " .. norns.state.mix.rev_monitor_input .. "\n")
+  io.write("norns.state.mix.rev_tape_input = " .. norns.state.mix.rev_tape_input .. "\n")
+  io.write("norns.state.mix.rev_return_level = " .. norns.state.mix.rev_return_level .. "\n")
+  io.write("norns.state.mix.rev_pre_delay = " .. norns.state.mix.rev_pre_delay .. "\n")
+  io.write("norns.state.mix.rev_lf_fc = " .. norns.state.mix.rev_lf_fc .. "\n")
+  io.write("norns.state.mix.rev_low_time = " .. norns.state.mix.rev_low_time .. "\n")
+  io.write("norns.state.mix.rev_mid_time = " .. norns.state.mix.rev_mid_time .. "\n")
+  io.write("norns.state.mix.rev_hf_damping = " .. norns.state.mix.rev_hf_damping .. "\n")
+  io.write("norns.state.mix.comp_mix = " .. norns.state.mix.comp_mix .. "\n")
+  io.write("norns.state.mix.comp_ratio = " .. norns.state.mix.comp_ratio .. "\n")
+  io.write("norns.state.mix.comp_threshold = " .. norns.state.mix.comp_threshold .. "\n")
+  io.write("norns.state.mix.comp_attack = " .. norns.state.mix.comp_attack .. "\n")
+  io.write("norns.state.mix.comp_release = " .. norns.state.mix.comp_release .. "\n")
+  io.write("norns.state.mix.comp_pre_gain = " .. norns.state.mix.comp_pre_gain .. "\n")
+  io.write("norns.state.mix.comp_post_gain = " .. norns.state.mix.comp_post_gain .. "\n")
+  io.write("norns.state.mix.cut_input_adc = " .. norns.state.mix.cut_input_adc .. "\n")
+  io.write("norns.state.mix.cut_input_eng = " .. norns.state.mix.cut_input_eng .. "\n")
+  io.write("norns.state.mix.cut_input_tape = " .. norns.state.mix.cut_input_tape .. "\n")
   io.write("norns.state.clock.source = " .. norns.state.clock.source .. "\n")
   io.write("norns.state.clock.tempo = " .. norns.state.clock.tempo .. "\n")
   io.write("norns.state.clock.link_quantum = " .. norns.state.clock.link_quantum .. "\n")
@@ -98,7 +141,7 @@ state.save_state = function()
   io.write("norns.state.clock.crow_out = " .. norns.state.clock.crow_out .. "\n")
   io.write("norns.state.clock.crow_out_div = " .. norns.state.clock.crow_out_div .. "\n")
   io.write("norns.state.clock.crow_in_div = " .. norns.state.clock.crow_in_div .. "\n")
-  for i=1,4 do
+  for i=1,16 do
     io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
   end
   for i=1,4 do

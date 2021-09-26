@@ -12,68 +12,51 @@ local function new_id()
   return id
 end
 
---- create a coroutine to run but do not immediately run it;
--- @tparam function f
--- @treturn integer : coroutine ID that can be used to resume/stop it later
-clock.create = function(f)
+--- create and start a coroutine using the norns clock scheduler.
+-- @tparam function f coroutine body function
+-- @param[opt] ... any extra arguments will be passed to the body function
+-- @treturn integer coroutine handle that can be used with clock.cancel
+-- @see clock.cancel
+clock.run = function(f, ...)
   local coro = coroutine.create(f)
   local coro_id = new_id()
   clock.threads[coro_id] = coro
-  return coro_id
-end
-
---- create a coroutine from the given function and immediately run it;
--- the function parameter is a task that will suspend when clock.sleep and clock.sync are called inside it and will wake up again after specified time.
--- @tparam function f
--- @treturn integer : coroutine ID that can be used to stop it later
-clock.run = function(f, ...)
-  local coro_id = clock.create(f)
   clock.resume(coro_id, ...)
   return coro_id
 end
 
---- stop execution of a coroutine started using clock.run.
--- @tparam integer coro_id : coroutine ID
+--- stop execution of a coroutine previously started using clock.run.
+-- @tparam integer coro_id coroutine handle
+-- @see clock.run
 clock.cancel = function(coro_id)
   _norns.clock_cancel(coro_id)
   clock.threads[coro_id] = nil
 end
 
-local SLEEP = 0
-local SYNC = 1
-local SUSPEND = 2
+local SCHEDULE_SLEEP = 0
+local SCHEDULE_SYNC = 1
 
---- yield and schedule waking up the coroutine in s seconds;
--- must be called from within a coroutine started with clock.run.
--- @tparam float s : seconds
+--- suspend execution of the calling coroutine and schedule resuming in specified time.
+-- must be called from a coroutine previously started using clock.run.
+-- @tparam float s seconds to wait for
 clock.sleep = function(...)
-  return coroutine.yield(SLEEP, ...)
+  return coroutine.yield(SCHEDULE_SLEEP, ...)
 end
 
---- yield and schedule waking up the coroutine at beats beat;
--- the coroutine will suspend for the time required to reach the given fraction of a beat;
--- must be called from within a coroutine started with clock.run.
--- @tparam float beats : next fraction of a beat at which the coroutine will be resumed. may be larger than 1.
+--- suspend execution of the calling coroutine and schedule resuming at the next sync quantum of the specified value.
+-- must be called from a coroutine previously started using clock.run.
+-- @tparam float beat sync quantum. may be larger than 1
+-- @tparam[opt] float offset if set, this value will be added to the sync quantum
 clock.sync = function(...)
-  return coroutine.yield(SYNC, ...)
+  return coroutine.yield(SCHEDULE_SYNC, ...)
 end
 
---- yield and do not schedule wake up, clock must be explicitly resumed
--- must be called from within a coroutine started with clock.run.
-clock.suspend = function()
-  return coroutine.yield(SUSPEND)
-end
 
 -- todo: use c api instead
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
 
-  if coro == nil then
-    print('clock: ignoring resumption of canceled clock (no coroutine)')
-    return
-  end
-
-  local result, mode, time = coroutine.resume(clock.threads[coro_id], ...)
+  local result, mode, time, offset = coroutine.resume(coro, ...)
 
   if coroutine.status(coro) == "dead" then
     if result then
@@ -84,12 +67,12 @@ clock.resume = function(coro_id, ...)
   else
     -- not dead
     if result and mode ~= nil then
-      if mode == SLEEP then
+      if mode == SCHEDULE_SLEEP then
         _norns.clock_schedule_sleep(coro_id, time)
-      elseif mode == SYNC then
-        _norns.clock_schedule_sync(coro_id, time)
-      elseif mode == SUSPEND then
-        -- nothing needed for SUSPEND
+      elseif mode == SCHEDULE_SYNC then
+        _norns.clock_schedule_sync(coro_id, time, offset)
+      else
+        error('invalid clock scheduler mode')
       end
     end
   end
@@ -107,8 +90,8 @@ clock.cleanup = function()
   clock.transport.stop = nil
 end
 
---- select the sync source
--- @tparam string source : "internal", "midi", or "link"
+--- select the sync source.
+-- @tparam string source "internal", "midi", or "link"
 clock.set_source = function(source)
   if type(source) == "number" then
     _norns.clock_set_source(util.clamp(source-1,0,3)) -- lua list is 1-indexed
@@ -123,18 +106,19 @@ clock.set_source = function(source)
   end
 end
 
-
+--- get current time in beats.
 clock.get_beats = function()
   return _norns.clock_get_time_beats()
 end
 
+--- get current tempo.
 clock.get_tempo = function()
   return _norns.clock_get_tempo()
 end
 
-clock.get_beat_sec = function(x)
-  x = x or 1
-  return 60.0 / clock.get_tempo() * x
+--- get length of a single beat at current tempo in seconds.
+clock.get_beat_sec = function()
+  return 60.0 / clock.get_tempo()
 end
 
 
@@ -150,9 +134,8 @@ clock.internal.set_tempo = function(bpm)
   return _norns.clock_internal_set_tempo(bpm)
 end
 
-clock.internal.start = function(beat)
-  beat = beat or 0
-  return _norns.clock_internal_start(beat)
+clock.internal.start = function()
+  return _norns.clock_internal_start()
 end
 
 clock.internal.stop = function()
@@ -202,8 +185,7 @@ function clock.add_params()
     function(x)
       clock.set_source(x)
       if x==4 then
-        crow.input[1].change = function() end
-        crow.input[1].mode("change",2,0.1,"rising")
+        norns.crow.clock_enable()
       end
       norns.state.clock.source = x
       if x==1 then clock.internal.set_tempo(params:get("clock_tempo"))
@@ -223,7 +205,7 @@ function clock.add_params()
   params:set_action("clock_reset",
     function()
       local source = params:string("clock_source")
-      if source == "internal" then clock.internal.start(bpm)
+      if source == "internal" then clock.internal.start()
       elseif source == "link" then print("link reset not supported") end
     end)
   params:add_number("link_quantum", "link quantum", 1, 32, norns.state.clock.link_quantum)
@@ -233,15 +215,19 @@ function clock.add_params()
       norns.state.clock.link_quantum = x
     end)
   params:set_save("link_quantum", false)
-
+  local clock_table = {"off"}
+  for i = 1,16 do
+    local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
+    clock_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+  end
   params:add_option("clock_midi_out", "midi out",
-      {"off", "port 1", "port 2", "port 3", "port 4"}, norns.state.clock.midi_out)
+      clock_table, norns.state.clock.midi_out)
   params:set_action("clock_midi_out", function(x) norns.state.clock.midi_out = x end)
   params:set_save("clock_midi_out", false)
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
-      if x>1 then crow.output[x-1].action = "pulse(0.05,8)" end
+      --if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
       norns.state.clock.crow_out = x
     end)
   params:set_save("clock_crow_out", false)
@@ -266,10 +252,14 @@ function clock.add_params()
 
   -- executes crow sync
   clock.run(function()
+    local v = 0
     while true do
-      clock.sync(1/params:get("clock_crow_out_div"))
+      clock.sync(1/(2*params:get("clock_crow_out_div")))
       local crow_out = params:get("clock_crow_out")-1
-      if crow_out > 0 then crow.output[crow_out]() end
+      if crow_out > 0 then
+        crow.output[crow_out].volts=v
+        v = (v==0) and 10 or 0
+      end
     end
   end)
 
@@ -301,5 +291,35 @@ function clock.add_params()
 
 end
 
+
+clock.help = [[
+--------------------------------------------------------------------------------
+clock.run( func )             start a new coroutine with function [func]
+                              (returns) created id
+clock.cancel( id )            cancel coroutine [id]
+clock.sleep( time )           resume in [time] seconds
+clock.sync( beats )           resume at next sync quantum of value [beats]
+                                following to global tempo
+clock.get_beats()             (returns) current time in beats
+clock.get_tempo()             (returns) current tempo
+clock.get_beat_sec()          (returns) length of a single beat at current
+                                tempo in seconds
+--------------------------------------------------------------------------------
+-- example
+
+-- start a clock with calling function [loop]
+function init()
+  clock.run(loop)
+end
+
+-- this function loops forever, printing at 1 second intervals 
+function loop()
+  while true do
+    print("so true")
+    clock.sleep(1)
+  end
+end
+--------------------------------------------------------------------------------
+]]
 
 return clock

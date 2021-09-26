@@ -123,7 +123,7 @@ SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 -- @tparam int src : source voice index
 -- @tparam int dst : destination voice index
 -- @tparam number offset : additional offset in seconds
-SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dest,offset) end
+SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dst,offset) end
 
 --- set pre_filter cutoff frequency.
 --- @tparam int voice : voice index
@@ -236,7 +236,7 @@ SC.level_slew_time = function(voice,time) _norns.cut_param("level_slew_time",voi
 -- @tparam number time : exponential slew time in seconds (-60db convergence)
 SC.pan_slew_time = function(voice,time) _norns.cut_param("pan_slew_time",voice,time) end
 
---- set recpre slew tiem
+--- set recpre slew time
 -- affects slew time for record and pre levels
 -- @tparam int voice : voice index
 -- @tparam number time : exponential slew time in seconds (-60db convergence)
@@ -267,6 +267,7 @@ SC.poll_start_phase = function() _norns.poll_start_cut_phase() end
 --- stop phase poll
 SC.poll_stop_phase = function() _norns.poll_stop_cut_phase() end
 
+
 --- set voice enable
 -- disabled voices have no effect and consume basically zero CPU
 -- @tparam int voice : voice number (1-?)
@@ -285,6 +286,8 @@ SC.buffer_clear_channel = function(channel) _norns.cut_buffer_clear_channel(chan
 --- clear region (both channels)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 SC.buffer_clear_region = function(start, dur, fade_time, preserve)
   _norns.cut_buffer_clear_region(start, dur or -1, fade_time or 0, preserve or 0)
 end
@@ -293,6 +296,8 @@ end
 -- @tparam int ch : buffer channel index (1-based)
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 SC.buffer_clear_region_channel = function(ch, start, dur, fade_time, preserve)
   _norns.cut_buffer_clear_region_channel(ch, start, dur or -1, fade_time or 0, preserve or 0)
 end
@@ -303,20 +308,22 @@ end
 -- @tparam number start_src : start point in source, in seconds
 -- @tparam number start_dst : start point in destination, in seconds
 -- @tparam number dur : duration in seconds. if -1, copy as much as possible.
--- @tparam number fade_time : fade time in seconds.
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 -- @tparam int reverse : nonzero to reverse while copying. when reversing, overlap between source and destination regions is not handled.
 SC.buffer_copy_mono = function(src_ch, dst_ch, start_src, start_dst, dur, fade_time, preserve, reverse)
-  _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
+  _norns.cut_buffer_copy_mono(src_ch, dst_ch, start_src, start_dst, dur or -1, fade_time or 0, preserve or 0, reverse or 0)
 end
 
 --- copy region of both buffers to another point
 -- @tparam number start_src : start point in source, in seconds
 -- @tparam number start_dst : start point in destination, in seconds
 -- @tparam number dur : duration in seconds. if -1, copy as much as possible.
--- @tparam number fade_time : fade time in seconds.
+-- @tparam number fade_time : crossfade time in seconds
+-- @tparam number preserve : level of existing material
 -- @tparam int reverse : nonzero to reverse while copying.
 SC.buffer_copy_stereo = function(start_src, start_dst, dur, fade_time, preserve, reverse)
-  _norns.cut_buffer_copy_stereo(start_src, start_dst, dur, fade_time or 0, preserve or 0, reverse or 0)
+  _norns.cut_buffer_copy_stereo(start_src, start_dst, dur or -1, fade_time or 0, preserve or 0, reverse or 0)
 end
 
 --- read mono soundfile to arbitrary region of single buffer
@@ -324,10 +331,12 @@ end
 -- @tparam number start_src : start point in source, in seconds
 -- @tparam number start_dst : start point in destination, in seconds
 -- @tparam number dur : duration in seconds. if -1, read as much as possible.
--- @tparam int ch_src : soundfie channel to read
+-- @tparam int ch_src : soundfile channel to read
 -- @tparam int ch_dst : buffer channel to write
-SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst)
-  _norns.cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst)
+-- @tparam number preserve : level of existing material
+-- @tparam number mix : level of new material
+SC.buffer_read_mono = function(file, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix)
+  _norns.cut_buffer_read_mono(file, start_src or 0, start_dst or 0, dur or -1, ch_src or 1, ch_dst or 1, preserve or 0, mix or 1)
 end
 
 --- read stereo soundfile to an arbitrary region in both buffers
@@ -335,8 +344,10 @@ end
 -- @tparam number start_src : start point in source, in seconds
 -- @tparam number start_dst : start point in destination, in seconds
 -- @tparam number dur : duration in seconds. if -1, read as much as possible
-SC.buffer_read_stereo = function(file, start_src, start_dst, dur)
-  _norns.cut_buffer_read_stereo(file, start_src, start_dst, dur)
+-- @tparam number preserve : level of existing material
+-- @tparam number mix : level of new material
+SC.buffer_read_stereo = function(file, start_src, start_dst, dur, preserve, mix)
+  _norns.cut_buffer_read_stereo(file, start_src or 0, start_dst or 0, dur or -1, preserve or 0, mix or 1)
 end
 
 --- write an arbitrary buffer region to soundfile (mono)
@@ -345,7 +356,7 @@ end
 -- @tparam number dur : duration in seconds. if -1, read as much as possible
 -- @tparam int ch : buffer channel index (1-based)
 SC.buffer_write_mono = function(file, start, dur, ch)
-  _norns.cut_buffer_write_mono(file, start, dur, ch)
+  _norns.cut_buffer_write_mono(file, start or 0, dur or -1, ch or 1)
 end
 
 --- write an arbitrary region from both buffers to stereo soundfile
@@ -353,7 +364,7 @@ end
 -- @tparam number start : start point in seconds
 -- @tparam number dur : duration in seconds. if -1, read as much as possible
 SC.buffer_write_stereo = function(file, start, dur)
-  _norns.cut_buffer_write_stereo(file, start, dur)
+  _norns.cut_buffer_write_stereo(file, start or 0, dur or -1)
 end
 
 --- set function for phase poll
@@ -373,6 +384,16 @@ end
 -- @tparam function func : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)
 SC.event_render = function(func)
   _norns.softcut_render = func
+end
+
+--- query playback position
+-- @tparam integer i : which softcut voice
+SC.query_position = function(i) _norns.cut_query_position(i) end
+
+--- set function for query callback. use query_position to request contents.
+-- @tparam function func : called when index and position is returned
+SC.event_position = function(func)
+  _norns.softcut_position = func
 end
 
 
@@ -462,7 +483,7 @@ function SC.params()
   while voice <= SC.VOICE_COUNT do
     local spec = {
       -- voice enable
-      enable = { type="number", min=0, max=1, default=0, formatter="" },
+      enable = { type="number", min=0, max=1, default=0 },
       -- levels
       -- @fixme: use dB / taper?
       level = { type="control", controlspec=controlspec.new(0, 0, 'lin', 0, 0.25, "") },
@@ -473,14 +494,14 @@ function SC.params()
       rate = { type="control", controlspec=controlspec.new(-8, 8, 'lin', 0, 0, "") },
       loop_start = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       loop_end = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5 + 2, "sec") },
-      loop = { type="number", min=0, max=1, default=1, formatter=""},
+      loop = { type="number", min=0, max=1, default=1},
       fade_time = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- recording parameters
       rec_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       pre_level = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
-      play = { type="number", min=0, max=1, default=1, formatter=""},
-      rec = { type="number", min=0, max=1, default=1, formatter=""},
-      rec_offset = { type="number", min=-100, max=100, default=-8, formatter="samples"},
+      play = { type="number", min=0, max=1, default=1},
+      rec = { type="number", min=0, max=1, default=1},
+      rec_offset = { type="number", min=-100, max=100, default=-8},
       -- jump to position
       position = { type="control", controlspec=controlspec.new(0, SC.BUFFER_SIZE, 'lin', 0, voice*2.5, "sec") },
       -- pre filter
