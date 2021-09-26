@@ -8,7 +8,6 @@
 #include <unistd.h>
 
 #include "events.h"
-#include "watch.h"
 #include "hardware/input.h"
 #include "hardware/io.h"
 
@@ -174,8 +173,6 @@ void* key_gpio_poll(void* data) {
                 ev->key.n = event[i].code;
                 ev->key.val = event[i].value;
                 event_post(ev);
-
-                watch_key(event[i].code, event[i].value);
             }
         }
     }

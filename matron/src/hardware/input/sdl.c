@@ -5,7 +5,6 @@
 #include "hardware/io.h"
 #include "hardware/input.h"
 #include "hardware/input/inputs.h"
-#include "watch.h"
 
 typedef struct _input_sdl_priv {
 } input_sdl_priv_t;
@@ -59,21 +58,18 @@ static void* input_sdl_poll(void* data) {
                         ev->key.n = 0;
                         ev->key.val = z;
                         event_post(ev);
-                        watch_key(ev->key.n, ev->key.val);
                         break;
                     case SDL_SCANCODE_A:
                         ev = event_data_new(EVENT_KEY);
                         ev->key.n = 1;
                         ev->key.val = z;
                         event_post(ev);
-                        watch_key(ev->key.n, ev->key.val);
                         break;
                     case SDL_SCANCODE_Z:
                         ev = event_data_new(EVENT_KEY);
                         ev->key.n = 2;
                         ev->key.val = z;
                         event_post(ev);
-                        watch_key(ev->key.n, ev->key.val);
                         break;
                     case SDL_SCANCODE_W:
                         ev = event_data_new(EVENT_ENC);

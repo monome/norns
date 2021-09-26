@@ -12,11 +12,8 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
-<<<<<<< HEAD
 #include "config.h"
-=======
 #include "clocks/clock_scheduler.h"
->>>>>>> main
 #include "device.h"
 #include "device_hid.h"
 #include "device_list.h"
