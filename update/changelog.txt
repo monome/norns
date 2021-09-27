@@ -1,13 +1,31 @@
-# 210826
+# 210927
 
-# norns-beta
+# norns 2.6.0
 
 - NEW hooks and mods system @ngwese @catfact
+- NEW custom events, c bindings @ngwese
 - NEW sequins library @tyleretters @trentgill
+- NEW softcut non-real-time functions @ryleelyman
 - NEW keyboard layouts @p3r7
 - NEW hold K1 in SELECT to fast-scroll @dndrks
 - FIX util.wrap and util.wrap_max bounds @dndrks
 - FIX tab.count @discohead
+- FIX crash when detecting crow @nihilazo
+- FIX numerous docker-related fixes @winder
+- FIX cleanup behavior with clean/load script @ngwese
+- FIX support PSETs above 99 @p3r7
+- NEW sky: add polyperc/polysub param def @ngwese
+- NEW textentry: add keyboard support @p3r7
+- NEW keyboard layouts menu selection @p3r7
+- FIX softcut phase inversion @catfact
+
+# maiden 1.1.4
+
+- NEW preview audio files on device in browser @stvnrlly
+- FIX explicit (instead of implicit) untitled script creation on initial landing view
+- NEW loading animation when loading scripts/audio into editor
+- NEW add version metadata to maiden cli @winder
+- NEW allow release builds for any architecture @winder
 
 
 # 210706
