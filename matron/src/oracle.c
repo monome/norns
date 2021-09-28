@@ -147,7 +147,8 @@ void o_init(void) {
     const char *ext_port = args_ext_port();
     const char *crone_port = args_crone_port();
 
-    fprintf(stderr, "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\n", local_port, crone_port, ext_port);
+    fprintf(stderr, "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\nOSC remote port: %s\n", local_port, crone_port, ext_port, args_remote_port());
+
     o_init_descriptors();
 
     ext_addr = lo_address_new("127.0.0.1", ext_port);
