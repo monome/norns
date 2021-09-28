@@ -235,5 +235,18 @@ function tab.readonly(params)
   return proxy
 end
 
+--- Create a new table with all values that pass the test implemented by the provided function.
+-- @tparam table t table to check
+-- @param condition callback function that tests all values of provided table
+-- @treturn table table with values that pass the test
+function tab.filter(tbl, condition)
+  local t = {}
+
+  for i=1, #tbl do
+    if condition(tbl[i], i) then table.insert(t, tbl[i]) end
+  end
+
+  return t
+end
 
 return tab
