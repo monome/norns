@@ -239,11 +239,11 @@ end
 -- @tparam table t table to check
 -- @param condition callback function that tests all values of provided table
 -- @treturn table table with values that pass the test
-function tab.filter(tbl, condition)
+tab.select_values = function(tbl, condition)
   local t = {}
 
-  for i=1, #tbl do
-    if condition(tbl[i], i) then table.insert(t, tbl[i]) end
+  for k,v in pairs(tbl) do
+    if condition(v) then t[k] = v end
   end
 
   return t
