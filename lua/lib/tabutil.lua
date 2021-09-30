@@ -235,5 +235,18 @@ function tab.readonly(params)
   return proxy
 end
 
+--- Create a new table with all values that pass the test implemented by the provided function.
+-- @tparam table t table to check
+-- @param condition callback function that tests all values of provided table, passes value and key as arguments
+-- @treturn table table with values that pass the test
+tab.select_values = function(tbl, condition)
+  local t = {}
+
+  for k,v in pairs(tbl) do
+    if condition(v,k) then t[k] = v end
+  end
+
+  return t
+end
 
 return tab
