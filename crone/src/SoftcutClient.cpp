@@ -75,7 +75,7 @@ void crone::SoftcutClient::mixInput(size_t numFrames) {
 
 void crone::SoftcutClient::mixOutput(size_t numFrames) {
     for (int v = 0; v < NumVoices; ++v) {
-        if (cut.getPlayFlag(v)) {
+        if (cut.getPlayFlag(v) && enabled[v]) {
             mix.panMixEpFrom(output[v], numFrames, outLevel[v], outPan[v]);
         }
     }
