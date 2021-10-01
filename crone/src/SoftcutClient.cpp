@@ -90,6 +90,9 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
         //-- softcut routing
     case Commands::Id::SET_ENABLED_CUT:
 	enabled[idx_0] = value > 0.f;
+	if (!enabled[idx_0]) {
+	    cut.stopVoice(idx_0);
+	}
 	break;
     case Commands::Id::SET_LEVEL_CUT:
 	outLevel[idx_0].setTarget(value);
