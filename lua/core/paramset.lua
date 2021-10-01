@@ -377,7 +377,7 @@ function ParamSet:write(filename, name)
   if fd then
     io.output(fd)
     if name then io.write("-- "..name.."\n") end
-    for _,param in pairs(self.params) do
+    for _,param in ipairs(self.params) do
       if param.id and param.save and param.t ~= self.tTRIGGER then
         io.write(string.format("%s: %s\n", quote(param.id), param:get()))
       end
