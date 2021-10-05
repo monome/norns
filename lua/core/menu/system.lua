@@ -47,8 +47,8 @@ m.deinit = norns.none
 
 m.passdone = function(txt)
   if txt ~= nil then
-    print("password change to " .. txt)
-    os.execute("echo 'we:"..txt.."' | sudo chpasswd")
+    local status = os.execute("echo 'we:"..txt.."' | sudo chpasswd")
+    if status then print("password changed") end
   end
   _menu.set_page("SYSTEM")
 end
