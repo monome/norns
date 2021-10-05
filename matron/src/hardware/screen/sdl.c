@@ -24,6 +24,13 @@ static void screen_sdl_bind(matron_fb_t *fb, cairo_surface_t *surface);
 static void screen_sdl_surface_destroy(void *priv);
 static cairo_surface_t *screen_sdl_surface_create(screen_sdl_priv_t *priv);
 
+static SDL_Rect windowSize = {
+    .x = 0,
+    .y = 0,
+    .w = 512,
+    .h = 256
+};
+
 screen_ops_t screen_sdl_ops = {
     .io_ops.name      = "screen:sdl",
     .io_ops.type      = IO_SCREEN,
@@ -61,8 +68,8 @@ static void screen_sdl_destroy(matron_io_t *io) {
 
 static void screen_sdl_paint(matron_fb_t *fb) {
     screen_sdl_priv_t *priv = fb->io.data;
-    cairo_paint(fb->cairo);
-    SDL_BlitSurface(priv->draw_surface, NULL, priv->window_surface, NULL);
+    cairo_paint(fb->cairo);    
+    SDL_BlitScaled(priv->draw_surface, NULL, priv->window_surface, &windowSize);
     SDL_UpdateWindowSurface(priv->window);
 }
 
@@ -87,7 +94,7 @@ static cairo_surface_t *screen_sdl_surface_create(screen_sdl_priv_t *priv) {
 
     SDL_Init(SDL_INIT_VIDEO);
     priv->window = SDL_CreateWindow("matron",
-                                    SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,                                 128, 64,
+                                    SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,                                 windowSize.w, windowSize.h,
                                     SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
     priv->window_surface = SDL_GetWindowSurface(priv->window);
     priv->draw_surface = SDL_CreateRGBSurface(0,
