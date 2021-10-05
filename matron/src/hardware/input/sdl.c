@@ -40,7 +40,9 @@ void input_sdl_destroy(matron_io_t *io) {
 
 static void* input_sdl_poll(void* data) {
     (void)data;
-    
+    // for now, we don't actually want to use keyboard input
+    // (leave it for scripts / menu)
+#if 0
     SDL_Event event;
     union event_data *ev;
     fprintf(stderr, "starting SDL input loop\n"); 
@@ -116,6 +118,6 @@ static void* input_sdl_poll(void* data) {
                 break;
         }
     }
-
+    #endif
     return NULL;
 }
