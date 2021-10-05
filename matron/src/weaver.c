@@ -267,7 +267,7 @@ static inline void _push_norns_func(const char *field, const char *func) {
 //// extern function definitions
 
 void w_init(void) {
-    fprintf(stderr, "starting lua vm\n");
+    fprintf(stderr, "starting main lua vm\n");
     lvm = luaL_newstate();
     luaL_openlibs(lvm);
     lua_pcall(lvm, 0, 0, 0);
@@ -510,13 +510,6 @@ void w_reset_lvm() {
 //----------------------------------
 //---- static definitions
 //
-
-#define STRING_NUM(n) #n
-#define LUA_ARG_ERROR(n) "error: requires " STRING_NUM(n) " arguments"
-#define lua_check_num_args(n)                   \
-    if (lua_gettop(l) != n) {                   \
-        return luaL_error(l, LUA_ARG_ERROR(n)); \
-    }
 
 int _reset_lvm(lua_State *l) {
     lua_check_num_args(0);

@@ -2,6 +2,7 @@ top = '..'
 
 def build(bld):
     matron_sources = [
+        'src/config.c',
         'src/device/device.c',
         'src/device/device_hid.c',
         'src/device/device_list.c',
@@ -11,11 +12,14 @@ def build(bld):
         'src/device/device_crow.c',
         'src/osc.c',
         'src/hardware/battery.c',
-        'src/hardware/gpio.c',
         'src/hardware/i2c.c',
+        'src/hardware/input.c',
+        'src/hardware/io.c',
         'src/hardware/platform.c',
         'src/hardware/screen.c',
         'src/hardware/stat.c',
+	'src/hardware/screen/fbdev.c',
+        'src/hardware/input/gpio.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',
@@ -33,6 +37,12 @@ def build(bld):
         'src/clocks/clock_crow.c',
         'src/clocks/clock_scheduler.c',
     ]
+
+    if bld.options.desktop:
+        matron_sources += [
+            'src/hardware/screen/sdl.c',
+            'src/hardware/input/sdl.c',
+        ]
 
     matron_includes = [
         'src',
@@ -59,6 +69,10 @@ def build(bld):
         'AVAHI-COMPAT-LIBDNS_SD',
         'JACK',
     ]
+
+    if bld.options.desktop:
+        matron_libs.append('SDL2')
+        matron_use.append('SDL2')
 
     if bld.env.ENABLE_ABLETON_LINK:
         matron_sources += ['src/clocks/clock_link.c']
