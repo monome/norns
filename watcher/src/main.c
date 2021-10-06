@@ -24,6 +24,11 @@ void *watch_time(void *);
 int main(void) {
   printf("watcher\n");
 
+  if(access("/boot/norns.txt", F_OK)==0) {
+    system("echo 'we:sleep' | sudo chpasswd");
+    system("sudo rm /boot/norns.txt");
+  }
+
   int fd;
   int open_attempts = 0, ioctl_attempts = 0;
   while (open_attempts < 200) {
