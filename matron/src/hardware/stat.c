@@ -78,38 +78,15 @@ void *stat_check(void *x) {
         }
 
         // check temp
-	/*
-//<<<<<<< HEAD
-        if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
-            fprintf(stderr, "Error opening pipe: temp read\n");
-        } else {
-            while (fgets(buf, 16, fd) != NULL) {
-                bufsub[0] = buf[5];
-                bufsub[1] = buf[6];
-                bufsub[2] = 0;
-                temp = atoi(bufsub);
-                // fprintf(stderr,"temp: %d\r\n", temp);
-//=======
         if (have_vcgencmd) {
             if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
                 fprintf(stderr, "Error opening pipe: temp read\n");
             } else {
                 while (fgets(buf, 16, fd) != NULL) {
-                    memcpy(bufsub, buf + 5, 2);
+                    bufsub[0] = buf[5];
+                    bufsub[1] = buf[6];
+                    bufsub[2] = 0;
                     temp = atoi(bufsub);
-                }
-//>>>>>>> main
-	*/
-
-	if (have_vcgencmd) {
-            if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
-                fprintf(stderr, "Error opening pipe: temp read\n");
-            } else {
-                while (fgets(buf, 16, fd) != NULL) {
-		    bufsub[0] = buf[5];
-		    bufsub[1] = buf[6];
-		    bufsub[2] = 0;
-		    temp = atoi(bufsub);
                 }
             }
             pclose(fd);
