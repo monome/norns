@@ -38,7 +38,7 @@ def build(bld):
         'src/clocks/clock_scheduler.c',
     ]
 
-    if bld.options.desktop:
+    if bld.env.NORNS_DESKTOP:
         matron_sources += [
             'src/hardware/screen/sdl.c',
             'src/hardware/input/sdl.c',
@@ -70,7 +70,7 @@ def build(bld):
         'JACK',
     ]
 
-    if bld.options.desktop:
+    if bld.env.NORNS_DESKTOP:
         matron_libs.append('SDL2')
         matron_use.append('SDL2')
 
