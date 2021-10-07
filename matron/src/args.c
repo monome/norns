@@ -40,7 +40,7 @@ int args_parse(int argc, char **argv) {
         case '?':
         case 'h':	    
         default:
-            fprintf(stdout, "Start matron with optional overrides:");
+            fprintf(stdout, "Start matron with optional overrides:\n");
             fprintf(stdout, "-l   override OSC local port [default %s]\n", a.loc_port);
             fprintf(stdout, "-e   override OSC ext port [default %s]\n", a.ext_port);
             fprintf(stdout, "-c   override crone port [default %s]\n", a.crone_port);
