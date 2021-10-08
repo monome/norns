@@ -94,23 +94,12 @@
 
 <h1>Module <code>softcut</code></h1>
 <p>Softcut module
-
-
-
- API for controlling the "softcut" buffer processor
-
+<p> API for controlling the "softcut" buffer processor
  includes low-level setters and mid-level utilities
-
-
-
- IMPORTANT: all indices are 1-based, per lua convention!
-
+<p> IMPORTANT: all indices are 1-based, per lua convention!
  this applies to indices for selecting voice, ADC/DAC channel, buffer, &c.</p>
 <p>
-
  however, _quantities_ (including units of time) can still start at zero.
-
-
 </p>
 
 
@@ -163,9 +152,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#pre_level">pre_level (voice, amp)</a></td>
 	<td class="summary">set pre level (overdub preserve.)
-
  this sets the realtime-modulated "preserve" level,
-
  by which existing material is scaled on each pass of the write head.</td>
 	</tr>
 	<tr>
@@ -231,9 +218,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#post_filter_rq">post_filter_rq (voice, rq)</a></td>
 	<td class="summary">set post-filter reciprocal of Q
-
  the reciprocal of the filter's Q factor is a measure of bandwidth,
-
  that is independent of center frequency.</td>
 	</tr>
 	<tr>
@@ -259,7 +244,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#level_slew_time">level_slew_time (voice, time)</a></td>
 	<td class="summary">set level-slew time
-
  this slew time applies to level at all mix points: ADC->voice, voice->voice, &c.</td>
 	</tr>
 	<tr>
@@ -268,20 +252,17 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#recpre_slew_time">recpre_slew_time (voice, time)</a></td>
-	<td class="summary">set recpre slew tiem
-
+	<td class="summary">set recpre slew time
  affects slew time for record and pre levels</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#rate_slew_time">rate_slew_time (voice, time)</a></td>
 	<td class="summary">set rate slew time
-
  affects slew time for rate</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#phase_quant">phase_quant (voice, quantum)</a></td>
 	<td class="summary">set phase poll quantum
-
  e.g.</td>
 	</tr>
 	<tr>
@@ -299,7 +280,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#enable">enable (voice, state)</a></td>
 	<td class="summary">set voice enable
-
  disabled voices have no effect and consume basically zero CPU</td>
 	</tr>
 	<tr>
@@ -369,15 +349,12 @@
 	<tr>
 	<td class="name" nowrap><a href="#defaults">defaults ()</a></td>
 	<td class="summary">get the default state of the softcut system
-
  this returns a table for each voice,
-
  in which each key corresponds to the name of one of the setter functions defined above.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#params">params ()</a></td>
 	<td class="summary">controlspec factory
-
  each table contains an entry for each softcut parameter.</td>
 	</tr>
 </table>
@@ -420,9 +397,7 @@
     </dt>
     <dd>
     set pan position of each voice.
-
  -1 == full left, +1 == full right, 0 == centered
-
 
 
     <h3>Parameters:</h3>
@@ -606,11 +581,8 @@
     </dt>
     <dd>
     set loop mode.
-
  "0" indicates one-shot mode: voice will play to the loop endpoint, fadeout and stop.
-
  "1" indicates crossfaded looping mode.
-
 
 
     <h3>Parameters:</h3>
@@ -661,13 +633,9 @@
     </dt>
     <dd>
     set record level.
-
  this sets the realtime-modulated record level,
-
  by which incoming signal is scaled before writing to the buffer
-
  `recpre` slew level applies
-
 
 
     <h3>Parameters:</h3>
@@ -693,13 +661,9 @@
     </dt>
     <dd>
     set pre level (overdub preserve.)
-
  this sets the realtime-modulated "preserve" level,
-
  by which existing material is scaled on each pass of the write head.
-
  `recpre` slew level applies
-
 
 
     <h3>Parameters:</h3>
@@ -821,9 +785,7 @@
     </dt>
     <dd>
     synchronize two voices.
-
  position of "dst" will be immediately set to that of "source"
-
 
 
     <h3>Parameters:</h3>
@@ -878,15 +840,10 @@
     </dt>
     <dd>
     set pre_filter amount of rate modulation.
-
  this parameter controls the amount by which the current rate affects filter cutoff frequency
-
  (always in a negative direction, towards zero.)
-
  with mod == 1, setting rate = 0 will also fully close the filter.
-
  this can be useful as a crude anti-aliasing method...
-
 
 
     <h3>Parameters:</h3>
@@ -912,15 +869,10 @@
     </dt>
     <dd>
     set pre_filter reciprocal of Q-factor.
-
  the reciprocal of the filter's Q-factor is a measure of bandwidth,
-
  that is independent of center frequency.
-
  RQ ~= 0 will result in self-oscillation;
-
  RQ == 4 gives a bandwidth of 2 octaves.
-
 
 
     <h3>Parameters:</h3>
@@ -1119,15 +1071,10 @@
     </dt>
     <dd>
     set post-filter reciprocal of Q
-
  the reciprocal of the filter's Q factor is a measure of bandwidth,
-
  that is independent of center frequency.
-
  RQ ~= 0 will result in self oscillation;
-
  RQ == 4 gives a bandwidth of 2 octaves.
-
 
 
     <h3>Parameters:</h3>
@@ -1278,7 +1225,6 @@
     </dt>
     <dd>
     set level-slew time
-
  this slew time applies to level at all mix points: ADC->voice, voice->voice, &c.
 
 
@@ -1329,8 +1275,7 @@
     <strong>recpre_slew_time (voice, time)</strong>
     </dt>
     <dd>
-    set recpre slew tiem
-
+    set recpre slew time
  affects slew time for record and pre levels
 
 
@@ -1357,7 +1302,6 @@
     </dt>
     <dd>
     set rate slew time
-
  affects slew time for rate
 
 
@@ -1384,13 +1328,9 @@
     </dt>
     <dd>
     set phase poll quantum
-
  e.g.  0.25 will produce 4 updates per second with rate=1
-
  judicious use of this parameter is preferable to using a very fast poll (for performance,)
-
  or polling at arbitrary rate (for accuracy when rate is slewed.)
-
 
 
     <h3>Parameters:</h3>
@@ -1469,7 +1409,6 @@
     </dt>
     <dd>
     set voice enable
-
  disabled voices have no effect and consume basically zero CPU
 
 
@@ -1696,7 +1635,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : input file path
         </li>
         <li><span class="parameter">start_src</span>
@@ -1713,7 +1652,7 @@
         </li>
         <li><span class="parameter">ch_src</span>
             <span class="types"><span class="type">int</span></span>
-         : soundfie channel to read
+         : soundfile channel to read
         </li>
         <li><span class="parameter">ch_dst</span>
             <span class="types"><span class="type">int</span></span>
@@ -1745,7 +1684,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : input file path
         </li>
         <li><span class="parameter">start_src</span>
@@ -1786,7 +1725,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : output file path
         </li>
         <li><span class="parameter">start</span>
@@ -1819,7 +1758,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : output file path
         </li>
         <li><span class="parameter">start</span>
@@ -1899,7 +1838,6 @@
     set function for render callback.  use render_buffer to request contents.
 
 
-
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">func</span>
@@ -1942,7 +1880,6 @@
     set function for query callback.  use query_position to request contents.
 
 
-
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">func</span>
@@ -1962,9 +1899,7 @@
     </dt>
     <dd>
     reset state of softcut process on backend.
-
  this should correspond to the values returned by the `defaults()` function above.
-
 
 
 
@@ -1979,24 +1914,18 @@
     </dt>
     <dd>
     get the default state of the softcut system
-
  this returns a table for each voice,
-
  in which each key corresponds to the name of one of the setter functions defined above.
-
  for parameters with one value per voice, the corresponding entry is also a single value.
-
  for parameters with multiple values (e.g. matrix indices), the entry is a table.
-
  NB: these values are synchronized by hand with those specified in the softcut cpp sources
-
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         table of parameter states for each voice
     </ol>
 
@@ -2010,11 +1939,8 @@
     </dt>
     <dd>
     controlspec factory
-
  each table contains an entry for each softcut parameter.
-
  each entry is a parameter argument list configured for that voice+param
-
 
 
 
@@ -2035,7 +1961,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-09-10 15:00:16 </i>
+<i style="float:right;">Last updated 2021-10-08 15:48:35 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
