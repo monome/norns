@@ -145,6 +145,10 @@
 	<td class="name" nowrap><a href="#readonly">readonly (params)</a></td>
 	<td class="summary">Create a read-only proxy for a given table.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#select_values">select_values (t, condition)</a></td>
+	<td class="summary">Create a new table with all values that pass the test implemented by the provided function.</td>
+	</tr>
 </table>
 
 <br/>
@@ -165,7 +169,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to print
         </li>
     </ul>
@@ -186,7 +190,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to sort
         </li>
     </ul>
@@ -194,7 +198,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         sorted table
     </ol>
 
@@ -214,7 +218,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to count
         </li>
     </ul>
@@ -241,7 +245,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to check
         </li>
         <li><span class="parameter">e</span>
@@ -293,7 +297,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table to check
         </li>
         <li><span class="parameter">e</span>
@@ -322,7 +326,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          string with line breaks
         </li>
     </ul>
@@ -330,7 +334,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         table with entries for each line
     </ol>
 
@@ -349,11 +353,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">inputstr</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : string to split
         </li>
         <li><span class="parameter">sep</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : delimiter
         </li>
     </ul>
@@ -378,11 +382,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tbl</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          Table to save.
         </li>
         <li><span class="parameter">filename</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Location to save to.
         </li>
     </ul>
@@ -408,7 +412,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">sfile</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Filename or stringtable to load.
         </li>
     </ul>
@@ -441,8 +445,38 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         the proxied read-only table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "select_values"></a>
+    <strong>select_values (t, condition)</strong>
+    </dt>
+    <dd>
+    Create a new table with all values that pass the test implemented by the provided function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table to check
+        </li>
+        <li><span class="parameter">condition</span>
+         callback function that tests all values of provided table, passes value and key as arguments
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        table with values that pass the test
     </ol>
 
 
@@ -456,7 +490,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-09-10 15:00:16 </i>
+<i style="float:right;">Last updated 2021-10-08 15:48:35 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
