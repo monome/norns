@@ -235,14 +235,17 @@ function tab.readonly(params)
   return proxy
 end
 
---- return new table with defaults overridden by values
--- @tparam table defaults base values (keys from this)
--- @tparam table values override values
--- @treturn table sorted table
-function tab.override(defaults, values)
+--- return new table, gathering values:
+--- - first from default_values, 
+--- - then from (i.e. overridden by) custom_values
+--- nils in custom_values are ignored
+-- @tparam table default_values base values (provides keys & fallback values)
+-- @tparam table custom_values override values (take precedence)
+-- @treturn table composite table
+function tab.gather(default_values, custom_values)
   local result = {}
-  for k,v in pairs(defaults) do 
-    result[k] = (values[k] ~= nil) and values[k] or v
+  for k,v in pairs(default_values) do 
+    result[k] = (custom_values[k] ~= nil) and custom_values[k] or v
   end
   return result
 end
