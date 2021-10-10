@@ -235,6 +235,7 @@ function tab.readonly(params)
   return proxy
 end
 
+
 --- return new table, gathering values:
 --- - first from default_values, 
 --- - then from (i.e. overridden by) custom_values
@@ -248,6 +249,19 @@ function tab.gather(default_values, custom_values)
     result[k] = (custom_values[k] ~= nil) and custom_values[k] or v
   end
   return result
+
+--- Create a new table with all values that pass the test implemented by the provided function.
+-- @tparam table t table to check
+-- @param condition callback function that tests all values of provided table, passes value and key as arguments
+-- @treturn table table with values that pass the test
+tab.select_values = function(tbl, condition)
+  local t = {}
+
+  for k,v in pairs(tbl) do
+    if condition(v,k) then t[k] = v end
+  end
+
+  return t
 end
 
 return tab

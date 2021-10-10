@@ -5,19 +5,18 @@
  */
 
 #include <assert.h>
-#include <cairo-ft.h>
 #include <cairo.h>
+#include <cairo-ft.h>
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <unistd.h>
 
 #include "args.h"
+#include "hardware/io.h"
+#include "hardware/screen.h"
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
@@ -73,17 +72,18 @@ static cairo_operator_t ops[NUM_OPS] = {
 };
 
 static cairo_surface_t *surface;
-static cairo_surface_t *surfacefb;
 static cairo_surface_t *image;
-
 static cairo_t *cr;
-static cairo_t *crfb;
+
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
 static FT_Error status;
 static FT_Face face[NUM_FONTS];
 static double text_xy[2];
 
+/*
+//<<<<<<< HEAD
+//=======
 typedef struct _cairo_linuxfb_device {
     int fb_fd;
     unsigned char *fb_data;
@@ -92,7 +92,7 @@ typedef struct _cairo_linuxfb_device {
     struct fb_fix_screeninfo fb_finfo;
 } cairo_linuxfb_device_t;
 
-/* Destroy a cairo surface */
+// Destroy a cairo surface 
 void cairo_linuxfb_surface_destroy(void *device) {
     cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
 
@@ -105,7 +105,7 @@ void cairo_linuxfb_surface_destroy(void *device) {
     free(dev);
 }
 
-/* Create a cairo surface using the specified framebuffer */
+// Create a cairo surface using the specified framebuffer
 cairo_surface_t *cairo_linuxfb_surface_create() {
     cairo_linuxfb_device_t *device;
     cairo_surface_t *surface;
@@ -149,7 +149,7 @@ cairo_surface_t *cairo_linuxfb_surface_create() {
         goto handle_ioctl_error;
     }
 
-    /* Create the cairo surface which will be used to draw to */
+    // Create the cairo surface which will be used to draw to 
     surface = cairo_image_surface_create_for_data(
         device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
         cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
@@ -163,6 +163,9 @@ handle_allocate_error:
     free(device);
     return NULL;
 }
+
+//>>>>>>> main
+*/
 
 void screen_display_png(const char *filename, double x, double y) {
     int img_w, img_h;
@@ -185,12 +188,6 @@ void screen_display_png(const char *filename, double x, double y) {
 }
 
 void screen_init(void) {
-    surfacefb = cairo_linuxfb_surface_create();
-    if (surfacefb == NULL) {
-        return;
-    }
-    crfb = cairo_create(surfacefb);
-
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
     cr = cairo_create(surface);
 
@@ -313,22 +310,38 @@ void screen_init(void) {
     cairo_set_font_face(cr, ct[0]);
     cairo_set_font_size(cr, 8.0);
 
-    // config buffer
-    cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_surface(crfb, surface, 0, 0);
+    fprintf(stderr, "font setup OK.\n");
+
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        matron_fb_t *fb = (matron_fb_t *)io;
+        screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
+        fb_ops->bind(fb, surface);
+    }
 }
 
 void screen_deinit(void) {
     CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
-    cairo_destroy(crfb);
-    cairo_surface_destroy(surfacefb);
+
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        io->ops->destroy(io);
+    }
 }
 
 void screen_update(void) {
     CHECK_CR
-    cairo_paint(crfb);
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        matron_fb_t *fb = (matron_fb_t *)io;
+        screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
+        fb_ops->paint(fb);
+    }
 }
 
 void screen_save(void) {

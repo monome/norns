@@ -30,7 +30,6 @@ crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     }
     bufIdx[0] = BufDiskWorker::registerBuffer(buf[0], BufFrames);
     bufIdx[1] = BufDiskWorker::registerBuffer(buf[1], BufFrames);
-
 }
 
 void crone::SoftcutClient::process(jack_nframes_t numFrames) {
@@ -60,12 +59,12 @@ void crone::SoftcutClient::clearBusses(size_t numFrames) {
 
 void crone::SoftcutClient::mixInput(size_t numFrames) {
     for (int dst = 0; dst < NumVoices; ++dst) {
-        if (cut.getRecFlag(dst)) {
+        if (cut.getRecFlag(dst) && enabled[dst]) {
             for (int ch = 0; ch < 2; ++ch) {
                 input[dst].mixFrom(&source[SourceAdc][ch], numFrames, inLevel[ch][dst]);
             }
             for (int src = 0; src < NumVoices; ++src) {
-                if (cut.getPlayFlag(src)) {
+                if (cut.getPlayFlag(src) && enabled[src]) {
                     input[dst].mixFrom(output[src], numFrames, fbLevel[src][dst]);
                 }
             }
@@ -75,7 +74,7 @@ void crone::SoftcutClient::mixInput(size_t numFrames) {
 
 void crone::SoftcutClient::mixOutput(size_t numFrames) {
     for (int v = 0; v < NumVoices; ++v) {
-        if (cut.getPlayFlag(v)) {
+        if (cut.getPlayFlag(v) && enabled[v]) {
             mix.panMixEpFrom(output[v], numFrames, outLevel[v], outPan[v]);
         }
     }
@@ -90,6 +89,9 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
         //-- softcut routing
     case Commands::Id::SET_ENABLED_CUT:
 	enabled[idx_0] = value > 0.f;
+	if (!enabled[idx_0]) {
+	    cut.stopVoice(idx_0);
+	}
 	break;
     case Commands::Id::SET_LEVEL_CUT:
 	outLevel[idx_0].setTarget(value);

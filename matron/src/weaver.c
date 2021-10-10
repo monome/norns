@@ -33,6 +33,7 @@
 #include "device_midi.h"
 #include "device_monome.h"
 #include "events.h"
+#include "event_custom.h"
 #include "hello.h"
 #include "i2c.h"
 #include "lua_eval.h"
@@ -53,7 +54,7 @@
 
 //------
 //---- global lua state!
-lua_State *lvm;
+static lua_State *lvm;
 
 void w_run_code(const char *code) {
     l_dostring(lvm, code, "w_run_code");
@@ -266,7 +267,7 @@ static inline void _push_norns_func(const char *field, const char *func) {
 //// extern function definitions
 
 void w_init(void) {
-    fprintf(stderr, "starting lua vm\n");
+    fprintf(stderr, "starting main lua vm\n");
     lvm = luaL_newstate();
     luaL_openlibs(lvm);
     lua_pcall(lvm, 0, 0, 0);
@@ -509,13 +510,6 @@ void w_reset_lvm() {
 //----------------------------------
 //---- static definitions
 //
-
-#define STRING_NUM(n) #n
-#define LUA_ARG_ERROR(n) "error: requires " STRING_NUM(n) " arguments"
-#define lua_check_num_args(n)                   \
-    if (lua_gettop(l) != n) {                   \
-        return luaL_error(l, LUA_ARG_ERROR(n)); \
-    }
 
 int _reset_lvm(lua_State *l) {
     lua_check_num_args(0);
@@ -2092,6 +2086,12 @@ void w_handle_system_cmd(char *capture) {
     lua_remove(lvm, -2);
     lua_pushstring(lvm, capture);
     l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+void w_handle_custom_weave(struct event_custom *ev) {
+    // call the externally defined `op` function passing in the current lua
+    // state
+    ev->ops->weave(lvm, ev->value, ev->context);
 }
 
 // helper: set poll given by lua to given state
