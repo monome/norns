@@ -251,6 +251,21 @@ function tab.gather(default_values, custom_values)
   return result
 end
 
+--- mutate first table, updating values from second table.
+--- new keys from second table will be added to first.
+--- nils in updated_values are ignored
+-- @tparam table table_to_mutate table to mutate
+-- @tparam table updated_values override values (take precedence)
+-- @treturn table composite table
+function tab.update(table_to_mutate, updated_values)
+  for k,v in pairs(updated_values) do 
+    if updated_values[k] ~= nil then
+      table_to_mutate[k] = updated_values[k]
+    end
+  end
+  return table_to_mutate
+end
+
 --- Create a new table with all values that pass the test implemented by the provided function.
 -- @tparam table t table to check
 -- @param condition callback function that tests all values of provided table, passes value and key as arguments
