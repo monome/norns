@@ -249,6 +249,7 @@ function tab.gather(default_values, custom_values)
     result[k] = (custom_values[k] ~= nil) and custom_values[k] or v
   end
   return result
+end
 
 --- Create a new table with all values that pass the test implemented by the provided function.
 -- @tparam table t table to check
