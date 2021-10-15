@@ -77,8 +77,19 @@ m.key = function(n,z)
   elseif n==3 and z==1 then
     -- return if the current "file" is the split between favorites and all scripts
     if m.list[m.pos+1].file == nil then return end
-    _menu.previewfile = m.list[m.pos+1].file
-    _menu.set_page("PREVIEW")
+    -- make sure the file still exists
+    local previewfile = m.list[m.pos+1].file
+    if util.file_exists(previewfile) then
+      _menu.previewfile = previewfile
+      _menu.set_page("PREVIEW")
+    else
+      m.remove_favorite()
+      screen.clear()
+      screen.level(15)
+      screen.move(64,40)
+      screen.text_center("script not found")
+      screen.update()
+    end
   end
 end
 
