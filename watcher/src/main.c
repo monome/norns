@@ -25,8 +25,10 @@ int main(void) {
   printf("watcher\n");
 
   if(access("/boot/norns.txt", F_OK)==0) {
-    system("echo 'we:sleep' | sudo chpasswd");
-    system("sudo rm /boot/norns.txt");
+    int r = 0;
+    r = system("echo 'we:sleep' | sudo chpasswd");
+    r |= system("sudo rm /boot/norns.txt");
+    fprintf(stderr, "password reset: %d\n", r);
   }
 
   int fd;
