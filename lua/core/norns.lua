@@ -242,3 +242,12 @@ _post_startup = function()
    print('_norns._post_startup')
    hook.system_post_startup()
 end
+
+-- qol dev tools
+function rerun()
+  norns.script.load(norns.state.script)
+end
+
+function r()
+  norns.script.load(norns.state.script)
+end
