@@ -247,7 +247,3 @@ end
 function rerun()
   norns.script.load(norns.state.script)
 end
-
-function r()
-  norns.script.load(norns.state.script)
-end
