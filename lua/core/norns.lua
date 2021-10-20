@@ -244,6 +244,6 @@ _post_startup = function()
 end
 
 -- qol dev tools
-function rerun()
+norns.rerun = function()
   norns.script.load(norns.state.script)
 end
