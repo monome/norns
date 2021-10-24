@@ -1,7 +1,7 @@
 --- module for creating a lattice of patterns based on a single fast "superclock"
 --
 -- @module Lattice
--- @release v1.1.0
+-- @release v1.2.0
 -- @author tyleretters & ezra & zack
 
 local Lattice, Pattern = {}, {}
@@ -44,6 +44,7 @@ function Lattice:reset()
   end
   for i, pattern in pairs(self.patterns) do
     pattern.phase = pattern.division * self.ppqn * self.meter
+    pattern.downbeat = false
   end
   self.transport = 0
   params:set("clock_reset",1)
@@ -96,9 +97,14 @@ function Lattice:pulse()
     for id, pattern in pairs(self.patterns) do
       if pattern.enabled then
         pattern.phase = pattern.phase + 1
-        if pattern.phase > (pattern.division * ppm) then
+        local swing_val = (2*pattern.swing/100)
+        if not pattern.downbeat then 
+          swing_val = (2*(100-pattern.swing)/100)
+        end
+        if pattern.phase > (pattern.division * ppm)*swing_val then
           pattern.phase = pattern.phase - (pattern.division * ppm)
           pattern.action(self.transport)
+          pattern.downbeat = not pattern.downbeat
         end
       elseif pattern.flag then
         self.patterns[pattern.id] = nil
@@ -113,6 +119,7 @@ end
 -- - "action" (function) called on each step of this division (lattice.transport is passed as the argument), defaults to a no-op
 -- - "division" (number) the division of the pattern, defaults to 1/4
 -- - "enabled" (boolean) is this pattern enabled, defaults to true
+-- - "swing" (number) is the percentage of swing (0 - 100%), defaults to 50
 -- @treturn table a new pattern
 function Lattice:new_pattern(args)
   self.pattern_id_counter = self.pattern_id_counter + 1
@@ -122,6 +129,7 @@ function Lattice:new_pattern(args)
   args.division = args.division == nil and 1/4 or args.division
   args.enabled = args.enabled == nil and true or args.enabled
   args.phase = args.division * self.ppqn * self.meter
+  args.swing = args.swing == nil and 50 or args.swing
   local pattern = Pattern:new(args)
   self.patterns[self.pattern_id_counter] = pattern
   return pattern
@@ -137,6 +145,8 @@ function Pattern:new(args)
   p.enabled = args.enabled
   p.phase = args.phase
   p.flag = false
+  p.swing = args.swing
+  p.downbeat = false   
   return p
 end
 
@@ -171,6 +181,12 @@ end
 -- @tparam function the action
 function Pattern:set_action(fn)
   self.action = fn
+end
+
+--- set the swing of the pattern
+-- @tparam number the swing value 0-100%
+function Pattern:set_swing(swing)
+  self.swing=util.clamp(swing,0,100)
 end
 
 return Lattice
