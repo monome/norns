@@ -43,7 +43,7 @@ function Lattice:reset()
     self.superclock_id = nil 
   end
   for i, pattern in pairs(self.patterns) do
-    pattern.phase = pattern.division * self.ppqn * self.meter
+    pattern.phase = pattern.division * self.ppqn * self.meter * (1-pattern.delay)
     pattern.downbeat = false
   end
   self.transport = 0
@@ -103,6 +103,11 @@ function Lattice:pulse()
         end
         if pattern.phase > (pattern.division * ppm)*swing_val then
           pattern.phase = pattern.phase - (pattern.division * ppm)
+	  if pattern.delay_new ~= nil then
+	    pattern.phase = pattern.phase - (pattern.division*ppm)*(1-(pattern.delay-pattern.delay_new))
+            pattern.delay = pattern.delay_new
+	    pattern.delay_new = nil
+          end
           pattern.action(self.transport)
           pattern.downbeat = not pattern.downbeat
         end
@@ -130,6 +135,7 @@ function Lattice:new_pattern(args)
   args.enabled = args.enabled == nil and true or args.enabled
   args.phase = args.division * self.ppqn * self.meter
   args.swing = args.swing == nil and 50 or args.swing
+  args.delay = args.delay == nil and 0 or args.delay
   local pattern = Pattern:new(args)
   self.patterns[self.pattern_id_counter] = pattern
   return pattern
@@ -143,10 +149,11 @@ function Pattern:new(args)
   p.division = args.division
   p.action = args.action
   p.enabled = args.enabled
-  p.phase = args.phase
   p.flag = false
   p.swing = args.swing
-  p.downbeat = false   
+  p.downbeat = false
+  p.delay = args.delay
+  p.phase = args.phase * (1-args.delay)
   return p
 end
 
@@ -187,6 +194,12 @@ end
 -- @tparam number the swing value 0-100%
 function Pattern:set_swing(swing)
   self.swing=util.clamp(swing,0,100)
+end
+
+-- set the delay for this pattern
+-- @tparam fraction of the time between beats to delay
+function Pattern:set_delay(delay)
+  self.delay_new = util.clamp(delay,0,1)
 end
 
 return Lattice
