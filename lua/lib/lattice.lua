@@ -103,10 +103,10 @@ function Lattice:pulse()
         end
         if pattern.phase > (pattern.division * ppm)*swing_val then
           pattern.phase = pattern.phase - (pattern.division * ppm)
-	  if pattern.delay_new ~= nil then
-	    pattern.phase = pattern.phase - (pattern.division*ppm)*(1-(pattern.delay-pattern.delay_new))
+          if pattern.delay_new ~= nil then
+            pattern.phase = pattern.phase - (pattern.division*ppm)*(1-(pattern.delay-pattern.delay_new))
             pattern.delay = pattern.delay_new
-	    pattern.delay_new = nil
+            pattern.delay_new = nil
           end
           pattern.action(self.transport)
           pattern.downbeat = not pattern.downbeat
@@ -125,6 +125,7 @@ end
 -- - "division" (number) the division of the pattern, defaults to 1/4
 -- - "enabled" (boolean) is this pattern enabled, defaults to true
 -- - "swing" (number) is the percentage of swing (0 - 100%), defaults to 50
+-- - "delay" (number) specifies amount of delay, as fraction of division (0.0 - 1.0), defaults to 0
 -- @treturn table a new pattern
 function Lattice:new_pattern(args)
   self.pattern_id_counter = self.pattern_id_counter + 1
@@ -197,7 +198,7 @@ function Pattern:set_swing(swing)
 end
 
 -- set the delay for this pattern
--- @tparam fraction of the time between beats to delay
+-- @tparam fraction of the time between beats to delay (0-1)
 function Pattern:set_delay(delay)
   self.delay_new = util.clamp(delay,0,1)
 end
