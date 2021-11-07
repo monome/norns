@@ -162,6 +162,9 @@ clock.link.set_quantum = function(quantum)
   return _norns.clock_link_set_quantum(quantum)
 end
 
+clock.link.set_start_stop_sync = function(enabled)
+  return _norns.clock_link_set_start_stop_sync(enabled)
+end
 
 _norns.clock.start = function()
   if clock.transport.start ~= nil then
@@ -177,7 +180,7 @@ end
 
 
 function clock.add_params()
-  params:add_group("CLOCK",8)
+  params:add_group("CLOCK", 9)
 
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
     norns.state.clock.source)
@@ -215,6 +218,13 @@ function clock.add_params()
       norns.state.clock.link_quantum = x
     end)
   params:set_save("link_quantum", false)
+  params:add_option("link_start_stop_sync", "link start/stop sync", {"disabled", "enabled"}, norns.state.clock.link_start_stop_sync)
+  params:set_action("link_start_stop_sync",
+    function(x)
+      clock.link.set_start_stop_sync(x == 2)
+      norns.state.clock.link_start_stop_sync = x
+    end)
+  params:set_save("link_start_stop_sync", false)
   local clock_table = {"off"}
   for i = 1,16 do
     local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
