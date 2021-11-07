@@ -16,6 +16,7 @@ static struct clock_link_shared_data_t {
     double quantum;
     double requested_tempo;
     bool playing;
+    bool enabled;
     pthread_mutex_t lock;
 } clock_link_shared_data;
 
@@ -31,7 +32,6 @@ static void *clock_link_run(void *p) {
     link = ableton_link_new(120);
     clock = ableton_link_clock(link);
 
-    ableton_link_enable(link, true);
     ableton_link_enable_start_stop_sync(link, true);
 
     while (true) {
@@ -63,6 +63,8 @@ static void *clock_link_run(void *p) {
                 clock_link_shared_data.requested_tempo = 0;
             }
 
+            ableton_link_enable(link, clock_link_shared_data.enabled);
+
             ableton_link_session_state_destroy(state);
             pthread_mutex_unlock(&clock_link_shared_data.lock);
         }
@@ -83,8 +85,21 @@ void clock_link_start() {
 
     clock_link_shared_data.quantum = 4;
     clock_link_shared_data.requested_tempo = 0;
+    clock_link_shared_data.enabled = false;
 
     pthread_create(&clock_link_thread, &attr, &clock_link_run, NULL);
+}
+
+void clock_link_join_session() {
+    pthread_mutex_lock(&clock_link_shared_data.lock);
+    clock_link_shared_data.enabled = true;
+    pthread_mutex_unlock(&clock_link_shared_data.lock);
+}
+
+void clock_link_leave_session() {
+    pthread_mutex_lock(&clock_link_shared_data.lock);
+    clock_link_shared_data.enabled = false;
+    pthread_mutex_unlock(&clock_link_shared_data.lock);
 }
 
 void clock_link_set_quantum(double quantum) {

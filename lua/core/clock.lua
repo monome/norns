@@ -183,13 +183,13 @@ function clock.add_params()
     norns.state.clock.source)
   params:set_action("clock_source",
     function(x)
+      if x==3 then clock.link.set_tempo(params:get("clock_tempo")) end -- for link, apply tempo before setting source
       clock.set_source(x)
       if x==4 then
         norns.crow.clock_enable()
       end
       norns.state.clock.source = x
-      if x==1 then clock.internal.set_tempo(params:get("clock_tempo"))
-      elseif x==3 then clock.link.set_tempo(params:get("clock_tempo")) end
+      if x==1 then clock.internal.set_tempo(params:get("clock_tempo")) end
     end)
   params:set_save("clock_source", false)
   params:add_number("clock_tempo", "tempo", 1, 300, norns.state.clock.tempo)
