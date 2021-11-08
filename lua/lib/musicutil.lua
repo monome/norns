@@ -449,7 +449,7 @@ end
 --- Generate chord from a root note.
 -- @tparam integer root_num MIDI note number (0-127) defining the key.
 -- @tparam string scale_type String defining scale type (eg, "major", "dorian"), see class for full list.
--- @tparam integer degree Number between 0-7 selecting the degree of the chord.
+-- @tparam integer degree Number between 1-7 selecting the degree of the chord.
 --    See MusicUtil.SCALE_CHORD_DEGREES for chords assigned to each degree.
 --    Will only return chords defined in MusicUtil.CHORDS.
 -- @tparam[opt] boolean seventh Return the 7th chord if set to true (optional)
