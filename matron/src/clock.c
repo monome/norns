@@ -149,6 +149,12 @@ void clock_reschedule_sync_events_from_source(clock_source_t source) {
 }
 
 void clock_set_source(clock_source_t source) {
+    if (clock_source != source && source == CLOCK_SOURCE_LINK) {
+        clock_link_join_session();
+    } else if (clock_source != source && clock_source == CLOCK_SOURCE_LINK) {
+        clock_link_leave_session();
+    }
+
     clock_source = source;
     clock_scheduler_reschedule_sync_events();
 }
