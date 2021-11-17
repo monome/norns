@@ -25,10 +25,10 @@ int io_create(lua_State *l, io_ops_t *ops) {
     matron_io_t* io;
     switch (ops->type) {
         case IO_SCREEN:
-            io = malloc(sizeof(matron_fb_t));
+            io = (matron_io_t*)malloc(sizeof(matron_fb_t));
             break;
         case IO_INPUT:
-            io = malloc(sizeof(matron_input_t));
+            io = (matron_io_t*)malloc(sizeof(matron_input_t));
             break;
         default:
             fprintf(stderr, "ERROR (%s) no such IO type\n", ops->name);

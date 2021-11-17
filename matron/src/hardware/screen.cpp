@@ -507,7 +507,7 @@ char *screen_peek(int x, int y, int *w, int *h) {
     CHECK_CRR
     *w = (*w <= (128 - x)) ? (*w) : (128 - x);
     *h = (*h <= (64 - y))  ? (*h) : (64 - y);
-    char *buf = malloc(*w * *h);
+    char *buf = (char*)malloc(*w * *h);
     if (!buf) {
         return NULL;
     }

@@ -31,6 +31,7 @@ static void screen_fbdev_bind(matron_fb_t *fb, cairo_surface_t *surface);
 static void screen_fbdev_surface_destroy(void *device);
 static cairo_surface_t *screen_fbdev_surface_create(screen_fbdev_priv_t *priv, const char *fb_name);
 
+/*
 screen_ops_t screen_fbdev_ops = {
     .io_ops.name      = "screen:fbdev",
     .io_ops.type      = IO_SCREEN,
@@ -42,21 +43,37 @@ screen_ops_t screen_fbdev_ops = {
     .paint = screen_fbdev_paint,
     .bind  = screen_fbdev_bind,
 };
+*/
+
+screen_ops_t screen_fbdev_ops = {
+    {                  // .io_ops
+        "screen:fbdev",               // .name
+         IO_SCREEN,                  // .type
+         sizeof(screen_fbdev_priv_t), // .data_size
+         screen_fbdev_config,         // .config
+         screen_fbdev_setup,          // .setup
+         screen_fbdev_destroy,        // .destroy
+    },
+    screen_fbdev_paint,    // .paint
+    screen_fbdev_bind,     // .bind
+};
+
+
 
 int screen_fbdev_config(matron_io_t *io, lua_State *l) {
-    screen_fbdev_priv_t *priv = io->data;
+    screen_fbdev_priv_t *priv = (screen_fbdev_priv_t *)io->data;
     lua_pushstring(l, "dev");
     lua_gettable(l, -2);
     if (lua_isstring(l, -1)) {
         const char *dev = lua_tostring(l, -1);
-        if (!(priv->dev = malloc(strlen(dev) + 1))) {
+        if (!(priv->dev = (char*)malloc(strlen(dev) + 1))) {
             fprintf(stderr, "ERROR (screen:fbdev) no memory\n");
             lua_settop(l, 0);
             return -1;
         }
         strcpy(priv->dev, dev);
     } else if (lua_isnil(l, -1)) {
-        if (!(priv->dev = malloc(9))) {
+        if (!(priv->dev = (char*)malloc(9))) {
             fprintf(stderr, "ERROR (screen:fbdev) no memory\n");
             free(priv->dev);
             lua_settop(l, 0);
@@ -75,7 +92,7 @@ int screen_fbdev_config(matron_io_t *io, lua_State *l) {
 
 int screen_fbdev_setup(matron_io_t *io) {
     matron_fb_t *fb = (matron_fb_t *)io;
-    screen_fbdev_priv_t *priv = io->data;
+    screen_fbdev_priv_t *priv = (screen_fbdev_priv_t *)io->data;
     fb->surface = screen_fbdev_surface_create(priv, priv->dev);
     if (!fb->surface) {
         fprintf(stderr, "ERROR (screen:fbdev) failed to create surface '%s'\n", priv->dev);
@@ -88,7 +105,7 @@ int screen_fbdev_setup(matron_io_t *io) {
 
 static void screen_fbdev_destroy(matron_io_t *io) {
     matron_fb_t *fb = (matron_fb_t *)io; 
-    screen_fbdev_priv_t *priv = io->data;
+    screen_fbdev_priv_t *priv = (screen_fbdev_priv_t *)io->data;
     cairo_destroy(fb->cairo);
     cairo_surface_destroy(fb->surface);
     free(priv->dev);
@@ -104,7 +121,7 @@ static void screen_fbdev_bind(matron_fb_t *fb, cairo_surface_t *surface) {
 }
 
 static void screen_fbdev_surface_destroy(void *data) {
-    screen_fbdev_priv_t *priv = data;
+    screen_fbdev_priv_t *priv =  (screen_fbdev_priv_t *)data;
 
     if (priv == NULL) {
         return;

@@ -29,6 +29,7 @@ static void* enc_gpio_poll(void* data);
 static void* key_gpio_poll(void* data);
 static int open_and_grab(const char *pathname, int flags);
 
+/*
 input_ops_t key_gpio_ops = {
     .io_ops.name      = "keys:gpio",
     .io_ops.type      = IO_INPUT,
@@ -50,15 +51,41 @@ input_ops_t enc_gpio_ops = {
     
     .poll = enc_gpio_poll,
 };
+*/
+
+input_ops_t key_gpio_ops = {
+    {                  // .io_ops
+        "keys:gpio",               // .name
+         IO_INPUT,                  // .type
+         sizeof(input_gpio_priv_t), // .data_size
+         input_gpio_config,         // .config
+         input_gpio_setup,          // .setup
+         input_gpio_destroy,        // .destroy
+    },
+    key_gpio_poll,    // .poll
+};
+
+
+input_ops_t enc_gpio_ops = {
+    {                  // .io_ops
+        "enc:gpio",               // .name
+         IO_INPUT,                  // .type
+         sizeof(enc_gpio_priv_t), // .data_size
+         enc_gpio_config,         // .config
+         input_gpio_setup,          // .setup
+         input_gpio_destroy,        // .destroy
+    },
+    enc_gpio_poll,    // .poll
+};
 
 int input_gpio_config(matron_io_t* io, lua_State *l) {
-    input_gpio_priv_t* priv = io->data;
+    input_gpio_priv_t* priv = (input_gpio_priv_t*)io->data;
 
     lua_pushstring(l, "dev");
     lua_gettable(l, -2);
     if (lua_isstring(l, -1)) {
         const char *dev = lua_tostring(l, -1);
-        if (!(priv->dev = malloc(strlen(dev) + 1))) {
+        if (!(priv->dev = (char*)malloc(strlen(dev) + 1))) {
             fprintf(stderr, "ERROR (%s) no memory\n", io->ops->name);
             lua_settop(l, 0);
             return -1;
@@ -79,7 +106,7 @@ int enc_gpio_config(matron_io_t* io, lua_State *l) {
         return err;
     }
 
-    enc_gpio_priv_t *priv = io->data;
+    enc_gpio_priv_t *priv = (enc_gpio_priv_t *)io->data;
     lua_pushstring(l, "index");
     lua_gettable(l, -2);
     if (lua_isinteger(l, -1)) {
@@ -95,7 +122,7 @@ int enc_gpio_config(matron_io_t* io, lua_State *l) {
 }
 
 int input_gpio_setup(matron_io_t* io) {
-    input_gpio_priv_t *priv = io->data;
+    input_gpio_priv_t *priv = (input_gpio_priv_t*)io->data;
     priv->fd = open_and_grab(priv->dev, O_RDONLY);
     if (priv->fd <= 0) {
         fprintf(stderr, "ERROR (%s) device not available: %s\n", io->ops->name, priv->dev);
@@ -105,14 +132,14 @@ int input_gpio_setup(matron_io_t* io) {
 }
 
 void input_gpio_destroy(matron_io_t *io) {
-    input_gpio_priv_t *priv = io->data;
+    input_gpio_priv_t *priv = (input_gpio_priv_t*)io->data;
     free(priv->dev);
     input_destroy(io);
 }
 
 void* enc_gpio_poll(void* data) {
-    matron_input_t* input = data;
-    enc_gpio_priv_t* priv = input->io.data;
+    matron_input_t* input = (matron_input_t*)data;
+    enc_gpio_priv_t* priv = (enc_gpio_priv_t*)input->io.data;
 
     int rd;
     unsigned int i;
@@ -153,8 +180,8 @@ void* enc_gpio_poll(void* data) {
 }
 
 void* key_gpio_poll(void* data) {
-    matron_input_t* input = data;
-    input_gpio_priv_t* priv = input->io.data;
+    matron_input_t* input = (matron_input_t*)data;
+    input_gpio_priv_t* priv = (input_gpio_priv_t*)input->io.data;
 
     int rd;
     unsigned int i;

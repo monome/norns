@@ -54,7 +54,7 @@ static void handle_engine_report(void);
 // *does not* allocate event data memory!
 // call with the queue locked
 static void evq_push(union event_data *ev) {
-    struct ev_node *evn = calloc(1, sizeof(struct ev_node));
+    struct ev_node *evn = (struct ev_node*)calloc(1, sizeof(struct ev_node));
     evn->ev = ev;
     if (evq.size == 0) {
         insque(evn, NULL);
@@ -99,7 +99,7 @@ void events_init(void) {
 
 MATRON_API union event_data *event_data_new(event_t type) {
     // FIXME: better not to allocate here, use object pool
-    union event_data *ev = calloc(1, sizeof(union event_data));
+    union event_data *ev = (event_data*)calloc(1, sizeof(union event_data));
     ev->type = type;
     return ev;
 }

@@ -75,18 +75,17 @@ def build(bld):
         matron_use.append('SDL2')
 
     if bld.env.ENABLE_ABLETON_LINK:
-        #matron_sources += ['src/clocks/clock_link.c']
-        #matron_includes += ['../third-party/link-c']
-        matron_includes += ['../third-party/link']
+        matron_sources += ['src/clocks/clock_link.cpp']
+        matron_includes += ['../third-party/link-c']
         matron_libs += ['stdc++']
-        #matron_use += ['LIBLINK_C']
+        matron_use += ['LIBLINK_C']
 
     if bld.env.PROFILE_MATRON:
       #bld.env.append_unique('CFLAGS', ['-pg'])
       bld.env.append_unique('CXXFLAGS', ['-pg'])
       bld.env.append_unique('LDFLAGS', ['-pg'])
 
-    bld.program(features='cxx cxxprogram',
+    bld.program(features='c cprogram cxx cxxprogram',
         source=matron_sources,
         target='matron',
         includes=matron_includes,

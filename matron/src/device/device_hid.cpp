@@ -20,26 +20,28 @@
 
 static void add_types(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
-    d->types = calloc(EV_MAX, sizeof(int));
+    d->types = (uint8_t*)calloc(EV_MAX, sizeof(int));
     d->num_types = 0;
     for (int i = 0; i < EV_MAX; i++) {
         if (libevdev_has_event_type(dev, i)) {
             d->types[d->num_types++] = i;
         }
     }
-    d->types = realloc(d->types, d->num_types * sizeof(int));
+    // d->types = (uint8_t*)realloc(d->types, d->num_types * sizeof(int));
+    // ^ that looks wrong... -EB
+    d->types = (uint8_t*)realloc(d->types, d->num_types * sizeof(uint8_t));
 }
 
 static void add_codes(struct dev_hid *d) {
     struct libevdev *dev = d->dev;
-    d->num_codes = calloc(d->num_types, sizeof(int));
-    d->codes = calloc(d->num_types, sizeof(dev_code_t *));
+    d->num_codes = (int*)calloc(d->num_types, sizeof(int));
+    d->codes = (dev_code_t**)calloc(d->num_types, sizeof(dev_code_t *));
     for (int i = 0; i < d->num_types; i++) {
         int max_codes, num_codes = 0;
         uint16_t *codes;
         int type = d->types[i];
         max_codes = libevdev_event_type_get_max(type);
-        codes = calloc(max_codes, sizeof(dev_code_t));
+        codes = (dev_code_t*)calloc(max_codes, sizeof(dev_code_t));
 
         for (int code = 0; code < max_codes; code++) {
             if (libevdev_has_event_code(dev, type, code)) {
@@ -47,7 +49,7 @@ static void add_codes(struct dev_hid *d) {
             }
         }
 
-        codes = realloc(codes, num_codes * sizeof(dev_code_t));
+        codes = (dev_code_t*)realloc(codes, num_codes * sizeof(dev_code_t));
         d->num_codes[i] = num_codes;
         d->codes[i] = codes;
     }

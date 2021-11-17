@@ -93,7 +93,7 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
 
 // set grid rotation
 void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
-    monome_set_rotation(md->m, rotation);
+    monome_set_rotation(md->m, (monome_rotate_t)rotation);
 }
 
 // enable/disable grid tilt

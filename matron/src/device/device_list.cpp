@@ -58,7 +58,7 @@ union event_data *post_add_event(union dev *d, event_t event_type) {
         return NULL;
     }
 
-    struct dev_node *dn = calloc(1, sizeof(struct dev_node));
+    struct dev_node *dn = (dev_node*)calloc(1, sizeof(struct dev_node));
 
     if (dn == NULL) {
         fprintf(stderr, "dev_list_add: error allocating device queue node\n");

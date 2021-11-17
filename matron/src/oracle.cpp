@@ -259,7 +259,7 @@ void o_send_command(const char *name, lo_message msg) {
     char *path;
     // FIXME: better not to allocate here
     size_t len = sizeof(char) * (strlen(name) + 10);
-    path = malloc(len);
+    path = (char*)malloc(len);
     sprintf(path, "/command/%s", name);
     lo_send_message(ext_addr, path, msg);
     free(path);
@@ -338,7 +338,7 @@ void o_set_engine_name(int idx, const char *name) {
         fprintf(stderr, "refusing to allocate engine name %d; already exists", idx);
     } else {
         len = strlen(name) + 1; // include null terminator
-        engine_names[idx] = malloc(len);
+        engine_names[idx] = (char*)malloc(len);
         if (engine_names[idx] == NULL) {
             fprintf(stderr, "failure to malloc for engine name %d : %s\n", idx, name);
         } else {
@@ -357,8 +357,8 @@ void o_set_command(int idx, const char *name, const char *format) {
     } else {
         name_len = strlen(name);
         format_len = strlen(format);
-        commands[idx].name = malloc(name_len + 1);
-        commands[idx].format = malloc(format_len + 1);
+        commands[idx].name = (char*)malloc(name_len + 1);
+        commands[idx].format = (char*)malloc(format_len + 1);
         if ((commands[idx].name == NULL) || (commands[idx].format == NULL)) {
             fprintf(stderr, "failure to malloc for command %d : %s %s\n", idx, name, format);
         } else {
@@ -377,7 +377,7 @@ void o_set_poll(int idx, const char *name, poll_type_t type) {
         fprintf(stderr, "refusing to allocate poll name %d; already exists", idx);
     } else {
         name_len = strlen(name);
-        polls[idx].name = malloc(name_len + 1);
+        polls[idx].name = (char*)malloc(name_len + 1);
         if ((polls[idx].name == NULL)) {
             fprintf(stderr, "failure to malloc for poll %d : %s\n", idx, name);
         } else {
@@ -747,7 +747,7 @@ int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
 			     lo_message data, void *user_data) {
 
     assert(argc > 2);
-    o_set_poll(argv[0]->i, &argv[1]->s, argv[2]->i);
+    o_set_poll(argv[0]->i, &argv[1]->s, (poll_type_t)argv[2]->i);
     return 0;
 }
 
@@ -780,7 +780,7 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv, int arg
     uint8_t *blobdata = (uint8_t *)lo_blob_dataptr((lo_blob)argv[1]);
     int sz = lo_blob_datasize((lo_blob)argv[1]);
     ev->poll_data.size = sz;
-    ev->poll_data.data = calloc(1, sz);
+    ev->poll_data.data = (uint8_t*)calloc(1, sz);
     memcpy(ev->poll_data.data, blobdata, sz);
     event_post(ev);
     return 0;
@@ -829,7 +829,7 @@ int handle_softcut_render(const char *path, const char *types, lo_arg **argv, in
     int sz = lo_blob_datasize((lo_blob)argv[3]);
     float *samples = (float*)lo_blob_dataptr((lo_blob)argv[3]);
     ev->softcut_render.size = sz / sizeof(float);
-    ev->softcut_render.data = calloc(1, sz);
+    ev->softcut_render.data = (float*)calloc(1, sz);
     memcpy(ev->softcut_render.data, samples, sz);
     event_post(ev);
     return 0;
