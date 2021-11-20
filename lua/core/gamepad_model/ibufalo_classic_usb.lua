@@ -15,8 +15,10 @@ local g = {
 
   dpad_o_margin = 2, -- margin to handle noise on center position
   dpad_resolution = 256,
-  dpad_x_invert = false,
-  dpad_y_invert = true,
+  dpad_invert = {
+    Y = true,
+    X = false,
+  },
 }
 
 return g
