@@ -227,6 +227,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_GRID_KEY:
         w_handle_grid_key(ev->grid_key.id, ev->grid_key.x, ev->grid_key.y, ev->grid_key.state);
         break;
+    case EVENT_GRID_TILT:
+        w_handle_grid_tilt(ev->grid_tilt.id, ev->grid_tilt.sensor, ev->grid_tilt.x, ev->grid_tilt.y, ev->grid_tilt.z);
+        break;
     case EVENT_ARC_ENCODER_DELTA:
         w_handle_arc_encoder_delta(ev->arc_encoder_delta.id, ev->arc_encoder_delta.number, ev->arc_encoder_delta.delta);
         break;
