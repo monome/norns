@@ -15,13 +15,15 @@ for i=1,4 do
     device = nil,
 
     key = nil,
-
+    tilt = nil,
+    
     led = vport.wrap_method('led'),
     all = vport.wrap_method('all'),
     refresh = vport.wrap_method('refresh'),
     rotation = vport.wrap_method('rotation'),
     intensity = vport.wrap_method('intensity'),
-
+    tilt_enable = vport.wrap_method('tilt_enable'),
+    
     cols = 0,
     rows = 0,
   }
@@ -40,6 +42,7 @@ function Grid.new(id, serial, name, dev)
   g.name = name.." "..serial
   g.dev = dev -- opaque pointer
   g.key = nil -- key event callback
+  g.tilt = nil -- tilt event callback
   g.remove = nil -- device unplug callback
   g.rows = _norns.grid_rows(dev)
   g.cols = _norns.grid_cols(dev)
@@ -82,6 +85,18 @@ function Grid:rotation(val)
   _norns.grid_set_rotation(self.dev, val)
 end
 
+
+-- enable/disable grid tilt.
+-- @tparam integer id : sensor
+-- @tparam integer val : off/on [0, 1]
+function Grid:tilt_enable(id, val)
+  if (val == 1) then
+    _norns.grid_tilt_enable(self.dev, id)
+  else
+    _norns.grid_tilt_disable(self.dev, id)
+  end
+end
+
 --- set state of single LED on this grid device.
 -- @tparam integer x : column index (1-based!)
 -- @tparam integer y : row index (1-based!)
@@ -120,12 +135,14 @@ end
 function Grid.cleanup()
   for i=1,4 do
     Grid.vports[i].key = nil
+    Grid.vports[i].tilt = nil
   end
 
   for _, dev in pairs(Grid.devices) do
     dev:all(0)
     dev:refresh()
     dev.key = nil
+    dev.tilt = nil
   end
 end
 
@@ -198,12 +215,33 @@ _norns.grid.key = function(id, x, y, s)
   end
 end
 
+-- redefine global grid tilt input handler
+_norns.grid.tilt = function(id, x, y, z)
+  local g = Grid.devices[id]
+  if g ~= nil then
+    if g.tilt ~= nil then
+      g.tilt(x, y, z)
+    end
+
+    if g.port then
+      if Grid.vports[g.port].tilt then
+        Grid.vports[g.port].tilt(x, y, z)
+      end
+    end
+  else
+    error('no entry for grid '..id)
+  end
+end
+
+
 Grid.help = [[
 --------------------------------------------------------------------------------
 grid.connect( port )          create a grid table using device [port]
                                 default [port] 1 if unspecified
                               (returns) grid table
 .key( x, y, z )               function called with incoming grid key event
+                                this should be redefined by the script
+.tilt( x, y, z )               function called with incoming grid tilt event
                                 this should be redefined by the script
 .led( x, y, level )           set LED at [x,y] to [level]
                                 [level] range is 0..15
