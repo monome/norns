@@ -183,7 +183,7 @@ void dev_monome_handle_tilt(const monome_event_t *e, void *p) {
     ev->grid_tilt.sensor = e->tilt.sensor;
     ev->grid_tilt.x = e->tilt.x;
     ev->grid_tilt.y = e->tilt.y;
-    ev->grid_tilt.z = e->tilt.y;
+    ev->grid_tilt.z = e->tilt.z;
     event_post(ev);
 }
 
