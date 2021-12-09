@@ -23,7 +23,7 @@
 
 #include "Commands.h"
 
-namespace crone {
+namespace atropos {
 
     template<int NumIns, int NumOuts>
     class Client {

@@ -37,7 +37,7 @@ git submodule update --init --recursive
 
 this should build all the c-based components (`matron` and `ws-wrapper`.)
 
-the `crone` audio engine consists of supercollider classes. copy files to the default location for user SC extensions
+the `atropos` audio engine consists of supercollider classes. copy files to the default location for user SC extensions
 
 ```
 pushd sc
@@ -53,11 +53,11 @@ the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_
 
 ## launching components
 
-### 1. launch `crone` (audio engine)
+### 1. launch `atropos` (audio engine)
 
-run `crone.sh` from the norns directory. this creates a `sclang` process wrapped with `ws-wrapper`
+run `atropos.sh` from the norns directory. this creates a `sclang` process wrapped with `ws-wrapper`
 
-if the crone classes are installed correctly, you should see some lines like this in output from sclang initialization:
+if the atropos classes are installed correctly, you should see some lines like this in output from sclang initialization:
 
 ```
 -------------------------------------------------
@@ -74,7 +74,7 @@ and immediately after sclang init, you should see the server being booted and so
 
 with the audio engine running, run `matron.sh` from the norns directory. this creates a `matron` process wrapped with `ws-wrapper`
 
-matron waits for crone to finish loading before entering the main event loop.
+matron waits for atropos to finish loading before entering the main event loop.
 
 ### 3. launch `maiden` (web UI client)
 

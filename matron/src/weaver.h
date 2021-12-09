@@ -79,7 +79,7 @@ extern void w_handle_clock_resume(const int thread_id, double value);
 extern void w_handle_clock_start();
 extern void w_handle_clock_stop();
 
-//--- crone poll handlers
+//--- atropos poll handlers
 extern void w_handle_poll_value(int idx, float val);
 extern void w_handle_poll_data(int idx, int size, uint8_t *data);
 extern void w_handle_poll_wave(int idx, uint8_t *data);

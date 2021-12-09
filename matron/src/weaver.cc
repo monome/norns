@@ -124,14 +124,14 @@ static int _screen_set_operator(lua_State *l);
 static int _gain_hp(lua_State *l);
 // osc
 static int _osc_send(lua_State *l);
-static int _osc_send_crone(lua_State *l);
+static int _osc_send_atropos(lua_State *l);
 // midi
 static int _midi_send(lua_State *l);
 
 // crow
 static int _crow_send(lua_State *l);
 
-// crone
+// atropos
 /// engines
 static int _request_engine_report(lua_State *l);
 static int _load_engine(lua_State *l);
@@ -406,12 +406,12 @@ void w_init(void) {
 
     // osc
     lua_register_norns("osc_send", &_osc_send);
-    lua_register_norns("osc_send_crone", &_osc_send_crone);
+    lua_register_norns("osc_send_atropos", &_osc_send_atropos);
 
     // midi
     lua_register_norns("midi_send", &_midi_send);
 
-    // get list of available crone engines
+    // get list of available atropos engines
     lua_register_norns("report_engines", &_request_engine_report);
     // load a named engine
     lua_register_norns("load_engine", &_load_engine);
@@ -1100,10 +1100,10 @@ int _osc_send(lua_State *l) {
 }
 
 /***
- * osc: send to crone
+ * osc: send to atropos
  * @function osc_send
  */
-int _osc_send_crone(lua_State *l) {
+int _osc_send_atropos(lua_State *l) {
     const char *path = NULL;
     lo_message msg;
 
@@ -1153,7 +1153,7 @@ int _osc_send_crone(lua_State *l) {
             lua_pop(l, 1);
         }
     }
-    osc_send_crone(path, msg);
+    osc_send_atropos(path, msg);
     lo_message_free(msg);
 
     lua_settop(l, 0);

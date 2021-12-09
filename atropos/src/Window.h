@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace  crone {
+namespace  atropos {
 
     class Window {
     public:

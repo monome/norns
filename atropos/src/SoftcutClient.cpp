@@ -24,7 +24,7 @@ static inline void clamp(float &x, const float min, const float max) {
     x = std::max(min, std::min(max, x));
 }
 
-crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
+atropos::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     for (unsigned int i = 0; i < NumVoices; ++i) {
         cut.setVoiceBuffer(i, buf[i & 1], BufFrames);
     }
@@ -32,7 +32,7 @@ crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     bufIdx[1] = BufDiskWorker::registerBuffer(buf[1], BufFrames);
 }
 
-void crone::SoftcutClient::process(jack_nframes_t numFrames) {
+void atropos::SoftcutClient::process(jack_nframes_t numFrames) {
     Commands::softcutCommands.handlePending(this);
     clearBusses(numFrames);
     mixInput(numFrames);
@@ -46,18 +46,18 @@ void crone::SoftcutClient::process(jack_nframes_t numFrames) {
     mix.copyTo(sink[0], numFrames);
 }
 
-void crone::SoftcutClient::setSampleRate(jack_nframes_t sr) {
+void atropos::SoftcutClient::setSampleRate(jack_nframes_t sr) {
     bufDur = (float)BufFrames / sr;
     cut.setSampleRate(sr);
 }
 
 
-void crone::SoftcutClient::clearBusses(size_t numFrames) {
+void atropos::SoftcutClient::clearBusses(size_t numFrames) {
     mix.clear(numFrames);
     for (auto &b : input) { b.clear(numFrames); }
 }
 
-void crone::SoftcutClient::mixInput(size_t numFrames) {
+void atropos::SoftcutClient::mixInput(size_t numFrames) {
     for (int dst = 0; dst < NumVoices; ++dst) {
         if (cut.getRecFlag(dst) && enabled[dst]) {
             for (int ch = 0; ch < 2; ++ch) {
@@ -72,7 +72,7 @@ void crone::SoftcutClient::mixInput(size_t numFrames) {
     }
 }
 
-void crone::SoftcutClient::mixOutput(size_t numFrames) {
+void atropos::SoftcutClient::mixOutput(size_t numFrames) {
     for (int v = 0; v < NumVoices; ++v) {
         if (cut.getPlayFlag(v) && enabled[v]) {
             mix.panMixEpFrom(output[v], numFrames, outLevel[v], outPan[v]);
@@ -80,7 +80,7 @@ void crone::SoftcutClient::mixOutput(size_t numFrames) {
     }
 }
 
-void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
+void atropos::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
     size_t idx_0 = p->idx_0;
     size_t idx_1 = p->idx_1;
     float value = p->value;
@@ -228,7 +228,7 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
     }
 }
 
-void crone::SoftcutClient::reset() {
+void atropos::SoftcutClient::reset() {
     for (int v = 0; v < NumVoices; ++v) {
         cut.setVoiceBuffer(v, buf[v%2], BufFrames);
         outLevel[v].setTarget(0.f);

@@ -148,7 +148,7 @@ static void page_line(int i, char *str) {
   pthread_mutex_unlock(&exit_lock);
 }
 
-void ui_crone_line(char *str) {
+void ui_atropos_line(char *str) {
   page_line(PAGE_CRONE, str);
 }
 

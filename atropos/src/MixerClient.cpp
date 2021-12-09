@@ -10,9 +10,9 @@
 
 #include "Tape.h"
 
-using namespace crone;
+using namespace atropos;
 
-MixerClient::MixerClient() : Client<6, 6>("crone") {}
+MixerClient::MixerClient() : Client<6, 6>("atropos") {}
 
 void MixerClient::process(jack_nframes_t numFrames) {
     Commands::mixerCommands.handlePending(this);

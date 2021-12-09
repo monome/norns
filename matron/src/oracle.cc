@@ -24,8 +24,8 @@
 
 // address of external DSP environment (e.g. supercollider)
 static lo_address ext_addr;
-// address of crone process
-static lo_address crone_addr;
+// address of atropos process
+static lo_address atropos_addr;
 
 static lo_server_thread st;
 
@@ -76,7 +76,7 @@ static void o_set_command(int idx, const char *name, const char *format);
 static void o_set_num_desc(int *dst, int num);
 
 //--- OSC handlers
-static int handle_crone_ready(const char *path, const char *types, lo_arg **argv, int argc,
+static int handle_atropos_ready(const char *path, const char *types, lo_arg **argv, int argc,
 			      lo_message data, void *user_data);
 static int handle_engine_report_start(const char *path, const char *types, lo_arg **argv, int argc,
 				      lo_message data, void *user_data);
@@ -145,18 +145,18 @@ void o_query_startup(void) {
 void o_init(void) {
     const char *local_port = args_local_port();
     const char *ext_port = args_ext_port();
-    const char *crone_port = args_crone_port();
+    const char *atropos_port = args_atropos_port();
 
-    fprintf(stderr, "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\nOSC remote port: %s\n", local_port, crone_port, ext_port, args_remote_port());
+    fprintf(stderr, "OSC rx port: %s \nOSC atropos port: %s\nOSC ext port: %s\nOSC remote port: %s\n", local_port, atropos_port, ext_port, args_remote_port());
 
     o_init_descriptors();
 
     ext_addr = lo_address_new("127.0.0.1", ext_port);
-    crone_addr = lo_address_new("127.0.0.1", crone_port);
+    atropos_addr = lo_address_new("127.0.0.1", atropos_port);
     st = lo_server_thread_new(local_port, lo_error_handler);
 
-    // crone ready
-    lo_server_thread_add_method(st, "/crone/ready", "", handle_crone_ready, NULL);
+    // atropos ready
+    lo_server_thread_add_method(st, "/atropos/ready", "", handle_atropos_ready, NULL);
     // engine report sequence
     lo_server_thread_add_method(st, "/report/engines/start", "i", handle_engine_report_start, NULL);
     lo_server_thread_add_method(st, "/report/engines/entry", "is", handle_engine_report_entry, NULL);
@@ -196,7 +196,7 @@ void o_deinit(void) {
     fprintf(stderr, "stopping OSC server\n");
     lo_server_thread_free(st);
     lo_address_free(ext_addr);
-    lo_address_free(crone_addr);
+    lo_address_free(atropos_addr);
 }
 
 //--- descriptor access
@@ -408,49 +408,49 @@ void o_request_poll_value(int idx) {
 //---- audio context control
 
 void o_poll_start_vu() {
-    lo_send(crone_addr, "/poll/start/vu", NULL);
+    lo_send(atropos_addr, "/poll/start/vu", NULL);
 }
 
 void o_poll_stop_vu() {
-    lo_send(crone_addr, "/poll/stop/vu", NULL);
+    lo_send(atropos_addr, "/poll/stop/vu", NULL);
 }
 
 void o_poll_start_cut_phase() {
-    lo_send(crone_addr, "/poll/start/cut/phase", NULL);
+    lo_send(atropos_addr, "/poll/start/cut/phase", NULL);
 }
 
 void o_poll_stop_cut_phase() {
-    lo_send(crone_addr, "/poll/stop/cut/phase", NULL);
+    lo_send(atropos_addr, "/poll/stop/cut/phase", NULL);
 }
 
 void o_set_level_adc(float level) {
-    lo_send(crone_addr, "/set/level/adc", "f", level);
+    lo_send(atropos_addr, "/set/level/adc", "f", level);
 }
 
 void o_set_level_dac(float level) {
-    lo_send(crone_addr, "/set/level/dac", "f", level);
+    lo_send(atropos_addr, "/set/level/dac", "f", level);
 }
 
 void o_set_level_ext(float level) {
-    lo_send(crone_addr, "/set/level/ext", "f", level);
+    lo_send(atropos_addr, "/set/level/ext", "f", level);
 }
 
 void o_set_level_monitor(float level) {
-    lo_send(crone_addr, "/set/level/monitor", "f", level);
+    lo_send(atropos_addr, "/set/level/monitor", "f", level);
 }
 
 void o_set_monitor_mix_mono() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 0.5);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 0, 0.5);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 1, 0.5);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 2, 0.5);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 3, 0.5);
 }
 
 void o_set_monitor_mix_stereo() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 1.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 1.0);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 0, 1.0);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 1, 0.0);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 2, 0.0);
+    lo_send(atropos_addr, "/set/level/monitor_mix", "if", 3, 1.0);
 }
 
 void o_set_audio_pitch_on() {
@@ -467,201 +467,201 @@ void o_restart_audio() {
 
 //---- tape controls
 void o_set_level_tape(float level) {
-    lo_send(crone_addr, "/set/level/tape", "f", level);
+    lo_send(atropos_addr, "/set/level/tape", "f", level);
 }
 
 void o_set_level_tape_rev(float level) {
-    lo_send(crone_addr, "/set/level/tape_rev", "f", level);
+    lo_send(atropos_addr, "/set/level/tape_rev", "f", level);
 }
 
 void o_tape_rec_open(char *file) {
-    lo_send(crone_addr, "/tape/record/open", "s", file);
+    lo_send(atropos_addr, "/tape/record/open", "s", file);
 }
 
 void o_tape_rec_start() {
-    lo_send(crone_addr, "/tape/record/start", NULL);
+    lo_send(atropos_addr, "/tape/record/start", NULL);
 }
 
 void o_tape_rec_stop() {
-    lo_send(crone_addr, "/tape/record/stop", NULL);
+    lo_send(atropos_addr, "/tape/record/stop", NULL);
 }
 
 void o_tape_play_open(char *file) {
-    lo_send(crone_addr, "/tape/play/open", "s", file);
+    lo_send(atropos_addr, "/tape/play/open", "s", file);
 }
 
 void o_tape_play_start() {
-    lo_send(crone_addr, "/tape/play/start", NULL);
+    lo_send(atropos_addr, "/tape/play/start", NULL);
 }
 
 void o_tape_play_stop() {
-    lo_send(crone_addr, "/tape/play/stop", NULL);
+    lo_send(atropos_addr, "/tape/play/stop", NULL);
 }
 
 //--- cut
 void o_cut_enable(int i, float value) {
-    lo_send(crone_addr, "/set/enabled/cut", "if", i, value);
+    lo_send(atropos_addr, "/set/enabled/cut", "if", i, value);
 }
 
 void o_set_level_adc_cut(float value) {
-    lo_send(crone_addr, "/set/level/adc_cut", "f", value);
+    lo_send(atropos_addr, "/set/level/adc_cut", "f", value);
 }
 
 void o_set_level_ext_cut(float value) {
-    lo_send(crone_addr, "/set/level/ext_cut", "f", value);
+    lo_send(atropos_addr, "/set/level/ext_cut", "f", value);
 }
 
 void o_set_level_tape_cut(float value) {
-    lo_send(crone_addr, "/set/level/tape_cut", "f", value);
+    lo_send(atropos_addr, "/set/level/tape_cut", "f", value);
 }
 
 void o_set_level_cut_rev(float value) {
-    lo_send(crone_addr, "/set/level/cut_rev", "f", value);
+    lo_send(atropos_addr, "/set/level/cut_rev", "f", value);
 }
 
 void o_set_level_cut_master(float value) {
-    lo_send(crone_addr, "/set/level/cut_master", "f", value);
+    lo_send(atropos_addr, "/set/level/cut_master", "f", value);
 }
 
 void o_set_level_cut(int index, float value) {
-    lo_send(crone_addr, "/set/level/cut", "if", index, value);
+    lo_send(atropos_addr, "/set/level/cut", "if", index, value);
 }
 
 void o_set_level_cut_cut(int src, int dest, float value) {
-    lo_send(crone_addr, "/set/level/cut_cut", "iif", src, dest, value);
+    lo_send(atropos_addr, "/set/level/cut_cut", "iif", src, dest, value);
 }
 
 void o_set_pan_cut(int index, float value) {
-    lo_send(crone_addr, "/set/pan/cut", "if", index, value);
+    lo_send(atropos_addr, "/set/pan/cut", "if", index, value);
 }
 
 void o_set_cut_param(const char *name, int voice, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/cut/%s", name);
-    lo_send(crone_addr, buf, "if", voice, value);
+    lo_send(atropos_addr, buf, "if", voice, value);
 }
 
 void o_set_cut_param_ii(const char *name, int voice, int value) {
     static char buf[128];
     sprintf(buf, "/set/param/cut/%s", name);
-    lo_send(crone_addr, buf, "ii", voice, value);
+    lo_send(atropos_addr, buf, "ii", voice, value);
 }
 
 void o_set_cut_param_iif(const char *name, int a, int b, float v) {
     static char buf[128];
     sprintf(buf, "/set/param/cut/%s", name);
-    lo_send(crone_addr, buf, "iif", a, b, v);
+    lo_send(atropos_addr, buf, "iif", a, b, v);
 }
 
 void o_set_level_input_cut(int src, int dst, float level) {
-    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
+    lo_send(atropos_addr, "/set/level/in_cut", "iif", src, dst, level);
 }
 
 void o_cut_buffer_clear() {
-    lo_send(crone_addr, "/softcut/buffer/clear", "");
+    lo_send(atropos_addr, "/softcut/buffer/clear", "");
 }
 
 void o_cut_buffer_clear_channel(int ch) {
-    lo_send(crone_addr, "/softcut/buffer/clear_channel", "i", ch);
+    lo_send(atropos_addr, "/softcut/buffer/clear_channel", "i", ch);
 }
 
 void o_cut_buffer_clear_region(float start, float dur, float fade_time, float preserve) {
-    lo_send(crone_addr, "/softcut/buffer/clear_fade_region", "ffff", start, dur, fade_time, preserve);
+    lo_send(atropos_addr, "/softcut/buffer/clear_fade_region", "ffff", start, dur, fade_time, preserve);
 }
 
 void o_cut_buffer_clear_region_channel(int ch, float start, float dur, float fade_time, float preserve) {
-    lo_send(crone_addr, "/softcut/buffer/clear_fade_region_channel", "iffff", ch, start, dur, fade_time, preserve);
+    lo_send(atropos_addr, "/softcut/buffer/clear_fade_region_channel", "iffff", ch, start, dur, fade_time, preserve);
 }
 
 void o_cut_buffer_copy_mono(int src_ch, int dst_ch,
                             float src_start, float dst_start, float dur,
                             float fade_time, float preserve, int reverse) {
-    lo_send(crone_addr, "/softcut/buffer/copy_mono", "iifffffi",
+    lo_send(atropos_addr, "/softcut/buffer/copy_mono", "iifffffi",
             src_ch, dst_ch, src_start, dst_start, dur, fade_time, preserve, reverse);
 }
 
 void o_cut_buffer_copy_stereo(float src_start, float dst_start, float dur,
                               float fade_time, float preserve, int reverse) {
-    lo_send(crone_addr, "/softcut/buffer/copy_stereo", "fffffi",
+    lo_send(atropos_addr, "/softcut/buffer/copy_stereo", "fffffi",
             src_start, dst_start, dur, fade_time, preserve, reverse);
 }
 
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst, float preserve, float mix) {
-    lo_send(crone_addr, "/softcut/buffer/read_mono", "sfffiiff", file, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix);
+    lo_send(atropos_addr, "/softcut/buffer/read_mono", "sfffiiff", file, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix);
 }
 
 void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur, float preserve, float mix) {
-    lo_send(crone_addr, "/softcut/buffer/read_stereo", "sfffff", file, start_src, start_dst, dur, preserve, mix);
+    lo_send(atropos_addr, "/softcut/buffer/read_stereo", "sfffff", file, start_src, start_dst, dur, preserve, mix);
 }
 
 void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {
-    lo_send(crone_addr, "/softcut/buffer/write_mono", "sffi", file, start, dur, ch);
+    lo_send(atropos_addr, "/softcut/buffer/write_mono", "sffi", file, start, dur, ch);
 }
 
 void o_cut_buffer_write_stereo(char *file, float start, float dur) {
-    lo_send(crone_addr, "/softcut/buffer/write_stereo", "sff", file, start, dur);
+    lo_send(atropos_addr, "/softcut/buffer/write_stereo", "sff", file, start, dur);
 }
 
 void o_cut_buffer_render(int ch, float start, float dur, int samples) {
-    lo_send(crone_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
+    lo_send(atropos_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
 }
 
 void o_cut_query_position(int i) {
-    lo_send(crone_addr, "/softcut/query/position", "i", i);
+    lo_send(atropos_addr, "/softcut/query/position", "i", i);
 }
 
 void o_cut_reset() {
-    lo_send(crone_addr, "/softcut/reset", "");
+    lo_send(atropos_addr, "/softcut/reset", "");
 }
 
 //--- rev effects controls
 // enable / disable rev fx processing
 void o_set_rev_on() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 1.0);
+    lo_send(atropos_addr, "/set/enabled/reverb", "f", 1.0);
 }
 
 void o_set_rev_off() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 0.0);
+    lo_send(atropos_addr, "/set/enabled/reverb", "f", 0.0);
 }
 
 //--- comp effects controls
 void o_set_comp_on() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 1.0);
+    lo_send(atropos_addr, "/set/enabled/compressor", "f", 1.0);
 }
 
 void o_set_comp_off() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 0.0);
+    lo_send(atropos_addr, "/set/enabled/compressor", "f", 0.0);
 }
 
 void o_set_comp_mix(float value) {
-    lo_send(crone_addr, "/set/level/compressor_mix", "f", value);
+    lo_send(atropos_addr, "/set/level/compressor_mix", "f", value);
 }
 
 // stereo output -> rev
 void o_set_level_ext_rev(float value) {
-    lo_send(crone_addr, "/set/level/ext_rev", "f", value);
+    lo_send(atropos_addr, "/set/level/ext_rev", "f", value);
 }
 
 // rev return -> dac
 void o_set_level_rev_dac(float value) {
-    lo_send(crone_addr, "/set/level/rev_dac", "f", value);
+    lo_send(atropos_addr, "/set/level/rev_dac", "f", value);
 }
 
 // monitor mix -> rev level
 void o_set_level_monitor_rev(float value) {
-    lo_send(crone_addr, "/set/level/monitor_rev", "f", value);
+    lo_send(atropos_addr, "/set/level/monitor_rev", "f", value);
 }
 
 void o_set_rev_param(const char *name, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/reverb/%s", name);
-    lo_send(crone_addr, buf, "f", value);
+    lo_send(atropos_addr, buf, "f", value);
 }
 
 void o_set_comp_param(const char *name, float value) {
     static char buf[128];
     sprintf(buf, "/set/param/compressor/%s", name);
-    lo_send(crone_addr, buf, "f", value);
+    lo_send(atropos_addr, buf, "f", value);
 }
 
 /////////////////////
@@ -674,7 +674,7 @@ void o_set_comp_param(const char *name, float value) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-int handle_crone_ready(const char *path, const char *types, lo_arg **argv, int argc,
+int handle_atropos_ready(const char *path, const char *types, lo_arg **argv, int argc,
 		       lo_message data, void *user_data) {
     norns_hello_ok();
     return 0;

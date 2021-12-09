@@ -25,6 +25,6 @@ git submodule update --init --recursive
 
 ## acknowledgments
 
-`matron` (control system) and `crone` (audio system) were created by @catfact. `maiden` (editor) was created by @ngwese. Each grew with contributions from @artfwo, @jah, @simon, @rv, @pq, @markwheeler, @csboling and many others.
+`matron` (control system) and `atropos` (audio system) were created by @catfact. `maiden` (editor) was created by @ngwese. Each grew with contributions from @artfwo, @jah, @simon, @rv, @pq, @markwheeler, @csboling and many others.
 
 norns was initiated by @tehn (monome).

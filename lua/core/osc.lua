@@ -34,11 +34,11 @@ end
 -- static method to send osc event directly to sclang.
 -- @tparam string path : osc message path
 -- @tparam string args : osc message args
-function OSC.send_crone(path, args)
+function OSC.send_atropos(path, args)
   if (args ~= nil) then
-    _norns.osc_send_crone(path, args)
+    _norns.osc_send_atropos(path, args)
   else
-    _norns.osc_send_crone(path)
+    _norns.osc_send_atropos(path)
   end
 end
 

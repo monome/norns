@@ -21,7 +21,7 @@
 // FIXME: didn't realize that liblo has a perfectly ok-looking cpp interface already. this could be cleaner.
 // having a custom method wrapper is probably fine, easier to refactor if we move to different IPC.
 
-namespace crone {
+namespace atropos {
     using std::string;
 
     class OscInterface {

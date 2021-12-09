@@ -2,7 +2,7 @@ maiden-repl
 ===========
 
 the `maiden-repl` command is a terminal based alternative to the `matron`
-and `supercollider` (sc/crone) REPLs provided in the web based `maiden` editor. this
+and `supercollider` (sc/atropos) REPLs provided in the web based `maiden` editor. this
 command can be used independently of, or concurrently with, the web based editor. any
 REPL output will appear in all connected sessions but REPL input commands and command
 history.
@@ -10,9 +10,9 @@ history.
 usage
 -----
 
-`maiden-repl <matron_socket> <crone_socket>`
+`maiden-repl <matron_socket> <atropos_socket>`
 
-the default values for `matron_socket` and `crone_socket` are
+the default values for `matron_socket` and `atropos_socket` are
 `ws://localhost:5555/` and `ws://localhost:5556/` respectively which are
 appropriate if `maiden-repl` is being run directly on `norns` (via ssh or serial
 connection).
@@ -35,7 +35,7 @@ building
 
 when building directly on a norns device `maiden-repl` should be built by
 default as part of the `waf` based build system for the full norns software
-stack (matron, crone, etc.)
+stack (matron, atropos, etc.)
 
 when building on linux or macOS the a secondary `cmake` based build sytem allows
 for building the command independently of the full norns stack. the `cmake`

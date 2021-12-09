@@ -1,6 +1,6 @@
 #include "Taper.h"
 
-using namespace crone;
+using namespace atropos;
 
 const unsigned int Taper::Vu::ampPosTableSize = 32;
 

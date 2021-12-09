@@ -1,6 +1,6 @@
 #pragma once
 
-namespace crone { 
+namespace atropos { 
 typedef enum { 
 RATIO = 0,
 THRESHOLD = 1,
@@ -9,4 +9,4 @@ RELEASE = 3,
 GAIN_PRE = 4,
 GAIN_POST = 5,
 } CompressorParam;
-} // namespace crone
+} // namespace atropos

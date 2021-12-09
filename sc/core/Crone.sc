@@ -21,12 +21,12 @@ Crone {
 
 	classvar useRemoteServer = false;
 
-	classvar <croneAddr;
+	classvar <atroposAddr;
 
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
-			croneAddr = NetAddr("127.0.0.1", 9999);
+			atroposAddr = NetAddr("127.0.0.1", 9999);
 			remoteAddr = NetAddr("127.0.0.1", txPort);
 
 			"SC_JACK_DEFAULT_INPUTS".setenv("");
@@ -48,7 +48,7 @@ Crone {
 
 	*startBoot {
 		if(useRemoteServer, {
-			Server.default = Server.remote(\crone, NetAddr("127.0.0.1", serverPort));
+			Server.default = Server.remote(\atropos, NetAddr("127.0.0.1", serverPort));
 			server = Server.default;
 			server.doWhenBooted {
 				Crone.finishBoot;
@@ -71,17 +71,17 @@ Crone {
 		postln(" OSC rx port: " ++ NetAddr.langPort);
 		postln(" OSC tx port: " ++ txPort);
 		postln(" server port: " ++ serverPort);
-		postln(" crone port: " ++ croneAddr.port);
+		postln(" atropos port: " ++ atroposAddr.port);
 		postln("--------------------------------------------------\n");
 	}
 
 	*finishBoot {
-		// FIXME: connect to `crone` client instead
-		Crone.runShellCommand("jack_connect \"crone:output_5\" \"SuperCollider:in_1\"");
-		Crone.runShellCommand("jack_connect \"crone:output_6\" \"SuperCollider:in_2\"");
+		// FIXME: connect to `atropos` client instead
+		Crone.runShellCommand("jack_connect \"atropos:output_5\" \"SuperCollider:in_1\"");
+		Crone.runShellCommand("jack_connect \"atropos:output_6\" \"SuperCollider:in_2\"");
 
-		Crone.runShellCommand("jack_connect \"SuperCollider:out_1\" \"crone:input_5\"");
-		Crone.runShellCommand("jack_connect \"SuperCollider:out_2\" \"crone:input_6\"");
+		Crone.runShellCommand("jack_connect \"SuperCollider:out_1\" \"atropos:input_5\"");
+		Crone.runShellCommand("jack_connect \"SuperCollider:out_2\" \"atropos:input_6\"");
 
 		CroneDefs.sendDefs(server);
 		server.sync;
@@ -112,7 +112,7 @@ Crone {
 				class.new(context, {
 					arg theEngine;
 					postln("-----------------------");
-					postln("-- crone: done loading engine, starting reports");
+					postln("-- atropos: done loading engine, starting reports");
 					postln("--------");
 
 					this.engine = theEngine;
@@ -206,17 +206,17 @@ Crone {
 	*initOscRx {
 		oscfunc = (
 
-			// @module crone
-			// @alias crone
+			// @module atropos
+			// @alias atropos
 
-			/// send a `/crone/ready` response if Crone is done starting up,
+			/// send a `/atropos/ready` response if Crone is done starting up,
 			/// otherwise send nothing
 			// @function /ready
 			'/ready':OSCFunc.new({
 				arg msg, time, addr, recvPort;
 				if(complete==1) {
-					postln(">>> /crone/ready");
-					remoteAddr.sendMsg('/crone/ready');
+					postln(">>> /atropos/ready");
+					remoteAddr.sendMsg('/atropos/ready');
 				}
 			}, '/ready'),
 

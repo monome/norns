@@ -17,7 +17,7 @@
 
 #include "BufDiskWorker.h"
 
-using namespace crone;
+using namespace atropos;
 
 std::unique_ptr<std::thread> BufDiskWorker::worker = nullptr;
 std::queue<BufDiskWorker::Job> BufDiskWorker::jobQ;

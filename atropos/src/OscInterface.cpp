@@ -14,7 +14,7 @@
 #include "Commands.h"
 #include "OscInterface.h"
 
-using namespace crone;
+using namespace atropos;
 
 bool OscInterface::quitFlag;
 

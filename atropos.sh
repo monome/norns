@@ -5,7 +5,7 @@ export JACK_NO_AUDIO_RESERVATION=1
 
 # start jack clients
 # scsynth -u 57122 -i 2 -o 2 &
-./build/crone/crone &
+./build/atropos/atropos &
 
 # start sclang (starts local scsynth, performs connections)
 SCLANG=$(which sclang)

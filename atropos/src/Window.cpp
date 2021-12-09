@@ -4,7 +4,7 @@
 
 #include "Window.h"
 
-using namespace crone;
+using namespace atropos;
 
 const float Window::raisedCosShort[Window::raisedCosShortLen] = {
 #include "cos_win.h"

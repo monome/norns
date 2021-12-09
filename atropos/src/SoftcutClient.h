@@ -15,7 +15,7 @@
 #include "softcut/Types.h"
 
 
-namespace crone {
+namespace atropos {
     class SoftcutClient: public Client<2, 2> {
     public:
         static constexpr float MaxRate = static_cast<float>(softcut::Resampler::OUT_BUF_FRAMES);

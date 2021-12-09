@@ -43,20 +43,20 @@ def build(bld):
             '../matron/src/hardware/input/sdl.cc',
         ]
 
-    crone_sources = [
-        '../crone/src/main.cpp',
-        '../crone/src/BufDiskWorker.cpp',
-        '../crone/src/Commands.cpp',
-        '../crone/src/MixerClient.cpp',
-        '../crone/src/OscInterface.cpp',
-        '../crone/src/SoftcutClient.cpp',
-        '../crone/src/Taper.cpp',
-        '../crone/src/Window.cpp',
-        '../crone/softcut/softcut-lib/src/FadeCurves.cpp',
-        '../crone/softcut/softcut-lib/src/ReadWriteHead.cpp',
-        '../crone/softcut/softcut-lib/src/SubHead.cpp',
-        '../crone/softcut/softcut-lib/src/Svf.cpp',
-        '../crone/softcut/softcut-lib/src/Voice.cpp'
+    atropos_sources = [
+        '../atropos/src/main.cpp',
+        '../atropos/src/BufDiskWorker.cpp',
+        '../atropos/src/Commands.cpp',
+        '../atropos/src/MixerClient.cpp',
+        '../atropos/src/OscInterface.cpp',
+        '../atropos/src/SoftcutClient.cpp',
+        '../atropos/src/Taper.cpp',
+        '../atropos/src/Window.cpp',
+        '../atropos/softcut/softcut-lib/src/FadeCurves.cpp',
+        '../atropos/softcut/softcut-lib/src/ReadWriteHead.cpp',
+        '../atropos/softcut/softcut-lib/src/SubHead.cpp',
+        '../atropos/softcut/softcut-lib/src/Svf.cpp',
+        '../atropos/softcut/softcut-lib/src/Voice.cpp'
     ]
 
     matron_includes = [
@@ -98,19 +98,19 @@ def build(bld):
         bld.env.append_unique('CXXFLAGS', ['-pg'])
         bld.env.append_unique('LDFLAGS', ['-pg'])
     
-    crone_includes=[
-        '../crone',
-        '../crone/src',
-        '../crone/softcut/softcut-lib/include',
-        '../crone/lib/readerwriterqueue'
+    atropos_includes=[
+        '../atropos',
+        '../atropos/src',
+        '../atropos/softcut/softcut-lib/include',
+        '../atropos/lib/readerwriterqueue'
     ]
 
-    crone_use=[
+    atropos_use=[
         'ALSA',
         'LIBLO',
     ]
     
-    crone_libs=[
+    atropos_libs=[
         'atomic',
         'jack',
         'pthread',
@@ -118,10 +118,10 @@ def build(bld):
         'sndfile'
     ]
     
-    norns_sources = ["main.cpp"] + matron_sources + crone_sources
-    norns_includes = matron_includes + crone_includes
-    norns_use = matron_use +crone_use
-    norns_libs = matron_libs + crone_libs
+    norns_sources = ["main.cpp"] + matron_sources + atropos_sources
+    norns_includes = matron_includes + atropos_includes
+    norns_use = matron_use +atropos_use
+    norns_libs = matron_libs + atropos_libs
     
     bld.program(features='c cprogram cxx cxxprogram',
         target='norns',

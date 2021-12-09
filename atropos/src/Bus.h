@@ -8,7 +8,7 @@
 #include <cassert>
 #include "Utilities.h"
 
-namespace  crone {
+namespace  atropos {
 
     template<size_t NumChannels, size_t BlockSize>
     class Bus {

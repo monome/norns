@@ -20,7 +20,7 @@
 
 #define OSC_CRONE_HOST "127.0.0.1"
 #define OSC_CRONE_PORT "57120"
-static lo_address crone_addr;
+static lo_address atropos_addr;
 
 static lo_server_thread st;
 static DNSServiceRef dnssd_ref;
@@ -37,13 +37,13 @@ void osc_init(void) {
     DNSServiceRegister(&dnssd_ref, 0, 0, "norns", "_osc._udp", NULL, NULL, htons(lo_server_thread_get_port(st)), 0,
                        NULL, NULL, NULL);
 
-    crone_addr = lo_address_new(OSC_CRONE_HOST, OSC_CRONE_PORT);
+    atropos_addr = lo_address_new(OSC_CRONE_HOST, OSC_CRONE_PORT);
 }
 
 void osc_deinit(void) {
     DNSServiceRefDeallocate(dnssd_ref);
     lo_server_thread_free(st);
-    lo_address_free(crone_addr);
+    lo_address_free(atropos_addr);
 }
 
 void osc_send(const char *host, const char *port, const char *path, lo_message msg) {
@@ -56,8 +56,8 @@ void osc_send(const char *host, const char *port, const char *path, lo_message m
     lo_address_free(address);
 }
 
-void osc_send_crone(const char *path, lo_message msg) {
-    lo_send_message(crone_addr, path, msg);
+void osc_send_atropos(const char *path, lo_message msg) {
+    lo_send_message(atropos_addr, path, msg);
 }
 
 int osc_receive(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {

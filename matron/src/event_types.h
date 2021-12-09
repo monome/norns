@@ -57,19 +57,19 @@ typedef enum {
     EVENT_ENGINE_REPORT,
     // finished loading engine
     EVENT_ENGINE_LOADED,
-    // polled value from crone
+    // polled value from atropos
     EVENT_POLL_VALUE,
-    // arbitrary polled data from crone
+    // arbitrary polled data from atropos
     EVENT_POLL_DATA,
-    // polled waveform from crone
+    // polled waveform from atropos
     EVENT_POLL_WAVE,
-    // polled i/o VU levels from crone
+    // polled i/o VU levels from atropos
     EVENT_POLL_IO_LEVELS,
     // polled softcut phase
     EVENT_POLL_SOFTCUT_PHASE,
-    // crone startup ack event
+    // atropos startup ack event
     EVENT_STARTUP_READY_OK,
-    // crone startup timeout event
+    // atropos startup timeout event
     EVENT_STARTUP_READY_TIMEOUT,
     // system command finished
     EVENT_SYSTEM_CMD,

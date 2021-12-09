@@ -459,11 +459,11 @@
 ## norns 2.1.0
 
 - NEW clocks system @artfwo
-- NEW crone routings: tape->cut, tape->aux @dewb
+- NEW atropos routings: tape->cut, tape->aux @dewb
 - NEW softcut post-filters @catfact
 - NEW softcut reset command @catfact
 - NEW low battery screen alert
-- FIX crone compressor timing @catfact
+- FIX atropos compressor timing @catfact
 - FIX engine loading logic fix @catfact
 - FIX display_png crash @okyeron
 - FIX screensaver timer now reset by enc/key
@@ -489,7 +489,7 @@
 
 ## norns 2.0.0
 
-- NEW *** crone is now a dedicated application (previously it was supercollider): audio routing, mixing, reverb, compression, tape, and softcut (multivoice sampling engine). @catfact
+- NEW *** atropos is now a dedicated application (previously it was supercollider): audio routing, mixing, reverb, compression, tape, and softcut (multivoice sampling engine). @catfact
 - NEW * networking system overhauled. @ngwese, @simon
 - NEW * menu navigation redesigned.
 - NEW * user folder (dust) management redesigned to facilitate decentralized sharing.
@@ -510,7 +510,7 @@
 - FIX ldoc cleaned up
 - NEW screen png export
 - NEW screen png import @okyeron
-- NEW crone compiles on macos @catfact
+- NEW atropos compiles on macos @catfact
 - FIX overhaul device vport system @artfwo
 - NEW intonation lib @catfact
 - NEW 'listselect' helper class

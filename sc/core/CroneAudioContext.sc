@@ -106,28 +106,28 @@ CroneAudioContext {
 		in_s[chan].set(\level, db.dbamp);  
 	}
 	outputLevel { arg db; 
-		Crone.croneAddr.sendMsg("/set/level/dac", db.dbamp)
+		Crone.atroposAddr.sendMsg("/set/level/dac", db.dbamp)
 	}
 
 	// control monitor level / pan
 	monitorLevel { arg db;
 		postln("set monitor level: " ++ db ++ " dB");
-		Crone.croneAddr.sendMsg("/set/level/monitor", db.dbamp);
+		Crone.atroposAddr.sendMsg("/set/level/monitor", db.dbamp);
 	}
 
 	// FIXME: provide more granular control, or collapse these into one command
 	monitorMono {
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 0, 0.5);
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.5);
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.5);
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 3, 0.5);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 0, 0.5);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 1, 0.5);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 2, 0.5);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 3, 0.5);
 	}
 
 	monitorStereo {
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 0, 1.0);
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 1, 0.0);
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 2, 0.0);
-		Crone.croneAddr.sendMsg("/set/level/monitor_mix", 3, 1.0);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 0, 1.0);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 1, 0.0);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 2, 0.0);
+		Crone.atroposAddr.sendMsg("/set/level/monitor_mix", 3, 1.0);
 	}
 
 	// toggle monitoring altogether

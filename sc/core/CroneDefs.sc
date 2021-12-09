@@ -1,4 +1,4 @@
-// utility class to load synthdefs required by crone engines.
+// utility class to load synthdefs required by atropos engines.
 // engines could of course define their own defs, this is for shared functionality.
 CroneDefs {
 

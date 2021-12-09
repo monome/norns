@@ -23,7 +23,7 @@
 #include <memory>
 #include <functional>
 
-namespace crone {
+namespace atropos {
     // class for asynchronous management of mono audio buffers
     class BufDiskWorker {
     public:

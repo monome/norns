@@ -30,8 +30,8 @@ struct sock_io {
 void *matron_rx_loop(void *psock);
 // loop to send data to matron
 void *tx_loop(void *x);
-// loop to receive data from crone
-void *crone_rx_loop(void *x);
+// loop to receive data from atropos
+void *atropos_rx_loop(void *x);
 
 //----------------
 //---- variables
@@ -46,7 +46,7 @@ char *url_default[IO_COUNT] = {
 
 void * (*loop_func[IO_COUNT])(void *) = {
   &matron_rx_loop,
-  &crone_rx_loop,
+  &atropos_rx_loop,
   &tx_loop
 };
 
@@ -131,14 +131,14 @@ void *matron_rx_loop(void *p) {
   return NULL;
 }
 
-void *crone_rx_loop(void *p) {
+void *atropos_rx_loop(void *p) {
   struct sock_io *io = (struct sock_io *)p;
   char msg[BUF_SIZE];
   while(1) {
     int nb = nn_recv (io->sock, msg, BUF_SIZE, 0);
     if(nb >= 0) {
       msg[nb] = '\0';
-      ui_crone_line(msg);
+      ui_atropos_line(msg);
     }
   }
   return NULL;

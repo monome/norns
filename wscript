@@ -69,7 +69,7 @@ def build(bld):
     #bld.recurse('matron')
     bld.recurse('maiden-repl')
     bld.recurse('ws-wrapper')
-    #bld.recurse('crone')
+    #bld.recurse('atropos')
     bld.recurse('third-party')
     bld.recurse('watcher')
     bld.recurse('norns')

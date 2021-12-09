@@ -9,7 +9,7 @@ struct args {
     char loc_port[ARG_BUF_SIZE];
     char ext_port[ARG_BUF_SIZE];
     char remote_port[ARG_BUF_SIZE];
-    char crone_port[ARG_BUF_SIZE];
+    char atropos_port[ARG_BUF_SIZE];
     char framebuffer[ARG_BUF_SIZE];    
 };
 
@@ -17,7 +17,7 @@ static struct args a = {
     "8888",     // loc_port
     "57120",    // ext_port
     "10111",    // remote_port
-    "9999",     // crone_port
+    "9999",     // atropos_port
     "/dev/fb0", // framebuffer
 };
 
@@ -36,7 +36,7 @@ int args_parse(int argc, char **argv) {
             strncpy(a.remote_port, optarg, ARG_BUF_SIZE - 1);
             break;
         case 'c':
-            strncpy(a.crone_port, optarg, ARG_BUF_SIZE - 1);
+            strncpy(a.atropos_port, optarg, ARG_BUF_SIZE - 1);
             break;
         case '?':
         case 'h':	    
@@ -44,7 +44,7 @@ int args_parse(int argc, char **argv) {
             fprintf(stdout, "Start matron with optional overrides:\n");
             fprintf(stdout, "-l   override OSC local port [default %s]\n", a.loc_port);
             fprintf(stdout, "-e   override OSC ext port [default %s]\n", a.ext_port);
-            fprintf(stdout, "-c   override crone port [default %s]\n", a.crone_port);
+            fprintf(stdout, "-c   override atropos port [default %s]\n", a.atropos_port);
             exit(1);
             ;
         }
@@ -64,6 +64,6 @@ const char *args_remote_port(void) {
     return a.remote_port;
 }
 
-const char *args_crone_port(void) {
-    return a.crone_port;
+const char *args_atropos_port(void) {
+    return a.atropos_port;
 }

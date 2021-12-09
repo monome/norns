@@ -42,7 +42,7 @@ else needs to be done).
 `version.txt` simply contains the version (ie `180401`) and is copied to `~/update`
 (which is later read by matron).
 
-files relevant to matron, crone, or maiden should be kept in respective
+files relevant to matron, atropos, or maiden should be kept in respective
 subfolders in the archive.
 
 ## preparation of an update

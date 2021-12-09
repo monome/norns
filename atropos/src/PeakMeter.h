@@ -3,7 +3,7 @@
 #include "Utilities.h"
 #include "Taper.h"
 
-namespace crone { 
+namespace atropos { 
 
     class PeakMeter {
 	float val;

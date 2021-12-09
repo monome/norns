@@ -8,7 +8,7 @@ def configure(conf):
     conf.load('compiler_c compiler_cxx')
 
 def build(bld):
-    crone_sources = [
+    atropos_sources = [
         'src/main.cpp',
         'src/BufDiskWorker.cpp',
         'src/Commands.cpp',
@@ -25,8 +25,8 @@ def build(bld):
     ]
 
     bld.program( features='c cxx cxxprogram',
-                 source=crone_sources,
-                 target='crone',
+                 source=atropos_sources,
+                 target='atropos',
 
                  includes=[
                      'src',

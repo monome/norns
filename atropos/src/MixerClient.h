@@ -17,7 +17,7 @@
 #include "effects/ZitaReverb.h"
 
 
-namespace  crone {
+namespace  atropos {
     class MixerClient: public Client<6, 6> {
 
     public:

@@ -9,7 +9,7 @@
 #include "MixerClient.h"
 #include "SoftcutClient.h"
 
-using namespace crone;
+using namespace atropos;
 
 Commands Commands::mixerCommands;
 Commands Commands::softcutCommands;

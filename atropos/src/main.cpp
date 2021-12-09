@@ -16,23 +16,23 @@ static inline void sleep(int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-static std::unique_ptr<crone::MixerClient> m;
-static std::unique_ptr<crone::SoftcutClient> sc;
+static std::unique_ptr<atropos::MixerClient> m;
+static std::unique_ptr<atropos::SoftcutClient> sc;
 
-void crone_cleanup() { 
+void atropos_cleanup() { 
     std::cout << "stopping clients" << std::endl;
     m->stop();
     sc->stop();
     std::cout << "cleaning up clients..." << std::endl;
     m->cleanup();
     sc->cleanup();
-    crone::OscInterface::deinit();
+    atropos::OscInterface::deinit();
     std::cout << "goodbye" << std::endl;
     
 }
 
-int crone_main() {
-    using namespace crone;
+int atropos_main() {
+    using namespace atropos;
     using std::cout;
     using std::endl;
 
@@ -65,11 +65,11 @@ int crone_main() {
         sleep(100);
     }
     
-    crone_cleanup();
+    atropos_cleanup();
 
     return 0;
 }
 
 #if 0
-int main() { crone_main(); }
+int main() { atropos_main(); }
 #endif

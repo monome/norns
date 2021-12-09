@@ -8,7 +8,7 @@
 //#include "boost/lockfree/spsc_queue.hpp"
 #include "readerwriterqueue.h"
 
-namespace crone {
+namespace atropos {
 
     class MixerClient;
     class SoftcutClient;

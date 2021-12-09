@@ -1,4 +1,4 @@
-` crone` can now be built and run as a native JACK client application on mac OS. this has been tested on Mojave (10.14.2).
+` atropos` can now be built and run as a native JACK client application on mac OS. this has been tested on Mojave (10.14.2).
 
  note that there are a number of warnings when building with clang. these are pretty trivial (of the "unused variable" variety, from the Faust stack) and shouldn't cause any harm.
 

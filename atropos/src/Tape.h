@@ -19,7 +19,7 @@
 
 #include "Window.h"
 
-namespace crone {
+namespace atropos {
 
     template<int NumChannels>
         class Tape {

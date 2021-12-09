@@ -25,13 +25,13 @@ maiden/maiden
 # vscode
 .vscode/
 
-crone/\.idea/
+atropos/\.idea/
 
-crone/cmake-build-debug/
+atropos/cmake-build-debug/
 
-crone/build-debinfo/
+atropos/build-debinfo/
 
-crone/build-release/
+atropos/build-release/
 
 # Jekyll
 _site
