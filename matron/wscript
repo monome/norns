@@ -2,46 +2,46 @@ top = '..'
 
 def build(bld):
     matron_sources = [
-        'src/config.cpp',
-        'src/device/device.cpp',
-        'src/device/device_hid.cpp',
-        'src/device/device_list.cpp',
-        'src/device/device_midi.cpp',
-        'src/device/device_monitor.cpp',
-        'src/device/device_monome.cpp',
-        'src/device/device_crow.cpp',
-        'src/osc.cpp',
-        'src/hardware/battery.cpp',
-        'src/hardware/i2c.cpp',
-        'src/hardware/input.cpp',
-        'src/hardware/io.cpp',
-        'src/hardware/platform.cpp',
-        'src/hardware/screen.cpp',
-        'src/hardware/stat.cpp',
-	'src/hardware/screen/fbdev.cpp',
-        'src/hardware/input/gpio.cpp',
-        'src/args.cpp',
-        'src/events.cpp',
-        'src/hello.cpp',
-        'src/input.cpp',
-        'src/lua_eval.cpp',
-        'src/main.cpp',
-        'src/metro.cpp',
-        'src/oracle.cpp',
-        'src/weaver.cpp',
-        'src/snd_file.cpp',
-        'src/system_cmd.cpp',
-        'src/clock.cpp',
-        'src/clocks/clock_internal.cpp',
-        'src/clocks/clock_midi.cpp',
-        'src/clocks/clock_crow.cpp',
-        'src/clocks/clock_scheduler.cpp',
+        'src/config.cc',
+        'src/device/device.cc',
+        'src/device/device_hid.cc',
+        'src/device/device_list.cc',
+        'src/device/device_midi.cc',
+        'src/device/device_monitor.cc',
+        'src/device/device_monome.cc',
+        'src/device/device_crow.cc',
+        'src/osc.cc',
+        'src/hardware/battery.cc',
+        'src/hardware/i2c.cc',
+        'src/hardware/input.cc',
+        'src/hardware/io.cc',
+        'src/hardware/platform.cc',
+        'src/hardware/screen.cc',
+        'src/hardware/stat.cc',
+	'src/hardware/screen/fbdev.cc',
+        'src/hardware/input/gpio.cc',
+        'src/args.cc',
+        'src/events.cc',
+        'src/hello.cc',
+        'src/input.cc',
+        'src/lua_eval.cc',
+        'src/main.cc',
+        'src/metro.cc',
+        'src/oracle.cc',
+        'src/weaver.cc',
+        'src/snd_file.cc',
+        'src/system_cmd.cc',
+        'src/clock.cc',
+        'src/clocks/clock_internal.cc',
+        'src/clocks/clock_midi.cc',
+        'src/clocks/clock_crow.cc',
+        'src/clocks/clock_scheduler.cc',
     ]
 
     if bld.env.NORNS_DESKTOP:
         matron_sources += [
-            'src/hardware/screen/sdl.cpp',
-            'src/hardware/input/sdl.cpp',
+            'src/hardware/screen/sdl.cc',
+            'src/hardware/input/sdl.cc',
         ]
 
     matron_includes = [
@@ -75,7 +75,7 @@ def build(bld):
         matron_use.append('SDL2')
 
     if bld.env.ENABLE_ABLETON_LINK:
-        matron_sources += ['src/clocks/clock_link.cpp']
+        matron_sources += ['src/clocks/clock_link.cc']
         matron_includes += ['../third-party/link-c']
         matron_libs += ['stdc++']
         matron_use += ['LIBLINK_C']
