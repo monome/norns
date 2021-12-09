@@ -1290,7 +1290,7 @@ int _grid_set_rotation(lua_State *l) {
 int _grid_tilt_enable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_enable(md, id);
     lua_settop(l, 0);
@@ -1304,7 +1304,7 @@ int _grid_tilt_enable(lua_State *l) {
 int _grid_tilt_disable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_disable(md, id);
     lua_settop(l, 0);

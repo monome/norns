@@ -85,7 +85,7 @@ def build(bld):
       bld.env.append_unique('CXXFLAGS', ['-pg'])
       bld.env.append_unique('LDFLAGS', ['-pg'])
 
-    bld.program(features='c cprogram cxx cxxprogram',
+    bld.program(features='cxx cxxprogram',
         source=matron_sources,
         target='matron',
         includes=matron_includes,
