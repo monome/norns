@@ -95,7 +95,7 @@ extern void w_handle_startup_ready_ok();
 extern void w_handle_startup_ready_timeout();
 
 // util callbacks
-extern void w_handle_system_cmd();
+extern void w_handle_system_cmd(char* capture);
 
 // custom events
 extern void w_handle_custom_weave(struct event_custom *ev);

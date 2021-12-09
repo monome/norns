@@ -1173,7 +1173,7 @@ int _crow_send(lua_State *l) {
     }
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    d = lua_touserdata(l, 1);
+    d = (dev_crow*)lua_touserdata(l, 1);
     s = luaL_checkstring(l, 2);
     lua_settop(l, 0);
 
@@ -1194,11 +1194,11 @@ int _midi_send(lua_State *l) {
     lua_check_num_args(2);
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    md = lua_touserdata(l, 1);
+    md = (dev_midi*)lua_touserdata(l, 1);
 
     luaL_checktype(l, 2, LUA_TTABLE);
     nbytes = lua_rawlen(l, 2);
-    data = malloc(nbytes);
+    data = (uint8_t*)malloc(nbytes);
 
     for (unsigned int i = 1; i <= nbytes; i++) {
         lua_pushinteger(l, i);
@@ -1226,7 +1226,7 @@ int _midi_send(lua_State *l) {
 int _grid_set_led(lua_State *l) {
     lua_check_num_args(4);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int x = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int y = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int z = (int)luaL_checkinteger(l, 4);     // don't convert value!
@@ -1238,7 +1238,7 @@ int _grid_set_led(lua_State *l) {
 int _arc_set_led(lua_State *l) {
     lua_check_num_args(4);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int n = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int x = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int val = (int)luaL_checkinteger(l, 4);   // don't convert value!
@@ -1256,7 +1256,7 @@ int _arc_set_led(lua_State *l) {
 int _grid_all_led(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int z = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_all_led(md, z);
     lua_settop(l, 0);
@@ -1275,7 +1275,7 @@ int _arc_all_led(lua_State *l) {
 int _grid_set_rotation(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int z = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_set_rotation(md, z);
     lua_settop(l, 0);
@@ -1290,7 +1290,7 @@ int _grid_set_rotation(lua_State *l) {
 int _grid_tilt_enable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_enable(md, id);
     lua_settop(l, 0);
@@ -1304,7 +1304,7 @@ int _grid_tilt_enable(lua_State *l) {
 int _grid_tilt_disable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_disable(md, id);
     lua_settop(l, 0);
@@ -1319,7 +1319,7 @@ int _grid_tilt_disable(lua_State *l) {
 int _monome_refresh(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     dev_monome_refresh(md);
     lua_settop(l, 0);
     return 0;
@@ -1333,7 +1333,7 @@ int _monome_refresh(lua_State *l) {
 int _monome_intensity(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int i = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_intensity(md, i);
     lua_settop(l, 0);
@@ -1348,7 +1348,7 @@ int _monome_intensity(lua_State *l) {
 int _grid_rows(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     lua_pushinteger(l, dev_monome_grid_rows(md));
     return 1;
 }
@@ -1361,7 +1361,7 @@ int _grid_rows(lua_State *l) {
 int _grid_cols(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     lua_pushinteger(l, dev_monome_grid_cols(md));
     return 1;
 }
@@ -1635,7 +1635,7 @@ int _clock_link_set_start_stop_sync(lua_State *l) {
 int _clock_set_source(lua_State *l) {
     lua_check_num_args(1);
     int source = (int)luaL_checkinteger(l, 1);
-    clock_set_source(source);
+    clock_set_source((clock_source_t)source);
     return 0;
 }
 
@@ -1827,7 +1827,8 @@ void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message
             lua_pushstring(lvm, &argv[i]->s);
             break;
         case LO_BLOB:
-            lua_pushlstring(lvm, lo_blob_dataptr((lo_blob)argv[i]), lo_blob_datasize((lo_blob)argv[i]));
+            lua_pushlstring(lvm, (const char*)lo_blob_dataptr((lo_blob)argv[i]),
+			    lo_blob_datasize((lo_blob)argv[i]));
             break;
         case LO_INT64:
             lua_pushinteger(lvm, argv[i]->h);

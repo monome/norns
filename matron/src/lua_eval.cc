@@ -41,7 +41,7 @@ static int continuing = 0;
 
 static void save_statement_buffer(char *buf) {
     saveBufLen = strlen(buf);
-    saveBuf = realloc(saveBuf, saveBufLen + 1);
+    saveBuf = (char*)realloc(saveBuf, saveBufLen + 1);
     strcpy(saveBuf, buf);
     continuing = 1;
 }
@@ -228,7 +228,7 @@ static int try_statement(lua_State *L) {
     char *buf;
 
     if (continuing) {
-        buf = malloc(saveBufLen + 1 + strlen(line) + 1); /* add to saved */
+        buf = (char*)malloc(saveBufLen + 1 + strlen(line) + 1); /* add to saved */
         sprintf(buf, "%s\n%s", saveBuf, line);
         len += saveBufLen + 1;
     } else {

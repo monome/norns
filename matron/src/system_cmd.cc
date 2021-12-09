@@ -89,7 +89,7 @@ void *run_cmd(void *cmd) {
 
     // just use memcpy and include the null terminator
     size_t len = strlen(capture) + 1;
-    char *cap = malloc(len);
+    char *cap = (char*)malloc(len);
     memcpy(cap, capture, len);
     union event_data *ev = event_data_new(EVENT_SYSTEM_CMD);
 
