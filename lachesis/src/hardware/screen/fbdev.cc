@@ -22,11 +22,11 @@ typedef struct _screen_fbdev_priv {
     struct fb_fix_screeninfo fb_finfo;
 } screen_fbdev_priv_t;
 
-static int screen_fbdev_config(matron_io_t *io, lua_State *l);
-static int screen_fbdev_setup(matron_io_t *io);
-static void screen_fbdev_destroy(matron_io_t *io);
-static void screen_fbdev_paint(matron_fb_t *fb);
-static void screen_fbdev_bind(matron_fb_t *fb, cairo_surface_t *surface);
+static int screen_fbdev_config(lachesis_io_t *io, lua_State *l);
+static int screen_fbdev_setup(lachesis_io_t *io);
+static void screen_fbdev_destroy(lachesis_io_t *io);
+static void screen_fbdev_paint(lachesis_fb_t *fb);
+static void screen_fbdev_bind(lachesis_fb_t *fb, cairo_surface_t *surface);
 
 static void screen_fbdev_surface_destroy(void *device);
 static cairo_surface_t *screen_fbdev_surface_create(screen_fbdev_priv_t *priv, const char *fb_name);
@@ -60,7 +60,7 @@ screen_ops_t screen_fbdev_ops = {
 
 
 
-int screen_fbdev_config(matron_io_t *io, lua_State *l) {
+int screen_fbdev_config(lachesis_io_t *io, lua_State *l) {
     screen_fbdev_priv_t *priv = (screen_fbdev_priv_t *)io->data;
     lua_pushstring(l, "dev");
     lua_gettable(l, -2);
@@ -90,8 +90,8 @@ int screen_fbdev_config(matron_io_t *io, lua_State *l) {
     return 0;
 }
 
-int screen_fbdev_setup(matron_io_t *io) {
-    matron_fb_t *fb = (matron_fb_t *)io;
+int screen_fbdev_setup(lachesis_io_t *io) {
+    lachesis_fb_t *fb = (lachesis_fb_t *)io;
     screen_fbdev_priv_t *priv = (screen_fbdev_priv_t *)io->data;
     fb->surface = screen_fbdev_surface_create(priv, priv->dev);
     if (!fb->surface) {
@@ -103,19 +103,19 @@ int screen_fbdev_setup(matron_io_t *io) {
     return 0;
 }
 
-static void screen_fbdev_destroy(matron_io_t *io) {
-    matron_fb_t *fb = (matron_fb_t *)io; 
+static void screen_fbdev_destroy(lachesis_io_t *io) {
+    lachesis_fb_t *fb = (lachesis_fb_t *)io; 
     screen_fbdev_priv_t *priv = (screen_fbdev_priv_t *)io->data;
     cairo_destroy(fb->cairo);
     cairo_surface_destroy(fb->surface);
     free(priv->dev);
 }
 
-static void screen_fbdev_paint(matron_fb_t *fb) {
+static void screen_fbdev_paint(lachesis_fb_t *fb) {
     cairo_paint(fb->cairo);
 }
 
-static void screen_fbdev_bind(matron_fb_t *fb, cairo_surface_t *surface) {
+static void screen_fbdev_bind(lachesis_fb_t *fb, cairo_surface_t *surface) {
     cairo_set_operator(fb->cairo, CAIRO_OPERATOR_SOURCE);
     cairo_set_source_surface(fb->cairo, surface, 0, 0);
 }

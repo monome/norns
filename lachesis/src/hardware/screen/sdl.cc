@@ -15,11 +15,11 @@ typedef struct _screen_sdl_priv {
     SDL_Surface *draw_surface;
 } screen_sdl_priv_t;
 
-static int screen_sdl_config(matron_io_t *io, lua_State *l);
-static int screen_sdl_setup(matron_io_t *io);
-static void screen_sdl_destroy(matron_io_t *io);
-static void screen_sdl_paint(matron_fb_t *fb);
-static void screen_sdl_bind(matron_fb_t *fb, cairo_surface_t *surface);
+static int screen_sdl_config(lachesis_io_t *io, lua_State *l);
+static int screen_sdl_setup(lachesis_io_t *io);
+static void screen_sdl_destroy(lachesis_io_t *io);
+static void screen_sdl_paint(lachesis_fb_t *fb);
+static void screen_sdl_bind(lachesis_fb_t *fb, cairo_surface_t *surface);
 
 static void screen_sdl_surface_destroy(void *priv);
 static cairo_surface_t *screen_sdl_surface_create(screen_sdl_priv_t *priv);
@@ -43,14 +43,14 @@ screen_ops_t screen_sdl_ops = {
     .bind  = screen_sdl_bind,
 };
 
-int screen_sdl_config(matron_io_t *io, lua_State *l) {
+int screen_sdl_config(lachesis_io_t *io, lua_State *l) {
     (void)io;
     (void)l;
     return 0;
 }
 
-int screen_sdl_setup(matron_io_t *io) {
-    matron_fb_t *fb = (matron_fb_t *)io;
+int screen_sdl_setup(lachesis_io_t *io) {
+    lachesis_fb_t *fb = (lachesis_fb_t *)io;
     fb->surface = screen_sdl_surface_create((screen_sdl_priv_t *)io->data);
     if (!fb->surface) {
         fprintf(stderr, "ERROR (%s) failed to create surface\n", io->ops->name);
@@ -60,20 +60,20 @@ int screen_sdl_setup(matron_io_t *io) {
     return 0;
 }
 
-static void screen_sdl_destroy(matron_io_t *io) {
-    matron_fb_t *fb = (matron_fb_t *)io;
+static void screen_sdl_destroy(lachesis_io_t *io) {
+    lachesis_fb_t *fb = (lachesis_fb_t *)io;
     cairo_destroy(fb->cairo);
     cairo_surface_destroy(fb->surface);
 }
 
-static void screen_sdl_paint(matron_fb_t *fb) {
+static void screen_sdl_paint(lachesis_fb_t *fb) {
     screen_sdl_priv_t *priv = fb->io.data;
     cairo_paint(fb->cairo);    
     SDL_BlitScaled(priv->draw_surface, NULL, priv->window_surface, &windowSize);
     SDL_UpdateWindowSurface(priv->window);
 }
 
-static void screen_sdl_bind(matron_fb_t *fb, cairo_surface_t *surface) {
+static void screen_sdl_bind(lachesis_fb_t *fb, cairo_surface_t *surface) {
     cairo_set_operator(fb->cairo, CAIRO_OPERATOR_SOURCE);
     cairo_set_source_surface(fb->cairo, surface, 0, 0);
 }
@@ -93,7 +93,7 @@ static cairo_surface_t *screen_sdl_surface_create(screen_sdl_priv_t *priv) {
     cairo_surface_t *surface;
 
     SDL_Init(SDL_INIT_VIDEO);
-    priv->window = SDL_CreateWindow("matron",
+    priv->window = SDL_CreateWindow("lachesis",
                                     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,                                 windowSize.w, windowSize.h,
                                     SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
     priv->window_surface = SDL_GetWindowSurface(priv->window);

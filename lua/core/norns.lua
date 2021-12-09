@@ -1,5 +1,5 @@
 -- norns.lua
--- main norns script, called by matron
+-- main norns script, called by lachesis
 -- defines top-level global tables and functions needed by other modules
 -- external c functions are in the _norns table
 -- external callbacks in the norns table, which also includes management
@@ -229,7 +229,7 @@ norns.system_glob = _norns.system_glob
 _norns.reset = function()
   os.execute("sudo systemctl restart norns-sclang.service")
   os.execute("sudo systemctl restart norns-atropos.service")
-  os.execute("sudo systemctl restart norns-matron.service")
+  os.execute("sudo systemctl restart norns-lachesis.service")
 end
 
 -- startup function will be run after I/O subsystems are initialized,

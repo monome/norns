@@ -21,10 +21,10 @@ typedef struct _enc_gpio_priv {
     int index;
 } enc_gpio_priv_t;
 
-static int input_gpio_config(matron_io_t* io, lua_State *l);
-static int enc_gpio_config(matron_io_t* io, lua_State *l);
-static int input_gpio_setup(matron_io_t* io);
-static void input_gpio_destroy(matron_io_t* io);
+static int input_gpio_config(lachesis_io_t* io, lua_State *l);
+static int enc_gpio_config(lachesis_io_t* io, lua_State *l);
+static int input_gpio_setup(lachesis_io_t* io);
+static void input_gpio_destroy(lachesis_io_t* io);
 static void* enc_gpio_poll(void* data);
 static void* key_gpio_poll(void* data);
 static int open_and_grab(const char *pathname, int flags);
@@ -78,7 +78,7 @@ input_ops_t enc_gpio_ops = {
     enc_gpio_poll,    // .poll
 };
 
-int input_gpio_config(matron_io_t* io, lua_State *l) {
+int input_gpio_config(lachesis_io_t* io, lua_State *l) {
     input_gpio_priv_t* priv = (input_gpio_priv_t*)io->data;
 
     lua_pushstring(l, "dev");
@@ -100,7 +100,7 @@ int input_gpio_config(matron_io_t* io, lua_State *l) {
     return 0;
 }
 
-int enc_gpio_config(matron_io_t* io, lua_State *l) {
+int enc_gpio_config(lachesis_io_t* io, lua_State *l) {
     int err = input_gpio_config(io, l);
     if (err) {
         return err;
@@ -121,7 +121,7 @@ int enc_gpio_config(matron_io_t* io, lua_State *l) {
     return 0;
 }
 
-int input_gpio_setup(matron_io_t* io) {
+int input_gpio_setup(lachesis_io_t* io) {
     input_gpio_priv_t *priv = (input_gpio_priv_t*)io->data;
     priv->fd = open_and_grab(priv->dev, O_RDONLY);
     if (priv->fd <= 0) {
@@ -131,14 +131,14 @@ int input_gpio_setup(matron_io_t* io) {
     return input_setup(io);
 }
 
-void input_gpio_destroy(matron_io_t *io) {
+void input_gpio_destroy(lachesis_io_t *io) {
     input_gpio_priv_t *priv = (input_gpio_priv_t*)io->data;
     free(priv->dev);
     input_destroy(io);
 }
 
 void* enc_gpio_poll(void* data) {
-    matron_input_t* input = (matron_input_t*)data;
+    lachesis_input_t* input = (lachesis_input_t*)data;
     enc_gpio_priv_t* priv = (enc_gpio_priv_t*)input->io.data;
 
     int rd;
@@ -180,7 +180,7 @@ void* enc_gpio_poll(void* data) {
 }
 
 void* key_gpio_poll(void* data) {
-    matron_input_t* input = (matron_input_t*)data;
+    lachesis_input_t* input = (lachesis_input_t*)data;
     input_gpio_priv_t* priv = (input_gpio_priv_t*)input->io.data;
 
     int rd;

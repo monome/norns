@@ -1,6 +1,6 @@
 #pragma once
 
-#include "matron.h"
+#include "lachesis.h"
 #include "event_types.h"
 
 // number of bytes in waveform data blob

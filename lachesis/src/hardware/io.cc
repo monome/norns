@@ -22,13 +22,13 @@ io_ops_t* io_types[] = {
 struct io_head io_queue = TAILQ_HEAD_INITIALIZER(io_queue);
 
 int io_create(lua_State *l, io_ops_t *ops) {
-    matron_io_t* io;
+    lachesis_io_t* io;
     switch (ops->type) {
         case IO_SCREEN:
-            io = (matron_io_t*)malloc(sizeof(matron_fb_t));
+            io = (lachesis_io_t*)malloc(sizeof(lachesis_fb_t));
             break;
         case IO_INPUT:
-            io = (matron_io_t*)malloc(sizeof(matron_input_t));
+            io = (lachesis_io_t*)malloc(sizeof(lachesis_input_t));
             break;
         default:
             fprintf(stderr, "ERROR (%s) no such IO type\n", ops->name);
@@ -57,7 +57,7 @@ int io_create(lua_State *l, io_ops_t *ops) {
 
 int io_setup_all(void) {
     int err;
-    matron_io_t* io;
+    lachesis_io_t* io;
     TAILQ_FOREACH(io, &io_queue, entries) {
         fprintf(stderr, "setup IO %s\n", io->ops->name); 
         err = io->ops->setup(io);
@@ -71,7 +71,7 @@ int io_setup_all(void) {
 }
 
 void io_destroy_all(void) {
-    matron_io_t* io;
+    lachesis_io_t* io;
     while (!TAILQ_EMPTY(&io_queue)) {
         io = TAILQ_FIRST(&io_queue);
         io->ops->destroy(io);

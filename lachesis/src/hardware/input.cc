@@ -13,14 +13,14 @@
 #include "hardware/input.h"
 #include "hardware/io.h"
 
-int input_setup(matron_io_t *io) {
+int input_setup(lachesis_io_t *io) {
     if (io->ops->type != IO_INPUT) {
         fprintf(stderr, "ERROR (%s) wrong IO type\n", io->ops->name);
         return -1;
     }
 
     int err = 0;
-    matron_input_t *input = (matron_input_t *)io;
+    lachesis_input_t *input = (lachesis_input_t *)io;
     input_ops_t *input_ops = (input_ops_t *)io->ops;
     err = pthread_create(&input->poll_thread, NULL, input_ops->poll, input);
     if (err) {
@@ -31,11 +31,11 @@ int input_setup(matron_io_t *io) {
     return 0;
 }
 
-void input_destroy(matron_io_t *io) {
+void input_destroy(lachesis_io_t *io) {
     if (io->ops->type != IO_INPUT) {
         fprintf(stderr, "ERROR (%s) wrong IO type\n", io->ops->name);
         return;
     }
-    matron_input_t *input = (matron_input_t *)io;
+    lachesis_input_t *input = (lachesis_input_t *)io;
     pthread_cancel(input->poll_thread);
 }

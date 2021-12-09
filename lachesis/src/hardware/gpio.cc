@@ -11,10 +11,10 @@
 #include <string.h>
 
 #include "events.h"
-#include "hardware/input/matron_input.h"
+#include "hardware/input/lachesis_input.h"
 #include "hardware/gpio.h"
 
-static int input_init(matron_input_t* input, input_config_t* cfg, input_ops_t* ops) {
+static int input_init(lachesis_input_t* input, input_config_t* cfg, input_ops_t* ops) {
     input->data = malloc(ops->data_size);
     if (!input->data) {
         fprintf(stderr, "ERROR (input - %s) cannot allocate memory\n", ops->name);
@@ -31,11 +31,11 @@ static int input_init(matron_input_t* input, input_config_t* cfg, input_ops_t* o
 }
 
 // extern def
-TAILQ_HEAD(tailhead, _matron_input) input_devs = TAILQ_HEAD_INITIALIZER(input_devs);
+TAILQ_HEAD(tailhead, _lachesis_input) input_devs = TAILQ_HEAD_INITIALIZER(input_devs);
 
 int input_create(input_type_t type, const char* name, input_config_t* cfg) {
     int err;
-    matron_input_t* input = malloc(sizeof(matron_input_t));
+    lachesis_input_t* input = malloc(sizeof(lachesis_input_t));
     input->name = malloc(strlen(name) + 1);
     strcpy(input->name, name);
 
@@ -69,7 +69,7 @@ fail:
 } 
 
 void gpio_init() {
-    matron_input_t *input;
+    lachesis_input_t *input;
     TAILQ_FOREACH(input, &input_devs, entries) {
         input->data = malloc(input->ops->data_size);
         if (!input->data) {
@@ -88,7 +88,7 @@ void gpio_init() {
 }
 
 void gpio_deinit() {
-    matron_input_t* input;
+    lachesis_input_t* input;
     while (!TAILQ_EMPTY(&input_devs)) {
         input = TAILQ_FIRST(&input_devs);
         pthread_cancel(input->poll_thread);

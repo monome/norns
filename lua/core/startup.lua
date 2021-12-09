@@ -105,7 +105,7 @@ print("start_audio(): ")
 -- start the process of syncing with atropos boot
 _norns.start_audio()
 
--- load matron mods and invoke system hooks
+-- load lachesis mods and invoke system hooks
 local mods = require 'core/mods'
 mods.load_enabled()
 mods.load(mods.scan() or {}, true) -- only load enabled mods

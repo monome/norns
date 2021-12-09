@@ -28,7 +28,7 @@ namespace atropos {
 
     private:
         static lo_server_thread st;
-        static lo_address matronAddress;
+        static lo_address lachesisAddress;
 
         static bool quitFlag;
         static string port;

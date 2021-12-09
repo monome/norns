@@ -1,5 +1,5 @@
 // the Crone, a singleton class
-// it receives OSC from *matron* and manages the current CroneEngine
+// it receives OSC from *lachesis* and manages the current CroneEngine
 Crone {
 	classvar <>bootOnInit = true;
 	// the audio server
@@ -10,7 +10,7 @@ Crone {
 	classvar <>oscfunc;
 	// address of remote client
 	classvar <>remoteAddr;
-	// port for sending OSC to matron
+	// port for sending OSC to lachesis
 	classvar <>txPort = 8888;
 	// server port
 	classvar <>serverPort = 57122;

@@ -14,7 +14,7 @@ def options(opt):
     opt.load('compiler_c compiler_cxx boost')
     opt.add_option('--desktop', action='store_true', default=False)
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
-    opt.add_option('--profile-matron', action='store_true', default=False)
+    opt.add_option('--profile-lachesis', action='store_true', default=False)
 
     opt.recurse('maiden-repl')
 
@@ -26,7 +26,7 @@ def configure(conf):
     conf.define('VERSION_PATCH', 0)
     conf.define('VERSION_HASH', get_version_hash())
 
-    conf.env.PROFILE_MATRON = conf.options.profile_matron
+    conf.env.PROFILE_MATRON = conf.options.profile_lachesis
 
     conf.env.append_unique('CFLAGS', ['-std=gnu11', '-Wall', '-Wextra', '-Werror'])
     conf.env.append_unique('CFLAGS', ['-g'])
@@ -66,7 +66,7 @@ def configure(conf):
     conf.recurse('maiden-repl')
 
 def build(bld):
-    #bld.recurse('matron')
+    #bld.recurse('lachesis')
     bld.recurse('maiden-repl')
     bld.recurse('ws-wrapper')
     #bld.recurse('atropos')

@@ -40,9 +40,9 @@ inside `180401/` is `update.sh`, `version.txt`, and the payload.
 else needs to be done).
 
 `version.txt` simply contains the version (ie `180401`) and is copied to `~/update`
-(which is later read by matron).
+(which is later read by lachesis).
 
-files relevant to matron, atropos, or maiden should be kept in respective
+files relevant to lachesis, atropos, or maiden should be kept in respective
 subfolders in the archive.
 
 ## preparation of an update

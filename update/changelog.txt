@@ -502,7 +502,7 @@
 - NEW fine control in PARAM menu (hold K3 while E3) @ngwese
 - FIX empty lists now say "none" instead of remaining blank
 - NEW musicutil chord library @markwheeler
-- NEW matron framebuffer selection via commandline @catfact
+- NEW lachesis framebuffer selection via commandline @catfact
 - FIX memory leaks @catfact @ranch-verdin
 - NEW 'include()' helper function
 - FIX now display "loading..." after loading script (waits for engine load)
@@ -525,7 +525,7 @@
 - FIX renaming files @ngwese
 - FIX command line syntax @ngwese
 - FIX config page is a dialog @jlmitch
-- NEW ;restart ;start ;stop REPL messages to control matron remotely
+- NEW ;restart ;start ;stop REPL messages to control lachesis remotely
 
 
 ## image
@@ -690,7 +690,7 @@
 - norns specific lua script/code snippets (@pq)
 - additional linting and cleanup for maiden code (@Jwhile)
 - sending commands via the sc repl now works (@ngwese)
-- initial snippet support for common matron script functions (@pq)
+- initial snippet support for common lachesis script functions (@pq)
 - improved rendering of tab characters in repl (@pq)
 - button highlighting on hover (@anthonybarsotti)
 

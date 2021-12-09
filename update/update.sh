@@ -13,8 +13,8 @@ cp -a maiden /home/we/
 cp version.txt /home/we/
 cp changelog.txt /home/we/
 
-# rewrite matron.sevice
-sudo cp --remove-destination config/norns-matron.service /etc/systemd/system/norns-matron.service
+# rewrite lachesis.sevice
+sudo cp --remove-destination config/norns-lachesis.service /etc/systemd/system/norns-lachesis.service
 
 # add watcher
 sudo cp --remove-destination config/norns-watcher.service /etc/systemd/system/norns-watcher.service

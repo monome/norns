@@ -1,7 +1,7 @@
 top = '..'
 
 def build(bld):
-    matron_sources = [
+    lachesis_sources = [
         'src/config.cc',
         'src/device/device.cc',
         'src/device/device_hid.cc',
@@ -39,24 +39,24 @@ def build(bld):
     ]
 
     if bld.env.NORNS_DESKTOP:
-        matron_sources += [
+        lachesis_sources += [
             'src/hardware/screen/sdl.cc',
             'src/hardware/input/sdl.cc',
         ]
 
-    matron_includes = [
+    lachesis_includes = [
         'src',
         'src/device',
         'src/hardware',
         'lua',
     ]
 
-    matron_libs = [
+    lachesis_libs = [
         'pthread',
         'm',
     ]
 
-    matron_use = [
+    lachesis_use = [
         'ALSA',
         'LIBUDEV',
         'LIBEVDEV',
@@ -71,14 +71,14 @@ def build(bld):
     ]
 
     if bld.env.NORNS_DESKTOP:
-        matron_libs.append('SDL2')
-        matron_use.append('SDL2')
+        lachesis_libs.append('SDL2')
+        lachesis_use.append('SDL2')
 
     if bld.env.ENABLE_ABLETON_LINK:
-        matron_sources += ['src/clocks/clock_link.cc']
-        matron_includes += ['../third-party/link-c']
-        matron_libs += ['stdc++']
-        matron_use += ['LIBLINK_C']
+        lachesis_sources += ['src/clocks/clock_link.cc']
+        lachesis_includes += ['../third-party/link-c']
+        lachesis_libs += ['stdc++']
+        lachesis_use += ['LIBLINK_C']
 
     if bld.env.PROFILE_MATRON:
       #bld.env.append_unique('CFLAGS', ['-pg'])
@@ -86,10 +86,10 @@ def build(bld):
       bld.env.append_unique('LDFLAGS', ['-pg'])
 
     bld.program(features='cxx cxxprogram',
-        source=matron_sources,
-        target='matron',
-        includes=matron_includes,
-        use=matron_use,
-        lib=matron_libs,
+        source=lachesis_sources,
+        target='lachesis',
+        includes=lachesis_includes,
+        use=lachesis_use,
+        lib=lachesis_libs,
         cflags=['-O3', '-Wall'],
         ldflags=['-Wl,-export-dynamic'])

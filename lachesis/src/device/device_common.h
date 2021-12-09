@@ -21,7 +21,7 @@ typedef enum {
 struct dev_common {
     // device type
     device_t type;
-    // numerical id; unique over matron's lifetime
+    // numerical id; unique over lachesis's lifetime
     uint32_t id;
     // thread id
     pthread_t tid;

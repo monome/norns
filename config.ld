@@ -1,7 +1,7 @@
 -- ldoc config
 project='norns'
 title='norns/docs'
--- file={'lua', 'matron/src/weaver.c', 'sc/core/Crone.sc'}
+-- file={'lua', 'lachesis/src/weaver.c', 'sc/core/Crone.sc'}
 --[[file = {
   'lua/core/screen.lua',
   'lua/core/metro.lua'

@@ -35,7 +35,7 @@ git submodule update --init --recursive
 ./waf
 ```
 
-this should build all the c-based components (`matron` and `ws-wrapper`.)
+this should build all the c-based components (`lachesis` and `ws-wrapper`.)
 
 the `atropos` audio engine consists of supercollider classes. copy files to the default location for user SC extensions
 
@@ -70,11 +70,11 @@ if the atropos classes are installed correctly, you should see some lines like t
 
 and immediately after sclang init, you should see the server being booted and some jack/alsa related messages.
 
-### 2. launch `matron` (lua interpreter)
+### 2. launch `lachesis` (lua interpreter)
 
-with the audio engine running, run `matron.sh` from the norns directory. this creates a `matron` process wrapped with `ws-wrapper`
+with the audio engine running, run `lachesis.sh` from the norns directory. this creates a `lachesis` process wrapped with `ws-wrapper`
 
-matron waits for atropos to finish loading before entering the main event loop.
+lachesis waits for atropos to finish loading before entering the main event loop.
 
 ### 3. launch `maiden` (web UI client)
 

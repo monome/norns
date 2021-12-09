@@ -6,9 +6,9 @@ struct page *page_cur;
 int page_id_cur;
 
 char *page_title[NUM_PAGES] = {
-  "---  matron  --",
+  "---  lachesis  --",
   "---  atropos  ---",
-  "--  matron log  --",
+  "--  lachesis log  --",
   "--  atropos log  ---",
 };
 

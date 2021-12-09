@@ -19,7 +19,7 @@ static jack_client_t *jack_client;
 static jack_nframes_t jack_sample_rate;
 
 void clock_init() {
-  if ((jack_client = jack_client_open("matron-clock", JackNoStartServer, NULL)) == 0) {
+  if ((jack_client = jack_client_open("lachesis-clock", JackNoStartServer, NULL)) == 0) {
     fprintf(stderr, "failed to create JACK client\n");
     screen_clear();
     screen_level(15);

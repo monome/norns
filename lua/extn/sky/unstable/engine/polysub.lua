@@ -2,7 +2,7 @@
 -- PolySub (glue)
 --
 
--- mutate global used by matron to select engine
+-- mutate global used by lachesis to select engine
 engine.name = "PolySub"
 
 local glue = include('we/lib/polysub')

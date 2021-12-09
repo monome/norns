@@ -108,7 +108,7 @@ void *watch_time(void *x) {
       fprintf(stderr, "watcher: restarting norns services...\n");
       res = system("nohup systemctl restart norns-sclang > /dev/null");
       res |= system("nohup systemctl restart norns-atropos > /dev/null");
-      res |= system("nohup systemctl restart norns-matron > /dev/null");
+      res |= system("nohup systemctl restart norns-lachesis > /dev/null");
       fprintf(stderr, "result: %d\n", res);
     }
     sleep(WATCH_TIME);

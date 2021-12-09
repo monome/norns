@@ -20,7 +20,7 @@ bool OscInterface::quitFlag;
 
 std::string OscInterface::port;
 lo_server_thread OscInterface::st;
-lo_address OscInterface::matronAddress;
+lo_address OscInterface::lachesisAddress;
 
 std::array<OscInterface::OscMethod, OscInterface::MaxNumMethods> OscInterface::methods;
 unsigned int OscInterface::numMethods = 0;
@@ -38,7 +38,7 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
     quitFlag = false;
     // FIXME: should get port configs from program args or elsewhere
     port = "9999";
-    matronAddress = lo_address_new("127.0.0.1", "8888");
+    lachesisAddress = lo_address_new("127.0.0.1", "8888");
 
     st = lo_server_thread_new(port.c_str(), handleLoError);
     addServerMethods();
@@ -58,7 +58,7 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
         l[3] = (uint8_t) (64 * mixerClient->getOutputPeakPos(1));
 
         lo_blob bl = lo_blob_new(sizeof(l), l);
-        lo_send(matronAddress, path, "b", bl);
+        lo_send(lachesisAddress, path, "b", bl);
     });
     vuPoll->setPeriod(50);
 
@@ -67,7 +67,7 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
     phasePoll->setCallback([](const char *path) {
         for (int i = 0; i < softCutClient->getNumVoices(); ++i) {
             if (softCutClient->checkVoiceQuantPhase(i)) {
-                lo_send(matronAddress, path, "if", i, softCutClient->getQuantPhase(i));
+                lo_send(lachesisAddress, path, "if", i, softCutClient->getQuantPhase(i));
             }
         }
     });
@@ -794,7 +794,7 @@ void OscInterface::addServerMethods() {
         softCutClient->renderSamples(ch, argv[1]->f, argv[2]->f, sampleCt,
                                      [=](float secPerSample, float start, size_t count, float* samples) {
                                          lo_blob bl = lo_blob_new(count * sizeof(float), samples);
-                                         lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
+                                         lo_send(lachesisAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
                                      });
     });
 
@@ -802,7 +802,7 @@ void OscInterface::addServerMethods() {
       if(argc < 1) return;
       int idx = argv[0]->i;
       float pos = softCutClient->getPosition(idx);
-      lo_send(matronAddress, "/poll/softcut/position", "if", idx, pos);
+      lo_send(lachesisAddress, "/poll/softcut/position", "if", idx, pos);
     });
 
     addServerMethod("/softcut/reset", "", [](lo_arg **argv, int argc) {
@@ -900,5 +900,5 @@ void OscInterface::printServerMethods() {
 }
 
 void OscInterface::deinit() {
-    lo_address_free(matronAddress);
+    lo_address_free(lachesisAddress);
 }

@@ -9,9 +9,9 @@
 typedef struct _input_sdl_priv {
 } input_sdl_priv_t;
 
-static int input_sdl_config(matron_io_t* io, lua_State *l);
-static int input_sdl_setup(matron_io_t* io);
-static void input_sdl_destroy(matron_io_t* io);
+static int input_sdl_config(lachesis_io_t* io, lua_State *l);
+static int input_sdl_setup(lachesis_io_t* io);
+static void input_sdl_destroy(lachesis_io_t* io);
 static void* input_sdl_poll(void* data);
 
 input_ops_t input_sdl_ops = {
@@ -24,17 +24,17 @@ input_ops_t input_sdl_ops = {
     .poll             = input_sdl_poll,
 };
 
-int input_sdl_config(matron_io_t *io, lua_State *l) {
+int input_sdl_config(lachesis_io_t *io, lua_State *l) {
     (void)io;
     (void)l;
     return 0;
 }
 
-int input_sdl_setup(matron_io_t *io) {
+int input_sdl_setup(lachesis_io_t *io) {
     return input_setup(io);
 }
 
-void input_sdl_destroy(matron_io_t *io) {
+void input_sdl_destroy(lachesis_io_t *io) {
     input_destroy(io);
 }
 

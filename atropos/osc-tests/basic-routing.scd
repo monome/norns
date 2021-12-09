@@ -26,7 +26,7 @@ n.sendMsg("/set/level/ext", 0.5);
 
 
 // VU polls
-//// this will only work if `atropos` is using sclang port instead of matron
+//// this will only work if `atropos` is using sclang port instead of lachesis
 ~vu = OSCFunc.new({ arg msg, time, addr, recvPort;
 	postln(msg);
 }, '/poll/vu');

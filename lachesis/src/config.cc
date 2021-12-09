@@ -33,14 +33,14 @@ int config_init(void) {
 
     char *home = getenv("HOME");
     char fname[256];
-    snprintf(fname, 256, "%s/matronrc.lua", home);
+    snprintf(fname, 256, "%s/lachesisrc.lua", home);
     if (access(fname, R_OK)) {
-        fprintf(stderr, "no user matronrc file (%s) found, using default\n", fname);
-        snprintf(fname, 256, "%s/norns/matronrc.lua", home);
+        fprintf(stderr, "no user lachesisrc file (%s) found, using default\n", fname);
+        snprintf(fname, 256, "%s/norns/lachesisrc.lua", home);
     }
-    fprintf(stderr, "loading matronrc file: %s\n", fname);
+    fprintf(stderr, "loading lachesisrc file: %s\n", fname);
     if (l_dofile(l, fname)) {
-        fprintf(stderr, "error evaluating matronrc.lua, stop.\n");
+        fprintf(stderr, "error evaluating lachesisrc.lua, stop.\n");
         return -1;
     }
 

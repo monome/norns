@@ -1,46 +1,46 @@
 def build(bld):
 
-    matron_sources = [
-        '../matron/src/config.cc',
-        '../matron/src/device/device.cc',
-        '../matron/src/device/device_hid.cc',
-        '../matron/src/device/device_list.cc',
-        '../matron/src/device/device_midi.cc',
-        '../matron/src/device/device_monitor.cc',
-        '../matron/src/device/device_monome.cc',
-        '../matron/src/device/device_crow.cc',
-        '../matron/src/osc.cc',
-        '../matron/src/hardware/battery.cc',
-        '../matron/src/hardware/i2c.cc',
-        '../matron/src/hardware/input.cc',
-        '../matron/src/hardware/io.cc',
-        '../matron/src/hardware/platform.cc',
-        '../matron/src/hardware/screen.cc',
-        '../matron/src/hardware/stat.cc',
-	    '../matron/src/hardware/screen/fbdev.cc',
-        '../matron/src/hardware/input/gpio.cc',
-        '../matron/src/args.cc',
-        '../matron/src/events.cc',
-        '../matron/src/hello.cc',
-        '../matron/src/input.cc',
-        '../matron/src/lua_eval.cc',
-        '../matron/src/main.cc',
-        '../matron/src/metro.cc',
-        '../matron/src/oracle.cc',
-        '../matron/src/weaver.cc',
-        '../matron/src/snd_file.cc',
-        '../matron/src/system_cmd.cc',
-        '../matron/src/clock.cc',
-        '../matron/src/clocks/clock_internal.cc',
-        '../matron/src/clocks/clock_midi.cc',
-        '../matron/src/clocks/clock_crow.cc',
-        '../matron/src/clocks/clock_scheduler.cc',
+    lachesis_sources = [
+        '../lachesis/src/config.cc',
+        '../lachesis/src/device/device.cc',
+        '../lachesis/src/device/device_hid.cc',
+        '../lachesis/src/device/device_list.cc',
+        '../lachesis/src/device/device_midi.cc',
+        '../lachesis/src/device/device_monitor.cc',
+        '../lachesis/src/device/device_monome.cc',
+        '../lachesis/src/device/device_crow.cc',
+        '../lachesis/src/osc.cc',
+        '../lachesis/src/hardware/battery.cc',
+        '../lachesis/src/hardware/i2c.cc',
+        '../lachesis/src/hardware/input.cc',
+        '../lachesis/src/hardware/io.cc',
+        '../lachesis/src/hardware/platform.cc',
+        '../lachesis/src/hardware/screen.cc',
+        '../lachesis/src/hardware/stat.cc',
+	    '../lachesis/src/hardware/screen/fbdev.cc',
+        '../lachesis/src/hardware/input/gpio.cc',
+        '../lachesis/src/args.cc',
+        '../lachesis/src/events.cc',
+        '../lachesis/src/hello.cc',
+        '../lachesis/src/input.cc',
+        '../lachesis/src/lua_eval.cc',
+        '../lachesis/src/main.cc',
+        '../lachesis/src/metro.cc',
+        '../lachesis/src/oracle.cc',
+        '../lachesis/src/weaver.cc',
+        '../lachesis/src/snd_file.cc',
+        '../lachesis/src/system_cmd.cc',
+        '../lachesis/src/clock.cc',
+        '../lachesis/src/clocks/clock_internal.cc',
+        '../lachesis/src/clocks/clock_midi.cc',
+        '../lachesis/src/clocks/clock_crow.cc',
+        '../lachesis/src/clocks/clock_scheduler.cc',
     ]
 
     if bld.env.NORNS_DESKTOP:
-        matron_sources += [
-            '../matron/src/hardware/screen/sdl.cc',
-            '../matron/src/hardware/input/sdl.cc',
+        lachesis_sources += [
+            '../lachesis/src/hardware/screen/sdl.cc',
+            '../lachesis/src/hardware/input/sdl.cc',
         ]
 
     atropos_sources = [
@@ -59,18 +59,18 @@ def build(bld):
         '../atropos/softcut/softcut-lib/src/Voice.cpp'
     ]
 
-    matron_includes = [
-        '../matron/src',
-        '../matron/src/device',
-        '../matron/src/hardware',
+    lachesis_includes = [
+        '../lachesis/src',
+        '../lachesis/src/device',
+        '../lachesis/src/hardware',
     ]
 
-    matron_libs = [
+    lachesis_libs = [
         'pthread',
         'm',
     ]
 
-    matron_use = [
+    lachesis_use = [
         'ALSA',
         'LIBUDEV',
         'LIBEVDEV',
@@ -85,14 +85,14 @@ def build(bld):
     ]
 
     if bld.env.NORNS_DESKTOP:
-        matron_libs.append('SDL2')
-        matron_use.append('SDL2')
+        lachesis_libs.append('SDL2')
+        lachesis_use.append('SDL2')
 
     if bld.env.ENABLE_ABLETON_LINK:
-        matron_sources += ['../matron/src/clocks/clock_link.cc']
-        matron_includes += ['../third-party/link-c']
-        matron_libs += ['stdc++']
-        matron_use += ['LIBLINK_C']
+        lachesis_sources += ['../lachesis/src/clocks/clock_link.cc']
+        lachesis_includes += ['../third-party/link-c']
+        lachesis_libs += ['stdc++']
+        lachesis_use += ['LIBLINK_C']
 
     if bld.env.PROFILE_MATRON:
         bld.env.append_unique('CXXFLAGS', ['-pg'])
@@ -118,10 +118,10 @@ def build(bld):
         'sndfile'
     ]
     
-    norns_sources = ["main.cpp"] + matron_sources + atropos_sources
-    norns_includes = matron_includes + atropos_includes
-    norns_use = matron_use +atropos_use
-    norns_libs = matron_libs + atropos_libs
+    norns_sources = ["main.cpp"] + lachesis_sources + atropos_sources
+    norns_includes = lachesis_includes + atropos_includes
+    norns_use = lachesis_use +atropos_use
+    norns_libs = lachesis_libs + atropos_libs
     
     bld.program(features='c cprogram cxx cxxprogram',
         target='norns',

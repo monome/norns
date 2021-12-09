@@ -2,7 +2,7 @@
 -- PolyPerc (glue)
 --
 
--- mutate global used by matron to select engine
+-- mutate global used by lachesis to select engine
 engine.name = "PolyPerc"
 
 local Singleton = nil

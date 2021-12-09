@@ -35,7 +35,7 @@
 
 void print_version(void);
 
-void matron_cleanup(void) {
+void lachesis_cleanup(void) {
     dev_monitor_deinit();
     osc_deinit();
     o_deinit();
@@ -47,11 +47,11 @@ void matron_cleanup(void) {
     stat_deinit();
     clock_deinit();
 
-    fprintf(stderr, "matron shutdown complete\n");
+    fprintf(stderr, "lachesis shutdown complete\n");
     exit(0);
 }
 
-int matron_main(int argc, char **argv) {
+int lachesis_main(int argc, char **argv) {
     args_parse(argc, argv);
 
     print_version();
@@ -94,7 +94,7 @@ int matron_main(int argc, char **argv) {
 
     // now is a good time to set our cleanup
     fprintf(stderr, "setting cleanup...\n");
-    atexit(matron_cleanup);
+    atexit(lachesis_cleanup);
 
 
     fprintf(stderr, "init input...\n");
@@ -130,6 +130,6 @@ void print_version(void) {
 
 #if 0
 int main(int argc, char **argv) {
-    matron_main();
+    lachesis_main();
 }
 #endif

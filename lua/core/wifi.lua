@@ -175,7 +175,7 @@ local Wifi = {
 }
 
 function Wifi.init()
-  -- intended to be called in matron startup code.
+  -- intended to be called in lachesis startup code.
   local conns = Wifi.connections(true) -- all connections
   print("network connections:")
   print("--------------------")

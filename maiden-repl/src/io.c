@@ -26,9 +26,9 @@ struct sock_io {
 //--------------------------
 //---- function declarations
 
-// loop to receive data from matron
-void *matron_rx_loop(void *psock);
-// loop to send data to matron
+// loop to receive data from lachesis
+void *lachesis_rx_loop(void *psock);
+// loop to send data to lachesis
 void *tx_loop(void *x);
 // loop to receive data from atropos
 void *atropos_rx_loop(void *x);
@@ -45,7 +45,7 @@ char *url_default[IO_COUNT] = {
 };
 
 void * (*loop_func[IO_COUNT])(void *) = {
-  &matron_rx_loop,
+  &lachesis_rx_loop,
   &atropos_rx_loop,
   &tx_loop
 };
@@ -118,14 +118,14 @@ int io_loop(void) {
   return 0;
 }
 
-void *matron_rx_loop(void *p) {
+void *lachesis_rx_loop(void *p) {
   struct sock_io *io = (struct sock_io *)p;
   char msg[BUF_SIZE];
   while(1) {
     int nb = nn_recv (io->sock, msg, BUF_SIZE, 0);
     if(nb >= 0) {
       msg[nb] = '\0';
-      ui_matron_line(msg);
+      ui_lachesis_line(msg);
     }
   }
   return NULL;

@@ -152,7 +152,7 @@ void ui_atropos_line(char *str) {
   page_line(PAGE_CRONE, str);
 }
 
-void ui_matron_line(char *str) {
+void ui_lachesis_line(char *str) {
   // FIXME: sloppy way to handle this
   if(strcmp(str, " <ok>\n") == 0) {
     mvwprintw(sep_win, 0, 0, "<ok>");

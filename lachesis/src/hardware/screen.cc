@@ -312,10 +312,10 @@ void screen_init(void) {
 
     fprintf(stderr, "font setup OK.\n");
 
-    matron_io_t *io;
+    lachesis_io_t *io;
     TAILQ_FOREACH(io, &io_queue, entries) {
         if (io->ops->type != IO_SCREEN) continue;
-        matron_fb_t *fb = (matron_fb_t *)io;
+        lachesis_fb_t *fb = (lachesis_fb_t *)io;
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->bind(fb, surface);
     }
@@ -326,7 +326,7 @@ void screen_deinit(void) {
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 
-    matron_io_t *io;
+    lachesis_io_t *io;
     TAILQ_FOREACH(io, &io_queue, entries) {
         if (io->ops->type != IO_SCREEN) continue;
         io->ops->destroy(io);
@@ -335,10 +335,10 @@ void screen_deinit(void) {
 
 void screen_update(void) {
     CHECK_CR
-    matron_io_t *io;
+    lachesis_io_t *io;
     TAILQ_FOREACH(io, &io_queue, entries) {
         if (io->ops->type != IO_SCREEN) continue;
-        matron_fb_t *fb = (matron_fb_t *)io;
+        lachesis_fb_t *fb = (lachesis_fb_t *)io;
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->paint(fb);
     }
