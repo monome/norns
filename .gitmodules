@@ -5,8 +5,8 @@
 	path = third-party/link
 	url = https://github.com/Ableton/link.git
 [submodule "crone/softcut"]
-	path = crone/softcut
+	path = atropos/softcut
 	url = https://github.com/monome/softcut-lib.git
 [submodule "crone/lib/readerwriterqueue"]
-	path = crone/lib/readerwriterqueue
+	path = atropos/lib/readerwriterqueue
 	url = https://github.com/cameron314/readerwriterqueue.git
