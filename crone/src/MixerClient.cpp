@@ -207,7 +207,7 @@ MixerClient::SmoothLevelList::SmoothLevelList() {
     dac.setTarget(1.f);
     ext.setTarget(1.f);
     cut.setTarget(1.f);
-    monitor.setTarget(0.f);
+    monitor.setTarget(1.f);
     tape.setTarget(0.f);
     adc_cut.setTarget(0.f);
     ext_cut.setTarget(0.f);

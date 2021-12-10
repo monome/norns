@@ -60,6 +60,13 @@ int crone_main() {
     OscInterface::init(m.get(), sc.get());
     OscInterface::printServerMethods();
 
+    return 0;
+}
+
+#if 0
+int main() {
+    crone_main();
+
     cout << "entering main loop..." << endl;
     while(!OscInterface::shouldQuit())  {
         sleep(100);
@@ -67,9 +74,5 @@ int crone_main() {
     
     crone_cleanup();
 
-    return 0;
-}
-
-#if 0
-int main() { crone_main(); }
+ }
 #endif
