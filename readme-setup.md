@@ -4,7 +4,7 @@
 
 ### packages
 ```
-sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev libasound2-dev libncurses5-dev libncursesw5-dev libsndfile1-dev
+sudo apt-get install libevdev-dev liblo-dev libudev-dev libcairo2-dev liblua5.3-dev libavahi-compat-libdnssd-dev libasound2-dev libncurses5-dev libncursesw5-dev libsndfile1-dev libnanomsg-dev libjack-dev
 ```
 
 ### sources
@@ -13,7 +13,6 @@ build and install:
 
 ```
 https://github.com/monome/libmonome.git
-https://github.com/nanomsg/nanomsg.git
 ```
 
 or use the debian repository as follows:
