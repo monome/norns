@@ -12,9 +12,11 @@
 
 // void crone_quit() { OscInterface::quitFlag = true; }
 
-// void crone_poll_start_vu() { vuPoll->start(); }
 
-// void crone_poll_stop_vu() { vuPoll->stop(); }
+// FIXME: need static references to polls, clients
+
+void crone_poll_start_vu() { vuPoll->start(); }
+void crone_poll_stop_vu() { vuPoll->stop(); }
 
 void crone_set_level_adc(float arg0) {
   Commands::mixerCommands.post(Commands::Id::SET_LEVEL_ADC, arg0);
@@ -303,8 +305,7 @@ float x = arg0;
       [x] { FadeCurves::setPreShape(static_cast<FadeCurves::Shape>(x)); });
   t.detach();
 }
-
-void crone_set_param_cut_rec_fade_shape(int arg0, float arg1) {
+ rg0, float arg1) {
 
 
 // FIXME: this escaped the script because it is converting ->f to int. is that on purpose?
@@ -319,7 +320,7 @@ void crone_set_param_cut_level_slew_time(int arg0, float arg1) {
                                  arg1);
 }
 
-void crone_set_param_cut_pan_slew_time(int arg0, float arg1) {
+void crone_set_param_cut_pan_slew_time(int arg0, float arg1) { 
   Commands::softcutCommands.post(Commands::Id::SET_CUT_PAN_SLEW_TIME, arg0,
                                  arg1);
 }
@@ -385,6 +386,7 @@ void crone_softcut_buffer_read_mono(const char *arg0, float arg1, float arg2,
 
 void crone_softcut_buffer_read_stereo(const char *arg0, float arg1, float arg2,
                                       float arg3, float arg4, float arg5) {
+                                        // FIXME: defaults
   // float startSrc = 0.f;
   // float startDst = 0.f;
   // float dur = -1.f;
@@ -417,44 +419,37 @@ void crone_softcut_buffer_read_stereo(const char *arg0, float arg1, float arg2,
 
 void crone_softcut_buffer_write_mono(const char *arg0, float arg1, float arg2,
                                      int arg3) {
-  float start = 0.f;
-  float dur = -1.f;
-  int chan = 0;
-  if (argc < 1) {
-    std::cerr << "/softcut/buffer/write_mono requires at least one argument "
-                 "(file path)"
-              << std::endl;
-    return;
-  }
-  if (argc > 1) {
-    start = arg1;
-  }
-  if (argc > 2) {
-    dur = arg2;
-  }
-  if (argc > 3) {
-    chan = arg3;
-  }
+  // FIXME: defaults
+  
+  // float start = 0.f;
+  // float dur = -1.f;
+  // int chan = 0;
+  // if (argc < 1) {
+  //   std::cerr << "/softcut/buffer/write_mono requires at least one argument "
+  //                "(file path)"
+  //             << std::endl;
+  //   return;
+  // }
+  // if (argc > 1) {
+  //   start = arg1;
+  // }
+  // if (argc > 2) {
+  //   dur = arg2;
+  // }
+  // if (argc > 3) {
+  //   chan = arg3;
+  // }
   const char *str = arg0;
   softCutClient->writeBufferMono(str, start, dur, chan);
 }
 
 void crone_softcut_buffer_write_stereo(const char *arg0, float arg1,
                                        float arg2) {
-  float start = 0.f;
-  float dur = -1.f;
-  if (argc < 1) {
-    std::cerr << "/softcut/buffer/write_stereo requires at least one argument "
-                 "(file path)"
-              << std::endl;
-    return;
-  }
-  if (argc > 1) {
-    start = arg1;
-  }
-  if (argc > 2) {
-    dur = arg2;
-  }
+  
+  // FIXME: default args
+  // float start = 0.f;
+  // float dur = -1.f;
+  
   const char *str = arg0;
   softCutClient->writeBufferStereo(str, start, dur);
 }
@@ -465,45 +460,36 @@ void crone_softcut_buffer_clear() {
 }
 
 void crone_softcut_buffer_clear_channel(int arg0) {
-  if (argc < 1) {
-    return;
-  }
   softCutClient->clearBuffer(arg0);
 }
 
 void crone_softcut_buffer_clear_region(float arg0, float arg1) {
-  if (argc < 2) {
-    return;
-  }
   softCutClient->clearBuffer(0, arg0, arg1);
   softCutClient->clearBuffer(1, arg0, arg1);
 }
 
 void crone_softcut_buffer_clear_region_channel(int arg0, float arg1,
                                                float arg2) {
-  if (argc < 3) {
-    return;
-  }
   softCutClient->clearBuffer(arg0, arg1, arg2);
 }
 
 void crone_softcut_buffer_clear_fade_region(float arg0, float arg1, float arg2,
                                             float arg3) {
-  float dur = -1;
-  float fadeTime = 0;
-  float preserve = 0;
-  if (argc < 1) {
-    return;
-  }
-  if (argc > 1) {
-    dur = arg1;
-  }
-  if (argc > 2) {
-    fadeTime = arg2;
-  }
-  if (argc > 3) {
-    preserve = arg3;
-  }
+  // float dur = -1;
+  // float fadeTime = 0;
+  // float preserve = 0;
+  // if (argc < 1) {
+  //   return;
+  // }
+  // if (argc > 1) {
+  //   dur = arg1;
+  // }
+  // if (argc > 2) {
+  //   fadeTime = arg2;
+  // }
+  // if (argc > 3) {
+  //   preserve = arg3;
+  // }
   softCutClient->clearBufferWithFade(0, arg0, dur, fadeTime, preserve);
   softCutClient->clearBufferWithFade(1, arg0, dur, fadeTime, preserve);
 }
@@ -511,46 +497,46 @@ void crone_softcut_buffer_clear_fade_region(float arg0, float arg1, float arg2,
 void crone_softcut_buffer_clear_fade_region_channel(int arg0, float arg1,
                                                     float arg2, float arg3,
                                                     float arg4) {
-  float dur = -1;
-  float fadeTime = 0;
-  float preserve = 0;
-  if (argc < 2) {
-    return;
-  }
-  if (argc > 3) {
-    dur = arg2;
-  }
-  if (argc > 4) {
-    fadeTime = arg3;
-  }
-  if (argc > 5) {
-    preserve = arg4;
-  }
+  // float dur = -1;
+  // float fadeTime = 0;
+  // float preserve = 0;
+  // if (argc < 2) {
+  //   return;
+  // }
+  // if (argc > 3) {
+  //   dur = arg2;
+  // }
+  // if (argc > 4) {
+  //   fadeTime = arg3;
+  // }
+  // if (argc > 5) {
+  //   preserve = arg4;
+  // }
   softCutClient->clearBufferWithFade(arg0, arg1, dur, fadeTime, preserve);
 }
 
 void crone_softcut_buffer_copy_mono(int arg0, int arg1, float arg2, float arg3,
                                     float arg4, float arg5, float arg6,
                                     int arg7) {
-  float dur = -1.f;
-  float fadeTime = 0.f;
-  float preserve = 0.f;
-  bool reverse = false;
-  if (argc < 4) {
-    return;
-  }
-  if (argc > 4) {
-    dur = arg4;
-  }
-  if (argc > 5) {
-    fadeTime = arg5;
-  }
-  if (argc > 6) {
-    preserve = arg6;
-  }
-  if (argc > 7) {
-    reverse = arg7 != 0;
-  }
+  // float dur = -1.f;
+  // float fadeTime = 0.f;
+  // float preserve = 0.f;
+  // bool reverse = false;
+  // if (argc < 4) {
+  //   return;
+  // }
+  // if (argc > 4) {
+  //   dur = arg4;
+  // }
+  // if (argc > 5) {
+  //   fadeTime = arg5;
+  // }
+  // if (argc > 6) {
+  //   preserve = arg6;
+  // }
+  // if (argc > 7) {
+  //   reverse = arg7 != 0;
+  // }
 
   softCutClient->copyBuffer(arg0, arg1, arg2, arg3, dur, fadeTime, preserve,
                             reverse);
