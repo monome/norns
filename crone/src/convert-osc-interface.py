@@ -52,6 +52,7 @@ with open(infile) as f:
             body = body.replace("(void) argv;\n", "")
             body = body.replace("if (argc < 1) { return; }", "")
             body = body.replace("if (argc < 2) { return; }", "")
+            body = body.replace("if (argc < 3) { return; }", "")
             func = f"void {funcname} ({params}) {{ {body} }}"
             output = output + func + '\n\n'
             print(func)
