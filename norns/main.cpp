@@ -15,7 +15,9 @@
                 matron_cleanup();
             } else {
                 // nothing to do..
-                while (1) {;;}
+                while (1) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
             }
         } else { 
             // first fork: crone
