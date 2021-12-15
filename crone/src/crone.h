@@ -295,7 +295,10 @@ void crone_set_param_cut_pre_fade_window(int arg0, float arg1) {
 // FIXME: this escaped the script because it is converting ->f to int. is that on purpose?
 //  float x = argv[0]->f;
 float x = arg0;
-  auto t = std::thread([x] { softcut::FadeCurves::setPreWindowRatio(x); });
+  auto t = std::thread([x] { 
+    // FIXME
+    //softcut::FadeCurves::setPreWindowRatio(x);
+    });
   t.detach();
 }
 
@@ -303,7 +306,10 @@ void crone_set_param_cut_rec_fade_delay(int arg0, float arg1) {
 // FIXME: this escaped the script because it is converting ->f to int. is that on purpose?
 //  float x = argv[0]->f;
 float x = arg0;
-  auto t = std::thread([x] { softcut::FadeCurves::setRecDelayRatio(x); });
+  auto t = std::thread([x] { 
+    // FIXME
+    // softcut::FadeCurves::setRecDelayRatio(x); 
+  });
   t.detach();
 }
 
@@ -312,15 +318,21 @@ void crone_set_param_cut_pre_fade_shape(int arg0, float arg1) {
 //  float x = argv[0]->f;
 float x = arg0;
   auto t = std::thread(
-      [x] { softcut::FadeCurves::setPreShape(static_cast<softcut::FadeCurves::Shape>(x)); });
+      [x] { 
+        // FIXME
+        // softcut::FadeCurves::setPreShape(static_cast<softcut::FadeCurves::Shape>(x));
+      });
   t.detach();
 }
 
 void crone_set_param_cut_rec_fade_shape(int arg0, float arg1) {
 // FIXME: this escaped the script because it is converting ->f to int. is that on purpose?
 //  float x = argv[0]->f;
-float x = arg0;  auto t = std::thread(
-      [x] { softcut::FadeCurves::setRecShape(static_cast<softcut::FadeCurves::Shape>(x)); });
+float x = arg0; 
+auto t = std::thread([x] { 
+        // FIXME
+        // softcut::FadeCurves::setRecShape(static_cast<softcut::FadeCurves::Shape>(x));
+});
   t.detach();
 }
 
@@ -470,20 +482,17 @@ void crone_softcut_buffer_render(int arg0, float arg1, float arg2, int arg3) {
   softCutClient->renderSamples(
       ch, arg1, arg2, sampleCt,
       [=](float secPerSample, float start, size_t count, float *samples) {
-        
         // FIXME
         // lo_blob bl = lo_blob_new(count * sizeof(float), samples);
         // lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch,
         //         secPerSample, start, bl);
-
       });
 }
 
 void crone_softcut_query_position(int arg0) {
-  if (argc < 1)
-    return;
   int idx = arg0;
   float pos = softCutClient->getPosition(idx);
+  (void)pos;
   // FIXME
   // lo_send(matronAddress, "/poll/softcut/position", "if", idx, pos);
 }
@@ -494,7 +503,7 @@ void crone_softcut_reset() {
   softCutClient->clearBuffer(1, 0, -1);
 
   softCutClient->reset();
-  for (int i = 0; i < SoftcutClient::NumVoices; ++i) {
+  for (int i = 0; i < crone::SoftcutClient::NumVoices; ++i) {
     phasePoll->stop();
   }
 }
