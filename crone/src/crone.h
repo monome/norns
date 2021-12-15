@@ -1,6 +1,8 @@
 #ifndef _CRONE_H_
 #define _CRONE_H_
 
+#include <iostream>
+
 #include "Commands.h"
 #include "MixerClient.h"
 #include "SoftcutClient.h"
@@ -35,6 +37,8 @@ void crone_set_level_adc(float arg0) {
 }
 
 void crone_set_level_dac(float arg0) {
+  std::cerr << "crone_set_level_dac("<<arg0<<")"<<std::endl;
+  std::cerr << "&mixerCommands: " << std::hex << &(crone::Commands::mixerCommands) << std::endl;
   crone::Commands::mixerCommands.post(crone::Commands::Id::SET_LEVEL_DAC, arg0);
 }
 
