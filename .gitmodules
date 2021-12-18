@@ -10,3 +10,6 @@
 [submodule "crone/lib/readerwriterqueue"]
 	path = crone/lib/readerwriterqueue
 	url = https://github.com/cameron314/readerwriterqueue.git
+[submodule "crone/lib/concurrentqueue"]
+	path = crone/lib/concurrentqueue
+	url = git@github.com:cameron314/concurrentqueue.git

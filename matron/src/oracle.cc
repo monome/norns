@@ -22,6 +22,8 @@
 #include "hello.h"
 #include "oracle.h"
 
+#include "crone.h"
+
 // address of external DSP environment (e.g. supercollider)
 static lo_address ext_addr;
 // address of crone process
@@ -424,11 +426,14 @@ void o_poll_stop_cut_phase() {
 }
 
 void o_set_level_adc(float level) {
-    lo_send(crone_addr, "/set/level/adc", "f", level);
+    crone_set_level_adc(level);
+    //lo_send(crone_addr, "/set/level/adc", "f", level);
 }
 
 void o_set_level_dac(float level) {
-    lo_send(crone_addr, "/set/level/dac", "f", level);
+    fprintf(stderr, "setting DAC level (main thread): %f\n", level);
+    crone_set_level_dac(level);
+//    lo_send(crone_addr, "/set/level/dac", "f", level);
 }
 
 void o_set_level_ext(float level) {

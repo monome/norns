@@ -102,7 +102,8 @@ def build(bld):
         '../crone',
         '../crone/src',
         '../crone/softcut/softcut-lib/include',
-        '../crone/lib/readerwriterqueue'
+        '../crone/lib/readerwriterqueue',
+        '../crone/lib/concurrentqueue'
     ]
 
     crone_use=[

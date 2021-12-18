@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv) {
   if (fork() == 0) {
-    // parentrocess
+    // parent process
     if (fork() != 0) {
       // second fork
       sidecar_client_init();

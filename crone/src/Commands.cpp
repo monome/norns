@@ -37,9 +37,11 @@ void Commands::post(Commands::Id id, int i, int j, float f) {
 }
 
 void Commands::post(CommandPacket &p) {
+    
+	std::cerr << " posting a command packet: " << p.id << std::endl;
     bool ok = q.try_enqueue(p);
     if (!ok) {
-	std::cerr << " warning: failed to post a command (queue full, most likely)" << std::endl;
+	    std::cerr << " warning: failed to post a command (queue full, most likely)" << std::endl;
     }
 }
 
