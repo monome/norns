@@ -186,7 +186,7 @@ norns.shutdown = function()
   pcall(cleanup)
   audio.level_dac(0)
   audio.headphone_gain(0)
-  os.execute("sleep 0.5; sudo shutdown now")
+  _norns.execute("sleep 0.5; sudo shutdown now")
 end
 
 -- platform detection
@@ -227,9 +227,9 @@ norns.system_glob = _norns.system_glob
 
 -- audio reset
 _norns.reset = function()
-  os.execute("sudo systemctl restart norns-sclang.service")
-  os.execute("sudo systemctl restart norns-crone.service")
-  os.execute("sudo systemctl restart norns-matron.service")
+  _norns.execute("sudo systemctl restart norns-sclang.service")
+  _norns.execute("sudo systemctl restart norns-crone.service")
+  _norns.execute("sudo systemctl restart norns-matron.service")
 end
 
 -- startup function will be run after I/O subsystems are initialized,

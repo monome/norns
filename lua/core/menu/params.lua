@@ -271,7 +271,7 @@ m.key = function(n,z)
         -- delete
       elseif m.ps_action == 3 then
         if pset[m.ps_pos+1] then
-          os.execute("rm "..pset[m.ps_pos+1].file)
+          _norns.execute("rm "..pset[m.ps_pos+1].file)
           init_pset()
         end
       end

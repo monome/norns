@@ -67,7 +67,7 @@ end
 --- make directory (with parents as needed).
 -- @tparam string path
 util.make_dir = function(path)
-  os.execute("mkdir -p " .. path)
+  _norns.execute("mkdir -p " .. path)
 end
 
 
