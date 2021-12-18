@@ -62,14 +62,8 @@ void *run_cmd(void *cmd) {
         if (fgets(line, CMD_LINE_CHARS, f) == NULL) {
             break;
         }
-
-        // we want to skip adding the line if it's incomplete,
-        // cause that would bork later
         int len = strlen(line) * sizeof(char);
         if (capacity >= len) {
-            // "if _src_ contains _n_ or more bytes,
-            // strncat() writes _n+1_ bytes to _dest_"
-            // which is why we initialize capacity with -1
             strncat(capture, line, capacity);
         }
         capacity -= len;

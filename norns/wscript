@@ -119,10 +119,19 @@ def build(bld):
         'sndfile'
     ]
     
-    norns_sources = ["main.cpp"] + matron_sources + crone_sources
-    norns_includes = matron_includes + crone_includes
-    norns_use = matron_use +crone_use
-    norns_libs = matron_libs + crone_libs
+    norns_sources = [ 
+        'main.cpp',
+        'sidecar.cpp'
+    ]
+
+    norns_libs = [
+        'nanomsg'
+    ]
+
+    norns_sources = norns_sources + matron_sources + crone_sources
+    norns_includes = ['.'] + matron_includes + crone_includes
+    norns_use = matron_use + crone_use
+    norns_libs = norns_libs + matron_libs + crone_libs
     
     bld.program(features='c cprogram cxx cxxprogram',
         target='norns',
