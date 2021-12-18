@@ -79,9 +79,10 @@ end
 -- @param raw raw output (omit for scrubbed)
 -- @return output
 util.os_capture = function(cmd, raw)
-  local f = assert(io.popen(cmd, 'r'))
-  local s = assert(f:read('*a'))
-  f:close()
+  -- local f = assert(io.popen(cmd, 'r'))
+  -- local s = assert(f:read('*a'))
+  -- f:close()
+  local s = _norns.execute(cmd)
   if raw then return s end
   s = string.gsub(s, '^%s+', '')
   s = string.gsub(s, '%s+$', '')
