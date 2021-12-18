@@ -42,6 +42,7 @@
 #include "osc.h"
 #include "platform.h"
 #include "screen.h"
+#include "sidecar.h"
 #include "snd_file.h"
 #include "system_cmd.h"
 #include "weaver.h"
@@ -69,7 +70,7 @@ void w_handle_exec_code_line(char *line) {
 //--- declare lua->c glue
 
 // NB these static functions are prefixed  with '_'
-// to avoid shadowing similar-named extern functions in other moduels (like
+// to avoid shadowing similar-named extern functions in other modules (like
 // screen)
 // and also to distinguish from extern 'w_' functions.
 
@@ -142,6 +143,7 @@ static int _start_poll(lua_State *l);
 static int _stop_poll(lua_State *l);
 static int _set_poll_time(lua_State *l);
 static int _request_poll_value(lua_State *l);
+
 // timing
 static int _metro_start(lua_State *l);
 static int _metro_stop(lua_State *l);
@@ -228,8 +230,11 @@ static int _restart_audio(lua_State *l);
 static int _sound_file_inspect(lua_State *l);
 
 // util
+/// run command in child process asynchronously (with callback)
 static int _system_cmd(lua_State *l);
 static int _system_glob(lua_State *l);
+/// run command in child process, blocking (replaces `os.execute`)
+static int _execute(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
@@ -353,6 +358,7 @@ void w_init(void) {
     // util
     lua_register_norns("system_cmd", &_system_cmd);
     lua_register_norns("system_glob", &_system_glob);
+    lua_register_norns("execute", &_execute);
 
     // low-level monome grid control
     lua_register_norns("grid_set_led", &_grid_set_led);
@@ -2656,6 +2662,18 @@ int _system_glob(lua_State *l) {
     globfree(&g);
     return 1;
 }
+
+int _execute(lua_State *l) {
+    lua_check_num_args(1);
+    const char *cmd = luaL_checkstring(l, 1);
+    char *buf = NULL;
+    size_t size;
+    sidecar_client_cmd(&buf, &size, cmd);
+    lua_pushstring(l, buf);
+    free(buf);
+    return 0;
+}
+
 
 int _platform(lua_State *l) {
     lua_check_num_args(0);
