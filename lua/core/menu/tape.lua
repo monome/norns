@@ -66,7 +66,7 @@ end
 local function write_tape_index_v(v)
   local f = io.open(_path.tape..'index.txt','w')
   if f == nil then
-    os.execute("mkdir -p ".._path.tape)
+    _norns.execute("mkdir -p ".._path.tape)
     f = io.open(_path.tape..'index.txt','w')
   end
   if f == nil then

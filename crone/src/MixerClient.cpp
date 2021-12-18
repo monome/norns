@@ -115,13 +115,11 @@ void MixerClient::processFx(size_t numFrames) {
 }
 
 void MixerClient::handleCommand(Commands::CommandPacket *p) {
-    std::cerr << "handling a command: " << p->id << std::endl;
     switch(p->id) {
         case Commands::Id::SET_LEVEL_ADC:
             smoothLevels.adc.setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_DAC:
-            std::cerr << "handling DAC command (audio thread): " << p->value << std::endl;
             smoothLevels.dac.setTarget(p->value);
             break;
         case Commands::Id::SET_LEVEL_EXT:
