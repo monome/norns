@@ -128,7 +128,7 @@ def build(bld):
     ]
 
     norns_sources = norns_sources + matron_sources + crone_sources
-    norns_includes = matron_includes + crone_includes
+    norns_includes = ['.'] + matron_includes + crone_includes
     norns_use = matron_use + crone_use
     norns_libs = norns_libs + matron_libs + crone_libs
     
