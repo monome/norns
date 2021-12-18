@@ -17,11 +17,9 @@ const char *url = "ipc:///tmp/norns-sidecar.ipc";
 //--- server
 
 const size_t CMD_CAPTURE_BYTES = 8192 * 8;
-const size_t CMD_LINE_BYTES = 1024;
 
 // allocates and returns a string buffer
 static int sidecar_server_run_cmd(char **result, const char *cmd, size_t *sz) {
-  const size_t CMD_LINE_CHARS = CMD_LINE_BYTES / sizeof(char);
   FILE *f = popen((char *)cmd, "r");
   if (f == NULL) {
     fprintf(stderr, "popen() failed\n");
@@ -29,12 +27,12 @@ static int sidecar_server_run_cmd(char **result, const char *cmd, size_t *sz) {
   }
   // FIXME: would be more efficition to allocate incrementally in chunks
   // instead of getting a huge blob up front and resizing down
-  char *buf = (char*)malloc(CMD_CAPTURE_BYTES);
+  char *buf = (char *)malloc(CMD_CAPTURE_BYTES);
   buf[0] = '\0';
   size_t nb = fread(buf, 1, CMD_CAPTURE_BYTES - 1, f);
-  printf("captured %d bytes\n", nb);
+  printf("captured %zu bytes\n", nb);
   buf[nb] = '\0';
-  buf = (char*)realloc(buf, nb);
+  buf = (char *)realloc(buf, nb);
   *result = buf;
   *sz = nb;
   return 0;
@@ -68,11 +66,11 @@ int sidecar_server_main() {
     size_t sz;
     printf("sidecar received %d bytes\n", nb);
     printf("running cmd: %s\n", cmd);
-    char *result;
+    char *result = NULL;
 
     sidecar_server_run_cmd(&result, cmd, &sz);
 
-    if (sz > 0) {
+    if (sz > 0 && result != NULL) {
       nn_send(fd, result, sz, 0);
       free(result);
     }
@@ -105,6 +103,7 @@ int sidecar_client_init() {
             nn_strerror(nn_errno()));
     return (-1);
   }
+  return 0;
 }
 
 void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
@@ -120,7 +119,11 @@ void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
     return;
   }
   if (sz > 0) {
-    printf("main rx; bytes=%d, txt = \n%s\n", sz, cs.buf);
+    printf("main rx; bytes=%zu, txt = \n%s\n", sz, cs.buf);
+    char *res = (char *)malloc(sz);
+    memcpy(res, cs.buf, sz);
+    *result = res;
+    *size = sz;
     nn_freemsg(cs.buf);
   } else {
     fprintf(stderr, "received empty result\n");
