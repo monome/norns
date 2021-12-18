@@ -13,20 +13,11 @@
 #include <unistd.h>
 
 #include "events.h"
-
-#if 1 // nice big buffers (allocated in worker thread)
-static const size_t CMD_CAPTURE_BYTES = 8192 * 8;
-static const size_t CMD_LINE_BYTES = 1024;
-
-#else // test with stupid tiny buffers
-static const size_t CMD_CAPTURE_BYTES = 128;
-static const size_t CMD_LINE_BYTES = 64;
-#endif
+#include "sidecar.h"
 
 void *run_cmd(void *);
 
 // extern def
-
 void system_cmd(char *cmd) {
     pthread_t p;
     if (pthread_create(&p, NULL, run_cmd, cmd)) {
@@ -40,60 +31,19 @@ void system_cmd(char *cmd) {
 }
 
 void *run_cmd(void *cmd) {
-    const size_t CMD_LINE_CHARS = CMD_LINE_BYTES / sizeof(char);
+    size_t size=0;
+    char *buff = NULL;
+    sidecar_client_cmd(&buff, &size, (char *)cmd);
 
-    FILE *f = popen((char *)cmd, "r");
-    if (f == NULL) {
+    if (size==0) {
         fprintf(stderr, "system_cmd: command failed\n");
         return NULL;
     }
 
-    char *capture = (char *)malloc(CMD_CAPTURE_BYTES);
-    capture[0] = '\0';
-
-    char *line = (char *)malloc(CMD_LINE_BYTES);
-    int capacity = CMD_CAPTURE_BYTES - 1;
-
-    do {
-        // "fgets() reads in at most one less than _size_ characters"
-        // so `line` is always null-terminated after these next 2 calls:
-        memset(line, '\0', CMD_LINE_BYTES);
-        // stop on EOF....
-        if (fgets(line, CMD_LINE_CHARS, f) == NULL) {
-            break;
-        }
-        int len = strlen(line) * sizeof(char);
-        if (capacity >= len) {
-            strncat(capture, line, capacity);
-        }
-        capacity -= len;
-
-#if 0 // test..
-	fprintf(stderr, "last line: \n\t%s\n", line);
-	fprintf(stderr, "current buffer: \n\t %s\n", line);
-	fprintf(stderr, "remaining capacity: %d bytes\n", capacity);
-#endif
-
-    } while (capacity > 0); // ... or, stop if buffer is full
-
-#if 0 // test...
-    fprintf(stderr, "finished line loop; full buffer: \n");    
-    fprintf(stderr, "%s\n", capture);
-#endif
-
-    // just use memcpy and include the null terminator
-    size_t len = strlen(capture) + 1;
-    char *cap = (char*)malloc(len);
-    memcpy(cap, capture, len);
     union event_data *ev = event_data_new(EVENT_SYSTEM_CMD);
-
     // this will get freed when the event is handled
-    ev->system_cmd.capture = cap;
+    ev->system_cmd.capture = buff;
     event_post(ev);
-
-    free(line);
-    free(capture);
-    pclose(f);
 
     return NULL;
 }

@@ -30,7 +30,7 @@ static int sidecar_server_run_cmd(char **result, const char *cmd, size_t *sz) {
   char *buf = (char *)malloc(CMD_CAPTURE_BYTES);
   buf[0] = '\0';
   size_t nb = fread(buf, 1, CMD_CAPTURE_BYTES - 1, f);
-  printf("captured %zu bytes\n", nb);
+  //printf("captured %zu bytes\n", nb);
   buf[nb] = '\0';
   buf = (char *)realloc(buf, nb);
   *result = buf;
@@ -64,8 +64,8 @@ int sidecar_server_main() {
       return -1;
     }
     size_t sz;
-    printf("sidecar received %d bytes\n", nb);
-    printf("running cmd: %s\n", cmd);
+    //printf("sidecar received %d bytes\n", nb);
+    //printf("running cmd: %s\n", cmd);
     char *result = NULL;
 
     sidecar_server_run_cmd(&result, cmd, &sz);
@@ -112,14 +112,14 @@ void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
     fprintf(stderr, "nn_send (sidecar client): %s\n", nn_strerror(nn_errno()));
     return;
   }
-  fprintf(stderr, "receiving reply...\n");
+  //fprintf(stderr, "receiving reply...\n");
   sz = nn_recv(cs.fd, &cs.buf, NN_MSG, 0);
   if (sz < 0) {
     fprintf(stderr, "nn_recv (sidecar client): %s\n", nn_strerror(nn_errno()));
     return;
   }
   if (sz > 0) {
-    printf("main rx; bytes=%zu, txt = \n%s\n", sz, cs.buf);
+    //printf("main rx; bytes=%zu, txt = \n%s\n", sz, cs.buf);
     char *res = (char *)malloc(sz);
     memcpy(res, cs.buf, sz);
     *result = res;
