@@ -21,17 +21,6 @@ Poll *phasePoll;
 void crone_poll_start_vu() { vuPoll->start(); }
 void crone_poll_stop_vu() { vuPoll->stop(); }
 
-
-// void crone_hello() { std::cout << "hello" << std::endl; }
-
-// void crone_goodbye() {
-//   std::cout << "goodbye" << std::endl;
-//   OscInterface::quitFlag = true;
-// }
-
-// void crone_quit() { OscInterface::quitFlag = true; }
-
-
 void crone_set_level_adc(float arg0) {
   crone::Commands::mixerCommands.post(crone::Commands::Id::SET_LEVEL_ADC, arg0);
 }

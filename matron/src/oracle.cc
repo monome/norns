@@ -410,38 +410,37 @@ void o_request_poll_value(int idx) {
 //---- audio context control
 
 void o_poll_start_vu() {
-    lo_send(crone_addr, "/poll/start/vu", NULL);
+    crone_poll_start_vu();
 }
 
 void o_poll_stop_vu() {
-    lo_send(crone_addr, "/poll/stop/vu", NULL);
+    crone_poll_stop_vu();
 }
 
 void o_poll_start_cut_phase() {
+    crone_poll_start_cut_phase();
     lo_send(crone_addr, "/poll/start/cut/phase", NULL);
 }
 
 void o_poll_stop_cut_phase() {
-    lo_send(crone_addr, "/poll/stop/cut/phase", NULL);
+    crone_poll_stop_cut_phase();
 }
 
 void o_set_level_adc(float level) {
     crone_set_level_adc(level);
-    //lo_send(crone_addr, "/set/level/adc", "f", level);
 }
 
 void o_set_level_dac(float level) {
     fprintf(stderr, "setting DAC level (main thread): %f\n", level);
     crone_set_level_dac(level);
-//    lo_send(crone_addr, "/set/level/dac", "f", level);
 }
 
 void o_set_level_ext(float level) {
-    lo_send(crone_addr, "/set/level/ext", "f", level);
+  crone_set_level_ext( level);
 }
 
 void o_set_level_monitor(float level) {
-    lo_send(crone_addr, "/set/level/monitor", "f", level);
+  crone_set_level_monitor( level);
 }
 
 void o_set_monitor_mix_mono() {
@@ -472,117 +471,107 @@ void o_restart_audio() {
 
 //---- tape controls
 void o_set_level_tape(float level) {
-    lo_send(crone_addr, "/set/level/tape", "f", level);
+  crone_set_level_tape( level);
 }
 
 void o_set_level_tape_rev(float level) {
-    lo_send(crone_addr, "/set/level/tape_rev", "f", level);
+  crone_set_level_tape_rev( level);
 }
 
 void o_tape_rec_open(char *file) {
-    lo_send(crone_addr, "/tape/record/open", "s", file);
+  crone_tape_rec_open(file);
 }
 
 void o_tape_rec_start() {
-    lo_send(crone_addr, "/tape/record/start", NULL);
+  crone_tape_rec_start();
 }
 
 void o_tape_rec_stop() {
-    lo_send(crone_addr, "/tape/record/stop", NULL);
+  crone_tape_rec_stop();
 }
 
 void o_tape_play_open(char *file) {
-    lo_send(crone_addr, "/tape/play/open", "s", file);
+  crone_tape_play_open(file);
 }
 
 void o_tape_play_start() {
-    lo_send(crone_addr, "/tape/play/start", NULL);
+  crone_tape_play_start();
 }
 
 void o_tape_play_stop() {
-    lo_send(crone_addr, "/tape/play/stop", NULL);
+  crone_tape_play_stop();
 }
 
 //--- cut
 void o_cut_enable(int i, float value) {
-    lo_send(crone_addr, "/set/enabled/cut", "if", i, value);
+  crone_cut_enable( i, value);
 }
 
 void o_set_level_adc_cut(float value) {
-    lo_send(crone_addr, "/set/level/adc_cut", "f", value);
+  crone_set_level_adc_cut( value);
 }
 
 void o_set_level_ext_cut(float value) {
-    lo_send(crone_addr, "/set/level/ext_cut", "f", value);
+  crone_set_level_ext_cut( value);
 }
 
 void o_set_level_tape_cut(float value) {
-    lo_send(crone_addr, "/set/level/tape_cut", "f", value);
+  crone_set_level_tape_cut( value);
 }
 
 void o_set_level_cut_rev(float value) {
-    lo_send(crone_addr, "/set/level/cut_rev", "f", value);
+  crone_set_level_cut_rev( value);
 }
 
 void o_set_level_cut_master(float value) {
-    lo_send(crone_addr, "/set/level/cut_master", "f", value);
+  crone_set_level_cut_master( value);
 }
 
 void o_set_level_cut(int index, float value) {
-    lo_send(crone_addr, "/set/level/cut", "if", index, value);
+  crone_set_level_cut( index, float value);
 }
 
 void o_set_level_cut_cut(int src, int dest, float value) {
-    lo_send(crone_addr, "/set/level/cut_cut", "iif", src, dest, value);
+  crone_set_level_cut_cut( src,  dest,  value);
 }
 
 void o_set_pan_cut(int index, float value) {
-    lo_send(crone_addr, "/set/pan/cut", "if", index, value);
+  crone_set_pan_cut( index,  value);
 }
 
 void o_set_cut_param(const char *name, int voice, float value) {
-    static char buf[128];
-    sprintf(buf, "/set/param/cut/%s", name);
-    lo_send(crone_addr, buf, "if", voice, value);
+  crone_set_cut_param( name, voice, value);
 }
 
 void o_set_cut_param_ii(const char *name, int voice, int value) {
-    static char buf[128];
-    sprintf(buf, "/set/param/cut/%s", name);
-    lo_send(crone_addr, buf, "ii", voice, value);
+  crone_set_cut_param_ii(name, voice, value);
 }
 
 void o_set_cut_param_iif(const char *name, int a, int b, float v) {
-    static char buf[128];
-    sprintf(buf, "/set/param/cut/%s", name);
-    lo_send(crone_addr, buf, "iif", a, b, v);
+  crone_set_cut_param_iif(name, a, b, v);
 }
 
 void o_set_level_input_cut(int src, int dst, float level) {
-    lo_send(crone_addr, "/set/level/in_cut", "iif", src, dst, level);
+  crone_set_level_input_cut( src, dst, level);
 }
 
 void o_cut_buffer_clear() {
-    lo_send(crone_addr, "/softcut/buffer/clear", "");
+  crone_cut_buffer_clear();
 }
 
 void o_cut_buffer_clear_channel(int ch) {
-    lo_send(crone_addr, "/softcut/buffer/clear_channel", "i", ch);
+  crone_cut_buffer_clear_channel( ch);
 }
 
 void o_cut_buffer_clear_region(float start, float dur, float fade_time, float preserve) {
-    lo_send(crone_addr, "/softcut/buffer/clear_fade_region", "ffff", start, dur, fade_time, preserve);
+  crone_cut_buffer_clear_region( start,  dur,  fade_time,  preserve);
 }
 
 void o_cut_buffer_clear_region_channel(int ch, float start, float dur, float fade_time, float preserve) {
-    lo_send(crone_addr, "/softcut/buffer/clear_fade_region_channel", "iffff", ch, start, dur, fade_time, preserve);
+  crone_cut_buffer_clear_region_channel( ch,  start,  dur,  fade_time,  preserve);
 }
 
-void o_cut_buffer_copy_mono(int src_ch, int dst_ch,
-                            float src_start, float dst_start, float dur,
-                            float fade_time, float preserve, int reverse) {
-    lo_send(crone_addr, "/softcut/buffer/copy_mono", "iifffffi",
-            src_ch, dst_ch, src_start, dst_start, dur, fade_time, preserve, reverse);
+void o_cut_buffer_copy_mono(
 }
 
 void o_cut_buffer_copy_stereo(float src_start, float dst_start, float dur,
@@ -592,81 +581,82 @@ void o_cut_buffer_copy_stereo(float src_start, float dst_start, float dur,
 }
 
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst, float dur, int ch_src, int ch_dst, float preserve, float mix) {
-    lo_send(crone_addr, "/softcut/buffer/read_mono", "sfffiiff", file, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix);
+  crone_cut_buffer_read_mono(file,  start_src,  start_dst,  dur,  ch_src,  ch_dst,  preserve,  mix);
 }
 
 void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst, float dur, float preserve, float mix) {
-    lo_send(crone_addr, "/softcut/buffer/read_stereo", "sfffff", file, start_src, start_dst, dur, preserve, mix);
+  crone_cut_buffer_read_stereo( file,  start_src,  start_dst,  dur,  preserve,  mix);
 }
 
 void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {
-    lo_send(crone_addr, "/softcut/buffer/write_mono", "sffi", file, start, dur, ch);
+  crone_cut_buffer_write_mono( *file,  start,  dur,  ch);
 }
 
 void o_cut_buffer_write_stereo(char *file, float start, float dur) {
-    lo_send(crone_addr, "/softcut/buffer/write_stereo", "sff", file, start, dur);
+  crone_cut_buffer_write_stereo( *file,  start,  dur);
 }
 
 void o_cut_buffer_render(int ch, float start, float dur, int samples) {
-    lo_send(crone_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
+  crone_cut_buffer_render( ch,  start,  dur,  samples);
 }
 
 void o_cut_query_position(int i) {
-    lo_send(crone_addr, "/softcut/query/position", "i", i);
+  crone_cut_query_position( i);
 }
 
 void o_cut_reset() {
-    lo_send(crone_addr, "/softcut/reset", "");
+  crone_cut_reset();
 }
 
 //--- rev effects controls
 // enable / disable rev fx processing
 void o_set_rev_on() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 1.0);
+  crone_set_rev_on();
 }
 
 void o_set_rev_off() {
-    lo_send(crone_addr, "/set/enabled/reverb", "f", 0.0);
+  crone_set_rev_off();
 }
 
 //--- comp effects controls
 void o_set_comp_on() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 1.0);
+  crone_set_comp_on();
 }
 
 void o_set_comp_off() {
-    lo_send(crone_addr, "/set/enabled/compressor", "f", 0.0);
+  crone_set_comp_off();
 }
 
 void o_set_comp_mix(float value) {
-    lo_send(crone_addr, "/set/level/compressor_mix", "f", value);
+  crone_set_comp_mix( value);
 }
 
 // stereo output -> rev
 void o_set_level_ext_rev(float value) {
-    lo_send(crone_addr, "/set/level/ext_rev", "f", value);
+  crone_set_level_ext_rev( value);
 }
 
 // rev return -> dac
 void o_set_level_rev_dac(float value) {
-    lo_send(crone_addr, "/set/level/rev_dac", "f", value);
+  crone_set_level_rev_dac( value);
 }
 
 // monitor mix -> rev level
 void o_set_level_monitor_rev(float value) {
-    lo_send(crone_addr, "/set/level/monitor_rev", "f", value);
+  crone_set_level_monitor_rev( value);
 }
 
 void o_set_rev_param(const char *name, float value) {
-    static char buf[128];
-    sprintf(buf, "/set/param/reverb/%s", name);
-    lo_send(crone_addr, buf, "f", value);
+    /// FIXME
+  //    crone_set_rev_param(const char *name, float value);
 }
 
 void o_set_comp_param(const char *name, float value) {
-    static char buf[128];
-    sprintf(buf, "/set/param/compressor/%s", name);
-    lo_send(crone_addr, buf, "f", value);
+    /// FIXME
+  // crone_set_comp_param(const char *name, float value);
+  //   static char buf[128];
+  //   sprintf(buf, "/set/param/compressor/%s", name);
+  //   lo_send(crone_addr, buf, "f", value);
 }
 
 /////////////////////
