@@ -13,6 +13,7 @@ cp -a maiden /home/we/
 cp version.txt /home/we/
 cp changelog.txt /home/we/
 
+# TODO !!!!!! FIX THIS FOR v3
 # rewrite matron.sevice
 sudo cp --remove-destination config/norns-matron.service /etc/systemd/system/norns-matron.service
 
