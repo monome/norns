@@ -506,7 +506,7 @@ void o_set_level_cut_rev(float value) { crone_set_level_cut_rev(value); }
 void o_set_level_cut_master(float value) { crone_set_level_cut_master(value); }
 
 void o_set_level_cut(int index, float value) {
-  crone_set_level_cut(index, float value);
+  crone_set_level_cut(index, value);
 }
 
 void o_set_level_cut_cut(int src, int dest, float value) {
@@ -516,22 +516,25 @@ void o_set_level_cut_cut(int src, int dest, float value) {
 void o_set_pan_cut(int index, float value) { crone_set_pan_cut(index, value); }
 
 void o_set_cut_param(const char *name, int voice, float value) {
+    (void)name; (void)voice; (void)value;
   // FIXME
   // crone_set_cut_param( name, voice, value);
 }
 
 void o_set_cut_param_ii(const char *name, int voice, int value) {
+    (void)name; (void)voice; (void)value;
   // FIXME
   // crone_set_cut_param_ii(name, voice, value);
 }
 
 void o_set_cut_param_iif(const char *name, int a, int b, float v) {
+    (void)name; (void)a; (void)b; (void)v;
   // FIXME
   // crone_set_cut_param_iif(name, a, b, v);
 }
 
 void o_set_level_input_cut(int src, int dst, float level) {
-  crone_set_level_input_cut(src, dst, level);
+  crone_set_level_in_cut(src, dst, level);
 }
 
 void o_cut_buffer_clear() { crone_cut_buffer_clear(); }
@@ -574,11 +577,11 @@ void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst,
 }
 
 void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {
-  crone_cut_buffer_write_mono(*file, start, dur, ch);
+  crone_cut_buffer_write_mono(file, start, dur, ch);
 }
 
 void o_cut_buffer_write_stereo(char *file, float start, float dur) {
-  crone_cut_buffer_write_stereo(*file, start, dur);
+  crone_cut_buffer_write_stereo(file, start, dur);
 }
 
 void o_cut_buffer_render(int ch, float start, float dur, int samples) {
@@ -591,16 +594,16 @@ void o_cut_reset() { crone_cut_reset(); }
 
 //--- rev effects controls
 // enable / disable rev fx processing
-void o_set_rev_on() { crone_set_rev_on(); }
+void o_set_rev_on() { crone_set_enabled_reverb(1); }
 
-void o_set_rev_off() { crone_set_rev_off(); }
+void o_set_rev_off() { crone_set_enabled_reverb(0); }
 
 //--- comp effects controls
-void o_set_comp_on() { crone_set_comp_on(); }
+void o_set_comp_on() { crone_set_enabled_compressor(1); }
 
-void o_set_comp_off() { crone_set_comp_off(); }
+void o_set_comp_off() { crone_set_enabled_compressor(0); }
 
-void o_set_comp_mix(float value) { crone_set_comp_mix(value); }
+void o_set_comp_mix(float value) { crone_set_level_compressor_mix(value); }
 
 // stereo output -> rev
 void o_set_level_ext_rev(float value) { crone_set_level_ext_rev(value); }
