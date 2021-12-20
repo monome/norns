@@ -353,7 +353,7 @@ void crone_set_param_cut_buffer(int arg0, int arg1) {
   crone::Commands::softcutCommands.post(crone::Commands::Id::SET_CUT_BUFFER, arg0, arg1);
 }
 
-void crone_softcut_buffer_read_mono(const char *arg0, float arg1, float arg2,
+void crone_cut_buffer_read_mono(const char *arg0, float arg1, float arg2,
                                     float arg3, int arg4, int arg5, float arg6,
                                     float arg7) {
 
@@ -369,7 +369,7 @@ void crone_softcut_buffer_read_mono(const char *arg0, float arg1, float arg2,
                                 preserve, mix);
 }
 
-void crone_softcut_buffer_read_stereo(const char *arg0, float arg1, float arg2,
+void crone_cut_buffer_read_stereo(const char *arg0, float arg1, float arg2,
                                       float arg3, float arg4, float arg5) {
                                         // FIXME: defaults
 // FIXME: default args
@@ -382,7 +382,7 @@ void crone_softcut_buffer_read_stereo(const char *arg0, float arg1, float arg2,
   softCutClient->readBufferStereo(str, startSrc, startDst, dur, preserve, mix);
 }
 
-void crone_softcut_buffer_write_mono(const char *arg0, float arg1, float arg2,
+void crone_cut_buffer_write_mono(const char *arg0, float arg1, float arg2,
                                      int arg3) {
   // FIXME: defaults  
   float start = 0.f;
@@ -392,7 +392,7 @@ void crone_softcut_buffer_write_mono(const char *arg0, float arg1, float arg2,
   softCutClient->writeBufferMono(str, start, dur, chan);
 }
 
-void crone_softcut_buffer_write_stereo(const char *arg0, float arg1,
+void crone_cut_buffer_write_stereo(const char *arg0, float arg1,
                                        float arg2) {
   
   // FIXME: default args
@@ -403,26 +403,26 @@ void crone_softcut_buffer_write_stereo(const char *arg0, float arg1,
   softCutClient->writeBufferStereo(str, start, dur);
 }
 
-void crone_softcut_buffer_clear() {
+void crone_cut_buffer_clear() {
   softCutClient->clearBuffer(0);
   softCutClient->clearBuffer(1);
 }
 
-void crone_softcut_buffer_clear_channel(int arg0) {
+void crone_cut_buffer_clear_channel(int arg0) {
   softCutClient->clearBuffer(arg0);
 }
 
-void crone_softcut_buffer_clear_region(float arg0, float arg1) {
-  softCutClient->clearBuffer(0, arg0, arg1);
-  softCutClient->clearBuffer(1, arg0, arg1);
+void crone_cut_buffer_clear_region(float start, float dur, float fade_time, float preserve) {
+  softCutClient->clearBuffer(0, start, dur, fade_time, preserve);
+  softCutClient->clearBuffer(1, dur, fade_time, preserve);
 }
 
-void crone_softcut_buffer_clear_region_channel(int arg0, float arg1,
+void crone_cut_buffer_clear_region_channel(int arg0, float arg1,
                                                float arg2) {
   softCutClient->clearBuffer(arg0, arg1, arg2);
 }
 
-void crone_softcut_buffer_clear_fade_region(float arg0, float arg1, float arg2,
+void crone_cut_buffer_clear_fade_region(float arg0, float arg1, float arg2,
                                             float arg3) {
                                             
   // FIXME: default args
@@ -433,7 +433,7 @@ void crone_softcut_buffer_clear_fade_region(float arg0, float arg1, float arg2,
   softCutClient->clearBufferWithFade(1, arg0, dur, fadeTime, preserve);
 }
 
-void crone_softcut_buffer_clear_fade_region_channel(int arg0, float arg1,
+void crone_cut_buffer_clear_fade_region_channel(int arg0, float arg1,
                                                     float arg2, float arg3,
                                                     float arg4) {
   // FIXME: default args
@@ -443,7 +443,7 @@ void crone_softcut_buffer_clear_fade_region_channel(int arg0, float arg1,
   softCutClient->clearBufferWithFade(arg0, arg1, dur, fadeTime, preserve);
 }
 
-void crone_softcut_buffer_copy_mono(int arg0, int arg1, float arg2, float arg3,
+void crone_cut_buffer_copy_mono(int arg0, int arg1, float arg2, float arg3,
                                     float arg4, float arg5, float arg6,
                                     int arg7) {
   // FIXME: default args
@@ -456,7 +456,7 @@ void crone_softcut_buffer_copy_mono(int arg0, int arg1, float arg2, float arg3,
                             reverse);
 }
 
-void crone_softcut_buffer_copy_stereo(float arg0, float arg1, float arg2,
+void crone_cut_buffer_copy_stereo(float arg0, float arg1, float arg2,
                                       float arg3, float arg4, int arg5) {
   // FIXME: default args
   float dur = -1.f;
@@ -468,7 +468,7 @@ void crone_softcut_buffer_copy_stereo(float arg0, float arg1, float arg2,
   softCutClient->copyBuffer(1, 1, arg0, arg1, dur, fadeTime, preserve, reverse);
 }
 
-void crone_softcut_buffer_render(int arg0, float arg1, float arg2, int arg3) {
+void crone_cut_buffer_render(int arg0, float arg1, float arg2, int arg3) {
   int sampleCt = 128;
   int ch = arg0;
 
@@ -482,7 +482,7 @@ void crone_softcut_buffer_render(int arg0, float arg1, float arg2, int arg3) {
       });
 }
 
-void crone_softcut_query_position(int arg0) {
+void crone_cut_query_position(int arg0) {
   int idx = arg0;
   float pos = softCutClient->getPosition(idx);
   (void)pos;
@@ -490,7 +490,7 @@ void crone_softcut_query_position(int arg0) {
   // lo_send(matronAddress, "/poll/softcut/position", "if", idx, pos);
 }
 
-void crone_softcut_reset() {
+void crone_cut_reset() {
 
   softCutClient->clearBuffer(0, 0, -1);
   softCutClient->clearBuffer(1, 0, -1);
@@ -515,14 +515,13 @@ void crone_poll_start_cut_phase() { phasePoll->start(); }
 
 void crone_poll_stop_cut_phase() { phasePoll->stop(); }
 
-void crone_tape_record_open(const char *arg0) {
-
+void crone_tape_rec_open(const char *arg0) {
   mixerClient->openTapeRecord(arg0);
 }
 
-void crone_tape_record_start() { mixerClient->startTapeRecord(); }
+void crone_tape_rec_start() { mixerClient->startTapeRecord(); }
 
-void crone_tape_record_stop() { mixerClient->stopTapeRecord(); }
+void crone_tape_rec_stop() { mixerClient->stopTapeRecord(); }
 
 void crone_tape_play_open(const char *arg0) {
 
