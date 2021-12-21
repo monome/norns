@@ -23,6 +23,7 @@
 #include "oracle.h"
 
 #include "crone.h"
+#include "crone_param_dispatch.h"
 
 // address of external DSP environment (e.g. supercollider)
 static lo_address ext_addr;
@@ -517,20 +518,17 @@ void o_set_pan_cut(int index, float value) { crone_set_pan_cut(index, value); }
 
 void o_set_cut_param(const char *name, int voice, float value) {
     (void)name; (void)voice; (void)value;
-  // FIXME
-  // crone_set_cut_param( name, voice, value);
+  crone_set_cut_param( name, voice, value);
 }
 
 void o_set_cut_param_ii(const char *name, int voice, int value) {
     (void)name; (void)voice; (void)value;
-  // FIXME
-  // crone_set_cut_param_ii(name, voice, value);
+  crone_set_cut_param_ii(name, voice, value);
 }
 
 void o_set_cut_param_iif(const char *name, int a, int b, float v) {
     (void)name; (void)a; (void)b; (void)v;
-  // FIXME
-  // crone_set_cut_param_iif(name, a, b, v);
+  crone_set_cut_param_iif(name, a, b, v);
 }
 
 void o_set_level_input_cut(int src, int dst, float level) {

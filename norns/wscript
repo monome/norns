@@ -44,6 +44,8 @@ def build(bld):
         ]
 
     crone_sources = [
+        '../crone/src/crone_param_dispatch.cpp',
+        '../crone/src/crone.cpp',
         '../crone/src/main.cpp',
         '../crone/src/BufDiskWorker.cpp',
         '../crone/src/Commands.cpp',

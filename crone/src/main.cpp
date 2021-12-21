@@ -12,6 +12,8 @@
 #include "OscInterface.h"
 #include "BufDiskWorker.h"
 
+#include "crone.h"
+
 static inline void sleep(int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
@@ -38,6 +40,7 @@ int crone_main() {
 
     m = std::make_unique<MixerClient>();
     sc = std::make_unique<SoftcutClient>();
+    crone_init (m.get(), sc.get());
 
     cout << "initializing buffer management worker.." << endl;
     BufDiskWorker::init(48000);
