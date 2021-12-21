@@ -23,8 +23,9 @@
 #include "oracle.h"
 
 #include "crone.h"
+#include "crone_param_dispatch.h"
 
-// address of external DSP environment (e.g. supercollider)
+// address of external audio process (e.g. supercollider)
 static lo_address ext_addr;
 // address of crone process
 static lo_address crone_addr;
@@ -456,17 +457,17 @@ void o_set_level_ext(float level) { crone_set_level_ext(level); }
 void o_set_level_monitor(float level) { crone_set_level_monitor(level); }
 
 void o_set_monitor_mix_mono() {
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 0.5);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.5);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.5);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 0.5);
+    crone_set_level_monitor_mix(0, 0.5f);
+    crone_set_level_monitor_mix(1, 0.5f);
+    crone_set_level_monitor_mix(2, 0.5f;
+    crone_set_level_monitor_mix(3, 0.5f);
 }
 
 void o_set_monitor_mix_stereo() {
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 1.0);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.0);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.0);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 1.0);
+    crone_set_level_monitor_mix(0, 1.f);
+    crone_set_level_monitor_mix(1, 0.f);
+    crone_set_level_monitor_mix(2, 0.f);
+    crone_set_level_monitor_mix(3, 1.f);
 }
 
 void o_set_audio_pitch_on() { lo_send(ext_addr, "/audio/pitch/on", NULL); }
@@ -517,20 +518,18 @@ void o_set_pan_cut(int index, float value) { crone_set_pan_cut(index, value); }
 
 void o_set_cut_param(const char *name, int voice, float value) {
     (void)name; (void)voice; (void)value;
-  // FIXME
-  // crone_set_cut_param( name, voice, value);
+    crone
+  crone_set_cut_param( name, voice, value);
 }
 
 void o_set_cut_param_ii(const char *name, int voice, int value) {
     (void)name; (void)voice; (void)value;
-  // FIXME
-  // crone_set_cut_param_ii(name, voice, value);
+    crone_set_cut_param_ii(name, voice, value);
 }
 
 void o_set_cut_param_iif(const char *name, int a, int b, float v) {
     (void)name; (void)a; (void)b; (void)v;
-  // FIXME
-  // crone_set_cut_param_iif(name, a, b, v);
+  crone_set_cut_param_iif(name, a, b, v);
 }
 
 void o_set_level_input_cut(int src, int dst, float level) {
