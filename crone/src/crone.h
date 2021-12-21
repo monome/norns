@@ -276,6 +276,11 @@ void crone_set_param_cut_pre_filter_dry(int arg0, float arg1) {
       crone::Commands::Id::SET_CUT_PRE_FILTER_DRY, arg0, arg1);
 }
 
+void crone_set_param_cut_post_filter_fc(int arg0, float arg1) {
+  crone::Commands::softcutCommands.post(
+      crone::Commands::Id::SET_CUT_POST_FILTER_FC, arg0, arg1);
+}
+
 void crone_set_param_cut_post_filter_rq(int arg0, float arg1) {
   crone::Commands::softcutCommands.post(
       crone::Commands::Id::SET_CUT_POST_FILTER_RQ, arg0, arg1);
@@ -312,51 +317,23 @@ void crone_set_param_cut_voice_sync(int arg0, int arg1, float arg2) {
 }
 
 void crone_set_param_cut_pre_fade_window(int arg0, float arg1) {
-  // FIXME: this escaped the script because it is converting ->f to int. is that
-  // on purpose?
-  //  float x = argv[0]->f;
-  float x = arg0;
-  auto t = std::thread([x] {
-    // FIXME
-    // softcut::FadeCurves::setPreWindowRatio(x);
-  });
-  t.detach();
+  (void)arg0; (void)arg1;
+  // FIXME: revise fade shapes
 }
 
 void crone_set_param_cut_rec_fade_delay(int arg0, float arg1) {
-  // FIXME: this escaped the script because it is converting ->f to int. is that
-  // on purpose?
-  //  float x = argv[0]->f;
-  float x = arg0;
-  auto t = std::thread([x] {
-    // FIXME
-    // softcut::FadeCurves::setRecDelayRatio(x);
-  });
-  t.detach();
+  (void)arg0; (void)arg1;
+  // FIXME: revise fade shapes
 }
 
 void crone_set_param_cut_pre_fade_shape(int arg0, float arg1) {
-  // FIXME: this escaped the script because it is converting ->f to int. is that
-  // on purpose?
-  //  float x = argv[0]->f;
-  float x = arg0;
-  auto t = std::thread([x] {
-    // FIXME
-    // softcut::FadeCurves::setPreShape(static_cast<softcut::FadeCurves::Shape>(x));
-  });
-  t.detach();
+  (void)arg0; (void)arg1;
+  // FIXME: revise fade shapes
 }
 
 void crone_set_param_cut_rec_fade_shape(int arg0, float arg1) {
-  // FIXME: this escaped the script because it is converting ->f to int. is that
-  // on purpose?
-  //  float x = argv[0]->f;
-  float x = arg0;
-  auto t = std::thread([x] {
-    // FIXME
-    // softcut::FadeCurves::setRecShape(static_cast<softcut::FadeCurves::Shape>(x));
-  });
-  t.detach();
+  (void)arg0; (void)arg1;
+  // FIXME: revise fade shapes
 }
 
 void crone_set_param_cut_level_slew_time(int arg0, float arg1) {
@@ -502,7 +479,8 @@ void crone_cut_buffer_render(int arg0, float arg1, float arg2, int arg3) {
   softCutClient->renderSamples(
       ch, arg1, arg2, sampleCt,
       [=](float secPerSample, float start, size_t count, float *samples) {
-        // FIXME
+        // FIXME: perform render callback directly.. maybe take arg to FP
+
         // lo_blob bl = lo_blob_new(count * sizeof(float), samples);
         // lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch,
         //         secPerSample, start, bl);
