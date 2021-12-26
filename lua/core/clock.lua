@@ -162,6 +162,10 @@ clock.link.set_quantum = function(quantum)
   return _norns.clock_link_set_quantum(quantum)
 end
 
+clock.link.set_transport = function(enabled)
+  return _norns.clock_link_set_transport(enabled)
+end
+
 clock.link.set_start_stop_sync = function(enabled)
   return _norns.clock_link_set_start_stop_sync(enabled)
 end

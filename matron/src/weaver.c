@@ -245,6 +245,7 @@ static int _clock_crow_in_div(lua_State *l);
 #if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
 static int _clock_link_set_quantum(lua_State *l);
+static int _clock_link_set_transport(lua_State *l);
 static int _clock_link_set_start_stop_sync(lua_State *l);
 #endif
 static int _clock_set_source(lua_State *l);
@@ -463,6 +464,7 @@ void w_init(void) {
 #if HAVE_ABLETON_LINK
     lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
     lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
+    lua_register_norns("clock_link_set_transport", &_clock_link_set_transport);
     lua_register_norns("clock_link_set_start_stop_sync", &_clock_link_set_start_stop_sync);
 #endif
     lua_register_norns("clock_set_source", &_clock_set_source);
@@ -1621,6 +1623,13 @@ int _clock_link_set_quantum(lua_State *l) {
     lua_check_num_args(1);
     double quantum = luaL_checknumber(l, 1);
     clock_link_set_quantum(quantum);
+    return 0;
+}
+
+int _clock_link_set_transport(lua_State *l) {
+    lua_check_num_args(1);
+    bool transport_start_stop = lua_toboolean(l, 1);
+    clock_link_set_transport(transport_start_stop);
     return 0;
 }
 
