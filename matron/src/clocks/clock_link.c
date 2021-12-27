@@ -53,7 +53,7 @@ static void *clock_link_run(void *p) {
             if (clock_link_shared_data.transport_stop) {
                 ableton_link_session_state_set_is_playing(state, false, 0);
                 ableton_link_commit_app_session_state(link, state);
-                clock_link_shared_data.transport_stop=false;
+                clock_link_shared_data.transport_stop = false;
             }
 
             if (clock_link_shared_data.start_stop_sync) {
