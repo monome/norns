@@ -108,6 +108,7 @@ SC.pre_level = function(voice,amp) _norns.cut_param("pre_level",voice,amp) end
 -- @tparam int voice : voice number (1-?)
 -- @tparam int state : off/on (0,1)
 SC.rec = function(voice,state) _norns.cut_param("rec_flag",voice,state) end
+SC.rec_once = function(voice,state) _norns.cut_param("rec_once_flag",voice,state) end
 --- set record head offset
 SC.rec_offset = function(voice,value) _norns.cut_param("rec_offset",voice,value) end
 --- set play position
