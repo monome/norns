@@ -180,11 +180,13 @@ void screen_display_png(const char *filename, double x, double y) {
     img_w = cairo_image_surface_get_width(image);
     img_h = cairo_image_surface_get_height(image);
 
+    cairo_save(cr);
     cairo_set_source_surface(cr, image, x, y);
     // cairo_paint (cr);
     cairo_rectangle(cr, x, y, img_w, img_h);
     cairo_fill(cr);
     cairo_surface_destroy(image);
+    cairo_restore(cr);
 }
 
 void screen_init(void) {
