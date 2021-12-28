@@ -615,16 +615,11 @@ void o_set_level_monitor_rev(float value) {
 }
 
 void o_set_rev_param(const char *name, float value) {
-  /// FIXME
-  //    crone_set_rev_param(const char *name, float value);
+  crone_set_reverb_param(name,  value);
 }
 
 void o_set_comp_param(const char *name, float value) {
-  /// FIXME
-  // crone_set_comp_param(const char *name, float value);
-  //   static char buf[128];
-  //   sprintf(buf, "/set/param/compressor/%s", name);
-  //   lo_send(crone_addr, buf, "f", value);
+  crone_set_compressor_param(name, value);
 }
 
 /////////////////////

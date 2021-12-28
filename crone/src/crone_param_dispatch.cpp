@@ -35,7 +35,8 @@ std::map<const std::string, std::function<void(int, float)>> cut_param_fn_map =
      {"level_slew_time", crone_set_param_cut_level_slew_time},
      {"pan_slew_time", crone_set_param_cut_pan_slew_time},
      {"recpre_slew_time", crone_set_param_cut_recpre_slew_time},
-     {"rate_slew_time", crone_set_param_cut_rate_slew_time}};
+     {"rate_slew_time", crone_set_param_cut_rate_slew_time}
+};
 
 std::map<const std::string, std::function<void(int, int)>> cut_param_fn_map_ii =
     {
@@ -45,6 +46,26 @@ std::map<const std::string, std::function<void(int, int)>> cut_param_fn_map_ii =
 std::map<const std::string, std::function<void(int, int, float)>>
     cut_param_fn_map_iif = {
         {"voice_sync", crone_set_param_cut_voice_sync},
+};
+
+std::map<const std::string, std::function<void(float)>>
+reverb_param_fn_map = {
+  {"hf_damp", crone_set_param_reverb_hf_damp},
+  {"mid_rt60", crone_set_param_reverb_mid_rt60},
+  {"low_rt60", crone_set_param_reverb_low_rt60},
+  {"lf_fc", crone_set_param_reverb_lf_fc},
+  {"pre_del", crone_set_param_reverb_pre_del},
+};
+
+std::map<const std::string, std::function<void(float)>>
+compressor_param_fn_map = {
+  {"ratio", crone_set_param_compressor_ratio},
+  {"threshold", crone_set_param_compressor_threshold},
+  {"attack", crone_set_param_compressor_attack},
+  {"release", crone_set_param_compressor_release},
+  {"gain_pre", crone_set_param_compressor_gain_pre},
+  {"gain_post", crone_set_param_compressor_gain_post},
+  
 };
 
 void crone_set_cut_param(const char* name, int voice, float value) {
@@ -77,50 +98,22 @@ void crone_set_cut_param_iif(const char* name, int a, int b, float value) {
   }
 }
 
+void crone_set_reverb_param(const char* name, float value) {
+  const std::string k(name);
+  try {
+    auto fn = reverb_param_fn_map.at(k);
+    fn(value);
+  } catch (std::out_of_range& ex) {
+    std::cerr << "unknown reverb parameter:" << name << std::endl;
+  }
+}
 
-
-////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////
-////////////////////////
-/// big TODO: FX parameters
-
-
-
-
-// enum class softcut_param {
-// play_flag,
-// rate,
-// loop_start,
-// loop_end,
-// loop_flag,
-// fade_time,
-// rec_level,
-// pre_level,
-// rec_flag,
-// rec_offset,
-// position,
-// buffer,
-// voice_sync,
-// pre_filter_fc,
-// pre_filter_fc_mod,
-// pre_filter_rq,
-// pre_filter_lp,
-// pre_filter_hp,
-// pre_filter_bp,
-// pre_filter_br,
-// pre_filter_dry,
-// post_filter_fc,
-// post_filter_fc,
-// post_filter_rq,
-// post_filter_lp,
-// post_filter_hp,
-// post_filter_bp,
-// post_filter_br,
-// post_filter_dry,
-// level_slew_time,
-// pan_slew_time,
-// recpre_slew_time,
-// rate_slew_time,
-// phase_quant,
-// phase_offset,
-// };
+void crone_set_compressor_param(const char* name, float value) {
+  const std::string k(name);
+  try {
+    auto fn = compressor_param_fn_map.at(k);
+    fn(value);
+  } catch (std::out_of_range& ex) {
+    std::cerr << "unknown compressor parameter:" << name << std::endl;
+  }
+}
