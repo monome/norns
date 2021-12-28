@@ -16,7 +16,6 @@
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
 
-
 namespace  crone {
     class MixerClient: public Client<6, 6> {
 
