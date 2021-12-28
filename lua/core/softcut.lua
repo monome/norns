@@ -110,9 +110,8 @@ SC.pre_level = function(voice,amp) _norns.cut_param("pre_level",voice,amp) end
 SC.rec = function(voice,state) _norns.cut_param("rec_flag",voice,state) end
 -- set to record one loop.
 -- @tparam int voice : voice number (1-?)
--- @tparam int state : off/on (0,1)
--- @tparam float pos : position in seconds or -1 to trigger on next position change
-SC.rec_once = function(src, state, pos) _norns.cut_param_iif("rec_once_flag",src,state,pos) end
+-- @tparam float pos : position in seconds to initiate loop (optional). if omitted, then next cut will start
+SC.rec_once = function(src, pos) _norns.cut_param("rec_once",src,pos or -1) end
 --- set record head offset
 SC.rec_offset = function(voice,value) _norns.cut_param("rec_offset",voice,value) end
 --- set play position

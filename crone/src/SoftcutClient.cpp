@@ -137,10 +137,11 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
     case Commands::Id::SET_CUT_REC_FLAG:
 	cut.setRecFlag(idx_0, value > 0.f);
 	break;
-    case Commands::Id::SET_CUT_REC_ONCE_FLAG:
-	cut.setRecOnceFlag(idx_0-1, idx_1 > 0);
+    case Commands::Id::SET_CUT_REC_ONCE:
+	cut.setRecOnceFlag(idx_0,true);
+	clamp(value, -1.f, bufDur);
 	if (value >= 0.f) {
-		cut.cutToPos(idx_0-1,value);
+		cut.cutToPos(idx_0,value);
 	}
 	break;
     case Commands::Id::SET_CUT_PLAY_FLAG:
