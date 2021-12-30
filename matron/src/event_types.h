@@ -4,6 +4,9 @@
 #include "osc.h"
 #include <stdint.h>
 
+// NOTE: new event types *must* be added to the end of the enum in the order
+// maintain ABI compatibility with compiled modules which interact with the
+// event system.
 typedef enum {
     // unused (do not remove)
     EVENT_FIRST_EVENT = 0,
@@ -33,8 +36,6 @@ typedef enum {
     EVENT_MONOME_REMOVE,
     // monome grid press/lift
     EVENT_GRID_KEY,
-    // monome grid tilt
-    EVENT_GRID_TILT,
     // monome arc encoder delta
     EVENT_ARC_ENCODER_DELTA,
     // monome arc encoder key
@@ -89,6 +90,8 @@ typedef enum {
     EVENT_SOFTCUT_POSITION,
     // custom events defined in lua extensions
     EVENT_CUSTOM,
+    // monome grid tilt
+    EVENT_GRID_TILT,
 } event_t;
 
 // a packed data structure for four volume levels
