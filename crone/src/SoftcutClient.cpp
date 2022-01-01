@@ -139,9 +139,10 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	break;
     case Commands::Id::SET_CUT_REC_ONCE:
 	cut.setRecOnceFlag(idx_0,true);
-	clamp(value, -1.f, bufDur);
 	if (value >= 0.f) {
-		cut.cutToPos(idx_0,value);
+		clamp(value, 0.f, bufDur);
+		// uncommenting this line causes noise when restarting
+		// cut.cutToPos(idx_0,value);
 	}
 	break;
     case Commands::Id::SET_CUT_PLAY_FLAG:
