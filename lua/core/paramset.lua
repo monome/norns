@@ -118,6 +118,13 @@ function ParamSet:add(args)
     end
   end
 
+  for _,p in pairs(self.params) do
+    if param.id == p.id then
+      print("paramset.add() error: id '"..param.id.."' is already used and will not be added")
+      return nil
+    end
+  end
+
   param.save = true
 
   table.insert(self.params, param)
