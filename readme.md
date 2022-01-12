@@ -25,6 +25,6 @@ git submodule update --init --recursive
 
 ## acknowledgments
 
-`matron` (control system) and `crone` (audio system) were created by @catfact. `maiden` (editor) was created by @ngwese. Each grew with contributions from @artfwo, @jah, @simon, @rv, @pq, @markwheeler, @csboling and many others.
+`matron` (control system) and `crone` (audio system) were created by [@catfact](https://github.com/catfact). `maiden` (editor) was created by [@ngwese](https://github.com/ngwese). Each grew with contributions from [@artfwo](https://github.com/artfwo), [@antonhornquist](https://github.com/antonhornquist), [@simonvanderveldt](https://github.com/simonvanderveldt),[@ranch-verdin](https://github.com/ranch-verdin), [@pq](https://github.com/pq), [@markwheeler](https://github.com/markwheeler), [@csboling](https://github.com/csboling) and many others.
 
-norns was initiated by @tehn (monome).
+norns was initiated by [@tehn](https://github.com/tehn) (monome).
