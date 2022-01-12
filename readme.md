@@ -1,17 +1,9 @@
 # norns
+_changes. travels. is open to possibilities._
 
-- general usage documentation: [monome.org/docs/norns](https://monome.org/docs/norns).
-- API docs: [monome.org/docs/norns/api](https://monome.org/docs/norns/api).
-- build, install, configuration, and execution: [readme-setup.md](readme-setup.md)
-- community discussion and help: [llllllll.co](https://llllllll.co)
+**norns is primarily intended to run on a pi-based sound computer designed by [monome](https://monome.org/norns).**
 
-norns is primarily intended to run on a pi-based sound computer designed by [monome](https://monome.org/norns), which has some supporting repositories:
-
-- maiden, the editor: [github.com/monome/maiden](https://github.com/monome/maiden/)
-- softcut (part of `matron`): [github.com/monome/softcut-lib](https://github.com/monome/softcut-lib)
-- raspbian-based disk image: [github.com/monome/norns-image](https://github.com/monome/norns-image)
-- modified linux kernel: [github.com/monome/linux/](https://github.com/monome/linux/)
-- shield, the DIY open-source hardware variant: [github.com/monome/norns-shield](https://github.com/monome/norns-shield)
+norns is many sound instruments. it connects to grids, MIDI, and other objects. norns lets you define its behavior with scripts and DSP.
 
 ## quick reference
 
@@ -22,6 +14,22 @@ git submodule update --init --recursive
 ./waf configure
 ./waf
 ```
+
+## documentation
+- [user docs](https://monome.org/docs/norns)
+- [API docs](https://monome.org/docs/norns/api)
+- [building and execution](readme-setup.md)
+- [discussion and help](https://llllllll.co)
+
+## related
+### supporting repositories
+- [maiden](https://github.com/monome/maiden/) | editing interface
+- [softcut](https://github.com/monome/softcut-lib) | sample-cutting editor part of `matron`
+
+### tools
+- [norns disk image](https://github.com/monome/norns-image) | raspbian-based disk image
+- [monome linux kernel](https://github.com/monome/linux/) | custom, monome-flavored linux kernel
+- [DIY shield instructions](https://github.com/monome/norns-shield) | the DIY open-source hardware variant
 
 ## acknowledgments
 
