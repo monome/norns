@@ -129,11 +129,15 @@ SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 -- @tparam number offset : additional offset in seconds
 SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dst,offset) end
 
--- FIXME: add docs
--- FIXME: adding 1 to the mode flag to account for (I assume) correction of base 1 to base 0 down the line (I'm not sure where). 
---        maybe this command should be set up as a regular 'if' then cast to an int ?
--- FIXME: consider a text flag rather than an integer flag
-SC.interpolation = function(i,mode) _norns.cut_param_ii("interpolation",i,mode+1) end
+-- set red & write interpolation
+-- possible mode values:
+--   0: no interpolation, no resampling
+--   1: no interpolation
+--   2: linear interpolation
+--   4: cubic interpolation
+-- @tparam int voice : voice index
+-- @tparam int mode : mode
+SC.interpolation = function(i,mode) _norns.cut_param_ii("interpolation",i,mode+1) end -- FIXME: adding 1 to the mode flag to account for (I assume) correction of base 1 to base 0 down the line (I'm not sure where). maybe this command should be set up as a regular 'if' then cast to an int ? or maybe using 0 was a bad idea ?
 
 --- set pre_filter cutoff frequency.
 --- @tparam int voice : voice index
