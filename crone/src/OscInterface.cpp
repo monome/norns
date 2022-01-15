@@ -479,6 +479,11 @@ void OscInterface::addServerMethods() {
         if (argc < 3) { return; }
         Commands::softcutCommands.post(Commands::Id::SET_CUT_VOICE_SYNC, argv[0]->i, argv[1]->i, argv[2]->f);
     });
+    
+    addServerMethod("/set/param/cut/interpolation", "ii", [](lo_arg **argv, int argc) {
+        if (argc < 2) { return; }
+        Commands::softcutCommands.post(Commands::Id::SET_CUT_INTERPOLATION, argv[0]->i, argv[1]->i);
+    });
 
     ///////////////////////////////////////////
     /// FIXME: fade curve calculations are now per-voice,

@@ -93,6 +93,7 @@ namespace crone {
             SET_CUT_RECPRE_SLEW_TIME,
             SET_CUT_RATE_SLEW_TIME,
             SET_CUT_VOICE_SYNC,
+            SET_CUT_INTERPOLATION,
             SET_CUT_BUFFER,
             NUM_COMMANDS,
         } Id;

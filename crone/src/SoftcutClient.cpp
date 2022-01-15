@@ -227,6 +227,10 @@ void crone::SoftcutClient::handleCommand(Commands::CommandPacket *p) {
 	clamp(idx_1, NumVoices-1);
 	cut.syncVoice(idx_0, idx_1, value);
 	break;
+    case Commands::Id::SET_CUT_INTERPOLATION:
+    //FIXME: check if idx_1 is a valid interpolation flag value
+	cut.setInterpolation(idx_0, idx_1);
+	break;
     case Commands::Id::SET_CUT_BUFFER:
 	clamp(idx_1, NumBuffers - 1);
 	cut.setVoiceBuffer(idx_0, buf[idx_1], BufFrames);

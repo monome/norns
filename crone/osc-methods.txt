@@ -64,6 +64,7 @@ osc methods:
  /set/param/cut/post_filter_br [if]
  /set/param/cut/post_filter_dry [if]
  /set/param/cut/voice_sync [iif]
+ /set/param/cut/interpolation [ii]
  /set/param/cut/pre_fade_window [if]
  /set/param/cut/rec_fade_delay [if]
  /set/param/cut/pre_fade_shape [if]

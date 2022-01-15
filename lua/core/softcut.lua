@@ -129,6 +129,9 @@ SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 -- @tparam number offset : additional offset in seconds
 SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dst,offset) end
 
+-- FIXME: add docs
+SC.interpolation = function(i,value) _norns.cut_param_ii("interpolation",i,value) end
+
 --- set pre_filter cutoff frequency.
 --- @tparam int voice : voice index
 --- @tparam number fc : cutoff frequency in Hz
