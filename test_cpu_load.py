@@ -1,4 +1,3 @@
-
 # quick and dirty process CPU sampling 
 # uses `top` in batch mode, so it is susceptible to usual caveats:
 
