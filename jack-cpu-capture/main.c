@@ -6,6 +6,7 @@
 #include <jack/jack.h>
 
 jack_client_t *client;
+static int nxruns = 0;
 
 static void signal_handler(int sig)
 {
@@ -18,9 +19,21 @@ void jack_shutdown(void *arg)
      exit(1);
 }
 
+int xrun_callback(void* arg) {
+    (void) arg;
+    nxruns++; 
+    return 0;
+}
+
+int get_xruns() { 
+    int y = nxruns;
+    nxruns = 0;
+    return y;
+}
+
 int main(int argc, char *argv[])
 {
-     jack_options_t options = JackNullOption;
+    jack_options_t options = JackNullOption;
     jack_status_t status;
      client = jack_client_open ("jack_cpu_capture", options, &status);
     if (client == NULL) {
@@ -33,6 +46,7 @@ int main(int argc, char *argv[])
     }
 
     jack_on_shutdown(client, jack_shutdown, 0);
+    jack_set_xrun_callback(client, &xrun_callback, 0);
 
     if (jack_activate(client)) {
         fprintf(stderr, "cannot activate client");
@@ -56,8 +70,9 @@ int main(int argc, char *argv[])
 
     long int p = (long int)(d*1000000.f);
 
+    printf("# load, xruns\n");
     for (int i=0; i<n; ++i) { 
-        printf("%f\n", jack_cpu_load(client));
+        printf("%f,\t%d\n", jack_cpu_load(client), get_xruns());
         usleep(p);
     }
     jack_client_close(client);
