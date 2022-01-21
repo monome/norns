@@ -3,8 +3,6 @@
 
 static crone::MixerClient *mixerClient;
 static crone::SoftcutClient *softcutClient;
-static Poll *vuPoll;
-static Poll *phasePoll;
 
 void crone_init(crone::MixerClient *m, crone::SoftcutClient *sc) {
   mixerClient = m;
@@ -12,13 +10,11 @@ void crone_init(crone::MixerClient *m, crone::SoftcutClient *sc) {
 }
 
 void crone_poll_start_vu() {
-  // FIXME
-  vuPoll->start();
+  mixerClient->getVuPoll()->start();
 }
 
 void crone_poll_stop_vu() {
-  // FIXME
-  vuPoll->stop();
+  mixerClient->getVuPoll()->stop();
 }
 
 void crone_cut_buffer_read_mono(const char *arg0, float arg1, float arg2,
@@ -160,7 +156,7 @@ void crone_cut_reset() {
 
   softcutClient->reset();
   for (int i = 0; i < crone::SoftcutClient::NumVoices; ++i) {
-    phasePoll->stop();
+    softcutClient->getPhasePoll()->stop();
   }
 }
 
@@ -172,9 +168,9 @@ void crone_set_param_cut_phase_offset(int arg0, float arg1) {
   softcutClient->setPhaseOffset(arg0, arg1);
 }
 
-void crone_poll_start_cut_phase() { phasePoll->start(); }
+void crone_poll_start_cut_phase() { softcutClient->getPhasePoll()->start(); }
 
-void crone_poll_stop_cut_phase() { phasePoll->stop(); }
+void crone_poll_stop_cut_phase() { softcutClient->getPhasePoll()->stop(); }
 
 void crone_tape_rec_open(const char *arg0) {
   mixerClient->openTapeRecord(arg0);

@@ -10,10 +10,11 @@
 #include "BufDiskWorker.h"
 #include "Bus.h"
 #include "Client.h"
+#include "Poll.h"
 #include "Utilities.h"
+
 #include "softcut/Softcut.h"
 #include "softcut/Types.h"
-
 
 namespace crone {
     class SoftcutClient: public Client<2, 2> {
@@ -49,7 +50,9 @@ namespace crone {
         // enabled flags
         bool enabled[NumVoices];
         softcut::phase_t quantPhase[NumVoices];
-	float bufDur;
+    	float bufDur;
+    
+        std::unique_ptr<Poll> phasePoll;
 
     private:
         void process(jack_nframes_t numFrames) override;
@@ -123,11 +126,11 @@ namespace crone {
             return cut.getQuantPhase(i);
         }
 
-	void setPhaseQuant(int i, softcut::phase_t q) {
+	    void setPhaseQuant(int i, softcut::phase_t q) {
             cut.setPhaseQuant(i, q);
         }
 
-	void setPhaseOffset(int i, float sec) {
+	    void setPhaseOffset(int i, float sec) {
             cut.setPhaseOffset(i, sec);
         }
 
@@ -137,7 +140,9 @@ namespace crone {
            return cut.getSavedPosition(i);
         }
 
-	void reset();
+	    void reset();
+
+        Poll* getPhasePoll() { return phasePoll.get(); }
 
     private:
         void clearBusses(size_t numFrames);

@@ -30,6 +30,18 @@ crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     }
     bufIdx[0] = BufDiskWorker::registerBuffer(buf[0], BufFrames);
     bufIdx[1] = BufDiskWorker::registerBuffer(buf[1], BufFrames);
+    
+    phasePoll = std::make_unique<Poll>("softcut/phase");
+    phasePoll->setCallback([this](const char *path) {
+        for (int i = 0; i < this->getNumVoices(); ++i) {
+            if (this->checkVoiceQuantPhase(i)) {
+                ;;
+                // FIXME: nneds a matron function or callback to invoke directly
+                // lo_send(matronAddress, path, "if", i, softCutClient->getQuantPhase(i));
+            }
+        }
+    });
+    phasePoll->setPeriod(1);
 }
 
 void crone::SoftcutClient::process(jack_nframes_t numFrames) {

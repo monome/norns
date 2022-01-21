@@ -12,6 +12,7 @@
 #include "Tape.h"
 #include "Utilities.h"
 #include "PeakMeter.h"
+#include "Poll.h"
 
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
@@ -27,8 +28,6 @@ namespace  crone {
 
     public:
         MixerClient();
-        /// FIXME: the "commands" structure shouldn't really be necessary.
-        /// should be able to refactor most/all parameters for atomic access.
         // called from audio thread
         void handleCommand(Commands::CommandPacket *p) override;
     private:
@@ -113,6 +112,8 @@ namespace  crone {
 
         PeakMeter inPeak[2];
         PeakMeter outPeak[2];
+        
+        std::unique_ptr<Poll> vuPoll;
 
     public:
         float getInputPeakPos(int ch) {
@@ -145,6 +146,10 @@ namespace  crone {
 
         void stopTapePlayback() {
             tape.reader.stop();
+        }
+
+        Poll* getVuPoll() { 
+            return vuPoll.get();
         }
 
     };
