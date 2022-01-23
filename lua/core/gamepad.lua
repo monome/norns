@@ -129,7 +129,7 @@ function gamepad.process(dev_name,typ,code,val)
 
   local event_key
   if event_code_type == "EV_ABS" then
-    local axis_evt = gamepad.code_2_keycode(event_code_type, code)
+    local axis_evt = gamepad.axis_code_2_keycode(code)
     local axis = gamepad.direction_event_code_type_to_axis(axis_evt)
 
     local sign = val
@@ -224,6 +224,20 @@ end
 function gamepad.code_2_button(dev_name,code)
   local code_2_button = tab.invert(gamepad.model[dev_name].button)
   return code_2_button[code]
+end
+
+function gamepad.axis_code_2_keycode(code)
+  local mapping = {
+    [0x00] = 'ABS_X',
+    [0x01] = 'ABS_Y',
+    [0x02] = 'ABS_Z',
+    [0x03] = 'ABS_RX',
+    [0x04] = 'ABS_RY',
+    [0x05] = 'ABS_RZ',
+    [0x10] = 'ABS_HAT0X',
+    [0x11] = 'ABS_HAT0Y',
+  }
+  return mapping[code]
 end
 
 --- Returns event key name associated w/ key code
