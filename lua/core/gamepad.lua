@@ -226,21 +226,8 @@ function gamepad.code_2_button(dev_name,code)
   return code_2_button[code]
 end
 
-function gamepad.axis_code_2_keycode(code)
-  local mapping = {
-    [0x00] = 'ABS_X',
-    [0x01] = 'ABS_Y',
-    [0x02] = 'ABS_Z',
-    [0x03] = 'ABS_RX',
-    [0x04] = 'ABS_RY',
-    [0x05] = 'ABS_RZ',
-    [0x10] = 'ABS_HAT0X',
-    [0x11] = 'ABS_HAT0Y',
-  }
-  return mapping[code]
-end
-
 --- Returns event key name associated w/ key code
+-- this is not lightweight so should only be used in debug statements
 function gamepad.code_2_keycode(event_code_type, code)
   for k, v in pairs(hid_events.codes) do
     if tonumber(v) == code then
@@ -253,6 +240,21 @@ end
 
 function gamepad.event_code_type_2_key_prfx(event_code_type)
   return string.sub(event_code_type, -3)
+end
+
+--- Optimized version of `gamepad.code_2_keycode`
+function gamepad.axis_code_2_keycode(code)
+  local mapping = {
+    [0x00] = 'ABS_X',
+    [0x01] = 'ABS_Y',
+    [0x02] = 'ABS_Z',
+    [0x03] = 'ABS_RX',
+    [0x04] = 'ABS_RY',
+    [0x05] = 'ABS_RZ',
+    [0x10] = 'ABS_HAT0X',
+    [0x11] = 'ABS_HAT0Y',
+  }
+  return mapping[code]
 end
 
 
