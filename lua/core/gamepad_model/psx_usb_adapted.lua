@@ -2,6 +2,7 @@
 local g = {
   hid_name = 'DWC OTG Controller',
   alias = 'PSX (adapted)',
+
   button = {
     A = 0x121,
     B = 0x120,
@@ -15,13 +16,20 @@ local g = {
     START = 0x129,
   },
 
-  dpad_o_margin = 28, -- margin to handle noise on center position
-  dpad_resolution = 256,
-  dpad_invert = {
+  axis_invert = {
     Y = false,
     X = true,
     RZ = true,
     Z = false,
+  },
+
+  analog_axis_resolution = 256,
+  -- margin to handle noise on center position
+  analog_axis_o_magin = {
+    X = 28,
+    Y = 28,
+    RZ = 28,
+    Z = 28,
   },
 }
 

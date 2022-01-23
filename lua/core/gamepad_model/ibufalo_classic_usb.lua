@@ -2,6 +2,7 @@
 local g = {
   hid_name = 'USB,2-axis 8-button gamepad  ',
   alias = 'iBUFFALO Classic USB Gamepad',
+
   button = {
     A = 288,
     B = 289,
@@ -13,11 +14,16 @@ local g = {
     START = 295,
   },
 
-  dpad_o_margin = 2, -- margin to handle noise on center position
-  dpad_resolution = 256,
-  dpad_invert = {
-    Y = true,
-    X = false,
+  axis_invert = {
+    Y = false,
+    X = true,
+  },
+
+  analog_axis_resolution = 256,
+  -- margin to handle noise on center position
+  analog_axis_o_magin = {
+    X = 2,
+    Y = 2,
   },
 }
 

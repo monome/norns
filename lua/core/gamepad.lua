@@ -89,7 +89,7 @@ function gamepad.register_direction_state(dev_name, axis, sign, do_log_event)
       gamepad.state[s1] = false
       gamepad.state[s2] = false
     else
-      if gamepad.model[dev_name].dpad_invert[axis] then
+      if gamepad.model[dev_name].axis_invert[axis] then
         sign = sign * - 1
       end
       if sign > 0 then
@@ -138,7 +138,7 @@ function gamepad.process(dev_name,typ,code,val)
       local is_analog = gamepad.is_direction_event_code_analog(axis_evt)
 
       if is_analog then
-        local reso = gamepad.model[dev_name].dpad_resolution
+        local reso = gamepad.model[dev_name].analog_axis_resolution
         local half_reso = (reso/2)
 
         if gamepad.is_analog_origin(dev_name, val) then
@@ -215,8 +215,8 @@ end
 --- Returns true if value for axis is around origin
 -- i.e. when joystick / d-pad is not actioned
 function gamepad.is_analog_origin(dev_name,value)
-  local resolution = gamepad.model[dev_name].dpad_resolution
-  local noize_margin = gamepad.model[dev_name].dpad_o_margin
+  local resolution = gamepad.model[dev_name].analog_axis_resolution
+  local noize_margin = gamepad.model[dev_name].analog_axis_o_margin
   return ( value >= ((resolution/2) - noize_margin) and value <= ((resolution/2) + noize_margin))
 end
 
