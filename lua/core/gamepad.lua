@@ -12,9 +12,9 @@ gamepad.model = require 'gamepad_model/index'
 --- button states
 gamepad.state = {}
 
-local debug_level = 1
--- cache to prevent spamming when val=0 (origin)
+local debug_level = 0
 
+-- cache to prevent spamming when val=0 (origin)
 local prev_dir = {
   X = 0,
   Y = 0,
