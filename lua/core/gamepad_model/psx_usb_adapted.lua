@@ -25,7 +25,7 @@ local g = {
 
   analog_axis_resolution = 256,
   -- margin to handle noise on center position
-  analog_axis_o_magin = {
+  analog_axis_o_margin = {
     X = 28,
     Y = 28,
     RZ = 28,

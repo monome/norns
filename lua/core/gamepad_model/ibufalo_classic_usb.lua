@@ -19,9 +19,11 @@ local g = {
     X = true,
   },
 
+  dpad_is_analog = true,
+
   analog_axis_resolution = 256,
   -- margin to handle noise on center position
-  analog_axis_o_magin = {
+  analog_axis_o_margin = {
     X = 2,
     Y = 2,
   },
