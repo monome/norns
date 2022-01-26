@@ -31,9 +31,16 @@ local prev_dir_v = {
 
 -- clear callbacks
 function gamepad.clear()
-  gamepad.dpad = function() end
-  gamepad.apad = function() end
-  gamepad.button = function() end
+  -- axis callbacks
+  -- - only directional pad
+  gamepad.dpad = function(axis, sign) end
+  -- - only analog pads
+  gamepad.apad = function(axis, val) end
+  -- - both
+  gamepad.axis = function(axis, sign) end
+
+  -- button press callback
+  gamepad.button = function(button_name, state) end
 end
 
 --- states shortcuts
@@ -136,12 +143,16 @@ function gamepad.process(dev_name,typ,code,val)
 
     if axis then
       local is_analog = gamepad.is_direction_event_code_analog(axis_evt)
+      local is_dpad = true
+      if is_analog and (not gamepad.model[dev_name].dpad_is_analog) then
+        is_dpad = false
+      end
 
       if is_analog then
         local reso = gamepad.model[dev_name].analog_axis_resolution
         local half_reso = (reso/2)
 
-        if gamepad.is_analog_origin(dev_name, val) then
+        if gamepad.is_analog_origin(dev_name, axis, val) then
           val = 0
         else
           val = val - half_reso
@@ -149,7 +160,7 @@ function gamepad.process(dev_name,typ,code,val)
 
         if val ~= prev_dir_v[axis] then
           prev_dir_v[axis] = val
-          if gamepad.apad then gamepad.apad(axis, val) end
+          if (not is_dpad) and gamepad.apad then gamepad.apad(axis, val) end
         end
 
         -- analog value count as a direction change IIF value > 2/3 of resolution
@@ -168,11 +179,18 @@ function gamepad.process(dev_name,typ,code,val)
 
       if sign ~= prev_dir[axis] then
         prev_dir[axis] = sign
-        -- menu dpad
-        if _menu.mode then _menu.dpad(axis, sign)
-          -- script dpad
-        elseif gamepad.dpad then gamepad.dpad(axis, sign) end
-      else
+
+        -- menu axis
+        if _menu.mode and _menu.axis then _menu.axis(axis, sign)
+          -- script axis
+        elseif gamepad.axis then gamepad.axis(axis, sign) end
+
+        if is_dpad then
+          -- menu dpad
+          if _menu.mode and _menu.dpad then _menu.dpad(axis, sign)
+            -- script dpad
+          elseif gamepad.dpad then gamepad.dpad(axis, sign) end
+        end
       end
 
     end
@@ -204,8 +222,9 @@ function gamepad.is_loggable_event(dev_name,event_code_type,code,val)
   end
   if event_code_type == "EV_ABS" then
     local axis_evt = gamepad.code_2_keycode(event_code_type, code)
+    local axis = gamepad.direction_event_code_type_to_axis(axis_evt)
     if gamepad.is_direction_event_code_analog(axis_evt) then
-      return not gamepad.is_analog_origin(dev_name,val)
+      return not gamepad.is_analog_origin(dev_name,axis,val)
     else
       return (val ~= 0)
     end
@@ -214,9 +233,12 @@ end
 
 --- Returns true if value for axis is around origin
 -- i.e. when joystick / d-pad is not actioned
-function gamepad.is_analog_origin(dev_name,value)
+function gamepad.is_analog_origin(dev_name,axis,value)
   local resolution = gamepad.model[dev_name].analog_axis_resolution
-  local noize_margin = gamepad.model[dev_name].analog_axis_o_margin
+  local noize_margin = gamepad.model[dev_name].analog_axis_o_margin[axis]
+  if noize_margin == nil then
+    noize_margin = 0
+  end
   return ( value >= ((resolution/2) - noize_margin) and value <= ((resolution/2) + noize_margin))
 end
 
