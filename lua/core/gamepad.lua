@@ -35,7 +35,7 @@ function gamepad.clear()
   -- - only directional pad
   gamepad.dpad = function(axis, sign) end
   -- - only analog pads
-  gamepad.apad = function(axis, val) end
+  gamepad.astick = function(axis, val) end
   -- - both
   gamepad.axis = function(axis, sign) end
 
@@ -160,7 +160,7 @@ function gamepad.process(dev_name,typ,code,val)
 
         if val ~= prev_dir_v[axis] then
           prev_dir_v[axis] = val
-          if (not is_dpad) and gamepad.apad then gamepad.apad(axis, val) end
+          if (not is_dpad) and gamepad.astick then gamepad.astick(axis, val) end
         end
 
         -- analog value count as a direction change IIF value > 2/3 of resolution
