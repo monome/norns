@@ -39,6 +39,13 @@ cd libmonome
 - add `/usr/local/lib` to library search paths. the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_LIBRARY_PATH` variable is deprecated, since it willl override binary-specific settings.)
 
 
+### desktop
+
+using the `desktop` build option has additional requirements:
+```
+sudo apt install libsdl2-dev
+```
+
 ## building norns
 
 ```
@@ -59,6 +66,7 @@ this should build several executables under `norns/build/<name>/`:
 
 (note that the `maiden` webserver/IDE is managed separately, in its own repository.)
 
+### supercollider 
 norns also uses some custom supercollider classes. thess files must be copied to the default location for user SC extensions; we provide a script to do so:
 
 ```
@@ -66,6 +74,17 @@ pushd sc
 ./install.sh
 popd
 ```
+
+### desktop
+
+for building on desktop, add the `--desktop` option to both `waf` steps (configure and build):
+
+```
+./waf configure --desktop
+./waf build --desktop
+```
+
+(NB: `waf` assumes `build` as the default command, which is why we can omit it above.)
 
 
 ## launching components
@@ -89,6 +108,10 @@ download to `~/maiden/` and untar
 
 execute with `./maiden.arm -debug -site ./app/build -data ~/norns/lua/`
 
+## launching on desktop / other platforms:
+
+when running norns on desktop computers or custom hardware platforms, you will want to provide `matron` with appropriate runtime configuration options using the `matronrc.lua` file. this should be copied to the user's home directory and customized there. see the comments in that file.
+
 ## docs
 
 if you want to generate the docs (using ldoc) first install:
@@ -103,3 +126,4 @@ to generate the docs:
 `ldoc .` in the root norns folder
 
 To read the documentation, point the browser window with Maiden loaded to [http://norns.local/doc](http://norns.local/doc) (or use IP address if this doesn't work).
+
