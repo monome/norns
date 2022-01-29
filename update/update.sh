@@ -20,8 +20,8 @@ sudo cp --remove-destination config/norns-matron.service /etc/systemd/system/nor
 sudo cp --remove-destination config/norns-watcher.service /etc/systemd/system/norns-watcher.service
 sudo systemctl enable norns-watcher
 
-# packages
-#sudo dpkg -i package/*.deb
+# packages -- libmonome
+sudo dpkg -i package/*.deb
 
 # norns-image
 #cd /home/we/norns-image
