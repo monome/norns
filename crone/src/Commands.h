@@ -57,7 +57,6 @@ namespace crone {
 
             // params
             SET_CUT_REC_FLAG,
-            SET_CUT_REC_ONCE,
             SET_CUT_PLAY_FLAG,
 
             SET_CUT_RATE,
