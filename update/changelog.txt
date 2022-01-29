@@ -1,3 +1,45 @@
+# 220129
+
+# norns 2.6.1
+
+- FIX intonation lib, make lamonte monotonic @catfact
+- NEW numerous improvements for desktop compilation @winder
+- NEW tabutil lib, add select_values @nattog
+- FIX softcut optimizations @catfact
+- FIX pset writing order @catfact
+- FIX mods, handle no matching @ngwese
+- FIX build options for desktop @catfact
+- NEW tabutil lib, add gather @ryanlaws
+- FIX ensure favorites exist prior to load @tyleretters
+- NEW password entry within SYSTEM menu @tehn
+- NEW watcher pw reset touch /boot/norns.txt @tehn
+- FIX verbose missing engine message @dndrks
+- NEW script rerun shortcut norns.rerun() @tyleretters
+- NEW lattice lib pattern delay @schollz
+- NEW sequinz lib peek @tyleretters
+- FIX screen message for jack fail @tehn
+- NEW musicutil roman numeral chord generation @dewb
+- FIX link adopt tempo when joining @dewb
+- NEW clock param to enable/disable link start/stop sync @dewb
+- NEW system update download progress @tehn
+- NEW tilt support for grids @okyeron
+- FIX screen png-display @tehn
+- FIX lattice lib patterns pulse in order based on id @schollz
+- NEW link transport activation from norns @schollz
+- FIX crow clock consistency @sixolet
+- FIX param name collision @dndrks
+- NEW CPU profiling tools @catfact
+
+# maiden 1.1.5
+
+- NEW full light / dark theme @dansimco
+- FIX various styling improvements and increased contrast
+
+# image
+
+- NEW update libmonome, improves grid stability @trentgill
+
+
 # 210927
 
 # norns 2.6.0
