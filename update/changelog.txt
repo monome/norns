@@ -1,4 +1,4 @@
-# 211228
+# 220129
 
 # norns 2.6.1
 
@@ -26,14 +26,18 @@
 - FIX screen png-display @tehn
 - FIX lattice lib patterns pulse in order based on id @schollz
 - NEW link transport activation from norns @schollz
+- FIX crow clock consistency @sixolet
+- FIX param name collision @dndrks
+- NEW CPU profiling tools @catfact
 
-# maiden
+# maiden 1.1.5
 
-- 
+- NEW full light / dark theme @dansimco
+- FIX various styling improvements and increased contrast
 
 # image
 
-- NEW update libmonome, improves grid stability
+- NEW update libmonome, improves grid stability @trentgill
 
 
 # 210927
