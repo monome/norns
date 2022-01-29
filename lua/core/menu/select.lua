@@ -77,6 +77,12 @@ m.key = function(n,z)
   elseif n==3 and z==1 then
     -- return if the current "file" is the split between favorites and all scripts
     if m.list[m.pos+1].file == nil then return end
+    -- highlight a random script on the list
+    if m.alt then
+      m.pos = math.random(m.len-1)
+      _menu.redraw()
+      return
+    end
     -- make sure the file still exists
     local previewfile = m.list[m.pos+1].file
     if util.file_exists(previewfile) then
