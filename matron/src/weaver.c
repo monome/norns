@@ -2518,17 +2518,17 @@ int _set_cut_param(lua_State *l) {
 int _set_cut_param_ii(lua_State *l) {
     lua_check_num_args(3);
     const char *s = luaL_checkstring(l, 1);
-    int voice = (int)luaL_checkinteger(l, 2) - 1;
-    float val = (int)luaL_checkinteger(l, 3) - 1;
-    o_set_cut_param_ii((char *)s, voice, val);
+    int a = (int)luaL_checkinteger(l, 2) - 1;
+    int b = (int)luaL_checkinteger(l, 3) - 1;
+    o_set_cut_param_ii((char *)s, a, b);
     return 0;
 }
 
 int _set_cut_param_iif(lua_State *l) {
     lua_check_num_args(4);
     const char *s = luaL_checkstring(l, 1);
-    int a = (int)luaL_checkinteger(l, 2);
-    int b = (int)luaL_checkinteger(l, 3);
+    int a = (int)luaL_checkinteger(l, 2) - 1;
+    int b = (int)luaL_checkinteger(l, 3) - 1;
     float val = (float)luaL_checknumber(l, 4);
     o_set_cut_param_iif((char *)s, a, b, val);
     return 0;

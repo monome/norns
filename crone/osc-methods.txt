@@ -44,6 +44,7 @@ osc methods:
  /set/param/cut/rec_level [if]
  /set/param/cut/pre_level [if]
  /set/param/cut/rec_flag [if]
+ /set/param/cut/rec_once [if]
  /set/param/cut/play_flag [if]
  /set/param/cut/rec_offset [if]
  /set/param/cut/position [if]

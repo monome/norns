@@ -118,6 +118,10 @@ function ParamSet:add(args)
     end
   end
 
+  if self.lookup[param.id] ~= nil then
+    error("paramset.add() error: id '"..param.id.."' is already used by another parameter")
+  end
+
   param.save = true
 
   table.insert(self.params, param)
@@ -457,6 +461,7 @@ function ParamSet:clear()
   self.count = 0
   self.action_read = nil 
   self.action_write = nil
+  self.lookup = {}
 end
 
 return ParamSet

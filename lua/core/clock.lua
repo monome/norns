@@ -270,13 +270,13 @@ function clock.add_params()
 
   -- executes crow sync
   clock.run(function()
-    local v = 0
     while true do
-      clock.sync(1/(2*params:get("clock_crow_out_div")))
+      clock.sync(1/params:get("clock_crow_out_div"))
       local crow_out = params:get("clock_crow_out")-1
       if crow_out > 0 then
-        crow.output[crow_out].volts=v
-        v = (v==0) and 10 or 0
+        crow.output[crow_out].volts = 10
+        clock.sleep(60/(2*clock.get_tempo()*params:get("clock_crow_out_div")))
+        crow.output[crow_out].volts = 0
       end
     end
   end)
