@@ -145,6 +145,7 @@ norns.try = function(f,msg)
   local handler = function (err) return err .. "\n" .. debug.traceback() end
   local status, err = xpcall(f, handler)
   if not status then
+     print("!!!!!: "..msg)
     norns.scripterror(msg)
     print(err)
   end
