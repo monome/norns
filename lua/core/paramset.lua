@@ -119,7 +119,7 @@ function ParamSet:add(args)
   end
 
   if self.lookup[param.id] ~= nil then
-    print("!!!!! error: parameter id collision")
+    print("!!!!! error: parameter id collision: "..param.id)
     error("paramset.add() error: id '"..param.id.."' is already used by another parameter")
   end
 
