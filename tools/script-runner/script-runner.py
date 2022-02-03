@@ -66,7 +66,6 @@ paths = glob.glob(f'{code}/**/*.lua', recursive=True)
 scripts = filter_script_paths(paths)
 
 scripts_ok = open('script_runner.ok.txt', 'a')
-scripts_param_err =open('script_runner.param_err.txt', 'a')
 scripts_other_err = open('script_runner.other_err.txt', 'a')
 
 def write_script_output(name, output):
@@ -98,12 +97,19 @@ def run_script(path):
     if err:
         if paramErr:
             print(f"{name}: param ID collision: {', '.join(ids)}")
-            scripts_param_err.write(f'{path}\n')            
+            
+            with open('script_runner.param_err.txt', 'a') as f:
+                f.write(f'{path}\n')            
+                f.close
         else:
             print(f"{name}: other error")
-            scripts_other_err.write(f'{path}\n')               
+            with open('script_runner.other_err.txt', 'a') as f:
+                f.write(f'{path}\n')            
+                f.close
     else:
-       scripts_ok.write(f'{path}\n')
+        with open('script_runner.ok.txt', 'a') as f:
+            f.write(f'{path}\n')            
+            f.close
 
 
 #run_script('/home/emb/dust/code/awake/awake.lua')
