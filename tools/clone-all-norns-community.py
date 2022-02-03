@@ -19,9 +19,7 @@ def clone_all(url, location):
         proj_url = entry['project_url']
         name = os.path.basename(proj_url)
         name = os.path.splitext(name)[0]
-        if name in blacklist:
-            continue
-        
+
         if os.path.exists(os.path.join(location, name)):
             print('repo exists; updating...')
             cmd = 'git pull'
