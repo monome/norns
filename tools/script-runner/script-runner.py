@@ -2,6 +2,7 @@ import os
 import glob
 import subprocess
 import time
+from pathlib import Path
 
 TIMEOUT_BOOT = 1
 TIMEOUT_SCRIPT = 1
@@ -13,8 +14,11 @@ def filter_script_paths(paths):
     res = list(filter(lambda p: not 'code/bowering' in p, res))
     res = list(filter(lambda p: not 'code/norns.online' in p, res))
     res = list(filter(lambda p: not 'code/we/' in p, res))
-    res = list(filter(lambda p: not 'code/monitor/sequencer' in p, res))
-    res = list(filter(lambda p: not 'code/shapes/' in p, res))
+
+    #------ test
+    #res = list(filter(lambda p: ('code/seaflex/' in p) or ('code/monitor' in p), res))
+    #------ 
+
     res.sort()
     return res
 
@@ -81,7 +85,13 @@ def run_script(proc, path):
     output = capture_output(proc, TIMEOUT_SCRIPT)
     if len(output) < 1:
         print(" !! no output from script! (process is hung?)")
-    write_script_output(name, output)
+        with open('script_runner.test_failed.txt', 'a') as f:
+            f.write(f'{path}\n')            
+            f.close
+            return
+    from pathlib import Path
+    parent = os.path.basename((Path(path).parent.absolute()))
+    write_script_output(f'{parent}.{name}', output)
     ids = []
     for line in output:
         print(line)
@@ -121,7 +131,7 @@ code = os.path.join(home, 'dust/code')
 paths = glob.glob(f'{code}/**/*.lua', recursive=True)
 scripts = filter_script_paths(paths)
 
-n = 50
+n = 20
 scripts_chunked = chunkup(scripts, n)
 print(scripts_chunked)
 
@@ -134,5 +144,12 @@ if True:
         for path in chunk:
             run_script(proc, path)
             print("\n---------------------------------------------------\n")
+
+        print("---------------------------------------------------\n")
+        print("---------------------------------------------------\n")
+        print("--- reboot!")    
+        print("---------------------------------------------------\n")
+        print("---------------------------------------------------\n")
+
         rude_shutdown()
         time.sleep(WAIT_BOOT)
