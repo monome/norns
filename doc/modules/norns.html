@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
 </ul>
 
 
@@ -52,7 +53,7 @@
   <li><a href="../modules/keyboard.html">keyboard</a></li>
   <li><a href="../modules/metro.html">metro</a></li>
   <li><a href="../modules/midi.html">midi</a></li>
-  <li><a href="../modules/norns.html">norns</a></li>
+  <li><strong>norns</strong></li>
   <li><a href="../modules/osc.html">osc</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
@@ -79,7 +80,7 @@
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
-  <li><strong>lib.sequins</strong></li>
+  <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
@@ -93,36 +94,55 @@
 
 <div id="content">
 
-<h1>Module <code>lib.sequins</code></h1>
-<p>sequins
- nestable tables with sequencing behaviours & control flow
- TODO i think ASL can be defined in terms of a sequins...</p>
-<p>
-<p> for the norns port, @tyleretters copy-pasta'd with no changes from:
- https://github.com/monome/crow/blob/34ce1e455f01fdef65a0d37aa97163b4cd14a115/lua/sequins.lua</p>
+<h1>Module <code>norns</code></h1>
+<p>System utilities</p>
+<p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#S.next">S.next (self)</a></td>
-	<td class="summary">control flow execution</td>
+	<td class="name" nowrap><a href="#none">none ()</a></td>
+	<td class="summary">do nothing.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#S.do_ctrl">S.do_ctrl (act)</a></td>
-	<td class="summary">control flow manipulation</td>
+	<td class="name" nowrap><a href="#blank">blank ()</a></td>
+	<td class="summary">draw a blank screen.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#S.step">S.step (self, s)</a></td>
-	<td class="summary">behaviour modifiers</td>
+	<td class="name" nowrap><a href="#shutdown">shutdown ()</a></td>
+	<td class="summary">shutdown</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#S.all">S.all (self)</a></td>
-	<td class="summary">helpers in terms of core</td>
+	<td class="name" nowrap><a href="#system_cmd">system_cmd (cmd, callback)</a></td>
+	<td class="summary">add cmd to queue</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#S.__call">S.__call (self, ...)</a></td>
-	<td class="summary">metamethods</td>
+	<td class="name" nowrap><a href="#system_glob">system_glob (pattern)</a></td>
+	<td class="summary">find pathnames matching a pattern</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rerun">rerun ()</a></td>
+	<td class="summary">rerun the current script</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#platform">platform</a></td>
+	<td class="summary">platform detection
+ 0 = UNKNOWN
+ 1 = OTHER
+ 2 = CM3 (norns)
+ 3 = PI3 (norns shield)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#is_norns">is_norns</a></td>
+	<td class="summary">true if we are running on norns (CM3)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#is_shield">is_shield</a></td>
+	<td class="summary">true if we are running on norns shield (PI3)</td>
 	</tr>
 </table>
 
@@ -134,17 +154,66 @@
 
     <dl class="function">
     <dt>
-    <a name = "S.next"></a>
-    <strong>S.next (self)</strong>
+    <a name = "none"></a>
+    <strong>none ()</strong>
     </dt>
     <dd>
-    control flow execution
+    do nothing.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "blank"></a>
+    <strong>blank ()</strong>
+    </dt>
+    <dd>
+    draw a blank screen.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "shutdown"></a>
+    <strong>shutdown ()</strong>
+    </dt>
+    <dd>
+    shutdown
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "system_cmd"></a>
+    <strong>system_cmd (cmd, callback)</strong>
+    </dt>
+    <dd>
+    add cmd to queue
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">self</span>
-
+        <li><span class="parameter">cmd</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         shell command to execute
+        </li>
+        <li><span class="parameter">callback</span>
+            <span class="types">optional <span class="type">func</span></span>
+         the callback will be called with the output of the
+ command after it completes. if the callback is nil, then print the output
+ instead.
         </li>
     </ul>
 
@@ -154,19 +223,62 @@
 
 </dd>
     <dt>
-    <a name = "S.do_ctrl"></a>
-    <strong>S.do_ctrl (act)</strong>
+    <a name = "system_glob"></a>
+    <strong>system_glob (pattern)</strong>
     </dt>
     <dd>
-    control flow manipulation
+    find pathnames matching a pattern
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">act</span>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
         </li>
     </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string,...}</a></span>
+        a table of matching pathnames
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rerun"></a>
+    <strong>rerun ()</strong>
+    </dt>
+    <dd>
+    rerun the current script
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "platform"></a>
+    <strong>platform</strong>
+    </dt>
+    <dd>
+    platform detection
+ 0 = UNKNOWN
+ 1 = OTHER
+ 2 = CM3 (norns)
+ 3 = PI3 (norns shield)
+
+
 
 
 
@@ -174,22 +286,13 @@
 
 </dd>
     <dt>
-    <a name = "S.step"></a>
-    <strong>S.step (self, s)</strong>
+    <a name = "is_norns"></a>
+    <strong>is_norns</strong>
     </dt>
     <dd>
-    behaviour modifiers
+    true if we are running on norns (CM3)
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-        </li>
-        <li><span class="parameter">s</span>
-
-        </li>
-    </ul>
 
 
 
@@ -197,42 +300,13 @@
 
 </dd>
     <dt>
-    <a name = "S.all"></a>
-    <strong>S.all (self)</strong>
+    <a name = "is_shield"></a>
+    <strong>is_shield</strong>
     </dt>
     <dd>
-    helpers in terms of core
+    true if we are running on norns shield (PI3)
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "S.__call"></a>
-    <strong>S.__call (self, ...)</strong>
-    </dt>
-    <dd>
-    metamethods
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-        </li>
-        <li><span class="parameter">...</span>
-
-        </li>
-    </ul>
 
 
 

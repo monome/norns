@@ -4,6 +4,8 @@
 -- external c functions are in the _norns table
 -- external callbacks in the norns table, which also includes management
 
+--- System utilities
+-- @module norns
 norns = {}
 
 local engine = require 'core/engine'
@@ -151,13 +153,10 @@ norns.try = function(f,msg)
   return status
 end
 
--- Null functions.
--- @section null
-
--- do nothing.
+--- do nothing.
 norns.none = function() end
 
--- blank screen.
+--- draw a blank screen.
 norns.blank = function()
   _norns.screen_clear()
   _norns.screen_update()
@@ -176,7 +175,7 @@ else
   norns.version.update = "000000"
 end
 
--- shutdown
+--- shutdown
 norns.shutdown = function()
   hook.system_pre_shutdown()
   print("SLEEP")
@@ -189,20 +188,28 @@ norns.shutdown = function()
   os.execute("sleep 0.5; sudo shutdown now")
 end
 
--- platform detection
+--- platform detection
 -- 0 = UNKNOWN
 -- 1 = OTHER
 -- 2 = CM3 (norns)
 -- 3 = PI3 (norns shield)
 norns.platform = _norns.platform()
+
+--- true if we are running on norns (CM3)
 norns.is_norns = norns.platform == 2
+
+--- true if we are running on norns shield (PI3)
 norns.is_shield = norns.platform == 3
 
 -- Util (system_cmd)
 local system_cmd_q = {}
 local system_cmd_busy = false
 
--- add cmd to queue
+--- add cmd to queue
+-- @tparam string cmd shell command to execute
+-- @tparam ?func callback the callback will be called with the output of the
+-- command after it completes. if the callback is nil, then print the output
+-- instead.
 norns.system_cmd = function(cmd, callback)
   table.insert(system_cmd_q, {cmd=cmd, callback=callback})
   if system_cmd_busy == false then
@@ -223,6 +230,10 @@ _norns.system_cmd_capture = function(cap)
   end
 end
 
+--- find pathnames matching a pattern
+-- @function system_glob
+-- @tparam string pattern
+-- @treturn {string,...} a table of matching pathnames
 norns.system_glob = _norns.system_glob
 
 -- audio reset
@@ -243,7 +254,7 @@ _post_startup = function()
    hook.system_post_startup()
 end
 
--- qol dev tools
+--- rerun the current script
 norns.rerun = function()
   norns.script.load(norns.state.script)
 end
