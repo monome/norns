@@ -10,6 +10,8 @@ def filter_script_paths(paths):
     res = list(filter(lambda p: not '/lib/' in p, paths))
     res = list(filter(lambda p: not 'bowering' in p, res))
     res = list(filter(lambda p: not 'norns.online' in p, res))
+    res = list(filter(lambda p: not '/we/' in p, res))
+    res = list(filter(lambda p: not '/monitor/sequencer' in p, res))
     res.sort()
     return res
 
@@ -42,14 +44,18 @@ def readline_timeout(proc, timeout=1.0):
         if (t1-t0) > timeout:
             return None
                
-def capture_output(proc, timeout=1):
+def capture_output(proc, timeout=1, maxtime=8):
     output = []
+    start = time.time()
     while True:
         proc.stdout.flush()
         line = readline_timeout(proc, 1)
         print(line)
         if line is not None:
             output.append(line)
+            now = time.time()
+            if (now-start) > maxtime:
+                break
         else:
             break
     return output
@@ -99,7 +105,7 @@ def run_script(path):
             print(f"{name}: param ID collision: {', '.join(ids)}")
             
             with open('script_runner.param_err.txt', 'a') as f:
-                f.write(f'{path}\n')            
+                f.write(f'{path} ({", ".join(ids)})\n')            
                 f.close
         else:
             print(f"{name}: other error")
@@ -111,28 +117,8 @@ def run_script(path):
             f.write(f'{path}\n')            
             f.close
 
-
-#run_script('/home/emb/dust/code/awake/awake.lua')
-
 print(f'processing {len(scripts)} scripts...')
 for script in scripts:
     run_script(script)
-
-# if len(scripts_ok) > 0:
-#     print('these scripts had parameter ID collisions:') 
-#     for script in scripts_param_err:
-#         print(f"    {script}")
-#     print("")
-
-# if len(scripts_ok) > 0:
-#     print('these scripts had other errors:')
-#     for script in scripts_other_err:
-#         print(f"    {script}")
-#     print("")
-
-# if len(scripts_ok) > 0:
-#     print('these scripts were OK:') 
-#     for script in scripts_ok:
-#         print(f"    {script}")
 
 os.system("pidof matron | xargs kill -9")
