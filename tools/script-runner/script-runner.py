@@ -3,15 +3,18 @@ import glob
 import subprocess
 import time
 
-TIMEOUT_BOOT = 8
-TIMEOUT_SCRIPT = 4
+TIMEOUT_BOOT = 1
+TIMEOUT_SCRIPT = 1
+WAIT_BOOT = 2
+WAIT_SHUTDOWN = 2
 
 def filter_script_paths(paths):
     res = list(filter(lambda p: not '/lib/' in p, paths))
-    res = list(filter(lambda p: not 'bowering' in p, res))
-    res = list(filter(lambda p: not 'norns.online' in p, res))
-    res = list(filter(lambda p: not '/we/' in p, res))
-    res = list(filter(lambda p: not '/monitor/sequencer' in p, res))
+    res = list(filter(lambda p: not 'code/bowering' in p, res))
+    res = list(filter(lambda p: not 'code/norns.online' in p, res))
+    res = list(filter(lambda p: not 'code/we/' in p, res))
+    res = list(filter(lambda p: not 'code/monitor/sequencer' in p, res))
+    res = list(filter(lambda p: not 'code/shapes/' in p, res))
     res.sort()
     return res
 
@@ -59,26 +62,14 @@ def capture_output(proc, timeout=1, maxtime=8):
         else:
             break
     return output
-        
-home = os.path.expanduser("~")
-exe = os.path.join(home, 'norns/build/matron/matron')
-code = os.path.join(home, 'dust/code')
 
-proc = start(exe)
-output = capture_output(proc, TIMEOUT_BOOT)
-#for line in output: print(line)
-
-paths = glob.glob(f'{code}/**/*.lua', recursive=True)
-scripts = filter_script_paths(paths)
-
-scripts_ok = open('script_runner.ok.txt', 'a')
-scripts_other_err = open('script_runner.other_err.txt', 'a')
 
 def write_script_output(name, output):
     with open(f"output/{name}.txt", "w") as f:
         f.write("\n".join(output))
 
-def run_script(path):
+def run_script(proc, path):
+    global TIMEOUT_SCRIPT
     name = os.path.basename(path)
     name = os.path.splitext(name)[0]
            
@@ -117,8 +108,31 @@ def run_script(path):
             f.write(f'{path}\n')            
             f.close
 
-print(f'processing {len(scripts)} scripts...')
-for script in scripts:
-    run_script(script)
+def rude_shutdown():
+    os.system("pidof matron | xargs kill -9")
+      
+def chunkup(l, n):
+    return [l[i:i + n] for i in range(0, len(l), n)]
 
-os.system("pidof matron | xargs kill -9")
+home = os.path.expanduser("~")
+exe = os.path.join(home, 'norns/build/matron/matron')
+code = os.path.join(home, 'dust/code')
+
+paths = glob.glob(f'{code}/**/*.lua', recursive=True)
+scripts = filter_script_paths(paths)
+
+n = 50
+scripts_chunked = chunkup(scripts, n)
+print(scripts_chunked)
+
+if True:
+    print(f'processing {len(scripts)} scripts...')
+    for chunk in scripts_chunked:
+        proc = start(exe)    
+        time.sleep(WAIT_SHUTDOWN)
+        output = capture_output(proc, TIMEOUT_BOOT)
+        for path in chunk:
+            run_script(proc, path)
+            print("\n---------------------------------------------------\n")
+        rude_shutdown()
+        time.sleep(WAIT_BOOT)
