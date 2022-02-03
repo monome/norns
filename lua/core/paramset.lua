@@ -26,6 +26,56 @@ local ParamSet = {
   sets = {}
 }
 
+
+-- utility hack
+local system_param_ids  =  {
+  comp_release = true,
+  monitor_level = true,
+  cut_input_eng = true,
+  comp_attack = true,
+  COMPRESSOR = true,
+  rev_cut_input = true,
+  rev_return_level = true,
+  tape_level = true,
+  reverb = true,
+  comp_post_gain = true,
+  rev_pre_delay = true,
+  clock_crow_out_div = true,
+  compressor = true,
+  cut_input_tape = true,
+  rev_lf_fc = true,
+  clock_crow_out = true,
+  REVERB = true,
+  rev_low_time = true,
+  comp_threshold = true,
+  rev_monitor_input = true,
+  LEVELS = true,
+  rev_hf_damping = true,
+  rev_eng_input = true,
+  input_level = true,
+  rev_tape_input = true,
+  clock_midi_out = true,
+  comp_pre_gain = true,
+  link_start_stop_sync = true,
+  softcut_level = true,
+  clock_reset = true,
+  link_quantum = true,
+  engine_level = true,
+  clock_tempo = true,
+  clock_source = true,
+  CLOCK = true,
+  output_level = true,
+  clock_crow_in_div = true,
+  rev_mid_time = true,
+  cut_input_adc = true,
+  comp_mix = true,
+  SOFTCUT = true,
+  monitor_mode = true,
+  headphone_gain = true,
+  comp_ratio = true
+}
+
+
 ParamSet.__index = ParamSet
 
 --- constructor.
@@ -119,7 +169,15 @@ function ParamSet:add(args)
   end
 
   if self.lookup[param.id] ~= nil then
-    error("paramset.add() error: id '"..param.id.."' is already used by another parameter")
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("!!!!! ERROR: parameter ID collision: ".. param.id)
+    print("! please contact the script maintainer - this will cause a load failure in future updates")
+    if system_param_ids[param.id] ~= nil then
+      print("! since this is a system param ID, i am refusing to clobber it")
+      return
+    else
+      print("! BEWARE! clobbering a script or mod param")
+    end
   end
 
   param.save = true
@@ -463,5 +521,6 @@ function ParamSet:clear()
   self.action_write = nil
   self.lookup = {}
 end
+
 
 return ParamSet
