@@ -88,7 +88,7 @@ def run_script(proc, path):
         with open('script_runner.test_failed.txt', 'a') as f:
             f.write(f'{path}\n')            
             f.close
-            return
+            return False
     from pathlib import Path
     parent = os.path.basename((Path(path).parent.absolute()))
     write_script_output(f'{parent}.{name}', output)
@@ -117,9 +117,13 @@ def run_script(proc, path):
         with open('script_runner.ok.txt', 'a') as f:
             f.write(f'{path}\n')            
             f.close
+    return True
 
-def rude_shutdown():
-    os.system("pidof matron | xargs kill -9")
+def shutdown(proc, rude=True):
+    if rude:
+        os.system(f'kill -9 {proc.pid}')
+    else:
+        write(proc, "q")
       
 def chunkup(l, n):
     return [l[i:i + n] for i in range(0, len(l), n)]
@@ -139,10 +143,18 @@ if True:
     print(f'processing {len(scripts)} scripts...')
     for chunk in scripts_chunked:
         proc = start(exe)    
-        time.sleep(WAIT_SHUTDOWN)
+        time.sleep(WAIT_BOOT)
         output = capture_output(proc, TIMEOUT_BOOT)
         for path in chunk:
-            run_script(proc, path)
+            res = run_script(proc, path)
+            if not res:
+                # no output after running the script.
+                # could mean it crashed the matron process or ????
+                # reboot the process and move on
+                shutdown(proc)
+                time.sleep(WAIT_SHUTDOWN)
+                proc = start(exe)    
+                time.sleep(WAIT_BOOT)
             print("\n---------------------------------------------------\n")
 
         print("---------------------------------------------------\n")
@@ -151,5 +163,5 @@ if True:
         print("---------------------------------------------------\n")
         print("---------------------------------------------------\n")
 
-        rude_shutdown()
-        time.sleep(WAIT_BOOT)
+        shutdown(proc)
+        time.sleep(WAIT_SHUTDOWN)
