@@ -4,7 +4,7 @@ local textentry = require 'textentry'
 local mSELECT = 0
 local mEDIT = 1
 local mPSET = 2
-local mPSETCONFIRM = 3
+local mPSETDELETE = 3
 local mMAP = 4
 local mMAPEDIT = 5
 
@@ -272,11 +272,11 @@ m.key = function(n,z)
         -- delete
       elseif m.ps_action == 3 then
         if pset[m.ps_pos+1] then
-          m.mode = mPSETCONFIRM
+          m.mode = mPSETDELETE
         end
       end
     end
-  elseif m.mode == mPSETCONFIRM then
+  elseif m.mode == mPSETDELETE then
     if n==2 and z==1 then
       m.mode = mPSET
     elseif n==3 and z==1 then
@@ -607,7 +607,7 @@ m.redraw = function()
         screen.text(line)
       end
     end
-  elseif m.mode == mPSETCONFIRM then
+  elseif m.mode == mPSETDELETE then
     screen.move(63,40)
     screen.level(15)
     screen.text_center("CONFIRM DELETE")
