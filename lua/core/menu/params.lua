@@ -610,7 +610,7 @@ m.redraw = function()
   elseif m.mode == mPSETDELETE then
     screen.move(63,40)
     screen.level(15)
-    screen.text_center("CONFIRM DELETE")
+    screen.text_center("DELETE PSET?")
   end
   screen.update()
 end
