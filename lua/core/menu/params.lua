@@ -4,8 +4,9 @@ local textentry = require 'textentry'
 local mSELECT = 0
 local mEDIT = 1
 local mPSET = 2
-local mMAP = 3
-local mMAPEDIT = 4
+local mPSETDELETE = 3
+local mMAP = 4
+local mMAPEDIT = 5
 
 local m = {
   pos = 0,
@@ -271,10 +272,17 @@ m.key = function(n,z)
         -- delete
       elseif m.ps_action == 3 then
         if pset[m.ps_pos+1] then
-          os.execute("rm "..pset[m.ps_pos+1].file)
-          init_pset()
+          m.mode = mPSETDELETE
         end
       end
+    end
+  elseif m.mode == mPSETDELETE then
+    if n==2 and z==1 then
+      m.mode = mPSET
+    elseif n==3 and z==1 then
+      os.execute("rm "..pset[m.ps_pos+1].file)
+      init_pset()
+      m.mode = mPSET
     end
   end
   _menu.redraw()
@@ -599,6 +607,10 @@ m.redraw = function()
         screen.text(line)
       end
     end
+  elseif m.mode == mPSETDELETE then
+    screen.move(63,40)
+    screen.level(15)
+    screen.text_center("DELETE PSET?")
   end
   screen.update()
 end
