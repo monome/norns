@@ -50,6 +50,7 @@ local function tape_exists(index)
 end
 
 local function read_tape_index()
+  os.execute("mkdir -p ".._path.audio.."tape/")
   tape = util.os_capture("ls ".._path.audio.."tape/", true)
   local t = {}
   for f in tape:gmatch("([^\n]+)") do
