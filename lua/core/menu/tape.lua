@@ -45,13 +45,13 @@ local function tape_exists(index)
   if type(index) == "number" then
     index = string.format("%04d",index)
   end
-  local filename = _path.audio.."tape/"..index..".wav"
+  local filename = _path.tape..index..".wav"
   return util.file_exists(filename)
 end
 
 local function read_tape_index()
-  os.execute("mkdir -p ".._path.audio.."tape/")
-  tape = util.os_capture("ls ".._path.audio.."tape/", true)
+  os.execute("mkdir -p ".._path.tape)
+  tape = util.os_capture("ls ".._path.tape, true)
   local t = {}
   for f in tape:gmatch("([^\n]+)") do
     fs = string.sub(f,1,4)
@@ -75,7 +75,7 @@ local function edit_filename(txt)
     _menu.redraw()
     return
   end
-  audio.tape_record_open(_path.audio.."tape/"..m.rec.file)
+  audio.tape_record_open(_path.tape..m.rec.file)
   m.rec.sel = TAPE_REC_START
   m.rec.pos_tick = 0
   tape_rec_counter.time = 0.25
