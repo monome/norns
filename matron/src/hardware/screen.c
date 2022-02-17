@@ -383,6 +383,30 @@ void screen_aa(int s) {
     cairo_font_options_destroy(font_options);
 }
 
+void screen_gamma(double g) {
+    CHECK_CR
+    if (g < 0.0) {
+        g=0;
+    }
+
+    uint8_t grayscale_table[16];
+    double max_grayscale = 112.0; // Based on linear grayscale table maxing at 112 by default.
+    for (int level = 0; level <= 15; level++) {
+        double grayscale = (level/15)^g * max_grayscale;
+        grayscale_table[level] = (uint8_t) ((grayscale > max_grayscale) ? max_grayscale : grayscale);
+    }
+
+    char s[80];
+    char cmd[80 + 38];
+    sprintf(s, "%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x",
+            grayscale_table[ 0], grayscale_table[ 1], grayscale_table[ 2], grayscale_table[ 3],
+            grayscale_table[ 4], grayscale_table[ 5], grayscale_table[ 6], grayscale_table[ 7],
+            grayscale_table[ 8], grayscale_table[ 9], grayscale_table[10], grayscale_table[11],
+            grayscale_table[12], grayscale_table[13], grayscale_table[14], grayscale_table[15]);
+    sprintf(cmd, "echo %s > /sys/class/graphics/fb0/gamma", s);
+    system(cmd);
+}
+
 void screen_level(int z) {
     CHECK_CR
     if(z<0)
