@@ -36,6 +36,7 @@
 #include "event_custom.h"
 #include "hello.h"
 #include "i2c.h"
+#include "jack_client.h"
 #include "lua_eval.h"
 #include "metro.h"
 #include "oracle.h"
@@ -69,7 +70,7 @@ void w_handle_exec_code_line(char *line) {
 //--- declare lua->c glue
 
 // NB these static functions are prefixed  with '_'
-// to avoid shadowing similar-named extern functions in other moduels (like
+// to avoid shadowing similar-named extern functions in other modules (like
 // screen)
 // and also to distinguish from extern 'w_' functions.
 
@@ -253,10 +254,14 @@ static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
 static int _clock_get_tempo(lua_State *l);
 
+// audio performance
+static int _audio_get_cpu_load(lua_State *l);
+static int _audio_get_xrun_count(lua_State *l);
+
 // platform detection (CM3 vs PI3 vs OTHER)
 static int _platform(lua_State *l);
 
-// boilerplate: push a function to the stack, from field in global 'norns'
+// boilerplate: push a lua function to the lua stack, from named field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
     // fprintf(stderr, "calling norns.%s.%s\n", field, func);
     lua_getglobal(lvm, "_norns");
@@ -266,7 +271,10 @@ static inline void _push_norns_func(const char *field, const char *func) {
     lua_remove(lvm, -2);
 }
 
-#define lua_register_norns(n, f) (lua_pushcfunction(lvm, f), lua_setfield(lvm, -2, n))
+// boilerplate: push a C function to the lua stack
+static inline void lua_register_norns(const char *name, int (*f)(lua_State *l)) {
+    lua_pushcfunction(lvm, f), lua_setfield(lvm, -2, name);
+}
 
 ////////////////////////////////
 //// extern function definitions
@@ -472,6 +480,9 @@ void w_init(void) {
     lua_register_norns("clock_set_source", &_clock_set_source);
     lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
     lua_register_norns("clock_get_tempo", &_clock_get_tempo);
+
+    lua_register_norns("audio_get_cpu_load", &_audio_get_cpu_load);
+    lua_register_norns("audio_get_xrun_count", &_audio_get_xrun_count);
 
     // platform
     lua_register_norns("platform", &_platform);
@@ -1663,6 +1674,19 @@ int _clock_get_tempo(lua_State *l) {
     lua_pushnumber(l, clock_get_tempo());
     return 1;
 }
+
+int _audio_get_cpu_load(lua_State *l) {
+    lua_pushnumber(l, jack_client_get_cpu_load());
+    return 1;
+}
+
+int _audio_get_xrun_count(lua_State *l) {
+    lua_pushnumber(l, jack_client_get_xrun_count());
+    return 1;
+}
+
+//--------------------------------------------------
+//--- define lua handlers for system callbacks
 
 void w_handle_monome_add(void *mdev) {
     struct dev_monome *md = (struct dev_monome *)mdev;

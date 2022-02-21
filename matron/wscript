@@ -24,6 +24,7 @@ def build(bld):
         'src/events.c',
         'src/hello.c',
         'src/input.c',
+        'src/jack_client.c',
         'src/lua_eval.c',
         'src/main.c',
         'src/metro.c',
@@ -91,5 +92,5 @@ def build(bld):
         includes=matron_includes,
         use=matron_use,
         lib=matron_libs,
-        cflags=['-O3', '-Wall'],
+        cflags=['-O3', '-Wall', '-std=c11'],
         ldflags=['-Wl,-export-dynamic'])
