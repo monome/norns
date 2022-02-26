@@ -37,6 +37,53 @@ m.enc = function(n,delta)
   end
 end
 
+local xrun_warn_count = 0
+local draw_stats = function()
+  screen.level(1)
+  if norns.is_norns then
+    screen.move(127,55)
+    screen.text_right(norns.battery_current.."mA @ ".. norns.battery_percent.."%")
+    --screen.move(36,10)
+  end
+
+  screen.move(0,10) screen.text("cpu")
+  for i=1,4 do
+    screen.move(6+(i*14),10) 
+    screen.text(norns.cpu[i]..".")
+  end
+
+  screen.move(80,10)
+  local cpu = math.floor(_norns.audio_get_cpu_load())
+  screen.text(tostring(cpu)..'%')
+  local xruns = _norns.audio_get_xrun_count()
+  if xruns > 0 then
+    xrun_warn_count = 4
+  end
+  if xrun_warn_count > 0 then 
+    screen.move(98,10)
+    screen.level(xrun_warn_count * 3)
+    screen.text("!!!")
+    screen.level(1)
+    xrun_warn_count = xrun_warn_count - 1 
+  end
+
+  screen.move(127,10)
+  screen.text_right(norns.temp .. "c")
+
+  screen.move(0,20)
+  screen.text("disk " .. norns.disk .. "M")
+  screen.move(127,20)
+  if wifi.state > 0 then
+    screen.text_right(wifi.ip)
+  end
+  screen.move(127,45)
+  screen.text_right(norns.version.update)
+
+  screen.level(15)
+  screen.move(127,35)
+  screen.text_right(string.upper(norns.state.name))
+end
+
 m.redraw = function()
   screen.clear()
   _menu.draw_panel()
@@ -64,35 +111,9 @@ m.redraw = function()
     screen.move(0,15)
     screen.text(line)
   else
-    screen.level(1)
-    if norns.is_norns then
-      screen.move(127,55)
-      screen.text_right(norns.battery_current.."mA @ ".. norns.battery_percent.."%")
-      --screen.move(36,10)
-      --screen.text(norns.battery_current .. "mA")
-    end
-    screen.move(0,10) screen.text("cpu")
-    screen.move(30,10) screen.text_right(norns.cpu[1]..".")
-    screen.move(45,10) screen.text_right(norns.cpu[2]..".")
-    screen.move(60,10) screen.text_right(norns.cpu[3]..".")
-    screen.move(75,10) screen.text_right(norns.cpu[4]..".")
-    screen.move(127,10)
-    screen.text_right(norns.temp .. "c")
-
-    screen.move(0,20)
-    screen.text("disk " .. norns.disk .. "M")
-    screen.move(127,20)
-    if wifi.state > 0 then
-      screen.text_right(wifi.ip)
-    end
-    screen.move(127,45)
-    screen.text_right(norns.version.update)
-
-    screen.level(15)
-    screen.move(127,35)
-    screen.text_right(string.upper(norns.state.name))
+    draw_stats()
   end
-
+  
   if _menu.alt==true and m.pos==1 then
     screen.clear()
     screen.move(64,40)

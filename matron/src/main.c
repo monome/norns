@@ -24,6 +24,7 @@
 #include "hello.h"
 #include "i2c.h"
 #include "input.h"
+#include "jack_client.h"
 #include "metro.h"
 #include "osc.h"
 #include "platform.h"
@@ -45,8 +46,7 @@ void cleanup(void) {
     i2c_deinit();
     battery_deinit();
     stat_deinit();
-    clock_deinit();
-
+    jack_client_deinit();
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
 }
@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
     stat_init();
     i2c_init();
     osc_init();
+    jack_client_init();
     clock_init();
     clock_internal_init();
     clock_midi_init();
