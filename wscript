@@ -11,7 +11,7 @@ def get_version_hash():
         return ''
 
 def options(opt):
-    opt.load('compiler_c compiler_cxx boost')
+    opt.load('compiler_c compiler_cxx')
     opt.add_option('--desktop', action='store_true', default=False)
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
     opt.add_option('--profile-matron', action='store_true', default=False)
@@ -19,7 +19,7 @@ def options(opt):
     opt.recurse('maiden-repl')
 
 def configure(conf):
-    conf.load('compiler_c compiler_cxx boost')
+    conf.load('compiler_c compiler_cxx')
 
     conf.define('VERSION_MAJOR', 0)
     conf.define('VERSION_MINOR', 0)
@@ -51,8 +51,6 @@ def configure(conf):
         lib='monome',
         header_name='monome.h',
         uselib_store='LIBMONOME')
-
-    conf.check_boost()
 
     if conf.options.desktop:
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
