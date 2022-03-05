@@ -121,11 +121,35 @@ static int _screen_poke(lua_State *l);
 static int _screen_rotate(lua_State *l);
 static int _screen_translate(lua_State *l);
 static int _screen_set_operator(lua_State *l);
+
+// image
+typedef struct {
+    screen_surface_t *surface;
+    char *name;
+} _image_t;
+
+static luaL_Reg _image_methods[];
+static luaL_Reg _image_functions[];
+static const char *_image_class_name = "norns.image";
+
+static int _image_new(lua_State *l, void *surface, const char *name);
+static _image_t *_image_check(lua_State *l, int arg);
+static int _image_free(lua_State *l);
+static int _image_equals(lua_State *l);
+static int _image_tostring(lua_State *l);
+static int _image_extents(lua_State *l);
+static int _image_name(lua_State *l);
+static int _screen_load_png(lua_State *l);
+static int _screen_display_image(lua_State *l);
+static int _screen_display_image_region(lua_State *l);
+
 // i2c
 static int _gain_hp(lua_State *l);
+
 // osc
 static int _osc_send(lua_State *l);
 static int _osc_send_crone(lua_State *l);
+
 // midi
 static int _midi_send(lua_State *l);
 
@@ -276,6 +300,36 @@ static inline void lua_register_norns(const char *name, int (*f)(lua_State *l)) 
     lua_pushcfunction(lvm, f), lua_setfield(lvm, -2, name);
 }
 
+static void lua_register_norns_object(const char *class_name, const luaL_Reg *methods, const luaL_Reg *functions) {
+    // create the class metatable
+    luaL_newmetatable(lvm, class_name);
+    lua_pushstring(lvm, "__index");
+
+    // build the table which will become __index
+    lua_newtable(lvm);
+
+    // insert class name in __index to help debugging
+    lua_pushstring(lvm, "class");
+    lua_pushstring(lvm, class_name);
+    lua_rawset(lvm, -3);
+
+    // insert methods starting with _ in metatable, else __index table
+    for (const luaL_Reg *method = methods; method->name; method++) {
+        lua_pushstring(lvm, method->name);
+        lua_pushcfunction(lvm, method->func);
+        lua_rawset(lvm, method->name[0] == '_' ? -5 : -3);
+    }
+
+    // insert the built __index table into the metatable and pop the metatable
+    lua_rawset(lvm, -3);
+    lua_pop(lvm, 1);
+
+    // register any module level functions
+    for (const luaL_Reg *function = functions; function->name; function++) {
+        lua_register_norns(function->name, function->func);
+    }
+}
+
 ////////////////////////////////
 //// extern function definitions
 
@@ -410,6 +464,11 @@ void w_init(void) {
     lua_register_norns("screen_rotate", &_screen_rotate);
     lua_register_norns("screen_translate", &_screen_translate);
     lua_register_norns("screen_set_operator", &_screen_set_operator);
+
+    // image
+    lua_register_norns_object(_image_class_name, _image_methods, _image_functions);
+    lua_register_norns("screen_display_image", &_screen_display_image);
+    lua_register_norns("screen_display_image_region", &_screen_display_image_region);
 
     // analog output control
     lua_register_norns("gain_hp", &_gain_hp);
@@ -912,7 +971,7 @@ int _screen_display_png(lua_State *l) {
 /***
  * screen: peek
  * @function s_peek
- * @tparam integer x screen x position (0-127) 
+ * @tparam integer x screen x position (0-127)
  * @tparam integer y screen y position (0-63)
  * @tparam integer w rectangle width to grab
  * @tparam integer h rectangle height to grab
@@ -934,14 +993,14 @@ int _screen_peek(lua_State *l) {
             free(buf);
             return 1;
         }
-    } 
+    }
     return 0;
 }
 
 /***
  * screen: poke
  * @function s_poke
- * @tparam integer x screen x position (0-127) 
+ * @tparam integer x screen x position (0-127)
  * @tparam integer y screen y position (0-63)
  * @tparam integer w rectangle width to replace
  * @tparam integer h rectangle height to replace
@@ -1012,6 +1071,142 @@ int _screen_set_operator(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 }
+
+// clang-format off
+static luaL_Reg _image_methods[] = {
+    {"__gc", _image_free},
+    {"__tostring", _image_tostring},
+    {"__eq", _image_equals},
+    {"extents", _image_extents},
+    {"name", _image_name},
+    {NULL, NULL}
+};
+
+static luaL_Reg _image_functions[] = {
+    {"screen_load_png", _screen_load_png},
+    {NULL, NULL}
+};
+// clang-format on
+
+int _image_new(lua_State *l, void *surface, const char *name) {
+    _image_t *ud = (_image_t *)lua_newuserdata(l, sizeof(_image_t));
+    ud->surface = surface;
+    if (name != NULL) {
+        ud->name = strdup(name);
+    } else {
+        ud->name = NULL;
+    }
+    luaL_getmetatable(l, _image_class_name);
+    lua_setmetatable(l, -2);
+    return 1;
+}
+
+_image_t *_image_check(lua_State *l, int arg) {
+    void *ud = luaL_checkudata(l, arg, _image_class_name);
+    luaL_argcheck(l, ud != NULL, arg, "image object expected");
+    return (_image_t *)ud;
+}
+
+int _image_free(lua_State *l) {
+    _image_t *i = _image_check(l, 1);
+    screen_surface_free(i->surface);
+    if (i->name != NULL) {
+        free(i->name);
+    }
+    return 0;
+}
+
+int _image_tostring(lua_State *l) {
+    char repr[255];
+    _image_t *i = _image_check(l, 1);
+    snprintf(repr, sizeof(repr), "%s(%s) at %p", _image_class_name, i->name == NULL ? "<anonymous>" : i->name, i);
+    lua_pushstring(l, repr);
+    return 1;
+}
+
+int _image_equals(lua_State *l) {
+    _image_t *a = _image_check(l, 2);
+    _image_t *b = _image_check(l, 1);
+    lua_pushboolean(l, a->surface == b->surface);
+    return 1;
+}
+
+int _image_extents(lua_State *l) {
+    screen_surface_extents_t extents;
+    _image_t *i = _image_check(l, 1);
+    if (screen_surface_get_extents(i->surface, &extents)) {
+        lua_pushinteger(l, extents.width);
+        lua_pushinteger(l, extents.height);
+        return 2;
+    }
+    return 0;
+}
+
+int _image_name(lua_State *l) {
+    _image_t *i = _image_check(l, 1);
+    lua_pushstring(l, i->name);
+    return 1;
+}
+
+/***
+ * screen: load_png
+ * @function screen_load_png
+ * @tparam string string file path
+ */
+int _screen_load_png(lua_State *l) {
+    lua_check_num_args(1);
+    const char *name = luaL_checkstring(l, 1);
+    screen_surface_t *s = screen_surface_load_png(name);
+    if (s != NULL) {
+        return _image_new(l, s, name);
+    }
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: display_image
+ * @function screen_display_image
+ * @tparam image image object
+ * @tparam number x position
+ * @tparam number y position
+ */
+int _screen_display_image(lua_State *l) {
+    lua_check_num_args(3);
+    _image_t *i = _image_check(l, 1);
+    double x = luaL_checknumber(l, 2);
+    double y = luaL_checknumber(l, 3);
+    screen_surface_display(i->surface, x, y);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: display_image_region
+ * @function screen_display_image_region
+ * @tparam image image object
+ * @tparam number left inset within image
+ * @tparam number top inset within image
+ * @tparam number width from right within image
+ * @tparam number height from top within image
+ * @tparam number x position
+ * @tparam number y position
+ */
+int _screen_display_image_region(lua_State *l) {
+    lua_check_num_args(7);
+    _image_t *i = _image_check(l, 1);
+    double left = luaL_checknumber(l, 2);
+    double top = luaL_checknumber(l, 3);
+    double width = luaL_checknumber(l, 4);
+    double height = luaL_checknumber(l, 5);
+    double x = luaL_checknumber(l, 6);
+    double y = luaL_checknumber(l, 7);
+    screen_surface_display_region(i->surface, left, top, width, height, x, y);
+    lua_settop(l, 0);
+    return 0;
+}
+
+
 
 /***
  * headphone: set level
