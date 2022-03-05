@@ -167,28 +167,6 @@ handle_allocate_error:
 //>>>>>>> main
 */
 
-void screen_display_png(const char *filename, double x, double y) {
-    int img_w, img_h;
-    // fprintf(stderr, "loading: %s\n", filename);
-
-    image = cairo_image_surface_create_from_png(filename);
-    if (cairo_surface_status(image)) {
-        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
-        return;
-    }
-
-    img_w = cairo_image_surface_get_width(image);
-    img_h = cairo_image_surface_get_height(image);
-
-    cairo_save(cr);
-    cairo_set_source_surface(cr, image, x, y);
-    // cairo_paint (cr);
-    cairo_rectangle(cr, x, y, img_w, img_h);
-    cairo_fill(cr);
-    cairo_surface_destroy(image);
-    cairo_restore(cr);
-}
-
 void screen_init(void) {
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
     cr = cairo_create(surface);
@@ -503,6 +481,28 @@ double *screen_text_extents(const char *s) {
 extern void screen_export_png(const char *s) {
     CHECK_CR
     cairo_surface_write_to_png(surface, s);
+}
+
+void screen_display_png(const char *filename, double x, double y) {
+    int img_w, img_h;
+    // fprintf(stderr, "loading: %s\n", filename);
+
+    image = cairo_image_surface_create_from_png(filename);
+    if (cairo_surface_status(image)) {
+        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
+        return;
+    }
+
+    img_w = cairo_image_surface_get_width(image);
+    img_h = cairo_image_surface_get_height(image);
+
+    cairo_save(cr);
+    cairo_set_source_surface(cr, image, x, y);
+    // cairo_paint (cr);
+    cairo_rectangle(cr, x, y, img_w, img_h);
+    cairo_fill(cr);
+    cairo_surface_destroy(image);
+    cairo_restore(cr);
 }
 
 char *screen_peek(int x, int y, int *w, int *h) {
