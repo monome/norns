@@ -49,5 +49,5 @@ extern void screen_surface_free(screen_surface_t *s);
 extern screen_surface_t *screen_surface_load_png(const char *filename);
 extern bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e);
 extern void screen_surface_display(screen_surface_t *s, double x, double y);
-extern void screen_surface_display_region(screen_surface_t *s, double top, double right, double width, double height, double x, double y);
+extern void screen_surface_display_region(screen_surface_t *s, double left, double top, double width, double height, double x, double y);
 
