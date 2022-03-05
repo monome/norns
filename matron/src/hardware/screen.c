@@ -92,7 +92,7 @@ typedef struct _cairo_linuxfb_device {
     struct fb_fix_screeninfo fb_finfo;
 } cairo_linuxfb_device_t;
 
-// Destroy a cairo surface 
+// Destroy a cairo surface
 void cairo_linuxfb_surface_destroy(void *device) {
     cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
 
@@ -149,7 +149,7 @@ cairo_surface_t *cairo_linuxfb_surface_create() {
         goto handle_ioctl_error;
     }
 
-    // Create the cairo surface which will be used to draw to 
+    // Create the cairo surface which will be used to draw to
     surface = cairo_image_surface_create_for_data(
         device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
         cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
@@ -279,7 +279,7 @@ void screen_init(void) {
         fprintf(stderr, "  %d: %s\n", i, font_path[i]);
     }
 #endif
-    
+
     char filename[256];
 
     for (int i = 0; i < NUM_FONTS; i++) {
@@ -565,6 +565,54 @@ void screen_set_operator(int i) {
     if (0 <= i && i <= 28) {
         cairo_set_operator(cr, ops[i]);
     }
+}
+
+void screen_surface_free(screen_surface_t *s) {
+    CHECK_CR
+    cairo_surface_destroy((cairo_surface_t *)s);
+}
+
+screen_surface_t *screen_surface_load_png(const char *filename) {
+    CHECK_CRR
+    cairo_surface_t *image = cairo_image_surface_create_from_png(filename);
+    if (cairo_surface_status(image)) {
+        fprintf(stderr, "load_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
+        return NULL;
+    }
+    return (screen_surface_t *)image;
+}
+
+bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e) {
+    CHECK_CRR
+    cairo_surface_t *image = (cairo_surface_t *)s;
+    e->width = cairo_image_surface_get_width(image);
+    e->height = cairo_image_surface_get_height(image);
+    return true;
+}
+
+void screen_surface_display(screen_surface_t *s, double x, double y) {
+    CHECK_CR
+    cairo_surface_t *image = (cairo_surface_t *)s;
+    int width = cairo_image_surface_get_width(image);
+    int height = cairo_image_surface_get_height(image);
+
+    cairo_save(cr);
+    cairo_set_source_surface(cr, image, x, y);
+    cairo_rectangle(cr, x, y, width, height);
+    cairo_fill(cr);
+    cairo_restore(cr);
+}
+
+void screen_surface_display_region(screen_surface_t *s,
+                                   double left, double top, double width, double height,
+                                   double x, double y) {
+    CHECK_CR
+    cairo_surface_t *image = (cairo_surface_t *)s;
+    cairo_save(cr);
+    cairo_set_source_surface(cr, image, -left + x, -top + y);
+    cairo_rectangle(cr, x, y, width, height);
+    cairo_fill(cr);
+    cairo_restore(cr);
 }
 
 #undef CHECK_CR

@@ -303,11 +303,33 @@ _norns.screen_circle = function(x, y, r)
   _norns.screen_arc(x, y, r, 0, math.pi*2)
 end
 
---- display png.
+--- display png
 -- @param filename
 -- @tparam number x x position
 -- @tparam number y y position
-Screen.display_png = function(filename,x,y) _norns.screen_display_png(filename,x,y) end
+Screen.display_png = function(filename, x, y) _norns.screen_display_png(filename, x, y) end
+
+--- load png into an image buffer
+-- @param filename
+Screen.load_png = function(filename) return _norns.screen_load_png(filename) end
+
+--- display image buffer
+-- @param image
+-- @tparam number x x position
+-- @tparam number y y position
+Screen.display_image = function(image, x, y) _norns.screen_display_image(image, x, y) end
+
+--- display sub-region image buffer
+-- @param image
+-- @tparam number left left inset within image
+-- @tparam number top top inset within image
+-- @tparam number width width from right within image
+-- @tparam number height height from top within image
+-- @tparam number x x position
+-- @tparam number y y position
+Screen.display_image_region = function(image, left, top, width, height, x, y)
+  _norns.screen_display_image_region(image, left, top, width, height, x, y)
+end
 
 --- get a rectangle of screen content. returned buffer contains one byte (valued 0 - 15) per pixel, i.e. w * h bytes
 -- @tparam number x x position

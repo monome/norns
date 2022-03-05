@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 extern void screen_init(void);
 extern void screen_deinit(void);
@@ -37,3 +38,16 @@ extern void screen_poke(int x, int y, int w, int h, unsigned char *buf);
 extern void screen_rotate(double r);
 extern void screen_translate(double x, double y);
 extern void screen_set_operator(int i);
+
+typedef struct _screen_surface screen_surface_t;
+typedef struct {
+    int width;
+    int height;
+} screen_surface_extents_t;
+
+extern void screen_surface_free(screen_surface_t *s);
+extern screen_surface_t *screen_surface_load_png(const char *filename);
+extern bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e);
+extern void screen_surface_display(screen_surface_t *s, double x, double y);
+extern void screen_surface_display_region(screen_surface_t *s, double top, double right, double width, double height, double x, double y);
+
