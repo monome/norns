@@ -5,7 +5,7 @@
 -- mutate global used by matron to select engine
 engine.name = "PolySub"
 
-local glue = include('polysub')
+local glue = require('polysub')
 
 local Singleton = nil
 
