@@ -1,3 +1,18 @@
+# 220306
+
+included on image 220306
+
+# norns 2.7.0
+
+- NEW image surfaces for drawing, png loading, and reuse @ngwese
+- NEW core engines now included @tehn @catfact
+- FIX remove boost dep @catfact
+- NEW jack load monitor, xrun report @catfact
+- FIX tape index from file system, not index.txt @stvnrlly
+- NEW pset delete confirm @nattog
+- FIX param collision warning instead of error @catfact
+
+
 # 220129
 
 # norns 2.6.1
