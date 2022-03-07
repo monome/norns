@@ -125,6 +125,8 @@ static int _screen_set_operator(lua_State *l);
 // image
 typedef struct {
     screen_surface_t *surface;
+    screen_context_t *context;
+    const screen_context_t *previous_context;
     char *name;
 } _image_t;
 
@@ -132,14 +134,17 @@ static luaL_Reg _image_methods[];
 static luaL_Reg _image_functions[];
 static const char *_image_class_name = "norns.image";
 
-static int _image_new(lua_State *l, void *surface, const char *name);
+static int _image_new(lua_State *l, screen_surface_t *surface, const char *name);
 static _image_t *_image_check(lua_State *l, int arg);
+static int _image_context_focus(lua_State *l);
+static int _image_context_defocus(lua_State *l);
 static int _image_free(lua_State *l);
 static int _image_equals(lua_State *l);
 static int _image_tostring(lua_State *l);
 static int _image_extents(lua_State *l);
 static int _image_name(lua_State *l);
 static int _screen_load_png(lua_State *l);
+static int _screen_create_image(lua_State *l);
 static int _screen_display_image(lua_State *l);
 static int _screen_display_image_region(lua_State *l);
 
@@ -300,7 +305,7 @@ static inline void lua_register_norns(const char *name, int (*f)(lua_State *l)) 
     lua_pushcfunction(lvm, f), lua_setfield(lvm, -2, name);
 }
 
-static void lua_register_norns_object(const char *class_name, const luaL_Reg *methods, const luaL_Reg *functions) {
+static void lua_register_norns_class(const char *class_name, const luaL_Reg *methods, const luaL_Reg *functions) {
     // create the class metatable
     luaL_newmetatable(lvm, class_name);
     lua_pushstring(lvm, "__index");
@@ -313,11 +318,11 @@ static void lua_register_norns_object(const char *class_name, const luaL_Reg *me
     lua_pushstring(lvm, class_name);
     lua_rawset(lvm, -3);
 
-    // insert methods starting with _ in metatable, else __index table
+    // insert methods starting with __ in metatable, else __index table
     for (const luaL_Reg *method = methods; method->name; method++) {
         lua_pushstring(lvm, method->name);
         lua_pushcfunction(lvm, method->func);
-        lua_rawset(lvm, method->name[0] == '_' ? -5 : -3);
+        lua_rawset(lvm, strncmp("__", method->name, 2) == 0 ? -5 : -3);
     }
 
     // insert the built __index table into the metatable and pop the metatable
@@ -466,9 +471,7 @@ void w_init(void) {
     lua_register_norns("screen_set_operator", &_screen_set_operator);
 
     // image
-    lua_register_norns_object(_image_class_name, _image_methods, _image_functions);
-    lua_register_norns("screen_display_image", &_screen_display_image);
-    lua_register_norns("screen_display_image_region", &_screen_display_image_region);
+    lua_register_norns_class(_image_class_name, _image_methods, _image_functions);
 
     // analog output control
     lua_register_norns("gain_hp", &_gain_hp);
@@ -1077,6 +1080,8 @@ static luaL_Reg _image_methods[] = {
     {"__gc", _image_free},
     {"__tostring", _image_tostring},
     {"__eq", _image_equals},
+    {"_context_focus", _image_context_focus},
+    {"_context_defocus", _image_context_defocus},
     {"extents", _image_extents},
     {"name", _image_name},
     {NULL, NULL}
@@ -1084,13 +1089,18 @@ static luaL_Reg _image_methods[] = {
 
 static luaL_Reg _image_functions[] = {
     {"screen_load_png", _screen_load_png},
+    {"screen_create_image", _screen_create_image},
+    {"screen_display_image", _screen_display_image},
+    {"screen_display_iamge", _screen_display_image_region},
     {NULL, NULL}
 };
 // clang-format on
 
-int _image_new(lua_State *l, void *surface, const char *name) {
+int _image_new(lua_State *l, screen_surface_t *surface, const char *name) {
     _image_t *ud = (_image_t *)lua_newuserdata(l, sizeof(_image_t));
     ud->surface = surface;
+    ud->context = NULL;
+    ud->previous_context = NULL;
     if (name != NULL) {
         ud->name = strdup(name);
     } else {
@@ -1101,6 +1111,36 @@ int _image_new(lua_State *l, void *surface, const char *name) {
     return 1;
 }
 
+int _image_context_focus(lua_State *l) {
+    _image_t *i = _image_check(l, 1);
+    if (i->context == NULL) {
+        // lazily allocate drawing context
+        i->context = screen_context_new(i->surface);
+        if (i->context == NULL) {
+            luaL_error(l, "unable to create drawing context");
+        }
+    }
+    i->previous_context = screen_context_get_current();
+    screen_context_set(i->context);
+    lua_settop(l, 0);
+    return 0;
+}
+
+static void __image_context_defocus(_image_t *i) {
+    if (i->previous_context != NULL) {
+        screen_context_set(i->previous_context);
+        i->previous_context = NULL;
+    } else {
+        screen_context_set_primary();
+    }
+}
+
+int _image_context_defocus(lua_State *l) {
+    __image_context_defocus(_image_check(l, 1));
+    lua_settop(l, 0);
+    return 0;
+}
+
 _image_t *_image_check(lua_State *l, int arg) {
     void *ud = luaL_checkudata(l, arg, _image_class_name);
     luaL_argcheck(l, ud != NULL, arg, "image object expected");
@@ -1109,17 +1149,31 @@ _image_t *_image_check(lua_State *l, int arg) {
 
 int _image_free(lua_State *l) {
     _image_t *i = _image_check(l, 1);
+    // fprintf(stderr, "_image_free(%p): begin\n", i);
     screen_surface_free(i->surface);
+    if (i->context != NULL) {
+        if (i->context == screen_context_get_current()) {
+            // automatically defocus ourselves if we are the current drawing target
+            // fprintf(stderr, "_image_free(%p): auto defocus\n", i);
+            __image_context_defocus(i);
+        }
+        screen_context_free(i->context);
+    }
     if (i->name != NULL) {
         free(i->name);
     }
+    // fprintf(stderr, "_image_free(%p): end\n", i);
     return 0;
 }
 
 int _image_tostring(lua_State *l) {
     char repr[255];
     _image_t *i = _image_check(l, 1);
-    snprintf(repr, sizeof(repr), "%s(%s) at %p", _image_class_name, i->name == NULL ? "<anonymous>" : i->name, i);
+    if (i->name != NULL) {
+        snprintf(repr, sizeof(repr), "%s: %p (%s)", _image_class_name, i, i->name);
+    } else {
+        snprintf(repr, sizeof(repr), "%s: %p", _image_class_name, i);
+    }
     lua_pushstring(l, repr);
     return 1;
 }
@@ -1144,8 +1198,32 @@ int _image_extents(lua_State *l) {
 
 int _image_name(lua_State *l) {
     _image_t *i = _image_check(l, 1);
-    lua_pushstring(l, i->name);
-    return 1;
+    if (i->name) {
+        lua_pushstring(l, i->name);
+        return 1;
+    }
+    return 0;
+}
+
+/***
+ * screen: create_image
+ * @function screen_create_imate
+ * @tparam number width image width
+ * @tparam number height image height
+ */
+int _screen_create_image(lua_State *l) {
+    lua_check_num_args(2);
+    double width = luaL_checknumber(l, 1);
+    double height = luaL_checknumber(l, 2);
+    if (width < 1 || height < 1) {
+        luaL_error(l, "image dimensions too small; must be >= 1");
+    }
+    screen_surface_t *s = screen_surface_new(width, height);
+    if (s != NULL) {
+        return _image_new(l, s, NULL);
+    }
+    luaL_error(l, "image creation failed");
+    return 0;
 }
 
 /***
@@ -1160,7 +1238,7 @@ int _screen_load_png(lua_State *l) {
     if (s != NULL) {
         return _image_new(l, s, name);
     }
-    lua_settop(l, 0);
+    luaL_error(l, "image loading failed");
     return 0;
 }
 

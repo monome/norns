@@ -313,6 +313,11 @@ Screen.display_png = function(filename, x, y) _norns.screen_display_png(filename
 -- @param filename
 Screen.load_png = function(filename) return _norns.screen_load_png(filename) end
 
+--- create an image buffer
+-- @tparam number width image witdth
+-- @tparam number height image height
+Screen.create_image = function(width, height) return _norns.screen_create_image(width, height) end
+
 --- display image buffer
 -- @param image
 -- @tparam number x x position
@@ -329,6 +334,16 @@ Screen.display_image = function(image, x, y) _norns.screen_display_image(image, 
 -- @tparam number y y position
 Screen.display_image_region = function(image, left, top, width, height, x, y)
   _norns.screen_display_image_region(image, left, top, width, height, x, y)
+end
+
+--- direct screen drawing within the provide function into the image instead of the screen
+-- @tparam image image the image to draw into
+-- @tparam function func function called to perform drawing
+Screen.draw_to = function(image, func)
+  image:_context_focus()
+  local ok, result = pcall(func)
+  image:_context_defocus()
+  if not ok then print(result) else return result end
 end
 
 --- get a rectangle of screen content. returned buffer contains one byte (valued 0 - 15) per pixel, i.e. w * h bytes
