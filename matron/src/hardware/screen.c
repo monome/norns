@@ -9,6 +9,7 @@
 #include <cairo-ft.h>
 #include <fcntl.h>
 #include <linux/fb.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,6 +75,7 @@ static cairo_operator_t ops[NUM_OPS] = {
 static cairo_surface_t *surface;
 static cairo_surface_t *image;
 static cairo_t *cr;
+static cairo_t *cr_primary;
 
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
@@ -83,7 +85,7 @@ static double text_xy[2];
 
 void screen_init(void) {
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
-    cr = cairo_create(surface);
+    cr = cr_primary = cairo_create(surface);
 
     status = FT_Init_FreeType(&value);
     if (status != 0) {
@@ -481,9 +483,17 @@ void screen_set_operator(int i) {
     }
 }
 
-void screen_surface_free(screen_surface_t *s) {
-    CHECK_CR
-    cairo_surface_destroy((cairo_surface_t *)s);
+screen_surface_t *screen_surface_new(double width, double height) {
+    int w = (int)floor(width);
+    int h = (int)floor(height);
+    cairo_format_t format = CAIRO_FORMAT_ARGB32;
+    cairo_surface_t *image = cairo_image_surface_create(format, w, h);
+    cairo_status_t status = cairo_surface_status(image);
+    if (status == CAIRO_STATUS_SUCCESS) {
+        return (screen_surface_t *)image;
+    }
+    fprintf(stderr, "surface_new: %s (%d)\n", cairo_status_to_string(status), status);
+    return NULL;
 }
 
 screen_surface_t *screen_surface_load_png(const char *filename) {
@@ -494,6 +504,12 @@ screen_surface_t *screen_surface_load_png(const char *filename) {
         return NULL;
     }
     return (screen_surface_t *)image;
+}
+
+void screen_surface_free(screen_surface_t *s) {
+    CHECK_CR
+    // fprintf(stderr, "screen_surface_free(%p)\n", s);
+    cairo_surface_destroy((cairo_surface_t *)s);
 }
 
 bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e) {
@@ -527,6 +543,57 @@ void screen_surface_display_region(screen_surface_t *s,
     cairo_rectangle(cr, x, y, width, height);
     cairo_fill(cr);
     cairo_restore(cr);
+}
+
+screen_context_t *screen_context_new(screen_surface_t *target) {
+    cairo_surface_t *image = (cairo_surface_t *)target;
+    // NOTE: cairo_create increases the ref count on image which avoids a double
+    // free and allows the image and context to be freed in any order
+    cairo_t *context = cairo_create(image);
+    cairo_status_t status = cairo_status(context);
+    if (status == CAIRO_STATUS_SUCCESS) {
+        return (screen_context_t *)context;
+    }
+    fprintf(stderr, "context_new: %s (%d)\n", cairo_status_to_string(status), status);
+    return NULL;
+
+    return (screen_context_t *)context;
+}
+
+void screen_context_free(screen_context_t *context) {
+    // fprintf(stderr, "screen_context_free(%p)\n", context);
+    cairo_destroy((cairo_t *)context);
+}
+
+const screen_context_t *screen_context_get_current(void) {
+    return (const screen_context_t *)cr;
+}
+
+inline static void _screen_context_set(cairo_t *cr_incoming) {
+    // return early if attempting to assign the same context
+    if (cr_incoming == cr) {
+        return;
+    }
+
+    // manage ref count for contexts which aren't the primary context
+    if (cr_incoming != cr_primary) {
+        cairo_reference(cr_incoming);
+    }
+
+    // decrement ref count on current context if it is not the primary
+    if (cr != cr_primary) {
+        cairo_destroy(cr);
+    }
+
+    cr = cr_incoming;
+}
+
+void screen_context_set(const screen_context_t *context) {
+    _screen_context_set((cairo_t *)context);
+}
+
+void screen_context_set_primary(void) {
+    _screen_context_set(cr_primary);
 }
 
 #undef CHECK_CR
