@@ -117,25 +117,25 @@ static int handle_poll_data(const char *path, const char *types, lo_arg **argv,
 /*                              lo_arg **argv, int argc, */
 /*
 lo_message data, void *user_data); */
-static int handle_poll_io_levels(const char *path, const char *types,
-                                 lo_arg **argv, int argc, lo_message data,
-                                 void *user_data);
+// static int handle_poll_io_levels(const char *path, const char *types,
+//                                  lo_arg **argv, int argc, lo_message data,
+//                                  void *user_data);
 
-static int handle_poll_softcut_phase(const char *path, const char *types,
-                                     lo_arg **argv, int argc, lo_message data,
-                                     void *user_data);
+// static int handle_poll_softcut_phase(const char *path, const char *types,
+//                                      lo_arg **argv, int argc, lo_message data,
+//                                      void *user_data);
 
-static int handle_softcut_render(const char *path, const char *types,
-                                 lo_arg **argv, int argc, lo_message data,
-                                 void *user_data);
+// static int handle_softcut_render(const char *path, const char *types,
+//                                  lo_arg **argv, int argc, lo_message data,
+//                                  void *user_data);
 
-static int handle_softcut_position(const char *path, const char *types,
-                                   lo_arg **argv, int argc, lo_message data,
-                                   void *user_data);
+// static int handle_softcut_position(const char *path, const char *types,
+//                                    lo_arg **argv, int argc, lo_message data,
+//                                    void *user_data);
 
-static int handle_tape_play_state(const char *path, const char *types,
-                                  lo_arg **argv, int argc, lo_message data,
-                                  void *user_data);
+// static int handle_tape_play_state(const char *path, const char *types,
+//                                   lo_arg **argv, int argc, lo_message data,
+//                                   void *user_data);
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
@@ -206,14 +206,15 @@ void o_init(void) {
   lo_server_thread_add_method(st, "/poll/value", "if", handle_poll_value, NULL);
   // generic data blob
   lo_server_thread_add_method(st, "/poll/data", "ib", handle_poll_data, NULL);
+
   // dedicated path for audio I/O levels
-  lo_server_thread_add_method(st, "/poll/vu", "b", handle_poll_io_levels, NULL);
-  // softcut polls
-  lo_server_thread_add_method(st, "/poll/softcut/phase", "if",
-                              handle_poll_softcut_phase, NULL);
-  // tape reports
-  lo_server_thread_add_method(st, "/tape/play/state", "s",
-                              handle_tape_play_state, NULL);
+  // lo_server_thread_add_method(st, "/poll/vu", "b", handle_poll_io_levels, NULL);
+  // // softcut polls
+  // lo_server_thread_add_method(st, "/poll/softcut/phase", "if",
+  //                             handle_poll_softcut_phase, NULL);
+  // // // tape reports
+  // lo_server_thread_add_method(st, "/tape/play/state", "s",
+  //                             handle_tape_play_state, NULL);
 
   // softcut buffer content
   lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb",
@@ -622,6 +623,35 @@ void o_set_comp_param(const char *name, float value) {
   crone_set_compressor_param(name, value);
 }
 
+// internal poll callbacks
+void o_poll_callback_vu(uint8_t in0, uint8_t in1, uint8_t out0, uint8_t out1) {
+  quad_levels_t value;
+  value.bytes[0] = in0;
+  value.bytes[1] = in1;
+  value.bytes[2] = out0;
+  value.bytes[3] = out1;
+  union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
+  ev->poll_io_levels.value = value;
+}
+
+void o_poll_callback_softcut_phase(int voice, float phase) {
+union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
+   ev->softcut_phase.idx = voice;
+   ev->softcut_phase.value = phase;
+   event_post(ev);
+}
+
+void o_poll_callback_softcut_render(int idx, float sec_per_sample, float start, size_t size, float* data) {
+  union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
+  ev->softcut_render.idx = idx
+  ev->softcut_render.sec_per_sample = sec_per_sample;
+  ev->softcut_render.start = start;
+  ev->softcut_render.size = size;
+  ev->softcut_render.data = (float *)calloc(1, sz);
+  memcpy(ev->softcut_render.data, data, size);
+  event_post(ev);
+}
+
 /////////////////////
 //////////////////////
 
@@ -744,35 +774,35 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
   return 0;
 }
 
-int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
-                          int argc, lo_message data, void *user_data) {
-  assert(argc > 0);
-  union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
-  uint8_t *blobdata = (uint8_t *)lo_blob_dataptr((lo_blob)argv[0]);
-  int sz = lo_blob_datasize((lo_blob)argv[0]);
-  assert(sz == sizeof(quad_levels_t));
-  ev->poll_io_levels.value.uint = *((uint32_t *)blobdata);
-  event_post(ev);
-  return 0;
-}
+// int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv,
+//                           int argc, lo_message data, void *user_data) {
+//   assert(argc > 0);
+//   union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
+//   uint8_t *blobdata = (uint8_t *)lo_blob_dataptr((lo_blob)argv[0]);
+//   int sz = lo_blob_datasize((lo_blob)argv[0]);
+//   assert(sz == sizeof(quad_levels_t));
+//   ev->poll_io_levels.value.uint = *((uint32_t *)blobdata);
+//   event_post(ev);
+//   return 0;
+// }
 
-int handle_poll_softcut_phase(const char *path, const char *types,
-                              lo_arg **argv, int argc, lo_message data,
-                              void *user_data) {
-  assert(argc > 1);
-  union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
-  ev->softcut_phase.idx = argv[0]->i;
-  ev->softcut_phase.value = argv[1]->f;
-  event_post(ev);
-  return 0;
-}
+// int handle_poll_softcut_phase(const char *path, const char *types,
+//                               lo_arg **argv, int argc, lo_message data,
+//                               void *user_data) {
+//   assert(argc > 1);
+//   union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
+//   ev->softcut_phase.idx = argv[0]->i;
+//   ev->softcut_phase.value = argv[1]->f;
+//   event_post(ev);
+//   return 0;
+// }
 
-int handle_tape_play_state(const char *path, const char *types, lo_arg **argv,
-                           int argc, lo_message data, void *user_data) {
-  // assert(argc > 0);
-  // fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
-  return 0;
-}
+// int handle_tape_play_state(const char *path, const char *types, lo_arg **argv,
+//                            int argc, lo_message data, void *user_data) {
+//   // assert(argc > 0);
+//   // fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
+//   return 0;
+// }
 
 int handle_softcut_render(const char *path, const char *types, lo_arg **argv,
                           int argc, lo_message data, void *user_data) {

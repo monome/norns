@@ -10,22 +10,27 @@
 
 #include "Tape.h"
 
+#include "oracle.h"
+
 using namespace crone;
 
 MixerClient::MixerClient() : Client<6, 6>("crone") {
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([this](const char *path) {
-        char l[4];
-
-        l[0] = (uint8_t) (64 * this->getInputPeakPos(0));
-        l[1] = (uint8_t) (64 * this->getInputPeakPos(1));
-        l[2] = (uint8_t) (64 * this->getOutputPeakPos(0));
-        l[3] = (uint8_t) (64 * this->getOutputPeakPos(1));
-
-        // FIXME: needs matron function or callback to invoke directly
-        (void)l; 
+        // char l[4];
+        // l[0] = (uint8_t) (64 * this->getInputPeakPos(0));
+        // l[1] = (uint8_t) (64 * this->getInputPeakPos(1));
+        // l[2] = (uint8_t) (64 * this->getOutputPeakPos(0));
+        // l[3] = (uint8_t) (64 * this->getOutputPeakPos(1));
         // lo_blob bl = lo_blob_new(sizeof(l), l);
         // lo_send(matronAddress, path, "b", bl);
+
+        o_poll_callback_vu(
+            (uint8_t) (64 * this->getInputPeakPos(0)),
+            (uint8_t) (64 * this->getInputPeakPos(1)),
+            (uint8_t) (64 * this->getOutputPeakPos(0)),
+            (uint8_t) (64 * this->getOutputPeakPos(1))
+        );
     });
 
     vuPoll->setPeriod(50);

@@ -94,11 +94,11 @@ typedef enum {
 // a packed data structure for four volume levels
 // each channel is represented by unsigned byte with audio taper:
 // 255 == 0db
-// each step represents 0.25db, down to -60db
-// the
+// each step represents 0.25db, down to -60db;
+// from 0.001 to 0 the scaling is linear in amplitude.
 typedef union {
     uint8_t bytes[4];
-    uint32_t uint;
+    uint32_t packed;
 } quad_levels_t;
 
 struct event_common {
