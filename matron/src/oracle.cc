@@ -113,29 +113,6 @@ static int handle_poll_value(const char *path, const char *types, lo_arg **argv,
                              int argc, lo_message data, void *user_data);
 static int handle_poll_data(const char *path, const char *types, lo_arg **argv,
                             int argc, lo_message data, void *user_data);
-/* static int handle_poll_wave(const char *path, const char *types, */
-/*                              lo_arg **argv, int argc, */
-/*
-lo_message data, void *user_data); */
-// static int handle_poll_io_levels(const char *path, const char *types,
-//                                  lo_arg **argv, int argc, lo_message data,
-//                                  void *user_data);
-
-// static int handle_poll_softcut_phase(const char *path, const char *types,
-//                                      lo_arg **argv, int argc, lo_message data,
-//                                      void *user_data);
-
-// static int handle_softcut_render(const char *path, const char *types,
-//                                  lo_arg **argv, int argc, lo_message data,
-//                                  void *user_data);
-
-// static int handle_softcut_position(const char *path, const char *types,
-//                                    lo_arg **argv, int argc, lo_message data,
-//                                    void *user_data);
-
-// static int handle_tape_play_state(const char *path, const char *types,
-//                                   lo_arg **argv, int argc, lo_message data,
-//                                   void *user_data);
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
@@ -206,21 +183,6 @@ void o_init(void) {
   lo_server_thread_add_method(st, "/poll/value", "if", handle_poll_value, NULL);
   // generic data blob
   lo_server_thread_add_method(st, "/poll/data", "ib", handle_poll_data, NULL);
-
-  // dedicated path for audio I/O levels
-  // lo_server_thread_add_method(st, "/poll/vu", "b", handle_poll_io_levels, NULL);
-  // // softcut polls
-  // lo_server_thread_add_method(st, "/poll/softcut/phase", "if",
-  //                             handle_poll_softcut_phase, NULL);
-  // // // tape reports
-  // lo_server_thread_add_method(st, "/tape/play/state", "s",
-  //                             handle_tape_play_state, NULL);
-
-  // softcut buffer content
-  // lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb",
-  //                             handle_softcut_render, NULL);
-  // lo_server_thread_add_method(st, "/poll/softcut/position", "if",
-  //                             handle_softcut_position, NULL);
 
   lo_server_thread_start(st);
 }

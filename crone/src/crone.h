@@ -19,6 +19,10 @@ void crone_poll_start_vu();
 
 void crone_poll_stop_vu();
 
+//////////////////
+/// FIXME: rewrite signatures with useful parameter names / defaults!
+/// (signatures in definition are revised; copy them with a script/macro)
+
 inline void crone_set_level_adc(float arg0) {
   crone::Commands::mixerCommands.post(crone::Commands::Id::SET_LEVEL_ADC, arg0);
 }
@@ -385,9 +389,9 @@ void crone_cut_buffer_clear_fade_region_channel(int arg0, float arg1,
                                                 float arg2, float arg3,
                                                 float arg4);
 void crone_cut_buffer_copy_mono(int arg0, int arg1, float arg2, float arg3,
-                                float arg4, float arg5, float arg6, int arg7);
+                                float arg4, float arg5, float arg6, bool arg7);
 void crone_cut_buffer_copy_stereo(float arg0, float arg1, float arg2,
-                                  float arg3, float arg4, int arg5);
+                                  float arg3, float arg4, bool arg5);
 void crone_cut_buffer_render(int arg0, float arg1, float arg2, int arg3);
 void crone_cut_query_position(int arg0);
 
