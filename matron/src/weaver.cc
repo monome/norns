@@ -2671,7 +2671,7 @@ int _execute(lua_State *l) {
     sidecar_client_cmd(&buf, &size, cmd);
     lua_pushstring(l, buf);
     free(buf);
-    return 0;
+    return 1;
 }
 
 
