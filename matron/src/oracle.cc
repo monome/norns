@@ -635,15 +635,22 @@ void o_poll_callback_vu(uint8_t in0, uint8_t in1, uint8_t out0, uint8_t out1) {
 }
 
 void o_poll_callback_softcut_phase(int voice, float phase) {
-union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
-   ev->softcut_phase.idx = voice;
-   ev->softcut_phase.value = phase;
-   event_post(ev);
+  union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
+  ev->softcut_phase.idx = voice;
+  ev->softcut_phase.value = phase;
+  event_post(ev);
+}
+
+void o_poll_callback_softcut_position(int voice, float position) {
+  union event_data *ev = event_data_new(EVENT_SOFTCUT_POSITION);
+  ev->softcut_position.idx = voice;
+  ev->softcut_position.pos = position;
+  event_post(ev);
 }
 
 void o_poll_callback_softcut_render(int idx, float sec_per_sample, float start, size_t size, float* data) {
   union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
-  ev->softcut_render.idx = idx
+  ev->softcut_render.idx = idx;
   ev->softcut_render.sec_per_sample = sec_per_sample;
   ev->softcut_render.start = start;
   ev->softcut_render.size = size;
@@ -804,32 +811,32 @@ int handle_poll_data(const char *path, const char *types, lo_arg **argv,
 //   return 0;
 // }
 
-int handle_softcut_render(const char *path, const char *types, lo_arg **argv,
-                          int argc, lo_message data, void *user_data) {
-  assert(argc > 2);
-  union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
-  ev->softcut_render.idx = argv[0]->i;
-  ev->softcut_render.sec_per_sample = argv[1]->f;
-  ev->softcut_render.start = argv[2]->f;
+// int handle_softcut_render(const char *path, const char *types, lo_arg **argv,
+//                           int argc, lo_message data, void *user_data) {
+//   assert(argc > 2);
+//   union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
+//   ev->softcut_render.idx = argv[0]->i;
+//   ev->softcut_render.sec_per_sample = argv[1]->f;
+//   ev->softcut_render.start = argv[2]->f;
 
-  int sz = lo_blob_datasize((lo_blob)argv[3]);
-  float *samples = (float *)lo_blob_dataptr((lo_blob)argv[3]);
-  ev->softcut_render.size = sz / sizeof(float);
-  ev->softcut_render.data = (float *)calloc(1, sz);
-  memcpy(ev->softcut_render.data, samples, sz);
-  event_post(ev);
-  return 0;
-}
+//   int sz = lo_blob_datasize((lo_blob)argv[3]);
+//   float *samples = (float *)lo_blob_dataptr((lo_blob)argv[3]);
+//   ev->softcut_render.size = sz / sizeof(float);
+//   ev->softcut_render.data = (float *)calloc(1, sz);
+//   memcpy(ev->softcut_render.data, samples, sz);
+//   event_post(ev);
+//   return 0;
+// }
 
-int handle_softcut_position(const char *path, const char *types, lo_arg **argv,
-                            int argc, lo_message data, void *user_data) {
-  assert(argc > 1);
-  union event_data *ev = event_data_new(EVENT_SOFTCUT_POSITION);
-  ev->softcut_position.idx = argv[0]->i;
-  ev->softcut_position.pos = argv[1]->f;
-  event_post(ev);
-  return 0;
-}
+// int handle_softcut_position(const char *path, const char *types, lo_arg **argv,
+//                             int argc, lo_message data, void *user_data) {
+//   assert(argc > 1);
+//   union event_data *ev = event_data_new(EVENT_SOFTCUT_POSITION);
+//   ev->softcut_position.idx = argv[0]->i;
+//   ev->softcut_position.pos = argv[1]->f;
+//   event_post(ev);
+//   return 0;
+// }
 
 void lo_error_handler(int num, const char *m, const char *path) {
   fprintf(stderr, "liblo error %d in path %s: %s\n", num, path, m);

@@ -8,6 +8,8 @@
 #include "Commands.h"
 #include "SoftcutClient.h"
 
+#include "oracle.h"
+
 // clamp to upper bound (unsigned int)
 static inline void clamp(size_t &x, const size_t max) {
     if (x > max) { x = max; }
@@ -35,9 +37,7 @@ crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     phasePoll->setCallback([this](const char *path) {
         for (int i = 0; i < this->getNumVoices(); ++i) {
             if (this->checkVoiceQuantPhase(i)) {
-                ;;
-                // FIXME: nneds a matron function or callback to invoke directly
-                // lo_send(matronAddress, path, "if", i, softCutClient->getQuantPhase(i));
+                o_poll_callback_softcut_phase(i, softCutClient->getQuantPhase(i));
             }
         }
     });

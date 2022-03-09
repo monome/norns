@@ -9,7 +9,6 @@
  *
  * TODO:
  *  - callback for request completion?
- *  - use condvar for signaling, instead of sleep+poll
  */
 
 #ifndef CRONE_BUFMANAGER_H
@@ -27,7 +26,7 @@ namespace crone {
     // class for asynchronous management of mono audio buffers
     class BufDiskWorker {
     public:
-        typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
+        typedef std::function<void(float secPerSample, float start, size_t count, const float* samples)> RenderCallback;
 
     private:
         enum class JobType {

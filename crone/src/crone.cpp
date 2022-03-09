@@ -1,4 +1,6 @@
 #include "crone.h"
+#include "oracle.h"
+#include "MixerClient.h"
 #include "SoftcutClient.h"
 
 static crone::MixerClient *mixerClient;
@@ -133,19 +135,17 @@ void crone_cut_buffer_render(int arg0, float arg1, float arg2, int arg3) {
 
   softcutClient->renderSamples(
       ch, arg1, arg2, sampleCt,
-      [=](float secPerSample, float start, size_t count, float *samples) {
-        // FIXME: perform render callback directly.. maybe take arg to FP
-
-        // lo_blob bl = lo_blob_new(count * sizeof(float), samples);
-        // lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch,
-        //         secPerSample, start, bl);
+      [=](float secPerSample, float start, size_t count, const float *samples) {
+        o_poll_callback_softcut_render(ch, sec)
+        
       });
 }
 
 void crone_cut_query_position(int arg0) {
   int idx = arg0;
   float pos = softcutClient->getPosition(idx);
-  (void)pos;
+  
+  //(void)pos;
   // FIXME
   // lo_send(matronAddress, "/poll/softcut/position", "if", idx, pos);
 }

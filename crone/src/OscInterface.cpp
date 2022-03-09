@@ -798,8 +798,9 @@ void OscInterface::addServerMethods() {
 
         softCutClient->renderSamples(ch, argv[1]->f, argv[2]->f, sampleCt,
                                      [=](float secPerSample, float start, size_t count, float* samples) {
-                                         lo_blob bl = lo_blob_new(count * sizeof(float), samples);
-                                         lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
+                                        //  lo_blob bl = lo_blob_new(count * sizeof(float), samples);
+                                        //  lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
+                                        
                                      });
     });
 
