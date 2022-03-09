@@ -24,7 +24,6 @@ MixerClient::MixerClient() : Client<6, 6>("crone") {
             (uint8_t) (64 * this->getOutputPeakPos(1))
         );
     });
-
     vuPoll->setPeriod(50);
 }
 

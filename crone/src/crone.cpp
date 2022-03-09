@@ -87,7 +87,7 @@ void crone_cut_buffer_clear_region_channel(int ch, float start, float dur,
 
 void crone_cut_buffer_clear_fade_region(float arg0, float arg1, float arg2,
                                         float arg3) {
-  // FIXME: default args
+  // FIXME: default args?
   float dur = -1;
   float fadeTime = 0;
   float preserve = 0;
