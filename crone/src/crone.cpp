@@ -129,25 +129,18 @@ void crone_cut_buffer_copy_stereo(float arg0, float arg1, float arg2,
   softcutClient->copyBuffer(1, 1, arg0, arg1, dur, fadeTime, preserve, reverse);
 }
 
-void crone_cut_buffer_render(int arg0, float arg1, float arg2, int arg3) {
-  int sampleCt = 128;
-  int ch = arg0;
-
+void crone_cut_buffer_render(int ch, float start, float dur, int sampleCt = 128) {
   softcutClient->renderSamples(
-      ch, arg1, arg2, sampleCt,
+      ch, start, dur, sampleCt,
       [=](float secPerSample, float start, size_t count, const float *samples) {
-        o_poll_callback_softcut_render(ch, sec)
-        
-      });
+        o_poll_callback_softcut_render(ch, secPerSample, start, count, samples);
+      }
+  );
 }
 
-void crone_cut_query_position(int arg0) {
-  int idx = arg0;
+void crone_cut_query_position(int idx) {
   float pos = softcutClient->getPosition(idx);
-  
-  //(void)pos;
-  // FIXME
-  // lo_send(matronAddress, "/poll/softcut/position", "if", idx, pos);
+  o_poll_callback_softcut_position(idx, pos);
 }
 
 void crone_cut_reset() {

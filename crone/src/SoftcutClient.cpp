@@ -37,7 +37,7 @@ crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     phasePoll->setCallback([this](const char *path) {
         for (int i = 0; i < this->getNumVoices(); ++i) {
             if (this->checkVoiceQuantPhase(i)) {
-                o_poll_callback_softcut_phase(i, softCutClient->getQuantPhase(i));
+                o_poll_callback_softcut_phase(i, this->getQuantPhase(i));
             }
         }
     });
