@@ -261,7 +261,6 @@ static int _platform(lua_State *l);
 
 // boilerplate: push a function to the stack, from field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
-    // fprintf(stderr, "calling norns.%s.%s\n", field, func);
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, field);
     lua_remove(lvm, -2);
@@ -2065,7 +2064,6 @@ void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu,
 }
 
 void w_handle_poll_value(int idx, float val) {
-    // fprintf(stderr, "_handle_poll_value: %d, %f\n", idx, val);
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "poll");
     lua_remove(lvm, -2);
@@ -2089,10 +2087,6 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-/* void w_handle_poll_wave(int idx, uint8_t *data) { */
-/*   // TODO */
-/* } */
-
 // argument is an array of 4 bytes
 void w_handle_poll_io_levels(uint8_t *levels) {
     lua_getglobal(lvm, "_norns");
@@ -2105,7 +2099,6 @@ void w_handle_poll_io_levels(uint8_t *levels) {
 }
 
 void w_handle_poll_softcut_phase(int idx, float val) {
-    // fprintf(stderr, "_handle_poll_softcut_phase: %d, %f\n", idx, val);
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "softcut_phase");
     lua_remove(lvm, -2);

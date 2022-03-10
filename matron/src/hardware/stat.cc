@@ -31,9 +31,11 @@ void stat_init() {
         fprintf(stderr, "Unable to check temperature: vcgencmd not in path\n");
     }
 
+#if 1 // debugging...
     if (pthread_create(&p, NULL, stat_check, 0)) {
         fprintf(stderr, "STAT: Error creating thread\n");
     }
+#endif
 }
 
 void stat_deinit() {
@@ -92,9 +94,9 @@ void *stat_check(void *x) {
 
 
         // check cpu
-	size_t size=0;
+	    size_t size=0;
         char *buff = NULL;
-	sidecar_client_cmd(&buff, &size,"cat /proc/stat");
+	    sidecar_client_cmd(&buff, &size,"cat /proc/stat");
 
         if(size==0) {
             fprintf(stderr, "Error: cpu read\n");

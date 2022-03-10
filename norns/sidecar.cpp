@@ -29,9 +29,7 @@ static int sidecar_server_run_cmd(char **result, const char *cmd, size_t *sz) {
   // instead of getting a huge blob up front and resizing down
   char *buf = (char *)malloc(CMD_CAPTURE_BYTES);
   buf[0] = '\0';
-  fprintf(stderr, "reading process file...");
   size_t nb = fread(buf, 1, CMD_CAPTURE_BYTES - 1, f);
-  printf("done; captured %zu bytes\n", nb);
   buf[nb] = '\0';
   buf = (char *)realloc(buf, nb);
   *result = buf;
@@ -65,8 +63,6 @@ int sidecar_server_main() {
       fprintf(stderr, "empty command\n");
       return -1;
     }
-    printf("sidecar server rx; %d bytes\n", sz);
-    printf("running cmd: %s\n", cmd);
     char *result = NULL;
 
     sidecar_server_run_cmd(&result, cmd, &sz);
@@ -108,34 +104,25 @@ int sidecar_client_init() {
 }
 
 void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
-  fprintf(stderr, "sidecar client tx: %s\n", cmd);
   size_t sz = nn_send(cs.fd, cmd, strlen(cmd) + 1, 0);
   if (sz < 0) {
     fprintf(stderr, "sidecar client tx failure %s\n", nn_strerror(nn_errno()));
     return;
   }
-  fprintf(stderr, "receiving reply...\n");
   sz = nn_recv(cs.fd, &cs.buf, NN_MSG, 0);
   if (sz < 0) {
     fprintf(stderr, "nn_recv (sidecar client): %s\n", nn_strerror(nn_errno()));
     return;
   }
   if (sz > 0) {
-    fprintf(stderr, "sidecar client rx; bytes=%zu, txt = \n%s\n", sz, cs.buf);
     char *res = (char *)malloc(sz);
     memcpy(res, cs.buf, sz);
-    *result = res;
-    *size = sz;
-    nn_freemsg(cs.buf);
   } else {
-    fprintf(stderr, "received empty result\n");
     sz = 1;
     char *res = (char *)malloc(sz);
     res[0] = '\0';
-    *result = res;
-    *size = 1;
-    //???
-    nn_freemsg(cs.buf);
-    return;
   }
+  *result = res;
+  *size = sz;
+  nn_freemsg(cs.buf);
 }
