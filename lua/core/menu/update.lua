@@ -39,6 +39,7 @@ local function get_update()
   _menu.locked = true
   print("shutting down audio...")
   --_norns.execute("sudo systemctl stop norns-jack.service") -- disable audio
+  for i=1,6 do _norns.cut_enable(i,0) end -- disable softcut
   _norns.execute("sudo systemctl stop norns-crone.service") -- disable audio
   _norns.execute("sudo systemctl stop norns-sclang.service") -- disable audio
   print("clearing old updates...")

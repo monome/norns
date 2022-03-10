@@ -227,9 +227,8 @@ norns.system_glob = _norns.system_glob
 
 -- audio reset
 _norns.reset = function()
-  _norns.execute("sudo systemctl restart norns-sclang.service")
-  _norns.execute("sudo systemctl restart norns-crone.service")
-  _norns.execute("sudo systemctl restart norns-matron.service")
+  os.execute("sudo systemctl restart norns-sclang.service")
+  os.execute("sudo systemctl restart norns-main.service")
 end
 
 -- startup function will be run after I/O subsystems are initialized,
