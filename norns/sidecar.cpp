@@ -25,16 +25,18 @@ static int sidecar_server_run_cmd(char **result, const char *cmd, size_t *sz) {
     fprintf(stderr, "popen() failed\n");
     return -1;
   }
-  // FIXME: would be more efficition to allocate incrementally in chunks
+  // FIXME: would be more efficient to allocate incrementally in chunks
   // instead of getting a huge blob up front and resizing down
   char *buf = (char *)malloc(CMD_CAPTURE_BYTES);
   buf[0] = '\0';
+  fprintf(stderr, "reading process file...");
   size_t nb = fread(buf, 1, CMD_CAPTURE_BYTES - 1, f);
-  //printf("captured %zu bytes\n", nb);
+  printf("done; captured %zu bytes\n", nb);
   buf[nb] = '\0';
   buf = (char *)realloc(buf, nb);
   *result = buf;
   *sz = nb;
+  pclose(f);
   return 0;
 }
 
@@ -51,27 +53,26 @@ int sidecar_server_main() {
     return (-1);
   }
 
-  int nb;
+  size_t sz;
   for (;;) {
     char *cmd = NULL;
-    nb = nn_recv(fd, &cmd, NN_MSG, 0);
-    if (nb < 0) {
+    sz = nn_recv(fd, &cmd, NN_MSG, 0);
+    if (sz < 0) {
       fprintf(stderr, "nn_recv: %s\n", nn_strerror(nn_errno()));
       return -1;
     }
-    if (nb < 1) {
+    if (sz < 1) {
       fprintf(stderr, "empty command\n");
       return -1;
     }
-    size_t sz;
-    //printf("sidecar received %d bytes\n", nb);
-    //printf("running cmd: %s\n", cmd);
+    printf("sidecar server rx; %d bytes\n", sz);
+    printf("running cmd: %s\n", cmd);
     char *result = NULL;
 
     sidecar_server_run_cmd(&result, cmd, &sz);
 
+    nn_send(fd, result, sz, 0);
     if (sz > 0 && result != NULL) {
-      nn_send(fd, result, sz, 0);
       free(result);
     }
     nn_freemsg(cmd);
@@ -107,19 +108,20 @@ int sidecar_client_init() {
 }
 
 void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
+  fprintf(stderr, "sidecar client tx: %s\n", cmd);
   size_t sz = nn_send(cs.fd, cmd, strlen(cmd) + 1, 0);
   if (sz < 0) {
-    fprintf(stderr, "nn_send (sidecar client): %s\n", nn_strerror(nn_errno()));
+    fprintf(stderr, "sidecar client tx failure %s\n", nn_strerror(nn_errno()));
     return;
   }
-  //fprintf(stderr, "receiving reply...\n");
+  fprintf(stderr, "receiving reply...\n");
   sz = nn_recv(cs.fd, &cs.buf, NN_MSG, 0);
   if (sz < 0) {
     fprintf(stderr, "nn_recv (sidecar client): %s\n", nn_strerror(nn_errno()));
     return;
   }
   if (sz > 0) {
-    //printf("main rx; bytes=%zu, txt = \n%s\n", sz, cs.buf);
+    fprintf(stderr, "sidecar client rx; bytes=%zu, txt = \n%s\n", sz, cs.buf);
     char *res = (char *)malloc(sz);
     memcpy(res, cs.buf, sz);
     *result = res;
