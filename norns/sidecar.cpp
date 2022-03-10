@@ -129,6 +129,13 @@ void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
     nn_freemsg(cs.buf);
   } else {
     fprintf(stderr, "received empty result\n");
+    sz = 1;
+    char *res = (char *)malloc(sz);
+    res[0] = '\0';
+    *result = res;
+    *size = 1;
+    //???
+    nn_freemsg(cs.buf);
     return;
   }
 }
