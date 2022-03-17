@@ -49,5 +49,10 @@ def build(bld):
                  cxxflags=[
                      '-std=c++14',
                      '-O2',
-                     '-Wall'
+                     '-Wall',
+                     '-mcpu=cortex-a53',
+                     '-mtune=cortex-a53', 
+                     '-mfpu=neon-fp-armv8',
+                     '-mfloat-abi=hard',
+                     '-funsafe-math-optimizations'
                  ])
