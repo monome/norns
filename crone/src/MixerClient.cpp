@@ -4,6 +4,7 @@
 
 #include "MixerClient.h"
 #include "Commands.h"
+#include "Utilities.h"
 
 #include "effects/CompressorParams.h"
 #include "effects/ReverbParams.h"
@@ -15,7 +16,9 @@ using namespace crone;
 MixerClient::MixerClient() : Client<6, 6>("crone") {}
 
 void MixerClient::process(jack_nframes_t numFrames) {
+
     Commands::mixerCommands.handlePending(this);
+
 
     // copy inputs
     bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
