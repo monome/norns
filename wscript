@@ -60,7 +60,7 @@ def configure(conf):
 
     if conf.options.release:
         conf.define('NORNS_RELEASE', True)
-    conf.env.NORNS_DESKTOP = conf.options.release
+    conf.env.NORNS_RELEASE = conf.options.release
 
     conf.env.ENABLE_ABLETON_LINK = conf.options.enable_ableton_link
     conf.define('HAVE_ABLETON_LINK', conf.options.enable_ableton_link)
