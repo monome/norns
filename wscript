@@ -13,6 +13,7 @@ def get_version_hash():
 def options(opt):
     opt.load('compiler_c compiler_cxx')
     opt.add_option('--desktop', action='store_true', default=False)
+    opt.add_option('--release', action='store_true', default=False)
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
     opt.add_option('--profile-matron', action='store_true', default=False)
 
@@ -56,6 +57,10 @@ def configure(conf):
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
         conf.define('NORNS_DESKTOP', True)
     conf.env.NORNS_DESKTOP = conf.options.desktop
+
+    if conf.options.release:
+        conf.define('NORNS_RELEASE', True)
+    conf.env.NORNS_DESKTOP = conf.options.release
 
     conf.env.ENABLE_ABLETON_LINK = conf.options.enable_ableton_link
     conf.define('HAVE_ABLETON_LINK', conf.options.enable_ableton_link)
