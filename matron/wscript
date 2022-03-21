@@ -103,5 +103,5 @@ def build(bld):
         includes=matron_includes,
         use=matron_use,
         lib=matron_libs,
-        cflags=['-O3', '-Wall', '-std=c11'],
+        cflags=matron_cflags,
         ldflags=['-Wl,-export-dynamic'])
