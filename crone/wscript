@@ -25,7 +25,7 @@ def build(bld):
     ]
 
     crone_flags = [ '-std=c++14',
-                    '-O2',
+                    '-O3',
                     '-Wall'
                   ]
 
@@ -35,18 +35,9 @@ def build(bld):
             '-mtune=cortex-a53',
             '-mfpu=neon-fp-armv8',
             '-mfloat-abi=hard',
-            #'-faggressive-loop-optimizations',
-            # '-funconstrained-commons',
-            #'-funsafe-math-optimizations',
-            #'-finline-functions',
-            #'-funswitch-loops',
-            #'-fpredictive-commoning',
-            #'-fgcse-after-reload',
-            #'-ftree-vectorize',
-            #'-fvect-cost-model',
-            #'-ftree-partial-p',
-            #'-ffast-math',
-            #'-fgcse-sm',
+            '-funconstrained-commons',
+            '-ffast-math',
+            '-fgcse-sm',
         ]
 
     bld.program( features='c cxx cxxprogram',

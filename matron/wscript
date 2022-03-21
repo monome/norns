@@ -82,7 +82,7 @@ def build(bld):
         matron_use += ['LIBLINK_C']
 
     
-    matron_cflags=['-O3', '-Wall', '-std=c11'],
+    matron_cflags=['-O3', '-Wall', '-std=c11']
 
     if bld.env.NORNS_RELEASE:
         matron_cflags += [ 
