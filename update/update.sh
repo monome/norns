@@ -1,25 +1,33 @@
-# MUST CHECK VERSION FIRST
-# to ensure we're not trying to update an image pre 220306
-
 #!/usr/bin/env bash
 cd "$(dirname "$0")"
+
+# only update new disk image
+version=$(cat ~/version.txt)
+if [ $version -lt 220306 ];
+then
+	echo "needs new disk image, aborting."
+	exit;
+fi;
 
 # basic repo updates
 sudo rm -rf /home/we/norns
 cp -a norns /home/we/
-sudo rm -rf /home/we/maiden
-cp -a maiden /home/we/
+#sudo rm -rf /home/we/maiden
+#cp -a maiden /home/we/
 
 # version/changelog
 cp version.txt /home/we/
 cp changelog.txt /home/we/
 
+# rewrite journalctl
+sudo cp --remove-destination config/journald.service /etc/systemd/
+
+# rewrite rc.local
+sudo cp config/rc.local /etc/
+
 # scrub invisibles
 find ~/dust -name .DS_Store -delete
 find ~/dust -name ._.DS_Store -delete
-
-# logs
-sudo rm -rf /var/log/*
 
 # maiden project setup
 cd /home/we/maiden
