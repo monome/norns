@@ -1,3 +1,12 @@
+# 220321
+
+# norns 2.7.1
+
+- FIX softcut initialization glitch @catfact
+- FIX compilation optimization flags @catfact
+- NEW system log export @tehn
+
+
 # 220306
 
 included on image 220306
