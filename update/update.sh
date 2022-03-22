@@ -22,9 +22,6 @@ cp changelog.txt /home/we/
 # rewrite journalctl
 sudo cp --remove-destination config/journald.service /etc/systemd/
 
-# rewrite rc.local
-sudo cp config/rc.local /etc/
-
 # scrub invisibles
 find ~/dust -name .DS_Store -delete
 find ~/dust -name ._.DS_Store -delete
