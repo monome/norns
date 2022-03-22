@@ -12,8 +12,8 @@ fi;
 # basic repo updates
 sudo rm -rf /home/we/norns
 cp -a norns /home/we/
-#sudo rm -rf /home/we/maiden
-#cp -a maiden /home/we/
+sudo rm -rf /home/we/maiden
+cp -a maiden /home/we/
 
 # version/changelog
 cp version.txt /home/we/
