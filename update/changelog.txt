@@ -5,6 +5,13 @@
 - FIX softcut initialization glitch @catfact
 - FIX compilation optimization flags @catfact
 - NEW system log export @tehn
+- FIX polysub/polysub memleaks @catfact
+
+# maiden 1.1.6
+
+- FIX content type so .sc files can be edited in maiden once again (#219)
+@ngwese
+- FIX address linting errors (#216) @midouest
 
 
 # 220306
