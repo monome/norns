@@ -184,6 +184,8 @@ Engine_PolySub : CroneEngine {
 	free {
 		gr.free;
 		ctlBus.do({ arg bus, i; bus.free; });
+		mixBus.do({ arg bus, i; bus.free; });
+		
 	}
 
 } // class
