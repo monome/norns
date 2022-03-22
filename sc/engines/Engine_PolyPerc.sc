@@ -53,4 +53,8 @@ Engine_PolyPerc : CroneEngine {
 			pan = msg[1];
 		});
 	}
+
+	free { 
+		pg.free;
+	}
 }
