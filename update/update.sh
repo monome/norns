@@ -20,7 +20,7 @@ cp version.txt /home/we/
 cp changelog.txt /home/we/
 
 # rewrite journalctl
-sudo cp --remove-destination config/journald.service /etc/systemd/
+sudo cp config/journald.conf /etc/systemd/
 
 # scrub invisibles
 find ~/dust -name .DS_Store -delete
