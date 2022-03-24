@@ -107,6 +107,9 @@ function ParamSet:add_separator(name)
   self.count = self.count + 1
   self.group = self.group - 1
   self.hidden[self.count] = false
+  if name ~= nil then
+    self.lookup[name] = self.count
+  end
 end
 
 --- add parameter group.
