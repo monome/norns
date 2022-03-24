@@ -407,6 +407,7 @@ end
 -- parameters are visible by default.
 -- @param index
 function ParamSet:visible(index)
+  if type(index)=="string" then index = self.lookup[index] end
   return not self.hidden[index]
 end
 
