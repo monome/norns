@@ -794,7 +794,7 @@ int handle_poll_io_levels(const char *path, const char *types, lo_arg **argv, in
     uint8_t *blobdata = (uint8_t *)lo_blob_dataptr((lo_blob)argv[0]);
     int sz = lo_blob_datasize((lo_blob)argv[0]);
     assert(sz == sizeof(quad_levels_t));
-    ev->poll_io_levels.value.uint = *((uint32_t *)blobdata);
+    ev->poll_io_levels.value.packed = *((uint32_t *)blobdata);
     event_post(ev);
     return 0;
 }
