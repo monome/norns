@@ -2,8 +2,8 @@ local textentry= require 'textentry'
 
 local m = {
   pos = 1,
-  list = {"DEVICES > ", "WIFI >", "MODS >", "RESTART", "RESET", "UPDATE", "PASSWORD >"},
-  pages = {"DEVICES", "WIFI", "MODS", "RESTART", "RESET", "UPDATE", "PASSWORD"}
+  list = {"DEVICES > ", "WIFI >", "MODS >", "RESTART", "RESET", "UPDATE", "PASSWORD >", "LOG"},
+  pages = {"DEVICES", "WIFI", "MODS", "RESTART", "RESET", "UPDATE", "PASSWORD", "LOG"}
 }
 
 m.key = function(n,z)

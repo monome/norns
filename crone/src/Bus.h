@@ -6,6 +6,7 @@
 #define CRONE_BUS_H
 
 #include <cassert>
+
 #include "Utilities.h"
 
 namespace  crone {
@@ -216,8 +217,6 @@ namespace  crone {
                 buf[1][fr] += x*l * sinf(c);
             }
         }
-
-
     };
 
 

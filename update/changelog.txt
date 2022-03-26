@@ -1,3 +1,34 @@
+# 220321
+
+# norns 2.7.1
+
+- FIX softcut initialization glitch @catfact
+- FIX compilation optimization flags @catfact
+- NEW system log export @tehn
+- FIX polysub/polysub memleaks @catfact
+
+# maiden 1.1.6
+
+- FIX content type so .sc files can be edited in maiden once again (#219)
+@ngwese
+- FIX address linting errors (#216) @midouest
+
+
+# 220306
+
+included on image 220306
+
+# norns 2.7.0
+
+- NEW image surfaces for drawing, png loading, and reuse @ngwese
+- NEW core engines now included @tehn @catfact
+- FIX remove boost dep @catfact
+- NEW jack load monitor, xrun report @catfact
+- FIX tape index from file system, not index.txt @stvnrlly
+- NEW pset delete confirm @nattog
+- FIX param collision warning instead of error @catfact
+
+
 # 220129
 
 # norns 2.6.1

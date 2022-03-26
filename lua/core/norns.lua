@@ -125,7 +125,6 @@ _norns.stat = function(disk, temp, cpu, cpu1, cpu2, cpu3, cpu4)
   norns.cpu[4] = cpu4
 end
 
-
 -- management
 norns.script = require 'core/script'
 norns.state = require 'core/state'

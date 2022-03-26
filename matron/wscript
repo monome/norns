@@ -18,12 +18,13 @@ def build(bld):
         'src/hardware/platform.c',
         'src/hardware/screen.c',
         'src/hardware/stat.c',
-	'src/hardware/screen/fbdev.c',
+	    'src/hardware/screen/fbdev.c',
         'src/hardware/input/gpio.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',
         'src/input.c',
+        'src/jack_client.c',
         'src/lua_eval.c',
         'src/main.c',
         'src/metro.c',
@@ -80,6 +81,17 @@ def build(bld):
         matron_libs += ['stdc++']
         matron_use += ['LIBLINK_C']
 
+    
+    matron_cflags=['-O3', '-Wall', '-std=c11']
+
+    if bld.env.NORNS_RELEASE:
+        matron_cflags += [ 
+            '-mcpu=cortex-a53',
+            '-mtune=cortex-a53',
+            '-mfpu=neon-fp-armv8',
+            '-mfloat-abi=hard',
+        ]
+
     if bld.env.PROFILE_MATRON:
       bld.env.append_unique('CFLAGS', ['-pg'])
       bld.env.append_unique('CXXFLAGS', ['-pg'])
@@ -91,5 +103,5 @@ def build(bld):
         includes=matron_includes,
         use=matron_use,
         lib=matron_libs,
-        cflags=['-O3', '-Wall'],
+        cflags=matron_cflags,
         ldflags=['-Wl,-export-dynamic'])
