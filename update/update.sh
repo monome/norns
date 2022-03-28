@@ -23,6 +23,9 @@ cp changelog.txt /home/we/
 sudo cp config/journald.conf /etc/systemd/
 sudo mkdir -p /var/log/journal
 
+# update jack systemd
+sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
+
 # scrub invisibles
 find ~/dust -name .DS_Store -delete
 find ~/dust -name ._.DS_Store -delete
