@@ -15,7 +15,7 @@ OSC.__index = OSC
 -- @tparam string args : osc message args
 -- @tparam table from : a {host, port} table with the source address
 function OSC.event(path, args, from)
-  print("incoming osc message from", from, path)
+  print("incoming osc message from "..from[1]..":"..from[2].." at path "..path)
   tab.print(args)
 end
 
