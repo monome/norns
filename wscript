@@ -23,6 +23,7 @@ def options(opt):
     opt.add_option('--desktop', action='store_true', default=False)
     opt.add_option('--release', action='store_true', default=False)
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
+    opt.add_option('--enable-lua-cjson', action='store_true', default=True)
     opt.add_option('--profile-matron', action='store_true', default=False)
     # ensure doctest prints success lines by default
     opt.parser.set_defaults(testcmd='%s --success')
@@ -88,6 +89,9 @@ def configure(conf):
 
     conf.env.ENABLE_ABLETON_LINK = conf.options.enable_ableton_link
     conf.define('HAVE_ABLETON_LINK', conf.options.enable_ableton_link)
+
+    conf.env.ENABLE_LUA_CJSON = conf.options.enable_lua_cjson
+    conf.define('HAVE_LUA_CJSON', conf.options.enable_lua_cjson)
 
     conf.recurse('maiden-repl')
 

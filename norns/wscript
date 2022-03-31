@@ -102,6 +102,9 @@ def build(bld):
         matron_libs += ['stdc++']
         matron_use += ['LIBLINK_C']
 
+    if bld.env.ENABLE_LUA_CJSON:
+        matron_use.append('LUA_CJSON')
+
     if bld.env.PROFILE_MATRON:
         bld.env.append_unique('CXXFLAGS', ['-pg'])
         bld.env.append_unique('LDFLAGS', ['-pg'])
@@ -136,24 +139,11 @@ def build(bld):
         'nanomsg'
     ]
 
-    norns_cxxflags=['-std=c++14', '-O3', '-Wall', '-mfpu=neon']
-
-    if bld.env.NORNS_RELEASE:
-        norns_cxxflags += [ 
-            '-mcpu=cortex-a53',
-            '-mtune=cortex-a53',
-            '-mfpu=neon-fp-armv8',
-            '-mfloat-abi=hard',
-            '-funconstrained-commons',
-            '-ffast-math',
-            '-fgcse-sm',
-        ]
-
     norns_sources = norns_sources + matron_sources + crone_sources
     norns_includes = ['.'] + matron_includes + crone_includes
     norns_use = matron_use + crone_use
     norns_libs = norns_libs + matron_libs + crone_libs
-    norns_cxxflags = ['-std=c++14', '-O3', '-Wall']
+    norns_cxxflags = ['-std=c++14', '-O3', '-Wall', '-mfpu=neon']
 
     if bld.env.NORNS_RELEASE:
         norns_cxxflags += [

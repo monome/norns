@@ -31,6 +31,9 @@ paramset = require 'core/paramset'
 params = paramset.new()
 norns.pmap = require 'core/pmap'
 
+-- embedded global modules
+json = _json
+
 -- load menu
 require 'core/menu'
 
