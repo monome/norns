@@ -343,7 +343,7 @@ static void lua_register_cjson() {
 #if HAVE_LUA_CJSON
     luaopen_cjson(lvm);
     lua_pushvalue(lvm, -1);
-    lua_setglobal(lvm, "json");
+    lua_setglobal(lvm, "_json");
 #endif
 }
 
