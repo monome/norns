@@ -27,6 +27,9 @@ Script.clear = function()
     package.loaded['asl'] = nil
   end
 
+  -- reset embedded modules
+  json = _json
+
   -- script local state
   local state = { }
 

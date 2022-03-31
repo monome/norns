@@ -13,3 +13,6 @@
 [submodule "crone/lib/concurrentqueue"]
 	path = crone/lib/concurrentqueue
 	url = git@github.com:cameron314/concurrentqueue.git
+[submodule "third-party/lua-cjson"]
+	path = third-party/lua-cjson
+	url = https://github.com/mpx/lua-cjson.git
