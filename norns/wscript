@@ -97,6 +97,9 @@ def build(bld):
         matron_libs += ['stdc++']
         matron_use += ['LIBLINK_C']
 
+    if bld.env.ENABLE_LUA_CJSON:
+        matron_use.append('LUA_CJSON')
+
     if bld.env.PROFILE_MATRON:
         bld.env.append_unique('CXXFLAGS', ['-pg'])
         bld.env.append_unique('LDFLAGS', ['-pg'])

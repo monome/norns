@@ -21,6 +21,34 @@ def build_link(bld):
         ],
         name='LIBLINK_C')
 
+def build_cjson(bld):
+    bld.stlib(features='c cxx cxxstlib',
+        source=[
+            'lua-cjson/lua_cjson.c',
+            'lua-cjson/strbuf.c',
+            'lua-cjson/fpconv.c'
+        ],
+        target='lua-cjson',
+        includes=[
+            'lua-cjson',
+        ],
+        cflags=[
+            '-O3',
+            '-Wall',
+            '-Wimplicit-fallthrough=0', # NOTE: GCC7+ warns by default which results in Werror build failures
+            '-pedantic',
+        ],
+        defines=[
+            'NDEBUG'
+        ],
+        use=[
+            'LUA53'
+        ],
+        name='LUA_CJSON'
+    )
+
 def build(bld):
     if bld.env.ENABLE_ABLETON_LINK:
         build_link(bld)
+    if bld.env.ENABLE_LUA_CJSON:
+        build_cjson(bld)
