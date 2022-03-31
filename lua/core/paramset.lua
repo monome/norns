@@ -499,10 +499,10 @@ function ParamSet:read(filename, silent)
       end
     end
     if self.action_read ~= nil then 
-      if pset_number == nil then
-        self.action_read(filename,silent)
-      else
+      if pset_number ~= nil then
         self.action_read(filename,silent,pset_number)
+      else
+        self.action_read(filename,silent)
       end
     end
   else
@@ -522,7 +522,11 @@ function ParamSet:delete(filename, name, pset_number)
   print("pset >> delete: "..filename, name, pset_number)
   norns.system_cmd("rm "..filename)
   if self.action_delete ~= nil then
-    self.action_delete(filename, name, pset_number)
+    if pset_number ~= nil then
+      self.action_delete(filename, name, pset_number)
+    else
+      self.action_delete(filename, name)
+    end
   end
 end
 
