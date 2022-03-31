@@ -10,3 +10,6 @@
 [submodule "crone/lib/readerwriterqueue"]
 	path = crone/lib/readerwriterqueue
 	url = https://github.com/cameron314/readerwriterqueue.git
+[submodule "third-party/lua-cjson"]
+	path = third-party/lua-cjson
+	url = https://github.com/mpx/lua-cjson.git

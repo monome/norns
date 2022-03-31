@@ -47,6 +47,10 @@
 #include "system_cmd.h"
 #include "weaver.h"
 
+#if HAVE_LUA_CJSON
+int luaopen_cjson(lua_State *l);
+#endif
+
 // registered lua functions require the LVM state as a parameter.
 // but often we don't need it.
 // use pragma instead of casting to void as a workaround.
@@ -335,6 +339,14 @@ static void lua_register_norns_class(const char *class_name, const luaL_Reg *met
     }
 }
 
+static void lua_register_cjson() {
+#if HAVE_LUA_CJSON
+    luaopen_cjson(lvm);
+    lua_pushvalue(lvm, -1);
+    lua_setglobal(lvm, "json");
+#endif
+}
+
 ////////////////////////////////
 //// extern function definitions
 
@@ -343,6 +355,9 @@ void w_init(void) {
     lvm = luaL_newstate();
     luaL_openlibs(lvm);
     lua_pcall(lvm, 0, 0, 0);
+
+   // initialize embedded third-party modules
+   lua_register_cjson();
 
     ////////////////////////
     // FIXME: document these in lua in some deliberate fashion
