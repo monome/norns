@@ -499,7 +499,7 @@ function ParamSet:read(filename, silent)
       end
     end
     if self.action_read ~= nil then 
-      if pset_number ~= nil then
+      if pset_number == nil then
         self.action_read(filename,silent)
       else
         self.action_read(filename,silent,pset_number)
