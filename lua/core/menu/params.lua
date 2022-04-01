@@ -280,7 +280,7 @@ m.key = function(n,z)
     if n==2 and z==1 then
       m.mode = mPSET
     elseif n==3 and z==1 then
-      os.execute("rm "..pset[m.ps_pos+1].file)
+      params:delete(pset[m.ps_pos+1].file,pset[m.ps_pos+1].name,string.format("%02d",m.ps_pos+1))
       init_pset()
       m.mode = mPSET
     end

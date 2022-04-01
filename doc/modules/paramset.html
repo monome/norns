@@ -224,6 +224,22 @@
 	<td class="name" nowrap><a href="#ParamSet:read">ParamSet:read (filename, silent)</a></td>
 	<td class="summary">read from disk.</td>
 	</tr>
+    <tr>
+    <td class="name" nowrap><a href="#ParamSet:delete">ParamSet:delete (filename, name, pset_number)</a></td>
+    <td class="summary">delete from disk.</td>
+    </tr>
+    <tr>
+    <td class="name" nowrap><a href="#ParamSet.action_write">ParamSet.action_write (filename, name, pset_number)</a></td>
+	<td class="summary">static callback when a pset is created; user scripts can redefine</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ParamSet.action_read">ParamSet.action_read (filename, silent, pset_number)</a></td>
+	<td class="summary">static callback when a pset is read; user scripts can redefine</td>
+	</tr>
+    <tr>
+    <td class="name" nowrap><a href="#ParamSet.action_delete">ParamSet.action_delete (filename, name, pset_number)</a></td>
+    <td class="summary">static callback when a pset is deleted; user scripts can redefine</td>
+    </tr>
 	<tr>
 	<td class="name" nowrap><a href="#ParamSet:default">ParamSet:default ()</a></td>
 	<td class="summary">read default pset if present.</td>
@@ -1007,6 +1023,125 @@
         <li><span class="parameter">silent</span>
             <span class="types"><span class="type">boolean</span></span>
          if true, do not trigger parameter actions
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet:delete"></a>
+    <strong>ParamSet:delete (filename, name, pset_number)</strong>
+    </dt>
+    <dd>
+    delete from disk.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        either an absolute path, number (to read [scriptname]-[number].pset from local data folder) or nil (to read pset number specified by pset-last.txt in the data folder)
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        the name of the pset, as entered in the norns pset menu, corresponding to the first line of [scriptname]-[number].pset in local data folder
+        </li>
+        <li><span class="parameter">pset_number</span>
+            <span class="types"><span class="type">number</span></span>
+        the number of the pset, as shown in the norns pset menu, corresponding to the [scriptname]-[number].pset in local data folder
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet.action_write"></a>
+    <strong>ParamSet.action_write (filename, name, pset_number)</strong>
+    </dt>
+    <dd>
+    static callback when any pset is written;
+    user scripts can redefine.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        an absolute path to pset file, corresponds the local data folder by default if created via norns ui
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        the name of the pset, as entered in the norns pset menu, corresponding to the first line of [scriptname]-[number].pset in local data folder
+        </li>
+        <li><span class="parameter">pset_number</span>
+            <span class="types"><span class="type">number</span></span>
+        the number of the pset, as shown in the norns pset menu, corresponding to the [scriptname]-[number].pset in local data folder
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet.action_read"></a>
+    <strong>ParamSet.action_read (filename, name, pset_number)</strong>
+    </dt>
+    <dd>
+    static callback when any pset is read;
+    user scripts can redefine.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        an absolute path to pset file, corresponds the local data folder by default if created via norns ui
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        the name of the pset, as entered in the norns pset menu, corresponding to the first line of [scriptname]-[number].pset in local data folder
+        </li>
+        <li><span class="parameter">pset_number</span>
+            <span class="types"><span class="type">number</span></span>
+        the number of the pset, as shown in the norns pset menu, corresponding to the [scriptname]-[number].pset in local data folder
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ParamSet.action_delete"></a>
+    <strong>ParamSet.action_delete (filename, name, pset_number)</strong>
+    </dt>
+    <dd>
+    static callback when any pset is deleted;
+    user scripts can redefine.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        an absolute path to pset file, corresponds the local data folder by default if created via norns ui
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="../modules/paramset.html#ParamSet:string">string</a></span>
+        the name of the pset, as entered in the norns pset menu, corresponding to the first line of [scriptname]-[number].pset in local data folder
+        </li>
+        <li><span class="parameter">pset_number</span>
+            <span class="types"><span class="type">number</span></span>
+        the number of the pset, as shown in the norns pset menu, corresponding to the [scriptname]-[number].pset in local data folder
         </li>
     </ul>
 
