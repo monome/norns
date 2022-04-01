@@ -104,6 +104,7 @@ int sidecar_client_init() {
 }
 
 void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
+  char *res;
   size_t sz = nn_send(cs.fd, cmd, strlen(cmd) + 1, 0);
   if (sz < 0) {
     fprintf(stderr, "sidecar client tx failure %s\n", nn_strerror(nn_errno()));
@@ -115,14 +116,15 @@ void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
     return;
   }
   if (sz > 0) {
-    char *res = (char *)malloc(sz);
+    *res = (char *)malloc(sz);
     memcpy(res, cs.buf, sz);
   } else {
     sz = 1;
-    char *res = (char *)malloc(sz);
+    *res = (char *)malloc(sz);
     res[0] = '\0';
   }
   *result = res;
+  free(res);
   *size = sz;
   nn_freemsg(cs.buf);
 }
