@@ -449,11 +449,7 @@ function ParamSet:write(filename, name)
     end
     io.close(fd)
     if self.action_write ~= nil then
-      if pset_number ~= nil then
-        self.action_write(filename,name,pset_number)
-      else
-        self.action_write(filename,name)
-      end
+      self.action_write(filename,name,pset_number)
     end
   else print("pset: BAD FILENAME") end
 end
@@ -499,11 +495,7 @@ function ParamSet:read(filename, silent)
       end
     end
     if self.action_read ~= nil then 
-      if pset_number ~= nil then
-        self.action_read(filename,silent,pset_number)
-      else
-        self.action_read(filename,silent)
-      end
+      self.action_read(filename,silent,pset_number)
     end
   else
     print("pset :: "..filename.." not read.")
@@ -522,11 +514,7 @@ function ParamSet:delete(filename, name, pset_number)
   print("pset >> delete: "..filename, name, pset_number)
   norns.system_cmd("rm "..filename)
   if self.action_delete ~= nil then
-    if pset_number ~= nil then
-      self.action_delete(filename, name, pset_number)
-    else
-      self.action_delete(filename, name)
-    end
+    self.action_delete(filename, name, pset_number)
   end
 end
 
