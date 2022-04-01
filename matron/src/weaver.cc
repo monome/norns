@@ -131,8 +131,11 @@ typedef struct {
     char *name;
 } _image_t;
 
-static luaL_Reg _image_methods[];
-static luaL_Reg _image_functions[];
+#define WEAVER_NUM_IMAGE_METHODS 7
+#define WEAVER_NUM_IMAGE_FUNCTIONS 4
+
+// static luaL_Reg _image_methods[WEAVER_NUM_IMAGE_METHODS];
+// static luaL_Reg _image_functions[WEAVER_NUM_IMAGE_FUNCTIONS];
 static const char *_image_class_name = "norns.image";
 
 static int _image_new(lua_State *l, screen_surface_t *surface, const char *name);
@@ -309,6 +312,7 @@ static inline void lua_register_norns(const char *name, int (*f)(lua_State *l)) 
     lua_pushcfunction(lvm, f), lua_setfield(lvm, -2, name);
 }
 
+#if 1 // notused?
 static void lua_register_norns_class(const char *class_name, const luaL_Reg *methods, const luaL_Reg *functions) {
     // create the class metatable
     luaL_newmetatable(lvm, class_name);
@@ -338,6 +342,7 @@ static void lua_register_norns_class(const char *class_name, const luaL_Reg *met
         lua_register_norns(function->name, function->func);
     }
 }
+#endif
 
 ////////////////////////////////
 //// extern function definitions
@@ -476,6 +481,26 @@ void w_init(void) {
     lua_register_norns("screen_set_operator", &_screen_set_operator);
 
     // image
+    // clang-format off
+    static luaL_Reg _image_methods[WEAVER_NUM_IMAGE_METHODS+1] = {
+        {"__gc", _image_free},
+        {"__tostring", _image_tostring},
+        {"__eq", _image_equals},
+        {"_context_focus", _image_context_focus},
+        {"_context_defocus", _image_context_defocus},
+        {"extents", _image_extents},
+        {"name", _image_name},
+        {NULL, NULL}
+    };
+
+    static luaL_Reg _image_functions[WEAVER_NUM_IMAGE_FUNCTIONS+1] = {
+        {"screen_load_png", _screen_load_png},
+        {"screen_create_image", _screen_create_image},
+        {"screen_display_image", _screen_display_image},
+        {"screen_display_iamge", _screen_display_image_region},
+        {NULL, NULL}
+    };
+    // clang-format on
     lua_register_norns_class(_image_class_name, _image_methods, _image_functions);
 
     // analog output control
@@ -1079,27 +1104,6 @@ int _screen_set_operator(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 }
-
-// clang-format off
-static luaL_Reg _image_methods[] = {
-    {"__gc", _image_free},
-    {"__tostring", _image_tostring},
-    {"__eq", _image_equals},
-    {"_context_focus", _image_context_focus},
-    {"_context_defocus", _image_context_defocus},
-    {"extents", _image_extents},
-    {"name", _image_name},
-    {NULL, NULL}
-};
-
-static luaL_Reg _image_functions[] = {
-    {"screen_load_png", _screen_load_png},
-    {"screen_create_image", _screen_create_image},
-    {"screen_display_image", _screen_display_image},
-    {"screen_display_iamge", _screen_display_image_region},
-    {NULL, NULL}
-};
-// clang-format on
 
 int _image_new(lua_State *l, screen_surface_t *surface, const char *name) {
     _image_t *ud = (_image_t *)lua_newuserdata(l, sizeof(_image_t));

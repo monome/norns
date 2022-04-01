@@ -116,15 +116,14 @@ void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
     return;
   }
   if (sz > 0) {
-    *res = (char *)malloc(sz);
+    res = (char *)malloc(sz);
     memcpy(res, cs.buf, sz);
   } else {
     sz = 1;
-    *res = (char *)malloc(sz);
+    res = (char *)malloc(sz);
     res[0] = '\0';
   }
   *result = res;
-  free(res);
   *size = sz;
   nn_freemsg(cs.buf);
 }
