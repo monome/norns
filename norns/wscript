@@ -1,0 +1,145 @@
+def build(bld):
+
+    matron_sources = [
+        '../matron/src/config.cc',
+        '../matron/src/device/device.cc',
+        '../matron/src/device/device_hid.cc',
+        '../matron/src/device/device_list.cc',
+        '../matron/src/device/device_midi.cc',
+        '../matron/src/device/device_monitor.cc',
+        '../matron/src/device/device_monome.cc',
+        '../matron/src/device/device_crow.cc',
+        '../matron/src/osc.cc',
+        '../matron/src/hardware/battery.cc',
+        '../matron/src/hardware/i2c.cc',
+        '../matron/src/hardware/input.cc',
+        '../matron/src/hardware/io.cc',
+        '../matron/src/hardware/platform.cc',
+        '../matron/src/hardware/screen.cc',
+        '../matron/src/hardware/stat.cc',
+	    '../matron/src/hardware/screen/fbdev.cc',
+        '../matron/src/hardware/input/gpio.cc',
+        '../matron/src/args.cc',
+        '../matron/src/events.cc',
+        '../matron/src/hello.cc',
+        '../matron/src/input.cc',
+        '../matron/src/lua_eval.cc',
+        '../matron/src/main.cc',
+        '../matron/src/metro.cc',
+        '../matron/src/oracle.cc',
+        '../matron/src/weaver.cc',
+        '../matron/src/snd_file.cc',
+        '../matron/src/system_cmd.cc',
+        '../matron/src/clock.cc',
+        '../matron/src/clocks/clock_internal.cc',
+        '../matron/src/clocks/clock_midi.cc',
+        '../matron/src/clocks/clock_crow.cc',
+        '../matron/src/clocks/clock_scheduler.cc',
+    ]
+
+    if bld.env.NORNS_DESKTOP:
+        matron_sources += [
+            '../matron/src/hardware/screen/sdl.cc',
+            '../matron/src/hardware/input/sdl.cc',
+        ]
+
+    crone_sources = [
+        '../crone/src/crone_param_dispatch.cpp',
+        '../crone/src/crone.cpp',
+        '../crone/src/main.cpp',
+        '../crone/src/BufDiskWorker.cpp',
+        '../crone/src/Commands.cpp',
+        '../crone/src/MixerClient.cpp',
+        '../crone/src/OscInterface.cpp',
+        '../crone/src/SoftcutClient.cpp',
+        '../crone/src/Taper.cpp',
+        '../crone/src/Window.cpp',
+        '../crone/softcut/softcut-lib/src/FadeCurves.cpp',
+        '../crone/softcut/softcut-lib/src/ReadWriteHead.cpp',
+        '../crone/softcut/softcut-lib/src/SubHead.cpp',
+        '../crone/softcut/softcut-lib/src/Svf.cpp',
+        '../crone/softcut/softcut-lib/src/Voice.cpp'
+    ]
+
+    matron_includes = [
+        '../matron/src',
+        '../matron/src/device',
+        '../matron/src/hardware',
+    ]
+
+    matron_libs = [
+        'pthread',
+        'm',
+    ]
+
+    matron_use = [
+        'ALSA',
+        'LIBUDEV',
+        'LIBEVDEV',
+        'CAIRO',
+        'CAIRO-FT',
+        'LUA53',
+        'LIBLO',
+        'LIBMONOME',
+        'SNDFILE',
+        'AVAHI-COMPAT-LIBDNS_SD',
+        'JACK',
+    ]
+
+    if bld.env.NORNS_DESKTOP:
+        matron_libs.append('SDL2')
+        matron_use.append('SDL2')
+
+    if bld.env.ENABLE_ABLETON_LINK:
+        matron_sources += ['../matron/src/clocks/clock_link.cc']
+        matron_includes += ['../third-party/link-c']
+        matron_libs += ['stdc++']
+        matron_use += ['LIBLINK_C']
+
+    if bld.env.PROFILE_MATRON:
+        bld.env.append_unique('CXXFLAGS', ['-pg'])
+        bld.env.append_unique('LDFLAGS', ['-pg'])
+    
+    crone_includes=[
+        '../crone',
+        '../crone/src',
+        '../crone/softcut/softcut-lib/include',
+        '../crone/lib/readerwriterqueue',
+        '../crone/lib/concurrentqueue'
+    ]
+
+    crone_use=[
+        'ALSA',
+        'LIBLO',
+    ]
+    
+    crone_libs=[
+        'atomic',
+        'jack',
+        'pthread',
+        'm',
+        'sndfile'
+    ]
+    
+    norns_sources = [ 
+        'main.cpp',
+        'sidecar.cpp'
+    ]
+
+    norns_libs = [
+        'nanomsg'
+    ]
+
+    norns_sources = norns_sources + matron_sources + crone_sources
+    norns_includes = ['.'] + matron_includes + crone_includes
+    norns_use = matron_use + crone_use
+    norns_libs = norns_libs + matron_libs + crone_libs
+    
+    bld.program(features='c cprogram cxx cxxprogram',
+        target='norns',
+        source=norns_sources,
+        includes=norns_includes,
+        use=norns_use,
+        lib=norns_libs,
+        cxxflags=['-std=c++14', '-O3', '-Wall'],
+        ldflags=['-Wl,-export-dynamic'])

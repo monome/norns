@@ -56,7 +56,7 @@ def build(bld):
                      'LIBLO',
                  ],
                  lib=[
-                     'atomic',
+                    'atomic',
                      'jack',
                      'pthread',
                      'm',

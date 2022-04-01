@@ -8,10 +8,10 @@ m.key = function(n,z)
   elseif n==3 and z==1 then
     m.confirmed = true
     _menu.redraw()
-    os.execute("rm ~/dust/data/system.pset")
-    os.execute("rm ~/dust/data/system.state")
-    os.execute("rm "..paths.favorites)
-    os.execute("rm "..paths.enabled_mods)
+    _norns.execute("rm ~/dust/data/system.pset")
+    _norns.execute("rm ~/dust/data/system.state")
+    _norns.execute("rm "..paths.favorites)
+    _norns.execute("rm "..paths.enabled_mods)
     _norns.reset()
   end
 end

@@ -8,6 +8,8 @@
 #include "Commands.h"
 #include "SoftcutClient.h"
 
+#include "oracle.h"
+
 // clamp to upper bound (unsigned int)
 static inline void clamp(size_t &x, const size_t max) {
     if (x > max) { x = max; }
@@ -30,6 +32,16 @@ crone::SoftcutClient::SoftcutClient() : Client<2, 2>("softcut") {
     }
     bufIdx[0] = BufDiskWorker::registerBuffer(buf[0], BufFrames);
     bufIdx[1] = BufDiskWorker::registerBuffer(buf[1], BufFrames);
+    
+    phasePoll = std::make_unique<Poll>("softcut/phase");
+    phasePoll->setCallback([this](const char *path) {
+        for (int i = 0; i < this->getNumVoices(); ++i) {
+            if (this->checkVoiceQuantPhase(i)) {
+                o_poll_callback_softcut_phase(i, this->getQuantPhase(i));
+            }
+        }
+    });
+    phasePoll->setPeriod(1);
 }
 
 void crone::SoftcutClient::process(jack_nframes_t numFrames) {

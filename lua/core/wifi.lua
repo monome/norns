@@ -185,14 +185,14 @@ end
 
 function Wifi.off()
   print("do wifi off")
-  os.execute("nmcli radio wifi off")
+  _norns.execute("nmcli radio wifi off")
 end
 
 function Wifi.hotspot()
   print("activating hotspot")
   Wifi.ensure_radio_is_on()
-  os.execute("nmcli c delete Hotspot")
-  os.execute("nmcli dev wifi hotspot ifname wlan0 ssid $(hostname) password " .. hotspot_password)
+  _norns.execute("nmcli c delete Hotspot")
+  _norns.execute("nmcli dev wifi hotspot ifname wlan0 ssid $(hostname) password " .. hotspot_password)
 end
 
 function Wifi.on(connection)
@@ -207,7 +207,7 @@ function Wifi.on(connection)
     print("enabling connection: '" .. connection .. "'")
     Wifi.ensure_radio_is_on()
     -- change connection in bg to allow ui to update
-    os.execute("nmcli --wait 2 connection up id '" .. connection .. "' &")
+    _norns.execute("nmcli --wait 2 connection up id '" .. connection .. "' &")
   end
 end
 
@@ -254,8 +254,8 @@ end
 
 function Wifi.ensure_radio_is_on()
   if Wifi.radio_state() ~= "enabled" then
-    os.execute("nmcli radio wifi on")
-    os.execute("sleep 1.5")  -- various operations fail if called right after radio on
+    _norns.execute("nmcli radio wifi on")
+    _norns.execute("sleep 1.5")  -- various operations fail if called right after radio on
   end
 end
 
@@ -265,10 +265,10 @@ function Wifi.add(ssid, psk)
   local cmd = "nmcli --wait 10 device wifi connect"
   cmd = cmd .. " '" .. ssid .. "' password '" .. psk .. "'"
   cmd = cmd .. " ifname " .. Wifi.device.name
-  os.execute(cmd)
+  _norns.execute(cmd)
   -- dis-associate connection profile from hardware MAC address
   cmd = "nmcli con mod '" .. ssid .. "' -802-11-wireless.mac-address ''"
-  os.execute(cmd)
+  _norns.execute(cmd)
   -- ensure connection list is up to date
   Wifi.conn_list = Wifi.connections()
 end
@@ -276,7 +276,7 @@ end
 function Wifi.delete(name)
   -- FIXME: do we need to turn off radio if name == active_connection?
   print("deleting wifi network: " .. name)
-  os.execute("nmcli connection delete id '" .. name .. "'")
+  _norns.execute("nmcli connection delete id '" .. name .. "'")
   -- ensure connection list is up to date
   Wifi.conn_list = Wifi.connections()
 end

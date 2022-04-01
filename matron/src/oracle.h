@@ -25,7 +25,7 @@ struct engine_command {
     char *format; // format string
 };
 
-// data structure for engine poll descriptor/headerx
+// data structure for engine poll descriptor/header
 struct engine_poll {
     char *name;       // name string
     poll_type_t type; // value or data
@@ -97,13 +97,17 @@ extern void o_set_poll_time(int idx, float dt);
 // request current value of poll
 extern void o_request_poll_value(int idx);
 
-//--- audio context controls
+// internal poll callbacks
+extern void o_poll_callback_vu(uint8_t in0, uint8_t in1, uint8_t out0, uint8_t out1);
+extern void o_poll_callback_softcut_phase(int voice, float phase);
+extern void o_poll_callback_softcut_position(int voice, float position);
+extern void o_poll_callback_softcut_render(int ch, float secPerSample, float start, size_t count, const float *samples);
 
+//--- audio context controls
 extern void o_poll_start_vu();
 extern void o_poll_stop_vu();
 extern void o_poll_start_cut_phase();
 extern void o_poll_stop_cut_phase();
-
 extern void o_set_level_adc(float level);
 extern void o_set_level_dac(float level);
 extern void o_set_level_ext(float level);

@@ -14,12 +14,13 @@ struct args {
 };
 
 static struct args a = {
-    .loc_port = "8888",
-    .ext_port = "57120",
-    .crone_port = "9999",
-    .remote_port = "10111",
-    .framebuffer = "/dev/fb0",
+    "8888",     // loc_port
+    "57120",    // ext_port
+    "10111",    // remote_port
+    "9999",     // crone_port
+    "/dev/fb0", // framebuffer
 };
+
 
 int args_parse(int argc, char **argv) {
     int opt;

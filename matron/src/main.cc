@@ -36,7 +36,7 @@
 
 void print_version(void);
 
-void cleanup(void) {
+void matron_cleanup(void) {
     dev_monitor_deinit();
     osc_deinit();
     o_deinit();
@@ -51,7 +51,7 @@ void cleanup(void) {
     exit(0);
 }
 
-int main(int argc, char **argv) {
+int matron_main(int argc, char **argv) {
     args_parse(argc, argv);
 
     print_version();
@@ -95,14 +95,13 @@ int main(int argc, char **argv) {
 
     // now is a good time to set our cleanup
     fprintf(stderr, "setting cleanup...\n");
-    atexit(cleanup);
+    atexit(matron_cleanup);
 
 
     fprintf(stderr, "init input...\n");
     // start reading input to interpreter
     input_init();
 
-    
     fprintf(stderr, "running startup...\n");
     // i/o subsystems are ready; run user startup routine
     w_startup();
@@ -118,9 +117,9 @@ int main(int argc, char **argv) {
     fprintf(stderr, "running post-startup...\n");
     w_post_startup();
     
-    
     // blocks until quit
     event_loop();
+    return 0;
 }
 
 void print_version(void) {
@@ -128,3 +127,10 @@ void print_version(void) {
     printf("norns version: %d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
     printf("git hash: %s\n\n", VERSION_HASH);
 }
+
+
+#if 0
+int main(int argc, char **argv) {
+    matron_main();
+}
+#endif

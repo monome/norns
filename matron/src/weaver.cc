@@ -43,6 +43,7 @@
 #include "osc.h"
 #include "platform.h"
 #include "screen.h"
+#include "sidecar.h"
 #include "snd_file.h"
 #include "system_cmd.h"
 #include "weaver.h"
@@ -172,6 +173,7 @@ static int _start_poll(lua_State *l);
 static int _stop_poll(lua_State *l);
 static int _set_poll_time(lua_State *l);
 static int _request_poll_value(lua_State *l);
+
 // timing
 static int _metro_start(lua_State *l);
 static int _metro_stop(lua_State *l);
@@ -258,8 +260,11 @@ static int _restart_audio(lua_State *l);
 static int _sound_file_inspect(lua_State *l);
 
 // util
+/// run command in child process asynchronously (with callback)
 static int _system_cmd(lua_State *l);
 static int _system_glob(lua_State *l);
+/// run command in child process, blocking (replaces `os.execute`)
+static int _execute(lua_State *l);
 
 // reset LVM
 static int _reset_lvm(lua_State *l);
@@ -292,7 +297,6 @@ static int _platform(lua_State *l);
 
 // boilerplate: push a lua function to the lua stack, from named field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
-    // fprintf(stderr, "calling norns.%s.%s\n", field, func);
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, field);
     lua_remove(lvm, -2);
@@ -422,6 +426,7 @@ void w_init(void) {
     // util
     lua_register_norns("system_cmd", &_system_cmd);
     lua_register_norns("system_glob", &_system_glob);
+    lua_register_norns("execute", &_execute);
 
     // low-level monome grid control
     lua_register_norns("grid_set_led", &_grid_set_led);
@@ -1461,7 +1466,7 @@ int _crow_send(lua_State *l) {
     }
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    d = lua_touserdata(l, 1);
+    d = (dev_crow*)lua_touserdata(l, 1);
     s = luaL_checkstring(l, 2);
     lua_settop(l, 0);
 
@@ -1482,11 +1487,11 @@ int _midi_send(lua_State *l) {
     lua_check_num_args(2);
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    md = lua_touserdata(l, 1);
+    md = (dev_midi*)lua_touserdata(l, 1);
 
     luaL_checktype(l, 2, LUA_TTABLE);
     nbytes = lua_rawlen(l, 2);
-    data = malloc(nbytes);
+    data = (uint8_t*)malloc(nbytes);
 
     for (unsigned int i = 1; i <= nbytes; i++) {
         lua_pushinteger(l, i);
@@ -1514,7 +1519,7 @@ int _midi_send(lua_State *l) {
 int _grid_set_led(lua_State *l) {
     lua_check_num_args(4);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int x = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int y = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int z = (int)luaL_checkinteger(l, 4);     // don't convert value!
@@ -1526,7 +1531,7 @@ int _grid_set_led(lua_State *l) {
 int _arc_set_led(lua_State *l) {
     lua_check_num_args(4);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int n = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int x = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int val = (int)luaL_checkinteger(l, 4);   // don't convert value!
@@ -1544,7 +1549,7 @@ int _arc_set_led(lua_State *l) {
 int _grid_all_led(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int z = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_all_led(md, z);
     lua_settop(l, 0);
@@ -1563,7 +1568,7 @@ int _arc_all_led(lua_State *l) {
 int _grid_set_rotation(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int z = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_set_rotation(md, z);
     lua_settop(l, 0);
@@ -1578,7 +1583,7 @@ int _grid_set_rotation(lua_State *l) {
 int _grid_tilt_enable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_enable(md, id);
     lua_settop(l, 0);
@@ -1592,7 +1597,7 @@ int _grid_tilt_enable(lua_State *l) {
 int _grid_tilt_disable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_disable(md, id);
     lua_settop(l, 0);
@@ -1607,7 +1612,7 @@ int _grid_tilt_disable(lua_State *l) {
 int _monome_refresh(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     dev_monome_refresh(md);
     lua_settop(l, 0);
     return 0;
@@ -1621,7 +1626,7 @@ int _monome_refresh(lua_State *l) {
 int _monome_intensity(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     int i = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_intensity(md, i);
     lua_settop(l, 0);
@@ -1636,7 +1641,7 @@ int _monome_intensity(lua_State *l) {
 int _grid_rows(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     lua_pushinteger(l, dev_monome_grid_rows(md));
     return 1;
 }
@@ -1649,7 +1654,7 @@ int _grid_rows(lua_State *l) {
 int _grid_cols(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
     lua_pushinteger(l, dev_monome_grid_cols(md));
     return 1;
 }
@@ -1934,7 +1939,7 @@ int _clock_link_set_start_stop_sync(lua_State *l) {
 int _clock_set_source(lua_State *l) {
     lua_check_num_args(1);
     int source = (int)luaL_checkinteger(l, 1);
-    clock_set_source(source);
+    clock_set_source((clock_source_t)source);
     return 0;
 }
 
@@ -2139,7 +2144,8 @@ void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message
             lua_pushstring(lvm, &argv[i]->s);
             break;
         case LO_BLOB:
-            lua_pushlstring(lvm, lo_blob_dataptr((lo_blob)argv[i]), lo_blob_datasize((lo_blob)argv[i]));
+            lua_pushlstring(lvm, (const char*)lo_blob_dataptr((lo_blob)argv[i]),
+			    lo_blob_datasize((lo_blob)argv[i]));
             break;
         case LO_INT64:
             lua_pushinteger(lvm, argv[i]->h);
@@ -2370,7 +2376,6 @@ void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu,
 }
 
 void w_handle_poll_value(int idx, float val) {
-    // fprintf(stderr, "_handle_poll_value: %d, %f\n", idx, val);
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "poll");
     lua_remove(lvm, -2);
@@ -2394,10 +2399,6 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-/* void w_handle_poll_wave(int idx, uint8_t *data) { */
-/*   // TODO */
-/* } */
-
 // argument is an array of 4 bytes
 void w_handle_poll_io_levels(uint8_t *levels) {
     lua_getglobal(lvm, "_norns");
@@ -2410,7 +2411,6 @@ void w_handle_poll_io_levels(uint8_t *levels) {
 }
 
 void w_handle_poll_softcut_phase(int idx, float val) {
-    // fprintf(stderr, "_handle_poll_softcut_phase: %d, %f\n", idx, val);
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "softcut_phase");
     lua_remove(lvm, -2);
@@ -2967,6 +2967,18 @@ int _system_glob(lua_State *l) {
     globfree(&g);
     return 1;
 }
+
+int _execute(lua_State *l) {
+    lua_check_num_args(1);
+    const char *cmd = luaL_checkstring(l, 1);
+    char *buf = NULL;
+    size_t size;
+    sidecar_client_cmd(&buf, &size, cmd);
+    lua_pushstring(l, buf);
+    free(buf);
+    return 1;
+}
+
 
 int _platform(lua_State *l) {
     lua_check_num_args(0);

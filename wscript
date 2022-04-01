@@ -56,6 +56,7 @@ def configure(conf):
     if conf.options.desktop:
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
         conf.define('NORNS_DESKTOP', True)
+        
     conf.env.NORNS_DESKTOP = conf.options.desktop
 
     if conf.options.release:
@@ -68,9 +69,10 @@ def configure(conf):
     conf.recurse('maiden-repl')
 
 def build(bld):
-    bld.recurse('matron')
+    #bld.recurse('matron')
     bld.recurse('maiden-repl')
     bld.recurse('ws-wrapper')
-    bld.recurse('crone')
+    #bld.recurse('crone')
     bld.recurse('third-party')
     bld.recurse('watcher')
+    bld.recurse('norns')

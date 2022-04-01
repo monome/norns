@@ -15,11 +15,10 @@
 #include <unistd.h>
 
 #include "events.h"
+#include "sidecar.h"
 
 #define STAT_INTERVAL 2
 
-// static int fd[3];
-// static char buf[8];
 static pthread_t p;
 static bool have_vcgencmd;
 
@@ -32,9 +31,11 @@ void stat_init() {
         fprintf(stderr, "Unable to check temperature: vcgencmd not in path\n");
     }
 
+#if 1 // debugging...
     if (pthread_create(&p, NULL, stat_check, 0)) {
         fprintf(stderr, "STAT: Error creating thread\n");
     }
+#endif
 }
 
 void stat_deinit() {
@@ -48,8 +49,6 @@ void *stat_check(void *x) {
     int temp = 0;
     int cpu[5] = {0,0,0,0,0};
 
-    FILE *fd;
-    char buf[128];
     char bufsub[8];
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
@@ -64,46 +63,47 @@ void *stat_check(void *x) {
         if (number == 5)
             number = 0;
 
-        // check disk ever 5 sleeps
+        // check disk every 5 sleeps
         if (number == 0) {
-            if ((fd = popen("df -l | grep '/dev/root' | awk '{print $4}'", "r")) == NULL) {
-                fprintf(stderr, "Error opening pipe: disk free read\n");
+	    size_t size=0;
+	    char *buff = NULL;
+	    sidecar_client_cmd(&buff, &size, "df -l | grep '/dev/root' | awk '{print $4}'");
+	    if(size==0) {
+                fprintf(stderr, "Error: disk free read\n");
             } else {
-                while (fgets(buf, 12, fd) != NULL) {
-                    disk = atoi(buf) / 1000; // convert to MB
-                                             // fprintf(stderr,"disk free: %d\n", disk);
-                }
+                    disk = atoi(buff) / 1000; // convert to MB
             }
-            pclose(fd);
+            free(buff);
         }
 
-        // check temp
-        if (have_vcgencmd) {
-            if ((fd = popen("vcgencmd measure_temp", "r")) == NULL) {
-                fprintf(stderr, "Error opening pipe: temp read\n");
+	// check temp every 5
+        if (have_vcgencmd && number == 0) {
+	    size_t size=0;
+            char *buff = NULL;
+	    sidecar_client_cmd(&buff, &size, "vcgencmd measure_temp");
+	    if(size==0) {
+                fprintf(stderr, "Error: temp read\n");
             } else {
-                while (fgets(buf, 16, fd) != NULL) {
-                    bufsub[0] = buf[5];
-                    bufsub[1] = buf[6];
+                    bufsub[0] = buff[5];
+                    bufsub[1] = buff[6];
                     bufsub[2] = 0;
                     temp = atoi(bufsub);
-                }
             }
-            pclose(fd);
+	    free(buff);
         }
 
+
         // check cpu
-        if ((fd = popen("cat /proc/stat", "r")) == NULL) {
-            fprintf(stderr, "Error opening pipe: cpu read\n");
+	    size_t size=0;
+        char *buff = NULL;
+	    sidecar_client_cmd(&buff, &size,"cat /proc/stat");
+
+        if(size==0) {
+            fprintf(stderr, "Error: cpu read\n");
         } else {
             int i = 0;
-            while (fgets(buf, 128, fd) != NULL) {
-                // stop reading when all cpus are checked
-                if (strncmp("cpu", buf, 3) != 0) {
-                  break;
-                }
-                //fprintf(stderr,"%s", buf);
-                strtok(buf, " ");
+            strtok(buff, " ");
+            while(i<4) {
                 user = atoi(strtok(NULL, " "));
                 nice = atoi(strtok(NULL, " "));
                 system = atoi(strtok(NULL, " "));
@@ -112,6 +112,7 @@ void *stat_check(void *x) {
                 irq = atoi(strtok(NULL, " "));
                 softirq = atoi(strtok(NULL, " "));
                 steal = atoi(strtok(NULL, " "));
+		//fprintf(stderr, "> %d %d %d %d %d %d %d %d\n", user, nice, system, idle, iowait, irq, softirq, steal);
 
                 sumidle = idle + iowait;
                 sumnonidle = user + nice + system + irq + softirq + steal;
@@ -123,10 +124,12 @@ void *stat_check(void *x) {
                 prevtotal[i] = total;
 
                 //fprintf(stderr,"%d --> %d\n", i, cpu);
+		strtok(NULL, "\n");
+		strtok(NULL, " ");
                 i++;
             }
         }
-        pclose(fd);
+        free(buff);
 
         // just send every tick
             union event_data *ev = event_data_new(EVENT_STAT);

@@ -23,6 +23,21 @@ cp changelog.txt /home/we/
 sudo cp config/journald.conf /etc/systemd/
 sudo mkdir -p /var/log/journal
 
+# TODO !!!!!! FIX THIS FOR v3
+# rewrite matron.sevice
+sudo cp --remove-destination config/norns-matron.service /etc/systemd/system/norns-matron.service
+
+# add watcher
+sudo cp --remove-destination config/norns-watcher.service /etc/systemd/system/norns-watcher.service
+sudo systemctl enable norns-watcher
+
+# packages
+#sudo dpkg -i package/*.deb
+
+# norns-image
+#cd /home/we/norns-image
+#./setup.sh
+
 # update jack systemd
 sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
 

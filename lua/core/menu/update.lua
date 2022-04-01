@@ -38,11 +38,12 @@ local function get_update()
   norns.script.clear()
   _menu.locked = true
   print("shutting down audio...")
-  --os.execute("sudo systemctl stop norns-jack.service") -- disable audio
-  os.execute("sudo systemctl stop norns-crone.service") -- disable audio
-  os.execute("sudo systemctl stop norns-sclang.service") -- disable audio
+  --_norns.execute("sudo systemctl stop norns-jack.service") -- disable audio
+  for i=1,6 do _norns.cut_enable(i,0) end -- disable softcut
+  _norns.execute("sudo systemctl stop norns-crone.service") -- disable audio
+  _norns.execute("sudo systemctl stop norns-sclang.service") -- disable audio
   print("clearing old updates...")
-  os.execute("sudo rm -rf /home/we/update/*") -- clear old updates
+  _norns.execute("sudo rm -rf /home/we/update/*") -- clear old updates
   m.message = "downloading..."
   _menu.redraw()
   print("starting download...")
@@ -69,11 +70,11 @@ get_update_2 = function()
   local checksum = util.os_capture("cd /home/we/update; sha256sum -c /home/we/update/*.sha256 | grep OK")
   if checksum:match("OK") then
     print("unpacking...")
-    os.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
+    _norns.execute("tar xzvf /home/we/update/*.tgz -C /home/we/update/")
     m.message = "running update..."
     _menu.redraw()
     print("running update...")
-    os.execute("/home/we/update/"..releases[m.install].version.."/update.sh")
+    _norns.execute("/home/we/update/"..releases[m.install].version.."/update.sh")
     m.message = "done. any key to shut down."
     _menu.redraw()
     print("update complete.")
@@ -114,7 +115,7 @@ m.key = function(n,z)
     m.stage = "shutdown"
     print("shutting down.")
     _menu.redraw()
-    os.execute("sleep 0.5; sudo shutdown now")
+    _norns.execute("sleep 0.5; sudo shutdown now")
   end
 end
 

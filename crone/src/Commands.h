@@ -5,7 +5,6 @@
 #ifndef CRONE_COMMANDS_H
 #define CRONE_COMMANDS_H
 
-//#include "boost/lockfree/spsc_queue.hpp"
 #include "readerwriterqueue.h"
 
 namespace crone {
@@ -124,9 +123,8 @@ namespace crone {
         static Commands softcutCommands;
 
     private:
-	//        boost::lockfree::spsc_queue <CommandPacket,
-	//                boost::lockfree::capacity<COMMAND_Q_CAPACITY> > q;
-	moodycamel::ReaderWriterQueue<CommandPacket> q;
+
+    	moodycamel::ReaderWriterQueue<CommandPacket> q;
     };
 
 }
