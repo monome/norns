@@ -24,9 +24,7 @@ def build(bld):
         '../matron/src/events.cc',
         '../matron/src/hello.cc',
         '../matron/src/input.cc',
-        #--- FIXME: from rebase
-        '../matron/src/jack_client.c',
-        #--- 
+        '../matron/src/jack_client.cpp',
         '../matron/src/lua_eval.cc',
         '../matron/src/main.cc',
         '../matron/src/metro.cc',
@@ -41,7 +39,7 @@ def build(bld):
         '../matron/src/clocks/clock_midi.cc',
         '../matron/src/clocks/clock_crow.cc',
         '../matron/src/clocks/clock_scheduler.cc',
-        '../matron/src/jack_client.c',
+        '../matron/src/time_since.cc',
     ]
 
     if bld.env.NORNS_DESKTOP:

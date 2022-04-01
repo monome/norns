@@ -123,6 +123,14 @@ void crone_poll_start_cut_phase() { softcutClient->getPhasePoll()->start(); }
 
 void crone_poll_stop_cut_phase() { softcutClient->getPhasePoll()->stop(); }
 
+void crone_poll_start_tape() {
+  mixerClient->getTapePoll()->start();
+}
+
+void crone_poll_stop_tape() {
+  mixerClient->getTapePoll()->stop();
+}
+
 void crone_tape_rec_open(const char *path) {
   mixerClient->openTapeRecord(path);
 }

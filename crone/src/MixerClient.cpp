@@ -27,6 +27,9 @@ MixerClient::MixerClient()
         );
     });
     vuPoll->setPeriod(50);
+
+    tapePoll = std::make_unique<Poll>("tape");
+    // todo_converged: set callback for tape poll
 }
 
 void MixerClient::process(jack_nframes_t numFrames) {

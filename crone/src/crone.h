@@ -400,6 +400,8 @@ void crone_set_param_cut_phase_quant(int arg0, float arg1);
 void crone_set_param_cut_phase_offset(int arg0, float arg1);
 void crone_poll_start_cut_phase();
 void crone_poll_stop_cut_phase();
+void crone_poll_start_tape();
+void crone_poll_stop_tape();
 void crone_tape_rec_open(const char *arg0);
 void crone_tape_rec_start();
 void crone_tape_rec_pause(int paused);

@@ -131,6 +131,7 @@ class MixerClient : public Client<6, 6> {
     PeakMeter outPeak[2];
         
     std::unique_ptr<Poll> vuPoll;
+    std::unique_ptr<Poll> tapePoll;
 
   public:
     float getInputPeakPos(int ch) {
@@ -175,6 +176,10 @@ class MixerClient : public Client<6, 6> {
 
     Poll* getVuPoll() { 
         return vuPoll.get();
+    }
+
+    Poll* getTapePoll() {
+        return tapePoll.get();
     }
 
     void setTapeLoop(bool loop) {

@@ -408,6 +408,10 @@ void o_poll_start_cut_phase() {
 
 void o_poll_stop_cut_phase() { crone_poll_stop_cut_phase(); }
 
+void o_poll_start_tape() { crone_poll_start_tape(); }
+
+void o_poll_stop_tape() { crone_poll_stop_tape(); }
+
 void o_set_level_adc(float level) { crone_set_level_adc(level); }
 
 void o_set_level_dac(float level) {

@@ -1,7 +1,4 @@
-#include <pthread.h>
-#include <stdatomic.h>
-#include <stdbool.h>
-#include <stdint.h>
+#include <atomic>
 #include <stdio.h>
 
 #include <jack/jack.h>
@@ -11,7 +8,7 @@
 static jack_client_t *jack_client;
 double jack_sample_rate;
 
-_Atomic uint32_t xrun_count = 0;
+std::atomic<uint32_t> xrun_count {0};
 
 // maintain a 64-bit frame counter from jack's 32-bit frame time.
 // extends wraparound at 48khz from ~25 hours to millions of years.
@@ -21,10 +18,9 @@ static uint64_t g_last_total_frames = 0ULL;
 // a mutex is safe here as time is not read from the audio thread.
 static pthread_mutex_t g_time_lock = PTHREAD_MUTEX_INITIALIZER;
 
-static int xrun_callback(void *arg) {
-    (void)arg;
-    atomic_fetch_add(&xrun_count, 1);
-    return 0;
+static int xrun_callback(void *) {
+  std::atomic_fetch_add(&xrun_count, 1);
+  return 0;
 }
 
 int jack_client_init() {
@@ -56,7 +52,7 @@ float jack_client_get_cpu_load() {
 }
 
 uint32_t jack_client_get_xrun_count() {
-    uint32_t count = atomic_exchange(&xrun_count, 0);
+    uint32_t count = std::atomic_exchange(&xrun_count, 0);
     return count;
 }
 
