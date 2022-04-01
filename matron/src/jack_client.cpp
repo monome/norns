@@ -1,4 +1,4 @@
-#include <stdatomic.h>
+#include <atomic>
 #include <stdio.h>
 
 #include <jack/jack.h>
@@ -8,11 +8,10 @@
 static jack_client_t *jack_client;
 double jack_sample_rate;
 
-_Atomic uint32_t xrun_count = 0;
+std::atomic<uint32_t> xrun_count {0};
 
-static int xrun_callback(void *arg) {
-  (void)arg;
-  atomic_fetch_add(&xrun_count, 1);
+static int xrun_callback(void *) {
+  std::atomic_fetch_add(&xrun_count, 1);
   return 0;
 }
 
@@ -46,7 +45,7 @@ void jack_client_deinit() { jack_client_close(jack_client); }
 float jack_client_get_cpu_load() { return jack_cpu_load(jack_client); }
 
 uint32_t jack_client_get_xrun_count() {
-  uint32_t count = atomic_exchange(&xrun_count, 0);
+  uint32_t count = std::atomic_exchange(&xrun_count, 0);
   return count;
 }
 
