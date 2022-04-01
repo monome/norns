@@ -49,7 +49,7 @@ static void *input_run(void *p) {
         }
         if (nb > 0) {
             // event handler must free this chunk!
-            char *line = malloc((nb + 1) * sizeof(char));
+            char *line = (char*) malloc((nb + 1) * sizeof(char));
             strncpy(line, rxbuf, nb);
             line[nb] = '\0';
             union event_data *ev = event_data_new(EVENT_EXEC_CODE_LINE);

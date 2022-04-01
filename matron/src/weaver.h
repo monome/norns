@@ -100,7 +100,7 @@ extern void w_handle_startup_ready_ok();
 extern void w_handle_startup_ready_timeout();
 
 // util callbacks
-extern void w_handle_system_cmd();
+extern void w_handle_system_cmd(char* capture);
 
 // display driver callbacks
 extern void w_handle_screen_refresh();

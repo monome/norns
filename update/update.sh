@@ -32,6 +32,21 @@ sudo rm -rf /var/log/user.log
 # disable hciuart
 sudo systemctl disable hciuart
 
+# TODO !!!!!! FIX THIS FOR v3
+# rewrite matron.sevice
+sudo cp --remove-destination config/norns-matron.service /etc/systemd/system/norns-matron.service
+
+# add watcher
+sudo cp --remove-destination config/norns-watcher.service /etc/systemd/system/norns-watcher.service
+sudo systemctl enable norns-watcher
+
+# packages
+#sudo dpkg -i package/*.deb
+
+# norns-image
+#cd /home/we/norns-image
+#./setup.sh
+
 # update jack systemd
 sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
 

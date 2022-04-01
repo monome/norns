@@ -15,7 +15,7 @@
 #include <lo/lo.h>
 
 #include "MixerClient.h"
-#include "Poll.h"
+#include "CronePoll.h"
 #include "SoftcutClient.h"
 
 // FIXME: didn't realize that liblo has a perfectly ok-looking cpp interface already. this could be cleaner.

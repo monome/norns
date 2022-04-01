@@ -114,7 +114,7 @@ void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
             md->quad_yoff[1] = 8;
         }
     }
-    monome_set_rotation(md->m, rotation);
+    monome_set_rotation(md->m, (monome_rotate_t)rotation);
 }
 
 // enable/disable grid tilt

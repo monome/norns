@@ -13,6 +13,7 @@
 #include "Tape.h"
 #include "Utilities.h"
 #include <cmath>
+#include "CronePoll.h"
 
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
@@ -128,6 +129,8 @@ class MixerClient : public Client<6, 6> {
 
     PeakMeter inPeak[2];
     PeakMeter outPeak[2];
+        
+    std::unique_ptr<Poll> vuPoll;
 
   public:
     float getInputPeakPos(int ch) {
@@ -168,6 +171,10 @@ class MixerClient : public Client<6, 6> {
 
     void stopTapePlayback() {
         tape.reader.stop();
+    }
+
+    Poll* getVuPoll() { 
+        return vuPoll.get();
     }
 
     void setTapeLoop(bool loop) {
