@@ -506,6 +506,7 @@ end
 -- @param filename either an absolute path, a number (for [scriptname]-[number].pset in local data folder) or nil (for default [scriptname].pset in local data folder)
 -- @tparam string name
 function ParamSet:delete(filename, name, pset_number)
+  filename = filename or norns.state.pset_last
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
