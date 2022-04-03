@@ -135,12 +135,24 @@ def build(bld):
     norns_includes = ['.'] + matron_includes + crone_includes
     norns_use = matron_use + crone_use
     norns_libs = norns_libs + matron_libs + crone_libs
-    
+    norns_cxxflags = ['-std=c++14', '-O3', '-Wall']
+
+    if bld.env.NORNS_RELEASE:
+        norns_cxxflags += [ 
+            '-mcpu=cortex-a53',
+            '-mtune=cortex-a53',
+            '-mfpu=neon-fp-armv8',
+            '-mfloat-abi=hard',
+            '-funconstrained-commons',
+            '-ffast-math',
+            '-fgcse-sm',
+        ]
+        
     bld.program(features='c cprogram cxx cxxprogram',
         target='norns',
         source=norns_sources,
         includes=norns_includes,
         use=norns_use,
         lib=norns_libs,
-        cxxflags=['-std=c++14', '-O3', '-Wall'],
+        cxxflags=norns_cxxflags,
         ldflags=['-Wl,-export-dynamic'])
