@@ -13,10 +13,14 @@ def get_version_hash():
 def options(opt):
     opt.load('compiler_c compiler_cxx')
     opt.add_option('--desktop', action='store_true', default=False)
-    opt.add_option('--release', action='store_true', default=False)
+    opt.add_option('--release', action='store_true', default=False,
+        help='enable specific arm target architecture optimizations')
+    opt.add_option('--enable-debug', action='store_true', default=False,
+        help='enable debug code and emit symbols')
+    opt.add_option('--enable-profile', action='store_true', default=False,
+        help='emit gprof profiling data')
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
     opt.add_option('--enable-lua-cjson', action='store_true', default=True)
-    opt.add_option('--profile-matron', action='store_true', default=False)
 
     opt.recurse('maiden-repl')
 
@@ -28,11 +32,9 @@ def configure(conf):
     conf.define('VERSION_PATCH', 0)
     conf.define('VERSION_HASH', get_version_hash())
 
-    conf.env.PROFILE_MATRON = conf.options.profile_matron
-
     conf.env.append_unique('CFLAGS', ['-std=gnu11', '-Wall', '-Wextra', '-Werror'])
     conf.env.append_unique('CFLAGS', ['-g'])
-    conf.env.append_unique('CXXFLAGS', ['-std=c++11'])
+    conf.env.append_unique('CXXFLAGS', ['-std=c++14'])
     conf.define('_GNU_SOURCE', 1)
 
     conf.check_cfg(package='alsa', args=['--cflags', '--libs'])
@@ -57,12 +59,18 @@ def configure(conf):
     if conf.options.desktop:
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
         conf.define('NORNS_DESKTOP', True)
-        
+
     conf.env.NORNS_DESKTOP = conf.options.desktop
 
     if conf.options.release:
         conf.define('NORNS_RELEASE', True)
     conf.env.NORNS_RELEASE = conf.options.release
+
+    if conf.options.enable_debug:
+        conf.define('NORNS_DEBUG', True)
+    conf.env.NORNS_DEBUG = conf.options.enable_debug
+
+    conf.env.NORNS_PROFILE = conf.options.enable_profile
 
     conf.env.ENABLE_ABLETON_LINK = conf.options.enable_ableton_link
     conf.define('HAVE_ABLETON_LINK', conf.options.enable_ableton_link)
