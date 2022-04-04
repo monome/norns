@@ -305,6 +305,12 @@ static int _clock_get_tempo(lua_State *l);
 static int _audio_get_cpu_load(lua_State *l);
 static int _audio_get_xrun_count(lua_State *l);
 
+static int _audio_get_input_ports(lua_State *l);
+static int _audio_get_output_ports(lua_State *l);
+static int _audio_get_port_connections(lua_State *l);
+static int _audio_connect(lua_State *l);
+static int _audio_disconnect(lua_State *l);
+
 // time-since measurement
 static int _cpu_time_start_timer(lua_State *l);
 static int _cpu_time_get_delta(lua_State *l);
@@ -582,6 +588,12 @@ void w_init(void) {
 
     lua_register_norns("audio_get_cpu_load", &_audio_get_cpu_load);
     lua_register_norns("audio_get_xrun_count", &_audio_get_xrun_count);
+
+    lua_register_norns("audio_get_input_ports", &_audio_get_input_ports);
+    lua_register_norns("audio_get_output_ports", &_audio_get_output_ports);
+    lua_register_norns("audio_get_port_connections", &_audio_get_port_connections);
+    lua_register_norns("audio_connect", &_audio_connect);
+    lua_register_norns("audio_disconnect", &_audio_disconnect);
 
     lua_register_norns("cpu_time_start_timer", &_cpu_time_start_timer);
     lua_register_norns("cpu_time_get_delta", &_cpu_time_get_delta);
@@ -2177,6 +2189,56 @@ int _audio_get_xrun_count(lua_State *l) {
     lua_pushnumber(l, jack_client_get_xrun_count());
     return 1;
 }
+
+static int _push_port_list(lua_State *l, const char **names) {
+    const char **element = names;
+    int index = 1;
+
+    lua_newtable(l);
+
+    if (element != NULL) {
+        while (*element != NULL) {
+            lua_pushstring(l, *element);
+            lua_rawseti(l, -2, index);
+            ++index;
+            ++element;
+        }
+    }
+
+    jack_client_free_port_list(names);
+    return 1;
+}
+
+int _audio_get_input_ports(lua_State *l) {
+    return _push_port_list(l, jack_client_get_input_ports());
+}
+
+int _audio_get_output_ports(lua_State *l) {
+    return _push_port_list(l, jack_client_get_output_ports());
+}
+
+int _audio_get_port_connections(lua_State *l) {
+    lua_check_num_args(1);
+    const char *port = lua_tostring(l, 1);
+    return _push_port_list(l, jack_client_get_port_connections(port));
+}
+
+int _audio_connect(lua_State *l) {
+    lua_check_num_args(2);
+    const char *source = lua_tostring(l, 1);
+    const char *destination = lua_tostring(l, 2);
+    lua_pushboolean(l, jack_client_connect(source, destination));
+    return 1;
+}
+
+int _audio_disconnect(lua_State *l) {
+    lua_check_num_args(2);
+    const char *source = lua_tostring(l, 1);
+    const char *destination = lua_tostring(l, 2);
+    lua_pushboolean(l, jack_client_disconnect(source, destination));
+    return 1;
+}
+
 
 int _cpu_time_start_timer(lua_State *l) {
     cpu_time_start();
