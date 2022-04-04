@@ -100,7 +100,7 @@ def build(bld):
     if bld.env.PROFILE_MATRON:
         bld.env.append_unique('CXXFLAGS', ['-pg'])
         bld.env.append_unique('LDFLAGS', ['-pg'])
-    
+
     crone_includes=[
         '../crone',
         '../crone/src',
@@ -113,7 +113,7 @@ def build(bld):
         'ALSA',
         'LIBLO',
     ]
-    
+
     crone_libs=[
         'atomic',
         'jack',
@@ -121,8 +121,8 @@ def build(bld):
         'm',
         'sndfile'
     ]
-    
-    norns_sources = [ 
+
+    norns_sources = [
         'main.cpp',
         'sidecar.cpp'
     ]
@@ -138,7 +138,7 @@ def build(bld):
     norns_cxxflags = ['-std=c++14', '-O3', '-Wall']
 
     if bld.env.NORNS_RELEASE:
-        norns_cxxflags += [ 
+        norns_cxxflags += [
             '-mcpu=cortex-a53',
             '-mtune=cortex-a53',
             '-mfpu=neon-fp-armv8',
@@ -147,7 +147,7 @@ def build(bld):
             '-ffast-math',
             '-fgcse-sm',
         ]
-        
+
     bld.program(features='c cprogram cxx cxxprogram',
         target='norns',
         source=norns_sources,
