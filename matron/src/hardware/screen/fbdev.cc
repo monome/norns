@@ -35,7 +35,7 @@ static cairo_surface_t *screen_fbdev_surface_create(screen_fbdev_priv_t *priv, c
 screen_ops_t screen_fbdev_ops = {
     .io_ops.name      = "screen:fbdev",
     .io_ops.type      = IO_SCREEN,
-    .io_ops.data_size = sizeof(screen_fbdev_priv_t),    
+    .io_ops.data_size = sizeof(screen_fbdev_priv_t),
     .io_ops.config    = screen_fbdev_config,
     .io_ops.setup     = screen_fbdev_setup,
     .io_ops.destroy   = screen_fbdev_destroy,
@@ -80,7 +80,7 @@ int screen_fbdev_config(matron_io_t *io, lua_State *l) {
             return -1;
         }
         strcpy(priv->dev, "/dev/fb0");
-        fprintf(stderr, "screen:fbdev: no 'dev', using %s\n", priv->dev); 
+        fprintf(stderr, "screen:fbdev: no 'dev', using %s\n", priv->dev);
     } else {
         fprintf(stderr, "ERROR (screen:fbdev) config option 'dev' should be a string\n");
         lua_settop(l, 0);
@@ -104,7 +104,7 @@ int screen_fbdev_setup(matron_io_t *io) {
 }
 
 static void screen_fbdev_destroy(matron_io_t *io) {
-    matron_fb_t *fb = (matron_fb_t *)io; 
+    matron_fb_t *fb = (matron_fb_t *)io;
     screen_fbdev_priv_t *priv = (screen_fbdev_priv_t *)io->data;
     cairo_destroy(fb->cairo);
     cairo_surface_destroy(fb->surface);
