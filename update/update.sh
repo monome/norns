@@ -23,6 +23,9 @@ cp changelog.txt /home/we/
 sudo cp config/journald.conf /etc/systemd/
 sudo mkdir -p /var/log/journal
 
+# update jack systemd
+sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
+
 # scrub invisibles
 find ~/dust -name .DS_Store -delete
 find ~/dust -name ._.DS_Store -delete
@@ -30,6 +33,19 @@ find ~/dust -name ._.DS_Store -delete
 # maiden project setup
 cd /home/we/maiden
 ./project-setup.sh
+
+# get common audio if not present
+if [ ! -d /home/we/dust/audio/common ]; then
+	echo "does not exist, downloading"
+	cd /home/we/dust/audio
+	wget https://github.com/monome/norns/releases/download/v2.7.1/dust-audio-common.tgz
+	tar xzvf dust-audio-common.tgz
+	rm dust-audio-common.tgz
+fi
+
+# set alsa volume
+amixer --device hw:sndrpimonome set Master 100% on
+sudo alsactl store
 
 # cleanup
 rm -rf ~/update/*

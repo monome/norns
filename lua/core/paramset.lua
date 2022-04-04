@@ -92,6 +92,7 @@ function ParamSet.new(id, name)
   ps.group = 0
   ps.action_write = nil
   ps.action_read = nil
+  ps.action_delete = nil
   ParamSet.sets[ps.id] = ps
   return ps
 end
@@ -435,10 +436,12 @@ end
 -- @tparam string name
 function ParamSet:write(filename, name)
   filename = filename or 1
+  local pset_number;
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
+    pset_number = string.format("%02d",n)
+    filename = filename .. "-" .. pset_number .. ".pset"
   end
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
@@ -451,8 +454,8 @@ function ParamSet:write(filename, name)
       end
     end
     io.close(fd)
-    if self.action_write ~= nil then 
-      self.action_write(filename,name)
+    if self.action_write ~= nil then
+      self.action_write(filename,name,pset_number)
     end
   else print("pset: BAD FILENAME") end
 end
@@ -462,10 +465,12 @@ end
 -- @tparam boolean silent if true, do not trigger parameter actions
 function ParamSet:read(filename, silent)
   filename = filename or norns.state.pset_last
+  local pset_number;
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
+    pset_number = string.format("%02d",n)
+    filename = filename .. "-" .. pset_number .. ".pset"
   end
   print("pset >> read: " .. filename)
   local fd = io.open(filename, "r")
@@ -496,10 +501,26 @@ function ParamSet:read(filename, silent)
       end
     end
     if self.action_read ~= nil then 
-      self.action_read(filename,silent)
+      self.action_read(filename,silent,pset_number)
     end
   else
     print("pset :: "..filename.." not read.")
+  end
+end
+
+--- delete from disk.
+-- @param filename either an absolute path, a number (for [scriptname]-[number].pset in local data folder) or nil (for default [scriptname].pset in local data folder)
+-- @tparam string name
+function ParamSet:delete(filename, name, pset_number)
+  if type(filename) == "number" then
+    local n = filename
+    filename = norns.state.data .. norns.state.shortname
+    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
+  end
+  print("pset >> delete: "..filename, name, pset_number)
+  norns.system_cmd("rm "..filename)
+  if self.action_delete ~= nil then
+    self.action_delete(filename, name, pset_number)
   end
 end
 
@@ -525,6 +546,7 @@ function ParamSet:clear()
   self.count = 0
   self.action_read = nil 
   self.action_write = nil
+  self.action_delete = nil
   self.lookup = {}
 end
 

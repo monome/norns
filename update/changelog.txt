@@ -13,6 +13,11 @@
 @ngwese
 - FIX address linting errors (#216) @midouest
 
+# image
+
+- update journalctl service @tehn
+- update jack service to properly select codec @ngwese
+
 
 # 220306
 
