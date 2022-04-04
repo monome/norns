@@ -77,6 +77,12 @@ Script.clear = function()
   -- clear softcut
   softcut.reset()
 
+  -- restore default audio routing
+  if audio.routing_is_altered() then
+    print("# restoring default audio routing")
+    audio.routing_default()
+  end
+
   -- clear init
   init = norns.none
 

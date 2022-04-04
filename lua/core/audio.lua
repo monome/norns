@@ -2,6 +2,7 @@
 -- @module audio
 
 local cs = require 'controlspec'
+local hook = require 'core/hook'
 
 local Audio = {}
 
@@ -206,6 +207,209 @@ end
 Audio.level_cut_rev = function(value)
   _norns.level_cut_rev(value)
 end
+
+
+
+--- Routing Functions
+-- @section Routing
+
+--- default audio connections for softcut
+Audio.default_softcut_routes = {
+  ["softcut:output_1"] = "crone:input_3",
+  ["softcut:output_2"] = "crone:input_4",
+  ["crone:output_3"]   = "softcut:input_1",
+  ["crone:output_4"]   = "softcut:input_2",
+}
+
+--- default audio connections for supercollider
+Audio.default_supercollider_routes = {
+  ["SuperCollider:out_1"] = "crone:input_5",
+  ["SuperCollider:out_2"] = "crone:input_6",
+  ["crone:output_5"]      = "SuperCollider:in_1",
+  ["crone:output_6"]      = "SuperCollider:in_2",
+}
+
+--- default audio connections for system (hardware)
+Audio.default_system_routes = {
+  ["system:capture_1"] = "crone:input_1",
+  ["system:capture_2"] = "crone:input_2",
+  ["crone:output_1"]   = "system:playback_1",
+  ["crone:output_2"]   = "system:playback_2",
+}
+
+Audio.default_system_routes_reversed = {
+  ["system:capture_1"] = "crone:input_2",
+  ["system:capture_2"] = "crone:input_1",
+  ["crone:output_1"]   = "system:playback_2",
+  ["crone:output_2"]   = "system:playback_1",
+}
+
+Audio._default_routing_altered = false
+
+--- return the names of all input ports
+-- @treturn table list of port names
+Audio.input_ports = function()
+  return _norns.audio_get_input_ports()
+end
+
+--- return the names of all output ports
+-- @treturn table list of port names
+Audio.output_ports = function()
+  return _norns.audio_get_output_ports()
+end
+
+--- lookup all connections to the given port
+--
+-- the provided port name can be either an input port of an output port. if an
+-- input port is given then the returned list will consisten of output ports. if
+-- an output port is specified, connected input ports are returned.
+--
+-- @tparam string port name
+-- @treturn table list of port names
+Audio.port_connections = function(port)
+  return _norns.audio_get_port_connections(port)
+end
+
+--- connect an input to output or output to input
+-- @tparam string from the initiating port
+-- @tparam string to the desitnation port
+-- @treturn boolean true if connection request altered any routing
+Audio.port_connect = function(from, to)
+  local changed = _norns.audio_connect(from, to)
+  Audio._default_routing_altered = Audio._default_routing_altered or changed
+  return changed
+end
+
+--- disconnect an input to output or output to input
+-- @tparam string from the initiating port
+-- @tparam string to the desitnation port
+-- @treturn boolean true if connection request altered any routing
+Audio.port_disconnect = function(from, to)
+  local changed = _norns.audio_disconnect(from, to)
+  Audio._default_routing_altered = Audio._default_routing_altered or changed
+  return changed
+end
+
+--- determine if the audio routing has been altered via port_connect or
+--  port_disconnect
+-- @treturn boolean true if connections have been altered
+Audio.routing_is_altered = function()
+  -- NOTE: this works as long as port_connect and port_disconnect are used
+  -- exclusively. a more robust but slower implementation could use
+  -- port_connections to query all routes and compare those to the default
+  -- routing tables.
+  return Audio._default_routing_altered
+end
+
+--- disconnect all routing between audio clients
+Audio.routing_disconnect_all = function()
+  -- input ports
+  for _, ip in ipairs(_norns.audio_get_input_ports()) do
+    for _, c in ipairs(_norns.audio_get_port_connections(ip)) do
+      _norns.audio_disconnect(ip, c)
+    end
+  end
+  -- output ports (is this redundant?)
+  for _, op in ipairs(_norns.audio_get_output_ports()) do
+    for _, c in ipairs(_norns.audio_get_port_connections(op)) do
+      _norns.audio_disconnect(op, c)
+    end
+  end
+  -- mark routing as altered since we are using the low level functions
+  Audio._default_routing_altered = true
+end
+
+--- restores default audio routing
+--
+-- disconnects all established audio connections regardless of how they were
+-- created and establishes the default connections for the system, softcut, and
+-- supercollider.
+Audio.routing_default = function()
+  -- start from a known state
+  Audio.routing_disconnect_all()
+  Audio.system_connect()
+  Audio.softcut_connect()
+  Audio.supercollider_connect()
+
+  -- allow mods to tweak defaults
+  hook.audio_post_restore_default_routing()
+
+  Audio._default_routing_altered = false
+end
+
+Audio._routing_apply = function(routes, operation)
+  for source, destination in pairs(routes) do
+    operation(source, destination)
+  end
+end
+
+--- connect all routes defined in the given table
+--
+-- routing table keys specify the source port name with the associated value
+-- defining the destination port name.
+--
+-- @tparam table routes connections to establish
+Audio.routing_connect = function(routes)
+  Audio._routing_apply(routes, Audio.port_connect)
+end
+
+--- disconnect all routes defined in the given table
+--
+-- routing table keys specify the source port name with the associated value
+-- defining the destination port name.
+--
+-- @tparam table routes connections to establish
+Audio.routing_disconnect = function(routes)
+  Audio._routing_apply(routes, Audio.port_disconnect)
+end
+
+Audio._should_reverse_system_io = function()
+  return util.file_exists(_path.home .. "/reverse.txt")
+end
+
+--- establish with default connections for system (hardware) input and output
+Audio.system_connect = function()
+  -- crone by default will connect to the first two capture/playback ports at
+  -- startup, older shields had their stereo channels reversed so that is
+  -- accounted for here
+  if Audio._should_reverse_system_io() then
+    print("NORNS SHIELD: REVERSING STEREO")
+    Audio.routing_disconnect(Audio.default_system_routes)
+    Audio.routing_connect(Audio.default_system_routes_reversed)
+  else
+    Audio.routing_connect(Audio.default_system_routes)
+  end
+end
+
+--- remove default connections for system (hardware) input and output
+Audio.system_disconnect = function()
+  if Audio._should_reverse_system_io() then
+    Audio.routing_disconnect(Audio.default_system_routes_reversed)
+  else
+    Audio.routing_disconnect(Audio.default_system_routes)
+  end
+end
+
+--- establish with default connections for supercollider input and output
+Audio.supercollider_connect = function()
+  Audio.routing_connect(Audio.default_supercollider_routes)
+end
+
+--- remove default connections for supercollider input and output
+Audio.supercollider_disconnect = function()
+  Audio.routing_disconnect(Audio.default_supercollider_routes)
+end
+
+--- establish with default connections for softcut input and output
+Audio.softcut_connect = function()
+  Audio.routing_connect(Audio.default_softcut_routes)
+end
+
+--- remove default connections for softcut input and output
+Audio.softcut_disconnect = function()
+  Audio.routing_disconnect(Audio.default_softcut_routes)
+end
+
 
 
 --- global functions

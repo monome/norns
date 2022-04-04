@@ -33,6 +33,7 @@ end
 local hooks = {
   script_pre_init = Hook.new(),
   script_post_cleanup = Hook.new(),
+  audio_post_restore_default_routing = Hook.new(),
   system_post_startup = Hook.new(),
   system_pre_shutdown = Hook.new(),
 }

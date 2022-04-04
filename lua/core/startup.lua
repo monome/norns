@@ -92,17 +92,11 @@ end
 _norns.screen_save()
 
 -- reverse stereo for norns shield
-if util.file_exists(_path.home .. "/reverse.txt") then
-  print("NORNS SHIELD: REVERSING STEREO")
-  _norns.execute("jack_disconnect 'crone:output_1' 'system:playback_1'")
-  _norns.execute("jack_disconnect 'crone:output_2' 'system:playback_2'")
-  _norns.execute("jack_connect 'crone:output_1' 'system:playback_2'")
-  _norns.execute("jack_connect 'crone:output_2' 'system:playback_1'")
-  _norns.execute("jack_disconnect 'system:capture_1' 'crone:input_1'")
-  _norns.execute("jack_disconnect 'system:capture_2' 'crone:input_2'")
-  _norns.execute("jack_connect 'system:capture_1' 'crone:input_2'")
-  _norns.execute("jack_connect 'system:capture_2' 'crone:input_1'")
-end
+audio.system_connect()
+-- ensure supercollider connections on restart
+audio.supercollider_connect()
+-- clear dirty routing flag potentially set by the above operation
+audio._default_routing_altered = false
 
 print("start_audio(): ")
 -- start the process of syncing with crone boot
