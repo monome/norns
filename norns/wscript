@@ -87,6 +87,7 @@ def build(bld):
         'LUA53',
         'LIBLO',
         'LIBMONOME',
+        'NNG',
         'SNDFILE',
         'AVAHI-COMPAT-LIBDNS_SD',
         'JACK',
@@ -132,7 +133,6 @@ def build(bld):
     ]
 
     norns_libs = [
-        'nanomsg'
     ]
 
     norns_sources = norns_sources + matron_sources + crone_sources
