@@ -286,7 +286,7 @@ void screen_gamma(double g) {
     uint8_t grayscale_table[16];
     double max_grayscale = 112.0; // Based on linear grayscale table maxing at 112 by default.
     for (int level = 0; level <= 15; level++) {
-        double grayscale = (level/15)^g * max_grayscale;
+        double grayscale = pow(level/15, g) * max_grayscale;
         grayscale_table[level] = (uint8_t) ((grayscale > max_grayscale) ? max_grayscale : grayscale);
     }
 
@@ -299,6 +299,19 @@ void screen_gamma(double g) {
             grayscale_table[12], grayscale_table[13], grayscale_table[14], grayscale_table[15]);
     sprintf(cmd, "echo %s > /sys/class/graphics/fb0/gamma", s);
     system(cmd);
+}
+
+void screen_precharge(int v) {
+    CHECK_CR
+    if (v < 0) {
+        v=0;
+    }
+    if (v > 31) {
+    	v=31;
+    }
+
+    char cmd[41 + 1];
+    sprintf(cmd, "echo %04x > /sys/class/graphics/fb0/precharge", v);
 }
 
 void screen_level(int z) {

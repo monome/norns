@@ -12,6 +12,8 @@ extern void screen_restore(void);
 extern void screen_font_face(int i);
 extern void screen_font_size(double z);
 extern void screen_aa(int s);
+extern void screen_gamma(double g);
+extern void screen_precharge(int v);
 extern void screen_level(int z);
 extern void screen_line_width(double w);
 extern void screen_line_cap(const char *style);
