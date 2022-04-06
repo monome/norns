@@ -16,9 +16,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <nanomsg/bus.h>
-#include <nanomsg/nn.h>
-#include <nanomsg/ws.h>
+#include <nng/nng.h>
+#include <nng/protocol/bus0/bus.h>
+#include <nng/transport/ws/websocket.h>
 
 #define PIPE_READ 0
 #define PIPE_WRITE 1
@@ -30,44 +30,74 @@ int pipe_tx[2];
 
 pthread_t tid_rx, tid_tx;
 
-int sock_ws;
-int eid_ws;
+nng_listener listener_ws;
+nng_socket sock_ws;
 
-void quit(void) {
-    nn_shutdown(sock_ws, eid_ws);
+void fatal(const char *func, int rv) {
+    fprintf(stderr, "%s: %s\n", func, nng_strerror(rv));
+    exit(1);
 }
 
-void bind_sock(int *sock, int *eid, char *url) {
-    *sock = nn_socket(AF_SP, NN_BUS);
+void quit(void) {
+    nng_close(sock_ws);
+}
+
+void bind_sock(nng_listener *listener, nng_socket *sock, char *url) {
+    int rv;
+
     printf("attempting to bind socket at url %s\n", url);
-    assert((*eid = nn_bind(*sock, url)) >= 0);
-    int to = NN_WS_MSG_TYPE_TEXT;
-    assert(nn_setsockopt(*sock, NN_WS, NN_WS_MSG_TYPE, &to, sizeof(to)) >= 0);
+
+    if ((rv = nng_bus0_open(sock)) != 0) {
+        fatal("nng_bus0_open", rv);
+    }
+    if ((rv = nng_listener_create(listener, *sock, url)) != 0) {
+        fatal("nng_listener_create", rv);
+    }
+    if ((rv = nng_listener_set_bool(*listener, NNG_OPT_WS_SEND_TEXT, true)) != 0) {
+        fatal("listener set option: WS_SEND_TEXT", rv);
+    }
+    if ((rv = nng_listener_set_bool(*listener, NNG_OPT_WS_RECV_TEXT, true)) != 0) {
+        fatal("listener set option: WS_RECV_TEXT", rv);
+    }
+    // TODO: set TLS options
+    if ((rv = nng_listener_start(*listener, 0)) != 0) {
+        fatal("nng_listener_start", rv);
+    }
 }
 
 void *loop_rx(void *p) {
     (void)p;
-    int nb;
+    size_t nb;
+    int rv;
+
     while (1) {
         char *buf = NULL;
-        nb = nn_recv(sock_ws, &buf, NN_MSG, 0);
+        if ((rv = nng_recv(sock_ws, &buf, &nb, NNG_FLAG_ALLOC)) != 0) {
+            if (buf != NULL) {
+                nng_free(buf, nb);
+            }
+            continue;
+        }
         if (write(pipe_rx[PIPE_WRITE], buf, nb) < 0) {
             fprintf(stderr, "write to pipe failed\n");
         }
-        nn_freemsg(buf);
+        nng_free(buf, nb);
     }
 }
 
 void *loop_tx(void *p) {
     (void)p;
     char buf[PIPE_BUF_SIZE];
-    int nb;
+    int rv;
+    size_t nb;
     while (1) {
         nb = read(pipe_tx[PIPE_READ], buf, PIPE_BUF_SIZE - 1);
         if (nb > 0) {
             buf[nb] = '\0';
             printf("%s", buf);
-            nn_send(sock_ws, buf, nb, 0);
+            if ((rv = nng_send(sock_ws, buf, nb, 0)) != 0) {
+                // TODO: handle error?
+            }
         }
     }
 }
@@ -143,7 +173,7 @@ int launch_exe(int argc, char **argv) {
         close(pipe_tx[PIPE_WRITE]);
 
         // set up sockets and threads
-        bind_sock(&sock_ws, &eid_ws, url_ws);
+        bind_sock(&listener_ws, &sock_ws, url_ws);
         launch_thread(&tid_tx, &loop_tx, NULL);
         launch_thread(&tid_rx, &loop_rx, NULL);
     }
@@ -177,6 +207,9 @@ int main(int argc, char **argv) {
         printf("usage: ws-wrapper WS_SOCKET BINARY <child args...>");
     }
 
-    setvbuf(stdout, NULL, _IONBF, 0); 
+    nng_ws_register();
+    nng_wss_register();
+
+    setvbuf(stdout, NULL, _IONBF, 0);
     launch_exe(argc, argv);
 }
