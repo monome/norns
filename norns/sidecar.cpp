@@ -3,8 +3,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <nanomsg/nn.h>
-#include <nanomsg/reqrep.h>
+#include <nng/nng.h>
+#include <nng/protocol/reqrep0/rep.h>
+#include <nng/protocol/reqrep0/req.h>
+#include <nng/transport/ipc/ipc.h>
 
 #include "sidecar.h"
 
@@ -12,6 +14,10 @@
 //--- common
 
 const char *url = "ipc:///tmp/norns-sidecar.ipc";
+
+static void sidecar_nng_error(const char *func, int rv) {
+  fprintf(stderr, "%s: %s\n", func, nng_strerror(rv));
+}
 
 //---------------------------------
 //--- server
@@ -39,40 +45,44 @@ static int sidecar_server_run_cmd(char **result, const char *cmd, size_t *sz) {
 }
 
 int sidecar_server_main() {
-  int fd = nn_socket(AF_SP, NN_REP);
-  if (fd < 0) {
-    fprintf(stderr, "nn_socket: %s\n", nn_strerror(nn_errno()));
-    return (-1);
+  nng_socket sock;
+  nng_listener listener;
+  int rv;
+
+  nng_ipc_register();
+
+  if ((rv = nng_rep0_open(&sock)) != 0) {
+    sidecar_nng_error("open socket failed", rv);
+    return -1;
   }
 
-  if (nn_bind(fd, url) < 0) {
-    fprintf(stderr, "nn_bind: %s\n", nn_strerror(nn_errno()));
-    nn_close(fd);
-    return (-1);
+  if ((rv = nng_listen(sock, url, &listener, 0)) != 0) {
+    nng_close(sock);
+    sidecar_nng_error("binding socket failed", rv);
+    return -1;
   }
 
-  size_t sz;
   for (;;) {
     char *cmd = NULL;
-    sz = nn_recv(fd, &cmd, NN_MSG, 0);
-    if (sz < 0) {
-      fprintf(stderr, "nn_recv: %s\n", nn_strerror(nn_errno()));
-      return -1;
-    }
-    if (sz < 1) {
-      fprintf(stderr, "empty command\n");
-      return -1;
-    }
     char *result = NULL;
+    size_t cmd_sz = 0;
+    size_t result_sz = 0;
 
-    sidecar_server_run_cmd(&result, cmd, &sz);
-
-    nn_send(fd, result, sz, 0);
-    if (sz > 0 && result != NULL) {
-      free(result);
+    if ((rv = nng_recv(sock, &cmd, &cmd_sz, NNG_FLAG_ALLOC)) != 0) {
+      sidecar_nng_error("recv error", rv);
+      continue;
     }
-    nn_freemsg(cmd);
+
+    sidecar_server_run_cmd(&result, cmd, &result_sz);
+
+    if ((rv = nng_send(sock, result, result_sz, 0)) != 0) {
+      sidecar_nng_error("send error", rv);
+    }
+
+    if (result) { free(result); }
+    if (cmd) { nng_free(cmd, cmd_sz); }
   }
+
   return 0;
 }
 
@@ -80,50 +90,70 @@ int sidecar_server_main() {
 //--- client
 
 struct client_state {
-  int fd;
-  char *buf;
+  nng_socket sock;
+  nng_dialer dialer;
+  bool initialized;
 };
 
 static struct client_state cs;
 
 int sidecar_client_init() {
-  cs.fd = nn_socket(AF_SP, NN_REQ);
-  if (cs.fd < 0) {
-    fprintf(stderr, "nn_socket (sidecar client): %s\n",
-            nn_strerror(nn_errno()));
-    return (-1);
+  int rv;
+
+  nng_ipc_register();
+
+  cs.initialized = false;
+
+  if ((rv = nng_req0_open(&cs.sock)) != 0) {
+    sidecar_nng_error("sidecar: open socket failed", rv);
+    return -1;
   }
 
-  int res = nn_connect(cs.fd, url);
-  if (res < 0) {
-    fprintf(stderr, "nn_connect (sidecar client): %s\n",
-            nn_strerror(nn_errno()));
-    return (-1);
+  // annoyingly this nng_dial is racing against the nng_listen in the sidecar
+  // and unlike other transports the ipc transport appears to give up if the
+  // dial is attempted before the listener is ready.
+  int attempts = 5;
+  while ( (attempts > 0) && ((rv = nng_dial(cs.sock, url, &cs.dialer, 0)) != 0) ) {
+    sidecar_nng_error("sidecar: establishing connection failed", rv);
+    attempts--;
+    fprintf(stderr, "attempts left: %d\n", attempts);
+    usleep(200 * 1000); // wait for 200 ms
   }
+
+  if (rv == 0) {
+    cs.initialized = true;
+  }
+
   return 0;
 }
 
 void sidecar_client_cmd(char **result, size_t *size, const char *cmd) {
-  char *res;
-  size_t sz = nn_send(cs.fd, cmd, strlen(cmd) + 1, 0);
-  if (sz < 0) {
-    fprintf(stderr, "sidecar client tx failure %s\n", nn_strerror(nn_errno()));
+  int rv;
+  char *recv_buf = NULL;
+  size_t recv_sz = 0;
+
+  if (!cs.initialized) {
+    fprintf(stderr, "sidecar: client not initialized\n");
     return;
   }
-  sz = nn_recv(cs.fd, &cs.buf, NN_MSG, 0);
-  if (sz < 0) {
-    fprintf(stderr, "nn_recv (sidecar client): %s\n", nn_strerror(nn_errno()));
+
+  if ((rv = nng_send(cs.sock, (void *)cmd, strlen(cmd) + 1, 0)) != 0) {
+    sidecar_nng_error("sidecar: send error", rv);
     return;
   }
-  if (sz > 0) {
-    res = (char *)malloc(sz);
-    memcpy(res, cs.buf, sz);
+
+  if ((rv = nng_recv(cs.sock, &recv_buf, &recv_sz, NNG_FLAG_ALLOC)) != 0) {
+    sidecar_nng_error("sidecar: recv error", rv);
+    return;
+  }
+
+  if (recv_sz > 0) {
+    *result = (char *)malloc(recv_sz);
+    *size = recv_sz;
+    memcpy(*result, recv_buf, recv_sz);
   } else {
-    sz = 1;
-    res = (char *)malloc(sz);
-    res[0] = '\0';
+    *size = 1;
+    *result = (char *)malloc(*size);
+    *result[0] = '\0';
   }
-  *result = res;
-  *size = sz;
-  nn_freemsg(cs.buf);
 }

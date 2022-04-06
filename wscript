@@ -56,6 +56,13 @@ def configure(conf):
         header_name='monome.h',
         uselib_store='LIBMONOME')
 
+    conf.check_cc(msg='Checking for nng',
+        define_name='HAVE_NNG',
+        mandatory=True,
+        lib='nng',
+        header_name='nng/nng.h',
+        uselib_store='NNG')
+
     if conf.options.desktop:
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
         conf.define('NORNS_DESKTOP', True)
