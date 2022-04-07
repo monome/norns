@@ -99,7 +99,7 @@ function pmap.read()
     end
     pmap.refresh()
   else
-    print("m.read: "..filename.." not read.")
+    print("m.read: "..filename.." not read, using defaults.")
   end
 end
 

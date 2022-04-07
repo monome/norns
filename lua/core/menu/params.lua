@@ -4,8 +4,9 @@ local textentry = require 'textentry'
 local mSELECT = 0
 local mEDIT = 1
 local mPSET = 2
-local mMAP = 3
-local mMAPEDIT = 4
+local mPSETDELETE = 3
+local mMAP = 4
+local mMAPEDIT = 5
 
 local m = {
   pos = 0,
@@ -75,8 +76,7 @@ local function pset_list(results)
   end
 
   for _,file in pairs(t) do
-    local n = string.gsub(file,'.pset','')
-    n = tonumber(string.sub(n,-2,-1))
+    local n = tonumber(file:match"(%d+).pset$")
     if not n then n=1 end
     --print(file,n)
     local name = norns.state.shortname
@@ -272,10 +272,17 @@ m.key = function(n,z)
         -- delete
       elseif m.ps_action == 3 then
         if pset[m.ps_pos+1] then
-          os.execute("rm "..pset[m.ps_pos+1].file)
-          init_pset()
+          m.mode = mPSETDELETE
         end
       end
+    end
+  elseif m.mode == mPSETDELETE then
+    if n==2 and z==1 then
+      m.mode = mPSET
+    elseif n==3 and z==1 then
+      params:delete(pset[m.ps_pos+1].file,pset[m.ps_pos+1].name,string.format("%02d",m.ps_pos+1))
+      init_pset()
+      m.mode = mPSET
     end
   end
   _menu.redraw()
@@ -600,6 +607,10 @@ m.redraw = function()
         screen.text(line)
       end
     end
+  elseif m.mode == mPSETDELETE then
+    screen.move(63,40)
+    screen.level(15)
+    screen.text_center("DELETE PSET?")
   end
   screen.update()
 end

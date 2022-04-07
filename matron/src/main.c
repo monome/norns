@@ -12,6 +12,7 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
+#include "config.h"
 #include "clocks/clock_scheduler.h"
 #include "device.h"
 #include "device_hid.h"
@@ -20,10 +21,10 @@
 #include "device_monitor.h"
 #include "device_monome.h"
 #include "events.h"
-#include "gpio.h"
 #include "hello.h"
 #include "i2c.h"
 #include "input.h"
+#include "jack_client.h"
 #include "metro.h"
 #include "osc.h"
 #include "platform.h"
@@ -40,13 +41,12 @@ void cleanup(void) {
     osc_deinit();
     o_deinit();
     w_deinit();
-    gpio_deinit();
+
+    config_deinit();
     i2c_deinit();
-    screen_deinit();
     battery_deinit();
     stat_deinit();
-    clock_deinit();
-
+    jack_client_deinit();
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
 }
@@ -59,20 +59,18 @@ int main(int argc, char **argv) {
     printf("platform: %d\n",platform());
 
     events_init(); // <-- must come first!
-    screen_init();
+    if (config_init()) {
+        fprintf(stderr, "configuration failed\n");
+        return -1;
+    }
 
     metros_init();
-
-#ifdef __arm__
-    // gpio_init() hangs for too long when cross-compiling norns
-    // desktop for dev - just disable on x86 for now
-    gpio_init();
-#endif
 
     battery_init();
     stat_init();
     i2c_init();
     osc_init();
+    jack_client_init();
     clock_init();
     clock_internal_init();
     clock_midi_init();

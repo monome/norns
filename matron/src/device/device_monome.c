@@ -21,6 +21,7 @@ static void dev_monome_handle_lift(const monome_event_t *e, void *p);
 static void dev_monome_handle_encoder_delta(const monome_event_t *e, void *p);
 static void dev_monome_handle_encoder_press(const monome_event_t *e, void *p);
 static void dev_monome_handle_encoder_lift(const monome_event_t *e, void *p);
+static void dev_monome_handle_tilt(const monome_event_t *e, void *p);
 
 //-------------------------
 //--- monome device class
@@ -65,6 +66,7 @@ int dev_monome_init(void *self) {
     monome_register_handler(m, MONOME_ENCODER_DELTA, dev_monome_handle_encoder_delta, md);
     monome_register_handler(m, MONOME_ENCODER_KEY_DOWN, dev_monome_handle_encoder_press, md);
     monome_register_handler(m, MONOME_ENCODER_KEY_UP, dev_monome_handle_encoder_lift, md);
+    monome_register_handler(m, MONOME_TILT, dev_monome_handle_tilt, md);
 
     // drop the name set by udev and use libmonome-provided name
     free(base->name);
@@ -92,6 +94,14 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
 // set grid rotation
 void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
     monome_set_rotation(md->m, rotation);
+}
+
+// enable/disable grid tilt
+void dev_monome_tilt_enable(struct dev_monome *md, uint8_t sensor) {
+    monome_tilt_enable(md->m, sensor);
+}
+void dev_monome_tilt_disable(struct dev_monome *md, uint8_t sensor) {
+    monome_tilt_disable(md->m, sensor);
 }
 
 // set a given LED value
@@ -164,6 +174,17 @@ void dev_monome_handle_press(const monome_event_t *e, void *p) {
 
 void dev_monome_handle_lift(const monome_event_t *e, void *p) {
     grid_key_event(e, p, 0);
+}
+
+void dev_monome_handle_tilt(const monome_event_t *e, void *p) {
+    struct dev_monome *md = (struct dev_monome *)p;
+    union event_data *ev = event_data_new(EVENT_GRID_TILT);
+    ev->grid_tilt.id = md->dev.id;
+    ev->grid_tilt.sensor = e->tilt.sensor;
+    ev->grid_tilt.x = e->tilt.x;
+    ev->grid_tilt.y = e->tilt.y;
+    ev->grid_tilt.z = e->tilt.z;
+    event_post(ev);
 }
 
 void dev_monome_handle_encoder_delta(const monome_event_t *e, void *p) {

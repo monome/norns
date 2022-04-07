@@ -2,6 +2,7 @@
 
 #include "device_hid.h"
 #include "oracle.h"
+#include "event_types.h"
 
 // initialize the lua VM and run setup scripts
 extern void w_init(void);
@@ -32,6 +33,7 @@ extern void w_reset_lvm();
 extern void w_handle_monome_add(void *dev);
 extern void w_handle_monome_remove(int id);
 extern void w_handle_grid_key(int id, int x, int y, int state);
+extern void w_handle_grid_tilt(int id, int sensor, int x, int y, int z);
 extern void w_handle_arc_encoder_delta(int id, int number, int delta);
 extern void w_handle_arc_encoder_key(int id, int number, int state);
 
@@ -94,3 +96,6 @@ extern void w_handle_startup_ready_timeout();
 
 // util callbacks
 extern void w_handle_system_cmd();
+
+// custom events
+extern void w_handle_custom_weave(struct event_custom *ev);

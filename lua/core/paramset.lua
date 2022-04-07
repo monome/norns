@@ -26,6 +26,56 @@ local ParamSet = {
   sets = {}
 }
 
+
+-- utility hack
+local system_param_ids  =  {
+  comp_release = true,
+  monitor_level = true,
+  cut_input_eng = true,
+  comp_attack = true,
+  COMPRESSOR = true,
+  rev_cut_input = true,
+  rev_return_level = true,
+  tape_level = true,
+  reverb = true,
+  comp_post_gain = true,
+  rev_pre_delay = true,
+  clock_crow_out_div = true,
+  compressor = true,
+  cut_input_tape = true,
+  rev_lf_fc = true,
+  clock_crow_out = true,
+  REVERB = true,
+  rev_low_time = true,
+  comp_threshold = true,
+  rev_monitor_input = true,
+  LEVELS = true,
+  rev_hf_damping = true,
+  rev_eng_input = true,
+  input_level = true,
+  rev_tape_input = true,
+  clock_midi_out = true,
+  comp_pre_gain = true,
+  link_start_stop_sync = true,
+  softcut_level = true,
+  clock_reset = true,
+  link_quantum = true,
+  engine_level = true,
+  clock_tempo = true,
+  clock_source = true,
+  CLOCK = true,
+  output_level = true,
+  clock_crow_in_div = true,
+  rev_mid_time = true,
+  cut_input_adc = true,
+  comp_mix = true,
+  SOFTCUT = true,
+  monitor_mode = true,
+  headphone_gain = true,
+  comp_ratio = true
+}
+
+
 ParamSet.__index = ParamSet
 
 --- constructor.
@@ -42,6 +92,7 @@ function ParamSet.new(id, name)
   ps.group = 0
   ps.action_write = nil
   ps.action_read = nil
+  ps.action_delete = nil
   ParamSet.sets[ps.id] = ps
   return ps
 end
@@ -115,6 +166,18 @@ function ParamSet:add(args)
     else
       print("paramset.add() error: unknown type")
       return nil
+    end
+  end
+
+  if self.lookup[param.id] ~= nil then
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("!!!!! ERROR: parameter ID collision: ".. param.id)
+    print("! please contact the script maintainer - this will cause a load failure in future updates")
+    if system_param_ids[param.id] ~= nil then
+      print("! since this is a system param ID, i am refusing to clobber it")
+      return
+    else
+      print("! BEWARE! clobbering a script or mod param")
     end
   end
 
@@ -367,24 +430,26 @@ end
 -- @tparam string name
 function ParamSet:write(filename, name)
   filename = filename or 1
+  local pset_number;
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
+    pset_number = string.format("%02d",n)
+    filename = filename .. "-" .. pset_number .. ".pset"
   end
   print("pset >> write: "..filename)
   local fd = io.open(filename, "w+")
   if fd then
     io.output(fd)
     if name then io.write("-- "..name.."\n") end
-    for _,param in pairs(self.params) do
+    for _,param in ipairs(self.params) do
       if param.id and param.save and param.t ~= self.tTRIGGER then
         io.write(string.format("%s: %s\n", quote(param.id), param:get()))
       end
     end
     io.close(fd)
-    if self.action_write ~= nil then 
-      self.action_write(filename,name)
+    if self.action_write ~= nil then
+      self.action_write(filename,name,pset_number)
     end
   else print("pset: BAD FILENAME") end
 end
@@ -394,10 +459,12 @@ end
 -- @tparam boolean silent if true, do not trigger parameter actions
 function ParamSet:read(filename, silent)
   filename = filename or norns.state.pset_last
+  local pset_number;
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
+    pset_number = string.format("%02d",n)
+    filename = filename .. "-" .. pset_number .. ".pset"
   end
   print("pset >> read: " .. filename)
   local fd = io.open(filename, "r")
@@ -428,10 +495,26 @@ function ParamSet:read(filename, silent)
       end
     end
     if self.action_read ~= nil then 
-      self.action_read(filename,silent)
+      self.action_read(filename,silent,pset_number)
     end
   else
     print("pset :: "..filename.." not read.")
+  end
+end
+
+--- delete from disk.
+-- @param filename either an absolute path, a number (for [scriptname]-[number].pset in local data folder) or nil (for default [scriptname].pset in local data folder)
+-- @tparam string name
+function ParamSet:delete(filename, name, pset_number)
+  if type(filename) == "number" then
+    local n = filename
+    filename = norns.state.data .. norns.state.shortname
+    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
+  end
+  print("pset >> delete: "..filename, name, pset_number)
+  norns.system_cmd("rm "..filename)
+  if self.action_delete ~= nil then
+    self.action_delete(filename, name, pset_number)
   end
 end
 
@@ -457,6 +540,9 @@ function ParamSet:clear()
   self.count = 0
   self.action_read = nil 
   self.action_write = nil
+  self.action_delete = nil
+  self.lookup = {}
 end
+
 
 return ParamSet

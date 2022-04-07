@@ -76,6 +76,9 @@ norns.menu.toggle = function(status) _menu.set_mode(status) end
 norns.scripterror = function(msg)
   if msg == nil then msg = "" end
   print("### SCRIPT ERROR: "..msg)
+  if util.string_starts(msg,"missing") then
+    print("### try 'SYSTEM > RESTART'")
+  end
   _menu.errormsg = msg
   _menu.scripterror = true
   _menu.locked = true
@@ -255,3 +258,4 @@ m["SLEEP"] = require 'core/menu/sleep'
 m["MIX"] = require 'core/menu/mix'
 m["TAPE"] = require 'core/menu/tape'
 m["MODS"] = require 'core/menu/mods'
+m["LOG"] = require 'core/menu/log'

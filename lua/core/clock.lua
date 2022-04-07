@@ -162,6 +162,17 @@ clock.link.set_quantum = function(quantum)
   return _norns.clock_link_set_quantum(quantum)
 end
 
+clock.link.start = function()
+  return _norns.clock_link_set_transport_start()
+end
+
+clock.link.stop = function()
+  return _norns.clock_link_set_transport_stop()
+end
+
+clock.link.set_start_stop_sync = function(enabled)
+  return _norns.clock_link_set_start_stop_sync(enabled)
+end
 
 _norns.clock.start = function()
   if clock.transport.start ~= nil then
@@ -177,19 +188,19 @@ end
 
 
 function clock.add_params()
-  params:add_group("CLOCK",8)
+  params:add_group("CLOCK", 9)
 
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
     norns.state.clock.source)
   params:set_action("clock_source",
     function(x)
+      if x==3 then clock.link.set_tempo(params:get("clock_tempo")) end -- for link, apply tempo before setting source
       clock.set_source(x)
       if x==4 then
         norns.crow.clock_enable()
       end
       norns.state.clock.source = x
-      if x==1 then clock.internal.set_tempo(params:get("clock_tempo"))
-      elseif x==3 then clock.link.set_tempo(params:get("clock_tempo")) end
+      if x==1 then clock.internal.set_tempo(params:get("clock_tempo")) end
     end)
   params:set_save("clock_source", false)
   params:add_number("clock_tempo", "tempo", 1, 300, norns.state.clock.tempo)
@@ -215,6 +226,13 @@ function clock.add_params()
       norns.state.clock.link_quantum = x
     end)
   params:set_save("link_quantum", false)
+  params:add_option("link_start_stop_sync", "link start/stop sync", {"disabled", "enabled"}, norns.state.clock.link_start_stop_sync)
+  params:set_action("link_start_stop_sync",
+    function(x)
+      clock.link.set_start_stop_sync(x == 2)
+      norns.state.clock.link_start_stop_sync = x
+    end)
+  params:set_save("link_start_stop_sync", false)
   local clock_table = {"off"}
   for i = 1,16 do
     local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
@@ -252,13 +270,13 @@ function clock.add_params()
 
   -- executes crow sync
   clock.run(function()
-    local v = 0
     while true do
-      clock.sync(1/(2*params:get("clock_crow_out_div")))
+      clock.sync(1/params:get("clock_crow_out_div"))
       local crow_out = params:get("clock_crow_out")-1
       if crow_out > 0 then
-        crow.output[crow_out].volts=v
-        v = (v==0) and 10 or 0
+        crow.output[crow_out].volts = 10
+        clock.sleep(60/(2*clock.get_tempo()*params:get("clock_crow_out_div")))
+        crow.output[crow_out].volts = 0
       end
     end
   end)

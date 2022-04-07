@@ -48,11 +48,13 @@ local function get_update()
   print("starting download...")
   local cmd = "wget -T 180 -q -P /home/we/update/ " .. releases[m.install].url .. " " .. releases[m.install].sha
   print("> "..cmd)
+  m.initial_disk = norns.disk
   norns.system_cmd(cmd, get_update_2) --download
   _menu.timer.time = 0.5
   _menu.timer.count = -1
   _menu.timer.event = function()
     m.blink = m.blink == false
+    m.message = "downloading: " .. m.initial_disk-norns.disk
     _menu.redraw()
   end
   _menu.timer:start()

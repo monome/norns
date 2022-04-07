@@ -70,21 +70,32 @@ m.deinit = norns.none
 m.key = function(n,z)
   -- back
   if n == 1 then
-    alt = z == 1 and true or false
+    m.alt = z == 1 and true or false
   elseif n==2 and z==1 then
     _menu.set_page("HOME")
   -- select
   elseif n==3 and z==1 then
     -- return if the current "file" is the split between favorites and all scripts
     if m.list[m.pos+1].file == nil then return end
-    _menu.previewfile = m.list[m.pos+1].file
-    _menu.set_page("PREVIEW")
+    -- make sure the file still exists
+    local previewfile = m.list[m.pos+1].file
+    if util.file_exists(previewfile) then
+      _menu.previewfile = previewfile
+      _menu.set_page("PREVIEW")
+    else
+      m.remove_favorite()
+      screen.clear()
+      screen.level(15)
+      screen.move(64,40)
+      screen.text_center("script not found")
+      screen.update()
+    end
   end
 end
 
 m.enc = function(n,delta)
   if n==2 then
-    delta = not alt and delta or delta*6
+    delta = not m.alt and delta or delta*6
     m.pos = util.clamp(m.pos + delta, 0, m.len - 1)
     _menu.redraw()
   elseif n==3 then

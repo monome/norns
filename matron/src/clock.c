@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <jack/jack.h>
 
 #include "clock.h"
 #include "clocks/clock_crow.h"
@@ -12,23 +11,12 @@
 #include "clocks/clock_midi.h"
 #include "clocks/clock_scheduler.h"
 #include "events.h"
+#include "jack_client.h"
 
 static clock_source_t clock_source;
-static jack_client_t *jack_client;
-static jack_nframes_t jack_sample_rate;
 
 void clock_init() {
-    if ((jack_client = jack_client_open("matron-clock", JackNoStartServer, NULL)) == 0) {
-        fprintf(stderr, "failed to create JACK client\n");
-    }
-
-    jack_sample_rate = jack_get_sample_rate(jack_client);
-
-    clock_set_source(CLOCK_SOURCE_INTERNAL);
-}
-
-void clock_deinit() {
-    jack_client_close(jack_client);
+  clock_set_source(CLOCK_SOURCE_INTERNAL);
 }
 
 void clock_reference_init(clock_reference_t *reference) {
@@ -37,7 +25,7 @@ void clock_reference_init(clock_reference_t *reference) {
 }
 
 double clock_get_system_time() {
-    return (double) jack_frame_time(jack_client) / jack_sample_rate;
+    return jack_client_get_current_time();
 }
 
 double clock_get_beats() {
@@ -143,6 +131,12 @@ void clock_reschedule_sync_events_from_source(clock_source_t source) {
 }
 
 void clock_set_source(clock_source_t source) {
+    if (clock_source != source && source == CLOCK_SOURCE_LINK) {
+        clock_link_join_session();
+    } else if (clock_source != source && clock_source == CLOCK_SOURCE_LINK) {
+        clock_link_leave_session();
+    }
+
     clock_source = source;
     clock_scheduler_reschedule_sync_events();
 }

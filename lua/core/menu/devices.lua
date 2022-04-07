@@ -28,6 +28,9 @@ function m.refresh()
   for _, device in pairs(arc.devices) do
     table.insert(m.options.arc, device.name)
   end
+  for _, device in pairs(hid.devices) do
+    table.insert(m.options.hid, device.name)
+  end
   for layout, _ in pairs(keyboard.keymap) do
     table.insert(m.options["keyboard layout"], layout)
   end
@@ -39,6 +42,14 @@ local function set_len_for_list()
     m.len = 16
   else
     m.len = 4
+  end
+end
+
+local function check_and_rename(dev_type,pos,name)
+  for i = 1,#dev_type.vports do
+    if i ~= pos and dev_type.vports[i].name == name then
+      dev_type.vports[i].name = "none"
+    end
   end
 end
 
@@ -92,15 +103,19 @@ m.key = function(n,z)
       local target_mode = "list"
       if m.section == "midi" then
         midi.vports[m.setpos].name = s
+        check_and_rename(midi,m.setpos,s)
         midi.update_devices()
       elseif m.section == "grid" then
         grid.vports[m.setpos].name = s
+        check_and_rename(grid,m.setpos,s)
         grid.update_devices()
       elseif m.section == "arc" then
         arc.vports[m.setpos].name = s
+        check_and_rename(arc,m.setpos,s)
         arc.update_devices()
       elseif m.section == "hid" then
         hid.vports[m.setpos].name = s
+        check_and_rename(hid,m.setpos,s)
         hid.update_devices()
       elseif m.section == "keyboard layout" then
         keyboard.set_map(s, true)
@@ -130,25 +145,41 @@ m.enc = function(n,delta)
   end
 end
 
-local function redraw_keyboard_layout_select()
-  local len = tabutil.count(m.options["keyboard layout"])
+local function redraw_select(do_show_all_if_fit, do_uppercase)
   screen.clear()
-  for i=1,6 do
-    if (i > 2 - m.pos + 1) and (i < m.len - m.pos + 3 + 1) then
-      local name = m.options["keyboard layout"][i+m.pos-2 - 1]
-      local line = string.upper(name)
-      screen.level(i==3 and 15 or 4)
+
+  if do_show_all_if_fit==nil then do_show_all_if_fit = true end
+  if do_uppercase==nil then do_uppercase = false end
+  local len = tabutil.count(m.options[m.section])
+
+  if do_show_all_if_fit and len <= 6 then --  -> no scroll
+    for i=1,len do
+      local line = m.options[m.section][i]
+      if do_uppercase then line = string.upper(line) end
+      screen.level(i==m.pos and 15 or 4)
       screen.move(20,10*i)
       screen.text(line)
     end
+  else --  -> scroll & selected item is always at pos 3
+    for i=1,6 do
+      if (i > 2 - m.pos + 1) and (i < m.len - m.pos + 3 + 1) then
+        local line = m.options[m.section][i+m.pos-2 - 1]
+        if do_uppercase then line = string.upper(line) end
+        screen.level(i==3 and 15 or 4)
+        screen.move(20,10*i)
+        screen.text(line)
+      end
+    end
   end
+
   screen.update()
 end
 
 m.redraw = function()
-
-  if (m.section == "keyboard layout" and m.mode == "select") then
-    redraw_keyboard_layout_select()
+  if m.mode == "select" then
+    local do_show_all_if_fit = false
+    local do_uppercase = (m.section == "keyboard layout")
+    redraw_select(do_show_all_if_fit, do_uppercase)
     return
   end
 
@@ -205,24 +236,6 @@ m.redraw = function()
         screen.text(i..".")
         screen.move(8,10*i+y_offset)
         screen.text(hid.vports[i].name)
-      end
-    elseif m.mode == "select" then
-      if m.section == "midi" then
-        for j = 1,4 do
-          screen.move(0,10*j+20)
-          if m.options[m.section][m.pos+(j-1)] ~= nil then
-            local line = m.options[m.section][m.pos+(j-1)]
-            if j == 1 then
-              screen.level(15)
-            else
-              screen.level(3)
-            end
-            screen.text(line)
-          end
-        end
-      else
-        screen.move(8,10*i+20+y_offset)
-        screen.text(m.options[m.section][i])
       end
     end
   end

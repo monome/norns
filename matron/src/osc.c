@@ -30,7 +30,7 @@ static void lo_error_handler(int num, const char *m, const char *path);
 
 void osc_init(void) {
     // receive
-    st = lo_server_thread_new("10111", lo_error_handler);
+    st = lo_server_thread_new(args_remote_port(), lo_error_handler);
     lo_server_thread_add_method(st, NULL, NULL, osc_receive, NULL);
     lo_server_thread_start(st);
 

@@ -135,6 +135,7 @@ function S.count(self, n) return S.extend(self, {rcond = S._count, n = n}) end
 --- helpers in terms of core
 function S.all(self) return self:count(self.length) end
 function S.once(self) return self:times(1) end
+function S.peek(self) return self.data[self.ix] end
 
 
 --- metamethods
@@ -154,6 +155,7 @@ S.metaix = { settable = S.setdata
            , once     = S.once
            , reset    = S.reset
            , select   = S.select
+           , peek     = S.peek
            }
 S.__index = function(self, ix)
     -- runtime calls to step() and select() should return values, not functions

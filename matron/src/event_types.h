@@ -4,6 +4,9 @@
 #include "osc.h"
 #include <stdint.h>
 
+// NOTE: new event types *must* be added to the end of the enum in the order
+// maintain ABI compatibility with compiled modules which interact with the
+// event system.
 typedef enum {
     // unused (do not remove)
     EVENT_FIRST_EVENT = 0,
@@ -85,6 +88,10 @@ typedef enum {
     EVENT_SOFTCUT_RENDER,
     // softcut position callback
     EVENT_SOFTCUT_POSITION,
+    // custom events defined in lua extensions
+    EVENT_CUSTOM,
+    // monome grid tilt
+    EVENT_GRID_TILT,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -123,6 +130,15 @@ struct event_grid_key {
     uint8_t x;
     uint8_t y;
     uint8_t state;
+}; // +4
+
+struct event_grid_tilt {
+    struct event_common common;
+    uint8_t id;
+    uint8_t sensor;
+    uint8_t x;
+    uint8_t y;
+    uint8_t z;
 }; // +4
 
 struct event_arc_encoder_delta {
@@ -313,12 +329,23 @@ struct event_softcut_position {
     float pos;
 };
 
+// forward declaration to hide scripting layer dependencies
+struct event_custom_ops;
+
+struct event_custom {
+    struct event_common common;
+    struct event_custom_ops *ops;
+    void *value;
+    void *context;
+}; // +12
+
 union event_data {
     uint32_t type;
     struct event_exec_code_line exec_code_line;
     struct event_monome_add monome_add;
     struct event_monome_remove monome_remove;
     struct event_grid_key grid_key;
+    struct event_grid_tilt grid_tilt;
     struct event_arc_encoder_delta arc_encoder_delta;
     struct event_arc_encoder_key arc_encoder_key;
     struct event_hid_add hid_add;
@@ -348,4 +375,5 @@ union event_data {
     struct event_system_cmd system_cmd;
     struct event_softcut_render softcut_render;
     struct event_softcut_position softcut_position;
+    struct event_custom custom;
 };
