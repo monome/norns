@@ -12,8 +12,8 @@ extern void pages_init(int nrows, int ncols);
 extern void pages_deinit(void);
 
 extern void page_select(int i);
-extern void page_append_selected(char *str);
-extern void page_append(int i, char *str);
+extern void page_append_selected(const char *str);
+extern void page_append(int i, const char *str);
 
 extern void pages_show_key(int k);
 // switch between pages

@@ -1,6 +1,5 @@
 top = '../..'
 
-
 def options(opt):
     opt.load('compiler_c compiler_cxx')
 
@@ -10,7 +9,14 @@ def configure(conf):
     # libraries with full pkg-config data
     conf.check_cfg(package='ncursesw', args=['--cflags', '--libs'])
     conf.check_cfg(package='panel', args=['--cflags', '--libs'])
-    conf.check_cfg(package='nanomsg', args=['--cflags', '--libs'])
+    conf.check_cfg(package='readline', args=['--cflags', '--libs'])
+
+    conf.check_cc(msg='Checking for nng',
+        define_name='HAVE_NNG',
+        mandatory=True,
+        lib='nng',
+        header_name='nng/nng.h',
+        uselib_store='NNG')
 
 def build(bld):
     maiden_repl_sources = [
@@ -28,18 +34,14 @@ def build(bld):
                 includes=[
                     'src',
                 ],
-
                 use=[
                     'NCURSESW',
+                    'NNG',
                     'PANEL',
-                    'NANOMSG'
+                    'READLINE'
                 ],
                 lib=[
                     'pthread',
-                    'readline',
-                    'ncursesw',
-                    'panel',
-                    'nanomsg'
                 ],
                 cxxflags=[
                     '-O2',

@@ -49,11 +49,11 @@ void pages_deinit(void) {
   }
 }
 
-void page_append_selected(char *str) {
+void page_append_selected(const char *str) {
   page_print(page_cur, str);
 }
 
-void page_append(int i, char *str) {
+void page_append(int i, const char *str) {
   page_print(pages[i], str);
 }
 

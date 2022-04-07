@@ -6,8 +6,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <nanomsg/nn.h>
-#include <nanomsg/bus.h>
+#include <nng/nng.h>
+#include <nng/protocol/bus0/bus.h>
+#include <nng/transport/ws/websocket.h>
 
 #include "io.h"
 #include "ui.h"
@@ -18,7 +19,8 @@
 #define BUF_SIZE 4096
 
 struct sock_io {
-  int sock;
+  nng_socket sock;
+  nng_dialer dialer;
   pthread_t tid;
   bool has_thread; // ugh
 };
@@ -39,8 +41,8 @@ void *crone_rx_loop(void *x);
 struct sock_io sock_io[IO_COUNT];
 
 char *url_default[IO_COUNT] = {
-  "ws://localhost:5555/",
-  "ws://localhost:5556/",
+  "ws://127.0.0.1:5555/",
+  "ws://127.0.0.1:5556/",
   NULL,
 };
 
@@ -53,24 +55,34 @@ void * (*loop_func[IO_COUNT])(void *) = {
 //-----------
 //--- function defintions
 
-void sock_io_init( struct sock_io *io, char *url, void * (*loop)(void *) ) {
+void sock_io_init(struct sock_io *io, char *url, void * (*loop)(void *)) {
+  int rv;
+
   // connect socket
-  if(url) {
-    io->sock = nn_socket(AF_SP, NN_BUS);
-    if(nn_connect(io->sock, url) < 0) {
-      perror("error connecting socket");
+  if (url) {
+    if ( ((rv = nng_bus0_open(&(io->sock))) != 0) ||
+         ((rv = nng_dialer_create(&(io->dialer), io->sock, url)) != 0) ||
+         ((rv = nng_dialer_set_bool(io->dialer, NNG_OPT_WS_SEND_TEXT, true)) != 0) ||
+         ((rv = nng_dialer_set_bool(io->dialer, NNG_OPT_WS_RECV_TEXT, true)) != 0) ||
+         ((rv = nng_dialer_start(io->dialer, 0)) != 0) ) {
+      ui_matron_line("opening connection failed: (");
+      ui_matron_line(url);
+      ui_matron_line(") ");
+      ui_matron_line(nng_strerror(rv));
+      ui_matron_line("\n");
     }
   }
+
   // launch thread if loop function defined
   io->has_thread = false;
-  if(loop == NULL) { return; }
+  if (loop == NULL) { return; }
   pthread_attr_t attr;
   int s;
   io->has_thread = true;
   s = pthread_attr_init(&attr);
-  if(s) { printf("error initializing thread attributes \n"); }
+  if (s) { printf("error initializing thread attributes \n"); }
   s = pthread_create(&(io->tid), &attr, loop, io);
-  if(s) { printf("error creating thread\n"); }
+  if (s) { printf("error creating thread\n"); }
   pthread_attr_destroy(&attr);
 }
 
@@ -98,12 +110,14 @@ int io_deinit(void) {
 
 void io_send_line(int sockid, char *buf) {
   // FIXME this reallocate + copy is pretty dumb..
+  int rv;
   size_t sz = strlen(buf) + 2;
   char *bufcat = calloc( sz, sizeof(char) );
   snprintf(bufcat, sz, "%s\n", buf);
   struct sock_io *io = &(sock_io[sockid]);
-  unsigned int tx = nn_send(io->sock, bufcat, sz, 0);
-  assert(tx == sz);
+  if ((rv = nng_send(io->sock, bufcat, sz, 0)) != 0) {
+    // TODO: warn on send failure?
+  }
   free(bufcat);
 }
 
@@ -114,34 +128,33 @@ int io_loop(void) {
       pthread_join(sock_io[i].tid, NULL);
     }
   }
-  printf("\n\nfare well\n\n");
+  printf("\nfare well\n\n");
   return 0;
 }
 
-void *matron_rx_loop(void *p) {
+void *rx_loop(void *p, void (*ui_func)(const char *)) {
   struct sock_io *io = (struct sock_io *)p;
   char msg[BUF_SIZE];
-  while(1) {
-    int nb = nn_recv (io->sock, msg, BUF_SIZE, 0);
-    if(nb >= 0) {
-      msg[nb] = '\0';
-      ui_matron_line(msg);
+  size_t nb;
+  int rv;
+  while (1) {
+    nb = BUF_SIZE;
+    if ((rv = nng_recv(io->sock, msg, &nb, 0)) == 0) {
+      if (nb > 0) {
+        msg[nb] = '\0';
+        ui_func(msg);
+      }
     }
   }
   return NULL;
 }
 
+void *matron_rx_loop(void *p) {
+  return rx_loop(p, &ui_matron_line);
+}
+
 void *crone_rx_loop(void *p) {
-  struct sock_io *io = (struct sock_io *)p;
-  char msg[BUF_SIZE];
-  while(1) {
-    int nb = nn_recv (io->sock, msg, BUF_SIZE, 0);
-    if(nb >= 0) {
-      msg[nb] = '\0';
-      ui_crone_line(msg);
-    }
-  }
-  return NULL;
+  return rx_loop(p, &ui_crone_line);
 }
 
 void *tx_loop(void *x) {
