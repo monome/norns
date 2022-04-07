@@ -137,22 +137,22 @@ void ui_deinit(void) {
   pthread_mutex_unlock(&exit_lock);
 }
 
-static void page_line(int i, char *str) {
+static void page_line(int i, const char *str) {
   pthread_mutex_lock(&exit_lock);
   if(!should_exit)  {
     page_append(i, str);
-    if( page_id() == i) { 
+    if( page_id() == i) {
       doupdate();
     }
   }
   pthread_mutex_unlock(&exit_lock);
 }
 
-void ui_crone_line(char *str) {
+void ui_crone_line(const char *str) {
   page_line(PAGE_CRONE, str);
 }
 
-void ui_matron_line(char *str) {
+void ui_matron_line(const char *str) {
   // FIXME: sloppy way to handle this
   if(strcmp(str, " <ok>\n") == 0) {
     mvwprintw(sep_win, 0, 0, "<ok>");
@@ -189,7 +189,10 @@ void forward_to_readline(char c)
 
 void handle_cmd(char *line)
 {
-  if(strlen(line) == 1) {
+  if (line == NULL) {
+    return;
+  }
+  if (strlen(line) == 1) {
     if (line[0] == 'q') {
       should_exit = true;
     }
@@ -198,7 +201,7 @@ void handle_cmd(char *line)
     if (*line != '\0') {
       add_history(line);
     }
-    switch( page_id() ) {
+    switch (page_id()) {
     case PAGE_MATRON:
       io_send_line(IO_MATRON, line);
       break;
