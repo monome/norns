@@ -91,12 +91,10 @@ end
 -- initial screen state
 _norns.screen_save()
 
--- reverse stereo for norns shield
-audio.system_connect()
 -- ensure supercollider connections on restart
-audio.supercollider_connect()
--- clear dirty routing flag potentially set by the above operation
-audio._default_routing_altered = false
+audio.with_change_tracking_disabled(function()
+  audio.supercollider_connect()
+end)
 
 print("start_audio(): ")
 -- start the process of syncing with crone boot
