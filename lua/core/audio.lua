@@ -237,13 +237,6 @@ Audio.default_system_routes = {
   ["crone:output_2"]   = "system:playback_2",
 }
 
-Audio.default_system_routes_reversed = {
-  ["system:capture_1"] = "crone:input_2",
-  ["system:capture_2"] = "crone:input_1",
-  ["crone:output_1"]   = "system:playback_2",
-  ["crone:output_2"]   = "system:playback_1",
-}
-
 Audio._default_routing_altered = false
 
 --- return the names of all input ports
@@ -363,31 +356,14 @@ Audio.routing_disconnect = function(routes)
   Audio._routing_apply(routes, Audio.port_disconnect)
 end
 
-Audio._should_reverse_system_io = function()
-  return util.file_exists(_path.home .. "/reverse.txt")
-end
-
 --- establish with default connections for system (hardware) input and output
 Audio.system_connect = function()
-  -- crone by default will connect to the first two capture/playback ports at
-  -- startup, older shields had their stereo channels reversed so that is
-  -- accounted for here
-  if Audio._should_reverse_system_io() then
-    print("NORNS SHIELD: REVERSING STEREO")
-    Audio.routing_disconnect(Audio.default_system_routes)
-    Audio.routing_connect(Audio.default_system_routes_reversed)
-  else
-    Audio.routing_connect(Audio.default_system_routes)
-  end
+  Audio.routing_connect(Audio.default_system_routes)
 end
 
 --- remove default connections for system (hardware) input and output
 Audio.system_disconnect = function()
-  if Audio._should_reverse_system_io() then
-    Audio.routing_disconnect(Audio.default_system_routes_reversed)
-  else
-    Audio.routing_disconnect(Audio.default_system_routes)
-  end
+  Audio.routing_disconnect(Audio.default_system_routes)
 end
 
 --- establish with default connections for supercollider input and output
@@ -408,6 +384,18 @@ end
 --- remove default connections for softcut input and output
 Audio.softcut_disconnect = function()
   Audio.routing_disconnect(Audio.default_softcut_routes)
+end
+
+--- prevents changes from triggering post script clean of audio routing
+--
+--  all audio routing performed within the passed in function is consider to
+--  have had no effect on the default system routing. disabling change tracking
+--  can be useful in mods and other specialized circumstances where changes need
+--  to persist across scripts.
+Audio.with_change_tracking_disabled = function(f)
+  local result = f()
+  Audio._default_routing_altered = false
+  return result
 end
 
 
