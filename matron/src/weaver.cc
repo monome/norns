@@ -520,7 +520,7 @@ void w_init(void) {
         {"screen_load_png", _screen_load_png},
         {"screen_create_image", _screen_create_image},
         {"screen_display_image", _screen_display_image},
-        {"screen_display_iamge", _screen_display_image_region},
+        {"screen_display_image_region", _screen_display_image_region},
         {NULL, NULL}
     };
     // clang-format on
