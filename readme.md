@@ -11,8 +11,8 @@ norns is many sound instruments. it connects to grids, MIDI, and other objects. 
 git clone https://github.com/monome/norns.git
 cd norns
 git submodule update --init --recursive
-./waf configure
-./waf
+./waf configure --release
+./waf build --release
 ```
 
 ## documentation
