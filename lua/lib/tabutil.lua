@@ -245,6 +245,7 @@ end
 -- @treturn table composite table
 function tab.gather(default_values, custom_values)
   local result = {}
+  if type(custom_values) == 'nil' then custom_values = {} end
   for k,v in pairs(default_values) do 
     result[k] = (custom_values[k] ~= nil) and custom_values[k] or v
   end
