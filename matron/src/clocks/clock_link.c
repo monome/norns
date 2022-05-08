@@ -32,6 +32,7 @@ static void *clock_link_run(void *p) {
     abl_link_session_state state;
 
     link = abl_link_create(120);
+    state = abl_link_create_session_state();
 
     while (true) {
         if (pthread_mutex_trylock(&clock_link_shared_data.lock) == 0) {
@@ -80,7 +81,6 @@ static void *clock_link_run(void *p) {
             abl_link_enable(link, clock_link_shared_data.enabled);
             abl_link_enable_start_stop_sync(link, clock_link_shared_data.start_stop_sync);
 
-            abl_link_destroy_session_state(state);
             pthread_mutex_unlock(&clock_link_shared_data.lock);
         }
 
