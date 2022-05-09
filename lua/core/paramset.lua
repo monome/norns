@@ -352,15 +352,27 @@ function ParamSet:set_action(index, func)
   param.action = func
 end
 
---- set additional action
+--- run an action after the existing action
 -- @param index
--- @tparam function new_action set an additional action for this index
+-- @tparam function new_action the new action to run
 -- Chain a new action onto a paramset (even if one isn't already set)
-function ParamSet:chain_action(index, new_action)
+function ParamSet:append_action(index, new_action)
   local current_action = self:lookup_param(index).action or function() end
   self:set_action(index, function()
     current_action()
     new_action()
+  end)
+end
+
+--- run an action before the existing action
+-- @param index
+-- @tparam function new_action the new action to run
+-- Chain a new action onto a paramset (even if one isn't already set)
+function ParamSet:prepend_action(index, new_action)
+  local current_action = self:lookup_param(index).action or function() end
+  self:set_action(index, function()
+    new_action()
+    current_action()
   end)
 end
 
