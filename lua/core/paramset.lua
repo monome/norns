@@ -352,6 +352,18 @@ function ParamSet:set_action(index, func)
   param.action = func
 end
 
+--- set additional action
+-- @param index
+-- @tparam function new_action set an additional action for this index
+-- Chain a new action onto a paramset (even if one isn't already set)
+function ParamSet:chain_action(index, new_action)
+  local current_action = self:lookup_param(index).action or function() end
+  self:set_action(index, function()
+    current_action()
+    new_action()
+  end)
+end
+
 --- set save state.
 -- @param index
 -- @param state set the save state for this index
