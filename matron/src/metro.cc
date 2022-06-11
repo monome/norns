@@ -154,6 +154,7 @@ void metro_init(struct metro *t, uint64_t nsec, int count) {
         metro_handle_error(res, "pthread_create");
         return;
     } else {
+        pthread_setname_np(t->tid, "metro_loop");
         t->status = METRO_STATUS_RUNNING;
         if (res != 0) {
             metro_handle_error(res, "pthread_setschedparam");

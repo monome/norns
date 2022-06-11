@@ -33,6 +33,7 @@ void stat_init() {
     if (pthread_create(&p, NULL, stat_check, 0)) {
         fprintf(stderr, "STAT: Error creating thread\n");
     }
+    pthread_setname_np(p, "stat_check");
 }
 
 void stat_deinit() {

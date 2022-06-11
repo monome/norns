@@ -37,6 +37,7 @@ void battery_init() {
         if (pthread_create(&p, NULL, battery_check, 0)) {
             fprintf(stderr, "BATTERY: Error creating thread\n");
         }
+        pthread_setname_np(p, "battery_check");
     } else {
         fprintf(stderr, "BATTERY: FAIL.\n");
     }

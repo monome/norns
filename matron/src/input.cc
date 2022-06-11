@@ -71,5 +71,6 @@ void input_init(void) {
     if (s != 0) {
         fprintf(stderr, "input_init(): error in pthread_create(): %d\n", s);
     }
+    pthread_setname_np(pid, "input_run");
     pthread_attr_destroy(&attr);
 }
