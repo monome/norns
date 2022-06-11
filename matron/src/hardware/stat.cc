@@ -24,18 +24,15 @@ static bool have_vcgencmd;
 
 void *stat_check(void *);
 
-// extern def
 
 void stat_init() {
     if (!(have_vcgencmd = system("which vcgencmd > /dev/null 2>&1") == 0)) {
         fprintf(stderr, "Unable to check temperature: vcgencmd not in path\n");
     }
 
-#if 1 // debugging...
     if (pthread_create(&p, NULL, stat_check, 0)) {
         fprintf(stderr, "STAT: Error creating thread\n");
     }
-#endif
 }
 
 void stat_deinit() {
@@ -52,7 +49,6 @@ void *stat_check(void *x) {
     char bufsub[8];
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
-    //uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
     uint32_t sumidle = 0, sumnonidle = 0, total = 0;
     uint32_t prevsumidle[5] = {0,0,0,0,0};
     uint32_t prevtotal[5] = {0,0,0,0,0};
@@ -65,40 +61,39 @@ void *stat_check(void *x) {
 
         // check disk every 5 sleeps
         if (number == 0) {
-	    size_t size=0;
-	    char *buff = NULL;
-	    sidecar_client_cmd(&buff, &size, "df -l | grep '/dev/root' | awk '{print $4}'");
-	    if(size==0) {
+            size_t size = 0;
+            char *buff = NULL;
+            sidecar_client_cmd("df -l --output=avail / | tail -1 | awk '{ print $1 }'", &buff, &size);
+            if (size == 0) {
                 fprintf(stderr, "Error: disk free read\n");
             } else {
-                    disk = atoi(buff) / 1000; // convert to MB
+                disk = atoi(buff) / 1000; // convert to MB
             }
             free(buff);
         }
 
-	// check temp every 5
+        // check temp every 5
         if (have_vcgencmd && number == 0) {
-	    size_t size=0;
+            size_t size = 0;
             char *buff = NULL;
-	    sidecar_client_cmd(&buff, &size, "vcgencmd measure_temp");
-	    if(size==0) {
+            sidecar_client_cmd("vcgencmd measure_temp", &buff, &size);
+            if(size==0) {
                 fprintf(stderr, "Error: temp read\n");
             } else {
-                    bufsub[0] = buff[5];
-                    bufsub[1] = buff[6];
-                    bufsub[2] = 0;
-                    temp = atoi(bufsub);
+                bufsub[0] = buff[5];
+                bufsub[1] = buff[6];
+                bufsub[2] = 0;
+                temp = atoi(bufsub);
             }
-	    free(buff);
+            free(buff);
         }
 
-
         // check cpu
-	    size_t size=0;
+        size_t size = 0;
         char *buff = NULL;
-	    sidecar_client_cmd(&buff, &size,"cat /proc/stat");
+        sidecar_client_cmd("cat /proc/stat", &buff, &size);
 
-        if(size==0) {
+        if (size == 0) {
             fprintf(stderr, "Error: cpu read\n");
         } else {
             int i = 0;
@@ -112,7 +107,7 @@ void *stat_check(void *x) {
                 irq = atoi(strtok(NULL, " "));
                 softirq = atoi(strtok(NULL, " "));
                 steal = atoi(strtok(NULL, " "));
-		//fprintf(stderr, "> %d %d %d %d %d %d %d %d\n", user, nice, system, idle, iowait, irq, softirq, steal);
+                //fprintf(stderr, "> %d %d %d %d %d %d %d %d\n", user, nice, system, idle, iowait, irq, softirq, steal);
 
                 sumidle = idle + iowait;
                 sumnonidle = user + nice + system + irq + softirq + steal;
@@ -124,24 +119,25 @@ void *stat_check(void *x) {
                 prevtotal[i] = total;
 
                 //fprintf(stderr,"%d --> %d\n", i, cpu);
-		strtok(NULL, "\n");
-		strtok(NULL, " ");
+                strtok(NULL, "\n");
+                strtok(NULL, " ");
                 i++;
             }
         }
         free(buff);
 
         // just send every tick
-            union event_data *ev = event_data_new(EVENT_STAT);
-            ev->stat.disk = disk;
-            ev->stat.temp = temp;
-            ev->stat.cpu = cpu[0];
-            ev->stat.cpu1 = cpu[1];
-            ev->stat.cpu2 = cpu[2];
-            ev->stat.cpu3 = cpu[3];
-            ev->stat.cpu4 = cpu[4];
-            event_post(ev);
+        union event_data *ev = event_data_new(EVENT_STAT);
+        ev->stat.disk = disk;
+        ev->stat.temp = temp;
+        ev->stat.cpu = cpu[0];
+        ev->stat.cpu1 = cpu[1];
+        ev->stat.cpu2 = cpu[2];
+        ev->stat.cpu3 = cpu[3];
+        ev->stat.cpu4 = cpu[4];
+        event_post(ev);
 
         sleep(STAT_INTERVAL);
     }
+    return NULL;
 }

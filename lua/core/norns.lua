@@ -200,33 +200,13 @@ norns.is_norns = norns.platform == 2
 --- true if we are running on norns shield (PI3)
 norns.is_shield = norns.platform == 3
 
--- Util (system_cmd)
-local system_cmd_q = {}
-local system_cmd_busy = false
-
---- add cmd to queue
+--- run an external command
 -- @tparam string cmd shell command to execute
 -- @tparam ?func callback the callback will be called with the output of the
 -- command after it completes. if the callback is nil, then print the output
 -- instead.
 norns.system_cmd = function(cmd, callback)
-  table.insert(system_cmd_q, {cmd=cmd, callback=callback})
-  if system_cmd_busy == false then
-    system_cmd_busy = true
-    _norns.system_cmd(cmd)
-  end
-end
-
--- callback management from c
-_norns.system_cmd_capture = function(cap)
-  if system_cmd_q[1].callback == nil then print(cap)
-  else system_cmd_q[1].callback(cap) end
-  table.remove(system_cmd_q,1)
-  if #system_cmd_q > 0 then
-    _norns.system_cmd(system_cmd_q[1].cmd)
-  else
-    system_cmd_busy = false
-  end
+  return _norns.system_cmd(cmd, callback or print)
 end
 
 --- find pathnames matching a pattern
