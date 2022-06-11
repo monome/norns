@@ -113,6 +113,7 @@ void dev_monitor_init(void) {
     if (s) {
         fprintf(stderr, "error creating thread\n");
     }
+    pthread_setname_np(watch_tid, "watch_loop");
     pthread_attr_destroy(&attr);
 }
 

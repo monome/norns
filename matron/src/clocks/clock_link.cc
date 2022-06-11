@@ -111,6 +111,7 @@ void clock_link_start() {
 
     pthread_create(&clock_link_thread, &attr, &clock_link_run, NULL);
     pthread_attr_destroy(&attr);
+    pthread_setname_np(clock_link_thread, "clock_link");
 }
 
 void clock_link_join_session() {

@@ -27,6 +27,7 @@ int input_setup(matron_io_t *io) {
         fprintf(stderr, "ERROR (input %s) pthread error\n", io->ops->name);
         return err;
     }
+    pthread_setname_np(input->poll_thread, "input_poll");
 
     return 0;
 }
