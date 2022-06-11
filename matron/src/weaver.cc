@@ -2881,12 +2881,12 @@ void w_handle_softcut_position(int idx, float pos) {
 }
 
 // handle system command capture
-void w_handle_system_cmd(char *capture) {
-    lua_getglobal(lvm, "_norns");
-    lua_getfield(lvm, -1, "system_cmd_capture");
-    lua_remove(lvm, -2);
+void w_handle_system_cmd(char *capture, const int cb_ref) {
+    lua_rawgeti(lvm, LUA_REGISTRYINDEX, cb_ref);
     lua_pushstring(lvm, capture);
     l_report(lvm, l_docall(lvm, 1, 0));
+    // free the callback ref created in _system_cmd
+    luaL_unref(lvm, LUA_REGISTRYINDEX, cb_ref);
 }
 
 void w_handle_screen_refresh() {
@@ -3425,10 +3425,12 @@ int _sound_file_inspect(lua_State *l) {
 }
 
 int _system_cmd(lua_State *l) {
-    lua_check_num_args(1);
+    lua_check_num_args(2);
     const char *cmd = luaL_checkstring(l, 1);
-    system_cmd((char *)cmd);
-    return 0;
+    // create a ref to callback to prevent prevent garbage collection
+    const int cb_ref = luaL_ref(l, LUA_REGISTRYINDEX);
+    lua_pushboolean(l, system_cmd(cmd, cb_ref));
+    return 1;
 }
 
 int _system_glob(lua_State *l) {
@@ -3458,14 +3460,14 @@ int _system_glob(lua_State *l) {
     return 1;
 }
 
+static void _execute_completion(const char *cmd, void *ctx, const char *buf, size_t size) {
+    lua_pushstring((lua_State *)ctx, buf);
+}
+
 int _execute(lua_State *l) {
     lua_check_num_args(1);
     const char *cmd = luaL_checkstring(l, 1);
-    char *buf = NULL;
-    size_t size;
-    sidecar_client_cmd(&buf, &size, cmd);
-    lua_pushstring(l, buf);
-    free(buf);
+    sidecar_client_cmd(cmd, l, _execute_completion);
     return 1;
 }
 

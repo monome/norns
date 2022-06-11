@@ -343,7 +343,8 @@ struct event_crow_event {
 struct event_system_cmd {
     struct event_common common;
     char *capture;
-}; // +4
+    int cb_ref;
+}; // +8
 
 struct event_softcut_render {
     struct event_common common;

@@ -1,46 +1,35 @@
-/*
- * system_cmd.c
- *
- */
-
-#include <errno.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "events.h"
 #include "sidecar.h"
 
-void *run_cmd(void *);
+//----------------------------
+//--- types and variables
 
-// extern def
-void system_cmd(char *cmd) {
-    pthread_t p;
-    fprintf(stderr, "system_cmd: %s\n", cmd);
-    if (pthread_create(&p, NULL, run_cmd, cmd)) {
-        fprintf(stderr, "system_cmd: error in pthread_create() \n");
+static void post_command_capture(const char *cmd, void *ctx, const char *response_buff, size_t response_size) {
+    int cb_ref = (int)ctx;
+
+    if (response_size == 0) {
+        fprintf(stderr, "system_cmd: command (%s) failed\n", cmd);
+        return;
     }
-    pthread_detach(p);
-}
 
-void *run_cmd(void *cmd) {
-    size_t size=0;
-    char *buff = NULL;
-    sidecar_client_cmd(&buff, &size, (char *)cmd);
-
-    if (size==0) {
-        fprintf(stderr, "system_cmd: command failed\n");
-        return NULL;
-    }
+    // response buffer is only valid during the callback so it is copied so that
+    // it is valid for the lifetime of the event
+    char *capture = (char *)malloc(response_size);
+    memcpy(capture, response_buff, response_size);
 
     union event_data *ev = event_data_new(EVENT_SYSTEM_CMD);
     // this will get freed when the event is handled
-    ev->system_cmd.capture = buff;
+    ev->system_cmd.capture = capture;
+    ev->system_cmd.cb_ref = cb_ref;
     event_post(ev);
+}
 
-    return NULL;
+//-------------------------------
+//-- extern function definitions
+
+bool system_cmd(const char *cmd, int cb_ref) {
+    return sidecar_client_cmd_async(cmd, (void *)cb_ref, post_command_capture);
 }
