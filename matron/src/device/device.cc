@@ -114,6 +114,8 @@ int dev_start(union dev *d) {
         fprintf(stderr, "m_init(): error creating thread\n");
         return -1;
     }
+    pthread_setname_np(d->base.tid, "device_loop");
+
     return 0;
 }
 

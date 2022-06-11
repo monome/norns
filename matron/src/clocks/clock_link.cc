@@ -105,6 +105,7 @@ void clock_link_start() {
     clock_link_shared_data.enabled = false;
 
     pthread_create(&clock_link_thread, &attr, &clock_link_run, NULL);
+    pthread_setname_np(clock_link_thread, "clock_link");
 }
 
 void clock_link_join_session() {

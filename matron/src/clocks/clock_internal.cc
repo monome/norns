@@ -83,6 +83,7 @@ static void clock_internal_start() {
 
     pthread_attr_init(&attr);
     pthread_create(&clock_internal_thread, &attr, &clock_internal_thread_run, NULL);
+    pthread_setname_np(clock_internal_thread, "clock_internal");
     pthread_attr_destroy(&attr);
 }
 
