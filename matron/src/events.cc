@@ -288,7 +288,7 @@ static void handle_event(union event_data *ev) {
         w_handle_startup_ready_timeout();
         break;
     case EVENT_SYSTEM_CMD:
-        w_handle_system_cmd(ev->system_cmd.capture);
+        w_handle_system_cmd(ev->system_cmd.capture, ev->system_cmd.cb_ref);
         break;
     case EVENT_RESET_LVM:
         w_reset_lvm();

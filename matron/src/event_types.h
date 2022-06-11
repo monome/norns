@@ -312,6 +312,7 @@ struct event_crow_event {
 struct event_system_cmd {
     struct event_common common;
     char *capture;
+    int cb_ref;
 };
 
 struct event_softcut_render {
