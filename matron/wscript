@@ -77,11 +77,10 @@ def build(bld):
 
     if bld.env.ENABLE_ABLETON_LINK:
         matron_sources += ['src/clocks/clock_link.c']
-        matron_includes += ['../third-party/link-c']
+        matron_includes += ['../third-party/link/extensions/abl_link/include']
         matron_libs += ['stdc++']
         matron_use += ['LIBLINK_C']
 
-    
     matron_cflags=['-O3', '-Wall', '-std=c11']
 
     if bld.env.NORNS_RELEASE:

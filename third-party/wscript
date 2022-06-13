@@ -3,10 +3,11 @@ top = '..'
 def build_link(bld):
     bld.stlib(features='c cxx cxxstlib',
         source=[
-            'link-c/ableton_link.cpp',
+            'link/extensions/abl_link/src/abl_link.cpp',
         ],
         target='link-c',
         includes=[
+            'link/extensions/abl_link/include',
             'link/include',
             'link/modules/asio-standalone/asio/include',
         ],
