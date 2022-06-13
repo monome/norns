@@ -50,7 +50,7 @@ m.passdone = function(txt)
     local chpasswd_status = os.execute("echo 'we:"..txt.."' | sudo chpasswd")
     local smbpasswd_status = os.execute("printf '"..txt.."\n"..txt.."\n' | sudo smbpasswd -a we")
     local hotspotpasswd_status;
-    local fd = io.open(norns.state.path.."/data/.system.hotspot_password", "w+")
+    local fd = io.open("home/we/norns/.system.hotspot_password", "w+")
     if fd then
       io.output(fd)
       io.write(txt)

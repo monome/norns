@@ -13,7 +13,7 @@ local HOTSPOT = "Hotspot"
 
 local function get_hotspot_password()
   local hotspot_password;
-  local fd = io.open(norns.state.data..".system.hotspot_password", "r")
+  local fd = io.open("home/we/norns/.system.hotspot_password", "r")
   if fd then
     io.input(fd)
     hotspot_password = io.read()
