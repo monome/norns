@@ -59,7 +59,7 @@ m.passdone = function(txt)
     end
     if chpasswd_status then print("ssh password changed") end
     if smbpasswd_status then print("samba password changed") end
-    if hotspotpasswd_status then print("hotspot password changed") end
+    if hotspotpasswd_status then print("hotspot password changed, toggle WIFI off/on to take effect") end
   end
   _menu.set_page("SYSTEM")
 end
