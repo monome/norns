@@ -100,7 +100,7 @@ end
 --- add separator.
 -- name is optional.
 -- separators have their own parameter index and
--- can be hidden or added to a paremeter group.
+-- can be hidden or added to a parameter group.
 -- @tparam string name
 function ParamSet:add_separator(name)
   local param = separator.new(name)
@@ -108,6 +108,9 @@ function ParamSet:add_separator(name)
   self.count = self.count + 1
   self.group = self.group - 1
   self.hidden[self.count] = false
+  if name ~= nil then
+    self.lookup[name] = self.count
+  end
 end
 
 --- add parameter group.
@@ -403,6 +406,7 @@ end
 -- parameters are visible by default.
 -- @param index
 function ParamSet:visible(index)
+  if type(index)=="string" then index = self.lookup[index] end
   return not self.hidden[index]
 end
 
