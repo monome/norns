@@ -94,7 +94,7 @@ clock.cleanup = function()
 
   clock.transport.start = nil
   clock.transport.stop = nil
-  function clock.tempo_change_handler(bpm,source) end
+  clock.tempo_change_handler = nil
 end
 
 --- select the sync source.
@@ -133,6 +133,7 @@ clock.transport = {}
 
 clock.transport.start = nil
 clock.transport.stop = nil
+clock.tempo_change_handler = nil
 
 
 clock.internal = {}
@@ -217,7 +218,7 @@ function clock.add_params()
       if source == "internal" then clock.internal.set_tempo(bpm)
       elseif source == "link" then clock.link.set_tempo(bpm) end
       norns.state.clock.tempo = bpm
-      if clock.tempo_change_handler then
+      if clock.tempo_change_handler ~= nil then
         clock.tempo_change_handler(bpm, source)
       end
     end)
