@@ -94,6 +94,7 @@ clock.cleanup = function()
 
   clock.transport.start = nil
   clock.transport.stop = nil
+  function clock.tempo_change_handler(bpm,source) end
 end
 
 --- select the sync source.
