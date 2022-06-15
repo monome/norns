@@ -56,7 +56,7 @@ end
 -- @static
 -- @param bpm : the new tempo
 -- @param source: the clock source
-function clock.tempo_changed(bpm,source) end
+function clock.tempo_change_handler(bpm,source) end
 
 -- todo: use c api instead
 clock.resume = function(coro_id, ...)
@@ -216,8 +216,8 @@ function clock.add_params()
       if source == "internal" then clock.internal.set_tempo(bpm)
       elseif source == "link" then clock.link.set_tempo(bpm) end
       norns.state.clock.tempo = bpm
-      if clock.tempo_changed ~= nil then
-        clock.tempo_changed(bpm, source)
+      if clock.tempo_change_handler then
+        clock.tempo_change_handler(bpm, source)
       end
     end)
   params:set_save("clock_tempo", false)
