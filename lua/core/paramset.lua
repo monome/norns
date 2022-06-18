@@ -358,9 +358,9 @@ end
 -- Chain a new action onto a paramset (even if one isn't already set)
 function ParamSet:append_action(index, new_action)
   local current_action = self:lookup_param(index).action or function() end
-  self:set_action(index, function()
-    current_action()
-    new_action()
+  self:set_action(index, function(...)
+    current_action(...)
+    new_action(...)
   end)
 end
 
@@ -370,9 +370,9 @@ end
 -- Chain a new action onto a paramset (even if one isn't already set)
 function ParamSet:prepend_action(index, new_action)
   local current_action = self:lookup_param(index).action or function() end
-  self:set_action(index, function()
-    new_action()
-    current_action()
+  self:set_action(index, function(...)
+    new_action(...)
+    current_action(...)
   end)
 end
 
