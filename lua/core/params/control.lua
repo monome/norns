@@ -23,6 +23,7 @@ function Control.new(id, name, controlspec, formatter, allow_pmap)
   p.controlspec = controlspec
   p.formatter = formatter
   p.action = function(x) end
+  p.modulation = nil
   if allow_pmap == nil then p.allow_pmap = true else p.allow_pmap = allow_pmap end
 
   if controlspec.default then
@@ -42,7 +43,26 @@ end
 --- get.
 -- returns mapped value.
 function Control:get()
-  return self:map_value(self.raw)
+  return self:map_value(self:get_modulated_raw())
+end
+
+--- get_modulated_raw.
+-- get 0-1, modulated
+function Control:get_modulated_raw()
+  if self.modulation == nil then
+    return self.raw
+  else
+    local val = self.raw
+    for _, v in pairs(self.modulation) do
+      val = val + v
+    end
+    if controlspec.wrap then
+      val = val % 1
+    else
+      val = util.clamp(val, 0, 1)
+    end
+    return val
+  end
 end
 
 --- get_raw.
@@ -61,6 +81,24 @@ end
 -- accepts a mapped value
 function Control:set(value, silent)
   self:set_raw(self:unmap_value(value), silent)
+end
+
+-- modulate.
+-- accepts -1 to 1.
+function Control:modulate(key, value, silent)
+  local silent = silent or false
+  if value ~= nil then
+    value = util.clamp(value, -1, 1)
+  end
+  if self.modulation == nil then
+    self.modulation = {}
+  end
+  local bang = false
+  if self.modulation[key] ~= value and not silent then
+    bang = true
+  end
+  self.modulation[key] = value
+  if bang then self:bang() end
 end
 
 --- set_raw.
