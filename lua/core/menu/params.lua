@@ -371,12 +371,24 @@ m.enc = function(n,d)
           max = r[2]
         end
         if m.mpos == 8 then
-          pm.out_lo = util.clamp(pm.out_lo + d, min, max)
+	  if pm.modulation then
+	    pm.depth = util.clamp(pm.depth + d, 0, 1)
+	  else
+            pm.out_lo = util.clamp(pm.out_lo + d, min, max)
+	  end
         elseif m.mpos == 9 then
           pm.out_hi = util.clamp(pm.out_hi + d, min, max)
         end
       elseif m.mpos==10 then
-        if d>0 then pm.accum = true else pm.accum = false end
+        if pm.accum and d < 0 then
+	  pm.accum = false
+	elseif d < 0 and t == params.tCONTROL then
+	  pm.modulation = true
+	elseif pm.modulation and d > 0 then
+	  pm.modulation = false
+	elseif d > 0 then
+	  pm.accum = true
+        end
       end
     end
     _menu.redraw()
@@ -504,6 +516,10 @@ m.redraw = function()
 
     local out_lo = pm.out_lo
     local out_hi = pm.out_hi
+    if pm.depth == nil then pm.depth = 0.1 end
+    local depth = util.round(pm.depth, 0.01)
+    local bipolar = pm.bipolar
+    if bipolar then depth = "+/-"..depth end
 
     if t == params.tCONTROL or t == params.tTAPER then
       local param = params:lookup_param(n)
@@ -560,19 +576,28 @@ m.redraw = function()
     screen.text_right(pm.in_hi)
     screen.level(4)
     screen.move(63,50)
-    screen.text("out")
-    screen.move(103,50)
-    hl(8)
-    screen.text_right(out_lo)
-    screen.move(127,50)
-    hl(9)
-    screen.text_right(out_hi)
+    if pm.modulation then
+      screen.text("depth")
+      screen.move(127, 50)
+      hl(8)
+      screen.text_right(depth)
+    else
+      screen.text("out")
+      screen.move(103,50)
+      hl(8)
+      screen.text_right(out_lo)
+      screen.move(127,50)
+      hl(9)
+      screen.text_right(out_hi)
+    end
     screen.level(4)
     screen.move(63,60)
-    screen.text("accum")
+    screen.text("mode")
     screen.move(127,60)
     hl(10)
-    screen.text_right(pm.accum and "yes" or "no")
+    local mode = "set"
+    if pm.accum then mode = "accum" elseif pm.modulation then mode = "mod" end
+    screen.text_right(mode)
   -- PSET
   elseif m.mode == mPSET then
     screen.level(4)
@@ -682,24 +707,37 @@ norns.menu_midi_event = function(data, dev)
           v = d.value
         end
         local s = util.clamp(v, d.in_lo, d.in_hi)
-        s = util.linlin(d.in_lo, d.in_hi, d.out_lo, d.out_hi, s)
-        if t == params.tCONTROL or t == params.tTAPER then
-          params:set_raw(r,s)
-        elseif t == params.tNUMBER or t == params.tOPTION then
-          s = util.round(s)
-          params:set(r,s)
-        elseif t == params.tBINARY then 
-          params:delta(r,s)
-          if _menu.mode then 
-            for i,param in ipairs(params.params) do
-              if params:lookup_param(i).behavior == params:lookup_param(r).behavior then 
-                if params:lookup_param(i).behavior == 'trigger' then 
-                  m.triggered[i] = 2
-                else m.on[i] = params:get(i) end
+	if d.modulation then
+	  if d.bipolar then
+	    s = util.linlin(d.in_lo, d.in_hi, -d.depth, d.depth, s)
+	  else
+	    print(d.modulation, d.bipolar, d.depth)
+	    s = util.linlin(d.in_lo, d.in_hi, 0, d.depth, s)
+	  end
+	  if t == params.tCONTROL then
+	    local p = params:lookup_param(r)
+	    p:modulate("midi", s)
+	  end
+	else
+          s = util.linlin(d.in_lo, d.in_hi, d.out_lo, d.out_hi, s)
+          if t == params.tCONTROL or t == params.tTAPER then
+            params:set_raw(r,s)
+          elseif t == params.tNUMBER or t == params.tOPTION then
+            s = util.round(s)
+            params:set(r,s)
+          elseif t == params.tBINARY then 
+            params:delta(r,s)
+            if _menu.mode then 
+              for i,param in ipairs(params.params) do
+                if params:lookup_param(i).behavior == params:lookup_param(r).behavior then 
+                  if params:lookup_param(i).behavior == 'trigger' then 
+                    m.triggered[i] = 2
+                  else m.on[i] = params:get(i) end
+                end
               end
             end
           end
-        end
+	end
         if _menu.mode then _menu.redraw() end
       end
     end
