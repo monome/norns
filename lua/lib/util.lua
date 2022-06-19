@@ -1,4 +1,4 @@
---- Utility module
+-- Utility module
 -- @module lib.util
 
 util = {}
@@ -246,48 +246,40 @@ function util.acronym(name)
   return (name:gsub("%s+", ""))
 end
 
---- wrap a number to a positive min/max range
--- @tparam number n
--- @tparam number min
--- @tparam number max
--- @treturn number cycled value
+--- wrap a integer to a positive min/max range
+-- @tparam integer n
+-- @tparam integer min
+-- @tparam integer max
+-- @treturn integer cycled value
 function util.wrap(n, min, max)
   if max < min then
     local temp = min
     min = max
     max = temp
   end
-  local y = n
+  if n >= min and n <= max then
+    return n
+  end
   local d = max - min + 1
-  while y > max do
-    y = y - d
-  end
-  while y < min do
-    y = y + d
-  end
-  return y
+  y = (n - min) % d
+  return y + min
 end
 
---- wrap a number to a positive min/max range but clamp the min
--- @tparam number n
--- @tparam number min
--- @tparam number max
--- @treturn number cycled value
+--- wrap an integer to a positive min/max range but clamp the min
+-- @tparam integer n
+-- @tparam integer min
+-- @tparam integer max
+-- @treturn integer cycled value
 function util.wrap_max(n, min, max)
   if max < min then
     local temp = min
     min = max
     max = temp
   end
-  local y = n
-  local d = max - min + 1
-  while y > max do
-    y = y - d
+  if n < min then
+    return min
   end
-  if y < min then
-    y = min
-  end
-  return y
+  return util.wrap(n, min, max)
 end
 
 return util
