@@ -51,7 +51,6 @@ clock.sync = function(...)
   return coroutine.yield(SCHEDULE_SYNC, ...)
 end
 
-
 -- todo: use c api instead
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
@@ -88,6 +87,7 @@ clock.cleanup = function()
 
   clock.transport.start = nil
   clock.transport.stop = nil
+  clock.tempo_change_handler = nil
 end
 
 --- select the sync source.
@@ -124,9 +124,21 @@ end
 
 clock.transport = {}
 
+--- static callback when clock transport is started;
+-- user scripts can redefine
+-- @static
 clock.transport.start = nil
+
+--- static callback when clock transport is stopped;
+-- user scripts can redefine
+-- @static
 clock.transport.stop = nil
 
+--- static callback when clock tempo is adjusted via PARAMETERS > CLOCK > tempo;
+-- user scripts can redefine
+-- @static
+-- @param bpm : the new tempo
+clock.tempo_change_handler = nil
 
 clock.internal = {}
 
@@ -210,6 +222,9 @@ function clock.add_params()
       if source == "internal" then clock.internal.set_tempo(bpm)
       elseif source == "link" then clock.link.set_tempo(bpm) end
       norns.state.clock.tempo = bpm
+      if clock.tempo_change_handler ~= nil then
+        clock.tempo_change_handler(bpm)
+      end
     end)
   params:set_save("clock_tempo", false)
   params:add_trigger("clock_reset", "reset")
