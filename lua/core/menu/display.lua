@@ -1,53 +1,20 @@
 local map = {}
 local low = 31
-local high = 112
 local gamma = 1.0
-local lock = 0
 
 map[0] = {
-  position = {x=0, y=5},
+  position = {x=0, y=56},
   name = "LOW",
   get = function(_) return low end,
   set = function(d) low = util.clamp(0, low + d, 31) end,
   is_default = function(_) return low == 31 end,
-  tip = {
-    "The pre-charge voltage level.",
-    "0-31.",
-  },
 }
 map[1] = {
-  position = {x=22, y=5},
-  name = "HIGH",
-  get = function(_) return high end,
-  set = function(d) high = util.clamp(1, high + d, 180) end,
-  is_default = function(_) return high == 112 end,
-  tip = {
-   "The max voltage level, values",
-   "above 112 may shorten the",
-   "lifespan of the screen. 1-180",
-  },
-}
-map[2] = {
-  position = {x=48, y=5},
+  position = {x=22, y=56},
   name = "GAMMA",
   get = function(_) return string.format("%.2f", gamma) end,
   set = function(d) gamma = util.clamp(0.0, gamma + (d * 0.01),  30.0) end,
   is_default = function(_) return gamma > 0.999 and gamma < 1.001 end,
-  tip = {
-    "The gamma curve. Try 2.2 or",
-    "2.4 for gentle gradients.",
-  },
-}
-map[3] = {
-  position = {x=106, y=5},
-  name = "LOCK?",
-  get = function(_) return lock == 1 and "YES" or "NO" end,
-  set = function(d) lock = util.clamp(0, lock + d,  1) end,
-  is_default = function(_) return false end,
-  tip = {
-    "Turning this on will prevent",
-    "scripts from changing gamma.",
-  }
 }
 
 local load_settings = function()
@@ -56,9 +23,7 @@ local load_settings = function()
 
   local loaded_settings = executable_lua() or {}
   low   = loaded_settings.low   or  31
-  high  = loaded_settings.high  or 112
   gamma = loaded_settings.gamma or   1.0
-  lock  = loaded_settings.lock  or   0
 end
 
 local save_settings = function()
@@ -66,9 +31,7 @@ local save_settings = function()
   if err then return err end
   local s = ""
   s = s.."low="..low..","
-  s = s.."high="..high..","
   s = s.."gamma="..gamma..","
-  s = s.."lock="..lock..","
   file:write("return {"..s.."}")
   file:close()
 end
@@ -77,8 +40,6 @@ local m = {
   list = {
     map[0].name,
     map[1].name,
-    map[2].name,
-    map[3].name,
   },
   pos = 0,
   len = tab.count(map),
@@ -106,27 +67,19 @@ end
 m.redraw = function()
   screen.clear()
 
+  -- callibration bar visualization.
+  local bar_height = 38
   for i=0,15 do
     screen.level(i)
-    screen.rect(i*8, 64, 8, -13)
+    screen.rect(i*8, 0, 8, bar_height)
     screen.fill()
-    screen.level(i <= 7 and 15 or 0)
-    screen.move(i*8 + 4, 63)
+    screen.level(15)
+    screen.move(i*8 + 4, bar_height + 7)
     screen.text_center(i)
   end
 
   for i=0, (m.len - 1) do
     local setting = map[i]
-
-    if i == m.pos then
-      screen.level(8)
-      screen.move(64, 26)
-      for _, line in pairs(setting.tip) do
-        screen.text_center(line)
-	screen.move_rel(-(screen.text_extents(line)//2), 8)
-      end
-    end
-
     screen.level(i == m.pos and 15 or 4)
     screen.move(setting.position.x, setting.position.y)
     screen.text(setting.name)
