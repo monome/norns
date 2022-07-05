@@ -286,18 +286,22 @@ void screen_gamma(double g) {
     uint8_t grayscale_table[16];
     double max_grayscale = 112.0; // Based on linear grayscale table maxing at 112 by default.
     for (int level = 0; level <= 15; level++) {
-        double grayscale = pow(level/15, g) * max_grayscale;
+        double grayscale = round(pow((double) level/15, g) * max_grayscale);
         grayscale_table[level] = (uint8_t) ((grayscale > max_grayscale) ? max_grayscale : grayscale);
     }
 
-    char s[80];
-    char cmd[80 + 38];
-    sprintf(s, "%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x",
-            grayscale_table[ 0], grayscale_table[ 1], grayscale_table[ 2], grayscale_table[ 3],
+    for (int level = 15; level >= 1; level--) {
+    	grayscale_table[level] = grayscale_table[level] - grayscale_table[level - 1];
+    }
+
+    char s[75];
+    char cmd[75 + 40];
+    sprintf(s, "%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x",
+            grayscale_table[ 1], grayscale_table[ 2], grayscale_table[ 3],
             grayscale_table[ 4], grayscale_table[ 5], grayscale_table[ 6], grayscale_table[ 7],
             grayscale_table[ 8], grayscale_table[ 9], grayscale_table[10], grayscale_table[11],
             grayscale_table[12], grayscale_table[13], grayscale_table[14], grayscale_table[15]);
-    sprintf(cmd, "echo %s > /sys/class/graphics/fb0/gamma", s);
+    sprintf(cmd, "echo '%s' > /sys/class/graphics/fb0/gamma", s);
     system(cmd);
 }
 
@@ -310,8 +314,9 @@ void screen_precharge(int v) {
     	v=31;
     }
 
-    char cmd[41 + 1];
-    sprintf(cmd, "echo %04x > /sys/class/graphics/fb0/precharge", v);
+    char cmd[47 + 1];
+    sprintf(cmd, "echo '%04x' > /sys/class/graphics/fb0/precharge", v);
+    system(cmd);
 }
 
 void screen_level(int z) {

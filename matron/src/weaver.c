@@ -446,7 +446,7 @@ void w_init(void) {
     lua_register_norns("screen_font_size", &_screen_font_size);
     lua_register_norns("screen_aa", &_screen_aa);
     lua_register_norns("screen_gamma", &_screen_gamma);
-    lua_register_nrons("screen_precharge", *_screen_precharge);
+    lua_register_norns("screen_precharge", *_screen_precharge);
     lua_register_norns("screen_level", &_screen_level);
     lua_register_norns("screen_line_width", &_screen_line_width);
     lua_register_norns("screen_line_cap", &_screen_line_cap);

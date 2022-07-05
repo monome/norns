@@ -96,8 +96,8 @@ m.enc = function(n,delta)
     _menu.redraw()
   elseif n==3 then
     map[m.pos].set(delta)
-    --_norns.precharge(low)
-    --_norns.gamma(gamma, high)
+    _norns.screen_precharge(low)
+    _norns.screen_gamma(gamma)
     save_settings()
     _menu.redraw()
   end
