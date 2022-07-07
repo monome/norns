@@ -9,6 +9,12 @@ local screensaver = metro[36]
 
 local sleeping = false
 
+local executable_lua, err = loadfile(_path.display_settings)
+local loaded_settings = executable_lua() or {}
+local precharge = loaded_settings.low or 31
+local gamma = loaded_settings.gamma or 1.0
+local module_just_loaded = true
+
 screensaver.event = function()
   _norns.screen_clear()
   _norns.screen_update()
@@ -20,6 +26,11 @@ screensaver.count = 1
 
 --- copy buffer to screen.
 Screen.update_default = function()
+  if module_just_loaded then
+    _norns.screen_gamma(gamma)
+    _norns.screen_precharge(precharge)
+    module_just_loaded = false
+  end
   _norns.screen_update()
 end
 

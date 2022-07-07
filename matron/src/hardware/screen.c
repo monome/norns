@@ -277,6 +277,54 @@ void screen_aa(int s) {
     cairo_font_options_destroy(font_options);
 }
 
+void screen_gamma(double g) {
+    CHECK_CR
+    if (g < 0.0) {
+        g=0;
+    }
+
+    uint8_t grayscale_table[16];
+    double max_grayscale = 112.0; // Based on linear table default max of 112.
+    for (int level = 0; level <= 15; level++) {
+        double pre_gamma = level / 15.0;
+        double grayscale = round( pow(pre_gamma, g) * max_grayscale );
+        double limit = (grayscale > max_grayscale) ? max_grayscale : grayscale;
+        grayscale_table[level] = (uint8_t) limit;
+    }
+
+    // Replace grayscale_table's values with the deltas between them.
+    for (int level = 15; level >= 1; level--) {
+	 uint8_t delta = grayscale_table[level] - grayscale_table[level - 1];
+         grayscale_table[level] = delta;
+    }
+
+    char s[75];
+    char cmd[75 + 40];
+    sprintf(s, "%04x %04x %04x %04x %04x %04x %04x "
+               "%04x %04x %04x %04x %04x %04x %04x %04x",
+               grayscale_table[ 1], grayscale_table[ 2], grayscale_table[ 3],
+               grayscale_table[ 4], grayscale_table[ 5], grayscale_table[ 6],
+               grayscale_table[ 7], grayscale_table[ 8], grayscale_table[ 9],
+               grayscale_table[10], grayscale_table[11], grayscale_table[12],
+               grayscale_table[13], grayscale_table[14], grayscale_table[15]);
+    sprintf(cmd, "echo '%s' > /sys/class/graphics/fb0/gamma", s);
+    system(cmd);
+}
+
+void screen_precharge(int v) {
+    CHECK_CR
+    if (v < 0) {
+        v=0;
+    }
+    if (v > 31) {
+   	v=31;
+    }
+
+    char cmd[47 + 1];
+    sprintf(cmd, "echo '%04x' > /sys/class/graphics/fb0/precharge", v);
+    system(cmd);
+}
+
 void screen_level(int z) {
     CHECK_CR
     if(z<0)
