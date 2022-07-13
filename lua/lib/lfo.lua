@@ -46,13 +46,13 @@ local function lfo_params_visibility(state, group, i)
     if state == "show" then
       if params:get("lfo mode "..group.." "..i) == 1 then
         params:hide("lfo free "..group.." "..i)
-        params:show("lfo bars "..group.." "..i)
+        params:show("lfo clocked "..group.." "..i)
       elseif params:get("lfo mode "..group.." "..i) == 2 then
-        params:hide("lfo bars "..group.." "..i)
+        params:hide("lfo clocked "..group.." "..i)
         params:show("lfo free "..group.." "..i)
       end
     else
-      params:hide("lfo bars "..group.." "..i)
+      params:hide("lfo clocked "..group.." "..i)
       params:hide("lfo free "..group.." "..i)
     end
     params[state](params, "lfo shape "..group.." "..i)
@@ -165,7 +165,7 @@ end
 
 local function sync_lfos(group, i)
   if params:get("lfo mode "..group.." "..i) == 1 then
-    LFO.groups[group].freqs[i] = 1/(clock.get_beat_sec() * LFO.rates[params:get("lfo bars "..group.." "..i)] * 4)
+    LFO.groups[group].freqs[i] = 1/(clock.get_beat_sec() * LFO.rates[params:get("lfo clocked "..group.." "..i)] * 4)
   else
     LFO.groups[group].freqs[i] = params:get("lfo free "..group.." "..i)
   end
@@ -346,15 +346,15 @@ function LFO:add_params(parent_group, separator_name, silent)
     end
     params:add_option("lfo position "..group.." "..i, "lfo position", position_options, 1)
 
-    params:add_option("lfo mode "..group.." "..i, "lfo mode", {"bars","free"},1)
+    params:add_option("lfo mode "..group.." "..i, "lfo mode", {"clocked","free"},1)
     params:set_action("lfo mode "..group.." "..i,
       function(x)
         if x == 1 and params:string("lfo "..group.." "..i) == "on" then
           params:hide("lfo free "..group.." "..i)
-          params:show("lfo bars "..group.." "..i)
-          self.groups[group].freqs[i] = 1/(clock.get_beat_sec() * self.rates[params:get("lfo bars "..group.." "..i)] * 4)
+          params:show("lfo clocked "..group.." "..i)
+          self.groups[group].freqs[i] = 1/(clock.get_beat_sec() * self.rates[params:get("lfo clocked "..group.." "..i)] * 4)
         elseif x == 2 and params:string("lfo "..group.." "..i) == "on" then
-          params:hide("lfo bars "..group.." "..i)
+          params:hide("lfo clocked "..group.." "..i)
           params:show("lfo free "..group.." "..i)
           self.groups[group].freqs[i] = params:get("lfo free "..group.." "..i)
         end
@@ -362,10 +362,10 @@ function LFO:add_params(parent_group, separator_name, silent)
       end
       )
 
-    params:add_option("lfo bars "..group.." "..i, "lfo rate", self.rates_as_strings, 9)
-    params:set_action("lfo bars "..group.." "..i,
+    params:add_option("lfo clocked "..group.." "..i, "lfo rate", self.rates_as_strings, 9)
+    params:set_action("lfo clocked "..group.." "..i,
       function(x)
-        if params:string("lfo mode "..group.." "..i) == "bars" then
+        if params:string("lfo mode "..group.." "..i) == "clocked" then
           self.groups[group].freqs[i] = 1/(clock.get_beat_sec() * self.rates[x] * 4)
         end
       end
