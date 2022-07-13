@@ -33,8 +33,8 @@ local function new_lfo_table()
     rand_values = {},
     update = {},
     counter = nil,
-    param_types = {},
-    fn = {}
+    param_type = {},
+    fn_type = {}
   }
 end
 
@@ -223,7 +223,7 @@ local function process_lfo(group)
           end
 
           if params:string("lfo shape "..group.." "..i) == "sine" then
-            if lfo_parent.param_types[i] == 1 or lfo_parent.param_types[i] == 2 or lfo_parent.param_types[i] == 9 then
+            if lfo_parent.param_type[i] == 1 or lfo_parent.param_type[i] == 2 or lfo_parent.param_type[i] == 9 then
               value = util.round(value,1)
             end
             value = util.clamp(value,min,max)
@@ -240,7 +240,7 @@ local function process_lfo(group)
             local rand_value;
             if prev_value ~= lfo_parent.rand_values[i] then
               rand_value = util.linlin(min,max,scaled_min,scaled_max,math.random(math.floor(min*100),math.floor(max*100))/100)
-              if lfo_parent.param_types[i] == 1 or lfo_parent.param_types[i] == 2 or lfo_parent.param_types[i] == 9 then
+              if lfo_parent.param_type[i] == 1 or lfo_parent.param_type[i] == 2 or lfo_parent.param_type[i] == 9 then
                 rand_value = util.round(rand_value,1)
               end
               rand_value = util.clamp(rand_value,min,max)
@@ -269,11 +269,13 @@ function LFO:register(param, parent_group, fn)
   end
 
   if not fn or fn == 'param action' then
-    self.groups[parent_group].fn[param] = 'param action'
+    self.groups[parent_group].fn_type[param] = 'param action'
     fn = function(val) params:lookup_param(param).action(val) end
   elseif fn == 'map param' then
-    self.groups[parent_group].fn[param] = fn
+    self.groups[parent_group].fn_type[param] = 'map param'
     fn = function(val) params:set(param, val) end
+  else
+    self.groups[parent_group].fn_type[param] = 'custom'
   end
 
   self.groups[parent_group].actions[param] = fn
@@ -298,7 +300,7 @@ function LFO:add_params(parent_group, separator_name, silent)
 
   for i = 1,#self.groups[group].targets do
     local target_id = self.groups[group].targets[i]
-    self.groups[group].param_types[i] = params:lookup_param(target_id).t
+    self.groups[group].param_type[i] = params:lookup_param(target_id).t
 
     params:add_separator(params:lookup_param(target_id).name)
 
@@ -324,7 +326,7 @@ function LFO:add_params(parent_group, separator_name, silent)
     build_lfo_spec(group,i,"max")
 
     local position_options;
-    if self.groups[group].fn[target_id] == 'param action' then
+    if self.groups[group].fn_type[target_id] == 'param action' then
       position_options = {"from min", "from center", "from max", "from current"}
     else
       position_options = {"from min", "from center", "from max"}
