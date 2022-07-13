@@ -1,5 +1,5 @@
 --- module for creating parameter LFOs
--- @module lib.LFO
+-- @module lib.lfo
 -- @release v1.0
 -- @author dndrks
 --  adapted from code examples by Mark Eats (Changes) + justmat (hnds)
@@ -254,6 +254,10 @@ local function process_lfo(group)
   end
 end
 
+--- Register an LFO to a parameter.
+-- @tparam string param The parameter ID to control.
+-- @tparam string parent_group An organizing group name. Each parent_group has 8 LFOs and consumes one system metro.
+-- @tparam[opt] function By default, an LFO will call the parameter action, without affecting the parameter state. Pass a function to override default behavior.
 function LFO:register(param, parent_group, fn)
 
   if self.groups[parent_group] == nil then
@@ -268,6 +272,18 @@ function LFO:register(param, parent_group, fn)
     goto done
   end
 
+  self:set_action(param, parent_group, fn)
+
+  ::done::
+
+end
+
+--- Set an LFO's action.
+-- Only needed to change the LFO action after registration.
+-- @tparam string param The parameter ID to target.
+-- @tparam string parent_group The organizing group name.
+-- @tparam[opt] function By default, an LFO will call the parameter action, without affecting the parameter state. Pass a function to override default behavior.
+function LFO:set_action(param, parent_group, fn)
   if not fn or fn == 'param action' then
     self.groups[parent_group].fn_type[param] = 'param action'
     fn = function(val) params:lookup_param(param).action(val) end
@@ -279,15 +295,12 @@ function LFO:register(param, parent_group, fn)
   end
 
   self.groups[parent_group].actions[param] = fn
-
-  ::done::
-
 end
 
-function LFO:set_action(param, parent_group, fn)
-  self.groups[parent_group].actions[param] = fn
-end
-
+--- Add an LFO group's menu parameters.
+-- @tparam string parent_group The organizing group name.
+-- @tparam string separator_name The separator name used to collect all LFO groups.
+-- @tparam boolean Suppress params:bang() after instantiating LFO parameters. Use 'true' until your last LFO parameter group.
 function LFO:add_params(parent_group, separator_name, silent)
 
   if not main_header_added and separator_name ~= nil then
