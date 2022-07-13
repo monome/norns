@@ -125,7 +125,9 @@ function ParamSet:add_group(name,n)
     self.count = self.count + 1
     self.group = n
     self.hidden[self.count] = false
-    self.lookup[name] = self.count
+    if name ~= nil and self.lookup[name] == nil then
+      self.lookup[name] = self.count
+    end
   else
     print("ERROR: paramset cannot nest GROUPs")
   end
