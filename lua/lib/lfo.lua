@@ -34,6 +34,7 @@ local function new_lfo_table()
     update = {},
     counter = nil,
     param_types = {},
+    fn = {}
   }
 end
 
@@ -267,10 +268,12 @@ function LFO:register(param, parent_group, fn)
     goto done
   end
 
-  if not fn or fn == 'map param' then
-    fn = function(val) params:set(param, val) end
-  elseif fn == 'param action' then
+  if not fn or fn == 'param action' then
+    self.groups[parent_group].fn[param] = 'param action'
     fn = function(val) params:lookup_param(param).action(val) end
+  elseif fn == 'map param' then
+    self.groups[parent_group].fn[param] = fn
+    fn = function(val) params:set(param, val) end
   end
 
   self.groups[parent_group].actions[param] = fn
@@ -294,10 +297,10 @@ function LFO:add_params(parent_group, separator_name, silent)
   params:add_group(group, 12 * #self.groups[group].targets)
 
   for i = 1,#self.groups[group].targets do
+    local target_id = self.groups[group].targets[i]
+    self.groups[group].param_types[i] = params:lookup_param(target_id).t
 
-    self.groups[group].param_types[i] = params:lookup_param(self.groups[group].targets[i]).t
-
-    params:add_separator(params:lookup_param(self.groups[group].targets[i]).name)
+    params:add_separator(params:lookup_param(target_id).name)
 
     params:add_option("lfo "..group.." "..i,"lfo",{"off","on"},1)
     params:set_action("lfo "..group.." "..i,function(x)
@@ -320,7 +323,13 @@ function LFO:add_params(parent_group, separator_name, silent)
     build_lfo_spec(group,i,"min")
     build_lfo_spec(group,i,"max")
 
-    params:add_option("lfo position "..group.." "..i, "lfo position", {"from min", "from center", "from max", "from current"},1)
+    local position_options;
+    if self.groups[group].fn[target_id] == 'param action' then
+      position_options = {"from min", "from center", "from max", "from current"}
+    else
+      position_options = {"from min", "from center", "from max"}
+    end
+    params:add_option("lfo position "..group.." "..i, "lfo position", position_options, 1)
 
     params:add_option("lfo mode "..group.." "..i, "lfo mode", {"bars","free"},1)
     params:set_action("lfo mode "..group.." "..i,
