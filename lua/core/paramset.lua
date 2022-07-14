@@ -110,6 +110,8 @@ function ParamSet:add_separator(name)
   self.hidden[self.count] = false
   if name ~= nil and self.lookup[name] == nil then
     self.lookup[name] = self.count
+  elseif name ~= nil and self.lookup[name] ~= nil then
+    print("!!!!! ERROR: separator ID collides with another parameter ID: ".. name)
   end
 end
 
@@ -127,6 +129,8 @@ function ParamSet:add_group(name,n)
     self.hidden[self.count] = false
     if name ~= nil and self.lookup[name] == nil then
       self.lookup[name] = self.count
+    elseif name ~= nil and self.lookup[name] ~= nil then
+      print("!!!!! ERROR: group ID collides with another parameter ID: ".. name)
     end
   else
     print("ERROR: paramset cannot nest GROUPs")
