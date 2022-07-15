@@ -153,12 +153,22 @@ function ParamSet:add(args)
     else
       print("! BEWARE! clobbering a script or mod param")
     end
-  elseif self.lookup[param.id] ~= nil and param.t == 0 and params:lookup_param(param.id).t ~= 0 then
-    print("! separator ID <"..param.id.."> collides with a non-separator parameter, will not overwrite")
-    overwrite = false
-  elseif self.lookup[param.id] ~= nil and param.t == 7 and params:lookup_param(param.id).t ~= 7 then
-    print("! group ID <"..param.id.."> collides with a non-group parameter, will not overwrite")
-    overwrite = false
+  elseif self.lookup[param.id] ~= nil and param.t == 0 then
+    if params:lookup_param(param.id).t ~= 0 then
+      print("! separator ID <"..param.id.."> collides with a non-separator parameter, will not overwrite")
+      overwrite = false
+    elseif param.id ~= "separator" then
+      print("! stealing separator ID <"..param.id.."> from earlier separator")
+      overwrite = true
+    end
+  elseif self.lookup[param.id] ~= nil and param.t == 7 then
+    if params:lookup_param(param.id).t ~= 7 then
+      print("! group ID <"..param.id.."> collides with a non-group parameter, will not overwrite")
+      overwrite = false
+    elseif param.id ~= "group" then
+      print("! stealing group ID <"..param.id.."> from earlier group")
+      overwrite = true
+    end
   end
 
   param.save = true
