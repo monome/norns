@@ -142,7 +142,8 @@ function ParamSet:add(args)
     end
   end
 
-  if self.lookup[param.id] ~= nil and (param.id ~= "group" and param.id ~= "separator") then
+  local overwrite = true
+  if self.lookup[param.id] ~= nil and param.t ~= 0 and param.t ~= 7 then
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     print("!!!!! ERROR: parameter ID collision: ".. param.id)
     print("! please contact the script maintainer - this will cause a load failure in future updates")
@@ -152,6 +153,12 @@ function ParamSet:add(args)
     else
       print("! BEWARE! clobbering a script or mod param")
     end
+  elseif self.lookup[param.id] ~= nil and param.t == 0 and params:lookup_param(param.id).t ~= 0 then
+    print("! separator ID <"..param.id.."> collides with a non-separator parameter, will not overwrite")
+    overwrite = false
+  elseif self.lookup[param.id] ~= nil and param.t == 7 and params:lookup_param(param.id).t ~= 7 then
+    print("! group ID <"..param.id.."> collides with a non-group parameter, will not overwrite")
+    overwrite = false
   end
 
   param.save = true
@@ -159,8 +166,10 @@ function ParamSet:add(args)
   table.insert(self.params, param)
   self.count = self.count + 1
   self.group = self.group - 1
-  self.lookup[param.id] = self.count
-  self.hidden[self.count] = false
+  if overwrite == true then
+    self.lookup[param.id] = self.count
+    self.hidden[self.count] = false
+  end
   if args.action then
     param.action = args.action
   end
