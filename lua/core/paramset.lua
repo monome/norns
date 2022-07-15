@@ -178,8 +178,8 @@ function ParamSet:add(args)
   self.group = self.group - 1
   if overwrite == true then
     self.lookup[param.id] = self.count
-    self.hidden[self.count] = false
   end
+  self.hidden[self.count] = false
   if args.action then
     param.action = args.action
   end
