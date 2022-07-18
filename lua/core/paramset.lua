@@ -97,40 +97,6 @@ function ParamSet.new(id, name)
   return ps
 end
 
---- add separator.
--- name is optional.
--- separators have their own parameter index and
--- can be hidden or added to a parameter group.
--- @tparam string name
-function ParamSet:add_separator(name)
-  local param = separator.new(name)
-  table.insert(self.params, param)
-  self.count = self.count + 1
-  self.group = self.group - 1
-  self.hidden[self.count] = false
-  if name ~= nil then
-    self.lookup[name] = self.count
-  end
-end
-
---- add parameter group.
--- groups cannot be nested,
--- i.e. a group cannot be made within a group.
--- @tparam string name
--- @tparam int n
-function ParamSet:add_group(name,n)
-  if self.group < 1 then
-    local param = group.new(name,n)
-    table.insert(self.params, param)
-    self.count = self.count + 1
-    self.group = n
-    self.hidden[self.count] = false
-    self.lookup[name] = self.count
-  else
-    print("ERROR: paramset cannot nest GROUPs")
-  end
-end
-
 --- add generic parameter.
 -- helper function to add param to paramset
 -- two uses:
@@ -166,13 +132,18 @@ function ParamSet:add(args)
       param = binary.new(id, name, args.behavior, args.default, args.allow_pmap)
     elseif args.type == "text" then
       param = text.new(id, name, args.text)
+    elseif args.type == "separator" then
+      param = separator.new(id, name)
+    elseif args.type == "group" then
+      param = group.new(id, name, args.n)
     else
       print("paramset.add() error: unknown type")
       return nil
     end
   end
 
-  if self.lookup[param.id] ~= nil then
+  local overwrite = true
+  if self.lookup[param.id] ~= nil and param.t ~= 0 and param.t ~= 7 then
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     print("!!!!! ERROR: parameter ID collision: ".. param.id)
     print("! please contact the script maintainer - this will cause a load failure in future updates")
@@ -182,6 +153,22 @@ function ParamSet:add(args)
     else
       print("! BEWARE! clobbering a script or mod param")
     end
+  elseif self.lookup[param.id] ~= nil and param.t == 0 then
+    if params:lookup_param(param.id).t ~= 0 then
+      print("! separator ID <"..param.id.."> collides with a non-separator parameter, will not overwrite")
+      overwrite = false
+    elseif param.id ~= "separator" then
+      print("! stealing separator ID <"..param.id.."> from earlier separator")
+      overwrite = true
+    end
+  elseif self.lookup[param.id] ~= nil and param.t == 7 then
+    if params:lookup_param(param.id).t ~= 7 then
+      print("! group ID <"..param.id.."> collides with a non-group parameter, will not overwrite")
+      overwrite = false
+    elseif param.id ~= "group" then
+      print("! stealing group ID <"..param.id.."> from earlier group")
+      overwrite = true
+    end
   end
 
   param.save = true
@@ -189,7 +176,9 @@ function ParamSet:add(args)
   table.insert(self.params, param)
   self.count = self.count + 1
   self.group = self.group - 1
-  self.lookup[param.id] = self.count
+  if overwrite == true then
+    self.lookup[param.id] = self.count
+  end
   self.hidden[self.count] = false
   if args.action then
     param.action = args.action
@@ -209,8 +198,8 @@ function ParamSet:add_number(id, name, min, max, default, formatter, wrap)
 end
 
 --- add option.
--- @tparam string id
--- @tparam string name
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
 -- @param options
 -- @param default
 function ParamSet:add_option(id, name, options, default)
@@ -218,8 +207,8 @@ function ParamSet:add_option(id, name, options, default)
 end
 
 --- add control.
--- @tparam string id
--- @tparam string name
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
 -- @tparam controlspec controlspec
 -- @param formatter
 function ParamSet:add_control(id, name, controlspec, formatter)
@@ -227,8 +216,8 @@ function ParamSet:add_control(id, name, controlspec, formatter)
 end
 
 --- add file.
--- @tparam string id
--- @tparam string name
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
 -- @tparam string path
 function ParamSet:add_file(id, name, path)
   self:add { param=file.new(id, name, path) }
@@ -240,8 +229,8 @@ function ParamSet:add_text(id, name, txt)
 end
 
 --- add taper.
--- @tparam string id
--- @tparam string name
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
 -- @tparam number min
 -- @tparam number max
 -- @param default
@@ -252,19 +241,55 @@ function ParamSet:add_taper(id, name, min, max, default, k, units)
 end
 
 --- add trigger.
--- @tparam string id
--- @tparam string name
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
 function ParamSet:add_trigger(id, name)
   self:add { param=trigger.new(id, name) }
 end
 
 --- add binary
--- @tparam string id
--- @tparam string name
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
 -- @tparam string behavior
 -- @tparam number default
 function ParamSet:add_binary(id, name, behavior, default)
   self:add { param=binary.new(id, name, behavior, default) }
+end
+
+--- add separator.
+-- id and name are optional.
+-- if neither id or name are provided,
+-- separator will be named 'separator'
+-- and will not have a unique parameter index.
+-- separators which have their own parameter index
+-- can be hidden / shown.
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
+function ParamSet:add_separator(id, name)
+  self:add { param=separator.new(id, name) }
+end
+
+--- add parameter group.
+-- groups cannot be nested,
+-- i.e. a group cannot be made within a group.
+-- id and name are optional.
+-- if neither id or name are provided,
+-- group will be named 'group'
+-- and will not have a unique parameter index.
+-- groups which have their own parameter index
+-- can be hidden / shown.
+-- @tparam string id (no spaces)
+-- @tparam string name (can contain spaces)
+-- @tparam int n
+function ParamSet:add_group(id, name, n)
+  if id == nil then id = "group" end
+  n = type(name) == "number" and name or (n or 1)
+  if self.group < 1 then
+    self:add { param=group.new(id, name, n) }
+    self.group = type(name) == "number" and name or n
+  else
+    print("ERROR: paramset cannot nest GROUPs")
+  end
 end
 
 --- print.
