@@ -27,8 +27,8 @@ Script.clear = function()
     package.loaded['asl'] = nil
   end
 
-  if package.loaded['lfo'] then
-    package.loaded['lfo'] = nil
+  if package.loaded['param_lfo'] then
+    package.loaded['param_lfo'] = nil
   end
 
   -- script local state
