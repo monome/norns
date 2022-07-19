@@ -1,5 +1,5 @@
 --- module for creating parameter LFOs
--- @module lib.param_lfo
+-- @module lib.param-lfo
 -- @release v1.0
 -- @author dndrks
 --  adapted from code examples by Mark Eats (Changes) + justmat (hnds)
