@@ -38,26 +38,26 @@ end
 
 local function lfo_params_visibility(state, group, i)
   if lfos_all_loaded[group] then
-    params[state](params, "p_lfo_position_"..group.."_"..i)
-    params[state](params, "p_lfo_depth_"..group.."_"..i)
-    params[state](params, "p_lfo_mode_"..group.."_"..i)
+    params[state](params, "plfo_position_"..group.."_"..i)
+    params[state](params, "plfo_depth_"..group.."_"..i)
+    params[state](params, "plfo_mode_"..group.."_"..i)
     if state == "show" then
-      if params:get("p_lfo_mode_"..group.."_"..i) == 1 then
-        params:hide("p_lfo_free_"..group.."_"..i)
-        params:show("p_lfo_clocked_"..group.."_"..i)
-      elseif params:get("p_lfo_mode_"..group.."_"..i) == 2 then
-        params:hide("p_lfo_clocked_"..group.."_"..i)
-        params:show("p_lfo_free_"..group.."_"..i)
+      if params:get("plfo_mode_"..group.."_"..i) == 1 then
+        params:hide("plfo_free_"..group.."_"..i)
+        params:show("plfo_clocked_"..group.."_"..i)
+      elseif params:get("plfo_mode_"..group.."_"..i) == 2 then
+        params:hide("plfo_clocked_"..group.."_"..i)
+        params:show("plfo_free_"..group.."_"..i)
       end
     else
-      params:hide("p_lfo_clocked_"..group.."_"..i)
-      params:hide("p_lfo_free_"..group.."_"..i)
+      params:hide("plfo_clocked_"..group.."_"..i)
+      params:hide("plfo_free_"..group.."_"..i)
     end
-    params[state](params, "p_lfo_shape_"..group.."_"..i)
-    params[state](params, "p_lfo_min_"..group.."_"..i)
-    params[state](params, "p_lfo_max_"..group.."_"..i)
-    params[state](params, "p_lfo_reset_"..group.."_"..i)
-    params[state](params, "p_lfo_reset_target_"..group.."_"..i)
+    params[state](params, "plfo_shape_"..group.."_"..i)
+    params[state](params, "plfo_min_"..group.."_"..i)
+    params[state](params, "plfo_max_"..group.."_"..i)
+    params[state](params, "plfo_reset_"..group.."_"..i)
+    params[state](params, "plfo_reset_target_"..group.."_"..i)
     _menu.rebuild_params()
   end
 end
@@ -76,7 +76,7 @@ local function build_lfo_spec(group,i,bound)
   if param_spec.t == 1 then
     params:add{
       type = 'number',
-      id = 'p_lfo_'..bound..'_'..group..'_'..i,
+      id = 'plfo_'..bound..'_'..group..'_'..i,
       name = 'lfo '..bound,
       min = param_spec.min,
       max = param_spec.max,
@@ -87,7 +87,7 @@ local function build_lfo_spec(group,i,bound)
   elseif param_spec.t == 2 then
     params:add{
       type = 'option',
-      id = 'p_lfo_'..bound..'_'..group..'_'..i,
+      id = 'plfo_'..bound..'_'..group..'_'..i,
       name = 'lfo '..bound,
       options = param_spec.option,
       default = (bound == nil and param_spec.value or (bound == 'min' and 1 or (bound == 'current' and params:get(lfo_target) or param_spec.count)))
@@ -96,7 +96,7 @@ local function build_lfo_spec(group,i,bound)
   elseif param_spec.t == 3 then
     params:add{
       type = 'control',
-      id = 'p_lfo_'..bound..'_'..group..'_'..i,
+      id = 'plfo_'..bound..'_'..group..'_'..i,
       name = 'lfo '..bound,
       controlspec = controlspec.new(
         param_spec.controlspec.minval,
@@ -114,7 +114,7 @@ local function build_lfo_spec(group,i,bound)
   elseif param_spec.t == 5 then
     params:add{
       type = 'taper',
-      id = 'p_lfo_'..bound..'_'..group..'_'..i,
+      id = 'plfo_'..bound..'_'..group..'_'..i,
       name = 'lfo '..bound,
       min = param_spec.min,
       max = param_spec.max,
@@ -126,7 +126,7 @@ local function build_lfo_spec(group,i,bound)
   elseif param_spec.t == 9 then
     params:add{
       type = 'control',
-      id = 'p_lfo_'..bound..'_'..group..'_'..i,
+      id = 'plfo_'..bound..'_'..group..'_'..i,
       name = 'lfo '..bound,
       controlspec = controlspec.new(
         0,
@@ -154,18 +154,18 @@ end
 local function reset_lfo_phase(group,which)
   if which == nil then
     for i = 1, #LFO.groups[group].targets do
-      LFO.groups[group].progress[i] = math.pi * (params:string("p_lfo_reset_target_"..group.."_"..i) == "floor" and 1.5 or 2.5)
+      LFO.groups[group].progress[i] = math.pi * (params:string("plfo_reset_target_"..group.."_"..i) == "floor" and 1.5 or 2.5)
     end
   else
-    LFO.groups[group].progress[which] = math.pi * (params:string("p_lfo_reset_target_"..group.."_"..which) == "floor" and 1.5 or 2.5)
+    LFO.groups[group].progress[which] = math.pi * (params:string("plfo_reset_target_"..group.."_"..which) == "floor" and 1.5 or 2.5)
   end
 end
 
 local function sync_lfos(group, i)
-  if params:get("p_lfo_mode_"..group.."_"..i) == 1 then
-    LFO.groups[group].freqs[i] = 1/(clock.get_beat_sec() * LFO.rates[params:get("p_lfo_clocked_"..group.."_"..i)] * 4)
+  if params:get("plfo_mode_"..group.."_"..i) == 1 then
+    LFO.groups[group].freqs[i] = 1/(clock.get_beat_sec() * LFO.rates[params:get("plfo_clocked_"..group.."_"..i)] * 4)
   else
-    LFO.groups[group].freqs[i] = params:get("p_lfo_free_"..group.."_"..i)
+    LFO.groups[group].freqs[i] = params:get("plfo_free_"..group.."_"..i)
   end
 end
 
@@ -176,8 +176,8 @@ local function process_lfo(group)
     for i = 1,#lfo_parent.targets do
       
       lfo_parent.progress[i] = lfo_parent.progress[i] + delta * lfo_parent.freqs[i]
-      local min = params:get("p_lfo_min_"..group.."_"..i)
-      local max = params:get("p_lfo_max_"..group.."_"..i)
+      local min = params:get("plfo_min_"..group.."_"..i)
+      local max = params:get("plfo_max_"..group.."_"..i)
       if min > max then
         local old_min = min
         local old_max = max
@@ -185,54 +185,54 @@ local function process_lfo(group)
         max = old_min
       end
 
-      local percentage = math.abs(min-max) * (params:get("p_lfo_depth_"..group.."_"..i)/100)
+      local percentage = math.abs(min-max) * (params:get("plfo_depth_"..group.."_"..i)/100)
       local value = util.linlin(-1,1,min,min + percentage,math.sin(lfo_parent.progress[i]))
 
-      if value ~= lfo_parent.values[i] and (params:get("p_lfo_depth_"..group.."_"..i)/100 > 0) then
+      if value ~= lfo_parent.values[i] and (params:get("plfo_depth_"..group.."_"..i)/100 > 0) then
         lfo_parent.values[i] = value
-        if params:string("p_lfo_"..group.."_"..i) == "on" then
+        if params:string("plfo_"..group.."_"..i) == "on" then
           local mid;
           local scaled_min;
           local scaled_max;
 
-          if params:string("p_lfo_position_"..group.."_"..i) == 'from min' then
+          if params:string("plfo_position_"..group.."_"..i) == 'from min' then
             scaled_min = min
             scaled_max = min + percentage
             mid = util.linlin(min,max,scaled_min,scaled_max,(min+max)/2)
-          elseif params:string("p_lfo_position_"..group.."_"..i) == 'from center' then
+          elseif params:string("plfo_position_"..group.."_"..i) == 'from center' then
             mid = (min+max)/2
-            local centroid_mid = math.abs(min-max) * ((params:get("p_lfo_depth_"..group.."_"..i)/100)/2)
+            local centroid_mid = math.abs(min-max) * ((params:get("plfo_depth_"..group.."_"..i)/100)/2)
             scaled_min = mid - centroid_mid
             scaled_max = mid + centroid_mid
             value = util.linlin(-1,1,scaled_min, scaled_max, math.sin(lfo_parent.progress[i]))
-          elseif params:string("p_lfo_position_"..group.."_"..i) == 'from max' then
+          elseif params:string("plfo_position_"..group.."_"..i) == 'from max' then
             mid = (min+max)/2
             value = max - value
-            scaled_min = max - (math.abs(min-max) * (params:get("p_lfo_depth_"..group.."_"..i)/100))
+            scaled_min = max - (math.abs(min-max) * (params:get("plfo_depth_"..group.."_"..i)/100))
             scaled_max = max
             mid = math.abs(util.linlin(min,max,scaled_min,scaled_max,mid))
             value = util.linlin(-1,1,scaled_min, scaled_max, math.sin(lfo_parent.progress[i]))
-          elseif params:string("p_lfo_position_"..group.."_"..i) == 'from current' then
+          elseif params:string("plfo_position_"..group.."_"..i) == 'from current' then
             mid = params:get(lfo_parent.targets[i])
-            local centroid_mid = math.abs(min-max) * ((params:get("p_lfo_depth_"..group.."_"..i)/100)/2)
+            local centroid_mid = math.abs(min-max) * ((params:get("plfo_depth_"..group.."_"..i)/100)/2)
             scaled_min = mid - centroid_mid
             scaled_max = mid + centroid_mid
             value = util.linlin(-1,1,scaled_min, scaled_max, math.sin(lfo_parent.progress[i]))
           end
 
-          if params:string("p_lfo_shape_"..group.."_"..i) == "sine" then
+          if params:string("plfo_shape_"..group.."_"..i) == "sine" then
             if lfo_parent.param_type[i] == 1 or lfo_parent.param_type[i] == 2 or lfo_parent.param_type[i] == 9 then
               value = util.round(value,1)
             end
             value = util.clamp(value,min,max)
             lfo_parent.actions[lfo_parent.targets[i]](value)
-          elseif params:string("p_lfo_shape_"..group.."_"..i) == "square" then
+          elseif params:string("plfo_shape_"..group.."_"..i) == "square" then
             local square_value;
             square_value = value >= mid and max or min
             square_value = util.linlin(min,max,scaled_min,scaled_max,square_value)
             square_value = util.clamp(square_value,min,max)
             lfo_parent.actions[lfo_parent.targets[i]](square_value)
-          elseif params:string("p_lfo_shape_"..group.."_"..i) == "random" then
+          elseif params:string("plfo_shape_"..group.."_"..i) == "random" then
             local prev_value = lfo_parent.rand_values[i]
             lfo_parent.rand_values[i] = value >= mid and max or min
             local rand_value;
@@ -302,21 +302,21 @@ end
 function LFO:add_params(parent_group, separator_name, silent)
 
   if not main_header_added and separator_name ~= nil then
-    params:add_separator('p_lfo_header', separator_name)
+    params:add_separator('plfo_header', separator_name)
     main_header_added = true
   end
 
   local group = parent_group
-  params:add_group('p_lfo_grp_'..group, group, 12 * #self.groups[group].targets)
+  params:add_group('plfo_grp_'..group, group, 12 * #self.groups[group].targets)
 
   for i = 1,#self.groups[group].targets do
     local target_id = self.groups[group].targets[i]
     self.groups[group].param_type[i] = params:lookup_param(target_id).t
 
-    params:add_separator('p_lfo_sep_'..params:lookup_param(target_id).id, params:lookup_param(target_id).name)
+    params:add_separator('plfo_sep_'..params:lookup_param(target_id).id, params:lookup_param(target_id).name)
 
-    params:add_option("p_lfo_"..group.."_"..i,"lfo",{"off","on"},1)
-    params:set_action("p_lfo_"..group.."_"..i,function(x)
+    params:add_option("plfo_"..group.."_"..i,"lfo",{"off","on"},1)
+    params:set_action("plfo_"..group.."_"..i,function(x)
       sync_lfos(group, i)
       if x == 1 then
         return_param_to_baseline(group, i)
@@ -326,8 +326,8 @@ function LFO:add_params(parent_group, separator_name, silent)
       end
     end)
 
-    params:add_number("p_lfo_depth_"..group.."_"..i,"depth",0,100,0,function(param) return (param:get().."%") end)
-    params:set_action("p_lfo_depth_"..group.."_"..i, function(x)
+    params:add_number("plfo_depth_"..group.."_"..i,"depth",0,100,0,function(param) return (param:get().."%") end)
+    params:set_action("plfo_depth_"..group.."_"..i, function(x)
       if x == 0 then
         return_param_to_baseline(group, i)
       end
@@ -342,54 +342,54 @@ function LFO:add_params(parent_group, separator_name, silent)
     else
       position_options = {"from min", "from center", "from max"}
     end
-    params:add_option("p_lfo_position_"..group.."_"..i, "lfo position", position_options, 1)
+    params:add_option("plfo_position_"..group.."_"..i, "lfo position", position_options, 1)
 
-    params:add_option("p_lfo_mode_"..group.."_"..i, "lfo mode", {"clocked","free"},1)
-    params:set_action("p_lfo_mode_"..group.."_"..i,
+    params:add_option("plfo_mode_"..group.."_"..i, "lfo mode", {"clocked","free"},1)
+    params:set_action("plfo_mode_"..group.."_"..i,
       function(x)
-        if x == 1 and params:string("p_lfo_"..group.."_"..i) == "on" then
-          params:hide("p_lfo_free_"..group.."_"..i)
-          params:show("p_lfo_clocked_"..group.."_"..i)
-          self.groups[group].freqs[i] = 1/(clock.get_beat_sec() * self.rates[params:get("p_lfo_clocked_"..group.."_"..i)] * 4)
-        elseif x == 2 and params:string("p_lfo_"..group.."_"..i) == "on" then
-          params:hide("p_lfo_clocked_"..group.."_"..i)
-          params:show("p_lfo_free_"..group.."_"..i)
-          self.groups[group].freqs[i] = params:get("p_lfo_free_"..group.."_"..i)
+        if x == 1 and params:string("plfo_"..group.."_"..i) == "on" then
+          params:hide("plfo_free_"..group.."_"..i)
+          params:show("plfo_clocked_"..group.."_"..i)
+          self.groups[group].freqs[i] = 1/(clock.get_beat_sec() * self.rates[params:get("plfo_clocked_"..group.."_"..i)] * 4)
+        elseif x == 2 and params:string("plfo_"..group.."_"..i) == "on" then
+          params:hide("plfo_clocked_"..group.."_"..i)
+          params:show("plfo_free_"..group.."_"..i)
+          self.groups[group].freqs[i] = params:get("plfo_free_"..group.."_"..i)
         end
         _menu.rebuild_params()
       end
       )
 
-    params:add_option("p_lfo_clocked_"..group.."_"..i, "lfo rate", self.rates_as_strings, 9)
-    params:set_action("p_lfo_clocked_"..group.."_"..i,
+    params:add_option("plfo_clocked_"..group.."_"..i, "lfo rate", self.rates_as_strings, 9)
+    params:set_action("plfo_clocked_"..group.."_"..i,
       function(x)
-        if params:string("p_lfo_mode_"..group.."_"..i) == "clocked" then
+        if params:string("plfo_mode_"..group.."_"..i) == "clocked" then
           self.groups[group].freqs[i] = 1/(clock.get_beat_sec() * self.rates[x] * 4)
         end
       end
     )
     params:add{
       type='control',
-      id="p_lfo_free_"..group.."_"..i,
+      id="plfo_free_"..group.."_"..i,
       name="lfo rate",
       controlspec=controlspec.new(0.001,4,'exp',0.001,0.05,'hz',0.001)
     }
-    params:set_action("p_lfo_free_"..group.."_"..i,
+    params:set_action("plfo_free_"..group.."_"..i,
       function(x)
-        if params:string("p_lfo_mode_"..group.."_"..i) == "free" then
+        if params:string("plfo_mode_"..group.."_"..i) == "free" then
           self.groups[group].freqs[i] = x
         end
       end
     )
 
-    params:add_option("p_lfo_shape_"..group.."_"..i, "lfo shape", {"sine","square","random"},1)
+    params:add_option("plfo_shape_"..group.."_"..i, "lfo shape", {"sine","square","random"},1)
 
-    params:add_trigger("p_lfo_reset_"..group.."_"..i, "reset lfo")
-    params:set_action("p_lfo_reset_"..group.."_"..i, function(x) reset_lfo_phase(group,i) end)
+    params:add_trigger("plfo_reset_"..group.."_"..i, "reset lfo")
+    params:set_action("plfo_reset_"..group.."_"..i, function(x) reset_lfo_phase(group,i) end)
 
-    params:add_option("p_lfo_reset_target_"..group.."_"..i, "reset lfo to", {"floor","ceiling"}, 1)
+    params:add_option("plfo_reset_target_"..group.."_"..i, "reset lfo to", {"floor","ceiling"}, 1)
     
-    params:hide("p_lfo_free_"..group.."_"..i)
+    params:hide("plfo_free_"..group.."_"..i)
   end
 
   lfos_all_loaded[group] = true
