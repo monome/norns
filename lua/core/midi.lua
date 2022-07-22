@@ -406,7 +406,7 @@ _norns.midi.remove = function(id)
         port = Midi.devices[id].port
       }
       print(string.format("_norns.midi.remove: %d, %s, %s",dev.id,dev.name,dev.port))
-      Midi.devices[id].remove(dev)
+      Midi.remove(dev)
     end
   end
   Midi.devices[id] = nil
