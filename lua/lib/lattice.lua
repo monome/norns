@@ -103,7 +103,7 @@ function Lattice:pulse()
         pattern.phase = pattern.phase + 1
         local swing_val = (2*pattern.swing/100)
         if not pattern.downbeat then 
-          swing_val = (2*(100-pattern.swing)/100)
+          swing_val = 1
         end
         if pattern.phase > (pattern.division * ppm)*swing_val then
           pattern.phase = pattern.phase - (pattern.division * ppm)
