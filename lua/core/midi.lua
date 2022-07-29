@@ -75,7 +75,7 @@ function Midi.add(dev) end
 --- static callback when any midi device is removed.
 -- user scripts can redefine.
 -- @static
--- @param dev : a table with the removed device's id, name, and port
+-- @param dev : a Midi table
 function Midi.remove(dev) end
 
 --- send midi event to device.
@@ -400,13 +400,7 @@ end
 _norns.midi.remove = function(id)
   if Midi.devices[id] then
     if Midi.devices[id].remove then
-      local dev = {
-        id = Midi.devices[id].id,
-        name = Midi.devices[id].name,
-        port = Midi.devices[id].port
-      }
-      print(string.format("_norns.midi.remove: %d, %s, %s",dev.id,dev.name,dev.port))
-      Midi.devices[id].remove(dev)
+      Midi.devices[id].remove()
     end
   end
   Midi.devices[id] = nil
