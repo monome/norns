@@ -10,7 +10,7 @@ local lfo_rates = {1/16,1/8,1/4,5/16,1/3,3/8,1/2,3/4,1,1.5,2,3,4,6,8,16,32,64,12
 local lfo_rates_as_strings = {"1/16","1/8","1/4","5/16","1/3","3/8","1/2","3/4","1","1.5","2","3","4","6","8","16","32","64","128","256","512","1024"}
 
 local update_freq = 96
-local params_per_entry = 13
+local params_per_entry = 14
 local lfos_all_loaded = false
 
 local rand_values;
