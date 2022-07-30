@@ -1,5 +1,7 @@
 -- LFOs for general-purpose scripting
 -- @module lib.lfospec
+-- inspired by contributions from @markwheeler (changes), @justmat (hnds), and @sixolet (toolkit)
+-- added by @dndrks
 
 local LFO = {}
 LFO.__index = LFO
