@@ -3,6 +3,9 @@
 -- inspired by contributions from @markwheeler (changes), @justmat (hnds), and @sixolet (toolkit)
 -- added by @dndrks
 
+local lattice = require 'lattice'
+local hook = require 'core/hook'
+
 local LFO = {}
 LFO.__index = LFO
 
@@ -40,6 +43,7 @@ function LFO.new(shape, min, max, depth, mode, period, fn)
   i.reset_target = 'floor'
   i.baseline = 'min'
   i.offset = 0
+  i.ppqn = 96
   i.controlspec = {
     warp = 'linear',
     step = 0.01,
@@ -50,7 +54,6 @@ function LFO.new(shape, min, max, depth, mode, period, fn)
   }
   i.counter = nil
   i.action = fn == nil and (function(scaled, raw) end) or fn
-
   return i
 end
 
@@ -126,133 +129,150 @@ end
 -- SCRIPTING /
 
 local function process_lfo(id)
-  while true do
-    clock.sync(1/update_freq)
+  local _lfo = id
+  local phase
 
-    local _lfo = id
-    local phase
+  _lfo.phase_counter = _lfo.phase_counter + (1/_lfo.ppqn)
+  if _lfo.mode == "clocked" then
+    phase = _lfo.phase_counter / _lfo.period
+  else
+    phase = _lfo.phase_counter * clock.get_beat_sec() / (1/_lfo.period)
+  end
+  phase = phase % 1
 
-    _lfo.phase_counter = _lfo.phase_counter + (1/update_freq)
-    if _lfo.mode == "clocked" then
-      phase = _lfo.phase_counter / _lfo.period
-    else
-      phase = _lfo.phase_counter * clock.get_beat_sec() / (1/_lfo.period)
+  if _lfo.enabled == 1 then
+
+    local current_val = (math.sin(2*math.pi*phase) + 1)/2
+    if _lfo.shape == "saw" then
+      current_val = phase < 0.5 and phase/0.5 or 1-(phase-0.5)/(0.5)
     end
-    phase = phase % 1
 
-    if _lfo.enabled == 1 then
+    local min = _lfo.min
+    local max = _lfo.max
 
-      local current_val = (math.sin(2*math.pi*phase) + 1)/2
-      if _lfo.shape == "saw" then
-        current_val = phase < 0.5 and phase/0.5 or 1-(phase-0.5)/(0.5)
+    if min > max then
+      local old_min = min
+      local old_max = max
+      min = old_max
+      max = old_min
+    end
+
+    if min == -inf or max == -inf then
+      min = min == -inf and -2^1023.999999999 or min
+      max = max == inf and 2^1023.999999999 or max
+    end
+
+    local percentage = math.abs(min-max) * _lfo.depth
+    if _lfo.shape ~= 'random' then
+      _lfo.raw = current_val
+    end
+    current_val = current_val + _lfo.offset
+    local value = util.linlin(0,1,min,min + percentage,current_val)
+
+    if _lfo.depth > 0 then
+      local mid;
+      local scaled_min;
+      local scaled_max;
+      local raw_value;
+
+      if _lfo.baseline == 'min' then
+	scaled_min = min
+	scaled_max = min + percentage
+	mid = util.linlin(min,max,scaled_min,scaled_max,(min+max)/2)
+      elseif _lfo.baseline == 'center' then
+	mid = (min+max)/2
+	local centroid_mid = math.abs(min-max) * ((_lfo.depth)/2)
+	scaled_min = util.clamp(mid - centroid_mid,min,max)
+	scaled_max = util.clamp(mid + centroid_mid,min,max)
+	value = util.linlin(0,1,scaled_min,scaled_max,current_val)
+      elseif _lfo.baseline == 'max' then
+	mid = (min+max)/2
+	value = max - value
+	scaled_min = max * (1-(_lfo.depth))
+	scaled_max = max
+	mid = math.abs(util.linlin(min,max,scaled_min,scaled_max,mid))
+	value = util.linlin(0,1,scaled_max,scaled_min,current_val)
       end
-    
-      local min = _lfo.min
-      local max = _lfo.max
 
-      if min > max then
-        local old_min = min
-        local old_max = max
-        min = old_max
-        max = old_min
+      raw_value = util.linlin(min,max,0,1,value)
+
+      if _lfo.shape == "sine" then
+	value = util.clamp(value,min,max)
+	_lfo.scaled = value
+      elseif _lfo.shape == "saw" then
+	value = util.clamp(value,min,max)
+	_lfo.scaled = value
+      elseif _lfo.shape == "square" then
+	local square_value = value >= mid and max or min
+	square_value = util.linlin(min,max,scaled_min,scaled_max,square_value)
+	square_value = util.clamp(square_value,scaled_min,scaled_max)
+	_lfo.scaled = square_value
+	_lfo.raw = util.linlin(scaled_min,scaled_max,0,1,square_value)
+      elseif _lfo.shape == "random" then
+	local prev_value = rand_values
+	rand_values = value >= mid and max or min
+	local rand_value;
+	if prev_value ~= rand_values then
+	  rand_value = util.linlin(min,max,scaled_min,scaled_max,math.random(math.floor(min*100),math.floor(max*100))/100)
+	  rand_value = util.clamp(rand_value,min,max)
+	  _lfo.scaled = rand_value
+	  _lfo.raw = util.linlin(scaled_min,scaled_max,0,1,rand_value)
+	end
       end
-
-      if min == -inf or max == -inf then
-        min = min == -inf and -2^1023.999999999 or min
-        max = max == inf and 2^1023.999999999 or max
-      end
-
-      local percentage = math.abs(min-max) * _lfo.depth
-      if _lfo.shape ~= 'random' then
-        _lfo.raw = current_val
-      end
-      current_val = current_val + _lfo.offset
-      local value = util.linlin(0,1,min,min + percentage,current_val)
-
-      if _lfo.depth > 0 then
-        local mid;
-        local scaled_min;
-        local scaled_max;
-        local raw_value;
-
-        if _lfo.baseline == 'min' then
-          scaled_min = min
-          scaled_max = min + percentage
-          mid = util.linlin(min,max,scaled_min,scaled_max,(min+max)/2)
-        elseif _lfo.baseline == 'center' then
-          mid = (min+max)/2
-          local centroid_mid = math.abs(min-max) * ((_lfo.depth)/2)
-          scaled_min = util.clamp(mid - centroid_mid,min,max)
-          scaled_max = util.clamp(mid + centroid_mid,min,max)
-          value = util.linlin(0,1,scaled_min,scaled_max,current_val)
-        elseif _lfo.baseline == 'max' then
-          mid = (min+max)/2
-          value = max - value
-          scaled_min = max * (1-(_lfo.depth))
-          scaled_max = max
-          mid = math.abs(util.linlin(min,max,scaled_min,scaled_max,mid))
-          value = util.linlin(0,1,scaled_max,scaled_min,current_val)
-        end
-
-        raw_value = util.linlin(min,max,0,1,value)
-
-        if _lfo.shape == "sine" then
-          value = util.clamp(value,min,max)
-          _lfo.scaled = value
-        elseif _lfo.shape == "saw" then
-          value = util.clamp(value,min,max)
-          _lfo.scaled = value
-        elseif _lfo.shape == "square" then
-          local square_value = value >= mid and max or min
-          square_value = util.linlin(min,max,scaled_min,scaled_max,square_value)
-          square_value = util.clamp(square_value,scaled_min,scaled_max)
-          _lfo.scaled = square_value
-          _lfo.raw = util.linlin(scaled_min,scaled_max,0,1,square_value)
-        elseif _lfo.shape == "random" then
-          local prev_value = rand_values
-          rand_values = value >= mid and max or min
-          local rand_value;
-          if prev_value ~= rand_values then
-            rand_value = util.linlin(min,max,scaled_min,scaled_max,math.random(math.floor(min*100),math.floor(max*100))/100)
-            rand_value = util.clamp(rand_value,min,max)
-            _lfo.scaled = rand_value
-            _lfo.raw = util.linlin(scaled_min,scaled_max,0,1,rand_value)
-          end
-        end
-        _lfo.action(_lfo.scaled, _lfo.raw)
-        if _lfo.parameter_id ~= nil then
-          params:set("lfo_scaled_".._lfo.parameter_id,util.round(_lfo.scaled,0.01))
-          params:set("lfo_raw_".._lfo.parameter_id,util.round(_lfo.raw,0.01))
-        end
+      _lfo.action(_lfo.scaled, _lfo.raw)
+      if _lfo.parameter_id ~= nil then
+	params:set("lfo_scaled_".._lfo.parameter_id,util.round(_lfo.scaled,0.01))
+	params:set("lfo_raw_".._lfo.parameter_id,util.round(_lfo.raw,0.01))
       end
     end
   end
 end
 
+hook['script_pre_init']:register("lfospec lattice setup", function()
+  LFO.lattice = lattice:new()
+end)
+
+hook['script_post_cleanup']:register("lfospec lattice teardown", function()
+  LFO.lattice:destroy()
+  LFO.lattice = nil
+end)
+
 --- start LFO
 function LFO:start()
-  if self.counter == nil then
+  if self.pattern == nil then
     self:reset_phase()
-    self.counter = clock.run(function() process_lfo(self) end)
+    self.pattern = LFO.lattice:new_pattern{
+      action=function() process_lfo(self) end,
+      division=1/(4*self.ppqn),
+      enabled=true,
+    }
+    if not LFO.lattice.enabled then
+      LFO.lattice:start()
+    end
     self.enabled = 1
   end
 end
 
 --- stop LFO
 function LFO:stop()
-  if self.counter ~= nil then
-    clock.cancel(self.counter)
-    self.counter = nil
+  if self.pattern ~= nil then
+    self.pattern:destroy()
+    self.pattern = nil
     self.enabled = 0
+    if next(LFO.lattice.patterns) == nil then
+      LFO.lattice:stop()
+    end
   end
 end
 
 --- set LFO variable state
--- @tparam string var The variable to target (options: 'shape', 'min', 'max', 'depth', 'offset', 'mode', 'period', 'reset_target', 'baseline', 'action')
+-- @tparam string var The variable to target (options: 'shape', 'min', 'max', 'depth', 'offset', 'mode', 'period', 'reset_target', 'baseline', 'action', 'ppqn')
 -- @tparam various arg The argument to pass to the target (often numbers + strings, but 'action' expects a function)
 function LFO:set(var, arg)
   if var == nil then
     error('scripted LFO variable required')
+  elseif var == 'ppqn' then -- has its own fn, maintains state, so handled separately.
+    self:set_ppqn(arg)
   elseif arg == nil then
     error('scripted LFO argument required')
   elseif not self[var] then
@@ -271,6 +291,19 @@ function LFO:get(var)
     error("scripted LFO variable '"..var.."' not valid")
   else
     return self[var]
+  end
+end
+
+--- set LFO update ppqn
+-- @tparam int ppqn The new number of pulses per quarter note at which to update the LFO. For best results use values that evenly divide into 96ppqn, such as 48, 24, 12, 1, 0.5, etc.
+function LFO:set_ppqn(ppqn)
+  if ppqn == nil then
+    error('new ppqn value required')
+  else
+    self.ppqn = ppqn
+    if self.pattern then
+      self.pattern:set_division(1/(4*ppqn))
+    end
   end
 end
 
