@@ -16,6 +16,7 @@ local lfos_all_loaded = false
 local rand_values;
 
 --- construct an LFO
+-- consumes one clock per LFO (norns has 100 clocks available for scripting)
 -- @tparam[opt] string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
 -- @tparam[opt] number min The minimum bound for this LFO (default: 0)
 -- @tparam[opt] number max The maximum bound for this LFO (default: 1)
@@ -319,8 +320,10 @@ function LFO:add_params(id,sep,group)
           lfo_params_visibility("hide", id)
           params:set("lfo_scaled_"..id,"")
           params:set("lfo_raw_"..id,"")
+          self:stop()
         elseif x == 2 then
           lfo_params_visibility("show", id)
+          self:start()
         end
         self:set('enabled',x-1)
         lfo_bang(id)
