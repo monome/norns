@@ -1,7 +1,7 @@
 -- LFOs for general-purpose scripting
 -- @module lib.lfospec
 -- inspired by contributions from @markwheeler (changes), @justmat (hnds), and @sixolet (toolkit)
--- added by @dndrks
+-- added by @dndrks + @sixolet
 
 local lattice = require 'lattice'
 local hook = require 'core/hook'
@@ -12,9 +12,7 @@ LFO.__index = LFO
 local lfo_rates = {1/16,1/8,1/4,5/16,1/3,3/8,1/2,3/4,1,1.5,2,3,4,6,8,16,32,64,128,256,512,1024}
 local lfo_rates_as_strings = {"1/16","1/8","1/4","5/16","1/3","3/8","1/2","3/4","1","1.5","2","3","4","6","8","16","32","64","128","256","512","1024"}
 
-local update_freq = 96
 local params_per_entry = 14
-local lfos_all_loaded = false
 
 local rand_values;
 
@@ -52,7 +50,6 @@ function LFO.new(shape, min, max, depth, mode, period, fn)
     wrap = false,
     formatter = nil
   }
-  i.counter = nil
   i.action = fn == nil and (function(scaled, raw) end) or fn
   return i
 end
@@ -283,7 +280,7 @@ function LFO:set(var, arg)
 end
 
 --- get LFO variable state
--- @tparam string var The variable to query (options: 'shape', 'min', 'max', 'depth', 'offset', 'mode', 'period', 'reset_target', 'baseline', 'action', 'enabled', 'controlspec', 'counter')
+-- @tparam string var The variable to query (options: 'shape', 'min', 'max', 'depth', 'offset', 'mode', 'period', 'reset_target', 'baseline', 'action', 'enabled', 'controlspec')
 function LFO:get(var)
   if var == nil then
     error('scripted LFO variable required')
