@@ -29,7 +29,7 @@ Script.clear = function()
 
   if norns.lfo ~= nil then
     norns.lfo.lattice:destroy()
-    norns.lfo.lattice = nil
+    norns.lfo = nil
   end
 
   -- script local state
