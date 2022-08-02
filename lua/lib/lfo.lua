@@ -18,6 +18,10 @@ local rand_values;
 local percentage;
 local scaled_min, scaled_max, mid, centroid_mid;
 
+function LFO.init()
+  norns.lfo = {lattice = lattice:new()}
+end
+
 --- construct an LFO
 -- consumes one clock per LFO (norns has 100 clocks available for scripting)
 -- @tparam[opt] string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
@@ -27,9 +31,10 @@ local scaled_min, scaled_max, mid, centroid_mid;
 -- @tparam[opt] string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
 -- @tparam[opt] number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
 -- @tparam[opt] function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
-function LFO.new(shape, min, max, depth, mode, period, action)
+function LFO.new(shape, min, max, depth, mode, period, action)  
   local i = {}
   setmetatable(i, LFO)
+  i.init()
   i.scaled = 0
   i.raw = 0
   i.phase_counter = 0
@@ -254,26 +259,17 @@ local function process_lfo(id)
   end
 end
 
-hook['script_pre_init']:register("lfospec lattice setup", function()
-  LFO.lattice = lattice:new()
-end)
-
-hook['script_post_cleanup']:register("lfospec lattice teardown", function()
-  LFO.lattice:destroy()
-  LFO.lattice = nil
-end)
-
 --- start LFO
 function LFO:start()
   if self.pattern == nil then
     self:reset_phase()
-    self.pattern = LFO.lattice:new_pattern{
+    self.pattern = norns.lfo.lattice:new_pattern{
       action=function() process_lfo(self) end,
       division=1/(4*self.ppqn),
       enabled=true,
     }
-    if not LFO.lattice.enabled then
-      LFO.lattice:start()
+    if not norns.lfo.lattice.enabled then
+      norns.lfo.lattice:start()
     end
     self.enabled = 1
   end
@@ -285,8 +281,8 @@ function LFO:stop()
     self.pattern:destroy()
     self.pattern = nil
     self.enabled = 0
-    if next(LFO.lattice.patterns) == nil then
-      LFO.lattice:stop()
+    if next(norns.lfo.lattice.patterns) == nil then
+      norns.lfo.lattice:stop()
     end
   end
 end
@@ -415,6 +411,11 @@ function LFO:add_params(id,sep,group)
       params:add_option("lfo_mode_"..id, "lfo mode", {"clocked","free"},1)
       params:set_action("lfo_mode_"..id,
         function(x)
+          self:set('mode',params:lookup_param("lfo_mode_"..id).options[x])
+          self:set(
+            'period',
+            x == 1 and (lfo_rates[params:get('lfo_clocked_'..id)] * 4) or params:get('lfo_free_'..id)
+          )
           if x == 1 and params:string("lfo_"..id) == "on" then
             params:hide("lfo_free_"..id)
             params:show("lfo_clocked_"..id)
@@ -423,7 +424,6 @@ function LFO:add_params(id,sep,group)
             params:show("lfo_free_"..id)
           end
           _menu.rebuild_params()
-          self:set('mode',params:lookup_param("lfo_mode_"..id).options[x])
         end
         )
 
