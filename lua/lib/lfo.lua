@@ -62,6 +62,15 @@ function LFO.new(shape, min, max, depth, mode, period, action)
   return i
 end
 
+--- construct an LFO via table arguments
+-- eg. my_lfo:add{shape = 'sine', min = 200, max = 12000}
+-- @tparam[opt] string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
+-- @tparam[opt] number min The minimum bound for this LFO (default: 0)
+-- @tparam[opt] number max The maximum bound for this LFO (default: 1)
+-- @tparam[opt] number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
+-- @tparam[opt] string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
+-- @tparam[opt] number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
+-- @tparam[opt] function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
 function LFO:add(args)
   local shape = args.shape == nil and 'sine' or args.shape
   local min = args.min == nil and 0 or args.min
