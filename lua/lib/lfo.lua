@@ -19,7 +19,9 @@ local percentage;
 local scaled_min, scaled_max, mid, centroid_mid;
 
 function LFO.init()
-  norns.lfo = {lattice = lattice:new()}
+  if norns.lfo == nil then
+    norns.lfo = {lattice = lattice:new()}
+  end
 end
 
 --- construct an LFO
