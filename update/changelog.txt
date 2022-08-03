@@ -1,3 +1,20 @@
+# 220802
+
+# norns 2.7.2
+
+- FIX midi remove callback #1590 @catfact
+- NEW lfo library #1591 @dndrks
+- FIX lattice downbeat placement #1587 @sixolet
+- NEW menu-based password change also applies to SMB and hotspot #1570 @dndrks
+- FIX param group and separator initializers #1584 @dndrks
+- NEW action for tempo change #1575 @dndrks
+- FIX param separators in lookup table #1539 @dndrks
+- FIX link C API #1572 @artfwo
+- FIX screen_display_image_region registration @ngwese
+- FIX softcut remove unused filter command #1558 @catfact
+- NEW pset delete, pset number on action #1544 @dndrks
+
+
 # 220321
 
 # norns 2.7.1
