@@ -57,7 +57,7 @@ function LFO.new(shape, min, max, depth, mode, period, action)
     wrap = false,
     formatter = nil
   }
-  i.action = action == nil and (function(scaled, raw) end) or fn
+  i.action = action == nil and (function(scaled, raw) end) or action
   return i
 end
 
