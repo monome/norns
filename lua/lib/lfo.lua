@@ -14,7 +14,6 @@ local lfo_rates_as_strings = {"1/16","1/8","1/4","5/16","1/3","3/8","1/2","3/4",
 local params_per_entry = 14
 
 local rand_values;
-local percentage;
 local scaled_min, scaled_max, mid, centroid_mid;
 
 function LFO.init()
@@ -58,6 +57,7 @@ function LFO.new(shape, min, max, depth, mode, period, action)
     formatter = nil
   }
   i.action = action == nil and (function(scaled, raw) end) or action
+  i.percentage = math.abs(i.min-i.max) * i.depth
   return i
 end
 
@@ -155,7 +155,7 @@ end
 local function scale_lfo(target)
   if target.baseline == 'min' then
     scaled_min = target.min
-    scaled_max = target.min + percentage
+    scaled_max = target.min + target.percentage
     mid = util.linlin(target.min,target.max,scaled_min,scaled_max,(target.min+target.max)/2)
   elseif target.baseline == 'center' then
     mid = (target.min+target.max)/2
@@ -172,7 +172,7 @@ end
 
 local function change_bound(target, which, value)
   target[which] = value
-  percentage = math.abs(target.min-target.max) * target.depth
+  target.percentage = math.abs(target.min-target.max) * target.depth
   scale_lfo(target)
 end
 
@@ -183,7 +183,7 @@ end
 
 local function change_depth(target, value)
   target.depth = value
-  percentage = math.abs(target.min-target.max) * value
+  target.percentage = math.abs(target.min-target.max) * value
   scale_lfo(target)
 end
 
@@ -226,7 +226,7 @@ local function process_lfo(id)
       _lfo.raw = current_val
     end
     current_val = current_val + _lfo.offset
-    local value = util.linlin(0,1,min,min + percentage,current_val)
+    local value = util.linlin(0,1,min,min + _lfo.percentage,current_val)
 
     if _lfo.depth > 0 then
 
