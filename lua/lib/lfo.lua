@@ -4,7 +4,6 @@
 -- added by @dndrks + @sixolet
 
 local lattice = require 'lattice'
-local hook = require 'core/hook'
 
 local LFO = {}
 LFO.__index = LFO
@@ -58,7 +57,7 @@ function LFO.new(shape, min, max, depth, mode, period, action)
     wrap = false,
     formatter = nil
   }
-  i.action = action == nil and (function(scaled, raw) end) or fn
+  i.action = action == nil and (function(scaled, raw) end) or action
   return i
 end
 
@@ -79,7 +78,7 @@ function LFO:add(args)
   local mode = args.mode == nil and 'clocked' or args.mode
   local period = args.period == nil and 4 or args.period
   local action = args.action == nil and (function(scaled, raw) end) or args.action
-  self.new(shape, min, max, depth, mode, period, action)
+  return self.new(shape, min, max, depth, mode, period, action)
 end
 
 -- PARAMETERS UI /
