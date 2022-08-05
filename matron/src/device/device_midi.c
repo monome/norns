@@ -68,22 +68,18 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
         return -1;
     }
 
-
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, alsa_name, 0) < 0) {
-        fprintf(stderr, "failed to open alsa device (I/O): %s\n", alsa_name);	
-	    if (snd_rawmidi_open(NULL, &midi->handle_out, alsa_name, 0) < 0) {
-		// fprintf(stderr, "failed to open alsa device (only O): %s\n", alsa_name)		
-		if (snd_rawmidi_open(&midi->handle_in, NULL, alsa_name, 0) < 0) {
-		    // fprintf(stderr, "failed to open alsa device (only I): %s\n", alsa_name);
-		    return -1;
-		} else {
-		    fprintf(stderr, "device opened OK, only input ports\n");		    
-		    midi->handle_out = NULL;
-		}
+	if (snd_rawmidi_open(NULL, &midi->handle_out, alsa_name, 0) < 0) {
+	    if (snd_rawmidi_open(&midi->handle_in, NULL, alsa_name, 0) < 0) {
+		return -1;
 	    } else {
-		fprintf(stderr, "device opened OK, only output ports\n");
-		midi->handle_in = NULL;
-	    }	 
+		fprintf(stderr, "device opened OK, only input ports\n");		    
+		midi->handle_out = NULL;
+	    }
+	} else {
+	    fprintf(stderr, "device opened OK, only output ports\n");
+	    midi->handle_in = NULL;
+	}	 
     } else {
 	fprintf(stderr, "device opened (bidirectional)\n");	
     }
