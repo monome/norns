@@ -100,6 +100,7 @@ int dev_start(union dev *d) {
     int ret;
 
     if (d->base.start == NULL) {
+	fprintf(stderr, "device.c: no `start` function defined (no input); skipping\n");
         return -1;
     }
 

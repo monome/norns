@@ -60,8 +60,6 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     unsigned int alsa_card;
     unsigned int alsa_dev;
     char *alsa_name;
-
-    char has_input, has_output;
     
     sscanf(base->path, "/dev/snd/midiC%uD%u", &alsa_card, &alsa_dev);
 
@@ -72,33 +70,25 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
 
 
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, alsa_name, 0) < 0) {
-        fprintf(stderr, "failed to open alsa device (I/O): %s\n", alsa_name);
-	
+        fprintf(stderr, "failed to open alsa device (I/O): %s\n", alsa_name);	
 	    if (snd_rawmidi_open(NULL, &midi->handle_out, alsa_name, 0) < 0) {
-		fprintf(stderr, "failed to open alsa device (only O): %s\n", alsa_name);
-		
+		// fprintf(stderr, "failed to open alsa device (only O): %s\n", alsa_name)		
 		if (snd_rawmidi_open(&midi->handle_in, NULL, alsa_name, 0) < 0) {
-		    fprintf(stderr, "failed to open alsa device (only I): %s\n", alsa_name);
+		    // fprintf(stderr, "failed to open alsa device (only I): %s\n", alsa_name);
 		    return -1;
 		} else {
-		    fprintf(stderr, "device opened OK, only input ports\n");
-		    has_input = true;
-		    has_output= false;
+		    fprintf(stderr, "device opened OK, only input ports\n");		    
+		    midi->handle_out = NULL;
 		}
 	    } else {
-		fprintf(stderr, "device opened OK, only output ports only\n");
-		has_input = false;
-		has_output= true;
+		fprintf(stderr, "device opened OK, only output ports\n");
+		midi->handle_in = NULL;
 	    }	 
     } else {
-	fprintf(stderr, "device opened (bidirectional)\n");
-	has_input = false;
-	has_output= false;
+	fprintf(stderr, "device opened (bidirectional)\n");	
     }
-
-    // FIXME: do something with these so rest of the stack knows
-    if (has_input){}
-    if (has_output){}
+    fprintf(stderr, "input handle  : %p\n", midi->handle_in);
+    fprintf(stderr, "output handle : %p\n", midi->handle_out);
 
     char *name_with_port_index;
     if (multiport_device) {
@@ -110,7 +100,11 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
         base->name = name_with_port_index;
     }
 
-    base->start = &dev_midi_start;
+    if (midi->handle_in != NULL) { 
+	base->start = &dev_midi_start;
+    } else {
+	base->start = NULL;
+    }
     base->deinit = &dev_midi_deinit;
 
     return 0;
@@ -120,6 +114,10 @@ int dev_midi_virtual_init(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
     struct dev_common *base = (struct dev_common *)self;
 
+    if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
+        fprintf(stderr, "failed to open alsa virtual device.\n");
+        return -1;
+    }
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
         fprintf(stderr, "failed to open alsa virtual device.\n");
         return -1;
@@ -136,8 +134,12 @@ int dev_midi_virtual_init(void *self) {
 
 void dev_midi_deinit(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
-    snd_rawmidi_close(midi->handle_in);
-    snd_rawmidi_close(midi->handle_out);
+    if (midi->handle_in != NULL) {
+	snd_rawmidi_close(midi->handle_in);
+    }
+    if (midi->handle_out != NULL) {
+	snd_rawmidi_close(midi->handle_out);
+    }
 }
 
 static inline bool is_status_byte(uint8_t byte) {
@@ -305,6 +307,11 @@ void *dev_midi_start(void *self) {
     ssize_t read = 0;
     ssize_t xruns;
 
+    if (midi->handle_in == NULL) {
+	fprintf(stderr, "starting a reader thread for a non-input MIDI device; shouldn't get here!\n");
+	return NULL;
+    }
+    
     if (snd_rawmidi_status_malloc(&status) != 0) {
         fprintf(stderr, "failed allocating rawmidi status, stopping device: %s\n", base->name);
         return NULL;
@@ -335,5 +342,9 @@ void *dev_midi_start(void *self) {
 
 ssize_t dev_midi_send(void *self, uint8_t *data, size_t n) {
     struct dev_midi *midi = (struct dev_midi *)self;
-    return snd_rawmidi_write(midi->handle_out, data, n);
+    if (midi->handle_out == NULL) {
+	return -1;
+    } else {
+	return snd_rawmidi_write(midi->handle_out, data, n);
+    } 
 }
