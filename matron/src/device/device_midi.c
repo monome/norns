@@ -61,6 +61,8 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     unsigned int alsa_dev;
     char *alsa_name;
 
+    char has_input, has_output;
+    
     sscanf(base->path, "/dev/snd/midiC%uD%u", &alsa_card, &alsa_dev);
 
     if (asprintf(&alsa_name, "hw:%u,%u,%u", alsa_card, alsa_dev, port_index) < 0) {
@@ -68,10 +70,35 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
         return -1;
     }
 
+
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, alsa_name, 0) < 0) {
-        fprintf(stderr, "failed to open alsa device %s\n", alsa_name);
-        return -1;
+        fprintf(stderr, "failed to open alsa device (I/O): %s\n", alsa_name);
+	
+	    if (snd_rawmidi_open(NULL, &midi->handle_out, alsa_name, 0) < 0) {
+		fprintf(stderr, "failed to open alsa device (only O): %s\n", alsa_name);
+		
+		if (snd_rawmidi_open(&midi->handle_in, NULL, alsa_name, 0) < 0) {
+		    fprintf(stderr, "failed to open alsa device (only I): %s\n", alsa_name);
+		    return -1;
+		} else {
+		    fprintf(stderr, "device opened OK, only input ports\n");
+		    has_input = true;
+		    has_output= false;
+		}
+	    } else {
+		fprintf(stderr, "device opened OK, only output ports only\n");
+		has_input = false;
+		has_output= true;
+	    }	 
+    } else {
+	fprintf(stderr, "device opened (bidirectional)\n");
+	has_input = false;
+	has_output= false;
     }
+
+    // FIXME: do something with these so rest of the stack knows
+    if (has_input){}
+    if (has_output){}
 
     char *name_with_port_index;
     if (multiport_device) {

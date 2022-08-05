@@ -23,6 +23,8 @@ Crone {
 
 	classvar <croneAddr;
 
+	classvar serverResourceMonitor;
+
 	*initClass {
 		StartUp.add { // defer until after sclang init
 
@@ -88,9 +90,14 @@ Crone {
 		// create the audio context (boilerplate routing and analysis)
 		context = CroneAudioContext.new(server);
 
+		server.sync;
+		serverResourceMonitor = ServerResourceMonitor.new(server);
+		serverResourceMonitor.setBaseline;
+
 		Crone.initOscRx;
 
 		complete = 1;
+
 
 		/// test..
 		{ SinOsc.ar([218,223]) * 0.125 * EnvGen.ar(Env.linen(2, 4, 6), doneAction:2) }.play(server);
@@ -104,11 +111,25 @@ Crone {
 			fork {
 				if(engine.notNil, {
 					var cond = Condition.new(false);
+					var resourceDelta;
 					postln("free engine: " ++ engine);
 					engine.deinit({ cond.test = true; cond.signal; });
 					cond.wait;
+
+					resourceDelta = serverResourceMonitor.refresh;
+					if (resourceDelta.keys.notNil, {
+						postln("!!!!!!!!!!!!!!!!!!!!!!");
+						postln("!!! leaked server resources (engine class: "++engine.class.asString++") !!!!!!");
+						resourceDelta.keysValuesDo({ arg key, count;
+							postln(""++key++": "++count);
+						});
+						postln("!!!!!!!!!!!!!!!!!!!!!!")
+					});
+					serverResourceMonitor.setBaseline;
 					engine = nil;
+
 				});
+
 				class.new(context, {
 					arg theEngine;
 					postln("-----------------------");
