@@ -92,7 +92,9 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
             fprintf(stderr, "failed to create human-readable device name for card %d,%d,%d\n", alsa_card, alsa_dev,
                     port_index);
             return -1;
-        }
+        } else {
+	    fprintf(stderr, "assigned device name with port: %s\n", name_with_port_index);
+	}
         base->name = name_with_port_index;
     }
 
@@ -130,6 +132,12 @@ int dev_midi_virtual_init(void *self) {
 
 void dev_midi_deinit(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
+    struct dev_common *base = (struct dev_common *)self;
+
+    fprintf(stderr, "midi_deinit   : %s\n", base->name);
+    fprintf(stderr, "input handle  : %p\n", midi->handle_in);
+    fprintf(stderr, "output handle : %p\n", midi->handle_out);
+
     if (midi->handle_in != NULL) {
 	snd_rawmidi_close(midi->handle_in);
     }
@@ -307,6 +315,8 @@ void *dev_midi_start(void *self) {
 	fprintf(stderr, "starting a reader thread for a non-input MIDI device; shouldn't get here!\n");
 	return NULL;
     }
+
+    fprintf(stderr, "starting input thread for midi device: %s (%p)\n", base->name, midi->handle_in);
     
     if (snd_rawmidi_status_malloc(&status) != 0) {
         fprintf(stderr, "failed allocating rawmidi status, stopping device: %s\n", base->name);

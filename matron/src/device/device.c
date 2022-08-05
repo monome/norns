@@ -101,7 +101,7 @@ int dev_start(union dev *d) {
 
     if (d->base.start == NULL) {
 	fprintf(stderr, "device.c: no `start` function defined (no input); skipping\n");
-        return -1;
+        return 0;
     }
 
     ret = pthread_attr_init(&attr);
