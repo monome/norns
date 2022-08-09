@@ -381,5 +381,8 @@ int is_dev_monome_grid(struct udev_device *dev) {
 
 int is_dev_crow(struct udev_device *dev) { 
     const char *device_product_string = udev_device_get_property_value(dev, "ID_MODEL");
-    return strcmp(device_product_string, "crow:_telephone_line") == 0;
+    if(device_product_string != NULL) {
+        return strcmp(device_product_string, "crow:_telephone_line") == 0;
+    }
+   return 0;
 }

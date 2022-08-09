@@ -27,6 +27,11 @@ Script.clear = function()
     package.loaded['asl'] = nil
   end
 
+  if norns.lfo ~= nil then
+    norns.lfo.lattice:destroy()
+    norns.lfo = nil
+  end
+
   -- script local state
   local state = { }
 

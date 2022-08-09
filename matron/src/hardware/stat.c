@@ -83,7 +83,9 @@ void *stat_check(void *x) {
                 fprintf(stderr, "Error opening pipe: temp read\n");
             } else {
                 while (fgets(buf, 16, fd) != NULL) {
-                    memcpy(bufsub, buf + 5, 2);
+                    bufsub[0] = buf[5];
+                    bufsub[1] = buf[6];
+                    bufsub[2] = 0;
                     temp = atoi(bufsub);
                 }
             }
@@ -91,11 +93,15 @@ void *stat_check(void *x) {
         }
 
         // check cpu
-        if ((fd = popen("head -n5 /proc/stat", "r")) == NULL) {
+        if ((fd = popen("cat /proc/stat", "r")) == NULL) {
             fprintf(stderr, "Error opening pipe: cpu read\n");
         } else {
             int i = 0;
             while (fgets(buf, 128, fd) != NULL) {
+                // stop reading when all cpus are checked
+                if (strncmp("cpu", buf, 3) != 0) {
+                  break;
+                }
                 //fprintf(stderr,"%s", buf);
                 strtok(buf, " ");
                 user = atoi(strtok(NULL, " "));

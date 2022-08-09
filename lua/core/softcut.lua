@@ -516,7 +516,6 @@ function SC.params()
       pre_filter_dry = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- post filter
       post_filter_fc = { type="control", controlspec=controlspec.new(10, 12000, 'exp', 1, 12000, "Hz") },
-      post_filter_fc_mod = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
       post_filter_rq = { type="control", controlspec=controlspec.new(0.0005, 8.0, 'exp', 0, 2.0, "") },
       -- @fixme use dB / taper?
       post_filter_lp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },

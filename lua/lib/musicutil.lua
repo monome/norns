@@ -81,6 +81,73 @@ MusicUtil.CHORDS = {
 }
 -- Data from https://github.com/fredericcormier/WesternMusicElements
 
+MusicUtil.SCALE_CHORD_DEGREES = {
+  {
+    name = "Major",
+    chords = {
+      "I",  "ii",  "iii",  "IV",  "V",  "vi",  "vii\u{B0}",
+      "I7", "ii7", "iii7", "IV7", "V7", "vi7", "vii\u{B0}7"
+    }
+  },
+  {
+    name = "Natural Minor",
+    chords = {
+      "i",  "ii\u{B0}",  "III",  "iv",  "v",  "VI",  "VII",
+      "i7", "ii\u{B0}7", "III7", "iv7", "v7", "VI7", "VII7"
+    }
+  },
+  {
+    name = "Harmonic Minor",
+    chords = {
+      "i",  "ii\u{B0}",  "III+",  "iv",  "V",  "VI",  "vii\u{B0}",
+      "i7", "ii\u{B0}7", "III+7", "iv7", "V7", "VI7", "vii\u{B0}7"
+    }
+  },
+  {
+    name = "Melodic Minor",
+    chords = {
+      "i",  "ii",  "III+",  "IV",  "V",  "vi\u{B0}",  "vii\u{B0}",
+      "i7", "ii7", "III+7", "IV7", "V7", "vi\u{B0}7", "vii\u{B0}7"
+    }
+  },
+  {
+    name = "Dorian",
+    chords = {
+      "i",  "ii",  "III",  "IV",  "v",  "vi\u{B0}",  "VII",
+      "i7", "ii7", "III7", "IV7", "v7", "vi\u{B0}7", "VII7"
+    }
+  },
+  {
+    name = "Phrygian",
+    chords = {
+      "i",  "II",  "III",  "iv",  "v\u{B0}",  "VI",  "vii",
+      "i7", "II7", "III7", "iv7", "v\u{B0}7", "VI7", "vii7"
+    }
+  },
+  {
+    name = "Lydian",
+    chords = {
+      "I",  "II",  "iii",  "iv\u{B0}",  "V",  "vi",  "vii",
+      "I7", "II7", "iii7", "iv\u{B0}7", "V7", "vi7", "vii7"
+    }
+  },
+  {
+    name = "Mixolydian",
+    chords = {
+      "I",  "ii",  "iii\u{B0}",  "IV",  "v",  "vi",  "VII",
+      "I7", "ii7", "iii\u{B0}7", "IV7", "v7", "vi7", "VII7"
+    }
+  },
+  {
+    name = "Locrian",
+    chords = {
+      "i\u{B0}",  "II",  "iii",  "iv",  "V",  "VI",  "vii",
+      "i\u{B0}7", "II7", "iii7", "iv7", "V7", "VI7", "vii7"
+    }
+  },
+}
+
+
 
 -- Used offline to generate the chord cross-references in the SCALES table above
 -- Needs to be updated when either SCALES or CHORDS changes
@@ -261,6 +328,137 @@ function MusicUtil.generate_chord(root_num, chord_type, inversion)
   end
 
   return out_array
+end
+
+--- Generate chord from a root note.
+-- @tparam integer root_num MIDI note number (0-127) defining the key.
+-- @tparam string scale_type String defining scale type (eg, "major", "dorian"), see class for full list.
+-- @tparam string roman_chord_type Roman-numeral-style string defining chord type (eg, "V", "iv7" or "III+")
+--    including limited bass notes (e.g. "iv6-9") and lowercase-letter inversion notation (e.g. "IIb" for first inversion)
+--    Will only return chords defined in MusicUtil.CHORDS.
+-- @treturn {integer...} Array of MIDI note numbers.
+function MusicUtil.generate_chord_roman(root_num, scale_type, roman_chord_type)
+
+  if type(root_num) ~= "number" or root_num < 0 or root_num > 127 then return nil end
+  local rct = roman_chord_type or "I"
+
+  local scale_data = lookup_data(MusicUtil.SCALES, scale_type)
+  if not scale_data then return nil end
+
+  -- treat extended ascii degree symbols as asterisks
+  rct = string.gsub(rct, "\u{B0}", "*")
+  rct = string.gsub(rct, "\u{BA}", "*")
+
+  local degree_string, augdim_string, added_string, bass_string, inv_string =
+    string.match(rct, "([ivxIVX]+)([+*]?)([0-9]*)-?([0-9]?)([bcdefg]?)")
+
+  local d = string.lower(degree_string)
+  local is_major = degree_string ~= d
+  local is_augmented = augdim_string == "+"
+  local is_diminished = augdim_string == "*"
+  local is_seventh = added_string == "7"
+
+  local chord_type = nil
+  if is_major then
+    if is_augmented then
+      if is_seventh then
+        chord_type = "Augmented 7"
+      else
+        chord_type = "Augmented"
+      end
+    elseif is_diminished then
+      if is_seventh then
+        chord_type = "Diminished 7"
+      else
+        chord_type = "Diminished"
+      end
+    elseif added_string == "6" then
+      if bass_string == "9" then
+        chord_type = "Major 69"
+      else
+        chord_type = "Major 6"
+      end
+    elseif is_seventh then
+      chord_type = "Major 7"
+    elseif added_string == "9" then
+      chord_type = "Major 9"
+    elseif added_string == "11" then
+      chord_type = "Major 11"
+    elseif added_string == "13" then
+      chord_type = "Major 13"
+    else
+      chord_type = "Major"
+    end
+  else -- minor
+    if is_augmented then
+      if is_seventh then
+        chord_type = "Augmented 7"
+      else
+        chord_type = "Augmented"
+      end
+    elseif is_diminished then
+      if is_seventh then
+        chord_type = "Diminished 7"
+      else
+        chord_type = "Diminished"
+      end
+    elseif added_string == "6" then
+      if bass_string == "9" then
+        chord_type = "Minor 69"
+      else
+        chord_type = "Minor 6"
+      end
+    elseif is_seventh then
+      chord_type = "Minor 7"
+    elseif added_string == "9" then
+      chord_type = "Minor 9"
+    elseif added_string == "11" then
+      chord_type = "Minor 11"
+    elseif added_string == "13" then
+      chord_type = "Minor 13"
+    else
+      chord_type = "Minor"
+    end
+  end
+
+  local degree = nil
+  local roman_numerals = { "i", "ii", "iii", "iv", "v", "vi", "vii" }
+  for i,v in pairs(roman_numerals) do
+    if(v == d) then
+      degree = i
+      break
+    end
+  end
+  if degree == nil then return nil end
+
+  local inv = string.lower(inv_string)
+  local inversion = 0
+  local inversioncodes = { "b", "c", "d", "e", "f", "g" }
+  for i,v in pairs(inversioncodes) do
+    if(v == inv) then
+      inversion = i
+      break
+    end
+  end
+
+  local degree_note = root_num + scale_data.intervals[degree]
+
+  return MusicUtil.generate_chord(degree_note, chord_type, inversion)
+end
+
+--- Generate chord from a root note.
+-- @tparam integer root_num MIDI note number (0-127) defining the key.
+-- @tparam string scale_type String defining scale type (eg, "major", "dorian"), see class for full list.
+-- @tparam integer degree Number between 1-7 selecting the degree of the chord.
+--    See MusicUtil.SCALE_CHORD_DEGREES for chords assigned to each degree.
+--    Will only return chords defined in MusicUtil.CHORDS.
+-- @tparam[opt] boolean seventh Return the 7th chord if set to true (optional)
+-- @treturn {integer...} Array of MIDI note numbers.
+function MusicUtil.generate_chord_scale_degree(root_num, scale_type, degree, seventh)
+  local d = util.clamp(degree, 1, 7)
+  if seventh then d = d + 7 end
+  local scale_data = lookup_data(MusicUtil.SCALE_CHORD_DEGREES, scale_type)
+  return MusicUtil.generate_chord_roman(root_num, scale_type, scale_data.chords[d])
 end
 
 --- List chord types for a given root note and key.

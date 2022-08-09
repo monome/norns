@@ -399,6 +399,7 @@ end
 -- remove a device.
 _norns.midi.remove = function(id)
   if Midi.devices[id] then
+    Midi.remove(Midi.devices[id])
     if Midi.devices[id].remove then
       Midi.devices[id].remove()
     end

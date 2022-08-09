@@ -4,6 +4,13 @@
 
 #pragma once
 
+// include extra debugging utilties
+// #define UTILITIES_H_DEBUG
+
+#ifdef CRONE_UTILITIES_H_DEBUG
+#include <iostream>
+#endif 
+
 #include <cassert>
 #include <array>
 #include <math.h>
@@ -18,6 +25,28 @@ namespace crone {
         float absx = fabs(x);
         return (absx > (float) 1e-15 && absx < (float) 1e15) ? x : 0.f;
     }
+#endif
+
+#ifdef CRONE_UTILITIES_H_DEBUG
+static inline float debug_zapgremlins(float x, const char* label, void* thing) {
+    if (x < -1.f) {
+        std::cerr << label << " (" << thing << ") : " << "clamp negative: " << x << std::endl;
+        return -1.f;
+    }
+    if (x > 1.f) {
+        std::cerr << label << " (" << thing << ") : " << "clamp positive: " << x << std::endl;
+        return 1.f;
+    }
+    if (std::isnan(x)) {
+        std::cerr << label << " (" << thing << ") : " << "zap nan" << std::endl;
+        return 0.f;
+    }
+    if (std::isinf(x)) {
+        std::cerr << label << " (" << thing << ") : " << "zap inf" << std::endl;
+        return x < 0 ? -1.f : 1.f;
+    }
+    return x;
+}
 #endif
 
     // convert a time-to-convergence to a pole coefficient
@@ -59,7 +88,7 @@ namespace crone {
         // runnning sum
         T sum;
 
-        void advanceIdx(size_t &idx) {
+        inline void advanceIdx(size_t &idx) {
             if (++idx >= size) {idx = 0;}
         }
 
@@ -81,7 +110,6 @@ namespace crone {
             return sum / size;
         }
     };
-
 
     class LinearRamp {
     private:
@@ -117,7 +145,7 @@ namespace crone {
         }
 
     LinearRamp(float sr, float t = 0.0001) :
-	sampleRate(sr), target(0.f), val(0.f), rising(false) {
+	    sampleRate(sr), target(0.f), val(0.f), rising(false) {
             setTime(t);
         }
 
@@ -212,8 +240,6 @@ namespace crone {
         }
 
         float process(float x) {
-            // FIXME: zapgremlins is weirdly slow (at least on x86)
-            //x0 = zapgremlins(y);
             x0 = smooth1pole(x, x0, x > x0 ? bR : bF);
             return x0;
         }

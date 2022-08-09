@@ -5,19 +5,19 @@
  */
 
 #include <assert.h>
-#include <cairo-ft.h>
 #include <cairo.h>
+#include <cairo-ft.h>
 #include <fcntl.h>
 #include <linux/fb.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <unistd.h>
 
 #include "args.h"
+#include "hardware/io.h"
+#include "hardware/screen.h"
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
@@ -73,126 +73,19 @@ static cairo_operator_t ops[NUM_OPS] = {
 };
 
 static cairo_surface_t *surface;
-static cairo_surface_t *surfacefb;
 static cairo_surface_t *image;
-
 static cairo_t *cr;
-static cairo_t *crfb;
+static cairo_t *cr_primary;
+
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
 static FT_Error status;
 static FT_Face face[NUM_FONTS];
 static double text_xy[2];
 
-typedef struct _cairo_linuxfb_device {
-    int fb_fd;
-    unsigned char *fb_data;
-    long fb_screensize;
-    struct fb_var_screeninfo fb_vinfo;
-    struct fb_fix_screeninfo fb_finfo;
-} cairo_linuxfb_device_t;
-
-/* Destroy a cairo surface */
-void cairo_linuxfb_surface_destroy(void *device) {
-    cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
-
-    if (dev == NULL) {
-        return;
-    }
-
-    munmap(dev->fb_data, dev->fb_screensize);
-    close(dev->fb_fd);
-    free(dev);
-}
-
-/* Create a cairo surface using the specified framebuffer */
-cairo_surface_t *cairo_linuxfb_surface_create() {
-    cairo_linuxfb_device_t *device;
-    cairo_surface_t *surface;
-
-    const char *fb_name = args_framebuffer();
-
-    device = malloc(sizeof(*device));
-    if (!device) {
-        fprintf(stderr, "ERROR (screen) cannot allocate memory\n");
-        return NULL;
-    }
-
-    // Open the file for reading and writing
-    device->fb_fd = open(fb_name, O_RDWR);
-    if (device->fb_fd == -1) {
-        fprintf(stderr, "ERROR (screen) cannot open framebuffer device: %s\n", fb_name);
-        goto handle_allocate_error;
-    }
-
-    // Get variable screen information
-    if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading variable information\n");
-        goto handle_ioctl_error;
-    }
-
-    // Figure out the size of the screen in bytes
-    device->fb_screensize = device->fb_vinfo.xres * device->fb_vinfo.yres * device->fb_vinfo.bits_per_pixel / 8;
-
-    // Map the device to memory
-    device->fb_data =
-        (unsigned char *)mmap(0, device->fb_screensize, PROT_READ | PROT_WRITE, MAP_SHARED, device->fb_fd, 0);
-
-    if (device->fb_data == (unsigned char *)-1) {
-        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory\n");
-        goto handle_ioctl_error;
-    }
-
-    // Get fixed screen information
-    if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading fixed information\n");
-        goto handle_ioctl_error;
-    }
-
-    /* Create the cairo surface which will be used to draw to */
-    surface = cairo_image_surface_create_for_data(
-        device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
-        cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
-    cairo_surface_set_user_data(surface, NULL, device, &cairo_linuxfb_surface_destroy);
-
-    return surface;
-
-handle_ioctl_error:
-    close(device->fb_fd);
-handle_allocate_error:
-    free(device);
-    return NULL;
-}
-
-void screen_display_png(const char *filename, double x, double y) {
-    int img_w, img_h;
-    // fprintf(stderr, "loading: %s\n", filename);
-
-    image = cairo_image_surface_create_from_png(filename);
-    if (cairo_surface_status(image)) {
-        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
-        return;
-    }
-
-    img_w = cairo_image_surface_get_width(image);
-    img_h = cairo_image_surface_get_height(image);
-
-    cairo_set_source_surface(cr, image, x, y);
-    // cairo_paint (cr);
-    cairo_rectangle(cr, x, y, img_w, img_h);
-    cairo_fill(cr);
-    cairo_surface_destroy(image);
-}
-
 void screen_init(void) {
-    surfacefb = cairo_linuxfb_surface_create();
-    if (surfacefb == NULL) {
-        return;
-    }
-    crfb = cairo_create(surfacefb);
-
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
-    cr = cairo_create(surface);
+    cr = cr_primary = cairo_create(surface);
 
     status = FT_Init_FreeType(&value);
     if (status != 0) {
@@ -280,7 +173,7 @@ void screen_init(void) {
         fprintf(stderr, "  %d: %s\n", i, font_path[i]);
     }
 #endif
-    
+
     char filename[256];
 
     for (int i = 0; i < NUM_FONTS; i++) {
@@ -313,22 +206,38 @@ void screen_init(void) {
     cairo_set_font_face(cr, ct[0]);
     cairo_set_font_size(cr, 8.0);
 
-    // config buffer
-    cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_surface(crfb, surface, 0, 0);
+    fprintf(stderr, "font setup OK.\n");
+
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        matron_fb_t *fb = (matron_fb_t *)io;
+        screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
+        fb_ops->bind(fb, surface);
+    }
 }
 
 void screen_deinit(void) {
     CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
-    cairo_destroy(crfb);
-    cairo_surface_destroy(surfacefb);
+
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        io->ops->destroy(io);
+    }
 }
 
 void screen_update(void) {
     CHECK_CR
-    cairo_paint(crfb);
+    matron_io_t *io;
+    TAILQ_FOREACH(io, &io_queue, entries) {
+        if (io->ops->type != IO_SCREEN) continue;
+        matron_fb_t *fb = (matron_fb_t *)io;
+        screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
+        fb_ops->paint(fb);
+    }
 }
 
 void screen_save(void) {
@@ -490,6 +399,28 @@ extern void screen_export_png(const char *s) {
     cairo_surface_write_to_png(surface, s);
 }
 
+void screen_display_png(const char *filename, double x, double y) {
+    int img_w, img_h;
+    // fprintf(stderr, "loading: %s\n", filename);
+
+    image = cairo_image_surface_create_from_png(filename);
+    if (cairo_surface_status(image)) {
+        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
+        return;
+    }
+
+    img_w = cairo_image_surface_get_width(image);
+    img_h = cairo_image_surface_get_height(image);
+
+    cairo_save(cr);
+    cairo_set_source_surface(cr, image, x, y);
+    // cairo_paint (cr);
+    cairo_rectangle(cr, x, y, img_w, img_h);
+    cairo_fill(cr);
+    cairo_surface_destroy(image);
+    cairo_restore(cr);
+}
+
 char *screen_peek(int x, int y, int *w, int *h) {
     CHECK_CRR
     *w = (*w <= (128 - x)) ? (*w) : (128 - x);
@@ -550,6 +481,119 @@ void screen_set_operator(int i) {
     if (0 <= i && i <= 28) {
         cairo_set_operator(cr, ops[i]);
     }
+}
+
+screen_surface_t *screen_surface_new(double width, double height) {
+    int w = (int)floor(width);
+    int h = (int)floor(height);
+    cairo_format_t format = CAIRO_FORMAT_ARGB32;
+    cairo_surface_t *image = cairo_image_surface_create(format, w, h);
+    cairo_status_t status = cairo_surface_status(image);
+    if (status == CAIRO_STATUS_SUCCESS) {
+        return (screen_surface_t *)image;
+    }
+    fprintf(stderr, "surface_new: %s (%d)\n", cairo_status_to_string(status), status);
+    return NULL;
+}
+
+screen_surface_t *screen_surface_load_png(const char *filename) {
+    CHECK_CRR
+    cairo_surface_t *image = cairo_image_surface_create_from_png(filename);
+    if (cairo_surface_status(image)) {
+        fprintf(stderr, "load_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
+        return NULL;
+    }
+    return (screen_surface_t *)image;
+}
+
+void screen_surface_free(screen_surface_t *s) {
+    CHECK_CR
+    // fprintf(stderr, "screen_surface_free(%p)\n", s);
+    cairo_surface_destroy((cairo_surface_t *)s);
+}
+
+bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e) {
+    CHECK_CRR
+    cairo_surface_t *image = (cairo_surface_t *)s;
+    e->width = cairo_image_surface_get_width(image);
+    e->height = cairo_image_surface_get_height(image);
+    return true;
+}
+
+void screen_surface_display(screen_surface_t *s, double x, double y) {
+    CHECK_CR
+    cairo_surface_t *image = (cairo_surface_t *)s;
+    int width = cairo_image_surface_get_width(image);
+    int height = cairo_image_surface_get_height(image);
+
+    cairo_save(cr);
+    cairo_set_source_surface(cr, image, x, y);
+    cairo_rectangle(cr, x, y, width, height);
+    cairo_fill(cr);
+    cairo_restore(cr);
+}
+
+void screen_surface_display_region(screen_surface_t *s,
+                                   double left, double top, double width, double height,
+                                   double x, double y) {
+    CHECK_CR
+    cairo_surface_t *image = (cairo_surface_t *)s;
+    cairo_save(cr);
+    cairo_set_source_surface(cr, image, -left + x, -top + y);
+    cairo_rectangle(cr, x, y, width, height);
+    cairo_fill(cr);
+    cairo_restore(cr);
+}
+
+screen_context_t *screen_context_new(screen_surface_t *target) {
+    cairo_surface_t *image = (cairo_surface_t *)target;
+    // NOTE: cairo_create increases the ref count on image which avoids a double
+    // free and allows the image and context to be freed in any order
+    cairo_t *context = cairo_create(image);
+    cairo_status_t status = cairo_status(context);
+    if (status == CAIRO_STATUS_SUCCESS) {
+        return (screen_context_t *)context;
+    }
+    fprintf(stderr, "context_new: %s (%d)\n", cairo_status_to_string(status), status);
+    return NULL;
+
+    return (screen_context_t *)context;
+}
+
+void screen_context_free(screen_context_t *context) {
+    // fprintf(stderr, "screen_context_free(%p)\n", context);
+    cairo_destroy((cairo_t *)context);
+}
+
+const screen_context_t *screen_context_get_current(void) {
+    return (const screen_context_t *)cr;
+}
+
+inline static void _screen_context_set(cairo_t *cr_incoming) {
+    // return early if attempting to assign the same context
+    if (cr_incoming == cr) {
+        return;
+    }
+
+    // manage ref count for contexts which aren't the primary context
+    if (cr_incoming != cr_primary) {
+        cairo_reference(cr_incoming);
+    }
+
+    // decrement ref count on current context if it is not the primary
+    if (cr != cr_primary) {
+        cairo_destroy(cr);
+    }
+
+    cr = cr_incoming;
+}
+
+void screen_context_set(const screen_context_t *context) {
+    _screen_context_set((cairo_t *)context);
+}
+
+void screen_context_set_primary(void) {
+    _screen_context_set(cr_primary);
 }
 
 #undef CHECK_CR

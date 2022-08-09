@@ -42,6 +42,10 @@ extern void dev_monome_intensity(struct dev_monome *md, uint8_t i);
 // set grid rotation
 extern void dev_monome_set_rotation(struct dev_monome *md, uint8_t val);
 
+// grid tilt enable/disable
+extern void dev_monome_tilt_enable(struct dev_monome *md, uint8_t val);
+extern void dev_monome_tilt_disable(struct dev_monome *md, uint8_t val);
+
 // device management
 extern int dev_monome_init(void *self);
 extern void dev_monome_deinit(void *self);

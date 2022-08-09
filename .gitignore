@@ -3,6 +3,7 @@
 
 # ignore emacs cruft
 \#*\#
+.\#*
 *.*~
 
 # vim

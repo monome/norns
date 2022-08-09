@@ -45,41 +45,27 @@ local function tape_exists(index)
   if type(index) == "number" then
     index = string.format("%04d",index)
   end
-  local filename = _path.audio.."tape/"..index..".wav"
+  local filename = _path.tape..index..".wav"
   return util.file_exists(filename)
 end
 
 local function read_tape_index()
-  local f = io.open(_path.tape..'index.txt','r')
-  if f ~= nil then
-    local a = tonumber(f:read("*line"))
-    m.fileindex = a or 0
-    f:close()
-  else
+  os.execute("mkdir -p ".._path.tape)
+  tape = util.os_capture("ls ".._path.tape, true)
+  local t = {}
+  for f in tape:gmatch("([^\n]+)") do
+    fs = string.sub(f,1,4)
+    if tonumber(fs) then
+      table.insert(t,tonumber(fs)) 
+    end
+  end
+  
+  if #t == 0 then
     m.fileindex = 0
-  end
-  while tape_exists(m.fileindex) do
-    m.fileindex = m.fileindex+1
-  end
-end
-
-local function write_tape_index_v(v)
-  local f = io.open(_path.tape..'index.txt','w')
-  if f == nil then
-    os.execute("mkdir -p ".._path.tape)
-    f = io.open(_path.tape..'index.txt','w')
-  end
-  if f == nil then
-    print("WARNING: couldn't write index file, even after creating `tape/`")
   else
-    f:write(tostring(v))
-    f:close()
+    local high = math.max(table.unpack(t))
+    m.fileindex = high + 1
   end
-end
-
-local function update_tape_index()
-  read_tape_index()
-  write_tape_index_v(m.fileindex)
 end
 
 local function edit_filename(txt)
@@ -89,10 +75,7 @@ local function edit_filename(txt)
     _menu.redraw()
     return
   end
-  if txt == string.format("%04d",m.fileindex) then
-    update_tape_index()
-  end
-  audio.tape_record_open(_path.audio.."tape/"..m.rec.file)
+  audio.tape_record_open(_path.tape..m.rec.file)
   m.rec.sel = TAPE_REC_START
   m.rec.pos_tick = 0
   tape_rec_counter.time = 0.25

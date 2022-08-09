@@ -2,6 +2,7 @@ top = '..'
 
 def build(bld):
     matron_sources = [
+        'src/config.c',
         'src/device/device.c',
         'src/device/device_hid.c',
         'src/device/device_list.c',
@@ -11,15 +12,19 @@ def build(bld):
         'src/device/device_crow.c',
         'src/osc.c',
         'src/hardware/battery.c',
-        'src/hardware/gpio.c',
         'src/hardware/i2c.c',
+        'src/hardware/input.c',
+        'src/hardware/io.c',
         'src/hardware/platform.c',
         'src/hardware/screen.c',
         'src/hardware/stat.c',
+	    'src/hardware/screen/fbdev.c',
+        'src/hardware/input/gpio.c',
         'src/args.c',
         'src/events.c',
         'src/hello.c',
         'src/input.c',
+        'src/jack_client.c',
         'src/lua_eval.c',
         'src/main.c',
         'src/metro.c',
@@ -33,6 +38,12 @@ def build(bld):
         'src/clocks/clock_crow.c',
         'src/clocks/clock_scheduler.c',
     ]
+
+    if bld.env.NORNS_DESKTOP:
+        matron_sources += [
+            'src/hardware/screen/sdl.c',
+            'src/hardware/input/sdl.c',
+        ]
 
     matron_includes = [
         'src',
@@ -60,11 +71,25 @@ def build(bld):
         'JACK',
     ]
 
+    if bld.env.NORNS_DESKTOP:
+        matron_libs.append('SDL2')
+        matron_use.append('SDL2')
+
     if bld.env.ENABLE_ABLETON_LINK:
         matron_sources += ['src/clocks/clock_link.c']
-        matron_includes += ['../third-party/link-c']
+        matron_includes += ['../third-party/link/extensions/abl_link/include']
         matron_libs += ['stdc++']
         matron_use += ['LIBLINK_C']
+
+    matron_cflags=['-O3', '-Wall', '-std=c11']
+
+    if bld.env.NORNS_RELEASE:
+        matron_cflags += [ 
+            '-mcpu=cortex-a53',
+            '-mtune=cortex-a53',
+            '-mfpu=neon-fp-armv8',
+            '-mfloat-abi=hard',
+        ]
 
     if bld.env.PROFILE_MATRON:
       bld.env.append_unique('CFLAGS', ['-pg'])
@@ -77,5 +102,5 @@ def build(bld):
         includes=matron_includes,
         use=matron_use,
         lib=matron_libs,
-        cflags=['-O3', '-Wall'],
+        cflags=matron_cflags,
         ldflags=['-Wl,-export-dynamic'])

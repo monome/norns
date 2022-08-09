@@ -45,6 +45,14 @@ local function set_len_for_list()
   end
 end
 
+local function check_and_rename(dev_type,pos,name)
+  for i = 1,#dev_type.vports do
+    if i ~= pos and dev_type.vports[i].name == name then
+      dev_type.vports[i].name = "none"
+    end
+  end
+end
+
 m.key = function(n,z)
   if m.mode == "type" then
     if n==2 and z==1 then
@@ -95,15 +103,19 @@ m.key = function(n,z)
       local target_mode = "list"
       if m.section == "midi" then
         midi.vports[m.setpos].name = s
+        check_and_rename(midi,m.setpos,s)
         midi.update_devices()
       elseif m.section == "grid" then
         grid.vports[m.setpos].name = s
+        check_and_rename(grid,m.setpos,s)
         grid.update_devices()
       elseif m.section == "arc" then
         arc.vports[m.setpos].name = s
+        check_and_rename(arc,m.setpos,s)
         arc.update_devices()
       elseif m.section == "hid" then
         hid.vports[m.setpos].name = s
+        check_and_rename(hid,m.setpos,s)
         hid.update_devices()
       elseif m.section == "keyboard layout" then
         keyboard.set_map(s, true)

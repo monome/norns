@@ -24,6 +24,22 @@ def build(bld):
         'softcut/softcut-lib/src/Voice.cpp'
     ]
 
+    crone_flags = [ '-std=c++14',
+                    '-O3',
+                    '-Wall'
+                  ]
+
+    if bld.env.NORNS_RELEASE:
+        crone_flags += [ 
+            '-mcpu=cortex-a53',
+            '-mtune=cortex-a53',
+            '-mfpu=neon-fp-armv8',
+            '-mfloat-abi=hard',
+            '-funconstrained-commons',
+            '-ffast-math',
+            '-fgcse-sm',
+        ]
+
     bld.program( features='c cxx cxxprogram',
                  source=crone_sources,
                  target='crone',
@@ -46,8 +62,5 @@ def build(bld):
                      'm',
                      'sndfile'
                  ],
-                 cxxflags=[
-                     '-std=c++14',
-                     '-O2',
-                     '-Wall'
-                 ])
+                 cxxflags=crone_flags
+                 )

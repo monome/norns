@@ -94,7 +94,7 @@ function Arc:refresh()
 end
 
 --- create an anti-aliased point to point arc 
--- segment/range on a sepcific LED ring.
+-- segment/range on a specific LED ring.
 -- each point can be a decimal, LEDs will fade for in between values. 
 -- @tparam integer ring : ring index (1-based)
 -- @tparam number from : from angle in radians
