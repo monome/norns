@@ -85,8 +85,9 @@ Script.clear = function()
   -- clear crow functions
   norns.crow.init()
 
-  -- clear keyboard handlers
+  -- clear HID device handlers
   keyboard.clear()
+  gamepad.clear()
 
   -- clear last run
   norns.state.script = ''
