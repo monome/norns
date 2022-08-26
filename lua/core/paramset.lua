@@ -472,7 +472,7 @@ function ParamSet:write(filename, name)
     io.output(fd)
     if name then io.write("-- "..name.."\n") end
     for _,param in ipairs(self.params) do
-      if param.id and param.save and param.t ~= self.tTRIGGER then
+      if param.id and param.save and param.t ~= self.tTRIGGER and param.t ~= self.tSEPARATOR then
         io.write(string.format("%s: %s\n", quote(param.id), param:get()))
       end
     end
@@ -499,6 +499,7 @@ function ParamSet:read(filename, silent)
   local fd = io.open(filename, "r")
   if fd then
     io.close(fd)
+    local param_already_set = {}
     for line in io.lines(filename) do
       if util.string_starts(line, "--") then
         params.name = string.sub(line, 4, -1)
@@ -509,7 +510,7 @@ function ParamSet:read(filename, silent)
           id = unquote(id)
           local index = self.lookup[id]
 
-          if index and self.params[index] then
+          if index and self.params[index] and not param_already_set[index] then
             if tonumber(value) ~= nil then
               self.params[index]:set(tonumber(value), silent)
             elseif value == "-inf" then
@@ -519,6 +520,7 @@ function ParamSet:read(filename, silent)
             elseif value then
               self.params[index]:set(value, silent)
             end
+            param_already_set[index] = true
           end
         end
       end
