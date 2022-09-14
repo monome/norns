@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "args.h"
 #include "hardware/io.h"
@@ -298,31 +299,62 @@ void screen_gamma(double g) {
          grayscale_table[level] = delta;
     }
 
-    char s[75];
-    char cmd[75 + 40];
-    sprintf(s, "%04x %04x %04x %04x %04x %04x %04x "
-               "%04x %04x %04x %04x %04x %04x %04x %04x",
-               grayscale_table[ 1], grayscale_table[ 2], grayscale_table[ 3],
-               grayscale_table[ 4], grayscale_table[ 5], grayscale_table[ 6],
-               grayscale_table[ 7], grayscale_table[ 8], grayscale_table[ 9],
-               grayscale_table[10], grayscale_table[11], grayscale_table[12],
-               grayscale_table[13], grayscale_table[14], grayscale_table[15]);
-    sprintf(cmd, "echo '%s' > /sys/class/graphics/fb0/gamma", s);
-    system(cmd);
+    size_t string_size = 75;
+    char hextets[string_size];
+    sprintf(hextets, "%04x %04x %04x %04x %04x %04x %04x "
+                "%04x %04x %04x %04x %04x %04x %04x %04x",
+                grayscale_table[ 1], grayscale_table[ 2], grayscale_table[ 3],
+                grayscale_table[ 4], grayscale_table[ 5], grayscale_table[ 6],
+                grayscale_table[ 7], grayscale_table[ 8], grayscale_table[ 9],
+                grayscale_table[10], grayscale_table[11], grayscale_table[12],
+                grayscale_table[13], grayscale_table[14], grayscale_table[15]);
+
+    const char* path = "/sys/class/graphics/fb0/gamma";
+    int fd = open(path, O_WRONLY | O_NONBLOCK);
+    if( fd < 0 ){
+        fprintf(stderr, "ERROR (screen) could not open %s\n", path);
+        return;
+    }
+    else{
+        size_t written = write(fd, hextets, string_size);
+        if (written != string_size){
+            fprintf(stderr, "ERROR (screen) %s write incomplete\n", path);
+        }
+        close(fd);
+    }
 }
 
-void screen_precharge(int v) {
+void screen_brightness(int v) {
     CHECK_CR
     if (v < 0) {
         v=0;
     }
-    if (v > 31) {
-   	v=31;
+    if (v > 15) {
+   	    v=15;
     }
 
-    char cmd[47 + 1];
-    sprintf(cmd, "echo '%04x' > /sys/class/graphics/fb0/precharge", v);
-    system(cmd);
+    // True range of pre-charge voltage, AKA "brightness" is 0-31.
+    // Below 16 is too dark for the lowest screen levels, so the range
+    // is limited and offset.
+    v += 16;
+
+    size_t string_size = 5;
+    char hextet[string_size];
+    sprintf(hextet, "%04x", v);
+
+    const char* path = "/sys/class/graphics/fb0/precharge";
+    int fd = open(path, O_WRONLY | O_NONBLOCK);
+    if( fd < 0 ){
+        fprintf(stderr, "ERROR (screen) could not open %s\n", path);
+        return;
+    }
+    else{
+        size_t written = write(fd, hextet, string_size);
+        if (written != string_size){
+            fprintf(stderr, "ERROR (screen) %s write incomplete\n", path);
+        }
+        close(fd);
+    }
 }
 
 void screen_level(int z) {

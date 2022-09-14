@@ -12,6 +12,7 @@ m.key = function(n,z)
     os.execute("rm ~/dust/data/system.state")
     os.execute("rm "..paths.favorites)
     os.execute("rm "..paths.enabled_mods)
+    os.execute("rm "..paths.display_settings)
     _norns.reset()
   end
 end

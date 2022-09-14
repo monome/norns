@@ -1,16 +1,16 @@
 local map = {}
-local low = 31
+local brightness = 15
 local gamma = 1.0
 
 map[0] = {
   position = {x=0, y=56},
-  name = "LOW",
-  get = function(_) return low end,
-  set = function(d) low = util.clamp(0, low + d, 31) end,
-  is_default = function(_) return low == 31 end,
+  name = "BRIGHTNESS",
+  get = function(_) return brightness end,
+  set = function(d) brightness = util.clamp(0, brightness + d, 15) end,
+  is_default = function(_) return brightness == 15 end,
 }
 map[1] = {
-  position = {x=22, y=56},
+  position = {x=56, y=56},
   name = "GAMMA",
   get = function(_) return string.format("%.2f", gamma) end,
   set = function(d) gamma = util.clamp(0.0, gamma + (d * 0.01),  30.0) end,
@@ -22,7 +22,7 @@ local load_settings = function()
   if err then return err end
 
   local loaded_settings = executable_lua() or {}
-  low   = loaded_settings.low   or  31
+  brightness = loaded_settings.brightness or 15
   gamma = loaded_settings.gamma or   1.0
 end
 
@@ -30,7 +30,7 @@ local save_settings = function()
   local file, err = io.open(_path.display_settings, "w")
   if err then return err end
   local s = ""
-  s = s.."low="..low..","
+  s = s.."brightness="..brightness..","
   s = s.."gamma="..gamma..","
   file:write("return {"..s.."}")
   file:close()
@@ -57,7 +57,7 @@ m.enc = function(n,delta)
     _menu.redraw()
   elseif n==3 then
     map[m.pos].set(delta)
-    _norns.screen_precharge(low)
+    _norns.screen_brightness(brightness)
     _norns.screen_gamma(gamma)
     save_settings()
     _menu.redraw()

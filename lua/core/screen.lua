@@ -10,8 +10,8 @@ local screensaver = metro[36]
 local sleeping = false
 
 local executable_lua, err = loadfile(_path.display_settings)
-local loaded_settings = executable_lua() or {}
-local precharge = loaded_settings.low or 31
+local loaded_settings = executable_lua ~= nil and executable_lua() or {}
+local brightness = loaded_settings.brightness or 15
 local gamma = loaded_settings.gamma or 1.0
 local module_just_loaded = true
 
@@ -28,7 +28,7 @@ screensaver.count = 1
 Screen.update_default = function()
   if module_just_loaded then
     _norns.screen_gamma(gamma)
-    _norns.screen_precharge(precharge)
+    _norns.screen_brightness(brightness)
     module_just_loaded = false
   end
   _norns.screen_update()
