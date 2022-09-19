@@ -97,13 +97,10 @@ static cairo_surface_t *screen_sdl_surface_create(screen_sdl_priv_t *priv) {
                                     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,                                 windowSize.w, windowSize.h,
                                     SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
     priv->window_surface = SDL_GetWindowSurface(priv->window);
-    priv->draw_surface = SDL_CreateRGBSurface(0,
-                                              128, 64,
-                                              16, 0xf800, 0x000007e0, 0x0000001f,
-                                              0);
+    priv->draw_surface = SDL_CreateRGBSurfaceWithFormat(0, 128, 64, 4, SDL_PIXELFORMAT_INDEX4LSB);
     surface = cairo_image_surface_create_for_data((unsigned char *)priv->draw_surface->pixels,
-                                                  CAIRO_FORMAT_RGB16_565, priv->draw_surface->w, priv->draw_surface->h,
-                                                  cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, priv->draw_surface->w));
+                                                  CAIRO_FORMAT_A4, priv->draw_surface->w, priv->draw_surface->h,
+                                                  cairo_format_stride_for_width(CAIRO_FORMAT_A4, priv->draw_surface->w));
     cairo_surface_set_user_data(surface, NULL, priv, &screen_sdl_surface_destroy);
 
     return surface;

@@ -84,7 +84,7 @@ static FT_Face face[NUM_FONTS];
 static double text_xy[2];
 
 void screen_init(void) {
-    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
+    surface = cairo_image_surface_create(CAIRO_FORMAT_A4, 128, 64);
     cr = cr_primary = cairo_create(surface);
 
     status = FT_Init_FreeType(&value);
@@ -283,7 +283,7 @@ void screen_level(int z) {
         z=0;
     else if(z>15)
         z=15;
-    cairo_set_source_rgb(cr, c[z], c[z], c[z]);
+    cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, c[z]);
 }
 
 void screen_line_width(double w) {
@@ -486,7 +486,7 @@ void screen_set_operator(int i) {
 screen_surface_t *screen_surface_new(double width, double height) {
     int w = (int)floor(width);
     int h = (int)floor(height);
-    cairo_format_t format = CAIRO_FORMAT_ARGB32;
+    cairo_format_t format = CAIRO_FORMAT_A4;
     cairo_surface_t *image = cairo_image_surface_create(format, w, h);
     cairo_status_t status = cairo_surface_status(image);
     if (status == CAIRO_STATUS_SUCCESS) {

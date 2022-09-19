@@ -151,8 +151,8 @@ static cairo_surface_t *screen_fbdev_surface_create(screen_fbdev_priv_t *priv, c
 
     // Create the cairo surface which will be used to draw to
     surface = cairo_image_surface_create_for_data(
-        priv->fb_data, CAIRO_FORMAT_RGB16_565, priv->fb_vinfo.xres, priv->fb_vinfo.yres,
-        cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, priv->fb_vinfo.xres));
+        priv->fb_data, CAIRO_FORMAT_A4, priv->fb_vinfo.xres, priv->fb_vinfo.yres,
+        cairo_format_stride_for_width(CAIRO_FORMAT_A4, priv->fb_vinfo.xres));
     cairo_surface_set_user_data(surface, NULL, priv, &screen_fbdev_surface_destroy);
 
     return surface;
