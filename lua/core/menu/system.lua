@@ -6,6 +6,11 @@ local m = {
   pages = {"DEVICES", "WIFI", "MODS", "DISPLAY", "RESTART", "RESET", "UPDATE", "PASSWORD", "LOG"}
 }
 
+if io.open("/sys/class/graphics/fb0/precharge", "w") == nil then
+  table.remove(m.list, tab.key(m.list, "DISPLAY > "))
+  table.remove(m.pages, tab.key(m.pages, "DISPLAY"))
+end
+
 m.key = function(n,z)
   if n==2 and z==1 then
     _menu.set_page("HOME")
