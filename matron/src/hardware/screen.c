@@ -14,10 +14,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "args.h"
 #include "hardware/io.h"
 #include "hardware/screen.h"
+#include "hardware/screen/ssd1322.h"
 
 // skip this if you don't want every screen module call to perform null checks
 #ifndef CHECK_CR
@@ -76,6 +78,7 @@ static cairo_surface_t *surface;
 static cairo_surface_t *image;
 static cairo_t *cr;
 static cairo_t *cr_primary;
+static int surface_may_have_color = 0;
 
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
@@ -207,7 +210,7 @@ void screen_init(void) {
     cairo_set_font_size(cr, 8.0);
 
     fprintf(stderr, "font setup OK.\n");
-
+#ifdef NORNS_DESKTOP
     matron_io_t *io;
     TAILQ_FOREACH(io, &io_queue, entries) {
         if (io->ops->type != IO_SCREEN) continue;
@@ -215,22 +218,19 @@ void screen_init(void) {
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->bind(fb, surface);
     }
+#endif
 }
 
 void screen_deinit(void) {
     CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
-
-    matron_io_t *io;
-    TAILQ_FOREACH(io, &io_queue, entries) {
-        if (io->ops->type != IO_SCREEN) continue;
-        io->ops->destroy(io);
-    }
 }
 
 void screen_update(void) {
     CHECK_CR
+
+#ifdef NORNS_DESKTOP
     matron_io_t *io;
     TAILQ_FOREACH(io, &io_queue, entries) {
         if (io->ops->type != IO_SCREEN) continue;
@@ -238,6 +238,11 @@ void screen_update(void) {
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->paint(fb);
     }
+    return;
+#endif
+
+    cairo_surface_flush(surface);
+    ssd1322_update(surface, surface_may_have_color);
 }
 
 void screen_save(void) {
@@ -275,6 +280,64 @@ void screen_aa(int s) {
     }
     cairo_set_font_options(cr, font_options);
     cairo_font_options_destroy(font_options);
+}
+
+void screen_gamma(double g) {
+    CHECK_CR
+    if (g < 0.0) {
+        g=0;
+    }
+
+    uint8_t grayscale_table[16];
+    double max_grayscale = SSD1322_GRAYSCALE_MAX_VALUE;
+    for (int level = 0; level <= 15; level++) {
+        double pre_gamma = level / 15.0;
+        double grayscale = round( pow(pre_gamma, g) * max_grayscale );
+        double limit = (grayscale > max_grayscale) ? max_grayscale : grayscale;
+        grayscale_table[level] = (uint8_t) limit;
+    }
+
+    ssd1322_set_gamma(grayscale_table);
+}
+
+void screen_brightness(int v) {
+    CHECK_CR
+    if (v < 0) {
+        v=0;
+    }
+    if (v > 15) {
+   	    v=15;
+    }
+
+    // True range of pre-charge voltage, AKA "brightness" is 0-31.
+    // Below 16 is too dark for the lowest screen levels, so the range
+    // is limited and offset.
+    v += 16;
+
+    ssd1322_set_brightness((uint8_t) v);
+}
+
+void screen_contrast(int c){
+    CHECK_CR
+    if (c < 0) {
+        c=0;
+    }
+    if (c > 255) {
+        c=255;
+    }
+    ssd1322_set_contrast((uint8_t) c);
+}
+
+void screen_invert(){
+    CHECK_CR
+    static uint8_t inverted = 0;
+    if( inverted ){
+        ssd1322_set_display_mode(SSD1322_DISPLAY_MODE_NORMAL);
+    }
+    else{
+        ssd1322_set_display_mode(SSD1322_DISPLAY_MODE_INVERT);
+    }
+    inverted ^= 0x1; // toggle trick.
 }
 
 void screen_level(int z) {
@@ -383,6 +446,7 @@ void screen_clear(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    surface_may_have_color = 0;
 }
 
 double *screen_text_extents(const char *s) {
@@ -437,20 +501,22 @@ extern void screen_export_screenshot(const char *s) {
 
 void screen_display_png(const char *filename, double x, double y) {
     int img_w, img_h;
-    // fprintf(stderr, "loading: %s\n", filename);
+    cairo_status_t status;
 
     image = cairo_image_surface_create_from_png(filename);
-    if (cairo_surface_status(image)) {
-        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
-        return;
+    status = cairo_surface_status(image);
+
+    if ( status ) {
+        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(status));
     }
+
+    surface_may_have_color = 1;
 
     img_w = cairo_image_surface_get_width(image);
     img_h = cairo_image_surface_get_height(image);
 
     cairo_save(cr);
     cairo_set_source_surface(cr, image, x, y);
-    // cairo_paint (cr);
     cairo_rectangle(cr, x, y, img_w, img_h);
     cairo_fill(cr);
     cairo_surface_destroy(image);
@@ -466,15 +532,14 @@ char *screen_peek(int x, int y, int *w, int *h) {
         return NULL;
     }
     cairo_surface_flush(surface);
-    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
+    uint8_t *data = (uint8_t *)cairo_image_surface_get_data(surface);
     if (!data) {
         return NULL;
     }
     char *p = buf;
     for (int j = y; j < y + *h; j++) {
         for (int i = x; i < x + *w; i++) {
-            *p = data[j * 128 + i] & 0xF;
-            p++;
+            *p++ = data[j * 128 + i] & 0xF;
         }
     }
     return buf;
@@ -485,21 +550,19 @@ void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
     w = (w <= (128 - x)) ? w : (128 - x);
     h = (h <= (64 - y))  ? h : (64 - y);
 
-    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
+    uint8_t *data = (uint8_t *)cairo_image_surface_get_data(surface);
     if (!data) {
         return;
     }
     uint8_t *p = buf;
-    uint32_t pixel;
+    uint8_t pixel;
     for (int j = y; j < y + h; j++) {
         for (int i = x; i < x + w; i++) {
-            pixel = *p;
-            pixel = pixel | (pixel << 4);
-            data[j * 128 + i] = pixel | (pixel << 8) | (pixel << 16) | (pixel << 24);
-            p++;
+            pixel = *p++;
+            data[j * 128 + i] = pixel | (pixel << 4);
         }
     }
-    cairo_surface_mark_dirty(surface);
+    cairo_surface_mark_dirty_rectangle(surface, x, y, w, h);
 }
 
 void screen_rotate(double r) {

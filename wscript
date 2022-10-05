@@ -37,6 +37,7 @@ def configure(conf):
     conf.check_cfg(package='alsa', args=['--cflags', '--libs'])
     conf.check_cfg(package='libudev', args=['--cflags', '--libs'])
     conf.check_cfg(package='libevdev', args=['--cflags', '--libs'])
+    conf.check_cfg(package='libgpiod', args=['--cflags', '--libs'])
     conf.check_cfg(package='liblo', args=['--cflags', '--libs'])
     conf.check_cfg(package='cairo', args=['--cflags', '--libs'])
     conf.check_cfg(package='cairo-ft', args=['--cflags', '--libs'])
