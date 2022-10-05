@@ -96,6 +96,10 @@ static int _screen_restore(lua_State *l);
 static int _screen_font_face(lua_State *l);
 static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
+static int _screen_gamma(lua_State *l);
+static int _screen_brightness(lua_State*l);
+static int _screen_contrast(lua_State*l);
+static int _screen_invert(lua_State *l);
 static int _screen_level(lua_State *l);
 static int _screen_line_width(lua_State *l);
 static int _screen_line_cap(lua_State *l);
@@ -445,6 +449,10 @@ void w_init(void) {
     lua_register_norns("screen_font_face", &_screen_font_face);
     lua_register_norns("screen_font_size", &_screen_font_size);
     lua_register_norns("screen_aa", &_screen_aa);
+    lua_register_norns("screen_gamma", &_screen_gamma);
+    lua_register_norns("screen_brightness", &_screen_brightness);
+    lua_register_norns("screen_contrast", &_screen_contrast);
+    lua_register_norns("screen_invert", &_screen_invert);
     lua_register_norns("screen_level", &_screen_level);
     lua_register_norns("screen_line_width", &_screen_line_width);
     lua_register_norns("screen_line_cap", &_screen_line_cap);
@@ -673,6 +681,56 @@ int _screen_aa(lua_State *l) {
     lua_check_num_args(1);
     int x = (int)luaL_checkinteger(l, 1);
     screen_event_aa(x);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: change gamma curve for drawing
+ * @function s_gamma
+ * @tparam double gamma, 0.0 <
+ */
+int _screen_gamma(lua_State *l) {
+    lua_check_num_args(1);
+    double g = luaL_checknumber(l, 1);
+    screen_gamma(g);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: change pre-charge voltage for drawing
+ * @function s_brightness
+ * @tparam int level, [0, 15]
+ */
+int _screen_brightness(lua_State *l) {
+    lua_check_num_args(1);
+    int v = luaL_checkinteger(l, 1);
+    screen_brightness(v);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: change contrast level of screen
+ * @function s_contrast
+ * @tparam int level, [0, 255]
+ */
+int _screen_contrast(lua_State *l) {
+    lua_check_num_args(1);
+    int c = luaL_checkinteger(l, 1);
+    screen_contrast(c);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: invert the screen's pixels, it is not
+ * required to call screen_update() to take effect.
+ * @function s_invert
+ */
+int _screen_invert(lua_State *l) {
+    screen_invert();
     lua_settop(l, 0);
     return 0;
 }
