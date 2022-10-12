@@ -444,6 +444,8 @@ local function unquote(s)
   return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
 end
 
+-- get param object at index; useful for meta-programming tasks like changing a param once it's been created.
+-- @param index
 function ParamSet:lookup_param(index)
   if type(index) == "string" and self.lookup[index] then
     return self.params[self.lookup[index]]
