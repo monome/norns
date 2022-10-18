@@ -142,11 +142,13 @@ fs.enc = function(n,d)
   elseif n==3 and d > 0 then
     fs.file = fs.list[fs.pos+1]
     if fs.lengths[fs.pos+1] then
-      fs.previewing = fs.pos
-      audio.tape_play_stop()
-      audio.tape_play_open(fs.path .. fs.file)
-      audio.tape_play_start()
-      fs.redraw()
+      if fs.previewing ~= fs.pos then
+        fs.previewing = fs.pos
+        audio.tape_play_stop()
+        audio.tape_play_open(fs.getdir() .. fs.file)
+        audio.tape_play_start()
+        fs.redraw()
+      end
     end
   elseif n == 3 and d < 0 then
     if fs.pos == fs.previewing then
@@ -177,7 +179,7 @@ fs.redraw = function()
           screen.level(4)
         end
         local text = fs.display_list[list_index]
-        if i == fs.previewing then
+        if list_index-1 == fs.previewing then
             text = '* ' .. util.trim_string_to_width(text, 95)
         end
         screen.text(text)
