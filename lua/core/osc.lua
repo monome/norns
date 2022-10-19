@@ -92,6 +92,8 @@ local function remote_handler(path, args)
     _norns.key(n, val)
   elseif cmd=="/remote/enc" then
     _norns.enc(n, val)
+  elseif cmd=="/remote/brd" then 
+    keyboard.process(1,n,val)
   end
 end
 				    
