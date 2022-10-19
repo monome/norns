@@ -116,6 +116,9 @@ function keyboard.process(type,code,value)
   -- textentry keycode
   if te_kbd_cb.code then
     te_kbd_cb.code(c,value)
+    -- toggle menu with F5
+  elseif (c=="F5" and value==1) then 
+    _menu.set_mode(not _menu.mode)
     -- menu keycode
   elseif _menu.mode then _menu.keycode(c,value)
     -- script keycode
