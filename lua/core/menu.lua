@@ -237,6 +237,13 @@ function _menu.keycode(c,value)
     end
   end
 
+  -- parameter change with +/-
+  if c=="MINUS" then 
+    _menu.penc(3,value*-1) 
+  elseif c=="EQUAL" then 
+    _menu.penc(3,value) 
+  end
+
   if _menu.keyboardcode then _menu.keyboardcode(c,value) end
 end
 
