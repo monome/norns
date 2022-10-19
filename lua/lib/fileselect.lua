@@ -106,8 +106,20 @@ fs.key = function(n,z)
   -- back
   if n==2 and z==1 then
     fs.done = true
+    if fs.previewing then
+      -- stop previewing
+      audio.tape_play_stop()
+      fs.previewing = nil
+      fs.redraw()
+    end
   -- select
   elseif n==3 and z==1 then
+    if fs.previewing then
+      -- stop previewing
+      audio.tape_play_stop()
+      fs.previewing = nil
+      fs.redraw()
+    end
     if #fs.list > 0 then
       fs.file = fs.list[fs.pos+1]
       if fs.file == "../" then
@@ -139,6 +151,24 @@ fs.enc = function(n,d)
   if n==2 then
     fs.pos = util.clamp(fs.pos + d, 0, fs.len - 1)
     fs.redraw()
+  elseif n==3 and d > 0 then
+    fs.file = fs.list[fs.pos+1]
+    if fs.lengths[fs.pos+1] then
+      if fs.previewing ~= fs.pos then
+        fs.previewing = fs.pos
+        audio.tape_play_stop()
+        audio.tape_play_open(fs.getdir() .. fs.file)
+        audio.tape_play_start()
+        fs.redraw()
+      end
+    end
+  elseif n == 3 and d < 0 then
+    -- always stop with left scroll
+    if fs.previewing then
+      audio.tape_play_stop()
+      fs.previewing = nil
+      fs.redraw()
+    end
   end
 end
 
@@ -161,7 +191,11 @@ fs.redraw = function()
         else
           screen.level(4)
         end
-        screen.text(fs.display_list[list_index])
+        local text = fs.display_list[list_index]
+        if list_index-1 == fs.previewing then
+            text = util.trim_string_to_width('* ' .. text, 97)
+        end
+        screen.text(text)
         if fs.lengths[list_index] then
           screen.move(128,10*i)
           screen.text_right(fs.lengths[list_index])
