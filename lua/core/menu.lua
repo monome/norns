@@ -216,7 +216,7 @@ function _menu.keycode(c,value)
   end
 
   -- E2 emu (scolling)
-  if value==1 then
+  if value>=1 then
     if c=="DOWN" then
       _menu.penc(2,1)
     elseif c=="UP" then
