@@ -216,7 +216,7 @@ function _menu.keycode(c,value)
   end
 
   -- E2 emu (scolling)
-  if value==1 then
+  if value>=1 then
     if c=="DOWN" then
       _menu.penc(2,1)
     elseif c=="UP" then
@@ -235,6 +235,13 @@ function _menu.keycode(c,value)
     elseif c=="RIGHT" then
       _menu.key(3,value)
     end
+  end
+
+  -- parameter change with +/-
+  if c=="MINUS" then 
+    _menu.penc(3,value*-1) 
+  elseif c=="EQUAL" then 
+    _menu.penc(3,value) 
   end
 
   if _menu.keyboardcode then _menu.keyboardcode(c,value) end
