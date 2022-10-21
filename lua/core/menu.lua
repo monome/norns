@@ -79,6 +79,9 @@ norns.scripterror = function(msg)
   print("### SCRIPT ERROR: "..msg)
   if util.string_starts(msg,"missing") then
     print("### try 'SYSTEM > RESTART'")
+  elseif util.string_starts(msg,"version") then
+    print("### try 'SYSTEM > UPDATE'")
+    print("### or check for new disk image")
   end
   _menu.errormsg = msg
   _menu.scripterror = true
