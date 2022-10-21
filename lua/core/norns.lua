@@ -174,15 +174,6 @@ else
   norns.version.update = "000000"
 end
 
-norns.version.required = function(version)
-  -- probably throwing away silly input is fine
-  if tonumber(version) then
-    if tonumber(version) > tonumber(norns.version.update) then
-      norns.scripterror("version " .. version .. " required")
-    end
-  end
-end
-
 --- shutdown
 norns.shutdown = function()
   hook.system_pre_shutdown()
