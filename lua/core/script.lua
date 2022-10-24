@@ -271,11 +271,13 @@ Script.ugen_helper = function()
     for _,suffix in pairs(suffixes) do
       if not util.file_exists(extensions .. name .. "/" .. name .. suffix) then
         if util.file_exists(norns.state.path .. "/ignore/" .. name .. suffix) then
+          util.os_capture("mkdir " .. extensions .. name)
           util.os_capture("cp " .. norns.state.path .. "/ignore/" .. name .. suffix .. " " .. extensions .. name .. "/" .. name .. suffix)
           print("installing UGen file: " .. name .. suffix)
           print("to location: " .. extensions .. name .. "/")
           flag = true
         elseif util.file_exists(norns.state.lib .. "/ignore/" .. name .. suffix) then
+          util.os_capture("mkdir " .. extensions .. name)
           util.os_capture("cp " .. norns.state.lib .. "/ignore/" .. name .. suffix .. " " .. extensions .. name .. "/" .. name .. suffix)
           print("installing UGen file: " .. name . suffix)
           print("to location: " .. extensions .. name .. "/")
