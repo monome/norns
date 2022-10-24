@@ -220,7 +220,12 @@ Script.run = function()
   -- allow mods to do initialization
   hook.script_pre_init()
   -- attempt to install missing ugens
-  Script.ugen_helper()
+  local restart_flag = Script.ugen_helper()
+  if restart_flag then
+    norns.scripterror("installed new UGens")
+    Script.clear()
+    return
+  end
   print("# script run")
   if engine.name ~= nil then
     print("loading engine: " .. engine.name)
@@ -291,11 +296,7 @@ Script.ugen_helper = function()
       end
     end
   end
-  if flag then
-    norns.scripterror("installed new UGens")
-    Script.clear()
-    return
-  end
+  return flag
 end
 
 return Script
