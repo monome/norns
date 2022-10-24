@@ -11,6 +11,8 @@ local Engine = {}
 Engine.names = {}
 -- currently loaded name
 Engine.name = nil
+-- ugens to be installed on first script load
+Engine.ugens = {}
 -- current command table
 Engine.commands = {}
 -- flag if there is a load request pending

@@ -75,6 +75,7 @@ Script.clear = function()
 
   -- clear engine
   engine.name = nil
+  engine.ugens = {}
 
   -- clear softcut
   softcut.reset()
@@ -218,7 +219,8 @@ Script.run = function()
   end
   -- allow mods to do initialization
   hook.script_pre_init()
-
+  -- attempt to install missing ugens
+  Script.ugen_helper()
   print("# script run")
   if engine.name ~= nil then
     print("loading engine: " .. engine.name)
@@ -255,6 +257,40 @@ Script.metadata = function(filename)
   return meta
 end
 
-
+--- Checks for missing UGens as defined in `engine.ugens`.
+-- Looks in `/ignore` and `/lib/ignore` for UGens not found in
+-- `~/.local/share/SuperCollider/Extensions/UgenName`
+Script.ugen_helper = function()
+  local extensions = _path.home .. "/.local/share/SuperCollider/Extensions/"
+  local suffixes = {".sc", "_scsynth.so"}
+  local flag = false
+  for _,name in pairs(engine.ugens) do
+    for _,suffix in pairs(suffixes) do
+      if not util.file_exists(extensions .. name .. "/" .. name .. suffix) then
+        if util.file_exists(norns.state.path .. "/ignore/" .. name .. suffix) then
+          util.os_capture("cp " .. norns.state.path .. "/ignore/" .. name .. suffix .. " " .. extensions .. name .. "/" .. name .. suffix)
+          print("installing UGen file: " .. name .. suffix)
+          print("to location: " .. extensions .. name .. "/")
+          flag = true
+        elseif util.file_exists(norns.state.lib .. "/ignore/" .. name .. suffix) then
+          util.os_capture("cp " .. norns.state.lib .. "/ignore/" .. name .. suffix .. " " .. extensions .. name .. "/" .. name .. suffix)
+          print("installing UGen file: " .. name . suffix)
+          print("to location: " .. extensions .. name .. "/")
+          flag = true
+        else
+          print("could not find " .. name .. suffix)
+          norns.scripterror("install " .. name .. suffix .. " failed")
+          Script.clear()
+          return
+        end
+      end
+    end
+  end
+  if flag then
+    norns.scripterror("installed new UGens")
+    Script.clear()
+    return
+  end
+end
 
 return Script

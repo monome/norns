@@ -101,7 +101,7 @@ m.redraw = function()
     local line = string.upper(norns.state.name)
     if(_menu.scripterror and _menu.errormsg ~= 'NO SCRIPT') then
       line = "error: " .. _menu.errormsg
-      if util.string_starts(_menu.errormsg,"missing") then
+      if util.string_starts(_menu.errormsg,"missing") or util.string_starts(_menu.errormsg,"installed") then
         screen.level(8)
         screen.move(0,25)
         screen.text("try 'SYSTEM > RESTART'")
