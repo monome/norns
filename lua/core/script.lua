@@ -261,6 +261,9 @@ end
 -- Looks in `/ignore` and `/lib/ignore` for UGens not found in
 -- `~/.local/share/SuperCollider/Extensions/UgenName`
 Script.ugen_helper = function()
+  if type(engine.ugens) == "string" then
+    engine.ugens = {engine.ugens}
+  end
   local extensions = _path.home .. "/.local/share/SuperCollider/Extensions/"
   local suffixes = {".sc", "_scsynth.so"}
   local flag = false
