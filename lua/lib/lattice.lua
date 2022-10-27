@@ -9,13 +9,13 @@ local Lattice, Sprocket = {}, {}
 --- instantiate a new lattice
 -- @tparam[opt] table args optional named attributes are:
 -- - "auto" (boolean) turn off "auto" pulses from the norns clock, defaults to true
--- - "ppq" (number) the number of pulses per quarter cycle of this superclock, defaults to 96
+-- - "ppqn" (number) the number of pulses per quarter cycle of this superclock, defaults to 96
 -- @treturn table a new lattice
 function Lattice:new(args)
   local l = setmetatable({}, { __index = Lattice })
   args = args == nil and {} or args
   l.auto = args.auto == nil and true or args.auto
-  l.ppq = args.ppq == nil and args.ppqn == nil and 96 or args.ppq == nil and args.ppqn or args.ppq
+  l.ppqn = args.ppqn == nil and 96 or args.ppqn
   l.enabled = false
   l.transport = 0
   l.superclock_id = nil
@@ -42,8 +42,8 @@ function Lattice:reset()
     self.superclock_id = nil
   end
   for i, sprocket in pairs(self.sprockets) do
-    sprocket.phase = sprocket.division * self.ppq * 4 * (1 - sprocket.delay)
-    -- "4" because ppq is per quarter cycle
+    sprocket.phase = sprocket.division * self.ppqn * 4 * (1 - sprocket.delay)
+    -- "4" because a quarter note is "1/4"
     sprocket.downbeat = false
   end
   self.transport = 0
@@ -85,15 +85,15 @@ end
 function Lattice.auto_pulse(s)
   while true do
     s:pulse()
-    clock.sync(1/s.ppq)
+    clock.sync(1/s.ppqn)
   end
 end
 
 --- advance all sprockets in this lattice a single by pulse, call this manually if lattice.auto = false
 function Lattice:pulse()
   if self.enabled then
-    local ppc = self.ppq * 4
-    -- prefer "cycle" to "meter"; ppq is a quarter cycle
+    local ppc = self.ppqn * 4
+    -- prefer "cycle" to "meter"; "4" because a "quarter note" is "1/4"
     local flagged=false
     for i = 1, 5 do
       for _, id in ipairs(self.sprocket_ordering[i]) do
@@ -143,8 +143,8 @@ function Lattice:new_sprocket(args)
   args.action = args.action == nil and function(t) return end or args.action
   args.division = args.division == nil and 1/4 or args.division
   args.enabled = args.enabled == nil and true or args.enabled
-  args.phase = args.division * self.ppq * 4
-  -- "4" because there are 4 quarters per cycle
+  args.phase = args.division * self.ppqn * 4
+  -- "4" because a quarter note is "1/4"
   args.swing = args.swing == nil and 50 or util.clamp(args.swing,0,100)
   args.delay = args.delay == nil and 0 or util.clamp(args.delay,0,1)
   local sprocket = Sprocket:new(args)
