@@ -21,7 +21,7 @@ function Lattice:new(args)
   l.superclock_id = nil
   l.sprocket_id_counter = 100
   l.sprockets = {}
-  l.sprocket_ordering={{}, {}, {}, {}, {}}
+  l.sprocket_ordering = {{}, {}, {}, {}, {}}
   return l
 end
 
@@ -93,11 +93,11 @@ end
 function Lattice:pulse()
   if self.enabled then
     local ppc = self.ppqn * 4
-    -- prefer "cycle" to "meter"; "4" because a "quarter note" is "1/4"
+    -- pulses per cycle; "4" because a "quarter note" is "1/4"
     local flagged=false
     for i = 1, 5 do
       for _, id in ipairs(self.sprocket_ordering[i]) do
-        local sprocket=self.sprockets[id]
+        local sprocket = self.sprockets[id]
         if sprocket.enabled then
           sprocket.phase = sprocket.phase + 1
           local swing_val = 2 * sprocket.swing / 100
@@ -116,7 +116,7 @@ function Lattice:pulse()
           end
         elseif sprocket.flag then
           self.sprockets[sprocket.id] = nil
-          flagged=true
+          flagged = true
         end
       end
       if flagged then
@@ -144,7 +144,7 @@ function Lattice:new_sprocket(args)
   args.division = args.division == nil and 1/4 or args.division
   args.enabled = args.enabled == nil and true or args.enabled
   args.phase = args.division * self.ppqn * 4
-  -- "4" because a quarter note is "1/4"
+  -- "4" because a "quarter note" is "1/4"
   args.swing = args.swing == nil and 50 or util.clamp(args.swing,0,100)
   args.delay = args.delay == nil and 0 or util.clamp(args.delay,0,1)
   local sprocket = Sprocket:new(args)
