@@ -1,4 +1,4 @@
---- module for creating a lattice of sprockets based on a single fast "superclock"
+---- module for creating a lattice of sprockets based on a single fast "superclock"
 --
 -- @module Lattice
 -- @release v2.0
@@ -42,12 +42,11 @@ function Lattice:reset()
     self.superclock_id = nil
   end
   for i, sprocket in pairs(self.sprockets) do
-    sprocket.phase = sprocket.division * self.ppqn * 4 * (1 - sprocket.delay)
-    -- "4" because a quarter note is "1/4"
+    sprocket.phase = sprocket.division * self.ppqn * 4 * (1 - sprocket.delay) -- "4" because in music a "quarter note" == "1/4"
     sprocket.downbeat = false
   end
   self.transport = 0
-  params:set("clock_reset",1)
+  params:set("clock_reset", 1)
 end
 
 --- reset the norns clock and restart lattice
@@ -76,6 +75,7 @@ function Lattice:destroy()
   self.sprocket_ordering = {}
 end
 
+--- set_meter is deprecated
 function Lattice:set_meter(_)
   print("meter is deprecated")
 end
@@ -92,8 +92,7 @@ end
 --- advance all sprockets in this lattice a single by pulse, call this manually if lattice.auto = false
 function Lattice:pulse()
   if self.enabled then
-    local ppc = self.ppqn * 4
-    -- pulses per cycle; "4" because a "quarter note" is "1/4"
+    local ppc = self.ppqn * 4 -- pulses per cycle; "4" because in music a "quarter note" == "1/4"
     local flagged=false
     for i = 1, 5 do
       for _, id in ipairs(self.sprocket_ordering[i]) do
@@ -139,12 +138,11 @@ function Lattice:new_sprocket(args)
   self.sprocket_id_counter = self.sprocket_id_counter + 1
   args = args == nil and {} or args
   args.id = self.sprocket_id_counter
-  args.priority = args.priority == nil and 3 or util.clamp(args.priority, 1, 5)
+  args.order = args.order == nil and 3 or util.clamp(args.order, 1, 5)
   args.action = args.action == nil and function(t) return end or args.action
   args.division = args.division == nil and 1/4 or args.division
   args.enabled = args.enabled == nil and true or args.enabled
-  args.phase = args.division * self.ppqn * 4
-  -- "4" because a "quarter note" is "1/4"
+  args.phase = args.division * self.ppqn * 4 -- "4" because in music a "quarter note" == "1/4"
   args.swing = args.swing == nil and 50 or util.clamp(args.swing,0,100)
   args.delay = args.delay == nil and 0 or util.clamp(args.delay,0,1)
   local sprocket = Sprocket:new(args)
@@ -153,17 +151,18 @@ function Lattice:new_sprocket(args)
   return sprocket
 end
 
+--- new_pattern is deprecated
 function Lattice:new_pattern(args)
   print("'new_pattern' is deprecated; use 'new_sprocket' instead.")
   self:new_sprocket(args)
 end
 
--- "private" method to keep numerical order of the sprocket ids
+--- "private" method to keep numerical order of the sprocket ids
 -- for use when pulsing
 function Lattice:order_sprockets()
   self.sprocket_ordering = {{}, {}, {}, {}, {}}
   for id, sprocket in pairs(self.sprockets) do
-    table.insert(self.sprocket_ordering[sprocket.priority],id)
+    table.insert(self.sprocket_ordering[sprocket.order],id)
   end
   for i = 1, 5 do
     table.sort(self.sprocket_ordering[i])
@@ -175,7 +174,7 @@ end
 function Sprocket:new(args)
   local p = setmetatable({}, { __index = Sprocket })
   p.id = args.id
-  p.priority = args.priority
+  p.order = args.order
   p.division = args.division
   p.action = args.action
   p.enabled = args.enabled
@@ -226,7 +225,7 @@ function Sprocket:set_swing(swing)
   self.swing = util.clamp(swing,0,100)
 end
 
--- set the delay for this sprocket
+--- set the delay for this sprocket
 -- @tparam fraction of the time between beats to delay (0-1)
 function Sprocket:set_delay(delay)
   self.delay_new = util.clamp(delay,0,1)
