@@ -315,7 +315,11 @@ function clock.add_params()
     while true do
       if params:get("clock_source") ~= 1 then
         local external_tempo = math.floor(clock.get_tempo() + 0.5)
+        local previous_val = params:get("clock_tempo")
         params:set("clock_tempo", external_tempo, true)
+        if clock.tempo_change_handler ~= nil and previous_val ~= external_tempo then
+          clock.tempo_change_handler(external_tempo)
+        end
       end
 
       clock.sleep(1)
