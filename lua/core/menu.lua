@@ -241,16 +241,18 @@ function _menu.keycode(c,value)
   end
 
   -- parameter change with +/-
-  if c=="MINUS" then 
-    _menu.penc(3,value*-1) 
-  elseif c=="EQUAL" then 
-    _menu.penc(3,value) 
+  if c=="MINUS" then
+    _menu.penc(3,value*-1)
+  elseif c=="EQUAL" then
+    _menu.penc(3,value)
   end
 
   if _menu.keyboardcode then _menu.keyboardcode(c,value) end
 end
 
-function _menu.keychar(c) end
+function _menu.keychar(c)
+  if _menu.keyboardchar then _menu.keyboardchar(c) end
+end
 
 function _menu.dpad(axis,value)
   if gamepad.down() then
