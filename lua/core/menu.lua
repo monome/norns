@@ -210,16 +210,33 @@ end
 
 -- global menu keys
 function _menu.keycode(c,value)
-  if value==1 then
-    if c=="F1" then _menu.set_page("MIX")
-    elseif c=="F2" then _menu.set_page("TAPE")
-    elseif c=="F3" then _menu.set_page("HOME")
-    elseif c=="F4" then _menu.set_page("PARAMS")
+  -- those are globals and can't be overriden by a sub-menu
+  if value>0 then
+    if c=="F1" then
+      _menu.set_page("MIX")
+      return
+    elseif c=="F2" then
+      _menu.set_page("TAPE")
+      return
+    elseif c=="F3" then
+      _menu.set_page("HOME")
+      return
+    elseif c=="F4" then
+      _menu.set_page("PARAMS")
+      return
     end
   end
 
+  -- if a sub-menu defines its own handler, it takes precedence...
+  if _menu.keyboardcode then
+    _menu.keyboardcode(c,value)
+    return
+  end
+
+  -- ... otherwise we use those default bindings in most places
+
   -- E2 emu (scolling)
-  if value>=1 then
+  if value>0 then
     if c=="DOWN" then
       _menu.penc(2,1)
     elseif c=="UP" then
@@ -231,7 +248,7 @@ function _menu.keycode(c,value)
     end
   end
 
-  -- key emu
+  -- K2/K3 emu
   if value==1 or value==0 then
     if c=="LEFT" then
       _menu.key(2,value)
@@ -246,8 +263,6 @@ function _menu.keycode(c,value)
   elseif c=="EQUAL" then
     _menu.penc(3,value)
   end
-
-  if _menu.keyboardcode then _menu.keyboardcode(c,value) end
 end
 
 function _menu.keychar(c)
