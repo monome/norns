@@ -269,7 +269,7 @@ function _menu.keychar(c)
   if _menu.keyboardchar then _menu.keyboardchar(c) end
 end
 
-function _menu.dpad(axis,value)
+function _menu.axis(_sensor_axis,_value)
   if gamepad.down() then
     _menu.penc(2,1)
   elseif gamepad.up() then

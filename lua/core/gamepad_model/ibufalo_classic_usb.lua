@@ -1,32 +1,35 @@
-
-local g = {
-  hid_name = 'USB,2-axis 8-button gamepad  ',
-  alias = 'iBUFFALO Classic USB Gamepad',
-
+return {
+  alias = "iBUFFALO Classic USB Gamepad",
+  analog_axis_o = {
+    ABS_X = 127,
+    ABS_Y = 127
+  },
+  analog_axis_o_margin = {
+    ABS_X = 3,
+    ABS_Y = 3
+  },
+  analog_axis_resolution = {
+    ABS_X = 256,
+    ABS_Y = 256
+  },
+  axis_invert = {
+    ABS_X = false,
+    ABS_Y = false
+  },
+  axis_mapping = {
+    ABS_X = "dpadx",
+    ABS_Y = "dpady"
+  },
   button = {
     A = 288,
     B = 289,
-    X = 290,
-    Y = 291,
     L1 = 292,
     R1 = 293,
     SELECT = 294,
     START = 295,
+    X = 290,
+    Y = 291
   },
-
-  axis_invert = {
-    Y = false,
-    X = true,
-  },
-
   dpad_is_analog = true,
-
-  analog_axis_resolution = 256,
-  -- margin to handle noise on center position
-  analog_axis_o_margin = {
-    X = 2,
-    Y = 2,
-  },
+  hid_name = "USB,2-axis 8-button gamepad  "
 }
-
-return g
