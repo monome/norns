@@ -13,7 +13,7 @@ return {
     ABS_Y = 256
   },
   axis_invert = {
-    ABS_X = false,
+    ABS_X = true,
     ABS_Y = false
   },
   axis_mapping = {
