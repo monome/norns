@@ -189,9 +189,25 @@ end
 
 local function change_ppqn(target, ppqn)
   target.ppqn = ppqn
-  if target.pattern then
-    target.pattern:set_division(1/(4*ppqn))
+  if target.sprocket then
+    target.sprocket:set_division(1/(4*ppqn))
   end
+end
+
+local function change_period(target, new_period)
+  local new_phase_counter = target.phase_counter + (1/target.ppqn)
+  local new_phase
+  local adjusted_phase_counter
+  if target.mode == "clocked" then
+    new_phase = new_phase_counter / target.period
+    adjusted_phase_counter = (new_phase * new_period) - 1/target.ppqn
+  else
+    new_phase = new_phase_counter * clock.get_beat_sec() / target.period
+    adjusted_phase_counter = (new_phase * new_period / clock.get_beat_sec()) - 1/target.ppqn
+  end
+
+  target.period = new_period
+  target.phase_counter = adjusted_phase_counter
 end
 
 local function process_lfo(id)
@@ -270,9 +286,9 @@ end
 
 --- start LFO
 function LFO:start()
-  if self.pattern == nil then
+  if self.sprocket == nil then
     self:reset_phase()
-    self.pattern = norns.lfo.lattice:new_pattern{
+    self.sprocket = norns.lfo.lattice:new_sprocket{
       action=function() process_lfo(self) end,
       division=1/(4*self.ppqn),
       enabled=true,
@@ -286,11 +302,11 @@ end
 
 --- stop LFO
 function LFO:stop()
-  if self.pattern ~= nil then
-    self.pattern:destroy()
-    self.pattern = nil
+  if self.sprocket ~= nil then
+    self.sprocket:destroy()
+    self.sprocket = nil
     self.enabled = 0
-    if next(norns.lfo.lattice.patterns) == nil then
+    if next(norns.lfo.lattice.sprockets) == nil then
       norns.lfo.lattice:stop()
     end
   end
@@ -308,8 +324,10 @@ function LFO:set(var, arg)
     change_depth(self, arg)
   elseif var == 'baseline' then
     change_baseline(self, arg)
-  elseif var == 'ppqn' then -- has its own fn, maintains state, so handled separately.
-    change_ppqn(self,arg)
+  elseif var == 'ppqn' then
+    change_ppqn(self, arg)
+  elseif var == 'period' then
+    change_period(self, arg)
   elseif arg == nil then
     error('scripted LFO argument required')
   elseif not self[var] then
