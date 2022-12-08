@@ -1,6 +1,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <glib.h>
 #include <linux/input.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,11 +54,39 @@ static void add_codes(struct dev_hid *d) {
     }
 }
 
+void get_guid(struct libevdev * dev, guint16 * guid) {
+    guid[0] = GINT16_TO_LE(libevdev_get_id_bustype(dev));
+    guid[1] = 0;
+    guid[2] = GINT16_TO_LE(libevdev_get_id_vendor(dev));
+    guid[3] = 0;
+    guid[4] = GINT16_TO_LE(libevdev_get_id_product(dev));
+    guid[5] = 0;
+    guid[6] = GINT16_TO_LE(libevdev_get_id_version(dev));
+    guid[7] = 0;
+}
+
+void guid_to_string(guint16 * guid, char * guidstr) {
+    static const char k_rgchHexToASCII[] = "0123456789abcdef";
+    int i;
+    for (i = 0; i < 8; i++) {
+        unsigned char c = guid[i];
+
+        *guidstr++ = k_rgchHexToASCII[c >> 4];
+        *guidstr++ = k_rgchHexToASCII[c & 0x0F];
+
+        c = guid[i] >> 8;
+        *guidstr++ = k_rgchHexToASCII[c >> 4];
+        *guidstr++ = k_rgchHexToASCII[c & 0x0F];
+    }
+    *guidstr = '\0';
+}
+
 int dev_hid_init(void *self) {
     struct dev_hid *d = (struct dev_hid *)self;
     struct dev_common *base = (struct dev_common *)self;
     struct libevdev *dev = NULL;
     int ret = 1;
+    guint16 raw_guid[16];
     int fd = open(d->base.path, O_RDONLY);
 
     if (fd < 0) {
@@ -78,6 +107,8 @@ int dev_hid_init(void *self) {
 
     d->vid = libevdev_get_id_vendor(dev);
     d->pid = libevdev_get_id_product(dev);
+    get_guid(dev, raw_guid);
+    guid_to_string(raw_guid, d->guid);
 
     base->start = &dev_hid_start;
     base->deinit = &dev_hid_deinit;

@@ -32,12 +32,13 @@ end
 -- @tparam table types : array of supported event types. keys are type codes, values are strings
 -- @tparam table codes : array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
 -- @tparam userdata dev : opaque pointer to device
-function Hid.new(id, name, types, codes, dev)
+function Hid.new(id, name, types, codes, dev, guid)
   local device = setmetatable({}, Hid)
 
   device.id = id
   device.name = vport.get_unique_device_name(name, Hid.devices)
   device.dev = dev -- opaque pointer
+  device.guid = guid -- SDL format GUID
   device.event = nil -- event callback
   device.remove = nil -- device unplug callback
   device.port = nil
