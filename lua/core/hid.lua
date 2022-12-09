@@ -140,8 +140,8 @@ end
 _norns.hid = {}
 
 -- hid devices
-_norns.hid.add = function(id, name, types, codes, dev)
-  local g = Hid.new(id, name, types, codes, dev)
+_norns.hid.add = function(id, name, types, codes, dev, guid)
+  local g = Hid.new(id, name, types, codes, dev, guid)
   Hid.devices[id] = g
   Hid.update_devices()
   if Hid.add ~= nil then Hid.add(g) end
