@@ -175,9 +175,9 @@ _norns.hid.event = function(id, type, code, value)
     end
 
     if device.is_ascii_keyboard then
-      keyboard.process(type,code,value)
+      keyboard.process(type, code, value)
     elseif device.is_gamepad then
-      gamepad.process(device.name,type,code,value)
+      gamepad.process(device.guid, type, code, value)
     end
   else
     error('no entry for hid '..id)

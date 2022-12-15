@@ -153,8 +153,8 @@ end
 -- ------------------------------------------------------------------------
 -- state modifiers
 
-function gamepad.register_direction_state(dev_name, axis_evt, sign, do_log_event)
-  local sensor_axis = gamepad.axis_keycode_to_sensor_axis(gamepad.model[dev_name], axis_evt)
+function gamepad.register_direction_state(guid, axis_evt, sign, do_log_event)
+  local sensor_axis = gamepad.axis_keycode_to_sensor_axis(gamepad.model[guid], axis_evt)
   local states = gamepad.sensor_axis_to_states(sensor_axis)
   local s1 = states[1]
   local s2 = states[2]
@@ -171,7 +171,7 @@ function gamepad.register_direction_state(dev_name, axis_evt, sign, do_log_event
         gamepad.state.RIGHT = false
       end
     else
-      if gamepad.model[dev_name].axis_invert[axis_evt] then
+      if gamepad.model[guid].axis_invert[axis_evt] then
         sign = sign * - 1
       end
       if sign > 0 then
@@ -207,7 +207,7 @@ function gamepad.register_direction_state(dev_name, axis_evt, sign, do_log_event
 end
 
 
-function gamepad.process(dev_name,typ,code,val)
+function gamepad.process(guid, typ, code, val)
 
   local event_code_type
   for k, v in pairs(hid_events.types) do
@@ -217,7 +217,7 @@ function gamepad.process(dev_name,typ,code,val)
     end
   end
 
-  local gamepad_conf = gamepad.model[dev_name]
+  local gamepad_conf = gamepad.model[guid]
   local gamepad_alias = gamepad_conf.alias
 
   local do_log_event = gamepad.is_loggable_event(gamepad_conf, event_code_type, code, val)
@@ -275,7 +275,7 @@ function gamepad.process(dev_name,typ,code,val)
         end
       end
 
-      gamepad.register_direction_state(dev_name, axis_keycode, sign, do_log_event)
+      gamepad.register_direction_state(guid, axis_keycode, sign, do_log_event)
 
       if sign ~= prev_dir[axis_keycode] then
         prev_dir[axis_keycode] = sign
