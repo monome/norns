@@ -1,5 +1,6 @@
 return {
   alias = "iBUFFALO Classic USB Gamepad",
+  guid = "03000000830500006020000010010000",
   analog_axis_o = {
     ABS_X = 127,
     ABS_Y = 127

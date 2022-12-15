@@ -1,5 +1,6 @@
 return {
-  alias = "8BitDo",
+  alias = "Xbox 360 Controller",
+  guid  = "030000005e0400008e02000014010000",
   analog_axis_o = {
     ABS_RX = 0,
     ABS_RY = 0,
