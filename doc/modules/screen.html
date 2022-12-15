@@ -47,6 +47,7 @@
   <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/gamepad.html">gamepad</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/keyboard.html">keyboard</a></li>
@@ -76,6 +77,7 @@
   <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
   <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
@@ -227,7 +229,27 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Screen.display_png">Screen.display_png (filename, x, y)</a></td>
-	<td class="summary">display png.</td>
+	<td class="summary">display png</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Screen.load_png">Screen.load_png (filename)</a></td>
+	<td class="summary">load png into an image buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Screen.create_image">Screen.create_image (width, height)</a></td>
+	<td class="summary">create an image buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Screen.display_image">Screen.display_image (image, x, y)</a></td>
+	<td class="summary">display image buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Screen.display_image_region">Screen.display_image_region (image, left, top, width, height, x, y)</a></td>
+	<td class="summary">display sub-region image buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Screen.draw_to">Screen.draw_to (image, func)</a></td>
+	<td class="summary">direct screen drawing within the provide function into the image instead of the screen</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Screen.peek">Screen.peek (x, y, w, h)</a></td>
@@ -651,27 +673,27 @@
     <ul>
         <li><span class="parameter">x1</span>
             <span class="types"><span class="type">number</span></span>
-         destination x
+         handle 1 x
         </li>
         <li><span class="parameter">y1</span>
             <span class="types"><span class="type">number</span></span>
-         destination y
+         handle 1 y
         </li>
         <li><span class="parameter">x2</span>
             <span class="types"><span class="type">number</span></span>
-         handle 1 x
+         handle 2 x
         </li>
         <li><span class="parameter">y2</span>
             <span class="types"><span class="type">number</span></span>
-         handle 1 y
+         handle 2 y
         </li>
         <li><span class="parameter">x3</span>
             <span class="types"><span class="type">number</span></span>
-         handle 2 x
+         destination x
         </li>
         <li><span class="parameter">y3</span>
             <span class="types"><span class="type">number</span></span>
-         handle 2 y
+         destination y
         </li>
     </ul>
 
@@ -692,27 +714,27 @@
     <ul>
         <li><span class="parameter">x1</span>
             <span class="types"><span class="type">number</span></span>
-         relative destination x
+         handle 1 x
         </li>
         <li><span class="parameter">y1</span>
             <span class="types"><span class="type">number</span></span>
-         relative destination y
+         handle 1 y
         </li>
         <li><span class="parameter">x2</span>
             <span class="types"><span class="type">number</span></span>
-         handle 1 x
+         handle 2 x
         </li>
         <li><span class="parameter">y2</span>
             <span class="types"><span class="type">number</span></span>
-         handle 1 y
+         handle 2 y
         </li>
         <li><span class="parameter">x3</span>
             <span class="types"><span class="type">number</span></span>
-         handle 2 x
+         relative destination x
         </li>
         <li><span class="parameter">y3</span>
             <span class="types"><span class="type">number</span></span>
-         handle 2 y
+         relative destination y
         </li>
     </ul>
 
@@ -1059,7 +1081,7 @@
     <strong>Screen.display_png (filename, x, y)</strong>
     </dt>
     <dd>
-    display png.
+    display png
 
 
     <h3>Parameters:</h3>
@@ -1074,6 +1096,148 @@
         <li><span class="parameter">y</span>
             <span class="types"><span class="type">number</span></span>
          y position
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Screen.load_png"></a>
+    <strong>Screen.load_png (filename)</strong>
+    </dt>
+    <dd>
+    load png into an image buffer
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Screen.create_image"></a>
+    <strong>Screen.create_image (width, height)</strong>
+    </dt>
+    <dd>
+    create an image buffer
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">number</span></span>
+         image witdth
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">number</span></span>
+         image height
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Screen.display_image"></a>
+    <strong>Screen.display_image (image, x, y)</strong>
+    </dt>
+    <dd>
+    display image buffer
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Screen.display_image_region"></a>
+    <strong>Screen.display_image_region (image, left, top, width, height, x, y)</strong>
+    </dt>
+    <dd>
+    display sub-region image buffer
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+
+        </li>
+        <li><span class="parameter">left</span>
+            <span class="types"><span class="type">number</span></span>
+         left inset within image
+        </li>
+        <li><span class="parameter">top</span>
+            <span class="types"><span class="type">number</span></span>
+         top inset within image
+        </li>
+        <li><span class="parameter">width</span>
+            <span class="types"><span class="type">number</span></span>
+         width from right within image
+        </li>
+        <li><span class="parameter">height</span>
+            <span class="types"><span class="type">number</span></span>
+         height from top within image
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         x position
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         y position
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Screen.draw_to"></a>
+    <strong>Screen.draw_to (image, func)</strong>
+    </dt>
+    <dd>
+    direct screen drawing within the provide function into the image instead of the screen
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">image</span></span>
+         the image to draw into
+        </li>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function</span></span>
+         function called to perform drawing
         </li>
     </ul>
 
@@ -1266,7 +1430,7 @@ screen.blend_mode(<span class="string">'HARD_LIGHT'</span>)</pre></li>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2022-02-01 08:10:05 </i>
+<i style="float:right;">Last updated 2022-12-15 09:11:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
