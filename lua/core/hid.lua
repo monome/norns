@@ -84,7 +84,7 @@ end
 -- @static
 -- @param dev : a Hid table
 function Hid.add(dev)
-  print("HID device was added:", dev.id, dev.name)
+  print("HID device was added:", dev.id, dev.name, dev.guid)
   if dev.is_ascii_keyboard then print("this appears to be an ASCII keyboard!") end
   if dev.is_mouse then print("this appears to be a mouse!") end
   if dev.is_gamepad then print("this appears to be a gamepad!") end
