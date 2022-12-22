@@ -5,6 +5,7 @@
 
 //-----------------------
 //-- debugging
+#include <cstddef>
 #include <iostream>
 #include <iomanip>
 #include <chrono>
@@ -97,6 +98,11 @@ void BufDiskWorker::requestRender(size_t idx, float start, float dur, int sample
     requestJob(job);
 }
 
+void BufDiskWorker::requestProcess(size_t idx, float start, float dur, float preserve, float mix, ProcessFunc processFunc, DoneCallback doneCallback) {
+  BufDiskWorker::Job job{BufDiskWorker::JobType::Process, {idx, 0}, "", start, start, dur, 0, 0, preserve, mix, false, 0, nullptr, processFunc, doneCallback };
+  requestJob(job);
+}
+
 void BufDiskWorker::workLoop() {
     while (!shouldQuit) {
         Job job;
@@ -134,6 +140,9 @@ void BufDiskWorker::workLoop() {
                 break;
             case JobType::Render:
                 render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
+                break;
+            case JobType::Process:
+                process(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.renderCallback, job.processFunc, job.fadeTime, job.preserve, job.mix);
                 break;
         }
 #if 0 // debug, timing
@@ -603,4 +612,28 @@ void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples,
 
     callback(window, start, samples, sampleBuf);
     delete[] sampleBuf;
+}
+
+void BufDiskWorker::process(BufDesc &buf, float start, float dur, 
+                            ProcessFunc processFunc, DoneCallback doneCallback,
+                            float preserve, float mix) {
+    size_t frStart = secToFrame(start);
+    if (frStart > buf.frames - 1) { return; }
+
+    size_t frDur;
+    if (dur < 0) {
+        frDur = buf.frames - frStart;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    clamp(frDur, buf.frames - frStart);
+
+    if (preserve > 1.f) { preserve = 1.f; }
+    if (preserve < 0.f) { preserve = 0.f; }
+
+    for (size_t i = 0; i < frDur; ++i) {
+        buf.data[frStart] = buf.data[frStart] * preserve + processFunc(i, buf.data[frStart]) * mix;
+        frStart++;
+    }
+    doneCallback();
 }

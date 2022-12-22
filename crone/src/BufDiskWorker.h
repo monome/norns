@@ -28,13 +28,15 @@ namespace crone {
     class BufDiskWorker {
     public:
         typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
+        typedef std::function<float(int sampleIndex, float inputSample)> ProcessFunc;
+        typedef std::function<void()> DoneCallback;
 
     private:
         enum class JobType {
             Clear, ClearWithFade, Copy,
             ReadMono, ReadStereo,
             WriteMono, WriteStereo,
-            Render,
+            Render, Process,
         };
         struct Job {
             JobType type;
@@ -50,6 +52,8 @@ namespace crone {
             bool reverse;
             int samples;
             RenderCallback renderCallback;
+            ProcessFunc processFunc;
+            DoneCallback doneCallback;
         };
         struct BufDesc {
             float *data;
@@ -115,6 +119,10 @@ namespace crone {
 
         static void requestRender(size_t idx, float start, float dur, int count, RenderCallback callback);
 
+        // process portion of buffer using custom function
+        static void requestProcess(size_t idx, float start, float dur, 
+                                   float preserve, float mix, ProcessFunc process, DoneCallback doneCallback);
+
     private:
         static void workLoop();
 
@@ -141,6 +149,10 @@ namespace crone {
                                       float start = 0, float dur = -1) noexcept;
 
         static void render(BufDesc &buf, float start, float dur, size_t samples, RenderCallback callback);
+
+        static void process(BufDesc &buf, float start, float dur, 
+                            ProcessFunc processFunc, DoneCallback doneCallback, 
+                            float preserve = 0, float mix = 1);
     };
 
 }
