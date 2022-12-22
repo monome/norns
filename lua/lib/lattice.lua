@@ -155,7 +155,7 @@ end
 --- new_pattern is deprecated
 function Lattice:new_pattern(args)
   print("'new_pattern' is deprecated; use 'new_sprocket' instead.")
-  self:new_sprocket(args)
+  return self:new_sprocket(args)
 end
 
 --- "private" method to keep numerical order of the sprocket ids
