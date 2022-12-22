@@ -142,7 +142,7 @@ void BufDiskWorker::workLoop() {
                 render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
                 break;
             case JobType::Process:
-                process(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.renderCallback, job.processFunc, job.fadeTime, job.preserve, job.mix);
+                process(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.processFunc, job.doneCallback, job.preserve, job.mix);
                 break;
         }
 #if 0 // debug, timing
@@ -635,5 +635,5 @@ void BufDiskWorker::process(BufDesc &buf, float start, float dur,
         buf.data[frStart] = buf.data[frStart] * preserve + processFunc(i, buf.data[frStart]) * mix;
         frStart++;
     }
-    doneCallback();
+    doneCallback(0);
 }

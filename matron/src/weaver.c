@@ -2436,11 +2436,27 @@ void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t 
     l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-void w_handle_softcut_done_callback(int idx) {
-  lua_getglobal(lvm, "_norns");
-  lua_getfield(lvm, -1, "softcut_done_callback");
-  lua_remove(lvm, -2);
-  l_report(lvm, l_docall(lvm, 0, 0));
+void w_handle_softcut_done_callback(int idx, int type) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "softcut_done_callback");
+    lua_remove(lvm, -2);
+    switch (type) {
+        case 0 : 
+            lua_pushstring(lvm, "process");
+            break;
+        default :
+            luaL_error(lvm, "invalid job type");
+    }
+    l_report(lvm, l_docall(lvm, 1, 0));
+}
+
+float w_handle_softcut_process(size_t sample, float datum) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "softcut_process");
+    lua_remove(lvm, -2);
+    lua_pushnumber(lvm, sample);
+    lua_pushnumber(lvm, datum);
+    return l_docall(lvm, 2, 0);
 }
 
 void w_handle_softcut_position(int idx, float pos) {
@@ -2805,7 +2821,6 @@ int _cut_buffer_process(lua_State *l) {
     int ch = (int)luaL_checkinteger(l, 1) - 1;
     float start = (float)luaL_checknumber(l, 2);
     float dur = (float)luaL_checknumber(l, 3);
-    float (process*)(int, float) = 
 }
 
 int _cut_query_position(lua_State *l) {

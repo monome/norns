@@ -29,7 +29,7 @@ namespace crone {
     public:
         typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
         typedef std::function<float(int sampleIndex, float inputSample)> ProcessFunc;
-        typedef std::function<void()> DoneCallback;
+        typedef std::function<void(int jobType)> DoneCallback;
 
     private:
         enum class JobType {
