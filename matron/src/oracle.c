@@ -852,7 +852,7 @@ int handle_softcut_callback(const char *path, const char *types, lo_arg **argv, 
     assert(argc > 1);
     union event_data *ev = event_data_new(EVENT_SOFTCUT_CALLBACK);
     ev->softcut_callback.idx = argv[0]->i;
-    ev->softcut_callback.jobType = argv[1]->i;
+    ev->softcut_callback.job_type = argv[1]->i;
     event_post(ev);
     return  0;
 }
