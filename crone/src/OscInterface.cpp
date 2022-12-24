@@ -798,6 +798,22 @@ void OscInterface::addServerMethods() {
                                      });
     });
 
+    addServerMethod("/softcut/buffer/process", "iffbff", [](lo_arg **argv, int argc) {
+        if (argc < 4) return;
+        int ch = argv[0]->i;
+        float preserve = 0;
+        float mix = 1;
+        float (*process)(size_t, float) = (float (*)(size_t, float))lo_blob_dataptr(argv[3]);
+        if (argc > 4) { preserve = argv[4]->f; }
+        if (argc > 5) { mix = argv[5]->f; } 
+        softCutClient->processBuffer(ch, argv[1]->f, argv[2]->f, preserve, mix,
+                                     [=](size_t sampleIndex, float inputSample){
+                                        return (*process)(sampleIndex, inputSample);
+                                     }, [=](int jobType){
+                                        lo_send(matronAddress, "/softcut/buffer/done_callback", "ii", ch, jobType);
+                                     });
+    });
+
     addServerMethod("/softcut/query/position", "i", [](lo_arg **argv, int argc) {
       if(argc < 1) return;
       int idx = argv[0]->i;

@@ -380,10 +380,32 @@ SC.render_buffer = function(ch, start, dur, samples)
   _norns.cut_buffer_render(ch, start, dur, samples)
 end
 
+--- request that softcut process buffer with user-defined process function
+-- @tparam integer ch : buffer channel index (1-based)
+-- @tparam number start : beginning of region in seconds
+-- @tparam number dur : length of region in seconds
+-- @tparam number preserve : level of original material to preserve
+-- @tparam number mix : level of new material to add
+SC.process_buffer = function(ch, start, dur, preserve, mix)
+  _norns.cut_buffer_process(ch, start or 0, dur or -1, preserve or 0, mix or 1)
+end
+
 --- set function for render callback. use render_buffer to request contents.
 -- @tparam function func : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)
 SC.event_render = function(func)
   _norns.softcut_render = func
+end
+
+--- set function for processing of buffer. use process_buffer to apply.
+-- @tparam function func : called when buffer content is processed. args: (sample_index, current_value)
+SC.process_func = function(func)
+  _norns.softcut_process = func
+end
+
+--- set function for job callback. called when process_buffer is complete.
+-- @tparam function func : called when buffer job is complete. args: (ch, job_type)
+SC.event_done = function(func)
+  _norns.softcut_done = func
 end
 
 --- query playback position
@@ -405,6 +427,9 @@ end
 function SC.reset()
    _norns.cut_reset()
   SC.event_phase(norns.none)
+  SC.event_render(norns.none)
+  SC.event_done(norns.none)
+  SC.process_func(function(_,_) return 0 end)
 end
 
 --- get the default state of the softcut system
@@ -415,7 +440,7 @@ end
 -- NB: these values are synchronized by hand with those specified in the softcut cpp sources
 -- @treturn table table of parameter states for each voice
 function SC.defaults()
-   zeros = {}
+   local zeros = {}
 
    for i=1,SC.VOICE_COUNT do
       zeros[i] = 0
