@@ -69,7 +69,7 @@ extern void o_unlock_descriptors();
 //-----------------------
 //--- IPC functions
 
-// load a named audio processing engine
+// load a named audio erocessing engine
 extern void o_load_engine(const char *name);
 // free engine
 extern void o_free_engine(void);
@@ -144,7 +144,8 @@ extern void o_cut_buffer_read_stereo(char *file, float start_src, float start_ds
 extern void o_cut_buffer_write_mono(char *file, float start, float dur, int ch);
 extern void o_cut_buffer_write_stereo(char *file, float start, float dur);
 extern void o_cut_buffer_render(int ch, float start, float dur, int samples);
-extern void o_cut_buffer_process(int ch, float start, float dur, float (*process)(size_t, float), float preserve, float mix);
+extern void o_cut_buffer_process(int ch, float start, float dur);
+extern void o_cut_buffer_return(int ch, float start, size_t size, float *data);
 extern void o_cut_query_position(int i);
 extern void o_cut_reset();
 // most softcut parameter changs take single voice index...

@@ -35,6 +35,10 @@ static inline void clamp(size_t &x, const size_t a) {
     if (x > a) { x = a; }
 }
 
+float BufDiskWorker::framesToSec(size_t frames) {
+    return (float)frames / BufDiskWorker::sampleRate;
+}
+
 int BufDiskWorker::registerBuffer(float *data, size_t frames) {
     int n = numBufs++;
     bufs[n].data = data;
@@ -98,9 +102,14 @@ void BufDiskWorker::requestRender(size_t idx, float start, float dur, int sample
     requestJob(job);
 }
 
-void BufDiskWorker::requestProcess(size_t idx, float start, float dur, float preserve, float mix, ProcessFunc processFunc, DoneCallback doneCallback) {
-  BufDiskWorker::Job job{BufDiskWorker::JobType::Process, {idx, 0}, "", start, start, dur, 0, 0, preserve, mix, false, 0, nullptr, processFunc, doneCallback };
-  requestJob(job);
+void BufDiskWorker::requestProcess(size_t idx, float start, float dur, ProcessCallback processCallback) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Process, {idx, 0}, "", start, start, dur, 0, 0, 0, 1, false, 0, nullptr, processCallback };
+    requestJob(job);
+}
+
+void BufDiskWorker::requestPoke(size_t idx, float start, float dur, DoneCallback doneCallback, float *data) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Poke, {idx, 0}, "", start, start, dur, 0, 0, 0, 1, false, 0, nullptr, nullptr, doneCallback, data };
+    requestJob(job);
 }
 
 void BufDiskWorker::workLoop() {
@@ -142,8 +151,10 @@ void BufDiskWorker::workLoop() {
                 render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
                 break;
             case JobType::Process:
-                process(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.processFunc, job.doneCallback, job.preserve, job.mix);
+                process(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.processCallback);
                 break;
+            case JobType::Poke:
+                poke(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.doneCallback, job.data);
         }
 #if 0 // debug, timing
         auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -614,9 +625,7 @@ void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples,
     delete[] sampleBuf;
 }
 
-void BufDiskWorker::process(BufDesc &buf, float start, float dur, 
-                            ProcessFunc processFunc, DoneCallback doneCallback,
-                            float preserve, float mix) {
+void BufDiskWorker::process(BufDesc &buf, float start, float dur, ProcessCallback processCallback) {
     size_t frStart = secToFrame(start);
     if (frStart > buf.frames - 1) { return; }
 
@@ -628,11 +637,20 @@ void BufDiskWorker::process(BufDesc &buf, float start, float dur,
     }
     clamp(frDur, buf.frames - frStart);
 
-    if (preserve > 1.f) { preserve = 1.f; }
-    if (preserve < 0.f) { preserve = 0.f; }
-
+    float samples[frDur];
     for (size_t i = 0; i < frDur; ++i) {
-        buf.data[frStart] = buf.data[frStart] * preserve + processFunc(i, buf.data[frStart]) * mix;
+        samples[i] = buf.data[frStart];
+        frStart++;
+    }
+    processCallback(frDur, samples);
+}
+
+void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback,  float *data) {
+    size_t frDur = secToFrame(dur);
+    size_t frStart = secToFrame(start);
+    clamp(frDur, buf.frames - frStart);
+    for (size_t i = 0; i < frDur; ++i) {
+        buf.data[frStart] = data[i];
         frStart++;
     }
     doneCallback(0);

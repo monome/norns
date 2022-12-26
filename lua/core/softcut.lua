@@ -384,10 +384,8 @@ end
 -- @tparam integer ch : buffer channel index (1-based)
 -- @tparam number start : beginning of region in seconds
 -- @tparam number dur : length of region in seconds
--- @tparam number preserve : level of original material to preserve
--- @tparam number mix : level of new material to add
-SC.process_buffer = function(ch, start, dur, preserve, mix)
-  _norns.cut_buffer_process(ch, start or 0, dur or -1, preserve or 0, mix or 1)
+SC.process_buffer = function(ch, start, dur)
+  _norns.cut_buffer_process(ch, start or 0, dur or -1)
 end
 
 --- set function for render callback. use render_buffer to request contents.

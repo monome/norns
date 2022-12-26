@@ -798,20 +798,26 @@ void OscInterface::addServerMethods() {
                                      });
     });
 
-    addServerMethod("/softcut/buffer/process", "iffbff", [](lo_arg **argv, int argc) {
-        if (argc < 4) return;
+    addServerMethod("/softcut/buffer/process", "iff", [](lo_arg **argv, int argc) {
+        if (argc < 3) return;
         int ch = argv[0]->i;
-        float preserve = 0;
-        float mix = 1;
-        float (*process)(size_t, float) = (float (*)(size_t, float))lo_blob_dataptr(argv[3]);
-        if (argc > 4) { preserve = argv[4]->f; }
-        if (argc > 5) { mix = argv[5]->f; } 
-        softCutClient->processBuffer(ch, argv[1]->f, argv[2]->f, preserve, mix,
-                                     [=](size_t sampleIndex, float inputSample){
-                                        return (*process)(sampleIndex, inputSample);
-                                     }, [=](int jobType){
-                                        lo_send(matronAddress, "/softcut/buffer/done_callback", "ii", ch, jobType);
+        float start = argv[1]->f;
+        softCutClient->processBuffer(ch, start, argv[2]->f, 
+                                     [=](size_t size, float *data){
+                                        lo_blob bl = lo_blob_new(size * sizeof(float), data);
+                                        lo_send(matronAddress, "/softcut/buffer/process_chunk", "ifb", ch, start, bl);
                                      });
+    });
+
+    addServerMethod("/softcut/buffer/return", "ifb", [](lo_arg **argv, int argc) {
+        if (argc < 3) return;
+        int ch = argv[0]->i;
+        size_t size = lo_blob_datasize((lo_blob)argv[2]) / sizeof(float);
+        float *data = (float*)lo_blob_dataptr((lo_blob)argv[2]);
+        softCutClient->pokeBuffer(ch, argv[1]->f, size,
+                                  [=](int type){
+                                      lo_send(matronAddress, "/softcut/buffer/done_callback", "ii", ch, type);
+                                  }, data);
     });
 
     addServerMethod("/softcut/query/position", "i", [](lo_arg **argv, int argc) {

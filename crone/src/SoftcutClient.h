@@ -109,10 +109,16 @@ namespace crone {
             BufDiskWorker::requestRender(bufIdx[chan], start, dur, count, callback);
         }
         
-        void processBuffer(int chan, float start, float dur, float  preserve, float mix, 
-                           BufDiskWorker::ProcessFunc processFunc, BufDiskWorker::DoneCallback doneCallback) {
+        void processBuffer(int chan, float start, float dur, BufDiskWorker::ProcessCallback callback) {
             if (chan < 0 || chan > 1) { return; }
-            BufDiskWorker::requestProcess(chan, start, dur, preserve, mix, processFunc, doneCallback);
+            BufDiskWorker::requestProcess(chan, start, dur, callback);
+        }
+        
+        void pokeBuffer(int chan, float start, size_t size, BufDiskWorker::DoneCallback doneCallback, float *data) {
+            if (chan < 0 || chan > 1) { return; }
+            // FIXME: Surely this is barely better than hardcoding a 48000...
+            float dur = BufDiskWorker::framesToSec(size);
+            BufDiskWorker::requestPoke(chan, start, dur, doneCallback, data);
         }
 
         // check if quantized phase has changed for a given voice

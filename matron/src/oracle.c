@@ -115,6 +115,9 @@ static int handle_poll_softcut_phase(const char *path, const char *types, lo_arg
 static int handle_softcut_render(const char *path, const char *types, lo_arg **argv, int argc,
 				 lo_message data, void *user_data);
 
+static int handle_softcut_process(const char *path, const char *types, lo_arg **argv, int argc,
+         lo_message data, void *user_data);
+
 static int handle_softcut_callback(const char *path, const char *types, lo_arg **argv, int argc,
          lo_message data, void *user_data);
 
@@ -190,6 +193,7 @@ void o_init(void) {
 
     // softcut buffer content
     lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
+    lo_server_thread_add_method(st, "/softcut/buffer/process_chunk", "ib", handle_softcut_process, NULL);
     lo_server_thread_add_method(st, "/softcut/buffer/done_callback", "ii", handle_softcut_callback, NULL);
     lo_server_thread_add_method(st, "/poll/softcut/position", "if", handle_softcut_position, NULL);
 
@@ -612,10 +616,14 @@ void o_cut_buffer_render(int ch, float start, float dur, int samples) {
     lo_send(crone_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
 }
 
-void o_cut_buffer_process(int ch, float start, float dur, float (*process)(size_t, float), float preserve, float mix) {
-    // FIXME: there's no way that this is that easy.
-    lo_blob processfunc = lo_blob_new(sizeof(process), process);
-    lo_send(crone_addr, "/softcut/buffer/process", "iffbff", ch, start, dur, processfunc, preserve, mix);
+void o_cut_buffer_process(int ch, float start, float dur) {
+    lo_send(crone_addr, "/softcut/buffer/process", "iff", ch, start, dur);
+}
+
+void o_cut_buffer_return(int ch, float start, size_t size, float *data) {
+    // FIXME: do I need to do a memcpy?
+    lo_blob datablob = lo_blob_new(size * sizeof(float), data);
+    lo_send(crone_addr, "/softcut/buffer/return", "ifb", ch, start, datablob);
 }
 
 void o_cut_query_position(int i) {
@@ -843,6 +851,21 @@ int handle_softcut_render(const char *path, const char *types, lo_arg **argv, in
     ev->softcut_render.size = sz / sizeof(float);
     ev->softcut_render.data = calloc(1, sz);
     memcpy(ev->softcut_render.data, samples, sz);
+    event_post(ev);
+    return 0;
+}
+
+int handle_softcut_process(const char *path, const char *types, lo_arg **argv, int argc,
+        lo_message data, void *user_data) {
+    assert(argc > 2);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_PROCESS);
+    ev->softcut_process.ch = argv[0]->i;
+
+    int sz = lo_blob_datasize((lo_blob)argv[1]);
+    float *samples = (float*)lo_blob_dataptr((lo_blob)argv[1]);
+    ev->softcut_process.size = sz / sizeof(float);
+    ev->softcut_process.data = calloc(1, sz);
+    memcpy(ev->softcut_process.data, samples, sz);
     event_post(ev);
     return 0;
 }
