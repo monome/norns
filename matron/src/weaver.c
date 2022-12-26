@@ -2454,7 +2454,7 @@ void w_handle_softcut_done_callback(int idx, int type) {
 void w_handle_softcut_process(int ch, float start, size_t size, float *data) {
     for (size_t i = 0; i < size; ++i) {
         lua_getglobal(lvm, "_norns");
-        lua_getfield(lvm, -1, "softcut_proces");
+        lua_getfield(lvm, -1, "softcut_process");
         lua_pushnumber(lvm, i);
         lua_pushnumber(lvm, data[i]);
         l_report(lvm, l_docall(lvm, 2, 1));
