@@ -2456,7 +2456,8 @@ void w_handle_softcut_process(int ch, float start, size_t size, float *data, siz
     for (size_t i = 0; i < size; ++i) {
         lua_getglobal(lvm, "_norns");
         lua_getfield(lvm, -1, "softcut_process");
-        lua_pushnumber(lvm, i);
+        // FIXME: a hardcoded 48000 seems unavoidable here ...
+        lua_pushnumber(lvm, i + start * 48000);
         lua_pushnumber(lvm, data[i]);
         l_report(lvm, l_docall(lvm, 2, 1));
         if (!lua_isnumber(lvm, -1)) {

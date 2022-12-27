@@ -642,19 +642,21 @@ void BufDiskWorker::process(BufDesc &buf, float start, float dur, ProcessCallbac
     size_t numToExpect = rem == 0 ? numBlocks : numBlocks + 1;
     std::cout << "chunk contains " << numBlocks << " blocks and " << rem << " remainder frames." << std::endl;
     for (size_t block = 0; block < numBlocks; ++block) {
+        float location = framesToSec(frStart);
         float samples[ioBufFrames];
         for (int i = 0; i < ioBufFrames; ++i) {
             samples[i] = buf.data[frStart];
             frStart++;
         }
-        processCallback(frDur, samples, numToExpect);
+        processCallback(location, ioBufFrames, samples, numToExpect);
     }
+    float location = framesToSec(frStart);
     float samples[rem];
-    for (int i = 0; i < rem; ++i) {
+    for (size_t i = 0; i < rem; ++i) {
         samples[i] = buf.data[frStart];
         frStart++;
     }
-    processCallback(frDur, samples, numToExpect);
+    processCallback(location, rem, samples, numToExpect);
 }
 
 void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback, float *data) {

@@ -802,9 +802,8 @@ void OscInterface::addServerMethods() {
     addServerMethod("/softcut/buffer/process", "iff", [](lo_arg **argv, int argc) {
         if (argc < 2) return;
         int ch = argv[0]->i;
-        float start = argv[1]->f;
-        softCutClient->processBuffer(ch, start, argv[2]->f, 
-                                     [=](size_t size, float* samples, size_t numToExpect){
+        softCutClient->processBuffer(ch, argv[1]->f, argv[2]->f, 
+                                     [=](float start, size_t size, float* samples, size_t numToExpect){
                                           lo_blob bl = lo_blob_new(size * sizeof(float), samples);
                                           lo_send(matronAddress, "/softcut/buffer/process_chunk", "ifbi", ch, start, bl, numToExpect);
                                      });
