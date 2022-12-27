@@ -401,7 +401,7 @@ SC.process_func = function(func)
 end
 
 --- set function for job callback. called when process_buffer is complete.
--- @tparam function func : called when buffer job is complete. args: (ch, job_type)
+-- @tparam function func : called when buffer job is complete. args: (ch, job_type, num_to_expect)
 SC.event_done = function(func)
   _norns.softcut_done = func
 end

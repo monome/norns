@@ -136,13 +136,13 @@ MATRON_API void event_data_free(union event_data *ev) {
     case EVENT_SOFTCUT_RENDER:
         free(ev->softcut_render.data);
         break;
-    case EVENT_SOFTCUT_PROCESS:
-        free(ev->softcut_process.data);
-        break;
     case EVENT_CUSTOM:
         if (ev->custom.ops->free) {
             ev->custom.ops->free(ev->custom.value, ev->custom.context);
         }
+        break;
+    case EVENT_SOFTCUT_PROCESS:
+        free(ev->softcut_process.data);
         break;
     }
     free(ev);
@@ -311,14 +311,14 @@ static void handle_event(union event_data *ev) {
     case EVENT_SOFTCUT_RENDER:
         w_handle_softcut_render(ev->softcut_render.idx, ev->softcut_render.sec_per_sample, ev->softcut_render.start, ev->softcut_render.size, ev->softcut_render.data);
         break;
-    case EVENT_SOFTCUT_PROCESS:
-        w_handle_softcut_process(ev->softcut_process.ch, ev->softcut_process.start, ev->softcut_process.size, ev->softcut_process.data);
-        break;
     case EVENT_SOFTCUT_CALLBACK:
-        w_handle_softcut_done_callback(ev->softcut_callback.idx, ev->softcut_callback.job_type);
+        w_handle_softcut_done_callback(ev->softcut_callback.idx, ev->softcut_callback.job_type, ev->softcut_callback.num_to_expect);
         break;
     case EVENT_SOFTCUT_POSITION:
         w_handle_softcut_position(ev->softcut_position.idx, ev->softcut_position.pos);
+        break;
+    case EVENT_SOFTCUT_PROCESS:
+        w_handle_softcut_process(ev->softcut_process.ch, ev->softcut_process.start, ev->softcut_process.size, ev->softcut_process.data, ev->softcut_process.num_to_expect);
         break;
     case EVENT_CUSTOM:
         w_handle_custom_weave(&(ev->custom));

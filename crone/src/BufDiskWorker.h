@@ -28,7 +28,7 @@ namespace crone {
     class BufDiskWorker {
     public:
         typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
-        typedef std::function<void(size_t size, float* samples)> ProcessCallback;
+        typedef std::function<void(size_t size, float* samples, size_t numToExpect)> ProcessCallback;
         typedef std::function<void(int jobType)> DoneCallback;
 
     private:

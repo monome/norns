@@ -4,6 +4,7 @@
 // Created by ezra on 11/4/18.
 //
 
+#include <iostream>
 #include <utility>
 #include <thread>
 
@@ -799,13 +800,13 @@ void OscInterface::addServerMethods() {
     });
 
     addServerMethod("/softcut/buffer/process", "iff", [](lo_arg **argv, int argc) {
-        if (argc < 3) return;
+        if (argc < 2) return;
         int ch = argv[0]->i;
         float start = argv[1]->f;
         softCutClient->processBuffer(ch, start, argv[2]->f, 
-                                     [=](size_t size, float *data){
-                                        lo_blob bl = lo_blob_new(size * sizeof(float), data);
-                                        lo_send(matronAddress, "/softcut/buffer/process_chunk", "ifb", ch, start, bl);
+                                     [=](size_t size, float* samples, size_t numToExpect){
+                                          lo_blob bl = lo_blob_new(size * sizeof(float), samples);
+                                          lo_send(matronAddress, "/softcut/buffer/process_chunk", "ifbi", ch, start, bl, numToExpect);
                                      });
     });
 
@@ -813,10 +814,11 @@ void OscInterface::addServerMethods() {
         if (argc < 3) return;
         int ch = argv[0]->i;
         size_t size = lo_blob_datasize((lo_blob)argv[2]) / sizeof(float);
-        float *data = (float*)lo_blob_dataptr((lo_blob)argv[2]);
+        float* data = (float*)lo_blob_dataptr((lo_blob)argv[2]);
+        size_t numToExpect = argv[3]->i;
         softCutClient->pokeBuffer(ch, argv[1]->f, size,
-                                  [=](int type){
-                                      lo_send(matronAddress, "/softcut/buffer/done_callback", "ii", ch, type);
+                                  [=](int jobType){
+                                      lo_send(matronAddress, "/softcut/buffer/done_callback", "iii", ch, jobType, numToExpect);
                                   }, data);
     });
 

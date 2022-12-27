@@ -86,8 +86,8 @@ extern void w_handle_poll_wave(int idx, uint8_t *data);
 extern void w_handle_poll_io_levels(uint8_t *levels);
 extern void w_handle_poll_softcut_phase(int idx, float val);
 extern void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t size, float* data);
-extern void w_handle_softcut_done_callback(int idx, int type);
-extern void w_handle_softcut_process(int ch, float start, size_t size, float* data);
+extern void w_handle_softcut_done_callback(int idx, int type, size_t num_to_expect);
+extern void w_handle_softcut_process(int ch, float start, size_t size, float* data, size_t num_to_expect);
 extern void w_handle_softcut_position(int idx, float pos);
 
 extern void w_handle_engine_loaded();
