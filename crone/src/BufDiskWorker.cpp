@@ -14,6 +14,7 @@
 #include <sndfile.hh>
 #include <array>
 #include <cmath>
+#include <thread>
 #include <utility>
 
 #include "BufDiskWorker.h"

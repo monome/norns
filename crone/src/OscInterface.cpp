@@ -809,7 +809,7 @@ void OscInterface::addServerMethods() {
                                      });
     });
 
-    addServerMethod("/softcut/buffer/return", "ifb", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/return", "ifbi", [](lo_arg **argv, int argc) {
         if (argc < 3) return;
         int ch = argv[0]->i;
         size_t size = lo_blob_datasize((lo_blob)argv[2]) / sizeof(float);
