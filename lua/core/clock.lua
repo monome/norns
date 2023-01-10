@@ -248,10 +248,10 @@ function clock.add_params()
       norns.state.clock.link_start_stop_sync = x
     end)
   params:set_save("link_start_stop_sync", false)
-  local clock_table = {"off"}
+  local clock_table = {"off","all"}
   for i = 1,16 do
     local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-    clock_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+    clock_table[i+2] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
   end
   params:add_option("clock_midi_out", "midi out",
       clock_table, norns.state.clock.midi_out)
@@ -301,10 +301,17 @@ function clock.add_params()
   clock.run(function()
     while true do
       clock.sync(1/24)
-      local midi_out = params:get("clock_midi_out")-1
-      if midi_out > 0 then
-        if midi.vports[midi_out].name ~= "none" then
-          midi.vports[midi_out]:clock()
+			local midi_out = params:get("clock_midi_out")
+			if midi_out == 2 then -- "all"
+				for i=1,16 do
+					if midi.vports[i].name ~= "none" then
+						midi.vports[i]:clock()
+						-- print('sending clock to port'..i)
+					end
+				end
+			elseif midi_out > 2 then  
+        if midi.vports[midi_out-2].name ~= "none" then
+          midi.vports[midi_out-2]:clock()	
         end
       end
     end
