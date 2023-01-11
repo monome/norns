@@ -42,6 +42,11 @@ function OSC.send_crone(path, args)
   end
 end
 
+--- clear handlers.
+function OSC.cleanup()
+  OSC.event = nil
+end
+
 local function param_handler(path, args)
   local address_parts = {}
   local osc_pset_id = ""
