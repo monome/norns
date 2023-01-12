@@ -62,5 +62,6 @@ def build(bld):
                      'm',
                      'sndfile'
                  ],
-                 cxxflags=crone_flags
+                 cxxflags=crone_flags,
+                 ldflads=['-lrt']
                  )

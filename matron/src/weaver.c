@@ -2470,6 +2470,7 @@ void w_handle_softcut_process(int ch, float start, size_t size) {
         shm_unlink(name);
         return;
     }
+    bool problem = false;
     for (size_t i = 0; i < size; ++i) {
         lua_getglobal(lvm, "_norns");
         lua_getfield(lvm, -1, "softcut_process");
@@ -2477,12 +2478,15 @@ void w_handle_softcut_process(int ch, float start, size_t size) {
         lua_pushnumber(lvm, BufDiskWorker_shm[i]);
         l_report(lvm, l_docall(lvm, 2, 1));
         if (!lua_isnumber(lvm, -1)) {
-          luaL_error(lvm, "softcut_process did not return number");
+          problem = true;
           BufDiskWorker_shm[i] = 0;
         } else {
           BufDiskWorker_shm[i] = (float)lua_tonumber(lvm, -1);
         }
         lua_pop(lvm, 1);
+    }
+    if (problem) {
+        luaL_error(lvm, "softcut_process did not return number");
     }
     o_cut_buffer_return(ch, start, size);
     shm_unlink(name);
