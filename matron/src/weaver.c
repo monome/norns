@@ -47,6 +47,10 @@
 #include "system_cmd.h"
 #include "weaver.h"
 
+// for shared memory
+#include <sys/mman.h>
+#include <sys/stat.h>
+
 // registered lua functions require the LVM state as a parameter.
 // but often we don't need it.
 // use pragma instead of casting to void as a workaround.
@@ -2436,7 +2440,7 @@ void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t 
     l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-void w_handle_softcut_done_callback(int idx, int type, size_t num_to_expect) {
+void w_handle_softcut_done_callback(int idx, int type) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "softcut_done");
     lua_remove(lvm, -2);
@@ -2444,7 +2448,6 @@ void w_handle_softcut_done_callback(int idx, int type, size_t num_to_expect) {
         case 0 : 
             lua_pushinteger(lvm, idx + 1);
             lua_pushstring(lvm, "process");
-            lua_pushnumber(lvm, num_to_expect);
             break;
         default :
             luaL_error(lvm, "invalid job type");
@@ -2452,25 +2455,37 @@ void w_handle_softcut_done_callback(int idx, int type, size_t num_to_expect) {
     l_report(lvm, l_docall(lvm, 3, 0));
 }
 
-void w_handle_softcut_process(int ch, float start, size_t size, float *data, size_t num_to_expect) {
-    // FIXME: a hardcoded 48000 seems unavoidable here ...
-    size_t frame_start = (size_t)(start * 48000);
+void w_handle_softcut_process(int ch, float start, size_t size) {
+    // don't really love using this as a magic word,
+    // but I also don't love passing it around.
+    const char* name = "BufDiskWorker_shm";
+    int fd = shm_open(name, O_RDWR, 0);
+    if (fd == -1) {
+        luaL_error(lvm, "error accessing softcut buffer");
+        return;
+    }
+    float *BufDiskWorker_shm = (float *)mmap(NULL, size * sizeof(float), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (BufDiskWorker_shm == MAP_FAILED) {
+        luaL_error(lvm, "error mapping softcut buffer");
+        shm_unlink(name);
+        return;
+    }
     for (size_t i = 0; i < size; ++i) {
         lua_getglobal(lvm, "_norns");
         lua_getfield(lvm, -1, "softcut_process");
-        lua_pushinteger(lvm, frame_start);
-        lua_pushnumber(lvm, data[i]);
+        lua_pushinteger(lvm, i);
+        lua_pushnumber(lvm, BufDiskWorker_shm[i]);
         l_report(lvm, l_docall(lvm, 2, 1));
         if (!lua_isnumber(lvm, -1)) {
           luaL_error(lvm, "softcut_process did not return number");
-          data[i] = 0;
+          BufDiskWorker_shm[i] = 0;
         } else {
-          data[i] = (float)lua_tonumber(lvm, -1);
+          BufDiskWorker_shm[i] = (float)lua_tonumber(lvm, -1);
         }
         lua_pop(lvm, 1);
-        frame_start++;
     }
-    o_cut_buffer_return(ch, start, size, data, num_to_expect);
+    o_cut_buffer_return(ch, start, size);
+    shm_unlink(name);
 }
 
 void w_handle_softcut_position(int idx, float pos) {

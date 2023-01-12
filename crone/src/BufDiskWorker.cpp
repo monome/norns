@@ -16,6 +16,13 @@
 #include <cmath>
 #include <thread>
 #include <utility>
+// -------------------
+// for shared memory
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+// -------------------
 
 #include "BufDiskWorker.h"
 
@@ -37,7 +44,7 @@ static inline void clamp(size_t &x, const size_t a) {
 }
 
 float BufDiskWorker::framesToSec(size_t frames) {
-    return (float)frames / BufDiskWorker::sampleRate;
+    return (float)frames / (float)BufDiskWorker::sampleRate;
 }
 
 int BufDiskWorker::registerBuffer(float *data, size_t frames) {
@@ -108,8 +115,8 @@ void BufDiskWorker::requestProcess(size_t idx, float start, float dur, ProcessCa
     requestJob(job);
 }
 
-void BufDiskWorker::requestPoke(size_t idx, float start, float dur, DoneCallback doneCallback, float *data) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::Poke, {idx, 0}, "", start, start, dur, 0, 0, 0, 1, false, 0, nullptr, nullptr, doneCallback, data };
+void BufDiskWorker::requestPoke(size_t idx, float start, float dur, DoneCallback doneCallback) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Poke, {idx, 0}, "", start, start, dur, 0, 0, 0, 1, false, 0, nullptr, nullptr, doneCallback};
     requestJob(job);
 }
 
@@ -155,7 +162,7 @@ void BufDiskWorker::workLoop() {
                 process(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.processCallback);
                 break;
             case JobType::Poke:
-                poke(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.doneCallback, job.data);
+                poke(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.doneCallback);
         }
 #if 0 // debug, timing
         auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -638,35 +645,50 @@ void BufDiskWorker::process(BufDesc &buf, float start, float dur, ProcessCallbac
     }
     clamp(frDur, buf.frames - frStart);
 
-    size_t numBlocks = frDur / ioBufFrames;
-    size_t rem = frDur - (numBlocks * ioBufFrames);
-    size_t numToExpect = rem == 0 ? numBlocks : numBlocks + 1;
-    std::cout << "chunk contains " << numBlocks << " blocks and " << rem << " remainder frames." << std::endl;
-    for (size_t block = 0; block < numBlocks; ++block) {
-        float location = framesToSec(frStart);
-        float samples[ioBufFrames];
-        for (int i = 0; i < ioBufFrames; ++i) {
-            samples[i] = buf.data[frStart];
-            frStart++;
-        }
-        processCallback(location, ioBufFrames, samples, numToExpect);
+    // don't really love using this as a magic word,
+    // but I also don't love passing it around.
+    const char* name = "BufDiskWorker_shm";
+    int fd = shm_open(name, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+    if  (fd == -1) { return; }
+    size_t size = sizeof(float) * frDur;
+    if (ftruncate(fd, size) == -1) {
+        // can't process the whole buffer, so let's just give up
+        shm_unlink(name);
+        return;
     }
-    float location = framesToSec(frStart);
-    float samples[rem];
-    for (size_t i = 0; i < rem; ++i) {
-        samples[i] = buf.data[frStart];
+    float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (BufDiskWorker_shm == MAP_FAILED) {
+        // again, just give up
+        shm_unlink(name);
+        return;
+    }
+    for (size_t i = 0; i < frDur; ++i) {
+        BufDiskWorker_shm[i] = buf.data[frStart];
         frStart++;
     }
-    processCallback(location, rem, samples, numToExpect);
+    processCallback(start, frDur);
 }
 
-void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback, float *data) {
+void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback) {
     size_t frDur = secToFrame(dur);
     size_t frStart = secToFrame(start);
     clamp(frDur, buf.frames - frStart);
+    // don't really love using this as a magic word,
+    // but I also don't love passing it around.
+    const char* name = "BufDiskWorker_shm";
+    int fd = shm_open(name, O_RDONLY, 0);
+    if (fd == -1) { return; }
+    size_t size = sizeof(float) * frDur;
+    float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    if (BufDiskWorker_shm == MAP_FAILED) {
+        // just give up
+        shm_unlink(name);
+        return;
+    }
     for (size_t i = 0; i < frDur; ++i) {
-        buf.data[frStart] = data[i];
+        buf.data[frStart] = BufDiskWorker_shm[i];
         frStart++;
     }
+    shm_unlink(name);
     doneCallback(0);
 }

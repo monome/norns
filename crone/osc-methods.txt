@@ -80,7 +80,7 @@ osc methods:
  /softcut/buffer/clear_region_channel [iff]
  /softcut/buffer/render [iffi]
  /softcut/buffer/process [iff]
- /softcut/buffer/return [ifb]
+ /softcut/buffer/return [ifi]
  /softcut/reset []
  /set/param/cut/phase_quant [if]
  /set/param/cut/phase_offset [if]

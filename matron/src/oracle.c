@@ -193,7 +193,7 @@ void o_init(void) {
 
     // softcut buffer content
     lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
-    lo_server_thread_add_method(st, "/softcut/buffer/process_chunk", "ifbi", handle_softcut_process, NULL);
+    lo_server_thread_add_method(st, "/softcut/buffer/process", "ifi", handle_softcut_process, NULL);
     lo_server_thread_add_method(st, "/softcut/buffer/done_callback", "iii", handle_softcut_callback, NULL);
     lo_server_thread_add_method(st, "/poll/softcut/position", "if", handle_softcut_position, NULL);
 
@@ -620,10 +620,8 @@ void o_cut_buffer_process(int ch, float start, float dur) {
     lo_send(crone_addr, "/softcut/buffer/process", "iff", ch, start, dur);
 }
 
-void o_cut_buffer_return(int ch, float start, size_t size, float *data, size_t num_to_expect) {
-    // FIXME: do I need to do a memcpy?
-    lo_blob datablob = lo_blob_new(size * sizeof(float), data);
-    lo_send(crone_addr, "/softcut/buffer/return", "ifbi", ch, start, datablob, num_to_expect);
+void o_cut_buffer_return(int ch, float start, size_t size) {
+    lo_send(crone_addr, "/softcut/buffer/return", "ifi", ch, start, size);
 }
 
 void o_cut_query_position(int i) {
@@ -857,28 +855,21 @@ int handle_softcut_render(const char *path, const char *types, lo_arg **argv, in
 
 int handle_softcut_process(const char *path, const char *types, lo_arg **argv, int argc,
         lo_message data, void *user_data) {
-    assert(argc > 3);
+    assert(argc > 2);
     union event_data *ev = event_data_new(EVENT_SOFTCUT_PROCESS);
     ev->softcut_process.ch = argv[0]->i;
     ev->softcut_process.start = argv[1]->f;
-    ev->softcut_process.num_to_expect = argv[3]->i;
-
-    size_t sz = lo_blob_datasize((lo_blob)argv[2]);
-    float *samples = (float*)lo_blob_dataptr((lo_blob)argv[2]);
-    ev->softcut_process.size = sz / sizeof(float);
-    ev->softcut_process.data = calloc(1, sz);
-    memcpy(ev->softcut_process.data, samples, sz);
+    ev->softcut_process.size = argv[2]->i;
     event_post(ev);
     return 0;
 }
 
 int handle_softcut_callback(const char *path, const char *types, lo_arg **argv, int argc,
         lo_message data, void *user_data) {
-    assert(argc > 2);
+    assert(argc > 1);
     union event_data *ev = event_data_new(EVENT_SOFTCUT_CALLBACK);
     ev->softcut_callback.idx = argv[0]->i;
     ev->softcut_callback.job_type = argv[1]->i;
-    ev->softcut_callback.num_to_expect = argv[2]->i;
     event_post(ev);
     return  0;
 }

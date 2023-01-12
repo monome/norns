@@ -28,7 +28,7 @@ namespace crone {
     class BufDiskWorker {
     public:
         typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
-        typedef std::function<void(float start, size_t size, float* samples, size_t numToExpect)> ProcessCallback;
+        typedef std::function<void(float start, size_t size)> ProcessCallback;
         typedef std::function<void(int jobType)> DoneCallback;
 
     private:
@@ -54,7 +54,6 @@ namespace crone {
             RenderCallback renderCallback;
             ProcessCallback processCallback;
             DoneCallback doneCallback;
-            float *data;
         };
         struct BufDesc {
             float *data;
@@ -127,7 +126,7 @@ namespace crone {
         static void requestProcess(size_t idx, float start, float dur, ProcessCallback processCallback);
 
         // return contents of buffer produced by custon function
-        static void requestPoke(size_t idx, float start, float dur, DoneCallback doneCallback, float *data);
+        static void requestPoke(size_t idx, float start, float dur, DoneCallback doneCallback);
 
     private:
         static void workLoop();
@@ -158,7 +157,7 @@ namespace crone {
 
         static void process(BufDesc &buf, float start, float dur, ProcessCallback processCallback); 
   
-        static void poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback, float *data);
+        static void poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback);
     };
 
 }

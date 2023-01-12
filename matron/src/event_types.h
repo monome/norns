@@ -332,15 +332,12 @@ struct event_softcut_process {
     int ch;
     float start;
     size_t size;
-    float* data;
-    size_t num_to_expect;
 };
 
 struct event_softcut_callback {
     struct event_common common;
     int idx;
     int job_type;
-    size_t num_to_expect;
 };
 
 struct event_softcut_position {
