@@ -170,18 +170,22 @@ void BufDiskWorker::workLoop() {
         std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
 #endif
     }
+    shm_unlink("BufDiskWorker_shm");
 }
 
 void BufDiskWorker::init(int sr) {
     sampleRate = sr;
+    // don't really love using this as a magic word,
+    // but I also don't love passing it around.
+    fd = shm_open("BufDiskWorker_shm", O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
     if (worker == nullptr) {
         worker = std::make_unique<std::thread>(std::thread(BufDiskWorker::workLoop));
         worker->detach();
     }
 }
 
-int BufDiskWorker::secToFrame(float seconds) {
-    return static_cast<int>(seconds * (float) sampleRate);
+size_t BufDiskWorker::secToFrame(float seconds) {
+    return static_cast<size_t>(seconds * (float) sampleRate);
 }
 
 float BufDiskWorker::raisedCosFade(float unitphase) {
@@ -645,21 +649,20 @@ void BufDiskWorker::process(BufDesc &buf, float start, float dur, ProcessCallbac
     }
     clamp(frDur, buf.frames - frStart);
 
-    // don't really love using this as a magic word,
-    // but I also don't love passing it around.
-    const char* name = "BufDiskWorker_shm";
-    int fd = shm_open(name, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
-    if  (fd == -1) { return; }
+    if  (fd == -1) { 
+        std::cerr << "BufDiskWorker::process(): opening shared memory failed"  << std::endl;
+        return;
+    }
     size_t size = sizeof(float) * frDur;
     if (ftruncate(fd, size) == -1) {
         // can't process the whole buffer, so let's just give up
-        shm_unlink(name);
+        std::cerr << "BufDiskWorker::process(): resizing shared memory failed"  << std::endl;
         return;
     }
     float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (BufDiskWorker_shm == MAP_FAILED) {
         // again, just give up
-        shm_unlink(name);
+        std::cerr << "BufDiskWorker::process(): mapping shared memory failed"  << std::endl;
         return;
     }
     for (size_t i = 0; i < frDur; ++i) {
@@ -673,11 +676,8 @@ void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback done
     size_t frDur = secToFrame(dur);
     size_t frStart = secToFrame(start);
     clamp(frDur, buf.frames - frStart);
-    // don't really love using this as a magic word,
-    // but I also don't love passing it around.
-    const char* name = "BufDiskWorker_shm";
-    int fd = shm_open(name, O_RDONLY, 0);
     if (fd == -1) { 
+        // just give up
         std::cerr << "BufDiskWorker::poke(): opening shared memory failed"  << std::endl;
         return; 
     }
@@ -685,7 +685,6 @@ void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback done
     float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
     if (BufDiskWorker_shm == MAP_FAILED) {
         // just give up
-        shm_unlink(name);
         std::cerr << "BufDiskWorker::poke(): mapping shared memory failed"  << std::endl;
         return;
     }
@@ -693,6 +692,5 @@ void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback done
         buf.data[frStart] = BufDiskWorker_shm[i];
         frStart++;
     }
-    shm_unlink(name);
     doneCallback(0);
 }

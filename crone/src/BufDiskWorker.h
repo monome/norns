@@ -71,7 +71,7 @@ namespace crone {
         static int sampleRate;
         static constexpr int ioBufFrames = 1024;
 
-        static int secToFrame(float seconds);
+        static size_t secToFrame(float seconds);
         static float raisedCosFade(float unitphase);
         static float mixFade(float x, float y, float a, float b);
 
@@ -82,6 +82,7 @@ namespace crone {
                              Step&& step);
 
         static void requestJob(Job &job);
+        static int fd;
 
     public:
         // convert frames to seconds
