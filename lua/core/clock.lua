@@ -253,8 +253,8 @@ function clock.add_params()
   params:set_save("link_start_stop_sync", false)
   params:add_separator("midi_clock_out", "midi clock out")
   for i = 1,16 do
-    local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-    params:add_binary("clock_midi_out_"..i, "port "..i..": "..short_name, "toggle", norns.state.clock.midi_out[i])
+    local short_name = string.len(midi.vports[i].name) <= 20 and midi.vports[i].name or util.acronym(midi.vports[i].name)
+    params:add_binary("clock_midi_out_"..i, i..". "..short_name, "toggle", norns.state.clock.midi_out[i])
     params:set_action("clock_midi_out_"..i,
       function(x)
         if x == 1 then

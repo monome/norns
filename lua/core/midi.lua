@@ -385,8 +385,8 @@ function Midi.update_connected_state()
       Midi.vports[i].connected = false 
     end
     if params.lookup["clock_midi_out_"..i] ~= nil then
-      local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-      params:lookup_param("clock_midi_out_"..i).name = "port "..i..": "..short_name
+      local short_name = string.len(midi.vports[i].name) <= 20 and midi.vports[i].name or util.acronym(midi.vports[i].name)
+      params:lookup_param("clock_midi_out_"..i).name = i..". "..short_name
       if short_name ~= "none" and midi.vports[i].connected then
         params:show("clock_midi_out_"..i)
       else
