@@ -14,7 +14,7 @@ return {
     ABS_Y = 256
   },
   axis_invert = {
-    ABS_X = true,
+    ABS_X = false,
     ABS_Y = false
   },
   axis_mapping = {
