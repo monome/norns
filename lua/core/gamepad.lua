@@ -229,13 +229,29 @@ function gamepad.trigger_dpad(axis, sign)
 end
 
 
+-- ------------------------------------------------------------------------
+-- analog sensor 2 states
+
+--- Returns true if value for axis is around origin
+-- i.e. when joystick / d-pad is not actioned
+function gamepad.is_analog_origin(gamepad_conf, axis_keycode, value)
+  local origin = gamepad_conf.analog_axis_o[axis_keycode]
+  if origin == nil then
+    origin = 0
+  end
+  local noize_margin = gamepad_conf.analog_axis_o_margin[axis_keycode]
+  if noize_margin == nil then
+    noize_margin = 0
+  end
+  return ( value >= (origin - noize_margin) and value <= (origin + noize_margin))
+end
+
 local function normalized_analog_button_val(gamepad_conf, axis_keycode, val)
   local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
 
-  -- if gamepad.is_analog_origin(gamepad_conf, axis_keycode, val) then
-  -- val = 0
-  -- end
-  -- TODO: still denoize
+  if gamepad.is_analog_origin(gamepad_conf, axis_keycode, val) then
+    val = 0
+  end
 
   local state = false
   local sign = 0
@@ -275,6 +291,8 @@ local function normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
 end
 
 
+-- ------------------------------------------------------------------------
+-- incoming events
 
 function gamepad.process(guid, typ, code, val, do_log_event)
 
@@ -360,11 +378,6 @@ function gamepad.process(guid, typ, code, val, do_log_event)
       -- register state
       local btn_val = 0
       if is_button then
-        -- local btn_state = false
-        -- if sign >= 0 then -- NB: -1 would mean origin
-        -- btn_val = 1
-        -- btn_state = true
-        -- end
         gamepad.register_analog_button_state(sensor_axis, btn_state, gamepad_conf.axis_invert[axis_keycode])
         if do_log_event and debug_level >= 1 then print("BUTTON: " .. button_name .. " " .. tostring(btn_state)) end
         gamepad.register_button_state(button_name, btn_state)
@@ -412,6 +425,10 @@ function gamepad.process(guid, typ, code, val, do_log_event)
   end
 end
 
+
+-- ------------------------------------------------------------------------
+-- debug
+
 --- Predicate that returns true only on non-reset values (i.e. on key/joystick presses)
 function gamepad.is_loggable_event(gamepad_conf,event_code_type,code,val)
   if (event_code_type == "EV_KEY") then
@@ -427,19 +444,10 @@ function gamepad.is_loggable_event(gamepad_conf,event_code_type,code,val)
   end
 end
 
---- Returns true if value for axis is around origin
--- i.e. when joystick / d-pad is not actioned
-function gamepad.is_analog_origin(gamepad_conf, axis_keycode, value)
-  local origin = gamepad_conf.analog_axis_o[axis_keycode]
-  if origin == nil then
-    origin = 0
-  end
-  local noize_margin = gamepad_conf.analog_axis_o_margin[axis_keycode]
-  if noize_margin == nil then
-    noize_margin = 0
-  end
-  return ( value >= (origin - noize_margin) and value <= (origin + noize_margin))
-end
+
+-- ------------------------------------------------------------------------
+-- hid event parsing
+
 
 --- Returns button name associated w/ (non-axis) key code
 function gamepad.code_2_button(gamepad_conf, code)
@@ -470,6 +478,6 @@ function gamepad.event_code_type_2_key_prfx(event_code_type)
 end
 
 
-
+-- ------------------------------------------------------------------------
 
 return gamepad

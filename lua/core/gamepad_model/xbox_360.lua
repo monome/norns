@@ -6,8 +6,8 @@ return {
     ABS_RY = 0,
     ABS_X = 0,
     ABS_Y = 0,
-    ABS_Z = 127,
-    ABS_RZ = 127
+    ABS_Z = 0,
+    ABS_RZ = 0
   },
   analog_axis_o_margin = {},
   analog_axis_resolution = {
