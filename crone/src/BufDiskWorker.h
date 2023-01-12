@@ -69,6 +69,7 @@ namespace crone {
         static bool shouldQuit;
         static constexpr int sleepPeriodMs = 100;
         static int sampleRate;
+        static int fd;
         static constexpr int ioBufFrames = 1024;
 
         static size_t secToFrame(float seconds);
@@ -82,7 +83,6 @@ namespace crone {
                              Step&& step);
 
         static void requestJob(Job &job);
-        static int fd;
 
     public:
         // convert frames to seconds
