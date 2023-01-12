@@ -677,12 +677,16 @@ void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback done
     // but I also don't love passing it around.
     const char* name = "BufDiskWorker_shm";
     int fd = shm_open(name, O_RDONLY, 0);
-    if (fd == -1) { return; }
+    if (fd == -1) { 
+        std::cerr << "BufDiskWorker::poke(): opening shared memory failed"  << std::endl;
+        return; 
+    }
     size_t size = sizeof(float) * frDur;
     float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
     if (BufDiskWorker_shm == MAP_FAILED) {
         // just give up
         shm_unlink(name);
+        std::cerr << "BufDiskWorker::poke(): mapping shared memory failed"  << std::endl;
         return;
     }
     for (size_t i = 0; i < frDur; ++i) {
