@@ -264,6 +264,7 @@ local function normalized_analog_button_val(gamepad_conf, axis_keycode, val)
   -- TODO: still denoize
 
   local state = false
+  local sign = 0
   if val > reso * 2/3 then
     state = true
   end
@@ -272,7 +273,11 @@ local function normalized_analog_button_val(gamepad_conf, axis_keycode, val)
     state = not state
   end
 
-  return {val, state}
+  if state then
+    sign = 1
+  end
+
+  return {val, state, sign}
 end
 
 local function normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
@@ -328,7 +333,7 @@ function gamepad.process(guid, typ, code, val, do_log_event)
     local sensor_axis = gamepad.axis_keycode_to_sensor_axis(gamepad_conf, axis_keycode)
     local axis = gamepad.sensor_axis_to_axis(sensor_axis)
 
-    local sign = val
+    local sign
 
     -- if axis then
     if sensor_axis then
@@ -351,13 +356,14 @@ function gamepad.process(guid, typ, code, val, do_log_event)
           local normalized = normalized_analog_button_val(gamepad_conf, axis_keycode, val)
           val = normalized[1]
           btn_state = normalized[2]
+          sign = normalized[3]
         else
           local normalized = normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
           val = normalized[1]
           sign = normalized[2]
         end
 
-        -- first callback -> TODO: kinda wrong to do it here
+        -- first callback -> TODO: kinda wrong to do it before btn states?
 
         if val ~= prev_dir_v[axis_keycode] then
           local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
@@ -393,6 +399,7 @@ function gamepad.process(guid, typ, code, val, do_log_event)
         --   sign = val < 0 and -1 or 1
         -- end
       else -- digital
+        sign = val
         if sign ~= 0 then
           sign = val < 0 and -1 or 1
         end
@@ -417,6 +424,7 @@ function gamepad.process(guid, typ, code, val, do_log_event)
       if sign ~= prev_dir[axis_keycode] then
         prev_dir[axis_keycode] = sign
 
+        if do_log_event and debug_level >= 1 then print("AXIS: " .. sensor_axis .. " " .. sign) end
         gamepad.trigger_axis(sensor_axis, sign)
 
         if is_button then
