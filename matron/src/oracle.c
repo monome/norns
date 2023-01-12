@@ -194,7 +194,7 @@ void o_init(void) {
     // softcut buffer content
     lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
     lo_server_thread_add_method(st, "/softcut/buffer/process", "ifi", handle_softcut_process, NULL);
-    lo_server_thread_add_method(st, "/softcut/buffer/done_callback", "iii", handle_softcut_callback, NULL);
+    lo_server_thread_add_method(st, "/softcut/buffer/done_callback", "ii", handle_softcut_callback, NULL);
     lo_server_thread_add_method(st, "/poll/softcut/position", "if", handle_softcut_position, NULL);
 
     lo_server_thread_start(st);

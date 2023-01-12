@@ -60,6 +60,9 @@
 //------
 //---- global lua state!
 static lua_State *lvm;
+//-----
+//---- global shared memory file descriptor.
+static int fd = -1;
 
 void w_run_code(const char *code) {
     l_dostring(lvm, code, "w_run_code");
@@ -344,6 +347,8 @@ static void lua_register_norns_class(const char *class_name, const luaL_Reg *met
 //// extern function definitions
 
 void w_init(void) {
+    fprintf(stderr,  "accessing shared memory");
+    fd  = shm_open("BufDiskWorker_shm", O_RDWR, 0);
     fprintf(stderr, "starting main lua vm\n");
     lvm = luaL_newstate();
     luaL_openlibs(lvm);
@@ -586,6 +591,9 @@ void w_post_startup(void) {
 }
 
 void w_deinit(void) {
+    fprintf(stderr, "releasing shared memory");
+    // don't love using magic words...
+    shm_unlink("BufDiskWorker_shm");
     fprintf(stderr, "shutting down lua vm\n");
     lua_close(lvm);
 }
@@ -2459,7 +2467,6 @@ void w_handle_softcut_process(int ch, float start, size_t size) {
     // don't really love using this as a magic word,
     // but I also don't love passing it around.
     const char* name = "BufDiskWorker_shm";
-    int fd = shm_open(name, O_RDWR, 0);
     if (fd == -1) {
         luaL_error(lvm, "error accessing softcut buffer");
         return;
@@ -2489,7 +2496,6 @@ void w_handle_softcut_process(int ch, float start, size_t size) {
         luaL_error(lvm, "softcut_process did not return number");
     }
     o_cut_buffer_return(ch, start, size);
-    shm_unlink(name);
 }
 
 void w_handle_softcut_position(int idx, float pos) {
