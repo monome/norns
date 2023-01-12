@@ -650,12 +650,12 @@ void BufDiskWorker::process(BufDesc &buf, float start, float dur, ProcessCallbac
     }
     clamp(frDur, buf.frames - frStart);
 
-    if  (BufDiskWorker::fd == -1) { 
+    if  (fd == -1) { 
         std::cerr << "BufDiskWorker::process(): opening shared memory failed"  << std::endl;
         return;
     }
     size_t size = sizeof(float) * frDur;
-    if (ftruncate(BufDiskWorker::fd, size) == -1) {
+    if (ftruncate(fd, size) == -1) {
         // can't process the whole buffer, so let's just give up
         std::cerr << "BufDiskWorker::process(): resizing shared memory failed"  << std::endl;
         return;
@@ -677,13 +677,13 @@ void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback done
     size_t frDur = secToFrame(dur);
     size_t frStart = secToFrame(start);
     clamp(frDur, buf.frames - frStart);
-    if (BufDiskWorker::fd == -1) { 
+    if (fd == -1) { 
         // just give up
         std::cerr << "BufDiskWorker::poke(): opening shared memory failed"  << std::endl;
         return; 
     }
     size_t size = sizeof(float) * frDur;
-    float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ, MAP_SHARED, BufDiskWorker::fd, 0);
+    float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
     if (BufDiskWorker_shm == MAP_FAILED) {
         // just give up
         std::cerr << "BufDiskWorker::poke(): mapping shared memory failed"  << std::endl;
@@ -693,5 +693,6 @@ void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback done
         buf.data[frStart] = BufDiskWorker_shm[i];
         frStart++;
     }
+    std::cerr << "calling doneCallback" << std::endl;
     doneCallback(0);
 }

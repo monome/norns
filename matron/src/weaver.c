@@ -2452,7 +2452,7 @@ void w_handle_softcut_done_callback(int idx, int type) {
         default :
             luaL_error(lvm, "invalid job type");
     }
-    l_report(lvm, l_docall(lvm, 3, 0));
+    l_report(lvm, l_docall(lvm, 2, 0));
 }
 
 void w_handle_softcut_process(int ch, float start, size_t size) {
