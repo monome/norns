@@ -327,89 +327,94 @@ function gamepad.process(guid, typ, code, val, do_log_event)
 
     local sign
 
-    -- if axis then
-    if sensor_axis then
-      local is_analog = gamepad.is_axis_keycode_analog(axis_keycode)
-      local is_dpad = true
-      if is_analog and (not gamepad_conf.dpad_is_analog) then
-        is_dpad = false
-      end
+    -- if not recognized axis then
+    if not sensor_axis then
+      return
+    end
 
-      local is_button = false
-      local btn_state = false
-      button_name = gamepad.analog_axis_keycode_2_button(gamepad_conf, axis_keycode)
-      if button_name then
-        is_button = true
-      end
+    -- TODO: handle relative axes?
 
-      if is_analog then
+    local is_analog = gamepad.is_axis_keycode_analog(axis_keycode)
+    local is_dpad = true
+    if is_analog and (not gamepad_conf.dpad_is_analog) then
+      is_dpad = false
+    end
 
-        if is_button then
-          local normalized = normalized_analog_button_val(gamepad_conf, axis_keycode, val)
-          val = normalized[1]
-          btn_state = normalized[2]
-          sign = normalized[3]
-        else
-          local normalized = normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
-          val = normalized[1]
-          sign = normalized[2]
-        end
+    local is_button = false
+    local btn_state = false
+    button_name = gamepad.analog_axis_keycode_2_button(gamepad_conf, axis_keycode)
+    if button_name then
+      is_button = true
+    end
 
-        -- first callback -> TODO: kinda wrong to do it before btn states?
+    if is_analog then
 
-        if val ~= prev_dir_v[axis_keycode] then
-          local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
-          local half_reso = reso / 2
-          local reported_reso = is_button and reso or half_reso
-          local dbg_reso = (val >= 0) and reported_reso or -reported_reso
-          -- if do_log_event and debug_level >= 2 then print("ANALOG: " .. sensor_axis .. " " .. val .. "/" .. half_reso) end
-          if debug_level >= 2 then print("ANALOG: " .. sensor_axis .. " " .. val .. "/" .. dbg_reso) end
-          prev_dir_v[axis_keycode] = val
-          if gamepad.analog then gamepad.analog(sensor_axis, val, reported_reso) end
-        end
-
-      else -- digital
-        sign = val
-        if sign ~= 0 then
-          sign = val < 0 and -1 or 1
-        end
-      end
-
-      -- register state
-      local btn_val = 0
       if is_button then
-        gamepad.register_analog_button_state(sensor_axis, btn_state, gamepad_conf.axis_invert[axis_keycode])
-        if do_log_event and debug_level >= 1 then print("BUTTON: " .. button_name .. " " .. tostring(btn_state)) end
-        gamepad.register_button_state(button_name, btn_state)
+        local normalized = normalized_analog_button_val(gamepad_conf, axis_keycode, val)
+        val = normalized[1]
+        btn_state = normalized[2]
+        sign = normalized[3]
       else
-        gamepad.register_direction_state(sensor_axis, sign, gamepad_conf.axis_invert[axis_keycode], do_log_event)
+        local normalized = normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
+        val = normalized[1]
+        sign = normalized[2]
       end
 
-      -- callbacks
-      if sign ~= prev_dir[axis_keycode] then
-        prev_dir[axis_keycode] = sign
+      -- first callback -> TODO: kinda wrong to do it before btn states?
 
-        if do_log_event and debug_level >= 1 then print("AXIS: " .. sensor_axis .. " " .. sign) end
-        gamepad.trigger_axis(sensor_axis, sign)
+    else -- digital
+      sign = val
+      if sign ~= 0 then
+        sign = val < 0 and -1 or 1
+      end
+    end
 
-        if is_button then
-          gamepad.trigger_button(button_name, btn_val)
-        end
+    -- register state
+    local btn_val = 0
+    if is_button then
+      gamepad.register_analog_button_state(sensor_axis, btn_state, gamepad_conf.axis_invert[axis_keycode])
+      if do_log_event and debug_level >= 1 then print("BUTTON: " .. button_name .. " " .. tostring(btn_state)) end
+      gamepad.register_button_state(button_name, btn_state)
+    else
+      gamepad.register_direction_state(sensor_axis, sign, gamepad_conf.axis_invert[axis_keycode], do_log_event)
+    end
 
-        if is_dpad and axis then
-          -- REVIEW: should call again `gamepad.register_direction_state` in that case, right?
-          -- for edge case when `gamepad.trigger_dpad` is called by script to simulate user input
-          gamepad.trigger_dpad(axis, sign)
-        end
+    -- callbacks
+    -- - gamepad.analog()
+    if is_analog and val ~= prev_dir_v[axis_keycode] then
+      local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
+      local half_reso = reso / 2
+      local reported_reso = is_button and reso or half_reso
+      local dbg_reso = (val >= 0) and reported_reso or -reported_reso
+      -- if do_log_event and debug_level >= 2 then print("ANALOG: " .. sensor_axis .. " " .. val .. "/" .. half_reso) end
+      if debug_level >= 2 then print("ANALOG: " .. sensor_axis .. " " .. val .. "/" .. dbg_reso) end
+      prev_dir_v[axis_keycode] = val
+      if gamepad.analog then gamepad.analog(sensor_axis, val, reported_reso) end
+    end
+
+    -- - gamepad.axis() + gamepad.axis() / gamepad.button()
+    if sign ~= prev_dir[axis_keycode] then
+      prev_dir[axis_keycode] = sign
+
+      if do_log_event and debug_level >= 1 then print("AXIS: " .. sensor_axis .. " " .. sign) end
+      gamepad.trigger_axis(sensor_axis, sign)
+
+      if is_button then
+        gamepad.trigger_button(button_name, btn_val)
+      end
+
+      if is_dpad and axis then
+        -- REVIEW: should call again `gamepad.register_direction_state` in that case, right?
+        -- for edge case when `gamepad.trigger_dpad` is called by script to simulate user input
+        gamepad.trigger_dpad(axis, sign)
       end
     end
   end
 
-  -- TODO: handle relative axes
 
   if event_code_type == "EV_KEY" then
-    button_name = gamepad.code_2_button(gamepad_conf, code)
-    if button_name then
+  button_name = gamepad.code_2_button(gamepad_conf, code)
+  if button_name then
 
       local btn_state = false
       if val > 0 then
