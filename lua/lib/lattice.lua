@@ -118,11 +118,11 @@ function Lattice:pulse()
           flagged = true
         end
       end
-      if flagged then
-         self:order_sprockets()
-      end
-      self.transport = self.transport + 1
     end
+    if flagged then
+      self:order_sprockets()
+    end
+    self.transport = self.transport + 1
   end
 end
 
