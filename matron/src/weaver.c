@@ -2464,36 +2464,29 @@ void w_handle_softcut_done_callback(int idx, int type) {
 }
 
 void w_handle_softcut_process(int ch, float start, size_t size) {
-    // don't really love using this as a magic word,
-    // but I also don't love passing it around.
-    const char* name = "BufDiskWorker_shm";
     if (fd == -1) {
-        luaL_error(lvm, "error accessing softcut buffer");
+        fprintf(stderr, "error accessing softcut shared memory");
         return;
     }
     float *BufDiskWorker_shm = (float *)mmap(NULL, size * sizeof(float), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (BufDiskWorker_shm == MAP_FAILED) {
-        luaL_error(lvm, "error mapping softcut buffer");
-        shm_unlink(name);
+        fprintf(stderr, "error mapping softcut shared memory");
         return;
     }
-    bool problem = false;
     for (size_t i = 0; i < size; ++i) {
         lua_getglobal(lvm, "_norns");
         lua_getfield(lvm, -1, "softcut_process");
+        lua_remove(lvm, -2);
         lua_pushinteger(lvm, i);
         lua_pushnumber(lvm, BufDiskWorker_shm[i]);
         l_report(lvm, l_docall(lvm, 2, 1));
         if (!lua_isnumber(lvm, -1)) {
-          problem = true;
+          fprintf(stderr, "softcut_process did not return number for input %d, %f", (int)i, BufDiskWorker_shm[i]);
           BufDiskWorker_shm[i] = 0;
         } else {
           BufDiskWorker_shm[i] = (float)lua_tonumber(lvm, -1);
         }
         lua_pop(lvm, 1);
-    }
-    if (problem) {
-        luaL_error(lvm, "softcut_process did not return number");
     }
     o_cut_buffer_return(ch, start, size);
 }
