@@ -190,6 +190,8 @@ _menu.set_page = function(page)
   _menu.redraw = m[page].redraw
   _menu.keyboardcode = m[page].keycode
   _menu.keyboardchar = m[page].keychar
+  _menu.gamepadaxis = m[page].axis
+  _menu.gamepadbutton = m[page].button
   m[page].init()
   _menu.redraw()
 end
@@ -270,6 +272,13 @@ function _menu.keychar(c)
 end
 
 function _menu.axis(_sensor_axis,_value)
+
+  -- if a sub-menu defines its own handler, it takes precedence...
+  if _menu.gamepadaxis then
+    _menu.gamepadaxis(_sensor_axis,_value)
+    return
+  end
+
   if gamepad.down() then
     _menu.penc(2,1)
   elseif gamepad.up() then
@@ -282,20 +291,29 @@ function _menu.axis(_sensor_axis,_value)
 end
 
 function _menu.button(b,value)
+
+  if value == 1 and (b == "L1" or b == "R1") then
+    local delta = b == "R1" and 1 or -1
+    local c = util.clamp(_menu.panel+delta,1,4)
+    if c ~= _menu.panel then
+      _menu.shownav = true
+      _menu.panel = c
+      _menu.set_page(_menu.panels[_menu.panel])
+      nav_vanish:start()
+    end
+  end
+
+  -- if a sub-menu defines its own handler, it takes precedence...
+  if _menu.gamepadbutton then
+    _menu.gamepadbutton(b,value)
+    return
+  end
+
   if value==1 or value==0 then
     if b == "B" then
       _menu.key(2,value)
     elseif b == "A" then
       _menu.key(3,value)
-    elseif value == 1 and (b == "L1" or b == "R1") then
-      local delta = b == "R1" and 1 or -1
-      local c = util.clamp(_menu.panel+delta,1,4)
-      if c ~= _menu.panel then
-        _menu.shownav = true
-        _menu.panel = c
-        _menu.set_page(_menu.panels[_menu.panel])
-        nav_vanish:start()
-      end
     end
   end
 end
