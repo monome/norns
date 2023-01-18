@@ -1,3 +1,22 @@
+# 221214
+
+# norns 2.7.3
+
+- NEW preview for tape select #1607 @ryleelyman
+- NEW function to check norns version on script load #1613 @ryleelyman
+- NEW keyboard menu key update #1611 @schollz
+- NEW lattice v2 #1616 @ryleelyman
+- FIX param accum mapping, accept wider range of inputs #1606 @zjb-s
+- FIX tempo update bug with link #1617 @dndrks
+- FIX menu key management #1619 #1620 @p3r7
+- FIX lfo lib use lattice v2 #1626 @dndrks
+- FIX wifi pw entry #1627 @dndrks
+
+# image
+
+- fix logrotate
+
+
 # 220802
 
 # norns 2.7.2

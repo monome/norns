@@ -47,6 +47,7 @@
   <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/gamepad.html">gamepad</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/keyboard.html">keyboard</a></li>
@@ -76,6 +77,7 @@
   <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
   <li><strong>Lattice</strong></li>
+  <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
@@ -94,12 +96,12 @@
 <div id="content">
 
 <h1>Module <code>Lattice</code></h1>
-<p>module for creating a lattice of patterns based on a single fast "superclock"</p>
+<p>module for creating a lattice of sprockets based on a single fast "superclock"</p>
 <p></p>
     <h3>Info:</h3>
     <ul>
-        <li><strong>Release</strong>: v1.2.1</li>
-        <li><strong>Author</strong>: tyleretters & ezra & zack</li>
+        <li><strong>Release</strong>: v2.0</li>
+        <li><strong>Author</strong>: tyleretters & ezra & zack & rylee</li>
     </ul>
 
 
@@ -134,8 +136,8 @@
 	<td class="summary">destroy the lattice</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#set_meter">set_meter (meter)</a></td>
-	<td class="summary">set the meter of the lattice</td>
+	<td class="name" nowrap><a href="#set_meter">set_meter (_)</a></td>
+	<td class="summary">set_meter is deprecated</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#auto_pulse">auto_pulse (s)</a></td>
@@ -143,43 +145,56 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pulse">pulse ()</a></td>
-	<td class="summary">advance all patterns in this lattice a single by pulse, call this manually if lattice.auto = false</td>
+	<td class="summary">advance all sprockets in this lattice a single by pulse, call this manually if lattice.auto = false</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#new_pattern">new_pattern ([args])</a></td>
-	<td class="summary">factory method to add a new pattern to this lattice</td>
+	<td class="name" nowrap><a href="#new_sprocket">new_sprocket ([args])</a></td>
+	<td class="summary">factory method to add a new sprocket to this lattice</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:new">Pattern:new (args)</a></td>
-	<td class="summary">"private" method to instantiate a new pattern, only called by Lattice:new_pattern()</td>
+	<td class="name" nowrap><a href="#new_pattern">new_pattern (args)</a></td>
+	<td class="summary">new_pattern is deprecated</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:start">Pattern:start ()</a></td>
-	<td class="summary">start the pattern</td>
+	<td class="name" nowrap><a href="#order_sprockets">order_sprockets ()</a></td>
+	<td class="summary">"private" method to keep numerical order of the sprocket ids
+ for use when pulsing</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:stop">Pattern:stop ()</a></td>
-	<td class="summary">stop the pattern</td>
+	<td class="name" nowrap><a href="#Sprocket:new">Sprocket:new (args)</a></td>
+	<td class="summary">"private" method to instantiate a new sprocket, only called by Lattice:new_sprocket()</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:toggle">Pattern:toggle ()</a></td>
-	<td class="summary">toggle the pattern</td>
+	<td class="name" nowrap><a href="#Sprocket:start">Sprocket:start ()</a></td>
+	<td class="summary">start the sprocket</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:destroy">Pattern:destroy ()</a></td>
-	<td class="summary">flag the pattern to be destroyed</td>
+	<td class="name" nowrap><a href="#Sprocket:stop">Sprocket:stop ()</a></td>
+	<td class="summary">stop the sprocket</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:set_division">Pattern:set_division (n)</a></td>
-	<td class="summary">set the division of the pattern</td>
+	<td class="name" nowrap><a href="#Sprocket:toggle">Sprocket:toggle ()</a></td>
+	<td class="summary">toggle the sprocket</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:set_action">Pattern:set_action (the)</a></td>
-	<td class="summary">set the action for this pattern</td>
+	<td class="name" nowrap><a href="#Sprocket:destroy">Sprocket:destroy ()</a></td>
+	<td class="summary">flag the sprocket to be destroyed</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Pattern:set_swing">Pattern:set_swing (the)</a></td>
-	<td class="summary">set the swing of the pattern</td>
+	<td class="name" nowrap><a href="#Sprocket:set_division">Sprocket:set_division (n)</a></td>
+	<td class="summary">set the division of the sprocket</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Sprocket:set_action">Sprocket:set_action (the)</a></td>
+	<td class="summary">set the action for this sprocket</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Sprocket:set_swing">Sprocket:set_swing (the)</a></td>
+	<td class="summary">set the swing of the sprocket</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Sprocket:set_delay">Sprocket:set_delay (of)</a></td>
+	<td class="summary">set the delay for this sprocket</td>
 	</tr>
 </table>
 
@@ -204,8 +219,7 @@
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          optional named attributes are:
  - "auto" (boolean) turn off "auto" pulses from the norns clock, defaults to true
- - "meter" (number) of quarter notes per measure, defaults to 4
- - "ppqn" (number) the number of pulses per quarter note of this superclock, defaults to 96
+ - "ppqn" (number) the number of pulses per quarter cycle of this superclock, defaults to 96
          (<em>optional</em>)
         </li>
     </ul>
@@ -307,17 +321,16 @@
 </dd>
     <dt>
     <a name = "set_meter"></a>
-    <strong>set_meter (meter)</strong>
+    <strong>set_meter (_)</strong>
     </dt>
     <dd>
-    set the meter of the lattice
+    set_meter is deprecated
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">meter</span>
-            <span class="types"><span class="type">number</span></span>
-         the meter the lattice counts
+        <li><span class="parameter">_</span>
+
         </li>
     </ul>
 
@@ -352,7 +365,7 @@
     <strong>pulse ()</strong>
     </dt>
     <dd>
-    advance all patterns in this lattice a single by pulse, call this manually if lattice.auto = false
+    advance all sprockets in this lattice a single by pulse, call this manually if lattice.auto = false
 
 
 
@@ -362,11 +375,11 @@
 
 </dd>
     <dt>
-    <a name = "new_pattern"></a>
-    <strong>new_pattern ([args])</strong>
+    <a name = "new_sprocket"></a>
+    <strong>new_sprocket ([args])</strong>
     </dt>
     <dd>
-    factory method to add a new pattern to this lattice
+    factory method to add a new sprocket to this lattice
 
 
     <h3>Parameters:</h3>
@@ -375,10 +388,11 @@
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          optional named attributes are:
  - "action" (function) called on each step of this division (lattice.transport is passed as the argument), defaults to a no-op
- - "division" (number) the division of the pattern, defaults to 1/4
- - "enabled" (boolean) is this pattern enabled, defaults to true
+ - "division" (number) the division of the sprocket, defaults to 1/4
+ - "enabled" (boolean) is this sprocket enabled, defaults to true
  - "swing" (number) is the percentage of swing (0 - 100%), defaults to 50
  - "delay" (number) specifies amount of delay, as fraction of division (0.0 - 1.0), defaults to 0
+ - "order" (number) specifies the place in line this lattice occupies from 1 to 5, lower first, defaults to 3
          (<em>optional</em>)
         </li>
     </ul>
@@ -387,7 +401,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        a new pattern
+        a new sprocket
     </ol>
 
 
@@ -395,11 +409,46 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:new"></a>
-    <strong>Pattern:new (args)</strong>
+    <a name = "new_pattern"></a>
+    <strong>new_pattern (args)</strong>
     </dt>
     <dd>
-    "private" method to instantiate a new pattern, only called by Lattice:new_pattern()
+    new_pattern is deprecated
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">args</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "order_sprockets"></a>
+    <strong>order_sprockets ()</strong>
+    </dt>
+    <dd>
+    "private" method to keep numerical order of the sprocket ids
+ for use when pulsing
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Sprocket:new"></a>
+    <strong>Sprocket:new (args)</strong>
+    </dt>
+    <dd>
+    "private" method to instantiate a new sprocket, only called by Lattice:new_sprocket()
 
 
     <h3>Parameters:</h3>
@@ -413,7 +462,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        a new pattern
+        a new sprocket
     </ol>
 
 
@@ -421,11 +470,11 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:start"></a>
-    <strong>Pattern:start ()</strong>
+    <a name = "Sprocket:start"></a>
+    <strong>Sprocket:start ()</strong>
     </dt>
     <dd>
-    start the pattern
+    start the sprocket
 
 
 
@@ -435,11 +484,11 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:stop"></a>
-    <strong>Pattern:stop ()</strong>
+    <a name = "Sprocket:stop"></a>
+    <strong>Sprocket:stop ()</strong>
     </dt>
     <dd>
-    stop the pattern
+    stop the sprocket
 
 
 
@@ -449,11 +498,11 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:toggle"></a>
-    <strong>Pattern:toggle ()</strong>
+    <a name = "Sprocket:toggle"></a>
+    <strong>Sprocket:toggle ()</strong>
     </dt>
     <dd>
-    toggle the pattern
+    toggle the sprocket
 
 
 
@@ -463,11 +512,11 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:destroy"></a>
-    <strong>Pattern:destroy ()</strong>
+    <a name = "Sprocket:destroy"></a>
+    <strong>Sprocket:destroy ()</strong>
     </dt>
     <dd>
-    flag the pattern to be destroyed
+    flag the sprocket to be destroyed
 
 
 
@@ -477,18 +526,18 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:set_division"></a>
-    <strong>Pattern:set_division (n)</strong>
+    <a name = "Sprocket:set_division"></a>
+    <strong>Sprocket:set_division (n)</strong>
     </dt>
     <dd>
-    set the division of the pattern
+    set the division of the sprocket
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
             <span class="types"><span class="type">number</span></span>
-         the division of the pattern
+         the division of the sprocket
         </li>
     </ul>
 
@@ -498,11 +547,11 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:set_action"></a>
-    <strong>Pattern:set_action (the)</strong>
+    <a name = "Sprocket:set_action"></a>
+    <strong>Sprocket:set_action (the)</strong>
     </dt>
     <dd>
-    set the action for this pattern
+    set the action for this sprocket
 
 
     <h3>Parameters:</h3>
@@ -519,11 +568,11 @@
 
 </dd>
     <dt>
-    <a name = "Pattern:set_swing"></a>
-    <strong>Pattern:set_swing (the)</strong>
+    <a name = "Sprocket:set_swing"></a>
+    <strong>Sprocket:set_swing (the)</strong>
     </dt>
     <dd>
-    set the swing of the pattern
+    set the swing of the sprocket
 
 
     <h3>Parameters:</h3>
@@ -539,6 +588,27 @@
 
 
 </dd>
+    <dt>
+    <a name = "Sprocket:set_delay"></a>
+    <strong>Sprocket:set_delay (of)</strong>
+    </dt>
+    <dd>
+    set the delay for this sprocket
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">of</span>
+            <span class="types"><span class="type">fraction</span></span>
+         the time between beats to delay (0-1)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
 </dl>
 
 
@@ -546,7 +616,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2022-02-01 08:10:05 </i>
+<i style="float:right;">Last updated 2022-12-15 09:11:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

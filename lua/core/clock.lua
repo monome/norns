@@ -12,6 +12,8 @@ local function new_id()
   return id
 end
 
+local send_midi_clock = {}
+
 --- create and start a coroutine using the norns clock scheduler.
 -- @tparam function f coroutine body function
 -- @param[opt] ... any extra arguments will be passed to the body function
@@ -200,7 +202,7 @@ end
 
 
 function clock.add_params()
-  params:add_group("CLOCK", 9)
+  params:add_group("CLOCK", 27)
 
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
     norns.state.clock.source)
@@ -234,6 +236,7 @@ function clock.add_params()
       if source == "internal" then clock.internal.start()
       elseif source == "link" then print("link reset not supported") end
     end)
+  params:add_separator("link_separator", "link")
   params:add_number("link_quantum", "link quantum", 1, 32, norns.state.clock.link_quantum)
   params:set_action("link_quantum",
     function(x)
@@ -248,15 +251,31 @@ function clock.add_params()
       norns.state.clock.link_start_stop_sync = x
     end)
   params:set_save("link_start_stop_sync", false)
-  local clock_table = {"off"}
+  params:add_separator("midi_clock_out", "midi clock out")
   for i = 1,16 do
-    local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-    clock_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+    local short_name = string.len(midi.vports[i].name) <= 20 and midi.vports[i].name or util.acronym(midi.vports[i].name)
+    params:add_binary("clock_midi_out_"..i, i..". "..short_name, "toggle", norns.state.clock.midi_out[i])
+    params:set_action("clock_midi_out_"..i,
+      function(x)
+        if x == 1 then
+          table.insert(send_midi_clock,i)
+        else
+          if tab.contains(send_midi_clock,i) then
+            table.remove(send_midi_clock,tab.key(send_midi_clock, i))
+          end
+        end
+        norns.state.clock.midi_out[i] = x
+      end
+    )
+    if short_name ~= "none" and midi.vports[i].connected then
+      params:show("clock_midi_out_"..i)
+    else
+      params:hide("clock_midi_out_"..i)
+    end
+    params:set_save("clock_midi_out_"..i, false)
   end
-  params:add_option("clock_midi_out", "midi out",
-      clock_table, norns.state.clock.midi_out)
-  params:set_action("clock_midi_out", function(x) norns.state.clock.midi_out = x end)
-  params:set_save("clock_midi_out", false)
+  _menu.rebuild_params()
+  params:add_separator("crow_clock_out", "crow clock out")
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
@@ -301,11 +320,9 @@ function clock.add_params()
   clock.run(function()
     while true do
       clock.sync(1/24)
-      local midi_out = params:get("clock_midi_out")-1
-      if midi_out > 0 then
-        if midi.vports[midi_out].name ~= "none" then
-          midi.vports[midi_out]:clock()
-        end
+      for i = 1,#send_midi_clock do
+        local port = send_midi_clock[i]
+        midi.vports[port]:clock()
       end
     end
   end)

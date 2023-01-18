@@ -63,6 +63,7 @@ Script.clear = function()
   arc.cleanup()
   midi.cleanup()
   hid.cleanup()
+  osc.cleanup()
 
   -- stop all timers
   metro.free_all()

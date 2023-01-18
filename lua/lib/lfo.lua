@@ -1,7 +1,7 @@
 -- LFOs for general-purpose scripting
 -- @module lib.lfo
 -- inspired by contributions from @markwheeler (changes), @justmat (hnds), and @sixolet (toolkit)
--- added by @dndrks + @sixolet
+-- added by @dndrks + @sixolet, with improvements by @Dewb
 
 local lattice = require 'lattice'
 
@@ -13,9 +13,6 @@ local lfo_rates_as_strings = {"1/16","1/8","1/4","5/16","1/3","3/8","1/2","3/4",
 
 local params_per_entry = 14
 
-local rand_values;
-local scaled_min, scaled_max, mid, centroid_mid;
-
 function LFO.init()
   if norns.lfo == nil then
     norns.lfo = {lattice = lattice:new()}
@@ -23,13 +20,13 @@ function LFO.init()
 end
 
 --- construct an LFO
--- @tparam[opt] string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
--- @tparam[opt] number min The minimum bound for this LFO (default: 0)
--- @tparam[opt] number max The maximum bound for this LFO (default: 1)
--- @tparam[opt] number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
--- @tparam[opt] string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
--- @tparam[opt] number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
--- @tparam[opt] function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
+-- @param string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
+-- @param number min The minimum bound for this LFO (default: 0)
+-- @param number max The maximum bound for this LFO (default: 1)
+-- @param number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
+-- @param string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
+-- @param number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
+-- @param function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
 function LFO.new(shape, min, max, depth, mode, period, action)  
   local i = {}
   setmetatable(i, LFO)
@@ -58,18 +55,22 @@ function LFO.new(shape, min, max, depth, mode, period, action)
   }
   i.action = action == nil and (function(scaled, raw) end) or action
   i.percentage = math.abs(i.min-i.max) * i.depth
+  i.scaled_min = i.min
+  i.scaled_max = i.max
+  i.mid = 0
+  i.rand_value = 0
   return i
 end
 
 --- construct an LFO via table arguments
 -- eg. my_lfo:add{shape = 'sine', min = 200, max = 12000}
--- @tparam[opt] string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
--- @tparam[opt] number min The minimum bound for this LFO (default: 0)
--- @tparam[opt] number max The maximum bound for this LFO (default: 1)
--- @tparam[opt] number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
--- @tparam[opt] string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
--- @tparam[opt] number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
--- @tparam[opt] function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
+-- @tparam string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
+-- @tparam number min The minimum bound for this LFO (default: 0)
+-- @tparam number max The maximum bound for this LFO (default: 1)
+-- @tparam number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
+-- @tparam string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
+-- @tparam number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
+-- @tparam function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
 function LFO:add(args)
   local shape = args.shape == nil and 'sine' or args.shape
   local min = args.min == nil and 0 or args.min
@@ -154,19 +155,19 @@ end
 
 local function scale_lfo(target)
   if target.baseline == 'min' then
-    scaled_min = target.min
-    scaled_max = target.min + target.percentage
-    mid = util.linlin(target.min,target.max,scaled_min,scaled_max,(target.min+target.max)/2)
+    target.scaled_min = target.min
+    target.scaled_max = target.min + target.percentage
+    target.mid = util.linlin(target.min,target.max,target.scaled_min,target.scaled_max,(target.min+target.max)/2)
   elseif target.baseline == 'center' then
-    mid = (target.min+target.max)/2
+    target.mid = (target.min+target.max)/2
     local centroid_mid = math.abs(target.min-target.max) * (target.depth/2)
-    scaled_min = util.clamp(mid - centroid_mid,target.min,target.max)
-    scaled_max = util.clamp(mid + centroid_mid,target.min,target.max)
+    target.scaled_min = util.clamp(target.mid - centroid_mid,target.min,target.max)
+    target.scaled_max = util.clamp(target.mid + centroid_mid,target.min,target.max)
   elseif target.baseline == 'max' then
-    mid = (target.min+target.max)/2
-    scaled_min = target.max * (1-(target.depth))
-    scaled_max = target.max
-    mid = math.abs(util.linlin(target.min,target.max,scaled_min,scaled_max,mid))
+    target.mid = (target.min+target.max)/2
+    target.scaled_min = target.max * (1-(target.depth))
+    target.scaled_max = target.max
+    target.mid = math.abs(util.linlin(target.min,target.max,target.scaled_min,target.scaled_max,target.mid))
   end
 end
 
@@ -189,9 +190,25 @@ end
 
 local function change_ppqn(target, ppqn)
   target.ppqn = ppqn
-  if target.pattern then
-    target.pattern:set_division(1/(4*ppqn))
+  if target.sprocket then
+    target.sprocket:set_division(1/(4*ppqn))
   end
+end
+
+local function change_period(target, new_period)
+  local new_phase_counter = target.phase_counter + (1/target.ppqn)
+  local new_phase
+  local adjusted_phase_counter
+  if target.mode == "clocked" then
+    new_phase = new_phase_counter / target.period
+    adjusted_phase_counter = (new_phase * new_period) - 1/target.ppqn
+  else
+    new_phase = new_phase_counter * clock.get_beat_sec() / target.period
+    adjusted_phase_counter = (new_phase * new_period / clock.get_beat_sec()) - 1/target.ppqn
+  end
+
+  target.period = new_period
+  target.phase_counter = adjusted_phase_counter
 end
 
 local function process_lfo(id)
@@ -231,29 +248,29 @@ local function process_lfo(id)
     if _lfo.depth > 0 then
 
       if _lfo.baseline == 'center' then
-        value = util.linlin(0,1,scaled_min,scaled_max,current_val)
+        value = util.linlin(0,1,_lfo.scaled_min,_lfo.scaled_max,current_val)
       elseif _lfo.baseline == 'max' then
-        value = util.linlin(0,1,scaled_max,scaled_min,current_val)
+        value = util.linlin(0,1,_lfo.scaled_max,_lfo.scaled_min,current_val)
       end
 
       if _lfo.shape == "sine" or  _lfo.shape == "saw" then
         value = util.clamp(value,min,max)
         _lfo.scaled = value
       elseif _lfo.shape == "square" then
-        local square_value = value >= mid and max or min
-        square_value = util.linlin(min,max,scaled_min,scaled_max,square_value)
-        square_value = util.clamp(square_value,scaled_min,scaled_max)
+        local square_value = value >= _lfo.mid and max or min
+        square_value = util.linlin(min,max,_lfo.scaled_min,_lfo.scaled_max,square_value)
+        square_value = util.clamp(square_value,_lfo.scaled_min,_lfo.scaled_max)
         _lfo.scaled = square_value
-        _lfo.raw = util.linlin(scaled_min,scaled_max,0,1,square_value)
+        _lfo.raw = util.linlin(_lfo.scaled_min,_lfo.scaled_max,0,1,square_value)
       elseif _lfo.shape == "random" then
-        local prev_value = rand_values
-        rand_values = value >= mid and max or min
+        local prev_value = _lfo.rand_value
+        _lfo.rand_value = value >= _lfo.mid and max or min
         local rand_value;
-        if prev_value ~= rand_values then
-          rand_value = util.linlin(min,max,scaled_min,scaled_max,math.random(math.floor(min*100),math.floor(max*100))/100)
+        if prev_value ~= _lfo.rand_value then
+          rand_value = util.linlin(min,max,_lfo.scaled_min,_lfo.scaled_max,math.random(math.floor(min*100),math.floor(max*100))/100)
           rand_value = util.clamp(rand_value,min,max)
           _lfo.scaled = rand_value
-          _lfo.raw = util.linlin(scaled_min,scaled_max,0,1,rand_value)
+          _lfo.raw = util.linlin(_lfo.scaled_min,_lfo.scaled_max,0,1,rand_value)
         end
       end
 
@@ -270,9 +287,9 @@ end
 
 --- start LFO
 function LFO:start()
-  if self.pattern == nil then
+  if self.sprocket == nil then
     self:reset_phase()
-    self.pattern = norns.lfo.lattice:new_pattern{
+    self.sprocket = norns.lfo.lattice:new_sprocket{
       action=function() process_lfo(self) end,
       division=1/(4*self.ppqn),
       enabled=true,
@@ -286,11 +303,11 @@ end
 
 --- stop LFO
 function LFO:stop()
-  if self.pattern ~= nil then
-    self.pattern:destroy()
-    self.pattern = nil
+  if self.sprocket ~= nil then
+    self.sprocket:destroy()
+    self.sprocket = nil
     self.enabled = 0
-    if next(norns.lfo.lattice.patterns) == nil then
+    if next(norns.lfo.lattice.sprockets) == nil then
       norns.lfo.lattice:stop()
     end
   end
@@ -308,8 +325,10 @@ function LFO:set(var, arg)
     change_depth(self, arg)
   elseif var == 'baseline' then
     change_baseline(self, arg)
-  elseif var == 'ppqn' then -- has its own fn, maintains state, so handled separately.
-    change_ppqn(self,arg)
+  elseif var == 'ppqn' then
+    change_ppqn(self, arg)
+  elseif var == 'period' then
+    change_period(self, arg)
   elseif arg == nil then
     error('scripted LFO argument required')
   elseif not self[var] then
@@ -334,17 +353,25 @@ end
 --- reset the LFO's phase
 function LFO:reset_phase()
   if self.mode == "free" then
-    local baseline = 1/(clock.get_beat_sec() / (1/self.period))
+    local baseline = clock.get_beat_sec()/self.period
     if self.reset_target == "floor" then
-      self.phase_counter = (baseline/4) + (baseline/2)
-    else
-      self.phase_counter = (baseline/4)
+      self.phase_counter = 0.75/baseline
+    elseif self.reset_target == "ceiling" then
+      self.phase_counter = 0.25/baseline
+    elseif self.reset_target == "mid: falling" then
+      self.phase_counter = 0.5/baseline
+    elseif self.reset_target == "mid: rising" then
+      self.phase_counter = baseline
     end
   else
     if self.reset_target == "floor" then
       self.phase_counter = 0.75 * (self.period)
-    else
+    elseif self.reset_target == "ceiling" then
       self.phase_counter = 0.25 * (self.period)
+    elseif self.reset_target == "mid: falling" then
+      self.phase_counter = 0.5 * (self.period)
+    elseif self.reset_target == "mid: rising" then
+      self.phase_counter = self.period
     end
   end
 end
@@ -460,7 +487,7 @@ function LFO:add_params(id,sep,group)
       params:add_trigger("lfo_reset_"..id, "reset lfo")
       params:set_action("lfo_reset_"..id, function(x) self:reset_phase() end)
 
-      params:add_option("lfo_reset_target_"..id, "reset lfo to", {"floor","ceiling"}, 1)
+      params:add_option("lfo_reset_target_"..id, "reset lfo to", {"floor","ceiling","mid: rising","mid: falling"}, 1)
       params:set_action("lfo_reset_target_"..id, function(x)
         self:set('reset_target', params:lookup_param("lfo_reset_target_"..id).options[x])
       end)
