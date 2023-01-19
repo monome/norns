@@ -10,8 +10,8 @@ return {
     ABS_Y = 3
   },
   analog_axis_resolution = {
-    ABS_X = 256,
-    ABS_Y = 256
+    ABS_X = 255,
+    ABS_Y = 255
   },
   axis_invert = {
     ABS_X = false,
