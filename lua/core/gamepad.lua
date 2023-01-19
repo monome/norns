@@ -460,12 +460,14 @@ end
 
 --- Returns button name associated w/ (non-axis) key code
 function gamepad.code_2_button(gamepad_conf, code)
+  if gamepad_conf.button == nil then return end
   local code_2_button = tab.invert(gamepad_conf.button)
   return code_2_button[code]
 end
 
 --- Returns button name associated w/ analog axis key code
 function gamepad.analog_axis_keycode_2_button(gamepad_conf, axis_keycode)
+  if gamepad_conf.analog_button == nil then return end
   local code_2_button = tab.invert(gamepad_conf.analog_button)
   return code_2_button[axis_keycode]
 end

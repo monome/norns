@@ -31,6 +31,7 @@ return {
     X = 290,
     Y = 291
   },
+  analog_button = {},
   dpad_is_analog = true,
   hid_name = "USB,2-axis 8-button gamepad  "
 }
