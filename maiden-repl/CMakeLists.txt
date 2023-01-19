@@ -15,22 +15,22 @@ add_executable(maiden-repl ${SRC})
 
 if(UNIX)
     if(APPLE)
-        find_library(pthread libpthread.dylib REQUIRED)
         find_library(readline libreadline.dylib
             NO_DEFAULT_PATH
             HINTS
-                /usr/local/opt/readline/lib
+                /opt/homebrew/opt/readline/lib
             REQUIRED)
-        find_library(nanomsg libnanomsg.dylib REQUIRED)
-        find_library(ncurses libcurses.dylib REQUIRED)
-        find_library(panel libpanel.dylib REQUIRED)
+        find_library(nanomsg libnanomsg.dylib
+        NO_DEFAULT_PATH
+            HINTS
+        /opt/homebrew/opt/nanomsg/lib
+            REQUIRED)
         target_link_libraries(maiden-repl
-            ${pthread}
             ${readline}
-            ${ncurses}
-            ${panel}
+            ncurses
+            panel
             ${nanomsg})
-        include_directories(/usr/local/include /usr/local/opt/readline/include)
+        include_directories(/usr/local/include /opt/homebrew/opt/nanomsg/include /opt/homebrew/opt/readline/include)
     else()
         set(CURSES_NEED_NCURSES TRUE)
         set(CURSES_NEED_WIDE TRUE) # Required for unicode
