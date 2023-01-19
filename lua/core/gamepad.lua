@@ -63,13 +63,6 @@ local prev_dir_v = {
 
 
 -- ------------------------------------------------------------------------
--- core
-
-local function round(v)
-  return math.floor(v + 0.5)
-end
-
--- ------------------------------------------------------------------------
 -- script lifecycle
 
 -- clear callbacks
@@ -291,12 +284,6 @@ local function normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
     val = val - origin
   end
 
-  if val < 0 then
-    half_reso = round(half_reso)
-  else
-    half_reso = math.floor(half_reso)
-  end
-
   if val <= half_reso * 2/3 and val >= - half_reso * 2/3 then
     sign = 0
   else
@@ -401,7 +388,7 @@ function gamepad.process(guid, typ, code, val, do_log_event)
       local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
       local half_reso = reso / 2
       local reported_reso = is_button and reso or half_reso
-      local dbg_reso = (val >= 0) and math.floor(reported_reso) or -round(reported_reso)
+      local dbg_reso = (val >= 0) and reported_reso or -reported_reso
       if debug_level >= 2 then print("ANALOG: " .. sensor_axis .. " " .. val .. "/" .. dbg_reso) end
       prev_dir_v[axis_keycode] = val
       if _menu.mode then
