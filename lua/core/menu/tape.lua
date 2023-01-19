@@ -187,7 +187,7 @@ end
 
 m.enc = norns.none
 
-m.axis = function (_sensor_axis,_value)
+m.gamepad_axis = function (_sensor_axis,_value)
   if gamepad.down() then
     m.mode = TAPE_MODE_REC
     _menu.redraw()

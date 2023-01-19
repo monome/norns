@@ -190,8 +190,10 @@ _menu.set_page = function(page)
   _menu.redraw = m[page].redraw
   _menu.keyboardcode = m[page].keycode
   _menu.keyboardchar = m[page].keychar
-  _menu.gamepadaxis = m[page].axis
-  _menu.gamepadbutton = m[page].button
+  _menu.custom_gamepad_axis = m[page].gamepad_axis
+  _menu.custom_gamepad_dpad = m[page].gamepad_dpad
+  _menu.custom_gamepad_button = m[page].gamepad_button
+  _menu.custom_gamepad_analog = m[page].gamepad_analog
   m[page].init()
   _menu.redraw()
 end
@@ -271,11 +273,11 @@ function _menu.keychar(c)
   if _menu.keyboardchar then _menu.keyboardchar(c) end
 end
 
-function _menu.axis(_sensor_axis,_value)
+function _menu.gamepad_axis(_sensor_axis,_value)
 
   -- if a sub-menu defines its own handler, it takes precedence...
-  if _menu.gamepadaxis then
-    _menu.gamepadaxis(_sensor_axis,_value)
+  if _menu.custom_gamepad_axis then
+    _menu.custom_gamepad_axis(_sensor_axis,_value)
     return
   end
 
@@ -290,7 +292,7 @@ function _menu.axis(_sensor_axis,_value)
   end
 end
 
-function _menu.button(b,value)
+function _menu.gamepad_button(b,value)
 
   if value == 1 and (b == "L1" or b == "R1") then
     local delta = b == "R1" and 1 or -1
@@ -304,8 +306,8 @@ function _menu.button(b,value)
   end
 
   -- if a sub-menu defines its own handler, it takes precedence...
-  if _menu.gamepadbutton then
-    _menu.gamepadbutton(b,value)
+  if _menu.custom_gamepad_button then
+    _menu.custom_gamepad_button(b,value)
     return
   end
 

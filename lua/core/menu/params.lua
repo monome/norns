@@ -391,7 +391,7 @@ m.enc = function(n,d)
   end
 end
 
-m.axis = function (_sensor_axis,_value)
+m.gamepad_axis = function (_sensor_axis,_value)
 
   if gamepad.down() then
     _menu.penc(2,1)
