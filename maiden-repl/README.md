@@ -31,7 +31,7 @@ building
 `maiden-repl` is known to build on:
 * monome norns, norns shield os images
 * linux (debian buster)
-* macOS (10.14 Mojave)
+* macOS (13.1 Ventura)
 
 when building directly on a norns device `maiden-repl` should be built by
 default as part of the `waf` based build system for the full norns software
