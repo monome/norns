@@ -216,21 +216,24 @@ end
 function gamepad.trigger_button(button_name, val)
 
   -- menu button
-  if _menu.mode then _menu.button(button_name, val)
+  if _menu.mode then
+    if _menu.button then _menu.button(button_name, val) end
     -- script button
   elseif gamepad.button then gamepad.button(button_name, val) end
 end
 
 function gamepad.trigger_axis(sensor_axis, sign)
   -- menu axis
-  if _menu.mode and _menu.axis then _menu.axis(sensor_axis, sign)
+  if _menu.mode then
+    if _menu.axis then _menu.axis(sensor_axis, sign) end
     -- script axis
   elseif gamepad.axis then gamepad.axis(sensor_axis, sign) end
 end
 
 function gamepad.trigger_dpad(axis, sign)
   -- menu dpad
-  if _menu.mode and _menu.dpad then _menu.dpad(axis, sign)
+  if _menu.mode then
+    if _menu.dpad then _menu.dpad(axis, sign) end
     -- script dpad
   elseif gamepad.dpad then gamepad.dpad(axis, sign) end
 end
@@ -401,7 +404,9 @@ function gamepad.process(guid, typ, code, val, do_log_event)
       local dbg_reso = (val >= 0) and math.floor(reported_reso) or -round(reported_reso)
       if debug_level >= 2 then print("ANALOG: " .. sensor_axis .. " " .. val .. "/" .. dbg_reso) end
       prev_dir_v[axis_keycode] = val
-      if gamepad.analog then gamepad.analog(sensor_axis, val, round(reported_reso)) end
+      if _menu.mode then
+        if _menu.analog then _menu.analog(sensor_axis, val, round(reported_reso)) end
+      elseif gamepad.analog then gamepad.analog(sensor_axis, val, round(reported_reso)) end
     end
 
     -- - gamepad.axis() + gamepad.axis() / gamepad.button()
