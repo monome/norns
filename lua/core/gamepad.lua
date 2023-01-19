@@ -405,8 +405,8 @@ function gamepad.process(guid, typ, code, val, do_log_event)
       if debug_level >= 2 then print("ANALOG: " .. sensor_axis .. " " .. val .. "/" .. dbg_reso) end
       prev_dir_v[axis_keycode] = val
       if _menu.mode then
-        if _menu.gamepad_analog then _menu.gamepad_analog(sensor_axis, val, round(reported_reso)) end
-      elseif gamepad.analog then gamepad.analog(sensor_axis, val, round(reported_reso)) end
+        if _menu.gamepad_analog then _menu.gamepad_analog(sensor_axis, val, reported_reso) end
+      elseif gamepad.analog then gamepad.analog(sensor_axis, val, reported_reso) end
     end
 
     -- - gamepad.axis() + gamepad.axis() / gamepad.button()
