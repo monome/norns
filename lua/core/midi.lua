@@ -191,6 +191,9 @@ function Midi.cleanup()
   for _, dev in pairs(Midi.devices) do
     dev.event = nil
   end
+
+  Midi.add = function(dev) end
+  Midi.remove = function(dev) end
 end
 
 -- utility
