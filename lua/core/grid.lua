@@ -144,6 +144,12 @@ function Grid.cleanup()
     dev.key = nil
     dev.tilt = nil
   end
+
+  Grid.add = function(dev)
+    print("grid added:", dev.id, dev.name, dev.serial)
+  end
+
+  Grid.remove = function(dev) end
 end
 
 -- update devices.

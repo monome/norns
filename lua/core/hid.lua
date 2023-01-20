@@ -87,7 +87,6 @@ function Hid.add(dev)
   if dev.is_ascii_keyboard then print("this appears to be an ASCII keyboard!") end
   if dev.is_mouse then print("this appears to be a mouse!") end
   if dev.is_gamepad then print("this appears to be a gamepad!") end
-
 end
 
 --- static callback when any hid device is removed;
@@ -95,7 +94,6 @@ end
 -- @static
 -- @param dev : a Hid table
 function Hid.remove(dev) end
-
 
 --- create device, returns object with handler and send
 -- @static
@@ -115,6 +113,15 @@ function Hid.cleanup()
   for _, dev in pairs(Hid.devices) do
     dev.event = nil
   end
+
+  Hid.add = function(dev)
+    print("HID device was added:", dev.id, dev.name)
+    if dev.is_ascii_keyboard then print("this appears to be an ASCII keyboard!") end
+    if dev.is_mouse then print("this appears to be a mouse!") end
+    if dev.is_gamepad then print("this appears to be a gamepad!") end
+  end
+
+  Hid.remove = function(dev) end
 end
 
 function Hid.update_devices()
