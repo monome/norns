@@ -274,7 +274,6 @@ function clock.add_params()
     end
     params:set_save("clock_midi_out_"..i, false)
   end
-  _menu.rebuild_params()
   params:add_separator("crow_clock_out", "crow clock out")
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
