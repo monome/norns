@@ -253,7 +253,7 @@ static inline ssize_t dev_midi_consume_buffer(midi_input_state_t *state, ssize_t
             clock_midi_handle_message(byte);
         }
 
-        if (is_status_byte(byte)) {
+        if (is_status_byte(byte) && (byte != 0xf7)) {
             midi_input_msg_start(state, byte);
         } else {
             midi_input_msg_acc(state, byte);
