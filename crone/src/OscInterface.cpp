@@ -801,17 +801,16 @@ void OscInterface::addServerMethods() {
 
     addServerMethod("/softcut/buffer/process", "iff", [](lo_arg **argv, int argc) {
         if (argc < 2) return;
-        int ch = argv[0]->i;
-        softCutClient->processBuffer(ch, argv[1]->f, argv[2]->f, 
-                                     [=](float start, size_t size) {
-                                          lo_send(matronAddress, "/softcut/buffer/process", "ifi", ch, start, size);
+        softCutClient->processBuffer(argv[0]->i, argv[1]->f, argv[2]->f, 
+                                     [=](size_t size) {
+                                          lo_send(matronAddress, "/softcut/buffer/do_process", "i", size);
                                      });
     });
 
-    addServerMethod("/softcut/buffer/return", "ifi", [](lo_arg **argv, int argc) {
+    addServerMethod("/softcut/buffer/return", "iff", [](lo_arg **argv, int argc) {
         if (argc < 3) return;
         int ch = argv[0]->i;
-        softCutClient->pokeBuffer(ch, argv[1]->f, (size_t)argv[2]->i,
+        softCutClient->pokeBuffer(ch, argv[1]->f, argv[2]->f,
                                   [=](int jobType){
                                       lo_send(matronAddress, "/softcut/buffer/done_callback", "ii", ch, jobType);
                                   });

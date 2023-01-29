@@ -89,6 +89,7 @@ _norns.softcut_phase = function(id, value) end
 
 _norns.softcut_render = function(ch, start, sec_per_sample, samples) end
 _norns.softcut_process = function(sample_index, current_value) return 0 end
+_norns.softcut_do_process = function() end
 _norns.softcut_done = function(ch, job_type) end
 _norns.softcut_position = function(i,pos) end
 

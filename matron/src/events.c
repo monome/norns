@@ -315,7 +315,7 @@ static void handle_event(union event_data *ev) {
         w_handle_softcut_position(ev->softcut_position.idx, ev->softcut_position.pos);
         break;
     case EVENT_SOFTCUT_PROCESS:
-        w_handle_softcut_process(ev->softcut_process.ch, ev->softcut_process.start, ev->softcut_process.size);
+        w_handle_softcut_process(ev->softcut_process.size);
         break;
     case EVENT_CUSTOM:
         w_handle_custom_weave(&(ev->custom));

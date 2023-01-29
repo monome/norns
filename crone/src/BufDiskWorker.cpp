@@ -44,9 +44,6 @@ static inline void clamp(size_t &x, const size_t a) {
     if (x > a) { x = a; }
 }
 
-float BufDiskWorker::framesToSec(size_t frames) {
-    return (float)frames / (float)BufDiskWorker::sampleRate;
-}
 
 int BufDiskWorker::registerBuffer(float *data, size_t frames) {
     int n = numBufs++;
@@ -670,7 +667,7 @@ void BufDiskWorker::process(BufDesc &buf, float start, float dur, ProcessCallbac
         BufDiskWorker_shm[i] = buf.data[frStart];
         frStart++;
     }
-    processCallback(start, frDur);
+    processCallback(frDur);
 }
 
 void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback) {

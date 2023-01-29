@@ -329,8 +329,6 @@ struct event_softcut_render {
 
 struct event_softcut_process {
     struct event_common common;
-    int ch;
-    float start;
     size_t size;
 };
 

@@ -235,6 +235,8 @@ static int _cut_buffer_write_mono(lua_State *l);
 static int _cut_buffer_write_stereo(lua_State *l);
 static int _cut_buffer_render(lua_State *l);
 static int _cut_buffer_process(lua_State *l);
+static int _cut_buffer_do_process(lua_State *l);
+static int _cut_buffer_return(lua_State  *l);
 static int _cut_query_position(lua_State *l);
 static int _cut_reset(lua_State *l);
 static int _set_cut_param(lua_State *l);
@@ -420,6 +422,7 @@ void w_init(void) {
     lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
     lua_register_norns("cut_buffer_render", &_cut_buffer_render);
     lua_register_norns("cut_buffer_process", &_cut_buffer_process);
+    lua_register_norns("cut_buffer_return", &_cut_buffer_return);
     lua_register_norns("cut_query_position", &_cut_query_position);
     lua_register_norns("cut_reset", &_cut_reset);
     lua_register_norns("cut_param", &_set_cut_param);
@@ -2463,32 +2466,24 @@ void w_handle_softcut_done_callback(int idx, int type) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-void w_handle_softcut_process(int ch, float start, size_t size) {
+void w_handle_softcut_process(size_t size) {
     if (fd == -1) {
         fprintf(stderr, "error accessing softcut shared memory");
         return;
     }
-    float *BufDiskWorker_shm = (float *)mmap(NULL, size * sizeof(float), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void *BufDiskWorker_shm = mmap(NULL, size * sizeof(float), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (BufDiskWorker_shm == MAP_FAILED) {
         fprintf(stderr, "error mapping softcut shared memory");
         return;
     }
-    for (size_t i = 0; i < size; ++i) {
-        lua_getglobal(lvm, "_norns");
-        lua_getfield(lvm, -1, "softcut_process");
-        lua_remove(lvm, -2);
-        lua_pushinteger(lvm, i);
-        lua_pushnumber(lvm, BufDiskWorker_shm[i]);
-        l_report(lvm, l_docall(lvm, 2, 1));
-        if (!lua_isnumber(lvm, -1)) {
-          fprintf(stderr, "softcut_process did not return number for input %d, %f", (int)i, BufDiskWorker_shm[i]);
-          BufDiskWorker_shm[i] = 0;
-        } else {
-          BufDiskWorker_shm[i] = (float)lua_tonumber(lvm, -1);
-        }
-        lua_pop(lvm, 1);
-    }
-    o_cut_buffer_return(ch, start, size);
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "softcut_do_process");
+    lua_remove(lvm, -2);
+    lua_pushlightuserdata(lvm, BufDiskWorker_shm);
+    lua_pushinteger(lvm, size);
+    lua_pushinteger(lvm, 0);
+    lua_pushcclosure(lvm, &_cut_buffer_do_process, 3);
+    lua_replace(lvm, -2);
 }
 
 void w_handle_softcut_position(int idx, float pos) {
@@ -2854,6 +2849,43 @@ int _cut_buffer_process(lua_State *l) {
     float start = (float)luaL_checknumber(l, 2);
     float dur = (float)luaL_checknumber(l, 3);
     o_cut_buffer_process(ch, start, dur);
+    return 0;
+}
+
+int _cut_buffer_return(lua_State *l) {
+    lua_check_num_args(3);
+    int ch = (int)luaL_checkinteger(l,1) -1;
+    float start = (float)luaL_checknumber(l, 2);
+    float dur = (float)luaL_checknumber(l, 3);
+    o_cut_buffer_return(ch, start, dur);
+    return 0;
+}
+
+int _cut_buffer_do_process(lua_State *l) {
+    float *shm_buffer = (float *)lua_topointer(l, lua_upvalueindex(1));
+    size_t size = (size_t)lua_tointeger(l, lua_upvalueindex(2));
+    size_t index = (size_t)lua_tointeger(l, lua_upvalueindex(3));
+    if (index > size) {
+        lua_pushboolean(l, 1);
+        return 0;
+    }
+    lua_getglobal(l, "_norns");
+    lua_getfield(l, -1, "softcut_process");
+    lua_remove(l, -2);
+    lua_pushinteger(l, index);
+    lua_pushnumber(l, shm_buffer[index]);
+    l_report(l, l_docall(l, 2, 1));
+    if (!lua_isnumber(l, -1)) {
+        fprintf(stderr, "softcut_process did not return number for input %d, %f", (int)index, shm_buffer[index]);
+        shm_buffer[index] = 0;
+    } else {
+        shm_buffer[index] = (float)lua_tonumber(l, -1);
+    }
+    lua_pop(l, 1);
+    index++;
+    lua_pushinteger(l, index);
+    lua_replace(l, lua_upvalueindex(3));
+    lua_pushnil(l);
     return 0;
 }
 

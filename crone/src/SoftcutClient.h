@@ -114,10 +114,8 @@ namespace crone {
             BufDiskWorker::requestProcess(chan, start, dur, callback);
         }
         
-        void pokeBuffer(int chan, float start, size_t size, BufDiskWorker::DoneCallback doneCallback) {
+        void pokeBuffer(int chan, float start, float dur, BufDiskWorker::DoneCallback doneCallback) {
             if (chan < 0 || chan > 1) { return; }
-            // FIXME: Surely this is barely better than hardcoding a 48000...
-            float dur = BufDiskWorker::framesToSec(size);
             BufDiskWorker::requestPoke(chan, start, dur, doneCallback);
         }
 

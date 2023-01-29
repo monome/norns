@@ -28,7 +28,7 @@ namespace crone {
     class BufDiskWorker {
     public:
         typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
-        typedef std::function<void(float start, size_t size)> ProcessCallback;
+        typedef std::function<void(size_t size)> ProcessCallback;
         typedef std::function<void(int jobType)> DoneCallback;
 
     private:
@@ -85,8 +85,6 @@ namespace crone {
         static void requestJob(Job &job);
 
     public:
-        // convert frames to seconds
-        static float framesToSec(size_t frames);
         
         // initialize with sample rate
         static void init(int sr);
