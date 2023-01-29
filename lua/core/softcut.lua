@@ -382,23 +382,22 @@ SC.render_buffer = function(ch, start, dur, samples)
 end
 
 --- request that softcut process buffer with user-defined process function
--- NB: calling this before processing is complete cancels previous call!
+-- usage: clock.run(softcut.process_buffer(ch, start, dur, sleep_time, block_size))
 -- @tparam integer ch : buffer channel index (1-based)
 -- @tparam number start : beginning of region in seconds
 -- @tparam number dur : length of region in seconds
 -- @tparam number sleep_time : amount of time to wait between blocks in seconds; default 0.2
 -- @tparam integer block_size : number of samples per block; default 1024
 SC.process_buffer = function(ch, start, dur, sleep_time, block_size)
-  _norns.cut_buffer_process(ch, start or 0, dur or -1)
   if not sleep_time or sleep_time < 0 then sleep_time = 0.2 end
   if not block_size or block_size <= 0 then block_size = 1024 end
-  if _norns.cut_process_clock then
-    clock.cancel(_norns.cut_process_clock)
+  start = start or 0
+  dur = dur or -1
+  return function()
     _norns.softcut_do_process = function() end
-  end
-  _norns.cut_process_clock = clock.run(function()
+     _norns.cut_buffer_process(ch, start, dur)
     while true do
-      for _ = 1, block_size do
+      for i = 1, block_size do
         if _norns.softcut_do_process() then goto done end
       end
       clock.sleep(sleep_time)
@@ -406,9 +405,8 @@ SC.process_buffer = function(ch, start, dur, sleep_time, block_size)
     ::done::
     _norns.cut_buffer_return(ch, start, dur)
     _norns.softcut_do_process = function() end
-  end)
+  end
 end
-
 
 --- set function for render callback. use render_buffer to request contents.
 -- @tparam function func : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)

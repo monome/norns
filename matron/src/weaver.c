@@ -2477,13 +2477,12 @@ void w_handle_softcut_process(size_t size) {
         return;
     }
     lua_getglobal(lvm, "_norns");
-    lua_getfield(lvm, -1, "softcut_do_process");
-    lua_remove(lvm, -2);
     lua_pushlightuserdata(lvm, BufDiskWorker_shm);
     lua_pushinteger(lvm, size);
     lua_pushinteger(lvm, 0);
     lua_pushcclosure(lvm, &_cut_buffer_do_process, 3);
-    lua_replace(lvm, -2);
+    lua_setfield(lvm, -2, "softcut_do_process");
+    lua_pop(lvm, 1);
 }
 
 void w_handle_softcut_position(int idx, float pos) {
@@ -2867,7 +2866,7 @@ int _cut_buffer_do_process(lua_State *l) {
     size_t index = (size_t)lua_tointeger(l, lua_upvalueindex(3));
     if (index > size) {
         lua_pushboolean(l, 1);
-        return 0;
+        return 1;
     }
     lua_getglobal(l, "_norns");
     lua_getfield(l, -1, "softcut_process");
@@ -2886,7 +2885,7 @@ int _cut_buffer_do_process(lua_State *l) {
     lua_pushinteger(l, index);
     lua_replace(l, lua_upvalueindex(3));
     lua_pushnil(l);
-    return 0;
+    return 1;
 }
 
 int _cut_query_position(lua_State *l) {
