@@ -36,6 +36,7 @@ keyboard.keymap.sk = require 'core/keymap/sk'
 keyboard.keymap.si = require 'core/keymap/si'
 keyboard.keymap.es = require 'core/keymap/es'
 keyboard.keymap.se = require 'core/keymap/se'
+keyboard.keymap.uk = require 'core/keymap/uk'
 keyboard.selected_map = "us"
 
 local km = keyboard.keymap[keyboard.selected_map]
