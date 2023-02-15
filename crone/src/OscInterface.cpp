@@ -719,13 +719,13 @@ void OscInterface::addServerMethods() {
         if (argc < 2) {
             return;
         }
-        if (argc > 3) {
+        if (argc > 2) {
             dur = argv[2]->f;
         }
-        if (argc > 4) {
+        if (argc > 3) {
             fadeTime = argv[3]->f;
         }
-        if (argc > 5) {
+        if (argc > 4) {
             preserve = argv[4]->f;
         }
         softCutClient->clearBufferWithFade(argv[0]->i, argv[1]->f, dur, fadeTime, preserve);
