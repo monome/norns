@@ -113,6 +113,9 @@ function keyboard.meta()
 
 function keyboard.process(type,code,value)
   local c = keyboard.codes[code]
+  if c == nil then
+    return
+  end
 
   -- textentry keycode
   if te_kbd_cb.code then
