@@ -92,6 +92,10 @@ typedef enum {
     EVENT_CUSTOM,
     // monome grid tilt
     EVENT_GRID_TILT,
+    // softcut done callback
+    EVENT_SOFTCUT_CALLBACK,
+    // softcut process chunk
+    EVENT_SOFTCUT_PROCESS,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -323,6 +327,17 @@ struct event_softcut_render {
     float* data;
 };
 
+struct event_softcut_process {
+    struct event_common common;
+    size_t size;
+};
+
+struct event_softcut_callback {
+    struct event_common common;
+    int idx;
+    int job_type;
+};
+
 struct event_softcut_position {
     struct event_common common;
     int idx;
@@ -374,6 +389,8 @@ union event_data {
     struct event_crow_event crow_event;
     struct event_system_cmd system_cmd;
     struct event_softcut_render softcut_render;
+    struct event_softcut_process softcut_process;
+    struct event_softcut_callback softcut_callback;
     struct event_softcut_position softcut_position;
     struct event_custom custom;
 };

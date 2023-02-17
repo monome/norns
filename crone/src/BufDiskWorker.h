@@ -28,13 +28,15 @@ namespace crone {
     class BufDiskWorker {
     public:
         typedef std::function<void(float secPerSample, float start, size_t count, float* samples)> RenderCallback;
+        typedef std::function<void(size_t size)> ProcessCallback;
+        typedef std::function<void(int jobType)> DoneCallback;
 
     private:
         enum class JobType {
             Clear, ClearWithFade, Copy,
             ReadMono, ReadStereo,
             WriteMono, WriteStereo,
-            Render,
+            Render, Process, Poke
         };
         struct Job {
             JobType type;
@@ -50,6 +52,8 @@ namespace crone {
             bool reverse;
             int samples;
             RenderCallback renderCallback;
+            ProcessCallback processCallback;
+            DoneCallback doneCallback;
         };
         struct BufDesc {
             float *data;
@@ -65,9 +69,10 @@ namespace crone {
         static bool shouldQuit;
         static constexpr int sleepPeriodMs = 100;
         static int sampleRate;
+        static int fd;
         static constexpr int ioBufFrames = 1024;
 
-        static int secToFrame(float seconds);
+        static size_t secToFrame(float seconds);
         static float raisedCosFade(float unitphase);
         static float mixFade(float x, float y, float a, float b);
 
@@ -80,6 +85,7 @@ namespace crone {
         static void requestJob(Job &job);
 
     public:
+        
         // initialize with sample rate
         static void init(int sr);
 
@@ -115,6 +121,12 @@ namespace crone {
 
         static void requestRender(size_t idx, float start, float dur, int count, RenderCallback callback);
 
+        // process portion of buffer using custom function
+        static void requestProcess(size_t idx, float start, float dur, ProcessCallback processCallback);
+
+        // return contents of buffer produced by custon function
+        static void requestPoke(size_t idx, float start, float dur, DoneCallback doneCallback);
+
     private:
         static void workLoop();
 
@@ -141,6 +153,10 @@ namespace crone {
                                       float start = 0, float dur = -1) noexcept;
 
         static void render(BufDesc &buf, float start, float dur, size_t samples, RenderCallback callback);
+
+        static void process(BufDesc &buf, float start, float dur, ProcessCallback processCallback); 
+  
+        static void poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback);
     };
 
 }

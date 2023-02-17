@@ -108,6 +108,16 @@ namespace crone {
             if (chan < 0 || chan > 1 || count < 1) { return; }
             BufDiskWorker::requestRender(bufIdx[chan], start, dur, count, callback);
         }
+        
+        void processBuffer(int chan, float start, float dur, BufDiskWorker::ProcessCallback callback) {
+            if (chan < 0 || chan > 1) { return; }
+            BufDiskWorker::requestProcess(chan, start, dur, callback);
+        }
+        
+        void pokeBuffer(int chan, float start, float dur, BufDiskWorker::DoneCallback doneCallback) {
+            if (chan < 0 || chan > 1) { return; }
+            BufDiskWorker::requestPoke(chan, start, dur, doneCallback);
+        }
 
         // check if quantized phase has changed for a given voice
         bool checkVoiceQuantPhase(int i) {

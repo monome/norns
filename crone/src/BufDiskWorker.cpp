@@ -5,6 +5,7 @@
 
 //-----------------------
 //-- debugging
+#include <cstddef>
 #include <iostream>
 #include <iomanip>
 #include <chrono>
@@ -13,7 +14,15 @@
 #include <sndfile.hh>
 #include <array>
 #include <cmath>
+#include <thread>
 #include <utility>
+// -------------------
+// for shared memory
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+// -------------------
 
 #include "BufDiskWorker.h"
 
@@ -28,11 +37,13 @@ std::array<BufDiskWorker::BufDesc, BufDiskWorker::maxBufs> BufDiskWorker::bufs;
 int BufDiskWorker::numBufs = 0;
 bool BufDiskWorker::shouldQuit = false;
 int BufDiskWorker::sampleRate = 48000;
+int BufDiskWorker::fd = -1;
 
 // clamp unsigned int to upper bound, inclusive
 static inline void clamp(size_t &x, const size_t a) {
     if (x > a) { x = a; }
 }
+
 
 int BufDiskWorker::registerBuffer(float *data, size_t frames) {
     int n = numBufs++;
@@ -97,6 +108,16 @@ void BufDiskWorker::requestRender(size_t idx, float start, float dur, int sample
     requestJob(job);
 }
 
+void BufDiskWorker::requestProcess(size_t idx, float start, float dur, ProcessCallback processCallback) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Process, {idx, 0}, "", start, start, dur, 0, 0, 0, 1, false, 0, nullptr, processCallback };
+    requestJob(job);
+}
+
+void BufDiskWorker::requestPoke(size_t idx, float start, float dur, DoneCallback doneCallback) {
+    BufDiskWorker::Job job{BufDiskWorker::JobType::Poke, {idx, 0}, "", start, start, dur, 0, 0, 0, 1, false, 0, nullptr, nullptr, doneCallback};
+    requestJob(job);
+}
+
 void BufDiskWorker::workLoop() {
     while (!shouldQuit) {
         Job job;
@@ -135,6 +156,11 @@ void BufDiskWorker::workLoop() {
             case JobType::Render:
                 render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
                 break;
+            case JobType::Process:
+                process(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.processCallback);
+                break;
+            case JobType::Poke:
+                poke(bufs[job.bufIdx[0]], job.startSrc, job.dur, job.doneCallback);
         }
 #if 0 // debug, timing
         auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -142,18 +168,22 @@ void BufDiskWorker::workLoop() {
         std::cout << "job finished; elapsed time = " << ms_dur << " ms" << std::endl;
 #endif
     }
+    shm_unlink("BufDiskWorker_shm");
 }
 
 void BufDiskWorker::init(int sr) {
     sampleRate = sr;
+    // don't really love using this as a magic word,
+    // but I also don't love passing it around.
+    fd = shm_open("BufDiskWorker_shm", O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
     if (worker == nullptr) {
         worker = std::make_unique<std::thread>(std::thread(BufDiskWorker::workLoop));
         worker->detach();
     }
 }
 
-int BufDiskWorker::secToFrame(float seconds) {
-    return static_cast<int>(seconds * (float) sampleRate);
+size_t BufDiskWorker::secToFrame(float seconds) {
+    return static_cast<size_t>(seconds * (float) sampleRate);
 }
 
 float BufDiskWorker::raisedCosFade(float unitphase) {
@@ -603,4 +633,63 @@ void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples,
 
     callback(window, start, samples, sampleBuf);
     delete[] sampleBuf;
+}
+
+void BufDiskWorker::process(BufDesc &buf, float start, float dur, ProcessCallback processCallback) {
+    size_t frStart = secToFrame(start);
+    if (frStart > buf.frames - 1) { return; }
+
+    size_t frDur;
+    if (dur < 0) {
+        frDur = buf.frames - frStart;
+    } else {
+        frDur = secToFrame(dur);
+    }
+    clamp(frDur, buf.frames - frStart);
+
+    if  (fd == -1) { 
+        std::cerr << "BufDiskWorker::process(): opening shared memory failed"  << std::endl;
+        return;
+    }
+    size_t size = sizeof(float) * frDur;
+    if (ftruncate(fd, size) == -1) {
+        // can't process the whole buffer, so let's just give up
+        std::cerr << "BufDiskWorker::process(): resizing shared memory failed"  << std::endl;
+        return;
+    }
+    float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (BufDiskWorker_shm == MAP_FAILED) {
+        // again, just give up
+        std::cerr << "BufDiskWorker::process(): mapping shared memory failed"  << std::endl;
+        return;
+    }
+    for (size_t i = 0; i < frDur; ++i) {
+        BufDiskWorker_shm[i] = buf.data[frStart];
+        frStart++;
+    }
+    processCallback(frDur);
+}
+
+void BufDiskWorker::poke(BufDesc &buf, float start, float dur, DoneCallback doneCallback) {
+    size_t frDur = secToFrame(dur);
+    size_t frStart = secToFrame(start);
+    clamp(frDur, buf.frames - frStart);
+    if (fd == -1) { 
+        // just give up
+        std::cerr << "BufDiskWorker::poke(): opening shared memory failed"  << std::endl;
+        return; 
+    }
+    size_t size = sizeof(float) * frDur;
+    float *BufDiskWorker_shm = (float *)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    if (BufDiskWorker_shm == MAP_FAILED) {
+        // just give up
+        std::cerr << "BufDiskWorker::poke(): mapping shared memory failed"  << std::endl;
+        return;
+    }
+    for (size_t i = 0; i < frDur; ++i) {
+        buf.data[frStart] = BufDiskWorker_shm[i];
+        frStart++;
+    }
+    std::cerr << "calling doneCallback" << std::endl;
+    doneCallback(0);
 }

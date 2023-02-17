@@ -47,6 +47,10 @@
 #include "system_cmd.h"
 #include "weaver.h"
 
+// for shared memory
+#include <sys/mman.h>
+#include <sys/stat.h>
+
 // registered lua functions require the LVM state as a parameter.
 // but often we don't need it.
 // use pragma instead of casting to void as a workaround.
@@ -56,6 +60,9 @@
 //------
 //---- global lua state!
 static lua_State *lvm;
+//-----
+//---- global shared memory file descriptor.
+static int fd = -1;
 
 void w_run_code(const char *code) {
     l_dostring(lvm, code, "w_run_code");
@@ -227,6 +234,9 @@ static int _cut_buffer_read_stereo(lua_State *l);
 static int _cut_buffer_write_mono(lua_State *l);
 static int _cut_buffer_write_stereo(lua_State *l);
 static int _cut_buffer_render(lua_State *l);
+static int _cut_buffer_process(lua_State *l);
+static int _cut_buffer_do_process(lua_State *l);
+static int _cut_buffer_return(lua_State  *l);
 static int _cut_query_position(lua_State *l);
 static int _cut_reset(lua_State *l);
 static int _set_cut_param(lua_State *l);
@@ -339,6 +349,8 @@ static void lua_register_norns_class(const char *class_name, const luaL_Reg *met
 //// extern function definitions
 
 void w_init(void) {
+    fprintf(stderr,  "accessing shared memory");
+    fd  = shm_open("BufDiskWorker_shm", O_RDWR, 0);
     fprintf(stderr, "starting main lua vm\n");
     lvm = luaL_newstate();
     luaL_openlibs(lvm);
@@ -409,6 +421,8 @@ void w_init(void) {
     lua_register_norns("cut_buffer_write_mono", &_cut_buffer_write_mono);
     lua_register_norns("cut_buffer_write_stereo", &_cut_buffer_write_stereo);
     lua_register_norns("cut_buffer_render", &_cut_buffer_render);
+    lua_register_norns("cut_buffer_process", &_cut_buffer_process);
+    lua_register_norns("cut_buffer_return", &_cut_buffer_return);
     lua_register_norns("cut_query_position", &_cut_query_position);
     lua_register_norns("cut_reset", &_cut_reset);
     lua_register_norns("cut_param", &_set_cut_param);
@@ -580,6 +594,9 @@ void w_post_startup(void) {
 }
 
 void w_deinit(void) {
+    fprintf(stderr, "releasing shared memory");
+    // don't love using magic words...
+    shm_unlink("BufDiskWorker_shm");
     fprintf(stderr, "shutting down lua vm\n");
     lua_close(lvm);
 }
@@ -2434,6 +2451,40 @@ void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t 
     l_report(lvm, l_docall(lvm, 4, 0));
 }
 
+void w_handle_softcut_done_callback(int idx, int type) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "softcut_done");
+    lua_remove(lvm, -2);
+    switch (type) {
+        case 0 : 
+            lua_pushinteger(lvm, idx + 1);
+            lua_pushstring(lvm, "process");
+            break;
+        default :
+            luaL_error(lvm, "invalid job type");
+    }
+    l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+void w_handle_softcut_process(size_t size) {
+    if (fd == -1) {
+        fprintf(stderr, "error accessing softcut shared memory");
+        return;
+    }
+    void *BufDiskWorker_shm = mmap(NULL, size * sizeof(float), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (BufDiskWorker_shm == MAP_FAILED) {
+        fprintf(stderr, "error mapping softcut shared memory");
+        return;
+    }
+    lua_getglobal(lvm, "_norns");
+    lua_pushlightuserdata(lvm, BufDiskWorker_shm);
+    lua_pushinteger(lvm, size);
+    lua_pushinteger(lvm, 0);
+    lua_pushcclosure(lvm, &_cut_buffer_do_process, 3);
+    lua_setfield(lvm, -2, "softcut_do_process");
+    lua_pop(lvm, 1);
+}
+
 void w_handle_softcut_position(int idx, float pos) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "softcut_position");
@@ -2789,6 +2840,52 @@ int _cut_buffer_render(lua_State *l) {
     int samples = (int)luaL_checknumber(l, 4);
     o_cut_buffer_render(ch, start, dur, samples);
     return 0;
+}
+
+int _cut_buffer_process(lua_State *l) {
+    lua_check_num_args(3);
+    int ch = (int)luaL_checkinteger(l, 1) - 1;
+    float start = (float)luaL_checknumber(l, 2);
+    float dur = (float)luaL_checknumber(l, 3);
+    o_cut_buffer_process(ch, start, dur);
+    return 0;
+}
+
+int _cut_buffer_return(lua_State *l) {
+    lua_check_num_args(3);
+    int ch = (int)luaL_checkinteger(l,1) -1;
+    float start = (float)luaL_checknumber(l, 2);
+    float dur = (float)luaL_checknumber(l, 3);
+    o_cut_buffer_return(ch, start, dur);
+    return 0;
+}
+
+int _cut_buffer_do_process(lua_State *l) {
+    float *shm_buffer = (float *)lua_topointer(l, lua_upvalueindex(1));
+    size_t size = (size_t)lua_tointeger(l, lua_upvalueindex(2));
+    size_t index = (size_t)lua_tointeger(l, lua_upvalueindex(3));
+    if (index > size) {
+        lua_pushboolean(l, 1);
+        return 1;
+    }
+    lua_getglobal(l, "_norns");
+    lua_getfield(l, -1, "softcut_process");
+    lua_remove(l, -2);
+    lua_pushinteger(l, index);
+    lua_pushnumber(l, shm_buffer[index]);
+    l_report(l, l_docall(l, 2, 1));
+    if (!lua_isnumber(l, -1)) {
+        fprintf(stderr, "softcut_process did not return number for input %d, %f", (int)index, shm_buffer[index]);
+        shm_buffer[index] = 0;
+    } else {
+        shm_buffer[index] = (float)lua_tonumber(l, -1);
+    }
+    lua_pop(l, 1);
+    index++;
+    lua_pushinteger(l, index);
+    lua_replace(l, lua_upvalueindex(3));
+    lua_pushnil(l);
+    return 1;
 }
 
 int _cut_query_position(lua_State *l) {

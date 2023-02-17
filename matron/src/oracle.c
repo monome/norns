@@ -10,12 +10,14 @@
  */
 
 #include <assert.h>
+#include <lo/lo.h>
+#include <lo/lo_serverthread.h>
+#include <lo/lo_types.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <lo/lo.h>
 
 #include "args.h"
 #include "events.h"
@@ -113,6 +115,12 @@ static int handle_poll_softcut_phase(const char *path, const char *types, lo_arg
 static int handle_softcut_render(const char *path, const char *types, lo_arg **argv, int argc,
 				 lo_message data, void *user_data);
 
+static int handle_softcut_process(const char *path, const char *types, lo_arg **argv, int argc,
+         lo_message data, void *user_data);
+
+static int handle_softcut_callback(const char *path, const char *types, lo_arg **argv, int argc,
+         lo_message data, void *user_data);
+
 static int handle_softcut_position(const char *path, const char *types, lo_arg **argv, int argc,
 				 lo_message data, void *user_data);
 
@@ -185,6 +193,8 @@ void o_init(void) {
 
     // softcut buffer content
     lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
+    lo_server_thread_add_method(st, "/softcut/buffer/do_process", "i", handle_softcut_process, NULL);
+    lo_server_thread_add_method(st, "/softcut/buffer/done_callback", "ii", handle_softcut_callback, NULL);
     lo_server_thread_add_method(st, "/poll/softcut/position", "if", handle_softcut_position, NULL);
 
     lo_server_thread_start(st);
@@ -606,6 +616,14 @@ void o_cut_buffer_render(int ch, float start, float dur, int samples) {
     lo_send(crone_addr, "/softcut/buffer/render", "iffi", ch, start, dur, samples);
 }
 
+void o_cut_buffer_process(int ch, float start, float dur) {
+    lo_send(crone_addr, "/softcut/buffer/process", "iff", ch, start, dur);
+}
+
+void o_cut_buffer_return(int ch, float start, float dur) {
+    lo_send(crone_addr, "/softcut/buffer/return", "iff", ch, start, dur);
+}
+
 void o_cut_query_position(int i) {
     lo_send(crone_addr, "/softcut/query/position", "i", i);
 }
@@ -833,6 +851,25 @@ int handle_softcut_render(const char *path, const char *types, lo_arg **argv, in
     memcpy(ev->softcut_render.data, samples, sz);
     event_post(ev);
     return 0;
+}
+
+int handle_softcut_process(const char *path, const char *types, lo_arg **argv, int argc,
+        lo_message data, void *user_data) {
+    assert(argc > 0);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_PROCESS);
+    ev->softcut_process.size = argv[0]->i;
+    event_post(ev);
+    return 0;
+}
+
+int handle_softcut_callback(const char *path, const char *types, lo_arg **argv, int argc,
+        lo_message data, void *user_data) {
+    assert(argc > 1);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_CALLBACK);
+    ev->softcut_callback.idx = argv[0]->i;
+    ev->softcut_callback.job_type = argv[1]->i;
+    event_post(ev);
+    return  0;
 }
 
 int handle_softcut_position(const char *path, const char *types, lo_arg **argv, int argc,
