@@ -69,7 +69,7 @@ extern void o_unlock_descriptors();
 //-----------------------
 //--- IPC functions
 
-// load a named audio erocessing engine
+// load a named audio processing engine
 extern void o_load_engine(const char *name);
 // free engine
 extern void o_free_engine(void);
