@@ -89,9 +89,24 @@ function keyboard.clear()
   keyboard.char = function() end
 end
 
---- key code callback, script should redefine
+--- key code callback, script should redefine.
+-- use this primarily for responding to physical key presses ('LEFTSHIFT',
+-- 'ENTER', 'F7', etc) not printable characters, as it does not adjust to
+-- the setting of the user's keyboard layout, including national variant.
+-- if you want to detect the character, use @{char} or @{code_to_char}.
+--
+-- @tparam string key    a code representing the physical key pressed.
+-- @tparam number value    0 = released, 1 = pressed, 2 = pressed and held.
+--
 function keyboard.code(key, value) end
---- key character callback, script should redefine
+
+--- key character callback, script should redefine.
+-- will only be called for printable characters such as letters, numbers
+-- and punctuation - and space. will take account of the setting of the user's keyboard
+-- layout, including national variant.
+--
+-- @tparam string ch    the printable character intended to be generated.
+--
 function keyboard.char(ch) end
 
 
@@ -134,23 +149,57 @@ function keyboard.process(type,code,value)
 
   keyboard.state[c] = value>0
 
+  local a = keyboard.code_to_char(c)
+
+  if value>0 and a then
+    --print("char: "..a)
+    -- menu keychar
+    if te_kbd_cb.char then te_kbd_cb.char(a)
+      -- script keychar
+    elseif _menu.mode then _menu.keychar(a)
+      -- textentry keycode
+    elseif keyboard.char then keyboard.char(a) end
+  end
+  --print("kb",code,value,keyboard.codes[code])
+end
+
+--- convert a keyboard code to a printable character.
+-- the output will be based on the setting of they user's keyboard
+-- layout and the state of the modifier keys currently pressed
+-- (eg a 'SHIFT' key).
+--
+-- @tparam string code    a code representing a physical key,
+--     as passed into @{code}.
+-- @treturn string    a string, or nil if no conversion is possible.
+--
+function keyboard.code_to_char(code)
+  if code == nil then return end
+
   local c_mods = char_modifier.NONE
   if keyboard.shift() then c_mods = c_mods | char_modifier.SHIFT end
   if keyboard.altgr() then c_mods = c_mods | char_modifier.ALTGR end
 
-  if value>0 then
-    local a = km[c_mods][c]
-    if a then
-      --print("char: "..a)
-      -- menu keychar
-      if te_kbd_cb.char then te_kbd_cb.char(a)
-        -- script keychar
-      elseif _menu.mode then _menu.keychar(a)
-        -- textentry keycode
-      elseif keyboard.char then keyboard.char(a) end
-    end
+  return km[c_mods][code]
+end
+
+-- Invert the key map for chart_to_code.
+
+local ikm = {}
+for modifier in pairs(km) do
+  for code in pairs(km[modifier]) do
+    ikm[km[modifier][code]] = code
   end
-  --print("kb",code,value,keyboard.codes[code])
+end
+
+--- for a given printable keyboard character return a code representing
+-- the physical keyboard key.
+-- @tparam string ch    a single character string, of the sort passed into
+--     @{char}.
+-- @treturn string    a string symbol representing the key, as used by
+--     @{code}, or nil if no conversion is possible.
+--
+function keyboard.char_to_code(ch)
+  return ch and ikm[ch]
 end
 
 keyboard.codes = {}
