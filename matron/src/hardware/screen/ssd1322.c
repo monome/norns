@@ -108,6 +108,7 @@ static void* ssd1322_thread_run(void * p){
     while( spidev_buffer ){
         if( display_dirty ){
             ssd1322_refresh();
+            display_dirty = false;
         }
         clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
     }
@@ -167,15 +168,19 @@ void ssd1322_init() {
         write_command_with_data(SSD1322_SET_DUAL_COMM_LINE_MODE, 0x16, 0x11);
     }
 
-    ssd1322_set_refresh_rate(75);
-
     // Do not turn display on until the first update has been called,
     // otherwise previous GDDRAM (or noise) will display before the
     // "hello" startup screen.
 
+    // Set high thread priority to avoid flashing.
+    static struct sched_param param;
+    param.sched_priority = sched_get_priority_max(SCHED_OTHER);
+
     // Start thread.
     pthread_attr_t attr;
     pthread_attr_init(&attr);
+    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    pthread_attr_setschedparam(&attr, &param);
     pthread_create(&ssd1322_pthread_t, &attr, &ssd1322_thread_run, NULL);
     pthread_attr_destroy(&attr);
 }
