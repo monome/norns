@@ -77,7 +77,7 @@ static cairo_surface_t *surface;
 static cairo_surface_t *image;
 static cairo_t *cr;
 static cairo_t *cr_primary;
-static int surface_may_have_color = 0;
+static bool surface_may_have_color = false;
 
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
@@ -445,7 +445,7 @@ void screen_clear(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    surface_may_have_color = 0;
+    surface_may_have_color = true;
 }
 
 double *screen_text_extents(const char *s) {
@@ -500,16 +500,15 @@ extern void screen_export_screenshot(const char *s) {
 
 void screen_display_png(const char *filename, double x, double y) {
     int img_w, img_h;
-    cairo_status_t status;
 
     image = cairo_image_surface_create_from_png(filename);
-    status = cairo_surface_status(image);
 
-    if ( status ) {
-        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(status));
+    if (cairo_surface_status(image)) {
+        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
+        return;
     }
 
-    surface_may_have_color = 1;
+    surface_may_have_color = true;
 
     img_w = cairo_image_surface_get_width(image);
     img_h = cairo_image_surface_get_height(image);
