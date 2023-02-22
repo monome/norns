@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "args.h"
 #include "events.h"
@@ -690,7 +689,7 @@ void screen_brightness(int v) {
         v=0;
     }
     if (v > 15) {
-   	    v=15;
+        v=15;
     }
 
     // True range of pre-charge voltage, AKA "brightness" is 0-31.
@@ -916,14 +915,15 @@ char *screen_peek(int x, int y, int *w, int *h) {
         return NULL;
     }
     cairo_surface_flush(surface);
-    uint8_t *data = (uint8_t *)cairo_image_surface_get_data(surface);
+    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
         return NULL;
     }
     char *p = buf;
     for (int j = y; j < y + *h; j++) {
         for (int i = x; i < x + *w; i++) {
-            *p++ = data[j * 128 + i] & 0xF;
+            *p = data[j * 128 + i] & 0xF;
+            p++;
         }
     }
     return buf;
@@ -934,16 +934,18 @@ void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
     w = (w <= (128 - x)) ? w : (128 - x);
     h = (h <= (64 - y))  ? h : (64 - y);
 
-    uint8_t *data = (uint8_t *)cairo_image_surface_get_data(surface);
+    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
         return;
     }
     uint8_t *p = buf;
-    uint8_t pixel;
+    uint32_t pixel;
     for (int j = y; j < y + h; j++) {
         for (int i = x; i < x + w; i++) {
-            pixel = *p++;
-            data[j * 128 + i] = pixel | (pixel << 4);
+            pixel = *p;
+            pixel = pixel | (pixel << 4);
+            data[j * 128 + i] = pixel | (pixel << 8) | (pixel << 16) | (pixel << 24);
+            p++;
         }
     }
     cairo_surface_mark_dirty_rectangle(surface, x, y, w, h);
