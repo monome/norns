@@ -173,33 +173,13 @@ end
 -- @treturn string    a string, or nil if no conversion is possible.
 --
 function keyboard.code_to_char(code)
-  if code == nil then return end
+  if code == nil then return nil end
 
   local c_mods = char_modifier.NONE
   if keyboard.shift() then c_mods = c_mods | char_modifier.SHIFT end
   if keyboard.altgr() then c_mods = c_mods | char_modifier.ALTGR end
 
   return km[c_mods][code]
-end
-
--- Invert the key map for chart_to_code.
-
-local ikm = {}
-for modifier in pairs(km) do
-  for code in pairs(km[modifier]) do
-    ikm[km[modifier][code]] = code
-  end
-end
-
---- for a given printable keyboard character return a code representing
--- the physical keyboard key.
--- @tparam string ch    a single character string, of the sort passed into
---     @{char}.
--- @treturn string    a string symbol representing the key, as used by
---     @{code}, or nil if no conversion is possible.
---
-function keyboard.char_to_code(ch)
-  return ch and ikm[ch]
 end
 
 keyboard.codes = {}
