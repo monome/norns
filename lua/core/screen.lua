@@ -141,10 +141,16 @@ Screen.close = function() _norns.screen_close() end
 
 --- stroke current path.
 -- uses currently selected color.
+-- after this call the current path will be cleared, so the 'relative' functions
+-- (`move_rel`, `line_rel` and `curve_rel`) won't work - use their absolute
+-- alternatives instead.
 Screen.stroke = function() _norns.screen_stroke() end
 
 --- fill current path.
 -- uses currently selected color.
+-- after this call the current path will be cleared, so the 'relative' functions
+-- (`move_rel`, `line_rel` and `curve_rel`) won't work - use their absolute
+-- alternatives instead.
 Screen.fill = function() _norns.screen_fill() end
 
 --- draw text (left aligned).
