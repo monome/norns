@@ -86,6 +86,7 @@
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
+  <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
   <li><a href="../modules/lib.UI.html">lib.UI</a></li>
   <li><strong>lib.util</strong></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
@@ -96,16 +97,12 @@
 <div id="content">
 
 <h1>Module <code>lib.util</code></h1>
-<p>Utility module</p>
+<p>db to amp.</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#dbamp">dbamp (db)</a></td>
-	<td class="summary">db to amp.</td>
-	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#time">time ()</a></td>
 	<td class="summary">get system time in fractional seconds</td>
@@ -184,11 +181,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#wrap">wrap (n, min, max)</a></td>
-	<td class="summary">wrap a number to a positive min/max range</td>
+	<td class="summary">wrap a integer to a positive min/max range</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#wrap_max">wrap_max (n, min, max)</a></td>
-	<td class="summary">wrap a number to a positive min/max range but clamp the min</td>
+	<td class="summary">wrap an integer to a positive min/max range but clamp the min</td>
 	</tr>
 </table>
 
@@ -199,33 +196,6 @@
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
-    <dt>
-    <a name = "dbamp"></a>
-    <strong>dbamp (db)</strong>
-    </dt>
-    <dd>
-    db to amp.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">db</span>
-            <span class="types"><span class="type">number</span></span>
-
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">number</span></span>
-        amp
-    </ol>
-
-
-
-
-</dd>
     <dt>
     <a name = "time"></a>
     <strong>time ()</strong>
@@ -256,7 +226,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">directory</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          path to directory
         </li>
     </ul>
@@ -264,7 +234,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
 
     </ol>
 
@@ -283,7 +253,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          filepath
         </li>
     </ul>
@@ -310,7 +280,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          filepath
         </li>
     </ul>
@@ -337,7 +307,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
 
         </li>
     </ul>
@@ -358,7 +328,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">cmd</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          command
         </li>
         <li><span class="parameter">raw</span>
@@ -387,11 +357,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          string to examine
         </li>
         <li><span class="parameter">start</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          string to search for
         </li>
     </ul>
@@ -418,7 +388,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          string to trim
         </li>
         <li><span class="parameter">width</span>
@@ -430,7 +400,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         trimmed string
     </ol>
 
@@ -714,7 +684,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         seconds : seconds in h:m:s
     </ol>
 
@@ -787,7 +757,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
 
         </li>
     </ul>
@@ -795,7 +765,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         acronym
     </ol>
 
@@ -808,21 +778,21 @@
     <strong>wrap (n, min, max)</strong>
     </dt>
     <dd>
-    wrap a number to a positive min/max range
+    wrap a integer to a positive min/max range
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">integer</span></span>
 
         </li>
         <li><span class="parameter">min</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">integer</span></span>
 
         </li>
         <li><span class="parameter">max</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">integer</span></span>
 
         </li>
     </ul>
@@ -830,7 +800,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">number</span></span>
+           <span class="types"><span class="type">integer</span></span>
         cycled value
     </ol>
 
@@ -843,21 +813,21 @@
     <strong>wrap_max (n, min, max)</strong>
     </dt>
     <dd>
-    wrap a number to a positive min/max range but clamp the min
+    wrap an integer to a positive min/max range but clamp the min
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">integer</span></span>
 
         </li>
         <li><span class="parameter">min</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">integer</span></span>
 
         </li>
         <li><span class="parameter">max</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">integer</span></span>
 
         </li>
     </ul>
@@ -865,7 +835,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">number</span></span>
+           <span class="types"><span class="type">integer</span></span>
         cycled value
     </ol>
 
@@ -880,7 +850,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2022-12-15 09:11:43 </i>
+<i style="float:right;">Last updated 2023-03-17 18:42:40 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -48,7 +48,7 @@
   <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
   <li><a href="../modules/encoders.html">encoders</a></li>
   <li><a href="../modules/engine.html">engine</a></li>
-  <li><strong>gamepad</strong></li>
+  <li><a href="../modules/gamepad.html">gamepad</a></li>
   <li><a href="../modules/grid.html">grid</a></li>
   <li><a href="../modules/hid.html">hid</a></li>
   <li><a href="../modules/keyboard.html">keyboard</a></li>
@@ -87,7 +87,7 @@
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
-  <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
+  <li><strong>lib.timeline</strong></li>
   <li><a href="../modules/lib.UI.html">lib.UI</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
@@ -97,45 +97,35 @@
 
 <div id="content">
 
-<h1>Module <code>gamepad</code></h1>
-<p>gamepad</p>
+<h1>Module <code>lib.timeline</code></h1>
+<p>timeline sequencer
+ hotrod some clock & sequins structures for rapid playability</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#up">up ()</a></td>
-	<td class="summary">states shortcuts</td>
+	<td class="name" nowrap><a href="#TL.loop">TL.loop (t)</a></td>
+	<td class="summary">loop
+ standalone</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#is_loggable_event">is_loggable_event (dev_name, event_code_type, code, val)</a></td>
-	<td class="summary">Predicate that returns true only on non-reset values (i.e.</td>
+	<td class="name" nowrap><a href="#TL.score">TL.score (t)</a></td>
+	<td class="summary">score
+ standalone</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#is_analog_origin">is_analog_origin (dev_name, axis, value)</a></td>
-	<td class="summary">Returns true if value for axis is around origin
- i.e.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#code_2_button">code_2_button (dev_name, code)</a></td>
-	<td class="summary">Returns button name associated w/ key code</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#code_2_keycode">code_2_keycode (event_code_type, code)</a></td>
-	<td class="summary">Returns event key name associated w/ key code
- this is not lightweight so should only be used in debug statements</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#axis_code_2_keycode">axis_code_2_keycode (code)</a></td>
-	<td class="summary">Optimized version of `gamepad.code_2_keycode`</td>
+	<td class="name" nowrap><a href="#TL.real">TL.real (t)</a></td>
+	<td class="summary">real
+ standalone</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#state">state</a></td>
-	<td class="summary">button states</td>
+	<td class="name" nowrap><a href="#TL.mms">TL.mms</a></td>
+	<td class="summary">metamethods</td>
 	</tr>
 </table>
 
@@ -147,39 +137,17 @@
 
     <dl class="function">
     <dt>
-    <a name = "up"></a>
-    <strong>up ()</strong>
+    <a name = "TL.loop"></a>
+    <strong>TL.loop (t)</strong>
     </dt>
     <dd>
-    states shortcuts
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "is_loggable_event"></a>
-    <strong>is_loggable_event (dev_name, event_code_type, code, val)</strong>
-    </dt>
-    <dd>
-    Predicate that returns true only on non-reset values (i.e.  on key/joystick presses)
+    loop
+ standalone
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">dev_name</span>
-
-        </li>
-        <li><span class="parameter">event_code_type</span>
-
-        </li>
-        <li><span class="parameter">code</span>
-
-        </li>
-        <li><span class="parameter">val</span>
+        <li><span class="parameter">t</span>
 
         </li>
     </ul>
@@ -190,23 +158,17 @@
 
 </dd>
     <dt>
-    <a name = "is_analog_origin"></a>
-    <strong>is_analog_origin (dev_name, axis, value)</strong>
+    <a name = "TL.score"></a>
+    <strong>TL.score (t)</strong>
     </dt>
     <dd>
-    Returns true if value for axis is around origin
- i.e.  when joystick / d-pad is not actioned
+    score
+ standalone
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">dev_name</span>
-
-        </li>
-        <li><span class="parameter">axis</span>
-
-        </li>
-        <li><span class="parameter">value</span>
+        <li><span class="parameter">t</span>
 
         </li>
     </ul>
@@ -217,63 +179,17 @@
 
 </dd>
     <dt>
-    <a name = "code_2_button"></a>
-    <strong>code_2_button (dev_name, code)</strong>
+    <a name = "TL.real"></a>
+    <strong>TL.real (t)</strong>
     </dt>
     <dd>
-    Returns button name associated w/ key code
+    real
+ standalone
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">dev_name</span>
-
-        </li>
-        <li><span class="parameter">code</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "code_2_keycode"></a>
-    <strong>code_2_keycode (event_code_type, code)</strong>
-    </dt>
-    <dd>
-    Returns event key name associated w/ key code
- this is not lightweight so should only be used in debug statements
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">event_code_type</span>
-
-        </li>
-        <li><span class="parameter">code</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "axis_code_2_keycode"></a>
-    <strong>axis_code_2_keycode (code)</strong>
-    </dt>
-    <dd>
-    Optimized version of `gamepad.code_2_keycode`
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">code</span>
+        <li><span class="parameter">t</span>
 
         </li>
     </ul>
@@ -288,13 +204,52 @@
 
     <dl class="function">
     <dt>
-    <a name = "state"></a>
-    <strong>state</strong>
+    <a name = "TL.mms"></a>
+    <strong>TL.mms</strong>
     </dt>
     <dd>
-    button states
+    metamethods
 
 
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">stop</span>
+
+        </li>
+        <li><span class="parameter">unless</span>
+
+        </li>
+        <li><span class="parameter">times</span>
+
+        </li>
+        <li><span class="parameter">once</span>
+
+        </li>
+        <li><span class="parameter">loop</span>
+
+        </li>
+        <li><span class="parameter">score</span>
+
+        </li>
+        <li><span class="parameter">real</span>
+
+        </li>
+        <li><span class="parameter">play</span>
+
+        </li>
+        <li><span class="parameter">iter</span>
+
+        </li>
+        <li><span class="parameter">hotswap</span>
+
+        </li>
+        <li><span class="parameter">launch</span>
+
+        </li>
+        <li><span class="parameter">queue</span>
+
+        </li>
+    </ul>
 
 
 
