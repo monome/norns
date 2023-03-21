@@ -251,7 +251,7 @@ function clock.add_params()
       norns.state.clock.link_start_stop_sync = x
     end)
   params:set_save("link_start_stop_sync", false)
-  params:add_separator("midi_clock_out", "midi clock out")
+  params:add_separator("midi_clock_out_separator", "midi clock out")
   for i = 1,16 do
     local short_name = string.len(midi.vports[i].name) <= 20 and midi.vports[i].name or util.acronym(midi.vports[i].name)
     params:add_binary("clock_midi_out_"..i, i..". "..short_name, "toggle", norns.state.clock.midi_out[i])
@@ -274,7 +274,7 @@ function clock.add_params()
     end
     params:set_save("clock_midi_out_"..i, false)
   end
-  params:add_separator("crow_clock_out", "crow clock out")
+  params:add_separator("crow_clock_separator", "crow")
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
