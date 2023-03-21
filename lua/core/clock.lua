@@ -12,8 +12,6 @@ local function new_id()
   return id
 end
 
-local send_midi_clock = {}
-
 --- create and start a coroutine using the norns clock scheduler.
 -- @tparam function f coroutine body function
 -- @param[opt] ... any extra arguments will be passed to the body function
@@ -202,6 +200,7 @@ end
 
 
 function clock.add_params()
+  local send_midi_clock = {}
   params:add_group("CLOCK", 27)
 
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
