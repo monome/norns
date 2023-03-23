@@ -23,7 +23,7 @@ m.enc = function(n,delta)
     m.pos = util.clamp(m.pos + delta, 1, #m.list)
     _menu.redraw()
   elseif n==3 and m.list[m.pos]=="BATTERY WARNING" then
-    norns.state.battery_warning = (delta>0)
+    norns.state.battery_warning = (delta>0) and 1 or 0
     screen.update = screen.update_default
     _menu.redraw()
   end
@@ -43,7 +43,7 @@ m.redraw = function()
       screen.text(line)
       if m.list[i+m.pos-3]=="BATTERY WARNING" then
 	screen.move(128,10*i)
-	screen.text_right(norns.state.battery_warning and "true" or "false")
+	screen.text_right(norns.state.battery_warning==1 and "on" or "off")
       end
     end
   end
