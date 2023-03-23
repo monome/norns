@@ -309,6 +309,10 @@ _norns.screen_circle = function(x, y, r)
   _norns.screen_arc(x, y, r, 0, math.pi*2)
 end
 
+--- export png
+-- @param filename: saved to dust/data/(script)/(filename).png
+Screen.export_png = function(filename) _norns.screen_export_png(norns.state.data..filename..'.png') end
+
 --- display png
 -- @param filename
 -- @tparam number x x position
