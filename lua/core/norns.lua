@@ -99,7 +99,7 @@ norns.battery_current = 0
 
 -- battery percent handler
 _norns.battery = function(percent, current)
-  if current < 0 and percent < 5 then
+  if current < 0 and percent < 5 and norns.state.battery_warning then
     screen.update = screen.update_low_battery
   elseif current > 0 and norns.battery_current < 0 then
     screen.update = screen.update_default

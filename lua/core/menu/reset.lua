@@ -4,7 +4,7 @@ local m = {
 
 m.key = function(n,z)
   if n==2 and z==1 then
-    _menu.set_page("SYSTEM")
+    _menu.set_page("SETTINGS")
   elseif n==3 and z==1 then
     m.confirmed = true
     _menu.redraw()
