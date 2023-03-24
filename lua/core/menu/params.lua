@@ -192,9 +192,9 @@ m.key = function(n,z)
           params:set(i)
           m.triggered[i] = 2
         end
-      elseif t == params.tBINARY and m.mode == mEDIT then 
+      elseif t == params.tBINARY and m.mode == mEDIT then
         params:delta(i,1)
-        if params:lookup_param(i).behavior == 'trigger' then 
+        if params:lookup_param(i).behavior == 'trigger' then
           m.triggered[i] = 2
         else m.on[i] = params:get(i) end
       elseif m.mode == mMAP and params:get_allow_pmap(i) then
@@ -225,7 +225,7 @@ m.key = function(n,z)
         if m.mode == mEDIT then
           params:delta(i, 0)
           if params:lookup_param(i).behavior ~= 'trigger' then
-            m.on[i] = params:get(i) 
+            m.on[i] = params:get(i)
           end
         end
       end
@@ -388,6 +388,39 @@ m.enc = function(n,d)
       m.ps_pos = util.clamp(m.ps_pos + d, 0, m.ps_n-1)
     end
     _menu.redraw()
+  end
+end
+
+m.gamepad_axis = function (_sensor_axis,_value)
+
+  if gamepad.down() then
+    _menu.penc(2,1)
+  elseif gamepad.up() then
+    _menu.penc(2,-1)
+  end
+
+  if m.mode == mSELECT then
+    if gamepad.left() then
+      _menu.key(2,1)
+    elseif gamepad.right() then
+      _menu.key(3,1)
+    end
+  elseif m.mode == mEDIT or m.mode == mMAP then
+    local i = page[m.pos+1]
+    local t = params:t(i)
+    if t == params.tGROUP then
+      if gamepad.left() then
+        _menu.key(2,1)
+      elseif gamepad.right() then
+        _menu.key(3,1)
+      end
+    else
+      if gamepad.left() then
+        _menu.penc(3,-1)
+      elseif gamepad.right() then
+        _menu.penc(3,1)
+      end
+    end
   end
 end
 
@@ -629,7 +662,7 @@ m.init = function()
   m.on = {}
   for i,param in ipairs(params.params) do
     if param.t == params.tBINARY then
-        if params:lookup_param(i).behavior == 'trigger' then 
+        if params:lookup_param(i).behavior == 'trigger' then
           m.triggered[i] = 2
         else m.on[i] = params:get(i) end
     end
@@ -644,7 +677,7 @@ m.deinit = function()
 end
 
 _menu.rebuild_params = function()
-  if m.mode == mEDIT or m.mode == mMAP then 
+  if m.mode == mEDIT or m.mode == mMAP then
     if m.group then
       build_sub(m.groupid)
     else
@@ -688,12 +721,12 @@ norns.menu_midi_event = function(data, dev)
         elseif t == params.tNUMBER or t == params.tOPTION then
           s = util.round(s)
           params:set(r,s)
-        elseif t == params.tBINARY then 
+        elseif t == params.tBINARY then
           params:delta(r,s)
-          if _menu.mode then 
+          if _menu.mode then
             for i,param in ipairs(params.params) do
-              if params:lookup_param(i).behavior == params:lookup_param(r).behavior then 
-                if params:lookup_param(i).behavior == 'trigger' then 
+              if params:lookup_param(i).behavior == params:lookup_param(r).behavior then
+                if params:lookup_param(i).behavior == 'trigger' then
                   m.triggered[i] = 2
                 else m.on[i] = params:get(i) end
               end

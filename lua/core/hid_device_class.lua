@@ -59,7 +59,7 @@ HidDeviceClass.is_gamepad = function(device)
   -- (+ other )
   -- hence it's safer to have a whitelist of models
   -- + a wizard script for people to register new ones
-  return (gamepad_models[device.name] ~= nil)
+  return (device.guid ~= nil and gamepad_models[device.guid] ~= nil)
 end
 
 HidDeviceClass.is_tablet = function(device)
