@@ -8,7 +8,7 @@ local m = {
 
 m.key = function(n,z)
   if n==2 and z==1 then
-    _menu.set_page("HOME")
+    _menu.set_page("SYSTEM")
   elseif n==3 and z==1 then
     if m.pages[m.pos]=="PASSWORD" then
       textentry.enter(m.passdone, "", "new password:", m.passcheck)
@@ -87,7 +87,7 @@ m.passdone = function(txt)
       print("!! password has not been changed !!")
     end
   end
-  _menu.set_page("SYSTEM")
+  _menu.set_page("SETTINGS")
 end
 
 
