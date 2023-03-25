@@ -8,6 +8,8 @@ state.data = _path.data
 state.name = ''
 state.shortname = ''
 state.clean_shutdown = false
+state.battery_warning = 1
+
 state.mix = {}
 state.mix.output = 0
 state.mix.input = 0
@@ -111,6 +113,7 @@ state.save_state = function()
   io.write("norns.state.shortname = '" .. state.shortname .. "'\n")
   io.write("norns.state.path = '" .. state.path .. "'\n")
   io.write("norns.state.data = '" .. state.data .. "'\n")
+  io.write("norns.state.battery_warning = " .. state.battery_warning .. "\n")
   io.write("norns.state.mix.output = " .. norns.state.mix.output .. "\n")
   io.write("norns.state.mix.input = " .. norns.state.mix.input .. "\n")
   io.write("norns.state.mix.monitor = " .. norns.state.mix.monitor .. "\n")
