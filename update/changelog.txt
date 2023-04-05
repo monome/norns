@@ -1,3 +1,18 @@
+# 230405
+
+# norns 2.7.4
+
+- NEW png export with scaling and frame #1669 @tehn
+- NEW system settings menu, battery warning #1668 @tehn
+- NEW char/key conversion #1659 @niksilver
+- NEW crow v4 features #1662 @trentgill
+- NEW NRT processing #1634 @ryleelyman
+- NEW allow midi send to all channels #1642 @zjb-s
+- FIX gamepad support #1624 @p3r7
+- FIX lfo lib improvements #1630 @dndrks
+- FIX various minor fixes (much appreciated)
+
+
 # 221214
 
 # norns 2.7.3
