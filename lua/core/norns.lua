@@ -263,10 +263,5 @@ end
 
 -- expand the filesystem after a fresh installation
 norns.expand_filesystem = function()
-  if string.match(util.os_capture("cat /proc/device-tree/model"), "Raspberry Pi Compute Module 3 Rev 1.0") then 
-    print('4gb CM3; will not expand')
-  else
-    local next = norns.is_shield and 'expanding filesystem; unit will restart after' or 'expanding filesystem; unit will shut down after'
-    _norns.system_cmd('sudo raspi-config --expand-rootfs; sudo shutdown -r now', print(next))
-  end
+  os.execute('sudo raspi-config --expand-rootfs')
 end
