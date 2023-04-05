@@ -260,3 +260,8 @@ end
 norns.rerun = function()
   norns.script.load(norns.state.script)
 end
+
+-- expand the filesystem after a fresh installation
+norns.expand_filesystem = function()
+  os.execute('sudo raspi-config --expand-rootfs')
+end
