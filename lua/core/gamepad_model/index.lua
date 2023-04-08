@@ -9,11 +9,11 @@ models['030000005e0400008e02000014010000'] = require 'gamepad_model/xbox_360'
 local user_conf_dir = _path.data .. "gamepads/"
 if util.file_exists(user_conf_dir) then
   local user_confs = util.scandir(user_conf_dir)
-  for _, conf in pairs(user_confs) do
+  for _, conf_file in pairs(user_confs) do
     if conf:sub(-#'.lua') == '.lua' then
-      local conf_sans_ext = conf:gsub("%.lua", "")
-      print("loading user gamepad conf: "..user_conf_dir..conf)
-      local module_path = user_conf_dir .. conf_sans_ext
+      local conf_file_sans_ext = conf_file:gsub("%.lua", "")
+      print("loading user gamepad conf: "..user_conf_dir..conf_file)
+      local module_path = user_conf_dir .. conf_file_sans_ext
       local user_conf = require(module_path)
       models[user_conf.guid] = user_conf
     end
