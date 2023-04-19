@@ -4,7 +4,6 @@
 // Created by ezra on 11/4/18.
 //
 
-#include <iostream>
 #include <utility>
 #include <thread>
 
@@ -797,23 +796,6 @@ void OscInterface::addServerMethods() {
                                          lo_blob bl = lo_blob_new(count * sizeof(float), samples);
                                          lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
                                      });
-    });
-
-    addServerMethod("/softcut/buffer/process", "iff", [](lo_arg **argv, int argc) {
-        if (argc < 2) return;
-        softCutClient->processBuffer(argv[0]->i, argv[1]->f, argv[2]->f, 
-                                     [=](size_t size) {
-                                          lo_send(matronAddress, "/softcut/buffer/do_process", "i", size);
-                                     });
-    });
-
-    addServerMethod("/softcut/buffer/return", "iff", [](lo_arg **argv, int argc) {
-        if (argc < 3) return;
-        int ch = argv[0]->i;
-        softCutClient->pokeBuffer(ch, argv[1]->f, argv[2]->f,
-                                  [=](int jobType){
-                                      lo_send(matronAddress, "/softcut/buffer/done_callback", "ii", ch, jobType);
-                                  });
     });
 
     addServerMethod("/softcut/query/position", "i", [](lo_arg **argv, int argc) {
