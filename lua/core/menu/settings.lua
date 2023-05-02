@@ -10,10 +10,10 @@ m.key = function(n,z)
   if n==2 and z==1 then
     _menu.set_page("SYSTEM")
   elseif n==3 and z==1 then
-    if m.pages[m.pos]=="PASSWORD" then
+    if m.pages[m.pos]=="RESET" then
+      _menu.set_page("RESET")
+    elseif m.pages[m.pos]=="PASSWORD" then
       textentry.enter(m.passdone, "", "new password:", m.passcheck)
-    else
-      _menu.set_page(m.pages[m.pos])
     end
   end
 end
@@ -89,6 +89,5 @@ m.passdone = function(txt)
   end
   _menu.set_page("SETTINGS")
 end
-
 
 return m
