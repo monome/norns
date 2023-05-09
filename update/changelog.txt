@@ -1,3 +1,11 @@
+# 230509
+
+# norns 2.7.5
+
+- FIX screen.export_png reverted, screen.export_screenshot added @tehn
+- FIX battery menu fix @dndrks
+
+
 # 230405
 
 # norns 2.7.4
