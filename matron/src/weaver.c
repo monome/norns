@@ -115,6 +115,7 @@ static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
 static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
+static int _screen_export_screenshot(lua_State *l);
 static int _screen_display_png(lua_State *l);
 static int _screen_peek(lua_State *l);
 static int _screen_poke(lua_State *l);
@@ -463,6 +464,7 @@ void w_init(void) {
     lua_register_norns("screen_close", &_screen_close);
     lua_register_norns("screen_text_extents", &_screen_text_extents);
     lua_register_norns("screen_export_png", &_screen_export_png);
+    lua_register_norns("screen_export_screenshot", &_screen_export_screenshot);
     lua_register_norns("screen_display_png", &_screen_display_png);
     lua_register_norns("screen_peek", &_screen_peek);
     lua_register_norns("screen_poke", &_screen_poke);
@@ -952,6 +954,19 @@ int _screen_export_png(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
     screen_export_png(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: export_screenshot
+ * @function s_export_screenshot
+ * @tparam string filename
+ */
+int _screen_export_screenshot(lua_State *l) {
+    lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    screen_export_screenshot(s);
     lua_settop(l, 0);
     return 0;
 }

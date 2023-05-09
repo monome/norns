@@ -395,6 +395,11 @@ double *screen_text_extents(const char *s) {
 }
 
 extern void screen_export_png(const char *s) {
+		CHECK_CR
+		cairo_surface_write_to_png(surface, s);
+}
+
+extern void screen_export_screenshot(const char *s) {
     CHECK_CR
     static cairo_surface_t *png;
     static cairo_t *temp; // for bg fill
