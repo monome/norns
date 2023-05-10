@@ -85,8 +85,8 @@ SC.loop = function(voice,state) _norns.cut_param("loop_flag",voice,state) end
 
 --- set fade time.
 -- @tparam int voice : voice index
--- @tparam number pos : crossfade time in seconds
-SC.fade_time = function(voice,pos) _norns.cut_param("fade_time",voice,pos) end
+-- @tparam number fade_time : crossfade time in seconds
+SC.fade_time = function(voice,fade_time) _norns.cut_param("fade_time",voice,fade_time) end
 
 --- set record level.
 -- this sets the realtime-modulated record level,
