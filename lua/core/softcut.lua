@@ -120,10 +120,10 @@ SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 
 --- synchronize two voices.
 --- position of "dst" will be immediately set to that of "source"
--- @tparam int src : source voice index
 -- @tparam int dst : destination voice index
+-- @tparam int src : source voice index
 -- @tparam number offset : additional offset in seconds
-SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dst,offset) end
+SC.voice_sync = function(dst, src, offset) _norns.cut_param_iif("voice_sync",dst,src,offset) end
 
 --- set pre_filter cutoff frequency.
 --- @tparam int voice : voice index
