@@ -63,7 +63,6 @@ function fs.pushd(dir)
   fs.redraw()
 end
 
-
 fs.getdir = function()
   local path = fs.folder
   for k,v in pairs(fs.folders) do
