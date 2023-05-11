@@ -194,7 +194,6 @@ fs.enc = function(n,d)
   end
 end
 
-
 fs.redraw = function()
   screen.clear()
   screen.font_face(1)
