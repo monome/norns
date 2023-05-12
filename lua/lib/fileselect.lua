@@ -4,7 +4,7 @@
 
 local fs = {}
 
-function fs.enter(folder, callback)
+function fs.enter(folder, callback, filter_string)
   fs.folders = {}
   fs.list = {}
   fs.display_list = {}
@@ -15,6 +15,7 @@ function fs.enter(folder, callback)
   fs.callback = callback
   fs.done = false
   fs.path = nil
+  fs.filter = filter_string and filter_string or "all"
 
   if fs.folder:sub(-1,-1) ~= "/" then
     fs.folder = fs.folder .. "/"
@@ -62,7 +63,6 @@ function fs.pushd(dir)
   fs.redraw()
 end
 
-
 fs.getdir = function()
   local path = fs.folder
   for k,v in pairs(fs.folders) do
@@ -77,6 +77,7 @@ fs.getlist = function()
   fs.list = util.scandir(dir)
   fs.display_list = {}
   fs.lengths = {}
+  fs.visible = {}
   fs.pos = 0
 
   if fs.depth > 0 then
@@ -88,17 +89,37 @@ fs.getlist = function()
   for k, v in ipairs(fs.list) do
     local line = v
     local max_line_length = 128
+    local display_length = "";
+    local fulldir = dir .. line
+
+    fs.visible[k] = true
 
     if string.sub(line, -1) ~= "/" then
-      local _, samples, rate = audio.file_info(dir .. line)
+      local _, samples, rate = audio.file_info(fulldir)
+      -- if file is audio:
       if samples > 0 and rate > 0 then
-        fs.lengths[k] = util.s_to_hms(math.floor(samples / rate))
-        max_line_length = 97
+        -- if there's no filter or we specify an "audio" or format filter:
+        if fs.filter == "all" or fs.filter == "audio" or fs.filter == fulldir:match("^.+(%..+)$") then
+          display_length = util.s_to_hms(math.floor(samples / rate))
+          max_line_length = 97
+        else -- otherwise, do not display audio file:
+          fs.visible[k] = false
+          display_length = nil
+        end
+      -- if file is NOT audio:
+      elseif fs.filter ~= "all" then
+        if fs.filter == "audio" or fs.filter ~= fulldir:match("^.+(%..+)$") then
+          fs.visible[k] = false
+          display_length = nil
+        end
       end
     end
 
-    line = util.trim_string_to_width(line, max_line_length)
-    fs.display_list[k] = line
+    if fs.visible[k] then
+      line = util.trim_string_to_width(line, max_line_length)
+      table.insert(fs.display_list,line)
+      table.insert(fs.lengths,display_length)
+    end
   end
 end
 
@@ -121,19 +142,20 @@ fs.key = function(n,z)
       fs.redraw()
     end
     if #fs.list > 0 then
-      fs.file = fs.list[fs.pos+1]
+      fs.file = fs.display_list[fs.pos+1]
       if fs.file == "../" then
         fs.folders[fs.depth] = nil
         fs.depth = fs.depth - 1
         fs.getlist()
         fs.redraw()
       elseif string.find(fs.file,'/') then
-        --print("folder")
+        --print("folder selected")
         fs.depth = fs.depth + 1
         fs.folders[fs.depth] = fs.file
         fs.getlist()
         fs.redraw()
       else
+        -- print("file selected")
         local path = fs.folder
         for k,v in pairs(fs.folders) do
           path = path .. v
@@ -149,11 +171,11 @@ end
 
 fs.enc = function(n,d)
   if n==2 then
-    fs.pos = util.clamp(fs.pos + d, 0, fs.len - 1)
+    fs.pos = util.clamp(fs.pos + d, 0, #fs.display_list - 1)
     fs.redraw()
   elseif n==3 and d > 0 then
-    fs.file = fs.list[fs.pos+1]
-    if fs.lengths[fs.pos+1] then
+    fs.file = fs.display_list[fs.pos+1]
+    if fs.lengths[fs.pos+1] ~= "" then
       if fs.previewing ~= fs.pos then
         fs.previewing = fs.pos
         audio.tape_play_stop()
@@ -172,7 +194,6 @@ fs.enc = function(n,d)
   end
 end
 
-
 fs.redraw = function()
   screen.clear()
   screen.font_face(1)
@@ -183,7 +204,7 @@ fs.redraw = function()
     screen.text("(no files)")
   else
     for i=1,6 do
-      if (i > 2 - fs.pos) and (i < fs.len - fs.pos + 3) then
+      if (i > 2 - fs.pos) and (i < #fs.display_list - fs.pos + 3) then
         local list_index = i+fs.pos-2
         screen.move(0,10*i)
         if(i==3) then
