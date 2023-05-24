@@ -257,7 +257,9 @@ function clock.add_params()
     params:set_action("clock_midi_out_"..i,
       function(x)
         if x == 1 then
-          table.insert(send_midi_clock,i)
+          if not tab.contains(send_midi_clock,i) then
+            table.insert(send_midi_clock,i)
+          end
         else
           if tab.contains(send_midi_clock,i) then
             table.remove(send_midi_clock,tab.key(send_midi_clock, i))
@@ -314,7 +316,6 @@ function clock.add_params()
   end)
 
   -- executes midi out (needs a subtick)
-  -- FIXME: lots of if's every tick blah
   clock.run(function()
     while true do
       clock.sync(1/24)
