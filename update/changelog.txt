@@ -1,3 +1,11 @@
+# 230526
+
+# norns 2.7.6
+
+- NEW fileselect filters #1678 @dndrks
+- FIX midi clock #1680 @dndrks
+
+
 # 230509
 
 # norns 2.7.5
