@@ -15,7 +15,7 @@ cp -a norns /home/we/
 sudo rm -rf /home/we/maiden
 cp -a maiden /home/we/
 sudo rm -rf /home/we/bin/maiden-repl
-sudo cp -a /home/norns/build/maiden-repl/maiden-repl /home/we/bin/
+sudo cp -a /home/we/norns/build/maiden-repl/maiden-repl /home/we/bin/
 
 # version/changelog
 cp version.txt /home/we/
