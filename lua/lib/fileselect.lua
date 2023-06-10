@@ -142,7 +142,11 @@ fs.key = function(n,z)
       fs.redraw()
     end
     if #fs.list > 0 then
-      fs.file = fs.display_list[fs.pos+1]
+      if string.sub(fs.display_list[fs.pos+1], -3) == '...' then
+        fs.file = fs.list[fs.pos+1]
+      else
+        fs.file = fs.display_list[fs.pos+1]
+      end
       if fs.file == "../" then
         fs.folders[fs.depth] = nil
         fs.depth = fs.depth - 1
