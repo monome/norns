@@ -2,8 +2,8 @@ local textentry= require 'textentry'
 
 local m = {
   pos = 1,
-  list = {"RESET", "PASSWORD >", "BATTERY WARNING"},
-  pages = {"RESET", "PASSWORD"}
+  list = {"RESET", "PASSWORD >", "DISPLAY >", "BATTERY WARNING"},
+  pages = {"RESET", "PASSWORD", "DISPLAY"}
 }
 
 m.key = function(n,z)
@@ -14,6 +14,8 @@ m.key = function(n,z)
       _menu.set_page("RESET")
     elseif m.pages[m.pos]=="PASSWORD" then
       textentry.enter(m.passdone, "", "new password:", m.passcheck)
+    elseif m.pages[m.pos]=="DISPLAY" then
+      _menu.set_page("DISPLAY")
     end
   end
 end
