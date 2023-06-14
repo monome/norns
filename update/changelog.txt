@@ -1,3 +1,10 @@
+# 230614
+
+# norns 2.7.7
+
+- FIX fileselect bug #1681 @dndrks
+
+
 # 230526
 
 # norns 2.7.6
