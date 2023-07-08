@@ -19,8 +19,26 @@ function LFO.init()
   end
 end
 
+local function scale_lfo(target)
+  if target.baseline == 'min' then
+    target.scaled_min = target.min
+    target.scaled_max = target.min + target.percentage
+    target.mid = util.linlin(target.min,target.max,target.scaled_min,target.scaled_max,(target.min+target.max)/2)
+  elseif target.baseline == 'center' then
+    target.mid = (target.min+target.max)/2
+    local centroid_mid = math.abs(target.min-target.max) * (target.depth/2)
+    target.scaled_min = util.clamp(target.mid - centroid_mid,target.min,target.max)
+    target.scaled_max = util.clamp(target.mid + centroid_mid,target.min,target.max)
+  elseif target.baseline == 'max' then
+    target.mid = (target.min+target.max)/2
+    target.scaled_min = target.max * (1-(target.depth))
+    target.scaled_max = target.max
+    target.mid = math.abs(util.linlin(target.min,target.max,target.scaled_min,target.scaled_max,target.mid))
+  end
+end
+
 --- construct an LFO
--- @param string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
+-- @param string shape The shape for this LFO (options: 'sine', 'tri', 'up', 'down', 'square', 'random'; default: 'sine')
 -- @param number min The minimum bound for this LFO (default: 0)
 -- @param number max The maximum bound for this LFO (default: 1)
 -- @param number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
@@ -59,12 +77,13 @@ function LFO.new(shape, min, max, depth, mode, period, action)
   i.scaled_max = i.max
   i.mid = 0
   i.rand_value = 0
+  scale_lfo(i)
   return i
 end
 
 --- construct an LFO via table arguments
 -- eg. my_lfo:add{shape = 'sine', min = 200, max = 12000}
--- @tparam string shape The shape for this LFO (options: 'sine','saw','square','random'; default: 'sine')
+-- @tparam string shape The shape for this LFO (options: 'sine', 'tri', 'up', 'down', 'square', 'random'; default: 'sine')
 -- @tparam number min The minimum bound for this LFO (default: 0)
 -- @tparam number max The maximum bound for this LFO (default: 1)
 -- @tparam number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
@@ -153,24 +172,6 @@ end
 
 -- SCRIPTING /
 
-local function scale_lfo(target)
-  if target.baseline == 'min' then
-    target.scaled_min = target.min
-    target.scaled_max = target.min + target.percentage
-    target.mid = util.linlin(target.min,target.max,target.scaled_min,target.scaled_max,(target.min+target.max)/2)
-  elseif target.baseline == 'center' then
-    target.mid = (target.min+target.max)/2
-    local centroid_mid = math.abs(target.min-target.max) * (target.depth/2)
-    target.scaled_min = util.clamp(target.mid - centroid_mid,target.min,target.max)
-    target.scaled_max = util.clamp(target.mid + centroid_mid,target.min,target.max)
-  elseif target.baseline == 'max' then
-    target.mid = (target.min+target.max)/2
-    target.scaled_min = target.max * (1-(target.depth))
-    target.scaled_max = target.max
-    target.mid = math.abs(util.linlin(target.min,target.max,target.scaled_min,target.scaled_max,target.mid))
-  end
-end
-
 local function change_bound(target, which, value)
   target[which] = value
   target.percentage = math.abs(target.min-target.max) * target.depth
@@ -228,8 +229,12 @@ local function process_lfo(id)
     local current_val;
     if _lfo.shape == 'sine' then
       current_val = (math.sin(2*math.pi*phase) + 1)/2
-    elseif _lfo.shape == 'saw' then
+    elseif _lfo.shape == 'tri' then
       current_val = phase < 0.5 and phase/0.5 or 1-(phase-0.5)/(0.5)
+    elseif _lfo.shape == 'up' then
+      current_val = phase
+    elseif _lfo.shape == 'down' then
+      current_val = 1-phase
     elseif _lfo.shape == 'square' then
       current_val = phase < 0.5 and 1 or 0
     elseif _lfo.shape == 'random' then
@@ -253,16 +258,16 @@ local function process_lfo(id)
         value = util.linlin(0,1,_lfo.scaled_max,_lfo.scaled_min,current_val)
       end
 
-      if _lfo.shape == "sine" or  _lfo.shape == "saw" then
+      if _lfo.shape == 'sine' or  _lfo.shape == 'tri' or _lfo.shape == 'up' or _lfo.shape == 'down' then
         value = util.clamp(value,min,max)
         _lfo.scaled = value
-      elseif _lfo.shape == "square" then
+      elseif _lfo.shape == 'square' then
         local square_value = value >= _lfo.mid and max or min
         square_value = util.linlin(min,max,_lfo.scaled_min,_lfo.scaled_max,square_value)
         square_value = util.clamp(square_value,_lfo.scaled_min,_lfo.scaled_max)
         _lfo.scaled = square_value
         _lfo.raw = util.linlin(_lfo.scaled_min,_lfo.scaled_max,0,1,square_value)
-      elseif _lfo.shape == "random" then
+      elseif _lfo.shape == 'random' then
         local prev_value = _lfo.rand_value
         _lfo.rand_value = value >= _lfo.mid and max or min
         local rand_value;
@@ -413,7 +418,7 @@ function LFO:add_params(id,sep,group)
         lfo_bang(id)
       end)
 
-      params:add_option("lfo_shape_"..id, "lfo shape", {"sine","saw","square","random"},1)
+      params:add_option("lfo_shape_"..id, "lfo shape", {'sine','tri','square','random','up','down'},1)
       params:set_action("lfo_shape_"..id, function(x) self:set('shape', params:lookup_param("lfo_shape_"..id).options[x]) end)
 
       params:add_number("lfo_depth_"..id,"lfo depth",0,100,0,function(param) return (param:get().."%") end)
