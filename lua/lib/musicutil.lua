@@ -65,6 +65,7 @@ MusicUtil.CHORDS = {
   {name = "Thirteenth", intervals = {0, 4, 7, 10, 14, 17, 21}},
   {name = "Augmented", intervals = {0, 4, 8}},
   {name = "Augmented 7", intervals = {0, 4, 8, 10}},
+  {name = "Augmented Major 7", intervals = {0, 4, 8, 11}},
   {name = "Sus4", intervals = {0, 5, 7}},
   {name = "Seventh sus4", intervals = {0, 5, 7, 10}},
   {name = "Minor Major 7", alt_names = {"MinMaj7"}, intervals = {0, 3, 7, 11}},
@@ -86,63 +87,63 @@ MusicUtil.SCALE_CHORD_DEGREES = {
     name = "Major",
     chords = {
       "I",  "ii",  "iii",  "IV",  "V",  "vi",  "vii\u{B0}",
-      "I7", "ii7", "iii7", "IV7", "V7", "vi7", "vii\u{F8}7"
+      "IM7", "ii7", "iii7", "IVM7", "V7", "vi7", "vii\u{F8}7"
     }
   },
   {
     name = "Natural Minor",
     chords = {
       "i",  "ii\u{B0}",  "III",  "iv",  "v",  "VI",  "VII",
-      "i7", "ii\u{F8}7", "III7", "iv7", "v7", "VI7", "VII7"
+      "i7", "ii\u{F8}7", "IIIM7", "iv7", "v7", "VIM7", "VII7"
     }
   },
   {
     name = "Harmonic Minor",
     chords = {
       "i",  "ii\u{B0}",  "III+",  "iv",  "V",  "VI",  "vii\u{B0}",
-      "i7", "ii\u{F8}7", "III+7", "iv7", "V7", "VI7", "vii\u{B0}7"
+      "i\u{266e}7", "ii\u{F8}7", "III+7", "iv7", "V7", "VIM7", "vii\u{B0}7"
     }
   },
   {
     name = "Melodic Minor",
     chords = {
       "i",  "ii",  "III+",  "IV",  "V",  "vi\u{B0}",  "vii\u{B0}",
-      "i7", "ii7", "III+7", "IV7", "V7", "vi\u{F8}7", "vii\u{F8}7"
+      "i\u{266e}7", "ii7", "III+7", "IV7", "V7", "vi\u{F8}7", "vii\u{F8}7"
     }
   },
   {
     name = "Dorian",
     chords = {
       "i",  "ii",  "III",  "IV",  "v",  "vi\u{B0}",  "VII",
-      "i7", "ii7", "III7", "IV7", "v7", "vi\u{F8}7", "VII7"
+      "i7", "ii7", "IIIM7", "IV7", "v7", "vi\u{F8}7", "VIIM7"
     }
   },
   {
     name = "Phrygian",
     chords = {
       "i",  "II",  "III",  "iv",  "v\u{B0}",  "VI",  "vii",
-      "i7", "II7", "III7", "iv7", "v\u{F8}7", "VI7", "vii7"
+      "i7", "IIM7", "III7", "iv7", "v\u{F8}7", "VIM7", "vii7"
     }
   },
   {
     name = "Lydian",
     chords = {
       "I",  "II",  "iii",  "iv\u{B0}",  "V",  "vi",  "vii",
-      "I7", "II7", "iii7", "iv\u{F8}7", "V7", "vi7", "vii7"
+      "IM7", "II7", "iii7", "iv\u{F8}7", "VM7", "vi7", "vii7"
     }
   },
   {
     name = "Mixolydian",
     chords = {
       "I",  "ii",  "iii\u{B0}",  "IV",  "v",  "vi",  "VII",
-      "I7", "ii7", "iii\u{F8}7", "IV7", "v7", "vi7", "VII7"
+      "I7", "ii7", "iii\u{F8}7", "IVM7", "v7", "vi7", "VIIM7"
     }
   },
   {
     name = "Locrian",
     chords = {
       "i\u{B0}",  "II",  "iii",  "iv",  "V",  "VI",  "vii",
-      "i\u{F8}7", "II7", "iii7", "iv7", "V7", "VI7", "vii7"
+      "i\u{F8}7", "IIM7", "iii7", "iv7", "VM7", "VI7", "vii7"
     }
   },
 }
@@ -354,22 +355,27 @@ function MusicUtil.generate_chord_roman(root_num, scale_type, roman_chord_type)
   -- treat upper and lowercase o-stroke as @
   rct = string.gsub(rct, "\u{D8}", "@")
   rct = string.gsub(rct, "\u{F8}", "@")
+  -- treat natural sign as &
+  rct = string.gsub(rct, "\u{266E}", "&")
 
   local degree_string, augdim_string, added_string, bass_string, inv_string =
-    string.match(rct, "([ivxIVX]+)([+*@]?)([0-9]*)-?([0-9]?)([bcdefg]?)")
+    string.match(rct, "([ivxIVX]+)([+*@&M]?)([0-9]*)-?([0-9]?)([bcdefg]?)")
 
   local d = string.lower(degree_string)
   local is_major = degree_string ~= d
   local is_augmented = augdim_string == "+"
   local is_diminished = augdim_string == "*"
-  local is_half_diminished = augdim_string == "@"
   local is_seventh = added_string == "7"
+
+  local is_half_diminished = augdim_string == "@" and is_seventh
+  local is_major_seventh = augdim_string == "M" and is_seventh
+  local is_minormajor_seventh = augdim_string == "&" and is_seventh
 
   local chord_type = nil
   if is_major then
     if is_augmented then
       if is_seventh then
-        chord_type = "Augmented 7"
+        chord_type = "Augmented Major 7"
       else
         chord_type = "Augmented"
       end
@@ -381,14 +387,18 @@ function MusicUtil.generate_chord_roman(root_num, scale_type, roman_chord_type)
       end
     elseif is_half_diminished then
       chord_type = "Half Diminished 7"
+    elseif is_minormajor_seventh then
+      chord_type = "Minor Major 7"
+    elseif is_major_seventh then
+      chord_type = "Major 7"
+    elseif is_seventh then
+      chord_type = "Dominant 7"
     elseif added_string == "6" then
       if bass_string == "9" then
         chord_type = "Major 69"
       else
         chord_type = "Major 6"
       end
-    elseif is_seventh then
-      chord_type = "Major 7"
     elseif added_string == "9" then
       chord_type = "Major 9"
     elseif added_string == "11" then
@@ -413,14 +423,18 @@ function MusicUtil.generate_chord_roman(root_num, scale_type, roman_chord_type)
       end
     elseif is_half_diminished then
       chord_type = "Half Diminished 7"
+    elseif is_minormajor_seventh then
+      chord_type = "Minor Major 7"
+    elseif is_major_seventh then
+      chord_type = "Major 7" -- this overrides the lowercase roman degree
+    elseif is_seventh then
+      chord_type = "Minor 7"
     elseif added_string == "6" then
       if bass_string == "9" then
         chord_type = "Minor 69"
       else
         chord_type = "Minor 6"
       end
-    elseif is_seventh then
-      chord_type = "Minor 7"
     elseif added_string == "9" then
       chord_type = "Minor 9"
     elseif added_string == "11" then
@@ -471,6 +485,30 @@ function MusicUtil.generate_chord_scale_degree(root_num, scale_type, degree, sev
   local scale_data = lookup_data(MusicUtil.SCALE_CHORD_DEGREES, scale_type)
   return MusicUtil.generate_chord_roman(root_num, scale_type, scale_data.chords[d])
 end
+
+-- Offline test function to confirm that SCALE_CHORD_DEGREES table generates in-scale notes only
+--[[
+local function test_scale_degrees()
+  for i = 1, #MusicUtil.SCALE_CHORD_DEGREES do
+    local scale_type = MusicUtil.SCALE_CHORD_DEGREES[i].name
+    local scale_data = lookup_data(MusicUtil.SCALES, scale_type)
+    for d = 1,7 do
+      for pass = 1,2 do
+        local seventh = pass == 2
+        local chord = MusicUtil.generate_chord_scale_degree(0, scale_type, d, seventh)
+        for n = 1, #chord do
+          local note = chord[n] % 12
+          if tab.contains(scale_data.intervals, note) == false then
+            print("Note " .. note .. " not in scale for " .. scale_type .. " degree " .. d .. (seventh and " [seventh]" or ""))
+            tab.print(chord)
+          end
+        end
+      end
+    end
+  end
+end
+test_scale_degrees()
+--]]
 
 --- List chord types for a given root note and key.
 -- @tparam integer note_num MIDI note number (0-127) for root of chord.
@@ -642,6 +680,5 @@ function MusicUtil.ratios_to_intervals(ratios_array)
   end
   return out_array
 end
-
 
 return MusicUtil
