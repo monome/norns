@@ -333,13 +333,13 @@ end
 
 --- Generate a chord using Roman chord notation for a given root note and scale.
 -- @tparam integer root_num MIDI note number (0-127) defining the key.
--- @tparam string scale_type String defining scale type (eg, "Major", "Dorian".) See class for full list.
+-- @tparam string scale_type String defining scale type (eg, "Major", "Dorian".)
 -- @tparam string roman_chord_type Roman-numeral-style string defining chord type (eg, "V", "iv7" or "III+")
 --    including limited bass notes (e.g. "iv6-9") and lowercase-letter inversion notation (e.g. "IIb" for first inversion)
 -- @treturn {integer...} Array of MIDI note numbers.
--- @see See MusicUtil.CHORDS for the chords that are supported.
--- @see This function *can* return notes that are outside the scale and will not try to resolve ambiguous
---      notation with context. See generate_chord_scale_degree if you want to constrain chords to in-scale pitches.
+-- @see See MusicUtil.SCALES for the supported scale types and MusicUtil.CHORDS for the chords that can be returned.
+-- @see This function *can* return notes that are outside the scale and will not try to resolve ambiguous notation with
+--      context. See chord_type_for_note or generate_chord_scale_degree if you want to constrain chords to in-scale pitches.
 function MusicUtil.generate_chord_roman(root_num, scale_type, roman_chord_type)
 
   if type(root_num) ~= "number" or root_num < 0 or root_num > 127 then return nil end
