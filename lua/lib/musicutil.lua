@@ -77,8 +77,8 @@ MusicUtil.CHORDS = {
   {name = "Minor 13", alt_names = {"Min13"}, intervals = {0, 3, 7, 10, 14, 17, 21}},
   {name = "Diminished", alt_names = {"Dim"}, intervals = {0, 3, 6}},
   {name = "Diminished 7", alt_names = {"Dim7"}, intervals = {0, 3, 6, 9}},
-  {name = "Half Diminished 7", intervals = {0, 3, 6, 10}},
-  {name = "Augmented Major 7", intervals = {0, 4, 8, 11}}
+  {name = "Half Diminished 7", alt_names = {"Min7b5"}, intervals = {0, 3, 6, 10}},
+  {name = "Augmented Major 7", alt_names = {"Maj7#5"}, intervals = {0, 4, 8, 11}}
 }
 -- Data from https://github.com/fredericcormier/WesternMusicElements
 
