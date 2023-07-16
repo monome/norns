@@ -10,6 +10,7 @@ LFO.__index = LFO
 
 local lfo_rates = {1/16,1/8,1/4,5/16,1/3,3/8,1/2,3/4,1,1.5,2,3,4,6,8,16,32,64,128,256,512,1024}
 local lfo_rates_as_strings = {"1/16","1/8","1/4","5/16","1/3","3/8","1/2","3/4","1","1.5","2","3","4","6","8","16","32","64","128","256","512","1024"}
+local lfo_shapes = {'sine','tri','square','random','up','down'}
 
 local params_per_entry = 14
 
@@ -91,14 +92,7 @@ end
 -- @tparam number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
 -- @tparam function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
 function LFO:add(args)
-  local shape = args.shape == nil and 'sine' or args.shape
-  local min = args.min == nil and 0 or args.min
-  local max = args.max == nil and 1 or args.max
-  local depth = args.depth == nil and 1 or args.depth
-  local mode = args.mode == nil and 'clocked' or args.mode
-  local period = args.period == nil and 4 or args.period
-  local action = args.action == nil and (function(scaled, raw) end) or args.action
-  return self.new(shape, min, max, depth, mode, period, action)
+  return self.new(args.shape, args.min, args.max, args.depth, args.mode, args.period, args.action)
 end
 
 -- PARAMETERS UI /
@@ -291,7 +285,7 @@ local function process_lfo(id)
 end
 
 --- start LFO
-function LFO:start()
+function LFO:start(from_parameter)
   if self.sprocket == nil then
     self:reset_phase()
     self.sprocket = norns.lfo.lattice:new_sprocket{
@@ -303,6 +297,9 @@ function LFO:start()
       norns.lfo.lattice:start()
     end
     self.enabled = 1
+    if not from_parameter and self.parameter_id ~= nil then
+      params:set('lfo_'..self.parameter_id,2)
+    end
   end
 end
 
@@ -403,7 +400,7 @@ function LFO:add_params(id,sep,group)
         params:add_separator("lfo_sep_"..sep,sep)
       end
 
-      params:add_option("lfo_"..id,"lfo state",{"off","on"},1)
+      params:add_option("lfo_"..id,"lfo state",{"off","on"},self:get('enabled')+1)
       params:set_action("lfo_"..id,function(x)
         if x == 1 then
           lfo_params_visibility("hide", id)
@@ -412,16 +409,16 @@ function LFO:add_params(id,sep,group)
           self:stop()
         elseif x == 2 then
           lfo_params_visibility("show", id)
-          self:start()
+          self:start(true)
         end
         self:set('enabled',x-1)
         lfo_bang(id)
       end)
 
-      params:add_option("lfo_shape_"..id, "lfo shape", {'sine','tri','square','random','up','down'},1)
+      params:add_option("lfo_shape_"..id, "lfo shape", lfo_shapes, lfo_shapes[self:get('shape')])
       params:set_action("lfo_shape_"..id, function(x) self:set('shape', params:lookup_param("lfo_shape_"..id).options[x]) end)
 
-      params:add_number("lfo_depth_"..id,"lfo depth",0,100,0,function(param) return (param:get().."%") end)
+      params:add_number("lfo_depth_"..id,"lfo depth",0,100,self:get('depth')*100,function(param) return (param:get().."%") end)
       params:set_action("lfo_depth_"..id, function(x)
         if x == 0 then
           params:set("lfo_scaled_"..id,"")
@@ -430,7 +427,7 @@ function LFO:add_params(id,sep,group)
         self:set('depth',x/100)
       end)
 
-      params:add_number('lfo_offset_'..id, 'lfo offset', -100, 100, 0, function(param) return (param:get().."%") end)
+      params:add_number('lfo_offset_'..id, 'lfo offset', -100, 100, self:get('offset')*100, function(param) return (param:get().."%") end)
       params:set_action("lfo_offset_"..id, function(x)
         self:set('offset',x/100)
       end)
@@ -441,15 +438,15 @@ function LFO:add_params(id,sep,group)
       build_lfo_spec(self,id,"min")
       build_lfo_spec(self,id,"max")
 
-      local baseline_options;
-      baseline_options = {"from min", "from center", "from max"}
-      params:add_option("lfo_baseline_"..id, "lfo baseline", baseline_options, 1)
+      local baseline_options = {"from min", "from center", "from max"}
+      params:add_option("lfo_baseline_"..id, "lfo baseline", baseline_options, baseline_options[self:get('baseline')])
       params:set_action("lfo_baseline_"..id, function(x)
         self:set('baseline',string.gsub(params:lookup_param("lfo_baseline_"..id).options[x],"from ",""))
         _menu.rebuild_params()
       end)
-
-      params:add_option("lfo_mode_"..id, "lfo mode", {"clocked","free"},1)
+      
+      local mode_options = {'clocked', 'free'}
+      params:add_option("lfo_mode_"..id, "lfo mode", mode_options, mode_options[self:get('mode')])
       params:set_action("lfo_mode_"..id,
         function(x)
           self:set('mode',params:lookup_param("lfo_mode_"..id).options[x])
@@ -468,7 +465,9 @@ function LFO:add_params(id,sep,group)
         end
         )
 
-      params:add_option("lfo_clocked_"..id, "lfo rate", lfo_rates_as_strings, 9)
+      local current_period_as_rate = self:get('mode') == 'clocked' and lfo_rates[lfo_rates_as_strings[self:get('period')]] or lfo_rates[self:get('period')]
+      local rate_index = tab.key(lfo_rates,self:get('period'))
+      params:add_option("lfo_clocked_"..id, "lfo rate", lfo_rates_as_strings, rate_index)
       params:set_action("lfo_clocked_"..id,
         function(x)
           if params:string("lfo_mode_"..id) == "clocked" then
@@ -481,7 +480,7 @@ function LFO:add_params(id,sep,group)
         type='control',
         id="lfo_free_"..id,
         name="lfo rate",
-        controlspec=controlspec.new(0.1,300,'exp',0.1,1,'sec')
+        controlspec=controlspec.new(0.1,300,'exp',0.1,current_period_as_rate,'sec')
       }
       params:set_action("lfo_free_"..id, function(x)
         if params:string("lfo_mode_"..id) == "free" then
@@ -492,7 +491,8 @@ function LFO:add_params(id,sep,group)
       params:add_trigger("lfo_reset_"..id, "reset lfo")
       params:set_action("lfo_reset_"..id, function(x) self:reset_phase() end)
 
-      params:add_option("lfo_reset_target_"..id, "reset lfo to", {"floor","ceiling","mid: rising","mid: falling"}, 1)
+      local reset_destinations = {"floor","ceiling","mid: rising","mid: falling"}
+      params:add_option("lfo_reset_target_"..id, "reset lfo to", reset_destinations, reset_destinations[self:get('reset_target')])
       params:set_action("lfo_reset_target_"..id, function(x)
         self:set('reset_target', params:lookup_param("lfo_reset_target_"..id).options[x])
       end)
