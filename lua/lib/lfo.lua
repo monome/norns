@@ -46,22 +46,27 @@ end
 -- @param string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
 -- @param number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
 -- @param function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
-function LFO.new(shape, min, max, depth, mode, period, action)  
+-- @param number phase The phase shift amount for this LFO (range: 0.0 to 1.0,; default: 0)
+-- @param string baseline From where the LFO should start (options: 'min', 'center', 'max'; default: 'min')
+function LFO.new(shape, min, max, depth, mode, period, action, phase, baseline)  
   local i = {}
   setmetatable(i, LFO)
   i.init()
   i.scaled = 0
   i.raw = 0
   i.phase_counter = 0
+  if shape == 'saw' then
+    shape = 'up'
+  end
   i.shape = shape == nil and 'sine' or shape
   i.min = min == nil and 0 or min
   i.max = max == nil and 1 or max
-  i.depth = depth == nil and 1 or depth
+  i.depth = depth == nil and 0 or depth
   i.enabled = 0
   i.mode = mode == nil and 'clocked' or mode
   i.period = period == nil and 4 or period
   i.reset_target = 'floor'
-  i.baseline = 'min'
+  i.baseline = baseline == nil and 'min' or baseline
   i.offset = 0
   i.ppqn = 96
   i.controlspec = {
@@ -78,6 +83,7 @@ function LFO.new(shape, min, max, depth, mode, period, action)
   i.scaled_max = i.max
   i.mid = 0
   i.rand_value = 0
+  i.phase = phase == nil and 0 or phase
   scale_lfo(i)
   return i
 end
@@ -91,8 +97,10 @@ end
 -- @tparam string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
 -- @tparam number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
 -- @tparam function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
+-- @param number phase The phase shift amount for this LFO (range: 0.0 to 1.0,; default: 0)
+-- @param string baseline From where the LFO should start (options: 'min', 'center', 'max'; default: 'min')
 function LFO:add(args)
-  return self.new(args.shape, args.min, args.max, args.depth, args.mode, args.period, args.action)
+  return self.new(args.shape, args.min, args.max, args.depth, args.mode, args.period, args.action, args.phase, args.baseline)
 end
 
 -- PARAMETERS UI /
@@ -216,7 +224,7 @@ local function process_lfo(id)
   else
     phase = _lfo.phase_counter * clock.get_beat_sec() / _lfo.period
   end
-  phase = phase % 1
+  phase = (phase + _lfo.phase) % 1
 
   if _lfo.enabled == 1 then
 
@@ -316,7 +324,7 @@ function LFO:stop()
 end
 
 --- set LFO variable state
--- @tparam string var The variable to target (options: 'shape', 'min', 'max', 'depth', 'offset', 'mode', 'period', 'reset_target', 'baseline', 'action', 'ppqn')
+-- @tparam string var The variable to target (options: 'shape', 'min', 'max', 'depth', 'offset', 'phase', 'mode', 'period', 'reset_target', 'baseline', 'action', 'ppqn')
 -- @tparam various arg The argument to pass to the target (often numbers + strings, but 'action' expects a function)
 function LFO:set(var, arg)
   if var == nil then
@@ -341,7 +349,7 @@ function LFO:set(var, arg)
 end
 
 --- get LFO variable state
--- @tparam string var The variable to query (options: 'shape', 'min', 'max', 'depth', 'offset', 'mode', 'period', 'reset_target', 'baseline', 'action', 'enabled', 'controlspec')
+-- @tparam string var The variable to query (options: 'shape', 'min', 'max', 'depth', 'offset', 'phase', 'mode', 'period', 'reset_target', 'baseline', 'action', 'enabled', 'controlspec')
 function LFO:get(var)
   if var == nil then
     error('scripted LFO variable required')
@@ -415,7 +423,7 @@ function LFO:add_params(id,sep,group)
         lfo_bang(id)
       end)
 
-      params:add_option("lfo_shape_"..id, "lfo shape", lfo_shapes, lfo_shapes[self:get('shape')])
+      params:add_option("lfo_shape_"..id, "lfo shape", lfo_shapes, tab.key(lfo_shapes,self:get('shape')))
       params:set_action("lfo_shape_"..id, function(x) self:set('shape', params:lookup_param("lfo_shape_"..id).options[x]) end)
 
       params:add_number("lfo_depth_"..id,"lfo depth",0,100,self:get('depth')*100,function(param) return (param:get().."%") end)
@@ -425,6 +433,11 @@ function LFO:add_params(id,sep,group)
           params:set("lfo_raw_"..id,"")
         end
         self:set('depth',x/100)
+      end)
+
+      params:add_number('lfo_phase_'..id, 'lfo phase', 0, 100, self:get('phase') * 100, function(param) return (param:get()..'%') end)
+      params:set_action('lfo_phase_'..id, function(x)
+        self:set('phase',x/100)
       end)
 
       params:add_number('lfo_offset_'..id, 'lfo offset', -100, 100, self:get('offset')*100, function(param) return (param:get().."%") end)
@@ -439,7 +452,7 @@ function LFO:add_params(id,sep,group)
       build_lfo_spec(self,id,"max")
 
       local baseline_options = {"from min", "from center", "from max"}
-      params:add_option("lfo_baseline_"..id, "lfo baseline", baseline_options, baseline_options[self:get('baseline')])
+      params:add_option("lfo_baseline_"..id, "lfo baseline", baseline_options, tab.key(baseline_options,'from '..self:get('baseline')))
       params:set_action("lfo_baseline_"..id, function(x)
         self:set('baseline',string.gsub(params:lookup_param("lfo_baseline_"..id).options[x],"from ",""))
         _menu.rebuild_params()
