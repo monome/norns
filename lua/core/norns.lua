@@ -242,6 +242,20 @@ _norns.reset = function()
   os.execute("sudo systemctl restart norns-matron.service")
 end
 
+-- restart device
+_norns.restart = function()
+  hook.system_pre_shutdown()
+  print("RESTARTING")
+  norns.script.clear()
+  _norns.free_engine()
+  norns.state.clean_shutdown = true
+  norns.state.save()
+  pcall(cleanup)
+  audio.level_dac(0)
+  audio.headphone_gain(0)
+  _norns.reset()
+end
+
 -- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 _startup = function()
