@@ -183,6 +183,22 @@ function ParamSet:add(args)
   if args.action then
     param.action = args.action
   end
+
+  local midi_prm = norns.pmap.data[param.id]
+  if midi_prm then
+    local val
+    if param.t == 3 then
+      val = params:get_raw(param.id)
+    else
+      val = params:get(param.id)
+    end
+    midi_prm.value = util.round(util.linlin(midi_prm.out_lo, midi_prm.out_hi, midi_prm.in_lo, midi_prm.in_hi, val))
+    if midi_prm.echo then
+      local port = norns.pmap.data[param.id].dev
+      midi.vports[port]:cc(midi_prm.cc, midi_prm.value, midi_prm.ch)
+    end
+  end
+
 end
 
 --- add number.
@@ -370,6 +386,20 @@ end
 function ParamSet:delta(index, d)
   local param = self:lookup_param(index)
   param:delta(d)
+  if norns.pmap.data[param.id] ~= nil then
+    local midi_prm = norns.pmap.data[param.id]
+    local val
+    if param.t == 3 then
+      val = param:get_raw()
+    else
+      val = param:get()
+    end
+    midi_prm.value = util.round(util.linlin(midi_prm.out_lo, midi_prm.out_hi, midi_prm.in_lo, midi_prm.in_hi, val))
+    if midi_prm.echo then
+      local port = norns.pmap.data[param.id].dev
+      midi.vports[port]:cc(midi_prm.cc, midi_prm.value, midi_prm.ch)
+    end
+  end
 end
 
 --- set action.
