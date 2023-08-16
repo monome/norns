@@ -8,10 +8,9 @@ m.key = function(n,z)
   elseif n==3 and z==1 then
     m.confirmed = true
     _menu.redraw()
-    _norns.reset()
+    _norns.restart()
   end
 end
-
 
 m.enc = function(n,delta) end
 
