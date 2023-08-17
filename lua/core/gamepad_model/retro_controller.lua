@@ -1,5 +1,5 @@
--- Retrolink B00GWKL3Y4 (NES-style)
--- also sold by Elecom
+-- Retrolink B00GWKL3Y4 ((S)NES-style)
+-- also sold by under other brands: iNNext, Elecom...
 
 return {
   alias = "Retro Controller",
