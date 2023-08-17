@@ -10,7 +10,7 @@ local user_conf_dir = _path.data .. "gamepads/"
 if util.file_exists(user_conf_dir) then
   local user_confs = util.scandir(user_conf_dir)
   for _, conf_file in pairs(user_confs) do
-    if conf:sub(-#'.lua') == '.lua' then
+    if conf_file:sub(-#'.lua') == '.lua' then
       local conf_file_sans_ext = conf_file:gsub("%.lua", "")
       print("loading user gamepad conf: "..user_conf_dir..conf_file)
       local module_path = user_conf_dir .. conf_file_sans_ext
