@@ -28,6 +28,9 @@ sudo cp config/logrotate.conf /etc/
 sudo cp config/journald.conf /etc/systemd/
 sudo mkdir -p /var/log/journal
 
+# disable hciuart
+sudo systemctl hciuart disable
+
 # update jack systemd
 sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
 
