@@ -32,6 +32,7 @@ extern void screen_clear(void);
 extern void screen_close_path(void);
 extern double *screen_text_extents(const char *s);
 extern void screen_export_png(const char *s);
+extern void screen_export_screenshot(const char *s);
 extern void screen_display_png(const char *filename, double x, double y);
 extern char *screen_peek(int x, int y, int *w, int *h);
 extern void screen_poke(int x, int y, int w, int h, unsigned char *buf);

@@ -11,9 +11,11 @@ norns is many sound instruments. it connects to grids, MIDI, and other objects. 
 git clone https://github.com/monome/norns.git
 cd norns
 git submodule update --init --recursive
-./waf configure
-./waf
+./waf configure --release
+./waf build --release
 ```
+
+(NB: the `--release` flag creates builds specifically for armv8/cortex-a53 instruction set, meaning optimized for rpi3 and compatible with rpi4. It also enables aggressive compiler optimizations. Omit flag if you need debug symbols or to build for a different architecture. It does need to supplied to both configuration and build steps.)
 
 ## documentation
 - [user docs](https://monome.org/docs/norns)

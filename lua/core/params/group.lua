@@ -6,10 +6,11 @@ Group.__index = Group
 
 local tGROUP = 7
 
-function Group.new(name, n)
+function Group.new(id, name, n)
   local g = setmetatable({}, Group)
-  g.name = name or "group"
-  g.n = n or 1
+  g.name = type(name) ~= "number" and name or (id or "group")
+  g.id = id or g.name
+  g.n = type(name) == "number" and name or (n or 1)
   g.t = tGROUP
   g.action = function() end
   return g

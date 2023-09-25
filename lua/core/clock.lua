@@ -51,7 +51,6 @@ clock.sync = function(...)
   return coroutine.yield(SCHEDULE_SYNC, ...)
 end
 
-
 -- todo: use c api instead
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
@@ -88,6 +87,7 @@ clock.cleanup = function()
 
   clock.transport.start = nil
   clock.transport.stop = nil
+  clock.tempo_change_handler = nil
 end
 
 --- select the sync source.
@@ -124,9 +124,21 @@ end
 
 clock.transport = {}
 
+--- static callback when clock transport is started;
+-- user scripts can redefine
+-- @static
 clock.transport.start = nil
+
+--- static callback when clock transport is stopped;
+-- user scripts can redefine
+-- @static
 clock.transport.stop = nil
 
+--- static callback when clock tempo is adjusted via PARAMETERS > CLOCK > tempo;
+-- user scripts can redefine
+-- @static
+-- @param bpm : the new tempo
+clock.tempo_change_handler = nil
 
 clock.internal = {}
 
@@ -188,7 +200,8 @@ end
 
 
 function clock.add_params()
-  params:add_group("CLOCK", 9)
+  local send_midi_clock = {}
+  params:add_group("CLOCK", 27)
 
   params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
     norns.state.clock.source)
@@ -210,6 +223,9 @@ function clock.add_params()
       if source == "internal" then clock.internal.set_tempo(bpm)
       elseif source == "link" then clock.link.set_tempo(bpm) end
       norns.state.clock.tempo = bpm
+      if clock.tempo_change_handler ~= nil then
+        clock.tempo_change_handler(bpm)
+      end
     end)
   params:set_save("clock_tempo", false)
   params:add_trigger("clock_reset", "reset")
@@ -219,6 +235,7 @@ function clock.add_params()
       if source == "internal" then clock.internal.start()
       elseif source == "link" then print("link reset not supported") end
     end)
+  params:add_separator("link_separator", "link")
   params:add_number("link_quantum", "link quantum", 1, 32, norns.state.clock.link_quantum)
   params:set_action("link_quantum",
     function(x)
@@ -233,15 +250,32 @@ function clock.add_params()
       norns.state.clock.link_start_stop_sync = x
     end)
   params:set_save("link_start_stop_sync", false)
-  local clock_table = {"off"}
+  params:add_separator("midi_clock_out_separator", "midi clock out")
   for i = 1,16 do
-    local short_name = string.len(midi.vports[i].name) < 12 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-    clock_table[i+1] = "port "..(i)..""..(midi.vports[i].name ~= "none" and (": "..short_name) or "")
+    local short_name = string.len(midi.vports[i].name) <= 20 and midi.vports[i].name or util.acronym(midi.vports[i].name)
+    params:add_binary("clock_midi_out_"..i, i..". "..short_name, "toggle", norns.state.clock.midi_out[i])
+    params:set_action("clock_midi_out_"..i,
+      function(x)
+        if x == 1 then
+          if not tab.contains(send_midi_clock,i) then
+            table.insert(send_midi_clock,i)
+          end
+        else
+          if tab.contains(send_midi_clock,i) then
+            table.remove(send_midi_clock,tab.key(send_midi_clock, i))
+          end
+        end
+        norns.state.clock.midi_out[i] = x
+      end
+    )
+    if short_name ~= "none" and midi.vports[i].connected then
+      params:show("clock_midi_out_"..i)
+    else
+      params:hide("clock_midi_out_"..i)
+    end
+    params:set_save("clock_midi_out_"..i, false)
   end
-  params:add_option("clock_midi_out", "midi out",
-      clock_table, norns.state.clock.midi_out)
-  params:set_action("clock_midi_out", function(x) norns.state.clock.midi_out = x end)
-  params:set_save("clock_midi_out", false)
+  params:add_separator("crow_clock_separator", "crow")
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
@@ -282,15 +316,12 @@ function clock.add_params()
   end)
 
   -- executes midi out (needs a subtick)
-  -- FIXME: lots of if's every tick blah
   clock.run(function()
     while true do
       clock.sync(1/24)
-      local midi_out = params:get("clock_midi_out")-1
-      if midi_out > 0 then
-        if midi.vports[midi_out].name ~= "none" then
-          midi.vports[midi_out]:clock()
-        end
+      for i = 1,#send_midi_clock do
+        local port = send_midi_clock[i]
+        midi.vports[port]:clock()
       end
     end
   end)
@@ -300,7 +331,11 @@ function clock.add_params()
     while true do
       if params:get("clock_source") ~= 1 then
         local external_tempo = math.floor(clock.get_tempo() + 0.5)
+        local previous_val = params:get("clock_tempo")
         params:set("clock_tempo", external_tempo, true)
+        if clock.tempo_change_handler ~= nil and previous_val ~= external_tempo then
+          clock.tempo_change_handler(external_tempo)
+        end
       end
 
       clock.sleep(1)

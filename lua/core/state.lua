@@ -8,6 +8,8 @@ state.data = _path.data
 state.name = ''
 state.shortname = ''
 state.clean_shutdown = false
+state.battery_warning = 1
+
 state.mix = {}
 state.mix.output = 0
 state.mix.input = 0
@@ -48,7 +50,7 @@ state.clock.source = 1
 state.clock.tempo = 90
 state.clock.link_quantum = 4
 state.clock.link_start_stop_sync = 1
-state.clock.midi_out = 1
+state.clock.midi_out = {}
 state.clock.crow_out = 1
 state.clock.crow_out_div = 4
 state.clock.crow_in_div = 4
@@ -60,6 +62,12 @@ state.resume = function()
   if f ~= nil then
     io.close(f)
     dofile(_path.data..'system.state')
+  end
+
+  -- if previously-saved state.clock.midi_out is a number,
+  -- make it a table
+  if type(state.clock.midi_out) == 'number' then
+    state.clock.midi_out = {}
   end
 
   -- update vports
@@ -105,6 +113,7 @@ state.save_state = function()
   io.write("norns.state.shortname = '" .. state.shortname .. "'\n")
   io.write("norns.state.path = '" .. state.path .. "'\n")
   io.write("norns.state.data = '" .. state.data .. "'\n")
+  io.write("norns.state.battery_warning = " .. state.battery_warning .. "\n")
   io.write("norns.state.mix.output = " .. norns.state.mix.output .. "\n")
   io.write("norns.state.mix.input = " .. norns.state.mix.input .. "\n")
   io.write("norns.state.mix.monitor = " .. norns.state.mix.monitor .. "\n")
@@ -139,7 +148,9 @@ state.save_state = function()
   io.write("norns.state.clock.tempo = " .. norns.state.clock.tempo .. "\n")
   io.write("norns.state.clock.link_quantum = " .. norns.state.clock.link_quantum .. "\n")
   io.write("norns.state.clock.link_start_stop_sync = " .. norns.state.clock.link_start_stop_sync .. "\n")
-  io.write("norns.state.clock.midi_out = " .. norns.state.clock.midi_out .. "\n")
+  for i = 1,16 do
+    io.write("norns.state.clock.midi_out["..i.."] = " .. norns.state.clock.midi_out[i] .. "\n")
+  end
   io.write("norns.state.clock.crow_out = " .. norns.state.clock.crow_out .. "\n")
   io.write("norns.state.clock.crow_out_div = " .. norns.state.clock.crow_out_div .. "\n")
   io.write("norns.state.clock.crow_in_div = " .. norns.state.clock.crow_in_div .. "\n")

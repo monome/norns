@@ -14,10 +14,15 @@ sudo rm -rf /home/we/norns
 cp -a norns /home/we/
 sudo rm -rf /home/we/maiden
 cp -a maiden /home/we/
+sudo rm -rf /home/we/bin/maiden-repl
+sudo cp -a /home/we/norns/build/maiden-repl/maiden-repl /home/we/bin/
 
 # version/changelog
 cp version.txt /home/we/
 cp changelog.txt /home/we/
+
+# fix logrotate
+sudo cp config/logrotate.conf /etc/
 
 # rewrite journalctl
 sudo cp config/journald.conf /etc/systemd/
@@ -37,6 +42,8 @@ sudo systemctl enable norns-watcher
 # norns-image
 #cd /home/we/norns-image
 #./setup.sh
+# disable hciuart
+sudo systemctl hciuart disable
 
 # update jack systemd
 sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service

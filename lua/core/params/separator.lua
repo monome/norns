@@ -6,9 +6,10 @@ Separator.__index = Separator
 
 local tSEPARATOR = 0
 
-function Separator.new(name)
+function Separator.new(id,name)
   local s = setmetatable({}, Separator)
-  s.name = name or ""
+  s.name = name or (id or "separator")
+  s.id = id or s.name
   s.t = tSEPARATOR
   s.action = function() end
   return s

@@ -122,6 +122,7 @@ static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
 static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
+static int _screen_export_screenshot(lua_State *l);
 static int _screen_display_png(lua_State *l);
 static int _screen_peek(lua_State *l);
 static int _screen_poke(lua_State *l);
@@ -496,6 +497,7 @@ void w_init(void) {
     lua_register_norns("screen_close", &_screen_close);
     lua_register_norns("screen_text_extents", &_screen_text_extents);
     lua_register_norns("screen_export_png", &_screen_export_png);
+    lua_register_norns("screen_export_screenshot", &_screen_export_screenshot);
     lua_register_norns("screen_display_png", &_screen_display_png);
     lua_register_norns("screen_peek", &_screen_peek);
     lua_register_norns("screen_poke", &_screen_poke);
@@ -1016,6 +1018,19 @@ int _screen_export_png(lua_State *l) {
 }
 
 /***
+ * screen: export_screenshot
+ * @function s_export_screenshot
+ * @tparam string filename
+ */
+int _screen_export_screenshot(lua_State *l) {
+    lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    screen_export_screenshot(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
  * screen: display_png
  * @function s_display_png
  * @tparam string filename
@@ -1133,6 +1148,27 @@ int _screen_set_operator(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 }
+
+// clang-format off
+static luaL_Reg _image_methods[] = {
+    {"__gc", _image_free},
+    {"__tostring", _image_tostring},
+    {"__eq", _image_equals},
+    {"_context_focus", _image_context_focus},
+    {"_context_defocus", _image_context_defocus},
+    {"extents", _image_extents},
+    {"name", _image_name},
+    {NULL, NULL}
+};
+
+static luaL_Reg _image_functions[] = {
+    {"screen_load_png", _screen_load_png},
+    {"screen_create_image", _screen_create_image},
+    {"screen_display_image", _screen_display_image},
+    {"screen_display_image_region", _screen_display_image_region},
+    {NULL, NULL}
+};
+// clang-format on
 
 int _image_new(lua_State *l, screen_surface_t *surface, const char *name) {
     _image_t *ud = (_image_t *)lua_newuserdata(l, sizeof(_image_t));
@@ -2129,7 +2165,8 @@ void w_handle_hid_add(void *p) {
     }
 
     lua_pushlightuserdata(lvm, dev);
-    l_report(lvm, l_docall(lvm, 5, 0));
+    lua_pushstring(lvm, dev->guid);
+    l_report(lvm, l_docall(lvm, 6, 0));
 }
 
 void w_handle_hid_remove(int id) {

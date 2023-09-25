@@ -27,7 +27,7 @@ for other platforms (x86, amd64), these packages can again use the standard repo
 sudo apt install libnanomsg-dev supercollider-language supercollider-server supercollider-dev
 ```
 
-and `libmonome` must be build and installed from source:
+and `libmonome` must be built and installed from source:
 
 - clone, build, and install:
 ```

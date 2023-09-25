@@ -36,6 +36,14 @@ function Option:set(v, silent)
     self.selected = c
     if silent==false then self:bang() end
   end
+  if norns.pmap.data[self.id] ~= nil then
+    local midi_prm = norns.pmap.data[self.id]
+    midi_prm.value = util.round(util.linlin(midi_prm.out_lo, midi_prm.out_hi, midi_prm.in_lo, midi_prm.in_hi, self.selected))
+    if midi_prm.echo then
+      local port = norns.pmap.data[self.id].dev
+      midi.vports[port]:cc(midi_prm.cc, midi_prm.value, midi_prm.ch)
+    end
+  end
 end
 
 function Option:delta(d)

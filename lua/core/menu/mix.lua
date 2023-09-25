@@ -21,6 +21,26 @@ m.enc = function(n,d)
   end
 end
 
+m.gamepad_axis = function (_sensor_axis,_value)
+  if gamepad.left() then
+    _menu.key(2,1)
+  elseif gamepad.right() then
+    _menu.key(3,1)
+  elseif gamepad.down() then
+    _menu.penc(2,-1)
+  elseif gamepad.up() then
+    _menu.penc(2,1)
+  end
+end
+
+m.gamepad_button = function(b,value)
+  if b == "B" then
+    _menu.penc(3,-1)
+  elseif b == "A" then
+    _menu.penc(3,1)
+  end
+end
+
 m.redraw = function()
   local n
   screen.clear()

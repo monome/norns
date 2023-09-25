@@ -20,6 +20,7 @@ clock = require "core/clock"
 midi = require 'core/midi'
 osc = require 'core/osc'
 keyboard = require 'core/keyboard'
+gamepad = require 'core/gamepad'
 poll = require 'core/poll'
 engine = tab.readonly{table = require 'core/engine', except = {'name'}}
 softcut = require 'core/softcut'

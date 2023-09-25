@@ -191,6 +191,9 @@ function Midi.cleanup()
   for _, dev in pairs(Midi.devices) do
     dev.event = nil
   end
+
+  Midi.add = function(dev) end
+  Midi.remove = function(dev) end
 end
 
 -- utility
@@ -384,7 +387,18 @@ function Midi.update_connected_state()
     else
       Midi.vports[i].connected = false 
     end
+    if params.lookup["clock_midi_out_"..i] ~= nil then
+      local short_name = string.len(midi.vports[i].name) <= 20 and midi.vports[i].name or util.acronym(midi.vports[i].name)
+      params:lookup_param("clock_midi_out_"..i).name = i..". "..short_name
+      if short_name ~= "none" and midi.vports[i].connected then
+        params:show("clock_midi_out_"..i)
+      else
+        params:set("clock_midi_out_"..i,0)
+        params:hide("clock_midi_out_"..i)
+      end
+    end
   end
+  _menu.rebuild_params()
 end
 
 -- add a device.
@@ -399,6 +413,7 @@ end
 -- remove a device.
 _norns.midi.remove = function(id)
   if Midi.devices[id] then
+    Midi.remove(Midi.devices[id])
     if Midi.devices[id].remove then
       Midi.devices[id].remove()
     end

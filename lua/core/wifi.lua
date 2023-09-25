@@ -6,11 +6,23 @@ local util = require "util"
 --
 
 local HOTSPOT = "Hotspot"
-local hotspot_password = "nnnnnnnn"
 
 --
 -- common functions
 --
+
+local function get_hotspot_password()
+  local hotspot_password;
+  local fd = io.open("home/we/norns/.system.hotspot_password", "r")
+  if fd then
+    io.input(fd)
+    hotspot_password = io.read()
+    io.close(fd)
+  else
+    hotspot_password = "nnnnnnnn"
+  end
+  return hotspot_password
+end
 
 local function collect_info(cmd)
   local info = {}
