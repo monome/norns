@@ -261,7 +261,7 @@ function util.wrap(n, min, max)
     return n
   end
   local d = max - min + 1
-  y = (n - min) % d
+  local y = (n - min) % d
   return y + min
 end
 
