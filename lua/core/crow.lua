@@ -110,8 +110,8 @@ end
 function norns.crow.register_event(fn)
   local n = tab.count(norns.crow.events) + 1
   local c = ""
-  if     n <= 26 then c = string.char(n + 64) -- uppercase alphas
-  elseif n <= 52 then c = string.char(n + 70) -- lowercase alphas
+  if     n <= 26 then c = utf8.char(n + 64) -- uppercase alphas
+  elseif n <= 52 then c = utf8.char(n + 70) -- lowercase alphas
   else print("ERROR: can't register event. out of indices. only 52 handlers allowed.")
   end
   norns.crow.events[c] = fn -- store the function in the event table
