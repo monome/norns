@@ -1,12 +1,12 @@
 releases = {
   stable = {
-    version="230526",
-    url="https://github.com/monome/norns/releases/download/v2.7.6/norns230526.tgz",
-    sha="https://github.com/monome/norns/releases/download/v2.7.6/norns230526.sha256"
+    version="230614",
+    url="https://github.com/monome/norns/releases/download/v2.7.7/norns230614.tgz",
+    sha="https://github.com/monome/norns/releases/download/v2.7.7/norns230614.sha256"
   },
   beta = {
-    version="230526",
-    url="https://github.com/monome/norns/releases/download/v2.7.6/norns230526.tgz",
-    sha="https://github.com/monome/norns/releases/download/v2.7.6/norns230526.sha256"
+    version="230614",
+    url="https://github.com/monome/norns/releases/download/v2.7.7/norns230614.tgz",
+    sha="https://github.com/monome/norns/releases/download/v2.7.7/norns230614.sha256"
   }
 }

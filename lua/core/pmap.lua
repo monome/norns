@@ -17,6 +17,7 @@ function pmap.new(id)
   p.out_lo = 0
   p.out_hi = 1
   p.accum = false
+  p.echo = false
   p.value = 0
   pmap.data[id] = p
 end
@@ -89,12 +90,15 @@ function pmap.read()
   if fd then
     io.close(fd)
     for line in io.lines(filename) do
-      --local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
       local name, value = string.match(line, "(\".-\")%s*:%s*(.*)")
       if name and value and tonumber(value)==nil then
         --print(unquote(name) .. " : " .. unquote(value))
         local x = load("return "..unquote(value))
         pmap.data[unquote(name)] = x()
+        -- 230816: new 'echo' field added to the pmap constructor
+        if pmap.data[unquote(name)].echo == nil then
+          pmap.data[unquote(name)].echo = false
+        end
       end
     end
     pmap.refresh()
