@@ -64,6 +64,8 @@ state.resume = function()
     dofile(_path.data..'system.state')
   end
 
+	state.load_pset('default.pset')
+
   -- if previously-saved state.clock.midi_out is a number,
   -- make it a table
   if type(state.clock.midi_out) == 'number' then
@@ -98,13 +100,39 @@ state.resume = function()
   end
 end
 
--- save current norns state to system.pset and system.state
+-- save current norns state
 state.save = function()
   state.save_state()
 end
 
 state.save_state = function()
   local fd=io.open(_path.data .. "system.state","w+")
+  io.output(fd)
+  io.write("-- norns system state\n")
+  io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
+  io.write("norns.state.script = '" .. state.script .. "'\n")
+  io.write("norns.state.name = '" .. state.name .. "'\n")
+  io.write("norns.state.shortname = '" .. state.shortname .. "'\n")
+  io.write("norns.state.path = '" .. state.path .. "'\n")
+  io.write("norns.state.data = '" .. state.data .. "'\n")
+  io.write("norns.state.battery_warning = " .. state.battery_warning .. "\n")
+  for i=1,16 do
+    io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
+  end
+  for i=1,4 do
+    io.write("grid.vports[" .. i .. "].name = '" .. grid.vports[i].name .. "'\n")
+  end
+  for i=1,4 do
+    io.write("arc.vports[" .. i .. "].name = '" .. arc.vports[i].name .. "'\n")
+  end
+  for i=1,4 do
+    io.write("hid.vports[" .. i .. "].name = '" .. hid.vports[i].name .. "'\n")
+  end
+  io.close(fd)
+end
+
+state.save_pset = function(filename)
+  local fd=io.open(_path.data .. filename,"w+")
   io.output(fd)
   io.write("-- norns system state\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
@@ -167,6 +195,14 @@ state.save_state = function()
     io.write("hid.vports[" .. i .. "].name = '" .. hid.vports[i].name .. "'\n")
   end
   io.close(fd)
+end
+
+function state.load_pset(filename)
+  local f = io.open(_path.data..filename)
+  if f ~= nil then
+    io.close(f)
+    dofile(_path.data..filename)
+  end
 end
 
 return state
