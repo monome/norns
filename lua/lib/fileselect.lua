@@ -16,8 +16,10 @@ function fs.enter(folder, callback, filter_string)
   fs.done = false
   fs.path = nil
   fs.filter = filter_string and filter_string or "all"
+  fs.previewing = nil
+  fs.previewing_timeout_counter = nil
 
-  if fs.folder:sub(-1,-1) ~= "/" then
+  if fs.folder:sub(-1, -1) ~= "/" then
     fs.folder = fs.folder .. "/"
   end
 
@@ -49,8 +51,11 @@ function fs.exit()
   else
     norns.menu.set(fs.enc_restore, fs.key_restore, fs.redraw_restore)
   end
-  if fs.path then fs.callback(fs.path)
-  else fs.callback("cancel") end
+  if fs.path then
+    fs.callback(fs.path)
+  else
+    fs.callback("cancel")
+  end
 end
 
 function fs.pushd(dir)
@@ -65,7 +70,7 @@ end
 
 fs.getdir = function()
   local path = fs.folder
-  for k,v in pairs(fs.folders) do
+  for k, v in pairs(fs.folders) do
     path = path .. v
   end
   --print("path: "..path)
@@ -102,11 +107,11 @@ fs.getlist = function()
         if fs.filter == "all" or fs.filter == "audio" or fs.filter == fulldir:match("^.+(%..+)$") then
           display_length = util.s_to_hms(math.floor(samples / rate))
           max_line_length = 97
-        else -- otherwise, do not display audio file:
+        else         -- otherwise, do not display audio file:
           fs.visible[k] = false
           display_length = nil
         end
-      -- if file is NOT audio:
+        -- if file is NOT audio:
       elseif fs.filter ~= "all" then
         if fs.filter == "audio" or fs.filter ~= fulldir:match("^.+(%..+)$") then
           fs.visible[k] = false
@@ -117,42 +122,59 @@ fs.getlist = function()
 
     if fs.visible[k] then
       line = util.trim_string_to_width(line, max_line_length)
-      table.insert(fs.display_list,line)
-      table.insert(fs.lengths,display_length)
+      table.insert(fs.display_list, line)
+      table.insert(fs.lengths, display_length)
     end
   end
 end
 
-fs.key = function(n,z)
+local function stop()
+  if fs.previewing then
+    fs.previewing = nil
+    audio.tape_play_stop()
+    fs.redraw()
+  end
+end
+
+local function timeout()
+  if fs.previewing_timeout_counter == nil then
+    fs.previewing_timeout_counter = clock.run(function()
+      clock.sleep(1)
+      fs.previewing_timeout_counter = nil
+    end)
+  end
+end
+
+local function start()
+  if fs.previewing_timeout_counter ~= nil then return end
+  timeout()
+  stop()
+  fs.previewing = fs.pos
+  audio.tape_play_open(fs.getdir() .. fs.file)
+  audio.tape_play_start()
+  fs.redraw()
+end
+
+fs.key = function(n, z)
   -- back
-  if n==2 and z==1 then
+  if n == 2 and z == 1 then
     fs.done = true
-    if fs.previewing then
-      -- stop previewing
-      audio.tape_play_stop()
-      fs.previewing = nil
-      fs.redraw()
-    end
-  -- select
-  elseif n==3 and z==1 then
-    if fs.previewing then
-      -- stop previewing
-      audio.tape_play_stop()
-      fs.previewing = nil
-      fs.redraw()
-    end
+    stop()
+    -- select
+  elseif n == 3 and z == 1 then
+    stop()
     if #fs.list > 0 then
-      if string.sub(fs.display_list[fs.pos+1], -3) == '...' then
-        fs.file = fs.list[fs.pos+1]
+      if string.sub(fs.display_list[fs.pos + 1], -3) == '...' then
+        fs.file = fs.list[fs.pos + 1]
       else
-        fs.file = fs.display_list[fs.pos+1]
+        fs.file = fs.display_list[fs.pos + 1]
       end
       if fs.file == "../" then
         fs.folders[fs.depth] = nil
         fs.depth = fs.depth - 1
         fs.getlist()
         fs.redraw()
-      elseif string.find(fs.file,'/') then
+      elseif string.find(fs.file, '/') then
         --print("folder selected")
         fs.depth = fs.depth + 1
         fs.folders[fs.depth] = fs.file
@@ -161,7 +183,7 @@ fs.key = function(n,z)
       else
         -- print("file selected")
         local path = fs.folder
-        for k,v in pairs(fs.folders) do
+        for k, v in pairs(fs.folders) do
           path = path .. v
         end
         fs.path = path .. fs.file
@@ -173,28 +195,18 @@ fs.key = function(n,z)
   end
 end
 
-fs.enc = function(n,d)
-  if n==2 then
+fs.enc = function(n, d)
+  if n == 2 then
     fs.pos = util.clamp(fs.pos + d, 0, #fs.display_list - 1)
     fs.redraw()
-  elseif n==3 and d > 0 then
-    fs.file = fs.display_list[fs.pos+1]
-    if fs.lengths[fs.pos+1] ~= "" then
-      if fs.previewing ~= fs.pos then
-        fs.previewing = fs.pos
-        audio.tape_play_stop()
-        audio.tape_play_open(fs.getdir() .. fs.file)
-        audio.tape_play_start()
-        fs.redraw()
-      end
+  elseif n == 3 and d > 0 then
+    fs.file = fs.display_list[fs.pos + 1]
+    if fs.lengths[fs.pos + 1] ~= "" then
+      start()
     end
   elseif n == 3 and d < 0 then
     -- always stop with left scroll
-    if fs.previewing then
-      audio.tape_play_stop()
-      fs.previewing = nil
-      fs.redraw()
-    end
+    stop()
   end
 end
 
@@ -204,25 +216,25 @@ fs.redraw = function()
   screen.font_size(8)
   if #fs.list == 0 then
     screen.level(4)
-    screen.move(0,20)
+    screen.move(0, 20)
     screen.text("(no files)")
   else
-    for i=1,6 do
+    for i = 1, 6 do
       if (i > 2 - fs.pos) and (i < #fs.display_list - fs.pos + 3) then
-        local list_index = i+fs.pos-2
-        screen.move(0,10*i)
-        if(i==3) then
+        local list_index = i + fs.pos - 2
+        screen.move(0, 10 * i)
+        if (i == 3) then
           screen.level(15)
         else
           screen.level(4)
         end
         local text = fs.display_list[list_index]
-        if list_index-1 == fs.previewing then
-            text = util.trim_string_to_width('* ' .. text, 97)
+        if list_index - 1 == fs.previewing then
+          text = util.trim_string_to_width('* ' .. text, 97)
         end
         screen.text(text)
         if fs.lengths[list_index] then
-          screen.move(128,10*i)
+          screen.move(128, 10 * i)
           screen.text_right(fs.lengths[list_index])
         end
       end
