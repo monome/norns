@@ -15,7 +15,7 @@
 #include "events.h"
 
 #if 1 // nice big buffers (allocated in worker thread)
-static const size_t CMD_CAPTURE_BYTES = 8192 * 8;
+static const size_t CMD_CAPTURE_BYTES = 8192 * 16;
 static const size_t CMD_LINE_BYTES = 1024;
 
 #else // test with stupid tiny buffers
@@ -74,9 +74,9 @@ void *run_cmd(void *cmd) {
         }
         capacity -= len;
 
-#if 0 // test..
+#if 1 // test..
 	fprintf(stderr, "last line: \n\t%s\n", line);
-	fprintf(stderr, "current buffer: \n\t %s\n", line);
+	// fprintf(stderr, "current buffer: \n\t %s\n", line);
 	fprintf(stderr, "remaining capacity: %d bytes\n", capacity);
 #endif
 
