@@ -6,6 +6,8 @@
 #include "device_common.h"
 #include <libevdev/libevdev.h>
 
+#define DEV_GUID_LEN 33
+
 typedef uint8_t dev_vid_t;
 typedef uint8_t dev_pid_t;
 typedef uint16_t dev_code_t;
@@ -16,6 +18,7 @@ struct dev_hid {
     // identifiers
     dev_vid_t vid;
     dev_pid_t pid;
+    char guid[DEV_GUID_LEN];
     // count of supported event types
     int num_types;
     // array of supported event types

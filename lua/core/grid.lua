@@ -79,14 +79,14 @@ end
 -- @param dev : a Grid table
 function Grid.remove(dev) end
 
--- set grid rotation.
+--- set grid rotation.
 -- @tparam integer val : rotation 0,90,180,270 as [0, 3]
 function Grid:rotation(val)
   _norns.grid_set_rotation(self.dev, val)
 end
 
 
--- enable/disable grid tilt.
+--- enable/disable grid tilt.
 -- @tparam integer id : sensor
 -- @tparam integer val : off/on [0, 1]
 function Grid:tilt_enable(id, val)
@@ -144,6 +144,12 @@ function Grid.cleanup()
     dev.key = nil
     dev.tilt = nil
   end
+
+  Grid.add = function(dev)
+    print("grid added:", dev.id, dev.name, dev.serial)
+  end
+
+  Grid.remove = function(dev) end
 end
 
 -- update devices.

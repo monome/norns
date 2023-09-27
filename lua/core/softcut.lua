@@ -85,8 +85,8 @@ SC.loop = function(voice,state) _norns.cut_param("loop_flag",voice,state) end
 
 --- set fade time.
 -- @tparam int voice : voice index
--- @tparam number pos : loop start position in seconds
-SC.fade_time = function(voice,pos) _norns.cut_param("fade_time",voice,pos) end
+-- @tparam number fade_time : crossfade time in seconds
+SC.fade_time = function(voice,fade_time) _norns.cut_param("fade_time",voice,fade_time) end
 
 --- set record level.
 -- this sets the realtime-modulated record level,
@@ -120,10 +120,10 @@ SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 
 --- synchronize two voices.
 --- position of "dst" will be immediately set to that of "source"
--- @tparam int src : source voice index
 -- @tparam int dst : destination voice index
+-- @tparam int src : source voice index
 -- @tparam number offset : additional offset in seconds
-SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dst,offset) end
+SC.voice_sync = function(dst, src, offset) _norns.cut_param_iif("voice_sync",dst,src,offset) end
 
 --- set pre_filter cutoff frequency.
 --- @tparam int voice : voice index
@@ -516,7 +516,6 @@ function SC.params()
       pre_filter_dry = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 0, "") },
       -- post filter
       post_filter_fc = { type="control", controlspec=controlspec.new(10, 12000, 'exp', 1, 12000, "Hz") },
-      post_filter_fc_mod = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },
       post_filter_rq = { type="control", controlspec=controlspec.new(0.0005, 8.0, 'exp', 0, 2.0, "") },
       -- @fixme use dB / taper?
       post_filter_lp = { type="control", controlspec=controlspec.new(0, 1, 'lin', 0, 1, "") },

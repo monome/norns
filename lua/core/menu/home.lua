@@ -105,6 +105,10 @@ m.redraw = function()
         screen.level(8)
         screen.move(0,25)
         screen.text("try 'SYSTEM > RESTART'")
+      elseif util.string_starts(_menu.errormsg,"version") then
+        screen.level(8)
+        screen.move(0,25)
+        screen.text("try 'SYSTEM > UPDATE'")
       end
     end
     screen.level(15)

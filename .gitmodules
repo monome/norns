@@ -1,6 +1,3 @@
-[submodule "third-party/link-c"]
-	path = third-party/link-c
-	url = https://github.com/artfwo/link-c.git
 [submodule "third-party/link"]
 	path = third-party/link
 	url = https://github.com/Ableton/link.git

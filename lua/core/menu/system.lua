@@ -1,20 +1,14 @@
-local textentry= require 'textentry'
-
 local m = {
   pos = 1,
-  list = {"DEVICES > ", "WIFI >", "MODS >", "RESTART", "RESET", "UPDATE", "PASSWORD >", "LOG"},
-  pages = {"DEVICES", "WIFI", "MODS", "RESTART", "RESET", "UPDATE", "PASSWORD", "LOG"}
+  list = {"DEVICES > ", "WIFI >", "MODS >", "SETTINGS >", "RESTART", "UPDATE", "LOG"},
+  pages = {"DEVICES", "WIFI", "MODS", "SETTINGS", "RESTART", "UPDATE", "LOG"}
 }
 
 m.key = function(n,z)
   if n==2 and z==1 then
     _menu.set_page("HOME")
   elseif n==3 and z==1 then
-    if m.pages[m.pos]=="PASSWORD" then
-      textentry.enter(m.passdone, "", "new password:")
-    else
-      _menu.set_page(m.pages[m.pos])
-    end
+    _menu.set_page(m.pages[m.pos])
   end
 end
 

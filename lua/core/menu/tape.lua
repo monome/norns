@@ -56,10 +56,10 @@ local function read_tape_index()
   for f in tape:gmatch("([^\n]+)") do
     fs = string.sub(f,1,4)
     if tonumber(fs) then
-      table.insert(t,tonumber(fs)) 
+      table.insert(t,tonumber(fs))
     end
   end
-  
+
   if #t == 0 then
     m.fileindex = 0
   else
@@ -186,6 +186,16 @@ m.key = function(n,z)
 end
 
 m.enc = norns.none
+
+m.gamepad_axis = function (_sensor_axis,_value)
+  if gamepad.down() then
+    m.mode = TAPE_MODE_REC
+    _menu.redraw()
+  elseif gamepad.up() then
+    m.mode = TAPE_MODE_PLAY
+    _menu.redraw()
+  end
+end
 
 m.redraw = function()
   screen.clear()

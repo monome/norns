@@ -1,3 +1,77 @@
+# 230614
+
+# norns 2.7.7
+
+- FIX fileselect bug #1681 @dndrks
+
+
+# 230526
+
+# norns 2.7.6
+
+- NEW fileselect filters #1678 @dndrks
+- FIX midi clock #1680 @dndrks
+
+
+# 230509
+
+# norns 2.7.5
+
+- FIX screen.export_png reverted, screen.export_screenshot added @tehn
+- FIX battery menu fix @dndrks
+
+
+# 230405
+
+# norns 2.7.4
+
+- NEW png export with scaling and frame #1669 @tehn
+- NEW system settings menu, battery warning #1668 @tehn
+- NEW char/key conversion #1659 @niksilver
+- NEW crow v4 features #1662 @trentgill
+- NEW allow midi send to all channels #1642 @zjb-s
+- NEW user gamepad profiles #1671 @p3r7
+- FIX gamepad support #1624 @p3r7
+- FIX lfo lib improvements #1630 @dndrks
+- FIX various minor fixes (much appreciated)
+
+
+# 221214
+
+# norns 2.7.3
+
+- NEW preview for tape select #1607 @ryleelyman
+- NEW function to check norns version on script load #1613 @ryleelyman
+- NEW keyboard menu key update #1611 @schollz
+- NEW lattice v2 #1616 @ryleelyman
+- FIX param accum mapping, accept wider range of inputs #1606 @zjb-s
+- FIX tempo update bug with link #1617 @dndrks
+- FIX menu key management #1619 #1620 @p3r7
+- FIX lfo lib use lattice v2 #1626 @dndrks
+- FIX wifi pw entry #1627 @dndrks
+
+# image
+
+- fix logrotate
+
+
+# 220802
+
+# norns 2.7.2
+
+- FIX midi remove callback #1590 @catfact
+- NEW lfo library #1591 @dndrks
+- FIX lattice downbeat placement #1587 @sixolet
+- NEW menu-based password change also applies to SMB and hotspot #1570 @dndrks
+- FIX param group and separator initializers #1584 @dndrks
+- NEW action for tempo change #1575 @dndrks
+- FIX param separators in lookup table #1539 @dndrks
+- FIX link C API #1572 @artfwo
+- FIX screen_display_image_region registration @ngwese
+- FIX softcut remove unused filter command #1558 @catfact
+- NEW pset delete, pset number on action #1544 @dndrks
+
+
 # 220321
 
 # norns 2.7.1

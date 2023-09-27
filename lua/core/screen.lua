@@ -119,21 +119,21 @@ Screen.circle = function(x, y, r) _norns.screen_circle(x, y, r) end
 Screen.rect = function(x, y, w, h) _norns.screen_rect(x, y, w, h) end
 
 --- draw curve (cubic Bézier spline).
--- @tparam number x1 destination x
--- @tparam number y1 destination y
--- @tparam number x2 handle 1 x
--- @tparam number y2 handle 1 y
--- @tparam number x3 handle 2 x
--- @tparam number y3 handle 2 y
+-- @tparam number x1 handle 1 x
+-- @tparam number y1 handle 1 y
+-- @tparam number x2 handle 2 x
+-- @tparam number y2 handle 2 y
+-- @tparam number x3 destination x
+-- @tparam number y3 destination y
 Screen.curve = function(x1, y1, x2, y2, x3, y3) _norns.screen_curve(x1, y1, x2, y2, x3, y3) end
 
 --- draw curve (cubic Bézier spline) relative coordinates.
--- @tparam number x1 relative destination x
--- @tparam number y1 relative destination y
--- @tparam number x2 handle 1 x
--- @tparam number y2 handle 1 y
--- @tparam number x3 handle 2 x
--- @tparam number y3 handle 2 y
+-- @tparam number x1 handle 1 x
+-- @tparam number y1 handle 1 y
+-- @tparam number x2 handle 2 x
+-- @tparam number y2 handle 2 y
+-- @tparam number x3 relative destination x
+-- @tparam number y3 relative destination y
 Screen.curve_rel = function(x1, y1, x2, y2, x3, y3) _norns.screen_curve_rel(x1, y1, x2, y2, x3, y3) end
 
 --- close current path.
@@ -141,10 +141,16 @@ Screen.close = function() _norns.screen_close() end
 
 --- stroke current path.
 -- uses currently selected color.
+-- after this call the current path will be cleared, so the 'relative' functions
+-- (`move_rel`, `line_rel` and `curve_rel`) won't work - use their absolute
+-- alternatives instead.
 Screen.stroke = function() _norns.screen_stroke() end
 
 --- fill current path.
 -- uses currently selected color.
+-- after this call the current path will be cleared, so the 'relative' functions
+-- (`move_rel`, `line_rel` and `curve_rel`) won't work - use their absolute
+-- alternatives instead.
 Screen.fill = function() _norns.screen_fill() end
 
 --- draw text (left aligned).
@@ -302,6 +308,10 @@ end
 _norns.screen_circle = function(x, y, r)
   _norns.screen_arc(x, y, r, 0, math.pi*2)
 end
+
+--- export screenshot
+-- @param filename: saved to dust/data/(script)/(filename).png
+Screen.export_screenshot = function(filename) _norns.screen_export_screenshot(norns.state.data..filename..'.png') end
 
 --- display png
 -- @param filename
