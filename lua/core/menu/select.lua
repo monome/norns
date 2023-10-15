@@ -28,11 +28,7 @@ local function sort_select_tree(results)
 
   local t = {}
   for filename in results:gmatch("[^\r\n]+") do
-    if string.match(filename,"/data/")==nil and
-      string.match(filename,"/lib/")==nil and
-      string.match(filename,"/crow/")==nil then
-      table.insert(t,filename)
-    end
+    table.insert(t,'/home/we/dust/code/' .. filename)
   end
 
   for _,file in pairs(t) do
@@ -62,7 +58,11 @@ m.init = function()
     tabutil.save(m.favorites, paths.favorites)
   end
   -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
-  norns.system_cmd('find ~/dust/code/ -name "*.lua" | sort', sort_select_tree)
+  norns.system_cmd('find ~/dust/code/ -mindepth 2 ' ..
+                   '-name .git -prune -o -type f -name "*.lua" -printf "%P\n" | ' ..
+                   'grep -Ev "/(lib|data|crow)/" | ' ..
+                   'sort',
+                   sort_select_tree)
 end
 
 m.deinit = norns.none
