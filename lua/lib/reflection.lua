@@ -1,5 +1,6 @@
 --- clocked pattern recorder library
 -- @module lib.reflection
+-- @author rylee & dan & sacha
 
 local reflection = {}
 reflection.__index = reflection
