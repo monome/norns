@@ -18,7 +18,8 @@ function Hook:deregister(name)
 end
 
 function Hook:__call(...)
-  for k, func in pairs(self.callbacks) do
+  for i, k in ipairs(tab.sort(self.callbacks)) do
+    func = self.callbacks[k]
     if func ~= nil then
       print('calling: ' .. k)
       local ok, error = pcall(func, arg)
