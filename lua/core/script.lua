@@ -132,6 +132,7 @@ Script.init = function()
   print("# script init")
   params.name = norns.state.shortname
   init()
+  hook.script_post_init()
   _norns.screen_save()
 end
 
