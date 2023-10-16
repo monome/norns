@@ -1,7 +1,7 @@
 -- LFOs for general-purpose scripting
 -- @module lib.lfo
 -- inspired by contributions from @markwheeler (changes), @justmat (hnds), and @sixolet (toolkit)
--- added by @dndrks + @sixolet, with improvements by @Dewb
+-- added by @dndrks + @sixolet, with improvements by @Dewb and @sonoCircuit
 
 local lattice = require 'lattice'
 
@@ -11,6 +11,8 @@ LFO.__index = LFO
 local lfo_rates = {1/16,1/8,1/4,5/16,1/3,3/8,1/2,3/4,1,1.5,2,3,4,6,8,16,32,64,128,256,512,1024}
 local lfo_rates_as_strings = {"1/16","1/8","1/4","5/16","1/3","3/8","1/2","3/4","1","1.5","2","3","4","6","8","16","32","64","128","256","512","1024"}
 local lfo_shapes = {'sine','tri','square','random','up','down'}
+
+local beat_sec = clock.get_beat_sec()
 
 local params_per_entry = 14
 
@@ -106,6 +108,7 @@ end
 -- PARAMETERS UI /
 local function lfo_params_visibility(state, i)
   params[state](params, "lfo_baseline_"..i)
+  params[state](params, "lfo_phase_"..i)
   params[state](params, "lfo_offset_"..i)
   params[state](params, "lfo_depth_"..i)
   params[state](params, "lfo_scaled_"..i)
@@ -180,6 +183,20 @@ local function change_bound(target, which, value)
   scale_lfo(target)
 end
 
+local function change_offset(id, value)
+  if value == "max" then
+    params:lookup_param('lfo_offset_'..id).min = -100
+    params:lookup_param('lfo_offset_'..id).max = 0
+  elseif value == "center" then
+    params:lookup_param('lfo_offset_'..id).min = -50
+    params:lookup_param('lfo_offset_'..id).max = 50
+  else
+    params:lookup_param('lfo_offset_'..id).min = 0
+    params:lookup_param('lfo_offset_'..id).max = 100
+  end
+  params:set('lfo_offset_'..id, 0)
+end
+
 local function change_baseline(target, value)
   target.baseline = value
   scale_lfo(target)
@@ -217,12 +234,19 @@ end
 local function process_lfo(id)
   local _lfo = id
   local phase
+  
+  local curr_beat_sec = clock.get_beat_sec()
+  
+  -- the threshold was set arbitrarily. lower values might work too. 
+  if beat_sec > curr_beat_sec + 0.2 or beat_sec < curr_beat_sec - 0.2 then
+    beat_sec = curr_beat_sec
+  end
 
   _lfo.phase_counter = _lfo.phase_counter + (1/_lfo.ppqn)
   if _lfo.mode == "clocked" then
     phase = _lfo.phase_counter / _lfo.period
   else
-    phase = _lfo.phase_counter * clock.get_beat_sec() / _lfo.period
+    phase = _lfo.phase_counter * beat_sec / _lfo.period
   end
   phase = (phase + _lfo.phase) % 1
 
@@ -245,47 +269,48 @@ local function process_lfo(id)
 
     local min = _lfo.min
     local max = _lfo.max
+    local offset = (_lfo.max - _lfo.min) * _lfo.offset
 
     if _lfo.shape ~= 'random' then
       _lfo.raw = current_val
     end
-    current_val = current_val + _lfo.offset
-    local value = util.linlin(0,1,min,min + _lfo.percentage,current_val)
+    
+    local value = util.linlin(0, 1, min, min + _lfo.percentage, current_val)
 
     if _lfo.depth > 0 then
 
       if _lfo.baseline == 'center' then
-        value = util.linlin(0,1,_lfo.scaled_min,_lfo.scaled_max,current_val)
+        value = util.linlin(0, 1, _lfo.scaled_min, _lfo.scaled_max, current_val)
       elseif _lfo.baseline == 'max' then
-        value = util.linlin(0,1,_lfo.scaled_max,_lfo.scaled_min,current_val)
+        value = util.linlin(0, 1, _lfo.scaled_max, _lfo.scaled_min, current_val)
       end
 
       if _lfo.shape == 'sine' or  _lfo.shape == 'tri' or _lfo.shape == 'up' or _lfo.shape == 'down' then
-        value = util.clamp(value,min,max)
-        _lfo.scaled = value
+        value = util.clamp(value, min, max)
+        _lfo.scaled = value + offset
       elseif _lfo.shape == 'square' then
         local square_value = value >= _lfo.mid and max or min
-        square_value = util.linlin(min,max,_lfo.scaled_min,_lfo.scaled_max,square_value)
-        square_value = util.clamp(square_value,_lfo.scaled_min,_lfo.scaled_max)
-        _lfo.scaled = square_value
-        _lfo.raw = util.linlin(_lfo.scaled_min,_lfo.scaled_max,0,1,square_value)
+        square_value = util.linlin(min, max, _lfo.scaled_min, _lfo.scaled_max, square_value)
+        square_value = util.clamp(square_value ,_lfo.scaled_min, _lfo.scaled_max)
+        _lfo.scaled = square_value + offset
+        _lfo.raw = util.linlin(_lfo.scaled_min, _lfo.scaled_max, 0, 1, square_value)
       elseif _lfo.shape == 'random' then
         local prev_value = _lfo.rand_value
         _lfo.rand_value = value >= _lfo.mid and max or min
         local rand_value;
         if prev_value ~= _lfo.rand_value then
-          rand_value = util.linlin(min,max,_lfo.scaled_min,_lfo.scaled_max,math.random(math.floor(min*100),math.floor(max*100))/100)
-          rand_value = util.clamp(rand_value,min,max)
-          _lfo.scaled = rand_value
-          _lfo.raw = util.linlin(_lfo.scaled_min,_lfo.scaled_max,0,1,rand_value)
+          rand_value = util.linlin(min, max, _lfo.scaled_min, _lfo.scaled_max, math.random(math.floor(min*100), math.floor(max*100))/100)
+          rand_value = util.clamp(rand_value, min,max)
+          _lfo.scaled = rand_value + offset
+          _lfo.raw = util.linlin(_lfo.scaled_min, _lfo.scaled_max, 0, 1, rand_value)
         end
       end
 
       _lfo.action(_lfo.scaled, _lfo.raw)
 
       if _lfo.parameter_id ~= nil then
-        params:set("lfo_scaled_".._lfo.parameter_id,util.round(_lfo.scaled,0.01))
-        params:set("lfo_raw_".._lfo.parameter_id,util.round(_lfo.raw,0.01))
+        params:set("lfo_scaled_".._lfo.parameter_id, util.round(_lfo.scaled, 0.01))
+        params:set("lfo_raw_".._lfo.parameter_id, util.round(_lfo.raw, 0.01))
       end
 
     end
@@ -455,6 +480,7 @@ function LFO:add_params(id,sep,group)
       params:add_option("lfo_baseline_"..id, "lfo baseline", baseline_options, tab.key(baseline_options,'from '..self:get('baseline')))
       params:set_action("lfo_baseline_"..id, function(x)
         self:set('baseline',string.gsub(params:lookup_param("lfo_baseline_"..id).options[x],"from ",""))
+        change_offset(id, self:get('baseline'))
         _menu.rebuild_params()
       end)
       
