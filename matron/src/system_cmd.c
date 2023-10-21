@@ -73,19 +73,8 @@ void *run_cmd(void *cmd) {
             strncat(capture, line, capacity);
         }
         capacity -= len;
-
-#if 1 // test..
-	fprintf(stderr, "last line: \n\t%s\n", line);
-	// fprintf(stderr, "current buffer: \n\t %s\n", line);
-	fprintf(stderr, "remaining capacity: %d bytes\n", capacity);
-#endif
-
     } while (capacity > 0); // ... or, stop if buffer is full
 
-#if 0 // test...
-    fprintf(stderr, "finished line loop; full buffer: \n");    
-    fprintf(stderr, "%s\n", capture);
-#endif
 
     // just use memcpy and include the null terminator
     size_t len = strlen(capture) + 1;
