@@ -1,15 +1,11 @@
 #include "ssd1322.h"
 
 static int spidev_fd = 0;
-static bool display_dirty = false;
 static bool should_turn_on = true;
-static bool should_translate_color = false;
 static uint8_t * spidev_buffer;
 static struct gpiod_chip * gpio_0;
 static struct gpiod_line * gpio_dc;
 static struct gpiod_line * gpio_reset;
-static cairo_surface_t * surface_pointer;
-static pthread_t ssd1322_pthread_t;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 int open_spi() {
@@ -97,25 +93,6 @@ fail:
 #define write_command(x) \
     (ssd1322_write_command(x, 0, 0))
 
-static void* ssd1322_thread_run(void * p){
-    (void)p;
-
-    static struct timespec ts = {
-            .tv_sec = 0,
-            .tv_nsec = (1/60) * 1e9,
-    };
-
-    while( spidev_buffer ){
-        if( display_dirty ){
-            ssd1322_refresh();
-            display_dirty = false;
-        }
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
-    }
-
-    return NULL;
-}
-
 void ssd1322_init() {
 
     if( pthread_mutex_init(&lock, NULL) != 0 ){
@@ -171,18 +148,6 @@ void ssd1322_init() {
     // Do not turn display on until the first update has been called,
     // otherwise previous GDDRAM (or noise) will display before the
     // "hello" startup screen.
-
-    // Set high thread priority to avoid flashing.
-    static struct sched_param param;
-    param.sched_priority = sched_get_priority_max(SCHED_OTHER);
-
-    // Start thread.
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    pthread_attr_setschedparam(&attr, &param);
-    pthread_create(&ssd1322_pthread_t, &attr, &ssd1322_thread_run, NULL);
-    pthread_attr_destroy(&attr);
 }
 
 void ssd1322_deinit(){
@@ -202,13 +167,7 @@ void ssd1322_deinit(){
     }
 }
 
-void ssd1322_update(cairo_surface_t * surface, bool surface_may_have_color){
-    display_dirty = true;
-    surface_pointer = surface;
-    should_translate_color = surface_may_have_color;
-}
-
-void ssd1322_refresh(){
+void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_color){
     struct spi_ioc_transfer transfer = {0};
 
     if( spidev_fd <= 0 ){

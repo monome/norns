@@ -213,7 +213,7 @@ Screen.text_extents = function(str)
 end
 
 --- select font face.
--- @param index font face (see list)
+-- @param index font face (see list, or Screen.font_face_names)
 --
 -- 1 04B_03 (norns default)
 -- 2 ALEPH

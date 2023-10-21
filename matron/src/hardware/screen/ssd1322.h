@@ -82,7 +82,7 @@ typedef enum {
 void ssd1322_init();
 void ssd1322_deinit();
 void ssd1322_refresh();
-void ssd1322_update(cairo_surface_t * surface, bool surface_may_have_color);
+void ssd1322_update(cairo_surface_t * surface, bool should_translate_color);
 void ssd1322_set_brightness(uint8_t b);
 void ssd1322_set_contrast(uint8_t c);
 void ssd1322_set_display_mode(ssd1322_display_mode_t);

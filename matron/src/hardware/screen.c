@@ -24,20 +24,6 @@
 #include "hardware/screen.h"
 #include "hardware/screen/ssd1322.h"
 
-
-// skip this if you don't want every screen module call to perform null checks
-#ifndef CHECK_CR
-#define CHECK_CR      \
-    if (cr == NULL) { \
-        return;       \
-    }
-#define CHECK_CRR     \
-    if (cr == NULL) { \
-        return 0;     \
-    }
-#endif
-
-
 #define NUM_FONTS 67
 #define NUM_OPS 29
 
@@ -86,37 +72,19 @@ static cairo_t *cr_primary;
 static bool surface_may_have_color = false;
 
 
-static cairo_t *crfb;
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
 static FT_Error status;
 static FT_Face face[NUM_FONTS];
-//static double text_xy[2];
 
-typedef struct _cairo_linuxfb_device {
-    int fb_fd;
-    unsigned char *fb_data;
-    long fb_screensize;
-    struct fb_var_screeninfo fb_vinfo;
-    struct fb_fix_screeninfo fb_finfo;
-} cairo_linuxfb_device_t;
-
-static void cairo_linuxfb_surface_destroy(void *device);
-static cairo_surface_t *cairo_linuxfb_surface_create();
 static void init_font_faces(void);
 
 //---------------------------------------
 //--- extern function definitions
 
 void screen_init(void) {
-    surfacefb = cairo_linuxfb_surface_create();
-    if (surfacefb == NULL) {
-        return;
-    }
-    crfb = cairo_create(surfacefb);
-
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
-    cr = cairo_create(surface);
+    cr = cr_primary = cairo_create(surface);
 
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
@@ -134,137 +102,14 @@ void screen_init(void) {
     cairo_set_font_size(cr, 8.0);
 
     // config buffer
-    cairo_set_operator(crfb, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_surface(crfb, surface, 0, 0);
-}
-
-void screen_deinit(void) {
-    cairo_destroy(cr);
-    cairo_surface_destroy(surface);
-    cairo_destroy(crfb);
-    cairo_surface_destroy(surfacefb);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    cairo_set_source_surface(cr, surface, 0, 0);
 }
 
 //-----------------
 //-- screen commands
 
-void screen_update(void) {
-    cairo_paint(crfb);
-}
-
-void screen_save(void) {
-    cairo_save(cr);
-}
-
-void screen_restore(void) {
-    cairo_restore(cr);
-}
-
-void screen_font_face(int i) {
-    if ((i >= 0) && (i < NUM_FONTS)) {
-        cairo_set_font_face(cr, ct[i]);
-    }
-}
-
-void screen_font_size(double z) {
-    cairo_set_font_size(cr, z);
-}
-
-void screen_aa(int s) {
-    cairo_font_options_t *font_options = cairo_font_options_create();
-    if (s == 0) {
-        cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
-        cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_NONE);
-    } else {
-        cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
-        cairo_font_options_set_antialias(font_options, CAIRO_ANTIALIAS_SUBPIXEL);
-    }
-    cairo_set_font_options(cr, font_options);
-    cairo_font_options_destroy(font_options);
-}
-
-void screen_level(int z) {
-    z = z < 0 ? 0 : (z > 15 ? 15 : z);
-    cairo_set_source_rgb(cr, c[z], c[z], c[z]);
-}
-
-void screen_line_width(double w) {
-    cairo_set_line_width(cr, w);
-}
-
-void screen_line_cap(const char *style) {
-    if (strcmp(style, "round") == 0) {
-        cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-    } else if (strcmp(style, "square") == 0) {
-        cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
-    } else {
-        cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
-    }
-}
-
-void screen_line_join(const char *style) {
-    if (strcmp(style, "round") == 0) {
-        cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
-    } else if (strcmp(style, "bevel") == 0) {
-        cairo_set_line_join(cr, CAIRO_LINE_JOIN_BEVEL);
-    } else {
-        cairo_set_line_join(cr, CAIRO_LINE_JOIN_MITER);
-    }
-}
-
-void screen_miter_limit(double limit) {
-    cairo_set_miter_limit(cr, limit);
-}
-
-void screen_move(double x, double y) {
-    cairo_move_to(cr, x, y);
-}
-
-void screen_line(double x, double y) {
-    cairo_line_to(cr, x, y);
-}
-
-void screen_line_rel(double x, double y) {
-    cairo_rel_line_to(cr, x, y);
-}
-
-void screen_move_rel(double x, double y) {
-    cairo_rel_move_to(cr, x, y);
-}
-
-void screen_curve(double x1, double y1, double x2, double y2, double x3, double y3) {
-    cairo_curve_to(cr, x1, y1, x2, y2, x3, y3);
-}
-
-void screen_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
-    cairo_rel_curve_to(cr, dx1, dy1, dx2, dy2, dx3, dy3);
-}
-
-void screen_arc(double x, double y, double r, double a1, double a2) {
-    cairo_arc(cr, x, y, r, a1, a2);
-}
-
-void screen_rect(double x, double y, double w, double h) {
-    cairo_rectangle(cr, x, y, w, h);
-}
-
-void screen_close_path(void) {
-    cairo_close_path(cr);
-}
-
-void screen_stroke(void) {
-    cairo_stroke(cr);
-}
-
-void screen_fill(void) {
-    cairo_fill(cr);
-}
-
-void screen_text(const char *s) {
-    cairo_show_text(cr, s);
-}
-
-void screen_text_right(const char *s) {    
+void screen_text_right(const char *s) {
     cairo_text_extents_t extents;    
     cairo_text_extents(cr, s, &extents);
     cairo_rel_move_to(cr, -extents.width, 0);
@@ -291,111 +136,6 @@ void screen_text_trim(char *s, double w) {
     cairo_show_text(cr, s);    
 }
 
-void screen_clear(void) {
-    cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-    cairo_paint(cr);
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-}
-
-void screen_text_extents(const char *s) {
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, s, &extents);    
-    union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_TEXT_EXTENTS);    
-    ev->screen_result_text_extents.x_bearing = extents.x_bearing;
-    ev->screen_result_text_extents.y_bearing = extents.y_bearing;
-    ev->screen_result_text_extents.width = extents.width;
-    ev->screen_result_text_extents.height = extents.height;
-    ev->screen_result_text_extents.x_advance = extents.x_advance;
-    ev->screen_result_text_extents.y_advance = extents.y_advance;
-    event_post(ev);
-}
-
-void screen_peek(int x, int y, int w, int h) {
-    w = (w <= (128 - x)) ? w : (128 - x);
-    h = (h <= (64 - y))  ? h : (64 - y);
-    char *buf = malloc(w * h);
-    if (!buf) {
-        return;
-    }
-    // NB: peek/poke do not actually access the CR,
-    // but we do want to avoid torn values
-    cairo_surface_flush(surface);
-    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
-    if (!data) {
-	return;
-    }
-    char *p = buf;
-    for (int j = y; j < y + h; j++) {
-        for (int i = x; i < x + w; i++) {
-            *p = data[j * 128 + i] & 0xF;
-            p++;
-        }
-    }
-    union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_PEEK);
-    ev->screen_result_peek.w = w;
-    ev->screen_result_peek.h = h;    
-    ev->screen_result_peek.buf = buf;
-    event_post(ev);
-}
-
-void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
-    w = (w <= (128 - x)) ? w : (128 - x);
-    h = (h <= (64 - y))  ? h : (64 - y);
-    // NB: peek/poke do not actually access the CR,
-    // but we do want to avoid torn values
-    uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
-    if (!data) {
-        return;
-    }
-    uint8_t *p = buf;
-    uint32_t pixel;
-    for (int j = y; j < y + h; j++) {
-        for (int i = x; i < x + w; i++) {
-            pixel = *p;
-            pixel = pixel | (pixel << 4);
-            data[j * 128 + i] = pixel | (pixel << 8) | (pixel << 16) | (pixel << 24);
-            p++;
-        }
-    }
-    cairo_surface_mark_dirty(surface);
-}
-
-void screen_rotate(double r) {
-    cairo_rotate(cr, r);
-}
-
-void screen_translate(double x, double y) {
-    cairo_translate(cr, x, y);
-}
-
-void screen_set_operator(int i) {
-    if (0 <= i && i <= 28) {
-        cairo_set_operator(cr, ops[i]);
-    }
-}
-
-void screen_display_png(const char *filename, double x, double y) {
-    int img_w, img_h;
-
-    image = cairo_image_surface_create_from_png(filename);
-    if (cairo_surface_status(image)) {
-        fprintf(stderr, "display_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
-        return;
-    }
-
-    img_w = cairo_image_surface_get_width(image);
-    img_h = cairo_image_surface_get_height(image);
-
-    cairo_set_source_surface(cr, image, x, y);
-    // cairo_paint (cr);
-    cairo_rectangle(cr, x, y, img_w, img_h);
-    cairo_fill(cr);
-    cairo_surface_destroy(image);
-}
-
-void screen_export_png(const char *s) {
-    cairo_surface_write_to_png(surface, s);
-}
 
 void screen_current_point() {
     double x, y;
@@ -409,72 +149,7 @@ void screen_current_point() {
 //-------------------------------------------------------
 //-- static function definitions
 
-void cairo_linuxfb_surface_destroy(void *device) {
-    cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
-
-    if (dev == NULL) {
-        return;
-    }
-
-    munmap(dev->fb_data, dev->fb_screensize);
-    close(dev->fb_fd);
-    free(dev);
-}
-
-cairo_surface_t *cairo_linuxfb_surface_create() {
-    cairo_linuxfb_device_t *device;
-    cairo_surface_t *surface;
-
-    const char *fb_name = args_framebuffer();
-
-    device = malloc(sizeof(*device));
-    if (!device) {
-        fprintf(stderr, "ERROR (screen) cannot allocate memory\n");
-        return NULL;
-    }
-
-    device->fb_fd = open(fb_name, O_RDWR);
-    if (device->fb_fd == -1) {
-        fprintf(stderr, "ERROR (screen) cannot open framebuffer device\n");
-        goto handle_allocate_error;
-    }
-
-    if (ioctl(device->fb_fd, FBIOGET_VSCREENINFO, &device->fb_vinfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading variable information\n");
-        goto handle_ioctl_error;
-    }
-
-    device->fb_screensize = device->fb_vinfo.xres * device->fb_vinfo.yres * device->fb_vinfo.bits_per_pixel / 8;
-
-    device->fb_data = (unsigned char *)mmap(0, device->fb_screensize, 
-    PROT_READ | PROT_WRITE, MAP_SHARED, device->fb_fd, 0);
-
-    if (device->fb_data == (unsigned char *)-1) {
-        fprintf(stderr, "ERROR (screen) failed to map framebuffer device to memory\n");
-        goto handle_ioctl_error;
-    }
-
-    if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1) {
-        fprintf(stderr, "ERROR (screen) reading fixed information\n");
-        goto handle_ioctl_error;
-    }
-
-    surface = cairo_image_surface_create_for_data(
-        device->fb_data, CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres, device->fb_vinfo.yres,
-        cairo_format_stride_for_width(CAIRO_FORMAT_RGB16_565, device->fb_vinfo.xres));
-    cairo_surface_set_user_data(surface, NULL, device, &cairo_linuxfb_surface_destroy);
-
-    return surface;
-
-handle_ioctl_error:
-    close(device->fb_fd);
-handle_allocate_error:
-    free(device);
-    return NULL;
-}
-
-
- void init_font_faces(void) { 
+void init_font_faces(void) { 
     
     status = FT_Init_FreeType(&value);
     if (status != 0) {
@@ -605,13 +280,11 @@ handle_allocate_error:
 }
 
 void screen_deinit(void) {
-    CHECK_CR
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 }
 
 void screen_update(void) {
-    CHECK_CR
 
 #ifdef NORNS_DESKTOP
     matron_io_t *io;
@@ -629,30 +302,24 @@ void screen_update(void) {
 }
 
 void screen_save(void) {
-    CHECK_CR
     cairo_save(cr);
 }
 
 void screen_restore(void) {
-    CHECK_CR
     cairo_restore(cr);
 }
 
 void screen_font_face(int i) {
-    CHECK_CR
     if ((i >= 0) && (i < NUM_FONTS)) {
         cairo_set_font_face(cr, ct[i]);
     }
 }
 
 void screen_font_size(double z) {
-    CHECK_CR
     cairo_set_font_size(cr, z);
 }
 
 void screen_aa(int s) {
-    CHECK_CR
-
     cairo_font_options_t *font_options = cairo_font_options_create();
     if (s == 0) {
         cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
@@ -666,7 +333,6 @@ void screen_aa(int s) {
 }
 
 void screen_gamma(double g) {
-    CHECK_CR
     if (g < 0.0) {
         g=0;
     }
@@ -684,7 +350,6 @@ void screen_gamma(double g) {
 }
 
 void screen_brightness(int v) {
-    CHECK_CR
     if (v < 0) {
         v=0;
     }
@@ -701,7 +366,6 @@ void screen_brightness(int v) {
 }
 
 void screen_contrast(int c){
-    CHECK_CR
     if (c < 0) {
         c=0;
     }
@@ -712,7 +376,6 @@ void screen_contrast(int c){
 }
 
 void screen_invert(){
-    CHECK_CR
     static uint8_t inverted = 0;
     if( inverted ){
         ssd1322_set_display_mode(SSD1322_DISPLAY_MODE_NORMAL);
@@ -724,21 +387,15 @@ void screen_invert(){
 }
 
 void screen_level(int z) {
-    CHECK_CR
-    if(z<0)
-        z=0;
-    else if(z>15)
-        z=15;
+    z = z < 0 ? 0 : (z > 15 ? 15 : z);
     cairo_set_source_rgb(cr, c[z], c[z], c[z]);
 }
 
 void screen_line_width(double w) {
-    CHECK_CR
     cairo_set_line_width(cr, w);
 }
 
 void screen_line_cap(const char *style) {
-    CHECK_CR
     if (strcmp(style, "round") == 0) {
         cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
     } else if (strcmp(style, "square") == 0) {
@@ -749,7 +406,6 @@ void screen_line_cap(const char *style) {
 }
 
 void screen_line_join(const char *style) {
-    CHECK_CR
     if (strcmp(style, "round") == 0) {
         cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
     } else if (strcmp(style, "bevel") == 0) {
@@ -760,94 +416,82 @@ void screen_line_join(const char *style) {
 }
 
 void screen_miter_limit(double limit) {
-    CHECK_CR
     cairo_set_miter_limit(cr, limit);
 }
 
 void screen_move(double x, double y) {
-    CHECK_CR
     cairo_move_to(cr, x, y);
 }
 
 void screen_line(double x, double y) {
-    CHECK_CR
     cairo_line_to(cr, x, y);
 }
 
 void screen_line_rel(double x, double y) {
-    CHECK_CR
     cairo_rel_line_to(cr, x, y);
 }
 
 void screen_move_rel(double x, double y) {
-    CHECK_CR
     cairo_rel_move_to(cr, x, y);
 }
 
 void screen_curve(double x1, double y1, double x2, double y2, double x3, double y3) {
-    CHECK_CR
     cairo_curve_to(cr, x1, y1, x2, y2, x3, y3);
 }
 
 void screen_curve_rel(double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
-    CHECK_CR
     cairo_rel_curve_to(cr, dx1, dy1, dx2, dy2, dx3, dy3);
 }
 
 void screen_arc(double x, double y, double r, double a1, double a2) {
-    CHECK_CR
     cairo_arc(cr, x, y, r, a1, a2);
 }
 
 void screen_rect(double x, double y, double w, double h) {
-    CHECK_CR
     cairo_rectangle(cr, x, y, w, h);
 }
 
 void screen_close_path(void) {
-    CHECK_CR
     cairo_close_path(cr);
 }
 
 void screen_stroke(void) {
-    CHECK_CR
     cairo_stroke(cr);
 }
 
 void screen_fill(void) {
-    CHECK_CR
     cairo_fill(cr);
 }
 
 void screen_text(const char *s) {
-    CHECK_CR
     cairo_show_text(cr, s);
 }
 
 void screen_clear(void) {
-    CHECK_CR
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     surface_may_have_color = true;
 }
 
-double *screen_text_extents(const char *s) {
-    CHECK_CRR
+void screen_text_extents(const char *s) {
     cairo_text_extents_t extents;
-    cairo_text_extents(cr, s, &extents);
-    text_xy[0] = extents.width;
-    text_xy[1] = extents.height;
-    return text_xy;
+    cairo_text_extents(cr, s, &extents);    
+    union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_TEXT_EXTENTS);    
+    ev->screen_result_text_extents.x_bearing = extents.x_bearing;
+    ev->screen_result_text_extents.y_bearing = extents.y_bearing;
+    ev->screen_result_text_extents.width = extents.width;
+    ev->screen_result_text_extents.height = extents.height;
+    ev->screen_result_text_extents.x_advance = extents.x_advance;
+    ev->screen_result_text_extents.y_advance = extents.y_advance;
+    event_post(ev);
 }
 
 extern void screen_export_png(const char *s) {
-		CHECK_CR
-		cairo_surface_write_to_png(surface, s);
+	cairo_surface_write_to_png(surface, s);
 }
 
 extern void screen_export_screenshot(const char *s) {
-    CHECK_CR
     static cairo_surface_t *png;
     static cairo_t *temp; // for bg fill
     // width = 640 (128*4 pixels with 64 pixel black border)
@@ -905,34 +549,39 @@ void screen_display_png(const char *filename, double x, double y) {
     cairo_restore(cr);
 }
 
-char *screen_peek(int x, int y, int *w, int *h) {
-    CHECK_CRR
-    *w = (*w <= (128 - x)) ? (*w) : (128 - x);
-    *h = (*h <= (64 - y))  ? (*h) : (64 - y);
-    char *buf = malloc(*w * *h);
+void screen_peek(int x, int y, int w, int h) {
+    w = (w <= (128 - x)) ? w : (128 - x);
+    h = (h <= (64 - y))  ? h : (64 - y);
+    char *buf = malloc(w * h);
     if (!buf) {
-        return NULL;
+        return;
     }
+    // NB: peek/poke do not actually access the CR,
+    // but we do want to avoid torn values
     cairo_surface_flush(surface);
     uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
-        return NULL;
+	    return;
     }
     char *p = buf;
-    for (int j = y; j < y + *h; j++) {
-        for (int i = x; i < x + *w; i++) {
+    for (int j = y; j < y + h; j++) {
+        for (int i = x; i < x + w; i++) {
             *p = data[j * 128 + i] & 0xF;
             p++;
         }
     }
-    return buf;
+    union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_PEEK);
+    ev->screen_result_peek.w = w;
+    ev->screen_result_peek.h = h;    
+    ev->screen_result_peek.buf = buf;
+    event_post(ev);
 }
 
 void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
-    CHECK_CR
     w = (w <= (128 - x)) ? w : (128 - x);
     h = (h <= (64 - y))  ? h : (64 - y);
-
+    // NB: peek/poke do not actually access the CR,
+    // but we do want to avoid torn values
     uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
         return;
@@ -947,21 +596,18 @@ void screen_poke(int x, int y, int w, int h, unsigned char *buf) {
             p++;
         }
     }
-    cairo_surface_mark_dirty_rectangle(surface, x, y, w, h);
+    cairo_surface_mark_dirty(surface);
 }
 
 void screen_rotate(double r) {
-    CHECK_CR
     cairo_rotate(cr, r);
 }
 
 void screen_translate(double x, double y) {
-    CHECK_CR
     cairo_translate(cr, x, y);
 }
 
 void screen_set_operator(int i) {
-    CHECK_CR
     if (0 <= i && i <= 28) {
         cairo_set_operator(cr, ops[i]);
     }
@@ -981,7 +627,6 @@ screen_surface_t *screen_surface_new(double width, double height) {
 }
 
 screen_surface_t *screen_surface_load_png(const char *filename) {
-    CHECK_CRR
     cairo_surface_t *image = cairo_image_surface_create_from_png(filename);
     if (cairo_surface_status(image)) {
         fprintf(stderr, "load_png: %s\n", cairo_status_to_string(cairo_surface_status(image)));
@@ -991,13 +636,10 @@ screen_surface_t *screen_surface_load_png(const char *filename) {
 }
 
 void screen_surface_free(screen_surface_t *s) {
-    CHECK_CR
-    // fprintf(stderr, "screen_surface_free(%p)\n", s);
     cairo_surface_destroy((cairo_surface_t *)s);
 }
 
 bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e) {
-    CHECK_CRR
     cairo_surface_t *image = (cairo_surface_t *)s;
     e->width = cairo_image_surface_get_width(image);
     e->height = cairo_image_surface_get_height(image);
@@ -1005,7 +647,6 @@ bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e
 }
 
 void screen_surface_display(screen_surface_t *s, double x, double y) {
-    CHECK_CR
     cairo_surface_t *image = (cairo_surface_t *)s;
     int width = cairo_image_surface_get_width(image);
     int height = cairo_image_surface_get_height(image);
@@ -1020,7 +661,6 @@ void screen_surface_display(screen_surface_t *s, double x, double y) {
 void screen_surface_display_region(screen_surface_t *s,
                                    double left, double top, double width, double height,
                                    double x, double y) {
-    CHECK_CR
     cairo_surface_t *image = (cairo_surface_t *)s;
     cairo_save(cr);
     cairo_set_source_surface(cr, image, -left + x, -top + y);
@@ -1045,7 +685,6 @@ screen_context_t *screen_context_new(screen_surface_t *target) {
 }
 
 void screen_context_free(screen_context_t *context) {
-    // fprintf(stderr, "screen_context_free(%p)\n", context);
     cairo_destroy((cairo_t *)context);
 }
 
@@ -1079,6 +718,3 @@ void screen_context_set(const screen_context_t *context) {
 void screen_context_set_primary(void) {
     _screen_context_set(cr_primary);
 }
-
-#undef CHECK_CR
-#undef CHECK_CRR
