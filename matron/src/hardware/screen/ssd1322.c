@@ -8,6 +8,13 @@ static struct gpiod_line * gpio_dc;
 static struct gpiod_line * gpio_reset;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
+#ifdef SSD1322_USES_THREAD
+static bool display_dirty = false;
+static bool should_translate_color = false;
+static cairo_surface_t * surface_pointer;
+static pthread_t ssd1322_pthread_t;
+#endif
+
 int open_spi() {
     uint8_t mode = SPI_MODE_0;
     uint8_t bits_per_word = SPI0_BUS_WIDTH;
@@ -93,6 +100,27 @@ fail:
 #define write_command(x) \
     (ssd1322_write_command(x, 0, 0))
 
+#ifdef SSD1322_USES_THREAD
+static void* ssd1322_thread_run(void * p){
+    (void)p;
+
+    static struct timespec ts = {
+            .tv_sec = 0,
+            .tv_nsec = (1/60) * 1e9,
+    };
+
+    while( spidev_buffer ){
+        if( display_dirty ){
+            ssd1322_refresh();
+            display_dirty = false;
+        }
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+    }
+
+    return NULL;
+}
+#endif
+
 void ssd1322_init() {
 
     if( pthread_mutex_init(&lock, NULL) != 0 ){
@@ -148,6 +176,20 @@ void ssd1322_init() {
     // Do not turn display on until the first update has been called,
     // otherwise previous GDDRAM (or noise) will display before the
     // "hello" startup screen.
+
+#ifdef SSD1322_USES_THREAD
+    // Set high thread priority to avoid flashing.
+    static struct sched_param param;
+    param.sched_priority = sched_get_priority_max(SCHED_OTHER);
+
+    // Start thread.
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    pthread_attr_setschedparam(&attr, &param);
+    pthread_create(&ssd1322_pthread_t, &attr, &ssd1322_thread_run, NULL);
+    pthread_attr_destroy(&attr);
+#endif
 }
 
 void ssd1322_deinit(){
@@ -167,7 +209,17 @@ void ssd1322_deinit(){
     }
 }
 
+#ifdef SSD1322_USES_THREAD
+void ssd1322_update(cairo_surface_t * surface, bool surface_may_have_color){
+    display_dirty = true;
+    surface_pointer = surface;
+    should_translate_color = surface_may_have_color;
+}
+
+void ssd1322_refresh(){
+#else
 void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_color){
+#endif
     struct spi_ioc_transfer transfer = {0};
 
     if( spidev_fd <= 0 ){
@@ -323,3 +375,8 @@ uint8_t* ssd1322_resize_buffer(size_t size){
     spidev_buffer = realloc(spidev_buffer, size);
     return spidev_buffer;
 }
+
+#undef NUMARGS
+#undef write_command
+#undef write_command_with_data
+

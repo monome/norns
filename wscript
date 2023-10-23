@@ -16,6 +16,7 @@ def options(opt):
     opt.add_option('--release', action='store_true', default=False)
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
     opt.add_option('--profile-matron', action='store_true', default=False)
+    opt.add_option('--enable-display-timer-thread', action='store_true', default=False)
 
     opt.recurse('maiden-repl')
 
@@ -65,6 +66,10 @@ def configure(conf):
 
     conf.env.ENABLE_ABLETON_LINK = conf.options.enable_ableton_link
     conf.define('HAVE_ABLETON_LINK', conf.options.enable_ableton_link)
+
+    if conf.options.enable_display_timer_thread:
+        conf.define('SSD1322_USES_THREAD', True)
+    conf.env.ENABLE_DISPLAY_TIMER_THREAD = conf.options.enable_display_timer_thread
 
     conf.recurse('maiden-repl')
 
