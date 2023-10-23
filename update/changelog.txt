@@ -1,6 +1,6 @@
 # 231023
 
-# norns 231023
+# norns 2.7.9
 
 - NEW cpu_time measurement #1718 @catfact
 - NEW mod system additional hooks #1716 @sixolet
