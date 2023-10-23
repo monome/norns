@@ -1,3 +1,13 @@
+# 231023
+
+# norns 231023
+
+- NEW cpu_time measurement #1718 @catfact
+- NEW mod system additional hooks #1716 @sixolet
+- NEW lib reflection #1713 @ryleelyman
+- FIX lfo offset behavior #1715 @sonocircuit
+
+
 # 231011
 
 # norns 2.7.8
