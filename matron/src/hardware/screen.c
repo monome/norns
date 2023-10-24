@@ -20,6 +20,7 @@
 #include "events.h"
 #include "event_types.h"
 #include "screen.h"
+#include "screen_results.h"
 #include "hardware/io.h"
 #include "hardware/screen.h"
 #include "hardware/screen/ssd1322.h"
@@ -143,7 +144,7 @@ void screen_current_point() {
     union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_CURRENT_POINT);
     ev->screen_result_current_point.x = x;
     ev->screen_result_current_point.y = y;
-    event_post(ev);
+    screen_results_post(ev);
 }
 
 //-------------------------------------------------------
@@ -484,7 +485,7 @@ void screen_text_extents(const char *s) {
     ev->screen_result_text_extents.height = extents.height;
     ev->screen_result_text_extents.x_advance = extents.x_advance;
     ev->screen_result_text_extents.y_advance = extents.y_advance;
-    event_post(ev);
+    screen_results_post(ev);
 }
 
 extern void screen_export_png(const char *s) {
@@ -574,7 +575,7 @@ void screen_peek(int x, int y, int w, int h) {
     ev->screen_result_peek.w = w;
     ev->screen_result_peek.h = h;    
     ev->screen_result_peek.buf = buf;
-    event_post(ev);
+    screen_results_post(ev);
 }
 
 void screen_poke(int x, int y, int w, int h, unsigned char *buf) {

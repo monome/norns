@@ -30,6 +30,7 @@
 #include "platform.h"
 #include "screen.h"
 #include "screen_events.h"
+#include "screen_results.h"
 #include "stat.h"
 #include "hardware/screen/ssd1322.h"
 
@@ -98,6 +99,7 @@ int main(int argc, char **argv) {
     dev_monitor_init();
 
     // start listening for screen events
+    screen_results_init();
     screen_events_init();
 
     // now is a good time to set our cleanup

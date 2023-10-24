@@ -310,20 +310,15 @@ static void handle_event(union event_data *ev) {
     case EVENT_CUSTOM:
         w_handle_custom_weave(&(ev->custom));
         break;
-    case EVENT_SCREEN_RESULT_TEXT_EXTENTS:
-	    w_handle_screen_result_text_extents(&ev->screen_result_text_extents);
-	    break;
-    case EVENT_SCREEN_RESULT_CURRENT_POINT:
-	    w_handle_screen_result_current_point(&ev->screen_result_current_point);
-	    break;
-    case EVENT_SCREEN_RESULT_PEEK:
-	    w_handle_screen_result_peek(&ev->screen_result_peek);
-	    break;
-    /* case EVENT_SCREEN_RESULTS: */
-    /* 	w_handle_screen_results(&ev->screen_results); */
-    /* 	break; */
-	    w_handle_screen_result_peek(&ev->screen_result_peek);
-	    break;
+    // case EVENT_SCREEN_RESULT_TEXT_EXTENTS:
+	//     w_handle_screen_result_text_extents(&ev->screen_result_text_extents);
+	//     break;
+    // case EVENT_SCREEN_RESULT_CURRENT_POINT:
+	//     w_handle_screen_result_current_point(&ev->screen_result_current_point);
+	//     break;
+    // case EVENT_SCREEN_RESULT_PEEK:
+	//     w_handle_screen_result_peek(&ev->screen_result_peek);
+	//     break;
     } /* switch */
 
     event_data_free(ev);

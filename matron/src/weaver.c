@@ -44,6 +44,7 @@
 #include "platform.h"
 #include "screen.h"
 #include "screen_events.h"
+#include "screen_results.h"
 #include "snd_file.h"
 #include "system_cmd.h"
 #include "weaver.h"
@@ -1032,14 +1033,34 @@ int _screen_close(lua_State *l) {
 int _screen_text_extents(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
+    
     screen_event_text_extents(s);
-    lua_settop(l, 0);
-    return 0;
+    fprintf(stderr, "text_extents, waiting on results\n");
+    screen_results_wait();
+    fprintf(stderr, "text_extents, got screen results\n");
+    union event_data *ev = screen_results_get();
+    struct event_screen_result_text_extents *ext = (struct event_screen_result_text_extents *)ev;
+#if 1 // legacy API
+    lua_pushinteger(l, (int)ext->width);
+    lua_pushinteger(l, (int)ext->height);
+    event_data_free(ev);
+    return 2;
+#else
+    lua_pushnumber(l, ext->x_bearing);
+    lua_pushnumber(l, ext->y_bearing);
+    lua_pushnumber(l, ext->width);
+    lua_pushnumber(l, ext->height);
+    lua_pushnumber(l, ext->x_advance);
+    lua_pushnumber(l, ext->y_advance);
+    event_data_free(ev);
+    return 6;
+#endif
+
 }
 
 /***
  * screen: export_png
- * @function s_export_png
+ * @function s_export_png 
  * @tparam string filename
  */
 int _screen_export_png(lua_State *l) {
@@ -1088,6 +1109,7 @@ int _screen_display_png(lua_State *l) {
  * @tparam integer h rectangle height to grab
  */
 int _screen_peek(lua_State *l) {
+    fprintf(stderr, "screen_peek\n");
     lua_check_num_args(4);
     int x = luaL_checkinteger(l, 1);
     int y = luaL_checkinteger(l, 2);
@@ -1099,8 +1121,19 @@ int _screen_peek(lua_State *l) {
      && (w > 0)
      && (h > 0)) {
         screen_event_peek(x, y, w, h);
-    } 
-    return 0;
+        screen_results_wait();
+        union event_data *ev = screen_results_get();
+        struct event_screen_result_peek *peek = (struct event_screen_result_peek *)ev;
+        lua_pushinteger(l, peek->w);
+        lua_pushinteger(l, peek->h);
+        lua_pushstring(l, peek->buf);
+        event_data_free(ev);
+    } else { 
+        lua_pushinteger(l, 0);
+        lua_pushinteger(l, 0);
+        lua_pushstring(l, "");
+    }
+    return 3;
 }
 
 /***
@@ -1383,20 +1416,23 @@ int _screen_display_image_region(lua_State *l) {
     double x = luaL_checknumber(l, 6);
     double y = luaL_checknumber(l, 7);
     screen_surface_display_region(i->surface, left, top, width, height, x, y);
-    lua_settop(l, 0);
     return 0;
 }
-
-
 
 
 /***
  * screen: request current draw point
  */
 int _screen_current_point(lua_State *l) {
-    screen_event_current_point();
     lua_settop(l, 0);
-    return 0;
+    screen_event_current_point();
+    screen_results_wait();
+    union event_data *ev = screen_results_get();
+    struct event_screen_result_current_point *p = (struct event_screen_result_current_point *)ev;
+    lua_pushnumber(l, p->x);
+    lua_pushnumber(l, p->y);
+    event_data_free(ev);
+    return 2;
 }
 
 ///-- end screen commands
@@ -2576,33 +2612,6 @@ void w_handle_custom_weave(struct event_custom *ev) {
     // call the externally defined `op` function passing in the current lua
     // state
     ev->ops->weave(lvm, ev->value, ev->context);
-}
-
-
-void w_handle_screen_result_text_extents(struct event_screen_result_text_extents* ev) {
-    _push_norns_func("screen", "text_extents");    
-    lua_pushnumber(lvm, ev->x_bearing);
-    lua_pushnumber(lvm, ev->y_bearing);
-    lua_pushnumber(lvm, ev->width);
-    lua_pushnumber(lvm, ev->height);
-    lua_pushnumber(lvm, ev->x_advance);
-    lua_pushnumber(lvm, ev->y_advance);
-    l_report(lvm, l_docall(lvm, 6, 0)); 
-}
-
-void w_handle_screen_result_current_point(struct event_screen_result_current_point* ev) {
-    _push_norns_func("screen", "current_point");    
-    lua_pushnumber(lvm, ev->x);
-    lua_pushnumber(lvm, ev->y);
-    l_report(lvm, l_docall(lvm, 2, 0)); 
-}
-
-void w_handle_screen_result_peek(struct event_screen_result_peek* ev) {    
-    _push_norns_func("screen", "peek");
-    lua_pushinteger(lvm, ev->w);
-    lua_pushinteger(lvm, ev->h);
-    lua_pushstring(lvm, ev->buf);
-    l_report(lvm, l_docall(lvm, 3, 0)); 
 }
 
 // helper: set poll given by lua to given state
