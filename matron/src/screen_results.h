@@ -14,9 +14,8 @@ struct screen_results_common {
 
 struct screen_results_text_extents {    
     struct screen_results_common common;
-    // NB: cairo returns doubles;
-    // seems like overkill,
-    // but we do want to respect fractional positions (?)
+    // NB: cairo returns doubles,
+    // and the actual lua call uses only w/h, casting to int
     float x_bearing;
     float y_bearing;
     float width;
@@ -55,4 +54,4 @@ extern void screen_results_free();
 extern void screen_results_wait();
 extern void screen_results_post(union screen_results_data *results);
 
-extern union screen_results_data *screen_results_get();
+extern union screen_results_data* screen_results_get();

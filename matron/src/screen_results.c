@@ -35,7 +35,7 @@ void screen_results_post(union screen_results_data *data) {
     sem_post(&sem_results);
 }
 
-union screen_results_data *screen_results_data_new(screen_results_t type) { 
+union screen_results_data* screen_results_data_new(screen_results_t type) { 
     union screen_results_data *data = calloc(1, sizeof(union screen_results_data));
     data->type = type;
     return data;

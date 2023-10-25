@@ -327,16 +327,16 @@ void event_handle_pending(void) {
     union event_data *ev = NULL;
     char done = 0;
     while(!done) {    
-	pthread_mutex_lock(&evq.lock);
-	if (evq.size > 0) {     
-	    ev = evq_pop();
-	} else {
-	    done = 1;
-	    ev = NULL;
-	}
-	pthread_mutex_unlock(&evq.lock);
-	if (ev != NULL) {
-	    handle_event(ev);
-	}
+        pthread_mutex_lock(&evq.lock);
+        if (evq.size > 0) {     
+            ev = evq_pop();
+        } else {
+            done = 1;
+            ev = NULL;
+        }
+        pthread_mutex_unlock(&evq.lock);
+        if (ev != NULL) {
+            handle_event(ev);
+        }
     }
 }

@@ -167,7 +167,6 @@ struct event_hid_remove {
     uint32_t id;
 }; // +4
 
-/// fixme: maybe break this up into hid_key, hid_abs, &c?
 struct event_hid_event {
     struct event_common common;
     uint8_t id;
@@ -211,15 +210,15 @@ struct event_clock_resume {
     struct event_common common;
     uint32_t thread_id;
     double value;
-};
+}; // + 12
 
 struct event_clock_start {
     struct event_common common;
-};
+}; // + 0
 
 struct event_clock_stop {
     struct event_common common;
-};
+}; // + 0
 
 struct event_key {
     struct event_common common;
@@ -329,7 +328,7 @@ struct event_softcut_position {
     struct event_common common;
     int idx;
     float pos;
-};
+}; // + 8
 
 // forward declaration to hide scripting layer dependencies
 struct event_custom_ops;
