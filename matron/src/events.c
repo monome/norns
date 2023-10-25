@@ -139,13 +139,6 @@ MATRON_API void event_data_free(union event_data *ev) {
             ev->custom.ops->free(ev->custom.value, ev->custom.context);
         }
         break;
-    /* case EVENT_SCREEN_RESULTS:	 */
-    /* 	if (ev->screen_results.data != NULL) { */
-    /* 	    free(ev->screen_results.data); */
-    /* 	} */
-    case EVENT_SCREEN_RESULT_PEEK:
-        free(ev->screen_result_peek.buf);
-        break;
     }
     free(ev);
 }
@@ -313,15 +306,6 @@ static void handle_event(union event_data *ev) {
     case EVENT_SCREEN_REFRESH:
         w_handle_screen_refresh();
         break;
-    // case EVENT_SCREEN_RESULT_TEXT_EXTENTS:
-	//     w_handle_screen_result_text_extents(&ev->screen_result_text_extents);
-	//     break;
-    // case EVENT_SCREEN_RESULT_CURRENT_POINT:
-	//     w_handle_screen_result_current_point(&ev->screen_result_current_point);
-	//     break;
-    // case EVENT_SCREEN_RESULT_PEEK:
-	//     w_handle_screen_result_peek(&ev->screen_result_peek);
-	//     break;
     } /* switch */
 
     event_data_free(ev);
@@ -343,16 +327,16 @@ void event_handle_pending(void) {
     union event_data *ev = NULL;
     char done = 0;
     while(!done) {    
-	pthread_mutex_lock(&evq.lock);
-	if (evq.size > 0) {     
-	    ev = evq_pop();
-	} else {
-	    done = 1;
-	    ev = NULL;
-	}
-	pthread_mutex_unlock(&evq.lock);
-	if (ev != NULL) {
-	    handle_event(ev);
-	}
+        pthread_mutex_lock(&evq.lock);
+        if (evq.size > 0) {     
+            ev = evq_pop();
+        } else {
+            done = 1;
+            ev = NULL;
+        }
+        pthread_mutex_unlock(&evq.lock);
+        if (ev != NULL) {
+            handle_event(ev);
+        }
     }
 }

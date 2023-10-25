@@ -141,10 +141,10 @@ void screen_text_trim(char *s, double w) {
 void screen_current_point() {
     double x, y;
     cairo_get_current_point (cr, &x, &y);
-    union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_CURRENT_POINT);
-    ev->screen_result_current_point.x = x;
-    ev->screen_result_current_point.y = y;
-    screen_results_post(ev);
+    union screen_results_data *results = screen_results_data_new(SCREEN_RESULTS_CURRENT_POINT);
+    results->current_point.x = x;
+    results->current_point.y = y;
+    screen_results_post(results);
 }
 
 //-------------------------------------------------------
@@ -477,15 +477,15 @@ void screen_clear(void) {
 
 void screen_text_extents(const char *s) {
     cairo_text_extents_t extents;
-    cairo_text_extents(cr, s, &extents);    
-    union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_TEXT_EXTENTS);    
-    ev->screen_result_text_extents.x_bearing = extents.x_bearing;
-    ev->screen_result_text_extents.y_bearing = extents.y_bearing;
-    ev->screen_result_text_extents.width = extents.width;
-    ev->screen_result_text_extents.height = extents.height;
-    ev->screen_result_text_extents.x_advance = extents.x_advance;
-    ev->screen_result_text_extents.y_advance = extents.y_advance;
-    screen_results_post(ev);
+    cairo_text_extents(cr, s, &extents);   
+    union screen_results_data* results = screen_results_data_new(SCREEN_RESULTS_TEXT_EXTENTS);
+    results->text_extents.x_bearing = extents.x_bearing;
+    results->text_extents.y_bearing = extents.y_bearing;
+    results->text_extents.width = extents.width;
+    results->text_extents.height = extents.height;
+    results->text_extents.x_advance = extents.x_advance;
+    results->text_extents.y_advance = extents.y_advance;
+    screen_results_post(results);
 }
 
 extern void screen_export_png(const char *s) {
@@ -571,11 +571,11 @@ void screen_peek(int x, int y, int w, int h) {
             p++;
         }
     }
-    union event_data *ev = event_data_new(EVENT_SCREEN_RESULT_PEEK);
-    ev->screen_result_peek.w = w;
-    ev->screen_result_peek.h = h;    
-    ev->screen_result_peek.buf = buf;
-    screen_results_post(ev);
+    union screen_results_data *results = screen_results_data_new(SCREEN_RESULTS_PEEK);
+    results->peek.w = w;
+    results->peek.h = h;    
+    results->peek.buf = buf;
+    screen_results_post(results);
 }
 
 void screen_poke(int x, int y, int w, int h, unsigned char *buf) {

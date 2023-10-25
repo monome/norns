@@ -51,6 +51,7 @@ void cleanup(void) {
     stat_deinit();
     jack_client_deinit();
     ssd1322_deinit();
+    screen_results_deinit();
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
 }
@@ -106,12 +107,10 @@ int main(int argc, char **argv) {
     fprintf(stderr, "setting cleanup...\n");
     atexit(cleanup);
 
-
     fprintf(stderr, "init input...\n");
     // start reading input to interpreter
     input_init();
 
-    
     fprintf(stderr, "running startup...\n");
     // i/o subsystems are ready; run user startup routine
     w_startup();
@@ -126,7 +125,6 @@ int main(int argc, char **argv) {
 
     fprintf(stderr, "running post-startup...\n");
     w_post_startup();
-    
     
     // blocks until quit
     event_loop();

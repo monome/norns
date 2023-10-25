@@ -1035,23 +1035,20 @@ int _screen_text_extents(lua_State *l) {
     const char *s = luaL_checkstring(l, 1);
     
     screen_event_text_extents(s);
-    fprintf(stderr, "text_extents, waiting on results\n");
     screen_results_wait();
-    fprintf(stderr, "text_extents, got screen results\n");
-    union event_data *ev = screen_results_get();
-    struct event_screen_result_text_extents *ext = (struct event_screen_result_text_extents *)ev;
+    union screen_results_data *data = screen_results_get();
 #if 1 // legacy API
-    lua_pushinteger(l, (int)ext->width);
-    lua_pushinteger(l, (int)ext->height);
-    event_data_free(ev);
+    lua_pushinteger(l, (int)data->text_extents.width);
+    lua_pushinteger(l, (int)data->text_extents.height);
+    screen_results_free();
     return 2;
 #else
-    lua_pushnumber(l, ext->x_bearing);
-    lua_pushnumber(l, ext->y_bearing);
-    lua_pushnumber(l, ext->width);
-    lua_pushnumber(l, ext->height);
-    lua_pushnumber(l, ext->x_advance);
-    lua_pushnumber(l, ext->y_advance);
+    lua_pushnumber(l, data->text_extents.x_bearing);
+    lua_pushnumber(l, data->text_extents.y_bearing);
+    lua_pushnumber(l, data->text_extents.width);
+    lua_pushnumber(l, data->text_extents.height);
+    lua_pushnumber(l, data->text_extents.x_advance);
+    lua_pushnumber(l, data->text_extents.y_advance);
     event_data_free(ev);
     return 6;
 #endif
@@ -1122,12 +1119,11 @@ int _screen_peek(lua_State *l) {
      && (h > 0)) {
         screen_event_peek(x, y, w, h);
         screen_results_wait();
-        union event_data *ev = screen_results_get();
-        struct event_screen_result_peek *peek = (struct event_screen_result_peek *)ev;
-        lua_pushinteger(l, peek->w);
-        lua_pushinteger(l, peek->h);
-        lua_pushstring(l, peek->buf);
-        event_data_free(ev);
+        union screen_results_data *results = screen_results_get();
+        lua_pushinteger(l, results->peek.w);
+        lua_pushinteger(l, results->peek.h);
+        lua_pushstring(l, results->peek.buf);
+        screen_results_free();
     } else { 
         lua_pushinteger(l, 0);
         lua_pushinteger(l, 0);
@@ -1427,11 +1423,10 @@ int _screen_current_point(lua_State *l) {
     lua_settop(l, 0);
     screen_event_current_point();
     screen_results_wait();
-    union event_data *ev = screen_results_get();
-    struct event_screen_result_current_point *p = (struct event_screen_result_current_point *)ev;
-    lua_pushnumber(l, p->x);
-    lua_pushnumber(l, p->y);
-    event_data_free(ev);
+    union screen_results_data *results = screen_results_get();
+    lua_pushnumber(l, results->current_point.x);
+    lua_pushnumber(l, results->current_point.y);
+    screen_results_free();
     return 2;
 }
 
