@@ -41,7 +41,8 @@ typedef enum {
 	      SCREEN_EVENT_SET_OPERATOR,
 	      SCREEN_EVENT_PEEK,
 	      SCREEN_EVENT_POKE,
-	      SCREEN_EVENT_CURRENT_POINT
+	      SCREEN_EVENT_CURRENT_POINT,
+		  SCREEN_EVENT_HARDWARE_REFRESH,
 	      
 } screen_event_id_t;
 

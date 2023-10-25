@@ -47,6 +47,9 @@ Script.clear = function()
   -- reset cleanup script
   cleanup = norns.none
 
+  -- reset refresh callback
+  refresh = norns.none
+
   -- reset oled redraw
   redraw = norns.blank
 

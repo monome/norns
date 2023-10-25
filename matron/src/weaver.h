@@ -93,5 +93,8 @@ extern void w_handle_startup_ready_timeout();
 // util callbacks
 extern void w_handle_system_cmd();
 
+// display driver callbacks
+extern void w_handle_screen_refresh();
+
 // custom events
 extern void w_handle_custom_weave(struct event_custom *ev);

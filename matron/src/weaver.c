@@ -2608,6 +2608,11 @@ void w_handle_system_cmd(char *capture) {
     l_report(lvm, l_docall(lvm, 1, 0));
 }
 
+void w_handle_screen_refresh() {
+    lua_getglobal(lvm, "refresh");
+    l_report(lvm, l_docall(lvm, 0, 0));
+}
+
 void w_handle_custom_weave(struct event_custom *ev) {
     // call the externally defined `op` function passing in the current lua
     // state

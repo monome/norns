@@ -96,6 +96,7 @@ typedef enum {
     EVENT_SCREEN_RESULT_TEXT_EXTENTS,
     EVENT_SCREEN_RESULT_CURRENT_POINT,
     EVENT_SCREEN_RESULT_PEEK,
+    EVENT_SCREEN_REFRESH,
 } event_t;
 
 // a packed data structure for four volume levels

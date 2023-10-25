@@ -1,5 +1,8 @@
 #include "ssd1322.h"
 
+#include "events.h"
+#include "event_types.h"
+
 static int spidev_fd = 0;
 static bool should_turn_on = true;
 static uint8_t * spidev_buffer;
@@ -94,7 +97,9 @@ fail:
     return -1;
 }
 
+#ifndef NUMARGS
 #define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
+#endif
 #define write_command_with_data(x, ...) \
     (ssd1322_write_command(x, NUMARGS(__VA_ARGS__), __VA_ARGS__))
 #define write_command(x) \
@@ -106,7 +111,7 @@ static void* ssd1322_thread_run(void * p){
 
     static struct timespec ts = {
             .tv_sec = 0,
-            .tv_nsec = (1/60) * 1e9,
+            .tv_nsec = 16670000, // 60Hz
     };
 
     while( spidev_buffer ){
@@ -114,7 +119,13 @@ static void* ssd1322_thread_run(void * p){
             ssd1322_refresh();
             display_dirty = false;
         }
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+
+        // If this event happens right before ssd1322_refresh(),
+        // there is quite a bit of flashing. Possibly from being
+        // at a weird sync point with the hardware refresh.
+        event_post(event_data_new(EVENT_SCREEN_REFRESH));
+        
+	clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
     }
 
     return NULL;
@@ -379,4 +390,3 @@ uint8_t* ssd1322_resize_buffer(size_t size){
 #undef NUMARGS
 #undef write_command
 #undef write_command_with_data
-

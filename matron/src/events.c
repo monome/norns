@@ -310,6 +310,9 @@ static void handle_event(union event_data *ev) {
     case EVENT_CUSTOM:
         w_handle_custom_weave(&(ev->custom));
         break;
+    case EVENT_SCREEN_REFRESH:
+        w_handle_screen_refresh();
+        break;
     // case EVENT_SCREEN_RESULT_TEXT_EXTENTS:
 	//     w_handle_screen_result_text_extents(&ev->screen_result_text_extents);
 	//     break;

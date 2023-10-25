@@ -209,6 +209,7 @@ void handle_screen_event(struct screen_event_data *ev) {
     default:;
         ;
     }
+
     screen_event_data_free(ev);
 }
 
