@@ -205,10 +205,11 @@ Screen.text_center = function(str) _norns.screen_text_center(str) end
 Screen.text_center_rotate = function(x, y, str, degrees) _norns.screen_text_center_rotate(x, y, str, degrees) end
 
 --- calculate width of text given current font and draw state.
--- completes asynchronousely via system callback
--- (FIXME: see screen.handle_text_extents() or whatever)
 -- @tparam string str : text to calculate width of
-Screen.text_extents = function(str) _norns.screen_text_extents(str) end
+Screen.text_extents = function(str) 
+  local w, h = _norns.screen_text_extents(str)
+  return w,h
+end
 
 -- get the current drawing position in the screen surface
 -- @treturn number x

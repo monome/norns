@@ -1035,9 +1035,7 @@ int _screen_text_extents(lua_State *l) {
     const char *s = luaL_checkstring(l, 1);
     
     screen_event_text_extents(s);
-    fprintf(stderr, "text_extents, waiting on results\n");
     screen_results_wait();
-    fprintf(stderr, "text_extents, got screen results\n");
     union screen_results_data *data = screen_results_get();
 #if 1 // legacy API
     lua_pushinteger(l, (int)data->text_extents.width);

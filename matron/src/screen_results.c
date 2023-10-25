@@ -21,7 +21,6 @@ void screen_results_deinit() {
 }    
 
 void screen_results_wait() {
-    fprintf(stderr, "screen_results_wait\n");
     sem_wait(&sem_results);
 }
 
@@ -33,7 +32,6 @@ void screen_results_post(union screen_results_data *data) {
         screen_results_free();
     }
     results_data = data;
-    fprintf(stderr, "screen_results_post\n");
     sem_post(&sem_results);
 }
 
