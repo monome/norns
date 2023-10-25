@@ -207,8 +207,7 @@ Screen.text_center_rotate = function(x, y, str, degrees) _norns.screen_text_cent
 --- calculate width of text given current font and draw state.
 -- @tparam string str : text to calculate width of
 Screen.text_extents = function(str) 
-  local w, h = _norns.screen_text_extents(str)
-  return w,h
+  return _norns.screen_text_extents(str)
 end
 
 -- get the current drawing position in the screen surface
