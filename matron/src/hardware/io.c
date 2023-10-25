@@ -8,7 +8,6 @@
 #include "hardware/input/inputs.h"
 
 io_ops_t* io_types[] = {
-    (io_ops_t*)&screen_fbdev_ops,
     (io_ops_t*)&enc_gpio_ops,
     (io_ops_t*)&key_gpio_ops,
 

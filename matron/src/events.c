@@ -46,8 +46,6 @@ static void handle_event(union event_data *ev);
 
 /// helpers
 static void handle_engine_report(void);
-// static void handle_command_report(void);
-// static void handle_poll_report(void);
 
 // add an event data struct to the end of the event queue
 // *does* allocate queue node memory!
@@ -260,12 +258,6 @@ static void handle_event(union event_data *ev) {
     case EVENT_ENGINE_REPORT:
         handle_engine_report();
         break;
-    /* case EVENT_COMMAND_REPORT: */
-    /*     handle_command_report(); */
-    /*     break; */
-    /* case EVENT_POLL_REPORT: */
-    /*     handle_poll_report(); */
-    /*     break; */
     case EVENT_ENGINE_LOADED:
         w_handle_engine_loaded();
         break;
@@ -290,9 +282,6 @@ static void handle_event(union event_data *ev) {
     case EVENT_SYSTEM_CMD:
         w_handle_system_cmd(ev->system_cmd.capture);
         break;
-    case EVENT_RESET_LVM:
-        w_reset_lvm();
-        break;
     case EVENT_QUIT:
         quit = true;
         break;
@@ -313,6 +302,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_CUSTOM:
         w_handle_custom_weave(&(ev->custom));
+        break;
+    case EVENT_SCREEN_REFRESH:
+        w_handle_screen_refresh();
         break;
     } /* switch */
 
@@ -335,16 +327,16 @@ void event_handle_pending(void) {
     union event_data *ev = NULL;
     char done = 0;
     while(!done) {    
-	pthread_mutex_lock(&evq.lock);
-	if (evq.size > 0) {     
-	    ev = evq_pop();
-	} else {
-	    done = 1;
-	    ev = NULL;
-	}
-	pthread_mutex_unlock(&evq.lock);
-	if (ev != NULL) {
-	    handle_event(ev);
-	}
+        pthread_mutex_lock(&evq.lock);
+        if (evq.size > 0) {     
+            ev = evq_pop();
+        } else {
+            done = 1;
+            ev = NULL;
+        }
+        pthread_mutex_unlock(&evq.lock);
+        if (ev != NULL) {
+            handle_event(ev);
+        }
     }
 }
