@@ -177,6 +177,7 @@ void ssd1322_init() {
     write_command_with_data(SSD1322_SET_VCOMH_VOLTAGE, 0x04);
     write_command(SSD1322_SET_DISPLAY_MODE_NORMAL);
 
+    // Flips the screen orientation if the device is a norns shield.
     if( platform() != PLATFORM_CM3 ){
         write_command_with_data(SSD1322_SET_DUAL_COMM_LINE_MODE, 0x04, 0x11);
     }

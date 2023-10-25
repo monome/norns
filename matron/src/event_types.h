@@ -93,9 +93,6 @@ typedef enum {
     // monome grid tilt
     EVENT_GRID_TILT,
     // screen asynchronous results callbacks
-    EVENT_SCREEN_RESULT_TEXT_EXTENTS,
-    EVENT_SCREEN_RESULT_CURRENT_POINT,
-    EVENT_SCREEN_RESULT_PEEK,
     EVENT_SCREEN_REFRESH,
 } event_t;
 
@@ -250,7 +247,7 @@ struct event_stat {
     uint8_t cpu2;
     uint8_t cpu3;
     uint8_t cpu4;
-};
+}; // +10
 
 struct event_enc {
     struct event_common common;
@@ -312,12 +309,12 @@ struct event_crow_event {
     struct event_common common;
     void *dev;
     uint8_t id;
-}; // +4
+}; // +5
 
 struct event_system_cmd {
     struct event_common common;
     char *capture;
-};
+}; // +4
 
 struct event_softcut_render {
     struct event_common common;
@@ -326,7 +323,7 @@ struct event_softcut_render {
     float start;
     size_t size;
     float* data;
-};
+}; // + 20
 
 struct event_softcut_position {
     struct event_common common;
@@ -343,34 +340,6 @@ struct event_custom {
     void *value;
     void *context;
 }; // +12
-
-struct event_screen_result_text_extents {    
-    struct event_common common;
-    // NB: cairo returns doubles;
-    // seems like overkill,
-    // but we do want to respect fractional positions (?)
-    float x_bearing;
-    float y_bearing;
-    float width;
-    float height;
-    float x_advance;
-    float y_advance;
-};
-    
-struct event_screen_result_current_point {    
-    struct event_common common;
-    float x;
-    float y;
-};
-
-    
-struct event_screen_result_peek {    
-    struct event_common common;
-    int w;
-    int h;
-    char* buf;
-};
-
 
 union event_data {
     uint32_t type;
@@ -409,7 +378,4 @@ union event_data {
     struct event_softcut_render softcut_render;
     struct event_softcut_position softcut_position;
     struct event_custom custom;
-    struct event_screen_result_text_extents screen_result_text_extents;
-    struct event_screen_result_current_point screen_result_current_point;
-    struct event_screen_result_peek screen_result_peek;
 };
