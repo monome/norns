@@ -213,7 +213,7 @@ Screen.text_extents = function(str) _norns.screen_text_extents(str) end
 -- get the current drawing position in the screen surface
 -- @treturn number x
 -- @treturn number y
-Screen.current_point() return _norns.screen_current_point() end
+Screen.current_point() = function() return _norns.screen_current_point() end
 
 --- select font face.
 -- @param index font face (see list, or Screen.font_face_names)
