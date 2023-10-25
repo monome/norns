@@ -95,8 +95,3 @@ extern void w_handle_system_cmd();
 
 // custom events
 extern void w_handle_custom_weave(struct event_custom *ev);
-
-// screen results callbacks
-extern void w_handle_screen_result_text_extents(struct event_screen_result_text_extents* ev);
-extern void w_handle_screen_result_current_point(struct event_screen_result_current_point* ev);
-extern void w_handle_screen_result_peek(struct event_screen_result_peek* ev);
