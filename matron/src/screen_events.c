@@ -203,6 +203,9 @@ void handle_screen_event(struct screen_event_data *ev) {
     case SCREEN_EVENT_POKE:
         screen_poke(ev->payload.bi.i1, ev->payload.bi.i2, ev->payload.bi.i3, ev->payload.bi.i4, ev->buf);
         break;
+    case SCREEN_EVENT_PEEK:
+        screen_peek(ev->payload.bi.i1, ev->payload.bi.i2, ev->payload.bi.i3, ev->payload.bi.i4);
+        break;
     case SCREEN_EVENT_CURRENT_POINT:
         screen_current_point();
         break;
