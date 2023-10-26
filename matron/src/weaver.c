@@ -1114,7 +1114,6 @@ int _screen_display_png(lua_State *l) {
  * @tparam integer h rectangle height to grab
  */
 int _screen_peek(lua_State *l) {
-    fprintf(stderr, "screen_peek\n");
     lua_check_num_args(4);
     int x = luaL_checkinteger(l, 1);
     int y = luaL_checkinteger(l, 2);
@@ -1130,12 +1129,13 @@ int _screen_peek(lua_State *l) {
         union screen_results_data *results = screen_results_get();
         lua_pushinteger(l, results->peek.w);
         lua_pushinteger(l, results->peek.h);
-        lua_pushstring(l, results->peek.buf);
+        lua_pushlstring(l, results->peek.buf, results->peek.w * results->peek.h);
         screen_results_free();
     } else { 
+        fprintf(stderr, "WARNING: invalid position arguments to screen_peek()\n")
         lua_pushinteger(l, 0);
         lua_pushinteger(l, 0);
-        lua_pushstring(l, "");
+        lua_pushlstring(l, "", 0);
     }
     return 3;
 }
