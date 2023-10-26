@@ -557,11 +557,11 @@ void screen_peek(int x, int y, int w, int h) {
     if (!buf) {
         return;
     }
-    // NB: peek/poke do not actually access the CR,
-    // but we do want to avoid torn values
     cairo_surface_flush(surface);
     uint32_t *data = (uint32_t *)cairo_image_surface_get_data(surface);
     if (!data) {
+        fprintf(stderr, "ERROR: screen_peek: no data\n");
+        free(buf);
 	    return;
     }
     char *p = buf;
