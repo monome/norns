@@ -472,7 +472,7 @@ void screen_clear(void) {
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
     cairo_paint(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    surface_may_have_color = true;
+    surface_may_have_color = false;
 }
 
 void screen_text_extents(const char *s) {
