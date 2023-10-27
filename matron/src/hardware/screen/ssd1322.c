@@ -262,6 +262,12 @@ void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_col
     const uint32_t tx_len = surface_w * surface_h;
     const uint32_t * data = (const uint32_t *) cairo_image_surface_get_data(surface_pointer);
 
+    // Use ARM's NEON vector instrinsics to do some efficient processing.
+    // In both cases below, vsri (Vector Shift Right and Insert) is being
+    // used to accomplish the same thing as if each byte were ANDed with
+    // 0xF0, then shifted to the right by 4 bits. For whatever reason, the
+    // screen hardware likes to have the upper-nibble doubled up like this.
+
     if( should_translate_color ){
         // Preserve luminance of RGB when converting to grayscale. Use the
         // closest multiple of 16 to the fraction to scale the channels'
@@ -269,20 +275,21 @@ void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_col
         // value should fit into the upper nibble of the 8-bit value. The
         // decimal approximation is out of 256: 80 + 160 + 16 = 256.
         for( uint32_t i = 0; i < tx_len; i += 8 ){
-            uint8x8x4_t pixel = vld4_u8((const uint8_t *) (data + i));
-            uint16x8_t r = vmull_u8(pixel.val[2], vdup_n_u8( 80)); // R * ~ 0.30
-            uint16x8_t g = vmull_u8(pixel.val[1], vdup_n_u8(160)); // G * ~ 0.59
-            uint16x8_t b = vmull_u8(pixel.val[0], vdup_n_u8( 16)); // B * ~ 0.11
-            vst1_u8(spidev_buffer + i, vaddhn_u16(vaddq_u16(r,g), b));
+            const uint8x8x4_t pixel = vld4_u8((const uint8_t *) (data + i));
+            const uint16x8_t r = vmull_u8(pixel.val[2], vdup_n_u8( 80)); // R * ~ 0.30
+            const uint16x8_t g = vmull_u8(pixel.val[1], vdup_n_u8(160)); // G * ~ 0.59
+            const uint16x8_t b = vmull_u8(pixel.val[0], vdup_n_u8( 16)); // B * ~ 0.11
+	    const uint8x8_t conversion = vaddhn_u16(vaddq_u16(r, g), b);
+            vst1_u8(spidev_buffer + i, vsri_n_u8(conversion, conversion, 4));
         }
     }
     else{
         // If the surface has only been drawn to, we can guarantee that RGB are
         // all equal values representing a grayscale value. So, we can take any
-        // of those channels arbitrarily.
+        // of those channels arbitrarily. Use the green channel just because.
         for( uint32_t i = 0; i < tx_len; i += 16 ){
-            const uint8x16x4_t RGB = vld4q_u8((uint8_t *) (data + i));
-            vst1q_u8(spidev_buffer + i, RGB.val[0]);
+            const uint8x16x4_t ARGB = vld4q_u8((uint8_t *) (data + i));
+            vst1q_u8(spidev_buffer + i, vsriq_n_u8(ARGB.val[1], ARGB.val[1], 4));
         }
     }
 
