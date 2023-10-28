@@ -628,7 +628,6 @@ void w_deinit(void) {
 int _screen_update(lua_State *l) {
   lua_check_num_args(0);
   screen_event_update();
-  //screen_update();
   lua_settop(l, 0);
   return 0;
 }

@@ -124,8 +124,8 @@ static void* ssd1322_thread_run(void * p){
         // there is quite a bit of flashing. Possibly from being
         // at a weird sync point with the hardware refresh.
         event_post(event_data_new(EVENT_SCREEN_REFRESH));
-        
-	clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
     }
 
     return NULL;
@@ -279,7 +279,7 @@ void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_col
             const uint16x8_t r = vmull_u8(pixel.val[2], vdup_n_u8( 80)); // R * ~ 0.30
             const uint16x8_t g = vmull_u8(pixel.val[1], vdup_n_u8(160)); // G * ~ 0.59
             const uint16x8_t b = vmull_u8(pixel.val[0], vdup_n_u8( 16)); // B * ~ 0.11
-	    const uint8x8_t conversion = vaddhn_u16(vaddq_u16(r, g), b);
+            const uint8x8_t conversion = vaddhn_u16(vaddq_u16(r, g), b);
             vst1_u8(spidev_buffer + i, vsri_n_u8(conversion, conversion, 4));
         }
     }
@@ -325,7 +325,25 @@ void ssd1322_set_display_mode(ssd1322_display_mode_t mode_offset){
     write_command(SSD1322_SET_DISPLAY_MODE_ALL_OFF + mode_offset);
 }
 
-void ssd1322_set_gamma(uint8_t *gs){
+void ssd1322_set_gamma(double gamma){
+    // (SSD1322 rev 1.2, P 29/60)
+    // Section 8.8, Gray Scale Decoder:
+    // "Note: Both GS0 and GS1 have no 2nd pre-charge (phase 3)
+    //        and current drive (phase 4), however GS1 has 1st
+    //        pre-charge (phase 2)."
+
+    // According to the above note, GS0 and GS1 should effectively
+    // be skipped in the gamma curve calculation, because GS1 is
+    // like the starting point so it should have a value of 0.
+    uint8_t gs[16] = {0};
+    double max_grayscale = SSD1322_GRAYSCALE_MAX_VALUE;
+    for (int level = 0; level <= 14; level++) {
+        double pre_gamma = level / 14.0;
+        double grayscale = round(pow(pre_gamma, g) * max_grayscale);
+        double limit = (grayscale > max_grayscale) ? max_grayscale : grayscale;
+        gs[level + 1] = (uint8_t) limit;
+    }
+
     write_command_with_data(
             SSD1322_SET_GRAYSCALE_TABLE, // GS0 is skipped.
             gs[0x1], gs[0x2], gs[0x3], gs[0x4], gs[0x5],

@@ -338,16 +338,7 @@ void screen_gamma(double g) {
         g=0;
     }
 
-    uint8_t grayscale_table[16];
-    double max_grayscale = SSD1322_GRAYSCALE_MAX_VALUE;
-    for (int level = 0; level <= 15; level++) {
-        double pre_gamma = level / 15.0;
-        double grayscale = round( pow(pre_gamma, g) * max_grayscale );
-        double limit = (grayscale > max_grayscale) ? max_grayscale : grayscale;
-        grayscale_table[level] = (uint8_t) limit;
-    }
-
-    ssd1322_set_gamma(grayscale_table);
+    ssd1322_set_gamma(g);
 }
 
 void screen_brightness(int v) {
