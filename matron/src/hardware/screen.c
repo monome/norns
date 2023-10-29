@@ -333,14 +333,6 @@ void screen_aa(int s) {
     cairo_font_options_destroy(font_options);
 }
 
-void screen_gamma(double g) {
-    if (g < 0.0) {
-        g=0;
-    }
-
-    ssd1322_set_gamma(g);
-}
-
 void screen_brightness(int v) {
     if (v < 0) {
         v=0;
@@ -367,15 +359,16 @@ void screen_contrast(int c){
     ssd1322_set_contrast((uint8_t) c);
 }
 
-void screen_invert(){
-    static uint8_t inverted = 0;
-    if( inverted ){
-        ssd1322_set_display_mode(SSD1322_DISPLAY_MODE_NORMAL);
+void screen_gamma(double g) {
+    if (g < 0.0) {
+        g=0;
     }
-    else{
-        ssd1322_set_display_mode(SSD1322_DISPLAY_MODE_INVERT);
-    }
-    inverted ^= 0x1; // toggle trick.
+
+    ssd1322_set_gamma(g);
+}
+
+void screen_invert(int inverted){
+    ssd1322_set_display_mode((inverted != 0) ? SSD1322_DISPLAY_MODE_INVERT : SSD1322_DISPLAY_MODE_NORMAL);
 }
 
 void screen_level(int z) {

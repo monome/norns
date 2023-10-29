@@ -557,4 +557,22 @@ Screen.blend_mode = function(index)
   end
 end
 
+--@tparam number/boolean i
+--
+-- if number:
+-- i == 0 -> normal mode
+-- i < 0 -> inverted mode
+-- i > 0 -> inverted mode
+--
+-- if boolean:
+-- false -> normal mode
+-- true -> inverted mode
+Screen.invert = function(i)
+  if type(i) == "boolean" then
+    _norns.screen_invert(1 and i or 0)
+  elseif type(i) == "number" then
+    _norns.screen_invert(i == 0.0 and 0 or 1)
+  end
+end
+
 return Screen
