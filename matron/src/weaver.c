@@ -628,7 +628,6 @@ void w_deinit(void) {
 int _screen_update(lua_State *l) {
   lua_check_num_args(0);
   screen_event_update();
-  //screen_update();
   lua_settop(l, 0);
   return 0;
 }
@@ -702,7 +701,7 @@ int _screen_aa(lua_State *l) {
 int _screen_gamma(lua_State *l) {
     lua_check_num_args(1);
     double g = luaL_checknumber(l, 1);
-    screen_gamma(g);
+    screen_event_gamma(g);
     lua_settop(l, 0);
     return 0;
 }
@@ -714,8 +713,8 @@ int _screen_gamma(lua_State *l) {
  */
 int _screen_brightness(lua_State *l) {
     lua_check_num_args(1);
-    int v = luaL_checkinteger(l, 1);
-    screen_brightness(v);
+    int b = luaL_checkinteger(l, 1);
+    screen_event_brightness(b);
     lua_settop(l, 0);
     return 0;
 }
@@ -728,7 +727,7 @@ int _screen_brightness(lua_State *l) {
 int _screen_contrast(lua_State *l) {
     lua_check_num_args(1);
     int c = luaL_checkinteger(l, 1);
-    screen_contrast(c);
+    screen_event_contrast(c);
     lua_settop(l, 0);
     return 0;
 }
@@ -739,7 +738,9 @@ int _screen_contrast(lua_State *l) {
  * @function s_invert
  */
 int _screen_invert(lua_State *l) {
-    screen_invert();
+    lua_check_num_args(1);
+    int i = luaL_checkinteger(l, 1);
+    screen_event_invert(i);
     lua_settop(l, 0);
     return 0;
 }

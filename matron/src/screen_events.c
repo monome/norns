@@ -209,6 +209,18 @@ void handle_screen_event(struct screen_event_data *ev) {
     case SCREEN_EVENT_CURRENT_POINT:
         screen_current_point();
         break;
+    case SCREEN_EVENT_GAMMA:
+        screen_gamma(ev->payload.d.d1);
+        break;
+    case SCREEN_EVENT_BRIGHTNESS:
+        screen_brightness(ev->payload.i.i1);
+        break;
+    case SCREEN_EVENT_CONTRAST:
+        screen_contrast(ev->payload.i.i1);
+        break;
+    case SCREEN_EVENT_INVERT:
+        screen_invert(ev->payload.i.i1);
+        break;
     default:;
         ;
     }
@@ -539,6 +551,38 @@ void screen_event_current_point() {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_CURRENT_POINT;
+    screen_event_data_push(&ev);
+}
+
+void screen_event_gamma(double g) {
+    struct screen_event_data ev;
+    screen_event_data_init(&ev);
+    ev.type = SCREEN_EVENT_GAMMA;
+    ev.payload.d.d1 = g;
+    screen_event_data_push(&ev);
+}
+
+void screen_event_brightness(int b) {
+    struct screen_event_data ev;
+    screen_event_data_init(&ev);
+    ev.type = SCREEN_EVENT_BRIGHTNESS;
+    ev.payload.i.i1 = b;
+    screen_event_data_push(&ev);
+}
+
+void screen_event_contrast(int c) {
+    struct screen_event_data ev;
+    screen_event_data_init(&ev);
+    ev.type = SCREEN_EVENT_CONTRAST;
+    ev.payload.i.i1 = c;
+    screen_event_data_push(&ev);
+}
+
+void screen_event_invert(int i) {
+    struct screen_event_data ev;
+    screen_event_data_init(&ev);
+    ev.type = SCREEN_EVENT_INVERT;
+    ev.payload.i.i1 = i;
     screen_event_data_push(&ev);
 }
 

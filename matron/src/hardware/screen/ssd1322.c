@@ -1,22 +1,24 @@
 #include "ssd1322.h"
 
+#include <string.h>
+
 #include "events.h"
 #include "event_types.h"
 
 static int spidev_fd = 0;
+static bool display_dirty = false;
+static bool should_translate_color = false;
 static bool should_turn_on = true;
-static uint8_t * spidev_buffer;
+static uint8_t * spidev_buffer = NULL;
+static uint32_t * surface_buffer = NULL;
 static struct gpiod_chip * gpio_0;
 static struct gpiod_line * gpio_dc;
 static struct gpiod_line * gpio_reset;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-
-#ifdef SSD1322_USES_THREAD
-static bool display_dirty = false;
-static bool should_translate_color = false;
-static cairo_surface_t * surface_pointer;
 static pthread_t ssd1322_pthread_t;
-#endif
+
+#define SPIDEV_BUFFER_LEN  SSD1322_PIXEL_WIDTH * SSD1322_PIXEL_HEIGHT * sizeof(uint8_t)
+#define SURFACE_BUFFER_LEN SSD1322_PIXEL_WIDTH * SSD1322_PIXEL_HEIGHT * sizeof(uint32_t)
 
 int open_spi() {
     uint8_t mode = SPI_MODE_0;
@@ -105,13 +107,12 @@ fail:
 #define write_command(x) \
     (ssd1322_write_command(x, 0, 0))
 
-#ifdef SSD1322_USES_THREAD
 static void* ssd1322_thread_run(void * p){
     (void)p;
 
     static struct timespec ts = {
             .tv_sec = 0,
-            .tv_nsec = 16670000, // 60Hz
+            .tv_nsec = 16666666, // 60Hz
     };
 
     while( spidev_buffer ){
@@ -124,13 +125,12 @@ static void* ssd1322_thread_run(void * p){
         // there is quite a bit of flashing. Possibly from being
         // at a weird sync point with the hardware refresh.
         event_post(event_data_new(EVENT_SCREEN_REFRESH));
-        
-	clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
     }
 
     return NULL;
 }
-#endif
 
 void ssd1322_init() {
 
@@ -139,9 +139,16 @@ void ssd1322_init() {
         return;
     }
 
-    spidev_buffer = calloc(8192, sizeof(uint8_t));
+    surface_buffer = calloc(SURFACE_BUFFER_LEN, 1);
+    if( surface_buffer == NULL ){
+        fprintf(stderr, "%s: couldn't allocate surface_buffer\n", __func__);
+        return;
+    }
+
+    spidev_buffer = calloc(SPIDEV_BUFFER_LEN, 1);
     if( spidev_buffer == NULL ){
         fprintf(stderr, "%s: couldn't allocate spidev_buffer\n", __func__);
+        return;
     }
 
     spidev_fd = open_spi(SPIDEV_0_0_PATH);
@@ -189,7 +196,6 @@ void ssd1322_init() {
     // otherwise previous GDDRAM (or noise) will display before the
     // "hello" startup screen.
 
-#ifdef SSD1322_USES_THREAD
     // Set high thread priority to avoid flashing.
     static struct sched_param param;
     param.sched_priority = sched_get_priority_max(SCHED_OTHER);
@@ -201,7 +207,6 @@ void ssd1322_init() {
     pthread_attr_setschedparam(&attr, &param);
     pthread_create(&ssd1322_pthread_t, &attr, &ssd1322_thread_run, NULL);
     pthread_attr_destroy(&attr);
-#endif
 }
 
 void ssd1322_deinit(){
@@ -221,21 +226,47 @@ void ssd1322_deinit(){
     }
 }
 
-#ifdef SSD1322_USES_THREAD
-void ssd1322_update(cairo_surface_t * surface, bool surface_may_have_color){
-    display_dirty = true;
-    surface_pointer = surface;
+void ssd1322_update(cairo_surface_t * surface_pointer, bool surface_may_have_color){
+    pthread_mutex_lock(&lock);
+
     should_translate_color = surface_may_have_color;
+
+    if( surface_buffer != NULL && surface_pointer != NULL ){
+        const uint32_t surface_w = cairo_image_surface_get_width(surface_pointer);
+        const uint32_t surface_h = cairo_image_surface_get_height(surface_pointer);
+        cairo_format_t surface_f = cairo_image_surface_get_format(surface_pointer);
+
+        if( surface_w != 128 || surface_h != 64 || surface_f != CAIRO_FORMAT_ARGB32 ){
+            fprintf(stderr, "%s: %ux%u = invalid surface size\n", __func__, surface_w, surface_h);
+            goto early_return;
+        }
+
+        memcpy(
+            (uint8_t *) surface_buffer,
+            (uint8_t *) cairo_image_surface_get_data(surface_pointer),
+            SURFACE_BUFFER_LEN
+        );
+    }
+    else{
+        fprintf(stderr, "%s: surface_buffer (%p) surface_pointer (%p)\n", __func__, surface_buffer, surface_pointer);
+    }
+
+    display_dirty = true;
+
+early_return:
+    pthread_mutex_unlock(&lock);
 }
 
 void ssd1322_refresh(){
-#else
-void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_color){
-#endif
     struct spi_ioc_transfer transfer = {0};
 
     if( spidev_fd <= 0 ){
         fprintf(stderr, "%s: spidev not yet opened.\n", __func__);
+        return;
+    }
+
+    if( surface_buffer == NULL ){
+        fprintf(stderr, "%s: surface_buffer not allocated yet.\n", __func__);
         return;
     }
 
@@ -250,18 +281,6 @@ void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_col
 
     pthread_mutex_lock(&lock);
 
-    const uint32_t surface_w = cairo_image_surface_get_width(surface_pointer);
-    const uint32_t surface_h = cairo_image_surface_get_height(surface_pointer);
-    cairo_format_t surface_f = cairo_image_surface_get_format(surface_pointer);
-
-    if(surface_w != 128 || surface_h != 64 || surface_f != CAIRO_FORMAT_ARGB32){
-        fprintf(stderr, "%s: %ux%u = invalid surface size\n", __func__, surface_w, surface_h);
-        goto early_return;
-    }
-
-    const uint32_t tx_len = surface_w * surface_h;
-    const uint32_t * data = (const uint32_t *) cairo_image_surface_get_data(surface_pointer);
-
     // Use ARM's NEON vector instrinsics to do some efficient processing.
     // In both cases below, vsri (Vector Shift Right and Insert) is being
     // used to accomplish the same thing as if each byte were ANDed with
@@ -274,12 +293,12 @@ void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_col
         // grayscale value. Use a multiple of 16 because a 4-bit grayscale
         // value should fit into the upper nibble of the 8-bit value. The
         // decimal approximation is out of 256: 80 + 160 + 16 = 256.
-        for( uint32_t i = 0; i < tx_len; i += 8 ){
-            const uint8x8x4_t pixel = vld4_u8((const uint8_t *) (data + i));
-            const uint16x8_t r = vmull_u8(pixel.val[2], vdup_n_u8( 80)); // R * ~ 0.30
-            const uint16x8_t g = vmull_u8(pixel.val[1], vdup_n_u8(160)); // G * ~ 0.59
-            const uint16x8_t b = vmull_u8(pixel.val[0], vdup_n_u8( 16)); // B * ~ 0.11
-	    const uint8x8_t conversion = vaddhn_u16(vaddq_u16(r, g), b);
+        for( uint32_t i = 0; i < SPIDEV_BUFFER_LEN; i += 8 ){
+            const uint8x8x4_t pixel = vld4_u8((const uint8_t *) (surface_buffer + i));
+            const uint16x8_t r = vmull_u8(pixel.val[2], vdup_n_u8( 64)); // R * ~ 0.2627
+            const uint16x8_t g = vmull_u8(pixel.val[1], vdup_n_u8(160)); // G * ~ 0.6780
+            const uint16x8_t b = vmull_u8(pixel.val[0], vdup_n_u8( 32)); // B * ~ 0.0593
+            const uint8x8_t conversion = vaddhn_u16(vaddq_u16(r, g), b);
             vst1_u8(spidev_buffer + i, vsri_n_u8(conversion, conversion, 4));
         }
     }
@@ -287,19 +306,19 @@ void ssd1322_update(cairo_surface_t * surface_pointer, bool should_translate_col
         // If the surface has only been drawn to, we can guarantee that RGB are
         // all equal values representing a grayscale value. So, we can take any
         // of those channels arbitrarily. Use the green channel just because.
-        for( uint32_t i = 0; i < tx_len; i += 16 ){
-            const uint8x16x4_t ARGB = vld4q_u8((uint8_t *) (data + i));
+        for( uint32_t i = 0; i < SPIDEV_BUFFER_LEN; i += 16 ){
+            const uint8x16x4_t ARGB = vld4q_u8((uint8_t *) (surface_buffer + i));
             vst1q_u8(spidev_buffer + i, vsriq_n_u8(ARGB.val[1], ARGB.val[1], 4));
         }
     }
 
     gpiod_line_set_value(gpio_dc, 1);
 
-    const uint32_t spidev_bufsize = 8192;
-    const uint32_t n_transfers = tx_len / spidev_bufsize;
+    const uint32_t spidev_bufsize = 8192; // Max is defined in /boot/config.txt
+    const uint32_t n_transfers = SPIDEV_BUFFER_LEN / spidev_bufsize;
     for( uint32_t i = 0; i < n_transfers; i++ ){
         transfer.tx_buf = (unsigned long) (spidev_buffer + (i * spidev_bufsize));
-        transfer.len = (uint32_t) tx_len / n_transfers;
+        transfer.len = SPIDEV_BUFFER_LEN / n_transfers;
         if( ioctl(spidev_fd, SPI_IOC_MESSAGE(1), &transfer) < 0 ){
             fprintf(stderr, "%s: SPI data transfer %d of %d failed.\n",
                             __func__,               i,    n_transfers);
@@ -325,7 +344,25 @@ void ssd1322_set_display_mode(ssd1322_display_mode_t mode_offset){
     write_command(SSD1322_SET_DISPLAY_MODE_ALL_OFF + mode_offset);
 }
 
-void ssd1322_set_gamma(uint8_t *gs){
+void ssd1322_set_gamma(double g){
+    // (SSD1322 rev 1.2, P 29/60)
+    // Section 8.8, Gray Scale Decoder:
+    // "Note: Both GS0 and GS1 have no 2nd pre-charge (phase 3)
+    //        and current drive (phase 4), however GS1 has 1st
+    //        pre-charge (phase 2)."
+
+    // According to the above note, GS0 and GS1 should effectively
+    // be skipped in the gamma curve calculation, because GS1 is
+    // like the starting point so it should have a value of 0.
+    uint8_t gs[16] = {0};
+    double max_grayscale = SSD1322_GRAYSCALE_MAX_VALUE;
+    for (int level = 0; level <= 14; level++) {
+        double pre_gamma = level / 14.0;
+        double grayscale = round(pow(pre_gamma, g) * max_grayscale);
+        double limit = (grayscale > max_grayscale) ? max_grayscale : grayscale;
+        gs[level + 1] = (uint8_t) limit;
+    }
+
     write_command_with_data(
             SSD1322_SET_GRAYSCALE_TABLE, // GS0 is skipped.
             gs[0x1], gs[0x2], gs[0x3], gs[0x4], gs[0x5],

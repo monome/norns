@@ -333,23 +333,6 @@ void screen_aa(int s) {
     cairo_font_options_destroy(font_options);
 }
 
-void screen_gamma(double g) {
-    if (g < 0.0) {
-        g=0;
-    }
-
-    uint8_t grayscale_table[16];
-    double max_grayscale = SSD1322_GRAYSCALE_MAX_VALUE;
-    for (int level = 0; level <= 15; level++) {
-        double pre_gamma = level / 15.0;
-        double grayscale = round( pow(pre_gamma, g) * max_grayscale );
-        double limit = (grayscale > max_grayscale) ? max_grayscale : grayscale;
-        grayscale_table[level] = (uint8_t) limit;
-    }
-
-    ssd1322_set_gamma(grayscale_table);
-}
-
 void screen_brightness(int v) {
     if (v < 0) {
         v=0;
@@ -376,15 +359,16 @@ void screen_contrast(int c){
     ssd1322_set_contrast((uint8_t) c);
 }
 
-void screen_invert(){
-    static uint8_t inverted = 0;
-    if( inverted ){
-        ssd1322_set_display_mode(SSD1322_DISPLAY_MODE_NORMAL);
+void screen_gamma(double g) {
+    if (g < 0.0) {
+        g=0;
     }
-    else{
-        ssd1322_set_display_mode(SSD1322_DISPLAY_MODE_INVERT);
-    }
-    inverted ^= 0x1; // toggle trick.
+
+    ssd1322_set_gamma(g);
+}
+
+void screen_invert(int inverted){
+    ssd1322_set_display_mode((inverted != 0) ? SSD1322_DISPLAY_MODE_INVERT : SSD1322_DISPLAY_MODE_NORMAL);
 }
 
 void screen_level(int z) {

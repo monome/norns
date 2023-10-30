@@ -15,7 +15,7 @@ extern void screen_aa(int s);
 extern void screen_gamma(double g);
 extern void screen_brightness(int v);
 extern void screen_contrast(int c);
-extern void screen_invert();
+extern void screen_invert(int i);
 extern void screen_level(int z);
 extern void screen_line_width(double w);
 extern void screen_line_cap(const char *style);
