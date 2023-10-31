@@ -28,7 +28,6 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_scheduler.h"
-#include "cpu_time.h"
 #include "device_crow.h"
 #include "device_hid.h"
 #include "device_midi.h"
@@ -46,6 +45,7 @@
 #include "screen.h"
 #include "snd_file.h"
 #include "system_cmd.h"
+#include "time_since.h"
 #include "weaver.h"
 
 // registered lua functions require the LVM state as a parameter.
@@ -289,9 +289,11 @@ static int _clock_get_tempo(lua_State *l);
 static int _audio_get_cpu_load(lua_State *l);
 static int _audio_get_xrun_count(lua_State *l);
 
-// CPU time
+// time-since measurement
 static int _cpu_time_start_timer(lua_State *l);
 static int _cpu_time_get_delta(lua_State *l);
+static int _wall_time_start_timer(lua_State *l);
+static int _wall_time_get_delta(lua_State *l);
 
 // platform detection (CM3 vs PI3 vs OTHER)
 static int _platform(lua_State *l);
@@ -555,6 +557,8 @@ void w_init(void) {
 
     lua_register_norns("cpu_time_start_timer", &_cpu_time_start_timer);
     lua_register_norns("cpu_time_get_delta", &_cpu_time_get_delta);
+    lua_register_norns("wall_time_start_timer", &_wall_time_start_timer);
+    lua_register_norns("wall_time_get_delta", &_wall_time_get_delta);
 
     // platform
     lua_register_norns("platform", &_platform);
@@ -1988,6 +1992,16 @@ int _cpu_time_start_timer(lua_State *l) {
 
 int _cpu_time_get_delta(lua_State *l) {
     lua_pushnumber(l, cpu_time_get_delta_ns());
+    return 1;
+}
+
+int _wall_time_start_timer(lua_State *l) {
+    wall_time_start();
+    return 0;
+}
+
+int _wall_time_get_delta(lua_State *l) {
+    lua_pushnumber(l, wall_time_get_delta_ns());
     return 1;
 }
 
