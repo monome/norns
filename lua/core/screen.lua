@@ -477,4 +477,8 @@ Screen.blend_mode = function(index)
   end
 end
 
+Screen.sleep = function()
+  screensaver:event()
+end
+
 return Screen
