@@ -57,13 +57,13 @@ end
 
 --- start transport
 -- @tparam number beat_sync (optional) sync playback start to beat value
-function reflection:start(beat_sync)
+function reflection:start(beat_sync, offset)
   beat_sync = beat_sync or self.quantize
   if self.clock then
     clock.cancel(self.clock)
   end
   self.clock = clock.run(function()
-    clock.sync(beat_sync)
+    clock.sync(beat_sync, offset)
     self:begin_playback()
   end)
 end
@@ -90,7 +90,7 @@ function reflection:set_rec(rec, dur, beat_sync)
   -- if standard rec flag is enabled but play isn't,
   --   then we should start playing, yeah?
   if rec == 1 and self.play == 0 then
-    self:start(beat_sync)
+    self:start(beat_sync, -1/96)
   end
   if rec == 1 and self.count > 0 then
     self.event_prev = {}
@@ -128,7 +128,7 @@ end
 
 --- quantize playback
 -- @tparam float q defaults to 1/48
--- (should be at least 1/96)
+-- (should be at least 1/48)
 function reflection:set_quantization(q)
   self.quantize = q == nil and 1 / 48 or q
 end
