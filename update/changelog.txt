@@ -1,6 +1,6 @@
 # 231108
 
-# norns 3.0.0
+# norns 2.8.0
 
 - NEW screen overhaul, allowing higher frame rate and various improvements
 #1720 @tlubke @catfact @Dewb
