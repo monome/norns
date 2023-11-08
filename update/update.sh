@@ -55,5 +55,9 @@ fi
 amixer --device hw:sndrpimonome set Master 100% on
 sudo alsactl store
 
+# change boot/cmdline for screen
+sudo sed -e '/dtoverlay=ssd1322-spi/ s/^#*/#/' -i /boot/config.txt
+sudo sed -e '/spidev.bufsiz/! s/$/ spidev.bufsiz=8192/' -i /boot/cmdline.txt
+
 # cleanup
 rm -rf ~/update/*
