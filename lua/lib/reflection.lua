@@ -232,7 +232,7 @@ function reflection:begin_playback()
         end
       end
     else
-      if self.step % q ~= 1 then goto continue end
+      if q ~= 1 and self.step % q ~= 1 then goto continue end
       self.step_callback()
       for i = q - 1, 0, -1 do
         if self.event[self.step - i] and next(self.event[self.step - i]) then
