@@ -191,6 +191,7 @@ function reflection:begin_playback()
   self.start_callback()
   local queued_start_callback = false
   local queued_end_of_loop_callback = false
+  local queued_end_playback = false
   while self.play == 1 do
     if queued_start_callback then
       self:start_callback()
@@ -199,6 +200,10 @@ function reflection:begin_playback()
     if queued_end_of_loop_callback then
       self.end_of_loop_callback()
       queued_end_of_loop_callback = false
+    end
+    if queued_end_playback then
+      self:end_playback()
+      queued_end_playback = false
     end
     self.step = self.step + 1
     local q = math.floor(96 * self.quantize)
@@ -249,7 +254,7 @@ function reflection:begin_playback()
       if self.count > 0 and self.step >= self.endpoint then
         queued_end_of_loop_callback = true
         if self.loop == 0 then
-          self:end_playback()
+          queued_end_playback = true
         elseif self.loop == 1 then
           self.step = 0
           queued_start_callback = true
