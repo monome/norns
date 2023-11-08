@@ -129,7 +129,7 @@ end
 
 --- quantize playback
 -- @tparam float q defaults to 1/48
--- (should be at least 1/48)
+-- (should be at least 1/96)
 function reflection:set_quantization(q)
   self.quantize = q == nil and 1 / 48 or q
 end
