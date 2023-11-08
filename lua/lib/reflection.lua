@@ -175,9 +175,7 @@ function reflection:watch(event)
   if (self.rec == 1 and self.play == 1) or step_one then
     event._flag = true
     local s = math.floor(step_one == true and 1 or self.step)
-
     if s == 0 then s = 1 end
-
     if not self.event[s] then
       self.event[s] = {}
     end
