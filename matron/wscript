@@ -12,7 +12,6 @@ def build(bld):
         'src/device/device_crow.c',
         'src/osc.c',
         'src/hardware/battery.c',
-        'src/hardware/cpu_time.c',
         'src/hardware/i2c.c',
         'src/hardware/input.c',
         'src/hardware/io.c',
@@ -40,6 +39,7 @@ def build(bld):
         'src/clocks/clock_midi.c',
         'src/clocks/clock_crow.c',
         'src/clocks/clock_scheduler.c',
+        'src/time_since.c'
     ]
 
     if bld.env.NORNS_DESKTOP:
