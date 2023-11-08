@@ -573,6 +573,7 @@ Screen.invert = function(i)
   elseif type(i) == "number" then
     _norns.screen_invert(i == 0.0 and 0 or 1)
   end
+end
 
 Screen.sleep = function()
   screensaver:event()
