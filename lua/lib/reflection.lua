@@ -201,6 +201,10 @@ function reflection:begin_playback()
       self.end_of_loop_callback()
       queued_end_of_loop_callback = false
     end
+    if queued_end_playback then
+      self:end_playback()
+      queued_end_playback = false
+    end
     self.step = self.step + 1
     local q = math.floor(96 * self.quantize)
     if self.endpoint == 0 then
@@ -259,10 +263,6 @@ function reflection:begin_playback()
       end
     end
     clock.sync(1 / 96)
-    if queued_end_playback then
-      self:end_playback()
-      queued_end_playback = false
-    end
   end
 end
 
