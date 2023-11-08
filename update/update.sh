@@ -59,5 +59,8 @@ sudo alsactl store
 sudo sed -e '/dtoverlay=ssd1322-spi/ s/^#*/#/' -i /boot/config.txt
 sudo sed -e '/spidev.bufsiz/! s/$/ spidev.bufsiz=8192/' -i /boot/cmdline.txt
 
+# install packages
+sudo dpkg -i package/*.deb
+
 # cleanup
 rm -rf ~/update/*
