@@ -23,6 +23,7 @@ function reflection.new()
   p.quantize             = 1 / 48
   p.endpoint             = 0
   p.start_callback       = function() end
+  p.step_callback        = function() end
   p.end_of_loop_callback = function() end
   p.end_of_rec_callback  = function() end
   p.end_callback         = function() end
@@ -175,6 +176,8 @@ function reflection:watch(event)
     event._flag = true
     local s = math.floor(step_one == true and 1 or self.step)
 
+    if s == 0 then s = 1 end
+
     if not self.event[s] then
       self.event[s] = {}
     end
@@ -212,12 +215,13 @@ function reflection:begin_playback()
           if self.loop == 1 then
             self.step = 0
             self:_clear_flags()
-            self:start_callback()
+            self.start_callback()
           end
         end
       end
     else
       if self.step % q ~= 1 then goto continue end
+      self.step_callback()
       for i = q - 1, 0, -1 do
         if self.event[self.step - i] and next(self.event[self.step - i]) then
           for j = 1, #self.event[self.step - i] do
