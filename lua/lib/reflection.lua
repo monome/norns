@@ -189,8 +189,17 @@ function reflection:begin_playback()
   self.step = 0
   self.play = 1
   self.start_callback()
+  local queued_start_callback = false
+  local queued_end_of_loop_callback = false
   while self.play == 1 do
-    clock.sync(1 / 96)
+    if queued_start_callback then
+      self:start_callback()
+      queued_start_callback = false
+    end
+    if queued_end_of_loop_callback then
+      self.end_of_loop_callback()
+      queued_end_of_loop_callback = false
+    end
     self.step = self.step + 1
     local q = math.floor(96 * self.quantize)
     if self.endpoint == 0 then
@@ -202,7 +211,7 @@ function reflection:begin_playback()
           self:set_rec(0)
           self.rec_dur = nil
           if self.loop == 1 then
-            self.start_callback()
+            queued_start_callback = true
             self.step = 0
             self.play = 1
           end
@@ -213,7 +222,7 @@ function reflection:begin_playback()
           if self.loop == 1 then
             self.step = 0
             self:_clear_flags()
-            self.start_callback()
+            queued_start_callback = true
           end
         end
       end
@@ -238,16 +247,17 @@ function reflection:begin_playback()
       end
       -- if the endpoint is reached reset counter or stop playback
       if self.count > 0 and self.step >= self.endpoint then
-        self.end_of_loop_callback()
+        queued_end_of_loop_callback = true
         if self.loop == 0 then
           self:end_playback()
         elseif self.loop == 1 then
           self.step = 0
+          queued_start_callback = true
           self:_clear_flags()
-          self:start_callback()
         end
       end
     end
+    clock.sync(1 / 96)
   end
 end
 
