@@ -569,7 +569,7 @@ end
 -- true -> inverted mode
 Screen.invert = function(i)
   if type(i) == "boolean" then
-    _norns.screen_invert(1 and i or 0)
+    _norns.screen_invert(i and 1 or 0)
   elseif type(i) == "number" then
     _norns.screen_invert(i == 0.0 and 0 or 1)
   end
