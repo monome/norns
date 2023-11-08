@@ -50,6 +50,7 @@ te.enter = function(callback, default, heading, check)
     te.key_restore = key
     te.enc_restore = enc
     te.redraw_restore = redraw
+    te.refresh_restore = refresh
     key = te.key
     enc = te.enc
     norns.menu.init()
@@ -58,7 +59,8 @@ te.enter = function(callback, default, heading, check)
     te.key_restore = norns.menu.get_key()
     te.enc_restore = norns.menu.get_enc()
     te.redraw_restore = norns.menu.get_redraw()
-    norns.menu.set(te.enc, te.key, te.redraw)
+    te.refresh_restore = norns.menu.get_refresh()
+    norns.menu.set(te.enc, te.key, te.redraw, te.refresh)
   end
   te.redraw()
 end
@@ -71,9 +73,10 @@ te.exit = function()
     key = te.key_restore
     enc = te.enc_restore
     redraw = te.redraw_restore
+    refresh = te.refresh_restore
     norns.menu.init()
   else
-    norns.menu.set(te.enc_restore, te.key_restore, te.redraw_restore)
+    norns.menu.set(te.enc_restore, te.key_restore, te.redraw_restore, te.refresh_restore)
   end
   if te.txt then te.callback(te.txt)
   else te.callback(nil) end
@@ -148,5 +151,7 @@ te.redraw = function()
 
   screen.update()
 end
+
+te.refresh = function() te.redraw() end
 
 return te

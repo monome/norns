@@ -1,3 +1,14 @@
+# 231108
+
+# norns 3.0.0
+
+- NEW screen overhaul, allowing higher frame rate and various improvements
+#1720 @tlubke @catfact @Dewb
+- NEW wall time measurement #1719 @catfact
+- NEW screen.sleep #1727 @ambv
+- FIX softcut phase inversion #1725 @catfact
+
+
 # 231023
 
 # norns 2.7.9

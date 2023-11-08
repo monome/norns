@@ -1,5 +1,4 @@
 function init_norns()
-  _boot.add_io('screen:fbdev', {dev='/dev/fb0'})
   _boot.add_io('keys:gpio',    {dev='/dev/input/by-path/platform-keys-event'})
   _boot.add_io('enc:gpio',     {dev='/dev/input/by-path/platform-soc:knob1-event', index=1})
   _boot.add_io('enc:gpio',     {dev='/dev/input/by-path/platform-soc:knob2-event', index=2})

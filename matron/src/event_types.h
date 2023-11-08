@@ -1,8 +1,10 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "oracle.h"
 #include "osc.h"
-#include <stdint.h>
+#include "screen.h"
 
 // NOTE: new event types *must* be added to the end of the enum in the order
 // maintain ABI compatibility with compiled modules which interact with the
@@ -74,8 +76,6 @@ typedef enum {
     EVENT_STARTUP_READY_TIMEOUT,
     // system command finished
     EVENT_SYSTEM_CMD,
-    // reset the lua state
-    EVENT_RESET_LVM,
     // quit the event loop
     EVENT_QUIT,
     // crow add
@@ -92,6 +92,8 @@ typedef enum {
     EVENT_CUSTOM,
     // monome grid tilt
     EVENT_GRID_TILT,
+    // screen asynchronous results callbacks
+    EVENT_SCREEN_REFRESH,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -165,7 +167,6 @@ struct event_hid_remove {
     uint32_t id;
 }; // +4
 
-/// fixme: maybe break this up into hid_key, hid_abs, &c?
 struct event_hid_event {
     struct event_common common;
     uint8_t id;
@@ -209,15 +210,15 @@ struct event_clock_resume {
     struct event_common common;
     uint32_t thread_id;
     double value;
-};
+}; // + 12
 
 struct event_clock_start {
     struct event_common common;
-};
+}; // + 0
 
 struct event_clock_stop {
     struct event_common common;
-};
+}; // + 0
 
 struct event_key {
     struct event_common common;
@@ -245,7 +246,7 @@ struct event_stat {
     uint8_t cpu2;
     uint8_t cpu3;
     uint8_t cpu4;
-};
+}; // +10
 
 struct event_enc {
     struct event_common common;
@@ -307,12 +308,12 @@ struct event_crow_event {
     struct event_common common;
     void *dev;
     uint8_t id;
-}; // +4
+}; // +5
 
 struct event_system_cmd {
     struct event_common common;
     char *capture;
-};
+}; // +4
 
 struct event_softcut_render {
     struct event_common common;
@@ -321,13 +322,13 @@ struct event_softcut_render {
     float start;
     size_t size;
     float* data;
-};
+}; // + 20
 
 struct event_softcut_position {
     struct event_common common;
     int idx;
     float pos;
-};
+}; // + 8
 
 // forward declaration to hide scripting layer dependencies
 struct event_custom_ops;
