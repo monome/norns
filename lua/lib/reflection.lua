@@ -23,6 +23,7 @@ function reflection.new()
   p.quantize             = 1 / 48
   p.endpoint             = 0
   p.start_callback       = function() end
+  p.step_callback        = function() end
   p.end_of_loop_callback = function() end
   p.end_of_rec_callback  = function() end
   p.end_callback         = function() end
@@ -57,13 +58,14 @@ end
 
 --- start transport
 -- @tparam number beat_sync (optional) sync playback start to beat value
-function reflection:start(beat_sync)
+-- @tparam number offset (optional) if set, this value will be added to the beat_sync value
+function reflection:start(beat_sync, offset)
   beat_sync = beat_sync or self.quantize
   if self.clock then
     clock.cancel(self.clock)
   end
   self.clock = clock.run(function()
-    clock.sync(beat_sync)
+    clock.sync(beat_sync, offset)
     self:begin_playback()
   end)
 end
@@ -90,7 +92,7 @@ function reflection:set_rec(rec, dur, beat_sync)
   -- if standard rec flag is enabled but play isn't,
   --   then we should start playing, yeah?
   if rec == 1 and self.play == 0 then
-    self:start(beat_sync)
+    self:start(beat_sync, -1/96)
   end
   if rec == 1 and self.count > 0 then
     self.event_prev = {}
@@ -174,7 +176,7 @@ function reflection:watch(event)
   if (self.rec == 1 and self.play == 1) or step_one then
     event._flag = true
     local s = math.floor(step_one == true and 1 or self.step)
-
+    if s == 0 then s = 1 end
     if not self.event[s] then
       self.event[s] = {}
     end
@@ -188,8 +190,23 @@ function reflection:begin_playback()
   self.step = 0
   self.play = 1
   self.start_callback()
+  local queued_start_callback = false
+  local queued_end_of_loop_callback = false
+  local queued_end_playback = false
   while self.play == 1 do
-    clock.sync(1 / 96)
+    if queued_start_callback then
+      self.start_callback()
+      queued_start_callback = false
+    end
+    if queued_end_of_loop_callback then
+      self.end_of_loop_callback()
+      queued_end_of_loop_callback = false
+    end
+    if queued_end_playback then
+      self:end_playback()
+      queued_end_playback = false
+      break
+    end
     self.step = self.step + 1
     local q = math.floor(96 * self.quantize)
     if self.endpoint == 0 then
@@ -201,7 +218,7 @@ function reflection:begin_playback()
           self:set_rec(0)
           self.rec_dur = nil
           if self.loop == 1 then
-            self.start_callback()
+            queued_start_callback = true
             self.step = 0
             self.play = 1
           end
@@ -212,17 +229,20 @@ function reflection:begin_playback()
           if self.loop == 1 then
             self.step = 0
             self:_clear_flags()
-            self:start_callback()
+            queued_start_callback = true
           end
         end
       end
     else
-      if self.step % q ~= 1 then goto continue end
+      -- not first pass, can now process
+      if q ~= 1 and self.step % q ~= 1 then goto continue end
+      self.step_callback()
       for i = q - 1, 0, -1 do
         if self.event[self.step - i] and next(self.event[self.step - i]) then
-          for j = 1, #self.event[self.step - i] do
-            local event = self.event[self.step - i][j]
-            if not event._flag then self.process(event) end
+          for _, event in ipairs(self.event[self.step - i]) do
+            if not event._flag then
+              self.process(event)
+            end
           end
         end
       end
@@ -236,16 +256,17 @@ function reflection:begin_playback()
       end
       -- if the endpoint is reached reset counter or stop playback
       if self.count > 0 and self.step >= self.endpoint then
-        self.end_of_loop_callback()
+        queued_end_of_loop_callback = true
         if self.loop == 0 then
-          self:end_playback()
+          queued_end_playback = true
         elseif self.loop == 1 then
           self.step = 0
+          queued_start_callback = true
           self:_clear_flags()
-          self:start_callback()
         end
       end
     end
+    clock.sync(1 / 96)
   end
 end
 
