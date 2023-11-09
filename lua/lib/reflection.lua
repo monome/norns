@@ -195,7 +195,7 @@ function reflection:begin_playback()
   local queued_end_playback = false
   while self.play == 1 do
     if queued_start_callback then
-      self:start_callback()
+      self.start_callback()
       queued_start_callback = false
     end
     if queued_end_of_loop_callback then
@@ -205,6 +205,7 @@ function reflection:begin_playback()
     if queued_end_playback then
       self:end_playback()
       queued_end_playback = false
+      break
     end
     self.step = self.step + 1
     local q = math.floor(96 * self.quantize)
@@ -233,13 +234,15 @@ function reflection:begin_playback()
         end
       end
     else
+      -- not first pass, can now process
       if q ~= 1 and self.step % q ~= 1 then goto continue end
       self.step_callback()
       for i = q - 1, 0, -1 do
         if self.event[self.step - i] and next(self.event[self.step - i]) then
-          for j = 1, #self.event[self.step - i] do
-            local event = self.event[self.step - i][j]
-            if not event._flag then self.process(event) end
+          for _, event in ipairs(self.event[self.step - i]) do
+            if not event._flag then
+              self.process(event)
+            end
           end
         end
       end
