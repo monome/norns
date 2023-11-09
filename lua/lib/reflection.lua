@@ -58,6 +58,7 @@ end
 
 --- start transport
 -- @tparam number beat_sync (optional) sync playback start to beat value
+-- @tparam number offset (optional) if set, this value will be added to the sync playback beat value
 function reflection:start(beat_sync, offset)
   beat_sync = beat_sync or self.quantize
   if self.clock then
