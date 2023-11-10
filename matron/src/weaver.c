@@ -1132,17 +1132,13 @@ int _screen_peek(lua_State *l) {
         screen_event_peek(x, y, w, h);
         screen_results_wait();
         union screen_results_data *results = screen_results_get();
-        lua_pushinteger(l, results->peek.w);
-        lua_pushinteger(l, results->peek.h);
         lua_pushlstring(l, results->peek.buf, results->peek.w * results->peek.h);
         screen_results_free();
     } else { 
         fprintf(stderr, "WARNING: invalid position arguments to screen_peek()\n");
-        lua_pushinteger(l, 0);
-        lua_pushinteger(l, 0);
         lua_pushlstring(l, "", 0);
     }
-    return 3;
+    return 1;
 }
 
 /***
