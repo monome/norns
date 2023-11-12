@@ -71,19 +71,22 @@ err_init:
 
 void dev_delete(union dev *d) {
     int ret;
-    if (pthread_kill(d->base.tid, 0) == 0) {
-        // device i/o thread still running
-        ret = pthread_cancel(d->base.tid);
+    // if the device has a start function, then it has an input thread that needs stopping
+    if (d->base.start != NULL) { 
+        if (pthread_kill(d->base.tid, 0) == 0) {
+            // device i/o thread still running
+            ret = pthread_cancel(d->base.tid);
+            if (ret) {
+                fprintf(stderr, "dev_delete(): error in pthread_cancel(): %d\n", ret);
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        ret = pthread_join(d->base.tid, NULL);
         if (ret) {
-            fprintf(stderr, "dev_delete(): error in pthread_cancel(): %d\n", ret);
+            fprintf(stderr, "dev_delete(): error in pthread_join(): %d\n", ret);
             exit(EXIT_FAILURE);
         }
-    }
-
-    ret = pthread_join(d->base.tid, NULL);
-    if (ret) {
-        fprintf(stderr, "dev_delete(): error in pthread_join(): %d\n", ret);
-        exit(EXIT_FAILURE);
     }
 
     d->base.deinit(d);
