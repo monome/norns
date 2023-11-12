@@ -28,6 +28,7 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_scheduler.h"
+#include "cpu_time.h"
 #include "device_crow.h"
 #include "device_hid.h"
 #include "device_midi.h"
@@ -115,6 +116,7 @@ static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
 static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
+static int _screen_export_screenshot(lua_State *l);
 static int _screen_display_png(lua_State *l);
 static int _screen_peek(lua_State *l);
 static int _screen_poke(lua_State *l);
@@ -286,6 +288,10 @@ static int _clock_get_tempo(lua_State *l);
 // audio performance
 static int _audio_get_cpu_load(lua_State *l);
 static int _audio_get_xrun_count(lua_State *l);
+
+// CPU time
+static int _cpu_time_start_timer(lua_State *l);
+static int _cpu_time_get_delta(lua_State *l);
 
 // platform detection (CM3 vs PI3 vs OTHER)
 static int _platform(lua_State *l);
@@ -463,6 +469,7 @@ void w_init(void) {
     lua_register_norns("screen_close", &_screen_close);
     lua_register_norns("screen_text_extents", &_screen_text_extents);
     lua_register_norns("screen_export_png", &_screen_export_png);
+    lua_register_norns("screen_export_screenshot", &_screen_export_screenshot);
     lua_register_norns("screen_display_png", &_screen_display_png);
     lua_register_norns("screen_peek", &_screen_peek);
     lua_register_norns("screen_poke", &_screen_poke);
@@ -545,6 +552,9 @@ void w_init(void) {
 
     lua_register_norns("audio_get_cpu_load", &_audio_get_cpu_load);
     lua_register_norns("audio_get_xrun_count", &_audio_get_xrun_count);
+
+    lua_register_norns("cpu_time_start_timer", &_cpu_time_start_timer);
+    lua_register_norns("cpu_time_get_delta", &_cpu_time_get_delta);
 
     // platform
     lua_register_norns("platform", &_platform);
@@ -952,6 +962,19 @@ int _screen_export_png(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
     screen_export_png(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: export_screenshot
+ * @function s_export_screenshot
+ * @tparam string filename
+ */
+int _screen_export_screenshot(lua_State *l) {
+    lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    screen_export_screenshot(s);
     lua_settop(l, 0);
     return 0;
 }
@@ -1958,6 +1981,16 @@ int _audio_get_xrun_count(lua_State *l) {
     return 1;
 }
 
+int _cpu_time_start_timer(lua_State *l) {
+    cpu_time_start();
+    return 0;
+}
+
+int _cpu_time_get_delta(lua_State *l) {
+    lua_pushnumber(l, cpu_time_get_delta_ns());
+    return 1;
+}
+
 //--------------------------------------------------
 //--- define lua handlers for system callbacks
 
@@ -2040,7 +2073,8 @@ void w_handle_hid_add(void *p) {
     }
 
     lua_pushlightuserdata(lvm, dev);
-    l_report(lvm, l_docall(lvm, 5, 0));
+    lua_pushstring(lvm, dev->guid);
+    l_report(lvm, l_docall(lvm, 6, 0));
 }
 
 void w_handle_hid_remove(int id) {

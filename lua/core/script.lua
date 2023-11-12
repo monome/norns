@@ -63,6 +63,7 @@ Script.clear = function()
   arc.cleanup()
   midi.cleanup()
   hid.cleanup()
+  osc.cleanup()
 
   -- stop all timers
   metro.free_all()
@@ -85,8 +86,9 @@ Script.clear = function()
   -- clear crow functions
   norns.crow.init()
 
-  -- clear keyboard handlers
+  -- clear HID device handlers
   keyboard.clear()
+  gamepad.clear()
 
   -- clear last run
   norns.state.script = ''
@@ -95,6 +97,7 @@ Script.clear = function()
   norns.state.path = _path["dust"]
   norns.state.data = _path.data
   norns.state.lib = norns.state.path
+  norns.version.required = nil
 
   -- clear params
   params:clear()
@@ -129,6 +132,7 @@ Script.init = function()
   print("# script init")
   params.name = norns.state.shortname
   init()
+  hook.script_post_init()
   _norns.screen_save()
 end
 
@@ -209,6 +213,11 @@ end
 
 --- load engine, execute script-specified init (if present).
 Script.run = function()
+  if tonumber(norns.version.required) and tonumber(norns.version.required) > tonumber(norns.version.update) then
+    norns.scripterror("version " .. norns.version.required .. " required")
+    Script.clear()
+    return
+  end
   -- allow mods to do initialization
   hook.script_pre_init()
 

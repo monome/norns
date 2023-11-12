@@ -183,6 +183,22 @@ function ParamSet:add(args)
   if args.action then
     param.action = args.action
   end
+
+  local midi_prm = norns.pmap.data[param.id]
+  if midi_prm then
+    local val
+    if param.t == 3 then
+      val = params:get_raw(param.id)
+    else
+      val = params:get(param.id)
+    end
+    midi_prm.value = util.round(util.linlin(midi_prm.out_lo, midi_prm.out_hi, midi_prm.in_lo, midi_prm.in_hi, val))
+    if midi_prm.echo then
+      local port = norns.pmap.data[param.id].dev
+      midi.vports[port]:cc(midi_prm.cc, midi_prm.value, midi_prm.ch)
+    end
+  end
+
 end
 
 --- add number.
@@ -370,6 +386,20 @@ end
 function ParamSet:delta(index, d)
   local param = self:lookup_param(index)
   param:delta(d)
+  if norns.pmap.data[param.id] ~= nil then
+    local midi_prm = norns.pmap.data[param.id]
+    local val
+    if param.t == 3 then
+      val = param:get_raw()
+    else
+      val = param:get()
+    end
+    midi_prm.value = util.round(util.linlin(midi_prm.out_lo, midi_prm.out_hi, midi_prm.in_lo, midi_prm.in_hi, val))
+    if midi_prm.echo then
+      local port = norns.pmap.data[param.id].dev
+      midi.vports[port]:cc(midi_prm.cc, midi_prm.value, midi_prm.ch)
+    end
+  end
 end
 
 --- set action.
@@ -444,6 +474,8 @@ local function unquote(s)
   return s:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"')
 end
 
+-- get param object at index; useful for meta-programming tasks like changing a param once it's been created.
+-- @param index
 function ParamSet:lookup_param(index)
   if type(index) == "string" and self.lookup[index] then
     return self.params[self.lookup[index]]
@@ -472,7 +504,7 @@ function ParamSet:write(filename, name)
     io.output(fd)
     if name then io.write("-- "..name.."\n") end
     for _,param in ipairs(self.params) do
-      if param.id and param.save and param.t ~= self.tTRIGGER then
+      if param.id and param.save and param.t ~= self.tTRIGGER and param.t ~= self.tSEPARATOR then
         io.write(string.format("%s: %s\n", quote(param.id), param:get()))
       end
     end
@@ -499,6 +531,7 @@ function ParamSet:read(filename, silent)
   local fd = io.open(filename, "r")
   if fd then
     io.close(fd)
+    local param_already_set = {}
     for line in io.lines(filename) do
       if util.string_starts(line, "--") then
         params.name = string.sub(line, 4, -1)
@@ -509,7 +542,7 @@ function ParamSet:read(filename, silent)
           id = unquote(id)
           local index = self.lookup[id]
 
-          if index and self.params[index] then
+          if index and self.params[index] and not param_already_set[index] then
             if tonumber(value) ~= nil then
               self.params[index]:set(tonumber(value), silent)
             elseif value == "-inf" then
@@ -519,6 +552,7 @@ function ParamSet:read(filename, silent)
             elseif value then
               self.params[index]:set(value, silent)
             end
+            param_already_set[index] = true
           end
         end
       end

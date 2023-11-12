@@ -96,7 +96,7 @@ norns.battery_current = 0
 
 -- battery percent handler
 _norns.battery = function(percent, current)
-  if current < 0 and percent < 5 then
+  if current < 0 and percent < 5 and norns.state.battery_warning==1 then
     screen.update = screen.update_low_battery
   elseif current > 0 and norns.battery_current < 0 then
     screen.update = screen.update_default
@@ -242,6 +242,20 @@ _norns.reset = function()
   os.execute("sudo systemctl restart norns-matron.service")
 end
 
+-- restart device
+_norns.restart = function()
+  hook.system_pre_shutdown()
+  print("RESTARTING")
+  norns.script.clear()
+  _norns.free_engine()
+  norns.state.clean_shutdown = true
+  norns.state.save()
+  pcall(cleanup)
+  audio.level_dac(0)
+  audio.headphone_gain(0)
+  _norns.reset()
+end
+
 -- startup function will be run after I/O subsystems are initialized,
 -- but before I/O event loop starts ticking (see readme-script.md)
 _startup = function()
@@ -256,4 +270,9 @@ end
 --- rerun the current script
 norns.rerun = function()
   norns.script.load(norns.state.script)
+end
+
+-- expand the filesystem after a fresh installation
+norns.expand_filesystem = function()
+  os.execute('sudo raspi-config --expand-rootfs')
 end

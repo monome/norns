@@ -395,8 +395,44 @@ double *screen_text_extents(const char *s) {
 }
 
 extern void screen_export_png(const char *s) {
+		CHECK_CR
+		cairo_surface_write_to_png(surface, s);
+}
+
+extern void screen_export_screenshot(const char *s) {
     CHECK_CR
-    cairo_surface_write_to_png(surface, s);
+    static cairo_surface_t *png;
+    static cairo_t *temp; // for bg fill
+    // width = 640 (128*4 pixels with 64 pixel black border)
+    // hieght = 384 (64*4 pixels plus border) 
+    png = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 640, 384);
+    temp = cairo_create(png);
+    // fill
+    cairo_set_source_rgb(temp, 0, 0, 0);
+    cairo_rectangle(temp, 0, 0, 640, 384);
+    cairo_fill(temp);
+    // copy big pixles
+    uint32_t *src = (uint32_t *)cairo_image_surface_get_data(surface);
+    uint32_t *dst = (uint32_t *)cairo_image_surface_get_data(png);
+    if (!src || !dst) return;
+    dst += 64 + 640*64;
+    for(int y=0;y<64;y++) {
+        for(int x=0;x<128;x++) {
+            // FIXME: needs some sort of gamma correction?
+            uint32_t p = *src++ | 0xFF000000; // FF for alpha
+            for(int xx=0;xx<4;xx++) {
+                *(dst+1920) = p;
+                *(dst+1280) = p;
+                *(dst+640) = p;
+                *dst++ = p;
+            }
+        }
+        dst += 640*4 - 128*4;
+    }
+    // cleanup
+    cairo_destroy(temp);
+    cairo_surface_write_to_png(png, s);
+    cairo_surface_destroy((cairo_surface_t *)png);
 }
 
 void screen_display_png(const char *filename, double x, double y) {

@@ -304,7 +304,7 @@ function Audio.add_params()
       norns.state.mix.tape = x
     end)
   params:set_save("tape_level", false)
-  params:add_separator()
+  params:add_separator("monitoring_separator", "monitoring")
   params:add_option("monitor_mode", "monitor mode", {"STEREO", "MONO"},
     norns.state.mix.monitor_mode)
   params:set_action("monitor_mode",

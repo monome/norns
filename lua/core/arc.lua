@@ -157,6 +157,12 @@ function Arc.cleanup()
     dev.delta = nil
     dev.key = nil
   end
+
+  Arc.add = function(dev)
+    print("arc added:", dev.id, dev.name, dev.serial)
+  end
+
+  Arc.remove = function(dev) end
 end
 
 -- @static

@@ -238,7 +238,7 @@ struct event_power {
 
 struct event_stat {
     struct event_common common;
-    uint16_t disk;
+    uint32_t disk;
     uint8_t temp;
     uint8_t cpu;
     uint8_t cpu1;

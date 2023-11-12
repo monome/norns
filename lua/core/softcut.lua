@@ -85,8 +85,8 @@ SC.loop = function(voice,state) _norns.cut_param("loop_flag",voice,state) end
 
 --- set fade time.
 -- @tparam int voice : voice index
--- @tparam number pos : loop start position in seconds
-SC.fade_time = function(voice,pos) _norns.cut_param("fade_time",voice,pos) end
+-- @tparam number fade_time : crossfade time in seconds
+SC.fade_time = function(voice,fade_time) _norns.cut_param("fade_time",voice,fade_time) end
 
 --- set record level.
 -- this sets the realtime-modulated record level,
@@ -120,10 +120,10 @@ SC.buffer = function(i,b) _norns.cut_param_ii("buffer",i,b) end
 
 --- synchronize two voices.
 --- position of "dst" will be immediately set to that of "source"
--- @tparam int src : source voice index
 -- @tparam int dst : destination voice index
+-- @tparam int src : source voice index
 -- @tparam number offset : additional offset in seconds
-SC.voice_sync = function(src, dst, offset) _norns.cut_param_iif("voice_sync",src,dst,offset) end
+SC.voice_sync = function(dst, src, offset) _norns.cut_param_iif("voice_sync",dst,src,offset) end
 
 --- set pre_filter cutoff frequency.
 --- @tparam int voice : voice index

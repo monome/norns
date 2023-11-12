@@ -1,3 +1,93 @@
+# 231023
+
+# norns 2.7.9
+
+- NEW cpu_time measurement #1718 @catfact
+- NEW mod system additional hooks #1716 @sixolet
+- NEW lib reflection #1713 @ryleelyman
+- FIX lfo offset behavior #1715 @sonocircuit
+
+
+# 231011
+
+# norns 2.7.8
+
+- NEW lfo lib v2 #1692 @dndrks
+- FIX tape preview debounce #1703 @ryleelyman
+- FIX systemcmd buffer size #1707 @catfact
+- FIX char safety #1705 @tehn
+- FIX file select listing optimization #1705 @tehn
+- FIX file select listing optimization #1712 @beels
+- FIX dev_monitor messages more informative #1710 @ambv
+- FIX util.wrap global var correction #1704 @sixolet
+- FIX restart tuning #1695 @dndrks
+- FIX midi mapping tuning #1696 @dndrks
+- FIX softcut voice sync parameter order #1677 @catfact
+- FIX menu disk display allow large numbers #1690 @radishmouse
+- FIX musicutil 7th chord scale generation #1688 @Dewb
+
+# image
+
+- FIX disble hciuart #1700 @tehn
+
+
+# 230614
+
+# norns 2.7.7
+
+- FIX fileselect bug #1681 @dndrks
+
+
+# 230526
+
+# norns 2.7.6
+
+- NEW fileselect filters #1678 @dndrks
+- FIX midi clock #1680 @dndrks
+
+
+# 230509
+
+# norns 2.7.5
+
+- FIX screen.export_png reverted, screen.export_screenshot added @tehn
+- FIX battery menu fix @dndrks
+
+
+# 230405
+
+# norns 2.7.4
+
+- NEW png export with scaling and frame #1669 @tehn
+- NEW system settings menu, battery warning #1668 @tehn
+- NEW char/key conversion #1659 @niksilver
+- NEW crow v4 features #1662 @trentgill
+- NEW allow midi send to all channels #1642 @zjb-s
+- NEW user gamepad profiles #1671 @p3r7
+- FIX gamepad support #1624 @p3r7
+- FIX lfo lib improvements #1630 @dndrks
+- FIX various minor fixes (much appreciated)
+
+
+# 221214
+
+# norns 2.7.3
+
+- NEW preview for tape select #1607 @ryleelyman
+- NEW function to check norns version on script load #1613 @ryleelyman
+- NEW keyboard menu key update #1611 @schollz
+- NEW lattice v2 #1616 @ryleelyman
+- FIX param accum mapping, accept wider range of inputs #1606 @zjb-s
+- FIX tempo update bug with link #1617 @dndrks
+- FIX menu key management #1619 #1620 @p3r7
+- FIX lfo lib use lattice v2 #1626 @dndrks
+- FIX wifi pw entry #1627 @dndrks
+
+# image
+
+- fix logrotate
+
+
 # 220802
 
 # norns 2.7.2
