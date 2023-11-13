@@ -57,7 +57,7 @@ union dev *dev_new(device_t type, const char *path, const char *name, bool multi
         }
         break;
     default:
-        fprintf(stderr, "calling device.c:dev_new() with unkmown device type; this is an error!");
+        fprintf(stderr, "calling device.c:dev_new() with unknown device type; this is an error!");
         goto err_init;
     }
     // start the thread
@@ -103,7 +103,7 @@ int dev_start(union dev *d) {
     int ret;
 
     if (d->base.start == NULL) {
-	fprintf(stderr, "device.c: no `start` function defined (no input); skipping\n");
+	    // fprintf(stderr, "device.c: no `start` function defined (no input); skipping\n");
         return 0;
     }
 

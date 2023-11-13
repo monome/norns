@@ -81,10 +81,10 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
 	    midi->handle_in = NULL;
 	}	 
     } else {
-	fprintf(stderr, "device opened (bidirectional)\n");	
+	    fprintf(stderr, "device opened (bidirectional)\n");	
     }
-    fprintf(stderr, "input handle  : %p\n", midi->handle_in);
-    fprintf(stderr, "output handle : %p\n", midi->handle_out);
+    // fprintf(stderr, "input handle  : %p\n", midi->handle_in);
+    // fprintf(stderr, "output handle : %p\n", midi->handle_out);
 
     char *name_with_port_index;
     if (multiport_device) {
@@ -132,11 +132,10 @@ int dev_midi_virtual_init(void *self) {
 
 void dev_midi_deinit(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
-    struct dev_common *base = (struct dev_common *)self;
-
-    fprintf(stderr, "midi_deinit   : %s\n", base->name);
-    fprintf(stderr, "input handle  : %p\n", midi->handle_in);
-    fprintf(stderr, "output handle : %p\n", midi->handle_out);
+    // struct dev_common *base = (struct dev_common *)self;
+    // fprintf(stderr, "midi_deinit   : %s\n", base->name);
+    // fprintf(stderr, "input handle  : %p\n", midi->handle_in);
+    // fprintf(stderr, "output handle : %p\n", midi->handle_out);
 
     if (midi->handle_in != NULL) {
 	snd_rawmidi_close(midi->handle_in);
@@ -316,7 +315,7 @@ void *dev_midi_start(void *self) {
 	return NULL;
     }
 
-    fprintf(stderr, "starting input thread for midi device: %s (%p)\n", base->name, midi->handle_in);
+    // fprintf(stderr, "starting input thread for midi device: %s (%p)\n", base->name, midi->handle_in);
     
     if (snd_rawmidi_status_malloc(&status) != 0) {
         fprintf(stderr, "failed allocating rawmidi status, stopping device: %s\n", base->name);
