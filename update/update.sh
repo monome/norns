@@ -58,9 +58,13 @@ sudo sed -e '/spidev.bufsiz/! s/$/ spidev.bufsiz=8192/' -i /boot/cmdline.txt
 # install packages
 sudo dpkg -i package/*.deb
 
+# clean slate
+rm /home/we/matronrc.lua
+
 # maiden project setup
 cd /home/we/maiden
 ./project-setup.sh
+
 
 # cleanup
 rm -rf ~/update/*
