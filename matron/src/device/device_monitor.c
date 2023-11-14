@@ -227,7 +227,7 @@ void rm_dev(struct udev_device *dev, int dev_file) {
 }
 
 void rm_dev_tty(struct udev_device *dev, const char *node) {
-    fprintf(stderr, "rm_dev_tty: %s\n", node);
+    // fprintf(stderr, "rm_dev_tty: %s\n", node);
 
     if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
         fprintf(stderr, "dev_monitor: got ttyUSB, assuming grid\n");
@@ -291,8 +291,8 @@ void add_dev_tty(struct udev_device *dev) {
 void add_dev_input(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
     if (node == NULL) {
-	fprintf(stderr, "dev_monitor: skipping node-less entry in /dev/input\n");
-	return;
+	    fprintf(stderr, "dev_monitor: skipping node-less entry in /dev/input\n");
+	    return;
     }
     char *name = get_device_name(dev);
     dev_list_add(DEV_TYPE_HID, node, name);

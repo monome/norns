@@ -57,7 +57,7 @@ union dev *dev_new(device_t type, const char *path, const char *name, bool multi
         }
         break;
     default:
-        fprintf(stderr, "calling device.c:dev_new() with unkmown device type; this is an error!");
+        fprintf(stderr, "calling device.c:dev_new() with unknown device type; this is an error!");
         goto err_init;
     }
     // start the thread
@@ -71,19 +71,22 @@ err_init:
 
 void dev_delete(union dev *d) {
     int ret;
-    if (pthread_kill(d->base.tid, 0) == 0) {
-        // device i/o thread still running
-        ret = pthread_cancel(d->base.tid);
+    // if the device has a start function, then it has an input thread that needs stopping
+    if (d->base.start != NULL) { 
+        if (pthread_kill(d->base.tid, 0) == 0) {
+            // device i/o thread still running
+            ret = pthread_cancel(d->base.tid);
+            if (ret) {
+                fprintf(stderr, "dev_delete(): error in pthread_cancel(): %d\n", ret);
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        ret = pthread_join(d->base.tid, NULL);
         if (ret) {
-            fprintf(stderr, "dev_delete(): error in pthread_cancel(): %d\n", ret);
+            fprintf(stderr, "dev_delete(): error in pthread_join(): %d\n", ret);
             exit(EXIT_FAILURE);
         }
-    }
-
-    ret = pthread_join(d->base.tid, NULL);
-    if (ret) {
-        fprintf(stderr, "dev_delete(): error in pthread_join(): %d\n", ret);
-        exit(EXIT_FAILURE);
     }
 
     d->base.deinit(d);
@@ -100,7 +103,8 @@ int dev_start(union dev *d) {
     int ret;
 
     if (d->base.start == NULL) {
-        return -1;
+	    // fprintf(stderr, "device.c: no `start` function defined (no input); skipping\n");
+        return 0;
     }
 
     ret = pthread_attr_init(&attr);

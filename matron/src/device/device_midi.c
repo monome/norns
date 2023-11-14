@@ -60,7 +60,7 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     unsigned int alsa_card;
     unsigned int alsa_dev;
     char *alsa_name;
-
+    
     sscanf(base->path, "/dev/snd/midiC%uD%u", &alsa_card, &alsa_dev);
 
     if (asprintf(&alsa_name, "hw:%u,%u,%u", alsa_card, alsa_dev, port_index) < 0) {
@@ -69,9 +69,22 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     }
 
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, alsa_name, 0) < 0) {
-        fprintf(stderr, "failed to open alsa device %s\n", alsa_name);
-        return -1;
+	if (snd_rawmidi_open(NULL, &midi->handle_out, alsa_name, 0) < 0) {
+	    if (snd_rawmidi_open(&midi->handle_in, NULL, alsa_name, 0) < 0) {
+		return -1;
+	    } else {
+		fprintf(stderr, "device opened OK, only input ports\n");		    
+		midi->handle_out = NULL;
+	    }
+	} else {
+	    fprintf(stderr, "device opened OK, only output ports\n");
+	    midi->handle_in = NULL;
+	}	 
+    } else {
+	    fprintf(stderr, "device opened (bidirectional)\n");	
     }
+    // fprintf(stderr, "input handle  : %p\n", midi->handle_in);
+    // fprintf(stderr, "output handle : %p\n", midi->handle_out);
 
     char *name_with_port_index;
     if (multiport_device) {
@@ -79,11 +92,17 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
             fprintf(stderr, "failed to create human-readable device name for card %d,%d,%d\n", alsa_card, alsa_dev,
                     port_index);
             return -1;
-        }
+        } else {
+	    fprintf(stderr, "assigned device name with port: %s\n", name_with_port_index);
+	}
         base->name = name_with_port_index;
     }
 
-    base->start = &dev_midi_start;
+    if (midi->handle_in != NULL) { 
+	base->start = &dev_midi_start;
+    } else {
+	base->start = NULL;
+    }
     base->deinit = &dev_midi_deinit;
 
     return 0;
@@ -93,6 +112,10 @@ int dev_midi_virtual_init(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
     struct dev_common *base = (struct dev_common *)self;
 
+    if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
+        fprintf(stderr, "failed to open alsa virtual device.\n");
+        return -1;
+    }
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, "virtual", 0) < 0) {
         fprintf(stderr, "failed to open alsa virtual device.\n");
         return -1;
@@ -109,8 +132,17 @@ int dev_midi_virtual_init(void *self) {
 
 void dev_midi_deinit(void *self) {
     struct dev_midi *midi = (struct dev_midi *)self;
-    snd_rawmidi_close(midi->handle_in);
-    snd_rawmidi_close(midi->handle_out);
+    // struct dev_common *base = (struct dev_common *)self;
+    // fprintf(stderr, "midi_deinit   : %s\n", base->name);
+    // fprintf(stderr, "input handle  : %p\n", midi->handle_in);
+    // fprintf(stderr, "output handle : %p\n", midi->handle_out);
+
+    if (midi->handle_in != NULL) {
+	snd_rawmidi_close(midi->handle_in);
+    }
+    if (midi->handle_out != NULL) {
+	snd_rawmidi_close(midi->handle_out);
+    }
 }
 
 static inline bool is_status_byte(uint8_t byte) {
@@ -278,6 +310,13 @@ void *dev_midi_start(void *self) {
     ssize_t read = 0;
     ssize_t xruns;
 
+    if (midi->handle_in == NULL) {
+	fprintf(stderr, "starting a reader thread for a non-input MIDI device; shouldn't get here!\n");
+	return NULL;
+    }
+
+    // fprintf(stderr, "starting input thread for midi device: %s (%p)\n", base->name, midi->handle_in);
+    
     if (snd_rawmidi_status_malloc(&status) != 0) {
         fprintf(stderr, "failed allocating rawmidi status, stopping device: %s\n", base->name);
         return NULL;
@@ -308,5 +347,9 @@ void *dev_midi_start(void *self) {
 
 ssize_t dev_midi_send(void *self, uint8_t *data, size_t n) {
     struct dev_midi *midi = (struct dev_midi *)self;
-    return snd_rawmidi_write(midi->handle_out, data, n);
+    if (midi->handle_out == NULL) {
+	return -1;
+    } else {
+	return snd_rawmidi_write(midi->handle_out, data, n);
+    } 
 }
