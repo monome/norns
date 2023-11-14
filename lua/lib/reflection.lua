@@ -53,7 +53,6 @@ function reflection:double()
     self.event[self.endpoint + i] = copy[i]
   end
   self.endpoint = self.endpoint * 2
-  self.step_max = self.endpoint
 end
 
 --- start transport
@@ -88,7 +87,6 @@ end
 function reflection:set_rec(rec, dur, beat_sync)
   self.rec = rec == 1 and 1 or 0
   self.rec_enabled = rec > 0 and 1 or 0
-  self.queued_rec = nil
   -- if standard rec flag is enabled but play isn't,
   --   then we should start playing, yeah?
   if rec == 1 and self.play == 0 then
@@ -119,6 +117,7 @@ function reflection:set_rec(rec, dur, beat_sync)
   if rec == 0 then
     self:_clear_flags()
     self.end_of_rec_callback()
+    self.queued_rec = nil
   end
 end
 
@@ -168,14 +167,18 @@ end
 --- watch
 function reflection:watch(event)
   local step_one = false
+  local offset = 0
   if self.queued_rec ~= nil then
-    self:set_rec(1, self.queued_rec.duration)
-    self.queued_rec = nil
-    step_one = true
+    if self.queued_rec.state then
+      self:set_rec(1, self.queued_rec.duration, 1/96)
+      self.queued_rec.state = false
+      step_one = true
+    end
+    offset = 2
   end
   if (self.rec == 1 and self.play == 1) or step_one then
     event._flag = true
-    local s = math.floor(step_one == true and 1 or self.step)
+    local s = math.floor(step_one == true and 1 or self.step + offset)
     if s == 0 then s = 1 end
     if not self.event[s] then
       self.event[s] = {}
@@ -213,7 +216,7 @@ function reflection:begin_playback()
       -- don't process on first pass
       if self.rec_dur then
         self.rec_dur.count = self.rec_dur.count - 1 / 96
-        if self.rec_dur.count <= 0 then
+        if self.rec_dur.count <= (self.queued_rec ~= nil and 1/96 or 0) then
           self.endpoint = self.rec_dur.length * 96
           self:set_rec(0)
           self.rec_dur = nil
