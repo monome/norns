@@ -6,6 +6,7 @@
 #1720 @tlubke @catfact @Dewb
 - NEW wall time measurement #1719 @catfact
 - NEW screen.sleep #1727 @ambv
+- FIX oneway midi devices #1595 @catfact
 - FIX softcut phase inversion #1725 @catfact
 
 
