@@ -2,7 +2,7 @@
 -- hotrod some clock & sequins structures for rapid playability
 
 --- globals are available on crow, otherwise require for norns
-local s = sequins or require 'lib/sequins'
+local s = sequins or require 'sequins'
 local clk = clock or require 'clock'
 
 local TL = {launch_default = 1}

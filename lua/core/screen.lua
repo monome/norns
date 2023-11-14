@@ -9,6 +9,13 @@ local screensaver = metro[36]
 
 local sleeping = false
 
+local executable_lua, err = loadfile(_path.display_settings)
+local loaded_settings = executable_lua ~= nil and executable_lua() or {}
+local brightness = loaded_settings.brightness or 15
+local contrast = loaded_settings.contrast or 127
+local gamma = loaded_settings.gamma or 1.0
+local module_just_loaded = true
+
 screensaver.event = function()
   _norns.screen_clear()
   _norns.screen_update()
@@ -20,6 +27,12 @@ screensaver.count = 1
 
 --- copy buffer to screen.
 Screen.update_default = function()
+  if module_just_loaded then
+    _norns.screen_brightness(brightness)
+    _norns.screen_contrast(contrast)
+    _norns.screen_gamma(gamma)
+    module_just_loaded = false
+  end
   _norns.screen_update()
 end
 
@@ -158,6 +171,13 @@ Screen.fill = function() _norns.screen_fill() end
 -- @tparam string str : text to write
 Screen.text = function(str) _norns.screen_text(str) end
 
+--- draw left-aligned text, trimmed to specified width.
+-- (characters are removed from end of string until it fits.)
+-- uses currently selected font.
+-- @tparam string str : text to write
+-- @tparam number w: width 
+Screen.text_trim = function(str, w) _norns.screen_text_trim(str, w) end
+
 --- draw text (left aligned) and rotated.
 -- uses currently selected font.
 -- @tparam number x x position
@@ -184,13 +204,19 @@ Screen.text_center = function(str) _norns.screen_text_center(str) end
 -- @tparam number degrees : degress to rotate
 Screen.text_center_rotate = function(x, y, str, degrees) _norns.screen_text_center_rotate(x, y, str, degrees) end
 
---- calculate width of text.
--- uses currently selected font.
+--- calculate width of text given current font and draw state.
 -- @tparam string str : text to calculate width of
-Screen.text_extents = function(str) return _norns.screen_text_extents(str) end
+Screen.text_extents = function(str) 
+  return _norns.screen_text_extents(str)
+end
+
+-- get the current drawing position in the screen surface
+-- @treturn number x
+-- @treturn number y
+Screen.current_point = function() return _norns.screen_current_point() end
 
 --- select font face.
--- @param index font face (see list)
+-- @param index font face (see list, or Screen.font_face_names)
 --
 -- 1 04B_03 (norns default)
 -- 2 ALEPH
@@ -260,6 +286,76 @@ Screen.text_extents = function(str) return _norns.screen_text_extents(str) end
 -- 66 unscii-8-tall.pcf
 -- 67 unscii-8-thin.pcf
 Screen.font_face = function(index) _norns.screen_font_face(index) end
+Screen.font_face_count = 67
+Screen.font_face_names = {
+   "04B_03__",
+   "liquid",
+   "Roboto-Thin",
+   "Roboto-Light",
+   "Roboto-Regular",
+   "Roboto-Medium",
+   "Roboto-Bold",
+   "Roboto-Black",
+   "Roboto-ThinItalic",
+   "Roboto-LightItalic",
+   "Roboto-Italic",
+   "Roboto-MediumItalic",
+   "Roboto-BoldItalic",
+   "Roboto-BlackItalic",
+   "VeraBd",
+   "VeraBI",
+   "VeraIt",
+   "VeraMoBd",
+   "VeraMoBI",
+   "VeraMoIt",
+   "VeraMono",
+   "VeraSeBd",
+   "VeraSe",
+   "Vera",
+   "bmp/tom-thumb",
+   "bmp/creep",
+   "bmp/ctrld-fixed-10b",
+   "bmp/ctrld-fixed-10r",
+   "bmp/ctrld-fixed-13b",
+   "bmp/ctrld-fixed-13b-i",
+   "bmp/ctrld-fixed-13r",
+   "bmp/ctrld-fixed-13r-i",
+   "bmp/ctrld-fixed-16b",
+   "bmp/ctrld-fixed-16b-i",
+   "bmp/ctrld-fixed-16r",
+   "bmp/ctrld-fixed-16r-i",
+   "bmp/scientifica-11",
+   "bmp/scientificaBold-11",
+   "bmp/scientificaItalic-11",
+   "bmp/ter-u12b",
+   "bmp/ter-u12n",
+   "bmp/ter-u14b",
+   "bmp/ter-u14n",
+   "bmp/ter-u14v",
+   "bmp/ter-u16b",
+   "bmp/ter-u16n",
+   "bmp/ter-u16v",
+   "bmp/ter-u18b",
+   "bmp/ter-u18n",
+   "bmp/ter-u20b",
+   "bmp/ter-u20n",
+   "bmp/ter-u22b",
+   "bmp/ter-u22n",
+   "bmp/ter-u24b",
+   "bmp/ter-u24n",
+   "bmp/ter-u28b",
+   "bmp/ter-u28n",
+   "bmp/ter-u32b",
+   "bmp/ter-u32n",
+   "bmp/unscii-16-full",
+   "bmp/unscii-16",
+   "bmp/unscii-8-alt",
+   "bmp/unscii-8-fantasy",
+   "bmp/unscii-8-mcr",
+   "bmp/unscii-8",
+   "bmp/unscii-8-tall",
+   "bmp/unscii-8-thin"
+}
 
 --- set font size.
 -- @tparam number size in pixel height.
@@ -271,20 +367,6 @@ Screen.font_size = function(size) _norns.screen_font_size(size) end
 Screen.pixel = function(x, y)
   _norns.screen_rect(x, y, 1, 1)
 end
-
-
-_norns.screen_text_right = function(str)
-  local x, y = _norns.screen_text_extents(str)
-  _norns.screen_move_rel(-x, 0)
-  _norns.screen_text(str)
-end
-
-_norns.screen_text_center = function(str)
-  local x, y = _norns.screen_text_extents(str)
-  _norns.screen_move_rel(-x/2, 0)
-  _norns.screen_text(str)
-end
-
 _norns.screen_text_rotate = function(x, y, str, degrees)
   _norns.screen_save()
   _norns.screen_move(x, y)
@@ -299,9 +381,7 @@ _norns.screen_text_center_rotate = function(x, y, str, degrees)
   _norns.screen_move(x, y)
   _norns.screen_translate(x, y)
   _norns.screen_rotate(util.degs_to_rads(degrees))
-  local x2, y2 = _norns.screen_text_extents(str)
-  _norns.screen_move_rel(-x2/2, 0)
-  _norns.screen_text(str)
+  _norns.screen_text_center(str)
   _norns.screen_restore()
 end
 
@@ -475,6 +555,28 @@ Screen.blend_mode = function(index)
   elseif type(index) == "number" then
     _norns.screen_set_operator(index)
   end
+end
+
+--@tparam number/boolean i
+--
+-- if number:
+-- i == 0 -> normal mode
+-- i < 0 -> inverted mode
+-- i > 0 -> inverted mode
+--
+-- if boolean:
+-- false -> normal mode
+-- true -> inverted mode
+Screen.invert = function(i)
+  if type(i) == "boolean" then
+    _norns.screen_invert(i and 1 or 0)
+  elseif type(i) == "number" then
+    _norns.screen_invert(i == 0.0 and 0 or 1)
+  end
+end
+
+Screen.sleep = function()
+  screensaver:event()
 end
 
 return Screen

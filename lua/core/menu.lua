@@ -15,6 +15,7 @@ key = norns.none
 enc = norns.none
 redraw = norns.blank
 cleanup = norns.none
+refresh = norns.none
 
 -- tuning
 local KEY1_HOLD_TIME = 0.25
@@ -64,14 +65,16 @@ end
 norns.menu = {}
 norns.menu.init = function() _menu.set_mode(_menu.mode) end -- used by fileselect.lua
 norns.menu.status = function() return _menu.mode end
-norns.menu.set = function(new_enc, new_key, new_redraw)
+norns.menu.set = function(new_enc, new_key, new_redraw, new_refresh)
   _menu.penc = new_enc
   _menu.key = new_key
   _menu.redraw = new_redraw
+  _menu.refresh = new_refresh
 end
 norns.menu.get_enc = function() return _menu.penc end
 norns.menu.get_key = function() return _menu.key end
 norns.menu.get_redraw = function() return _menu.redraw end
+norns.menu.get_refresh = function() return _menu.refresh end
 norns.menu.toggle = function(status) _menu.set_mode(status) end
 
 norns.scripterror = function(msg)
@@ -158,6 +161,7 @@ _menu.set_mode = function(mode)
     screen.clear()
     screen.update()
     redraw = norns.script.redraw
+    refresh = norns.script.refresh
     _menu.key = key
     norns.encoders.callback = enc
     norns.enc.resume()
@@ -167,6 +171,7 @@ _menu.set_mode = function(mode)
     _menu.mode = true
     _menu.alt = false
     redraw = norns.none
+    refresh = norns.none
     screen.font_face(1)
     screen.font_size(8)
     screen.line_width(1)
@@ -188,6 +193,7 @@ _menu.set_page = function(page)
   _menu.key = m[page].key
   _menu.penc = m[page].enc
   _menu.redraw = m[page].redraw
+  _menu.refresh = m[page].refresh
   _menu.keyboardcode = m[page].keycode
   _menu.keyboardchar = m[page].keychar
   _menu.custom_gamepad_axis = m[page].gamepad_axis
@@ -327,6 +333,7 @@ m["SELECT"] = require 'core/menu/select'
 m["PREVIEW"] = require 'core/menu/preview'
 m["PARAMS"] = require 'core/menu/params'
 m["SYSTEM"] = require 'core/menu/system'
+m["DISPLAY"] = require 'core/menu/display'
 m["DEVICES"] = require 'core/menu/devices'
 m["WIFI"] = require 'core/menu/wifi'
 m["SETTINGS"] = require 'core/menu/settings'

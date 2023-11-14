@@ -29,7 +29,7 @@ sudo cp config/journald.conf /etc/systemd/
 sudo mkdir -p /var/log/journal
 
 # disable hciuart
-sudo systemctl hciuart disable
+sudo systemctl disable hciuart 
 
 # update jack systemd
 sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
@@ -37,10 +37,6 @@ sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns
 # scrub invisibles
 find ~/dust -name .DS_Store -delete
 find ~/dust -name ._.DS_Store -delete
-
-# maiden project setup
-cd /home/we/maiden
-./project-setup.sh
 
 # get common audio if not present
 if [ ! -d /home/we/dust/audio/common ]; then
@@ -54,6 +50,17 @@ fi
 # set alsa volume
 amixer --device hw:sndrpimonome set Master 100% on
 sudo alsactl store
+
+# change boot/cmdline for screen
+sudo sed -e '/dtoverlay=ssd1322-spi/ s/^#*/#/' -i /boot/config.txt
+sudo sed -e '/spidev.bufsiz/! s/$/ spidev.bufsiz=8192/' -i /boot/cmdline.txt
+
+# install packages
+sudo dpkg -i package/*.deb
+
+# maiden project setup
+cd /home/we/maiden
+./project-setup.sh
 
 # cleanup
 rm -rf ~/update/*

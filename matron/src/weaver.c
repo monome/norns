@@ -28,7 +28,6 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_scheduler.h"
-#include "cpu_time.h"
 #include "device_crow.h"
 #include "device_hid.h"
 #include "device_midi.h"
@@ -44,8 +43,11 @@
 #include "osc.h"
 #include "platform.h"
 #include "screen.h"
+#include "screen_events.h"
+#include "screen_results.h"
 #include "snd_file.h"
 #include "system_cmd.h"
+#include "time_since.h"
 #include "weaver.h"
 
 // registered lua functions require the LVM state as a parameter.
@@ -96,6 +98,10 @@ static int _screen_restore(lua_State *l);
 static int _screen_font_face(lua_State *l);
 static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
+static int _screen_gamma(lua_State *l);
+static int _screen_brightness(lua_State*l);
+static int _screen_contrast(lua_State*l);
+static int _screen_invert(lua_State *l);
 static int _screen_level(lua_State *l);
 static int _screen_line_width(lua_State *l);
 static int _screen_line_cap(lua_State *l);
@@ -112,9 +118,12 @@ static int _screen_rect(lua_State *l);
 static int _screen_stroke(lua_State *l);
 static int _screen_fill(lua_State *l);
 static int _screen_text(lua_State *l);
+static int _screen_text_right(lua_State *l);
+static int _screen_text_center(lua_State *l);
+static int _screen_text_extents(lua_State *l);
+static int _screen_text_trim(lua_State *l);
 static int _screen_clear(lua_State *l);
 static int _screen_close(lua_State *l);
-static int _screen_text_extents(lua_State *l);
 static int _screen_export_png(lua_State *l);
 static int _screen_export_screenshot(lua_State *l);
 static int _screen_display_png(lua_State *l);
@@ -147,6 +156,7 @@ static int _image_extents(lua_State *l);
 static int _image_name(lua_State *l);
 static int _screen_load_png(lua_State *l);
 static int _screen_create_image(lua_State *l);
+static int _screen_current_point(lua_State *l);
 static int _screen_display_image(lua_State *l);
 static int _screen_display_image_region(lua_State *l);
 
@@ -263,9 +273,6 @@ static int _sound_file_inspect(lua_State *l);
 static int _system_cmd(lua_State *l);
 static int _system_glob(lua_State *l);
 
-// reset LVM
-static int _reset_lvm(lua_State *l);
-
 // clock
 static int _clock_schedule_sleep(lua_State *l);
 static int _clock_schedule_sync(lua_State *l);
@@ -289,16 +296,17 @@ static int _clock_get_tempo(lua_State *l);
 static int _audio_get_cpu_load(lua_State *l);
 static int _audio_get_xrun_count(lua_State *l);
 
-// CPU time
+// time-since measurement
 static int _cpu_time_start_timer(lua_State *l);
 static int _cpu_time_get_delta(lua_State *l);
+static int _wall_time_start_timer(lua_State *l);
+static int _wall_time_get_delta(lua_State *l);
 
 // platform detection (CM3 vs PI3 vs OTHER)
 static int _platform(lua_State *l);
 
 // boilerplate: push a lua function to the lua stack, from named field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
-    // fprintf(stderr, "calling norns.%s.%s\n", field, func);
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, field);
     lua_remove(lvm, -2);
@@ -449,6 +457,10 @@ void w_init(void) {
     lua_register_norns("screen_font_face", &_screen_font_face);
     lua_register_norns("screen_font_size", &_screen_font_size);
     lua_register_norns("screen_aa", &_screen_aa);
+    lua_register_norns("screen_gamma", &_screen_gamma);
+    lua_register_norns("screen_brightness", &_screen_brightness);
+    lua_register_norns("screen_contrast", &_screen_contrast);
+    lua_register_norns("screen_invert", &_screen_invert);
     lua_register_norns("screen_level", &_screen_level);
     lua_register_norns("screen_line_width", &_screen_line_width);
     lua_register_norns("screen_line_cap", &_screen_line_cap);
@@ -465,9 +477,14 @@ void w_init(void) {
     lua_register_norns("screen_stroke", &_screen_stroke);
     lua_register_norns("screen_fill", &_screen_fill);
     lua_register_norns("screen_text", &_screen_text);
+    lua_register_norns("screen_text_right", &_screen_text_right);
+    lua_register_norns("screen_text_center", &_screen_text_center);
+    lua_register_norns("screen_text_extents", &_screen_text_extents);
+    lua_register_norns("screen_text_trim", &_screen_text_trim);    
+    
     lua_register_norns("screen_clear", &_screen_clear);
     lua_register_norns("screen_close", &_screen_close);
-    lua_register_norns("screen_text_extents", &_screen_text_extents);
+    
     lua_register_norns("screen_export_png", &_screen_export_png);
     lua_register_norns("screen_export_screenshot", &_screen_export_screenshot);
     lua_register_norns("screen_display_png", &_screen_display_png);
@@ -476,7 +493,8 @@ void w_init(void) {
     lua_register_norns("screen_rotate", &_screen_rotate);
     lua_register_norns("screen_translate", &_screen_translate);
     lua_register_norns("screen_set_operator", &_screen_set_operator);
-
+    lua_register_norns("screen_current_point", &_screen_current_point);
+    
     // image
     lua_register_norns_class(_image_class_name, _image_methods, _image_functions);
 
@@ -528,9 +546,6 @@ void w_init(void) {
     // returns channels, frames, samplerate
     lua_register_norns("sound_file_inspect", &_sound_file_inspect);
 
-    // reset LVM
-    lua_register_norns("reset_lvm", &_reset_lvm);
-
     // clock
     lua_register_norns("clock_schedule_sleep", &_clock_schedule_sleep);
     lua_register_norns("clock_schedule_sync", &_clock_schedule_sync);
@@ -555,6 +570,8 @@ void w_init(void) {
 
     lua_register_norns("cpu_time_start_timer", &_cpu_time_start_timer);
     lua_register_norns("cpu_time_get_delta", &_cpu_time_get_delta);
+    lua_register_norns("wall_time_start_timer", &_wall_time_start_timer);
+    lua_register_norns("wall_time_get_delta", &_wall_time_get_delta);
 
     // platform
     lua_register_norns("platform", &_platform);
@@ -594,33 +611,29 @@ void w_deinit(void) {
     lua_close(lvm);
 }
 
-void w_reset_lvm() {
-    w_deinit();
-    w_init();
-    w_startup();
-}
-
 //----------------------------------
 //---- static definitions
 //
 
-int _reset_lvm(lua_State *l) {
-    lua_check_num_args(0);
-    lua_settop(l, 0);
-    // do this through the event loop, not from inside a lua pcall
-    event_post(event_data_new(EVENT_RESET_LVM));
-    return 0;
-}
+#define STRING_NUM(n) #n
+#define LUA_ARG_ERROR(n) "error: requires " STRING_NUM(n) " arguments"
+#define lua_check_num_args(n)                   \
+    if (lua_gettop(l) != n) {                   \
+        return luaL_error(l, LUA_ARG_ERROR(n)); \
+    }
+
+//--------------------------------
+//--- screen
 
 /***
  * screen: update (flip buffer)
  * @function s_update
  */
 int _screen_update(lua_State *l) {
-    lua_check_num_args(0);
-    screen_update();
-    lua_settop(l, 0);
-    return 0;
+  lua_check_num_args(0);
+  screen_event_update();
+  lua_settop(l, 0);
+  return 0;
 }
 
 /***
@@ -629,7 +642,7 @@ int _screen_update(lua_State *l) {
  */
 int _screen_save(lua_State *l) {
     lua_check_num_args(0);
-    screen_save();
+    screen_event_save();
     lua_settop(l, 0);
     return 0;
 }
@@ -640,7 +653,7 @@ int _screen_save(lua_State *l) {
  */
 int _screen_restore(lua_State *l) {
     lua_check_num_args(0);
-    screen_restore();
+    screen_event_restore();
     lua_settop(l, 0);
     return 0;
 }
@@ -654,7 +667,7 @@ int _screen_font_face(lua_State *l) {
     int x = (int)luaL_checkinteger(l, 1) - 1;
     if (x < 0)
         x = 0;
-    screen_font_face(x);
+    screen_event_font_face(x);
     lua_settop(l, 0);
     return 0;
 }
@@ -666,7 +679,7 @@ int _screen_font_face(lua_State *l) {
 int _screen_font_size(lua_State *l) {
     lua_check_num_args(1);
     int x = (int)luaL_checknumber(l, 1);
-    screen_font_size(x);
+    screen_event_font_size(x);
     lua_settop(l, 0);
     return 0;
 }
@@ -679,7 +692,59 @@ int _screen_font_size(lua_State *l) {
 int _screen_aa(lua_State *l) {
     lua_check_num_args(1);
     int x = (int)luaL_checkinteger(l, 1);
-    screen_aa(x);
+    screen_event_aa(x);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: change gamma curve for drawing
+ * @function s_gamma
+ * @tparam double gamma, 0.0 <
+ */
+int _screen_gamma(lua_State *l) {
+    lua_check_num_args(1);
+    double g = luaL_checknumber(l, 1);
+    screen_event_gamma(g);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: change pre-charge voltage for drawing
+ * @function s_brightness
+ * @tparam int level, [0, 15]
+ */
+int _screen_brightness(lua_State *l) {
+    lua_check_num_args(1);
+    int b = luaL_checkinteger(l, 1);
+    screen_event_brightness(b);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: change contrast level of screen
+ * @function s_contrast
+ * @tparam int level, [0, 255]
+ */
+int _screen_contrast(lua_State *l) {
+    lua_check_num_args(1);
+    int c = luaL_checkinteger(l, 1);
+    screen_event_contrast(c);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: invert the screen's pixels, it is not
+ * required to call screen_update() to take effect.
+ * @function s_invert
+ */
+int _screen_invert(lua_State *l) {
+    lua_check_num_args(1);
+    int i = luaL_checkinteger(l, 1);
+    screen_event_invert(i);
     lua_settop(l, 0);
     return 0;
 }
@@ -692,7 +757,7 @@ int _screen_aa(lua_State *l) {
 int _screen_level(lua_State *l) {
     lua_check_num_args(1);
     int x = (int)luaL_checkinteger(l, 1);
-    screen_level(x);
+    screen_event_level(x);
     lua_settop(l, 0);
     return 0;
 }
@@ -705,7 +770,7 @@ int _screen_level(lua_State *l) {
 int _screen_line_width(lua_State *l) {
     lua_check_num_args(1);
     double x = luaL_checknumber(l, 1);
-    screen_line_width(x);
+    screen_event_line_width(x);
     lua_settop(l, 0);
     return 0;
 }
@@ -718,7 +783,7 @@ int _screen_line_width(lua_State *l) {
 int _screen_line_cap(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_line_cap(s);
+    screen_event_line_cap(s);
     lua_settop(l, 0);
     return 0;
 }
@@ -731,7 +796,7 @@ int _screen_line_cap(lua_State *l) {
 int _screen_line_join(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_line_join(s);
+    screen_event_line_join(s);
     lua_settop(l, 0);
     return 0;
 }
@@ -744,7 +809,7 @@ int _screen_line_join(lua_State *l) {
 int _screen_miter_limit(lua_State *l) {
     lua_check_num_args(1);
     double limit = luaL_checknumber(l, 1);
-    screen_miter_limit(limit);
+    screen_event_miter_limit(limit);
     lua_settop(l, 0);
     return 0;
 }
@@ -759,7 +824,7 @@ int _screen_move(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_move(x, y);
+    screen_event_move(x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -774,7 +839,7 @@ int _screen_line(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_line(x, y);
+    screen_event_line(x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -789,7 +854,7 @@ int _screen_move_rel(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_move_rel(x, y);
+    screen_event_move_rel(x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -804,7 +869,7 @@ int _screen_line_rel(lua_State *l) {
     lua_check_num_args(2);
     double x = (int)luaL_checknumber(l, 1);
     double y = (int)luaL_checknumber(l, 2);
-    screen_line_rel(x, y);
+    screen_event_line_rel(x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -823,7 +888,7 @@ int _screen_curve(lua_State *l) {
     double y2 = luaL_checknumber(l, 4);
     double x3 = luaL_checknumber(l, 5);
     double y3 = luaL_checknumber(l, 6);
-    screen_curve(x1, y1, x2, y2, x3, y3);
+    screen_event_curve(x1, y1, x2, y2, x3, y3);
     lua_settop(l, 0);
     return 0;
 }
@@ -842,7 +907,7 @@ int _screen_curve_rel(lua_State *l) {
     double y2 = luaL_checknumber(l, 4);
     double x3 = luaL_checknumber(l, 5);
     double y3 = luaL_checknumber(l, 6);
-    screen_curve_rel(x1, y1, x2, y2, x3, y3);
+    screen_event_curve_rel(x1, y1, x2, y2, x3, y3);
     lua_settop(l, 0);
     return 0;
 }
@@ -860,7 +925,7 @@ int _screen_arc(lua_State *l) {
     double r = luaL_checknumber(l, 3);
     double a1 = luaL_checknumber(l, 4);
     double a2 = luaL_checknumber(l, 5);
-    screen_arc(x, y, r, a1, a2);
+    screen_event_arc(x, y, r, a1, a2);
     lua_settop(l, 0);
     return 0;
 }
@@ -877,7 +942,7 @@ int _screen_rect(lua_State *l) {
     double y = luaL_checknumber(l, 2);
     double w = luaL_checknumber(l, 3);
     double h = luaL_checknumber(l, 4);
-    screen_rect(x, y, w, h);
+    screen_event_rect(x, y, w, h);
     lua_settop(l, 0);
     return 0;
 }
@@ -888,7 +953,7 @@ int _screen_rect(lua_State *l) {
  */
 int _screen_stroke(lua_State *l) {
     lua_check_num_args(0);
-    screen_stroke();
+    screen_event_stroke();
     lua_settop(l, 0);
     return 0;
 }
@@ -899,7 +964,7 @@ int _screen_stroke(lua_State *l) {
  */
 int _screen_fill(lua_State *l) {
     lua_check_num_args(0);
-    screen_fill();
+    screen_event_fill();
     lua_settop(l, 0);
     return 0;
 }
@@ -912,7 +977,41 @@ int _screen_fill(lua_State *l) {
 int _screen_text(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_text(s);
+    screen_event_text(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: right-justified text
+ */
+int _screen_text_right(lua_State *l) {
+    lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    screen_event_text_right(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: center-justified text
+ */
+int _screen_text_center(lua_State *l) {
+    lua_check_num_args(1);
+    const char *s = luaL_checkstring(l, 1);
+    screen_event_text_center(s);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
+ * screen: text trimmed to width
+ */
+int _screen_text_trim(lua_State *l) {
+    lua_check_num_args(2);
+    const char *s = luaL_checkstring(l, 1);
+    double w = luaL_checknumber(l, 2);
+    screen_event_text_trim(s, w);
     lua_settop(l, 0);
     return 0;
 }
@@ -923,7 +1022,7 @@ int _screen_text(lua_State *l) {
  */
 int _screen_clear(lua_State *l) {
     lua_check_num_args(0);
-    screen_clear();
+    screen_event_clear();
     lua_settop(l, 0);
     return 0;
 }
@@ -934,7 +1033,7 @@ int _screen_clear(lua_State *l) {
  */
 int _screen_close(lua_State *l) {
     lua_check_num_args(0);
-    screen_close_path();
+    screen_event_close_path();
     lua_settop(l, 0);
     return 0;
 }
@@ -947,21 +1046,37 @@ int _screen_close(lua_State *l) {
 int _screen_text_extents(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    double *xy = screen_text_extents(s);
-    lua_pushinteger(l, xy[0]);
-    lua_pushinteger(l, xy[1]);
+    
+    screen_event_text_extents(s);
+    screen_results_wait();
+    union screen_results_data *data = screen_results_get();
+#if 1 // legacy API
+    lua_pushinteger(l, (int)data->text_extents.width);
+    lua_pushinteger(l, (int)data->text_extents.height);
+    screen_results_free();
     return 2;
+#else
+    lua_pushnumber(l, data->text_extents.x_bearing);
+    lua_pushnumber(l, data->text_extents.y_bearing);
+    lua_pushnumber(l, data->text_extents.width);
+    lua_pushnumber(l, data->text_extents.height);
+    lua_pushnumber(l, data->text_extents.x_advance);
+    lua_pushnumber(l, data->text_extents.y_advance);
+    event_data_free(ev);
+    return 6;
+#endif
+
 }
 
 /***
  * screen: export_png
- * @function s_export_png
+ * @function s_export_png 
  * @tparam string filename
  */
 int _screen_export_png(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    screen_export_png(s);
+    screen_event_export_png(s);
     lua_settop(l, 0);
     return 0;
 }
@@ -989,10 +1104,11 @@ int _screen_display_png(lua_State *l) {
     const char *s = luaL_checkstring(l, 1);
     double x = luaL_checknumber(l, 2);
     double y = luaL_checknumber(l, 3);
-    screen_display_png(s, x, y);
+    screen_event_display_png(s, x, y);
     lua_settop(l, 0);
     return 0;
 }
+
 
 /***
  * screen: peek
@@ -1013,14 +1129,16 @@ int _screen_peek(lua_State *l) {
      && (y >= 0) && (y <= 63)
      && (w > 0)
      && (h > 0)) {
-        char* buf = screen_peek(x, y, &w, &h);
-        if (buf) {
-            lua_pushlstring(l, buf, w * h);
-            free(buf);
-            return 1;
-        }
+        screen_event_peek(x, y, w, h);
+        screen_results_wait();
+        union screen_results_data *results = screen_results_get();
+        lua_pushlstring(l, results->peek.buf, results->peek.w * results->peek.h);
+        screen_results_free();
+    } else { 
+        fprintf(stderr, "WARNING: invalid position arguments to screen_peek()\n");
+        lua_pushlstring(l, "", 0);
     }
-    return 0;
+    return 1;
 }
 
 /***
@@ -1046,7 +1164,7 @@ int _screen_poke(lua_State *l) {
          && (y >= 0) && (y <= 63)
          && (w > 0)
          && (h > 0)) {
-            screen_poke(x, y, w, h, buf);
+            screen_event_poke(x, y, w, h, buf);
         }
     }
     lua_pop(l, 1);
@@ -1062,7 +1180,7 @@ int _screen_poke(lua_State *l) {
 int _screen_rotate(lua_State *l) {
     lua_check_num_args(1);
     double r = luaL_checknumber(l, 1);
-    screen_rotate(r);
+    screen_event_rotate(r);
     lua_settop(l, 0);
     return 0;
 }
@@ -1077,7 +1195,7 @@ int _screen_translate(lua_State *l) {
     lua_check_num_args(2);
     double x = luaL_checknumber(l, 1);
     double y = luaL_checknumber(l, 2);
-    screen_translate(x, y);
+    screen_event_translate(x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -1093,7 +1211,7 @@ int _screen_set_operator(lua_State *l) {
     int i = luaL_checknumber(l, 1);
     if (i < 0) { i = 0; }
     if (i > 28){ i = 28;}
-    screen_set_operator(i);
+    screen_event_set_operator(i);
     lua_settop(l, 0);
     return 0;
 }
@@ -1303,9 +1421,27 @@ int _screen_display_image_region(lua_State *l) {
     double x = luaL_checknumber(l, 6);
     double y = luaL_checknumber(l, 7);
     screen_surface_display_region(i->surface, left, top, width, height, x, y);
-    lua_settop(l, 0);
     return 0;
 }
+
+
+/***
+ * screen: request current draw point
+ */
+int _screen_current_point(lua_State *l) {
+    lua_settop(l, 0);
+    screen_event_current_point();
+    screen_results_wait();
+    union screen_results_data *results = screen_results_get();
+    lua_pushnumber(l, results->current_point.x);
+    lua_pushnumber(l, results->current_point.y);
+    screen_results_free();
+    return 2;
+}
+
+///-- end screen commands
+//---------------------
+
 
 
 
@@ -1991,6 +2127,16 @@ int _cpu_time_get_delta(lua_State *l) {
     return 1;
 }
 
+int _wall_time_start_timer(lua_State *l) {
+    wall_time_start();
+    return 0;
+}
+
+int _wall_time_get_delta(lua_State *l) {
+    lua_pushnumber(l, wall_time_get_delta_ns());
+    return 1;
+}
+
 //--------------------------------------------------
 //--- define lua handlers for system callbacks
 
@@ -2486,6 +2632,11 @@ void w_handle_system_cmd(char *capture) {
     l_report(lvm, l_docall(lvm, 1, 0));
 }
 
+void w_handle_screen_refresh() {
+    lua_getglobal(lvm, "refresh");
+    l_report(lvm, l_docall(lvm, 0, 0));
+}
+
 void w_handle_custom_weave(struct event_custom *ev) {
     // call the externally defined `op` function passing in the current lua
     // state
@@ -2511,7 +2662,7 @@ int _stop_poll(lua_State *l) {
 
 int _set_poll_time(lua_State *l) {
     lua_check_num_args(2);
-    int idx = (int)luaL_checkinteger(l, 1) - 1; // convert from 1-based
+     int idx = (int)luaL_checkinteger(l, 1) - 1; // convert from 1-based
     float val = (float)luaL_checknumber(l, 2);
     o_set_poll_time(idx, val);
     lua_settop(l, 0);
