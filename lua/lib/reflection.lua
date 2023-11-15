@@ -161,10 +161,9 @@ end
 function reflection:load(filepath)
   local pattern_data = tab.load(filepath)
   if pattern_data then
-		self:clear() -- clears pattern
+    self:clear() -- clears pattern
     for k, v in pairs(pattern_data) do
       self[k] = v
-      print(self)
     end
     self.count = pattern_data.count
     self:set_quantization(pattern_data.quantize)
