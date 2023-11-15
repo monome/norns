@@ -161,13 +161,16 @@ end
 function reflection:load(filepath)
   self:clear() -- clears pattern
   local pattern_data = tab.load(filepath)
-  for k, v in pairs(pattern_data) do
-    self[k] = v
+  if pattern_data then
+    for k, v in pairs(pattern_data) do
+      self[k] = v
+      print(self)
+    end
+    self.count = pattern_data.count
+    self:set_quantization(pattern_data.quantize)
+    self:set_loop(pattern_data.loop)
+    self:set_length(pattern_data.length)
   end
-  self.count = pattern_data.count
-  self:set_quantization(pattern_data.quantize)
-  self:set_loop(pattern_data.loop)
-  self:set_length(pattern_data.length)
 end
 
 --- undo previous overdub
