@@ -159,15 +159,15 @@ end
 --- load pattern data
 -- @tparam string filepath
 function reflection:load(filepath)
-  my_pattern:clear() -- clears pattern
-  pattern_data = tab.load(filepath)
+  self:clear() -- clears pattern
+  local pattern_data = tab.load(filepath)
   for k, v in pairs(pattern_data) do
-    my_pattern[k] = v
+    self[k] = v
   end
-  my_pattern.count = pattern_data.count
-  my_pattern:set_quantization(pattern_data.quantize)
-  my_pattern:set_loop(pattern_data.loop)
-  my_pattern:set_length(pattern_data.length)
+  self.count = pattern_data.count
+  self:set_quantization(pattern_data.quantize)
+  self:set_loop(pattern_data.loop)
+  self:set_length(pattern_data.length)
 end
 
 --- undo previous overdub
