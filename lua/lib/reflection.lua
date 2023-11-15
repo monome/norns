@@ -142,6 +142,34 @@ function reflection:set_length(beats)
   end
 end
 
+--- save pattern data
+-- @tparam string filepath
+function reflection:save_pattern(filepath)
+  if self.count > 0 then
+    local pattern_data = {} -- create a temp container
+    pattern_data.event = self.event
+    pattern_data.length = self.endpoint / 96 -- 96 ppqn
+    pattern_data.count = self.count
+    pattern_data.loop = self.loop
+    pattern_data.quantize = self.quantize
+    tab.save(pattern_data, filepath)
+  end
+end
+
+--- load pattern data
+-- @tparam string filepath
+function reflection:load_pattern(filepath)
+  my_pattern:clear() -- clears pattern
+  pattern_data = tab.load(filepath)
+  for k, v in pairs(pattern_data) do
+    my_pattern[k] = v
+  end
+  my_pattern.count = pattern_data.count
+  my_pattern:set_quantization(pattern_data.quantize)
+  my_pattern:set_loop(pattern_data.loop)
+  my_pattern:set_length(pattern_data.length)
+end
+
 --- undo previous overdub
 function reflection:undo()
   if next(self.event_prev) then
@@ -155,6 +183,7 @@ function reflection:clear()
     clock.cancel(self.clock)
   end
   self.rec = 0
+  self.rec_enabled = 0
   self.play = 0
   self.event = {}
   self.event_prev = {}
@@ -280,6 +309,7 @@ function reflection:end_playback(silent)
   end
   self.play = 0
   self.rec = 0
+  self.rec_enabled = 0
   if self.endpoint == 0 and next(self.event) then
     self.endpoint = self.step
   end
