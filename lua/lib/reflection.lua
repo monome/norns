@@ -144,7 +144,7 @@ end
 
 --- save pattern data
 -- @tparam string filepath
-function reflection:save_pattern(filepath)
+function reflection:save(filepath)
   if self.count > 0 then
     local pattern_data = {} -- create a temp container
     pattern_data.event = self.event
@@ -158,7 +158,7 @@ end
 
 --- load pattern data
 -- @tparam string filepath
-function reflection:load_pattern(filepath)
+function reflection:load(filepath)
   my_pattern:clear() -- clears pattern
   pattern_data = tab.load(filepath)
   for k, v in pairs(pattern_data) do
