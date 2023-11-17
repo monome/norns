@@ -55,7 +55,7 @@
   <li><a href="../modules/midi.html">midi</a></li>
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
-  <li><strong>params.control</strong></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
   <li><a href="../modules/paramset.html">paramset</a></li>
   <li><a href="../modules/poll.html">poll</a></li>
   <li><a href="../modules/screen.html">screen</a></li>
@@ -81,7 +81,7 @@
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
-  <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
+  <li><strong>lib.reflection</strong></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
@@ -97,64 +97,72 @@
 
 <div id="content">
 
-<h1>Module <code>params.control</code></h1>
-<p>Control class</p>
+<h1>Module <code>lib.reflection</code></h1>
+<p>clocked pattern recorder library</p>
 <p></p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Author</strong>: rylee & dan & sacha</li>
+    </ul>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Control.new">Control.new (id, name, controlspec, formatter, allow_pmap)</a></td>
-	<td class="summary">constructor.</td>
+	<td class="name" nowrap><a href="#new">new ()</a></td>
+	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:map_value">Control:map_value (value)</a></td>
-	<td class="summary">map_value.</td>
+	<td class="name" nowrap><a href="#copy">copy (to, from)</a></td>
+	<td class="summary">copy data from one reflection to another</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:get">Control:get ()</a></td>
-	<td class="summary">get.</td>
+	<td class="name" nowrap><a href="#double">double ()</a></td>
+	<td class="summary">doubles the current loop</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:get_raw">Control:get_raw ()</a></td>
-	<td class="summary">get_raw.</td>
+	<td class="name" nowrap><a href="#start">start (beat_sync, offset)</a></td>
+	<td class="summary">start transport</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:unmap_value">Control:unmap_value (value)</a></td>
-	<td class="summary">unmap_value.</td>
+	<td class="name" nowrap><a href="#stop">stop ()</a></td>
+	<td class="summary">stop transport</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:set">Control:set (value, silent)</a></td>
-	<td class="summary">set.</td>
+	<td class="name" nowrap><a href="#set_rec">set_rec (rec, dur, beat_sync)</a></td>
+	<td class="summary">enable / disable record head</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:set_raw">Control:set_raw (value, silent)</a></td>
-	<td class="summary">set_raw.</td>
+	<td class="name" nowrap><a href="#set_loop">set_loop (loop)</a></td>
+	<td class="summary">enable / disable looping</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:get_delta">Control:get_delta ()</a></td>
-	<td class="summary">get_delta.</td>
+	<td class="name" nowrap><a href="#set_quantization">set_quantization (q)</a></td>
+	<td class="summary">quantize playback</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:delta">Control:delta (d)</a></td>
-	<td class="summary">delta.</td>
+	<td class="name" nowrap><a href="#set_length">set_length (beats)</a></td>
+	<td class="summary">change pattern length in beats</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:set_default">Control:set_default ()</a></td>
-	<td class="summary">set_default.</td>
+	<td class="name" nowrap><a href="#save">save (filepath)</a></td>
+	<td class="summary">save pattern data</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:bang">Control:bang ()</a></td>
-	<td class="summary">bang.</td>
+	<td class="name" nowrap><a href="#load">load (filepath)</a></td>
+	<td class="summary">load pattern data</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:get_range">Control:get_range ()</a></td>
-	<td class="summary">get_range.</td>
+	<td class="name" nowrap><a href="#undo">undo ()</a></td>
+	<td class="summary">undo previous overdub</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Control:string">Control:string ()</a></td>
-	<td class="summary">string.</td>
+	<td class="name" nowrap><a href="#clear">clear ()</a></td>
+	<td class="summary">reset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#watch">watch (event)</a></td>
+	<td class="summary">watch</td>
 	</tr>
 </table>
 
@@ -166,33 +174,33 @@
 
     <dl class="function">
     <dt>
-    <a name = "Control.new"></a>
-    <strong>Control.new (id, name, controlspec, formatter, allow_pmap)</strong>
+    <a name = "new"></a>
+    <strong>new ()</strong>
     </dt>
     <dd>
-    constructor.
+    constructor
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "copy"></a>
+    <strong>copy (to, from)</strong>
+    </dt>
+    <dd>
+    copy data from one reflection to another
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">id</span>
-            <span class="types"><a class="type" href="../modules/params.control.html#Control:string">string</a></span>
+        <li><span class="parameter">to</span>
 
         </li>
-        <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="../modules/params.control.html#Control:string">string</a></span>
-
-        </li>
-        <li><span class="parameter">controlspec</span>
-            <span class="types"><span class="type">ControlSpec</span></span>
-
-        </li>
-        <li><span class="parameter">formatter</span>
-            <span class="types"><span class="type">function</span></span>
-
-        </li>
-        <li><span class="parameter">allow_pmap</span>
-            <span class="types"><span class="type">boolean</span></span>
+        <li><span class="parameter">from</span>
 
         </li>
     </ul>
@@ -203,17 +211,142 @@
 
 </dd>
     <dt>
-    <a name = "Control:map_value"></a>
-    <strong>Control:map_value (value)</strong>
+    <a name = "double"></a>
+    <strong>double ()</strong>
     </dt>
     <dd>
-    map_value.
- takes 0-1 and returns value scaled by controlspec.
+    doubles the current loop
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "start"></a>
+    <strong>start (beat_sync, offset)</strong>
+    </dt>
+    <dd>
+    start transport
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
+        <li><span class="parameter">beat_sync</span>
+            <span class="types"><span class="type">number</span></span>
+         (optional) sync playback start to beat value
+        </li>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">number</span></span>
+         (optional) if set, this value will be added to the beat_sync value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "stop"></a>
+    <strong>stop ()</strong>
+    </dt>
+    <dd>
+    stop transport
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_rec"></a>
+    <strong>set_rec (rec, dur, beat_sync)</strong>
+    </dt>
+    <dd>
+    enable / disable record head
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">rec</span>
+            <span class="types"><span class="type">number</span></span>
+         1 for recording, 2 for queued recording or 0 for not recording
+        </li>
+        <li><span class="parameter">dur</span>
+            <span class="types"><span class="type">number</span></span>
+         (optional) duration in beats for recording
+        </li>
+        <li><span class="parameter">beat_sync</span>
+            <span class="types"><span class="type">number</span></span>
+         (optional) sync recording start to beat value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_loop"></a>
+    <strong>set_loop (loop)</strong>
+    </dt>
+    <dd>
+    enable / disable looping
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">loop</span>
+            <span class="types"><span class="type">number</span></span>
+         1 for looping or 0 for not looping
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_quantization"></a>
+    <strong>set_quantization (q)</strong>
+    </dt>
+    <dd>
+    quantize playback
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">q</span>
+            <span class="types"><span class="type">float</span></span>
+         defaults to 1/48
+ (should be at least 1/96)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_length"></a>
+    <strong>set_length (beats)</strong>
+    </dt>
+    <dd>
+    change pattern length in beats
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">beats</span>
+            <span class="types"><span class="type">number</span></span>
 
         </li>
     </ul>
@@ -224,47 +357,17 @@
 
 </dd>
     <dt>
-    <a name = "Control:get"></a>
-    <strong>Control:get ()</strong>
+    <a name = "save"></a>
+    <strong>save (filepath)</strong>
     </dt>
     <dd>
-    get.
- returns mapped value.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:get_raw"></a>
-    <strong>Control:get_raw ()</strong>
-    </dt>
-    <dd>
-    get_raw.
- get 0-1.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:unmap_value"></a>
-    <strong>Control:unmap_value (value)</strong>
-    </dt>
-    <dd>
-    unmap_value.
- takes a scaled value and returns 0-1, quantized to step.
+    save pattern data
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
+        <li><span class="parameter">filepath</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
 
         </li>
     </ul>
@@ -275,20 +378,17 @@
 
 </dd>
     <dt>
-    <a name = "Control:set"></a>
-    <strong>Control:set (value, silent)</strong>
+    <a name = "load"></a>
+    <strong>load (filepath)</strong>
     </dt>
     <dd>
-    set.
- accepts a mapped value
+    load pattern data
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
-
-        </li>
-        <li><span class="parameter">silent</span>
+        <li><span class="parameter">filepath</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
 
         </li>
     </ul>
@@ -299,122 +399,48 @@
 
 </dd>
     <dt>
-    <a name = "Control:set_raw"></a>
-    <strong>Control:set_raw (value, silent)</strong>
+    <a name = "undo"></a>
+    <strong>undo ()</strong>
     </dt>
     <dd>
-    set_raw.
- set 0-1.
+    undo previous overdub
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "clear"></a>
+    <strong>clear ()</strong>
+    </dt>
+    <dd>
+    reset
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "watch"></a>
+    <strong>watch (event)</strong>
+    </dt>
+    <dd>
+    watch
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
-
-        </li>
-        <li><span class="parameter">silent</span>
+        <li><span class="parameter">event</span>
 
         </li>
     </ul>
 
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:get_delta"></a>
-    <strong>Control:get_delta ()</strong>
-    </dt>
-    <dd>
-    get_delta.
- get increment used for delta()
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:delta"></a>
-    <strong>Control:delta (d)</strong>
-    </dt>
-    <dd>
-    delta.
- add delta to current value. checks controlspec for mapped vs not.
- default division of delta for 100 steps range.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">d</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:set_default"></a>
-    <strong>Control:set_default ()</strong>
-    </dt>
-    <dd>
-    set_default.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:bang"></a>
-    <strong>Control:bang ()</strong>
-    </dt>
-    <dd>
-    bang.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:get_range"></a>
-    <strong>Control:get_range ()</strong>
-    </dt>
-    <dd>
-    get_range.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Control:string"></a>
-    <strong>Control:string ()</strong>
-    </dt>
-    <dd>
-    string.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        formatted string
-    </ol>
 
 
 

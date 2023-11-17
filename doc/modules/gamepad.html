@@ -82,6 +82,7 @@
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
@@ -106,29 +107,29 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#up">up ()</a></td>
-	<td class="summary">states shortcuts</td>
+	<td class="summary">macro state shortcuts</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#is_loggable_event">is_loggable_event (dev_name, event_code_type, code, val)</a></td>
-	<td class="summary">Predicate that returns true only on non-reset values (i.e.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#is_analog_origin">is_analog_origin (dev_name, axis, value)</a></td>
+	<td class="name" nowrap><a href="#is_analog_origin">is_analog_origin (gamepad_conf, axis_keycode, value)</a></td>
 	<td class="summary">Returns true if value for axis is around origin
  i.e.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#code_2_button">code_2_button (dev_name, code)</a></td>
-	<td class="summary">Returns button name associated w/ key code</td>
+	<td class="name" nowrap><a href="#is_loggable_event">is_loggable_event (gamepad_conf, event_code_type, code, val)</a></td>
+	<td class="summary">Predicate that returns true only on non-reset values (i.e.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#code_2_button">code_2_button (gamepad_conf, code)</a></td>
+	<td class="summary">Returns button name associated w/ (non-axis) key code</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#analog_axis_keycode_2_button">analog_axis_keycode_2_button (gamepad_conf, axis_keycode)</a></td>
+	<td class="summary">Returns button name associated w/ analog axis key code</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#code_2_keycode">code_2_keycode (event_code_type, code)</a></td>
 	<td class="summary">Returns event key name associated w/ key code
  this is not lightweight so should only be used in debug statements</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#axis_code_2_keycode">axis_code_2_keycode (code)</a></td>
-	<td class="summary">Optimized version of `gamepad.code_2_keycode`</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
@@ -151,7 +152,7 @@
     <strong>up ()</strong>
     </dt>
     <dd>
-    states shortcuts
+    macro state shortcuts
 
 
 
@@ -161,8 +162,35 @@
 
 </dd>
     <dt>
+    <a name = "is_analog_origin"></a>
+    <strong>is_analog_origin (gamepad_conf, axis_keycode, value)</strong>
+    </dt>
+    <dd>
+    Returns true if value for axis is around origin
+ i.e.  when joystick / d-pad is not actioned
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">gamepad_conf</span>
+
+        </li>
+        <li><span class="parameter">axis_keycode</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "is_loggable_event"></a>
-    <strong>is_loggable_event (dev_name, event_code_type, code, val)</strong>
+    <strong>is_loggable_event (gamepad_conf, event_code_type, code, val)</strong>
     </dt>
     <dd>
     Predicate that returns true only on non-reset values (i.e.  on key/joystick presses)
@@ -170,7 +198,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">dev_name</span>
+        <li><span class="parameter">gamepad_conf</span>
 
         </li>
         <li><span class="parameter">event_code_type</span>
@@ -190,23 +218,19 @@
 
 </dd>
     <dt>
-    <a name = "is_analog_origin"></a>
-    <strong>is_analog_origin (dev_name, axis, value)</strong>
+    <a name = "code_2_button"></a>
+    <strong>code_2_button (gamepad_conf, code)</strong>
     </dt>
     <dd>
-    Returns true if value for axis is around origin
- i.e.  when joystick / d-pad is not actioned
+    Returns button name associated w/ (non-axis) key code
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">dev_name</span>
+        <li><span class="parameter">gamepad_conf</span>
 
         </li>
-        <li><span class="parameter">axis</span>
-
-        </li>
-        <li><span class="parameter">value</span>
+        <li><span class="parameter">code</span>
 
         </li>
     </ul>
@@ -217,19 +241,19 @@
 
 </dd>
     <dt>
-    <a name = "code_2_button"></a>
-    <strong>code_2_button (dev_name, code)</strong>
+    <a name = "analog_axis_keycode_2_button"></a>
+    <strong>analog_axis_keycode_2_button (gamepad_conf, axis_keycode)</strong>
     </dt>
     <dd>
-    Returns button name associated w/ key code
+    Returns button name associated w/ analog axis key code
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">dev_name</span>
+        <li><span class="parameter">gamepad_conf</span>
 
         </li>
-        <li><span class="parameter">code</span>
+        <li><span class="parameter">axis_keycode</span>
 
         </li>
     </ul>
@@ -263,26 +287,6 @@
 
 
 </dd>
-    <dt>
-    <a name = "axis_code_2_keycode"></a>
-    <strong>axis_code_2_keycode (code)</strong>
-    </dt>
-    <dd>
-    Optimized version of `gamepad.code_2_keycode`
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">code</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
 </dl>
     <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
@@ -295,6 +299,57 @@
     button states
 
 
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">DPDOWN</span>
+
+        </li>
+        <li><span class="parameter">DPUP</span>
+
+        </li>
+        <li><span class="parameter">LDOWN</span>
+
+        </li>
+        <li><span class="parameter">LUP</span>
+
+        </li>
+        <li><span class="parameter">LLEFT</span>
+
+        </li>
+        <li><span class="parameter">LRIGHT</span>
+
+        </li>
+        <li><span class="parameter">RDOWN</span>
+
+        </li>
+        <li><span class="parameter">RUP</span>
+
+        </li>
+        <li><span class="parameter">RLEFT</span>
+
+        </li>
+        <li><span class="parameter">RRIGHT</span>
+
+        </li>
+        <li><span class="parameter">TLEFT</span>
+
+        </li>
+        <li><span class="parameter">TRIGHT</span>
+        aggregated
+        </li>
+        <li><span class="parameter">DOWN</span>
+
+        </li>
+        <li><span class="parameter">UP</span>
+
+        </li>
+        <li><span class="parameter">LEFT</span>
+
+        </li>
+        <li><span class="parameter">RIGHT</span>
+
+        </li>
+    </ul>
 
 
 
@@ -308,7 +363,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-03-17 18:54:24 </i>
+<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

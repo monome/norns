@@ -81,6 +81,7 @@
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
   <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
@@ -146,7 +147,7 @@
 	<td class="summary">set loop mode.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#fade_time">fade_time (voice, pos)</a></td>
+	<td class="name" nowrap><a href="#fade_time">fade_time (voice, fade_time)</a></td>
 	<td class="summary">set fade time.</td>
 	</tr>
 	<tr>
@@ -176,7 +177,7 @@
 	<td class="summary">specify buffer used by voice.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#voice_sync">voice_sync (src, dst, offset)</a></td>
+	<td class="name" nowrap><a href="#voice_sync">voice_sync (dst, src, offset)</a></td>
 	<td class="summary">synchronize two voices.</td>
 	</tr>
 	<tr>
@@ -335,21 +336,8 @@
 	<td class="summary">request snapshot of buffer content for region.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#process_buffer">process_buffer (ch, start, dur, sleep_time, block_size)</a></td>
-	<td class="summary">request that softcut process buffer with user-defined process function
- usage: clock.run(softcut.process_buffer(ch, start, dur, sleep_time, block_size))</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#event_render">event_render (func)</a></td>
 	<td class="summary">set function for render callback.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#process_func">process_func (func)</a></td>
-	<td class="summary">set function for processing of buffer.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#event_done">event_done (func)</a></td>
-	<td class="summary">set function for job callback.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#query_position">query_position (i)</a></td>
@@ -621,7 +609,7 @@
 </dd>
     <dt>
     <a name = "fade_time"></a>
-    <strong>fade_time (voice, pos)</strong>
+    <strong>fade_time (voice, fade_time)</strong>
     </dt>
     <dd>
     set fade time.
@@ -633,9 +621,9 @@
             <span class="types"><span class="type">int</span></span>
          : voice index
         </li>
-        <li><span class="parameter">pos</span>
+        <li><span class="parameter">fade_time</span>
             <span class="types"><span class="type">number</span></span>
-         : loop start position in seconds
+         : crossfade time in seconds
         </li>
     </ul>
 
@@ -798,7 +786,7 @@
 </dd>
     <dt>
     <a name = "voice_sync"></a>
-    <strong>voice_sync (src, dst, offset)</strong>
+    <strong>voice_sync (dst, src, offset)</strong>
     </dt>
     <dd>
     synchronize two voices.
@@ -807,13 +795,13 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">src</span>
-            <span class="types"><span class="type">int</span></span>
-         : source voice index
-        </li>
         <li><span class="parameter">dst</span>
             <span class="types"><span class="type">int</span></span>
          : destination voice index
+        </li>
+        <li><span class="parameter">src</span>
+            <span class="types"><span class="type">int</span></span>
+         : source voice index
         </li>
         <li><span class="parameter">offset</span>
             <span class="types"><span class="type">number</span></span>
@@ -1848,44 +1836,6 @@
 
 </dd>
     <dt>
-    <a name = "process_buffer"></a>
-    <strong>process_buffer (ch, start, dur, sleep_time, block_size)</strong>
-    </dt>
-    <dd>
-    request that softcut process buffer with user-defined process function
- usage: clock.run(softcut.process_buffer(ch, start, dur, sleep_time, block_size))
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">ch</span>
-            <span class="types"><span class="type">integer</span></span>
-         : buffer channel index (1-based)
-        </li>
-        <li><span class="parameter">start</span>
-            <span class="types"><span class="type">number</span></span>
-         : beginning of region in seconds
-        </li>
-        <li><span class="parameter">dur</span>
-            <span class="types"><span class="type">number</span></span>
-         : length of region in seconds
-        </li>
-        <li><span class="parameter">sleep_time</span>
-            <span class="types"><span class="type">number</span></span>
-         : amount of time to wait between blocks in seconds; default 0.2
-        </li>
-        <li><span class="parameter">block_size</span>
-            <span class="types"><span class="type">integer</span></span>
-         : number of samples per block; default 1024
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
     <a name = "event_render"></a>
     <strong>event_render (func)</strong>
     </dt>
@@ -1898,48 +1848,6 @@
         <li><span class="parameter">func</span>
             <span class="types"><span class="type">function</span></span>
          : called when buffer content is ready. args: (ch, start, sec_per_sample, samples)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "process_func"></a>
-    <strong>process_func (func)</strong>
-    </dt>
-    <dd>
-    set function for processing of buffer.  use process_buffer to apply.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">func</span>
-            <span class="types"><span class="type">function</span></span>
-         : called when buffer content is processed. args: (sample_index, current_value)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "event_done"></a>
-    <strong>event_done (func)</strong>
-    </dt>
-    <dd>
-    set function for job callback.  called when process_buffer is complete.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">func</span>
-            <span class="types"><span class="type">function</span></span>
-         : called when buffer job is complete. args: (ch, job_type, num_to_expect)
         </li>
     </ul>
 
@@ -2058,7 +1966,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-03-17 18:54:24 </i>
+<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
