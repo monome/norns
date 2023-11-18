@@ -287,6 +287,7 @@ static int _clock_link_set_quantum(lua_State *l);
 static int _clock_link_set_transport_stop(lua_State *l);
 static int _clock_link_set_transport_start(lua_State *l);
 static int _clock_link_set_start_stop_sync(lua_State *l);
+static int _clock_link_get_phase(lua_State *l);
 #endif
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
@@ -560,6 +561,7 @@ void w_init(void) {
     lua_register_norns("clock_link_set_transport_start", &_clock_link_set_transport_start);
     lua_register_norns("clock_link_set_transport_stop", &_clock_link_set_transport_stop);
     lua_register_norns("clock_link_set_start_stop_sync", &_clock_link_set_start_stop_sync);
+    lua_register_norns("clock_link_get_phase", &_clock_link_get_phase);
 #endif
     lua_register_norns("clock_set_source", &_clock_set_source);
     lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
@@ -2088,6 +2090,12 @@ int _clock_link_set_start_stop_sync(lua_State *l) {
     clock_link_set_start_stop_sync(enabled);
     return 0;
 }
+
+int _clock_link_get_phase(lua_State *l) {
+    lua_pushnumber(l, clock_link_get_phase());
+    return 1;
+}
+
 #endif
 
 int _clock_set_source(lua_State *l) {

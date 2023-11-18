@@ -12,6 +12,10 @@
 
 static pthread_t clock_link_thread;
 
+static double link_phase;
+static int link_iphase;
+static bool start_pending = false;
+
 static struct clock_link_shared_data_t {
     double quantum;
     double requested_tempo;
@@ -42,7 +46,6 @@ static void *clock_link_run(void *p) {
             double link_tempo = abl_link_tempo(state);
             bool link_playing = abl_link_is_playing(state);
 
-
             if (clock_link_shared_data.transport_start) {
                 abl_link_set_is_playing(state, true, 0);
                 abl_link_commit_app_session_state(link, state);
@@ -53,16 +56,33 @@ static void *clock_link_run(void *p) {
                 abl_link_set_is_playing(state, false, 0);
                 abl_link_commit_app_session_state(link, state);
                 clock_link_shared_data.transport_stop = false;
+            }     
+
+            double cur_phase = abl_link_phase_at_time(state, micros, clock_link_shared_data.quantum);
+            int cur_iphase = (int) cur_phase;
+            if (cur_iphase != link_iphase) {
+                fprintf(stderr, "new iphase %d (%f)\n", cur_iphase, cur_phase);
             }
 
-            if (clock_link_shared_data.start_stop_sync) {
-                if (!clock_link_shared_data.playing && link_playing) {
+            if (start_pending) {
+                if (cur_iphase == 0) { 
                     abl_link_request_beat_at_start_playing_time(state, 0, clock_link_shared_data.quantum);
                     clock_link_shared_data.playing = true;
+
+                    fprintf(stderr, "starting transport from link\n");
 
                     // this will also reschedule pending sync events to beat 0
                     clock_start_from_source(CLOCK_SOURCE_LINK);
                     abl_link_commit_app_session_state(link, state);
+                    start_pending = false;
+                }
+            }
+            link_iphase = cur_iphase;
+            link_phase = cur_phase;
+
+            if (clock_link_shared_data.start_stop_sync) {
+                if (!clock_link_shared_data.playing && link_playing) {
+                    start_pending = true;
                 } else if (clock_link_shared_data.playing && !link_playing) {
                     clock_link_shared_data.playing = false;
                     clock_stop_from_source(CLOCK_SOURCE_LINK);
@@ -153,4 +173,9 @@ double clock_link_get_beat() {
 
 double clock_link_get_tempo() {
     return clock_get_reference_tempo(&clock_link_reference);
+}
+
+
+double clock_link_get_phase() {
+    return link_phase;
 }
