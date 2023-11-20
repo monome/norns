@@ -44,13 +44,13 @@ static void *clock_link_run(void *p) {
 
 
             if (clock_link_shared_data.transport_start) {
-                abl_link_set_is_playing(state, true, 0);
+                abl_link_set_is_playing(state, true, micros);
                 abl_link_commit_app_session_state(link, state);
                 clock_link_shared_data.transport_start = false;
             }
 
             if (clock_link_shared_data.transport_stop) {
-                abl_link_set_is_playing(state, false, 0);
+                abl_link_set_is_playing(state, false, micros);
                 abl_link_commit_app_session_state(link, state);
                 clock_link_shared_data.transport_stop = false;
             }
