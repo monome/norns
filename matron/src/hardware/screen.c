@@ -25,7 +25,7 @@
 #include "hardware/screen.h"
 #include "hardware/screen/ssd1322.h"
 
-#define NUM_FONTS 67
+#define NUM_FONTS 68
 #define NUM_OPS 29
 
 static char font_path[NUM_FONTS][32];
@@ -161,6 +161,7 @@ void init_font_faces(void) {
     int font_idx = 0;
     strcpy(font_path[font_idx++], "04B_03__.TTF");
     strcpy(font_path[font_idx++], "liquid.ttf");
+    strcpy(font_path[font_idx++], "Particle.ttf");
     strcpy(font_path[font_idx++], "Roboto-Thin.ttf");
     strcpy(font_path[font_idx++], "Roboto-Light.ttf");
     strcpy(font_path[font_idx++], "Roboto-Regular.ttf");

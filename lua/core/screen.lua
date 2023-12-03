@@ -286,10 +286,11 @@ Screen.current_point = function() return _norns.screen_current_point() end
 -- 66 unscii-8-tall.pcf
 -- 67 unscii-8-thin.pcf
 Screen.font_face = function(index) _norns.screen_font_face(index) end
-Screen.font_face_count = 67
+Screen.font_face_count = 68
 Screen.font_face_names = {
    "04B_03__",
    "liquid",
+   "Particle",
    "Roboto-Thin",
    "Roboto-Light",
    "Roboto-Regular",
