@@ -161,7 +161,6 @@ void init_font_faces(void) {
     int font_idx = 0;
     strcpy(font_path[font_idx++], "04B_03__.TTF");
     strcpy(font_path[font_idx++], "liquid.ttf");
-    strcpy(font_path[font_idx++], "Particle.ttf");
     strcpy(font_path[font_idx++], "Roboto-Thin.ttf");
     strcpy(font_path[font_idx++], "Roboto-Light.ttf");
     strcpy(font_path[font_idx++], "Roboto-Regular.ttf");
@@ -229,6 +228,9 @@ void init_font_faces(void) {
     strcpy(font_path[font_idx++], "bmp/unscii-8.pcf");
     strcpy(font_path[font_idx++], "bmp/unscii-8-tall.pcf");
     strcpy(font_path[font_idx++], "bmp/unscii-8-thin.pcf");
+    //------------------
+    // not specifically bitmap but added to the tail of the font list to avoid breaking changes
+    strcpy(font_path[font_idx++], "Particle.ttf");
 
     assert(font_idx == NUM_FONTS);
 

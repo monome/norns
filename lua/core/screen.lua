@@ -290,7 +290,6 @@ Screen.font_face_count = 68
 Screen.font_face_names = {
    "04B_03__",
    "liquid",
-   "Particle",
    "Roboto-Thin",
    "Roboto-Light",
    "Roboto-Regular",
@@ -355,7 +354,8 @@ Screen.font_face_names = {
    "bmp/unscii-8-mcr",
    "bmp/unscii-8",
    "bmp/unscii-8-tall",
-   "bmp/unscii-8-thin"
+   "bmp/unscii-8-thin",
+   "Particle",
 }
 
 --- set font size.
