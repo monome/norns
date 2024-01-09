@@ -14,7 +14,7 @@ local lfo_shapes = {'sine','tri','square','random','up','down'}
 
 local beat_sec = clock.get_beat_sec()
 
-local params_per_entry = 14
+local params_per_entry = 15
 
 function LFO.init()
   if norns.lfo == nil then
@@ -485,7 +485,7 @@ function LFO:add_params(id,sep,group)
       end)
       
       local mode_options = {'clocked', 'free'}
-      params:add_option("lfo_mode_"..id, "lfo mode", mode_options, mode_options[self:get('mode')])
+      params:add_option("lfo_mode_"..id, "lfo mode", mode_options, tab.key(mode_options,self:get('mode')))
       params:set_action("lfo_mode_"..id,
         function(x)
           self:set('mode',params:lookup_param("lfo_mode_"..id).options[x])
@@ -530,8 +530,8 @@ function LFO:add_params(id,sep,group)
       params:add_trigger("lfo_reset_"..id, "reset lfo")
       params:set_action("lfo_reset_"..id, function(x) self:reset_phase() end)
 
-      local reset_destinations = {"floor","ceiling","mid: rising","mid: falling"}
-      params:add_option("lfo_reset_target_"..id, "reset lfo to", reset_destinations, reset_destinations[self:get('reset_target')])
+      local reset_destinations = {"floor", "ceiling", "mid: rising", "mid: falling"}
+      params:add_option("lfo_reset_target_"..id, "reset lfo to", reset_destinations, tab.key(reset_destinations,self:get('reset_target')))
       params:set_action("lfo_reset_target_"..id, function(x)
         self:set('reset_target', params:lookup_param("lfo_reset_target_"..id).options[x])
       end)
