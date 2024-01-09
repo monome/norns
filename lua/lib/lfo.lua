@@ -504,7 +504,7 @@ function LFO:add_params(id,sep,group)
         end
         )
 
-      local current_period_as_rate = self:get('mode') == 'clocked' and lfo_rates[lfo_rates_as_strings[self:get('period')]] or lfo_rates[self:get('period')]
+      local current_period_as_rate = self:get('mode') == 'clocked' and lfo_rates[lfo_rates_as_strings[self:get('period')]] or self:get('period')
       local rate_index = tab.key(lfo_rates,self:get('period'))
       params:add_option("lfo_clocked_"..id, "lfo rate", lfo_rates_as_strings, rate_index)
       params:set_action("lfo_clocked_"..id,
