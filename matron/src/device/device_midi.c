@@ -99,11 +99,13 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     }
 
     if (midi->handle_in != NULL) { 
-	base->start = &dev_midi_start;
+	    base->start = &dev_midi_start;
     } else {
-	base->start = NULL;
+	    base->start = NULL;
     }
     base->deinit = &dev_midi_deinit;
+
+    midi->clock_enabled = true;
 
     return 0;
 }
@@ -282,7 +284,9 @@ static inline ssize_t dev_midi_consume_buffer(midi_input_state_t *state, ssize_t
         byte = state->buffer[i];
 
         if (byte >= 0xf8) {
-            clock_midi_handle_message(byte);
+            if (midi->clock_enabled) {
+                clock_midi_handle_message(byte);
+            }
         }
 
         if (is_status_byte(byte) && (byte != 0xf7)) {

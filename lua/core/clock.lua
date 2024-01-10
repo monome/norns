@@ -239,7 +239,7 @@ function clock.add_params()
   params:add_number("link_quantum", "link quantum", 1, 32, norns.state.clock.link_quantum)
   params:set_action("link_quantum",
     function(x)
-      clock.link.set_quantum(x)
+      clock.link.set_quantum(x) 
       norns.state.clock.link_quantum = x
     end)
   params:set_save("link_quantum", false)
@@ -275,6 +275,19 @@ function clock.add_params()
     end
     params:set_save("clock_midi_out_"..i, false)
   end
+
+  params:add_separator("midi_clock_in_separator", "midi clock in")
+  local midi_clock_in_options = { "all", "none"}
+  for i=1,16 do 
+    table.insert(midi_clock_in_options, tostring(i))
+  end
+  params:add_option("clock_midi_in", "midi clock in", midi_clock_in_options, norns.state.clock.midi_in)
+  params:set_action("clock_midi_in", function(x)
+    norns.state.clock.midi_in = x
+    midi.update_clock_receive()
+  end)
+  params:set_save("clock_midi_in", false)
+
   params:add_separator("crow_clock_separator", "crow")
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)

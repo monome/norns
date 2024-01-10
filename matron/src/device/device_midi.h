@@ -6,6 +6,7 @@
 
 struct dev_midi {
     struct dev_common dev;
+    bool clock_enabled;
     snd_rawmidi_t *handle_in;
     snd_rawmidi_t *handle_out;
 };

@@ -51,6 +51,7 @@ state.clock.tempo = 90
 state.clock.link_quantum = 4
 state.clock.link_start_stop_sync = 1
 state.clock.midi_out = {}
+state.clock.midi_in = 1 -- all clock input enabled
 state.clock.crow_out = 1
 state.clock.crow_out_div = 4
 state.clock.crow_in_div = 4
@@ -151,6 +152,7 @@ state.save_state = function()
   for i = 1,16 do
     io.write("norns.state.clock.midi_out["..i.."] = " .. norns.state.clock.midi_out[i] .. "\n")
   end
+  io.write("norns.state.clock.midi_in = " .. norns.state.clock.midi_in .. "\n")
   io.write("norns.state.clock.crow_out = " .. norns.state.clock.crow_out .. "\n")
   io.write("norns.state.clock.crow_out_div = " .. norns.state.clock.crow_out_div .. "\n")
   io.write("norns.state.clock.crow_in_div = " .. norns.state.clock.crow_in_div .. "\n")
