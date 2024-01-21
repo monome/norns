@@ -178,7 +178,7 @@ end
 --- enable/disable clock reception from this device
 -- @tparam boolean enabled
 function Midi:clock_receive(enabled)
-  print("Midi:clock_receive: "..enabled)
+  --print("Midi:clock_receive: "..enabled)
   _norns.midi_clock_receive(self.dev, enabled)
 end
 
@@ -422,7 +422,7 @@ function Midi.update_clock_receive()
     end
     -- re-enable the selected one if called for
     if x > 2 then
-      print("enabling clock input; x = "..x)
+      --print("enabling clock input; x = "..x)
       local dev = Midi.vports[x-2].device
       if dev ~= nil then
         dev:clock_receive(1)
