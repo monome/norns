@@ -1675,7 +1675,7 @@ int _midi_clock_receive(lua_State *l) {
     md = lua_touserdata(l, 1);
     int enabled = lua_tointeger(l, 2);
     md->clock_enabled = enabled > 0;
-    fprintf(stderr, "set clock_enabled to %d on device %p\n", enabled, md);
+    //fprintf(stderr, "set clock_enabled to %d on device %p\n", enabled, md);
     return 0;
 }
 
