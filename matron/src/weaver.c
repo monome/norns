@@ -169,6 +169,7 @@ static int _osc_send_crone(lua_State *l);
 
 // midi
 static int _midi_send(lua_State *l);
+static int _midi_clock_receive(lua_State *l);
 
 // crow
 static int _crow_send(lua_State *l);
@@ -507,6 +508,7 @@ void w_init(void) {
 
     // midi
     lua_register_norns("midi_send", &_midi_send);
+    lua_register_norns("midi_clock_receive", &_midi_clock_receive);
 
     // get list of available crone engines
     lua_register_norns("report_engines", &_request_engine_report);
@@ -1659,6 +1661,21 @@ int _midi_send(lua_State *l) {
     dev_midi_send(md, data, nbytes);
     free(data);
 
+    return 0;
+}
+
+/***
+ * midi: clock_receive
+ * @function midi_receive
+ */
+int _midi_clock_receive(lua_State *l) {
+    struct dev_midi *md;
+    lua_check_num_args(2);
+    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+    md = lua_touserdata(l, 1);
+    int enabled = lua_tointeger(l, 2);
+    md->clock_enabled = enabled > 0;
+    //fprintf(stderr, "set clock_enabled to %d on device %p\n", enabled, md);
     return 0;
 }
 
