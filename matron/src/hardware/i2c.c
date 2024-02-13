@@ -32,7 +32,7 @@ static pthread_t p;
 static int pos[3] = {0,0,0};
 // division of pot 0-1 range for ticks, TH is for wrap detection
 #define DIV 64
-#define DIVTH 8
+#define DIVTH 16
 
 void *adc_read(void *);
 
