@@ -151,12 +151,18 @@ end
 
 local function start()
   if fs.previewing_timeout_counter ~= nil then return end
-  timeout()
-  stop()
-  fs.previewing = fs.pos
-  audio.tape_play_open(fs.getdir() .. fs.file)
-  audio.tape_play_start()
-  fs.redraw()
+  fs.previewing_timeout_counter = clock.run(function()
+      if fs.previewing then
+        stop()
+        clock.sleep(0.5)
+      end
+      fs.previewing = fs.pos
+      audio.tape_play_open(fs.getdir() .. fs.file)
+      audio.tape_play_start()
+      fs.redraw()
+      clock.sleep(1)
+      fs.previewing_timeout_counter = nil
+  end)
 end
 
 fs.key = function(n, z)
@@ -195,7 +201,11 @@ fs.key = function(n, z)
       end
     end
   elseif z == 0 and fs.done == true then
-    fs.exit()
+    clock.run(function()
+      stop()
+      clock.sleep(0.5)
+      fs.exit()
+      end)
   end
 end
 
