@@ -32,7 +32,8 @@ static pthread_t p;
 static int pos[3] = {0,0,0};
 // division of pot 0-1 range for ticks, TH is for wrap detection
 #define DIV 64
-#define DIVTH 16
+#define DIVTH 32
+#define ADC_RATE 30000
 
 void *adc_read(void *);
 
@@ -220,6 +221,6 @@ void *adc_read(void *x) {
 			//fprintf(stderr, "%f\t", angle_360((float)adc[i*2]/4096,(float)adc[i*2+1]/4096));
 		}
 
-		usleep(50000);
+		usleep(ADC_RATE);
 	}
 }
