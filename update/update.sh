@@ -21,12 +21,13 @@ sudo cp -a /home/we/norns/build/maiden-repl/maiden-repl /home/we/bin/
 cp version.txt /home/we/
 cp changelog.txt /home/we/
 
-# fix logrotate
+# remove logging
+sudo apt -y remove rsyslog
 sudo cp config/logrotate.conf /etc/
-
-# rewrite journalctl
 sudo cp config/journald.conf /etc/systemd/
-sudo mkdir -p /var/log/journal
+sudo rm -rf /var/log/journal
+sudo rm -rf /var/log/daemon.log
+sudo rm -rf /var/log/user.log
 
 # disable hciuart
 sudo systemctl disable hciuart 
