@@ -1,7 +1,7 @@
 local m = {
   pos = 1,
-  list = {"DEVICES > ", "WIFI >", "MODS >", "SETTINGS >", "RESTART", "UPDATE", "LOG"},
-  pages = {"DEVICES", "WIFI", "MODS", "SETTINGS", "RESTART", "UPDATE", "LOG"}
+  list = {"DEVICES > ", "WIFI >", "MODS >", "SETTINGS >", "RESTART", "UPDATE"},
+  pages = {"DEVICES", "WIFI", "MODS", "SETTINGS", "RESTART", "UPDATE"}
 }
 
 m.key = function(n,z)
