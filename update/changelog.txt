@@ -1,3 +1,12 @@
+# 240221
+
+# norns 2.8.2
+
+- NEW support for i2c adc inf pots, as encoders @tehn
+- NEW hotswap lib (from crow) @trentgill
+
+
+
 # 231114
 
 # norns 2.8.1
