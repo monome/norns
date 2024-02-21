@@ -1,3 +1,19 @@
+# 240221
+
+# norns 2.8.2
+
+- NEW support for i2c adc inf pots, as encoders @tehn
+- NEW particle font @dansimco
+- NEW hotswap lib (from crow) @trentgill
+- NEW midi clock in port selection @catfact
+- FIX remove system/log @tehn
+- FIX link start/stop @artfwo
+
+# norns-image
+
+- FIX disable logging @catfact
+
+
 # 231114
 
 # norns 2.8.1
