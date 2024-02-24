@@ -1,6 +1,7 @@
 /* i2c.c
  *
  * hp driver: TPA6130A2
+ * adc: ADC128D818
  *
  */
 
@@ -21,6 +22,9 @@
 #include "i2c.h"
 #include "platform.h"
 
+#include <time.h>
+#include <inttypes.h>
+
 #define ADDR_HP 0x60
 #define ADDR_ADC 0x1D
 
@@ -30,10 +34,9 @@ static char buf[10];
 static pthread_t p;
 
 static int pos[3] = {0,0,0};
-// division of pot 0-1 range for ticks, TH is for wrap detection
 #define DIV 64
-#define DIVTH 32
-#define ADC_RATE 30000
+#define ADC_RATE 75000
+// adc rate ~12 * 6ch
 
 void *adc_read(void *);
 
@@ -185,42 +188,46 @@ void *adc_read(void *x) {
 		now[i] = ((buf[0]<<4) + (buf[1]>>4));
 	}
 	for(int i=0;i<3;i++) { 
-		pos[i] = (int)DIV*angle_360((float)now[i*2]/4096,(float)now[i*2+1]/4096);
+		pos[i] = (int)4096*angle_360((float)now[i*2]/4096,(float)now[i*2+1]/4096);
 	}
 
 	while(1) {
 		if (ioctl(file, I2C_SLAVE, ADDR_ADC) < 0) {
 			fprintf(stderr, "(i2c) ADC connect fail\n");
 		}
+
 		for(int i=0;i<6;i++) {
 			buf[0] = 0x20 + i;
 			if (write(file, buf, 1) != 1) {
 				fprintf(stderr, "ERROR (i2c/adc) failed to write\n");
 				break;
 			}
-
 			read(file, buf, 2);
 			//fprintf(stderr, "%x\t%x\t\t",buf[0],buf[1]);
 			now[i] = ((buf[0]<<4) + (buf[1]>>4));
 		}
 		for(int i=0;i<3;i++) {
-			int n = (int)DIV*angle_360((float)now[i*2]/4096,(float)now[i*2+1]/4096);
+			int n = (int)4096*angle_360((float)now[i*2]/4096,(float)now[i*2+1]/4096);
 			int d = pos[i] - n;
-			if(d>(DIV-DIVTH)) d -= DIV; // for rollover
-			else if(d<(DIVTH-DIV)) d += DIV;
+			// rollover
+			if(d>(2048)) {
+				d -= (4096);
+				//fprintf(stderr, ".");
+			} else if(d<-2048) {
+				d += (4096);
+				//fprintf(stderr, ".");
+			}
 
-			if(d) {
+			if(abs(d)>DIV) {
 				pos[i] = n;
-				//fprintf(stderr, "%d %d\n",reorder[i],d);
+				d = (int)(d / DIV);
+				//fprintf(stderr, "%d\t%d\t%d%\n",reorder[i],n,d);
 				union event_data *ev = event_data_new(EVENT_ENC);
 				ev->enc.n = reorder[i];
 				ev->enc.delta = d;
 				event_post(ev);
 			}
-
-			//fprintf(stderr, "%f\t", angle_360((float)adc[i*2]/4096,(float)adc[i*2+1]/4096));
 		}
-
 		usleep(ADC_RATE);
 	}
 }
