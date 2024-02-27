@@ -39,7 +39,7 @@ encoders.set_sens = function(n,s)
   end
 end
 
---- process delta (defined by init)
+--- process delta
 encoders.process = function(n,d)
   encoders.tick[n] = encoders.tick[n] + d
   if math.abs(encoders.tick[n]) >= encoders.sens[n] then
@@ -51,11 +51,11 @@ encoders.process = function(n,d)
 	end
 end
 
+--- process delta, selected if _norns.adc_rev() == 0 in norns.lua
 encoders.process_with_accel = function(n,d)
   now = util.time()
   local diff = now - encoders.time[n]
   encoders.time[n] = now
-
   if encoders.accel[n] then
     if diff < 0.005 then d = d*6
     elseif diff < 0.01 then d = d*4
@@ -63,9 +63,7 @@ encoders.process_with_accel = function(n,d)
     elseif diff < 0.03 then d = d*2
     end
   end
-
   encoders.tick[n] = encoders.tick[n] + d
-
   if math.abs(encoders.tick[n]) >= encoders.sens[n] then
     local val = encoders.tick[n] / encoders.sens[n]
 		val = (val > 0) and math.floor(val) or math.ceil(val)
