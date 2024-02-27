@@ -162,6 +162,7 @@ static int _screen_display_image_region(lua_State *l);
 
 // i2c
 static int _gain_hp(lua_State *l);
+static int _adc_rev(lua_State *l);
 
 // osc
 static int _osc_send(lua_State *l);
@@ -501,6 +502,7 @@ void w_init(void) {
 
     // analog output control
     lua_register_norns("gain_hp", &_gain_hp);
+    lua_register_norns("adc_rev", &_adc_rev);
 
     // osc
     lua_register_norns("osc_send", &_osc_send);
@@ -1458,6 +1460,12 @@ int _gain_hp(lua_State *l) {
     i2c_hp(level);
     lua_settop(l, 0);
     return 0;
+}
+
+int _adc_rev(lua_State *l) {
+    int rev = adc_rev();
+    lua_pushinteger(l, (lua_Integer)rev);
+    return 1;
 }
 
 /***

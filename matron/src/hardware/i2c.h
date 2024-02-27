@@ -6,3 +6,5 @@ extern void i2c_init(void);
 extern void i2c_deinit(void);
 
 extern void i2c_hp(int level);
+
+extern int adc_rev(void);

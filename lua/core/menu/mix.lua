@@ -130,6 +130,7 @@ m.init = function()
   m.out2 = 0
   norns.encoders.set_accel(2,true)
   norns.encoders.set_sens(2,1)
+  norns.encoders.set_accel(3,true)
   norns.encoders.set_sens(3,1)
 end
 

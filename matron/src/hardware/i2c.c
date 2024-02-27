@@ -38,6 +38,12 @@ static int pos[3] = {0,0,0};
 #define ADC_RATE 75000
 // adc rate ~12 * 6ch
 
+// adc revision
+// 0 = none
+// 1 = ADC128D818
+static int adc_revision = 0;
+int adc_rev() { return adc_revision; }
+
 void *adc_read(void *);
 
 void i2c_init(void) {
@@ -98,7 +104,10 @@ void i2c_init(void) {
 	if (pthread_create(&p, NULL, adc_read, 0)) {
 		fprintf(stderr, "i2c/ADC: Error creating thread\n");
 	}
+
+	adc_revision = 1;
 }
+
 
 void i2c_deinit() {
 }

@@ -39,8 +39,19 @@ encoders.set_sens = function(n,s)
   end
 end
 
---- process delta
+--- process delta (defined by init)
 encoders.process = function(n,d)
+  encoders.tick[n] = encoders.tick[n] + d
+  if math.abs(encoders.tick[n]) >= encoders.sens[n] then
+    local val = encoders.tick[n] / encoders.sens[n]
+		val = (val > 0) and math.floor(val) or math.ceil(val)
+    encoders.callback(n,val)
+    encoders.tick[n] = math.fmod(encoders.tick[n],encoders.sens[n])
+    screen.ping()
+	end
+end
+
+encoders.process_with_accel = function(n,d)
   now = util.time()
   local diff = now - encoders.time[n]
   encoders.time[n] = now
@@ -56,12 +67,14 @@ encoders.process = function(n,d)
   encoders.tick[n] = encoders.tick[n] + d
 
   if math.abs(encoders.tick[n]) >= encoders.sens[n] then
-    local val = math.floor(encoders.tick[n] / encoders.sens[n])
+    local val = encoders.tick[n] / encoders.sens[n]
+		val = (val > 0) and math.floor(val) or math.ceil(val)
     encoders.callback(n,val)
-    encoders.tick[n] = 0
+    encoders.tick[n] = math.fmod(encoders.tick[n],encoders.sens[n])
     screen.ping()
   end
 end
+
 
 
 -- script state
