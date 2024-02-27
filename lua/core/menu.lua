@@ -166,7 +166,7 @@ _menu.set_mode = function(mode)
     norns.encoders.callback = enc
     norns.enc.resume()
     redraw()
-  elseif mode == true then -- ACTIVATE MENu MODE
+  elseif mode == true then -- ACTIVATE MENU MODE
     if _menu.mode == false then _norns.screen_save() end
     _menu.mode = true
     _menu.alt = false
