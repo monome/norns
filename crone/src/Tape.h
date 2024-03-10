@@ -70,15 +70,12 @@ namespace crone {
             virtual // from any thread
                 void start() {
                 if (isRunning) {
-                    std::cout << "Tape: already running" << std::endl;
+                    std::cout << "Tape::SfStream::start(): already running" << std::endl;
                     return;
                 } else {
-                    std::cout << "Tape: starting.." << std::endl;
+                    std::cout << "Tape::SfStream: starting..." << std::endl;
                     envIdx = 0;
                     envState = Starting;
-
-                /// FIXME: diskLoop() isn't designed to be re-entrant, 
-                // so we need to make very sure here that no existing disk loop thread is running
 
                     this->th = std::make_unique<std::thread>(
                                                              [this]() {
@@ -205,7 +202,6 @@ namespace crone {
 
             // call from disk thread
             void diskLoop() override {
-                std::cout << "tape write diskLoop()" << std::endl;
                 SfStream::isRunning = true;
                 SfStream::shouldStop = false;
                 numFramesCaptured = 0;
@@ -276,7 +272,7 @@ namespace crone {
                       int bitDepth = 24) {
                 
                 if (SfStream::isRunning) {
-                    std::cout << "Tape Writer: already running" << std::endl;
+                    std::cout << "Tape Writer::open(): stream is running; no action was taken" << std::endl;
                     return false;
                 }
 
@@ -351,7 +347,7 @@ namespace crone {
         private:
             // prime the ringbuffer
             void prime() {
-                std::cout << "priming tape reader" << std::endl;
+                // std::cout << "priming tape reader" << std::endl;
                 jack_ringbuffer_t *rb = this->ringBuf.get();
                 size_t framesToRead = jack_ringbuffer_write_space(rb) / frameSize;
                 if (framesToRead > maxFramesToRead) { framesToRead = maxFramesToRead; };
@@ -394,7 +390,6 @@ namespace crone {
 
                 //  if ringbuf isn't full enough, probably EOF on a non-looped file
                 if(framesInBuf < numFrames) {
-                    std::cout << "tape reader: ringbuf is empty" << std::endl;
                     // pull from ringbuffer
                     jack_ringbuffer_read(rb, (char*)pullBuf, framesInBuf * frameSize);
                     float* src = pullBuf;
@@ -414,7 +409,6 @@ namespace crone {
                         fr++;
                     }
                     jack_ringbuffer_reset(rb);
-                    std::cout << "tape reader: isRunning = false" << std::endl;
                     SfStream::isRunning = false;
                 } else {
 
@@ -442,10 +436,8 @@ namespace crone {
 
             // from any thread
             bool open(const std::string &path) {
-                std::cout << "tape reader; open: " << path << std::endl;
-
                 if (SfStream::isRunning) {
-                    std::cout << "Tape Reader: already running" << std::endl;
+                    std::cout << "Tape Reader::open(): stream is running; no action was taken" << std::endl;
                     return false;
                 }
 
@@ -484,10 +476,8 @@ namespace crone {
         private:
             // from disk thread
             void diskLoop() override {
-                std::cout << "tape reader diskLoop()" << std::endl;
                 prime();
                 isPrimed = true;
-                std::cout << "tape reader: isRunning = true" << std::endl;
                 SfStream::isRunning = true;
                 SfStream::shouldStop = false;
                 while (!SfStream::shouldStop) {
@@ -523,7 +513,7 @@ namespace crone {
                     if (loopFile) {
                         // couldn't perform full read so must be end of file. Seek to start of file and keep reading
                         while (framesRead < framesToRead) {
-                            std::cout << "tape reader: couldn't perform full read; looping file..." << std::endl;
+                            // std::cout << "tape reader: couldn't perform full read; looping file..." << std::endl;
                             sf_seek(this->file,0, SEEK_SET);
                             auto nextRead = (size_t) sf_readf_float(this->file, diskBufPtr, framesToRead-framesRead);
                             if (nextRead < 1)
@@ -540,7 +530,6 @@ namespace crone {
                         }
                     }
                     else {
-                        std::cout << "Tape::Reader::diskloop() reached EOF" << std::endl;
                         SfStream::shouldStop = true;
                     }
 
@@ -551,7 +540,6 @@ namespace crone {
 
                 }
                 sf_close(this->file);
-                std::cout << "Tape::reader closed file" << std::endl;
             }
 
         }; // Reader class
