@@ -14,6 +14,10 @@
 #include "device.h"
 #include "device_monome.h"
 
+// quad offsets
+static int quad_xoff[4] = {0, 8, 0, 8};
+static int quad_yoff[4] = {0, 0, 8, 8};
+
 //------------------------
 //-- static functions
 static void dev_monome_handle_press(const monome_event_t *e, void *p);
@@ -93,7 +97,19 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
 
 // set grid rotation
 void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
-    monome_set_rotation(md->m, rotation);
+	md->rotation = rotation;
+	// for 16x8 grid, only update relevant quads which must change with rotation
+	if(md->quads == 2) {
+		if(rotation == 0 || rotation == 2) {
+			quad_xoff[1] = 8;
+			quad_yoff[1] = 0;
+		} else {
+			quad_xoff[1] = 0;
+			quad_yoff[1] = 8;
+		}
+	}
+	//fprintf(stderr, "rotation: %d\n", md->rotation);
+	monome_set_rotation(md->m, rotation);
 }
 
 // enable/disable grid tilt
@@ -129,9 +145,6 @@ void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
 
 // transmit all dirty quads
 void dev_monome_refresh(struct dev_monome *md) {
-    static const int quad_xoff[4] = {0, 8, 0, 8};
-    static const int quad_yoff[4] = {0, 0, 8, 8};
-
     if (md->m == NULL) {
         return;
     }

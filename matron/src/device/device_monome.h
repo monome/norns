@@ -21,6 +21,7 @@ struct dev_monome {
     bool dirty[4];       // quad-dirty flags
     int cols;
     int rows;
+		int rotation;
     int quads;
 };
 
