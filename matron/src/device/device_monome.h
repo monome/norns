@@ -21,8 +21,9 @@ struct dev_monome {
     bool dirty[4];       // quad-dirty flags
     int cols;
     int rows;
-		int rotation;
     int quads;
+		int quad_xoff[4];
+		int quad_yoff[4];
 };
 
 // set a single grid led
