@@ -14,6 +14,10 @@
 #include "device.h"
 #include "device_monome.h"
 
+// quad offset defaults
+static const int quad_xoff[] = {0, 8, 0, 8};
+static const int quad_yoff[] = {0, 0, 8, 8};
+
 //------------------------
 //-- static functions
 static void dev_monome_handle_press(const monome_event_t *e, void *p);
@@ -61,6 +65,9 @@ int dev_monome_init(void *self) {
                 md->quads);
     }
 
+		memcpy(md->quad_xoff,quad_xoff,sizeof(quad_xoff));
+		memcpy(md->quad_yoff,quad_yoff,sizeof(quad_yoff));
+
     monome_register_handler(m, MONOME_BUTTON_DOWN, dev_monome_handle_press, md);
     monome_register_handler(m, MONOME_BUTTON_UP, dev_monome_handle_lift, md);
     monome_register_handler(m, MONOME_ENCODER_DELTA, dev_monome_handle_encoder_delta, md);
@@ -93,7 +100,17 @@ static inline uint8_t dev_monome_quad_offset(uint8_t x, uint8_t y) {
 
 // set grid rotation
 void dev_monome_set_rotation(struct dev_monome *md, uint8_t rotation) {
-    monome_set_rotation(md->m, rotation);
+	// for 16x8 grid, only update relevant quads which must change with rotation
+	if(md->quads == 2) {
+		if(rotation == 0 || rotation == 2) {
+			md->quad_xoff[1] = 8;
+			md->quad_yoff[1] = 0;
+		} else {
+			md->quad_xoff[1] = 0;
+			md->quad_yoff[1] = 8;
+		}
+	}
+	monome_set_rotation(md->m, rotation);
 }
 
 // enable/disable grid tilt
@@ -129,9 +146,6 @@ void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
 
 // transmit all dirty quads
 void dev_monome_refresh(struct dev_monome *md) {
-    static const int quad_xoff[4] = {0, 8, 0, 8};
-    static const int quad_yoff[4] = {0, 0, 8, 8};
-
     if (md->m == NULL) {
         return;
     }
@@ -141,7 +155,7 @@ void dev_monome_refresh(struct dev_monome *md) {
             if (md->type == DEVICE_MONOME_TYPE_ARC) {
                 monome_led_ring_map(md->m, quad, md->data[quad]);
             } else {
-                monome_led_level_map(md->m, quad_xoff[quad], quad_yoff[quad], md->data[quad]);
+                monome_led_level_map(md->m, md->quad_xoff[quad], md->quad_yoff[quad], md->data[quad]);
             }
             md->dirty[quad] = false;
         }
