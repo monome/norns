@@ -1,3 +1,13 @@
+# 240424
+
+# norns 2.8.3
+
+- NEW acceleration for inf pots #1776 @tehn
+- FIX grid rotation #1772 @tehn
+- FIX tape play return on open #1770 @catfact
+- FIX update.sh apply shield update correctly
+
+
 # 240221
 
 # norns 2.8.2
