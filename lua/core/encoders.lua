@@ -42,6 +42,10 @@ end
 --- process delta
 encoders.process = function(n,d)
   encoders.tick[n] = encoders.tick[n] + d
+  if encoders.accel[n] then
+		local s = d<0 and -1 or 1
+		d = s * math.pow(math.abs(d),1.6)
+  end
   if math.abs(encoders.tick[n]) >= encoders.sens[n] then
     local val = encoders.tick[n] / encoders.sens[n]
 		val = (val > 0) and math.floor(val) or math.ceil(val)
