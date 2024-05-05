@@ -131,7 +131,7 @@ function keyboard.process(type,code,value)
   if c == nil then
     return
   end
-
+  screen.ping()
   -- textentry keycode
   if te_kbd_cb.code then
     te_kbd_cb.code(c,value)
