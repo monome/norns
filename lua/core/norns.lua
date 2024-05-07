@@ -130,7 +130,7 @@ norns.script = require 'core/script'
 norns.state = require 'core/state'
 norns.encoders = require 'core/encoders'
 
-_norns.enc = _norns.adc_rev() and norns.encoders.process or norns.encoders.process_with_accel
+_norns.enc = _norns.adc_rev()==1 and norns.encoders.process or norns.encoders.process_with_accel
 --_norns.enc = norns.encoders.process_with_accel
 
 -- extend paths config table
