@@ -20,6 +20,8 @@ function Trigger:get()
 end
 
 function Trigger:set(v)
+  local i = params.lookup[self.id]
+  _menu.binarystates.triggered[i] = 2
   self:bang()
 end
 

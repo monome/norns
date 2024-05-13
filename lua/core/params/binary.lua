@@ -12,8 +12,8 @@ function Binary.new(id, name, behavior, default, allow_pmap)
   o.id = id
   o.name = name
   o.default = default or 0
-  o.value = o.default
   o.behavior = behavior or 'trigger'
+  o.value = o.behavior ~= 'trigger' and o.default or 1
   o.action = function() end
   if allow_pmap == nil then o.allow_pmap = true else o.allow_pmap = allow_pmap end
   return o
@@ -25,10 +25,18 @@ end
 
 function Binary:set(v, silent)
   local silent = silent or false
-  v = (v > 0) and 1 or 0
-  if self.value ~= v then
-    self.value = v
-    if silent==false then self:bang() end
+  local i = params.lookup[self.id]
+  v = v and v or 1
+  if self.behavior == 'trigger' and v > 0 then
+    _menu.binarystates.triggered[i] = 2
+    if silent == false then self:bang() end
+  elseif self.behavior ~= 'trigger' then
+    v = (v > 0) and 1 or 0
+    if self.value ~= v then
+      self.value = v
+      _menu.binarystates.on[i] = v
+      if silent == false then self:bang() end
+    end
   end
 end
 
@@ -47,7 +55,7 @@ function Binary:set_default()
 end
 
 function Binary:bang()
-  self.action(self.value)
+  self.action(self.behavior == 'trigger' and 1 or self.value)
 end
 
 function Binary:string()

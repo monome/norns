@@ -121,6 +121,15 @@ local function write_pset(name)
   end
 end
 
+local function delta_value(id,fine,d)
+  local prm = params:lookup_param(id)
+  if prm.t == params.tBINARY and prm.behavior == "toggle" then
+    prm:set(d)
+  elseif prm.t ~= params.tBINARY then
+    local dx = fine and (d / 20) or d
+    prm:delta(dx)
+  end
+end
 
 m.key = function(n,z)
   if n==1 and z==1 then
@@ -190,13 +199,13 @@ m.key = function(n,z)
       elseif t == params.tTRIGGER then
         if m.mode == mEDIT then
           params:set(i)
-          m.triggered[i] = 2
+          _menu.binarystates.triggered[i] = 2
         end
       elseif t == params.tBINARY and m.mode == mEDIT then
         params:delta(i,1)
         if params:lookup_param(i).behavior == 'trigger' then
-          m.triggered[i] = 2
-        else m.on[i] = params:get(i) end
+          _menu.binarystates.triggered[i] = 2
+        else _menu.binarystates.on[i] = params:get(i) end
       elseif m.mode == mMAP and params:get_allow_pmap(i) then
         local n = params:get_id(i)
         local pm = norns.pmap.data[n]
@@ -225,7 +234,7 @@ m.key = function(n,z)
         if m.mode == mEDIT then
           params:delta(i, 0)
           if params:lookup_param(i).behavior ~= 'trigger' then
-            m.on[i] = params:get(i)
+            _menu.binarystates.on[i] = params:get(i)
           end
         end
       end
@@ -329,8 +338,7 @@ m.enc = function(n,d)
       m.pos = i-1
     -- adjust value
     elseif m.mode == mEDIT and n==3 and params.count > 0 then
-      local dx = m.fine and (d/20) or d
-      params:delta(page[m.pos+1],dx)
+      delta_value(page[m.pos + 1], m.fine, d)
       _menu.redraw()
     end
   -- MAPEDIT
@@ -343,7 +351,7 @@ m.enc = function(n,d)
       local t = params:t(p)
       local pm = norns.pmap.data[n]
       if m.mpos==0 then
-        params:delta(page[m.pos+1],d)
+        delta_value(page[m.pos + 1], false, d)
       elseif m.mpos==3 then
         m.cc = util.clamp(m.cc+d,0,127)
       elseif m.mpos==4 then
@@ -468,12 +476,12 @@ m.redraw = function()
           screen.text(params:get_name(p))
           screen.move(127,10*i)
           if t ==  params.tTRIGGER then
-            if m.triggered[p] and m.triggered[p] > 0 then
+            if _menu.binarystates.triggered[p] and _menu.binarystates.triggered[p] > 0 then
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
             end
           elseif t == params.tBINARY then
-            fill = m.on[p] or m.triggered[p]
+            fill = _menu.binarystates.on[p] or _menu.binarystates.triggered[p]
             if fill and fill > 0 then
               screen.rect(124, 10 * i - 4, 3, 3)
               screen.fill()
@@ -660,19 +668,21 @@ m.init = function()
   if page == nil then build_page() end
   m.alt = false
   m.fine = false
-  m.triggered = {}
+  local trig = _menu.binarystates.triggered
   _menu.timer.event = function()
-    for k, v in pairs(m.triggered) do
-      if v > 0 then m.triggered[k] = v - 1 end
+    for k, v in pairs(trig) do
+      if v > 0 then
+        trig[k] = v - 1
+      end
     end
     _menu.redraw()
   end
-  m.on = {}
+  local on = _menu.binarystates.on
   for i,param in ipairs(params.params) do
     if param.t == params.tBINARY then
         if params:lookup_param(i).behavior == 'trigger' then
-          m.triggered[i] = 2
-        else m.on[i] = params:get(i) end
+         trig[i] = 2
+        else on[i] = params:get(i) end
     end
   end
   _menu.timer.time = 0.2
@@ -735,8 +745,8 @@ norns.menu_midi_event = function(data, dev)
             for i,param in ipairs(params.params) do
               if params:lookup_param(i).behavior == params:lookup_param(r).behavior then
                 if params:lookup_param(i).behavior == 'trigger' then
-                  m.triggered[i] = 2
-                else m.on[i] = params:get(i) end
+                  _menu.binarystates.triggered[i] = 2
+                else _menu.binarystates.on[i] = params:get(i) end
               end
             end
           end
