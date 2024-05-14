@@ -31,6 +31,7 @@ _menu.errormsg = ""
 _menu.shownav = false
 _menu.showstats = false
 _menu.previewfile = ""
+_menu.binarystates = {triggered = {}, on = {}}
 
 -- menu pages
 local m = {}
