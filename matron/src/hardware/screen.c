@@ -159,7 +159,7 @@ void init_font_faces(void) {
     }
 
     int font_idx = 0;
-    strcpy(font_path[font_idx++], "04B_03__.TTF");
+    strcpy(font_path[font_idx++], "norns.ttf");
     strcpy(font_path[font_idx++], "liquid.ttf");
     strcpy(font_path[font_idx++], "Roboto-Thin.ttf");
     strcpy(font_path[font_idx++], "Roboto-Light.ttf");
