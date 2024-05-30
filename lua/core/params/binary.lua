@@ -11,9 +11,9 @@ function Binary.new(id, name, behavior, default, allow_pmap)
   o.t = tBINARY
   o.id = id
   o.name = name
-  o.default = default or 0
+  o.default = default or (o.behavior ~= 'trigger' and 0 or 1)
+  o.value = o.default
   o.behavior = behavior or 'trigger'
-  o.value = o.behavior ~= 'trigger' and o.default or 1
   o.action = function() end
   if allow_pmap == nil then o.allow_pmap = true else o.allow_pmap = allow_pmap end
   return o
@@ -56,6 +56,9 @@ end
 
 function Binary:bang()
   self.action(self.behavior == 'trigger' and 1 or self.value)
+  if self.behavior == 'trigger' then
+    self.value = 0
+  end
 end
 
 function Binary:string()
