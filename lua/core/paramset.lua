@@ -548,6 +548,8 @@ function ParamSet:read(filename, silent)
                 if self.params[index].behavior ~= "trigger" then
                   self.params[index]:set(tonumber(value), silent)
                 end
+              else
+                self.params[index]:set(tonumber(value), silent)
               end
             elseif value == "-inf" then
               self.params[index]:set(-math.huge, silent)
