@@ -5,9 +5,10 @@ m.key = function(n,z)
     _menu.set_page("HOME")
   elseif n==3 and z==1 then
     m.sleep = true
+    if _menu.m.TAPE.rec.sel == 3 then
+      audio.tape_record_stop()
+    end
     _menu.redraw()
-    -- TODO
-    --if m.tape.rec.sel == TAPE_REC_STOP then audio.tape_record_stop() end
     norns.shutdown()
   end
 end
