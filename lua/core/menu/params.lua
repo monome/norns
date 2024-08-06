@@ -487,7 +487,41 @@ m.redraw = function()
               screen.fill()
             end
           else
-            screen.text_right(params:string(p))
+	    -- Display current selector value for param p
+            local label_str = params:get_name(p)
+            local label_width = screen.text_extents(label_str)
+            local value_str = params:string(p)
+            local value_width = screen.text_extents(value_str)
+            local original_font_size = screen.current_font_size()
+            local original_font_face = screen.current_font_face()
+
+            if label_width + value_width + 1 > 127 then
+              -- The value text is too long. First try using smaller font. Found that
+              -- best somewhat smaller font is index 5 Roboto-Regular at size 7.
+              -- Anything smaller is simply not readable. The font for the edit params
+              -- page is set in core/menu.lua _menu.set_mode(). Default font size is 8
+              -- and default font face is 1.
+              screen.font_face(5)
+              screen.font_size(7)
+              value_width = screen.text_extents(value_str)
+              if label_width + value_width + 1 > 127 then
+                -- Still too long. Don't want to try even smaller font so
+                -- move the value further to right so there is no overlap
+                local right_edge = label_width + value_width + 1
+                screen.move(right_edge, 10*i)
+              end
+            end
+
+            -- Actually draw the value text
+            screen.text_right(value_str)
+
+            -- If font size or face were changed, restore them
+            if screen.current_font_size() ~= original_font_size then
+              screen.font_size(original_font_size)
+            end
+            if screen.current_font_face() ~= original_font_face then
+              screen.font_face(original_font_face)
+            end
           end
         end
       end
