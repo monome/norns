@@ -125,33 +125,55 @@ _menu.enc = function(n, delta)
 end
 
 
+-- Handles all button presses both for the script and for the menus.
+-- It is how short presses on key1 are detected and handled.
 _norns.key = function(n, z)
   -- key 1 detect for short press
   if n == 1 then
     if z == 1 then
+      -- key 1 pressed so start timer
       _menu.alt = true
       pending = true
       t:start()
-    elseif z == 0 and pending == true then
+    elseif pending == true then
+      -- Key 1 released within the timer's allowed time so was short press.
       _menu.alt = false
+
+      -- Toggle menu mode. If was in menu mode will go to application mode,
+      -- and visa versa.
       if _menu.mode == true and _menu.locked == false then
         _menu.set_mode(false)
-      else _menu.set_mode(true) end
+      else
+        _menu.key(n,z) -- always 1,0
+
+        _menu.set_mode(true)
+      end
+
+      -- Done with short press timer so clear it
       t:stop()
       pending = false
-    elseif z == 0 then
-      _menu.alt = false
-      _menu.key(n,z) -- always 1,0
-      if _menu.mode == true then _menu.redraw() end
     else
-      _menu.key(n,z) -- always 1,1
+      -- key 1 released but not within allowed short time so pass event to script
+      _menu.alt = false
+      if _menu.mode == true and _menu.locked == false then
+        -- In menu mode. Should treat long k1 press same as short press and get out
+        -- of menu mode. This avoids user getting confused with hitting k1 and it
+        -- not working because it was down a bit too long.
+        _menu.set_mode(false)
+      else
+        -- Not in menu mode so simply pass through the k1 up info to the script app
+        _menu.key(n,z) -- always 1,0
+      end
     end
-    -- key 2/3 pass
   else
+    -- key 2 or 3 so pass through to menu key handler
     _menu.key(n,z)
   end
+
+  -- Restart screen saver timer
   screen.ping()
 end
+
 
 -- _menu.set mode
 _menu.set_mode = function(mode)
