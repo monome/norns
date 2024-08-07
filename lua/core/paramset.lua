@@ -296,7 +296,7 @@ end
 -- can be hidden / shown.
 -- @tparam string id (no spaces)
 -- @tparam string name (can contain spaces)
--- @tparam int n
+-- @tparam int n the number of subsequent parameters that will be put into this group
 function ParamSet:add_group(id, name, n)
   if id == nil then id = "group" end
   n = type(name) == "number" and name or (n or 1)
