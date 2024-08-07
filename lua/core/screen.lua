@@ -57,9 +57,18 @@ end
 
 Screen.update = Screen.update_default
 
+Screen._current_aa = nil
+
 --- enable/disable anti-aliasing.
 -- @param state on(1) or off(0)
-Screen.aa = function(state) _norns.screen_aa(state) end
+Screen.aa = function(state) 
+  Screen._current_aa = state
+  _norns.screen_aa(state)
+end
+
+
+-- Get current anti-aliasing state
+Screen.current_aa = function() return Screen._current_aa end
 
 --- clear.
 Screen.clear = function() _norns.screen_clear() end

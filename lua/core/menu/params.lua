@@ -492,15 +492,20 @@ m.redraw = function()
             local label_width = screen.text_extents(label_str)
             local value_str = params:string(p)
             local value_width = screen.text_extents(value_str)
-            local original_font_size = screen.current_font_size()
-            local original_font_face = screen.current_font_face()
+            local orig_font_size = screen.current_font_size()
+            local orig_font_face = screen.current_font_face()
+            local orig_aa = screen.current_aa()
 
             if label_width + value_width + 1 > 127 then
               -- The value text is too long. First try using smaller font. Found that
               -- best somewhat smaller font is index 5 Roboto-Regular at size 7.
-              -- Anything smaller is simply not readable. The font for the edit params
-              -- page is set in core/menu.lua _menu.set_mode(). Default font size is 8
-              -- and default font face is 1.
+              -- Anything smaller is simply not readable. And it is important to make
+	      -- sure that anti-aliasing is off because it screws up some fonts like Robot.
+	      -- If want another smaller font can try 25 size 6, though it is actually wider
+	      -- than Roboto-Regular size 7. The font for the edit params page is set in 
+	      -- core/menu.lua _menu.set_mode(). Default font size is 8 and default font 
+	      -- face is 1.
+	      screen.aa(0)
               screen.font_face(5)
               screen.font_size(7)
               value_width = screen.text_extents(value_str)
@@ -515,13 +520,10 @@ m.redraw = function()
             -- Actually draw the value text
             screen.text_right(value_str)
 
-            -- If font size or face were changed, restore them
-            if screen.current_font_size() ~= original_font_size then
-              screen.font_size(original_font_size)
-            end
-            if screen.current_font_face() ~= original_font_face then
-              screen.font_face(original_font_face)
-            end
+            -- If font size, face, or anti-aliasing were changed, restore them
+            if screen.current_font_size() ~= orig_font_size then screen.font_size(orig_font_size) end
+            if screen.current_font_face() ~= orig_font_face then screen.font_face(orig_font_face) end
+            if screen.current_aa() ~= orig_aa then screen.aa(orig_aa) end
           end
         end
       end
