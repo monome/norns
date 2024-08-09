@@ -1028,18 +1028,6 @@ int _screen_clear(lua_State *l) {
     lua_check_num_args(0);
     screen_event_clear();
     lua_settop(l, 0);
-
-    // Since screen_event_clear() only puts item a request into a queue it turns
-    // out that the clearing of the screen can actually not be finished until
-    // after the next screen command has started. This is especially apparent
-    // if the next screen command is screen.display_image() for displaying
-    // a buffer. Frequently the end result is that the image buffer is not
-    // displayed at all or only part of it becomes visible. Therefore need to
-    // execute a command that gets a return value to make sure that the screen
-    // has finished being cleared before this function returns. Using
-    // _screen_current_point() here completely fixes the problem.
-    _screen_current_point(l);
-
     return 0;
 }
 
@@ -1411,7 +1399,7 @@ int _screen_display_image(lua_State *l) {
     _image_t *i = _image_check(l, 1);
     double x = luaL_checknumber(l, 2);
     double y = luaL_checknumber(l, 3);
-    screen_surface_display(i->surface, x, y);
+    screen_event_display_surface(i->surface, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -1436,7 +1424,7 @@ int _screen_display_image_region(lua_State *l) {
     double height = luaL_checknumber(l, 5);
     double x = luaL_checknumber(l, 6);
     double y = luaL_checknumber(l, 7);
-    screen_surface_display_region(i->surface, left, top, width, height, x, y);
+    screen_event_display_surface_region(i->surface, left, top, width, height, x, y);
     return 0;
 }
 
