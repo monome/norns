@@ -543,7 +543,7 @@ function ParamSet:read(filename, silent)
           local index = self.lookup[id]
 
           if index and self.params[index] and not param_already_set[index] then
-            if tonumber(value) ~= nil then
+            if self.params[index].t ~= self.tTEXT and tonumber(value) ~= nil then
               if self.params[index].t == self.tBINARY then
                 if self.params[index].behavior ~= "trigger" then
                   self.params[index]:set(tonumber(value), silent)
