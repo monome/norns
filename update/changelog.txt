@@ -1,3 +1,13 @@
+# 240911
+
+# norns 2.8.4
+
+- NEW norns font with 86 new glyphs #1783 @dstroud
+- FIX paramset fixes #1787 #1796 @dstroud
+- FIX binary params #1781 #1785 @dndrks
+- FIX keyboard wakes up screen #1778 @hallmar
+
+
 # 240424
 
 # norns 2.8.3
