@@ -25,7 +25,7 @@
 #include "hardware/screen.h"
 #include "hardware/screen/ssd1322.h"
 
-#define NUM_FONTS 68
+#define NUM_FONTS 69
 #define NUM_OPS 29
 
 static char font_path[NUM_FONTS][32];
@@ -231,7 +231,7 @@ void init_font_faces(void) {
     //------------------
     // not specifically bitmap but added to the tail of the font list to avoid breaking changes
     strcpy(font_path[font_idx++], "Particle.ttf");
-
+    strcpy(font_path[font_idx++], "norns.ttf"); // alias 04B_03__.TTF to norns.ttf
     assert(font_idx == NUM_FONTS);
 
 #if 0 // is this really necessary?
