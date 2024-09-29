@@ -26,6 +26,7 @@
 <br/>
 <h1>norns</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -61,25 +62,25 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/lib.elca.html">lib.elca</a></li>
-  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
-  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
   <li><a href="../modules/lib.filters.html">lib.filters</a></li>
   <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
-  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
-  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.lattice.html">lib.lattice</a></li>
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
-  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
@@ -88,7 +89,7 @@
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
-  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><strong>lib.voice</strong></li>
 </ul>
@@ -99,29 +100,31 @@
 
 <h1>Module <code>lib.voice</code></h1>
 <p>experimental voice allocation module</p>
-<p></p>
+<p>
+
+</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Voice.new">Voice.new (polyphony, mode)</a></td>
+	<td class="name" nowrap><a href="#new">new (polyphony, mode)</a></td>
 	<td class="summary">create a new Voice</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Voice:get">Voice:get ()</a></td>
+	<td class="name" nowrap><a href="#get">get ()</a></td>
 	<td class="summary">get next available voice Slot from pool, stealing an active slot if needed</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Voice:push">Voice:push (key, slot)</a></td>
+	<td class="name" nowrap><a href="#push">push (key, slot)</a></td>
 	<td class="summary">push</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Voice:pop">Voice:pop (key)</a></td>
+	<td class="name" nowrap><a href="#pop">pop (key)</a></td>
 	<td class="summary">pop</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Voice:release">Voice:release (slot)</a></td>
+	<td class="name" nowrap><a href="#release">release (slot)</a></td>
 	<td class="summary">return voice slot to pool</td>
 	</tr>
 </table>
@@ -134,8 +137,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "Voice.new"></a>
-    <strong>Voice.new (polyphony, mode)</strong>
+    <a name = "new"></a>
+    <strong>new (polyphony, mode)</strong>
     </dt>
     <dd>
     create a new Voice
@@ -146,9 +149,13 @@
         <li><span class="parameter">polyphony</span>
             <span class="types"><span class="type">number</span></span>
 
+
+
         </li>
         <li><span class="parameter">mode</span>
             <span class="types"><span class="type">number</span></span>
+
+
 
         </li>
     </ul>
@@ -158,6 +165,8 @@
 
            <span class="types"><span class="type">Voice</span></span>
 
+
+
     </ol>
 
 
@@ -165,8 +174,8 @@
 
 </dd>
     <dt>
-    <a name = "Voice:get"></a>
-    <strong>Voice:get ()</strong>
+    <a name = "get"></a>
+    <strong>get ()</strong>
     </dt>
     <dd>
     get next available voice Slot from pool, stealing an active slot if needed
@@ -179,8 +188,8 @@
 
 </dd>
     <dt>
-    <a name = "Voice:push"></a>
-    <strong>Voice:push (key, slot)</strong>
+    <a name = "push"></a>
+    <strong>push (key, slot)</strong>
     </dt>
     <dd>
     push
@@ -190,8 +199,12 @@
     <ul>
         <li><span class="parameter">key</span>
 
+
+
         </li>
         <li><span class="parameter">slot</span>
+
+
 
         </li>
     </ul>
@@ -202,8 +215,8 @@
 
 </dd>
     <dt>
-    <a name = "Voice:pop"></a>
-    <strong>Voice:pop (key)</strong>
+    <a name = "pop"></a>
+    <strong>pop (key)</strong>
     </dt>
     <dd>
     pop
@@ -213,6 +226,8 @@
     <ul>
         <li><span class="parameter">key</span>
 
+
+
         </li>
     </ul>
 
@@ -222,8 +237,8 @@
 
 </dd>
     <dt>
-    <a name = "Voice:release"></a>
-    <strong>Voice:release (slot)</strong>
+    <a name = "release"></a>
+    <strong>release (slot)</strong>
     </dt>
     <dd>
     return voice slot to pool
@@ -247,8 +262,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

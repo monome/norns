@@ -1,5 +1,5 @@
--- observable - an observable value
--- @module observable
+--- observable - an observable value
+-- @module lib.container.observable
 -- @alias Observable
 
 local WeakTable = require 'container/weaktable'

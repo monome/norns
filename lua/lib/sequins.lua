@@ -1,4 +1,10 @@
 --- sequins
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/sequins).
+--
+-- @module lib.sequins
+-- @alias S
 
 local S = {}
 
@@ -223,8 +229,8 @@ function S:reset()
 end
 
 
-------------------------------
---- metamethods
+-- ---------------------------
+--  metamethods
 
 -- calling the sequins library will create a new sequins object (S:new)
 -- calling a sequins object will produce a new value (S:next)

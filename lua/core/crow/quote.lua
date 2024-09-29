@@ -1,6 +1,8 @@
 --- Quote sub-library
 -- fns for stringifying data-structures
 -- output is a string that can be read back as lua code with call()
+-- @module core.crow.quote
+-- @alias Q
 
 local Q = {
   OPTIMIZE_LENGTH = false -- true reduces tx-length of strings, but takes longer to calc

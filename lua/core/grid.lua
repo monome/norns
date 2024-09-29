@@ -1,5 +1,10 @@
 --- Grid class
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/grid).
+--
 -- @module grid
+-- @alias Grid
 
 local vport = require 'vport'
 
@@ -241,7 +246,7 @@ end
 
 
 Grid.help = [[
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 grid.connect( port )          create a grid table using device [port]
                                 default [port] 1 if unspecified
                               (returns) grid table
@@ -255,7 +260,7 @@ grid.connect( port )          create a grid table using device [port]
                                 [level] range is 0..15
 :refresh()                    update the grid LED state
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 -- example
 
 lx,ly,lz = 0,0,0

@@ -1,5 +1,11 @@
 --- ParamSet class
+--
+-- See also the [norns script reference](https://monome.org/docs/norns/reference/)
+-- which has
+-- [examples for using params](https://monome.org/docs/norns/reference/params).
+--
 -- @module paramset
+-- @alias ParamSet
 
 local separator = require 'core/params/separator'
 local number = require 'core/params/number'
@@ -574,6 +580,7 @@ end
 --- delete from disk.
 -- @param filename either an absolute path, a number (for [scriptname]-[number].pset in local data folder) or nil (for default [scriptname].pset in local data folder)
 -- @tparam string name
+-- @param pset_number
 function ParamSet:delete(filename, name, pset_number)
   if type(filename) == "number" then
     local n = filename

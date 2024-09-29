@@ -1,5 +1,10 @@
 --- textentry UI
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/textentry).
+--
 -- @module lib.textentry
+-- @alias te
 
 local te_kbd_cb = require 'lib/textentry_kbd'
 local keyboard = require 'core/keyboard'

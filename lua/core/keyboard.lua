@@ -1,4 +1,8 @@
 --- keyboard (typing, not piano)
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/keyboard).
+--
 -- @module keyboard
 
 local tab = require 'tabutil'
@@ -95,8 +99,8 @@ end
 -- the setting of the user's keyboard layout, including national variant.
 -- if you want to detect the character, use @{char} or @{code_to_char}.
 --
--- @tparam string key    a code representing the physical key pressed.
--- @tparam number value    0 = released, 1 = pressed, 2 = pressed and held.
+-- @tparam string key   a code representing the physical key pressed.
+-- @tparam number value   0 = released, 1 = pressed, 2 = pressed and held.
 --
 function keyboard.code(key, value) end
 
@@ -105,7 +109,7 @@ function keyboard.code(key, value) end
 -- and punctuation - and space. will take account of the setting of the user's keyboard
 -- layout, including national variant.
 --
--- @tparam string ch    the printable character intended to be generated.
+-- @tparam string ch   the printable character intended to be generated.
 --
 function keyboard.char(ch) end
 
@@ -168,8 +172,8 @@ end
 -- layout and the state of the modifier keys currently pressed
 -- (eg a 'SHIFT' key).
 --
--- @tparam string code    a code representing a physical key,
---     as passed into @{code}.
+-- @tparam string code   a code representing a physical key,
+--   as passed into @{code}.
 -- @treturn string    a string, or nil if no conversion is possible.
 --
 function keyboard.code_to_char(code)

@@ -1,7 +1,8 @@
 --- Envelope graph drawing module.
 -- Subclass of Graph for drawing common envelope graphs. Includes DADSR, ADSR, ASR and AR (Perc).
 --
--- @module lib.EnvGraph
+-- @module lib.envgraph
+-- @alias EnvGraph
 -- @release v1.0.1
 -- @author Mark Eats
 

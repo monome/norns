@@ -1,6 +1,7 @@
 --- Screen class
 -- subset of cairo drawing functions. see https://www.cairographics.org/tutorial/
 -- @module screen
+-- @alias Screen
 
 local Screen = {}
 
@@ -174,8 +175,8 @@ Screen.text = function(str) _norns.screen_text(str) end
 --- draw left-aligned text, trimmed to specified width.
 -- (characters are removed from end of string until it fits.)
 -- uses currently selected font.
--- @tparam string str : text to write
--- @tparam number w: width 
+-- @tparam string str text to write
+-- @tparam number w width 
 Screen.text_trim = function(str, w) _norns.screen_text_trim(str, w) end
 
 --- draw text (left aligned) and rotated.
@@ -216,77 +217,77 @@ end
 Screen.current_point = function() return _norns.screen_current_point() end
 
 --- select font face.
--- @param index font face (see list, or Screen.font_face_names)
+-- @param index font face (see list, or Screen.font\_face\_names)
 --
--- 1 norns (default)
--- 2 ALEPH
--- 3 Roboto Thin
--- 4 Roboto Light
--- 5 Roboto Regular
--- 6 Roboto Medium
--- 7 Roboto Bold
--- 8 Roboto Black
--- 9 Roboto Thin Italic
--- 10 Roboto Light Italic
--- 11 Roboto Italic
--- 12 Roboto Medium Italic
--- 13 Roboto Bold Italic
--- 14 Roboto Black Italic
--- 15 VeraBd
--- 16 VeraBI
--- 17 VeraIt
--- 18 VeraMoBd
--- 19 VeraMoBI
--- 20 VeraMoIt
--- 21 VeraMono
--- 22 VeraSeBd
--- 23 VeraSe
--- 24 Vera
--- 25 bmp/tom-thumb
--- 26 creep
--- 27 ctrld-fixed-10b
--- 28 ctrld-fixed-10r
--- 29 ctrld-fixed-13b
--- 30 ctrld-fixed-13b-i
--- 31 ctrld-fixed-13r
--- 32 ctrld-fixed-13r-i
--- 33 ctrld-fixed-16b
--- 34 ctrld-fixed-16b-i
--- 35 ctrld-fixed-16r
--- 36 ctrld-fixed-16r-i
--- 37 scientifica-11
--- 38 scientificaBold-11
--- 39 scientificaItalic-11
--- 40 ter-u12b
--- 41 ter-u12n
--- 42 ter-u14b
--- 43 ter-u14n
--- 44 ter-u14v
--- 45 ter-u16b
--- 46 ter-u16n
--- 47 ter-u16v
--- 48 ter-u18b
--- 49 ter-u18n
--- 50 ter-u20b
--- 51 ter-u20n
--- 52 ter-u22b
--- 53 ter-u22n
--- 54 ter-u24b
--- 55 ter-u24n
--- 56 ter-u28b
--- 57 ter-u28n
--- 58 ter-u32b
--- 59 ter-u32n
--- 60 unscii-16-full.pcf
--- 61 unscii-16.pcf
--- 62 unscii-8-alt.pcf
--- 63 unscii-8-fantasy.pcf
--- 64 unscii-8-mcr.pcf
--- 65 unscii-8.pcf
--- 66 unscii-8-tall.pcf
--- 67 unscii-8-thin.pcf
--- 68 Particle
--- 69 04B_03 (aliased to norns.ttf)
+-- * 1 norns (default)
+-- * 2 ALEPH
+-- * 3 Roboto Thin
+-- * 4 Roboto Light
+-- * 5 Roboto Regular
+-- * 6 Roboto Medium
+-- * 7 Roboto Bold
+-- * 8 Roboto Black
+-- * 9 Roboto Thin Italic
+-- * 10 Roboto Light Italic
+-- * 11 Roboto Italic
+-- * 12 Roboto Medium Italic
+-- * 13 Roboto Bold Italic
+-- * 14 Roboto Black Italic
+-- * 15 VeraBd
+-- * 16 VeraBI
+-- * 17 VeraIt
+-- * 18 VeraMoBd
+-- * 19 VeraMoBI
+-- * 20 VeraMoIt
+-- * 21 VeraMono
+-- * 22 VeraSeBd
+-- * 23 VeraSe
+-- * 24 Vera
+-- * 25 bmp/tom-thumb
+-- * 26 creep
+-- * 27 ctrld-fixed-10b
+-- * 28 ctrld-fixed-10r
+-- * 29 ctrld-fixed-13b
+-- * 30 ctrld-fixed-13b-i
+-- * 31 ctrld-fixed-13r
+-- * 32 ctrld-fixed-13r-i
+-- * 33 ctrld-fixed-16b
+-- * 34 ctrld-fixed-16b-i
+-- * 35 ctrld-fixed-16r
+-- * 36 ctrld-fixed-16r-i
+-- * 37 scientifica-11
+-- * 38 scientificaBold-11
+-- * 39 scientificaItalic-11
+-- * 40 ter-u12b
+-- * 41 ter-u12n
+-- * 42 ter-u14b
+-- * 43 ter-u14n
+-- * 44 ter-u14v
+-- * 45 ter-u16b
+-- * 46 ter-u16n
+-- * 47 ter-u16v
+-- * 48 ter-u18b
+-- * 49 ter-u18n
+-- * 50 ter-u20b
+-- * 51 ter-u20n
+-- * 52 ter-u22b
+-- * 53 ter-u22n
+-- * 54 ter-u24b
+-- * 55 ter-u24n
+-- * 56 ter-u28b
+-- * 57 ter-u28n
+-- * 58 ter-u32b
+-- * 59 ter-u32n
+-- * 60 unscii-16-full.pcf
+-- * 61 unscii-16.pcf
+-- * 62 unscii-8-alt.pcf
+-- * 63 unscii-8-fantasy.pcf
+-- * 64 unscii-8-mcr.pcf
+-- * 65 unscii-8.pcf
+-- * 66 unscii-8-tall.pcf
+-- * 67 unscii-8-thin.pcf
+-- * 68 Particle
+-- * 69 04B_03 (aliased to norns.ttf)
 Screen.font_face = function(index) _norns.screen_font_face(index) end
 Screen.font_face_count = 68
 Screen.font_face_names = {
@@ -394,7 +395,7 @@ _norns.screen_circle = function(x, y, r)
 end
 
 --- export screenshot
--- @param filename: saved to dust/data/(script)/(filename).png
+-- @param filename saved to dust/data/(script)/(filename).png
 Screen.export_screenshot = function(filename) _norns.screen_export_screenshot(norns.state.data..filename..'.png') end
 
 --- display png
@@ -458,7 +459,7 @@ end
 Screen.poke = function(x, y, w, h, s) _norns.screen_poke(x, y, w, h, s) end
 
 --- rotate
--- @tparam number radians
+-- @tparam number r radians
 Screen.rotate = function(r) _norns.screen_rotate(r) end
 
 --- move origin position

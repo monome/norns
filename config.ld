@@ -1,14 +1,17 @@
 -- ldoc config
 project='norns'
 title='norns/docs'
--- file={'lua', 'matron/src/weaver.c', 'sc/core/Crone.sc'}
---[[file = {
-  'lua/core/screen.lua',
-  'lua/core/metro.lua'
+file={
+    'lua',
+    exclude = {
+        'lua/extn',
+        'lua/core/gamepad_model',
+        'lua/core/keymap',
+        'lua/core/menu',
+    },
 }
---]]
-file = 'lua'
 style='!pale'
+format='markdown'
 
 -- trying to trick ldoc into processing supercollider classes :S
 add_language_extension('sc', 'c')

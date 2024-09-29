@@ -1,5 +1,11 @@
 --- timeline sequencer
--- hotrod some clock & sequins structures for rapid playability
+--
+-- hotrod some clock & sequins structures for rapid playability.
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/timeline).
+--
+-- @module lib.timeline
+-- @alias TL
 
 --- globals are available on crow, otherwise require for norns
 local s = sequins or require 'sequins'
@@ -86,7 +92,7 @@ local dopred = function(p)
 end
 
 
---- pre-methods (chain into :loop etc)
+-- pre-methods (chain into :loop etc)
 -- works in all tl modes
 
 -- launch quantization to lock to a clock.sync
@@ -188,7 +194,7 @@ function TL:_real(t)
 end
 
 
---- post methods for operating on any tl object
+-- post methods for operating on any tl object
 
 -- stop a playing timeline
 -- NOTE: doesn't destroy the timeline. allows it to be restarted with :play

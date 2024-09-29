@@ -1,7 +1,8 @@
 --- Graph drawing module.
 -- Flexible graph drawing for waves, points, bars, etc.
 --
--- @module lib.Graph
+-- @module lib.graph
+-- @alias Graph
 -- @release v1.1.0
 -- @author Mark Eats
 
@@ -226,7 +227,7 @@ end
 -- @tparam number y_min Minimum value for y axis, defaults to 0.
 -- @tparam number y_max Maximum value for y axis, defaults to 1.
 -- @tparam string y_warp defines warping for y axis, accepts "lin" or "exp", defaults to "lin".
--- @tparam string style defines visual style, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar", defaults to "line".
+-- @tparam string style defines visual style, accepts "line", "point", "spline", "line\_and\_point", "spline\_and\_point" or "bar", defaults to "line".
 -- @tparam boolean show_x_axis Display the x axis if set to true, defaults to false.
 -- @tparam boolean show_y_axis Display the y axis if set to true, defaults to false.
 -- @treturn Graph Instance of Graph.
@@ -382,7 +383,7 @@ end
 function Graph:get_style() return self._style end
 
 --- Set style.
--- @tparam string style Style string, accepts "line", "point", "spline", "line_and_point", "spline_and_point" or "bar".
+-- @tparam string style Style string, accepts "line", "point", "spline", "line\_and\_point", "spline\_and\_point" or "bar".
 function Graph:set_style(style)
   self._style = style or "line"
   self._lines_dirty = true

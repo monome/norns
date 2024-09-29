@@ -26,6 +26,7 @@
 <br/>
 <h1>norns</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -61,25 +62,25 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/lib.elca.html">lib.elca</a></li>
-  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
-  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
   <li><a href="../modules/lib.filters.html">lib.filters</a></li>
   <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
-  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
-  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.lattice.html">lib.lattice</a></li>
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
-  <li><strong>lib.MusicUtil</strong></li>
+  <li><strong>lib.musicutil</strong></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
@@ -88,7 +89,7 @@
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
-  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
@@ -97,11 +98,11 @@
 
 <div id="content">
 
-<h1>Module <code>lib.MusicUtil</code></h1>
+<h1>Module <code>lib.musicutil</code></h1>
 <p>Music utility module.</p>
-<p>
- Utility methods for working with notes, scales and chords.
-</p>
+<p> Utility methods for working with notes, scales and chords.
+ The <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
+ has <a href="https://monome.org/docs/norns/reference/lib/musicutil">examples for this module</a>.</p>
     <h3>Info:</h3>
     <ul>
         <li><strong>Release</strong>: v1.1.2</li>
@@ -208,7 +209,7 @@
          MIDI note number (0-127) where scale will begin.
         </li>
         <li><span class="parameter">scale_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          String defining scale type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
         </li>
         <li><span class="parameter">octaves</span>
@@ -279,7 +280,7 @@
          MIDI note number (0-127) for chord.
         </li>
         <li><span class="parameter">chord_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          String defining chord type (eg, "major", "minor 7" or "sus4"), see class for full list.
         </li>
         <li><span class="parameter">inversion</span>
@@ -306,6 +307,12 @@
     </dt>
     <dd>
     Generate a chord using Roman chord notation for a given root note and scale.
+ This function <em>can</em> return notes that are outside the scale and will not try to resolve ambiguous notation with
+ context.</p>
+
+<p> See <a href="../modules/lib.musicutil.html#chord_types_for_note">chord_types_for_note</a> or <a href="../modules/lib.musicutil.html#generate_chord_scale_degree">generate_chord_scale_degree</a> if you want to constrain chords to in-scale pitches.</p>
+
+<p> See MusicUtil.SCALES for the supported scale types and MusicUtil.CHORDS for the chords that can be returned.
 
 
     <h3>Parameters:</h3>
@@ -315,13 +322,13 @@
          MIDI note number (0-127) defining the key.
         </li>
         <li><span class="parameter">scale_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          String defining scale type (eg, "Major", "Dorian".)
         </li>
         <li><span class="parameter">roman_chord_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Roman-numeral-style string defining chord type (eg, "V", "iv7" or "III+")
-    including limited bass notes (e.g. "iv6-9") and lowercase-letter inversion notation (e.g. "IIb" for first inversion)
+  including limited bass notes (e.g. "iv6-9") and lowercase-letter inversion notation (e.g. "IIb" for first inversion)
         </li>
     </ul>
 
@@ -333,9 +340,6 @@
     </ol>
 
 
-    <h3>See also:</h3>
-    <ul>
-    </ul>
 
 
 </dd>
@@ -345,7 +349,9 @@
     </dt>
     <dd>
     Generate a chord from a scale degree, for a given root note and key, using the
- system of tonal harmony from the European common-practice period.
+ system of tonal harmony from the European common-practice period. </p>
+
+<p> See MusicUtil.SCALE<em>CHORD</em>DEGREES for the specific chords assigned to each degree.
 
 
     <h3>Parameters:</h3>
@@ -355,10 +361,10 @@
          MIDI note number (0-127) defining the key.
         </li>
         <li><span class="parameter">scale_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          String defining scale type. Not all scales are supported; valid values
-    are "Major" (or "Ionian"), "Natural Minor" (or "Minor" or "Aeolian"), "Harmonic Minor",
-    "Melodic Minor", "Dorian", "Phrygian", "Lydian", "Mixolydian", or "Locrian".
+   are "Major" (or "Ionian"), "Natural Minor" (or "Minor" or "Aeolian"), "Harmonic Minor",
+   "Melodic Minor", "Dorian", "Phrygian", "Lydian", "Mixolydian", or "Locrian".
         </li>
         <li><span class="parameter">degree</span>
             <span class="types"><span class="type">integer</span></span>
@@ -379,9 +385,6 @@
     </ol>
 
 
-    <h3>See also:</h3>
-    <ul>
-    </ul>
 
 
 </dd>
@@ -404,7 +407,7 @@
          MIDI note number (0-127) for root of key.
         </li>
         <li><span class="parameter">key_type</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          String defining key type (eg, "major", "aeolian" or "neapolitan major"), see class for full list.
         </li>
     </ul>
@@ -506,7 +509,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         Name string (eg, "C#3").
     </ol>
 
@@ -768,8 +771,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

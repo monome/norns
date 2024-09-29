@@ -1,4 +1,8 @@
 --- "just" some intonation tables
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/intonation).
+--
 -- @module lib.intonation
 -- @alias JI
 
@@ -116,9 +120,9 @@ function JI.partch()
    }
 end
 
---- finally, jeff snyder's full 168-tone gamut
+--- finally, jeff snyder's full 168-tone gamut.
 -- see his disseration for reference:
--- http://scatter.server295.com/full-dissertation.pdf
+-- [http://scatter.server295.com/full-dissertation.pdf](http://scatter.server295.com/full-dissertation.pdf).
 -- @treturn table
 
 function JI.gamut()

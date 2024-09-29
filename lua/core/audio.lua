@@ -1,5 +1,10 @@
 --- Audio class
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/audio).
+--
 -- @module audio
+-- @alias Audio
 
 local cs = require 'controlspec'
 

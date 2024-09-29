@@ -1,4 +1,8 @@
 --- Euclidean rhythm (http://en.wikipedia.org/wiki/Euclidean_Rhythm)
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/er).
+--
 -- @module lib.er
 
 er = {}

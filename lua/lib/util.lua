@@ -47,7 +47,7 @@ util.file_exists = function(name)
 end
 
 --- query file size.
--- @tparam string name filepath
+-- @tparam string path filepath
 -- @treturn number filesize in bytes
 util.file_size = function(path)
   if path ~= nil then

@@ -26,6 +26,7 @@
 <br/>
 <h1>norns</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -61,25 +62,25 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/lib.elca.html">lib.elca</a></li>
-  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
-  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
   <li><a href="../modules/lib.filters.html">lib.filters</a></li>
   <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
-  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
-  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.lattice.html">lib.lattice</a></li>
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
-  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
@@ -88,7 +89,7 @@
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
-  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
@@ -99,93 +100,98 @@
 
 <h1>Module <code>midi</code></h1>
 <p>midi devices</p>
-<p></p>
+<p> The <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
+ has <a href="https://monome.org/docs/norns/reference/midi">examples for this module</a>.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Midi.new">Midi.new (id, name, dev)</a></td>
+	<td class="name" nowrap><a href="#new">new (id, name, dev)</a></td>
 	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi.add">Midi.add (dev)</a></td>
+	<td class="name" nowrap><a href="#add">add (dev)</a></td>
 	<td class="summary">static callback when any midi device is added.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi.remove">Midi.remove (dev)</a></td>
+	<td class="name" nowrap><a href="#remove">remove (dev)</a></td>
 	<td class="summary">static callback when any midi device is removed.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:send">Midi:send (data)</a></td>
+	<td class="name" nowrap><a href="#send">send (data)</a></td>
 	<td class="summary">send midi event to device.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:note_on">Midi:note_on (note, vel, ch)</a></td>
+	<td class="name" nowrap><a href="#note_on">note_on (note, vel, ch)</a></td>
 	<td class="summary">send midi note on event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:note_off">Midi:note_off (note, vel, ch)</a></td>
+	<td class="name" nowrap><a href="#note_off">note_off (note, vel, ch)</a></td>
 	<td class="summary">send midi note off event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:cc">Midi:cc (cc, val, ch)</a></td>
+	<td class="name" nowrap><a href="#cc">cc (cc, val, ch)</a></td>
 	<td class="summary">send midi continuous controller event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:pitchbend">Midi:pitchbend (val, ch)</a></td>
+	<td class="name" nowrap><a href="#pitchbend">pitchbend (val, ch)</a></td>
 	<td class="summary">send midi pitchbend event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:key_pressure">Midi:key_pressure (note, val, ch)</a></td>
+	<td class="name" nowrap><a href="#key_pressure">key_pressure (note, val, ch)</a></td>
 	<td class="summary">send midi key pressure event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:channel_pressure">Midi:channel_pressure (val, ch)</a></td>
+	<td class="name" nowrap><a href="#channel_pressure">channel_pressure (val, ch)</a></td>
 	<td class="summary">send midi channel pressure event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:program_change">Midi:program_change (val, ch)</a></td>
+	<td class="name" nowrap><a href="#program_change">program_change (val, ch)</a></td>
 	<td class="summary">send midi program change event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:start">Midi:start ()</a></td>
+	<td class="name" nowrap><a href="#start">start ()</a></td>
 	<td class="summary">send midi start event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:stop">Midi:stop ()</a></td>
+	<td class="name" nowrap><a href="#stop">stop ()</a></td>
 	<td class="summary">send midi stop event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:continue">Midi:continue ()</a></td>
+	<td class="name" nowrap><a href="#continue">continue ()</a></td>
 	<td class="summary">send midi continue event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:clock">Midi:clock ()</a></td>
+	<td class="name" nowrap><a href="#clock">clock ()</a></td>
 	<td class="summary">send midi clock event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:song_position">Midi:song_position (lsb, msb)</a></td>
+	<td class="name" nowrap><a href="#song_position">song_position (lsb, msb)</a></td>
 	<td class="summary">send midi song position event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi:song_select">Midi:song_select (val)</a></td>
+	<td class="name" nowrap><a href="#song_select">song_select (val)</a></td>
 	<td class="summary">send midi song select event.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi.connect">Midi.connect (n)</a></td>
+	<td class="name" nowrap><a href="#clock_receive">clock_receive (enabled)</a></td>
+	<td class="summary">enable/disable clock reception from this device</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#connect">connect (n)</a></td>
 	<td class="summary">create device, returns object with handler and send.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi.cleanup">Midi.cleanup ()</a></td>
+	<td class="name" nowrap><a href="#cleanup">cleanup ()</a></td>
 	<td class="summary">clear handlers.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi.to_data">Midi.to_data (msg)</a></td>
+	<td class="name" nowrap><a href="#to_data">to_data (msg)</a></td>
 	<td class="summary">convert msg to data (midi bytes).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Midi.to_msg">Midi.to_msg (data)</a></td>
+	<td class="name" nowrap><a href="#to_msg">to_msg (data)</a></td>
 	<td class="summary">convert data (midi bytes) to msg.</td>
 	</tr>
 </table>
@@ -198,8 +204,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "Midi.new"></a>
-    <strong>Midi.new (id, name, dev)</strong>
+    <a name = "new"></a>
+    <strong>new (id, name, dev)</strong>
     </dt>
     <dd>
     constructor
@@ -212,7 +218,7 @@
          : arbitrary numeric identifier
         </li>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          : name
         </li>
         <li><span class="parameter">dev</span>
@@ -227,8 +233,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi.add"></a>
-    <strong>Midi.add (dev)</strong>
+    <a name = "add"></a>
+    <strong>add (dev)</strong>
     </dt>
     <dd>
     static callback when any midi device is added.
@@ -248,8 +254,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi.remove"></a>
-    <strong>Midi.remove (dev)</strong>
+    <a name = "remove"></a>
+    <strong>remove (dev)</strong>
     </dt>
     <dd>
     static callback when any midi device is removed.
@@ -269,8 +275,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:send"></a>
-    <strong>Midi:send (data)</strong>
+    <a name = "send"></a>
+    <strong>send (data)</strong>
     </dt>
     <dd>
     send midi event to device.
@@ -279,6 +285,8 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">data</span>
+
+
 
         </li>
     </ul>
@@ -289,8 +297,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:note_on"></a>
-    <strong>Midi:note_on (note, vel, ch)</strong>
+    <a name = "note_on"></a>
+    <strong>note_on (note, vel, ch)</strong>
     </dt>
     <dd>
     send midi note on event.
@@ -318,8 +326,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:note_off"></a>
-    <strong>Midi:note_off (note, vel, ch)</strong>
+    <a name = "note_off"></a>
+    <strong>note_off (note, vel, ch)</strong>
     </dt>
     <dd>
     send midi note off event.
@@ -347,8 +355,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:cc"></a>
-    <strong>Midi:cc (cc, val, ch)</strong>
+    <a name = "cc"></a>
+    <strong>cc (cc, val, ch)</strong>
     </dt>
     <dd>
     send midi continuous controller event.
@@ -376,8 +384,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:pitchbend"></a>
-    <strong>Midi:pitchbend (val, ch)</strong>
+    <a name = "pitchbend"></a>
+    <strong>pitchbend (val, ch)</strong>
     </dt>
     <dd>
     send midi pitchbend event.
@@ -401,8 +409,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:key_pressure"></a>
-    <strong>Midi:key_pressure (note, val, ch)</strong>
+    <a name = "key_pressure"></a>
+    <strong>key_pressure (note, val, ch)</strong>
     </dt>
     <dd>
     send midi key pressure event.
@@ -430,8 +438,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:channel_pressure"></a>
-    <strong>Midi:channel_pressure (val, ch)</strong>
+    <a name = "channel_pressure"></a>
+    <strong>channel_pressure (val, ch)</strong>
     </dt>
     <dd>
     send midi channel pressure event.
@@ -455,8 +463,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:program_change"></a>
-    <strong>Midi:program_change (val, ch)</strong>
+    <a name = "program_change"></a>
+    <strong>program_change (val, ch)</strong>
     </dt>
     <dd>
     send midi program change event.
@@ -480,8 +488,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:start"></a>
-    <strong>Midi:start ()</strong>
+    <a name = "start"></a>
+    <strong>start ()</strong>
     </dt>
     <dd>
     send midi start event.
@@ -494,8 +502,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:stop"></a>
-    <strong>Midi:stop ()</strong>
+    <a name = "stop"></a>
+    <strong>stop ()</strong>
     </dt>
     <dd>
     send midi stop event.
@@ -508,8 +516,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:continue"></a>
-    <strong>Midi:continue ()</strong>
+    <a name = "continue"></a>
+    <strong>continue ()</strong>
     </dt>
     <dd>
     send midi continue event.
@@ -522,8 +530,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:clock"></a>
-    <strong>Midi:clock ()</strong>
+    <a name = "clock"></a>
+    <strong>clock ()</strong>
     </dt>
     <dd>
     send midi clock event.
@@ -536,8 +544,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:song_position"></a>
-    <strong>Midi:song_position (lsb, msb)</strong>
+    <a name = "song_position"></a>
+    <strong>song_position (lsb, msb)</strong>
     </dt>
     <dd>
     send midi song position event.
@@ -561,8 +569,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi:song_select"></a>
-    <strong>Midi:song_select (val)</strong>
+    <a name = "song_select"></a>
+    <strong>song_select (val)</strong>
     </dt>
     <dd>
     send midi song select event.
@@ -582,8 +590,31 @@
 
 </dd>
     <dt>
-    <a name = "Midi.connect"></a>
-    <strong>Midi.connect (n)</strong>
+    <a name = "clock_receive"></a>
+    <strong>clock_receive (enabled)</strong>
+    </dt>
+    <dd>
+    enable/disable clock reception from this device
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">enabled</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "connect"></a>
+    <strong>connect (n)</strong>
     </dt>
     <dd>
     create device, returns object with handler and send.
@@ -603,8 +634,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi.cleanup"></a>
-    <strong>Midi.cleanup ()</strong>
+    <a name = "cleanup"></a>
+    <strong>cleanup ()</strong>
     </dt>
     <dd>
     clear handlers.
@@ -617,8 +648,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi.to_data"></a>
-    <strong>Midi.to_data (msg)</strong>
+    <a name = "to_data"></a>
+    <strong>to_data (msg)</strong>
     </dt>
     <dd>
     convert msg to data (midi bytes).
@@ -627,7 +658,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">msg</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          :
         </li>
     </ul>
@@ -635,7 +666,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         data : table of midi status and data bytes
     </ol>
 
@@ -644,8 +675,8 @@
 
 </dd>
     <dt>
-    <a name = "Midi.to_msg"></a>
-    <strong>Midi.to_msg (data)</strong>
+    <a name = "to_msg"></a>
+    <strong>to_msg (data)</strong>
     </dt>
     <dd>
     convert data (midi bytes) to msg.
@@ -654,7 +685,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">data</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          :
         </li>
     </ul>
@@ -662,7 +693,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         msg : midi message table, contents vary depending on message
     </ol>
 
@@ -676,8 +707,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
