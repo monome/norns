@@ -252,8 +252,11 @@ end
 
 --- print audio file info 
 -- @tparam string path (from dust directory)
+-- @treturn integer number of audio channels
+-- @treturn integer number of samples
+-- @treturn integer sample rate
 function Audio.file_info(path)
-  -- dur, ch, rate
+  -- ch, samples, rate
   --print("file_info: " .. path)
   return _norns.sound_file_inspect(path)
 end
