@@ -1,5 +1,5 @@
--- weaktable - a table with weakly held keys
--- @module weaktable
+--- weaktable - a table with weakly held keys
+-- @module lib.container.weaktable
 -- @alias WeakTable
 
 local WeakTable = {}
@@ -11,7 +11,7 @@ WeakTable.__mode = "k"  --  invoke dark magic: https://www.lua.org/pil/17.html
 -- A table with weakly held keys allows objects to be used as keys within the
 -- table but it won't prevent those objects from being garbage collected
 --
--- @tparam table initial Initial table contents, optional.
+-- @tparam table t Initial table contents, optional.
 -- @treturn table
 function WeakTable.new(t)
   local t = setmetatable(t or {}, WeakTable)

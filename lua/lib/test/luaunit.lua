@@ -1687,9 +1687,9 @@ function M.assertNotIsMinusZero(value, extra_msg_or_nil)
     end
 end
 
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 --                     Compatibility layer
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 
 -- for compatibility with LuaUnit v2.x
 function M.wrapFunctions()
@@ -1858,11 +1858,11 @@ for _,v in ipairs( list_of_funcs ) do
     end
 end
 
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 --
 --                     Outputters
 --
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 
 -- A common "base" class for outputters
 -- For concepts involved (class inheritance) see http://www.lua.org/pil/16.2.html
@@ -1942,9 +1942,9 @@ TapOutput.__class__ = 'TapOutput'
 
 -- class TapOutput end
 
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 --                     class JUnitOutput
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 
 -- See directory junitxml for more information about the junit format
 local JUnitOutput = genericOutput.new() -- derived class
@@ -2029,9 +2029,9 @@ JUnitOutput.__class__ = 'JUnitOutput'
 
 -- class TapOutput end
 
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 --                     class TextOutput
-----------------------------------------------------------------
+-- -------------------------------------------------------------
 
 --[[
 
@@ -2114,11 +2114,11 @@ Tests run: 2, Failures: 1, Errors: 0, Skipped: 0
 
 
 -- LuaUnit
----- non verbose
+-- -- non verbose
 * display . or F or E when running tests
----- verbose
+-- -- verbose
 * display test name + ok/fail
-----
+-- --
 * blank line
 * number) ERROR or FAILURE: TestName
    Stack trace

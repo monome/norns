@@ -123,7 +123,11 @@ sudo luarocks install ldoc
 
 to generate the docs:
 
-`ldoc .` in the root norns folder
+```
+ldoc .
+```
+in the root norns folder. it should run without errors or warnings.
 
-To read the documentation, point the browser window with Maiden loaded to [http://norns.local/doc](http://norns.local/doc) (or use IP address if this doesn't work).
+to read the documentation, point the browser window with Maiden loaded to [http://norns.local/doc](http://norns.local/doc) (or use IP address if this doesn't work).
 
+to install the documentation in [the docs website](https://monome.org/docs/) please copy it over manually to [the site's repo](https://github.com/monome/docs/).

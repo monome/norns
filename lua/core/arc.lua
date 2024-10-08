@@ -1,5 +1,10 @@
 --- Arc
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/arc).
+--
 -- @module arc
+-- @alias Arc
 
 local tab = require 'tabutil'
 

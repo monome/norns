@@ -1,7 +1,11 @@
 --- Music utility module.
--- Utility methods for working with notes, scales and chords.
 --
--- @module lib.MusicUtil
+-- Utility methods for working with notes, scales and chords.
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/musicutil).
+--
+-- @module lib.musicutil
+-- @alias MusicUtil
 -- @release v1.1.2
 -- @author Mark Eats
 
@@ -332,14 +336,18 @@ function MusicUtil.generate_chord(root_num, chord_type, inversion)
 end
 
 --- Generate a chord using Roman chord notation for a given root note and scale.
+-- This function *can* return notes that are outside the scale and will not try to resolve ambiguous notation with
+-- context.
+--
+-- See @{chord_types_for_note} or @{generate_chord_scale_degree} if you want to constrain chords to in-scale pitches.
+--
+-- See MusicUtil.SCALES for the supported scale types and MusicUtil.CHORDS for the chords that can be returned.
+--
 -- @tparam integer root_num MIDI note number (0-127) defining the key.
 -- @tparam string scale_type String defining scale type (eg, "Major", "Dorian".)
 -- @tparam string roman_chord_type Roman-numeral-style string defining chord type (eg, "V", "iv7" or "III+")
---    including limited bass notes (e.g. "iv6-9") and lowercase-letter inversion notation (e.g. "IIb" for first inversion)
+--  including limited bass notes (e.g. "iv6-9") and lowercase-letter inversion notation (e.g. "IIb" for first inversion)
 -- @treturn {integer...} Array of MIDI note numbers.
--- @see See MusicUtil.SCALES for the supported scale types and MusicUtil.CHORDS for the chords that can be returned.
--- @see This function *can* return notes that are outside the scale and will not try to resolve ambiguous notation with
---      context. See chord_type_for_note or generate_chord_scale_degree if you want to constrain chords to in-scale pitches.
 function MusicUtil.generate_chord_roman(root_num, scale_type, roman_chord_type)
 
   if type(root_num) ~= "number" or root_num < 0 or root_num > 127 then return nil end
@@ -481,14 +489,16 @@ end
 
 --- Generate a chord from a scale degree, for a given root note and key, using the
 --- system of tonal harmony from the European common-practice period.
+--
+-- See MusicUtil.SCALE_CHORD_DEGREES for the specific chords assigned to each degree.
+--
 -- @tparam integer root_num MIDI note number (0-127) defining the key.
 -- @tparam string scale_type String defining scale type. Not all scales are supported; valid values 
---    are "Major" (or "Ionian"), "Natural Minor" (or "Minor" or "Aeolian"), "Harmonic Minor", 
---    "Melodic Minor", "Dorian", "Phrygian", "Lydian", "Mixolydian", or "Locrian".
+--   are "Major" (or "Ionian"), "Natural Minor" (or "Minor" or "Aeolian"), "Harmonic Minor", 
+--   "Melodic Minor", "Dorian", "Phrygian", "Lydian", "Mixolydian", or "Locrian".
 -- @tparam integer degree Number between 1-7 selecting the degree of the chord.
 -- @tparam[opt] boolean seventh Return the 7th chord if set to true (optional)
 -- @treturn {integer...} Array of MIDI note numbers.
--- @see See MusicUtil.SCALE_CHORD_DEGREES for the specific chords assigned to each degree.
 function MusicUtil.generate_chord_scale_degree(root_num, scale_type, degree, seventh)
   local d = util.clamp(degree, 1, 7)
   if seventh then d = d + 7 end
@@ -502,7 +512,7 @@ function MusicUtil.generate_chord_scale_degree(root_num, scale_type, degree, sev
   return MusicUtil.generate_chord_roman(root_num, scale_type, scale_degree_data.chords[d])
 end
 
--- Offline test function to confirm that SCALE_CHORD_DEGREES table generates in-scale notes only
+-- Offline test function to confirm that SCALE\_CHORD\_DEGREES table generates in-scale notes only
 --[[
 local function test_scale_degrees()
   for i = 1, #MusicUtil.SCALE_CHORD_DEGREES do

@@ -1,4 +1,8 @@
 --- table utility
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/tabutil).
+--
 -- @module lib.tabutil
 -- @alias tab
 
@@ -45,7 +49,7 @@ end
 --- given a simple table of primitives, 
 --- "invert" it so that values become keys and vice versa.
 --- this allows more efficient checks on multiple values
--- @param t: a simple table
+-- @param t a simple table
 tab.invert = function(t)
   local inv = {}
   for k,v in pairs(t) do
@@ -267,7 +271,7 @@ function tab.update(table_to_mutate, updated_values)
 end
 
 --- Create a new table with all values that pass the test implemented by the provided function.
--- @tparam table t table to check
+-- @tparam table tbl table to check
 -- @param condition callback function that tests all values of provided table, passes value and key as arguments
 -- @treturn table table with values that pass the test
 tab.select_values = function(tbl, condition)

@@ -26,6 +26,7 @@
 <br/>
 <h1>norns</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -61,25 +62,25 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/lib.elca.html">lib.elca</a></li>
-  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
-  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
   <li><a href="../modules/lib.filters.html">lib.filters</a></li>
   <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
-  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
-  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.lattice.html">lib.lattice</a></li>
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
-  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
@@ -88,7 +89,7 @@
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
-  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
@@ -99,33 +100,34 @@
 
 <h1>Module <code>engine</code></h1>
 <p>Engine class</p>
-<p></p>
+<p> The <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
+ has <a href="https://monome.org/docs/norns/reference/engine">examples for this module</a>.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Engine.register">Engine.register (data, count)</a></td>
+	<td class="name" nowrap><a href="#register">register (data, count)</a></td>
 	<td class="summary">register all available engines.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.register_commands">Engine.register_commands (data, count)</a></td>
+	<td class="name" nowrap><a href="#register_commands">register_commands (data, count)</a></td>
 	<td class="summary">populate the current engine object with available commands.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.add_command">Engine.add_command (id, name, fmt)</a></td>
+	<td class="name" nowrap><a href="#add_command">add_command (id, name, fmt)</a></td>
 	<td class="summary">add a command to the current engine.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.list_commands">Engine.list_commands ()</a></td>
+	<td class="name" nowrap><a href="#list_commands">list_commands ()</a></td>
 	<td class="summary">print all commands reported from the engine</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.load">Engine.load (name, callback)</a></td>
+	<td class="name" nowrap><a href="#load">load (name, callback)</a></td>
 	<td class="summary">load a named engine, with a callback.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Engine.__index">Engine.__index (self, idx)</a></td>
+	<td class="name" nowrap><a href="#__index">__index (self, idx)</a></td>
 	<td class="summary">custom getters.</td>
 	</tr>
 </table>
@@ -138,8 +140,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "Engine.register"></a>
-    <strong>Engine.register (data, count)</strong>
+    <a name = "register"></a>
+    <strong>register (data, count)</strong>
     </dt>
     <dd>
     register all available engines.
@@ -149,10 +151,18 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">data</span>
-         - an array of strings
+
+<ul>
+    <li>an array of strings</li>
+</ul>
+
         </li>
         <li><span class="parameter">count</span>
-         - number of names
+
+<ul>
+    <li>number of names</li>
+</ul>
+
         </li>
     </ul>
 
@@ -162,22 +172,30 @@
 
 </dd>
     <dt>
-    <a name = "Engine.register_commands"></a>
-    <strong>Engine.register_commands (data, count)</strong>
+    <a name = "register_commands"></a>
+    <strong>register_commands (data, count)</strong>
     </dt>
     <dd>
     populate the current engine object with available commands.
  called from OSC handler.
- NB: we *can* count on the order of entries to be meaningful
+ NB: we <em>can</em> count on the order of entries to be meaningful
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">data</span>
-         - array of [name, format]
+
+<ul>
+    <li>array of [name, format]</li>
+</ul>
+
         </li>
         <li><span class="parameter">count</span>
-         - number of commands
+
+<ul>
+    <li>number of commands</li>
+</ul>
+
         </li>
     </ul>
 
@@ -187,8 +205,8 @@
 
 </dd>
     <dt>
-    <a name = "Engine.add_command"></a>
-    <strong>Engine.add_command (id, name, fmt)</strong>
+    <a name = "add_command"></a>
+    <strong>add_command (id, name, fmt)</strong>
     </dt>
     <dd>
     add a command to the current engine.
@@ -197,13 +215,25 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">id</span>
-         - integer index
+
+<ul>
+    <li>integer index</li>
+</ul>
+
         </li>
         <li><span class="parameter">name</span>
-         - command name (string)
+
+<ul>
+    <li>command name (string)</li>
+</ul>
+
         </li>
         <li><span class="parameter">fmt</span>
-         - OSC format string (e.g. 'isf' for "int string float")
+
+<ul>
+    <li>OSC format string (e.g. 'isf' for "int string float")</li>
+</ul>
+
         </li>
     </ul>
 
@@ -213,8 +243,8 @@
 
 </dd>
     <dt>
-    <a name = "Engine.list_commands"></a>
-    <strong>Engine.list_commands ()</strong>
+    <a name = "list_commands"></a>
+    <strong>list_commands ()</strong>
     </dt>
     <dd>
     print all commands reported from the engine
@@ -227,8 +257,8 @@
 
 </dd>
     <dt>
-    <a name = "Engine.load"></a>
-    <strong>Engine.load (name, callback)</strong>
+    <a name = "load"></a>
+    <strong>load (name, callback)</strong>
     </dt>
     <dd>
     load a named engine, with a callback.
@@ -237,17 +267,29 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-         - name of engine
+
+<ul>
+    <li>name of engine</li>
+</ul>
+
         </li>
         <li><span class="parameter">callback</span>
-         - function to call on engine load. will receive command list
+
+<ul>
+    <li>function to call on engine load. will receive command list</li>
+</ul>
+
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        - false if an engine load is already pending (nothing happens), true otherwise
+
+<ul>
+    <li>false if an engine load is already pending (nothing happens), true otherwise</li>
+</ul>
+
     </ol>
 
 
@@ -255,8 +297,8 @@
 
 </dd>
     <dt>
-    <a name = "Engine.__index"></a>
-    <strong>Engine.__index (self, idx)</strong>
+    <a name = "__index"></a>
+    <strong>__index (self, idx)</strong>
     </dt>
     <dd>
     custom getters.
@@ -268,8 +310,12 @@
     <ul>
         <li><span class="parameter">self</span>
 
+
+
         </li>
         <li><span class="parameter">idx</span>
+
+
 
         </li>
     </ul>
@@ -285,8 +331,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

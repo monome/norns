@@ -26,6 +26,7 @@
 <br/>
 <h1>norns</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -61,25 +62,25 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/lib.elca.html">lib.elca</a></li>
-  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
-  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
   <li><a href="../modules/lib.filters.html">lib.filters</a></li>
   <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
-  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
-  <li><strong>Lattice</strong></li>
+  <li><strong>lib.lattice</strong></li>
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
-  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
@@ -88,7 +89,7 @@
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
-  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
@@ -97,13 +98,14 @@
 
 <div id="content">
 
-<h1>Module <code>Lattice</code></h1>
+<h1>Module <code>lib.lattice</code></h1>
 <p>module for creating a lattice of sprockets based on a single fast "superclock"</p>
-<p></p>
+<p> The <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
+ has <a href="https://monome.org/docs/norns/reference/lib/lattice">examples for this module</a>.</p>
     <h3>Info:</h3>
     <ul>
         <li><strong>Release</strong>: v2.0</li>
-        <li><strong>Author</strong>: tyleretters & ezra & zack & rylee</li>
+        <li><strong>Author</strong>: tyleretters &amp; ezra &amp; zack &amp; rylee</li>
     </ul>
 
 
@@ -187,15 +189,15 @@
 	<td class="summary">set the division of the sprocket</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Sprocket:set_action">Sprocket:set_action (the)</a></td>
+	<td class="name" nowrap><a href="#Sprocket:set_action">Sprocket:set_action (fn)</a></td>
 	<td class="summary">set the action for this sprocket</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Sprocket:set_swing">Sprocket:set_swing (the)</a></td>
+	<td class="name" nowrap><a href="#Sprocket:set_swing">Sprocket:set_swing (swing)</a></td>
 	<td class="summary">set the swing of the sprocket</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Sprocket:set_delay">Sprocket:set_delay (of)</a></td>
+	<td class="name" nowrap><a href="#Sprocket:set_delay">Sprocket:set_delay (delay)</a></td>
 	<td class="summary">set the delay for this sprocket</td>
 	</tr>
 </table>
@@ -218,7 +220,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">args</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          optional named attributes are:
  - "auto" (boolean) turn off "auto" pulses from the norns clock, defaults to true
  - "ppqn" (number) the number of pulses per quarter cycle of this superclock, defaults to 96
@@ -229,7 +231,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         a new lattice
     </ol>
 
@@ -333,6 +335,8 @@
     <ul>
         <li><span class="parameter">_</span>
 
+
+
         </li>
     </ul>
 
@@ -352,7 +356,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          this lattice
         </li>
     </ul>
@@ -387,14 +391,19 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">args</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         optional named attributes are:
- - "action" (function) called on each step of this division (lattice.transport is passed as the argument), defaults to a no-op
- - "division" (number) the division of the sprocket, defaults to 1/4
- - "enabled" (boolean) is this sprocket enabled, defaults to true
- - "swing" (number) is the percentage of swing (0 - 100%), defaults to 50
- - "delay" (number) specifies amount of delay, as fraction of division (0.0 - 1.0), defaults to 0
- - "order" (number) specifies the place in line this lattice occupies from 1 to 5, lower first, defaults to 3
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+
+<p> optional named attributes are:</p>
+
+<ul>
+    <li>"action" (function) called on each step of this division (lattice.transport is passed as the argument), defaults to a no-op</li>
+    <li>"division" (number) the division of the sprocket, defaults to 1/4</li>
+    <li>"enabled" (boolean) is this sprocket enabled, defaults to true</li>
+    <li>"swing" (number) is the percentage of swing (0 - 100%), defaults to 50</li>
+    <li>"delay" (number) specifies amount of delay, as fraction of division (0.0 - 1.0), defaults to 0</li>
+    <li>"order" (number) specifies the place in line this lattice occupies from 1 to 5, lower first, defaults to 3</li>
+</ul>
+
          (<em>optional</em>)
         </li>
     </ul>
@@ -402,7 +411,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         a new sprocket
     </ol>
 
@@ -421,6 +430,8 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">args</span>
+
+
 
         </li>
     </ul>
@@ -457,13 +468,15 @@
     <ul>
         <li><span class="parameter">args</span>
 
+
+
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         a new sprocket
     </ol>
 
@@ -550,7 +563,7 @@
 </dd>
     <dt>
     <a name = "Sprocket:set_action"></a>
-    <strong>Sprocket:set_action (the)</strong>
+    <strong>Sprocket:set_action (fn)</strong>
     </dt>
     <dd>
     set the action for this sprocket
@@ -558,9 +571,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">the</span>
-            <span class="types"><span class="type">function</span></span>
-         action
+        <li><span class="parameter">fn</span>
+         the action
         </li>
     </ul>
 
@@ -571,7 +583,7 @@
 </dd>
     <dt>
     <a name = "Sprocket:set_swing"></a>
-    <strong>Sprocket:set_swing (the)</strong>
+    <strong>Sprocket:set_swing (swing)</strong>
     </dt>
     <dd>
     set the swing of the sprocket
@@ -579,9 +591,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">the</span>
-            <span class="types"><span class="type">number</span></span>
-         swing value 0-100%
+        <li><span class="parameter">swing</span>
+         number the swing value 0-100%
         </li>
     </ul>
 
@@ -592,7 +603,7 @@
 </dd>
     <dt>
     <a name = "Sprocket:set_delay"></a>
-    <strong>Sprocket:set_delay (of)</strong>
+    <strong>Sprocket:set_delay (delay)</strong>
     </dt>
     <dd>
     set the delay for this sprocket
@@ -600,9 +611,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">of</span>
-            <span class="types"><span class="type">fraction</span></span>
-         the time between beats to delay (0-1)
+        <li><span class="parameter">delay</span>
+         fraction of the time between beats to delay (0-1)
         </li>
     </ul>
 
@@ -617,8 +627,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

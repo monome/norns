@@ -1,6 +1,10 @@
 ---- module for creating a lattice of sprockets based on a single fast "superclock"
 --
--- @module Lattice
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/lattice).
+--
+-- @module lib.lattice
+-- @alias Lattice
 -- @release v2.0
 -- @author tyleretters & ezra & zack & rylee
 
@@ -128,12 +132,13 @@ end
 
 --- factory method to add a new sprocket to this lattice
 -- @tparam[opt] table args optional named attributes are:
--- - "action" (function) called on each step of this division (lattice.transport is passed as the argument), defaults to a no-op
--- - "division" (number) the division of the sprocket, defaults to 1/4
--- - "enabled" (boolean) is this sprocket enabled, defaults to true
--- - "swing" (number) is the percentage of swing (0 - 100%), defaults to 50
--- - "delay" (number) specifies amount of delay, as fraction of division (0.0 - 1.0), defaults to 0
--- - "order" (number) specifies the place in line this lattice occupies from 1 to 5, lower first, defaults to 3
+--
+-- * "action" (function) called on each step of this division (lattice.transport is passed as the argument), defaults to a no-op
+-- * "division" (number) the division of the sprocket, defaults to 1/4
+-- * "enabled" (boolean) is this sprocket enabled, defaults to true
+-- * "swing" (number) is the percentage of swing (0 - 100%), defaults to 50
+-- * "delay" (number) specifies amount of delay, as fraction of division (0.0 - 1.0), defaults to 0
+-- * "order" (number) specifies the place in line this lattice occupies from 1 to 5, lower first, defaults to 3
 -- @treturn table a new sprocket
 function Lattice:new_sprocket(args)
   self.sprocket_id_counter = self.sprocket_id_counter + 1
@@ -215,19 +220,19 @@ function Sprocket:set_division(n)
 end
 
 --- set the action for this sprocket
--- @tparam function the action
+-- @param fn the action
 function Sprocket:set_action(fn)
   self.action = fn
 end
 
 --- set the swing of the sprocket
--- @tparam number the swing value 0-100%
+-- @param swing number the swing value 0-100%
 function Sprocket:set_swing(swing)
   self.swing = util.clamp(swing,0,100)
 end
 
 --- set the delay for this sprocket
--- @tparam fraction of the time between beats to delay (0-1)
+-- @param delay fraction of the time between beats to delay (0-1)
 function Sprocket:set_delay(delay)
   self.delay_new = util.clamp(delay,0,1)
 end

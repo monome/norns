@@ -1,6 +1,6 @@
---- hotswap library
+-- hotswap library
 
---- globals are available on crow, otherwise require for norns
+-- globals are available on crow, otherwise require for norns
 local require = require or function() end
 local s = sequins or require 'lib/sequins'
 local tl = timeline or require 'lib/timeline'

@@ -26,6 +26,7 @@
 <br/>
 <h1>norns</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -61,25 +62,25 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><strong>lib.elca</strong></li>
-  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
-  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
   <li><a href="../modules/lib.filters.html">lib.filters</a></li>
   <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
-  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
-  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.lattice.html">lib.lattice</a></li>
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
-  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
@@ -88,7 +89,7 @@
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
-  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
@@ -99,38 +100,40 @@
 
 <h1>Module <code>lib.elca</code></h1>
 <p>elementary cellular automata</p>
-<p></p>
+<p>
+
+</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#CA.new">CA.new ()</a></td>
+	<td class="name" nowrap><a href="#new">new ()</a></td>
 	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#CA:update">CA:update ()</a></td>
+	<td class="name" nowrap><a href="#update">update ()</a></td>
 	<td class="summary">update all state</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#CA:neighbors">CA:neighbors (i)</a></td>
+	<td class="name" nowrap><a href="#neighbors">neighbors (i)</a></td>
 	<td class="summary">helper: return three values to use for neighbor code</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#CA.code">CA.code (l, c, r)</a></td>
+	<td class="name" nowrap><a href="#code">code (l, c, r)</a></td>
 	<td class="summary">get binary code for value given cell and neighbors</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#CA:window">CA:window (n)</a></td>
+	<td class="name" nowrap><a href="#window">window (n)</a></td>
 	<td class="summary">return 8 cells at current offset</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#CA:set_rule_by_state">CA:set_rule_by_state (val, l, c, r)</a></td>
+	<td class="name" nowrap><a href="#set_rule_by_state">set_rule_by_state (val, l, c, r)</a></td>
 	<td class="summary">change current state at index,
  and update the rule to that which would have produced the new state</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#CA:clear">CA:clear ()</a></td>
+	<td class="name" nowrap><a href="#clear">clear ()</a></td>
 	<td class="summary">clear all states</td>
 	</tr>
 </table>
@@ -143,8 +146,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "CA.new"></a>
-    <strong>CA.new ()</strong>
+    <a name = "new"></a>
+    <strong>new ()</strong>
     </dt>
     <dd>
     constructor
@@ -156,6 +159,8 @@
 
            <span class="types"><span class="type">elca</span></span>
 
+
+
     </ol>
 
 
@@ -163,8 +168,8 @@
 
 </dd>
     <dt>
-    <a name = "CA:update"></a>
-    <strong>CA:update ()</strong>
+    <a name = "update"></a>
+    <strong>update ()</strong>
     </dt>
     <dd>
     update all state
@@ -177,8 +182,8 @@
 
 </dd>
     <dt>
-    <a name = "CA:neighbors"></a>
-    <strong>CA:neighbors (i)</strong>
+    <a name = "neighbors"></a>
+    <strong>neighbors (i)</strong>
     </dt>
     <dd>
     helper: return three values to use for neighbor code
@@ -188,6 +193,8 @@
     <ul>
         <li><span class="parameter">i</span>
             <span class="types"><span class="type">number</span></span>
+
+
 
         </li>
     </ul>
@@ -203,8 +210,8 @@
 
 </dd>
     <dt>
-    <a name = "CA.code"></a>
-    <strong>CA.code (l, c, r)</strong>
+    <a name = "code"></a>
+    <strong>code (l, c, r)</strong>
     </dt>
     <dd>
     get binary code for value given cell and neighbors
@@ -232,8 +239,8 @@
 
 </dd>
     <dt>
-    <a name = "CA:window"></a>
-    <strong>CA:window (n)</strong>
+    <a name = "window"></a>
+    <strong>window (n)</strong>
     </dt>
     <dd>
     return 8 cells at current offset
@@ -244,13 +251,15 @@
         <li><span class="parameter">n</span>
             <span class="types"><span class="type">number</span></span>
 
+
+
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         table with 8 binary values
     </ol>
 
@@ -259,8 +268,8 @@
 
 </dd>
     <dt>
-    <a name = "CA:set_rule_by_state"></a>
-    <strong>CA:set_rule_by_state (val, l, c, r)</strong>
+    <a name = "set_rule_by_state"></a>
+    <strong>set_rule_by_state (val, l, c, r)</strong>
     </dt>
     <dd>
     change current state at index,
@@ -271,14 +280,22 @@
     <ul>
         <li><span class="parameter">val</span>
 
+
+
         </li>
         <li><span class="parameter">l</span>
+
+
 
         </li>
         <li><span class="parameter">c</span>
 
+
+
         </li>
         <li><span class="parameter">r</span>
+
+
 
         </li>
     </ul>
@@ -289,8 +306,8 @@
 
 </dd>
     <dt>
-    <a name = "CA:clear"></a>
-    <strong>CA:clear ()</strong>
+    <a name = "clear"></a>
+    <strong>clear ()</strong>
     </dt>
     <dd>
     clear all states
@@ -308,8 +325,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

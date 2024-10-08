@@ -1,7 +1,13 @@
--- LFOs for general-purpose scripting
--- @module lib.lfo
+--- LFOs for general-purpose scripting
+--
 -- inspired by contributions from @markwheeler (changes), @justmat (hnds), and @sixolet (toolkit)
 -- added by @dndrks + @sixolet, with improvements by @Dewb and @sonoCircuit
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/lfo).
+--
+-- @module lib.lfo
+-- @alias LFO
 
 local lattice = require 'lattice'
 
@@ -41,15 +47,15 @@ local function scale_lfo(target)
 end
 
 --- construct an LFO
--- @param string shape The shape for this LFO (options: 'sine', 'tri', 'up', 'down', 'square', 'random'; default: 'sine')
--- @param number min The minimum bound for this LFO (default: 0)
--- @param number max The maximum bound for this LFO (default: 1)
--- @param number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
--- @param string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
--- @param number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
--- @param function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
--- @param number phase The phase shift amount for this LFO (range: 0.0 to 1.0,; default: 0)
--- @param string baseline From where the LFO should start (options: 'min', 'center', 'max'; default: 'min')
+-- @tparam string shape The shape for this LFO (options: 'sine', 'tri', 'up', 'down', 'square', 'random'; default: 'sine')
+-- @tparam number min The minimum bound for this LFO (default: 0)
+-- @tparam number max The maximum bound for this LFO (default: 1)
+-- @tparam number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
+-- @tparam string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
+-- @tparam number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
+-- @tparam function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
+-- @tparam number phase The phase shift amount for this LFO (range: 0.0 to 1.0,; default: 0)
+-- @tparam string baseline From where the LFO should start (options: 'min', 'center', 'max'; default: 'min')
 function LFO.new(shape, min, max, depth, mode, period, action, phase, baseline)  
   local i = {}
   setmetatable(i, LFO)
@@ -92,15 +98,16 @@ end
 
 --- construct an LFO via table arguments
 -- eg. my_lfo:add{shape = 'sine', min = 200, max = 12000}
--- @tparam string shape The shape for this LFO (options: 'sine', 'tri', 'up', 'down', 'square', 'random'; default: 'sine')
--- @tparam number min The minimum bound for this LFO (default: 0)
--- @tparam number max The maximum bound for this LFO (default: 1)
--- @tparam number depth The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
--- @tparam string mode How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
--- @tparam number period The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
--- @tparam function action A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
--- @param number phase The phase shift amount for this LFO (range: 0.0 to 1.0,; default: 0)
--- @param string baseline From where the LFO should start (options: 'min', 'center', 'max'; default: 'min')
+--
+-- * shape: (string) The shape for this LFO (options: 'sine', 'tri', 'up', 'down', 'square', 'random'; default: 'sine')
+-- * min: (number) The minimum bound for this LFO (default: 0)
+-- * max: (number) The maximum bound for this LFO (default: 1)
+-- * depth: (number) The depth of modulation between min/max (range: 0.0 to 1.0; default: 0.0)
+-- * mode: (string) How to advance the LFO (options: 'clocked', 'free'; default: 'clocked')
+-- * period: (number) The timing of this LFO's advancement. If mode is 'clocked', argument is in beats. If mode is 'free', argument is in seconds.
+-- * action: (function) A callback function to perform as the LFO advances. This library passes both the scaled and the raw value to the callback function.
+-- * phase: (number) The phase shift amount for this LFO (range: 0.0 to 1.0,; default: 0)
+-- * baseline: (string) From where the LFO should start (options: 'min', 'center', 'max'; default: 'min')
 function LFO:add(args)
   return self.new(args.shape, args.min, args.max, args.depth, args.mode, args.period, args.action, args.phase, args.baseline)
 end
@@ -415,7 +422,7 @@ end
 
 --- Build parameter menu UI for an already-constructed LFO.
 -- @tparam string id The parameter ID to use for this LFO.
--- @tparam[opt] string separator A separator name for the LFO parameters.
+-- @tparam[opt] string sep A separator name for the LFO parameters.
 -- @tparam[opt] string group A group name for the LFO parameters.
 function LFO:add_params(id,sep,group)
   if id ~= nil then

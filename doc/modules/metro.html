@@ -26,6 +26,7 @@
 <br/>
 <h1>norns</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -61,25 +62,25 @@
   <li><a href="../modules/screen.html">screen</a></li>
   <li><a href="../modules/script.html">script</a></li>
   <li><a href="../modules/softcut.html">softcut</a></li>
-  <li><a href="../modules/lib.BeatClock.html">lib.BeatClock</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
   <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
   <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
   <li><a href="../modules/lib.elca.html">lib.elca</a></li>
-  <li><a href="../modules/lib.EnvGraph.html">lib.EnvGraph</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
-  <li><a href="../modules/lib.FilterGraph.html">lib.FilterGraph</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
   <li><a href="../modules/lib.filters.html">lib.filters</a></li>
   <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
-  <li><a href="../modules/lib.Graph.html">lib.Graph</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
   <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
-  <li><a href="../modules/Lattice.html">Lattice</a></li>
+  <li><a href="../modules/lib.lattice.html">lib.lattice</a></li>
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
-  <li><a href="../modules/lib.MusicUtil.html">lib.MusicUtil</a></li>
+  <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
   <li><a href="../modules/lib.pattern.html">lib.pattern</a></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
@@ -88,7 +89,7 @@
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
-  <li><a href="../modules/lib.UI.html">lib.UI</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
   <li><a href="../modules/lib.util.html">lib.util</a></li>
   <li><a href="../modules/lib.voice.html">lib.voice</a></li>
 </ul>
@@ -99,33 +100,34 @@
 
 <h1>Module <code>metro</code></h1>
 <p>high-resolution metro API</p>
-<p></p>
+<p> The <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
+ has <a href="https://monome.org/docs/norns/reference/metro">examples for this module</a>.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Metro.init">Metro.init (arg, arg_time, arg_count)</a></td>
+	<td class="name" nowrap><a href="#init">init (arg, arg_time, arg_count)</a></td>
 	<td class="summary">initialize a metro.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro.free">Metro.free (id)</a></td>
+	<td class="name" nowrap><a href="#free">free (id)</a></td>
 	<td class="summary">free</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro.free_all">Metro.free_all ()</a></td>
+	<td class="name" nowrap><a href="#free_all">free_all ()</a></td>
 	<td class="summary">free all</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro.new">Metro.new (id)</a></td>
+	<td class="name" nowrap><a href="#new">new (id)</a></td>
 	<td class="summary">constructor.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:start">Metro:start ([time[, count[, stage]]])</a></td>
+	<td class="name" nowrap><a href="#start">start ([time[, count[, stage]]])</a></td>
 	<td class="summary">start a metro.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Metro:stop">Metro:stop ()</a></td>
+	<td class="name" nowrap><a href="#stop">stop ()</a></td>
 	<td class="summary">stop a metro.</td>
 	</tr>
 </table>
@@ -138,8 +140,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "Metro.init"></a>
-    <strong>Metro.init (arg, arg_time, arg_count)</strong>
+    <a name = "init"></a>
+    <strong>init (arg, arg_time, arg_count)</strong>
     </dt>
     <dd>
     initialize a metro.
@@ -168,8 +170,8 @@
 
 </dd>
     <dt>
-    <a name = "Metro.free"></a>
-    <strong>Metro.free (id)</strong>
+    <a name = "free"></a>
+    <strong>free (id)</strong>
     </dt>
     <dd>
     free
@@ -180,6 +182,8 @@
         <li><span class="parameter">id</span>
             <span class="types"><span class="type">number</span></span>
 
+
+
         </li>
     </ul>
 
@@ -189,8 +193,8 @@
 
 </dd>
     <dt>
-    <a name = "Metro.free_all"></a>
-    <strong>Metro.free_all ()</strong>
+    <a name = "free_all"></a>
+    <strong>free_all ()</strong>
     </dt>
     <dd>
     free all
@@ -203,8 +207,8 @@
 
 </dd>
     <dt>
-    <a name = "Metro.new"></a>
-    <strong>Metro.new (id)</strong>
+    <a name = "new"></a>
+    <strong>new (id)</strong>
     </dt>
     <dd>
     constructor.
@@ -223,6 +227,8 @@
 
            <span class="types"><span class="type">Metro</span></span>
 
+
+
     </ol>
 
 
@@ -230,8 +236,8 @@
 
 </dd>
     <dt>
-    <a name = "Metro:start"></a>
-    <strong>Metro:start ([time[, count[, stage]]])</strong>
+    <a name = "start"></a>
+    <strong>start ([time[, count[, stage]]])</strong>
     </dt>
     <dd>
     start a metro.
@@ -241,17 +247,29 @@
     <ul>
         <li><span class="parameter">time</span>
             <span class="types"><span class="type">number</span></span>
-         - time period between ticks (seconds.) by default, re-use the last period
+
+<ul>
+    <li>time period between ticks (seconds.) by default, re-use the last period</li>
+</ul>
+
          (<em>optional</em>)
         </li>
         <li><span class="parameter">count</span>
             <span class="types"><span class="type">number</span></span>
-         - number of ticks. infinite by default
+
+<ul>
+    <li>number of ticks. infinite by default</li>
+</ul>
+
          (<em>optional</em>)
         </li>
         <li><span class="parameter">stage</span>
             <span class="types"><span class="type">number</span></span>
-         - initial stage number (1-based.) 1 by default
+
+<ul>
+    <li>initial stage number (1-based.) 1 by default</li>
+</ul>
+
          (<em>optional</em>)
         </li>
     </ul>
@@ -262,8 +280,8 @@
 
 </dd>
     <dt>
-    <a name = "Metro:stop"></a>
-    <strong>Metro:stop ()</strong>
+    <a name = "stop"></a>
+    <strong>stop ()</strong>
     </dt>
     <dd>
     stop a metro.
@@ -281,8 +299,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-11-17 11:40:11 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

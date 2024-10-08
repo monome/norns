@@ -1,5 +1,11 @@
 --- listselect utility
+--
+-- The [norns script reference](https://monome.org/docs/norns/reference/)
+-- has [examples for this module](https://monome.org/docs/norns/reference/lib/listselect).
+--
 -- @module lib.listselect
+-- @alias ls
+
 -- reroutes redraw/enc/key
 
 local ls = {}
