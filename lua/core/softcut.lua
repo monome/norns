@@ -1,4 +1,4 @@
---- Softcut module
+--- Softcut module.
 --
 -- API for controlling the "softcut" buffer processor
 -- includes low-level setters and mid-level utilities

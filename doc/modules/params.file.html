@@ -31,10 +31,6 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h2>Contents</h2>
-<ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
 
 
 <h2>Modules</h2>
@@ -58,7 +54,7 @@
   <li><a href="../modules/osc.html">osc</a></li>
   <li><a href="../modules/params.binary.html">params.binary</a></li>
   <li><a href="../modules/params.control.html">params.control</a></li>
-  <li><a href="../modules/params.file.html">params.file</a></li>
+  <li><strong>params.file</strong></li>
   <li><a href="../modules/params.group.html">params.group</a></li>
   <li><a href="../modules/params.number.html">params.number</a></li>
   <li><a href="../modules/params.option.html">params.option</a></li>
@@ -77,7 +73,7 @@
   <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
   <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
   <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
-  <li><strong>lib.elca</strong></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
   <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
   <li><a href="../modules/lib.er.html">lib.er</a></li>
   <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
@@ -107,228 +103,18 @@
 
 <div id="content">
 
-<h1>Module <code>lib.elca</code></h1>
-<p>elementary cellular automata</p>
-<p>
+<h1>Module <code>params.file</code></h1>
+<p>An easy way to load files into scripts via parameters</p>
+<p> See also the <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
+ which has
+ <a href="https://monome.org/docs/norns/reference/parameters/file">examples for this module</a>.</p>
 
-</p>
 
-
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#new">new ()</a></td>
-	<td class="summary">constructor</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#update">update ()</a></td>
-	<td class="summary">update all state</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#neighbors">neighbors (i)</a></td>
-	<td class="summary">helper: return three values to use for neighbor code</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#code">code (l, c, r)</a></td>
-	<td class="summary">get binary code for value given cell and neighbors</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#window">window (n)</a></td>
-	<td class="summary">return 8 cells at current offset</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#set_rule_by_state">set_rule_by_state (val, l, c, r)</a></td>
-	<td class="summary">change current state at index,
- and update the rule to that which would have produced the new state</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#clear">clear ()</a></td>
-	<td class="summary">clear all states</td>
-	</tr>
-</table>
 
 <br/>
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "new"></a>
-    <strong>new ()</strong>
-    </dt>
-    <dd>
-    constructor
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">elca</span></span>
-
-
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "update"></a>
-    <strong>update ()</strong>
-    </dt>
-    <dd>
-    update all state
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "neighbors"></a>
-    <strong>neighbors (i)</strong>
-    </dt>
-    <dd>
-    helper: return three values to use for neighbor code
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">i</span>
-            <span class="types"><span class="type">number</span></span>
-
-
-
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        tuple of left, right, center
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "code"></a>
-    <strong>code (l, c, r)</strong>
-    </dt>
-    <dd>
-    get binary code for value given cell and neighbors
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">l</span>
-            <span class="types"><span class="type">number</span></span>
-         left cell
-        </li>
-        <li><span class="parameter">c</span>
-            <span class="types"><span class="type">number</span></span>
-         center cell
-        </li>
-        <li><span class="parameter">r</span>
-            <span class="types"><span class="type">number</span></span>
-         right cell
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "window"></a>
-    <strong>window (n)</strong>
-    </dt>
-    <dd>
-    return 8 cells at current offset
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">n</span>
-            <span class="types"><span class="type">number</span></span>
-
-
-
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        table with 8 binary values
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "set_rule_by_state"></a>
-    <strong>set_rule_by_state (val, l, c, r)</strong>
-    </dt>
-    <dd>
-    change current state at index,
- and update the rule to that which would have produced the new state
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">val</span>
-
-
-
-        </li>
-        <li><span class="parameter">l</span>
-
-
-
-        </li>
-        <li><span class="parameter">c</span>
-
-
-
-        </li>
-        <li><span class="parameter">r</span>
-
-
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "clear"></a>
-    <strong>clear ()</strong>
-    </dt>
-    <dd>
-    clear all states
-
-
-
-
-
-
-
-</dd>
-</dl>
 
 
 </div> <!-- id="content" -->

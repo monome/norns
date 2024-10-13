@@ -1,5 +1,10 @@
--- Binary class
--- @module params.toggle
+--- Binary (toggling) parameters
+--
+-- See also the [norns script reference](https://monome.org/docs/norns/reference/)
+-- which has
+-- [examples for using params](https://monome.org/docs/norns/reference/params).
+--
+-- @module params.binary
 
 local Binary = {}
 Binary.__index = Binary

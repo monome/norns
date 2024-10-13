@@ -1,4 +1,9 @@
--- Number class
+--- Defines parameters which require discrete incrementing values
+--
+-- See also the [norns script reference](https://monome.org/docs/norns/reference/)
+-- which has
+-- [examples for this module](https://monome.org/docs/norns/reference/parameters/number).
+--
 -- @module params.number
 
 local Number = {}

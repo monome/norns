@@ -1,4 +1,9 @@
--- File class
+--- An easy way to load files into scripts via parameters
+--
+-- See also the [norns script reference](https://monome.org/docs/norns/reference/)
+-- which has
+-- [examples for this module](https://monome.org/docs/norns/reference/parameters/file).
+--
 -- @module params.file
 
 local File = {}

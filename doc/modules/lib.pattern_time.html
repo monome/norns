@@ -57,7 +57,7 @@
   <li><a href="../modules/norns.html">norns</a></li>
   <li><a href="../modules/osc.html">osc</a></li>
   <li><a href="../modules/params.binary.html">params.binary</a></li>
-  <li><strong>params.control</strong></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
   <li><a href="../modules/params.file.html">params.file</a></li>
   <li><a href="../modules/params.group.html">params.group</a></li>
   <li><a href="../modules/params.number.html">params.number</a></li>
@@ -90,7 +90,7 @@
   <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
-  <li><a href="../modules/lib.pattern_time.html">lib.pattern_time</a></li>
+  <li><strong>lib.pattern_time</strong></li>
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
@@ -107,66 +107,61 @@
 
 <div id="content">
 
-<h1>Module <code>params.control</code></h1>
-<p>Parameter with granular control</p>
-<p> See also the <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
- which has
- <a href="https://monome.org/docs/norns/reference/parameters/control">examples for this module</a>.</p>
+<h1>Module <code>lib.pattern_time</code></h1>
+<p>timed pattern event recorder/player</p>
+<p> The <a href="https://monome.org/docs/norns/reference/">norns script reference</a>
+ has <a href="https://monome.org/docs/norns/reference/lib/pattern_time">examples for this module</a>.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#new">new (id, name, controlspec, formatter, allow_pmap)</a></td>
-	<td class="summary">constructor.</td>
+	<td class="name" nowrap><a href="#new">new ()</a></td>
+	<td class="summary">constructor</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#map_value">map_value (value)</a></td>
-	<td class="summary">map_value.</td>
+	<td class="name" nowrap><a href="#clear">clear ()</a></td>
+	<td class="summary">clear this pattern</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get">get ()</a></td>
-	<td class="summary">get.</td>
+	<td class="name" nowrap><a href="#set_time_factor">set_time_factor (f)</a></td>
+	<td class="summary">adjust the time factor of this pattern.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_raw">get_raw ()</a></td>
-	<td class="summary">get_raw.</td>
+	<td class="name" nowrap><a href="#rec_start">rec_start ()</a></td>
+	<td class="summary">start recording</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#unmap_value">unmap_value (value)</a></td>
-	<td class="summary">unmap_value.</td>
+	<td class="name" nowrap><a href="#rec_stop">rec_stop ()</a></td>
+	<td class="summary">stop recording</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#set">set (value, silent)</a></td>
-	<td class="summary">set.</td>
+	<td class="name" nowrap><a href="#watch">watch (e)</a></td>
+	<td class="summary">watch</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#set_raw">set_raw (value, silent)</a></td>
-	<td class="summary">set_raw.</td>
+	<td class="name" nowrap><a href="#rec_event">rec_event (e)</a></td>
+	<td class="summary">record event</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_delta">get_delta ()</a></td>
-	<td class="summary">get_delta.</td>
+	<td class="name" nowrap><a href="#overdub_event">overdub_event (e)</a></td>
+	<td class="summary">add overdub event</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#delta">delta (d)</a></td>
-	<td class="summary">delta.</td>
+	<td class="name" nowrap><a href="#start">start ()</a></td>
+	<td class="summary">start this pattern</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#set_default">set_default ()</a></td>
-	<td class="summary">set_default.</td>
+	<td class="name" nowrap><a href="#next_event">next_event ()</a></td>
+	<td class="summary">process next event</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#bang">bang ()</a></td>
-	<td class="summary">bang.</td>
+	<td class="name" nowrap><a href="#stop">stop ()</a></td>
+	<td class="summary">stop this pattern</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_range">get_range ()</a></td>
-	<td class="summary">get_range.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#string">string ()</a></td>
-	<td class="summary">string.</td>
+	<td class="name" nowrap><a href="#set_overdub">set_overdub (s)</a></td>
+	<td class="summary">set overdub</td>
 	</tr>
 </table>
 
@@ -179,40 +174,92 @@
     <dl class="function">
     <dt>
     <a name = "new"></a>
-    <strong>new (id, name, controlspec, formatter, allow_pmap)</strong>
+    <strong>new ()</strong>
     </dt>
     <dd>
-    constructor.
+    constructor
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "clear"></a>
+    <strong>clear ()</strong>
+    </dt>
+    <dd>
+    clear this pattern
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_time_factor"></a>
+    <strong>set_time_factor (f)</strong>
+    </dt>
+    <dd>
+    adjust the time factor of this pattern.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">id</span>
-            <span class="types"><a class="type" href="../modules/params.control.html#string">string</a></span>
-
-
-
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">number</span></span>
+         time factor
         </li>
-        <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="../modules/params.control.html#string">string</a></span>
+    </ul>
 
 
 
-        </li>
-        <li><span class="parameter">controlspec</span>
-            <span class="types"><span class="type">ControlSpec</span></span>
+
+
+</dd>
+    <dt>
+    <a name = "rec_start"></a>
+    <strong>rec_start ()</strong>
+    </dt>
+    <dd>
+    start recording
 
 
 
-        </li>
-        <li><span class="parameter">formatter</span>
-            <span class="types"><span class="type">function</span></span>
 
 
 
-        </li>
-        <li><span class="parameter">allow_pmap</span>
-            <span class="types"><span class="type">boolean</span></span>
+
+</dd>
+    <dt>
+    <a name = "rec_stop"></a>
+    <strong>rec_stop ()</strong>
+    </dt>
+    <dd>
+    stop recording
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "watch"></a>
+    <strong>watch (e)</strong>
+    </dt>
+    <dd>
+    watch
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">e</span>
 
 
 
@@ -225,17 +272,16 @@
 
 </dd>
     <dt>
-    <a name = "map_value"></a>
-    <strong>map_value (value)</strong>
+    <a name = "rec_event"></a>
+    <strong>rec_event (e)</strong>
     </dt>
     <dd>
-    map_value.
- takes 0-1 and returns value scaled by controlspec.
+    record event
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
+        <li><span class="parameter">e</span>
 
 
 
@@ -248,47 +294,16 @@
 
 </dd>
     <dt>
-    <a name = "get"></a>
-    <strong>get ()</strong>
+    <a name = "overdub_event"></a>
+    <strong>overdub_event (e)</strong>
     </dt>
     <dd>
-    get.
- returns mapped value.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "get_raw"></a>
-    <strong>get_raw ()</strong>
-    </dt>
-    <dd>
-    get_raw.
- get 0-1.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "unmap_value"></a>
-    <strong>unmap_value (value)</strong>
-    </dt>
-    <dd>
-    unmap_value.
- takes a scaled value and returns 0-1, quantized to step.
+    add overdub event
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
+        <li><span class="parameter">e</span>
 
 
 
@@ -301,156 +316,64 @@
 
 </dd>
     <dt>
-    <a name = "set"></a>
-    <strong>set (value, silent)</strong>
+    <a name = "start"></a>
+    <strong>start ()</strong>
     </dt>
     <dd>
-    set.
- accepts a mapped value
+    start this pattern
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "next_event"></a>
+    <strong>next_event ()</strong>
+    </dt>
+    <dd>
+    process next event
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "stop"></a>
+    <strong>stop ()</strong>
+    </dt>
+    <dd>
+    stop this pattern
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_overdub"></a>
+    <strong>set_overdub (s)</strong>
+    </dt>
+    <dd>
+    set overdub
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
-
-
-
-        </li>
-        <li><span class="parameter">silent</span>
+        <li><span class="parameter">s</span>
 
 
 
         </li>
     </ul>
 
-
-
-
-
-</dd>
-    <dt>
-    <a name = "set_raw"></a>
-    <strong>set_raw (value, silent)</strong>
-    </dt>
-    <dd>
-    set_raw.
- set 0-1.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">value</span>
-
-
-
-        </li>
-        <li><span class="parameter">silent</span>
-
-
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "get_delta"></a>
-    <strong>get_delta ()</strong>
-    </dt>
-    <dd>
-    get_delta.
- get increment used for delta()
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "delta"></a>
-    <strong>delta (d)</strong>
-    </dt>
-    <dd>
-    delta.
- add delta to current value. checks controlspec for mapped vs not.
- default division of delta for 100 steps range.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">d</span>
-
-
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "set_default"></a>
-    <strong>set_default ()</strong>
-    </dt>
-    <dd>
-    set_default.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "bang"></a>
-    <strong>bang ()</strong>
-    </dt>
-    <dd>
-    bang.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "get_range"></a>
-    <strong>get_range ()</strong>
-    </dt>
-    <dd>
-    get_range.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "string"></a>
-    <strong>string ()</strong>
-    </dt>
-    <dd>
-    string.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        formatted string
-    </ol>
 
 
 

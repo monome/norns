@@ -1,4 +1,4 @@
--- Utility module
+--- Utility functions.
 -- @module lib.util
 
 util = {}
