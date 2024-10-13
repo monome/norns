@@ -1,8 +1,8 @@
---- Control class
+--- Parameter with granular control
 --
 -- See also the [norns script reference](https://monome.org/docs/norns/reference/)
 -- which has
--- [examples for using params](https://monome.org/docs/norns/reference/params).
+-- [examples for this module](https://monome.org/docs/norns/reference/parameters/control).
 --
 -- @module params.control
 -- @alias Control

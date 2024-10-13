@@ -1,4 +1,4 @@
---- ParamSet class
+--- Sets of parameters, such as those in the PARAMETERS menu.
 --
 -- See also the [norns script reference](https://monome.org/docs/norns/reference/)
 -- which has

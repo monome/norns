@@ -49,7 +49,16 @@
   <li><a href="modules/midi.html">midi</a></li>
   <li><a href="modules/norns.html">norns</a></li>
   <li><a href="modules/osc.html">osc</a></li>
+  <li><a href="modules/params.binary.html">params.binary</a></li>
   <li><a href="modules/params.control.html">params.control</a></li>
+  <li><a href="modules/params.file.html">params.file</a></li>
+  <li><a href="modules/params.group.html">params.group</a></li>
+  <li><a href="modules/params.number.html">params.number</a></li>
+  <li><a href="modules/params.option.html">params.option</a></li>
+  <li><a href="modules/params.separator.html">params.separator</a></li>
+  <li><a href="modules/params.taper.html">params.taper</a></li>
+  <li><a href="modules/params.text.html">params.text</a></li>
+  <li><a href="modules/params.trigger.html">params.trigger</a></li>
   <li><a href="modules/paramset.html">paramset</a></li>
   <li><a href="modules/poll.html">poll</a></li>
   <li><a href="modules/screen.html">screen</a></li>
@@ -74,7 +83,7 @@
   <li><a href="modules/lib.lfo.html">lib.lfo</a></li>
   <li><a href="modules/lib.listselect.html">lib.listselect</a></li>
   <li><a href="modules/lib.musicutil.html">lib.musicutil</a></li>
-  <li><a href="modules/lib.pattern.html">lib.pattern</a></li>
+  <li><a href="modules/lib.pattern_time.html">lib.pattern_time</a></li>
   <li><a href="modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="modules/lib.tabutil.html">lib.tabutil</a></li>
@@ -166,12 +175,48 @@
 		<td class="summary">osc device</td>
 	</tr>
 	<tr>
+		<td class="name"  nowrap><a href="modules/params.binary.html">params.binary</a></td>
+		<td class="summary">Binary (toggling) parameters</td>
+	</tr>
+	<tr>
 		<td class="name"  nowrap><a href="modules/params.control.html">params.control</a></td>
-		<td class="summary">Control class</td>
+		<td class="summary">Parameter with granular control</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.file.html">params.file</a></td>
+		<td class="summary">An easy way to load files into scripts via parameters</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.group.html">params.group</a></td>
+		<td class="summary">Groups of parameters</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.number.html">params.number</a></td>
+		<td class="summary">Defines parameters which require discrete incrementing values</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.option.html">params.option</a></td>
+		<td class="summary">Select a parameter from a list</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.separator.html">params.separator</a></td>
+		<td class="summary">Separator between parameters</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.taper.html">params.taper</a></td>
+		<td class="summary">Non-linear parameter using @catfact's taper function</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.text.html">params.text</a></td>
+		<td class="summary">Parameter for text entry</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="modules/params.trigger.html">params.trigger</a></td>
+		<td class="summary">Parameter for an “on/off” action trigger</td>
 	</tr>
 	<tr>
 		<td class="name"  nowrap><a href="modules/paramset.html">paramset</a></td>
-		<td class="summary">ParamSet class</td>
+		<td class="summary">Sets of parameters, such as those in the PARAMETERS menu.</td>
 	</tr>
 	<tr>
 		<td class="name"  nowrap><a href="modules/poll.html">poll</a></td>
@@ -189,17 +234,11 @@
 	</tr>
 	<tr>
 		<td class="name"  nowrap><a href="modules/softcut.html">softcut</a></td>
-		<td class="summary">Softcut module</p>
-
-<p> API for controlling the "softcut" buffer processor
- includes low-level setters and mid-level utilities</p>
-
-<p> IMPORTANT: all indices are 1-based, per lua convention!
- this applies to indices for selecting voice, ADC/DAC channel, buffer, &amp;c.</td>
+		<td class="summary">Softcut module.</td>
 	</tr>
 	<tr>
 		<td class="name"  nowrap><a href="modules/lib.beatclock.html">lib.beatclock</a></td>
-		<td class="summary">BeatClock</td>
+		<td class="summary">Older clock library - see <a href="modules/clock.html#">clock</a> instead</td>
 	</tr>
 	<tr>
 		<td class="name"  nowrap><a href="modules/lib.container.defaulttable.html">lib.container.defaulttable</a></td>
@@ -274,7 +313,7 @@
 		<td class="summary">Music utility module.</td>
 	</tr>
 	<tr>
-		<td class="name"  nowrap><a href="modules/lib.pattern.html">lib.pattern</a></td>
+		<td class="name"  nowrap><a href="modules/lib.pattern_time.html">lib.pattern_time</a></td>
 		<td class="summary">timed pattern event recorder/player</td>
 	</tr>
 	<tr>
@@ -314,7 +353,7 @@
 	</tr>
 	<tr>
 		<td class="name"  nowrap><a href="modules/lib.util.html">lib.util</a></td>
-		<td class="summary">db to amp.</td>
+		<td class="summary">Utility functions.</td>
 	</tr>
 	<tr>
 		<td class="name"  nowrap><a href="modules/lib.voice.html">lib.voice</a></td>
@@ -326,7 +365,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2024-10-06 20:11:00 </i>
+<i style="float:right;">Last updated 2024-10-13 17:45:04 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
