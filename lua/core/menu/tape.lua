@@ -54,9 +54,10 @@ local function read_tape_index()
   tape = util.os_capture("ls ".._path.tape, true)
   local t = {}
   for f in tape:gmatch("([^\n]+)") do
-    fs = string.sub(f,1,4)
-    if tonumber(fs) then
-      table.insert(t,tonumber(fs))
+    local fs = string.sub(f,1,4)
+    local fi = tonumber(fs)
+    if fi and fi % 1 == 0 then -- % protects against decimals
+      table.insert(t,fi)
     end
   end
 
