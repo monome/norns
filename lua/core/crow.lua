@@ -216,7 +216,8 @@ local crowSub = {
     end,
 
     __call = function(self, ...)
-        local qt = quote(...)
+        local nargs = select("#", ...)
+        local qt = nargs > 0 and quote(...) or ''
         norns.crow.send(self.str .. '(' .. qt .. ')')
     end,
 }
