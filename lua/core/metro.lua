@@ -95,12 +95,12 @@ function Metro:start(time, count, stage)
   if type(time) == "table" then
     if time.time then self.props.time = time.time end
     if time.count then self.props.count = time.count end
-    if time.stage then self.props.stage = time.stage end
+    if time.stage then self.props.init_stage = time.stage end
   else
 
     if time then self.props.time = time end
     if count then self.props.count = count end
-    if stage then self.init_stage = stage end
+    if stage then self.props.init_stage = stage end
   end
   self.is_running = true
   _norns.metro_start(self.props.id, self.props.time, self.props.count, self.props.init_stage) -- C function
