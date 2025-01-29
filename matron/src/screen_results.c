@@ -14,11 +14,11 @@ static sem_t sem_results;
 void screen_results_init() {
     results_data = NULL;
     sem_init(&sem_results, 0, 0);
-}    
+}
 
 void screen_results_deinit() {
     screen_results_free();
-}    
+}
 
 void screen_results_wait() {
     sem_wait(&sem_results);

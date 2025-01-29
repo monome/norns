@@ -1399,7 +1399,7 @@ int _screen_display_image(lua_State *l) {
     _image_t *i = _image_check(l, 1);
     double x = luaL_checknumber(l, 2);
     double y = luaL_checknumber(l, 3);
-    screen_surface_display(i->surface, x, y);
+    screen_event_display_surface(i->surface, x, y);
     lua_settop(l, 0);
     return 0;
 }
@@ -1424,7 +1424,7 @@ int _screen_display_image_region(lua_State *l) {
     double height = luaL_checknumber(l, 5);
     double x = luaL_checknumber(l, 6);
     double y = luaL_checknumber(l, 7);
-    screen_surface_display_region(i->surface, left, top, width, height, x, y);
+    screen_event_display_surface_region(i->surface, left, top, width, height, x, y);
     return 0;
 }
 

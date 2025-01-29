@@ -636,6 +636,9 @@ bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e
 
 void screen_surface_display(screen_surface_t *s, double x, double y) {
     cairo_surface_t *image = (cairo_surface_t *)s;
+
+    surface_may_have_color = true;
+
     int width = cairo_image_surface_get_width(image);
     int height = cairo_image_surface_get_height(image);
 
