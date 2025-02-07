@@ -60,7 +60,7 @@ m.init = function()
   -- weird command, but it is fast, recursive, skips hidden dirs, and sorts
   norns.system_cmd('find ~/dust/code/ -mindepth 2 ' ..
                    '-name .git -prune -o -type f -name "*.lua" -printf "%P\n" | ' ..
-                   'grep -Ev "/(lib|data|crow)/" | ' ..
+                   'grep -Ev "/(lib|data|crow|test|docs)/" | ' ..
                    'sort',
                    sort_select_tree)
 end
