@@ -134,6 +134,12 @@ MATRON_API void event_data_free(union event_data *ev) {
     case EVENT_SOFTCUT_RENDER:
         free(ev->softcut_render.data);
         break;
+    case EVENT_SERIAL_CONFIG:
+        free(ev->serial_config.path);
+        free(ev->serial_config.name);
+        free(ev->serial_config.vendor);
+        free(ev->serial_config.model);
+        break;
     case EVENT_CUSTOM:
         if (ev->custom.ops->free) {
             ev->custom.ops->free(ev->custom.value, ev->custom.context);
@@ -305,6 +311,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_SCREEN_REFRESH:
         w_handle_screen_refresh();
+        break;
+    case EVENT_SERIAL_CONFIG:
+        w_handle_serial_config(ev->serial_config.path, ev->serial_config.name, ev->serial_config.vendor, ev->serial_config.model);
         break;
     } /* switch */
 

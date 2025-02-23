@@ -16,6 +16,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <termios.h>
 
 // lua
 #include <lauxlib.h>
@@ -28,10 +29,12 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_scheduler.h"
+#include "device.h"
 #include "device_crow.h"
 #include "device_hid.h"
 #include "device_midi.h"
 #include "device_monome.h"
+#include "device_serial.h"
 #include "events.h"
 #include "event_custom.h"
 #include "hello.h"
@@ -2287,6 +2290,22 @@ void w_handle_crow_event(void *dev, int id) {
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, d->line);
     l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+void w_handle_serial_config(char *path, char *name, char *vendor, char *model) {
+    _push_norns_func("serial", "config");
+    lua_pushstring(lvm, vendor);
+    lua_pushstring(lvm, model);
+    l_report(lvm, l_docall(lvm, 2, 1));
+    if (lua_isnil(lvm, -1)) {
+        return;
+    }
+    if (!lua_istable(lvm, -1)) {
+        fprintf(stderr, "serial config table expected\n");
+        return;
+    }
+
+    dev_serial_new(path, name, lvm);
 }
 
 void w_handle_midi_add(void *p) {
