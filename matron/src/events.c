@@ -315,6 +315,15 @@ static void handle_event(union event_data *ev) {
     case EVENT_SERIAL_CONFIG:
         w_handle_serial_config(ev->serial_config.path, ev->serial_config.name, ev->serial_config.vendor, ev->serial_config.model);
         break;
+    case EVENT_SERIAL_ADD:
+        w_handle_serial_add(ev->serial_add.dev);
+        break;
+        case EVENT_SERIAL_REMOVE:
+        w_handle_serial_remove(ev->serial_remove.id, ev->serial_remove.spec_id);
+        break;
+    case EVENT_SERIAL_EVENT:
+        w_handle_serial_event(ev->serial_event.dev, ev->serial_event.id);
+        break;
     } /* switch */
 
     event_data_free(ev);

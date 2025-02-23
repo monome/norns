@@ -6,16 +6,32 @@ function serial.spec(args)
     serial._specs[args.id] = args
 end
 
+function serial.send(dev, line)
+    _norns.serial_send(dev, line)
+end
+
 _norns.serial = {}
 
 function _norns.serial.config(vendor, model)
     for id, spec in pairs(serial._specs) do
-        local config = spec.config(vendor, model)
+        local config = spec.configure(vendor, model)
         if config then
-            return config
+            return id, config
         end
     end
     return nil
+end
+
+function _norns.serial.add(spec_id, id, name, dev)
+    serial._specs[spec_id].add(id, name, dev)
+end
+
+function _norns.serial.remove(spec_id, id)
+    serial._specs[spec_id].remove(id)
+end
+
+function _norns.serial.event(spec_id, id, line)
+    serial._specs[spec_id].event(id, line)
 end
 
 -- c_cc characters

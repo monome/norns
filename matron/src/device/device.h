@@ -9,6 +9,7 @@
 #include "device_serial.h"
 #include <pthread.h>
 #include <stdint.h>
+#include <lualib.h>
 
 // common data structure for all devices
 union dev {
@@ -24,7 +25,7 @@ union dev {
 extern void devices_init(void);
 // create a device from a file path
 extern union dev *dev_new(device_t type, const char *path, const char *name, bool multiport_device,
-                          unsigned int midi_port_index);
+                          unsigned int midi_port_index, lua_State *l);
 
 // destroy given device
 extern void dev_delete(union dev *d);
