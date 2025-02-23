@@ -15,9 +15,6 @@
 #include "device_serial.h"
 #include "events.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-
 int dev_serial_init(void *self, lua_State *l) {
     struct dev_serial *d = (struct dev_serial *)self;
     struct dev_common *base = (struct dev_common *)self;
@@ -135,5 +132,3 @@ void dev_serial_send(struct dev_serial *d, const char *line) {
     // fprintf(stderr,"serial_send: %s",line);
     write(d->fd, line, strlen(line));
 }
-
-#pragma GCC diagnostic pop
