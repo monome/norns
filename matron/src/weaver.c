@@ -2321,11 +2321,12 @@ void w_handle_serial_config(char *path, char *name, char *vendor, char *model) {
     lua_pushstring(lvm, vendor);
     lua_pushstring(lvm, model);
     l_report(lvm, l_docall(lvm, 2, 2));
-    if (lua_isnil(lvm, -1)) {
+    if (lua_isnil(lvm, -2) || lua_isnil(lvm, -1)) {
+        fprintf(stderr, "no serial handler found for device %s at %s\n", name, path);
         return;
     }
     if (!lua_isstring(lvm, -2)) {
-        fprintf(stderr, "serial spec id expected\n");
+        fprintf(stderr, "serial handler id expected\n");
         return;
     }
     if (!lua_istable(lvm, -1)) {

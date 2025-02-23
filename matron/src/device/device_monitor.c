@@ -246,7 +246,7 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
         return;
     }
     
-    fprintf(stderr, "dev_monitor: TTY device was removed from %s\n", node);
+    fprintf(stderr, "dev_monitor: unmatched unmatched TTY device was removed from %s\n", node);
     dev_list_remove(DEV_TYPE_SERIAL, node);
 
 }
@@ -285,7 +285,7 @@ void add_dev_tty(struct udev_device *dev) {
         fprintf(stderr, "tty is a crow\n");
         dev_list_add(DEV_TYPE_CROW, node, name, NULL);
     } else {
-        fprintf(stderr, "dev_monitor: TTY device %s at %s\n", name, node);
+        fprintf(stderr, "dev_monitor: unmatched TTY device %s at %s\n", name, node);
         const char *vendor, *model;
         vendor = udev_device_get_property_value(dev, "ID_VENDOR");
         model = udev_device_get_property_value(dev, "ID_MODEL");
