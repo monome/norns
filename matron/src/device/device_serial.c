@@ -28,7 +28,8 @@ int dev_serial_init(void *self, lua_State *l) {
         return -1;
     }
 
-    d->spec_id = strdup(lua_tostring(l, -2));
+    d->handler_id = strdup(lua_tostring(l, -2));
+    fprintf(stderr, "dev_serial: TTY device %s at %s handled by %s\n", d->base.name, d->base.path, d->handler_id);
 
     tcgetattr(d->fd, &d->oldtio);
     d->newtio = d->oldtio;
@@ -127,12 +128,12 @@ void *dev_serial_start(void *self) {
 void dev_serial_deinit(void *self) {
     struct dev_serial *di = (struct dev_serial *)self;
     tcsetattr(di->fd, TCSANOW, &di->oldtio);
+    free(di->handler_id);
 }
 
 void dev_serial_send(struct dev_serial *d, const char *line) {
     // fprintf(stderr,"serial_send: %s",line);
     write(d->fd, line, strlen(line));
-    write(d->fd, "\n", 1);
 }
 
 #pragma GCC diagnostic pop

@@ -319,7 +319,7 @@ static void handle_event(union event_data *ev) {
         w_handle_serial_add(ev->serial_add.dev);
         break;
         case EVENT_SERIAL_REMOVE:
-        w_handle_serial_remove(ev->serial_remove.id, ev->serial_remove.spec_id);
+        w_handle_serial_remove(ev->serial_remove.id, ev->serial_remove.handler_id);
         break;
     case EVENT_SERIAL_EVENT:
         w_handle_serial_event(ev->serial_event.dev, ev->serial_event.id);

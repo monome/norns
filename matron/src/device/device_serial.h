@@ -14,7 +14,7 @@ struct dev_serial {
     int fd;
     struct termios oldtio, newtio;
     char line[255];
-    char* spec_id;
+    char* handler_id;
 };
 
 extern int dev_serial_init(void *self, lua_State *l);

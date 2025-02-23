@@ -2344,16 +2344,16 @@ void w_handle_serial_add(void *p) {
     int id = base->id;
 
     _push_norns_func("serial", "add");
-    lua_pushstring(lvm, dev->spec_id);
+    lua_pushstring(lvm, dev->handler_id);
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, base->name);
     lua_pushlightuserdata(lvm, dev);
     l_report(lvm, l_docall(lvm, 4, 0));
 }
 
-void w_handle_serial_remove(uint32_t id, char *spec_id) {
+void w_handle_serial_remove(uint32_t id, char *handler_id) {
     _push_norns_func("serial", "remove");
-    lua_pushstring(lvm, spec_id);
+    lua_pushstring(lvm, handler_id);
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     l_report(lvm, l_docall(lvm, 2, 0));
 }
@@ -2361,7 +2361,7 @@ void w_handle_serial_remove(uint32_t id, char *spec_id) {
 void w_handle_serial_event(void *dev, uint32_t id) {
     struct dev_serial *d = (struct dev_serial *)dev;
     _push_norns_func("serial", "event");
-    lua_pushstring(lvm, d->spec_id);
+    lua_pushstring(lvm, d->handler_id);
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, d->line);
     l_report(lvm, l_docall(lvm, 3, 0));

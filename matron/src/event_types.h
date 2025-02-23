@@ -354,7 +354,7 @@ struct event_serial_add {
 struct event_serial_remove {
     struct event_common common;
     uint32_t id;
-    char *spec_id;
+    char *handler_id;
 }; // +4
 
 struct event_serial_event {
