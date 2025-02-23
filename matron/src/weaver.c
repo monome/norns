@@ -16,7 +16,6 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include <termios.h>
 
 // lua
 #include <lauxlib.h>
