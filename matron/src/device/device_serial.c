@@ -87,7 +87,11 @@ int dev_serial_init(void *self, lua_State *l) {
     lua_pop(l, 1);
 
     tcflush(d->fd, TCIFLUSH);
-    tcsetattr(d->fd, TCSANOW, &d->newtio);
+    if (tcsetattr(d->fd, TCSANOW, &d->newtio) < 0) {
+        fprintf(stderr, "failed to initialize serial device: %s\n", d->base.path);
+        close(d->fd);
+        return -1;
+    };
 
     base->start = &dev_serial_start;
     base->deinit = &dev_serial_deinit;
@@ -125,6 +129,7 @@ void *dev_serial_start(void *self) {
 void dev_serial_deinit(void *self) {
     struct dev_serial *di = (struct dev_serial *)self;
     tcsetattr(di->fd, TCSANOW, &di->oldtio);
+    close(di->fd);
     free(di->handler_id);
 }
 
