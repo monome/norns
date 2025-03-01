@@ -163,6 +163,7 @@ void dev_list_remove(device_t type, const char *node) {
     pthread_mutex_lock(&lock);
     struct dev_node *dn = dev_lookup_path(node, NULL);
     if (dn == NULL) {
+        pthread_mutex_unlock(&lock);
         return;
     }
     union event_data *ev;
@@ -175,6 +176,7 @@ void dev_list_remove(device_t type, const char *node) {
             dev_list_remove_node(dn, ev);
             dn = dev_lookup_path(node, NULL);
         }
+        pthread_mutex_unlock(&lock);
         return;
     case DEV_TYPE_MONOME:
         ev = event_data_new(EVENT_MONOME_REMOVE);
@@ -195,6 +197,7 @@ void dev_list_remove(device_t type, const char *node) {
         break;
     default:
         fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");
+        pthread_mutex_unlock(&lock);
         return;
     }
     dev_list_remove_node(dn, ev);
