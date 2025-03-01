@@ -10,6 +10,7 @@
 #include "events.h"
 
 static int id = 0;
+static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 struct dev_node {
     struct dev_node *next;
@@ -21,7 +22,6 @@ struct dev_q {
     struct dev_node *head;
     struct dev_node *tail;
     size_t size;
-    pthread_mutex_t lock;
 };
 
 struct dev_q dq;
@@ -51,7 +51,6 @@ void dev_list_init(void) {
     dq.size = 0;
     dq.head = NULL;
     dq.tail = NULL;
-    pthread_mutex_init(&dq.lock, NULL);
 }
 
 union event_data *post_add_event(union dev *d, event_t event_type) {
@@ -71,14 +70,14 @@ union event_data *post_add_event(union dev *d, event_t event_type) {
     d->base.id = id++;
     dn->d = d;
 
-    pthread_mutex_lock(&dq.lock);
+    pthread_mutex_lock(&lock);
     insque(dn, dq.tail);
     dq.tail = dn;
     if (dq.size == 0) {
         dq.head = dn;
     }
     dq.size++;
-    pthread_mutex_unlock(&dq.lock);
+    pthread_mutex_unlock(&lock);
 
     union event_data *ev;
     ev = event_data_new(event_type);
@@ -161,7 +160,7 @@ static void dev_list_remove_node(struct dev_node *dn, union event_data *event_re
 }
 
 void dev_list_remove(device_t type, const char *node) {
-    pthread_mutex_lock(&dq.lock);
+    pthread_mutex_lock(&lock);
     struct dev_node *dn = dev_lookup_path(node, NULL);
     if (dn == NULL) {
         return;
@@ -199,6 +198,6 @@ void dev_list_remove(device_t type, const char *node) {
         return;
     }
     dev_list_remove_node(dn, ev);
-    pthread_mutex_unlock(&dq.lock);
+    pthread_mutex_unlock(&lock);
 }
 
