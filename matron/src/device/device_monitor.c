@@ -246,7 +246,8 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
         return;
     }
     
-    fprintf(stderr, "dev_monitor: unmatched TTY device was removed from %s\n", node);
+    fprintf(stderr, "dev_monitor: unmatched unmatched TTY device was removed from %s\n", node);
+    dev_list_remove(DEV_TYPE_SERIAL, node);
 
 }
 
@@ -276,15 +277,25 @@ void add_dev_tty(struct udev_device *dev) {
     char *name = get_device_name(dev);
     if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
         fprintf(stderr, "dev_monitor: got ttyUSB, assuming grid\n");
-        dev_list_add(DEV_TYPE_MONOME, node, name);
+        dev_list_add(DEV_TYPE_MONOME, node, name, NULL);
     } else if (is_dev_monome_grid(dev)) {
         fprintf(stderr, "dev_monitor: TTY appears to be ACM grid\n");
-        dev_list_add(DEV_TYPE_MONOME, node, name);
+        dev_list_add(DEV_TYPE_MONOME, node, name, NULL);
     } else if (is_dev_crow(dev)) {
         fprintf(stderr, "tty is a crow\n");
-        dev_list_add(DEV_TYPE_CROW, node, name);
+        dev_list_add(DEV_TYPE_CROW, node, name, NULL);
     } else {
         fprintf(stderr, "dev_monitor: unmatched TTY device %s at %s\n", name, node);
+        const char *vendor, *model;
+        vendor = udev_device_get_property_value(dev, "ID_VENDOR");
+        model = udev_device_get_property_value(dev, "ID_MODEL");
+        union event_data *ev;
+        ev = event_data_new(EVENT_SERIAL_CONFIG);
+        ev->serial_config.vendor = strdup(vendor);
+        ev->serial_config.model = strdup(model);
+        ev->serial_config.path = strdup(node);
+        ev->serial_config.name = name;
+        event_post(ev);
     }
 }
 
@@ -295,7 +306,7 @@ void add_dev_input(struct udev_device *dev) {
 	    return;
     }
     char *name = get_device_name(dev);
-    dev_list_add(DEV_TYPE_HID, node, name);
+    dev_list_add(DEV_TYPE_HID, node, name, NULL);
 }
 
 void add_dev_sound(struct udev_device *dev) {
@@ -305,7 +316,7 @@ void add_dev_sound(struct udev_device *dev) {
     if (alsa_node != NULL) {
 	char *name = get_device_name(dev);
 	fprintf(stderr, "dev_monitor: adding midi device %s\n", name);
-        dev_list_add(DEV_TYPE_MIDI, alsa_node, name);
+        dev_list_add(DEV_TYPE_MIDI, alsa_node, name, NULL);
     }
 }
 

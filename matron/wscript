@@ -10,6 +10,7 @@ def build(bld):
         'src/device/device_monitor.c',
         'src/device/device_monome.c',
         'src/device/device_crow.c',
+        'src/device/device_serial.c',
         'src/osc.c',
         'src/hardware/battery.c',
         'src/hardware/i2c.c',
@@ -88,7 +89,7 @@ def build(bld):
     matron_cflags=['-O3', '-Wall', '-std=c11', '-mfpu=neon']
 
     if bld.env.NORNS_RELEASE:
-        matron_cflags += [ 
+        matron_cflags += [
             '-mcpu=cortex-a53',
             '-mtune=cortex-a53',
             '-mfpu=neon-fp-armv8',
