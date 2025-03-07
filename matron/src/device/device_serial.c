@@ -109,7 +109,7 @@ void *dev_serial_start(void *self) {
     struct dev_serial *di = (struct dev_serial *)self;
     struct dev_common *base = (struct dev_common *)self;
 
-    uint8_t len;
+    ssize_t len;
 
     while (1) {
         len = read(di->fd, di->line, 255);

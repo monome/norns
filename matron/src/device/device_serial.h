@@ -13,7 +13,7 @@ struct dev_serial {
     struct dev_common base;
     int fd;
     struct termios oldtio, newtio;
-    char line[255];
+    char line[256];
     char* handler_id;
 };
 
