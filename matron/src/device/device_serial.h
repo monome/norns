@@ -9,11 +9,15 @@
 #include "device_common.h"
 #include <libevdev/libevdev.h>
 
+#define BUFFER_SIZE 256
+static const unsigned int max_read = BUFFER_SIZE - 1;
+
 struct dev_serial {
     struct dev_common base;
     int fd;
     struct termios oldtio, newtio;
-    char line[256];
+    char line[BUFFER_SIZE];
+    unsigned int read_timeout;
     char* handler_id;
 };
 
