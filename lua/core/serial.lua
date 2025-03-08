@@ -18,14 +18,17 @@ end
 
 _norns.serial = {}
 
-function _norns.serial.config(vendor, model, serial_num, interface_num)
+function _norns.serial.match(vendor, model, serial_num, interface_num)
     for id, handler in pairs(serial._handlers) do
-        local config = handler.configure(vendor, model, serial_num, interface_num)
-        if config then
-            return id, config
+        if handler.match(vendor, model, serial_num, interface_num) then
+            return id
         end
     end
     return nil
+end
+
+function _norns.serial.configure(handler_id, tio)
+    return serial._handlers[handler_id].configure(tio)
 end
 
 function _norns.serial.add(handler_id, id, name, dev)

@@ -2317,22 +2317,18 @@ void w_handle_crow_event(void *dev, int id) {
 }
 
 void w_handle_serial_config(char *path, char *name, char *vendor, char *model, char *serial, char *interface) {
-    _push_norns_func("serial", "config");
+    _push_norns_func("serial", "match");
     lua_pushstring(lvm, vendor);
     lua_pushstring(lvm, model);
     lua_pushstring(lvm, serial);
     lua_pushstring(lvm, interface);
-    l_report(lvm, l_docall(lvm, 4, 2));
-    if (lua_isnil(lvm, -2) || lua_isnil(lvm, -1)) {
+    l_report(lvm, l_docall(lvm, 4, 1));
+    if (lua_isnil(lvm, -1)) {
         fprintf(stderr, "no serial handler found for device %s at %s\n", name, path);
         return;
     }
-    if (!lua_isstring(lvm, -2)) {
-        fprintf(stderr, "serial handler id expected\n");
-        return;
-    }
-    if (!lua_istable(lvm, -1)) {
-        fprintf(stderr, "serial config table expected\n");
+    if (!lua_isstring(lvm, -1)) {
+        fprintf(stderr, "serial handler id expected, got %s\n", lua_typename(lvm, lua_type(lvm, -1)));
         return;
     }
 

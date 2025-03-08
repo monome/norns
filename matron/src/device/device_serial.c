@@ -15,8 +15,9 @@
 #include "device.h"
 #include "device_serial.h"
 #include "events.h"
+#include "lua_eval.h"
 
-unsigned int get_sleep_us(const struct termios *tio);
+unsigned int get_sleep_us(speed_t ospeed, tcflag_t cflag);
 
 int dev_serial_init(void *self, lua_State *l) {    
     struct dev_serial *d = (struct dev_serial *)self;
@@ -28,11 +29,63 @@ int dev_serial_init(void *self, lua_State *l) {
         return -1;
     }
 
-    d->handler_id = strdup(lua_tostring(l, -2));
+    d->handler_id = strdup(lua_tostring(l, -1));
     fprintf(stderr, "dev_serial: TTY device %s at %s handled by %s\n", d->base.name, d->base.path, d->handler_id);
 
     tcgetattr(d->fd, &d->oldtio);
     d->newtio = d->oldtio;
+
+    lua_getglobal(l, "_norns");
+    lua_getfield(l, -1, "serial");
+    lua_remove(l, -2);
+    lua_getfield(l, -1, "configure");
+    lua_remove(l, -2);
+
+    lua_pushstring(l, d->handler_id);
+
+    lua_createtable(l, 0, 8);
+    lua_pushinteger(l, cfgetispeed(&d->oldtio));
+    lua_setfield(l, -2, "ispeed");
+    lua_pushinteger(l, cfgetospeed(&d->oldtio));
+    lua_setfield(l, -2, "ospeed");
+    lua_pushinteger(l, d->oldtio.c_iflag);
+    lua_setfield(l, -2, "iflag");
+    lua_pushinteger(l, d->oldtio.c_oflag);
+    lua_setfield(l, -2, "oflag");
+    lua_pushinteger(l, d->oldtio.c_cflag);
+    lua_setfield(l, -2, "cflag");
+    lua_pushinteger(l, d->oldtio.c_lflag);
+    lua_setfield(l, -2, "lflag");
+    lua_pushinteger(l, d->oldtio.c_line);
+    lua_setfield(l, -2, "line");
+
+    lua_createtable(l, NCCS, 0);
+    for (int i = 0; i < NCCS; i++) {
+        lua_pushinteger(l, d->oldtio.c_cc[i]);
+        lua_rawseti(l, -2, i+1);
+    }
+    lua_setfield(l, -2, "cc");
+    l_report(l, l_docall(l, 2, 1));
+
+    if (!lua_istable(l, -1)) {
+        fprintf(stderr, "serial handler config table expected, got %s\n", lua_typename(l, lua_type(l, -1)));
+        close(d->fd);
+        return -1;
+    }
+
+    lua_getfield(l, -1, "ispeed");
+    if (!lua_isnil(l, -1)) {
+        speed_t ispeed = lua_tointeger(l, -1);
+        cfsetispeed(&d->newtio, ispeed);
+    }
+    lua_pop(l, 1);
+
+    lua_getfield(l, -1, "ospeed");
+    if (!lua_isnil(l, -1)) {
+        speed_t ospeed = lua_tointeger(l, -1);
+        cfsetospeed(&d->newtio, ospeed);
+    }
+    lua_pop(l, 1);
 
     lua_getfield(l, -1, "iflag");
     if (!lua_isnil(l, -1)) {
@@ -82,9 +135,10 @@ int dev_serial_init(void *self, lua_State *l) {
         return -1;
     };
 
-    d->read_timeout = get_sleep_us(&d->newtio);
+    d->read_timeout = get_sleep_us(d->newtio.c_ospeed, d->newtio.c_cflag);
     if (d->read_timeout == 0) {
         fprintf(stderr, "failed to determine serial read timeout from cflags\n");
+        close(d->fd);
         return -1;
     }
 
@@ -133,9 +187,8 @@ void dev_serial_send(struct dev_serial *d, const char *line) {
     write(d->fd, line, strlen(line));
 }
 
-unsigned int get_baud_rate(tcflag_t cflag) {
-    tcflag_t speed = cflag & B4000000;
-    switch(speed) {
+unsigned int get_baud_rate(speed_t ospeed) {
+    switch (ospeed) {
         case B50:
             return 50;
         case B75:
@@ -229,11 +282,9 @@ unsigned int get_parity_bits(tcflag_t cflag) {
     return 0;
 }
 
-unsigned int get_sleep_us(const struct termios *tio)
+unsigned int get_sleep_us(speed_t ospeed, tcflag_t cflag)
 {
-    tcflag_t cflag = tio->c_cflag;
-
-    unsigned int baud_rate = get_baud_rate(cflag);
+    unsigned int baud_rate = get_baud_rate(ospeed);
     unsigned int char_size = get_character_size(cflag);
     unsigned int stop_bits = get_stop_bits(cflag);
     unsigned int parity_bits =  get_parity_bits(cflag);
