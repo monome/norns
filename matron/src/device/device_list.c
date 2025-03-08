@@ -193,7 +193,7 @@ void dev_list_remove(device_t type, const char *node) {
     case DEV_TYPE_SERIAL:
         ev = event_data_new(EVENT_SERIAL_REMOVE);
         ev->serial_remove.id = dn->d->base.id;
-        ev->serial_remove.handler_id = dn->d->serial.handler_id;
+        ev->serial_remove.handler_id = strdup(dn->d->serial.handler_id);
         break;
     default:
         fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");

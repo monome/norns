@@ -140,6 +140,9 @@ MATRON_API void event_data_free(union event_data *ev) {
         free(ev->serial_config.vendor);
         free(ev->serial_config.model);
         break;
+    case EVENT_SERIAL_REMOVE:
+        free(ev->serial_remove.handler_id);
+        break;
     case EVENT_CUSTOM:
         if (ev->custom.ops->free) {
             ev->custom.ops->free(ev->custom.value, ev->custom.context);
