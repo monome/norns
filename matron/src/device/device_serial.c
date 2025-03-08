@@ -32,6 +32,8 @@ int dev_serial_init(void *self, lua_State *l) {
     d->handler_id = strdup(lua_tostring(l, -1));
     fprintf(stderr, "dev_serial: TTY device %s at %s handled by %s\n", d->base.name, d->base.path, d->handler_id);
 
+    // Initialize a new terminal config using the old config. The new config will
+    // be passed to lua for overrides.
     tcgetattr(d->fd, &d->oldtio);
     d->newtio = d->oldtio;
 
@@ -177,6 +179,7 @@ void *dev_serial_start(void *self) {
 
 void dev_serial_deinit(void *self) {
     struct dev_serial *di = (struct dev_serial *)self;
+    // Restore the tty device to the state it was in before connecting
     tcsetattr(di->fd, TCSANOW, &di->oldtio);
     close(di->fd);
     free(di->handler_id);
