@@ -57,6 +57,7 @@ serial.VEOF = 4
 serial.VTIME = 5
 --- MIN value
 serial.VMIN = 6
+serial.VSWTC = 7
 --- START character
 serial.VSTART = 8
 --- STOP character
@@ -65,179 +66,182 @@ serial.VSTOP = 9
 serial.VSUSP = 10
 --- EOL character
 serial.VEOL = 11
+serial.VREPRINT = 12
+serial.VDISCARD = 13
+serial.VWERASE = 14
+serial.VLNEXT = 15
+serial.VEOL2 = 16
 
 --- iflag constants
 -- @section iflag_constants
 
 --- Ignore break condition.
-serial.IGNBRK = 0000001
+serial.IGNBRK = 1
 --- Signal interrupt on break.
-serial.BRKINT = 0000002
+serial.BRKINT = 2
 --- Ignore characters with parity errors.
-serial.IGNPAR = 0000004
+serial.IGNPAR = 4
 --- Mark parity and framing errors.
-serial.PARMRK = 0000010
+serial.PARMRK = 8
 --- Enable input parity check.
-serial.INPCK = 0000020
+serial.INPCK = 16
 --- Strip 8th bit off characters.
-serial.ISTRIP = 0000040
+serial.ISTRIP = 32
 --- Map NL to CR on input.
-serial.INLCR = 0000100
+serial.INLCR = 64
 --- Ignore CR.
-serial.IGNCR = 0000200
+serial.IGNCR = 128
 --- Map CR to NL on input.
-serial.ICRNL = 0000400
+serial.ICRNL = 256
 --- Map uppercase characters to lowercase on input (not in POSIX).
-serial.IUCLC = 0001000
+serial.IUCLC = 512
 --- Enable start/stop output control.
-serial.IXON = 0002000
+serial.IXON = 1024
 --- Enable any character to restart output.
-serial.IXANY = 0004000
+serial.IXANY = 2048
 --- Enable start/stop input control.
-serial.IXOFF = 0010000
+serial.IXOFF = 4096
 --- Ring bell when input queue is full (not in POSIX).
-serial.IMAXBEL = 0020000
+serial.IMAXBEL = 8192
 --- Input is UTF8 (not in POSIX).
-serial.IUTF8 = 0040000
+serial.IUTF8 = 16384
 
 --- oflag constants
 -- @section oflag_constants
 
 --- Post-process output.
-serial.OPOST = 0000001
+serial.OPOST = 1
 --- Map lowercase characters to uppercase on output. (not in POSIX).
-serial.OLCUC = 0000002
+serial.OLCUC = 2
 --- Map NL to CR-NL on output.
-serial.ONLCR = 0000004
+serial.ONLCR = 4
 --- Map CR to NL on output.
-serial.OCRNL = 0000010
+serial.OCRNL = 8
 --- No CR output at column 0.
-serial.ONOCR = 0000020
+serial.ONOCR = 16
 --- NL performs CR function.
-serial.ONLRET = 0000040
+serial.ONLRET = 32
 --- Use fill characters for delay.
-serial.OFILL = 0000100
+serial.OFILL = 64
 --- Fill is DEL.
-serial.OFDEL = 0000200
+serial.OFDEL = 128
 --- Select vertical-tab delays:
-serial.VTDLY = 0040000
+serial.VTDLY = 16384
 --- Vertical-tab delay type 0.
-serial.VT0 = 0000000
+serial.VT0 = 0
 --- Vertical-tab delay type 1.
-serial.VT1 = 0040000
+serial.VT1 = 16384
 
 --- speed constants
 -- @section speed_constants
 
---- hang up
-serial.B0 = 0000000
 --- 50 baud
-serial.B50 = 0000001
+serial.B50 = 1
 --- 75 baud
-serial.B75 = 0000002
+serial.B75 = 2
 --- 110 baud
-serial.B110 = 0000003
+serial.B110 = 3
 --- 134.5 baud
-serial.B134 = 0000004
+serial.B134 = 4
 --- 150 baud
-serial.B150 = 0000005
+serial.B150 = 5
 --- 200 baud
-serial.B200 = 0000006
+serial.B200 = 6
 --- 300 baud
-serial.B300 = 0000007
+serial.B300 = 7
 --- 600 baud
-serial.B600 = 0000010
+serial.B600 = 8
 --- 1200 baud
-serial.B1200 = 0000011
+serial.B1200 = 9
 --- 1800 baud
-serial.B1800 = 0000012
+serial.B1800 = 10
 --- 2400 baud
-serial.B2400 = 0000013
+serial.B2400 = 11
 --- 4800 baud
-serial.B4800 = 0000014
+serial.B4800 = 12
 --- 9600 baud
-serial.B9600 = 0000015
+serial.B9600 = 13
 --- 19200 baud
-serial.B19200 = 0000016
+serial.B19200 = 14
 --- 38400 baud
-serial.B38400 = 0000017
+serial.B38400 = 15
 --- 57600 baud
-serial.B57600 = 0010001
+serial.B57600 = 4097
 --- 115200 baud
-serial.B115200 = 0010002
+serial.B115200 = 4098
 --- 230400 baud
-serial.B230400 = 0010003
+serial.B230400 = 4099
 --- 460800 baud
-serial.B460800 = 0010004
+serial.B460800 = 4100
 --- 500000 baud
-serial.B500000 = 0010005
+serial.B500000 = 4101
 --- 576000 baud
-serial.B576000 = 0010006
+serial.B576000 = 4102
 --- 921600 baud
-serial.B921600 = 0010007
+serial.B921600 = 4103
 --- 1000000 baud
-serial.B1000000 = 0010010
+serial.B1000000 = 4104
 --- 1152000 baud
-serial.B1152000 = 0010011
+serial.B1152000 = 4105
 --- 1500000 baud
-serial.B1500000 = 0010012
+serial.B1500000 = 4106
 --- 2000000 baud
-serial.B2000000 = 0010013
+serial.B2000000 = 4107
 --- 2500000 baud
-serial.B2500000 = 0010014
+serial.B2500000 = 4108
 --- 3000000 baud
-serial.B3000000 = 0010015
+serial.B3000000 = 4109
 --- 3500000 baud
-serial.B3500000 = 0010016
+serial.B3500000 = 4110
 --- 4000000 baud
-serial.B4000000 = 0010017
+serial.B4000000 = 4111
 
 --- cflag constants
 -- @section cflag_constants
 
 --- Character size
-serial.CSIZE = 0000060
+serial.CSIZE = 48
 --- 5 bits.
-serial.CS5 = 0000000
+serial.CS5 = 0
 --- 6 bits.
-serial.CS6 = 0000020
+serial.CS6 = 16
 --- 7 bits.
-serial.CS7 = 0000040
+serial.CS7 = 32
 --- 8 bits.
-serial.CS8 = 0000060
+serial.CS8 = 48
 --- Send two stop bits, else one.
-serial.CSTOPB = 0000100
+serial.CSTOPB = 64
 --- Enable receiver.
-serial.CREAD = 0000200
+serial.CREAD = 128
 --- Parity enable.
-serial.PARENB = 0000400
+serial.PARENB = 256
 --- Odd parity, else even.
-serial.PARODD = 0001000
+serial.PARODD = 512
 --- Hang up on last close.
-serial.HUPCL = 0002000
+serial.HUPCL = 1024
 --- Ignore modem status lines.
-serial.CLOCAL = 0004000
+serial.CLOCAL = 2048
 
 --- lflag constants
 -- @section lflag_constants
 
 -- Enable signals.
-serial.ISIG = 0000001
+serial.ISIG = 1
 -- Canonical input (erase and kill processing).
-serial.ICANON = 0000002
+serial.ICANON = 2
 -- Enable echo.
-serial.ECHO = 0000010
+serial.ECHO = 8
 -- Echo erase character as error-correcting backspace.
-serial.ECHOE = 0000020
+serial.ECHOE = 16
 -- Echo KILL.
-serial.ECHOK = 0000040
+serial.ECHOK = 32
 -- Echo NL.
-serial.ECHONL = 0000100
+serial.ECHONL = 64
 -- Disable flush after interrupt or quit.
-serial.NOFLSH = 0000200
+serial.NOFLSH = 128
 -- Send SIGTTOU for background output.
-serial.TOSTOP = 0000400
+serial.TOSTOP = 256
 -- Enable implementation-defined input processing.
-serial.IEXTEN = 0100000
+serial.IEXTEN = 32768
 
 return serial
