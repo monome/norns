@@ -318,7 +318,7 @@ static void handle_event(union event_data *ev) {
         w_handle_screen_refresh();
         break;
     case EVENT_SERIAL_CONFIG:
-        w_handle_serial_config(ev->serial_config.path, ev->serial_config.name, ev->serial_config.vendor, ev->serial_config.model, ev->serial_config.serial);
+        w_handle_serial_config(ev->serial_config.path, ev->serial_config.name, ev->serial_config.vendor, ev->serial_config.model, ev->serial_config.serial, ev->serial_config.interface);
         break;
     case EVENT_SERIAL_ADD:
         w_handle_serial_add(ev->serial_add.dev);
