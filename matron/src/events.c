@@ -139,6 +139,8 @@ MATRON_API void event_data_free(union event_data *ev) {
         free(ev->serial_config.name);
         free(ev->serial_config.vendor);
         free(ev->serial_config.model);
+        free(ev->serial_config.serial);
+        free(ev->serial_config.interface);
         break;
     case EVENT_SERIAL_REMOVE:
         free(ev->serial_remove.handler_id);
@@ -316,7 +318,7 @@ static void handle_event(union event_data *ev) {
         w_handle_screen_refresh();
         break;
     case EVENT_SERIAL_CONFIG:
-        w_handle_serial_config(ev->serial_config.path, ev->serial_config.name, ev->serial_config.vendor, ev->serial_config.model);
+        w_handle_serial_config(ev->serial_config.path, ev->serial_config.name, ev->serial_config.vendor, ev->serial_config.model, ev->serial_config.serial);
         break;
     case EVENT_SERIAL_ADD:
         w_handle_serial_add(ev->serial_add.dev);

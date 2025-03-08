@@ -2316,11 +2316,13 @@ void w_handle_crow_event(void *dev, int id) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-void w_handle_serial_config(char *path, char *name, char *vendor, char *model) {
+void w_handle_serial_config(char *path, char *name, char *vendor, char *model, char *serial, char *interface) {
     _push_norns_func("serial", "config");
     lua_pushstring(lvm, vendor);
     lua_pushstring(lvm, model);
-    l_report(lvm, l_docall(lvm, 2, 2));
+    lua_pushstring(lvm, serial);
+    lua_pushstring(lvm, interface);
+    l_report(lvm, l_docall(lvm, 4, 2));
     if (lua_isnil(lvm, -2) || lua_isnil(lvm, -1)) {
         fprintf(stderr, "no serial handler found for device %s at %s\n", name, path);
         return;

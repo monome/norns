@@ -344,6 +344,8 @@ struct event_serial_config {
     char* name;
     char* vendor;
     char* model;
+    char* serial;
+    char* interface;
 }; // +?
 
 struct event_serial_add {

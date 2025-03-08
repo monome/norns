@@ -286,15 +286,20 @@ void add_dev_tty(struct udev_device *dev) {
         dev_list_add(DEV_TYPE_CROW, node, name, NULL);
     } else {
         fprintf(stderr, "dev_monitor: unmatched TTY device %s at %s\n", name, node);
-        const char *vendor, *model;
+        const char *vendor, *model, *serial, *interface;
         vendor = udev_device_get_property_value(dev, "ID_VENDOR");
         model = udev_device_get_property_value(dev, "ID_MODEL");
+        serial = udev_device_get_property_value(dev, "ID_SERIAL_SHORT");
+        interface = udev_device_get_property_value(dev, "ID_USB_INTERFACE_NUM");
+
         union event_data *ev;
         ev = event_data_new(EVENT_SERIAL_CONFIG);
         ev->serial_config.vendor = strdup(vendor);
         ev->serial_config.model = strdup(model);
         ev->serial_config.path = strdup(node);
         ev->serial_config.name = name;
+        ev->serial_config.serial = strdup(serial);
+        ev->serial_config.interface = strdup(interface);
         event_post(ev);
     }
 }

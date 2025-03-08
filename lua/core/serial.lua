@@ -18,9 +18,9 @@ end
 
 _norns.serial = {}
 
-function _norns.serial.config(vendor, model)
+function _norns.serial.config(vendor, model, serial_num, interface_num)
     for id, handler in pairs(serial._handlers) do
-        local config = handler.configure(vendor, model)
+        local config = handler.configure(vendor, model, serial_num, interface_num)
         if config then
             return id, config
         end
