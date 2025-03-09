@@ -17,6 +17,9 @@
 #include "events.h"
 #include "lua_eval.h"
 
+#define SECOND 1000000 // second to microsecond
+#define MILLISECOND 1000 // millisecond to microsecond
+
 unsigned int get_sleep_us(speed_t ospeed, tcflag_t cflag);
 
 int dev_serial_init(void *self, lua_State *l) {    
@@ -295,6 +298,10 @@ unsigned int get_sleep_us(speed_t ospeed, tcflag_t cflag)
     unsigned int bits_per_char = char_size + stop_bits + parity_bits;
     double chars_per_second = baud_rate / bits_per_char;
 
-    unsigned int us = floor(1000000 * max_read / chars_per_second);
+    unsigned int us = floor(SECOND * max_read / chars_per_second);
+    // latency becomes noticeable above 1ms
+    if (us > MILLISECOND) {
+        return MILLISECOND;
+    }
     return us;
 }
