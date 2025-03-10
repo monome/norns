@@ -17,12 +17,8 @@
 #include "events.h"
 #include "lua_eval.h"
 
-#define SECOND 1000000 // second to microsecond
-#define MILLISECOND 1000 // millisecond to microsecond
 
-unsigned int get_sleep_us(speed_t ospeed, tcflag_t cflag);
-
-int dev_serial_init(void *self, lua_State *l) {    
+int dev_serial_init(void *self, lua_State *l) {
     struct dev_serial *d = (struct dev_serial *)self;
     struct dev_common *base = (struct dev_common *)self;
 
@@ -140,13 +136,6 @@ int dev_serial_init(void *self, lua_State *l) {
         return -1;
     };
 
-    d->read_timeout = get_sleep_us(d->newtio.c_ospeed, d->newtio.c_cflag);
-    if (d->read_timeout == 0) {
-        fprintf(stderr, "failed to determine serial read timeout from cflags\n");
-        close(d->fd);
-        return -1;
-    }
-
     base->start = &dev_serial_start;
     base->deinit = &dev_serial_deinit;
     return 0;
@@ -170,12 +159,10 @@ void *dev_serial_start(void *self) {
         if (len > 0) {
             di->line[len] = 0; // add null to end of string
             if (len > 1) {
-                // fprintf(stderr,"serial> %s\n", di->line);
                 handle_event(self, base->id);
             }
             len = 0;
         }
-        usleep(di->read_timeout);
     }
     return NULL;
 }
@@ -189,119 +176,5 @@ void dev_serial_deinit(void *self) {
 }
 
 void dev_serial_send(struct dev_serial *d, const char *line) {
-    // fprintf(stderr,"serial_send: %s",line);
     write(d->fd, line, strlen(line));
-}
-
-unsigned int get_baud_rate(speed_t ospeed) {
-    switch (ospeed) {
-        case B50:
-            return 50;
-        case B75:
-            return 75;
-        case B110:
-            return 110;
-        case B134:
-            return 134;
-        case B150:
-            return 150;
-        case B200:
-            return 200;
-        case B300:
-            return 300;
-        case B600:
-            return 600;
-        case B1200:
-            return 1200;
-        case B1800:
-            return 1800;
-        case B2400:
-            return 2400;
-        case B4800:
-            return 4800;
-        case B9600:
-            return 9600;
-        case B19200:
-            return 19200;
-        case B38400:
-            return 38400;
-        case B57600:
-            return 57600;
-        case B115200:
-            return 115200;
-        case B230400:
-            return 230400;
-        case B460800:
-            return 460800;
-        case B500000:
-            return 500000;
-        case B576000:
-            return 576000;
-        case B921600:
-            return 921600;
-        case B1000000:
-            return 1000000;
-        case B1152000:
-            return 1152000;
-        case B1500000:
-            return 1500000;
-        case B2000000:
-            return 2000000;
-        case B2500000:
-            return 2500000;
-        case B3000000:
-            return 3000000;
-        case B3500000:
-            return 3500000;
-        case B4000000:
-            return 4000000;
-        default:
-            return 0;
-    }
-}
-
-unsigned int get_character_size(tcflag_t cflag) {
-    tcflag_t size = cflag & CSIZE;
-    switch (size) {
-        case CS8:
-            return 8;
-        case CS7:
-            return 7;
-        case CS6:
-            return 6;
-        default:
-            return 5;
-    }
-}
-
-unsigned int get_stop_bits(tcflag_t cflag) {
-    if (cflag & CSTOPB) {
-        return 2;
-    }
-    return 1;
-}
-
-unsigned int get_parity_bits(tcflag_t cflag) {
-    if (cflag & PARENB) {
-        return 1;
-    }
-    return 0;
-}
-
-unsigned int get_sleep_us(speed_t ospeed, tcflag_t cflag)
-{
-    unsigned int baud_rate = get_baud_rate(ospeed);
-    unsigned int char_size = get_character_size(cflag);
-    unsigned int stop_bits = get_stop_bits(cflag);
-    unsigned int parity_bits =  get_parity_bits(cflag);
-
-    unsigned int bits_per_char = char_size + stop_bits + parity_bits;
-    double chars_per_second = baud_rate / bits_per_char;
-
-    unsigned int us = floor(SECOND * max_read / chars_per_second);
-    // latency becomes noticeable above 1ms
-    if (us > MILLISECOND) {
-        return MILLISECOND;
-    }
-    return us;
 }

@@ -17,7 +17,6 @@ struct dev_serial {
     int fd;
     struct termios oldtio, newtio;
     char line[BUFFER_SIZE];
-    unsigned int read_timeout;
     char* handler_id;
 };
 
