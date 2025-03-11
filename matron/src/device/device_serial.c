@@ -24,7 +24,7 @@ int dev_serial_init(void *self, lua_State *l) {
 
     d->fd = open(d->base.path, O_RDWR | O_NOCTTY | O_SYNC);
     if (d->fd < 0) {
-        fprintf(stderr, "failed to open serial device: %s\n", d->base.path);
+        fprintf(stderr, "dev_serial: failed to open serial device: %s\n", d->base.path);
         return -1;
     }
 
@@ -69,7 +69,7 @@ int dev_serial_init(void *self, lua_State *l) {
     l_report(l, l_docall(l, 2, 1));
 
     if (!lua_istable(l, -1)) {
-        fprintf(stderr, "serial handler config table expected, got %s\n", lua_typename(l, lua_type(l, -1)));
+        fprintf(stderr, "dev_serial: serial handler config table expected, got %s\n", lua_typename(l, lua_type(l, -1)));
         close(d->fd);
         return -1;
     }
@@ -131,7 +131,7 @@ int dev_serial_init(void *self, lua_State *l) {
 
     tcflush(d->fd, TCIFLUSH);
     if (tcsetattr(d->fd, TCSANOW, &d->newtio) < 0) {
-        fprintf(stderr, "failed to initialize serial device: %s\n", d->base.path);
+        fprintf(stderr, "dev_serial: failed to initialize serial device: %s\n", d->base.path);
         close(d->fd);
         return -1;
     };
