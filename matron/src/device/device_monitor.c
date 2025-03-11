@@ -246,7 +246,7 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
         return;
     }
     
-    fprintf(stderr, "dev_monitor: unmatched unmatched TTY device was removed from %s\n", node);
+    fprintf(stderr, "dev_monitor: unmatched TTY device was removed from %s\n", node);
     dev_list_remove(DEV_TYPE_SERIAL, node);
 
 }
