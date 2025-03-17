@@ -229,14 +229,8 @@ void rm_dev(struct udev_device *dev, int dev_file) {
 void rm_dev_tty(struct udev_device *dev, const char *node) {
     // fprintf(stderr, "rm_dev_tty: %s\n", node);
 
-    if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
-        fprintf(stderr, "dev_monitor: got ttyUSB, assuming grid\n");
-        dev_list_remove(DEV_TYPE_MONOME, node);
-        return;
-    }
-
     if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: TTY appears to be ACM grid\n");
+        fprintf(stderr, "dev_monitor: TTY appears to be a grid\n");
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
@@ -275,11 +269,8 @@ void add_dev_tty(struct udev_device *dev) {
         return;
     }
     char *name = get_device_name(dev);
-    if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
-        fprintf(stderr, "dev_monitor: got ttyUSB, assuming grid\n");
-        dev_list_add(DEV_TYPE_MONOME, node, name, NULL);
-    } else if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: TTY appears to be ACM grid\n");
+    if (is_dev_monome_grid(dev)) {
+        fprintf(stderr, "dev_monitor: TTY appears to be a grid\n");
         dev_list_add(DEV_TYPE_MONOME, node, name, NULL);
     } else if (is_dev_crow(dev)) {
         fprintf(stderr, "tty is a crow\n");
