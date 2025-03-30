@@ -3,46 +3,51 @@
 local tab = require 'tabutil'
 
 local serial = {
-    _handlers={},
+  _handlers={},
 }
 
 --- add a new serial device handler
 function serial.handler(args)
-    assert(serial._handlers[args.id] == nil, "duplicate serial handler id: " .. args.id)
-    serial._handlers[args.id] = args
+  assert(serial._handlers[args.id] == nil, "duplicate serial handler id: " .. args.id)
+  serial._handlers[args.id] = args
 end
 
 --- send a message to a serial device
 function serial.send(dev, line)
-    _norns.serial_send(dev, line)
+  _norns.serial_send(dev, line)
 end
 
 _norns.serial = {}
 
 function _norns.serial.match(vendor, model, serial_num, interface_num)
-    local attrs = tab.readonly{table={vendor=vendor, model=model, serial=serial_num, interface=interface_num}}
-    for id, handler in pairs(serial._handlers) do
-        if handler.match(attrs) then
-            return id
-        end
+  local attrs = tab.readonly{table={
+    vendor=vendor,
+    model=model,
+    serial=serial_num,
+    interface=interface_num
+  }}
+  for id, handler in pairs(serial._handlers) do
+    if handler.match(attrs) then
+      return id
     end
-    return nil
+  end
+  return nil
 end
 
 function _norns.serial.configure(handler_id, tio)
-    return serial._handlers[handler_id].configure(tio)
+  return serial._handlers[handler_id].configure(tio)
 end
 
 function _norns.serial.add(handler_id, id, name, dev)
-    serial._handlers[handler_id].add(id, name, dev)
+  serial._handlers[handler_id].add(id, name, dev)
 end
 
 function _norns.serial.remove(handler_id, id)
-    serial._handlers[handler_id].remove(id)
+  serial._handlers[handler_id].remove(id)
 end
 
 function _norns.serial.event(handler_id, id, line)
-    serial._handlers[handler_id].event(id, line)
+  serial._handlers[handler_id].event(id, line)
 end
 
 --- cc constants
