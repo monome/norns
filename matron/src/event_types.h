@@ -346,7 +346,7 @@ struct event_serial_config {
     char* model;
     char* serial;
     char* interface;
-}; // +?
+}; // +24
 
 struct event_serial_add {
     struct event_common common;
@@ -357,13 +357,13 @@ struct event_serial_remove {
     struct event_common common;
     uint32_t id;
     char *handler_id;
-}; // +4
+}; // +8
 
 struct event_serial_event {
     struct event_common common;
     void *dev;
     uint32_t id;
-}; // +5
+}; // +8
 
 // forward declaration to hide scripting layer dependencies
 struct event_custom_ops;
