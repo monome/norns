@@ -285,12 +285,12 @@ void add_dev_tty(struct udev_device *dev) {
 
         union event_data *ev;
         ev = event_data_new(EVENT_SERIAL_CONFIG);
-        ev->serial_config.vendor = vendor != NULL ? strdup(vendor) : NULL;
-        ev->serial_config.model = model != NULL ? strdup(model) : NULL;
+        ev->serial_config.vendor = strdup(vendor != NULL ? vendor : "");
+        ev->serial_config.model = strdup(model != NULL ? model : "");
         ev->serial_config.path = strdup(node);
         ev->serial_config.name = name;
-        ev->serial_config.serial = serial != NULL ? strdup(serial) : NULL;
-        ev->serial_config.interface = interface != NULL ? strdup(interface) : NULL;
+        ev->serial_config.serial = strdup(serial != NULL ? serial : "");
+        ev->serial_config.interface = strdup(interface != NULL ? interface : "");
         event_post(ev);
     }
 }
