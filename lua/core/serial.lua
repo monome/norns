@@ -1,5 +1,6 @@
 --- USB serial device interface
 -- @module serial
+local tab = require 'tabutil'
 
 local serial = {
     _handlers={},
@@ -19,8 +20,9 @@ end
 _norns.serial = {}
 
 function _norns.serial.match(vendor, model, serial_num, interface_num)
+    local attrs = tab.readonly{table={vendor=vendor, model=model, serial=serial_num, interface=interface_num}}
     for id, handler in pairs(serial._handlers) do
-        if handler.match(vendor, model, serial_num, interface_num) then
+        if handler.match(attrs) then
             return id
         end
     end
