@@ -230,7 +230,7 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
     // fprintf(stderr, "rm_dev_tty: %s\n", node);
 
     if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: ttyACM appears to be monome\n");
+        fprintf(stderr, "dev_monitor: tty appears to be monome\n");
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
@@ -240,7 +240,7 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
         return;
     }
 
-    fprintf(stderr, "dev_monitor: unmatched ttyACM device was removed from %s\n", node);
+    fprintf(stderr, "dev_monitor: unmatched tty device was removed from %s\n", node);
     dev_list_remove(DEV_TYPE_SERIAL, node);
 
 }
@@ -270,7 +270,7 @@ void add_dev_tty(struct udev_device *dev) {
     }
     char *name = get_device_name(dev);
     if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: TTY appears to be a grid\n");
+        fprintf(stderr, "dev_monitor: TTY appears to be a monome\n");
         dev_list_add(DEV_TYPE_MONOME, node, name, NULL);
     } else if (is_dev_crow(dev)) {
         fprintf(stderr, "tty is a crow\n");
