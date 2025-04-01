@@ -230,13 +230,13 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
     // fprintf(stderr, "rm_dev_tty: %s\n", node);
 
     if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
-        fprintf(stderr, "dev_monitor: got ttyUSB, assuming grid\n");
+        fprintf(stderr, "dev_monitor: got ttyUSB, assuming monome\n");
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
 
     if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: TTY appears to be ACM grid\n");
+        fprintf(stderr, "dev_monitor: ttyACM appears to be monome\n");
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
@@ -246,7 +246,7 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
         return;
     }
     
-    fprintf(stderr, "dev_monitor: unmatched TTY device was removed from %s\n", node);
+    fprintf(stderr, "dev_monitor: unmatched ttyACM device was removed from %s\n", node);
 
 }
 
@@ -372,7 +372,9 @@ int is_dev_monome_grid(struct udev_device *dev) {
     }
 
     if (strcmp(model, "grid") == 0) {
-        // a monome grid
+        return 1;
+    }
+    if (strcmp(model, "arc") == 0) {
         return 1;
     }
     if (strcmp(model, "monome") == 0) {
