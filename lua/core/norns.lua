@@ -248,7 +248,6 @@ _norns.restart = function()
   hook.system_pre_shutdown()
   print("RESTARTING")
   norns.script.clear()
-  _norns.free_engine()
   norns.state.clean_shutdown = true
   norns.state.save()
   pcall(cleanup)
