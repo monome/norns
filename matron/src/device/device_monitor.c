@@ -230,17 +230,17 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
     // fprintf(stderr, "rm_dev_tty: %s\n", node);
 
     if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: TTY appears to be a grid\n");
+        fprintf(stderr, "dev_monitor: ttyACM appears to be monome\n");
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
 
-    if (is_dev_crow(dev)) {         
+    if (is_dev_crow(dev)) {
         dev_list_remove(DEV_TYPE_CROW, node);
         return;
     }
-    
-    fprintf(stderr, "dev_monitor: unmatched TTY device was removed from %s\n", node);
+
+    fprintf(stderr, "dev_monitor: unmatched ttyACM device was removed from %s\n", node);
     dev_list_remove(DEV_TYPE_SERIAL, node);
 
 }
@@ -379,7 +379,9 @@ int is_dev_monome_grid(struct udev_device *dev) {
     }
 
     if (strcmp(model, "grid") == 0) {
-        // a monome grid
+        return 1;
+    }
+    if (strcmp(model, "arc") == 0) {
         return 1;
     }
     if (strcmp(model, "monome") == 0) {
@@ -390,7 +392,7 @@ int is_dev_monome_grid(struct udev_device *dev) {
     return 0;
 }
 
-int is_dev_crow(struct udev_device *dev) { 
+int is_dev_crow(struct udev_device *dev) {
     const char *device_product_string = udev_device_get_property_value(dev, "ID_MODEL");
     if(device_product_string != NULL) {
         return strcmp(device_product_string, "crow:_telephone_line") == 0;
