@@ -9,15 +9,20 @@ local serial = {
 --- add a new serial device handler
 -- @param args
 -- @param args.id unique identifier for the handler
--- @param args.match function(attrs) returning true if the handler should accept the device with the given attributes, otherwise false
--- @param args.configure function(term) receiving the device's initial terminal settings and returning the new terminal settings. The callback should modify the input table using bitwise operations and then return the input table
+-- @param args.match function(attrs) returning true if the handler should accept the device with the given attributes, 
+--   otherwise false
+-- @param args.configure function(term) receiving the device's initial terminal settings and returning the new terminal
+--   settings. The callback should modify the input table using bitwise operations and then return the input table
 -- @param args.add function(id, name, dev) called when a new device for this handler has been connected and initialized
 -- @param args.remove function(id) called when a connected device for this  handler has been disconnected
--- @param args.event function(id, line) called when a message is received from a connected device for this handler
+-- @param args.event function(id, data) called when a message is received from a connected device for this handler. The 
+--   data argument will be no more than 255 bytes in length. Messages longer than 255 bytes will be spread out over 
+--   multiple event callbacks. It's possible for multiple messages shorter than 255 bytes to appear in a single event 
+--   callback.
 -- @usage
 -- friends = {}
 --
--- handler = serial.add_handler({
+-- serial.add_handler({
 --   id = "example_id", -- can be number or string
 --
 --   match = function(attrs)
@@ -58,8 +63,8 @@ local serial = {
 --     tab.remove(friends, id)
 --   end,
 --
---   event = function(id, line)
---     print(friends[id] .. " says:", line)
+--   event = function(id, data)
+--     print(friends[id] .. " says:", data)
 --   end
 -- })
 function serial.add_handler(args)
@@ -69,9 +74,9 @@ end
 
 --- send a message to a serial device
 -- @param dev opaque device pointer
--- @param line string message to send
-function serial.send(dev, line)
-  _norns.serial_send(dev, line)
+-- @param data string message to send
+function serial.send(dev, data)
+  _norns.serial_send(dev, data)
 end
 
 _norns.serial = {}
@@ -103,8 +108,8 @@ function _norns.serial.remove(handler_id, id)
   serial._handlers[handler_id].remove(id)
 end
 
-function _norns.serial.event(handler_id, id, line)
-  serial._handlers[handler_id].event(id, line)
+function _norns.serial.event(handler_id, id, data)
+  serial._handlers[handler_id].event(id, data)
 end
 
 --- CC (special character) constants
