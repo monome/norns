@@ -14,6 +14,54 @@ local serial = {
 -- @param args.add function(id, name, dev) called when a new device for this handler has been connected and initialized
 -- @param args.remove function(id) called when a connected device for this  handler has been disconnected
 -- @param args.event function(id, line) called when a message is received from a connected device for this handler
+-- @usage
+-- friends = {}
+--
+-- handler = serial.add_handler({
+--   id = "example_id", -- can be number or string
+--
+--   match = function(attrs)
+--     local is_match = (
+--           (attrs["vendor"] == "FTDI")
+--       and (attrs["model"] == "FT232R")
+--       and (attrs["serial"] == "ABC123")
+--       and (attrs["interface"] == "00")
+--     )
+--     return is_match
+--   end,
+--
+--   configure = function(term)
+--       -- set baud rate.
+--       term.ispeed = term.ispeed | serial.speed.B115200
+--       term.ospeed = term.ospeed | serial.speed.B115200
+--
+--       -- enable some flags.
+--       term.iflag = term.iflag | serial.iflag.INCLR
+--       term.oflag = term.oflag | serial.oflag.ONLCR
+--       term.cflag = term.cflag | serial.cflag.CS8
+--
+--       -- disable some flags.
+--       term.lflag = term.lflag & (~serial.lflag.ECHO)
+--
+--       -- return the copied and modified table.
+--       return term
+--   end,
+--
+--   add = function(id, name, dev)
+--     print("saying hi...")
+--     serial.send(dev, "hello " .. name .. "!")
+--     tab.insert(friends, id, dev)
+--   end,
+--
+--   remove = function(id)
+--     print("it's too late to say goodbye.")
+--     tab.remove(friends, id)
+--   end,
+--
+--   event = function(id, line)
+--     print(friends[id] .. " says:", line)
+--   end
+-- })
 function serial.add_handler(args)
   assert(serial._handlers[args.id] == nil, "duplicate serial handler id: " .. args.id)
   serial._handlers[args.id] = args
@@ -59,208 +107,215 @@ function _norns.serial.event(handler_id, id, line)
   serial._handlers[handler_id].event(id, line)
 end
 
---- cc constants
--- @section cc_constants
-
---- INTR character
-serial.VINTR = 0
---- QUIT character
-serial.VQUIT = 1
---- ERASE character
-serial.VERASE = 2
---- KILL character
-serial.VKILL = 3
---- EOF character
-serial.VEOF = 4
---- TIME value
-serial.VTIME = 5
---- MIN value
-serial.VMIN = 6
-serial.VSWTC = 7
---- START character
-serial.VSTART = 8
---- STOP character
-serial.VSTOP = 9
---- SUSP character
-serial.VSUSP = 10
---- EOL character
-serial.VEOL = 11
-serial.VREPRINT = 12
-serial.VDISCARD = 13
-serial.VWERASE = 14
-serial.VLNEXT = 15
-serial.VEOL2 = 16
+--- CC (special character) constants
+-- @table cc
+-- @field VINTR INTR character
+-- @field VQUIT QUIT character
+-- @field VERASE ERASE character
+-- @field VKILL KILL character
+-- @field VEOF EOF character
+-- @field VTIME TIME value
+-- @field VMIN MIN value
+-- @field VSTART START character
+-- @field VSTOP STOP character
+-- @field VSUSP SUSP character
+-- @field VEOL EOL character
+serial.cc = tab.readonly(table = {
+  VINTR = 0,
+  VQUIT = 1,
+  VERASE = 2,
+  VKILL = 3,
+  VEOF = 4,
+  VTIME = 5,
+  VMIN = 6,
+  VSWTC = 7,
+  VSTART = 8,
+  VSTOP = 9,
+  VSUSP = 10,
+  VEOL = 11,
+  VREPRINT = 12,
+  VDISCARD = 13,
+  VWERASE = 14,
+  VLNEXT = 15,
+  VEOL2 = 16,
+})
 
 --- iflag constants
--- @section iflag_constants
-
---- Ignore break condition.
-serial.IGNBRK = 1
---- Signal interrupt on break.
-serial.BRKINT = 2
---- Ignore characters with parity errors.
-serial.IGNPAR = 4
---- Mark parity and framing errors.
-serial.PARMRK = 8
---- Enable input parity check.
-serial.INPCK = 16
---- Strip 8th bit off characters.
-serial.ISTRIP = 32
---- Map NL to CR on input.
-serial.INLCR = 64
---- Ignore CR.
-serial.IGNCR = 128
---- Map CR to NL on input.
-serial.ICRNL = 256
---- Map uppercase characters to lowercase on input (not in POSIX).
-serial.IUCLC = 512
---- Enable start/stop output control.
-serial.IXON = 1024
---- Enable any character to restart output.
-serial.IXANY = 2048
---- Enable start/stop input control.
-serial.IXOFF = 4096
---- Ring bell when input queue is full (not in POSIX).
-serial.IMAXBEL = 8192
---- Input is UTF8 (not in POSIX).
-serial.IUTF8 = 16384
+-- @table iflag
+-- @field IGNBREAK Ignore break condition.
+-- @field BRKINT Signal interrupt on break.
+-- @field IGNPAR Ignore characters with parity errors.
+-- @field PARMRK Mark parity and framing errors.
+-- @field INPCK Enable input parity check.
+-- @field ISTRIP Strip 8th bit off characters.
+-- @field INCLR Map NL to CR on input.
+-- @field IGNCR Ignore CR.
+-- @field ICRNL Map CT to NL on input.
+-- @field IUCLC Map uppercase characters to lowercase on input (not in POSIX).
+-- @field IXON Enable start/stop output control.
+-- @field IXANY Enable any character to restart output.
+-- @field IXOFF Enable start/stop input control.
+-- @field IMAXBEL Enable start/stop input control.
+-- @field IUTF8 Input is UTF8 (not in POSIX).
+serial.iflag = tab.readonly(table = {
+  IGNBRK = 1,
+  BRKINT = 2,
+  IGNPAR = 4,
+  PARMRK = 8,
+  INPCK = 16,
+  ISTRIP = 32,
+  INCLR = 64,
+  IGNCR = 128,
+  ICRNL = 256,
+  IUCLC = 512,
+  IXON = 1024,
+  IXANY = 2048,
+  IXOFF = 4096,
+  IMAXBEL = 8192,
+  IUTF8 = 16384,
+})
 
 --- oflag constants
--- @section oflag_constants
+-- @table oflag
+-- @field OPOST Post-process output.
+-- @field OLCUC Map lowercase characters to uppercase on output. (not in POSIX).
+-- @field ONLCR Map NL to CR-NL on output.
+-- @field OCRNL Map CR to NL on output.
+-- @field ONOCR No CR output at column 0.
+-- @field ONLRET NL performs CR function.
+-- @field OFILL Use fill characters for delay.
+-- @field OFDEL Fill is DEL.
+-- @field VTDLY Select vertical-tab delays:
+-- @field VT0 Vertical-tab delay type 0.
+-- @field VT1 Vertical-tab delay type 1.
+serial.oflag = tab.readonly(table = {
+  OPOST = 1,
+  OLCUC = 2,
+  ONLCR = 4,
+  OCRNL = 8,
+  ONOCR = 16,
+  ONLRET = 32,
+  OFILL = 64,
+  OFDEL = 128,
+  VTDLY = 16384,
+  VT0 = 0,
+  VT1 = 16384,
+})
 
---- Post-process output.
-serial.OPOST = 1
---- Map lowercase characters to uppercase on output. (not in POSIX).
-serial.OLCUC = 2
---- Map NL to CR-NL on output.
-serial.ONLCR = 4
---- Map CR to NL on output.
-serial.OCRNL = 8
---- No CR output at column 0.
-serial.ONOCR = 16
---- NL performs CR function.
-serial.ONLRET = 32
---- Use fill characters for delay.
-serial.OFILL = 64
---- Fill is DEL.
-serial.OFDEL = 128
---- Select vertical-tab delays:
-serial.VTDLY = 16384
---- Vertical-tab delay type 0.
-serial.VT0 = 0
---- Vertical-tab delay type 1.
-serial.VT1 = 16384
-
---- speed constants
--- @section speed_constants
-
---- 50 baud
-serial.B50 = 1
---- 75 baud
-serial.B75 = 2
---- 110 baud
-serial.B110 = 3
---- 134.5 baud
-serial.B134 = 4
---- 150 baud
-serial.B150 = 5
---- 200 baud
-serial.B200 = 6
---- 300 baud
-serial.B300 = 7
---- 600 baud
-serial.B600 = 8
---- 1200 baud
-serial.B1200 = 9
---- 1800 baud
-serial.B1800 = 10
---- 2400 baud
-serial.B2400 = 11
---- 4800 baud
-serial.B4800 = 12
---- 9600 baud
-serial.B9600 = 13
---- 19200 baud
-serial.B19200 = 14
---- 38400 baud
-serial.B38400 = 15
---- 57600 baud
-serial.B57600 = 4097
---- 115200 baud
-serial.B115200 = 4098
---- 230400 baud
-serial.B230400 = 4099
---- 460800 baud
-serial.B460800 = 4100
---- 500000 baud
-serial.B500000 = 4101
---- 576000 baud
-serial.B576000 = 4102
---- 921600 baud
-serial.B921600 = 4103
---- 1000000 baud
-serial.B1000000 = 4104
---- 1152000 baud
-serial.B1152000 = 4105
---- 1500000 baud
-serial.B1500000 = 4106
---- 2000000 baud
-serial.B2000000 = 4107
---- 2500000 baud
-serial.B2500000 = 4108
---- 3000000 baud
-serial.B3000000 = 4109
---- 3500000 baud
-serial.B3500000 = 4110
---- 4000000 baud
-serial.B4000000 = 4111
 
 --- cflag constants
--- @section cflag_constants
-
---- Character size
-serial.CSIZE = 48
---- 5 bits.
-serial.CS5 = 0
---- 6 bits.
-serial.CS6 = 16
---- 7 bits.
-serial.CS7 = 32
---- 8 bits.
-serial.CS8 = 48
---- Send two stop bits, else one.
-serial.CSTOPB = 64
---- Enable receiver.
-serial.CREAD = 128
---- Parity enable.
-serial.PARENB = 256
---- Odd parity, else even.
-serial.PARODD = 512
---- Hang up on last close.
-serial.HUPCL = 1024
---- Ignore modem status lines.
-serial.CLOCAL = 2048
+-- @table cflag
+-- @field CSIZE Character size
+-- @field CS5 5-bits per character / symbol.
+-- @field CS6 6-bits per character / symbol.
+-- @field CS7 7-bits per character / symbol.
+-- @field CS8 8-bits per character / symbol.
+-- @field CSTOPB Send two stop bits, else one.
+-- @field CREAD Enable receiver.
+-- @field PARENB Parity enable.
+-- @field PARODD Odd parity, else even.
+-- @field HUPCL Hang up on last close.
+-- @field CLOCAL Ignore modem status lines.
+serial.cflag = tab.readonly(table = {
+  CSIZE = 48,
+  CS5 = 0,
+  CS6 = 16,
+  CS7 = 32,
+  CS8 = 48,
+  CSTOPB = 64,
+  CREAD = 128,
+  PARENB = 256,
+  PARODD = 512,
+  HUPCL = 1024,
+  CLOCAL = 2048,
+}
 
 --- lflag constants
--- @section lflag_constants
+-- @table lflag
+-- @field ISIG Enable signals.
+-- @field ICANON Canonical input (erase and kill processing).
+-- @field ECHO Enable echo.
+-- @field ECHOE Echo erase character as error-correcting backspace.
+-- @field ECHOK Echo KILL.
+-- @field ECHONL Echo NL.
+-- @field NOFLSH Disable flush after interrupt or quit.
+-- @field TOSTOP Send SIGTTOU for background output.
+-- @field IEXTEN Enable implementation-defined input processing.
+serial.lflag = tab.readonly(table = {
+  ISIG = 1,
+  ICANON = 2,
+  ECHO = 8,
+  ECHOE = 16,
+  ECHOK = 32,
+  ECHONL = 64,
+  NOFLSH = 128,
+  TOSTOP = 256,
+  IEXTEN = 32768,
+})
 
--- Enable signals.
-serial.ISIG = 1
--- Canonical input (erase and kill processing).
-serial.ICANON = 2
--- Enable echo.
-serial.ECHO = 8
--- Echo erase character as error-correcting backspace.
-serial.ECHOE = 16
--- Echo KILL.
-serial.ECHOK = 32
--- Echo NL.
-serial.ECHONL = 64
--- Disable flush after interrupt or quit.
-serial.NOFLSH = 128
--- Send SIGTTOU for background output.
-serial.TOSTOP = 256
--- Enable implementation-defined input processing.
-serial.IEXTEN = 32768
+--- speed constants
+-- @table speed
+-- @field B50 50 baud
+-- @field B75 75 baud
+-- @field B110 110 baud
+-- @field B134 134 baud
+-- @field B150 150 baud
+-- @field B200 200 baud
+-- @field B300 300 baud
+-- @field B600 600 baud
+-- @field B1200 1200 baud
+-- @field B1800 1800 baud
+-- @field B2400 2400 baud
+-- @field B4800 4800 baud
+-- @field B9600 9600 baud
+-- @field B19200 19200 baud
+-- @field B38400 38400 baud
+-- @field B57600 57600 baud
+-- @field B115200 115200 baud
+-- @field B230400 230400 baud
+-- @field B460800 460800 baud
+-- @field B500000 500000 baud
+-- @field B576000 576000 baud
+-- @field B921600 921600 baud
+-- @field B1000000 1000000 baud
+-- @field B1152000 1152000 baud
+-- @field B1500000 1500000 baud
+-- @field B2000000 2000000 baud
+-- @field B2500000 2500000 baud
+-- @field B3000000 3000000 baud
+-- @field B3500000 3500000 baud
+-- @field B4000000 4000000 baud
+serial.speed = tab.readonly(table = {
+  B50 = 1,
+  B75 = 2,
+  B110 = 3,
+  B134 = 4,
+  B150 = 5,
+  B200 = 6,
+  B300 = 7,
+  B600 = 8,
+  B1200 = 9,
+  B1800 = 10,
+  B2400 = 11,
+  B4800 = 12,
+  B9600 = 13,
+  B19200 = 14,
+  B38400 = 15,
+  B57600 = 4097,
+  B115200 = 4098,
+  B230400 = 4099,
+  B460800 = 4100,
+  B500000 = 4101,
+  B576000 = 4102,
+  B921600 = 4103,
+  B1000000 = 4104,
+  B1152000 = 4105,
+  B1500000 = 4106,
+  B2000000 = 4107,
+  B2500000 = 4108,
+  B3000000 = 4109,
+  B3500000 = 4110,
+  B4000000 = 4111,
+}
 
 return serial
