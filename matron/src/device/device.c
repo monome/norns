@@ -16,7 +16,7 @@
 static int dev_start(union dev *d);
 
 union dev *dev_new(device_t type, const char *path, const char *name, bool multiport_device,
-                   unsigned int midi_port_index) {
+                   unsigned int midi_port_index, lua_State *l) {
 
     union dev *d = calloc(1, sizeof(union dev));
 
@@ -53,6 +53,11 @@ union dev *dev_new(device_t type, const char *path, const char *name, bool multi
         break;
     case DEV_TYPE_CROW:
         if (dev_crow_init(d) < 0) {
+            goto err_init;
+        }
+        break;
+    case DEV_TYPE_SERIAL:
+        if (dev_serial_init(d, l) < 0) {
             goto err_init;
         }
         break;

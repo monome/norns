@@ -28,10 +28,13 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_scheduler.h"
+#include "device.h"
+#include "device_list.h"
 #include "device_crow.h"
 #include "device_hid.h"
 #include "device_midi.h"
 #include "device_monome.h"
+#include "device_serial.h"
 #include "events.h"
 #include "event_custom.h"
 #include "hello.h"
@@ -174,6 +177,9 @@ static int _midi_clock_receive(lua_State *l);
 
 // crow
 static int _crow_send(lua_State *l);
+
+// serial
+static int _serial_send(lua_State *l);
 
 // crone
 /// engines
@@ -434,6 +440,9 @@ void w_init(void) {
 
     // crow
     lua_register_norns("crow_send", &_crow_send);
+
+    // serial
+    lua_register_norns("serial_send", &_serial_send);
 
     // util
     lua_register_norns("system_cmd", &_system_cmd);
@@ -1639,6 +1648,24 @@ int _crow_send(lua_State *l) {
     return 0;
 }
 
+int _serial_send(lua_State *l) {
+    struct dev_serial *d;
+    const char *s;
+
+    if (lua_gettop(l) != 2) {
+        return luaL_error(l, "wrong number of arguments");
+    }
+
+    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+    d = lua_touserdata(l, 1);
+    s = luaL_checkstring(l, 2);
+    lua_settop(l, 0);
+
+    dev_serial_send(d, s);
+
+    return 0;
+}
+
 /***
  * midi: send
  * @function midi_send
@@ -2287,6 +2314,55 @@ void w_handle_crow_event(void *dev, int id) {
     lua_pushinteger(lvm, id + 1); // convert to 1-base
     lua_pushstring(lvm, d->line);
     l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+void w_handle_serial_config(char *path, char *name, char *vendor, char *model, char *serial, char *interface) {
+    _push_norns_func("serial", "match");
+    lua_pushstring(lvm, vendor);
+    lua_pushstring(lvm, model);
+    lua_pushstring(lvm, serial);
+    lua_pushstring(lvm, interface);
+    l_report(lvm, l_docall(lvm, 4, 1));
+    if (lua_isnil(lvm, -1)) {
+        fprintf(stderr, "no serial handler found for device %s at %s\n", name, path);
+        return;
+    }
+    if (!lua_isstring(lvm, -1)) {
+        fprintf(stderr, "serial handler id expected, got %s\n", lua_typename(lvm, lua_type(lvm, -1)));
+        return;
+    }
+
+    dev_list_add(DEV_TYPE_SERIAL, path, strdup(name), lvm);
+}
+
+
+void w_handle_serial_add(void *p) {
+    struct dev_serial *dev = (struct dev_serial *)p;
+    struct dev_common *base = (struct dev_common *)p;
+    int id = base->id;
+
+    _push_norns_func("serial", "add");
+    lua_pushstring(lvm, dev->handler_id);
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    lua_pushstring(lvm, base->name);
+    lua_pushlightuserdata(lvm, dev);
+    l_report(lvm, l_docall(lvm, 4, 0));
+}
+
+void w_handle_serial_remove(uint32_t id, char *handler_id) {
+    _push_norns_func("serial", "remove");
+    lua_pushstring(lvm, handler_id);
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    l_report(lvm, l_docall(lvm, 2, 0));
+}
+
+void w_handle_serial_event(void *dev, uint32_t id) {
+    struct dev_serial *d = (struct dev_serial *)dev;
+    _push_norns_func("serial", "event");
+    lua_pushstring(lvm, d->handler_id);
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    lua_pushstring(lvm, d->line);
+    l_report(lvm, l_docall(lvm, 3, 0));
 }
 
 void w_handle_midi_add(void *p) {

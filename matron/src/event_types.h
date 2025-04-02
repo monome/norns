@@ -94,6 +94,14 @@ typedef enum {
     EVENT_GRID_TILT,
     // screen asynchronous results callbacks
     EVENT_SCREEN_REFRESH,
+    // configure generic serial device
+    EVENT_SERIAL_CONFIG,
+    // generic serial device add
+    EVENT_SERIAL_ADD,
+    // generic serial device remove
+    EVENT_SERIAL_REMOVE,
+    // generic serial device event
+    EVENT_SERIAL_EVENT,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -330,6 +338,33 @@ struct event_softcut_position {
     float pos;
 }; // + 8
 
+struct event_serial_config {
+    struct event_common common;
+    char* path;
+    char* name;
+    char* vendor;
+    char* model;
+    char* serial;
+    char* interface;
+}; // +24
+
+struct event_serial_add {
+    struct event_common common;
+    void *dev;
+}; // +4
+
+struct event_serial_remove {
+    struct event_common common;
+    uint32_t id;
+    char *handler_id;
+}; // +8
+
+struct event_serial_event {
+    struct event_common common;
+    void *dev;
+    uint32_t id;
+}; // +8
+
 // forward declaration to hide scripting layer dependencies
 struct event_custom_ops;
 
@@ -376,5 +411,9 @@ union event_data {
     struct event_system_cmd system_cmd;
     struct event_softcut_render softcut_render;
     struct event_softcut_position softcut_position;
+    struct event_serial_config serial_config;
+    struct event_serial_add serial_add;
+    struct event_serial_remove serial_remove;
+    struct event_serial_event serial_event;
     struct event_custom custom;
 };

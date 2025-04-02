@@ -229,24 +229,19 @@ void rm_dev(struct udev_device *dev, int dev_file) {
 void rm_dev_tty(struct udev_device *dev, const char *node) {
     // fprintf(stderr, "rm_dev_tty: %s\n", node);
 
-    if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
-        fprintf(stderr, "dev_monitor: got ttyUSB, assuming monome\n");
-        dev_list_remove(DEV_TYPE_MONOME, node);
-        return;
-    }
-
     if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: ttyACM appears to be monome\n");
+        fprintf(stderr, "dev_monitor: tty appears to be monome\n");
         dev_list_remove(DEV_TYPE_MONOME, node);
         return;
     }
 
-    if (is_dev_crow(dev)) {         
+    if (is_dev_crow(dev)) {
         dev_list_remove(DEV_TYPE_CROW, node);
         return;
     }
-    
-    fprintf(stderr, "dev_monitor: unmatched ttyACM device was removed from %s\n", node);
+
+    fprintf(stderr, "dev_monitor: unmatched tty device was removed from %s\n", node);
+    dev_list_remove(DEV_TYPE_SERIAL, node);
 
 }
 
@@ -274,17 +269,29 @@ void add_dev_tty(struct udev_device *dev) {
         return;
     }
     char *name = get_device_name(dev);
-    if (fnmatch("/dev/ttyUSB*", node, 0) == 0) {
-        fprintf(stderr, "dev_monitor: got ttyUSB, assuming grid\n");
-        dev_list_add(DEV_TYPE_MONOME, node, name);
-    } else if (is_dev_monome_grid(dev)) {
-        fprintf(stderr, "dev_monitor: TTY appears to be ACM grid\n");
-        dev_list_add(DEV_TYPE_MONOME, node, name);
+    if (is_dev_monome_grid(dev)) {
+        fprintf(stderr, "dev_monitor: TTY appears to be a monome\n");
+        dev_list_add(DEV_TYPE_MONOME, node, name, NULL);
     } else if (is_dev_crow(dev)) {
         fprintf(stderr, "tty is a crow\n");
-        dev_list_add(DEV_TYPE_CROW, node, name);
+        dev_list_add(DEV_TYPE_CROW, node, name, NULL);
     } else {
         fprintf(stderr, "dev_monitor: unmatched TTY device %s at %s\n", name, node);
+        const char *vendor, *model, *serial, *interface;
+        vendor = udev_device_get_property_value(dev, "ID_VENDOR");
+        model = udev_device_get_property_value(dev, "ID_MODEL");
+        serial = udev_device_get_property_value(dev, "ID_SERIAL_SHORT");
+        interface = udev_device_get_property_value(dev, "ID_USB_INTERFACE_NUM");
+
+        union event_data *ev;
+        ev = event_data_new(EVENT_SERIAL_CONFIG);
+        ev->serial_config.vendor = strdup(vendor != NULL ? vendor : "");
+        ev->serial_config.model = strdup(model != NULL ? model : "");
+        ev->serial_config.path = strdup(node);
+        ev->serial_config.name = name;
+        ev->serial_config.serial = strdup(serial != NULL ? serial : "");
+        ev->serial_config.interface = strdup(interface != NULL ? interface : "");
+        event_post(ev);
     }
 }
 
@@ -295,7 +302,7 @@ void add_dev_input(struct udev_device *dev) {
 	    return;
     }
     char *name = get_device_name(dev);
-    dev_list_add(DEV_TYPE_HID, node, name);
+    dev_list_add(DEV_TYPE_HID, node, name, NULL);
 }
 
 void add_dev_sound(struct udev_device *dev) {
@@ -305,7 +312,7 @@ void add_dev_sound(struct udev_device *dev) {
     if (alsa_node != NULL) {
 	char *name = get_device_name(dev);
 	fprintf(stderr, "dev_monitor: adding midi device %s\n", name);
-        dev_list_add(DEV_TYPE_MIDI, alsa_node, name);
+        dev_list_add(DEV_TYPE_MIDI, alsa_node, name, NULL);
     }
 }
 
@@ -385,7 +392,7 @@ int is_dev_monome_grid(struct udev_device *dev) {
     return 0;
 }
 
-int is_dev_crow(struct udev_device *dev) { 
+int is_dev_crow(struct udev_device *dev) {
     const char *device_product_string = udev_device_get_property_value(dev, "ID_MODEL");
     if(device_product_string != NULL) {
         return strcmp(device_product_string, "crow:_telephone_line") == 0;
