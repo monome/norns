@@ -120,7 +120,7 @@ end
 -- @field VSTOP STOP character
 -- @field VSUSP SUSP character
 -- @field VEOL EOL character
-serial.cc = tab.readonly(table = {
+serial.cc = tab.readonly{table = {
   VINTR = 0,
   VQUIT = 1,
   VERASE = 2,
@@ -138,7 +138,7 @@ serial.cc = tab.readonly(table = {
   VWERASE = 14,
   VLNEXT = 15,
   VEOL2 = 16,
-})
+}}
 
 --- iflag constants
 -- @table iflag
@@ -157,7 +157,7 @@ serial.cc = tab.readonly(table = {
 -- @field IXOFF Enable start/stop input control.
 -- @field IMAXBEL Enable start/stop input control.
 -- @field IUTF8 Input is UTF8 (not in POSIX).
-serial.iflag = tab.readonly(table = {
+serial.iflag = tab.readonly{table = {
   IGNBRK = 1,
   BRKINT = 2,
   IGNPAR = 4,
@@ -173,7 +173,7 @@ serial.iflag = tab.readonly(table = {
   IXOFF = 4096,
   IMAXBEL = 8192,
   IUTF8 = 16384,
-})
+}}
 
 --- oflag constants
 -- @table oflag
@@ -188,7 +188,7 @@ serial.iflag = tab.readonly(table = {
 -- @field VTDLY Select vertical-tab delays:
 -- @field VT0 Vertical-tab delay type 0.
 -- @field VT1 Vertical-tab delay type 1.
-serial.oflag = tab.readonly(table = {
+serial.oflag = tab.readonly{table = {
   OPOST = 1,
   OLCUC = 2,
   ONLCR = 4,
@@ -200,7 +200,7 @@ serial.oflag = tab.readonly(table = {
   VTDLY = 16384,
   VT0 = 0,
   VT1 = 16384,
-})
+}}
 
 
 --- cflag constants
@@ -216,7 +216,7 @@ serial.oflag = tab.readonly(table = {
 -- @field PARODD Odd parity, else even.
 -- @field HUPCL Hang up on last close.
 -- @field CLOCAL Ignore modem status lines.
-serial.cflag = tab.readonly(table = {
+serial.cflag = tab.readonly{table = {
   CSIZE = 48,
   CS5 = 0,
   CS6 = 16,
@@ -228,7 +228,7 @@ serial.cflag = tab.readonly(table = {
   PARODD = 512,
   HUPCL = 1024,
   CLOCAL = 2048,
-}
+}}
 
 --- lflag constants
 -- @table lflag
@@ -241,7 +241,7 @@ serial.cflag = tab.readonly(table = {
 -- @field NOFLSH Disable flush after interrupt or quit.
 -- @field TOSTOP Send SIGTTOU for background output.
 -- @field IEXTEN Enable implementation-defined input processing.
-serial.lflag = tab.readonly(table = {
+serial.lflag = tab.readonly{table = {
   ISIG = 1,
   ICANON = 2,
   ECHO = 8,
@@ -251,7 +251,7 @@ serial.lflag = tab.readonly(table = {
   NOFLSH = 128,
   TOSTOP = 256,
   IEXTEN = 32768,
-})
+}}
 
 --- speed constants
 -- @table speed
@@ -285,7 +285,7 @@ serial.lflag = tab.readonly(table = {
 -- @field B3000000 3000000 baud
 -- @field B3500000 3500000 baud
 -- @field B4000000 4000000 baud
-serial.speed = tab.readonly(table = {
+serial.speed = tab.readonly{table = {
   B50 = 1,
   B75 = 2,
   B110 = 3,
@@ -316,6 +316,6 @@ serial.speed = tab.readonly(table = {
   B3000000 = 4109,
   B3500000 = 4110,
   B4000000 = 4111,
-}
+}}
 
 return serial
