@@ -36,7 +36,6 @@ local hooks = {
   script_pre_init = Hook.new(),
   script_post_init = Hook.new(),
   script_post_cleanup = Hook.new(),
-  system_pre_device_scan = Hook.new(),
   system_post_startup = Hook.new(),
   system_pre_shutdown = Hook.new(),
 }

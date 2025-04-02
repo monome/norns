@@ -260,7 +260,6 @@ end
 -- but before I/O event loop starts ticking (see readme-script.md)
 _startup = function()
   require('core/startup')
-  hook.system_pre_device_scan()
 end
 
 _post_startup = function()
