@@ -17,6 +17,14 @@
 #include "events.h"
 #include "lua_eval.h"
 
+#define ISPEED "ispeed"
+#define OSPEED "ospeed"
+#define IFLAG "iflag"
+#define OFLAG "oflag"
+#define CFLAG "cflag"
+#define LFLAG "lflag"
+#define LINE "line"
+#define CC "cc"
 
 int dev_serial_init(void *self, lua_State *l) {
     struct dev_serial *d = (struct dev_serial *)self;
@@ -46,26 +54,26 @@ int dev_serial_init(void *self, lua_State *l) {
 
     lua_createtable(l, 0, 8);
     lua_pushinteger(l, cfgetispeed(&d->oldtio));
-    lua_setfield(l, -2, "ispeed");
+    lua_setfield(l, -2, ISPEED);
     lua_pushinteger(l, cfgetospeed(&d->oldtio));
-    lua_setfield(l, -2, "ospeed");
+    lua_setfield(l, -2, OSPEED);
     lua_pushinteger(l, d->oldtio.c_iflag);
-    lua_setfield(l, -2, "iflag");
+    lua_setfield(l, -2, IFLAG);
     lua_pushinteger(l, d->oldtio.c_oflag);
-    lua_setfield(l, -2, "oflag");
+    lua_setfield(l, -2, OFLAG);
     lua_pushinteger(l, d->oldtio.c_cflag);
-    lua_setfield(l, -2, "cflag");
+    lua_setfield(l, -2, CFLAG);
     lua_pushinteger(l, d->oldtio.c_lflag);
-    lua_setfield(l, -2, "lflag");
+    lua_setfield(l, -2, LFLAG);
     lua_pushinteger(l, d->oldtio.c_line);
-    lua_setfield(l, -2, "line");
+    lua_setfield(l, -2, LINE);
 
     lua_createtable(l, NCCS, 0);
     for (int i = 0; i < NCCS; i++) {
         lua_pushinteger(l, d->oldtio.c_cc[i]);
         lua_rawseti(l, -2, i+1);
     }
-    lua_setfield(l, -2, "cc");
+    lua_setfield(l, -2, CC);
     l_report(l, l_docall(l, 2, 1));
 
     if (!lua_istable(l, -1)) {
@@ -74,51 +82,51 @@ int dev_serial_init(void *self, lua_State *l) {
         return -1;
     }
 
-    lua_getfield(l, -1, "ispeed");
+    lua_getfield(l, -1, ISPEED);
     if (!lua_isnil(l, -1)) {
         speed_t ispeed = lua_tointeger(l, -1);
         cfsetispeed(&d->newtio, ispeed);
     }
     lua_pop(l, 1);
 
-    lua_getfield(l, -1, "ospeed");
+    lua_getfield(l, -1, OSPEED);
     if (!lua_isnil(l, -1)) {
         speed_t ospeed = lua_tointeger(l, -1);
         cfsetospeed(&d->newtio, ospeed);
     }
     lua_pop(l, 1);
 
-    lua_getfield(l, -1, "iflag");
+    lua_getfield(l, -1, IFLAG);
     if (!lua_isnil(l, -1)) {
         d->newtio.c_iflag = lua_tointeger(l, -1);
     }
     lua_pop(l, 1);
 
-    lua_getfield(l, -1, "oflag");
+    lua_getfield(l, -1, OFLAG);
     if (!lua_isnil(l, -1)) {
         d->newtio.c_oflag = lua_tointeger(l, -1);
     }
     lua_pop(l, 1);
 
-    lua_getfield(l, -1, "cflag");
+    lua_getfield(l, -1, CFLAG);
     if (!lua_isnil(l, -1)) {
         d->newtio.c_cflag = lua_tointeger(l, -1);
     }
     lua_pop(l, 1);
 
-    lua_getfield(l, -1, "lflag");
+    lua_getfield(l, -1, LFLAG);
     if (!lua_isnil(l, -1)) {
         d->newtio.c_lflag = lua_tointeger(l, -1);
     }
     lua_pop(l, 1);
     
-    lua_getfield(l, -1, "line");
+    lua_getfield(l, -1, LINE);
     if (!lua_isnil(l, -1)) {
         d->newtio.c_line = lua_tointeger(l, -1);
     }
     lua_pop(l, 1);
 
-    lua_getfield(l, -1, "cc");
+    lua_getfield(l, -1, CC);
     for (int i = 0; i < NCCS; i++) {
         lua_pushinteger(l, i);
         lua_gettable(l, -2);
