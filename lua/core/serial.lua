@@ -133,16 +133,10 @@ serial.cc = tab.readonly{table = {
   VEOF = 4,
   VTIME = 5,
   VMIN = 6,
-  VSWTC = 7,
   VSTART = 8,
   VSTOP = 9,
   VSUSP = 10,
   VEOL = 11,
-  VREPRINT = 12,
-  VDISCARD = 13,
-  VWERASE = 14,
-  VLNEXT = 15,
-  VEOL2 = 16,
 }}
 
 --- iflag constants
