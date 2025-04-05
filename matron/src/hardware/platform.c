@@ -26,12 +26,6 @@ void init_platform() {
    } else if (strstr(modelString, "Raspberry Pi 4")){
      p = PLATFORM_PI4;
    }
-
-//     if(system("cat /sys/firmware/devicetree/base/model | grep 'Compute Module 3'")) {
-//       p = PLATFORM_PI3;
-//     } else {
-//       p = PLATFORM_CM3;
-//     }
   } else {
     p = PLATFORM_OTHER;
   }
