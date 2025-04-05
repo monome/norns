@@ -29,6 +29,9 @@
 int dev_serial_init(void *self, lua_State *l) {
     struct dev_serial *d = (struct dev_serial *)self;
     struct dev_common *base = (struct dev_common *)self;
+    if (d == NULL) {
+        return -1;
+    }
 
     d->fd = open(d->base.path, O_RDWR | O_NOCTTY | O_SYNC);
     if (d->fd < 0) {
@@ -159,6 +162,9 @@ static void handle_event(void *dev, uint8_t id) {
 void *dev_serial_start(void *self) {
     struct dev_serial *di = (struct dev_serial *)self;
     struct dev_common *base = (struct dev_common *)self;
+    if (di == NULL) {
+        return NULL;
+    }
 
     ssize_t len;
 
@@ -177,6 +183,10 @@ void *dev_serial_start(void *self) {
 
 void dev_serial_deinit(void *self) {
     struct dev_serial *di = (struct dev_serial *)self;
+    if (di == NULL) {
+        return;
+    }
+
     // Restore the tty device to the state it was in before connecting
     tcsetattr(di->fd, TCSANOW, &di->oldtio);
     close(di->fd);
@@ -184,5 +194,8 @@ void dev_serial_deinit(void *self) {
 }
 
 void dev_serial_send(struct dev_serial *d, const char *line) {
+    if (d == NULL) {
+        return;
+    }
     write(d->fd, line, strlen(line));
 }
