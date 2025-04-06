@@ -1,3 +1,18 @@
+# 250406
+
+# norns 2.9.0
+
+- NEW generic USB serial support #1818 @midouest @tlubke
+- FIX alias font 04B_03 to norns.ttf #1799 @dstroud
+- FIX audio.file_info return values #1800 @jbonhag
+- FIX crow ii functions with zero arguments #1807 @midouest
+- FIX image buffer display #1795 @skibu
+- FIX metro stage bug #1812 @niksilver
+- FIX SELECT menu dir exclusion #1815 @niksilver
+- FIX script clear frees engine #1817 @tehn
+- ADD cdc arc support #1820 @tehn
+- ADD more platform detection #1821 @okyeron
+
 # 240911
 
 # norns 2.8.4
