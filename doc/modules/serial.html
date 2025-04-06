@@ -1,0 +1,661 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>norns/docs</title>
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>norns</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/arc.html">arc</a></li>
+  <li><a href="../modules/audio.html">audio</a></li>
+  <li><a href="../modules/clock.html">clock</a></li>
+  <li><a href="../modules/controlspec.html">controlspec</a></li>
+  <li><a href="../modules/crow.html">crow</a></li>
+  <li><a href="../modules/core.crow.public.html">core.crow.public</a></li>
+  <li><a href="../modules/core.crow.quote.html">core.crow.quote</a></li>
+  <li><a href="../modules/encoders.html">encoders</a></li>
+  <li><a href="../modules/engine.html">engine</a></li>
+  <li><a href="../modules/gamepad.html">gamepad</a></li>
+  <li><a href="../modules/grid.html">grid</a></li>
+  <li><a href="../modules/hid.html">hid</a></li>
+  <li><a href="../modules/keyboard.html">keyboard</a></li>
+  <li><a href="../modules/metro.html">metro</a></li>
+  <li><a href="../modules/midi.html">midi</a></li>
+  <li><a href="../modules/norns.html">norns</a></li>
+  <li><a href="../modules/osc.html">osc</a></li>
+  <li><a href="../modules/params.binary.html">params.binary</a></li>
+  <li><a href="../modules/params.control.html">params.control</a></li>
+  <li><a href="../modules/params.file.html">params.file</a></li>
+  <li><a href="../modules/params.group.html">params.group</a></li>
+  <li><a href="../modules/params.number.html">params.number</a></li>
+  <li><a href="../modules/params.option.html">params.option</a></li>
+  <li><a href="../modules/params.separator.html">params.separator</a></li>
+  <li><a href="../modules/params.taper.html">params.taper</a></li>
+  <li><a href="../modules/params.text.html">params.text</a></li>
+  <li><a href="../modules/params.trigger.html">params.trigger</a></li>
+  <li><a href="../modules/paramset.html">paramset</a></li>
+  <li><a href="../modules/poll.html">poll</a></li>
+  <li><a href="../modules/screen.html">screen</a></li>
+  <li><a href="../modules/script.html">script</a></li>
+  <li><strong>serial</strong></li>
+  <li><a href="../modules/softcut.html">softcut</a></li>
+  <li><a href="../modules/lib.beatclock.html">lib.beatclock</a></li>
+  <li><a href="../modules/lib.container.defaulttable.html">lib.container.defaulttable</a></li>
+  <li><a href="../modules/lib.container.deque.html">lib.container.deque</a></li>
+  <li><a href="../modules/lib.container.observable.html">lib.container.observable</a></li>
+  <li><a href="../modules/lib.container.watchtable.html">lib.container.watchtable</a></li>
+  <li><a href="../modules/lib.container.weaktable.html">lib.container.weaktable</a></li>
+  <li><a href="../modules/lib.elca.html">lib.elca</a></li>
+  <li><a href="../modules/lib.envgraph.html">lib.envgraph</a></li>
+  <li><a href="../modules/lib.er.html">lib.er</a></li>
+  <li><a href="../modules/lib.fileselect.html">lib.fileselect</a></li>
+  <li><a href="../modules/lib.filtergraph.html">lib.filtergraph</a></li>
+  <li><a href="../modules/lib.filters.html">lib.filters</a></li>
+  <li><a href="../modules/lib.formatters.html">lib.formatters</a></li>
+  <li><a href="../modules/lib.graph.html">lib.graph</a></li>
+  <li><a href="../modules/lib.intonation.html">lib.intonation</a></li>
+  <li><a href="../modules/lib.lattice.html">lib.lattice</a></li>
+  <li><a href="../modules/lib.lfo.html">lib.lfo</a></li>
+  <li><a href="../modules/lib.listselect.html">lib.listselect</a></li>
+  <li><a href="../modules/lib.musicutil.html">lib.musicutil</a></li>
+  <li><a href="../modules/lib.pattern_time.html">lib.pattern_time</a></li>
+  <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
+  <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
+  <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
+  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
+  <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
+  <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
+  <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
+  <li><a href="../modules/lib.ui.html">lib.ui</a></li>
+  <li><a href="../modules/lib.util.html">lib.util</a></li>
+  <li><a href="../modules/lib.voice.html">lib.voice</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>serial</code></h1>
+<p>USB serial device interface</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#add_handler">add_handler (args)</a></td>
+	<td class="summary">add a new serial device handler</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#send">send (dev, data)</a></td>
+	<td class="summary">send a message to a serial device</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#cc">cc</a></td>
+	<td class="summary">CC (special character) constants</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#iflag">iflag</a></td>
+	<td class="summary">iflag constants</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#oflag">oflag</a></td>
+	<td class="summary">oflag constants</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cflag">cflag</a></td>
+	<td class="summary">cflag constants</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lflag">lflag</a></td>
+	<td class="summary">lflag constants</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#speed">speed</a></td>
+	<td class="summary">speed constants</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "add_handler"></a>
+    <strong>add_handler (args)</strong>
+    </dt>
+    <dd>
+    add a new serial device handler
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">args</span>
+
+
+        <ul>
+        <li><span class="parameter">id</span>
+         unique identifier for the handler
+        </li>
+        <li><span class="parameter">match</span>
+         function(attrs) returning true if the handler should accept the device with the given attributes,
+   otherwise false
+        </li>
+        <li><span class="parameter">configure</span>
+         function(term) receiving the device's initial terminal settings and returning the new terminal
+   settings. The callback should modify the input table using bitwise operations and then return the input table
+        </li>
+        <li><span class="parameter">add</span>
+         function(id, name, dev) called when a new device for this handler has been connected and initialized
+        </li>
+        <li><span class="parameter">remove</span>
+         function(id) called when a connected device for this  handler has been disconnected
+        </li>
+        <li><span class="parameter">event</span>
+         function(id, data) called when a message is received from a connected device for this handler. The
+   data argument will be no more than 255 bytes in length. Messages longer than 255 bytes will be spread out over
+   multiple event callbacks. It's possible for multiple messages shorter than 255 bytes to appear in a single event
+   callback.
+        </li>
+        </li></ul>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">friends = {}
+
+serial.<span class="function-name">add_handler</span>({
+  id = <span class="string">"example_id"</span>, <span class="comment">-- can be number or string
+</span>
+  match = <span class="keyword">function</span>(attrs)
+    <span class="keyword">local</span> is_match = (
+          (attrs[<span class="string">"vendor"</span>] == <span class="string">"FTDI"</span>)
+      <span class="keyword">and</span> (attrs[<span class="string">"model"</span>] == <span class="string">"FT232R"</span>)
+      <span class="keyword">and</span> (attrs[<span class="string">"serial"</span>] == <span class="string">"ABC123"</span>)
+      <span class="keyword">and</span> (attrs[<span class="string">"interface"</span>] == <span class="string">"00"</span>)
+    )
+    <span class="keyword">return</span> is_match
+  <span class="keyword">end</span>,
+
+  configure = <span class="keyword">function</span>(term)
+      <span class="comment">-- set baud rate.
+</span>      term.ispeed = term.ispeed | serial.speed.B115200
+      term.ospeed = term.ospeed | serial.speed.B115200
+
+      <span class="comment">-- enable some flags.
+</span>      term.iflag = term.iflag | serial.iflag.INCLR
+      term.oflag = term.oflag | serial.oflag.ONLCR
+      term.cflag = term.cflag | serial.cflag.CS8
+
+      <span class="comment">-- disable some flags.
+</span>      term.lflag = term.lflag &amp; (~serial.lflag.ECHO)
+
+      <span class="comment">-- return the copied and modified table.
+</span>      <span class="keyword">return</span> term
+  <span class="keyword">end</span>,
+
+  add = <span class="keyword">function</span>(id, name, dev)
+    <span class="global">print</span>(<span class="string">"saying hi..."</span>)
+    serial.<span class="function-name">send</span>(dev, <span class="string">"hello "</span> .. name .. <span class="string">"!"</span>)
+    tab.<span class="function-name">insert</span>(friends, id, dev)
+  <span class="keyword">end</span>,
+
+  remove = <span class="keyword">function</span>(id)
+    <span class="global">print</span>(<span class="string">"it's too late to say goodbye."</span>)
+    tab.<span class="function-name">remove</span>(friends, id)
+  <span class="keyword">end</span>,
+
+  event = <span class="keyword">function</span>(id, data)
+    <span class="global">print</span>(friends[id] .. <span class="string">" says:"</span>, data)
+  <span class="keyword">end</span>
+})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "send"></a>
+    <strong>send (dev, data)</strong>
+    </dt>
+    <dd>
+    send a message to a serial device
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dev</span>
+         opaque device pointer
+        </li>
+        <li><span class="parameter">data</span>
+         string message to send
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "cc"></a>
+    <strong>cc</strong>
+    </dt>
+    <dd>
+    CC (special character) constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">VINTR</span>
+         INTR character
+        </li>
+        <li><span class="parameter">VQUIT</span>
+         QUIT character
+        </li>
+        <li><span class="parameter">VERASE</span>
+         ERASE character
+        </li>
+        <li><span class="parameter">VKILL</span>
+         KILL character
+        </li>
+        <li><span class="parameter">VEOF</span>
+         EOF character
+        </li>
+        <li><span class="parameter">VTIME</span>
+         TIME value
+        </li>
+        <li><span class="parameter">VMIN</span>
+         MIN value
+        </li>
+        <li><span class="parameter">VSTART</span>
+         START character
+        </li>
+        <li><span class="parameter">VSTOP</span>
+         STOP character
+        </li>
+        <li><span class="parameter">VSUSP</span>
+         SUSP character
+        </li>
+        <li><span class="parameter">VEOL</span>
+         EOL character
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "iflag"></a>
+    <strong>iflag</strong>
+    </dt>
+    <dd>
+    iflag constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">IGNBREAK</span>
+         Ignore break condition.
+        </li>
+        <li><span class="parameter">BRKINT</span>
+         Signal interrupt on break.
+        </li>
+        <li><span class="parameter">IGNPAR</span>
+         Ignore characters with parity errors.
+        </li>
+        <li><span class="parameter">PARMRK</span>
+         Mark parity and framing errors.
+        </li>
+        <li><span class="parameter">INPCK</span>
+         Enable input parity check.
+        </li>
+        <li><span class="parameter">ISTRIP</span>
+         Strip 8th bit off characters.
+        </li>
+        <li><span class="parameter">INCLR</span>
+         Map NL to CR on input.
+        </li>
+        <li><span class="parameter">IGNCR</span>
+         Ignore CR.
+        </li>
+        <li><span class="parameter">ICRNL</span>
+         Map CT to NL on input.
+        </li>
+        <li><span class="parameter">IUCLC</span>
+         Map uppercase characters to lowercase on input (not in POSIX).
+        </li>
+        <li><span class="parameter">IXON</span>
+         Enable start/stop output control.
+        </li>
+        <li><span class="parameter">IXANY</span>
+         Enable any character to restart output.
+        </li>
+        <li><span class="parameter">IXOFF</span>
+         Enable start/stop input control.
+        </li>
+        <li><span class="parameter">IMAXBEL</span>
+         Enable start/stop input control.
+        </li>
+        <li><span class="parameter">IUTF8</span>
+         Input is UTF8 (not in POSIX).
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "oflag"></a>
+    <strong>oflag</strong>
+    </dt>
+    <dd>
+    oflag constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">OPOST</span>
+         Post-process output.
+        </li>
+        <li><span class="parameter">OLCUC</span>
+         Map lowercase characters to uppercase on output. (not in POSIX).
+        </li>
+        <li><span class="parameter">ONLCR</span>
+         Map NL to CR-NL on output.
+        </li>
+        <li><span class="parameter">OCRNL</span>
+         Map CR to NL on output.
+        </li>
+        <li><span class="parameter">ONOCR</span>
+         No CR output at column 0.
+        </li>
+        <li><span class="parameter">ONLRET</span>
+         NL performs CR function.
+        </li>
+        <li><span class="parameter">OFILL</span>
+         Use fill characters for delay.
+        </li>
+        <li><span class="parameter">OFDEL</span>
+         Fill is DEL.
+        </li>
+        <li><span class="parameter">VTDLY</span>
+         Select vertical-tab delays:
+        </li>
+        <li><span class="parameter">VT0</span>
+         Vertical-tab delay type 0.
+        </li>
+        <li><span class="parameter">VT1</span>
+         Vertical-tab delay type 1.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cflag"></a>
+    <strong>cflag</strong>
+    </dt>
+    <dd>
+    cflag constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">CSIZE</span>
+         Character size
+        </li>
+        <li><span class="parameter">CS5</span>
+         5-bits per character / symbol.
+        </li>
+        <li><span class="parameter">CS6</span>
+         6-bits per character / symbol.
+        </li>
+        <li><span class="parameter">CS7</span>
+         7-bits per character / symbol.
+        </li>
+        <li><span class="parameter">CS8</span>
+         8-bits per character / symbol.
+        </li>
+        <li><span class="parameter">CSTOPB</span>
+         Send two stop bits, else one.
+        </li>
+        <li><span class="parameter">CREAD</span>
+         Enable receiver.
+        </li>
+        <li><span class="parameter">PARENB</span>
+         Parity enable.
+        </li>
+        <li><span class="parameter">PARODD</span>
+         Odd parity, else even.
+        </li>
+        <li><span class="parameter">HUPCL</span>
+         Hang up on last close.
+        </li>
+        <li><span class="parameter">CLOCAL</span>
+         Ignore modem status lines.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lflag"></a>
+    <strong>lflag</strong>
+    </dt>
+    <dd>
+    lflag constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">ISIG</span>
+         Enable signals.
+        </li>
+        <li><span class="parameter">ICANON</span>
+         Canonical input (erase and kill processing).
+        </li>
+        <li><span class="parameter">ECHO</span>
+         Enable echo.
+        </li>
+        <li><span class="parameter">ECHOE</span>
+         Echo erase character as error-correcting backspace.
+        </li>
+        <li><span class="parameter">ECHOK</span>
+         Echo KILL.
+        </li>
+        <li><span class="parameter">ECHONL</span>
+         Echo NL.
+        </li>
+        <li><span class="parameter">NOFLSH</span>
+         Disable flush after interrupt or quit.
+        </li>
+        <li><span class="parameter">TOSTOP</span>
+         Send SIGTTOU for background output.
+        </li>
+        <li><span class="parameter">IEXTEN</span>
+         Enable implementation-defined input processing.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "speed"></a>
+    <strong>speed</strong>
+    </dt>
+    <dd>
+    speed constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">B50</span>
+         50 baud
+        </li>
+        <li><span class="parameter">B75</span>
+         75 baud
+        </li>
+        <li><span class="parameter">B110</span>
+         110 baud
+        </li>
+        <li><span class="parameter">B134</span>
+         134 baud
+        </li>
+        <li><span class="parameter">B150</span>
+         150 baud
+        </li>
+        <li><span class="parameter">B200</span>
+         200 baud
+        </li>
+        <li><span class="parameter">B300</span>
+         300 baud
+        </li>
+        <li><span class="parameter">B600</span>
+         600 baud
+        </li>
+        <li><span class="parameter">B1200</span>
+         1200 baud
+        </li>
+        <li><span class="parameter">B1800</span>
+         1800 baud
+        </li>
+        <li><span class="parameter">B2400</span>
+         2400 baud
+        </li>
+        <li><span class="parameter">B4800</span>
+         4800 baud
+        </li>
+        <li><span class="parameter">B9600</span>
+         9600 baud
+        </li>
+        <li><span class="parameter">B19200</span>
+         19200 baud
+        </li>
+        <li><span class="parameter">B38400</span>
+         38400 baud
+        </li>
+        <li><span class="parameter">B57600</span>
+         57600 baud
+        </li>
+        <li><span class="parameter">B115200</span>
+         115200 baud
+        </li>
+        <li><span class="parameter">B230400</span>
+         230400 baud
+        </li>
+        <li><span class="parameter">B460800</span>
+         460800 baud
+        </li>
+        <li><span class="parameter">B500000</span>
+         500000 baud
+        </li>
+        <li><span class="parameter">B576000</span>
+         576000 baud
+        </li>
+        <li><span class="parameter">B921600</span>
+         921600 baud
+        </li>
+        <li><span class="parameter">B1000000</span>
+         1000000 baud
+        </li>
+        <li><span class="parameter">B1152000</span>
+         1152000 baud
+        </li>
+        <li><span class="parameter">B1500000</span>
+         1500000 baud
+        </li>
+        <li><span class="parameter">B2000000</span>
+         2000000 baud
+        </li>
+        <li><span class="parameter">B2500000</span>
+         2500000 baud
+        </li>
+        <li><span class="parameter">B3000000</span>
+         3000000 baud
+        </li>
+        <li><span class="parameter">B3500000</span>
+         3500000 baud
+        </li>
+        <li><span class="parameter">B4000000</span>
+         4000000 baud
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-04-06 15:35:25 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
