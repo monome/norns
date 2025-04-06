@@ -10,6 +10,7 @@
 #include "events.h"
 
 static int id = 0;
+static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 struct dev_node {
     struct dev_node *next;
@@ -69,19 +70,21 @@ union event_data *post_add_event(union dev *d, event_t event_type) {
     d->base.id = id++;
     dn->d = d;
 
+    pthread_mutex_lock(&lock);
     insque(dn, dq.tail);
     dq.tail = dn;
     if (dq.size == 0) {
         dq.head = dn;
     }
     dq.size++;
+    pthread_mutex_unlock(&lock);
 
     union event_data *ev;
     ev = event_data_new(event_type);
     return ev;
 }
 
-void dev_list_add(device_t type, const char *path, const char *name) {
+void dev_list_add(device_t type, const char *path, const char *name, lua_State *l) {
     if (type < 0) {
         return;
     }
@@ -94,7 +97,7 @@ void dev_list_add(device_t type, const char *path, const char *name) {
     case DEV_TYPE_MIDI:
         midi_port_count = dev_midi_port_count(path);
         for (unsigned int pidx = 0; pidx < midi_port_count; pidx++) {
-            d = dev_new(type, path, name, midi_port_count > 1, pidx);
+            d = dev_new(type, path, name, midi_port_count > 1, pidx, NULL);
             ev = post_add_event(d, EVENT_MIDI_ADD);
             if (ev != NULL) {
                 ev->midi_add.dev = d;
@@ -103,7 +106,7 @@ void dev_list_add(device_t type, const char *path, const char *name) {
         }
         return;
     case DEV_TYPE_MIDI_VIRTUAL:
-        d = dev_new(DEV_TYPE_MIDI_VIRTUAL, NULL, name, false, 0);
+        d = dev_new(DEV_TYPE_MIDI_VIRTUAL, NULL, name, false, 0, NULL);
         ev = post_add_event(d, EVENT_MIDI_ADD);
         if (ev != NULL) {
             ev->midi_add.dev = d;
@@ -111,16 +114,24 @@ void dev_list_add(device_t type, const char *path, const char *name) {
         }
         return;
     case DEV_TYPE_MONOME:
-        d = dev_new(type, path, name, true, 0);
+        d = dev_new(type, path, name, true, 0, NULL);
         ev = post_add_event(d, EVENT_MONOME_ADD);
         break;
     case DEV_TYPE_HID:
-        d = dev_new(type, path, name, true, 0);
+        d = dev_new(type, path, name, true, 0, NULL);
         ev = post_add_event(d, EVENT_HID_ADD);
         break;
     case DEV_TYPE_CROW:
-        d = dev_new(type, path, name, true, 0);
+        d = dev_new(type, path, name, true, 0, NULL);
         ev = post_add_event(d, EVENT_CROW_ADD);
+        break;
+    case DEV_TYPE_SERIAL:
+        if (l == NULL) {
+            fprintf(stderr, "dev_list_add(): serial device requires lua vm\n");
+            return;
+        }
+        d = dev_new(type, path, name, true, 0, l);
+        ev = post_add_event(d, EVENT_SERIAL_ADD);
         break;
     default:
         fprintf(stderr, "dev_list_add(): error posting event (unknown type)\n");
@@ -149,8 +160,10 @@ static void dev_list_remove_node(struct dev_node *dn, union event_data *event_re
 }
 
 void dev_list_remove(device_t type, const char *node) {
+    pthread_mutex_lock(&lock);
     struct dev_node *dn = dev_lookup_path(node, NULL);
     if (dn == NULL) {
+        pthread_mutex_unlock(&lock);
         return;
     }
     union event_data *ev;
@@ -163,6 +176,7 @@ void dev_list_remove(device_t type, const char *node) {
             dev_list_remove_node(dn, ev);
             dn = dev_lookup_path(node, NULL);
         }
+        pthread_mutex_unlock(&lock);
         return;
     case DEV_TYPE_MONOME:
         ev = event_data_new(EVENT_MONOME_REMOVE);
@@ -176,10 +190,17 @@ void dev_list_remove(device_t type, const char *node) {
         ev = event_data_new(EVENT_CROW_REMOVE);
         ev->crow_remove.id = dn->d->base.id;
         break;
+    case DEV_TYPE_SERIAL:
+        ev = event_data_new(EVENT_SERIAL_REMOVE);
+        ev->serial_remove.id = dn->d->base.id;
+        ev->serial_remove.handler_id = strdup(dn->d->serial.handler_id);
+        break;
     default:
         fprintf(stderr, "dev_list_remove(): error posting event (unknown type)\n");
+        pthread_mutex_unlock(&lock);
         return;
     }
     dev_list_remove_node(dn, ev);
+    pthread_mutex_unlock(&lock);
 }
 
