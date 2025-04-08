@@ -25,15 +25,15 @@ static struct clock_link_shared_data_t {
     pthread_mutex_t lock;
 } clock_link_shared_data;
 
+static abl_link link;
+
 static clock_reference_t clock_link_reference;
 
 static void *clock_link_run(void *p) {
     (void)p;
 
-    abl_link link;
     abl_link_session_state state;
 
-    link = abl_link_create(120);
     state = abl_link_create_session_state();
 
     while (true) {
@@ -81,11 +81,6 @@ static void *clock_link_run(void *p) {
             }
 
             abl_link_enable(link, clock_link_shared_data.enabled);
-            if (!clock_link_shared_data.enabled) {
-                clock_link_shared_data.number_of_peers = 0;
-            } else {
-                clock_link_shared_data.number_of_peers = abl_link_num_peers(link);
-            }
             abl_link_enable_start_stop_sync(link, clock_link_shared_data.start_stop_sync);
 
             pthread_mutex_unlock(&clock_link_shared_data.lock);
@@ -98,6 +93,7 @@ static void *clock_link_run(void *p) {
 }
 
 void clock_link_init() {
+    link = abl_link_create(120);
     clock_reference_init(&clock_link_reference);
 }
 
@@ -164,8 +160,5 @@ double clock_link_get_tempo() {
 }
 
 uint64_t clock_link_number_of_peers() {
-    pthread_mutex_lock(&clock_link_shared_data.lock);
-    uint64_t ret = clock_link_shared_data.number_of_peers;
-    pthread_mutex_unlock(&clock_link_shared_data.lock);
-    return ret;
+    return abl_link_num_peers(link);
 }

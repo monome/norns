@@ -2112,7 +2112,7 @@ int _clock_crow_in_div(lua_State *l) {
 
 #if HAVE_ABLETON_LINK
 int _clock_link_get_number_of_peers(lua_State *l) {
-    uint64_t peers = clock_number_of_link_peers();
+    uint64_t peers = clock_link_number_of_peers();
     lua_pushinteger(l, (lua_Integer)peers);
     return 1;
 }
