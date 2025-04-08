@@ -23,5 +23,5 @@ int dev_serial_init(void *self, lua_State *l);
 void *dev_serial_start(void *self);
 void dev_serial_deinit(void *self);
 
-void dev_serial_send(struct dev_serial *d, const char *line);
+void dev_serial_send(struct dev_serial *d, const char *line, size_t len);
 

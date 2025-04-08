@@ -193,9 +193,9 @@ void dev_serial_deinit(void *self) {
     free(di->handler_id);
 }
 
-void dev_serial_send(struct dev_serial *d, const char *line) {
+void dev_serial_send(struct dev_serial *d, const char *line, size_t len) {
     if (d == NULL) {
         return;
     }
-    write(d->fd, line, strlen(line));
+    write(d->fd, line, len);
 }

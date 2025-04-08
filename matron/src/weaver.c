@@ -1658,10 +1658,11 @@ int _serial_send(lua_State *l) {
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
     d = lua_touserdata(l, 1);
-    s = luaL_checkstring(l, 2);
+    size_t len = 0;
+    s = luaL_checklstring(l, 2, &len);
     lua_settop(l, 0);
 
-    dev_serial_send(d, s);
+    dev_serial_send(d, s, len);
 
     return 0;
 }
