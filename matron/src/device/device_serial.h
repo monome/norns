@@ -10,7 +10,6 @@
 #include <libevdev/libevdev.h>
 
 #define BUFFER_SIZE 256
-static const unsigned int max_read = BUFFER_SIZE - 1;
 
 struct dev_serial {
     struct dev_common base;

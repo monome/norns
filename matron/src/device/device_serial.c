@@ -152,10 +152,13 @@ int dev_serial_init(void *self, lua_State *l) {
     return 0;
 }
 
-static void handle_event(void *dev, uint8_t id) {
+static void handle_event(void *dev, uint8_t id, char *data, ssize_t len) {
     union event_data *ev = event_data_new(EVENT_SERIAL_EVENT);
     ev->serial_event.dev = dev;
     ev->serial_event.id = id;
+    ev->serial_event.data = (char *)malloc(len);
+    memcpy(ev->serial_event.data, data, len);
+    ev->serial_event.len = len;
     event_post(ev);
 }
 
@@ -169,12 +172,9 @@ void *dev_serial_start(void *self) {
     ssize_t len;
 
     while (1) {
-        len = read(di->fd, di->line, max_read);
+        len = read(di->fd, di->line, BUFFER_SIZE);
         if (len > 0) {
-            di->line[len] = 0; // add null to end of string
-            if (len > 1) {
-                handle_event(self, base->id);
-            }
+            handle_event(self, base->id, di->line, len);
             len = 0;
         }
     }
