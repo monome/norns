@@ -145,6 +145,9 @@ MATRON_API void event_data_free(union event_data *ev) {
     case EVENT_SERIAL_REMOVE:
         free(ev->serial_remove.handler_id);
         break;
+    case EVENT_SERIAL_EVENT:
+        free(ev->serial_event.data);
+        break;
     case EVENT_CUSTOM:
         if (ev->custom.ops->free) {
             ev->custom.ops->free(ev->custom.value, ev->custom.context);
@@ -327,7 +330,7 @@ static void handle_event(union event_data *ev) {
         w_handle_serial_remove(ev->serial_remove.id, ev->serial_remove.handler_id);
         break;
     case EVENT_SERIAL_EVENT:
-        w_handle_serial_event(ev->serial_event.dev, ev->serial_event.id);
+        w_handle_serial_event(ev->serial_event.dev, ev->serial_event.id, ev->serial_event.data, ev->serial_event.len);
         break;
     } /* switch */
 

@@ -363,7 +363,9 @@ struct event_serial_event {
     struct event_common common;
     void *dev;
     uint32_t id;
-}; // +8
+    char *data;
+    ssize_t len;
+}; // +16
 
 // forward declaration to hide scripting layer dependencies
 struct event_custom_ops;

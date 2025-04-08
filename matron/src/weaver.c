@@ -1658,10 +1658,11 @@ int _serial_send(lua_State *l) {
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
     d = lua_touserdata(l, 1);
-    s = luaL_checkstring(l, 2);
+    size_t len = 0;
+    s = luaL_checklstring(l, 2, &len);
     lua_settop(l, 0);
 
-    dev_serial_send(d, s);
+    dev_serial_send(d, s, len);
 
     return 0;
 }
@@ -2356,12 +2357,12 @@ void w_handle_serial_remove(uint32_t id, char *handler_id) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-void w_handle_serial_event(void *dev, uint32_t id) {
+void w_handle_serial_event(void *dev, uint32_t id, char *data, ssize_t len) {
     struct dev_serial *d = (struct dev_serial *)dev;
     _push_norns_func("serial", "event");
     lua_pushstring(lvm, d->handler_id);
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    lua_pushstring(lvm, d->line);
+    lua_pushlstring(lvm, data, len);
     l_report(lvm, l_docall(lvm, 3, 0));
 }
 
