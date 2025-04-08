@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -15,6 +16,7 @@ static pthread_t clock_link_thread;
 static struct clock_link_shared_data_t {
     double quantum;
     double requested_tempo;
+    uint64_t number_of_peers;
     bool playing;
     bool enabled;
     bool start_stop_sync;
@@ -79,6 +81,11 @@ static void *clock_link_run(void *p) {
             }
 
             abl_link_enable(link, clock_link_shared_data.enabled);
+            if (!clock_link_shared_data.enabled) {
+                clock_link_shared_data.number_of_peers = 0;
+            } else {
+                clock_link_shared_data.number_of_peers = abl_link_num_peers(link);
+            }
             abl_link_enable_start_stop_sync(link, clock_link_shared_data.start_stop_sync);
 
             pthread_mutex_unlock(&clock_link_shared_data.lock);
@@ -98,6 +105,7 @@ void clock_link_start() {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
+    clock_link_shared_data.number_of_peers = 0;
     clock_link_shared_data.quantum = 4;
     clock_link_shared_data.requested_tempo = 0;
     clock_link_shared_data.enabled = false;
@@ -153,4 +161,11 @@ double clock_link_get_beat() {
 
 double clock_link_get_tempo() {
     return clock_get_reference_tempo(&clock_link_reference);
+}
+
+uint64_t clock_link_number_of_peers() {
+    pthread_mutex_lock(&clock_link_shared_data.lock);
+    uint64_t ret = clock_link_shared_data.number_of_peers;
+    pthread_mutex_unlock(&clock_link_shared_data.lock);
+    return ret;
 }
