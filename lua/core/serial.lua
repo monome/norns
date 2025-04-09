@@ -96,8 +96,12 @@ function _norns.serial.match(vendor, model, serial_num, interface_num)
   return nil
 end
 
-function _norns.serial.configure(handler_id, tio)
-  return serial._handlers[handler_id].configure(tio)
+local TerminalIO = {}
+TerminalIO.__index = TerminalIO
+
+function _norns.serial.configure(handler_id, term)
+  setmetatable(term, TerminalIO)
+  return serial._handlers[handler_id].configure(term)
 end
 
 function _norns.serial.add(handler_id, id, name, dev)
@@ -254,6 +258,7 @@ serial.lflag = tab.readonly{table = {
 
 --- speed constants
 -- @table speed
+-- @field B0 hang up
 -- @field B50 50 baud
 -- @field B75 75 baud
 -- @field B110 110 baud
@@ -285,6 +290,7 @@ serial.lflag = tab.readonly{table = {
 -- @field B3500000 3500000 baud
 -- @field B4000000 4000000 baud
 serial.speed = tab.readonly{table = {
+  B0 = 0,
   B50 = 1,
   B75 = 2,
   B110 = 3,
@@ -316,5 +322,163 @@ serial.speed = tab.readonly{table = {
   B3500000 = 4110,
   B4000000 = 4111,
 }}
+
+local field = {
+  cflag = "cflag",
+  iflag = "iflag",
+  oflag = "oflag",
+  lflag = "lflag",
+}
+
+local mode_info = {
+  {name="parenb", field=field.cflag, rev=true, bits=serial.cflag.PARENB},
+  {name="parodd", field=field.cflag, rev=true, bits=serial.cflag.PARODD},
+  {name="cs5", field=field.cflag, bits=serial.cflag.CS5, mask=serial.cflag.CSIZE},
+  {name="cs6", field=field.cflag, bits=serial.cflag.CS6, mask=serial.cflag.CSIZE},
+  {name="cs7", field=field.cflag, bits=serial.cflag.CS7, mask=serial.cflag.CSIZE},
+  {name="cs8", field=field.cflag, bits=serial.cflag.CS8, mask=serial.cflag.CSIZE},
+  {name="hupcl", field=field.cflag, rev=true, bits=serial.cflag.HUPCL},
+  {name="cstopb", field=field.cflag, rev=true, bits=serial.cflag.CSTOPB},
+  {name="cread", field=field.cflag, rev=true, bits=serial.cflag.CREAD},
+  {name="clocal", field=field.cflag, rev=true, bits=serial.cflag.CLOCAL},
+  {name="ignbrk", field=field.iflag, rev=true, bits=serial.iflag.IGNBRK},
+  {name="brkint", field=field.iflag, rev=true, bits=serial.iflag.BRKINT},
+  {name="ignpar", field=field.iflag, rev=true, bits=serial.iflag.IGNPAR},
+  {name="parmrk", field=field.iflag, rev=true, bits=serial.iflag.PARMRK},
+  {name="inpck", field=field.iflag, rev=true, bits=serial.iflag.INPCK},
+  {name="istrip", field=field.iflag, rev=true, bits=serial.iflag.ISTRIP},
+  {name="inlcr", field=field.iflag, rev=true, bits=serial.iflag.INLCR},
+  {name="igncr", field=field.iflag, rev=true, bits=serial.iflag.IGNCR},
+  {name="icrnl", field=field.iflag, rev=true, bits=serial.iflag.ICRNL},
+  {name="ixon", field=field.iflag, rev=true, bits=serial.iflag.IXON},
+  {name="ixoff", field=field.iflag, rev=true, bits=serial.iflag.IXOFF},
+  {name="iuclc", field=field.iflag, rev=true, bits=serial.iflag.IUCLC},
+  {name="ixany", field=field.iflag, rev=true, bits=serial.iflag.IXANY},
+  {name="iutf8", field=field.iflag, rev=true, bits=serial.iflag.IUTF8},
+  {name="opost", field=field.oflag, rev=true, bits=serial.oflag.OPOST},
+  {name="olcuc", field=field.oflag, rev=true, bits=serial.oflag.OLCUC},
+  {name="ocrnl", field=field.oflag, rev=true, bits=serial.oflag.OCRNL},
+  {name="onlcr", field=field.oflag, rev=true, bits=serial.oflag.ONLCR},
+  {name="onocr", field=field.oflag, rev=true, bits=serial.oflag.ONOCR},
+  {name="onlret", field=field.oflag, rev=true, bits=serial.oflag.ONLRET},
+  {name="ofill", field=field.oflag, rev=true, bits=serial.oflag.OFILL},
+  {name="ofdel", field=field.oflag, rev=true, bits=serial.oflag.OFDEL},
+  {name="vt1", field=field.oflag, bits=serial.oflag.VT1, mask=serial.oflag.VTDLY},
+  {name="vt0", field=field.oflag, bits=serial.oflag.VT0, mask=serial.oflag.VTDLY},
+  {name="isig", field=field.lflag, rev=true, bits=serial.lflag.ISIG},
+  {name="icanon", field=field.lflag, rev=true, bits=serial.lflag.ICANON},
+  {name="iexten", field=field.lflag, rev=true, bits=serial.lflag.IEXTEN},
+  {name="echo", field=field.lflag, rev=true, bits=serial.lflag.ECHO},
+  {name="echoe", field=field.lflag, rev=true, bits=serial.lflag.ECHOE},
+  {name="echok", field=field.lflag, rev=true, bits=serial.lflag.ECHOK},
+  {name="echonl", field=field.lflag, rev=true, bits=serial.lflag.ECHONL},
+  {name="noflsh", field=field.lflag, rev=true, bits=serial.lflag.NOFLSH},
+}
+
+local control_info = {
+  {name="intr", offset=serial.cc.VINTR},
+  {name="quit", offset=serial.cc.VQUIT},
+  {name="erase", offset=serial.cc.VERASE},
+  {name="kill", offset=serial.cc.VKILL},
+  {name="eof", offset=serial.cc.VEOF},
+  {name="eol", offset=serial.cc.VEOL},
+  {name="start", offset=serial.cc.VSTART},
+  {name="stop", offset=serial.cc.VSTOP},
+  {name="susp", offset=serial.cc.VSUSP},
+  {name="min", offset=serial.cc.VMIN},
+  {name="time", offset=serial.cc.VTIME},
+}
+
+local speed_map = {
+  [serial.speed.B0]=0,
+  [serial.speed.B50]=50,
+  [serial.speed.B75]=75,
+  [serial.speed.B110]=110,
+  [serial.speed.B134]=134,
+  [serial.speed.B150]=150,
+  [serial.speed.B200]=200,
+  [serial.speed.B300]=300,
+  [serial.speed.B600]=600,
+  [serial.speed.B1200]=1200,
+  [serial.speed.B1800]=1800,
+  [serial.speed.B2400]=2400,
+  [serial.speed.B4800]=4800,
+  [serial.speed.B9600]=9600,
+  [serial.speed.B19200]=19200,
+  [serial.speed.B38400]=38400,
+  [serial.speed.B57600]=57600,
+  [serial.speed.B115200]=115200,
+  [serial.speed.B230400]=230400,
+  [serial.speed.B460800]=460800,
+  [serial.speed.B500000]=500000,
+  [serial.speed.B576000]=576000,
+  [serial.speed.B921600]=921600,
+  [serial.speed.B1000000]=1000000,
+  [serial.speed.B1152000]=1152000,
+  [serial.speed.B1500000]=1500000,
+  [serial.speed.B2000000]=2000000,
+  [serial.speed.B2500000]=2500000,
+  [serial.speed.B3000000]=3000000,
+  [serial.speed.B3500000]=3500000,
+  [serial.speed.B4000000]=4000000,
+}
+
+local function baud_to_string(speed)
+  return speed_map[speed].." baud"
+end
+
+local sep=", "
+
+function TerminalIO:__tostring()
+  local display = ""
+
+  if self.ispeed == serial.speed.B0 or self.ispeed == self.ospeed then
+    display=display.."speed: "..baud_to_string(self.ospeed)
+  else
+    local ispeed = "ispeed: "..baud_to_string(self.ispeed)
+    local ospeed = "ospeed: "..baud_to_string(self.ospeed)
+    display=display..ispeed..sep..ospeed
+  end
+
+  local acc = ""
+  for _, info in ipairs(control_info) do
+    if #acc > 0 then
+      acc = acc..sep
+    end
+    acc = acc..info.name.."="..self.cc[info.offset]
+  end
+  display = display.."\ncc: "..acc
+
+  acc = ""
+  local prev_field = mode_info[1].field
+  for _, info in ipairs(mode_info) do
+    if info.field ~= prev_field then
+      display=display.."\n"..prev_field..": "..acc
+      acc=""
+      prev_field=info.field
+    end
+    if #acc > 0 and acc:sub(-2, -1)~=sep then
+      acc = acc..sep
+    end
+    local bits = self[info.field]
+    local mask = bits
+    if info.mask then
+      mask = info.mask
+    end
+    if bits & mask == info.bits then
+      acc = acc..info.name
+    elseif info.rev then
+      acc = acc.."-"..info.name
+    end
+  end
+  display=display.."\n"..prev_field..": "..acc
+
+  return display
+end
+
+--- print out the terminal configuration
+function TerminalIO:print()
+  print(self)
+end
 
 return serial
