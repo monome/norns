@@ -12,7 +12,8 @@ local serial = {
 -- @param args.match function(attrs) returning true if the handler should accept the device with the given attributes, 
 --   otherwise false
 -- @param args.configure function(term) receiving the device's initial terminal settings and returning the new terminal
---   settings. The callback should modify the input table using bitwise operations and then return the input table
+--   settings. The callback should modify the input table using bitwise operations and then return the input table. term
+--   is a TerminalIO instance.
 -- @param args.add function(id, name, dev) called when a new device for this handler has been connected and initialized
 -- @param args.remove function(id) called when a connected device for this  handler has been disconnected
 -- @param args.event function(id, data) called when a message is received from a connected device for this handler. The 
@@ -36,6 +37,9 @@ local serial = {
 --   end,
 --
 --   configure = function(term)
+--       -- print the current settings
+--       term:print()
+--
 --       -- set baud rate.
 --       term.ispeed = term.ispeed | serial.speed.B115200
 --       term.ospeed = term.ospeed | serial.speed.B115200
