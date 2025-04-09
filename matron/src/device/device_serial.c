@@ -74,7 +74,7 @@ int dev_serial_init(void *self, lua_State *l) {
     lua_createtable(l, NCCS, 0);
     for (int i = 0; i < NCCS; i++) {
         lua_pushinteger(l, d->oldtio.c_cc[i]);
-        lua_rawseti(l, -2, i+1);
+        lua_rawseti(l, -2, i);
     }
     lua_setfield(l, -2, CC);
     l_report(l, l_docall(l, 2, 1));
