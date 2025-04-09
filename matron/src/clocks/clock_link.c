@@ -100,7 +100,6 @@ void clock_link_start() {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
-    clock_link_shared_data.number_of_peers = 0;
     clock_link_shared_data.quantum = 4;
     clock_link_shared_data.requested_tempo = 0;
     clock_link_shared_data.enabled = false;
