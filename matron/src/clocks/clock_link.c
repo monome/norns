@@ -16,7 +16,6 @@ static pthread_t clock_link_thread;
 static struct clock_link_shared_data_t {
     double quantum;
     double requested_tempo;
-    uint64_t number_of_peers;
     bool playing;
     bool enabled;
     bool start_stop_sync;
