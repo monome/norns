@@ -23,35 +23,35 @@ static struct clock_link_shared_data_t {
     pthread_mutex_t lock;
 } clock_link_shared_data;
 
+static abl_link clock_link;
+
 static clock_reference_t clock_link_reference;
 
 static void *clock_link_run(void *p) {
     (void)p;
 
-    abl_link link;
     abl_link_session_state state;
 
-    link = abl_link_create(120);
     state = abl_link_create_session_state();
 
     while (true) {
         if (pthread_mutex_trylock(&clock_link_shared_data.lock) == 0) {
-            abl_link_capture_app_session_state(link, state);
+            abl_link_capture_app_session_state(clock_link, state);
 
-            uint64_t micros = abl_link_clock_micros(link);
+            uint64_t micros = abl_link_clock_micros(clock_link);
             double link_tempo = abl_link_tempo(state);
             bool link_playing = abl_link_is_playing(state);
 
 
             if (clock_link_shared_data.transport_start) {
                 abl_link_set_is_playing(state, true, micros);
-                abl_link_commit_app_session_state(link, state);
+                abl_link_commit_app_session_state(clock_link, state);
                 clock_link_shared_data.transport_start = false;
             }
 
             if (clock_link_shared_data.transport_stop) {
                 abl_link_set_is_playing(state, false, micros);
-                abl_link_commit_app_session_state(link, state);
+                abl_link_commit_app_session_state(clock_link, state);
                 clock_link_shared_data.transport_stop = false;
             }
 
@@ -62,7 +62,7 @@ static void *clock_link_run(void *p) {
 
                     // this will also reschedule pending sync events to beat 0
                     clock_start_from_source(CLOCK_SOURCE_LINK);
-                    abl_link_commit_app_session_state(link, state);
+                    abl_link_commit_app_session_state(clock_link, state);
                 } else if (clock_link_shared_data.playing && !link_playing) {
                     clock_link_shared_data.playing = false;
                     clock_stop_from_source(CLOCK_SOURCE_LINK);
@@ -74,12 +74,12 @@ static void *clock_link_run(void *p) {
 
             if (clock_link_shared_data.requested_tempo > 0) {
                 abl_link_set_tempo(state, clock_link_shared_data.requested_tempo, micros);
-                abl_link_commit_app_session_state(link, state);
+                abl_link_commit_app_session_state(clock_link, state);
                 clock_link_shared_data.requested_tempo = 0;
             }
 
-            abl_link_enable(link, clock_link_shared_data.enabled);
-            abl_link_enable_start_stop_sync(link, clock_link_shared_data.start_stop_sync);
+            abl_link_enable(clock_link, clock_link_shared_data.enabled);
+            abl_link_enable_start_stop_sync(clock_link, clock_link_shared_data.start_stop_sync);
 
             pthread_mutex_unlock(&clock_link_shared_data.lock);
         }
@@ -91,6 +91,7 @@ static void *clock_link_run(void *p) {
 }
 
 void clock_link_init() {
+    clock_link = abl_link_create(120);
     clock_reference_init(&clock_link_reference);
 }
 
@@ -153,4 +154,8 @@ double clock_link_get_beat() {
 
 double clock_link_get_tempo() {
     return clock_get_reference_tempo(&clock_link_reference);
+}
+
+uint64_t clock_link_number_of_peers() {
+    return abl_link_num_peers(clock_link);
 }
