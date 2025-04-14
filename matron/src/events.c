@@ -147,6 +147,7 @@ MATRON_API void event_data_free(union event_data *ev) {
         break;
     case EVENT_SERIAL_EVENT:
         free(ev->serial_event.data);
+        ev->serial_event.data = NULL;
         break;
     case EVENT_CUSTOM:
         if (ev->custom.ops->free) {
