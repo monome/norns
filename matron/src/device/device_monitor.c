@@ -384,8 +384,8 @@ int is_dev_monome_grid(struct udev_device *dev) {
     if (strcmp(model, "arc") == 0) {
         return 1;
     }
-    if (strcmp(model, "monome") == 0) {
-        // probably a clone
+    if (strncmp(model, "monome", 6) == 0) {
+        // probably a clone or older grid (monome, monome_128)
         return 1;
     }
 
