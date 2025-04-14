@@ -149,7 +149,7 @@ serial.cc = tab.readonly{table = {
 -- @field ISTRIP Strip 8th bit off characters.
 -- @field INCLR Map NL to CR on input.
 -- @field IGNCR Ignore CR.
--- @field ICRNL Map CT to NL on input.
+-- @field ICRNL Map CR to NL on input.
 -- @field IUCLC Map uppercase characters to lowercase on input (not in POSIX).
 -- @field IXON Enable start/stop output control.
 -- @field IXANY Enable any character to restart output.
