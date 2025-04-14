@@ -295,6 +295,7 @@ static int _clock_link_set_quantum(lua_State *l);
 static int _clock_link_set_transport_stop(lua_State *l);
 static int _clock_link_set_transport_start(lua_State *l);
 static int _clock_link_set_start_stop_sync(lua_State *l);
+static int _clock_link_get_number_of_peers(lua_State *l);
 #endif
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
@@ -570,6 +571,7 @@ void w_init(void) {
 #if HAVE_ABLETON_LINK
     lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
     lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
+    lua_register_norns("clock_link_get_number_of_peers", &_clock_link_get_number_of_peers);
     lua_register_norns("clock_link_set_transport_start", &_clock_link_set_transport_start);
     lua_register_norns("clock_link_set_transport_stop", &_clock_link_set_transport_stop);
     lua_register_norns("clock_link_set_start_stop_sync", &_clock_link_set_start_stop_sync);
@@ -1658,10 +1660,11 @@ int _serial_send(lua_State *l) {
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
     d = lua_touserdata(l, 1);
-    s = luaL_checkstring(l, 2);
+    size_t len = 0;
+    s = luaL_checklstring(l, 2, &len);
     lua_settop(l, 0);
 
-    dev_serial_send(d, s);
+    dev_serial_send(d, s, len);
 
     return 0;
 }
@@ -2109,6 +2112,12 @@ int _clock_crow_in_div(lua_State *l) {
 }
 
 #if HAVE_ABLETON_LINK
+int _clock_link_get_number_of_peers(lua_State *l) {
+    uint64_t peers = clock_link_number_of_peers();
+    lua_pushinteger(l, (lua_Integer)peers);
+    return 1;
+}
+
 int _clock_link_set_tempo(lua_State *l) {
     lua_check_num_args(1);
     double bpm = luaL_checknumber(l, 1);
@@ -2356,12 +2365,12 @@ void w_handle_serial_remove(uint32_t id, char *handler_id) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-void w_handle_serial_event(void *dev, uint32_t id) {
+void w_handle_serial_event(void *dev, uint32_t id, char *data, ssize_t len) {
     struct dev_serial *d = (struct dev_serial *)dev;
     _push_norns_func("serial", "event");
     lua_pushstring(lvm, d->handler_id);
     lua_pushinteger(lvm, id + 1); // convert to 1-base
-    lua_pushstring(lvm, d->line);
+    lua_pushlstring(lvm, data, len);
     l_report(lvm, l_docall(lvm, 3, 0));
 }
 

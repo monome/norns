@@ -51,7 +51,7 @@ extern void w_handle_crow_event(void *dev, int id);
 
 extern void w_handle_serial_add(void *dev);
 extern void w_handle_serial_remove(uint32_t id, char *handler_id);
-extern void w_handle_serial_event(void *dev, uint32_t id);
+extern void w_handle_serial_event(void *dev, uint32_t id, char *data, ssize_t len);
 
 extern void w_handle_serial_config(char *path, char *name, char *vendor, char *model, char *serial, char *interface);
 

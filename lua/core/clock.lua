@@ -190,6 +190,11 @@ clock.link.set_start_stop_sync = function(enabled)
   return _norns.clock_link_set_start_stop_sync(enabled)
 end
 
+--- returns the number of other devices present in the Link session with this norns.
+clock.link.get_number_of_peers = function()
+  return _norns.clock_link_get_number_of_peers()
+end
+
 _norns.clock.start = function()
   if clock.transport.start ~= nil then
     clock.transport.start()
