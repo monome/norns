@@ -218,22 +218,52 @@ function tab.readonly(params)
   local t = params.table
   local exceptions = params.except or {}
   local proxy = {}
-  local mt = {
-    __index = function(_, k)
-      if params.expose == nil or tab.contains(params.expose, k) then
-        return t[k]
+
+  local proxy_index = function(_, k)
+    if params.expose == nil or tab.contains(params.expose, k) then
+      return t[k]
+    end
+    return nil
+  end
+
+  local proxy_newindex = function (_, k, v)
+    if (tab.contains(exceptions, k)) then
+      t[k] = v
+    else
+      error("'"..k.."', a read-only key, cannot be re-assigned.")
+    end
+  end
+
+  local proxy_pairs = function(_)
+    function iter(_, key)
+      for k, v in next, t, key do
+        if proxy_index(nil, k) ~= nil then
+          return k, v
+        end
+        k, v = next(t, k)
       end
       return nil
-    end,
-    __newindex = function (_,k,v)
-      if (tab.contains(exceptions, k)) then
-        t[k] = v
-      else
-        error("'"..k.."', a read-only key, cannot be re-assigned.")
+    end
+    return iter, t, nil
+  end
+
+  local proxy_ipairs = function(_)
+    function iter()
+      for i = 1, tab.count(t) do
+        if proxy_index(nil, i) ~= nil then
+          return i, t[i]
+        end
       end
-    end,
-    __pairs = function (_) return pairs(proxy) end,
-    __ipairs = function (_) return ipairs(proxy) end,
+      return nil
+    end
+    return iter
+  end
+
+  local mt = {
+    __index = proxy_index,
+    __newindex = proxy_newindex,
+    __pairs = proxy_pairs,
+    __ipairs = proxy_ipairs,
   }
   setmetatable(proxy, mt)
   return proxy
