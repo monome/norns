@@ -74,8 +74,11 @@ int main(int argc, char **argv) {
     battery_init();
     stat_init();
     osc_init();
-    jack_client_init();
     ssd1322_init();
+    if(jack_client_init()) {
+    	usleep(1000000);
+    	return -1;
+    }
     clock_init();
     clock_internal_init();
     clock_midi_init();
