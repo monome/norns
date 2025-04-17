@@ -77,7 +77,6 @@ int main(int argc, char **argv) {
     ssd1322_init();
     if(jack_client_init()) {
     	usleep(1000000);
-    	ssd1322_deinit();
     	return -1;
     }
     clock_init();
