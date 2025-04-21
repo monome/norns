@@ -136,6 +136,9 @@ static int _screen_rotate(lua_State *l);
 static int _screen_translate(lua_State *l);
 static int _screen_set_operator(lua_State *l);
 
+// screen_events
+static int _screen_events_reset(lua_State *l);
+
 // image
 typedef struct {
     screen_surface_t *surface;
@@ -506,6 +509,9 @@ void w_init(void) {
     lua_register_norns("screen_translate", &_screen_translate);
     lua_register_norns("screen_set_operator", &_screen_set_operator);
     lua_register_norns("screen_current_point", &_screen_current_point);
+
+    // screen_events
+    lua_register_norns("screen_events_reset", &_screen_events_reset);
     
     // image
     lua_register_norns_class(_image_class_name, _image_methods, _image_functions);
@@ -1230,6 +1236,14 @@ int _screen_set_operator(lua_State *l) {
     lua_settop(l, 0);
     return 0;
 }
+
+ int _screen_events_reset(lua_State *l) {
+    lua_check_num_args(0);
+    screen_events_reset();
+    lua_settop(l, 0);
+    return 0;
+}
+
 
 // clang-format off
 static luaL_Reg _image_methods[] = {
