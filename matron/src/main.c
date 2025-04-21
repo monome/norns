@@ -75,10 +75,15 @@ int main(int argc, char **argv) {
     stat_init();
     osc_init();
     ssd1322_init();
-    if(jack_client_init()) {
-    	usleep(1000000);
-    	return -1;
-    }
+		if(jack_client_init()) {
+			screen_clear();
+			screen_level(15);
+			screen_move(10, 40);
+			screen_text("audio system fail.");
+			screen_update();
+			ssd1322_refresh();
+			return -1;
+		}
     clock_init();
     clock_internal_init();
     clock_midi_init();

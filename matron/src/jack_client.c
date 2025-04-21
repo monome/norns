@@ -3,8 +3,6 @@
 
 #include <jack/jack.h>
 
-#include "screen.h"
-#include "hardware/screen/ssd1322.h"
 
 static jack_client_t *jack_client;
 double jack_sample_rate;
@@ -34,12 +32,6 @@ int jack_client_init() {
   jack_sample_rate = (float)jack_get_sample_rate(jack_client);
   return 0;
 fail:
-  screen_clear();
-  screen_level(15);
-  screen_move(10, 40);
-  screen_text("audio system fail.");
-  screen_update();
-  ssd1322_refresh();
   return 1;
 }
 
