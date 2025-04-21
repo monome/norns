@@ -3,7 +3,6 @@
 
 #include <jack/jack.h>
 
-#include "screen.h"
 
 static jack_client_t *jack_client;
 double jack_sample_rate;
@@ -33,11 +32,6 @@ int jack_client_init() {
   jack_sample_rate = (float)jack_get_sample_rate(jack_client);
   return 0;
 fail:
-  screen_clear();
-  screen_level(15);
-  screen_move(0, 60);
-  screen_text("jack fail.");
-  screen_update();
   return 1;
 }
 
