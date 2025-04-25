@@ -36,11 +36,7 @@ static pthread_cond_t screen_q_nonempty;
 static void screen_events_emergency_clear();
 
 // double the size of the Q after it is cleared in emergency
-static void screen_events_grow_queue();
-
-// halve the size of the Q after if it has been running fine
-// after switching scripts
-static void screen_events_shrink_queue();
+static int screen_events_grow_queue();
 
 void screen_events_init() {
     screen_q = calloc(screen_q_size, sizeof(struct screen_event_data));
@@ -63,7 +59,33 @@ void screen_events_init() {
 
 void screen_events_reset() {
     pthread_mutex_lock(&screen_q_lock);
-    screen_events_shrink_queue();
+
+    for (size_t i = 0; i < screen_q_size; ++i) {
+        screen_event_data_free(&screen_q[i]);
+    }
+
+    screen_q_wr = 0;
+    screen_q_rd = 0;
+
+    if (screen_q_size > SCREEN_Q_SIZE_INIT) {
+
+        const size_t new_screen_q_size = SCREEN_Q_SIZE_INIT;
+        const size_t new_screen_q_mask = SCREEN_Q_MASK_INIT;
+
+        fprintf(stderr, "SCREEN: decreasing Q size from %zu to %zu\n", screen_q_size, new_screen_q_size);
+
+        struct screen_event_data * new_screen_q = realloc(screen_q, new_screen_q_size * sizeof(struct screen_event_data));
+
+        if (new_screen_q == NULL) {
+            fprintf(stderr, "SCREEN: shrink error reallocating Q\n");
+        }
+        else{
+            screen_q_size = new_screen_q_size;
+            screen_q_mask = new_screen_q_mask;
+            screen_q = new_screen_q;
+        }
+    }
+
     pthread_mutex_unlock(&screen_q_lock);
 }
 
@@ -94,8 +116,9 @@ void screen_event_data_push(struct screen_event_data *src) {
     // if these indices become equal here, we've filled the queue
     if (screen_q_wr == screen_q_rd) {
         fprintf(stderr, "warning: screen event Q full!\n");
-        screen_events_emergency_clear();
-        screen_events_grow_queue();
+        if (screen_events_grow_queue() != 0) {
+            screen_events_emergency_clear();
+        }
     }
     pthread_cond_signal(&screen_q_nonempty);
     pthread_mutex_unlock(&screen_q_lock);
@@ -672,23 +695,11 @@ void screen_events_emergency_clear() {
 }
 
 // assumption: Q is locked
-void screen_events_grow_queue() {
+// assumption: (screen_q_wr == screen_q_rd)
+int screen_events_grow_queue() {
     if (screen_q_size >= SCREEN_Q_SIZE_MAX) {
-        static struct timespec last_log = {0};
-        struct timespec now = {0};
-
-        clock_gettime(CLOCK_MONOTONIC, &now);
-
-        // NOTE: If the Q is attempting to grow often and has already reached
-        //       its limit, then it is likely that this log may flood the
-        //       output. Put a time-based limiter on it for that case.
-
-        if ((now.tv_sec - last_log.tv_sec) > 1) {
-            fprintf(stderr, "SCREEN: error can't grow Q any more\n");
-            last_log = now;
-        }
-
-        return;
+        fprintf(stderr, "SCREEN: error can't grow Q any more\n");
+        return -1;
     }
 
     const size_t new_screen_q_size = screen_q_size * 2;
@@ -700,56 +711,57 @@ void screen_events_grow_queue() {
 
     if (new_screen_q == NULL) {
         fprintf(stderr, "SCREEN: grow error reallocating Q\n");
-        return;
+        return -2;
     }
 
-    // NOTE: realloc() doesn't set new memory to 0s, so the assert in screen_event_data_move() will fail if we don't
-    //       initialize the data first.
+    // NOTE:
+    //
+    //    To reach the point of needing to be resized, prior to the re-allocation,
+    //    the Q's buffer must have wrapped around at least once (indicated by 'W').
+    //    To resize this ringbuf without losing track of the R/W indices, the part
+    //    of memory that has wrapped around should now be moved to the front of the
+    //    new space.
+    //
+    //    Additionally, the screen_event_data in the previously wrapped space now
+    //    needs to be re-initialized (indicated by '_'), to not throw an assertion
+    //    error when attempting to move data there in the future.
+    //
+    //    ┌─────────────────────────────────┐
+    //    │      OLD mem in 'screen_q'      │
+    //    │ ┌─────────────────────────────┐ │
+    //    │ │ W W W W W w w w w w w w w w │ │
+    //    │ └─────────┼─┼─────────────────┘ │
+    //    └───────────┼─┼───────────────────┘
+    //                └─┼─── 'screen_q_wr' 
+    //                  └─── 'screen_q_rd' 
+    //
+    //    ┌─────────────────────────────────────────────────────────────────┐
+    //    │      OLD mem in 'screen_q'           NEW mem in 'screen_q'      │
+    //    │ ┌─────────────────────────────┐ ┌─────────────────────────────┐ │
+    //    │ │ _ _ _ _ _ w w w w w w w w w │ │ W W W W W _ _ _ _ _ _ _ _ _ │ │
+    //    │ └───────────┼─────────────────┘ └─────────┼───────────────────┘ │
+    //    └─────────────┼─────────────────────────────┼─────────────────────┘
+    //                  └─── 'screen_q_rd'            └───── 'screen_q_wr'
 
-    for (size_t i = screen_q_size; i < new_screen_q_size; i++) {
-        struct screen_event_data * ev = &new_screen_q[i];
-        screen_event_data_init(ev);
-    }
+    const size_t wrapped_size = screen_q_rd * sizeof(struct screen_event_data);
+
+    memmove(
+        &new_screen_q[screen_q_size],
+        &new_screen_q[0],
+        wrapped_size
+    );
+
+    // NOTE: This is effectively the same as iterating over the Q and calling
+    //       screen_event_data_init() on each pointer since that function sets
+    //       each of the fields to 0 (at the time of writing this comment).
+
+    memset(&new_screen_q[0], 0, wrapped_size);
+
+    screen_q_wr += screen_q_size;
 
     screen_q_size = new_screen_q_size;
     screen_q_mask = new_screen_q_mask;
     screen_q = new_screen_q;
-}
 
-// assumption: Q is locked
-void screen_events_shrink_queue() {
-    if (screen_q_size <= SCREEN_Q_SIZE_INIT) {
-        return;
-    }
-
-    const size_t new_screen_q_size = SCREEN_Q_SIZE_INIT;
-    const size_t new_screen_q_mask = SCREEN_Q_MASK_INIT;
-
-    fprintf(stderr, "SCREEN: decreasing Q size from %zu to %zu\n", screen_q_size, new_screen_q_size);
-
-    // NOTE: We need to free event data that may still exist in the event queue before we lose
-    //       their pointers.
-
-    for (size_t i = new_screen_q_size; i < screen_q_size; i++) {
-        struct screen_event_data * ev = &screen_q[i];
-        screen_event_data_free(ev);
-    }
-
-    #ifndef MIN
-    #define MIN(a,b) (((a)<(b))?(a):(b))
-    screen_q_wr = MIN(screen_q_wr, new_screen_q_mask);
-    screen_q_rd = MIN(screen_q_rd, new_screen_q_mask);
-    #undef MIN
-    #endif
-
-    struct screen_event_data * new_screen_q = realloc(screen_q, new_screen_q_size * sizeof(struct screen_event_data));
-
-    if (new_screen_q == NULL) {
-        fprintf(stderr, "SCREEN: shrink error reallocating Q\n");
-        return;
-    }
-
-    screen_q_size = new_screen_q_size;
-    screen_q_mask = new_screen_q_mask;
-    screen_q = new_screen_q;
+    return 0;
 }
