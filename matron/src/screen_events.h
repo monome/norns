@@ -2,7 +2,6 @@
 #define _SCREEN_EVENTS_H_
 
 extern void screen_events_init();
-extern void screen_events_reset();
 
 extern void screen_event_update(void);
 extern void screen_event_save(void);
