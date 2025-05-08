@@ -8,7 +8,7 @@
 #include "screen_events.h"
 #include "screen_events_pr.h"
 
-#define SCREEN_Q_SIZE 1024
+#define SCREEN_Q_SIZE 16384
 #define SCREEN_Q_MASK (SCREEN_Q_SIZE - 1)
 
 static struct screen_event_data screen_q[SCREEN_Q_SIZE];
