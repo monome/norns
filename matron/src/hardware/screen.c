@@ -38,7 +38,6 @@ static cairo_operator_t ops[NUM_OPS] = {
     CAIRO_OPERATOR_OVER,
     CAIRO_OPERATOR_XOR,
     CAIRO_OPERATOR_ADD,
-    CAIRO_OPERATOR_SATURATE,
     CAIRO_OPERATOR_MULTIPLY,
     CAIRO_OPERATOR_SCREEN,
     CAIRO_OPERATOR_OVERLAY,
@@ -60,6 +59,7 @@ static cairo_operator_t ops[NUM_OPS] = {
     CAIRO_OPERATOR_DEST_IN,
     CAIRO_OPERATOR_DEST_OUT,
     CAIRO_OPERATOR_DEST_ATOP,
+    CAIRO_OPERATOR_SATURATE,
     CAIRO_OPERATOR_HSL_HUE,
     CAIRO_OPERATOR_HSL_SATURATION,
     CAIRO_OPERATOR_HSL_COLOR,
@@ -596,7 +596,7 @@ void screen_translate(double x, double y) {
 }
 
 void screen_set_operator(int i) {
-    if (0 <= i && i <= 28) {
+    if (0 <= i && i <= 29) {
         cairo_set_operator(cr, ops[i]);
     }
 }
