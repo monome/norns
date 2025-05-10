@@ -56,15 +56,15 @@ typedef struct {
 extern screen_surface_t *screen_surface_new(double width, double height);
 extern screen_surface_t *screen_surface_load_png(const char *filename);
 extern void screen_surface_free(screen_surface_t *s);
-extern bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e);
+extern void screen_surface_get_extents(screen_surface_t *s);
 extern void screen_surface_display(screen_surface_t *s, double x, double y);
 extern void screen_surface_display_region(screen_surface_t *s, double left, double top, double width, double height, double x, double y);
 
 typedef struct _screen_context screen_context_t;
 
-extern screen_context_t *screen_context_new(screen_surface_t *target);
+extern void screen_context_new(screen_surface_t *target);
 extern void screen_context_free(screen_context_t *context);
-extern const screen_context_t *screen_context_get_current(void);
+extern void screen_context_get_current();
 extern void screen_context_set(const screen_context_t *context);
 extern void screen_context_set_primary(void);
 
