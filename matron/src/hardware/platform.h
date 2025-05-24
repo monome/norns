@@ -12,3 +12,4 @@ typedef enum {
 
 extern void init_platform(void);
 extern platform_t platform(void);
+extern const char* platform_name(void);
