@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-platform_t p;
+static platform_t p = PLATFORM_UNKNOWN;
 
 void init_platform() {
   if(access("/sys/firmware/devicetree/base/model", F_OK ) != -1) {
