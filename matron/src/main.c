@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
     print_version();
     init_platform();
-    printf("platform: %d\n",platform());
+    printf("platform: %s (%d)\n", platform_name(), platform());
 
     events_init(); // <-- must come first!
     if (config_init()) {
