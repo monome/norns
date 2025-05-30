@@ -5,8 +5,8 @@ releases = {
     sha="https://github.com/monome/norns/releases/download/v2.9.1/norns250414.sha256"
   },
   beta = {
-    version="250414",
-    url="https://github.com/monome/norns/releases/download/v2.9.1/norns250414.tgz",
-    sha="https://github.com/monome/norns/releases/download/v2.9.1/norns250414.sha256"
+    version="250530",
+    url="https://github.com/monome/norns/releases/download/v2.9.2/norns250530.tgz",
+    sha="https://github.com/monome/norns/releases/download/v2.9.2/norns250530.sha256"
   }
 }
