@@ -188,15 +188,29 @@ void lcd_init() {
     write_command(LCD_SWRESET);
     usleep(120000);
 
+    // Set color mode to 16-bit per pixel
+    write_command_with_data(LCD_COLMOD, 0x05);
+
+    // Set frame rate control
+    write_command_with_data(LCD_FRMCTR1, 0x00, 0x18);
+
+    // Set power control
     write_command_with_data(LCD_PWCTR1, 0x23);
     write_command_with_data(LCD_PWCTR2, 0x10);
     write_command_with_data(LCD_VMCTR1, 0x3E, 0x28);
-    write_command_with_data(LCD_FRMCTR1, 0x00, 0x18);
-    write_command_with_data(LCD_COLMOD, 0x05); // 16-bit color
-    write_command_with_data(LCD_MADCTL, 0x48); // Row/Column order
+
+    // Set display enhancement
+    write_command_with_data(LCD_DISSET5, 0x00, 0x00);
+
+    // Set gamma correction
     write_command_with_data(LCD_GMCTRP1, 0x0F, 0x1A, 0x0F, 0x18, 0x2F, 0x28, 0x20, 0x22, 0x1F, 0x1B, 0x23, 0x37, 0x00, 0x07, 0x02, 0x10);
     write_command_with_data(LCD_GMCTRN1, 0x0F, 0x1B, 0x0F, 0x17, 0x33, 0x2C, 0x29, 0x2E, 0x30, 0x30, 0x39, 0x3F, 0x00, 0x07, 0x03, 0x10);
 
+    // Set display mode
+    write_command(LCD_MADCTL);
+    write_command_with_data(LCD_MADCTL, 0x48); // Row/Column order
+
+    // Turn on display
     write_command(LCD_SLPOUT);
     usleep(120000);
     write_command(LCD_DISPON);

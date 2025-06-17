@@ -23,7 +23,7 @@
 #include "screen_results.h"
 #include "hardware/io.h"
 #include "hardware/screen.h"
-#include "hardware/screen/ssd1322.h"
+#include "hardware/screen/lcd.h"
 
 #define NUM_FONTS 69
 #define NUM_OPS 29
@@ -66,12 +66,14 @@ static cairo_operator_t ops[NUM_OPS] = {
     CAIRO_OPERATOR_HSL_LUMINOSITY
 };
 
-static cairo_surface_t *surface;
+static cairo_surface_t *surface = NULL;
 static cairo_surface_t *image;
 static cairo_t *cr;
 static cairo_t *cr_primary;
 static bool surface_may_have_color = false;
-
+static bool screen_inverted = false;
+static bool screen_should_turn_on = true;
+static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 static cairo_font_face_t *ct[NUM_FONTS];
 static FT_Library value;
@@ -84,7 +86,24 @@ static void init_font_faces(void);
 //--- extern function definitions
 
 void screen_init(void) {
-    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 128, 64);
+    if( pthread_mutex_init(&lock, NULL) != 0 ){
+        fprintf(stderr, "%s: pthread_mutex_init failed\n", __func__);
+        return;
+    }
+
+    surface = cairo_image_surface_create(
+        CAIRO_FORMAT_ARGB32,
+        LCD_WIDTH,
+        LCD_HEIGHT
+    );
+
+    if( surface == NULL ){
+        fprintf(stderr, "%s: couldn't create surface\n", __func__);
+        return;
+    }
+
+    lcd_init();
+
     cr = cr_primary = cairo_create(surface);
 
     cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
@@ -286,31 +305,26 @@ void init_font_faces(void) {
 void screen_deinit(void) {
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
+    surface = NULL;
+    lcd_deinit();
+    pthread_mutex_destroy(&lock);
 }
 
 void screen_update(void) {
-
-#ifdef NORNS_DESKTOP
-    matron_io_t *io;
-    TAILQ_FOREACH(io, &io_queue, entries) {
-        if (io->ops->type != IO_SCREEN) continue;
-        matron_fb_t *fb = (matron_fb_t *)io;
-        screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
-        fb_ops->paint(fb);
+    if( surface == NULL ){
+        fprintf(stderr, "%s: surface not yet created\n", __func__);
+        return;
     }
-    return;
-#endif
 
-    cairo_surface_flush(surface);
-    ssd1322_update(surface, surface_may_have_color);
+    lcd_update(surface, surface_may_have_color);
 }
 
 void screen_save(void) {
-    cairo_save(cr);
+    // Not implemented
 }
 
 void screen_restore(void) {
-    cairo_restore(cr);
+    // Not implemented
 }
 
 void screen_font_face(int i) {
@@ -336,42 +350,20 @@ void screen_aa(int s) {
     cairo_font_options_destroy(font_options);
 }
 
-void screen_brightness(int v) {
-    if (v < 0) {
-        v=0;
-    }
-    if (v > 15) {
-        v=15;
-    }
-
-    // True range of pre-charge voltage, AKA "brightness" is 0-31.
-    // Below 16 is too dark for the lowest screen levels, so the range
-    // is limited and offset.
-    v += 16;
-
-    ssd1322_set_brightness((uint8_t) v);
+void screen_brightness(float v) {
+    lcd_set_brightness((uint8_t) v);
 }
 
-void screen_contrast(int c){
-    if (c < 0) {
-        c=0;
-    }
-    if (c > 255) {
-        c=255;
-    }
-    ssd1322_set_contrast((uint8_t) c);
+void screen_contrast(float c) {
+    lcd_set_contrast((uint8_t) c);
 }
 
-void screen_gamma(double g) {
-    if (g < 0.0) {
-        g=0;
-    }
-
-    ssd1322_set_gamma(g);
+void screen_gamma(float g) {
+    lcd_set_gamma(g);
 }
 
-void screen_invert(int inverted){
-    ssd1322_set_display_mode((inverted != 0) ? SSD1322_DISPLAY_MODE_INVERT : SSD1322_DISPLAY_MODE_NORMAL);
+void screen_invert(int inverted) {
+    lcd_set_display_mode((inverted != 0) ? LCD_DISPLAY_MODE_INVERT : LCD_DISPLAY_MODE_NORMAL);
 }
 
 void screen_level(int z) {
@@ -708,4 +700,28 @@ void screen_context_set(const screen_context_t *context) {
 
 void screen_context_set_primary(void) {
     _screen_context_set(cr_primary);
+}
+
+cairo_surface_t * screen_get_surface() {
+    return surface;
+}
+
+void screen_set_surface_may_have_color(bool may_have_color) {
+    surface_may_have_color = may_have_color;
+}
+
+void screen_set_should_turn_on(bool should_turn_on) {
+    screen_should_turn_on = should_turn_on;
+}
+
+bool screen_get_should_turn_on() {
+    return screen_should_turn_on;
+}
+
+void screen_set_inverted(bool inverted) {
+    screen_inverted = inverted;
+}
+
+bool screen_get_inverted() {
+    return screen_inverted;
 }

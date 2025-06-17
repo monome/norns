@@ -1,33 +1,29 @@
-#pragma once
+#ifndef __LCD_H
+#define __LCD_H
 
 #include <arm_neon.h>
 #include <cairo.h>
-#include <fcntl.h>
 #include <gpiod.h>
 #include <pthread.h>
-#include <math.h>
-#include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
-#include <linux/gpio.h>
-#include <linux/types.h>
+#include <unistd.h>
+
 #include <linux/spi/spidev.h>
 
-#include "platform.h"
-
-// SPI Configuration
 #define SPIDEV_0_0_PATH "/dev/spidev0.0"
 #define SPI0_BUS_WIDTH 8
 
-// Pico-LCD-1.14 Pin Configuration
-// Using BCM GPIO numbering
+// GPIO Configuration
 #define LCD_DC_AND_RESET_GPIO_CHIP "gpiochip0"
-#define LCD_DC_GPIO_LINE 25      // DC pin
-#define LCD_RESET_GPIO_LINE 27   // RST pin
-#define LCD_BL_GPIO_LINE 18      // Backlight pin
-#define LCD_CS_GPIO_LINE 8       // Chip Select pin
+#define LCD_DC_GPIO_LINE 25  // DC pin
+#define LCD_RESET_GPIO_LINE 27  // RST pin
+#define LCD_BL_GPIO_LINE 18  // Backlight pin
+#define LCD_CS_GPIO_LINE 8   // Chip Select pin
 
 // Display dimensions
 #define LCD_WIDTH 240
@@ -48,6 +44,7 @@
 #define LCD_FRMCTR2 0xB2
 #define LCD_FRMCTR3 0xB3
 #define LCD_INVCTR 0xB4
+#define LCD_DISSET5 0xB6
 #define LCD_PWCTR1 0xC0
 #define LCD_PWCTR2 0xC1
 #define LCD_PWCTR3 0xC2
@@ -65,19 +62,21 @@
 // Display modes
 typedef enum {
     LCD_DISPLAY_MODE_NORMAL = 0,
-    LCD_DISPLAY_MODE_INVERT,
-    LCD_DISPLAY_MODE_OFF,
-    LCD_DISPLAY_MODE_ON
+    LCD_DISPLAY_MODE_INVERT = 1,
+    LCD_DISPLAY_MODE_OFF = 2,
+    LCD_DISPLAY_MODE_ON = 3
 } lcd_display_mode_t;
 
 // Function declarations
-void lcd_init();
-void lcd_deinit();
-void lcd_refresh();
-void lcd_update(cairo_surface_t * surface, bool should_translate_color);
+void lcd_init(void);
+void lcd_deinit(void);
+void lcd_refresh(void);
+void lcd_update(cairo_surface_t * surface_pointer, bool surface_may_have_color);
 void lcd_set_brightness(uint8_t b);
 void lcd_set_contrast(uint8_t c);
-void lcd_set_display_mode(lcd_display_mode_t);
+void lcd_set_display_mode(lcd_display_mode_t mode);
 void lcd_set_gamma(double g);
 void lcd_set_refresh_rate(uint8_t hz);
-uint8_t* lcd_resize_buffer(size_t size); 
+uint8_t* lcd_resize_buffer(size_t size);
+
+#endif 
