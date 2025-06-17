@@ -1,4 +1,4 @@
-#include "ssd1322.h"
+#include "lcd.h"
 
 #include <string.h>
 
@@ -15,6 +15,7 @@ static struct gpiod_chip * gpio_0;
 static struct gpiod_line * gpio_dc;
 static struct gpiod_line * gpio_reset;
 static struct gpiod_line * gpio_bl;
+static struct gpiod_line * gpio_cs;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_t lcd_pthread_t;
 
@@ -62,6 +63,10 @@ int lcd_write_command(uint8_t command, uint8_t data_len, ...) {
         goto fail;
     }
 
+    // Set CS low to start transaction
+    gpiod_line_set_value(gpio_cs, 0);
+    
+    // Set DC low for command
     gpiod_line_set_value(gpio_dc, 0);
 
     cmd_buf[0] = command;
@@ -74,6 +79,7 @@ int lcd_write_command(uint8_t command, uint8_t data_len, ...) {
     }
 
     if( data_len > 0 ){
+        // Set DC high for data
         gpiod_line_set_value(gpio_dc, 1);
 
         va_start(args, data_len);
@@ -93,9 +99,14 @@ int lcd_write_command(uint8_t command, uint8_t data_len, ...) {
         }
     }
 
+    // Set CS high to end transaction
+    gpiod_line_set_value(gpio_cs, 1);
+
     pthread_mutex_unlock(&lock);
     return 0;
 fail:
+    // Ensure CS is high on error
+    gpiod_line_set_value(gpio_cs, 1);
     pthread_mutex_unlock(&lock);
     return -1;
 }
@@ -158,10 +169,12 @@ void lcd_init() {
     gpio_dc = gpiod_chip_get_line(gpio_0, LCD_DC_GPIO_LINE);
     gpio_reset = gpiod_chip_get_line(gpio_0, LCD_RESET_GPIO_LINE);
     gpio_bl = gpiod_chip_get_line(gpio_0, LCD_BL_GPIO_LINE);
+    gpio_cs = gpiod_chip_get_line(gpio_0, LCD_CS_GPIO_LINE);
 
     gpiod_line_request_output(gpio_dc, "D/C", 0);
     gpiod_line_request_output(gpio_reset, "RST", 0);
     gpiod_line_request_output(gpio_bl, "BL", 0);
+    gpiod_line_request_output(gpio_cs, "CS", 1); // CS is active low
 
     // Reset sequence
     gpiod_line_set_value(gpio_reset, 1);
@@ -221,6 +234,7 @@ void lcd_deinit(){
         gpiod_line_release(gpio_reset);
         gpiod_line_release(gpio_dc);
         gpiod_line_release(gpio_bl);
+        gpiod_line_release(gpio_cs);
         gpiod_chip_close(gpio_0);
         close(spidev_fd);
 
@@ -261,38 +275,47 @@ early_return:
 }
 
 void lcd_refresh() {
-    pthread_mutex_lock(&lock);
+    struct spi_ioc_transfer transfer = {0};
 
     if( spidev_fd <= 0 ){
-        goto early_return;
+        fprintf(stderr, "%s: spidev not yet opened.\n", __func__);
+        return;
     }
 
-    // Set column address
-    write_command_with_data(LCD_CASET, 0x00, 0x00, 0x00, 0xEF);
-    // Set row address
-    write_command_with_data(LCD_RASET, 0x00, 0x00, 0x00, 0x86);
-    // Write to RAM
+    if( surface_buffer == NULL ){
+        fprintf(stderr, "%s: surface_buffer not allocated yet.\n", __func__);
+        return;
+    }
+
+    // Set column and row addresses
+    write_command_with_data(LCD_CASET, 0, 0, (LCD_WIDTH >> 8) & 0xFF, LCD_WIDTH & 0xFF);
+    write_command_with_data(LCD_RASET, 0, 0, (LCD_HEIGHT >> 8) & 0xFF, LCD_HEIGHT & 0xFF);
     write_command(LCD_RAMWR);
+
+    pthread_mutex_lock(&lock);
 
     // Convert ARGB32 to RGB565
     for( uint32_t i = 0; i < SPIDEV_BUFFER_LEN; i += 2 ){
-        const uint32_t pixel = surface_buffer[i/2];
-        const uint8_t r = (pixel >> 16) & 0xFF;
-        const uint8_t g = (pixel >> 8) & 0xFF;
-        const uint8_t b = pixel & 0xFF;
+        uint32_t pixel = surface_buffer[i/2];
+        uint8_t r = (pixel >> 16) & 0xFF;
+        uint8_t g = (pixel >> 8) & 0xFF;
+        uint8_t b = pixel & 0xFF;
         
         // Convert to RGB565
-        const uint16_t rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+        uint16_t rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+        
         spidev_buffer[i] = rgb565 >> 8;
         spidev_buffer[i+1] = rgb565 & 0xFF;
     }
 
+    // Set CS low to start transaction
+    gpiod_line_set_value(gpio_cs, 0);
+    
+    // Set DC high for data
     gpiod_line_set_value(gpio_dc, 1);
 
-    const uint32_t spidev_bufsize = 8192;
+    const uint32_t spidev_bufsize = 8192; // Max is defined in /boot/config.txt
     const uint32_t n_transfers = SPIDEV_BUFFER_LEN / spidev_bufsize;
-    struct spi_ioc_transfer transfer = {0};
-    
     for( uint32_t i = 0; i < n_transfers; i++ ){
         transfer.tx_buf = (unsigned long) (spidev_buffer + (i * spidev_bufsize));
         transfer.len = SPIDEV_BUFFER_LEN / n_transfers;
@@ -303,12 +326,16 @@ void lcd_refresh() {
         }
     }
 
+    // Set CS high to end transaction
+    gpiod_line_set_value(gpio_cs, 1);
+
 early_return:
     pthread_mutex_unlock(&lock);
     return;
 }
 
 void lcd_set_brightness(uint8_t b){
+    // Control backlight PWM
     gpiod_line_set_value(gpio_bl, b > 0 ? 1 : 0);
 }
 
@@ -334,19 +361,20 @@ void lcd_set_display_mode(lcd_display_mode_t mode){
 }
 
 void lcd_set_gamma(double g){
-    // Gamma correction not supported on this display
-    (void)g;
+    // Gamma correction is handled by the display's internal gamma table
+    // No need to implement software gamma correction
 }
 
 void lcd_set_refresh_rate(uint8_t hz){
-    // Refresh rate is fixed at 60Hz
-    (void)hz;
+    // Refresh rate is fixed by the display hardware
+    // No need to implement refresh rate control
 }
 
 uint8_t* lcd_resize_buffer(size_t size){
-    if( size != SPIDEV_BUFFER_LEN ){
-        fprintf(stderr, "%s: invalid buffer size %zu\n", __func__, size);
-        return NULL;
-    }
+    spidev_buffer = realloc(spidev_buffer, size);
     return spidev_buffer;
 }
+
+#undef NUMARGS
+#undef write_command
+#undef write_command_with_data
