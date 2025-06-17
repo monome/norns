@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SSD1322_H
+#define SSD1322_H
 
 #include <arm_neon.h>
 #include <cairo.h>
@@ -16,6 +17,7 @@
 #include <linux/spi/spidev.h>
 
 #include "platform.h"
+#include "lcd.h"
 
 #define SPIDEV_0_0_PATH "/dev/spidev0.0"
 #define SPI0_BUS_WIDTH 8
@@ -67,13 +69,28 @@ typedef enum {
     LCD_DISPLAY_MODE_ON
 } lcd_display_mode_t;
 
-void lcd_init();
-void lcd_deinit();
-void lcd_refresh();
-void lcd_update(cairo_surface_t * surface, bool should_translate_color);
-void lcd_set_brightness(uint8_t b);
-void lcd_set_contrast(uint8_t c);
-void lcd_set_display_mode(lcd_display_mode_t);
-void lcd_set_gamma(double g);
-void lcd_set_refresh_rate(uint8_t hz);
-uint8_t* lcd_resize_buffer(size_t);
+// Initialize the display
+int ssd1322_init(void);
+
+// Deinitialize the display
+void ssd1322_deinit(void);
+
+// Update the display with new surface data
+void ssd1322_update(cairo_surface_t *surface);
+
+// Set display brightness (0-255)
+void ssd1322_set_brightness(uint8_t b);
+
+// Set display contrast (0-255)
+void ssd1322_set_contrast(uint8_t c);
+
+// Set display mode
+void ssd1322_set_display_mode(lcd_display_mode_t mode);
+
+// Set gamma correction
+void ssd1322_set_gamma(double gamma);
+
+// Set refresh rate in Hz
+void ssd1322_set_refresh_rate(uint8_t rate);
+
+#endif // SSD1322_H
