@@ -78,7 +78,24 @@ Audio.restart = function()
    _norns.restart_audio()
 end
 
+-- I2S Audio Configuration
+Audio.i2s_config = {
+  sample_rate = 48000,
+  bits_per_sample = 16,
+  channels = 2,
+  format = "I2S",
+  pins = {
+    bclk = 18,  -- BCLK pin
+    ws = 19,    -- WS/LRCLK pin
+    dout = 20,  -- DOUT pin
+    din = 21    -- DIN pin
+  }
+}
 
+-- Initialize I2S audio
+Audio.init_i2s = function()
+  _norns.init_i2s_audio(Audio.i2s_config)
+end
 
 --- Effects functions
 -- @section Effects

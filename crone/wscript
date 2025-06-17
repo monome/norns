@@ -26,7 +26,8 @@ def build(bld):
 
     crone_flags = [ '-std=c++14',
                     '-O3',
-                    '-Wall'
+                    '-Wall',
+                    '-DUSE_I2S_AUDIO'
                   ]
 
     if bld.env.NORNS_RELEASE:
