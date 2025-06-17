@@ -15,6 +15,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/spi/spidev.h>
+#include <gpiod.h>
+#include <arm_neon.h>
 
 #include "args.h"
 #include "events.h"
@@ -80,15 +85,30 @@ static FT_Library value;
 static FT_Error status;
 static FT_Face face[NUM_FONTS];
 
+static uint32_t *surface_buffer = NULL;
+static pthread_mutex_t surface_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static pthread_t refresh_thread;
+static int refresh_thread_running = 0;
+
+static void *screen_thread_run(void *arg) {
+    (void)arg;
+    while (refresh_thread_running) {
+        lcd_refresh();
+        usleep(16667); // ~60Hz refresh rate
+    }
+    return NULL;
+}
+
 static void init_font_faces(void);
 
 //---------------------------------------
 //--- extern function definitions
 
-void screen_init(void) {
+int screen_init(void) {
     if( pthread_mutex_init(&lock, NULL) != 0 ){
         fprintf(stderr, "%s: pthread_mutex_init failed\n", __func__);
-        return;
+        return -1;
     }
 
     surface = cairo_image_surface_create(
@@ -99,10 +119,12 @@ void screen_init(void) {
 
     if( surface == NULL ){
         fprintf(stderr, "%s: couldn't create surface\n", __func__);
-        return;
+        return -1;
     }
 
-    lcd_init();
+    if (lcd_init() != 0) {
+        return -1;
+    }
 
     cr = cr_primary = cairo_create(surface);
 
@@ -124,6 +146,21 @@ void screen_init(void) {
     // config buffer
     cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
     cairo_set_source_surface(cr, surface, 0, 0);
+
+    // Create surface buffer
+    surface_buffer = calloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint32_t), 1);
+    if (!surface_buffer) {
+        return -1;
+    }
+
+    // Start refresh thread
+    refresh_thread_running = 1;
+    if (pthread_create(&refresh_thread, NULL, screen_thread_run, NULL) != 0) {
+        free(surface_buffer);
+        return -1;
+    }
+
+    return 0;
 }
 
 //-----------------
@@ -308,15 +345,25 @@ void screen_deinit(void) {
     surface = NULL;
     lcd_deinit();
     pthread_mutex_destroy(&lock);
+
+    // Stop refresh thread
+    refresh_thread_running = 0;
+    pthread_join(refresh_thread, NULL);
+
+    // Free surface buffer
+    if (surface_buffer) {
+        free(surface_buffer);
+        surface_buffer = NULL;
+    }
 }
 
-void screen_update(void) {
-    if( surface == NULL ){
-        fprintf(stderr, "%s: surface not yet created\n", __func__);
-        return;
-    }
+void screen_update(cairo_surface_t *surface) {
+    if (!surface_buffer) return;
 
-    lcd_update(surface, surface_may_have_color);
+    pthread_mutex_lock(&surface_mutex);
+    memcpy(surface_buffer, cairo_image_surface_get_data(surface),
+           LCD_WIDTH * LCD_HEIGHT * sizeof(uint32_t));
+    pthread_mutex_unlock(&surface_mutex);
 }
 
 void screen_save(void) {
@@ -351,11 +398,11 @@ void screen_aa(int s) {
 }
 
 void screen_brightness(float v) {
-    lcd_set_brightness((uint8_t) v);
+    lcd_set_brightness((uint8_t)(v * 255.0f));
 }
 
 void screen_contrast(float c) {
-    lcd_set_contrast((uint8_t) c);
+    lcd_set_contrast((uint8_t)(c * 255.0f));
 }
 
 void screen_gamma(float g) {
@@ -363,7 +410,7 @@ void screen_gamma(float g) {
 }
 
 void screen_invert(int inverted) {
-    lcd_set_display_mode((inverted != 0) ? LCD_DISPLAY_MODE_INVERT : LCD_DISPLAY_MODE_NORMAL);
+    lcd_set_display_mode(inverted ? LCD_DISPLAY_MODE_INVERT : LCD_DISPLAY_MODE_NORMAL);
 }
 
 void screen_level(int z) {
@@ -724,4 +771,8 @@ void screen_set_inverted(bool inverted) {
 
 bool screen_get_inverted() {
     return screen_inverted;
+}
+
+void screen_refresh_rate(uint8_t rate) {
+    lcd_set_refresh_rate(rate);
 }
