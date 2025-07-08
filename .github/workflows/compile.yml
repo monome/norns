@@ -1,0 +1,23 @@
+name: compile
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  compile-norns:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: compile norns
+        uses: addnab/docker-run-action@v3
+        with:
+          image: robbielyman/norns-ci:latest
+          options: -v ${{ github.workspace }}:/norns-build
+          run: |
+            ./waf configure --release && ./waf build --release
