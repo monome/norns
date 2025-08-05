@@ -21,3 +21,17 @@ jobs:
           options: -v ${{ github.workspace }}:/norns-build
           run: |
             ./waf configure --release && ./waf build --release
+
+  lint-lua:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: lint lua code
+        uses: addnab/docker-run-action@v3
+        with:
+          image: robbielyman/norns-ci:latest
+          options: -v ${{ github.workspace }}:/norns-build
+          run: |
+            apt-get update -qq && apt-get install -y luarocks liblua5.3-dev lua5.3
+            luarocks --lua-version=5.3 install luacheck
+            luacheck lua/
