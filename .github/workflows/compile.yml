@@ -34,4 +34,4 @@ jobs:
           run: |
             apt-get update -qq && apt-get install -y luarocks liblua5.3-dev lua5.3
             luarocks --lua-version=5.3 install luacheck
-            luacheck lua/
+            luacheck lua/ --codes
