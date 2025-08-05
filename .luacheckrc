@@ -2,27 +2,20 @@
 
 globals = {
     -- core norns globals
-    "norns", "engine", "params", "clock", "grid", "arc", "midi", "softcut", "screen", "enc",
-    "key", "util", "tab", "controlspec", "voice", "musicutil", "poll", "metro", "osc",
-    "audio", "hid", "crow",
+    "norns", "engine", "params", "clock", "grid", "arc", "midi", "softcut",
+    "screen", "enc", "key", "util", "tab", "controlspec", "voice", "musicutil",
+    "poll", "metro", "osc", "audio", "hid", "crow",
 
     -- crow globals
     "sequins", "timeline",
 
     -- system and utility globals
-    "_menu", "_norns", "_path", "_startup", "cleanup", "coroutine", "debug", "include",
-    "inf", "mix", "package", "paramset", "paths", "redraw", "string", "wifi",
+    "_menu", "_norns", "_path", "_startup", "cleanup", "coroutine", "debug",
+    "include", "inf", "mix", "package", "paramset", "paths", "redraw", "string",
+    "wifi",
 
-    -- sky extension framework
+    -- sky extn globals
     "sky",
-
-    -- event constants
-    "SCRIPT_INIT_EVENT", "SCRIPT_REDRAW_EVENT", "SCRIPT_CLEANUP_EVENT",
-    "ARC_DIAL_EVENT", "ARC_ENC_EVENT",
-    "ES_DEFAULT_BOUNDS", "ES_DEFAULT_ROOT_NOTE",
-
-    -- script-specific globals
-    "input_count", "inputs", "prop"
 }
 
 -- for now, ignore common warnings in norns framework code:
