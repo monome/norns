@@ -74,6 +74,7 @@ files["lua/core/config.lua"] = {
 
 files["lua/core/controlspec.lua"] = {
     ignore = {
+        "113", -- accessing undefined variable
         "211", -- unused local variable
         "212", -- unused argument
         "214", -- unused label
