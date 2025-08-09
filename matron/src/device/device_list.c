@@ -203,4 +203,3 @@ void dev_list_remove(device_t type, const char *node) {
     dev_list_remove_node(dn, ev);
     pthread_mutex_unlock(&lock);
 }
-

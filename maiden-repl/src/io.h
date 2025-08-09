@@ -7,10 +7,10 @@
  */
 
 enum {
-  IO_MATRON,
-  IO_CRONE,
-  IO_UI,
-  IO_COUNT
+    IO_MATRON,
+    IO_CRONE,
+    IO_UI,
+    IO_COUNT
 };
 
 // launch subprocesses

@@ -22,8 +22,8 @@ struct dev_monome {
     int cols;
     int rows;
     int quads;
-		int quad_xoff[4];
-		int quad_yoff[4];
+    int quad_xoff[4];
+    int quad_yoff[4];
 };
 
 // set a single grid led

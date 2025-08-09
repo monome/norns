@@ -75,7 +75,6 @@ void *run_cmd(void *cmd) {
         capacity -= len;
     } while (capacity > 0); // ... or, stop if buffer is full
 
-
     // just use memcpy and include the null terminator
     size_t len = strlen(capture) + 1;
     char *cap = malloc(len);

@@ -5,21 +5,21 @@
 #ifndef CRONE_POLL_H
 #define CRONE_POLL_H
 
+#include <atomic>
+#include <functional>
 #include <string>
 #include <thread>
-#include <functional>
-#include <atomic>
 
-#include <sstream>
 #include <chrono>
+#include <sstream>
 #include <utility>
 
 #include <lo/lo.h>
 
 class Poll {
 
-public:
-    typedef std::function<void(const char*)> Callback;
+  public:
+    typedef std::function<void(const char *)> Callback;
 
     explicit Poll(std::string name) {
         std::ostringstream os;
@@ -33,13 +33,13 @@ public:
 
     void start() {
         shouldStop = false;
-        th = std::make_unique<std::thread> (std::thread(
-                [this] {
-                    while (!shouldStop) {
-                        this->cb(path.c_str());
-                        std::this_thread::sleep_for(std::chrono::milliseconds(period));
-                    }
-                }));
+        th = std::make_unique<std::thread>(std::thread(
+            [this] {
+                while (!shouldStop) {
+                    this->cb(path.c_str());
+                    std::this_thread::sleep_for(std::chrono::milliseconds(period));
+                }
+            }));
         th->detach();
     }
 
@@ -54,7 +54,7 @@ public:
         period = ms;
     }
 
-private:
+  private:
     Callback cb;
     std::atomic<int> period;
     std::atomic<bool> shouldStop;
@@ -63,5 +63,4 @@ private:
     lo_address addr;
 };
 
-
-#endif //CRONE_POLL_H
+#endif // CRONE_POLL_H

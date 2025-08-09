@@ -7,16 +7,15 @@
 
 #include <cstddef>
 
-namespace  crone {
+namespace crone {
 
-    class Window {
-    public:
+class Window {
+  public:
     // raised-cosine window
-        static constexpr size_t raisedCosShortLen = 48 * 50;
-        static const float raisedCosShort[raisedCosShortLen];
+    static constexpr size_t raisedCosShortLen = 48 * 50;
+    static const float raisedCosShort[raisedCosShortLen];
+};
 
-    };
+} // namespace crone
 
-}
-
-#endif //CRONE_WINDOW_H
+#endif // CRONE_WINDOW_H

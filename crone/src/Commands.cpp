@@ -2,7 +2,6 @@
 // Created by ezra on 11/3/18.
 //
 
-
 #include <iostream>
 
 #include "Commands.h"
@@ -14,7 +13,9 @@ using namespace crone;
 Commands Commands::mixerCommands;
 Commands Commands::softcutCommands;
 
-Commands::Commands() : q(COMMAND_Q_CAPACITY) {}
+Commands::Commands()
+    : q(COMMAND_Q_CAPACITY) {
+}
 
 void Commands::post(Commands::Id id, float f) {
     CommandPacket p(id, -1, f);
@@ -39,7 +40,7 @@ void Commands::post(Commands::Id id, int i, int j, float f) {
 void Commands::post(CommandPacket &p) {
     bool ok = q.try_enqueue(p);
     if (!ok) {
-	std::cerr << " warning: failed to post a command (queue full, most likely)" << std::endl;
+        std::cerr << " warning: failed to post a command (queue full, most likely)" << std::endl;
     }
 }
 

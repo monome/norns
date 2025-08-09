@@ -1,27 +1,27 @@
 #include <SDL2/SDL.h>
 
-#include "events.h"
 #include "event_types.h"
-#include "hardware/io.h"
+#include "events.h"
 #include "hardware/input.h"
 #include "hardware/input/inputs.h"
+#include "hardware/io.h"
 
 typedef struct _input_sdl_priv {
 } input_sdl_priv_t;
 
-static int input_sdl_config(matron_io_t* io, lua_State *l);
-static int input_sdl_setup(matron_io_t* io);
-static void input_sdl_destroy(matron_io_t* io);
-static void* input_sdl_poll(void* data);
+static int input_sdl_config(matron_io_t *io, lua_State *l);
+static int input_sdl_setup(matron_io_t *io);
+static void input_sdl_destroy(matron_io_t *io);
+static void *input_sdl_poll(void *data);
 
 input_ops_t input_sdl_ops = {
-    .io_ops.name      = "input:sdl",
-    .io_ops.type      = IO_INPUT,
+    .io_ops.name = "input:sdl",
+    .io_ops.type = IO_INPUT,
     .io_ops.data_size = sizeof(input_sdl_priv_t),
-    .io_ops.config    = input_sdl_config,
-    .io_ops.setup     = input_sdl_setup,
-    .io_ops.destroy   = input_sdl_destroy,
-    .poll             = input_sdl_poll,
+    .io_ops.config = input_sdl_config,
+    .io_ops.setup = input_sdl_setup,
+    .io_ops.destroy = input_sdl_destroy,
+    .poll = input_sdl_poll,
 };
 
 int input_sdl_config(matron_io_t *io, lua_State *l) {
@@ -38,7 +38,7 @@ void input_sdl_destroy(matron_io_t *io) {
     input_destroy(io);
 }
 
-static void* input_sdl_poll(void* data) {
+static void *input_sdl_poll(void *data) {
     (void)data;
     // for now, we don't actually want to use keyboard input
     // (leave it for scripts / menu)
@@ -118,6 +118,6 @@ static void* input_sdl_poll(void* data) {
                 break;
         }
     }
-    #endif
+#endif
     return NULL;
 }

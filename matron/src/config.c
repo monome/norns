@@ -6,14 +6,14 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-#include "lua_eval.h"
 #include "hardware/input.h"
 #include "hardware/io.h"
 #include "hardware/screen.h"
+#include "lua_eval.h"
 
 lua_State *config_lvm;
 
-static inline void lua_register_func(lua_State *l, const char* name, lua_CFunction func) {
+static inline void lua_register_func(lua_State *l, const char *name, lua_CFunction func) {
     lua_pushcfunction(l, func);
     lua_setfield(l, -2, name);
 }

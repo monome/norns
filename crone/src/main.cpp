@@ -2,15 +2,15 @@
 // Created by emb on 11/18/18.
 //
 
-#include <iostream>
 #include <chrono>
-#include <thread>
+#include <iostream>
 #include <memory>
+#include <thread>
 
-#include "MixerClient.h"
-#include "SoftcutClient.h"
-#include "OscInterface.h"
 #include "BufDiskWorker.h"
+#include "MixerClient.h"
+#include "OscInterface.h"
+#include "SoftcutClient.h"
 
 static inline void sleep(int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
@@ -36,7 +36,6 @@ int main() {
     m->start();
     sc->start();
 
-
     cout << "connecting ports... " << endl;
     m->connectAdcPorts();
     m->connectDacPorts();
@@ -48,7 +47,7 @@ int main() {
     OscInterface::printServerMethods();
 
     cout << "entering main loop..." << endl;
-    while(!OscInterface::shouldQuit())  {
+    while (!OscInterface::shouldQuit()) {
         sleep(100);
     }
 
@@ -73,7 +72,7 @@ int main() {
     OscInterface::init();
 
     cout << "entering main loop..." << endl;
-    while(!OscInterface::shouldQuit())  {
+    while (!OscInterface::shouldQuit()) {
         sleep(100);
     }
     sc->stop();

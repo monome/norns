@@ -163,8 +163,8 @@ static int dochunk(lua_State *L, int status) {
     return report(L, status);
 }
 
-int l_dofile (lua_State *L, const char *name) {
-  return dochunk(L, luaL_loadfile(L, name));
+int l_dofile(lua_State *L, const char *name) {
+    return dochunk(L, luaL_loadfile(L, name));
 }
 
 static int dostring(lua_State *L, const char *s, const char *name) {

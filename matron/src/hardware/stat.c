@@ -46,17 +46,17 @@ void *stat_check(void *x) {
     int number = -1;
     int disk = 0;
     int temp = 0;
-    int cpu[5] = {0,0,0,0,0};
+    int cpu[5] = {0, 0, 0, 0, 0};
 
     FILE *fd;
     char buf[128];
     char bufsub[8];
 
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
-    //uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
+    // uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
     uint32_t sumidle = 0, sumnonidle = 0, total = 0;
-    uint32_t prevsumidle[5] = {0,0,0,0,0};
-    uint32_t prevtotal[5] = {0,0,0,0,0};
+    uint32_t prevsumidle[5] = {0, 0, 0, 0, 0};
+    uint32_t prevtotal[5] = {0, 0, 0, 0, 0};
     int32_t totald, idled;
 
     while (1) {
@@ -100,9 +100,9 @@ void *stat_check(void *x) {
             while (fgets(buf, 128, fd) != NULL) {
                 // stop reading when all cpus are checked
                 if (strncmp("cpu", buf, 3) != 0) {
-                  break;
+                    break;
                 }
-                //fprintf(stderr,"%s", buf);
+                // fprintf(stderr,"%s", buf);
                 strtok(buf, " ");
                 user = atoi(strtok(NULL, " "));
                 nice = atoi(strtok(NULL, " "));
@@ -122,22 +122,22 @@ void *stat_check(void *x) {
                 prevsumidle[i] = sumidle;
                 prevtotal[i] = total;
 
-                //fprintf(stderr,"%d --> %d\n", i, cpu);
+                // fprintf(stderr,"%d --> %d\n", i, cpu);
                 i++;
             }
         }
         pclose(fd);
 
         // just send every tick
-            union event_data *ev = event_data_new(EVENT_STAT);
-            ev->stat.disk = disk;
-            ev->stat.temp = temp;
-            ev->stat.cpu = cpu[0];
-            ev->stat.cpu1 = cpu[1];
-            ev->stat.cpu2 = cpu[2];
-            ev->stat.cpu3 = cpu[3];
-            ev->stat.cpu4 = cpu[4];
-            event_post(ev);
+        union event_data *ev = event_data_new(EVENT_STAT);
+        ev->stat.disk = disk;
+        ev->stat.temp = temp;
+        ev->stat.cpu = cpu[0];
+        ev->stat.cpu1 = cpu[1];
+        ev->stat.cpu2 = cpu[2];
+        ev->stat.cpu3 = cpu[3];
+        ev->stat.cpu4 = cpu[4];
+        event_post(ev);
 
         sleep(STAT_INTERVAL);
     }

@@ -1,11 +1,11 @@
 #pragma once
 
 enum {
-  PAGE_MATRON,
-  PAGE_CRONE,
-  PAGE_MATRON_LOG,
-  PAGE_CRONE_LOG,
-  NUM_PAGES
+    PAGE_MATRON,
+    PAGE_CRONE,
+    PAGE_MATRON_LOG,
+    PAGE_CRONE_LOG,
+    NUM_PAGES
 };
 
 extern void pages_init(int nrows, int ncols);

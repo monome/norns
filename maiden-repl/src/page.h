@@ -8,16 +8,16 @@
 #include <panel.h>
 
 struct page {
-  WINDOW *pad;
-  PANEL *panel;
-  int rows; // size
-  int cols;
-  int row;  // text offset
-  int col;
-  int x;    // render location on screen
-  int y;
-  int w;    // screen dimensions
-  int h;
+    WINDOW *pad;
+    PANEL *panel;
+    int rows; // size
+    int cols;
+    int row; // text offset
+    int col;
+    int x; // render location on screen
+    int y;
+    int w; // screen dimensions
+    int h;
 };
 
 extern struct page *page_new(int rows, int cols, int x, int y, int w, int h);

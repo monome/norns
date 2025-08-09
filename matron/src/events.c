@@ -15,8 +15,8 @@
 #include "stat.h"
 #include "weaver.h"
 
-#include "event_types.h"
 #include "event_custom.h"
+#include "event_types.h"
 
 //----------------------------
 //--- types and variables
@@ -229,7 +229,7 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_STAT:
         w_handle_stat(ev->stat.disk, ev->stat.temp, ev->stat.cpu, ev->stat.cpu1, ev->stat.cpu2,
-            ev->stat.cpu3, ev->stat.cpu4);
+                      ev->stat.cpu3, ev->stat.cpu4);
         break;
     case EVENT_MONOME_ADD:
         w_handle_monome_add(ev->monome_add.dev);
@@ -353,9 +353,9 @@ void handle_engine_report(void) {
 void event_handle_pending(void) {
     union event_data *ev = NULL;
     char done = 0;
-    while(!done) {    
+    while (!done) {
         pthread_mutex_lock(&evq.lock);
-        if (evq.size > 0) {     
+        if (evq.size > 0) {
             ev = evq_pop();
         } else {
             done = 1;

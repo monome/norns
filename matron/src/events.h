@@ -1,7 +1,7 @@
 #pragma once
 
-#include "matron.h"
 #include "event_types.h"
+#include "matron.h"
 
 // number of bytes in waveform data blob
 #define EVENT_WAVE_DISPLAY_BYTES 128

@@ -42,7 +42,6 @@ static void *clock_link_run(void *p) {
             double link_tempo = abl_link_tempo(state);
             bool link_playing = abl_link_is_playing(state);
 
-
             if (clock_link_shared_data.transport_start) {
                 abl_link_set_is_playing(state, true, micros);
                 abl_link_commit_app_session_state(clock_link, state);
