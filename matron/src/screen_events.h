@@ -33,8 +33,8 @@ extern void screen_event_close_path(void);
 extern void screen_event_text_extents(const char *s);
 extern void screen_event_export_png(const char *s);
 extern void screen_event_display_png(const char *filename, double x, double y);
-extern void screen_event_display_surface(void* surface, double x, double y);
-extern void screen_event_display_surface_region(void* surface, double left, double top, double width, double height, double x, double y);
+extern void screen_event_display_surface(void *surface, double x, double y);
+extern void screen_event_display_surface_region(void *surface, double left, double top, double width, double height, double x, double y);
 extern void screen_event_peek(int x, int y, int w, int h);
 extern void screen_event_poke(int x, int y, int w, int h, unsigned char *buf);
 extern void screen_event_rotate(double r);
@@ -45,6 +45,5 @@ extern void screen_event_gamma(double g);
 extern void screen_event_brightness(int b);
 extern void screen_event_contrast(int c);
 extern void screen_event_invert(int i);
-
 
 #endif

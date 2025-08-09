@@ -77,7 +77,7 @@ err_init:
 void dev_delete(union dev *d) {
     int ret;
     // if the device has a start function, then it has an input thread that needs stopping
-    if (d->base.start != NULL) { 
+    if (d->base.start != NULL) {
         if (pthread_kill(d->base.tid, 0) == 0) {
             // device i/o thread still running
             ret = pthread_cancel(d->base.tid);
@@ -108,7 +108,7 @@ int dev_start(union dev *d) {
     int ret;
 
     if (d->base.start == NULL) {
-	    // fprintf(stderr, "device.c: no `start` function defined (no input); skipping\n");
+        // fprintf(stderr, "device.c: no `start` function defined (no input); skipping\n");
         return 0;
     }
 

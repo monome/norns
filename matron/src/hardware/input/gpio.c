@@ -13,7 +13,7 @@
 
 typedef struct _input_gpio_priv {
     int fd;
-    char* dev;
+    char *dev;
 } input_gpio_priv_t;
 
 typedef struct _enc_gpio_priv {
@@ -21,38 +21,38 @@ typedef struct _enc_gpio_priv {
     int index;
 } enc_gpio_priv_t;
 
-static int input_gpio_config(matron_io_t* io, lua_State *l);
-static int enc_gpio_config(matron_io_t* io, lua_State *l);
-static int input_gpio_setup(matron_io_t* io);
-static void input_gpio_destroy(matron_io_t* io);
-static void* enc_gpio_poll(void* data);
-static void* key_gpio_poll(void* data);
+static int input_gpio_config(matron_io_t *io, lua_State *l);
+static int enc_gpio_config(matron_io_t *io, lua_State *l);
+static int input_gpio_setup(matron_io_t *io);
+static void input_gpio_destroy(matron_io_t *io);
+static void *enc_gpio_poll(void *data);
+static void *key_gpio_poll(void *data);
 static int open_and_grab(const char *pathname, int flags);
 
 input_ops_t key_gpio_ops = {
-    .io_ops.name      = "keys:gpio",
-    .io_ops.type      = IO_INPUT,
+    .io_ops.name = "keys:gpio",
+    .io_ops.type = IO_INPUT,
     .io_ops.data_size = sizeof(input_gpio_priv_t),
-    .io_ops.config    = input_gpio_config,
-    .io_ops.setup     = input_gpio_setup,
-    .io_ops.destroy   = input_gpio_destroy,
- 
+    .io_ops.config = input_gpio_config,
+    .io_ops.setup = input_gpio_setup,
+    .io_ops.destroy = input_gpio_destroy,
+
     .poll = key_gpio_poll,
 };
 
 input_ops_t enc_gpio_ops = {
-    .io_ops.name      = "enc:gpio",
-    .io_ops.type      = IO_INPUT,
+    .io_ops.name = "enc:gpio",
+    .io_ops.type = IO_INPUT,
     .io_ops.data_size = sizeof(enc_gpio_priv_t),
-    .io_ops.config    = enc_gpio_config,
-    .io_ops.setup     = input_gpio_setup,
-    .io_ops.destroy   = input_gpio_destroy,
-    
+    .io_ops.config = enc_gpio_config,
+    .io_ops.setup = input_gpio_setup,
+    .io_ops.destroy = input_gpio_destroy,
+
     .poll = enc_gpio_poll,
 };
 
-int input_gpio_config(matron_io_t* io, lua_State *l) {
-    input_gpio_priv_t* priv = io->data;
+int input_gpio_config(matron_io_t *io, lua_State *l) {
+    input_gpio_priv_t *priv = io->data;
 
     lua_pushstring(l, "dev");
     lua_gettable(l, -2);
@@ -73,7 +73,7 @@ int input_gpio_config(matron_io_t* io, lua_State *l) {
     return 0;
 }
 
-int enc_gpio_config(matron_io_t* io, lua_State *l) {
+int enc_gpio_config(matron_io_t *io, lua_State *l) {
     int err = input_gpio_config(io, l);
     if (err) {
         return err;
@@ -94,7 +94,7 @@ int enc_gpio_config(matron_io_t* io, lua_State *l) {
     return 0;
 }
 
-int input_gpio_setup(matron_io_t* io) {
+int input_gpio_setup(matron_io_t *io) {
     input_gpio_priv_t *priv = io->data;
     priv->fd = open_and_grab(priv->dev, O_RDONLY);
     if (priv->fd <= 0) {
@@ -110,9 +110,9 @@ void input_gpio_destroy(matron_io_t *io) {
     input_destroy(io);
 }
 
-void* enc_gpio_poll(void* data) {
-    matron_input_t* input = data;
-    enc_gpio_priv_t* priv = input->io.data;
+void *enc_gpio_poll(void *data) {
+    matron_input_t *input = data;
+    enc_gpio_priv_t *priv = input->io.data;
 
     int rd;
     unsigned int i;
@@ -152,9 +152,9 @@ void* enc_gpio_poll(void* data) {
     return NULL;
 }
 
-void* key_gpio_poll(void* data) {
-    matron_input_t* input = data;
-    input_gpio_priv_t* priv = input->io.data;
+void *key_gpio_poll(void *data) {
+    matron_input_t *input = data;
+    input_gpio_priv_t *priv = input->io.data;
 
     int rd;
     unsigned int i;
