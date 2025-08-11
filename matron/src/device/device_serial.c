@@ -1,16 +1,16 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/input.h>
+#include <lualib.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
+#include <sys/queue.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/queue.h>
 #include <termios.h>
 #include <unistd.h>
-#include <lualib.h>
 
 #include "device.h"
 #include "device_serial.h"
@@ -122,7 +122,7 @@ int dev_serial_init(void *self, lua_State *l) {
         d->newtio.c_lflag = lua_tointeger(l, -1);
     }
     lua_pop(l, 1);
-    
+
     lua_getfield(l, -1, LINE);
     if (!lua_isnil(l, -1)) {
         d->newtio.c_line = lua_tointeger(l, -1);

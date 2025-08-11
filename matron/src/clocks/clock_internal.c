@@ -7,8 +7,8 @@
 #include <time.h>
 
 #include "clock.h"
-#include "clock_scheduler.h"
 #include "clock_internal.h"
+#include "clock_scheduler.h"
 
 #define CLOCK_INTERNAL_TICKS_PER_BEAT 24
 
@@ -68,7 +68,7 @@ static void *clock_internal_thread_run(void *p) {
             clock_internal_restarted = false;
         } else {
             ticks++;
-            reference_beat = (double) ticks / CLOCK_INTERNAL_TICKS_PER_BEAT;
+            reference_beat = (double)ticks / CLOCK_INTERNAL_TICKS_PER_BEAT;
             clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
         }
 
@@ -93,7 +93,6 @@ void clock_internal_init() {
     clock_internal_start();
 }
 
-
 void clock_internal_set_tempo(double bpm) {
     pthread_mutex_lock(&clock_internal_tempo_lock);
 
@@ -101,7 +100,6 @@ void clock_internal_set_tempo(double bpm) {
     clock_internal_tempo.tick_duration = clock_internal_tempo.beat_duration / CLOCK_INTERNAL_TICKS_PER_BEAT;
 
     pthread_mutex_unlock(&clock_internal_tempo_lock);
-
 }
 
 void clock_internal_restart() {

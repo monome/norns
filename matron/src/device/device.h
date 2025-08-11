@@ -7,9 +7,9 @@
 #include "device_midi.h"
 #include "device_monome.h"
 #include "device_serial.h"
+#include <lualib.h>
 #include <pthread.h>
 #include <stdint.h>
-#include <lualib.h>
 
 // common data structure for all devices
 union dev {

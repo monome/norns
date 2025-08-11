@@ -504,7 +504,7 @@ void screen_event_display_png(const char *s, double x, double y) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_display_surface(void* surface, double x, double y) {
+void screen_event_display_surface(void *surface, double x, double y) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_DISPLAY_SURFACE;
@@ -514,7 +514,7 @@ void screen_event_display_surface(void* surface, double x, double y) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_display_surface_region(void* surface, double left, double top, double width, double height, double x, double y) {
+void screen_event_display_surface_region(void *surface, double left, double top, double width, double height, double x, double y) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_DISPLAY_SURFACE_REGION;
