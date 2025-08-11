@@ -1275,25 +1275,35 @@ int _image_new(lua_State *l, screen_surface_t *surface, const char *name) {
 
 int _image_context_focus(lua_State *l) {
     _image_t *i = _image_check(l, 1);
+    union screen_results_data *data;
+
     if (i->context == NULL) {
         // lazily allocate drawing context
-        i->context = screen_context_new(i->surface);
+        screen_event_context_new(i->surface);
+        screen_results_wait();
+        data = screen_results_get();
+        i->context = data->context_new.context;
+        screen_results_free();
         if (i->context == NULL) {
             luaL_error(l, "unable to create drawing context");
         }
     }
-    i->previous_context = screen_context_get_current();
-    screen_context_set(i->context);
+    screen_event_context_get_current();
+    screen_results_wait();
+    data = screen_results_get();
+    i->previous_context = data->context_get_current.context;
+    screen_results_free();
+    screen_event_context_set((void *)(i->context));
     lua_settop(l, 0);
     return 0;
 }
 
 static void __image_context_defocus(_image_t *i) {
     if (i->previous_context != NULL) {
-        screen_context_set(i->previous_context);
+        screen_event_context_set((void *)(i->previous_context));
         i->previous_context = NULL;
     } else {
-        screen_context_set_primary();
+        screen_event_context_set_primary();
     }
 }
 
@@ -1314,12 +1324,16 @@ int _image_free(lua_State *l) {
     // fprintf(stderr, "_image_free(%p): begin\n", i);
     screen_surface_free(i->surface);
     if (i->context != NULL) {
-        if (i->context == screen_context_get_current()) {
+        screen_event_context_get_current();
+        screen_results_wait();
+        union screen_results_data *data = screen_results_get();
+        if (i->context == data->context_get_current.context) {
             // automatically defocus ourselves if we are the current drawing target
             // fprintf(stderr, "_image_free(%p): auto defocus\n", i);
             __image_context_defocus(i);
         }
-        screen_context_free(i->context);
+        screen_results_free();
+        screen_event_context_free(i->context);
     }
     if (i->name != NULL) {
         free(i->name);
@@ -1350,7 +1364,15 @@ int _image_equals(lua_State *l) {
 int _image_extents(lua_State *l) {
     screen_surface_extents_t extents;
     _image_t *i = _image_check(l, 1);
-    if (screen_surface_get_extents(i->surface, &extents)) {
+
+    screen_event_surface_get_extents(i->surface);
+    screen_results_wait();
+    union screen_results_data *data = screen_results_get();
+    extents.width = data->surface_get_extents.extents.width;
+    extents.height = data->surface_get_extents.extents.height;
+    screen_results_free();
+
+    if (extents.width && extents.height) {
         lua_pushinteger(l, extents.width);
         lua_pushinteger(l, extents.height);
         return 2;
@@ -1369,7 +1391,7 @@ int _image_name(lua_State *l) {
 
 /***
  * screen: create_image
- * @function screen_create_imate
+ * @function screen_create_image
  * @tparam number width image width
  * @tparam number height image height
  */

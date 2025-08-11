@@ -627,11 +627,13 @@ void screen_surface_free(screen_surface_t *s) {
     cairo_surface_destroy((cairo_surface_t *)s);
 }
 
-bool screen_surface_get_extents(screen_surface_t *s, screen_surface_extents_t *e) {
+void screen_surface_get_extents(screen_surface_t *s) {
+    union screen_results_data *results = screen_results_data_new(SCREEN_RESULTS_SURFACE_GET_EXTENTS);
     cairo_surface_t *image = (cairo_surface_t *)s;
-    e->width = cairo_image_surface_get_width(image);
-    e->height = cairo_image_surface_get_height(image);
-    return true;
+
+    results->surface_get_extents.extents.width = cairo_image_surface_get_width(image);
+    results->surface_get_extents.extents.height = cairo_image_surface_get_height(image);
+    screen_results_post(results);
 }
 
 void screen_surface_display(screen_surface_t *s, double x, double y) {
@@ -660,27 +662,30 @@ void screen_surface_display_region(screen_surface_t *s,
     cairo_restore(cr);
 }
 
-screen_context_t *screen_context_new(screen_surface_t *target) {
+void screen_context_new(screen_surface_t *target) {
+    union screen_results_data *results = screen_results_data_new(SCREEN_RESULTS_CONTEXT_NEW);
     cairo_surface_t *image = (cairo_surface_t *)target;
     // NOTE: cairo_create increases the ref count on image which avoids a double
     // free and allows the image and context to be freed in any order
     cairo_t *context = cairo_create(image);
     cairo_status_t status = cairo_status(context);
-    if (status == CAIRO_STATUS_SUCCESS) {
-        return (screen_context_t *)context;
+    if (status != CAIRO_STATUS_SUCCESS) {
+        fprintf(stderr, "context_new: %s (%d)\n", cairo_status_to_string(status), status);
+        context = NULL;
     }
-    fprintf(stderr, "context_new: %s (%d)\n", cairo_status_to_string(status), status);
-    return NULL;
 
-    return (screen_context_t *)context;
+    results->context_new.context = (screen_context_t *)context;
+    screen_results_post(results);
 }
 
 void screen_context_free(screen_context_t *context) {
     cairo_destroy((cairo_t *)context);
 }
 
-const screen_context_t *screen_context_get_current(void) {
-    return (const screen_context_t *)cr;
+void screen_context_get_current() {
+    union screen_results_data *results = screen_results_data_new(SCREEN_RESULTS_CONTEXT_GET_CURRENT);
+    results->context_get_current.context = (screen_context_t *)cr;
+    screen_results_post(results);
 }
 
 inline static void _screen_context_set(cairo_t *cr_incoming) {
