@@ -1,4 +1,5 @@
 FROM --platform=linux/arm/v8 dtcooper/raspberrypi-os:bullseye AS build_armv8
+LABEL org.opencontainers.image.source=https://github.com/monome/norns
 
 # norns-ci container definition 
 #
@@ -11,9 +12,18 @@ FROM --platform=linux/arm/v8 dtcooper/raspberrypi-os:bullseye AS build_armv8
 # Docker Desktop installed, run the following commands from the norns repo root folder. 
 #
 #    % docker build -t norns-ci . 
-#    % docker run -v $(PWD):/norns-build -t norns-ci
+#    % docker run -v $(pwd):/norns-build --platform linux/arm64 -t norns-ci
+#
+# The norns-ci docker image is also published to the GitHub container registry. You can
+# use the registry image directly to skip the container build step:
+#
+#    % docker run -v $(pwd):/norns-build --platform linux/arm64 -t ghcr.io/monome/norns-ci:latest
+#
+# You can also specify the registry as a cache source when building the container locally:
+#
+#    % docker build -t norns-ci . --cache-from ghcr.io/monome/norns-ci:latest
 # 
-# Building from Linux requires additional steps, see 
+# Building the container from Linux may require additional steps, see 
 #    https://docs.docker.com/build/building/multi-platform/#install-qemu-manually
 #
 # Based on the instructions at
@@ -127,6 +137,9 @@ RUN git config --global --add safe.directory /norns-build
 
 # Support running the container with -i
 ENV DEBIAN_FRONTEND=readline
+
+RUN useradd -m we
+USER we
 
 WORKDIR /norns-build
 ENTRYPOINT ["/bin/sh", "-c"]
