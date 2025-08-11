@@ -329,7 +329,7 @@ struct event_softcut_render {
     float sec_per_sample;
     float start;
     size_t size;
-    float* data;
+    float *data;
 }; // + 20
 
 struct event_softcut_position {
@@ -340,12 +340,12 @@ struct event_softcut_position {
 
 struct event_serial_config {
     struct event_common common;
-    char* path;
-    char* name;
-    char* vendor;
-    char* model;
-    char* serial;
-    char* interface;
+    char *path;
+    char *name;
+    char *vendor;
+    char *model;
+    char *serial;
+    char *interface;
 }; // +24
 
 struct event_serial_add {

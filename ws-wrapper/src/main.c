@@ -177,6 +177,6 @@ int main(int argc, char **argv) {
         printf("usage: ws-wrapper WS_SOCKET BINARY <child args...>");
     }
 
-    setvbuf(stdout, NULL, _IONBF, 0); 
+    setvbuf(stdout, NULL, _IONBF, 0);
     launch_exe(argc, argv);
 }

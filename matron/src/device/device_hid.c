@@ -54,7 +54,7 @@ static void add_codes(struct dev_hid *d) {
     }
 }
 
-void get_guid(struct libevdev * dev, guint16 * guid) {
+void get_guid(struct libevdev *dev, guint16 *guid) {
     guid[0] = GINT16_TO_LE(libevdev_get_id_bustype(dev));
     guid[1] = 0;
     guid[2] = GINT16_TO_LE(libevdev_get_id_vendor(dev));
@@ -65,7 +65,7 @@ void get_guid(struct libevdev * dev, guint16 * guid) {
     guid[7] = 0;
 }
 
-void guid_to_string(guint16 * guid, char * guidstr) {
+void guid_to_string(guint16 *guid, char *guidstr) {
     static const char k_rgchHexToASCII[] = "0123456789abcdef";
     int i;
     for (i = 0; i < 8; i++) {
