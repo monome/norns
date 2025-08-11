@@ -4,7 +4,7 @@
 
 #include "screen.h"
 
-typedef enum { 
+typedef enum {
     SCREEN_RESULTS_TEXT_EXTENTS,
     SCREEN_RESULTS_CURRENT_POINT,
     SCREEN_RESULTS_PEEK,
@@ -49,7 +49,7 @@ struct screen_results_context_new {
 
 struct screen_results_context_get_current {
     struct event_common common;
-    screen_context_t* context;
+    screen_context_t *context;
 };
 
 struct screen_results_surface_get_extents {
@@ -57,7 +57,7 @@ struct screen_results_surface_get_extents {
     screen_surface_extents_t extents;
 };
 
-union screen_results_data { 
+union screen_results_data {
     uint32_t type;
     struct screen_results_text_extents text_extents;
     struct screen_results_current_point current_point;

@@ -674,7 +674,7 @@ void screen_context_new(screen_surface_t *target) {
         context = NULL;
     }
 
-    results->context_new.context = (screen_context_t*) context;
+    results->context_new.context = (screen_context_t *)context;
     screen_results_post(results);
 }
 
@@ -684,7 +684,7 @@ void screen_context_free(screen_context_t *context) {
 
 void screen_context_get_current() {
     union screen_results_data *results = screen_results_data_new(SCREEN_RESULTS_CONTEXT_GET_CURRENT);
-    results->context_get_current.context = (screen_context_t *) cr;
+    results->context_get_current.context = (screen_context_t *)cr;
     screen_results_post(results);
 }
 

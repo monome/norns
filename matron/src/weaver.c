@@ -1293,14 +1293,14 @@ int _image_context_focus(lua_State *l) {
     data = screen_results_get();
     i->previous_context = data->context_get_current.context;
     screen_results_free();
-    screen_event_context_set((void*) (i->context));
+    screen_event_context_set((void *)(i->context));
     lua_settop(l, 0);
     return 0;
 }
 
 static void __image_context_defocus(_image_t *i) {
     if (i->previous_context != NULL) {
-        screen_event_context_set((void*) (i->previous_context));
+        screen_event_context_set((void *)(i->previous_context));
         i->previous_context = NULL;
     } else {
         screen_event_context_set_primary();
@@ -1372,7 +1372,7 @@ int _image_extents(lua_State *l) {
     extents.height = data->surface_get_extents.extents.height;
     screen_results_free();
 
-    if( extents.width && extents.height ){
+    if (extents.width && extents.height) {
         lua_pushinteger(l, extents.width);
         lua_pushinteger(l, extents.height);
         return 2;

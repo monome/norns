@@ -213,7 +213,7 @@ void handle_screen_event(struct screen_event_data *ev) {
         break;
     case SCREEN_EVENT_CONTEXT_NEW:
         screen_context_new(ev->buf);
-        ev-> buf = NULL;
+        ev->buf = NULL;
         break;
     case SCREEN_EVENT_CONTEXT_GET_CURRENT:
         screen_context_get_current();
@@ -554,7 +554,7 @@ void screen_event_display_surface_region(void *surface, double left, double top,
     screen_event_data_push(&ev);
 }
 
-void screen_event_surface_free(void* surface) {
+void screen_event_surface_free(void *surface) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_SURFACE_FREE;
@@ -562,7 +562,7 @@ void screen_event_surface_free(void* surface) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_surface_get_extents(void* surface) {
+void screen_event_surface_get_extents(void *surface) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_SURFACE_GET_EXTENTS;
@@ -570,7 +570,7 @@ void screen_event_surface_get_extents(void* surface) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_context_free(void* screen_context) {
+void screen_event_context_free(void *screen_context) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_CONTEXT_FREE;
@@ -578,7 +578,7 @@ void screen_event_context_free(void* screen_context) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_context_new(void* target) {
+void screen_event_context_new(void *target) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_CONTEXT_NEW;
@@ -593,7 +593,7 @@ void screen_event_context_get_current(void) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_context_set(void* screen_context) {
+void screen_event_context_set(void *screen_context) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_CONTEXT_SET;
