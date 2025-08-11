@@ -17,7 +17,7 @@
 static clock_source_t clock_source;
 
 void clock_init() {
-  clock_set_source(CLOCK_SOURCE_INTERNAL);
+    clock_set_source(CLOCK_SOURCE_INTERNAL);
 }
 
 void clock_reference_init(clock_reference_t *reference) {

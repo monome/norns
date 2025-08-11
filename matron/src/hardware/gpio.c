@@ -11,10 +11,10 @@
 #include <string.h>
 
 #include "events.h"
-#include "hardware/input/matron_input.h"
 #include "hardware/gpio.h"
+#include "hardware/input/matron_input.h"
 
-static int input_init(matron_input_t* input, input_config_t* cfg, input_ops_t* ops) {
+static int input_init(matron_input_t *input, input_config_t *cfg, input_ops_t *ops) {
     input->data = malloc(ops->data_size);
     if (!input->data) {
         fprintf(stderr, "ERROR (input - %s) cannot allocate memory\n", ops->name);
@@ -31,31 +31,34 @@ static int input_init(matron_input_t* input, input_config_t* cfg, input_ops_t* o
 }
 
 // extern def
-TAILQ_HEAD(tailhead, _matron_input) input_devs = TAILQ_HEAD_INITIALIZER(input_devs);
+TAILQ_HEAD(tailhead, _matron_input)
+input_devs = TAILQ_HEAD_INITIALIZER(input_devs);
 
-int input_create(input_type_t type, const char* name, input_config_t* cfg) {
+int input_create(input_type_t type, const char *name, input_config_t *cfg) {
     int err;
-    matron_input_t* input = malloc(sizeof(matron_input_t));
+    matron_input_t *input = malloc(sizeof(matron_input_t));
     input->name = malloc(strlen(name) + 1);
     strcpy(input->name, name);
 
     (void)cfg;
 
     switch (type) {
-        case INPUT_TYPE_GPIO_KEY:
-            if ((err = input_init(input, cfg, &gpio_key_ops))) goto fail;
-            break;
-        case INPUT_TYPE_GPIO_ENC:
-            if ((err = input_init(input, cfg, &gpio_enc_ops))) goto fail;
-            break;
-        /* case INPUT_TYPE_KBM: */
-        /*     if ((err = input_init(input, &kbm_input_ops))) goto fail; */
-        /*     break; */
-        /* case INPUT_TYPE_JSON: */
-        /*     if ((err = input_init(input, &json_input_ops))) goto fail; */
-        /*     break; */
-        default:
+    case INPUT_TYPE_GPIO_KEY:
+        if ((err = input_init(input, cfg, &gpio_key_ops)))
             goto fail;
+        break;
+    case INPUT_TYPE_GPIO_ENC:
+        if ((err = input_init(input, cfg, &gpio_enc_ops)))
+            goto fail;
+        break;
+    /* case INPUT_TYPE_KBM: */
+    /*     if ((err = input_init(input, &kbm_input_ops))) goto fail; */
+    /*     break; */
+    /* case INPUT_TYPE_JSON: */
+    /*     if ((err = input_init(input, &json_input_ops))) goto fail; */
+    /*     break; */
+    default:
+        goto fail;
     }
 
     TAILQ_INSERT_TAIL(&input_devs, input, entries);
@@ -66,7 +69,7 @@ fail:
     fprintf(stderr, "couldn't set up input %s\n", name);
     free(input);
     return -1;
-} 
+}
 
 void gpio_init() {
     matron_input_t *input;
@@ -88,7 +91,7 @@ void gpio_init() {
 }
 
 void gpio_deinit() {
-    matron_input_t* input;
+    matron_input_t *input;
     while (!TAILQ_EMPTY(&input_devs)) {
         input = TAILQ_FIRST(&input_devs);
         pthread_cancel(input->poll_thread);

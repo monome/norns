@@ -13,12 +13,13 @@
 
 using namespace crone;
 
-MixerClient::MixerClient() : Client<6, 6>("crone") {}
+MixerClient::MixerClient()
+    : Client<6, 6>("crone") {
+}
 
 void MixerClient::process(jack_nframes_t numFrames) {
 
     Commands::mixerCommands.handlePending(this);
-
 
     // copy inputs
     bus.adc_source.setFrom(source[SourceAdc], numFrames, smoothLevels.adc);
@@ -38,13 +39,12 @@ void MixerClient::process(jack_nframes_t numFrames) {
     bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
     bus.cut_sink.mixFrom(bus.tape, numFrames, smoothLevels.tape_cut);
 
-
     bus.ins_in.clear(numFrames);
     // process tape playback
     if (tape.isReading()) {
         bus.tape.clear();
         // FIXME: another stupid pointer array.
-        float *dst[2] = {static_cast<float*>(bus.tape.buf[0]), static_cast<float*>(bus.tape.buf[1])};
+        float *dst[2] = {static_cast<float *>(bus.tape.buf[0]), static_cast<float *>(bus.tape.buf[1])};
         tape.reader.process(dst, numFrames);
         bus.tape.applyGain(numFrames, smoothLevels.tape);
         bus.ins_in.addFrom(bus.tape, numFrames);
@@ -59,7 +59,7 @@ void MixerClient::process(jack_nframes_t numFrames) {
 
     // process tape record
     if (tape.isWriting()) {
-        const float *src[2] = {(const float *) bus.dac_sink.buf[0], (const float *) bus.dac_sink.buf[1]};
+        const float *src[2] = {(const float *)bus.dac_sink.buf[0], (const float *)bus.dac_sink.buf[1]};
         tape.writer.process(src, numFrames);
     }
 
@@ -67,7 +67,7 @@ void MixerClient::process(jack_nframes_t numFrames) {
     inPeak[0].update(bus.adc_source.buf[0], numFrames);
     inPeak[1].update(bus.adc_source.buf[1], numFrames);
     outPeak[0].update(sink[SinkId::SinkDac][0], numFrames);
-    outPeak[1].update(sink[SinkId::SinkDac][1] , numFrames);
+    outPeak[1].update(sink[SinkId::SinkDac][1], numFrames);
 }
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
@@ -79,8 +79,8 @@ void MixerClient::setSampleRate(jack_nframes_t sr) {
 
 void MixerClient::processFx(size_t numFrames) {
     // FIXME: current faust architecture needs stupid pointer arrays.
-    float* pin[2];
-    float* pout[2];
+    float *pin[2];
+    float *pout[2];
     if (!enabled.reverb) { // bypass aux
         bus.aux_out.clear(numFrames);
         bus.aux_out.addFrom(bus.aux_in, numFrames);
@@ -104,7 +104,7 @@ void MixerClient::processFx(size_t numFrames) {
     bus.ins_in.addFrom(bus.ext_source, numFrames);
 
     bus.dac_sink.clear(numFrames);
-    if(!enabled.comp) { // bypass_insert
+    if (!enabled.comp) { // bypass_insert
         bus.dac_sink.addFrom(bus.ins_in, numFrames);
     } else {
         pin[0] = bus.ins_in.buf[0];
@@ -118,75 +118,76 @@ void MixerClient::processFx(size_t numFrames) {
 }
 
 void MixerClient::handleCommand(Commands::CommandPacket *p) {
-    switch(p->id) {
-        case Commands::Id::SET_LEVEL_ADC:
-            smoothLevels.adc.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_DAC:
-            smoothLevels.dac.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_EXT:
-            smoothLevels.ext.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_EXT_AUX:
-            smoothLevels.ext_aux.setTarget(p->value);
-            break;
-	case Commands::Id::SET_LEVEL_CUT_MASTER:
-            smoothLevels.cut.setTarget(p->value);
-            break;	
-        case Commands::Id::SET_LEVEL_AUX_DAC:
-            smoothLevels.aux.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_MONITOR:
-            smoothLevels.monitor.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_MONITOR_AUX:
-            smoothLevels.monitor_aux.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_INS_MIX:
-            smoothLevels.ins_mix.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_MONITOR_MIX:
-            if(p->idx_0 < 0 || p->idx_0 > 3) { return; }
-            staticLevels.monitor_mix[p->idx_0] = p->value;
-            break;
-        case Commands::Id::SET_LEVEL_TAPE:
-            smoothLevels.tape.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_TAPE_AUX:
-            smoothLevels.tape_aux.setTarget(p->value);
-            break;
-        case Commands::Id::SET_PARAM_REVERB:
-            reverb.getUi().setParamValue(p->idx_0, p->value);
-            break;
-        case Commands::Id::SET_PARAM_COMPRESSOR:
-            comp.getUi().setParamValue(p->idx_0, p->value);
-            break;
-        case Commands::Id::SET_ENABLED_REVERB:
-            enabled.reverb = p->value > 0.f;
-            break;
-        case Commands::Id::SET_ENABLED_COMPRESSOR:
-            enabled.comp = p->value > 0.f;
-            break;
+    switch (p->id) {
+    case Commands::Id::SET_LEVEL_ADC:
+        smoothLevels.adc.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_DAC:
+        smoothLevels.dac.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_EXT:
+        smoothLevels.ext.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_EXT_AUX:
+        smoothLevels.ext_aux.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_CUT_MASTER:
+        smoothLevels.cut.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_AUX_DAC:
+        smoothLevels.aux.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_MONITOR:
+        smoothLevels.monitor.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_MONITOR_AUX:
+        smoothLevels.monitor_aux.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_INS_MIX:
+        smoothLevels.ins_mix.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_MONITOR_MIX:
+        if (p->idx_0 < 0 || p->idx_0 > 3) {
+            return;
+        }
+        staticLevels.monitor_mix[p->idx_0] = p->value;
+        break;
+    case Commands::Id::SET_LEVEL_TAPE:
+        smoothLevels.tape.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_TAPE_AUX:
+        smoothLevels.tape_aux.setTarget(p->value);
+        break;
+    case Commands::Id::SET_PARAM_REVERB:
+        reverb.getUi().setParamValue(p->idx_0, p->value);
+        break;
+    case Commands::Id::SET_PARAM_COMPRESSOR:
+        comp.getUi().setParamValue(p->idx_0, p->value);
+        break;
+    case Commands::Id::SET_ENABLED_REVERB:
+        enabled.reverb = p->value > 0.f;
+        break;
+    case Commands::Id::SET_ENABLED_COMPRESSOR:
+        enabled.comp = p->value > 0.f;
+        break;
 
-            //-- softcut routing
-        case Commands::Id::SET_LEVEL_ADC_CUT:
-            smoothLevels.adc_cut.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_EXT_CUT:
-            smoothLevels.ext_cut.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_TAPE_CUT:
-            smoothLevels.tape_cut.setTarget(p->value);
-            break;
-        case Commands::Id::SET_LEVEL_CUT_AUX:
-            smoothLevels.cut_aux.setTarget(p->value);
-            break;
-        default:
-            ;;
+        //-- softcut routing
+    case Commands::Id::SET_LEVEL_ADC_CUT:
+        smoothLevels.adc_cut.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_EXT_CUT:
+        smoothLevels.ext_cut.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_TAPE_CUT:
+        smoothLevels.tape_cut.setTarget(p->value);
+        break;
+    case Commands::Id::SET_LEVEL_CUT_AUX:
+        smoothLevels.cut_aux.setTarget(p->value);
+        break;
+    default:;
+        ;
     }
 }
-
 
 // state constructors
 MixerClient::BusList::BusList() {
@@ -202,7 +203,6 @@ MixerClient::BusList::BusList() {
     aux_out.clear();
     adc_monitor.clear();
     tape.clear();
-
 }
 
 MixerClient::SmoothLevelList::SmoothLevelList() {
@@ -252,17 +252,16 @@ MixerClient::EnabledList::EnabledList() {
     reverb = false;
 }
 
-
 void MixerClient::setFxDefaults() {
-  comp.getUi().setParamValue(CompressorParam::RATIO, 4.0);
-  comp.getUi().setParamValue(CompressorParam::THRESHOLD, -12.f);
-  comp.getUi().setParamValue(CompressorParam::ATTACK, 0.005);
-  comp.getUi().setParamValue(CompressorParam::RELEASE, 0.08);
-  comp.getUi().setParamValue(CompressorParam::GAIN_PRE, 0.0);
-  comp.getUi().setParamValue(CompressorParam::GAIN_POST, 4.0);
-  reverb.getUi().setParamValue(ReverbParam::PRE_DEL, 20);
-  reverb.getUi().setParamValue(ReverbParam::LF_FC, 555);
-  reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
-  reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
-  reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
+    comp.getUi().setParamValue(CompressorParam::RATIO, 4.0);
+    comp.getUi().setParamValue(CompressorParam::THRESHOLD, -12.f);
+    comp.getUi().setParamValue(CompressorParam::ATTACK, 0.005);
+    comp.getUi().setParamValue(CompressorParam::RELEASE, 0.08);
+    comp.getUi().setParamValue(CompressorParam::GAIN_PRE, 0.0);
+    comp.getUi().setParamValue(CompressorParam::GAIN_POST, 4.0);
+    reverb.getUi().setParamValue(ReverbParam::PRE_DEL, 20);
+    reverb.getUi().setParamValue(ReverbParam::LF_FC, 555);
+    reverb.getUi().setParamValue(ReverbParam::LOW_RT60, 4.7);
+    reverb.getUi().setParamValue(ReverbParam::MID_RT60, 2.3);
+    reverb.getUi().setParamValue(ReverbParam::HF_DAMP, 6666);
 }

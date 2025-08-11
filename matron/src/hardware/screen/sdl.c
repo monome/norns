@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <cairo.h>
 #include <SDL2/SDL.h>
+#include <cairo.h>
 
 #include "hardware/io.h"
 #include "hardware/screen/screens.h"
@@ -28,19 +28,19 @@ static SDL_Rect windowSize = {
     .x = 0,
     .y = 0,
     .w = 512,
-    .h = 256
+    .h = 256,
 };
 
 screen_ops_t screen_sdl_ops = {
-    .io_ops.name      = "screen:sdl",
-    .io_ops.type      = IO_SCREEN,
+    .io_ops.name = "screen:sdl",
+    .io_ops.type = IO_SCREEN,
     .io_ops.data_size = sizeof(screen_sdl_priv_t),
-    .io_ops.config    = screen_sdl_config,
-    .io_ops.setup     = screen_sdl_setup,
-    .io_ops.destroy   = screen_sdl_destroy,
+    .io_ops.config = screen_sdl_config,
+    .io_ops.setup = screen_sdl_setup,
+    .io_ops.destroy = screen_sdl_destroy,
 
     .paint = screen_sdl_paint,
-    .bind  = screen_sdl_bind,
+    .bind = screen_sdl_bind,
 };
 
 int screen_sdl_config(matron_io_t *io, lua_State *l) {
@@ -68,7 +68,7 @@ static void screen_sdl_destroy(matron_io_t *io) {
 
 static void screen_sdl_paint(matron_fb_t *fb) {
     screen_sdl_priv_t *priv = fb->io.data;
-    cairo_paint(fb->cairo);    
+    cairo_paint(fb->cairo);
     SDL_BlitScaled(priv->draw_surface, NULL, priv->window_surface, &windowSize);
     SDL_UpdateWindowSurface(priv->window);
 }
@@ -94,7 +94,7 @@ static cairo_surface_t *screen_sdl_surface_create(screen_sdl_priv_t *priv) {
 
     SDL_Init(SDL_INIT_VIDEO);
     priv->window = SDL_CreateWindow("matron",
-                                    SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,                                 windowSize.w, windowSize.h,
+                                    SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowSize.w, windowSize.h,
                                     SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
     priv->window_surface = SDL_GetWindowSurface(priv->window);
     priv->draw_surface = SDL_CreateRGBSurface(0,
