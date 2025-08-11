@@ -60,7 +60,7 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     unsigned int alsa_card;
     unsigned int alsa_dev;
     char *alsa_name;
-    
+
     sscanf(base->path, "/dev/snd/midiC%uD%u", &alsa_card, &alsa_dev);
 
     if (asprintf(&alsa_name, "hw:%u,%u,%u", alsa_card, alsa_dev, port_index) < 0) {
@@ -69,19 +69,19 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     }
 
     if (snd_rawmidi_open(&midi->handle_in, &midi->handle_out, alsa_name, 0) < 0) {
-	if (snd_rawmidi_open(NULL, &midi->handle_out, alsa_name, 0) < 0) {
-	    if (snd_rawmidi_open(&midi->handle_in, NULL, alsa_name, 0) < 0) {
-		return -1;
-	    } else {
-		fprintf(stderr, "device opened OK, only input ports\n");		    
-		midi->handle_out = NULL;
-	    }
-	} else {
-	    fprintf(stderr, "device opened OK, only output ports\n");
-	    midi->handle_in = NULL;
-	}	 
+        if (snd_rawmidi_open(NULL, &midi->handle_out, alsa_name, 0) < 0) {
+            if (snd_rawmidi_open(&midi->handle_in, NULL, alsa_name, 0) < 0) {
+                return -1;
+            } else {
+                fprintf(stderr, "device opened OK, only input ports\n");
+                midi->handle_out = NULL;
+            }
+        } else {
+            fprintf(stderr, "device opened OK, only output ports\n");
+            midi->handle_in = NULL;
+        }
     } else {
-	    fprintf(stderr, "device opened (bidirectional)\n");	
+        fprintf(stderr, "device opened (bidirectional)\n");
     }
     // fprintf(stderr, "input handle  : %p\n", midi->handle_in);
     // fprintf(stderr, "output handle : %p\n", midi->handle_out);
@@ -93,15 +93,15 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
                     port_index);
             return -1;
         } else {
-	    fprintf(stderr, "assigned device name with port: %s\n", name_with_port_index);
-	}
+            fprintf(stderr, "assigned device name with port: %s\n", name_with_port_index);
+        }
         base->name = name_with_port_index;
     }
 
-    if (midi->handle_in != NULL) { 
-	    base->start = &dev_midi_start;
+    if (midi->handle_in != NULL) {
+        base->start = &dev_midi_start;
     } else {
-	    base->start = NULL;
+        base->start = NULL;
     }
     base->deinit = &dev_midi_deinit;
 
@@ -140,10 +140,10 @@ void dev_midi_deinit(void *self) {
     // fprintf(stderr, "output handle : %p\n", midi->handle_out);
 
     if (midi->handle_in != NULL) {
-	snd_rawmidi_close(midi->handle_in);
+        snd_rawmidi_close(midi->handle_in);
     }
     if (midi->handle_out != NULL) {
-	snd_rawmidi_close(midi->handle_out);
+        snd_rawmidi_close(midi->handle_out);
     }
 }
 
@@ -160,44 +160,44 @@ static inline uint8_t midi_msg_len(uint8_t status) {
 
     // channel voice messages
     switch (upper) {
-    case 0x80:  // note off
-    case 0x90:  // note on
-    case 0xa0:  // polyphonic key pressure
-    case 0xb0:  // control change
-    case 0xe0:  // pitch bend
+    case 0x80: // note off
+    case 0x90: // note on
+    case 0xa0: // polyphonic key pressure
+    case 0xb0: // control change
+    case 0xe0: // pitch bend
         return 3;
-    case 0xc0:  // program change
-    case 0xd0:  // channel pressure
+    case 0xc0: // program change
+    case 0xd0: // channel pressure
         return 2;
     }
 
     // system real-time messages
     switch (status) {
-    case 0xf8:  // timing clock
-    case 0xfa:  // start sequence
-    case 0xfb:  // continue sequence
-    case 0xfc:  // stop sequence
-    case 0xfe:  // active sensing
-    case 0xff:  // system reset
+    case 0xf8: // timing clock
+    case 0xfa: // start sequence
+    case 0xfb: // continue sequence
+    case 0xfc: // stop sequence
+    case 0xfe: // active sensing
+    case 0xff: // system reset
         return 1;
     }
 
     // system common messages
     switch (status) {
-    case 0xf1:  // midi timing code
-    case 0xf3:  // song select
+    case 0xf1: // midi timing code
+    case 0xf3: // song select
         return 2;
-    case 0xf2:  // song position pointer
+    case 0xf2: // song position pointer
         return 3;
-    case 0xf6:  // tune request
+    case 0xf6: // tune request
         return 1;
     }
 
     // system exclusive messages (variable length)
     switch (status) {
-    case 0xf0:  // sysex start
+    case 0xf0:    // sysex start
         return 3; // special case, deliver sysex to lua in 3 byte chunks
-    case 0xf7:  // sysex stop
+    case 0xf7:    // sysex stop
         return 1; // special case, allow single sysex stop as isolated event
     }
 
@@ -214,8 +214,8 @@ typedef struct {
     uint8_t msg_buf[3];
     uint8_t msg_pos;
     uint8_t msg_len;
-    bool    msg_started;
-    bool    msg_sysex;
+    bool msg_started;
+    bool msg_sysex;
 } midi_input_state_t;
 
 static inline void midi_input_msg_post(midi_input_state_t *state, struct dev_midi *midi) {
@@ -315,12 +315,12 @@ void *dev_midi_start(void *self) {
     ssize_t xruns;
 
     if (midi->handle_in == NULL) {
-	fprintf(stderr, "starting a reader thread for a non-input MIDI device; shouldn't get here!\n");
-	return NULL;
+        fprintf(stderr, "starting a reader thread for a non-input MIDI device; shouldn't get here!\n");
+        return NULL;
     }
 
     // fprintf(stderr, "starting input thread for midi device: %s (%p)\n", base->name, midi->handle_in);
-    
+
     if (snd_rawmidi_status_malloc(&status) != 0) {
         fprintf(stderr, "failed allocating rawmidi status, stopping device: %s\n", base->name);
         return NULL;
@@ -352,8 +352,8 @@ void *dev_midi_start(void *self) {
 ssize_t dev_midi_send(void *self, uint8_t *data, size_t n) {
     struct dev_midi *midi = (struct dev_midi *)self;
     if (midi->handle_out == NULL) {
-	return -1;
+        return -1;
     } else {
-	return snd_rawmidi_write(midi->handle_out, data, n);
-    } 
+        return snd_rawmidi_write(midi->handle_out, data, n);
+    }
 }

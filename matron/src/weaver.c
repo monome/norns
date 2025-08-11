@@ -29,14 +29,14 @@
 #include "clocks/clock_link.h"
 #include "clocks/clock_scheduler.h"
 #include "device.h"
-#include "device_list.h"
 #include "device_crow.h"
 #include "device_hid.h"
+#include "device_list.h"
 #include "device_midi.h"
 #include "device_monome.h"
 #include "device_serial.h"
-#include "events.h"
 #include "event_custom.h"
+#include "events.h"
 #include "hello.h"
 #include "i2c.h"
 #include "jack_client.h"
@@ -102,8 +102,8 @@ static int _screen_font_face(lua_State *l);
 static int _screen_font_size(lua_State *l);
 static int _screen_aa(lua_State *l);
 static int _screen_gamma(lua_State *l);
-static int _screen_brightness(lua_State*l);
-static int _screen_contrast(lua_State*l);
+static int _screen_brightness(lua_State *l);
+static int _screen_contrast(lua_State *l);
 static int _screen_invert(lua_State *l);
 static int _screen_level(lua_State *l);
 static int _screen_line_width(lua_State *l);
@@ -305,6 +305,12 @@ static int _clock_get_tempo(lua_State *l);
 static int _audio_get_cpu_load(lua_State *l);
 static int _audio_get_xrun_count(lua_State *l);
 
+static int _audio_get_input_ports(lua_State *l);
+static int _audio_get_output_ports(lua_State *l);
+static int _audio_get_port_connections(lua_State *l);
+static int _audio_connect(lua_State *l);
+static int _audio_disconnect(lua_State *l);
+
 // time-since measurement
 static int _cpu_time_start_timer(lua_State *l);
 static int _cpu_time_get_delta(lua_State *l);
@@ -492,11 +498,11 @@ void w_init(void) {
     lua_register_norns("screen_text_right", &_screen_text_right);
     lua_register_norns("screen_text_center", &_screen_text_center);
     lua_register_norns("screen_text_extents", &_screen_text_extents);
-    lua_register_norns("screen_text_trim", &_screen_text_trim);    
-    
+    lua_register_norns("screen_text_trim", &_screen_text_trim);
+
     lua_register_norns("screen_clear", &_screen_clear);
     lua_register_norns("screen_close", &_screen_close);
-    
+
     lua_register_norns("screen_export_png", &_screen_export_png);
     lua_register_norns("screen_export_screenshot", &_screen_export_screenshot);
     lua_register_norns("screen_display_png", &_screen_display_png);
@@ -583,6 +589,12 @@ void w_init(void) {
     lua_register_norns("audio_get_cpu_load", &_audio_get_cpu_load);
     lua_register_norns("audio_get_xrun_count", &_audio_get_xrun_count);
 
+    lua_register_norns("audio_get_input_ports", &_audio_get_input_ports);
+    lua_register_norns("audio_get_output_ports", &_audio_get_output_ports);
+    lua_register_norns("audio_get_port_connections", &_audio_get_port_connections);
+    lua_register_norns("audio_connect", &_audio_connect);
+    lua_register_norns("audio_disconnect", &_audio_disconnect);
+
     lua_register_norns("cpu_time_start_timer", &_cpu_time_start_timer);
     lua_register_norns("cpu_time_get_delta", &_cpu_time_get_delta);
     lua_register_norns("wall_time_start_timer", &_wall_time_start_timer);
@@ -645,10 +657,10 @@ void w_deinit(void) {
  * @function s_update
  */
 int _screen_update(lua_State *l) {
-  lua_check_num_args(0);
-  screen_event_update();
-  lua_settop(l, 0);
-  return 0;
+    lua_check_num_args(0);
+    screen_event_update();
+    lua_settop(l, 0);
+    return 0;
 }
 
 /***
@@ -1061,7 +1073,7 @@ int _screen_close(lua_State *l) {
 int _screen_text_extents(lua_State *l) {
     lua_check_num_args(1);
     const char *s = luaL_checkstring(l, 1);
-    
+
     screen_event_text_extents(s);
     screen_results_wait();
     union screen_results_data *data = screen_results_get();
@@ -1080,12 +1092,11 @@ int _screen_text_extents(lua_State *l) {
     event_data_free(ev);
     return 6;
 #endif
-
 }
 
 /***
  * screen: export_png
- * @function s_export_png 
+ * @function s_export_png
  * @tparam string filename
  */
 int _screen_export_png(lua_State *l) {
@@ -1124,7 +1135,6 @@ int _screen_display_png(lua_State *l) {
     return 0;
 }
 
-
 /***
  * screen: peek
  * @function s_peek
@@ -1140,16 +1150,13 @@ int _screen_peek(lua_State *l) {
     int w = luaL_checkinteger(l, 3);
     int h = luaL_checkinteger(l, 4);
     lua_settop(l, 0);
-    if ((x >= 0) && (x <= 127)
-     && (y >= 0) && (y <= 63)
-     && (w > 0)
-     && (h > 0)) {
+    if ((x >= 0) && (x <= 127) && (y >= 0) && (y <= 63) && (w > 0) && (h > 0)) {
         screen_event_peek(x, y, w, h);
         screen_results_wait();
         union screen_results_data *results = screen_results_get();
         lua_pushlstring(l, results->peek.buf, results->peek.w * results->peek.h);
         screen_results_free();
-    } else { 
+    } else {
         fprintf(stderr, "WARNING: invalid position arguments to screen_peek()\n");
         lua_pushlstring(l, "", 0);
     }
@@ -1175,17 +1182,13 @@ int _screen_poke(lua_State *l) {
     uint8_t *buf = (uint8_t *)luaL_checklstring(l, 5, &len);
     lua_settop(l, 1);
     if (buf && len >= w * h) {
-        if ((x >= 0) && (x <= 127)
-         && (y >= 0) && (y <= 63)
-         && (w > 0)
-         && (h > 0)) {
+        if ((x >= 0) && (x <= 127) && (y >= 0) && (y <= 63) && (w > 0) && (h > 0)) {
             screen_event_poke(x, y, w, h, buf);
         }
     }
     lua_pop(l, 1);
     return 0;
 }
-
 
 /***
  * screen: rotate
@@ -1215,7 +1218,6 @@ int _screen_translate(lua_State *l) {
     return 0;
 }
 
-
 /***
  * screen: set_operator
  * @function s_set_operator
@@ -1224,8 +1226,12 @@ int _screen_translate(lua_State *l) {
 int _screen_set_operator(lua_State *l) {
     lua_check_num_args(1);
     int i = luaL_checknumber(l, 1);
-    if (i < 0) { i = 0; }
-    if (i > 28){ i = 28;}
+    if (i < 0) {
+        i = 0;
+    }
+    if (i > 28) {
+        i = 28;
+    }
     screen_event_set_operator(i);
     lua_settop(l, 0);
     return 0;
@@ -1461,7 +1467,6 @@ int _screen_display_image_region(lua_State *l) {
     return 0;
 }
 
-
 /***
  * screen: request current draw point
  */
@@ -1478,9 +1483,6 @@ int _screen_current_point(lua_State *l) {
 
 ///-- end screen commands
 //---------------------
-
-
-
 
 /***
  * headphone: set level
@@ -1735,7 +1737,7 @@ int _midi_clock_receive(lua_State *l) {
     md = lua_touserdata(l, 1);
     int enabled = lua_tointeger(l, 2);
     md->clock_enabled = enabled > 0;
-    //fprintf(stderr, "set clock_enabled to %d on device %p\n", enabled, md);
+    // fprintf(stderr, "set clock_enabled to %d on device %p\n", enabled, md);
     return 0;
 }
 
@@ -2099,7 +2101,7 @@ int _clock_schedule_sync(lua_State *l) {
         clock_scheduler_schedule_sync(coro_id, sync_beat, offset);
     }
 
-  return 0;
+    return 0;
 }
 
 int _clock_cancel(lua_State *l) {
@@ -2154,7 +2156,6 @@ int _clock_link_set_quantum(lua_State *l) {
     return 0;
 }
 
-
 int _clock_link_set_transport_start(lua_State *l) {
     clock_link_set_transport_start();
     return 0;
@@ -2197,6 +2198,55 @@ int _audio_get_cpu_load(lua_State *l) {
 
 int _audio_get_xrun_count(lua_State *l) {
     lua_pushnumber(l, jack_client_get_xrun_count());
+    return 1;
+}
+
+static int _push_port_list(lua_State *l, const char **names) {
+    const char **element = names;
+    int index = 1;
+
+    lua_newtable(l);
+
+    if (element != NULL) {
+        while (*element != NULL) {
+            lua_pushstring(l, *element);
+            lua_rawseti(l, -2, index);
+            ++index;
+            ++element;
+        }
+    }
+
+    jack_client_free_port_list(names);
+    return 1;
+}
+
+int _audio_get_input_ports(lua_State *l) {
+    return _push_port_list(l, jack_client_get_input_ports());
+}
+
+int _audio_get_output_ports(lua_State *l) {
+    return _push_port_list(l, jack_client_get_output_ports());
+}
+
+int _audio_get_port_connections(lua_State *l) {
+    lua_check_num_args(1);
+    const char *port = lua_tostring(l, 1);
+    return _push_port_list(l, jack_client_get_port_connections(port));
+}
+
+int _audio_connect(lua_State *l) {
+    lua_check_num_args(2);
+    const char *source = lua_tostring(l, 1);
+    const char *destination = lua_tostring(l, 2);
+    lua_pushboolean(l, jack_client_connect(source, destination));
+    return 1;
+}
+
+int _audio_disconnect(lua_State *l) {
+    lua_check_num_args(2);
+    const char *source = lua_tostring(l, 1);
+    const char *destination = lua_tostring(l, 2);
+    lua_pushboolean(l, jack_client_disconnect(source, destination));
     return 1;
 }
 
@@ -2248,10 +2298,10 @@ void w_handle_grid_key(int id, int x, int y, int state) {
 
 void w_handle_grid_tilt(int id, int sensor, int x, int y, int z) {
     _push_norns_func("grid", "tilt");
-    lua_pushinteger(lvm, id + 1); // convert to 1-base
-    lua_pushinteger(lvm, sensor + 1);  // convert to 1-base
-    lua_pushinteger(lvm, x + 1);  // convert to 1-base
-    lua_pushinteger(lvm, y + 1);  // convert to 1-base
+    lua_pushinteger(lvm, id + 1);     // convert to 1-base
+    lua_pushinteger(lvm, sensor + 1); // convert to 1-base
+    lua_pushinteger(lvm, x + 1);      // convert to 1-base
+    lua_pushinteger(lvm, y + 1);      // convert to 1-base
     lua_pushinteger(lvm, z + 1);
     l_report(lvm, l_docall(lvm, 5, 0));
 }
@@ -2365,7 +2415,6 @@ void w_handle_serial_config(char *path, char *name, char *vendor, char *model, c
 
     dev_list_add(DEV_TYPE_SERIAL, path, strdup(name), lvm);
 }
-
 
 void w_handle_serial_add(void *p) {
     struct dev_serial *dev = (struct dev_serial *)p;
@@ -2667,7 +2716,7 @@ void w_handle_power(const int present) {
 
 // stat
 void w_handle_stat(const uint32_t disk, const uint16_t temp, const uint16_t cpu,
-    const uint16_t cpu1, const uint16_t cpu2, const uint16_t cpu3, const uint16_t cpu4) {
+                   const uint16_t cpu1, const uint16_t cpu2, const uint16_t cpu3, const uint16_t cpu4) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "stat");
     lua_remove(lvm, -2);
@@ -2731,7 +2780,7 @@ void w_handle_poll_softcut_phase(int idx, float val) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t size, float* data) {
+void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t size, float *data) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "softcut_render");
     lua_remove(lvm, -2);
@@ -2794,7 +2843,7 @@ int _stop_poll(lua_State *l) {
 
 int _set_poll_time(lua_State *l) {
     lua_check_num_args(2);
-     int idx = (int)luaL_checkinteger(l, 1) - 1; // convert from 1-based
+    int idx = (int)luaL_checkinteger(l, 1) - 1; // convert from 1-based
     float val = (float)luaL_checknumber(l, 2);
     o_set_poll_time(idx, val);
     lua_settop(l, 0);
@@ -3277,8 +3326,8 @@ int _system_glob(lua_State *l) {
     }
 
     lua_newtable(l);
-    for(i=1; i<=g.gl_pathc; i++) {
-        lua_pushstring(l, g.gl_pathv[i-1]);
+    for (i = 1; i <= g.gl_pathc; i++) {
+        lua_pushstring(l, g.gl_pathv[i - 1]);
         lua_rawseti(l, -2, i);
     }
     globfree(&g);
@@ -3290,6 +3339,5 @@ int _platform(lua_State *l) {
     lua_pushinteger(l, platform());
     return 1;
 }
-
 
 #pragma GCC diagnostic pop

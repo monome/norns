@@ -53,5 +53,4 @@ extern void screen_event_brightness(int b);
 extern void screen_event_contrast(int c);
 extern void screen_event_invert(int i);
 
-
 #endif

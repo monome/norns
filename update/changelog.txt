@@ -1,9 +1,21 @@
+# 250530
+
+# norns 2.9.2
+
+- NEW jack port functions @ngwese
+- FIX audio error issues screen warning #1832 @tehn
+- FIX screen queue resize #1741 #1833 @tlubke
+- FIX screen drawing modes #1809 @skibu @tlubke
+- FIX CM4S detection #1835 @ngwese
+
+
 # 250414
 
 # norns 2.9.1
 
 - FIX serial mod hotfixes #1828 #1826 #1829 @midouest
 - ADD clock.link.get_number_of_peers() #1825 @robbielyman
+
 
 # 250406
 
@@ -19,6 +31,7 @@
 - FIX script clear frees engine #1817 @tehn
 - ADD cdc arc support #1820 @tehn
 - ADD more platform detection #1821 @okyeron
+
 
 # 240911
 

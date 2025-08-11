@@ -28,7 +28,8 @@ void *battery_check(void *);
 // extern def
 
 void battery_init() {
-    if (platform() != PLATFORM_CM3) return;
+    if (platform() != PLATFORM_CM3)
+        return;
 
     fd[0] = open("/sys/class/power_supply/bq27441-0/capacity", O_RDONLY | O_NONBLOCK);
     fd[1] = open("/sys/class/power_supply/bq27441-0/status", O_RDONLY | O_NONBLOCK);
