@@ -33,3 +33,34 @@ jobs:
           sudo luarocks --lua-version=5.3 install luacheck
       - name: lint lua code
         run: luacheck lua/ --codes
+
+  clang-format-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: install clang-format
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang-format
+      - name: run clang-format script
+        run: |
+          chmod +x clang-format.sh
+          ./clang-format.sh
+      - name: check for formatting changes
+        run: |
+          if ! git diff --exit-code --quiet; then
+            echo -e "❌ clang-format check - C/C++ code formatting needs attention"
+            echo ""
+            echo -e "\033[3mthese files requiring formatting\033[0m"
+            git diff --name-only | grep -E '\.(c|cpp|h)$' | while read file; do
+              echo "- $file"
+            done
+            echo ""
+            echo -e "\033[3mto update formatting, run locally\033[0m"
+            echo "./clang-format.sh"
+            echo "git add ."
+            echo "git commit -m 'fix: apply clang-format'"
+            exit 1
+          else
+            echo "✅ clang-format check - all C/C++ code is properly formatted"
+          fi
