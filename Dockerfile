@@ -12,12 +12,12 @@ LABEL org.opencontainers.image.source=https://github.com/monome/norns
 # Docker Desktop installed, run the following commands from the norns repo root folder. 
 #
 #    % docker build -t norns-ci . 
-#    % docker run -v $(PWD):/norns-build --platform linux/arm64 -t norns-ci
+#    % docker run -v $(pwd):/norns-build --platform linux/arm64 -t norns-ci
 #
 # The norns-ci docker image is also published to the GitHub container registry. You can
 # use the registry image directly to skip the container build step:
 #
-#    % docker run -v $(PWD):/norns-build --platform linux/arm64 -t ghcr.io/monome/norns-ci:latest
+#    % docker run -v $(pwd):/norns-build --platform linux/arm64 -t ghcr.io/monome/norns-ci:latest
 #
 # You can also specify the registry as a cache source when building the container locally:
 #
