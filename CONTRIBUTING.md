@@ -1,8 +1,6 @@
 contributing
 ==================================
 
-[![Build Status](https://travis-ci.org/monome/norns.svg?branch=main)](https://travis-ci.org/monome/norns)
-
 welcome
 -------
 
@@ -59,13 +57,4 @@ api docs for main
 to view the api docs for the `main` branch,
 visit https://monome.org/docs/norns/api.
 
-those docs should be updated after a successful travis build
-of the norns `main` branch.
 
-
-build infrastructure
---------------------
-
-continuous integration of `norns` is on
-
-- [travis](https://travis-ci.org/) ([details](.travis.yml))
