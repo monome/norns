@@ -235,12 +235,12 @@ function tab.readonly(params)
   end
 
   local proxy_pairs = function(_)
-    function iter(_, key)
+    local iter = function(_, key)
       for k, v in next, t, key do
         if proxy_index(nil, k) ~= nil then
           return k, v
         end
-        k, v = next(t, k)
+        _, _ = next(t, k)
       end
       return nil
     end
@@ -248,7 +248,7 @@ function tab.readonly(params)
   end
 
   local proxy_ipairs = function(_)
-    function iter()
+    local iter = function()
       for i = 1, tab.count(t) do
         if proxy_index(nil, i) ~= nil then
           return i, t[i]
