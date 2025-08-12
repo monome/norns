@@ -62,10 +62,3 @@ visit https://monome.org/docs/norns/api.
 those docs should be updated after a successful travis build
 of the norns `main` branch.
 
-
-build infrastructure
---------------------
-
-continuous integration of `norns` is on
-
-- [travis](https://travis-ci.org/) ([details](.travis.yml))
