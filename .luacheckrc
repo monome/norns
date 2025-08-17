@@ -1023,16 +1023,19 @@ files["lua/lib/tabutil.lua"] = {
 files["lua/lib/test/luaunit.lua"] = {
     ignore = {
         "113", -- accessing undefined variable
+        "122", -- setting read-only field exit of global os
         "131", -- accessing a field of a global variable
         "211", -- unused local variable
         "212", -- unused argument
         "213", -- unused loop variable
+        "231", -- variable result is never accessed
         "311", -- value assigned to variable is never used
         "421", -- shadowing a local variable
         "431", -- shadowing a local variable which is an upvalue
         "581", -- negation of a relational operator
         "611", -- trailing whitespace
         "612", -- line ending with single carriage return
+        "613", -- trailing whitespace in a string
         "614", -- line comment not preceded by a space
         "631", -- line is too long
     },
