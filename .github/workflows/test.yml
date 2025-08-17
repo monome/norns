@@ -1,0 +1,19 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  test-lua:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install lua
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.3
+      - name: run lua tests
+        run: ./test-lua.sh
