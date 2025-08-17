@@ -128,7 +128,7 @@ function TestWeakTable.test_pairs_iteration()
   local count = 0
   local found_values = {}
 
-  for k, v in pairs(wt) do
+  for _, v in pairs(wt) do
     count = count + 1
     found_values[v] = true
   end
