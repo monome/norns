@@ -773,43 +773,12 @@ files["lua/lib/container/defaulttable.lua"] = {
     },
 }
 
-files["lua/lib/container/defaulttable_test.lua"] = {
-    ignore = {
-        "131", -- accessing a field of a global variable
-        "211", -- unused local variable
-        "212", -- unused argument
-        "213", -- unused loop variable
-        "311", -- value assigned to variable is never used
-        "411", -- redefining local variable
-        "421", -- shadowing a local variable
-        "431", -- shadowing a local variable which is an upvalue
-        "611", -- trailing whitespace
-        "612", -- line ending with single carriage return
-        "631", -- line is too long
-    },
-}
-
 files["lua/lib/container/deque.lua"] = {
     ignore = {
         "211", -- unused local variable
         "212", -- unused argument
         "213", -- unused loop variable
         "421", -- shadowing a local variable
-    },
-}
-
-files["lua/lib/container/deque_test.lua"] = {
-    ignore = {
-        "131", -- accessing a field of a global variable
-        "211", -- unused local variable
-        "212", -- unused argument
-        "213", -- unused loop variable
-        "311", -- value assigned to variable is never used
-        "421", -- shadowing a local variable
-        "431", -- shadowing a local variable which is an upvalue
-        "611", -- trailing whitespace
-        "612", -- line ending with single carriage return
-        "631", -- line is too long
     },
 }
 
@@ -820,21 +789,6 @@ files["lua/lib/container/observable.lua"] = {
         "213", -- unused loop variable
         "421", -- shadowing a local variable
         "431", -- shadowing a local variable which is an upvalue
-    },
-}
-
-files["lua/lib/container/observable_test.lua"] = {
-    ignore = {
-        "131", -- accessing a field of a global variable
-        "211", -- unused local variable
-        "212", -- unused argument
-        "213", -- unused loop variable
-        "311", -- value assigned to variable is never used
-        "421", -- shadowing a local variable
-        "431", -- shadowing a local variable which is an upvalue
-        "611", -- trailing whitespace
-        "612", -- line ending with single carriage return
-        "631", -- line is too long
     },
 }
 
