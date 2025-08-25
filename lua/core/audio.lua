@@ -168,6 +168,12 @@ Audio.tape_play_stop = function()
   _norns.tape_play_stop()
 end
 
+--- set tape looping on/off.
+-- @tparam boolean enabled
+Audio.tape_play_loop = function(enabled)
+  _norns.tape_play_loop(enabled and 1 or 0)
+end
+
 --- open a tape recording file.
 -- @param file
 Audio.tape_record_open = function(file)

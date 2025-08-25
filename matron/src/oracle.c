@@ -498,6 +498,10 @@ void o_tape_play_stop() {
     lo_send(crone_addr, "/tape/play/stop", NULL);
 }
 
+void o_tape_play_loop(int enabled) {
+    lo_send(crone_addr, "/tape/play/loop", "i", enabled);
+}
+
 //--- cut
 void o_cut_enable(int i, float value) {
     lo_send(crone_addr, "/set/enabled/cut", "if", i, value);

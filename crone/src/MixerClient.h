@@ -152,6 +152,10 @@ class MixerClient : public Client<6, 6> {
     void stopTapePlayback() {
         tape.reader.stop();
     }
+
+    void setTapeLoop(bool loop) {
+        tape.setLooping(loop);
+    }
 };
 } // namespace crone
 

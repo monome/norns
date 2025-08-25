@@ -477,6 +477,14 @@ class Tape {
             return this->frames > 0;
         }
 
+        void setLoopFile(bool loop) {
+            loopFile.store(loop, std::memory_order_relaxed);
+        }
+
+        bool getLoopFile() const {
+            return loopFile.load(std::memory_order_relaxed);
+        }
+
       private:
         // from disk thread
         void diskLoop() override {
@@ -556,6 +564,12 @@ class Tape {
     }
     bool isReading() {
         return reader.isRunning;
+    }
+    bool isLooping() const noexcept {
+        return reader.getLoopFile();
+    }
+    void setLooping(bool loop) {
+        reader.setLoopFile(loop);
     }
 };
 

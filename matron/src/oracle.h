@@ -121,6 +121,7 @@ extern void o_tape_rec_stop();
 extern void o_tape_play_open(char *file);
 extern void o_tape_play_start();
 extern void o_tape_play_stop();
+extern void o_tape_play_loop(int enabled);
 
 //--- cut
 extern void o_set_level_adc_cut(float value);

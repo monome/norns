@@ -89,5 +89,6 @@ osc methods:
  /tape/play/open [s]
  /tape/play/start []
  /tape/play/stop []
+ /tape/play/loop [i]
  /set/level/tape [f]
  /set/level/tape_rev [f]
