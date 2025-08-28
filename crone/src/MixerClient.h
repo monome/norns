@@ -137,6 +137,10 @@ class MixerClient : public Client<6, 6> {
         tape.writer.start();
     }
 
+    void pauseTapeRecord(bool paused) {
+        tape.pauseRecord(paused);
+    }
+
     void stopTapeRecord() {
         tape.writer.stop();
     }
@@ -147,6 +151,10 @@ class MixerClient : public Client<6, 6> {
 
     void startTapePlayback() {
         tape.reader.start();
+    }
+
+    void pauseTapePlayback(bool paused) {
+        tape.pausePlayback(paused);
     }
 
     void stopTapePlayback() {
