@@ -319,6 +319,8 @@ static int _wall_time_get_delta(lua_State *l);
 
 // platform detection (CM3 vs PI3 vs OTHER)
 static int _platform(lua_State *l);
+static int _platform_factory(lua_State *l);
+static int _platform_shield(lua_State *l);
 
 // boilerplate: push a lua function to the lua stack, from named field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
@@ -602,6 +604,8 @@ void w_init(void) {
 
     // platform
     lua_register_norns("platform", &_platform);
+    lua_register_norns("platform_factory", &_platform_factory);
+    lua_register_norns("platform_shield", &_platform_shield);
 
     // name global extern table
     lua_setglobal(lvm, "_norns");
@@ -3337,6 +3341,18 @@ int _system_glob(lua_State *l) {
 int _platform(lua_State *l) {
     lua_check_num_args(0);
     lua_pushinteger(l, platform());
+    return 1;
+}
+
+int _platform_factory(lua_State *l) {
+    lua_check_num_args(0);
+    lua_pushboolean(l, platform_factory());
+    return 1;
+}
+
+int _platform_shield(lua_State *l) {
+    lua_check_num_args(0);
+    lua_pushboolean(l, platform_shield());
     return 1;
 }
 

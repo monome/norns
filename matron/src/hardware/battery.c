@@ -31,6 +31,8 @@ void battery_init() {
     if (!platform_factory())
         return;
 
+    fprintf(stderr, "battery init...\n");
+
     fd[0] = open("/sys/class/power_supply/bq27441-0/capacity", O_RDONLY | O_NONBLOCK);
     fd[1] = open("/sys/class/power_supply/bq27441-0/status", O_RDONLY | O_NONBLOCK);
     fd[2] = open("/sys/class/power_supply/bq27441-0/current_now", O_RDONLY | O_NONBLOCK);
