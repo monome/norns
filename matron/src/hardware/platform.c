@@ -55,3 +55,19 @@ const char *platform_name() {
 
     return "unknown";
 }
+
+bool platform_factory() {
+    switch (platform()) {
+    case PLATFORM_CM3:
+    case PLATFORM_CM4:
+    case PLATFORM_CM4S:
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+bool platform_shield() {
+    return !platform_factory();
+}
