@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 typedef enum {
     PLATFORM_UNKNOWN = 0,
     PLATFORM_OTHER,
@@ -13,3 +15,6 @@ typedef enum {
 extern void init_platform(void);
 extern platform_t platform(void);
 extern const char *platform_name(void);
+
+extern bool platform_factory();
+extern bool platform_shield();
