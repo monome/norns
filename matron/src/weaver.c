@@ -2944,7 +2944,12 @@ int _tape_rec_start(lua_State *l) {
 
 int _tape_rec_pause(lua_State *l) {
     lua_check_num_args(1);
-    int paused = lua_tointeger(l, 1);
+    int paused;
+    if (lua_isboolean(l, 1)) {
+        paused = lua_toboolean(l, 1);
+    } else {
+        paused = (int)luaL_checknumber(l, 1) != 0 ? 1 : 0;
+    }
     o_tape_rec_pause(paused);
     return 0;
 }
@@ -2969,7 +2974,12 @@ int _tape_play_start(lua_State *l) {
 
 int _tape_play_pause(lua_State *l) {
     lua_check_num_args(1);
-    int paused = lua_tointeger(l, 1);
+    int paused;
+    if (lua_isboolean(l, 1)) {
+        paused = lua_toboolean(l, 1);
+    } else {
+        paused = (int)luaL_checknumber(l, 1) != 0 ? 1 : 0;
+    }
     o_tape_play_pause(paused);
     return 0;
 }
