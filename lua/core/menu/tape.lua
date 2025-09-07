@@ -72,6 +72,53 @@ local function read_tape_index()
   end
 end
 
+--- draw a small loop icon aligned to a right-side x position
+-- @param x_right number rightmost x where icon should end
+-- @param y_center number vertical center of icon
+-- @note size tuned for status row in tape UI
+local function draw_loop_icon_right(x_right, y_center)
+  local w, h, ah   = 11, 7, 4
+  local xl, xr     = x_right - w, x_right
+  local yt, yb     = y_center - math.ceil(h / 2), y_center - math.ceil(h / 2) + h
+
+  local top_y      = yt + 2
+  local bottom_y   = yb - 1
+  local left_x     = xl + 1
+  local right_x    = xr
+  local top_span_x = xr - ah + 1
+  local bot_span_x = xl + ah - 1
+  local head_r_x   = xr - ah
+  local head_l_x   = xl + ah + 1
+
+  screen.aa(0)
+
+  -- frame: top, right, bottom, left
+  screen.move(left_x, top_y)
+  screen.line(top_span_x, top_y)
+  screen.move(right_x, top_y)
+  screen.line(right_x, yb - 2)
+  screen.move(xr - 1, bottom_y)
+  screen.line(bot_span_x, bottom_y)
+  screen.move(left_x, yb - 2)
+  screen.line(left_x, top_y)
+  screen.stroke()
+
+  -- arrowheads: short verticals at ends
+  screen.move(head_r_x, yt)
+  screen.line(head_r_x, yt + 3)
+  screen.move(head_l_x, yb - 3)
+  screen.line(head_l_x, yb)
+  screen.stroke()
+
+  -- arrow tail pixels
+  screen.pixel(xr - 2, yt + 1)
+  screen.fill()
+  screen.pixel(xl + 1, yb - 2)
+  screen.fill()
+
+  screen.aa(1)
+end
+
 local function edit_filename(txt)
   if txt then
     m.rec.file = txt .. ".wav"
@@ -320,15 +367,23 @@ m.redraw = function()
       else
         status = ""
       end
-      -- draw status centered in a fixed column, and LOOP at a fixed spot to its right
-      local status_center_x = 49
-      local loop_right_x = 93
+      -- draw status centered in a fixed column
       screen.level(15)
-      screen.move(status_center_x, 24)
-      screen.text_center(status)
-      screen.level(m.play.loop and 15 or 2)
-      screen.move(loop_right_x, 24)
-      screen.text_right("LOOP")
+      screen.move(35, 24)
+      screen.text(status)
+    end
+    local PLAY_LOOP_ICON_RIGHT_X = 95  -- rightmost x position for loop icon
+    local PLAY_LOOP_ICON_CENTER_Y = 22 -- vertical center position for loop icon
+    if m.mode == TAPE_MODE_PLAY then
+      -- play loop: bright when enabled, dim when disabled
+      screen.level(m.play.loop and 11 or 1)
+      draw_loop_icon_right(PLAY_LOOP_ICON_RIGHT_X, PLAY_LOOP_ICON_CENTER_Y)
+    else -- REC focus
+      -- play loop: show dim only when enabled; hide when disabled
+      if m.play.loop then
+        screen.level(1)
+        draw_loop_icon_right(PLAY_LOOP_ICON_RIGHT_X, PLAY_LOOP_ICON_CENTER_Y)
+      end
     end
   end
 
