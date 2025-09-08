@@ -10,6 +10,9 @@
 
 local fs = {}
 
+-- lightweight debounce to avoid rapid start/stop thrashing during preview
+local MIN_PREVIEW_INTERVAL = 0.1 -- seconds between preview restarts
+
 function fs.enter(folder, callback, filter_string)
   fs.folders = {}
   fs.list = {}
@@ -24,6 +27,7 @@ function fs.enter(folder, callback, filter_string)
   fs.filter = filter_string and filter_string or "all"
   fs.previewing = nil
   fs.previewing_timeout_counter = nil
+  fs.preview_debounce_clock = nil
 
   if fs.folder:sub(-1, -1) ~= "/" then
     fs.folder = fs.folder .. "/"
@@ -52,6 +56,15 @@ function fs.enter(folder, callback, filter_string)
 end
 
 function fs.exit()
+  -- ensure any clocks created by fileselect are cancelled
+  if fs.preview_debounce_clock then
+    clock.cancel(fs.preview_debounce_clock)
+    fs.preview_debounce_clock = nil
+  end
+  if fs.previewing_timeout_counter then
+    clock.cancel(fs.previewing_timeout_counter)
+    fs.previewing_timeout_counter = nil
+  end
   if norns.menu.status() == false then
     key = fs.key_restore
     enc = fs.enc_restore
@@ -117,7 +130,7 @@ fs.getlist = function()
         if fs.filter == "all" or fs.filter == "audio" or fs.filter == fulldir:match("^.+(%..+)$") then
           display_length = util.s_to_hms(math.floor(samples / rate))
           max_line_length = 97
-        else         -- otherwise, do not display audio file:
+        else -- otherwise, do not display audio file:
           fs.visible[k] = false
           display_length = nil
         end
@@ -142,6 +155,14 @@ local function stop()
   if fs.previewing then
     fs.previewing = nil
     audio.tape_play_stop()
+    -- allow a brief cleanup window before another preview can start
+    if fs.preview_debounce_clock then
+      clock.cancel(fs.preview_debounce_clock)
+    end
+    fs.preview_debounce_clock = clock.run(function()
+      clock.sleep(0.05)
+      fs.preview_debounce_clock = nil
+    end)
     fs.redraw()
   end
 end
@@ -156,13 +177,21 @@ local function timeout()
 end
 
 local function start()
+  -- simple debouncing: skip if timeout active or we're in cleanup window
   if fs.previewing_timeout_counter ~= nil then return end
+  if fs.preview_debounce_clock ~= nil then return end
   timeout()
   stop()
-  fs.previewing = fs.pos
-  audio.tape_play_open(fs.getdir() .. fs.file)
-  audio.tape_play_start()
-  fs.redraw()
+  -- delay start slightly to ensure stop cleanup completes
+  clock.run(function()
+    clock.sleep(MIN_PREVIEW_INTERVAL)
+    if fs.done then return end
+    -- if selection moved during delay, reflect the current position
+    fs.previewing = fs.pos
+    audio.tape_play_open(fs.getdir() .. fs.file)
+    audio.tape_play_start()
+    fs.redraw()
+  end)
 end
 
 fs.key = function(n, z)
