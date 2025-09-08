@@ -49,8 +49,9 @@ int adc_rev() {
 void *adc_read(void *);
 
 void i2c_init(void) {
-    if (platform() != PLATFORM_CM3)
+    if (!platform_factory())
         return;
+
     char filename[40];
 
     fprintf(stderr, "i2c init...\n");
@@ -82,25 +83,25 @@ void i2c_init(void) {
     buf[0] = 8; // 0-5 only
     buf[1] = 0xC0;
     if (write(file, buf, 2) != 2) {
-        fprintf(stderr, "ERROR (i2c/adc) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/adc) failed to write [chan]\n");
         return;
     }
     buf[0] = 7; // continuous
     buf[1] = 1;
     if (write(file, buf, 2) != 2) {
-        fprintf(stderr, "ERROR (i2c/adc) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/adc) failed to write [cont]\n");
         return;
     }
     buf[0] = 0xB; // ext vref
     buf[1] = 1;
     if (write(file, buf, 2) != 2) {
-        fprintf(stderr, "ERROR (i2c/hp) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/adc) failed to write [vref]\n");
         return;
     }
     buf[0] = 0; // config, p20
     buf[1] = 1; // start
     if (write(file, buf, 2) != 2) {
-        fprintf(stderr, "ERROR (i2c/adc) failed to write\n");
+        fprintf(stderr, "ERROR (i2c/adc) failed to write [start]\n");
         return;
     }
 
@@ -115,7 +116,7 @@ void i2c_deinit() {
 }
 
 void i2c_hp(int level) {
-    if (platform() != PLATFORM_CM3)
+    if (!platform_factory())
         return;
 
     if (level < 0) {

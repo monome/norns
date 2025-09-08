@@ -960,6 +960,13 @@ void OscInterface::addServerMethods() {
         mixerClient->startTapeRecord();
     });
 
+    addServerMethod("/tape/record/pause", "i", [](lo_arg **argv, int argc) {
+        if (argc < 1) {
+            return;
+        }
+        mixerClient->pauseTapeRecord(argv[0]->i != 0);
+    });
+
     addServerMethod("/tape/record/stop", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
@@ -979,10 +986,24 @@ void OscInterface::addServerMethods() {
         mixerClient->startTapePlayback();
     });
 
+    addServerMethod("/tape/play/pause", "i", [](lo_arg **argv, int argc) {
+        if (argc < 1) {
+            return;
+        }
+        mixerClient->pauseTapePlayback(argv[0]->i != 0);
+    });
+
     addServerMethod("/tape/play/stop", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
         mixerClient->stopTapePlayback();
+    });
+
+    addServerMethod("/tape/play/loop", "i", [](lo_arg **argv, int argc) {
+        if (argc < 1) {
+            return;
+        }
+        mixerClient->setTapeLoop(argv[0]->i != 0);
     });
 
     addServerMethod("/set/level/tape", "f", [](lo_arg **argv, int argc) {

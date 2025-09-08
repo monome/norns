@@ -181,15 +181,10 @@ void ssd1322_init() {
     write_command(SSD1322_SET_DISPLAY_MODE_NORMAL);
 
     // Flips the screen orientation if the device is a norns shield.
-    switch (platform()) {
-    case PLATFORM_CM3:
-    case PLATFORM_CM4:
-    case PLATFORM_CM4S:
+    if (platform_factory()) {
         write_command_with_data(SSD1322_SET_DUAL_COMM_LINE_MODE, 0x16, 0x11);
-        break;
-    default:
+    } else {
         write_command_with_data(SSD1322_SET_DUAL_COMM_LINE_MODE, 0x04, 0x11);
-        break;
     }
 
     // Do not turn display on until the first update has been called,

@@ -482,6 +482,10 @@ void o_tape_rec_start() {
     lo_send(crone_addr, "/tape/record/start", NULL);
 }
 
+void o_tape_rec_pause(int paused) {
+    lo_send(crone_addr, "/tape/record/pause", "i", paused);
+}
+
 void o_tape_rec_stop() {
     lo_send(crone_addr, "/tape/record/stop", NULL);
 }
@@ -494,8 +498,16 @@ void o_tape_play_start() {
     lo_send(crone_addr, "/tape/play/start", NULL);
 }
 
+void o_tape_play_pause(int paused) {
+    lo_send(crone_addr, "/tape/play/pause", "i", paused);
+}
+
 void o_tape_play_stop() {
     lo_send(crone_addr, "/tape/play/stop", NULL);
+}
+
+void o_tape_play_loop(int enabled) {
+    lo_send(crone_addr, "/tape/play/loop", "i", enabled);
 }
 
 //--- cut

@@ -221,10 +221,13 @@ static int _poll_stop_cut_phase(lua_State *l);
 // tape control
 static int _tape_rec_open(lua_State *l);
 static int _tape_rec_start(lua_State *l);
+static int _tape_rec_pause(lua_State *l);
 static int _tape_rec_stop(lua_State *l);
 static int _tape_play_open(lua_State *l);
 static int _tape_play_start(lua_State *l);
+static int _tape_play_pause(lua_State *l);
 static int _tape_play_stop(lua_State *l);
+static int _tape_play_loop(lua_State *l);
 
 // cut
 static int _set_level_adc_cut(lua_State *l);
@@ -319,6 +322,8 @@ static int _wall_time_get_delta(lua_State *l);
 
 // platform detection (CM3 vs PI3 vs OTHER)
 static int _platform(lua_State *l);
+static int _platform_factory(lua_State *l);
+static int _platform_shield(lua_State *l);
 
 // boilerplate: push a lua function to the lua stack, from named field in global 'norns'
 static inline void _push_norns_func(const char *field, const char *func) {
@@ -406,10 +411,13 @@ void w_init(void) {
     // tape controls
     lua_register_norns("tape_record_open", &_tape_rec_open);
     lua_register_norns("tape_record_start", &_tape_rec_start);
+    lua_register_norns("tape_record_pause", &_tape_rec_pause);
     lua_register_norns("tape_record_stop", &_tape_rec_stop);
     lua_register_norns("tape_play_open", &_tape_play_open);
     lua_register_norns("tape_play_start", &_tape_play_start);
+    lua_register_norns("tape_play_pause", &_tape_play_pause);
     lua_register_norns("tape_play_stop", &_tape_play_stop);
+    lua_register_norns("tape_play_loop", &_tape_play_loop);
 
     // polls
     lua_register_norns("poll_start_vu", &_poll_start_vu);
@@ -602,6 +610,8 @@ void w_init(void) {
 
     // platform
     lua_register_norns("platform", &_platform);
+    lua_register_norns("platform_factory", &_platform_factory);
+    lua_register_norns("platform_shield", &_platform_shield);
 
     // name global extern table
     lua_setglobal(lvm, "_norns");
@@ -2932,6 +2942,18 @@ int _tape_rec_start(lua_State *l) {
     return 0;
 }
 
+int _tape_rec_pause(lua_State *l) {
+    lua_check_num_args(1);
+    int paused;
+    if (lua_isboolean(l, 1)) {
+        paused = lua_toboolean(l, 1);
+    } else {
+        paused = (int)luaL_checknumber(l, 1) != 0 ? 1 : 0;
+    }
+    o_tape_rec_pause(paused);
+    return 0;
+}
+
 int _tape_rec_stop(lua_State *l) {
     o_tape_rec_stop();
     return 0;
@@ -2950,8 +2972,32 @@ int _tape_play_start(lua_State *l) {
     return 0;
 }
 
+int _tape_play_pause(lua_State *l) {
+    lua_check_num_args(1);
+    int paused;
+    if (lua_isboolean(l, 1)) {
+        paused = lua_toboolean(l, 1);
+    } else {
+        paused = (int)luaL_checknumber(l, 1) != 0 ? 1 : 0;
+    }
+    o_tape_play_pause(paused);
+    return 0;
+}
+
 int _tape_play_stop(lua_State *l) {
     o_tape_play_stop();
+    return 0;
+}
+
+int _tape_play_loop(lua_State *l) {
+    lua_check_num_args(1);
+    int enabled;
+    if (lua_isboolean(l, 1)) {
+        enabled = lua_toboolean(l, 1);
+    } else {
+        enabled = (int)luaL_checknumber(l, 1) != 0 ? 1 : 0;
+    }
+    o_tape_play_loop(enabled);
     return 0;
 }
 
@@ -3337,6 +3383,18 @@ int _system_glob(lua_State *l) {
 int _platform(lua_State *l) {
     lua_check_num_args(0);
     lua_pushinteger(l, platform());
+    return 1;
+}
+
+int _platform_factory(lua_State *l) {
+    lua_check_num_args(0);
+    lua_pushboolean(l, platform_factory());
+    return 1;
+}
+
+int _platform_shield(lua_State *l) {
+    lua_check_num_args(0);
+    lua_pushboolean(l, platform_shield());
     return 1;
 }
 

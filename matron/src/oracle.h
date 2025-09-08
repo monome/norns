@@ -117,10 +117,13 @@ extern void o_set_audio_pitch_off();
 //--- tape control
 extern void o_tape_rec_open(char *file);
 extern void o_tape_rec_start();
+extern void o_tape_rec_pause(int paused);
 extern void o_tape_rec_stop();
 extern void o_tape_play_open(char *file);
 extern void o_tape_play_start();
+extern void o_tape_play_pause(int paused);
 extern void o_tape_play_stop();
+extern void o_tape_play_loop(int enabled);
 
 //--- cut
 extern void o_set_level_adc_cut(float value);
