@@ -91,7 +91,10 @@ end
 -- @tparam string start string to search for
 -- @treturn boolean true or false
 util.string_starts = function(s,start)
-  return string.sub(s,1,string.len(start))==start
+	if s then
+		return string.sub(s,1,string.len(start))==start
+	else return false
+	end
 end
 
 --- trim string to a display width
