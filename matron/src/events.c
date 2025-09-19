@@ -154,6 +154,10 @@ MATRON_API void event_data_free(union event_data *ev) {
             ev->custom.ops->free(ev->custom.value, ev->custom.context);
         }
         break;
+    case EVENT_TAPE_PLAY_FILE:
+    case EVENT_TAPE_RECORD_FILE:
+        free(ev->tape_file.path);
+        break;
     }
     free(ev);
 }
@@ -287,6 +291,26 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_POLL_SOFTCUT_PHASE:
         w_handle_poll_softcut_phase(ev->softcut_phase.idx, ev->softcut_phase.value);
+        break;
+    case EVENT_TAPE_STATUS:
+        w_handle_tape_status(ev->tape_status.play_state,
+                             ev->tape_status.play_pos_s,
+                             ev->tape_status.play_len_s,
+                             ev->tape_status.rec_state,
+                             ev->tape_status.rec_pos_s,
+                             ev->tape_status.loop_enabled);
+        break;
+    case EVENT_TAPE_PLAY_FILE:
+        w_handle_tape_play_file(ev->tape_file.path);
+        break;
+    case EVENT_TAPE_RECORD_FILE:
+        w_handle_tape_rec_file(ev->tape_file.path);
+        break;
+    case EVENT_TAPE_PLAY_CLOSE:
+        w_handle_tape_play_file(NULL);
+        break;
+    case EVENT_TAPE_RECORD_CLOSE:
+        w_handle_tape_rec_file(NULL);
         break;
     case EVENT_STARTUP_READY_OK:
         w_handle_startup_ready_ok();

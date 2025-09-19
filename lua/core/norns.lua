@@ -90,6 +90,11 @@ _norns.softcut_phase = function(id, value) end
 _norns.softcut_render = function(ch, start, sec_per_sample, samples) end
 _norns.softcut_position = function(i,pos) end
 
+-- tape callbacks
+_norns.tape_status = function(_play_state, _play_pos_s, _play_len_s, _rec_state, _rec_pos_s, _loop_enabled) end
+_norns.tape_play_file = function(_path) end
+_norns.tape_rec_file = function(_path) end
+
 -- default readings for battery
 norns.battery_percent = 0
 norns.battery_current = 0

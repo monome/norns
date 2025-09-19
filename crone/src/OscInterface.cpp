@@ -27,6 +27,7 @@ unsigned int OscInterface::numMethods = 0;
 
 std::unique_ptr<Poll> OscInterface::vuPoll;
 std::unique_ptr<Poll> OscInterface::phasePoll;
+std::unique_ptr<Poll> OscInterface::tapePoll;
 MixerClient *OscInterface::mixerClient;
 SoftcutClient *OscInterface::softCutClient;
 
@@ -75,7 +76,33 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
 
     //--- TODO: softcut trigger poll?
 
-    //--- TODO: tape poll?
+    //--- tape status poll
+    tapePoll = std::make_unique<Poll>("tape");
+    tapePoll->setCallback([](const char *path) {
+        // send status snapshot
+        auto s = mixerClient->getTapeStatus();
+        lo_send(matronAddress, path, "iffifi",
+                s.play_state, s.play_pos_s, s.play_len_s,
+                s.rec_state, s.rec_pos_s, s.loop_enabled);
+
+        // detect file-close edges so we notify matron only after drain/close is complete
+        static bool prevRecHasFile = false;
+        static bool prevPlayHasFile = false;
+
+        bool playHasFile = (s.play_state != 0);
+        bool recHasFile = (s.rec_state != 0);
+
+        if (prevRecHasFile && !recHasFile) {
+            lo_send(matronAddress, "/tape/record/close", "");
+        }
+        if (prevPlayHasFile && !playHasFile) {
+            lo_send(matronAddress, "/tape/play/close", "");
+        }
+
+        prevRecHasFile = recHasFile;
+        prevPlayHasFile = playHasFile;
+    });
+    tapePoll->setPeriod(50);
 
     lo_server_thread_start(st);
 }
@@ -127,6 +154,18 @@ void OscInterface::addServerMethods() {
         (void)argv;
         (void)argc;
         vuPoll->stop();
+    });
+
+    //--- tape poll control
+    addServerMethod("/poll/start/tape", "", [](lo_arg **argv, int argc) {
+        (void)argv;
+        (void)argc;
+        tapePoll->start();
+    });
+    addServerMethod("/poll/stop/tape", "", [](lo_arg **argv, int argc) {
+        (void)argv;
+        (void)argc;
+        tapePoll->stop();
     });
 
     ////////////////////////////////
@@ -951,7 +990,10 @@ void OscInterface::addServerMethods() {
         if (argc < 1) {
             return;
         }
-        mixerClient->openTapeRecord(&argv[0]->s);
+        const char *p = &argv[0]->s;
+        mixerClient->openTapeRecord(p);
+        // notify matron of the armed record file
+        lo_send(matronAddress, "/tape/record/open", "s", p);
     });
 
     addServerMethod("/tape/record/start", "", [](lo_arg **argv, int argc) {
@@ -977,7 +1019,10 @@ void OscInterface::addServerMethods() {
         if (argc < 1) {
             return;
         }
-        mixerClient->openTapePlayback(&argv[0]->s);
+        const char *p = &argv[0]->s;
+        mixerClient->openTapePlayback(p);
+        // notify matron of the opened playback file
+        lo_send(matronAddress, "/tape/play/open", "s", p);
     });
 
     addServerMethod("/tape/play/start", "", [](lo_arg **argv, int argc) {

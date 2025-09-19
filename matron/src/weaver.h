@@ -89,6 +89,9 @@ extern void w_handle_poll_io_levels(uint8_t *levels);
 extern void w_handle_poll_softcut_phase(int idx, float val);
 extern void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t size, float *data);
 extern void w_handle_softcut_position(int idx, float pos);
+extern void w_handle_tape_status(int play_state, float play_pos_s, float play_len_s, int rec_state, float rec_pos_s, int loop_enabled);
+extern void w_handle_tape_play_file(const char *path);
+extern void w_handle_tape_rec_file(const char *path);
 
 extern void w_handle_engine_loaded();
 
