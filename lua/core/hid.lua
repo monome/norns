@@ -33,7 +33,7 @@ end
 -- @tparam table types : array of supported event types. keys are type codes, values are strings
 -- @tparam table codes : array of supported codes. each entry is a table of codes of a given type. subtables are indexed by supported code numbers; values are code names
 -- @tparam userdata dev : opaque pointer to device
-function Hid.new(id, name, types, codes, dev, guid)
+function Hid.new(id, name, types, codes, dev, guid, absinfos)
   local device = setmetatable({}, Hid)
 
   device.id = id
@@ -47,6 +47,7 @@ function Hid.new(id, name, types, codes, dev, guid)
   -- copy the types and codes tables
   device.types = {}
   device.codes = {}
+  device.absinfos = {}
   -- types table shall be a simple array with default indexing
   for k,v in pairs(types) do
     device.types[k] = v
@@ -59,9 +60,19 @@ function Hid.new(id, name, types, codes, dev, guid)
     end
   end
 
+  for k,v in pairs(absinfos) do
+    device.absinfos[k] = {}
+    -- typicall structure: {min = -32768, max = 32767, flat = 0, fuzz = 0, res = 0 }
+    for kk,vv in pairs(v) do
+      device.absinfos[k][kk] = vv
+    end
+  end
+  device.abs_codes = tab.sort(absinfos)
+
   device.is_ascii_keyboard = hid_device_class.is_ascii_keyboard(device)
   device.is_mouse = hid_device_class.is_mouse(device)
-  device.is_gamepad = hid_device_class.is_gamepad(device)
+  device.gamepad_profile = hid_device_class.lookup_gamepad_profile(device)
+  device.is_gamepad = ( device.gamepad_profile ~= nil)
 
   -- autofill next postiion
   local connected = {}
@@ -117,7 +128,7 @@ function Hid.cleanup()
   end
 
   Hid.add = function(dev)
-    print("HID device was added:", dev.id, dev.name)
+    print("HID device was added:", dev.id, dev.name, dev.guid)
     if dev.is_ascii_keyboard then print("this appears to be an ASCII keyboard!") end
     if dev.is_mouse then print("this appears to be a mouse!") end
     if dev.is_gamepad then print("this appears to be a gamepad!") end
@@ -148,8 +159,8 @@ end
 _norns.hid = {}
 
 -- hid devices
-_norns.hid.add = function(id, name, types, codes, dev, guid)
-  local g = Hid.new(id, name, types, codes, dev, guid)
+_norns.hid.add = function(id, name, types, codes, dev, guid, absinfos)
+  local g = Hid.new(id, name, types, codes, dev, guid, absinfos)
   Hid.devices[id] = g
   Hid.update_devices()
   if Hid.add ~= nil then Hid.add(g) end
@@ -185,7 +196,7 @@ _norns.hid.event = function(id, type, code, value)
     if device.is_ascii_keyboard then
       keyboard.process(type, code, value)
     elseif device.is_gamepad then
-      gamepad.process(device.guid, type, code, value)
+      gamepad.process(device.gamepad_profile, type, code, value)
     end
   else
     error('no entry for hid '..id)

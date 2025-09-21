@@ -23,9 +23,6 @@ local debug_level = 0
 
 gamepad = {}
 
--- NB: lots of gamepads like to use their own codes, different from what appears in core/hid_events.lua
-gamepad.model = require 'gamepad_model/index'
-
 --- button states
 gamepad.state = {
   DPDOWN = false,
@@ -74,7 +71,7 @@ function gamepad.clear()
   -- axis callbacks
   -- - directional pad, axis either X or Y
   gamepad.dpad = function(axis, sign) end
-  -- - analog pads, sensor_axis either dpady, dpadx, lefty, leftx, righty, rightx, triggerleft, triggerright
+  -- - analog pads, sensor_axis either dpady, dpadx, lefty, leftx, righty, rightx, lefttrigger, righttrigger
   gamepad.analog = function(sensor_axis, val, half_reso) end
   -- - all axis input (both digital & analog), value (sign) converted to digital (-1,0,1)
   gamepad.axis = function(sensor_axis, sign) end
@@ -124,7 +121,7 @@ end
 -- - dpady / dpadx (dpad)
 -- - lefty / leftx (left analog stick)
 -- - righty / rightx (right stick)
--- - triggerleft / triggerright (analog shoulder buttons)
+-- - lefttrigger / righttrigger (analog shoulder buttons)
 function gamepad.axis_keycode_to_sensor_axis(gamepad_conf, axis_keycode)
   return gamepad_conf.axis_mapping[axis_keycode]
 end
@@ -138,8 +135,8 @@ function gamepad.sensor_axis_to_states(sensor_axis)
     leftx = {'LRIGHT', 'LLEFT'},
     righty = {'RDOWN', 'RUP'},
     rightx = {'RRIGHT', 'RLEFT'},
-    triggerleft = {nil, 'TLEFT'},
-    triggerright = {nil, 'TRIGHT'},
+    lefttrigger = {nil, 'TLEFT'},
+    righttrigger = {nil, 'TRIGHT'},
   }
   return mapping[sensor_axis]
 end
@@ -301,7 +298,7 @@ end
 -- ------------------------------------------------------------------------
 -- incoming events
 
-function gamepad.process(guid, typ, code, val, do_log_event)
+function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
 
   local event_code_type
   for k, v in pairs(hid_events.types) do
@@ -311,7 +308,6 @@ function gamepad.process(guid, typ, code, val, do_log_event)
     end
   end
 
-  local gamepad_conf = gamepad.model[guid]
   local gamepad_alias = gamepad_conf.alias
 
   local do_log_event = gamepad.is_loggable_event(gamepad_conf, event_code_type, code, val)
