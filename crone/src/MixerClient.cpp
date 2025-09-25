@@ -41,7 +41,7 @@ void MixerClient::process(jack_nframes_t numFrames) {
 
     bus.ins_in.clear(numFrames);
     // process tape playback
-    if (tape.isReading()) {
+    if (tape.playbackHasFile()) {
         bus.tape.clear();
         // FIXME: another stupid pointer array.
         float *dst[2] = {static_cast<float *>(bus.tape.buf[0]), static_cast<float *>(bus.tape.buf[1])};
@@ -72,6 +72,7 @@ void MixerClient::process(jack_nframes_t numFrames) {
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
     smoothLevels.setSampleRate(sr);
+    tape.setSampleRate(static_cast<float>(sr));
     comp.init(sr);
     reverb.init(sr);
     setFxDefaults();

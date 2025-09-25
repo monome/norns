@@ -332,11 +332,30 @@ class Tape {
         Sample diskOutBuf[maxFramesToWrite * NumChannels];
         //  buffer for interleaving before ringbuf (audio thread)
         Sample pushBuf[maxFramesToWrite * NumChannels];
-        size_t numFramesCaptured;
+        std::atomic<size_t> numFramesCaptured;
         std::atomic<size_t> maxFrames; // recording limit
 
       protected:
       public:
+        // stop recording if running… otherwise, close any armed file and reset state
+        void stop() {
+            if (SfStream::isRunning) {
+                SfStream::stop();
+                return;
+            }
+            std::lock_guard<std::mutex> lifecycleLock(this->lifecycleMutex);
+            if (this->file != nullptr) {
+                sf_close(this->file);
+                this->file = nullptr;
+            }
+            jack_ringbuffer_reset(this->ringBuf.get());
+            this->dataPending = false;
+            numFramesCaptured = 0;
+            this->envIdx = 0;
+            this->envState = SfStream::EnvState::Off;
+            this->transportState = TransportState::Idle;
+        }
+
         // call from audio thread
         // audio thread: record input to disk via ringbuffer
         void process(const float *src[NumChannels], size_t numFrames) {
@@ -446,18 +465,35 @@ class Tape {
                     break;
                 }
 
-                numFramesCaptured += framesToWrite;
-                if (numFramesCaptured >= maxFrames) {
+                size_t captured = numFramesCaptured.fetch_add(framesToWrite) + framesToWrite;
+                if (captured >= maxFrames.load()) {
                     std::cout << "Tape: writer exceeded max frame count; aborting.";
                     break; // stop recording when limit reached
                 }
+            }
+
+            // prevent further audio-thread pushes while we flush remaining data
+            SfStream::isRunning = false;
+            // flush any remaining frames in the ringbuffer regardless of size
+            jack_ringbuffer_t *rb = this->ringBuf.get();
+            while (jack_ringbuffer_read_space(rb) >= frameSize) {
+                int framesToWrite = (int)(jack_ringbuffer_read_space(rb) / frameSize);
+                if (framesToWrite > (int)maxFramesToWrite) {
+                    framesToWrite = (int)maxFramesToWrite;
+                }
+                jack_ringbuffer_read(rb, (char *)diskOutBuf, framesToWrite * frameSize);
+                if (sf_writef_float(this->file, diskOutBuf, framesToWrite) != framesToWrite) {
+                    std::cout << "error: Tape::writer flush failed (libsndfile: " << sf_strerror(this->file) << ")" << std::endl;
+                    this->status = EIO;
+                    break;
+                }
+                numFramesCaptured.fetch_add(framesToWrite);
             }
 
             std::cout << "Tape::writer closing file...";
             sf_close(this->file);
             this->file = nullptr;
             std::cout << " done." << std::endl;
-            SfStream::isRunning = false;
         }
 
         // open file for writing - from any thread
@@ -466,9 +502,16 @@ class Tape {
                   int sampleRate = 48000,
                   int bitDepth = 24) {
 
+            // serialize against disk thread lifecycle and ensure prior thread is fully cleaned up
+            std::lock_guard<std::mutex> lifecycleLock(this->lifecycleMutex);
             if (SfStream::isRunning) {
                 std::cout << "Tape Writer::open(): stream is running; no action was taken" << std::endl;
                 return false;
+            }
+            if (this->th && this->th->joinable()) {
+                this->shouldStop = true;
+                this->cv.notify_one();
+                this->th->join();
             }
 
             SF_INFO sf_info;
@@ -501,6 +544,9 @@ class Tape {
                 return false;
             }
 
+            // reset captured frame counter so READY state reflects 0 position
+            numFramesCaptured = 0;
+
             // enable clipping during float->int conversion
             sf_command(this->file, SFC_SET_CLIPPING, nullptr, SF_TRUE);
 
@@ -530,9 +576,10 @@ class Tape {
         friend class Tape;
 
       private:
-        size_t frames{};
-        size_t framesProcessed = 0;
+        std::atomic<size_t> frames{0};
+        std::atomic<size_t> framesProcessed{0};
         uint8_t inChannels = 2;
+        std::atomic<float> fileSampleRate{48000.f};
         static constexpr size_t minFramesForLoop = 48000;
         static constexpr size_t maxFramesToRead = 4096;
         // interleaved buffer from soundfile (disk thread)
@@ -596,6 +643,8 @@ class Tape {
 
       public:
         void setLooping(bool loop) {
+            // update immediately so status polls reflect state even when idle
+            loopFile = loop;
             bool ok = this->enqueueCmd(SfStream::Command::SetLoop, loop ? 1u : 0u);
             if (!ok) {
                 std::cout << "Tape::Reader::setLooping(): command queue full, dropping SetLoop" << std::endl;
@@ -615,7 +664,8 @@ class Tape {
         void process(float *dst[NumChannels], size_t numFrames) {
             this->processCommands(); // handle state changes first
 
-            if (!SfStream::isRunning || !isPrimed) {
+            // allow draining of ringbuffer even after disk thread has stopped
+            if (!isPrimed) {
                 for (size_t fr = 0; fr < numFrames; ++fr) {
                     for (int ch = 0; ch < NumChannels; ++ch) {
                         dst[ch][fr] = 0.f;
@@ -637,7 +687,6 @@ class Tape {
             jack_ringbuffer_t *rb = this->ringBuf.get();
             auto framesInBuf = jack_ringbuffer_read_space(rb) / frameSize;
 
-            //  if ringbuf isn't full enough, likely EOF on non-looped file, or momentary underrun on looped playback
             // handle underrun: not enough data in ringbuffer
             if (framesInBuf < numFrames) {
                 // pull from ringbuffer
@@ -657,23 +706,13 @@ class Tape {
                     }
                     fr++;
                 }
-
-                if (loopFile) {
-                    // request more data from disk thread
-                    {
-                        std::lock_guard<std::mutex> lock(this->diskMutex);
-                        this->needsData = true;
-                        this->cv.notify_one();
-                    }
-                } else {
-                    // end of non-looping file - stop playback
-                    jack_ringbuffer_reset(rb);
-                    SfStream::shouldStop = true;
-                    SfStream::isRunning = false;
-                    {
-                        std::lock_guard<std::mutex> lock(this->diskMutex);
-                        this->cv.notify_one();
-                    }
+                // account for frames actually consumed when computing position
+                framesProcessed.fetch_add(framesInBuf);
+                // request more data from disk thread; disk thread will signal stop on EOF for non-loop
+                {
+                    std::lock_guard<std::mutex> lock(this->diskMutex);
+                    this->needsData = true;
+                    this->cv.notify_one();
                 }
             } else {
 
@@ -706,15 +745,30 @@ class Tape {
                         dst[ch][fr] = 0.f;
                     }
                 }
-                framesProcessed += framesToPull;
+                framesProcessed.fetch_add(framesToPull);
+            }
+            // if disk thread has stopped and the ringbuffer is drained, mark stream unprimed
+            if (!SfStream::isRunning) {
+                if (jack_ringbuffer_read_space(this->ringBuf.get()) == 0) {
+                    // ringbuffer fully drained after EOF: park reader as unprimed
+                    isPrimed = false;
+                    // reset position so UI shows 0:00 when READY
+                    framesProcessed.store(0, std::memory_order_relaxed);
+                }
             }
         }
 
         // open file for reading - from any thread
         bool open(const std::string &path) {
+            std::lock_guard<std::mutex> lifecycleLock(this->lifecycleMutex);
             if (SfStream::isRunning) {
                 std::cout << "Tape Reader::open(): stream is running; no action was taken" << std::endl;
                 return false;
+            }
+            if (this->th && this->th->joinable()) {
+                this->shouldStop = true;
+                this->cv.notify_one();
+                this->th->join();
             }
 
             SF_INFO sfInfo;
@@ -730,6 +784,7 @@ class Tape {
                 return false;
             }
             frames = static_cast<size_t>(sfInfo.frames);
+            fileSampleRate = static_cast<float>(sfInfo.samplerate);
             std::cout << "Tape Reader:: file size " << frames << " samples" << std::endl;
             inChannels = sfInfo.channels;
             if (inChannels > NumChannels) {
@@ -839,6 +894,7 @@ class Tape {
                         if (sf_error(this->file) != SF_ERR_NO_ERROR) {
                             this->status = EIO;
                         }
+                        // mark stop; tail will decide park vs close
                         SfStream::shouldStop = true;
                     }
                 }
@@ -854,9 +910,23 @@ class Tape {
                     this->needsData = false;
                 }
             }
-            sf_close(this->file);
-            this->file = nullptr;
-            isPrimed = false;
+            // on stop, either park (keep file open, rewind) or close file
+            bool explicitStop = (SfStream::transportState == TransportState::Stopping);
+            if (!explicitStop && this->status == 0 && !loopFile) {
+                // rewind to start and clear buffers; remain ready with file loaded
+                if (sf_seek(this->file, 0, SEEK_SET) == -1) {
+                    this->status = EIO;
+                    sf_close(this->file);
+                    this->file = nullptr;
+                    isPrimed = false;
+                }
+            } else {
+                // fully close file and reset buffers
+                sf_close(this->file);
+                this->file = nullptr;
+                jack_ringbuffer_reset(this->ringBuf.get());
+                isPrimed = false;
+            }
             SfStream::isRunning = false;
         }
 
@@ -864,13 +934,18 @@ class Tape {
 
     Writer writer;
     Reader reader;
+    std::atomic<float> systemSampleRate{48000.f};
 
   public:
     bool isWriting() const noexcept {
-        return writer.isRunning.load();
+        return writer.isRunning.load(std::memory_order_relaxed);
     }
     bool isReading() const noexcept {
-        return reader.isRunning.load();
+        return reader.isRunning.load(std::memory_order_relaxed);
+    }
+    // true while ringbuffer is primed with audio for playback
+    bool playbackIsPrimed() const noexcept {
+        return reader.isPrimed.load(std::memory_order_relaxed);
     }
     bool isLooping() const noexcept {
         return reader.getLoopFile();
@@ -895,6 +970,37 @@ class Tape {
                 reader.resume();
             }
         }
+    }
+
+    void setSampleRate(float sr) {
+        systemSampleRate = sr;
+    }
+    float getSampleRate() const {
+        return systemSampleRate;
+    }
+    bool playbackHasFile() const {
+        return reader.file != nullptr;
+    }
+    bool recordHasFile() const {
+        return writer.file != nullptr;
+    }
+    bool playbackIsPaused() const {
+        return reader.isPaused();
+    }
+    bool recordIsPaused() const {
+        return writer.isPaused();
+    }
+    size_t playbackFramesProcessed() const {
+        return reader.framesProcessed.load(std::memory_order_relaxed);
+    }
+    size_t playbackFramesTotal() const {
+        return reader.frames.load(std::memory_order_relaxed);
+    }
+    float playbackFileSampleRate() const {
+        return reader.fileSampleRate.load(std::memory_order_relaxed);
+    }
+    size_t recordFramesCaptured() const {
+        return writer.numFramesCaptured.load(std::memory_order_relaxed);
     }
 };
 

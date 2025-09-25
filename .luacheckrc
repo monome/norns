@@ -399,15 +399,6 @@ files["lua/core/menu/system.lua"] = {
     },
 }
 
-files["lua/core/menu/tape.lua"] = {
-    ignore = {
-        "111", -- setting new global variable
-        "113", -- accessing undefined variable
-        "211", -- unused local variable
-        "212", -- unused argument
-    },
-}
-
 files["lua/core/menu/update.lua"] = {
     ignore = {
         "211", -- unused variable
