@@ -1,3 +1,17 @@
+# 250926
+
+# norns 2.9.3
+
+- NEW TAPE features: looping, scripting api, internal overhaul #1862 #1857
+@colinmcardell
+- NEW CM4S added support #1856 @ngwese
+- NEW screen events for image surfaces #1834 @tlubke
+- NEW feature/testing framework #1855 @colinmcardell
+- FIX tons of linting, checking, container, and docker fixes @dewb @colinmcardell
+- FIX util string.startswith nil check #1860 @tehn
+- FIX tab.readonly pairs #1859 @tylerlubke
+
+
 # 250530
 
 # norns 2.9.2
