@@ -122,7 +122,8 @@ local function sdl_to_ev_code(dev, entry)
     local v = tonumber(mask)
     local e = { type = "ABS",
                 sdl = entry, sdl_logical = logical,
-                logical = rework_sdl_abs_name(logical) }
+                logical = rework_sdl_abs_name(logical),
+                hat = h }
     -- TODO: handle `.invert`
     if     v == 1 then e.code, e.value = hid_events.codes.ABS_HAT0Y, -1  -- up    => Y -1
     elseif v == 2 then e.code, e.value = hid_events.codes.ABS_HAT0X,  1  -- right => X +1
