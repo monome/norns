@@ -34,6 +34,17 @@ norns.pmap = require 'core/pmap'
 -- load menu
 require 'core/menu'
 
+-- wire tape callbacks to audio.tape
+_norns.tape_status = function(ps, pp, pl, rs, rp, loop)
+  audio.tape._on_status(ps, pp, pl, rs, rp, loop)
+end
+_norns.tape_play_file = function(path)
+  audio.tape._on_play_file(path)
+end
+_norns.tape_rec_file = function(path)
+  audio.tape._on_rec_file(path)
+end
+
 -- global include function
 function include(file)
   local dirs = {norns.state.path, _path.code, _path.extn}
@@ -69,6 +80,8 @@ _norns.startup_status.ok = function()
   norns.state.resume()
   -- turn on VU
   _norns.poll_start_vu()
+  -- start tape state polling
+  _norns.poll_start_tape()
   -- report engines
   _norns.report_engines()
   wifi.init()

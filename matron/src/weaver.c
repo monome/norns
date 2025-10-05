@@ -217,6 +217,8 @@ static int _poll_start_vu(lua_State *l);
 static int _poll_stop_vu(lua_State *l);
 static int _poll_start_cut_phase(lua_State *l);
 static int _poll_stop_cut_phase(lua_State *l);
+static int _poll_start_tape(lua_State *l);
+static int _poll_stop_tape(lua_State *l);
 
 // tape control
 static int _tape_rec_open(lua_State *l);
@@ -424,6 +426,8 @@ void w_init(void) {
     lua_register_norns("poll_stop_vu", &_poll_stop_vu);
     lua_register_norns("poll_start_cut_phase", &_poll_start_cut_phase);
     lua_register_norns("poll_stop_cut_phase", &_poll_stop_cut_phase);
+    lua_register_norns("poll_start_tape", &_poll_start_tape);
+    lua_register_norns("poll_stop_tape", &_poll_stop_tape);
 
     // cut
     lua_register_norns("level_adc_cut", &_set_level_adc_cut);
@@ -2811,6 +2815,45 @@ void w_handle_poll_softcut_phase(int idx, float val) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
+void w_handle_tape_status(int play_state, float play_pos_s, float play_len_s, int rec_state, float rec_pos_s, int loop_enabled) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "tape_status");
+    lua_remove(lvm, -2);
+    lua_pushinteger(lvm, play_state);
+    lua_pushnumber(lvm, play_pos_s);
+    lua_pushnumber(lvm, play_len_s);
+    lua_pushinteger(lvm, rec_state);
+    lua_pushnumber(lvm, rec_pos_s);
+    lua_pushinteger(lvm, loop_enabled);
+    l_report(lvm, l_docall(lvm, 6, 0));
+}
+
+void w_handle_tape_play_file(const char *path) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "tape_play_file");
+    lua_remove(lvm, -2);
+    if (path) {
+        lua_pushstring(lvm, path);
+        l_report(lvm, l_docall(lvm, 1, 0));
+    } else {
+        lua_pushnil(lvm);
+        l_report(lvm, l_docall(lvm, 1, 0));
+    }
+}
+
+void w_handle_tape_rec_file(const char *path) {
+    lua_getglobal(lvm, "_norns");
+    lua_getfield(lvm, -1, "tape_rec_file");
+    lua_remove(lvm, -2);
+    if (path) {
+        lua_pushstring(lvm, path);
+        l_report(lvm, l_docall(lvm, 1, 0));
+    } else {
+        lua_pushnil(lvm);
+        l_report(lvm, l_docall(lvm, 1, 0));
+    }
+}
+
 void w_handle_softcut_render(int idx, float sec_per_sample, float start, size_t size, float *data) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "softcut_render");
@@ -3039,6 +3082,18 @@ int _poll_start_cut_phase(lua_State *l) {
 
 int _poll_stop_cut_phase(lua_State *l) {
     o_poll_stop_cut_phase();
+    return 0;
+}
+
+int _poll_start_tape(lua_State *l) {
+    (void)l;
+    o_poll_start_tape();
+    return 0;
+}
+
+int _poll_stop_tape(lua_State *l) {
+    (void)l;
+    o_poll_stop_tape();
     return 0;
 }
 

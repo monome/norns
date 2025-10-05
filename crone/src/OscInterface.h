@@ -50,6 +50,7 @@ class OscInterface {
     static std::array<OscMethod, MaxNumMethods> methods;
     static std::unique_ptr<Poll> vuPoll;
     static std::unique_ptr<Poll> phasePoll;
+    static std::unique_ptr<Poll> tapePoll;
     static MixerClient *mixerClient;
     static SoftcutClient *softCutClient;
 

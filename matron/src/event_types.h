@@ -102,6 +102,13 @@ typedef enum {
     EVENT_SERIAL_REMOVE,
     // generic serial device event
     EVENT_SERIAL_EVENT,
+    // tape status poll (play/rec state & positions)
+    EVENT_TAPE_STATUS,
+    // tape file notifications
+    EVENT_TAPE_PLAY_FILE,
+    EVENT_TAPE_RECORD_FILE,
+    EVENT_TAPE_PLAY_CLOSE,
+    EVENT_TAPE_RECORD_CLOSE,
 } event_t;
 
 // a packed data structure for four volume levels
@@ -280,6 +287,21 @@ struct event_poll_softcut_phase {
     float value;
 }; // + 8
 
+struct event_tape_status {
+    struct event_common common;
+    int play_state;
+    float play_pos_s;
+    float play_len_s;
+    int rec_state;
+    float rec_pos_s;
+    int loop_enabled;
+}; // + 24
+
+struct event_tape_file {
+    struct event_common common;
+    char *path;
+}; // + 4
+
 struct event_poll_data {
     struct event_common common;
     uint32_t idx;
@@ -418,4 +440,6 @@ union event_data {
     struct event_serial_remove serial_remove;
     struct event_serial_event serial_event;
     struct event_custom custom;
+    struct event_tape_status tape_status;
+    struct event_tape_file tape_file;
 };

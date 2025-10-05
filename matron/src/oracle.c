@@ -110,14 +110,23 @@ static int handle_poll_io_levels(const char *path, const char *types, lo_arg **a
 static int handle_poll_softcut_phase(const char *path, const char *types, lo_arg **argv, int argc,
                                      lo_message data, void *user_data);
 
+static int handle_poll_tape_status(const char *path, const char *types, lo_arg **argv, int argc,
+                                   lo_message data, void *user_data);
+
 static int handle_softcut_render(const char *path, const char *types, lo_arg **argv, int argc,
                                  lo_message data, void *user_data);
 
 static int handle_softcut_position(const char *path, const char *types, lo_arg **argv, int argc,
                                    lo_message data, void *user_data);
 
-static int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, int argc,
+static int handle_tape_play_open(const char *path, const char *types, lo_arg **argv, int argc,
+                                 lo_message data, void *user_data);
+static int handle_tape_record_open(const char *path, const char *types, lo_arg **argv, int argc,
+                                   lo_message data, void *user_data);
+static int handle_tape_play_close(const char *path, const char *types, lo_arg **argv, int argc,
                                   lo_message data, void *user_data);
+static int handle_tape_record_close(const char *path, const char *types, lo_arg **argv, int argc,
+                                    lo_message data, void *user_data);
 
 static void lo_error_handler(int num, const char *m, const char *path);
 
@@ -180,8 +189,13 @@ void o_init(void) {
     lo_server_thread_add_method(st, "/poll/vu", "b", handle_poll_io_levels, NULL);
     // softcut polls
     lo_server_thread_add_method(st, "/poll/softcut/phase", "if", handle_poll_softcut_phase, NULL);
+    // tape status poll
+    lo_server_thread_add_method(st, "/poll/tape", "iffifi", handle_poll_tape_status, NULL);
     // tape reports
-    lo_server_thread_add_method(st, "/tape/play/state", "s", handle_tape_play_state, NULL);
+    lo_server_thread_add_method(st, "/tape/play/open", "s", handle_tape_play_open, NULL);
+    lo_server_thread_add_method(st, "/tape/play/close", "", handle_tape_play_close, NULL);
+    lo_server_thread_add_method(st, "/tape/record/open", "s", handle_tape_record_open, NULL);
+    lo_server_thread_add_method(st, "/tape/record/close", "", handle_tape_record_close, NULL);
 
     // softcut buffer content
     lo_server_thread_add_method(st, "/softcut/buffer/render_callback", "iffb", handle_softcut_render, NULL);
@@ -421,6 +435,14 @@ void o_poll_start_cut_phase() {
 
 void o_poll_stop_cut_phase() {
     lo_send(crone_addr, "/poll/stop/cut/phase", NULL);
+}
+
+void o_poll_start_tape() {
+    lo_send(crone_addr, "/poll/start/tape", NULL);
+}
+
+void o_poll_stop_tape() {
+    lo_send(crone_addr, "/poll/stop/tape", NULL);
 }
 
 void o_set_level_adc(float level) {
@@ -822,11 +844,76 @@ int handle_poll_softcut_phase(const char *path, const char *types, lo_arg **argv
     return 0;
 }
 
-int handle_tape_play_state(const char *path, const char *types, lo_arg **argv, int argc,
-                           lo_message data, void *user_data) {
+int handle_poll_tape_status(const char *path, const char *types, lo_arg **argv, int argc,
+                            lo_message data, void *user_data) {
+    (void)path;
+    (void)types;
+    (void)data;
+    (void)user_data;
+    // expect 6 args: i f f i f i
+    if (argc < 6) {
+        return 0;
+    }
+    union event_data *ev = event_data_new(EVENT_TAPE_STATUS);
+    ev->tape_status.play_state = argv[0]->i;
+    ev->tape_status.play_pos_s = argv[1]->f;
+    ev->tape_status.play_len_s = argv[2]->f;
+    ev->tape_status.rec_state = argv[3]->i;
+    ev->tape_status.rec_pos_s = argv[4]->f;
+    ev->tape_status.loop_enabled = argv[5]->i;
+    event_post(ev);
+    return 0;
+}
 
-    // assert(argc > 0);
-    // fprintf(stderr, "tape_play_status %s\n", &argv[0]->s);
+int handle_tape_play_open(const char *path, const char *types, lo_arg **argv, int argc,
+                          lo_message data, void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)data;
+    (void)user_data;
+    union event_data *ev = event_data_new(EVENT_TAPE_PLAY_FILE);
+    ev->tape_file.path = strdup(&argv[0]->s);
+    event_post(ev);
+    return 0;
+}
+
+int handle_tape_play_close(const char *path, const char *types, lo_arg **argv, int argc,
+                           lo_message data, void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argv;
+    (void)argc;
+    (void)data;
+    (void)user_data;
+    union event_data *ev = event_data_new(EVENT_TAPE_PLAY_CLOSE);
+    event_post(ev);
+    return 0;
+}
+
+int handle_tape_record_open(const char *path, const char *types, lo_arg **argv, int argc,
+                            lo_message data, void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argc;
+    (void)data;
+    (void)user_data;
+    union event_data *ev = event_data_new(EVENT_TAPE_RECORD_FILE);
+    ev->tape_file.path = strdup(&argv[0]->s);
+    event_post(ev);
+    return 0;
+}
+
+int handle_tape_record_close(const char *path, const char *types, lo_arg **argv, int argc,
+                             lo_message data, void *user_data) {
+    (void)path;
+    (void)types;
+    (void)argv;
+    (void)argc;
+    (void)data;
+    (void)user_data;
+    union event_data *ev = event_data_new(EVENT_TAPE_RECORD_CLOSE);
+    event_post(ev);
     return 0;
 }
 
