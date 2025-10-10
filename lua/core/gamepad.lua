@@ -122,7 +122,7 @@ local function sdl_to_ev_code(dev, entry)
     return
   end
 
-  -- b(uttons) = EV_KEY: bN  (N is 0-based)
+  -- b(uttons) = EV_KEY: b<N>  (N is 0-indexed)
   local n = phys:match("^b(%d+)$")
   if n then
     local idx = tonumber(n) + 1
@@ -132,7 +132,7 @@ local function sdl_to_ev_code(dev, entry)
              code = dev.codes[hid_events.types.EV_KEY][idx] }
   end
 
-  -- a(xes) = EV_ABS: aN, aN~, aN+, aN-
+  -- a(xes) = EV_ABS: a<N>, a<N>~, a<N>+, a<N>-
   local mod, a_idx = phys:match("^([~%+%-]?)a(%d+)$")
   if a_idx then
     local idx = tonumber(a_idx) + 1
@@ -147,7 +147,7 @@ local function sdl_to_ev_code(dev, entry)
     return e
   end
 
-  -- h(ats) = ABS_HAT0*: hH.V  (V: 1=up, 2=right, 4=down, 8=left)
+  -- h(ats) = ABS_HAT<H>*: h<H>.<V>  (V: 1=up, 2=right, 4=down, 8=left)
   -- typically dpad, though dpads can sometimes be analog...
   local h_idx, mask = phys:match("^h(%d+)%.(%d+)$")
   if h_idx then
