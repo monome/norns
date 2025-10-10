@@ -196,7 +196,8 @@ local function parse_sdl_profile(dev, raw_sdl_profile)
     analog_axis_o_margin = {},
     analog_axis_resolution = {},
     axis_invert = {},
-    dpad_is_analog = true,
+    dpad_is_analog = false,
+    dpad_mapping = {},
   }
 
   local guid, name, rest = raw_sdl_profile:match("^([^,]+),([^,]+),(.+)$")
@@ -214,20 +215,25 @@ local function parse_sdl_profile(dev, raw_sdl_profile)
           profile.button[mapping.logical] = mapping.code
         end
       elseif mapping.type == 'ABS' then
-        local abs_keycode = gamepad.axis_code_2_keycode(mapping.code)
         if mapping.abs_keycode and mapping.logical then
           profile.axis_mapping[mapping.abs_keycode] = mapping.logical
-          profile.axis_invert[mapping.abs_keycode] = mapping.invert and true or false
-
           local absinfo = dev.absinfos[mapping.code]
           if absinfo then -- if analog
             if tab.contains({'dpdup', 'dpdown', 'dpleft', 'dpright'}, mapping.sdl_logical) then
               profile.dpad_is_analog = true
             end
-            profile.analog_axis_resolution[abs_keycode] = math.abs(absinfo.min) + math.abs(absinfo.max)
-            profile.analog_axis_o[abs_keycode] = (math.abs(absinfo.max) - math.abs(absinfo.min))/2
+            profile.axis_invert[mapping.abs_keycode] = mapping.invert and true or false
+            profile.analog_axis_resolution[mapping.abs_keycode] = math.abs(absinfo.min) + math.abs(absinfo.max)
+            profile.analog_axis_o[mapping.abs_keycode] = (math.abs(absinfo.max) - math.abs(absinfo.min))/2
             if absinfo.flat then
-              profile.analog_axis_o_margin[abs_keycode] = math.max(absinfo.flat or 0, absinfo.fuzz or 0)
+              profile.analog_axis_o_margin[mapping.abs_keycode] = math.max(absinfo.flat or 0, absinfo.fuzz or 0)
+            end
+          else -- digital, i.e. HAT
+            if tab.contains({'dpdup', 'dpdown', 'dpleft', 'dpright'}, mapping.sdl_logical) then
+              -- NB: we do a dirty trick: multiply orientaiton (e.value) with raw code value
+              -- this allows a fast reverse table lookup in `gamepad.process`
+              -- but it makes the format different from other mappings where we use `abs_keycode` (human-readable) instead of `code`
+              profile.dpad_mapping[mapping.sdl_logical] = e.value * e.code
             end
           end
         end
@@ -403,6 +409,16 @@ function gamepad.sensor_axis_to_states(sensor_axis)
     rightx = {'RRIGHT', 'RLEFT'},
     lefttrigger = {nil, 'TLEFT'},
     righttrigger = {nil, 'TRIGHT'},
+  }
+  return mapping[sensor_axis]
+end
+
+function gamepad.dpad_dir_to_axis_and_val(dpad_dir)
+  local mapping = {
+    dpdup   = { dpady, -1 },
+    dpdown  = { dpady, 1 },
+    dpleft  = { dpadx, 1 },
+    dpright = { dpadx, -1 },
   }
   return mapping[sensor_axis]
 end
@@ -604,10 +620,24 @@ function gamepad.process(gamepad_profile, typ, code, val, do_log_event)
     -- TODO: handle relative axes?
 
     local is_analog = gamepad.is_axis_keycode_analog(axis_keycode)
-    local is_dpad = true
-    if is_analog and (not gamepad_profile.dpad_is_analog) then
-      is_dpad = false
+    local is_dpad = false
+    if not is_analog and not gamepad_profile.dpad_is_analog then
+      local dpad_dir = tab.invert(dpad_mapping)[val * code]
+      local is_dpad = (dpad_dir ~= nil)
+      -- NB: we don't know about any digital ABS event not mapped to the dpad
+      if not is_dpad then
+        return
+      end
+
+      -- NB: we don't rely on the `code` -> `keycode` -> `axis` translation logic as what we have here as some controllers are wacky and use non-standard mappings
+      -- instead we rely on our known mapping from our profile
+      axis, val = gamepad.dpad_dir_to_axis_and_val(dpad_dir)
     end
+
+    -- local is_dpad = false
+    -- if is_analog and (not gamepad_profile.dpad_is_analog) then
+    --   is_dpad = false
+    -- end
 
     local is_button = false
     local btn_state = false
