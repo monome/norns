@@ -2,7 +2,7 @@
 local hid_events = require 'hid_events'
 local tab = require 'tabutil'
 
-local gamepad_db = require 'gamepad_db'
+local gamepad = require 'gamepad'
 
 
 local HidDeviceClass = {}
@@ -59,7 +59,7 @@ HidDeviceClass.lookup_gamepad_profile = function(device)
     return false
   end
 
-  return gamepad_db.lookup(device)
+  return gamepad.lookup_profile(device)
 end
 
 HidDeviceClass.is_tablet = function(device)
