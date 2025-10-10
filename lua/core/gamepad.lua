@@ -388,8 +388,8 @@ end
 -- - lefty / leftx (left analog stick)
 -- - righty / rightx (right stick)
 -- - lefttrigger / righttrigger (analog shoulder buttons)
-function gamepad.axis_keycode_to_sensor_axis(gamepad_conf, axis_keycode)
-  return gamepad_conf.axis_mapping[axis_keycode]
+function gamepad.axis_keycode_to_sensor_axis(gamepad_profile, axis_keycode)
+  return gamepad_profile.axis_mapping[axis_keycode]
 end
 
 -- normalized sensor axis -> normalized states
@@ -504,22 +504,22 @@ end
 
 --- Returns true if value for axis is around origin
 -- i.e. when joystick / d-pad is not actioned
-function gamepad.is_analog_origin(gamepad_conf, axis_keycode, value)
-  local origin = gamepad_conf.analog_axis_o[axis_keycode]
+function gamepad.is_analog_origin(gamepad_profile, axis_keycode, value)
+  local origin = gamepad_profile.analog_axis_o[axis_keycode]
   if origin == nil then
     origin = 0
   end
-  local noize_margin = gamepad_conf.analog_axis_o_margin[axis_keycode]
+  local noize_margin = gamepad_profile.analog_axis_o_margin[axis_keycode]
   if noize_margin == nil then
     noize_margin = 0
   end
   return ( value >= (origin - noize_margin) and value <= (origin + noize_margin))
 end
 
-local function normalized_analog_button_val(gamepad_conf, axis_keycode, val)
-  local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
+local function normalized_analog_button_val(gamepad_profile, axis_keycode, val)
+  local reso = gamepad_profile.analog_axis_resolution[axis_keycode]
 
-  if gamepad.is_analog_origin(gamepad_conf, axis_keycode, val) then
+  if gamepad.is_analog_origin(gamepad_profile, axis_keycode, val) then
     val = 0
   end
 
@@ -529,7 +529,7 @@ local function normalized_analog_button_val(gamepad_conf, axis_keycode, val)
     state = true
   end
 
-  if gamepad_conf.axis_invert[axis_keycode] then
+  if gamepad_profile.axis_invert[axis_keycode] then
     state = not state
   end
 
@@ -540,12 +540,12 @@ local function normalized_analog_button_val(gamepad_conf, axis_keycode, val)
   return {val, state, sign}
 end
 
-local function normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
-  local origin = gamepad_conf.analog_axis_o[axis_keycode]
-  local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
+local function normalized_analog_direction_val(gamepad_profile, axis_keycode, val)
+  local origin = gamepad_profile.analog_axis_o[axis_keycode]
+  local reso = gamepad_profile.analog_axis_resolution[axis_keycode]
   local half_reso = reso / 2
 
-  if gamepad.is_analog_origin(gamepad_conf, axis_keycode, val) then
+  if gamepad.is_analog_origin(gamepad_profile, axis_keycode, val) then
     val = 0
   else
     val = val - origin
@@ -564,7 +564,7 @@ end
 -- ------------------------------------------------------------------------
 -- incoming events
 
-function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
+function gamepad.process(gamepad_profile, typ, code, val, do_log_event)
 
   local event_code_type
   for k, v in pairs(hid_events.types) do
@@ -574,9 +574,9 @@ function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
     end
   end
 
-  local gamepad_alias = gamepad_conf.alias
+  local gamepad_alias = gamepad_profile.alias
 
-  local do_log_event = gamepad.is_loggable_event(gamepad_conf, event_code_type, code, val)
+  local do_log_event = gamepad.is_loggable_event(gamepad_profile, event_code_type, code, val)
 
   if do_log_event and debug_level >= 2 then
     local keycode = gamepad.code_2_keycode(event_code_type, code)
@@ -591,7 +591,7 @@ function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
 
   if event_code_type == gamepad.events.EV_ABS then
     local axis_keycode = gamepad.axis_code_2_keycode(code)
-    local sensor_axis = gamepad.axis_keycode_to_sensor_axis(gamepad_conf, axis_keycode)
+    local sensor_axis = gamepad.axis_keycode_to_sensor_axis(gamepad_profile, axis_keycode)
     local axis = gamepad.sensor_axis_to_axis(sensor_axis)
 
     local sign
@@ -605,13 +605,13 @@ function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
 
     local is_analog = gamepad.is_axis_keycode_analog(axis_keycode)
     local is_dpad = true
-    if is_analog and (not gamepad_conf.dpad_is_analog) then
+    if is_analog and (not gamepad_profile.dpad_is_analog) then
       is_dpad = false
     end
 
     local is_button = false
     local btn_state = false
-    button_name = gamepad.analog_axis_keycode_2_button(gamepad_conf, axis_keycode)
+    button_name = gamepad.analog_axis_keycode_2_button(gamepad_profile, axis_keycode)
     if button_name then
       is_button = true
     end
@@ -619,12 +619,12 @@ function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
     if is_analog then
 
       if is_button then
-        local normalized = normalized_analog_button_val(gamepad_conf, axis_keycode, val)
+        local normalized = normalized_analog_button_val(gamepad_profile, axis_keycode, val)
         val = normalized[1]
         btn_state = normalized[2]
         sign = normalized[3]
       else
-        local normalized = normalized_analog_direction_val(gamepad_conf, axis_keycode, val)
+        local normalized = normalized_analog_direction_val(gamepad_profile, axis_keycode, val)
         val = normalized[1]
         sign = normalized[2]
       end
@@ -641,17 +641,17 @@ function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
     -- register state
     local btn_val = 0
     if is_button then
-      gamepad.register_analog_button_state(sensor_axis, btn_state, gamepad_conf.axis_invert[axis_keycode])
+      gamepad.register_analog_button_state(sensor_axis, btn_state, gamepad_profile.axis_invert[axis_keycode])
       if do_log_event and debug_level >= 1 then print("BUTTON: " .. button_name .. " " .. tostring(btn_state)) end
       gamepad.register_button_state(button_name, btn_state)
     else
-      gamepad.register_direction_state(sensor_axis, sign, gamepad_conf.axis_invert[axis_keycode], do_log_event)
+      gamepad.register_direction_state(sensor_axis, sign, gamepad_profile.axis_invert[axis_keycode], do_log_event)
     end
 
     -- callbacks
     -- - gamepad.analog()
     if is_analog and val ~= prev_dir_v[axis_keycode] then
-      local reso = gamepad_conf.analog_axis_resolution[axis_keycode]
+      local reso = gamepad_profile.analog_axis_resolution[axis_keycode]
       local half_reso = reso / 2
       local reported_reso = is_button and reso or half_reso
       local dbg_reso = (val >= 0) and reported_reso or -reported_reso
@@ -683,7 +683,7 @@ function gamepad.process(gamepad_conf, typ, code, val, do_log_event)
 
 
   if event_code_type == gamepad.events.EV_KEY then
-    button_name = gamepad.code_2_button(gamepad_conf, code)
+    button_name = gamepad.code_2_button(gamepad_profile, code)
     if button_name then
 
       local btn_state = false
@@ -705,14 +705,14 @@ end
 -- debug
 
 --- Predicate that returns true only on non-reset values (i.e. on key/joystick presses)
-function gamepad.is_loggable_event(gamepad_conf,event_code_type,code,val)
+function gamepad.is_loggable_event(gamepad_profile, event_code_type, code, val)
   if event_code_type == gamepad.events.EV_KEY then
     return true
   end
   if event_code_type == gamepad.events.EV_ABS then
     local axis_keycode = gamepad.code_2_keycode(event_code_type, code)
     if gamepad.is_axis_keycode_analog(axis_keycode) then
-      return not gamepad.is_analog_origin(gamepad_conf,axis_keycode,val)
+      return not gamepad.is_analog_origin(gamepad_profile, axis_keycode, val)
     else
       return (val ~= 0)
     end
@@ -725,16 +725,16 @@ end
 
 
 --- Returns button name associated w/ (non-axis) key code
-function gamepad.code_2_button(gamepad_conf, code)
-  if gamepad_conf.button == nil then return end
-  local code_2_button = tab.invert(gamepad_conf.button)
+function gamepad.code_2_button(gamepad_profile, code)
+  if gamepad_profile.button == nil then return end
+  local code_2_button = tab.invert(gamepad_profile.button)
   return code_2_button[code]
 end
 
 --- Returns button name associated w/ analog axis key code
-function gamepad.analog_axis_keycode_2_button(gamepad_conf, axis_keycode)
-  if gamepad_conf.analog_button == nil then return end
-  local code_2_button = tab.invert(gamepad_conf.analog_button)
+function gamepad.analog_axis_keycode_2_button(gamepad_profile, axis_keycode)
+  if gamepad_profile.analog_button == nil then return end
+  local code_2_button = tab.invert(gamepad_profile.analog_button)
   return code_2_button[axis_keycode]
 end
 
