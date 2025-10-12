@@ -1,6 +1,12 @@
+[submodule "third-party/doctest"]
+	path = third-party/doctest
+	url = https://github.com/doctest/doctest.git
 [submodule "third-party/link"]
 	path = third-party/link
 	url = https://github.com/Ableton/link.git
+[submodule "third-party/trompeloeil"]
+	path = third-party/trompeloeil
+	url = https://github.com/rollbear/trompeloeil.git
 [submodule "crone/softcut"]
 	path = crone/softcut
 	url = https://github.com/monome/softcut-lib.git
