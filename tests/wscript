@@ -1,0 +1,736 @@
+"""tests/wscript - test runner for C/C++ units.
+
+discovers `test_*.cpp` files under `tests/` and builds one test binary per
+test_*/directory. mirrors test locations to source files in `<module>/src/` using
+simple name mapping rules. supports a dry-run to print discovery results without
+building and a self-test that validates core logic.
+
+notes:
+- enables `NORNS_TEST` seams during tests.
+- accepts extra defines via `NORNS_TEST_DEFINES` env var (comma/semicolon list).
+- recognizes camelcase and underscore variants when mapping to system sources.
+"""
+
+top = ".."
+
+import os
+import sys
+
+from collections.abc import Iterable
+from dataclasses import dataclass
+from typing import Any, Dict, List, Set, Tuple
+from waflib import Logs
+from waflib.Build import BuildContext
+
+Node = Any  # waflib.Node.Node at runtime
+
+
+@dataclass
+class TestRunnerConfig:
+    """compiler configuration shared across all tests.
+
+    holds include paths, compiler flags, and preprocessor defines.
+
+    Args:
+        includes: list of include directory paths.
+        cflags: list of C compiler flags.
+        cxxflags: list of C++ compiler flags.
+        defines: list of preprocessor defines.
+    """
+
+    includes: List[str]
+    cflags: List[str]
+    cxxflags: List[str]
+    defines: List[str]
+
+
+@dataclass
+class TestSources:
+    """source files collected for a single test unit.
+
+    holds test files, helper sources, system sources, and includes.
+
+    Args:
+        test_files: set of test file nodes.
+        unit_helpers: list of unit-specific helper source nodes.
+        common_helpers: list of common helper source nodes.
+        system_sources: list of system source nodes to compile.
+        system_headers: list of system header-only nodes (not compiled).
+        common_includes: list of common include directory paths.
+        unit_dir: waf node for the test unit directory.
+    """
+
+    test_files: Set[Node]
+    unit_helpers: List[Node]
+    common_helpers: List[Node]
+    system_sources: List[Node]
+    system_headers: List[Node]
+    common_includes: List[str]
+    unit_dir: Node
+
+    def has_c_sources(self) -> bool:
+        """check if any sources are C files."""
+        return (
+            any(h.abspath().endswith(".c") for h in self.unit_helpers)
+            or any(h.abspath().endswith(".c") for h in self.common_helpers)
+            or any(n.abspath().endswith(".c") for n in self.system_sources)
+        )
+
+    def assemble_for_build(self, tests_root: Node) -> List[str]:
+        """convert nodes to relative paths for waf.
+
+        includes `common/test_main.cpp`, all test files, helper sources, and
+        system sources that are compileable. header-only mappings are not
+        returned because they are not compiled.
+
+        Args:
+            tests_root: root node of the tests tree.
+
+        Returns:
+            list of source file paths relative to tests root.
+        """
+        main_source = ["common/test_main.cpp"]
+        test_sources = sorted([f.path_from(tests_root) for f in self.test_files])
+        unit_helpers = [h.path_from(tests_root) for h in self.unit_helpers]
+        common_helpers = [h.path_from(tests_root) for h in self.common_helpers]
+        # only compilable sources are passed to waf; headers are tracked separately
+        system_sources = [n.path_from(tests_root) for n in self.system_sources]
+        return (
+            main_source + test_sources + unit_helpers + common_helpers + system_sources
+        )
+
+
+@dataclass
+class TestUnit:
+    """metadata for a single test binary target.
+
+    Args:
+        test_dir: directory path relative to tests root.
+        target: waf target name for this test binary.
+        sources: TestSources collected for this test unit.
+
+    """
+
+    test_dir: str
+    target: str
+    sources: TestSources
+
+    def system_source_count(self) -> int:
+        """count of system sources mapped for this test.
+
+        counts both compiled sources and header-only mappings.
+        """
+        return len(self.sources.system_sources) + len(self.sources.system_headers)
+
+    def test_source_count(
+        self,
+        tests_root: Node,
+    ) -> int:
+        """count of test sources (total minus compiled system sources).
+
+        only compiled system sources appear in the assembled list; headers do not.
+
+        Args:
+            tests_root: root node of the tests tree.
+
+        Returns:
+            count of test source files for this unit.
+        """
+        total = len(self.sources.assemble_for_build(tests_root))
+        compiled_system = len(self.sources.system_sources)
+        return total - compiled_system
+
+    def source_paths(
+        self,
+        tests_root: Node,
+    ) -> List[str]:
+        """get all source paths for waf build (relative to tests root).
+
+        Args:
+            tests_root: root node of the tests tree.
+
+        Returns:
+            list of source file paths for this test unit.
+        """
+        return self.sources.assemble_for_build(tests_root)
+
+
+def _abs(
+    path: str,
+    bld: BuildContext,
+) -> str:
+    """resolve a relative path to an absolute filesystem path using waf nodes.
+
+    Args:
+        path: relative path to resolve.
+        bld: waf build context - provides `path.make_node`.
+
+    Returns:
+        absolute path string corresponding to `path`.
+    """
+    node = bld.path.make_node(path)
+    return node.abspath()
+
+
+def _setup_includes_and_flags(bld: BuildContext) -> TestRunnerConfig:
+    """collect shared include paths and compiler flags for all tests.
+
+    Args:
+        bld: waf build context - contains env variables such as CFLAGS, DEFINES.
+
+    Returns:
+        TestRunnerConfig with includes, cflags, cxxflags, and defines.
+    """
+    # common include paths available to all tests
+    includes = [
+        _abs("../third-party/doctest", bld),
+        _abs("../third-party/trompeloeil/include", bld),
+        _abs("../tests/common", bld),
+        _abs("../matron/src", bld),
+        _abs("../crone/src", bld),
+        _abs("../ws-wrapper/src", bld),
+        _abs("../maiden-repl/src", bld),
+    ]
+
+    cflags = list(getattr(bld.env, "CFLAGS", []) or [])
+    cxxflags = list(getattr(bld.env, "CXXFLAGS", []) or [])
+    defines = list(getattr(bld.env, "DEFINES", []) or [])
+
+    # enable test seams
+    if "NORNS_TEST" not in defines:
+        defines.append("NORNS_TEST")
+    if "-Wno-psabi" not in cxxflags:
+        cxxflags.append("-Wno-psabi")
+
+    # allow extra preprocessor defines from environment for toggling fixes, etc.
+    # usage: NORNS_TEST_DEFINES="FOO=1,BAR" ./test.sh
+    extra_defines = os.environ.get("NORNS_TEST_DEFINES")
+    if extra_defines:
+        for d in [
+            s.strip() for s in extra_defines.replace(";", ",").split(",") if s.strip()
+        ]:
+            if d not in defines:
+                defines.append(d)
+
+    return TestRunnerConfig(
+        includes=includes, cflags=cflags, cxxflags=cxxflags, defines=defines
+    )
+
+
+def _discover_test_dirs(bld: BuildContext) -> Tuple[Node, Dict[str, Set[Node]]]:
+    """find all `test_*.cpp` files and group them by directory.
+
+    Args:
+        bld: waf build context - `bld.path` is the tests root node.
+
+    Returns:
+        tuple of (tests_root_node, mapping of test_dir path → set of file nodes).
+
+    Raises:
+        fatal error if no test files are discovered.
+    """
+    # find all test_*.cpp files and group by directory (one binary per directory)
+    tests_root = bld.path
+    all_test_files = tests_root.ant_glob("**/test_*.cpp", excl=["common/test_main.cpp"])
+
+    if not all_test_files:
+        Logs.error("no test_*.cpp files found in tests/ directory")
+        Logs.error("expected pattern: tests/<project>/test_*.cpp")
+        Logs.error("example: tests/crone/test_window.cpp")
+        bld.fatal("test discovery failed - no test files found")
+
+    test_dirs = {}
+    for test_file in all_test_files:
+        test_dir = test_file.parent.path_from(tests_root)
+        test_dirs.setdefault(test_dir, set()).add(test_file)
+    return tests_root, test_dirs
+
+
+def _collect_test_sources(
+    bld: BuildContext,
+    tests_root: Node,
+    test_dir: str,
+    test_source_files: Set[Node],
+) -> TestSources:
+    """collect all sources needed for a test unit: test files, helpers, and system sources.
+
+    Args:
+        bld: waf build context - used to locate project source roots.
+        tests_root: root node of the tests tree.
+        test_dir: directory path relative to tests root.
+        test_source_files: set of test file nodes in this directory.
+
+    Returns:
+        TestSources with all collected source nodes and includes.
+    """
+    # collect unit directory and local helper sources
+    unit_dir = tests_root.make_node(test_dir)
+    unit_helpers = []
+    unit_helpers += unit_dir.ant_glob("*.c")
+    unit_helpers += unit_dir.ant_glob("*.cpp", excl=["test_*.cpp"])
+
+    # collect common helpers and includes from directory hierarchy
+    common_helpers = []
+    common_includes = []
+
+    scan_node = unit_dir
+    seen_common = set()
+    while True:
+        common_dir = scan_node.make_node("common")
+        if common_dir.exists() and common_dir.isdir():
+            common_abs = common_dir.abspath()
+            if common_abs not in seen_common:
+                seen_common.add(common_abs)
+                common_includes.append(common_abs)
+                common_helpers += common_dir.ant_glob("*.c")
+                # exclude typical non-shared or duplicate-entry files
+                common_helpers += common_dir.ant_glob(
+                    "*.cpp", excl=["test_*.cpp", "test_main.cpp"]
+                )
+        if scan_node == tests_root:
+            break
+        if not getattr(scan_node, "parent", None):
+            break
+        scan_node = scan_node.parent
+
+    # mirror map system sources
+    system_sources, system_headers = _mirror_map_system_sources(
+        bld, test_dir, test_source_files
+    )
+
+    return TestSources(
+        test_files=test_source_files,
+        unit_helpers=unit_helpers,
+        common_helpers=common_helpers,
+        system_sources=system_sources,
+        system_headers=system_headers,
+        common_includes=common_includes,
+        unit_dir=unit_dir,
+    )
+
+
+def _dedupe_nodes_case_insensitive(nodes: Iterable[Node]) -> List[Node]:
+    """deduplicate waf nodes by absolute path, case-insensitively.
+
+    Args:
+        nodes: iterable of waf nodes representing filesystem entries.
+
+    Returns:
+        list of nodes with duplicates removed using case-insensitive path keys.
+    """
+    seen: Set[str] = set()
+    dedup: List[Any] = []
+    for node in nodes:
+        normalized_path = os.path.normpath(node.abspath()).lower()
+        if normalized_path not in seen:
+            seen.add(normalized_path)
+            dedup.append(node)
+    return dedup
+
+
+def _mirror_map_system_sources(
+    bld: BuildContext,
+    test_dir: str,
+    test_source_files: Set[Node],
+) -> Tuple[List[Node], List[Node]]:
+    """resolve a test directory to candidate system sources via naming conventions.
+
+    implements a mirror mapping strategy to locate system source files
+    corresponding to a given test directory.
+
+    for nested test dirs, try `<proj>/src/<unit>.{c,cpp}` and then
+    `<proj>/src/<unit>/*.{c,cpp}`. for project-root tests, derive a unit name
+    from filenames and try multiple case/style variants, including header-only
+    units (`.h`, `.hpp`).
+
+    Args:
+        bld: waf build context - used to locate project source roots.
+        test_dir: directory path relative to the tests root.
+        test_source_files: set of test file nodes in this directory.
+
+    Returns:
+        tuple of (compilable system sources, header-only system nodes), both
+        deduplicated by case-insensitive absolute path.
+    """
+    # map test directory to system sources (by path) via mirror mapping
+    parts = test_dir.split("/")
+    if len(parts) < 1:
+        proj = None
+        unit_path = None
+    elif len(parts) == 1:
+        # project root: tests/<proj>/ - derive units from test filenames
+        proj = parts[0]
+        unit_path = None
+    else:
+        # nested: tests/<proj>/<unit>/...
+        proj = parts[0]
+        unit_path = "/".join(parts[1:])
+
+    system_source_nodes: List[Any] = []
+    system_header_nodes: List[Any] = []
+
+    if proj and unit_path:
+        # nested path mapping: tests/<proj>/<unit>/ → <proj>/src/<unit>.*
+        src_root = bld.path.make_node("../%s/src" % proj)
+        mapped_file_c = src_root.make_node(unit_path + ".c")
+        mapped_file_cpp = src_root.make_node(unit_path + ".cpp")
+        mapped_file_h = src_root.make_node(unit_path + ".h")
+        mapped_file_hpp = src_root.make_node(unit_path + ".hpp")
+        mapped_dir = src_root.make_node(unit_path)
+
+        # try exact file match first (unit_path.c or unit_path.cpp)
+        has_exact_impl = False
+        if mapped_file_c.exists():
+            system_source_nodes.append(mapped_file_c)
+            has_exact_impl = True
+        if mapped_file_cpp.exists():
+            system_source_nodes.append(mapped_file_cpp)
+            has_exact_impl = True
+
+        # recognize header-only units (unit_path.h/.hpp) — track but do not compile
+        if mapped_file_h.exists():
+            system_header_nodes.append(mapped_file_h)
+        if mapped_file_hpp.exists():
+            system_header_nodes.append(mapped_file_hpp)
+
+        # if no exact file, try directory (all .c/.cpp in unit_path/, non-recursive)
+        if not has_exact_impl and mapped_dir.exists() and mapped_dir.isdir():
+            system_source_nodes += mapped_dir.ant_glob("*.c")
+            system_source_nodes += mapped_dir.ant_glob("*.cpp")
+
+        # if still nothing mapped, try case/style variants of the last path segment
+        # this helps units like tests/crone/peak_meter → crone/src/PeakMeter.h
+        if not system_source_nodes and not system_header_nodes:
+            unit_name = unit_path.split("/")[-1]
+            underscored = unit_name
+            no_underscore = unit_name.replace("_", "")
+            camel_from_underscores = "".join(
+                p.capitalize() for p in unit_name.split("_")
+            )
+            variants = [
+                underscored,
+                underscored.capitalize(),
+                underscored.title(),
+                no_underscore,
+                camel_from_underscores,
+            ]
+            for variant in variants:
+                for ext in [".c", ".cpp", ".h", ".hpp"]:
+                    cand = src_root.make_node(variant + ext)
+                    if cand.exists():
+                        if ext in (".h", ".hpp"):
+                            system_header_nodes.append(cand)
+                        else:
+                            system_source_nodes.append(cand)
+
+    elif proj:
+        # project root mapping: derive unit from test filename, try case variants
+        src_root = bld.path.make_node("../%s/src" % proj)
+        for test_file in test_source_files:
+            filename = test_file.name
+            if filename.startswith("test_") and filename.endswith(".cpp"):
+                # extract unit name: test_window.cpp → window
+                unit_name = filename[5:-4]
+                # generate filename variants
+                underscored = unit_name
+                no_underscore = unit_name.replace("_", "")
+                camel_from_underscores = "".join(
+                    p.capitalize() for p in unit_name.split("_")
+                )
+                variants = [
+                    underscored,
+                    underscored.capitalize(),
+                    underscored.title(),
+                    no_underscore,
+                    camel_from_underscores,
+                ]
+                # try both .c and .cpp for each variant
+                for variant in variants:
+                    mapped_file_c = src_root.make_node(variant + ".c")
+                    mapped_file_cpp = src_root.make_node(variant + ".cpp")
+                    if mapped_file_c.exists():
+                        system_source_nodes.append(mapped_file_c)
+                    if mapped_file_cpp.exists():
+                        system_source_nodes.append(mapped_file_cpp)
+
+    return (
+        _dedupe_nodes_case_insensitive(system_source_nodes),
+        _dedupe_nodes_case_insensitive(system_header_nodes),
+    )
+
+
+def _target_name_for(test_dir: str) -> str:
+    """generate a stable waf target name for a test directory.
+
+    converts directory paths to target names by prefixing with 'test_' and
+    replacing slashes with underscores.
+
+    examples: crone → test_crone, matron/args → test_matron_args
+
+    Args:
+        test_dir: directory path relative to tests root.
+
+    Returns:
+        target string in the form 'test_<dir-with-slashes-replaced-by-underscores>'.
+    """
+    return "test_" + test_dir.replace("/", "_")
+
+
+def _report_test_discovery(
+    test_units: List[TestUnit],
+    tests_root: Node,
+    dry_run: bool = False,
+):
+    """report discovered test units with their configuration and status.
+
+    this function logs a summary of test discovery results, displaying
+    information about each test unit including the number of tests, associated
+    system sources, and header mappings.
+
+    Args:
+        test_units: list of discovered test units.
+        tests_root: root node of the tests tree.
+        dry_run: if True, print detailed source list for each test.
+    """
+    if not test_units:
+        return
+
+    Logs.info("---")
+    Logs.info(f"found {len(test_units)} test unit(s):")
+
+    for unit in test_units:
+        compiled_system = len(unit.sources.system_sources)
+        header_only = len(unit.sources.system_headers)
+        test_count = unit.test_source_count(tests_root)
+
+        parts = [f"{test_count} test"]
+        if compiled_system > 0:
+            parts.append(f"{compiled_system} system source(s)")
+        if header_only > 0:
+            parts.append(f"{header_only} header mapping(s)")
+        if compiled_system == 0 and header_only == 0:
+            status = f"{test_count} test source(s) [no system code mapped]"
+        else:
+            status = " + ".join(parts)
+
+        Logs.info(f"  \033[36m{unit.target}\033[0m: {status}")
+
+        if dry_run:
+            for src in unit.source_paths(tests_root):
+                Logs.info(f"    - {src}")
+
+
+def _self_test(bld: BuildContext):
+    """
+    validate test runner logic before discovering actual tests.
+
+    tests core functionality of discovery, mapping, and assembly functions.
+    fails fast if any assumptions are violated.
+
+    Args:
+        bld: waf build context - for accessing test directory structure.
+    """
+    Logs.info("\033[3mvalidating test runner - running self-tests:\033[0m")
+    Logs.info("---")
+
+    # test 1: target naming conventions
+    try:
+        assert _target_name_for("crone") == "test_crone"
+        assert _target_name_for("matron/clock") == "test_matron_clock"
+        assert (
+            _target_name_for("matron/clocks/clock_crow")
+            == "test_matron_clocks_clock_crow"
+        )
+        Logs.info("  ✓ can name test binaries")
+    except AssertionError as e:
+        Logs.error("test runner self-test failed: target naming")
+        Logs.error("the test runner cannot validate its own functionality")
+        Logs.error("this suggests an issue with test discovery or core logic")
+        bld.fatal("self-test failed - check test runner implementation")
+
+    # test 2: verify test infrastructure files exist
+    tests_root = bld.path
+    test_main = tests_root.find_node("common/test_main.cpp")
+    if test_main is None:
+        Logs.error("test runner self-test failed: test infrastructure missing")
+        Logs.error("common/test_main.cpp not found")
+        bld.fatal("self-test failed - check tests/ directory structure")
+    Logs.info("  ✓ common test files present")
+
+    # test 3: verify absolute path resolution
+    abs_path = _abs("common/test_main.cpp", bld)
+    if not os.path.isabs(abs_path) or not abs_path.endswith("common/test_main.cpp"):
+        Logs.error("test runner self-test failed: path resolution")
+        bld.fatal("self-test failed - path resolution logic broken")
+    Logs.info("  ✓ file paths resolve correctly")
+
+    # test 4: verify test discovery pattern matching
+    test_files = tests_root.ant_glob("**/test_*.cpp", excl=["common/test_main.cpp"])
+    if len(test_files) == 0:
+        Logs.error("test runner self-test failed: test discovery pattern")
+        Logs.error("no test_*.cpp files found")
+        bld.fatal("self-test failed - add test files to tests/ subdirectories")
+    Logs.info(f"  ✓ found test files ({len(test_files)} total)")
+
+    # test 5: verify source collection and dataclass structure
+    if tests_root.find_node("crone"):
+        test_file_set = {tests_root.find_node("crone/test_window.cpp")}
+        if test_file_set and None not in test_file_set:
+            try:
+                sources = _collect_test_sources(bld, tests_root, "crone", test_file_set)
+                if not isinstance(sources, TestSources):
+                    Logs.error("test runner self-test failed: source collection")
+                    bld.fatal("self-test failed - _collect_test_sources broken")
+                if sources.unit_dir is None:
+                    Logs.error("test runner self-test failed: unit_dir not set")
+                    bld.fatal("self-test failed - TestSources.unit_dir broken")
+                Logs.info("  ✓ test sources collect")
+            except Exception as e:
+                Logs.error(f"test runner self-test failed: {e}")
+                bld.fatal("self-test failed - check source collection logic")
+
+    # test 6: verify TestSources methods
+    try:
+        # create a minimal TestSources for validation
+        test_sources = TestSources(
+            test_files=set(),
+            unit_helpers=[],
+            common_helpers=[],
+            system_sources=[],
+            system_headers=[],
+            common_includes=[],
+            unit_dir=tests_root,
+        )
+        if test_sources.has_c_sources() is not False:
+            Logs.error("test runner self-test failed: has_c_sources with no sources")
+            bld.fatal("self-test failed - TestSources.has_c_sources broken")
+        source_list = test_sources.assemble_for_build(tests_root)
+        if not isinstance(source_list, list):
+            Logs.error("test runner self-test failed: assemble_for_build return type")
+            bld.fatal("self-test failed - TestSources.assemble_for_build broken")
+        Logs.info("  ✓ source methods work")
+    except Exception as e:
+        Logs.error(f"test runner self-test failed: {e}")
+        bld.fatal("self-test failed - check TestSources methods")
+
+    Logs.info("\033[32mtest runner self-tests passed\033[0m")
+
+
+def _validate_test_discovery(bld: BuildContext):
+    """
+    pre-build validation: verify test discovery found valid tests and sources.
+
+    checks that test discovery succeeded and warns about missing system sources.
+    fails fast if no tests were discovered or critical configuration issues exist.
+
+    Args:
+        bld: waf build context - for accessing discovered test units.
+    """
+    test_units = getattr(bld, "norns_test_units", [])
+    tests_root = getattr(bld, "norns_tests_root", None)
+
+    # check that we discovered at least one test
+    if not test_units:
+        Logs.error("no tests discovered after build configuration")
+        Logs.error("verify tests/ directory contains test_*.cpp files")
+        bld.fatal("test validation failed - no test units")
+
+    # validate each test unit - collect warnings to show after report
+    tests_without_system = []
+    for unit in test_units:
+        source_paths = unit.source_paths(tests_root)
+
+        # check for empty source list (should never happen if test files exist)
+        if not source_paths:
+            Logs.error(f"{unit.target}: source assembly failed")
+            Logs.error(f"test directory: tests/{unit.test_dir}")
+            bld.fatal(f"{unit.target}: no sources found")
+
+        # track tests without system sources
+        if unit.system_source_count() == 0:
+            tests_without_system.append(unit)
+
+    # report discovery results
+    dry_run = getattr(bld.options, "test_dry_run", False)
+    _report_test_discovery(test_units, tests_root, dry_run=dry_run)
+
+    if tests_without_system:
+        Logs.info("")
+        Logs.warn(f"{len(tests_without_system)} test(s) without system code…")
+        Logs.warn("these tests will run without system code under test:")
+        for unit in tests_without_system:
+            Logs.warn(f"  {unit.target} (tests/{unit.test_dir})")
+
+    # exit after reporting if dry-run
+    if dry_run:
+        Logs.info("")
+        Logs.info("dry-run complete - no tests built or executed")
+        sys.exit(0)
+
+
+def test(bld: BuildContext):
+    """waf entry: discover tests and build one binary per test directory.
+
+    uses waf_unit_test feature to execute tests with parallel support.
+    validates test discovery before building via pre-build hook.
+
+    Args:
+        bld: waf build context - used to configure and create targets.
+    """
+    # self-test: validate test runner logic before proceeding
+    if not getattr(bld.options, "skip_self_test", False):
+        _self_test(bld)
+        Logs.info("")
+
+    # setup: includes and compiler flags
+    build_config = _setup_includes_and_flags(bld)
+
+    # discover: group test files by directory
+    tests_root, test_dirs = _discover_test_dirs(bld)
+
+    # common libs many tests require
+    link_libs = ["pthread"]
+
+    # collect test units
+    test_units: List[TestUnit] = []
+    for test_dir, test_source_files in sorted(test_dirs.items()):
+        test_sources = _collect_test_sources(
+            bld, tests_root, test_dir, test_source_files
+        )
+        target_name = _target_name_for(test_dir)
+        test_unit = TestUnit(
+            test_dir=test_dir, target=target_name, sources=test_sources
+        )
+        test_units.append(test_unit)
+
+        # determine features based on source types
+        features = "cxx cxxprogram test"
+        if test_sources.has_c_sources():
+            features = "c cxx cxxprogram test"
+
+        includes = (
+            build_config.includes
+            + [test_sources.unit_dir.abspath()]
+            + test_sources.common_includes
+        )
+
+        source = test_sources.assemble_for_build(tests_root)
+
+        # build test binary with waf_unit_test feature
+        bld.program(
+            target=target_name,
+            features=features,
+            source=source,
+            includes=includes,
+            cflags=build_config.cflags,
+            cxxflags=build_config.cxxflags,
+            defines=build_config.defines,
+            lib=link_libs,
+        )
+
+    # store test units for validation hook
+    bld.norns_test_units = test_units
+    bld.norns_tests_root = tests_root
+
+    # register pre-build validation hook to verify test discovery
+    bld.add_pre_fun(_validate_test_discovery)
