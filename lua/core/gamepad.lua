@@ -218,7 +218,7 @@ local function parse_sdl_profile(dev, raw_sdl_profile)
         if mapping.abs_keycode and mapping.logical then
           profile.axis_mapping[mapping.abs_keycode] = mapping.logical
           local absinfo = dev.absinfos[mapping.code]
-          if absinfo then -- if analog
+          if gamepad.is_axis_keycode_analog(mapping.abs_keycode) then
             if tab.contains({'dpdup', 'dpdown', 'dpleft', 'dpright'}, mapping.sdl_logical) then
               profile.dpad_is_analog = true
             end
