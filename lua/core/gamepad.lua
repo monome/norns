@@ -208,8 +208,6 @@ local function parse_sdl_profile(dev, raw_sdl_profile)
   for entry in rest:gmatch("[^,]+") do
     local mapping = sdl_to_ev_code(dev, entry)
     if mapping then
-      print("----------------------")
-      tab.print(mapping)
       if mapping.type == 'KEY' then
         if mapping.logical then
           profile.button[mapping.logical] = mapping.code
