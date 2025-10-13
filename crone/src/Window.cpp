@@ -6,6 +6,8 @@
 
 using namespace crone;
 
+constexpr size_t Window::raisedCosShortLen;
+
 const float Window::raisedCosShort[Window::raisedCosShortLen] = {
 #include "cos_win.h"
 };
