@@ -219,12 +219,25 @@ local function parse_sdl_profile(dev, raw_sdl_profile)
           profile.axis_mapping[mapping.abs_keycode] = mapping.logical
           local absinfo = dev.absinfos[mapping.code]
           if gamepad.is_axis_keycode_analog(mapping.abs_keycode) then
+            -- NB: SDL reports each axis twice (up/down, left/right) in that case
             if tab.contains({'dpup', 'dpdown', 'dpleft', 'dpright'}, mapping.sdl_logical) then
               profile.dpad_is_analog = true
+              if mapping.sdl_logical == 'dpup' then
+                profile.axis_invert[mapping.abs_keycode] = not mapping.invert
+              elseif mapping.sdl_logical == 'dpdown' then
+                profile.axis_invert[mapping.abs_keycode] = mapping.invert
+              elseif mapping.sdl_logical == 'dpleft' then
+                profile.axis_invert[mapping.abs_keycode] = not mapping.invert
+              elseif mapping.sdl_logical == 'dpright' then
+                profile.axis_invert[mapping.abs_keycode] = mapping.invert
+              end
+              profile.analog_axis_resolution[mapping.abs_keycode] = math.abs(absinfo.min) + math.abs(absinfo.max)
+              profile.analog_axis_o[mapping.abs_keycode] = (math.abs(absinfo.max) - math.abs(absinfo.min))/2
+            else
+              profile.axis_invert[mapping.abs_keycode] = mapping.invert and true or false
+              profile.analog_axis_resolution[mapping.abs_keycode] = math.abs(absinfo.min) + math.abs(absinfo.max)
+              profile.analog_axis_o[mapping.abs_keycode] = (math.abs(absinfo.max) - math.abs(absinfo.min))/2
             end
-            profile.axis_invert[mapping.abs_keycode] = mapping.invert and true or false
-            profile.analog_axis_resolution[mapping.abs_keycode] = math.abs(absinfo.min) + math.abs(absinfo.max)
-            profile.analog_axis_o[mapping.abs_keycode] = (math.abs(absinfo.max) - math.abs(absinfo.min))/2
             if absinfo.flat then
               profile.analog_axis_o_margin[mapping.abs_keycode] = math.max(absinfo.flat or 0, absinfo.fuzz or 0)
             end
