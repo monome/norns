@@ -684,6 +684,7 @@ function gamepad.is_event_btn(gamepad_profile, typ, code, val)
   local button_name
 
   if typ == hid_events.types.EV_ABS then
+    local axis_keycode = gamepad.axis_code_2_keycode(code)
     button_name = gamepad.analog_axis_keycode_2_button(gamepad_profile, axis_keycode)
   elseif typ == hid_events.types.EV_KEY then
     button_name = gamepad.code_2_button(gamepad_profile, code)
