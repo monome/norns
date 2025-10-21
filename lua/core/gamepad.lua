@@ -202,6 +202,8 @@ local function parse_sdl_profile(dev, raw_sdl_profile)
     dpad_mapping = {},
   }
 
+  if debug_level >= 1 then print("raw SDL gamepad profile: "..raw_sdl_profile) end
+
   local guid, name, rest = raw_sdl_profile:match("^([^,]+),([^,]+),(.+)$")
   if not guid then return nil end
   profile.guid = guid
