@@ -455,20 +455,8 @@ end
 -- ------------------------------------------------------------------------
 -- state modifiers
 
-function gamepad.register_analog_button_state(sensor_axis, state, inverted, do_log_event)
-  local states = gamepad.sensor_axis_to_states(sensor_axis)
-
-  if states == nil then
-    return
-  end
-
-  local down_state = states[2]
-
-  if state or inverted then
-    gamepad.state[down_state] = true
-  else
-    gamepad.state[down_state] = false
-  end
+function gamepad.register_button_state(button_name, val)
+  gamepad.state[button_name] = val
 end
 
 function gamepad.register_direction_state(sensor_axis, sign, inverted, do_log_event)
@@ -500,9 +488,6 @@ function gamepad.register_direction_state(sensor_axis, sign, inverted, do_log_ev
   end
 end
 
-function gamepad.register_button_state(button_name, val)
-  gamepad.state[button_name] = val
-end
 
 -- trigger `gamepad.analog`, but only if value changed from provious occurence
 function gamepad.trigger_analog_maybe(gamepad_profile, axis_keycode, sensor_axis, val)
@@ -698,11 +683,14 @@ end
 function gamepad.process_event_btn(gamepad_profile, typ, code, val)
   local button_name
   local btn_state = false
+  local is_analog = false
 
-  local sensor_axis = gamepad.axis_keycode_to_sensor_axis(gamepad_profile, axis_keycode)
+  local axis_keycode
+  local sensor_axis
 
   if typ == hid_events.types.EV_ABS then
-    local axis_keycode = gamepad.axis_code_2_keycode(code)
+    is_analog = true
+    axis_keycode = gamepad.axis_code_2_keycode(code)
     sensor_axis = gamepad.axis_keycode_to_sensor_axis(gamepad_profile, axis_keycode)
     button_name = gamepad.analog_axis_keycode_2_button(gamepad_profile, axis_keycode)
     local normalized = normalized_analog_button_val(gamepad_profile, axis_keycode, val)
@@ -719,10 +707,6 @@ function gamepad.process_event_btn(gamepad_profile, typ, code, val)
   if do_log_event and debug_level >= 1 then print("BUTTON: " .. button_name .. " " .. tostring(btn_state)) end
 
   -- state update
-  if is_analog then
-    -- REVIEW: is it redundant w/ call to `gamepad.register_button_state` just after?
-    gamepad.register_analog_button_state(sensor_axis, btn_state, gamepad_profile.axis_invert[axis_keycode])
-  end
   gamepad.register_button_state(button_name, btn_state)
 
   -- callbacks
@@ -731,6 +715,7 @@ function gamepad.process_event_btn(gamepad_profile, typ, code, val)
   end
   gamepad.trigger_button(button_name, val)
 end
+
 
 -- ------------------------------------------------------------------------
 -- incoming events - analog sensors (EV_ABS)
@@ -763,6 +748,10 @@ function gamepad.process_event_astick(gamepad_profile, typ, code, val)
   gamepad.trigger_axis_maybe(axis_keycode, sensor_axis, sign)
 end
 
+
+-- ------------------------------------------------------------------------
+-- incoming events - dpad (EV_ABS)
+
 function gamepad.is_event_dpad(gamepad_profile, typ, code, val)
   -- NB: we have to pass `val` which is counter-intuitive but that due to how we encode `gamepad_profile.dpad_mapping` (with a slight optimization)
 
@@ -785,9 +774,6 @@ function gamepad.is_event_dpad(gamepad_profile, typ, code, val)
 
   return false
 end
-
--- ------------------------------------------------------------------------
--- incoming events - dpad (EV_ABS)
 
 function gamepad.process_event_dpad(gamepad_profile, typ, code, val)
   local axis_keycode = gamepad.axis_code_2_keycode(code)
@@ -819,6 +805,7 @@ function gamepad.process_event_dpad(gamepad_profile, typ, code, val)
   -- state update
   gamepad.register_direction_state(sensor_axis, sign, gamepad_profile.axis_invert[axis_keycode], do_log_event)
 
+  -- callbacks
   if is_analog then
     gamepad.trigger_analog_maybe(axis_keycode, sensor_axis, val)
   end
