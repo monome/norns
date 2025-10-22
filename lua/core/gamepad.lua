@@ -687,6 +687,7 @@ function gamepad.process_event_btn(gamepad_profile, typ, code, val)
 
   local axis_keycode
   local sensor_axis
+  local sign
 
   if typ == hid_events.types.EV_ABS then
     is_analog = true
@@ -696,7 +697,7 @@ function gamepad.process_event_btn(gamepad_profile, typ, code, val)
     local normalized = normalized_analog_button_val(gamepad_profile, axis_keycode, val)
     val = normalized[1]
     btn_state = normalized[2]
-    -- local sign = normalized[3]
+    sign = normalized[3]
   elseif typ == hid_events.types.EV_KEY then
     button_name = gamepad.code_2_button(gamepad_profile, code)
     if val > 0 then
@@ -712,14 +713,14 @@ function gamepad.process_event_btn(gamepad_profile, typ, code, val)
   -- callbacks
   if is_analog then
     gamepad.trigger_analog_maybe(gamepad_profile, axis_keycode, sensor_axis, val, true)
+    gamepad.trigger_axis_maybe(axis_keycode, sensor_axis, sign)
   end
   gamepad.trigger_button(button_name, val)
 end
 
 
 -- ------------------------------------------------------------------------
--- incoming events - analog sensors (EV_ABS)
--- analog sticks
+-- incoming events - analog sticks (EV_ABS)
 
 function gamepad.is_event_astick(gamepad_profile, typ, code, val)
   if typ ~= hid_events.types.EV_ABS then return false end
