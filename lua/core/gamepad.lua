@@ -490,7 +490,7 @@ end
 
 
 -- trigger `gamepad.analog`, but only if value changed from provious occurence
-function gamepad.trigger_analog_maybe(gamepad_profile, axis_keycode, sensor_axis, val)
+function gamepad.trigger_analog_maybe(gamepad_profile, axis_keycode, sensor_axis, val, is_button)
   if val ~= prev_dir_v[axis_keycode] then
     local reso = gamepad_profile.analog_axis_resolution[axis_keycode]
     local half_reso = reso / 2
@@ -711,7 +711,7 @@ function gamepad.process_event_btn(gamepad_profile, typ, code, val)
 
   -- callbacks
   if is_analog then
-    gamepad.trigger_analog_maybe(gamepad_profile, axis_keycode, sensor_axis, val)
+    gamepad.trigger_analog_maybe(gamepad_profile, axis_keycode, sensor_axis, val, true)
   end
   gamepad.trigger_button(button_name, val)
 end
