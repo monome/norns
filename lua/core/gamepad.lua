@@ -664,8 +664,7 @@ end
 
 
 -- ------------------------------------------------------------------------
--- incoming events - buttons (mostly EV_KEY, EV_ABS in some edge-cases)
--- how to we treat L2/R2???
+-- incoming events - buttons (mostly EV_KEY, EV_ABS for L2/R2)
 
 function gamepad.is_event_btn(gamepad_profile, typ, code, val)
   local button_name
