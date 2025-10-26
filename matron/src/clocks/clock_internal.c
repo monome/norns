@@ -43,7 +43,7 @@ static void *clock_internal_thread_run(void *p) {
     double tick_duration;
     double reference_beat;
 
-    int ticks = -1;
+    uint64_t ticks = -1;
 
     current_time = clock_get_system_time();
     next_tick_time = current_time;
