@@ -53,6 +53,13 @@ static double clock_scheduler_next_clock_beat(double clock_beat, double sync_bea
     return fmax(next_beat, 0);
 }
 
+#ifdef NORNS_TEST
+// expose boundary math for testing only.
+double clock_scheduler_test_next_clock_beat(double clock_beat, double sync_beat, double sync_beat_offset) {
+    return clock_scheduler_next_clock_beat(clock_beat, sync_beat, sync_beat_offset);
+}
+#endif
+
 static clock_scheduler_event_t *clock_scheduler_find_event(int thread_id) {
     int result = -1;
 
