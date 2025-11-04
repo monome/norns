@@ -7,6 +7,42 @@ on:
     branches: [main]
   workflow_dispatch:
 jobs:
+  test-c_cpp:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: ensure build directory exists
+        # this is needed so that the cache action can do the caching
+        run: mkdir -p build
+
+      - name: cache waf build directory
+        uses: actions/cache@v4
+        with:
+          path: build
+          # create a cache key based on the wscript files
+          key: ${{ runner.os }}-waf-build-${{ hashFiles('**/wscript') }}
+          restore-keys: |
+            ${{ runner.os }}-waf-build-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pre-build dev container image and run tests inside dev container
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ghcr.io/monome/norns-ci
+          cacheFrom: ghcr.io/monome/norns-ci
+          push: never
+          runCmd: ./waf configure && sh ./test.sh
+
   test-lua:
     runs-on: ubuntu-latest
     steps:
