@@ -7,6 +7,37 @@ on:
     branches: [main]
   workflow_dispatch:
 jobs:
+  test-c_cpp:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: ensure build directory exists
+        # this is needed so that the cache action can do the caching
+        run: mkdir -p build
+
+      - name: cache waf build directory
+        uses: actions/cache@v4
+        with:
+          path: build
+          # create a cache key based on the wscript files
+          key: ${{ runner.os }}-waf-build-${{ hashFiles('**/wscript') }}
+          restore-keys: |
+            ${{ runner.os }}-waf-build-
+
+      - name: build and run C/C++ tests
+        uses: addnab/docker-run-action@v3
+        with:
+          image: robbielyman/norns-ci:latest
+          options: -v ${{ github.workspace }}:/norns-build -w /norns-build
+          run: |
+            git config --global --add safe.directory "$PWD"
+            ./waf configure
+            sh ./test.sh
+
   test-lua:
     runs-on: ubuntu-latest
     steps:
