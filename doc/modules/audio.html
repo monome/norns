@@ -100,7 +100,6 @@
   <li><a href="../modules/lib.reflection.html">lib.reflection</a></li>
   <li><a href="../modules/lib.sequins.html">lib.sequins</a></li>
   <li><a href="../modules/lib.tabutil.html">lib.tabutil</a></li>
-  <li><a href="../modules/lib.test.luaunit.html">lib.test.luaunit</a></li>
   <li><a href="../modules/lib.textentry.html">lib.textentry</a></li>
   <li><a href="../modules/lib.textentry_kbd.html">lib.textentry_kbd</a></li>
   <li><a href="../modules/lib.timeline.html">lib.timeline</a></li>
@@ -121,6 +120,24 @@
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Audio.tape.get_state">Audio.tape.get_state ()</a></td>
+	<td class="summary">get current tape state value
+ Returns the same structure provided to subscribers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Audio.tape.subscribe">Audio.tape.subscribe (key, fn)</a></td>
+	<td class="summary">subscribe to tape state updates.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Audio.tape.unsubscribe">Audio.tape.unsubscribe (key)</a></td>
+	<td class="summary">unsubscribe from tape state updates.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_compute_diskfree">tape_compute_diskfree (reserve_s)</a></td>
+	<td class="summary">compute diskfree seconds at 48k/16-bit stereo
+ reserve a small buffer by subtracting <code>reserve_s</code> seconds from <code>norns.disk</code></td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#headphone_gain">headphone_gain (gain)</a></td>
 	<td class="summary">set headphone gain.</td>
@@ -224,8 +241,16 @@
 	<td class="summary">start tape playing.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#tape_play_pause">tape_play_pause (paused)</a></td>
+	<td class="summary">pause or resume tape playback.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#tape_play_stop">tape_play_stop ()</a></td>
 	<td class="summary">stop tape playing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_play_loop">tape_play_loop (enabled)</a></td>
+	<td class="summary">set tape looping on/off.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tape_record_open">tape_record_open (file)</a></td>
@@ -234,6 +259,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#tape_record_start">tape_record_start ()</a></td>
 	<td class="summary">start tape recording.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_record_pause">tape_record_pause (paused)</a></td>
+	<td class="summary">pause or resume tape recording.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tape_record_stop">tape_record_stop ()</a></td>
@@ -289,6 +318,95 @@
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "Audio.tape.get_state"></a>
+    <strong>Audio.tape.get_state ()</strong>
+    </dt>
+    <dd>
+    get current tape state value
+ Returns the same structure provided to subscribers.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Audio.tape.subscribe"></a>
+    <strong>Audio.tape.subscribe (key, fn)</strong>
+    </dt>
+    <dd>
+    subscribe to tape state updates.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">any</span></span>
+         unique key for this subscription (usually a table)
+        </li>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">function</span></span>
+         callback receiving full snapshot table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Audio.tape.unsubscribe"></a>
+    <strong>Audio.tape.unsubscribe (key)</strong>
+    </dt>
+    <dd>
+    unsubscribe from tape state updates.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">any</span></span>
+         unique key used when subscribing
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_compute_diskfree"></a>
+    <strong>tape_compute_diskfree (reserve_s)</strong>
+    </dt>
+    <dd>
+    compute diskfree seconds at 48k/16-bit stereo
+ reserve a small buffer by subtracting <code>reserve_s</code> seconds from <code>norns.disk</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">reserve_s</span>
+            <span class="types"><span class="type">number</span></span>
+         seconds to reserve
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        whole seconds available for new recording
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "headphone_gain"></a>
     <strong>headphone_gain (gain)</strong>
@@ -617,7 +735,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
 
 
 
@@ -697,7 +815,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
 
 
 
@@ -756,6 +874,29 @@
 
 </dd>
     <dt>
+    <a name = "tape_play_pause"></a>
+    <strong>tape_play_pause (paused)</strong>
+    </dt>
+    <dd>
+    pause or resume tape playback.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">paused</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "tape_play_stop"></a>
     <strong>tape_play_stop ()</strong>
     </dt>
@@ -763,6 +904,29 @@
     stop tape playing.
 
 
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_play_loop"></a>
+    <strong>tape_play_loop (enabled)</strong>
+    </dt>
+    <dd>
+    set tape looping on/off.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">enabled</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
 
 
 
@@ -799,6 +963,29 @@
     start tape recording.
 
 
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_record_pause"></a>
+    <strong>tape_record_pause (paused)</strong>
+    </dt>
+    <dd>
+    pause or resume tape recording.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">paused</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
 
 
 
@@ -1012,7 +1199,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
          (from dust directory)
         </li>
     </ul>
@@ -1041,7 +1228,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-04-06 15:35:25 </i>
+<i style="float:right;">Last updated 2025-11-08 12:01:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
