@@ -1,5 +1,6 @@
 #include <math.h>
 #include <pthread.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -30,7 +31,7 @@ static pthread_mutex_t clock_internal_tempo_lock;
 // also expose loop internals and counters so tests can synchronize and assert behavior.
 static bool clock_internal_threadless = false;
 static uint64_t clock_internal_test_ticks = 0;
-static volatile uint64_t clock_internal_published_ticks = 0;
+static _Atomic uint64_t clock_internal_published_ticks = 0;
 static volatile bool clock_internal_thread_stop = false;
 static volatile double clock_internal_last_sleep_s = 0.0;
 static volatile double clock_internal_last_next_tick_time = 0.0;
@@ -66,7 +67,7 @@ void clock_internal_test_tick_once() {
         double reference_beat = (double)clock_internal_test_ticks / CLOCK_INTERNAL_TICKS_PER_BEAT;
         clock_update_source_reference(&clock_internal_reference, reference_beat, beat_duration);
     }
-    clock_internal_published_ticks++;
+    atomic_fetch_add(&clock_internal_published_ticks, 1);
 }
 
 // set internal tick counter to simulate long uptime and boundary cases
@@ -76,12 +77,12 @@ void clock_internal_test_set_ticks(uint64_t v) {
 
 // read number of published ticks for test synchronization
 uint64_t clock_internal_test_get_published_ticks(void) {
-    return clock_internal_published_ticks;
+    return atomic_load(&clock_internal_published_ticks);
 }
 
 // reset published tick counter
 void clock_internal_test_reset_published_ticks(void) {
-    clock_internal_published_ticks = 0;
+    atomic_store(&clock_internal_published_ticks, 0);
 }
 
 // request the background thread to stop and join for clean teardown in tests
@@ -200,7 +201,7 @@ static void *clock_internal_thread_run(void *p) {
 
 #ifdef NORNS_TEST
         // count publishes so tests can wait for progress without sleeps
-        clock_internal_published_ticks++;
+        atomic_fetch_add(&clock_internal_published_ticks, 1);
 #endif
 
         next_tick_time += tick_duration;
