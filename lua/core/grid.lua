@@ -122,6 +122,7 @@ function Grid:refresh()
 end
 
 --- intensity
+-- @tparam integer i : intensity [0, 15]
 function Grid:intensity(i)
   _norns.monome_intensity(self.dev, i)
 end

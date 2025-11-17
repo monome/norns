@@ -8,6 +8,8 @@ file={
         'lua/core/gamepad_model',
         'lua/core/keymap',
         'lua/core/menu',
+				'lua/lib/test',
+				'lua/test'
     },
 }
 style='!pale'
