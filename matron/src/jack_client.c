@@ -1,4 +1,7 @@
+#include <pthread.h>
 #include <stdatomic.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #include <jack/jack.h>
@@ -9,6 +12,14 @@ static jack_client_t *jack_client;
 double jack_sample_rate;
 
 _Atomic uint32_t xrun_count = 0;
+
+// maintain a 64-bit frame counter from jack's 32-bit frame time.
+// extends wraparound at 48khz from ~25 hours to millions of years.
+static uint64_t g_last_total_frames = 0ULL;
+
+// protects access to g_last_total_frames.
+// a mutex is safe here as time is not read from the audio thread.
+static pthread_mutex_t g_time_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static int xrun_callback(void *arg) {
     (void)arg;
@@ -50,8 +61,51 @@ uint32_t jack_client_get_xrun_count() {
 }
 
 double jack_client_get_current_time() {
-    return (double)jack_frame_time(jack_client) / jack_sample_rate;
+    jack_nframes_t cur_low = jack_frame_time(jack_client);
+
+    const unsigned low_bits = (unsigned)(sizeof(jack_nframes_t) * 8u);
+    const uint64_t low_mask = (low_bits == 64u) ? UINT64_MAX : ((1ULL << low_bits) - 1ULL);
+
+    pthread_mutex_lock(&g_time_lock);
+
+    uint64_t prev = g_last_total_frames;
+    uint64_t prev_low = prev & low_mask;
+    uint64_t prev_high = prev & ~low_mask;
+
+    uint64_t cur_low_u64 = (uint64_t)cur_low;
+    uint64_t candidate = prev_high | cur_low_u64;
+
+    // detect wrap and carry to high bits.
+    // a wrap is a large decrease (prev in upper half, cur in lower).
+    if (low_bits < 64u && cur_low_u64 < prev_low) {
+        const uint64_t half = (1ULL << (low_bits - 1));
+        if (prev_low >= half && cur_low_u64 < half) {
+            candidate += (1ULL << low_bits);
+        } else {
+            // ignore small decreases (out-of-order reads)
+            candidate = prev;
+        }
+    }
+
+    // never move backwards
+    if (candidate < prev) {
+        candidate = prev;
+    }
+
+    g_last_total_frames = candidate;
+
+    pthread_mutex_unlock(&g_time_lock);
+
+    return (double)candidate / jack_sample_rate;
 }
+
+#ifdef NORNS_TEST
+void jack_client_test_reset_time_state(void) {
+    pthread_mutex_lock(&g_time_lock);
+    g_last_total_frames = 0ULL;
+    pthread_mutex_unlock(&g_time_lock);
+}
+#endif
 
 const char **jack_client_get_input_ports() {
     return jack_get_ports(jack_client, NULL, NULL, JackPortIsInput);

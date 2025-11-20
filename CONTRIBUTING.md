@@ -57,4 +57,61 @@ api docs for main
 to view the api docs for the `main` branch,
 visit https://monome.org/docs/norns/api.
 
+testing c/c++ code
+------------------
 
+### quick start
+
+run all tests:
+```bash
+./test.sh
+```
+
+run specific test:
+```bash
+# example: run matron `clock.h` tests
+./test.sh --targets=test_matron_clock
+```
+
+see [tests/README.md](tests/README.md) for infrastructure details, advanced patterns, and comprehensive examples.
+
+### writing your first test
+
+tests mirror source structure. create `test_*.cpp` files, and they get picked up by the test runner automatically:
+
+```
+tests/matron/test_args.cpp               → matron/src/args.c
+tests/crone/test_window.cpp              → crone/src/Window.cpp
+```
+
+**test C code:**
+
+```cpp
+#include <doctest/doctest.h>
+
+extern "C" {
+#include "args.h"
+}
+
+TEST_CASE("args_parse handles local port") {
+    char *argv[] = {"matron", "-l", "8888", nullptr};
+    args_parse(3, argv);
+    CHECK(std::string(args_local_port()) == "8888");
+}
+```
+
+**test C++ code:**
+
+```cpp
+#include <doctest/doctest.h>
+#include "Window.h"
+
+TEST_CASE("window starts at zero") {
+    CHECK(Window::raisedCosShort[0] == doctest::Approx(0.0f));
+}
+```
+
+**assertions:**
+- `CHECK(expr)` — non-fatal
+- `REQUIRE(expr)` — fatal, stops test
+- `CHECK(value == doctest::Approx(expected))` — floating point

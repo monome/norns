@@ -15,6 +15,7 @@
 #include "jack_client.h"
 
 static clock_source_t clock_source;
+static bool clock_source_initialized = false;
 
 void clock_init() {
     clock_set_source(CLOCK_SOURCE_INTERNAL);
@@ -132,9 +133,29 @@ void clock_reschedule_sync_events_from_source(clock_source_t source) {
 }
 
 void clock_set_source(clock_source_t source) {
-    if (clock_source != source && source == CLOCK_SOURCE_LINK) {
+    // first call from clock_init establishes the default source.
+    // always reschedule on first set to bootstrap scheduler state.
+    if (!clock_source_initialized) {
+        clock_source_initialized = true;
+        if (source == CLOCK_SOURCE_LINK) {
+            clock_link_join_session();
+        }
+        clock_source = source;
+        clock_scheduler_reschedule_sync_events();
+        return;
+    }
+
+    // no-op when source is already active. avoids duplicate reschedules
+    // and unnecessary link session join/leave churn.
+    if (clock_source == source) {
+        return;
+    }
+
+    // join link session when switching to link, leave when switching away.
+    // only performed when crossing the link boundary to avoid redundant calls.
+    if (source == CLOCK_SOURCE_LINK) {
         clock_link_join_session();
-    } else if (clock_source != source && clock_source == CLOCK_SOURCE_LINK) {
+    } else if (clock_source == CLOCK_SOURCE_LINK) {
         clock_link_leave_session();
     }
 

@@ -29,6 +29,7 @@ typedef struct {
 } clock_scheduler_event_t;
 
 static pthread_t clock_scheduler_tick_thread;
+static volatile bool clock_scheduler_thread_stop = false;
 
 static clock_scheduler_event_t clock_scheduler_events[NUM_CLOCK_SCHEDULER_EVENTS];
 static pthread_mutex_t clock_scheduler_events_lock;
@@ -52,6 +53,13 @@ static double clock_scheduler_next_clock_beat(double clock_beat, double sync_bea
 
     return fmax(next_beat, 0);
 }
+
+#ifdef NORNS_TEST
+// expose boundary math for testing only.
+double clock_scheduler_test_next_clock_beat(double clock_beat, double sync_beat, double sync_beat_offset) {
+    return clock_scheduler_next_clock_beat(clock_beat, sync_beat, sync_beat_offset);
+}
+#endif
 
 static clock_scheduler_event_t *clock_scheduler_find_event(int thread_id) {
     int result = -1;
@@ -83,6 +91,9 @@ static void *clock_scheduler_tick_thread_run(void *p) {
     double clock_time;
 
     while (true) {
+        if (clock_scheduler_thread_stop) {
+            break;
+        }
         pthread_mutex_lock(&clock_scheduler_events_lock);
 
         clock_time = clock_get_system_time();
@@ -130,6 +141,18 @@ void clock_scheduler_start() {
     pthread_attr_init(&attr);
     pthread_create(&clock_scheduler_tick_thread, &attr, &clock_scheduler_tick_thread_run, NULL);
     pthread_attr_destroy(&attr);
+}
+
+void clock_scheduler_stop() {
+    clock_scheduler_thread_stop = true;
+}
+
+void clock_scheduler_join() {
+    if (clock_scheduler_tick_thread) {
+        pthread_join(clock_scheduler_tick_thread, NULL);
+    }
+    clock_scheduler_tick_thread = 0;
+    clock_scheduler_thread_stop = false;
 }
 
 bool clock_scheduler_schedule_sync(int thread_id, double sync_beat, double sync_beat_offset) {

@@ -15,10 +15,11 @@ extern void jack_client_deinit();
 // returns ratio in [0,1]
 extern float jack_client_get_cpu_load();
 
-// update and return estimate of undderun count since last query
+// update and return estimate of underrun count since last query
 extern uint32_t jack_client_get_xrun_count();
 
-// get JACks current system time estimate in seconds (computed from sample frames)
+// get system time in seconds derived from JACK frames.
+// tracks wraparound to maintain a monotonic 64-bit frame counter.
 extern double jack_client_get_current_time();
 
 extern const char **jack_client_get_input_ports();

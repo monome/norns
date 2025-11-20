@@ -67,6 +67,6 @@ extern void screen_context_free(screen_context_t *context);
 extern void screen_context_get_current();
 extern void screen_context_set(const screen_context_t *context);
 extern void screen_context_set_primary(void);
-extern const screen_context_t* screen_context_get_primary();
+extern const screen_context_t *screen_context_get_primary();
 
 extern void screen_current_point();

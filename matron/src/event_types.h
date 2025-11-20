@@ -1,10 +1,10 @@
 #pragma once
 
 #include <stdint.h>
+#include <sys/types.h>
 
-#include "oracle.h"
-#include "osc.h"
-#include "screen.h"
+// lo_message is opaque here. files using it include oracle.h for the full definition.
+typedef void *lo_message;
 
 // NOTE: new event types *must* be added to the end of the enum in the order
 // maintain ABI compatibility with compiled modules which interact with the

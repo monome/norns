@@ -26,16 +26,19 @@ int args_parse(int argc, char **argv) {
     while ((opt = getopt(argc, argv, "o:e:l:c:f:h")) != -1) {
         switch (opt) {
         case 'l':
-            strncpy(a.loc_port, optarg, ARG_BUF_SIZE - 1);
+            snprintf(a.loc_port, ARG_BUF_SIZE, "%s", optarg);
             break;
         case 'e':
-            strncpy(a.ext_port, optarg, ARG_BUF_SIZE - 1);
+            snprintf(a.ext_port, ARG_BUF_SIZE, "%s", optarg);
             break;
         case 'o':
-            strncpy(a.remote_port, optarg, ARG_BUF_SIZE - 1);
+            snprintf(a.remote_port, ARG_BUF_SIZE, "%s", optarg);
             break;
         case 'c':
-            strncpy(a.crone_port, optarg, ARG_BUF_SIZE - 1);
+            snprintf(a.crone_port, ARG_BUF_SIZE, "%s", optarg);
+            break;
+        case 'f':
+            snprintf(a.framebuffer, ARG_BUF_SIZE, "%s", optarg);
             break;
         case '?':
         case 'h':
@@ -43,7 +46,9 @@ int args_parse(int argc, char **argv) {
             fprintf(stdout, "Start matron with optional overrides:\n");
             fprintf(stdout, "-l   override OSC local port [default %s]\n", a.loc_port);
             fprintf(stdout, "-e   override OSC ext port [default %s]\n", a.ext_port);
+            fprintf(stdout, "-o   override OSC remote port [default %s]\n", a.remote_port);
             fprintf(stdout, "-c   override crone port [default %s]\n", a.crone_port);
+            fprintf(stdout, "-f   override framebuffer path [default %s]\n", a.framebuffer);
             exit(1);
             ;
         }
@@ -65,4 +70,8 @@ const char *args_remote_port(void) {
 
 const char *args_crone_port(void) {
     return a.crone_port;
+}
+
+const char *args_framebuffer_path(void) {
+    return a.framebuffer;
 }
