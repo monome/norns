@@ -715,6 +715,6 @@ void screen_context_set_primary(void) {
     _screen_context_set(cr_primary);
 }
 
-const screen_context_t * screen_context_get_primary(void) {
+const screen_context_t *screen_context_get_primary(void) {
     return (const screen_context_t *)cr_primary;
 }

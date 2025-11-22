@@ -28,6 +28,7 @@ for i=1,4 do
     all = vport.wrap_method('all'),
     refresh = vport.wrap_method('refresh'),
     segment = vport.wrap_method('segment'),
+    intensity = vport.wrap_method('intensity'),
   }
 end
 
@@ -138,6 +139,12 @@ function Arc:segment(ring, from, to, level)
     m[i] = util.round(o / sl * level)
     self:led(ring, i, m[i])
   end
+end
+
+--- intensity
+-- @tparam integer i : intensity [0, 15]
+function Arc:intensity(i)
+  _norns.monome_intensity(self.dev, i)
 end
 
 --- create device, returns object with handler and send

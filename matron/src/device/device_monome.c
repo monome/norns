@@ -166,7 +166,10 @@ void dev_monome_refresh(struct dev_monome *md) {
 void dev_monome_intensity(struct dev_monome *md, uint8_t i) {
     if (i > 15)
         i = 15;
-    monome_led_intensity(md->m, i);
+    if (md->type == DEVICE_MONOME_TYPE_ARC)
+        monome_led_ring_intensity(md->m, i);
+    else
+        monome_led_intensity(md->m, i);
 }
 
 //--------------------
