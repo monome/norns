@@ -123,6 +123,7 @@ m.redraw = function()
 end
 
 m.init = function()
+  m.saved_vu = _norns.vu
   _norns.vu = m.vu
   m.in1 = 0
   m.in2 = 0
@@ -138,10 +139,11 @@ m.deinit = function()
   norns.encoders.set_accel(2,false)
   norns.encoders.set_sens(2,2)
   norns.encoders.set_sens(3,2)
-  _norns.vu = norns.none
+  _norns.vu = m.saved_vu
 end
 
 m.vu = function(in1,in2,out1,out2)
+  m.saved_vu(in1,in2,out1,out2)
   m.in1 = in1
   m.in2 = in2
   m.out1 = out1
