@@ -110,7 +110,8 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
 void OscInterface::addServerMethod(const char *path, const char *format, Handler handler) {
     OscMethod m(path, format, handler);
     methods[numMethods] = m;
-    lo_server_thread_add_method(st, path, format, [](const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *data) -> int {
+    lo_server_thread_add_method(
+        st, path, format, [](const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *data) -> int {
                                     (void) path;
                                     (void) types;
                                     (void) msg;

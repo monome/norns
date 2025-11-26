@@ -164,6 +164,9 @@ void ssd1322_init() {
     // "Keep this pin pull HIGH during normal operation"
     gpiod_line_set_value(gpio_reset, 1);
 
+    // NHD suggested init for ssd1322
+    // https://support.newhavendisplay.com/hc/en-us/articles/4413877789591-NHD-2-7-12864WD-with-Arduino
+
     // All values copied from fbtft-ssd1322.c from monome/linux repo.
     write_command(SSD1322_SET_DISPLAY_OFF);
     write_command(SSD1322_SET_DEFAULT_LINEAR_GRAY_SCALE);
@@ -172,13 +175,17 @@ void ssd1322_init() {
     write_command_with_data(SSD1322_SET_DISPLAY_OFFSET, 0x00);
     write_command_with_data(SSD1322_SET_DISPLAY_START_LINE, 0x00);
     write_command_with_data(SSD1322_SET_VDD_REGULATOR, 0x01);
-    write_command_with_data(SSD1322_SET_DISPLAY_ENHANCEMENT_A, 0xA0, 0xFD);
-    write_command_with_data(SSD1322_SET_CONTRAST_CURRENT, 0x7F);
+    //write_command_with_data(SSD1322_SET_DISPLAY_ENHANCEMENT_A, 0xA0, 0xFD);
+    write_command_with_data(0xB4, 0xA0, 0xFD);
+    //write_command_with_data(SSD1322_SET_CONTRAST_CURRENT, 0x7F);
+    write_command_with_data(SSD1322_SET_CONTRAST_CURRENT, 0x9F);
     write_command_with_data(SSD1322_MASTER_CURRENT_CONTROL, 0x0F);
     write_command_with_data(SSD1322_SET_PHASE_LENGTH, NORNS_PHASE_LENGTH);
     write_command_with_data(SSD1322_SET_PRECHARGE_VOLTAGE, 0x1F);
     write_command_with_data(SSD1322_SET_VCOMH_VOLTAGE, 0x04);
     write_command(SSD1322_SET_DISPLAY_MODE_NORMAL);
+    write_command_with_data(0xD1, 0xA2, 0x20); // display enhancement
+    write_command_with_data(0xB6, 0x08);       // precharge period
 
     // Flips the screen orientation if the device is a norns shield.
     if (platform_factory()) {
