@@ -37,7 +37,7 @@ LABEL org.opencontainers.image.source=https://github.com/monome/norns
 
 ENV LANG=C.UTF-8 \
     DEBIAN_FRONTEND=noninteractive \
-    LIBMONOME_VERSION=1.4.7 \
+    LIBMONOME_VERSION=1.4.9 \
     LIBGPIOD_VERSION=1.6.4 \
     SUPERCOLLIDER_VERSION=3.13.0 \
     SUPERCOLLIDER_PLUGINS_VERSION=3.13.0
