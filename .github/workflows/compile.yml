@@ -10,18 +10,14 @@ on:
 jobs:
   compile-norns:
     runs-on: ubuntu-24.04-arm
+    container: ghcr.io/monome/norns-ci:latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: compile norns
-        uses: addnab/docker-run-action@v3
-        with:
-          registry: ghcr.io
-          image: monome/norns-ci:latest
-          options: -v ${{ github.workspace }}:/norns-build
-          run: |
-            ./waf configure --release && ./waf build --release
+        run: |
+          ./waf configure --release && ./waf build --release
 
   lint-lua:
     runs-on: ubuntu-latest
