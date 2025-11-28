@@ -10,14 +10,21 @@ on:
 jobs:
   compile-norns:
     runs-on: ubuntu-24.04-arm
-    container: ghcr.io/monome/norns-ci:latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: compile norns
-        run: |
-          ./waf configure --release && ./waf build --release
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2 
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Pre-build dev container image and run build inside dev container
+      uses: devcontainers/ci@v0.3
+      with:
+        imageName: ghcr.io/monome/norns-ci
+        cacheFrom: ghcr.io/monome/norns-ci
+        push: filter
+        refFilterForPush: refs/heads/main
+        runCmd: ./waf configure --release && ./waf build --release 
 
   lint-lua:
     runs-on: ubuntu-latest
