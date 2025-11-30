@@ -106,7 +106,8 @@ end
 -- @tparam number from : from angle in radians
 -- @tparam number to : to angle in radians
 -- @tparam integer level : LED brightness in [0, 15]
-function Arc:segment(ring, from, to, level)
+-- @tparam boolean : false (default) to clear background, true if drawing multiple segments
+function Arc:segment(ring, from, to, level, stacking)
   local tau = math.pi * 2
 
   local function overlap(a, b, c, d)
@@ -130,14 +131,22 @@ function Arc:segment(ring, from, to, level)
 
   local m = {}
   local sl = tau / 64
-
+  stacking = stacking or false
+  
   for i=1, 64 do
     local sa = tau / 64 * (i - 1)
     local sb = tau / 64 * i
 
     local o = overlap_segments(from, to, sa, sb)
     m[i] = util.round(o / sl * level)
-    self:led(ring, i, m[i])
+
+    if not stacking then
+      self:led(ring, i, m[i])
+    else
+      if m[i] > 0 then
+        self:led(ring, i, m[i])
+      end
+    end
   end
 end
 
