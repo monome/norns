@@ -41,8 +41,26 @@ static volatile double clock_internal_last_tick_duration = 0.0;
 static void clock_internal_sleep(double seconds) {
     struct timespec ts;
 
-    ts.tv_sec = seconds;
-    ts.tv_nsec = (seconds - ts.tv_sec) * 1000000000;
+    // clamp to zero if sleep is negative. happens after time jumps.
+    if (seconds < 0) {
+        seconds = 0;
+    }
+
+    // split seconds into whole and fractional parts.
+    time_t sec = (time_t)floor(seconds);
+    double frac = seconds - (double)sec;
+    // convert fractional part to nanoseconds. round to nearest integer.
+    long nsec = (long)llround(frac * 1000000000.0);
+    // handle rounding edge case. nsec can equal 1e9. carry to sec.
+    if (nsec >= 1000000000L) {
+        sec += 1;
+        nsec -= 1000000000L;
+    } else if (nsec < 0) {
+        nsec = 0;
+    }
+
+    ts.tv_sec = sec;
+    ts.tv_nsec = nsec;
 
     clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
 }
