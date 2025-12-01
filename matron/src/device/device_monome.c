@@ -14,6 +14,10 @@
 #include "device.h"
 #include "device_monome.h"
 
+#define clamp_upper(value, max) ((value) < (max) ? (value) : (max))
+#define clamp_lower(value, min) ((value) > (min) ? (value) : (min))
+#define clamp_range(value, min, max) clamp_lower(min, clamp_upper(value, max))
+
 // quad offset defaults
 static const int quad_xoff[] = {0, 8, 0, 8};
 static const int quad_yoff[] = {0, 0, 8, 8};
@@ -122,9 +126,13 @@ void dev_monome_tilt_disable(struct dev_monome *md, uint8_t sensor) {
 }
 
 // set a given LED value
-void dev_monome_grid_set_led(struct dev_monome *md, uint8_t x, uint8_t y, uint8_t val) {
+void dev_monome_grid_set_led(struct dev_monome *md, uint8_t x, uint8_t y, int8_t val, bool rel) {
     uint8_t q = dev_monome_quad_idx(x, y);
-    md->data[q][dev_monome_quad_offset(x, y)] = val;
+    if (rel) {
+        md->data[q][dev_monome_quad_offset(x, y)] =
+            clamp_range(md->data[q][dev_monome_quad_offset(x, y)] + val, 0, 15);
+    } else
+        md->data[q][dev_monome_quad_offset(x, y)] = val;
     md->dirty[q] = true;
 }
 

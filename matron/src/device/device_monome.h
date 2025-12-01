@@ -27,7 +27,7 @@ struct dev_monome {
 };
 
 // set a single grid led
-extern void dev_monome_grid_set_led(struct dev_monome *md, uint8_t x, uint8_t y, uint8_t val);
+extern void dev_monome_grid_set_led(struct dev_monome *md, uint8_t x, uint8_t y, int8_t val, bool rel);
 // set a single arc led
 extern void dev_monome_arc_set_led(struct dev_monome *md, uint8_t n, uint8_t x, uint8_t val);
 // set all led

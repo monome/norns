@@ -1764,13 +1764,14 @@ int _midi_clock_receive(lua_State *l) {
  * @param z level (0-15)
  */
 int _grid_set_led(lua_State *l) {
-    lua_check_num_args(4);
+    lua_check_num_args(5);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
     struct dev_monome *md = lua_touserdata(l, 1);
     int x = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int y = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int z = (int)luaL_checkinteger(l, 4);     // don't convert value!
-    dev_monome_grid_set_led(md, x, y, z);
+    bool rel = lua_toboolean(l, 5);
+    dev_monome_grid_set_led(md, x, y, z, rel);
     lua_settop(l, 0);
     return 0;
 }
