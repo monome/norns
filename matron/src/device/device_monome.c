@@ -137,19 +137,31 @@ void dev_monome_grid_set_led(struct dev_monome *md, uint8_t x, uint8_t y, int8_t
 }
 
 // set a given LED value
-void dev_monome_arc_set_led(struct dev_monome *md, uint8_t n, uint8_t x, uint8_t val) {
-    md->data[n & 3][x & 63] = val;
+void dev_monome_arc_set_led(struct dev_monome *md, uint8_t n, uint8_t x, int8_t val, bool rel) {
+		if (rel)
+				md->data[n & 3][x & 63] = clamp_range(md->data[n & 3][x & 63] + val, 0, 15);
+		else
+				md->data[n & 3][x & 63] = val;
     md->dirty[n & 3] = true;
 }
 
 // set all LEDs to value
-void dev_monome_all_led(struct dev_monome *md, uint8_t val) {
-    for (uint8_t q = 0; q < md->quads; q++) {
-        for (uint8_t i = 0; i < 64; i++) {
-            md->data[q][i] = val;
-        }
-        md->dirty[q] = true;
-    }
+void dev_monome_all_led(struct dev_monome *md, int8_t val, bool rel) {
+		if (rel) {
+				for (uint8_t q = 0; q < md->quads; q++) {
+						for (uint8_t i = 0; i < 64; i++) {
+								md->data[q][i] = clamp_range(md->data[q][i] + val, 0, 15);
+						}
+						md->dirty[q] = true;
+				}
+		} else {
+				for (uint8_t q = 0; q < md->quads; q++) {
+						for (uint8_t i = 0; i < 64; i++) {
+								md->data[q][i] = val;
+						}
+						md->dirty[q] = true;
+				}
+		}
 }
 
 // transmit all dirty quads

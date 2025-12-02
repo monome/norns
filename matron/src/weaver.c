@@ -1777,13 +1777,14 @@ int _grid_set_led(lua_State *l) {
 }
 
 int _arc_set_led(lua_State *l) {
-    lua_check_num_args(4);
+    lua_check_num_args(5);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
     struct dev_monome *md = lua_touserdata(l, 1);
     int n = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int x = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int val = (int)luaL_checkinteger(l, 4);   // don't convert value!
-    dev_monome_arc_set_led(md, n, x, val);
+    bool rel = lua_toboolean(l, 5);
+    dev_monome_arc_set_led(md, n, x, val, rel);
     lua_settop(l, 0);
     return 0;
 }
@@ -1795,11 +1796,12 @@ int _arc_set_led(lua_State *l) {
  * @param z level (0-15)
  */
 int _grid_all_led(lua_State *l) {
-    lua_check_num_args(2);
+    lua_check_num_args(3);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
     struct dev_monome *md = lua_touserdata(l, 1);
     int z = (int)luaL_checkinteger(l, 2); // don't convert value!
-    dev_monome_all_led(md, z);
+    bool rel = lua_toboolean(l, 3);
+    dev_monome_all_led(md, z, rel);
     lua_settop(l, 0);
     return 0;
 }
