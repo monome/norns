@@ -106,14 +106,14 @@ end
 -- @tparam integer x : column index (1-based!)
 -- @tparam integer y : row index (1-based!)
 -- @tparam integer val : LED brightness level in [0, 15]
--- @tparam bool rel: relative brightness (add to existing level)
+-- @tparam bool rel : relative brightness (add to existing level)
 function Grid:led(x, y, val, rel)
   _norns.grid_set_led(self.dev, x, y, val, rel)
 end
 
 --- set state of all LEDs on this grid device.
 -- @tparam integer val : LED brightness level in [0, 15]
--- @tparam bool rel: relative brightness (add to existing level)
+-- @tparam bool rel : relative brightness (add to existing level)
 function Grid:all(val, rel)
   _norns.grid_all_led(self.dev, val, rel)
 end
