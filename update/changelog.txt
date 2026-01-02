@@ -1,3 +1,15 @@
+# 260102
+
+# norns 2.9.4
+
+- NEW grid/arc relative levels #1873 @tehn
+- NEW screen context fix for ndi-mod #1866 @dewb
+- NEW audio.vu callback #1869 @evnoj
+- NEW arc intensity #1868 @tehn
+- NEW testing infrastructure #1867 @colinmcardell
+- FIX clock internal ticks #1865 @artfwo
+
+
 # 250926
 
 # norns 2.9.3
