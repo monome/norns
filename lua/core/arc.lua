@@ -83,15 +83,17 @@ function Arc.remove(dev) end
 --- set state of single LED on this arc device.
 -- @tparam integer ring : ring index (1-based!)
 -- @tparam integer x : led index (1-based!)
--- @tparam integer val : LED brightness in [0, 15]
-function Arc:led(ring, x, val)
-  _norns.arc_set_led(self.dev, ring, x, val)
+-- @tparam integer val : LED brightness level in [0, 15]
+-- @tparam bool rel: relative brightness (add to existing level)
+function Arc:led(ring, x, val, rel)
+  _norns.arc_set_led(self.dev, ring, x, val, rel)
 end
 
 --- set state of all LEDs on this arc device.
--- @tparam integer val : LED brightness in [0, 15]
-function Arc:all(val)
-  _norns.arc_all_led(self.dev, val)
+-- @tparam integer val : LED brightness level in [0, 15]
+-- @tparam bool rel: relative brightness (add to existing level)
+function Arc:all(val, rel)
+  _norns.arc_all_led(self.dev, val, rel)
 end
 
 --- update any dirty quads on this arc device.
@@ -106,7 +108,8 @@ end
 -- @tparam number from : from angle in radians
 -- @tparam number to : to angle in radians
 -- @tparam integer level : LED brightness in [0, 15]
-function Arc:segment(ring, from, to, level)
+-- @tparam bool rel: relative brightness (add to existing level)
+function Arc:segment(ring, from, to, level, rel)
   local tau = math.pi * 2
 
   local function overlap(a, b, c, d)
@@ -137,7 +140,7 @@ function Arc:segment(ring, from, to, level)
 
     local o = overlap_segments(from, to, sa, sb)
     m[i] = util.round(o / sl * level)
-    self:led(ring, i, m[i])
+    self:led(ring, i, m[i], rel)
   end
 end
 
