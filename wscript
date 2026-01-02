@@ -1,5 +1,13 @@
+from waflib.Build import BuildContext
+from waflib.Tools import waf_unit_test
+
 top = '.'
 out = 'build'
+
+
+class TestContext(BuildContext):
+    cmd = 'test'
+    fun = 'test'
 
 def get_version_hash():
     import subprocess
@@ -11,16 +19,30 @@ def get_version_hash():
         return ''
 
 def options(opt):
-    opt.load('compiler_c compiler_cxx')
+    opt.load('compiler_c compiler_cxx waf_unit_test')
     opt.add_option('--desktop', action='store_true', default=False)
     opt.add_option('--release', action='store_true', default=False)
     opt.add_option('--enable-ableton-link', action='store_true', default=True)
     opt.add_option('--profile-matron', action='store_true', default=False)
+    # ensure doctest prints success lines by default
+    opt.parser.set_defaults(testcmd='%s --success')
+    opt.add_option(
+        '--test-dry-run',
+        action='store_true',
+        default=False,
+        help='preview discovered tests without building',
+    )
+    opt.add_option(
+        '--skip-self-test',
+        action='store_true',
+        default=False,
+        help='skip test runner self-test validation',
+    )
 
     opt.recurse('maiden-repl')
 
 def configure(conf):
-    conf.load('compiler_c compiler_cxx')
+    conf.load('compiler_c compiler_cxx waf_unit_test')
 
     conf.define('VERSION_MAJOR', 0)
     conf.define('VERSION_MINOR', 0)
@@ -31,7 +53,7 @@ def configure(conf):
 
     conf.env.append_unique('CFLAGS', ['-std=gnu11', '-Wall', '-Wextra', '-Werror'])
     conf.env.append_unique('CFLAGS', ['-g'])
-    conf.env.append_unique('CXXFLAGS', ['-std=c++11'])
+    conf.env.append_unique('CXXFLAGS', ['-std=c++14'])
     conf.define('_GNU_SOURCE', 1)
 
     conf.check_cfg(package='alsa', args=['--cflags', '--libs'])
@@ -75,3 +97,8 @@ def build(bld):
     bld.recurse('crone')
     bld.recurse('third-party')
     bld.recurse('watcher')
+
+def test(bld):
+    bld.recurse('tests')
+    bld.add_post_fun(waf_unit_test.summary)
+    bld.add_post_fun(waf_unit_test.set_exit_code)

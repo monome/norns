@@ -1,4 +1,7 @@
+#include <pthread.h>
 #include <stdatomic.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #include <jack/jack.h>
@@ -9,6 +12,14 @@ static jack_client_t *jack_client;
 double jack_sample_rate;
 
 _Atomic uint32_t xrun_count = 0;
+
+// maintain a 64-bit frame counter from jack's 32-bit frame time.
+// extends wraparound at 48khz from ~25 hours to millions of years.
+static uint64_t g_last_total_frames = 0ULL;
+
+// protects access to g_last_total_frames.
+// a mutex is safe here as time is not read from the audio thread.
+static pthread_mutex_t g_time_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static int xrun_callback(void *arg) {
     (void)arg;
@@ -50,7 +61,26 @@ uint32_t jack_client_get_xrun_count() {
 }
 
 double jack_client_get_current_time() {
-    return (double)jack_frame_time(jack_client) / jack_sample_rate;
+    uint32_t current_frames = (uint32_t)jack_frame_time(jack_client);
+
+    pthread_mutex_lock(&g_time_lock);
+
+    uint32_t last_frames_32 = (uint32_t)g_last_total_frames;
+
+    // calculate delta using modulo arithmetic properties
+    int32_t delta = (int32_t)(current_frames - last_frames_32);
+
+    // only advance if delta is positive.
+    // ignores backward jitter or extremely long stalls (>12h).
+    if (delta > 0) {
+        g_last_total_frames += (uint64_t)delta;
+    }
+
+    uint64_t result = g_last_total_frames;
+
+    pthread_mutex_unlock(&g_time_lock);
+
+    return (double)result / jack_sample_rate;
 }
 
 const char **jack_client_get_input_ports() {
@@ -80,3 +110,15 @@ bool jack_client_disconnect(const char *source_name, const char *destination_nam
 void jack_client_free_port_list(const char **list) {
     jack_free(list);
 }
+
+#ifdef NORNS_TEST
+void jack_client_test_set_time_state(uint64_t frames) {
+    pthread_mutex_lock(&g_time_lock);
+    g_last_total_frames = frames;
+    pthread_mutex_unlock(&g_time_lock);
+}
+
+void jack_client_test_reset_time_state(void) {
+    jack_client_test_set_time_state(0ULL);
+}
+#endif // NORNS_TEST
