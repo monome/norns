@@ -30,7 +30,7 @@ sudo rm -rf /var/log/daemon.log
 sudo rm -rf /var/log/user.log
 
 # disable hciuart
-sudo systemctl disable hciuart 
+sudo systemctl disable hciuart
 
 # update jack systemd
 sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
@@ -66,6 +66,9 @@ if [ ! -d /home/we/dust/audio/common ]; then
 	rm dust-audio-common.tgz
 fi
 
+cd "$(dirname "$0")"/package/libmonome
+./waf configure
+sudo ./waf install
 
 # cleanup
 rm -rf ~/update/*
