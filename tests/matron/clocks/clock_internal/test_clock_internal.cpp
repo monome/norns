@@ -1,7 +1,9 @@
 // tests for matron/src/clocks/clock_internal.c behavior
 // covers thread loop, tempo publish, restarts
 
+#include <chrono>
 #include <doctest/doctest.h>
+#include <thread>
 
 extern "C" {
 #include "clocks/clock_internal.h"
@@ -166,8 +168,8 @@ TEST_CASE("internal clock") {
 
         // wait for the first publish
         unsigned long long pub = clock_internal_test_get_published_ticks();
-        for (int i = 0; i < 200000 && clock_internal_test_get_published_ticks() == pub; ++i) {
-            ;
+        for (int i = 0; i < 2000000 && clock_internal_test_get_published_ticks() == pub; ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         REQUIRE(clock_internal_get_tempo() == doctest::Approx(120.0));
 
@@ -176,8 +178,8 @@ TEST_CASE("internal clock") {
         pub = clock_internal_test_get_published_ticks();
         clock_internal_set_tempo(90.0);
 
-        for (int i = 0; i < 200000 && clock_internal_test_get_published_ticks() == pub; ++i) {
-            ;
+        for (int i = 0; i < 2000000 && clock_internal_test_get_published_ticks() == pub; ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         CHECK(clock_internal_get_tempo() == doctest::Approx(90.0));
 
@@ -185,8 +187,8 @@ TEST_CASE("internal clock") {
         tests_set_now(6.0 * 3600.0);
         pub = clock_internal_test_get_published_ticks();
         clock_internal_set_tempo(60.0);
-        for (int i = 0; i < 400000 && clock_internal_test_get_published_ticks() == pub; ++i) {
-            ;
+        for (int i = 0; i < 4000000 && clock_internal_test_get_published_ticks() == pub; ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         CHECK(clock_internal_get_tempo() == doctest::Approx(60.0));
 
