@@ -2,7 +2,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <glib.h>
-#include <linux/input.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,6 +50,36 @@ static void add_codes(struct dev_hid *d) {
         codes = realloc(codes, num_codes * sizeof(dev_code_t));
         d->num_codes[i] = num_codes;
         d->codes[i] = codes;
+    }
+}
+
+static void add_absinfos(struct dev_hid *d) {
+    struct libevdev *dev = d->dev;
+
+    // find the EV_ABS type entry
+    d->num_abs = 0;
+    d->absinfos = NULL;
+    d->abs_codes = NULL;
+
+    for (int i = 0; i < d->num_types; i++) {
+        if (d->types[i] == EV_ABS) {
+            int num = d->num_codes[i];
+            d->num_abs = num;
+            d->absinfos = calloc(num, sizeof(struct input_absinfo));
+            d->abs_codes = calloc(num, sizeof(dev_code_t));
+
+            for (int j = 0; j < num; j++) {
+                int code = d->codes[i][j];
+                const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
+                d->abs_codes[j] = code;
+                if (ai) {
+                    memcpy(&d->absinfos[j], ai, sizeof(struct input_absinfo));
+                } else {
+                    memset(&d->absinfos[j], 0, sizeof(struct input_absinfo));
+                }
+            }
+            break;
+        }
     }
 }
 
@@ -104,6 +133,7 @@ int dev_hid_init(void *self) {
 
     add_types(d);
     add_codes(d);
+    add_absinfos(d);
 
     d->vid = libevdev_get_id_vendor(dev);
     d->pid = libevdev_get_id_product(dev);
@@ -150,6 +180,8 @@ void *dev_hid_start(void *self) {
 
 void dev_hid_deinit(void *self) {
     struct dev_hid *di = (struct dev_hid *)self;
+    TEST_NULL_AND_FREE(di->absinfos);
+    TEST_NULL_AND_FREE(di->abs_codes);
     for (int i = 0; i < di->num_types; i++) {
         TEST_NULL_AND_FREE(di->codes[i]);
     }

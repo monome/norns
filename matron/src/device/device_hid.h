@@ -5,6 +5,7 @@
 
 #include "device_common.h"
 #include <libevdev/libevdev.h>
+#include <linux/input.h>
 
 #define DEV_GUID_LEN 33
 
@@ -27,6 +28,12 @@ struct dev_hid {
     int *num_codes;
     // arrays of supported event codes per event type
     dev_code_t **codes;
+    // count of axis, i.e. analog inputs
+    int num_abs;
+    // arrays of axis propeties
+    struct input_absinfo *absinfos;
+    // list of axis codes
+    dev_code_t *abs_codes;
 };
 
 extern int dev_hid_init(void *self);

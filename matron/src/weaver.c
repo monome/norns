@@ -2370,7 +2370,28 @@ void w_handle_hid_add(void *p) {
 
     lua_pushlightuserdata(lvm, dev);
     lua_pushstring(lvm, dev->guid);
-    l_report(lvm, l_docall(lvm, 6, 0));
+
+    // table of absinfos, indexed by event code
+    lua_newtable(lvm);
+    for (int j = 0; j < dev->num_abs; j++) {
+        struct input_absinfo *ai = &dev->absinfos[j];
+        int code = dev->abs_codes[j];
+        lua_createtable(lvm, 0, 5);
+        lua_pushinteger(lvm, ai->minimum);
+        lua_setfield(lvm, -2, "min");
+        lua_pushinteger(lvm, ai->maximum);
+        lua_setfield(lvm, -2, "max");
+        lua_pushinteger(lvm, ai->flat);
+        lua_setfield(lvm, -2, "flat");
+        lua_pushinteger(lvm, ai->fuzz);
+        lua_setfield(lvm, -2, "fuzz");
+        lua_pushinteger(lvm, ai->resolution);
+        lua_setfield(lvm, -2, "res");
+        // tell lua VM that code is the index
+        lua_seti(lvm, -2, code);
+    }
+
+    l_report(lvm, l_docall(lvm, 7, 0));
 }
 
 void w_handle_hid_remove(int id) {
