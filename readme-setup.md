@@ -56,6 +56,8 @@ git submodule update --init --recursive
 ./waf
 ```
 
+(NB: `waf` assumes `build` as the default command, which is why we can omit it above.
+
 this should build several executables under `norns/build/<name>/`:
 
 - `matron`: the main norns system application: runs scripts, interfaces with controllers and screens
@@ -80,12 +82,9 @@ popd
 for building on desktop, add the `--desktop` option to both `waf` steps (configure and build):
 
 ```
-./waf configure --desktop
+CC=gcc CXX=g++ ./waf configure --desktop
 ./waf build --desktop
 ```
-
-(NB: `waf` assumes `build` as the default command, which is why we can omit it above.)
-
 
 ## launching components
 
