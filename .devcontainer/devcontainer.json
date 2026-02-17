@@ -5,7 +5,10 @@
 	"build": {
 		"context": "..",
 		"dockerfile": "../Dockerfile",
-		"cacheFrom": "ghcr.io/monome/norns-ci:latest"
+		"cacheFrom": "ghcr.io/monome/norns-ci:latest",
+		"options": [
+			"--platform=linux/arm/v8"
+		]
 	},
     "runArgs": [
         "--platform=linux/arm/v8"

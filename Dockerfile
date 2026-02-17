@@ -1,17 +1,17 @@
 FROM --platform=linux/arm/v8 dtcooper/raspberrypi-os:bullseye AS build_armv8
 LABEL org.opencontainers.image.source=https://github.com/monome/norns
 
-# norns-ci container definition 
+# norns-ci container definition
 #
-# This container is focused on creating an accurate build environment for CI. It does 
+# This container is focused on creating an accurate build environment for CI. It does
 # not attempt to add any extra bits to make the container a usable way for a desktop
-# user to interact with a running virtual norns environment in realtime. Emulating armv8 
+# user to interact with a running virtual norns environment in realtime. Emulating armv8
 # can be much slower (10-20x) than running on the host architecture.
 #
-# To build norns in a local armv8 container using a macOS or Windows machine with 
-# Docker Desktop installed, run the following commands from the norns repo root folder. 
+# To build norns in a local armv8 container using a macOS or Windows machine with
+# Docker Desktop installed, run the following commands from the norns repo root folder.
 #
-#    % docker build -t norns-ci . 
+#    % docker build -t norns-ci .
 #    % docker run -v $(pwd):/norns-build --platform linux/arm64 -t norns-ci
 #
 # The norns-ci docker image is also published to the GitHub container registry. You can
@@ -22,8 +22,8 @@ LABEL org.opencontainers.image.source=https://github.com/monome/norns
 # You can also specify the registry as a cache source when building the container locally:
 #
 #    % docker build -t norns-ci . --cache-from ghcr.io/monome/norns-ci:latest
-# 
-# Building the container from Linux may require additional steps, see 
+#
+# Building the container from Linux may require additional steps, see
 #    https://docs.docker.com/build/building/multi-platform/#install-qemu-manually
 #
 # Based on the instructions at
@@ -40,7 +40,8 @@ ENV LANG=C.UTF-8 \
     LIBMONOME_VERSION=1.4.9 \
     LIBGPIOD_VERSION=1.6.4 \
     SUPERCOLLIDER_VERSION=3.13.0 \
-    SUPERCOLLIDER_PLUGINS_VERSION=3.13.0
+    SUPERCOLLIDER_PLUGINS_VERSION=3.13.0 \
+    NNG_VERSION=1.11
 
 RUN apt-get update -yq && apt-get install -y \
     bc \
@@ -76,8 +77,10 @@ RUN apt-get update -yq && apt-get install -y \
     python3-setuptools \
     python3-wheel \
     vim \
-    wget 
-    
+    wget \
+    sudo \
+    ninja-build
+
 RUN apt-get install --no-install-recommends -y \
     dnsmasq-base \
     jackd2 \
@@ -132,13 +135,27 @@ RUN mkdir -p /tmp/sc3-plugins && cd /tmp/sc3-plugins && \
     cmake --build . --config Release --target install && \
     cd / && ldconfig
 
+# Install nng
+RUN mkdir -p /tmp/nng && cd /tmp/nng && \
+    git clone --depth=1 --recursive --branch v$NNG_VERSION https://github.com/nanomsg/nng.git && \
+    cd /tmp/nng/nng && mkdir -p build && \
+    cd /tmp/nng/nng/build && \
+    cmake -G Ninja .. && \
+    ninja && \
+    ninja install && \
+    cd /
+
 # Suppress git errors due to ownership across host/container userids
 RUN git config --global --add safe.directory /norns-build
 
 # Support running the container with -i
 ENV DEBIAN_FRONTEND=readline
 
+# Set up the 'we' user with sudo access for container debugging
 RUN useradd -m we
+RUN usermod -aG sudo we
+RUN echo 'we:sleep' | chpasswd
+
 USER we
 
 WORKDIR /norns-build
