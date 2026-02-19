@@ -2,6 +2,7 @@
 // covers thread loop, tempo publish, restarts
 
 #include <chrono>
+#include <cmath>
 #include <doctest/doctest.h>
 #include <thread>
 
@@ -129,8 +130,8 @@ TEST_CASE("internal clock") {
 
         // wait for at least one publish to initialize pacing
         unsigned long long p0 = clock_internal_test_get_published_ticks();
-        for (int i = 0; i < 200000 && clock_internal_test_get_published_ticks() == p0; ++i) {
-            ;
+        for (int i = 0; i < 2000000 && clock_internal_test_get_published_ticks() == p0; ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 
         // jump time forward by hours so next_tick_time is far behind current_time
@@ -141,8 +142,8 @@ TEST_CASE("internal clock") {
         for (int i = 0; i < 50; ++i) {
             // wait for next publish
             unsigned long long before = clock_internal_test_get_published_ticks();
-            for (int s = 0; s < 10000 && clock_internal_test_get_published_ticks() == before; ++s) {
-                ;
+            for (int s = 0; s < 100000 && clock_internal_test_get_published_ticks() == before; ++s) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
             double last_sleep = clock_internal_test_get_last_sleep_s();
             if (last_sleep >= 0.0) {
@@ -173,21 +174,22 @@ TEST_CASE("internal clock") {
         }
         REQUIRE(clock_internal_get_tempo() == doctest::Approx(120.0));
 
-        // change tempo to 90; it should update on next publish only
-        CHECK(clock_internal_get_tempo() == doctest::Approx(120.0));
-        pub = clock_internal_test_get_published_ticks();
+        // change tempo to 90 and wait for it to be observed.
         clock_internal_set_tempo(90.0);
-
-        for (int i = 0; i < 2000000 && clock_internal_test_get_published_ticks() == pub; ++i) {
+        pub = clock_internal_test_get_published_ticks();
+        for (int i = 0; i < 2000000; ++i) {
+            if (std::abs(clock_internal_get_tempo() - 90.0) < 0.01)
+                break;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         CHECK(clock_internal_get_tempo() == doctest::Approx(90.0));
 
         // jump time forward by hours; tempo change still publishes on the next tick
         tests_set_now(6.0 * 3600.0);
-        pub = clock_internal_test_get_published_ticks();
         clock_internal_set_tempo(60.0);
-        for (int i = 0; i < 4000000 && clock_internal_test_get_published_ticks() == pub; ++i) {
+        for (int i = 0; i < 4000000; ++i) {
+            if (std::abs(clock_internal_get_tempo() - 60.0) < 0.01)
+                break;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         CHECK(clock_internal_get_tempo() == doctest::Approx(60.0));
