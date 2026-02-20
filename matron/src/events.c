@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <pthread.h>
 
@@ -92,6 +93,7 @@ void events_init(void) {
     evq.size = 0;
     evq.head = NULL;
     evq.tail = NULL;
+    pthread_mutex_init(&evq.lock, NULL);
     pthread_cond_init(&evq.nonempty, NULL);
 }
 
@@ -175,26 +177,36 @@ MATRON_API void event_post(union event_data *ev) {
     pthread_mutex_unlock(&evq.lock);
 }
 
-// main loop to read events!
 void event_loop(void) {
     union event_data *ev;
     while (!quit) {
         pthread_mutex_lock(&evq.lock);
         // while() because contention may produce spurious wakeup
-        while (evq.size == 0) {
+        while (evq.size == 0 && !quit) {
             //// FIXME: if we have an input device thread running,
             //// then we get segfaults here on SIGINT
             //// need to set an explicit sigint handler
             // atomically unlocks the mutex, sleeps on condvar, locks again on
             // wakeup
+#ifdef NORNS_DESKTOP
+            pthread_mutex_unlock(&evq.lock);
+            usleep(16000);
+            extern void sdl_handle_input(void);
+            sdl_handle_input();
+            pthread_mutex_lock(&evq.lock);
+#else
             pthread_cond_wait(&evq.nonempty, &evq.lock);
+#endif
         }
         // fprintf(stderr, "evq.size : %d\n", (int) evq.size);
-        assert(evq.size > 0);
-        ev = evq_pop();
-        pthread_mutex_unlock(&evq.lock);
-        if (ev != NULL) {
-            handle_event(ev);
+        if (evq.size > 0) {
+            ev = evq_pop();
+            pthread_mutex_unlock(&evq.lock);
+            if (ev != NULL) {
+                handle_event(ev);
+            }
+        } else {
+            pthread_mutex_unlock(&evq.lock);
         }
     }
 }

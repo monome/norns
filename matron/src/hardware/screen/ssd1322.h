@@ -1,7 +1,13 @@
 #pragma once
 
-#include <arm_neon.h>
 #include <cairo.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#ifndef NORNS_DESKTOP
+
+#include <arm_neon.h>
 #include <fcntl.h>
 #include <gpiod.h>
 #include <linux/gpio.h>
@@ -10,7 +16,6 @@
 #include <math.h>
 #include <pthread.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -75,6 +80,8 @@
 #define SSD1322_PIXEL_WIDTH 128
 #define SSD1322_PIXEL_HEIGHT 64
 
+#endif
+
 typedef enum {
     SSD1322_DISPLAY_MODE_ALL_OFF = 0,
     SSD1322_DISPLAY_MODE_ALL_ON,
@@ -82,13 +89,13 @@ typedef enum {
     SSD1322_DISPLAY_MODE_INVERT,
 } ssd1322_display_mode_t;
 
-void ssd1322_init();
-void ssd1322_deinit();
-void ssd1322_refresh();
-void ssd1322_update(cairo_surface_t *surface, bool should_translate_color);
+void ssd1322_init(void);
+void ssd1322_deinit(void);
+void ssd1322_refresh(void);
+void ssd1322_update(cairo_surface_t *surface, bool translate);
 void ssd1322_set_brightness(uint8_t b);
 void ssd1322_set_contrast(uint8_t c);
-void ssd1322_set_display_mode(ssd1322_display_mode_t);
+void ssd1322_set_display_mode(ssd1322_display_mode_t mode);
 void ssd1322_set_gamma(double g);
 void ssd1322_set_refresh_rate(uint8_t hz);
-uint8_t *ssd1322_resize_buffer(size_t);
+uint8_t *ssd1322_resize_buffer(size_t size);

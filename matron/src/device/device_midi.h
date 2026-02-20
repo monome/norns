@@ -1,14 +1,29 @@
 #pragma once
 
+#ifdef __linux__
 #include <alsa/asoundlib.h>
+#elif defined(__APPLE__)
+#include <CoreMIDI/CoreMIDI.h>
+#endif
 
 #include "device_common.h"
 
 struct dev_midi {
     struct dev_common dev;
     bool clock_enabled;
+#ifdef __linux__
     snd_rawmidi_t *handle_in;
     snd_rawmidi_t *handle_out;
+#elif defined(__APPLE__)
+    MIDIClientRef client;
+    MIDIPortRef port_in;
+    MIDIPortRef port_out;
+    MIDIEndpointRef endpoint_in;
+    MIDIEndpointRef endpoint_out;
+#else
+    void *handle_in;
+    void *handle_out;
+#endif
 };
 
 extern unsigned int dev_midi_port_count(const char *path);

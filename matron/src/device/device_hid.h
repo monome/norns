@@ -4,7 +4,10 @@
 #include <stdint.h>
 
 #include "device_common.h"
+
+#ifdef __linux__
 #include <libevdev/libevdev.h>
+#endif
 
 #define DEV_GUID_LEN 33
 
@@ -14,7 +17,11 @@ typedef uint16_t dev_code_t;
 
 struct dev_hid {
     struct dev_common base;
+#ifdef __linux__
     struct libevdev *dev;
+#else
+    void *dev;
+#endif
     // identifiers
     dev_vid_t vid;
     dev_pid_t pid;

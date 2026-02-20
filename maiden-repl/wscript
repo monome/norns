@@ -1,3 +1,5 @@
+import sys
+
 top = '../..'
 
 
@@ -7,9 +9,11 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_c compiler_cxx')
 
-    # libraries with full pkg-config data
     conf.check_cfg(package='ncursesw', args=['--cflags', '--libs'])
-    conf.check_cfg(package='panel', args=['--cflags', '--libs'])
+    if sys.platform == 'darwin':
+        conf.check_cfg(package='panelw', args=['--cflags', '--libs'], uselib_store='PANEL')
+    else:
+        conf.check_cfg(package='panel', args=['--cflags', '--libs'])
     conf.check_cfg(package='nanomsg', args=['--cflags', '--libs'])
 
 def build(bld):
@@ -21,13 +25,18 @@ def build(bld):
         'src/main.c',
     ]
 
+    includes = ['src']
+    libpath = []
+    if sys.platform == 'darwin':
+        includes.append('/opt/homebrew/opt/readline/include')
+        libpath.append('/opt/homebrew/opt/readline/lib')
+
     bld.program(features='c cxx cxxprogram',
                 source=maiden_repl_sources,
                 target='maiden-repl',
 
-                includes=[
-                    'src',
-                ],
+                includes=includes,
+                libpath=libpath,
 
                 use=[
                     'NCURSESW',
@@ -38,7 +47,7 @@ def build(bld):
                     'pthread',
                     'readline',
                     'ncursesw',
-                    'panel',
+                    'panelw' if sys.platform == 'darwin' else 'panel',
                     'nanomsg'
                 ],
                 cxxflags=[

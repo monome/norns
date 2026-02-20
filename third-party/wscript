@@ -1,6 +1,26 @@
+import subprocess
+import sys
+
 top = '..'
 
 def build_link(bld):
+    cxxflags = [
+        '-O3',
+        '-Wall',
+        '-Wno-multichar',
+        '-std=c++14',
+    ]
+    defines = ['ASIO_STANDALONE']
+
+    if sys.platform == 'darwin':
+        defines.append('LINK_PLATFORM_MACOSX')
+        cxxflags.append('-stdlib=libc++')
+        sdk = subprocess.check_output(['xcrun', '--show-sdk-path']).decode().strip()
+        cxxflags.extend(['-isysroot', sdk])
+    else:
+        defines.append('LINK_PLATFORM_LINUX')
+        cxxflags.append('-Wno-psabi')
+
     bld.stlib(features='c cxx cxxstlib',
         source=[
             'link/extensions/abl_link/src/abl_link.cpp',
@@ -11,15 +31,8 @@ def build_link(bld):
             'link/include',
             'link/modules/asio-standalone/asio/include',
         ],
-        cxxflags=[
-            '-O3',
-            '-Wall',
-            '-Wno-multichar',
-            '-Wno-psabi',
-        ],
-        defines=[
-            'LINK_PLATFORM_LINUX'
-        ],
+        cxxflags=cxxflags,
+        defines=defines,
         name='LIBLINK_C')
 
 def build(bld):

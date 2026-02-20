@@ -392,7 +392,7 @@ void o_set_poll(int idx, const char *name, poll_type_t type) {
     } else {
         name_len = strlen(name);
         polls[idx].name = malloc(name_len + 1);
-        if ((polls[idx].name == NULL)) {
+        if (polls[idx].name == NULL) {
             fprintf(stderr, "failure to malloc for poll %d : %s\n", idx, name);
         } else {
             strncpy(polls[idx].name, name, name_len + 1);

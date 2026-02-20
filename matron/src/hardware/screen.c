@@ -8,7 +8,9 @@
 #include <cairo-ft.h>
 #include <cairo.h>
 #include <fcntl.h>
+#ifdef __linux__
 #include <linux/fb.h>
+#endif
 #include <math.h>
 #include <pthread.h>
 #include <stdint.h>
@@ -287,7 +289,6 @@ void screen_deinit(void) {
 }
 
 void screen_update(void) {
-
 #ifdef NORNS_DESKTOP
     matron_io_t *io;
     TAILQ_FOREACH(io, &io_queue, entries) {
@@ -297,11 +298,10 @@ void screen_update(void) {
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->paint(fb);
     }
-    return;
-#endif
-
+#else
     cairo_surface_flush(surface);
     ssd1322_update(surface, surface_may_have_color);
+#endif
 }
 
 void screen_save(void) {
@@ -336,6 +336,7 @@ void screen_aa(int s) {
 }
 
 void screen_brightness(int v) {
+#ifndef NORNS_DESKTOP
     if (v < 0) {
         v = 0;
     }
@@ -343,15 +344,16 @@ void screen_brightness(int v) {
         v = 15;
     }
 
-    // True range of pre-charge voltage, AKA "brightness" is 0-31.
-    // Below 16 is too dark for the lowest screen levels, so the range
-    // is limited and offset.
     v += 16;
 
     ssd1322_set_brightness((uint8_t)v);
+#else
+    (void)v;
+#endif
 }
 
 void screen_contrast(int c) {
+#ifndef NORNS_DESKTOP
     if (c < 0) {
         c = 0;
     }
@@ -359,18 +361,29 @@ void screen_contrast(int c) {
         c = 255;
     }
     ssd1322_set_contrast((uint8_t)c);
+#else
+    (void)c;
+#endif
 }
 
 void screen_gamma(double g) {
+#ifndef NORNS_DESKTOP
     if (g < 0.0) {
         g = 0;
     }
 
     ssd1322_set_gamma(g);
+#else
+    (void)g;
+#endif
 }
 
 void screen_invert(int inverted) {
+#ifndef NORNS_DESKTOP
     ssd1322_set_display_mode((inverted != 0) ? SSD1322_DISPLAY_MODE_INVERT : SSD1322_DISPLAY_MODE_NORMAL);
+#else
+    (void)inverted;
+#endif
 }
 
 void screen_level(int z) {

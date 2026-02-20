@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/epoll.h>
 #include <unistd.h>
 
 #include "events.h"
@@ -53,12 +52,13 @@ void *stat_check(void *x) {
     char buf[128];
     char bufsub[8];
 
+#ifdef __linux__
     uint32_t user, nice, system, idle, iowait, irq, softirq, steal;
-    // uint32_t sumidle = 0, prevsumidle = 0, sumnonidle = 0, total = 0, prevtotal = 0;
     uint32_t sumidle = 0, sumnonidle = 0, total = 0;
     uint32_t prevsumidle[5] = {0, 0, 0, 0, 0};
     uint32_t prevtotal[5] = {0, 0, 0, 0, 0};
     int32_t totald, idled;
+#endif
 
     while (1) {
         number++;
@@ -94,6 +94,7 @@ void *stat_check(void *x) {
         }
 
         // check cpu
+#ifdef __linux__
         if ((fd = popen("cat /proc/stat", "r")) == NULL) {
             fprintf(stderr, "Error opening pipe: cpu read\n");
         } else {
@@ -128,6 +129,7 @@ void *stat_check(void *x) {
             }
         }
         pclose(fd);
+#endif
 
         // just send every tick
         union event_data *ev = event_data_new(EVENT_STAT);

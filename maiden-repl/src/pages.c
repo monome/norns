@@ -21,7 +21,7 @@ void page_select(int i) {
     page_id_cur = i;
     page_cur = pages[i];
     top_panel(page_cur->panel);
-    mvwprintw(win_stat, 0, 0, page_title[i]);
+    mvwprintw(win_stat, 0, 0, "%s", page_title[i]);
     wnoutrefresh(win_stat);
     page_refresh(page_cur);
     doupdate();

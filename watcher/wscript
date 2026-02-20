@@ -1,6 +1,11 @@
+import sys
+
 top = '..'
 
 def build(bld):
+    if sys.platform == 'darwin':
+        return
+
     watcher_sources = [
         'src/main.c',
     ]

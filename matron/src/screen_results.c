@@ -1,19 +1,30 @@
-#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef __APPLE__
+#include <dispatch/dispatch.h>
+#else
+#include <semaphore.h>
+#endif
 
 #include "events.h"
 #include "screen_results.h"
 
-// instead of a queue, we just have a single event here!
-// i think for the moment it is enough,
-// since only one blocking request can be in flight at a time
 static union screen_results_data *results_data;
+
+#ifdef __APPLE__
+static dispatch_semaphore_t sem_results;
+#else
 static sem_t sem_results;
+#endif
 
 void screen_results_init() {
     results_data = NULL;
+#ifdef __APPLE__
+    sem_results = dispatch_semaphore_create(0);
+#else
     sem_init(&sem_results, 0, 0);
+#endif
 }
 
 void screen_results_deinit() {
@@ -21,7 +32,11 @@ void screen_results_deinit() {
 }
 
 void screen_results_wait() {
+#ifdef __APPLE__
+    dispatch_semaphore_wait(sem_results, DISPATCH_TIME_FOREVER);
+#else
     sem_wait(&sem_results);
+#endif
 }
 
 void screen_results_post(union screen_results_data *data) {
@@ -32,7 +47,11 @@ void screen_results_post(union screen_results_data *data) {
         screen_results_free();
     }
     results_data = data;
+#ifdef __APPLE__
+    dispatch_semaphore_signal(sem_results);
+#else
     sem_post(&sem_results);
+#endif
 }
 
 union screen_results_data *screen_results_data_new(screen_results_t type) {

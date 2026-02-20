@@ -1,5 +1,6 @@
 #pragma once
 
+#include <pthread.h>
 #include <stdint.h>
 
 typedef enum {

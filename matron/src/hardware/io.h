@@ -1,5 +1,7 @@
 #pragma once
 
+#include <pthread.h>
+
 #include <cairo.h>
 #include <lualib.h>
 #include <sys/queue.h>

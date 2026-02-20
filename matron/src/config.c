@@ -21,15 +21,27 @@ static inline void lua_register_func(lua_State *l, const char *name, lua_CFuncti
 static int _add_io(lua_State *l);
 
 int config_init(void) {
+    fprintf(stderr, "config_init: start\n"); fflush(stderr);
     lua_State *l = config_lvm = luaL_newstate();
+    fprintf(stderr, "config_init: lua state created\n"); fflush(stderr);
     luaL_openlibs(l);
-    lua_pcall(l, 0, 0, 0);
+    fprintf(stderr, "config_init: openlibs done\n"); fflush(stderr);
+    // lua_pcall(l, 0, 0, 0);
+    fprintf(stderr, "config_init: pcall skipped\n"); fflush(stderr);
 
     lua_newtable(l);
 
     lua_register_func(l, "add_io", _add_io);
 
+#ifdef NORNS_DESKTOP
+    lua_pushboolean(l, 1);
+#else
+    lua_pushboolean(l, 0);
+#endif
+    lua_setfield(l, -2, "is_desktop");
+
     lua_setglobal(l, "_boot");
+    fprintf(stderr, "config_init: _boot registered\n"); fflush(stderr);
 
     char *home = getenv("HOME");
     char fname[256];
@@ -43,11 +55,15 @@ int config_init(void) {
         fprintf(stderr, "error evaluating matronrc.lua, stop.\n");
         return -1;
     }
+    fprintf(stderr, "config_init: matronrc loaded\n"); fflush(stderr);
 
     lua_close(l);
+    fprintf(stderr, "config_init: lua closed\n"); fflush(stderr);
 
     io_setup_all();
+    fprintf(stderr, "config_init: io_setup_all done\n"); fflush(stderr);
     screen_init();
+    fprintf(stderr, "config_init: screen_init done\n"); fflush(stderr);
 
     return 0;
 }

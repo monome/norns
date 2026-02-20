@@ -62,7 +62,11 @@ static void clock_internal_sleep(double seconds) {
     ts.tv_sec = sec;
     ts.tv_nsec = nsec;
 
+#ifdef __APPLE__
+    nanosleep(&ts, NULL);
+#else
     clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL);
+#endif
 }
 
 static void *clock_internal_thread_run(void *p) {

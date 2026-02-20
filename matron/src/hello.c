@@ -49,9 +49,9 @@ static int timeout = 0;
 static int ok = 0;
 static volatile int thread_running = 0;
 
-static int norns_hello();
+static int norns_hello(int live);
 static void *hello_loop(void *);
-static void start_thread();
+static void start_thread(void);
 
 void *hello_loop(void *p) {
     (void)p;

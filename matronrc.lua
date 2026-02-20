@@ -15,5 +15,9 @@ function init_desktop()
   -- _boot.input_add('web_input', 'json', {})
 end
 
-init_norns()
+if _boot.is_desktop then
+  init_desktop()
+else
+  init_norns()
+end
 

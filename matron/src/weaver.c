@@ -378,7 +378,7 @@ void w_init(void) {
     fprintf(stderr, "starting main lua vm\n");
     lvm = luaL_newstate();
     luaL_openlibs(lvm);
-    lua_pcall(lvm, 0, 0, 0);
+    // lua_pcall(lvm, 0, 0, 0);
 
     ////////////////////////
     // FIXME: document these in lua in some deliberate fashion

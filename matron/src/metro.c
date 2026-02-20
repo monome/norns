@@ -234,7 +234,17 @@ void metro_sleep(struct metro *t) {
     t->time += t->delta;
     ts.tv_sec = t->time / 1000000000;
     ts.tv_nsec = t->time % 1000000000;
+#ifdef __APPLE__
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    int64_t wait_ns = (ts.tv_sec - now.tv_sec) * 1000000000LL + (ts.tv_nsec - now.tv_nsec);
+    if (wait_ns > 0) {
+        struct timespec wait = {wait_ns / 1000000000, wait_ns % 1000000000};
+        nanosleep(&wait, NULL);
+    }
+#else
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
+#endif
 }
 
 void metro_wait(int idx) {

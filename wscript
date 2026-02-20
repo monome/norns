@@ -1,3 +1,4 @@
+import sys
 from waflib.Build import BuildContext
 from waflib.Tools import waf_unit_test
 
@@ -56,29 +57,53 @@ def configure(conf):
     conf.env.append_unique('CXXFLAGS', ['-std=c++14'])
     conf.define('_GNU_SOURCE', 1)
 
-    conf.check_cfg(package='alsa', args=['--cflags', '--libs'])
-    conf.check_cfg(package='libudev', args=['--cflags', '--libs'])
-    conf.check_cfg(package='libevdev', args=['--cflags', '--libs'])
-    conf.check_cfg(package='libgpiod', args=['--cflags', '--libs'])
+    if not conf.options.desktop or sys.platform == 'linux':
+        conf.check_cfg(package='alsa', args=['--cflags', '--libs'])
+        conf.check_cfg(package='libudev', args=['--cflags', '--libs'])
+        conf.check_cfg(package='libevdev', args=['--cflags', '--libs'])
+    if not conf.options.desktop:
+        conf.check_cfg(package='libgpiod', args=['--cflags', '--libs'])
     conf.check_cfg(package='liblo', args=['--cflags', '--libs'])
     conf.check_cfg(package='cairo', args=['--cflags', '--libs'])
     conf.check_cfg(package='cairo-ft', args=['--cflags', '--libs'])
-    conf.check_cfg(package='lua53', args=['--cflags', '--libs'])
+    for lua_pkg in ['lua53', 'lua5.3', 'lua-5.3', 'lua5.4', 'lua-5.4']:
+        try:
+            conf.check_cfg(package=lua_pkg, args=['--cflags', '--libs'], uselib_store='LUA53')
+            break
+        except conf.errors.ConfigurationError:
+            continue
+    else:
+        conf.fatal('Lua not found (tried lua53, lua5.4)')
     conf.check_cfg(package='nanomsg', args=['--cflags', '--libs'])
-    conf.check_cfg(package='avahi-compat-libdns_sd', args=['--cflags', '--libs'])
+    if sys.platform == 'darwin':
+        conf.check_cc(msg='Checking for dns_sd (native)', header_name='dns_sd.h', uselib_store='AVAHI-COMPAT-LIBDNS_SD')
+    else:
+        conf.check_cfg(package='avahi-compat-libdns_sd', args=['--cflags', '--libs'])
     conf.check_cfg(package='sndfile', args=['--cflags', '--libs'])
     conf.check_cfg(package='jack', args=['--cflags', '--libs'])
 
-    conf.check_cc(msg='Checking for libmonome',
+    libmonome_args = dict(
+        msg='Checking for libmonome',
         define_name='HAVE_LIBMONOME',
         mandatory=True,
         lib='monome',
         header_name='monome.h',
-        uselib_store='LIBMONOME')
+        uselib_store='LIBMONOME'
+    )
+    if sys.platform == 'darwin':
+        libmonome_args['includes'] = ['/opt/homebrew/include']
+        libmonome_args['libpath'] = ['/opt/homebrew/lib']
+    conf.check_cc(**libmonome_args)
 
     if conf.options.desktop:
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
         conf.define('NORNS_DESKTOP', True)
+        if sys.platform == 'darwin':
+            conf.check_cc(
+                msg='Checking for CoreMIDI',
+                framework='CoreMIDI',
+                uselib_store='COREMIDI',
+                mandatory=True)
     conf.env.NORNS_DESKTOP = conf.options.desktop
 
     if conf.options.release:

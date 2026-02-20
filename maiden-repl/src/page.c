@@ -53,7 +53,7 @@ void page_free(struct page *p) {
 }
 
 int page_print(struct page *p, const char *txt) {
-    wprintw(p->pad, txt);
+    wprintw(p->pad, "%s", txt);
     return page_scroll_bottom(p);
 }
 

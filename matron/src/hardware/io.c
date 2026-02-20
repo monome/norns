@@ -8,10 +8,10 @@
 #include "hardware/screen/screens.h"
 
 io_ops_t *io_types[] = {
+#ifndef NORNS_DESKTOP
     (io_ops_t *)&enc_gpio_ops,
     (io_ops_t *)&key_gpio_ops,
-
-#ifdef NORNS_DESKTOP
+#else
     (io_ops_t *)&screen_sdl_ops,
     (io_ops_t *)&input_sdl_ops,
 #endif

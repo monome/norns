@@ -90,7 +90,7 @@ end
 _norns.startup_status.timeout = function()
   norns.script.clear()
   print("norns.startup_status.timeout")
-  local cmd="find ~/dust -name *.sc -type f -printf '%p %f\n' | sort -k2 | uniq -f1 --all-repeated=separate"
+  local cmd="find ~/dust -name '*.sc' -type f -exec sh -c 'echo \"$1\" \"$(basename \"$1\")\"' _ {} \\; | sort -k2 | uniq -f1 -d"
   local results = util.os_capture(cmd,true)
   if results ~= "" then
     print("DUPLICATE ENGINES:\n" .. results)

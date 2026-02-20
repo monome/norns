@@ -7,7 +7,11 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#ifdef __linux__
 #include <linux/i2c-dev.h>
+#else
+#define I2C_SLAVE 0x0703
+#endif
 #include <math.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -29,7 +33,7 @@
 #define ADDR_ADC 0x1D
 
 static int file;
-static char buf[10];
+static unsigned char buf[10];
 
 static pthread_t p;
 

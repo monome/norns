@@ -5,7 +5,9 @@
 #include <termios.h>
 
 #include "device_common.h"
+#ifdef __linux__
 #include <libevdev/libevdev.h>
+#endif
 
 #define CROW_BAUDRATE B115200
 

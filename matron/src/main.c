@@ -50,7 +50,9 @@ void cleanup(void) {
     battery_deinit();
     stat_deinit();
     jack_client_deinit();
+#ifndef NORNS_DESKTOP
     ssd1322_deinit();
+#endif
     screen_results_deinit();
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
@@ -62,8 +64,11 @@ int main(int argc, char **argv) {
     print_version();
     init_platform();
     printf("platform: %s (%d)\n", platform_name(), platform());
+    fflush(stdout);
 
+    fprintf(stderr, "calling events_init...\n"); fflush(stderr);
     events_init(); // <-- must come first!
+    fprintf(stderr, "events_init done, calling config_init...\n"); fflush(stderr);
     if (config_init()) {
         fprintf(stderr, "configuration failed\n");
         return -1;
@@ -74,14 +79,18 @@ int main(int argc, char **argv) {
     battery_init();
     stat_init();
     osc_init();
+#ifndef NORNS_DESKTOP
     ssd1322_init();
+#endif
     if (jack_client_init()) {
         screen_clear();
         screen_level(15);
         screen_move(10, 40);
         screen_text("audio system fail.");
         screen_update();
+#ifndef NORNS_DESKTOP
         ssd1322_refresh();
+#endif
         return -1;
     }
     clock_init();

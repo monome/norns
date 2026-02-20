@@ -1,3 +1,5 @@
+import sys
+
 top = '../..'
 
 
@@ -29,16 +31,24 @@ def build(bld):
                     '-Wall'
                   ]
 
-    if bld.env.NORNS_RELEASE:
-        crone_flags += [ 
-            '-mcpu=cortex-a53',
-            '-mtune=cortex-a53',
-            '-mfpu=neon-fp-armv8',
-            '-mfloat-abi=hard',
-            '-funconstrained-commons',
-            '-ffast-math',
-            '-fgcse-sm',
-        ]
+    if sys.platform == 'darwin':
+        import subprocess
+        crone_flags.append('-stdlib=libc++')
+        sdk = subprocess.check_output(['xcrun', '--show-sdk-path']).decode().strip()
+        crone_flags.extend(['-isysroot', sdk])
+
+    if not bld.env.NORNS_DESKTOP:
+        crone_flags += ['-mfpu=neon']
+        if bld.env.NORNS_RELEASE:
+            crone_flags += [
+                '-mcpu=cortex-a53',
+                '-mtune=cortex-a53',
+                '-mfpu=neon-fp-armv8',
+                '-mfloat-abi=hard',
+                '-funconstrained-commons',
+                '-ffast-math',
+                '-fgcse-sm',
+            ]
 
     bld.program( features='c cxx cxxprogram',
                  source=crone_sources,
@@ -52,15 +62,13 @@ def build(bld):
                  ],
 
                  use=[
-                     'ALSA',
                      'LIBLO',
-                 ],
+                     'JACK',
+                     'SNDFILE',
+                 ] + (['ALSA'] if not bld.env.NORNS_DESKTOP or sys.platform == 'linux' else []),
                  lib=[
-                     'atomic',
-                     'jack',
                      'pthread',
                      'm',
-                     'sndfile'
-                 ],
+                 ] + (['atomic'] if sys.platform != 'darwin' else []),
                  cxxflags=crone_flags
                  )

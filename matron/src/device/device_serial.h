@@ -7,7 +7,6 @@
 #include <termios.h>
 
 #include "device_common.h"
-#include <libevdev/libevdev.h>
 
 #define BUFFER_SIZE 256
 
