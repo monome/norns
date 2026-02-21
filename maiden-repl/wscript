@@ -11,13 +11,6 @@ def configure(conf):
     conf.check_cfg(package='panel', args=['--cflags', '--libs'])
     conf.check_cfg(package='readline', args=['--cflags', '--libs'])
 
-    conf.check_cc(msg='Checking for nng',
-        define_name='HAVE_NNG',
-        mandatory=True,
-        lib='nng',
-        header_name='nng/nng.h',
-        uselib_store='NNG')
-
 def build(bld):
     maiden_repl_sources = [
         'src/io.c',
@@ -37,6 +30,7 @@ def build(bld):
                 use=[
                     'NCURSESW',
                     'NNG',
+                    'ATOMIC',
                     'PANEL',
                     'READLINE'
                 ],

@@ -87,6 +87,12 @@ def configure(conf):
         header_name='nng/nng.h',
         uselib_store='NNG')
 
+    conf.check_cc(msg='Checking for atomic',
+        define_name='HAVE_ATOMIC',
+        mandatory=True,
+        lib='atomic',
+        uselib_store='ATOMIC')
+
     if conf.options.desktop:
         conf.check_cfg(package='sdl2', args=['--cflags', '--libs'])
         conf.define('NORNS_DESKTOP', True)

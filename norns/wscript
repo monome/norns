@@ -88,6 +88,7 @@ def build(bld):
         'LIBLO',
         'LIBMONOME',
         'NNG',
+        'ATOMIC',
         'SNDFILE',
         'AVAHI-COMPAT-LIBDNS_SD',
         'JACK',
@@ -120,7 +121,6 @@ def build(bld):
     ]
 
     crone_libs=[
-        'atomic',
         'jack',
         'pthread',
         'm',
