@@ -54,34 +54,40 @@ void *(*loop_func[IO_COUNT])(void *) = {
 //-----------
 //--- function defintions
 
-void sock_io_init(struct sock_io *io, char *url, void * (*loop)(void *)) {
+void sock_io_init(struct sock_io *io, char *url, void *(*loop)(void *)) {
     int rv;
 
     // connect socket
     if (url) {
-        if ( ((rv = nng_bus0_open(&(io->sock))) != 0) ||
+        if (((rv = nng_bus0_open(&(io->sock))) != 0) ||
             ((rv = nng_dialer_create(&(io->dialer), io->sock, url)) != 0) ||
             ((rv = nng_dialer_set_bool(io->dialer, NNG_OPT_WS_SEND_TEXT, true)) != 0) ||
             ((rv = nng_dialer_set_bool(io->dialer, NNG_OPT_WS_RECV_TEXT, true)) != 0) ||
-            ((rv = nng_dialer_start(io->dialer, 0)) != 0) ) {
-        ui_matron_line("opening connection failed: (");
-        ui_matron_line(url);
-        ui_matron_line(") ");
-        ui_matron_line(nng_strerror(rv));
-        ui_matron_line("\n");
+            ((rv = nng_dialer_start(io->dialer, 0)) != 0)) {
+            ui_matron_line("opening connection failed: (");
+            ui_matron_line(url);
+            ui_matron_line(") ");
+            ui_matron_line(nng_strerror(rv));
+            ui_matron_line("\n");
         }
     }
 
     // launch thread if loop function defined
     io->has_thread = false;
-    if (loop == NULL) { return; }
+    if (loop == NULL) {
+        return;
+    }
     pthread_attr_t attr;
     int s;
     io->has_thread = true;
     s = pthread_attr_init(&attr);
-    if (s) { printf("error initializing thread attributes \n"); }
+    if (s) {
+        printf("error initializing thread attributes \n");
+    }
     s = pthread_create(&(io->tid), &attr, loop, io);
-    if (s) { printf("error creating thread\n"); }
+    if (s) {
+        printf("error creating thread\n");
+    }
     pthread_attr_destroy(&attr);
 }
 
@@ -111,7 +117,7 @@ void io_send_line(int sockid, char *buf) {
     // FIXME this reallocate + copy is pretty dumb..
     int rv;
     size_t sz = strlen(buf) + 2;
-    char *bufcat = calloc( sz, sizeof(char) );
+    char *bufcat = calloc(sz, sizeof(char));
     snprintf(bufcat, sz, "%s\n", buf);
     struct sock_io *io = &(sock_io[sockid]);
     if ((rv = nng_send(io->sock, bufcat, sz, 0)) != 0) {
@@ -127,7 +133,7 @@ int io_loop(void) {
             pthread_join(sock_io[i].tid, NULL);
         }
     }
-  
+
     printf("\nfare well\n\n");
     return 0;
 }
@@ -140,21 +146,21 @@ void *rx_loop(void *p, void (*ui_func)(const char *)) {
     while (1) {
         nb = BUF_SIZE;
         if ((rv = nng_recv(io->sock, msg, &nb, 0)) == 0) {
-        if (nb > 0) {
-            msg[nb] = '\0';
-            ui_func(msg);
-        }
+            if (nb > 0) {
+                msg[nb] = '\0';
+                ui_func(msg);
+            }
         }
         return NULL;
     }
 }
 
 void *matron_rx_loop(void *p) {
-  return rx_loop(p, &ui_matron_line);
+    return rx_loop(p, &ui_matron_line);
 }
 
 void *crone_rx_loop(void *p) {
-  return rx_loop(p, &ui_crone_line);
+    return rx_loop(p, &ui_crone_line);
 }
 
 void *tx_loop(void *x) {

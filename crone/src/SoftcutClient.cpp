@@ -34,7 +34,7 @@ crone::SoftcutClient::SoftcutClient()
     }
     bufIdx[0] = BufDiskWorker::registerBuffer(buf[0], BufFrames);
     bufIdx[1] = BufDiskWorker::registerBuffer(buf[1], BufFrames);
-    
+
     phasePoll = std::make_unique<Poll>("softcut/phase");
     phasePoll->setCallback([this](const char *path) {
         for (int i = 0; i < this->getNumVoices(); ++i) {

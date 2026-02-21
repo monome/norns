@@ -21,7 +21,7 @@ static inline void sleep(int ms) {
 static std::unique_ptr<crone::MixerClient> m;
 static std::unique_ptr<crone::SoftcutClient> sc;
 
-void crone_cleanup() { 
+void crone_cleanup() {
     std::cout << "stopping clients" << std::endl;
     m->stop();
     sc->stop();
@@ -30,7 +30,6 @@ void crone_cleanup() {
     sc->cleanup();
     crone::OscInterface::deinit();
     std::cout << "goodbye" << std::endl;
-    
 }
 
 int crone_main() {
@@ -40,7 +39,7 @@ int crone_main() {
 
     m = std::make_unique<MixerClient>();
     sc = std::make_unique<SoftcutClient>();
-    crone_init (m.get(), sc.get());
+    crone_init(m.get(), sc.get());
 
     cout << "initializing buffer management worker.." << endl;
     BufDiskWorker::init(48000);

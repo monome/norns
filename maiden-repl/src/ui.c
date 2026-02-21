@@ -141,9 +141,9 @@ void ui_deinit(void) {
 
 static void page_line(int i, const char *str) {
     pthread_mutex_lock(&exit_lock);
-    if(!should_exit)  {
+    if (!should_exit) {
         page_append(i, str);
-        if( page_id() == i) {
+        if (page_id() == i) {
             doupdate();
         }
     }
@@ -186,8 +186,7 @@ void forward_to_readline(char c) {
     rl_callback_read_char();
 }
 
-void handle_cmd(char *line)
-{
+void handle_cmd(char *line) {
     if (line == NULL) {
         return;
     }
@@ -197,7 +196,7 @@ void handle_cmd(char *line)
         }
     } else {
         if (*line != '\0') {
-          add_history(line);
+            add_history(line);
         }
         switch (page_id()) {
         case PAGE_MATRON:

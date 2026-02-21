@@ -52,7 +52,7 @@ class SoftcutClient : public Client<2, 2> {
     bool enabled[NumVoices];
     softcut::phase_t quantPhase[NumVoices];
     float bufDur;
-    
+
     std::unique_ptr<Poll> phasePoll;
 
   private:
@@ -152,7 +152,9 @@ class SoftcutClient : public Client<2, 2> {
 
     void reset();
 
-    Poll* getPhasePoll() { return phasePoll.get(); }
+    Poll *getPhasePoll() {
+        return phasePoll.get();
+    }
 
   private:
     void clearBusses(size_t numFrames);

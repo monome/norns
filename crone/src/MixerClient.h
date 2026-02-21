@@ -9,11 +9,11 @@
 
 #include "Bus.h"
 #include "Client.h"
+#include "CronePoll.h"
 #include "PeakMeter.h"
 #include "Tape.h"
 #include "Utilities.h"
 #include <cmath>
-#include "CronePoll.h"
 
 #include "effects/StereoCompressor.h"
 #include "effects/ZitaReverb.h"
@@ -129,7 +129,7 @@ class MixerClient : public Client<6, 6> {
 
     PeakMeter inPeak[2];
     PeakMeter outPeak[2];
-        
+
     std::unique_ptr<Poll> vuPoll;
     std::unique_ptr<Poll> tapePoll;
 
@@ -174,11 +174,11 @@ class MixerClient : public Client<6, 6> {
         tape.reader.stop();
     }
 
-    Poll* getVuPoll() { 
+    Poll *getVuPoll() {
         return vuPoll.get();
     }
 
-    Poll* getTapePoll() {
+    Poll *getTapePoll() {
         return tapePoll.get();
     }
 

@@ -110,7 +110,8 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
 void OscInterface::addServerMethod(const char *path, const char *format, Handler handler) {
     OscMethod m(path, format, handler);
     methods[numMethods] = m;
-    lo_server_thread_add_method(st, path, format, [](const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *data) -> int {
+    lo_server_thread_add_method(
+        st, path, format, [](const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *data) -> int {
                                     (void) path;
                                     (void) types;
                                     (void) msg;
@@ -190,8 +191,7 @@ void OscInterface::addServerMethods() {
     });
 
     addServerMethod("/set/level/ext", "f", [](lo_arg **argv, int argc) {
-        
-        std::cerr << "/set/level/ext "<< argv[0]->f <<""<<std::endl;
+        std::cerr << "/set/level/ext " << argv[0]->f << "" << std::endl;
         std::cerr << "&mixerCommands: " << std::hex << &(crone::Commands::mixerCommands) << std::endl;
         if (argc < 1) {
             return;
@@ -931,10 +931,9 @@ void OscInterface::addServerMethods() {
 
         softCutClient->renderSamples(ch, argv[1]->f, argv[2]->f, sampleCt,
                                      [=](float secPerSample, float start, size_t count, float *samples) {
-                                        // TODO converged: reimplement this for single-process
-                                        //  lo_blob bl = lo_blob_new(count * sizeof(float), samples);
-                                        //  lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
-                                        
+                                         // TODO converged: reimplement this for single-process
+                                         //  lo_blob bl = lo_blob_new(count * sizeof(float), samples);
+                                         //  lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
                                      });
     });
 
