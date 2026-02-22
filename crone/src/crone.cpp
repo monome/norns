@@ -169,3 +169,13 @@ void crone_tape_play_stop() {
 void crone_tape_play_loop(int enabled) {
     mixerClient->setTapeLoop(enabled);
 }
+
+void crone_tape_pause() {
+    mixerClient->pauseTapeRecord(1);
+    mixerClient->pauseTapePlayback(1);
+}
+
+void crone_tape_resume() {
+    mixerClient->pauseTapeRecord(0);
+    mixerClient->pauseTapePlayback(0);
+}

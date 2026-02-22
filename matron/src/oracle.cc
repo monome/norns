@@ -596,15 +596,44 @@ void o_set_comp_param(const char *name, float value) {
 }
 
 // internal poll callbacks
-void o_poll_callback_vu(uint8_t in0, uint8_t in1, uint8_t out0, uint8_t out1) {
-  quad_levels_t value;
-  value.bytes[0] = in0;
-  value.bytes[1] = in1;
-  value.bytes[2] = out0;
-  value.bytes[3] = out1;
-  union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
-  ev->poll_io_levels.value = value;
-  event_post(ev);
+void o_poll_callback_vu(uint8_t in0, uint8_t in1, uint8_t out0, uint8_t out1,
+                        uint8_t eng0, uint8_t eng1, uint8_t mon0, uint8_t mon1,
+                        uint8_t cut0, uint8_t cut1, uint8_t tape0, uint8_t tape1) {
+    crone_vu_t levels;
+    levels.bytes[0] = in0;
+    levels.bytes[1] = in1;
+    levels.bytes[2] = out0;
+    levels.bytes[3] = out1;
+    levels.bytes[4] = eng0;
+    levels.bytes[5] = eng1;
+    levels.bytes[6] = mon0;
+    levels.bytes[7] = mon1;
+    levels.bytes[8] = cut0;
+    levels.bytes[9] = cut1;
+    levels.bytes[10] = tape0;
+    levels.bytes[11] = tape1;
+
+    union event_data *ev = event_data_new(EVENT_POLL_IO_LEVELS);
+    ev->poll_io_levels.value = levels;
+    event_post(ev);
+}
+
+void o_poll_callback_tape_status(int play_state, float play_pos_s, float play_len_s,
+                                 int rec_state, float rec_pos_s, int loop_enabled) {
+    union event_data *ev = event_data_new(EVENT_TAPE_STATUS);
+    ev->tape_status.play_state = play_state;
+    ev->tape_status.play_pos_s = play_pos_s;
+    ev->tape_status.play_len_s = play_len_s;
+    ev->tape_status.rec_state = rec_state;
+    ev->tape_status.rec_pos_s = rec_pos_s;
+    ev->tape_status.loop_enabled = loop_enabled;
+    event_post(ev);
+}
+
+void o_poll_callback_tape_file(int type) {
+    union event_data *ev = event_data_new(type == 0 ? EVENT_TAPE_PLAY_CLOSE : EVENT_TAPE_RECORD_CLOSE);
+    ev->tape_file.path = NULL; // We don't propagate the raw path from the engine here
+    event_post(ev);
 }
 
 void o_poll_callback_softcut_phase(int voice, float phase) {

@@ -411,6 +411,8 @@ void crone_tape_play_start();
 void crone_tape_play_pause(int paused);
 void crone_tape_play_stop();
 void crone_tape_play_loop(int enabled);
+void crone_tape_pause();
+void crone_tape_resume();
 
 inline void crone_set_level_tape(float arg0) {
     crone::Commands::mixerCommands.post(crone::Commands::Id::SET_LEVEL_TAPE,

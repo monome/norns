@@ -129,6 +129,10 @@ class MixerClient : public Client<6, 6> {
 
     PeakMeter inPeak[2];
     PeakMeter outPeak[2];
+    PeakMeter engPeak[2];
+    PeakMeter monPeak[2];
+    PeakMeter cutPeak[2];
+    PeakMeter tapePeak[2];
 
     std::unique_ptr<Poll> vuPoll;
     std::unique_ptr<Poll> tapePoll;

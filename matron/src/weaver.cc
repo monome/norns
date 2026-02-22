@@ -2797,15 +2797,15 @@ void w_handle_poll_data(int idx, int size, uint8_t *data) {
     l_report(lvm, l_docall(lvm, 2, 0));
 }
 
-// argument is an array of 4 bytes
+// argument is an array of 12 bytes
 void w_handle_poll_io_levels(uint8_t *levels) {
     lua_getglobal(lvm, "_norns");
     lua_getfield(lvm, -1, "vu");
     lua_remove(lvm, -2);
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 12; ++i) {
         lua_pushinteger(lvm, levels[i]);
     }
-    l_report(lvm, l_docall(lvm, 4, 0));
+    l_report(lvm, l_docall(lvm, 12, 0));
 }
 
 void w_handle_poll_softcut_phase(int idx, float val) {

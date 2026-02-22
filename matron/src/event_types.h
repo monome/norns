@@ -111,15 +111,14 @@ typedef enum {
     EVENT_TAPE_RECORD_CLOSE,
 } event_t;
 
-// a packed data structure for four volume levels
+// a data structure for twelve volume levels
 // each channel is represented by unsigned byte with audio taper:
 // 255 == 0db
 // each step represents 0.25db, down to -60db;
 // from 0.001 to 0 the scaling is linear in amplitude.
 typedef union {
-    uint8_t bytes[4];
-    uint32_t packed;
-} quad_levels_t;
+    uint8_t bytes[12];
+} crone_vu_t;
 
 struct event_common {
     uint32_t type;
@@ -278,8 +277,8 @@ struct event_poll_value {
 struct event_poll_io_levels {
     struct event_common common;
     uint32_t idx;
-    quad_levels_t value;
-}; // + 8
+    crone_vu_t value;
+}; // + 16
 
 struct event_poll_softcut_phase {
     struct event_common common;

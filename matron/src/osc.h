@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#include "lo/lo.h"
+#include <lo/lo.h>
 
 extern void osc_init();
 extern void osc_deinit();

@@ -88,9 +88,25 @@ m.redraw = function()
   screen.rect(x+86.5,55.5,2,-n)
   screen.stroke()
 
+  screen.level(15)
+  n = m.mon1/64*48
+  screen.rect(x+92.5,55.5,2,-n)
+  screen.stroke()
+  n = m.mon2/64*48
+  screen.rect(x+98.5,55.5,2,-n)
+  screen.stroke()
+
   screen.level(2)
   n = params:get_raw("engine_level")*48
   screen.rect(x+108.5,55.5,2,-n)
+  screen.stroke()
+
+  screen.level(15)
+  n = m.eng1/64*48
+  screen.rect(x+114.5,55.5,2,-n)
+  screen.stroke()
+  n = m.eng2/64*48
+  screen.rect(x+120.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(2)
@@ -98,9 +114,25 @@ m.redraw = function()
   screen.rect(x+130.5,55.5,2,-n)
   screen.stroke()
 
+  screen.level(15)
+  n = m.cut1/64*48
+  screen.rect(x+136.5,55.5,2,-n)
+  screen.stroke()
+  n = m.cut2/64*48
+  screen.rect(x+142.5,55.5,2,-n)
+  screen.stroke()
+
   screen.level(2)
   n = params:get_raw("tape_level")*48
   screen.rect(x+152.5,55.5,2,-n)
+  screen.stroke()
+
+  screen.level(15)
+  n = m.tape1/64*48
+  screen.rect(x+158.5,55.5,2,-n)
+  screen.stroke()
+  n = m.tape2/64*48
+  screen.rect(x+164.5,55.5,2,-n)
   screen.stroke()
 
   screen.level(m.sel==1 and 15 or 1)
@@ -142,12 +174,20 @@ m.deinit = function()
   _norns.vu = m.saved_vu
 end
 
-m.vu = function(in1,in2,out1,out2)
-  m.saved_vu(in1,in2,out1,out2)
+m.vu = function(in1,in2,out1,out2, eng1,eng2, mon1,mon2, cut1,cut2, tape1,tape2)
+  m.saved_vu(in1,in2,out1,out2, eng1,eng2, mon1,mon2, cut1,cut2, tape1,tape2)
   m.in1 = in1
   m.in2 = in2
   m.out1 = out1
   m.out2 = out2
+  m.eng1 = eng1
+  m.eng2 = eng2
+  m.mon1 = mon1
+  m.mon2 = mon2
+  m.cut1 = cut1
+  m.cut2 = cut2
+  m.tape1 = tape1
+  m.tape2 = tape2
   _menu.redraw()
 end
 

@@ -83,8 +83,8 @@ _norns.poll = function(id, value)
 end
 
 -- i/o level callback.
-_norns.vu = function(in1, in2, out1, out2)
-  audio.vu(in1, in2, out1, out2)
+_norns.vu = function(in1, in2, out1, out2, eng1, eng2, mon1, mon2, cut1, cut2, tape1, tape2)
+  audio.vu(in1, in2, out1, out2, eng1, eng2, mon1, mon2, cut1, cut2, tape1, tape2)
 end
 -- softcut phase
 _norns.softcut_phase = function(id, value) end

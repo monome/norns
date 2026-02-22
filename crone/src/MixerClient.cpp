@@ -20,15 +20,46 @@ MixerClient::MixerClient()
     vuPoll = std::make_unique<Poll>("vu");
     vuPoll->setCallback([this](const char *path) {
         o_poll_callback_vu(
-            (uint8_t)(64 * this->getInputPeakPos(0)),
-            (uint8_t)(64 * this->getInputPeakPos(1)),
-            (uint8_t)(64 * this->getOutputPeakPos(0)),
-            (uint8_t)(64 * this->getOutputPeakPos(1)));
+            (uint8_t)(64 * this->inPeak[0].getPos()),
+            (uint8_t)(64 * this->inPeak[1].getPos()),
+            (uint8_t)(64 * this->outPeak[0].getPos()),
+            (uint8_t)(64 * this->outPeak[1].getPos()),
+            (uint8_t)(64 * this->engPeak[0].getPos()),
+            (uint8_t)(64 * this->engPeak[1].getPos()),
+            (uint8_t)(64 * this->monPeak[0].getPos()),
+            (uint8_t)(64 * this->monPeak[1].getPos()),
+            (uint8_t)(64 * this->cutPeak[0].getPos()),
+            (uint8_t)(64 * this->cutPeak[1].getPos()),
+            (uint8_t)(64 * this->tapePeak[0].getPos()),
+            (uint8_t)(64 * this->tapePeak[1].getPos()));
     });
     vuPoll->setPeriod(50);
 
     tapePoll = std::make_unique<Poll>("tape");
-    // todo_converged: set callback for tape poll
+    tapePoll->setCallback([this](const char *path) {
+        auto s = this->getTapeStatus();
+        o_poll_callback_tape_status(
+            s.play_state, s.play_pos_s, s.play_len_s,
+            s.rec_state, s.rec_pos_s, s.loop_enabled);
+
+        // detect file-close edges so we notify matron only after drain/close is complete
+        static bool prevRecHasFile = false;
+        static bool prevPlayHasFile = false;
+
+        bool playHasFile = (s.play_state != 0);
+        bool recHasFile = (s.rec_state != 0);
+
+        if (prevRecHasFile && !recHasFile) {
+            o_poll_callback_tape_file(1); // rec close
+        }
+        if (prevPlayHasFile && !playHasFile) {
+            o_poll_callback_tape_file(0); // play close
+        }
+
+        prevRecHasFile = recHasFile;
+        prevPlayHasFile = playHasFile;
+    });
+    tapePoll->setPeriod(50);
 }
 
 void MixerClient::process(jack_nframes_t numFrames) {
@@ -82,6 +113,14 @@ void MixerClient::process(jack_nframes_t numFrames) {
     inPeak[1].update(bus.adc_source.buf[1], numFrames);
     outPeak[0].update(sink[SinkId::SinkDac][0], numFrames);
     outPeak[1].update(sink[SinkId::SinkDac][1], numFrames);
+    engPeak[0].update(bus.ext_source.buf[0], numFrames);
+    engPeak[1].update(bus.ext_source.buf[1], numFrames);
+    monPeak[0].update(bus.adc_monitor.buf[0], numFrames);
+    monPeak[1].update(bus.adc_monitor.buf[1], numFrames);
+    cutPeak[0].update(bus.cut_source.buf[0], numFrames);
+    cutPeak[1].update(bus.cut_source.buf[1], numFrames);
+    tapePeak[0].update(bus.tape.buf[0], numFrames);
+    tapePeak[1].update(bus.tape.buf[1], numFrames);
 }
 
 void MixerClient::setSampleRate(jack_nframes_t sr) {
