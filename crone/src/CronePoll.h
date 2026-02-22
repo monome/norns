@@ -6,12 +6,14 @@
 #define CRONE_POLL_H
 
 #include <atomic>
+#include <cassert>
+#include <chrono>
+#include <condition_variable>
 #include <functional>
+#include <mutex>
+#include <sstream>
 #include <string>
 #include <thread>
-
-#include <chrono>
-#include <sstream>
 #include <utility>
 
 #include <lo/lo.h>
@@ -27,27 +29,41 @@ class Poll {
         path = os.str();
     }
 
+    ~Poll() {
+        stop();
+    }
+
     void setCallback(Callback c) {
         cb = std::move(c);
     }
 
     void start() {
+        assert(this->cb && "Poll callback must be set before starting");
+        stop(); // ensure any existing thread is stopped safely
+
         shouldStop = false;
-        th = std::make_unique<std::thread>(std::thread(
-            [this] {
-                while (!shouldStop) {
-                    this->cb(path.c_str());
-                    std::this_thread::sleep_for(std::chrono::milliseconds(period));
-                }
-            }));
-        th->detach();
+        th = std::thread([this] {
+            while (!shouldStop) {
+                this->cb(path.c_str());
+
+                std::unique_lock<std::mutex> lock(mtx);
+                // use cv.wait_for so that shouldStop can trigger with true immediately.
+                cv.wait_for(lock, std::chrono::milliseconds(period.load()), [this] {
+                    return shouldStop.load();
+                });
+            }
+        });
     }
 
     void stop() {
-        // in c++ there's no way to safely and non-cooperatively interrupt a thread.
-        shouldStop = true;
-        // i am reasonably sure this won't leak...
-        th.reset();
+        if (th.joinable()) {
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                shouldStop = true;
+            }
+            cv.notify_all();
+            th.join();
+        }
     }
 
     void setPeriod(int ms) {
@@ -56,11 +72,12 @@ class Poll {
 
   private:
     Callback cb;
-    std::atomic<int> period;
-    std::atomic<bool> shouldStop;
-    std::unique_ptr<std::thread> th;
+    std::atomic<int> period{50};
+    std::atomic<bool> shouldStop{true};
+    std::thread th;
     std::string path;
-    lo_address addr;
+    std::mutex mtx;
+    std::condition_variable cv;
 };
 
 #endif // CRONE_POLL_H
