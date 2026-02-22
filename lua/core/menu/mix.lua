@@ -161,11 +161,20 @@ m.init = function()
   m.in2 = 0
   m.out1 = 0
   m.out2 = 0
+  m.eng1 = 0
+  m.eng2 = 0
+  m.mon1 = 0
+  m.mon2 = 0
+  m.cut1 = 0
+  m.cut2 = 0
+  m.tape1 = 0
+  m.tape2 = 0
   norns.encoders.set_accel(2,true)
   norns.encoders.set_sens(2,1)
   norns.encoders.set_accel(3,true)
   norns.encoders.set_sens(3,1)
 end
+
 
 m.deinit = function()
   norns.encoders.set_accel(2,false)
