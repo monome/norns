@@ -305,6 +305,22 @@ Audio.tape_play_loop = function(enabled)
   _norns.tape_play_loop(enabled and 1 or 0)
 end
 
+--- pause both tape playback and recording.
+Audio.tape_pause = function()
+  _norns.tape_pause()
+end
+
+--- resume both tape playback and recording.
+Audio.tape_resume = function()
+  _norns.tape_resume()
+end
+
+--- set tape looping on/off (global).
+-- @tparam boolean enabled
+Audio.tape_loop = function(enabled)
+  _norns.tape_loop(enabled and 1 or 0)
+end
+
 --- open a tape recording file.
 -- @param file
 Audio.tape_record_open = function(file)
