@@ -6,12 +6,14 @@
 
 typedef void (*client_cmd_completion_t)(const char *cmd, void *ctx, const char *buff, size_t size);
 
-// main loop of sidecar server process
-// (FIXME: never exits! at all!)
-int sidecar_server_main();
+// main loop of sidecar server process. sync_fd is a file descriptor that will be
+// written to when the server is ready to accept connections.
+int sidecar_server_main(int sync_fd);
 
 // intialize sidecar client IPC connections
 int sidecar_client_init();
+
+// cleanup sidecar client IPC connections
 void sidecar_client_cleanup();
 
 // request a command to be executed asynchronously by the sidecar server

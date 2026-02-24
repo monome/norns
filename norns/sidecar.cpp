@@ -1,10 +1,10 @@
 #include <assert.h>
+#include <pthread.h>
 #include <search.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 
 #include <nng/nng.h>
 #include <nng/protocol/reqrep0/rep.h>
@@ -28,6 +28,7 @@ static void sidecar_nng_error(const char *func, int rv) {
 typedef enum {
     REQUEST_FIRST_REQUEST = 0,
     REQUEST_RUN_CMD,
+    REQUEST_QUIT,
 } request_type;
 
 struct request_common {
@@ -174,7 +175,7 @@ static nng_msg *sidecar_server_run_cmd(const char *cmd) {
   return msg;
 }
 
-int sidecar_server_main() {
+int sidecar_server_main(int sync_fd) {
   nng_socket sock;
   nng_listener listener;
   int rv;
@@ -183,14 +184,21 @@ int sidecar_server_main() {
 
   if ((rv = nng_rep0_open(&sock)) != 0) {
     sidecar_nng_error("open socket failed", rv);
+    close(sync_fd);
     return -1;
   }
 
   if ((rv = nng_listen(sock, url, &listener, 0)) != 0) {
     nng_close(sock);
     sidecar_nng_error("binding socket failed", rv);
+    close(sync_fd);
     return -1;
   }
+
+  // signal parent that IPC is bound and ready
+  char b = 1;
+  write(sync_fd, &b, 1);
+  close(sync_fd);
 
   for (;;) {
     char *cmd = NULL;
@@ -201,12 +209,27 @@ int sidecar_server_main() {
       continue;
     }
 
+    // handle quit command
+    if (cmd != NULL && cmd_sz >= 8 && strncmp((char *)cmd, "__quit__", 8) == 0) {
+      nng_msg *response;
+      nng_msg_alloc(&response, 0);
+      nng_msg_append_u16(response, 0);
+      nng_sendmsg(sock, response, 0);
+      nng_free(cmd, cmd_sz);
+      break;
+    }
+
+    // handle run command
     nng_msg *response = sidecar_server_run_cmd(cmd);
-    if (response != NULL) {
-      if ((rv = nng_sendmsg(sock, response, 0)) != 0) {
-        nng_msg_free(response);
-        sidecar_nng_error("send error", rv);
-      }
+    if (response == NULL) {
+      // allocate an empty message if the command failed, so the client doesn't block forever
+      nng_msg_alloc(&response, 0);
+      nng_msg_append_u16(response, 0);
+    }
+
+    if ((rv = nng_sendmsg(sock, response, 0)) != 0) {
+      nng_msg_free(response);
+      sidecar_nng_error("send error", rv);
     }
 
     if (cmd != NULL) {
@@ -214,6 +237,7 @@ int sidecar_server_main() {
     }
   }
 
+  nng_close(sock);
   return 0;
 }
 
@@ -292,10 +316,16 @@ static void *sidecar_client_loop(void *) {
     req = requests_pop();
     pthread_mutex_unlock(&requests.lock);
     if (req != NULL) {
+      if (req->type == REQUEST_QUIT) {
+        free(req);
+        break;
+      }
       handle_request(req);
+      free(req);
     }
   }
 
+  nng_close(cs.sock);
   return NULL;
 }
 
@@ -315,20 +345,12 @@ int sidecar_client_init() {
     return -1;
   }
 
-  // annoyingly this nng_dial is racing against the nng_listen in the sidecar
-  // and unlike other transports the ipc transport appears to give up if the
-  // dial is attempted before the listener is ready.
-  int attempts = 5;
-  while ( (attempts > 0) && ((rv = nng_dial(cs.sock, url, &cs.dialer, 0)) != 0) ) {
+  if ((rv = nng_dial(cs.sock, url, &cs.dialer, 0)) != 0) {
     sidecar_nng_error("sidecar: establishing connection failed", rv);
-    attempts--;
-    fprintf(stderr, "attempts left: %d\n", attempts);
-    usleep(200 * 1000); // wait for 200 ms
+    return -1;
   }
 
-  if (rv == 0) {
-    cs.initialized = true;
-  }
+  cs.initialized = true;
 
   requests_init();
 
@@ -337,13 +359,33 @@ int sidecar_client_init() {
     return -1;
   }
   pthread_setname_np(client_thread, "client_loop");
-  pthread_detach(client_thread);
 
   return 0;
 }
 
+static void _null_completion(const char *cmd, void *ctx, const char *buf, size_t size) {
+    (void)cmd;
+    (void)ctx;
+    (void)buf;
+    (void)size;
+}
+
 void sidecar_client_cleanup() {
-  // TODO: terminate the request loop and join the thread
+  if (!cs.initialized) {
+    return;
+  }
+
+  // Tell the sidecar server to exit
+  sidecar_client_cmd("__quit__", NULL, _null_completion);
+
+  // Tell the client thread to exit
+  union request *req = request_new(REQUEST_QUIT);
+  request_post(req);
+
+  // Wait for the background thread to finish
+  pthread_join(client_thread, NULL);
+
+  cs.initialized = false;
 }
 
 bool sidecar_client_cmd_async(const char *cmd, void *ctx, client_cmd_completion_t cb) {
