@@ -6,12 +6,9 @@
 #include <doctest/doctest.h>
 #include <thread>
 
-extern "C" {
 #include "clocks/clock_internal.h"
 #include "helpers.h"
-}
 
-extern "C" {
 void clock_internal_test_enable_threadless(bool enable);
 void clock_internal_test_tick_once();
 void clock_internal_test_set_ticks(unsigned long long v);
@@ -22,7 +19,6 @@ double clock_internal_test_get_last_sleep_s(void);
 double clock_internal_test_get_last_next_tick_time(void);
 double clock_internal_test_get_last_current_time(void);
 double clock_internal_test_get_last_tick_duration(void);
-}
 
 TEST_CASE("internal clock") {
     // most tests run in threadless mode.
