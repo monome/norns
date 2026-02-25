@@ -108,11 +108,11 @@ def build(bld):
         matron_use.append('LUA_CJSON')
 
     crone_includes=[
+        '../third-party/concurrentqueue',
+        '../third-party/readerwriterqueue',
         '../crone',
         '../crone/src',
-        '../crone/softcut/softcut-lib/include',
-        '../crone/lib/readerwriterqueue',
-        '../crone/lib/concurrentqueue'
+        '../crone/softcut/softcut-lib/include'
     ]
 
     crone_use=[

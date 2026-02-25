@@ -10,15 +10,15 @@
 [submodule "crone/softcut"]
 	path = crone/softcut
 	url = https://github.com/monome/softcut-lib.git
-[submodule "crone/lib/readerwriterqueue"]
-	path = crone/lib/readerwriterqueue
-	url = https://github.com/cameron314/readerwriterqueue.git
-[submodule "crone/lib/concurrentqueue"]
-	path = crone/lib/concurrentqueue
-	url = git@github.com:cameron314/concurrentqueue.git
 [submodule "third-party/lua-cjson"]
 	path = third-party/lua-cjson
 	url = https://github.com/mpx/lua-cjson.git
 [submodule "third-party/nng"]
 	path = third-party/nng
 	url = https://github.com/nanomsg/nng.git
+[submodule "third-party/readerwriterqueue"]
+	path = third-party/readerwriterqueue
+	url = https://github.com/cameron314/readerwriterqueue.git
+[submodule "third-party/concurrentqueue"]
+	path = third-party/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git

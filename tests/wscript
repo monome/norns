@@ -185,13 +185,13 @@ def _setup_includes_and_flags(bld: BuildContext) -> TestRunnerConfig:
     includes = [
         _abs("../third-party/doctest", bld),
         _abs("../third-party/trompeloeil/include", bld),
+        _abs("../third-party/readerwriterqueue", bld),
+        _abs("../third-party/concurrentqueue", bld),
         _abs("../tests/common", bld),
         _abs("../matron/src", bld),
         _abs("../crone/src", bld),
         _abs("../crone", bld),
         _abs("../crone/softcut/softcut-lib/include", bld),
-        _abs("../crone/lib/readerwriterqueue", bld),
-        _abs("../crone/lib/concurrentqueue", bld),
         _abs("../ws-wrapper/src", bld),
         _abs("../maiden-repl/src", bld),
     ]

@@ -23,7 +23,12 @@ set (SRC src/main.cpp
 
 add_executable(crone ${SRC})
 
-include_directories(./faust ./softcut/softcut-lib/include lib/readerwriterqueue lib/concurrentqueue)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/faust
+    ${CMAKE_CURRENT_SOURCE_DIR}/softcut/softcut-lib/include
+    ${CMAKE_SOURCE_DIR}/third-party/readerwriterqueue
+    ${CMAKE_SOURCE_DIR}/third-party/concurrentqueue
+)
 
 if(UNIX)
     if(APPLE)
