@@ -239,7 +239,7 @@ void init_font_faces(void) {
 #endif
 
     int path_bytes = 512;
-    char *path = (char*)malloc(path_bytes);
+    char *path = (char *)malloc(path_bytes);
     for (int i = 0; i < NUM_FONTS; i++) {
         status = snprintf(path, path_bytes, "%s/norns/resources/%s", getenv("HOME"), font_path[i]);
         if (status > path_bytes) {
@@ -540,7 +540,7 @@ void screen_display_png(const char *filename, double x, double y) {
 void screen_peek(int x, int y, int w, int h) {
     w = (w <= (128 - x)) ? w : (128 - x);
     h = (h <= (64 - y)) ? h : (64 - y);
-    char *buf = (char*)malloc(w * h);
+    char *buf = (char *)malloc(w * h);
     if (!buf) {
         return;
     }

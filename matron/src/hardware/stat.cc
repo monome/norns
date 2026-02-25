@@ -25,7 +25,6 @@ static bool have_vcgencmd;
 
 void *stat_check(void *);
 
-
 void stat_init() {
     if (!(have_vcgencmd = system("which vcgencmd > /dev/null 2>&1") == 0)) {
         fprintf(stderr, "Unable to check temperature: vcgencmd not in path\n");
@@ -79,7 +78,7 @@ void *stat_check(void *x) {
             size_t size = 0;
             char *buff = NULL;
             sidecar_client_cmd("vcgencmd measure_temp", &buff, &size);
-            if(size==0) {
+            if (size == 0) {
                 fprintf(stderr, "Error: temp read\n");
             } else {
                 bufsub[0] = buff[5];
@@ -100,7 +99,7 @@ void *stat_check(void *x) {
         } else {
             int i = 0;
             strtok(buff, " ");
-            while(i < 4) {
+            while (i < 4) {
                 user = atoi(strtok(NULL, " "));
                 nice = atoi(strtok(NULL, " "));
                 system = atoi(strtok(NULL, " "));
@@ -109,7 +108,7 @@ void *stat_check(void *x) {
                 irq = atoi(strtok(NULL, " "));
                 softirq = atoi(strtok(NULL, " "));
                 steal = atoi(strtok(NULL, " "));
-                //fprintf(stderr, "> %d %d %d %d %d %d %d %d\n", user, nice, system, idle, iowait, irq, softirq, steal);
+                // fprintf(stderr, "> %d %d %d %d %d %d %d %d\n", user, nice, system, idle, iowait, irq, softirq, steal);
 
                 sumidle = idle + iowait;
                 sumnonidle = user + nice + system + irq + softirq + steal;

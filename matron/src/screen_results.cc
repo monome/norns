@@ -36,7 +36,7 @@ void screen_results_post(union screen_results_data *data) {
 }
 
 union screen_results_data *screen_results_data_new(screen_results_t type) {
-    union screen_results_data *data = (screen_results_data*)calloc(1, sizeof(union screen_results_data));
+    union screen_results_data *data = (screen_results_data *)calloc(1, sizeof(union screen_results_data));
     data->type = type;
     return data;
 }

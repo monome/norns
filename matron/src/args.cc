@@ -21,7 +21,6 @@ static struct args a = {
     "/dev/fb0", // framebuffer
 };
 
-
 int args_parse(int argc, char **argv) {
     int opt;
     while ((opt = getopt(argc, argv, "o:e:l:c:f:h")) != -1) {

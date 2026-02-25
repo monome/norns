@@ -134,7 +134,7 @@ int matron_main(int argc, char **argv) {
 
     fprintf(stderr, "running post-startup...\n");
     w_post_startup();
-    
+
     // blocks until quit
     event_loop();
     return 0;
@@ -145,7 +145,6 @@ void print_version(void) {
     printf("norns version: %d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
     printf("git hash: %s\n\n", VERSION_HASH);
 }
-
 
 #if 0
 int main(int argc, char **argv) {

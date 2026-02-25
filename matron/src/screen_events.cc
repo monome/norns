@@ -124,10 +124,10 @@ void handle_screen_event(struct screen_event_data *ev) {
         screen_line_width(ev->payload.d.d1);
         break;
     case SCREEN_EVENT_LINE_CAP:
-        screen_line_cap((const char*)ev->buf);
+        screen_line_cap((const char *)ev->buf);
         break;
     case SCREEN_EVENT_LINE_JOIN:
-        screen_line_join((const char*)ev->buf);
+        screen_line_join((const char *)ev->buf);
         break;
     case SCREEN_EVENT_MITER_LIMIT:
         screen_miter_limit(ev->payload.d.d1);
@@ -165,19 +165,19 @@ void handle_screen_event(struct screen_event_data *ev) {
         screen_fill();
         break;
     case SCREEN_EVENT_TEXT:
-        screen_text((const char*)ev->buf);
+        screen_text((const char *)ev->buf);
         break;
     case SCREEN_EVENT_TEXT_RIGHT:
-        screen_text_right((const char*)ev->buf);
+        screen_text_right((const char *)ev->buf);
         break;
     case SCREEN_EVENT_TEXT_CENTER:
-        screen_text_center((const char*)ev->buf);
+        screen_text_center((const char *)ev->buf);
         break;
     case SCREEN_EVENT_TEXT_EXTENTS:
-        screen_text_extents((const char*)ev->buf);
+        screen_text_extents((const char *)ev->buf);
         break;
     case SCREEN_EVENT_TEXT_TRIM:
-        screen_text_trim((char*)ev->buf, ev->payload.d.d1);
+        screen_text_trim((char *)ev->buf, ev->payload.d.d1);
         break;
     case SCREEN_EVENT_CLEAR:
         screen_clear();
@@ -186,40 +186,40 @@ void handle_screen_event(struct screen_event_data *ev) {
         screen_close_path();
         break;
     case SCREEN_EVENT_EXPORT_PNG:
-        screen_export_png((const char*)ev->buf);
+        screen_export_png((const char *)ev->buf);
         break;
     case SCREEN_EVENT_DISPLAY_PNG:
-        screen_display_png((const char*)ev->buf, ev->payload.bd.d1, ev->payload.bd.d2);
+        screen_display_png((const char *)ev->buf, ev->payload.bd.d1, ev->payload.bd.d2);
         break;
     case SCREEN_EVENT_DISPLAY_SURFACE:
-        screen_surface_display((screen_surface_t*)ev->buf, ev->payload.bd.d1, ev->payload.bd.d2);
+        screen_surface_display((screen_surface_t *)ev->buf, ev->payload.bd.d1, ev->payload.bd.d2);
         ev->buf = NULL;
         break;
     case SCREEN_EVENT_DISPLAY_SURFACE_REGION:
-        screen_surface_display_region((screen_surface_t*)ev->buf, ev->payload.d.d1, ev->payload.d.d2, ev->payload.d.d3, ev->payload.d.d4, ev->payload.d.d5, ev->payload.d.d6);
+        screen_surface_display_region((screen_surface_t *)ev->buf, ev->payload.d.d1, ev->payload.d.d2, ev->payload.d.d3, ev->payload.d.d4, ev->payload.d.d5, ev->payload.d.d6);
         ev->buf = NULL;
         break;
     case SCREEN_EVENT_SURFACE_FREE:
-        screen_surface_free((screen_surface_t*)ev->buf);
+        screen_surface_free((screen_surface_t *)ev->buf);
         ev->buf = NULL;
         break;
     case SCREEN_EVENT_SURFACE_GET_EXTENTS:
-        screen_surface_get_extents((screen_surface_t*)ev->buf);
+        screen_surface_get_extents((screen_surface_t *)ev->buf);
         ev->buf = NULL;
         break;
     case SCREEN_EVENT_CONTEXT_FREE:
-        screen_context_free((screen_context_t*)ev->buf);
+        screen_context_free((screen_context_t *)ev->buf);
         ev->buf = NULL;
         break;
     case SCREEN_EVENT_CONTEXT_NEW:
-        screen_context_new((screen_surface_t*)ev->buf);
+        screen_context_new((screen_surface_t *)ev->buf);
         ev->buf = NULL;
         break;
     case SCREEN_EVENT_CONTEXT_GET_CURRENT:
         screen_context_get_current();
         break;
     case SCREEN_EVENT_CONTEXT_SET:
-        screen_context_set((screen_context_t*)ev->buf);
+        screen_context_set((screen_context_t *)ev->buf);
         ev->buf = NULL;
         break;
     case SCREEN_EVENT_CONTEXT_SET_PRIMARY:
@@ -235,7 +235,7 @@ void handle_screen_event(struct screen_event_data *ev) {
         screen_set_operator(ev->payload.i.i1);
         break;
     case SCREEN_EVENT_POKE:
-        screen_poke(ev->payload.bi.i1, ev->payload.bi.i2, ev->payload.bi.i3, ev->payload.bi.i4, (unsigned char*)ev->buf);
+        screen_poke(ev->payload.bi.i1, ev->payload.bi.i2, ev->payload.bi.i3, ev->payload.bi.i4, (unsigned char *)ev->buf);
         break;
     case SCREEN_EVENT_PEEK:
         screen_peek(ev->payload.bi.i1, ev->payload.bi.i2, ev->payload.bi.i3, ev->payload.bi.i4);

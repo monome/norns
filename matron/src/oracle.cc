@@ -88,7 +88,7 @@ int num_polls = 0;
 // state flags for receiving command/poll/param reports
 bool needCommandReport;
 bool needPollReport;
-bool needParamReport = false;  // FIXME
+bool needParamReport = false; // FIXME
 
 // max count of any single desciptor type
 #define MAX_NUM_DESC 1024
@@ -158,13 +158,13 @@ static int handle_poll_data(const char *path, const char *types, lo_arg **argv,
 static void lo_error_handler(int num, const char *m, const char *path);
 
 static void set_need_reports() {
-  needCommandReport = true;
-  needPollReport = true;
-  needParamReport = false;  // FIXME true;
+    needCommandReport = true;
+    needPollReport = true;
+    needParamReport = false; // FIXME true;
 }
 
 static bool get_need_reports() {
-  return needCommandReport || needPollReport || needParamReport;
+    return needCommandReport || needPollReport || needParamReport;
 }
 
 static void test_engine_load_done();
@@ -173,321 +173,357 @@ static void test_engine_load_done();
 //---- extern function definitions
 
 void o_query_startup(void) {
-  // fprintf(stderr, "sending /ready: %d", rem_port);
-  lo_send(ext_addr, "/ready", "");
+    // fprintf(stderr, "sending /ready: %d", rem_port);
+    lo_send(ext_addr, "/ready", "");
 }
 
 //--- init
 void o_init(void) {
-  const char *local_port = args_local_port();
-  const char *ext_port = args_ext_port();
-  const char *crone_port = args_crone_port();
+    const char *local_port = args_local_port();
+    const char *ext_port = args_ext_port();
+    const char *crone_port = args_crone_port();
 
-  fprintf(stderr,
-          "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\nOSC remote "
-          "port: %s\n",
-          local_port, crone_port, ext_port, args_remote_port());
+    fprintf(stderr,
+            "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\nOSC remote "
+            "port: %s\n",
+            local_port, crone_port, ext_port, args_remote_port());
 
-  o_init_descriptors();
+    o_init_descriptors();
 
-  ext_addr = lo_address_new("127.0.0.1", ext_port);
-  crone_addr = lo_address_new("127.0.0.1", crone_port);
-  st = lo_server_thread_new(local_port, lo_error_handler);
+    ext_addr = lo_address_new("127.0.0.1", ext_port);
+    crone_addr = lo_address_new("127.0.0.1", crone_port);
+    st = lo_server_thread_new(local_port, lo_error_handler);
 
-  // crone ready
-  lo_server_thread_add_method(st, "/crone/ready", "", handle_crone_ready, NULL);
-  // engine report sequence
-  lo_server_thread_add_method(st, "/report/engines/start", "i",
-                              handle_engine_report_start, NULL);
-  lo_server_thread_add_method(st, "/report/engines/entry", "is",
-                              handle_engine_report_entry, NULL);
-  lo_server_thread_add_method(st, "/report/engines/end", "",
-                              handle_engine_report_end, NULL);
+    // crone ready
+    lo_server_thread_add_method(st, "/crone/ready", "", handle_crone_ready, NULL);
+    // engine report sequence
+    lo_server_thread_add_method(st, "/report/engines/start", "i",
+                                handle_engine_report_start, NULL);
+    lo_server_thread_add_method(st, "/report/engines/entry", "is",
+                                handle_engine_report_entry, NULL);
+    lo_server_thread_add_method(st, "/report/engines/end", "",
+                                handle_engine_report_end, NULL);
 
-  // command report sequence
-  lo_server_thread_add_method(st, "/report/commands/start", "i",
-                              handle_command_report_start, NULL);
-  lo_server_thread_add_method(st, "/report/commands/entry", "iss",
-                              handle_command_report_entry, NULL);
-  lo_server_thread_add_method(st, "/report/commands/end", "",
-                              handle_command_report_end, NULL);
+    // command report sequence
+    lo_server_thread_add_method(st, "/report/commands/start", "i",
+                                handle_command_report_start, NULL);
+    lo_server_thread_add_method(st, "/report/commands/entry", "iss",
+                                handle_command_report_entry, NULL);
+    lo_server_thread_add_method(st, "/report/commands/end", "",
+                                handle_command_report_end, NULL);
 
-  // poll report sequence
-  lo_server_thread_add_method(st, "/report/polls/start", "i",
-                              handle_poll_report_start, NULL);
-  lo_server_thread_add_method(st, "/report/polls/entry", "isi",
-                              handle_poll_report_entry, NULL);
-  lo_server_thread_add_method(st, "/report/polls/end", "",
-                              handle_poll_report_end, NULL);
-  //// poll results
-  // generic single value
-  lo_server_thread_add_method(st, "/poll/value", "if", handle_poll_value, NULL);
-  // generic data blob
-  lo_server_thread_add_method(st, "/poll/data", "ib", handle_poll_data, NULL);
+    // poll report sequence
+    lo_server_thread_add_method(st, "/report/polls/start", "i",
+                                handle_poll_report_start, NULL);
+    lo_server_thread_add_method(st, "/report/polls/entry", "isi",
+                                handle_poll_report_entry, NULL);
+    lo_server_thread_add_method(st, "/report/polls/end", "",
+                                handle_poll_report_end, NULL);
+    //// poll results
+    // generic single value
+    lo_server_thread_add_method(st, "/poll/value", "if", handle_poll_value, NULL);
+    // generic data blob
+    lo_server_thread_add_method(st, "/poll/data", "ib", handle_poll_data, NULL);
 
-  lo_server_thread_start(st);
+    lo_server_thread_start(st);
 }
 
 void o_deinit(void) {
-  fprintf(stderr, "killing audio engine\n");
-  lo_send(ext_addr, "/engine/kill", "");
-  fprintf(stderr, "stopping OSC server\n");
-  lo_server_thread_free(st);
-  lo_address_free(ext_addr);
-  lo_address_free(crone_addr);
+    fprintf(stderr, "killing audio engine\n");
+    lo_send(ext_addr, "/engine/kill", "");
+    fprintf(stderr, "stopping OSC server\n");
+    lo_server_thread_free(st);
+    lo_address_free(ext_addr);
+    lo_address_free(crone_addr);
 }
 
 //--- descriptor access
-int o_get_num_engines(void) { return num_engines; }
+int o_get_num_engines(void) {
+    return num_engines;
+}
 
-int o_get_num_commands(void) { return num_commands; }
+int o_get_num_commands(void) {
+    return num_commands;
+}
 
-int o_get_num_polls(void) { return num_polls; }
+int o_get_num_polls(void) {
+    return num_polls;
+}
 
-const char **o_get_engine_names(void) { return (const char **)engine_names; }
+const char **o_get_engine_names(void) {
+    return (const char **)engine_names;
+}
 
 const struct engine_command *o_get_commands(void) {
-  return (const struct engine_command *)commands;
+    return (const struct engine_command *)commands;
 }
 
 const struct engine_poll *o_get_polls(void) {
-  return (const struct engine_poll *)polls;
+    return (const struct engine_poll *)polls;
 }
 
 //-- mutex access
 void o_lock_descriptors() {
-  int res = pthread_mutex_lock(&desc_lock);
-  if (res) {
-    fprintf(stderr, "o_lock_descriptors failed with code %d \b", res);
-  }
+    int res = pthread_mutex_lock(&desc_lock);
+    if (res) {
+        fprintf(stderr, "o_lock_descriptors failed with code %d \b", res);
+    }
 }
 
 void o_unlock_descriptors() {
-  int res = pthread_mutex_unlock(&desc_lock);
-  if (res) {
-    fprintf(stderr, "o_unlock_descriptors failed with code %d \b", res);
-  }
+    int res = pthread_mutex_unlock(&desc_lock);
+    if (res) {
+        fprintf(stderr, "o_unlock_descriptors failed with code %d \b", res);
+    }
 }
 
 //--- tranmission to audio engine
 
 void o_request_engine_report(void) {
-  // fprintf(stderr, "requesting engine report... \n");
-  lo_send(ext_addr, "/report/engines", "");
+    // fprintf(stderr, "requesting engine report... \n");
+    lo_send(ext_addr, "/report/engines", "");
 }
 
 void o_load_engine(const char *name) {
-  set_need_reports();
-  lo_send(ext_addr, "/engine/load/name", "s", name);
+    set_need_reports();
+    lo_send(ext_addr, "/engine/load/name", "s", name);
 }
 
-void o_free_engine() { lo_send(ext_addr, "/engine/free", ""); }
+void o_free_engine() {
+    lo_send(ext_addr, "/engine/free", "");
+}
 
 void o_send_command(const char *name, lo_message msg) {
-  char *path;
-  // FIXME: better not to allocate here
-  size_t len = sizeof(char) * (strlen(name) + 10);
-  path = (char *)malloc(len);
-  sprintf(path, "/command/%s", name);
-  lo_send_message(ext_addr, path, msg);
-  free(path);
+    char *path;
+    // FIXME: better not to allocate here
+    size_t len = sizeof(char) * (strlen(name) + 10);
+    path = (char *)malloc(len);
+    sprintf(path, "/command/%s", name);
+    lo_send_message(ext_addr, path, msg);
+    free(path);
 }
 
 void o_send(const char *name, lo_message msg) {
-  lo_send_message(ext_addr, name, msg);
-  free(msg);
+    lo_send_message(ext_addr, name, msg);
+    free(msg);
 }
 
 void o_set_poll_state(int idx, bool state) {
-  if (state) {
-    lo_send(ext_addr, "/poll/start", "i", idx);
-  } else {
-    lo_send(ext_addr, "/poll/stop", "i", idx);
-  }
+    if (state) {
+        lo_send(ext_addr, "/poll/start", "i", idx);
+    } else {
+        lo_send(ext_addr, "/poll/stop", "i", idx);
+    }
 }
 
 //-------------------------
 //--- static function definitions
 void o_init_descriptors(void) {
-  pthread_mutex_init(&desc_lock, NULL);
-  for (int i = 0; i < MAX_NUM_DESC; i++) {
-    engine_names[i] = NULL;
-    commands[i].name = NULL;
-    commands[i].format = NULL;
-  }
+    pthread_mutex_init(&desc_lock, NULL);
+    for (int i = 0; i < MAX_NUM_DESC; i++) {
+        engine_names[i] = NULL;
+        commands[i].name = NULL;
+        commands[i].format = NULL;
+    }
 }
 
 void o_clear_engine_names(void) {
-  o_lock_descriptors();
-  for (int i = 0; i < num_engines; i++) {
-    if (engine_names[i] != NULL) {
-      free(engine_names[i]);
-      engine_names[i] = NULL;
-    } else {
-      fprintf(stderr,
-              "o_clear_engine_names: encountered unexpected null entry\n");
+    o_lock_descriptors();
+    for (int i = 0; i < num_engines; i++) {
+        if (engine_names[i] != NULL) {
+            free(engine_names[i]);
+            engine_names[i] = NULL;
+        } else {
+            fprintf(stderr,
+                    "o_clear_engine_names: encountered unexpected null entry\n");
+        }
     }
-  }
-  o_unlock_descriptors();
+    o_unlock_descriptors();
 }
 
 void o_clear_commands(void) {
-  o_lock_descriptors();
-  for (int i = 0; i < num_commands; i++) {
-    if ((commands[i].name != NULL) && (commands[i].format != NULL)) {
-      free(commands[i].name);
-      free(commands[i].format);
-      commands[i].name = NULL;
-      commands[i].format = NULL;
-    } else {
-      fprintf(stderr, "o_clear_commands: encountered unexpected null entry\n");
+    o_lock_descriptors();
+    for (int i = 0; i < num_commands; i++) {
+        if ((commands[i].name != NULL) && (commands[i].format != NULL)) {
+            free(commands[i].name);
+            free(commands[i].format);
+            commands[i].name = NULL;
+            commands[i].format = NULL;
+        } else {
+            fprintf(stderr, "o_clear_commands: encountered unexpected null entry\n");
+        }
     }
-  }
-  o_unlock_descriptors();
+    o_unlock_descriptors();
 }
 
 void o_clear_polls(void) {
-  o_lock_descriptors();
-  for (int i = 0; i < num_polls; i++) {
-    if ((polls[i].name != NULL)) {
-      free(polls[i].name);
-      polls[i].name = NULL;
-    } else {
-      fprintf(stderr, "o_clear_polls: encountered unexpected null entry\n");
+    o_lock_descriptors();
+    for (int i = 0; i < num_polls; i++) {
+        if ((polls[i].name != NULL)) {
+            free(polls[i].name);
+            polls[i].name = NULL;
+        } else {
+            fprintf(stderr, "o_clear_polls: encountered unexpected null entry\n");
+        }
     }
-  }
-  o_unlock_descriptors();
+    o_unlock_descriptors();
 }
 
 // set a given entry in engine name list
 void o_set_engine_name(int idx, const char *name) {
-  size_t len;
-  o_lock_descriptors();
-  if (engine_names[idx] != NULL) {
-    fprintf(stderr, "refusing to allocate engine name %d; already exists", idx);
-  } else {
-    len = strlen(name) + 1;  // include null terminator
-    engine_names[idx] = (char *)malloc(len);
-    if (engine_names[idx] == NULL) {
-      fprintf(stderr, "failure to malloc for engine name %d : %s\n", idx, name);
+    size_t len;
+    o_lock_descriptors();
+    if (engine_names[idx] != NULL) {
+        fprintf(stderr, "refusing to allocate engine name %d; already exists", idx);
     } else {
-      strncpy(engine_names[idx], name, len);
+        len = strlen(name) + 1; // include null terminator
+        engine_names[idx] = (char *)malloc(len);
+        if (engine_names[idx] == NULL) {
+            fprintf(stderr, "failure to malloc for engine name %d : %s\n", idx, name);
+        } else {
+            strncpy(engine_names[idx], name, len);
+        }
     }
-  }
-  o_unlock_descriptors();
+    o_unlock_descriptors();
 }
 
 // set a given entry in command list
 void o_set_command(int idx, const char *name, const char *format) {
-  size_t name_len, format_len;
-  o_lock_descriptors();
-  if ((commands[idx].name != NULL) || (commands[idx].format != NULL)) {
-    fprintf(stderr, "refusing to allocate command name %d; already exists",
-            idx);
-  } else {
-    name_len = strlen(name);
-    format_len = strlen(format);
-    commands[idx].name = (char *)malloc(name_len + 1);
-    commands[idx].format = (char *)malloc(format_len + 1);
-    if ((commands[idx].name == NULL) || (commands[idx].format == NULL)) {
-      fprintf(stderr, "failure to malloc for command %d : %s %s\n", idx, name,
-              format);
+    size_t name_len, format_len;
+    o_lock_descriptors();
+    if ((commands[idx].name != NULL) || (commands[idx].format != NULL)) {
+        fprintf(stderr, "refusing to allocate command name %d; already exists",
+                idx);
     } else {
-      strncpy(commands[idx].name, name, name_len + 1);
-      strncpy(commands[idx].format, format, format_len + 1);
+        name_len = strlen(name);
+        format_len = strlen(format);
+        commands[idx].name = (char *)malloc(name_len + 1);
+        commands[idx].format = (char *)malloc(format_len + 1);
+        if ((commands[idx].name == NULL) || (commands[idx].format == NULL)) {
+            fprintf(stderr, "failure to malloc for command %d : %s %s\n", idx, name,
+                    format);
+        } else {
+            strncpy(commands[idx].name, name, name_len + 1);
+            strncpy(commands[idx].format, format, format_len + 1);
+        }
     }
-  }
-  o_unlock_descriptors();
+    o_unlock_descriptors();
 }
 
 // set a given entry in polls list
 void o_set_poll(int idx, const char *name, poll_type_t type) {
-  size_t name_len;
-  o_lock_descriptors();
-  if (polls[idx].name != NULL) {
-    fprintf(stderr, "refusing to allocate poll name %d; already exists", idx);
-  } else {
-    name_len = strlen(name);
-    polls[idx].name = (char *)malloc(name_len + 1);
-    if ((polls[idx].name == NULL)) {
-      fprintf(stderr, "failure to malloc for poll %d : %s\n", idx, name);
+    size_t name_len;
+    o_lock_descriptors();
+    if (polls[idx].name != NULL) {
+        fprintf(stderr, "refusing to allocate poll name %d; already exists", idx);
     } else {
-      strncpy(polls[idx].name, name, name_len + 1);
+        name_len = strlen(name);
+        polls[idx].name = (char *)malloc(name_len + 1);
+        if ((polls[idx].name == NULL)) {
+            fprintf(stderr, "failure to malloc for poll %d : %s\n", idx, name);
+        } else {
+            strncpy(polls[idx].name, name, name_len + 1);
+        }
+        polls[idx].type = type;
     }
-    polls[idx].type = type;
-  }
-  o_unlock_descriptors();
+    o_unlock_descriptors();
 }
 
 // set a given descriptor count variable
 void o_set_num_desc(int *dst, int num) {
-  o_lock_descriptors();
-  *dst = num;
-  o_unlock_descriptors();
+    o_lock_descriptors();
+    *dst = num;
+    o_unlock_descriptors();
 }
 
 // set poll period
 void o_set_poll_time(int idx, float dt) {
-  lo_send(ext_addr, "/poll/time", "if", idx, dt);
+    lo_send(ext_addr, "/poll/time", "if", idx, dt);
 }
 
 // request current value of poll
 void o_request_poll_value(int idx) {
-  lo_send(ext_addr, "/poll/request/value", "i", idx);
+    lo_send(ext_addr, "/poll/request/value", "i", idx);
 }
 
 //---- audio context control
 
-void o_poll_start_vu() { crone_poll_start_vu(); }
+void o_poll_start_vu() {
+    crone_poll_start_vu();
+}
 
-void o_poll_stop_vu() { crone_poll_stop_vu(); }
+void o_poll_stop_vu() {
+    crone_poll_stop_vu();
+}
 
 void o_poll_start_cut_phase() {
-  crone_poll_start_cut_phase();
-  lo_send(crone_addr, "/poll/start/cut/phase", NULL);
+    crone_poll_start_cut_phase();
+    lo_send(crone_addr, "/poll/start/cut/phase", NULL);
 }
 
-void o_poll_stop_cut_phase() { crone_poll_stop_cut_phase(); }
+void o_poll_stop_cut_phase() {
+    crone_poll_stop_cut_phase();
+}
 
-void o_poll_start_tape() { crone_poll_start_tape(); }
+void o_poll_start_tape() {
+    crone_poll_start_tape();
+}
 
-void o_poll_stop_tape() { crone_poll_stop_tape(); }
+void o_poll_stop_tape() {
+    crone_poll_stop_tape();
+}
 
-void o_set_level_adc(float level) { crone_set_level_adc(level); }
+void o_set_level_adc(float level) {
+    crone_set_level_adc(level);
+}
 
 void o_set_level_dac(float level) {
-  fprintf(stderr, "setting DAC level (main thread): %f\n", level);
-  crone_set_level_dac(level);
+    fprintf(stderr, "setting DAC level (main thread): %f\n", level);
+    crone_set_level_dac(level);
 }
 
-void o_set_level_ext(float level) { crone_set_level_ext(level); }
+void o_set_level_ext(float level) {
+    crone_set_level_ext(level);
+}
 
-void o_set_level_monitor(float level) { crone_set_level_monitor(level); }
+void o_set_level_monitor(float level) {
+    crone_set_level_monitor(level);
+}
 
 void o_set_monitor_mix_mono() {
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 0.5);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.5);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.5);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.5);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 0.5);
 }
 
 void o_set_monitor_mix_stereo() {
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 1.0);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.0);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.0);
-  lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 1.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 1.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.0);
+    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 1.0);
 }
 
-void o_set_audio_pitch_on() { lo_send(ext_addr, "/audio/pitch/on", NULL); }
+void o_set_audio_pitch_on() {
+    lo_send(ext_addr, "/audio/pitch/on", NULL);
+}
 
-void o_set_audio_pitch_off() { lo_send(ext_addr, "/audio/pitch/off", NULL); }
+void o_set_audio_pitch_off() {
+    lo_send(ext_addr, "/audio/pitch/off", NULL);
+}
 
-void o_restart_audio() { lo_send(ext_addr, "/recompile", NULL); }
+void o_restart_audio() {
+    lo_send(ext_addr, "/recompile", NULL);
+}
 
 //---- tape controls
-void o_set_level_tape(float level) { crone_set_level_tape(level); }
+void o_set_level_tape(float level) {
+    crone_set_level_tape(level);
+}
 
-void o_set_level_tape_rev(float level) { crone_set_level_tape_rev(level); }
+void o_set_level_tape_rev(float level) {
+    crone_set_level_tape_rev(level);
+}
 
 void o_tape_rec_open(char *file) {
     std::string path(file ? file : "");
@@ -550,72 +586,97 @@ void o_tape_loop(int enabled) {
 }
 
 //--- cut
-void o_cut_enable(int i, float value) { crone_set_enabled_cut(i, value); }
+void o_cut_enable(int i, float value) {
+    crone_set_enabled_cut(i, value);
+}
 
-void o_set_level_adc_cut(float value) { crone_set_level_adc_cut(value); }
+void o_set_level_adc_cut(float value) {
+    crone_set_level_adc_cut(value);
+}
 
-void o_set_level_ext_cut(float value) { crone_set_level_ext_cut(value); }
+void o_set_level_ext_cut(float value) {
+    crone_set_level_ext_cut(value);
+}
 
-void o_set_level_tape_cut(float value) { crone_set_level_tape_cut(value); }
+void o_set_level_tape_cut(float value) {
+    crone_set_level_tape_cut(value);
+}
 
-void o_set_level_cut_rev(float value) { crone_set_level_cut_rev(value); }
+void o_set_level_cut_rev(float value) {
+    crone_set_level_cut_rev(value);
+}
 
-void o_set_level_cut_master(float value) { crone_set_level_cut_master(value); }
+void o_set_level_cut_master(float value) {
+    crone_set_level_cut_master(value);
+}
 
 void o_set_level_cut(int index, float value) {
-  crone_set_level_cut(index, value);
+    crone_set_level_cut(index, value);
 }
 
 void o_set_level_cut_cut(int src, int dest, float value) {
-  crone_set_level_cut_cut(src, dest, value);
+    crone_set_level_cut_cut(src, dest, value);
 }
 
-void o_set_pan_cut(int index, float value) { crone_set_pan_cut(index, value); }
+void o_set_pan_cut(int index, float value) {
+    crone_set_pan_cut(index, value);
+}
 
 void o_set_cut_param(const char *name, int voice, float value) {
-    (void)name; (void)voice; (void)value;
-  crone_set_cut_param( name, voice, value);
+    (void)name;
+    (void)voice;
+    (void)value;
+    crone_set_cut_param(name, voice, value);
 }
 
 void o_set_cut_param_ii(const char *name, int voice, int value) {
-    (void)name; (void)voice; (void)value;
-  crone_set_cut_param_ii(name, voice, value);
+    (void)name;
+    (void)voice;
+    (void)value;
+    crone_set_cut_param_ii(name, voice, value);
 }
 
 void o_set_cut_param_iif(const char *name, int a, int b, float v) {
-    (void)name; (void)a; (void)b; (void)v;
-  crone_set_cut_param_iif(name, a, b, v);
+    (void)name;
+    (void)a;
+    (void)b;
+    (void)v;
+    crone_set_cut_param_iif(name, a, b, v);
 }
 
 void o_set_level_input_cut(int src, int dst, float level) {
-  crone_set_level_in_cut(src, dst, level);
+    crone_set_level_in_cut(src, dst, level);
 }
 
-void o_cut_buffer_clear() { crone_cut_buffer_clear(); }
+void o_cut_buffer_clear() {
+    crone_cut_buffer_clear();
+}
 
-void o_cut_buffer_clear_channel(int ch) { crone_cut_buffer_clear_channel(ch); }
+void o_cut_buffer_clear_channel(int ch) {
+    crone_cut_buffer_clear_channel(ch);
+}
 
 void o_cut_buffer_clear_region(float start, float dur, float fade_time,
                                float preserve) {
-  crone_cut_buffer_clear_region(start, dur, fade_time, preserve);
+    crone_cut_buffer_clear_region(start, dur, fade_time, preserve);
 }
 
 void o_cut_buffer_clear_region_channel(int ch, float start, float dur,
                                        float fade_time, float preserve) {
-  crone_cut_buffer_clear_region_channel(ch, start, dur, fade_time, preserve);
+    crone_cut_buffer_clear_region_channel(ch, start, dur, fade_time, preserve);
 }
 
 void o_cut_buffer_copy_mono(int src_ch, int dst_ch, float src_start,
                             float dst_start, float dur, float fade_time,
                             float preserve, int reverse) {
-  crone_cut_buffer_copy_mono(src_ch, dst_ch, src_start, dst_start, dur,
-                                 fade_time, preserve, reverse);
+    crone_cut_buffer_copy_mono(src_ch, dst_ch, src_start, dst_start, dur,
+                               fade_time, preserve, reverse);
 }
 
 void o_cut_buffer_copy_stereo(float src_start, float dst_start, float dur,
                               float fade_time, float preserve, int reverse) {
-  crone_cut_buffer_copy_stereo(src_start, dst_start, dur, fade_time, preserve,
-                               reverse);
+    crone_cut_buffer_copy_stereo(src_start, dst_start, dur, fade_time, preserve,
+                                 reverse);
 }
 
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
@@ -651,43 +712,61 @@ void o_cut_buffer_write_stereo(char *file, float start, float dur) {
 }
 
 void o_cut_buffer_render(int ch, float start, float dur, int samples) {
-  crone_cut_buffer_render(ch, start, dur, samples);
+    crone_cut_buffer_render(ch, start, dur, samples);
 }
 
-void o_cut_query_position(int i) { crone_cut_query_position(i); }
+void o_cut_query_position(int i) {
+    crone_cut_query_position(i);
+}
 
-void o_cut_reset() { crone_cut_reset(); }
+void o_cut_reset() {
+    crone_cut_reset();
+}
 
 //--- rev effects controls
 // enable / disable rev fx processing
-void o_set_rev_on() { crone_set_enabled_reverb(1); }
+void o_set_rev_on() {
+    crone_set_enabled_reverb(1);
+}
 
-void o_set_rev_off() { crone_set_enabled_reverb(0); }
+void o_set_rev_off() {
+    crone_set_enabled_reverb(0);
+}
 
 //--- comp effects controls
-void o_set_comp_on() { crone_set_enabled_compressor(1); }
+void o_set_comp_on() {
+    crone_set_enabled_compressor(1);
+}
 
-void o_set_comp_off() { crone_set_enabled_compressor(0); }
+void o_set_comp_off() {
+    crone_set_enabled_compressor(0);
+}
 
-void o_set_comp_mix(float value) { crone_set_level_compressor_mix(value); }
+void o_set_comp_mix(float value) {
+    crone_set_level_compressor_mix(value);
+}
 
 // stereo output -> rev
-void o_set_level_ext_rev(float value) { crone_set_level_ext_rev(value); }
+void o_set_level_ext_rev(float value) {
+    crone_set_level_ext_rev(value);
+}
 
 // rev return -> dac
-void o_set_level_rev_dac(float value) { crone_set_level_rev_dac(value); }
+void o_set_level_rev_dac(float value) {
+    crone_set_level_rev_dac(value);
+}
 
 // monitor mix -> rev level
 void o_set_level_monitor_rev(float value) {
-  crone_set_level_monitor_rev(value);
+    crone_set_level_monitor_rev(value);
 }
 
 void o_set_rev_param(const char *name, float value) {
-  crone_set_reverb_param(name,  value);
+    crone_set_reverb_param(name, value);
 }
 
 void o_set_comp_param(const char *name, float value) {
-  crone_set_compressor_param(name, value);
+    crone_set_compressor_param(name, value);
 }
 
 // internal poll callbacks
@@ -732,28 +811,28 @@ void o_poll_callback_tape_file(int type) {
 }
 
 void o_poll_callback_softcut_phase(int voice, float phase) {
-  union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
-  ev->softcut_phase.idx = voice;
-  ev->softcut_phase.value = phase;
-  event_post(ev);
+    union event_data *ev = event_data_new(EVENT_POLL_SOFTCUT_PHASE);
+    ev->softcut_phase.idx = voice;
+    ev->softcut_phase.value = phase;
+    event_post(ev);
 }
 
 void o_poll_callback_softcut_position(int voice, float position) {
-  union event_data *ev = event_data_new(EVENT_SOFTCUT_POSITION);
-  ev->softcut_position.idx = voice;
-  ev->softcut_position.pos = position;
-  event_post(ev);
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_POSITION);
+    ev->softcut_position.idx = voice;
+    ev->softcut_position.pos = position;
+    event_post(ev);
 }
 
-void o_poll_callback_softcut_render(int idx, float sec_per_sample, float start, size_t size, const float* data) {
-  union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
-  ev->softcut_render.idx = idx;
-  ev->softcut_render.sec_per_sample = sec_per_sample;
-  ev->softcut_render.start = start;
-  ev->softcut_render.size = size;
-  ev->softcut_render.data = (float *)calloc(1, size);
-  memcpy(ev->softcut_render.data, data, size);
-  event_post(ev);
+void o_poll_callback_softcut_render(int idx, float sec_per_sample, float start, size_t size, const float *data) {
+    union event_data *ev = event_data_new(EVENT_SOFTCUT_RENDER);
+    ev->softcut_render.idx = idx;
+    ev->softcut_render.sec_per_sample = sec_per_sample;
+    ev->softcut_render.start = start;
+    ev->softcut_render.size = size;
+    ev->softcut_render.data = (float *)calloc(1, size);
+    memcpy(ev->softcut_render.data, data, size);
+    event_post(ev);
 }
 
 /////////////////////
@@ -768,36 +847,36 @@ void o_poll_callback_softcut_render(int idx, float sec_per_sample, float start, 
 
 int handle_crone_ready(const char *path, const char *types, lo_arg **argv,
                        int argc, lo_message data, void *user_data) {
-  norns_hello_ok();
-  return 0;
+    norns_hello_ok();
+    return 0;
 }
 
 int handle_engine_report_start(const char *path, const char *types,
                                lo_arg **argv, int argc, lo_message data,
                                void *user_data) {
-  assert(argc > 0);
-  // arg 1: count of engines
-  o_clear_engine_names();
-  o_set_num_desc(&num_engines, argv[0]->i);
-  return 0;
+    assert(argc > 0);
+    // arg 1: count of engines
+    o_clear_engine_names();
+    o_set_num_desc(&num_engines, argv[0]->i);
+    return 0;
 }
 
 int handle_engine_report_entry(const char *path, const char *types,
                                lo_arg **argv, int argc, lo_message data,
                                void *user_data) {
-  assert(argc > 1);
-  // arg 1: engine index
-  // arg 2: engine
-  // NB: yes, this is the correct way to read a string from a lo_arg!
-  o_set_engine_name(argv[0]->i, &argv[1]->s);
-  return 0;
+    assert(argc > 1);
+    // arg 1: engine index
+    // arg 2: engine
+    // NB: yes, this is the correct way to read a string from a lo_arg!
+    o_set_engine_name(argv[0]->i, &argv[1]->s);
+    return 0;
 }
 
 int handle_engine_report_end(const char *path, const char *types, lo_arg **argv,
                              int argc, lo_message data, void *user_data) {
-  // no arguments; post event
-  event_post(event_data_new(EVENT_ENGINE_REPORT));
-  return 0;
+    // no arguments; post event
+    event_post(event_data_new(EVENT_ENGINE_REPORT));
+    return 0;
 }
 
 //---------------------
@@ -806,26 +885,26 @@ int handle_engine_report_end(const char *path, const char *types, lo_arg **argv,
 int handle_command_report_start(const char *path, const char *types,
                                 lo_arg **argv, int argc, lo_message data,
                                 void *user_data) {
-  assert(argc > 0);
-  o_clear_commands();
-  o_set_num_desc(&num_commands, argv[0]->i);
-  return 0;
+    assert(argc > 0);
+    o_clear_commands();
+    o_set_num_desc(&num_commands, argv[0]->i);
+    return 0;
 }
 
 int handle_command_report_entry(const char *path, const char *types,
                                 lo_arg **argv, int argc, lo_message data,
                                 void *user_data) {
-  assert(argc > 2);
-  o_set_command(argv[0]->i, &argv[1]->s, &argv[2]->s);
-  return 0;
+    assert(argc > 2);
+    o_set_command(argv[0]->i, &argv[1]->s, &argv[2]->s);
+    return 0;
 }
 
 int handle_command_report_end(const char *path, const char *types,
                               lo_arg **argv, int argc, lo_message data,
                               void *user_data) {
-  needCommandReport = false;
-  test_engine_load_done();
-  return 0;
+    needCommandReport = false;
+    test_engine_load_done();
+    return 0;
 }
 
 //---------------------
@@ -833,60 +912,60 @@ int handle_command_report_end(const char *path, const char *types,
 
 int handle_poll_report_start(const char *path, const char *types, lo_arg **argv,
                              int argc, lo_message data, void *user_data) {
-  assert(argc > 0);
-  o_clear_polls();
-  o_set_num_desc(&num_polls, argv[0]->i);
-  return 0;
+    assert(argc > 0);
+    o_clear_polls();
+    o_set_num_desc(&num_polls, argv[0]->i);
+    return 0;
 }
 
 int handle_poll_report_entry(const char *path, const char *types, lo_arg **argv,
                              int argc, lo_message data, void *user_data) {
-  assert(argc > 2);
-  o_set_poll(argv[0]->i, &argv[1]->s, (poll_type_t)argv[2]->i);
-  return 0;
+    assert(argc > 2);
+    o_set_poll(argv[0]->i, &argv[1]->s, (poll_type_t)argv[2]->i);
+    return 0;
 }
 
 int handle_poll_report_end(const char *path, const char *types, lo_arg **argv,
                            int argc, lo_message data, void *user_data) {
-  // event_post( event_data_new(EVENT_POLL_REPORT) );
-  needPollReport = false;
-  test_engine_load_done();
-  return 0;
+    // event_post( event_data_new(EVENT_POLL_REPORT) );
+    needPollReport = false;
+    test_engine_load_done();
+    return 0;
 }
 
 int handle_poll_value(const char *path, const char *types, lo_arg **argv,
                       int argc, lo_message data, void *user_data) {
-  assert(argc > 1);
-  union event_data *ev = event_data_new(EVENT_POLL_VALUE);
-  ev->poll_value.idx = argv[0]->i;
-  ev->poll_value.value = argv[1]->f;
-  event_post(ev);
-  return 0;
+    assert(argc > 1);
+    union event_data *ev = event_data_new(EVENT_POLL_VALUE);
+    ev->poll_value.idx = argv[0]->i;
+    ev->poll_value.value = argv[1]->f;
+    event_post(ev);
+    return 0;
 }
 
 int handle_poll_data(const char *path, const char *types, lo_arg **argv,
                      int argc, lo_message data, void *user_data) {
-  assert(argc > 1);
-  union event_data *ev = event_data_new(EVENT_POLL_DATA);
-  ev->poll_data.idx = argv[0]->i;
-  uint8_t *blobdata = (uint8_t *)lo_blob_dataptr((lo_blob)argv[1]);
-  int sz = lo_blob_datasize((lo_blob)argv[1]);
-  ev->poll_data.size = sz;
-  ev->poll_data.data = (uint8_t *)calloc(1, sz);
-  memcpy(ev->poll_data.data, blobdata, sz);
-  event_post(ev);
-  return 0;
+    assert(argc > 1);
+    union event_data *ev = event_data_new(EVENT_POLL_DATA);
+    ev->poll_data.idx = argv[0]->i;
+    uint8_t *blobdata = (uint8_t *)lo_blob_dataptr((lo_blob)argv[1]);
+    int sz = lo_blob_datasize((lo_blob)argv[1]);
+    ev->poll_data.size = sz;
+    ev->poll_data.data = (uint8_t *)calloc(1, sz);
+    memcpy(ev->poll_data.data, blobdata, sz);
+    event_post(ev);
+    return 0;
 }
 
 void lo_error_handler(int num, const char *m, const char *path) {
-  fprintf(stderr, "liblo error %d in path %s: %s\n", num, path, m);
+    fprintf(stderr, "liblo error %d in path %s: %s\n", num, path, m);
 }
 
 void test_engine_load_done() {
-  if (!get_need_reports()) {
-    union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
-    event_post(ev);
-  }
+    if (!get_need_reports()) {
+        union event_data *ev = event_data_new(EVENT_ENGINE_LOADED);
+        event_post(ev);
+    }
 }
 
 #pragma GCC diagnostic pop

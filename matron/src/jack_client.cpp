@@ -9,7 +9,7 @@
 static jack_client_t *jack_client;
 double jack_sample_rate;
 
-std::atomic<uint32_t> xrun_count {0};
+std::atomic<uint32_t> xrun_count{0};
 
 // maintain a 64-bit frame counter from jack's 32-bit frame time.
 // extends wraparound at 48khz from ~25 hours to millions of years.
@@ -20,8 +20,8 @@ static uint64_t g_last_total_frames = 0ULL;
 static pthread_mutex_t g_time_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static int xrun_callback(void *) {
-  std::atomic_fetch_add(&xrun_count, 1);
-  return 0;
+    std::atomic_fetch_add(&xrun_count, 1);
+    return 0;
 }
 
 int jack_client_init() {

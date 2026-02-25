@@ -405,8 +405,8 @@ void w_init(void) {
     luaL_openlibs(lvm);
     lua_pcall(lvm, 0, 0, 0);
 
-   // initialize embedded third-party modules
-   lua_register_cjson();
+    // initialize embedded third-party modules
+    lua_register_cjson();
 
     ////////////////////////
     // FIXME: document these in lua in some deliberate fashion
@@ -1710,7 +1710,7 @@ int _crow_send(lua_State *l) {
     }
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    d = (dev_crow*)lua_touserdata(l, 1);
+    d = (dev_crow *)lua_touserdata(l, 1);
     s = luaL_checkstring(l, 2);
     lua_settop(l, 0);
 
@@ -1728,7 +1728,7 @@ int _serial_send(lua_State *l) {
     }
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    d = (struct dev_serial*)lua_touserdata(l, 1);
+    d = (struct dev_serial *)lua_touserdata(l, 1);
     size_t len = 0;
     s = luaL_checklstring(l, 2, &len);
     lua_settop(l, 0);
@@ -1750,11 +1750,11 @@ int _midi_send(lua_State *l) {
     lua_check_num_args(2);
 
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    md = (dev_midi*)lua_touserdata(l, 1);
+    md = (dev_midi *)lua_touserdata(l, 1);
 
     luaL_checktype(l, 2, LUA_TTABLE);
     nbytes = lua_rawlen(l, 2);
-    data = (uint8_t*)malloc(nbytes);
+    data = (uint8_t *)malloc(nbytes);
 
     for (unsigned int i = 1; i <= nbytes; i++) {
         lua_pushinteger(l, i);
@@ -1779,7 +1779,7 @@ int _midi_clock_receive(lua_State *l) {
     struct dev_midi *md;
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    md = (dev_midi*)lua_touserdata(l, 1);
+    md = (dev_midi *)lua_touserdata(l, 1);
     int enabled = lua_tointeger(l, 2);
     md->clock_enabled = enabled > 0;
     // fprintf(stderr, "set clock_enabled to %d on device %p\n", enabled, md);
@@ -1797,7 +1797,7 @@ int _midi_clock_receive(lua_State *l) {
 int _grid_set_led(lua_State *l) {
     lua_check_num_args(5);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     int x = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int y = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int z = (int)luaL_checkinteger(l, 4);     // don't convert value!
@@ -1810,7 +1810,7 @@ int _grid_set_led(lua_State *l) {
 int _arc_set_led(lua_State *l) {
     lua_check_num_args(5);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     int n = (int)luaL_checkinteger(l, 2) - 1; // convert from 1-base
     int x = (int)luaL_checkinteger(l, 3) - 1; // convert from 1-base
     int val = (int)luaL_checkinteger(l, 4);   // don't convert value!
@@ -1829,7 +1829,7 @@ int _arc_set_led(lua_State *l) {
 int _grid_all_led(lua_State *l) {
     lua_check_num_args(3);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     int z = (int)luaL_checkinteger(l, 2); // don't convert value!
     bool rel = lua_toboolean(l, 3);
     dev_monome_all_led(md, z, rel);
@@ -1849,7 +1849,7 @@ int _arc_all_led(lua_State *l) {
 int _grid_set_rotation(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     int z = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_set_rotation(md, z);
     lua_settop(l, 0);
@@ -1864,7 +1864,7 @@ int _grid_set_rotation(lua_State *l) {
 int _grid_tilt_enable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_enable(md, id);
     lua_settop(l, 0);
@@ -1878,7 +1878,7 @@ int _grid_tilt_enable(lua_State *l) {
 int _grid_tilt_disable(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     int id = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_tilt_disable(md, id);
     lua_settop(l, 0);
@@ -1893,7 +1893,7 @@ int _grid_tilt_disable(lua_State *l) {
 int _monome_refresh(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     dev_monome_refresh(md);
     lua_settop(l, 0);
     return 0;
@@ -1907,7 +1907,7 @@ int _monome_refresh(lua_State *l) {
 int _monome_intensity(lua_State *l) {
     lua_check_num_args(2);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     int i = (int)luaL_checkinteger(l, 2); // don't convert value!
     dev_monome_intensity(md, i);
     lua_settop(l, 0);
@@ -1922,7 +1922,7 @@ int _monome_intensity(lua_State *l) {
 int _grid_rows(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     lua_pushinteger(l, dev_monome_grid_rows(md));
     return 1;
 }
@@ -1935,7 +1935,7 @@ int _grid_rows(lua_State *l) {
 int _grid_cols(lua_State *l) {
     lua_check_num_args(1);
     luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
-    struct dev_monome *md = (dev_monome*)lua_touserdata(l, 1);
+    struct dev_monome *md = (dev_monome *)lua_touserdata(l, 1);
     lua_pushinteger(l, dev_monome_grid_cols(md));
     return 1;
 }
@@ -2548,8 +2548,8 @@ void w_handle_osc_event(char *from_host, char *from_port, char *path, lo_message
             lua_pushstring(lvm, &argv[i]->s);
             break;
         case LO_BLOB:
-            lua_pushlstring(lvm, (const char*)lo_blob_dataptr((lo_blob)argv[i]),
-			    lo_blob_datasize((lo_blob)argv[i]));
+            lua_pushlstring(lvm, (const char *)lo_blob_dataptr((lo_blob)argv[i]),
+                            lo_blob_datasize((lo_blob)argv[i]));
             break;
         case LO_INT64:
             lua_pushinteger(lvm, argv[i]->h);
@@ -3498,7 +3498,6 @@ int _execute(lua_State *l) {
     sidecar_client_cmd(cmd, l, _execute_completion);
     return 1;
 }
-
 
 int _platform(lua_State *l) {
     lua_check_num_args(0);
