@@ -80,10 +80,19 @@ def configure(conf):
         header_name='monome.h',
         uselib_store='LIBMONOME')
 
-    conf.check_cfg(package='nng', args=['--cflags', '--libs'], mandatory=False)
+    # FIXME: Using the nng lib if installed, otherwise falling back to the
+    # third-party submodule. We should pick one or the other.
+    conf.check_cc(msg='Checking for nng',
+        define_name='HAVE_NNG',
+        mandatory=False,
+        lib='nng',
+        header_name='nng/nng.h',
+        uselib_store='NNG')
+    
     if not conf.env.HAVE_NNG:
         conf.define('HAVE_NNG', 1)
         conf.env.append_unique('INCLUDES_NNG', ['third-party/nng/include'])
+        conf.env.append_unique('LIB_NNG', ['nng'])
 
     conf.check_cc(msg='Checking for atomic',
         define_name='HAVE_ATOMIC',
