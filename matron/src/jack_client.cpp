@@ -1,4 +1,5 @@
 #include <atomic>
+#include <pthread.h>
 #include <stdio.h>
 
 #include <jack/jack.h>

@@ -80,12 +80,10 @@ def configure(conf):
         header_name='monome.h',
         uselib_store='LIBMONOME')
 
-    conf.check_cc(msg='Checking for nng',
-        define_name='HAVE_NNG',
-        mandatory=True,
-        lib='nng',
-        header_name='nng/nng.h',
-        uselib_store='NNG')
+    conf.check_cfg(package='nng', args=['--cflags', '--libs'], mandatory=False)
+    if not conf.env.HAVE_NNG:
+        conf.define('HAVE_NNG', 1)
+        conf.env.append_unique('INCLUDES_NNG', ['third-party/nng/include'])
 
     conf.check_cc(msg='Checking for atomic',
         define_name='HAVE_ATOMIC',
