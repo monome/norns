@@ -25,47 +25,6 @@
 #include "crone.h"
 #include "crone_param_dispatch.h"
 
-#include "blockingconcurrentqueue.h"
-#include <functional>
-#include <string>
-#include <thread>
-#include <utility>
-
-// Asynchronous worker used for crone file operations (Tape/Softcut disk I/O) to
-// avoid blocking the Lua/Matron UI thread
-class ConcurrentQueueWorker {
-    std::thread worker;
-    moodycamel::BlockingConcurrentQueue<std::function<void()>> tasks;
-    bool running = true;
-
-  public:
-    ConcurrentQueueWorker() {
-        worker = std::thread([this]() {
-            std::function<void()> task;
-            while (running) {
-                if (tasks.wait_dequeue_timed(task, std::chrono::milliseconds(100))) {
-                    task();
-                }
-            }
-            while (tasks.try_dequeue(task)) {
-                task();
-            }
-        });
-    }
-
-    ~ConcurrentQueueWorker() {
-        running = false;
-        if (worker.joinable())
-            worker.join();
-    }
-
-    void enqueue(std::function<void()> task) {
-        tasks.enqueue(std::move(task));
-    }
-};
-
-static ConcurrentQueueWorker io_queue;
-
 // address of external DSP environment (e.g. supercollider)
 static lo_address ext_addr;
 // address of crone process
@@ -526,63 +485,57 @@ void o_set_level_tape_rev(float level) {
 }
 
 void o_tape_rec_open(char *file) {
-    std::string path(file ? file : "");
-    io_queue.enqueue([path]() {
-        crone_tape_rec_open(path.c_str());
-        union event_data *ev = event_data_new(EVENT_TAPE_RECORD_FILE);
-        ev->tape_file.path = strdup(path.c_str());
-        event_post(ev);
-    });
+    crone_tape_rec_open(file);
+    union event_data *ev = event_data_new(EVENT_TAPE_RECORD_FILE);
+    ev->tape_file.path = strdup(file ? file : "");
+    event_post(ev);
 }
 
 void o_tape_rec_start() {
-    io_queue.enqueue([]() { crone_tape_rec_start(); });
+    crone_tape_rec_start();
 }
 
 void o_tape_rec_pause(int paused) {
-    io_queue.enqueue([paused]() { crone_tape_rec_pause(paused); });
+    crone_tape_rec_pause(paused);
 }
 
 void o_tape_rec_stop() {
-    io_queue.enqueue([]() { crone_tape_rec_stop(); });
+    crone_tape_rec_stop();
 }
 
 void o_tape_play_open(char *file) {
-    std::string path(file ? file : "");
-    io_queue.enqueue([path]() {
-        crone_tape_play_open(path.c_str());
-        union event_data *ev = event_data_new(EVENT_TAPE_PLAY_FILE);
-        ev->tape_file.path = strdup(path.c_str());
-        event_post(ev);
-    });
+    crone_tape_play_open(file);
+    union event_data *ev = event_data_new(EVENT_TAPE_PLAY_FILE);
+    ev->tape_file.path = strdup(file ? file : "");
+    event_post(ev);
 }
 
 void o_tape_play_start() {
-    io_queue.enqueue([]() { crone_tape_play_start(); });
+    crone_tape_play_start();
 }
 
 void o_tape_play_pause(int paused) {
-    io_queue.enqueue([paused]() { crone_tape_play_pause(paused); });
+    crone_tape_play_pause(paused);
 }
 
 void o_tape_play_stop() {
-    io_queue.enqueue([]() { crone_tape_play_stop(); });
+    crone_tape_play_stop();
 }
 
 void o_tape_play_loop(int enabled) {
-    io_queue.enqueue([enabled]() { crone_tape_play_loop(enabled); });
+    crone_tape_play_loop(enabled);
 }
 
 void o_tape_pause() {
-    io_queue.enqueue([]() { crone_tape_pause(); });
+    crone_tape_pause();
 }
 
 void o_tape_resume() {
-    io_queue.enqueue([]() { crone_tape_resume(); });
+    crone_tape_resume();
 }
 
 void o_tape_loop(int enabled) {
-    io_queue.enqueue([enabled]() { crone_tape_play_loop(enabled); });
+    crone_tape_play_loop(enabled);
 }
 
 //--- cut
@@ -682,33 +635,21 @@ void o_cut_buffer_copy_stereo(float src_start, float dst_start, float dur,
 void o_cut_buffer_read_mono(char *file, float start_src, float start_dst,
                             float dur, int ch_src, int ch_dst, float preserve,
                             float mix) {
-    std::string path(file ? file : "");
-    io_queue.enqueue([path, start_src, start_dst, dur, ch_src, ch_dst, preserve, mix]() {
-        crone_cut_buffer_read_mono(path.c_str(), start_src, start_dst, dur, ch_src, ch_dst,
-                                   preserve, mix);
-    });
+    crone_cut_buffer_read_mono(file, start_src, start_dst, dur, ch_src, ch_dst,
+                               preserve, mix);
 }
 
 void o_cut_buffer_read_stereo(char *file, float start_src, float start_dst,
                               float dur, float preserve, float mix) {
-    std::string path(file ? file : "");
-    io_queue.enqueue([path, start_src, start_dst, dur, preserve, mix]() {
-        crone_cut_buffer_read_stereo(path.c_str(), start_src, start_dst, dur, preserve, mix);
-    });
+    crone_cut_buffer_read_stereo(file, start_src, start_dst, dur, preserve, mix);
 }
 
 void o_cut_buffer_write_mono(char *file, float start, float dur, int ch) {
-    std::string path(file ? file : "");
-    io_queue.enqueue([path, start, dur, ch]() {
-        crone_cut_buffer_write_mono(path.c_str(), start, dur, ch);
-    });
+    crone_cut_buffer_write_mono(file, start, dur, ch);
 }
 
 void o_cut_buffer_write_stereo(char *file, float start, float dur) {
-    std::string path(file ? file : "");
-    io_queue.enqueue([path, start, dur]() {
-        crone_cut_buffer_write_stereo(path.c_str(), start, dur);
-    });
+    crone_cut_buffer_write_stereo(file, start, dur);
 }
 
 void o_cut_buffer_render(int ch, float start, float dur, int samples) {

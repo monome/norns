@@ -63,6 +63,9 @@ class Tape {
 
         std::atomic<int> status; // libsndfile error code - unused at present
 
+        // deferred open: path stored by open(), actual sf_open happens in diskLoop()
+        std::string pendingPath;
+
         // fade envelope state
         enum class EnvState {
             FadeIn,
@@ -110,6 +113,8 @@ class Tape {
       public:
         std::atomic<bool> isRunning;
         std::atomic<bool> shouldStop;
+        // true after open() accepts a path, false after diskLoop() completes or stop() while idle
+        std::atomic<bool> hasFile;
 
       public:
         SfStream()
@@ -117,7 +122,8 @@ class Tape {
               status(0),
               ringBuf(jack_ringbuffer_create(ringBufBytes), &jack_ringbuffer_free),
               isRunning(false),
-              shouldStop(false) {
+              shouldStop(false),
+              hasFile(false) {
             envIdx = 0;
             envState = EnvState::Off;
             transportState = TransportState::Idle;
@@ -125,6 +131,7 @@ class Tape {
 
         virtual ~SfStream() {
             std::lock_guard<std::mutex> lock(lifecycleMutex);
+            hasFile = false;
             if (th && th->joinable()) {
                 shouldStop = true;
                 cv.notify_one();
@@ -146,8 +153,8 @@ class Tape {
                 th->join();
             }
 
-            if (file == nullptr) {
-                std::cout << "Tape::SfStream::start(): no file open; aborting start" << std::endl;
+            if (!hasFile) {
+                std::cout << "Tape::SfStream::start(): no file pending; aborting start" << std::endl;
                 return;
             }
 
@@ -335,19 +342,27 @@ class Tape {
         std::atomic<size_t> numFramesCaptured;
         std::atomic<size_t> maxFrames; // recording limit
 
+        // deferred open parameters (stored by open(), consumed by diskLoop())
+        int pendingOpenSampleRate = 48000;
+        int pendingOpenBitDepth = 24;
+        size_t pendingOpenMaxFrames = JACK_MAX_FRAMES;
+
       protected:
       public:
-        // stop recording if running… otherwise, close any armed file and reset state
+        // stop recording if running… otherwise, clear armed state and reset
         void stop() {
             if (SfStream::isRunning) {
                 SfStream::stop();
                 return;
             }
             std::lock_guard<std::mutex> lifecycleLock(this->lifecycleMutex);
+            // file may or may not be open (deferred open may not have run yet)
             if (this->file != nullptr) {
                 sf_close(this->file);
                 this->file = nullptr;
             }
+            this->hasFile = false;
+            this->pendingPath.clear();
             jack_ringbuffer_reset(this->ringBuf.get());
             this->dataPending = false;
             numFramesCaptured = 0;
@@ -414,6 +429,44 @@ class Tape {
         // call from disk thread
         // write audio data to file
         void diskLoop() override {
+            // deferred open: perform sf_open here on the disk thread
+            SF_INFO sf_info;
+            sf_info.samplerate = pendingOpenSampleRate;
+            sf_info.channels = NumChannels;
+
+            int short_mask;
+            switch (pendingOpenBitDepth) {
+            case 8:
+                short_mask = SF_FORMAT_PCM_U8;
+                break;
+            case 16:
+                short_mask = SF_FORMAT_PCM_16;
+                break;
+            case 24:
+                short_mask = SF_FORMAT_PCM_24;
+                break;
+            case 32:
+                short_mask = SF_FORMAT_PCM_32;
+                break;
+            default:
+                short_mask = SF_FORMAT_PCM_24;
+                break;
+            }
+            sf_info.format = SF_FORMAT_WAV | short_mask;
+
+            if ((this->file = sf_open(this->pendingPath.c_str(), SFM_WRITE, &sf_info)) == nullptr) {
+                std::cout << "cannot open sndfile" << this->pendingPath << " for output (" << sf_strerror(nullptr) << ")" << std::endl;
+                this->hasFile = false;
+                return;
+            }
+
+            // enable clipping during float->int conversion
+            sf_command(this->file, SFC_SET_CLIPPING, nullptr, SF_TRUE);
+
+            this->maxFrames = pendingOpenMaxFrames;
+            jack_ringbuffer_reset(this->ringBuf.get());
+            this->dataPending = false;
+
             SfStream::isRunning = true;
             SfStream::shouldStop = false;
             numFramesCaptured = 0;
@@ -493,10 +546,11 @@ class Tape {
             std::cout << "Tape::writer closing file...";
             sf_close(this->file);
             this->file = nullptr;
+            this->hasFile = false;
             std::cout << " done." << std::endl;
         }
 
-        // open file for writing - from any thread
+        // prepare file for writing - non-blocking, defers sf_open to diskLoop()
         bool open(const std::string &path,
                   size_t maxFrames = JACK_MAX_FRAMES, // <-- ridiculous big number
                   int sampleRate = 48000,
@@ -514,49 +568,21 @@ class Tape {
                 this->th->join();
             }
 
-            SF_INFO sf_info;
-            int short_mask;
+            // store parameters for deferred sf_open in diskLoop()
+            this->pendingPath = path;
+            this->pendingOpenSampleRate = sampleRate;
+            this->pendingOpenBitDepth = bitDepth;
+            this->pendingOpenMaxFrames = maxFrames;
 
-            sf_info.samplerate = sampleRate;
-            sf_info.channels = NumChannels;
-
-            switch (bitDepth) {
-            case 8:
-                short_mask = SF_FORMAT_PCM_U8;
-                break;
-            case 16:
-                short_mask = SF_FORMAT_PCM_16;
-                break;
-            case 24:
-                short_mask = SF_FORMAT_PCM_24;
-                break;
-            case 32:
-                short_mask = SF_FORMAT_PCM_32;
-                break;
-            default:
-                short_mask = SF_FORMAT_PCM_24;
-                break;
-            }
-            sf_info.format = SF_FORMAT_WAV | short_mask;
-
-            if ((this->file = sf_open(path.c_str(), SFM_WRITE, &sf_info)) == nullptr) {
-                std::cout << "cannot open sndfile" << path << " for output (" << sf_strerror(nullptr) << ")" << std::endl;
-                return false;
-            }
-
-            // reset captured frame counter so READY state reflects 0 position
+            // reset state for the new session
             numFramesCaptured = 0;
-
-            // enable clipping during float->int conversion
-            sf_command(this->file, SFC_SET_CLIPPING, nullptr, SF_TRUE);
-
-            this->maxFrames = maxFrames;
             jack_ringbuffer_reset(this->ringBuf.get());
             this->dataPending = false;
 
             this->envIdx = 0;
             this->envState = SfStream::EnvState::Off;
             this->transportState = TransportState::Idle;
+            this->hasFile = true;
 
             return true;
         }
@@ -565,7 +591,10 @@ class Tape {
             : SfStream(),
               dataPending(false),
               numFramesCaptured(0),
-              maxFrames(JACK_MAX_FRAMES) {
+              maxFrames(JACK_MAX_FRAMES),
+              pendingOpenSampleRate(48000),
+              pendingOpenBitDepth(24),
+              pendingOpenMaxFrames(JACK_MAX_FRAMES) {
         }
     }; // Writer class
 
@@ -758,7 +787,7 @@ class Tape {
             }
         }
 
-        // open file for reading - from any thread
+        // prepare file for reading - non-blocking, defers sf_open to diskLoop()
         bool open(const std::string &path) {
             std::lock_guard<std::mutex> lifecycleLock(this->lifecycleMutex);
             if (SfStream::isRunning) {
@@ -771,46 +800,19 @@ class Tape {
                 this->th->join();
             }
 
-            SF_INFO sfInfo;
-            if ((this->file = sf_open(path.c_str(), SFM_READ, &sfInfo)) == nullptr) {
-                std::cout << "Tape Reader:: cannot open sndfile " << path << " for input (" << sf_strerror(nullptr) << ")" << std::endl;
-                return false;
-            }
-
-            if (sfInfo.frames < 1) {
-                std::cout << "Tape Reader:: error reading file " << path << " (no frames available)" << std::endl;
-                sf_close(this->file);
-                this->file = nullptr;
-                return false;
-            }
-            frames = static_cast<size_t>(sfInfo.frames);
-            fileSampleRate = static_cast<float>(sfInfo.samplerate);
-            std::cout << "Tape Reader:: file size " << frames << " samples" << std::endl;
-            inChannels = sfInfo.channels;
-            if (inChannels > NumChannels) {
-                sf_close(this->file);
-                this->file = nullptr;
-                return false;
-            }
-            if (inChannels == 1)
-                diskBufPtr = conversionBuf;
-            else
-                diskBufPtr = diskInBuf;
+            // store path for deferred sf_open in diskLoop()
+            this->pendingPath = path;
             framesProcessed = 0;
 
             jack_ringbuffer_reset(this->ringBuf.get());
             isPrimed = false;
 
-            // default to looping unless file is too short
-            loopFile = true;
-            if (frames < minFramesForLoop)
-                loopFile = false;
-
             this->envIdx = 0;
             this->envState = SfStream::EnvState::Off;
             this->transportState = TransportState::Idle;
+            this->hasFile = true;
 
-            return frames > 0;
+            return true;
         }
 
         bool getLoopFile() const {
@@ -832,6 +834,41 @@ class Tape {
       private:
         // disk thread: read audio file and feed ringbuffer
         void diskLoop() override {
+            // deferred open: perform sf_open here on the disk thread
+            SF_INFO sfInfo;
+            if ((this->file = sf_open(this->pendingPath.c_str(), SFM_READ, &sfInfo)) == nullptr) {
+                std::cout << "Tape Reader:: cannot open sndfile " << this->pendingPath << " for input (" << sf_strerror(nullptr) << ")" << std::endl;
+                this->hasFile = false;
+                return;
+            }
+
+            if (sfInfo.frames < 1) {
+                std::cout << "Tape Reader:: error reading file " << this->pendingPath << " (no frames available)" << std::endl;
+                sf_close(this->file);
+                this->file = nullptr;
+                this->hasFile = false;
+                return;
+            }
+            frames = static_cast<size_t>(sfInfo.frames);
+            fileSampleRate = static_cast<float>(sfInfo.samplerate);
+            std::cout << "Tape Reader:: file size " << frames << " samples" << std::endl;
+            inChannels = sfInfo.channels;
+            if (inChannels > NumChannels) {
+                sf_close(this->file);
+                this->file = nullptr;
+                this->hasFile = false;
+                return;
+            }
+            if (inChannels == 1)
+                diskBufPtr = conversionBuf;
+            else
+                diskBufPtr = diskInBuf;
+
+            // default to looping unless file is too short
+            loopFile = true;
+            if (frames < minFramesForLoop)
+                loopFile = false;
+
             needsData = false;
             prime(); // pre-fill ringbuffer
             isPrimed = true;
@@ -928,6 +965,7 @@ class Tape {
                 isPrimed = false;
             }
             SfStream::isRunning = false;
+            this->hasFile = false;
         }
 
     }; // Reader class
@@ -979,10 +1017,10 @@ class Tape {
         return systemSampleRate;
     }
     bool playbackHasFile() const {
-        return reader.file != nullptr;
+        return reader.hasFile.load(std::memory_order_relaxed);
     }
     bool recordHasFile() const {
-        return writer.file != nullptr;
+        return writer.hasFile.load(std::memory_order_relaxed);
     }
     bool playbackIsPaused() const {
         return reader.isPaused();
