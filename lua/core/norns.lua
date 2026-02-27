@@ -225,8 +225,14 @@ norns.system_glob = _norns.system_glob
 
 -- audio reset
 _norns.reset = function()
-  os.execute("sudo systemctl restart norns-sclang.service")
-  os.execute("sudo systemctl restart norns-main.service")
+  -- restart services via nohup so the sidecar's popen() returns
+  -- immediately, allowing cleanup to finish before systemd kills the process
+  local cmd = "nohup sh -c '"
+    .. "sudo systemctl restart norns-sclang.service; "
+    .. "sleep 0.5; "
+    .. "sudo systemctl restart norns-main.service"
+    .. "' >/dev/null 2>&1 &" -- discard output, prevent nohup.out
+  _norns.execute(cmd)
 end
 
 -- restart device
