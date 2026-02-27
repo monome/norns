@@ -20,17 +20,17 @@ if(UNIX)
             HINTS
                 /opt/homebrew/opt/readline/lib
             REQUIRED)
-        find_library(nanomsg libnanomsg.dylib
-        NO_DEFAULT_PATH
+        find_library(nng libnng.dylib
+            NO_DEFAULT_PATH
             HINTS
-        /opt/homebrew/opt/nanomsg/lib
+                /opt/homebrew/opt/nng/lib
             REQUIRED)
         target_link_libraries(maiden-repl
             ${readline}
             ncurses
             panel
-            ${nanomsg})
-        include_directories(/usr/local/include /opt/homebrew/opt/nanomsg/include /opt/homebrew/opt/readline/include)
+            ${nng})
+        include_directories(/usr/local/include /opt/homebrew/opt/nng/include /opt/homebrew/opt/readline/include)
     else()
         set(CURSES_NEED_NCURSES TRUE)
         set(CURSES_NEED_WIDE TRUE) # Required for unicode
@@ -40,7 +40,7 @@ if(UNIX)
         target_link_libraries(maiden-repl pthread)
         target_link_libraries(maiden-repl readline)
         target_link_libraries(maiden-repl panel)
-        target_link_libraries(maiden-repl nanomsg)
+        target_link_libraries(maiden-repl nng)
     endif()
 else()
     # nope
