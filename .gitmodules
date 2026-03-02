@@ -13,9 +13,6 @@
 [submodule "third-party/lua-cjson"]
 	path = third-party/lua-cjson
 	url = https://github.com/mpx/lua-cjson.git
-[submodule "third-party/nng"]
-	path = third-party/nng
-	url = https://github.com/nanomsg/nng.git
 [submodule "third-party/readerwriterqueue"]
 	path = third-party/readerwriterqueue
 	url = https://github.com/cameron314/readerwriterqueue.git
