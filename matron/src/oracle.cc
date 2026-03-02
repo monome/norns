@@ -27,8 +27,6 @@
 
 // address of external DSP environment (e.g. supercollider)
 static lo_address ext_addr;
-// address of crone process
-static lo_address crone_addr;
 
 static lo_server_thread st;
 
@@ -140,17 +138,14 @@ void o_query_startup(void) {
 void o_init(void) {
     const char *local_port = args_local_port();
     const char *ext_port = args_ext_port();
-    const char *crone_port = args_crone_port();
-
     fprintf(stderr,
-            "OSC rx port: %s \nOSC crone port: %s\nOSC ext port: %s\nOSC remote "
+            "OSC rx port: %s \nOSC ext port: %s\nOSC remote "
             "port: %s\n",
-            local_port, crone_port, ext_port, args_remote_port());
+            local_port, ext_port, args_remote_port());
 
     o_init_descriptors();
 
     ext_addr = lo_address_new("127.0.0.1", ext_port);
-    crone_addr = lo_address_new("127.0.0.1", crone_port);
     st = lo_server_thread_new(local_port, lo_error_handler);
 
     // crone ready
@@ -193,7 +188,6 @@ void o_deinit(void) {
     fprintf(stderr, "stopping OSC server\n");
     lo_server_thread_free(st);
     lo_address_free(ext_addr);
-    lo_address_free(crone_addr);
 }
 
 //--- descriptor access
@@ -417,7 +411,6 @@ void o_poll_stop_vu() {
 
 void o_poll_start_cut_phase() {
     crone_poll_start_cut_phase();
-    lo_send(crone_addr, "/poll/start/cut/phase", NULL);
 }
 
 void o_poll_stop_cut_phase() {
@@ -450,17 +443,17 @@ void o_set_level_monitor(float level) {
 }
 
 void o_set_monitor_mix_mono() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.5);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 0.5);
+    crone_set_level_monitor_mix(0, 0.5);
+    crone_set_level_monitor_mix(1, 0.5);
+    crone_set_level_monitor_mix(2, 0.5);
+    crone_set_level_monitor_mix(3, 0.5);
 }
 
 void o_set_monitor_mix_stereo() {
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 0, 1.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 1, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 2, 0.0);
-    lo_send(crone_addr, "/set/level/monitor_mix", "if", 3, 1.0);
+    crone_set_level_monitor_mix(0, 1.0);
+    crone_set_level_monitor_mix(1, 0.0);
+    crone_set_level_monitor_mix(2, 0.0);
+    crone_set_level_monitor_mix(3, 1.0);
 }
 
 void o_set_audio_pitch_on() {

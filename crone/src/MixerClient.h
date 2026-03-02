@@ -138,14 +138,6 @@ class MixerClient : public Client<6, 6> {
     std::unique_ptr<Poll> tapePoll;
 
   public:
-    float getInputPeakPos(int ch) {
-        return inPeak[ch].getPos();
-    }
-
-    float getOutputPeakPos(int ch) {
-        return outPeak[ch].getPos();
-    }
-
     void openTapeRecord(const char *path) {
         tape.writer.open(path);
     }

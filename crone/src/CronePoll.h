@@ -16,8 +16,6 @@
 #include <thread>
 #include <utility>
 
-#include <lo/lo.h>
-
 class Poll {
 
   public:
