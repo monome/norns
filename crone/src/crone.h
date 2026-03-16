@@ -28,9 +28,6 @@ inline void crone_set_level_adc(float arg0) {
 }
 
 inline void crone_set_level_dac(float arg0) {
-    std::cerr << "crone_set_level_dac(" << arg0 << ")" << std::endl;
-    std::cerr << "&mixerCommands: " << std::hex
-              << &(crone::Commands::mixerCommands) << std::endl;
     crone::Commands::mixerCommands.post(crone::Commands::Id::SET_LEVEL_DAC, arg0);
 }
 

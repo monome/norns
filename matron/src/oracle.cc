@@ -430,7 +430,6 @@ void o_set_level_adc(float level) {
 }
 
 void o_set_level_dac(float level) {
-    fprintf(stderr, "setting DAC level (main thread): %f\n", level);
     crone_set_level_dac(level);
 }
 

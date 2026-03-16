@@ -131,8 +131,6 @@ void OscInterface::addServerMethods() {
     });
 
     addServerMethod("/set/level/ext", "f", [](lo_arg **argv, int argc) {
-        std::cerr << "/set/level/ext " << argv[0]->f << "" << std::endl;
-        std::cerr << "&mixerCommands: " << std::hex << &(crone::Commands::mixerCommands) << std::endl;
         if (argc < 1) {
             return;
         }
