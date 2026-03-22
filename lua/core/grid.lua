@@ -88,8 +88,16 @@ function Grid.remove(dev) end
 -- @tparam integer val : rotation 0,90,180,270 as [0, 3]
 function Grid:rotation(val)
   _norns.grid_set_rotation(self.dev, val)
-end
+  local rows = _norns.grid_rows(self.dev)
+  local cols = _norns.grid_cols(self.dev)
+  self.rows = rows
+  self.cols = cols
 
+  if self.port then
+    Grid.vports[self.port].rows = rows
+    Grid.vports[self.port].cols = cols
+  end
+end
 
 --- enable/disable grid tilt.
 -- @tparam integer id : sensor
