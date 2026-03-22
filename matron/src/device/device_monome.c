@@ -95,6 +95,9 @@ int dev_monome_init(void *self) {
 
 // calculate quadrant number given x/y
 static inline uint8_t dev_monome_quad_idx(uint8_t x, uint8_t y) {
+    monome_rotate_t = monome_get_rotation(md->m);
+    if (r == MONOME_ROTATE_90 || r == MONOME_ROTATE_270)
+        return ((x > 7) << 1) | (y > 7);
     return ((y > 7) << 1) | (x > 7);
 }
 // calcalate offset into quad data given x/y
