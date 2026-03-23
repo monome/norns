@@ -14,6 +14,7 @@ def configure(conf):
 def build(bld):
     maiden_repl_sources = [
         'src/io.c',
+        'src/msg_queue.c',
         'src/ui.c',
         'src/page.c',
         'src/pages.c',

@@ -7,6 +7,7 @@ set (CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS_RELEASE} -O2")
 
 set (SRC src/main.c
          src/io.c
+         src/msg_queue.c
          src/page.c
          src/pages.c
          src/ui.c)

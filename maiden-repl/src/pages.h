@@ -2,13 +2,14 @@
 
 enum {
     PAGE_MATRON,
-    PAGE_CRONE,
+    PAGE_SC,
     PAGE_MATRON_LOG,
-    PAGE_CRONE_LOG,
+    PAGE_SC_LOG,
     NUM_PAGES
 };
 
 extern void pages_init(int nrows, int ncols);
+extern void pages_resize(int nrows, int ncols);
 extern void pages_deinit(void);
 
 extern void page_select(int i);

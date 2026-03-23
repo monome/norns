@@ -9,5 +9,5 @@ extern void ui_loop(void);
 
 // receive and display lines from child processes
 // lines should be null-terminated strings
-extern void ui_crone_line(const char *str);
+extern void ui_sc_line(const char *str);
 extern void ui_matron_line(const char *str);
