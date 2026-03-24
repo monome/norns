@@ -300,6 +300,8 @@ static int _system_cmd(lua_State *l);
 static int _system_glob(lua_State *l);
 /// run command in child process, blocking (replaces `os.execute`)
 static int _execute(lua_State *l);
+/// self-terminate the process (for systemd restart)
+static int _terminate(lua_State *l);
 
 // clock
 static int _clock_schedule_sleep(lua_State *l);
@@ -498,6 +500,7 @@ void w_init(void) {
     lua_register_norns("system_cmd", &_system_cmd);
     lua_register_norns("system_glob", &_system_glob);
     lua_register_norns("execute", &_execute);
+    lua_register_norns("terminate", &_terminate);
 
     // low-level monome grid control
     lua_register_norns("grid_set_led", &_grid_set_led);
@@ -3497,6 +3500,13 @@ int _execute(lua_State *l) {
     const char *cmd = luaL_checkstring(l, 1);
     sidecar_client_cmd(cmd, l, _execute_completion);
     return 1;
+}
+
+int _terminate(lua_State *l) {
+    lua_check_num_args(0);
+    fprintf(stderr, "norns: self-terminating for restart\n");
+    raise(SIGTERM);
+    return 0;
 }
 
 int _platform(lua_State *l) {

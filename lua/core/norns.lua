@@ -223,16 +223,13 @@ end
 -- @treturn {string,...} a table of matching pathnames
 norns.system_glob = _norns.system_glob
 
--- audio reset
+-- system reset (restart sclang + self-terminate for systemd relaunch)
 _norns.reset = function()
-  -- restart services via nohup so the sidecar's popen() returns
-  -- immediately, allowing cleanup to finish before systemd kills the process
-  local cmd = "nohup sh -c '"
-    .. "sudo systemctl restart norns-sclang.service; "
-    .. "sleep 0.5; "
-    .. "sudo systemctl restart norns-main.service"
-    .. "' >/dev/null 2>&1 &" -- discard output, prevent nohup.out
-  _norns.execute(cmd)
+  -- restart sclang first (synchronous via sidecar, completes before we die)
+  _norns.execute("sudo systemctl restart norns-sclang.service")
+  -- self-terminate
+  -- systemd Restart=always relaunches the binary
+  _norns.terminate()
 end
 
 -- restart device
