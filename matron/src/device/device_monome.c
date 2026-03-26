@@ -95,9 +95,9 @@ int dev_monome_init(void *self) {
 
 // calculate quadrant number given x/y
 static inline uint8_t dev_monome_quad_idx(struct dev_monome *md, uint8_t x, uint8_t y) {
-   // are we a 16x8 grid AND rotated 90 or 270 degrees?
+    // are we a 16x8 grid AND rotated 90 or 270 degrees?
     if (md->quads == 2 && md->quad_yoff[1] == 8)
-      return ((x > 7) << 1) | (y > 7);
+        return ((x > 7) << 1) | (y > 7);
     return ((y > 7) << 1) | (x > 7);
 }
 // calcalate offset into quad data given x/y
