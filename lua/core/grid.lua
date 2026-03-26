@@ -92,11 +92,7 @@ function Grid:rotation(val)
   local cols = _norns.grid_cols(self.dev)
   self.rows = rows
   self.cols = cols
-
-  if self.port then
-    Grid.vports[self.port].rows = rows
-    Grid.vports[self.port].cols = cols
-  end
+  Grid.update_devices()
 end
 
 --- enable/disable grid tilt.
