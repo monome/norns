@@ -88,10 +88,8 @@ function Grid.remove(dev) end
 -- @tparam integer val : rotation 0,90,180,270 as [0, 3]
 function Grid:rotation(val)
   _norns.grid_set_rotation(self.dev, val)
-  local rows = _norns.grid_rows(self.dev)
-  local cols = _norns.grid_cols(self.dev)
-  self.rows = rows
-  self.cols = cols
+  self.rows = _norns.grid_rows(self.dev)
+  self.cols = _norns.grid_cols(self.dev)
   Grid.update_devices()
 end
 
