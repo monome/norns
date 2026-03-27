@@ -60,8 +60,20 @@ void bind_sock(nng_listener *listener, nng_socket *sock, char *url) {
         fatal("listener set option: WS_RECV_TEXT", rv);
     }
     // TODO: set TLS options
-    if ((rv = nng_listener_start(*listener, 0)) != 0) {
-        fatal("nng_listener_start", rv);
+
+    // retry binding to handle port still held by a previous instance
+    // (e.g., during systemd Restart=always after a slow shutdown).
+    int attempt = 0;
+    const int max_retries = 20;
+    const int retry_delay_ms = 500;
+    while ((rv = nng_listener_start(*listener, 0)) != 0) {
+        attempt++;
+        if (attempt >= max_retries) {
+            fatal("nng_listener_start", rv);
+        }
+        fprintf(stderr, "nng_listener_start: %s (attempt %d/%d, retrying in %dms)\n",
+                nng_strerror(rv), attempt, max_retries, retry_delay_ms);
+        usleep(retry_delay_ms * 1000);
     }
 }
 
