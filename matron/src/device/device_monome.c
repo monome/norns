@@ -94,7 +94,10 @@ int dev_monome_init(void *self) {
 }
 
 // calculate quadrant number given x/y
-static inline uint8_t dev_monome_quad_idx(uint8_t x, uint8_t y) {
+static inline uint8_t dev_monome_quad_idx(struct dev_monome *md, uint8_t x, uint8_t y) {
+    // are we a 16x8 grid AND rotated 90 or 270 degrees?
+    if (md->quads == 2 && md->quad_yoff[1] == 8)
+        return ((x > 7) << 1) | (y > 7);
     return ((y > 7) << 1) | (x > 7);
 }
 // calcalate offset into quad data given x/y
@@ -127,7 +130,7 @@ void dev_monome_tilt_disable(struct dev_monome *md, uint8_t sensor) {
 
 // set a given LED value
 void dev_monome_grid_set_led(struct dev_monome *md, uint8_t x, uint8_t y, int8_t val, bool rel) {
-    uint8_t q = dev_monome_quad_idx(x, y);
+    uint8_t q = dev_monome_quad_idx(md, x, y);
     if (rel) {
         md->data[q][dev_monome_quad_offset(x, y)] =
             clamp_range(md->data[q][dev_monome_quad_offset(x, y)] + val, 0, 15);
