@@ -21,7 +21,9 @@
 #include "events.h"
 #include "hardware/io.h"
 #include "hardware/screen.h"
+#ifndef NORNS_DESKTOP
 #include "hardware/screen/ssd1322.h"
+#endif
 #include "screen.h"
 #include "screen_results.h"
 
@@ -297,11 +299,10 @@ void screen_update(void) {
         screen_ops_t *fb_ops = (screen_ops_t *)io->ops;
         fb_ops->paint(fb);
     }
-    return;
-#endif
-
+#else
     cairo_surface_flush(surface);
     ssd1322_update(surface, surface_may_have_color);
+#endif
 }
 
 void screen_save(void) {
@@ -348,7 +349,9 @@ void screen_brightness(int v) {
     // is limited and offset.
     v += 16;
 
+#ifndef NORNS_DESKTOP
     ssd1322_set_brightness((uint8_t)v);
+#endif
 }
 
 void screen_contrast(int c) {
@@ -358,7 +361,9 @@ void screen_contrast(int c) {
     if (c > 255) {
         c = 255;
     }
+#ifndef NORNS_DESKTOP
     ssd1322_set_contrast((uint8_t)c);
+#endif
 }
 
 void screen_gamma(double g) {
@@ -366,11 +371,17 @@ void screen_gamma(double g) {
         g = 0;
     }
 
+#ifndef NORNS_DESKTOP
     ssd1322_set_gamma(g);
+#endif
 }
 
 void screen_invert(int inverted) {
+#ifndef NORNS_DESKTOP
     ssd1322_set_display_mode((inverted != 0) ? SSD1322_DISPLAY_MODE_INVERT : SSD1322_DISPLAY_MODE_NORMAL);
+#else
+    (void)inverted;
+#endif
 }
 
 void screen_level(int z) {

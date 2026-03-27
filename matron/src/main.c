@@ -21,7 +21,9 @@
 #include "device_monitor.h"
 #include "device_monome.h"
 #include "events.h"
+#ifndef NORNS_DESKTOP
 #include "hardware/screen/ssd1322.h"
+#endif
 #include "hello.h"
 #include "i2c.h"
 #include "input.h"
@@ -50,7 +52,9 @@ void cleanup(void) {
     battery_deinit();
     stat_deinit();
     jack_client_deinit();
+#ifndef NORNS_DESKTOP
     ssd1322_deinit();
+#endif
     screen_results_deinit();
     fprintf(stderr, "matron shutdown complete\n");
     exit(0);
@@ -74,14 +78,18 @@ int main(int argc, char **argv) {
     battery_init();
     stat_init();
     osc_init();
+#ifndef NORNS_DESKTOP
     ssd1322_init();
+#endif
     if (jack_client_init()) {
         screen_clear();
         screen_level(15);
         screen_move(10, 40);
         screen_text("audio system fail.");
         screen_update();
+#ifndef NORNS_DESKTOP
         ssd1322_refresh();
+#endif
         return -1;
     }
     clock_init();
