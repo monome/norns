@@ -127,6 +127,10 @@ int sidecar_server_main(int sync_fd) {
         return -1;
     }
 
+    // remove stale ipc socket left behind after a hard kill.
+    // safe because only one sidecar instance ever exists.
+    unlink(url + 6);
+
     if ((rv = nng_listen(sock, url, &listener, 0)) != 0) {
         nng_close(sock);
         sidecar_nng_error("binding socket failed", rv);
