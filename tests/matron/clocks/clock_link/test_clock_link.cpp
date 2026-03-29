@@ -3,20 +3,20 @@
 
 #include <doctest/doctest.h>
 
+#include "clocks/clock_link.h"
 extern "C" {
 #include "abl_link.h"
-#include "clocks/clock_link.h"
-#include "helpers.h"
 }
+#include "helpers.h"
 
 // declare test-only seam (not in public header)
-extern "C" void clock_link_run_once(void);
+void clock_link_run_once(void);
 
 // override helpers.c stubs to return fixed values for link tests
-extern "C" double clock_get_reference_beat(clock_reference_t *) {
+double clock_get_reference_beat(clock_reference_t *) {
     return 42.0;
 }
-extern "C" double clock_get_reference_tempo(clock_reference_t *) {
+double clock_get_reference_tempo(clock_reference_t *) {
     return 96.0;
 }
 
@@ -37,12 +37,12 @@ extern "C" volatile int g_stub_set_tempo_call_count;
 static int g_link_start_calls = 0;
 static int g_link_stop_calls = 0;
 
-extern "C" void clock_start_from_source(clock_source_t source) {
+void clock_start_from_source(clock_source_t source) {
     if (source == CLOCK_SOURCE_LINK) {
         g_link_start_calls++;
     }
 }
-extern "C" void clock_stop_from_source(clock_source_t source) {
+void clock_stop_from_source(clock_source_t source) {
     if (source == CLOCK_SOURCE_LINK) {
         g_link_stop_calls++;
     }

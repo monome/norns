@@ -43,12 +43,12 @@ system is very rudimentary.
 
 on linux manually install the following dependencies:
 ```
-sudo apt-get install cmake libncursesw5-dev libreadline-dev libnanomsg-dev
+sudo apt-get install cmake libncursesw5-dev libreadline-dev libnng-dev
 ```
 
 on macOS ensure the XCode developer commandline tools are installed then manually install the following (via Homebrew):
 ```
-brew install cmake readline nanomsg
+brew install cmake readline nng
 ```
 
 from there on either linux or macOS:

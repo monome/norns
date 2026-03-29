@@ -9,9 +9,7 @@
 #include <unistd.h>
 #include <vector>
 
-extern "C" {
 #include "args.h"
-}
 
 // -----------------------------------------------------------------------------
 // test helpers

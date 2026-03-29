@@ -93,7 +93,7 @@ Crone {
 		complete = 1;
 
 		/// test..
-		{ SinOsc.ar([218,223]) * 0.125 * EnvGen.ar(Env.linen(2, 4, 6), doneAction:2) }.play(server);
+		{ SinOsc.ar([218,223]) * 0.125 * EnvGen.ar(Env.linen(2, 3, 6), doneAction:2) }.play(server);
 
 	}
 

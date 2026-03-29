@@ -30,19 +30,23 @@ inline float zapgremlins(float x) {
 #ifdef CRONE_UTILITIES_H_DEBUG
 static inline float debug_zapgremlins(float x, const char *label, void *thing) {
     if (x < -1.f) {
-        std::cerr << label << " (" << thing << ") : " << "clamp negative: " << x << std::endl;
+        std::cerr << label << " (" << thing << ") : "
+                  << "clamp negative: " << x << std::endl;
         return -1.f;
     }
     if (x > 1.f) {
-        std::cerr << label << " (" << thing << ") : " << "clamp positive: " << x << std::endl;
+        std::cerr << label << " (" << thing << ") : "
+                  << "clamp positive: " << x << std::endl;
         return 1.f;
     }
     if (std::isnan(x)) {
-        std::cerr << label << " (" << thing << ") : " << "zap nan" << std::endl;
+        std::cerr << label << " (" << thing << ") : "
+                  << "zap nan" << std::endl;
         return 0.f;
     }
     if (std::isinf(x)) {
-        std::cerr << label << " (" << thing << ") : " << "zap inf" << std::endl;
+        std::cerr << label << " (" << thing << ") : "
+                  << "zap inf" << std::endl;
         return x < 0 ? -1.f : 1.f;
     }
     return x;

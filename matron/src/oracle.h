@@ -1,7 +1,3 @@
-#pragma once
-#include <lo/lo.h>
-#include <stdarg.h>
-#include <stdbool.h>
 /*
  * oracle.h
  *
@@ -11,7 +7,12 @@
  *
  */
 
-#include "lo/lo.h"
+#pragma once
+#include <lo/lo.h>
+#include <stdarg.h>
+#include <stdbool.h>
+
+#include "event_types.h"
 
 // enumerate types of polls
 typedef enum {
@@ -25,7 +26,7 @@ struct engine_command {
     char *format; // format string
 };
 
-// data structure for engine poll descriptor/headerx
+// data structure for engine poll descriptor/header
 struct engine_poll {
     char *name;       // name string
     poll_type_t type; // value or data
@@ -97,8 +98,17 @@ extern void o_set_poll_time(int idx, float dt);
 // request current value of poll
 extern void o_request_poll_value(int idx);
 
-//--- audio context controls
+// internal poll callbacks
+extern void o_poll_callback_vu(uint8_t in0, uint8_t in1, uint8_t out0, uint8_t out1,
+                               uint8_t eng0, uint8_t eng1, uint8_t mon0, uint8_t mon1,
+                               uint8_t cut0, uint8_t cut1, uint8_t tape0, uint8_t tape1);
+extern void o_poll_callback_tape_status(int play_state, float play_pos_s, float play_len_s, int rec_state, float rec_pos_s, int loop_enabled);
+extern void o_poll_callback_tape_file(int type); // 0 = play_close, 1 = rec_close
+extern void o_poll_callback_softcut_phase(int voice, float phase);
+extern void o_poll_callback_softcut_position(int voice, float position);
+extern void o_poll_callback_softcut_render(int ch, float secPerSample, float start, size_t count, const float *samples);
 
+//--- audio context controls
 extern void o_poll_start_vu();
 extern void o_poll_stop_vu();
 extern void o_poll_start_cut_phase();
@@ -126,6 +136,9 @@ extern void o_tape_play_start();
 extern void o_tape_play_pause(int paused);
 extern void o_tape_play_stop();
 extern void o_tape_play_loop(int enabled);
+extern void o_tape_pause();
+extern void o_tape_resume();
+extern void o_tape_loop(int enabled);
 
 //--- cut
 extern void o_set_level_adc_cut(float value);

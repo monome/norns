@@ -89,7 +89,7 @@ class Client {
         using std::cout;
         using std::endl;
         jack_status_t status;
-        client = jack_client_open(name, JackNullOption, &status, nullptr);
+        client = jack_client_open(name, JackNoStartServer, &status, nullptr);
         if (client == nullptr) {
             std::cerr << "jack_client_open() failed; status = " << status << endl;
             if (status & JackServerFailed) {
