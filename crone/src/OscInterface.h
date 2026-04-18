@@ -15,7 +15,6 @@
 #include <lo/lo.h>
 
 #include "MixerClient.h"
-#include "Poll.h"
 #include "SoftcutClient.h"
 
 // FIXME: didn't realize that liblo has a perfectly ok-looking cpp interface already. this could be cleaner.
@@ -28,7 +27,6 @@ class OscInterface {
 
   private:
     static lo_server_thread st;
-    static lo_address matronAddress;
 
     static bool quitFlag;
     static string port;
@@ -48,9 +46,6 @@ class OscInterface {
     };
 
     static std::array<OscMethod, MaxNumMethods> methods;
-    static std::unique_ptr<Poll> vuPoll;
-    static std::unique_ptr<Poll> phasePoll;
-    static std::unique_ptr<Poll> tapePoll;
     static MixerClient *mixerClient;
     static SoftcutClient *softCutClient;
 

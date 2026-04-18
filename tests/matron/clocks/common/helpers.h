@@ -4,7 +4,6 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" {
 #endif
 
 #include <pthread.h>
@@ -41,5 +40,4 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);
 int pthread_mutex_trylock(pthread_mutex_t *mutex);
 
 #ifdef __cplusplus
-}
 #endif

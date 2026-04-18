@@ -6,10 +6,10 @@ struct page *page_cur;
 int page_id_cur;
 
 char *page_title[NUM_PAGES] = {
-    "---  matron  --",
-    "---  crone  ---",
-    "--  matron log  --",
-    "--  crone log  ---",
+    "---  matron  ---",
+    "---  supercollider  ---",
+    "---  matron log  ---",
+    "---  supercollider log  ---",
 };
 
 int page_nrows = 512;
@@ -21,6 +21,7 @@ void page_select(int i) {
     page_id_cur = i;
     page_cur = pages[i];
     top_panel(page_cur->panel);
+    werase(win_stat);
     mvwprintw(win_stat, 0, 0, page_title[i]);
     wnoutrefresh(win_stat);
     page_refresh(page_cur);
@@ -37,10 +38,22 @@ void pages_init(int nrows, int ncols) {
     page_ncols = ncols;
 
     for (int i = 0; i < NUM_PAGES; i++) {
-        pages[i] = page_new(page_nrows, page_ncols, 0, 1, ncols - 1, nrows - 2);
+        pages[i] = page_new(page_nrows, page_ncols, 0, 1, ncols - 1, nrows);
     }
 
     page_select(0);
+}
+
+void pages_resize(int nrows, int ncols) {
+    nrows -= 3;
+    page_ncols = ncols;
+    for (int i = 0; i < NUM_PAGES; i++) {
+        wresize(pages[i]->pad, page_nrows, ncols);
+        pages[i]->w = ncols - 1;
+        pages[i]->h = nrows;
+    }
+    wresize(win_stat, 1, ncols - 1);
+    page_select(page_id_cur);
 }
 
 void pages_deinit(void) {
@@ -49,11 +62,11 @@ void pages_deinit(void) {
     }
 }
 
-void page_append_selected(char *str) {
+void page_append_selected(const char *str) {
     page_print(page_cur, str);
 }
 
-void page_append(int i, char *str) {
+void page_append(int i, const char *str) {
     page_print(pages[i], str);
 }
 
@@ -65,15 +78,15 @@ void pages_show_key(int k) {
 void page_cycle(void) {
     switch (page_id_cur) {
     case PAGE_MATRON:
-        page_select(PAGE_CRONE);
+        page_select(PAGE_SC);
         break;
-    case PAGE_CRONE:
+    case PAGE_SC:
         page_select(PAGE_MATRON);
         break;
     case PAGE_MATRON_LOG:
-        page_select(PAGE_CRONE_LOG);
+        page_select(PAGE_SC_LOG);
         break;
-    case PAGE_CRONE_LOG:
+    case PAGE_SC_LOG:
         page_select(PAGE_MATRON_LOG);
         break;
     default:
@@ -86,14 +99,14 @@ void page_switch(void) {
     case PAGE_MATRON:
         page_select(PAGE_MATRON_LOG);
         break;
-    case PAGE_CRONE:
-        page_select(PAGE_CRONE_LOG);
+    case PAGE_SC:
+        page_select(PAGE_SC_LOG);
         break;
     case PAGE_MATRON_LOG:
         page_select(PAGE_MATRON);
         break;
-    case PAGE_CRONE_LOG:
-        page_select(PAGE_CRONE);
+    case PAGE_SC_LOG:
+        page_select(PAGE_SC);
         break;
     default:
         page_select(PAGE_MATRON_LOG);

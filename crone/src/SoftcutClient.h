@@ -10,7 +10,9 @@
 #include "BufDiskWorker.h"
 #include "Bus.h"
 #include "Client.h"
+#include "CronePoll.h"
 #include "Utilities.h"
+
 #include "softcut/Softcut.h"
 #include "softcut/Types.h"
 
@@ -50,6 +52,8 @@ class SoftcutClient : public Client<2, 2> {
     bool enabled[NumVoices];
     softcut::phase_t quantPhase[NumVoices];
     float bufDur;
+
+    std::unique_ptr<Poll> phasePoll;
 
   private:
     void process(jack_nframes_t numFrames) override;
@@ -147,6 +151,10 @@ class SoftcutClient : public Client<2, 2> {
     }
 
     void reset();
+
+    Poll *getPhasePoll() {
+        return phasePoll.get();
+    }
 
   private:
     void clearBusses(size_t numFrames);

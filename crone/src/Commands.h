@@ -5,8 +5,7 @@
 #ifndef CRONE_COMMANDS_H
 #define CRONE_COMMANDS_H
 
-// #include "boost/lockfree/spsc_queue.hpp"
-#include "readerwriterqueue.h"
+#include "concurrentqueue.h"
 
 namespace crone {
 
@@ -15,7 +14,7 @@ class SoftcutClient;
 
 class Commands {
   public:
-    static constexpr int COMMAND_Q_CAPACITY = 256;
+    static constexpr int COMMAND_Q_CAPACITY = 2048;
     typedef enum {
         //-- level commands
         SET_LEVEL_ADC,
@@ -129,10 +128,12 @@ class Commands {
     static Commands mixerCommands;
     static Commands softcutCommands;
 
+#ifdef NORNS_TEST
+  public:
+#else
   private:
-    //        boost::lockfree::spsc_queue <CommandPacket,
-    //                boost::lockfree::capacity<COMMAND_Q_CAPACITY> > q;
-    moodycamel::ReaderWriterQueue<CommandPacket> q;
+#endif
+    moodycamel::ConcurrentQueue<CommandPacket> q;
 };
 
 } // namespace crone

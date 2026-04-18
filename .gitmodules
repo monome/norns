@@ -10,6 +10,12 @@
 [submodule "crone/softcut"]
 	path = crone/softcut
 	url = https://github.com/monome/softcut-lib.git
-[submodule "crone/lib/readerwriterqueue"]
-	path = crone/lib/readerwriterqueue
+[submodule "third-party/lua-cjson"]
+	path = third-party/lua-cjson
+	url = https://github.com/mpx/lua-cjson.git
+[submodule "third-party/readerwriterqueue"]
+	path = third-party/readerwriterqueue
 	url = https://github.com/cameron314/readerwriterqueue.git
+[submodule "third-party/concurrentqueue"]
+	path = third-party/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git

@@ -10,10 +10,8 @@
 #include <thread>
 #include <vector>
 
-extern "C" {
 #include "clocks/clock_scheduler.h"
 #include "event_types.h"
-}
 
 // scheduler runs on background thread. use atomic time control.
 static std::atomic<double> g_now{0.0};
@@ -29,24 +27,24 @@ static std::mutex g_ev_mtx;
 static std::vector<PostedEvent> g_posted;
 
 // override time stubs with atomic versions for scheduler thread.
-extern "C" double jack_client_get_current_time() {
+double jack_client_get_current_time() {
     return g_now.load();
 }
-extern "C" double clock_get_system_time() {
+double clock_get_system_time() {
     return g_now.load();
 }
-extern "C" double clock_get_beats() {
+double clock_get_beats() {
     return g_beats.load();
 }
 
 // override event stubs to capture posted events.
-extern "C" union event_data *event_data_new(event_t evcode) {
+union event_data *event_data_new(event_t evcode) {
     auto *ev = (union event_data *)malloc(sizeof(union event_data));
     ev->type = evcode;
     return ev;
 }
 
-extern "C" void event_post(union event_data *ev) {
+void event_post(union event_data *ev) {
     std::lock_guard<std::mutex> lk(g_ev_mtx);
     if (ev->type == EVENT_CLOCK_RESUME) {
         PostedEvent rec;

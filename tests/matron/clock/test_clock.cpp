@@ -7,10 +7,8 @@
 #include <pthread.h>
 #include <trompeloeil.hpp>
 
-extern "C" {
 #include "clock.h"
 #include "events.h"
-}
 
 // -----------------------------------------------------------------------------
 // C stubs delegating to a C++ mock for cross-module calls
@@ -46,7 +44,6 @@ static ClockDepsMock *g_mock = nullptr;
 static double g_now = 0.0;
 } // namespace
 
-extern "C" {
 double jack_client_get_current_time() {
     return g_now;
 }
@@ -111,7 +108,6 @@ void clock_link_leave_session() {
 }
 uint64_t clock_link_number_of_peers() {
     return g_mock ? g_mock->link_number_of_peers() : 0u;
-}
 }
 
 // helper to create event_data for mocking event_data_new to match production
