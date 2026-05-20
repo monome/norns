@@ -83,8 +83,8 @@ _norns.poll = function(id, value)
 end
 
 -- i/o level callback.
-_norns.vu = function(in1, in2, out1, out2)
-  audio.vu(in1, in2, out1, out2)
+_norns.vu = function(in1, in2, out1, out2, eng1, eng2, mon1, mon2, cut1, cut2, tape1, tape2)
+  audio.vu(in1, in2, out1, out2, eng1, eng2, mon1, mon2, cut1, cut2, tape1, tape2)
 end
 -- softcut phase
 _norns.softcut_phase = function(id, value) end
@@ -192,7 +192,7 @@ norns.shutdown = function()
   pcall(cleanup)
   audio.level_dac(0)
   audio.headphone_gain(0)
-  os.execute("sleep 0.5; sudo shutdown now")
+  _norns.execute("sleep 0.5; sudo shutdown now")
 end
 
 --- platform detection
@@ -208,33 +208,13 @@ norns.is_norns = _norns.platform_factory()
 --- true if we are running on norns shield (PI3, PI4)
 norns.is_shield = _norns.platform_shield()
 
--- Util (system_cmd)
-local system_cmd_q = {}
-local system_cmd_busy = false
-
---- add cmd to queue
+--- run an external command
 -- @tparam string cmd shell command to execute
 -- @tparam ?func callback the callback will be called with the output of the
 -- command after it completes. if the callback is nil, then print the output
 -- instead.
 norns.system_cmd = function(cmd, callback)
-  table.insert(system_cmd_q, {cmd=cmd, callback=callback})
-  if system_cmd_busy == false then
-    system_cmd_busy = true
-    _norns.system_cmd(cmd)
-  end
-end
-
--- callback management from c
-_norns.system_cmd_capture = function(cap)
-  if system_cmd_q[1].callback == nil then print(cap)
-  else system_cmd_q[1].callback(cap) end
-  table.remove(system_cmd_q,1)
-  if #system_cmd_q > 0 then
-    _norns.system_cmd(system_cmd_q[1].cmd)
-  else
-    system_cmd_busy = false
-  end
+  return _norns.system_cmd(cmd, callback or print)
 end
 
 --- find pathnames matching a pattern
@@ -243,11 +223,13 @@ end
 -- @treturn {string,...} a table of matching pathnames
 norns.system_glob = _norns.system_glob
 
--- audio reset
+-- system reset (restart sclang + self-terminate for systemd relaunch)
 _norns.reset = function()
-  os.execute("sudo systemctl restart norns-sclang.service")
-  os.execute("sudo systemctl restart norns-crone.service")
-  os.execute("sudo systemctl restart norns-matron.service")
+  -- restart sclang first (synchronous via sidecar, completes before we die)
+  _norns.execute("sudo systemctl restart norns-sclang.service")
+  -- self-terminate
+  -- systemd Restart=always relaunches the binary
+  _norns.terminate()
 end
 
 -- restart device

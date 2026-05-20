@@ -2,4 +2,4 @@
 
 #include <stdint.h>
 
-extern void system_cmd(char *);
+extern bool system_cmd(const char *cmd, int ref);

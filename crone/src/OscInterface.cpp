@@ -13,6 +13,8 @@
 #include "BufDiskWorker.h"
 #include "Commands.h"
 #include "OscInterface.h"
+#include "crone.h"
+#include "oracle.h"
 
 using namespace crone;
 
@@ -20,14 +22,10 @@ bool OscInterface::quitFlag;
 
 std::string OscInterface::port;
 lo_server_thread OscInterface::st;
-lo_address OscInterface::matronAddress;
 
 std::array<OscInterface::OscMethod, OscInterface::MaxNumMethods> OscInterface::methods;
 unsigned int OscInterface::numMethods = 0;
 
-std::unique_ptr<Poll> OscInterface::vuPoll;
-std::unique_ptr<Poll> OscInterface::phasePoll;
-std::unique_ptr<Poll> OscInterface::tapePoll;
 MixerClient *OscInterface::mixerClient;
 SoftcutClient *OscInterface::softCutClient;
 
@@ -39,7 +37,6 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
     quitFlag = false;
     // FIXME: should get port configs from program args or elsewhere
     port = "9999";
-    matronAddress = lo_address_new("127.0.0.1", "8888");
 
     st = lo_server_thread_new(port.c_str(), handleLoError);
     addServerMethods();
@@ -47,70 +44,14 @@ void OscInterface::init(MixerClient *m, SoftcutClient *sc) {
     mixerClient = m;
     softCutClient = sc;
 
-    // FIXME: polls should really live somewhere else (client classes?)
-    //--- VU poll
-    vuPoll = std::make_unique<Poll>("vu");
-    vuPoll->setCallback([](const char *path) {
-        char l[4];
-
-        l[0] = (uint8_t)(64 * mixerClient->getInputPeakPos(0));
-        l[1] = (uint8_t)(64 * mixerClient->getInputPeakPos(1));
-        l[2] = (uint8_t)(64 * mixerClient->getOutputPeakPos(0));
-        l[3] = (uint8_t)(64 * mixerClient->getOutputPeakPos(1));
-
-        lo_blob bl = lo_blob_new(sizeof(l), l);
-        lo_send(matronAddress, path, "b", bl);
-    });
-    vuPoll->setPeriod(50);
-
-    //--- softcut phase poll
-    phasePoll = std::make_unique<Poll>("softcut/phase");
-    phasePoll->setCallback([](const char *path) {
-        for (int i = 0; i < softCutClient->getNumVoices(); ++i) {
-            if (softCutClient->checkVoiceQuantPhase(i)) {
-                lo_send(matronAddress, path, "if", i, softCutClient->getQuantPhase(i));
-            }
-        }
-    });
-    phasePoll->setPeriod(1);
-
-    //--- TODO: softcut trigger poll?
-
-    //--- tape status poll
-    tapePoll = std::make_unique<Poll>("tape");
-    tapePoll->setCallback([](const char *path) {
-        // send status snapshot
-        auto s = mixerClient->getTapeStatus();
-        lo_send(matronAddress, path, "iffifi",
-                s.play_state, s.play_pos_s, s.play_len_s,
-                s.rec_state, s.rec_pos_s, s.loop_enabled);
-
-        // detect file-close edges so we notify matron only after drain/close is complete
-        static bool prevRecHasFile = false;
-        static bool prevPlayHasFile = false;
-
-        bool playHasFile = (s.play_state != 0);
-        bool recHasFile = (s.rec_state != 0);
-
-        if (prevRecHasFile && !recHasFile) {
-            lo_send(matronAddress, "/tape/record/close", "");
-        }
-        if (prevPlayHasFile && !playHasFile) {
-            lo_send(matronAddress, "/tape/play/close", "");
-        }
-
-        prevRecHasFile = recHasFile;
-        prevPlayHasFile = playHasFile;
-    });
-    tapePoll->setPeriod(50);
-
     lo_server_thread_start(st);
 }
 
 void OscInterface::addServerMethod(const char *path, const char *format, Handler handler) {
     OscMethod m(path, format, handler);
     methods[numMethods] = m;
-    lo_server_thread_add_method(st, path, format, [](const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *data) -> int {
+    lo_server_thread_add_method(
+        st, path, format, [](const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *data) -> int {
                                     (void) path;
                                     (void) types;
                                     (void) msg;
@@ -147,25 +88,25 @@ void OscInterface::addServerMethods() {
     addServerMethod("/poll/start/vu", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
-        vuPoll->start();
+        crone_poll_start_vu();
     });
 
     addServerMethod("/poll/stop/vu", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
-        vuPoll->stop();
+        crone_poll_stop_vu();
     });
 
     //--- tape poll control
     addServerMethod("/poll/start/tape", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
-        tapePoll->start();
+        crone_poll_start_tape();
     });
     addServerMethod("/poll/stop/tape", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
-        tapePoll->stop();
+        crone_poll_stop_tape();
     });
 
     ////////////////////////////////
@@ -928,8 +869,9 @@ void OscInterface::addServerMethods() {
 
         softCutClient->renderSamples(ch, argv[1]->f, argv[2]->f, sampleCt,
                                      [=](float secPerSample, float start, size_t count, float *samples) {
-                                         lo_blob bl = lo_blob_new(count * sizeof(float), samples);
-                                         lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
+                                         // TODO converged: reimplement this for single-process
+                                         //  lo_blob bl = lo_blob_new(count * sizeof(float), samples);
+                                         //  lo_send(matronAddress, "/softcut/buffer/render_callback", "iffb", ch, secPerSample, start, bl);
                                      });
     });
 
@@ -937,8 +879,7 @@ void OscInterface::addServerMethods() {
         if (argc < 1)
             return;
         int idx = argv[0]->i;
-        float pos = softCutClient->getPosition(idx);
-        lo_send(matronAddress, "/poll/softcut/position", "if", idx, pos);
+        o_poll_callback_softcut_position(idx, softCutClient->getPosition(idx));
     });
 
     addServerMethod("/softcut/reset", "", [](lo_arg **argv, int argc) {
@@ -949,13 +890,11 @@ void OscInterface::addServerMethods() {
         softCutClient->clearBuffer(1, 0, -1);
 
         softCutClient->reset();
-        for (int i = 0; i < SoftcutClient::NumVoices; ++i) {
-            phasePoll->stop();
-        }
+        crone_poll_stop_cut_phase();
     });
 
     //---------------------
-    //--- softcut polls
+    //--- softcut parameter setters
 
     addServerMethod("/set/param/cut/phase_quant", "if", [](lo_arg **argv, int argc) {
         if (argc < 2) {
@@ -971,16 +910,17 @@ void OscInterface::addServerMethods() {
         softCutClient->setPhaseOffset(argv[0]->i, argv[1]->f);
     });
 
+    //--- softcut polls
     addServerMethod("/poll/start/cut/phase", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
-        phasePoll->start();
+        crone_poll_start_cut_phase();
     });
 
     addServerMethod("/poll/stop/cut/phase", "", [](lo_arg **argv, int argc) {
         (void)argv;
         (void)argc;
-        phasePoll->stop();
+        crone_poll_stop_cut_phase();
     });
 
     //------------------------
@@ -992,8 +932,7 @@ void OscInterface::addServerMethods() {
         }
         const char *p = &argv[0]->s;
         mixerClient->openTapeRecord(p);
-        // notify matron of the armed record file
-        lo_send(matronAddress, "/tape/record/open", "s", p);
+        // file notification is posted by o_tape_rec_open() on the matron side
     });
 
     addServerMethod("/tape/record/start", "", [](lo_arg **argv, int argc) {
@@ -1021,8 +960,7 @@ void OscInterface::addServerMethods() {
         }
         const char *p = &argv[0]->s;
         mixerClient->openTapePlayback(p);
-        // notify matron of the opened playback file
-        lo_send(matronAddress, "/tape/play/open", "s", p);
+        // file notification is posted by o_tape_play_open() on the matron side
     });
 
     addServerMethod("/tape/play/start", "", [](lo_arg **argv, int argc) {
@@ -1074,5 +1012,4 @@ void OscInterface::printServerMethods() {
 }
 
 void OscInterface::deinit() {
-    lo_address_free(matronAddress);
 }

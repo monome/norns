@@ -33,6 +33,9 @@ Script.clear = function()
     norns.lfo.lattice:destroy()
     norns.lfo = nil
   end
+  
+  -- reset embedded modules
+  json = _json
 
   -- script local state
   local state = { }
@@ -84,6 +87,12 @@ Script.clear = function()
 
   -- clear softcut
   softcut.reset()
+
+  -- restore default audio routing
+  if audio.routing_is_altered() then
+    print("# restoring default audio routing")
+    audio.routing_default()
+  end
 
   -- clear init
   init = norns.none
@@ -186,7 +195,7 @@ Script.load = function(filename)
       print("### initializing data folder")
       util.make_dir(norns.state.data)
       if util.file_exists(norns.state.path.."/data") then
-        os.execute("cp "..norns.state.path.."/data/*.pset "..norns.state.data)
+        _norns.execute("cp "..norns.state.path.."/data/*.pset "..norns.state.data)
         print("### copied default psets")
       end
     end

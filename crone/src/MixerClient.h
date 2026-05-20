@@ -9,6 +9,7 @@
 
 #include "Bus.h"
 #include "Client.h"
+#include "CronePoll.h"
 #include "PeakMeter.h"
 #include "Tape.h"
 #include "Utilities.h"
@@ -128,16 +129,15 @@ class MixerClient : public Client<6, 6> {
 
     PeakMeter inPeak[2];
     PeakMeter outPeak[2];
+    PeakMeter engPeak[2];
+    PeakMeter monPeak[2];
+    PeakMeter cutPeak[2];
+    PeakMeter tapePeak[2];
+
+    std::unique_ptr<Poll> vuPoll;
+    std::unique_ptr<Poll> tapePoll;
 
   public:
-    float getInputPeakPos(int ch) {
-        return inPeak[ch].getPos();
-    }
-
-    float getOutputPeakPos(int ch) {
-        return outPeak[ch].getPos();
-    }
-
     void openTapeRecord(const char *path) {
         tape.writer.open(path);
     }
@@ -168,6 +168,14 @@ class MixerClient : public Client<6, 6> {
 
     void stopTapePlayback() {
         tape.reader.stop();
+    }
+
+    Poll *getVuPoll() {
+        return vuPoll.get();
+    }
+
+    Poll *getTapePoll() {
+        return tapePoll.get();
     }
 
     void setTapeLoop(bool loop) {
