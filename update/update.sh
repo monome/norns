@@ -32,9 +32,16 @@ sudo rm -rf /var/log/user.log
 # disable hciuart
 sudo systemctl disable hciuart
 
-# TODO !!!!!! FIX THIS FOR v3
-# rewrite matron.sevice
-sudo cp --remove-destination config/norns-matron.service /etc/systemd/system/norns-matron.service
+# update services
+sudo systemctl disable norns-matron.service 2>/dev/null
+sudo systemctl disable norns-crone.service 2>/dev/null
+sudo rm -f /etc/systemd/system/norns-matron.service
+sudo rm -f /etc/systemd/system/norns-crone.service
+sudo cp --remove-destination config/norns-main.service /etc/systemd/system/norns-main.service
+sudo cp --remove-destination config/norns-sclang.service /etc/systemd/system/norns-sclang.service
+sudo cp --remove-destination config/norns.target /etc/systemd/system/norns.target
+sudo systemctl enable norns-main.service
+sudo systemctl enable norns-sclang.service
 
 # add watcher
 sudo cp --remove-destination config/norns-watcher.service /etc/systemd/system/norns-watcher.service
