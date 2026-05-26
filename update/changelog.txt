@@ -1,3 +1,23 @@
+# 260526
+
+# norns 3.0.0
+
+massive thanks to @catfact @ngwese @dewb @colinmcardell
+
+- NEW matron and crone are combined, changing the OSC-based communication to a
+shared memory model. the new process is simply called norns. see details in
+#1893
+
+# maiden
+
+- NEW updated for norns-main
+- NEW added author field display in catalog
+
+# norns-image
+
+- NEW systemd units altered for norns-main
+
+
 # 260102
 
 # norns 2.9.4

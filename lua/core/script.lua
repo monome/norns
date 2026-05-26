@@ -33,7 +33,7 @@ Script.clear = function()
     norns.lfo.lattice:destroy()
     norns.lfo = nil
   end
-  
+
   -- reset embedded modules
   json = _json
 
