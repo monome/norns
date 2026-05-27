@@ -10,7 +10,7 @@ globals = {
     "sequins", "timeline",
 
     -- system and utility globals
-    "_menu", "_norns", "_path", "_startup", "cleanup", "coroutine", "debug",
+    "_json", "_menu", "_norns", "_path", "_startup", "cleanup", "coroutine", "debug",
     "include", "inf", "mix", "package", "paramset", "paths", "redraw", "string",
     "wifi",
 
