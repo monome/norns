@@ -21,6 +21,12 @@ sudo cp -a /home/we/norns/build/maiden-repl/maiden-repl /home/we/bin/
 cp version.txt /home/we/
 cp changelog.txt /home/we/
 
+# update apt source
+sudo cp config/raspi.list /etc/apt/sources.list.d/
+
+# install nng
+sudo apt-get update && sudo apt-get -y install libnng1 libnng-dev
+
 # remove logging
 sudo apt -y remove rsyslog
 sudo cp config/logrotate.conf /etc/
