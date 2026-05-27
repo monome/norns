@@ -81,10 +81,6 @@ sudo dpkg -i package/*.deb
 # clean slate
 rm /home/we/matronrc.lua
 
-# maiden project setup
-cd /home/we/maiden
-./project-setup.sh
-
 # get common audio if not present
 if [ ! -d /home/we/dust/audio/common ]; then
 	echo "does not exist, downloading"
@@ -94,9 +90,14 @@ if [ ! -d /home/we/dust/audio/common ]; then
 	rm dust-audio-common.tgz
 fi
 
+# update libmonome
 cd "$(dirname "$0")"/package/libmonome
 ./waf configure
 sudo ./waf install
+
+# maiden project setup
+cd /home/we/maiden
+./project-setup.sh
 
 # cleanup
 rm -rf ~/update/*
