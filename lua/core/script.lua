@@ -63,8 +63,7 @@ Script.clear = function()
   enc = norns.none
 
   -- reset encoders
-  norns.enc.accel(0,true)
-  norns.enc.sens(0,2)
+  norns.enc.reset()
 
   -- clear, redirect, and reset devices
   grid.cleanup()

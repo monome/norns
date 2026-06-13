@@ -11,14 +11,22 @@ local util = require 'util'
 
 local now = util.time()
 
+local function default_accel_and_sens()
+  local default_sens = {2,2,2}
+  local default_accel = {true,true,true}
+
+  return default_accel, default_sens
+end
+
+
 encoders.tick = {0,0,0}
-encoders.accel = {true,true,true}
-encoders.sens = {1,1,1}
+encoders.accel, encoders.sens = default_accel_and_sens()
 encoders.time = {now,now,now}
 encoders.callback = norns.none
 
 --- set acceleration
 encoders.set_accel = function(n,z)
+  print("Modifying encs in [norns.encoders.set_accel]: n="..n..", z="..tostring(z))
   if n == 0 then
     for k=1,3 do
       encoders.accel[k] = z
@@ -32,6 +40,7 @@ end
 
 --- set sensitivity
 encoders.set_sens = function(n,s)
+  print("Modifying encs in [norns.encoders.set_sens]: n="..n..", s="..s)
   if n == 0 then
     for k=1,3 do
       encoders.sens[k] = util.clamp(s,1,16)
@@ -82,14 +91,19 @@ encoders.process_with_accel = function(n,d)
 end
 
 
+encoders.print_state = function()
+  for k=1,3 do
+    print("encoders | sens="..encoders.sens[k]..", accel="..tostring(encoders.accel[k]))
+  end
+end
+
 
 -- script state
-
-local accel = {true,true,true}
-local sens = {2,2,2}
+local accel, sens = default_accel_and_sens()
 
 norns.enc = {}
 norns.enc.accel = function(n,z)
+  print("Modifying encs in [norns.enc.accel]: n="..n..", z="..tostring(z))
   if n == 0 then
     for k=1,3 do
       accel[k] = z
@@ -101,6 +115,7 @@ norns.enc.accel = function(n,z)
 end
 
 norns.enc.sens = function(n,s)
+  print("Modifying encs in [norns.enc.sens]: n="..n..", s="..s)
   if n == 0 then
     for k=1,3 do
       sens[k] = util.clamp(s,1,16)
@@ -112,10 +127,22 @@ norns.enc.sens = function(n,s)
 end
 
 norns.enc.resume = function()
+  print("Resuming...")
   for n=1,3 do
     norns.encoders.set_accel(n,accel[n])
     norns.encoders.set_sens(n,sens[n])
   end
+end
+
+norns.enc.print_state = function()
+  for k=1,3 do
+    print("enc | sens="..sens[k]..", accel="..tostring(accel[k]))
+  end
+end
+
+norns.enc.reset = function()
+  print("Resetting script accel and sens")
+  accel, sens = default_accel_and_sens()
 end
 
 
