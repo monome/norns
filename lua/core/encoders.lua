@@ -26,7 +26,6 @@ encoders.callback = norns.none
 
 --- set acceleration
 encoders.set_accel = function(n,z)
-  print("Modifying encs in [norns.encoders.set_accel]: n="..n..", z="..tostring(z))
   if n == 0 then
     for k=1,3 do
       encoders.accel[k] = z
@@ -40,7 +39,6 @@ end
 
 --- set sensitivity
 encoders.set_sens = function(n,s)
-  print("Modifying encs in [norns.encoders.set_sens]: n="..n..", s="..s)
   if n == 0 then
     for k=1,3 do
       encoders.sens[k] = util.clamp(s,1,16)
@@ -103,7 +101,6 @@ local accel, sens = default_accel_and_sens()
 
 norns.enc = {}
 norns.enc.accel = function(n,z)
-  print("Modifying encs in [norns.enc.accel]: n="..n..", z="..tostring(z))
   if n == 0 then
     for k=1,3 do
       accel[k] = z
@@ -115,7 +112,6 @@ norns.enc.accel = function(n,z)
 end
 
 norns.enc.sens = function(n,s)
-  print("Modifying encs in [norns.enc.sens]: n="..n..", s="..s)
   if n == 0 then
     for k=1,3 do
       sens[k] = util.clamp(s,1,16)
@@ -127,7 +123,6 @@ norns.enc.sens = function(n,s)
 end
 
 norns.enc.resume = function()
-  print("Resuming...")
   for n=1,3 do
     norns.encoders.set_accel(n,accel[n])
     norns.encoders.set_sens(n,sens[n])
@@ -141,7 +136,6 @@ norns.enc.print_state = function()
 end
 
 norns.enc.reset = function()
-  print("Resetting script accel and sens")
   accel, sens = default_accel_and_sens()
 end
 
