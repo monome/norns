@@ -115,8 +115,8 @@ void MixerClient::process(jack_nframes_t numFrames) {
     outPeak[1].update(sink[SinkId::SinkDac][1], numFrames);
     engPeak[0].update(bus.ext_source.buf[0], numFrames);
     engPeak[1].update(bus.ext_source.buf[1], numFrames);
-    monPeak[0].update(bus.adc_monitor.buf[0], numFrames);
-    monPeak[1].update(bus.adc_monitor.buf[1], numFrames);
+    monPeak[0].update(bus.adc_monitor.buf[0], numFrames, smoothLevels.monitor.getTarget());
+    monPeak[1].update(bus.adc_monitor.buf[1], numFrames, smoothLevels.monitor.getTarget());
     cutPeak[0].update(bus.cut_source.buf[0], numFrames);
     cutPeak[1].update(bus.cut_source.buf[1], numFrames);
     tapePeak[0].update(bus.tape.buf[0], numFrames);
