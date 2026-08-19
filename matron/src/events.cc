@@ -131,6 +131,9 @@ MATRON_API void event_data_free(union event_data *ev) {
     case EVENT_SYSTEM_CMD:
         free(ev->system_cmd.capture);
         break;
+    case EVENT_SYSTEM_CMD_DONE:
+        free(ev->system_cmd_done.err);
+        break;
     case EVENT_SOFTCUT_RENDER:
         free(ev->softcut_render.data);
         break;
@@ -320,6 +323,9 @@ static void handle_event(union event_data *ev) {
         break;
     case EVENT_SYSTEM_CMD:
         w_handle_system_cmd(ev->system_cmd.capture, ev->system_cmd.cb_ref);
+        break;
+    case EVENT_SYSTEM_CMD_DONE:
+        w_handle_system_cmd_done(ev->system_cmd_done.ok, ev->system_cmd_done.err, ev->system_cmd_done.cb_ref);
         break;
     case EVENT_QUIT:
         quit = true;

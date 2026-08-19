@@ -182,6 +182,16 @@ else
   norns.version.update = "000000"
 end
 
+local function report_launch_failure(what, on_fail)
+  return function(ok, err)
+    if not ok then
+      print(what .. ": launch failed")
+      if err then print(err) end
+      if on_fail then on_fail(err or "") end
+    end
+  end
+end
+
 --- shutdown
 norns.shutdown = function()
   hook.system_pre_shutdown()
@@ -192,7 +202,7 @@ norns.shutdown = function()
   pcall(cleanup)
   audio.level_dac(0)
   audio.headphone_gain(0)
-  _norns.execute("sleep 0.5; sudo shutdown now")
+  _norns.system_action("shutdown", report_launch_failure("shutdown"))
 end
 
 --- platform detection
@@ -217,19 +227,21 @@ norns.system_cmd = function(cmd, callback)
   return _norns.system_cmd(cmd, callback or print)
 end
 
+--- launch the system updater, detached so it survives norns replacing itself
+-- @tparam[opt] func on_fail called with the error if the launch fails
+norns.system_update = function(on_fail)
+  return _norns.system_action("update", report_launch_failure("update", on_fail))
+end
+
 --- find pathnames matching a pattern
 -- @function system_glob
 -- @tparam string pattern
 -- @treturn {string,...} a table of matching pathnames
 norns.system_glob = _norns.system_glob
 
--- system reset (restart sclang + self-terminate for systemd relaunch)
+-- system reset (restart sclang + main as one detached system command)
 _norns.reset = function()
-  -- restart sclang first (synchronous via sidecar, completes before we die)
-  _norns.execute("sudo systemctl restart norns-sclang.service")
-  -- self-terminate
-  -- systemd Restart=always relaunches the binary
-  _norns.terminate()
+  _norns.system_action("reset", report_launch_failure("reset"))
 end
 
 -- restart device

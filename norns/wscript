@@ -26,6 +26,7 @@ def build(bld):
         '../matron/src/input.cc',
         '../matron/src/jack_client.cpp',
         '../matron/src/lua_eval.cc',
+        '../matron/src/lua_shell.cc',
         '../matron/src/main.cc',
         '../matron/src/metro.cc',
         '../matron/src/oracle.cc',
@@ -129,7 +130,10 @@ def build(bld):
 
     norns_sources = [
         'main.cpp',
-        'sidecar.cpp'
+        'sidecar.cpp',
+        'sidecar_lines.cpp',
+        'sidecar_msg.cpp',
+        'sidecar_shell.cpp'
     ]
 
     norns_libs = [

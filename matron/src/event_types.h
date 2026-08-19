@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -109,6 +110,8 @@ typedef enum {
     EVENT_TAPE_RECORD_FILE,
     EVENT_TAPE_PLAY_CLOSE,
     EVENT_TAPE_RECORD_CLOSE,
+    // detached system action launch result
+    EVENT_SYSTEM_CMD_DONE,
 } event_t;
 
 // a data structure for twelve volume levels
@@ -345,6 +348,13 @@ struct event_system_cmd {
     int cb_ref;
 }; // +8
 
+struct event_system_cmd_done {
+    struct event_common common;
+    char *err; // NULL on success
+    int cb_ref;
+    bool ok;
+}; // +9
+
 struct event_softcut_render {
     struct event_common common;
     int idx;
@@ -433,6 +443,7 @@ union event_data {
     struct event_crow_remove crow_remove;
     struct event_crow_event crow_event;
     struct event_system_cmd system_cmd;
+    struct event_system_cmd_done system_cmd_done;
     struct event_softcut_render softcut_render;
     struct event_softcut_position softcut_position;
     struct event_serial_config serial_config;

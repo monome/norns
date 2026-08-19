@@ -13,6 +13,13 @@
 #include "sidecar.h"
 
 int main(int argc, char **argv) {
+    // update.sh gates the final reboot on this. exiting 0 before any
+    // fork/jack/hardware init proves the new binary links
+    if (argc > 1 && strcmp(argv[1], "--check") == 0) {
+        printf("norns: --check ok\n");
+        return 0;
+    }
+
     int exec_name_size = strlen(argv[0]);
 
     int sync_pipe[2];
