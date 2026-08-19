@@ -1,3 +1,10 @@
+# 260819
+
+# norns 3.0.2
+
+- FIX sidecar, update procedure #1903 @colinmcardell
+
+
 # 260616
 
 # norns 3.0.1
