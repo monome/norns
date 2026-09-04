@@ -81,7 +81,7 @@ local function pset_list(results)
     --print(file,n)
     local name = norns.state.shortname
     local f = io.open(file,"r")
-    io.input(file)
+    io.input(f)
     local line = io.read("*line")
     if util.string_starts(line, "-- ") then
       name = string.sub(line,4,-1)
