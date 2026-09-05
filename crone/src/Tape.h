@@ -6,6 +6,7 @@
 #define CRONE_TAPE_H
 
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <cstdint>
 #include <iostream>
@@ -161,6 +162,9 @@ class Tape {
             std::cout << "Tape::SfStream: starting..." << std::endl;
             shouldStop = false;
 
+            // derived-class state reset; only now that we know we're really starting
+            resetForStart();
+
             // bump command epoch so any pre-existing commands are ignored by consumer
             runEpoch.fetch_add(1, std::memory_order_acq_rel);
 
@@ -206,6 +210,38 @@ class Tape {
       protected:
         // derived classes implement disk i/o loop
         virtual void diskLoop() = 0;
+
+        // derived classes reset per-run state here; called from start() with lifecycleMutex held,
+        // after the running/hasFile checks have passed
+        virtual void resetForStart() {
+        }
+
+        // request a stop (if one isn't already in flight) and block until the disk thread has exited.
+        // call with lifecycleMutex held. returns false on timeout.
+        // a stop normally completes via the audio thread's fade-out (~50ms); if the audio thread isn't
+        // servicing this stream for some reason, the disk thread is forced out after `forceAfter`.
+        bool waitForDiskThreadExit(std::chrono::milliseconds timeout,
+                                   std::chrono::milliseconds forceAfter = std::chrono::milliseconds(150)) {
+            using clock = std::chrono::steady_clock;
+            const auto begin = clock::now();
+            if (transportState != TransportState::Stopping && transportState != TransportState::Stopped) {
+                if (!enqueueCmd(Command::Stop)) {
+                    std::cout << "Tape::SfStream::waitForDiskThreadExit(): command queue full, dropping Stop" << std::endl;
+                }
+            }
+            while (isRunning) {
+                const auto elapsed = clock::now() - begin;
+                if (elapsed >= timeout) {
+                    return false;
+                }
+                if (elapsed >= forceAfter) {
+                    shouldStop = true;
+                    cv.notify_one();
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+            return true;
+        }
 
         // process derived-class specific commands on audio thread
         // must be real-time-safe: no locks, no i/o, atomics only
@@ -791,8 +827,13 @@ class Tape {
         bool open(const std::string &path) {
             std::lock_guard<std::mutex> lifecycleLock(this->lifecycleMutex);
             if (SfStream::isRunning) {
-                std::cout << "Tape Reader::open(): stream is running; no action was taken" << std::endl;
-                return false;
+                // typically a stop() is still fading out (e.g. fileselect preview stopped on K3 press,
+                // new file opened on K3 release). wait for it rather than dropping the open,
+                // otherwise the following start() finds no file and playback silently does nothing.
+                if (!this->waitForDiskThreadExit(std::chrono::milliseconds(500))) {
+                    std::cout << "Tape Reader::open(): timed out waiting for running stream to stop; no action was taken" << std::endl;
+                    return false;
+                }
             }
             if (this->th && this->th->joinable()) {
                 this->shouldStop = true;
@@ -819,7 +860,11 @@ class Tape {
             return loopFile;
         }
 
-        void start() override {
+      protected:
+        // NB: must not touch state unless start() is really proceeding; a start() while already
+        // running used to reset isPrimed/transportState here, which starved the in-flight fade-out
+        // and left the disk thread waiting forever
+        void resetForStart() override {
             isPrimed = false;
             {
                 std::unique_lock<std::mutex> lock(this->diskMutex);
@@ -828,7 +873,6 @@ class Tape {
             this->transportState = TransportState::Idle;
             framesProcessed = 0;
             jack_ringbuffer_reset(this->ringBuf.get());
-            SfStream::start();
         }
 
       private:
@@ -836,6 +880,11 @@ class Tape {
         void diskLoop() override {
             // deferred open: perform sf_open here on the disk thread
             SF_INFO sfInfo;
+            if (this->file != nullptr) {
+                // a previous run parked at EOF with the file still open
+                sf_close(this->file);
+                this->file = nullptr;
+            }
             if ((this->file = sf_open(this->pendingPath.c_str(), SFM_READ, &sfInfo)) == nullptr) {
                 std::cout << "Tape Reader:: cannot open sndfile " << this->pendingPath << " for input (" << sf_strerror(nullptr) << ")" << std::endl;
                 this->hasFile = false;
