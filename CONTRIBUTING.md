@@ -6,6 +6,19 @@ welcome
 
 we gladly accept contributions via github [pull requests](https://help.github.com/articles/about-pull-requests/).
 
+llm use
+-------
+
+this codebase was written by humans and we intend to keep it maintainable and understandable by humans.
+
+if you use a code assistant, ensure that:
+    - you have both read and understand the code
+    - the code is compact, without unnecessary abstraction, tests, comments
+    - any PR is submitted by you (not your chatbot) written in your words, with a concise description of what issue is being addressed
+    - proposed changes are tested on hardware
+
+not following these guidelines creates a substantial burden for the maintainers.
+
 things you will need
 --------------------
 
