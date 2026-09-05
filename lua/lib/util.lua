@@ -94,18 +94,36 @@ util.string_starts = function(s,start)
   return string.sub(s,1,string.len(start))==start
 end
 
---- trim string to a display width
+--- trim string to a display width.
+-- if the string is wider than `width`, characters are removed from the end
+-- and "..." is appended. if even "..." does not fit, as many dots as fit are
+-- returned (possibly an empty string).
 -- @tparam string s string to trim
--- @tparam number width maximum width
+-- @tparam number width maximum width, in pixels
 -- @treturn string trimmed string
 util.trim_string_to_width = function(s, width)
-  if _norns.screen_text_extents(s) > width then
-    while _norns.screen_text_extents(s .. "...") > width do
-      s = string.gsub(s, "[^\128-\191][\128-\191]*$", "")
-    end
-    s = s .. "..."
+  if _norns.screen_text_extents(s) <= width then
+    return s
   end
-  return s
+  local ellipsis = "..."
+  while #s > 0 and _norns.screen_text_extents(s .. ellipsis) > width do
+    -- drop the last utf-8 character (lead byte plus any continuation bytes)
+    local trimmed = string.gsub(s, "[^\128-\191][\128-\191]*$", "")
+    if trimmed == s then
+      -- malformed utf-8 (trailing continuation bytes only); drop one byte
+      trimmed = string.sub(s, 1, -2)
+    end
+    s = trimmed
+  end
+  if #s == 0 then
+    -- nothing of the original string fits alongside the ellipsis.
+    -- return however much of the ellipsis fits on its own.
+    while #ellipsis > 0 and _norns.screen_text_extents(ellipsis) > width do
+      ellipsis = string.sub(ellipsis, 1, -2)
+    end
+    return ellipsis
+  end
+  return s .. ellipsis
 end
 
 --- clamp values to min max.
