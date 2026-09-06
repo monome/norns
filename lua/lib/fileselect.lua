@@ -17,6 +17,7 @@ function fs.enter(folder, callback, filter_string)
   fs.folders = {}
   fs.list = {}
   fs.display_list = {}
+  fs.names = {}
   fs.lengths = {}
   fs.pos = 0
   fs.depth = 0
@@ -104,6 +105,7 @@ fs.getlist = function()
   local dir = fs.getdir()
   fs.list = util.scandir(dir)
   fs.display_list = {}
+  fs.names = {}
   fs.lengths = {}
   fs.visible = {}
   fs.pos = 0
@@ -144,6 +146,9 @@ fs.getlist = function()
     end
 
     if fs.visible[k] then
+      -- display_list holds the (possibly truncated) label; names holds the
+      -- real filename for the same row. always resolve paths through names.
+      table.insert(fs.names, v)
       line = util.trim_string_to_width(line, max_line_length)
       table.insert(fs.display_list, line)
       table.insert(fs.lengths, display_length)
@@ -202,12 +207,8 @@ fs.key = function(n, z)
     -- select
   elseif n == 3 and z == 1 then
     stop()
-    if #fs.list > 0 then
-      if string.sub(fs.display_list[fs.pos + 1], -3) == '...' then
-        fs.file = fs.list[fs.pos + 1]
-      else
-        fs.file = fs.display_list[fs.pos + 1]
-      end
+    if #fs.names > 0 then
+      fs.file = fs.names[fs.pos + 1]
       if fs.file == "../" then
         fs.folders[fs.depth] = nil
         fs.depth = fs.depth - 1
@@ -239,7 +240,7 @@ fs.enc = function(n, d)
     fs.pos = util.clamp(fs.pos + d, 0, #fs.display_list - 1)
     fs.redraw()
   elseif n == 3 and d > 0 then
-    fs.file = fs.display_list[fs.pos + 1]
+    fs.file = fs.names[fs.pos + 1]
     if fs.lengths[fs.pos + 1] ~= "" then
       start()
     end
