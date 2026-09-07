@@ -6,6 +6,8 @@ welcome
 
 we gladly accept contributions via github [pull requests](https://help.github.com/articles/about-pull-requests/).
 
+please see the ["good first issues" list on github](https://github.com/monome/norns/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) which are good starting points to learn the basics of contributing.
+
 llm use
 -------
 
@@ -13,7 +15,7 @@ this codebase was written by humans and we intend to keep it maintainable and un
 
 if you use a code assistant, ensure that:
     - you have both read and understand the code
-    - the code is compact, without unnecessary abstraction, tests, comments
+    - the code is compact, without unnecessary abstraction, tests, or comments
     - any PR is submitted by you (not your chatbot) written in your words, with a concise description of what issue is being addressed
     - proposed changes are tested on hardware
 
