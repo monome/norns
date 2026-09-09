@@ -68,8 +68,15 @@ end
 m.passdone = function(txt)
   if txt ~= nil then
     if string.len(txt) >= 8 and string.len(txt) < 64 then
-      local chpasswd_status = os.execute("echo 'we:"..txt.."' | sudo chpasswd")
-      local smbpasswd_status = os.execute("printf '"..txt.."\n"..txt.."\n' | sudo smbpasswd -a we")
+      local q = txt:gsub("'", "'\\''")
+      norns.system_cmd("printf '%s\\n' 'we:"..q.."' | sudo chpasswd && echo __ok__", function(out)
+        if out:match("__ok__") then print("ssh password changed")
+        else print("!! ssh password change failed !!") end
+      end)
+      norns.system_cmd("printf '%s\\n' '"..q.."' '"..q.."' | sudo smbpasswd -a we && echo __ok__", function(out)
+        if out:match("__ok__") then print("samba password changed")
+        else print("!! samba password change failed !!") end
+      end)
       local hotspotpasswd_status;
       local fd = io.open("home/we/norns/.system.hotspot_password", "w+")
       if fd then
@@ -78,8 +85,6 @@ m.passdone = function(txt)
         io.close(fd)
         hotspotpasswd_status = true
       end
-      if chpasswd_status then print("ssh password changed") end
-      if smbpasswd_status then print("samba password changed") end
       if hotspotpasswd_status then print("hotspot password changed, toggle WIFI off/on to take effect") end
     elseif string.len(txt) <= 8 then
       print("!! password must be at least 8 characters !!")

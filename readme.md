@@ -33,8 +33,16 @@ git submodule update --init --recursive
 - [monome linux kernel](https://github.com/monome/linux/) | custom, monome-flavored linux kernel
 - [DIY shield instructions](https://github.com/monome/norns-shield) | the DIY open-source hardware variant
 
+
+## contributing
+
+this codebase was written by humans and we intend to keep it maintainable and understandable by humans.
+
+see [CONTRIBUTING](https://github.com/monome/norns/blob/main/CONTRIBUTING.md)
+
+
 ## acknowledgments
 
-`matron` (control system) and `crone` (audio system) were created by [@catfact](https://github.com/catfact). `maiden` (editor) was created by [@ngwese](https://github.com/ngwese). Each grew with contributions from [@artfwo](https://github.com/artfwo), [@antonhornquist](https://github.com/antonhornquist), [@simonvanderveldt](https://github.com/simonvanderveldt),[@ranch-verdin](https://github.com/ranch-verdin), [@pq](https://github.com/pq), [@markwheeler](https://github.com/markwheeler), [@csboling](https://github.com/csboling) and many others.
+`matron` (control system) and `crone` (audio system) were created by [@catfact](https://github.com/catfact). `maiden` (editor) was created by [@ngwese](https://github.com/ngwese). Each grew with contributions from [@artfwo](https://github.com/artfwo), [@antonhornquist](https://github.com/antonhornquist), [@simonvanderveldt](https://github.com/simonvanderveldt),[@ranch-verdin](https://github.com/ranch-verdin), [@pq](https://github.com/pq), [@markwheeler](https://github.com/markwheeler), [@csboling](https://github.com/csboling), [@dewb](https://github.com/Dewb), [@tlubke](https://github.com/tlubke), [@colinmcardell](https://github.com/colinmcardell) and many others.
 
-norns was initiated by [@tehn](https://github.com/tehn) (monome).
+norns was initiated, designed, and variously coded by [@tehn](https://github.com/tehn) (monome).

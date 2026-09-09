@@ -53,3 +53,10 @@ jobs:
           sudo apt-get install -y lua5.3
       - name: run lua tests
         run: ./test-lua.sh
+
+  test-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: run update.sh dry-run tests
+        run: bash update/test-update.sh

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <stdlib.h>
-
 /*
  * subprocess and IO control
  */
 
+#include <stdlib.h>
+
 enum {
     IO_MATRON,
-    IO_CRONE,
+    IO_SC,
     IO_UI,
     IO_COUNT
 };

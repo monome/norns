@@ -185,9 +185,14 @@ def _setup_includes_and_flags(bld: BuildContext) -> TestRunnerConfig:
     includes = [
         _abs("../third-party/doctest", bld),
         _abs("../third-party/trompeloeil/include", bld),
+        _abs("../third-party/readerwriterqueue", bld),
+        _abs("../third-party/concurrentqueue", bld),
         _abs("../tests/common", bld),
         _abs("../matron/src", bld),
         _abs("../crone/src", bld),
+        _abs("../crone", bld),
+        _abs("../crone/softcut/softcut-lib/include", bld),
+        _abs("../norns", bld),
         _abs("../ws-wrapper/src", bld),
         _abs("../maiden-repl/src", bld),
     ]
@@ -328,6 +333,25 @@ def _dedupe_nodes_case_insensitive(nodes: Iterable[Node]) -> List[Node]:
     return dedup
 
 
+def _project_src_root(bld: BuildContext, proj: str) -> Node:
+    """resolve the directory a module keeps its sources in.
+
+    matron and crone nest their sources under `<proj>/src/`. norns keeps them
+    directly in `<proj>/`. prefer `<proj>/src/` when it exists, else `<proj>/`.
+
+    Args:
+        bld: waf build context - `bld.path` is the tests root node.
+        proj: module directory name, e.g. "matron" or "norns".
+
+    Returns:
+        node for `<proj>/src` when that directory exists, else for `<proj>`.
+    """
+    src_root = bld.path.make_node("../%s/src" % proj)
+    if src_root.exists() and src_root.isdir():
+        return src_root
+    return bld.path.make_node("../%s" % proj)
+
+
 def _mirror_map_system_sources(
     bld: BuildContext,
     test_dir: str,
@@ -370,9 +394,10 @@ def _mirror_map_system_sources(
     system_header_nodes: List[Any] = []
 
     if proj and unit_path:
-        # nested path mapping: tests/<proj>/<unit>/ → <proj>/src/<unit>.*
-        src_root = bld.path.make_node("../%s/src" % proj)
+        # nested path mapping: tests/<proj>/<unit>/ → <src root>/<unit>.*
+        src_root = _project_src_root(bld, proj)
         mapped_file_c = src_root.make_node(unit_path + ".c")
+        mapped_file_cc = src_root.make_node(unit_path + ".cc")
         mapped_file_cpp = src_root.make_node(unit_path + ".cpp")
         mapped_file_h = src_root.make_node(unit_path + ".h")
         mapped_file_hpp = src_root.make_node(unit_path + ".hpp")
@@ -382,6 +407,9 @@ def _mirror_map_system_sources(
         has_exact_impl = False
         if mapped_file_c.exists():
             system_source_nodes.append(mapped_file_c)
+            has_exact_impl = True
+        if mapped_file_cc.exists():
+            system_source_nodes.append(mapped_file_cc)
             has_exact_impl = True
         if mapped_file_cpp.exists():
             system_source_nodes.append(mapped_file_cpp)
@@ -396,6 +424,7 @@ def _mirror_map_system_sources(
         # if no exact file, try directory (all .c/.cpp in unit_path/, non-recursive)
         if not has_exact_impl and mapped_dir.exists() and mapped_dir.isdir():
             system_source_nodes += mapped_dir.ant_glob("*.c")
+            system_source_nodes += mapped_dir.ant_glob("*.cc")
             system_source_nodes += mapped_dir.ant_glob("*.cpp")
 
         # if still nothing mapped, try case/style variants of the last path segment
@@ -415,7 +444,7 @@ def _mirror_map_system_sources(
                 camel_from_underscores,
             ]
             for variant in variants:
-                for ext in [".c", ".cpp", ".h", ".hpp"]:
+                for ext in [".c", ".cc", ".cpp", ".h", ".hpp"]:
                     cand = src_root.make_node(variant + ext)
                     if cand.exists():
                         if ext in (".h", ".hpp"):
@@ -425,7 +454,7 @@ def _mirror_map_system_sources(
 
     elif proj:
         # project root mapping: derive unit from test filename, try case variants
-        src_root = bld.path.make_node("../%s/src" % proj)
+        src_root = _project_src_root(bld, proj)
         for test_file in test_source_files:
             filename = test_file.name
             if filename.startswith("test_") and filename.endswith(".cpp"):
@@ -444,12 +473,15 @@ def _mirror_map_system_sources(
                     no_underscore,
                     camel_from_underscores,
                 ]
-                # try both .c and .cpp for each variant
+                # try both .c, .cc and .cpp for each variant
                 for variant in variants:
                     mapped_file_c = src_root.make_node(variant + ".c")
+                    mapped_file_cc = src_root.make_node(variant + ".cc")
                     mapped_file_cpp = src_root.make_node(variant + ".cpp")
                     if mapped_file_c.exists():
                         system_source_nodes.append(mapped_file_c)
+                    if mapped_file_cc.exists():
+                        system_source_nodes.append(mapped_file_cc)
                     if mapped_file_cpp.exists():
                         system_source_nodes.append(mapped_file_cpp)
 
@@ -613,6 +645,16 @@ def _self_test(bld: BuildContext):
         Logs.error(f"test runner self-test failed: {e}")
         bld.fatal("self-test failed - check TestSources methods")
 
+    # test 7: verify source roots resolve for both nested and flat modules
+    try:
+        assert _project_src_root(bld, "matron").name == "src"
+        assert _project_src_root(bld, "crone").name == "src"
+        assert _project_src_root(bld, "norns").name == "norns"
+        Logs.info("  ✓ module source roots resolve")
+    except AssertionError:
+        Logs.error("test runner self-test failed: module source root")
+        bld.fatal("self-test failed - _project_src_root broken")
+
     Logs.info("\033[32mtest runner self-tests passed\033[0m")
 
 
@@ -688,8 +730,10 @@ def test(bld: BuildContext):
     # discover: group test files by directory
     tests_root, test_dirs = _discover_test_dirs(bld)
 
-    # common libs many tests require
+    # common libs many tests require. NNG is here so units that compile
+    # norns/sidecar.cpp link, the tests themselves never reach the transport.
     link_libs = ["pthread"]
+    uselibs = ["LUA53", "NNG"]
 
     # collect test units
     test_units: List[TestUnit] = []
@@ -726,6 +770,7 @@ def test(bld: BuildContext):
             cxxflags=build_config.cxxflags,
             defines=build_config.defines,
             lib=link_libs,
+            use=uselibs,
         )
 
     # store test units for validation hook

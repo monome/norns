@@ -4,10 +4,8 @@
 #include <cmath>
 #include <doctest/doctest.h>
 
-extern "C" {
 #include "clocks/clock_midi.h"
 #include "helpers.h"
-}
 
 TEST_CASE("midi: start + ticks update beat and converge tempo to 120") {
     double time = 200.0;

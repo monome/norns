@@ -74,6 +74,11 @@ local function setup_tape_env(opts)
     return util_stub._os_capture_output or ""
   end
 
+  util_stub._made_dirs = {}
+  function util_stub.make_dir(path)
+    table.insert(util_stub._made_dirs, path)
+  end
+
   function util_stub.file_exists(path)
     local map = util_stub._existing_files or {}
     return map[path] == true
@@ -119,10 +124,6 @@ local function setup_tape_env(opts)
   package.loaded['textentry'] = textentry_stub
   package.loaded['listselect'] = listselect_stub
 
-  -- stub os.execute invoked by read_tape_index
-  local original_os_execute = os.execute
-  os.execute = function(_) return true end -- luacheck: ignore
-
   -- ensure fresh load
   package.loaded['core/menu/tape'] = nil
   local tape = require('core/menu/tape')
@@ -135,7 +136,7 @@ local function setup_tape_env(opts)
   -- by default, initialize the tape menu to subscribe to state updates
   if tape and tape.init then tape.init() end
 
-  -- convenience: expose restore to clean up package.loaded and os
+  -- expose restore to clean up package.loaded
   local function restore()
     -- ensure we unsubscribe to avoid cross-test observers
     if tape and tape.deinit then pcall(tape.deinit) end
@@ -144,7 +145,6 @@ local function setup_tape_env(opts)
     package.loaded['fileselect'] = nil
     package.loaded['textentry'] = nil
     package.loaded['listselect'] = nil
-    os.execute = original_os_execute -- luacheck: ignore
   end
 
   return {

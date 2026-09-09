@@ -5,14 +5,12 @@
 #include <doctest/doctest.h>
 #include <thread>
 
-extern "C" {
 #include "jack_client.h"
 // test-only seam added under NORNS_TEST
 void jack_client_test_set_time_state(uint64_t frames);
 void jack_client_test_reset_time_state(void);
 // global from jack_client.c
 extern double jack_sample_rate;
-}
 
 // stub JACK frame time source controlled by tests
 static std::atomic<uint32_t> g_stub_frames{0u};

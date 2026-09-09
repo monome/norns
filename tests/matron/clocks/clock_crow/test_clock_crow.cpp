@@ -4,15 +4,13 @@
 #include <cmath>
 #include <doctest/doctest.h>
 
-extern "C" {
 #include "clocks/clock_crow.h"
 #include "helpers.h"
-}
 
 static int g_reschedule_calls = 0;
 
 // override the helpers.c stub to track reschedule calls for this test
-extern "C" void clock_reschedule_sync_events_from_source(clock_source_t source) {
+void clock_reschedule_sync_events_from_source(clock_source_t source) {
     if (source == CLOCK_SOURCE_CROW) {
         g_reschedule_calls++;
     }
