@@ -42,6 +42,10 @@ ENV LANG=C.UTF-8 \
     SUPERCOLLIDER_VERSION=3.13.0 \
     SUPERCOLLIDER_PLUGINS_VERSION=3.13.0
 
+RUN \
+    rm /etc/apt/sources.list && \
+    echo 'deb [trusted=yes] http://raspbian.raspberrypi.org/raspbian/ bullseye main contrib non-free rpi' > /etc/apt/sources.list
+
 RUN apt-get update -yq && apt-get install -y \
     bc \
     build-essential \
