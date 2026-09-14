@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "clocks/clock_scheduler.h"
-#include "event_types.h"
+#include "events.h"
 
 // scheduler runs on background thread. use atomic time control.
 static std::atomic<double> g_now{0.0};
