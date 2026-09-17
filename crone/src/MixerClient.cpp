@@ -78,22 +78,22 @@ void MixerClient::process(jack_nframes_t numFrames) {
     // copy ADC->ext
     bus.ext_sink.copyFrom(bus.adc_source, numFrames);
 
-    // mix ADC->cut, ext->cut, tape->cut
-    bus.cut_sink.clear(numFrames);
-    bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
-    bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
-    bus.cut_sink.mixFrom(bus.tape, numFrames, smoothLevels.tape_cut);
-
     bus.ins_in.clear(numFrames);
     // process tape playback
+    bus.tape.clear();
     if (tape.playbackHasFile()) {
-        bus.tape.clear();
         // FIXME: another stupid pointer array.
         float *dst[2] = {static_cast<float *>(bus.tape.buf[0]), static_cast<float *>(bus.tape.buf[1])};
         tape.reader.process(dst, numFrames);
         bus.tape.applyGain(numFrames, smoothLevels.tape);
         bus.ins_in.addFrom(bus.tape, numFrames);
     }
+
+    // mix ADC->cut, ext->cut, tape->cut
+    bus.cut_sink.clear(numFrames);
+    bus.cut_sink.mixFrom(bus.adc_source, numFrames, smoothLevels.adc_cut);
+    bus.cut_sink.mixFrom(bus.ext_source, numFrames, smoothLevels.ext_cut);
+    bus.cut_sink.mixFrom(bus.tape, numFrames, smoothLevels.tape_cut);
 
     processFx(numFrames);
 
