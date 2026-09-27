@@ -28,7 +28,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Pack release archive
       run: |
-        shopt -s extglob
+        shopt -s extglob dotglob
         mkdir -p ${RELEASE_NAME}/norns
         mkdir -p ${RELEASE_NAME}/config
         mkdir -p ${RELEASE_NAME}/lib
