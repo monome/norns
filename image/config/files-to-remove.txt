@@ -1,5 +1,4 @@
 etc/systemd/system/norns-crone.service
 etc/systemd/system/norns-supernova.service
 etc/systemd/system/norns-matron.service
-etc/rsyslog.conf
 etc/rsyslog.d/rsyslog

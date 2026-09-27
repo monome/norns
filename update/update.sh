@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -v
+#!/usr/bin/env bash
 # @name update.sh
 # @brief download, verify, install, and reboot into an updated norns release.
 # @description
@@ -373,22 +373,23 @@ do_update() {
 }
 
 
-# @description copy files in config to the system tree, and remove files in config/files-to-remove.txt
+# @description copy files in config/etc to the system tree, and remove files in config/files-to-remove.txt
 # @noargs
 # @stdout lists files copied and removed
 # @exitcode 0 on success
 # @exitcode 1 on failure
 do_update_config() {
 
-	pushd config
-	find . -mindepth 1 -type f \
-		-exec sh -c '$1 mkdir -p "$2/$(dirname $3)"' sh "$SUDO" "$ROOT" "{}" \; \
-        -exec $SUDO cp --remove-destination "{}" "$ROOT/{}" \;
+	pushd config || fail config "config missing from the release"
+	for f in `find etc -type f`; do
+		$SUDO mkdir -p "$ROOT/$(dirname $f)" || fail config "creating $(dirname $f) failed"
+		$SUDO cp --remove-destination "$f" "$ROOT/$f" || fail config "copying $f failed"
+	done
 	popd
 
 	for rf in `cat config/files-to-remove.txt`; do
-		if [[ -n ${rf} ]] && [[ -e "$ROOT/${rf}]" ]]; then
-			$SUDO rm -rfv --preserve-root "$ROOT/${rf}" || fail config "removing {} failed"
+		if [[ -n ${rf} ]] && [[ -e "$ROOT/${rf}" ]]; then
+			$SUDO rm -rfv --preserve-root "$ROOT/${rf}" || fail config "removing ${rf} failed"
 		fi
 	done
 }
@@ -445,7 +446,7 @@ do_install() {
 	cp version.txt "$WE_DIR/"
 	cp changelog.txt "$WE_DIR/"
 
-	$SUDO apt -y remove rsyslog
+	$SUDO apt -y purge rsyslog
 	$SUDO rm -rf "$ROOT/var/log/journal"
 	$SUDO rm -rf "$ROOT/var/log/daemon.log"
 	$SUDO rm -rf "$ROOT/var/log/user.log"

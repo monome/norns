@@ -32,7 +32,7 @@ jobs:
         mkdir -p ${RELEASE_NAME}/norns
         mkdir -p ${RELEASE_NAME}/config
         mkdir -p ${RELEASE_NAME}/lib
-        mkdir -p ${RELEASE_NAME}/packages
+        mkdir -p ${RELEASE_NAME}/package
         cp update/update.sh ${RELEASE_NAME}
         cp update/changelog.txt ${RELEASE_NAME}
         cp update/version.txt ${RELEASE_NAME}
