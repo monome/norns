@@ -1,7 +1,9 @@
 name: release
 
 on:
-  pull_request: # delete this after the workflow has been merged to main
+
+  # Create an update release package when the workflow is manually triggered
+  # TODO: post the binary as a Release
   workflow_dispatch:
     inputs:
       release_name:
@@ -14,6 +16,19 @@ on:
         type: string
         required: true
         default: 'v1.1.5'
+
+  # TODO: create a pre-release update on every merge to main
+  # push:
+  #   branches: [main]
+
+  # Also run the action on PRs that modify the workflow. Do not post a release, only an artifact
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/release.yml'
+      - '.github/actions/**'
+      - 'update/**'
+
 
 jobs:
   create-release-archive:
