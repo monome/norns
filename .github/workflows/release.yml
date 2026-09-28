@@ -42,23 +42,7 @@ jobs:
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Pack release archive
-      run: |
-        shopt -s extglob dotglob
-        mkdir -p ${RELEASE_NAME}/norns
-        mkdir -p ${RELEASE_NAME}/config
-        mkdir -p ${RELEASE_NAME}/lib
-        mkdir -p ${RELEASE_NAME}/package
-        cp update/update.sh ${RELEASE_NAME}
-        cp update/changelog.txt ${RELEASE_NAME}
-        cp update/version.txt ${RELEASE_NAME}
-        cp -r !(${RELEASE_NAME}) ${RELEASE_NAME}/norns
-        cp -r image/config/* ${RELEASE_NAME}/config
-        curl -LO https://github.com/monome/maiden/releases/download/${MAIDEN_TAG}/maiden-${MAIDEN_TAG}.tgz
-        tar xzvf maiden-${MAIDEN_TAG}.tgz
-        mv maiden ${RELEASE_NAME}
-        rm maiden-${MAIDEN_TAG}.tgz
-        tar czvf norns${RELEASE_NAME}.tgz ${RELEASE_NAME}/
-        sha256sum norns${RELEASE_NAME}.tgz > norns${RELEASE_NAME}.sha256
+      run: update/pack.sh "$RELEASE_NAME" "$MAIDEN_TAG"
       env:
         RELEASE_NAME: ${{ inputs.release_name || '999999' }}
         MAIDEN_TAG: ${{ inputs.maiden_tag || 'v1.1.5' }}
