@@ -1,0 +1,16 @@
+[Unit]
+After=norns-jack.service norns-sclang.service
+Requires=norns-jack.service
+
+[Service]
+Type=simple
+User=we
+Group=we
+LimitRTPRIO=95
+LimitMEMLOCK=infinity
+Restart=always
+RestartSec=500ms
+ExecStart=/home/we/norns/build/ws-wrapper/ws-wrapper ws://*:5555 /home/we/norns/build/norns/norns
+
+[Install]
+WantedBy=norns.target
