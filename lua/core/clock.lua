@@ -58,6 +58,8 @@ end
 -- todo: use c api instead
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
+  if coro == nil and type(coro_id) == "number" and coro_id % 1 == 0
+      and coro_id >= 1 and coro_id < clock_id_counter then return end
 
   local result, mode, time, offset = coroutine.resume(coro, ...)
 
