@@ -373,6 +373,28 @@ do_update() {
 }
 
 
+# @description copy files in config/etc to the system tree, and remove files in config/files-to-remove.txt
+# @noargs
+# @stdout lists files copied and removed
+# @exitcode 0 on success
+# @exitcode 1 on failure
+do_update_config() {
+
+	pushd config || fail config "config missing from the release"
+	for f in `find etc -type f`; do
+		$SUDO mkdir -p "$ROOT/$(dirname $f)" || fail config "creating $(dirname $f) failed"
+		$SUDO cp --remove-destination "$f" "$ROOT/$f" || fail config "copying $f failed"
+	done
+	popd
+
+	for rf in `cat config/files-to-remove.txt`; do
+		if [[ -n ${rf} ]] && [[ -e "$ROOT/${rf}" ]]; then
+			$SUDO rm -rfv --preserve-root "$ROOT/${rf}" || fail config "removing ${rf} failed"
+		fi
+	done
+}
+
+
 #---------------------------------
 #--- install mode
 
@@ -400,25 +422,18 @@ do_install() {
 
 	begin_step "installing packages"
 
-	$SUDO cp config/raspi.list "$ROOT/etc/apt/sources.list.d/"
-
 	$SUDO apt-get update && $SUDO apt-get -y install libnng1 libnng-dev
 	dpkg -s libnng1 >/dev/null 2>&1 || fail libnng "libnng1 not installed"
 
+	begin_step "updating config files"
+
+	do_update_config
+
 	$SUDO systemctl disable norns-matron.service 2>/dev/null
 	$SUDO systemctl disable norns-crone.service 2>/dev/null
-	$SUDO rm -f "$ROOT/etc/systemd/system/norns-matron.service"
-	$SUDO rm -f "$ROOT/etc/systemd/system/norns-crone.service"
-	$SUDO cp --remove-destination config/norns-main.service "$ROOT/etc/systemd/system/norns-main.service" || fail units "install norns-main.service failed"
-	$SUDO cp --remove-destination config/norns-sclang.service "$ROOT/etc/systemd/system/norns-sclang.service" || fail units "install norns-sclang.service failed"
-	$SUDO cp --remove-destination config/norns.target "$ROOT/etc/systemd/system/norns.target" || fail units "install norns.target failed"
 	$SUDO systemctl enable norns-main.service || fail units "enable norns-main.service failed"
 	$SUDO systemctl enable norns-sclang.service || fail units "enable norns-sclang.service failed"
-
-	$SUDO cp --remove-destination config/norns-watcher.service "$ROOT/etc/systemd/system/norns-watcher.service" || fail units "install norns-watcher.service failed"
 	$SUDO systemctl enable norns-watcher || fail units "enable norns-watcher failed"
-
-	$SUDO cp --remove-destination config/norns-jack.service "$ROOT/etc/systemd/system/norns-jack.service" || fail units "install norns-jack.service failed"
 
 	swap_tree maiden "$MAIDEN_DIR" maiden-swap tree_nonempty
 
@@ -431,9 +446,7 @@ do_install() {
 	cp version.txt "$WE_DIR/"
 	cp changelog.txt "$WE_DIR/"
 
-	$SUDO apt -y remove rsyslog
-	$SUDO cp config/logrotate.conf "$ROOT/etc/"
-	$SUDO cp config/journald.conf "$ROOT/etc/systemd/"
+	$SUDO apt -y purge rsyslog
 	$SUDO rm -rf "$ROOT/var/log/journal"
 	$SUDO rm -rf "$ROOT/var/log/daemon.log"
 	$SUDO rm -rf "$ROOT/var/log/user.log"

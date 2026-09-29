@@ -1,4 +1,4 @@
-name: compile
+name: verify
 
 on:
   push:
@@ -8,31 +8,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  compile-norns:
+  confirm-successful-compilation:
     runs-on: ubuntu-24.04-arm
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v2 
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Pre-build dev container image and run build inside dev container
-      uses: devcontainers/ci@v0.3
-      with:
-        imageName: ghcr.io/monome/norns-ci
-        cacheFrom: ghcr.io/monome/norns-ci
-        push: filter
-        refFilterForPush: refs/heads/main
-        runCmd: ./waf configure --release && ./waf build --release 
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - id: build
+        uses: ./.github/actions/build-norns
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   lint-lua:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: install luacheck
         run: |
           sudo apt-get update -qq
@@ -44,7 +34,7 @@ jobs:
   clang-format-check:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: install clang-format
         run: |
           sudo apt-get update -qq
