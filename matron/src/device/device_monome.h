@@ -7,6 +7,10 @@
 #include "device_common.h"
 #include <monome.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     DEVICE_MONOME_TYPE_GRID,
     DEVICE_MONOME_TYPE_ARC,
@@ -53,3 +57,7 @@ extern int dev_monome_init(void *self);
 extern void dev_monome_deinit(void *self);
 
 extern void *dev_monome_start(void *self);
+
+#ifdef __cplusplus
+}
+#endif

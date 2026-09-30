@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include "events.h"
+#include "stat.h"
 
 #define STAT_INTERVAL 2
 

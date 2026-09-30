@@ -10,8 +10,10 @@
 #include <thread>
 #include <vector>
 
+#include "clock.h"
 #include "clocks/clock_scheduler.h"
 #include "events.h"
+#include "jack_client.h"
 
 // scheduler runs on background thread. use atomic time control.
 static std::atomic<double> g_now{0.0};

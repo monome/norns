@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct snd_file_desc {
     int channels;
     int frames;
@@ -9,3 +13,7 @@ struct snd_file_desc {
 };
 
 extern struct snd_file_desc snd_file_inspect(const char *path);
+
+#ifdef __cplusplus
+}
+#endif

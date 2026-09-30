@@ -4,6 +4,10 @@
 
 #include "device_common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct dev_midi {
     struct dev_common dev;
     bool clock_enabled;
@@ -19,3 +23,7 @@ extern int dev_midi_virtual_init(void *self);
 extern void dev_midi_deinit(void *self);
 extern void *dev_midi_start(void *self);
 extern ssize_t dev_midi_send(void *self, uint8_t *data, size_t n);
+
+#ifdef __cplusplus
+}
+#endif
