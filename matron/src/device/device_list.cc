@@ -53,7 +53,7 @@ void dev_list_init(void) {
     dq.tail = NULL;
 }
 
-union event_data *post_add_event(union dev *d, event_t event_type) {
+extern "C" union event_data *post_add_event(union dev *d, event_t event_type) {
     if (d == NULL) {
         fprintf(stderr, "dev_list_add: error allocating device data\n");
         return NULL;
