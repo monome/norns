@@ -9,6 +9,10 @@
 #include "device_common.h"
 #include <libevdev/libevdev.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define BUFFER_SIZE 256
 
 struct dev_serial {
@@ -24,3 +28,7 @@ void *dev_serial_start(void *self);
 void dev_serial_deinit(void *self);
 
 void dev_serial_send(struct dev_serial *d, const char *line, size_t len);
+
+#ifdef __cplusplus
+}
+#endif

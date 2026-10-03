@@ -8,7 +8,13 @@
 #include <trompeloeil.hpp>
 
 #include "clock.h"
+#include "clocks/clock_crow.h"
+#include "clocks/clock_internal.h"
+#include "clocks/clock_link.h"
+#include "clocks/clock_midi.h"
+#include "clocks/clock_scheduler.h"
 #include "events.h"
+#include "jack_client.h"
 
 // -----------------------------------------------------------------------------
 // C stubs delegating to a C++ mock for cross-module calls

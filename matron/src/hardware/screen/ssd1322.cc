@@ -43,7 +43,7 @@ int open_spi(const char *path) {
     return fd;
 }
 
-int ssd1322_write_command(uint8_t command, uint8_t data_len, ...) {
+extern "C" int ssd1322_write_command(uint8_t command, uint8_t data_len, ...) {
     va_list args;
     uint8_t cmd_buf[1];
     uint8_t data_buf[256];

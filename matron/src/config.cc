@@ -6,6 +6,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include "config.h"
 #include "hardware/input.h"
 #include "hardware/io.h"
 #include "hardware/screen.h"

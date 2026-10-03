@@ -2,6 +2,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // exposed for the clock module?
 extern double jack_sample_rate;
 
@@ -28,3 +32,7 @@ extern const char **jack_client_get_port_connections(const char *port_name);
 extern void jack_client_free_port_list(const char **list);
 extern bool jack_client_connect(const char *source_name, const char *destination_name);
 extern bool jack_client_disconnect(const char *source_name, const char *destination_name);
+
+#ifdef __cplusplus
+}
+#endif

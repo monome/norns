@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "args.h"
+
 #define ARG_BUF_SIZE 64
 
 struct args {

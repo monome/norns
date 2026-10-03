@@ -11,6 +11,10 @@
 #include <pthread.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // common data structure for all devices
 union dev {
     struct dev_common base;
@@ -36,3 +40,7 @@ extern int dev_id(union dev *d);
 extern const char *dev_serial(union dev *d);
 // get friendly name string from device pointer
 extern const char *dev_name(union dev *d);
+
+#ifdef __cplusplus
+}
+#endif

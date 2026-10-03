@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void clock_link_init();
 void clock_link_start();
 void clock_link_join_session();
@@ -14,3 +18,7 @@ void clock_link_set_start_stop_sync(bool sync_enabled);
 double clock_link_get_beat();
 double clock_link_get_tempo();
 uint64_t clock_link_number_of_peers();
+
+#ifdef __cplusplus
+}
+#endif

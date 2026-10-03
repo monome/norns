@@ -4,6 +4,10 @@
 #include "event_types.h"
 #include "oracle.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // initialize the lua VM and run setup scripts
 extern void w_init(void);
 // stop the VM
@@ -108,3 +112,7 @@ extern void w_handle_screen_refresh();
 
 // custom events
 extern void w_handle_custom_weave(struct event_custom *ev);
+
+#ifdef __cplusplus
+}
+#endif

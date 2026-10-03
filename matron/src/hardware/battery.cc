@@ -14,6 +14,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+#include "battery.h"
 #include "events.h"
 #include "platform.h"
 

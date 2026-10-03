@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 #include "clock.h"
+#include "jack_client.h"
 
 // test-controlled time and beat values
 double tests_set_now(double v);

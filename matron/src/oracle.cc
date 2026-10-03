@@ -256,7 +256,7 @@ void o_send_command(const char *name, lo_message msg) {
     free(path);
 }
 
-void o_send(const char *name, lo_message msg) {
+extern "C" void o_send(const char *name, lo_message msg) {
     lo_send_message(ext_addr, name, msg);
     free(msg);
 }

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int args_parse(int argc, char **argv);
 
 extern const char *args_local_port(void);
@@ -7,3 +11,7 @@ extern const char *args_ext_port(void);
 extern const char *args_remote_port(void);
 extern const char *args_crone_port(void);
 extern const char *args_framebuffer_path(void);
+
+#ifdef __cplusplus
+}
+#endif
