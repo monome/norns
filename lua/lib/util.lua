@@ -96,12 +96,14 @@ end
 
 --- trim string to a display width
 -- @tparam string s string to trim
--- @tparam number width maximum width
+-- @tparam number width maximum width in pixels
 -- @treturn string trimmed string
 util.trim_string_to_width = function(s, width)
   if _norns.screen_text_extents(s) > width then
     while _norns.screen_text_extents(s .. "...") > width do
-      s = string.gsub(s, "[^\128-\191][\128-\191]*$", "")
+      local n
+      s, n = string.gsub(s, "[^\128-\191][\128-\191]*$", "")
+      if n == 0 then break end
     end
     s = s .. "..."
   end
