@@ -143,7 +143,13 @@ def build(bld):
     norns_includes = ['.'] + matron_includes + crone_includes
     norns_use = matron_use + crone_use
     norns_libs = norns_libs + matron_libs + crone_libs
-    norns_cxxflags = ['-O3', '-Wall', '-mfpu=neon']
+    norns_cxxflags = ['-O3', '-Wall']
+
+    # -mfpu=neon is an ARM-only flag; add it only when actually targeting
+    # ARM, per DEST_CPU (set by waf from compiler target detection), rather
+    # than inferring architecture from the --desktop option.
+    if bld.env.DEST_CPU == 'arm':
+        norns_cxxflags += ['-mfpu=neon']
     norns_ldflags = ['-Wl,-export-dynamic']
 
     if bld.env.NORNS_PROFILE:
