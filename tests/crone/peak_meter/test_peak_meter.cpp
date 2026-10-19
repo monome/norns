@@ -93,3 +93,13 @@ TEST_CASE("PeakMeter getPos in [0,1] and increases with level") {
     CHECK(pos_hi >= pos_mid);
     CHECK(pos_hi == doctest::Approx(1.0f));
 }
+
+TEST_CASE("PeakMeter applies a gain to the block peak") {
+    PeakMeter m;
+    float block[4] = {0.1f, -0.8f, 0.2f, 0.3f};
+    m.update(block, 4, 0.5f);
+    CHECK(m.get() == doctest::Approx(0.4f));
+
+    m.update(block, 4, 0.f);
+    CHECK(m.get() < 0.4f);
+}
