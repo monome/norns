@@ -2,6 +2,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     PLATFORM_UNKNOWN = 0,
     PLATFORM_OTHER,
@@ -18,3 +22,7 @@ extern const char *platform_name(void);
 
 extern bool platform_factory();
 extern bool platform_shield();
+
+#ifdef __cplusplus
+}
+#endif

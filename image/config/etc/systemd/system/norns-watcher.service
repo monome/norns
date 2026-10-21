@@ -1,0 +1,10 @@
+[Unit]
+
+[Service]
+Type=simple
+User=we
+Group=we
+ExecStart=/home/we/norns/build/watcher/watcher
+
+[Install]
+WantedBy=norns.target

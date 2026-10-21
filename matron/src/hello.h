@@ -1,6 +1,12 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void norns_hello_start(void);
 void norns_hello_ok(void);
 
-int norns_hello(int);
+#ifdef __cplusplus
+}
+#endif

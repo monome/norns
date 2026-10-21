@@ -4,6 +4,10 @@
 #include <lualib.h>
 #include <sys/queue.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum _matron_io_type {
     IO_SCREEN,
     IO_INPUT,
@@ -69,3 +73,7 @@ typedef struct _matron_input {
 
     pthread_t poll_thread;
 } matron_input_t;
+
+#ifdef __cplusplus
+}
+#endif

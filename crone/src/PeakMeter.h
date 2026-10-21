@@ -16,8 +16,8 @@ class PeakMeter {
           slew(48000 / 128, 0, 0.3) {
     }
 
-    void update(float *src, size_t numFrames) {
-        float max = getMax(src, numFrames);
+    void update(float *src, size_t numFrames, float gain = 1.f) {
+        float max = getMax(src, numFrames) * gain;
         val = slew.process(max);
     }
 

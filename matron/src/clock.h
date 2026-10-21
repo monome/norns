@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     CLOCK_SOURCE_INTERNAL = 0,
     CLOCK_SOURCE_MIDI = 1,
@@ -33,3 +37,7 @@ double clock_get_beats();
 double clock_get_system_time();
 double clock_get_tempo();
 uint64_t clock_number_of_link_peers();
+
+#ifdef __cplusplus
+}
+#endif

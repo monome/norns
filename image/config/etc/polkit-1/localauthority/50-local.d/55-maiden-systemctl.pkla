@@ -1,0 +1,7 @@
+[Enable systemd unit manipulation by we]
+Identity=unix-user:we
+Action=org.freedesktop.systemd1.manage-units
+ResultAny=yes
+ResultInactive=yes
+ResultActive=yes
+

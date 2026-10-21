@@ -17,6 +17,7 @@
 #include "args.h"
 #include "events.h"
 #include "oracle.h"
+#include "osc.h"
 
 #define OSC_CRONE_HOST "127.0.0.1"
 #define OSC_CRONE_PORT "57120"

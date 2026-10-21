@@ -1,0 +1,2 @@
+[main]
+auth-polkit=false

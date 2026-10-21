@@ -1,6 +1,10 @@
 #ifndef _SCREEN_EVENTS_H_
 #define _SCREEN_EVENTS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void screen_events_init();
 
 extern void screen_event_update(void);
@@ -52,5 +56,9 @@ extern void screen_event_gamma(double g);
 extern void screen_event_brightness(int b);
 extern void screen_event_contrast(int c);
 extern void screen_event_invert(int i);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

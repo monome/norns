@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void cpu_time_start();
 
 extern unsigned long int cpu_time_get_delta_ns();
@@ -10,3 +14,7 @@ extern unsigned long int cpu_time_get_delta_ns();
 extern void wall_time_start();
 
 extern unsigned long int wall_time_get_delta_ns();
+
+#ifdef __cplusplus
+}
+#endif

@@ -7,6 +7,10 @@
 #include "device_common.h"
 #include <libevdev/libevdev.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CROW_BAUDRATE B115200
 
 struct dev_crow {
@@ -21,3 +25,7 @@ extern void *dev_crow_start(void *self);
 extern void dev_crow_deinit(void *self);
 
 extern void dev_crow_send(struct dev_crow *d, const char *line);
+
+#ifdef __cplusplus
+}
+#endif

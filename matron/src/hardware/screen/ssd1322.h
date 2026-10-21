@@ -17,6 +17,10 @@
 
 #include "platform.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SPIDEV_0_0_PATH "/dev/spidev0.0"
 #define SPI0_BUS_WIDTH 8
 
@@ -92,3 +96,7 @@ void ssd1322_set_display_mode(ssd1322_display_mode_t);
 void ssd1322_set_gamma(double g);
 void ssd1322_set_refresh_rate(uint8_t hz);
 uint8_t *ssd1322_resize_buffer(size_t);
+
+#ifdef __cplusplus
+}
+#endif

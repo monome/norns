@@ -7,6 +7,7 @@
 
 set -u
 UPDATE_SH="$(cd "$(dirname "$0")" && pwd)/update.sh"
+CONFIG_SRC="$(cd "$(dirname "$0")/../image/config" && pwd)"
 
 if ! bash -n "$UPDATE_SH"; then
 	echo "FAIL: bash -n update.sh"
@@ -93,7 +94,11 @@ check_progress_beat() {
 check_install_complete() {
 	[ -f "$TEST_ROOT/home/we/maiden/index.html" ] || return 1
 	[ -x "$TEST_ROOT/home/we/bin/maiden-repl" ] || return 1
-	[ -f "$TEST_ROOT/etc/systemd/system/norns-main.service" ] || return 1
+	cmp -s "$CONFIG_SRC/etc/systemd/system/norns-main.service" "$TEST_ROOT/etc/systemd/system/norns-main.service" || return 1
+	[ "$(cat "$TEST_ROOT/home/we/.bashrc")" = old ] || return 1
+	[ ! -e "$TEST_ROOT/home/we/bashrc" ] || return 1
+	[ ! -e "$TEST_ROOT/files-to-remove.txt" ] || return 1
+	[ ! -e "$TEST_ROOT/etc/systemd/system/norns-matron.service" ] || return 1
 	[ "$(cat "$TEST_ROOT/home/we/version.txt")" = "$TEST_VERSION" ]
 }
 
@@ -160,11 +165,7 @@ make_release_fixture() {
 	write_ok_script "$RELEASE_DIR/norns/build/maiden-repl/maiden-repl"
 	write_ok_script "$RELEASE_DIR/maiden/project-setup.sh"
 	printf 'maiden\n' > "$RELEASE_DIR/maiden/index.html"
-	local f
-	for f in journald.conf logrotate.conf norns-jack.service norns-main.service \
-		norns-sclang.service norns-watcher.service norns.target raspi.list; do
-		printf 'stub\n' > "$RELEASE_DIR/config/$f"
-	done
+	cp -r image/config/* "$RELEASE_DIR/config"
 	printf '%s\n' "$TEST_VERSION" > "$RELEASE_DIR/version.txt"
 	printf 'changelog\n' > "$RELEASE_DIR/changelog.txt"
 }
@@ -173,7 +174,9 @@ make_live_system() {
 	mkdir -p "$TEST_ROOT/home/we/maiden" "$TEST_ROOT/home/we/bin" "$TEST_ROOT/home/we/dust/audio/common"
 	write_binary "$TEST_ROOT/home/we/norns" OLD
 	printf '%s\n' "$TEST_LIVE_VERSION" > "$TEST_ROOT/home/we/version.txt"
+	printf 'old\n' > "$TEST_ROOT/home/we/.bashrc"
 	mkdir -p "$TEST_ROOT/etc/apt/sources.list.d" "$TEST_ROOT/etc/systemd/system" "$TEST_ROOT/var/log" "$TEST_ROOT/boot"
+	printf 'stub\n' > "$TEST_ROOT/etc/systemd/system/norns-matron.service"
 	printf '#stub\n' > "$TEST_ROOT/boot/config.txt"
 	printf 'stub\n' > "$TEST_ROOT/boot/cmdline.txt"
 }
@@ -197,6 +200,7 @@ EOF
 	shim_fails_on systemctl units enable
 	shim_fails_on timeout 'launch|launch-restore'
 	shim_wraps_real rm launch-restore '*/norns'
+	shim_wraps_real cp config '*/etc/systemd/*'
 	shim_ok apt amixer alsactl wget
 }
 
@@ -445,6 +449,7 @@ run_case good             ""        0 ""                   NEW "" "" check_insta
 run_case release-missing  ""        1 "failed:binary-swap" OLD remove_release_binary
 run_case libnng           libnng    1 "failed:libnng"      OLD
 run_case units            units     1 "failed:units"       OLD
+run_case config           config    1 "failed:config"      OLD
 run_case maiden-empty     ""        1 "failed:maiden-swap" OLD empty_release_maiden
 run_case disk-space       disk      1 "failed:disk-space"  OLD
 run_case old-disk-image   ""        1 "failed:disk-image"  OLD old_disk_image

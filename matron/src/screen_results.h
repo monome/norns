@@ -4,6 +4,10 @@
 
 #include "screen.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     SCREEN_RESULTS_TEXT_EXTENTS,
     SCREEN_RESULTS_CURRENT_POINT,
@@ -77,3 +81,7 @@ extern void screen_results_wait();
 extern void screen_results_post(union screen_results_data *results);
 
 extern union screen_results_data *screen_results_get();
+
+#ifdef __cplusplus
+}
+#endif

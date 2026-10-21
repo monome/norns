@@ -2,6 +2,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NUM_CLOCK_SCHEDULER_EVENTS 100
 
 void clock_scheduler_init();
@@ -17,4 +21,8 @@ void clock_scheduler_reset_sync_events();
 
 #ifdef NORNS_TEST
 double clock_scheduler_test_next_clock_beat(double clock_beat, double sync_beat, double sync_beat_offset);
+#endif
+
+#ifdef __cplusplus
+}
 #endif

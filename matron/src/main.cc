@@ -26,6 +26,7 @@
 #include "i2c.h"
 #include "input.h"
 #include "jack_client.h"
+#include "matron_main.h"
 #include "metro.h"
 #include "osc.h"
 #include "platform.h"

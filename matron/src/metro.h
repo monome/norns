@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <time.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const int MAX_NUM_METROS;
 
 // intialize the metros system
@@ -20,3 +24,7 @@ extern void metro_stop(int idx);
 // NB: if the metro is running, its hard to say if new value will take effect
 // on current period or next period
 extern void metro_set_time(int idx, float sec);
+
+#ifdef __cplusplus
+}
+#endif

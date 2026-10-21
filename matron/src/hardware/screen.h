@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void screen_init(void);
 extern void screen_deinit(void);
 
@@ -70,3 +74,7 @@ extern void screen_context_set_primary(void);
 extern const screen_context_t *screen_context_get_primary();
 
 extern void screen_current_point();
+
+#ifdef __cplusplus
+}
+#endif

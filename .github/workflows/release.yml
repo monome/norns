@@ -1,0 +1,58 @@
+name: release
+
+on:
+
+  # Create an update release package when the workflow is manually triggered
+  # TODO: post the binary as a Release
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Date code of release'
+        type: string
+        required: true
+        default: '999999'
+      maiden_tag:
+        description: 'Maiden release tag to include'
+        type: string
+        required: true
+        default: 'v1.1.5'
+
+  # TODO: create a pre-release update on every merge to main
+  # push:
+  #   branches: [main]
+
+  # Also run the action on PRs that modify the workflow. Do not post a release, only an artifact
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/release.yml'
+      - '.github/actions/**'
+      - 'update/**'
+
+
+jobs:
+  create-release-archive:
+    runs-on: ubuntu-24.04-arm
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: recursive
+    - id: build
+      uses: ./.github/actions/build-norns
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Pack release archive
+      run: update/pack.sh "$RELEASE_NAME" "$MAIDEN_TAG"
+      env:
+        RELEASE_NAME: ${{ inputs.release_name || '999999' }}
+        MAIDEN_TAG: ${{ inputs.maiden_tag || 'v1.1.5' }}
+    - name: 'Upload release archive'
+      uses: actions/upload-artifact@v7
+      with:
+        path: norns${{ inputs.release_name || '999999' }}.tgz
+        archive: false
+    - name: 'Upload release checksum'
+      uses: actions/upload-artifact@v7
+      with:
+        path: norns${{ inputs.release_name || '999999' }}.sha256
+        archive: false

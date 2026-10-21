@@ -6,6 +6,10 @@
 #include "device_common.h"
 #include <libevdev/libevdev.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DEV_GUID_LEN 33
 
 typedef uint8_t dev_vid_t;
@@ -32,3 +36,7 @@ struct dev_hid {
 extern int dev_hid_init(void *self);
 extern void *dev_hid_start(void *self);
 extern void dev_hid_deinit(void *self);
+
+#ifdef __cplusplus
+}
+#endif

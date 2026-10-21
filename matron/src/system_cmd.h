@@ -5,6 +5,10 @@
 
 #include "sidecar.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SYSTEM_CMD_CAPTURE_MAX (1024 * 1024)
 
 extern bool system_cmd(const char *cmd, int ref);
@@ -14,4 +18,8 @@ extern bool system_action(const char *action, int ref);
 
 #ifdef NORNS_TEST
 extern void *(*system_cmd_test_realloc)(void *, size_t);
+#endif
+
+#ifdef __cplusplus
+}
 #endif

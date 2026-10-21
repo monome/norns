@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "events.h"
+#include "hello.h"
 #include "oracle.h"
 #include "screen.h"
 #include "weaver.h"

@@ -14,6 +14,10 @@
 
 #include "event_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // enumerate types of polls
 typedef enum {
     POLL_TYPE_VALUE, // returns a single float value
@@ -185,3 +189,7 @@ extern void o_set_comp_mix(float level);
 extern void o_set_comp_param(const char *name, float value);
 
 extern void o_restart_audio();
+
+#ifdef __cplusplus
+}
+#endif

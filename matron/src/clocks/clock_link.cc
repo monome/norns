@@ -9,6 +9,7 @@
 #include <abl_link.h>
 
 #include "clock.h"
+#include "clock_link.h"
 
 static pthread_t clock_link_thread;
 
