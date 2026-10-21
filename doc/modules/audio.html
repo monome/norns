@@ -37,6 +37,7 @@
 <li><a href="#Effects_functions">Effects functions </a></li>
 <li><a href="#Tape_Functions">Tape Functions </a></li>
 <li><a href="#Softcut_levels">Softcut levels </a></li>
+<li><a href="#Routing_Functions">Routing Functions </a></li>
 <li><a href="#global_functions">global functions </a></li>
 <li><a href="#helpers">helpers </a></li>
 </ul>
@@ -253,6 +254,18 @@
 	<td class="summary">set tape looping on/off.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#tape_pause">tape_pause ()</a></td>
+	<td class="summary">pause both tape playback and recording.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_resume">tape_resume ()</a></td>
+	<td class="summary">resume both tape playback and recording.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tape_loop">tape_loop (enabled)</a></td>
+	<td class="summary">set tape looping on/off (global).</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#tape_record_open">tape_record_open (file)</a></td>
 	<td class="summary">open a tape recording file.</td>
 	</tr>
@@ -286,6 +299,95 @@
 	<tr>
 	<td class="name" nowrap><a href="#level_cut_rev">level_cut_rev (value)</a></td>
 	<td class="summary">softcut cut reverb level.</td>
+	</tr>
+</table>
+<h2><a href="#Routing_Functions">Routing Functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#default_softcut_routes">default_softcut_routes</a></td>
+	<td class="summary">default audio connections for softcut</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#default_supercollider_routes">default_supercollider_routes</a></td>
+	<td class="summary">default audio connections for supercollider</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#default_system_routes">default_system_routes</a></td>
+	<td class="summary">default audio connections for system (hardware)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#input_ports">input_ports ()</a></td>
+	<td class="summary">return the names of all input ports</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#output_ports">output_ports ()</a></td>
+	<td class="summary">return the names of all output ports</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#port_connections">port_connections (port)</a></td>
+	<td class="summary">lookup all connections to the given port</p>
+
+<p> the provided port name can be either an input port of an output port.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#port_connect">port_connect (from, to)</a></td>
+	<td class="summary">connect an input to output or output to input</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#port_disconnect">port_disconnect (from, to)</a></td>
+	<td class="summary">disconnect an input to output or output to input</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#routing_is_altered">routing_is_altered ()</a></td>
+	<td class="summary">determine if the audio routing has been altered via port<em>connect or
+  port</em>disconnect</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#routing_disconnect_all">routing_disconnect_all ()</a></td>
+	<td class="summary">disconnect all routing between audio clients</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#routing_default">routing_default ()</a></td>
+	<td class="summary">restores default audio routing</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#routing_connect">routing_connect (routes)</a></td>
+	<td class="summary">connect all routes defined in the given table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#routing_disconnect">routing_disconnect (routes)</a></td>
+	<td class="summary">disconnect all routes defined in the given table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#system_connect">system_connect ()</a></td>
+	<td class="summary">establish with default connections for system (hardware) input and output</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#system_disconnect">system_disconnect ()</a></td>
+	<td class="summary">remove default connections for system (hardware) input and output</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#supercollider_connect">supercollider_connect ()</a></td>
+	<td class="summary">establish with default connections for supercollider input and output</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#supercollider_disconnect">supercollider_disconnect ()</a></td>
+	<td class="summary">remove default connections for supercollider input and output</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut_connect">softcut_connect ()</a></td>
+	<td class="summary">establish with default connections for softcut input and output</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#softcut_disconnect">softcut_disconnect ()</a></td>
+	<td class="summary">remove default connections for softcut input and output</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#with_change_tracking_disabled">with_change_tracking_disabled (f)</a></td>
+	<td class="summary">prevents changes from triggering post script clean of audio routing</p>
+
+<p>  all audio routing performed within the passed in function is consider to
+  have had no effect on the default system routing.</td>
 	</tr>
 </table>
 <h2><a href="#global_functions">global functions </a></h2>
@@ -934,6 +1036,57 @@
 
 </dd>
     <dt>
+    <a name = "tape_pause"></a>
+    <strong>tape_pause ()</strong>
+    </dt>
+    <dd>
+    pause both tape playback and recording.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_resume"></a>
+    <strong>tape_resume ()</strong>
+    </dt>
+    <dd>
+    resume both tape playback and recording.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tape_loop"></a>
+    <strong>tape_loop (enabled)</strong>
+    </dt>
+    <dd>
+    set tape looping on/off (global).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">enabled</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "tape_record_open"></a>
     <strong>tape_record_open (file)</strong>
     </dt>
@@ -1103,6 +1256,460 @@
 
 </dd>
 </dl>
+    <h2 class="section-header "><a name="Routing_Functions"></a>Routing Functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "default_softcut_routes"></a>
+    <strong>default_softcut_routes</strong>
+    </dt>
+    <dd>
+    default audio connections for softcut
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[softcut:output_1]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[softcut:output_2]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[crone:output_3]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[crone:output_4]</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "default_supercollider_routes"></a>
+    <strong>default_supercollider_routes</strong>
+    </dt>
+    <dd>
+    default audio connections for supercollider
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[SuperCollider:out_1]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[SuperCollider:out_2]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[crone:output_5]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[crone:output_6]</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "default_system_routes"></a>
+    <strong>default_system_routes</strong>
+    </dt>
+    <dd>
+    default audio connections for system (hardware)
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[system:capture_1]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[system:capture_2]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[crone:output_1]</span>
+
+
+
+        </li>
+        <li><span class="parameter">[crone:output_2]</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "input_ports"></a>
+    <strong>input_ports ()</strong>
+    </dt>
+    <dd>
+    return the names of all input ports
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        list of port names
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "output_ports"></a>
+    <strong>output_ports ()</strong>
+    </dt>
+    <dd>
+    return the names of all output ports
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        list of port names
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "port_connections"></a>
+    <strong>port_connections (port)</strong>
+    </dt>
+    <dd>
+    lookup all connections to the given port</p>
+
+<p> the provided port name can be either an input port of an output port.  if an
+ input port is given then the returned list will consisten of output ports. if
+ an output port is specified, connected input ports are returned.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">port</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        list of port names
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "port_connect"></a>
+    <strong>port_connect (from, to)</strong>
+    </dt>
+    <dd>
+    connect an input to output or output to input
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">from</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         the initiating port
+        </li>
+        <li><span class="parameter">to</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         the desitnation port
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true if connection request altered any routing
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "port_disconnect"></a>
+    <strong>port_disconnect (from, to)</strong>
+    </dt>
+    <dd>
+    disconnect an input to output or output to input
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">from</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         the initiating port
+        </li>
+        <li><span class="parameter">to</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         the desitnation port
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true if connection request altered any routing
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "routing_is_altered"></a>
+    <strong>routing_is_altered ()</strong>
+    </dt>
+    <dd>
+    determine if the audio routing has been altered via port<em>connect or
+  port</em>disconnect
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true if connections have been altered
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "routing_disconnect_all"></a>
+    <strong>routing_disconnect_all ()</strong>
+    </dt>
+    <dd>
+    disconnect all routing between audio clients
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "routing_default"></a>
+    <strong>routing_default ()</strong>
+    </dt>
+    <dd>
+    restores default audio routing  disconnects all established audio connections regardless of how they were
+ created and establishes the default connections for the system, softcut, and
+ supercollider.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "routing_connect"></a>
+    <strong>routing_connect (routes)</strong>
+    </dt>
+    <dd>
+    connect all routes defined in the given table  routing table keys specify the source port name with the associated value
+ defining the destination port name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">routes</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         connections to establish
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "routing_disconnect"></a>
+    <strong>routing_disconnect (routes)</strong>
+    </dt>
+    <dd>
+    disconnect all routes defined in the given table  routing table keys specify the source port name with the associated value
+ defining the destination port name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">routes</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         connections to establish
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "system_connect"></a>
+    <strong>system_connect ()</strong>
+    </dt>
+    <dd>
+    establish with default connections for system (hardware) input and output
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "system_disconnect"></a>
+    <strong>system_disconnect ()</strong>
+    </dt>
+    <dd>
+    remove default connections for system (hardware) input and output
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "supercollider_connect"></a>
+    <strong>supercollider_connect ()</strong>
+    </dt>
+    <dd>
+    establish with default connections for supercollider input and output
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "supercollider_disconnect"></a>
+    <strong>supercollider_disconnect ()</strong>
+    </dt>
+    <dd>
+    remove default connections for supercollider input and output
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut_connect"></a>
+    <strong>softcut_connect ()</strong>
+    </dt>
+    <dd>
+    establish with default connections for softcut input and output
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "softcut_disconnect"></a>
+    <strong>softcut_disconnect ()</strong>
+    </dt>
+    <dd>
+    remove default connections for softcut input and output
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "with_change_tracking_disabled"></a>
+    <strong>with_change_tracking_disabled (f)</strong>
+    </dt>
+    <dd>
+    prevents changes from triggering post script clean of audio routing</p>
+
+<p>  all audio routing performed within the passed in function is consider to
+  have had no effect on the default system routing.  disabling change tracking
+  can be useful in mods and other specialized circumstances where changes need
+  to persist across scripts.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
     <h2 class="section-header "><a name="global_functions"></a>global functions </h2>
 
     <dl class="function">
@@ -1228,7 +1835,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-01-02 13:36:10 </i>
+<i style="float:right;">Last updated 2026-10-21 11:47:47 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
